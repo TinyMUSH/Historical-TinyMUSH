@@ -645,7 +645,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 
 #define CALL_ALL_MODULES(xfn,args)
 #define CALL_ALL_MODULES_NOCACHE(xfn,proto,args) 
-#define CALL_MODULES_TIL_SUCCESS(rv,xfn,args)
+#define CALL_SOME_MODULES(rv,xfn,args)
 
 #endif /* ! HAVE_DLOPEN or STANDALONE */
 
