@@ -2507,10 +2507,8 @@ FUNCTION(fun_udefault)
 		    /* Now we have a problem -- we've got to go eval
 		     * all of those arguments to the function. 
 		     */
-		    for (i = 2, j = 0;
-			 j < NUM_ENV_VARS + 2;
-			 i++, j++) {
-			if ((i < NUM_ENV_VARS) && fargs[i]) {
+		    for (i = 2, j = 0; j < NUM_ENV_VARS; i++, j++) {
+			if ((i < nfargs) && fargs[i]) {
 			    bp = xargs[j] = alloc_lbuf("fun_udefault_args");
 			    str = fargs[i];
 			    exec(xargs[j], &bp, 0, player, cause,
