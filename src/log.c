@@ -292,7 +292,7 @@ dbref player;
 char *OBJTYP(thing)
 dbref thing;
 {
-	if (!Good_obj(thing)) {
+	if (!Good_dbref(thing)) {
 		return (char *)"??OUT-OF-RANGE??";
 	}
 	switch (Typeof(thing)) {
