@@ -74,6 +74,10 @@ XFUNCTION(fun_lunion);
 XFUNCTION(fun_ldiff);
 XFUNCTION(fun_linter);
 XFUNCTION(fun_columns);
+XFUNCTION(fun_table);
+XFUNCTION(fun_tables);
+XFUNCTION(fun_rtables);
+XFUNCTION(fun_ctables);
 XFUNCTION(fun_elements);
 XFUNCTION(fun_grab);
 XFUNCTION(fun_graball);
@@ -428,6 +432,7 @@ FUN flist[] = {
      						CA_PUBLIC},
 {"COS",		fun_cos,	1,  0,		CA_PUBLIC},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC},
+{"CTABLES",	fun_ctables,	0,  FN_VARARGS, CA_PUBLIC},
 {"DEC",         fun_dec,        1,  0,          CA_PUBLIC},
 {"DECRYPT",	fun_decrypt,	2,  0,		CA_PUBLIC},
 {"DEFAULT",	fun_default,	2,  FN_NO_EVAL, CA_PUBLIC},
@@ -633,6 +638,7 @@ FUN flist[] = {
 {"RLOC",	fun_rloc,	2,  0,		CA_PUBLIC},
 {"ROOM",	fun_room,	1,  0,		CA_PUBLIC},
 {"ROUND",	fun_round,	2,  0,		CA_PUBLIC},
+{"RTABLES",	fun_rtables,	0,  FN_VARARGS, CA_PUBLIC},
 {"S",		fun_s,		-1, 0,		CA_PUBLIC},
 {"SCRAMBLE",	fun_scramble,	1,  0,		CA_PUBLIC},
 {"SEARCH",	fun_search,	-1, 0,		CA_PUBLIC},
@@ -678,6 +684,8 @@ FUN flist[] = {
 {"SWITCHALL",	fun_switchall,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
 {"T",		fun_t,		1,  0,		CA_PUBLIC},
+{"TABLE",	fun_table,	0,  FN_VARARGS, CA_PUBLIC},
+{"TABLES",	fun_tables,	0,  FN_VARARGS, CA_PUBLIC},
 {"TAN",		fun_tan,	1,  0,		CA_PUBLIC},
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC},

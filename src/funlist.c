@@ -1350,6 +1350,326 @@ FUNCTION(fun_columns)
 	free_lbuf(curr);
 }
 
+/*---------------------------------------------------------------------------
+ * fun_table: Turn a list into a table.
+ *   table(<list>,<field width>,<line length>,<list delim>,<field sep>,<pad>)
+ *     Only the <list> parameter is mandatory.
+ *   tables(<list>,<field widths>,<lead str>,<trail str>,
+ *          <list delim>,<field sep str>,<pad>)
+ *     Only the <list> and <field widths> parameters are mandatory. 
+ *
+ * There are a couple of PennMUSH incompatibilities. The handling here is
+ * more complex and probably more desirable behavior. The issues are:
+ *   - ANSI states are preserved even if a word is truncated. Thus, the
+ *     next word will start with the correct color.
+ *   - ANSI does not bleed into the padding or field separators. 
+ *   - Having a '%r' embedded in the list will start a new set of columns.
+ *     This allows a series of %r-separated lists to be table-ified
+ *     correctly, and doesn't mess up the character count.
+ */
+
+#define TABLES_LJUST	0 
+#define TABLES_RJUST	1
+#define TABLES_CENTER	2
+
+static void tables_helper(list, last_state, n_cols, col_widths,
+			  lead_str, trail_str, list_sep, field_sep, pad_char,
+			  buff, bufc, key)
+    char *list, *last_state;
+    int n_cols, col_widths[];
+    char *lead_str, *trail_str, list_sep, *field_sep, pad_char;
+    char *buff, **bufc;
+    int key;
+{
+    int i, nwords, nstates, cpos, wcount, over, have_normal;
+    int max, nleft, lead_chrs, lens[LBUF_SIZE / 2];
+    char *s, *savep, *p, tbuf[LBUF_SIZE];
+    char *words[LBUF_SIZE / 2], *states[LBUF_SIZE / 2];
+
+    /* Split apart the list. We need to find the length of each de-ansified
+     * word, as well as keep track of the state of each word.
+     * Overly-long words eventually get truncated, but the correct ANSI
+     * state is preserved nonetheless.
+     */
+    strcpy(tbuf, list);
+    nstates = list2ansi(states, last_state, LBUF_SIZE / 2, tbuf, list_sep);
+    nwords = list2arr(words, LBUF_SIZE / 2, list, list_sep);
+    if (nstates != nwords) {
+	for (i = 0; i < nstates; i++) {
+	    XFREE(states[i], "list2ansi");
+	}
+	return;
+    }
+    for (i = 0; i < nwords; i++)
+	lens[i] = strlen(strip_ansi(words[i]));
+
+    over = wcount = 0;
+    while ((wcount < nwords) && !over) {
+
+	/* Beginning of new line. Insert newline if this isn't the first
+	 * thing we're writing. Write left margin, if appropriate.
+	 */
+	if (wcount != 0)
+	    safe_crlf(buff, bufc);
+
+	if (lead_str)
+	    over = safe_str(lead_str, buff, bufc);
+
+	/* Do each column in the line. */
+
+	for (cpos = 0; (cpos < n_cols) && (wcount < nwords) && !over;
+	     cpos++, wcount++) {
+
+	    /* Write leading padding if we need it. */
+
+	    if (key == TABLES_RJUST) {
+		nleft = col_widths[cpos] - lens[wcount];
+		print_padding(nleft, max, pad_char);
+	    } else if (key == TABLES_CENTER) {
+		lead_chrs = (int)((col_widths[cpos] / 2) -
+				  (lens[wcount] / 2) + .5);
+		print_padding(lead_chrs, max, pad_char);
+	    }
+
+	    /* If we had a previous state, we have to write it. */
+
+	    if ((wcount > 0) && *states[wcount - 1]) {
+		print_ansi_state(p, states[wcount - 1]);
+	    } else if ((wcount == 0) && *last_state) {
+		print_ansi_state(p, last_state);
+	    }
+
+	    /* Copy in the word. */
+	    
+	    if (lens[wcount] <= col_widths[cpos]) {
+		over = safe_str(words[wcount], buff, bufc);
+		if (*states[wcount]) {
+		    safe_ansi_normal(buff, bufc);
+		}
+	    } else {
+		/* Bleah. We have a string that's too long. Truncate it.
+		 * Write an ANSI normal at the end at the end if we need
+		 * one (we'll restore the correct ANSI code with the
+		 * next word, if need be).
+		 */
+		have_normal = 1;
+		for (s = words[wcount], i = 0;
+		     *s && (i < col_widths[cpos]); ) {
+		    if (*s == ESC_CHAR) {
+			Skip_Ansi_Code(s);
+		    } else {
+			safe_chr(*s, buff, bufc);
+			s++;
+			i++;
+		    }
+		}
+		if (!have_normal || *states[wcount])
+		    safe_ansi_normal(buff, bufc);
+	    }
+
+	    /* Writing trailing padding if we need it. */
+	    
+	    if (key == TABLES_LJUST) {
+		nleft = col_widths[cpos] - lens[wcount];
+		print_padding(nleft, max, pad_char);
+	    } else if (key == TABLES_CENTER) {
+		nleft = col_widths[cpos] - lead_chrs - lens[wcount];
+		print_padding(nleft, max, pad_char);
+	    }
+
+	    /* Insert the field separator if this isn't the last column
+	     * AND this is not the very last word in the list.
+	     */
+
+	    if ((cpos < n_cols - 1) && (wcount < nwords - 1))
+		safe_str(field_sep, buff, bufc);
+	}
+
+	if (!over && trail_str) {
+
+	    /* If we didn't get enough columns to fill out a line, and
+	     * this is the last line, then we have to pad it out.
+	     */
+	    if ((wcount == nwords) &&
+		((nleft = nwords % n_cols) > 0)) {
+		for (cpos = nleft; (cpos < n_cols) && !over; cpos++) {
+		    over = safe_str(field_sep, buff, bufc);
+		    print_padding(col_widths[cpos], max, pad_char);
+		}
+	    }
+
+	    /* Write the right margin. */
+
+	    over = safe_str(trail_str, buff, bufc);
+	}
+    }
+
+    /* Save the ANSI state of the last word. */
+
+    strcpy(last_state, states[nstates - 1]);
+
+    /* Clean up. */
+
+    for (i = 0; i < nstates; i++) {
+	XFREE(states[i], "list2ansi");
+    }
+}
+
+static void perform_tables(player, list, n_cols, col_widths,
+			   lead_str, trail_str, list_sep, field_sep, pad_char,
+			   buff, bufc, key)
+    dbref player;
+    char *list;
+    int n_cols, col_widths[];
+    char *lead_str, *trail_str, list_sep, *field_sep, pad_char;
+    char *buff, **bufc;
+    int key;
+{
+    char *p, *savep, *bb_p, last_state[LBUF_SIZE];
+
+    if (!list || !*list)
+	return;
+
+    if ((list_sep == ESC_CHAR) || (list_sep == ANSI_END)) {
+	notify_quiet(player, "#-1 ILLEGAL LIST SEPARATOR");
+	return;
+    }
+
+    bb_p = *bufc;
+    savep = list;
+    last_state[0] = '\0';
+    p = strchr(list, '\r');
+    while (p) {
+	*p = '\0';
+	if (*bufc != bb_p)
+	    safe_crlf(buff, bufc);
+	tables_helper(savep, last_state, n_cols, col_widths,
+		      lead_str, trail_str, list_sep, field_sep, pad_char,
+		      buff, bufc, key);
+	savep = p + 2;	/* must skip '\n' too */
+	p = strchr(savep, '\r'); 
+    }
+    if (*bufc != bb_p)
+	safe_crlf(buff, bufc);
+    tables_helper(savep, last_state, n_cols, col_widths, lead_str, trail_str,
+		  list_sep, field_sep, pad_char, buff, bufc, key);
+}
+
+static void process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
+			   cargs, ncargs, key)
+    char *buff, **bufc;
+    dbref player, caller, cause;
+    char *fargs[], *cargs[];
+    int nfargs, ncargs, key;
+{
+    int i, num, n_columns, *col_widths;
+    char list_sep, pad_char, fs_buf[2], *widths[LBUF_SIZE / 2];  
+    char **fseps = NULL;
+
+    if (!delim_check(fargs, nfargs, 5, &list_sep, buff, bufc, 0,
+		     player, caller, cause, cargs, ncargs, 0))
+	return;
+    if (!delim_check(fargs, nfargs, 7, &pad_char, buff, bufc, 0,
+		     player, caller, cause, cargs, ncargs, 0))
+	return;
+
+    /* Handle the field separator. */
+
+    if ((nfargs < 6) || !*fargs[5]) {
+	fs_buf[0] = ' ';
+	fs_buf[1] = '\0';
+    }
+
+    n_columns = list2arr(widths, LBUF_SIZE / 2, fargs[1], ' ');
+    col_widths = (int *) XCALLOC(n_columns, sizeof(int), "fun_table.widths");
+    for (i = 0; i < n_columns; i++) {
+	num = atoi(widths[i]);
+	col_widths[i] = (num < 1) ? 1 : num;
+    }
+
+    perform_tables(player, fargs[0], n_columns, col_widths,
+		   ((nfargs > 2) && *fargs[2]) ? fargs[2] : NULL,
+		   ((nfargs > 3) && *fargs[3]) ? fargs[3] : NULL, 
+		   list_sep,
+		   ((nfargs > 5) && *fargs[5]) ? fargs[5] : fs_buf,
+		   pad_char, buff, bufc, key);
+
+    XFREE(col_widths, "fun_table.widths");
+}
+
+FUNCTION(fun_tables)
+{
+    xvarargs_preamble("TABLES", 2, 7);
+    process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
+		   cargs, ncargs, TABLES_LJUST);
+}
+
+FUNCTION(fun_rtables)
+{
+    xvarargs_preamble("RTABLES", 2, 7);
+    process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
+		   cargs, ncargs, TABLES_RJUST);
+}
+
+FUNCTION(fun_ctables)
+{
+    xvarargs_preamble("CTABLES", 2, 7);
+    process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
+		   cargs, ncargs, TABLES_CENTER);
+}
+
+FUNCTION(fun_table)
+{
+    int line_length = 78;
+    int field_width = 10;
+    int i, n_columns, *col_widths;
+    char list_sep, field_sep, pad_char, fs_buf[2];
+
+    xvarargs_preamble("TABLE", 1, 6);
+    if (!delim_check(fargs, nfargs, 4, &list_sep, buff, bufc, 0,
+		     player, caller, cause, cargs, ncargs, 0))
+	return;
+    if (!delim_check(fargs, nfargs, 5, &field_sep, buff, bufc, 0,
+		     player, caller, cause, cargs, ncargs, 0))
+	return;
+    if (!delim_check(fargs, nfargs, 6, &pad_char, buff, bufc, 0,
+		     player, caller, cause, cargs, ncargs, 0))
+	return;
+
+    /* Get line length and column width. All columns are the same width.
+     * Calculate what we need to.
+     */
+
+    if (nfargs > 2) {
+	line_length = atoi(fargs[2]);
+	if (line_length < 2)
+	    line_length = 2;
+    }
+
+    if (nfargs > 1) {
+	field_width = atoi(fargs[1]);
+	if (field_width < 1)
+	    field_width = 1;
+	else if (field_width > LBUF_SIZE - 1)
+	    field_width = LBUF_SIZE - 1;
+    }
+
+    if (field_width >= line_length)
+	field_width = line_length - 1;
+
+    n_columns = (int)(line_length / (field_width + 1));
+    col_widths = (int *) XCALLOC(n_columns, sizeof(int), "fun_table.widths");
+    for (i = 0; i < n_columns; i++)
+	col_widths[i] = field_width;
+
+    fs_buf[0] = field_sep;
+    fs_buf[1] = '\0'; 
+    perform_tables(player, fargs[0], n_columns, col_widths, NULL, NULL,
+		   list_sep, fs_buf, pad_char, buff, bufc, TABLES_LJUST);
+
+    XFREE(col_widths, "fun_table.widths");
+}
+
 /* ---------------------------------------------------------------------------
  * fun_elements: given a list of numbers, get corresponding elements from
  * the list.  elements(ack bar eep foof yay,2 4) ==> bar foof

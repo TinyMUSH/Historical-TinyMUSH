@@ -54,6 +54,8 @@ extern int FDECL(delim_check, (char **, int, int, char *, char *, char **,
 			       int, dbref, dbref, dbref, char **, int, int));
 extern INLINE void FDECL(do_reverse, (char *, char *));
 
+extern char *ansi_nchartab[];	/* from fnhelper.c */
+
 /* Function prototype macro */
 
 #define	FUNCTION(x)	\
@@ -192,5 +194,33 @@ if (s) { \
 	    } else {				\
 		have_normal = 0;		\
             }
+
+/* Macro for writing a certain amount of padding into a buffer.
+ * l is the number of characters left to write.
+ * m is a throwaway integer for holding the maximum.
+ * c is the separator character to use.
+ */
+#define print_padding(l,m,c) \
+if ((l) > 0) { \
+    (m) = LBUF_SIZE - 1 - (*bufc - buff); \
+    (l) = ((l) > (m)) ? (m) : (l); \
+    memset(*bufc, (c), (l)); \
+    *bufc += (l); \
+    **bufc = '\0'; \
+}
+
+/* Macro for turning an ANSI state back into ANSI codes.
+ * x is a throwaway character pointer.
+ * w is a pointer to the ANSI state of the previous word.
+ */
+#define print_ansi_state(x,w) \
+safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 1); \
+for ((x) = (w); *(x); (x)++) { \
+    if ((x) != (w)) { \
+	safe_chr(';', buff, bufc); \
+    } \
+    safe_str(ansi_nchartab[(unsigned char) *(x)], buff, bufc); \
+} \
+safe_chr(ANSI_END, buff, bufc);
 
 #endif /* __FUNCTIONS_H */

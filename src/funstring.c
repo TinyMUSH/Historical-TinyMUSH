@@ -17,8 +17,6 @@
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
-extern char *ansi_nchartab[];	/* from fnhelper.c */
-
 /* ---------------------------------------------------------------------------
  * isword: is every character in the argument a letter?
  */
@@ -1326,33 +1324,6 @@ FUNCTION(fun_repeat)
 #define BORDER_RJUST	1
 #define BORDER_CENTER	2
 
-/* Turn ANSI state back into ANSI codes.
- * x is a throwaway character pointer.
- * w is a pointer to the ANSI state of the previous word.
- */
-#define border_print_ansi(x,w) \
-safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 1); \
-for ((x) = (w); *(x); (x)++) { \
-    if ((x) != (w)) { \
-	safe_chr(';', buff, bufc); \
-    } \
-    safe_str(ansi_nchartab[(unsigned char) *(x)], buff, bufc); \
-} \
-safe_chr(ANSI_END, buff, bufc);
-
-/* Write a certain number of spaces into the buffer.
- * l is the number of characters left to write.
- * m is a throwaway integer for holding the maximum.
- */
-#define border_print_spaces(l,m) \
-if ((l) > 0) { \
-    (m) = LBUF_SIZE - 1 - (*bufc - buff); \
-    (l) = ((l) > (m)) ? (m) : (l); \
-    memset(*bufc, ' ', (l)); \
-    *bufc += (l); \
-    **bufc = '\0'; \
-}
-
 static void border_helper(player, str, last_state,
 			  tlen, l_fill, r_fill, buff, bufc, key)
     dbref player;
@@ -1436,10 +1407,10 @@ static void border_helper(player, str, last_state,
 
 	    if (key == BORDER_RJUST) {
 		nleft = tlen - copied;
-		border_print_spaces(nleft, max);
+		print_padding(nleft, max, ' ');
 	    } else if (key == BORDER_CENTER) {
 		lead_chrs = (int)((tlen / 2) - (copied / 2) + .5);
-		border_print_spaces(lead_chrs, max);
+		print_padding(lead_chrs, max, ' ');
 	    }
 
 	    /* Write the first word. If we have a non-null ANSI state from
@@ -1447,9 +1418,9 @@ static void border_helper(player, str, last_state,
 	     * We must also check the ending last state.
 	     */
 	    if ((start > 0) && *states[start - 1]) {
-		border_print_ansi(p, states[start - 1]);
+		print_ansi_state(p, states[start - 1]);
 	    } else if ((start == 0) && *last_state) {
-		border_print_ansi(p, last_state);
+		print_ansi_state(p, last_state);
 	    }
 	    over = safe_str(words[start], buff, bufc);
 	}
@@ -1473,10 +1444,10 @@ static void border_helper(player, str, last_state,
 
 	    if (key == BORDER_LJUST) {
 		nleft = tlen - copied;
-		border_print_spaces(nleft, max);
+		print_padding(nleft, max, ' ');
 	    } else if (key == BORDER_CENTER) {
 		nleft = tlen - lead_chrs - copied;
-		border_print_spaces(nleft, max);
+		print_padding(nleft, max, ' ');
 	    }
 
 	    /* Write the right margin. */
