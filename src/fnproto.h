@@ -156,6 +156,7 @@ XFUNCTION(fun_tel);
 XFUNCTION(fun_wipe);
 XFUNCTION(fun_pemit);
 XFUNCTION(fun_remit);
+XFUNCTION(fun_oemit);
 XFUNCTION(fun_force);
 XFUNCTION(fun_trigger);
 XFUNCTION(fun_wait);
@@ -571,6 +572,7 @@ FUN flist[] = {
 {"OBJ",		fun_obj,	1,  0,		CA_PUBLIC,	NULL},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC,	NULL},
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC,	NULL},
+{"OEMIT",	fun_oemit,	2,  0,		CA_PUBLIC,	NULL},
 {"OR",		handle_logic,	0,  FN_VARARGS|LOGIC_OR,
 						CA_PUBLIC,	NULL},
 {"ORBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_OR|LOGIC_BOOL,

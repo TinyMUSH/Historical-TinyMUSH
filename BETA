@@ -24,15 +24,17 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-05/xx/2002: Beta 3
-
+06/xx/2002: Beta 3
+ 
 - Feature: The new choose() function picks an element from a list on a
   weighted-random-choice basis. 
-
+ 
 - Feature: The new helptext() function retrieves an entry from an indexed
   textfile (i.e., help, news, or anything else added via the helpfile or
   raw_helpfile conf directives).
-
+ 
+- Feature: The new oemit() function provides the equivalent of @oemit.
+ 
 - Feature: trim() can now take a trim string of arbitrary length.
 
 - Feature: Added cache_put_notify and cache_del_notify modules API hooks.

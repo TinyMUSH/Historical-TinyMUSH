@@ -21,6 +21,7 @@
 extern NAMETAB indiv_attraccess_nametab[];
 
 extern void FDECL(do_pemit_list, (dbref, char *, const char *, int));
+extern void FDECL(do_pemit, (dbref, dbref, int, char *, char *));
 extern void FDECL(set_attr_internal, (dbref, dbref, int, char *, int,
 				      char *, char **));
 
@@ -895,6 +896,13 @@ FUNCTION(fun_remit)
     if (check_command(player, "@pemit", buff, bufc, cargs, ncargs))
 	return;
     do_pemit_list(player, fargs[0], fargs[1], 1);
+}
+
+FUNCTION(fun_oemit)
+{
+    if (check_command(player, "@oemit", buff, bufc, cargs, ncargs))
+	return;
+    do_pemit(player, cause, PEMIT_OEMIT, fargs[0], fargs[1]);
 }
 
 FUNCTION(fun_force)
