@@ -705,7 +705,6 @@ AC_CHECK_LIB(socket, main)
 AC_CHECK_LIB(nsl, main)
 AC_CHECK_LIB(inet, gethostbyaddr)
 AC_CHECK_LIB(m, main)
-AC_CHECK_LIB(dl, dlopen)
 
 dnl Header checks
 
@@ -822,7 +821,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(setrlimit getrusage timelocal mktime srandom)
 AC_CHECK_FUNCS(getdtablesize socket gethostbyaddr)
 AC_CHECK_FUNCS(gettimeofday select wait3 strtok_r strcspn)
-AC_CHECK_FUNCS(getpagesize strchr memset dlopen vsnprintf)
+AC_CHECK_FUNCS(getpagesize strchr memset vsnprintf)
 
 dnl Declaration checks
 

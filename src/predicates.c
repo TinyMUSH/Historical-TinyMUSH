@@ -1353,6 +1353,7 @@ void do_restart(player, cause, key)
     int key;
 {
 	LOGFILETAB *lp;
+        MODULE *mp;
 	
 	if (mudstate.dumping) {
 		notify(player, "Dumping. Please try again later.");
@@ -1412,6 +1413,11 @@ void do_restart(player, cause, key)
 
 	alarm(0);
 	dump_restart_db();
+
+	WALK_ALL_MODULES(mp) {
+		lt_dlclose(mp->handle);
+	}
+
 	execl(mudconf.exec_path, mudconf.exec_path,
 	      (char *) "-c", mudconf.config_file,
 	      (char *) "-l", mudconf.mudlogname,

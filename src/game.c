@@ -1673,7 +1673,6 @@ char *argv[];
 	for (i = 0; i < mudstate.helpfiles; i++)
 	    hashreset(&mudstate.hfile_hashes[i]);
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    m_htab = DLSYM_VAR(mp->handle, mp->modname,
 			       "hashtable", MODHASHES *);
@@ -1690,7 +1689,6 @@ char *argv[];
 		}
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 	    mudstate.global_regs[i] = NULL;

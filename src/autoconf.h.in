@@ -213,8 +213,6 @@
 #undef HAVE_STRCHR
 /* Define if memset exists */
 #undef HAVE_MEMSET
-/* Define if dlopen exists */
-#undef HAVE_DLOPEN
 /* Define if vsnprintf exists */
 #undef HAVE_VSNPRINTF
 
