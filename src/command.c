@@ -2467,7 +2467,6 @@ void list_memory(player)
 {
 	double total = 0, each = 0;
 	int i, j;
-	STACK *stack;
 	CMDENT *cmd;
 	ADDENT *add;
 	NAMETAB *name;
@@ -2482,6 +2481,11 @@ void list_memory(player)
 	struct help_entry *hlp;
 	FLAGENT *flag;
 	POWERENT *power;
+	STACK *stack;
+	VARENT *xvar;
+	STRUCTDEF *this_struct;
+	INSTANCE *inst_ptr;
+	STRUCTDATA *data_ptr;
 	
 	/* Calculate size of object structures */
 	
@@ -2497,19 +2501,6 @@ void list_memory(player)
 		   tprintf("mudconf/mudstate : %12.2fk", each / 1024));
 	total += each;
 	
-	/* Calculate size of object stacks */
-	
-	each = 0;
-	for (stack = (STACK *)hash_firstentry((HASHTAB *)&mudstate.objstack_htab);
-	     stack != NULL;
-	     stack = (STACK *)hash_nextentry((HASHTAB *)&mudstate.objstack_htab)) {
-		each += sizeof(STACK);
-		each += strlen(stack->data) + 1;
-	}
-	raw_notify(player,
-		   tprintf("Object stacks    : %12.2fk", each / 1024));
-	total += each;
-
 	/* Calculate size of cache */
 	
 	each = cs_size;
@@ -2540,6 +2531,17 @@ void list_memory(player)
 	}
 	raw_notify(player,
 		   tprintf("Name caches      : %12.2fk", each / 1024));
+	total += each;
+
+	/* Calculate size of buffers */
+
+	each = sizeof(POOL) * NUM_POOLS;
+	for (i = 0; i < NUM_POOLS; i++) {
+		each += pools[i].max_alloc * (pools[i].pool_size +
+			sizeof(POOLHDR) + sizeof(POOLFTR));
+	}
+	raw_notify(player,
+		   tprintf("Buffers          : %12.2fk", each / 1024));
 	total += each;
 	
 	/* Calculate size of command hashtable */
@@ -2766,17 +2768,82 @@ void list_memory(player)
 	raw_notify(player,
 		   tprintf("Attr num table   : %12.2fk", each / 1024));
 	total += each;
+
+	/* --- After this point, we only report if it's non-zero. */
+
+	/* Calculate size of object stacks */
 	
-	/* Calculate size of buffers */
-	
-	each = sizeof(POOL) * NUM_POOLS;
-	for (i = 0; i < NUM_POOLS; i++) {
-		each += pools[i].max_alloc * (pools[i].pool_size +
-			sizeof(POOLHDR) + sizeof(POOLFTR));
+	each = 0;
+	for (stack = (STACK *)hash_firstentry((HASHTAB *)&mudstate.objstack_htab);
+	     stack != NULL;
+	     stack = (STACK *)hash_nextentry((HASHTAB *)&mudstate.objstack_htab)) {
+		each += sizeof(STACK);
+		each += strlen(stack->data) + 1;
 	}
-	raw_notify(player,
-		   tprintf("Buffers          : %12.2fk", each / 1024));
+	if (each) {
+	    raw_notify(player,
+		       tprintf("Object stacks    : %12.2fk", each / 1024));
+	}
 	total += each;
+
+	/* Calculate the size of xvars. */
+
+	each = 0;
+	for (xvar = (VARENT *) hash_firstentry(&mudstate.vars_htab);
+	     xvar != NULL;
+	     xvar = (VARENT *) hash_nextentry(&mudstate.vars_htab)) {
+	    each += sizeof(VARENT);
+	    each += strlen(xvar->text) + 1;
+	}
+	if (each) {
+	    raw_notify(player,
+		       tprintf("X-Variables      : %12.2fk", each / 1024));
+	}
+	total += each;
+
+	/* Calculate the size of overhead associated with structures. */
+
+	each = 0;
+	for (this_struct = (STRUCTDEF *) hash_firstentry(&mudstate.structs_htab);
+	     this_struct != NULL;
+	     this_struct = (STRUCTDEF *) hash_nextentry(&mudstate.structs_htab)) {
+	    each += sizeof(STRUCTDEF);
+	    each += strlen(this_struct->s_name) + 1;
+	    for (i = 0; i < this_struct->c_count; i++) {
+		each += strlen(this_struct->c_names[i]) + 1;
+		each += sizeof(COMPONENT);
+		each += strlen(this_struct->c_array[i]->def_val) + 1;
+	    }
+	}
+	for (inst_ptr = (INSTANCE *) hash_firstentry(&mudstate.instance_htab);
+	     inst_ptr != NULL;
+	     inst_ptr = (INSTANCE *) hash_nextentry(&mudstate.instance_htab)) {
+	    each += sizeof(INSTANCE);
+	}
+	if (each) {
+	    raw_notify(player,
+		       tprintf("Struct var defs  : %12.2fk", each / 1024));
+	}
+	total += each;
+
+	/* Calculate the size of data associated with structures. */
+
+	each = 0;
+	for (data_ptr = (STRUCTDATA *) hash_firstentry(&mudstate.instdata_htab);
+	     data_ptr != NULL;
+	     data_ptr = (STRUCTDATA *) hash_nextentry(&mudstate.instdata_htab)) {
+	    each += sizeof(STRUCTDATA);
+	    if (data_ptr->text) {
+		each += strlen(data_ptr->text) + 1;
+	    }
+	}
+	if (each) {
+	    raw_notify(player,
+		       tprintf("Struct var data  : %12.2fk", each / 1024));
+	}
+	total += each;
+
+	/* Report end total. */
 
 	raw_notify(player,
 		   tprintf("\nTotal            : %12.2fk", total / 1024));

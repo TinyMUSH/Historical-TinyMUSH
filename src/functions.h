@@ -37,6 +37,41 @@ struct var_entry {
     char *text;			/* variable text */
 };
 
+typedef struct component_def COMPONENT;
+struct component_def {
+    int (*typer_func)();	/* type-checking handler */
+    char *def_val;		/* default value */
+};
+
+typedef struct structure_def STRUCTDEF;
+struct structure_def {
+    char *s_name;		/* name of the structure */
+    char **c_names;		/* array of component names */
+    COMPONENT **c_array;	/* array of pointers to components */
+    int c_count;		/* number of components */
+    char delim;			/* output delimiter when unloading */
+    int need_typecheck;		/* any components without types of any? */
+    int n_instances;		/* number of instances out there */
+    char *names_base;		/* pointer for later freeing */
+    char *defs_base;		/* pointer for later freeing */
+};
+
+typedef struct instance_def INSTANCE;
+struct instance_def {
+    STRUCTDEF *datatype;	/* pointer to structure data type def */
+};
+
+typedef struct data_def STRUCTDATA;
+struct data_def {
+    char *text;
+};
+
+typedef struct object_stack STACK;
+struct object_stack {
+	char *data;
+	STACK *next;
+};
+
 #ifdef FLOATING_POINTS
 #ifndef linux                   /* linux defines atof as a macro */
 double atof();

@@ -570,39 +570,6 @@ FUNCTION(fun_clearvars)
     xvars_clr(player);
 }
 
-/* --------------------------------------------------------------------------
- * Auxiliary stuff for structures.
- */
-
-typedef struct component_def COMPONENT;
-struct component_def {
-    int (*typer_func)();	/* type-checking handler */
-    char *def_val;		/* default value */
-};
-
-typedef struct structure_def STRUCTDEF;
-struct structure_def {
-    char *s_name;		/* name of the structure */
-    char **c_names;		/* array of component names */
-    COMPONENT **c_array;	/* array of pointers to components */
-    int c_count;		/* number of components */
-    char delim;			/* output delimiter when unloading */
-    int need_typecheck;		/* any components without types of any? */
-    int n_instances;		/* number of instances out there */
-    char *names_base;		/* pointer for later freeing */
-    char *defs_base;		/* pointer for later freeing */
-};
-
-typedef struct instance_def INSTANCE;
-struct instance_def {
-    STRUCTDEF *datatype;	/* pointer to structure data type def */
-};
-
-typedef struct data_def STRUCTDATA;
-struct data_def {
-    char *text;
-};
-
 /* ---------------------------------------------------------------------------
  * Structures.
  */
@@ -728,7 +695,6 @@ FUNCTION(fun_structure)
      * If everything eventually goes well, comp_names and default_vals will
      * REMAIN allocated. 
      */
-
 
     comp_names = XSTRDUP(fargs[1], "struct.comps");
     n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, SPACE_DELIM, 1);

@@ -243,12 +243,6 @@ struct dump_object {
 	time_t	last_mod;	/* ALL: Time last modified */
 };
 
-typedef struct object_stack STACK;
-struct object_stack {
-	char *data;
-	STACK *next;
-};
-
 typedef char *NAME;
 
 extern OBJ *db;
