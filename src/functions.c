@@ -403,48 +403,67 @@ dbref player, thing;
  */
 
 #ifdef FLOATING_POINTS
-#define FP_SIZE (1 + (sizeof(double) / sizeof(unsigned int)))
-#define FP_EXP_MATCH	0x1
+#define FP_SIZE ((sizeof(double) + sizeof(unsigned int) - 1) / sizeof(unsigned int))
+#define FP_EXP_WEIRD	0x1
 #define FP_EXP_ZERO	0x2
-#define FP_EXP_MISMATCH	0x4
 
-static int fp_check_weird(buff, bufc, result)
+static unsigned int fp_check_weird(buff, bufc, result)
 char *buff, **bufc;
 double result;
 {
 	static unsigned int fp_sign_mask[FP_SIZE];
 	static unsigned int fp_exp_mask[FP_SIZE];
+	static unsigned int fp_mant_mask[FP_SIZE];
 	static unsigned int fp_val[FP_SIZE];
+	static const double d_zero = 0.0;
 	static int fp_initted = 0;
-	int i;
 	unsigned int fp_sign, fp_exp, fp_mant;
-	
+	int i;
+
 	if (!fp_initted) {
 		bzero(fp_sign_mask, sizeof(fp_sign_mask));
 		bzero(fp_exp_mask, sizeof(fp_exp_mask));
 		bzero(fp_val, sizeof(fp_val));
-		*((double *)fp_exp_mask) = (double) 1.0 / 0.0;
-		*((double *)fp_sign_mask) =
-		  	(double) -1.0 / *((double *)fp_exp_mask);
+		*((double *)fp_exp_mask) = (double) 1.0 / d_zero;
+		*((double *)fp_sign_mask) = ((double) -1.0 /
+					     *((double *)fp_exp_mask));
+		for (i = 0; i < FP_SIZE; i++) {
+			fp_mant_mask[i] = ~(fp_exp_mask[i] | fp_sign_mask[i]);
+		}
 		fp_initted = 1;
 	}
 
 	*((double *)fp_val) = result;
 
-	fp_sign = fp_exp = fp_mant = 0;
-	for (i = 0; (i < FP_SIZE) && !(fp_exp & FP_EXP_MISMATCH); i++) {
+	fp_sign = fp_mant = 0;
+	fp_exp = FP_EXP_ZERO | FP_EXP_WEIRD;
+
+	for (i = 0; (i < FP_SIZE) && fp_exp; i++) {
+		if (fp_exp_mask[i]) {
+			unsigned int x = (fp_exp_mask[i] & fp_val[i]);
+			if (x == fp_exp_mask[i]) {
+				/* these bits are all set. can't be zero
+				 * exponent, but could still be max (weird)
+				 * exponent.
+				 */
+				fp_exp &= ~FP_EXP_ZERO;
+			} else if (x == 0) {
+				/* none of these bits are set. can't be max
+				 * exponent, but could still be zero exponent.
+				 */
+				fp_exp &= ~FP_EXP_WEIRD;
+			} else {
+				/* some bits were set but not others. can't
+				 * be either zero exponent or max exponent.
+				 */
+				fp_exp = 0;
+			}
+		}
+
 		fp_sign |= (fp_sign_mask[i] & fp_val[i]);
-		fp_exp |= (fp_exp_mask[i] ?
-			   (((fp_exp_mask[i] & fp_val[i]) == fp_exp_mask[i]) ?
-			    FP_EXP_MATCH :
-			    (((fp_exp_mask[i] & fp_val[i]) == 0) ?
-			     FP_EXP_ZERO : FP_EXP_MISMATCH)) : 0);
-		fp_mant |= ((~(fp_sign_mask[i] | fp_exp_mask[i])) & fp_val[i]);
+		fp_mant |= (fp_mant_mask[i] & fp_val[i]);
 	}
-	if (fp_exp == FP_EXP_ZERO) {
-		return 0;
-	}
-	if (fp_exp == FP_EXP_MATCH) {
+	if (fp_exp == FP_EXP_WEIRD) {
 		if (fp_sign) {
 			safe_chr('-', buff, bufc);
 		}
@@ -453,9 +472,8 @@ double result;
 	  	} else {
 			safe_known_str("Inf", 3, buff, bufc);
 		}
-		return -1;
 	}
-	return 1;
+	return fp_exp;
 }
 
 static void fval(buff, bufc, result)
@@ -465,9 +483,9 @@ double result;
 	char *p, *buf1;
 
 	switch (fp_check_weird(buff, bufc, result)) {
-	case -1: return;
-	case 0:  result = 0.0;
-	default: break;
+	case FP_EXP_WEIRD:	return;
+	case FP_EXP_ZERO:	result = 0.0; /* FALLTHRU */
+	default:		break;
 	}
 
 	buf1 = *bufc;
@@ -2531,9 +2549,9 @@ FUNCTION(fun_floor)
 	oldp = *bufc;
 	x = floor(aton(fargs[0]));
 	switch (fp_check_weird(buff, bufc, x)) {
-	case -1: return;
-	case 0:  x = 0.0;
-	default: break;
+	case FP_EXP_WEIRD:	return;
+	case FP_EXP_ZERO:	x = 0.0; /* FALLTHRU */
+	default:		break;
 	}
 	safe_tprintf_str(buff, bufc, "%.0f", x);
 	/* Handle bogus result of "-0" from sprintf.  Yay, cclib. */
@@ -2555,9 +2573,9 @@ FUNCTION(fun_ceil)
 	oldp = *bufc;
 	x = ceil(aton(fargs[0]));
 	switch (fp_check_weird(buff, bufc, x)) {
-	case -1: return;
-	case 0:  x = 0.0;
-	default: break;
+	case FP_EXP_WEIRD:	return;
+	case FP_EXP_ZERO:	x = 0.0; /* FALLTHRU */
+	default:		break;
 	}
 	safe_tprintf_str(buff, bufc, "%.0f", x);
 	/* Handle bogus result of "-0" from sprintf.  Yay, cclib. */
@@ -2604,9 +2622,9 @@ FUNCTION(fun_round)
 	}
 	x = aton(fargs[0]);
 	switch (fp_check_weird(buff, bufc, x)) {
-	case -1: return;
-	case 0:  x = 0.0;
-	default: break;
+	case FP_EXP_WEIRD:	return;
+	case FP_EXP_ZERO:	x = 0.0; /* FALLTHRU */
+	default:		break;
 	}
 	safe_tprintf_str(buff, bufc, (char *)fstr, x);
 
@@ -2629,9 +2647,9 @@ FUNCTION(fun_trunc)
 	x = aton(fargs[0]);
 	x = (x >= 0) ? floor(x) : ceil(x);
 	switch (fp_check_weird(buff, bufc, x)) {
-	case -1: return;
-	case 0:  x = 0.0;
-	default: break;
+	case FP_EXP_WEIRD:	return;
+	case FP_EXP_ZERO:	x = 0.0; /* FALLTHRU */
+	default:		break;
 	}
 	fval(buff, bufc, x);
 #else
