@@ -4461,12 +4461,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	columns()	elements()	extract()	filter()	
 	filterbool()	first()		fold()		grab()		
 	index()		insert()	iter()		last()		
-	ldelete()	list()		lnum()		lpos()		
-	map()		match()		matchall()	member()	
-	mix()		munge()		remove()	replace()	
-	rest()		revwords()	setdiff()	setinter()	
-	setunion()	shuffle()	sortby()	sort()		
-	splice()	while()		words()
+	ldelete()	list()		lnum()		loop()
+	lpos()		map()		match()		matchall()	
+	member()	mix()		munge()		remove()	
+	replace()	rest()		revwords()	setdiff()	
+	setinter()	setunion()	shuffle()	sortby()	
+	sort()		splice()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -7099,24 +7099,35 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   <list> is a <delimiter>-separated list of arbitrary strings. <eval> is a
   string that is to be evaluated once for each item in <list>, replacing
   the special symbol ## with the corresponding item from <list>, and 
-  the special symbol #@ with the position of the item in the list. A list
-  of the results of these evaluations is returned to the caller; if
-  <output delim> is specified, it is used, otherwise a space is used.
+  the special symbol #@ with the position of the item in the list.
+ 
+  A list of the results of these evaluations is returned to the caller; if
+  <output delim> is specified, it is used; otherwise, a space is used.
+ 
+  Multiple iter()s and list()s can be nested, with the ## and #@ tokens
+  evaluating appropriately at each level. The nesting level can also
+  be obtained, using the '#!' token.
+ 
   The effect is very similar to @dolist, except that the results are made
-  into a list and returned, not executed.
+  into a list and returned, not executed. Note that @dolist's use of ##
+  and #@ conflicts with iter()'s, though.
+ 
+  Continued in 'help ITER2'.
+ 
+& ITER2
  
   Examples:
-    > say iter(This is a test,strlen(##))
+    > say [iter(This is a test,strlen(##))]
     You say "4 2 1 4"
-    > say iter(1|2|3,#@/[add(##,1)],|,-)
+    > say [iter(1|2|3,#@/[add(##,1)],|,-)]
     You say "1/2-2/3-3/4"
-    > say iter(lcon(me),name(##),,+)
+    > say [iter(lcon(me),name(##),,+)]
     You say "apple+banana+orange"
-    > say iter(1-2-3-4,inc(##),-,@@)
+    > say [iter(1-2-3-4,inc(##),-,@@)]
     You say "2345"
  
-  See also: @dolist, map().
-
+  See also: @dolist, parse(), list(), loop(), map().
+ 
 & LIST()
   Function: list(<list>, <eval>[, <delim>])
  
@@ -7131,8 +7142,32 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     2 - bananas - 7
     3 - oranges - 7
     You say ""
+    > @eval list(lnum(1,5),## - #@ - #! - [iter(lnum(##),##:#@:#!)])
+    1 - 1 - 1 - 0:1:2
+    2 - 2 - 1 - 0:1:2 1:2:2
+    3 - 3 - 1 - 0:1:2 1:2:2 2:3:2
+    4 - 4 - 1 - 0:1:2 1:2:2 2:3:2 3:4:2
+    5 - 5 - 1 - 0:1:2 1:2:2 2:3:2 3:4:2 4:5:2
  
-  See also: iter().
+  See also: iter(), parse(), loop().
+ 
+& LOOP()
+  Function: loop(<list>, <eval>[, <delim>])
+ 
+  This function behaves identically to parse(), but, instead of returning
+  a list of words, it returns each result on a separate line, outputting
+  it directly to the enactor. The result of the function itself is an
+  emtpy string.
+ 
+  This function is also otherwise identical to list(), except that 
+  successive calls of it cannot be nested. The replacement of the
+  '##' and '#@' tokens is "blind", i.e., it simply goes through the
+  evaluation string without regard for nesting. As a result, it handles
+  escapes in a different manner than iter().
+ 
+  This function is provided for backwards compatibility.
+ 
+  See also: iter(), parse(), list(), map().
  
 & LOCATE()
   Function: locate(<looker>,<string>,<where>)
@@ -7953,7 +7988,15 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & PARSE()
   Function:  parse(<list>, <eval>[, <delim>][, <output delim>])
  
-  See iter().
+  This function behaves identically to iter(), except that successive
+  calls of it cannot be nested. The replacement of the '##' and '#@'
+  tokens is "blind", i.e., it simply goes through the evaluation string
+  without regard for nesting. As a result, it handles escapes in a
+  different manner than iter().
+ 
+  This function is provided for backwards compatibility.
+ 
+  See also: iter(), map(), list(), loop().
  
 & sees()
   Function:  sees(<object>,<victim>)
