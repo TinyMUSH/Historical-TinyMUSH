@@ -423,6 +423,8 @@ ATTR attr[] =
 	{"VZ", A_VA + 25, AF_ODARK, NULL},
 	{"VRML_URL", A_VRML_URL, AF_ODARK, NULL},
 	{"HTDesc", A_HTDESC, AF_NOPROG, NULL},
+	{"*AtrList", A_LIST, AF_DARK | AF_NOPROG | AF_NOCMD | AF_INTERNAL,
+		NULL},
 	{"*Password", A_PASS, AF_DARK | AF_NOPROG | AF_NOCMD | AF_INTERNAL,
 	 NULL},
       {"*Privileges", A_PRIVS, AF_DARK | AF_NOPROG | AF_NOCMD | AF_INTERNAL,
@@ -803,25 +805,6 @@ dbref thing;
 const char *s;
 {
 	atr_add_raw(thing, A_PASS, (char *)s);
-}
-
-/* Set an object's attribute list */
-
-INLINE void s_Atrlist(thing, s)
-dbref thing;
-char *s;
-{
-	/* Free any old data and reallocate */
-	
-	if (db[thing].atrlist) {
-		XFREE(db[thing].atrlist, "s_Atrlist");
-	}
-	
-	if (s && *s) {
-		db[thing].atrlist = XSTRDUP(s, "s_Atrlist");
-	} else {
-		db[thing].atrlist = NULL;
-	}
 }
 
 #ifndef STANDALONE
@@ -1391,7 +1374,12 @@ char *astr;
 void NDECL(al_store)
 {
 	if (mudstate.mod_al_id != NOTHING) {
-		atr_add_raw(mudstate.mod_al_id, A_LIST, mudstate.mod_alist);
+		if (mudstate.mod_alist && *mudstate.mod_alist) {
+			atr_add_raw(mudstate.mod_al_id, A_LIST,
+				mudstate.mod_alist);
+		} else {
+			atr_clr(mudstate.mod_al_id, A_LIST);
+		}	
 	}
 	mudstate.mod_al_id = NOTHING;
 }
@@ -1817,9 +1805,6 @@ int atr;
 	makekey(thing, atr, &okey);
 	DELETE(&okey);
 	al_delete(thing, atr);
-	if (atr == A_LIST) {
-		s_Atrlist(thing, NULL);
-	}
 
 #endif /* MEMORY_BASED */
 	switch (atr) {
@@ -1973,18 +1958,9 @@ char *buff;
 	if (!buff || !*buff) {
 		DELETE(&okey);
 		al_delete(thing, atr);
-
-		if (atr == A_LIST) {
-			s_Atrlist(thing, NULL);
-		}
-
 		return;
 	}
 
-	if (atr == A_LIST) {
-		s_Atrlist(thing, buff);
-	}
-	
 #ifdef RADIX_COMPRESSION
 	/* A_LIST is never compressed */
 
@@ -2160,11 +2136,6 @@ int atr;
 		return NULL;
 	}
 
-	if (atr == A_LIST) {
-		if (Atrlist(thing)) 
-			return Atrlist(thing);
-	}
-
 	makekey(thing, atr, &okey);
 	a = FETCH(&okey);
 #ifdef RADIX_COMPRESSION
@@ -2174,11 +2145,6 @@ int atr;
 	(void)string_decompress(a, decomp_buff);
 	return decomp_buff;
 #else
-	if (atr == A_LIST) {
-		s_Atrlist(thing, a);
-		return Atrlist(thing);
-	}
-	
 	return a;
 #endif /* RADIX_COMPRESSION */
 }
@@ -2552,7 +2518,6 @@ dbref first, last;
 		s_Next(thing, NOTHING);
 		s_Zone(thing, NOTHING);
 		s_Parent(thing, NOTHING);
-		db[thing].atrlist = NULL;
 #ifdef MEMORY_BASED
 		db[thing].ahead = NULL;
 		db[thing].at_count = 0;

@@ -1,4 +1,4 @@
-/* udb_ocache.c - modified untermud object cache */
+/* udb_ocache.c - modified untermud object cache */ 
 /* $Id$ */
 
 /*
@@ -29,10 +29,10 @@
 
 extern DB_ENV *dbenvp;
 
-extern struct Obj * FDECL(dddb_get, (Objname *));
+extern Attr * FDECL(dddb_get, (Aname *));
 extern void VDECL(logf, (char *, ...));
-extern int FDECL(dddb_del, (Objname *));
-extern int FDECL(dddb_put, (Obj *, Objname *));
+extern int FDECL(dddb_del, (Aname *));
+extern int FDECL(dddb_put, (Attr *, Aname *));
 extern void VDECL(fatal, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
 
@@ -45,7 +45,9 @@ extern void FDECL(raw_notify, (dbref, const char *));
 
 
 typedef struct cache {
-	Obj *op;
+	Aname onm;
+	Attr *op;
+	int size;
 	int referenced;
 	time_t lastreferenced;
 	struct cache *nxt;
@@ -62,12 +64,8 @@ typedef struct {
 	Chain mactive;
 } CacheLst;
 
-/*
- * This is a MUSH specific definition, depending on Objname being an
- * * integer type of some sort. 
- */
-
-#define NAMECMP(a,b) ((a)->op) && (((a)->op)->name == (b)->object)
+#define NAMECMP(a,b)	((a)->onm.object == (b)->object) && \
+		    	((a)->onm.attrnum == (b)->attrnum)
 
 #define DEQUEUE(q, e)	if(e->nxt == (Cache *)0) { \
 				if (e->prv != (Cache *)0) { \
@@ -127,11 +125,6 @@ static Cache *get_free_entry();
 static int cache_write();
 static void cache_clean();
 
-static Attr *get_attrib();
-static void set_attrib();
-static void del_attrib();
-static void FDECL(objfree, (Obj *));
-
 /*
  * initial settings for cache sizes 
  */
@@ -167,17 +160,18 @@ int cs_size = 0;		/* total cache size */
 
 void cache_repl(cp, new)
 Cache *cp;
-Obj *new;
+Attr *new;
 {
-	if (cp->op != ONULL)
-		objfree(cp->op);
+	cs_size -= cp->size;
+	if (cp->op != NULL)
+		XFREE(cp->op, "cache_repl");
 	cp->op = new;
-	cp->referenced = 0;
-#ifndef STANDALONE
-	cp->lastreferenced = mudstate.now;
-#else
-	cp->lastreferenced = time(NULL);
-#endif
+	if (new != NULL) {
+		cp->size = strlen(new);
+		cs_size += cp->size;
+	} else {
+		cp->size = 0;
+	}
 }
 
 int cache_init(width, size)
@@ -243,7 +237,7 @@ int clear;
 			nxt = cp->nxt;
 			
 			if (clear) {
-				cache_repl(cp, ONULL);
+				cache_repl(cp, NULL);
 				XFREE(cp, "cache_reset.act");
 			} else {
 				if (cp->referenced > 0)
@@ -256,16 +250,12 @@ int clear;
 			nxt = cp->nxt;
 			
 			if (clear) {
-#ifdef	CACHE_DEBUG
-				printf("clean object %d from cache %d\n",
-				       (cp->op)->name, cp->op);
-#endif
-				if ((cp->op)->at_count == 0) {
-					(void) DB_DEL(&((cp->op)->name), x);
+				if (cp->op == NULL) {
+					(void) DB_DEL(&(cp->onm));
 				} else {
-					(void) DB_PUT(cp->op, &((cp->op)->name));
+					(void) DB_PUT(cp->op, &(cp->onm));
 				}
-				cache_repl(cp, ONULL);
+				cache_repl(cp, NULL);
 				XFREE(cp, "cache_reset.mact");
 			} else {
 				if (cp->referenced > 0)
@@ -310,66 +300,65 @@ void list_cached_objs(player)
     Cache *cp;
     int x;
     int aco, maco, asize, msize;
+    ATTR *atr;
     
     aco = maco = asize = msize = 0;
 
     raw_notify(player, "Active Cache:");
     raw_notify(player, 
-       "Name                                       Dbref   Age    Refs    Size");
+       "Name                    Attribute               Dbref   Age    Refs   Size");
     raw_notify(player,
-       "======================================================================");
+       "==========================================================================");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
             if (cp->op) {
                 aco++;
-                asize += cp->op->size;
+                asize += cp->size;
+                atr = atr_num(cp->onm.attrnum);
 		raw_notify(player, 
-			tprintf("%-42.42s #%-6d %-6d %-7d %-6d", PureName(cp->op->name),
-			cp->op->name, (int) (mudstate.now - cp->lastreferenced), 
-			cp->referenced, cp->op->size));
+			tprintf("%-23.23s %-23.23s #%-6d %-6d %-6d %-6d", PureName(cp->onm.object),
+			(atr ? atr->name : "(Unknown)"), cp->onm.object, (int) (mudstate.now - cp->lastreferenced), 
+			cp->referenced, cp->size));
             }
         }
     }
 
     raw_notify(player, "\nModified Active Cache:");
     raw_notify(player, 
-       "Name                                       Dbref   Age    Refs    Size");
+       "Name                    Attribute               Dbref   Age    Refs   Size");
     raw_notify(player,
-       "======================================================================");
-
+       "==========================================================================");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
             if (cp->op) {
-                maco++;
-                msize += cp->op->size;
+                aco++;
+                asize += cp->size;
+                atr = atr_num(cp->onm.attrnum);
 		raw_notify(player, 
-			tprintf("%-42.42s #%-6d %-6d %-7d %-6d", PureName(cp->op->name),
-			cp->op->name, (int) (mudstate.now - cp->lastreferenced), 
-			cp->referenced, cp->op->size));
+			tprintf("%-23.23s %-23.23s #%-6d %-6d %-6d %-6d", PureName(cp->onm.object),
+			(atr ? atr->name : "(Unknown)"), cp->onm.object, (int) (mudstate.now - cp->lastreferenced), 
+			cp->referenced, cp->size));
             }
         }
     }
 
     raw_notify(player,
-               tprintf("\nTotals: active %d, modified active %d, total objects %d", aco, maco, aco + maco));
+               tprintf("\nTotals: active %d, modified active %d, total attributes %d", aco, maco, aco + maco));
     raw_notify(player,
                tprintf("Size: active %d bytes, modified active %d bytes", asize, msize));
 }
 #endif /* STANDALONE */
 
 /*
- * search the cache for an object, and if it is not found, thaw it.
- * this code is probably a little bigger than it needs be because I
- * had fun and unrolled all the pointer juggling inline.
+ * Search the cache for an attribute, if found, return, if not, fetch from DB
  */
-Attr *
- cache_get(nam)
+Attr * cache_get(nam)
 Aname *nam;
 {
 	Cache *cp;
 	CacheLst *sp;
 	int hv = 0;
-	Obj *ret;
+	Attr *ret;
 
 	/*
 	 * firewall 
@@ -386,12 +375,7 @@ Aname *nam;
 
 	cs_reads++;
 
-	/*
-	 * We search the cache for the right Obj, then find the Attrib inside
-	 * that. 
-	 */
-
-	hv = nam->object % cwidth;
+	hv = (nam->object + nam->attrnum) % cwidth;
 	sp = &sys_c[hv];
 
 	/*
@@ -401,16 +385,13 @@ Aname *nam;
 		if (NAMECMP(cp, nam)) {
 			cs_rhits++;
 			cs_ahits++;
-#ifdef	CACHE_DEBUG
-			printf("return active cache -- %d\n", cp->op);
-#endif
+
+			DEQUEUE(sp->active, cp);
+			INSHEAD(sp->active, cp);
+
 			REFTIME(cp);
 
-			/*
-			 * Found the Obj, return the Attr within it 
-			 */
-
-			return (get_attrib(nam, cp->op));
+			return (cp->op);
 		}
 	}
 
@@ -422,53 +403,44 @@ Aname *nam;
 			cs_rhits++;
 			cs_ahits++;
 
-#ifdef	CACHE_DEBUG
-			printf("return modified active cache -- %d\n", cp->op);
-#endif
+			DEQUEUE(sp->mactive, cp);
+			INSHEAD(sp->mactive, cp);
+
 			REFTIME(cp);
-			return (get_attrib(nam, cp->op));
+			return (cp->op);
 		}
 	}
 
 	/*
 	 * DARN IT - at this point we have a certified, type-A cache miss 
-	 * thaw the object from wherever. 
 	 */
 
-	if ((ret = DB_GET(&(nam->object))) == (Obj *) 0) {
+	if ((ret = DB_GET(nam)) == NULL) {
 		cs_dbreads++;
-#ifdef	CACHE_DEBUG
-		printf("Object %d not in db\n", nam->object);
-#endif
-		return ((Attr *) 0);
+		return (NULL);
 	} else {
 		cs_dbreads++;
 	}
 
-	if ((cp = get_free_entry(ret->size)) == CNULL)
-		return ((Attr *) 0);
+	if ((cp = get_free_entry(strlen((char *)ret))) == NULL)
+		return (NULL);
 
+	cp->onm = *nam;
 	cp->op = ret;
-	cs_size += ret->size;
+	cp->size = strlen((char *)ret);
+	cs_size += cp->size;
 
 	/*
 	 * relink at head of active chain 
 	 */
 	INSHEAD(sp->active, cp);
 
-#ifdef	CACHE_DEBUG
-	printf("returning attr %d, object %d loaded into cache -- %d\n",
-	       nam->attrnum, nam->object, cp->op);
-#endif
 	REFTIME(cp);
-	return (get_attrib(nam, ret));
+	return (ret);
 }
 
-
-
-
 /*
- * put an object back into the cache. this is complicated by the
+ * put an attribute back into the cache. this is complicated by the
  * fact that when a function calls this with an object, the object
  * is *already* in the cache, since calling functions operate on
  * pointers to the cached objects, and may or may not be actively
@@ -491,28 +463,16 @@ Aname *nam;
  * of MUDs and their names. This is left as an exercise for the
  * reader.
  */
-int
-#ifdef RADIX_COMPRESSION
- cache_put(nam, obj, len)
-int len;
-
-#else
- cache_put(nam, obj)
-#endif				/*
-				 * RADIX_COMPRESSION 
-				 */
+int cache_put(nam, obj)
 Aname *nam;
 Attr *obj;
 {
 	Cache *cp;
 	CacheLst *sp;
-	Obj *newobj;
 	int hv = 0;
 	
-	/*
-	 * firewall 
-	 */
 	if (obj == (Attr *) 0 || nam == (Aname *) 0 || !cache_initted) {
+
 #ifdef	CACHE_VERBOSE
 		logf("cache_put: NULL object/name - programmer error\n", (char *)0);
 #endif
@@ -523,7 +483,7 @@ Attr *obj;
 	/*
 	 * generate hash 
 	 */
-	hv = nam->object % cwidth;
+	hv = (nam->object + nam->attrnum) % cwidth;
 	sp = &sys_c[hv];
 
 	/*
@@ -531,23 +491,10 @@ Attr *obj;
 	 */
 	for (cp = sp->active.head; cp != CNULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
+			if(cp->op != obj) {
+				cache_repl(cp, obj);
+			}
 
-			/*
-			 * Right object, set the attribute 
-			 */
-
-#ifdef RADIX_COMPRESSION
-			set_attrib(nam, cp->op, obj, len);
-#else
-			set_attrib(nam, cp->op, obj);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
-
-#ifdef	CACHE_DEBUG
-			printf("cache_put object %d, attr %d -- %d\n",
-			       nam->object, nam->attrnum, cp->op);
-#endif
 			DEQUEUE(sp->active, cp);
 			INSHEAD(sp->mactive, cp);
 			REFTIME(cp);
@@ -562,86 +509,40 @@ Attr *obj;
 	 */
 	for (cp = sp->mactive.head; cp != CNULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
+			if (cp->op != obj) {
+				cache_repl(cp, obj);
+			}
 
-			/*
-			 * Right object, set the attribute 
-			 */
-
-#ifdef RADIX_COMPRESSION
-			set_attrib(nam, cp->op, obj, len);
-#else
-			set_attrib(nam, cp->op, obj);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
-
-#ifdef	CACHE_DEBUG
-			printf("cache_put object %d,attr %d -- %d\n",
-			       nam->object, nam->attrnum, cp->op);
-#endif
+			DEQUEUE(sp->mactive, cp);
+			INSHEAD(sp->mactive, cp);
+			
 			REFTIME(cp);
 			cs_whits++;
 			return (0);
 		}
 	}
 
-	/*
-	 * Ok, now the fact that we're caching objects, and pretending to
-	 * cache attributes starts to *hurt*. We gotta try to get the
-	 * object in to cache, see.. 
-	 */
+	/* Add a new attribute to the cache */
 
-	newobj = DB_GET(&(nam->object));
-	if (newobj == (Obj *) 0) {
-
-		/*
-		 * SHIT! Totally NEW object! 
-		 */
-
-		newobj = (Obj *) XMALLOC(sizeof(Obj), "cache_put");
-		if (newobj == (Obj *) 0)
-			return (1);
-
-		newobj->atrs = ATNULL;
-		newobj->size = 0;
-		newobj->name = nam->object;
-	}
-	/*
-	 * Now we got the thing, hang the new version of the attrib on it. 
-	 */
-
-#ifdef RADIX_COMPRESSION
-	set_attrib(nam, newobj, obj, len);
-#else
-	set_attrib(nam, newobj, obj);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
-
-	/*
-	 * add it to the cache 
-	 */
-	if ((cp = get_free_entry(newobj->size)) == CNULL)
+	if ((cp = get_free_entry(strlen((char *)obj))) == CNULL)
 		return (1);
 
-	cp->op = newobj;
-	cs_size += newobj->size;
+	cp->op = obj;
+	cp->onm = *nam;
+	cp->size = strlen((char *)obj);
+	cs_size += cp->size;
 
 	/*
 	 * link at head of modified active chain 
 	 */
 	INSHEAD(sp->mactive, cp);
 
-#ifdef	CACHE_DEBUG
-	printf("cache_put %d/%d new in cache %d\n", nam->object, nam->attrnum, cp->op);
-#endif
 	REFTIME(cp);
 	return (0);
 }
 
-static Cache *
- get_free_entry(objsize)
-int objsize;
+static Cache *get_free_entry(atrsize)
+int atrsize;
 {
 	CacheLst *sp;
 	Chain *chp;
@@ -649,36 +550,38 @@ int objsize;
 	int score = 0, curscore = 0;
 	int modified = 0, size = 0, cursize = 0, x;
 	
-	/* Flush objects from the cache until there's enough room for this object */
+	/* Flush attributes from the cache until there's enough room for this one */
 	
-	while ((cs_size + objsize) > cmaxsize) {
-		for (x = 0; x < cwidth; x++, sp++) {
+	while ((cs_size + atrsize) > cmaxsize) {
+		for (x = 0; x < cwidth; x++) {
 			sp = &sys_c[x];
 	
-			/* traverse active chain first */
-			for (p = sp->active.head; p != CNULL; p = p->nxt) {
-				/* Score is the age of an object in seconds.
-				   We use size as a secondary metric--
-				   if the scores are the same, we should try to
-				   toss the bigger object */
+			p = sp->active.tail;
+		
+			/* Score is the age of an attribute in seconds.
+			   We use size as a secondary metric--
+			   if the scores are the same, we should try to
+			   toss the bigger attribute. Only consider the
+			   head of each chain since we re-insert each
+			   cache entry at the head when its accessed */
 
-				if (!p->op->size) {
-					score = 0;
-					size = 0;
+			if (p) {
+				if (!p->size) {
+					cp = p;
+					chp = &(sp->active);
+					modified = 0;
+					goto replace;
 				} else {
 #ifndef STANDALONE
 					score = mudstate.now - p->lastreferenced;
 #else
 					score = time(NULL) - p->lastreferenced;
 #endif
-					size = p->op->size;
+					size = p->size;
 				}
 				
-				/* The head of the active chain is our first candidate */
-				
 				if ((score > curscore) || ((score == curscore) && 
-				    (size > cursize)) ||
-				    ((p == sp->active.head) && !cp)) {
+				    (size > cursize)) || !cp) {
 					curscore = score;
 					cursize = size;
 					cp = p;
@@ -686,28 +589,33 @@ int objsize;
 					modified = 0;
 				}
 			}
-		
+			
 			/* then the modified active chain */
-			for (p = sp->mactive.head; p != CNULL; p = p->nxt) {
-				if (!p->op->size) {
-					score = 0;
-					size = 0;
+
+			p = sp->mactive.tail;
+			
+			if (p) {
+				if (!p->size) {
+					cp = p;
+					chp = &(sp->mactive);
+					modified = 1;
+					goto replace;
 				} else {
 					/* We don't want to prematurely toss modified pages, so
 					 * give them an advantage */
-
+	
 #ifndef STANDALONE 
 					score = (mudstate.now - p->lastreferenced) * .8;
 #else
 					score = (time(NULL) - p->lastreferenced) * .8;
 #endif
-					size = p->op->size;
+					size = p->size;
 				}
-				
-				/* If we haven't found one by now, the head of the modified chain is it */
+						
+				/* If we haven't found one by now, the tail of the modified chain is it */
 				if ((score > curscore) || ((score == curscore) && 
 				    (size > cursize)) ||
-				    ((p == sp->mactive.head) && !cp)) {
+				    ((p == sp->mactive.tail) && !cp)) {
 					curscore = score;
 					cursize = size;
 					cp = p;
@@ -715,29 +623,30 @@ int objsize;
 					modified = 1;
 				}
 			}
-
-
 		}
-
+replace:
 		if (modified) {
-			/* Flush the modified objects to disk */
-#ifdef	CACHE_DEBUG
-			printf("clean object %d from cache %d\n",
-			       (cp->op)->name, cp->op);
-#endif
-			if ((cp->op)->at_count == 0) {
-				if (DB_DEL(&((cp->op)->name), x))
+			/* Flush the modified attributes to disk */
+		
+			if (cp->op == NULL) {
+				if (DB_DEL(&(cp->onm))) {
+					log_db_err(cp->onm.object, cp->onm.attrnum, "delete");
+					return (NULL);
+				}
 				cs_dels++;
 			} else {
-				if (DB_PUT(cp->op, &((cp->op)->name)))
+				if (DB_PUT(cp->op, &(cp->onm))) {
+					log_db_err(cp->onm.object, cp->onm.attrnum, "write");
+					return (NULL);
+				}
 				cs_dbwrites++;
 			}
 		}
 		
-		/* Take the object off of its chain and nuke the object's memory */
+		/* Take the attribute off of its chain and nuke the
+		   attribute's memory */
 		
 		if (cp) {
-			cs_size -= cp->op->size;
 			cache_repl(cp, ONULL);
 			DEQUEUE((*chp), cp);
 			XFREE(cp, "get_free_entry");
@@ -750,7 +659,10 @@ int objsize;
 	if ((cp = (Cache *) XMALLOC(sizeof(Cache), "get_free_entry")) == CNULL)
 		fatal("cache get_free_entry: malloc failed", (char *)-1, (char *)0);
 
-	cp->op = (Obj *) 0;
+	cp->op = NULL;
+	cp->onm.object = 0;
+	cp->onm.attrnum = 0;
+	cp->size = 0;
 	cp->referenced = 1;
 #ifndef STANDALONE
 	cp->lastreferenced = mudstate.now;
@@ -767,15 +679,15 @@ Cache *cp;
 #ifdef	CACHE_DEBUG
 		printf("sync %d -- %d\n", cp->op->name, cp->op);
 #endif
-		if (cp->op->at_count == 0) {
-			if (DB_DEL(&((cp->op)->name), x)) {
-				log_db_err(cp->op->name, 0, "delete");
+		if (cp->op == NULL) {
+			if (DB_DEL(&(cp->onm))) {
+				log_db_err(cp->onm.object, cp->onm.attrnum, "delete");
 				return (1);
 			}
 			cs_dels++;
 		} else {
-			if (DB_PUT(cp->op, &((cp->op)->name))) {
-				log_db_err(cp->op->name, 0, "write");
+			if (DB_PUT(cp->op, &(cp->onm))) {
+				log_db_err(cp->onm.object, cp->onm.attrnum, "write");
 				return (1);
 			}
 			cs_dbwrites++;
@@ -841,10 +753,6 @@ int NDECL(cache_sync)
 	return (0);
 }
 
-/*
- * Mark this attr as deleted in the cache. The object will flush back to
- * disk without it, eventually.
- */
 void cache_del(nam)
 Aname *nam;
 {
@@ -856,13 +764,9 @@ Aname *nam;
 	if (nam == (Aname *) 0 || !cache_initted)
 		return;
 
-#ifdef CACHE_DEBUG
-	printf("cache_del: object %d, attr %d\n", nam->object, nam->attrnum);
-#endif
-
 	cs_dels++;
 
-	hv = nam->object % cwidth;
+	hv = (nam->object + nam->attrnum) % cwidth;
 	sp = &sys_c[hv];
 
 	/*
@@ -871,270 +775,31 @@ Aname *nam;
 	for (cp = sp->active.head; cp != CNULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 			DEQUEUE(sp->active, cp);
-			INSHEAD(sp->mactive, cp);
-			del_attrib(nam, cp->op);
+			INSTAIL(sp->mactive, cp);
+			cache_repl(cp, NULL);
 			REFTIME(cp);
 			return;
 		}
 	}
 	for (cp = sp->mactive.head; cp != CNULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
-			del_attrib(nam, cp->op);
+			DEQUEUE(sp->mactive, cp);
+			INSTAIL(sp->mactive, cp);
+			cache_repl(cp, NULL);
 			REFTIME(cp);
 			return;
 		}
 	}
 
-	/*
-	 * If we got here, the object the attribute's on isn't in cache 
-	 * At all.  So we get to fish it off of disk, nuke the attrib,  
-	 * and shove the object in cache, so it'll be flushed back later 
-	 */
-
-	obj = DB_GET(&(nam->object));
-	if (obj == (Obj *) 0)
+	if ((cp = get_free_entry(0)) == NULL)
 		return;
 
-	if ((cp = get_free_entry(obj->size)) == CNULL)
-		return;
-
-	del_attrib(nam, obj);
-
-	cp->op = obj;
-	cs_size += obj->size;
+	cp->op = NULL;
+	cp->onm = *nam;
+	cp->size = 0;
 
 	REFTIME(cp);
-	INSHEAD(sp->mactive, cp);
+	INSTAIL(sp->mactive, cp);
 	return;
 }
 
-/*
- * And now a totally new suite of functions for manipulating
- * attributes within an Obj. Woo. Woo. Andrew.
- */
-
-static Attr *
- get_attrib(anam, obj)
-Aname *anam;
-Obj *obj;
-{
-	int lo, mid, hi;
-	Attrib *a;
-
-#ifdef CACHE_DEBUG
-	printf("get_attrib: object %d, attr %d, obj ptr %d\n",
-	       anam->object, anam->attrnum, obj);
-#endif
-
-	/*
-	 * Binary search for the attribute 
-	 */
-
-	lo = 0;
-	hi = obj->at_count - 1;
-	a = obj->atrs;
-	while (lo <= hi) {
-		mid = ((hi - lo) >> 1) + lo;
-		if (a[mid].attrnum == anam->attrnum) {
-			return (Attr *) a[mid].data;
-		} else if (a[mid].attrnum > anam->attrnum) {
-			hi = mid - 1;
-		} else {
-			lo = mid + 1;
-		}
-	}
-#ifdef CACHE_DEBUG
-	printf("get_attrib: not found.\n");
-#endif
-	cs_fails++;
-	return ((Attr *) 0);	/*
-				 * Not found 
-				 */
-}
-
-static void
-#ifdef RADIX_COMPRESSION
- set_attrib(anam, obj, value, len)
-Aname *anam;
-Obj *obj;
-Attr *value;
-int len;
-
-#else
- set_attrib(anam, obj, value)
-Aname *anam;
-Obj *obj;
-Attr *value;
-
-#endif /*
-        * RADIX_COMPRESSION 
-        */
-{
-	int hi, lo, mid;
-	Attrib *a;
-
-	/*
-	 * Demands made elsewhere insist that we cope with the case of an
-	 * empty object. 
-	 */
-
-	if (obj->atrs == ATNULL) {
-		a = (Attrib *) XMALLOC(sizeof(Attrib), "set_attrib");
-		if (a == ATNULL)	/*
-					 * Fail silently. It's a game. 
-					 */
-			return;
-
-		obj->atrs = a;
-		obj->at_count = 1;
-		a[0].attrnum = anam->attrnum;
-		a[0].data = (char *)value;
-#ifdef RADIX_COMPRESSION
-		a[0].size = len;
-#else
-		a[0].size = ATTR_SIZE(value);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
-		obj->size += a[0].size;
-		cs_size += a[0].size;
-		return;
-	}
-	/*
-	 * Binary search for the attribute. 
-	 */
-	lo = 0;
-	hi = obj->at_count - 1;
-
-	a = obj->atrs;
-	while (lo <= hi) {
-		mid = ((hi - lo) >> 1) + lo;
-		if (a[mid].attrnum == anam->attrnum) {
-			/* Subtract the old attribute's size from the object size */
-			obj->size -= a[mid].size;
-			cs_size -= a[mid].size;
-			XFREE(a[mid].data, "set_attrib.data");
-			a[mid].data = (char *)value;
-#ifdef RADIX_COMPRESSION
-			a[mid].size = len;
-#else
-			a[mid].size = ATTR_SIZE(value);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
-			/* Add the new attribute's size */
-			obj->size += a[mid].size;
-			cs_size += a[mid].size;
-			return;
-		} else if (a[mid].attrnum > anam->attrnum) {
-			hi = mid - 1;
-		} else {
-			lo = mid + 1;
-		}
-	}
-
-	/*
-	 * If we got here, we didn't find it, so lo = hi + 1, and the
-	 * attribute should be inserted between them. 
-	 */
-
-	a = (Attrib *) XREALLOC(obj->atrs, (obj->at_count + 1) * sizeof(Attrib), "set_attrib.atrs");
-
-	if (!a) {
-		/* Silently fail. It's just a game. */
-		return;
-	}
-	/*
-	 * Move the stuff upwards one slot. 
-	 */
-	if (lo < obj->at_count)
-		bcopy((char *)(a + lo), (char *)(a + lo + 1),
-		      (obj->at_count - lo) * sizeof(Attrib));
-
-	a[lo].data = value;
-	a[lo].attrnum = anam->attrnum;
-#ifdef RADIX_COMPRESSION
-	a[lo].size = len;
-#else
-	a[lo].size = ATTR_SIZE(value);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
-	obj->size += a[lo].size;
-	cs_size += a[lo].size;
-	obj->at_count++;
-	obj->atrs = a;
-
-}
-
-static void del_attrib(anam, obj)
-Aname *anam;
-Obj *obj;
-{
-	int hi, lo, mid;
-	Attrib *a;
-
-#ifdef CACHE_DEBUG
-	printf("del_attrib: deleteing attr %d on object %d (%d)\n", anam->attrnum,
-	       obj->name, anam->object);
-#endif
-
-	if (!obj->at_count || !obj->atrs)
-		return;
-
-	if (obj->at_count < 0) {
-	    fprintf(stderr,
-		    "ABORT! udb_ocache.c, negative attr count in del_attrib().\n");
-	    abort();
-	}
-
-	/* Binary search for the attribute. */
-
-	lo = 0;
-	hi = obj->at_count - 1;
-	a = obj->atrs;
-	while (lo <= hi) {
-		mid = ((hi - lo) >> 1) + lo;
-		if (a[mid].attrnum == anam->attrnum) {
-			XFREE(a[mid].data, "del_attrib.d");
-			obj->at_count--;
-			obj->size -= a[mid].size;
-			cs_size -= a[mid].size;
-			if (mid != obj->at_count)
-				bcopy((char *)(a + mid + 1), (char *)(a + mid),
-				    (obj->at_count - mid) * sizeof(Attrib));
-
-			if (obj->at_count == 0) {
-				XFREE(obj->atrs, "del_attrib.a");
-				obj->atrs = ATNULL;
-			}
-			return;
-		} else if (a[mid].attrnum > anam->attrnum) {
-			hi = mid - 1;
-		} else {
-			lo = mid + 1;
-		}
-	}
-}
-
-/*
- * And something to free all the goo on an Obj, as well as the Obj. 
- */
-
-static void objfree(o)
-Obj *o;
-{
-	int i;
-	Attrib *a;
-
-	if (!o->atrs) {
-		XFREE(o, "objfree.o");
-		return;
-	}
-	a = o->atrs;
-	for (i = 0; i < o->at_count; i++)
-		XFREE(a[i].data, "objfree.d");
-
-	XFREE(a, "objfree.a");
-	XFREE(o, "objfree.o");
-}

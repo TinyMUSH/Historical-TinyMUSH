@@ -76,7 +76,7 @@ extern void cache_reset();
 extern int cache_sync();
 extern void cache_del();
 
-extern Obj *	FDECL(objfromFILE, (char *));
-extern int	FDECL(objtoFILE, (Obj *, char *));
+extern Attr *	FDECL(attrfromFILE, (char *));
+extern int	FDECL(attrtoFILE, (Attr *, char *));
 
 #endif /* __UDB_H */

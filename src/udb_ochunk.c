@@ -37,9 +37,8 @@ static DBT dat;
 static DBT key;
 static DB_TXN *tid = NULL;
 
-int FDECL(dddb_del, (Objname *));
-int FDECL(dddb_put, (Obj *, Objname *));
-extern int FDECL(obj_siz, (Obj *));
+int FDECL(dddb_del, (Aname *));
+int FDECL(dddb_put, (Attr *, Aname *));
 extern void VDECL(fatal, (char *, ...));
 extern void VDECL(logf, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
@@ -61,7 +60,7 @@ int dddb_init()
 {
 	static char *copen = "db_init cannot open ";
 	int block_size;
-	int cache_size = 65535;
+	int cache_size = 32768;
 	int ret;
 	
 	/* Calculate the proper page size */
@@ -117,7 +116,7 @@ int dddb_init()
 
 	/* Open the database */
 	
-	if ((ret = dbp->open(dbp, dbfile, NULL, DB_BTREE, DB_CREATE, 0600)) != 0) {
+	if ((ret = dbp->open(dbp, dbfile, NULL, DB_HASH, DB_CREATE, 0600)) != 0) {
 		dbp->err(dbp, ret, "%s", "DB->open");
 		return(1);
 	}
@@ -181,20 +180,20 @@ int dddb_close()
 	return (0);
 }
 
-Obj *dddb_get(nam)
-Objname *nam;
+Attr *dddb_get(nam)
+Aname *nam;
 {
-	Obj *obj;
+	Attr *atr;
 	int ret;
 	
 	if (!db_initted)
-		return ((Obj *) 0);
+		return (NULL);
 
 	memset(&key, 0, sizeof(key));
 	memset(&dat, 0, sizeof(dat));
 
 	key.data = (char *)nam;
-	key.size = sizeof(Objname);
+	key.size = sizeof(Aname);
 
 #ifndef STANDALONE
 	/* Start an atomic, recoverable transaction */
@@ -221,6 +220,8 @@ Objname *nam;
 		if (txn_commit(tid, 0))
 			dbenvp->err(dbenvp, ret, "txn_commit");
 #endif
+		dbp->err(dbp, ret, "dbp->get");
+		log_db_err(nam->object, nam->attrnum, "db_get: not found");
 		return(NULL);
 	}
 
@@ -232,30 +233,18 @@ Objname *nam;
 #endif
 	/* if the file is badly formatted, ret == NULL */
 
-	if ((obj = objfromFILE(dat.data)) == NULL) {
-		logf("db_get: cannot decode ", nam, "\n", NULL);
+	if ((atr = attrfromFILE(dat.data)) == NULL) {
+		log_db_err(nam->object, nam->attrnum,
+		           "db_get: cannot decode");
 		return NULL;
 	}
 	
-#ifndef STANDALONE	
-	/* Check to make sure the requested name and stored name are the
-	   same */
-	
-	if (*nam != obj->name) {
-		STARTLOG(LOG_ALWAYS, "BUG", "CRUPT")
-			log_printf("Database is corrupt, object %d. Exiting.",
-				   (int)obj->name);
-		ENDLOG
-		raw_broadcast(0, "GAME: Database corruption detected, exiting.");
-		exit(8);
-	}
-#endif
-	return (obj);
+	return (atr);
 }
 
-int dddb_put(obj, nam)
-Obj *obj;
-Objname *nam;
+int dddb_put(atr, nam)
+Attr *atr;
+Aname *nam;
 {
 	int nsiz;
 	int ret;
@@ -263,20 +252,20 @@ Objname *nam;
 	if (!db_initted)
 		return (1);
 
-	nsiz = obj_siz(obj);
+	nsiz = strlen(atr) + 1;
 
 	memset(&key, 0, sizeof(key));
 	memset(&dat, 0, sizeof(dat));
 
 	key.data = (char *)nam;
-	key.size = sizeof(Objname);
+	key.size = sizeof(Aname);
 	
 	/* make table entry */
 	dat.data = (char *)XMALLOC(nsiz, "dddb_put");
 	dat.size = nsiz;
 
-	if (objtoFILE(obj, dat.data) != 0) {
-		logf("db_put: can't save ", nam, " ", (char *)-1, "\n", (char *)0);
+	if (attrtoFILE(atr, dat.data) != 0) {
+		log_db_err(nam->object, nam->attrnum, "db_put: can't save");
 		XFREE(dat.data, "dddb_put");
 		return (1);
 	}
@@ -304,8 +293,8 @@ Objname *nam;
 	default:
 #ifndef STANDALONE
 		txn_abort(tid);
-		dbenvp->err(dbenvp, ret, "dbp->put");
 #endif
+		dbp->err(dbp, ret, "dbp->put");
 		XFREE(dat.data, "dddb_put");
 		return (1);
 	}
@@ -320,17 +309,19 @@ Objname *nam;
 }
 
 int dddb_del(nam)
-Objname *nam;
+Aname *nam;
 {
 	int ret;
 
-	if (!db_initted)
+	if (!db_initted) {
+		fprintf(stderr, "foobar");
 		return (-1);
+	}
 
 	memset(&key, 0, sizeof(key));
 
 	key.data = (char *)nam;
-	key.size = sizeof(Objname);
+	key.size = sizeof(Aname);
 
 #ifndef STANDALONE
 	/* Begin an atomic, recoverable transaction */
@@ -352,11 +343,16 @@ Objname *nam;
 		exit(0);
 	case 0:
 		break;
+	case DB_NOTFOUND:
+#ifndef STANDALONE
+		txn_abort(tid);
+#endif
+		return(0);		
 	default:
 #ifndef STANDALONE
 		txn_abort(tid);
-		dbenvp->err(dbenvp, ret, "dbp->del");
 #endif
+		dbp->err(dbp, ret, "dbp->del");
 		return (1);
 	}
 

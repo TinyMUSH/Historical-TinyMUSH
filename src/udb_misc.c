@@ -32,12 +32,20 @@ void log_db_err(obj, attr, txt)
 int obj, attr;
 const char *txt;
 {
+#ifndef STANDALONE
 	STARTLOG(LOG_ALWAYS, "DBM", "ERROR")
 	log_printf("Could not %s object #%d", txt, obj);
 	if (attr != NOTHING) {
 		log_printf(" attr #%d", attr);
 	}
 	ENDLOG
+#else
+	fprintf(stderr, "Could not %s object #%d", txt, obj);
+	if (attr != NOTHING) {
+		fprintf(stderr, " attr #%d", attr);
+	}
+	fprintf(stderr, "\n");
+#endif
 }
 
 /*

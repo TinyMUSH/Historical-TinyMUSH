@@ -24,6 +24,6 @@ typedef	char	*mall_t;
 
 #define	DB_GET(n)	dddb_get(n)
 #define	DB_PUT(o,n)	dddb_put(o,n)
-#define	DB_DEL(n,f)	dddb_del(n)
+#define	DB_DEL(n)	dddb_del(n)
 
 #endif /* __UDB_DEFS_H */
