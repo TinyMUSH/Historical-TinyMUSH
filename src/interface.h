@@ -102,7 +102,7 @@ struct descriptor_data {
   int host_info;
   char addr[51];
   char username[11]; 
-  char doing[41];
+  char doing[DOING_LEN];
   dbref player;
   char *output_prefix;
   char *output_suffix;

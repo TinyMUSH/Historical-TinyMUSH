@@ -511,8 +511,27 @@ char *cargs[];
 			case 'X':
 				(*dstr)++;
 				if (!**dstr) {
-					(*dstr)--;
-					break;
+				    /*
+				     * Note: There is an interesting
+				     * bug/misfeature in the implementation
+				     * of %v? and %q? -- if the second
+				     * character is garbage or non-existent,
+				     * it and the leading v or q gets eaten.
+				     * In the interests of not changing the
+				     * old behavior, this is not getting
+				     * "fixed", but in this case, where
+				     * moving the pointer back without
+				     * exiting on an error condition ends up
+				     * turning things black, the behavior
+				     * must by necessity be different. So we
+				     * do  break out of the switch.
+				     */
+				    (*dstr)--;
+				    break;
+				}
+				if (!mudconf.ansi_colors) {
+				    /* just skip over the characters */
+				    break;
 				}
 				ansi = 1;
 				switch (**dstr) {

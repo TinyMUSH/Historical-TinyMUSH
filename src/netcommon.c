@@ -343,13 +343,19 @@ const char *s;
 {
 	char *new;
 
-	if (!Ansi(d->player) && index(s, ESC_CHAR))
-		new = strip_ansi(s);
-	else if (NoBleed(d->player))
-		new = normal_to_white(s);
-	else
-		new = (char *)s;
-	queue_write(d, new, strlen(new));
+	if (s) {
+	    if (!mudconf.ansi_colors) {
+		queue_write(d, s, strlen(s));
+	    } else {
+		if (!Ansi(d->player) && index(s, ESC_CHAR))
+		    new = strip_ansi(s);
+		else if (NoBleed(d->player))
+		    new = normal_to_white(s);
+		else
+		    new = (char *) s;
+		queue_write(d, new, strlen(new));
+	    }
+	}
 }
 
 INLINE void queue_rawstring(d, s)
@@ -615,15 +621,26 @@ DESC *d;
 	}
 #endif
 
-	raw_notify(player, tprintf("\n%sMOTD:%s %s\n", ANSI_HILITE,
-				   ANSI_NORMAL, mudconf.motd_msg));
+	if (mudconf.ansi_colors) {
+	    raw_notify(player, tprintf("\n%sMOTD:%s %s\n", ANSI_HILITE,
+				       ANSI_NORMAL, mudconf.motd_msg));
+	} else {
+	    raw_notify(player, tprintf("\nMOTD: %s\n", mudconf.motd_msg));
+	}
+
 	if (Wizard(player)) {
+	    if (mudconf.ansi_colors) {
 		raw_notify(player, tprintf("%sWIZMOTD:%s %s\n",
 			    ANSI_HILITE, ANSI_NORMAL, mudconf.wizmotd_msg));
-		if (!(mudconf.control_flags & CF_LOGIN)) {
-			raw_notify(player, "*** Logins are disabled.");
-		}
+	    } else {
+		raw_notify(player, tprintf("WIZMOTD: %s\n",
+					   mudconf.wizmotd_msg));
+	    }
+	    if (!(mudconf.control_flags & CF_LOGIN)) {
+		raw_notify(player, "*** Logins are disabled.");
+	    }
 	}
+
 	buf = atr_get(player, A_LPAGE, &aowner, &aflags);
 	if (buf && *buf) {
 		raw_notify(player, "Your PAGE LOCK is set.  You may be unable to receive some pages.");
@@ -1252,9 +1269,14 @@ char *arg;
 				
 		DESC_ITER_PLAYER(player, d) {
 			c = d->doing;
-
-			over = safe_copy_str(arg, d->doing, &c, 36);
-			strcpy(c, ANSI_NORMAL);
+			if (!mudconf.ansi_colors || !index(arg, ESC_CHAR)) {
+			    over = safe_copy_str(arg, d->doing, &c,
+						 DOING_LEN - 1);
+			} else {
+			    over = safe_copy_str(arg, d->doing, &c,
+						 DOING_LEN - 5);
+			    strcpy(c, ANSI_NORMAL);
+			}
 			foundany = 1;
 		}
 		if (foundany) {
@@ -1278,7 +1300,8 @@ char *arg;
 			over = 0;
 		} else {
 			c = mudstate.doing_hdr;
-			over = safe_copy_str(arg, mudstate.doing_hdr, &c, 40);
+			over = safe_copy_str(arg, mudstate.doing_hdr, &c,
+					     DOING_LEN - 1);
 			*c = '\0';
 		}
 		if (over) {

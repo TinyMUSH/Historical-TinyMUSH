@@ -215,6 +215,7 @@ void NDECL(cf_init)
 	mudconf.req_cmds_flag = 1;
 	mudconf.fmt_contents = 1;
 	mudconf.fmt_exits = 1;
+	mudconf.ansi_colors = 1;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -958,6 +959,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.addcmd_obey_stop,	0},
 {(char *)"alias",
 	cf_cmd_alias,	CA_GOD,		(int *)&mudstate.command_htab,	0},
+{(char *)"ansi_colors",
+	cf_bool,	CA_GOD,		&mudconf.ansi_colors,		0},
 {(char *)"attr_access",
 	cf_attr_access,	CA_GOD,		NULL,
 	(long)attraccess_nametab},

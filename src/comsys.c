@@ -1272,7 +1272,8 @@ char *arg1;
 		if ((flag || UNDEAD(user->who)) && (!Dark(user->who) || Wizard_Who(player))) {
 			buff = unparse_object(player, user->who, 0);
 			sprintf(temp, "%-29.29s %-6.6s %-6.6s",
-			     strip_ansi(buff), ((user->on) ? "on " : "off"),
+			       (mudconf.ansi_colors ? strip_ansi(buff) : buff),
+				((user->on) ? "on " : "off"),
 			(Typeof(user->who) == TYPE_PLAYER) ? "yes" : "no ");
 			raw_notify(player, temp);
 			free_lbuf(buff);

@@ -1299,9 +1299,11 @@ char *src, **dst, **returnstr, *from, *to;
 		 */
 		*returnstr = alloc_lbuf("edit_string_ansi.^");
 		rp = *returnstr;
-		safe_str(ANSI_HILITE, *returnstr, &rp);
+		if (mudconf.ansi_colors)
+		    safe_str(ANSI_HILITE, *returnstr, &rp);
 		safe_str(to, *returnstr, &rp);
-		safe_str(ANSI_NORMAL, *returnstr, &rp);
+		if (mudconf.ansi_colors)
+		    safe_str(ANSI_NORMAL, *returnstr, &rp);
 		safe_str(src, *returnstr, &rp);
 		*rp = '\0';
 
@@ -1323,9 +1325,11 @@ char *src, **dst, **returnstr, *from, *to;
 		*returnstr = alloc_lbuf("edit_string_ansi.$");
 		rp = *returnstr;
 		safe_str(src, *returnstr, &rp);
-		safe_str(ANSI_HILITE, *returnstr, &rp);
+		if (mudconf.ansi_colors)
+		    safe_str(ANSI_HILITE, *returnstr, &rp);
 		safe_str(to, *returnstr, &rp);
-		safe_str(ANSI_NORMAL, *returnstr, &rp);
+		if (mudconf.ansi_colors)
+		    safe_str(ANSI_NORMAL, *returnstr, &rp);
 		*rp = '\0';
 
 	} else {
@@ -1340,8 +1344,14 @@ char *src, **dst, **returnstr, *from, *to;
 			from++;
 
 		*dst = replace_string(from, to, src);
-		*returnstr = replace_string(from, tprintf("%s%s%s", ANSI_HILITE,
-						     to, ANSI_NORMAL), src);
+		if (mudconf.ansi_colors) {
+		    *returnstr = replace_string(from,
+						tprintf("%s%s%s",
+							ANSI_HILITE, to,
+							ANSI_NORMAL), src);
+		} else {
+		    *returnstr = replace_string(from, to, src);
+		}
 	}
 }
 

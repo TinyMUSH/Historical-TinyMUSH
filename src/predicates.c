@@ -906,8 +906,14 @@ char *message;
 		/* Use telnet protocol's GOAHEAD command to show prompt, make
 		   sure that we haven't been issues an @quitprogram */
 		
-		if (d->program_data != NULL)
-			queue_string(d, tprintf("%s>%s \377\371", ANSI_HILITE, ANSI_NORMAL));
+		if (d->program_data != NULL) {
+		    if (mudconf.ansi_colors) {
+			queue_string(d,
+				     tprintf("%s>%s \377\371",
+					     ANSI_HILITE, ANSI_NORMAL));
+		    } else {
+			queue_string(d, (char *) "> \377\371");
+		    }
 		return;
 	}
 	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags);

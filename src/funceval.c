@@ -171,7 +171,14 @@ FUNCTION(fun_beep)
 
 FUNCTION(fun_ansi)
 {
-	char *s = fargs[0];
+	char *s;
+
+	if (!mudconf.ansi_colors) {
+	    safe_str(fargs[1], buff, bufc);
+	    return;
+	}
+
+	s = fargs[0];
 
 	while (*s) {
 		switch (*s) {

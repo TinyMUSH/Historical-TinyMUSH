@@ -185,6 +185,7 @@ struct confdata {
 	int	req_cmds_flag;	/* COMMANDS flag required to check $-cmds? */
 	int	fmt_contents;	/* allow user-formattable Contents? */
 	int	fmt_exits;	/* allow user-formattable Exits? */
+	int	ansi_colors;	/* allow ANSI colors? */
 	int	space_compress;	/* Convert multiple spaces into one space */
 	dbref	start_room;	/* initial location and home for players */
 	dbref	start_home;	/* initial HOME for players */
@@ -316,7 +317,7 @@ struct statedata {
     	time_t	cpu_count_from; /* When did we last reset CPU counters? */
 	char	buffer[256];	/* A buffer for holding temp stuff */
 	char	*debug_cmd;	/* The command we are executing (if any) */
-	char	doing_hdr[41];	/* Doing column header in the WHO display */
+	char	doing_hdr[DOING_LEN]; /* Doing column header in WHO display */
 	SITE	*access_list;	/* Access states for sites */
 	SITE	*suspect_list;	/* Sites that are suspect */
 	HASHTAB	command_htab;	/* Commands hashtable */

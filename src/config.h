@@ -30,6 +30,9 @@
 #define PLUSHELP_COMMAND	"+help" /* What you type to see the +help file */					 
 #define OUTPUT_BLOCK_SIZE	16384
 
+/* length of the DOING field in WHO */
+#define DOING_LEN		41
+
 #define PUEBLO_SUPPORT
 #undef SPLIT_QUOTAS
 #define USE_MAIL
@@ -39,7 +42,7 @@
 #define StringCopy strcpy
 #define StringCopyTrunc strncpy
 #define PUEBLO_SUPPORT_MSG "This world is Pueblo 1.0 enhanced\r\n\r\n"
-#define NO_LAG_CHECK
+/* #define NO_LAG_CHECK */
 
 /* ---------------------------------------------------------------------------
  * Database R/W flags.
