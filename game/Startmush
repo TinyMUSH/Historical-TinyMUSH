@@ -116,4 +116,4 @@ fi
 #
 touch $LOGNAME
 (nohup $BIN/netmush $make_db $GAMENAME.conf >>$LOGNAME 2>&1 & echo Process $!)
-tail -f $LOGNAME | awk '{ print $0 }; /Startup processing complete/ { exit };'
+tail -f $LOGNAME | awk '{ print $0 }; /Cleanup completed/ { exit };'
