@@ -4745,7 +4745,7 @@ FUNCTION(fun_translate)
 FUNCTION(fun_lastcreate)
 {
     int i, aowner, aflags, alen, obj_list[4], obj_type;
-    char *obj_str, *p;
+    char *obj_str, *p, *tokst;
     dbref obj = match_thing(player, fargs[0]);
 
     if (!controls(player, obj)) {    /* Automatically checks for GoodObj */
@@ -4783,9 +4783,9 @@ FUNCTION(fun_lastcreate)
 	return;
     }
 
-    for (p = (char *) strtok(obj_str, " "), i = 0;
+    for (p = strtok_r(obj_str, " ", &tokst), i = 0;
 	 p && (i < 4);
-	 p = (char *) strtok(NULL, " "), i++) {
+	 p = strtok_r(NULL, " ", &tokst), i++) {
 	obj_list[i] = atoi(p);
     }
     free_lbuf(obj_str);

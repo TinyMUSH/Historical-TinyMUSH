@@ -22,7 +22,7 @@ dbref player;
 int qtype;
 {
 	int i, aowner, aflags, alen;
-	char *quota_str, *p;
+	char *quota_str, *p, *tokst;
 
 	quota_str = atr_get(player, qtype, &aowner, &aflags, &alen);
 
@@ -32,9 +32,9 @@ int qtype;
 		free_lbuf(quota_str);
 		return;
 	}
-	for (p = (char *)strtok(quota_str, " "), i = 0;
+	for (p = strtok_r(quota_str, " ", &tokst), i = 0;
 	     p && (i < 5);
-	     p = (char *)strtok(NULL, " "), i++) {
+	     p = strtok_r(NULL, " ", &tokst), i++) {
 		q_list[i] = atoi(p);
 	}
 

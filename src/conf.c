@@ -624,11 +624,11 @@ CF_HAND(cf_string)
 
 CF_HAND(cf_alias)
 {
-	char *alias, *orig, *p;
+	char *alias, *orig, *p, *tokst;
 	int *cp;
 
-	alias = strtok(str, " \t=,");
-	orig = strtok(NULL, " \t=,");
+	alias = strtok_r(str, " \t=,", &tokst);
+	orig = strtok_r(NULL, " \t=,", &tokst);
 	if (orig) {
 		for (p = orig; *p; p++)
 			*p = ToLower(*p);
@@ -657,12 +657,12 @@ CF_HAND(cf_alias)
 
 CF_HAND(cf_flagalias)
 {
-	char *alias, *orig;
+	char *alias, *orig, *tokst;
 	int *cp, success;
 
 	success = 0;
-	alias = strtok(str, " \t=,");
-	orig = strtok(NULL, " \t=,");
+	alias = strtok_r(str, " \t=,", &tokst);
+	orig = strtok_r(NULL, " \t=,", &tokst);
 
 	cp = hashfind(orig, &mudstate.flags_htab);
 	if (cp != NULL) {
@@ -680,15 +680,15 @@ CF_HAND(cf_flagalias)
 
 CF_HAND(cf_divert_log)
 {
-    char *type_str, *file_str;
+    char *type_str, *file_str, *tokst;
     int f;
     FILE *fptr;
     LOGFILETAB *tp, *lp;
 
     /* Two args, two args only */
 
-    type_str = (char *) strtok(str, " \t");
-    file_str = (char *) strtok(NULL, " \t");
+    type_str = strtok_r(str, " \t", &tokst);
+    file_str = strtok_r(NULL, " \t", &tokst);
     if (!type_str || !file_str) {
 	cf_log_syntax(player, cmd, "Missing pathname to log to.", (char *) "");
 	return -1;
@@ -777,7 +777,7 @@ CF_HAND(cf_divert_log)
  */
 CF_HAND(cf_modify_bits)
 {
-	char *sp;
+	char *sp, *tokst;
 	int f, negate, success, failure;
 
 	/*
@@ -785,7 +785,7 @@ CF_HAND(cf_modify_bits)
 	 */
 
 	success = failure = 0;
-	sp = strtok(str, " \t");
+	sp = strtok_r(str, " \t", &tokst);
 	while (sp != NULL) {
 
 		/*
@@ -817,7 +817,7 @@ CF_HAND(cf_modify_bits)
 		 * Get the next token 
 		 */
 
-		sp = strtok(NULL, " \t");
+		sp = strtok_r(NULL, " \t", &tokst);
 	}
 	return cf_status_from_succfail(player, cmd, success, failure);
 }
@@ -828,7 +828,7 @@ CF_HAND(cf_modify_bits)
 
 CF_HAND(cf_set_flags)
 {
-	char *sp;
+	char *sp, *tokst;
 	FLAGENT *fp;
 	FLAGSET *fset;
 
@@ -839,7 +839,7 @@ CF_HAND(cf_set_flags)
 	 */
 
 	success = failure = 0;
-	sp = strtok(str, " \t");
+	sp = strtok_r(str, " \t", &tokst);
 	fset = (FLAGSET *) vp;
 
 	while (sp != NULL) {
@@ -871,7 +871,7 @@ CF_HAND(cf_set_flags)
 		 * Get the next token 
 		 */
 
-		sp = strtok(NULL, " \t");
+		sp = strtok_r(NULL, " \t", &tokst);
 	}
 	if ((success == 0) && (failure == 0)) {
 		(*fset).word1 = 0;
@@ -929,7 +929,7 @@ static unsigned long sane_inet_addr(str)
 CF_AHAND(cf_site)
 {
     SITE *site, *last, *head;
-    char *addr_txt, *mask_txt;
+    char *addr_txt, *mask_txt, *tokst;
     struct in_addr addr_num, mask_num;
     int mask_bits;
 
@@ -937,9 +937,9 @@ CF_AHAND(cf_site)
 
 	/* Standard IP range and netmask notation. */
 
-	addr_txt = strtok(str, " \t=,");
+	addr_txt = strtok_r(str, " \t=,", &tokst);
 	if (addr_txt)
-	    mask_txt = strtok(NULL, " \t=,");
+	    mask_txt = strtok_r(NULL, " \t=,", &tokst);
 	if (!addr_txt || !*addr_txt || !mask_txt || !*mask_txt) {
 	    cf_log_syntax(player, cmd, "Missing host address or mask.",
 			  (char *)"");
@@ -1060,7 +1060,7 @@ int add_helpfile(player, str, is_raw)
     char *str;
     int is_raw;
 {
-    char *fcmd, *fpath, *newstr;
+    char *fcmd, *fpath, *newstr, *tokst;
     CMDENT *cmdp;
     char **ftab;		/* pointer to an array of filepaths */
     HASHTAB *hashes;
@@ -1070,8 +1070,8 @@ int add_helpfile(player, str, is_raw)
     newstr = alloc_mbuf("add_helpfile");
     StringCopy(newstr, str);
 
-    fcmd = strtok(newstr, " \t=,");
-    fpath = strtok(NULL, " \t=,");
+    fcmd = strtok_r(newstr, " \t=,", &tokst);
+    fpath = strtok_r(NULL, " \t=,", &tokst);
 
     if (strlen(fpath) > SBUF_SIZE) {
 	free_mbuf(newstr);

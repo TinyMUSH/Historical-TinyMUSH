@@ -229,7 +229,7 @@ static void update_newobjs(player, obj_num, obj_type)
      int obj_type;
 {
     int i, aowner, aflags, alen;
-    char *newobj_str, *p, tbuf[SBUF_SIZE];
+    char *newobj_str, *p, tbuf[SBUF_SIZE], *tokst;
     int obj_list[4];
 
     newobj_str = atr_get(player, A_NEWOBJS, &aowner, &aflags, &alen);
@@ -238,9 +238,9 @@ static void update_newobjs(player, obj_num, obj_type)
 	for (i = 0; i < 4; i++)
 	    obj_list[i] = -1;
     } else {
-	for (p = (char *) strtok(newobj_str, " "), i = 0;
+	for (p = strtok_r(newobj_str, " ", &tokst), i = 0;
 	     p && (i < 4);
-	     p = (char *) strtok(NULL, " "), i++) {
+	     p = strtok_r(NULL, " ", &tokst), i++) {
 	    obj_list[i] = atoi(p);
 	}
     }

@@ -751,11 +751,11 @@ FLAGENT *letter_to_flag(this_letter)
 
 CF_HAND(cf_flag_access)
 {
-    char *fstr, *permstr;
+    char *fstr, *permstr, *tokst;
     FLAGENT *fp;
 
-    fstr = strtok(str, " \t=,");
-    permstr = strtok(NULL, " \t=,");
+    fstr = strtok_r(str, " \t=,", &tokst);
+    permstr = strtok_r(NULL, " \t=,", &tokst);
 
     if (!fstr || !*fstr) {
 	return -1;
@@ -807,13 +807,13 @@ CF_HAND(cf_flag_access)
 
 CF_HAND(cf_flag_name)
 {
-    char *numstr, *namestr;
+    char *numstr, *namestr, *tokst;
     FLAGENT *fp;
     int flagnum = -1;
     char *flagstr, *cp;
 
-    numstr = strtok(str, " \t=,");
-    namestr = strtok(NULL, " \t=,");
+    numstr = strtok_r(str, " \t=,", &tokst);
+    namestr = strtok_r(NULL, " \t=,", &tokst);
 
     if (numstr && (strlen(numstr) == 1)) {
 	flagnum = atoi(numstr);

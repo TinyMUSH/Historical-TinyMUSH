@@ -431,7 +431,7 @@ void do_page(player, cause, key, tname, message)
     dbref target;
     int n_dbrefs, i;
     int *dbrefs_array = NULL;
-    char *str;
+    char *str, *tokst;
 
     /* Handle repage with or without an '=', by swapping args. */
 
@@ -457,9 +457,9 @@ void do_page(player, cause, key, tname, message)
 
 	/* Convert the list into an array of targets. Validate. */
 
-	for (ddp = strtok(dbref_list, " ");
+	for (ddp = strtok_r(dbref_list, " ", &tokst);
 	     ddp;
-	     ddp = strtok(NULL, " ")) {
+	     ddp = strtok_r(NULL, " ", &tokst)) {
 	    target = atoi(ddp);
 	    if (!Good_obj(target) || !isPlayer(target)) {
 		notify(player, tprintf("I don't recognize #%d.", target));
@@ -491,7 +491,9 @@ void do_page(player, cause, key, tname, message)
 
 	    /* Go look 'em up */
 
-	    for (tnp = strtok(tname, ", "); tnp; tnp = strtok(NULL, ", ")) {
+	    for (tnp = strtok_r(tname, ", ", &tokst);
+		 tnp;
+		 tnp = strtok_r(NULL, ", ", &tokst)) {
 		if ((target = lookup_player(player, tnp, 1)) != NOTHING) {
 		    dbrefs_array[count] = target;
 		    count++;
@@ -660,16 +662,16 @@ int do_contents;
 	 * thereafter. The list is destructively modified. 
 	 */
 
-	char *p;
+	char *p, *tokst;
 	dbref who;
 	int ok_to_do;
 
 	if (!message || !*message || !list || !*list)
 		return;
 
-	for (p = (char *)strtok(list, " ");
+	for (p = strtok_r(list, " ", &tokst);
 	     p != NULL;
-	     p = (char *)strtok(NULL, " ")) {
+	     p = strtok_r(NULL, " ", &tokst)) {
 
 		ok_to_do = 0;
 		init_match(player, p, TYPE_PLAYER);

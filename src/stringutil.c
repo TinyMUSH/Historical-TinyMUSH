@@ -14,10 +14,31 @@
 #include "alloc.h"
 #include "ansi.h"
 
-#ifdef __linux__
-char *___strtok;
+/* Provide strtok_r (reentrant strtok) if needed */
 
-#endif
+#ifndef HAVE_STRTOK_R
+char *strtok_r(s, sep, last)
+char *s;
+const char *sep;
+char **last;
+{
+    if (!s)
+	s = *last;
+#ifdef HAVE_STRCSPN
+    s += strspn(s, sep);
+    *last = s + strcspn(s, sep);
+#else /* HAVE_STRCSPN */
+    while (strchr(sep, *s) && *s) s++;
+    *last = s;
+    while (!strchr(sep, **last) && **last) (*last)++;
+#endif /* HAVE_STRCSPN */
+    if (s == *last)
+	return NULL;
+    if (**last)
+	*((*last)++) = '\0';
+    return s;
+}
+#endif /* HAVE_STRTOK_R */
 
 /* Convert raw character sequences into MUSH substitutions (type = 1)
  * or strips them (type = 0). */

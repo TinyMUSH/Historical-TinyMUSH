@@ -24,7 +24,7 @@ AC_FUNC_VFORK
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(setrlimit getrusage timelocal mktime srandom)
 AC_CHECK_FUNCS(getdtablesize socket gethostbyaddr)
-AC_CHECK_FUNCS(gettimeofday select socket wait3)
+AC_CHECK_FUNCS(gettimeofday select wait3 strtok_r strcspn)
 AC_CHECK_FUNCS(getpagesize)
 AC_EGREP_HEADER(getpagesize,unistd.h,,AC_DEFINE(NEED_GETPAGESIZE_DCL))
 AC_TYPE_OFF_T

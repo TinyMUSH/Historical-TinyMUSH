@@ -817,7 +817,7 @@ int key;
 char *aname, *value;
 {
 	int success, negate, f;
-	char *buff, *sp, *p, *q, *tbuf;
+	char *buff, *sp, *p, *q, *tbuf, *tokst;
 	VATTR *va;
 	ATTR *va2;
 
@@ -845,7 +845,7 @@ char *aname, *value;
 
 		for (sp = value; *sp; sp++)
 			*sp = ToUpper(*sp);
-		sp = strtok(value, " ");
+		sp = strtok_r(value, " ", &tokst);
 		success = 0;
 		while (sp != NULL) {
 
@@ -872,7 +872,7 @@ char *aname, *value;
 
 			/* Get the next token */
 
-			sp = strtok(NULL, " ");
+			sp = strtok_r(NULL, " ", &tokst);
 		}
 		if (success && !Quiet(player))
 			notify(player, "Attribute access changed.");

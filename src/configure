@@ -1899,7 +1899,7 @@ else
 fi
 done
 
-for ac_func in gettimeofday select socket wait3
+for ac_func in gettimeofday select wait3 strtok_r strcspn
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
 echo "configure:1906: checking for $ac_func" >&5

@@ -2428,13 +2428,13 @@ CF_HAND(cf_attr_access)
 
 CF_HAND(cf_cmd_alias)
 {
-	char *alias, *orig, *ap;
+	char *alias, *orig, *ap, *tokst;
 	CMDENT *cmdp, *cmd2;
 	NAMETAB *nt;
 	int *hp;
 
-	alias = strtok(str, " \t=,");
-	orig = strtok(NULL, " \t=,");
+	alias = strtok_r(str, " \t=,", &tokst);
+	orig = strtok_r(NULL, " \t=,", &tokst);
 
 	if (!orig)		/* we only got one argument to @alias. Bad. */
 		return -1;

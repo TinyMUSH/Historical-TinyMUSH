@@ -50,6 +50,10 @@
 #undef HAVE_GETTIMEOFDAY
 /* Define if srandom exists */
 #undef HAVE_SRANDOM
+/* Define if strcspn exists */
+#undef HAVE_STRCSPN
+/* Define if strtok_r exists */
+#undef HAVE_STRTOK_R
 /* Define if sys_siglist[] exists */
 #undef HAVE_SYS_SIGLIST
 /* Define if _sys_siglist[] exists */
@@ -178,11 +182,15 @@ extern int	FDECL(qsort, (char *, int, int, int (*)()));
 #endif
 #else
 #include <strings.h>
-extern char *	FDECL(strtok, (char *, char *));
 extern char *	FDECL(strchr, (char *, char));
 extern void	FDECL(bcopy, (char *, char *, int));
 extern int      FDECL(bcmp, (char *, char *, int));
 extern void	FDECL(bzero, (char *, int));
+#endif
+
+#ifndef HAVE_STRTOK_R
+/* use our own version in stringutil.c */
+extern char *	FDECL(strtok_r, (char *, const char *, char **));
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -392,7 +400,6 @@ extern int	FDECL(select, (int, fd_set *, fd_set *, fd_set *, struct timeval *));
 
 #ifdef __linux__
 #ifndef __GLIBC__
-extern char *___strtok;
 #include <asm/string.h>
 #endif
 #endif

@@ -478,11 +478,11 @@ char *thingname;
 
 CF_HAND(cf_power_access)
 {
-    char *fstr, *permstr;
+    char *fstr, *permstr, *tokst;
     POWERENT *fp;
 
-    fstr = strtok(str, " \t=,");
-    permstr = strtok(NULL, " \t=,");
+    fstr = strtok_r(str, " \t=,", &tokst);
+    permstr = strtok_r(NULL, " \t=,", &tokst);
 
     if (!fstr || !*fstr) {
 	return -1;

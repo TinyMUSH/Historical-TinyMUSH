@@ -1040,7 +1040,7 @@ int all, key;
 {
 	struct mail *mp;
 	int num;
-	char *tolist, *bp, *p, *names, *oldlist;
+	char *tolist, *bp, *p, *names, *oldlist, *tokst;
 
         if (Flags2(player) & PLAYER_MAILS) {
                 notify(player, "MAIL: Mail message already in progress.");
@@ -1070,9 +1070,9 @@ int all, key;
 
         	StringCopy(oldlist, (char *)mp->tolist);
 
-	        for (p = (char *)strtok(oldlist, " ");
-             	p != NULL;
-             	p = (char *)strtok(NULL, " ")) {
+	        for (p = strtok_r(oldlist, " ", &tokst);
+		     p != NULL;
+		     p = strtok_r(NULL, " ", &tokst)) {
                 	if (*p == '*') {
                         	safe_str(p, names, &bp);
                         	safe_str(" ", names, &bp);
@@ -3137,7 +3137,7 @@ dbref player;
 char *arg;
 {
 	char *names, *oldarg;
-	char *bp, *p;
+	char *bp, *p, *tokst;
 
 	oldarg = alloc_lbuf("make_namelist.oldarg");
 	names = alloc_lbuf("make_namelist.names");
@@ -3145,9 +3145,9 @@ char *arg;
 
 	StringCopy(oldarg, arg);
 
-	for (p = (char *)strtok(oldarg, " ");
+	for (p = strtok_r(oldarg, " ", &tokst);
 	     p != NULL;
-	     p = (char *)strtok(NULL, " ")) {
+	     p = strtok_r(NULL, " ", &tokst)) {
 		if (*p == '*') {
 			safe_str(p, names, &bp);
 			safe_str(", ", names, &bp);
