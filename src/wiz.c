@@ -309,7 +309,7 @@ int key;
 char *name, *password;
 {
 	dbref victim;
-	char *buf;
+	char *buf, *bp;
 
 	if ((victim = lookup_player(player, name, 0)) == NOTHING) {
 		notify_quiet(player, "No such player.");
@@ -335,10 +335,13 @@ char *name, *password;
 	 * it's ok, do it 
 	 */
 
-		s_Pass(victim, crypt((const char *)password, "XX"));
-	buf = alloc_lbuf("do_newpassword");
+	s_Pass(victim, crypt((const char *)password, "XX"));
 	notify_quiet(player, "Password changed.");
-	sprintf(buf, "Your password has been changed by %s.", Name(player));
+	buf = alloc_lbuf("do_newpassword");
+	bp = buf;
+	safe_tprintf_str(buf, &bp,
+			 "Your password has been changed by %s.",
+			 Name(player));
 	notify_quiet(victim, buf);
 	free_lbuf(buf);
 }

@@ -620,7 +620,7 @@ dbref player, target;
 char *unparse_object_numonly(target)
 dbref target;
 {
-	char *buf;
+	char *buf, *bp;
 
 	buf = alloc_lbuf("unparse_object_numonly");
 	if (target == NOTHING) {
@@ -630,7 +630,8 @@ dbref target;
 	} else if (!Good_obj(target)) {
 		sprintf(buf, "*ILLEGAL*(#%d)", target);
 	} else {
-		sprintf(buf, "%s(#%d)", Name(target), target);
+	        bp = buf;
+		safe_tprintf_str(buf, &bp, "%s(#%d)", Name(target), target);
 	}
 	return buf;
 }
@@ -643,7 +644,7 @@ char *unparse_object(player, target, obey_myopic)
 dbref player, target;
 int obey_myopic;
 {
-	char *buf, *fp;
+	char *buf, *fp, *bp;
 	int exam;
 
 	buf = alloc_lbuf("unparse_object");
@@ -664,7 +665,9 @@ int obey_myopic;
 
 			/* show everything */
 			fp = unparse_flags(player, target);
-			sprintf(buf, "%s(#%d%s)", Name(target), target, fp);
+			bp = buf;
+			safe_tprintf_str(buf, &bp, "%s(#%d%s)",
+					 Name(target), target, fp);
 			free_sbuf(fp);
 		} else {
 			/* show only the name. */

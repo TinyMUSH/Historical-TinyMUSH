@@ -1543,7 +1543,7 @@ dbref player, cause;
 int key;
 char *object;
 {
-	char *df_use, *df_ouse, *temp;
+	char *df_use, *df_ouse, *temp, *bp;
 	dbref thing, aowner;
 	int aflags, doit;
 
@@ -1583,8 +1583,10 @@ char *object;
 	if (doit) {
 		df_use = alloc_lbuf("do_use.use");
 		df_ouse = alloc_lbuf("do_use.ouse");
-		sprintf(df_use, "You use %s", Name(thing));
-		sprintf(df_ouse, "uses %s", Name(thing));
+		bp = df_use;
+		safe_tprintf_str(df_use, &bp, "You use %s", Name(thing));
+		bp = df_ouse;
+		safe_tprintf_str(df_ouse, &bp, "uses %s", Name(thing));
 		did_it(player, thing, A_USE, df_use, A_OUSE, df_ouse, A_AUSE,
 		       (char **)NULL, 0);
 		free_lbuf(df_use);

@@ -609,7 +609,7 @@ void do_joinchannel(player, ch)
 dbref player;
 struct channel *ch;
 {
-	char temp[1000];
+	char temp[1000], *bp;
 	struct comuser *user;
 	struct comuser **cu;
 	int i;
@@ -655,8 +655,10 @@ struct channel *ch;
 	}
 
 	if (!Dark(player)) {
-		sprintf(temp, "[%s] %s has joined this channel.", ch->name,
-			Name(player));
+	        bp = temp;
+		safe_tprintf_str(temp, &bp,
+				 "[%s] %s has joined this channel.",
+				 ch->name, Name(player));
 		do_comsend(ch, temp);
 	}
 }
@@ -666,7 +668,7 @@ dbref player;
 struct channel *ch;
 {
 	struct comuser *user;
-	char temp[1000];
+	char temp[1000], *bp;
 
 	user = select_user(ch, player);
 
@@ -674,8 +676,10 @@ struct channel *ch;
 	
 	if ((user->on) && (!Dark(player)))
 	{ 
-		sprintf(temp, "[%s] %s has left this channel.", ch->name,
-			Name(player));
+		bp = temp;
+		safe_tprintf_str(temp, &bp,
+				 "[%s] %s has left this channel.",
+				 ch->name, Name(player));
 		do_comsend(ch, temp);
 	}
 	user->on = 0;
@@ -939,7 +943,7 @@ char *channel;
 {
 	struct channel *ch;
 	struct comuser *user;
-	char temp[1000];
+	char temp[1000], *bp;
 	int i;
 	int j;
 
@@ -952,8 +956,10 @@ char *channel;
 			if (user->who == player) {
 				do_comdisconnectchannel(player, channel);
 				if (user->on) {
-					sprintf(temp, "[%s] %s has left this channel.",
-						channel, Name(player));
+					bp = temp;
+					safe_tprintf_str(temp, &bp,
+					      "[%s] %s has left this channel.",
+					      channel, Name(player));
 					do_comsend(ch, temp);
 				}
 				raw_notify(player, tprintf("You have left channel %s.", channel));
@@ -1307,7 +1313,8 @@ char *chan;
 
 	if ((ch->type & CHANNEL_LOUD) && (cu->on) && (!Dark(player))) {
 		buff = alloc_lbuf("do_comconnect");
-		sprintf(buff, "[%s] %s has disconnected.", ch->name, Name(player));
+		sprintf(buff, "[%s] %s has disconnected.",
+			ch->name, Name(player));
 		do_comsend(ch, buff);
 		free_lbuf(buff);
 	}
@@ -1730,8 +1737,9 @@ char *victim;
 	struct channel *ch;
 	struct comuser *vu;
 	dbref thing;
-	char buff[200];
+	char buff[LBUF_SIZE];
 	char buf2[LBUF_SIZE];
+	char *bp;
 				/*
 				 * * I sure hope it's not going to be that *
 				 * *  * *  * *  * * long.  
@@ -1767,7 +1775,10 @@ char *victim;
 	 */
 
 	strcpy(buf2, Name(player));
-	sprintf(buff, "[%s] %s boots %s off the channel.", ch->name, buf2, Name(thing));
+	bp = buff;
+	safe_tprintf_str(buff, &bp,
+			 "[%s] %s boots %s off the channel.",
+			 ch->name, buf2, Name(thing));
 	do_comsend(ch, buff);
 	do_delcomchannel(thing, channel);
 

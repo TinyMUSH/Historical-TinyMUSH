@@ -24,7 +24,7 @@ int key;
 char *what, *costchar;
 {
 	dbref victim;
-	char *buf1, *buf2;
+	char *buf1, *buf2, *bp;
 	int cost;
 
 	init_match(player, what, TYPE_PLAYER);
@@ -94,7 +94,10 @@ char *what, *costchar;
 
 			notify(player, "Your murder attempt failed.");
 			buf1 = alloc_lbuf("do_kill.failed");
-			sprintf(buf1, "%s tried to kill you!", Name(player));
+			bp = buf1;
+			safe_tprintf_str(buf1, &bp,
+					 "%s tried to kill you!",
+					 Name(player));
 			notify_with_cause(victim, player, buf1);
 			if (Suspect(player)) {
 				StringCopy(buf1, Name(player));
@@ -135,8 +138,10 @@ char *what, *costchar;
 					      victim);
 			}
 		}
-		sprintf(buf1, "You killed %s!", Name(victim));
-		sprintf(buf2, "killed %s!", Name(victim));
+		bp = buf1;
+		safe_tprintf_str(buf1, &bp, "You killed %s!", Name(victim));
+		bp = buf2;
+		safe_tprintf_str(buf2, &bp, "killed %s!", Name(victim));
 		if (Typeof(victim) != TYPE_PLAYER)
 			if (halt_que(NOTHING, victim) > 0)
 				if (!Quiet(victim))
@@ -148,7 +153,8 @@ char *what, *costchar;
 		 * notify victim 
 		 */
 
-		sprintf(buf1, "%s killed you!", Name(player));
+		bp = buf1;
+		safe_tprintf_str(buf1, &bp, "%s killed you!", Name(player));
 		notify_with_cause(victim, player, buf1);
 
 		/*

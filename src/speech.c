@@ -198,10 +198,9 @@ char *message;
 		}
 		STARTLOG(LOG_SHOUTS, "WIZ", "SHOUT")
 			log_name(player);
-		buf2 = alloc_lbuf("do_say.LOG.shout");
-		sprintf(buf2, " shouts: '%s'", message);
-		log_text(buf2);
-		free_lbuf(buf2);
+		        log_text((char *)" shouts: '");
+			log_text(message);
+			log_text((char *)"'");
 		ENDLOG
 			break;
 	case SAY_WIZSHOUT:
@@ -230,9 +229,9 @@ char *message;
 		}
 		STARTLOG(LOG_SHOUTS, "WIZ", "BCAST")
 			log_name(player);
-		log_text((char *)" broadcasts: '");
-		log_text(message);
-		log_text((char *)"'");
+		        log_text((char *)" broadcasts: '");
+			log_text(message);
+			log_text((char *)"'");
 		ENDLOG
 			break;
 	case SAY_ADMINSHOUT:
@@ -268,10 +267,9 @@ char *message;
 		}
 		STARTLOG(LOG_SHOUTS, "WIZ", "ASHOUT")
 			log_name(player);
-		buf2 = alloc_lbuf("do_say.LOG.adminshout");
-		sprintf(buf2, " yells: '%s'", message);
-		log_text(buf2);
-		free_lbuf(buf2);
+		        log_text((char *)" yells: '");
+			log_text(message);
+			log_text((char *)"'");
 		ENDLOG
 			break;
 	case SAY_WALLPOSE:
@@ -282,10 +280,9 @@ char *message;
 				      message);
 		STARTLOG(LOG_SHOUTS, "WIZ", "SHOUT")
 			log_name(player);
-		buf2 = alloc_lbuf("do_say.LOG.wallpose");
-		sprintf(buf2, " WALLposes: '%s'", message);
-		log_text(buf2);
-		free_lbuf(buf2);
+		        log_text((char *)" WALLposes: '");
+			log_text(message);
+			log_text((char *)"'");
 		ENDLOG
 			break;
 	case SAY_WIZPOSE:
@@ -296,10 +293,9 @@ char *message;
 				      message);
 		STARTLOG(LOG_SHOUTS, "WIZ", "BCAST")
 			log_name(player);
-		buf2 = alloc_lbuf("do_say.LOG.wizpose");
-		sprintf(buf2, " WIZposes: '%s'", message);
-		log_text(buf2);
-		free_lbuf(buf2);
+		        log_text((char *)" WIZposes: '");
+			log_text(message);
+			log_text((char *)"'");
 		ENDLOG
 			break;
 	case SAY_WALLEMIT:
@@ -309,10 +305,9 @@ char *message;
 			raw_broadcast(0, "Announcement: %s", message);
 		STARTLOG(LOG_SHOUTS, "WIZ", "SHOUT")
 			log_name(player);
-		buf2 = alloc_lbuf("do_say.LOG.wallemit");
-		sprintf(buf2, " WALLemits: '%s'", message);
-		log_text(buf2);
-		free_lbuf(buf2);
+		        log_text((char *)" WALLemits: '");
+			log_text(message);
+			log_text((char *)"'");
 		ENDLOG
 			break;
 	case SAY_WIZEMIT:
@@ -322,10 +317,9 @@ char *message;
 			raw_broadcast(WIZARD, "Broadcast: %s", message);
 		STARTLOG(LOG_SHOUTS, "WIZ", "BCAST")
 			log_name(player);
-		buf2 = alloc_lbuf("do_say.LOG.wizemit");
-		sprintf(buf2, " WIZemit: '%s'", message);
-		log_text(buf2);
-		free_lbuf(buf2);
+		        log_text((char *)" WIZemits: '");
+			log_text(message);
+			log_text((char *)"'");
 		ENDLOG
 			break;
 	}

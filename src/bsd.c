@@ -613,12 +613,12 @@ int reason;
 		buff = alloc_lbuf("shutdownsock.LOG.accnt");
 		buff2 = decode_flags(GOD, Flags(d->player),
 				     Flags2(d->player), Flags3(d->player));
-		sprintf(buff, "%d %s %d %d %d %d [%s] <%s> %s",
+		sprintf(buff, "%d %s %d %d %d %d [%s] <%s> ",
 			d->player, buff2, d->command_count, now,
 			Location(d->player), Pennies(d->player),
-			d->addr, disc_reasons[reason],
-			Name(d->player));
+			d->addr, disc_reasons[reason]);
 		log_text(buff);
+		log_text(Name(d->player));
 		free_lbuf(buff);
 		free_sbuf(buff2);
 		ENDLOG
