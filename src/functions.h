@@ -102,6 +102,7 @@ extern Delim SPACE_DELIM;
 extern char *FDECL(trim_space_sep, (char *, Delim, int));
 extern char *FDECL(next_token, (char *, Delim, int));
 extern char *FDECL(split_token, (char **, Delim, int));
+extern char *FDECL(next_token_ansi, (char *, Delim, int, int *));
 extern int FDECL(countwords, (char *, Delim, int));
 extern int FDECL(list2arr, (char **, int, char *, Delim, int));
 extern void FDECL(arr2list, (char **, int, char *, char **, Delim, int));

@@ -43,9 +43,10 @@ int sep_len;
 
 /* ---------------------------------------------------------------------------
  * Tokenizer functions.
- * next_token: Point at start of next token in string
+ * next_token: Point at start of next token in string.
  * split_token: Get next token from string as null-term string.  String is
  *              destructively modified.
+ * next_token_ansi: Point at start of next token, and tell what color it is.
  */
 
 char *next_token(str, sep, sep_len)
@@ -121,6 +122,44 @@ int sep_len;
 	}
 	*sp = str;
 	return save;
+}
+
+char *next_token_ansi(str, sep, sep_len, ansi_state_ptr)
+char *str;
+Delim sep;
+int sep_len;
+int *ansi_state_ptr;
+{
+	int ansi_state = *ansi_state_ptr;
+	char *p;
+
+	if (sep_len == 1) {
+		while (*str == ESC_CHAR) {
+			track_esccode(str, ansi_state);
+		}
+		while (*str && (*str != sep.c)) {
+			++str;
+			while (*str == ESC_CHAR) {
+				track_esccode(str, ansi_state);
+			}
+		}
+		if (!*str) {
+			*ansi_state_ptr = ansi_state;
+			return NULL;
+		}
+		++str;
+		if (sep.c == ' ') {
+			while (*str == sep.c)
+				++str;
+		}
+	} else {
+		/* ansi tracking not supported yet in multichar delims */
+		if ((p = strstr(str, sep.str)) == NULL)
+			return NULL;
+		str = p + sep_len;
+	}
+	*ansi_state_ptr = ansi_state;
+	return str;
 }
 
 /* ---------------------------------------------------------------------------

@@ -164,9 +164,10 @@ FUNCTION(fun_first)
 
 FUNCTION(fun_rest)
 {
-	char *s, *first;
+	char *s, *rest;
 	Delim isep; 
 	int isep_len;
+	int ansi_state = ANST_NONE;
 
 	/* If we are passed an empty arglist return a null string */
 
@@ -175,9 +176,10 @@ FUNCTION(fun_rest)
 	}
 	VaChk_Only_In("REST", 2);
 	s = trim_space_sep(fargs[0], isep, isep_len);	/* leading spaces */
-	first = split_token(&s, isep, isep_len);
-	if (s) {
-		safe_str(s, buff, bufc);
+	rest = next_token_ansi(s, isep, isep_len, &ansi_state);
+	if (rest) {
+		safe_str(ansi_transition_esccode(ANST_NORMAL, ansi_state), buff, bufc);
+		safe_str(rest, buff, bufc);
 	}
 }
 
