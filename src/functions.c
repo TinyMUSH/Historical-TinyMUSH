@@ -1969,6 +1969,10 @@ FUNCTION(fun_pmatch)
 		safe_str("#-1 NO MATCH", buff, bufc);
 }
 
+/*-------------------------------------------------------------------------
+ * Comparison functions.
+ */
+
 FUNCTION(fun_gt)
 {
 	safe_ltos(buff, bufc, (aton(fargs[0]) > atof(fargs[1])));
@@ -2041,6 +2045,134 @@ FUNCTION(fun_xor)
 FUNCTION(fun_not)
 {
 	safe_ltos(buff, bufc, !atoi(fargs[0]));
+}
+
+/*-------------------------------------------------------------------------
+ * List-based numeric functions.
+ */
+
+FUNCTION(fun_ladd)
+{
+    NVAL sum;
+    char *cp, *curr, sep;
+
+    varargs_preamble("LADD", 2);
+
+    sum = 0;
+    cp = trim_space_sep(fargs[0], sep);
+    while (cp) {
+	curr = split_token(&cp, sep);
+	sum += aton(curr);
+    }
+    fval(buff, bufc, sum);
+}
+
+FUNCTION(fun_lor)
+{
+    int i;
+    char *cp, *curr, sep;
+
+    varargs_preamble("LOR", 2);
+
+    i = 0;
+    cp = trim_space_sep(fargs[0], sep);
+    while (cp && !i) {
+	curr = split_token(&cp, sep);
+	i = atoi(curr);
+    }
+    safe_ltos(buff, bufc, (i != 0));
+}
+
+FUNCTION(fun_land)
+{
+    int i;
+    char *cp, *curr, sep;
+
+    varargs_preamble("LAND", 2);
+
+    i = 1;
+    cp = trim_space_sep(fargs[0], sep);
+    while (cp && i) {
+	curr = split_token(&cp, sep);
+	i = atoi(curr);
+    }
+    safe_ltos(buff, bufc, (i != 0));
+}
+
+FUNCTION(fun_lorbool)
+{
+    int i;
+    char *cp, *curr, sep;
+
+    varargs_preamble("LORBOOL", 2);
+
+    i = 0;
+    cp = trim_space_sep(fargs[0], sep);
+    while (cp && !i) {
+	curr = split_token(&cp, sep);
+	i = xlate(curr);
+    }
+    safe_ltos(buff, bufc, (i != 0));
+}
+
+FUNCTION(fun_landbool)
+{
+    int i;
+    char *cp, *curr, sep;
+
+    varargs_preamble("LANDBOOL", 2);
+
+    i = 1;
+    cp = trim_space_sep(fargs[0], sep);
+    while (cp && i) {
+	curr = split_token(&cp, sep);
+	i = xlate(curr);
+    }
+    safe_ltos(buff, bufc, (i != 0));
+}
+
+FUNCTION(fun_lmax)
+{
+    int i;
+    NVAL max, val;
+    char *cp, *curr, sep;
+
+    varargs_preamble("LMAX", 2);
+
+    cp = trim_space_sep(fargs[0], sep);
+    if (cp) {
+	curr = split_token(&cp, sep);
+	max = aton(curr);
+	while (cp) {
+	    curr = split_token(&cp, sep);
+	    val = aton(curr);
+	    if (max < val)
+		max = val;
+	}
+	fval(buff, bufc, max);
+    }
+}
+
+FUNCTION(fun_lmin)
+{
+    int i;
+    NVAL min, val;
+    char *cp, *curr, sep;
+
+    varargs_preamble("LMIN", 2);
+
+    cp = trim_space_sep(fargs[0], sep);
+    if (cp) {
+	curr = split_token(&cp, sep);
+	min = aton(curr);
+	while (cp) {
+	    curr = split_token(&cp, sep);
+	    val = aton(curr);
+	    if (min > val)
+		min = val;
+	}
+	fval(buff, bufc, min);
+    }
 }
 
 /*-------------------------------------------------------------------------
@@ -5405,6 +5537,9 @@ FUN flist[] = {
 {"ITEMS",	fun_items,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ITER",	fun_iter,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
+{"LADD",	fun_ladd,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LAND",	fun_land,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LANDBOOL",	fun_landbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LAST",	fun_last,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LASTCREATE",	fun_lastcreate,	2,  0,		CA_PUBLIC},
 {"LATTR",	fun_lattr,	1,  0,		CA_PUBLIC},
@@ -5421,6 +5556,8 @@ FUN flist[] = {
 {"LIT",		fun_lit,	1,  FN_NO_EVAL,	CA_PUBLIC},
 {"LJUST",	fun_ljust,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LINK",	fun_link,	2,  0,		CA_PUBLIC},
+{"LMAX",	fun_lmax,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LMIN",	fun_lmin,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LN",		fun_ln,		1,  0,		CA_PUBLIC},
 {"LNUM",	fun_lnum,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LOAD",	fun_load,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -5429,6 +5566,8 @@ FUN flist[] = {
 {"LOCALIZE",    fun_localize,   1,  FN_NO_EVAL, CA_PUBLIC},
 {"LOCK",	fun_lock,	1,  0,		CA_PUBLIC},
 {"LOG",		fun_log,	1,  0,		CA_PUBLIC},
+{"LOR",		fun_lor,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LORBOOL",	fun_lorbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LPOS",	fun_lpos,	2,  0,		CA_PUBLIC},
 {"LSTACK",	fun_lstack,	0,  FN_VARARGS, CA_PUBLIC},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC},
