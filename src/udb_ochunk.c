@@ -82,7 +82,7 @@ int dddb_init()
  
 	if ((dbp = gdbm_open(tmpfile, mudstate.db_block_size, GDBM_WRCREAT|GDBM_SYNC|GDBM_NOLOCK, 0600, dbm_error)) == (GDBM_FILE) 0) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		logf(copen, tmpfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
 	
