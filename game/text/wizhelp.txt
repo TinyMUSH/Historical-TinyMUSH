@@ -598,10 +598,16 @@
 
 & @list default_flags
   Command: @list default_flags
+ 
   Lists the flags that are automatically given to players, things, rooms,
   exits, and robots when they are created.
-  See also: player_flags, thing_flags, room_flags, exit_flags, robot_flags.
-
+ 
+  This also lists the flags that are stripped when an object is @chown'd,
+  and on the copy of a @clone'd object.
+ 
+  See also: player_flags, thing_flags, room_flags, exit_flags, robot_flags,
+            stripped_flags.
+ 
 & @list flags
   Command: @list flags
   For each object type, lists the name and key letter for all flags that may
@@ -1271,7 +1277,7 @@
 	guest_char_num		guest_nuker		player_flags
 	player_parent		player_starting_home	player_starting_room
 	robot_flags		room_flags		room_parent
-	thing_flags		thing_parent
+	stripped_flags		thing_flags		thing_parent
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
@@ -2688,6 +2694,17 @@ use_global_aconn	wizard_obeys_linklock
   auto-restart script to decide whether or not to bring the mush back up,
   for instance.
 
+& stripped_flags
+  Config parameter: stripped_flags <flags>.
+ 
+  Default: Blind, Connected, Gagged, Head, Immortal, Inherit, Royalty,
+           Slave, Staff, Stop, Suspect, Uninspected, Wizard
+ 
+  Modifies the set of flags that are stripped from an object when it is
+  @chown'd, and that are stripped from the copy when an object is @clone'd.
+ 
+  See also: exit_flags, player_flags, robot_flags, room_flags, thing_flags.
+ 
 & suspect_site
   Config parameter: suspect_site <site notation>
  

@@ -101,6 +101,9 @@ the other have been listed in the conversion notes for both servers.
 
 - @chown now checks a ChownLock on CHOWN_OK objects.
 
+- @chown and @clone now strip flags in a consistent manner, as defined
+  by the conf option stripped_flags.
+
 - New /pretty switch to examine and @decompile "pretty-prints" (with
   indentation) attributes. Based on Andrew Molitor's +pex-equivalent code.
 
