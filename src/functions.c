@@ -4168,18 +4168,13 @@ FUNCTION(fun_merge)
 	/* walk strings, copy from the appropriate string */
 
 	for (str = fargs[0], rep = fargs[1];
-	     *str && *rep && ((*bufc - buff) < LBUF_SIZE);
+	     *str && *rep && ((*bufc - buff) < (LBUF_SIZE + 1));
 	     str++, rep++, (*bufc)++) {
 		if (*str == c)
 			**bufc = *rep;
 		else
 			**bufc = *str;
 	}
-
-	/* There is no need to check for overflowing the buffer since both
-	 * strings are LBUF_SIZE or less and the new string cannot be
-	 * any longer. 
-	 */
 
 	return;
 }
