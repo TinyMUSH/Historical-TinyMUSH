@@ -82,6 +82,14 @@ int fmt, flags, ver;
 		fprintf(stderr, " AtrMoney");
 	if (flags & V_XFLAGS)
 		fprintf(stderr, " ExtFlags");
+	if (flags & V_3FLAGS)
+		fprintf(stderr, " MoreFlags");
+	if (flags & V_POWERS)
+	    	fprintf(stderr, " Powers");
+	if (flags & V_QUOTED)
+		fprintf(stderr, " QuotedStr");
+	if (flags & V_TQUOTAS)
+		fprintf(stderr, " TypedQuotas");
 	fprintf(stderr, "\n");
 }
 

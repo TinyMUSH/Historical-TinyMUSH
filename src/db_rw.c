@@ -1450,7 +1450,6 @@ int *db_format, *db_version, *db_flags;
 			 has_typed_quotas = (g_version & V_TQUOTAS);
 			 g_flags = g_version & ~V_MASK;
 
-			 g_version &= V_MASK;
 			 deduce_name = 0;
 			 deduce_version = 0;
 			 deduce_zone = 0;
@@ -1464,12 +1463,14 @@ int *db_format, *db_version, *db_flags;
 			    read_3flags = (g_version & V_3FLAGS);
 			    read_powers = (g_version & V_POWERS);
 			    read_new_strings = (g_version & V_QUOTED);
+			    g_version &= V_MASK;
 			    break;
 
 #ifdef STANDALONE
 			case 'V':	/* 2.0 VERSION */
 			    g_format = F_MUSH;
 			    penn_version = g_version;
+			    g_version &= V_MASK;
 			    break;
 
 			case 'X':	/* MUX VERSION */
@@ -1477,6 +1478,7 @@ int *db_format, *db_version, *db_flags;
 			    read_3flags = (g_version & V_3FLAGS);
 			    read_powers = (g_version & V_POWERS);
 			    read_new_strings = (g_version & V_QUOTED);
+			    g_version &= V_MASK;
 			    break;
 
 			case 'K':	/* Kalkin's DarkZone dist */
