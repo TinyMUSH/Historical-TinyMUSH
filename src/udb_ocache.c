@@ -781,8 +781,9 @@ int atrsize;
                 	
                 	prv = NULL;
                 	for (p = sp->head; p != NULL; p = p->nxt) {
-                		if (cp = p)
-                			p = NULL;
+                		if (cp = p) {
+                			break;
+                		}
                 		prv = p;
                 	}
 
