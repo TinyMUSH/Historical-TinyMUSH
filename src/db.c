@@ -1616,7 +1616,10 @@ int *flags, atr, *alen;
 	}
 #endif /* MEMORY_BASED  */
 
-	*alen = len;
+	/* len includes an extra character for the terminating null.
+	 * alen does not.
+	 */
+	*alen = len - 1;
 
 	if (*cp == ATR_INFO_CHAR) {
 
@@ -1659,7 +1662,7 @@ int *flags, atr, *alen;
 		/* Get the attribute text */
 
 		len -= cp - oattr;
-		*alen = len;
+		*alen = len - 1;
 
 		if (oattr != NULL)
 			bcopy(cp, oattr, len);
