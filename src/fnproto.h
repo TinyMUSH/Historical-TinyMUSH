@@ -5,6 +5,8 @@
 	extern void FDECL(x, (char *, char **, dbref, dbref, \
 			      char *[], int, char *[], int))
 
+/* From funext.c */
+
 #ifdef USE_COMSYS
 XFUNCTION(fun_cwho);
 #endif
@@ -29,6 +31,9 @@ XFUNCTION(fun_idle);
 XFUNCTION(fun_conn);
 XFUNCTION(fun_programmer);
 XFUNCTION(fun_sql);
+
+/* From funiter.c */
+
 XFUNCTION(fun_parse);
 XFUNCTION(fun_loop);
 XFUNCTION(fun_iter);
@@ -47,6 +52,9 @@ XFUNCTION(fun_step);
 XFUNCTION(fun_foreach);
 XFUNCTION(fun_munge);
 XFUNCTION(fun_while);
+
+/* From funlist.c */
+
 XFUNCTION(fun_words);
 XFUNCTION(fun_first);
 XFUNCTION(fun_rest);
@@ -75,6 +83,9 @@ XFUNCTION(fun_grab);
 XFUNCTION(fun_scramble);
 XFUNCTION(fun_shuffle);
 XFUNCTION(fun_ledit);
+
+/* From funmath.c */
+
 XFUNCTION(fun_ncomp);
 XFUNCTION(fun_gt);
 XFUNCTION(fun_gte);
@@ -141,6 +152,9 @@ XFUNCTION(fun_max);
 XFUNCTION(fun_min);
 XFUNCTION(fun_inc);
 XFUNCTION(fun_dec);
+
+/* From funmisc.c */
+
 XFUNCTION(fun_switchall);
 XFUNCTION(fun_switch);
 XFUNCTION(fun_case);
@@ -172,6 +186,9 @@ XFUNCTION(fun_wait);
 XFUNCTION(fun_command);
 XFUNCTION(fun_create);
 XFUNCTION(fun_set);
+
+/* From funobj.c */
+
 XFUNCTION(fun_con);
 XFUNCTION(fun_exit);
 XFUNCTION(fun_next);
@@ -236,6 +253,9 @@ XFUNCTION(fun_playmem);
 XFUNCTION(fun_type);
 XFUNCTION(fun_hastype);
 XFUNCTION(fun_lastcreate);
+
+/* From funstring.c */
+
 XFUNCTION(fun_isword);
 XFUNCTION(fun_isnum);
 XFUNCTION(fun_isdbref);
@@ -283,6 +303,9 @@ XFUNCTION(fun_valid);
 XFUNCTION(fun_beep);
 XFUNCTION(fun_grep);
 XFUNCTION(fun_grepi);
+
+/* From funvars.c */
+
 XFUNCTION(fun_setq);
 XFUNCTION(fun_setr);
 XFUNCTION(fun_r);
