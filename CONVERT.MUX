@@ -120,6 +120,8 @@ For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
 
 - Added timechecking.
 
+- @daily is now implemented using the @cron facility.
+
 - @dump/optimize no longer exists, since the database is optimized after
   every dump.
 

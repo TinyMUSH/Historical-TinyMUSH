@@ -22,14 +22,15 @@ the other have been listed in the conversion notes for both servers.
 
 - GNU dbm 1.8.0 is required. Database code has been rewritten to take
   advantage of its features. Dumps are now automatically optimized, and
-  you may safely back up the MUSH while it is running.
+  you may safely back up the MUSH while it is running, either internally
+  (through @dump/flatfile) or externally (through the Backup script).
 
 - An interface to an external mSQL database is now supported, through
   the SQL() function and supporting administrative commands.
 
 - There is now a generic indexed-textfile facility, allowing 'news'-like
   commands and their associated files to be specified via the 'helpfile'
-  parameter in the conf file.
+  and 'raw_helpfile' parameters in the conf file.
 
 - There are now ten user-defined flags, MARKER0 through MARKER9. The flag
   names can be set through the flag_name option. Commands, functions, and
@@ -64,6 +65,9 @@ the other have been listed in the conversion notes for both servers.
   zones now use ControlLock rather than EnterLock, and only objects
   set CONTROL_OK may be controlled by a ZMO; this provides slightly
   better security.
+
+- A @cron facility allows tasks to be scheduled at specific times,
+  in much the same way that Unix cron does.
 
 - A new flag, BLIND, suppresses has arrived / has left messages.
 
@@ -115,6 +119,9 @@ the other have been listed in the conversion notes for both servers.
 - New @freelist command moves an object to the head of the freelist,
   until the next dbck.
 
+- New /noeval switch to @function defines a user-defined function whose
+  arguments are not pre-evaluated.
+
 - New @logrotate command and game_log conf parameter allow the log to
   be rotated while the game is running.
 
@@ -143,6 +150,9 @@ the other have been listed in the conversion notes for both servers.
   of an instance, and lstructures() and linstances() list the names
   of structures and instances, respectively.
 
+- Functions that take output delimiters can take a null output delimiter,
+  symbolized by the token '@@'.
+
 - Added chomp() function -- akin to perl chomp(), it chomps off a
   trailing carriage-return newline from a string, if there is one.
   (Useful for dealing with pipe output.)
@@ -159,6 +169,8 @@ the other have been listed in the conversion notes for both servers.
   it fails to match: if 'yes', this is empty (2.0.10p5 and before, 2.2.1
   and later), if 'no', this is #-1 NO MATCH (2.0.10p6, 2.2.0, MUX).
   Defaults to 'no'.
+
+- The log() function can now taken an optional second argument, the base.
 
 - Added localize() function, keeping changes to r-registers within the
   "local" scope of that evaluation.
@@ -192,3 +204,11 @@ the other have been listed in the conversion notes for both servers.
 
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.
+
+- The delete(), mid(), left(), and right() functions no longer strip
+  ANSI characters.
+
+- An ANSI underline code, %xu, has been added.
+
+- The MUSH manual is included in the distribution in helpfile format.
+  (Thanks to Alierak and sTiLe.)
