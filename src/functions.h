@@ -356,4 +356,7 @@ if ((l) > 0) { \
 #define BOOL_COND_FALSE	2	/* loop until true */
 #define BOOL_COND_TRUE	3	/* loop until false */
 
+/* from handle_lattr (lattr, nattr): */
+#define LATTR_COUNT	0x1	/* just return attribute count */
+
 #endif /* __FUNCTIONS_H */

@@ -236,8 +236,7 @@ XFUNCTION(fun_num);
 XFUNCTION(fun_pmatch);
 XFUNCTION(fun_pfind);
 XFUNCTION(fun_locate);
-XFUNCTION(fun_lattr);
-XFUNCTION(fun_nattr);
+XFUNCTION(handle_lattr);
 XFUNCTION(fun_search);
 XFUNCTION(fun_stats);
 XFUNCTION(fun_objmem);
@@ -499,7 +498,7 @@ FUN flist[] = {
 {"LASTACCESS",	fun_lastaccess,	1,  0,		CA_PUBLIC,	NULL},
 {"LASTCREATE",	fun_lastcreate,	2,  0,		CA_PUBLIC,	NULL},
 {"LASTMOD",	fun_lastmod,	1,  0,		CA_PUBLIC,	NULL},
-{"LATTR",	fun_lattr,	1,  0,		CA_PUBLIC,	NULL},
+{"LATTR",	handle_lattr,	1,  0,		CA_PUBLIC,	NULL},
 {"LCON",	fun_lcon,	1,  0,		CA_PUBLIC,	NULL},
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC,	NULL},
 {"LDELETE",	fun_ldelete,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -559,7 +558,8 @@ FUN flist[] = {
 {"MUL",		fun_mul,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"MUNGE",	fun_munge,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"NAME",	fun_name,	1,  0,		CA_PUBLIC,	NULL},
-{"NATTR",	fun_nattr,	1,  0,		CA_PUBLIC,	NULL},
+{"NATTR",	handle_lattr,	1,  LATTR_COUNT,
+						CA_PUBLIC,	NULL},
 {"NCOMP",	fun_ncomp,	2,  0,		CA_PUBLIC,	NULL},
 {"NEARBY",	fun_nearby,	2,  0,		CA_PUBLIC,	NULL},
 {"NEQ",		fun_neq,	2,  0,		CA_PUBLIC,	NULL},

@@ -1818,15 +1818,14 @@ FUNCTION(fun_locate)
  * fun_nattr: Ditto, but just count 'em up.
  */
 
-static void handle_lattr(player, str, buff, bufc, count_only)
-    dbref player;
-    char *str, *buff, **bufc;
-    int count_only;
+FUNCTION(handle_lattr)
 {
 	dbref thing;
 	ATTR *attr;
 	char *bb_p;
-	int ca, total = 0;
+	int ca, total = 0, count_only;
+
+	count_only = ((FUN *)fargs[-1])->flags & LATTR_COUNT;
 
 	/* Check for wildcard matching.  parse_attrib_wild checks for read
 	 * permission, so we don't have to.  Have p_a_w assume the
@@ -1834,7 +1833,7 @@ static void handle_lattr(player, str, buff, bufc, count_only)
 	 */
 
 	olist_push();
-	if (parse_attrib_wild(player, str, &thing, 0, 0, 1, 1)) {
+	if (parse_attrib_wild(player, fargs[0], &thing, 0, 0, 1, 1)) {
 		bb_p = *bufc;
 		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 			attr = atr_num(ca);
@@ -1859,16 +1858,6 @@ static void handle_lattr(player, str, buff, bufc, count_only)
 		}
 	}
 	olist_pop();
-}
-
-FUNCTION(fun_lattr)
-{
-    handle_lattr(player, fargs[0], buff, bufc, 0);
-}
-
-FUNCTION(fun_nattr)
-{
-    handle_lattr(player, fargs[0], buff, bufc, 1);
 }
 
 /* ---------------------------------------------------------------------------
