@@ -3616,12 +3616,16 @@ FUNCTION(fun_elock)
 		tbuf = atr_get(it, attr->number, &aowner, &aflags);
 		if ((aflags & AF_IS_LOCK) || 
 		    Read_attr(player, it, attr, aowner, aflags)) {
+		    if (Pass_Locks(player)) {
+			safe_chr('1', buff, bufc);
+		    } else {
 			bool = parse_boolexp(player, tbuf, 1);
 			safe_ltos(buff, bufc, eval_boolexp(victim, it, it,
-								     bool));
+							   bool));
 			free_boolexp(bool);
+		    }
 		} else {
-			safe_chr('0', buff, bufc);
+		    safe_chr('0', buff, bufc);
 		}
 		free_lbuf(tbuf);
 	}
