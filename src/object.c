@@ -603,6 +603,8 @@ dbref player, obj;
 #endif
 #endif /* ! STANDALONE */
 
+	CALL_ALL_MODULES(destroy_obj, (player, obj));
+
 	/* Compensate the owner for the object */
 
 	val = 1;
@@ -657,7 +659,6 @@ dbref player, obj;
 	}
 #endif
 
-	CALL_ALL_MODULES(destroy_obj, (player, obj));
 	atr_free(obj);
 	s_Name(obj, NULL);
 	s_Flags(obj, (TYPE_GARBAGE | GOING));
@@ -889,6 +890,7 @@ dbref victim;
 #ifdef USE_COMSYS
 	comsys_chown(victim, Owner(player));
 #endif
+	CALL_ALL_MODULES(destroy_player, (player, victim));
 	destroy_obj(NOTHING, victim);
 	notify_quiet(player, tprintf("(%d objects @chowned to you)", count));
 #endif

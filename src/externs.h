@@ -674,6 +674,16 @@ extern int	FDECL(quick_wild, (char *, char *));
     } \
 }
 
+#define CALL_ALL_MODULES_NOCACHE(xfn,proto,args) \
+{ \
+    MODULE *cam__mp; \
+    void (*cam__ip)proto; \
+    WALK_ALL_MODULES(cam__mp) { \
+        if ((cam__ip = DLSYM(cam__mp->handle, cam__mp->modname, xfn, proto)) != NULL) \
+            (*cam__ip)args; \
+    } \
+}
+
 /* Syntax: CALL_SOME_MODULES(<return value variable>,
  *                           <name of function>, (<args>))
  * Call modules in sequence until we get back a non-zero value.
@@ -694,6 +704,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 #else  /* ! HAVE_DLOPEN or STANDALONE */
 
 #define CALL_ALL_MODULES(xfn,args)
+#define CALL_ALL_MODULES_NOCACHE(xfn,proto,args) 
 #define CALL_MODULES_TIL_SUCCESS(rv,xfn,args)
 
 #endif /* ! HAVE_DLOPEN or STANDALONE */

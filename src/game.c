@@ -1233,6 +1233,7 @@ int dump_type;
 	}
 	
 #ifndef STANDALONE
+	CALL_ALL_MODULES(dump_database, ());
 #ifdef USE_MAIL
 	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.mail_db);
 	if ((f = fopen(tmpfile, "w")) != NULL) {
@@ -1362,6 +1363,9 @@ static int NDECL(load_game)
 		ENDLOG
 			return -1;
 	}
+
+	CALL_ALL_MODULES_NOCACHE("load_database", (void), ());
+
 #ifdef USE_COMSYS
 	sprintf(infile, "%s/%s", mudconf.dbhome, mudconf.comsys_db);
 	load_comsys(infile);
@@ -1792,7 +1796,7 @@ char *argv[];
 	mudstate.loading_db = 1;
 	if (mindb) {
 		db_make_minimal();
-		CALL_ALL_MODULES(make_minimal, ());
+		CALL_ALL_MODULES_NOCACHE("make_minimal", (void), ());
 #ifdef USE_COMSYS
 		make_vanilla_comsys();
 #endif

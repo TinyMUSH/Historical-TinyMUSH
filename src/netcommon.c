@@ -704,6 +704,8 @@ DESC *d;
 	    comsys_connect(player);
 #endif
 
+	CALL_ALL_MODULES(announce_connect, (player));
+
 	if (Suspect(player)) {
 		raw_broadcast(WIZARD, (char *)"[Suspect] %s has connected.",
 			      Name(player));
@@ -774,8 +776,6 @@ DESC *d;
 	time_str[strlen(time_str) - 1] = '\0';
 	record_login(player, 1, time_str, d->addr, d->username);
 
-	CALL_ALL_MODULES(announce_connect, (player));
-
 #ifdef PUEBLO_SUPPORT
 	look_in(player, Location(player), (LK_SHOWEXIT | LK_OBEYTERSE | LK_SHOWVRML));
 #else
@@ -842,6 +842,7 @@ const char *reason;
 		if (mudconf.have_comsys)
 			comsys_disconnect(player);
 #endif
+		CALL_ALL_MODULES(announce_disconnect, (player, reason));
 
 		argv[0] = (char *)reason;
 		atr_temp = atr_pget(player, A_ADISCONNECT, &aowner, &aflags, &alen);
@@ -925,8 +926,6 @@ const char *reason;
 			      Name(player));
 		free_mbuf(buf);
 	}
-
-	CALL_ALL_MODULES(announce_disconnect, (player, reason));
 
 	mudstate.curr_enactor = temp;
 	desc_delhash(d);

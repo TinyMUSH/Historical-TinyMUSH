@@ -599,11 +599,13 @@ CF_HAND(cf_module)
 					 char *[], int));
 	mp->create_obj = DLSYM(handle, str, "create_obj", (dbref, dbref));
 	mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
+	mp->destroy_player = DLSYM(handle, str, "destroy_player",
+				   (dbref, dbref));
 	mp->announce_connect = DLSYM(handle, str, "announce_connect", (dbref));
 	mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
 					(dbref, const char *));
-	mp->make_minimal = DLSYM(handle, str, "make_minimal", ());
 	mp->cleanup_startup = DLSYM(handle, str, "cleanup_startup", ());
+	mp->dump_database = DLSYM(handle, str, "dump_database", ());
 
 	if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)
 	    (*initptr)();

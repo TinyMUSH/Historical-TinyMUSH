@@ -28,10 +28,11 @@ struct module_linked_list {
     int (*process_no_match)(dbref, dbref, int, char *, char *, char *[], int);
     void (*create_obj)(dbref, dbref);
     void (*destroy_obj)(dbref, dbref);
+    void (*destroy_player)(dbref, dbref);
     void (*announce_connect)(dbref);
     void (*announce_disconnect)(dbref, const char *);
     void (*cleanup_startup)(void);
-    void (*make_minimal)(void);
+    void (*dump_database)(void);
 };
 
 typedef struct confparm CONF;

@@ -64,6 +64,12 @@ void mod_hello_destroy_obj(player, obj)
 	notify(GOD, tprintf("Destroyed #%d -- hello says so.", obj));
 }
 
+void mod_hello_destroy_player(player, victim)
+	dbref player, victim;
+{
+	notify(player, tprintf("Say goodbye to %s!", Name(victim)));
+}
+
 void mod_hello_announce_connect(player)
 	dbref player;
 {
