@@ -51,8 +51,8 @@
   @lock        @mvattr      @mail        @malias      @name        @notify
   @npemit      @oemit       @open        @parent      @password    @pemit
   @program     @ps          @quitprog    @quota       @robot       @search
-  @set         @stats       @sweep       @switch      @teleport    @trigger
-  @unlink      @unlock      @verb        @wait        @wipe
+  @set         @sql         @stats       @sweep       @switch      @teleport
+  @trigger     @unlink      @unlock      @verb        @wait        @wipe
  
 { 'help commands2' for more }
 & commands2
@@ -1580,7 +1580,16 @@
      god	- Attribute which can only be changed by God. (g)
  
   See also: @lock, @lock, examine, FLAGS, REGEXPS.
-
+ 
+& @sql
+  Command: @sql <SQL query string>
+ 
+  This command sends a SQL statement to an external SQL database and
+  returns the results. The user must be God or have the use_sql power
+  (note that even having a Wizard flag is not sufficient).
+ 
+  See 'help SQL2' for details and examples.
+ 
 & @stats
   Command: @stats[/all] [<player>]
  
@@ -8121,37 +8130,57 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   are returned, each field will be delimited by <field delim> if specified,
   or <delim> if not, or a space by default.
  
-  The nature of what constitutes a valid SQL statement will depend on
-  the type of back-end SQL database. Note, however, that MUSH treats
-  parentheses and commas as special characters within functions, so
-  something like: '@va me=<SQL statement>', '@eval [sql(%va)]' may be
-  necessary in order to avoid headaches with escaping special characters.
+  Note that MUSH treats parentheses and commas as special characters
+  within functions. You may need to be careful about escaping special
+  characters.
  
   Continued in 'help SQL2'.
  
 & SQL2
  
-  Example:
+  The nature of what constitutes a valid SQL statement will depend on
+  the type of back-end SQL database. Note that the character ' is used
+  for quotes around field values. Thus, if your value for a field contains
+  quote marks, make sure to escape them out (use \' to do this).
  
-  > &CTABLE me = CREATE TABLE test( player_name char(16) not null,
-                 race char(8) not null, dbref_num int )
-  > &INS1 me = INSERT INTO test VALUES('Caine', 'Vampire', 4)
-  > &INS2 me = INSERT INTO test VALUES('Rufus', 'Werewolf', 672)
-  > &INS3 me = INSERT INTO test VALUES('Nos', 'Vampire', 389)
-  > @eval [sql(v(CTABLE))][sql(v(INS1))][sql(v(INS2))][sql(v(INS3))]
-  > &VAMPS me = SELECT player_name, dbref_num FROM test WHERE race='Vampire'
-  > say [sql(v(VAMPS))]
-  You say "Caine 4 Nos 389"
-  > say [sql(v(VAMPS),|)]
-  You say "Caine|4|Nos|389"
-  > say [sql(v(VAMPS),|,)]
-  You say "Caine 4|Nos 389"
-  > say [sql(v(VAMPS),|,/)]
-  You say "Caine/1|Nos/389"
+  Example (using mSQL syntax, see 'help mSQL' for details):
  
+  > @sql CREATE TABLE test( player_name char(16) not null,
+         race char(8) not null, dbref_num int )
+  > @sql CREATE UNIQUE INDEX idx_by_dbref ON test (dbref_num)
+  > @sql INSERT INTO test (player_name, race, dbref_num)
+         VALUES('Nos', 'Vampire', 4)
+  > @sql INSERT INTO test VALUES('Rufus', 'Werewolf', 672)
+  > @sql INSERT INTO test VALUES('Caine', 'Vampire', 389)
+ 
+  (The above commands all output, "SQL query touched 1 row.")
+  
   Continued in 'help SQL3'.
  
 & SQL3
+ 
+  (Example continued)
+ 
+  > SELECT player_name, dbref_num FROM test WHERE race='Vampire'
+  Row 1, Field 1: Nos
+  Row 1, Field 2: 4
+  Row 2, Field 1: Caine
+  Row 2, Field 2: 389
+ 
+  > &VAMPS me = SELECT player_name, dbref_num FROM test WHERE race='Vampire'
+                ORDER BY player_name
+  > say [sql(v(VAMPS))] -- [sql(v(VAMPS),|)]
+  You say "Caine 389 Nos 4 -- Caine|389|Nos|4"
+ 
+  > @sql UPDATE test SET race='Vampire' WHERE dbref_num=672
+  SQL query touched 1 row.
+ 
+  > say [sql(v(VAMPS),|,)] -- [sql(v(VAMPS),|,/)]
+  You say "Caine 389|Nos 4|Rufus 672 -- Caine/389|Nos/4|Rufus/672"
+ 
+  Continued in 'help SQL4'.
+ 
+& SQL4
  
   Because connectivity between the MUSH and the external SQL database is
   not guaranteed (there could be network issues, issues with the database
@@ -9710,6 +9739,135 @@ Continued in 'help @malias2'.
     > @eval [modify(space,xcoord,5)]
     > say [z(space,xcoord)]
     You say "5"
+ 
+& mSQL
+ 
+Topic: mSQL
+ 
+This is a very brief reference to the mSQL 2.0 query language. Please
+consult the mSQL home page at http://www.hughes.com.au/ for details.
+ 
+CREATE		DELETE		DROP		INSERT
+SELECT		UPDATE		Operators	Variables
+ 
+See 'help mSQL <topic>' for details.
+ 
+& mSQL Operators
+ 
+The valid basic mSQL operators are: =, <, >, <=, >=, <> ("not equal"))
+ 
+mSQL also supports the LIKE operator, the CLIKE operator (identical to
+LIKE, but ignores case), and the RLIKE operator (does a more Unix-style
+regular expression match).
+ 
+The regular expressions supported by LIKE and CLIKE are SQL regexps;
+'_' is used to match a single character, '`' is used to match zero
+or more characters, and all other characters match themselves.
+ 
+RLIKE's regular expressions use '.' to match a single character, 
+'*' to match zero or more characters, '^' to anchor a pattern at the
+beginning, '$' to anchor a pattern at the end, and characters enclosed
+in brackets to match a range.
+ 
+& mSQL CREATE
+ 
+Syntax:
+ 
+CREATE TABLE table_name ( col_name col_type [ not null ] 
+                          [, col_name col_type [ not null ] ] )
+ 
+CREATE [UNIQUE] INDEX index_name ON table_name ( field_name [, field_name ] )
+ 
+CREATE SEQUENCE ON table_name [ STEP step_val ] [ VALUE initial_val ] 
+ 
+Valid column types are:  char(len), text(len), int, real
+ 
+Examples:
+ 
+CREATE TABLE nametab ( name char(16) not null, dbnum int )
+CREATE UNIQUE INDEX num_index on nametab (dbnum)
+CREATE SEQUENCE ON nametab STEP 2 VALUE 4
+ 
+& mSQL DELETE
+ 
+Syntax:
+ 
+DELETE FROM table_name WHERE column OPER value [ AND | OR column OPER value ]
+ 
+OPER can be any standard mSQL operator.
+ 
+Example:
+ 
+DELETE FROM nametab WHERE name='Wizard' AND dbnum=3
+ 
+& mSQL DROP
+ 
+Syntax:
+ 
+DROP TABLE table_name
+DROP INDEX index_name FROM table_name
+DROP SEQUENCE FROM table_name 
+ 
+Examples:
+ 
+DROP TABLE nametab
+DROP INDEX num_index FROM nametab
+DROP SEQUENCE FROM nametab
+ 
+& mSQL INSERT
+ 
+Syntax:
+ 
+INSERT INTO table_name [ ( column [, column ] ) ] VALUES (value [, value] ) 
+ 
+Examples:
+ 
+INSERT INTO nametab (name, dbnum) VALUES ('Wizard', '3')
+INSERT INTO nametab VALUES('Wizard', '3')
+ 
+& mSQL SELECT
+ 
+Syntax:
+ 
+SELECT [DISTINCT] [table.]column [ , [table.]column ]
+       FROM table [ = alias] [ , table [ = alias] ]
+       [ WHERE [table.] column OPERATOR VALUE 
+       [ AND | OR [table.]column OPERATOR VALUE] ]
+       [ ORDER BY [table.]column [DESC] [, [table.]column [DESC] ] 
+ 
+Examples:
+ 
+SELECT dbnum FROM nametab WHERE name='Wizard'
+ 
+SELECT DISTINCT name, dbnum FROM nametab WHERE dbnum > 10 ORDER BY name DESC
+ 
+SELECT nametab.dbnum infotab.history FROM nametab, infotab
+       WHERE nametab.name='Wizard' AND nametab.dbnum=infotab.dbnum
+ 
+& mSQL UPDATE
+ 
+Syntax:
+ 
+UPDATE table_name SET column=value [ , column=value ]
+       WHERE column OPERATOR value 
+       [ AND | OR column OPERATOR value ]
+ 
+ 
+Examples:
+ 
+UPDATE nametab SET dbnum=10 WHERE dbnum=3
+ 
+UPDATE nametab SET name='Number_One' WHERE dbnum=1
+ 
+& mSQL Variables
+ 
+_rowid:  This is the unique identifier for a row in a table.
+ 
+_seq:  This is the current sequence value of a table.
+ 
+_sysdate:  Current time and date.
+ 
+_timestamp: Last modified time and date (in epoch time seconds) for a row.
  
 & TCL
 
