@@ -178,10 +178,10 @@ struct confdata {
 	int	fmt_contents;	/* allow user-formattable Contents? */
 	int	fmt_exits;	/* allow user-formattable Exits? */
 	int	space_compress;	/* Convert multiple spaces into one space */
-	int	start_room;	/* initial location and home for players */
-	int	start_home;	/* initial HOME for players */
-	int	default_home;	/* HOME when home is inaccessable */
-	int	master_room;	/* Room containing default cmds/exits/etc */
+	dbref	start_room;	/* initial location and home for players */
+	dbref	start_home;	/* initial HOME for players */
+	dbref	default_home;	/* HOME when home is inaccessable */
+	dbref	master_room;	/* Room containing default cmds/exits/etc */
 	FLAGSET	player_flags;	/* Flags players start with */
 	FLAGSET	room_flags;	/* Flags rooms start with */
 	FLAGSET	exit_flags;	/* Flags exits start with */
