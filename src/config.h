@@ -22,6 +22,7 @@
 #define NUM_ENV_VARS		10	/* Number of env vars (%0 et al) */
 #define MAX_ARG			100	/* max # args from command processor */
 #define MAX_GLOBAL_REGS		10	/* r() registers */
+#define MAX_ITER_NESTING	1024	/* max # of iter levels */
 
 #define HASH_FACTOR		2	/* How much hashing you want. */
 

@@ -397,8 +397,8 @@ struct statedata {
 	int	*guest_free;	/* Table to keep track of free guests */
 	MARKBUF	*markbits;	/* temp storage for marking/unmarking */
 	int	in_loop;	/* In a loop() statement? */
-	char	*loop_token;	/* Value of ## */
-	int	loop_number;	/* Value of #@ */
+	char	*loop_token[MAX_ITER_NESTING];	/* Value of ## */
+	int	loop_number[MAX_ITER_NESTING];	/* Value of #@ */
 	int	in_switch;	/* In a switch() statement? */
 	char	*switch_token;	/* Value of #$ */
 	int	func_nest_lev;	/* Current nesting of functions */

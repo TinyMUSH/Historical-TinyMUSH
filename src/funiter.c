@@ -113,9 +113,16 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
     int flag;			/* 0 is iter(), 1 is list() */
     int bool_flag;
 {
-    char *list_str, *lp, *str, *input_p, *bb_p, *save_token, *work_buf;
+    char *list_str, *lp, *str, *input_p, *bb_p, *work_buf;
     char *savep, *dp, *result;
-    int save_num, is_true;
+    int is_true, cur_lev;
+    
+    /* Enforce maximum nesting level. */
+
+    if (mudstate.in_loop >= MAX_ITER_NESTING - 1) {
+	notify_quiet(player, "Exceeded maximum iteration nesting.");
+	return;
+    }
 
     /* The list argument is unevaluated. Go evaluate it. */
 
@@ -130,10 +137,9 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 	return;
     }
 
-    mudstate.in_loop++;
-    save_token = mudstate.loop_token;
-    save_num = mudstate.loop_number;
-    mudstate.loop_number = 0;
+    cur_lev = mudstate.in_loop++;
+    mudstate.loop_token[cur_lev] = NULL;
+    mudstate.loop_number[cur_lev] = 0;
 
     bb_p = *bufc;
 
@@ -141,8 +147,8 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 	if (!flag && (*bufc != bb_p)) {
 	    print_sep(osep, buff, bufc);
 	}
-	mudstate.loop_token = split_token(&input_p, sep);
-	mudstate.loop_number++;
+	mudstate.loop_token[cur_lev] = split_token(&input_p, sep);
+	mudstate.loop_number[cur_lev] += 1;
 	work_buf = alloc_lbuf("perform_iter.eval");
 	strcpy(work_buf, exprstr); /* we might nibble this */
 	str = work_buf;
@@ -169,8 +175,6 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
     }
 
     free_lbuf(list_str);
-    mudstate.loop_token = save_token;
-    mudstate.loop_number = save_num;
     mudstate.in_loop--;
 }
 
@@ -208,6 +212,39 @@ FUNCTION(fun_list)
     varargs_preamble("LIST", 3);
     perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
 		 cargs, ncargs, sep, ' ', 1, BOOL_COND_NONE);
+}
+
+/* ---------------------------------------------------------------------------
+ * itext(), inum(), ilev(): Obtain nested iter tokens (##, #@, #!).
+ */
+
+FUNCTION(fun_ilev)
+{
+    safe_ltos(buff, bufc, mudstate.in_loop - 1);
+}
+
+FUNCTION(fun_itext)
+{
+    int lev;
+
+    lev = atoi(fargs[0]);
+    if ((lev > mudstate.in_loop - 1) || (lev < 0))
+	return;
+
+    safe_str(mudstate.loop_token[lev], buff, bufc);
+}
+
+FUNCTION(fun_inum)
+{
+    int lev;
+
+    lev = atoi(fargs[0]);
+    if ((lev > mudstate.in_loop - 1) || (lev < 0)) {
+	safe_chr('0', buff, bufc);
+	return;
+    }
+    
+    safe_ltos(buff, bufc, mudstate.loop_number[lev]);
 }
 
 /* ---------------------------------------------------------------------------

@@ -1088,9 +1088,11 @@ char *cargs[];
 			    safe_chr(**dstr, buff, bufc);
 			} else {
 			    if ((**dstr == '#') && mudstate.in_loop) {
-				safe_str(mudstate.loop_token, buff, bufc);
+			      safe_str(mudstate.loop_token[mudstate.in_loop-1],
+				       buff, bufc);
 			    } else if ((**dstr == '@') && mudstate.in_loop) {
-				safe_ltos(buff, bufc, mudstate.loop_number);
+			      safe_ltos(buff, bufc,
+				     mudstate.loop_number[mudstate.in_loop-1]);
 			    } else if ((**dstr == '$') && mudstate.in_switch) {
 				safe_str(mudstate.switch_token, buff, bufc);
 			    } else if (**dstr == '!') {
@@ -1099,7 +1101,7 @@ char *cargs[];
 				 */
 				safe_ltos(buff, bufc,
 					  ((mudstate.in_loop) ?
-					   mudstate.in_loop :
+					   (mudstate.in_loop - 1):
 					   mudstate.in_switch));
 			    } else {
 				(*dstr)--;
