@@ -3051,7 +3051,7 @@ FUNCTION(fun_elock)
 		safe_str("#-1 TOO FAR AWAY", buff, bufc);
 	} else {
 		tbuf = atr_get(it, attr->number, &aowner, &aflags);
-		if ((attr->number == A_LOCK) ||
+		if ((aflags & AF_IS_LOCK) || 
 		    Read_attr(player, it, attr, aowner, aflags)) {
 			bool = parse_boolexp(player, tbuf, 1);
 			safe_ltos(buff, bufc, eval_boolexp(victim, it, it,
