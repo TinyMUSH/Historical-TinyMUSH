@@ -4892,8 +4892,9 @@ FUNCTION(fun_switchall)
 	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 		 &str, cargs, ncargs);
 	    free_lbuf(tbuf2);
+	} else {
+	    free_lbuf(tbuff);
 	}
-	free_lbuf(tbuff);
     }
     
     /* If we didn't match, return the default if there is one */
