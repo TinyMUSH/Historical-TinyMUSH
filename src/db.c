@@ -700,11 +700,13 @@ INLINE void safe_name(thing, outbuf, bufc)
 	if (!names[thing]) {
 		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 		set_string(&names[thing], buff);
+    		s_NameLen(thing, alen);
 		free_lbuf(buff);
 	}
 	safe_known_str(names[thing], NameLen(thing), outbuf, bufc);
 #else
 	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
+	s_NameLen(thing, alen);
 	safe_known_str(tbuff, NameLen(thing), outbuf, bufc);
 #endif
 }
@@ -730,11 +732,13 @@ dbref thing;
 	if (!names[thing]) {
 		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 		set_string(&names[thing], buff);
-		free_lbuf(buff);
+    		s_NameLen(thing, alen);
+    		free_lbuf(buff);
 	}
 	return names[thing];
 #else
 	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
+        s_NameLen(thing, alen);
 	return ((char *) tbuff);
 #endif
 }
@@ -751,6 +755,7 @@ dbref thing;
 	if (!names[thing]) {
 		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 		set_string(&names[thing], buff);
+    		s_NameLen(thing, alen);
 		free_lbuf(buff);
 	}
 #endif                
