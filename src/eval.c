@@ -181,25 +181,40 @@ int eval;
 					else if (cstr[-1] == ' ')
 						zstr--;
 				}
+				NEXTCHAR;
 				break;
 			case '[':
-				if (cstr[-1] == ESC_CHAR) {
-					first = 0;
-					break;
-				}
 				if (sp < stacklim)
 					stack[sp++] = ']';
+				NEXTCHAR;
 				first = 0;
 				break;
 			case '(':
 				if (sp < stacklim)
 					stack[sp++] = ')';
+				NEXTCHAR;
+				first = 0;
+				break;
+			case ESC_CHAR:
+				NEXTCHAR;
+				if (*cstr == ANSI_CSI) {
+					do {
+						NEXTCHAR;
+					} while ((*cstr & 0xf0) == 0x30);
+				}
+				while ((*cstr & 0xf0) == 0x20) {
+					NEXTCHAR;
+				}
+				if (*cstr) {
+					NEXTCHAR;
+				}
 				first = 0;
 				break;
 			default:
 				first = 0;
+				NEXTCHAR;
+				break;
 			}
-			NEXTCHAR;
 		}
 	}
 	rstr = parse_to_cleanup(eval, first, cstr, rstr, zstr);
