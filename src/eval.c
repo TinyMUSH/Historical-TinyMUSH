@@ -86,16 +86,17 @@ int eval;
 		switch (*cstr) {
 		case '\\':	/* general escape */
 		case '%':	/* also escapes chars */
+			first = 0;
 			if ((*cstr == '\\') && (eval & EV_STRIP_ESC))
 				cstr++;
 			else
 				NEXTCHAR;
 			if (*cstr)
 				NEXTCHAR;
-			first = 0;
 			break;
 		case ']':
 		case ')':
+			first = 0;
 			for (tp = sp - 1; (tp >= 0) && (stack[tp] != *cstr); tp--) ;
 
 			/* If we hit something on the stack, unwind to it 
@@ -114,10 +115,10 @@ int eval;
 				*dstr = ++cstr;
 				return rstr;
 			}
-			first = 0;
 			NEXTCHAR;
 			break;
 		case '{':
+			first = 0;
 			bracketlev = 1;
 			if (eval & EV_STRIP) {
 				cstr++;
@@ -152,7 +153,6 @@ int eval;
 			} else if (bracketlev == 0) {
 				NEXTCHAR;
 			}
-			first = 0;
 			break;
 		default:
 			if ((*cstr == delim) && (sp == 0)) {
@@ -233,7 +233,7 @@ char *dstr, delim, *fargs[], *cargs[];
 			*bp = '\0';
 		} else {
 			fargs[arg] = alloc_lbuf("parse_arglist");
-			StringCopy(fargs[arg], tstr);
+			strcpy(fargs[arg], tstr);
 		}
 		arg++;
 	}
@@ -396,14 +396,14 @@ char *cargs[];
 		buff = (char *)malloc(LBUF_SIZE);
 		*bufc = buff;
 	}
-	
+
 	/* If we are tracing, save a copy of the starting buffer */
 
 	savestr = NULL;
 	if (is_trace) {
 		is_top = tcache_empty();
 		savestr = alloc_lbuf("exec.save");
-		StringCopy(savestr, *dstr);
+		strcpy(savestr, *dstr);
 	}
 	while (**dstr && !alldone) {
 		switch (**dstr) {
@@ -425,9 +425,9 @@ char *cargs[];
 
 			at_space = 0;
 			(*dstr)++;
-			if (**dstr)
-				safe_chr_fn(**dstr, buff, bufc);
-			else
+			if (**dstr) {
+				safe_chr(**dstr, buff, bufc);
+			} else
 				(*dstr)--;
 			break;
 		case '[':
@@ -507,7 +507,7 @@ char *cargs[];
 			case '%':	/* Percent - a literal % */
 				safe_chr('%', buff, bufc);
 				break;
-			case 'x':
+			case 'x':	/* ANSI color */
 			case 'X':
 				(*dstr)++;
 				if (!**dstr) {
@@ -621,12 +621,13 @@ char *cargs[];
 				safe_long_str(atr_gotten, buff, bufc);
 				free_lbuf(atr_gotten);
 				break;
-			case 'Q':
+			case 'Q':	/* Local registers */
 			case 'q':
 				(*dstr)++;
+				if (!isdigit(**dstr))
+					break;
 				i = (**dstr - '0');
-				if ((i >= 0) && (i <= 9) &&
-				    mudstate.global_regs[i]) {
+				if (mudstate.global_regs[i]) {
 					safe_str(mudstate.global_regs[i],
 						 buff, bufc);
 				}
@@ -679,13 +680,15 @@ char *cargs[];
 				break;
 			case '#':	/* Invoker DB number */
 				tbuf = alloc_sbuf("exec.invoker");
-				sprintf(tbuf, "#%d", cause);
+				*tbuf = '#';
+				ltos(&tbuf[1], cause);
 				safe_str(tbuf, buff, bufc);
 				free_sbuf(tbuf);
 				break;
 			case '!':	/* Executor DB number */
 				tbuf = alloc_sbuf("exec.executor");
-				sprintf(tbuf, "#%d", player);
+				*tbuf = '#';
+				ltos(&tbuf[1], player); 
 				safe_str(tbuf, buff, bufc);
 				free_sbuf(tbuf);
 				break;
@@ -697,7 +700,8 @@ char *cargs[];
 			case 'l':
 				if (!(eval & EV_NO_LOCATION)) {
 					tbuf = alloc_sbuf("exec.exloc");
-					sprintf(tbuf, "#%d", where_is(cause));
+					*tbuf ='#';
+					ltos(&tbuf[1], where_is(cause));
 					safe_str(tbuf, buff, bufc);
 					free_sbuf(tbuf);
 				}
@@ -825,14 +829,7 @@ char *cargs[];
 					str = tstr;
 					
 					if (ufp->flags & FN_PRES) {
-						for (j = 0; j < MAX_GLOBAL_REGS; j++) {
-							if (!mudstate.global_regs[j])
-								preserve[j] = NULL;
-							else {
-								preserve[j] = alloc_lbuf("eval_regs");
-								StringCopy(preserve[j], mudstate.global_regs[j]);
-							}
-						}
+						save_global_regs("eval_save", preserve);
 					}
 					
 					exec(buff, &oldp, 0, i, cause, feval,
@@ -840,17 +837,7 @@ char *cargs[];
 					*bufc = oldp;
 					
 					if (ufp->flags & FN_PRES) {
-						for (j = 0; j < MAX_GLOBAL_REGS; j++) {
-							if (preserve[j]) {
-								if (!mudstate.global_regs[j])
-									mudstate.global_regs[j] = alloc_lbuf("eval_regs");
-								StringCopy(mudstate.global_regs[j], preserve[j]);
-								free_lbuf(preserve[j]);
-							} else {
-								if (mudstate.global_regs[j])
-									*(mudstate.global_regs[i]) = '\0';
-							}
-						}
+						restore_global_regs("eval_restore", preserve);
 					}
 
 					free_lbuf(tstr);
@@ -889,10 +876,12 @@ char *cargs[];
 				mudstate.func_invk_ctr++;
 				if (mudstate.func_nest_lev >=
 				    mudconf.func_nest_lim) {
-					safe_str("#-1 FUNCTION RECURSION LIMIT EXCEEDED", buff, bufc);
+					safe_str("#-1 FUNCTION RECURSION LIMIT EXCEEDED", buff, &oldp);
+					*bufc = oldp;
 				} else if (mudstate.func_invk_ctr ==
 					   mudconf.func_invk_lim) {
-					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, bufc);
+					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, &oldp);
+					*bufc = oldp;
 				} else if (!check_access(player, fp->perms)) {
 					safe_str("#-1 PERMISSION DENIED", buff, &oldp);
 					*bufc = oldp;
@@ -908,7 +897,7 @@ char *cargs[];
 			} else {
 				*bufc = oldp;
 				tstr = alloc_sbuf("exec.funcargs");
-				sprintf(tstr, "%d", fp->nargs);
+				ltos(tstr, fp->nargs);
 				safe_str((char *)"#-1 FUNCTION (",
 					 buff, bufc);
 				safe_str((char *)fp->name, buff, bufc);
@@ -953,12 +942,10 @@ char *cargs[];
 	 * them. 
 	 */
 
-	if (ansi == 1)
+	if (ansi)
 		safe_str(ANSI_NORMAL, buff, bufc);
 
 	**bufc = '\0';
-
-	/* Report trace information */
 
 	if (realbuff) {
 		**bufc = '\0';
@@ -968,6 +955,8 @@ char *cargs[];
 		buff = realbuff;
 	}
 	
+	/* Report trace information */
+
 	if (is_trace) {
 		tcache_add(savestr, start);
 		save_count = tcache_count - mudconf.trace_limit;;
