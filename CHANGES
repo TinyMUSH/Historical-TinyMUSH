@@ -143,6 +143,9 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 - Attribute flags that have no meaning on a global basis can no longer
   be set globally via @attribute and the like, thus reducing confusion.
 
+- Named references ("nrefs"), which behave like aliases for dbrefs, 
+  in the form of '#_<name>' are now supported.
+
 -----------------------------------------------------------------------------
 
 CHANGES TO FLAGS AND POWERS
@@ -300,8 +303,9 @@ CHANGES TO FUNCTIONS
   regeditalli(), regrab(), regrabi(), regraball(), regraballi(),
   regrep(), regrepi(), regmatchi(), regparsei().
 
-- Added a variety of comsys-related functions: comalias(), comdesc(),
-  comheader(), cominfo(), comlist(), comowner(), comtitle(), cwhoall().
+- Added a variety of comsys-related functions: cemit(), comalias(),
+  comdesc(), comheader(), cominfo(), comlist(), comowner(), comtitle(),
+  cwhoall().
 
 - The filter(), filterbool(), map(), and while() functions pass the
   position of the element in the list as %1. fold() passes the position
