@@ -24,6 +24,21 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+02/12/2003: TinyMUSH 3.1 gamma release
+
+- Feature: Added elockstr(). Idea from Joel Ricketts.
+
+- Fix: Restored missing statement so exits don't get set with the wrong
+  default flags. [3.1b8; Threnody]
+
+- Misc: Configure always checks for zlib if using MySQL.
+
+- Misc: When logging, garbage isn't out-of-range.
+
+- Misc: Improvements made to slave.
+
+-----------------------------------------------------------------------------
+
 12/02/2002: Beta 8
 
 - Feature: speak() now takes a says-string parameter, and obeys the
