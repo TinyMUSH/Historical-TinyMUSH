@@ -6,6 +6,10 @@
 #ifndef __FUNCTIONS_H
 #define __FUNCTIONS_H
 
+/* ---------------------------------------------------------------------------
+ * Type definitions.
+ */
+
 typedef struct fun {
 	const char *name;	/* function name */
 	void	(*fun)();	/* handler */
@@ -23,6 +27,11 @@ typedef struct ufun {
 	struct ufun *next;	/* Next ufun in chain */
 } UFUN;
 
+typedef union char_or_string {
+    char c;
+    char str[LBUF_SIZE];
+} Delim;
+
 typedef struct var_entry VARENT;
 struct var_entry {
     char *text;			/* variable text */
@@ -39,24 +48,37 @@ typedef double NVAL;
 typedef int NVAL;
 #endif                          /* FLOATING_POINTS */
 
-/* Function declarations */
+/* ---------------------------------------------------------------------------
+ * Constants.
+ */
+
+#define DELIM_EVAL	0x001	/* Must eval delimiter. */
+#define DELIM_NULL	0x002	/* Null delimiter okay. */
+#define DELIM_CRLF	0x004	/* '%r' delimiter okay. */
+#define DELIM_STRING	0x008	/* Multi-character delimiter okay. */
+
+/* ---------------------------------------------------------------------------
+ * Function declarations.
+ */
 
 extern char *FDECL(trim_space_sep, (char *, char));
 extern char *FDECL(next_token, (char *, char));
 extern char *FDECL(split_token, (char **, char));
 extern int FDECL(countwords, (char *, char));
 extern int FDECL(list2arr, (char **, int, char *, char));
-extern void FDECL(arr2list, (char **, int, char *, char **, char));
+extern void FDECL(arr2list, (char **, int, char *, char **, Delim, int));
 extern int FDECL(list2ansi, (char **, char *, int, char *, char));
 extern double NDECL(makerandom);
 extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
-extern int FDECL(delim_check, (char **, int, int, char *, char *, char **,
-			       int, dbref, dbref, dbref, char **, int, int));
+extern int FDECL(delim_check, (char **, int, int, Delim *, char *, char **,
+			       dbref, dbref, dbref, char **, int, int));
 extern INLINE void FDECL(do_reverse, (char *, char *));
 
 extern char *ansi_nchartab[];	/* from fnhelper.c */
 
-/* Function prototype macro */
+/* ---------------------------------------------------------------------------
+ * Function prototype macro.
+ */
 
 #define	FUNCTION(x)	\
     void x(buff, bufc, player, caller, cause, fargs, nfargs, cargs, ncargs) \
@@ -65,7 +87,8 @@ extern char *ansi_nchartab[];	/* from fnhelper.c */
 	char *fargs[], *cargs[]; \
 	int nfargs, ncargs;
 
-/* This is for functions that take an optional delimiter character.
+/* ---------------------------------------------------------------------------
+ * Delimiter macros for functions that take an optional delimiter character.
  *
  * Call varargs_preamble("FUNCTION", max_args) for functions which
  * take either max_args - 1 args, or, with a delimiter, max_args args.
@@ -87,67 +110,76 @@ extern char *ansi_nchartab[];	/* from fnhelper.c */
  * but does not involve a delimiter.
  */
 
-#define xvarargs_preamble(xname,xminargs,xnargs)                \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))     \
-return;
+#define xvarargs_preamble(xname,xminargs,xnargs) \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
+    return;
 
-#define varargs_preamble(xname,xnargs)	                        \
-if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
-    player, caller, cause, cargs, ncargs, 0))                           \
-return;
+#define varargs_preamble(xname,xnargs) \
+if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc)) \
+    return; \
+if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
+    player, caller, cause, cargs, ncargs, 0)) \
+    return;
 
-#define mvarargs_preamble(xname,xminargs,xnargs)	        \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,          \
-    player, caller, cause, cargs, ncargs, 0))                         \
-return;
+#define mvarargs_preamble(xname,xminargs,xnargs) \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
+    return; \
+if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
+    player, caller, cause, cargs, ncargs, 0)) \
+    return;
 
-#define evarargs_preamble(xname, xminargs, xnargs)              \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs - 1, &sep, buff, bufc, 1,      \
-    player, caller, cause, cargs, ncargs, 0))                         \
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 1,         \
-    player, caller, cause, cargs, ncargs, 1))                         \
-return;
+#define evarargs_preamble(xname, xminargs, xnargs) \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
+    return; \
+if (!delim_check(fargs, nfargs, xnargs - 1, &isep, buff, bufc, \
+    player, caller, cause, cargs, ncargs, DELIM_EVAL)) \
+    return; \
+if (!(osep_len = delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, \
+    player, caller, cause, cargs, ncargs, DELIM_EVAL|DELIM_NULL|DELIM_CRLF))) \
+    return;
 
-#define svarargs_preamble(xname,xnargs)                         \
-if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
-    player, caller, cause, cargs, ncargs, 0))                         \
-return;							        \
-if (nfargs < xnargs)				                \
-    osep = sep;				                        \
-else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
-    player, caller, cause, cargs, ncargs, 1))                         \
-return;
+#define svarargs_preamble(xname,xnargs) \
+if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc)) \
+    return; \
+if (!delim_check(fargs, nfargs, xnargs-1, &isep, buff, bufc, \
+    player, caller, cause, cargs, ncargs, 0)) \
+    return; \
+if (nfargs < xnargs) { \
+    osep.c = isep.c; \
+    osep_len = 1; \
+} else if (!(osep_len = delim_check(fargs, nfargs, xnargs, &osep, \
+           buff, bufc, player, caller, cause, cargs, ncargs, \
+           DELIM_NULL|DELIM_CRLF))) \
+    return;
 
-#define msvarargs_preamble(xname,xminargs,xnargs)                       \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
-    player, caller, cause, cargs, ncargs, 0))                         \
-return;							        \
-if (nfargs < xnargs)				                \
-    osep = sep;				                        \
-else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
-    player, caller, cause, cargs, ncargs, 1))                         \
-return;
+#define msvarargs_preamble(xname,xminargs,xnargs) \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
+    return; \
+if (!delim_check(fargs, nfargs, xnargs-1, &isep, buff, bufc, \
+    player, caller, cause, cargs, ncargs, 0)) \
+    return; \
+if (nfargs < xnargs) { \
+    osep.c = isep.c; \
+    osep_len = 1; \
+} else if (!(osep_len = delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, \
+    player, caller, cause, cargs, ncargs, DELIM_NULL|DELIM_CRLF))) \
+    return;
+
+/* ---------------------------------------------------------------------------
+ * Miscellaneous macros.
+ */
 
 /* Special handling of separators. */
 
-#define print_sep(s,b,p) \
-if (s) { \
-    if (s != '\r') { \
-	safe_chr(s,b,p); \
-    } else { \
-	safe_crlf(b,p); \
+#define print_sep(s,l,b,p) \
+if ((l) == 1) { \
+    if ((s).c == '\r') { \
+	safe_crlf((b),(p)); \
+    } else if ((s).c != '\0') { \
+	safe_chr((s).c,(b),(p)); \
     } \
+} else { \
+    safe_known_str((s).str, (l), (b), (p)); \
 }
 
 /* Macro for finding an <attr> or <obj>/<attr>

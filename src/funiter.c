@@ -23,13 +23,15 @@
  */
 
 static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
-			 cargs, ncargs, sep, osep, flag)
+			 cargs, ncargs, sep, osep, osep_len, flag)
     char *buff, **bufc;
     dbref player, caller, cause;
     char *list, *exprstr;
     char *cargs[];
     int ncargs;
-    char sep, osep;
+    char sep;
+    Delim osep;
+    int osep_len;
     int flag;			/* 0 is parse(), 1 is loop() */
 {
     char *curr, *objstring, *buff2, *buff3, *cp, *dp, *str, *result, *bb_p;
@@ -53,7 +55,7 @@ static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
 	   ((mudconf.func_cpu_lim <= 0) ||
 	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (!flag && (*bufc != bb_p)) {
-	    print_sep(osep, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	}
 	number++;
 	objstring = split_token(&cp, sep);
@@ -80,20 +82,21 @@ static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
 
 FUNCTION(fun_parse)
 {
-    char sep, osep;
+    Delim isep, osep;
+    int osep_len;
 
     evarargs_preamble("PARSE", 2, 4);
     perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, sep, osep, 0);
+		 cargs, ncargs, isep.c, osep, osep_len, 0);
 }
 
 FUNCTION(fun_loop)
 {
-    char sep;
+    Delim isep;
 
     varargs_preamble("LOOP", 3);
     perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, sep, ' ', 1);
+		 cargs, ncargs, isep.c, ' ', 1, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -117,13 +120,15 @@ FUNCTION(fun_loop)
 #define BOOL_COND_TRUE 1 
 
 static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
-			 cargs, ncargs, sep, osep, flag, bool_flag)
+			 cargs, ncargs, sep, osep, osep_len, flag, bool_flag)
     char *buff, **bufc;
     dbref player, caller, cause;
     char *list, *exprstr;
     char *cargs[];
     int ncargs;
-    char sep, osep;
+    char sep;
+    Delim osep;
+    int osep_len;
     int flag;			/* 0 is iter(), 1 is list() */
     int bool_flag;
 {
@@ -162,7 +167,7 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
 	   ((mudconf.func_cpu_lim <= 0) ||
 	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (!flag && (*bufc != bb_p)) {
-	    print_sep(osep, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	}
 	mudstate.loop_token[cur_lev] = split_token(&input_p, sep);
 	mudstate.loop_number[cur_lev] += 1;
@@ -197,38 +202,41 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
 
 FUNCTION(fun_iter)
 {
-    char sep, osep;
+    Delim isep, osep;
+    int osep_len;
 
     evarargs_preamble("ITER", 2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, sep, osep, 0, BOOL_COND_NONE);
+		 cargs, ncargs, isep.c, osep, osep_len, 0, BOOL_COND_NONE);
 }
 
 FUNCTION(fun_whenfalse)
 {
-    char sep, osep;
+    Delim isep, osep;
+    int osep_len;
 
     evarargs_preamble("WHENFALSE", 2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, sep, osep, 0, BOOL_COND_FALSE);
+		 cargs, ncargs, isep.c, osep, osep_len, 0, BOOL_COND_FALSE);
 }
 
 FUNCTION(fun_whentrue)
 {
-    char sep, osep;
+    Delim isep, osep;
+    int osep_len;
 
     evarargs_preamble("WHENTRUE", 2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, sep, osep, 0, BOOL_COND_TRUE);
+		 cargs, ncargs, isep.c, osep, osep_len, 0, BOOL_COND_TRUE);
 }
 
 FUNCTION(fun_list)
 {
-    char sep;
+    Delim isep;
 
     varargs_preamble("LIST", 3);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, sep, ' ', 1, BOOL_COND_NONE);
+		 cargs, ncargs, isep.c, ' ', 1, 1, BOOL_COND_NONE);
 }
 
 /* ---------------------------------------------------------------------------
@@ -285,7 +293,8 @@ FUNCTION(fun_fold)
 	int aflags, alen, anum, i;
 	ATTR *ap;
 	char *atext, *result, *curr, *bp, *str, *cp, *atextbuf;
-	char *op, *clist[3], *rstore, sep;
+	char *op, *clist[3], *rstore;
+	Delim isep;
 
 	/* We need two to four arguements only */
 
@@ -311,7 +320,7 @@ FUNCTION(fun_fold)
 
 	if ((nfargs >= 3) && (fargs[2])) {
 		clist[0] = fargs[2];
-		clist[1] = split_token(&cp, sep);
+		clist[1] = split_token(&cp, isep.c);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
 		exec(result, &bp, player, caller, cause,
@@ -319,8 +328,8 @@ FUNCTION(fun_fold)
 		*bp = '\0';
 		i++;
 	} else {
-		clist[0] = split_token(&cp, sep);
-		clist[1] = split_token(&cp, sep);
+		clist[0] = split_token(&cp, isep.c);
+		clist[1] = split_token(&cp, isep.c);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
 		exec(result, &bp, player, caller, cause,
@@ -336,7 +345,7 @@ FUNCTION(fun_fold)
 	       ((mudconf.func_cpu_lim <= 0) ||
 		(clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 		clist[0] = rstore;
-		clist[1] = split_token(&cp, sep);
+		clist[1] = split_token(&cp, isep.c);
 		op = clist[2];
 		safe_ltos(clist[2], &op, i);
 		StrCopyKnown(atextbuf, atext, alen);
@@ -371,12 +380,14 @@ FUNCTION(fun_fold)
  */
 
 static void handle_filter(player, caller, cause, arg_func, arg_list,
-			  buff, bufc, sep, osep, flag)
+			  buff, bufc, sep, osep, osep_len, flag)
     dbref player, caller, cause;
     char *arg_func, *arg_list;
     char *buff;
     char **bufc;
-    char sep, osep;
+    char sep;
+    Delim osep;
+    int osep_len;
     int flag;			/* 0 is filter(), 1 is filterbool() */
 {
 	dbref aowner, thing;
@@ -409,7 +420,7 @@ static void handle_filter(player, caller, cause, arg_func, arg_list,
 		*bp = '\0';
 		if ((!flag && (*result == '1')) || (flag && xlate(result))) {
 		        if (*bufc != bb_p) {
-			    print_sep(osep, buff, bufc);
+			    print_sep(osep, osep_len, buff, bufc);
 			}
 			safe_str(objs[0], buff, bufc);
 		}
@@ -423,20 +434,22 @@ static void handle_filter(player, caller, cause, arg_func, arg_list,
 
 FUNCTION(fun_filter)
 {
-	char sep, osep;
+	Delim isep, osep;
+	int osep_len;
 
 	svarargs_preamble("FILTER", 4);
 	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
-		      sep, osep, 0);
+		      isep.c, osep, osep_len, 0);
 }
 
 FUNCTION(fun_filterbool)
 {
-	char sep, osep;
+	Delim isep, osep;
+	int osep_len;
 
 	svarargs_preamble("FILTERBOOL", 4);
 	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
-		      sep, osep, 1);
+		      isep.c, osep, osep_len, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -452,10 +465,10 @@ FUNCTION(fun_filterbool)
 FUNCTION(fun_map)
 {
 	dbref aowner, thing;
-	int aflags, alen, anum;
+	int aflags, alen, anum, osep_len;
 	ATTR *ap;
 	char *atext, *objs[2], *str, *cp, *atextbuf, *bb_p, *op;
-	char sep, osep;
+	Delim isep, osep;
 	int i;
 
 	svarargs_preamble("MAP", 4);
@@ -471,7 +484,7 @@ FUNCTION(fun_map)
 
 	/* now process the list one element at a time */
 
-	cp = trim_space_sep(fargs[1], sep);
+	cp = trim_space_sep(fargs[1], isep.c);
 	atextbuf = alloc_lbuf("fun_map.atextbuf");
 	objs[1] = alloc_sbuf("fun_map.objplace");
 	bb_p = *bufc;
@@ -480,9 +493,9 @@ FUNCTION(fun_map)
 	       ((mudconf.func_cpu_lim <= 0) ||
 		(clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	        if (*bufc != bb_p) {
-		    print_sep(osep, buff, bufc);
+		    print_sep(osep, osep_len, buff, bufc);
 		}
-		objs[0] = split_token(&cp, sep);
+		objs[0] = split_token(&cp, isep.c);
 		op = objs[1];
 		safe_ltos(objs[1], &op, i);
 		StrCopyKnown(atextbuf, atext, alen);
@@ -506,7 +519,8 @@ FUNCTION(fun_mix)
     dbref aowner, thing;
     int aflags, alen, anum, i, lastn, nwords, wc;
     ATTR *ap;
-    char *str, *atext, *os[NUM_ENV_VARS], *atextbuf, *bb_p, sep;
+    char *str, *atext, *os[NUM_ENV_VARS], *atextbuf, *bb_p;
+    Delim isep;
     char *cp[NUM_ENV_VARS];
     int count[LBUF_SIZE / 2];
     char tmpbuf[2];
@@ -520,9 +534,9 @@ FUNCTION(fun_mix)
 	return;
     }
     if (nfargs < 4) {
-	sep = ' ';
+	isep.c = ' ';
 	lastn = nfargs - 1;
-    } else if (!delim_check(fargs, nfargs, nfargs, &sep, buff, bufc, 0,
+    } else if (!delim_check(fargs, nfargs, nfargs, &isep, buff, bufc,
 			    player, caller, cause, cargs, ncargs, 0)) {
 	return;
     } else {
@@ -542,11 +556,11 @@ FUNCTION(fun_mix)
     /* process the lists, one element at a time. */
 
     for (i = 1; i <= lastn; i++) {
-	cp[i] = trim_space_sep(fargs[i], sep);
+	cp[i] = trim_space_sep(fargs[i], isep.c);
     }
-    nwords = count[1] = countwords(cp[1], sep);
+    nwords = count[1] = countwords(cp[1], isep.c);
     for (i = 2; i<= lastn; i++) {
-	count[i] = countwords(cp[i], sep);
+	count[i] = countwords(cp[i], isep.c);
 	if (count[i] > nwords)
 	    nwords = count[i];
     }
@@ -559,7 +573,7 @@ FUNCTION(fun_mix)
 	 wc++) {
 	for (i = 1; i <= lastn; i++) {
 	    if (count[i]) {
-		os[i - 1] = split_token(&cp[i], sep);
+		os[i - 1] = split_token(&cp[i], isep.c);
 	    } else {
 		tmpbuf[0] = '\0';
 		os[i - 1] = tmpbuf;
@@ -568,7 +582,7 @@ FUNCTION(fun_mix)
 	StrCopyKnown(atextbuf, atext, alen);
 
 	if (*bufc != bb_p)
-	    safe_chr(sep, buff, bufc);
+	    safe_chr(isep.c, buff, bufc);
 
 	str = atextbuf;
 	
@@ -591,8 +605,8 @@ FUNCTION(fun_step)
     dbref aowner, thing;
     int aflags, alen, anum;
     char *atext, *str, *cp, *atextbuf, *bb_p, *os[NUM_ENV_VARS];
-    char sep, osep;
-    int step_size, i;
+    Delim isep, osep;
+    int step_size, i, osep_len;
 
     svarargs_preamble("STEP", 5);
 
@@ -607,17 +621,17 @@ FUNCTION(fun_step)
     Parse_Uattr(player, fargs[0], thing, anum, ap);
     Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-    cp = trim_space_sep(fargs[1], sep);
+    cp = trim_space_sep(fargs[1], isep.c);
     atextbuf = alloc_lbuf("fun_step");
     bb_p = *bufc;
     while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	   ((mudconf.func_cpu_lim <= 0) ||
 	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (*bufc != bb_p) {
-	    print_sep(osep, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	}
 	for (i = 0; cp && (i < step_size); i++)
-	    os[i] = split_token(&cp, sep);
+	    os[i] = split_token(&cp, isep.c);
 	StrCopyKnown(atextbuf, atext, alen);
 	str = atextbuf;
 	exec(buff, bufc, player, caller, cause,
@@ -721,11 +735,12 @@ FUNCTION(fun_foreach)
 FUNCTION(fun_munge)
 {
 	dbref aowner, thing;
-	int aflags, alen, anum, nptrs1, nptrs2, nresults, i, j;
+	int aflags, alen, anum, nptrs1, nptrs2, nresults, i, j, osep_len;
 	ATTR *ap;
 	char *list1, *list2, *rlist;
 	char *ptrs1[LBUF_SIZE / 2], *ptrs2[LBUF_SIZE / 2], *results[LBUF_SIZE / 2];
-	char *atext, *bp, *str, sep, osep, *oldp;
+	char *atext, *bp, *str, *oldp;
+	Delim isep, osep;
 
 	oldp = *bufc;
 	if ((nfargs == 0) || !fargs[0] || !*fargs[0]) {
@@ -744,8 +759,8 @@ FUNCTION(fun_munge)
 	list2 = alloc_lbuf("fun_munge.list2");
 	strcpy(list1, fargs[1]);
 	strcpy(list2, fargs[2]);
-	nptrs1 = list2arr(ptrs1, LBUF_SIZE / 2, list1, sep);
-	nptrs2 = list2arr(ptrs2, LBUF_SIZE / 2, list2, sep);
+	nptrs1 = list2arr(ptrs1, LBUF_SIZE / 2, list1, isep.c);
+	nptrs2 = list2arr(ptrs2, LBUF_SIZE / 2, list2, isep.c);
 
 	if (nptrs1 != nptrs2) {
 		safe_str("#-1 LISTS MUST BE OF EQUAL SIZE", buff, bufc);
@@ -767,13 +782,13 @@ FUNCTION(fun_munge)
 	 * copy the corresponding element from list2. 
 	 */
 
-	nresults = list2arr(results, LBUF_SIZE / 2, rlist, sep);
+	nresults = list2arr(results, LBUF_SIZE / 2, rlist, isep.c);
 
 	for (i = 0; i < nresults; i++) {
 		for (j = 0; j < nptrs1; j++) {
 			if (!strcmp(results[i], ptrs1[j])) {
 			        if (*bufc != oldp) {
-				    print_sep(osep, buff, bufc);
+				    print_sep(osep, osep_len, buff, bufc);
 				}
 				safe_str(ptrs2[j], buff, bufc);
 				ptrs1[j][0] = '\0';
@@ -797,10 +812,10 @@ FUNCTION(fun_munge)
 
 FUNCTION(fun_while)
 {
-    char sep, osep;
+    Delim isep, osep;
     dbref aowner1, thing1, aowner2, thing2;
     int aflags1, aflags2, anum1, anum2, alen1, alen2, i, tmp_num;
-    int is_same, is_exact_same;
+    int is_same, is_exact_same, osep_len;
     ATTR *ap, *ap2;
     char *atext1, *atext2, *atextbuf, *condbuf;
     char *objs[2], *cp, *str, *dp, *savep, *bb_p, *op;
@@ -854,7 +869,7 @@ FUNCTION(fun_while)
 
     /* Process the list one element at a time. */
 
-    cp = trim_space_sep(fargs[2], sep);
+    cp = trim_space_sep(fargs[2], isep.c);
     atextbuf = alloc_lbuf("fun_while.eval");
     if (!is_same)
 	condbuf = alloc_lbuf("fun_while.cond");
@@ -865,9 +880,9 @@ FUNCTION(fun_while)
 	   ((mudconf.func_cpu_lim <= 0) ||
 	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (*bufc != bb_p) {
-	    print_sep(osep, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	}
-	objs[0] = split_token(&cp, sep);
+	objs[0] = split_token(&cp, isep.c);
 	op = objs[1];
 	safe_ltos(objs[1], &op, i);
 	StrCopyKnown(atextbuf, atext1, alen1);

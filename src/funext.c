@@ -165,22 +165,24 @@ FUNCTION(fun_programmer)
 
 FUNCTION(fun_sql)
 {
-    char row_delim, field_delim;
+    Delim row_delim, field_delim;
 
     /* Special -- the last two arguments are output delimiters */
 
     if (!fn_range_check("SQL", nfargs, 1, 3, buff, bufc))
 	return;
-    if (!delim_check(fargs, nfargs, 2, &row_delim, buff, bufc, 0,
-		     player, caller, cause, cargs, ncargs, 1))
+    if (!delim_check(fargs, nfargs, 2, &row_delim, buff, bufc,
+		     player, caller, cause, cargs, ncargs,
+		     DELIM_NULL|DELIM_CRLF))
 	return;
     if (nfargs < 3)
 	field_delim = row_delim;
-    else if (!delim_check(fargs, nfargs, 3, &field_delim, buff, bufc, 0,
-			  player, caller, cause, cargs, ncargs, 1))
+    else if (!delim_check(fargs, nfargs, 3, &field_delim, buff, bufc,
+			  player, caller, cause, cargs, ncargs,
+			  DELIM_NULL|DELIM_CRLF))
 	return;
 
-    sql_query(player, fargs[0], buff, bufc, row_delim, field_delim);
+    sql_query(player, fargs[0], buff, bufc, row_delim.c, field_delim.c);
 }
 
 /*---------------------------------------------------------------------------

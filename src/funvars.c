@@ -406,7 +406,7 @@ FUNCTION(fun_xvars)
     int n_xvars, n_elems;
     char *varlist, *elemlist;
     int i;
-    char sep;
+    Delim isep;
 
     varargs_preamble("XVARS", 3);
    
@@ -428,7 +428,7 @@ FUNCTION(fun_xvars)
 
     elemlist = alloc_lbuf("fun_xvars.elems");
     strcpy(elemlist, fargs[1]);
-    n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, sep);
+    n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, isep.c);
 
     if (n_elems != n_xvars) {
 	safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
@@ -456,7 +456,7 @@ FUNCTION(fun_let)
     char pre[SBUF_SIZE], tbuf[SBUF_SIZE], *tp;
     VARENT *xvar;
     int i;
-    char sep;
+    Delim isep;
 
     varargs_preamble("LET", 4);
 
@@ -520,7 +520,7 @@ FUNCTION(fun_let)
 	exec(elemlist, &bp, player, caller, cause,
 	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
-	n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, sep);
+	n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, isep.c);
 
 	if (n_elems != n_xvars) {
 	    safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
@@ -657,8 +657,8 @@ static int istype_string(str)
 
 FUNCTION(fun_structure)
 {
-    char sep;			/* delim for default values */
-    char osep;			/* output delim for structure values */
+    Delim isep;			/* delim for default values */
+    Delim osep;			/* output delim for structure values */
     char tbuf[SBUF_SIZE], *tp;
     char cbuf[SBUF_SIZE], *cp;
     char *p;
@@ -667,7 +667,7 @@ FUNCTION(fun_structure)
     char *type_array[LBUF_SIZE / 2];
     char *def_array[LBUF_SIZE / 2];
     int n_comps, n_types, n_defs;
-    int i;
+    int i, osep_len;
     STRUCTDEF *this_struct;
     COMPONENT *this_comp;
     int check_type = 0;
@@ -676,12 +676,7 @@ FUNCTION(fun_structure)
 
     /* Prevent null delimiters and line delimiters. */
 
-    if (!osep) {
-	notify_quiet(player, "You cannot use a null output delimiter.");
-	safe_chr('0', buff, bufc);
-	return;
-    }
-    if (osep == '\r') {
+    if ((osep_len > 1) || (osep.c == '\0') || (osep.c == '\r')) {
 	notify_quiet(player, "You cannot use that output delimiter.");
 	safe_chr('0', buff, bufc);
 	return;
@@ -787,7 +782,7 @@ FUNCTION(fun_structure)
 
     if (fargs[3] && *fargs[3]) {
 	default_vals = XSTRDUP(fargs[3], "struct.defaults");
-	n_defs = list2arr(def_array, LBUF_SIZE / 2, default_vals, sep);
+	n_defs = list2arr(def_array, LBUF_SIZE / 2, default_vals, isep.c);
     } else {
 	default_vals = NULL;
 	n_defs = 0;
@@ -815,7 +810,7 @@ FUNCTION(fun_structure)
 	this_struct->c_names[i] = comp_array[i];
     this_struct->c_array = (COMPONENT **) XCALLOC(n_comps, sizeof(COMPONENT *), "struct.n_comps");
     this_struct->c_count = n_comps;
-    this_struct->delim = osep;
+    this_struct->delim = osep.c;
     this_struct->n_instances = 0;
     this_struct->names_base = comp_names;
     this_struct->defs_base = default_vals;
@@ -884,7 +879,7 @@ FUNCTION(fun_structure)
 
 FUNCTION(fun_construct)
 {
-    char sep;
+    Delim isep;
     char tbuf[SBUF_SIZE], *tp;
     char ibuf[SBUF_SIZE], *ip;
     char cbuf[SBUF_SIZE], *cp;
@@ -972,7 +967,7 @@ FUNCTION(fun_construct)
 	n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, ' ');
 	init_vals = alloc_lbuf("construct.vals");
 	strcpy(init_vals, fargs[3]);
-	n_vals = list2arr(vals_array, LBUF_SIZE / 2, init_vals, sep);
+	n_vals = list2arr(vals_array, LBUF_SIZE / 2, init_vals, isep.c);
 	if (n_comps != n_vals) {
 	    notify_quiet(player, "List sizes must be identical.");
 	    safe_chr('0', buff, bufc);
@@ -1204,13 +1199,13 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
 
 FUNCTION(fun_load)
 {
-    char sep;
+    Delim isep;
 
     varargs_preamble("LOAD", 4);
 
     load_structure(player, buff, bufc,
 		   fargs[0], fargs[1], fargs[2],
-		   sep, (nfargs != 4) ? 1 : 0);
+		   isep.c, (nfargs != 4) ? 1 : 0);
 }
 
 FUNCTION(fun_read)
@@ -1236,7 +1231,7 @@ FUNCTION(fun_delimit)
     dbref it, aowner;
     int atr, aflags, alen, nitems, i, over = 0;
     char *atext, *ptrs[LBUF_SIZE / 2];
-    char sep;
+    Delim isep;
 
     /* This function is unusual in that the second argument is a delimiter
      * string of arbitrary length, rather than a character. The input
@@ -1250,7 +1245,7 @@ FUNCTION(fun_delimit)
 
     varargs_preamble("DELIMIT", 3);
     if (nfargs != 3)
-	sep = GENERIC_STRUCT_DELIM;
+	isep.c = GENERIC_STRUCT_DELIM;
 
     if (!parse_attrib(player, fargs[0], &it, &atr, 1) || (atr == NOTHING)) {
 	safe_noperm(buff, bufc);
@@ -1258,7 +1253,7 @@ FUNCTION(fun_delimit)
     }
 
     atext = atr_pget(it, atr, &aowner, &aflags, &alen);
-    nitems = list2arr(ptrs, LBUF_SIZE / 2, atext, sep);
+    nitems = list2arr(ptrs, LBUF_SIZE / 2, atext, isep.c);
     if (nitems) {
 	over = safe_str(ptrs[0], buff, bufc);
     }
@@ -1306,7 +1301,7 @@ FUNCTION(fun_modify)
     STRUCTDATA *s_ptr;
     char *words[LBUF_SIZE / 2], *vals[LBUF_SIZE / 2];
     int retval, nwords, nvals, i, n_mod;
-    char sep;
+    Delim isep;
 
     varargs_preamble("MODIFY", 4);
 
@@ -1331,7 +1326,7 @@ FUNCTION(fun_modify)
     /* Process for each component in the list. */
 
     nwords = list2arr(words, LBUF_SIZE / 2, fargs[1], ' ');
-    nvals = list2arr(vals, LBUF_SIZE / 2, fargs[2], sep);
+    nvals = list2arr(vals, LBUF_SIZE / 2, fargs[2], isep.c);
 
     n_mod = 0;
     for (i = 0; i < nwords; i++) {
@@ -1450,10 +1445,11 @@ static void unload_structure(player, buff, bufc, inst_name, sep, use_def_delim)
 
 FUNCTION(fun_unload)
 {
-    char sep;
+    Delim isep;
 
     varargs_preamble("UNLOAD", 2);
-    unload_structure(player, buff, bufc, fargs[0], sep, (nfargs != 2) ? 1 : 0);
+    unload_structure(player, buff, bufc, fargs[0], isep.c,
+		     (nfargs != 2) ? 1 : 0);
 }
 
 FUNCTION(fun_write)
@@ -2051,7 +2047,7 @@ FUNCTION(fun_popn)
     int pos, nitems, i, count = 0, over = 0, first = 0;
     STACK *sp, *tp, *xp;
     STACK *prev = NULL;
-    char sep;
+    Delim isep;
 
     varargs_preamble("POPN", 4);
 
@@ -2082,7 +2078,7 @@ FUNCTION(fun_popn)
 	     * some copying if so.
 	     */
 	    if (!first) {
-		safe_chr(sep, buff, bufc);
+		safe_chr(isep.c, buff, bufc);
 		first = 1;
 	    }
 	    over = safe_str(tp->data, buff, bufc);
@@ -2140,7 +2136,7 @@ FUNCTION(fun_peek)
 
 FUNCTION(fun_lstack)
 {
-    char sep;
+    Delim isep;
     dbref it;
     STACK *sp;
     char *bp;
@@ -2157,7 +2153,7 @@ FUNCTION(fun_lstack)
     bp = buff;
     for (sp = stack_get(it); (sp != NULL) && !over; sp = sp->next) {
 	if (!first) {
-	    safe_chr(sep, buff, bufc);
+	    safe_chr(isep.c, buff, bufc);
 	} else {
 	    first = 0;
 	}
@@ -2395,10 +2391,13 @@ FUNCTION(fun_regparsei)
  *             Derived from PennMUSH.
  */
 
-static void perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs,  
-		    case_option, all_option)
+static void perform_regrab(buff, bufc, sep, osep, osep_len,
+			   player, fargs, nfargs,  
+			   case_option, all_option)
     char *buff, **bufc;
-    char sep, osep;
+    char sep;
+    Delim osep;
+    int osep_len;
     dbref player;
     char *fargs[];
     int nfargs, case_option, all_option;
@@ -2440,7 +2439,7 @@ static void perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs,
 	if (pcre_exec(re, study, r, strlen(r), 0, 0,
 		      offsets, PCRE_MAX_OFFSETS) >= 0) {
 	    if (*bufc != bb_p) { /* if true, all_option also true */
-		print_sep(osep, buff, bufc);
+		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    safe_str(r, buff, bufc);
 	    if (!all_option)
@@ -2456,36 +2455,39 @@ static void perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs,
 
 FUNCTION(fun_regrab)
 {
-    char sep;
+    Delim isep;
 
     varargs_preamble("REGRAB", 3);
-    perform_regrab(buff, bufc, sep, ' ', player, fargs, nfargs, 0, 0);
+    perform_regrab(buff, bufc, isep.c, ' ', 1, player, fargs, nfargs, 0, 0);
 }
 
 FUNCTION(fun_regrabi)
 {
-    char sep;
+    Delim isep;
 
     varargs_preamble("REGRABI", 3);
-    perform_regrab(buff, bufc, sep, ' ', player, fargs, nfargs,
+    perform_regrab(buff, bufc, isep.c, ' ', 1, player, fargs, nfargs,
 		   PCRE_CASELESS, 0);
 }
 
 FUNCTION(fun_regraball)
 {
-    char sep, osep;
+    Delim isep, osep;
+    int osep_len;
 
     svarargs_preamble("REGRABALL", 4);
-    perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs, 0, 1);
+    perform_regrab(buff, bufc, isep.c, osep, osep_len,
+		   player, fargs, nfargs, 0, 1);
 }
 
 FUNCTION(fun_regraballi)
 {
-    char sep, osep;
+    Delim isep, osep;
+    int osep_len;
 
     svarargs_preamble("REGRABALLI", 4);
-    perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs,
-		   PCRE_CASELESS, 1);
+    perform_regrab(buff, bufc, isep.c, osep, osep_len,
+		   player, fargs, nfargs, PCRE_CASELESS, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2603,7 +2605,8 @@ FUNCTION(fun_regmatchi)
 
 FUNCTION(fun_until)
 {
-    char sep, osep;
+    Delim isep, osep;
+    int osep_len;
     dbref aowner1, thing1, aowner2, thing2;
     int aflags1, aflags2, anum1, anum2, alen1, alen2;
     ATTR *ap, *ap2;
@@ -2624,12 +2627,13 @@ FUNCTION(fun_until)
     if (!fn_range_check("UNTIL", nfargs, 6, 12, buff, bufc)) {
 	return;
     }
-    if (!delim_check(fargs, nfargs, nfargs - 1, &sep, buff, bufc, 0,
+    if (!delim_check(fargs, nfargs, nfargs - 1, &isep, buff, bufc,
 		     player, caller, cause, cargs, ncargs, 0)) {
 	return;
     }
-    if (!delim_check(fargs, nfargs, nfargs, &osep, buff, bufc, 0,
-		     player, caller, cause, cargs, ncargs, 1)) {
+    if (!(osep_len = delim_check(fargs, nfargs, nfargs, &osep, buff, bufc,
+				 player, caller, cause, cargs, ncargs,
+				 DELIM_NULL|DELIM_CRLF))) {
 	return;
     }
     lastn = nfargs - 4; 
@@ -2696,11 +2700,11 @@ FUNCTION(fun_until)
 
     for (i = 0; i < NUM_ENV_VARS; i++)
 	cp[i] = NULL;
-    cp[2] = trim_space_sep(fargs[2], sep);
-    nwords = count[2] = countwords(cp[2], sep);
+    cp[2] = trim_space_sep(fargs[2], isep.c);
+    nwords = count[2] = countwords(cp[2], isep.c);
     for (i = 3; i <= lastn; i++) {
-	cp[i] = trim_space_sep(fargs[i], sep);
-	count[i] = countwords(cp[i], sep);
+	cp[i] = trim_space_sep(fargs[i], isep.c);
+	count[i] = countwords(cp[i], isep.c);
 	if (count[i] > nwords)
 	    nwords = count[i];
     }
@@ -2712,7 +2716,7 @@ FUNCTION(fun_until)
 	 wc++) {
 	for (i = 2; i <= lastn; i++) {
 	    if (count[i]) {
-		os[i - 2] = split_token(&cp[i], sep);
+		os[i - 2] = split_token(&cp[i], isep.c);
 	    } else {
 		tmpbuf[0] = '\0';
 		os[i - 2] = tmpbuf;
@@ -2720,7 +2724,7 @@ FUNCTION(fun_until)
 	}
 
 	if (*bufc != bb_p) {
-	    print_sep(osep, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	}
 
 	StrCopyKnown(atextbuf, atext1, alen1);

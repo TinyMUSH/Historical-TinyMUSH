@@ -2161,7 +2161,7 @@ FUNCTION(fun_comlist)
 {
     CHANNEL *chp;
     char *bb_p;
-    char sep;
+    Delim isep;
 
     varargs_preamble("COMLIST", 1);
 
@@ -2172,7 +2172,7 @@ FUNCTION(fun_comlist)
 	if ((chp->flags & CHAN_FLAG_PUBLIC) ||
 	    Comm_All(player) || (chp->owner == player)) {
 	    if (*bufc != bb_p)
-		safe_chr(sep, buff, bufc);
+		safe_chr(isep.c, buff, bufc);
 	    safe_str(chp->name, buff, bufc);
 	}
     }

@@ -161,9 +161,10 @@ int maxlen;
 	return i;
 }
 
-void arr2list(arr, alen, list, bufc, sep)
-char *arr[], **bufc, *list, sep;
-int alen;
+void arr2list(arr, alen, list, bufc, sep, sep_len)
+char *arr[], **bufc, *list;
+Delim sep;
+int alen, sep_len;
 {
 	int i;
 
@@ -171,7 +172,7 @@ int alen;
 	    safe_str(arr[0], list, bufc);
 	}
 	for (i = 1; i < alen; i++) {
-	    print_sep(sep, list, bufc);
+	    print_sep(sep, sep_len, list, bufc);
 	    safe_str(arr[i], list, bufc);
 	}
 }
@@ -349,59 +350,62 @@ int nfargs, minargs, maxargs;
  * delim_check: obtain delimiter
  */
 
-int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc, eval,
-		player, caller, cause, cargs, ncargs, allow_special)
-char *fargs[], *cargs[], *sep, *buff, **bufc;
-int nfargs, ncargs, sep_arg, eval, allow_special;
+int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc,
+		player, caller, cause, cargs, ncargs, dflags)
+char *fargs[], *cargs[], *buff, **bufc;
+Delim *sep;
+int nfargs, ncargs, sep_arg, dflags;
 dbref player, caller, cause;
 {
-	char *tstr, *bp, *str;
-	int tlen;
+    char *tstr, *bp, *str;
+    int tlen, retcode;
 
-	if (nfargs >= sep_arg) {
-		tlen = strlen(fargs[sep_arg - 1]);
-		if (tlen <= 1)
-			eval = 0;
-		if (eval) {
-			tstr = bp = alloc_lbuf("delim_check");
-			str = fargs[sep_arg - 1];
-			exec(tstr, &bp, player, caller, cause,
-			     EV_EVAL | EV_FCHECK, &str, cargs, ncargs);
-			*bp = '\0';
-			if (allow_special &&
-			    !strcmp(tstr, (char *) NULL_DELIM_VAR)) {
-			    *sep = '\0';
-			    tlen = 1;
-			} else if (allow_special &&
-				   !strcmp(tstr, (char *) "\r\n")) {
-			    *sep = '\r';
-			    tlen = 1;
-			} else {
-			    tlen = strlen(tstr);
-			    *sep = *tstr;
-			}
-			free_lbuf(tstr);
-		}
-		if (tlen == 0) {
-			*sep = ' ';
-		} else if (allow_special && !eval && (tlen == 2) &&
-			   !strcmp(fargs[sep_arg - 1],
-				   (char *) NULL_DELIM_VAR)) {
-		        *sep = '\0';
-		} else if (allow_special && !eval && (tlen == 2) &&
-			   !strcmp(fargs[sep_arg - 1], (char *) "\r\n")) {
-		        *sep = '\r';
-		} else if (tlen != 1) {
-			safe_str("#-1 SEPARATOR MUST BE ONE CHARACTER",
-				 buff, bufc);
-			return 0;
-		} else if (!eval) {
-			*sep = *fargs[sep_arg - 1];
-		}
-	} else {
-		*sep = ' ';
-	}
+    if (nfargs < sep_arg) {
+	(*sep).c = ' ';
 	return 1;
+    }
+
+    tlen = strlen(fargs[sep_arg - 1]);
+    if (tlen <= 1)
+	dflags &= ~DELIM_EVAL;
+
+    if (dflags & DELIM_EVAL) {
+	tstr = bp = alloc_lbuf("delim_check");
+	str = fargs[sep_arg - 1];
+	exec(tstr, &bp, player, caller, cause,
+	     EV_EVAL | EV_FCHECK, &str, cargs, ncargs);
+	*bp = '\0';
+	tlen = strlen(tstr);
+    } else {
+	tstr = fargs[sep_arg - 1];
+    }
+
+    retcode = 1;
+    if (tlen == 0) {
+	(*sep).c = ' ';
+    } else if (tlen == 1) {
+	(*sep).c = *tstr;
+    } else {
+	if ((dflags & DELIM_NULL) &&
+	    !strcmp(tstr, (char *) NULL_DELIM_VAR)) {
+	    (*sep).c = '\0';
+	} else if ((dflags & DELIM_CRLF) &&
+		   !strcmp(tstr, (char *) "\r\n")) {
+	    (*sep).c = '\r';
+	} else if (dflags & DELIM_STRING) {
+	    strcpy((*sep).str, tstr);
+	    retcode = tlen;
+	} else {
+	    safe_str("#-1 SEPARATOR MUST BE ONE CHARACTER",
+		     buff, bufc);
+	    retcode = 0;
+	}
+    }
+
+    if (dflags & DELIM_EVAL)
+	free_lbuf(tstr);
+
+    return (retcode);
 }
 
 /* ---------------------------------------------------------------------------

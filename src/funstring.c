@@ -88,7 +88,8 @@ FUNCTION(fun_null)
 
 FUNCTION(fun_squish)
 {
-    char *tp, *bp, sep;
+    char *tp, *bp;
+    Delim isep;
 
     if (nfargs == 0) {
 	return;
@@ -102,7 +103,7 @@ FUNCTION(fun_squish)
 
 	/* Move over and copy the non-sep characters */
 
-	while (*tp && (*tp != sep)) {
+	while (*tp && (*tp != isep.c)) {
 	    *bp++ = *tp++;
 	}
 
@@ -118,7 +119,7 @@ FUNCTION(fun_squish)
 	 */
 
 	*bp++ = *tp++;
-	while (*tp && (*tp == sep))
+	while (*tp && (*tp == isep.c))
 	    tp++;
     }
 
@@ -135,7 +136,8 @@ FUNCTION(fun_squish)
 
 FUNCTION(fun_trim)
 {
-	char *p, *lastchar, *q, sep;
+	char *p, *lastchar, *q;
+	Delim isep;
 	int trim;
 
 	if (nfargs == 0) {
@@ -161,7 +163,7 @@ FUNCTION(fun_trim)
 	if (trim == 2 || trim == 3) {
 		p = lastchar = fargs[0];
 		while (*p != '\0') {
-			if (*p != sep)
+			if (*p != isep.c)
 				lastchar = p;
 			p++;
 		}
@@ -170,7 +172,7 @@ FUNCTION(fun_trim)
 	q = fargs[0];
 	if (trim == 1 || trim == 3) {
 		while (*q != '\0') {
-			if (*q == sep)
+			if (*q == isep.c)
 				q++;
 			else
 				break;
@@ -1265,7 +1267,8 @@ FUNCTION(fun_lpos)
 FUNCTION(fun_wordpos)
 {
 	int charpos, i;
-	char *cp, *tp, *xp, sep;
+	char *cp, *tp, *xp;
+	Delim isep;
 
 	varargs_preamble("WORDPOS", 3);
 
@@ -1273,12 +1276,12 @@ FUNCTION(fun_wordpos)
 	cp = fargs[0];
 	if ((charpos > 0) && (charpos <= (int)strlen(cp))) {
 		tp = &(cp[charpos - 1]);
-		cp = trim_space_sep(cp, sep);
-		xp = split_token(&cp, sep);
+		cp = trim_space_sep(cp, isep.c);
+		xp = split_token(&cp, isep.c);
 		for (i = 1; xp; i++) {
 			if (tp < (xp + strlen(xp)))
 				break;
-			xp = split_token(&cp, sep);
+			xp = split_token(&cp, isep.c);
 		}
 		safe_ltos(buff, bufc, i);
 		return;
