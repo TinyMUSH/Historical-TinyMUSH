@@ -364,26 +364,16 @@ FUNCTION(fun_lcstr)
 {
 	char *ap;
 
-	ap = fargs[0];
-	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
-	    if (*ap == ESC_CHAR) {
-		while (*ap && (*ap != ANSI_END) &&
-		       ((*bufc - buff) < LBUF_SIZE - 1)) {
-		    **bufc = *ap;
-		    ap++;
-		    (*bufc)++;
+	ap = *bufc;
+	safe_str(fargs[0], buff, bufc);
+
+	while (*ap) {
+		if (*ap == ESC_CHAR) {
+			skip_esccode(ap);
+		} else {
+			*ap = tolower(*ap);
+			ap++;
 		}
-		if ((*ap == ANSI_END) &&
-		    ((*bufc - buff) < LBUF_SIZE - 1)) {
-		    **bufc = *ap;
-		    ap++;
-		    (*bufc)++;
-		}
-	    } else {
-		**bufc = tolower(*ap);
-		ap++;
-		(*bufc)++;
-	    }
 	}
 }
 
@@ -391,49 +381,31 @@ FUNCTION(fun_ucstr)
 {
 	char *ap;
 
-	ap = fargs[0];
-	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
-	    if (*ap == ESC_CHAR) {
-		while (*ap && (*ap != ANSI_END) &&
-		       ((*bufc - buff) < LBUF_SIZE - 1)) {
-		    **bufc = *ap;
-		    ap++;
-		    (*bufc)++;
+	ap = *bufc;
+	safe_str(fargs[0], buff, bufc);
+
+	while (*ap) {
+		if (*ap == ESC_CHAR) {
+			skip_esccode(ap);
+		} else {
+			*ap = toupper(*ap);
+			ap++;
 		}
-		if ((*ap == ANSI_END) &&
-		    ((*bufc - buff) < LBUF_SIZE - 1)) {
-		    **bufc = *ap;
-		    ap++;
-		    (*bufc)++;
-		}
-	    } else {
-		**bufc = toupper(*ap);
-		ap++;
-		(*bufc)++;
-	    }
 	}
 }
 
 FUNCTION(fun_capstr)
 {
-	char *s, *p;
+	char *ap;
 
-	p = fargs[0];
+	ap = *bufc;
+	safe_str(fargs[0], buff, bufc);
 
-	if (*p == ESC_CHAR) {
-	    while (*p && (*p != ANSI_END)) {
-		safe_chr(*p, buff, bufc);
-		p++;
-	    }
-	    if (*p == ANSI_END) {
-		safe_chr(*p, buff, bufc);
-		p++;
-	    }
+	while (*ap == ESC_CHAR) {
+		skip_esccode(ap);
 	}
 
-	s = *bufc;
-	safe_str(p, buff, bufc);
-	*s = toupper(*s);
+	*ap = toupper(*ap);
 }
 
 /* ---------------------------------------------------------------------------
