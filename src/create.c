@@ -209,6 +209,7 @@ dbref player, exit, dest;
 	s_Location(exit, dest);
 	if (!Quiet(player))
 		notify_quiet(player, "Linked.");
+	s_Modified(exit);
 }
 
 void do_link(player, cause, key, what, where)
@@ -271,6 +272,7 @@ char *what, *where;
 			s_Home(thing, room);
 			if (!Quiet(player))
 				notify_quiet(player, "Home set.");
+			s_Modified(thing);
 		}
 		break;
 	case TYPE_ROOM:
@@ -287,6 +289,7 @@ char *what, *where;
 			s_Dropto(thing, room);
 			if (!Quiet(player))
 				notify_quiet(player, "Dropto set.");
+			s_Modified(thing);
 		} else if (!(Good_obj(room))) {
 			break;
 		} else if (!isRoom(room)) {
@@ -298,6 +301,7 @@ char *what, *where;
 			s_Dropto(thing, room);
 			if (!Quiet(player))
 				notify_quiet(player, "Dropto set.");
+			s_Modified(thing);
 		}
 		break;
 	case TYPE_GARBAGE:
@@ -366,6 +370,7 @@ char *tname, *pname;
 	}
 
 	s_Parent(thing, parent);
+	s_Modified(thing);
 	if (!Quiet(thing) && !Quiet(player)) {
 		if (parent == NOTHING)
 			notify_quiet(player, "Parent cleared.");
