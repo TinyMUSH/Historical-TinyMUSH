@@ -474,10 +474,10 @@ char *cargs[];
 	     * loop, in order to avoid always treating '#' like a special
 	     * character, as it gets used a whole heck of a lot.
 	     */
-	    special_chartab[(int) '#'] =
+	    special_chartab[(unsigned char) '#'] =
 		(mudstate.in_loop || mudstate.in_switch) ? 1 : 0;
 
-	    if (!special_chartab[**dstr]) {
+	    if (!special_chartab[(unsigned char) **dstr]) {
 		/* Mundane characters are the most common. There are usually
 		 * a bunch in a row. We should just copy them.
 		 */
@@ -485,7 +485,7 @@ char *cargs[];
 		nchar = 0;
 		do {
 		    nchar++;
-		} while (!special_chartab[*(++mundane)]);
+		} while (!special_chartab[(unsigned char) *(++mundane)]);
 		p = *bufc;
 		navail = LBUF_SIZE - 1 - (p - buff);
 		nchar = (nchar > navail) ? navail : nchar;
@@ -627,10 +627,10 @@ char *cargs[];
 				    /* just skip over the characters */
 				    break;
 				}
-				if (!ansi_chartab[**dstr]) {
+				if (!ansi_chartab[(unsigned char) **dstr]) {
 				    safe_chr(**dstr, buff, bufc);
 				} else {
-				    safe_str(ansi_chartab[**dstr], buff, bufc);
+				    safe_str(ansi_chartab[(unsigned char) **dstr], buff, bufc);
 				    ansi = (**dstr == 'n') ? 0 : 1;
 				}
 				break;
@@ -1081,7 +1081,7 @@ char *cargs[];
 
 		        at_space = 0;
 			(*dstr)++;
-			if (!token_chartab[**dstr]) {
+			if (!token_chartab[(unsigned char) **dstr]) {
 			    (*dstr)--;
 			    safe_chr(**dstr, buff, bufc);
 			} else {

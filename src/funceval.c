@@ -230,13 +230,13 @@ FUNCTION(fun_ansi)
 	bb_p = *bufc;
 
 	while (*s) {
-	    if (ansi_nchartab[(unsigned int) *s]) {
+	    if (ansi_nchartab[(unsigned char) *s]) {
 		if (*bufc != bb_p) {
 		    safe_copy_chr(';', buff, bufc, LBUF_SIZE - 5);
 		} else {
 		    safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 5);
 		}
-		safe_copy_str(ansi_nchartab[(unsigned int) *s],
+		safe_copy_str(ansi_nchartab[(unsigned char) *s],
 			      buff, bufc, LBUF_SIZE - 5);
 	    }
 	    s++;
