@@ -212,6 +212,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Set_attr(P,X,A,F)	- Can P set/change text attr A (with flags F) on X */
 /* Read_attr(P,X,A,O,F)	- Can P see attr A on X if attr has owner O */
 /* Write_attr(P,X,A,F)	- Can P set/change attr A (with flags F) on X */
+/* Lock_attr(P,X,A,O)	- Can P lock/unlock attr A (with owner O) on X */
 
 #define	IS(thing,type,flag) ((Typeof(thing)==(type)) && (Flags(thing) & (flag)))
 #define	Typeof(x)	(Flags(x) & TYPE_MASK)
@@ -549,6 +550,26 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			     !((f) & (AF_WIZARD|AF_GOD))) || \
 			    (Sets_Wiz_Attrs(p) && \
 			     !((a)->flags & AF_GOD))))))
+
+/* We can lock/unlock it if:
+ * we're God OR we meet the following criteria:
+ * - The (master) attribute is not internal or a lock AND
+ * - The object is not God. 
+ * - The object is not set Constant.
+ * - The master attribute does not have the Wizard or God flags,
+ *   OR
+ *   We are a Wizard and the master attribute does not have the God flag.
+ * - We are a Wizard OR we own the attribute.
+ */
+
+#define Lock_attr(p,x,a,o) \
+(God(p)	|| \
+ (!God(x) && \
+  !((a)->flags & (AF_INTERNAL|AF_IS_LOCK|AF_CONST)) && \
+  !Constant_Attrs(x) && \
+  (!((a)->flags & (AF_WIZARD|AF_GOD)) || \
+   (Sets_Wiz_Attrs(p) && !((a)->flags & AF_GOD))) && \
+  (Wizard(p) || (o) == Owner(p))))
 
 /* Visibility abstractions */
 

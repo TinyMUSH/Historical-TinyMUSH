@@ -425,19 +425,7 @@ char *name, *keytext;
 			}
 			ap = atr_num(atr);
 
-			/*
-			 * You may lock an attribute if:
-			 * you could write the attribute if it were stored on
-			 * yourself --and-- you own the attribute or are a
-			 * wizard, as long as you are not #1 and are 
-			 * trying to do something to #1. 
-			 */
-
-			if (ap && (God(player) ||
-				   (!God(thing) &&
-				    Set_attr(player, player, ap, 0) &&
-				    (Wizard(player) ||
-				     (aowner == Owner(player)))))) {
+			if (ap && Lock_attr(player, thing, ap, aowner)) {
 				aflags |= AF_LOCK;
 				atr_set_flags(thing, atr, aflags);
 				if (!Quiet(player) && !Quiet(thing))
@@ -512,19 +500,7 @@ char *name;
 			}
 			ap = atr_num(atr);
 
-			/*
-			 * You may unlock an attribute if:
-			 * you could write the attribute if it were stored on
-			 * yourself --and-- you own the attribute
-			 * or are a wizard, as long as you are not #1 
-			 * and are trying to do something to #1. 
-			 */
-
-			if (ap && (God(player) ||
-				   (!God(thing) &&
-				    Set_attr(player, player, ap, 0) &&
-				    (Wizard(player) ||
-				     (aowner == Owner(player)))))) {
+			if (ap && Lock_attr(player, thing, ap, aowner)) {
 				aflags &= ~AF_LOCK;
 				atr_set_flags(thing, atr, aflags);
 				if (Owner(player != Owner(thing)))
