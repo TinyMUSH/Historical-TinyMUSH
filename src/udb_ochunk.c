@@ -35,8 +35,10 @@ static GDBM_FILE dbp = (GDBM_FILE) 0;
 static datum dat;
 static datum key;
 
-int FDECL(dddb_del, (Aname *));
-int FDECL(dddb_put, (Attr *, Aname *));
+int FDECL(dddb_del, (void *, int));
+int FDECL(dddb_put, (void *, int, void *, int));
+void *FDECL(dddb_get, (void *, int));
+
 extern void VDECL(fatal, (char *, ...));
 extern void VDECL(logf, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
@@ -125,41 +127,43 @@ int dddb_close()
 	return (0);
 }
 
-Attr *dddb_get(nam)
-Aname *nam;
+void *dddb_get(keydata, keylen)
+void *keydata;
+int keylen;
 {
 	Attr *atr;
 	
 	if (!db_initted)
 		return (NULL);
 
-	key.dptr = (char *)nam;
-	key.dsize = sizeof(Aname);
+	key.dptr = (char *)keydata;
+	key.dsize = keylen;
 	dat = gdbm_fetch(dbp, key);
 
-	return ((Attr *)dat.dptr);
+	return ((void *)dat.dptr);
 }
 
-int dddb_put(atr, nam)
-Attr *atr;
-Aname *nam;
+int dddb_put(keydata, keylen, data, len)
+void *keydata;
+int keylen;
+void *data;
+int len;
 {
-	int nsiz;
-
+	/* Remember if you put a string here that len is strlen() + 1 */
+	
 	if (!db_initted)
 		return (1);
 
-	nsiz = strlen(atr) + 1;
-
-	key.dptr = (char *)nam;
-	key.dsize = sizeof(Aname);
+	key.dptr = (char *)keydata;
+	key.dsize = keylen;
 	
 	/* make table entry */
-	dat.dptr = (char *)strdup((char *)atr);
-	dat.dsize = nsiz;
+	dat.dptr = (char *)malloc(len);
+	memcpy(dat.dptr, data, len);
+	dat.dsize = len;
 
 	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
-		logf("db_put: can't gdbm_store ", nam, " ", (char *)-1, "\n", (char *)0);
+		logf("db_put: can't gdbm_store ", " ", (char *)-1, "\n", (char *)0);
 		free(dat.dptr);
 		return (1);
 	}
@@ -169,26 +173,27 @@ Aname *nam;
 	return (0);
 }
 
-int dddb_del(nam)
-Aname *nam;
+int dddb_del(keydata, keylen)
+void *keydata;
+int keylen;
 {
 	if (!db_initted) {
 		return (-1);
 	}
 
-	key.dptr = (char *)nam;
-	key.dsize = sizeof(Aname);
+	key.dptr = (char *)keydata;
+	key.dsize = keylen;
 	dat = gdbm_fetch(dbp, key); 
 
 	/* not there? */
-	if (dat.dptr == (char *)0)
+	if (dat.dptr == NULL)
 		return (0);
 
 	free(dat.dptr);
 	
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {
-		logf("db_del: can't delete key ", nam, "\n", (char *)0);
+		logf("db_del: can't delete key\n", (char *)0);
 		return (1);
 	}
 	return (0);

@@ -22,8 +22,8 @@ typedef	char	*mall_t;
 
 /* Macros for calling the DB layer */
 
-#define	DB_GET(n)	dddb_get(n)
-#define	DB_PUT(o,n)	dddb_put(o,n)
-#define	DB_DEL(n)	dddb_del(n)
+#define	ATTR_GET(n)	dddb_get(n,sizeof(Aname))
+#define	ATTR_PUT(o,n)	dddb_put(o,sizeof(Aname),n,strlen(n)+1)
+#define	ATTR_DEL(n)	dddb_del(n,sizeof(Aname))
 
 #endif /* __UDB_DEFS_H */

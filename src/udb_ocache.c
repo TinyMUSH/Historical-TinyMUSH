@@ -216,9 +216,9 @@ void cache_reset()
 			nxt = cp->nxt;
 			
 			if (cp->op == NULL) {
-				(void) DB_DEL(&(cp->onm));
+				(void) ATTR_DEL(&(cp->onm));
 			} else {
-				(void) DB_PUT(cp->op, &(cp->onm));
+				(void) ATTR_PUT(&(cp->onm), cp->op);
 			}
 			cache_repl(cp, NULL);
 			XFREE(cp, "cache_reset.mact");
@@ -373,7 +373,7 @@ Aname *nam;
 
 	/* DARN IT - at this point we have a certified, type-A cache miss */
 
-	if ((ret = DB_GET(nam)) == NULL) {
+	if ((ret = ATTR_GET(nam)) == NULL) {
 #ifndef STANDALONE
 		if (!mudstate.dumping)
 			cs_dbreads++;
@@ -617,13 +617,13 @@ replace:
 			/* Flush the modified attributes to disk */
 		
 			if (cp->op == NULL) {
-				if (DB_DEL(&(cp->onm))) {
+				if (ATTR_DEL(&(cp->onm))) {
 					log_db_err(cp->onm.object, cp->onm.attrnum, "delete");
 					return (NULL);
 				}
 				cs_dels++;
 			} else {
-				if (DB_PUT(cp->op, &(cp->onm))) {
+				if (ATTR_PUT(&(cp->onm), cp->op)) {
 					log_db_err(cp->onm.object, cp->onm.attrnum, "write");
 					return (NULL);
 				}
@@ -667,13 +667,13 @@ Cache *cp;
 
 	while (cp != NULL) {
 		if (cp->op == NULL) {
-			if (DB_DEL(&(cp->onm))) {
+			if (ATTR_DEL(&(cp->onm))) {
 				log_db_err(cp->onm.object, cp->onm.attrnum, "delete");
 				return (1);
 			}
 			cs_dels++;
 		} else {
-			if (DB_PUT(cp->op, &(cp->onm))) {
+			if (ATTR_PUT(&(cp->onm), cp->op)) {
 				log_db_err(cp->onm.object, cp->onm.attrnum, "write");
 				return (1);
 			}

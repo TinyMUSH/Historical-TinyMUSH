@@ -68,9 +68,9 @@ extern int 	FDECL(cache_init, (int));
 extern void 	NDECL(cache_reset);
 extern int 	NDECL(cache_sync);
 extern void 	FDECL(cache_del, (Aname *));
-extern Attr * 	FDECL(dddb_get, (Aname *));
-extern int	FDECL(dddb_del, (Aname *));   
-extern int	FDECL(dddb_put, (Attr *, Aname *));
+int FDECL(dddb_del, (void *, int));
+int FDECL(dddb_put, (void *, int, void *, int));
+void *FDECL(dddb_get, (void *, int));
 extern Attr *	FDECL(attrfromFILE, (char *));
 extern int	FDECL(attrtoFILE, (Attr *, char *));
 
