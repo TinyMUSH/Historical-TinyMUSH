@@ -160,13 +160,16 @@ MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
 OUT	= netmush mkindx dbconvert slave
 
 # paths is likely to remain broken
-all: depend $(OUT) links
+all: depend-update $(OUT) links
 
 depend: $(ALL_S) unsplit Makefile
 	for i in $(ALL_S); do $(CPP) $(ALLCFLAGS) -M $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
 	for i in $(MOD_LA); do echo $$i: $$i | sed -e 's/la$$/o/'; done >> .depend~
 	mv .depend~ .depend
 	touch depend
+
+depend-update: depend
+	touch depend-update
 	echo Dependencies were updated, now run make
 	exit 1
 
