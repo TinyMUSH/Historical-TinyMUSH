@@ -82,7 +82,9 @@ command within the MUSH.
 How do I back up my database?
 
 Shut down your game. Go into the game directory, and type './Backup'
-(Do not back up the database files directly, while the game is running.)
+You can safely back up your database while the game is running; if you
+do this, do a @dump, wait a minute until the database is done saving,
+and then run the backup.
 
 This will create a 'flatfile', and compress it with GNU zip; if there's
 no GNU zip on your system, you should edit the Backup script so it uses

@@ -33,8 +33,9 @@ highly significant changes are noted here.
   command without needing to write a full-blown @addcommand for it,
   or to execute things before/after every move through an exit.
 
-- GNU dbm is required; database code has been rewritten to take advantage
-  of its features.
+- GNU dbm 1.8.0 is required. Database code has been rewritten to take
+  advantage of its features. Dumps are now automatically optimized, and
+  you may safely back up the MUSH while it is running.
 
 - Backup and Restore scripts simplify backup maintenance.
 
