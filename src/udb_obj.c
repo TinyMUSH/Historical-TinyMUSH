@@ -412,7 +412,9 @@ int obj;
 		data.dsize = obj_siz(mudstate.objpipes[j]);
 		key.dptr = &mudstate.objpipes[j]->name;
 		key.dsize = sizeof(int);
+		db_lock();
 		db_put(key, data, DBTYPE_ATTRIBUTE);
+		db_unlock();
 		XFREE(data.dptr, "get_free_objpipe.2");
 	}
 	objfree(mudstate.objpipes[j]);

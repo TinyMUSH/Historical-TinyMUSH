@@ -29,6 +29,7 @@ static GDBM_FILE dbp = (GDBM_FILE) 0;
 
 static datum dat;
 static datum key;
+static struct flock fl;
 
 extern void VDECL(fatal, (char *, ...));
 extern void VDECL(logf, (char *, ...));
@@ -128,6 +129,10 @@ int dddb_init()
 	
 	if (mudstate.standalone)
 		dddb_setsync(0);
+
+	/* Grab the file descriptor for locking */
+	
+	mudstate.dbm_fd = gdbm_fdesc(dbp);
 
 	db_initted = 1;
 	return (0);
@@ -283,4 +288,38 @@ unsigned int type;
 	}
 	RAW_FREE(key.dptr, "db_del.key");
 	return (0);
+}
+
+void db_lock()
+{
+	/* Attempt to lock the DBM file. Block until the lock is cleared,
+	   then set it. */
+
+	if (mudstate.dbm_fd == -1)
+		return;
+
+	fl.l_type = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_start = 0;
+	fl.l_len = 0;
+	fl.l_pid = getpid();
+	
+	if (fcntl(mudstate.dbm_fd, F_SETLKW, &fl) == -1) {
+		log_perror("DMP", "LOCK", NULL, "fcntl()");
+		return;
+	}
+	fprintf(mainlog_fp, "we got here with fd %d\n", mudstate.dbm_fd);
+}
+
+void db_unlock()
+{
+	if (mudstate.dbm_fd == -1)
+		return;
+		
+	fl.l_type = F_UNLCK;
+	
+	if (fcntl(mudstate.dbm_fd, F_SETLK, &fl) == -1) {
+		log_perror("DMP", "LOCK", NULL, "fcntl()");
+		return;
+	}
 }

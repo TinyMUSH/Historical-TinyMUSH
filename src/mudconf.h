@@ -496,6 +496,7 @@ struct statedata {
 #if !defined(TEST_MALLOC) && defined(RAW_MEMTRACKING)
 	MEMTRACK *raw_allocs;	/* Tracking of raw memory allocations */
 #endif
+	int	dbm_fd;		/* File descriptor of our DBM database */
 };
 
 extern STATEDATA mudstate;

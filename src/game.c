@@ -14,6 +14,7 @@
 #include "mudconf.h"	/* required by code */
 
 #include "db.h"		/* required by externs */
+#include "udb.h"	/* required by code */
 #include "externs.h"	/* required by interface */
 #include "interface.h"	/* required by code */
 
@@ -1764,6 +1765,11 @@ char *argv[];
 		fprintf(mainlog_fp, "Can't open GDBM file\n");
 		exit(1);
 	}
+
+	/* Lock the database */
+	
+	db_lock();
+
 	/* Go do it */
 
 	if (!(setflags & V_GDBM)) {
@@ -1777,7 +1783,7 @@ char *argv[];
 		db_ver = OUTPUT_VERSION;
 		db_flags = OUTPUT_FLAGS;
 	} else {
-		db_convert(stdin, &db_format, &db_ver, &db_flags);
+		db_read_flatfile(stdin, &db_format, &db_ver, &db_flags);
 
 		/* Call modules to load their flatfiles */
 
@@ -1828,6 +1834,11 @@ char *argv[];
 			}
 		}
 	}
+	
+	/* Unlock the database */
+	
+	db_unlock();
+	
 	CLOSE;
 	exit(0);
 }

@@ -650,7 +650,7 @@ static void fix_typed_quotas()
 	}
 }
 
-dbref db_convert(f, db_format, db_version, db_flags)
+dbref db_read_flatfile(f, db_format, db_version, db_flags)
 FILE *f;
 int *db_format, *db_version, *db_flags;
 {
@@ -1305,6 +1305,10 @@ dbref db_write()
 	if (mudstate.standalone)
 		fprintf(mainlog_fp, "Writing ");
 
+	/* Lock the database */
+	
+	db_lock();
+
 	/* Write database information */
 
 	i = mudstate.attr_next;
@@ -1504,6 +1508,10 @@ dbref db_write()
 		
 	XFREE(data.dptr, "db_write.cdata");
 
+	/* Unlock the database */
+	
+	db_unlock();
+	
 	if (mudstate.standalone)
 		fprintf(mainlog_fp, "\n");
 	return (mudstate.db_top);

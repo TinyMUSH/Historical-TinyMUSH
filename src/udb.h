@@ -99,6 +99,8 @@ extern int 	NDECL(cache_sync);
 extern DBData	FDECL(db_get, (DBData, unsigned int));
 extern int	FDECL(db_put, (DBData, DBData, unsigned int));
 extern int	FDECL(db_del, (DBData, unsigned int));
+extern void	NDECL(db_lock);
+extern void	NDECL(db_unlock);
 extern DBData	FDECL(cache_get, (DBData, unsigned int));
 extern int	FDECL(cache_put, (DBData, DBData, unsigned int));
 extern void	FDECL(cache_del, (DBData, unsigned int));

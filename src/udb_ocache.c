@@ -179,6 +179,7 @@ void cache_reset()
 	
 	/* Clear the cache after startup and reset stats */
 
+	db_lock();
 	for (x = 0; x < cwidth; x++, sp++) {
 		sp = &sys_c[x];
 	
@@ -234,6 +235,7 @@ void cache_reset()
 		sp->mactive.head = (Cache *) 0;
 		sp->mactive.tail = (Cache *) 0;
 	}
+	db_unlock();
 	
 	/* Clear the counters after startup, or they'll be skewed */
 	
@@ -615,7 +617,9 @@ unsigned int type;
 #endif
 				break;
 			default:
+				db_lock();
 				db_del(key, type);
+				db_unlock();
 			}
 		} else {
 			switch(type) {
@@ -633,7 +637,9 @@ unsigned int type;
 #endif
 				break;
 			default:
+				db_lock();
 				db_put(key, data, type);
+				db_unlock();
 			}
 		}
 		return(0);
@@ -823,7 +829,9 @@ replace:
 				default:
 					key.dptr = cp->keydata;
 					key.dsize = cp->keylen;
+					db_lock();
 					db_del(key, cp->type);
+					db_unlock();
 				}
 				cs_dels++;
 			} else {
@@ -838,7 +846,9 @@ replace:
 					key.dsize = cp->keylen;
 					data.dptr = cp->data;
 					data.dsize = cp->datalen;
+					db_lock();
 					db_put(key, data, cp->type);
+					db_unlock();
 				}
 				cs_dbwrites++;
 			}
@@ -913,6 +923,7 @@ Cache *cp;
 		}
 		cp = cp->nxt;
 	}
+	
 	return (0);
 }
 
@@ -953,6 +964,10 @@ int NDECL(cache_sync)
 		dddb_setsync(0);
 	}
 
+	/* Lock the database */
+
+	db_lock();
+	
 	for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
 		if (cache_write(sp->mactive.head))
 			return (1);
@@ -962,6 +977,10 @@ int NDECL(cache_sync)
 	/* Also sync the read and write object structures if they're dirty */
 	
 	attrib_sync();
+
+	/* Unlock the database */
+	
+	db_unlock();
 
 	if (mudstate.standalone || mudstate.restarting) {
 		dddb_setsync(1);
