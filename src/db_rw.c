@@ -1341,7 +1341,8 @@ dbref db_write()
 				
 		for (j = ENTRY_BLOCK_STARTS(i, blksize);
 		     (j <= ENTRY_BLOCK_ENDS(i, blksize)) &&
-		     (j < mudstate.attr_next);
+		     (j < mudstate.attr_next) &&
+		     (j >= A_USER_START);
 		     j++) {
 
 			vp = (VATTR *)anum_table[j];
