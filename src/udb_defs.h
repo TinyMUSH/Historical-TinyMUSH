@@ -20,10 +20,11 @@ typedef	char	*mall_t;
 #define	CACHE_SIZE	1000000		/* 1 million bytes */
 #define	CACHE_WIDTH	20
 
-/* Macros for calling the DB layer */
+/* Datatypes that we have in cache and on disk */
 
-#define	ATTR_GET(n)	dddb_get(n,sizeof(Aname))
-#define	ATTR_PUT(o,n)	dddb_put(o,sizeof(Aname),n,strlen(n)+1)
-#define	ATTR_DEL(n)	dddb_del(n,sizeof(Aname))
+#define TYPE_EMPTY	0		/* This entry is empty */
+#define TYPE_ATTRIBUTE	1		/* This is an attribute */
+#define TYPE_RESERVED	65535		/* Numbers higher are free for use
+					 * by user code (modules) */
 
 #endif /* __UDB_DEFS_H */

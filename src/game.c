@@ -1612,9 +1612,6 @@ char *argv[];
 	tf_init();
 	LTDL_SET_PRELOADED_SYMBOLS();
 	lt_dlinit();
-#ifdef RADIX_COMPRESSION
-	init_string_compress();
-#endif /* RADIX_COMPRESSION */
 	time(&mudstate.start_time);
 	mudstate.restart_time = mudstate.start_time;
 	time(&mudstate.cpu_count_from);

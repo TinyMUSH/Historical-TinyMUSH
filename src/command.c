@@ -2333,16 +2333,6 @@ extern int cs_size;		/* total cache size */
 
 #endif /* MEMORY_BASED  */
 
-#ifdef RADIX_COMPRESSION
-extern int strings_compressed;	/* Total number of compressed strings */
-extern int strings_decompressed;	/* Total number of decompressed
-					 * strings 
-					 */
-extern int chars_in;		/* Total characters compressed */
-extern int symbols_out;		/* Total symbols emitted */
-
-#endif /* RADIX_COMPRESSION */
-
 /* ---------------------------------------------------------------------------
  * list_db_stats: Get useful info from the DB layer about hash stats, etc.
  */
@@ -2371,13 +2361,6 @@ dbref player;
 	raw_notify(player, tprintf("Syncs      %12d", cs_syncs));
 	raw_notify(player, tprintf("Cache Size %12d bytes", cs_size));
 #endif /* MEMORY_BASED */
-#ifdef RADIX_COMPRESSION
-	raw_notify(player, "Compression statistics:");
-	raw_notify(player, tprintf("Strings compressed %d", strings_compressed));
-	raw_notify(player, tprintf("Strings decompressed %d", strings_decompressed));
-	raw_notify(player, tprintf("Compression ratio %d:%d", chars_in,
-				   symbols_out + (symbols_out >> 1)));
-#endif /* RADIX_COMPRESSION */
 }
 
 /* ---------------------------------------------------------------------------

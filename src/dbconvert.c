@@ -7,6 +7,7 @@
 
 #undef MEMORY_BASED
 
+#include <sys/stat.h>
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
@@ -124,7 +125,8 @@ char *argv[];
 	int setflags, clrflags, ver;
 	int db_ver, db_format, db_flags, do_check, do_write;
 	char *fp;
-
+	struct stat file_stat;
+	
 	logfile_init(NULL);
 
 	if ((argc < 2) || (argc > 3)) {
@@ -132,9 +134,6 @@ char *argv[];
 		exit(1);
 	}
 	cf_init();
-#ifdef RADIX_COMPRESSION
-	init_string_compress();
-#endif
 	/* Decide what conversions to do and how to format the output file */
 
 	setflags = clrflags = ver = do_check = 0;
@@ -225,6 +224,9 @@ char *argv[];
 		exit(1);
 	}
 	/* Go do it */
+
+	stat(argv[1], &file_stat);
+	mudstate.fs_block_size = STATBLKSIZE;
 
 	db_read(stdin, &db_format, &db_ver, &db_flags);
 	fprintf(mainlog_fp, "Input: ");

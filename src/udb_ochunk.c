@@ -30,10 +30,6 @@ static GDBM_FILE dbp = (GDBM_FILE) 0;
 static datum dat;
 static datum key;
 
-int FDECL(dddb_del, (void *, int));
-int FDECL(dddb_put, (void *, int, void *, int));
-void *FDECL(dddb_get, (void *, int));
-
 extern void VDECL(fatal, (char *, ...));
 extern void VDECL(logf, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
@@ -97,7 +93,7 @@ int dddb_init()
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
-
+	
 	if (gdbm_setopt(dbp, GDBM_CACHESIZE, &cache_size, sizeof(int)) == -1) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
@@ -141,35 +137,54 @@ int dddb_close()
 	return (0);
 }
 
-void *dddb_get(keydata, keylen)
+void dddb_get(keydata, keylen, dataptr, datalenptr, type)
 void *keydata;
 int keylen;
+void **dataptr;
+int *datalenptr;
+int type;
 {
-	Attr *atr;
+	void *newdata;
+	int newdatalen;
 	
-	if (!db_initted)
-		return (NULL);
+	if (!db_initted) {
+		if (dataptr)
+			*dataptr = NULL;
+		return;
+	}
+	
+	/* Construct a key */
+	
+	key.dptr = (char *)malloc(sizeof(int) + keylen);
+	*((int *)key.dptr) = type;
+	memcpy((void *)(((int *)key.dptr) + 1), keydata, keylen); 
+	key.dsize = sizeof(int) + keylen;
 
-	key.dptr = (char *)keydata;
-	key.dsize = keylen;
 	dat = gdbm_fetch(dbp, key);
 
-	return ((void *)dat.dptr);
+	if (dataptr)
+		*dataptr = dat.dptr;
+	if (datalenptr)
+		*datalenptr = dat.dsize;
+
+	free(key.dptr);
 }
 
-int dddb_put(keydata, keylen, data, len)
+int dddb_put(keydata, keylen, data, len, type)
 void *keydata;
 int keylen;
 void *data;
 int len;
 {
-	/* Remember if you put a string here that len is strlen() + 1 */
-	
 	if (!db_initted)
 		return (1);
 
-	key.dptr = (char *)keydata;
-	key.dsize = keylen;
+	/* Construct a key */
+	
+	key.dptr = (char *)malloc(sizeof(int) + keylen);
+	*((int *)key.dptr) = type;
+	memcpy((void *)(((int *)key.dptr) + 1), keydata, keylen);
+	key.dsize = sizeof(int) + keylen;
 	
 	/* make table entry */
 	dat.dptr = (char *)malloc(len);
@@ -179,36 +194,48 @@ int len;
 	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
 		logf("db_put: can't gdbm_store ", " ", (char *)-1, "\n", (char *)0);
 		free(dat.dptr);
+		free(key.dptr);
 		return (1);
 	}
 
 	free(dat.dptr);
+	free(key.dptr);
 
 	return (0);
 }
 
-int dddb_del(keydata, keylen)
+int dddb_del(keydata, keylen, type)
 void *keydata;
 int keylen;
+int type;
 {
 	if (!db_initted) {
 		return (-1);
 	}
 
-	key.dptr = (char *)keydata;
-	key.dsize = keylen;
+	/* Construct a key */
+	
+	key.dptr = (char *)malloc(sizeof(int) + keylen);
+	*((int *)key.dptr) = type;
+	memcpy((void *)(((int *)key.dptr) + 1), keydata, keylen);
+	key.dsize = sizeof(int) + keylen;
+
 	dat = gdbm_fetch(dbp, key); 
 
 	/* not there? */
-	if (dat.dptr == NULL)
+	if (dat.dptr == NULL) {
+		free(key.dptr);
 		return (0);
+	}
 
 	free(dat.dptr);
-	
+
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {
-		logf("db_del: can't delete key\n", (char *)0);
+		logf("db_del: can't delete key\n", (char *)NULL);
+		free(key.dptr);
 		return (1);
 	}
+	free(key.dptr);
 	return (0);
 }

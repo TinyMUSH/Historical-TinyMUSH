@@ -62,16 +62,13 @@ typedef struct Obj {
 	int size;
 } Obj;
 
-extern Attr *	FDECL(cache_get, (Aname *));
-extern int 	FDECL(cache_put, (Aname *, Attr *));
+extern void	FDECL(cache_get, (void *, int, void **, int *, int));
+extern int 	FDECL(cache_put, (void *, int, void *, int, int));
 extern int 	FDECL(cache_init, (int));
 extern void 	NDECL(cache_reset);
 extern int 	NDECL(cache_sync);
-extern void 	FDECL(cache_del, (Aname *));
-int FDECL(dddb_del, (void *, int));
-int FDECL(dddb_put, (void *, int, void *, int));
-void *FDECL(dddb_get, (void *, int));
-extern Attr *	FDECL(attrfromFILE, (char *));
-extern int	FDECL(attrtoFILE, (Attr *, char *));
-
+extern void 	FDECL(cache_del, (void *, int, int));
+void FDECL(dddb_get, (void *, int, void **, int *, int));
+int FDECL(dddb_put, (void *, int, void *, int, int));
+int FDECL(dddb_del, (void *, int, int));
 #endif /* __UDB_H */

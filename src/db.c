@@ -53,23 +53,7 @@ extern void FDECL(desc_addhash, (DESC *));
 #ifdef TEST_MALLOC
 int malloc_count = 0;
 
-#endif /*
-        * * TEST_MALLOC  
-        */
-
-#ifdef RADIX_COMPRESSION
-
-/*
- * Buffers for compressing in and out of. NOTE: These assume that compression
- * will NEVER expand input text by more than 1.5, which is valid for the
- * radix tree stuff, since it emits at worst a 12 bit code for every input
- * byte. If this changes, the size of compress_buff needs to be adjusted to the
- * new worst case.
- */
-char decomp_buff[LBUF_SIZE];
-char compress_buff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
-
-#endif
+#endif /* TEST_MALLOC */
 
 extern VATTR *FDECL(vattr_rename, (char *, char *));
 
@@ -1552,158 +1536,6 @@ int flags, atr;
 	return tprintf("%c%d:%d:%s", ATR_INFO_CHAR, owner, flags, iattr);
 }
 
-#ifdef RADIX_COMPRESSION
-
-/* ---------------------------------------------------------------------------
- * atr_get_raw_decode: Get an attribute string out of the DB, decompress and
- * decode it in one shot. Since the decompression involves a copy, and we
- * normally do decode/copy immediately after fetching the attribute, this is
- * used to roll the two operations together.
- */
-
-static int atr_get_raw_decode(thing, oattr, owner, flags, atr, alen)
-dbref thing;
-char *oattr;
-dbref *owner;
-int *flags, atr, *alen;
-{
-	Attr *a;
-	char *cp;
-	int neg;
-	int len;
-
-#ifdef MEMORY_BASED
-	if (!Good_obj(thing))
-		return 0;
-		
-	a = (char *)atr_get_raw(thing, atr);
-#else
-	Aname okey;
-
-	if (!Good_obj(thing))
-		return 0;
-
-	if (atr == A_LIST) {	/* This is not supposed to be compressed! */
-	    fprintf(mainlog_fp, "ABORT! db.c, list is compressed in atr_get_raw_decode().\n");
-	    abort();
-	}
-	makekey(thing, atr, &okey);
-	a = FETCH(&okey);
-#endif /* MEMORY_BASED */
-
-	if (!a) {
-		*owner = Owner(thing);
-		*flags = 0;
-		*alen = 0;
-		if (oattr) {
-			*oattr = '\0';
-		}
-#ifndef STANDALONE
-		s_Accessed(thing);
-#endif
-		return 0;
-	}
-#ifndef MEMORY_BASED
-	/* We now have a compressed attribute, decompress it into oattr 
-	 * and decode it. 
-	 */
-
-	if (oattr == NULL) {
-		len = string_decompress(a, decomp_buff);
-		cp = decomp_buff;
-	} else {
-		len = string_decompress(a, oattr);
-		cp = oattr;
-	}
-#else
-	/* Already uncompressed */
-
-	if (oattr == NULL) {
-		len = strlen(a) + 1;
-		StringCopy(decomp_buff, a);
-		cp = decomp_buff;
-	} else {
-		len = strlen(a) + 1;
-		StringCopy(oattr, a);
-		cp = oattr;
-	}
-#endif /* MEMORY_BASED  */
-
-	/* len includes an extra character for the terminating null.
-	 * alen does not.
-	 */
-	*alen = len - 1;
-
-	if (*cp == ATR_INFO_CHAR) {
-
-		/* Get the attribute owner */
-
-		cp++;		/* Skip magic character */
-		*owner = 0;
-		neg = 0;
-		if (*cp == '-') {
-			neg = 1;
-			cp++;
-		}
-		while (isdigit(*cp)) {
-			*owner = (*owner * 10) + (*cp++ - '0');
-		}
-		if (neg)
-			*owner = 0 - *owner;
-
-		/* If delimiter is not ':', just return attribute */
-
-		if (*cp++ != ':') {
-			*owner = Owner(thing);
-			*flags = 0;
-#ifndef STANDALONE
-			s_Accessed(thing);
-#endif
-			return 1;
-		}
-		/* Get the attribute flags */
-
-		*flags = 0;
-		while (isdigit(*cp)) {
-			*flags = (*flags * 10) + (*cp++ - '0');
-		}
-
-		/* If delimiter is not ':', just return attribute */
-
-		if (*cp++ != ':') {
-			*owner = Owner(thing);
-			*flags = 0;
-#ifndef STANDALONE
-			s_Accessed(thing);
-#endif
-			return 1;
-		}
-		/* Get the attribute text */
-
-		len -= cp - oattr;
-		*alen = len - 1;
-
-		if (oattr != NULL)
-			memmove(oattr, cp, len);
-
-		if (*owner == NOTHING)
-			*owner = Owner(thing);
-
-	} else {
-
-		/* Not the special character, return normal info */
-
-		*owner = Owner(thing);
-		*flags = 0;
-	}
-
-#ifndef STANDALONE
-	s_Accessed(thing);
-#endif
-	return 1;
-}
-#endif /* RADIX_COMPRESSION  */
-
 /* ---------------------------------------------------------------------------
  * atr_decode: Decode an attribute string.
  */
@@ -1879,11 +1711,6 @@ char *buff;
 	int found = 0;
 	int hi, lo, mid;
 
-#ifdef RADIX_COMPRESSION
-	int len;
-
-#endif /* RADIX_COMPRESSION */
-
 	if (!buff || !*buff) {
 		atr_clr(thing, atr);
 		return;
@@ -1891,18 +1718,10 @@ char *buff;
 	if (strlen(buff) >= LBUF_SIZE) {
 		buff[LBUF_SIZE-1] = '\0';
 	}
-#ifdef RADIX_COMPRESSION
-	len = string_compress(buff, compress_buff);
-	if ((text = (char *)XMALLOC(len, "atr_add_raw")) == NULL) {
-		return;
-	}
-	memcpy(text, compress_buff, len);
-#else
 	if ((text = (char *)XMALLOC(strlen(buff) + 1, "atr_add_raw.1")) == NULL) {
 		return;
 	}
 	strcpy(text, buff);
-#endif
 
 	if (!db[thing].ahead) {
 		if ((list = (ATRLIST *) XMALLOC(sizeof(ATRLIST), "atr_add_raw.2")) == NULL) {
@@ -1913,11 +1732,7 @@ char *buff;
 		db[thing].at_count = 1;
 		list[0].number = atr;
 		list[0].data = text;
-#ifdef RADIX_COMPRESSION
-		list[0].size = len;
-#else
 		list[0].size = strlen(text) + 1;
-#endif /* RADIX_COMPRESSION */
 		found = 1;
 	} else {
 
@@ -1931,11 +1746,7 @@ char *buff;
 			if (list[mid].number == atr) {
 				XFREE(list[mid].data, "atr_add_raw");
 				list[mid].data = text;
-#ifdef 	RADIX_COMPRESSION
-				list[mid].size = len;
-#else
 				list[mid].size = strlen(text) + 1;
-#endif /* RADIX_COMPRESSION */
 				found = 1;
 				break;
 			} else if (list[mid].number > atr) {
@@ -1963,13 +1774,7 @@ char *buff;
 
 			list[lo].data = text;
 			list[lo].number = atr;
-#ifdef RADIX_COMPRESSION
-			list[lo].size = len;
-#else
 			list[lo].size = strlen(text) + 1;
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
 			db[thing].at_count++;
 			db[thing].ahead = list;
 		}
@@ -1977,11 +1782,6 @@ char *buff;
 #else
 	Attr *a;
 	Aname okey;
-
-#ifdef RADIX_COMPRESSION
-	int len;
-
-#endif
 
 	makekey(thing, atr, &okey);
 	
@@ -1991,30 +1791,6 @@ char *buff;
 		return;
 	}
 
-#ifdef RADIX_COMPRESSION
-	/* A_LIST is never compressed */
-
-	if (atr == A_LIST) {
-		if (!(a = (Attr *) XMALLOC(strlen(buff) + 1, "atr_add_raw"))) {
-			return;
-		}
-		strcpy(a, buff);
-		len = strlen(a) + 1;
-	} else {
-
-		/* It's not an A_LIST, so compress it into a buffer and store 
-		 * that 
-		 */
-
-		len = string_compress(buff, compress_buff);
-		if (!(a = (Attr *) XMALLOC(len, "atr_add_raw.1"))) {
-			return;
-		}
-		memcpy(a, compress_buff, len);
-		al_add(thing, atr);
-	}
-	STORE(&okey, a, len);
-#else /* Not RADIX_COMPRESSION */
 	if ((a = (Attr *) XMALLOC(strlen(buff) + 1, "atr_add_raw.2")) == (char *)0) {
 		return;
 	}
@@ -2023,7 +1799,6 @@ char *buff;
 	STORE(&okey, a);
 	al_add(thing, atr);
 
-#endif /* RADIX_COMPRESSION */
 #endif /* MEMORY_BASED */
 
 #ifndef STANDALONE
@@ -2134,13 +1909,7 @@ int atr;
 	while (lo <= hi) {
 		mid = ((hi - lo) >> 1) + lo;
 		if (list[mid].number == atr) {
-			
-#ifdef RADIX_COMPRESSION
-			(void)string_decompress(list[mid].data, decomp_buff);
-			return decomp_buff;
-#else
 			return list[mid].data;
-#endif /* RADIX_COMPRESSION */
 		} else if (list[mid].number > atr) {
 			hi = mid - 1;
 		} else {
@@ -2181,16 +1950,8 @@ int atr;
 	}
 
 	makekey(thing, atr, &okey);
-	a = FETCH(&okey);
-#ifdef RADIX_COMPRESSION
-	if (!a || atr == A_LIST) {
-		return a;
-	}
-	(void)string_decompress(a, decomp_buff);
-	return decomp_buff;
-#else
+	FETCH(&okey, &a);
 	return a;
-#endif /* RADIX_COMPRESSION */
 }
 #endif /* MEMORY_BASED */
 
@@ -2199,9 +1960,6 @@ char *s;
 dbref thing, *owner;
 int atr, *flags, *alen;
 {
-#ifdef RADIX_COMPRESSION
-	(void)atr_get_raw_decode(thing, s, owner, flags, atr, alen);
-#else
 	char *buff;
 
 	buff = atr_get_raw(thing, atr);
@@ -2213,7 +1971,6 @@ int atr, *flags, *alen;
 	} else {
 		atr_decode(buff, s, thing, owner, flags, atr, alen);
 	}
-#endif /* RADIX_COMPRESSION */
 	return s;
 }
 
@@ -2232,12 +1989,6 @@ dbref thing, *owner;
 int atr, *flags;
 {
         int alen;
-#ifdef RADIX_COMPRESSION
-	int retval;
-
-	retval = atr_get_raw_decode(thing, NULL, owner, flags, atr, &alen);
-	return retval;
-#else
 	char *buff;
 
 	buff = atr_get_raw(thing, atr);
@@ -2248,7 +1999,6 @@ int atr, *flags;
 	}
 	atr_decode(buff, NULL, thing, owner, flags, atr, &alen);
 	return 1;
-#endif /* RADIX_COMPRESSION */
 }
 
 #ifndef STANDALONE
@@ -2262,27 +2012,15 @@ int atr, *flags, *alen;
 	dbref parent;
 	int lev;
 
-#ifdef RADIX_COMPRESSION
-	int retval;
-
-#endif /* RADIX_COMPRESSION */
 	ATTR *ap;
 
 	ITER_PARENTS(thing, parent, lev) {
-#ifdef RADIX_COMPRESSION
-	        retval = atr_get_raw_decode(parent, s, owner, flags, atr,
-					    alen);
-		if (retval && ((lev == 0) || !(*flags & AF_PRIVATE))) {
-			return s;
-		}
-#else
 		buff = atr_get_raw(parent, atr);
 		if (buff && *buff) {
 			atr_decode(buff, s, thing, owner, flags, atr, alen);
 			if ((lev == 0) || !(*flags & AF_PRIVATE))
 				return s;
 		}
-#endif /* RADIX_COMPRESSION */
 		if ((lev == 0) && Good_obj(Parent(parent))) {
 			ap = atr_num(atr);
 			if (!ap || ap->flags & AF_PRIVATE)

@@ -7,13 +7,14 @@
 #define	__DB_H
 
 #ifndef MEMORY_BASED
-#ifdef RADIX_COMPRESSION
-#define STORE(key, attr, len)	cache_put(key, attr, len)
-#else
-#define STORE(key, attr)	cache_put(key, attr)
-#endif
-#define DELETE(key)		cache_del(key)
-#define FETCH(key)		cache_get(key)
+#define STORE(key, attr)	cache_put((void *)key, sizeof(Aname), \
+					  (void *)attr, strlen(attr) + 1, \
+					  TYPE_ATTRIBUTE)
+#define DELETE(key)		cache_del((void *)key, sizeof(Aname), \
+					  TYPE_ATTRIBUTE)
+#define FETCH(key, data)	cache_get((void *)key, sizeof(Aname), \
+					  (void **)data, NULL, \
+					  TYPE_ATTRIBUTE)
 #define SYNC			cache_sync()
 #define CLOSE			{ cache_sync(); dddb_close(); }
 #define OPTIMIZE                (void) dddb_optimize()

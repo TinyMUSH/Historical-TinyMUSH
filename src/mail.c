@@ -81,14 +81,6 @@ CONF mod_mail_conftable[] = {
 {(char *)"mail_expiration",		cf_int,		CA_GOD,		CA_PUBLIC,	&mod_mail_config.mail_expiration,	0},
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
-/*
- * Buffers used for RADIX_COMPRESSION 
- */
-
-char msgbuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
-char subbuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
-char timebuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
-
 extern CMDENT *prefix_cmds[256];
 
 extern int FDECL(do_convtime, (char *, struct tm *));
@@ -131,20 +123,6 @@ int ma_size = 0;
 int ma_top = 0;
 
 struct malias **malias;
-
-#ifdef RADIX_COMPRESSION
-char *strndup(const char *str, int len)
-{
-	char *s;
-
-	/* this gets tagged via the XSTRNDUP macro */
-	s = (char *) malloc(sizeof(char) * len);
-	memcpy(s, str, len);
-	return s;
-}
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 
 /*
  * Handling functions for the database of mail messages. 
@@ -232,9 +210,6 @@ dbref player;
 char *message;
 {
 	int number;
-#ifdef RADIX_COMPRESSION
-	int len;
-#endif
 	char *atrstr, *execstr, *msg, *bp, *str;
 	int aflags, alen;
 	dbref aowner;
@@ -266,14 +241,7 @@ char *message;
 	     EV_EVAL | EV_FCHECK | EV_NO_COMPRESS, &str, (char **)NULL, 0);
 	*bp = '\0';
 
-#ifdef RADIX_COMPRESSION
-	len = string_compress(tprintf("%s %s", msg, execstr), msgbuff);
-	mod_mail_config.mail_list[number].message = XSTRNDUP(msgbuff, len, "add_mail_message");
-#else
 	mod_mail_config.mail_list[number].message = XSTRDUP(tprintf("%s %s", msg, execstr), "add_mail_message");
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 	free_lbuf(atrstr);
 	free_lbuf(execstr);
 	free_lbuf(msg);
@@ -289,22 +257,12 @@ static int add_mail_message_nosig(message)
 char *message;
 {
 	int number;
-#ifdef RADIX_COMPRESSION
-	int len;
-#endif
 
 	number = mod_mail_config.mail_freelist;
 	if (!mod_mail_config.mail_list) {
 		mail_db_grow(1);
 	}
-#ifdef RADIX_COMPRESSION
-	len = string_compress(message, msgbuff);
-	mod_mail_config.mail_list[number].message = XSTRNDUP(msgbuff, len, "add_mail_message_nosig");
-#else
 	mod_mail_config.mail_list[number].message = XSTRDUP(message, "add_mail_message_nosig");
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 
 	make_mail_freelist();
 	return number;
@@ -315,21 +273,11 @@ char *message;
  * * a number assigned to them.
  */
 
-#ifdef RADIX_COMPRESSION
-static void new_mail_message(message, number, len)
-char *message;
-int number, len;
-#else
 static void new_mail_message(message, number)
 char *message;
 int number;
-#endif
 {
-#ifdef RADIX_COMPRESSION
-	mod_mail_config.mail_list[number].message = XSTRNDUP(message, len, "new_mail_message");
-#else
 	mod_mail_config.mail_list[number].message = XSTRDUP(message, "new_mail_message");
-#endif
 }
 
 /*
@@ -373,13 +321,8 @@ int number;
 		return mod_mail_config.mail_list[number].message;
 	} else {
 		delete_mail_message(number);
-#ifdef RADIX_COMPRESSION
-		string_compress("MAIL: This mail message does not exist in the database. Please alert your admin.", msgbuff);
-		StringCopy(buff, msgbuff);
-#else		
 		StringCopy(buff,
 			   "MAIL: This mail message does not exist in the database. Please alert your admin.");
-#endif
 		return buff;
 	}
 }
@@ -630,29 +573,10 @@ char *msglist;
 				 */
 				j++;
 				buff = alloc_lbuf("do_mail_read");
-#ifdef RADIX_COMPRESSION
-				(void)string_decompress(get_mail_message(mp->number), buff);
-#else
 				StringCopy(buff, get_mail_message(mp->number));
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 				notify(player, DASH_LINE);
 				status = status_string(mp);
 				names = make_namelist(player, (char *)mp->tolist);
-#ifdef RADIX_COMPRESSION
-				string_decompress(mp->subject, subbuff);
-				string_decompress(mp->time, timebuff);
-				notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nTo     : %-65s\r\nSubject: %-65s",
-				   i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
-						       timebuff,
-						     (Connected(mp->from) &&
-				  (!Hidden(mp->from) || See_Hidden(player))) ?
-					       " (Conn)" : "      ", folder,
-						       status,
-						       names,
-						       subbuff));
-#else
 				notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nTo     : %-65s\r\nSubject: %-65s",
 				   i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
 						       mp->time,
@@ -662,9 +586,6 @@ char *msglist;
 						       status,
 						       names,
 						       mp->subject));
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 				free_lbuf(names);
 				free_lbuf(status);
 				notify(player, DASH_LINE);
@@ -792,24 +713,11 @@ char *msglist;
 				/*
 				 * list it 
 				 */
-#ifdef RADIX_COMPRESSION
-				string_decompress(get_mail_message(mp->number), msgbuff);
-				string_decompress(mp->time, timebuff);
-				string_decompress(mp->subject, subbuff);
-				notify(player, tprintf("[%s] %-3d (%4d) From: %-*s Sub: %.25s",
-						       status_chars(mp),
-						       i, strlen(msgbuff),
-				      PLAYER_NAME_LIMIT - 6, Name(mp->from),
-						       subbuff));
-#else
 				notify(player, tprintf("[%s] %-3d (%4d) From: %-*s Sub: %.25s",
 						       status_chars(mp),
 				    i, strlen(get_mail_message(mp->number)),
 				      PLAYER_NAME_LIMIT - 6, Name(mp->from),
 						       mp->subject));
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 			}
 		}
 		notify(player, DASH_LINE);
@@ -830,33 +738,13 @@ char *msglist;
 					 */
 					j++;
 					status = status_string(mp);
-#ifdef RADIX_COMPRESSION
-					string_decompress(get_mail_message(mp->number), msgbuff);
-					string_decompress(mp->time, timebuff);
-					string_decompress(mp->subject, subbuff);
-
+					str = strdup(get_mail_message(mp->number));
 					msg = bp = alloc_lbuf("do_mail_review");
-					str = msgbuff;
 					exec(msg, &bp, player, player, player,
 					  EV_EVAL | EV_FCHECK | EV_NO_COMPRESS,
 					     &str, (char **)NULL, 0);
 					*bp = '\0';
-					notify(player, DASH_LINE);
-					notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nSubject: %-65s",
-							       i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
-							       timebuff,
-						     (Connected(mp->from) &&
-						      (!Hidden(mp->from) || See_Hidden(player))) ?
-						    " (Conn)" : "      ", 0,
-							  status, subbuff));
-#else
-					strcpy(msgbuff, get_mail_message(mp->number));
-					msg = bp = alloc_lbuf("do_mail_review");
-					str = msgbuff;
-					exec(msg, &bp, player, player, player,
-					  EV_EVAL | EV_FCHECK | EV_NO_COMPRESS,
-					     &str, (char **)NULL, 0);
-					*bp = '\0';
+					free(str);
 					notify(player, DASH_LINE);
 					notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nSubject: %-65s",
 							       i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
@@ -865,9 +753,6 @@ char *msglist;
 						      (!Hidden(mp->from) || See_Hidden(player))) ?
 						    " (Conn)" : "      ", 0,
 						      status, mp->subject));
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 					free_lbuf(status);
 					notify(player, DASH_LINE);
 					StringCopy(tbuf1, msg);
@@ -917,27 +802,6 @@ int sub;
 				 * list it 
 				 */
 
-#ifdef RADIX_COMPRESSION
-				string_decompress(get_mail_message(mp->number), msgbuff);
-				string_decompress(mp->subject, subbuff);
-				string_decompress(mp->time, timebuff);
-				time = mail_list_time(timebuff);
-				if (sub)
-					notify(player, tprintf("[%s] %-3d (%4d) From: %-*s Sub: %.25s",
-							   status_chars(mp),
-							 i, strlen(msgbuff),
-							       PLAYER_NAME_LIMIT - 6, Name(mp->from),
-							       subbuff));
-				else
-					notify(player, tprintf("[%s] %-3d (%4d) From: %-*s At: %s %s",
-							   status_chars(mp),
-							 i, strlen(msgbuff),
-							       PLAYER_NAME_LIMIT - 6, Name(mp->from),
-							       time,
-						    ((Connected(mp->from) &&
-						      (!Hidden(mp->from) || See_Hidden(player)))
-						     ? "Conn" : " ")));
-#else
 				time = mail_list_time(mp->time);
 				if (sub)
 					notify(player, tprintf("[%s] %-3d (%4d) From: %-*s Sub: %.25s",
@@ -954,9 +818,6 @@ int sub;
 						    ((Connected(mp->from) &&
 						      (!Hidden(mp->from) || See_Hidden(player)))
 						     ? "Conn" : " ")));
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 				free_lbuf(time);
 			}
 		}
@@ -1086,19 +947,10 @@ char *tolist;
 		notify(player, "MAIL: You can't forward non-existent messages.");
 		return;
 	}
-#ifdef RADIX_COMPRESSION
-	string_decompress(mp->subject, subbuff);
-	string_decompress(get_mail_message(mp->number), msgbuff);
-	mail_ok = do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", subbuff, Name(mp->from)));
-	if (mail_ok) {
-	    atr_add_raw(player, A_MAILMSG, msgbuff);
-	}
-#else
 	mail_ok = do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", mp->subject, Name(mp->from)));
 	if (mail_ok) {
 	    atr_add_raw(player, A_MAILMSG, get_mail_message(mp->number));
 	}
-#endif
 	if (mail_ok) {
 	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", atoi(atr_get_raw(player, A_MAILFLAGS)) | M_FORWARD));
 	}
@@ -1165,24 +1017,6 @@ int all, key;
 		tolist = msg;
 	}
 		
-#ifdef RADIX_COMPRESSION
-	string_decompress(mp->subject, subbuff);
-	string_decompress(get_mail_message(mp->number), msgbuff);
-	string_decompress(mp->time, timebuff);
-	if (strncmp(subbuff, "Re:", 3)) {
-		mail_ok = do_expmail_start(player, tolist, tprintf("Re: %s", subbuff));
-	} else {
-		mail_ok = do_expmail_start(player, tolist, tprintf("%s", subbuff));
-	}
-	if (mail_ok) {
-	    if (key & MAIL_QUOTE) {
-	        atr_add_raw(player, A_MAILMSG,
-			tprintf("On %s, %s wrote:\r\n\r\n%s\r\n\r\n********** End of included message from %s\r\n",
-				timebuff, Name(mp->from),
-				msgbuff, Name(mp->from)));
-	    }
-	}
-#else
 	if (strncmp(mp->subject, "Re:", 3)) {
 		mail_ok = do_expmail_start(player, tolist, tprintf("Re: %s", mp->subject));
 	} else {
@@ -1196,7 +1030,6 @@ int all, key;
 				get_mail_message(mp->number), Name(mp->from)));
 	    }
 	}
-#endif
 	if (mail_ok) {
 	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_REPLY)));
 	}
@@ -1300,9 +1133,6 @@ int silent;
 	struct mail *mp;
 	time_t tt;
 	char tbuf1[30];
-#ifdef RADIX_COMPRESSION
-	int len;
-#endif
 
 	if (Typeof(target) != TYPE_PLAYER) {
 		notify(player, "MAIL: You cannot send mail to non-existent people.");
@@ -1327,17 +1157,8 @@ int silent;
 	newp->number = number;
 	add_count(number);
 
-#ifdef RADIX_COMPRESSION
-	len = string_compress(tbuf1, timebuff);
-	newp->time = XSTRNDUP(timebuff, len, "send_mail.time");
-	len = string_compress(subject, subbuff);
-	newp->subject = XSTRNDUP(subbuff, len, "send_mail.subj");
-#else
 	newp->time = XSTRDUP(tbuf1, "send_mail.time");
 	newp->subject = XSTRDUP(subject, "send_mail.subj");
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 	newp->read = flags & M_FMASK;	/*
 					 * Send to folder 0 
 					 */
@@ -1498,9 +1319,6 @@ int full;
 	int fc, fr, fu, tc, tr, tu, fchars, tchars, cchars, count;
 	char last[50];
 	struct mail *mp;
-#ifdef RADIX_COMPRESSION
-	int len;
-#endif
 
 	fc = fr = fu = tc = tr = tu = cchars = fchars = tchars = count = 0;
 
@@ -1572,21 +1390,6 @@ int full;
 			return;
 		} else {
 			MAIL_ITER_ALL(mp, thing) {
-#ifdef RADIX_COMPRESSION
-				if (Cleared(mp)) {
-					fc++;
-					len = string_decompress(get_mail_message(mp->number), msgbuff);
-					cchars += len;
-				} else if (Read(mp)) {
-					fr++;
-					len = string_decompress(get_mail_message(mp->number), msgbuff);
-					fchars += len;
-				} else {
-					fu++;
-					len = string_decompress(get_mail_message(mp->number), msgbuff);
-					tchars += len;
-				}
-#else
 				if (Cleared(mp)) {
 					fc++;
 					cchars += strlen(get_mail_message(mp->number));
@@ -1597,9 +1400,6 @@ int full;
 					fu++;
 					tchars += strlen(get_mail_message(mp->number));
 				}
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 			}
 			notify(player, tprintf("MAIL: There are %d old msgs in the mail spool, totalling %d characters.", fr, fchars));
 			notify(player, tprintf("MAIL: There are %d new msgs in the mail spool, totalling %d characters.", fu, tchars));
@@ -1638,25 +1438,11 @@ int full;
 			else
 				fu++;
 			if (full == 2)
-#ifdef RADIX_COMPRESSION
-				len = string_compress(get_mail_message(mp->number), msgbuff);
-			fchars += len;
-#else
 				fchars += strlen(get_mail_message(mp->number));
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 		}
 		if (mp->to == target) {
 			if (!tr && !tu) {
-#ifdef RADIX_COMPRESSION
-				string_decompress(mp->time, timebuff);
-				StringCopy(last, timebuff);
-#else
 				StringCopy(last, mp->time);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 			}
 			if (Cleared(mp))
 				tc++;
@@ -1665,14 +1451,7 @@ int full;
 			else
 				tu++;
 			if (full == 2) {
-#ifdef RADIX_COMPRESSION
-				len = string_decompress(get_mail_message(mp->number), msgbuff);
-				tchars += len;
-#else
 				tchars += strlen(get_mail_message(mp->number));
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 			}
 		}
 	}
@@ -1891,17 +1670,8 @@ void mod_mail_dump_database()
 					putref(fp, mp->from);
 					putref(fp, mp->number);
 					putstring(fp, mp->tolist);
-#ifdef RADIX_COMPRESSION
-					string_decompress(mp->time, timebuff);
-					string_decompress(mp->subject, subbuff);
-					putstring(fp, timebuff);
-					putstring(fp, subbuff);
-#else
 					putstring(fp, mp->time);
 					putstring(fp, mp->subject);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 					putref(fp, mp->read);
 					count++;
 				}
@@ -1916,12 +1686,7 @@ void mod_mail_dump_database()
 	for (i = 0; i < mod_mail_config.mail_db_top; i++) {
 		if (mod_mail_config.mail_list[i].count > 0) {
 			putref(fp, i);
-#ifdef RADIX_COMPRESSION
-			string_decompress(get_mail_message(i),msgbuff);
-			putstring(fp, msgbuff);
-#else
 			putstring(fp, get_mail_message(i));
-#endif
 		}
 	}
 	fprintf(fp, "+++ END OF DUMP +++\n");
@@ -1944,9 +1709,6 @@ void mod_mail_load_database()
 	int read_new_strings = 0;
 	int number = 0;
 	struct mail *mp, *mptr;
-#ifdef RADIX_COMPRESSION
-	int len;
-#endif
 
 	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mod_mail_config.mail_db);
 	if ((fp = fopen(tmpfile, "r")) == NULL)
@@ -2024,30 +1786,6 @@ void mod_mail_load_database()
 		else
 			mp->tolist = XSTRDUP(tprintf("%d", mp->to), "load_mail.tolist");
 
-#ifdef RADIX_COMPRESSION
-		len = string_compress(getstring_noalloc(fp, read_new_strings), timebuff);
-		mp->time = XSTRNDUP(timebuff, len, "load_mail.time");
-		if (pennsub) {
-			len = string_compress(getstring_noalloc(fp, read_new_strings), subbuff);
-			mp->subject = XSTRNDUP(subbuff, len, "load_mail.subj");
-		} else if (!new) {
-			len = string_compress("No subject", subbuff);
-			mp->subject = XSTRNDUP(subbuff, len, "load_mail.subj");
-		}
-		if (!read_newdb) {
-			string_compress(getstring_noalloc(fp, read_new_strings), msgbuff);
-			number = add_mail_message_nosig(msgbuff);
-			add_count(number);
-			mp->number = number;
-		}
-		if (new) {
-			len = string_compress(getstring_noalloc(fp, read_new_strings), subbuff);
-			mp->subject = XSTRNDUP(subbuff, len, "load_mail.subj");
-		} else if (!pennsub) {
-			len = string_compress("No subject", subbuff);
-			mp->subject = XSTRNDUP(subbuff, len, "load_mail.subj");
-		}
-#else
 		mp->time = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.time");
 		if (pennsub)
 			mp->subject = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.subj");
@@ -2063,9 +1801,6 @@ void mod_mail_load_database()
 			mp->subject = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.subj");
 		else if (!pennsub)
 			mp->subject = XSTRDUP("No subject", "load_mail.subj");
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 		mp->read = getref(fp);
 		fgets(nbuf1, sizeof(nbuf1), fp);
 	}
@@ -2075,12 +1810,7 @@ void mod_mail_load_database()
 
 		while (strncmp(nbuf1, "+++", 3)) {
 			number = atoi(nbuf1);
-#ifdef RADIX_COMPRESSION
-			len = string_compress(getstring_noalloc(fp, read_new_strings), msgbuff);
-			new_mail_message(msgbuff, number, len);
-#else
 			new_mail_message(getstring_noalloc(fp, read_new_strings), number);
-#endif
 			fgets(nbuf1, sizeof(nbuf1), fp);
 		}
 	}
@@ -2328,14 +2058,7 @@ int num;
 		 */
 		time(&now);
 		msgtimestr = alloc_lbuf("mail_match");
-#ifdef RADIX_COMPRESSION
-		string_decompress(mp->time, timebuff);
-		StringCopy(msgtimestr, timebuff);
-#else
 		StringCopy(msgtimestr, mp->time);
-#endif /*
-        * RADIX_COMPRESSION 
-        */
 		if (do_convtime(msgtimestr, &msgtm)) {
 			msgtime = timelocal(&msgtm);
 			diffdays = (now - msgtime) / 86400;
@@ -2601,12 +2324,7 @@ void check_mail_expiration()
 		return;
 
 	MAIL_ITER_SAFE(mp, thing, nextp) {
-#ifdef RADIX_COMPRESSION
-		string_decompress(mp->time, timebuff);
-		if (do_convtime(timebuff, &then_tm))
-#else
 		if (do_convtime((char *) mp->time, &then_tm))
-#endif
 		{
 			then = timelocal(&then_tm);
 			if (((now - then) > expire_secs) && !(M_Safe(mp))) {
@@ -3878,9 +3596,6 @@ FUNCTION(fun_mail)
 	struct mail *mp;
 	dbref playerask;
 	int num, rc, uc, cc;
-#ifdef RADIX_COMPRESSION
-	char *msgbuff;
-#endif
 
 	if (!fn_range_check("MAIL", nfargs, 0, 2, buff, bufc))
 		return;
@@ -3926,14 +3641,7 @@ FUNCTION(fun_mail)
 	}
 	mp = mail_fetch(playerask, num);
 	if (mp != NULL) {
-#ifdef RADIX_COMPRESSION
-		msgbuff = alloc_lbuf("fun_mail");
-		string_decompress(get_mail_message(mp->number), msgbuff);
-		safe_str(msgbuff, buff, bufc);
-		free_lbuf(msgbuff);
-#else
 		safe_str(get_mail_message(mp->number), buff, bufc);
-#endif
 		return;
 	}
 	/* ran off the end of the list without finding anything */
