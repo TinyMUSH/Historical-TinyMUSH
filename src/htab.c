@@ -399,6 +399,7 @@ void hashresize(htab, min_size)
 
     size = (htab->entries) * HASH_FACTOR;
     size = (size < min_size) ? min_size : size;
+    size = (size > 32768) ? 32768 : size;
     get_hashmask(&size);
     if (size == htab->hashsize) {
 	/* We're already at the correct size. Don't do anything. */
