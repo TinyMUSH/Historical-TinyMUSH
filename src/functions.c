@@ -1441,7 +1441,7 @@ FUNCTION(fun_left)
 	return;
 
     have_normal = 1;
-    for (count = 0; count < nchars; ) {
+    for (count = 0; *s && (count < nchars); ) {
 	if (*s == ESC_CHAR) {
 	    /* Start of an ANSI code. Skip to the end. */
 	    savep = s;
@@ -3655,7 +3655,7 @@ FUNCTION(fun_delete)
     }
 
     have_normal = 1;
-    for (count = 0; count < len; ) {
+    for (count = 0; *s && (count < len); ) {
 	if (*s == ESC_CHAR) {
 	    /* Start of an ANSI code. Skip to the end. */
 	    savep = s;
