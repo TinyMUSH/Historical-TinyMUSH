@@ -4718,28 +4718,90 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   - If the command was typed in, it is checked against the uppercase-only
     commands (QUIT, WHO, etc).  If so, the command is executed.
+ 
   - The first letter of the command is checked to see if it is a single-
     character command (", :, etc).  If so, %-substitution and function
     evaluation may be performed (depending on the command), and the command
     is executed.
+ 
+  - The command is checked to see if it is one of the player's channel
+    aliases. If so, the comsys command is executed.
+ 
   - The command is checked to see if it is the 'home' command.  If so, the
     player or object performing the command goes home.
+ 
+  Continued in 'help Command Evaluation2'.
+ 
+& Command Evaluation2
+ 
   - The command is checked against the exits in its current room.  If one
-    matches, it is performed.  If more than one matches, one is picked randomly
-    from the exits for which the player passes the lock (If the player does not
-    pass any locks, then the exit to be tried is picked randomly.
-{ 'help command evaluation2' for more }
-& command evaluation2
-  - The first word of the command is checked to see if it is an internal MUSH
-    command.  If so, the remainder of the command is broken up into arguments,
-    %-substitution and function evaluation may be performed on the (split up)
-    arguments, and the command is executed.
+    matches, the player is moved through the exit. If more than one exit
+    matches, one is picked randomly from the exits for which the player
+    passes the lock; if the player does not pass any locks, then the exit
+    to be tried is picked randomly.
+ 
+  - The command is checked against exits in the Master Room. Multiple
+    exit matches are resolved as per above.
+ 
+  - The first word of the command is checked to see if it is an internal
+    built-in MUSH command, or something which has been @addcommand'd.
+    If it is a built-in, the remainder of the command is broken up into
+    arguments; %-substitution and function evaluation may be performed
+    on the (split up) arguments; if an @addcommand, evaluation is not
+    performed. The command is then executed.
+ 
+  Continued in 'help Command Evaluation3'.
+ 
+& Command Evaluation3
+ 
   - %-substitution and function evaluation is performed on the command.
-  - The player himself (if self-command matches are configured), objects 
-    in the player's location, the player's location itself, and objects in
-    the player's inventory, in that order, are searched for $-commands 
-    that match the command. All that match are performed, unless a match
-    was made on a STOP-set object (see 'help STOP').
+    All subsequent attempts to match will be against this evaluated string.
+ 
+  - The command is checked against leave aliases on the player's current
+    location. If matched, the player leaves.
+ 
+  - The command is checked against the enter aliases for objects in the
+    player's current location. If matched, the player enters the object.
+ 
+  - An attempt to match $commands is performed, in the following order:
+    The player himself (if configuration permits), objects in the player's
+    location, the player's location itself, and objects in the player's
+    inventory. All that match are performed, unless a match was made
+    on a STOP-set object (see 'help STOP').
+ 
+  Continued in 'help Command Evaluation4'.
+ 
+& Command Evaluation4
+ 
+  - If local-master-room checking is enabled, and the ZONE flag is
+    set on the parent room of the player's location, objects in that
+    room are checked for $command matches. STOP applies as above.
+ 
+  - If zones are enabled, and the ZMO of the player's location is a room,
+    the command is checked against the exits of the ZMO. Multiple matches
+    are resolved as per normal exit movement.
+  
+  - If zones are enabled, and the ZMO of the player's location is a room,
+    objects in that room are checked for $command matches. STOP applies.
+ 
+  - If zones are enabled, and the ZMO of the player's location is not a
+    room, the ZMO itself is checked for $command matches. STOP applies.
+ 
+  - If local-master-room checking is enabled, and the ZONE flag is set
+    on the parent of the player, objects in that parent's location are
+    checked for $command matches. STOP applies as above.
+ 
+  Continued in 'help Command Evaluation5'.
+ 
+& Command Evaluation5
+ 
+  - If zones are enabled, the player's ZMO is checked for $command matches.
+    STOP applies as above.
+ 
+  - All objects in the master room are checked for $commmand matches.
+    STOP applies as above.
+ 
+  - The master room itself is checked for $command matches. STOP applies.
  
   Note: Commands that can cause other commands to be executed (such as @wait,
   @switch, @trigger, etc) never perform substitution on their arguments, they
@@ -4752,7 +4814,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   Also, the construct '$xx *:%0' does not work (and is very dangerous
   programming), use '$xx *:@force me=%0' if you need this functionality.
-
+ 
 & VERBS
   Topic: VERBS
  
