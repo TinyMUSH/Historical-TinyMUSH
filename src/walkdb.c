@@ -255,6 +255,8 @@ char *name;
 #ifdef TEST_MALLOC
 	if (Wizard(player))
 		notify(player, tprintf("Malloc count = %d.", malloc_count));
+	if (Wizard(player))
+		notify(player, tprintf("Malloc bytes = %d.", malloc_bytes));
 #endif /*
         * TEST_MALLOC 
         */

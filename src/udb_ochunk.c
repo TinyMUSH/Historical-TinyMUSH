@@ -150,6 +150,9 @@ int *datalenptr;
 int type;
 {
 	char *s;
+#ifdef TEST_MALLOC
+	char *newdat;
+#endif
 	
 	if (!db_initted) {
 		if (dataptr)
@@ -167,6 +170,16 @@ int type;
 
 	dat = gdbm_fetch(dbp, key);
 
+#ifdef TEST_MALLOC
+	/* We must XMALLOC() our own memory */
+	if (dat.dptr != NULL) {
+		newdat = (char *)XMALLOC(dat.dsize, "dddb_get.newdat");
+		memcpy(newdat, dat.dptr, dat.dsize);
+		free(dat.dptr);
+		dat.dptr = newdat;
+	}
+#endif
+	
 	if (dataptr)
 		*dataptr = dat.dptr;
 	if (datalenptr)
@@ -198,7 +211,7 @@ int len;
 	key.dsize = sizeof(int) + keylen;
 	
 	/* make table entry */
-	dat.dptr = (char *)malloc(len);
+	dat.dptr = (char *)XMALLOC(len, "dddb_put.dat");
 	memcpy(dat.dptr, data, len);
 	dat.dsize = len;
 
@@ -245,7 +258,11 @@ int type;
 		return (0);
 	}
 
+#ifdef TEST_MALLOC
+	free(dat.dptr);
+#else
 	XFREE(dat.dptr, "dddb_del.dat");
+#endif
 
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {

@@ -2541,6 +2541,7 @@ void list_memory(player)
 	for(i = 0; i < mudstate.command_htab.hashsize; i++) {
 		htab = mudstate.command_htab.entry[i];
 		while (htab != NULL) {
+			each += sizeof(HASHENT);
 			each += strlen(mudstate.command_htab.entry[i]->target) + 1;
 			each += sizeof(CMDENT);
 			
@@ -2576,6 +2577,7 @@ void list_memory(player)
 	for(i = 0; i < mudstate.logout_cmd_htab.hashsize; i++) {
 		htab = mudstate.logout_cmd_htab.entry[i];
 		while (htab != NULL) {
+			each += sizeof(HASHENT);
 			each += strlen(mudstate.logout_cmd_htab.entry[i]->target) + 1;
 			name = (NAMETAB *)mudstate.logout_cmd_htab.entry[i]->data;
 			each += sizeof(NAMETAB);
@@ -2594,6 +2596,7 @@ void list_memory(player)
 	for(i = 0; i < mudstate.func_htab.hashsize; i++) {
 		htab = mudstate.func_htab.entry[i];
 		while (htab != NULL) {
+			each += sizeof(HASHENT);
 			each += strlen(mudstate.func_htab.entry[i]->target) + 1;
 			func = (FUN *)mudstate.func_htab.entry[i]->data;
 			each += sizeof(FUN);
@@ -2612,6 +2615,7 @@ void list_memory(player)
 	for(i = 0; i < mudstate.ufunc_htab.hashsize; i++) {
 		htab = mudstate.ufunc_htab.entry[i];
 		while (htab != NULL) {
+			each += sizeof(HASHENT);
 			each += strlen(mudstate.ufunc_htab.entry[i]->target) + 1;
 			ufunc = (UFUN *)mudstate.ufunc_htab.entry[i]->data;
 			while (ufunc != NULL) {
@@ -2633,6 +2637,7 @@ void list_memory(player)
 	for(i = 0; i < mudstate.vattr_name_htab.hashsize; i++) {
 		htab = mudstate.vattr_name_htab.entry[i];
 		while (htab != NULL) {
+			each += sizeof(HASHENT);
 			each += strlen(mudstate.vattr_name_htab.entry[i]->target) + 1;
 			vattr = (VATTR *)mudstate.vattr_name_htab.entry[i]->data;
 			each += sizeof(VATTR);
