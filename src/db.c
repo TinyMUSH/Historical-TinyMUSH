@@ -1254,7 +1254,7 @@ dbref thing;
 	dbref aowner;
 	ATTR *ap;
 
-	if (!Has_Commands(thing) || Halted(thing))
+	if ((!Has_Commands(thing) && mudconf.req_cmds_flag) || Halted(thing))
 		return 0;
 
 	s = alloc_lbuf("Commer");
