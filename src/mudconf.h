@@ -305,6 +305,9 @@ typedef struct statedata STATEDATA;
 struct statedata {
 	int	record_players; /* The maximum # of player logged on */
 #ifndef STANDALONE
+	char	version[PBUF_SIZE];	/* MUSH version string */
+	char	short_ver[64];  /* Short version number (for INFO) */
+	char	buildinfo[LBUF_SIZE];	/* Compile info */
 	int	initializing;	/* are we reading config file at startup? */
 	int	loading_db;	/* are we loading the db? */
 	int	panicking;	/* are we in the middle of dying horribly? */
@@ -330,8 +333,6 @@ struct statedata {
 	time_t  events_counter; /* Countdown to next events check */
 	int	events_flag;	/* Flags for check_events */
 	int	shutdown_flag;	/* Should interface be shut down? */
-	char	version[PBUF_SIZE];	/* MUSH version string */
-	char	short_ver[64];  /* Short version number (for INFO) */
 	time_t	start_time;	/* When was MUSH started */
 	time_t	restart_time;	/* When did we last restart? */
 	int	reboot_nums;	/* How many times have we restarted? */

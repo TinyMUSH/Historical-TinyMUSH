@@ -57,10 +57,14 @@ int extra;
 	char *buff;
 
 	notify(player, mudstate.version);
-	buff = alloc_mbuf("do_version");
+	buff = alloc_lbuf("do_version");
 	sprintf(buff, "Build date: %s", MUSH_BUILD_DATE);
 	notify(player, buff);
-	free_mbuf(buff);
+	if (Wizard(player)) {
+	    sprintf(buff, "Build info: %s", mudstate.buildinfo);
+	    notify(player, buff);
+	}
+	free_lbuf(buff);
 }
 
 void NDECL(init_version)
@@ -98,10 +102,15 @@ void NDECL(init_version)
 #endif /*
         * BETA 
         */
+	sprintf(mudstate.buildinfo, "%s %s",
+		MUSH_BUILD_COMPILER, MUSH_BUILD_CFLAGS);
 	STARTLOG(LOG_ALWAYS, "INI", "START")
 		log_printf("Starting: %s", mudstate.version);
 	ENDLOG
 	STARTLOG(LOG_ALWAYS, "INI", "START")
 		log_printf("Build date: %s", MUSH_BUILD_DATE);
+	ENDLOG
+	STARTLOG(LOG_ALWAYS, "INI", "START")
+		log_printf("Build info: %s", mudstate.buildinfo);
 	ENDLOG
 }
