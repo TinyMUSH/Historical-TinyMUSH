@@ -55,6 +55,8 @@ Release history:
 
 - Feature: istrue() and isfalse() functions added.
 
+- Fix: Memory leak in let(). [3.1]
+
 =============================================================================
 			TinyMUSH 3.0 Beta History
 =============================================================================

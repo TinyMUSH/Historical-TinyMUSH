@@ -524,6 +524,10 @@ FUNCTION(fun_let)
 	    safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
 	    free_lbuf(varlist);
 	    free_lbuf(elemlist);
+	    for (i = 0; i < n_xvars; i++) {
+		if (old_xvars[i])
+		    XFREE(old_xvars[i], "fun_let");
+	    }
 	    return;
 	}
 
