@@ -2536,45 +2536,6 @@ char *arg2;
 	}
 }
 
-void do_malias_send(player, tolist, listto, subject, number, flags, silent)
-dbref player;
-char *tolist;
-char *listto;
-char *subject;
-mail_flag flags;
-int number, silent;
-{
-	int k;
-	dbref vic;
-	struct malias *m;
-
-	if (!tolist || !*tolist) {
-		notify(player, "MAIL: I can't figure out who you want to mail to.");
-		return;
-	}
-	m = get_malias(player, tolist);
-
-	if (!m) {
-		notify(player, tprintf("MAIL: Mail alias %s not found.", tolist));
-		return;
-	}
-	/* Parse the player list */
-
-	for (k = 0; k < m->numrecep; k++) {
-		vic = m->list[k];
-
-		if (Typeof(vic) == TYPE_PLAYER) {
-			send_mail(player, m->list[k], listto, subject, number, flags, silent);
-		} else
-			send_mail(GOD, GOD, listto, subject,	/*
-								 * Complain 
-								 * about it 
-								 */
-				  add_mail_message(player, tprintf("Alias Error: Bad Player %d for %s", (dbref)vic, tolist)),
-				  0, silent);
-	}
-}
-
 struct malias *get_malias(player, alias)
 dbref player;
 char *alias;
@@ -3102,7 +3063,7 @@ int flags, silent;
 	char *head, *tail, spot, *tolist;
 	struct malias *m;
 	dbref target;
-	int number;
+	int number, i, j, n_recips, max_recips, *recip_array, *tmp;
 
 	if (!list) {
 		return;
@@ -3115,6 +3076,11 @@ int flags, silent;
 	StringCopy(tolist, list);
 
 	number = add_mail_message(player, message);
+
+	n_recips = 0;
+	max_recips = SBUF_SIZE;
+	recip_array = (int *) XCALLOC(max_recips, sizeof(int),
+				      "mail_to_list.recip_array");
 
 	head = (char *)list;
 	while (head && *head) {
@@ -3136,21 +3102,62 @@ int flags, silent;
 		if (*tail != '"')
 			tail++;
 		spot = *tail;
-		*tail = 0;
+		*tail = '\0';
 
 		if (*head == '*') {
-			m = get_malias(player, head);
-			if (!m) {
+		    m = get_malias(player, head);
+		    if (!m) {
+			free_lbuf(list);
+			free_lbuf(tolist);
+			XFREE(recip_array, "mail_to_list.recip_array");
+			return;
+		    }
+		    for (i = 0; i < m->numrecep; i++) {
+			if (isPlayer(m->list[i]) && !Going(m->list[i])) {
+			    if (n_recips >= max_recips) {
+				max_recips += SBUF_SIZE;
+				tmp = (int *) XREALLOC(recip_array,
+					max_recips * sizeof(int),
+					"mail_to_list.recip_array");
+				if (!tmp) {
+				    free_lbuf(list);
+				    free_lbuf(tolist);
+				    XFREE(recip_array,
+					  "mail_to_list.recip_array");
+				    return;
+				}
+				recip_array = tmp;
+			    }
+			    recip_array[n_recips] = m->list[i];
+			    n_recips++;
+			} else {
+			    send_mail(GOD, GOD, tolist, subject,
+				      add_mail_message(player, 
+			       tprintf("Alias Error: Bad Player %d for %s",
+				       m->list[i], head)),
+				      flags, silent);
+			}
+		    }
+		} else {
+		    target = atoi(head);
+		    if (Good_obj(target) && !Going(target)) {
+			if (n_recips >= max_recips) {
+			    max_recips += SBUF_SIZE;
+			    tmp = (int *) XREALLOC(recip_array,
+						   max_recips * sizeof(int),
+						   "mail_to_list.recip_array");
+			    if (!tmp) {
 				free_lbuf(list);
 				free_lbuf(tolist);
+				XFREE(recip_array,
+				      "mail_to_list.recip_array");
 				return;
+			    }
+			    recip_array = tmp;
 			}
-			do_malias_send(player, head, tolist, subject, number, flags, silent);
-		} else {
-			target = atoi(head);
-			if (target != NOTHING) {
-				send_mail(player, target, tolist, subject, number, flags, silent);
-			}
+			recip_array[n_recips] = target;
+			n_recips++;
+		    }
 		}
 
 		/*
@@ -3161,8 +3168,32 @@ int flags, silent;
 		if (*head == '"')
 			head++;
 	}
+
+	/* Eliminate duplicates. */
+
+	for (i = 0; i < n_recips; i++) {
+	    for (j = i + 1;
+		 (recip_array[i] != NOTHING) && (j < n_recips);
+		 j++) {
+		if (recip_array[i] == recip_array[j])
+		    recip_array[i] = NOTHING;
+	    }
+	}
+
+	/* Send it. */
+
+	for (i = 0; i < n_recips; i++) {
+	    if (recip_array[i] != NOTHING) {
+		send_mail(player, recip_array[i], tolist, subject, number,
+			  flags, silent);
+	    }
+	}
+
+	/* Clean up. */
+
 	free_lbuf(tolist);
 	free_lbuf(list);
+	XFREE(recip_array, "mail_to_list.recip_array");
 }
 
 void do_expmail_stop(player, flags)

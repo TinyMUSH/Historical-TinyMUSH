@@ -90,8 +90,6 @@ struct mail_entry {
 };
 
 extern void	FDECL(set_player_folder, (dbref, int));
-extern void	FDECL(do_malias_send, (dbref, char *, char *, char *, int, \
-			mail_flag, int));
 extern struct malias *	FDECL(get_malias, (dbref, char *));
 extern void	FDECL(load_malias, (FILE *));
 extern void	FDECL(save_malias, (FILE *));
