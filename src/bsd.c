@@ -1092,11 +1092,7 @@ int sig, code;
 
 	switch (sig) {
 	case SIGUSR1:
-		shutdown(slave_socket, 2);
-		kill(slave_pid, SIGKILL);
-		alarm(0);
-		dump_restart_db();
-		execl("bin/netmux", "netmux", mudconf.config_file, NULL);
+		do_restart(1,1,0);
 		break;
 	case SIGUSR2:
 		fork_and_dump(DUMP_FLATFILE);

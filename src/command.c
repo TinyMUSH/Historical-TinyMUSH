@@ -321,12 +321,10 @@ NAMETAB quota_sw[] = {
 {(char *)"remaining",	1,	CA_WIZARD,	QUOTA_REM|SW_MULTIPLE},
 {(char *)"set",		1,	CA_WIZARD,	QUOTA_SET},
 {(char *)"total",	1,	CA_WIZARD,	QUOTA_TOT|SW_MULTIPLE},
-#ifdef SPLIT_QUOTAS
 {(char *)"room",	1,	CA_WIZARD,	QUOTA_ROOM | SW_MULTIPLE},
 {(char *)"exit",	1,	CA_WIZARD,	QUOTA_EXIT | SW_MULTIPLE},
 {(char *)"thing",	1,	CA_WIZARD,	QUOTA_THING | SW_MULTIPLE},
 {(char *)"player",	1,	CA_WIZARD,	QUOTA_PLAYER | SW_MULTIPLE},
-#endif
 { NULL,			0,	0,		0}};
 
 NAMETAB	set_sw[] = {
@@ -2289,9 +2287,6 @@ dbref player;
 				   mudconf.payfind, mudconf.one_coin));
 #ifdef PUEBLO_SUPPORT
 	raw_notify(player, "Pueblo client extensions are supported.");
-#endif
-#ifdef SPLIT_QUOTAS
-	raw_notify(player, "The split quota system is supported.");
 #endif
 #ifdef USE_MAIL
 	raw_notify(player, "The built in @mail systems is supported.");

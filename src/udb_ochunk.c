@@ -74,7 +74,7 @@ int dddb_init()
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
 
 	if ((dbp = gdbm_open(dbfile, block_size, GDBM_WRCREAT, 0600, gdbm_panic)) == (GDBM_FILE) 0) {
-		gdbm_error = gdbm_strerror(gdbm_errno);
+		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}

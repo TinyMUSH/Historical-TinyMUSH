@@ -3,6 +3,17 @@
 #ifndef AUTOCONF_H
 #define AUTOCONF_H
 
+/* kludge for RCSid variables */
+#ifdef _SEQUENT_
+#define USE(var) ;
+#elif __bsdi__
+#define USE(var)
+#elif __STDC__
+#define USE(var) static void * use_##var = (&use_##var, (void *) &var)
+#else
+#define USE(var)
+#endif
+
 #include "copyright.h"
 
 /* ---------------------------------------------------------------------------
@@ -14,8 +25,10 @@
 
 /* Define if we have stdlib.h et al */
 #undef STDC_HEADERS
-/* Define if we have string.h instead of strings.h */
-#undef USG
+/* Define if we have strchr */
+#undef HAVE_STRCHR
+/* Define if we have memcpy */
+#undef HAVE_MEMCPY
 /* Define if we have unistd.h */
 #undef HAVE_UNISTD_H
 /* Define if we have memory.h and need it to get memcmp et al */
@@ -64,6 +77,10 @@
 #undef SIGNAL_SIGCHLD_BRAINDAMAGE
 /* Define if errno.h exists */
 #undef HAVE_ERRNO_H
+/* Define if malloc.h exists */
+#undef HAVE_MALLOC_H
+/* Define if sys/wait.h exists */
+#undef HAVE_SYS_WAIT_H
 /* Define if sys/select.h exists */
 #undef HAVE_SYS_SELECT_H
 /* Define if sys/rusage.h exists */
@@ -78,7 +95,7 @@
 #undef NEED_INDEX_DCL
 /* Define if we need to declare malloc et al */
 #undef NEED_MALLOC_DCL
-/* Define if we need to declare vsprintf yourself */
+/* Define if you need to declare vsprintf yourself */
 #undef NEED_VSPRINTF_DCL
 /* Define if you need to declare sys_siglist yourself */
 #undef NEED_SYS_SIGLIST_DCL
@@ -106,10 +123,24 @@
 #undef EXTENDED_SOCKET_DCLS
 /* Define if sys/wait.h defines union wait. */
 #undef HAVE_UNION_WAIT
+/* Define if we have system-supplied ndbm routines */
+#undef HAVE_NDBM
+/* Define if we have system-supplied (old) dbm routines */
+#undef HAVE_DBM
 /* Define if we may safely include both time.h and sys/time.h */
 #undef TIME_WITH_SYS_TIME
 /* Define if sys/time.h exists */
 #undef HAVE_SYS_TIME_H
+/* Define if you need to declare gettimeofday yourself */
+#undef NEED_GETTIMEOFDAY_DCL
+/* Define if you need to declare wait3 yourself */
+#undef NEED_WAIT3_DCL
+/* Define if you need to declare srandom yourself */
+#undef NEED_SRANDOM_DCL
+/* Define if you need to declare random yourself */
+#undef NEED_RANDOM_DCL
+/* Define if you need to declare getpagesize yourself */
+#undef NEED_GETPAGESIZE_DCL
 
 /* ---------------------------------------------------------------------------
  * Setup section:
@@ -134,7 +165,11 @@
 #endif
 
 #ifdef STDC_HEADERS
-#include <stdarg.h>
+# ifdef __STDC__
+#  include <stdarg.h>
+# else /* __STDC__ */
+#  include <varargs.h>
+# endif /* __STDC__ */
 #include <stdlib.h>
 #include <limits.h>
 #else
@@ -142,22 +177,19 @@
 extern int	FDECL(atoi, (const char *));
 extern double	FDECL(atof, (const char *));
 extern long	FDECL(atol, (const char *));
+extern int	FDECL(qsort, (char *, int, int, int (*)()));
 #endif
 
 #ifdef NEED_MEMORY_H
 #include <memory.h>
 #endif
 
-#if defined(USG) || defined(STDC_HEADERS)
+#ifdef STDC_HEADERS
 #include <string.h>
 #ifdef NEED_INDEX_DCL
 #define	index		strchr
 #define	rindex		strrchr
-#ifdef SOLARIS
 #define	bcopy(s,d,n)	memmove(d,s,n)
-#else 
-#define bcopy(s,d,n)	memcpy(d,s,n)
-#endif
 #define	bcmp(s1,s2,n)	memcmp(s1,s2,n)
 #define	bzero(s,n)	memset(s,0,n)
 #endif
@@ -166,15 +198,19 @@ extern long	FDECL(atol, (const char *));
 extern char *	FDECL(strtok, (char *, char *));
 extern char *	FDECL(strchr, (char *, char));
 extern void	FDECL(bcopy, (char *, char *, int));
+extern int      FDECL(bcmp, (char *, char *, int));
 extern void	FDECL(bzero, (char *, int));
 #endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#ifndef HAVE_GETPAGESIZE
+#ifndef _SC_PAGE_SIZE
+#define NM_BLOODY_PAGE_SYMBOL _SC_PAGESIZE
+#else
+#define NM_BLOODY_PAGE_SYMBOL _SC_PAGE_SIZE
 #endif
-
-#ifdef HAVE_SYS_RUSAGE_H
-#include <sys/rusage.h>
+#endif
 #endif
 
 #ifdef TIME_WITH_SYS_TIME
@@ -199,14 +235,64 @@ extern int	FDECL(setrlimit, (int, struct rlimit *));
 #endif
 #endif
 
+#ifdef HAVE_SYS_FILE_H
+#include <sys/file.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+#ifdef HAVE_GETTIMEOFDAY
+#ifdef NEED_GETTIMEOFDAY_DCL
+extern int FDECL(gettimeofday, (struct timeval *, struct timezone *));
+#endif
+#endif
+
+#ifdef HAVE_GETDTABLESIZE
+extern int NDECL(getdtablesize);
+#endif
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_WAIT3
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+#ifdef NEED_WAIT3_DCL
+#ifdef HAVE_UNION_WAIT
+extern int FDECL(wait3, (union wait *, int, struct rusage *));
+#else
+extern int FDECL(wait3, (int *, int, struct rusage *));
+#endif
+#endif
+#endif
+
 #include <sys/param.h>
 #ifndef HAVE_GETPAGESIZE
-#include "getpagesize.h"
+#ifdef EXEC_PAGESIZE
+#define getpagesize()	EXEC_PAGESIZE
 #else
-#ifndef HAVE_UNISTD_H
+#ifdef NBPG
+#ifndef CLSIZE
+#define CLSIZE 1
+#endif /* no CLSIZE */
+#define getpagesize() NBPG * CLSIZE
+#else /* no NBPG */
+#ifdef NBPC
+#define getpagesize() NBPC
+#else
+#define getpagesize() PAGESIZE
+#endif /* no NBPC */
+#endif /* no NBPG */
+#endif /* no EXEC_PAGESIZE */
+#else /* we've got a getpagesize() function, whee */
+#ifdef NEED_GETPAGESIZE_DECL
 extern int	NDECL(getpagesize);
-#endif /* HAVE_UNISTD_H */
-#endif /* HAVE_GETPAGESIZE_H */
+#endif /* NEED_GETPAGESIZE_DECL */
+#endif /* HAVE_GETPAGESIZE */
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
@@ -216,6 +302,16 @@ extern void	FDECL(perror, (const char *));
 #else
 extern int errno;
 extern void	FDECL(perror, (const char *));
+#endif
+
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#else
+#ifdef NEED_MALLOC_DCL
+extern char *	FDECL(malloc, (int));
+extern char *	FDECL(realloc, (char *, int));
+extern int	FDECL(free, (char *));
+#endif
 #endif
 
 #ifdef NEED_SYS_ERRLIST_DCL
@@ -240,13 +336,22 @@ extern int	FDECL(tolower, (int));
 extern int	FDECL(toupper, (int));
 #endif
 
+#ifdef HAVE_VFORK_H
+#include <vfork.h>
+#endif
+
 #ifndef HAVE_SRANDOM
 #define random rand
 #define srandom srand
 #else
+#ifdef NEED_SRANDOM_DCL
 #ifndef random	/* only if not a macro */
+#ifdef NEED_RANDOM_DCL
 extern long	NDECL(random);
+#endif /* NEED_RANDOM_DCL */
 #endif
+extern int	FDECL(srandom, (int));
+#endif		/* NEED_SRANDOM_DCL */
 #endif /* HAVE_SRANDOM */
 
 #include <sys/types.h>
@@ -282,7 +387,6 @@ extern int	FDECL(rename, (char *, char *));
 extern time_t	FDECL(time, (time_t *));
 extern int	FDECL(ungetc, (int, FILE *));
 extern int	FDECL(unlink, (const char *));
-extern int	FDECL(write, (int, const void *, long unsigned int));
 #endif
 
 #include <sys/socket.h>
@@ -295,6 +399,7 @@ extern int	FDECL(sendto, (int, void *, int, unsigned int,
 extern int	FDECL(setsockopt, (int, int, int, void *, int));
 extern int	FDECL(shutdown, (int, int));
 extern int	FDECL(socket, (int, int, int));
+extern int	FDECL(select, (int, fd_set *, fd_set *, fd_set *, struct timeval *));
 #endif
 
 /* Under linux, use the optimized string functions */
@@ -305,7 +410,7 @@ extern char *___strtok;
 
 typedef int	dbref;
 typedef int	FLAG;
-typedef int     POWER;
+typedef int	POWER;
 typedef char	boolexp_type;
 typedef char	IBUF[16];
 

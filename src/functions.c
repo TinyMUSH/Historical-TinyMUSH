@@ -1900,9 +1900,9 @@ FUNCTION(fun_strlen)
 
 FUNCTION(fun_num)
 {
-	dbref thing;
-
-	safe_tprintf_str(buff, bufc, "#%d", match_thing(player, fargs[0]));
+	**bufc = '#';
+	(*bufc)++;
+	safe_ltos(buff, bufc, match_thing(player, fargs[0]));
 }
 
 FUNCTION(fun_pmatch)
@@ -1947,90 +1947,51 @@ FUNCTION(fun_neq)
 
 FUNCTION(fun_and)
 {
-	int i, val;
-	char *tbuff, *bp, *str;
-
+	int i;
+	
 	if (nfargs < 2) {
 		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-		return;
+	} else {
+		for (i = 0; (i < nfargs) && atoi(fargs[i]); i++) ;
+		safe_ltos(buff, bufc, i == nfargs);
 	}
-	
-	for (i = 0; (i < nfargs) && fargs[i]; i++) {
-		tbuff = bp = alloc_lbuf("fun_and");
-		str = fargs[i];
-		exec(tbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		    &str, cargs, ncargs);
-		*bp = '\0';
-		
-		if (tbuff && *tbuff) {
-			val = atoi(tbuff);
-		} else {
-			val = 0;
-		}
-		free_lbuf(tbuff);
-		if (val < 1) {
-			safe_chr('0', buff, bufc);
-			return;
-		}
-	}
-	safe_chr('1', buff, bufc);
 }
 
 FUNCTION(fun_or)
 {
-	int i, val;
-	char *tbuff, *bp, *str;
-
+	int i;
+	
 	if (nfargs < 2) {
 		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-		return;
+	} else {
+		for (i = 0; (i < nfargs) && !atoi(fargs[i]); i++) ;
+		safe_ltos(buff, bufc, i != nfargs);
 	}
-
-	for (i = 0; (i < nfargs) && fargs[i]; i++) {
-		tbuff = bp = alloc_lbuf("fun_or");
-		str = fargs[i];
-		exec(tbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		    &str, cargs, ncargs);
-		*bp = '\0';
-		
-		if (tbuff && *tbuff) {
-			val = atoi(tbuff);
-		} else {
-			val = 0;
-		}
-		free_lbuf(tbuff);
-		if (val > 0) {
-			safe_chr('1', buff, bufc);
-			return;
-		}
-	}
-	safe_chr('0', buff, bufc);
 }
 
 FUNCTION(fun_xor)
 {
-	int i, val, tval, got_one;
+	int i, val;
 
-	val = 0;
-	for (i = 0, got_one = 0; i < nfargs; i++) {
-		tval = atoi(fargs[i]);
-		if (i > 0) {
-			got_one = 1;
-			val = (val && !tval) || (!val && tval);
-		} else {
-			val = tval;
-		}
-	}
-	if (!got_one)
+	if (nfargs < 2) {
 		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-	else
-		safe_ltos(buff, bufc, val);
+	} else {
+		val = atoi(fargs[0]);
+		for (i = 1; i < nfargs; i++) {
+			if (val) {
+				val = !atoi(fargs[i]);
+			} else {
+				val = atoi(fargs[i]);
+			}
+		}
+		safe_ltos(buff, bufc, val ? 1 : 0);
+	}
 	return;
 }
 
 FUNCTION(fun_not)
 {
-	safe_ltos(buff, bufc, !xlate(fargs[0]));
+	safe_ltos(buff, bufc, !atoi(fargs[0]));
 }
 
 /*-------------------------------------------------------------------------
@@ -2087,9 +2048,13 @@ FUNCTION(fun_xorbool)
 
 FUNCTION(fun_notbool)
 {
-    safe_ltos(buff, bufc, !xlate(fargs[0]));
+	safe_ltos(buff, bufc, !xlate(fargs[0]));
 }
 
+FUNCTION(fun_t)
+{
+	safe_ltos(buff, bufc, xlate(fargs[0]) ? 1 : 0);
+}
 
 FUNCTION(fun_sqrt)
 {
@@ -4843,7 +4808,7 @@ FUN flist[] = {
 {"AFTER",	fun_after,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ALPHAMAX",	fun_alphamax,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ALPHAMIN",	fun_alphamin,   0,  FN_VARARGS, CA_PUBLIC},
-{"AND",		fun_and,	0,  FN_VARARGS,	CA_PUBLIC},
+{"AND",		fun_and,	0,  FN_VARARGS, CA_PUBLIC},
 {"ANDBOOL",	fun_andbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ANDFLAGS",	fun_andflags,	2,  0,		CA_PUBLIC},
 {"ANSI",        fun_ansi,       2,  0,          CA_PUBLIC},
@@ -4982,7 +4947,7 @@ FUN flist[] = {
 {"OBJ",		fun_obj,	1,  0,		CA_PUBLIC},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC},
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC},
-{"OR",		fun_or,		0,  FN_VARARGS,	CA_PUBLIC},
+{"OR",		fun_or,		0,  FN_VARARGS, CA_PUBLIC},
 {"ORBOOL",	fun_orbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ORFLAGS",	fun_orflags,	2,  0,		CA_PUBLIC},
 {"OWNER",	fun_owner,	1,  0,		CA_PUBLIC},

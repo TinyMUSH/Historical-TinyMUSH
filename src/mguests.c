@@ -6,8 +6,6 @@
  * $Id$ 
  */
 
-#include <stdlib.h>
-
 #include "autoconf.h"
 #include "copyright.h"
 #include "mudconf.h"
