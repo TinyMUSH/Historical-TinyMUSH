@@ -930,6 +930,7 @@
     flags           - Lists the name and letter of all the flags.
     functions       - Lists all the available functions.
     options         - Lists several global options and limits.
+    powers          - List all the available powers.
     switches        - Lists what commands support switches and the switches
                       that they do support.
   The information provided by the @list command is definitive, as it reads
@@ -8139,6 +8140,50 @@
     You say "c b a -- c"
  
   See also: STACK FUNCTIONS.
+
+& @power
+
+  Command: @power <object>=[!]<power>
+ 
+  This is a command that allows the granting of special powers to objects of
+  any type.
+ 
+  See also: powers list
+  
+& powers list
+
+  announce		Can use the @wall command.
+  boot			Can use the @boot command.
+  builder		Can build, if the builder power is enabled.
+  chown_anything	Can @chown anything to anyone.
+  comm_all		Like a wizard with respect to channels.
+  control_all		Can modify any object in the database.
+  expanded_who		Sees the wizard WHO, and SESSION commands.
+  find_unfindable	Can locate unfindable people.
+  free_money		Unlimited money.
+  free_quota		Unlimited quota.
+  guest			Is this a guest character?
+  halt			Can @halt anything, and @halt/all.
+  hide			Can set themselves DARK.
+  idle			No idle timeout.
+  long_fingers		Can get, look, whisper, etc from a distance.
+ 
+{ 'help powers list2' for more }
+ 
+& powers list2
+  monitor		Can set or reset monitor flag.
+  poll			Can set the @poll.
+  prog			Can use @program on players other than themself.
+  search		Can @search anyone.
+  see_all		Can examine and see attributes like a wizard.
+  see_queue		Can @ps/all or @ps any player.
+  stat_any		Can @stat any player.
+  steal_money		Can give negative money.
+  tel_anywhere		Can teleport anywhere.
+  tel_anything		Can teleport anything (includes tel_anywhere)
+  unkillable		Cannot be killed with the 'kill' command.
+ 
+  See also: @power
  
 & comsys
  
@@ -8740,7 +8785,6 @@ Continued in 'help @malias2'.
   Returns the dbref # of the player who sent you <msg #>. Wizards may
   specify mailfrom(<player>,<msg #>).
  
-
 & TCL
 
 Topic: TCL
