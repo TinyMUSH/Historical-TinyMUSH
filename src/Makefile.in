@@ -218,13 +218,13 @@ comsys: comsys.lo
 	-mv -f comsys.so comsys.so~
 	$(LIBTOOL) $(CC) -module -o comsys.la comsys.lo -rpath `pwd` -disable-static
 	echo 'cp .libs/$${dlname} comsys.so' >> comsys.la
-	. comsys.la
+	/bin/sh comsys.la
 
 mail: mail.lo
 	-mv -f mail.so mail.so~
 	$(LIBTOOL) $(CC) -module -o mail.la mail.lo -rpath `pwd` -disable-static
 	echo 'cp .libs/$${dlname} mail.so' >> mail.la
-	. mail.la
+	/bin/sh mail.la
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
