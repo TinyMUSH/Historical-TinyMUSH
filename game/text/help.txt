@@ -9402,7 +9402,8 @@ performed and the walk down the list stops.
   "<speech>          <speaker's name> says, "<speech>"
   <speech>           <speaker's name> says, "<speech>"
  
-  If <say string> is specified, it is used instead of "says,".
+  The conf parameter say_uses_comma is respected (using "says," or "says").
+  If <say string> is specified, it is used instead of "says," / "says".
  
   Continued in 'help Speak2'.
  

@@ -2398,7 +2398,7 @@ FUNCTION(fun_speak)
     if ((nfargs >= 3) && fargs[2] && *fargs[2])
 	say_str = fargs[2];
     else
-	say_str = (char *) "says,";
+	say_str = (char *) (mudconf.comma_say ? "says," : "says");
 
     /* Find the u-function. If we have a problem with it, we just default
      * to no transformation.
