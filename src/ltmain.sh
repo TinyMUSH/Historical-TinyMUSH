@@ -1,10 +1,13 @@
 # ltmain.sh - Provide generalized library-building support services.
 # $Id$
 #
-# This copy of ltmain.sh has been modified for TinyMUSH 3.1, to force
-# creation of $objdir even when we are working in a subdirectory, since
-# the archive_cmds and such for various architectures in ltconfig have
-# bugs that cause them to reference $objdir directly.
+#  This copy of ltmain.sh has been modified for TinyMUSH 3.1, to force
+#  creation of $objdir even when we are working in a subdirectory, since
+#  the archive_cmds and such for various architectures in ltconfig have
+#  bugs that cause them to reference $objdir directly.
+#
+#  This copy of ltmain.sh has also modified so that it never prints the
+#  "libraries have been installed" banner.
 #
 # NOTE: Changing this file will not affect anything until you rerun ltconfig.
 #
@@ -3601,7 +3604,9 @@ libdir='$install_libdir'\
     fi
 
     # Exit here if they wanted silent mode.
-    test "$show" = : && exit 0
+    # XXX TM3-hack we don't want to see this part.
+    #test "$show" = : && exit 0
+    exit 0
 
     echo "----------------------------------------------------------------------"
     echo "Libraries have been installed in:"
