@@ -3123,6 +3123,5 @@ void load_restart_db()
 
 	fclose(f);
 	remove("restart.db");
-	raw_broadcast(0, "Game: Restart finished.");
 }
 #endif /* STANDALONE */
