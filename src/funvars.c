@@ -129,11 +129,11 @@ FUNCTION(fun_wildmatch)
 
     nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
     for (i = 0; i < nqregs; i++) {
-	if (qregs[i] && *qregs[i] && is_integer(qregs[i]))
-	    curq = atoi(qregs[i]);
+	if (qregs[i] && *qregs[i])
+	    curq = qidx_chartab[(unsigned char) *qregs[i]];
 	else
 	    curq = -1;
-	if ((curq < 0) || (curq >= NUM_ENV_VARS))
+	if ((curq < 0) || (curq >= MAX_GLOBAL_REGS))
 	    continue;
 	if (!mudstate.global_regs[curq]) {
 	    mudstate.global_regs[curq] = alloc_lbuf("fun_wildmatch");
@@ -2454,11 +2454,11 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
 
     nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
     for (i = 0; i < nqregs; i++) {
-	if (qregs[i] && *qregs[i] && is_integer(qregs[i]))
-	    curq = atoi(qregs[i]);
+	if (qregs[i] && *qregs[i])
+	    curq = qidx_chartab[(unsigned char) *qregs[i]];
 	else
 	    curq = -1;
-	if ((curq < 0) || (curq >= NUM_ENV_VARS))
+	if ((curq < 0) || (curq >= MAX_GLOBAL_REGS))
 	    continue;
 	if (!mudstate.global_regs[curq]) {
 	    mudstate.global_regs[curq] = alloc_lbuf("fun_regmatch");
