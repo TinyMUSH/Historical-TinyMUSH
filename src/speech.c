@@ -418,211 +418,222 @@ dbref player, target;
 	return 0;
 }
 
-/*
- * Used in do_page 
- */
-static char *dbrefs_to_names(player, list, namelist, ismessage)
-dbref player;
-char *list;
-char *namelist;
-int ismessage;
-{
-	char *bp, *p;
-	char oldlist[LBUF_SIZE];
-
-	StringCopy(oldlist, list);
-	bp = namelist;
-	for (p = (char *)strtok(oldlist, " ");
-	     p != NULL;
-	     p = (char *)strtok(NULL, " ")) {
-		if (ismessage)
-		    safe_tprintf_str(namelist, &bp, "%s, ", Name(atoi(p)));
-		else {
-			if (lookup_player(player, p, 1) != NOTHING) {
-			    safe_tprintf_str(namelist, &bp, "%s, ",
-					     Name(lookup_player(player,
-								p, 1)));
-			}
-		}
-	}
-	*(bp - 2) = '\0';
-	return bp;
-}
 
 void do_page(player, cause, key, tname, message)
 dbref player, cause;
 int key;
 char *tname, *message;
 {
-	dbref target, aowner;
-	char *p, *buf1, *bp, *buf2, *bp2, *mp, *str;
-	char targetname[LBUF_SIZE];
-	int ispose = 0;
-	int ismessage = 0;
-	int count = 0;
-	int n = 0;
-	int aflags = 0;
-	int alen;
+    dbref target, aowner;
+    char *p, *buf1, *bp, *buf2, *bp2, *mp, *str, *mbc;
+    char targetname[LBUF_SIZE];
+    static char msgbuf[LBUF_SIZE]; /* might as well not keep re-allocating */
+    int *dbrefs_array;
+    int ispose = 0;
+    int ismessage = 0;
+    int count = 0;
+    int n = 0;
+    int aflags = 0;
+    int i, alen;
 
-	buf1 = alloc_lbuf("page_return_list");
-	bp = buf1;
+    buf1 = alloc_lbuf("page_return_list");
+    bp = buf1;
 
-	buf2 = alloc_lbuf("page_list");
-	bp2 = buf2;
+    buf2 = alloc_lbuf("page_list");
+    bp2 = buf2;
 
-	if ((tname[0] == ':') || (tname[0] == ';') ||
-	    (message[0] == ':') || (message[0] == ';'))
-		ispose = 1;
+    if ((tname[0] == ':') || (tname[0] == ';') ||
+	(message[0] == ':') || (message[0] == ';'))
+	ispose = 1;
 
-	mp = message;
+    mp = message;
 
-
-	if (!*message) {
-		atr_get_str(targetname, player, A_LASTPAGE, &aowner, &aflags, &alen);
-		if (!*tname) {
-			if (!*targetname)
-				notify(player, "You have not paged anyone.");
-			else
-				for (p = (char *)strtok(targetname, " ");
-				     p != NULL;
-				     p = (char *)strtok(NULL, " ")) {
-					target = atoi(p);
-					notify(player, tprintf("You last paged %s.", Name(target)));
-				}
-
-			free_lbuf(buf1);
-			free_lbuf(buf2);
-			return;
-		}
-		StringCopy(message, tname);
-		StringCopy(tname, targetname);
-		ismessage = 1;
-	}
-	/*
-	 * Count the words 
-	 */
-	for (n = 0, str = tname; str; str = (char *)next_token(str, ' '), n++) ;
-
-	if (((target = lookup_player(player, tname, 1)) == NOTHING) && n > 1) {
-		bp = dbrefs_to_names(player, tname, buf1, ismessage);
-		for (p = (char *)strtok(tname, " ");
+    if (!*message) {
+	atr_get_str(targetname, player, A_LASTPAGE, &aowner, &aflags, &alen);
+	if (!*tname) {
+	    if (!*targetname) {
+		notify(player, "You have not paged anyone.");
+	    } else {
+		for (p = (char *)strtok(targetname, " ");
 		     p != NULL;
 		     p = (char *)strtok(NULL, " ")) {
-
-			/*
-			 * If it's a memory page, grab the number from the *
-			 * * * list 
-			 */
-			if (ismessage) {
-				target = atoi(p);
-			} else
-				target = lookup_player(player, p, 1);
-
-			message = mp;
-
-			if (target == NOTHING) {
-				notify(player, tprintf("I don't recognize \"%s\".",
-						       p));
-			} else if (!page_check(player, target)) {
-				;
-			} else {
-				switch (*message) {
-				case ':':
-					notify_with_cause(target, player,
-							  tprintf("From afar, to (%s): %s %s", buf1, Name(player), message + 1));
-					break;
-				case ';':
-					message++;
-					notify_with_cause(target, player,
-							  tprintf("From afar, to (%s): %s%s", buf1, Name(player), message));
-					break;
-				case '"':
-					message++;
-				default:
-					notify_with_cause(target, player,
-							  tprintf("To (%s), %s pages: %s", buf1, Name(player), message));
-
-				}
-				page_return(player, target, "Idle", A_IDLE, NULL);
-
-				safe_str(tprintf("%d ", target), buf2, &bp2);
-				count++;
-			}
+		    target = atoi(p);
+		    if (Good_obj(target)) {
+			notify(player,
+			       tprintf("You last paged %s.", Name(target)));
+		    }
 		}
+	    }
+	    free_lbuf(buf1);
+	    free_lbuf(buf2);
+	    return;
+	}
+	StringCopy(message, tname);
+	StringCopy(tname, targetname);
+	ismessage = 1;
+    }
+
+    /* Count the words in the list of our targets. */
+
+    for (n = 0, str = tname; str; str = (char *)next_token(str, ' '), n++)
+	;
+
+    /* We check multiples if we've got more than one word in our target
+     * list, and we either have lastpaged or a lookup on the entire string
+     * fails. (The latter would automatically fail if we had lastpaged,
+     * so we check for lastpaged before trying to do the lookup.)
+     */
+
+    if ((n > 1) &&
+	(ismessage ||
+	 ((target = lookup_player(player, tname, 1)) == NOTHING))) {
+
+	/* We have a list of arbitrary strings. Begin by turning the list
+	 * into the dbrefs of the targets.
+	 */
+
+	dbrefs_array = (int *) calloc(n, sizeof(int));
+	for (i = 0, p = (char *)strtok(tname, " ");
+	     p != NULL;
+	     i++, p = (char *)strtok(NULL, " ")) {
+	    target = (ismessage) ? (atoi(p)) : (lookup_player(player, p, 1));
+	    if (!Good_obj(target)) {
+		notify(player, tprintf("I don't recognize \"%s\".", p));
+		dbrefs_array[i] = NOTHING;
+	    } else {
+		dbrefs_array[i] = target;
+	    }
+	}
+
+	/* Turn the list of dbrefs into names. */
+
+	for (i = 0; i < n; i++) {
+	    if (dbrefs_array[i] != NOTHING) {
+		safe_tprintf_str(buf1, &bp, "%s, ", Name(dbrefs_array[i]));
+	    }
+	}
+	*(bp - 2) = '\0';
+
+	/* Construct the message that we're going to send out. */
+
+	message = mp;
+	mbc = msgbuf;
+
+	switch (*message) {
+	    case ':':
+		safe_tprintf_str(msgbuf, &mbc, "From afar, to (%s): %s %s",
+				 buf1, Name(player), message + 1);
+		break;
+	    case ';':
+		message++;
+		safe_tprintf_str(msgbuf, &mbc, "From afar, to (%s): %s%s",
+				 buf1, Name(player), message);
+		break;
+	    case '"':
+		message++;
+	    default:
+		safe_tprintf_str(msgbuf, &mbc, "To (%s), %s pages: %s",
+				 buf1, Name(player), message);
+	}
+
+	*mbc = '\0';
+
+	/* Send to the targets. */
+
+	for (i = 0; i < n; i++) {
+	    target = dbrefs_array[i];
+	    if ((target != NOTHING) && page_check(player, target)) {
+		notify_with_cause(target, player, msgbuf);
+		page_return(player, target, "Idle", A_IDLE, NULL);
+		safe_ltos(buf2, &bp2, target);
+		safe_chr(' ', buf2, &bp2);
+		count++;
+	    }
+	}
+
+	XFREE(dbrefs_array, "page_return_array");
+
+    } else {
+
+	/* Only one target. */
+
+	if (ismessage)
+	    target = atoi(tname);
+	if (!Good_obj(target)) {
+	    notify(player, tprintf("I don't recognize \"%s\".", tname));
+	} else if (!page_check(player, target)) {
+	    ;
 	} else {
-		if (ismessage)
-			target = atoi(tname);
-		if (target == NOTHING) {
-			notify(player, tprintf("I don't recognize \"%s\".",
-					       tname));
-		} else if (!page_check(player, target)) {
-			;
-		} else {
 
-			switch (*message) {
-			case ':':
-				notify_with_cause(target, player,
-						  tprintf("From afar, %s %s", Name(player), message + 1));
-				break;
-			case ';':
-				message++;
-				notify_with_cause(target, player,
-						  tprintf("From afar, %s%s", Name(player), message));
-				break;
-			case '"':
-				message++;
-			default:
-				notify_with_cause(target, player,
-						  tprintf("%s pages: %s", Name(player), message));
+	    switch (*message) {
+		case ':':
+		    notify_with_cause(target, player,
+				      tprintf("From afar, %s %s",
+					      Name(player), message + 1));
+		    break;
+		case ';':
+		    message++;
+		    notify_with_cause(target, player,
+				      tprintf("From afar, %s%s",
+					      Name(player), message));
+		    break;
+		case '"':
+		    message++;
+		default:
+		    notify_with_cause(target, player,
+				      tprintf("%s pages: %s",
+					      Name(player), message));
+	    }
+	    page_return(player, target, "Idle", A_IDLE, NULL);
 
-			}
-			page_return(player, target, "Idle", A_IDLE, NULL);
-
-			safe_str(tprintf("%d ", target), buf2, &bp2);
-			safe_str(tprintf("%s, ", Name(target)), buf1, &bp);
-			count++;
-		}
-		*(bp - 2) = '\0';
+	    safe_str(tprintf("%d ", target), buf2, &bp2);
+	    safe_str(tprintf("%s, ", Name(target)), buf1, &bp);
+	    count++;
 	}
+	*(bp - 2) = '\0';
+    }
 
-	if (count == 0) {
-		free_lbuf(buf1);
-		free_lbuf(buf2);
-		return;
-	}
-	*(bp2 - 1) = '\0';
-	atr_add(player, A_LASTPAGE, buf2, Owner(player), aflags);
-
-	if (count == 1) {
-		if (*buf1) {
-			if (ispose != 1) {
-				notify(player, tprintf("You paged %s with '%s'.", buf1, mp));
-			} else {
-				if (mp[0] == ':')
-					notify(player, tprintf("Long distance to %s: %s %s", buf1, Name(player), mp + 1));
-				else
-					notify(player, tprintf("Long distance to %s: %s%s", buf1, Name(player), mp + 1));
-			}
-		}
-	} else {
-		*(bp - 2) = ')';
-		*(bp - 1) = '\0';
-
-		if (*buf1) {
-			if (ispose != 1) {
-				notify(player, tprintf("You paged (%s with '%s'.", buf1, mp));
-			} else {
-				if (mp[0] == ':')
-					notify(player, tprintf("Long distance to (%s: %s %s", buf1, Name(player), mp + 1));
-				else
-					notify(player, tprintf("Long distance to (%s: %s%s", buf1, Name(player), mp + 1));
-			}
-		}
-	}
-
-
+    if (count == 0) {
 	free_lbuf(buf1);
 	free_lbuf(buf2);
+	return;
+    }
+    *(bp2 - 1) = '\0';
+    atr_add(player, A_LASTPAGE, buf2, Owner(player), aflags);
+
+    if (count == 1) {
+	if (*buf1) {
+	    if (ispose != 1) {
+		notify(player, tprintf("You paged %s with '%s'.", buf1, mp));
+	    } else {
+		if (mp[0] == ':')
+		    notify(player, tprintf("Long distance to %s: %s %s",
+					   buf1, Name(player), mp + 1));
+		else
+		    notify(player, tprintf("Long distance to %s: %s%s",
+					   buf1, Name(player), mp + 1));
+	    }
+	}
+    } else {
+	*(bp - 2) = ')';
+	*(bp - 1) = '\0';
+
+	if (*buf1) {
+	    if (ispose != 1) {
+		notify(player, tprintf("You paged (%s with '%s'.", buf1, mp));
+	    } else {
+		if (mp[0] == ':')
+		    notify(player, tprintf("Long distance to (%s: %s %s",
+					   buf1, Name(player), mp + 1));
+		else
+		    notify(player, tprintf("Long distance to (%s: %s%s",
+					   buf1, Name(player), mp + 1));
+	    }
+	}
+    }
+    
+    free_lbuf(buf1);
+    free_lbuf(buf2);
 }
 
 /*
