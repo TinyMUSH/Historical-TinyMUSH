@@ -1744,7 +1744,9 @@ char *argv[];
 	/* We have to do an update, even though we're starting up, because
 	 * there may be players connected from a restart, as well as objects.
 	 */
+#ifdef USE_COMSYS
 	update_comwho_all();
+#endif
 
 	sql_init();		/* Make a connection to external SQL db */
 
