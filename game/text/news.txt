@@ -1,12 +1,12 @@
 & help
  
-Welcome to TinyMUSH 3.0's default news file.
+  Welcome to TinyMUSH 3.1's default news file.
  
-Here is some information which you might find useful:
+  Here is some information which you might find useful:
  
-Code		(last updated 6/16/99)
+    Code		(last updated 2002/02/18)
  
 & Code
  
-For more information about this server, see 'help About TinyMUSH'.
+  For more information about this server, see 'help About TinyMUSH'.
  
