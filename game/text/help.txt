@@ -14441,16 +14441,19 @@ Continued in 'help 3.1 base2'.
   parenting scheme or an unusual attribute naming scheme. Objects
   with the FREE flag ignore attribute defaults.
  
+- The new conf parameter, c_is_command, controls whether %c is last
+  command (default) or ANSI substitution.
+ 
 - The new conf parameter forwardlist_limit allows you to set a limit
   for the number of objects that can be listed in a single @forwardlist.
- 
-- The new conf parameter function_cpu_limit allows you to set a limit
-  for the number of seconds of CPU time that can be taken up by
-  function evaluations associated with a command.
  
 Continued in 'help 3.1 base3'.
  
 & 3.1 base3
+ 
+- The new conf parameter function_cpu_limit allows you to set a limit
+  for the number of seconds of CPU time that can be taken up by
+  function evaluations associated with a command.
  
 - The new conf parameters guest_basename, guest_prefixes, guest_suffixes,
   and guest_password allow flexible naming of guests. See the FAQ for
@@ -14466,6 +14469,10 @@ Continued in 'help 3.1 base3'.
   in DARK wizards being hidden from WHO (and related things), but not
   being invisible and silent. This prevents accidental or deliberate
   spying by DARK wizards.
+ 
+Continued in 'help 3.1 base4'.
+ 
+& 3.1 base4
  
 - Garbage is trimmed from the top of the database, if possible, reducing
   bloat due to tail-end garbage.
@@ -14732,15 +14739,19 @@ Continued in 'help 3.1 functions2'.
   comdesc(), comheader(), cominfo(), comlist(), comowner(), comtitle(),
   cwhoall().
  
+- Added fcount(), fdepth(), ccount(), cdepth(), for getting function and
+  command invocation and recursion counters. Based on a concept from
+  Shadowrun Denver MUSH.
+  
+Continued in 'help 3.1 functions3'.
+ 
+& 3.1 functions3
+ 
 - The filter(), filterbool(), map(), and while() functions pass the
   position of the element in the list as %1. fold() passes the position
   of the element in the list as %2. foreach() passes the position of
   the character in the string (starting from position 0). Based on
   an idea from PennMUSH.
- 
-Continued in 'help 3.1 functions3'.
- 
-& 3.1 functions3
  
 - The idle(), conn(), and doing() functions can now take a port number.
  
@@ -14755,15 +14766,15 @@ Continued in 'help 3.1 functions3'.
   except these functions stop evaluating their arguments once a terminating
   conclusion is reached. Based on an idea from PennMUSH.
  
+Continued in 'help 3.1 functions4'.
+ 
+& 3.1 functions4
+ 
 - chomp() can now handle a lone CR or LF.
  
 - choose() picks an element from a list on a weighted-random-choice basis.
  
 - Added connrecord(), connected player record (as in WHO).
- 
-Continued in 'help 3.1 functions4'.
- 
-& 3.1 functions4
  
 - Added entrances() function, similar to @entrances command. Based on an
   idea from PennMUSH.
@@ -14777,15 +14788,15 @@ Continued in 'help 3.1 functions4'.
  
 - hasflag() can now detect object types.
  
+Continued in 'help 3.1 functions5'.
+ 
+& 3.1 functions5
+ 
 - Added hasflags(), which can operate on multiple lists of flags and
   types, returning true if all elements in any of the lists are true.
  
 - Added hears(), moves(), and knows() functions for checking Presence
   permissions.
- 
-Continued in 'help 3.1 functions5'.
- 
-& 3.1 functions5
  
 - helptext() retrieves an entry from an indexed textfile (help, news, etc.).
  
@@ -14801,6 +14812,10 @@ Continued in 'help 3.1 functions5'.
   to turn a list of words into something like "a, b, and c". Based on an
   idea from PennMUSH.
  
+Continued in 'help 3.1 functions6'.
+ 
+& 3.1 functions6
+ 
 - Last-accessed and last-modified timestamps are now tracked for all
   objects. The timestamps are visible on an 'examine', and the seconds-value
   can be retrieved via the new functions lastaccess() and lastmod().
@@ -14808,9 +14823,8 @@ Continued in 'help 3.1 functions5'.
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
  
-Continued in 'help 3.1 functions6'.
- 
-& 3.1 functions6
+- lpos() can now check multiple characters at one time. Based on a
+  suggestion from Joel Ricketts.
  
 - lpos(), lattr(), lexits(), lcon(), xcon(), children(), lparent(), and
   the grep() family now take an output delimiter.
@@ -14822,6 +14836,10 @@ Continued in 'help 3.1 functions6'.
   etc., but an attempt is made to autodetect the list type and sort
   accordingly, or you can specify a sort type, as you can with sort().
  
+Continued in 'help 3.1 functions7'.
+ 
+& 3.1 functions7
+ 
 - The modify() function now takes lists, enabling multiple variables
   to be modified at once.
  
@@ -14832,16 +14850,20 @@ Continued in 'help 3.1 functions6'.
   the old mod() on most platforms; if you want it to be an alias
   for modulo() instead, change it in alias.conf
  
-Continued in 'help 3.1 functions7'.
- 
-& 3.1 functions7
- 
 - munge() now passes its input delimiter to the u-function, as %1.
   Idea from PennMUSH.
+ 
+- Added objcall(), which evalutes the text of an attribute from another
+  object's perspective, like a combination of u() and objeval(). Idea
+  from Joel Ricketts.
  
 - Added oemit(), which is the function equivalent of @oemit.
  
 - Added nattr(), which counts the number of attributes on an object.
+ 
+Continued in 'help 3.1 functions8'.
+ 
+& 3.1 functions8
  
 - New search classes -- ueval, uthing, uplayer, uroom, uexit -- have
   been added, allowing a u-function to be called for evaluation. This
@@ -14857,11 +14879,11 @@ Continued in 'help 3.1 functions7'.
  
 - Added speak(), which formats, parses, and transforms speech strings.
  
-Continued in 'help 3.1 functions8'.
- 
-& 3.1 functions8
- 
 - Added store(), which is basically to setx() what setr() is to setq().
+ 
+Continued in 'help 3.1 functions9'.
+ 
+& 3.1 functions9
  
 - The new structure functions read() and write() allow the use of an
   "invisible" delimiter, which permits data to be stored in delimited
@@ -14881,11 +14903,11 @@ Continued in 'help 3.1 functions8'.
  
 - translate() now handles tabs.
  
-Continued in 'help 3.1 functions9'.
- 
-& 3.1 functions9
- 
 - trim() now handles multi-character trim strings.
+ 
+Continued in 'help 3.1 functions10'.
+ 
+& 3.1 functions10
  
 - Added sind(), cosd(), tand(), asind(), acosd(), atand() degree-based
   trigonometry functions.
@@ -14903,12 +14925,12 @@ Continued in 'help 3.1 functions9'.
   regrep(), regmatch() and regparse(), but work against wildcard patterns
   rather than regexps.
  
-Continued in 'help 3.1 functions10'.
- 
-& 3.1 functions10
- 
 - Added writable() function, which returns 1 if object X can set an
   attribute A on object Y.
+ 
+Continued in 'help 3.1 functions11'.
+ 
+& 3.1 functions11
  
 - Added @@() function, which is like null(), but does not evaluate
   its argument.
@@ -14917,5 +14939,4 @@ Continued in 'help 3.1 functions10'.
   when they can't find the object they're checking. Previously they
   returned #-1 NOT FOUND; for consistency's sake, they now behave like
   everything else.
- 
  

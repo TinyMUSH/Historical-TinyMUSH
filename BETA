@@ -24,6 +24,34 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+09/xx/2002: Beta 8
+
+- Feature: lpos() can check multiple characters. Based on a suggestion from
+  Joel Ricketts.
+
+- Feature: Added objcall(), which evalutes the text of an attribute from
+  another object's perspective, like a combination of u() and objeval().
+  Idea from Joel Ricketts.
+
+- Feature: Added fcount(), fdepth(), ccount(), cdepth(), for getting
+  function and command invocation and recursion counters. Based on a
+  concept from Shadowrun Denver MUSH.
+
+- Feature: A new conf parameter, c_is_command, controls whether %c is
+  last command (default) or ANSI substitution.
+
+- Fix: The border() family of functions supports left-indentation (spaces
+  at the beginning of a line) properly. [3.1; Sally Schreiber]
+
+- Fix: Object stack limits are properly enforced. [3.0; Joel Ricketts]
+
+- Fix: A rare problem with spurious permission denied messages when
+  setting an attribute has been fixed. [2.0; Joel Ricketts]
+
+- Fix: Running MEMORY_BASED works again. [3.1; Tyr]
+
+-----------------------------------------------------------------------------
+
 08/29/2002: Beta 7
 
 - Feature: @verb now takes a no_name switch, which prevents the actor's

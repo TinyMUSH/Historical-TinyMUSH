@@ -132,6 +132,9 @@ CHANGES TO CONFIGURATION PARAMETERS
   parenting scheme or an unusual attribute naming scheme. Objects
   with the FREE flag ignore attribute defaults.
 
+- The new conf parameter, c_is_command, controls whether %c is last
+  command (default) or ANSI substitution.
+
 - The new conf parameter forwardlist_limit allows you to set a limit
   for the number of objects that can be listed in a single @forwardlist.
 
@@ -406,6 +409,10 @@ CHANGES TO FUNCTIONS
 
 - cwho() now only returns what's listening.
 
+- Added fcount(), fdepth(), ccount(), cdepth(), for getting function and
+  command invocation and recursion counters. Based on a concept from
+  Shadowrun Denver MUSH.
+
 - The filter(), filterbool(), map(), and while() functions pass the
   position of the element in the list as %1. fold() passes the position
   of the element in the list as %2. foreach() passes the position of
@@ -474,6 +481,9 @@ CHANGES TO FUNCTIONS
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
 
+- lpos() can now check multiple characters at one time. Based on a
+  suggestion from Joel Ricketts.
+
 - lpos(), lattr(), lexits(), lcon(), xcon(), children(), lparent(), and
   the grep() family now take an output delimiter.
 
@@ -498,6 +508,10 @@ CHANGES TO FUNCTIONS
   Idea from PennMUSH.
 
 - Added nattr(), which counts the number of attributes on an object.
+
+- Added objcall(), which evalutes the text of an attribute from another
+  object's perspective, like a combination of u() and objeval(). Idea
+  from Joel Ricketts.
 
 - Added oemit(), which is the function equivalent of @oemit.
 
