@@ -1058,9 +1058,6 @@ int db_read()
 			memcpy((void *)&vattr_flags, (void *)dptr, sizeof(int));
 			dptr++;
 			
-			/* Make sure they're marked dirty */
-			vattr_flags |= AF_DIRTY;
-
 			/* dptr now points to the beginning of the atr name */
 			vattr_define((char *)dptr, i, vattr_flags);
 			free(data);
@@ -1085,10 +1082,6 @@ int db_read()
 			s_StructCount(i, 0);
 			s_InstanceCount(i, 0);
 			
-			/* Set the dirty flag */
-			
-			s_Flags3(i, Flags3(i) | DIRTY);
-
 			/* Check to see if it's a player */
 
 			if (Typeof(i) == TYPE_PLAYER) {
@@ -1208,12 +1201,15 @@ int db_format, flags;
 			}
 		}
 		fprintf(f, "<\n");
+#ifdef STANDALONE
+	} else {
+#else
 	} else if (Flags3(i) & DIRTY) {
 		/* Write the object only if it's dirty, and clear the
 		 * dirty flag */
 		
 		s_Flags3(i, Flags3(i) & ~DIRTY);
-		
+#endif		
 		/* DBREF is our key */
 		
 		dddb_put((void *)&i, sizeof(int), (void *)&(db[i]),
@@ -1292,11 +1288,15 @@ int format, version;
 #endif
 				fprintf(f, "+A%d\n\"%d:%s\"\n",
 					vp->number, vp->flags, vp->name);
+#ifdef STANDALONE
+			} else {
+#else
 			} else if (vp->flags & AF_DIRTY) {
 				/* Only write the dirty attribute numbers
 				 * and clear the flag */
 				 
 				vp->flags &= ~AF_DIRTY;
+#endif
 				len = strlen(vp->name) + 1;
 				dptr = data = (int *)malloc(sizeof(int) + len);
 				memcpy((void *)dptr, (void *)&vp->flags, sizeof(int));
