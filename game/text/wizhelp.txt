@@ -1121,7 +1121,7 @@
   Command: @timecheck[/<switches>]
  
   If timechecking instrumentation is enabled, statistics are kept, for
-  each object, on the total number of microseconds it has used to execute
+  each object, on the total number of milliseconds it has used to execute
   commands. This is clock time, not CPU time, but it does provide a rough
   estimate of the amount of usage a given object is responsible for.
  
@@ -2450,10 +2450,13 @@ use_global_aconn	wizard_obeys_linklock
   See also: @dump, dump_message.
 
 & power_access
-  Config parameter: power_access <power> [!]<privilege> [[!]<privilege>]...
-  Changes the access rights to the named power.
-  See also: @list powers, PERMISSIONS.
+  Config parameter: power_access <power name> <access>
  
+  Changes who can set a power. See 'wizhelp flag_access' for a list of
+  possible permission types.
+  
+  See also: flag_access, @list powers, PERMISSIONS.
+  
 & public_calias
   Config parameter: public_calias <channel alias>. Default: pub
  
