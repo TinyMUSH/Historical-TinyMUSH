@@ -749,7 +749,7 @@ SEARCH *parm;
 					       parm->s_rst_eval);
 			result = bp = alloc_lbuf("search_perform");
 			str = buff2;
-			exec(result, &bp, 0, player, cause,
+			exec(result, &bp, 0, player, cause, cause,
 			     EV_FCHECK | EV_EVAL | EV_NOTRACE, &str,
 			     (char **)NULL, 0);
 			*bp = '\0';

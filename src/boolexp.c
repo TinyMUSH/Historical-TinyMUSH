@@ -162,7 +162,8 @@ BOOLEXP *b;
 					 preserve, preserve_len);
 			buff2 = bp = alloc_lbuf("eval_boolexp");
 			str = buff;
-			exec(buff2, &bp, 0, source, player, EV_FIGNORE | EV_EVAL | EV_TOP,
+			exec(buff2, &bp, 0, source, player, player,
+			     EV_FIGNORE | EV_EVAL | EV_TOP,
 			     &str, (char **)NULL, 0);
 			*bp = '\0';
 			restore_global_regs("eval_boolexp_save",

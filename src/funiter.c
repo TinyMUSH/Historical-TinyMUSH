@@ -22,10 +22,10 @@
  * See notes on fun_iter for the explanation.
  */
 
-static void perform_loop(buff, bufc, player, cause, list, exprstr,
+static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
 			 cargs, ncargs, sep, osep, flag)
     char *buff, **bufc;
-    dbref player, cause;
+    dbref player, caller, cause;
     char *list, *exprstr;
     char *cargs[];
     int ncargs;
@@ -38,8 +38,8 @@ static void perform_loop(buff, bufc, player, cause, list, exprstr,
 
     dp = cp = curr = alloc_lbuf("perform_loop.1");
     str = list;
-    exec(curr, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
-	 cargs, ncargs);
+    exec(curr, &dp, 0, player, caller, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	 &str, cargs, ncargs);
     *dp = '\0';
     cp = trim_space_sep(cp, sep);
     if (!*cp) {
@@ -62,11 +62,11 @@ static void perform_loop(buff, bufc, player, cause, list, exprstr,
 	buff3 = replace_string(LISTPLACE_VAR, tbuf, buff2);
 	str = buff3;
 	if (!flag) {
-	    exec(buff, bufc, 0, player, cause,
+	    exec(buff, bufc, 0, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	} else {
 	    dp = result = alloc_lbuf("perform_loop.2");
-	    exec(result, &dp, 0, player, cause,
+	    exec(result, &dp, 0, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	    *dp = '\0';
 	    notify(cause, result);
@@ -83,7 +83,7 @@ FUNCTION(fun_parse)
     char sep, osep;
 
     evarargs_preamble("PARSE", 2, 4);
-    perform_loop(buff, bufc, player, cause, fargs[0], fargs[1],
+    perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, sep, osep, 0);
 }
 
@@ -92,7 +92,7 @@ FUNCTION(fun_loop)
     char sep;
 
     varargs_preamble("LOOP", 3);
-    perform_loop(buff, bufc, player, cause, fargs[0], fargs[1],
+    perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, sep, ' ', 1);
 }
 
@@ -116,10 +116,10 @@ FUNCTION(fun_loop)
 #define BOOL_COND_FALSE 0
 #define BOOL_COND_TRUE 1 
 
-static void perform_iter(buff, bufc, player, cause, list, exprstr,
+static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
 			 cargs, ncargs, sep, osep, flag, bool_flag)
     char *buff, **bufc;
-    dbref player, cause;
+    dbref player, caller, cause;
     char *list, *exprstr;
     char *cargs[];
     int ncargs;
@@ -142,8 +142,8 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 
     input_p = lp = list_str = alloc_lbuf("perform_iter.list");
     str = list;
-    exec(list_str, &lp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
-	 cargs, ncargs);
+    exec(list_str, &lp, 0, player, caller, cause,
+	 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
     *lp = '\0';
     input_p = trim_space_sep(input_p, sep);
     if (!*input_p) {
@@ -171,12 +171,12 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 	str = work_buf;
 	if (!flag) {
 	    savep = *bufc;
-	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		 &str, cargs, ncargs);
+	    exec(buff, bufc, 0, player, caller, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	} else {
 	    dp = result = alloc_lbuf("perform_iter.out");
-	    exec(result, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		 &str, cargs, ncargs);
+	    exec(result, &dp, 0, player, caller, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	    *dp = '\0';
 	    notify(cause, result);
 	    free_lbuf(result);
@@ -200,7 +200,7 @@ FUNCTION(fun_iter)
     char sep, osep;
 
     evarargs_preamble("ITER", 2, 4);
-    perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
+    perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, sep, osep, 0, BOOL_COND_NONE);
 }
 
@@ -209,7 +209,7 @@ FUNCTION(fun_whenfalse)
     char sep, osep;
 
     evarargs_preamble("WHENFALSE", 2, 4);
-    perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
+    perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, sep, osep, 0, BOOL_COND_FALSE);
 }
 
@@ -218,7 +218,7 @@ FUNCTION(fun_whentrue)
     char sep, osep;
 
     evarargs_preamble("WHENTRUE", 2, 4);
-    perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
+    perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, sep, osep, 0, BOOL_COND_TRUE);
 }
 
@@ -227,7 +227,7 @@ FUNCTION(fun_list)
     char sep;
 
     varargs_preamble("LIST", 3);
-    perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
+    perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, sep, ' ', 1, BOOL_COND_NONE);
 }
 
@@ -309,16 +309,16 @@ FUNCTION(fun_fold)
 		clist[1] = split_token(&cp, sep);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
-		exec(result, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		     &str, clist, 2);
+		exec(result, &bp, 0, player, caller, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 2);
 		*bp = '\0';
 	} else {
 		clist[0] = split_token(&cp, sep);
 		clist[1] = split_token(&cp, sep);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
-		exec(result, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		     &str, clist, 2);
+		exec(result, &bp, 0, player, caller, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 2);
 		*bp = '\0';
 	}
 
@@ -333,7 +333,7 @@ FUNCTION(fun_fold)
 		StrCopyKnown(atextbuf, atext, alen);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
-		exec(result, &bp, 0, player, cause,
+		exec(result, &bp, 0, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 2);
 		*bp = '\0';
 		strcpy(rstore, result);
@@ -359,9 +359,9 @@ FUNCTION(fun_fold)
  *  NOTE:  If you specify a separator it is used to delimit returned list
  */
 
-static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
-			  sep, osep, flag)
-    dbref player, cause;
+static void handle_filter(player, caller, cause, arg_func, arg_list,
+			  buff, bufc, sep, osep, flag)
+    dbref player, caller, cause;
     char *arg_func, *arg_list;
     char *buff;
     char **bufc;
@@ -389,7 +389,7 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
 		StrCopyKnown(atextbuf, atext, alen);
 		result = bp = alloc_lbuf("fun_filter");
 		str = atextbuf;
-		exec(result, &bp, 0, player, cause,
+		exec(result, &bp, 0, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 		*bp = '\0';
 		if ((!flag && (*result == '1')) || (flag && xlate(result))) {
@@ -409,7 +409,7 @@ FUNCTION(fun_filter)
 	char sep, osep;
 
 	svarargs_preamble("FILTER", 4);
-	handle_filter(player, cause, fargs[0], fargs[1], buff, bufc,
+	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
 		      sep, osep, 0);
 }
 
@@ -418,7 +418,7 @@ FUNCTION(fun_filterbool)
 	char sep, osep;
 
 	svarargs_preamble("FILTERBOOL", 4);
-	handle_filter(player, cause, fargs[0], fargs[1], buff, bufc,
+	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
 		      sep, osep, 1);
 }
 
@@ -464,7 +464,7 @@ FUNCTION(fun_map)
 		objstring = split_token(&cp, sep);
 		StrCopyKnown(atextbuf, atext, alen);
 		str = atextbuf;
-		exec(buff, bufc, 0, player, cause,
+		exec(buff, bufc, 0, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 	}
 	free_lbuf(atext);
@@ -498,7 +498,7 @@ FUNCTION(fun_mix)
 	sep = ' ';
 	lastn = nfargs - 1;
     } else if (!delim_check(fargs, nfargs, nfargs, &sep, buff, bufc, 0,
-			    player, cause, cargs, ncargs, 0)) {
+			    player, caller, cause, cargs, ncargs, 0)) {
 	return;
     } else {
 	lastn = nfargs - 2;
@@ -547,8 +547,8 @@ FUNCTION(fun_mix)
 
 	str = atextbuf;
 	
-	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		      &str, &(os[0]), lastn);
+	exec(buff, bufc, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn);
     }
     free_lbuf(atext);
     free_lbuf(atextbuf);
@@ -595,8 +595,8 @@ FUNCTION(fun_step)
 	    os[i] = split_token(&cp, sep);
 	StrCopyKnown(atextbuf, atext, alen);
 	str = atextbuf;
-	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, &(os[0]), i);
+	exec(buff, bufc, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), i);
     }
     free_lbuf(atext);
     free_lbuf(atextbuf);
@@ -670,8 +670,8 @@ FUNCTION(fun_foreach)
 	cbuf[1] = '\0';
 	StrCopyKnown(atextbuf, atext, alen);
 	str = atextbuf; 
-	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		      &str, &cbuf, 1);
+	exec(buff, bufc, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &cbuf, 1);
     }
 
     free_lbuf(atextbuf);
@@ -723,8 +723,8 @@ FUNCTION(fun_munge)
 
 	bp = rlist = alloc_lbuf("fun_munge");
 	str = atext;
-	exec(rlist, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
-	     &fargs[1], 1);
+	exec(rlist, &bp, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &fargs[1], 1);
 	*bp = '\0';
 
 	/* Now that we have our result, put it back into array form. Search
@@ -833,15 +833,15 @@ FUNCTION(fun_while)
 	StrCopyKnown(atextbuf, atext1, alen1);
 	str = atextbuf;
 	savep = *bufc;
-	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, &objstring, 1);
+	exec(buff, bufc, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 	if (is_same) {
 	    if (!strcmp(savep, fargs[3]))
 		break;
 	} else {
 	    StrCopyKnown(condbuf, atext2, alen2);
 	    dp = str = savep = condbuf;
-	    exec(condbuf, &dp, 0, player, cause,
+	    exec(condbuf, &dp, 0, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 	    if (!strcmp(savep, fargs[3]))
 		break;

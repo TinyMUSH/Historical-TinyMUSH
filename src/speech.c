@@ -66,8 +66,8 @@ char *message;
 
 	buf = bp = alloc_lbuf("do_think");
 	str = message;
-	exec(buf, &bp, 0, player, cause, EV_FCHECK | EV_EVAL | EV_TOP, &str,
-	     (char **)NULL, 0);
+	exec(buf, &bp, 0, player, cause, cause,
+	     EV_FCHECK | EV_EVAL | EV_TOP, &str, (char **)NULL, 0);
 	*bp = '\0';
 	notify(player, buf);
 	free_lbuf(buf);
@@ -343,7 +343,8 @@ const char *tag, *dflt;
 	if (*str) {
 		str2 = bp = alloc_lbuf("page_return");
 		buf = str;
-		exec(str2, &bp, 0, target, player, EV_FCHECK | EV_EVAL | EV_TOP | EV_NO_LOCATION, &buf,
+		exec(str2, &bp, 0, target, player, player,
+		     EV_FCHECK | EV_EVAL | EV_TOP | EV_NO_LOCATION, &buf,
 		     (char **)NULL, 0);
 		*bp = '\0';
 		if (*str2) {

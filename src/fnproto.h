@@ -7,7 +7,7 @@
 #define __FNPROTO_H
 
 #define	XFUNCTION(x)	\
-	extern void FDECL(x, (char *, char **, dbref, dbref, \
+	extern void FDECL(x, (char *, char **, dbref, dbref, dbref, \
 			      char *[], int, char *[], int))
 
 #ifdef PUEBLO_SUPPORT

@@ -219,8 +219,8 @@ int nfargs, minargs, maxargs;
  * delim_check: obtain delimiter
  */
 
-int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc, eval, player, cause,
-		cargs, ncargs, allow_special)
+int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc, eval,
+		player, caller, cause, cargs, ncargs, allow_special)
 char *fargs[], *cargs[], *sep, *buff, **bufc;
 int nfargs, ncargs, sep_arg, eval, allow_special;
 dbref player, cause;
@@ -235,8 +235,8 @@ dbref player, cause;
 		if (eval) {
 			tstr = bp = alloc_lbuf("delim_check");
 			str = fargs[sep_arg - 1];
-			exec(tstr, &bp, 0, player, cause, EV_EVAL | EV_FCHECK,
-			     &str, cargs, ncargs);
+			exec(tstr, &bp, 0, player, caller, cause,
+			     EV_EVAL | EV_FCHECK, &str, cargs, ncargs);
 			*bp = '\0';
 			if (allow_special &&
 			    !strcmp(tstr, (char *) NULL_DELIM_VAR)) {

@@ -795,12 +795,12 @@ FUNCTION(fun_sort)
 	if (!fn_range_check("SORT", nfargs, 1, 4, buff, bufc))
 		return;
 	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
-	     player, cause, cargs, ncargs, 0))
+	     player, caller, cause, cargs, ncargs, 0))
 		return;
 	if (nfargs < 4)
 		osep = sep;
 	else if (!delim_check(fargs, nfargs, 4, &osep, buff, bufc, 0,
-	         player, cause, cargs, ncargs, 1))
+	         player, caller, cause, cargs, ncargs, 1))
 		return;
 
 
@@ -820,8 +820,7 @@ FUNCTION(fun_sort)
  */
 
 static char ucomp_buff[LBUF_SIZE];
-static dbref ucomp_cause;
-static dbref ucomp_player;
+static dbref ucomp_cause, ucomp_player, ucomp_caller;
 
 static int u_comp(s1, s2)
 const void *s1, *s2;
@@ -845,8 +844,8 @@ const void *s1, *s2;
 	strcpy(tbuf, ucomp_buff);
 	result = bp = alloc_lbuf("u_comp");
 	str = tbuf;
-	exec(result, &bp, 0, ucomp_player, ucomp_cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, &(elems[0]), 2);
+	exec(result, &bp, 0, ucomp_player, ucomp_caller, ucomp_cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(elems[0]), 2);
 	*bp = '\0';
 	if (!result)
 		n = 0;
@@ -1169,7 +1168,7 @@ FUNCTION(fun_columns)
         if (!fn_range_check("COLUMNS", nfargs, 2, 4, buff, bufc))
 		return;
 	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 1,                
-	    player, cause, cargs, ncargs, 0))
+	    player, caller, cause, cargs, ncargs, 0))
 		return;
 		
 	number = (unsigned int) safe_atoi(fargs[1]);
@@ -1191,8 +1190,8 @@ FUNCTION(fun_columns)
 
 	cp = curr = bp = alloc_lbuf("fun_columns");
 	str = fargs[0];
-	exec(curr, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
-	     cargs, ncargs);
+	exec(curr, &bp, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 	cp = trim_space_sep(cp, sep);
 	if (!*cp) {

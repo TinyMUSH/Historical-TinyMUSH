@@ -44,7 +44,7 @@ FUNCTION(fun_switchall)
 
     mbuff = bp = alloc_lbuf("fun_switchall");
     str = fargs[0];
-    exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+    exec(mbuff, &bp, 0, player, caller, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	 &str, cargs, ncargs);
     *bp = '\0';
 
@@ -57,16 +57,16 @@ FUNCTION(fun_switchall)
     for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
 	tbuff = bp = alloc_lbuf("fun_switchall.2");
 	str = fargs[i];
-	exec(tbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, cargs, ncargs);
+	exec(tbuff, &bp, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 	if (quick_wild(tbuff, mbuff)) {
 	    got_one = 1;
 	    free_lbuf(tbuff);
 	    mudstate.switch_token = mbuff;
 	    str = fargs[i+1];
-	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		 &str, cargs, ncargs);
+	    exec(buff, bufc, 0, player, caller, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	} else {
 	    free_lbuf(tbuff);
 	}
@@ -77,8 +77,8 @@ FUNCTION(fun_switchall)
     if (!got_one && (i < nfargs) && fargs[i]) {
 	mudstate.switch_token = mbuff;
 	str = fargs[i];
-	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, cargs, ncargs);
+	exec(buff, bufc, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
     }
 
     free_lbuf(mbuff);
@@ -100,8 +100,8 @@ FUNCTION(fun_switch)
 
 	mbuff = bp = alloc_lbuf("fun_switch");
 	str = fargs[0];
-	exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, cargs, ncargs);
+	exec(mbuff, &bp, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 
 	/* Loop through the patterns looking for a match */
@@ -112,7 +112,7 @@ FUNCTION(fun_switch)
 	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
 		tbuff = bp = alloc_lbuf("fun_switch.2");
 		str = fargs[i];
-		exec(tbuff, &bp, 0, player, cause,
+		exec(tbuff, &bp, 0, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, cargs, ncargs);
 		*bp = '\0';
@@ -120,7 +120,8 @@ FUNCTION(fun_switch)
 			free_lbuf(tbuff);
 			mudstate.switch_token = mbuff;
 			str = fargs[i+1];
-			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+			exec(buff, bufc, 0, player, caller, cause,
+			     EV_STRIP | EV_FCHECK | EV_EVAL,
 			     &str, cargs, ncargs);
 			free_lbuf(mbuff);
 			mudstate.in_switch--;
@@ -135,7 +136,7 @@ FUNCTION(fun_switch)
 	if ((i < nfargs) && fargs[i]) {
 	        mudstate.switch_token = mbuff;
 		str = fargs[i];
-		exec(buff, bufc, 0, player, cause,
+		exec(buff, bufc, 0, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, cargs, ncargs);
 	}
@@ -158,8 +159,8 @@ FUNCTION(fun_case)
 
 	mbuff = bp = alloc_lbuf("fun_case");
 	str = fargs[0];
-	exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, cargs, ncargs);
+	exec(mbuff, &bp, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 
 	/* Loop through the patterns looking for an exact match */
@@ -167,14 +168,14 @@ FUNCTION(fun_case)
 	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
 	    tbuff = bp = alloc_lbuf("fun_case.2");
 	    str = fargs[i];
-	    exec(tbuff, &bp, 0, player, cause,
+	    exec(tbuff, &bp, 0, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL,
 		 &str, cargs, ncargs);
 	    *bp = '\0';
 	    if (!strcmp(tbuff, mbuff)) {
 		free_lbuf(tbuff);
 		str = fargs[i + 1];
-		exec(buff, bufc, 0, player, cause,
+		exec(buff, bufc, 0, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 		free_lbuf(mbuff);
 		return;
@@ -187,8 +188,8 @@ FUNCTION(fun_case)
 
 	if ((i < nfargs) && fargs[i]) {
 	    str = fargs[i];
-	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		 &str, cargs, ncargs);
+	    exec(buff, bufc, 0, player, caller, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	}
 	return;
 }
@@ -202,18 +203,18 @@ FUNCTION(fun_ifelse)
 	
 	mbuff = bp = alloc_lbuf("fun_ifelse");
 	str = fargs[0];
-	exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		&str, cargs, ncargs);
+	exec(mbuff, &bp, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 	
 	if (!mbuff || !*mbuff || !xlate(mbuff)) {
 		str = fargs[2];
-		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-			&str, cargs, ncargs);
+		exec(buff, bufc, 0, player, caller, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	} else {
 		str = fargs[1];
-		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-			&str, cargs, ncargs);
+		exec(buff, bufc, 0, player, caller, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	}
 	free_lbuf(mbuff);
 }
@@ -228,18 +229,18 @@ FUNCTION(fun_nonzero)
 	
 	mbuff = bp = alloc_lbuf("fun_nonzero");
 	str = fargs[0];
-	exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		&str, cargs, ncargs);
+	exec(mbuff, &bp, 0, player, caller, cause,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 	
 	if (!mbuff || !*mbuff || ((atoi(mbuff) == 0) && is_number(mbuff))) {
 		str = fargs[2];
-		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-			&str, cargs, ncargs);
+		exec(buff, bufc, 0, player, caller, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	} else {
 		str = fargs[1];
-		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-			&str, cargs, ncargs);
+		exec(buff, bufc, 0, player, caller, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	}
 	free_lbuf(mbuff);
 }
@@ -307,7 +308,7 @@ FUNCTION(fun_lrand)
     if (!fn_range_check("LRAND", nfargs, 3, 4, buff, bufc))
 	return;
     if (!delim_check(fargs, nfargs, 4, &sep, buff, bufc, 0,
-		     player, cause, cargs, ncargs, 1))
+		     player, caller, cause, cargs, ncargs, 1))
 	return;
 
     /* If we're generating no numbers, since this is a list function,
@@ -380,7 +381,7 @@ FUNCTION(fun_lnum)
     if (!fn_range_check("LNUM", nfargs, 1, 3, buff, bufc))
 	return;
     if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
-		     player, cause, cargs, ncargs, 1))
+		     player, caller, cause, cargs, ncargs, 1))
 	return;
 
     if (nfargs >= 2) {
@@ -667,7 +668,7 @@ FUNCTION(fun_s)
 	char *str;
 
 	str = fargs[0];
-	exec(buff, bufc, 0, player, cause, EV_FIGNORE | EV_EVAL, &str,
+	exec(buff, bufc, 0, player, caller, cause, EV_FIGNORE | EV_EVAL, &str,
 	     cargs, ncargs);
 }
 
@@ -676,7 +677,7 @@ FUNCTION(fun_subeval)
 	char *str;
 	
 	str = fargs[0];
-	exec(buff, bufc, 0, player, cause,
+	exec(buff, bufc, 0, player, caller, cause,
 	     EV_NO_LOCATION|EV_NOFCHECK|EV_FIGNORE|EV_NO_COMPRESS,
 	     &str, (char **)NULL, 0);
 }

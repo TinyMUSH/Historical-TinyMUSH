@@ -257,13 +257,13 @@ char *message;
 	atrstr = atr_get(player, A_SIGNATURE, &aowner, &aflags, &alen);
 	execstr = bp = alloc_lbuf("add_mail_message");
 	str = atrstr;
-	exec(execstr, &bp, 0, player, player, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, (char **)NULL, 0);
+	exec(execstr, &bp, 0, player, player, player,
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, (char **)NULL, 0);
 	*bp = '\0';
 	msg = bp = alloc_lbuf("add_mail_message.2");
 	str = message;
-	exec(msg, &bp, 0, player, player, EV_EVAL | EV_FCHECK | EV_NO_COMPRESS, &str,
-	     (char **)NULL, 0);
+	exec(msg, &bp, 0, player, player, player,
+	     EV_EVAL | EV_FCHECK | EV_NO_COMPRESS, &str, (char **)NULL, 0);
 	*bp = '\0';
 
 #ifdef RADIX_COMPRESSION
@@ -837,8 +837,10 @@ char *msglist;
 
 					msg = bp = alloc_lbuf("do_mail_review");
 					str = msgbuff;
-					exec(msg, &bp, 0, player, player, EV_EVAL | EV_FCHECK | EV_NO_COMPRESS, &str,
-					     (char **)NULL, 0);
+					exec(msg, &bp, 0, player, player,
+					     player,
+					  EV_EVAL | EV_FCHECK | EV_NO_COMPRESS,
+					     &str, (char **)NULL, 0);
 					*bp = '\0';
 					notify(player, DASH_LINE);
 					notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nSubject: %-65s",
@@ -852,8 +854,10 @@ char *msglist;
 					strcpy(msgbuff, get_mail_message(mp->number));
 					msg = bp = alloc_lbuf("do_mail_review");
 					str = msgbuff;
-					exec(msg, &bp, 0, player, player, EV_EVAL | EV_FCHECK | EV_NO_COMPRESS, &str,
-					     (char **)NULL, 0);
+					exec(msg, &bp, 0, player, player,
+					     player,
+					  EV_EVAL | EV_FCHECK | EV_NO_COMPRESS,
+					     &str, (char **)NULL, 0);
 					*bp = '\0';
 					notify(player, DASH_LINE);
 					notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nSubject: %-65s",
@@ -3582,8 +3586,8 @@ dbref player;
 	} else {
 		str = mailmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		bp = msg = alloc_lbuf("do_mail_proof");
-		exec(msg, &bp, 0, player, player, EV_EVAL | EV_FCHECK, &str,
-		     (char **)NULL, 0);
+		exec(msg, &bp, 0, player, player, player, EV_EVAL | EV_FCHECK,
+		     &str, (char **)NULL, 0);
 		*bp = '\0';
 		free_lbuf(mailmsg);
 	}

@@ -49,16 +49,17 @@ extern int FDECL(list2arr, (char **, int, char *, char));
 extern void FDECL(arr2list, (char **, int, char *, char **, char));
 extern double NDECL(makerandom);
 extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
-extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, dbref, dbref, char **, int, int));
+extern int FDECL(delim_check, (char **, int, int, char *, char *, char **,
+			       int, dbref, dbref, dbref, char **, int, int));
 extern int FDECL(check_read_perms, (dbref, dbref, ATTR *, int, int, char *, char **));
 extern INLINE void FDECL(do_reverse, (char *, char *));
 
 /* Function prototype macro */
 
 #define	FUNCTION(x)	\
-	void x(buff, bufc, player, cause, fargs, nfargs, cargs, ncargs) \
+    void x(buff, bufc, player, caller, cause, fargs, nfargs, cargs, ncargs) \
 	char *buff, **bufc; \
-	dbref player, cause; \
+	dbref player, caller, cause; \
 	char *fargs[], *cargs[]; \
 	int nfargs, ncargs;
 
@@ -88,36 +89,36 @@ return;
 if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
-    player, cause, cargs, ncargs, 0))                              \
+    player, caller, cause, cargs, ncargs, 0))                           \
 return;
 
 #define mvarargs_preamble(xname,xminargs,xnargs)	        \
 if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,          \
-    player, cause, cargs, ncargs, 0))                              \
+    player, caller, cause, cargs, ncargs, 0))                         \
 return;
 
 #define evarargs_preamble(xname, xminargs, xnargs)              \
 if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs - 1, &sep, buff, bufc, 1,      \
-    player, cause, cargs, ncargs, 0))                              \
+    player, caller, cause, cargs, ncargs, 0))                         \
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 1,         \
-    player, cause, cargs, ncargs, 1))                              \
+    player, caller, cause, cargs, ncargs, 1))                         \
 return;
 
 #define svarargs_preamble(xname,xnargs)                         \
 if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
-    player, cause, cargs, ncargs, 0))                              \
+    player, caller, cause, cargs, ncargs, 0))                         \
 return;							        \
 if (nfargs < xnargs)				                \
     osep = sep;				                        \
 else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
-    player, cause, cargs, ncargs, 1))                              \
+    player, caller, cause, cargs, ncargs, 1))                         \
 return;
 
 /* Special handling of separators. */

@@ -214,9 +214,9 @@ int eval;
  * is destructively modified.
  */
 
-char *parse_arglist(player, cause, dstr, delim, eval,
+char *parse_arglist(player, caller, cause, dstr, delim, eval,
 		    fargs, nfargs, cargs, ncargs)
-dbref player, cause, eval, nfargs, ncargs;
+dbref player, caller, cause, eval, nfargs, ncargs;
 char *dstr, delim, *fargs[], *cargs[];
 {
 	char *rstr, *tstr, *bp, *str;
@@ -239,8 +239,8 @@ char *dstr, delim, *fargs[], *cargs[];
 		if (eval & EV_EVAL) {
 			bp = fargs[arg] = alloc_lbuf("parse_arglist");
 			str = tstr;
-			exec(fargs[arg], &bp, 0, player, cause, eval | EV_FCHECK, &str,
-			     cargs, ncargs);
+			exec(fargs[arg], &bp, 0, player, caller, cause,
+			     eval | EV_FCHECK, &str, cargs, ncargs);
 			*bp = '\0';
 		} else {
 			fargs[arg] = alloc_lbuf("parse_arglist");
@@ -428,10 +428,10 @@ char *ansi_chartab[256] =
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
 };
 
-void exec(buff, bufc, tflags, player, cause, eval, dstr, cargs, ncargs)
+void exec(buff, bufc, tflags, player, caller, cause, eval, dstr, cargs, ncargs)
 char *buff, **bufc;
 int tflags;
-dbref player, cause;
+dbref player, caller, cause;
 int eval, ncargs;
 char **dstr;
 char *cargs[];
@@ -566,7 +566,7 @@ char *cargs[];
 				*dstr = tstr;
 			} else {
 				str = tbuf;
-				exec(buff, bufc, 0, player, cause,
+				exec(buff, bufc, 0, player, caller, cause,
 				     (eval | EV_FCHECK | EV_FMAND),
 				     &str, cargs, ncargs);
 				(*dstr)--;
@@ -595,7 +595,7 @@ char *cargs[];
 					tbuf++;
 				}
 				str = tbuf;
-				exec(buff, bufc, 0, player, cause,
+				exec(buff, bufc, 0, player, caller, cause,
 				     (eval & ~(EV_STRIP | EV_FCHECK)),
 				     &str, cargs, ncargs);
 				if (!(eval & EV_STRIP)) {
@@ -855,6 +855,9 @@ char *cargs[];
 					safe_dbref(buff, bufc, where_is(cause));
 				}
 				break;
+			case '@':	/* Caller dbref */
+				safe_dbref(buff, bufc, caller);
+				break;
 			case 'C':
 			case 'c':
 				safe_str(mudstate.curr_cmd, buff, bufc);
@@ -930,7 +933,7 @@ char *cargs[];
 				feval = (eval & ~EV_EVAL) | EV_STRIP_ESC;
 			else
 				feval = eval;
-			*dstr = parse_arglist(player, cause, *dstr + 1,
+			*dstr = parse_arglist(player, caller, cause, *dstr + 1,
 					      ')', feval, fargs, nfargs,
 					      cargs, ncargs);
 
@@ -996,7 +999,7 @@ char *cargs[];
 							     preserve_len);
 					}
 					
-					exec(buff, bufc, 0, i, cause,
+					exec(buff, bufc, 0, i, caller, cause,
 					     ((ufp->flags & FN_NO_EVAL) ?
 					      (EV_FCHECK | EV_EVAL) : feval),
 					     &str, fargs, nfargs);
@@ -1061,8 +1064,9 @@ char *cargs[];
 				} else if (!check_access(player, fp->perms)) {
 					safe_noperm(buff, bufc);
 				} else {
-					fp->fun(buff, bufc, player, cause,
-					      fargs, nfargs, cargs, ncargs);
+					fp->fun(buff, bufc, player, caller,
+						cause, fargs, nfargs,
+						cargs, ncargs);
 				}
 				mudstate.func_nest_lev--;
 			} else {

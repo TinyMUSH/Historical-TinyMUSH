@@ -143,12 +143,12 @@ FUNCTION(fun_sql)
     if (!fn_range_check("SQL", nfargs, 1, 3, buff, bufc))
 	return;
     if (!delim_check(fargs, nfargs, 2, &row_delim, buff, bufc, 0,
-		     player, cause, cargs, ncargs, 1))
+		     player, caller, cause, cargs, ncargs, 1))
 	return;
     if (nfargs < 3)
 	field_delim = row_delim;
     else if (!delim_check(fargs, nfargs, 3, &field_delim, buff, bufc, 0,
-			  player, cause, cargs, ncargs, 1))
+			  player, caller, cause, cargs, ncargs, 1))
 	return;
 
     sql_query(player, fargs[0], buff, bufc, row_delim, field_delim);

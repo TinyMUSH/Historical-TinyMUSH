@@ -392,8 +392,8 @@ const char *msg;
 	    save_global_regs("check_filter_save", preserve, preserve_len);
 	    nbuf = dp = alloc_lbuf("check_filter");
 	    str = buf;
-	    exec(nbuf, &dp, 0, object, player, EV_FIGNORE | EV_EVAL | EV_TOP,
-		 &str, (char **)NULL, 0);
+	    exec(nbuf, &dp, 0, object, player, player,
+		 EV_FIGNORE | EV_EVAL | EV_TOP, &str, (char **)NULL, 0);
 	    *dp = '\0';
 	    dp = nbuf;
 	    free_lbuf(buf);
@@ -454,7 +454,8 @@ const char *msg, *dflt;
 		save_global_regs("add_prefix_save", preserve, preserve_len);
 		nbuf = bp = alloc_lbuf("add_prefix");
 		str = buf;
-		exec(nbuf, &bp, 0, object, player, EV_FIGNORE | EV_EVAL | EV_TOP, &str,
+		exec(nbuf, &bp, 0, object, player, player,
+		     EV_FIGNORE | EV_EVAL | EV_TOP, &str,
 		     (char **)NULL, 0);
 		*bp = '\0';
 		free_lbuf(buf);

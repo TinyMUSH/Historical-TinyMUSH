@@ -676,8 +676,8 @@ char *expr, *args[], *cargs[];
 	for (a = 0; (a < (nargs - 1)) && args[a] && args[a + 1]; a += 2) {
 		bp = buff;
 		str = args[a];
-		exec(buff, &bp, 0, player, cause, EV_FCHECK | EV_EVAL | EV_TOP, &str,
-		     cargs, ncargs);
+		exec(buff, &bp, 0, player, cause, cause,
+		     EV_FCHECK | EV_EVAL | EV_TOP, &str, cargs, ncargs);
 		*bp = '\0';
 		if (wild_match(buff, expr)) {
 		        tbuf = replace_string(SWITCH_VAR, expr, args[a+1]);
@@ -1884,26 +1884,26 @@ const char *def, *odef;
 		if (*d) {
 		    sp = d;
 		    tbuf = tp = alloc_lbuf("did_it.deval");
-		    exec(tbuf, &tp, 0, thing, player,
+		    exec(tbuf, &tp, 0, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &sp, args, nargs);
 		    *tp = '\0';
-		    exec(buff, &bp, 0, thing, player,
+		    exec(buff, &bp, 0, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, &tbuf, 1);
 		    free_lbuf(tbuf);
 		} else if (def) {
-		    exec(buff, &bp, 0, thing, player,
+		    exec(buff, &bp, 0, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, (char **) &def, 1);
 		} else {
-		    exec(buff, &bp, 0, thing, player,
+		    exec(buff, &bp, 0, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, (char **) NULL, 0);
 		}
 	    } else if (*d) {
 		str = d;
-		exec(buff, &bp, 0, thing, player,
+		exec(buff, &bp, 0, thing, player, player,
 		     EV_EVAL | EV_FIGNORE | EV_TOP,
 		     &str, args, nargs);
 	    }
@@ -1956,26 +1956,26 @@ const char *def, *odef;
 		if (*d) {
 		    sp = d;
 		    tbuf = tp = alloc_lbuf("did_it.deval");
-		    exec(tbuf, &tp, 0, thing, player,
+		    exec(tbuf, &tp, 0, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &sp, args, nargs);
 		    *tp = '\0';
-		    exec(buff, &bp, 0, thing, player,
+		    exec(buff, &bp, 0, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, &tbuf, 1);
 		    free_lbuf(tbuf);
 		} else if (odef) {
-		    exec(buff, &bp, 0, thing, player,
+		    exec(buff, &bp, 0, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, (char **) &odef, 1);
 		} else {
-		    exec(buff, &bp, 0, thing, player,
+		    exec(buff, &bp, 0, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, (char **) NULL, 0);
 		}
 	    } else if (*d) {
 		str = d;
-		exec(buff, &bp, 0, thing, player,
+		exec(buff, &bp, 0, thing, player, player,
 		     EV_EVAL | EV_FIGNORE | EV_TOP,
 		     &str, args, nargs);
 	    }
@@ -2157,7 +2157,7 @@ char *victim_str, *args[];
 	 */
 
 	if (nargs >= 7) {
-		parse_arglist(victim, actor, args[6], '\0',
+		parse_arglist(victim, actor, actor, args[6], '\0',
 			      EV_STRIP_LS | EV_STRIP_TS, xargs, NUM_ENV_VARS,
 			      (char **)NULL, 0);
 		for (nxargs = 0; (nxargs < NUM_ENV_VARS) && xargs[nxargs];

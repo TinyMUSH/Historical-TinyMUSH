@@ -373,7 +373,7 @@ const char *token;
 		safe_nomatch(buff, bufc);
 	} else {
 		str = (char *)token;
-		exec(buff, bufc, 0, it, it, 0, &str, (char **)NULL, 0);
+		exec(buff, bufc, 0, it, it, it, 0, &str, (char **)NULL, 0);
 	}
 }
 
@@ -1083,8 +1083,11 @@ FUNCTION(fun_zfun)
 		return;
 	}
 	str = tbuf1;
-	exec(buff, bufc, 0, zone, player, EV_EVAL | EV_STRIP | EV_FCHECK, &str, &(fargs[1]),
-	     nfargs - 1);
+	/* Behavior here is a little wacky. The enactor was always the player,
+	 * not the cause. You can still get the caller, though.
+	 */
+	exec(buff, bufc, 0, zone, caller, player,
+	     EV_EVAL | EV_STRIP | EV_FCHECK, &str, &(fargs[1]), nfargs - 1);
 	free_lbuf(tbuf1);
 }
 
@@ -1199,7 +1202,8 @@ FUNCTION(fun_v)
 	safe_sb_str(fargs[0], sbuf, &sbufc);
 	*sbufc = '\0';
 	str = sbuf;
-	exec(buff, bufc, 0, player, cause, EV_FIGNORE, &str, cargs, ncargs);
+	exec(buff, bufc, 0, player, caller, cause, EV_FIGNORE, &str,
+	     cargs, ncargs);
 	free_sbuf(sbuf);
 }
 
@@ -1323,8 +1327,8 @@ static void perform_get_eval(player, str, buff, bufc)
 	}
 	if (eval_it) {
 		str = atr_gotten;
-		exec(buff, bufc, 0, thing, player, EV_FIGNORE | EV_EVAL, &str,
-		     (char **)NULL, 0);
+		exec(buff, bufc, 0, thing, player, player,
+		     EV_FIGNORE | EV_EVAL, &str, (char **)NULL, 0);
 	} else {
 		safe_str(atr_gotten, buff, bufc);
 	}
@@ -1349,7 +1353,7 @@ FUNCTION(fun_eval)
     }
     if (nfargs == 1) {
 	str = fargs[0];
-	exec(buff, bufc, 0, player, cause, EV_EVAL|EV_FCHECK,
+	exec(buff, bufc, 0, player, caller, cause, EV_EVAL|EV_FCHECK,
 	     &str, (char **)NULL, 0);
 	return;
     }
@@ -1362,12 +1366,12 @@ FUNCTION(fun_eval)
  * fun_u and fun_ulocal:  Call a user-defined function.
  */
 
-static void do_ufun(buff, bufc, player, cause,
+static void do_ufun(buff, bufc, player, caller, cause,
 		    fargs, nfargs,
 		    cargs, ncargs,
 		    is_local)
 char *buff, **bufc;
-dbref player, cause;
+dbref player, caller, cause;
 char *fargs[], *cargs[];
 int nfargs, ncargs, is_local;
 {
@@ -1400,7 +1404,7 @@ int nfargs, ncargs, is_local;
 	/* Evaluate it using the rest of the passed function args */
 
 	str = atext;
-	exec(buff, bufc, 0, thing, cause, EV_FCHECK | EV_EVAL, &str,
+	exec(buff, bufc, 0, thing, caller, cause, EV_FCHECK | EV_EVAL, &str,
 	     &(fargs[1]), nfargs - 1);
 	free_lbuf(atext);
 
@@ -1414,12 +1418,14 @@ int nfargs, ncargs, is_local;
 
 FUNCTION(fun_u)
 {
-	do_ufun(buff, bufc, player, cause, fargs, nfargs, cargs, ncargs, 0);
+	do_ufun(buff, bufc, player, caller, cause,
+		fargs, nfargs, cargs, ncargs, 0);
 }
 
 FUNCTION(fun_ulocal)
 {
-	do_ufun(buff, bufc, player, cause, fargs, nfargs, cargs, ncargs, 1);
+	do_ufun(buff, bufc, player, caller, cause,
+		fargs, nfargs, cargs, ncargs, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1436,8 +1442,8 @@ FUNCTION(fun_localize)
     save_global_regs("fun_localize_save", preserve, preserve_len);
 
     str = fargs[0];
-    exec(buff, bufc, 0, player, cause, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
-	 cargs, ncargs);
+    exec(buff, bufc, 0, player, caller, cause,
+	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 
     restore_global_regs("fun_localize_restore", preserve, preserve_len);
 }
@@ -1460,8 +1466,8 @@ FUNCTION(fun_default)
 
 	objname = bp = alloc_lbuf("fun_default");
 	str = fargs[0];
-	exec(objname, &bp, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK, &str,
-	     cargs, ncargs);
+	exec(objname, &bp, 0, player, caller, cause,
+	     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
 	*bp = '\0';
 
 	/* First we check to see that the attribute exists on the object.
@@ -1493,8 +1499,8 @@ FUNCTION(fun_default)
 	 */
 
 	str = fargs[1];
-	exec(buff, bufc, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK, &str,
-	     cargs, ncargs);
+	exec(buff, bufc, 0, player, caller, cause,
+	     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
 }
 
 FUNCTION(fun_edefault)
@@ -1506,8 +1512,8 @@ FUNCTION(fun_edefault)
 
 	objname = bp = alloc_lbuf("fun_edefault");
 	str = fargs[0];
-	exec(objname, &bp, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK, &str,
-	     cargs, ncargs);
+	exec(objname, &bp, 0, player, caller, cause,
+	     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
 	*bp = '\0';
 
 	/* First we check to see that the attribute exists on the object. 
@@ -1524,7 +1530,8 @@ FUNCTION(fun_edefault)
 				check_read_perms(player, thing, attr, aowner,
 						 aflags, buff, bufc)) {
 					str = atr_gotten;
-					exec(buff, bufc, 0, thing, player, EV_FIGNORE | EV_EVAL,
+					exec(buff, bufc, 0, thing, caller,
+					     player, EV_FIGNORE | EV_EVAL,
 					     &str, (char **)NULL, 0);
 					free_lbuf(atr_gotten);
 					free_lbuf(objname);
@@ -1540,8 +1547,8 @@ FUNCTION(fun_edefault)
 	 */
 
 	str = fargs[1];
-	exec(buff, bufc, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK, &str,
-	     cargs, ncargs);
+	exec(buff, bufc, 0, player, caller, cause,
+	     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
 }
 
 FUNCTION(fun_udefault)
@@ -1556,8 +1563,8 @@ FUNCTION(fun_udefault)
 
     str = fargs[0];
     objname = bp = alloc_lbuf("fun_udefault");
-    exec(objname, &bp, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK,
-	 &str, cargs, ncargs);
+    exec(objname, &bp, 0, player, caller, cause,
+	 EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
     *bp = '\0';
 
     /* First we check to see that the attribute exists on the object.
@@ -1578,7 +1585,7 @@ FUNCTION(fun_udefault)
 		    if ((i < nfargs) && fargs[i]) {
 			bp = xargs[j] = alloc_lbuf("fun_udefault_args");
 			str = fargs[i];
-			exec(xargs[j], &bp, 0, player, cause,
+			exec(xargs[j], &bp, 0, player, caller, cause,
 			     EV_STRIP | EV_FCHECK | EV_EVAL,
 			     &str, cargs, ncargs);
 		    } else {
@@ -1587,7 +1594,7 @@ FUNCTION(fun_udefault)
 		}
     
 		str = atext;
-		exec(buff, bufc, 0, thing, cause, EV_FCHECK | EV_EVAL,
+		exec(buff, bufc, 0, thing, caller, cause, EV_FCHECK | EV_EVAL,
 		     &str, xargs, nfargs - 2);
 
 		/* Then clean up after ourselves. */
@@ -1610,8 +1617,8 @@ FUNCTION(fun_udefault)
      */
 
     str = fargs[1];
-    exec(buff, bufc, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK, &str,
-	 cargs, ncargs);
+    exec(buff, bufc, 0, player, caller, cause,
+	 EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
 }
 
 /*---------------------------------------------------------------------------
@@ -1628,8 +1635,8 @@ FUNCTION(fun_objeval)
 	}
 	name = bp = alloc_lbuf("fun_objeval");
 	str = fargs[0];
-	exec(name, &bp, 0, player, cause, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
-	     cargs, ncargs);
+	exec(name, &bp, 0, player, caller, cause,
+	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 	obj = match_thing(player, name);
 
@@ -1648,8 +1655,8 @@ FUNCTION(fun_objeval)
 	}
 
 	str = fargs[1];
-	exec(buff, bufc, 0, obj, cause, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
-	     cargs, ncargs);
+	exec(buff, bufc, 0, obj, caller, cause,
+	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 	free_lbuf(name);
 }
 
