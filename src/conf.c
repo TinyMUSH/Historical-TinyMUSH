@@ -1192,7 +1192,8 @@ CF_AHAND(cf_site)
 	    cf_log_syntax(player, cmd, "Malformed host address: %s", addr_txt);
 	    return -1;
 	}
-	if ((mask_num.s_addr = sane_inet_addr(mask_txt)) == INADDR_NONE) {
+	if (((mask_num.s_addr = sane_inet_addr(mask_txt)) == INADDR_NONE) &&
+	    strcmp(mask_txt, "255.255.255.255")) {
 	    cf_log_syntax(player, cmd, "Malformed mask address: %s", mask_txt);
 	    return -1;
 	}
