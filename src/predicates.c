@@ -1315,7 +1315,6 @@ void do_restart(player, cause, key)
     int key;
 {
 	LOGFILETAB *lp;
-	int oldfd, newfd;
 	
 	if (mudstate.dumping) {
 		notify(player, "Dumping. Please try again later.");
