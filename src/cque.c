@@ -424,7 +424,7 @@ int nargs;
 			tlen += (strlen(args[a]) + 1);
 	}
 	if (sargs) {
-		for (a = 0; a < NUM_ENV_VARS; a++) {
+		for (a = 0; a < MAX_GLOBAL_REGS; a++) {
 			if (sargs[a])
 				tlen += (strlen(sargs[a]) + 1);
 		}
