@@ -19,7 +19,8 @@
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "functions.h"	/* required by code */
-
+#include "udb_defs.h"	/* required by code */
+#include "udb.h"	/* required by code */
 
 void register_commands(cmdtab)
     CMDENT *cmdtab;
@@ -59,3 +60,36 @@ void register_hashtables(htab, ntab)
 	}
     }
 }
+
+unsigned int register_dbtype(modname)
+char *modname;
+{
+	void *data;
+	unsigned int type;
+	
+	/* Find out if the module already has a registered DB type */
+	
+	dddb_get((void *)modname, strlen(modname) + 1, &data, NULL, DBTYPE_MODULETYPE);
+
+	if (data) {
+		type = *(unsigned int)data;
+		XFREE(data, "register_dbtype");
+		return type;
+	}
+	
+	/* If the type is in range, return it, else return zero as 
+	 * an error code */
+	 
+	if ((mudstate.moduletype_top >= DBTYPE_RESERVED) &&
+	    (mudstate.moduletype_top < DBTYPE_END) {
+		/* Write the entry to GDBM */
+		
+		dddb_put((void *)modname, strlen(modname) + 1, (void *)&mudstate.moduletype_top, sizeof(unsigned int), DBTYPE_MODULETYPE);
+		type = mudstate.moduletype_top;
+		mudstate.moduletype_top++;
+		return type;
+	} else {
+		return 0;
+	}
+}
+	
