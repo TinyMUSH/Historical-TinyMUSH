@@ -29,6 +29,17 @@ Release history:
 - Feature: @verb now takes a no_name switch, which prevents the actor's
   name from being prepended to the default o-message.
 
+- Feature: The format and text of a say and pose can be arbitrarily altered,
+  via the @speechformat attribute and SPEECHMOD flag on the speaker, or the
+  speaker's location.
+
+- Misc: check_access() is more efficient. Based on MUX2 algorithm.
+
+- Fix: A memory leak related to global registers has been fixed. [3.1b6]
+
+- Fix: Wildcard pattern matching is better at handling worst-case
+  scenarios. Added new conf parameter wildcard_match_limit. [2.0; Javelin]
+
 -----------------------------------------------------------------------------
 
 08/14/2002: Beta 6

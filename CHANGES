@@ -11,7 +11,7 @@ TinyMUSH 3.1 beta 1 was released on May 8th, 2002.
 
 -----------------------------------------------------------------------------
 
-CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
+CHANGES TO THE BASE SERVER
 
 - A new script, Update, automatically downloads and applies official patches
   to TinyMUSH 3.
@@ -84,7 +84,20 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   portability). Compile-time options are now specified as switches to
   the configure script.
 
+- Garbage is trimmed from the top of the database, if possible, reducing
+  bloat due to tail-end garbage.
+
+- When an object name is ambiguously matched (i.e., potentially matches
+  several objects), the match is now truly chosen randomly; in the past,
+  the last match was heavily favored.
+
 - Help entries can now have multiple index terms.
+
+- A rewrite has begun on the help files.
+
+-----------------------------------------------------------------------------
+
+CHANGES TO CONFIGURATION PARAMETERS
 
 - Conf parameters that are dbrefs (such as master_room) are now sanity
   checked, both when they are set and when a @dbck is run. Also, a dbref
@@ -140,16 +153,35 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   being invisible and silent. This prevents accidental or deliberate
   spying by DARK wizards.
 
-- Last-accessed and last-modified timestamps are now tracked for all
-  objects. The timestamps are visible on an 'examine', and the seconds-value
-  can be retrieved via the new functions lastaccess() and lastmod().
+- The new conf parameter wildcard_match_limit restricts how extensive
+  of a recursive search is performed when attempting to match a pattern.
 
-- Garbage is trimmed from the top of the database, if possible, reducing
-  bloat due to tail-end garbage.
+-----------------------------------------------------------------------------
+
+CHANGES TO ATTRIBUTES
+
+- @aconnect and @adisconnect attributes are triggered consistently on all
+  connections and disconnections, with a reason in %0 and the player's
+  resulting number of open connections in %1.
+
+- Players can now specify multiple aliases for themselves (up to
+  the conf parameter player_aliases_limit), via @alias, separating
+  aliases with ';'. Players no longer inherit @alias from their
+  parent (this never made sense, or worked properly, anyway).
+
+- @conformat and @exitformat get their visible contents/exits lists
+  passed as %0.
 
 - A new attribute, LastIP, tracks the last IP address of a player.
   When Lastsite is set, the identd user and hostname are no longer
   truncated.
+
+- The new attribute @nameformat controls the display of location's name
+  when someone looks at the location.
+
+- The format and text of a say and pose can be arbitrarily altered, via the
+  @speechformat attribute and SPEECHMOD flag on the speaker, or the
+  speaker's location.
 
 - General visibility of an attribute is now consistently controlled by the
   'visual' attribute flag (previously it was controlled by 'private' on the
@@ -165,22 +197,24 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 - Attribute flags that have no meaning on a global basis can no longer
   be set globally via @attribute and the like, thus reducing confusion.
 
+- The global flags for attributes are now shown in parentheses, when
+  an object is examined.
+
+- A new attribute flag, 'case', controls whether regular expression matching
+  is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
+  @listen.
+
 - A new attribute flag, no_name, controls whether or not the actor's
   name is prepended when an attribute is used as an @o-attr, such as
   an @osucc or with @verb.
 
-- Named references ("nrefs"), which behave like aliases for dbrefs, 
-  in the form of '#_<name>' are now supported. Nrefs are globally unique.
+- @filter, @infilter, and @listen do regular expression matches if
+  set 'regexp'. They do not evaluate themselves before matching,
+  if set 'no_parse'.
 
-- When an object name is ambiguously matched (i.e., potentially matches
-  several objects), the match is now truly chosen randomly; in the past,
-  the last match was heavily favored.
-
-- New search classes -- ueval, uthing, uplayer, uroom, uexit -- have
-  been added, allowing a u-function to be called for evaluation. This
-  makes it unnecessary to deal with brackets-escaping issues.
-
-- A rewrite has begun on the help files.
+- A new attribute flag, 'rmatch', assigns the results of a $-command's
+  wildcard-match, to named local registers, as well as to the stack.
+  Based on an idea from KiliaFae.
 
 -----------------------------------------------------------------------------
 
@@ -226,30 +260,9 @@ CHANGES TO FLAGS AND POWERS
   HearsLock, KnownLock, KnowsLock, MovedLock, MovesLock) supports "altered
   reality" realm states such as invisibility.
 
-- @filter, @infilter, and @listen do regular expression matches if
-  set 'regexp'. They do not evaluate themselves before matching,
-  if set 'no_parse'.
-
-- A new attribute flag, 'case', controls whether regular expression matching
-  is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
-  @listen.
-
-- A new attribute flag, 'rmatch', assigns the results of a $-command's
-  wildcard-match, to named local registers, as well as to the stack.
-  Based on an idea from KiliaFae.
-
 -----------------------------------------------------------------------------
 
 CHANGES TO COMMANDS
-
-- @aconnect and @adisconnect attributes are triggered consistently on all
-  connections and disconnections, with a reason in %0 and the player's
-  resulting number of open connections in %1.
-
-- Players can now specify multiple aliases for themselves (up to
-  the conf parameter player_aliases_limit), via @alias, separating
-  aliases with ';'. Players no longer inherit @alias from their
-  parent (this never made sense, or worked properly, anyway).
 
 - Some commands that would normally be queued can now be executed
   immediately, using the /now switch: @dolist/now (@iter), @force/now,
@@ -278,9 +291,6 @@ CHANGES TO COMMANDS
   with their comtitles, instead of prepending the comtitle to the player
   name.
 
-- @conformat and @exitformat get their visible contents/exits lists
-  passed as %0.
-
 - @cpattr can copy multiple attributes at a time.
 
 - A new command, @floaters, shows floating rooms. Floating rooms are no
@@ -289,9 +299,6 @@ CHANGES TO COMMANDS
 
 - The new /permit switch to @hook allows the permissions for a built-in
   command to be defined via a user-defined function.
-
-- The global flags for attributes are now shown in parentheses, when
-  an object is examined.
 
 - Functions defined via @function can be listed via @function/list.
 
@@ -310,9 +317,6 @@ CHANGES TO COMMANDS
   even if he appears multiple times in the list of players the message
   is to.
 
-- The new attribute @nameformat controls the display of location's name
-  when someone looks at the location.
-
 - @pemit/list now obeys the same permission checks as @pemit, including
   obeying pemit_any as well as restricting use of the /contents switch.
 
@@ -328,6 +332,9 @@ CHANGES TO COMMANDS
   by someone who does not control it, thus allowing non-Wizards to
   participate in mutual debugging sessions. Based on an idea from
   AlloyMUSH.
+
+- The new @reference command creates named references ("nrefs"), which
+  behave like aliases for dbrefs, in the form of '#_<name>'.
 
 - When speech is formatted, with the exception of say and @fsay,
   there is now a grammatically-correct comma before "says". The
@@ -457,6 +464,10 @@ CHANGES TO FUNCTIONS
   to turn a list of words into something like "a, b, and c". Based on an
   idea from PennMUSH.
 
+- Last-accessed and last-modified timestamps are now tracked for all
+  objects. The timestamps are visible on an 'examine', and the seconds-value
+  can be retrieved via the new functions lastaccess() and lastmod().
+
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
 
@@ -489,6 +500,10 @@ CHANGES TO FUNCTIONS
 
 - pos() strips ANSI out of the string to search for, in addition to the
   string to search within.
+
+- New search classes -- ueval, uthing, uplayer, uroom, uexit -- have
+  been added, allowing a u-function to be called for evaluation. This
+  makes it unnecessary to deal with brackets-escaping issues.
 
 - sees() can now evaluate the visibility of exits as well as things.
   Also, a small bug has been fixed: the see_owned_dark calculation in

@@ -13569,6 +13569,7 @@ The user-visible changes to TinyMUSH 3.1 (from TinyMUSH 3.0) can be
 found in the following help entries:
  
 'help 3.1 base'		New/enhanced base server and configuration directives.
+'help 3.1 attrs'	New/enhanced attributes and attribute flags.
 'help 3.1 flags'	New/enhanced flags and powers.
 'help 3.1 commands'	New/enhanced commands.
 'help 3.1 functions'	New/enhanced functions.
@@ -14397,20 +14398,41 @@ Continued in 'help 3.1 base3'.
   being invisible and silent. This prevents accidental or deliberate
   spying by DARK wizards.
  
-- Last-accessed and last-modified timestamps are now tracked for all
-  objects. The timestamps are visible on an 'examine', and the seconds-value
-  can be retrieved via the new functions lastaccess() and lastmod().
- 
 - Garbage is trimmed from the top of the database, if possible, reducing
   bloat due to tail-end garbage.
  
-Continued in 'help 3.1 base4'.
+- When an object name is ambiguously matched (i.e., potentially matches
+  several objects), the match is now truly chosen randomly; in the past,
+  the last match was heavily favored.
  
-& 3.1 base4
+& 3.1 attrs
+ 
+- @aconnect and @adisconnect attributes are triggered consistently on all
+  connections and disconnections, with a reason in %0 and the player's
+  resulting number of open connections in %1.
+ 
+- Players can now specify multiple aliases for themselves (up to
+  the conf parameter player_aliases_limit), via @alias, separating
+  aliases with ';'. Players no longer inherit @alias from their
+  parent (this never made sense, or worked properly, anyway).
+ 
+- @conformat and @exitformat get their visible contents/exits lists
+  passed as %0.
  
 - A new attribute, LastIP, tracks the last IP address of a player.
   When Lastsite is set, the identd user and hostname are no longer
   truncated.
+ 
+- The new attribute @nameformat controls the display of location's name
+  when someone looks at the location.
+ 
+Continued in 'help 3.1 attrs2'.
+ 
+& 3.1 attrs2
+ 
+- The format and text of a say and pose can be arbitrarily altered, via the
+  @speechformat attribute and SPEECHMOD flag on the speaker, or the
+  speaker's location.
  
 - General visibility of an attribute is now consistently controlled by the
   'visual' attribute flag (previously it was controlled by 'private' on the
@@ -14425,24 +14447,27 @@ Continued in 'help 3.1 base4'.
 - Attribute flags that have no meaning on a global basis can no longer
   be set globally via @attribute and the like, thus reducing confusion.
  
-Continued in 'help 3.1 base5'.
+- The global flags for attributes are now shown in parentheses, when
+  an object is examined.
  
-& 3.1 base5
+Continued in 'help 3.1 attrs3'.
+ 
+& 3.1 attrs3
+ 
+- A new attribute flag, 'case', controls whether regular expression matching
+  is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
+  @listen.
  
 - A new attribute flag, no_name, controls whether or not the actor's
   name is prepended when an attribute is used as an @o-attr, such as
   an @osucc or with @verb.
  
-- Named references ("nrefs"), which behave like aliases for dbrefs, 
-  in the form of '#_<name>' are now supported. Nrefs are globally unique.
+- @filter, @infilter, and @listen do regular expression matches if
+  set 'regexp'. They do not evaluate themselves before matching,
+  if set 'no_parse'.
  
-- When an object name is ambiguously matched (i.e., potentially matches
-  several objects), the match is now truly chosen randomly; in the past,
-  the last match was heavily favored.
- 
-- New search classes -- ueval, uthing, uplayer, uroom, uexit -- have
-  been added, allowing a u-function to be called for evaluation. This
-  makes it unnecessary to deal with brackets-escaping issues.
+- A new attribute flag, 'rmatch', assigns the results of a $-command's
+  wildcard-match, to named local registers, as well as to the stack.
  
 & 3.1 flags
  
@@ -14475,21 +14500,6 @@ Continued in 'help 3.1 flags2'.
 - The new PRESENCE flag, in conjunction with six new locks (HeardLock,
   HearsLock, KnownLock, KnowsLock, MovedLock, MovesLock) supports "altered
   reality" realm states such as invisibility.
- 
-- @filter, @infilter, and @listen do regular expression matches if
-  set 'regexp'. They do not evaluate themselves before matching,
-  if set 'no_parse'.
- 
-- A new attribute flag, 'case', controls whether regular expression matching
-  is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
-  @listen.
- 
-- A new attribute flag, 'rmatch', assigns the results of a $-command's
-  wildcard-match, to named local registers, as well as to the stack.
- 
-Continued in 'help 3.1 flags3'.
- 
-& 3.1 flags3
  
 - An object with the new attr_read power is able to see attributes
   with the 'hidden' attribute flag, just like Wizards and Royalty can.
@@ -14524,15 +14534,6 @@ Continued in 'help 3.1 commands2'.
  
 & 3.1 commands2
  
-- @aconnect and @adisconnect attributes are triggered consistently on all
-  connections and disconnections, with a reason in %0 and the player's
-  resulting number of open connections in %1.
- 
-- Players can now specify multiple aliases for themselves (up to
-  the conf parameter player_aliases_limit), via @alias, separating
-  aliases with ';'. Players no longer inherit @alias from their
-  parent (this never made sense, or worked properly, anyway).
- 
 - Custom comsys headers can now be specified for channels, via
   @channel/header. These headers can be listed via @clist/header.
   Also, the @channel command now interprets its arguments, and channel
@@ -14541,13 +14542,6 @@ Continued in 'help 3.1 commands2'.
 - The new Spoof comsys flag, when set on a channel, replaces player names
   with their comtitles, instead of prepending the comtitle to the player
   name.
- 
-Continued in 'help 3.1 commands3'.
- 
-& 3.1 commands3
- 
-- @conformat and @exitformat get their visible contents/exits lists
-  passed as %0.
  
 - @cpattr can copy multiple attributes at a time.
  
@@ -14558,16 +14552,13 @@ Continued in 'help 3.1 commands3'.
 - The new /permit switch to @hook allows the permissions for a built-in
   command to be defined via a user-defined function.
  
-- The global flags for attributes are now shown in parentheses, when
-  an object is examined.
+Continued in 'help 3.1 commands3'.
+ 
+& 3.1 commands3
  
 - Functions defined via @function can be listed via @function/list.
  
 - Function permissions can be listed via '@list func_permissions'.
- 
-Continued in 'help 3.1 commands4'.
- 
-& 3.1 commands4
  
 - Lock syntax is now always sanity-checked. Unbalanced parentheses within
   a lock are no longer permitted.
@@ -14582,12 +14573,9 @@ Continued in 'help 3.1 commands4'.
   even if he appears multiple times in the list of players the message
   is to.
  
-- The new attribute @nameformat controls the display of location's name
-  when someone looks at the location.
+Continued in 'help 3.1 commands4'.
  
-Continued in 'help 3.1 commands5'.
- 
-& 3.1 commands5
+& 3.1 commands4
  
 - @pemit/list now obeys the same permission checks as @pemit, including
   obeying pemit_any as well as restricting use of the /contents switch.
@@ -14605,9 +14593,12 @@ Continued in 'help 3.1 commands5'.
   participate in mutual debugging sessions. Based on an idea from
   AlloyMUSH.
  
-Continued in 'help 3.1 commands6'.
+- The new @reference command creates named references ("nrefs"), which
+  behave like aliases for dbrefs, in the form of '#_<name>'.
  
-& 3.1 commands6
+Continued in 'help 3.1 commands5'.
+ 
+& 3.1 commands5
  
 - The new conf parameter say_uses_comma, if enabled, will insert the
   grammatically-correct comma into say and @fsay.
@@ -14678,11 +14669,11 @@ Continued in 'help 3.1 functions2'.
   the character in the string (starting from position 0). Based on
   an idea from PennMUSH.
  
-- The idle(), conn(), and doing() functions can now take a port number.
- 
 Continued in 'help 3.1 functions3'.
  
 & 3.1 functions3
+ 
+- The idle(), conn(), and doing() functions can now take a port number.
  
 - The escape(), secure(), capstr(), lcstr(), and ucstr() functions now
   handle ANSI properly.
@@ -14701,12 +14692,12 @@ Continued in 'help 3.1 functions3'.
  
 - Added connrecord(), connected player record (as in WHO).
  
-- Added entrances() function, similar to @entrances command. Based on an
-  idea from PennMUSH.
- 
 Continued in 'help 3.1 functions4'.
  
 & 3.1 functions4
+ 
+- Added entrances() function, similar to @entrances command. Based on an
+  idea from PennMUSH.
  
 - You can now get attribute flags with flags(<obj>/<attr>). Based on an
   idea from PennMUSH.
@@ -14723,15 +14714,15 @@ Continued in 'help 3.1 functions4'.
 - Added hears(), moves(), and knows() functions for checking Presence
   permissions.
  
+Continued in 'help 3.1 functions5'.
+ 
+& 3.1 functions5
+ 
 - helptext() retrieves an entry from an indexed textfile (help, news, etc.).
  
 - The third argument to ifelse() -- the 'false' result -- is now optional.
  
 - Added istrue() and isfalse() -- iter()-style filterbool() and its reverse.
- 
-Continued in 'help 3.1 functions5'.
- 
-& 3.1 functions5
  
 - Added ilev(), itext(), and inum() functions, for retrieving data
   from multiple levels of nested iter()-type functions. Based on
@@ -14741,8 +14732,16 @@ Continued in 'help 3.1 functions5'.
   to turn a list of words into something like "a, b, and c". Based on an
   idea from PennMUSH.
  
+- Last-accessed and last-modified timestamps are now tracked for all
+  objects. The timestamps are visible on an 'examine', and the seconds-value
+  can be retrieved via the new functions lastaccess() and lastmod().
+ 
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
+ 
+Continued in 'help 3.1 functions6'.
+ 
+& 3.1 functions6
  
 - lpos(), lattr(), lexits(), lcon(), xcon(), children(), lparent(), and
   the grep() family now take an output delimiter.
@@ -14754,10 +14753,6 @@ Continued in 'help 3.1 functions5'.
   etc., but an attempt is made to autodetect the list type and sort
   accordingly, or you can specify a sort type, as you can with sort().
  
-Continued in 'help 3.1 functions6'.
- 
-& 3.1 functions6
- 
 - The modify() function now takes lists, enabling multiple variables
   to be modified at once.
  
@@ -14768,6 +14763,10 @@ Continued in 'help 3.1 functions6'.
   the old mod() on most platforms; if you want it to be an alias
   for modulo() instead, change it in alias.conf
  
+Continued in 'help 3.1 functions7'.
+ 
+& 3.1 functions7
+ 
 - munge() now passes its input delimiter to the u-function, as %1.
   Idea from PennMUSH.
  
@@ -14775,9 +14774,9 @@ Continued in 'help 3.1 functions6'.
  
 - Added nattr(), which counts the number of attributes on an object.
  
-Continued in 'help 3.1 functions7'.
- 
-& 3.1 functions7
+- New search classes -- ueval, uthing, uplayer, uroom, uexit -- have
+  been added, allowing a u-function to be called for evaluation. This
+  makes it unnecessary to deal with brackets-escaping issues.
  
 - sees() can now evaluate the visibility of exits as well as things.
   Also, a small bug has been fixed: the see_owned_dark calculation in
@@ -14789,6 +14788,10 @@ Continued in 'help 3.1 functions7'.
  
 - Added speak(), which formats, parses, and transforms speech strings.
  
+Continued in 'help 3.1 functions8'.
+ 
+& 3.1 functions8
+ 
 - Added store(), which is basically to setx() what setr() is to setq().
  
 - The new structure functions read() and write() allow the use of an
@@ -14796,10 +14799,6 @@ Continued in 'help 3.1 functions7'.
   lists without worrying about user-provided data containing the
   delimiter character. The delimit() function processes a stored
   list, substituting a separator string for a delimiter.
- 
-Continued in 'help 3.1 functions8'.
- 
-& 3.1 functions8
  
 - Added table(), tables(), rtables(), and ctables() functions. table()
   is based on an idea from PennMUSH, formatting text within a table of
@@ -14813,6 +14812,10 @@ Continued in 'help 3.1 functions8'.
  
 - translate() now handles tabs.
  
+Continued in 'help 3.1 functions9'.
+ 
+& 3.1 functions9
+ 
 - trim() now handles multi-character trim strings.
  
 - Added sind(), cosd(), tand(), asind(), acosd(), atand() degree-based
@@ -14820,10 +14823,6 @@ Continued in 'help 3.1 functions8'.
  
 - Added until() function, which is similar to while(), except it operates
   on multiple lists and terminates on a regular expression condition.
- 
-Continued in 'help 3.1 functions9'.
- 
-& 3.1 functions9
  
 - valid() can now detect valid attribute names and player names, for
   PennMUSH compatibility.
@@ -14834,6 +14833,10 @@ Continued in 'help 3.1 functions9'.
 - Added wildgrep(), wildmatch(), and wildparse(), which are similar to
   regrep(), regmatch() and regparse(), but work against wildcard patterns
   rather than regexps.
+ 
+Continued in 'help 3.1 functions10'.
+ 
+& 3.1 functions10
  
 - Added writable() function, which returns 1 if object X can set an
   attribute A on object Y.
