@@ -963,6 +963,10 @@ int db_format, db_version;
 
 	    /* TinyMUX to 3.0 flag conversion */
 
+	    newf1 = f1;
+	    newf2 = f2;
+	    newf3 = f3;
+
 	    if (newf2 & ZONE_PARENT) {
 		/* This used to be an object set NO_COMMAND. We unset the
 		 * flag.
