@@ -821,6 +821,14 @@ FUNCTION(fun_secure)
 	s = fargs[0];
 	while (*s) {
 		switch (*s) {
+		case ESC_CHAR:
+			while (*s && (*s != ANSI_END)) {
+				safe_chr(*s, buff, bufc);
+				s++;
+			}
+			if (*(s-1) != ESC_CHAR)
+				s--;
+			break;
 		case '%':
 		case '$':
 		case '\\':
@@ -849,6 +857,18 @@ FUNCTION(fun_escape)
 	s = fargs[0];
 	while (*s) {
 		switch (*s) {
+		case ESC_CHAR:
+			if (*bufc == d)
+				safe_chr('\\', buff, bufc);
+			safe_chr(*s, buff, bufc);
+			s++;
+			while (*s && (*s != ANSI_END)) {
+				safe_chr(*s, buff, bufc);
+				s++;
+			}
+			if (*(s-1) != ESC_CHAR)
+				s--;
+			break;
 		case '%':
 		case '\\':
 		case '[':
@@ -857,6 +877,7 @@ FUNCTION(fun_escape)
 		case '}':
 		case ';':
 			safe_chr('\\', buff, bufc);
+			/* FALLTHRU */
 		default:
 			if (*bufc == d)
 				safe_chr('\\', buff, bufc);
