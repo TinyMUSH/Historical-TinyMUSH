@@ -106,7 +106,7 @@ if [ -r $DATA/$CRASH_DB ]; then
 	fi
 fi
 
-for moddb in $DATA/mod_*.db; do
+for moddb in `echo $DATA/mod_*.db`; do
 	echo "Saving old $moddb" | sed -e "s| $DATA/mod_| |; s/\\.db\$/ module db./"
 	cp -f $moddb $moddb.old
 done
