@@ -2068,6 +2068,10 @@ static void helper_cf_display(player, buff, bufc, tp)
 	safe_str(*((char **)tp->loc), buff, bufc);
 	return;
     }
+    if ((tp->interpreter == cf_dbref)) {
+	safe_dbref(buff, bufc, *(tp->loc));
+	return;
+    }
     safe_noperm(buff, bufc);
     return;
 }
