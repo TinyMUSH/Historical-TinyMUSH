@@ -7,5 +7,5 @@
 #define PATCHLEVEL		0		/* Patch sequence number */
 #define	MUX_RELEASE_DATE	"4/6/97"	/* Source release date */
 
-/*#define BETA			1		/* Define if a BETA release */
-*/
+/*#define BETA			1*/		/* Define if a BETA release */
+
