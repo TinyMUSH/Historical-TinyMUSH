@@ -545,6 +545,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* We can set it if:
  * The (master) attribute is not internal or a lock AND
  * we're God OR we meet the following criteria:
+ * - The object is not God. 
  * - The attribute on the object is not locked.
  * - The object is not set Constant.
  * - We control the object, and the attribute and master attribute do
@@ -557,7 +558,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Set_attr(p,x,a,f) \
 (!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
  (God(p) || \
-  (!((f) & AF_LOCK) && !Constant_Attrs(x) && \
+  (!God(x) && !((f) & AF_LOCK) && !Constant_Attrs(x) && \
    ((Controls(p,x) && \
      !((a)->flags & (AF_WIZARD|AF_GOD)) && \
      !((f) & (AF_WIZARD|AF_GOD))) || \
