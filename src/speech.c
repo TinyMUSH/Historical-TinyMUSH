@@ -484,9 +484,9 @@ char *tname, *message;
      * so we check for lastpaged before trying to do the lookup.)
      */
 
-    if ((n > 1) &&
-	(ismessage ||
-	 ((target = lookup_player(player, tname, 1)) == NOTHING))) {
+    if ((ismessage ||
+	 ((target = lookup_player(player, tname, 1)) == NOTHING)) &&
+	(n > 1)) {
 
 	/* We have a list of arbitrary strings. Begin by turning the list
 	 * into the dbrefs of the targets.
@@ -585,9 +585,8 @@ char *tname, *message;
 					      Name(player), message));
 	    }
 	    page_return(player, target, "Idle", A_IDLE, NULL);
-
-	    safe_str(tprintf("%d ", target), buf2, &bp2);
-	    safe_str(tprintf("%s, ", Name(target)), buf1, &bp);
+	    safe_tprintf_str(buf2, &bp2, "%d ", target);
+	    safe_tprintf_str(buf1, &bp, "%s, ", Name(target));
 	    count++;
 	}
 	*(bp - 2) = '\0';
