@@ -436,7 +436,6 @@ void html_escape(src, dest, destp)
 {
     static char new_buf[LBUF_SIZE * 5];
     const char *msg_orig;
-    char *mp_escaped;
     char *temp, *bufp;
 
     if (destp == 0) {
@@ -761,7 +760,7 @@ const char *msg;
 				if (obj != target) {
 #ifdef PUEBLO_SUPPORT
 					notify_check(obj, sender, buff,
-					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | key & MSG_HTML);
+					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | (key & MSG_HTML));
 #else
 					notify_check(obj, sender, buff,
 					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE);
@@ -1317,7 +1316,7 @@ static int NDECL(load_game)
 	load_comsys(mudconf.comsys_db);
 #endif
 #ifdef USE_MAIL
-	if (f = fopen(mudconf.mail_db, "r")) {
+	if ((f = fopen(mudconf.mail_db, "r")) != NULL) {
 		load_mail(f);
 		fclose(f);
 	}
@@ -1346,7 +1345,7 @@ dbref thing, player;
 char type, *str, *raw_str;
 int check_parent, *stop_status;
 {
-	int match, limit;
+	int match;
 
 	match = 0;
 	while (thing != NOTHING) {

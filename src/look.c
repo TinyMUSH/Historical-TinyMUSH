@@ -1437,7 +1437,7 @@ int key;
 char *name, *qual;
 {
 	BOOLEXP *bool;
-	char *got, *thingname, *as, *ltext, *buff, *s;
+	char *got, *thingname, *as, *ltext, *buff;
 	dbref aowner, thing;
 	int val, aflags, ca, wild_decomp;
 	ATTR *attr;

@@ -908,7 +908,6 @@ void NDECL(init_cmdtab)
 	CMDENT *cp;
 	ATTR *ap;
 	char *p, *q;
-	int anum;
 	char *cbuff;
 
 	hashinit(&mudstate.command_htab, 250 * HASH_FACTOR);

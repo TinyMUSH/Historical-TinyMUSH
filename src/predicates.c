@@ -270,10 +270,7 @@ static int canpayquota(player, who, cost, objtype)
 dbref player, who;
 int cost, objtype;
 {
-	dbref aowner;
-	char *quota_str;
-	int aflags;
-	register int quota, qtype;
+	register int quota;
 	int q_list[5];
 
 	/* If no cost, succeed */
@@ -814,7 +811,7 @@ CMDENT *old, *cmd;
 ADDENT *add, *nextp;
 
 dbref thing;
-int atr, i;
+int atr;
 char *s;
 
 	if (!*name) {
@@ -900,7 +897,7 @@ int key;
 char *name;
 {
 CMDENT *old;
-ADDENT *add, *nextp;
+ADDENT *nextp;
 int didit = 0;
 
 char *s, *keyname;
@@ -1043,7 +1040,6 @@ DESC *d;
 char *message;
 {
 	DESC *all;
-	PROG *prog;
 	char *cmd;
 	dbref aowner;
 	int aflags, i;
@@ -1253,10 +1249,6 @@ char *name, *command;
 
 void do_restart(player, cause, key)
 {
-	char outdb[PBUF_SIZE];
-	char indb[PBUF_SIZE];
-	int stat;
-	
 	if (mudstate.dumping) {
 		notify(player, "Dumping. Please try again later.");
 		return;

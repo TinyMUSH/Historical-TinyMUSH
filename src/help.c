@@ -133,7 +133,7 @@ int eval;
 	int offset;
 	struct help_entry *htab_entry;
 	char matched;
-	char *topic_list, *buffp, *buff;
+	char *topic_list, *buffp;
 
 	if (*topic == '\0')
 		topic = (char *)"help";

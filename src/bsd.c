@@ -73,7 +73,6 @@ static int get_slave_result()
 	int local_port, remote_port;
 	char *p;
 	DESC *d;
-	unsigned long addr;
 	int len;
 
 	buf = alloc_lbuf("slave_buf");
@@ -440,8 +439,6 @@ int sock;
 	struct sockaddr_in addr;
 	int addr_len, len;
 	char *buf;
-	char *chp;
-
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< new_connection >";
@@ -717,7 +714,6 @@ int s;
 struct sockaddr_in *a;
 {
 	DESC *d;
-	int i;
 
 	ndescriptors++;
 	d = alloc_desc("init_sock");
@@ -779,8 +775,6 @@ DESC *d;
 	TBLOCK *tb, *save;
 	int cnt;
 	char *cmdsave;
-	static char buf[LBUF_SIZE];
-	int len;
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< process_output >";

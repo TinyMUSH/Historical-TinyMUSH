@@ -696,7 +696,6 @@ int key;
 char *what;
 {
 	dbref thing;
-	int ctl, destok;
 
 	/*
 	 * You can destroy anything you control 

@@ -110,7 +110,8 @@ char *arg1, *arg2;
 	if (mudconf.fascist_tport) {
 		loc = where_room(victim);
 		if (!Good_obj(loc) || !isRoom(loc) ||
-		    ((!Controls(player, loc) && !Jump_ok(loc))) && !Tel_Anywhere(player)) {
+		    !(Controls(player, loc) || Jump_ok(loc) ||
+		      Tel_Anywhere(player))) {
 			notify_quiet(player, NOPERM_MESSAGE);
 			return;
 		}

@@ -2069,7 +2069,7 @@ void make_ulist(player, buff, bufc)
 dbref player;
 char *buff, **bufc;
 {
-	char *cp, nbuf[20];
+	char *cp;
 	DESC *d;
 
 	cp = *bufc;

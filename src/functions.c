@@ -1017,7 +1017,7 @@ FUNCTION(fun_get_eval)
 	dbref thing, aowner;
 	int attrib, free_buffer, aflags, eval_it;
 	ATTR *attr;
-	char *atr_gotten, *bp, *str;
+	char *atr_gotten, *str;
 	struct boolexp *bool;
 
 	if (!parse_attrib(player, fargs[0], &thing, &attrib)) {
@@ -1085,7 +1085,7 @@ FUNCTION(fun_eval)
 	dbref thing, aowner;
 	int attrib, free_buffer, aflags, eval_it;
 	ATTR *attr;
-	char *atr_gotten, *bp, *str;
+	char *atr_gotten, *str;
 	struct boolexp *bool;
 
 	if ((nfargs != 1) && (nfargs != 2)) {
@@ -1162,9 +1162,9 @@ char *fargs[], *cargs[];
 int nfargs, ncargs, is_local;
 {
 	dbref aowner, thing;
-	int aflags, anum, i;
+	int aflags, anum;
 	ATTR *ap;
-	char *atext, *result, *preserve[MAX_GLOBAL_REGS], *bp, *str;
+	char *atext, *preserve[MAX_GLOBAL_REGS], *str;
 	
 	/* We need at least one argument */
 
@@ -1259,7 +1259,7 @@ FUNCTION(fun_parent)
 
 FUNCTION(fun_parse)
 {
-	char *curr, *objstring, *buff2, *buff3, *bp, *cp, sep, osep;
+	char *curr, *objstring, *buff2, *buff3, *cp, sep, osep;
 	char *dp, *str;
 	int first, number = 0;
 
@@ -1420,7 +1420,7 @@ FUNCTION(fun_v)
 {
 	dbref aowner;
 	int aflags;
-	char *sbuf, *sbufc, *tbuf, *bp, *str;
+	char *sbuf, *sbufc, *tbuf, *str;
 	ATTR *ap;
 
 	tbuf = fargs[0];
@@ -1464,7 +1464,7 @@ FUNCTION(fun_v)
 
 FUNCTION(fun_s)
 {
-	char *tbuf, *bp, *str;
+	char *str;
 
 	str = fargs[0];
 	exec(buff, bufc, 0, player, cause, EV_FIGNORE | EV_EVAL, &str,
@@ -4066,8 +4066,7 @@ FUNCTION(fun_iter)
 
 FUNCTION(fun_list)
 {
-	char *curr, *objstring, *buff2, *buff3, *result, *cp, *dp, *str,
-	 sep, osep;
+	char *curr, *objstring, *buff2, *buff3, *result, *cp, *dp, *str, sep;
 	int number = 0;
 
 	varargs_preamble("LIST", 3);
@@ -4315,7 +4314,7 @@ FUNCTION(fun_map)
 	dbref aowner, thing;
 	int aflags, anum, first;
 	ATTR *ap;
-	char *atext, *objstring, *bp, *str, *cp, *atextbuf, sep, osep;
+	char *atext, *objstring, *str, *cp, *atextbuf, sep, osep;
 
 	svarargs_preamble("MAP", 4);
 
@@ -4384,7 +4383,7 @@ FUNCTION(fun_while)
     int is_same;
     ATTR *ap;
     char *atext1, *atext2, *atextbuf, *condbuf;
-    char *objstring, *bp, *cp, *str, *dp, *savep;
+    char *objstring, *cp, *str, *dp, *savep;
 
     svarargs_preamble("WHILE", 6);
 

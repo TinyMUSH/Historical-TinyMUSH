@@ -718,7 +718,7 @@ FUNCTION(fun_stripansi)
 FUNCTION(fun_zfun)
 {
 	dbref aowner;
-	int a, aflags;
+	int aflags;
 	int attrib;
 	char *tbuf1, *str;
 
@@ -1403,7 +1403,7 @@ FUNCTION(fun_edefault)
 	dbref thing, aowner;
 	int attrib, aflags;
 	ATTR *attr;
-	char *objname, *atr_gotten, *defcase, *bp, *str;
+	char *objname, *atr_gotten, *bp, *str;
 
 	objname = bp = alloc_lbuf("fun_edefault");
 	str = fargs[0];
@@ -1954,7 +1954,7 @@ FUNCTION(fun_mix)
     dbref aowner, thing;
     int aflags, anum, i, lastn, nwords, wc;
     ATTR *ap;
-    char *str, *atext, *os[10], *cp1, *cp2, *atextbuf, sep;
+    char *str, *atext, *os[10], *atextbuf, sep;
     char *cp[10];
 
     /* Check to see if we have an appropriate number of arguments.
@@ -2664,7 +2664,6 @@ FUNCTION(fun_push)
 FUNCTION(fun_dup)
 {
     dbref it;
-    char *data;
     STACK *hp;			/* head of stack */
     STACK *tp;			/* temporary stack pointer */
     STACK *sp;			/* new stack element */
@@ -2794,7 +2793,8 @@ FUNCTION(fun_popn)
 {
     dbref it;
     int pos, nitems, i, count = 0, over = 0, first = 0;
-    STACK *sp, *prev, *tp, *xp;
+    STACK *sp, *tp, *xp;
+    STACK *prev = NULL;
     char sep;
 
     varargs_preamble("POPN", 4);
@@ -2924,9 +2924,8 @@ FUNCTION(fun_lstack)
 
 FUNCTION(fun_regmatch)
 {
-int i, nqregs, got_match, curq, len;
+int i, nqregs, curq, len;
 char *qregs[NSUBEXP];
-int qnums[10];
 regexp *re;
 int matched;
 

@@ -58,51 +58,8 @@ int qtype;
 }
 
 /* ---------------------------------------------------------------------------
- * count_quota, mung_quota, show_quota, do_quota: Manage quotas.
+ * mung_quota, show_quota, do_quota: Manage quotas.
  */
-
-static int count_quota(player, key)
-dbref player;
-int key;
-{
-	register int i, q = 0, what;
-
-	if (key & QUOTA_ROOM) {
-		what = TYPE_ROOM;
-	} else if (key & QUOTA_EXIT) {
-		what = TYPE_EXIT;
-	} else if (key & QUOTA_THING) {
-		what = TYPE_THING;
-	} else if (key & QUOTA_PLAYER) {
-		what = TYPE_PLAYER;
-	} else {
-		what = NOTYPE;	/* Add 'em all up */
-	}
-
-	DO_WHOLE_DB(i) {
-		if (Owner(i) != player)
-			continue;
-		if (Going(i) && (!isRoom(i)))
-			continue;
-		if ((Typeof(i) == what) || what == NOTYPE) {
-			switch (Typeof(i)) {
-			case TYPE_EXIT:
-				q += mudconf.exit_quota;
-				break;
-			case TYPE_ROOM:
-				q += mudconf.room_quota;
-				break;
-			case TYPE_THING:
-				q += mudconf.thing_quota;
-				break;
-			case TYPE_PLAYER:
-				q += mudconf.player_quota;
-				break;
-			}
-		}
-	}
-	return q;
-}
 
 static void count_objquota(player, aq, rq, eq, tq, pq)
 dbref player;
@@ -146,9 +103,6 @@ static void adjust_quota(player, qtype, value, key)
 dbref player;
 int qtype, value, key;
 {
-	char *buff;
-	dbref aowner;
-	int aflags;
 	register int aq, rq;
 	int q_list[5], rq_list[5];
 
@@ -181,11 +135,8 @@ static void mung_quotas(player, key, value)
 dbref player;
 int key, value;
 {
-	dbref aowner;
-	register int aq, rq;
 	int xq, aflags, rooms, exits, things, players;
 	int q_list[5], rq_list[5];
-	char *buff;
 
 	if (key & QUOTA_FIX) {
 

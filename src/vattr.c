@@ -45,8 +45,7 @@ void NDECL(vattr_init)
 VATTR *vattr_find(name)
 char *name;
 {
-	register VATTR *vp, *vprev;
-	int hash;
+	register VATTR *vp;
 
 	if (!ok_attr_name(name))
 		return (NULL);
@@ -76,7 +75,6 @@ char *name;
 int number, flags;
 {
 	VATTR *vp;
-	int hash;
 
 	/*
 	 * Be ruthless. 
@@ -144,7 +142,7 @@ void vattr_delete(name)
 char *name;
 {
 	VATTR *vp;
-	int number, hash;
+	int number;
 
 	fixcase(name);
 	if (!ok_attr_name(name))
@@ -167,8 +165,7 @@ char *name;
 VATTR *vattr_rename(name, newname)
 char *name, *newname;
 {
-	VATTR *vp, *vpo;
-	int hash;
+	VATTR *vp;
 
 	fixcase(name);
 	if (!ok_attr_name(name))

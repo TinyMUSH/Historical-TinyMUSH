@@ -974,9 +974,7 @@ char *msg;
 char *tolist;
 {
 	struct mail *mp;
-	struct mail *temp;
 	int num;
-	dbref target;
 
 	if (!msg || !*msg) {
 		notify(player, "MAIL: No message list.");
@@ -1103,8 +1101,7 @@ int silent;
 	struct mail *mp;
 	time_t tt;
 	char tbuf1[30];
-	int aflags, len;
-	char *atrstr;
+	int len;
 
 	if (Typeof(target) != TYPE_PLAYER) {
 		notify(player, "MAIL: You cannot send mail to non-existent people.");
@@ -1207,8 +1204,7 @@ char *action;
 char *victim;
 {
 	dbref target, thing;
-	struct mail *mp, *nextp, *mptr;
-	int i;
+	struct mail *mp, *nextp;
 
 	if (!Wizard(player)) {
 		notify(player, "Go get some bugspray.");
@@ -1722,10 +1718,9 @@ FILE *fp;
 	int read_tolist = 0;
 	int read_newdb = 0;
 	int read_new_strings = 0;
-	int i = 0;
 	int number = 0;
 	int len;
-	struct mail *mp, *mptr, *prevp;
+	struct mail *mp, *mptr;
 
 	/*
 	 * Read the version number 
@@ -1943,7 +1938,7 @@ char *name;
 {
 	char *old, *res, *r, *atrstr;
 	char *new, *pat, *str, *tbuf;
-	int atr, aflags;
+	int aflags;
 
 	/*
 	 * Muck with the player's MAILFOLDERS attrib to add a string of the * 
@@ -2025,9 +2020,8 @@ int fnum;
 	/*
 	 * Set a player's folder to fnum 
 	 */
-	ATTR *a, *attr;
+	ATTR *a;
 	char *tbuf1;
-	int atr;
 
 	tbuf1 = alloc_lbuf("set_player_folder");
 	sprintf(tbuf1, "%d", fnum);
@@ -2606,7 +2600,6 @@ char *subject;
 mail_flag flags;
 int number, silent;
 {
-	char *list;
 	int k;
 	dbref vic;
 	struct malias *m;
@@ -2842,7 +2835,6 @@ dbref player;
 void load_malias(fp)
 FILE *fp;
 {
-	int i;
 	char buffer[200];
 
 
@@ -2869,8 +2861,6 @@ void malias_read(fp)
 FILE *fp;
 {
 	int i, j;
-	char c;
-	char *t;
 	char buffer[1000];
 	struct malias *m;
 
@@ -2932,8 +2922,6 @@ void do_expmail_start(player, arg, subject)
 dbref player;
 char *arg, *subject;
 {
-	dbref target;
-	struct malias *m;
 	char *tolist, *names;
 
 	if (!arg || !*arg) {
@@ -3120,8 +3108,7 @@ void do_mail_quick(player, arg1, arg2)
 dbref player;
 char *arg1, *arg2;
 {
-	char *buf, *bp, *p;
-	dbref target;
+	char *buf, *bp;
 
 	if (!arg1 || !*arg1) {
 		notify(player, "MAIL: I don't know who you want to mail.");
@@ -3157,7 +3144,6 @@ int flags, silent;
 {
 	char *head, *tail, spot, *tolist;
 	struct malias *m;
-	struct mail *temp;
 	dbref target;
 	int number;
 
@@ -3226,7 +3212,7 @@ void do_expmail_stop(player, flags)
 dbref player;
 int flags;
 {
-	char *p, *target, *tolist, *mailsub, *mailmsg, *mailflags;
+	char *tolist, *mailsub, *mailmsg, *mailflags;
 	dbref aowner;
 	dbref aflags;
 

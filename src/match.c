@@ -207,7 +207,6 @@ static void match_list(first, local)
 dbref first;
 int local;
 {
-	dbref loc;
 	char *namebuf;
 
 	if (md.confidence >= CON_DBREF)

@@ -2994,7 +2994,6 @@ void load_restart_db()
 	FILE *f;
 	DESC *d;
 	DESC *p;
-	DESC *k;
 
 	int val, version, new_strings = 0;
 	char *temp, buf[8];

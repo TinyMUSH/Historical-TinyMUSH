@@ -432,8 +432,6 @@ int nargs;
 int wild_match(tstr, dstr)
 char *tstr, *dstr;
 {
-	int i;
-
 	switch (*tstr) {
 	case '>':
 		tstr++;

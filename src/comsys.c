@@ -234,7 +234,6 @@ FILE *fp;
 struct comsys *create_new_comsys()
 {
 	struct comsys *c;
-	int i;
 
 	c = (struct comsys *)malloc(sizeof(struct comsys));
 
@@ -477,7 +476,7 @@ FILE *fp;
 {
 	struct channel *ch;
 	struct comuser *user;
-	int i, j;
+	int j;
 
 	fprintf(fp, "+V1\n");
 	fprintf(fp, "%d\n", num_channels);
@@ -965,9 +964,6 @@ int key;
 char *channel;
 {
 	struct channel *newchannel;
-	struct channel **nc;
-	int i;
-
 
 	if (select_channel(channel)) {
 		raw_notify(player, tprintf("Channel %s already exists.", channel));
@@ -1042,7 +1038,7 @@ dbref player;
 {
 	struct channel *ch;
 	char temp[1000];
-	int i, perm;
+	int perm;
 
 	if (!(perm = Comm_All(player))) {
 		raw_notify(player, "Warning: Only public channels and your channels will be shown.");
@@ -1140,7 +1136,7 @@ void do_channelnuke(player)
 dbref player;
 {
 	struct channel *ch;
-	int i, j;
+	int j;
 
 	for (ch = (struct channel *)hash_firstentry(&mudstate.channel_htab);
 	ch; ch = (struct channel *)hash_nextentry(&mudstate.channel_htab)) {
@@ -1181,7 +1177,6 @@ char *arg1;
 {
 	int i;
 	struct comsys *c;
-	char temparg[50];;
 
 	if (!mudconf.have_comsys) {
 		raw_notify(player, "Comsys disabled.");
@@ -1802,7 +1797,7 @@ int key;
 {
 	dbref owner;
 	struct channel *ch;
-	int i, flags;
+	int flags;
 	char *temp;
 	char *buf;
 	char *atrstr;

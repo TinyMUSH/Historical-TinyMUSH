@@ -25,7 +25,7 @@ dbref create_guest(name, password)
 char *name;
 char *password;
 {
-	dbref player, guest;
+	dbref player;
 	char *buff;
 
 	if (!Wizard(mudconf.guest_nuker) || !Good_obj(mudconf.guest_nuker))
