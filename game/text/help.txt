@@ -88,19 +88,20 @@
 & PIPING
  
   Command piping in MUX is similar to piping in a UNIX shell. You string two
-  or more commands together using the | symbol, much as you would using a
+  or more commands together using the ;| symbol, much as you would using a
   semicolon. The output from the previous command in a pipe is accessable
   using the %| substitution. This output contains the raw ASCII codes that
   would normally be directly output to your terminal. You may use the
   translate() function to either convert the raw characters in the output to
-  MUX substitutions, or strip them out altogether. Like the semicolon, the |
-  symbol in MUX is taken literally if you type it on the terminal.
+  MUX substitutions, or strip them out altogether. Like the semicolon, the ;|
+  symbol in MUX is taken literally if you type it on the terminal. Currently
+  you may only pipe 20 commands in a row.
  
-  Example:
-  > &MAILDESC me=+maildesc *=*:look %0 | @mail/quick
+  Examples:
+  > &MAILDESC me=+maildesc *=*:look %0 ;| @mail/quick
                   %1/Description=[translate(%|,1)]
 
-  > &SAYDESC me=+saydesc *:look %0 | say %r%|
+  > &SAYDESC me=+saydesc *:look %0 ;| say %r%|
   > +saydesc me
   You say "
   Lauren(#5PXMWc)
@@ -2152,7 +2153,7 @@
  
   A simple example:
  
-  @vb me=$start:@prog %#=me/vb:Please enter a word:
+  @va me=$start:@prog %#=me/vb:Please enter a word:
   @vb me=@emit You entered %0!;@prog %#=me/vc:Please enter another word:
   @vc me=@emit This time, you entered %0. You're done!
  
@@ -6025,7 +6026,7 @@ We would like to thank the following people:
   Function: inc(<number>)
  
   Returns <number> plus 1. Much faster and more efficient than
-  add(<number>,1).
+  add(<number>,1). Decimal places will be truncated.
  
   See also: add(), sub(), dec().
  
@@ -6034,7 +6035,7 @@ We would like to thank the following people:
   Function: dec(<number>)
  
   Returns <number> minus 1. Much faster and more efficient than
-  sub(<number>,1).
+  sub(<number>,1). Decimal places will be truncated.
  
   See also: sub(), add(), inc().
  

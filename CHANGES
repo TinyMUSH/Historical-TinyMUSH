@@ -453,15 +453,51 @@ TinyMUX 1.4 patchlevel 3:
 TinyMUX 1.4 patchlevel 4:
 - Fixed problems with makefile
 
+TinyMUX 1.4 patchlevel 5:
+- Fixed player-only permission for @doing
+- Fixed queue problem in cque.c
+- Fixed zone recursion problem
+- Control in zwho() and inzone() now handled properly
+- Fixed buffer problems with columns(), center(), and @mail
+
+TinyMUX 1.4 patchlevel 6:
+- addcommand now properly evaluates input
+- null pointer bug in queue code fixed (Myrrdin)
+- name can no longer be just ansi characters (Marlek)
+- length checking in do_attribute and atr_str fixed (Robby Griffin)
+- permissions in zwho, inzone, and objeval fixed (Geoff Gerrietts, Marlek)
+- @daily attribute now properly cleared (Peter Clements)
+
+TinyMUX 1.4 patchlevel 7:
+- Fixed more command queue problems
+
+TinyMUX 1.4 patchlevel 8:
+- Fixed a naming bug in @create.
+
+TinyMUX 1.4 patchlevel 9:
+- Fixed @addcommand problems
+- A problem with halting an object with commands still in the queue
+- A string trunction problem with mail alias names
+- A problem when mudconf.createmin == mudconf.createmax
+- hastype() no longer requires examinable
+
+TinyMUX 1.4 patchlevel 10:
+- Fixed more @addcommand problems
+- Fixed problem with ifelse() involving a misplaced pointer and conditional
+
 TinyMUX 1.5 patchlevel 0:
 - New functions:
   regmatch() translate()
 - Regular expressions may now be used in command patterns and listen patterns
   with the addition of a 'regexp' attribute flag. See 'help REGEXPS'.
-- Piping of command output has been implemented. See 'help piping'.
+- Piping of command output has been implemented. See 'help piping'. This
+  may break some code... have to write conversion script.
+- @addcommand now works with single letter commands (". :, ;, etc) however
+  the original commands may *not* be accessed by prefixing with __.
+
+
+
 - Performance improvements made to switch() and case().
 - and() and or() no longer evaluate all of their arguments.
 - Chunk file no longer exists; all text data is stored directly in a gdbm
   database
-- @addcommand now works with single letter commands (". :, ;, etc) however
-  the original commands may *not* be accessed by prefixing with __.
