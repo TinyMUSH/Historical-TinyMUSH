@@ -944,7 +944,10 @@ char *target;
 		}
 	} else {
 		player_targ = Owner(player);
-		obj_targ = match_controlled(player, target);
+		if (See_Queue(player))
+		    obj_targ = match_thing(player, target);
+		else
+		    obj_targ = match_controlled(player, target);
 		if (obj_targ == NOTHING)
 			return;
 		if (key & PS_ALL) {
