@@ -877,6 +877,13 @@ int dump_type;
 			log_perror("DMP", "FAIL", "Opening crash file",
 				   mudconf.crashdb);
 		}
+		if (mudconf.have_mailer)
+			if (f = fopen(mudconf.mail_db, "w")) {
+				dump_mail(f);
+				fclose(f);
+			}
+		if (mudconf.have_comsys || mudconf.have_macros)
+			save_comsys_and_macros(mudconf.commac_db);
 		return;
 	}
 	
@@ -890,6 +897,13 @@ int dump_type;
 			log_perror("DMP", "FAIL", "Opening restart file",
 				   mudconf.indb);
 		}
+		if (mudconf.have_mailer)
+			if (f = fopen(mudconf.mail_db, "w")) {
+				dump_mail(f);
+				fclose(f);
+			}
+		if (mudconf.have_comsys || mudconf.have_macros)
+			save_comsys_and_macros(mudconf.commac_db);
 		return;
 	}
 	
@@ -904,6 +918,13 @@ int dump_type;
 			log_perror("DMP", "FAIL", "Opening killed file",
 				   mudconf.indb);
 		}
+		if (mudconf.have_mailer)
+			if (f = fopen(mudconf.mail_db, "w")) {
+				dump_mail(f);
+				fclose(f);
+			}
+		if (mudconf.have_comsys || mudconf.have_macros)
+			save_comsys_and_macros(mudconf.commac_db);
 		return;
 	}
 	

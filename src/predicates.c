@@ -656,7 +656,7 @@ int key;
 char *name, *command;
 {
 CMDENT *old, *cmd;
-ADDENT *add;
+ADDENT *add, *nextp;
 
 dbref thing;
 int atr;
@@ -669,6 +669,12 @@ int atr;
 	old = (CMDENT *)hashfind(name, &mudstate.command_htab);
 	
 	if (old && (old->callseq & CS_ADDED)) {
+		for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
+			if ((nextp->thing == thing) && (nextp->atr == atr)) {
+				notify(player, tprintf("%s already added.", name));
+				return;
+			}
+		}
 		add = (ADDENT *)malloc(sizeof(ADDENT));
 		add->thing = thing;
 		add->atr = atr;
@@ -695,7 +701,7 @@ int atr;
 		
 		hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 	}
-	notify(player, "Command added.");
+	notify(player, tprintf("%s added.", name));
 }
 
 /*
@@ -902,6 +908,11 @@ void do_restart(player, cause, key)
 	char indb[128];
 	int stat;
 	
+	if (mudstate.dumping) {
+		notify(player, "Dumping. Please try again later.");
+		return;
+	}
+	
 	do_top(20);
 	raw_broadcast(0, "Game: Restart by %s, please wait.", Name(Owner(player)));
 	STARTLOG(LOG_ALWAYS, "WIZ", "RSTRT")
@@ -909,10 +920,7 @@ void do_restart(player, cause, key)
 	log_name(player);
 	ENDLOG
 	
-	if (mudstate.dumping)
-		wait(&stat);
-	else
-		dump_database_internal(2);
+	dump_database_internal(2);
 	
 	SYNC;
 	CLOSE;

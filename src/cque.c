@@ -607,7 +607,7 @@ char *event, *cmd, *cargs[];
 			howlong = 0;
 		}
 
-		if (event && *event) {
+		if (event && *event && !is_number(event)) {
 			ap = atr_str(event);
 			if (!ap) {
 				attr = mkattr(event);

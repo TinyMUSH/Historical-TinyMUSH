@@ -389,6 +389,13 @@ char *msglist;
 	do_mail_flags(player, msglist, M_TAG, 0);
 }
 
+void do_mail_safe(player, msglist)
+dbref player;
+char *msglist;
+{
+	do_mail_flags(player, msglist, M_SAFE, 0);
+}
+
 void do_mail_clear(player, msglist)
 dbref player;
 char *msglist;
@@ -456,6 +463,9 @@ int negate;			/*
 						notify(player, tprintf("MAIL: Msg #%d %s.", i,
 								       negate ? "uncleared" : "cleared"));
 					}
+					break;
+				case M_SAFE:
+					notify(player, tprintf("MAIL: Msg #%d marked safe.", i));
 					break;
 				}
 			}
@@ -1631,6 +1641,9 @@ char *arg2;
 	case MAIL_CC:
 		do_mail_cc(player, arg1);
 		break;
+	case MAIL_SAFE:
+		do_mail_safe(player, arg1);
+		break;
 	}
 }
 
@@ -2398,12 +2411,12 @@ void check_mail_expiration()
 #endif
 		{
 			then = timelocal(&then_tm);
-			if ((now - then) > expire_secs) {
+			if (((now - then) > expire_secs) && !(M_Safe(mp))) {
 				/*
 				 * Delete this one 
 				 */
 				/*
-				 * head and tail of the list are * special 
+				 * head and tail of the list are special 
 				 */
 				if (mp->prev == NULL)
 					nhashrepl((int)mp->to, (int *)mp->next, &mudstate.mail_htab);
@@ -2479,7 +2492,9 @@ struct mail *mp;
 	if (Forward(mp))
 		strcat(tbuf1, "Fwd ");
 	if (Tagged(mp))
-		strcat(tbuf1, "Tagged");
+		strcat(tbuf1, "Tagged ");
+	if (M_Safe(mp))
+		strcat(tbuf1, "Safe");
 	return tbuf1;
 }
 

@@ -491,6 +491,12 @@ char *direction;
 	if (!string_compare(direction, "home")) {	/*
 							 * go home w/o stuff 
 							 */
+		if (((Fixed(player)) || (Fixed(Owner(player)))) &&
+		    !(WizRoy(player))) {
+		    	notify(player, mudconf.fixed_home_msg);
+		    	return;
+		}
+		
 		if ((loc = Location(player)) != NOTHING &&
 		    !Dark(player) && !Dark(loc)) {
 

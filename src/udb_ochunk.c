@@ -100,6 +100,7 @@ static char *bitm = (char *)0;
 static int bm_top = 0;
 static datum dat;
 static datum key;
+static datum nextkey;
 
 static void growbit();
 
@@ -163,7 +164,6 @@ int dddb_init()
 	key = gdbm_firstkey(dbp);
 	while (key.dptr != (char *)0) {
 		dat = gdbm_fetch(dbp, key);
-
 		if (dat.dptr == (char *)0) {
 			logf("db_init index inconsistent\n", (char *)0);
 			return (1);
@@ -171,14 +171,17 @@ int dddb_init()
 		bcopy(dat.dptr, (char *)&hbuf, sizeof(hbuf));	/*
 								 * alignment 
 								 */
-
+		free(dat.dptr);
 
 		/*
 		 * mark it as busy in the bitmap 
 		 */
 		dddb_mark(LOGICAL_BLOCK(hbuf.off), hbuf.blox, 1);
 
-		key = gdbm_nextkey(dbp, key);
+		nextkey = gdbm_nextkey(dbp, key);
+		if (key.dptr)
+			free(key.dptr);
+		key = nextkey;
 	}
 
 	db_initted = 1;
@@ -372,9 +375,11 @@ Objname *nam;
 	key.dsize = sizeof(Objname);
 	dat = gdbm_fetch(dbp, key);
 
-	if (dat.dptr == (char *)0)
+	if (dat.dptr == (char *)0) {
 		return ((Obj *) 0);
+	}
 	bcopy(dat.dptr, (char *)&hbuf, sizeof(hbuf));
+	free(dat.dptr);
 
 	/*
 	 * seek to location 
@@ -427,7 +432,7 @@ Objname *nam;
 		bcopy(dat.dptr, (char *)&hbuf, sizeof(hbuf));	/*
 								 * align 
 								 */
-
+		free(dat.dptr);
 		if (BLOCKS_NEEDED(nsiz) > hbuf.blox) {
 
 #ifdef	DBMCHUNK_DEBUG
@@ -454,6 +459,7 @@ Objname *nam;
 #endif
 		}
 	} else {
+			
 		hbuf.off = BLOCK_OFFSET(dddb_alloc(nsiz));
 		hbuf.siz = nsiz;
 		hbuf.blox = BLOCKS_TO_ALLOC(nsiz);
@@ -502,6 +508,7 @@ char *nam;
 
 	if (dat.dptr == (char *)0)
 		return (0);
+	free(dat.dptr);
 	return (1);
 }
 
@@ -522,7 +529,7 @@ Objname *nam;
 	if (dat.dptr == (char *)0)
 		return (0);
 	bcopy(dat.dptr, (char *)&hbuf, sizeof(hbuf));
-
+	free(dat.dptr);
 	/*
 	 * drop key from db 
 	 */

@@ -814,7 +814,7 @@ FUNCTION(fun_columns)
 	evarargs_preamble("COLUMNS", 3);
 
 	number = atoi(fargs[1]);
-	if (number < 1) {
+	if ((number < 1) || (number > 78)) {
 		safe_str("#-1 OUT OF RANGE", buff, bufc);
 		return;
 	}

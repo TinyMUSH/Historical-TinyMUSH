@@ -937,7 +937,7 @@ char *arg1;
 				   "Name", "Status", "Player"));
 	for (i = 0; i < ch->num_users; i++) {
 		user = ch->users[i];
-		if (flag || UNDEAD(user->who)) {
+		if ((flag || UNDEAD(user->who)) && (!Dark(user->who) || Wizard_Who(player))) {
 			buff = unparse_object(player, user->who, 0);
 			sprintf(temp, "%-29.29s %-6.6s %-6.6s",
 			     strip_ansi(buff), ((user->on) ? "on " : "off"),
@@ -1387,9 +1387,9 @@ char *victim;
 	struct channel *ch;
 	struct comuser *vu;
 	dbref thing;
-	char buff[200];		/*
-
-				 * 
+	char buff[200];
+	char buf2[LBUF_SIZE];
+				/*
 				 * * I sure hope it's not going to be that *
 				 * *  * *  * *  * * long.  
 				 */
@@ -1406,7 +1406,7 @@ char *victim;
 		raw_notify(player, "@cboot: You are not on that channel.");
 		return;
 	}
-	if ((ch->charge_who == player) || Comm_All(player)) {
+	if (!(ch->charge_who == player) && !Comm_All(player)) {
 		raw_notify(player, "@cboot:  You can't do that!");
 		return;
 	}
@@ -1423,7 +1423,8 @@ char *victim;
 	 * We should be in the clear now. :) 
 	 */
 
-	sprintf(buff, "[%s] %s boots %s off the channel.", ch->name, Name(player), Name(thing));
+	strcpy(buf2, Name(player));
+	sprintf(buff, "[%s] %s boots %s off the channel.", ch->name, buf2, Name(thing));
 	do_comsend(ch, buff);
 	do_delcomchannel(thing, channel);
 
