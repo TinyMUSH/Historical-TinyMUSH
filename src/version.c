@@ -96,6 +96,8 @@ void NDECL(init_version)
 #endif /*
         * BETA 
         */
+	sprintf(mudstate.buildinfo, "%s %s",
+		MUSH_BUILD_COMPILER, MUSH_BUILD_CFLAGS);
 	STARTLOG(LOG_ALWAYS, "INI", "START")
 		log_text((char *)"Starting: ");
 		log_text(mudstate.version);
