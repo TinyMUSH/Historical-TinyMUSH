@@ -26,6 +26,7 @@ extern void FDECL(list_cf_read_access, (dbref));
 extern void FDECL(list_siteinfo, (dbref));
 extern void FDECL(logged_out, (dbref, dbref, int, char *));
 extern void FDECL(list_functable, (dbref));
+extern void FDECL(list_funcaccess, (dbref));
 extern void FDECL(list_bufstats, (dbref));
 extern void FDECL(list_buftrace, (dbref));
 
@@ -1536,9 +1537,9 @@ dbref player;
  */
 
 static void helper_list_cmdaccess(player, ctab, buff)
-    dbref player;
-    CMDENT *ctab;
-    char *buff;
+dbref player;
+CMDENT *ctab;
+char *buff;
 {
 	CMDENT *cmdp;
 	ATTR *ap;
@@ -1656,7 +1657,6 @@ dbref player;
 
 	free_sbuf(buff);
 }
-/* *INDENT-OFF* */
 
 /* ---------------------------------------------------------------------------
  * list_attraccess: List access to attributes.
@@ -2484,6 +2484,7 @@ dbref player;
 #define LIST_PARAMS	25
 #define LIST_CF_RPERMS	26
 #define LIST_ATTRTYPES	27
+#define LIST_FUNCPERMS	28
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
@@ -2501,6 +2502,7 @@ NAMETAB list_names[] = {
 {(char *)"db_stats",		2,	CA_WIZARD,	LIST_DB_STATS},
 {(char *)"default_flags",	1,	CA_PUBLIC,	LIST_DF_FLAGS},
 {(char *)"flags",		2,	CA_PUBLIC,	LIST_FLAGS},
+{(char *)"func_permissions",	5,	CA_WIZARD,	LIST_FUNCPERMS},
 {(char *)"functions",		2,	CA_PUBLIC,	LIST_FUNCTIONS},
 {(char *)"globals",		1,	CA_WIZARD,	LIST_GLOBALS},
 {(char *)"hashstats",		1,	CA_WIZARD,	LIST_HASHSTATS},
@@ -2560,6 +2562,9 @@ char *arg;
 		break;
 	case LIST_FLAGS:
 		display_flagtab(player);
+		break;
+	case LIST_FUNCPERMS:
+		list_funcaccess(player);
 		break;
 	case LIST_FUNCTIONS:
 		list_functable(player);

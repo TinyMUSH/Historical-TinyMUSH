@@ -651,11 +651,12 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	attr_types		bad_names		buffers	
 	cache			commands		config_permissions
 	config_read_perms	costs			db_stats
-	default_flags		flags			functions
-	globals			hashstats		logging
-	options			params			permissions
-	powers			process			site_information
-	switches		textfiles		user_attributes
+	default_flags		flags			func_permissions
+	functions		globals			hashstats
+	logging			options			params
+	permissions		powers			process
+	site_information	switches		textfiles
+	user_attributes
  
   Type 'wizhelp @list <option>' for help with a particular option.
  
@@ -782,6 +783,16 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   For each object type, lists the name and key letter for all flags that may
   be set on that object type that are visible to you.
 
+& @list func_permissions
+  Command: @list func_permissions
+ 
+  Lists all available functions, and the permissions necessary for
+  calling them. Note that very few functions have permissions set; most
+  check permissions after they're invoked. Side-effect functions check
+  permissions of the command they're based on.
+ 
+  See also: function_access, @list functions, @list permissions
+ 
 & @list functions
   Command: @list functions
   Lists the functions that may be used to obtain information when evaluating

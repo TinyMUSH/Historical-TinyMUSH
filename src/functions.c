@@ -20,6 +20,8 @@
 #include "functions.h"	/* required by code */
 #include "fnproto.h"	/* required by code */
 
+extern NAMETAB access_nametab[];
+
 UFUN *ufun_head;
 
 void NDECL(init_functab)
@@ -237,6 +239,57 @@ dbref player;
 
 	free_lbuf(buf);
 }
+
+/* ---------------------------------------------------------------------------
+ * list_funcaccess: List access on functions.
+ */
+
+static void helper_list_funcaccess(player, fp, buff)
+dbref player;
+FUN *fp;
+char *buff;
+{
+	while (fp->name) {
+		if (check_access(player, fp->perms)) {
+			sprintf(buff, "%s:", fp->name);
+			listset_nametab(player, access_nametab,
+					fp->perms, buff, 1);
+		}
+		fp++;
+	}
+}
+
+void list_funcaccess(player)
+dbref player;
+{
+	char *buff;
+	FUN *ftab;
+        UFUN *ufp;
+	MODULE *mp;
+
+	buff = alloc_sbuf("list_funcaccess");
+	helper_list_funcaccess(player, flist, buff);
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+		if ((ftab = DLSYM_VAR(mp->handle, mp->modname, "functable",
+				      FUN *)) != NULL) {
+			helper_list_funcaccess(player, ftab, buff);
+		}
+	}
+#endif /* HAVE_DLOPEN */
+
+	for (ufp = ufun_head; ufp; ufp = ufp->next) {
+		if (check_access(player, ufp->perms)) {
+			sprintf(buff, "%s:", ufp->name);
+			listset_nametab(player, access_nametab,
+					ufp->perms, buff, 1);
+		}
+	}
+
+	free_sbuf(buff);
+}
+
 
 /* ---------------------------------------------------------------------------
  * cf_func_access: set access on functions
