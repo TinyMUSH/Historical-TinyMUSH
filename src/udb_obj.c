@@ -502,6 +502,7 @@ void attrib_sync()
 			ATTRS_STORE(mudstate.objpipes[i]->name, data,
 				obj_siz(mudstate.objpipes[i]));
 			XFREE(data, "attrib_sync.1");
+			mudstate.objpipes[i]->dirty = 0;
 		}
 	}
 }
