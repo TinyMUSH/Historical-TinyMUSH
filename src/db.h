@@ -34,12 +34,13 @@
 				dddb_put((void *)key, strlen(key) + 1, \
 					(void *)data, len, \
 					DBTYPE_DBINFO);
-#define ATRNUM_FETCH(key, data)	dddb_get((void *)&key, sizeof(int), \
-					(void **)data, NULL, \
+#define ATRNUM_FETCH(key, data, len) \
+				dddb_get((void *)&key, sizeof(int), \
+					(void **)data, (int *)len, \
 					DBTYPE_ATRNUM);
 #define ATRNUM_STORE(key, data, len) \
 				dddb_put((void *)&key, sizeof(int), \
-					(void *)data, sizeof(int) + len, \
+					(void *)data, len, \
 					DBTYPE_ATRNUM);
 #define ATRNUM_DEL(key)		dddb_del((void *)&key, sizeof(int), \
 					DBTYPE_ATRNUM);
@@ -51,6 +52,18 @@
 					DBTYPE_OBJECT);
 #define OBJECT_DEL(key)		dddb_del((void *)&key, sizeof(int), \
 					DBTYPE_OBJECT);
+
+/* Macros to help deal with batch writes of attribute numbers and objects */
+
+#define ATRNUM_BLOCK_SIZE	(int) ((mudstate.db_block_size - 32) / \
+					((sizeof (int)) + VNAME_SIZE))
+#define ATRNUM_BLOCK_BYTES	(int) ((ATRNUM_BLOCK_SIZE) * \
+					(sizeof (int) + VNAME_SIZE))
+#define ENTRY_IN_BLOCK(i, blksize)	(int) (i ? (i / blksize) : 0)
+#define ENTRY_NUM_BLOCKS(total, blksize)	(int) (total / blksize)
+#define ENTRY_BLOCK_STARTS(blk, blksize)	(int) (blk * blksize)
+#define ENTRY_BLOCK_ENDS(blk, blksize)	(int) (blk * blksize) + (blksize - 1)
+
 
 #include "udb.h"
 #include "udb_defs.h"
