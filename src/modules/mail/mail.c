@@ -214,10 +214,6 @@ char *message;
 	int aflags, alen;
 	dbref aowner;
 
-	if (!strcasecmp(message, "clear")) {
-		notify(player, "MAIL: You probably don't wanna send mail saying 'clear'.");
-		return -1;
-	}
 	if (!mod_mail_config.mail_list) {
 		mail_db_grow(1);
 	}
