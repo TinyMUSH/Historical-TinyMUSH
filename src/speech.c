@@ -766,12 +766,22 @@ int do_contents;
 	 */
 
 	char *p, *tokst;
-	dbref who;
-	int ok_to_do;
+	dbref who, *recips;
+	int n_recips, r, ok_to_do;
 
 	if (!message || !*message || !list || !*list)
 		return;
 
+	n_recips = 1;
+	for (p = list; *p; ++p) {
+		if (*p == ' ')
+			++n_recips;
+	}
+
+	recips = (dbref *) XCALLOC(n_recips, sizeof(dbref),
+				   "do_pemit_list.recips");
+
+	n_recips = 0;
 	for (p = strtok_r(list, " ", &tokst);
 	     p != NULL;
 	     p = strtok_r(NULL, " ", &tokst)) {
@@ -779,23 +789,6 @@ int do_contents;
 		init_match(player, p, TYPE_PLAYER);
 		match_everything(0);
 		who = match_result();
-
-		ok_to_do = (mudconf.pemit_any) ? 1 : 0;
-		if (!ok_to_do &&
-		    (Long_Fingers(player) || nearby(player, who) || 
-		     Controls(player, who))) {
-			ok_to_do = 1;
-		}
-		if (!ok_to_do && (isPlayer(who))
-		    && mudconf.pemit_players) {
-			if (!page_check(player, who))
-				continue;
-			ok_to_do = 1;
-		}
-		if (do_contents && !mudconf.pemit_any &&
-		    !Controls(player, who)) {
-		    ok_to_do = 0;
-		}
 
 		switch (who) {
 		case NOTHING:
@@ -805,18 +798,47 @@ int do_contents;
 			notify(player, "I don't know who you mean!");
 			break;
 		default:
+			if (!Good_obj(who))
+				continue;
+			/* avoid pemitting to this dbref if already done */
+			for (r = 0; r < n_recips; ++r) {
+				if (recips[r] == who)
+					break;
+			}
+			if (r < n_recips)
+				continue;
+			/* see if player can pemit to this dbref */
+			ok_to_do = mudconf.pemit_any;
+			if (!ok_to_do &&
+			    (Long_Fingers(player) || nearby(player, who) || 
+			     Controls(player, who))) {
+				ok_to_do = 1;
+			}
+			if (!ok_to_do && (isPlayer(who))
+			    && mudconf.pemit_players) {
+				if (!page_check(player, who))
+					continue;
+				ok_to_do = 1;
+			}
+			if (do_contents && !mudconf.pemit_any &&
+			    !Controls(player, who)) {
+				ok_to_do = 0;
+			}
 			if (!ok_to_do) {
 				notify(player, "You cannot do that.");
-				break;
+				continue;
 			}
-			if (Good_obj(who)) {
-			    if (do_contents && Has_contents(who))
+			/* fine, send the message */
+			if (do_contents && Has_contents(who))
 				notify_all_from_inside(who, player, message);
 			    else 
 				notify_with_cause(who, player, message);
-			}
+			/* avoid pemitting to this dbref again */
+			recips[n_recips] = who;
+			++n_recips;
 		}
 	}
+	XFREE(recips, "do_pemit_list.recips");
 }
 
 

@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-03/XX/2003: Beta 9
+04/XX/2003: Beta 9
 
 - Feature: Added elockstr(). Idea from Joel Ricketts.
 
@@ -43,6 +43,9 @@ Release history:
   memory. [MUX; Brazil]
 
 - Fix: Exits and rooms may not use the "home" command. [2.0]
+
+- Misc: @pemit and related commands/functions avoid duplicate
+  recipients.
 
 - Misc: If ladd() is given a blank list, it returns 0 instead of
   complaining about the number of arguments.
