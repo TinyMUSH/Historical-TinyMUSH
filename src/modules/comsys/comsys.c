@@ -1,7 +1,7 @@
 /* comsys.c - module implementing DarkZone-style channel system */
 /* $Id$ */
 
-#include "api.h"
+#include "../../api.h"
 
 extern BOOLEXP *FDECL(getboolexp1, (FILE *));
 extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
