@@ -314,7 +314,7 @@ FLAGENT gen_flags[] = {
 {"SLAVE",               SLAVE,          'x',
         FLAG_WORD2,     CA_WIZARD,              fh_wiz},
 {"CONTROL_OK",		CONTROL_OK,	'z',
-	0,		0,			fh_any},
+	FLAG_WORD2,	0,			fh_any},
 {"HAS_STARTUP",		HAS_STARTUP,	'+',
 	0,		CA_GOD|CA_NO_DECOMP,	fh_god},
 {"HAS_FORWARDLIST",	HAS_FWDLIST,	'&',

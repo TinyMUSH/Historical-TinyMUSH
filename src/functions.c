@@ -1444,7 +1444,9 @@ FUNCTION(fun_exit)
 			key |= VE_LOC_DARK;
 		DOLIST(exit, Exits(it)) {
 			if (exit_visible(exit, player, key)) {
-				safe_tprintf_str(buff, bufc, "#%d", exit);
+				*bufc = '#';
+				bufc++;
+				safe_ltos(buff, bufc, exit);
 				return;
 			}
 		}

@@ -1212,18 +1212,14 @@ char *thing, **after;
 	}
 	*str++ = '\0';
 	*after = str;
-/*foobar*/
-	/*
-	 * Look for the object 
-	 */
+
+	/* Look for the object */
 
 	init_match(player, thing, NOTYPE);
 	match_everything(MAT_EXIT_PARENTS);
 	*it = match_result();
 
-	/*
-	 * Return status of search 
-	 */
+	/* Return status of search */
 
 	return (Good_obj(*it));
 }
@@ -1239,24 +1235,20 @@ ATTR **attr;
 	int anum;
 
 	tbuf = alloc_lbuf("get_obj_and_lock");
-	StringCopy(tbuf, what);
+	strcpy(tbuf, what);
 	if (parse_thing_slash(player, tbuf, &str, it)) {
 
-		/*
-		 * <obj>/<lock> syntax, use the named lock 
-		 */
+		/* <obj>/<lock> syntax, use the named lock */
 
 		anum = search_nametab(player, lock_sw, str);
-		if (anum < 0) {
+		if (anum == -1) {
 			free_lbuf(tbuf);
 			safe_str("#-1 LOCK NOT FOUND", errmsg, bufc);
 			return 0;
 		}
 	} else {
 
-		/*
-		 * Not <obj>/<lock>, do a normal get of the default lock 
-		 */
+		/* Not <obj>/<lock>, do a normal get of the default lock */
 
 		*it = match_thing(player, what);
 		if (!Good_obj(*it)) {
@@ -1267,9 +1259,7 @@ ATTR **attr;
 		anum = A_LOCK;
 	}
 
-	/*
-	 * Get the attribute definition, fail if not found 
-	 */
+	/* Get the attribute definition, fail if not found */
 
 	free_lbuf(tbuf);
 	*attr = atr_num(anum);
@@ -1280,14 +1270,11 @@ ATTR **attr;
 	return 1;
 }
 
-#endif /*
-        * STANDALONE 
-        */
+#endif /* STANDALONE */
 
-/*
- * ---------------------------------------------------------------------------
- * * where_is: Returns place where obj is linked into a list.
- * * ie. location for players/things, source for exits, NOTHING for rooms.
+/* ---------------------------------------------------------------------------
+ * where_is: Returns place where obj is linked into a list.
+ * ie. location for players/things, source for exits, NOTHING for rooms.
  */
 
 dbref where_is(what)
@@ -1301,6 +1288,7 @@ dbref what;
 	switch (Typeof(what)) {
 	case TYPE_PLAYER:
 	case TYPE_THING:
+	case TYPE_ZONE:
 		loc = Location(what);
 		break;
 	case TYPE_EXIT:
@@ -1313,10 +1301,9 @@ dbref what;
 	return loc;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * where_room: Return room containing player, or NOTHING if no room or
- * * recursion exceeded.  If player is a room, returns itself.
+/* ---------------------------------------------------------------------------
+ * where_room: Return room containing player, or NOTHING if no room or
+ * recursion exceeded.  If player is a room, returns itself.
  */
 
 dbref where_room(what)
@@ -1342,20 +1329,16 @@ dbref player, it, cause;
 	dbref loc_it, room_it;
 	int findable_room;
 
-	/*
-	 * No sense if trying to locate a bad object 
-	 */
+	/* No sense if trying to locate a bad object */
 
 	if (!Good_obj(it))
 		return 0;
 
 	loc_it = where_is(it);
 
-	/*
-	 * Succeed if we can examine the target, if we are the target, * if * 
-	 * 
-	 * *  * * we can examine the location, if a wizard caused the lookup, 
-	 * * or  * *  * if the target caused the lookup. 
+	/* Succeed if we can examine the target, if we are the target, if 
+	 * we can examine the location, if a wizard caused the lookup, 
+	 * or if the target caused the lookup. 
 	 */
 
 	if (Examinable(player, it) ||
@@ -1373,26 +1356,22 @@ dbref player, it, cause;
 	else
 		findable_room = 1;
 
-	/*
-	 * Succeed if we control the containing room or if the target is * *
-	 * * * findable and the containing room is not unfindable. 
+	/* Succeed if we control the containing room or if the target is
+	 * findable and the containing room is not unfindable. 
 	 */
 
 	if (((room_it != NOTHING) && Examinable(player, room_it)) ||
 	    Find_Unfindable(player) || (Findable(it) && findable_room))
 		return 1;
 
-	/*
-	 * We can't do it. 
-	 */
+	/* We can't do it. */
 
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * nearby: Check if thing is nearby player (in inventory, in same room, or
- * * IS the room.
+/* ---------------------------------------------------------------------------
+ * nearby: Check if thing is nearby player (in inventory, in same room, or
+ * IS the room.
  */
 
 int nearby(player, thing)
@@ -1411,67 +1390,42 @@ dbref player, thing;
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * exit_visible, exit_displayable: Is exit visible?
+/* ---------------------------------------------------------------------------
+ * exit_visible, exit_displayable: Is exit visible?
  */
 
-int exit_visible(exit, player, key)	/*
-					 * exit visible to lexits() 
-					 */
+int exit_visible(exit, player, key)	/* exit visible to lexits() */
 dbref exit, player;
 int key;
 {
 	if (key & VE_LOC_XAM)
-		return 1;	/*
-				 * Exam exit's loc 
-				 */
+		return 1;	/* Exam exit's loc */
 	if (Examinable(player, exit))
-		return 1;	/*
-				 * Exam exit 
-				 */
+		return 1;	/* Exam exit */
 	if (Light(exit))
-		return 1;	/*
-				 * Exit is light 
-				 */
+		return 1;	/* Exit is light */
 	if (key & (VE_LOC_DARK | VE_BASE_DARK))
-		return 0;	/*
-				 * Dark Loc or base 
-				 */
+		return 0;	/* Dark Loc or base */
 	if (Dark(exit))
-		return 0;	/*
-				 * Dark exit 
-				 */
-	return 1;		/*
-				 * Default 
-				 */
+		return 0;	/* Dark exit */
+	return 1;		/* Default */
 }
 
-int exit_displayable(exit, player, key)		/*
-						 * exit visible to look 
-						 */
+int exit_displayable(exit, player, key)		/* exit visible to look */
 dbref exit, player;
 int key;
 {
 	if (Dark(exit))
-		return 0;	/*
-				 * Dark exit 
-				 */
+		return 0;	/* Dark exit */
 	if (Light(exit))
-		return 1;	/*
-				 * Light exit 
-				 */
+		return 1;	/* Light exit */
 	if (key & (VE_LOC_DARK | VE_BASE_DARK))
-		return 0;	/*
-				 * Dark Loc or base 
-				 */
-	return 1;		/*
-				 * Default 
-				 */
+		return 0;	/* Dark Loc or base */
+	return 1;		/* Default */
 }
-/*
- * ---------------------------------------------------------------------------
- * * next_exit: return next exit that is ok to see.
+
+/* ---------------------------------------------------------------------------
+ * next_exit: return next exit that is ok to see.
  */
 
 dbref next_exit(player, this, exam_here)
@@ -1492,11 +1446,10 @@ int exam_here;
 
 #ifndef STANDALONE
 
-/*
- * ---------------------------------------------------------------------------
- * * did_it: Have player do something to/with thing
+/* ---------------------------------------------------------------------------
+ * did_it: Have player do something to/with thing
  */
-
+/* foobar */
 void did_it(player, thing, what, def, owhat, odef, awhat, args, nargs)
 dbref player, thing;
 int what, owhat, awhat, nargs;
