@@ -1565,7 +1565,8 @@ const char *def, *odef;
 			exec(buff, &bp, 0, thing, player, EV_EVAL | EV_FIGNORE | EV_TOP,
 			     &str, args, nargs);
 			*bp = '\0';
-			notify_except2(loc, player, player, thing,
+			if (*buff)
+				notify_except2(loc, player, player, thing,
 				       tprintf("%s %s", Name(player), buff));
 			free_lbuf(buff);
 		} else if (odef) {
