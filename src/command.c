@@ -41,6 +41,27 @@ extern void NDECL(vattr_clean_db);
 #endif
 
 /* ---------------------------------------------------------------------------
+ * Hook macros.
+ *
+ * We never want to call hooks in the case of @addcommand'd commands
+ * (both for efficiency reasons and the fact that we might NOT match an
+ * @addcommand even if we've been told there is one), but we leave this
+ * to the hook-adder to prevent.
+ */
+
+#define CALL_PRE_HOOK(x,a,na) \
+if (((x)->pre_hook != NULL) && !((x)->callseq & CS_ADDED)) { \
+    process_hook((x)->pre_hook, (x)->callseq & CS_PRESERVE, \
+                 player, cause, (a), (na)); \
+}
+
+#define CALL_POST_HOOK(x,a,na) \
+if (((x)->post_hook != NULL) && !((x)->callseq & CS_ADDED)) { \
+    process_hook((x)->post_hook, (x)->callseq & CS_PRESERVE, \
+                 player, cause, (a), (na)); \
+}
+
+/* ---------------------------------------------------------------------------
  * Switch tables for the various commands.
  */
 
@@ -1214,17 +1235,10 @@ int interactive, ncargs;
 	}
 
 	/* At this point we're guaranteed we're going to execute something.
-	 * Let's check to see if we have a pre-command hook. We never
-	 * want to do this in the case of @addcommand'd commands (both
-	 * for efficiency reasons and the fact that we might NOT match
-	 * an @addcommand even if we've been told there is one), but we
-	 * leave this to the hook-adder to prevent.
+	 * Let's check to see if we have a pre-command hook.
 	 */
 
-	if ((cmdp->pre_hook != NULL) && !(cmdp->callseq & CS_ADDED)) {
-	    process_hook(cmdp->pre_hook, cmdp->callseq & CS_PRESERVE,
-			 player, cause, cargs, ncargs);
-	}
+	CALL_PRE_HOOK(cmdp, cargs, ncargs);
 
 	/* If the command normally has interpreted args, but the user
 	 * specified, /noeval, just do EV_STRIP.
@@ -1461,10 +1475,7 @@ int interactive, ncargs;
 
 	/* And now we go do the posthook, if we have one. */
 
-	if ((cmdp->post_hook != NULL) && !(cmdp->callseq & CS_ADDED)) {
-	    process_hook(cmdp->post_hook, cmdp->callseq & CS_PRESERVE,
-			 player, cause, cargs, ncargs);
-	}
+	CALL_POST_HOOK(cmdp, cargs, ncargs);
 
 	return;
 }
@@ -1599,7 +1610,9 @@ char *command, *args[];
 			return preserve_cmd;
 #endif
 
-	/* Check for the HOME command */
+	/* Check for the HOME command. You cannot do hooks on this because
+	 * home is not part of the traditional command table.
+	 */
 
 	if (string_compare(command, "home") == 0) {
 		if (((Fixed(player)) || (Fixed(Owner(player)))) &&
@@ -1623,20 +1636,10 @@ char *command, *args[];
 		exit = last_match_result();
 		if (exit != NOTHING) {
 		    /* Execute the pre-hook for the goto command */
-		    if ((goto_cmdp->pre_hook != NULL) &&
-			!(goto_cmdp->callseq & CS_ADDED)) {
-			process_hook(goto_cmdp->pre_hook,
-				     goto_cmdp->callseq & CS_PRESERVE,
-				     player, cause, args, nargs);
-		    }
+		    CALL_PRE_HOOK(goto_cmdp, args, nargs);
 		    move_exit(player, exit, 0, "You can't go that way.", 0);
 		    /* Execute the post-hook for the goto command */
-		    if ((goto_cmdp->post_hook != NULL) &&
-			!(goto_cmdp->callseq & CS_ADDED)) {
-			process_hook(goto_cmdp->post_hook,
-				     goto_cmdp->callseq & CS_PRESERVE,
-				     player, cause, args, nargs);
-		    }
+		    CALL_POST_HOOK(goto_cmdp, args, nargs);
 		    mudstate.debug_cmd = cmdsave;
 		    return preserve_cmd;
 		}
@@ -1647,21 +1650,9 @@ char *command, *args[];
 		match_master_exit();
 		exit = last_match_result();
 		if (exit != NOTHING) {
-		    /* Execute the pre-hook for the goto command */
-		    if ((goto_cmdp->pre_hook != NULL) &&
-			!(goto_cmdp->callseq & CS_ADDED)) {
-			process_hook(goto_cmdp->pre_hook,
-				     goto_cmdp->callseq & CS_PRESERVE,
-				     player, cause, args, nargs);
-		    }
+		    CALL_PRE_HOOK(goto_cmdp, args, nargs);
 		    move_exit(player, exit, 1, NULL, 0);
-		    /* Execute the post-hook for the goto command */
-		    if ((goto_cmdp->post_hook != NULL) &&
-			!(goto_cmdp->callseq & CS_ADDED)) {
-			process_hook(goto_cmdp->post_hook,
-				     goto_cmdp->callseq & CS_PRESERVE,
-				     player, cause, args, nargs);
-		    }
+		    CALL_POST_HOOK(goto_cmdp, args, nargs);
 		    mudstate.debug_cmd = cmdsave;
 		    return preserve_cmd;
 		}
@@ -1739,19 +1730,9 @@ char *command, *args[];
 		    if (matches_exit_from_list(lcbuf, p)) {
 			free_lbuf(lcbuf);
 			free_lbuf(p);
-			if ((leave_cmdp->pre_hook != NULL) &&
-			    !(leave_cmdp->callseq & CS_ADDED)) {
-			    process_hook(leave_cmdp->pre_hook,
-					 leave_cmdp->callseq & CS_PRESERVE,
-					 player, cause, args, nargs);
-			}
+			CALL_PRE_HOOK(leave_cmdp, args, nargs);
 			do_leave(player, player, 0);
-			if ((leave_cmdp->post_hook != NULL) &&
-			    !(leave_cmdp->callseq & CS_ADDED)) {
-			    process_hook(leave_cmdp->post_hook,
-					 leave_cmdp->callseq & CS_PRESERVE,
-					 player, cause, args, nargs);
-			}
+			CALL_POST_HOOK(leave_cmdp, args, nargs);
 			return preserve_cmd;
 		    }
 		}
@@ -1769,19 +1750,9 @@ char *command, *args[];
 			if (matches_exit_from_list(lcbuf, p)) {
 			    free_lbuf(lcbuf);
 			    free_lbuf(p);
-			    if ((enter_cmdp->pre_hook != NULL) &&
-				!(enter_cmdp->callseq & CS_ADDED)) {
-				process_hook(enter_cmdp->pre_hook,
-					     enter_cmdp->callseq & CS_PRESERVE,
-					     player, cause, args, nargs);
-			    }
+			    CALL_PRE_HOOK(enter_cmdp, args, nargs);
 			    do_enter_internal(player, exit, 0);
-			    if ((enter_cmdp->post_hook != NULL) &&
-				!(enter_cmdp->callseq & CS_ADDED)) {
-				process_hook(enter_cmdp->post_hook,
-					     enter_cmdp->callseq & CS_PRESERVE,
-					     player, cause, args, nargs);
-			    }
+			    CALL_POST_HOOK(enter_cmdp, args, nargs);
 			    return preserve_cmd;
 			}
 		    }
@@ -1864,7 +1835,9 @@ char *command, *args[];
 				match_zone_exit();
 				exit = last_match_result();
 				if (exit != NOTHING) {
+				        CALL_PRE_HOOK(goto_cmdp, args, nargs);
 					move_exit(player, exit, 1, NULL, 0);
+				        CALL_POST_HOOK(goto_cmdp, args, nargs);
 					mudstate.debug_cmd = cmdsave;
 					return preserve_cmd;
 				}
