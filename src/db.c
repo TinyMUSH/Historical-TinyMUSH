@@ -1902,9 +1902,10 @@ dbref player, dest, source;
 	ATTR *at;
 
 	owner = Owner(dest);
+        buf = alloc_lbuf("atr_cpy");
 	atr_push();
 	for (attr = atr_head(source, &as); attr; attr = atr_next(&as)) {
-		buf = atr_get(source, attr, &aowner, &aflags, &alen);
+		buf = atr_get_str(buf, source, attr, &aowner, &aflags, &alen);
 		if (!(aflags & AF_LOCK))
 			aowner = owner;		/* chg owner */
 		at = atr_num(attr);
@@ -1913,9 +1914,9 @@ dbref player, dest, source;
 				/* Only set attrs that owner has perm to set */
 				atr_add(dest, attr, buf, aowner, aflags);
 		}
-		free_lbuf(buf);
 	}
 	atr_pop();
+	free_lbuf(buf);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1931,14 +1932,15 @@ dbref obj;
 	char *as, *buf;
 
 	owner = Owner(obj);
+	buf = alloc_lbuf("atr_chown");
 	atr_push();
 	for (attr = atr_head(obj, &as); attr; attr = atr_next(&as)) {
-		buf = atr_get(obj, attr, &aowner, &aflags, &alen);
+		buf = atr_get_str(buf, obj, attr, &aowner, &aflags, &alen);
 		if ((aowner != owner) && !(aflags & AF_LOCK))
 			atr_add(obj, attr, buf, owner, aflags);
-		free_lbuf(buf);
 	}
 	atr_pop();
+	free_lbuf(buf);
 }
 
 /* ---------------------------------------------------------------------------
