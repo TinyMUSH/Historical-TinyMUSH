@@ -2249,7 +2249,7 @@ const char *def, *odef;
 
 	    /* Go do it. */
 
-	    if (ctrl_flags & VERB_NOW) {
+	    if (ctrl_flags & (VERB_NOW|TR_NOW)) {
 		preserve = save_global_regs("did_it_save2");
 		process_cmdline(thing, player, tp, args, nargs, NULL);
 		restore_global_regs("did_it_restore2", preserve);
