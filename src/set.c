@@ -1352,6 +1352,7 @@ char *it, *args[];
 {
 	dbref thing, aowner;
 	int attr, got_one, aflags, doit;
+	int could_hear;
 	char *from, *to, *result, *returnstr, *atext;
 	ATTR *ap;
 
@@ -1380,6 +1381,7 @@ char *it, *args[];
 
 	got_one = 0;
 	atext = alloc_lbuf("do_edit.atext");
+	could_hear = Hearer(thing);
 
 	for (attr = olist_first(); attr != NOTHING; attr = olist_next()) {
 		ap = atr_num(attr);
@@ -1439,6 +1441,8 @@ char *it, *args[];
 
 	if (!got_one) {
 		notify_quiet(player, "No matching attributes.");
+	} else {
+	    	handle_ears(thing, could_hear, Hearer(thing));
 	}
 }
 
@@ -1449,6 +1453,7 @@ char *it;
 {
 	dbref thing, aowner;
 	int attr, got_one, aflags;
+	int could_hear;
 	ATTR *ap;
 	char *atext;
 
@@ -1462,6 +1467,8 @@ char *it;
 
 	got_one = 0;
 	atext = alloc_lbuf("do_wipe.atext");
+	could_hear = Hearer(thing);
+
 	for (attr = olist_first(); attr != NOTHING; attr = olist_next()) {
 		ap = atr_num(attr);
 		if (ap) {
@@ -1488,6 +1495,7 @@ char *it;
 	if (!got_one) {
 		notify_quiet(player, "No matching attributes.");
 	} else {
+		handle_ears(thing, could_hear, Hearer(thing));
 		if (!Quiet(player))
 			notify_quiet(player, "Wiped.");
 	}
