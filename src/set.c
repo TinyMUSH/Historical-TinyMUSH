@@ -642,9 +642,10 @@ char *name, *newown;
 	} else if (isPlayer(thing) && !God(player)) {
 		notify_quiet(player, "Players always own themselves.");
 	} else if (((!controls(player, thing) && !Chown_Any(player) &&
-		     !Chown_ok(thing)) || (isThing(thing) &&
-					   (Location(thing) != player) &&
-		       !Chown_Any(player))) || (!controls(player, owner))) {
+		     !(Chown_ok(thing) &&
+		       could_doit(player, thing, A_LCHOWN))) ||
+		    (isThing(thing) && (Location(thing) != player) &&
+		     !Chown_Any(player))) || (!controls(player, owner))) {
 		notify_quiet(player, NOPERM_MESSAGE);
 	} else if (canpayfees(player, owner, cost, quota, Typeof(thing))) {
 		payfees(owner, cost, quota, Typeof(thing));

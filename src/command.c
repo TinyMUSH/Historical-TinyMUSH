@@ -207,7 +207,8 @@ NAMETAB listmotd_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB lock_sw[] = {
-{(char *)"controllock",	1,	CA_PUBLIC,	A_LCONTROL},
+{(char *)"chownlock",	2,	CA_PUBLIC,	A_LCHOWN},
+{(char *)"controllock",	2,	CA_PUBLIC,	A_LCONTROL},
 {(char *)"defaultlock",	1,	CA_PUBLIC,	A_LOCK},
 {(char *)"droplock",	1,	CA_PUBLIC,	A_LDROP},
 {(char *)"enterlock",	1,	CA_PUBLIC,	A_LENTER},
