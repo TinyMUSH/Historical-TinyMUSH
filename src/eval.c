@@ -1171,7 +1171,8 @@ void save_global_regs(funcname, preserve, preserve_len)
 	    preserve_len[i] = 0;
 	} else {
 	    preserve[i] = alloc_lbuf(funcname);
-	    strcpy(preserve[i], mudstate.global_regs[i]);
+	    bcopy(mudstate.global_regs[i], preserve[i],
+		  mudstate.glob_reg_len[i] + 1);
 	    preserve_len[i] = mudstate.glob_reg_len[i];
 	}
     }
@@ -1188,7 +1189,8 @@ void restore_global_regs(funcname, preserve, preserve_len)
 	if (preserve[i]) {
 	    if (!mudstate.global_regs[i])
 		mudstate.global_regs[i] = alloc_lbuf(funcname);
-	    strcpy(mudstate.global_regs[i], preserve[i]);
+	    bcopy(preserve[i], mudstate.global_regs[i],
+		  preserve_len[i] + 1);
 	    free_lbuf(preserve[i]);
 	    mudstate.glob_reg_len[i] = preserve_len[i];
 	} else {
