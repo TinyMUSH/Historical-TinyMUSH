@@ -3989,11 +3989,13 @@
  
   See the following help topics for the relevant function lists:
  
-  Database Functions: retrievel of database-related information.
+  Attribute Functions: retrievel of attribute-related information.
   List Functions: manipulation of lists.
   Math Functions: math and logic.
   Misc Functions: miscellaneous utilities.
+  Object Functions: retrieval of object-property-related information.
   Pueblo Functions: available only when Pueblo is enabled.
+  Side-Effect Functions: side-effect functions.
   Stack Functions: manipulation of object stacks.
   String Functions: manipulation of strings.
   Tcl Functions: available only when Tcl is enabled.
@@ -4004,37 +4006,51 @@
  
   See "help function list".
  
-& DATABASE FUNCTIONS
-  Topic: Database Functions
-
-	aposs()		andflags()	con()		conn()
-	controls()	default()	edefault()	elock()
-	exit()		flags()		findable()	fullname()
-	get()		get_eval()	hasattr()	hasflag()
-	home()		idle()		lattr()		lastcreate()
-	lcon()		lexits()	link()		loc()		
-	locate()	lock()		lwho()		money()		
-	name()		nearby()	next()		num()		
-	obj()		objeval()	objmem()	orflags()	
-	owner()		parent()	ports()		poss()		
-	programmer()	rloc()		room()		search()	
-	sees()		set()		stats()		subj()		
-	tel()		type()		u()		udefault()	
-	ulocal()	v()		visible()	where()		
-	wipe()		xcon()
+& ATTRIBUTE FUNCTIONS
+  Topic: Attribute Functions
+ 
+	aposs()		default()	edefault()	eval()
+	get()		get_eval()	grep()		grepi()
+	hasattr()	hasattrp()	lattr()		obj()
+	objeval()	poss()		subj()		u()
+	udefault()	ulocal()	v()		xget()
+	zfun()
+ 
+& OBJECT FUNCTIONS
+  Topic: Object Functions
+ 
+	andflags()	children()	con()		conn()
+	controls()	cwho()		elock()		exit()
+	flags()		findable()	fullname()	hasflag()
+	haspower()	hastype()	home()		idle()
+	inzone()	lastcreate()	lcon()		lexits()
+	lparent()	loc()		locate()	lock()
+	lwho()		mail()		mailfrom()	money()
+	name()		nearby()	next()		num()
+	objmem()	orflags()	owner()		parent()
+	playmem()	pmatch()	ports()		programmer()
+	rloc()		room()		search()	sees()
+	stats()		type()		visible()	where()
+	xcon()		zone()		zwho()
+ 
+& SIDE-EFFECT FUNCTIONS
+  Topic: Side-Effect Functions
+ 
+	create()	force()		link()		set()
+	tel()		trigger()	wipe()
  
 & LIST FUNCTIONS
   Topic: List Functions
  
-	elements()	extract()	filter()	filterbool()
-	first()		fold()		grab()		index()		
-	insert()	iter()		last()		ldelete()	
-	list()		lnum()		lpos()		map()		
-	match()		matchall()	member()	mix()		
-	munge()		remove()	replace()	rest()	
-	revwords()	setdiff()	setinter()	setunion()	
-	shuffle()	sortby()	sort()		splice()	
-	words()
+	columns()	elements()	extract()	filter()	
+	filterbool()	first()		fold()		grab()		
+	index()		insert()	iter()		last()		
+	ldelete()	list()		lnum()		lpos()		
+	map()		match()		matchall()	member()	
+	mix()		munge()		remove()	replace()	
+	rest()		revwords()	setdiff()	setinter()	
+	setunion()	shuffle()	sortby()	sort()		
+	splice()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -4075,24 +4091,26 @@
 & MISC FUNCTIONS
   Topic: Miscellaneous Functions
  
-	convsecs()	convtime()	die()		ifelse()
-	mudname()	pemit()		r()		rand()		
-	remit()		restarts()	restarttime()	s()
-	secs()		setq()		setr()		switch()
-	starttime()	time()		version()
+	case()		convsecs()	convtime()	die()		
+	ifelse()	mudname()	pemit()		r()		
+	rand()		remit()		restarts()	restarttime()	
+	s()		secs()		setq()		setr()		
+	switch()	starttime()	time()		version()
  
 & STRING FUNCTIONS
   Topic: String Functions
  
-	ansi()		after()		before()	capstr()	
-	cat()		center()	comp()		delete()	
+	after()		alphamax()	alphamin()	ansi()
+	beep()		before()	capstr()	cat()
+	center()	chomp()		comp()		delete()	
 	edit()		escape()	foreach()	isdbref()	
 	isnum()		isword()	lcstr()		left()		
 	lit()		ljust()		merge()		mid()		
-	pos()		regmatch()	repeat()	reverse()	
-	right()		rjust()		secure()	scramble()	
-	space()		squish()	stripansi()	strlen()	
-	strmatch()	translate()	trim()		ucstr()
+	null()		pos()		regmatch()	repeat()	
+	reverse()	right()		rjust()		secure()	
+	scramble()	space()		squish()	strcat()
+	stripansi()	strlen()	strmatch()	strtrunc()
+	translate()	trim()		ucstr()		valid()
 	wordpos()
  
 & STACK FUNCTIONS
@@ -5207,10 +5225,15 @@
 & OBJMEM()
   Function: objmem(<object>[/<attribute pattern>])
  
-  Returns the number of bytes of memory consumed by attribute text on an 
-  object. If an attribute wildcard pattern is specified, only those 
-  attributes will be counted. You must be able to read an attribute in
-  order to check its size.
+  If no attribute pattern is specified, this returns the number of bytes
+  of memory consumed by an object, including both attribute text and
+  object overhead.
+ 
+  If an attribute wildcard pattern is specified, this returns the number
+  of bytes of memory consumed by attribute text for those attributes on
+  <object>. To just get a count of the number of bytes used by all
+  attribute text on an object, use 'objmem(<object>/*)'. You must be
+  able to read an attribute in order to check its size.
  
 & STRLEN()
   Function: strlen(<string>)
@@ -7620,10 +7643,12 @@
   
 & HASATTR()
   hasattr(<object>,<attribute>)
-
+ 
   Returns '1' if <object> has named <attribute> (and the attribute can be
   seen by the invoker), or 0 if not. If the specified object is invalid,
-  "#-1 NO MATCH" will be returned.
+  "#-1 NO MATCH" will be returned. Note that this does not check the
+  <object>'s parents for the presence of the attribute; use hasattrp()
+  to do that.
  
 & SORTBY()
   sortby([<obj>/]<attrib>,<list>[,<delimiter>][,<output delim>])
@@ -7669,6 +7694,308 @@
   > &sort_alpha me=[sort(%0)]
   > say [munge(sort_alpha,v(places),v(dbrefs))]
 
+& ALPHAMAX()
+  Function: alphamax(<string1>, <string2>, ..., <stringN>)
+ 
+  Takes up to ten strings, and returns the string which is 
+  lexicogrpahically biggest.
+ 
+& ALPHAMIN()
+  Function: alphamin(<string1>, <string2>, ..., <stringN>)
+ 
+  Takes up to ten strings, and returns the string which is 
+  lexicogrpahically smallest.
+ 
+& ART()
+  Function: art(<string>)
+ 
+  This function returns the proper article, "a" or "an", based on
+  whether or not <string> begins with a vowel.
+ 
+& BEEP()
+  Function: beep()
+ 
+  This function simply outputs the beep charater, which will "ring the
+  bell" on terminals with sound. Only Wizards may use this function.
+ 
+& CASE()
+  Function: case(<str>[,<pat1>,<res1>]...[,<dflt>])
+ 
+  This function is similar to switch(), save that it looks for an exact
+  match between the patterns and the string, rather than doing a 'wildcard'
+  match (case-insensitive match with '*' and '?'), and the '#$' token
+  replacement is not done. It performs marginally faster than switch().
+ 
+  See also:  @switch, switch(), ifelse(), match().
+ 
+& CHILDREN()
+  Function: children(<object>)
+ 
+  This function returns a list of objects that are parented to <object>.
+  It may only be used by Wizards or Royalty.
+ 
+& COLUMNS()
+  Function: columns(<list>, <width>[, <delim>[, <indent>]])
+ 
+  This function displays <list> formatted into columns <width>-characters
+  wide; i.e., each element of <list> will appear in a column <width> wide.
+  As many columns as possible will be fit onto the screen, which is
+  considered to be 78 characters wide; thus, you can calculate the number
+  of columns that will appear by dividing 78 by <width>.
+ 
+  If a string is too long for the width of a column, the string will
+  be truncated to fit.
+ 
+  If <indent> is specified, each line will be indented by that number
+  of spaces.
+ 
+  If <delim> is specified, it will be as an input delimiter only; i.e.,
+  the delimiter will be used to separate the elements of the list, but
+  will not appear in the output.
+ 
+& CREATE()
+  Function: create(<object name>, <cost>[, <type>])
+ 
+  This creates an object named <object name>, with the specified <cost>.
+  This object is normally a thing. If the optional <type> parameter is
+  'r', it will be a room; if it is 'e', an exit; it assumed to default
+  to 't', thing.
+ 
+  'create(<object>,<cost>,t)' is equivalent to '@create <object>=<cost>'.
+  'create(<object>,<cost>,r)' is equivalent to '@dig <object>'.
+  'create(<object>,<cost>,e)' is equivalent to '@open <object>'.
+ 
+  See also: @create, @dig, @open
+ 
+& CWHO()
+  Function: cwho(<channel>)
+ 
+  If the comsys is enabled, this function returns a list of dbrefs
+  of players who are connected, and on that channel. <channel> is
+  the full name of the channel, and is case-sensitive. This function
+  is limited to Wizards and channel owners.
+ 
+& EVAL()
+  Function: eval(<object>,<attribute)
+            eval(<string>)
+ 
+  The first form of this function is identical to get_eval(), but
+  splits the <object> and <attribute> into two arguments, rather
+  than having an <object>/<attribute> pair. It is provided for
+  PennMUSH compatibility.
+ 
+  The second form of this function simply evaluates <string>.
+ 
+& GREP()
+  Function: grep(<object>, <attrs>, <string>)
+ 
+  This function returns a list of attributes on <object>, which
+  contain <string>. <attrs> is a wildcard attribute pattern; to
+  search all attributes on the object, use '*'.
+ 
+  Please note that this function does parse its arguments; thus,
+  any 'special' characters in <string> need to be escaped out.
+ 
+  <string> is case-sensitive; for a case-insensitive search, use
+  grepi() instead.
+ 
+& GREPI()
+  Function: grepi(<object>, <attrs>, <string>)
+ 
+  This function is identical to grep(), but <string> is searched for
+  in a case-insensitive manner.
+ 
+& HASATTRP()
+  Function: hasattrp(<object>, <attribute>)
+ 
+  Returns '1' if <object> or its parent(s) has the named <attribute>
+  (and the attribute can be seen by the invoker), or 0 if not. If the
+  specified object is invalid, "#-1 NO MATCH" will be returned.
+  To check only the object itself for the attribute, use hasattr()
+  instead.
+ 
+& HASPOWER()
+  Function: haspower(<object>, <power>)
+ 
+  Returns 1 if <object> has the power <power> set on it, and 0 otherwise.
+  You must be able to examine <object>.
+ 
+& HASTYPE()
+  Function: hastype(<object>, <type>)
+ 
+  Returns 1 if <object> is of type <type>, and 0 otherwise. Valid
+  types are: ROOM, EXIT, THING, and PLAYER. If an invalid type is
+  given, the function returns #-1.
+ 
+& INZONE()
+  Function: inzone(<object>)
+ 
+  Returns a list of room dbrefs, in the zone defined by <object>.
+  This function can only be used by Wizards and Royalty.
+ 
+& LPARENT()
+  Function: lparent(<object>)
+ 
+  This function returns the list of dbrefs of the object's "parent
+  chain", including itself: i.e., its own dbref, the dbref of the
+  object it is @parent'd to, its parent's parent (grandparent),
+  and so forth. Note that the function will always return at least one 
+  element, the dbref of the object itself.
+ 
+  This function will not show the parents of objects that the player
+  cannot examine.
+ 
+& PLAYMEM()
+  Function: playmem(<player>)
+ 
+  Returns the sum total of the size, in bytes, of all objects in the 
+  database that are owned by <player> (equivalent to doing an objmem()
+  on everything that player owns). You must be a Wizard, or have the
+  Search power, in order to use this on another player.
+ 
+& PMATCH()
+  Function: pmatch(<player>)
+ 
+  Given the partial name of a player, it returns that player's dbref
+  number. This partial name completion works identically to the partial
+  name completion of the "page" command - i.e. it first attempts to match
+  the normal names of all players (connected or not), and if that fails,
+  it tries to match the partial names of connected players. If no player
+  is matched, it returns "#-1". If more than one match is possible for
+  a partial name, it returns "#-2".
+ 
+  pmatch() will also accept *<player> or #<dbref>. If given a non-player
+  dbref, pmatch() will return #-1.
+ 
+& STRCAT()
+  Function: strcat(<string1>, <string2>, ..., <stringN>)
+ 
+  Concatenates between two and ten strings together, with no spaces
+  between them. This function is provided for PennMUSH compatibility.
+ 
+  Example:
+    > say [strcat(foo,bar,baz)]
+    You say "foobarbaz"
+ 
+& STRTRUNC()
+  Function: strtrunc(<string>, <number>)
+ 
+  This function truncates <string> to a length of <number> characters.
+  If <number> is greater than the length of <string>, this simply
+  returns <string>. Unlike similar functions, strtrunc() does not
+  strip ANSI characters from the string.
+ 
+  See also: mid(), left(), right()
+ 
+& VALID()
+  Function: valid(<option>, <string>)
+ 
+  This function returns 1 if <string> is valid for <option>, and 0
+  if it is not.
+ 
+  Currently, the only valid <option> is "name"; if <string> is a valid
+  object name, this function will return 1, and 0 if it is not.
+ 
+  If a valid option is not specified, this function returns #-1.
+ 
+  This function is provided for PennMUSH compatibility.
+ 
+& XGET()
+  Function: xget(<object>, <attribute>)
+ 
+  This function is identical to get(), except that it breaks <object>
+  and <attribute> into two separate arguments, rather than having
+  <object>/<attribute>.
+ 
+  This function is provided for PennMUSH compatibility.
+ 
+& ZFUN()
+
+  Undocumented.
+ 
+& ZONE()
+  Function: zone(<object>)
+ 
+  Returns the dbref of <object>'s zone (the dbref of the master object
+  which defines the zone).
+ 
+& ZWHO()
+  Function: zwho(<object>)
+ 
+  Returns a list of the dbrefs of players who are in the zone defined
+  by <object>. This function can only be used by Wizards and Royalty.
+ 
+& CHOMP()
+  Function: chomp(<string>)
+ 
+  If <string> ends with a carriage-return/newline ('%r'), that trailing
+  carriage-return/newline will be chopped off. This is particularly useful
+  for nibbling extra newlines off piped ('%|') output.
+ 
+& FORCE()
+  Function: force(<object>, <action>)
+ 
+  This side-effect function behaves identically to the command
+  '@force <object>=<action>'.
+ 
+  Note that <action> is threaded normally onto the command queue, and
+  is thus not instantaneously executed.
+ 
+& NULL()
+  Function: null(<string>)
+ 
+  This function returns an empty string, effectively "eating" <string>.
+  This is useful if you're doing something involving side-effects and
+  want to obliterate that output.
+ 
+& TRIGGER()
+  Function: trigger(<object>/<attribute>,<arg 0>,<arg 1>,...,<arg N>)
+ 
+  This side-effect function behaves identically to the command
+  '@trigger <object>/<attribute>=<arg 0>,<arg 1>,...<arg N>
+ 
+  Note that the triggered actions are threaded normally onto the command
+  queue, and are thus not instantaneously executed.
+ 
+& WHILE()
+  while([<uobj>/]<uattr>,[<cobj>/]<cattr>,<list>,<str>[,<delim>[,<output d>]])
+ 
+  This function evaluates the elements of <list>, until a termination
+  condition is reached or the end of the list is reached.
+ 
+  [<uobj>/]<uattr> is an attribute or object/attribute pair, like the first
+  argument of map(). The <list> is passed to that function element-by-element
+  (based on the input <delim> delimiter) as %0, just as if map() were being
+  called, and the output is returned <output d>-delimited, again just as if
+  map() were being called.
+ 
+  However, for each element, after that evaluation is done, a second
+  evaluation is done, to check a "termination value". [<cobj>/]<cattr>
+  is an attribute or object/attribute pair, again like map(), and the
+  same list elements are passed to that function as %0. However, the
+  result of this evaluation is not kept; instead, it is compared to
+  <str>, and if it matches exactly (case-sensitive, no wildcards),
+  the no further elements of the list are processed.
+ 
+  Continued in 'help while2'.
+ 
+& WHILE2
+ 
+  If the contents of [<uobj>/]<uattr> and [<cobj>/]<cattr> are the
+  same, the element is not evaluated twice; the result of the first
+  evaluation is directly compared against <str>. (Note that the
+  two object/attributes don't have to be the same -- just their
+  contents need to be the same, since this function treats the
+  pair like map(), not like u().)
+ 
+  Examples:
+    > &EVAL_FN me = [reverse(%0)]
+    > &COND_FN me = [strlen(%0)]
+    > say [while(EVAL_FN,COND_FN,foo bar meep flibble baz,4)]
+    You say "oof rab peem"
+    > SAY [while(EVAL_FN,COND_FN,foo|bar|meep|flibble|baz,4,|,-)]
+    You say "oof-rab-peem"
+ 
 & PUSH()
   Function: push([<object>,]<data>)
  
