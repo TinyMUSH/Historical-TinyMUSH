@@ -139,7 +139,7 @@ HASHTAB *htab;
 int eval;
 {
 	FILE *fp;
-	char *p, *line, *bp, *str, *result;
+	char *p, *line, *result;
 	int entry_offset, entry_length;
 	struct help_entry *htab_entry;
 	char matched;

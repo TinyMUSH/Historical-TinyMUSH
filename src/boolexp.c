@@ -20,12 +20,13 @@
 
 #ifndef STANDALONE
 
+int FDECL(eval_boolexp_atr, (player, thing, from, key));
+
 static int parsing_internal = 0;
 
-/*
- * ---------------------------------------------------------------------------
- * * check_attr: indicate if attribute ATTR on player passes key when checked by
- * * the object lockobj
+/* ---------------------------------------------------------------------------
+ * check_attr: indicate if attribute ATTR on player passes key when checked by
+ * the object lockobj
  */
 
 static int check_attr(player, lockobj, attr, key)

@@ -344,7 +344,7 @@ static void pairs_print(player, atext, buff, bufc)
     endp = strbuf;
     parenlist[0] = 0;
     depth = 0;
-    for (pos = 0; pos < strlen(str); pos++) {
+    for (pos = 0; pos < (int)strlen(str); pos++) {
 	switch (str[pos]) {
 	    case '(': case '{': case '[':
 		if (str[pos - 1] != '\\') {

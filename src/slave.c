@@ -150,7 +150,7 @@ char *orig_arg;
 		buf2[0] = '\0';
 	} else {
 		len = strlen(port_pair);
-		if (write(s, port_pair, len) != len) {
+		if (write(s, port_pair, len) != (int)len) {
 			close(s);
 			return (-1);
 		}
@@ -198,7 +198,7 @@ int sig;
 #else
 	while (waitpid(0, NULL, WNOHANG) > 0) ;
 #endif
-	signal(SIGCHLD, child_signal);
+	signal(SIGCHLD, (void (*)(int))child_signal);
 }
 
 void alarm_signal(sig)
@@ -210,7 +210,7 @@ int sig;
 	if (getppid() != parent_pid) {
 		exit(1);
 	}
-	signal(SIGALRM, alarm_signal);
+	signal(SIGALRM, (void (*)(int))alarm_signal);
 	interval.tv_sec = 120;	/*
 				 * 2 minutes 
 				 */
@@ -234,7 +234,7 @@ char **argv;
 		exit(1);
 	}
 	alarm_signal(SIGALRM);
-	signal(SIGCHLD, child_signal);
+	signal(SIGCHLD, (void (*)(int))child_signal);
 	signal(SIGPIPE, SIG_DFL);
 
 	for (;;) {
@@ -273,7 +273,7 @@ char **argv;
 				interval.tv_usec = 0;
 				itime.it_interval = interval;
 				itime.it_value = interval;
-				signal(SIGALRM, child_timeout_signal);
+				signal(SIGALRM, (void (*)(int))child_timeout_signal);
 				setitimer(ITIMER_REAL, &itime, 0);
 			}
 			exit(query(arg, p + 1) != 0);

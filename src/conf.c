@@ -645,7 +645,7 @@ CF_HAND(cf_module)
 					(dbref, const char *));
 	mp->examine = DLSYM(handle, str, "examine",
 			    (dbref, dbref, dbref, int, int));
-	mp->dump_database = DLSYM(handle, str, "dump_database", ());
+	mp->dump_database = DLSYM(handle, str, "dump_database", (void));
 	mp->db_grow = DLSYM(handle, str, "db_grow", (int, int));
 
 	if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)
@@ -716,7 +716,7 @@ CF_HAND(cf_string)
 	 */
 
 	retval = 0;
-	if (strlen(str) >= extra) {
+	if (strlen(str) >= (unsigned int)extra) {
 		str[extra - 1] = '\0';
 		if (mudstate.initializing) {
 			STARTLOG(LOG_STARTUP, "CNF", "NFND")

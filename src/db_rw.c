@@ -263,8 +263,6 @@ FILE *f;
 static int unscramble_attrnum(attrnum)
 int attrnum;
 {
-	char anam[4];
-
 	switch (g_format) {
 	case F_MUSH:
 		/* TinyMUSH 2.2:  Deal with different attribute numbers. */
@@ -303,11 +301,6 @@ int new_strings;
 	dbref atr;
 	int c;
 	char *buff;
-#ifdef STANDALONE
-	int aflags, xflags, anum;
-	char *buf2, *buf2p, *ownp, *flagp;
-	dbref aowner;
-#endif
 
 	buff = alloc_lbuf("get_list");
 	while (1) {
@@ -676,7 +669,6 @@ int *db_format, *db_version, *db_flags;
 	int header_gotten, size_gotten, nextattr_gotten;
 	int read_attribs, read_name, read_zone, read_link, read_key, read_parent;
 	int read_extflags, read_3flags, read_money, read_timestamps, read_new_strings;
-	char peek;
 	int read_powers, read_powers_player, read_powers_any;
 	int has_typed_quotas, has_visual_attrs;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
@@ -1111,7 +1103,6 @@ int db_format, flags;
 	dbref aowner;
 	int ca, aflags, alen, save, j;
 	BOOLEXP *tempbool;
-	int *data;
 
 	if (Going(i)) {
 		if (flags & V_GDBM) {

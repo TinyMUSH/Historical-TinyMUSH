@@ -1096,7 +1096,7 @@ char *name;
 {
 	static char buff[MBUF_SIZE];
 
-	if ((strlen(name) <= mudconf.site_chars) || (mudconf.site_chars == 0))
+	if (((int)strlen(name) <= mudconf.site_chars) || (mudconf.site_chars == 0))
 		return name;
 	strncpy(buff, name, mudconf.site_chars);
 	buff[mudconf.site_chars + 1] = '\0';

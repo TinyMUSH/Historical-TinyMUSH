@@ -691,7 +691,7 @@ long num;
 		*s++ = '-';
 
 	/* put in the last digit, this makes very fast single digits numbers */
-	*s++ = '0' + anum;
+	*s++ = '0' + (char)anum;
 
 	/* reverse the rest of the digits (if any) into the provided buf */
 	while (p-- > buf)
@@ -733,7 +733,7 @@ long num;
 		 * digits numbers
 		 */
 		if (tp < endp)
-			*tp++ = '0' + anum;
+			*tp++ = '0' + (char)anum;
 
 		/* reverse the rest of the digits (if any) into the
 		 * provided buf
@@ -743,7 +743,7 @@ long num;
 	} else {
 		if (num < 0)
 			*tp++ = '-';
-		*tp++ = '0' + anum;
+		*tp++ = '0' + (char)anum;
 		while (p-- > buf)
 			*tp++ = *p;
 	}

@@ -16,6 +16,7 @@
 extern void VDECL(logf, (char *, ...));
 extern void VDECL(fatal, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
+extern void FDECL(dddb_setsync, (int));
 
 extern void FDECL(raw_notify, (dbref, const char *));
 
@@ -145,7 +146,7 @@ int type;
 
         if (keydata == NULL)
                 return 0;
-        for (sp = (char *)keydata; ((void *)sp - keydata) < keylen; sp++)
+        for (sp = (char *)keydata; ((int *)sp - (int *)keydata) < keylen; sp++)
                 hash = (hash << 5) + hash + *sp;
         return ((hash + type) % cwidth);
 }
@@ -507,9 +508,11 @@ void *data;
 int datalen;
 int type;
 {
+#ifndef STANDALONE
 	Cache *cp;
 	CacheLst *sp;
 	int hv = 0;
+#endif
 	
 	if (!keydata || !data || !cache_initted) {
 		return (1);
@@ -525,11 +528,9 @@ int type;
 	/* step one, search active chain, and if we find the obj, dirty it */
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
-#ifndef STANDALONE
 			if (!mudstate.dumping) {
 				cs_whits++;
 			}
-#endif
 			if(cp->data != data) {
 				cache_repl(cp, data, datalen, type);
 			}
@@ -548,11 +549,9 @@ int type;
 	 */
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
-#ifndef STANDALONE
 			if (!mudstate.dumping) {
 				cs_whits++;
 			}
-#endif
 			if(cp->data != data) {
 				cache_repl(cp, data, datalen, type);
 			}
@@ -603,6 +602,7 @@ int type;
 			return (1);
 		}
 	}
+	return(0);
 #endif
 }
 
@@ -685,9 +685,9 @@ int atrsize;
 					 */
 	
 #ifndef STANDALONE 
-					score = (mudstate.now - p->lastreferenced) * .8;
+					score = (int) ((mudstate.now - p->lastreferenced) * .8);
 #else
-					score = (time(NULL) - p->lastreferenced) * .8;
+					score = (int) ((time(NULL) - p->lastreferenced) * .8);
 #endif
 					size = p->datalen;
 				}
@@ -812,7 +812,7 @@ CacheLst *sp;
 
 int NDECL(cache_sync)
 {
-	int x, ret;
+	int x;
 	CacheLst *sp;
 
 	cs_syncs++;

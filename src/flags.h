@@ -357,9 +357,9 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Marked(x)	(mudstate.markbits->chunk[(x)>>3] & \
 			 mudconf.markdata[(x)&7])
 #define	Mark_all(i)	for ((i)=0; (i)<((mudstate.db_top+7)>>3); (i)++) \
-				mudstate.markbits->chunk[i]=0xff
+				mudstate.markbits->chunk[i]=(char)0xff
 #define	Unmark_all(i)	for ((i)=0; (i)<((mudstate.db_top+7)>>3); (i)++) \
-				mudstate.markbits->chunk[i]=0x0
+				mudstate.markbits->chunk[i]=(char)0x0
 
 /* ---------------------------------------------------------------------------
  * Visibility constraints.

@@ -539,10 +539,15 @@ typedef int	POWER;
 typedef char	boolexp_type;
 typedef char	IBUF[16];
 
-#if !defined(_UWIN) && !defined(INLINE)
-#define INLINE inline
-#else
+#ifdef _UWIN
 #define INLINE
+
+/* Since strcasecmp isn't POSIX, U/WIN won't have it by default */
+#define strcasecmp(a,b)	memcmp((void *)a,(void *)b,strlen(a))
+
+#else
+#define INLINE inline
 #endif
+
 
 #endif /* __AUTOCONF_H */

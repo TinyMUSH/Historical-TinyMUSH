@@ -1036,7 +1036,7 @@ void do_cpattr(player, cause, key, oldpair, newpair, nargs)
 {
     int i, ca, got = 0;
     dbref oldthing;
-    char **newthings, **newattrs, *tp, oldbuf[LBUF_SIZE];
+    char **newthings, **newattrs, *tp;
     ATTR *oldattr;
 
     if (!*oldpair || !**newpair || !oldpair || !*newpair)

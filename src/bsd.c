@@ -239,7 +239,7 @@ int port;
 	}
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons(port);
+	server.sin_port = (unsigned short)htons((unsigned short)port);
 	if (!mudstate.restarting)
 		if (bind(s, (struct sockaddr *)&server, sizeof(server))) {
 			log_perror("NET", "FAIL", NULL, "bind");

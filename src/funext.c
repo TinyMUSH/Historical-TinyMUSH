@@ -261,7 +261,7 @@ FUNCTION(fun_url_unescape)
 	    tempstr[2] = '\0';
 	    if ((sscanf(tempstr, "%x", &tempchar) == 1) &&
 		(tempchar > 0x1F) && (tempchar < 0x7F)) {
-		ret = safe_chr_fn(tempchar, buff, bufc);
+		ret = safe_chr_fn((char)tempchar, buff, bufc);
 	    }
 	    if (*msg_orig)
 		msg_orig++;	/* Skip the '%' */

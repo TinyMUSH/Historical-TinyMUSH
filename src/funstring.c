@@ -549,7 +549,7 @@ FUNCTION(fun_center)
 		return;
 	}
 
-	lead_chrs = (width / 2) - (len / 2) + .5;
+	lead_chrs = (int)((width / 2) - (len / 2) + .5);
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
 	lead_chrs = (lead_chrs > max) ? max : lead_chrs;
@@ -706,7 +706,7 @@ FUNCTION(fun_strtrunc)
 
 	q = buf = alloc_lbuf("fun_strtrunc");
 	number = atoi(fargs[1]);
-	if (number > strlen((char *)strip_ansi(fargs[0])))
+	if (number > (int)strlen((char *)strip_ansi(fargs[0])))
 		number = strlen((char *)strip_ansi(fargs[0]));
 
 	if (number < 0) {
@@ -1156,7 +1156,7 @@ FUNCTION(fun_reverse)
 {
     /* Nasty bounds checking */
 
-    if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff) - 1) {
+    if ((int)strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff) - 1) {
 	*(fargs[0] + (LBUF_SIZE - (*bufc - buff) - 1)) = '\0';
     }
     do_reverse(fargs[0], *bufc);
@@ -1297,7 +1297,7 @@ FUNCTION(fun_wordpos)
 
 	charpos = atoi(fargs[1]);
 	cp = fargs[0];
-	if ((charpos > 0) && (charpos <= strlen(cp))) {
+	if ((charpos > 0) && (charpos <= (int)strlen(cp))) {
 		tp = &(cp[charpos - 1]);
 		cp = trim_space_sep(cp, sep);
 		xp = split_token(&cp, sep);

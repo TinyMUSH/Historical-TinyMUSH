@@ -225,7 +225,7 @@ static int ok_channel_string(str, maxlen, ok_spaces, ok_ansi)
     if (!str || !*str)
 	return 0;
 
-    if (strlen(str) > maxlen - 1)
+    if ((int)strlen(str) > maxlen - 1)
 	return 0;
 
     for (p = str; *p; p++) {

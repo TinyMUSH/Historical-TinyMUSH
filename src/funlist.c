@@ -607,7 +607,7 @@ FUNCTION(fun_revwords)
 
 	/* Nasty bounds checking */
 
-	if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff) - 1) {
+	if ((int)strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff) - 1) {
 		*(fargs[0] + (LBUF_SIZE - (*bufc - buff) - 1)) = '\0';
 	}
 
@@ -735,10 +735,12 @@ int n, sort_type;
 
 	switch (sort_type) {
 	case ALPHANUM_LIST:
-		qsort((void *)s, n, sizeof(char *), a_comp);
+		qsort((void *)s, n, sizeof(char *), 
+			(int (*)(const void *, const void *))a_comp);
 		break;
 	case NOCASE_LIST:
-		qsort((void *)s, n, sizeof(char *), c_comp);
+		qsort((void *)s, n, sizeof(char *),
+			(int (*)(const void *, const void *))c_comp);
 		break;
 	case NUMERIC_LIST:
 		ip = (i_rec *) XCALLOC(n, sizeof(i_rec), "do_asort");
@@ -746,7 +748,8 @@ int n, sort_type;
 			ip[i].str = s[i];
 			ip[i].data = atoi(s[i]);
 		}
-		qsort((void *)ip, n, sizeof(i_rec), i_comp);
+		qsort((void *)ip, n, sizeof(i_rec), 
+			(int (*)(const void *, const void *))i_comp);
 		for (i = 0; i < n; i++) {
 			s[i] = ip[i].str;
 		}
@@ -758,7 +761,8 @@ int n, sort_type;
 			ip[i].str = s[i];
 			ip[i].data = dbnum(s[i]);
 		}
-		qsort((void *)ip, n, sizeof(i_rec), i_comp);
+		qsort((void *)ip, n, sizeof(i_rec),
+			(int (*)(const void *, const void *))i_comp);
 		for (i = 0; i < n; i++) {
 			s[i] = ip[i].str;
 		}
@@ -770,7 +774,8 @@ int n, sort_type;
 			fp[i].str = s[i];
 			fp[i].data = aton(s[i]);
 		}
-		qsort((void *)fp, n, sizeof(f_rec), f_comp);
+		qsort((void *)fp, n, sizeof(f_rec),
+			(int (*)(const void *, const void *))f_comp);
 		for (i = 0; i < n; i++) {
 			s[i] = fp[i].str;
 		}

@@ -19,6 +19,7 @@
 extern void NDECL(cf_init);
 extern void FDECL(do_dbck, (dbref, dbref, int));
 extern void NDECL(vattr_init);
+extern void FDECL(logfile_init, (char *));
 
 /* ---------------------------------------------------------------------------
  * Cheap hack to avoid issues in compiling standalone.

@@ -19,6 +19,8 @@
 #include "powers.h"	/* required by code */
 
 extern dbref FDECL(match_controlled_quiet, (dbref, const char *));
+extern dbref FDECL(clone_home, (dbref, dbref));
+extern int FDECL(can_set_home, (dbref, dbref, dbref));
 
 /* ---------------------------------------------------------------------------
  * parse_linkable_room: Get a location to link to.

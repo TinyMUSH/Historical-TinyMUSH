@@ -71,8 +71,6 @@ int dddb_init()
 	char *gdbm_error;
 	int block_size;
 	int cache_size;
-	int flags;
-	int ret;
 	
 	/* Calculate the proper page size */
 	
@@ -148,8 +146,6 @@ void **dataptr;
 int *datalenptr;
 int type;
 {
-	void *newdata;
-	int newdatalen;
 	char *s;
 	
 	if (!db_initted) {
