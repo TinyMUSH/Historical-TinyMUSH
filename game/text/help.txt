@@ -4681,15 +4681,15 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
 	columns()	elements()	extract()	filter()	
 	filterbool()	first()		fold()		grab()		
-	index()		insert()	iter()		last()		
-	ldelete()	ledit()		list()		lnum()		
-	loop()		lpos()		lrand()		map()		
-	match()		matchall()	member()	mix()
-	munge()		remove()	replace()	rest()		
-	revwords()	setdiff()	setinter()	setunion()	
-	shuffle()	sortby()	sort()		splice()	
-	step()		until()		whenfalse()	whentrue()
-	while()		words()
+	graball()	index()		insert()	iter()		
+	last()		ldelete()	ledit()		list()		
+	lnum()		loop()		lpos()		lrand()		
+	map()		match()		matchall()	member()	
+	mix()		munge()		remove()	replace()	
+	rest()		revwords()	setdiff()	setinter()	
+	setunion()	shuffle()	sortby()	sort()		
+	splice()	step()		until()		whenfalse()	
+	whentrue()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -4755,7 +4755,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	scramble()	space()		squish()	strcat()	
 	streq()		stripansi()	strlen()	strmatch()	
 	strtrunc()	translate()	trim()		ucstr()		
-	valid()		wordpos()
+	valid()		wildmatch()	wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -6418,8 +6418,27 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say strmatch(This is a test,*is*is*)
     You say "1"
  
-  See also: match(), member(), regmatch(), regmatchi().
+  See also: match(), member(), wildmatch(), regmatch(), regmatchi().
 
+& WILDMATCH()
+  Function:  wildmatch(<string>,<pattern>,<register list>)
+ 
+  This function matches <string> against the wildcard pattern <pattern>,
+  returning 1 if it matches and 0 if it does not. There is a side-effect:
+  the portions of the string which match the wildcards will be set into
+  the specified local registers, in the order they were specified in
+  the list. <register list> can be a list of one through nine numbers.
+  If the specified register is -1, the substring is not copied into a
+  register.
+ 
+  For example, if <string> is 'cookies=30', and <pattern> is '*=*',
+  then the first substring is 'cookies' and the second substring is '30'.
+  If <register list> is '3 5', then %q3 will become 'cookies' and %q5
+  will become '30'. If <register list> was '-1 5', then the 'cookies' 
+  substring would simply be discarded, thogh %q5 would still be '30'.
+ 
+  See also: strmatch(), regmatch(), regmatchi().
+ 
 & REGMATCH()
   Function:  regmatch(<string>,<regexp>[,<register list>])
  
@@ -6547,7 +6566,24 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say grab(Holodeck:#10~Airlock:#58~Dorm:#12~Brig:#83,Airlock:*,~)
     You say "Airlock:#58"
  
-  See also: LISTS, match().
+  See also: LISTS, graball(), match(), matchall().
+ 
+& GRABALL()
+  Function:  graball(<list>, <pattern>[, <delim>[, <output delim>]])
+ 
+  This function matches <pattern> against each word in <list>, returning
+  a list of <output delim>-separated words that match. If no words match,
+  then an empty string is returned. The match is not case-sensitive, and
+  wildcard characters are permitted. <delim> may be used to specify a
+  list delimiter other than a space.
+ 
+  Examples:
+    > say graball(This is a new test,?e*)
+    You say "new test"
+    > say graball(Holodeck:#10~Airlock:#58~Dorm:#12~Brig:#83,*i*:*,~,|)
+    You say "Airlock:#58|Brig:#83"
+ 
+  See also: LISTS, grab(), match(), matchall().
  
 & FLAGS()
   flags(<object>)
