@@ -219,7 +219,7 @@ int format;
 		}
 		break;
 	default:
-		fprintf(stderr, "ABORT! unparse.c, bad boolexp type in unparse_boolexp1().\n");
+		fprintf(mainlog_fp, "ABORT! unparse.c, bad boolexp type in unparse_boolexp1().\n");
 		abort();
 		break;
 	}

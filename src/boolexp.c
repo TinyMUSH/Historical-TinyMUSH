@@ -91,7 +91,7 @@ BOOLEXP *b;
 			ENDLOG
 				notify(player, "Sorry, broken lock!");
 #else
-			fprintf(stderr, "Lock exceeded recursion limit.\n");
+			fprintf(mainlog_fp, "Lock exceeded recursion limit.\n");
 #endif
 			mudstate.lock_nest_lev--;
 			return (0);
@@ -109,7 +109,7 @@ BOOLEXP *b;
 			ENDLOG
 				notify(player, "Sorry, broken lock!");
 #else
-			fprintf(stderr, "Broken lock.\n");
+			fprintf(mainlog_fp, "Broken lock.\n");
 #endif
 			mudstate.lock_nest_lev--;
 			return (0);
@@ -217,7 +217,7 @@ BOOLEXP *b;
 	case BOOLEXP_OWNER:
 		return (Owner(b->sub1->thing) == Owner(player));
 	default:
-	    fprintf(stderr, "ABORT! boolexp.c, unknown boolexp type in eval_boolexp().\n");
+	    fprintf(mainlog_fp, "ABORT! boolexp.c, unknown boolexp type in eval_boolexp().\n");
 	    abort();		/* bad type */
 	    return 0;		/* NOTREACHED */
 	}

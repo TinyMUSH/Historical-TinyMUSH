@@ -43,7 +43,7 @@ FILE *f;
 		return TRUE_BOOLEXP;
 		/* break; */
 	case EOF:
-	        fprintf(stderr, "ABORT! db_rw.c, unexpected EOF in boolexp in getboolexp1().\n");
+	        fprintf(mainlog_fp, "ABORT! db_rw.c, unexpected EOF in boolexp in getboolexp1().\n");
 		abort();
 		break;
 	case '(':
@@ -114,7 +114,7 @@ FILE *f;
 	case '-':		/* obsolete NOTHING key, eat it */
 	        while ((c = getc(f)) != '\n') {
 		    if (c == EOF) {
-			fprintf(stderr, "ABORT! db_rw.c, unexpected EOF in getboolexp1().\n");
+			fprintf(mainlog_fp, "ABORT! db_rw.c, unexpected EOF in getboolexp1().\n");
 			abort();
 		    }
 		}
@@ -227,7 +227,7 @@ FILE *f;
 	}
 
       error:
-	fprintf(stderr,
+	fprintf(mainlog_fp,
 		"ABORT! db_rw.c, reached error case in getboolexp1().\n");
 	abort();		/* bomb out */
 	return TRUE_BOOLEXP;	/* NOTREACHED */
@@ -245,7 +245,7 @@ FILE *f;
 
 	b = getboolexp1(f);
 	if (getc(f) != '\n') {
-	    fprintf(stderr, "ABORT! db_rw.c, parse error in getboolexp().\n");
+	    fprintf(mainlog_fp, "ABORT! db_rw.c, parse error in getboolexp().\n");
 	    abort();	/* parse error, we lose */
 	}
 
@@ -428,7 +428,7 @@ int new_strings;
 
 			ownp = (char *)index(buff, '^');
 			if (!ownp) {
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 				   "Bad format in attribute on object %d\n",
 					i);
 				free_lbuf(buff);
@@ -440,7 +440,7 @@ int new_strings;
 
 			flagp = (char *)index(ownp, '^');
 			if (!flagp) {
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 				   "Bad format in attribute on object %d\n",
 					i);
 				free_lbuf(buff);
@@ -492,7 +492,7 @@ int new_strings;
 					aowner = Owner(i);
 				}
 				if (anum < 0) {
-					fprintf(stderr,
+					fprintf(mainlog_fp,
 						"Bad attribute name '%s' on object %d, ignoring...\n",
 						buff, i);
 					(void)getstring_noalloc(f, new_strings);
@@ -510,13 +510,13 @@ int new_strings;
 			c = getc(f);
 			if (c != '\n') {
 				ungetc(c, f);
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"No line feed on object %d\n", i);
 				return 1;
 			}
 			return 1;
 		default:
-			fprintf(stderr,
+			fprintf(mainlog_fp,
 				"Bad character '%c' when getting attributes on object %d\n",
 				c, i);
 			/* We've found a bad spot.  I hope things aren't
@@ -603,7 +603,7 @@ BOOLEXP *b;
 		}
 		break;
 	default:
-		fprintf(stderr, "Unknown boolean type in putbool_subexp: %d\n",
+		fprintf(mainlog_fp, "Unknown boolean type in putbool_subexp: %d\n",
 			b->type);
 	}
 }
@@ -677,7 +677,7 @@ int db_format, db_version;
 			newf1 = TYPE_PLAYER | WIZARD;
 			break;
 		default:	/* A bad type, mark going */
-			fprintf(stderr, "Funny object type for #%d\n", thing);
+			fprintf(mainlog_fp, "Funny object type for #%d\n", thing);
 			*flags1 = GOING;
 			return;
 		}
@@ -1381,8 +1381,7 @@ int *db_format, *db_version, *db_flags;
 	read_muse_parents = 0;
 	read_muse_atrdefs = 0;
 
-	fprintf(stderr, "Reading ");
-	fflush(stderr);
+	fprintf(mainlog_fp, "Reading ");
 #endif
 	db_free();
 	for (i = 0;; i++) {
@@ -1394,8 +1393,7 @@ int *db_format, *db_version, *db_flags;
 #endif /* MEMORY_BASED */
 #ifdef STANDALONE
 		if (!(i % 100)) {
-			fputc('.', stderr);
-			fflush(stderr);
+			fputc('.', mainlog_fp);
 		}
 #endif
 
@@ -1443,7 +1441,7 @@ int *db_format, *db_version, *db_flags;
 				g_version = 2;
 			}
 			if (size_gotten) {
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"\nDuplicate size entry at object %d, ignored.\n",
 					i);
 				tstr = getstring_noalloc(f, 0);	/* junk */
@@ -1464,7 +1462,7 @@ int *db_format, *db_version, *db_flags;
 			 */
 		        
 			 if (header_gotten) {
-			     fprintf(stderr,
+			     fprintf(mainlog_fp,
 				     "\nDuplicate MUSH version header entry at object %d, ignored.\n",
 				     i);
 			     tstr = getstring_noalloc(f, 0);
@@ -1523,7 +1521,7 @@ int *db_format, *db_version, *db_flags;
 			case 'K':	/* Kalkin's DarkZone dist */
 				/* Him and his #defines... */
 				if (header_gotten) {
-					fprintf(stderr,
+					fprintf(mainlog_fp,
 						"\nDuplicate MUSH version header entry at object %d, ignored.\n",
 						i);
 					tstr = getstring_noalloc(f, 0);
@@ -1562,7 +1560,7 @@ int *db_format, *db_version, *db_flags;
 #endif /* STANDALONE */
 			case 'S':	/* SIZE */
 				if (size_gotten) {
-					fprintf(stderr,
+					fprintf(mainlog_fp,
 						"\nDuplicate size entry at object %d, ignored.\n",
 						i);
 					tstr = getstring_noalloc(f, 0);
@@ -1592,7 +1590,7 @@ int *db_format, *db_version, *db_flags;
 					 * FREELIST 
 					 */
 				if (nextattr_gotten) {
-					fprintf(stderr,
+					fprintf(mainlog_fp,
 						"\nDuplicate next free vattr entry at object %d, ignored.\n",
 						i);
 					tstr = getstring_noalloc(f, 0);
@@ -1602,7 +1600,7 @@ int *db_format, *db_version, *db_flags;
 				}
 				break;
 			default:
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"\nUnexpected character '%c' in MUSH header near object #%d, ignored.\n",
 					ch, i);
 				tstr = getstring_noalloc(f, 0);
@@ -1611,7 +1609,7 @@ int *db_format, *db_version, *db_flags;
 #ifdef STANDALONE
 		case '@':	/* MUSE header */
 			if (header_gotten) {
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"\nDuplicate MUSE header entry at object #%d.\n",
 					i);
 				return -1;
@@ -1638,13 +1636,13 @@ int *db_format, *db_version, *db_flags;
 				deduce_version = 0;
 			}
 			if (g_format != F_MUD) {
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"\nMUD-style object found in non-MUD database at object #%d\n",
 					i);
 				return -1;
 			}
 			if (i != getref(f)) {
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 				     "\nSequence error at object #%d\n", i);
 				return -1;
 			}
@@ -1836,7 +1834,7 @@ int *db_format, *db_version, *db_flags;
 					s_Parent(i, NOTHING);
 				}
 				if (!get_list(f, i, read_new_strings)) {
-					fprintf(stderr,
+					fprintf(mainlog_fp,
 						"\nError reading attrs for object #%d\n",
 						i);
 					return -1;
@@ -1955,7 +1953,7 @@ int *db_format, *db_version, *db_flags;
 
 				if (read_attribs) {
 					if (!get_list(f, i, read_new_strings)) {
-						fprintf(stderr,
+						fprintf(mainlog_fp,
 							"\nError reading attrs for object #%d\n",
 							i);
 						return -1;
@@ -1990,14 +1988,13 @@ int *db_format, *db_version, *db_flags;
 		case '*':	/* EOF marker */
 			tstr = getstring_noalloc(f, 0);
 			if (strcmp(tstr, "**END OF DUMP***")) {
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"\nBad EOF marker at object #%d\n",
 					i);
 				return -1;
 			} else {
 #ifdef STANDALONE
-				fprintf(stderr, "\n");
-				fflush(stderr);
+				fprintf(mainlog_fp, "\n");
 #endif
 				/* Fix up bizarro foreign DBs */
 
@@ -2019,7 +2016,7 @@ int *db_format, *db_version, *db_flags;
 				return mudstate.db_top;
 			}
 		default:
-			fprintf(stderr, "\nIllegal character '%c' near object #%d\n",
+			fprintf(mainlog_fp, "\nIllegal character '%c' near object #%d\n",
 				ch, i);
 			return -1;
 		}
@@ -2140,12 +2137,11 @@ int format, version;
 		flags = version;
 		break;
 	default:
-		fprintf(stderr, "Can only write TinyMUSH 3 format.\n");
+		fprintf(mainlog_fp, "Can only write TinyMUSH 3 format.\n");
 		return -1;
 	}
 #ifdef STANDALONE
-	fprintf(stderr, "Writing ");
-	fflush(stderr);
+	fprintf(mainlog_fp, "Writing ");
 #endif
 	i = mudstate.attr_next;
 	/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
@@ -2171,8 +2167,7 @@ int format, version;
 
 #ifdef STANDALONE
 		if (!(i % 100)) {
-			fputc('.', stderr);
-			fflush(stderr);
+			fputc('.', mainlog_fp);
 		}
 #endif
 
@@ -2184,8 +2179,7 @@ int format, version;
 	fputs("***END OF DUMP***\n", f);
 	fflush(f);
 #ifdef STANDALONE
-	fprintf(stderr, "\n");
-	fflush(stderr);
+	fprintf(mainlog_fp, "\n");
 #endif
 	return (mudstate.db_top);
 }

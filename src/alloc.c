@@ -152,7 +152,7 @@ const char *tag;
 					    sizeof(POOLHDR) + sizeof(POOLFTR),
 					    "pool_alloc");
 			if (h == NULL) {
-			    fprintf(stderr, "ABORT! alloc.c, pool_alloc() failed to get memory.\n");
+			    fprintf(mainlog_fp, "ABORT! alloc.c, pool_alloc() failed to get memory.\n");
 			    abort();
 			}
 			ph = (POOLHDR *) h;

@@ -1812,7 +1812,7 @@ static void read_comsys(fp, com_ver)
 		    /* Ut oh. Format error. Trudge on valiantly... probably
 		     * won't work, but we can try.
 		     */
-		    fprintf(stderr,
+		    fprintf(mainlog_fp,
 	    "Missing newline while reading join lock for channel %s\n",
 			    chp->name);
 		}
@@ -1823,13 +1823,13 @@ static void read_comsys(fp, com_ver)
 		} else if (c == '-') {
 		    getc(fp);	/* eat the next newline */
 		} else {
-		    fprintf(stderr,
+		    fprintf(mainlog_fp,
     "Expected termination sequence while reading join lock for channel %s\n",
 			    chp->name);
 		}
 		chp->trans_lock = getboolexp1(fp);
 		if (getc(fp) != '\n') {
-		    fprintf(stderr,
+		    fprintf(mainlog_fp,
 	    "Missing newline while reading transmit lock for channel %s\n",
 			    chp->name);
 		}
@@ -1840,13 +1840,13 @@ static void read_comsys(fp, com_ver)
 		} else if (c == '-') {
 		    getc(fp);	/* eat the next newline */
 		} else {
-		    fprintf(stderr,
+		    fprintf(mainlog_fp,
  "Expected termination sequence while reading transmit lock for channel %s\n",
 			    chp->name);
 		}
 		chp->recv_lock = getboolexp1(fp);
 		if (getc(fp) != '\n') {
-		    fprintf(stderr,
+		    fprintf(mainlog_fp,
 	    "Missing newline while reading receive lock for channel %s\n",
 			    chp->name);
 		}
@@ -1857,7 +1857,7 @@ static void read_comsys(fp, com_ver)
 		} else if (c == '-') {
 		    getc(fp);	/* eat the next newline */
 		} else {
-		    fprintf(stderr,
+		    fprintf(mainlog_fp,
   "Expected termination sequence while reading receive lock for channel %s\n",
 			    chp->name);
 		}

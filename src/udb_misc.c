@@ -2,8 +2,6 @@
  * Misc support routines for unter style error management.
  * Stolen from mjr.
  * 
- * Modded to scribble on stderr, for now.
- * 
  * Andrew Molitor, amolitor@eagle.wesleyan.edu
  * 
  * $Id$
@@ -66,11 +64,10 @@ va_dcl
 		if (p == (char *)-1)
 			p = (char *) sys_errlist[errno];
 
-		(void)fprintf(stderr, "%s", p);
+		(void)fprintf(mainlog_fp, "%s", p);
 		p = va_arg(ap, char *);
 	}
 	va_end(ap);
-	(void)fflush(stderr);
 }
 
 /*
@@ -105,10 +102,9 @@ va_dcl
 		if (p == (char *)-1)
 			p = (char *) sys_errlist[errno];
 
-		(void)fprintf(stderr, "%s", p);
+		(void)fprintf(mainlog_fp, "%s", p);
 		p = va_arg(ap, char *);
 	}
 	va_end(ap);
-	(void)fflush(stderr);
 	exit(1);
 }

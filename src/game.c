@@ -938,7 +938,7 @@ static void report_timecheck(player, yes_screen, yes_log, yes_clear)
             used_msecs = (obj_time.tv_sec * 1000) + (obj_time.tv_usec / 1000);
             total_msecs += used_msecs;
             if (yes_log)
-                fprintf(stderr, "#%d\t%ld\n", thing, used_msecs);
+                fprintf(mainlog_fp, "#%d\t%ld\n", thing, used_msecs);
             if (yes_screen)
                 raw_notify(player, tprintf("#%d\t%ld", thing, used_msecs));
             if (yes_clear)
@@ -956,7 +956,7 @@ static void report_timecheck(player, yes_screen, yes_log, yes_clear)
     }
 
     if (yes_log) {
-        fprintf(stderr, "Counted %d objects using %ld msecs over %d seconds.",
+        fprintf(mainlog_fp, "Counted %d objects using %ld msecs over %d seconds.",
                 obj_counted, total_msecs,
                 (int) (time(NULL) - mudstate.cpu_count_from));
         end_log();
@@ -1468,11 +1468,6 @@ void do_logrotate(player, cause, key)
     dbref player, cause;
     int key;
 {
-    /* It would be a good idea for the initial redirection of stderr to
-     * point at the same name that we've given our logfile, but this
-     * isn't absolutely necessary.
-     */
-
     LOGFILETAB *lp;
     int oldfd, newfd;
 	

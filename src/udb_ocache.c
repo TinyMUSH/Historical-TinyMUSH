@@ -1252,7 +1252,7 @@ Obj *obj;
 		return;
 
 	if (obj->at_count < 0) {
-	    fprintf(stderr,
+	    fprintf(mainlog_fp,
 		    "ABORT! udb_ocache.c, negative attr count in del_attrib().\n");
 	    abort();
 	}

@@ -823,12 +823,12 @@ char *prog;
 	scan = prog;
 #ifdef DEBUG
 	if (scan != NULL && regnarrate)
-		fprintf(stderr, "%s(\n", regprop(scan));
+		fprintf(mainlog_fp, "%s(\n", regprop(scan));
 #endif
 	while (scan != NULL) {
 #ifdef DEBUG
 		if (regnarrate)
-			fprintf(stderr, "%s...\n", regprop(scan));
+			fprintf(mainlog_fp, "%s...\n", regprop(scan));
 #endif
 		next = regnext(scan);
 
