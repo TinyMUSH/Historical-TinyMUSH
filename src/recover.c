@@ -31,6 +31,7 @@ char *argv[];
 	struct stat buf;
 	bucket_element be;
 	int c;
+	char cp;
 	extern char *optarg;
 	extern int optind;
 	char *infile, *outfile;
@@ -77,9 +78,9 @@ char *argv[];
 	
 	f = fopen(infile, "r");
 	
-	while (fread((void *)&c, 1, 1, f) != 0) {
+	while (fread((void *)&cp, 1, 1, f) != 0) {
 		/* Quick and dirty */
-		if ((char)c == 'T') {
+		if (cp == 'T') {
 			filepos = ftell(f);
 			
 			/* Rewind one byte */
