@@ -502,7 +502,7 @@ int success, failure;
 	char *buff;
 
 	/*
-	 * If any successes, return SUCCESS(0) if no failures or * * * * *
+	 * If any successes, return SUCCESS(0) if no failures or
 	 * PARTIAL_SUCCESS(1) if any failures. 
 	 */
 
@@ -511,8 +511,7 @@ int success, failure;
 
 	/*
 	 * No successes.  If no failures indicate nothing done. Always return 
-	 * 
-	 * *  * *  * *  * *  * * FAILURE(-1) 
+	 * FAILURE(-1) 
 	 */
 
 	if (failure == 0) {
@@ -532,16 +531,16 @@ int success, failure;
 
 /*
  * ---------------------------------------------------------------------------
- * * cf_int: Set integer parameter.
+ * * cf_const: Read-only integer or boolean parameter.
  */
 
 CF_HAND(cf_const)
 {
 	/*
-	 * Ignore any attempt to change the value
+	 * Fail on any attempt to change the value
 	 */
 
-	return 0;
+	return -1;
 }
 
 /*
@@ -643,54 +642,38 @@ CF_HAND(cf_string)
 CF_HAND(cf_alias)
 {
 	char *alias, *orig, *p, *tokst;
-	int *cp;
+	int *cp, upcase;
 
 	alias = strtok_r(str, " \t=,", &tokst);
 	orig = strtok_r(NULL, " \t=,", &tokst);
 	if (orig) {
+		upcase = 0;
 		for (p = orig; *p; p++)
 			*p = ToLower(*p);
 		cp = hashfind(orig, (HASHTAB *) vp);
 		if (cp == NULL) {
+			upcase++;
 			for (p = orig; *p; p++)
 				*p = ToUpper(*p);
 			cp = hashfind(orig, (HASHTAB *) vp);
 			if (cp == NULL) {
-				cf_log_notfound(player, cmd, "Entry", orig);
+				cf_log_notfound(player, cmd, extra, orig);
 				return -1;
 			}
 		}
-		hashadd(alias, cp, (HASHTAB *) vp);
-		return 0;
+		if (upcase) {
+			for (p = alias; *p; p++)
+				*p = ToUpper(*p);
+		} else {
+			for (p = alias; *p; p++)
+				*p = ToLower(*p);
+		}
+		return hashadd(alias, cp, (HASHTAB *) vp);
 	} else {
 		cf_log_syntax(player, cmd, "Invalid original for alias %s",
 			      alias);
 		return -1;
 	}
-}
-
-/*
- * ---------------------------------------------------------------------------
- * * cf_flagalias: define a flag alias.
- */
-
-CF_HAND(cf_flagalias)
-{
-	char *alias, *orig, *tokst;
-	int *cp, success;
-
-	success = 0;
-	alias = strtok_r(str, " \t=,", &tokst);
-	orig = strtok_r(NULL, " \t=,", &tokst);
-
-	cp = hashfind(orig, &mudstate.flags_htab);
-	if (cp != NULL) {
-		hashadd(alias, cp, &mudstate.flags_htab);
-		success++;
-	}
-	if (!success)
-		cf_log_notfound(player, cmd, "Flag", orig);
-	return ((success > 0) ? 0 : -1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1219,49 +1202,42 @@ CF_HAND(cf_include)
 			continue;
 		}
 		/*
-		 * Not a comment line.  Strip off the NL and any characters * 
-		 * 
-		 * *  * *  * *  * *  * * following it.  Then, split the line
-		 * into * the *  * command and  * *  * argument portions
-		 * (separated * by a * * space).  Also, trim  * off * * the
-		 * trailing * comment, if * * any (delimited by #) 
+		 * Not a comment line.  Strip off the NL and any characters
+		 * following it.  Then, split the line into the command and
+		 * argument portions (separated by a space).  Also, trim off
+		 * the trailing comment, if any (delimited by #) 
 		 */
 
 		for (cp = buf; *cp && *cp != '\n'; cp++) ;
 		*cp = '\0';	/*
-				 * strip \n 
+				 * strip \n
 				 */
 		for (cp = buf; *cp && isspace(*cp); cp++) ;	/*
-								 * strip * *
-								 * * * *
+								 * strip
 								 * spaces  
 								 */
 		for (ap = cp; *ap && !isspace(*ap); ap++) ;	/*
 								 * skip over
-								 * * * * * *
-								 * * * *
 								 * command 
 								 */
 		if (*ap)
 			*ap++ = '\0';	/*
-					 * trim command 
+					 * trim command
 					 */
 		for (; *ap && isspace(*ap); ap++) ;	/*
 							 * skip spaces 
 							 */
 		for (zp = ap; *zp && (*zp != '#'); zp++) ;	/*
-								 * find * * * 
-								 * 
-								 * *  * *
-								 * comment 
+								 * find
+								 * comment
 								 */
 		if (*zp)
 			*zp = '\0';	/*
-					 * zap comment 
+					 * zap comment
 					 */
 		for (zp = zp - 1; zp >= ap && isspace(*zp); zp--)
 			*zp = '\0';	/*
-					 * zap trailing spcs 
+					 * zap trailing spcs
 					 */
 
 		cf_set(cp, ap, player);
@@ -1295,7 +1271,7 @@ CONF conftable[] = {
 {(char *)"alias",			cf_cmd_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.command_htab,	0},
 {(char *)"ansi_colors",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.ansi_colors,		(long)"ANSI color codes enabled"},
 {(char *)"attr_access",			cf_attr_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)attraccess_nametab},
-{(char *)"attr_alias",			cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.attr_name_htab,0},
+{(char *)"attr_alias",			cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.attr_name_htab,(long)"Attribute"},
 {(char *)"attr_cmd_access",		cf_acmd_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
 {(char *)"autozone",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.autozone,		(long)"New objects are @chzoned to their creator's zone"},
 {(char *)"bad_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				0},
@@ -1346,7 +1322,7 @@ CONF conftable[] = {
 {(char *)"fixed_home_message",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.fixed_home_msg,	PBUF_SIZE},
 {(char *)"fixed_tel_message",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.fixed_tel_msg,	PBUF_SIZE},
 {(char *)"find_money_chance",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.payfind, 		0},
-{(char *)"flag_alias",			cf_flagalias,	CA_GOD,		CA_DISABLED,	NULL,				0},
+{(char *)"flag_alias",			cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.flags_htab,	(long)"Flag"},
 {(char *)"flag_access",			cf_flag_access,	CA_GOD,		CA_DISABLED,	NULL,				0},
 {(char *)"flag_name",			cf_flag_name,	CA_GOD,		CA_DISABLED,	NULL,				0},
 {(char *)"forbid_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list,	H_FORBIDDEN},
@@ -1357,7 +1333,7 @@ CONF conftable[] = {
 {(char *)"full_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.full_file,	SBUF_SIZE},
 {(char *)"full_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mudconf.fullmotd_msg,	GBUF_SIZE},
 {(char *)"function_access",		cf_func_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
-{(char *)"function_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.func_htab,	0},
+{(char *)"function_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.func_htab,	(long)"Function"},
 {(char *)"function_invocation_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_invk_lim,		0},
 {(char *)"function_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_nest_lim,		0},
 {(char *)"game_log",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.mudlogname,	PBUF_SIZE},
@@ -1418,7 +1394,7 @@ CONF conftable[] = {
 {(char *)"log",				cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.log_options,		(long)logoptions_nametab},
 {(char *)"log_options",			cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.log_info,		(long)logdata_nametab},
 {(char *)"logout_cmd_access",		cf_ntab_access,	CA_GOD,		CA_DISABLED,	(int *)logout_cmdtable,		(long)access_nametab},
-{(char *)"logout_cmd_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.logout_cmd_htab,0},
+{(char *)"logout_cmd_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.logout_cmd_htab,(long)"Logged-out command"},
 {(char *)"look_obey_terse",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_look,		(long)"look obeys the TERSE flag"},
 {(char *)"machine_command_cost",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.machinecost,		0},
 {(char *)"mail_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.mail_db,		PBUF_SIZE},
