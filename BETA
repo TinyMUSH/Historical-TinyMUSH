@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-08/xx/2002: Beta 6
+08/14/2002: Beta 6
 
 - Feature: Global registers can now be named arbitrary things, with the
   number permitted by an action list limited to the conf parameter
