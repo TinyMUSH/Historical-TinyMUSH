@@ -40,6 +40,9 @@ Release history:
 - Fix: Lookup slave no longer leaves zombie processes; requires rerunning
   configure script to look for wait4(). [MUX2; Brazil]
 
+- Misc: If the last line of the logfile is a GDBM panic: write error,
+  the Startmush script will stop, and direct user to run a Reconstruct first.
+
 -----------------------------------------------------------------------------
 
 07/30/2003: Beta 10
