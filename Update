@@ -47,11 +47,7 @@ sub Web_Get {
 
     # Connection set-up.
 
-    $sockaddr = 'S n a4 x8';
-    $thishost = hostname();
     $proto = (getprotobyname('tcp'))[2];
-    $thisaddr = (gethostbyname($thishost))[4];
-    $this = pack($sockaddr, &AF_INET, 0, $thisaddr);
 
     if (! ($thataddr = gethostbyname($them)) ) {
 	print "Error getting $basefile: gethostbyname ($them): $!\n";
@@ -63,11 +59,7 @@ sub Web_Get {
 	print "Error geting $basefile: socket: $!\n";
 	return -1;
     }
-    if (! bind(S, $this)) {
-	print "Error getting $basefile: bind: $!\n";
-	close(S);
-	return -1;
-    }
+
     if (! connect(S, $that)) {
 	print "Error getting $basefile: connect: $!\n";
 	close(S);
