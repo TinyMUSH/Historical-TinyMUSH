@@ -387,4 +387,7 @@ Patchlevel 3:
   - Uppercase flag names will now work with player_flags, etc.
     [2.0; Robert M. Zigweid]
 
+  - Removed ANSI codes from Pueblo xch_cmd link attributes for
+    MUSHclient compatibility. [MUX; Nick Gammon]
+
 =============================================================================

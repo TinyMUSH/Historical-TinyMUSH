@@ -115,10 +115,11 @@ const char *exit_name;
 		    /* Copy the exit name into 'buff' */
 #ifdef PUEBLO_SUPPORT
 		    if (Html(player)) {
-			/* XXX The exit name needs to be HTML escaped. */
 			safe_str((char *) "<a xch_cmd=\"", buff, &e);
-			safe_str(buff1, buff, &e);
+			/* XXX Just stripping ansi isn't really enough. */
+			safe_str(strip_ansi(buff1), buff, &e);
 			safe_str((char *) "\">", buff, &e);
+			/* XXX The exit name needs to be HTML escaped. */
 			html_escape(buff1, buff, &e);
 			safe_str((char *) "</a>", buff, &e);
 		    } else {
@@ -216,17 +217,18 @@ int style;
 				if (Html(player)) {
 				    safe_str("<a xch_cmd=\"look ",
 					     html_buff, &html_cp);
+				    /* XXX Just stripping ansi isn't enough. */
 				    switch (style) {
 					case CONTENTS_LOCAL:
-					    safe_name(thing,
+					    safe_str(PureName(thing),
 						     html_buff, &html_cp);
 					    break;
 					case CONTENTS_NESTED:
-					    safe_name(Location(thing),
+					    safe_str(PureName(Location(thing)),
 						     html_buff, &html_cp);
 					    safe_str("'s ",
 						     html_buff, &html_cp);
-					    safe_name(thing,
+					    safe_str(PureName(thing),
 						     html_buff, &html_cp);
 					    break;
 					case CONTENTS_REMOTE:
