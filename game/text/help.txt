@@ -14461,5 +14461,13 @@ Continued in 'help 3.1 functions8'.
   regrep(), regmatch() and regparse(), but work against wildcard patterns
   rather than regexps.
  
+Continued in 'help 3.1 functions9'.
+ 
+& 3.1 functions9
+ 
 - Added writable() function, which returns 1 if object X can set an
   attribute A on object Y.
+ 
+- Added @@() function, which is like null(), but does not evaluate
+  its argument.
+ 

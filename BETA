@@ -42,6 +42,9 @@ Release history:
 
 - Feature: Added connrecord(), connected player record (as in WHO).
 
+- Feature: Added @@(), which is like null() except the argument is not
+  evaluated. Idea from PennMUSH.
+
 - Feature: @conformat and @exitformat get their visible contents/exits
   lists passed as %0.
 

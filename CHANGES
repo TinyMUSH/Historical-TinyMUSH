@@ -482,6 +482,9 @@ CHANGES TO FUNCTIONS
 - Added writable() function, which returns 1 if object X can set an
   attribute A on object Y.
 
+- Added @@() function, which is like null(), but does not evaluate
+  its argument.
+
 -----------------------------------------------------------------------------
 
 OTHER CHANGES
