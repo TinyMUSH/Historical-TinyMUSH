@@ -306,13 +306,14 @@ int check_exclude, hash_insert;
 		if (!*s)
 			continue;
 		*s++ = 0;
-		if (((aflags & AF_REGEXP) &&
-		     regexp_match(buff + 1, 
-		     		((aflags & AF_NOPARSE) ? raw_str : str), 
-		     		args, 10)) ||
+		if ((!(aflags & AF_REGEXP) &&
 		     wild(buff + 1, 
-		     		((aflags & AF_NOPARSE) ? raw_str: str), 
-		     		args, 10)) {
+			  ((aflags & AF_NOPARSE) ? raw_str: str), 
+			  args, 10)) ||
+		    ((aflags & AF_REGEXP) &&
+		     regexp_match(buff + 1, 
+				  ((aflags & AF_NOPARSE) ? raw_str : str), 
+				  args, 10))) {
 			match = 1;
 			wait_que(thing, player, 0, NOTHING, 0, s, args, 10,
 				 mudstate.global_regs);
