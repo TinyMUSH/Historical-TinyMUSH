@@ -130,7 +130,6 @@ fi
 #	Kick off MUSH
 #
 touch $LOGNAME
-(nohup $BIN/netmush $make_db -c $GAMENAME.conf -l $LOGNAME -p $PIDFILE >>$LOGNAME 2>&1 &)
-sleep 1
-echo "Process `cat $PIDFILE`"
+$BIN/netmush $make_db -c $GAMENAME.conf -l $LOGNAME -p $PIDFILE >>$LOGNAME 2>&1 &
+echo "Process $!"
 tail -f $LOGNAME | awk '{ print $0 }; /Cleanup completed/ { exit };'
