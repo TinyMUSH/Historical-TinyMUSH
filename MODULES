@@ -103,6 +103,8 @@ CONF mod_<name>_conftable[] = {
 	&mod_<name>_config.<const_param>,	(long)<as appropriate>},
 {(char *)"<integer param>",	cf_int,		<set perms>,	<read perms>,
 	&mod_<name>_config.<int_param>,		<maximum value or 0>},
+{(char *)"<dbref param>",	cf_dbref,	<set perms>,	<read perms>,
+	&mod_<name>_config.<dbref_param>,	<default valid if invalid>},
 {(char *)"<options flagword>",	cf_modify_bits,	
 	&mod_<name>_config.<options_param>,	(long)<name table>},
 {(char *)"<nametable>_access",	cf_ntab_access,	<set perms>,	CA_DISABLED,

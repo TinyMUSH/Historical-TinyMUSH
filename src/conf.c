@@ -69,8 +69,8 @@ void NDECL(cf_init)
 	mudconf.init_size = 1000;
 	mudconf.use_global_aconn = 1;
 	mudconf.global_aconn_uselocks = 0;
-	mudconf.guest_char = -1;
-	mudconf.guest_nuker = 1;
+	mudconf.guest_char = NOTHING;
+	mudconf.guest_nuker = GOD;
 	mudconf.number_guests = 30;
 	mudconf.guest_basename = XSTRDUP("Guest", "cf_init");
 	mudconf.guest_password = XSTRDUP("guest", "cf_init");
@@ -546,6 +546,51 @@ CF_HAND(cf_int)
 	}
 	sscanf(str, "%d", vp);
 	return 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * cf_dbref: Set dbref parameter.
+ */
+
+CF_HAND(cf_dbref)
+{
+    int num;
+
+    /* No consistency check on initialization. */
+
+    if (mudstate.initializing) {
+	if (*str == '#') {
+	    sscanf(str, "#%d", vp);
+	} else {
+	    sscanf(str, "%d", vp);
+	}
+	return 0;
+    }
+
+    /* Otherwise we have to validate this. If 'extra' is non-zero, the
+     * dbref is allowed to be NOTHING.
+     */
+
+    if (*str == '#')
+	num = atoi(str + 1);
+    else
+	num = atoi(str);
+
+    if (((extra == NOTHING) && (num == NOTHING)) || Good_obj(num)) {
+	if (*str == '#') {
+	    sscanf(str, "#%d", vp);
+	} else {
+	    sscanf(str, "%d", vp);
+	}
+	return 0;
+    }
+
+    if (extra == NOTHING) {
+	cf_log_syntax(player, cmd, "A valid dbref, or -1, is required.");
+    } else {
+	cf_log_syntax(player, cmd, "A valid dbref is required.");
+    }
+    return -1;
 }
 
 /*
@@ -1376,7 +1421,7 @@ CONF conftable[] = {
 {(char *)"dark_actions",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.dark_actions,		(long)"Dark objects still trigger @a-actions when moving"},
 {(char *)"dark_sleepers",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.dark_sleepers,		(long)"Disconnected players not shown in room contents"},
 {(char *)"database_home",		cf_string,	CA_STATIC, 	CA_GOD,		(int *)&mudconf.dbhome,		MBUF_SIZE},
-{(char *)"default_home",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.default_home,		0},
+{(char *)"default_home",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.default_home,		NOTHING},
 {(char *)"dig_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.digcost,		0},
 {(char *)"divert_log",			cf_divert_log,	CA_STATIC,	CA_DISABLED,	&mudconf.log_diversion,		(long) logoptions_nametab},
 {(char *)"down_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.down_file,	MBUF_SIZE},
@@ -1390,9 +1435,9 @@ CONF conftable[] = {
 {(char *)"examine_public_attrs",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.exam_public,		(long)"examine shows public attributes"},
 {(char *)"exit_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.exit_flags,	0},
 {(char *)"exit_calls_move",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.exit_calls_move,	(long)"Using an exit calls the move command"},
-{(char *)"exit_parent",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_parent,		0},
-{(char *)"exit_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_proto,		0},
-{(char *)"exit_attr_defaults",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_defobj,		0},
+{(char *)"exit_parent",			cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.exit_parent,		NOTHING},
+{(char *)"exit_proto",			cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.exit_proto,		NOTHING},
+{(char *)"exit_attr_defaults",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.exit_defobj,		NOTHING},
 {(char *)"exit_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_quota,		0},
 {(char *)"events_daily_hour",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.events_daily_hour,	0},
 {(char *)"fascist_teleport",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fascist_tport,		(long)"@teleport source restricted to control or JUMP_OK"},
@@ -1416,15 +1461,15 @@ CONF conftable[] = {
 {(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @aconnect and @adisconnect"},
 {(char *)"good_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				1},
 {(char *)"guest_basename",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_basename,	PLAYER_NAME_LIMIT},
-{(char *)"guest_char_num",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.guest_char,		0},
-{(char *)"guest_nuker",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.guest_nuker,		0},
+{(char *)"guest_char_num",		cf_dbref,	CA_STATIC,	CA_WIZARD,	&mudconf.guest_char,		NOTHING},
+{(char *)"guest_nuker",			cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.guest_nuker,		GOD},
 {(char *)"guest_password",		cf_string,	CA_GOD,		CA_GOD,		(int *)&mudconf.guest_password,	SBUF_SIZE},
 {(char *)"guest_prefixes",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.guest_prefixes,	LBUF_SIZE},
 {(char *)"guest_suffixes",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.guest_suffixes,	LBUF_SIZE},
 {(char *)"number_guests",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.number_guests,		0},
 {(char *)"guest_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.guest_file,	MBUF_SIZE},
 {(char *)"guest_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list, 	H_GUEST},
-{(char *)"guest_starting_room",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.guest_start_room,	0},
+{(char *)"guest_starting_room",		cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.guest_start_room,	NOTHING},
 
 {(char *)"have_pueblo",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_pueblo,		(long)"Pueblo client extensions are supported"},
 {(char *)"have_zones",			cf_bool,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_zones,		(long)"Multiple control via ControlLocks is permitted"},
@@ -1461,7 +1506,7 @@ CONF conftable[] = {
 {(char *)"logout_cmd_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.logout_cmd_htab,(long)"Logged-out command"},
 {(char *)"look_obey_terse",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_look,		(long)"look obeys the TERSE flag"},
 {(char *)"machine_command_cost",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.machinecost,		0},
-{(char *)"master_room",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.master_room,		0},
+{(char *)"master_room",			cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.master_room,		NOTHING},
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
 {(char *)"module",			cf_module,	CA_STATIC,	CA_WIZARD,	NULL,				0},
@@ -1492,13 +1537,13 @@ CONF conftable[] = {
 {(char *)"player_listen",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.player_listen,		(long)"@listen and ^-monitors are checked on players"},
 {(char *)"player_match_own_commands",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine_pl,		(long)"Players can match $-commands on themselves"},
 {(char *)"player_name_spaces",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.name_spaces,		(long)"Player names can contain spaces"},
-{(char *)"player_parent",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_parent,		0},
-{(char *)"player_proto",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_proto,		0},
-{(char *)"player_attr_defaults",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_defobj,		0},
+{(char *)"player_parent",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.player_parent,		NOTHING},
+{(char *)"player_proto",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.player_proto,		NOTHING},
+{(char *)"player_attr_defaults",	cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.player_defobj,		NOTHING},
 {(char *)"player_queue_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.queuemax,		0},
 {(char *)"player_quota",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_quota,		0},
-{(char *)"player_starting_home",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_home,		0},
-{(char *)"player_starting_room",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_room,		0},
+{(char *)"player_starting_home",	cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.start_home,		NOTHING},
+{(char *)"player_starting_room",	cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.start_room,		0},
 {(char *)"port",			cf_int,		CA_STATIC,	CA_PUBLIC,	&mudconf.port,			0},
 {(char *)"power_access",		cf_power_access,CA_GOD,		CA_DISABLED,	NULL,				0},
 {(char *)"power_alias",			cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.powers_htab,	(long)"Power"},
@@ -1520,9 +1565,9 @@ CONF conftable[] = {
 {(char *)"robot_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.robot_flags,	0},
 {(char *)"robot_speech",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.robot_speak,		(long)"Robots can speak in locations their owners do not\n\t\t\t\tcontrol"},
 {(char *)"room_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.room_flags,	0},
-{(char *)"room_parent",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_parent,		0},
-{(char *)"room_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_proto,		0},
-{(char *)"room_attr_defaults",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_defobj,		0},
+{(char *)"room_parent",			cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.room_parent,		NOTHING},
+{(char *)"room_proto",			cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.room_proto,		NOTHING},
+{(char *)"room_attr_defaults",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.room_defobj,		NOTHING},
 {(char *)"room_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_quota,		0},
 {(char *)"sacrifice_adjust",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacadjust,		0},
 {(char *)"sacrifice_factor",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacfactor,		0},
@@ -1555,9 +1600,9 @@ CONF conftable[] = {
 {(char *)"terse_shows_exits",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_exits,		(long)"TERSE suppresses the exit list of a location"},
 {(char *)"terse_shows_move_messages",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_movemsg,		(long)"TERSE suppresses movement messages"},
 {(char *)"thing_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.thing_flags,	0},
-{(char *)"thing_parent",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_parent,		0},
-{(char *)"thing_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_proto,		0},
-{(char *)"thing_attr_defaults",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_defobj,		0},
+{(char *)"thing_parent",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.thing_parent,		NOTHING},
+{(char *)"thing_proto",			cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.thing_proto,		NOTHING},
+{(char *)"thing_attr_defaults",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.thing_defobj,		NOTHING},
 {(char *)"thing_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_quota,		0},
 {(char *)"timeslice",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.timeslice,		0},
 {(char *)"trace_output_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.trace_limit,		0},
@@ -1782,6 +1827,41 @@ dbref player;
 	}
 
 	free_mbuf(buff);
+}
+
+/* ---------------------------------------------------------------------------
+ * cf_verify: Walk all configuration tables and validate any dbref values.
+ */
+
+#define Check_Conf_Dbref(x) \
+if ((x)->interpreter == cf_dbref) { \
+    if (!((((x)->extra == NOTHING) && (*((x)->loc) == NOTHING)) || \
+	  Good_obj(*((x)->loc)))) { \
+	STARTLOG(LOG_ALWAYS, "CNF", "VRFY") \
+	    log_printf("%s #%d is invalid. Reset to #%d.", \
+		       (x)->pname, *((x)->loc), (x)->extra); \
+	ENDLOG \
+	*((x)->loc) = (dbref) (x)->extra; \
+    } \
+}
+
+void cf_verify()
+{
+    CONF *tp, *ctab;
+    MODULE *mp;
+
+    for (tp = conftable; tp->pname; tp++) {
+	Check_Conf_Dbref(tp);
+    }
+
+    WALK_ALL_MODULES(mp) {
+	if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
+			      CONF *)) != NULL) {
+	    for (tp = ctab; tp->pname; tp++) {
+		Check_Conf_Dbref(tp);
+	    }
+	}
+    }
 }
 
 /* ---------------------------------------------------------------------------
