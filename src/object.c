@@ -869,7 +869,7 @@ const char *qual;
 		if (j) {
 			Log_header_err(thing, NOTHING, j, 0,
 				       qual, "is strange.  Reset.");
-			s_Pennies(j, 0);
+			s_Pennies(thing, 0);
 		}
 	} else if (j == 0) {
 		Log_header_err(thing, NOTHING, j, 0, qual, "is zero.");
