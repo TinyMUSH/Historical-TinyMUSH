@@ -451,6 +451,11 @@ const char *name;
 {
 	const char *cp;
 
+	/* Disallow pure ANSI names */
+	
+	if (strlen(strip_ansi(name)) == 0)
+		return 0;
+		
 	/* Disallow leading spaces */
 
 	if (isspace(*name))
