@@ -24,6 +24,8 @@
 #define MAX_GLOBAL_REGS		10	/* r() registers */
 #define MAX_ITER_NESTING	1024	/* max # of iter levels */
 
+#define MARK_FLAG_SEP		'_'	/* sep. of dbref from marker flags */
+
 #define HASH_FACTOR		2	/* How much hashing you want. */
 
 #define OUTPUT_BLOCK_SIZE	16384

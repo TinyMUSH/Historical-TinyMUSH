@@ -527,12 +527,12 @@ char *decode_flags(player, flagword, flag2word, flag3word)
 dbref player;
 FLAG flagword, flag2word, flag3word;
 {
-	char *buf, *bp;
+	char *buf, *bp, *s;
 	FLAGENT *fp;
 	int flagtype;
 	FLAG fv;
 
-	buf = bp = alloc_sbuf("decode_flags");
+	buf = bp = s = alloc_sbuf("decode_flags");
 	*bp = '\0';
 
 	if (!Good_obj(player)) {
@@ -551,17 +551,31 @@ FLAG flagword, flag2word, flag3word;
 		else
 			fv = flagword;
 		if (fv & fp->flagvalue) {
+
 			if ((fp->listperm & CA_WIZARD) && !Wizard(player))
 				continue;
 			if ((fp->listperm & CA_GOD) && !God(player))
 				continue;
+
 			/* don't show CONNECT on dark wizards to mortals */
+
 			if ((flagtype == TYPE_PLAYER) &&
 			    (fp->flagflag & FLAG_WORD2) &&
 			    (fp->flagvalue == CONNECTED) &&
 			((flagword & (WIZARD | DARK)) == (WIZARD | DARK)) &&
 			    !See_Hidden(player))
 				continue;
+
+			/* Check if this is a marker flag and we're at
+			 * the beginning of a buffer. If so, we need
+			 * to insert a separator character first so
+			 * we don't end up running the dbref number
+			 * into the flags.
+			 */
+			if ((s == bp) && (fp->flagflag & FLAG_WORD3) &&
+			    (fp->flagvalue >= MARK_0))
+			    safe_sb_chr(MARK_FLAG_SEP, buf, &bp);
+
 			safe_sb_chr(fp->flaglett, buf, &bp);
 		}
 	}
