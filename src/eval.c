@@ -367,6 +367,44 @@ char special_chartab[256] =
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
 };
 
+char token_chartab[256] =
+{
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,1,0,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
+};
+
+char *ansi_chartab[256] =
+{
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,           0,             ANSI_BBLUE,  ANSI_BCYAN,
+    0,           0,             0,           ANSI_BGREEN,
+    0,           0,             0,           0,
+    0,           ANSI_BMAGENTA, 0,           0,
+    0,           0,             ANSI_BRED,   0,
+    0,           0,             0,           ANSI_BWHITE,
+    ANSI_BBLACK, ANSI_BYELLOW,  0,           0,
+    0,           0,             0,           0,
+    0,           0,             ANSI_BLUE,   ANSI_CYAN,
+    0,           0,             ANSI_BLINK,  ANSI_GREEN,
+    ANSI_HILITE, ANSI_INVERSE,  0,           0,
+    0,           ANSI_MAGENTA,  ANSI_NORMAL, 0,
+    0,           0,             ANSI_RED,    0,
+    0,           ANSI_UNDER,    0,           ANSI_WHITE,
+    ANSI_BLACK,  ANSI_YELLOW,   0,           0,
+    0,           0,             0,           0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
+};
+
 void exec(buff, bufc, tflags, player, cause, eval, dstr, cargs, ncargs)
 char *buff, **bufc;
 int tflags;
@@ -432,6 +470,13 @@ char *cargs[];
 		strcpy(savestr, *dstr);
 	}
 	while (**dstr && !alldone) {
+
+	    /* We adjust the special table every time we go around this
+	     * loop, in order to avoid always treating '#' like a special
+	     * character, as it gets used a whole heck of a lot.
+	     */
+	    special_chartab[(int) '#'] =
+		(mudstate.in_loop || mudstate.in_switch) ? 1 : 0;
 
 	    if (!special_chartab[**dstr]) {
 		/* Mundane characters are the most common. There are usually
@@ -583,74 +628,11 @@ char *cargs[];
 				    /* just skip over the characters */
 				    break;
 				}
-				ansi = 1;
-				switch (**dstr) {
-				case 'h':	/* hilite */
-					safe_str(ANSI_HILITE, buff, bufc);
-					break;
-				case 'i':	/* inverse */
-					safe_str(ANSI_INVERSE, buff, bufc);
-					break;
-				case 'f':	/* flash */
-					safe_str(ANSI_BLINK, buff, bufc);
-					break;
-				case 'u':	/* underline */
-					safe_str(ANSI_UNDER, buff, bufc);
-					break;
-				case 'n':	/* normal */
-					safe_str(ANSI_NORMAL, buff, bufc);
-					ansi = 0;
-					break;
-				case 'x':	/* black fg */
-					safe_str(ANSI_BLACK, buff, bufc);
-					break;
-				case 'r':	/* red fg */
-					safe_str(ANSI_RED, buff, bufc);
-					break;
-				case 'g':	/* green fg */
-					safe_str(ANSI_GREEN, buff, bufc);
-					break;
-				case 'y':	/* yellow fg */
-					safe_str(ANSI_YELLOW, buff, bufc);
-					break;
-				case 'b':	/* blue fg */
-					safe_str(ANSI_BLUE, buff, bufc);
-					break;
-				case 'm':	/* magenta fg */
-					safe_str(ANSI_MAGENTA, buff, bufc);
-					break;
-				case 'c':	/* cyan fg */
-					safe_str(ANSI_CYAN, buff, bufc);
-					break;
-				case 'w':	/* white fg */
-					safe_str(ANSI_WHITE, buff, bufc);
-					break;
-				case 'X':	/* black bg */
-					safe_str(ANSI_BBLACK, buff, bufc);
-					break;
-				case 'R':	/* red bg */
-					safe_str(ANSI_BRED, buff, bufc);
-					break;
-				case 'G':	/* green bg */
-					safe_str(ANSI_BGREEN, buff, bufc);
-					break;
-				case 'Y':	/* yellow bg */
-					safe_str(ANSI_BYELLOW, buff, bufc);
-					break;
-				case 'B':	/* blue bg */
-					safe_str(ANSI_BBLUE, buff, bufc);
-					break;
-				case 'M':	/* magenta bg */
-					safe_str(ANSI_BMAGENTA, buff, bufc);
-					break;
-				case 'C':	/* cyan bg */
-					safe_str(ANSI_BCYAN, buff, bufc);
-					break;
-				case 'W':	/* white bg */
-					safe_str(ANSI_BWHITE, buff, bufc);
-					break;
-				default:
-					safe_chr(**dstr, buff, bufc);
+				if (!ansi_chartab[**dstr]) {
+				    safe_chr(**dstr, buff, bufc);
+				} else {
+				    safe_str(ansi_chartab[**dstr], buff, bufc);
+				    ansi = (**dstr == 'n') ? 1 : 0;
 				}
 				break;
 			case 'r':	/* Carriage return */
@@ -1086,39 +1068,34 @@ char *cargs[];
 			eval &= ~EV_FCHECK;
 			break;
 		case '#':
-		        /* If we have the in_loop flag, then we look
-			 * ahead to the next character, to check if we have
-			 * the token string ## or #@. Otherwise we just
-			 * copy it.
+		        /* We should never reach this point unless we're
+			 * in a loop or switch, thanks to the table lookup.
 			 */
 
 		        at_space = 0;
-			if (mudstate.in_loop &&
-			    (mudstate.loop_token != NULL)) {
-			    (*dstr)++;
-			    if (**dstr == '#') {
-				safe_str(mudstate.loop_token, buff, bufc);
-			    } else if (**dstr == '@') {
-				safe_ltos(buff, bufc, mudstate.loop_number);
-			    } else if (**dstr == '!') { /* nesting level */
-				safe_ltos(buff, bufc, mudstate.in_loop);
-			    } else {
-				(*dstr)--;
-				safe_chr(**dstr, buff, bufc);
-			    }
-			} else if (mudstate.in_switch &&
-				   (mudstate.switch_token != NULL)) {
-			    (*dstr)++;
-			    if (**dstr == '$') {
-				safe_str(mudstate.switch_token, buff, bufc);
-			    } else if (**dstr == '!') { /* nesting level */
-				safe_ltos(buff, bufc, mudstate.in_switch);
-			    } else {
-				(*dstr)--;
-				safe_chr(**dstr, buff, bufc);
-			    }
-			} else {
+			(*dstr)++;
+			if (!token_chartab[**dstr]) {
+			    (*dstr)--;
 			    safe_chr(**dstr, buff, bufc);
+			} else {
+			    if ((**dstr == '#') && mudstate.in_loop) {
+				safe_str(mudstate.loop_token, buff, bufc);
+			    } else if ((**dstr == '@') && mudstate.in_loop) {
+				safe_ltos(buff, bufc, mudstate.loop_number);
+			    } else if ((**dstr == '$') && mudstate.in_switch) {
+				safe_str(mudstate.switch_token, buff, bufc);
+			    } else if (**dstr == '!') {
+				/* Nesting level of loop takes precedence
+				 * over switch nesting level.
+				 */
+				safe_ltos(buff, bufc,
+					  ((mudstate.in_loop) ?
+					   mudstate.in_loop :
+					   mudstate.in_switch));
+			    } else {
+				(*dstr)--;
+				safe_chr(**dstr, buff, bufc);
+			    }
 			}
 			break;
 	    }
@@ -1131,14 +1108,13 @@ char *cargs[];
 	 * buffer, too. 
 	 */
 
-
 	if (mudconf.space_compress && at_space && !(eval & EV_NO_COMPRESS)
 	    && (start != *bufc))
 		(*bufc)--;
 
 	/* The ansi() function knows how to take care of itself. However, 
-	 * if the player used a %c sub in the string, and hasn't yet
-	 * terminated the color with a %cn yet, we'll have to do it for 
+	 * if the player used a %x sub in the string, and hasn't yet
+	 * terminated the color with a %xn yet, we'll have to do it for 
 	 * them. 
 	 */
 
