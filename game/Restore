@@ -1,6 +1,11 @@
 #!/bin/sh
 #
-# Syntax: Restore [filename]
+# $Id$
+#
+#	Restore - Extract and install an archived set of backup
+#		  database files.
+#
+#	Syntax: Restore [filename]
 #
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH

@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+# $Id$
+#
 #	Index - Create index files for all text files beginning with '&'.
 #		It is assumed that all files are named <something>.txt
 #		and the index files will be named <something>.indx

@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+# $Id$
+#
 #	Logclean - Get rid of old logfiles of the format <filename>.<time>
 #		   If the MUSH is not running, also move <filename> to
 #		   <filename>.old

@@ -1,6 +1,10 @@
 #!/bin/sh
 #
-# Syntax: Reconstruct [GDBM database file to recover]
+# $Id$
+#
+#	Reconstruct - Try to extract data from a corrupted GDBM database.
+#
+#	Syntax: Reconstruct [GDBM database file to recover]
 #
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 #

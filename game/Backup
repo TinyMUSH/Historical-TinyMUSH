@@ -1,5 +1,9 @@
 #!/bin/sh
 #
+# $Id$
+#
+#	Backup - Make a backup copy of the database files.
+#
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH
 #

@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+# $Id$
+#
 #	Archive - Build a tarfile of things we'd want to back up.
 #		  Includes mush.config, the main conf file, a flatfile,
 #		  the various module databases, and text files with a

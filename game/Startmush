@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+# $Id$
+#
 #	Startmush - Kick off the netmush process.
 #
 PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
@@ -8,7 +10,7 @@ LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules
 . mush.config
 . check_paths
 #
-#	Make sure there isn't aready a MUSH running.
+#	Make sure there isn't already a MUSH running.
 #
 if [ -r mush.pid ]; then
 	oldpid=`cat mush.pid`

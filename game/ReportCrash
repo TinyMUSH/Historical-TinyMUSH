@@ -1,5 +1,10 @@
 #!/bin/sh
-
+#
+# $Id$
+#
+#	ReportCrash - Examine a coredump to produce information for a
+#		      bug report, and try to mail the bug report.
+#
 . mush.config
 . check_paths
 
