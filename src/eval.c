@@ -874,7 +874,7 @@ char *cargs[];
 			tbufc = tbuf = alloc_sbuf("exec.tbuf");
 			safe_sb_str(oldp, tbuf, &tbufc);
 			*tbufc = '\0';
-			if (mudconf.space_compress) {
+			if (mudconf.space_compress && (eval & EV_FMAND)) {
 				while ((--tbufc >= tbuf) && isspace(*tbufc)) ;
 				tbufc++;
 				*tbufc = '\0';
