@@ -5074,7 +5074,7 @@
       1-2-3
  
 & VDIM()
-  vdim(<vector>[,<delim>][,<output delim>])
+  vdim(<vector>[,<delim>])
  
   Returns the dimensions of a vector.
  
@@ -5126,7 +5126,7 @@
       1-2-2
  
 & VUNIT()
-  vunit(<vector>[,<delimiter>]
+  vunit(<vector>[,<delimiter>])
  
   Returns the unit vector (a vector of magnitude 1), which points
   in the same direction as the given vector.
