@@ -2771,7 +2771,7 @@ dbref newtop;
 
 	/* Go do the rest of the things */
 
-	CALL_ALL_MODULES(db_grow, (newsize));
+	CALL_ALL_MODULES(db_grow, (newsize, newtop));
 
 	for (i = mudstate.db_top; i < newtop; i++) {
 #ifndef MEMORY_BASED

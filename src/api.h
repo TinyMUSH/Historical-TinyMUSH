@@ -60,7 +60,7 @@
 
 #define SIZE_HACK 1
 
-#define DB_GROW_MODULE(old_db,new_size,proto) \
+#define DB_GROW_MODULE(old_db,new_size,new_top,proto) \
 { \
     char *dg__cp; \
     proto *dg__new_db; \
@@ -85,6 +85,9 @@
         } \
     } \
     old_db = dg__new_db + SIZE_HACK; \
+    for (dg__i = mudstate.db_top; dg__i < new_top; dg__i++) { \
+        OBJ_INIT_MODULE(dg__i); \
+    } \
 }
 
 /* ------------------------------------------------------------------------

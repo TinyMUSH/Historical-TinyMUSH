@@ -322,7 +322,7 @@ MOD_<name>_OBJ *mod_<name>_db = NULL;
 void mod_<name>_db_grow(newsize)
 	int newsize;
 {
-	DB_GROW_MODULE(mod_<name>_db, newsize, MOD_<name>_OBJ);
+	DB_GROW_MODULE(mod_<name>_db, newsize, newtop, MOD_<name>_OBJ);
 }
 
 -----------------------------------------------------------------------------

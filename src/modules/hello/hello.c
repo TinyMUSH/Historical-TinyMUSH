@@ -37,10 +37,10 @@ MOD_HELLO_OBJ *mod_hello_db = NULL;
     mod_hello_db[x].greeted = 0; \
     mod_hello_db[x].foofed = 0;
 
-void mod_hello_db_grow(newsize)
-    int newsize;
+void mod_hello_db_grow(newsize, newtop)
+    int newsize, newtop;
 {
-    DB_GROW_MODULE(mod_hello_db, newsize, MOD_HELLO_OBJ);
+    DB_GROW_MODULE(mod_hello_db, newsize, newtop, MOD_HELLO_OBJ);
 }
 
 /* --------------------------------------------------------------------------
