@@ -84,16 +84,9 @@ struct atrcount {
 	int count;
 };
 
-/* string to copy to, string to copy from, length (pointer to int) */
-
-#define StrCopyLen(scl__dest,scl__src,scl__len) \
-*scl__len = strlen(scl__src); \
-bcopy(scl__src,scl__dest,(int) *scl__len + 1);
-
-/*
- * ---------------------------------------------------------------------------
- * * Temp file management, used to get around static limits in some versions
- * * of libc.
+/* ---------------------------------------------------------------------------
+ * Temp file management, used to get around static limits in some versions
+ * of libc.
  */
 
 FILE *t_fd;

@@ -2255,7 +2255,7 @@ FUNCTION(fun_until)
 	    print_sep(osep, buff, bufc);
 	}
 
-	strcpy(atextbuf, atext1);
+	StrCopyKnown(atextbuf, atext1, alen1);
 	str = atextbuf;
 	savep = *bufc;
 	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
@@ -2266,7 +2266,7 @@ FUNCTION(fun_until)
 	    if (subpatterns >= 0)
 		break;
 	} else {
-	    strcpy(condbuf, atext2);
+	    StrCopyKnown(condbuf, atext2, alen2);
 	    dp = str = savep = condbuf;
 	    exec(condbuf, &dp, 0, player, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn - 1);

@@ -608,6 +608,26 @@ extern void	FDECL(toast_player, (dbref));
 #define	test_top()		((mudstate.qfirst != NULL) ? 1 : 0)
 #define	controls(p,x)		Controls(p,x)
 
+/* Copies a string, and sets its length, not including the terminating null
+ * character, in another variable. Note that it is assumed that the source
+ * string is null-terminated.
+ * Takes: string to copy to, string to copy from, length (pointer to int)
+ */
+
+#define StrCopyLen(scl__dest,scl__src,scl__len) \
+*scl__len = strlen(scl__src); \
+bcopy(scl__src,scl__dest,(int) *scl__len + 1);
+
+/* Copies a string of known length, and null-terminates it.
+ * Takes: pointer to copy to, pointer to copy from, length
+ */
+
+#define StrCopyKnown(scl__dest,scl__src,scl__len) \
+bcopy(scl__src,scl__dest,scl__len); \
+scl__dest[scl__len] = '\0';
+
+/* Various macros for writing common string sequences. */
+
 #define safe_crlf(b,p)		safe_copy_known_str("\r\n",2,(b),(p),(LBUF_SIZE-1))
 #define safe_ansi_normal(b,p)	safe_copy_known_str(ANSI_NORMAL,4,(b),(p),(LBUF_SIZE-1))
 #define safe_nothing(b,p)	safe_copy_known_str("#-1",3,(b),(p),(LBUF_SIZE-1))

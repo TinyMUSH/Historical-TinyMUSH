@@ -128,7 +128,7 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 {
     char *list_str, *lp, *str, *input_p, *bb_p, *work_buf;
     char *savep, *dp, *result;
-    int is_true, cur_lev;
+    int is_true, cur_lev, elen;
     
     /* Enforce maximum nesting level. */
 
@@ -155,6 +155,7 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
     mudstate.loop_number[cur_lev] = 0;
 
     bb_p = *bufc;
+    elen = strlen(exprstr);
 
     while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
 	if (!flag && (*bufc != bb_p)) {
@@ -163,7 +164,7 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 	mudstate.loop_token[cur_lev] = split_token(&input_p, sep);
 	mudstate.loop_number[cur_lev] += 1;
 	work_buf = alloc_lbuf("perform_iter.eval");
-	strcpy(work_buf, exprstr); /* we might nibble this */
+	StrCopyKnown(work_buf, exprstr, elen); /* we might nibble this */
 	str = work_buf;
 	if (!flag) {
 	    savep = *bufc;
@@ -296,7 +297,7 @@ FUNCTION(fun_fold)
 
 	cp = curr = fargs[1];
 	atextbuf = alloc_lbuf("fun_fold");
-	strcpy(atextbuf, atext);
+	StrCopyKnown(atextbuf, atext, alen);
 
 	/* may as well handle first case now */
 
@@ -324,7 +325,7 @@ FUNCTION(fun_fold)
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
 		clist[0] = rstore;
 		clist[1] = split_token(&cp, sep);
-		strcpy(atextbuf, atext);
+		StrCopyKnown(atextbuf, atext, alen);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
 		exec(result, &bp, 0, player, cause,
@@ -380,7 +381,7 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
 	bb_p = *bufc;
 	while (cp) {
 		objstring = split_token(&cp, sep);
-		strcpy(atextbuf, atext);
+		StrCopyKnown(atextbuf, atext, alen);
 		result = bp = alloc_lbuf("fun_filter");
 		str = atextbuf;
 		exec(result, &bp, 0, player, cause,
@@ -454,7 +455,7 @@ FUNCTION(fun_map)
 		    print_sep(osep, buff, bufc);
 		}
 		objstring = split_token(&cp, sep);
-		strcpy(atextbuf, atext);
+		StrCopyKnown(atextbuf, atext, alen);
 		str = atextbuf;
 		exec(buff, bufc, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
@@ -530,7 +531,7 @@ FUNCTION(fun_mix)
 		os[i - 1] = tmpbuf;
 	    }
 	}
-	strcpy(atextbuf, atext);
+	StrCopyKnown(atextbuf, atext, alen);
 
 	if (*bufc != bb_p)
 	    safe_chr(sep, buff, bufc);
@@ -581,7 +582,7 @@ FUNCTION(fun_step)
 	}
 	for (i = 0; cp && (i < step_size); i++)
 	    os[i] = split_token(&cp, sep);
-	strcpy(atextbuf, atext);
+	StrCopyKnown(atextbuf, atext, alen);
 	str = atextbuf;
 	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	     &str, &(os[0]), i);
@@ -654,7 +655,7 @@ FUNCTION(fun_foreach)
 
 	cbuf[0] = *cp++;
 	cbuf[1] = '\0';
-	strcpy(atextbuf, atext);
+	StrCopyKnown(atextbuf, atext, alen);
 	str = atextbuf; 
 	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 		      &str, &cbuf, 1);
@@ -814,7 +815,7 @@ FUNCTION(fun_while)
 	    print_sep(osep, buff, bufc);
 	}
 	objstring = split_token(&cp, sep);
-	strcpy(atextbuf, atext1);
+	StrCopyKnown(atextbuf, atext1, alen1);
 	str = atextbuf;
 	savep = *bufc;
 	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
@@ -823,7 +824,7 @@ FUNCTION(fun_while)
 	    if (!strcmp(savep, fargs[3]))
 		break;
 	} else {
-	    strcpy(condbuf, atext2);
+	    StrCopyKnown(condbuf, atext2, alen2);
 	    dp = str = savep = condbuf;
 	    exec(condbuf, &dp, 0, player, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
