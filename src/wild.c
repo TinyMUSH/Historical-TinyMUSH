@@ -42,7 +42,7 @@ static int numargs;		/* argument return size */
 static int check_literals(tstr, dstr)
     char *tstr, *dstr;
 {
-    char pattern[LBUF_SIZE], data[LBUF_SIZE], *p, *dp, *ep;
+    char pattern[LBUF_SIZE], data[LBUF_SIZE], *p, *dp, *ep, *xp;
     int len;
 
     /* Fast match the beginning of the string. */
@@ -68,19 +68,40 @@ static int check_literals(tstr, dstr)
     }
     *ep = '\0';
 
+    /* Fast match the end of the string.
+     * When we're done with this, we'll also have established a better
+     * end point for the remainder of the literals match.
+     * ep will point to the null terminator at the end of the data string
+     * we need to worry about (i.e., that which has not already been
+     * taken care of by our backwards match).
+     * xp will point to the last character of the pattern string we need
+     * to worry about.
+     */
+
+    ep--;
+    xp = tstr + strlen(tstr) - 1;
+    while ((ep >= dstr) && (xp >= tstr) && (*xp != '*') && (*xp != '?')) {
+	if ((*xp != '\\') && NOTEQUAL(*ep, *xp))
+	    return 0;
+	ep--;
+	xp--;
+    }
+    ep++;
+    *ep = '\0';
+
     /* Walk the pattern string. Use the wildcard characters as delimiters,
      * to extract the literal strings that we need to match sequentially.
      */
 
     dp = data;
-    while (*tstr) {
+    while (*tstr && (tstr <= xp)) {
 	while ((*tstr == '*') || (*tstr == '?'))
 	    tstr++;
-	if (!*tstr)
+	if (!*tstr || (tstr > xp))
 	    return 1;
 	p = pattern;
 	len = 0;
-	while (*tstr && (*tstr != '*') && (*tstr != '?')) {
+	while (*tstr && (*tstr != '*') && (*tstr != '?') && (tstr <= xp)) {
 	    if (*tstr == '\\')
 		tstr++;
 	    *p = FIXCASE(*tstr);
@@ -97,6 +118,7 @@ static int check_literals(tstr, dstr)
 	if (dp >= ep)
 	    return 1;
     }
+
     return 1;
 }
 
