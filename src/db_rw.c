@@ -1135,14 +1135,9 @@ int format, version;
 #ifdef STANDALONE
 	fprintf(mainlog_fp, "Writing ");
 #endif
-	DO_WHOLE_DB_BACKWARDS(i) {
-		if (!Going(i)) {
-			i++;
-			break;
-		}
-	}
+	i = mudstate.attr_next;
 	/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
-	fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, i, mudstate.attr_next);
+	fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
 	fprintf(f, "-R%d\n", mudstate.record_players);
 	
 	/* Dump user-named attribute info */

@@ -748,6 +748,17 @@ static void NDECL(make_freelist)
 	mudstate.freelist = NOTHING;
 	DO_WHOLE_DB_BACKWARDS(i) {
 		if (IS_CLEAN(i)) {
+		  /* If there's clean garbage at the end of the db, just
+		   * trim it off. Memory will be reused if new objects are
+		   * needed, but can be eliminated by restarting.
+		   */
+			mudstate.db_top--;
+		} else {
+			break;
+		}
+	}
+	DO_WHOLE_DB_BACKWARDS(i) {
+		if (IS_CLEAN(i)) {
 			s_Link(i, mudstate.freelist);
 			mudstate.freelist = i;
 		}

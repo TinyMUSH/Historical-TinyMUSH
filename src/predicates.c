@@ -1364,8 +1364,6 @@ void do_restart(player, cause, key)
 		log_printf("Restart by ");
 		log_name(player);
 	ENDLOG
-
-	do_dbck(NOTHING, NOTHING, 0);
 	dump_database_internal(2);
 	
 	SYNC;
