@@ -1,4 +1,9 @@
 CC=@CC@
 
+all: announce rawdump
+
+announce: announce.c
+	$(CC) announce.c -o announce
+
 rawdump: rawdump.c
 	$(CC) -I.. -I../gdbm-1.8.0 rawdump.c -o rawdump -L../gdbm-1.8.0/.libs -lgdbm
