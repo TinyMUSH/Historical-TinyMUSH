@@ -21,7 +21,7 @@ echo "***** Making dependencies..."
 echo
 rm -f .depend
 touch .depend
-make depend
+make
 echo
 echo "***** Building server using default config..."
 make 2>&1 | tee Compile.log

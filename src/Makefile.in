@@ -170,7 +170,7 @@ depend: $(ALL_S) unsplit Makefile
 
 depend-update: depend
 	touch depend-update
-	echo Dependencies were updated, now run make
+	@echo Dependencies were updated, now run make
 	exit 1
 
 .c.o:
