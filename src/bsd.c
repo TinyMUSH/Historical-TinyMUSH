@@ -702,7 +702,7 @@ int reason;
 		    }
 		}
 		d->flags &= ~DS_CONNECTED;
-		d->connected_at = mudstate.now;
+		d->connected_at = time(NULL);
 		d->retries_left = mudconf.retry_limit;
 		d->command_count = 0;
 		d->timeout = mudconf.idle_timeout;
@@ -831,7 +831,7 @@ struct sockaddr_in *a;
 	d->parent = 0;
 #endif
 	d->flags = 0;
-	d->connected_at = mudstate.now;
+	d->connected_at = time(NULL);
 	d->retries_left = mudconf.retry_limit;
 	d->command_count = 0;
 	d->timeout = mudconf.idle_timeout;
