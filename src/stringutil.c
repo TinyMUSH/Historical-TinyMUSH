@@ -566,7 +566,7 @@ safe_copy_str(src, buff, bufp, max)
 	return (len);
     }
     n = ((len < n) ? len : n);
-    bcopy(src, tp, n);
+    memcpy(tp, src, n);
     tp += n;
     *tp = '\0';
     *bufp = tp;
@@ -627,7 +627,7 @@ INLINE void safe_copy_known_str(src, known, buff, bufp, max)
 	    return;
 	}
 	n = ((known < n) ? known : n);
-	bcopy(src, tp, n);
+	memcpy(tp, src, n);
 	tp += n;
 	*tp = '\0';
 	*bufp = tp;

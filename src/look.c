@@ -746,7 +746,7 @@ int check_exclude, hash_insert, is_special;
 		if (!attr)
 			continue;
 
-		bcopy((char *)attr, (char *)cattr, sizeof(ATTR));
+		memcpy((char *)cattr, (char *)attr, sizeof(ATTR));
 		
 		/* Should we exclude this attr?
 		 * We have a couple of things we exclude:

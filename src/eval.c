@@ -511,7 +511,7 @@ char *cargs[];
 		p = *bufc;
 		navail = LBUF_SIZE - 1 - (p - buff);
 		nchar = (nchar > navail) ? navail : nchar;
-		bcopy(*dstr, p, nchar);
+		memcpy(p, *dstr, nchar);
 		*bufc = p + nchar;
 		*dstr = mundane;
 		at_space = 0;
@@ -1171,8 +1171,8 @@ void save_global_regs(funcname, preserve, preserve_len)
 	    preserve_len[i] = 0;
 	} else {
 	    preserve[i] = alloc_lbuf(funcname);
-	    bcopy(mudstate.global_regs[i], preserve[i],
-		  mudstate.glob_reg_len[i] + 1);
+	    memcpy(preserve[i], mudstate.global_regs[i],
+		   mudstate.glob_reg_len[i] + 1);
 	    preserve_len[i] = mudstate.glob_reg_len[i];
 	}
     }
@@ -1189,8 +1189,8 @@ void restore_global_regs(funcname, preserve, preserve_len)
 	if (preserve[i]) {
 	    if (!mudstate.global_regs[i])
 		mudstate.global_regs[i] = alloc_lbuf(funcname);
-	    bcopy(preserve[i], mudstate.global_regs[i],
-		  preserve_len[i] + 1);
+	    memcpy(mudstate.global_regs[i], preserve[i],
+		   preserve_len[i] + 1);
 	    free_lbuf(preserve[i]);
 	    mudstate.glob_reg_len[i] = preserve_len[i];
 	} else {

@@ -23,8 +23,6 @@
 
 UFUN *ufun_head;
 
-extern char space_buffer[LBUF_SIZE];
-
 extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
 				    const char *thingname, char *thing));
 
@@ -32,7 +30,6 @@ void NDECL(init_functab)
 {
 	FUN *fp;
 	char *buff, *cp, *dp;
-	int i;
 
 	buff = alloc_sbuf("init_functab");
 	hashinit(&mudstate.func_htab, 250 * HASH_FACTOR);
@@ -50,13 +47,6 @@ void NDECL(init_functab)
 	free_sbuf(buff);
 	ufun_head = NULL;
 	hashinit(&mudstate.ufunc_htab, 15 * HASH_FACTOR);
-
-	/* Initialize the space table, which is used for fast copies on
-	 * functions like ljust().
-	 */
-	for (i = 0; i < LBUF_SIZE; i++)
-	    space_buffer[i] = ' ';
-	space_buffer[LBUF_SIZE - 1] = '\0';
 }
 
 void do_function(player, cause, key, fname, target)

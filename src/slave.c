@@ -131,7 +131,7 @@ char *orig_arg;
 		hp = &def;
 	}
 	sin.sin_family = hp->h_addrtype;
-	bcopy(hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
+	memcpy((char *)&sin.sin_addr, hp->h_addr, hp->h_length);
 	sin.sin_port = htons(113);	/*
 					 * ident port 
 					 */

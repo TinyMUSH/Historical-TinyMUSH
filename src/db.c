@@ -1351,7 +1351,7 @@ int *bufsiz, len, copy;
 		tbuff = (char *) XMALLOC(newsize, "al_extend");
 		if (*buffer) {
 			if (copy)
-				bcopy(*buffer, tbuff, *bufsiz);
+				memcpy(tbuff, *buffer, *bufsiz);
 			XFREE(*buffer, "al_extend");
 		}
 		*buffer = tbuff;
@@ -1404,7 +1404,7 @@ dbref thing;
 	if (astr) {
 		len = al_size(astr);
 		al_extend(&mudstate.mod_alist, &mudstate.mod_size, len, 0);
-		bcopy((char *)astr, (char *)mudstate.mod_alist, len);
+		memcpy(mudstate.mod_alist, astr, len);
 	} else {
 		al_extend(&mudstate.mod_alist, &mudstate.mod_size, 1, 0);
 		*mudstate.mod_alist = '\0';
@@ -1663,7 +1663,7 @@ int *flags, atr, *alen;
 		*alen = len - 1;
 
 		if (oattr != NULL)
-			bcopy(cp, oattr, len);
+			memmove(oattr, cp, len);
 
 		if (*owner == NOTHING)
 			*owner = Owner(thing);
@@ -1790,8 +1790,8 @@ int atr;
 			XFREE(list[mid].data, "atr_clr");
 			db[thing].at_count -= 1;
 			if (mid != db[thing].at_count)
-				bcopy((char *)(list + mid + 1), (char *)(list + mid),
-				      (db[thing].at_count - mid) * sizeof(ATRLIST));
+				memmove((char *)(list + mid), (char *)(list + mid + 1),
+					(db[thing].at_count - mid) * sizeof(ATRLIST));
 			break;
 		} else if (list[mid].number > atr) {
 			hi = mid - 1;
@@ -1866,7 +1866,7 @@ char *buff;
 	if ((text = (char *)XMALLOC(len, "atr_add_raw")) == NULL) {
 		return;
 	}
-	bcopy(compress_buff, text, len);
+	memcpy(text, compress_buff, len);
 #else
 	if ((text = (char *)XMALLOC(strlen(buff) + 1, "atr_add_raw.1")) == NULL) {
 		return;
@@ -1928,8 +1928,8 @@ char *buff;
 
 			/* Move the stuff upwards one slot */
 			if (lo < db[thing].at_count)
-				bcopy((char *)(list + lo), (char *)(list + lo + 1),
-				(db[thing].at_count - lo) * sizeof(ATRLIST));
+				memmove((char *)(list + lo + 1), (char *)(list + lo),
+					(db[thing].at_count - lo) * sizeof(ATRLIST));
 
 			list[lo].data = text;
 			list[lo].number = atr;
@@ -1980,7 +1980,7 @@ char *buff;
 		if (!(a = (Attr *) XMALLOC(len, "atr_add_raw.1"))) {
 			return;
 		}
-		bcopy(compress_buff, a, len);
+		memcpy(a, compress_buff, len);
 		al_add(thing, atr);
 	}
 	STORE(&okey, a, len);
@@ -2488,7 +2488,7 @@ char **attrp;
 
 	al_extend(&mudstate.iter_alist.data, &mudstate.iter_alist.len,
 		  alen, 0);
-	bcopy((char *)astr, (char *)mudstate.iter_alist.data, alen);
+	memcpy(mudstate.iter_alist.data, astr, alen);
 	*attrp = mudstate.iter_alist.data;
 	return atr_next(attrp);
 #endif /* MEMORY_BASED */
@@ -2592,14 +2592,14 @@ dbref newtop;
 	    abort();
 	}
 
-	bzero((char *)newnames, (newsize + SIZE_HACK) * sizeof(NAME));
+	memset((char *)newnames, 0, (newsize + SIZE_HACK) * sizeof(NAME));
 
 	if (names) {
 		/* An old name cache exists.  Copy it. */
 
 		names -= SIZE_HACK;
-		bcopy((char *)names, (char *)newnames,
-		      (newtop + SIZE_HACK) * sizeof(NAME));
+		memcpy((char *)newnames, (char *)names,
+		       (newtop + SIZE_HACK) * sizeof(NAME));
 		cp = (char *)names;
 		XFREE(cp, "db_grow.name");
 	} else {
@@ -2626,15 +2626,15 @@ dbref newtop;
 			    "ABORT! db.c, could not allocate space for %d item name cache in db_grow().\n", newsize);
 		    abort();
 		}
-		bzero((char *)newpurenames, (newsize + SIZE_HACK) * sizeof(NAME));
+		memset((char *)newpurenames, 0, (newsize + SIZE_HACK) * sizeof(NAME));
 
 		if (purenames) {
 
 			/* An old name cache exists.  Copy it. */
 
 			purenames -= SIZE_HACK;
-			bcopy((char *)purenames, (char *)newpurenames,
-				(newtop + SIZE_HACK) * sizeof(NAME));
+			memcpy((char *)newpurenames, (char *)purenames,
+			       (newtop + SIZE_HACK) * sizeof(NAME));
 			cp = (char *)purenames;
 			XFREE(cp, "db_grow.purename");
 		} else {
@@ -2667,7 +2667,7 @@ dbref newtop;
 		/* An old struct database exists.  Copy it to the new buffer */
 
 		db -= SIZE_HACK;
-		bcopy((char *)db, (char *)newdb,
+		memcpy((char *)newdb, (char *)db,
 		      (mudstate.db_top + SIZE_HACK) * sizeof(OBJ));
 		cp = (char *)db;
 		XFREE(cp, "db_grow.db");
@@ -2719,10 +2719,10 @@ dbref newtop;
 
 	marksize = (newsize + 7) >> 3;
 	newmarkbuf = (MARKBUF *) XMALLOC(marksize, "db_grow");
-	bzero((char *)newmarkbuf, marksize);
+	memset((char *)newmarkbuf, 0, marksize);
 	if (mudstate.markbits) {
 		marksize = (newtop + 7) >> 3;
-		bcopy((char *)mudstate.markbits, (char *)newmarkbuf, marksize);
+		memcpy((char *)newmarkbuf, (char *)mudstate.markbits, marksize);
 		cp = (char *)mudstate.markbits;
 		XFREE(cp, "db_grow");
 	}

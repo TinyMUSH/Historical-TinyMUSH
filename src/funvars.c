@@ -39,7 +39,7 @@ FUNCTION(fun_setq)
 	if (!mudstate.global_regs[regnum])
 	    mudstate.global_regs[regnum] = alloc_lbuf("fun_setq");
 	len = strlen(fargs[1]);
-	bcopy(fargs[1], mudstate.global_regs[regnum], len + 1);
+	memcpy(mudstate.global_regs[regnum], fargs[1], len + 1);
 	mudstate.glob_reg_len[regnum] = len;
 }
 
@@ -56,7 +56,7 @@ FUNCTION(fun_setr)
 	if (!mudstate.global_regs[regnum])
 	    mudstate.global_regs[regnum] = alloc_lbuf("fun_setr");
 	len = strlen(fargs[1]);
-	bcopy(fargs[1], mudstate.global_regs[regnum], len + 1);
+	memcpy(mudstate.global_regs[regnum], fargs[1], len + 1);
 	mudstate.glob_reg_len[regnum] = len;
 	safe_known_str(fargs[1], len, buff, bufc);
 }
@@ -111,8 +111,8 @@ FUNCTION(fun_wildmatch)
 	    mudstate.glob_reg_len[curq] = 0;
 	} else {
 	    mudstate.glob_reg_len[curq] = strlen(t_args[i]);
-	    bcopy(t_args[i], mudstate.global_regs[curq],
-		  mudstate.glob_reg_len[curq] + 1);
+	    memcpy(mudstate.global_regs[curq], t_args[i],
+		   mudstate.glob_reg_len[curq] + 1);
 	}
     }
 

@@ -18,8 +18,6 @@
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
-char space_buffer[LBUF_SIZE];
-
 /* ---------------------------------------------------------------------------
  * isword: is every character in the argument a letter?
  */
@@ -373,7 +371,7 @@ FUNCTION(fun_space)
 
 	max = LBUF_SIZE - 1 - (*bufc - buff);
 	num = (num > max) ? max : num;
-	bcopy(space_buffer, *bufc, num);
+	memset(*bufc, ' ', num);
 	*bufc += num;
 	**bufc = '\0';
 }
@@ -384,7 +382,7 @@ FUNCTION(fun_space)
 
 FUNCTION(fun_ljust)
 {
-	int spaces, i, max;
+	int spaces, max;
 	char *tp;
 	char sep;
 
@@ -404,20 +402,15 @@ FUNCTION(fun_ljust)
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
 	spaces = (spaces > max) ? max : spaces;
-	if (sep == ' ') {
-	    bcopy(space_buffer, tp, spaces);
-	    tp += spaces;
-	} else {
-	    for (i = 0; i < spaces; i++)
-		*tp++ = sep;
-	}
+	memset(tp, sep, spaces);
+	tp += spaces;
 	*tp = '\0';
 	*bufc = tp;
 }
 
 FUNCTION(fun_rjust)
 {
-	int spaces, i, max;
+	int spaces, max;
 	char *tp;
 	char sep;
 
@@ -435,13 +428,8 @@ FUNCTION(fun_rjust)
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
 	spaces = (spaces > max) ? max : spaces;
-	if (sep == ' ') {
-	    bcopy(space_buffer, tp, spaces);
-	    tp += spaces;
-	} else {
-	    for (i = 0; i < spaces; i++)
-		*tp++ = sep;
-	}
+	memset(tp, sep, spaces);
+	tp += spaces;
 	*bufc = tp;
 	safe_str(fargs[0], buff, bufc);
 }
@@ -450,7 +438,7 @@ FUNCTION(fun_center)
 {
 	char sep;
 	char *tp;
-	int i, len, lead_chrs, trail_chrs, width, max;
+	int len, lead_chrs, trail_chrs, width, max;
 
 	varargs_preamble("CENTER", 3);
 
@@ -467,13 +455,8 @@ FUNCTION(fun_center)
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
 	lead_chrs = (lead_chrs > max) ? max : lead_chrs;
-	if (sep == ' ') {
-	    bcopy(space_buffer, tp, lead_chrs);
-	    tp += lead_chrs;
-	} else {
-	    for (i = 0; i < lead_chrs; i++)
-		*tp++ = sep;
-	}
+	memset(tp, sep, lead_chrs);
+	tp += lead_chrs;
 	*bufc = tp;
 
 	safe_str(fargs[0], buff, bufc);
@@ -482,13 +465,8 @@ FUNCTION(fun_center)
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff);
 	trail_chrs = (trail_chrs > max) ? max : trail_chrs;
-	if (sep == ' ') {
-	    bcopy(space_buffer, tp, trail_chrs);
-	    tp += trail_chrs;
-	} else {
-	    for (i = 0; i < trail_chrs; i++)
-		*tp++ = sep;
-	}
+	memset(tp, sep, trail_chrs);
+	tp += trail_chrs;
 	*tp = '\0';
 	*bufc = tp;
 }
@@ -1174,7 +1152,7 @@ FUNCTION(fun_repeat)
 	maxtimes = (times > maxtimes) ? maxtimes : times;
 
 	for (i = 0; i < maxtimes; i++) {
-		bcopy(fargs[0], *bufc, len);
+		memcpy(*bufc, fargs[0], len);
 		*bufc += len;
 	}
 	if (times > maxtimes) {

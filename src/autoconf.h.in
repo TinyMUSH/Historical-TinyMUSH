@@ -79,8 +79,6 @@
 #undef __CHAR_UNSIGNED__
 /* Define if inline keyword is broken or nonstandard */
 #undef inline
-/* Define if we need to redef bcopy et al to their SYSV counterparts */
-#undef NEED_BCOPY_DCL
 /* Define if we need to declare malloc et al */
 #undef NEED_MALLOC_DCL
 /* Define if you need to declare vsprintf yourself */
@@ -174,17 +172,9 @@ extern int	FDECL(qsort, (char *, int, int, int (*)()));
 
 #ifdef STDC_HEADERS
 #include <string.h>
-#ifdef NEED_BCOPY_DCL
-#define	bcopy(s,d,n)	memmove(d,s,n)
-#define	bcmp(s1,s2,n)	memcmp(s1,s2,n)
-#define	bzero(s,n)	memset(s,0,n)
-#endif
 #else
 #include <strings.h>
 extern char *	FDECL(strchr, (char *, char));
-extern void	FDECL(bcopy, (char *, char *, int));
-extern int      FDECL(bcmp, (char *, char *, int));
-extern void	FDECL(bzero, (char *, int));
 #endif
 
 #ifndef HAVE_STRTOK_R

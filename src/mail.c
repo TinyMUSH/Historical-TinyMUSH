@@ -87,7 +87,7 @@ char *strndup(const char *str, int len)
 
 	/* this gets tagged via the XSTRNDUP macro */
 	s = (char *) malloc(sizeof(char) * len);
-	bcopy(str, s, len);
+	memcpy(s, str, len);
 	return s;
 }
 #endif /*
@@ -135,8 +135,8 @@ int newtop;
 
 	if (mudstate.mail_list) {
 		mudstate.mail_list -= 1;
-		bcopy((char *)mudstate.mail_list, (char *)newdb,
-		      (mudstate.mail_db_top + 1) * sizeof(MENT));
+		memcpy((char *)newdb, (char *)mudstate.mail_list,
+		       (mudstate.mail_db_top + 1) * sizeof(MENT));
 		XFREE(mudstate.mail_list, "mail_list");
 	}
 	mudstate.mail_list = newdb + 1;

@@ -43,9 +43,9 @@ double result;
 	int i;
 
 	if (!fp_initted) {
-		bzero(fp_sign_mask.u, sizeof(fp_sign_mask));
-		bzero(fp_exp_mask.u, sizeof(fp_exp_mask));
-		bzero(fp_val.u, sizeof(fp_val));
+		memset(fp_sign_mask.u, 0, sizeof(fp_sign_mask));
+		memset(fp_exp_mask.u, 0, sizeof(fp_exp_mask));
+		memset(fp_val.u, 0, sizeof(fp_val));
 		fp_exp_mask.d = 1.0 / d_zero;
 		fp_sign_mask.d = -1.0 / fp_exp_mask.d;
 		for (i = 0; i < FP_SIZE; i++) {

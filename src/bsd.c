@@ -880,7 +880,7 @@ DESC *d;
 		sprintf(buf, "%d ", d->concid);
 		buflen = strlen(buf);
 
-		bcopy(buf, obuf, buflen);
+		memcpy(obuf, buf, buflen);
 		j = buflen;
 
 		while (tb != NULL) {
@@ -889,7 +889,7 @@ DESC *d;
 				if (tb->hdr.start[k] == '\n') {
 					if (d->parent)
 						queue_write(d->parent, obuf, j);
-					bcopy(buf, obuf, buflen);
+					memcpy(obuf, buf, buflen);
 					j = buflen;
 				}
 			}

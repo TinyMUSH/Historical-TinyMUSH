@@ -767,9 +767,9 @@ int ncmds;
 		for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 		    if (mudstate.qfirst->scr[i]) {
 			len = strlen(mudstate.qfirst->scr[i]);
-			bcopy(mudstate.qfirst->scr[i],
-			      mudstate.global_regs[i],
-			      len + 1);
+			memcpy(mudstate.global_regs[i],
+			       mudstate.qfirst->scr[i],
+			       len + 1);
 			mudstate.glob_reg_len[i] = len;
 		    } else {
 			*mudstate.global_regs[i] = '\0';
