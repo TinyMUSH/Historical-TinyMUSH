@@ -2357,6 +2357,7 @@ dbref player;
 	sprintf(buff, "MasterRoom...#%d  StartRoom...#%d  StartHome...#%d  DefaultHome...#%d",
 		mudconf.master_room, mudconf.start_room, mudconf.start_home,
 		mudconf.default_home);
+	raw_notify(player, buff);
 
 	sprintf(buff, "New Characters: %s...%d  Quota...%d  Rooms...%d  Exits...%d  Things...%d  Players...%d",
 		mudconf.many_coins, mudconf.paystart, mudconf.start_quota,
