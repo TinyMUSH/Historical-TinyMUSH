@@ -1080,7 +1080,7 @@ long num;
 {
 	/* Mark Vasoll's long int to string converter. */
 	char buf[20], *p;
-	long anum;
+	unsigned long anum;
 
 	p = buf;
 
@@ -1116,7 +1116,7 @@ long num;
 {
 	/* Mark Vasoll's long int to string converter. */
 	char buf[20], *p, *tp, *endp;
-	long anum;
+	unsigned long anum;
 
 	p = buf;
 	tp = *bufc;
