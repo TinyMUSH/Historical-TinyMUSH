@@ -1,9 +1,5 @@
-/*
- * conf.c:      set up configuration information and static data 
- */
-/*
- * $Id$ 
- */
+/* conf.c:      set up configuration information and static data */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -20,16 +16,13 @@
 #include "powers.h"
 #include "udb_defs.h"
 
-/*
- * ---------------------------------------------------------------------------
- * * CONFPARM: Data used to find fields in CONFDATA.
+/* ---------------------------------------------------------------------------
+ * CONFPARM: Data used to find fields in CONFDATA.
  */
 
 typedef struct confparm CONF;
 struct confparm {
-	char *pname;		/*
-				 * parm name 
-				 */
+	char *pname;		/* parm name */
 	int (*interpreter) ();	/*
 				 * routine to interp parameter 
 				 */
@@ -206,9 +199,15 @@ void NDECL(cf_init)
 	mudconf.trace_topdown = 1;
 	mudconf.trace_limit = 200;
 	mudconf.safe_unowned = 0;
-	/*
-	 * -- ??? Running SC on a non-SC DB may cause problems 
-	 */
+	mudconf.parent_control = 0;
+	mudconf.wiz_obey_linklock = 0;
+	mudconf.local_masters = 1;
+	mudconf.req_cmds_flag = 1;
+	mudconf.parent_zones = 1;
+	mudconf.fmt_contents = 1;
+	mudconf.fmt_exits = 1;
+	
+	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
 	mudconf.start_room = 0;
 	mudconf.start_home = -1;
@@ -253,7 +252,6 @@ void NDECL(cf_init)
 	mudconf.lock_nest_lim = 20;
 	mudconf.parent_nest_lim = 10;
 	mudconf.zone_nest_lim = 20;
-	mudconf.stack_limit = 50;
 	mudconf.cache_trim = 0;
 	mudconf.cache_depth = CACHE_DEPTH;
 	mudconf.cache_width = CACHE_WIDTH;
@@ -1018,6 +1016,8 @@ extern CF_HDCL(cf_func_access);
  */
 
 CONF conftable[] = {
+{(char *)"abort_on_bug",
+	cf_bool,	CA_DISABLED,	(int *)&mudconf.abort_on_bug,	0},
 {(char *)"access",
 	cf_access,	CA_GOD,		NULL,
 	(long)access_nametab},
@@ -1035,10 +1035,14 @@ CONF conftable[] = {
 	cf_badname,	CA_GOD,		NULL,				0},
 {(char *)"badsite_file",
 	cf_string,	CA_DISABLED,	(int *)mudconf.site_file,	SBUF_SIZE},
+{(char *)"building_limit",
+	cf_int,		CA_GOD,		(int *)&mudconf.building_limit,	0},
 {(char *)"cache_depth",
 	cf_int,		CA_DISABLED,	&mudconf.cache_depth,		0},
 {(char *)"cache_names",
 	cf_bool,	CA_DISABLED,	&mudconf.cache_names,		0},
+{(char *)"cache_steal_dirty",
+	cf_bool,	CA_GOD,		&mudconf.cache_steal_dirty,	0},
 {(char *)"cache_trim",
 	cf_bool,	CA_GOD,		&mudconf.cache_trim,		0},
 {(char *)"cache_width",
@@ -1129,6 +1133,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.fork_dump,		0},
 {(char *)"fork_vfork",
 	cf_bool,	CA_GOD,		&mudconf.fork_vfork,		0},
+{(char *)"format_contents",
+	cf_bool,	CA_GOD,		&mudconf.fmt_contents,		0},
 {(char *)"full_file",
 	cf_string,	CA_DISABLED,	(int *)mudconf.full_file,	SBUF_SIZE},
 {(char *)"full_motd_message",
@@ -1158,6 +1164,9 @@ CONF conftable[] = {
 	cf_string,	CA_DISABLED,	(int *)mudconf.guest_file,	SBUF_SIZE},
 {(char *)"guests_channel",
 	cf_string,	CA_DISABLED,	(int *)mudconf.guests_channel,	SBUF_SIZE},
+{(char *)"guest_site",
+	cf_site,	CA_GOD,		(int *)&mudstate.access_list, 
+	H_GUEST},
 {(char *)"have_comsys",
 	cf_bool,	CA_DISABLED,	&mudconf.have_comsys,		0},
 {(char *)"have_mailer",
@@ -1192,11 +1201,15 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.killmax,		0},
 {(char *)"kill_min_cost",
 	cf_int,		CA_GOD,		&mudconf.killmin,		0},
+{(char *)"lag_maximum",
+	cf_int,		CA_GOD,		&mudconf.max_cmdsecs,		0},
 {(char *)"link_cost",
 	cf_int,		CA_GOD,		&mudconf.linkcost,		0},
 {(char *)"list_access",
 	cf_ntab_access,	CA_GOD,		(int *)list_names,
 	(long)access_nametab},
+{(char *)"local_master_rooms",
+	cf_bool,	CA_GOD,		&mudconf.local_masters,		0},
 {(char *)"lock_recursion_limit",
 	cf_int,         CA_WIZARD,         &mudconf.lock_nest_lim,		0},
 {(char *)"log",
@@ -1252,6 +1265,10 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.pagecost,		0},
 {(char *)"paranoid_allocate",
 	cf_bool,	CA_GOD,		&mudconf.paranoid_alloc,	0},
+{(char *)"parentable_control_lock",
+	cf_bool,	CA_DISABLED,	&mudconf.parent_control,	0},
+{(char *)"parent_zones",
+	cf_bool,	CA_GOD,		&mudconf.parent_zones,		0},
 {(char *)"parent_recursion_limit",
 	cf_int,		CA_GOD,		&mudconf.parent_nest_lim,	0},
 {(char *)"paycheck",
@@ -1313,6 +1330,8 @@ CONF conftable[] = {
 {(char *)"register_site",
 	cf_site,	CA_GOD,		(int *)&mudstate.access_list,
 	H_REGISTRATION},
+{(char *)"require_cmds_flag",
+	cf_bool,	CA_GOD, 	(int *)&mudconf.req_cmds_flag,	0},
 {(char *)"retry_limit",
 	cf_int,		CA_GOD,		&mudconf.retry_limit,		0},
 {(char *)"robot_cost",
@@ -1340,12 +1359,18 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.site_chars,		0},
 {(char *)"space_compress",
 	cf_bool,	CA_GOD,		&mudconf.space_compress,	0},
-{(char *)"stack_limit",
-	cf_int,		CA_GOD,		&mudconf.stack_limit,		0},
 {(char *)"starting_money",
 	cf_int,		CA_GOD,		&mudconf.paystart,		0},
 {(char *)"starting_quota",
 	cf_int,		CA_GOD,		&mudconf.start_quota,		0},
+{(char *)"starting_exit_quota",
+	cf_int,		CA_GOD,		&mudconf.start_exit_quota,	0},
+{(char *)"starting_player_quota",
+	cf_int,		CA_GOD,		&mudconf.start_player_quota,	0},
+{(char *)"starting_room_quota",
+	cf_int,		CA_GOD,		&mudconf.start_room_quota,	0},
+{(char *)"starting_thing_quota",
+	cf_int,		CA_GOD,		&mudconf.start_thing_quota,	0},
 {(char *)"status_file",
 	cf_string,	CA_DISABLED,	(int *)mudconf.status_file,	PBUF_SIZE},
 {(char *)"suspect_site",
@@ -1373,6 +1398,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.trace_topdown,		0},
 {(char *)"trust_site",
 	cf_site,	CA_GOD,		(int *)&mudstate.suspect_list,	0},
+{(char *)"typed_quotas",
+	cf_bool,	CA_GOD,		&mudconf.typed_quotas,		0},
 {(char *)"uncompress_program",
 	cf_string,	CA_DISABLED,	(int *)mudconf.uncompress,	PBUF_SIZE},
 {(char *)"unowned_safe",
@@ -1380,8 +1407,12 @@ CONF conftable[] = {
 {(char *)"user_attr_access",
 	cf_modify_bits,	CA_GOD,		&mudconf.vattr_flags,
 	(long)attraccess_nametab},
+{(char *)"use_global_aconn",
+	cf_bool,	CA_GOD,		&mudconf.use_global_aconn,	0},
 {(char *)"wait_cost",
 	cf_int,		CA_GOD,		&mudconf.waitcost,		0},
+{(char *)"wizard_obeys_linklock",
+	cf_bool,	CA_GOD,		&mudconf.wiz_obey_linklock,	0},
 {(char *)"wizard_help_file",
 	cf_string,	CA_DISABLED,	(int *)mudconf.whelp_file,	SBUF_SIZE},
 {(char *)"wizard_help_index",
@@ -1397,16 +1428,8 @@ CONF conftable[] = {
 
 /* *INDENT-ON* */
 
-
-
-
-
-
-
-
-/*
- * ---------------------------------------------------------------------------
- * * cf_set: Set config parameter.
+/* ---------------------------------------------------------------------------
+ * cf_set: Set config parameter.
  */
 
 int cf_set(cp, ap, player)

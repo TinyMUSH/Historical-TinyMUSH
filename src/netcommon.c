@@ -1,13 +1,7 @@
+/* netcommon.c */
+/* $Id$ */
 
-/*
- * netcommon.c 
- */
-/*
- * $Id$ 
- */
-
-/*
- * This file contains routines used by the networking code that do not
+/* This file contains routines used by the networking code that do not
  * depend on the implementation of the networking code.  The network-specific
  * portions of the descriptor data structure are not used.
  */
@@ -1166,6 +1160,8 @@ int key;
 					*sp++ = 'R';
 				if (d->host_info & H_SUSPECT)
 					*sp++ = '+';
+				if (d->host_info & H_GUEST)
+					*sp++ = 'G';
 			}
 			*fp = '\0';
 			*sp = '\0';
@@ -1440,9 +1436,17 @@ char *msg;
 			    (Wizard(player) || God(player)))
 				s_Flags(player, Flags(player) | DARK);
 
-			/*
-			 * Logins are enabled, or wiz or god 
-			 */
+			/* First make sure we don't have a guest from a bad host. */
+
+			if (Guest(player) && (d->host_info & H_GUEST)) {
+ 				failconn("CON", "Connect", "Guest Site Forbidden", d,
+					R_GAMEDOWN, player, FC_CONN_SITE,
+					mudconf.downmotd_msg, command, user, password,
+					cmdsave);
+				return 0;
+			}
+
+			/* Logins are enabled, or wiz or god */
 
 			STARTLOG(LOG_LOGIN, "CON", "LOGIN")
 				buff = alloc_mbuf("check_conn.LOG.login");
@@ -1932,6 +1936,9 @@ int strtype, flag;
 			break;
 		case H_REGISTRATION:
 			str = "Registration";
+			break;
+		case H_GUEST:
+			str = "NoGuest";
 			break;
 		case 0:
 			str = "Unrestricted";

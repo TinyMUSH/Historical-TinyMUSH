@@ -46,6 +46,7 @@ struct confdata {
 	int	port;		/* user port */
 	int	conc_port;	/* concentrator port */
 	int	init_size;	/* initial db size */
+	int	use_global_aconn;     /* Do we want to use global @aconn code? */
 	int	have_guest;	/* Do we wish to allow a GUEST character? */
 	int	guest_char;	/* player num of prototype GUEST character */
 	int     guest_nuker;    /* Wiz who nukes the GUEST characters. */
@@ -110,6 +111,10 @@ struct confdata {
 	int	paystart;	/* new players start with this much money */
 	int	paylimit;	/* getting money gets hard over this much */
 	int	start_quota;	/* Quota for new players */
+	int	start_room_quota;     /* Room quota for new players */
+	int	start_exit_quota;     /* Exit quota for new players */
+	int	start_thing_quota;    /* Thing quota for new players */
+	int	start_player_quota;   /* Player quota for new players */
 	int	payfind;	/* chance to find a penny with wandering */
 	int	digcost;	/* cost of @dig command */
 	int	linkcost;	/* cost of @link command */
@@ -123,6 +128,7 @@ struct confdata {
 	int	pagecost;	/* cost of @page command */
 	int	searchcost;	/* cost of commands that search the whole DB */
 	int	waitcost;	/* cost of @wait (refunded when finishes) */
+	int	building_limit;	/* max number of objects in the db */
 	int	mail_expiration; /* Number of days to wait to delete mail */
 	int	use_http;	/* Should we allow http access? */
 	int	queuemax;	/* max commands a player may have in queue */
@@ -138,6 +144,7 @@ struct confdata {
 	int	clone_copy_cost;/* Does @clone copy value? */
 	int	use_hostname;	/* TRUE = use machine NAME rather than quad */
 	int	quotas;		/* TRUE = have building quotas */
+	int	typed_quotas;	/* TRUE = use quotas by type */
 	int	ex_flags;	/* TRUE = show flags on examine */
 	int	robot_speak;	/* TRUE = allow robots to speak */
 	int	pub_flags;	/* TRUE = flags() works on anything */
@@ -163,8 +170,14 @@ struct confdata {
 	int	terse_movemsg;	/* Show move msgs (SUCC/LEAVE/etc) if TERSE? */
 	int	trace_topdown;	/* Is TRACE output top-down or bottom-up? */
 	int	trace_limit;	/* Max lines of trace output if top-down */
-	int	stack_limit;	/* How big can stacks get? */
 	int	safe_unowned;	/* Are objects not owned by you safe? */
+	int	parent_control; /* Obey ControlLock on parent */
+      int wiz_obey_linklock;    /* Do wizards obey linklocks? */
+      int local_masters;        /* Do we check Zone rooms as local masters? */
+      int req_cmds_flag;        /* COMMANDS flag required to check $-cmds? */
+      int parent_zones;         /* Treat Next() on rooms as zone? */
+      int fmt_contents;         /* allow user-formattable Contents? */
+      int fmt_exits;            /* allow user-formattable Exits? */
 	int	space_compress;	/* Convert multiple spaces into one space */
 	int	start_room;	/* initial location and home for players */
 	int	start_home;	/* initial HOME for players */
@@ -176,12 +189,14 @@ struct confdata {
 	FLAGSET	thing_flags;	/* Flags things start with */
 	FLAGSET	robot_flags;	/* Flags robots start with */
 	int	vattr_flags;	/* Attr flags for all user-defined attrs */
-	char	mud_name[SBUF_SIZE];	/* Name of the mud */
+	int	abort_on_bug;	/* Dump core after logging a bug  DBG ONLY */
+      	char	mud_name[SBUF_SIZE];	/* Name of the mud */
 	char	one_coin[SBUF_SIZE];	/* name of one coin (ie. "penny") */
 	char	many_coins[SBUF_SIZE];	/* name of many coins (ie. "pennies") */
 	int	timeslice;	/* How often do we bump people's cmd quotas? */
 	int	cmd_quota_max;	/* Max commands at one time */
 	int	cmd_quota_incr;	/* Bump #cmds allowed by this each timeslice */
+	int	max_cmdsecs;	/* Threshhold for real time taken by command */
 	int	control_flags;	/* Global runtime control flags */
 	int	log_options;	/* What gets logged */
 	int	log_info;	/* Info that goes into log entries */
@@ -303,6 +318,7 @@ struct statedata {
 	HASHTAB player_htab;	/* Player name->number hashtable */
 	NHSHTAB	desc_htab;	/* Socket descriptor hashtable */
 	NHSHTAB	fwdlist_htab;	/* Room forwardlists */
+	NHSHTAB objstack_htab;	/* Object stacks */
 	NHSHTAB	parent_htab;	/* Parent $-command exclusion */
 #ifdef PARSE_TREES
 	NHSHTAB tree_htab;	/* Parse trees for evaluation */
@@ -410,6 +426,7 @@ extern STATEDATA mudstate;
 #define H_REGISTRATION	0x0001	/* Registration ALWAYS on */
 #define H_FORBIDDEN	0x0002	/* Reject all connects */
 #define H_SUSPECT	0x0004	/* Notify wizards of connects/disconnects */
+#define H_GUEST         0x0008  /* Don't permit guests from here */
 
 /* Event flags, for noting when an event has taken place */
 

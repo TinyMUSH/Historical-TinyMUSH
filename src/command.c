@@ -1,9 +1,5 @@
-/*
- * command.c - command parser and support routines 
- */
-/*
- * $Id$ 
- */
+/* command.c - command parser and support routines */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -2146,12 +2142,28 @@ dbref player;
 	raw_notify(player,
 		   tprintf("Players may have at most %d commands in the queue at one time.",
 			   mudconf.queuemax));
+	if (mudconf.req_cmds_flag)
+		notify(player, "Objects are only searched for $-commands if set COMMANDS.");
 	if (mudconf.match_mine) {
 		if (mudconf.match_mine_pl)
 			raw_notify(player, "All objects search themselves for $-commands.");
 		else
 			raw_notify(player, "Objects other than players search themselves for $-commands.");
-	}
+	} else
+		notify(player, "Objects do not search themselves for $-commands.");
+
+#ifdef NO_LAG_CHECK
+    notify(player, "CPU usage warnings are disabled.");
+#else
+    notify(player, "CPU usage warnings are enabled.");
+#endif /* NO_LAG_CHECK */
+
+#ifdef FLOATING_POINTS
+    notify(player, "MUSH arithmetic operations use floating-point numbers.");
+#else
+    notify(player, "MUSH arithmetic operations use integers.");
+#endif                          /* FLOATING_POINTS */
+
 	if (!Wizard(player))
 		return;
 	buff = alloc_mbuf("list_options");

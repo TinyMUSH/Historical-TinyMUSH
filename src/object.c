@@ -413,7 +413,6 @@ dbref player, obj;
 {
 	dbref owner;
 	int good_owner, val, quota;
-	STACK *sp, *next;
 
 #ifndef STANDALONE
 	char *tname;
@@ -424,16 +423,12 @@ dbref player, obj;
 		return;
 
 
-	/*
-	 * Validate the owner 
-	 */
+	/* Validate the owner */
 
 	owner = Owner(obj);
 	good_owner = Good_owner(owner);
 
-	/*
-	 * Halt any pending commands (waiting or semaphore) 
-	 */
+	/* Halt any pending commands (waiting or semaphore) */
 
 #ifndef STANDALONE
 	if (halt_que(NOTHING, obj) > 0) {
@@ -449,9 +444,7 @@ dbref player, obj;
 	stack_clr(obj);
 #endif
 
-	/*
-	 * Compensate the owner for the object 
-	 */
+	/* Compensate the owner for the object */
 
 	val = 1;
 	quota = 1;
@@ -496,7 +489,7 @@ dbref player, obj;
 					       Name(obj), obj));
 			} else {
 				tname = alloc_sbuf("destroy_obj");
-				StringCopy(tname, Name(owner));
+				strcpy(tname, Name(owner));
 				notify(player,
 				       tprintf("Destroyed. %s's %s(#%d)",
 					       tname, Name(obj), obj));

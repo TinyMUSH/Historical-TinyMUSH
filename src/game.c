@@ -295,10 +295,13 @@ int check_parents;
 	int match, lev, result, exclude, insert;
 	dbref parent;
 
-	/* If thing is halted, don't check anything */
-
-	if (Halted(thing))
-		return 0;
+	/* If thing is halted, or it doesn't have a COMMANDS flag and we're
+	 * we're doing a $-match, don't check it.
+	 */
+	
+	if (((type == AMATCH_CMD) &&
+	    !Has_Commands(thing) && mudconf.req_cmds_flag) || Halted(thing))
+		return 0;  
 
 	/* If not checking parents, just check the thing */
 

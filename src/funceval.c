@@ -59,7 +59,14 @@ extern INLINE char *FDECL(get_mail_message, (int));
  *
  * Call svarargs_preamble("FUNCTION", max_args) if the second to last and
  * last arguments are delimiters.
+ *
+ * Call xvarargs_preamble("FUNCTION", min_args, max_args) if this is varargs
+ * but does not involve a delimiter.
  */
+
+#define xvarargs_preamble(xname,xminargs,xnargs)                \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))     \
+return;
 
 #define varargs_preamble(xname,xnargs)	                        \
 if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\

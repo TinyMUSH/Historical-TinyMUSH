@@ -1,9 +1,5 @@
-/*
- * db_rw.c 
- */
-/*
- * $Id$ 
- */
+/* db_rw.c */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
