@@ -19,6 +19,8 @@
 
 #ifndef STANDALONE
 
+extern void FDECL(cf_log_notfound, (dbref, char *, const char *, char *));
+
 /*
  * ---------------------------------------------------------------------------
  * * ph_any: set or clear indicated bit, no security checking
@@ -86,6 +88,48 @@ int fpowers, reset;
 	if (!WizRoy(player) & !God(player))
 		return 0;
 	return (ph_any(target, player, power, fpowers, reset));
+}
+
+/* ---------------------------------------------------------------------------
+ * ph_restrict_player: Only Wizards can set this on players, but
+ * ordinary players can set it on other types of objects.
+ */
+
+int ph_restrict_player(target, player, power, fpowers, reset)
+dbref target, player;
+POWER power;
+int fpowers, reset;
+{
+    if (isPlayer(target) && !Wizard(player) && !God(player))
+            return 0;
+    return (ph_any(target, player, power, fpowers, reset));
+}
+
+/* ---------------------------------------------------------------------------
+ * ph_privileged: You can set this power on a non-player object, if you
+ * yourself have this power and are a player who owns themselves (i.e.,
+ * no robots). Only God can set this on a player.
+ */
+
+int ph_privileged(target, player, power, fpowers, reset)
+dbref target, player;
+POWER power;
+int fpowers, reset;
+{
+    if (!God(player)) {
+
+        if (!isPlayer(player) || (player != Owner(player)))
+            return 0;
+        if (isPlayer(target))
+            return 0;
+
+	if (Powers(player) & power)
+	    return (ph_any(target, player, power, fpowers, reset));
+	else
+	    return 0;
+    }
+
+    return (ph_any(target, player, power, fpowers, reset));
 }
 
 /*
@@ -426,6 +470,64 @@ char *thingname;
 		notify(player, tprintf("@power %s=%s", strip_ansi(thingname), fp->powername));
 	}
 }
+
+/* ---------------------------------------------------------------------------
+ * cf_power_access: Modify who can set a power. Basically like
+ * cf_flag_access.
+ */
+
+CF_HAND(cf_power_access)
+{
+    char *fstr, *permstr;
+    POWERENT *fp;
+
+    fstr = strtok(str, " \t=,");
+    permstr = strtok(NULL, " \t=,");
+
+    if (!fstr || !*fstr) {
+	return -1;
+    }
+
+    if ((fp = find_power(GOD, fstr)) == NULL) {
+	cf_log_notfound(player, cmd, "No such power", fstr);
+	return -1;
+    }
+
+    /* Don't change the handlers on special things. */
+
+    if ((fp->handler != ph_any) &&
+	(fp->handler != ph_wizroy) &&
+	(fp->handler != ph_wiz) &&
+	(fp->handler != ph_god) &&
+	(fp->handler != ph_restrict_player) &&
+	(fp->handler != ph_privileged)) {
+
+	STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
+	    log_text((char *) "Cannot change access for power: ");
+	    log_text((char *) fp->powername);
+	ENDLOG
+	return -1;
+    }
+
+    if (!strcmp(permstr, (char *) "any")) {
+	fp->handler = ph_any;
+    } else if (!strcmp(permstr, (char *) "royalty")) {
+	fp->handler = ph_wizroy;
+    } else if (!strcmp(permstr, (char *) "wizard")) {
+	fp->handler = ph_wiz;
+    } else if (!strcmp(permstr, (char *) "god")) {
+	fp->handler = ph_god;
+    } else if (!strcmp(permstr, (char *) "restrict_player")) {
+	fp->handler = ph_restrict_player;
+    } else if (!strcmp(permstr, (char *) "privileged")) {
+	fp->handler = ph_privileged;
+    } else {
+	cf_log_notfound(player, cmd, "Power access", permstr);
+	return -1;
+    }
+    return 0;
+}
+
 
 #endif /*
         * STANDALONE 

@@ -1138,6 +1138,7 @@ extern CF_HDCL(cf_attr_access);
 extern CF_HDCL(cf_func_access);
 extern CF_HDCL(cf_flag_access);
 extern CF_HDCL(cf_flag_name);
+extern CF_HDCL(cf_power_access);
 /* *INDENT-OFF* */
 
 /* ---------------------------------------------------------------------------
@@ -1450,6 +1451,8 @@ CONF conftable[] = {
 	cf_string,	CA_STATIC,	(int *)mudconf.public_channel,	SBUF_SIZE},
 {(char *)"port",
 	cf_int,		CA_STATIC,	&mudconf.port,			0},
+{(char *)"power_access",
+	cf_power_access, CA_GOD,	NULL,				0},
 {(char *)"public_flags",
 	cf_bool,	CA_GOD,		&mudconf.pub_flags,		0},
 {(char *)"queue_active_chunk",
