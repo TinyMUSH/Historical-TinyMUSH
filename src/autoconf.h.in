@@ -56,8 +56,6 @@
 #undef HAVE__SYS_SIGLIST
 /* Define if index/rindex/mem??? are defined in string.h */
 #undef INDEX_IN_STRING_H
-/* Define if malloc/realloc/free are defined in stdlib.h */
-#undef MALLOC_IN_STDLIB_H
 /* Define if calling signal with SIGCHLD when handling SIGCHLD blows chow */
 #undef SIGNAL_SIGCHLD_BRAINDAMAGE
 /* Define if errno.h exists */

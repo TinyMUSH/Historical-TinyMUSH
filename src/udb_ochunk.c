@@ -17,11 +17,6 @@
 #include        <unixio.h>
 #include        "vms_dbm.h"
 #else
-#ifndef NEXT
-#ifndef MALLOC_IN_STDLIB_H
-#include	<malloc.h>
-#endif
-#endif /* NEXT */
 #include	<sys/param.h>
 #include	<sys/types.h>
 #include	<sys/stat.h>
