@@ -189,14 +189,6 @@ your 3.0 installation if you want to.
 - Overwrite your old mush.config file with the new one:
   mv -f mush.config.default mush.config
 
-- Rename your comsys and mail databases to the new 3.1 names:
-  mv comsys.db mod_comsys.db
-  mv mail.db mod_mail.db
-
-  You may need to go into your data directory ('cd data') in order to do
-  this; if you do, you should then return to the 3.1 game directory
-  ('cd ..') once you've moved the files.
-
 - Edit your game's conf file. It should be called GAMENAME.conf, where
   GAMENAME is whatever you set GAMENAME to in mush.config  -- it's named
   whatever you called it in your 3.0 installation and should have been
@@ -235,6 +227,18 @@ your 3.0 installation if you want to.
     crash_database data/netmush.db.CRASH
     change it to read:
     crash_database netmush.db.CRASH
+
+- Convert your database to the new 3.1 format via the following:
+  ./Restore netmush.flat.02313-1548
+  (Substitute the name of whatever flatfile was in your archive.)
+
+- Rename your comsys and mail databases to the new 3.1 names:
+  mv comsys.db mod_comsys.db
+  mv mail.db mod_mail.db
+
+  You may need to go into your data directory ('cd data') in order to do
+  this; if you do, you should then return to the 3.1 game directory
+  ('cd ..') once you've moved the files.
 
 - Start the game by typing './Startmush'.
 
