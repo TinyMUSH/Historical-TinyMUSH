@@ -204,6 +204,9 @@ For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
 
 - Added VACATION flag, which auto-resets when a player connects.
 
+- Added WATCHER flag, and Watch_Logins power, which is equivalent to the
+  connection monitoring functionality of MUX's MONITOR flag. 
+
 - hasattr() no longer finds attributes on parents; use the new hasattrp()
   function for the old hasattr() behavior.
 
