@@ -22,7 +22,7 @@ echo
 make depend
 echo
 echo "***** Building server using default config..."
-make
+make 2>&1 | tee Compile.log
 cd ..
 
 echo
