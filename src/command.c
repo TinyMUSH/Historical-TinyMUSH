@@ -2740,6 +2740,11 @@ static void list_params(player)
     now = time(NULL);
 
     raw_notify(player,
+ tprintf("Prototypes:  Room...#%d  Exit...#%d  Thing...#%d  Player...#%d",
+	 mudconf.room_proto, mudconf.exit_proto,
+	 mudconf.thing_proto, mudconf.player_proto));
+
+    raw_notify(player,
  tprintf("Default Parents:  Room...#%d  Exit...#%d  Thing...#%d  Player...#%d",
 	 mudconf.room_parent, mudconf.exit_parent,
 	 mudconf.thing_parent, mudconf.player_parent));

@@ -316,6 +316,7 @@ int objtype, cost;
 char *name;
 {
 	dbref obj, owner, parent;
+	dbref proto = NOTHING;
 	int quota, okname = 0, value, self_owned, require_inherit;
 	FLAG f1, f2, f3;
 	time_t tt;
@@ -349,6 +350,8 @@ char *name;
 		parent = mudconf.room_parent;
 		okname = ok_name(name);
 		tname = "a room";
+		if (Good_obj(mudconf.room_proto))
+		    proto = mudconf.room_proto;
 		break;
 	case TYPE_THING:
 		if (cost < mudconf.createmin)
@@ -363,6 +366,8 @@ char *name;
 		value = OBJECT_ENDOWMENT(cost);
 		okname = ok_name(name);
 		tname = "a thing";
+		if (Good_obj(mudconf.thing_proto))
+		    proto = mudconf.thing_proto;
 		break;
 	case TYPE_EXIT:
 		cost = mudconf.opencost;
@@ -373,6 +378,8 @@ char *name;
 		parent = mudconf.exit_parent;
 		okname = ok_name(name) && ok_exit_name(name);
 		tname = "an exit";
+		if (Good_obj(mudconf.exit_proto))
+		    proto = mudconf.exit_proto;
 		break;
 	case TYPE_PLAYER:
 		if (cost) {
@@ -396,6 +403,8 @@ char *name;
 			tname = "a player";
 		}
 		parent = mudconf.player_parent;
+		if (Good_obj(mudconf.player_proto))
+		    proto = mudconf.player_proto;
 		buff = munge_space(name);
 		okname = badname_check(buff);
 		if (!okname) {
@@ -485,15 +494,31 @@ char *name;
 	s_Exits(obj, NOTHING);
 	s_Next(obj, NOTHING);
 	s_Link(obj, NOTHING);
-	s_Parent(obj, parent);
 
-	if (mudconf.autozone && player != NOTHING)
+	/* We do not autozone players to their creators. */
+
+	if (mudconf.autozone && (player != NOTHING) &&
+	    (objtype != TYPE_PLAYER)) {
 	    s_Zone(obj, Zone(player));
-	else
-	    s_Zone(obj, NOTHING);
-	s_Flags(obj, objtype | f1);
-	s_Flags2(obj, f2);
-	s_Flags3(obj, f3);
+	} else {
+	    if (proto != NOTHING)
+		s_Zone(obj, Zone(proto));
+	    else
+		s_Zone(obj, NOTHING);
+	}
+
+	if (proto != NOTHING) {
+	    s_Parent(obj, Parent(proto));
+	    s_Flags(obj, objtype | (Flags(proto) & ~TYPE_MASK));
+	    s_Flags2(obj, Flags2(proto));
+	    s_Flags3(obj, Flags3(proto));
+	} else {
+	    s_Parent(obj, parent);
+	    s_Flags(obj, objtype | f1);
+	    s_Flags2(obj, f2);
+	    s_Flags3(obj, f3);
+	}
+
 	s_Owner(obj, (self_owned ? obj : owner));
 	s_Pennies(obj, value);
 	Unmark(obj);
@@ -511,6 +536,9 @@ char *name;
 	s_StructCount(obj, 0);
 	s_InstanceCount(obj, 0);
 
+	if (proto != NOTHING)
+	    atr_cpy(GOD, obj, proto);
+
 	if (objtype == TYPE_PLAYER) {
 		time(&tt);
 		buff = (char *)ctime(&tt);
@@ -525,7 +553,6 @@ char *name;
 		atr_add_raw(obj, A_RQUOTA, buff);
 		add_player_name(obj, Name(obj));
 		free_sbuf(buff);
-		s_Zone(obj, NOTHING);
 		
 		if (!cost)
 			payfees(obj, 0, mudconf.player_quota, TYPE_PLAYER);

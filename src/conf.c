@@ -249,6 +249,10 @@ void NDECL(cf_init)
 	mudconf.start_home = NOTHING;
 	mudconf.default_home = NOTHING;
 	mudconf.master_room = NOTHING;
+	mudconf.player_proto = NOTHING;
+	mudconf.room_proto = NOTHING;
+	mudconf.exit_proto = NOTHING;
+	mudconf.thing_proto = NOTHING;
 	mudconf.player_parent = NOTHING;
 	mudconf.room_parent = NOTHING;
 	mudconf.exit_parent = NOTHING;
@@ -1339,6 +1343,7 @@ CONF conftable[] = {
 {(char *)"exit_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.exit_flags,	0},
 {(char *)"exit_calls_move",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.exit_calls_move,	(long)"Using an exit calls the move command"},
 {(char *)"exit_parent",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_parent,		0},
+{(char *)"exit_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_proto,		0},
 {(char *)"exit_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_quota,		0},
 {(char *)"events_daily_hour",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.events_daily_hour,	0},
 {(char *)"fascist_teleport",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fascist_tport,		(long)"@teleport source restricted to control or JUMP_OK"},
@@ -1450,6 +1455,7 @@ CONF conftable[] = {
 {(char *)"player_match_own_commands",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine_pl,		(long)"Players can match $-commands on themselves"},
 {(char *)"player_name_spaces",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.name_spaces,		(long)"Player names can contain spaces"},
 {(char *)"player_parent",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_parent,		0},
+{(char *)"player_proto",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_proto,		0},
 {(char *)"player_queue_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.queuemax,		0},
 {(char *)"player_quota",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_quota,		0},
 {(char *)"player_starting_home",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_home,		0},
@@ -1477,6 +1483,7 @@ CONF conftable[] = {
 {(char *)"robot_speech",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.robot_speak,		(long)"Robots can speak in locations their owners do not\n\t\t\t\tcontrol"},
 {(char *)"room_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.room_flags,	0},
 {(char *)"room_parent",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_parent,		0},
+{(char *)"room_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_proto,		0},
 {(char *)"room_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_quota,		0},
 {(char *)"sacrifice_adjust",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacadjust,		0},
 {(char *)"sacrifice_factor",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacfactor,		0},
@@ -1509,6 +1516,7 @@ CONF conftable[] = {
 {(char *)"terse_shows_move_messages",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_movemsg,		(long)"TERSE suppresses movement messages"},
 {(char *)"thing_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.thing_flags,	0},
 {(char *)"thing_parent",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_parent,		0},
+{(char *)"thing_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_proto,		0},
 {(char *)"thing_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_quota,		0},
 {(char *)"timeslice",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.timeslice,		0},
 {(char *)"trace_output_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.trace_limit,		0},
