@@ -5,6 +5,7 @@ Frequently-Asked Questions
 - How do I make a new configuration file?
 - How do I back up my database?
 - How do I restore a database backup?
+- How do I apply a patch upgrade or bugfix?
 - How do I use multiple guests?
 - How do I tune the database cache?
 - How do I use radix compression?
@@ -131,6 +132,33 @@ is the name of your backup file.
 Note that this only restores your database; it does not restore the
 comsys or mail databases. To restore the latter, simply copy your
 saved copies of comsys.db and mail.db back to the game directory.
+
+------------------------------------------------------------------------------
+
+How do I apply a patch upgrade or bugfix?
+
+To patch the server:
+
+- Download the patch from the archive, via FTP or the Web. Save the file
+  in your code directory, which is probably called something like
+  'tinymush-3.0' -- it's the same directory that contains this FAQ file.
+
+- Type:  gzcat name_of_patchfile.gz | patch -p1
+  name_of_patchfile will probably be something like 'patch-30p1-30p2'
+  (with a .gz extension).
+  If you do not have gzcat, type 'gunzip name_of_patchfile.gz' and then
+  'patch -p1 < name_of_patchfile'
+  If you do not have patch, you cannot apply patches. Get your system
+  administrator to install it.
+
+- Type:  ./Build
+
+If there are problems with the patch, make sure that nothing strange
+has happened -- for example, there are no carriage-return/newlines ('^M')
+characters at the end of lines.
+
+Also, if you're applying multiple patches, make sure to do them in 
+chronological sequence -- oldest to newest patch.
 
 ------------------------------------------------------------------------------
 
