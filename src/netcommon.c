@@ -10,7 +10,6 @@
 #include "autoconf.h"
 
 #include <time.h>
-#include <math.h>
 
 #include "db.h"
 #include "mudconf.h"
@@ -2014,17 +2013,24 @@ int strtype, flag;
 }
 
 static unsigned int mask_to_prefix(mask_num)
-    unsigned long mask_num;
+    unsigned int mask_num;
 {
-	/* The number of bits in the mask is equal to 32 minus the log base 2
- 	* of 2^32 minus the number.
- 	*/
+    unsigned int i, result, tmp;
 
-	if (mask_num == 0) {
-		return 0;
-	} else {
-		return (unsigned int) (32 - ((int) (log((double) (pow(2,32) - mask_num)) / log((double) 2))));
+    /* The number of bits in the mask is equal to the number of left
+     * shifts before it becomes zero. Binary search for that number.
+     */
+
+    for (i = 16, result = 0; i && mask_num; i >>= 1)
+	if ((tmp = (mask_num << i))) {
+	    result |= i;
+	    mask_num = tmp;
 	}
+
+    if (mask_num)
+	result++;
+
+    return result;
 }
 
 static void list_sites(player, site_list, header_txt, stat_type)
@@ -2045,9 +2051,11 @@ int stat_type;
 	for (this = site_list; this; this = this->next) {
 
 	    str = (char *) stat_string(stat_type, this->flag);
-	    bits = mask_to_prefix(this->mask.s_addr);
+	    bits = mask_to_prefix(ntohl(this->mask.s_addr));
 
-	    if (htonl(((unsigned int) pow(2, 32)) - ((unsigned int) pow(2, 32 - bits))) == this->mask.s_addr) {
+	    /* special-case 0, can't shift by 32 */
+	    if ((bits == 0 && htonl(0) == this->mask.s_addr) ||
+		htonl(0xFFFFFFFFU << (32 - bits)) == this->mask.s_addr) {
 
 		sprintf(buff, "%-17s /%-16d %s", inet_ntoa(this->address),
 			bits, str);
