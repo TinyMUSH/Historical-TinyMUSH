@@ -35,13 +35,13 @@ The directory must use the same name as the shared object files your
 code produces. The shared objects for modules go in the game/modules
 directory. 
 
-In your module's source directory you should have at least 5 files:
-configure.in, configure, Makefile.in, aclocal.m4, and a C source
-file. Your best bet to get started is to make a copy of the 'hello'
-module source, substitute your own code for hello.c, and modify
-Makefile.in appropriately. More advanced module code might make use
-of a customized configure script and Makefile, but that is beyond the
-scope of this document.
+In your module's source directory you should have at least 4 files:
+configure.in, configure, Makefile.inc.in, and a C source file. Your
+best bet to get started is to make a copy of the 'hello' module
+source, substitute your own code for hello.c, and modify
+Makefile.inc.in appropriately. More advanced module code might make
+use of a customized configure script and Makefile, but that is beyond
+the scope of this document.
 
 NOTE: You must change the AC_INIT macro at the top of your module's
 configure.in to reference one of your C source files (it doesn't matter
@@ -57,9 +57,12 @@ module <name>
 Modules can only be loaded when the game is started.
 
 CAUTION: If you are changing a dynamically-loaded module while the
-game is running, do NOT overwrite the old shared objects. You must go
-to game/modules/.lib and rename the .so files associated with your
-module.
+game is running, do NOT overwrite the old shared objects. The Makefile
+fragments we've included will move old .so files out of the way,
+but because they keep only one backup copy, they won't help if you
+rebuild your module twice before reloading it into the game. To be
+certain, you must go to game/modules/ and rename the .so file
+associated with your module.
 
 -----------------------------------------------------------------------------
 
