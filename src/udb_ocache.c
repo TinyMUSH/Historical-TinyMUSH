@@ -13,11 +13,6 @@
 
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
-#include "bdb.h"	/* required by code */
-
-/* Need the database environment pointer to do checkpoints */
-
-extern DB_ENV *dbenvp;
 
 extern void VDECL(logf, (char *, ...));
 extern void VDECL(fatal, (char *, ...));
