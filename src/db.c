@@ -467,15 +467,17 @@ FWDLIST *ifp;
 
 	xfp = fwdlist_get(thing);
 	if (xfp) {
-	    XFREE(xfp->data, "fwdlist_set.data");
-	    XFREE(xfp, "fwdlist_set");
+	    if (xfp->data)
+		XFREE(xfp->data, "fwdlist_set.xfp_data");
+	    XFREE(xfp, "fwdlist_set.xfp");
 	    stat = nhashrepl(thing, (int *)fp, &mudstate.fwdlist_htab);
 	} else {
 	    stat = nhashadd(thing, (int *)fp, &mudstate.fwdlist_htab);
 	}
 	if (stat < 0) {              /* the add or replace failed */
-	    XFREE(fp->data, "fwdlist_set.data");
-	    XFREE(fp, "fwdlist_set");
+	    if (fp->data)
+		XFREE(fp->data, "fwdlist_set.fp_data");
+	    XFREE(fp, "fwdlist_set.fp");
 	}
 }
 
@@ -488,7 +490,8 @@ dbref thing;
 
 	xfp = fwdlist_get(thing);
 	if (xfp) {
-	    XFREE(xfp->data, "fwdlist_clr.data");
+	    if (xfp->data)
+		XFREE(xfp->data, "fwdlist_clr.data");
 	    XFREE(xfp, "fwdlist_clr");
 	    nhashdelete(thing, &mudstate.fwdlist_htab);
 	}
