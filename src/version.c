@@ -46,8 +46,8 @@
  */
 
 /*
- * TinyCWRU version.c file.  Add a comment here any time you've made a
- * * big enough revision to increment the TinyCWRU version #.
+ * TinyMUSH version.c file.  Add a comment here any time you've made a
+ * * big enough revision to increment the TinyMUSH version #.
  */
 
 void do_version(player, cause, extra)
