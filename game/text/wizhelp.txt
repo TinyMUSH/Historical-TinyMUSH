@@ -1524,7 +1524,8 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	money_name_plural	money_name_singular	mud_name
 	port			public_calias		public_channel
 	queue_active_chunk	queue_idle_chunk	sql_database
-	sql_host		sql_reconnect
+	sql_host		sql_password		sql_reconnect
+	sql_username
 
 & PARAM OBJECTS
 	default_home		exit_attr_defaults	exit_flags
@@ -3225,6 +3226,19 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   machine that the MUSH is running on), via a Unix domain socket. To
   connect to a database on the local host via a network socket, specify
   127.0.0.1 (which is the IP address of localhost) instead.
+ 
+& sql_username
+  Config parameter: sql_username <username>.  Default: <null>
+ 
+  Specifies the username if required to connect to the SQL database
+  server. If not specified, the database server may assume you wish
+  to connect as the user that owns the mush server process.
+ 
+& sql_password
+  Config parameter: sql_password <password>.  Default: <null>
+ 
+  Specifies the password if required to connect to the SQL database
+  server.
  
 & sql_reconnect
   Config parameter: sql_reconnect <yes/no>.  Default: no

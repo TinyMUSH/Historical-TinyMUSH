@@ -507,6 +507,10 @@ You should then be able to use the SQL() function from within the MUSH
 to make queries against this database. Note that users of this function
 need to have the use_sql power.
 
+Note for MySQL users: you may need to specify a username/password to
+connect to the database; use the sql_username and sql_password config
+parameters. These parameters have no effect for mSQL.
+
 ------------------------------------------------------------------------------
     If you have suggestions for more FAQs, please email us and let us know.
 ------------------------------------------------------------------------------
