@@ -4,22 +4,43 @@ PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 #
 . mush.config
 #
+#	Make sure mush.config paths are valid.
+#
+if [ -z "$BIN" -o ! -d "$BIN" -o ! -r "$BIN" ]; then
+	echo "Invalid BIN directory in mush.config"
+	exit 1
+fi
+if [ -z "$TEXT" -o ! -d "$TEXT" -o ! -w "$TEXT" ]; then
+	echo "Invalid TEXT directory in mush.config"
+	exit 1
+fi
+if [ -z "$DATA" -o ! -d "$DATA" -o ! -w "$DATA" ]; then
+	echo "Invalid DATA directory in mush.config"
+	exit 1
+fi
+if [ -z "$BACKUP_DIR" -o ! -d "$BACKUP_DIR" -o ! -w "$BACKUP_DIR" ]; then
+	echo "Invalid BACKUP_DIR in mush.config; using ."
+	BACKUP_DIR=.
+fi
+#
 # You'll want to use gzip if you have it. If you want really good
 # compression, try 'gzip --best'. If you don't have gzip, use 'compress'.
 ZIP=gzip
 #
 DBDATE=`date +%m%d-%H%M`
 #
+OUTFILE=$BACKUP_DIR/$GAMENAME.$DBDATE
+#
 if [ -r $DATA/$NEW_DB ]; then
-    $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$NEW_DB | $ZIP -c > $GAMENAME.$DBDATE.gz
+    $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$NEW_DB | $ZIP -c > $OUTFILE.gz
 else
     if [ -r $DATA/$INPUT_DB ]; then
         echo "No recent checkpoint db. Using older db."
-        $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$INPUT_DB | $ZIP -c > $GAMENAME.$DBDATE.gz
+        $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$INPUT_DB | $ZIP -c > $OUTFILE.gz
     else
         if [ -r $DATA/$SAVE_DB ]; then
             echo "No input db. Using backup db."
-            $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$SAVE_DB | $ZIP -c > $GAMENAME.$DBDATE.gz
+            $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$SAVE_DB | $ZIP -c > $OUTFILE.gz
         else
             echo "No dbs. Backup attempt failed."
         fi
