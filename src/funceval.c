@@ -2470,81 +2470,84 @@ FUNCTION(fun_edefault)
 
 FUNCTION(fun_udefault)
 {
-	dbref thing, aowner;
-	int aflags, anum, i, j;
-	ATTR *ap;
-	char *objname, *atext, *str, *bp, *xargs[NUM_ENV_VARS];
+    dbref thing, aowner;
+    int aflags, anum, i, j;
+    ATTR *ap;
+    char *objname, *atext, *str, *bp, *xargs[NUM_ENV_VARS];
 
+    if (nfargs < 2)		/* must have at least two arguments */
+	return;
 
-	if (nfargs < 2)		/* must have at least two arguments */
-		return;
+    str = fargs[0];
+    objname = bp = alloc_lbuf("fun_udefault");
+    exec(objname, &bp, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK,
+	 &str, cargs, ncargs);
+    *bp = '\0';
 
-	str = fargs[0];
-	objname = bp = alloc_lbuf("fun_udefault");
-	exec(objname, &bp, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK, &str,
-	     cargs, ncargs);
-	*bp = '\0';
+    /* First we check to see that the attribute exists on the object.
+     * If so, we grab it and use it. 
+     */
 
-	/* First we check to see that the attribute exists on the object.
-	 * If so, we grab it and use it. 
-	 */
-
-	if (objname != NULL) {
-		if (parse_attrib(player, objname, &thing, &anum)) {
-			if ((anum == NOTHING) || (!Good_obj(thing)))
-				ap = NULL;
-			else
-				ap = atr_num(anum);
-		} else {
-			thing = player;
-			ap = atr_str(objname);
-		}
-		if (ap) {
-			atext = atr_pget(thing, ap->number, &aowner, &aflags);
-			if (atext) {
-				if (*atext &&
-				    check_read_perms(player, thing, ap, aowner, aflags,
-						     buff, bufc)) {
-					/* Now we have a problem -- we've got to go eval
-					 * all of those arguments to the function. 
-					 */
-					 for (i = 2, j = 0; j < NUM_ENV_VARS; i++, j++) {
-					 	if ((i < NUM_ENV_VARS) && fargs[i]) {
-					 		 bp = xargs[j] = alloc_lbuf("fun_udefault_args");
-					 		 str = fargs[i];
-					 		 exec(xargs[j], &bp, 0, player, cause,
-					 		        EV_STRIP | EV_FCHECK | EV_EVAL,
-					 		        &str, cargs, ncargs);
-					 	} else {
-					 		xargs[j] = NULL;
-					 	} 
-					 }
-					 
-					str = atext;
-					exec(buff, bufc, 0, thing, cause, EV_FCHECK | EV_EVAL, &str,
-					     xargs, nfargs - 2);
-					
-					/* Then clean up after ourselves. */
-					for (j = 0; j < NUM_ENV_VARS; j++)
-						if (xargs[j])
-							free_lbuf(xargs[j]);
-							
-					free_lbuf(atext);
-					free_lbuf(objname);
-					return;
-				}
-				free_lbuf(atext);
-			}
-		}
-		free_lbuf(objname);
+    if (objname != NULL) {
+	if (parse_attrib(player, objname, &thing, &anum)) {
+	    if ((anum == NOTHING) || (!Good_obj(thing)))
+		ap = NULL;
+	    else
+		ap = atr_num(anum);
+	} else {
+	    thing = player;
+	    ap = atr_str(objname);
 	}
-	/* If we've hit this point, we've not gotten anything useful, so we 
-	 * go and evaluate the default. 
-	 */
+	if (ap) {
+	    atext = atr_pget(thing, ap->number, &aowner, &aflags);
+	    if (atext) {
+		if (*atext &&
+		    check_read_perms(player, thing, ap, aowner, aflags,
+				     buff, bufc)) {
+		    /* Now we have a problem -- we've got to go eval
+		     * all of those arguments to the function. 
+		     */
+		    for (i = 2, j = 0;
+			 j < NUM_ENV_VARS + 2;
+			 i++, j++) {
+			if ((i < NUM_ENV_VARS) && fargs[i]) {
+			    bp = xargs[j] = alloc_lbuf("fun_udefault_args");
+			    str = fargs[i];
+			    exec(xargs[j], &bp, 0, player, cause,
+				 EV_STRIP | EV_FCHECK | EV_EVAL,
+				 &str, cargs, ncargs);
+			} else {
+			    xargs[j] = NULL;
+			} 
+		    }
+		    
+		    str = atext;
+		    exec(buff, bufc, 0, thing, cause, EV_FCHECK | EV_EVAL,
+			 &str, xargs, nfargs - 2);
+					
+		    /* Then clean up after ourselves. */
 
-	str = fargs[1];
-	exec(buff, bufc, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK, &str,
-	     cargs, ncargs);
+		    for (j = 0; j < NUM_ENV_VARS; j++)
+			if (xargs[j])
+			    free_lbuf(xargs[j]);
+		    
+		    free_lbuf(atext);
+		    free_lbuf(objname);
+		    return;
+		}
+		free_lbuf(atext);
+	    }
+	}
+	free_lbuf(objname);
+    
+}
+    /* If we've hit this point, we've not gotten anything useful, so we 
+     * go and evaluate the default. 
+     */
+
+    str = fargs[1];
+    exec(buff, bufc, 0, player, cause, EV_EVAL | EV_STRIP | EV_FCHECK, &str,
+	 cargs, ncargs);
 }
 
 /* ---------------------------------------------------------------------------
