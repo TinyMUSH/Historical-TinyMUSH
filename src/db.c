@@ -2757,7 +2757,7 @@ char *gdbmfile;
 {
 	/* Calculate proper database block size */
 	
-	for (mudstate.db_block_size = 1; mudstate.db_block_size < LBUF_SIZE;
+	for (mudstate.db_block_size = 1; mudstate.db_block_size < (LBUF_SIZE * 4);
 		mudstate.db_block_size = mudstate.db_block_size << 1) ;
 
 #ifdef STANDALONE
