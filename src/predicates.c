@@ -27,6 +27,7 @@ extern int FDECL(do_command, (DESC *, char *, int));
 extern void NDECL(dump_database);
 extern void NDECL(dump_restart_db);
 extern void FDECL(dump_database_internal, (int));
+extern LOGFILETAB logfds_table[];
 extern int slave_pid;
 extern int slave_socket;
 extern CMDENT *prefix_cmds[256];
@@ -1308,11 +1309,13 @@ void do_restart(player, cause, key)
     dbref player, cause;
     int key;
 {
+	LOGFILETAB *lp;
+	
 	if (mudstate.dumping) {
 		notify(player, "Dumping. Please try again later.");
 		return;
 	}
-	
+
 	raw_broadcast(0, "GAME: Restart by %s, please wait.", Name(Owner(player)));
 	STARTLOG(LOG_ALWAYS, "WIZ", "RSTRT")
 		log_text((char *)"Restart by ");
@@ -1332,6 +1335,18 @@ void do_restart(player, cause, key)
 	shutdown(slave_socket, 2);
 	kill(slave_pid, SIGKILL);
 	waitpid(slave_pid, (int *) NULL, (int) NULL);
+
+	/* Need to close these logs. Note that they'll end up getting
+	 * overwritten on restart, so we rename them.
+	 */
+
+	for (lp = logfds_table; lp->log_flag; lp++) {
+	    if (lp->filename && lp->fileptr) {
+		fclose(lp->fileptr);
+		rename(lp->filename,
+		       tprintf("%s.%ld", lp->filename, (long) time(NULL)));
+	    }
+	}
 
 	alarm(0);
 	dump_restart_db();
