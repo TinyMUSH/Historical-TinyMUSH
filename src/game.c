@@ -63,6 +63,7 @@ extern int NDECL(dddb_optimize);
 
 #ifndef STANDALONE
 extern int FDECL(call_cron, (dbref, dbref, int, char *));
+extern LOGFILETAB logfds_table[];
 #endif
 
 #ifdef USE_MAIL
@@ -1504,7 +1505,12 @@ void do_logrotate(player, cause, key)
      * isn't absolutely necessary.
      */
 
+    LOGFILETAB *lp;
+
     mudstate.mudlognum++;
+
+    /* Main logfile */
+
     if (!freopen((const char *) tprintf("%s.%d", mudconf.mudlogname,
 					mudstate.mudlognum),
 		 "w", stderr)) {
@@ -1525,6 +1531,16 @@ void do_logrotate(player, cause, key)
 	    log_text((char *) ".");
 	    log_number(mudstate.mudlognum);
         ENDLOG
+    }
+
+    /* Any additional special ones */
+
+    for (lp = logfds_table; lp->log_flag; lp++) {
+	if (lp->filename && lp->fileptr) {
+	    freopen((const char *) tprintf("%s.%d", lp->filename,
+					   mudstate.mudlognum),
+		    "w", lp->fileptr);
+	}
     }
 }
 
