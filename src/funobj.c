@@ -119,37 +119,23 @@ FUNCTION(fun_next)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_loc: Returns the location of something
+ * handle_loc: Locate an object (LOC, WHERE).
+ * loc(): Returns the location of something.
+ * where(): Returns the "true" location of something
  */
 
-FUNCTION(fun_loc)
+FUNCTION(handle_loc)
 {
 	dbref it;
 
 	it = match_thing(player, fargs[0]);
 	if (locatable(player, it, cause)) {
-		safe_dbref(buff, bufc, Location(it));
+		safe_dbref(buff, bufc,
+			   (((FUN *)fargs[-1])->flags & LOCFN_WHERE) ?
+			   where_is(it) : Location(it));
 	} else {
 		safe_nothing(buff, bufc);
 	}
-	return;
-}
-
-/* ---------------------------------------------------------------------------
- * fun_where: Returns the "true" location of something
- */
-
-FUNCTION(fun_where)
-{
-	dbref it;
-
-	it = match_thing(player, fargs[0]);
-	if (locatable(player, it, cause)) {
-		safe_dbref(buff, bufc, where_is(it));
-	} else {
-		safe_nothing(buff, bufc);
-	}
-	return;
 }
 
 /* ---------------------------------------------------------------------------
@@ -340,10 +326,12 @@ FUNCTION(handle_okpres)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_fullname: Return the fullname of an object (good for exits)
+ * handle_name: Get object name (NAME, FULLNAME).
+ * name(): Return the name of an object.
+ * fullname(): Return the fullname of an object (good for exits).
  */
 
-FUNCTION(fun_fullname)
+FUNCTION(handle_name)
 {
 	dbref it;
 
@@ -353,12 +341,15 @@ FUNCTION(fun_fullname)
 	}
 	if (!mudconf.read_rem_name) {
 		if (!nearby_or_control(player, it) &&
-		    (!isPlayer(it))) {
+		    !isPlayer(it) && !Long_Fingers(player)) {
 			safe_str("#-1 TOO FAR AWAY TO SEE", buff, bufc);
 			return;
 		}
 	}
-	safe_name(it, buff, bufc);
+	if (!(((FUN *)fargs[-1])->flags & NAMEFN_FULLNAME) && isExit(it))
+		safe_exit_name(it, buff, bufc);
+	else
+		safe_name(it, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
