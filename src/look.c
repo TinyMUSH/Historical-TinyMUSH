@@ -1041,9 +1041,13 @@ char *name;
 
 			switch (Location(thing)) {
 			case NOTHING:
+				notify(player, "Destination: *UNLINKED*");
 				break;
 			case HOME:
 				notify(player, "Destination: *HOME*");
+				break;
+ 		        case AMBIGUOUS:
+				notify(player, "Destination: *VARIABLE*");
 				break;
 			default:
 				buf2 = unparse_object(player,

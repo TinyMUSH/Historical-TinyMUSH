@@ -50,6 +50,12 @@ dbref thing, dest;
 	if (dest == HOME)
 		dest = Home(thing);
 
+	/* Special check for AMBIGUOUS - We should be okay if we make
+	 * this equivalent to NOTHING, I hope...
+	 */
+	if (dest == AMBIGUOUS)
+	    dest = NOTHING;
+
 	/* Add to destination location */
 
 	if (dest != NOTHING) {
@@ -1070,8 +1076,8 @@ static NDECL(void check_dead_refs)
 				if (Going(targ)) {
 					s_Going(i);
 				}
-			} else if (targ == HOME) {
-				/* null case, HOME is always valid */
+			} else if ((targ == HOME) || (targ == AMBIGUOUS)) {
+				/* null case, always valid */
 			} else if (targ != NOTHING) {
 				Log_header_err(i, Exits(i), targ, 1,
 					       "Destination",
@@ -1300,7 +1306,7 @@ dbref loc;
 			}
 			exit = NOTHING;
 		} else if (!Good_obj(dest) && (dest != HOME) &&
-			   (dest != NOTHING)) {
+			   (dest != AMBIGUOUS) && (dest != NOTHING)) {
 
 			/* Destination is not in the db.  Null it. */
 

@@ -292,6 +292,7 @@ ATTR attr[] =
 	{"EnterLock", A_LENTER, AF_ODARK | AF_NOPROG | AF_NOCMD | AF_IS_LOCK,
 	 NULL},
 	{"ExitFormat", A_LEXITS_FMT, AF_ODARK | AF_NOPROG, NULL},
+	{"ExitTo", A_EXITVARDEST, AF_ODARK, NULL},
 	{"Fail", A_FAIL, AF_ODARK | AF_NOPROG, NULL},
 	{"Filter", A_FILTER, AF_ODARK | AF_NOPROG, NULL},
 	{"Forwardlist", A_FORWARDLIST, AF_ODARK | AF_NOPROG, fwdlist_ck},

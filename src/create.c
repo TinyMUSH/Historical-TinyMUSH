@@ -161,12 +161,20 @@ dbref player, exit, dest;
 		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
+
 	/* Exit must be unlinked or controlled by you */
 
 	if ((Location(exit) != NOTHING) && !controls(player, exit)) {
 		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
+
+	/* Restrict who can link a variable exit. */
+	if ((dest == AMBIGUOUS) && !LinkVariable(player)) {
+	    notify_quiet(player, NOPERM_MESSAGE);
+	    return;
+	}
+
 	/* handle costs */
 
 	cost = mudconf.linkcost;
@@ -220,8 +228,11 @@ char *what, *where;
 	case TYPE_EXIT:
 
 		/* Set destination */
-
-		room = parse_linkable_room(player, where);
+	        if (!strcasecmp(where, "variable")) {
+		    room = AMBIGUOUS;
+		} else {
+		    room = parse_linkable_room(player, where);
+		}
 		if (room != NOTHING)
 			link_exit(player, thing, room);
 		break;

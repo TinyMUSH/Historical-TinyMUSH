@@ -50,6 +50,7 @@
 
 /* Second word of powers */
 #define POW_BUILDER	0x00000001	/* Can build */
+#define POW_LINKVAR	0x00000002	/* Can link an exit to "variable" */
 
 /* ---------------------------------------------------------------------------
  * POWERENT: Information about object powers.
@@ -139,4 +140,5 @@ extern void	FDECL(decompile_powers, (dbref, dbref, char *));
 #define Prog(c)			(((Powers(c) & POW_PROG) != 0) || Wizard(c))
 #define Pass_Locks(c)		((Powers(c) & POW_PASS_LOCKS) != 0)
 #define Builder(c)		(((Powers2(c) & POW_BUILDER) != 0) || WizRoy(c))
+#define LinkVariable(c)		(((Powers2(c) & POW_LINKVAR) != 0) || Wizard(c))
 #endif /* POWERS_H */

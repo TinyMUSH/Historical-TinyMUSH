@@ -372,6 +372,39 @@ int hush;
 }
 
 /* ---------------------------------------------------------------------------
+ * find_var_dest: Find a variable exit destination (DESTINATION attr).
+ */
+
+static dbref find_var_dest(player, exit)
+    dbref player;
+    dbref exit;
+{
+    char *buf, *ebuf, *ep, *str;
+    dbref aowner, dest_room;
+    int aflags;
+    char *preserve[MAX_GLOBAL_REGS];
+
+    buf = atr_pget(exit, A_EXITVARDEST, &aowner, &aflags);
+    if (!buf || !*buf) {
+	free_lbuf(buf);
+	return NOTHING;
+    }
+
+    save_global_regs("find_var_dest_save", preserve);
+    ebuf = ep = alloc_lbuf("find_var_dest");
+    str = buf;
+    exec(ebuf, &ep, 0, exit, player, EV_FIGNORE | EV_EVAL | EV_TOP, &str,
+	 (char **) NULL, 0);
+    *ep = '\0';
+    free_lbuf(buf);
+    restore_global_regs("find_var_dest_save", preserve);
+
+    dest_room = parse_dbref(ebuf);
+    free_lbuf(ebuf);
+    return dest_room;
+}
+
+/* ---------------------------------------------------------------------------
  * move_exit: Try to move a player through an exit.
  */
 
@@ -384,8 +417,17 @@ const char *failmsg;
 	int oattr, aattr;
 
 	loc = Location(exit);
-	if (loc == HOME)
+	switch (loc) {
+	    case HOME:
 		loc = Home(player);
+		break;
+	    case AMBIGUOUS:
+		loc = find_var_dest(player, exit);
+		break;
+	    default:
+		/* No change */
+	}
+
 	if (Good_obj(loc) && could_doit(player, exit, A_LOCK)) {
 		switch (Typeof(loc)) {
 		case TYPE_ROOM:
