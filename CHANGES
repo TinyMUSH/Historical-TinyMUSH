@@ -465,4 +465,3 @@ TinyMUX 1.5 patchlevel 0:
   database
 - @addcommand now works with single letter commands (". :, ;, etc) however
   the original commands may *not* be accessed by prefixing with __.
-
