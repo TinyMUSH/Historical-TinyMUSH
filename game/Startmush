@@ -1,0 +1,98 @@
+#!/bin/sh
+#
+#	Startmush - Kick off the netmush process.
+#
+PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
+#
+. mush.config
+#
+#	Make sure there isn't aready a MUSH running.
+#
+# BSD ps
+nmush=`ps ux | egrep netmush | wc -l`
+#
+# SysV ps - comment out the above and uncomment this, if necessary
+# nmush=`ps -ef | egrep netmush | wc -l`
+#
+if [ $nmush -gt 1 ]; then
+	echo "MUSH already running."
+	exit 0
+fi
+#
+#	Make sure the indexes are up-to-date.
+#
+$BIN/mkindx $TEXT/news.txt $TEXT/news.indx
+$BIN/mkindx $TEXT/help.txt $TEXT/help.indx
+$BIN/mkindx $TEXT/wizhelp.txt $TEXT/wizhelp.indx
+$BIN/mkindx $TEXT/plushelp.txt $TEXT/plushelp.indx
+$BIN/mkindx $TEXT/wiznews.txt $TEXT/wiznews.indx
+
+echo "Checking for database files and creating backups of old files."
+
+#
+#	Refuse to start if CORRUPT or KILLED databases are present.
+#
+if [ -r $DATA/$INPUT_DB.KILLED -o -r $DATA/$INPUT_DB.CORRUPT ]; then
+	echo "There is a CORRUPT or KILLED database present." 
+	echo "You should salvage what you can before continuing."
+	exit 1
+fi
+
+#
+#	Check for a panic dump.  If there is one and it is good, copy
+#	it on top of the last checkpoint DB written by mush.  If it is bad,
+#	just delete it.
+#
+if [ -r $DATA/$CRASH_DB ]; then
+	end="`tail -1 $DATA/$CRASH_DB`"
+	if [ "$end" = "***END OF DUMP***" ]; then
+		mv $DATA/$CRASH_DB $DATA/$NEW_DB
+	else
+		rm $DATA/$CRASH_DB
+		echo "Warning: PANIC dump corrupt using older db."
+		echo "Warning: PANIC dump failed on "`date` | mail $OWNER
+	fi
+fi
+
+#
+#	Save a copy of the previous input database and log.
+#
+if [ -r $DATA/$INPUT_DB ]; then
+	mv -f $DATA/$INPUT_DB $DATA/$SAVE_DB
+else
+	echo "No previous input database."
+fi
+#
+if [ -r $LOGNAME ]; then
+	mv -f $LOGNAME $LOGNAME.old
+else
+	echo "No previous log."
+fi
+#
+#	If we have a good checkpoint database, make it the input database.
+#	If not, use the backup of the input database.
+#
+if [ -r $DATA/$NEW_DB ]; then
+	mv $DATA/$NEW_DB $DATA/$INPUT_DB
+else
+	if [ -r $DATA/$SAVE_DB ]; then
+		echo "No recent checkpoint db. Using older db."
+		cp $DATA/$SAVE_DB $DATA/$INPUT_DB
+	else
+		echo "No recent db. Will initialize new database."
+		make_db="-s"
+	fi
+fi
+#
+#	Remove the start db if there is one.
+#
+if [ -r restart.db ]; then
+	rm -f restart.db
+fi
+#
+#
+#	Kick off MUSH
+#
+touch $LOGNAME
+(nohup $BIN/netmush $make_db $GAMENAME.conf >>$LOGNAME 2>&1 & echo Process $!)
+tail -f $LOGNAME | awk '{ print $0 }; /Startup processing complete/ { exit };'
