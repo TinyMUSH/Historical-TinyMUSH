@@ -19,6 +19,8 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 - The Backup, Restore, and Archive scripts can now look at a backups
   directory (set in mush.config).
 
+- The Startmush script handles KILLED and CRASH databases more elegantly.
+
 - Dynamically loadable modules. There is now an interface for writing your
   own hardcode extensions to the server, and loading them at runtime.
   The comsys and mailer are now loadable modules; the USE_COMSYS and 
@@ -118,14 +120,20 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   converted to have the appropriate attribute flags.
 
 - Visibility restrictions on attributes have been sanitized, so they are
-  consistent across commands and functions. This changes the behavior of
-  get() and related functions, which now return #-1 PERMISSION DENIED
-  rather than #-1 TOO FAR AWAY TO SEE when attempting to read a remote
-  @desc without permission.
+  consistent across commands and functions.
+
+- Attribute flags that have no meaning on a global basis can no longer
+  be set globally via @attribute and the like, thus reducing confusion.
 
 -----------------------------------------------------------------------------
 
 CHANGES TO FLAGS AND POWERS
+
+- An object with the new attr_read power is able to see attributes
+  with the 'hidden' attribute flag, just like Wizards and Royalty can.
+
+- An object with the new attr_write power is able to set attributes
+  with the 'wizard' attribute flag, just like Wizards can.
 
 - If a wizard connects while DARK, they are reminded that they are
   currently set DARK. Also, wizards are notified when they are set
@@ -153,19 +161,10 @@ CHANGES TO FLAGS AND POWERS
 
 CHANGES TO COMMANDS
 
-- A new command, @floaters, shows floating rooms. Floating rooms are no
-  longer reported by @dbck, and thus the FLOATING flag has been eliminated
-  (since it's no longer needed to suppress @dbck spam).
-
-- The @emit, @femit, @fpose, page, pose, and say commands now take a
-  /noeval switch. (Analogous to the /noeval switch for @pemit.)
-
-- The new /permit switch to @hook allows the permissions for a built-in
-  command to be defined via a user-defined function.
-
-- The new Spoof comsys flag, when set on a channel, replaces player names
-  with their comtitles, instead of prepending the comtitle to the player
-  name.
+- Players can now specify multiple aliases for themselves (up to
+  the conf parameter player_aliases_limit), via @alias, separating
+  aliases with ';'. Players no longer inherit @alias from their
+  parent (this never made sense, or worked properly, anyway).
 
 - Some commands that would normally be queued can now be executed
   immediately, using the /now switch: @dolist/now (@iter), @force/now,
@@ -174,9 +173,34 @@ CHANGES TO COMMANDS
   The new conf parameters command_invocation_limit and 
   command_recursion_limit are used to limit this behavior.
 
-- Commands added via @addcommand are now run immediately.
+- Commands added via @addcommand are now run immediately. Also, these
+  commands now respect an escaped-out ':', as well as the regexp and
+  case attribute flags.
+
+- A new switch, @addcommand/preserve, causes the text of an added
+  command to be executed by the player, not by the specified object,
+  unless the player is God (for security reasons).
+
+- Custom comsys headers can now be specified for channels, via
+  @channel/header. These headers can be listed via @clist/header.
+  Also, the @channel command now interprets its arguments, and channel
+  descriptions are passed through a sanity check.
+
+- The new Spoof comsys flag, when set on a channel, replaces player names
+  with their comtitles, instead of prepending the comtitle to the player
+  name.
 
 - @cpattr can copy multiple attributes at a time.
+
+- The @emit, @femit, @fpose, @fsay, page, pose, and say commands now take a
+  /noeval switch. (Analogous to the /noeval switch for @pemit.)
+
+- A new command, @floaters, shows floating rooms. Floating rooms are no
+  longer reported by @dbck, and thus the FLOATING flag has been eliminated
+  (since it's no longer needed to suppress @dbck spam).
+
+- The new /permit switch to @hook allows the permissions for a built-in
+  command to be defined via a user-defined function.
 
 - The global flags for attributes are now shown in parentheses, when
   an object is examined.
@@ -228,7 +252,7 @@ CHANGES TO FUNCTIONS
   regrep(), regrepi(), regmatchi(), regparsei().
 
 - Added a variety of comsys-related functions: comalias(), comdesc(),
-  cominfo(), comlist(), comowner(), comtitle(), cwhoall().
+  comheader(), cominfo(), comlist(), comowner(), comtitle(), cwhoall().
 
 - The filter(), filterbool(), map(), and while() functions pass the
   position of the element in the list as %1. fold() passes the position
@@ -286,6 +310,14 @@ CHANGES TO FUNCTIONS
   bytes of output associated with a port.
 
 - Added store(), which is basically to setx() what setr() is to setq().
+
+- The new structure functions read() and write() allow the use of an
+  "invisible" delimiter, which permits data to be stored in delimited
+  lists without worrying about user-provided data containing the
+  delimiter character. The delimit() function processes a stored
+  list, substituting a separator string for a delimiter.
+
+- translate() now handles tabs.
 
 - Added until() function, which is similar to while(), except it operates
   on multiple lists and terminates on a regular expression condition.
