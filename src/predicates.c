@@ -27,6 +27,7 @@ extern void NDECL(dump_database);
 extern void NDECL(dump_restart_db);
 extern int slave_pid;
 extern int slave_socket;
+extern CMDENT *prefix_cmds[256];
 
 #ifdef NEED_VSPRINTF_DCL
 extern char *FDECL(vsprintf, (char *, char *, va_list));
@@ -659,7 +660,7 @@ CMDENT *old, *cmd;
 ADDENT *add, *nextp;
 
 dbref thing;
-int atr;
+int atr, i;
 char *s;
 
 	if (!*name) {
@@ -726,6 +727,10 @@ char *s;
 		hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 		hashadd(tprintf("__%s", name), (int *)old, &mudstate.command_htab);
 	}
+
+	/* We reset the one letter commands here so you can overload them */
+	
+	set_prefix_cmds();
 	notify(player, tprintf("%s added.", name));
 }
 
@@ -829,6 +834,7 @@ char *s;
 				hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 			}
 			free(old);
+			set_prefix_cmds();
 			notify(player, "Done.");
 			return;
 		} else {
@@ -853,6 +859,7 @@ char *s;
 						prev->next = nextp->next;
 						free(nextp);
 					}
+					set_prefix_cmds();
 					notify(player, "Done.");
 					return;
 				}

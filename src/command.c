@@ -777,14 +777,23 @@ void NDECL(init_cmdtab)
 	for (cp = command_table; cp->cmdname; cp++)
 		hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab);
 
+	set_prefix_cmds();
+	
+	goto_cmdp = (CMDENT *) hashfind("goto", &mudstate.command_htab);
+}
+
+void set_prefix_cmds()
+{
+int i;
+
 	/* Load the command prefix table.  Note - these commands can never
 	 * be typed in by a user because commands are lowercased
 	 * before the hash table is checked. The names are
 	 * abbreviated to minimise name checking time. 
 	 */
 
-	for (anum = 0; anum < A_USER_START; anum++)
-		prefix_cmds[anum] = NULL;
+	for (i = 0; i < A_USER_STAR; i++)
+		prefix_cmds[i] = NULL;
 	prefix_cmds['"'] = (CMDENT *) hashfind((char *)"\"",
 					       &mudstate.command_htab);
 	prefix_cmds[':'] = (CMDENT *) hashfind((char *)":",
@@ -803,7 +812,6 @@ void NDECL(init_cmdtab)
 	prefix_cmds['~'] = (CMDENT *) hashfind((char *)"~",
 					       &mudstate.command_htab);
 #endif
-	goto_cmdp = (CMDENT *) hashfind("goto", &mudstate.command_htab);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1013,9 +1021,9 @@ int interactive, ncargs;
 			(*(cmdp->handler)) (player, unp_command);
 			break;
 		}
-		/* Interpret if necessary */
+		/* Interpret if necessary, but not twice for CS_ADDED */
 
-		if (interp & EV_EVAL) {
+		if ((interp & EV_EVAL) && !(cmdp->callseq & CS_ADDED)) {
 			buf1 = bp = alloc_lbuf("process_cmdent");
 			str = arg;
 			exec(buf1, &bp, 0, player, cause, interp | EV_FCHECK | EV_TOP,
@@ -1040,14 +1048,15 @@ int interactive, ncargs;
 					*s++ = '\0';
 					for (j = unp_command; *j && (*j != ' '); j++) ;
 					new = alloc_lbuf("process_cmdent.soft");
+					bp = new;
 					if (!*j) {
 						/* No args */
-						if (switchp)
-							sprintf(new, "%s/%s", cmdp->cmdname, switchp);
-						else
-							strcpy(new, cmdp->cmdname);
+						safe_str(unp_command, new, &bp);
+						if (switchp) {
+							safe_chr('/', new, &bp);
+							safe_str(switchp, new, &bp);
+						}
 					} else {
-						bp = new;
 						j++;
 						safe_str(cmdp->cmdname, new, &bp);
 						if (switchp) {
@@ -1058,6 +1067,13 @@ int interactive, ncargs;
 						safe_str(j, new, &bp);
 						*bp = '\0';
 					} 
+				
+					buf1 = bp = alloc_lbuf("process_cmdent");
+					str = arg;
+					exec(buf1, &bp, 0, player, cause, interp | EV_FCHECK | EV_TOP,
+					     &str, cargs, ncargs);
+					*bp = '\0';
+
 					if (wild(buff + 1, new, aargs, 10)) {
 						wait_que(add->thing, player,
 					        	0, NOTHING, 0, s, aargs, 10,
@@ -1069,6 +1085,7 @@ int interactive, ncargs;
 					}
 					free_lbuf(new);
 					free_lbuf(buff);
+					free_lbuf(buf1);
 				}
 			} else 
 				(*(cmdp->handler)) (player, cause, key, buf1);
@@ -1076,7 +1093,7 @@ int interactive, ncargs;
 
 		/* Free the buffer if one was allocated */
 
-		if (interp & EV_EVAL)
+		if ((interp & EV_EVAL) && !(cmdp->callseq & CS_ADDED))
 			free_lbuf(buf1);
 
 		break;

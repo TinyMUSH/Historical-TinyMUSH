@@ -270,6 +270,7 @@ extern char *	FDECL(uncompress_str, (char *, const char *, int));
 
 /* From command.c */
 extern int	FDECL(check_access, (dbref, int));
+extern void	NDECL(set_prefix_cmds);
 
 /* from db.c */
 extern int	FDECL(Commer, (dbref));

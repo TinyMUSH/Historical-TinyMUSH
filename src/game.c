@@ -582,9 +582,12 @@ const char *msg;
 	case TYPE_THING:
 	case TYPE_ROOM:
 
-		/* If we're in a pipe, objects can receive raw_notify */
+		/* If we're in a pipe, objects can receive raw_notify 
+		 * if they're not a player and connected (if we didn't
+		 * do this, they'd be notified twice! */
 		
-		if (mudstate.inpipe) {
+		if (mudstate.inpipe && (!isPlayer(target) || 
+		    (isPlayer(target) && !Connected(target)))) {
 			raw_notify(target, msg_ns);
 		}
 		

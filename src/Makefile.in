@@ -281,6 +281,6 @@ clean:
 	-rm -f *.o a.out core gmon.out mux.*log mux.*sum slave conc $(OUT)
 
 indent:
-	indent -bad -bap -cdb -nsob -fca -sc -br -ce -ss -npcs -nbc -lp -i8 -ip0 -cp5 -ncs -npsl -di1 *.c radixlib/*.c tools/*.c web/*.c
+	indent -bad -bap -ncdb -nsob -fca -sc -br -ce -ss -npcs -nbc -lp -i8 -ip0 -cp5 -ncs -npsl -di1 *.c radixlib/*.c tools/*.c web/*.c
 
 include .depend
