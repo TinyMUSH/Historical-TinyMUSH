@@ -817,8 +817,13 @@ int NDECL(cache_sync)
 	if (cache_frozen)
 		return (0);
 
+#if 0
+	/* This ages the cache by decrementing the reference counter-- useful
+	   for a NFU cache, but since we're running an LRU cache, it's not 
+	   needed */
+	   
 	cache_reset(0);
-
+#endif
 	for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
 		if (cache_write(sp->mactive.head))
 			return (1);

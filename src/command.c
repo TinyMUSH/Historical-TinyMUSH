@@ -2194,8 +2194,8 @@ dbref player;
 	   tprintf("DB Cache Stats   Writes       Reads  (over %d seconds)",
 		   (int) (time(NULL) - cs_ltime)));
 	raw_notify(player, tprintf("Calls      %12d%12d", cs_writes, cs_reads));
-	raw_notify(player, tprintf("Cache Hits %12d%12d  (%d in active cache)",
-				   cs_whits, cs_rhits, cs_ahits));
+	raw_notify(player, tprintf("Cache Hits %12d%12d",
+				   cs_whits, cs_rhits));
 	raw_notify(player, tprintf("I/O        %12d%12d",
 				   cs_dbwrites, cs_dbreads));
 	raw_notify(player, tprintf("Failed                 %12d",
