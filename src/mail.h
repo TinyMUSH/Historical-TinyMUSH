@@ -1,7 +1,7 @@
 /* mail.h */
 /* $Id$ */
 
-#include "copyright.h"
+#include "../../copyright.h"
 
 #ifndef __MAIL_H
 #define __MAIL_H
