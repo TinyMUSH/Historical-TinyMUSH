@@ -648,6 +648,9 @@ unsigned int type;
 					&(db[((Aname *)key.dptr)->object].attrtext),
 					cdata);
 #endif
+				/* Don't forget to free data.dptr when standalone */
+				XFREE(data.dptr, "cache_put");
+				
 				break;
 			default:
 				db_lock();
