@@ -18,6 +18,7 @@
 #include "alloc.h"
 #include "vattr.h"
 #include "mail.h"
+#include "db_sql.h"
 
 extern void FDECL(list_cf_access, (dbref));
 extern void FDECL(list_siteinfo, (dbref));
@@ -724,6 +725,12 @@ CMDENT command_table[] = {
 {(char *)"@shutdown",		NULL,		CA_WIZARD,
 	0,		CS_ONE_ARG,		
 	NULL,			NULL,		do_shutdown},
+{(char *)"@sqlconnect",		NULL,		CA_WIZARD,
+	0,		CS_NO_ARGS,
+	NULL,			NULL,		do_sql_connect},
+{(char *)"@sqldisconnect",	NULL,		CA_WIZARD,
+	0,		CS_NO_ARGS,
+	NULL,			NULL,		sql_shutdown},
 {(char *)"@stats",		stats_sw,	0,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_stats},
@@ -1057,6 +1064,12 @@ int mask;
 			succ++;
 		else
 			fail++;
+	}
+	if (mask & CA_SQL_OK) {
+	    if (Can_Use_SQL(player))
+		succ++;
+	    else
+		fail++;
 	}
 	if (succ > 0)
 		fail = 0;
@@ -1987,6 +2000,7 @@ NAMETAB access_nametab[] =
 	{(char *)"need_contents", 6, CA_PUBLIC, CA_CONTENTS},
 	{(char *)"need_player", 6, CA_PUBLIC, CA_PLAYER},
 	{(char *)"dark", 4, CA_GOD, CF_DARK},
+	{(char *)"sql", 2, CA_GOD, CA_SQL_OK},
 	{NULL, 0, 0, 0}};
 
 static void list_cmdaccess(player)
@@ -3152,4 +3166,14 @@ char *arg;
 		display_nametab(player, list_names,
 				(char *)"Unknown option.  Use one of:", 1);
 	}
+}
+
+
+void do_sql_connect(player, cause, key)
+{
+    if (sql_init() < 0) {
+	notify(player, "Database connection attempt failed.");
+    } else {
+	notify(player, "Database connection succeeded.");
+    }
 }

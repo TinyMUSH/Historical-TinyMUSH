@@ -17,6 +17,7 @@
 #include "ansi.h"
 #include "patchlevel.h"
 #include "htab.h"
+#include "db_sql.h"
 
 extern dbref FDECL(match_thing, (dbref, char *));
 extern int FDECL(do_command, (DESC *, char *, int));
@@ -1318,6 +1319,7 @@ void do_restart(player, cause, key)
 	SYNC;
 	CLOSE;
 
+	sql_shutdown();
 	shutdown(slave_socket, 2);
 	kill(slave_pid, SIGKILL);
 	alarm(0);

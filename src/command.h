@@ -149,7 +149,7 @@ CMD_TWO_ARG(do_addcommand);		/* Add or replace a global command */
 CMD_TWO_ARG(do_delcommand);		/* Delete an added global command */
 CMD_ONE_ARG(do_listcommands);		/* List added global commands */
 CMD_NO_ARG(do_logrotate);		/* Rotate the logfile */
-
+CMD_NO_ARG(do_sql_connect);		/* Create a SQL db connection */
 
 typedef struct hookentry HOOKENT;
 struct hookentry {
@@ -214,6 +214,7 @@ struct cmdentry {
 #define CA_NO_SLAVE	0x00004000	/* Not by SLAVE players */
 #define CA_NO_SUSPECT	0x00008000	/* Not by SUSPECT players */
 #define CA_NO_GUEST	0x00010000	/* Not by GUEST players */
+#define CA_SQL_OK	0x00020000	/* Must have SQL_OK power */
 
 #define CA_GBL_BUILD	0x01000000	/* Requires the global BUILDING flag */
 #define CA_GBL_INTERP	0x02000000	/* Requires the global INTERP flag */

@@ -977,7 +977,10 @@ char *message;
 
 	if (key & SHUTDN_PANIC) {
 
-		/* Close down the network interface */
+		/* Close down the network interface. Don't wait to
+		 * try to shut down things like the external SQL
+		 * db connection.
+		 */
 
 		emergency_shutdown();
 
@@ -1643,6 +1646,8 @@ char *argv[];
 
 	load_restart_db();
 
+	sql_init();		/* Make a connection to external SQL db */
+
 	/* You must do your startups AFTER you load your restart database,
 	 * or softcode that depends on knowing who is connected and so forth
 	 * will be hosed.
@@ -1700,6 +1705,7 @@ char *argv[];
 	muntrace();
 #endif
 
+	sql_shutdown();		/* Terminate external SQL db connection */
 	close_sockets(0, (char *)"Going down - Bye");
 	dump_database();
 	CLOSE;

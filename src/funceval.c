@@ -21,6 +21,7 @@
 #include "alloc.h"
 #include "ansi.h"
 #include "comsys.h"
+#include "db_sql.h"
 
 extern NAMETAB indiv_attraccess_nametab[];
 extern char *FDECL(trim_space_sep, (char *, char));
@@ -4343,6 +4344,19 @@ FUNCTION(fun_lastcreate)
 
     *(*bufc)++ = '#';
     safe_ltos(buff, bufc, obj_list[obj_type]);
+}
+
+/*---------------------------------------------------------------------------
+ * SQL stuff.
+ */
+
+FUNCTION(fun_sql)
+{
+    char sep, osep;
+
+    svarargs_preamble("SQL", 3);
+
+    sql_query(player, fargs[0], buff, bufc, sep, osep);
 }
 
 /*---------------------------------------------------------------------------

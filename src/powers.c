@@ -138,6 +138,7 @@ POWERENT gen_powers[] =
 {(char *)"link_variable",	POW_LINKVAR,	POWER_EXT, 0,	ph_wiz},
 {(char *)"link_to_anything",	POW_LINKTOANY,	POWER_EXT, 0,	ph_wiz},
 {(char *)"open_anywhere",	POW_OPENANYLOC,	POWER_EXT, 0,	ph_wiz},
+{(char *)"use_sql",		POW_USE_SQL,	POWER_EXT, 0,	ph_god},
 {NULL,				0,		POWER_EXT, 0,	0}};
 
 #endif /* STANDALONE */

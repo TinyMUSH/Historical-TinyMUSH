@@ -152,6 +152,7 @@ XFUNCTION(fun_destruct);
 XFUNCTION(fun_unstructure);
 XFUNCTION(fun_z);
 XFUNCTION(fun_modify);
+XFUNCTION(fun_sql);
 
 #ifdef PUEBLO_SUPPORT
 XFUNCTION(fun_html_escape);
@@ -5826,6 +5827,7 @@ FUN flist[] = {
 {"SORTBY",	fun_sortby,	0,  FN_VARARGS, CA_PUBLIC},
 {"SPACE",	fun_space,	1,  0,		CA_PUBLIC},
 {"SPLICE",	fun_splice,	0,  FN_VARARGS,	CA_PUBLIC},
+{"SQL",		fun_sql,	0,  FN_VARARGS, CA_SQL_OK},
 {"SQRT",	fun_sqrt,	1,  0,		CA_PUBLIC},
 {"SQUISH",	fun_squish,	0,  FN_VARARGS,	CA_PUBLIC},
 {"STARTTIME",	fun_starttime,	0,  0,		CA_PUBLIC},

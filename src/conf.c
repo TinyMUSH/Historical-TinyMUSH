@@ -99,7 +99,7 @@ void NDECL(cf_init)
 	StringCopy(mudconf.site_file, "text/badsite.txt");
 	StringCopy(mudconf.crea_file, "text/newuser.txt");
 #ifdef PUEBLO_SUPPORT
-	strcpy(mudconf.htmlconn_file, "text/htmlconn.txt");
+	StringCopy(mudconf.htmlconn_file, "text/htmlconn.txt");
 #endif
 	StringCopy(mudconf.motd_msg, "");
 	StringCopy(mudconf.wizmotd_msg, "");
@@ -116,6 +116,8 @@ void NDECL(cf_init)
 #ifdef PUEBLO_SUPPORT
 	StringCopy(mudconf.pueblo_msg, "</xch_mudtext><img xch_mode=html><tt>");
 #endif
+	StringCopy(mudconf.sql_host, "127.0.0.1");
+	StringCopy(mudconf.sql_db, "");
 	mudconf.indent_desc = 0;
        	mudconf.name_spaces = 1;
 	mudconf.fork_dump = 0;
@@ -332,6 +334,7 @@ void NDECL(cf_init)
 	mudstate.mail_freelist = 0;
 	mudstate.freelist = NOTHING;
 	mudstate.markbits = NULL;
+	mudstate.sql_socket = -1;
 	mudstate.func_nest_lev = 0;
 	mudstate.func_invk_ctr = 0;
 	mudstate.ntfy_nest_lev = 0;
@@ -929,7 +932,7 @@ int add_helpfile(player, str)
     /* Make a new string so we won't SEGV if given a constant string */
     
     newstr = alloc_mbuf("add_helpfile");
-    strcpy(newstr, str);
+    StringCopy(newstr, str);
 
     fcmd = strtok(newstr, " \t=,");
     fpath = strtok(NULL, " \t=,");
@@ -1462,6 +1465,10 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.site_chars,		0},
 {(char *)"space_compress",
 	cf_bool,	CA_GOD,		&mudconf.space_compress,	0},
+{(char *)"sql_database",
+	cf_string,	CA_DISABLED,	(int *)mudconf.sql_db,		MBUF_SIZE},
+{(char *)"sql_host",
+	cf_string,	CA_DISABLED,	(int *)mudconf.sql_host,	MBUF_SIZE},
 {(char *)"stack_limit",
 	cf_int,		CA_GOD,		&mudconf.stack_lim,		0},
 {(char *)"starting_money",

@@ -82,6 +82,8 @@ struct confdata {
 #endif
 	char	config_file[PBUF_SIZE]; /* name of config file, used by @restart */
 	char	exec_path[MBUF_SIZE];	/* argv[0] */
+	char	sql_host[MBUF_SIZE];	/* IP address of SQL database */
+	char	sql_db[MBUF_SIZE];	/* Database to use */
 	int	indent_desc;	/* Newlines before and after descs? */
 	int	name_spaces;	/* allow player names to have spaces */
 	int	site_chars;	/* where to truncate site name */
@@ -390,6 +392,7 @@ struct statedata {
 	char	*poutnew;	/* The output being build by the current command */
 	char	*poutbufc; 	/* Buffer position for poutnew */
 	dbref	poutobj;	/* Object doing the piping */
+	int	sql_socket;	/* Socket fd for SQL database connection */
 #else
 	int	logging;	/* Are we in the middle of logging? */
 	char	buffer[256];	/* A buffer for holding temp stuff */
