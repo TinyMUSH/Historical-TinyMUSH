@@ -28,6 +28,8 @@ typedef int NVAL;
 
 UFUN *ufun_head;
 
+static char space_buffer[LBUF_SIZE];
+
 extern NAMETAB indiv_attraccess_nametab[];
 
 extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
@@ -600,7 +602,7 @@ FUNCTION(fun_words)
 		return;
 	}
 	varargs_preamble("WORDS", 2);
-	safe_tprintf_str(buff, bufc, "%d", countwords(fargs[0], sep));
+	safe_ltos(buff, bufc, countwords(fargs[0], sep));
 }
 
 /* ------------------------------------------------------------------------
@@ -1213,7 +1215,7 @@ int nfargs, ncargs, is_local;
 	/* We need at least one argument */
 
 	if (nfargs < 1) {
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 		return;
 	}
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
@@ -1288,7 +1290,7 @@ FUNCTION(fun_parent)
 
 	it = match_thing(player, fargs[0]);
 	if (Good_obj(it) && (Examinable(player, it) || (it == cause))) {
-		safe_tprintf_str(buff, bufc, "#%d", Parent(it));
+		safe_dbref(buff, bufc, Parent(it));
 	} else {
 		safe_nothing(buff, bufc);
 	}
@@ -1575,7 +1577,7 @@ FUNCTION(fun_con)
 	    (Examinable(player, it) ||
 	     (where_is(player) == it) ||
 	     (it == cause))) {
-		safe_tprintf_str(buff, bufc, "#%d", Contents(it));
+		safe_dbref(buff, bufc, Contents(it));
 		return;
 	}
 	safe_nothing(buff, bufc);
@@ -1623,7 +1625,7 @@ FUNCTION(fun_next)
 		ex_here = Good_obj(loc) ? Examinable(player, loc) : 0;
 		if (ex_here || (loc == player) || (loc == where_is(player))) {
 			if (!isExit(it)) {
-				safe_tprintf_str(buff, bufc, "#%d", Next(it));
+				safe_dbref(buff, bufc, Next(it));
 				return;
 			} else {
 				key = 0;
@@ -1634,7 +1636,7 @@ FUNCTION(fun_next)
 				DOLIST(exit, it) {
 					if ((exit != it) &&
 					  exit_visible(exit, player, key)) {
-						safe_tprintf_str(buff, bufc, "#%d", exit);
+						safe_dbref(buff, bufc, exit);
 						return;
 					}
 				}
@@ -1654,10 +1656,11 @@ FUNCTION(fun_loc)
 	dbref it;
 
 	it = match_thing(player, fargs[0]);
-	if (locatable(player, it, cause))
-		safe_tprintf_str(buff, bufc, "#%d", Location(it));
-	else
+	if (locatable(player, it, cause)) {
+		safe_dbref(buff, bufc, Location(it));
+	} else {
 		safe_nothing(buff, bufc);
+	}
 	return;
 }
 
@@ -1670,10 +1673,11 @@ FUNCTION(fun_where)
 	dbref it;
 
 	it = match_thing(player, fargs[0]);
-	if (locatable(player, it, cause))
-		safe_tprintf_str(buff, bufc, "#%d", where_is(it));
-	else
+	if (locatable(player, it, cause)) {
+		safe_dbref(buff, bufc, where_is(it));
+	} else {
 		safe_nothing(buff, bufc);
+	}
 	return;
 }
 
@@ -1697,7 +1701,7 @@ FUNCTION(fun_rloc)
 				break;
 			it = Location(it);
 		}
-		safe_tprintf_str(buff, bufc, "#%d", it);
+		safe_dbref(buff, bufc, it);
 		return;
 	}
 	safe_nothing(buff, bufc);
@@ -1719,13 +1723,13 @@ FUNCTION(fun_room)
 			if (!Good_obj(it))
 				break;
 			if (isRoom(it)) {
-				safe_tprintf_str(buff, bufc, "#%d", it);
+				safe_dbref(buff, bufc, it);
 				return;
 			}
 		}
 		safe_nothing(buff, bufc);
 	} else if (isRoom(it)) {
-		safe_tprintf_str(buff, bufc, "#%d", it);
+		safe_dbref(buff, bufc, it);
 	} else {
 		safe_nothing(buff, bufc);
 	}
@@ -1753,7 +1757,7 @@ FUNCTION(fun_owner)
 		if (it != NOTHING)
 			it = Owner(it);
 	}
-	safe_tprintf_str(buff, bufc, "#%d", it);
+	safe_dbref(buff, bufc, it);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2083,7 +2087,7 @@ FUNCTION(fun_pmatch)
     if ((*fargs[0] == NUMBER_TOKEN) && fargs[0][1]) {
 	thing = parse_dbref(fargs[0] + 1);
 	if (Good_obj(thing) && isPlayer(thing)) {
-	    safe_tprintf_str(buff, bufc, "#%d", thing);
+	    safe_dbref(buff, bufc, thing);
 	} else {
 	    safe_nothing(buff, bufc);
 	}
@@ -2109,7 +2113,7 @@ FUNCTION(fun_pmatch)
     if (p_ptr) {
 	/* We've got it. Check to make sure it's a good object. */
 	if (Good_obj(*p_ptr) && isPlayer(*p_ptr)) {
-	    safe_tprintf_str(buff, bufc, "#%d", (int) *p_ptr);
+	    safe_dbref(buff, bufc, (int) *p_ptr);
 	} else {
 	    safe_nothing(buff, bufc);
 	}
@@ -2122,7 +2126,7 @@ FUNCTION(fun_pmatch)
     if (thing == AMBIGUOUS) {
 	safe_known_str("#-2", 3, buff, bufc);
     } else if (Good_obj(thing) && isPlayer(thing)) {
-	safe_tprintf_str(buff, bufc, "#%d", thing);
+	safe_dbref(buff, bufc, thing);
     } else {
 	safe_nothing(buff, bufc);
     }
@@ -2177,7 +2181,7 @@ FUNCTION(fun_and)
 	int i;
 	
 	if (nfargs < 2) {
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 	} else {
 		for (i = 0; (i < nfargs) && atoi(fargs[i]); i++) ;
 		safe_ltos(buff, bufc, i == nfargs);
@@ -2189,7 +2193,7 @@ FUNCTION(fun_or)
 	int i;
 	
 	if (nfargs < 2) {
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 	} else {
 		for (i = 0; (i < nfargs) && !atoi(fargs[i]); i++) ;
 		safe_ltos(buff, bufc, i != nfargs);
@@ -2201,7 +2205,7 @@ FUNCTION(fun_xor)
 	int i, val;
 
 	if (nfargs < 2) {
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 	} else {
 		val = atoi(fargs[0]);
 		for (i = 1; i < nfargs; i++) {
@@ -2356,7 +2360,7 @@ FUNCTION(fun_andbool)
     int i;
 
     if (nfargs < 2) {
-	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
 	for (i = 0; (i < nfargs) && xlate(fargs[i]); i++)
 	    ;
@@ -2370,7 +2374,7 @@ FUNCTION(fun_orbool)
     int i;
 
     if (nfargs < 2) {
-	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
 	for (i = 0; (i < nfargs) && !xlate(fargs[i]); i++)
 	    ;
@@ -2384,7 +2388,7 @@ FUNCTION(fun_xorbool)
     int i, val;
 
     if (nfargs < 2) {
-	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
 	val = xlate(fargs[0]);
 	for (i = 1; i < nfargs; i++) {
@@ -2429,7 +2433,7 @@ FUNCTION(fun_add)
 	int i;
 
 	if (nfargs < 2) {
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 	} else {
 		sum = aton(fargs[0]);
 		for (i = 1; i < nfargs; i++) {
@@ -2451,7 +2455,7 @@ FUNCTION(fun_mul)
     int i;
 
     if (nfargs < 2) {
-	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
 	prod = aton(fargs[0]);
 	for (i = 1; i < nfargs; i++) {
@@ -2546,16 +2550,16 @@ FUNCTION(fun_mod)
 	bot = atoi(fargs[1]);
 	if (bot == 0)
 		bot = 1;
-	safe_tprintf_str(buff, bufc, "%d", atoi(fargs[0]) % bot);
+	safe_ltos(buff, bufc, atoi(fargs[0]) % bot);
 }
 
 FUNCTION(fun_pi)
 {
-	safe_str("3.141592654", buff, bufc);
+	safe_known_str("3.141592654", 11, buff, bufc);
 }
 FUNCTION(fun_e)
 {
-	safe_str("2.718281828", buff, bufc);
+	safe_known_str("2.718281828", 11, buff, bufc);
 }
 
 FUNCTION(fun_sin)
@@ -3085,16 +3089,17 @@ FUNCTION(fun_home)
 	dbref it;
 
 	it = match_thing(player, fargs[0]);
-	if (!Good_obj(it) || !Examinable(player, it))
+	if (!Good_obj(it) || !Examinable(player, it)) {
 		safe_nothing(buff, bufc);
-	else if (Has_home(it))
-		safe_tprintf_str(buff, bufc, "#%d", Home(it));
-	else if (Has_dropto(it))
-		safe_tprintf_str(buff, bufc, "#%d", Dropto(it));
-	else if (isExit(it))
-		safe_tprintf_str(buff, bufc, "#%d", where_is(it));
-	else
+	} else if (Has_home(it)) {
+		safe_dbref(buff, bufc, Home(it));
+	} else if (Has_dropto(it)) {
+		safe_dbref(buff, bufc, Dropto(it));
+	} else if (isExit(it)) {
+		safe_dbref(buff, bufc, where_is(it));
+	} else {
 		safe_nothing(buff, bufc);
+	}
 	return;
 }
 
@@ -4148,13 +4153,12 @@ FUNCTION(fun_max)
     NVAL max, val;
 
     if (nfargs < 1) {
-	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
 	max = aton(fargs[0]);
 	for (i = 0; i < nfargs; i++) {
 	    val = aton(fargs[i]);
-	    if (max < val)
-		max = val;
+	    max = (max < val) ? val : max;
 	}
 	fval(buff, bufc, max);
     }
@@ -4167,13 +4171,12 @@ FUNCTION(fun_min)
     NVAL min, val;
 
     if (nfargs < 1) {
-	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
 	min = aton(fargs[0]);
 	for (i = 0; i < nfargs; i++) {
 	    val = aton(fargs[i]);
-	    if (min > val)
-		min = val;
+	    min = (min > val) ? val : min;
 	}
 	fval(buff, bufc, min);
     }
@@ -4235,9 +4238,10 @@ FUNCTION(fun_stats)
 		safe_str("#-1 ERROR GETTING STATS", buff, bufc);
 		return;
 	}
-	safe_tprintf_str(buff, bufc, "%d %d %d %d %d %d", statinfo.s_total, statinfo.s_rooms,
-		    statinfo.s_exits, statinfo.s_things, statinfo.s_players,
-			 statinfo.s_garbage);
+	safe_tprintf_str(buff, bufc, "%d %d %d %d %d %d",
+			 statinfo.s_total, statinfo.s_rooms,
+			 statinfo.s_exits, statinfo.s_things,
+			 statinfo.s_players, statinfo.s_garbage);
 }
 
 /* ---------------------------------------------------------------------------
@@ -4331,7 +4335,8 @@ FUNCTION(fun_splice)
 
 FUNCTION(fun_repeat)
 {
-    int times, len, i, over;
+    int times, len, i;
+    char *max;
 
     times = atoi(fargs[1]);
     if ((times < 1) || (fargs[0] == NULL) || (!*fargs[0])) {
@@ -4347,15 +4352,16 @@ FUNCTION(fun_repeat)
 
 	len = strlen(fargs[0]);
 
-	if ((len >= LBUF_SIZE - 1) ||
-	    (times >= LBUF_SIZE - 1) ||
-	    (len * times >= LBUF_SIZE - 1)) {
+	if ((len > LBUF_SIZE - 1) ||
+	    (times > LBUF_SIZE - 1) ||
+	    (len * times > LBUF_SIZE - 1)) {
 
 	    safe_str("#-1 STRING TOO LONG", buff, bufc);
 	    
 	} else {
-	    for (i = 0, over = 0; (i < times) && !over; i++)
-		over = safe_str(fargs[0], buff, bufc);
+	    max = buff + LBUF_SIZE;
+	    for (i = 0; i < times && (*bufc < max); i++)
+		safe_known_str(fargs[0], len, buff, bufc);
 	}
     }
 }
@@ -5033,7 +5039,7 @@ FUNCTION(fun_locate)
 	if (verbose)
 		(void)match_status(player, what);
 
-	safe_tprintf_str(buff, bufc, "#%d", what);
+	safe_dbref(buff, bufc, what);
 }
 
 /* ---------------------------------------------------------------------------
@@ -5205,7 +5211,7 @@ FUNCTION(fun_case)
 
 FUNCTION(fun_space)
 {
-	int num;
+	int num, max;
 	char *cp;
 
 	if (!fargs[0] || !(*fargs[0])) {
@@ -5223,13 +5229,13 @@ FUNCTION(fun_space)
 		if (!is_integer(fargs[0]) || (num != 0)) {
 			num = 1;
 		}
-	} else if (num >= (LBUF_SIZE - (*bufc - buff))) {
-		num = (LBUF_SIZE - (*bufc - buff)) - 1;
 	}
-	for (cp = *bufc; num > 0; num--)
-		*cp++ = ' ';
-	*bufc = cp;
-	return;
+
+	max = LBUF_SIZE - 1 - (*bufc - buff);
+	num = (num > max) ? max : num;
+	bcopy(space_buffer, *bufc, num);
+	*bufc += num;
+	**bufc = '\0';
 }
 
 /* ---------------------------------------------------------------------------
@@ -5594,7 +5600,8 @@ FUNCTION(fun_setinter)
 
 FUNCTION(fun_ljust)
 {
-	int spaces, i, over;
+	int spaces, i, max;
+	char *tp;
 	char sep;
 
 	varargs_preamble("LJUST", 3);
@@ -5606,17 +5613,28 @@ FUNCTION(fun_ljust)
 		/* no padding needed, just return string */
 		safe_str(fargs[0], buff, bufc);
 		return;
-	} else if (spaces > LBUF_SIZE) {
-		spaces = LBUF_SIZE;
 	}
-	over = safe_str(fargs[0], buff, bufc);
-	for (i = 0; (i < spaces) && !over; i++)
-		over = safe_chr_fn(sep, buff, bufc);
+
+	safe_str(fargs[0], buff, bufc);
+
+	tp = *bufc;
+	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
+	spaces = (spaces > max) ? max : spaces;
+	if (sep == ' ') {
+	    bcopy(space_buffer, tp, spaces);
+	    tp += spaces;
+	} else {
+	    for (i = 0; i < spaces; i++)
+		*tp++ = sep;
+	}
+	*tp = '\0';
+	*bufc = tp;
 }
 
 FUNCTION(fun_rjust)
 {
-	int spaces, i, over;
+	int spaces, i, max;
+	char *tp;
 	char sep;
 
 	varargs_preamble("RJUST", 3);
@@ -5628,40 +5646,67 @@ FUNCTION(fun_rjust)
 		/* no padding needed, just return string */
 		safe_str(fargs[0], buff, bufc);
 		return;
-	} else if (spaces > LBUF_SIZE) {
-		spaces = LBUF_SIZE;
 	}
-	for (i = 0, over = 0; (i < spaces) && !over; i++)
-		over = safe_chr_fn(sep, buff, bufc);
+
+	tp = *bufc;
+	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
+	spaces = (spaces > max) ? max : spaces;
+	if (sep == ' ') {
+	    bcopy(space_buffer, tp, spaces);
+	    tp += spaces;
+	} else {
+	    for (i = 0; i < spaces; i++)
+		*tp++ = sep;
+	}
+	*bufc = tp;
 	safe_str(fargs[0], buff, bufc);
 }
 
 FUNCTION(fun_center)
 {
 	char sep;
-	int i, len, lead_chrs, trail_chrs, width, over;
+	char *tp;
+	int i, len, lead_chrs, trail_chrs, width, max;
 
 	varargs_preamble("CENTER", 3);
 
 	width = atoi(fargs[1]);
 	len = strlen((char *)strip_ansi(fargs[0]));
 
-	if (width > LBUF_SIZE) {
-		width = LBUF_SIZE;
-	}
-	
+	width = (width > LBUF_SIZE - 1) ? LBUF_SIZE - 1 : width;
 	if (len >= width) {
 		safe_str(fargs[0], buff, bufc);
 		return;
 	}
+
 	lead_chrs = (width / 2) - (len / 2) + .5;
-	for (i = 0, over = 0; (i < lead_chrs) && !over; i++) {
-		over = safe_chr_fn(sep, buff, bufc);
+	tp = *bufc;
+	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
+	lead_chrs = (lead_chrs > max) ? max : lead_chrs;
+	if (sep == ' ') {
+	    bcopy(space_buffer, tp, lead_chrs);
+	    tp += lead_chrs;
+	} else {
+	    for (i = 0; i < lead_chrs; i++)
+		*tp++ = sep;
 	}
+	*bufc = tp;
+
 	safe_str(fargs[0], buff, bufc);
+
 	trail_chrs = width - lead_chrs - len;
-	for (i = 0; (i < trail_chrs) && !over; i++)
-		over = safe_chr_fn(sep, buff, bufc);
+	tp = *bufc;
+	max = LBUF_SIZE - 1 - (tp - buff);
+	trail_chrs = (trail_chrs > max) ? max : trail_chrs;
+	if (sep == ' ') {
+	    bcopy(space_buffer, tp, trail_chrs);
+	    tp += trail_chrs;
+	} else {
+	    for (i = 0; i < lead_chrs; i++)
+		*tp++ = sep;
+	}
+	*tp = '\0';
+	*bufc = tp;
 }
 
 /* ---------------------------------------------------------------------------
@@ -6141,6 +6186,7 @@ void NDECL(init_functab)
 {
 	FUN *fp;
 	char *buff, *cp, *dp;
+	int i;
 
 	buff = alloc_sbuf("init_functab");
 	hashinit(&mudstate.func_htab, 250 * HASH_FACTOR);
@@ -6158,6 +6204,13 @@ void NDECL(init_functab)
 	free_sbuf(buff);
 	ufun_head = NULL;
 	hashinit(&mudstate.ufunc_htab, 15 * HASH_FACTOR);
+
+	/* Initialize the space table, which is used for fast copies on
+	 * functions like ljust().
+	 */
+	for (i = 0; i < LBUF_SIZE; i++)
+	    space_buffer[i] = ' ';
+	space_buffer[LBUF_SIZE - 1] = '\0';
 }
 
 void do_function(player, cause, key, fname, target)

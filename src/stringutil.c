@@ -583,7 +583,7 @@ int min;
  * watching for overflows.
  */
 
-int 
+INLINE int 
 safe_copy_str(src, buff, bufp, max)
     char *src, *buff, **bufp;
     int max;
@@ -675,6 +675,10 @@ INLINE void safe_copy_known_str(src, known, buff, bufp, max)
 
     if (known > 7) {
 	n = max - (tp - buff);
+	if (n <= 0) {
+	    *tp = '\0';
+	    return;
+	}
 	n = ((known < n) ? known : n);
 	bcopy(src, tp, n);
 	tp += n;

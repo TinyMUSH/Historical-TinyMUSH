@@ -291,7 +291,7 @@ FUNCTION(fun_zone)
 		safe_nothing(buff, bufc);
 		return;
 	}
-	safe_tprintf_str(buff, bufc, "#%d", Zone(it));
+	safe_dbref(buff, bufc, Zone(it));
 }
 
 /* ---------------------------------------------------------------------------
@@ -1548,7 +1548,7 @@ FUNCTION(fun_create)
 		}
 		break;
 	}
-	safe_tprintf_str(buff, bufc, "#%d", thing);
+	safe_dbref(buff, bufc, thing);
 }
 
 /*---------------------------------------------------------------------------
@@ -1732,7 +1732,7 @@ FUNCTION(fun_zwho)
 			len += strlen(smbuf);
 			free_sbuf(smbuf);
 		    } else {
-			safe_tprintf_str(buff, bufc, "#%d", i);
+			safe_dbref(buff, bufc, i);
 			len = strlen(buff);
 		    }
 		}
@@ -1766,7 +1766,7 @@ FUNCTION(fun_inzone)
 			len += strlen(smbuf);
 			free_sbuf(smbuf);
 		    } else {
-			safe_tprintf_str(buff, bufc, "#%d", i);
+			safe_dbref(buff, bufc, i);
 			len = strlen(buff);
 		    }
 		}
@@ -1799,7 +1799,7 @@ FUNCTION(fun_children)
 		    len += strlen(smbuf);
 		    free_sbuf(smbuf);
 		} else {
-		    safe_tprintf_str(buff, bufc, "#%d", i);
+		    safe_dbref(buff, bufc, i);
 		    len = strlen(buff);
 		}
 	    }
@@ -2484,7 +2484,7 @@ FUNCTION(fun_mailfrom)
 	}
 	mp = mail_fetch(playerask, num);
 	if (mp != NULL) {
-		safe_tprintf_str(buff, bufc, "#%d", mp->from);
+		safe_dbref(buff, bufc, mp->from);
 		return;
 	}
 	/* ran off the end of the list without finding anything */
