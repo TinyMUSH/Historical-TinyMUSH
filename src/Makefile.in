@@ -90,6 +90,7 @@ CC = @CC@
 CPP = @CPP@
 LIBTOOL = @LIBTOOL@
 LIBS = @LIBS@
+LIBADD_DL = @LIBADD_DL@
 LIBOBJS = @LIBOBJS@
 DEBUG	= $(OPTIM)
 ALLCFLAGS = $(CFLAGS) $(SQL_I) $(DEBUG) $(DEFS)
@@ -190,32 +191,32 @@ unsplit: unsplit.o
 
 netmush: $(MUSH_O) $(MOD_LA)
 	-mv -f netmush netmush~
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush $(MUSH_O) $(MOD_DL) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
 netmush-pure: $(MUSH_O) $(MOD_LA)
 	-rm -f netmush-pure
 	$(PUREDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-pure $(MUSH_O) $(MOD_DL) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-pure $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
 netmush-purecov: $(MUSH_O) $(MOD_LA)
 	-rm -f netmush-purecov
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	-log-file=purify/netmush.plog \
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-purecov $(MUSH_O) $(MOD_DL) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-purecov $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
 netmush-realpure: $(MUSH_O) $(MOD_LA)
 	-rm -f netmush-realpure
 	$(PURIFYDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-realpure $(MUSH_O) $(MOD_DL) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-realpure $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
 netmush-quant: $(MUSH_O) $(MOD_LA)
 	-rm -f netmush-quant
 	$(QUANTDIR)/quantify -view-file=purify/quant.pv \
 	-log-file=purify/quant.plog \
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-pure $(MUSH_O) $(MOD_DL) $(LIBS)
+	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-pure $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
 verify:
 	runtest --tool mush --src ./testsuite
