@@ -2395,20 +2395,19 @@
   This attribute is automatically triggered once per day, at whatever
   hour is set by the config parameter events_daily_hour. 
   Doing a '@daily <object> = <commands>' is functionally equivalent
-  to doing '&SOME_ATTR <object> = <commands>', and then a
-  '@cron <object>/SOME_ATTR = 0 7 * * *' (substitute whatever
-  events_daily_hour is for '7').
+  to doing '&SOME_ATTR <object> = <commands>', followed by
+  '@crondel <object>/SOME_ATTR' to avoid running daily events more
+  than once, and then a '@cron <object>/SOME_ATTR = 0 7 * * *'
+  (substitute whatever events_daily_hour is for '7').
  
-  @daily attributes are handled entirely through the cron facility;
-  they appear in the @crontab schedule, and can be unscheduled by
-  using @crondel. However, cron entries are automatically entered
-  for objects with an @daily, at startup time.
+  @daily attributes are handled through the cron facility; they appear
+  in the @crontab schedule, and can be unscheduled by using @crondel
+  or clearing the @daily. Cron entries are automatically entered for
+  objects with an @daily, at startup time.
  
   Changing events_daily_hour while the MUSH is running does NOT
   re-schedule already-scheduled @daily triggers; it only affects
-  future sets of @daily. Thus, it is possible for an object to
-  end up with two such entries, if a @daily is set on it, the
-  events_daily_hour is changed, and the @daily is re-set.
+  future sets of @daily.
  
   See also: @cron, @crondel, @crontab
  
