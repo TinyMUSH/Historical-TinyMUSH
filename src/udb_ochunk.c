@@ -74,10 +74,17 @@ int dddb_init()
 	static char *copen = "db_init cannot open ";
 	char *gdbm_error;
 	int block_size;
-
+	int cache_size = 1;
+	
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
 
 	if ((dbp = gdbm_open(dbfile, block_size, GDBM_WRCREAT|GDBM_SYNC|GDBM_NOLOCK, 0600, gdbm_panic)) == (GDBM_FILE) 0) {
+		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
+		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		return (1);
+	}
+
+	if (gdbm_setopt(dbp, GDBM_CACHESIZE, &cache_size, sizeof(int)) == -1) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
