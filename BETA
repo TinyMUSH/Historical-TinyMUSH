@@ -1,3 +1,4 @@
+
 Changelog for the Beta Releases
 ===============================
 
@@ -36,7 +37,7 @@ The initial beta release was on 9/27/99.
 - Fix: translate() works as documented, and handles backslashes correctly.
   [MUX]
 
-- Fix: pmatch() correctly handles dbrefs. [3.0]
+- Fix: pmatch() correctly handles dbrefs. [3.0a11]
 
 - Fix: Command switch issues fixed for @mail, @malias, @wipe. [2.0]
 
@@ -86,7 +87,7 @@ The initial beta release was on 9/27/99.
 
 - Fix: Where pow() is used in conjunction with htonl(), it is cast to
   unsigned int. This fixes a compilation issue with Linux and gcc -O.
-  [3.0]
+  [3.0a5]
 
 - Fix: Some structures are no longer allocated as lbufs, but are explicitly
   malloc'd in a type-specific manner. [2.0]
@@ -96,7 +97,7 @@ The initial beta release was on 9/27/99.
 - Fix: @mail/fwd now explicitly checks to see if a mail message is in
   progress. [MUX]
 
-- Fix: INFO now works when used by logged-in players. [3.0]
+- Fix: INFO now works when used by logged-in players. [3.0a2]
 
 - Fix: trunc() truncates rather than rounds. [MUX]
 
@@ -123,7 +124,7 @@ The initial beta release was on 9/27/99.
 
 - Fix: Money is no longer deducted twice when creating an object. [3.0]
 
-- Fix: Another pow()/htonl() fix. [3.0]
+- Fix: Another pow()/htonl() fix. [3.0a5]
 
 - Fix: Various compile-time option #ifdef's cleaned up.
 
@@ -240,3 +241,22 @@ The initial beta release was on 9/27/99.
 
   - Misc: No spurious extra args to raw_broadcast() calls.
 
+-----------------------------------------------------------------------------
+
+10/8/99: Beta 9
+
+  - Feature: @destroy/instant instantly destroys an object, rather than
+    queueing it for recycling. The new conf option instant_recycle
+    controls whether or not objects set Destroy_OK (or which have
+    Destroy_OK owners) get instantly destroyed; it defaults to 'yes'.
+
+  - Feature: @list options now shows just boolean parameters, and the
+    display format is now much neater (and in alphabetical order of
+    the actual parameter names). A new command, @list params, shows
+    a variety of other conf options.
+
+  - Fix: left() works properly again. [3.0b8]
+
+  - Fix: format_exits conf parameter is recognized again. [3.0]
+
+  - Misc: Unused conf parameters eliminated.

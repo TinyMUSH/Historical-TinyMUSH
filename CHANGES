@@ -113,6 +113,11 @@ the other have been listed in the conversion notes for both servers.
 - @clone/preserve can be used by anyone, but you must control the original
   object's owner.
 
+- New /instant switch to @destroy causes objects to be instantly destroyed
+  (rather than being queued for destruction at the next purge). Also, a
+  new conf option, instant_recycle, controls whether or not Destroy_OK
+  objects are instantly recycled (rather than being queued for destruction).
+
 - New /pretty switch to examine and @decompile "pretty-prints" (with
   indentation) attributes. Based on Andrew Molitor's +pex-equivalent code.
 
@@ -124,6 +129,9 @@ the other have been listed in the conversion notes for both servers.
 
 - New /noeval switch to @function defines a user-defined function whose
   arguments are not pre-evaluated.
+
+- The @list options command has been reformatted and reorganized. A
+  new command, @list params, lists additional configuration parameters.
 
 - New @logrotate command and game_log conf parameter allow the log to
   be rotated while the game is running.
