@@ -3027,7 +3027,7 @@ FUNCTION(fun_haspower)
 FUNCTION(fun_delete)
 {
 	char *s, *temp, *bp;
-	int i, start, nchars, len;
+	unsigned int i, start, nchars, len;
 
 	s = fargs[0];
 	start = atoi(fargs[1]);
