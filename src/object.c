@@ -302,6 +302,7 @@ char *name;
 			parent = mudconf.exit_parent;
 		if (Good_obj(mudconf.exit_proto))
 			proto = mudconf.exit_proto;
+		break;
 	case TYPE_PLAYER:
 		if (cost) {
 			cost = mudconf.robotcost;
