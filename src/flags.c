@@ -233,7 +233,7 @@ FLAGENT gen_flags[] = {
 {"MONITOR",		MONITOR,	'M',
 	0,		0,			fh_hear_bit},
 {"NOSPOOF",		NOSPOOF,	'N',
-	0,		0,			fh_any},
+	0,		CA_WIZARD,		fh_any},
 {"OPAQUE",		OPAQUE,		'O',
 	0,		0,			fh_any},
 {"QUIET",		QUIET,		'Q',
