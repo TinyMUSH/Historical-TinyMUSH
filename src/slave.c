@@ -22,12 +22,11 @@
 #define INADDR_NONE -1
 #endif
 
-pid_t parent_pid;
-
 #define MAX_STRING 1000
 #define MAX_CHILDREN 20
 
-int children = 0;
+pid_t parent_pid;
+volatile pid_t child_pids[MAX_CHILDREN];
 
 char *arg_for_errors;
 
@@ -185,10 +184,18 @@ char *orig_arg;
 void child_signal(sig)
 int sig;
 {
-	/* don't collect children here, the main loop will do it,
-	 * but we want to catch this signal anyway to interrupt
-	 * the main loop's read & wait syscalls.
-	 */
+	pid_t child_pid;
+	int i;
+
+	/* see if any children have exited */
+	while ((child_pid = WAITOPT(NULL, WNOHANG)) > 0) {
+		for (i = 0; i < MAX_CHILDREN; i++) {
+			if (child_pids[i] == child_pid) {
+				child_pids[i] = -1;
+				break;
+			}
+		}
+	}
 	signal(SIGCHLD, (void (*)(int))child_signal);
 }
 
@@ -218,23 +225,62 @@ char **argv;
 {
 	char arg[MAX_STRING];
 	char *p;
-	int len;
+	int i, len;
+	pid_t child_pid;
 
 	parent_pid = getppid();
 	if (parent_pid == 1) {
 		exit(1);
+	}
+	for (i = 0; i < MAX_CHILDREN; i++) {
+		child_pids[i] = -1;
 	}
 	alarm_signal(SIGALRM);
 	signal(SIGCHLD, (void (*)(int))child_signal);
 	signal(SIGPIPE, SIG_DFL);
 
 	for (;;) {
+		/* Find an empty child process slot, or wait until one is
+		 * available. Otherwise there's no point in reading in a
+		 * request yet.
+		 */
+		do {
+			/* see if any children have exited */
+			while ((child_pid = WAITOPT(NULL, WNOHANG)) > 0) {
+				for (i = 0; i < MAX_CHILDREN; i++) {
+					if (child_pids[i] == child_pid) {
+						child_pids[i] = -1;
+						break;
+					}
+				}
+			}
+			/* look for an available child process slot */
+			for (i = 0; i < MAX_CHILDREN; i++) {
+				child_pid = child_pids[i];
+				if (child_pid == -1 ||
+				    kill(child_pid, 0) == -1)
+					break;
+			}
+			if (i < MAX_CHILDREN)
+				break;
+			/* no slot available, wait for some child to exit */
+			child_pid = WAITOPT(NULL, 0);
+			for (i = 0; i < MAX_CHILDREN; i++) {
+				if (child_pids[i] == child_pid) {
+					child_pids[i] = -1;
+					break;
+				}
+			}
+		} while (i == MAX_CHILDREN);
+
+		/* ok, now read a request (blocking if no request is waiting,
+		 * and stopping when interrupted by a signal)
+		 */
 		len = read(0, arg, MAX_STRING - 1);
 		if (len == 0)
 			break;
 		if (len < 0) {
 			if (errno == EINTR) {
-				errno = 0;
 				continue;
 			}
 			break;
@@ -243,8 +289,9 @@ char **argv;
 		p = strchr(arg, '\n');
 		if (p)
 			*p = '\0';
-		children++;
-		switch (fork()) {
+
+		child_pid = fork();
+		switch (child_pid) {
 		case -1:
 			exit(1);
 
@@ -270,13 +317,20 @@ char **argv;
 			}
 			exit(query(arg, p + 1) != 0);
 
+		default:
+			/* parent */
+			child_pids[i] = child_pid;
+			break;
 		}
-		/*
-		 * collect any children, blocking if there are too many
-		 */
-		while (WAITOPT(NULL,
-			       (children < MAX_CHILDREN) ? WNOHANG : 0) > 0) {
-			children--;
+	}
+
+	/* wait for any remaining children */
+	for (i = 0; i < MAX_CHILDREN; i++) {
+		child_pid = child_pids[i];
+		if (child_pid != -1 &&
+		    kill(child_pid, 0) != -1) {
+			kill(child_pid, SIGKILL);
+			WAITPID(child_pid, NULL, 0);
 		}
 	}
 	exit(0);

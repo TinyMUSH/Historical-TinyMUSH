@@ -880,7 +880,7 @@ AC_FUNC_VFORK
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(setrlimit getrusage timelocal mktime srandom)
 AC_CHECK_FUNCS(getdtablesize socket gethostbyaddr)
-AC_CHECK_FUNCS(gettimeofday select wait3 strtok_r strcspn)
+AC_CHECK_FUNCS(gettimeofday select wait3 wait4 strtok_r strcspn)
 AC_CHECK_FUNCS(getpagesize strchr memset vsnprintf)
 
 dnl Declaration checks
@@ -912,6 +912,8 @@ fi
 if test $ac_cv_header_sys_wait_h = yes ; then
 AC_MSG_CHECKING(for wait3 dcl)
 AC_EGREP_HEADER(wait3,sys/wait.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_WAIT3_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for wait4 dcl)
+AC_EGREP_HEADER(wait4,sys/wait.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_WAIT4_DCL) AC_MSG_RESULT(no))
 fi
 AC_MSG_CHECKING(for srandom dcl)
 AC_EGREP_HEADER(srandom,math.h,AC_MSG_RESULT(yes),AC_EGREP_HEADER(srandom,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SRANDOM_DCL) AC_MSG_RESULT(no)))

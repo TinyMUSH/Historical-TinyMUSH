@@ -205,6 +205,8 @@
 #undef HAVE_SELECT
 /* Define if wait3 exists and works */
 #undef HAVE_WAIT3
+/* Define if wait4 exists and works */
+#undef HAVE_WAIT4
 /* Define if strtok_r exists */
 #undef HAVE_STRTOK_R
 /* Define if strcspn exists */
@@ -242,6 +244,8 @@
 #undef NEED_GETTIMEOFDAY_DCL
 /* Define if you need to declare wait3 yourself */
 #undef NEED_WAIT3_DCL
+/* Define if you need to declare wait4 yourself */
+#undef NEED_WAIT4_DCL
 /* Define if you need to declare srandom yourself */
 #undef NEED_SRANDOM_DCL
 /* Define if you need to declare random yourself */
@@ -373,6 +377,19 @@ extern int FDECL(wait3, (int *, int, struct rusage *));
 #define WAITOPT(s,o) wait3((s), (o), NULL)
 #else
 #define WAITOPT(s,o) waitpid(0, (s), (o))
+#endif
+
+#ifdef HAVE_WAIT4
+#ifdef NEED_WAIT4_DCL
+#ifdef HAVE_UNION_WAIT
+extern int FDECL(wait4, (pid_t, union wait *, int, struct rusage *));
+#else
+extern int FDECL(wait4, (pid_t, int *, int, struct rusage *));
+#endif
+#endif
+#define WAITPID(p,s,o) wait4((p), (s), (o), NULL)
+#else
+#define WAITPID waitpid
 #endif
 
 #include <sys/param.h>
