@@ -53,6 +53,8 @@ highly significant changes are noted here.
 
 - Disconnect reason is passed for master-room disconnects, too.
 
+- @chown now checks a ChownLock on CHOWN_OK objects.
+
 - New @freelist command moves an object to the head of the freelist,
   until the next dbck.
 
@@ -89,6 +91,8 @@ highly significant changes are noted here.
 - objmem(<thing>) does a MUX-style object-structure count; 
   objmem(<thing>/<wild>) does a 2.2-style attribute-text count. (Fuses
   the two models.)
+
+- streq() does a case-insensitive comparison of two strings, returning 0 or 1.
 
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.
