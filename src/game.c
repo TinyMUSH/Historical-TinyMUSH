@@ -741,8 +741,9 @@ const char *msg;
 		
 		/* Deliver message to contents */
 
-		if (((key & MSG_INV) || ((key & MSG_INV_L) && pass_listen)) &&
-		    (check_filter(target, sender, A_INFILTER, msg))) {
+		if ((key & MSG_INV) ||
+		    ((key & MSG_INV_L) && pass_listen &&
+		     check_filter(target, sender, A_INFILTER, msg))) {
 
 			/* Don't prefix the message if we were given the 
 			 * MSG_NOPREFIX key. 
