@@ -14,7 +14,7 @@ typedef struct pool_header {
     struct pool_header *next;	/* Next pool header in chain */
     struct pool_header *nxtfree;	/* Next pool header in freelist */
     char *buf_tag;		/* Debugging/trace tag */
-    char align[(2 * sizeof(int) + 3 * sizeof(char *)) & 0x7];
+    char align[(256 - 2 * sizeof(int) - 3 * sizeof(char *)) & 0x7];
 } POOLHDR;
 
 typedef struct pool_footer {
