@@ -5,6 +5,7 @@
 #include "autoconf.h"
 #include "config.h"
 
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <signal.h>
 
