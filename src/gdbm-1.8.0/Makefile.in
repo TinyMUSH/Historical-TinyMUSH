@@ -196,14 +196,13 @@ gdbm.dvi:
 	$(TEXI2DVI) $(srcdir)/gdbm.texinfo
 
 clean:
-	rm -rf $(PROGS) $(TEX_F) *.a *.la *.o *.lo core *.core junk* \
-		.libs _libs
+	rm -rf $(TEX_F) *.o *.lo core *.core junk*
 
 mostlyclean: clean
 
 distclean: clean
 	rm -f Makefile autoconf.h config.status config.cache config.log \
-		gdbm.h libtool $(TEXI_F) *~
+		gdbm.h libtool $(TEXI_F) *~ *.a *.la .libs _libs $(PROGS)
 
 realclean: distclean
 	rm -f TAGS
