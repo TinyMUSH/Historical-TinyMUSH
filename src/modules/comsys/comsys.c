@@ -1161,6 +1161,7 @@ void do_cboot(player, cause, key, name, objstr)
     CHANNEL *chp;
     dbref thing;
     COMLIST *chead, *clist, *cl_ptr, *next, *prev;
+    char *t;
     char tbuf[SBUF_SIZE];
 
     check_comsys(player);
@@ -1210,8 +1211,10 @@ void do_cboot(player, cause, key, name, objstr)
 	remove_from_channel(thing, chp, 0);
     } else {
 	remove_from_channel(thing, chp, 1);
+	t = tbuf;
+	safe_sb_str(Name(player), tbuf, &t);
 	com_message(chp, tprintf("[%s] %s boots %s off the channel.",
-				 chp->name, Name(player), Name(thing)),
+				 chp->name, tbuf, Name(thing)),
 		    player);
     }
 }
