@@ -1535,7 +1535,7 @@ int do_comsys(player, in_cmd)
     strcpy(cmd, in_cmd);
 
     arg = cmd;
-    while (!isspace(*arg))
+    while (*arg && !isspace(*arg))
 	arg++;
     if (*arg)
 	*arg++ = '\0';
@@ -1544,7 +1544,7 @@ int do_comsys(player, in_cmd)
     if (!cap)
 	return 1;
 
-    while (isspace(*arg))
+    while (*arg && isspace(*arg))
 	arg++;
     if (!*arg) {
 	notify(player, "No message.");
