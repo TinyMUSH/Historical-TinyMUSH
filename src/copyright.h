@@ -7,8 +7,8 @@
 
 /*
  * TinyMUSH 3 Source Code
- * Copyright (c) 2001 by Lydia Leong, David Passmore, Robby Griffin,
- *                    and Scott Dorr.
+ * Copyright (c) 2001, 2002, Lydia Leong, David Passmore,
+ *                           Robby Griffin, and Scott Dorr.
  * Copyright (c) 2000 by Lydia Leong, David Passmore, and Robby Griffin.
  * Copyright (c) 1999 by Lydia Leong and David Passmore.
  * All rights reserved.
@@ -67,16 +67,19 @@
  * shall duly acknowledge such use, in accordance with the usual standards
  * of acknowledging credit in academic research.
  *
- * TinyMUSH 3 may be used for commercial, for-profit applications, subject
- * to the following conditions: You must acknowledge the origin of the 
- * software, retaining this copyright notice in some prominent place.
- * You may charge only for access to the service you provide, not for
- * the TinyMUSH 3 software itself. You must inform the authors of
- * any commercial use of this software.
+ * TinyMUSH 3 may be used for commercial, for-profit applications,
+ * subject to the following conditions: Commercial users must acknowledge
+ * the origin of the software, retaining this copyright notice in some
+ * prominent place.  Commercial users may charge only for the services
+ * they provide, not for the TinyMUSH 3 software itself. Commercial users
+ * incur the obligation to make their best efforts to inform the authors
+ * of any commercial use of this software.
  *
  * The authors have made no warranty or representation that the operation
  * of this software will be error-free. The authors are under no obligation
  * to provide any services, by way of maintenance, update, or otherwise.
+ *
+ * The authors may be reached via email at tinymush-dev@godlike.com.
  *
  * ---
  *
