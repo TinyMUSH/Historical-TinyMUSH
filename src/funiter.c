@@ -797,7 +797,6 @@ FUNCTION(fun_while)
     if ((thing1 == thing2) && (tmp_num == ap2->number)) {
 	is_same = 1;
 	is_exact_same = 1;
-	atext2 = atext1;
     } else {
 	is_exact_same = 0; 
 	atext2 = atr_pget(thing2, ap2->number, &aowner2, &aflags2, &alen2);
@@ -838,11 +837,12 @@ FUNCTION(fun_while)
 	    if (!strcmp(savep, fargs[3]))
 		break;
 	} else {
-	    StrCopyKnown(condbuf, atext2, alen2);
-	    dp = str = savep = condbuf;
+	    StrCopyKnown(atextbuf, atext2, alen2);
+	    dp = condbuf;
+	    str = atextbuf;
 	    exec(condbuf, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
-	    if (!strcmp(savep, fargs[3]))
+	    if (!strcmp(condbuf, fargs[3]))
 		break;
 	}
 	i++;
