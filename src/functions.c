@@ -4230,7 +4230,8 @@ FUNCTION(fun_splice)
 
 FUNCTION(fun_repeat)
 {
-	int times, i, over;
+	unsigned int times
+	int i, over;
 
 	times = atoi(fargs[1]);
 	if ((times < 1) || (fargs[0] == NULL) || (!*fargs[0])) {
