@@ -143,14 +143,14 @@ FUNCTION(fun_squish)
 
 FUNCTION(fun_trim)
 {
-	char *p, *q, *endchar;
+	char *p, *q, *endchar, *ep;
 	Delim isep;
-	int trim;
+	int isep_len, trim;
 
 	if (nfargs == 0) {
 		return;
 	}
-	VaChk_InPure(1, 3);
+	VaChk_In(1, 3);
 	if (nfargs >= 2) {
 		switch (tolower(*fargs[1])) {
 		case 'l':
@@ -168,12 +168,16 @@ FUNCTION(fun_trim)
 	}
 
 	p = fargs[0];
-	if (trim & TRIM_L) {
+
+	/* Single-character delimiters are easy. */
+
+	if (isep_len == 1) { 
+	    if (trim & TRIM_L) {
 		while (*p == isep.c) {
 			p++;
 		}
-	}
-	if (trim & TRIM_R) {
+	    }
+	    if (trim & TRIM_R) {
 		q = endchar = p;
 		while (*q != '\0') {
 			if (*q == ESC_CHAR) {
@@ -184,7 +188,37 @@ FUNCTION(fun_trim)
 			}
 		}
 		*endchar = '\0';
+	    }
+	    safe_str(p, buff, bufc);
 	}
+
+	/* Multi-character delimiters take more work. */
+
+	ep = p + strlen(fargs[0]) - 1; /* last char in string */
+
+	if (trim & TRIM_L) {
+	    while (!strncmp(p, isep.str, isep_len) && (p <= ep))
+		p = p + isep_len;
+	    if (p > ep)
+		return;
+	}
+
+	if (trim & TRIM_R) {
+	    q = endchar = p;
+	    while (q <= ep) {
+		if (*q == ESC_CHAR) {
+		    skip_esccode(q);
+		    endchar = q;
+		} else if (!strncmp(q, isep.str, isep_len)) {
+		    q = q + isep_len;
+		} else {
+		    q++;
+		    endchar = q;
+		}
+	    }
+	    *endchar = '\0';
+	}
+
 	safe_str(p, buff, bufc);
 }
 
