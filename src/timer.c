@@ -85,7 +85,7 @@ static void NDECL(check_cron)
      * as indices.
      */
 
-    ltime = localtime(&mudstate.now);
+    ltime = localtime(&mudstate.events_counter);
     minute = ltime->tm_min - FIRST_MINUTE;
     hour = ltime->tm_hour - FIRST_HOUR;
     dom = ltime->tm_mday - FIRST_DOM;
