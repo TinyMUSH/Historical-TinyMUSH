@@ -5578,24 +5578,6 @@ See also: @link, @open.
   item down is item 1, and so forth. A stack with N items is therefore
   numbered 0 to N-1.
 
-& COMSYS FUNCTIONS
-  Topic: Comsys Functions
- 
-	cemit()		comalias()	comdesc()	comheader()	
-	cominfo()	comlist()	comowner()	comtitle()	
-	cwho()		cwhoall()
- 
-  These functions are only enabled if the comsys module is enabled.
- 
-  Information about a channel is generally only available to those with
-  the Comm_All power, Wizards, or the owner of the channel. Channel names
-  must be typed in full, and are case-sensitive.
- 
-  Information about a player's comsys options is generally only available
-  if you control the player, or have the Comm_All power. For comsys
-  functions, players should be referred to by name (not *name) or
-  by dbref. The partial name of a connected player can be matched.
- 
 & PUEBLO FUNCTIONS
   Topic: Pueblo Functions
  
@@ -11547,6 +11529,24 @@ See the individual help entries for comsys commands for details.
   the owner of <channel>, to send <message> to everything listening
   to <channel>. If the /noheader switch is specified, then the channel
   name is not prepended to the message.
+ 
+& COMSYS FUNCTIONS
+  Topic: Comsys Functions
+ 
+	cemit()		comalias()	comdesc()	comheader()	
+	cominfo()	comlist()	comowner()	comtitle()	
+	cwho()		cwhoall()
+ 
+  These functions are only enabled if the comsys module is enabled.
+ 
+  Information about a channel is generally only available to those with
+  the Comm_All power, Wizards, or the owner of the channel. Channel names
+  must be typed in full, and are case-sensitive.
+ 
+  Information about a player's comsys options is generally only available
+  if you control the player, or have the Comm_All power. For comsys
+  functions, players should be referred to by name (not *name) or
+  by dbref. The partial name of a connected player can be matched.
  
 & @malias
  
