@@ -71,6 +71,13 @@ highly significant changes are noted here.
 - @program now reads attributes on the object's parent chain as well,
   not just the object itself (thus behaving like @trigger and friends).
 
+- Functions for generic named variables, preserved in a manner similar to
+  the stack (i.e., associated with a specific object, persistent until a
+  restart is done), have been added. setx() sets a named variable,
+  xvars() parses a list of strings into a list of variables, regparse()
+  parses a regular expression into a list of variables, and x() accesses
+  a named variable.
+
 - Added chomp() function -- akin to perl chomp(), it chomps off a
   trailing carriage-return newline from a string, if there is one.
   (Useful for dealing with pipe output.)
