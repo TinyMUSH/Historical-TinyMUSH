@@ -771,6 +771,29 @@ CF_HAND(cf_badname)
 	return 0;
 }
 
+/* ---------------------------------------------------------------------------
+ * sane_inet_addr: inet_addr() does not necessarily do reasonable checking
+ * for sane syntax. On certain operating systems, if passed less than four
+ * octets, it will cause a segmentation violation. This is unfriendly.
+ * We take steps here to deal with it.
+ */
+
+static unsigned long sane_inet_addr(str)
+    char *str;
+{
+    int i;
+    char *p;
+
+    p = str;
+    for (i = 1; (p = (char *) index(p, '.')) != NULL; i++, p++)
+	;
+    if (i < 4)
+	return -1;
+    else
+	return inet_addr(str);
+}
+
+
 /*
  * ---------------------------------------------------------------------------
  * * cf_site: Update site information
@@ -778,61 +801,90 @@ CF_HAND(cf_badname)
 
 CF_AHAND(cf_site)
 {
-	SITE *site, *last, *head;
-	char *addr_txt, *mask_txt;
-	struct in_addr addr_num, mask_num;
+    SITE *site, *last, *head;
+    char *addr_txt, *mask_txt;
+    struct in_addr addr_num, mask_num;
+    int i, mask_bits;
+
+    if ((mask_txt = (char *) index(str, '/')) == NULL) {
+
+	/* Standard IP range and netmask notation. */
 
 	addr_txt = strtok(str, " \t=,");
-	mask_txt = NULL;
 	if (addr_txt)
-		mask_txt = strtok(NULL, " \t=,");
+	    mask_txt = strtok(NULL, " \t=,");
 	if (!addr_txt || !*addr_txt || !mask_txt || !*mask_txt) {
-		cf_log_syntax(player, cmd, "Missing host address or mask.",
-			      (char *)"");
-		return -1;
+	    cf_log_syntax(player, cmd, "Missing host address or mask.",
+			  (char *)"");
+	    return -1;
 	}
-	addr_num.s_addr = inet_addr(addr_txt);
-	mask_num.s_addr = inet_addr(mask_txt);
-
-	if (addr_num.s_addr == -1) {
-		cf_log_syntax(player, cmd, "Bad host address: %s", addr_txt);
-		return -1;
+	if ((addr_num.s_addr = sane_inet_addr(addr_txt)) == -1) {
+	    cf_log_syntax(player, cmd, "Malformed host address: %s", addr_txt);
+	    return -1;
 	}
-	head = (SITE *) * vp;
-	/*
-	 * Parse the access entry and allocate space for it 
-	 */
+	if ((mask_num.s_addr = sane_inet_addr(mask_txt)) == -1) {
+	    cf_log_syntax(player, cmd, "Malformed mask address: %s", mask_txt);
+	    return -1;
+	}
+    } else {
 
-	site = (SITE *) malloc(sizeof(SITE));
+	/* RFC 1517, 1518, 1519, 1520: CIDR IP prefix notation */
 
-	/*
-	 * Initialize the site entry 
-	 */
-
-	site->address.s_addr = addr_num.s_addr;
-	site->mask.s_addr = mask_num.s_addr;
-	site->flag = extra;
-	site->next = NULL;
-
-	/*
-	 * Link in the entry.  Link it at the start if not initializing, at
-	 * the end if initializing.  This is so that entries in the config
-	 * file are processed as you would think they would be, while
-	 * entries made while running are processed first. 
-	 */
-
-	if (mudstate.initializing) {
-		if (head == NULL) {
-			*vp = (long *)site;
-		} else {
-			for (last = head; last->next; last = last->next) ;
-			last->next = site;
-		}
+	addr_txt = str;
+	*mask_txt++ = '\0';
+	mask_bits = atoi(mask_txt);
+	if ((mask_bits > 32) || (mask_bits < 0)) {
+	    cf_log_syntax(player, cmd,
+			  "Mask bits (%d) in CIDR IP prefix out of range.",
+			  mask_bits);
+	    return -1;
 	} else {
-		site->next = head;
-		*vp = (long *)site;
+	    mask_num.s_addr = htonl(pow(2, 32) - pow(2, 32 - mask_bits));
 	}
-	return 0;
+
+	if ((addr_num.s_addr = sane_inet_addr(addr_txt)) == -1) {
+	    cf_log_syntax(player, cmd, "Malformed host address: %s", addr_txt);
+	    return -1;
+	}
+    }
+
+    head = (SITE *) * vp;
+    /*
+     * Parse the access entry and allocate space for it 
+     */
+
+    if (!(site = (SITE *) XMALLOC(sizeof(SITE), "cf_site")))
+	return -1;
+
+    /*
+     * Initialize the site entry 
+     */
+
+    site->address.s_addr = addr_num.s_addr;
+    site->mask.s_addr = mask_num.s_addr;
+    site->flag = (long) extra;
+    site->next = NULL;
+
+    /*
+     * Link in the entry.  Link it at the start if not initializing, at
+     * the end if initializing.  This is so that entries in the config
+     * file are processed as you would think they would be, while
+     * entries made while running are processed first. 
+     */
+
+    if (mudstate.initializing) {
+	if (head == NULL) {
+	    *vp = (int *) site;
+	} else {
+	    for (last = head; last->next; last = last->next)
+		;
+	    last->next = site;
+	}
+    } else {
+	site->next = head;
+	*vp = (int *) site;
+    }
+    return 0;
 }
 
 /*
