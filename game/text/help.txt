@@ -3407,6 +3407,14 @@
   names are prefixed with an underscore (_), clearly differentiating
   them from normal built-in flags.
   
+  Because the marker flags use numeric single-character designators,
+  when examining an object of type Thing with only marker flags,
+  there will be an underscore before the list of flags, to prevent
+  the flag "letters" from running into a dbref. For example,
+  object #3 with the flags Puppet and Marker0 shows up on an
+  'examine' as '#3p0'; object #3 with only the Puppet flag is
+  '#3p'; but object #3 with only the Marker0 flag is '#3_0'.
+ 
 & ABODE
   Flag: ABODE (A)
  
