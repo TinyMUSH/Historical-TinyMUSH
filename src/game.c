@@ -20,10 +20,6 @@
 #include "alloc.h"
 #include "slave.h"
 
-#ifndef NEXT
-#include "malloc.h"
-#endif
-
 #ifdef HAVE_IEEEFP_H
 #include <ieeefp.h>
 #endif
