@@ -1070,8 +1070,8 @@ FUNCTION(fun_set)
 			/* are we clearing? */
 
 			clear = 0;
-			if (*fargs[0] == NOT_TOKEN) {
-				fargs[0]++;
+			if (*fargs[1] == NOT_TOKEN) {
+				fargs[1]++;
 				clear = 1;
 			}
 			/* valid attribute flag? */
