@@ -1,4 +1,5 @@
 /* cmdtabs.h - command and other supporting tables */
+/* $Id$ */
 
 #include "copyright.h"
 
