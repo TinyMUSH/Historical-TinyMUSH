@@ -1140,17 +1140,16 @@ FUNCTION(fun_mid)
 
 FUNCTION(fun_translate)
 {
-    if (*fargs[0] && *fargs[1]) {
+	VaChk_Range("TRANSLATE", 1, 2);
 
 	/* Strictly speaking, we're just checking the first char */
 
-	if (fargs[1][0] == 's')
-	    safe_str(translate_string(fargs[0], 0), buff, bufc);
-	else if (fargs[1][0] == 'p')
-	    safe_str(translate_string(fargs[0], 1), buff, bufc);
+	if (nfargs > 1 && (fargs[1][0] == 's' || fargs[1][0] == '0'))
+		safe_str(translate_string(fargs[0], 0), buff, bufc);
+	else if (nfargs > 1 && fargs[1][0] == 'p')
+		safe_str(translate_string(fargs[0], 1), buff, bufc);
 	else
-	    safe_str(translate_string(fargs[0], atoi(fargs[1])), buff, bufc);
-    }
+		safe_str(translate_string(fargs[0], 1), buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1243,13 +1242,15 @@ FUNCTION(fun_wordpos)
 
 /* ---------------------------------------------------------------------------
  * Take a character position and return what color that character would be.
- * ansipos(<string>, <charpos>)
+ * ansipos(<string>, <charpos>[, <type>])
  */
 
 FUNCTION(fun_ansipos)
 {
 	int charpos, i, ansi_state;
 	char *s;
+
+	VaChk_Range("ANSIPOS", 2, 3);
 
 	s = fargs[0];
 	charpos = atoi(fargs[1]);
@@ -1264,7 +1265,15 @@ FUNCTION(fun_ansipos)
 		}
 	}
 
-	safe_str(ansi_transition_letters(ANST_NORMAL, ansi_state), buff, bufc);
+	if (nfargs > 2 && (fargs[2][0] == 'e' || fargs[2][0] == '0'))
+		safe_str(ansi_transition_esccode(ANST_NONE, ansi_state),
+			 buff, bufc);
+	else if (nfargs > 2 && (fargs[2][0] == 'p' || fargs[2][0] == '1'))
+		safe_str(ansi_transition_mushcode(ANST_NONE, ansi_state),
+			 buff, bufc);
+	else
+		safe_str(ansi_transition_letters(ANST_NONE, ansi_state),
+			 buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

@@ -5332,20 +5332,21 @@ See also: @link, @open.
   Topic: String Functions
  
 	after()		alphamax()	alphamin()	ansi()
-	art()		beep()		before()	border()
-	capstr()	cat()		cborder()	center()	
-	chomp()		comp()		decrypt()	delete()	
-	edit()		encrypt()	escape()	foreach()	
-	isdbref()	isnum()		isword()	lcstr()		
-	left()		lit()		ljust()		merge()		
-	mid()		nescape()	nsecure()	null()		
-	pos()		rborder()	regedit()	regediti()	
-	regeditall()	regeditalli()	regmatch()	regmatchi()	
-	repeat()	reverse()	right()		rjust()		
-	secure()	scramble()	space()		squish()	
-	strcat()	streq()		stripansi()	strlen()	
-	strmatch()	strtrunc()	translate()	trim()		
-	ucstr()		valid()		wildmatch()	wordpos()
+	ansipos()	art()		beep()		before()
+	border()	capstr()	cat()		cborder()
+	center()	chomp()		comp()		decrypt()
+	delete()	edit()		encrypt()	escape()
+	foreach()	isdbref()	isnum()		isword()
+	lcstr()		left()		lit()		ljust()
+	merge()		mid()		nescape()	nsecure()
+	null()		pos()		rborder()	regedit()
+	regediti()	regeditall()	regeditalli()	regmatch()
+	regmatchi()	repeat()	reverse()	right()
+	rjust()		secure()	scramble()	space()
+	squish()	strcat()	streq()		stripansi()
+	strlen()	strmatch()	strtrunc()	translate()
+	trim()		ucstr()		valid()		wildmatch()
+	wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -7990,11 +7991,11 @@ performed and the walk down the list stops.
   Returns the string literally -- unparsed and unevaluated.
  
 & TRANSLATE()
-  Function: translate(<string>, <type>)
+  Function: translate(<string>[,<type>])
  
   If given a type of '1' or 'p' (for "percent substitutions"), this
   function takes <string> and converts all raw ANSI color codes and
-  other special characters to MUSH substitutions.
+  other special characters to MUSH substitutions. This is the default.
  
   If given a type of '0' or 's' (for "strip"), this function takes
   <string> and strips all raw ANSI color codes and other special
@@ -8050,6 +8051,27 @@ performed and the walk down the list stops.
   Strips the ANSI control sequences from a string.
  
   See also: ANSI, NOBLEED, ansi().
+ 
+& ANSIPOS()
+  Function: ansipos(<string>,<charpos>[,<type>])
+ 
+  Returns the color of the character within <string> where the character
+  position <charpos> falls. Characters are numbered starting at 0.
+
+  If <type> is '0' or 'e' for "escape", the color will be returned as
+    actual escape codes that will bleed into any further output of
+    the current evaluation.
+  If <type> is '1' or 'p' for "percent", the color will be returned as
+    percent-substitution codes (e.g. %xr).
+  If <type> is '2' or 'a' for "ansi()", the color will be returned as
+    letters suitable for use with the ansi() function. This is the
+    default.
+
+  Example:
+    > say ansipos(%xr%xB%xfColor!%xn,3)
+    You say "frB"
+ 
+  See also: ANSI, ansi(), stripansi()
  
 & BORDER()
   Function: border(<words>,<width>[,<left margin fill>[,<right margin fill>]])
