@@ -135,6 +135,7 @@ const char *newobj;
 	    }
 	}
 	notify(player, "Zone changed.");
+	s_Modified(thing);
 }
 
 void do_name(player, cause, key, name, newname)
@@ -195,6 +196,7 @@ char *newname;
 		if (!Quiet(player) && !Quiet(thing))
 			notify_quiet(player, "Name set.");
 		free_lbuf(buff);
+		s_Modified(thing);
 		return;
 	} else {
 		if (!ok_name(newname)) {
@@ -207,6 +209,7 @@ char *newname;
 		s_Name(thing, newname);
 		if (!Quiet(player) && !Quiet(thing))
 			notify_quiet(player, "Name set.");
+		s_Modified(thing);
 	}
 }
 
@@ -592,6 +595,7 @@ char *name, *newown;
 			if (!Quiet(player))
 				notify_quiet(player,
 					     "Attribute owner changed.");
+			s_Modified(thing);
 			return;
 		}
 	}
@@ -690,6 +694,7 @@ char *name, *newown;
 	    halt_que(NOTHING, thing);
 	    if (!Quiet(player))
 		notify_quiet(player, "Owner changed.");
+	    s_Modified(thing);
 	}
 }
 

@@ -330,8 +330,10 @@ int key;
 			     fp->powerpower, negate);
 	if (!result)
 		notify(player, NOPERM_MESSAGE);
-	else if (!(key & SET_QUIET) && !Quiet(player))
+	else if (!(key & SET_QUIET) && !Quiet(player)) {
 		notify(player, (negate ? "Cleared." : "Set."));
+		s_Modified(target);
+	}
 	return;
 }
 

@@ -1843,10 +1843,6 @@ int atr;
 
 #endif /* MEMORY_BASED */
 
-#ifndef STANDALONE
-	s_Modified(thing);
-#endif /* STANDALONE */
-
 	switch (atr) {
 	case A_STARTUP:
 		s_Flags(thing, Flags(thing) & ~HAS_STARTUP);
