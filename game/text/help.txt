@@ -909,6 +909,7 @@
   Command: @edit <object>/<wild-attr> = <search>,<replace>
            @edit <object>/<wild-attr> = ^,<text>
            @edit <object>/<wild-attr> = $,<text>
+ 
   This command edits the contents of one or more attributes of an object,
   eliminating the need to retype a long attribute in order to make a simple
   change.  In the first form, all occurrences of <search> in the specified
@@ -917,9 +918,17 @@
   The second and third form prepend and append <text> to the selected
   attributes, respectively.
  
+  The output of this command ANSI-hilites the portion of the string
+  that was altered. Note that if there are already ANSI characters in
+  the string, the results of this highlighting may not reflect the
+  actual state of the edited string (since the highlight, by definition,
+  inserts a terminating ANSI 'normal' string).
+ 
   If <wild-attr> contains wildcard characters, then all attributes that
   match are edited.
-
+ 
+  See also: edit()
+ 
 & @emit
   Command: @emit[/<switches>] <message>
   Sends <message> to everyone in your current location without prefixing it by
@@ -7188,18 +7197,24 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   This function edits <string>, replacing all occurrences of the substring
   <from> with the string <to>.  If <from> is '$', then <to> is appended to
-  <string>, while if <from> is '^', then it is prepended.
- 
+  <string>, while if <from> is '^', then it is prepended. edit()'s arguments
+  can have ANSI characters embedded within them. However, because MUSH
+  typically appends a terminating 'normal' ANSI string to strings, the
+  terminating 'normal' is stripped for <from> and <to>. If you really need
+  a 'normal', you should put '%xn%xn' at the end of the string.
+  
   Examples:
     > say edit(This is a test,is,x)   
     You say "Thx x a test"
     > say edit(Atlantic,^,Trans)
     You say "TransAtlantic"
- 
-  Note that edit() strips its input of ANSI characters.
+    > say translate(edit(FOO-%xrBAR-BAZ,%xrB,%xyB),p)
+    You say "FOO-%xyBAR-BAZ%xn"
+    > say translate(edit(FOO-BAR-BAZ,BAR,%xyBAR%xn%xn),p)
+    You say "FOO-%xyBAR%xn-BAZ"
  
   See also: @edit.
-
+ 
 & OBJEVAL()
   Function:  objeval(<object>,<expression>)
  
