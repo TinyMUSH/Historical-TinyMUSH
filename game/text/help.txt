@@ -65,15 +65,16 @@
   @apay        @arfail      @asuccess    @atfail      @atofail     @atport
   @aufail      @ause        @away        @charges     @conformat   @cost
   @daily       @describe    @dfail       @drop        @ealias      @efail
-  @enter       @exitformat  @exitto      @fail        @filter      
-  @forwardlist @gfail       @idesc       @idle        @infilter    @inprefix
-  @kill        @lalias      @leave       @lfail       @listen      @move
-  @odescribe   @odfail      @odrop       @oefail      @oenter      @ofail
-  @ogfail      @okill       @oleave      @olfail      @omove       @opay
-  @orfail      @osuccess    @otfail      @otofail     @otport      @oufail
-  @ouse        @oxenter     @oxleave     @oxtport     @pay         @prefix
-  @reject      @rfail       @runout      @sex         @startup     @success
-  @tfail       @tofail      @tport       @ufail       @use
+  @enter       @exitformat  @exitto      @fail        @filter
+  @forwardlist @gfail       @htdesc      @idesc       @idle        @infilter
+  @inprefix    @kill        @lalias      @leave       @lfail       @listen
+  @move        @odescribe   @odfail      @odrop       @oefail      @oenter
+  @ofail       @ogfail      @okill       @oleave      @olfail      @omove
+  @opay        @orfail      @osuccess    @otfail      @otofail     @otport
+  @oufail      @ouse        @oxenter     @oxleave     @oxtport     @pay
+  @prefix      @reject      @rfail       @runout      @sex         @startup
+  @success     @tfail       @tofail      @tport       @ufail       @use
+  @vrml_url
  
 & topics
  
@@ -90,11 +91,11 @@
 	LISTENING		LISTS			LOOPING
 	ME			MONEY			MOVING
 	OBJECT TYPES		PARENT OBJECTS		PATCHLEVEL
-	PIPING			PUPPETS			REGEXPS
-	ROBBERY			SEARCH CLASSES		SEMAPHORES
-	SPOOFING		STACK			SUBSTITUTIONS
-	SUCCESS			SWITCHES		VERBS
-	WIZARDS			ZONE OBJECTS
+	PIPING			PUEBLO			PUPPETS
+	REGEXPS			ROBBERY			SEARCH CLASSES
+	SEMAPHORES		SPOOFING		STACK
+	SUBSTITUTIONS		SUCCESS			SWITCHES
+	VERBS			WIZARDS			ZONE OBJECTS
  
 & drop 
   Command: drop[/<switch>] <object>
@@ -376,6 +377,27 @@
  
   See also: page, say, whisper, :, ;, ".
 
+& PUEBLO
+  Topic: Pueblo
+ 
+  Pueblo is an HTML-based MU* client available from www.chaco.com.
+  Unless compiled without Pueblo support (on by default), TinyMUSH provides
+  these features to enable the use of Pueblo and HTML:
+ 
+  Commands:	PUEBLOCLIENT	@htdesc		@vrml_url
+  Switches:	@emit/html	@pemit/html
+  Functions:	html_escape()	html_unescape()
+		url_escape()	url_unescape()	(see Pueblo Functions)
+  Flags:	HTML
+  Attr flags:	html
+ 
+  When you connect with Pueblo, it automatically uses the PUEBLOCLIENT
+  command to set your HTML flag.  This causes most output from the mush
+  to be escaped into HTML that Pueblo can display.  If you want to write
+  arbitrary HTML on the mush and have it sent unescaped to Pueblo users,
+  you'll need to apply the html attribute flag (see @htdesc for an
+  example).
+
 & PUEBLOCLIENT
   Command: PUEBLOCLIENT
  
@@ -383,6 +405,8 @@
   the Pueblo extensions. Such a client normally sends this string
   automatically; users probably will never need to type this.
  
+  See also: Pueblo.
+
 & QUIT    
   Command: QUIT
   Logs you out and disconnects you from the game. Must be in all capitals.  
@@ -953,11 +977,11 @@
   If both switches are specified, the message is sent to both places.  If
   neither is specified, /here is assumed.
 
-  There is an also an '/html/' switch, which sends the output in HTML
+  There is an also a '/html' switch, which sends the output in HTML
   format. (Pueblo support only.)
  
   Some MUSHes may restrict the use of this command.
-  See also: @femit, @oemit, @pemit, SPOOFING.
+  See also: @femit, @oemit, @pemit, SPOOFING, Pueblo.
 
 & @entrances
   Command: @entrances [[<object>][,<low>[,<high>]]]
@@ -1531,7 +1555,7 @@
     /noeval   - Send the message unparsed.
     /html     - Send the message in HTML format. (Pueblo support only.)
  
-  See also: page, @emit, @oemit, SPOOFING.
+  See also: page, @emit, @oemit, SPOOFING, Pueblo.
 
 & @program
   Command: @program <player> = <object>/<attribute>[:<prefix>]
@@ -1690,7 +1714,7 @@
  
      hidden     - Wiz-only. Prevent mortals from seeing the attribute. (M)
      html       - When used as part of an Attr/OAttr/AAtr trio (as in @verb,
-                  @enter, etc.), the Attr is outputted in HTML format. (H)
+                  @enter, etc.), the Attr is not HTML-escaped (see Pueblo). (H)
      no_command - Prevent $-commands and ^-patterns defined in the attribute
                   from being performed. ($)
      no_inherit - Prevents children of the object from obtaining the 
@@ -2532,6 +2556,27 @@
   Example: @gfail sword = You can't give away a cursed sword!
   See also: give, @agfail, @ogfail, @lock.
 
+& @htdesc
+  Command: @htdesc <object> = <message>
+  Attribute: HTDesc
+
+  Sets the HTML description for <object>.  The HTML description of an object
+  will be shown to a player with the HTML flag.  If not set, the regular
+  description in the Desc attribute is shown instead.
+ 
+  If you wish to place raw HTML in this attribute, you should set the html
+  attribute flag on it so that the contents will not be doubly htmlified.
+  Without the flag, any '<' characters would be translated to "&lt;", which
+  means the browser would display a '<' character rather than beginning to
+  process a markup tag.
+
+  Function references and %-substitutions are evaluated in this attribute.
+ 
+  Example: @htdesc me = <IMG SRC="http://www.me.com/mypic.jpg">
+           @set me/htdesc = html
+ 
+  See also: Pueblo, @set.
+
 & @idesc
   Command: @idesc <object> = <message>
   Attribute: Idesc
@@ -3265,6 +3310,15 @@
   Example: @use camera = You take a picture with the camera.  Click.
   See also: use, @ause, @ouse.
 
+& @vrml_url
+  Command: @vrml_url <location> = <url>
+  Attribute: VRML_URL
+ 
+  Sets the URL of a VRML page to be shown to Pueblo users when they connect
+  in <location>.
+ 
+  See also: Pueblo, @htdesc.
+
 & @conformat
   Command: @conformat <object> = <contents format>
   Attribute: ConFormat
@@ -3784,6 +3838,8 @@
   normally set by the invocation of a PUEBLOCLIENT command, and removed
   upon disconnection.
  
+  See also: Pueblo.
+
 & SLAVE
   Flag: SLAVE (x)
  
@@ -4665,8 +4721,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & PUEBLO FUNCTIONS
   Topic: Pueblo Functions
  
-  The functions HTML_ECAPE(), HTML_UNESCAPE(), URL_ESCAPE(), and 
-  URL_UNESCAPE() are only available when Pueblo support is enabled.
+  The functions html_escape(), html_unescape(), url_escape(), and 
+  url_unescape() are only available when Pueblo support is enabled.
  
   HTML escapes affect these symbols:
   <	becomes		&lt;		>	becomes		&gt;	
@@ -4674,7 +4730,10 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   URL escapes affect these symbols (which are converted to hex):
   < > # % { } | \ ^ ~ [ ] ' ; / ? : @ = & " +
+  Spaces are also converted to '+' by url_escape().
  
+  See also: Pueblo.
+
 & DELIMITERS
   Topic: DELIMITERS
  
