@@ -346,6 +346,27 @@ dbref player;
 	tcache_count = 0;
 }
 
+/* Character table for fast lookups.
+ * 0  - 31  (00 - 1F): NULL plus other specials
+ * 32 - 63  (20 - 3F): space through ? (symbol characters)
+ * 64 - 95  (40 - 5F): @ through _ (includes upper-case letters)
+ * 96 - 127 (60 - 7F): ` through delete (includes lower-case letters)
+ *
+ * We want ' ', '\', '[', '{', '(', '%', and '#'.
+ */
+
+char special_chartab[256] =
+{
+    1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    1,0,0,1,0,1,0,0, 1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,1,1,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,1,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
+};
+
 void exec(buff, bufc, tflags, player, cause, eval, dstr, cargs, ncargs)
 char *buff, **bufc;
 int tflags;
@@ -357,15 +378,14 @@ char *cargs[];
 #define	NFARGS	30
 	char *fargs[NFARGS];
 	char *preserve[MAX_GLOBAL_REGS];
-	char *tstr, *tbuf, *tbufc, *savepos, *atr_gotten, *start, *oldp,
-	*savestr;
-	char savec, ch, *str, *xptr;
+	char *tstr, *tbuf, *tbufc, *savepos, *atr_gotten, *start, *oldp;
+	char savec, ch, *savestr, *str, *xptr, *mundane, *p;
 	char *realbuff = NULL, *realbp = NULL;
 	char xtbuf[SBUF_SIZE], *xtp;
 	dbref aowner;
 	int at_space, nfargs, gender, i, j, alldone, aflags, feval;
 	int is_trace, is_top, save_count;
-	int ansi;
+	int ansi, nchar, navail;
 	FUN *fp;
 	UFUN *ufp;
 	VARENT *xvar;
@@ -412,7 +432,31 @@ char *cargs[];
 		strcpy(savestr, *dstr);
 	}
 	while (**dstr && !alldone) {
-		switch (**dstr) {
+
+	    if (!special_chartab[**dstr]) {
+		/* Mundane characters are the most common. There are usually
+		 * a bunch in a row. We should just copy them.
+		 */
+		mundane = *dstr;
+		nchar = 0;
+		do {
+		    nchar++;
+		} while (!special_chartab[*(++mundane)]);
+		p = *bufc;
+		navail = p - buff + LBUF_SIZE;
+		nchar = (nchar > navail) ? navail : nchar;
+		bcopy(*dstr, p, nchar);
+		*bufc = p + nchar;
+		*dstr = mundane;
+		at_space = 0;
+	    }
+
+	    /* We must have a special character at this point. */
+
+	    if (**dstr == '\0')
+		break;
+
+	    switch (**dstr) {
 		case ' ':
 			/* A space.  Add a space if not compressing or if
 			 * previous char was not a space 
@@ -1077,13 +1121,8 @@ char *cargs[];
 			    safe_chr(**dstr, buff, bufc);
 			}
 			break;
-		default:
-			/* A mundane character.  Just copy it */
-
-			at_space = 0;
-			safe_chr(**dstr, buff, bufc);
-		}
-		(*dstr)++;
+	    }
+	    (*dstr)++;
 	}
 
 	/* If we're eating spaces, and the last thing was a space, eat it
