@@ -59,6 +59,7 @@
  */
 
 extern void FDECL(register_commands, (CMDENT *));
+extern void FDECL(register_functions, (FUN *));
 
 
 #endif /* __API_H */

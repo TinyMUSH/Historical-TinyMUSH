@@ -79,14 +79,50 @@ a command to be able to take multiple switches as the same time, you
 should add '|SW_MULTIPLE' to <key>.
 
 
+After this come your functions. You define a function with the following:
+
+FUNCTION(mod_<name>_fun_<function name>)
+{
+	/* Code goes here. See functions.h for details. */
+}
+
+Then, you need to define a function table as follows:
+
+FUN mod_<name>_functable[] = {
+{"FUNCTION1",	<handler>,	<args>, <flags>,	<permissions>},
+{"FUNCTION2",	<handler>,	<args>, <flags>,	<permissions>},
+{NULL,		NULL,		0,	0,		0}};
+
+You can put as many functions into this table as you'd like. Make
+sure it ends with the "null" entry, though.
+
+<handler> is the name of the function handler (the name of the C function
+that's handling the function call: mod_<name>_<fun>_<whatever>).
+
+<args> is the number of arguments that the function should take.
+If this is variable, use 0.
+
+<flags> are any special function-handling flags, OR'd ('|') together.
+Functions taking a variable number of arguments get a FN_VARARGS flag.
+Functions whose arguments should be passed unevaluated get a FN_NO_EVAL
+flag.
+
+<permissions> consist of an OR'd ('|') list of permissions, such as
+CA_PUBLIC, CA_WIZARD, and CA_GOD, just like in the main command table.
+
+
 The last thing in your module file should be the following:
 
 void mod_<name>_init()
 {
 	register_commands(mod_<name>_cmdtable);
+	register_functions(mod_<name>_functable);
 
 	/* Any other initialization you need to do. */
 }
+
+If you have no commands, you don't need to call register_commands().
+If you have no functions, you don't need to call register_functions().
 
 
 Other module functions:

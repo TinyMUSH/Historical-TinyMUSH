@@ -21,6 +21,7 @@
 #include "match.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
+#include "functions.h"	/* required by code */
 
 
 void register_commands(cmdtab)
@@ -30,6 +31,27 @@ void register_commands(cmdtab)
 
     for (cp = cmdtab; cp->cmdname; cp++)
 	hashadd(cp->cmdname, (int *) cp, &mudstate.command_htab);
+}
+
+void register_functions(functab)
+    FUN *functab;
+{
+    FUN *fp;
+    char *buff, *cp, *dp;
+
+    buff = alloc_sbuf("register_functions");
+    for (fp = functab; fp->name; fp++) {
+	cp = (char *) fp->name;
+	dp = buff;
+	while (*cp) {
+	    *dp = tolower(*cp);
+	    cp++;
+	    dp++;
+	}
+	*dp = '\0';
+	hashadd(buff, (int *) fp, &mudstate.func_htab);
+    }
+    free_sbuf(buff);
 }
 
 #endif /* HAVE_DLOPEN */
