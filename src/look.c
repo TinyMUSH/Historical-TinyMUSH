@@ -151,8 +151,6 @@ int style;
 #ifdef PUEBLO_SUPPORT
 	char *html_buff, *html_cp;
 	char remote_num[32];
-
-	html_buff = html_cp = alloc_lbuf("look_contents");
 #endif
 	
 	/* if conf option allows it, check to see if we're formatting
@@ -170,6 +168,8 @@ int style;
 			free_lbuf(atr_buf);
 		}
 	}
+
+	html_buff = html_cp = alloc_lbuf("look_contents");
 
 	/* check to see if he can see the location */
 
