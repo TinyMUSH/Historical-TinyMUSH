@@ -23,7 +23,7 @@ I found a bug! What do I do?
 - Try to come up with an easily-reproducible sequence of events that
   will demonstrate the bug.
 
-- Send email to tinymush-support@godlike.com with the bug report.
+- Send email to tinymush-bugs@godlike.com with the bug report.
 
 - If the bug crashes the server, try to include a stack trace from the
   core file. You can obtain this by doing the following from the game
