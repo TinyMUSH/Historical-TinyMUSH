@@ -398,6 +398,23 @@ FUNCTION(fun_lnum)
 	    return;
     }
 
+    /* If it's an ascending sequence crossing from negative numbers into
+     * positive, get the negative numbers out of the way first.
+     */
+
+    over = 0;
+    if (bot < 0 && top >= 0) {
+	while (bot < 0 && !over) {
+	    if (*bufc != bb_p) {
+		print_sep(sep, buff, bufc);
+	    }
+	    ltos(tbuf, bot);
+	    over = safe_str(tbuf, buff, bufc);
+	    bot++;
+	}
+	print_sep(sep, buff, bufc);
+    }
+
     /* We keep 0-100 pre-generated so we can do quick copies. */
 
     if (!lnum_init) {
@@ -423,7 +440,6 @@ FUNCTION(fun_lnum)
  
     /* Print a new list. */
 
-    over = 0;
     if (top == bot) {
 	safe_ltos(buff, bufc, bot);
 	return;
