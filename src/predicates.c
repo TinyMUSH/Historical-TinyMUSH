@@ -914,6 +914,7 @@ char *message;
 		    } else {
 			queue_string(d, (char *) "> \377\371");
 		    }
+		}
 		return;
 	}
 	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags);
