@@ -656,8 +656,17 @@ char *flagname;
 	FLAG fv;
 
 	fp = find_flag(it, flagname);
-	if (fp == NULL)
-		return 0;
+	if (fp == NULL) {	    /* find_flag() uppercases the string */
+	    if (!strcmp(flagname, "PLAYER"))
+		return isPlayer(it);
+	    if (!strcmp(flagname, "THING"))
+		return isThing(it);
+	    if (!strcmp(flagname, "ROOM"))
+		return isRoom(it);
+	    if (!strcmp(flagname, "EXIT"))
+		return isExit(it);
+	    return 0;
+	}
 
 	if (fp->flagflag & FLAG_WORD3)
 		fv = Flags3(it);

@@ -5427,18 +5427,18 @@ See also: @link, @open.
 	andflags()	children()	con()		conn()
 	controls()	doing()		elock()		entrances()
 	exit()		flags()		findable()	fullname()
-	hasflag()	haspower()	hastype()	home()
-	idle()		inzone()	lastaccess()	lastcreate()
-	lastmod()	lcon()		lexits()	lparent()
-	loc()		locate()	lock()		lwho()
-	mail()		mailfrom()	money()		name()
-	nearby()	next()		num()		objmem()
-	orflags()	owner()		parent()	pfind()
-	playmem()	pmatch()	ports()		programmer()
-	rloc()		room()		search()	sees()
-	session()	stats()		type()		visible()
-	where()		writable()	xcon()		zone()
-	zwho()
+	hasflag()	hasflags()	haspower()	hastype()	
+	home()		idle()		inzone()	lastaccess()	
+	lastcreate()	lastmod()	lcon()		lexits()	
+	lparent()	loc()		locate()	lock()		
+	lwho()		mail()		mailfrom()	money()		
+	name()		nearby()	next()		num()		
+	objmem()	orflags()	owner()		parent()	
+	pfind()		playmem()	pmatch()	ports()		
+	programmer()	rloc()		room()		search()	
+	sees()		session()	stats()		type()		
+	visible()	where()		writable()	xcon()		
+	zone()		zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -6260,9 +6260,12 @@ performed and the walk down the list stops.
 & hasflag()
   Function: hasflag(<object>[/<attribute>],<flag>)
  
-  Returns true if object <object> has the flag named <flag> set on it.
-  You may not be able to retrieve information for objects that you do not
-  own.
+  Returns true if object <object> has the flag named <flag> set on it,
+  or, if <flag> is PLAYER, THING, ROOM, or EXIT, if <object> is of
+  the specified type.
+ 
+  You may not be able to retrieve information for objects that you
+  cannot examine.
  
   With an object-attribute pair, this can also be used to check for the
   attribute flags "dark", "hidden", "html", "visual", "no_command", 
@@ -6273,7 +6276,31 @@ performed and the walk down the list stops.
     You say, "0"
     > say hasflag(me, connect) 
     You say, "1"
-
+ 
+  See also: hasflags(), andflags(), orflags(), hastype(), haspower()
+ 
+& HASFLAGS()
+  Function:  hasflags(<object>, <flag list 1>[, <flag list 2>, <flag list N>])
+ 
+  This function returns 1 if <object> has all the flags in <flag list 1>,
+  or all the flags in <flag list 2>, and so forth (up to eight lists).
+  Otherwise, it returns 0. 
+ 
+  A flag list consists of a list of types (PLAYER, THING, ROOM, EXIT) or
+  flag names; if an item begins with '!', rather than checking if the
+  object has the flag, it checks for the object NOT having the flag.
+ 
+  You can think of this being approximately equivalent to:
+    or(andflags(<obj>,<list 1>),[...],andflags(<obj>,<list N>))
+  (if andflags() took flag names rather than flag letters, of course.)
+ 
+  For instance, hasflags(#5, player royalty, thing inherit !puppet, wizard)
+  would return 1 if #5 is an object of type PLAYER with the ROYALTY flag,
+  or if #5 is an object of type THING with the INHERIT flag but not the
+  PUPPET flag, or if #5 has the WIZARD flag.
+ 
+  See also: hasflag(), hastype(), andflags(), orflags()
+ 
 & ANDFLAGS()
   Function:  andflags(<object>,<list of flags>)
  
@@ -6290,7 +6317,7 @@ performed and the walk down the list stops.
   so the function returns 0. There can be an arbitrary number of flags.
   Do not put spaces between flag letters.
  
-  See also:  hasflag(), orflags()
+  See also:  hasflag(), hasflags(), orflags()
 
 & ORFLAGS()
   Function: orflags(<object>,<list of flags>)
@@ -6307,7 +6334,7 @@ performed and the walk down the list stops.
   so it is simply ignored. There can be an arbitrary number of flags. Do
   not put spaces between flag letters.
  
-  See also:  hasflag(), andflags()
+  See also:  hasflag(), hasflags(), andflags()
 
 & delete()
   Function: delete(<string>,<first>,<len>)
@@ -14409,7 +14436,12 @@ Continued in 'help 3.1 functions4'.
   idea from PennMUSH.
  
 - Added graball(), which is to grab() what matchall() is to match().
-
+ 
+- hasflag() can now detect object types.
+ 
+- Added hasflags(), which can operate on multiple lists of flags and
+  types, returning true if all elements in any of the lists are true.
+ 
 - helptext() retrieves an entry from an indexed textfile (help, news, etc.).
  
 - The third argument to ifelse() -- the 'false' result -- is now optional.
@@ -14420,13 +14452,13 @@ Continued in 'help 3.1 functions4'.
   from multiple levels of nested iter()-type functions. Based on
   an idea from PennMUSH.
  
-- Added itemize() function, which formats a list of items. Typically used
-  to turn a list of words into something like "a, b, and c". Based on an
-  idea from PennMUSH.
- 
 Continued in 'help 3.1 functions5'.
  
 & 3.1 functions5
+ 
+- Added itemize() function, which formats a list of items. Typically used
+  to turn a list of words into something like "a, b, and c". Based on an
+  idea from PennMUSH.
  
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
@@ -14524,4 +14556,10 @@ Continued in 'help 3.1 functions9'.
  
 - Added @@() function, which is like null(), but does not evaluate
   its argument.
+ 
+- elock(), hasflag(), haspower(), and type() now all return #-1 NO MATCH
+  when they can't find the object they're checking. Previously they
+  returned #-1 NOT FOUND; for consistency's sake, they now behave like
+  everything else.
+ 
  

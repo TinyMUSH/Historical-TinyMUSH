@@ -199,6 +199,7 @@ XFUNCTION(fun_flags);
 XFUNCTION(handle_flaglists);
 XFUNCTION(fun_hasflag);
 XFUNCTION(fun_haspower);
+XFUNCTION(fun_hasflags);
 XFUNCTION(fun_lastaccess);
 XFUNCTION(fun_lastmod);
 XFUNCTION(fun_parent);
@@ -457,6 +458,7 @@ FUN flist[] = {
 {"HASATTRP",	fun_hasattr,	2,  CHECK_PARENTS,
 						CA_PUBLIC,	NULL},
 {"HASFLAG",	fun_hasflag,	2,  0,		CA_PUBLIC,	NULL},
+{"HASFLAGS",	fun_hasflags,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"HASMODULE",	fun_hasmodule,	1,  0,		CA_PUBLIC,	NULL},
 {"HASPOWER",    fun_haspower,   2,  0,          CA_PUBLIC,	NULL},
 {"HASTYPE",	fun_hastype,	2,  0,		CA_PUBLIC,	NULL},

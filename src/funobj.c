@@ -435,7 +435,7 @@ FUNCTION(fun_elock)
 
 	victim = match_thing(player, fargs[1]);
 	if (!Good_obj(victim)) {
-		safe_str("#-1 NOT FOUND", buff, bufc);
+		safe_nomatch(buff, bufc);
 	} else if (!nearby_or_control(player, victim) &&
 		   !nearby_or_control(player, it)) {
 		safe_str("#-1 TOO FAR AWAY", buff, bufc);
@@ -991,7 +991,7 @@ FUNCTION(fun_hasflag)
     } else {
 	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it)) {
-	    safe_str("#-1 NOT FOUND", buff, bufc);
+	    safe_nomatch(buff, bufc);
 	    return;
 	}
 	if (mudconf.pub_flags || Examinable(player, it) || (it == cause)) {
@@ -1008,7 +1008,7 @@ FUNCTION(fun_haspower)
 
 	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it)) {
-		safe_str("#-1 NOT FOUND", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	}
 	if (mudconf.pub_flags || Examinable(player, it) || (it == cause)) {
@@ -1016,6 +1016,53 @@ FUNCTION(fun_haspower)
 	} else {
 		safe_noperm(buff, bufc);
 	}
+}
+
+/* ---------------------------------------------------------------------------
+ * hasflags(<object>, <flag list to AND>, <OR flag list to AND>, <etc.>)
+ */
+
+FUNCTION(fun_hasflags)
+{
+    dbref it;
+    char **elems;
+    int n_elems, i, j, result;
+
+    if (nfargs < 2) {
+	safe_str("#-1 FUNCTION (HASFLAGS) EXPECTS AT LEAST 2 ARGUMENTS",
+		 buff, bufc);
+	return;
+    }
+    
+    it = match_thing(player, fargs[0]);
+    if (!Good_obj(it)) {
+	safe_nomatch(buff, bufc);
+	return;
+    }
+
+    /* Walk through each of the lists we've been passed. We need to have
+     * all the flags in a particular list (AND) in order to consider that
+     * list true. We return 1 if any of the lists are true. (i.e., we
+     * OR the list results).
+     */
+
+    result = 0;
+
+    for (i = 1; !result && (i < nfargs); i++) { 
+	n_elems = list2arr(&elems, LBUF_SIZE / 2, fargs[i], SPACE_DELIM, 1);
+	if (n_elems > 0) {
+	    result = 1;
+	    for (j = 0; result && (j < n_elems); j++) {
+		if (*elems[j] == '!')
+		    result = (has_flag(player, it, elems[j] + 1)) ? 0 : 1;
+		else
+		    result = has_flag(player, it, elems[j]);
+	    }
+	}
+	XFREE(elems, "fun_hasflags.elems");
+    }
+
+    safe_bool(buff, bufc, result);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2048,7 +2095,7 @@ FUNCTION(fun_type)
 
 	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it)) {
-		safe_str("#-1 NOT FOUND", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	}
 	switch (Typeof(it)) {
@@ -2085,19 +2132,19 @@ FUNCTION(fun_hastype)
 	switch (*fargs[1]) {
 	case 'r':
 	case 'R':
-		safe_chr((Typeof(it) == TYPE_ROOM) ? '1' : '0', buff, bufc);
+		safe_bool(buff, bufc, isRoom(it));
 		break;
 	case 'e':
 	case 'E':
-		safe_chr((Typeof(it) == TYPE_EXIT) ? '1' : '0', buff, bufc);
+		safe_bool(buff, bufc, isExit(it));
 		break;
 	case 'p':
 	case 'P':
-		safe_chr((Typeof(it) == TYPE_PLAYER) ? '1' : '0', buff, bufc);
+		safe_bool(buff, bufc, isPlayer(it));
 		break;
 	case 't':
 	case 'T':
-		safe_chr((Typeof(it) == TYPE_THING) ? '1' : '0', buff, bufc);
+		safe_bool(buff, bufc, isThing(it));
 		break;
 	default:
 		safe_str("#-1 NO SUCH TYPE", buff, bufc);

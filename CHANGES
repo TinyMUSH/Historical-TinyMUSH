@@ -408,6 +408,11 @@ CHANGES TO FUNCTIONS
 
 - Added graball(), which is to grab() what matchall() is to match().
 
+- hasflag() can now detect object types.
+
+- Added hasflags(), which can operate on multiple lists of flags and
+  types, returning true if all elements in any of the lists are true.
+
 - Added helptext(), which retrieves an enetry from an indexed textfile
   (i.e., help, news, or anything else added via the helpfile or
   raw_helpfile conf directives).
@@ -509,6 +514,11 @@ CHANGES TO FUNCTIONS
 
 - Added @@() function, which is like null(), but does not evaluate
   its argument.
+
+- elock(), hasflag(), haspower(), and type() now all return #-1 NO MATCH
+  when they can't find the object they're checking. Previously they
+  returned #-1 NOT FOUND; for consistency's sake, they now behave like
+  everything else.
 
 -----------------------------------------------------------------------------
 

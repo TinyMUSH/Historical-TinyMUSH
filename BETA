@@ -30,6 +30,17 @@ Release history:
   through the use of the PRESENCE flag and six new locks (HeardLock,
   HearsLock, KnownLock, KnowsLock, MotionLock, and GoesLock).
 
+- Feature: hasflag() can now detect object types.
+
+- Feature: The new hasflags() function can operate on multiple lists of 
+  flags and types, returning true if all elements in any of the lists
+  are true.
+
+- Misc: elock(), hasflag(), haspower(), and type() now all return 
+  #-1 NO MATCH when they can't find the object they're checking.
+  Previously they returned #-1 NOT FOUND; for consistency's sake,
+  they now behave like everything else.
+
 - Fix: The game/backups directory is now correctly included with the
   distribution.
 
