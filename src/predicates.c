@@ -2019,9 +2019,14 @@ const char *def, *odef;
 		     &str, args, nargs);
 	    }
 	    *bp = '\0';
-	    if (*buff)
-		notify_except2(loc, player, player, thing,
-			       tprintf("%s %s", Name(player), buff));
+	    if (*buff) {
+		if (aflags & AF_NONAME) {
+		    notify_except2(loc, player, player, thing, buff);
+		} else {
+		    notify_except2(loc, player, player, thing,
+				   tprintf("%s %s", Name(player), buff));
+		}
+	    }
 	    free_lbuf(buff);
 	} else if (odef) {
 	    notify_except2(loc, player, player, thing,

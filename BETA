@@ -24,6 +24,14 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+06/xx/2002: Beta 4
+
+- Feature: The new no_name attribute flag prevents the actor's name from
+  being prepended when that attribute is used as an @o-attr (including
+  with @verb).
+
+-----------------------------------------------------------------------------
+
 06/07/2002: Beta 3
  
 - Feature: The new choose() function picks an element from a list on a

@@ -322,10 +322,16 @@ For example:
  
 When you, a character named Figment, type 'look balloon', you are
 shown the message 'A red balloon.'  Everyone else in your location
-sees, 'Figment looks at a red balloon.'  The ballon object itself
+sees, 'Figment looks at a red balloon.'  The balloon object itself
 queues the command '@emit The red ballon drifts away.' and a second
 later, everyone in the balloon's location sees 'The red balloon
 drifts away.'
+ 
+You can avoid having the actor's name being prepended to an @o-attr
+via the use of the 'no_name' attribute flag. For example:
+ 
+  @osucc exit = A breeze comes up and sweeps %N eastwards.
+  @set exit/osucc = no_name
  
 & Attribute Flags
  
@@ -385,6 +391,9 @@ Continued in 'help Attribute Flags3'.
      html       - When used as part of an Attr/OAttr/AAtr trio (as in @verb,
                   @enter, etc.), the Attr is not HTML-escaped (see Pueblo).
                   Local only. (H)
+ 
+     no_name    - If used as an @o-attr (including with @verb), do not
+                  prepend the name of the actor.
  
 Continued in 'help Attribute Flags4'.
  
@@ -3240,10 +3249,6 @@ See also: JUMP_OK, FIXED, home, @lock
 { 'help @verb2' for more }
 & @verb2
   
-  If the /now switch is used, the <awhat> attribute is run immediately
-  rather than being placed on the queue.
-  
-  Here is a description of the arguments to @verb:
     victim - The object that is searched for attributes, and which runs the
              <awhat> attribute if it is found.
     actor  - The object that 'did' the verb, this is the value for %#/%n/etc
@@ -3254,7 +3259,8 @@ See also: JUMP_OK, FIXED, home, @lock
     whatd  - The message to deliver to the actor if the victim does not have a
              <what> attribute, or if it cannot be read.
     owhat  - The name of the attribute containing the message (prefixed by the
-             actor's name) that is sent to everyone in the room with the actor.
+             actor's name, unless the no_name attribute flag is set on that
+             attribute) that is sent to everyone in the room with the actor.
     owhatd - The message (prefixed by the actor's name) to deliver to others
              in the room with the actor if the victim does not have an <owhat>
              attribute, or it cannot be read.
@@ -3266,22 +3272,30 @@ See also: JUMP_OK, FIXED, home, @lock
  
 { 'help @verb3' for more }
 & @verb3
+ 
+  If the /now switch is used, the <awhat> attribute is run immediately
+  rather than being placed on the queue.
+  
   Examples:
+ 
     > &xtest test1=You just xtested test1.
     > &oxtest test1=just xtested test1.
     > &axtest test1="I was xtested.  Yikes.  Arg1=%0, Arg2=%1, Arg3=%2.
     > @verb test1=me,xtest,XTEST DFLT,oxtest,OXTEST DFLT,axtest,{a,b c,de}
     You just xtested test1.
     test1 says "I was xtested. Yikes. Arg1=a, Arg2=b c, Arg3=de."
+ 
     > &xtest test1
     > @verb test1=me,xtest,XTEST DFLT,oxtest,OXTEST DFLT,axtest,{a,b c,de}
     XTEST DFLT
     test1 says "I was xtested. Yikes. Arg1=a, Arg2=b c, Arg3=de."
+ 
     > @fo test1={@verb test1=me,xtest,XTEST D,oxtest,OXTEST D,axtest,{a,b,de}} 
     test1 just xtested test1.
     test1 says "I was xtested. Yikes. Arg1=a, Arg2=b, Arg3=de."
+ 
   See also: locate().
-
+ 
 & @wait
   Command: @wait <seconds>=<command>
            @wait <object>[/<seconds>]=<command>
@@ -14059,6 +14073,10 @@ Continued in 'help 3.1 base4'.
 Continued in 'help 3.1 base5'.
  
 & 3.1 base5
+ 
+- A new attribute flag, no_name, controls whether or not the actor's
+  name is prepended when an attribute is used as an @o-attr, such as
+  an @osucc or with @verb.
  
 - Named references ("nrefs"), which behave like aliases for dbrefs, 
   in the form of '#_<name>' are now supported. Nrefs are globally unique.

@@ -863,6 +863,7 @@ NAMETAB indiv_attraccess_nametab[] = {
 {(char *)"wizard",		1,	CA_WIZARD,	AF_WIZARD},
 {(char *)"no_command",		4,	CA_PUBLIC,	AF_NOPROG},
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
+{(char *)"no_name",		4,	CA_PUBLIC,	AF_NONAME},
 {(char *)"no_parse",		4,	CA_PUBLIC,	AF_NOPARSE},
 {(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
 {(char *)"structure",		1,	CA_GOD,		AF_STRUCTURE},

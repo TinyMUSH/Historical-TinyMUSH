@@ -156,6 +156,10 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 - Attribute flags that have no meaning on a global basis can no longer
   be set globally via @attribute and the like, thus reducing confusion.
 
+- A new attribute flag, no_name, controls whether or not the actor's
+  name is prepended when an attribute is used as an @o-attr, such as
+  an @osucc or with @verb.
+
 - Named references ("nrefs"), which behave like aliases for dbrefs, 
   in the form of '#_<name>' are now supported. Nrefs are globally unique.
 
