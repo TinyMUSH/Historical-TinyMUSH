@@ -1736,7 +1736,8 @@ FUNCTION(fun_zfun)
 
 FUNCTION(fun_columns)
 {
-	unsigned int spaces, number, ansinumber, count, i, indent = 0;
+	unsigned int spaces, number, ansinumber, striplen;
+	unsigned int count, i, indent = 0;
 	int isansi = 0, rturn = 1, cr = 0;
 	char *p, *q, *buf, *curr, *objstring, *bp, *cp, sep, *str;
 
@@ -1776,8 +1777,9 @@ FUNCTION(fun_columns)
 	while (cp) {
 		objstring = split_token(&cp, sep);
 		ansinumber = number;
-		if (ansinumber > strlen((char *)strip_ansi(objstring)))
-			ansinumber = strlen((char *)strip_ansi(objstring));
+		striplen = strlen((char *) strip_ansi(objstring));
+		if (ansinumber > striplen)
+		    ansinumber = striplen;
 
 		p = objstring;
 		q = buf;
@@ -1803,16 +1805,22 @@ FUNCTION(fun_columns)
 		*q = '\0';
 		isansi = 0;
 
-		spaces = number - strlen((char *)strip_ansi(objstring));
-
-		/* Sanitize number of spaces */
-
-		if (spaces > LBUF_SIZE) {
-			spaces = LBUF_SIZE;
-		}
 		safe_str(buf, buff, bufc);
-		for (i = 0; i < spaces; i++)
+
+		if (striplen < number) {
+
+		    /* We only need spaces if we need to pad out.
+		     * Sanitize the number of spaces, too. 
+		     */
+
+		    spaces = number - striplen;
+		    if (spaces > LBUF_SIZE) {
+			spaces = LBUF_SIZE;
+		    }
+
+		    for (i = 0; i < spaces; i++)
 			safe_chr(' ', buff, bufc);
+		}
 
 		if (!(rturn % (int)((78 - indent) / number))) {
 			safe_str((char *)"\r\n", buff, bufc);
