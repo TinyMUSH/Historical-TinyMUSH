@@ -1382,9 +1382,14 @@ char *src, **dst, **returnstr, *from, *to;
     edit_string(src, dst, from, to);
 
     *returnstr = alloc_lbuf("edit_string_ansi");
-    edit_string(src, returnstr, from,
-		tprintf("%s%s%s%s", ANSI_HILITE, to, ANSI_NORMAL,
-			ANSI_NORMAL));
+
+    if (mudconf.ansi_colors) {
+	edit_string(src, returnstr, from,
+		    tprintf("%s%s%s%s", ANSI_HILITE, to, ANSI_NORMAL,
+			    ANSI_NORMAL));
+    } else {
+	StringCopy(*returnstr, *dst);
+    }
 }
 
 void do_edit(player, cause, key, it, args, nargs)
