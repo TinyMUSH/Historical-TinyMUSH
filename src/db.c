@@ -1591,6 +1591,9 @@ int atr;
 
 	al_delete(thing, atr);
 
+	if (!mudstate.standalone && !mudstate.loading_db)
+	    s_Modified(thing);
+
 	switch (atr) {
 	case A_STARTUP:
 		s_Flags(thing, Flags(thing) & ~HAS_STARTUP);
