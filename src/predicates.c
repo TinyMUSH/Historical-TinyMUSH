@@ -1526,7 +1526,7 @@ const char *def, *odef;
 			exec(buff, &bp, 0, thing, player, EV_EVAL | EV_FIGNORE | EV_TOP,
 			     &str, args, nargs);
 			*bp = '\0';
-#ifdef PUEBLO_SUPPOR
+#ifdef PUEBLO_SUPPORT
 			if ((aflags & AF_HTML) && Html(player)) {
 				char *buff_cp = buff + strlen(buff);
 				safe_str("\r\n", buff, &buff_cp);
