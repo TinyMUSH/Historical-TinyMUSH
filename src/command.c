@@ -978,10 +978,16 @@ int i;
 	prefix_cmds['&'] = (CMDENT *) hashfind((char *)"&",
 					       &mudstate.command_htab);
 #ifdef USE_MAIL
-	prefix_cmds['-'] = (CMDENT *) hashfind((char *)"-",
-					       &mudstate.command_htab);
-	prefix_cmds['~'] = (CMDENT *) hashfind((char *)"~",
-					       &mudstate.command_htab);
+	/* Note that doing it this way means that you'll later run into
+	 * problems if you enable the mailer without a @restart. However,
+	 * not doing it this way breaks all the softcoded mailers.
+	 */
+	if (mudconf.have_mailer) {
+	    prefix_cmds['-'] = (CMDENT *) hashfind((char *)"-",
+						   &mudstate.command_htab);
+	    prefix_cmds['~'] = (CMDENT *) hashfind((char *)"~",
+						   &mudstate.command_htab);
+	}
 #endif
 }
 
