@@ -1041,7 +1041,7 @@ int db_read()
 	memcpy((void *)&mudstate.attr_next, (void *)dptr, sizeof(int));
 	dptr++;
 	memcpy((void *)&mudstate.record_players, (void *)dptr, sizeof(int));
-	XFREE(data, "db_read.dbinfo");
+	RAW_FREE(data, "dddb_get");
 	
 	/* Load the attribute numbers */
 	
@@ -1074,7 +1074,7 @@ int db_read()
 				cdptr++;
 			}
 		}
-		XFREE(data, "db_read.atrnum");
+		RAW_FREE(data, "dddb_get");
 	}
 	
 	/* Load the object structures */
@@ -1103,7 +1103,7 @@ int db_read()
 				c_Connected(i);
 			}
 			
-			XFREE(data, "db_read.obj");
+			RAW_FREE(data, "dddb_get");
 			s_Clean(i);
 		}
 	}	

@@ -96,7 +96,7 @@ extern char *malloc_ptr;
 
 #else  /* ! TEST_MALLOC  */
 
-#ifndef STANDALONE
+#if defined(RAW_MEMTRACKING) && !defined(STANDALONE)
 
 #define XMALLOC(x,y) (track_malloc((x),(y)))
 #define XCALLOC(x,z,y) (track_calloc((x),(z),(y)))
@@ -104,11 +104,11 @@ extern char *malloc_ptr;
 #define XSTRDUP(x,y) (track_strdup((x),(y)))
 #define XFREE(x,y) (track_free((void *)(x),(y)), (x) = NULL)
 
-extern void *	FDECL(track_malloc, (size_t, char *));
-extern void *	FDECL(track_calloc, (size_t, size_t, char *));
-extern void *	FDECL(track_realloc, (void *, size_t, char *));
-extern char *	FDECL(track_strdup, (char *, char *));
-extern void	FDECL(track_free, (void *, char *));
+extern void *	FDECL(track_malloc, (size_t, const char *));
+extern void *	FDECL(track_calloc, (size_t, size_t, const char *));
+extern void *	FDECL(track_realloc, (void *, size_t, const char *));
+extern char *	FDECL(track_strdup, (const char *, const char *));
+extern void	FDECL(track_free, (void *, const char *));
 
 #else
 
@@ -118,10 +118,11 @@ extern void	FDECL(track_free, (void *, char *));
 #define XSTRDUP(x,y)	RAW_STRDUP((x),(y))
 #define XFREE(x,y)	RAW_FREE((x),(y))
 
-#endif  /* ! STANDALONE */
+#endif  /* RAW_MEMTRACKING && ! STANDALONE */
 #endif  /* TEST_MALLOC */
 
 typedef struct tracemem_header {
+    void *bptr;
     char *buf_tag;
     size_t alloc;
     struct tracemem_header *next;

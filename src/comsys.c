@@ -2329,11 +2329,11 @@ void mod_comsys_destroy_player(player, victim)
 
 void mod_comsys_init()
 {
-    mod_comsys_config.comsys_db = XSTRDUP("comsys.db", "mod_comsys_init");
-    mod_comsys_config.public_channel = XSTRDUP("Public", "mod_comsys_init");
-    mod_comsys_config.guests_channel = XSTRDUP("Guests", "mod_comsys_init");
-    mod_comsys_config.public_calias = XSTRDUP("pub", "mod_comsys_init");
-    mod_comsys_config.guests_calias = XSTRDUP("g", "mod_comsys_init");
+    mod_comsys_config.comsys_db = XSTRDUP("comsys.db", "cf_string");
+    mod_comsys_config.public_channel = XSTRDUP("Public", "cf_string");
+    mod_comsys_config.guests_channel = XSTRDUP("Guests", "cf_string");
+    mod_comsys_config.public_calias = XSTRDUP("pub", "cf_string");
+    mod_comsys_config.guests_calias = XSTRDUP("g", "cf_string");
 
     register_hashtables(mod_comsys_hashtable, mod_comsys_nhashtable);
     register_commands(mod_comsys_cmdtable);

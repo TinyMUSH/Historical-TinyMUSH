@@ -56,10 +56,10 @@ void NDECL(cf_init)
 #ifndef STANDALONE
 	int i;
 
-	mudconf.dbhome = XSTRDUP(".", "cf_init");
-	mudconf.crashdb = XSTRDUP("", "cf_init");
-	mudconf.gdbm = XSTRDUP("", "cf_init");
-	mudconf.status_file = XSTRDUP("shutdown.status", "cf_init");
+	mudconf.dbhome = XSTRDUP(".", "cf_string");
+	mudconf.crashdb = XSTRDUP("", "cf_string");
+	mudconf.gdbm = XSTRDUP("", "cf_string");
+	mudconf.status_file = XSTRDUP("shutdown.status", "cf_string");
 	mudstate.modules_list = NULL;
 	mudstate.modloaded[0] = '\0';
 	mudconf.port = 6250;
@@ -70,39 +70,39 @@ void NDECL(cf_init)
 	mudconf.guest_char = NOTHING;
 	mudconf.guest_nuker = GOD;
 	mudconf.number_guests = 30;
-	mudconf.guest_basename = XSTRDUP("Guest", "cf_init");
-	mudconf.guest_password = XSTRDUP("guest", "cf_init");
-	mudconf.guest_prefixes = XSTRDUP("", "cf_init");
-	mudconf.guest_suffixes = XSTRDUP("", "cf_init");
-	mudconf.guest_file = XSTRDUP("text/guest.txt", "cf_init");
-	mudconf.conn_file = XSTRDUP("text/connect.txt", "cf_init");
-	mudconf.creg_file = XSTRDUP("text/register.txt", "cf_init");
-	mudconf.regf_file = XSTRDUP("text/create_reg.txt", "cf_init");
-	mudconf.motd_file = XSTRDUP("text/motd.txt", "cf_init");
-	mudconf.wizmotd_file = XSTRDUP("text/wizmotd.txt", "cf_init");
-	mudconf.quit_file = XSTRDUP("text/quit.txt", "cf_init");
-	mudconf.down_file = XSTRDUP("text/down.txt", "cf_init");
-	mudconf.full_file = XSTRDUP("text/full.txt", "cf_init");
-	mudconf.site_file = XSTRDUP("text/badsite.txt", "cf_init");
-	mudconf.crea_file = XSTRDUP("text/newuser.txt", "cf_init");
+	mudconf.guest_basename = XSTRDUP("Guest", "cf_string");
+	mudconf.guest_password = XSTRDUP("guest", "cf_string");
+	mudconf.guest_prefixes = XSTRDUP("", "cf_string");
+	mudconf.guest_suffixes = XSTRDUP("", "cf_string");
+	mudconf.guest_file = XSTRDUP("text/guest.txt", "cf_string");
+	mudconf.conn_file = XSTRDUP("text/connect.txt", "cf_string");
+	mudconf.creg_file = XSTRDUP("text/register.txt", "cf_string");
+	mudconf.regf_file = XSTRDUP("text/create_reg.txt", "cf_string");
+	mudconf.motd_file = XSTRDUP("text/motd.txt", "cf_string");
+	mudconf.wizmotd_file = XSTRDUP("text/wizmotd.txt", "cf_string");
+	mudconf.quit_file = XSTRDUP("text/quit.txt", "cf_string");
+	mudconf.down_file = XSTRDUP("text/down.txt", "cf_string");
+	mudconf.full_file = XSTRDUP("text/full.txt", "cf_string");
+	mudconf.site_file = XSTRDUP("text/badsite.txt", "cf_string");
+	mudconf.crea_file = XSTRDUP("text/newuser.txt", "cf_string");
 #ifdef PUEBLO_SUPPORT
-	mudconf.htmlconn_file = XSTRDUP("text/htmlconn.txt", "cf_init");
+	mudconf.htmlconn_file = XSTRDUP("text/htmlconn.txt", "cf_string");
 #endif
-	mudconf.motd_msg = XSTRDUP("", "cf_init");
-	mudconf.wizmotd_msg = XSTRDUP("", "cf_init");
-	mudconf.downmotd_msg = XSTRDUP("", "cf_init");
-	mudconf.fullmotd_msg = XSTRDUP("", "cf_init");
-	mudconf.dump_msg = XSTRDUP("", "cf_init");
-	mudconf.postdump_msg = XSTRDUP("", "cf_init");
-	mudconf.fixed_home_msg = XSTRDUP("", "cf_init");
-	mudconf.fixed_tel_msg = XSTRDUP("", "cf_init");
+	mudconf.motd_msg = XSTRDUP("", "cf_string");
+	mudconf.wizmotd_msg = XSTRDUP("", "cf_string");
+	mudconf.downmotd_msg = XSTRDUP("", "cf_string");
+	mudconf.fullmotd_msg = XSTRDUP("", "cf_string");
+	mudconf.dump_msg = XSTRDUP("", "cf_string");
+	mudconf.postdump_msg = XSTRDUP("", "cf_string");
+	mudconf.fixed_home_msg = XSTRDUP("", "cf_string");
+	mudconf.fixed_tel_msg = XSTRDUP("", "cf_string");
 #ifdef PUEBLO_SUPPORT
-	mudconf.pueblo_msg = XSTRDUP("</xch_mudtext><img xch_mode=html><tt>", "cf_init");
+	mudconf.pueblo_msg = XSTRDUP("</xch_mudtext><img xch_mode=html><tt>", "cf_string");
 #endif
-	mudconf.sql_host = XSTRDUP("127.0.0.1", "cf_init");
-	mudconf.sql_db = XSTRDUP("", "cf_init");
-	mudconf.sql_username = XSTRDUP("", "cf_init");
-	mudconf.sql_password = XSTRDUP("", "cf_init");
+	mudconf.sql_host = XSTRDUP("127.0.0.1", "cf_string");
+	mudconf.sql_db = XSTRDUP("", "cf_string");
+	mudconf.sql_username = XSTRDUP("", "cf_string");
+	mudconf.sql_password = XSTRDUP("", "cf_string");
 	mudconf.sql_reconnect = 0;
 	mudconf.indent_desc = 0;
        	mudconf.name_spaces = 1;
@@ -250,10 +250,10 @@ void NDECL(cf_init)
 	mudconf.stripped_flags.word3 = 0;
 	mudconf.vattr_flags = 0;
 	mudconf.vattr_flag_list = NULL;
-	mudconf.mud_name = XSTRDUP("TinyMUSH", "cf_init");
-	mudconf.one_coin = XSTRDUP("penny", "cf_init");
-	mudconf.many_coins = XSTRDUP("pennies", "cf_init");
-	mudconf.struct_dstr = XSTRDUP("\r\n", "cf_init");
+	mudconf.mud_name = XSTRDUP("TinyMUSH", "cf_string");
+	mudconf.one_coin = XSTRDUP("penny", "cf_string");
+	mudconf.many_coins = XSTRDUP("pennies", "cf_string");
+	mudconf.struct_dstr = XSTRDUP("\r\n", "cf_string");
 	mudconf.timeslice = 1000;
 	mudconf.cmd_quota_max = 100;
 	mudconf.cmd_quota_incr = 1;
@@ -1730,7 +1730,6 @@ char *fn;
 	int retval;
 	char tmpfile[256], *c;
 	
-	XFREE(mudconf.config_file, "cf_read_cffile");
 	mudconf.config_file = XSTRDUP(fn, "cf_read_cffile");
 	mudstate.initializing = 1;
 	retval = cf_include(NULL, fn, 0, 0, (char *)"init");

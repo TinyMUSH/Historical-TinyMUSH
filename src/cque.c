@@ -798,7 +798,7 @@ int ncmds;
 	if (mudstate.qfirst) {
 	    tmp = mudstate.qfirst;
 	    mudstate.qfirst = mudstate.qfirst->next;
-	    XFREE(tmp->text, "do_top");
+	    XFREE(tmp->text, "setup_que");
 	    free_qentry(tmp);
 	}
 	if (!mudstate.qfirst)	/* gotta check this, as the value's changed */

@@ -176,7 +176,7 @@ int type;
 	
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)XMALLOC(sizeof(int) + keylen, "dddb_get");
+	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_get");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
 	memcpy((void *)s, (void *)&type, sizeof(int));
@@ -199,7 +199,7 @@ int type;
 	if (datalenptr)
 		*datalenptr = dat.dsize;
 
-	XFREE(key.dptr, "dddb_get");
+	RAW_FREE(key.dptr, "dddb_get");
 }
 
 /* Pass dddb_put a key and its length, data and its length, and the type
@@ -218,26 +218,26 @@ int len;
 
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)XMALLOC(sizeof(int) + keylen, "dddb_put");
+	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_put");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
 	memcpy((void *)s, (void *)&type, sizeof(int));
 	key.dsize = sizeof(int) + keylen;
 	
 	/* make table entry */
-	dat.dptr = (char *)XMALLOC(len, "dddb_put.dat");
+	dat.dptr = (char *)RAW_MALLOC(len, "dddb_put.dat");
 	memcpy(dat.dptr, data, len);
 	dat.dsize = len;
 
 	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
 		logf("db_put: can't gdbm_store ", " ", (char *)-1, "\n", (char *)0);
-		XFREE(dat.dptr, "dddb_put.dat");
-		XFREE(key.dptr, "dddb_put.key");
+		RAW_FREE(dat.dptr, "dddb_put.dat");
+		RAW_FREE(key.dptr, "dddb_put");
 		return (1);
 	}
 
-	XFREE(dat.dptr, "dddb_put.dat");
-	XFREE(key.dptr, "dddb_put.key");
+	RAW_FREE(dat.dptr, "dddb_put.dat");
+	RAW_FREE(key.dptr, "dddb_put");
 
 	return (0);
 }
@@ -258,7 +258,7 @@ int type;
 
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)XMALLOC(sizeof(int) + keylen, "dddb_del");
+	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_del");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
 	memcpy((void *)s, (void *)&type, sizeof(int));
@@ -268,22 +268,22 @@ int type;
 
 	/* not there? */
 	if (dat.dptr == NULL) {
-		XFREE(key.dptr, "dddb_del.key");
+		RAW_FREE(key.dptr, "dddb_del.key");
 		return (0);
 	}
 
 #ifdef TEST_MALLOC
 	free(dat.dptr);
 #else
-	XFREE(dat.dptr, "dddb_del.dat");
+	RAW_FREE(dat.dptr, "dddb_del.dat");
 #endif
 
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {
 		logf("db_del: can't delete key\n", (char *)NULL);
-		XFREE(key.dptr, "dddb_del.key");
+		RAW_FREE(key.dptr, "dddb_del.key");
 		return (1);
 	}
-	XFREE(key.dptr, "dddb_del.key");
+	RAW_FREE(key.dptr, "dddb_del.key");
 	return (0);
 }

@@ -1193,7 +1193,7 @@ void NDECL(olist_pop)
 		onext = op->next;
 		free_lbuf(op);
 	}
-	XFREE(mudstate.olist, "olist_pop");
+	XFREE(mudstate.olist, "olist_push");
 	mudstate.olist = ol;
 }
 

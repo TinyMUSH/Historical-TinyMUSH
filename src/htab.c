@@ -449,7 +449,7 @@ void hashresize(htab, min_size)
 	    new_htab.entry[hval] = thent;
 	}
     }
-    XFREE(htab->entry, "hashresize.table");
+    XFREE(htab->entry, "hashinit");
 
     htab->hashsize = new_htab.hashsize;
     htab->mask = new_htab.mask;
@@ -578,7 +578,7 @@ int size;
 		while (hent != NULL) {
 			thent = hent;
 			hent = hent->next;
-			XFREE(thent, "nhashflush.hent");
+			XFREE(thent, "nhashadd");
 		}
 		htab->entry[i] = NULL;
 	}
@@ -661,7 +661,7 @@ void nhashresize(htab, min_size)
 	    new_htab.entry[hval] = thent;
 	}
     }
-    XFREE(htab->entry, "nhashresize.table");
+    XFREE(htab->entry, "hashinit");
 
     htab->hashsize = new_htab.hashsize;
     htab->mask = new_htab.mask;

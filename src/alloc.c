@@ -364,32 +364,77 @@ void pool_reset()
  */
 
 #ifndef STANDALONE
+#ifdef RAW_MEMTRACKING
+
+static int sort_memtable(p1, p2)
+    const void *p1, *p2;
+{
+    return strcmp((*(MEMTRACK **)p1)->buf_tag,
+		  (*(MEMTRACK **)p2)->buf_tag);
+}
 
 void list_rawmemory(player)
     dbref player;
 {
-    MEMTRACK *tptr;
-    int n_tags, total;
+    MEMTRACK *tptr, **t_array;
+    int n_tags, total, c_tags, c_total, u_tags, i, j;
+    char *ntmp;
 
     n_tags = total = 0;
 
     raw_notify(player,
-	       "Memory Tag                          Allocated");
+	       "Memory Tag                           Allocs      Bytes");
 
     for (tptr = mudstate.raw_allocs; tptr != NULL; tptr = tptr->next) {
-	raw_notify(player, tprintf("%-35.35s  %8d", tptr->buf_tag,
-				   (int) tptr->alloc));
 	n_tags++;
 	total += (int) tptr->alloc;
     }
 
-    raw_notify(player, tprintf("Total: %d raw allocations. %d bytes (%d K).",
-			       n_tags, total, (int) total / 1024));
+    t_array = (MEMTRACK **) RAW_CALLOC(total, sizeof(MEMTRACK *),
+				       "list_rawmemory");
+
+    for (i = 0, tptr = mudstate.raw_allocs; tptr != NULL;
+	 i++, tptr = tptr->next) {
+	t_array[i] = tptr; 
+    }
+
+    qsort((void *) t_array, n_tags, sizeof(MEMTRACK *),
+	  (int (*)(const void *, const void *))sort_memtable);
+
+    for (i = 0; i < n_tags;  ) {
+	u_tags++;
+	ntmp = t_array[i]->buf_tag;
+	if ((i < n_tags - 1) &&
+	    !strcmp(ntmp, t_array[i+1]->buf_tag)) {
+	    c_tags = 2;
+	    c_total = (int) t_array[i]->alloc + (int) t_array[i+1]->alloc;
+	    for (j = i + 2; (j < n_tags) &&
+		     !strcmp(ntmp, t_array[j]->buf_tag);
+		 j++) {
+		c_tags++;
+		c_total += (int) t_array[j]->alloc;
+	    }
+	    i = j;
+	} else {
+	    c_tags = 1;
+	    c_total = (int) t_array[i]->alloc;
+	    i++;
+	}
+	raw_notify(player,
+		   tprintf("%-35.35s  %6d   %8d", ntmp, c_tags, c_total));
+    }
+
+    RAW_FREE(t_array, "list_rawmemory");
+
+    raw_notify(player,
+       tprintf("Total: %d raw allocations in %d unique tags. %d bytes (%d K).",
+	       n_tags, u_tags, total, (int) total / 1024));
 }
 
-static void trace_alloc(amount, name)
+static void trace_alloc(amount, name, ptr)
     size_t amount;
-    char *name;
+    const char *name;
+    void *ptr;
 {
     /* We maintain an unsorted list, most recently-allocated things at
      * the head, based on the belief that it's basically a stack --
@@ -404,19 +449,27 @@ static void trace_alloc(amount, name)
 	return;
 
     tptr->buf_tag = (char *) RAW_STRDUP(name, "trace_alloc.tag");
+    tptr->bptr = ptr;
     tptr->alloc = amount;
     tptr->next = mudstate.raw_allocs;
     mudstate.raw_allocs = tptr;
 }
 
-static void trace_free(name)
-    char *name;
+static void trace_free(name, ptr)
+    const char *name;
+    void *ptr;
 {
     MEMTRACK *tptr, *prev;
 
     prev = NULL;
     for (tptr = mudstate.raw_allocs; tptr != NULL; tptr = tptr->next) {
-	if (!strcmp(tptr->buf_tag, name)) {
+	if (tptr->bptr == ptr) {
+	    if (strcmp(tptr->buf_tag, name)) {
+		STARTLOG(LOG_BUGS, "MEM", "TRACE")
+		    log_printf("Free mismatch, tag %s allocated as %s",
+			       name, tptr->buf_tag);
+		ENDLOG
+	    }
 	    if (mudstate.raw_allocs == tptr)
 		mudstate.raw_allocs = tptr->next;
 	    if (prev)
@@ -429,49 +482,71 @@ static void trace_free(name)
     }
 
     STARTLOG(LOG_BUGS, "MEM", "TRACE")
-	log_printf("Freed unknown tag %s", name);
+	log_printf("Attempt to free unknown with tag %s", name);
     ENDLOG
 }
 
 void *track_malloc(amount, name)
     size_t amount;
-    char *name;
+    const char *name;
 {
-    trace_alloc(amount, name);
-    return (malloc(amount));
+    void *r;
+
+    r = malloc(amount);
+    trace_alloc(amount, name, r);
+    return (r);
 }
 
 void *track_calloc(elems, esize, name)
     size_t elems, esize;
-    char *name;
+    const char *name;
 {
-    trace_alloc(elems * esize, name);
-    return (calloc(elems, esize));
+    void *r;
+
+    r = calloc(elems, esize);
+    trace_alloc(elems * esize, name, r);
+    return (r);
 }
 
 void *track_realloc(ptr, amount, name)
     void *ptr;
     size_t amount;
-    char *name;
+    const char *name;
 {
-    trace_free(name);
-    trace_alloc(amount, name);
-    return (realloc(ptr, amount));
+    void *r;
+
+    trace_free(name, r);
+    r = realloc(ptr, amount);
+    trace_alloc(amount, name, r);
+    return (r);
 }
 
 char *track_strdup(str, name)
-    char *str, *name;
+    const char *str, *name;
 {
-    trace_alloc(strlen(str) + 1, name);
-    return (strdup(str));
+    char *r;
+
+    r = strdup(str);
+    trace_alloc(strlen(str) + 1, name, r);
+    return (r);
 }
 
 void track_free(ptr, name)
     void *ptr;
-    char *name;
+    const char *name;
 {
-    trace_free(name);
+    trace_free(name, ptr);
     free(ptr);
 }
+
+#else
+
+void list_rawmemory(player)
+    dbref player;
+{
+    notify(player, "Feature not supported.");
+}
+
+#endif /* RAW_MEMTRACKING */
 
 #endif /* ! STANDALONE */

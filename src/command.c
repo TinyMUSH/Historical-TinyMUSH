@@ -1930,8 +1930,8 @@ CF_HAND(cf_cmd_alias)
 
 		cmd2->info.handler = cmdp->info.handler;
 		if (hashadd(cmd2->cmdname, (int *)cmd2, (HASHTAB *) vp, 0)) {
-			XFREE(cmd2->cmdname, "cf_cmd_alias.2");
-			XFREE(cmd2, "cf_cmd_alias.3");
+			XFREE(cmd2->cmdname, "cf_cmd_alias.cmdname");
+			XFREE(cmd2, "cf_cmd_alias");
 		}
 	} else {
 

@@ -1162,13 +1162,13 @@ int newtop;
 		newtop = anum_alc_top + delta;
 	if (anum_table == NULL) {
 		anum_table = (ATTR **) XCALLOC(newtop + 1, sizeof(ATTR *),
-					       "anum_extend.1");
+					       "anum_extend");
 	} else {
 		anum_table2 = (ATTR **) XCALLOC(newtop + 1, sizeof(ATTR *),
-						"anum_extend.2");
+						"anum_extend");
 		for (i = 0; i <= anum_alc_top; i++)
 			anum_table2[i] = anum_table[i];
-		XFREE(anum_table, "anum_extend.3");
+		XFREE(anum_table, "anum_extend");
 		anum_table = anum_table2;
 	}
 	anum_alc_top = newtop;
@@ -2218,7 +2218,7 @@ void NDECL(atr_pop)
 	old_alist = mudstate.iter_alist.next;
 
 	if (mudstate.iter_alist.data) {
-		XFREE(mudstate.iter_alist.data, "atr_pop");
+		XFREE(mudstate.iter_alist.data, "al_extend");
 	}
 	if (old_alist) {
 		mudstate.iter_alist.data = old_alist->data;
@@ -2711,7 +2711,7 @@ BOOLEXP *b;
 		break;
 	case BOOLEXP_ATR:
 	case BOOLEXP_EVAL:
-		XFREE(b->sub1, "free_boolexp");
+		XFREE(b->sub1, "test_atr.sub1");
 		free_bool(b);
 		break;
 	}

@@ -902,7 +902,7 @@ DESC *d;
 			d->output_size -= tb->hdr.nchars;
 			save = tb;
 			tb = tb->hdr.nxt;
-			XFREE(save, "process_output.tb");
+			XFREE(save, "queue_write");
 			d->output_head = tb;
 			if (tb == NULL)
 				d->output_tail = NULL;
@@ -930,7 +930,7 @@ DESC *d;
 			}
 			save = tb;
 			tb = tb->hdr.nxt;
-			XFREE(save, "process_output.tb");
+			XFREE(save, "queue_write");
 			d->output_head = tb;
 			if (tb == NULL)
 				d->output_tail = NULL;

@@ -135,7 +135,7 @@ int type;
 {
 	cs_size -= cp->datalen;
 	if (cp->data != NULL) 
-		XFREE(cp->data, "cache_repl");
+		RAW_FREE(cp->data, "cache_repl");
 	cp->data = new;
 	cp->datalen = len;
 	cp->type = type;
@@ -160,7 +160,7 @@ int width;
 	if (width)
 		cwidth = width;
 
-	sp = sys_c = (CacheLst *) XMALLOC((unsigned)cwidth * sizeof(CacheLst), "cache_init");
+	sp = sys_c = (CacheLst *) RAW_MALLOC((unsigned)cwidth * sizeof(CacheLst), "cache_init");
 	if (sys_c == (CacheLst *) 0) {
 		logf(ncmsg, (char *)-1, "\n", (char *)0);
 		return (-1);
@@ -199,8 +199,8 @@ void cache_reset()
 			nxt = cp->nxt;
 			
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
-			XFREE(cp->keydata, "cache_reset.actkey");
-			XFREE(cp, "cache_reset.act");
+			RAW_FREE(cp->keydata, "cache_get");
+			RAW_FREE(cp, "get_free_entry");
 		}
 		
 		/* then the modified active chain */
@@ -227,8 +227,8 @@ void cache_reset()
 				cs_dbwrites++;
 			}
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
-			XFREE(cp->keydata, "cache_reset.actkey");
-			XFREE(cp, "cache_reset.mact");
+			RAW_FREE(cp->keydata, "cache_get");
+			RAW_FREE(cp, "get_free_entry");
 		}
 		
 		sp->active.head = (Cache *) 0;
@@ -498,7 +498,7 @@ int type;
 	if ((cp = get_free_entry(newdatalen)) == NULL)
 		return;
 
-	cp->keydata = (void *)XMALLOC(keylen, "cache_get");
+	cp->keydata = (void *)RAW_MALLOC(keylen, "cache_get");
 	memcpy(cp->keydata, keydata, keylen);
 	cp->keylen = keylen;
 	
@@ -625,7 +625,7 @@ int type;
 	if ((cp = get_free_entry(datalen)) == NULL)
 		return (1);
 
-	cp->keydata = (void *)XMALLOC(keylen, "cache_put");
+	cp->keydata = (void *)RAW_MALLOC(keylen, "cache_put");
 	memcpy(cp->keydata, keydata, keylen);
 	cp->keylen = keylen;
 	
@@ -792,15 +792,15 @@ replace:
 		if (cp) {
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			DEQUEUE((*chp), cp);
-			XFREE(cp->keydata, "cache_reset.actkey");
-			XFREE(cp, "get_free_entry");
+			RAW_FREE(cp->keydata, "cache_reset.actkey");
+			RAW_FREE(cp, "get_free_entry");
 		}
 		cp = NULL;
 	}		
 
 	/* No valid cache entries to flush, allocate a new one */
 
-	if ((cp = (Cache *) XMALLOC(sizeof(Cache), "get_free_entry")) == NULL)
+	if ((cp = (Cache *) RAW_MALLOC(sizeof(Cache), "get_free_entry")) == NULL)
 		fatal("cache get_free_entry: malloc failed", (char *)-1, (char *)0);
 
 	cp->keydata = NULL;
@@ -942,7 +942,7 @@ int type;
 	if ((cp = get_free_entry(0)) == NULL)
 		return;
 
-	cp->keydata = (void *)XMALLOC(keylen, "cache_del");
+	cp->keydata = (void *)RAW_MALLOC(keylen, "cache_del");
 	memcpy(cp->keydata, keydata, keylen);
 	cp->keylen = keylen;
 
