@@ -201,7 +201,6 @@
   Command: goto[/<switch>] <direction>
            goto[/<switch>] home
            <direction>
-           home
  
   Moves you in the specified direction, assuming that the direction is not
   locked against you.  'move home' is a special command that returns you to
@@ -213,8 +212,20 @@
                 you control the exit.
  
   'move' is the same as 'goto'.
-  See also: enter, home, leave, 
-
+  See also: enter, home, leave, home
+ 
+& home
+  Command: home
+ 
+  The 'home' command takes you "home". It always works, with one exception
+  related to the FIXED flag.
+ 
+  The 'home' command is not a normal command, and therefore can never be
+  overridden with @addcommand, or given hooks via @hook, or have its
+  permissions altered via @admin.
+ 
+  See also: HOMES, FIXED
+ 
 & inventory
   Command: inventory
   Lists what you are carrying and how much money you have.
