@@ -917,7 +917,7 @@ char *cargs[];
 				    mudconf.func_nest_lim) {
 					safe_str("#-1 FUNCTION RECURSION LIMIT EXCEEDED", buff, &oldp);
 					*bufc = oldp;
-				} else if (mudstate.func_invk_ctr ==
+				} else if (mudstate.func_invk_ctr >=
 					   mudconf.func_invk_lim) {
 					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, &oldp);
 					*bufc = oldp;
