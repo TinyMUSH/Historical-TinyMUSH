@@ -124,8 +124,8 @@ instructions.
 COMPATIBILITY
 
 TinyMUSH 3.0 is believed to be compatible with all major versions of
-Unix, including SunOS 4.1.x, Solaris, Irix, AIX, HP-UX, and Linux.
-There is no Windows NT port at present.
+Unix, including SunOS 4.1.x, Solaris, Irix, AIX, HP-UX, NetBSD, and
+Linux. There is no official Windows NT port, at present.
 
 The frequent releases of new Linux versions, the proliferation of
 multiple Linux development paths, and the incompatibility between
@@ -147,6 +147,11 @@ broken. Add a '-DBROKEN_GCC_PADDING' to the Makefile, or the line
 '#define BROKEN_GCC_PADDING' to autoconf.h, and recompile.
 Also, Irix may need HAVE_SRANDOM manually defined in autoconf.h --
 for some reason, autoconf doesn't detect this properly.
+
+There is a known problem with NetBSD 1.3.2 Sparc (and possibly other
+versions of NetBSD); getrlimit() seems not to return valid values,
+causing the server to crash on a bus error. You can work around this
+by commenting out the '#define HAVE_SETRLIMIT 1' in autoconf.h.
 
 If you find that you need to make modifications to anything in order
 to compile successfully, the developers would like to know about it.
