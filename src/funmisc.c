@@ -786,6 +786,23 @@ FUNCTION(fun_mudname)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_hasmodule: Return 1 if a module is installed, 0 if it is not.
+ */
+
+FUNCTION(fun_hasmodule)
+{
+    MODULE *mp;
+
+    WALK_ALL_MODULES(mp) {
+	if (!strcasecmp(fargs[0], mp->modname)) {
+	    safe_chr('1', buff, bufc);
+	    return;
+	}
+    }
+    safe_chr('0', buff, bufc);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_s: Force substitution to occur.
  * fun_subeval: Like s(), but don't do function evaluations.
  */

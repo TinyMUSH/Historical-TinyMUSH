@@ -181,6 +181,7 @@ XFUNCTION(fun_restarts);
 XFUNCTION(fun_restarttime);
 XFUNCTION(fun_version);
 XFUNCTION(fun_mudname);
+XFUNCTION(fun_hasmodule);
 XFUNCTION(fun_s);
 XFUNCTION(fun_subeval);
 XFUNCTION(fun_link);
@@ -485,6 +486,7 @@ FUN flist[] = {
 {"HASATTR",	fun_hasattr,	2,  0,		CA_PUBLIC},
 {"HASATTRP",	fun_hasattrp,	2,  0,		CA_PUBLIC},
 {"HASFLAG",	fun_hasflag,	2,  0,		CA_PUBLIC},
+{"HASMODULE",	fun_hasmodule,	1,  0,		CA_PUBLIC},
 {"HASPOWER",    fun_haspower,   2,  0,          CA_PUBLIC},
 {"HASTYPE",	fun_hastype,	2,  0,		CA_PUBLIC},
 {"HOME",	fun_home,	1,  0,		CA_PUBLIC},
