@@ -123,7 +123,7 @@ const char *newobj;
 	}
 
 	if (!Wizard(player) && !(Controls(player, thing)) &&
-	    !(check_zone_for_player(player, thing, mudconf.zone_nest_lim)) &&
+	    !(check_zone_for_player(player, thing)) &&
 	    !(db[player].owner == db[thing].owner)) {
 		notify(player, "You don't have the power to shift reality.");
 		return;

@@ -600,8 +600,6 @@ char *name, *arg2;
 	else
 		s_Name(clone, Name(thing));
 
-	s_Pennies(clone, cost);
-	
 	/*
 	 * Clear out problem flags from the original 
 	 */

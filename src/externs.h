@@ -293,8 +293,8 @@ extern char *	FDECL(atr_pget_str, (char *, dbref, int, dbref *, int *));
 extern int	FDECL(atr_get_info, (dbref, int, dbref *, int *));
 extern int	FDECL(atr_pget_info, (dbref, int, dbref *, int *));
 extern void	FDECL(atr_free, (dbref));
-extern int	FDECL(check_zone, (dbref, dbref, int));
-extern int	FDECL(check_zone_for_player, (dbref, dbref, int));
+extern int	FDECL(check_zone, (dbref, dbref));
+extern int	FDECL(check_zone_for_player, (dbref, dbref));
 extern void	FDECL(toast_player, (dbref));
 
 /* Command handler keys */

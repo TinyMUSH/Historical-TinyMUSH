@@ -345,6 +345,7 @@ struct statedata {
 	int	ntfy_nest_lev;	/* Current nesting of notifys */
 	int	lock_nest_lev;	/* Current nesting of lock evals */
 	char	*global_regs[MAX_GLOBAL_REGS];	/* Global registers */
+	int     zone_nest_num;  /* Global current zone nest position */
 #else
 	int	logging;	/* Are we in the middle of logging? */
 	char	buffer[256];	/* A buffer for holding temp stuff */

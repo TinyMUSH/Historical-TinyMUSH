@@ -3171,36 +3171,43 @@ char *gdbmfile;
  * check_zone - checks back through a zone tree for control 
  */
 
-int check_zone(player, thing, limit)
+int check_zone(player, thing)
 dbref player, thing;
-int limit;
 {
-	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || (limit == mudconf.zone_nest_lim) || (isPlayer(thing)))
+	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
+	     (mudstate.zone_nest_num == mudconf.zone_nest_lim) || (isPlayer(thing))) {
 		return 0;
-
+	}
+	
 	/*
 	 * If the zone doesn't have an enterlock, DON'T allow control. 
 	 */
 
 	if (atr_get_raw(Zone(thing), A_LENTER) && could_doit(player, Zone(thing), A_LENTER)) {
+		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {
-		return check_zone(player, Zone(thing), limit + 1);
+		mudstate.zone_nest_num++;
+		return check_zone(player, Zone(thing));
 	}
 
 }
 
-int check_zone_for_player(player, thing, limit)
+int check_zone_for_player(player, thing)
 dbref player, thing;
-int limit;
 {
-	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || (limit == mudconf.zone_nest_lim) || !(isPlayer(thing)))
+	if (!mudconf.have_zones || (Zone(thing) == NOTHING) ||
+	    (mudstate.zone_nest_num == mudconf.zone_nest_lim) || !(isPlayer(thing))) {
+		mudstate.zone_nest_num = 0;
 		return 0;
+	}
 
 	if (atr_get_raw(Zone(thing), A_LENTER) && could_doit(player, Zone(thing), A_LENTER)) {
+		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {
-		return check_zone(player, Zone(thing), limit + 1);
+		mudstate.zone_nest_num++;
+		return check_zone(player, Zone(thing));
 	}
 
 }
@@ -3215,9 +3222,8 @@ dbref player;
 
 #else
 
-int check_zone(player, thing, limit)
+int check_zone(player, thing)
 dbref player, thing;
-int limit;
 {
 	return 0;
 }

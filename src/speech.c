@@ -803,7 +803,7 @@ char *recipient, *message;
 			}
 			break;
 		case PEMIT_OEMIT:
-			notify_except(Location(player), player, target, message);
+			notify_except(Location(target), player, target, message);
 			break;
 		case PEMIT_WHISPER:
 			switch (*message) {

@@ -444,7 +444,7 @@ dbref player, obj;
 			notify(owner, "Halted.");
 		}
 	}
-	nfy_que(obj, A_SEMAPHORE, NFY_DRAIN, 0);
+	nfy_que(obj, 0, NFY_DRAIN, 0);
 #endif
 
 	/*

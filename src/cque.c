@@ -264,13 +264,19 @@ int attr, key, count;
 	dbref aowner;
 	char *str;
 
-	str = atr_get(sem, attr, &aowner, &aflags);
-	num = atoi(str);
-	free_lbuf(str);
+       if (attr) {
+               str = atr_get(sem, attr, &aowner, &aflags);
+               num = atoi(str);
+               free_lbuf(str);
+       } else {
+               num = 1;
+       }
+
 	if (num > 0) {
 		num = 0;
 		for (point = mudstate.qsemfirst, trail = NULL; point; point = next) {
-			if (point->sem == sem) {
+                       if ((point->sem == sem) &&
+                           ((point->attr == attr) || !attr)) {
 				num++;
 				if (trail)
 					trail->next = next = point->next;

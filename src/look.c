@@ -306,15 +306,18 @@ int check_exclude, hash_insert;
 {
 	dbref aowner;
 	int ca, aflags;
-	ATTR *attr;
+	ATTR *attr, *cattr;
 	char *as, *buf;
 
+	cattr = (ATTR *)malloc(sizeof(ATTR));
 	for (ca = atr_head(thing, &as); ca; ca = atr_next(&as)) {
 		if ((ca == A_DESC) || (ca == A_LOCK))
 			continue;
 		attr = atr_num(ca);
 		if (!attr)
 			continue;
+
+		bcopy((char *)attr, (char *)cattr, sizeof(ATTR));
 
 		/*
 		 * Should we exclude this attr? 
@@ -327,6 +330,10 @@ int check_exclude, hash_insert;
 
 		buf = atr_get(thing, ca, &aowner, &aflags);
 		if (Read_attr(player, othing, attr, aowner, aflags)) {
+                       /* check_zone/atr_num overwrites attr!! */
+
+                       if (attr->number != cattr->number)
+                               bcopy((char *)cattr, (char *)attr, sizeof(ATTR));
 
 			if (!(check_exclude && (aflags & AF_PRIVATE))) {
 				if (hash_insert)
@@ -338,6 +345,7 @@ int check_exclude, hash_insert;
 		}
 		free_lbuf(buf);
 	}
+	free(cattr);
 }
 
 static void look_atrs(player, thing, check_parents)

@@ -444,24 +444,24 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Parentable(p,x)	(Controls(p,x) || \
 			 (Parent_ok(x) && could_doit(p,x,A_LPARENT)))
 
-#define OnEnterLock(p,x) (check_zone(p,x,0))
+#define OnEnterLock(p,x) (check_zone(p,x))
 
 #define	Examinable(p,x)	(((Flags(x) & VISUAL) != 0) || \
 			 (See_All(p)) || \
-                         OnEnterLock(p,x) || \
-			 (Owner(p) == Owner(x)))
+                         (Owner(p) == Owner(x)) || \
+			 OnEnterLock(p,x))
 
 #define	MyopicExam(p,x)	(((Flags(x) & VISUAL) != 0) || \
 			 (!Myopic(p) && (See_All(p) || \
-			 OnEnterLock(p,x) || \
-  	                 (Owner(p) == Owner(x)))))
+			 (Owner(p) == Owner(x)) || \
+  	                 OnEnterLock(p,x))))
 
 #define	Controls(p,x)	(Good_obj(x) && \
 			 (!(God(x) && !God(p))) && \
 			 (Control_All(p) || \
-                         OnEnterLock(p,x) || \
 			  ((Owner(p) == Owner(x)) && \
-			   (Inherits(p) || !Inherits(x)))))
+			   (Inherits(p) || !Inherits(x))) || \
+			   OnEnterLock(p,x)))
 
 #define	Affects(p,x)	(Good_obj(x) && \
 			 (!(God(x) && !God(p))) && \
