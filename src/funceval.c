@@ -260,15 +260,15 @@ static int istype_char(str)
 static int istype_dbref(str)
     char *str;
 {
-    int n;
+    dbref it;
 
-    if (*str != NUMBER_TOKEN)
+    if (*str++ != NUMBER_TOKEN)
 	return 0;
-    n = atoi(str + 1);
-    if ((n >= 0) && (n < mudstate.db_top))
-	return 1;
-    else
-	return 0;
+    if (*str) {
+	it = parse_dbref(str);
+	return (Good_obj(it));
+    }
+    return 0;
 }
 
 static int istype_int(str)
