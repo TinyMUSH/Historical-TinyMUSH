@@ -11,25 +11,10 @@
 #include <sys/file.h>
 #include <stdio.h>
 
-#include "gdbm.h"
+#include "gdbmdefs.h"
+/* #include "gdbm.h" */
 
-/*
- * This struct should match the one in udb_ochunk.c 
- */
-
-struct hrec {
-	off_t off;		/*
-				 * Where it lives in the chunkfile 
-				 */
-	int siz;		/*
-				 * How long it really is, in bytes 
-				 */
-	unsigned int blox;	/*
-				 * How manu blocks it owns now     
-				 */
-};
-
-static GDBM_FILE dbp = (GDBM_FILE) 0;
+static gdbm_file_info *dbp = NULL;
 
 static void gdbm_panic(mesg)
 {
@@ -42,7 +27,9 @@ char *av[];
 {
 	int obj;
 	datum key, dat;
-	struct hrec hbuf;
+	int new_hash_val; /* temp stuff for findkey operation */
+	char *temp;
+	int elem_loc, ofs, siz;
 
 	if (ac != 2) {
 		fprintf(stderr, "usage: %s <database name>\n", av[0]);
@@ -51,24 +38,27 @@ char *av[];
 	/*
 	 * open hash table 
 	 */
-	if ((dbp = gdbm_open(av[1], 4096, GDBM_WRCREAT, 0600, gdbm_panic)) == (GDBM_FILE) 0) {
-		fprintf(stderr, "Can't open hdbm database %s\n", av[1]);
+	if ((dbp = gdbm_open(av[1], 8192, GDBM_WRCREAT, 0600, gdbm_panic)) == NULL) {
+		fprintf(stderr, "Can't open gdbm database %s\n", av[1]);
 		exit(0);
 	}
 	key = gdbm_firstkey(dbp);
 	while (key.dptr != (char *)NULL) {
-		dat = gdbm_fetch(dbp, key);
-		if (dat.dptr == (char *)NULL) {
+		elem_loc = _gdbm_findkey(dbp, key, &temp, &new_hash_val);
+
+		if (elem_loc == -1) {
 			fprintf(stderr, "gdbm database %s inconsistent\n", av[1]);
 			exit(0);
 		}
-		bcopy(dat.dptr, (char *)&hbuf, sizeof(hbuf));	/*
-								 * alignment 
-								 */
+
+		ofs = dbp->bucket->h_table[elem_loc].data_pointer;
+		siz = (dbp->bucket->h_table[elem_loc].key_size +
+		       dbp->bucket->h_table[elem_loc].data_size);
+
 		bcopy(key.dptr, (char *)&obj, sizeof(obj));
 
 		printf("Object %d resides at offset %d and takes %d bytes\n",
-		       obj, hbuf.off, hbuf.siz);
+		       obj, ofs, siz);
 
 		key = gdbm_nextkey(dbp, key);
 	}
