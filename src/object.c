@@ -90,25 +90,9 @@ const char *errtype;
 }
 
 /* ---------------------------------------------------------------------------
- * start_home, default_home, can_set_home, new_home, clone_home:
+ * can_set_home, new_home, clone_home:
  * Routines for validating and determining homes.
  */
-
-dbref NDECL(start_home)
-{
-	if (mudconf.start_home != NOTHING)
-		return mudconf.start_home;
-	return mudconf.start_room;
-}
-
-dbref NDECL(default_home)
-{
-	if (mudconf.default_home != NOTHING)
-		return mudconf.default_home;
-	if (mudconf.start_home != NOTHING)
-		return mudconf.start_home;
-	return mudconf.start_room;
-}
 
 int can_set_home(player, thing, home)
 dbref player, thing, home;
@@ -140,7 +124,10 @@ dbref player;
 	loc = Home(Owner(player));
 	if (can_set_home(Owner(player), player, loc))
 		return loc;
-	return default_home();
+	return ((mudconf.default_home != NOTHING) ?
+		mudconf.default_home : ((mudconf.start_home != NOTHING) ?
+					mudconf.start_home :
+					mudconf.start_room));
 }
 
 dbref clone_home(player, thing)

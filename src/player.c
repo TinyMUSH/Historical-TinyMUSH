@@ -36,7 +36,6 @@ struct logindata {
 	int new_bad;
 };
 
-extern dbref NDECL(start_home);
 extern int FDECL(can_set_home, (dbref, dbref, dbref));
 extern dbref FDECL(clone_home, (dbref, dbref));
 
@@ -291,7 +290,8 @@ int isrobot, isguest;
 
 	CALL_ALL_MODULES(create_player, (creator, player, isrobot, isguest));
 	s_Pass(player, crypt(pbuf, "XX"));
-	s_Home(player, start_home());
+	s_Home(player, (mudconf.start_home != NOTHING) ?
+	       mudconf.start_home : mudconf.start_room);
 	free_lbuf(pbuf);
 	return player;
 }
