@@ -83,7 +83,7 @@ char *what, *costchar;
 			cost = 0;
 		}
 
-		if (!(((random() % mudconf.killguarantee) < cost) ||
+		if (mudconf.killguarantee && !(((random() % mudconf.killguarantee) < cost) ||
 		      (key == KILL_SLAY)) ||
 		    Wizard(victim)) {
 

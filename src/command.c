@@ -1075,12 +1075,6 @@ int interactive, ncargs;
 						*bp = '\0';
 					} 
 				
-					buf1 = bp = alloc_lbuf("process_cmdent");
-					str = arg;
-					exec(buf1, &bp, 0, player, cause, interp | EV_FCHECK | EV_TOP,
-					     &str, cargs, ncargs);
-					*bp = '\0';
-
 					if (wild(buff + 1, new, aargs, 10)) {
 						wait_que(add->thing, player,
 					        	0, NOTHING, 0, s, aargs, 10,
@@ -1092,7 +1086,6 @@ int interactive, ncargs;
 					}
 					free_lbuf(new);
 					free_lbuf(buff);
-					free_lbuf(buf1);
 				}
 			} else 
 				(*(cmdp->info.handler)) (player, cause, key, buf1);

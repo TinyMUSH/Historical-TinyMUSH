@@ -230,10 +230,9 @@ char *message;
 		}
 		STARTLOG(LOG_SHOUTS, "WIZ", "BCAST")
 			log_name(player);
-		buf2 = alloc_lbuf("do_say.LOG.wizshout");
-		sprintf(buf2, " broadcasts: '%s'", message);
-		log_text(buf2);
-		free_lbuf(buf2);
+		log_text((char *)" broadcasts: '");
+		log_text(message);
+		log_text((char *)"'");
 		ENDLOG
 			break;
 	case SAY_ADMINSHOUT:

@@ -53,12 +53,14 @@ static void FDECL(do_mail_proof, (dbref));
 void FDECL(do_mail_cc, (dbref, char *));
 void FDECL(do_expmail_abort, (dbref));
 
+#define MALIAS_LEN 100
+
 struct malias {
 	int owner;
 	char *name;
 	char *desc;
 	int numrecep;
-	dbref list[100];
+	dbref list[MALIAS_LEN];
 };
 
 int ma_size = 0;
@@ -2618,9 +2620,7 @@ int number, silent;
 		notify(player, tprintf("MAIL: Mail alias %s not found.", tolist));
 		return;
 	}
-	/*
-	 * Parse the player list 
-	 */
+	/* Parse the player list */
 
 	for (k = 0; k < m->numrecep; k++) {
 		vic = m->list[k];
@@ -2717,11 +2717,9 @@ char *tolist;
 
 	i = 0;
 
-	/*
-	 * Parse the player list 
-	 */
+	/* Parse the player list */
 	head = (char *)tolist;
-	while (head && *head) {
+	while (head && *head && (i < (MALIAS_LEN - 1))) {
 		while (*head == ' ')
 			head++;
 		tail = head;
@@ -2810,6 +2808,7 @@ char *alias;
 		safe_str(Name(m->list[i]), buff, &bp);
 		safe_chr(' ', buff, &bp);
 	}
+	*bp = '\0';
 
 	notify(player, buff);
 	free_lbuf(buff);
@@ -3483,6 +3482,11 @@ char *person;
 			notify(player, "MAIL: That person is already on the list.");
 			return;
 		}
+	}
+
+	if (i >= MALIAS_LEN) {
+		notify(player, "MAIL: The list is full.");
+		return;
 	}
 
 	m->list[m->numrecep] = thing;
