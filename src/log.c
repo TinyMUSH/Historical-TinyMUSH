@@ -54,7 +54,7 @@ NAMETAB logoptions_nametab[] = {
 char *strip_ansi(raw)
 const char *raw;
 {
-	static char buf[LBUF_SIZE];
+	static char buf[LBUF_SIZE * 2];
 	char *p = (char *)raw;
 	char *q = buf;
 
@@ -77,7 +77,7 @@ const char *raw;
 char *normal_to_white(raw)
 const char *raw;
 {
-	static char buf[LBUF_SIZE];
+	static char buf[LBUF_SIZE * 2];
 	char *p = (char *)raw;
 	char *q = buf;
 
