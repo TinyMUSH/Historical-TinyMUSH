@@ -65,6 +65,7 @@ char *filename;
 							  "helpindex_read.hent1");
 
 		htab_entry->pos = entry.pos;
+		htab_entry->len = entry.len;
 		htab_entry->original = 1;	/* First is the longest */
 		htab_entry->key = XSTRDUP(entry.topic, "helpindex_read.topic1");
 
@@ -213,6 +214,7 @@ int eval;
 		line[entry_length - 1] = 0;
 	else
 		line[entry_length] = 0;
+/*
 	if (eval) {
 		str = line;
 		bp = result;
@@ -223,6 +225,7 @@ int eval;
 		notify(player, result);
 	}
 	else 
+*/
 		notify(player, line);
 	/*
 	for (;;) {
