@@ -1066,7 +1066,7 @@ void NDECL(emergency_shutdown)
 #define SIGCHLD SIGCLD
 #endif
 
-#ifdef HAVE_STRUCT_SIGCONTEXT
+#if defined(HAVE_STRUCT_SIGCONTEXT) && !defined(GLIBC_BRAINDAMAGE)
 static RETSIGTYPE FDECL(sighandler, (int, int, struct sigcontext *));
 #else
 static RETSIGTYPE FDECL(sighandler, (int));
@@ -1163,7 +1163,7 @@ const char *signame;
 	ENDLOG
 }
 
-#ifdef HAVE_STRUCT_SIGCONTEXT
+#if defined(HAVE_STRUCT_SIGCONTEXT) && !defined(GLIBC_BRAINDAMAGE)
 static RETSIGTYPE sighandler(sig, code, scp)
 int sig, code;
 struct sigcontext *scp;
