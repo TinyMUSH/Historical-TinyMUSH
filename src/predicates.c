@@ -855,12 +855,12 @@ dbref player, cause;
 int key;
 char *name, *command;
 {
-CMDENT *old, *cmd;
-ADDENT *add, *nextp;
+	CMDENT *old, *cmd;
+	ADDENT *add, *nextp;
 
-dbref thing;
-int atr;
-char *s;
+	dbref thing;
+	int atr;
+	char *s;
 
 	if (!*name) {
 		notify(player, "Sorry.");
@@ -1042,10 +1042,7 @@ char *s;
 			}
 			hashdelete(name, &mudstate.command_htab);
 			if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
-				/* This is a dirty hack */
-				mudstate.command_htab.nostrdup = 0;
 				hashdelete(tprintf("__%s", name), &mudstate.command_htab);
-				mudstate.command_htab.nostrdup = 1;
 				hashadd(cmd->cmdname, (int *)cmd, &mudstate.command_htab, 0);
 				hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 			}
