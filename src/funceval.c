@@ -198,81 +198,111 @@ FUNCTION(fun_beep)
 
 FUNCTION(fun_ansi)
 {
-	char *s;
+	char *s, *bb_p;
 
 	if (!mudconf.ansi_colors) {
 	    safe_str(fargs[1], buff, bufc);
 	    return;
 	}
 
+	if (!fargs[0] || !*fargs[0]) {
+	    safe_str(fargs[1], buff, bufc);
+	    return;
+	}
+
+	/* Favor truncating the string over truncating the ANSI codes,
+	 * but make sure to leave room for ANSI_NORMAL (4 characters).
+	 * That means that we need a minimum of 9 (maybe 10) characters
+	 * left in the buffer (8 or 9 in ANSI codes, plus at least one
+	 * character worth of string to hilite). We do 10 just to be safe.
+	 *
+	 * This means that in MOST cases, we are not going to drop the
+	 * trailing ANSI code for lack of space in the buffer. However,
+	 * because of the possibility of an extended buffer created by
+	 * exec(), this is not a guarantee (because extending the buffer
+	 * gives us a fresh new buff, rather than having us continue to
+	 * copy through the new buffer). Sadly, the times when we extend
+	 * are also to be the times we're most likely to run out of space
+	 * in the buffer. There's nothing we can do about that, though.
+	 */
+
+	if (strlen(buff) > LBUF_SIZE - 11)
+	    return;
+
 	s = fargs[0];
+	safe_str(ANSI_BEGIN, buff, bufc);
+	bb_p = *bufc;
 
 	while (*s) {
-		switch (*s) {
+	    if (*bufc != bb_p) {
+		safe_copy_chr(';', buff, bufc, LBUF_SIZE - 5);
+	    }
+	    switch (*s) {
 		case 'h':	/* hilite */
-			safe_str(ANSI_HILITE, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_HILITE, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'i':	/* inverse */
-			safe_str(ANSI_INVERSE, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_INVERSE, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'f':	/* flash */
-			safe_str(ANSI_BLINK, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BLINK, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'n':	/* normal */
-			safe_str(ANSI_NORMAL, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_NORMAL, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'x':	/* black fg */
-			safe_str(ANSI_BLACK, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BLACK, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'r':	/* red fg */
-			safe_str(ANSI_RED, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_RED, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'g':	/* green fg */
-			safe_str(ANSI_GREEN, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_GREEN, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'y':	/* yellow fg */
-			safe_str(ANSI_YELLOW, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_YELLOW, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'b':	/* blue fg */
-			safe_str(ANSI_BLUE, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BLUE, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'm':	/* magenta fg */
-			safe_str(ANSI_MAGENTA, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_MAGENTA, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'c':	/* cyan fg */
-			safe_str(ANSI_CYAN, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_CYAN, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'w':	/* white fg */
-			safe_str(ANSI_WHITE, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_WHITE, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'X':	/* black bg */
-			safe_str(ANSI_BBLACK, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BBLACK, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'R':	/* red bg */
-			safe_str(ANSI_BRED, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BRED, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'G':	/* green bg */
-			safe_str(ANSI_BGREEN, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BGREEN, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'Y':	/* yellow bg */
-			safe_str(ANSI_BYELLOW, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BYELLOW, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'B':	/* blue bg */
-			safe_str(ANSI_BBLUE, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BBLUE, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'M':	/* magenta bg */
-			safe_str(ANSI_BMAGENTA, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BMAGENTA, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'C':	/* cyan bg */
-			safe_str(ANSI_BCYAN, buff, bufc);
-			break;
+		    safe_copy_str(N_ANSI_BCYAN, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'W':	/* white bg */
-			safe_str(ANSI_BWHITE, buff, bufc);
-			break;
-		}
-		s++;
+		    safe_copy_str(N_ANSI_BWHITE, buff, bufc, LBUF_SIZE - 5);
+		    break;
+	    }
+	    s++;
 	}
-	safe_str(fargs[1], buff, bufc);
+	safe_copy_chr(ANSI_END, buff, bufc, LBUF_SIZE - 5);
+	safe_copy_str(fargs[1], buff, bufc, LBUF_SIZE - 5);
 	safe_str(ANSI_NORMAL, buff, bufc);
 }
 

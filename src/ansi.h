@@ -6,6 +6,9 @@
 #define BEEP_CHAR     '\07'
 #define ESC_CHAR      '\033'
 
+#define ANSI_BEGIN    "\033["
+#define ANSI_END      'm'
+
 #define ANSI_NORMAL   "\033[0m"
 
 #define ANSI_HILITE   "\033[1m"
@@ -38,3 +41,29 @@
 #define ANSI_BMAGENTA	"\033[45m"
 #define ANSI_BCYAN	"\033[46m"
 #define ANSI_BWHITE	"\033[47m"
+
+/* Numeric-only definitions */
+
+#define N_ANSI_NORMAL   "0"
+
+#define N_ANSI_HILITE   "1"
+#define N_ANSI_INVERSE  "7"
+#define N_ANSI_BLINK    "5"
+
+#define N_ANSI_BLACK	"30"
+#define N_ANSI_RED	"31"
+#define N_ANSI_GREEN	"32"
+#define N_ANSI_YELLOW	"33"
+#define N_ANSI_BLUE	"34"
+#define N_ANSI_MAGENTA	"35"
+#define N_ANSI_CYAN	"36"
+#define N_ANSI_WHITE	"37"
+
+#define N_ANSI_BBLACK	"40"
+#define N_ANSI_BRED	"41"
+#define N_ANSI_BGREEN	"42"
+#define N_ANSI_BYELLOW	"43"
+#define N_ANSI_BBLUE	"44"
+#define N_ANSI_BMAGENTA	"45"
+#define N_ANSI_BCYAN	"46"
+#define N_ANSI_BWHITE	"47"
