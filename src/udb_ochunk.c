@@ -165,7 +165,8 @@ int dddb_close()
 }
 
 /* Pass db_get a key, and it returns data. Type is used as part of the GDBM
- * key to guard against namespace conflicts in different MUSH subsystems */
+ * key to guard against namespace conflicts in different MUSH subsystems.
+ * It is the caller's responsibility to free the data returned by db_get */
 
 DBData db_get(gamekey, type)
 DBData gamekey;

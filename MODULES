@@ -700,9 +700,10 @@ DBData db_get(DBData key, unsigned int dbtype)
 	'dbtype' should be the dbtype ID registered for your module by
 	register_dbtype().
 
-	db_get returns a DBData structure which contains the returned
-	data (or NULL if the key cannot be found in the database) as well
-	as the length of that data.
+	db_get returns a DBData structure which contains the returned data
+	(or NULL if the key cannot be found in the database) as well as the
+	length of that data. It is *your* responsibility to free() the data
+	returned by db_get.
 
 int db_put(DBData key, DBData data, unsigned int dbtype)
 	Stores or replaces data in GDBM.
