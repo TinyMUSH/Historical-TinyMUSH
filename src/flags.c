@@ -305,7 +305,7 @@ FLAGENT gen_flags[] = {
 {"HAS_LISTEN",		HAS_LISTEN,	'@',
 	FLAG_WORD2,	CA_GOD|CA_NO_DECOMP,	fh_god},
 #ifdef PUEBLO_SUPPORT
-{"HTML", 		HTML,           'w',
+{"HTML", 		HTML,           '~',
 	FLAG_WORD2,     0,                      fh_any},
 #endif
 {"STOP",		STOP_MATCH,	'!',
