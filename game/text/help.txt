@@ -8589,8 +8589,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   of several lists, one by one, and passes them to the user-defined function
   as %0, %1, %2, etc.respectively, for elements of <list 1>, <list 2>, etc.
   <delim> is used to separate elements; if it is not specified, it defaults
-  to a space. The lists must have the same number of elements. If more than
-  two lists are specified, the last argument MUST be a delimiter.
+  to a space. The lists do not need to have the same number of elements;
+  shorter lists will be padded out with nulls. If more than two lists are
+  specified, the last argument MUST be a delimiter.
   
   Examples:
  
