@@ -1337,6 +1337,19 @@ void do_restart(player, cause, key)
 	kill(slave_pid, SIGKILL);
 	waitpid(slave_pid, (int *) NULL, (int) NULL);
 
+	/* We want to rotate the main log, so that we restart with a
+	 * "clean" logfile. The log gets renamed to <game_log>.<timestamp>
+	 * But we can't do a re-open on logfile if it is already called
+	 * just <game_log>. So we are forced to cheat with a temporary
+	 * file.
+	 */
+
+	freopen((const char *) ".netmush_tmp_log", "w", stderr);
+	rename(mudconf.mudlogname,
+	       tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
+	freopen((const char *) mudconf.mudlogname, "w", stderr);
+	unlink((const char *) ".netmush_tmp_log");
+
 	/* Need to close these logs. Note that they'll end up getting
 	 * overwritten on restart, so we rename them.
 	 */
@@ -1345,7 +1358,7 @@ void do_restart(player, cause, key)
 	    if (lp->filename && lp->fileptr) {
 		fclose(lp->fileptr);
 		rename(lp->filename,
-		       tprintf("%s.%ld", lp->filename, (long) time(NULL)));
+		       tprintf("%s.%ld", lp->filename, (long) mudstate.now));
 	    }
 	}
 
