@@ -1004,8 +1004,8 @@ char *name, *command;
 {
 	DESC *d;
 	PROG *program;
-	int i, atr, aflags;
-	dbref doer, thing, aowner;
+	int i, atr, aflags, lev, found;
+	dbref doer, thing, aowner, parent;
 	ATTR *ap;
 	char *attrib, *msg;
 
@@ -1026,14 +1026,34 @@ char *name, *command;
 	}
 	parse_attrib(player, attrib, &thing, &atr);
 	if (atr != NOTHING) {
-		if (!atr_get_info(thing, atr, &aowner, &aflags)) {
+		if (!atr_pget_info(thing, atr, &aowner, &aflags)) {
 			notify(player, "Attribute not present on object.");
 			return;
 		}
 		ap = atr_num(atr);
-		if (God(player) || (!God(thing) && See_attr(player, thing, ap, aowner, aflags) &&
-			   (Wizard(player) || (aowner == Owner(player))))) {
-			atr_add_raw(doer, A_PROGCMD, atr_get_raw(thing, atr));
+
+		/* We've got to find this attribute in the object's
+		 * parent chain, somewhere.
+		 */
+
+		found = 0;
+		ITER_PARENTS(thing, parent, lev) {
+		    if (atr_get_info(parent, atr, &aowner, &aflags)) {
+			found = 1;
+			break;
+		    }
+		}
+
+		if (!found) {
+		    notify(player, "Attribute not present on object.");
+		    return;
+		}
+		    
+		if (God(player) ||
+		    (!God(thing) &&
+		     See_attr(player, thing, ap, aowner, aflags) &&
+		     (Wizard(player) || (aowner == Owner(player))))) {
+		    atr_add_raw(doer, A_PROGCMD, atr_get_raw(parent, atr));
 		} else {
 			notify(player, NOPERM_MESSAGE);
 			return;
