@@ -1334,6 +1334,7 @@ void do_restart(player, cause, key)
 	 * unless we do the waitpid().
 	 */
 	shutdown(slave_socket, 2);
+	close(slave_socket);
 	kill(slave_pid, SIGKILL);
 	waitpid(slave_pid, (int *) NULL, (int) NULL);
 
