@@ -1309,7 +1309,10 @@ static int helper_cf_cf_access(tp, player, vp, ap, cmd, extra)
     if (tp->flags & CA_STATIC) {
 	notify(player, NOPERM_MESSAGE);
 	STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
-	    log_name(player);
+	    if (db)
+		    log_name(player);
+	    else
+	    	    log_printf("System");
 	    log_printf(" tried to change %s access to static param: %s",
 		       (((long)vp) ? "read" : "write"),
 		       tp->pname);
