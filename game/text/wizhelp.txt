@@ -1247,8 +1247,8 @@
 	game_log		gdbm_database		guest_file
 	helpfile		html_connect_file	include
 	input_database		motd_file		newuser_file	
-	output_database		quit_file		register_create_file
-	wizard_motd_file
+	output_database		quit_file		raw_helpfile
+	register_create_file	wizard_motd_file
 
 & PARAM LIMITS
 	building_limit			earn_limit
@@ -1947,6 +1947,8 @@ use_global_aconn	wizard_obeys_linklock
   To change the path to your help file (to, say, the game directory):
 	helpfile help game/help
  
+  See also: raw_helpfile
+ 
 & hostnames
   Config parameter: hostnames <yes/no>.  Default: Yes
   Indicates whether or not IP addresses should be replaced with host names
@@ -2421,6 +2423,15 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: @allquota, @create, @destroy, @dig, @open, @quota, QUOTAS,
             quota_cost.
+ 
+& raw_helpfile
+  Config parameter: raw_helpfile <command> <path>.  Default: none
+ 
+  This works identically to the 'helpfile' configuration directive,
+  except helpfiles specified in this manner do not have their text
+  evaluated (i.e., percent substitutions and the like are not parsed).
+ 
+  See also: helpfile
  
 & read_remote_desc
   Config parameter: read_remote_desc <yes/no>.  Default: No
