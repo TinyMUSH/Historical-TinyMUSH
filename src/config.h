@@ -12,6 +12,7 @@
  */
 
 #define CONF_FILE "netmush.conf"	/* Default config file */
+#define LOG_FILE "netmush.log"		/* Default log file */
 				 
 #define PLAYER_NAME_LIMIT	22	/* Max length for player names */
 #define NUM_ENV_VARS		10	/* Number of env vars (%0 et al) */

@@ -79,7 +79,6 @@ void NDECL(cf_init)
 	StringCopy(mudconf.mail_db, "mail.db");
 	StringCopy(mudconf.comsys_db, "comsys.db");
 	StringCopy(mudconf.status_file, "shutdown.status");
-	StringCopy(mudconf.mudlogname, "netmush.log");
 	mudconf.port = 6250;
 	mudconf.conc_port = 6251;
 	mudconf.init_size = 1000;
@@ -1321,7 +1320,6 @@ CONF conftable[] = {
 {(char *)"function_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.func_htab,	(long)"Function"},
 {(char *)"function_invocation_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_invk_lim,		0},
 {(char *)"function_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_nest_lim,		0},
-{(char *)"game_log",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.mudlogname,	PBUF_SIZE},
 {(char *)"gdbm_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.gdbm,		PBUF_SIZE},
 {(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @aconnect and @adisconnect"},
 {(char *)"good_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				1},
