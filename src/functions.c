@@ -1430,19 +1430,44 @@ FUNCTION(fun_rest)
 
 FUNCTION(fun_left)
 {
-    int len = atoi(fargs[1]);
-    char *oldp;
+    char *s, *savep;
+    int nchars, len, count, have_normal;
 
-    if (len < 1) {
+    s = fargs[0];
+    nchars = atoi(fargs[1]);
+    len = strlen(strip_ansi(s));
+
+    if ((len < 1) || (nchars < 1))
 	return;
-    } else { 
-	oldp = *bufc;
-	safe_str(strip_ansi(fargs[0]), buff, bufc);
-	if ((oldp + len) < *bufc) {
-	    *bufc = oldp + len;
+
+    have_normal = 1;
+    for (count = 0; count < nchars; ) {
+	if (*s == ESC_CHAR) {
+	    /* Start of an ANSI code. Skip to the end. */
+	    savep = s;
+	    while (*s && (*s != ANSI_END)) {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	    if (*s) {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	    if (!strncmp(savep, ANSI_NORMAL, 4))
+		have_normal = 1;
+	    else
+		have_normal = 0;
+	} else {
+	    safe_chr(*s, buff, bufc);
+	    s++;
+	    count++;
 	}
     }
+
+    if (!have_normal)
+	safe_str(ANSI_NORMAL, buff, bufc);
 }
+
 
 /* ---------------------------------------------------------------------------
  * fun_right: Returns last n characters in a string
@@ -1450,17 +1475,49 @@ FUNCTION(fun_left)
 
 FUNCTION(fun_right)
 {
-    int len = atoi(fargs[1]);
+    char *s, *savep;
+    int nchars, start, len, count, have_normal;
 
-    if (len < 1) {
+    s = fargs[0];
+    nchars = atoi(fargs[1]);
+    len = strlen(strip_ansi(s));
+    start = len - nchars;
+
+    if ((len < 1) || (nchars < 1))
 	return;
-    } else {
-	len = strlen(fargs[0]) - len;
-	if (len < 1)
-	    safe_str(fargs[0], buff, bufc);
-	else
-	    safe_str(fargs[0] + len, buff, bufc);
+
+    if (nchars > len)
+	start = 0;
+    else
+	start = len - nchars;
+
+    have_normal = 1;
+    for (count = 0; *s && (count < start + nchars); ) {
+	if (*s == ESC_CHAR) {
+	    /* Start of an ANSI code. Skip to the end. */
+	    savep = s;
+	    while (*s && (*s != ANSI_END)) {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	    if (*s) {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	    if (!strncmp(savep, ANSI_NORMAL, 4))
+		have_normal = 1;
+	    else
+		have_normal = 0;
+	} else {
+	    if (count >= start)
+		safe_chr(*s, buff, bufc);
+	    s++;
+	    count++;
+	}
     }
+
+    if (!have_normal)
+	safe_str(ANSI_NORMAL, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
