@@ -2755,6 +2755,11 @@ BOOLEXP *b;
 int init_gdbm_db(gdbmfile)
 char *gdbmfile;
 {
+	/* Calculate proper database block size */
+	
+	for (mudstate.db_block_size = 1; mudstate.db_block_size < LBUF_SIZE;
+		mudstate.db_block_size = mudstate.db_block_size << 1) ;
+
 #ifdef STANDALONE
 	fprintf(mainlog_fp, "Opening %s\n", gdbmfile);
 #endif
