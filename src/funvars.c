@@ -2140,9 +2140,7 @@ FUNCTION(fun_items)
 	stack_object(player, it);
     }
 
-    for (i = 0, sp = stack_get(it); sp != NULL; sp = sp->next, i++)
-	;
-    safe_ltos(buff, bufc, i);
+    safe_ltos(buff, bufc, StackCount(it));
 }
     
 
