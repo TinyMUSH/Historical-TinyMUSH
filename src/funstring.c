@@ -76,7 +76,7 @@ FUNCTION(fun_isdbref)
 
 FUNCTION(fun_null)
 {
-    return;
+	return;
 }
 
 /* ---------------------------------------------------------------------------
@@ -88,46 +88,51 @@ FUNCTION(fun_null)
 
 FUNCTION(fun_squish)
 {
-    char *tp, *bp;
-    Delim isep;
+	char *tp, *bp;
+	Delim isep;
 
-    if (nfargs == 0) {
-	return;
-    }
-
-    VaChk_Only_InPure("SQUISH", 2);
-
-    bp = tp = fargs[0];
-
-    while (*tp) {
-
-	/* Move over and copy the non-sep characters */
-
-	while (*tp && (*tp != isep.c)) {
-	    *bp++ = *tp++;
+	if (nfargs == 0) {
+		return;
 	}
 
-	/* If we've reached the end of the string, leave the loop. */
+	VaChk_Only_InPure("SQUISH", 2);
 
-	if (!*tp)
-	    break;
+	bp = tp = fargs[0];
 
-	/* Otherwise, we've hit a sep char. Move over it, and then move on to
-	 * the next non-separator. Note that we're overwriting our own
-	 * string as we do this. However, the other pointer will always
-	 * be ahead of our current copy pointer.
-	 */
+	while (*tp) {
 
-	*bp++ = *tp++;
-	while (*tp && (*tp == isep.c))
-	    tp++;
-    }
+		/* Move over and copy the non-sep characters */
 
-    /* Must terminate the string */
+		while (*tp && *tp != isep.c) {
+			if (*tp == ESC_CHAR) {
+				copy_esccode(tp, bp);
+			} else {
+				*bp++ = *tp++;
+			}
+		}
 
-    *bp = '\0';
+		/* If we've reached the end of the string, leave the loop. */
+
+		if (!*tp)
+			break;
+
+		/* Otherwise, we've hit a sep char. Move over it, and then
+		 * move on to the next non-separator. Note that we're
+		 * overwriting our own string as we do this. However, the
+		 * other pointer will always be ahead of our current copy
+		 * pointer.
+		 */
+
+		*bp++ = *tp++;
+		while (*tp && (*tp == isep.c))
+			tp++;
+	}
+
+	/* Must terminate the string */
+
+	*bp = '\0';
     
-    safe_str(fargs[0], buff, bufc);
+	safe_str(fargs[0], buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

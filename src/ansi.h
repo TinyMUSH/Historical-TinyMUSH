@@ -133,6 +133,20 @@ extern char *	FDECL(ansi_transition_mushcode, (int, int));
 		++(s);					\
 	}
 
+#define copy_esccode(s, t) \
+	*(t)++ = *(s)++;				\
+	if (*(s) == '[') {				\
+		do {					\
+			*(t)++ = *(s)++;		\
+		} while ((*(s) & 0xf0) == 0x30);	\
+	}						\
+	while ((*(s) & 0xf0) == 0x20) {			\
+		*(t)++ = *(s)++;			\
+	}						\
+	if (*(s)) {					\
+		*(t)++ = *(s)++;			\
+	}
+
 #define track_esccode(s, ansi_state) \
 do {									\
 	int ansi_mask = 0;						\
