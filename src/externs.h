@@ -420,7 +420,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	TWARP_DUMP	2	/* Warp the dump interval */
 #define	TWARP_CLEAN	4	/* Warp the cleaning interval */
 #define	TWARP_IDLE	8	/* Warp the idle check interval */
-/* emprty		16 */
+/* twarp empty		16 */
 #define TWARP_EVENTS	32	/* Warp the events checking interval */
 #define VERB_NOW	1	/* Run @afoo immediately, no queueing */
 
@@ -447,13 +447,14 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define EV_NO_LOCATION	0x00080000	/* Supresses %l */
 #define EV_NOFCHECK	0x00100000	/* Do not evaluate functions! */
 
-/* Function types */
+/* Function flags */
 
-#define	FN_VARARGS	1	/* Function allows a variable # of args */
-#define	FN_NO_EVAL	2	/* Don't evaluate args to function */
-#define	FN_PRIV		4	/* Perform user-def function as holding obj */
-#define FN_PRES		8	/* Preseve r-regs before user-def functions */
-#define FN_LIST		16	/* List the user-defined functions */
+#define	FN_VARARGS	0x80000000U	/* allows variable # of args */
+#define	FN_NO_EVAL	0x40000000	/* Don't evaluate args to function */
+#define	FN_PRIV		0x20000000	/* Perform ufun as holding obj */
+#define FN_PRES		0x10000000	/* Preserve r-regs before ufun */
+#define FN_LIST		0x08000000	/* List the user-defined functions */
+/* Lower flag values are used for function-specific switches */
 
 /* Message forwarding directives */
 

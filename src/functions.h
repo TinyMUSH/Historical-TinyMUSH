@@ -11,21 +11,21 @@
  */
 
 typedef struct fun {
-	const char *name;	/* function name */
-	void	(*fun)();	/* handler */
-	int	nargs;		/* Number of args needed or expected */
-	int	flags;		/* Function flags */
-	int	perms;		/* Access to function */
-	EXTFUNCS *xperms;	/* Extended access to function */
+	const char	*name;		/* Function name */
+	void		(*fun)();	/* Handler */
+	int		nargs;		/* Number of args needed or expected */
+	unsigned int	flags;		/* Function flags */
+	int		perms;		/* Access to function */
+	EXTFUNCS	*xperms;	/* Extended access to function */
 } FUN;
 
 typedef struct ufun {
-	char *name;	/* function name */
-	dbref	obj;		/* Object ID */
-	int	atr;		/* Attribute ID */
-	int	flags;		/* Function flags */
-	int	perms;		/* Access to function */
-	struct ufun *next;	/* Next ufun in chain */
+	char		*name;		/* Function name */
+	dbref		obj;		/* Object ID */
+	int		atr;		/* Attribute ID */
+	unsigned int	flags;		/* Function flags */
+	int		perms;		/* Access to function */
+	struct ufun	*next;		/* Next ufun in chain */
 } UFUN;
 
 typedef union char_or_string {
@@ -85,7 +85,7 @@ typedef int NVAL;
 #endif                          /* FLOATING_POINTS */
 
 /* ---------------------------------------------------------------------------
- * Constants.
+ * Constants used in delimiter macros.
  */
 
 #define DELIM_EVAL	0x001	/* Must eval delimiter. */
@@ -196,7 +196,8 @@ VaChk_Sep(&osep, osep_len, xargnum, \
  */
 
 #define VaChk_Range(xminargs,xnargs) \
-if (!fn_range_check(fargs[-1], nfargs, xminargs, xnargs, buff, bufc)) \
+if (!fn_range_check(((FUN *)fargs[-1])->name, nfargs, xminargs, xnargs, \
+		    buff, bufc)) \
 	return
 
 #define VaChk_Only_InPure(xnargs) \
@@ -312,5 +313,23 @@ if ((l) > 0) { \
     *bufc += (l); \
     **bufc = '\0'; \
 }
+
+/* Function-specific flags used in the function table. */
+
+/* from handle_sets (setunion, setdiff, setinter, lunion, ldiff, linter): */
+#define SET_TYPE	0x10	/* set type is given, don't autodetect */
+#define SET_OPER	0x0f	/* mask to select set operation bits */
+#define	SET_UNION	1
+#define	SET_INTERSECT	2
+#define	SET_DIFF	3
+
+/* from process_tables (tables, rtables, ctables): */
+#define TABLES_LJUST	0x01 
+#define TABLES_RJUST	0x02
+#define TABLES_CENTER	0x04
+
+/* from handle_clogic (cand, cor, candbool, corbool): */
+#define CLOGIC_OR	0x1
+#define CLOGIC_BOOL	0x2
 
 #endif /* __FUNCTIONS_H */

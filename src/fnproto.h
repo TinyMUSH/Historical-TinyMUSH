@@ -67,17 +67,10 @@ XFUNCTION(fun_revwords);
 XFUNCTION(fun_splice);
 XFUNCTION(fun_sort);
 XFUNCTION(fun_sortby);
-XFUNCTION(fun_setunion);
-XFUNCTION(fun_setdiff);
-XFUNCTION(fun_setinter);
-XFUNCTION(fun_lunion);
-XFUNCTION(fun_ldiff);
-XFUNCTION(fun_linter);
+XFUNCTION(handle_sets);
 XFUNCTION(fun_columns);
+XFUNCTION(process_tables);
 XFUNCTION(fun_table);
-XFUNCTION(fun_tables);
-XFUNCTION(fun_rtables);
-XFUNCTION(fun_ctables);
 XFUNCTION(fun_elements);
 XFUNCTION(fun_grab);
 XFUNCTION(fun_graball);
@@ -98,8 +91,6 @@ XFUNCTION(fun_and);
 XFUNCTION(fun_or);
 XFUNCTION(fun_xor);
 XFUNCTION(fun_not);
-XFUNCTION(fun_cand); 
-XFUNCTION(fun_cor);
 XFUNCTION(fun_ladd);
 XFUNCTION(fun_lor);
 XFUNCTION(fun_land);
@@ -111,8 +102,7 @@ XFUNCTION(fun_andbool);
 XFUNCTION(fun_orbool);
 XFUNCTION(fun_xorbool);
 XFUNCTION(fun_notbool);
-XFUNCTION(fun_candbool); 
-XFUNCTION(fun_corbool);
+XFUNCTION(handle_clogic);
 XFUNCTION(fun_t);
 XFUNCTION(fun_sqrt);
 XFUNCTION(fun_add);
@@ -406,9 +396,9 @@ FUN flist[] = {
 {"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC,	NULL},
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC,	NULL},
 {"BORDER",	fun_border,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"CANDBOOL",	fun_candbool,	0,  FN_VARARGS|FN_NO_EVAL,
+{"CANDBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|CLOGIC_BOOL,
      						CA_PUBLIC,	NULL},
-{"CAND",	fun_cand,	0,  FN_VARARGS|FN_NO_EVAL,
+{"CAND",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL,
      						CA_PUBLIC,	NULL},
 {"CAPSTR",	fun_capstr,	-1, 0,		CA_PUBLIC,	NULL},
 {"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
@@ -430,13 +420,14 @@ FUN flist[] = {
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC,	NULL},
 {"CONVSECS",    fun_convsecs,   1,  0,		CA_PUBLIC,	NULL},
 {"CONVTIME",    fun_convtime,   1,  0,		CA_PUBLIC,	NULL},
-{"COR",		fun_cor,	0,  FN_VARARGS|FN_NO_EVAL,
+{"COR",		handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|CLOGIC_OR,
      						CA_PUBLIC,	NULL},
-{"CORBOOL",	fun_corbool,	0,  FN_VARARGS|FN_NO_EVAL,
+{"CORBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|CLOGIC_OR|CLOGIC_BOOL,
      						CA_PUBLIC,	NULL},
 {"COS",		fun_cos,	1,  0,		CA_PUBLIC,	NULL},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"CTABLES",	fun_ctables,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"CTABLES",	process_tables,	0,  FN_VARARGS|TABLES_CENTER,
+						CA_PUBLIC,	NULL},
 {"DEC",         fun_dec,        1,  0,          CA_PUBLIC,	NULL},
 {"DECRYPT",	fun_decrypt,	2,  0,		CA_PUBLIC,	NULL},
 {"DEFAULT",	fun_default,	2,  FN_NO_EVAL, CA_PUBLIC,	NULL},
@@ -522,7 +513,8 @@ FUN flist[] = {
 {"LCON",	fun_lcon,	1,  0,		CA_PUBLIC,	NULL},
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC,	NULL},
 {"LDELETE",	fun_ldelete,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"LDIFF",	fun_ldiff,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"LDIFF",	handle_sets,	0,  FN_VARARGS|SET_TYPE|SET_DIFF,
+						CA_PUBLIC,	NULL},
 {"LEDIT",	fun_ledit,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"LEFT",	fun_left,	2,  0,		CA_PUBLIC,	NULL},
 {"LET",		fun_let,	0,  FN_VARARGS|FN_NO_EVAL,
@@ -531,10 +523,11 @@ FUN flist[] = {
 {"LIST",	fun_list,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC}, 
 {"LIT",		fun_lit,	-1, FN_NO_EVAL,	CA_PUBLIC,	NULL},
-{"LJUST",	fun_ljust,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LINK",	fun_link,	2,  0,		CA_PUBLIC,	NULL},
 {"LINSTANCES",	fun_linstances,	0,  0,		CA_PUBLIC,	NULL},
-{"LINTER",	fun_linter,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"LINTER",	handle_sets,	0,  FN_VARARGS|SET_TYPE|SET_INTERSECT,
+						CA_PUBLIC,	NULL},
+{"LJUST",	fun_ljust,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LMAX",	fun_lmax,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LMIN",	fun_lmin,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LN",		fun_ln,		1,  0,		CA_PUBLIC,	NULL},
@@ -556,7 +549,8 @@ FUN flist[] = {
 {"LSTRUCTURES",	fun_lstructures, 0, 0,		CA_PUBLIC,	NULL},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC,	NULL},
 {"LTE",		fun_lte,	2,  0,		CA_PUBLIC,	NULL},
-{"LUNION",	fun_lunion,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"LUNION",	handle_sets,	0,  FN_VARARGS|SET_TYPE|SET_UNION,
+						CA_PUBLIC,	NULL},
 {"LVARS",	fun_lvars,	0,  0,		CA_PUBLIC,	NULL},
 {"LWHO",	fun_lwho,	0,  0,		CA_PUBLIC,	NULL},
 {"MAP",		fun_map,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -646,7 +640,8 @@ FUN flist[] = {
 {"RLOC",	fun_rloc,	2,  0,		CA_PUBLIC,	NULL},
 {"ROOM",	fun_room,	1,  0,		CA_PUBLIC,	NULL},
 {"ROUND",	fun_round,	2,  0,		CA_PUBLIC,	NULL},
-{"RTABLES",	fun_rtables,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"RTABLES",	process_tables,	0,  FN_VARARGS|TABLES_RJUST,
+						CA_PUBLIC,	NULL},
 {"S",		fun_s,		-1, 0,		CA_PUBLIC,	NULL},
 {"SCRAMBLE",	fun_scramble,	1,  0,		CA_PUBLIC,	NULL},
 {"SEARCH",	fun_search,	-1, 0,		CA_PUBLIC,	NULL},
@@ -655,12 +650,15 @@ FUN flist[] = {
 {"SEES",	fun_sees,	2,  0,		CA_PUBLIC,	NULL},
 {"SESSION",	fun_session,	1,  0,		CA_PUBLIC,	NULL},
 {"SET",		fun_set,	2,  0,		CA_PUBLIC,	NULL},
-{"SETDIFF",	fun_setdiff,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"SETINTER",	fun_setinter,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"SETDIFF",	handle_sets,	0,  FN_VARARGS|SET_DIFF,
+						CA_PUBLIC,	NULL},
+{"SETINTER",	handle_sets,	0,  FN_VARARGS|SET_INTERSECT,
+						CA_PUBLIC,	NULL},
 {"SETQ",	fun_setq,	2,  0,		CA_PUBLIC,	NULL},
 {"SETR",	fun_setr,	2,  0,		CA_PUBLIC,	NULL},
 {"SETX",	fun_setx,	2,  0,		CA_PUBLIC,	NULL},
-{"SETUNION",	fun_setunion,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"SETUNION",	handle_sets,	0,  FN_VARARGS|SET_UNION,
+						CA_PUBLIC,	NULL},
 {"SHL",		fun_shl,	2,  0,		CA_PUBLIC,	NULL},
 {"SHR",		fun_shr,	2,  0,		CA_PUBLIC,	NULL},
 {"SHUFFLE",	fun_shuffle,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -693,7 +691,8 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"T",		fun_t,		1,  0,		CA_PUBLIC,	NULL},
 {"TABLE",	fun_table,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"TABLES",	fun_tables,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"TABLES",	process_tables,	0,  FN_VARARGS|TABLES_LJUST,
+						CA_PUBLIC,	NULL},
 {"TAN",		fun_tan,	1,  0,		CA_PUBLIC,	NULL},
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC,	NULL},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC,	NULL},

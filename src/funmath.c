@@ -439,18 +439,13 @@ FUNCTION(fun_t)
  * Short-circuit conditional-evaluation boolean functions.
  */
 
-#define CLOGIC_OR 0x1
-#define CLOGIC_BOOL 0x2
-
-static void handle_clogic(player, caller, cause, fargs, nfargs,
-			  cargs, ncargs, buff, bufc, flag)
-    dbref player, caller, cause;
-    char *fargs[], *cargs[], *buff, **bufc;
-    int nfargs, ncargs, flag;
+FUNCTION(handle_clogic)
 {
-    int i, val;
+    int flag, i, val;
     char *str, *tbuf, *bp;
-	
+
+    flag = ((FUN *)fargs[-1])->flags;
+
     if (nfargs < 2) {
 	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
@@ -469,30 +464,6 @@ static void handle_clogic(player, caller, cause, fargs, nfargs,
 	safe_bool(buff, bufc,
 		  ((flag & CLOGIC_OR) ? (i != nfargs) : (i == nfargs)));
     }
-}
-
-FUNCTION(fun_cand)
-{
-    handle_clogic(player, caller, cause, fargs, nfargs, cargs, ncargs,
-		  buff, bufc, 0);
-}
-
-FUNCTION(fun_cor)
-{
-    handle_clogic(player, caller, cause, fargs, nfargs, cargs, ncargs,
-		  buff, bufc, CLOGIC_OR);
-} 
-
-FUNCTION(fun_candbool)
-{
-    handle_clogic(player, caller, cause, fargs, nfargs, cargs, ncargs,
-		  buff, bufc, CLOGIC_BOOL);
-}
-
-FUNCTION(fun_corbool)
-{
-    handle_clogic(player, caller, cause, fargs, nfargs, cargs, ncargs,
-		  buff, bufc, CLOGIC_OR | CLOGIC_BOOL);
 }
 
 /*-------------------------------------------------------------------------

@@ -1014,10 +1014,6 @@ FUNCTION(fun_sortby)
  * the last two args are, by convention, delimiters. So we add new funcs.
  */
 
-#define	SET_UNION	1
-#define	SET_INTERSECT	2
-#define	SET_DIFF	3
-
 #define NUMCMP(f1,f2) \
 	((f1 > f2) ? 1 : ((f1 < f2) ? -1 : 0))
 
@@ -1026,25 +1022,33 @@ FUNCTION(fun_sortby)
  ((s == NOCASE_LIST) ? strcasecmp(ptrs1[x1],ptrs2[x2]) : \
   ((s == FLOAT_LIST) ? NUMCMP(fp1[x1],fp2[x2]) : NUMCMP(ip1[x1],ip2[x2]))))
 
-static void handle_sets(fargs, nfargs, buff, bufc, oper, isep, osep,
-			isep_len, osep_len, type_pos)
-char *fargs[], *buff, **bufc;
-Delim isep, osep;
-int nfargs, oper, osep_len, type_pos;
+FUNCTION(handle_sets)
 {
+	Delim isep, osep;
+	int isep_len, osep_len, oper, type_arg;
 	char *list1, *list2, *oldp, *bb_p;
 	char *ptrs1[LBUF_SIZE], *ptrs2[LBUF_SIZE];
 	int i1, i2, n1, n2, val, sort_type;
 	int *ip1, *ip2;
 	double *fp1, *fp2;
 
+	oper = ((FUN *)fargs[-1])->flags & SET_OPER;
+	type_arg = ((FUN *)fargs[-1])->flags & SET_TYPE;
+
+	if (type_arg) {
+		VaChk_In_Out(2, 5);
+	} else {
+		VaChk_Only_In_Out(4);
+	}
+
 	list1 = alloc_lbuf("fun_setunion.1");
 	strcpy(list1, fargs[0]);
 	n1 = list2arr(ptrs1, LBUF_SIZE, list1, isep, isep_len);
-	if (type_pos == -1)
-	    sort_type = ALPHANUM_LIST;
-	else
+	if (type_arg)
 	    sort_type = get_list_type(fargs, nfargs, 3, ptrs1, n1);
+	else
+	    sort_type = ALPHANUM_LIST;
+
 	do_asort(ptrs1, n1, sort_type);
 
 	list2 = alloc_lbuf("fun_setunion.2");
@@ -1237,72 +1241,6 @@ int nfargs, oper, osep_len, type_pos;
 	}
 }
 
-FUNCTION(fun_setunion)
-{
-	Delim isep, osep;
-	int isep_len, osep_len;
-
-	VaChk_Only_In_Out(4);
-	handle_sets(fargs, nfargs, buff, bufc, SET_UNION,
-		    isep, osep, isep_len, osep_len, -1);
-	return;
-}
-
-FUNCTION(fun_setdiff)
-{
-	Delim isep, osep;
-	int isep_len, osep_len;
-
-	VaChk_Only_In_Out(4);
-	handle_sets(fargs, nfargs, buff, bufc, SET_DIFF,
-		    isep, osep, isep_len, osep_len, -1);
-	return;
-}
-
-FUNCTION(fun_setinter)
-{
-	Delim isep, osep;
-	int isep_len, osep_len;
-
-	VaChk_Only_In_Out(4);
-	handle_sets(fargs, nfargs, buff, bufc, SET_INTERSECT,
-		    isep, osep, isep_len, osep_len, -1);
-	return;
-}
-
-FUNCTION(fun_lunion)
-{
-	Delim isep, osep;
-	int isep_len, osep_len;
-
-	VaChk_In_Out(2, 5);
-	handle_sets(fargs, nfargs, buff, bufc, SET_UNION,
-		    isep, osep, isep_len, osep_len, 3);
-	return;
-}
-
-FUNCTION(fun_ldiff)
-{
-	Delim isep, osep;
-	int isep_len, osep_len;
-
-	VaChk_In_Out(2, 5);
-	handle_sets(fargs, nfargs, buff, bufc, SET_DIFF,
-		    isep, osep, isep_len, osep_len, 3);
-	return;
-}
-
-FUNCTION(fun_linter)
-{
-	Delim isep, osep;
-	int isep_len, osep_len;
-
-	VaChk_In_Out(2, 5);
-	handle_sets(fargs, nfargs, buff, bufc, SET_INTERSECT,
-		    isep, osep, isep_len, osep_len, 3);
-	return;
-}
-
 /*---------------------------------------------------------------------------
  * Format a list into columns.
  */
@@ -1438,10 +1376,6 @@ FUNCTION(fun_columns)
  *     correctly, and doesn't mess up the character count.
  */
 
-#define TABLES_LJUST	0 
-#define TABLES_RJUST	1
-#define TABLES_CENTER	2
-
 static void tables_helper(list, last_state, n_cols, col_widths,
 			  lead_str, trail_str, list_sep, field_sep, pad_char,
 			  buff, bufc, key)
@@ -1493,10 +1427,10 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 
 	    /* Write leading padding if we need it. */
 
-	    if (key == TABLES_RJUST) {
+	    if (key & TABLES_RJUST) {
 		nleft = col_widths[cpos] - lens[wcount];
 		print_padding(nleft, max, pad_char);
-	    } else if (key == TABLES_CENTER) {
+	    } else if (key & TABLES_CENTER) {
 		lead_chrs = (int)((col_widths[cpos] / 2) -
 				  (lens[wcount] / 2) + .5);
 		print_padding(lead_chrs, max, pad_char);
@@ -1540,10 +1474,10 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 
 	    /* Writing trailing padding if we need it. */
 	    
-	    if (key == TABLES_LJUST) {
+	    if (key & TABLES_LJUST) {
 		nleft = col_widths[cpos] - lens[wcount];
 		print_padding(nleft, max, pad_char);
-	    } else if (key == TABLES_CENTER) {
+	    } else if (key & TABLES_CENTER) {
 		nleft = col_widths[cpos] - lead_chrs - lens[wcount];
 		print_padding(nleft, max, pad_char);
 	    }
@@ -1627,17 +1561,16 @@ static void perform_tables(player, list, n_cols, col_widths,
 		  list_sep, field_sep, pad_char, buff, bufc, key);
 }
 
-static void process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
-			   cargs, ncargs, key)
-    char *buff, **bufc;
-    dbref player, caller, cause;
-    char *fargs[], *cargs[];
-    int nfargs, ncargs, key;
+FUNCTION(process_tables)
 {
+    int key;
     int i, num, n_columns, *col_widths;
     Delim list_sep, pad_char;
     char fs_buf[2], *widths[LBUF_SIZE / 2];  
 
+    key = ((FUN *)fargs[-1])->flags;
+
+    VaChk_Range(2, 7);
     VaChk_Sep(&list_sep, num, 5, 0);
     VaChk_Sep(&pad_char, num, 7, 0);
 
@@ -1666,27 +1599,6 @@ static void process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
 		   pad_char.c, buff, bufc, key);
 
     XFREE(col_widths, "fun_table.widths");
-}
-
-FUNCTION(fun_tables)
-{
-    VaChk_Range(2, 7);
-    process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
-		   cargs, ncargs, TABLES_LJUST);
-}
-
-FUNCTION(fun_rtables)
-{
-    VaChk_Range(2, 7);
-    process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
-		   cargs, ncargs, TABLES_RJUST);
-}
-
-FUNCTION(fun_ctables)
-{
-    VaChk_Range(2, 7);
-    process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
-		   cargs, ncargs, TABLES_CENTER);
 }
 
 FUNCTION(fun_table)
