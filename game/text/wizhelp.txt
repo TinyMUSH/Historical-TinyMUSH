@@ -517,7 +517,7 @@
 	db_stats	default_flags		flags		functions
 	globals		hashstats		logging		options
 	permissions	powers			process		site_info
-	switches	user_attributes
+	switches	textfiles		user_attributes
  
   Type wizhelp @list <option> for help with a particular option.
 
@@ -652,8 +652,10 @@
 
 & @list hashstats
   Command: @list hashstats
+ 
   Lists the hashing statistics for each of the internal hash tables.
   For each hash table, the following information is displayed:
+ 
     Size    - The number of hash buckets in the hash table.
     Entries - The number of entries currently in the hash table.
     Deleted - The number of entries that have been deleted from the hash
@@ -669,23 +671,26 @@
 { 'wizhelp @list hashstats2' for more }
 & @list hashstats2
   Information is displayed for the following hash tables:
+ 
     Commands            - Internal MUSH commands
     Logged-out commands - Commands valid whether or not you are connected
                           (such as WHO and QUIT).
     Functions           - MUSH functions, such as rand() and lexits().
-    Player flags        - Names of flags valid for players.
-    Thing flags         - Names of flags valid for things.
-    Room flags          - Names of flags valid for rooms.
-    Exit flags          - Names of flags valid for exits.
-    Attribute names     - Object attribute names.
-    Attribute numbers   - Object attribute numbers (only used internally).
-    Net descriptors     - Mapping of player DB numbers to net descriptors.
-    News topics         - Topics for the news command.
-    Help topics         - Topics for the help command.
-    Wizhelp topics      - Topics for the wizhelp command.
+    User Functions	- Functions that have been defined with @function.
+    Flags		- Names of flags.
+    Attr names		- Built-in attribute names ('@' attributes).
+    Vattr names		- User-defined attributes names ('&' attributes).
+    Player Names	- Player names and aliases.
+    Net Descriptors     - Mapping of player dbrefs to net descriptors.
+    Forwardlists	- Objects with @forwardlist attributes.
+    Overlaid $-cmds	- Temporary; parent objects checked for $-commands.
+    Object Stacks	- Object stacks for push(), pop(), etc.
+    Variables		- Temporary variables, for setx(), etc.
+    Mail messages	- Mail messages, if @mail is enabled.
+    Channel names	- Comsys channels, if the comsys is enabled.
  
-  See also: alias, attr_alias, flag_alias.
-
+  See also: @list textfiles, alias, attr_alias, flag_alias.
+ 
 & @list logging
   Command: @list logging
  
@@ -777,6 +782,12 @@
   Lists the commands that support switches as well as the switches that may
   be used.
 
+& @list textfiles
+  Command: @list textfiles
+ 
+  Lists the indexed text files, and hash statistics for the topics
+  within those text files.
+ 
 & @list user_attributes
   Command: @list user_attributes
   Lists the defined user-named attributes, along with their internal
