@@ -1615,14 +1615,23 @@ char *argv[];
 	for (mindb = 0; mindb < MAX_GLOBAL_REGS; mindb++)
 		mudstate.global_regs[mindb] = alloc_lbuf("main.global_reg");
 	mudstate.now = time(NULL);
+
+	load_restart_db();
+
+	/* You must do your startups AFTER you load your restart database,
+	 * or softcode that depends on knowing who is connected and so forth
+	 * will be hosed.
+	 */
 	process_preload();
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 	    log_text((char *) "Startup processing complete.");
 	ENDLOG
 
-	load_restart_db();
-
 	boot_slave();
+
+	if (mudstate.restarting) {
+	    raw_broadcast(0, "Game: Restart finished.");
+	}
 
 #ifdef CONCENTRATE
 	if (!mudstate.restarting) {
