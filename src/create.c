@@ -281,7 +281,7 @@ char *what, *where;
 		room = parse_linkable_room(player, where);
 
 		if (room == HOME) {
-			s_dropto(thing, room);
+			s_Dropto(thing, room);
 			if (!Quiet(player))
 				notify_quiet(player, "Dropto set.");
 		} else if (!(Good_obj(room))) {
