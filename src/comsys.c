@@ -176,9 +176,10 @@ INLINE static int is_listening_disconn(player, chp)
 }
 
 
-INLINE static int ok_channel_string(str, maxlen)
+INLINE static int ok_channel_string(str, maxlen, ok_spaces)
     char *str;
     int maxlen;
+    int ok_spaces;
 {
     char *p;
 
@@ -188,9 +189,16 @@ INLINE static int ok_channel_string(str, maxlen)
     if (strlen(str) > maxlen - 1)
 	return 0;
 
-    for (p = str; *p; p++) {
-	if (isspace(*p) || (*p == ESC_CHAR))
-	    return 0;
+    if (!ok_spaces) {
+	for (p = str; *p; p++) {
+	    if (isspace(*p) || (*p == ESC_CHAR))
+		return 0;
+	}
+    } else {
+	for (p = str; *p; p++) {
+	    if (*p == ESC_CHAR)
+		return 0;
+	}
     }
 
     return 1;
@@ -587,7 +595,7 @@ void join_channel(player, chan_name, alias_str, title_str)
     COMLIST *clist;
     int has_joined;
 
-    if (!ok_channel_string(alias_str, 10)) {
+    if (!ok_channel_string(alias_str, 10, 0)) {
 	notify(player, "That is not a valid channel alias.");
 	return;
     }
@@ -838,7 +846,7 @@ void do_ccreate(player, cause, key, name)
 	return;
     }
 
-    if (!ok_channel_string(name, 20)) {
+    if (!ok_channel_string(name, 20, 1)) {
 	notify(player, NO_CHAN_MSG);
 	return;
     }
