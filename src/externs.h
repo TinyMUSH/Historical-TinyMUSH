@@ -328,6 +328,7 @@ extern void	FDECL(toast_player, (dbref));
 #define CSET_OBJECT	5	/* Sets the channel object for the channel */
 #define	DBCK_FULL	1	/* Do all tests */
 #define DECOMP_DBREF    1	/* decompile by dbref */
+#define DECOMP_PRETTY	2	/* pretty-format output */
 #define	DEST_ONE	1	/* object */
 #define	DEST_ALL	2	/* owner */
 #define	DEST_OVERRIDE	4	/* override Safe() */
@@ -347,6 +348,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	EXAM_LONG	2	/* Nonowner sees public attrs too */
 #define	EXAM_DEBUG	4	/* Display more info for finding db problems */
 #define	EXAM_PARENT	8	/* Get attr from parent when exam obj/attr */
+#define EXAM_PRETTY	16	/* Pretty-format output */
 #define	FIXDB_OWNER	1	/* Fix OWNER field */
 #define	FIXDB_LOC	2	/* Fix LOCATION field */
 #define	FIXDB_CON	4	/* Fix CONTENTS field */

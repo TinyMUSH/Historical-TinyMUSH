@@ -118,6 +118,7 @@ NAMETAB cset_sw[] = {
 
 NAMETAB decomp_sw[] = {
 {(char *)"dbref",	1,	CA_PUBLIC,	DECOMP_DBREF},
+{(char *)"pretty",	1,	CA_PUBLIC,	DECOMP_PRETTY},
 { NULL,			0,	0,		0}};
 
 NAMETAB destroy_sw[] = {
@@ -167,6 +168,7 @@ NAMETAB examine_sw[] = {
 {(char *)"debug",	1,	CA_WIZARD,	EXAM_DEBUG},
 {(char *)"full",	1,	CA_PUBLIC,	EXAM_LONG},
 {(char *)"parent",	1,	CA_PUBLIC,	EXAM_PARENT},
+{(char *)"pretty",	2,	CA_PUBLIC,	EXAM_PRETTY},
 { NULL,			0,	0,		0}};
 
 NAMETAB femit_sw[] = {

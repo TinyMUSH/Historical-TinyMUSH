@@ -95,6 +95,10 @@
 
 #define SWITCH_VAR	"#$"
 
+/* This is used to indent output from pretty-printing. */
+
+#define INDENT_STR	"  "
+
 /* amount of object endowment, based on cost */
 #define OBJECT_ENDOWMENT(cost) (((cost)/mudconf.sacfactor) +mudconf.sacadjust)
 

@@ -233,14 +233,140 @@ int style;
 }
 
 
-static void view_atr(player, thing, ap, text, aowner, aflags, skip_tag)
+static void pretty_format(dest, cp, p)
+    char *dest;
+    char **cp;
+    char *p;
+{
+    /* Pretty-print an attribute into a buffer (assumed to be an lbuf). */
+
+    int indent_lev, i;
+
+    indent_lev = 0;
+    safe_str((char *) "\r\n", dest, cp);
+
+    while (*p) {
+	switch (*p) {
+	    case '\\':
+		/* Skip escaped chars */
+		safe_chr(*p, dest, cp);
+		p++;
+		safe_chr(*p, dest, cp);
+		if (!*p)
+		    return;	/* we're done */
+		break;
+	    case '{':
+		safe_str((char *) "\r\n", dest, cp);
+		for (i = 0; i < indent_lev; i++)
+		    safe_str((char *) INDENT_STR, dest, cp);
+		safe_str((char *) "{\r\n", dest, cp);
+		indent_lev++;
+		for (i = 0; i < indent_lev; i++)
+		    safe_str((char *) INDENT_STR, dest, cp);
+		while (p[1] == ' ')
+		    p++;
+		break;
+	    case '}':
+		if (indent_lev > 0)
+		    indent_lev--;
+		safe_str((char *) "\r\n", dest, cp);
+		for (i = 0; i < indent_lev; i++)
+		    safe_str((char *) INDENT_STR, dest, cp);
+		safe_str((char *) "}\r\n", dest, cp);
+		for (i = 0; i < indent_lev; i++)
+		    safe_str((char *) INDENT_STR, dest, cp);
+		while (p[1] == ' ')
+		    p++;
+		break;
+	    case ';':
+		safe_str((char *) ";\r\n", dest, cp);
+		for (i = 0; i < indent_lev; i++)
+		    safe_str((char *) INDENT_STR, dest, cp);
+		while (p[1] == ' ')
+		    p++;
+		break;
+	    default:
+		safe_chr(*p, dest, cp);
+		break;
+	}
+	p++;
+    }
+    if (*(*cp - 1) != '\n')
+	safe_str((char *) "\r\n", dest, cp);
+}
+
+static void pretty_print(dest, name, text)
+    char *dest, *name, *text;
+{
+    char *cp, *p, *word;
+
+    cp = dest;
+    p = text;
+
+    safe_str(name, dest, &cp);
+
+    /* Pretty-print contents of text into dest. */
+
+    switch (*text) {
+	case '$':
+	case '^':
+	    /* Do:  $command:<text to format> 
+	     * Nibble up the first bit then fall through to format the rest.
+	     */
+	    while (*p && (*p != ':')) {
+		safe_chr(*p, dest, &cp);
+		p++;
+	    }
+	    /* Do the ':' */
+	    if (*p == ':') {
+		safe_chr(':', dest, &cp);
+		do {
+		    p++;
+		} while (isspace(*p));
+	    } else {
+		return;
+	    }
+	    /* FALLTHRU */
+
+	case '@':
+	case '&':
+	    /* Normal formatting */
+	    pretty_format(dest, &cp, p);
+	    break;
+
+	case '#':
+	    /* Special case: If the first word starts with #, there is a
+	     * second word, and it does NOT start wtih a #, this is a
+	     * @force command.
+	     */
+	    word = p;
+	    while (*word && !isspace(*word))
+		word++;
+	    while (*word && isspace(*word))
+		word++;
+	    if (!*word || (*word == '#')) {
+		/* This is a list of dbrefs, probably. Bail. */
+		safe_str(p, dest, &cp);
+		return;
+	    }
+	    pretty_format(dest, &cp, p);
+	    break;
+
+	default:
+	    /* Ordinary text */
+	    safe_str(p, dest, &cp);
+    }
+}
+
+
+static void view_atr(player, thing, ap, text, aowner, aflags, skip_tag, pretty)
 dbref player, thing, aowner;
-int aflags, skip_tag;
+int aflags, skip_tag, pretty;
 ATTR *ap;
 char *text;
 {
-	char *buf;
-	char xbuf[6];
+	char *buf, *name_buf;
+	char xbuf[16];		/* must be larger than number of attr flags! */
 	char *xbufp;
 	BOOLEXP *bool;
 
@@ -254,13 +380,25 @@ char *text;
 	 */
 
 	if (!Controls(player, thing) && (Owner(player) != aowner)) {
-		if (skip_tag && (ap->number == A_DESC))
-			buf = text;
-		else
-			buf = tprintf("\033[1m%s:\033[0m %s", ap->name, text);
+	    if (skip_tag && (ap->number == A_DESC)) {
+		buf = text;
 		notify(player, buf);
+	    } else {
+		if (!pretty) {
+		    buf = tprintf("\033[1m%s:\033[0m %s", ap->name, text);
+		    notify(player, buf);
+		} else {
+		    buf = alloc_lbuf("view_atr.pretty");
+		    pretty_print(buf,
+				 tprintf("\033[1m%s:\033[0m %s", ap->name),
+				 text);
+		    notify(player, buf);
+		    free_lbuf(buf);
+		}
 		return;
+	    }
 	}
+
 	/* Generate flags */
 
 	xbufp = xbuf;
@@ -288,23 +426,42 @@ char *text;
 		*xbufp++ = 'w';
 	*xbufp = '\0';
 
-	if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
+	if (pretty) {
+	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
+		name_buf = tprintf("\033[1m%s [#%d%s]:\033[0m",
+				   ap->name, aowner, xbuf);
+	    } else if (*xbuf) {
+		name_buf = tprintf("\033[1m%s [%s]:\033[0m",
+				   ap->name, xbuf);
+	    } else if (!skip_tag || (ap->number != A_DESC)) {
+		name_buf = tprintf("\033[1m%s:\033[0m", ap->name);
+	    } else {
+		name_buf = (char *) "";
+		buf = text;
+	    }
+	    buf = alloc_lbuf("view_atr.pretty_print");
+	    pretty_print(buf, name_buf, text);
+	    notify(player, buf);
+	    free_lbuf(buf);
+	} else {
+	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
 		buf = tprintf("\033[1m%s [#%d%s]:\033[0m %s",
 			      ap->name, aowner, xbuf, text);
-	} else if (*xbuf) {
+	    } else if (*xbuf) {
 		buf = tprintf("\033[1m%s [%s]:\033[0m %s",
 			      ap->name, xbuf, text);
-	} else if (!skip_tag || (ap->number != A_DESC)) {
+	    } else if (!skip_tag || (ap->number != A_DESC)) {
 		buf = tprintf("\033[1m%s:\033[0m %s", ap->name, text);
-	} else {
+	    } else {
 		buf = text;
+	    }
+	    notify(player, buf);
 	}
-	notify(player, buf);
 }
 
-static void look_atrs1(player, thing, othing, check_exclude, hash_insert)
+static void look_atrs1(player, thing, othing, check_exclude, hash_insert, pretty)
 dbref player, thing, othing;
-int check_exclude, hash_insert;
+int check_exclude, hash_insert, pretty;
 {
 	dbref aowner;
 	int ca, aflags;
@@ -349,7 +506,7 @@ int check_exclude, hash_insert;
 					nhashadd(ca, (int *)attr,
 						 &mudstate.parent_htab);
 				view_atr(player, thing, attr, buf,
-					 aowner, aflags, 0);
+					 aowner, aflags, 0, pretty);
 			}
 		}
 		free_lbuf(buf);
@@ -357,15 +514,15 @@ int check_exclude, hash_insert;
 	free(cattr);
 }
 
-static void look_atrs(player, thing, check_parents)
+static void look_atrs(player, thing, check_parents, pretty)
 dbref player, thing;
-int check_parents;
+int check_parents, pretty;
 {
 	dbref parent;
 	int lev, check_exclude, hash_insert;
 
 	if (!check_parents) {
-		look_atrs1(player, thing, thing, 0, 0);
+		look_atrs1(player, thing, thing, 0, 0, pretty);
 	} else {
 		hash_insert = 1;
 		check_exclude = 0;
@@ -374,7 +531,7 @@ int check_parents;
 			if (!Good_obj(Parent(parent)))
 				hash_insert = 0;
 			look_atrs1(player, parent, thing,
-				   check_exclude, hash_insert);
+				   check_exclude, hash_insert, pretty);
 			check_exclude = 1;
 		}
 	}
@@ -411,7 +568,7 @@ int obey_terse;
 #endif
 
 	if (!mudconf.quiet_look && (!Terse(player) || mudconf.terse_look)) {
-		look_atrs(player, thing, 0);
+		look_atrs(player, thing, 0, 0);
 	}
 }
 
@@ -564,7 +721,7 @@ int key;
 	/* tell him the attributes, contents and exits */
 
 	if ((key & LK_SHOWATTR) && !mudconf.quiet_look && !is_terse)
-		look_atrs(player, loc, 0);
+		look_atrs(player, loc, 0, 0);
 	if (!is_terse || mudconf.terse_contents)
 		look_contents(player, loc, "Contents:", CONTENTS_LOCAL);
 	if ((key & LK_SHOWEXIT) && (!is_terse || mudconf.terse_exits))
@@ -666,6 +823,7 @@ char *name;
 	}
 }
 
+
 static void debug_examine(player, thing)
 dbref player, thing;
 {
@@ -732,14 +890,15 @@ dbref player, thing;
 
 		buf = atr_get(thing, ca, &aowner, &aflags);
 		if (Read_attr(player, thing, attr, aowner, aflags))
-			view_atr(player, thing, attr, buf, aowner, aflags, 0);
+			view_atr(player, thing, attr, buf, aowner, aflags,
+				 0, 0);
 		free_lbuf(buf);
 	}
 }
 
-static void exam_wildattrs(player, thing, do_parent)
+static void exam_wildattrs(player, thing, do_parent, pretty)
 dbref player, thing;
-int do_parent;
+int do_parent, pretty;
 {
 	int atr, aflags, got_any;
 	char *buf;
@@ -772,20 +931,20 @@ int do_parent;
 		    Read_attr(player, thing, ap, aowner, aflags)) {
 			got_any = 1;
 			view_atr(player, thing, ap, buf,
-				 aowner, aflags, 0);
+				 aowner, aflags, 0, pretty);
 		} else if ((Typeof(thing) == TYPE_PLAYER) &&
 			   Read_attr(player, thing, ap, aowner, aflags)) {
 			got_any = 1;
 			if (aowner == Owner(player)) {
 				view_atr(player, thing, ap, buf,
-					 aowner, aflags, 0);
+					 aowner, aflags, 0, pretty);
 			} else if ((atr == A_DESC) &&
 				   (mudconf.read_rem_desc ||
 				    nearby(player, thing))) {
 				show_desc(player, thing, 0);
 			} else if (atr != A_DESC) {
 				view_atr(player, thing, ap, buf,
-					 aowner, aflags, 0);
+					 aowner, aflags, 0, pretty);
 			} else {
 				notify(player,
 				       "<Too far away to get a good look>");
@@ -794,14 +953,14 @@ int do_parent;
 			got_any = 1;
 			if (aowner == Owner(player)) {
 				view_atr(player, thing, ap, buf,
-					 aowner, aflags, 0);
+					 aowner, aflags, 0, pretty);
 			} else if ((atr == A_DESC) &&
 				   (mudconf.read_rem_desc ||
 				    nearby(player, thing))) {
 				show_desc(player, thing, 0);
 			} else if (nearby(player, thing)) {
 				view_atr(player, thing, ap, buf,
-					 aowner, aflags, 0);
+					 aowner, aflags, 0, pretty);
 			} else {
 				notify(player,
 				       "<Too far away to get a good look>");
@@ -840,7 +999,8 @@ char *name;
 		/* Check for obj/attr first. */
 
 		if (parse_attrib_wild(player, name, &thing, do_parent, 1, 0)) {
-			exam_wildattrs(player, thing, do_parent);
+			exam_wildattrs(player, thing, do_parent,
+				       (key & EXAM_PRETTY));
 			return;
 		}
 		/* Look it up */
@@ -900,7 +1060,8 @@ char *name;
 			if (Examinable(player, thing) ||
 			    (aowner == Owner(player))) {
 				view_atr(player, thing, atr_num(A_DESC), temp,
-					 aowner, aflags, 1);
+					 aowner, aflags, 1,
+					 (key & EXAM_PRETTY));
 			} else {
 				show_desc(player, thing, 0);
 			}
@@ -952,7 +1113,7 @@ char *name;
 	}
 
 	if (key != EXAM_BRIEF)
-		look_atrs(player, thing, do_parent);
+		look_atrs(player, thing, do_parent, (key & EXAM_PRETTY));
 
 	/* show him interesting stuff */
 
@@ -1441,7 +1602,7 @@ int key;
 char *name, *qual;
 {
 	BOOLEXP *bool;
-	char *got, *thingname, *as, *ltext, *buff;
+	char *got, *thingname, *as, *ltext, *buff, *tbuf;
 	dbref aowner, thing;
 	int val, aflags, ca, wild_decomp;
 	ATTR *attr;
@@ -1541,35 +1702,47 @@ char *name, *qual;
 				       tprintf("@lock/%s %s=%s",
 					     attr->name, thingname, ltext));
 			} else {
-				StringCopy(buff, attr->name);
+			    StringCopy(buff, attr->name);
+			    if (key & DECOMP_PRETTY) {
+				tbuf = alloc_lbuf("do_decomp.pretty");
+				pretty_print(tbuf,
+					     tprintf("%c%s %s=",
+						     ((ca < A_USER_START) ?
+						      '@' : '&'),
+						     buff,
+						     strip_ansi(thingname)),
+					     got);
+				notify(player, tbuf);
+				free_lbuf(tbuf);
+			    } else {
 				notify(player,
 				       tprintf("%c%s %s=%s",
 					       ((ca < A_USER_START) ?
 						'@' : '&'),
 					       buff, strip_ansi(thingname),
 					       got));
+			    }
+			    for (np = indiv_attraccess_nametab;
+				 np->name;
+				 np++) {
+				
+				if ((aflags & np->flag) &&
+				    check_access(player, np->perm) &&
+				    (!(np->perm & CA_NO_DECOMP))) {
 
-				for (np = indiv_attraccess_nametab;
-				     np->name;
-				     np++) {
-
-					if ((aflags & np->flag) &&
-					    check_access(player, np->perm) &&
-					    (!(np->perm & CA_NO_DECOMP))) {
-
-						notify(player,
-						  tprintf("@set %s/%s = %s",
-						      strip_ansi(thingname),
-							  buff,
-							  np->name));
-					}
+				    notify(player,
+					   tprintf("@set %s/%s = %s",
+						   strip_ansi(thingname),
+						   buff,
+						   np->name));
 				}
+			    }
 
-				if (aflags & AF_LOCK) {
-					notify(player, tprintf("@lock %s/%s",
-						      strip_ansi(thingname),
-							       buff));
-				}
+			    if (aflags & AF_LOCK) {
+				notify(player, tprintf("@lock %s/%s",
+						       strip_ansi(thingname),
+						       buff));
+			    }
 			}
 		}
 		free_lbuf(got);
