@@ -1253,8 +1253,8 @@ FUNCTION(fun_columns)
 {
 	unsigned int spaces, number, ansinumber, striplen;
 	unsigned int count, i, indent = 0;
-	int isansi = 0, rturn = 1, cr = 0;
-	char *p, *q, *buf, *curr, *objstring, *bp, *cp, *str;
+	int isansi = 0, rturn = 1;
+	char *p, *q, *buf, *curr, *objstring, *bp, *cp, *str, *cr = NULL;
 	Delim isep;
 	int isep_len;
 
@@ -1344,17 +1344,20 @@ FUNCTION(fun_columns)
 
 		if (!(rturn % (int)((78 - indent) / number))) {
 			safe_crlf(buff, bufc);
-			cr = 1;
+			cr = *bufc;
 			for (i = 0; i < indent; i++)
 				safe_chr(' ', buff, bufc);
 		} else {
-			cr = 0;
+			cr = NULL;
 		}
 
 		rturn++;
 	}
 	
-	if (!cr) {
+	if (cr) {
+		*bufc = cr;
+		**bufc = '\0';
+	} else {
 		safe_crlf(buff, bufc);
 	}
 	
