@@ -230,8 +230,8 @@ const char *password;
  * connect_player: Try to connect to an existing player.
  */
 
-dbref connect_player(name, password, host, username)
-char *name, *password, *host, *username;
+dbref connect_player(name, password, host, username, ip_addr)
+char *name, *password, *host, *username, *ip_addr;
 {
 	dbref player, aowner;
 	int aflags, alen;
@@ -267,6 +267,8 @@ char *name, *password, *host, *username;
 	}
 	atr_add_raw(player, A_LAST, time_str);
 	free_lbuf(player_last);
+	if (ip_addr && *ip_addr) 
+	    atr_add_raw(player, A_LASTIP, ip_addr);
 	return player;
 }
 

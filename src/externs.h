@@ -133,7 +133,8 @@ extern void	FDECL(empty_obj, (dbref));
 /* From player.c */
 extern void	FDECL(record_login, (dbref, int, char *, char *, char *));
 extern int	FDECL(check_pass, (dbref, const char *));
-extern dbref	FDECL(connect_player, (char *, char *, char *, char *));
+extern dbref	FDECL(connect_player, (char *, char *, char *, char *,
+				       char *));
 extern dbref	FDECL(create_player, (char *, char *, dbref, int, int));
 extern int	FDECL(add_player_name, (dbref, char *));
 extern int	FDECL(delete_player_name, (dbref, char *));

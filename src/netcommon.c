@@ -1452,7 +1452,8 @@ char *msg;
 				nplayers++;
 		}
 
-		player = connect_player(user, password, d->addr, d->username);
+		player = connect_player(user, password, d->addr, d->username,
+					inet_ntoa((d->address).sin_addr));
 		if (player == NOTHING) {
 
 			/* Not a player, or wrong password */
