@@ -104,6 +104,9 @@ The following are important changes in behavior between MUX and 3.0:
 - The COMPRESS flag has been eliminated. It was unused in MUX, though
   you could manually set it on objects.
 
+- There is no longer a /dbref switch for @decompile; just use
+  '@decompile <object>=<dbref of object>' to get the same effect.
+
 Your existing database was converted automatically to take the above
 differences into account.
 
