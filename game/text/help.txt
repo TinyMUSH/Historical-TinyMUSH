@@ -4702,18 +4702,18 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Topic: String Functions
  
 	after()		alphamax()	alphamin()	ansi()
-	beep()		before()	capstr()	cat()
-	center()	chomp()		comp()		decrypt()
-	delete()	edit()		encrypt()	escape()
-	foreach()	isdbref()	isnum()		isword()	
-	lcstr()		left()		lit()		ljust()
-	merge()		mid()		null()		pos()
-	regmatch()	regmatchi()	repeat()	reverse()	
-	right()		rjust()		secure()	scramble()	
-	space()		squish()	strcat()	streq()		
-	stripansi()	strlen()	strmatch()	strtrunc()	
-	translate()	trim()		ucstr()		valid()		
-	wordpos()
+	art()		beep()		before()	capstr()	
+	cat()		center()	chomp()		comp()		
+	decrypt()	delete()	edit()		encrypt()	
+	escape()	foreach()	isdbref()	isnum()		
+	isword()	lcstr()		left()		lit()	
+	ljust()		merge()		mid()		null()		
+	pos()		regmatch()	regmatchi()	repeat()
+	reverse()	right()		rjust()		secure()	
+	scramble()	space()		squish()	strcat()	
+	streq()		stripansi()	strlen()	strmatch()	
+	strtrunc()	translate()	trim()		ucstr()		
+	valid()		wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
