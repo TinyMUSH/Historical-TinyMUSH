@@ -69,6 +69,7 @@ extern void NDECL(check_mail_expiration);
 #ifdef USE_COMSYS
 extern void FDECL(load_comsys, (char *));
 extern void FDECL(save_comsys, (char *));
+extern void NDECL(update_comwho_all);
 #endif
 
 #ifdef CONCENTRATE
@@ -1739,6 +1740,11 @@ char *argv[];
 	    fclose(stdin);
 	    fclose(stdout);
 	}
+
+	/* We have to do an update, even though we're starting up, because
+	 * there may be players connected from a restart, as well as objects.
+	 */
+	update_comwho_all();
 
 	sql_init();		/* Make a connection to external SQL db */
 

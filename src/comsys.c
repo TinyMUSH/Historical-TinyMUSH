@@ -362,7 +362,8 @@ static void remove_from_channel(player, chp, is_quiet)
 
     update_comwho(chp);
 
-    if (!is_quiet) {
+    if (!is_quiet &&
+	(!isPlayer(player) || (Connected(player) && !Hidden(player)))) {
 	com_message(chp, tprintf("[%s] %s has left this channel.",
 				 chp->name, Name(player)));
     }
@@ -432,8 +433,15 @@ static void process_comsys(player, arg, cap)
 	    return;
 	}
 	wp->is_listening = 1;
-	com_message(cap->channel, tprintf("[%s] %s has joined this channel.",
-					  cap->channel->name, Name(player)));
+
+	/* Only tell people that we've joined if we're an object, or
+	 * we're a connected and non-hidden player.
+	 */
+	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
+	    com_message(cap->channel,
+			tprintf("[%s] %s has joined this channel.",
+				cap->channel->name, Name(player)));
+	}
 	return;
     
     } else if (!strcmp(arg, (char *) "off")) {
@@ -462,8 +470,15 @@ static void process_comsys(player, arg, cap)
 	}
 	wp->is_listening = 0;
 	notify(player, tprintf("You leave channel %s.", cap->channel->name));
-	com_message(cap->channel, tprintf("[%s] %s has left this channel.",
-					  cap->channel->name, Name(player)));
+
+	/* Only tell people about it if we're an object, or we're a 
+	 * connected and non-hidden player.
+	 */
+	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
+	    com_message(cap->channel,
+			tprintf("[%s] %s has left this channel.",
+				cap->channel->name, Name(player)));
+	}
 	return;
 
     } else if (!strcmp(arg, (char *) "who")) {
@@ -636,8 +651,10 @@ void join_channel(player, chan_name, alias_str, title_str)
 
 	update_comwho(chp);
 	
-	com_message(chp, tprintf("[%s] %s has joined this channel.",
-				 chp->name, Name(player)));
+	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
+	    com_message(chp, tprintf("[%s] %s has joined this channel.",
+				     chp->name, Name(player)));
+	}
 
 	if (title_str) {
 	    notify(player,
@@ -714,7 +731,7 @@ void channel_clr(player)
     /* Remove from channels. */
 
     for (i = 0; i < pos; i++)
-	remove_from_channel(player, ch_array[i], !Connected(player));
+	remove_from_channel(player, ch_array[i], 0);
     XFREE(ch_array, "channel_clr.array");
 }
 
@@ -1113,9 +1130,14 @@ void do_cboot(player, cause, key, name, objstr)
 			   Name(thing), chp->name));
     notify(thing, tprintf("%s boots you off channel %s.",
 			  Name(player), chp->name));
-    remove_from_channel(thing, chp, 1);
-    com_message(chp, tprintf("[%s] %s boots %s off the channel.",
-			     chp->name, Name(player), Name(thing)));
+
+    if (key & CBOOT_QUIET) {
+	remove_from_channel(thing, chp, 0);
+    } else {
+	remove_from_channel(thing, chp, 1);
+	com_message(chp, tprintf("[%s] %s boots %s off the channel.",
+				 chp->name, Name(player), Name(thing)));
+    }
 }
 
 void do_cemit(player, cause, key, chan_name, str)
@@ -1734,12 +1756,6 @@ static void read_comsys(fp, com_ver)
 	    log_text(s);
 	ENDLOG
     }
-
-    /* We have to do an update, even though we're starting up, because
-     * there may be players connected from a restart, as well as objects.
-     */
-
-    update_comwho_all();
 }
 
 static void make_vanilla_comsys()

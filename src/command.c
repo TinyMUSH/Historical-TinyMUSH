@@ -99,6 +99,10 @@ NAMETAB boot_sw[] = {
 
 #ifdef USE_COMSYS
 
+NAMETAB cboot_sw[] = {
+{(char *)"quiet",	1,	CA_PUBLIC,	CBOOT_QUIET},
+{ NULL,			0,	0,		0}};
+
 NAMETAB cemit_sw[] = {
 {(char *)"noheader",	1,	CA_PUBLIC,	CEMIT_NOHEADER},
 { NULL,			0,	0,		0}};
@@ -486,7 +490,7 @@ CMDENT command_table[] = {
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_boot},
 #ifdef USE_COMSYS
-{(char *)"@cboot",              NULL,           CA_NO_SLAVE|CA_NO_GUEST,
+{(char *)"@cboot",              cboot_sw,       CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_TWO_ARG,          
 	NULL,			NULL,		do_cboot},
 {(char *)"@ccreate",            NULL,           CA_NO_SLAVE|CA_NO_GUEST,

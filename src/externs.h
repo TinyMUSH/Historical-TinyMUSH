@@ -320,6 +320,7 @@ extern void	FDECL(toast_player, (dbref));
 #define ATTRIB_INFO	8	/* Info (number, flags) about attribute */
 #define	BOOT_QUIET	1	/* Inhibit boot message to victim */
 #define	BOOT_PORT	2	/* Boot by port number */
+#define CBOOT_QUIET	1	/* No boot message, just has left */
 #define CEMIT_NOHEADER  1	/* Channel emit without header */
 #define CHANNEL_SET	1	/* Set channel flag */
 #define CHANNEL_CHARGE	2	/* Set channel charge */
