@@ -3175,10 +3175,11 @@ int check_zone(player, thing)
 dbref player, thing;
 {
 	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
-	     (mudstate.zone_nest_num == mudconf.zone_nest_lim) || (isPlayer(thing))) {
+	    (mudstate.zone_nest_num == mudconf.zone_nest_lim) || (isPlayer(thing))) {
+		mudstate.zone_nest_num = 0;
 		return 0;
 	}
-	
+
 	/*
 	 * If the zone doesn't have an enterlock, DON'T allow control. 
 	 */
@@ -3196,9 +3197,9 @@ dbref player, thing;
 int check_zone_for_player(player, thing)
 dbref player, thing;
 {
-	if (!mudconf.have_zones || (Zone(thing) == NOTHING) ||
+	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
 	    (mudstate.zone_nest_num == mudconf.zone_nest_lim) || !(isPlayer(thing))) {
-		mudstate.zone_nest_num = 0;
+	    	mudstate.zone_nest_num = 0;
 		return 0;
 	}
 

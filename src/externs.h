@@ -9,6 +9,7 @@
 
 #include "db.h"
 #include "mudconf.h"
+#include "regexp.h"
 
 #ifndef _DB_C
 #define INLINE
@@ -23,6 +24,13 @@
 #define ToUpper(C)	(((C) >= 'a' && (C) <= 'z')? (C) - 'a' + 'A': (C))
 #define ToLower(C)	(((C) >= 'A' && (C) <= 'Z')? (C) - 'A' + 'a': (C))
 #define safe_atoi(s)	((s == NULL) ? 0 : atoi(s))
+
+/* From regexp.c (extract from Henry Spencer's package) */
+
+extern regexp *FDECL(regcomp, (char *));
+extern int FDECL(regexec, (register regexp *, register char *));
+extern void FDECL(regerror, (char *));
+extern *regexp_errbuf;
 
 /* From conf.c */
 extern int	FDECL(cf_modify_bits, (int *, char *, long, dbref, char *));
@@ -225,6 +233,8 @@ extern char *	FDECL(strsave, (const char *));
 extern int	FDECL(safe_copy_str, (char *, char *, char **, int));
 extern int	FDECL(safe_copy_chr, (char, char *, char **, int));
 extern int	FDECL(matches_exit_from_list, (char *, char *));
+extern char *	FDECL(translate_string, (const char *, int));
+extern int	FDECL(ltos, (char *, long));
 
 /* From boolexp.c */
 extern int	FDECL(eval_boolexp, (dbref, dbref, dbref, BOOLEXP *));

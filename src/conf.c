@@ -310,6 +310,11 @@ void NDECL(cf_init)
 	mudstate.ntfy_nest_lev = 0;
 	mudstate.lock_nest_lev = 0;
 	mudstate.zone_nest_num = 0;
+	mudstate.inpipe = 0;
+	mudstate.pout = NULL;
+	mudstate.poutnew = NULL;
+	mudstate.poutbufc = NULL;
+	mudstate.poutobj = -1;
 	for (i = 0; i < MAX_GLOBAL_REGS; i++)
 		mudstate.global_regs[i] = NULL;
 #else

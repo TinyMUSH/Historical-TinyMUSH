@@ -264,19 +264,19 @@ int attr, key, count;
 	dbref aowner;
 	char *str;
 
-       if (attr) {
-               str = atr_get(sem, attr, &aowner, &aflags);
-               num = atoi(str);
-               free_lbuf(str);
-       } else {
-               num = 1;
-       }
-
+	if (attr) {
+		str = atr_get(sem, attr, &aowner, &aflags);
+		num = atoi(str);
+		free_lbuf(str);
+	} else {
+		num = 1;
+	}
+	
 	if (num > 0) {
 		num = 0;
 		for (point = mudstate.qsemfirst, trail = NULL; point; point = next) {
-                       if ((point->sem == sem) &&
-                           ((point->attr == attr) || !attr)) {
+			if ((point->sem == sem) && 
+			    ((point->attr == attr) || !attr)) {
 				num++;
 				if (trail)
 					trail->next = next = point->next;
@@ -788,7 +788,7 @@ int ncmds;
 	BQUE *tmp;
 	dbref player;
 	int count, i;
-	char *command, *cp, *cmdsave;
+	char *command, *cp, *pp, *cmdsave;
 
 	if ((mudconf.control_flags & CF_DEQUEUE) == 0)
 		return 0;
@@ -829,11 +829,43 @@ int ncmds;
 				while (command) {
 					cp = parse_to(&command, ';', 0);
 					if (cp && *cp) {
+						pp = cp;
+						cp = parse_to(&pp, '|', 0);
+						while (pp) {
+							mudstate.inpipe = 1;
+							mudstate.poutnew = alloc_lbuf("process_command.pipe");
+							mudstate.poutbufc = mudstate.poutnew;
+							mudstate.poutobj = player;
+						
+							process_command(player,
+							     mudstate.qfirst->cause,
+									0, cp,
+							       mudstate.qfirst->env,
+						   	 mudstate.qfirst->nargs);
+					
+							if (mudstate.pout) {
+								free_lbuf(mudstate.pout);
+								mudstate.pout = NULL;
+							}
+						
+							*mudstate.poutbufc = '\0';
+							mudstate.pout = mudstate.poutnew;
+							cp = parse_to(&pp, '|', 0);						
+						}
+						
+						if (mudstate.inpipe) {
+							mudstate.inpipe = 0;
+						}
 						process_command(player,
 						     mudstate.qfirst->cause,
 								0, cp,
 						       mudstate.qfirst->env,
-						    mudstate.qfirst->nargs);
+					   	 mudstate.qfirst->nargs);
+						
+						if (mudstate.pout) {
+							free_lbuf(mudstate.pout);
+							mudstate.pout = NULL;
+						}
 					}
 				}
 			}

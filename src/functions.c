@@ -115,6 +115,8 @@ XFUNCTION(fun_peek);
 XFUNCTION(fun_pop);
 XFUNCTION(fun_items);
 XFUNCTION(fun_lstack);
+XFUNCTION(fun_regmatch);
+XFUNCTION(fun_translate);
 
 /*
  * This is the prototype for functions 
@@ -1966,44 +1968,64 @@ FUNCTION(fun_neq)
 
 FUNCTION(fun_and)
 {
-	int i, val, tval, got_one;
+	int i, val;
+	char *tbuff, *bp, *str;
 
-	val = 0;
-	for (i = 0, got_one = 0; i < nfargs; i++) {
-		tval = atoi(fargs[i]);
-		if (i > 0) {
-			got_one = 1;
-			val = val && atoi(fargs[i]);
+	if (nfargs < 2) {
+		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		return;
+	}
+	
+	for (i = 0; (i < nfargs) && fargs[i]; i++) {
+		tbuff = bp = alloc_lbuf("fun_and");
+		str = fargs[i];
+		exec(tbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		    &str, cargs, ncargs);
+		*bp = '\0';
+		
+		if (tbuff && *tbuff) {
+			val = atoi(tbuff);
 		} else {
-			val = tval;
+			val = 0;
+		}
+		free_lbuf(tbuff);
+		if (val < 1) {
+			safe_chr('0', buff, bufc);
+			return;
 		}
 	}
-	if (!got_one)
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-	else
-		safe_tprintf_str(buff, bufc, "%d", val);
-	return;
+	safe_chr('1', buff, bufc);
 }
 
 FUNCTION(fun_or)
 {
-	int i, val, tval, got_one;
+	int i, val;
+	char *tbuff, *bp, *str;
 
-	val = 0;
-	for (i = 0, got_one = 0; i < nfargs; i++) {
-		tval = atoi(fargs[i]);
-		if (i > 0) {
-			got_one = 1;
-			val = val || atoi(fargs[i]);
+	if (nfargs < 2) {
+		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		return;
+	}
+
+	for (i = 0; (i < nfargs) && fargs[i]; i++) {
+		tbuff = bp = alloc_lbuf("fun_or");
+		str = fargs[i];
+		exec(tbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		    &str, cargs, ncargs);
+		*bp = '\0';
+		
+		if (tbuff && *tbuff) {
+			val = atoi(tbuff);
 		} else {
-			val = tval;
+			val = 0;
+		}
+		free_lbuf(tbuff);
+		if (val > 0) {
+			safe_chr('1', buff, bufc);
+			return;
 		}
 	}
-	if (!got_one)
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-	else
-		safe_tprintf_str(buff, bufc, "%d", val);
-	return;
+	safe_chr('0', buff, bufc);
 }
 
 FUNCTION(fun_xor)
@@ -3601,11 +3623,18 @@ FUNCTION(fun_repeat)
 
 FUNCTION(fun_iter)
 {
-	char *curr, *objstring, *buff2, *buff3, *cp, *dp, sep,
-	*str;
+	char *curr, *objstring, *buff2, *buff3, *cp, *dp, sep, sep2, *str;
 	int first, number = 0;
 
-	evarargs_preamble("ITER", 3);
+	if (!fn_range_check("ITER", nfargs, 2, 4, buff, bufc))
+		return;
+	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
+	     player, cause, cargs, ncargs))
+		return;
+	if (!delim_check(fargs, nfargs, 4, &sep2, buff, bufc, 0,
+	     player, cause, cargs, ncargs))
+		return;
+	
 	dp = cp = curr = alloc_lbuf("fun_iter");
 	str = fargs[0];
 	exec(curr, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
@@ -3619,7 +3648,7 @@ FUNCTION(fun_iter)
 	first = 1;
 	while (cp) {
 		if (!first)
-			safe_chr(' ', buff, bufc);
+			safe_chr(sep2, buff, bufc);
 		first = 0;
 		number++;
 		objstring = split_token(&cp, sep);
@@ -4080,7 +4109,7 @@ FUNCTION(fun_locate)
 FUNCTION(fun_switch)
 {
 	int i;
-	char *mbuff, *tbuff, *buf, *bp, *str;
+	char *mbuff, *tbuff, *bp, *str;
 
 	/*
 	 * If we don't have at least 2 args, return nothing 
@@ -4111,12 +4140,9 @@ FUNCTION(fun_switch)
 		*bp = '\0';
 		if (quick_wild(tbuff, mbuff)) {
 			free_lbuf(tbuff);
-			buf = alloc_lbuf("fun_switch");
-			StringCopy(buf, fargs[i + 1]);
-			str = buf;
+			str = fargs[i + 1];
 			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 			     &str, cargs, ncargs);
-			free_lbuf(buf);
 			free_lbuf(mbuff);
 			return;
 		}
@@ -4129,12 +4155,9 @@ FUNCTION(fun_switch)
 	 */
 
 	if ((i < nfargs) && fargs[i]) {
-		buf = alloc_lbuf("fun_switch");
-		StringCopy(buf, fargs[i]);
-		str = buf;
+		str = fargs[i];
 		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, cargs, ncargs);
-		free_lbuf(buf);
 	}
 	return;
 }
@@ -4142,7 +4165,7 @@ FUNCTION(fun_switch)
 FUNCTION(fun_case)
 {
 	int i;
-	char *mbuff, *buf, *bp, *str;
+	char *mbuff, *bp, *str;
 
 	/*
 	 * If we don't have at least 2 args, return nothing 
@@ -4167,12 +4190,9 @@ FUNCTION(fun_case)
 
 	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
 		if (*fargs[i] == *mbuff) {
-			buf = alloc_lbuf("fun_switch");
-			StringCopy(buf, fargs[i + 1]);
-			str = buf;
+			str = fargs[i + 1];
 			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 			     &str, cargs, ncargs);
-			free_lbuf(buf);
 			free_lbuf(mbuff);
 			return;
 		}
@@ -4184,12 +4204,9 @@ FUNCTION(fun_case)
 	 */
 
 	if ((i < nfargs) && fargs[i]) {
-		buf = alloc_lbuf("fun_switch");
-		StringCopy(buf, fargs[i]);
-		str = buf;
+		str = fargs[i];
 		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, cargs, ncargs);
-		free_lbuf(buf);
 	}
 	return;
 }
@@ -4980,6 +4997,7 @@ FUN flist[] = {
 						CA_PUBLIC},
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
+{"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC},
 {"REMOVE",	fun_remove,	0,  FN_VARARGS,	CA_PUBLIC},
 {"REPEAT",	fun_repeat,	2,  0,		CA_PUBLIC},
 {"REPLACE",	fun_replace,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -5026,6 +5044,7 @@ FUN flist[] = {
 {"TAN",		fun_tan,	1,  0,		CA_PUBLIC},
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC},
+{"TRANSLATE",	fun_translate,	2,  0,		CA_PUBLIC},
 {"TRIM",	fun_trim,	0,  FN_VARARGS,	CA_PUBLIC},
 {"TRUNC",	fun_trunc,	1,  0,		CA_PUBLIC},
 {"TYPE",	fun_type,	1,  0,		CA_PUBLIC},

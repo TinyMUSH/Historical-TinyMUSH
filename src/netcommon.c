@@ -140,12 +140,16 @@ struct timeval last, current;
 /* raw_notify_html() -- raw_notify() without the newline */
 void raw_notify_html(player, msg)
 dbref player;
-const char *msg;
+char *msg;
 {
 DESC *d;
 
 	if (!msg || !*msg)
 		return;
+	if (mudstate.inpipe && (player == mudstate.poutobj)) {
+		safe_str(msg, mudstate.poutnew, &mudstate.poutbufc);
+		return;
+	}
 	if (!Connected(player))
 		return;
 
@@ -161,12 +165,19 @@ DESC *d;
 
 void raw_notify(player, msg)
 dbref player;
-const char *msg;
+char *msg;
 {
 	DESC *d;
 
 	if (!msg || !*msg)
 		return;
+
+	if (mudstate.inpipe && (player == mudstate.poutobj)) {
+		safe_str(msg, mudstate.poutnew, &mudstate.poutbufc);
+		safe_str("\r\n", mudstate.poutnew, &mudstate.poutbufc);
+		return;
+	}
+	 
 	if (!Connected(player))
 		return;
 
@@ -181,6 +192,10 @@ dbref player;
 {
 	DESC *d;
 
+	if (mudstate.inpipe && (player == mudstate.poutobj)) {
+		safe_str("\r\n", mudstate.poutnew, &mudstate.poutbufc);
+		return;
+	}
 	if (!Connected(player))
 		return;
 
@@ -1601,9 +1616,8 @@ int first;
 		*arg++ = '\0';
 
 	/*
-	 * Look up the command.  If we don't find it, turn it over to the * * 
-	 * 
-	 * *  * * normal logged-in command processor or to create/connect 
+	 * Look up the command.  If we don't find it, turn it over to the 
+	 * normal logged-in command processor or to create/connect 
 	 */
 
 	if (!(d->flags & DS_CONNECTED)) {

@@ -19,6 +19,170 @@ char *___strtok;
 
 #endif
 
+/* Convert raw character sequences into MUX substitutions (type = 1)
+ * or strips them (type = 0). */
+
+char *translate_string(str, type)
+const char *str;
+int type;
+{
+	char old[LBUF_SIZE];
+	static char new[LBUF_SIZE];
+	char *j, *c, *bp;
+	int i;
+
+	bp = new;
+	StringCopy(old, str);
+		
+	for (j = old; *j != '\0'; j++) {
+		switch (*j) {
+		case ESC_CHAR:
+			c = strchr(j, 'm');
+			if (c) {
+				if (!type) {
+					j = c;
+					break;
+				}
+				
+				*c = '\0';
+				i = atoi(j + 2);
+				switch (i) {
+				case 0:
+					safe_str("%cn", new, &bp);
+					break;
+				case 1:
+					safe_str("%ch", new, &bp);
+					break;
+				case 5:
+					safe_str("%cf", new, &bp);
+					break;
+				case 7:
+					safe_str("%ci", new, &bp);
+					break;
+				case 30:
+					safe_str("%cx", new, &bp);
+					break;
+				case 31:
+					safe_str("%cr", new, &bp);
+					break;
+				case 32:
+					safe_str("%cg", new, &bp);
+					break;
+				case 33:
+					safe_str("%cy", new, &bp);
+					break;
+				case 34:
+					safe_str("%cb", new, &bp);
+					break;
+				case 35:
+					safe_str("%cm", new, &bp);
+					break;
+				case 36:
+					safe_str("%cc", new, &bp);
+					break;
+				case 37:
+					safe_str("%cw", new, &bp);
+					break;
+				case 40:
+					safe_str("%cX", new, &bp);
+					break;
+				case 41:
+					safe_str("%cR", new, &bp);
+					break;
+				case 42:
+					safe_str("%cG", new, &bp);
+					break;
+				case 43:
+					safe_str("%cY", new, &bp);
+					break;
+				case 44:
+					safe_str("%cB", new, &bp);
+					break;
+				case 45:
+					safe_str("%cM", new, &bp);
+					break;
+				case 46:
+					safe_str("%cC", new, &bp);
+					break;
+				case 47:
+					safe_str("%cW", new, &bp);
+					break;
+				}
+				j = c;
+			} else {
+				safe_chr(*j, new, &bp);
+			}
+			break;
+		case ' ':
+			if ((*(j+1) == ' ') && type)
+				safe_str("%b", new, &bp);
+			else 
+				safe_chr(' ', new, &bp);
+			break;
+		case '\\':
+			if (type)
+				safe_str("\\", new, &bp);
+			else
+				safe_chr('\\', new, &bp);
+			break;
+		case '%':
+			if (type)
+				safe_str("%%", new, &bp);
+			else
+				safe_chr('%', new, &bp);
+			break;
+		case '[':
+			if (type)
+				safe_str("%[", new, &bp);
+			else
+				safe_chr('[', new, &bp);
+			break;
+		case ']':
+			if (type)
+				safe_str("%]", new, &bp);
+			else
+				safe_chr(']', new, &bp);
+			break;
+		case '{':
+			if (type)
+				safe_str("%{", new, &bp);
+			else
+				safe_chr('{', new, &bp);
+			break;
+		case '}':
+			if (type)
+				safe_str("%}", new, &bp);
+			else
+				safe_chr('}', new, &bp);
+			break;
+		case '(':
+			if (type)
+				safe_str("%(", new, &bp);
+			else
+				safe_chr('(', new, &bp);
+			break;
+		case ')':
+			if (type)
+				safe_str("%)", new, &bp);
+			else
+				safe_chr(')', new, &bp);
+			break;
+		case '\r':
+			break;
+		case '\n':
+			if (type)
+				safe_str("%r", new, &bp);
+			else
+				safe_chr(' ', new, &bp);
+			break;
+		default:
+			safe_chr(*j, new, &bp);
+		}
+	}
+	*bp = '\0';
+	return new;
+}
+
 /*
  * capitalizes an entire string
  */
@@ -457,5 +621,40 @@ char *str, *pattern;
 		while (isspace(*pattern))
 			pattern++;
 	}
+	return 0;
+}
+
+int ltos(s, num)
+char *s;
+long num;
+{
+/* Mark Vasoll's long int to string converter. */
+char buf[20], *p;
+long anum;
+
+	p = buf;
+
+	/* absolute value */
+	anum = (num < 0) ? -num : num;
+
+	/* build up the digits backwards by successive division */
+	while (anum > 9) {
+		*p++ = '0' + (anum % 10);
+		anum /= 10;
+	}
+
+	/* put in the sign if needed */
+	if (num < 0)
+		*s++ = '-';
+
+	/* put in the last digit, this makes very fast single digits numbers */
+	*s++ = '0' + anum;
+
+	/* reverse the rest of the digits (if any) into the provided buf */
+	while (p-- > buf)
+		*s++ = *p;
+
+	/* terminate the resulting string */
+	*s = '\0';
 	return 0;
 }

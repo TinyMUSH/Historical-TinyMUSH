@@ -46,7 +46,7 @@ extern void FDECL(close_sockets, (int emergency, char *message));
 extern void NDECL(init_version);
 extern void NDECL(init_logout_cmdtab);
 extern void NDECL(init_timer);
-extern void FDECL(raw_notify, (dbref, const char *));
+extern void FDECL(raw_notify, (dbref, char *));
 extern void NDECL(do_second);
 extern void FDECL(do_dbck, (dbref, dbref, int));
 extern void NDECL(boot_slave);
@@ -136,6 +136,75 @@ void NDECL(report)
 	}
 }
 
+/* ----------------------------------------------------------------------
+ * regexp_match: Load a regular expression match and insert it into
+ * registers.
+ */
+
+int regexp_match(pattern, str, args, nargs)
+char *pattern;
+char *str;
+char *args[];
+int nargs;
+{
+regexp *re;
+int got_match;
+int i, len;
+
+	/*
+	 * Load the regexp pattern. This allocates memory which must be
+	 * later freed. A free() of the regexp does free all structures
+	 * under it.
+	 */
+
+	if ((re = regcomp(pattern)) == NULL) {
+		/*
+		 * This is a matching error. We have an error message in
+		 * regexp_errbuf that we can ignore, since we're doing
+		 * command-matching.
+		 */
+		return 0;
+	}
+
+	/* 
+	 * Now we try to match the pattern. The relevant fields will
+	 * automatically be filled in by this.
+	 */
+	got_match = regexec(re, str);
+	if (!got_match) {
+		free(re);
+		return 0;
+	}
+
+	/*
+	 * Now we fill in our args vector. Note that in regexp matching,
+	 * 0 is the entire string matched, and the parenthesized strings
+	 * go from 1 to 9. We DO PRESERVE THIS PARADIGM, for consistency
+	 * with other languages.
+	 */
+
+	for (i = 0; i < nargs; i++) {
+		args[i] = NULL;
+	}
+
+	/* Convenient: nargs and NSUBEXP are the same.
+	 * We are also guaranteed that our buffer is going to be LBUF_SIZE
+	 * so we can copy without fear.
+	 */
+
+	for (i = 0;
+		 (i < NSUBEXP) && (re->startp[i]) && (re->endp[i]);
+		 i++) {
+		len = re->endp[i] - re->startp[i];
+		args[i] = alloc_lbuf("regexp_match");
+		strncpy(args[i], re->startp[i], len);
+		args[i][len] = '\0';		/* strncpy() does not null-terminate */
+	}
+	
+	free(re);
+	return 1;
+}
+
 /*
  * ----------------------------------------------------------------------
  * * atr_match: Check attribute list for wild card matches and queue them.
@@ -218,7 +287,9 @@ int check_exclude, hash_insert;
 		if (!*s)
 			continue;
 		*s++ = 0;
-		if (wild(buff + 1, str, args, 10)) {
+		if (((aflags & AF_REGEXP) &&
+		     regexp_match(buff + 1, str, args, 10)) ||
+		     wild(buff + 1, str, args, 10)) {
 			match = 1;
 			wait_que(thing, player, 0, NOTHING, 0, s, args, 10,
 				 mudstate.global_regs);
@@ -511,6 +582,12 @@ const char *msg;
 	case TYPE_THING:
 	case TYPE_ROOM:
 
+		/* If we're in a pipe, objects can receive raw_notify */
+		
+		if (mudstate.inpipe) {
+			raw_notify(target, msg_ns);
+		}
+		
 		/*
 		 * Forward puppet message if it is for me 
 		 */
@@ -1201,6 +1278,9 @@ dbref thing;
 	int attr, aflags;
 	ATTR *ap;
 
+	if (mudstate.inpipe && (thing == mudstate.poutobj))
+		return 1;
+		
 	if (Connected(thing) || Puppet(thing))
 		return 1;
 

@@ -345,7 +345,12 @@ struct statedata {
 	int	ntfy_nest_lev;	/* Current nesting of notifys */
 	int	lock_nest_lev;	/* Current nesting of lock evals */
 	char	*global_regs[MAX_GLOBAL_REGS];	/* Global registers */
-	int     zone_nest_num;  /* Global current zone nest position */
+	int	zone_nest_num;  /* Global current zone nest position */
+	int	inpipe;		/* Boolean flag for command piping */
+	char	*pout;		/* The output of the pipe used in %| */
+	char	*poutnew;	/* The output being build by the current command */
+	char	*poutbufc; 	/* Buffer position for poutnew */
+	dbref	poutobj;	/* Object doing the piping */
 #else
 	int	logging;	/* Are we in the middle of logging? */
 	char	buffer[256];	/* A buffer for holding temp stuff */

@@ -804,17 +804,26 @@ FUNCTION(fun_zfun)
 
 FUNCTION(fun_columns)
 {
-	int spaces, number, ansinumber, count, i;
+	int spaces, number, ansinumber, count, i, indent = 0;
 	static char buf[LBUF_SIZE];
 	char *p, *q;
 	int isansi = 0, rturn = 1;
 	char *curr, *objstring, *bp, *cp, sep, *str;
 
+        if (!fn_range_check("COLUMNS", nfargs, 2, 4, buff, bufc))
+		return;
+	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 1,                
+	    player, cause, cargs, ncargs))
+		return;
+		
+	number = safe_atoi(fargs[1]);
+	indent = safe_atoi(fargs[3]);
 
-	evarargs_preamble("COLUMNS", 3);
-
-	number = atoi(fargs[1]);
-	if ((number < 1) || (number > 78)) {
+	if ((indent < 0) || (indent > 77)) {
+		indent = 1;
+	}
+	
+	if ((number < 1) || ((number + indent) > 78)) {
 		safe_str("#-1 OUT OF RANGE", buff, bufc);
 		return;
 	}
@@ -828,7 +837,9 @@ FUNCTION(fun_columns)
 		free_lbuf(curr);
 		return;
 	}
-	safe_chr(' ', buff, bufc);
+	
+	for (i = 0; i < indent; i++)
+		safe_chr(' ', buff, bufc);
 
 	while (cp) {
 		objstring = split_token(&cp, sep);
@@ -880,8 +891,11 @@ FUNCTION(fun_columns)
 		for (i = 0; i < spaces; i++)
 			safe_chr(' ', buff, bufc);
 
-		if (!(rturn % (int)(78 / number)))
-			safe_str((char *)"\r\n ", buff, bufc);
+		if (!(rturn % (int)((78 - indent) / number))) {
+			safe_str((char *)"\r\n", buff, bufc);
+			for (i = 0; i < indent; i++)
+				safe_chr(' ', buff, bufc);
+		}
 
 		rturn++;
 	}
@@ -3117,4 +3131,79 @@ FUNCTION(fun_push)
 	sp->data = alloc_lbuf("push");
 	StringCopy(sp->data, data);
 	s_Stack(doer, sp);
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_regmatch: Return 0 or 1 depending on whether or not a regular
+ * expression matches a string. If a third argument is specified, dump
+ * the results of a regexp pattern match into a set of arbitrary r()-registers.
+ *
+ * regmatch(string, pattern, list of registers)
+ * If the number of matches exceeds the registers, those bits are tossed
+ * out.
+ * If -1 is specified as a register number, the matching bit is tossed.
+ * Therefore, if the list is "-1 0 3 5", the regexp $0 is tossed, and
+ * the regexp $1, $2, and $3 become r(0), r(3), and r(5), respectively.
+ *
+ */
+
+FUNCTION(fun_regmatch)
+{
+int i, nqregs, got_match, curq, len;
+char *qregs[10];
+int qnums[10];
+regexp *re;
+
+	if (!fn_range_check("REGMATCH", nfargs, 2, 3, buff))
+		return;
+
+	if ((re = regcomp(fargs[1])) == NULL) {
+		/* Matching error. */
+		notify_quiet(player, (const char *) regexp_errbuf);
+		strcpy(buff, "0");
+		return;
+	}
+
+	ltos(buff, (int) regexec(re, fargs[0]));
+
+	/* If we don't have a third argument, we're done. */
+	if (nfargs != 3) {
+		free(re);
+		return;
+	}
+
+	/* We need to parse the list of registers. Anything that we don't get is
+	 * assumed to be -1.
+	 */
+	nqregs = list2arr(qregs, 10, fargs[2], ' ');
+	for (i = 0; i < 10; i++) {
+		if ((i < nqregs) && qregs[i] && *qregs[i])
+			qnums[i] = atoi(qregs[i]);
+		else
+			qnums[i] = -1;
+	}
+
+	/* Now we run a copy. */
+	for (i = 0;
+		 (i < NSUBEXP) && (re->startp[i]) && (re->endp[i]);
+		 i++) {
+		curq = qnums[i];
+		if ((curq >= 0) && (curq < MAX_GLOBAL_REGS)) {
+			if (!mudstate.global_regs[curq]) {
+				mudstate.global_regs[curq] = alloc_lbuf("fun_regmatch");
+			}
+			len = re->endp[i] - re->startp[i];
+			strncpy(mudstate.global_regs[curq], re->startp[i], len);
+			mudstate.global_regs[curq][len] = '\0'; /* must null-terminate */
+		}
+	}
+
+	free(re);
+}
+
+FUNCTION(fun_translate)
+{
+	if (*fargs[0] && *fargs[1]) {
+		safe_str(translate_string(fargs[0], atoi(fargs[1])), buff, bufc);
+	}
 }

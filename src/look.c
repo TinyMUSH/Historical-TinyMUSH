@@ -277,6 +277,8 @@ char *text;
 		*xbufp++ = '$';
 	if (aflags & AF_PRIVATE)
 		*xbufp++ = 'I';
+	if (aflags & AF_REGEXP)
+		*xbufp++ = 'R';
 	if (aflags & AF_VISUAL)
 		*xbufp++ = 'V';
 	if (aflags & AF_MDARK)
@@ -318,7 +320,7 @@ int check_exclude, hash_insert;
 			continue;
 
 		bcopy((char *)attr, (char *)cattr, sizeof(ATTR));
-
+		
 		/*
 		 * Should we exclude this attr? 
 		 */
@@ -330,10 +332,10 @@ int check_exclude, hash_insert;
 
 		buf = atr_get(thing, ca, &aowner, &aflags);
 		if (Read_attr(player, othing, attr, aowner, aflags)) {
-                       /* check_zone/atr_num overwrites attr!! */
-
-                       if (attr->number != cattr->number)
-                               bcopy((char *)cattr, (char *)attr, sizeof(ATTR));
+			/* check_zone/atr_num overwrites attr!! */
+			
+			if (attr->number != cattr->number)
+				bcopy((char *)cattr, (char *)attr, sizeof(ATTR));
 
 			if (!(check_exclude && (aflags & AF_PRIVATE))) {
 				if (hash_insert)
@@ -1430,99 +1432,6 @@ char *where;
 	notify(player, "Sweep complete.");
 }
 
-/* Convert raw ANSI sequences into MUX color codes... */
-
-char *fix_ansi(str)
-char *str;
-{
-	char old[LBUF_SIZE];
-	static char new[LBUF_SIZE];
-	char *j, *c, *bp;
-	int i;
-
-	bp = new;
-	StringCopy(old, str);
-		
-	for (j = old; *j != '\0'; j++) {
-		if (*j == ESC_CHAR) {
-			c = strchr(j, 'm');
-			if (c) {
-				*c = '\0';
-				i = atoi(j + 2);
-				switch (i) {
-				case 0:
-					safe_str("%cn", new, &bp);
-					break;
-				case 1:
-					safe_str("%ch", new, &bp);
-					break;
-				case 5:
-					safe_str("%cf", new, &bp);
-					break;
-				case 7:
-					safe_str("%ci", new, &bp);
-					break;
-				case 30:
-					safe_str("%cx", new, &bp);
-					break;
-				case 31:
-					safe_str("%cr", new, &bp);
-					break;
-				case 32:
-					safe_str("%cg", new, &bp);
-					break;
-				case 33:
-					safe_str("%cy", new, &bp);
-					break;
-				case 34:
-					safe_str("%cb", new, &bp);
-					break;
-				case 35:
-					safe_str("%cm", new, &bp);
-					break;
-				case 36:
-					safe_str("%cc", new, &bp);
-					break;
-				case 37:
-					safe_str("%cw", new, &bp);
-					break;
-				case 40:
-					safe_str("%cX", new, &bp);
-					break;
-				case 41:
-					safe_str("%cR", new, &bp);
-					break;
-				case 42:
-					safe_str("%cG", new, &bp);
-					break;
-				case 43:
-					safe_str("%cY", new, &bp);
-					break;
-				case 44:
-					safe_str("%cB", new, &bp);
-					break;
-				case 45:
-					safe_str("%cM", new, &bp);
-					break;
-				case 46:
-					safe_str("%cC", new, &bp);
-					break;
-				case 47:
-					safe_str("%cW", new, &bp);
-					break;
-				}
-				j = c;
-			} else {
-				safe_chr(*j, new, &bp);
-			}
-		} else {	
-			safe_chr(*j, new, &bp);
-		}
-	}
-	*bp = '\0';
-	return new;
-}
-			
 /*
  * Output the sequence of commands needed to duplicate the specified
  * * object.  If you're moving things to another system, your milage
@@ -1643,19 +1552,19 @@ char *name, *qual;
 			StringCopy(thingname, Name(thing));
 			val = OBJECT_DEPOSIT(Pennies(thing));
 			notify(player,
-			     tprintf("@create %s=%d", fix_ansi(thingname),
+			     tprintf("@create %s=%d", translate_string(thingname, 1),
 				     val));
 			break;
 		case TYPE_ROOM:
 			StringCopy(thingname, "here");
 			notify(player,
 			       tprintf("@dig/teleport %s",
-				       fix_ansi(Name(thing))));
+				       translate_string(Name(thing), 1)));
 			break;
 		case TYPE_EXIT:
 			StringCopy(thingname, Name(thing));
 			notify(player,
-			       tprintf("@open %s", fix_ansi(Name(thing))));
+			       tprintf("@open %s", translate_string(Name(thing), 1)));
 			for (got = thingname; *got; got++) {
 				if (*got == EXIT_DELIMITER) {
 					*got = '\0';

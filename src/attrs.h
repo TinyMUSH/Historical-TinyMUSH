@@ -20,7 +20,7 @@
 #define	AF_IS_LOCK	0x0400	/* Attribute is a lock */
 #define	AF_VISUAL	0x0800	/* Anyone can see */
 #define	AF_PRIVATE	0x1000	/* Not inherited by children */
-#define AF_DIRTY	0x2000	/* This attribute has been compiled. */
+#define AF_REGEXP	0x8000  /* Do a regexp rather than wildcard match */
 
 #define	A_OSUCC		1	/* Others success message */
 #define	A_OFAIL		2	/* Others fail message */

@@ -528,6 +528,11 @@ char *cargs[];
 					 */
 				(*dstr)--;
 				break;
+			case '|':	/*
+					 * piped command output
+					 */
+				safe_str(mudstate.pout, buff, bufc);
+				break;
 			case '%':	/*
 					 * Percent - a literal % 
 					 */

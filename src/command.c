@@ -1182,7 +1182,7 @@ int interactive, ncargs;
 
 /*
  * ---------------------------------------------------------------------------
- * * process_command: Execute a command.
+ * process_command: Execute a command.
  */
 
 void process_command(player, cause, interactive, command, args, nargs)
@@ -1220,7 +1220,7 @@ char *command, *args[];
 		free_mbuf(lcbuf);
 		ENDLOG
 			mudstate.debug_cmd = cmdsave;
-		return;
+		goto endcmd;
 	}
 	/*
 	 * Make sure player isn't going or halted 
@@ -1233,7 +1233,7 @@ char *command, *args[];
 		  tprintf("Attempt to execute command by halted object #%d",
 			  player));
 		mudstate.debug_cmd = cmdsave;
-		return;
+		goto endcmd;
 	}
 	STARTLOG(LOG_ALLCOMMANDS, "CMD", "ALL")
 		log_name_and_loc(player);
@@ -1247,7 +1247,7 @@ char *command, *args[];
 	 * Reset recursion limits 
 	 */
 
-		mudstate.func_nest_lev = 0;
+	mudstate.func_nest_lev = 0;
 	mudstate.func_invk_ctr = 0;
 	mudstate.ntfy_nest_lev = 0;
 	mudstate.lock_nest_lev = 0;
@@ -1301,12 +1301,12 @@ char *command, *args[];
 		process_cmdent(prefix_cmds[i], NULL, player, cause,
 			       interactive, command, command, args, nargs);
 		mudstate.debug_cmd = cmdsave;
-		return;
+		goto endcmd;
 	}
 
 	if (mudconf.have_comsys && !(Slave(player)))
 		if (!do_comsystem(player, command))
-			return;
+			goto endcmd;
 
 	/*
 	 * Check for the HOME command 
@@ -1316,11 +1316,11 @@ char *command, *args[];
 		if (((Fixed(player)) || (Fixed(Owner(player)))) &&
 		    !(WizRoy(player))) {
 			notify(player, mudconf.fixed_home_msg);
-			return;
+			goto endcmd;
 		}
 		do_move(player, cause, 0, "home");
 		mudstate.debug_cmd = cmdsave;
-		return;
+		goto endcmd;
 	}
 	/*
 	 * Only check for exits if we may use the goto command 
@@ -1338,7 +1338,7 @@ char *command, *args[];
 		if (exit != NOTHING) {
 			move_exit(player, exit, 0, "You can't go that way.", 0);
 			mudstate.debug_cmd = cmdsave;
-			return;
+			goto endcmd;
 		}
 		/*
 		 * Check for an exit in the master room 
@@ -1350,7 +1350,7 @@ char *command, *args[];
 		if (exit != NOTHING) {
 			move_exit(player, exit, 1, NULL, 0);
 			mudstate.debug_cmd = cmdsave;
-			return;
+			goto endcmd;
 		}
 	}
 	/*
@@ -1399,7 +1399,7 @@ char *command, *args[];
 			       command, args, nargs);
 		free_lbuf(lcbuf);
 		mudstate.debug_cmd = cmdsave;
-		return;
+		goto endcmd;
 	}
 	/*
 	 * Check for enter and leave aliases, user-defined commands on the *
@@ -1432,7 +1432,7 @@ char *command, *args[];
 				free_lbuf(lcbuf);
 				free_lbuf(p);
 				do_leave(player, player, 0);
-				return;
+				goto endcmd;
 			}
 		}
 		free_lbuf(p);
@@ -1448,7 +1448,7 @@ char *command, *args[];
 					free_lbuf(lcbuf);
 					free_lbuf(p);
 					do_enter_internal(player, exit, 0);
-					return;
+					goto endcmd;
 				}
 			}
 			free_lbuf(p);
@@ -1509,7 +1509,7 @@ char *command, *args[];
 				if (exit != NOTHING) {
 					move_exit(player, exit, 1, NULL, 0);
 					mudstate.debug_cmd = cmdsave;
-					return;
+					goto endcmd;
 				}
 				succ += list_check(Contents(Zone(Location(player))), player,
 						   AMATCH_CMD, lcbuf, 1);
@@ -1571,6 +1571,8 @@ char *command, *args[];
 		ENDLOG
 	}
 	mudstate.debug_cmd = cmdsave;
+
+endcmd:
 	return;
 }
 
@@ -1769,6 +1771,7 @@ NAMETAB attraccess_nametab[] = {
 {(char *)"no_command",		4,	CA_PUBLIC,	AF_NOPROG},
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
 {(char *)"private",		1,	CA_PUBLIC,	AF_ODARK},
+{(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
 {(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
 {(char *)"wizard",		1,	CA_PUBLIC,	AF_WIZARD},
 { NULL,				0,	0,		0}};
@@ -1779,16 +1782,10 @@ NAMETAB indiv_attraccess_nametab[] = {
 {(char *)"no_command",		4,	CA_PUBLIC,	AF_NOPROG},
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
 {(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
+{(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
 { NULL,				0,	0,		0}};
 
 /* *INDENT-ON* */
-
-
-
-
-
-
-
 
 static void list_attraccess(player)
 dbref player;
