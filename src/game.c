@@ -288,7 +288,7 @@ int check_exclude, hash_insert;
 		if (!*s)
 			continue;
 		*s++ = 0;
-                if ((!(aflags & AF_REGEXP) && 
+                if ((!(aflags & (AF_REGEXP | AF_XMATCH)) && 
                      wild(buff + 1,  
                           ((aflags & AF_NOPARSE) ? raw_str: str),  
                           args, NUM_ENV_VARS)) || 
@@ -296,10 +296,19 @@ int check_exclude, hash_insert;
                      regexp_match(buff + 1,  
                                   ((aflags & AF_NOPARSE) ? raw_str : str),  
 				  ((aflags & AF_CASE) ? 0 : PCRE_CASELESS),
-                                  args, NUM_ENV_VARS))) { 
+                                  args, NUM_ENV_VARS)) ||
+		    ((aflags & AF_XMATCH) &&
+		     xvar_match(buff + 1,
+				((aflags & AF_NOPARSE) ? raw_str : str),
+				args, NUM_ENV_VARS, thing))) { 
 			match = 1;
-			wait_que(thing, player, 0, NOTHING, 0, s, args,
-				 NUM_ENV_VARS, mudstate.global_regs);
+			if (aflags & AF_NOW) {
+			    process_cmdline(thing, player, s, args,
+					    NUM_ENV_VARS);
+			} else {
+			    wait_que(thing, player, 0, NOTHING, 0, s, args,
+				     NUM_ENV_VARS, mudstate.global_regs);
+			}
 			for (i = 0; i < NUM_ENV_VARS; i++) {
 				if (args[i])
 					free_lbuf(args[i]);

@@ -25,6 +25,8 @@
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
 
+extern void FDECL(set_xvar, (dbref, char *, char *)); /* from funvars.c */
+
 #define FIXCASE(a) (tolower(a))
 #define EQUAL(a,b) ((a == b) || (FIXCASE(a) == FIXCASE(b)))
 #define NOTEQUAL(a,b) ((a != b) && (FIXCASE(a) != FIXCASE(b)))
@@ -378,4 +380,91 @@ char *tstr, *dstr;
 	}
 
 	return quick_wild(tstr, dstr);
+}
+
+/* ----------------------------------------------------------------------
+ * xvar_match: Do a wildcard match, setting the wild data into xvars
+ * on the object.
+ */
+
+int xvar_match(tstr, dstr, args, nargs, thing)
+    char *tstr, *dstr, *args[];
+    int nargs;
+    dbref thing;
+{
+    int i, value;
+    char *buff, *scan, *p, *end, *xvar_names[NUM_ENV_VARS];
+
+    /* Initialize return array. */
+
+    for (i = 0; i < nargs; i++)
+	args[i] = xvar_names[i] = NULL;
+
+    /* Do fast match. */
+
+    while ((*tstr != '*') && (*tstr != '?')) {
+	if (*tstr == '\\')
+	    tstr++;
+	if (NOTEQUAL(*dstr, *tstr))
+	    return 0;
+	if (!*dstr)
+	    return 1;
+	tstr++;
+	dstr++;
+    }
+
+    /* Convert string, allocate space for the return args. */
+
+    i = 0;
+    scan = tstr;
+    buff = alloc_lbuf("xvar_match.buff");
+    p = buff;
+    while (*scan) {
+	*p++ = *scan;
+	switch (*scan) {
+	    case '?':
+		/* FALLTHRU */
+	    case '*':
+		args[i] = alloc_lbuf("xvars_match.wild");
+		scan++;
+		if (*scan == '{') {
+		    if ((end = strchr(scan + 1, '}')) != NULL) {
+			*end = '\0';
+			if (*(scan + 1)) {
+			    xvar_names[i] = XSTRDUP(scan + 1,
+						    "xvar_match.name");
+			}
+			scan = end + 1;
+		    }
+		}
+		i++;
+		break;
+	    default:
+		scan++;
+	}
+    }
+    *p = '\0';
+
+    /* Go do it. */
+
+    arglist = args;
+    numargs = nargs;
+    value = nargs ? wild1(buff, dstr, 0) : quick_wild(buff, dstr);
+
+    /* Copy things into xvars. Clean fake match data from wild1(). */
+
+    for (i = 0; i < nargs; i++) {
+	if ((args[i] != NULL) && (!*args[i] || !value)) {
+	    free_lbuf(args[i]);
+	    args[i] = NULL;
+	}
+	if (args[i] && xvar_names[i])
+	    set_xvar(thing, xvar_names[i], args[i]);
+	if (xvar_names[i]) {
+	    XFREE(xvar_names[i], "xvar_match.name");
+	}
+    }
+    free_lbuf(buff);
+
+    return value;
 }

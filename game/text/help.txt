@@ -375,6 +375,10 @@ Continued in 'help Attribute Flags2'.
                   wildcard glob patterns. Affects $-commands, ^-listens,
                   @filter, @infilter, and @listen. Local only. (R)
  
+     xmatch     - Set wildcard matches into x-variables. Local only. (X)
+ 
+     now        - Execute matches now, instead of queueing. Local only. (Q)
+ 
 Continued in 'help Attribute Flags3'.
  
 & Attribute Flags3
@@ -4874,8 +4878,9 @@ and, if there's a match, then <action sequence> will be executed, where
 <action sequence> is a semi-colon-separated list of commands to perform.
 The match is normally a wildcard match (see 'help Wildcards'), but
 if the attribute has the Regexp flag, then it is a regexp match
-(see 'help Regexps). Any wildcards/regexps  matched are available
-in the stack variables %0 through %9.
+(see 'help Regexps). Regexp matches are case-insensitive, unless the
+Case flag is set on the attribute. Any wildcards/regexp data matched
+is available in the stack variables %0 through %9.
  
 Continued in 'help User Commands2'.
  
@@ -4885,14 +4890,65 @@ User-defined commands are normally lower in priority than exits and
 built-in commands, when the MUSH server scans for available command
 matches for user input. See 'help Scan Order' for the details.
  
+The actions for user-defined commands are normally placed on the queue;
+if the attribute has the Now flag, though, they are executed immediately.
+ 
 User-defined commands can be turned into built-in commands via the
 @addcommand command. See 'wizhelp @addcommand' for more information.
  
 If the config parameter require_cmds_flag is enabled, an object must
 have the COMMANDS flag to be scanned for non-@addcommand'd $-commands.
  
-If an attribute is set No_Commands, it will not be checked for 
-$-commands.
+If an attribute is set No_Commands, it will not be checked for $-commands.
+ 
+Continued in 'help User Commands3'.
+ 
+& User Commands3
+ 
+If the attribute has the Xmatch flag, wildcard-matched data is also
+available in assigned x-variables, specified by braces {} around a
+variable name immediately following a wildcard. Xmatch cannot be used
+in conjunction with a regexp match. To prevent overriding of x-variables
+by the next match, however, the Now flag should always be used in
+conjunction with Xmatch.
+ 
+Regexp example:
+ 
+  > &DO_ATTACK object = $^attack (.+) with (.+)$: @emit %N attacks %1 with %2.
+  > @set object/DO_ATTACK = regexp 
+ 
+  If the user types 'attack Bob with sword', %0 is the entire match string
+  ('attack Bob with sword'), %1 is 'Bob', and '%2' is sword.
+ 
+Wildcard example:
+  
+  > &DO_ATTACK object = $attack * with *: @emit %N attacks %0 with %1.
+ 
+  If the user types 'attack Bob with sword', %0 is 'Bob' and '%1' is 'sword'.
+ 
+Continued in 'help User Commands4'.
+ 
+& User Commands4
+ 
+Wildcard with xvars example:
+ 
+  > &DO_ATTACK object = $attack *{target} with *{weapon}:
+                        @emit %N attacks %_<target> with %_<weapon>.
+  > @set object/DO_ATTACK = xmatch
+ 
+  If the user types 'attack Bob with sword', %0 is 'Bob' and '%1' is 'sword',
+  x(target) (or the more efficientpercent substitution %_<target> ) is
+  also 'Bob', and x(weapon) (or %_<weapon> ) is also 'sword'.
+ 
+It's not necessary to specify an xvar name for every wildcard, if you
+don't want it that way. For example:
+ 
+  > &DO_ATTACK object = $attack * with *{weapon}:
+                        @emit %N attacks %0 with %_<weapon>.
+  > @set object/DO_ATTACK = xmatch
+ 
+  If the user types 'attack Bob with sword', %0 is 'Bob' and '%1' is 'sword',
+  plus x(weapon) (or %_<weapon> ) is also 'sword'.
  
 & PIPING
   Topic: PIPING
@@ -14301,6 +14357,9 @@ Continued in 'help 3.1 flags2'.
   is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
   @listen.
  
+- A new attribute flag, 'xmatch', assigns the results of a $-command's
+  wildcard-match, to named x-variables, as well as to the stack.
+ 
 Continued in 'help 3.1 flags3'.
  
 & 3.1 flags3
@@ -14322,6 +14381,9 @@ Continued in 'help 3.1 flags3'.
   force() and trigger() now behave like @force/now and @trigger/now.
   The new conf parameters command_invocation_limit and 
   command_recursion_limit are used to limit this behavior.
+ 
+- A user-defined $-command is executed immediately if the attribute has
+  the new Now attribute flag.
  
 - Commands added via @addcommand are now run immediately. Also, these
   commands now respect an escaped-out ':', as well as the regexp and

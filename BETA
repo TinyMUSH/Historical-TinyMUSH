@@ -26,6 +26,14 @@ Release history:
 
 07/xx/2002: Beta 5
 
+- Feature: The new attribute flag 'now' causes a matched $/^-action to
+  be executed immediately.
+
+- Feature: The new attribute flag 'xmatch' causes wildcard match data
+  for a $/^-action to be set into x-variables as well as placed on the
+  stack, i.e. '$hit *{victim} with *{weapon}' to retrieve the victim
+  and weapon strings via %_<victim> and %_<weapon> is now possible.
+
 - Feature: "Altered reality" realm states like invisibility are supported
   through the use of the PRESENCE flag and six new locks (HeardLock,
   HearsLock, KnownLock, KnowsLock, MovedLock, and MovesLock). The

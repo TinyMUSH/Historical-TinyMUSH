@@ -877,9 +877,11 @@ NAMETAB indiv_attraccess_nametab[] = {
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
 {(char *)"no_name",		4,	CA_PUBLIC,	AF_NONAME},
 {(char *)"no_parse",		4,	CA_PUBLIC,	AF_NOPARSE},
+{(char *)"now",			3,	CA_PUBLIC,	AF_NOW},
 {(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
 {(char *)"structure",		1,	CA_GOD,		AF_STRUCTURE},
 {(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
+{(char *)"xmatch",		1,	CA_PUBLIC,	AF_XMATCH},
 {(char *)"html",		2,	CA_PUBLIC,	AF_HTML},
 { NULL,				0,	0,		0}};
 

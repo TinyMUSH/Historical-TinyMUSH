@@ -230,6 +230,10 @@ CHANGES TO FLAGS AND POWERS
   is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
   @listen.
 
+- A new attribute flag, 'xmatch', assigns the results of a $-command's
+  wildcard-match, to named x-variables, as well as to the stack.
+  Based on an idea from KiliaFae.
+
 -----------------------------------------------------------------------------
 
 CHANGES TO COMMANDS
@@ -249,6 +253,9 @@ CHANGES TO COMMANDS
   force() and trigger() now behave like @force/now and @trigger/now.
   The new conf parameters command_invocation_limit and 
   command_recursion_limit are used to limit this behavior.
+
+- A user-defined $-command is executed immediately if the attribute has
+  the new Now attribute flag.
 
 - Commands added via @addcommand are now run immediately. Also, these
   commands now respect an escaped-out ':', as well as the regexp and

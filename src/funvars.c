@@ -209,7 +209,7 @@ static void print_htab_matches(obj, htab, buff, bufc)
  */
 
 
-static void set_xvar(obj, name, data)
+void set_xvar(obj, name, data)
     dbref obj;
     char *name;
     char *data;
