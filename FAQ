@@ -169,7 +169,7 @@ The file specified by the config parameter 'guest_file' is shown to every
 guest when they connect. You may wish to use the 'access' config parameter
 to bar guests from using certain commands, using the 'no_guest' permission.
 All guests have the 'Guest' power, which is a marker you may use to test
-whether a player is a guest or not. Guests are also set ANSI.
+whether a player is a guest or not.
 
 ------------------------------------------------------------------------------
 
