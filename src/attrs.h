@@ -185,6 +185,8 @@
 #define A_LHEARS	227	/* Who does this player hear? (speech) */
 #define A_LMOVES	228	/* Who does this player notice moving? */ 
 
+#define A_SPEECHFMT	229	/* Format speech */
+
 #define	A_VLIST		252
 #define	A_LIST		253
 #define	A_STRUCT	254

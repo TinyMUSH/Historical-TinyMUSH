@@ -1814,6 +1814,159 @@ dbref player, thing;
 }
 
 /* ---------------------------------------------------------------------------
+ * master_attr: Get the evaluated text string of a master attribute.
+ *              Note that this returns an lbuf, which must be freed by
+ *              the caller.
+ */
+
+char *master_attr(player, thing, what, sargs, nsargs)
+    dbref player, thing;
+    int what;
+    char **sargs;
+    int nsargs;
+{
+    /* If the attribute exists, evaluate it and return pointer to lbuf.
+     * If not, return NULL.
+     * Respect global overrides.
+     * what is assumed to be more than 0.
+     */
+
+    char *d, *m, *buff, *bp, *str, *tbuf, *tp, *sp, *list, *bb_p, *lp;
+    int t, aflags, alen, is_ok, lev;
+    dbref aowner, master, parent, obj;
+
+    ATTR *ap;
+    GDATA *preserve;
+
+    if (NoDefault(thing)) {
+	master = NOTHING;
+    } else {
+	switch (Typeof(thing)) {
+	    case TYPE_ROOM:
+		master = mudconf.room_defobj;
+		break;
+	    case TYPE_EXIT:
+		master = mudconf.exit_defobj;
+		break;
+	    case TYPE_PLAYER:
+		master = mudconf.player_defobj;
+		break;
+	    case TYPE_GARBAGE:
+		return NULL;
+		break;		/* NOTREACHED */
+	    default:
+		master = mudconf.thing_defobj;
+	}
+	if (master == thing)
+	    master = NOTHING;
+    }
+
+    m = NULL;
+    d = atr_pget(thing, what, &aowner, &aflags, &alen);
+    if (Good_obj(master)) {
+	ap = atr_num(what);
+	t = (ap && (ap->flags & AF_DEFAULT)) ? 1 : 0;
+    } else {
+	t = 0;
+    }
+    if (t) {
+	m = atr_pget(master, what, &aowner, &aflags, &alen);
+    }
+
+    if (!(*d || (t && *m))) {
+	free_lbuf(d);
+	if (m) {
+	    free_lbuf(m);
+	}
+	return NULL;
+    }
+
+    /* Construct any arguments that we're going to pass along on the
+     * stack.
+     */
+
+    switch (what) {
+	case A_LEXITS_FMT:
+	    list = alloc_lbuf("master_attr.list");
+	    bb_p = lp = list;
+	    is_ok = Darkened(player, thing);
+	    ITER_PARENTS(thing, parent, lev) {
+		if (!Has_exits(parent))
+		    continue;
+		DOLIST(obj, Exits(parent)) {
+		    if (Can_See_Exit(player, obj, is_ok)) {
+			if (lp != bb_p) {
+			    safe_chr(' ', list, &lp);
+			}
+			safe_dbref(list, &lp, obj);
+		    }
+		}
+	    }
+	    *lp = '\0';
+	    is_ok = 1;
+	    break;
+	case A_LCON_FMT:
+	    list = alloc_lbuf("master_attr.list");
+	    bb_p = lp = list;
+	    is_ok = Sees_Always(player, thing);
+	    DOLIST(obj, Contents(thing)) {
+		if (Can_See(player, obj, is_ok)) {
+		    if (lp != bb_p) {
+			safe_chr(' ', list, &lp);
+		    }
+		    safe_dbref(list, &lp, obj);
+		}
+	    }
+	    *lp = '\0';
+	    is_ok = 1;
+	    break;
+	default:
+	    list = NULL;
+	    is_ok = nsargs;
+	    break;
+    }
+
+    /* Go do it. */ 
+
+    preserve = save_global_regs("master_attr_save");
+    buff = bp = alloc_lbuf("master_attr.1");
+    if (t && *m) {
+	str = m;
+	if (*d) {
+	    sp = d;
+	    tbuf = tp = alloc_lbuf("master_attr.deval");
+	    exec(tbuf, &tp, thing, player, player,
+		 EV_EVAL | EV_FIGNORE | EV_TOP,
+		 &sp, ((list == NULL) ? sargs : &list), is_ok);
+	    *tp = '\0';
+	    exec(buff, &bp, thing, player, player,
+		 EV_EVAL | EV_FIGNORE | EV_TOP,
+		 &str, &tbuf, 1);
+	    free_lbuf(tbuf);
+	} else {
+	    exec(buff, &bp, thing, player, player,
+		 EV_EVAL | EV_FIGNORE | EV_TOP,
+		 &str, ((list == NULL) ? sargs : &list), is_ok);
+	}
+    } else if (*d) {
+	str = d;
+	exec(buff, &bp, thing, player, player,
+	     EV_EVAL | EV_FIGNORE | EV_TOP,
+	     &str, ((list == NULL) ? sargs : &list), is_ok);
+    }
+    *bp = '\0';
+    free_lbuf(d);
+    if (m) {
+	free_lbuf(m);
+    }
+    if (list) {
+	free_lbuf(list);
+    }
+    restore_global_regs("master_attr_restore", preserve);
+    return buff;
+}
+
+/* ---------------------------------------------------------------------------
  * did_it: Have player do something to/with thing
  */
 

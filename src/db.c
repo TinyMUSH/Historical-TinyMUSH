@@ -364,6 +364,7 @@ ATTR attr[] =
 								NULL},
 {"Sex",		A_SEX,	AF_VISUAL|AF_NOPROG,			NULL},
 {"Signature",	A_SIGNATURE,	AF_NOPROG,			NULL},
+{"Speechformat",A_SPEECHFMT,	AF_DEFAULT|AF_NOPROG,		NULL},
 {"Speechlock",	A_LSPEECH,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Startup",	A_STARTUP,	AF_NOPROG,			NULL},
 {"Succ",	A_SUCC,		AF_DEFAULT|AF_NOPROG,			NULL},
@@ -1636,6 +1637,9 @@ int atr;
 	case A_LISTEN:
 		s_Flags2(thing, Flags2(thing) & ~HAS_LISTEN);
 		break;
+	case A_SPEECHFMT:
+		s_Flags3(thing, Flags3(thing) & ~HAS_SPEECHMOD);
+		break;
 	case A_TIMEOUT:
 		if (!mudstate.standalone)
 			desc_reload(thing);
@@ -1709,6 +1713,9 @@ char *buff;
 		break;
 	case A_LISTEN:
 		s_Flags2(thing, Flags2(thing) | HAS_LISTEN);
+		break;
+	case A_SPEECHFMT:
+		s_Flags3(thing, Flags3(thing) | HAS_SPEECHMOD);
 		break;
 	case A_TIMEOUT:
 		if (!mudstate.standalone)

@@ -27,146 +27,19 @@ static int did_attr(player, thing, what)
     dbref player, thing;
     int what;
 {
-    /* If the attribute exists, evaluate it and notify the player, return 1.
+    /* If the attribute exists, get it, notify the player, return 1.
      * If not, return 0.
-     * Respect global overrides.
-     * what is assumed to be more than 0.
      */
 
-    char *d, *m, *buff, *bp, *str, *tbuf, *tp, *sp, *list, *bb_p, *lp;
-    int t, aflags, alen, is_ok, lev;
-    dbref aowner, master, parent, obj;
-    ATTR *ap;
-    GDATA *preserve;
+    char *buff;
 
-    if (NoDefault(thing)) {
-	master = NOTHING;
-    } else {
-	switch (Typeof(thing)) {
-	    case TYPE_ROOM:
-		master = mudconf.room_defobj;
-		break;
-	    case TYPE_EXIT:
-		master = mudconf.exit_defobj;
-		break;
-	    case TYPE_PLAYER:
-		master = mudconf.player_defobj;
-		break;
-	    case TYPE_GARBAGE:
-		return 0;
-		break;		/* NOTREACHED */
-	    default:
-		master = mudconf.thing_defobj;
-	}
-	if (master == thing)
-	    master = NOTHING;
+    buff = master_attr(player, thing, what, NULL, 0);
+    if (buff) {
+	notify(player, buff);
+	free_lbuf(buff);
+	return 1;
     }
-
-    m = NULL;
-    d = atr_pget(thing, what, &aowner, &aflags, &alen);
-    if (Good_obj(master)) {
-	ap = atr_num(what);
-	t = (ap && (ap->flags & AF_DEFAULT)) ? 1 : 0;
-    } else {
-	t = 0;
-    }
-    if (t) {
-	m = atr_pget(master, what, &aowner, &aflags, &alen);
-    }
-
-    if (!(*d || (t && *m))) {
-	free_lbuf(d);
-	if (m) {
-	    free_lbuf(m);
-	}
-	return 0;
-    }
-
-    /* Construct any arguments that we're going to pass along on the
-     * stack.
-     */
-
-    switch (what) {
-	case A_LEXITS_FMT:
-	    list = alloc_lbuf("did_attr.list");
-	    bb_p = lp = list;
-	    is_ok = Darkened(player, thing);
-	    ITER_PARENTS(thing, parent, lev) {
-		if (!Has_exits(parent))
-		    continue;
-		DOLIST(obj, Exits(parent)) {
-		    if (Can_See_Exit(player, obj, is_ok)) {
-			if (lp != bb_p) {
-			    safe_chr(' ', list, &lp);
-			}
-			safe_dbref(list, &lp, obj);
-		    }
-		}
-	    }
-	    *lp = '\0';
-	    is_ok = 1;
-	    break;
-	case A_LCON_FMT:
-	    list = alloc_lbuf("did_attr.list");
-	    bb_p = lp = list;
-	    is_ok = Sees_Always(player, thing);
-	    DOLIST(obj, Contents(thing)) {
-		if (Can_See(player, obj, is_ok)) {
-		    if (lp != bb_p) {
-			safe_chr(' ', list, &lp);
-		    }
-		    safe_dbref(list, &lp, obj);
-		}
-	    }
-	    *lp = '\0';
-	    is_ok = 1;
-	    break;
-	default:
-	    list = NULL;
-	    is_ok = 0;
-	    break;
-    }
-
-    /* Go do it. */ 
-
-    preserve = save_global_regs("did_attr_save");
-    buff = bp = alloc_lbuf("did_attr.1");
-    if (t && *m) {
-	str = m;
-	if (*d) {
-	    sp = d;
-	    tbuf = tp = alloc_lbuf("did_it.deval");
-	    exec(tbuf, &tp, thing, player, player,
-		 EV_EVAL | EV_FIGNORE | EV_TOP,
-		 &sp, ((list == NULL) ? (char **) NULL : &list), is_ok);
-	    *tp = '\0';
-	    exec(buff, &bp, thing, player, player,
-		 EV_EVAL | EV_FIGNORE | EV_TOP,
-		 &str, &tbuf, 1);
-	    free_lbuf(tbuf);
-	} else {
-	    exec(buff, &bp, thing, player, player,
-		 EV_EVAL | EV_FIGNORE | EV_TOP,
-		 &str, ((list == NULL) ? (char **) NULL : &list), is_ok);
-	}
-    } else if (*d) {
-	str = d;
-	exec(buff, &bp, thing, player, player,
-	     EV_EVAL | EV_FIGNORE | EV_TOP,
-	     &str, ((list == NULL) ? (char **) NULL : &list), is_ok);
-    }
-    *bp = '\0';
-    notify(player, buff);
-    free_lbuf(buff);
-    free_lbuf(d);
-    if (m) {
-	free_lbuf(m);
-    }
-    if (list) {
-	free_lbuf(list);
-    }
-    restore_global_regs("did_attr_restore", preserve);
-    return 1;
+    return 0;
 }
 
 static void look_exits(player, loc, exit_name)
@@ -306,7 +179,7 @@ int style;
 	
 	/* Check if we're formatting contents in a player-specified way. */
 
-	if (did_attr(player, loc, A_LCON_FMT))
+	if (did_attr(player, loc, A_LCON_FMT, NULL))
 	    return;
 
 #ifdef PUEBLO_SUPPORT

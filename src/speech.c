@@ -76,6 +76,98 @@ char *message;
 	free_lbuf(buf);
 }
 
+static int check_speechformat(player, speaker, loc, thing, message, key)
+    dbref player, speaker, loc, thing;
+    char *message;
+    int key;
+{
+    char *sargs[2], tokbuf[2], *buff, msgbuf[LBUF_SIZE];
+
+    /* We have to make a copy of our arguments, because the exec() we
+     * pass it through later can nibble those arguments, and we may
+     * need to call this function more than once on the same message.
+     */
+
+    strcpy(msgbuf, message);
+
+    switch (key) {
+	case SAY_SAY:
+	    tokbuf[0] = '"';
+	    break;
+	case SAY_POSE:
+	    tokbuf[0] = ':';
+	    break;
+	case SAY_POSE_NOSPC:
+	    tokbuf[0] = ';';
+	    break;
+	default:
+	    tokbuf[0] = '|';
+    }
+    tokbuf[1] = '\0';
+
+    sargs[0] = msgbuf;
+    sargs[1] = tokbuf;
+
+    /* Go get it. An empty evaluation is considered equivalent to no
+     * attribute.
+     */
+
+    buff = master_attr(speaker, thing, A_SPEECHFMT, sargs, 2);
+			   
+    if (buff) {
+	if (*buff) {
+	    notify_all_from_inside_speech(loc, player, buff);
+	    free_lbuf(buff);
+	    return 1;
+	}
+	free_lbuf(buff);
+    }
+
+    return 0;
+}
+
+static void format_speech(player, speaker, loc, message, key)
+    dbref player, speaker, loc;
+    char *message;
+    int key;
+{
+    if (H_Speechmod(speaker) &&
+	check_speechformat(player, speaker, loc, speaker, message, key))
+	return;
+
+    if (H_Speechmod(loc) &&
+	check_speechformat(player, speaker, loc, loc, message, key))
+	return;
+
+    switch (key) {
+	case SAY_SAY:
+	    if (mudconf.you_say) {
+		notify(speaker, tprintf("You %s \"%s\"", SAY_STRING, message));
+		if (loc != NOTHING) {
+		    notify_except(loc, player, speaker,
+				  tprintf("%s %s \"%s\"", Name(speaker),
+					  SAYS_STRING, message), MSG_SPEECH);
+		}
+	    } else {
+		notify_all_from_inside_speech(loc, player,
+					tprintf("%s %s \"%s\"", Name(speaker),
+						SAYS_STRING, message));
+	    }
+	    break;
+	case SAY_POSE:
+	    notify_all_from_inside_speech(loc, player,
+				tprintf("%s %s", Name(speaker), message));
+	    break;
+	case SAY_POSE_NOSPC:
+	    notify_all_from_inside_speech(loc, player,
+				tprintf("%s%s", Name(speaker), message));
+	    break;
+	default:
+	    /* NOTREACHED */
+	    notify_all_from_inside_speech(loc, player, message);
+    }
+}
+
 void do_say(player, cause, key, message)
 dbref player, cause;
 int key;
@@ -144,26 +236,13 @@ char *message;
 
 	switch (key) {
 	case SAY_SAY:
-		if (mudconf.you_say) {
-		    notify(player,
-			   tprintf("You %s \"%s\"", SAY_STRING, message));
-		    notify_except(loc, player, player,
-				  tprintf("%s %s \"%s\"", Name(player),
-					  SAYS_STRING, message),
-				  MSG_SPEECH);
-		} else {
-		    notify_all_from_inside_speech(loc, player,
-			   tprintf("%s %s \"%s\"",
-				   Name(player), SAYS_STRING, message));
-		}
+		format_speech(player, player, loc, message, SAY_SAY);
 		break;
 	case SAY_POSE:
-		notify_all_from_inside_speech(loc, player,
-				   tprintf("%s %s", Name(player), message));
+		format_speech(player, player, loc, message, SAY_POSE);
 		break;
 	case SAY_POSE_NOSPC:
-		notify_all_from_inside_speech(loc, player,
-				    tprintf("%s%s", Name(player), message));
+		format_speech(player, player, loc, message, SAY_POSE_NOSPC);
 		break;
 	case SAY_EMIT:
 	        if (!say_flags || (say_flags & SAY_HERE) ||
@@ -888,30 +967,14 @@ char *recipient, *message;
 			}
 			break;
 		case PEMIT_FSAY:
-			if (mudconf.you_say) {
-			    notify(target, tprintf("You %s \"%s\"",
-						   SAY_STRING, message));
-			    if (loc != NOTHING) {
-				notify_except(loc, player, target,
-					      tprintf("%s %s \"%s\"",
-						      Name(target),
-						      SAYS_STRING, message),
-					      MSG_SPEECH);
-			    }
-			} else {
-			    notify_all_from_inside_speech(loc, player,
-					   tprintf("%s %s \"%s\"",
-						   Name(target),
-						   SAYS_STRING, message));
-			}
+			format_speech(player, target, loc, message, SAY_SAY);
 			break;
 		case PEMIT_FPOSE:
-			notify_all_from_inside_speech(loc, player,
-				   tprintf("%s %s", Name(target), message));
+			format_speech(player, target, loc, message, SAY_POSE);
 			break;
 		case PEMIT_FPOSE_NS:
-			notify_all_from_inside_speech(loc, player,
-				    tprintf("%s%s", Name(target), message));
+			format_speech(player, target, loc, message,
+				      SAY_POSE_NOSPC);
 			break;
 		case PEMIT_FEMIT:
 			if ((pemit_flags & PEMIT_HERE) || !pemit_flags)
