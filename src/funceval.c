@@ -1845,9 +1845,16 @@ FUNCTION(fun_last)
 FUNCTION(fun_matchall)
 {
 	int wcount;
-	char *r, *s, *old, sep, tbuf[8];
+	char *r, *s, *old, sep, osep, tbuf[8];
 
-	varargs_preamble("MATCHALL", 3);
+	svarargs_preamble("MATCHALL", 4);
+
+	/* SPECIAL CASE: If there's no output delimiter specified, we use
+	 * a space, NOT the delimiter given for the list!
+	 */
+	if (nfargs < 4)
+	    osep = ' ';
+
 	old = *bufc;
 
 	/* Check each word individually, returning the word number of all 
@@ -1861,7 +1868,7 @@ FUNCTION(fun_matchall)
 		if (quick_wild(fargs[1], r)) {
 			ltos(tbuf, wcount);
 			if (old != *bufc)
-				safe_chr(' ', buff, bufc);
+				safe_chr(osep, buff, bufc);
 			safe_str(tbuf, buff, bufc);
 		}
 		wcount++;
