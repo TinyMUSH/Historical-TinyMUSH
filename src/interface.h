@@ -1,4 +1,4 @@
-/* interface.h */
+/* interface.h -- network-related definitions */
 /* $Id$ */
 
 #include "copyright.h"
@@ -198,10 +198,5 @@ extern dbref	FDECL(find_connected_name, (dbref, char *));
 	for (d=descriptor_list,n=((d!=NULL) ? d->next : NULL); \
 	     d; \
 	     d=n,n=((n!=NULL) ? n->next : NULL))
-
-#define MALLOC(result, type, number, where) do { \
-	if (!((result)=(type *) XMALLOC (((number) * sizeof (type)), where))) \
-		panic("Out of memory", 1);				\
-	} while (0)
 
 #endif /* __INTERFACE_H */
