@@ -2080,27 +2080,27 @@ FUNCTION(fun_pfind)
 
 FUNCTION(fun_gt)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) > atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) > aton(fargs[1])));
 }
 FUNCTION(fun_gte)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) >= atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) >= aton(fargs[1])));
 }
 FUNCTION(fun_lt)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) < atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) < aton(fargs[1])));
 }
 FUNCTION(fun_lte)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) <= atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) <= aton(fargs[1])));
 }
 FUNCTION(fun_eq)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) == atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) == aton(fargs[1])));
 }
 FUNCTION(fun_neq)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) != atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) != aton(fargs[1])));
 }
 
 FUNCTION(fun_and)
@@ -2375,7 +2375,7 @@ FUNCTION(fun_add)
 
 FUNCTION(fun_sub)
 {
-	fval(buff, bufc, aton(fargs[0]) - atof(fargs[1]));
+	fval(buff, bufc, aton(fargs[0]) - aton(fargs[1]));
 }
 
 FUNCTION(fun_mul)
