@@ -127,16 +127,20 @@ void NDECL(init_cmdtab)
 			if (hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab, 0)) {
 				XFREE(cp->cmdname, "init_cmdtab.2");
 				XFREE(cp, "init_cmdtab.3");
+			} else {
+				/* also add the __ alias form */
+				hashadd(tprintf("__%s", cp->cmdname), (int *)cp, &mudstate.command_htab, HASH_ALIAS);
 			}
 		}
 	}
 	free_sbuf(cbuff);
 
-	/* Load the builtin commands */	
+	/* Load the builtin commands, plus __ aliases */	
 
-	for (cp = command_table; cp->cmdname; cp++)
+	for (cp = command_table; cp->cmdname; cp++) {
 		hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab, 0);
-
+		hashadd(tprintf("__%s", cp->cmdname), (int *)cp, &mudstate.command_htab, HASH_ALIAS);
+	}
 	set_prefix_cmds();
 	
 	goto_cmdp = (CMDENT *) hashfind("goto", &mudstate.command_htab);
@@ -1898,9 +1902,16 @@ CF_HAND(cf_cmd_alias)
 	alias = strtok_r(str, " \t=,", &tokst);
 	orig = strtok_r(NULL, " \t=,", &tokst);
 
-	if (!orig)		/* we only got one argument to @alias. Bad. */
+	if (!orig) {		/* we only got one argument to @alias. Bad. */
+		cf_log_syntax(player, cmd, "Invalid original for alias %s",
+			      alias);
 		return -1;
-
+	}
+	if (alias[0] == '_' && alias[1] == '_') {
+		cf_log_syntax(player, cmd, "Alias %s would cause @addcommand conflict",
+			      alias);
+		return -1;
+	}
 	for (ap = orig; *ap && (*ap != '/'); ap++) ;
 	if (*ap == '/') {
 

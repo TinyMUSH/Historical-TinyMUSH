@@ -75,8 +75,10 @@ void register_commands(cmdtab)
 {
     CMDENT *cp;
 
-    for (cp = cmdtab; cp->cmdname; cp++)
+    for (cp = cmdtab; cp->cmdname; cp++) {
 	hashadd(cp->cmdname, (int *) cp, &mudstate.command_htab, 0);
+	hashadd(tprintf("__%s", cp->cmdname), (int *) cp, &mudstate.command_htab, HASH_ALIAS);
+    }
 }
 
 void register_functions(functab)
