@@ -744,6 +744,23 @@ CF_HAND(cf_divert_log)
 	    ENDLOG
 	    return -1;
 	}
+#ifdef FNDELAY
+	if (fcntl(fptr->_file, F_SETFL, FNDELAY) == -1) {
+	    STARTLOG(LOG_STARTUP, "CNF", "DIVT")
+		log_text((char *) "Cannot make nonblocking: ");
+	        log_text(file_str);
+	    ENDLOG
+	    return -1;
+	}
+#else
+	if (fcntl(fptr->_file, F_SETFL, O_NDELAY) == -1) {
+	    STARTLOG(LOG_STARTUP, "CNF", "DIVT")
+		log_text((char *) "Cannot make nonblocking: ");
+	        log_text(file_str);
+	    ENDLOG
+	    return -1;
+	}
+#endif
     }
 
     /* Indicate that this is being diverted. */
