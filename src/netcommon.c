@@ -1545,6 +1545,8 @@ char *msg;
 		}
 	} else if (!strncmp(command, "cr", 2)) {
 
+		reason = R_CREATE;
+
 		/* Enforce game down */
 
 		if (!(mudconf.control_flags & CF_LOGIN)) {
