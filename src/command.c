@@ -2985,7 +2985,7 @@ static void list_textfiles(player)
 {
     int i;
 
-    raw_notify(player, "Help File       Size Entries Deleted   Empty Lookups    Hits  Checks Longest");
+    raw_notify(player, "Help File        Size Entries Deleted   Empty Lookups    Hits  Checks Longest");
 
     for (i = 0; i < mudstate.helpfiles; i++)
 	list_hashstat(player, mudstate.hfiletab[i], &mudstate.hfile_hashes[i]);
