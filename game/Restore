@@ -52,9 +52,21 @@ mv -f $DATA/$GDBM_DB $DATA/$CRASH_DB $DATA/$BACKUP_DB $DATA/mod_*.db db-$DBDATE
 # Reload the archive.
 #
 case $ARCHIVE in
-    *.tar.*) echo "Restoring archive."
+    *-archive.*.tar.*) mv -f mush.config $GAMENAME.conf db-$DBDATE
+	mkdir db-$DBDATE/$TEXT
+	TXTFILES=`ls $TEXT/*.txt | egrep -v '^(help|wizhelp|qhelp|mushman).txt'`
+	mv -f $TXTFILES db-$DBDATE/$TEXT
+	echo "Restoring archive."
+	$UNZIP $ARCHIVE | tar -xvf -
+	INFILE=`basename $ARCHIVE | sed -e "s/\\.tar\\.gz\$//" | sed -e "s/\\-archive/\\.flat/"`
+	. mush.config
+	. check_paths
+	echo "Restoring flatfile $INFILE ..."
+	$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
+	rm $INFILE ;;
+    *.tar.*) echo "Restoring module databases and flatfile."
 	INFILE=`echo $ARCHIVE | sed -e "s/\\.tar\\.gz\$//"`
-	$UNZIP $ARCHIVE | tar -xvPf -
+	$UNZIP $ARCHIVE | tar -xvf -
 	$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
 	rm $INFILE ;;
     *) echo "Restoring flatfile."	

@@ -28,7 +28,7 @@ if [ -r $DATA/$GDBM_DB ]; then
 	echo "Creating flatfile $OUTFILE"
 	$BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB > $OUTFILE
 	echo "Creating database archive $OUTFILE.tar.gz"
-	tar -cvPhf - $OUTFILE $DATA/mod_*.db | $ZIP -c > $OUTFILE.tar.gz
+	tar -cvhf - $OUTFILE $DATA/mod_*.db | $ZIP -c > $OUTFILE.tar.gz
 	rm $OUTFILE
     fi
 else
