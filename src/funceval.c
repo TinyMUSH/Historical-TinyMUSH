@@ -2678,7 +2678,7 @@ FUNCTION(fun_swap)
     }
 
     sp = stack_get(it);
-    if (sp->next == NULL) {
+    if (!sp || (sp->next == NULL)) {
 	notify_quiet(player, "Not enough items on stack.");
 	return;
     }
