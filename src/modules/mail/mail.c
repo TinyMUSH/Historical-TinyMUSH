@@ -45,6 +45,8 @@
 #define MAIL_SAFE	27	/* Defines a piece of mail as safe. */
 #define MAIL_REPLY	28	/* Replies to a message. */
 #define MAIL_REPLYALL	29	/* Replies to all recipients of msg */
+#define MAIL_TO		30	/* Set recipient list */
+#define MAIL_BCC	31	/* Blind Carbon copy */
 #define MAIL_QUOTE	0x100	/* Quote back original in the reply? */
 
 /* Note that we don't use all hex for mail flags, because the upper 3 bits
@@ -84,7 +86,8 @@ extern int FDECL(do_convtime, (char *, struct tm *));
 static int FDECL(sign, (int));
 static void FDECL(do_mail_flags, (dbref, char *, mail_flag, int));
 static void FDECL(send_mail, (dbref, dbref, const char *, const char *, \
-			      int, mail_flag, int));
+			      const char *, const char *, int, mail_flag, \
+			      int));
 static int FDECL(player_folder, (dbref));
 static int FDECL(parse_msglist, (char *, struct mail_selector *, dbref));
 static int FDECL(mail_match, (struct mail *, struct mail_selector, int));
@@ -98,11 +101,14 @@ static char *FDECL(get_folder_name, (dbref, int));
 static char *FDECL(mail_list_time, (const char *));
 static char *FDECL(make_numlist, (dbref, char *));
 static char *FDECL(make_namelist, (dbref, char *));
-static void FDECL(mail_to_list, (dbref, char *, char *, char *, int, int));
+static void FDECL(mail_to_list, (dbref, char *, char *, char *, char *, \
+				 char *, int, int));
 static void FDECL(do_edit_msg, (dbref, char *, char *));
 static void FDECL(do_mail_proof, (dbref));
-void FDECL(do_mail_cc, (dbref, char *));
-void FDECL(do_expmail_abort, (dbref));
+static void FDECL(do_mail_to, (dbref, char *, int));
+static int FDECL(do_expmail_start, (dbref, char *, char *, char *));
+static void FDECL(do_expmail_stop, (dbref, int));
+static void FDECL(do_expmail_abort, (dbref));
 struct mail *FDECL(mail_fetch, (dbref, int));
 
 #define MALIAS_LEN 100
@@ -532,7 +538,7 @@ dbref player;
 char *msglist;
 {
 	struct mail *mp;
-	char *tbuf1, *buff, *status, *names;
+	char *tbuf1, *buff, *status, *names, *ccnames;
 	struct mail_selector ms;
 	int i = 0, j = 0, folder;
 
@@ -557,30 +563,31 @@ char *msglist;
 				notify(player, DASH_LINE);
 				status = status_string(mp);
 				names = make_namelist(player, (char *)mp->tolist);
-				notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nTo     : %-65s\r\nSubject: %-65s",
-				   i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
+				ccnames = make_namelist(player, (char *)mp->cclist);
+				notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nTo     : %-65s",
+						       i,
+						       PLAYER_NAME_LIMIT - 6,
+						       Name(mp->from),
 						       mp->time,
-						     (Connected(mp->from) &&
-				  (!Hidden(mp->from) || See_Hidden(player))) ?
-					       " (Conn)" : "      ", folder,
+						       (Connected(mp->from) && (!Hidden(mp->from) || See_Hidden(player))) ? " (Conn)" : "      ",
+						       folder,
 						       status,
-						       names,
-						       mp->subject));
+						       names));
+				if (*ccnames)
+					notify(player, tprintf("Cc     : %-65s", ccnames));
+				notify(player, tprintf("Subject: %-65s", mp->subject));
 				free_lbuf(names);
+				free_lbuf(ccnames);
 				free_lbuf(status);
 				notify(player, DASH_LINE);
 				StringCopy(tbuf1, buff);
 				notify(player, tbuf1);
 				notify(player, DASH_LINE);
 				free_lbuf(buff);
-				if (Unread(mp))
-					mp->read |= M_ISREAD;	/*
-								 * mark * * * 
-								 * message as 
-								 * 
-								 * *  * *  *
-								 * * * read 
-								 */
+				if (Unread(mp)) {
+					/* mark message as read */
+					mp->read |= M_ISREAD;
+				}
 			}
 		}
 	}
@@ -608,7 +615,7 @@ char *name, *msglist;
 		notify(player, "MAIL: No such player.");
 		return;
 	}
-	if (!parse_msglist(msglist, &ms, target)) {
+	if (!parse_msglist(msglist, &ms, player)) {
 		return;
 	}
 	for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab);
@@ -638,6 +645,10 @@ char *name, *msglist;
 					      "mail_retract.time");
 					XFREE(mp->tolist,
 					      "mail_retract.tolist");
+					XFREE(mp->cclist,
+					      "mail_retract.cclist");
+					XFREE(mp->bcclist,
+					      "mail_retract.bcclist");
 					XFREE(mp, "mail_retract");
 					notify(player,
 					       "MAIL: Mail retracted.");
@@ -670,66 +681,143 @@ char *msglist;
 	struct mail *mp;
 	struct mail_selector ms;
 	int i = 0, j = 0;
-	dbref target;
-	char *status;
+	dbref target, thing;
+	char *status, *names, *ccnames, *bccnames;
+	int all = 0;
 
-	target = lookup_player(player, name, 1);
-	if (target == NOTHING) {
-		notify(player, "MAIL: No such player.");
-		return;
+	if (!*name || !strcmp(name, "all")) {
+		target = player;
+		all = 1;
+	} else {
+		target = lookup_player(player, name, 1);
+		if (target == NOTHING) {
+			notify(player, "MAIL: No such player.");
+			return;
+		}
 	}
+
 	if (!msglist || !*msglist) {
+		/* no specific list of messages to review -- either see all to
+		 * one player, or all sent
+		 */
 		notify(player, tprintf("%.*s   MAIL: %s   %.*s",
 				       (63 - strlen(Name(target))) >> 1,
 				       "--------------------------------",
 				       Name(target),
 				       (64 - strlen(Name(target))) >> 1,
 				       "--------------------------------"));
-		for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab);
-		     mp; mp = mp->next) {
-			if (mp->from == player) {
-				i++;
-				/*
-				 * list it 
-				 */
-				notify(player, tprintf("[%s] %-3d (%4d) From: %-*s Sub: %.25s",
-						       status_chars(mp),
-				    i, strlen(get_mail_message(mp->number)),
-				      PLAYER_NAME_LIMIT - 6, Name(mp->from),
-						       mp->subject));
+		if (all) {
+			/* ok, review all sent messages */
+			MAIL_ITER_ALL(mp, thing) {
+				if (mp->from == player) {
+					i++;
+					/*
+					 * list it 
+					 */
+					notify(player, tprintf("[%s] %-3d (%4d) To: %-*s Sub: %.25s",
+							       status_chars(mp),
+							       i,
+							       strlen(get_mail_message(mp->number)),
+							       PLAYER_NAME_LIMIT - 6,
+							       Name(mp->to),
+							       mp->subject));
+				}
+			}
+		} else {
+			/* review all messages we sent to the target */
+			for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab); mp; mp = mp->next) {
+				if (mp->from == player) {
+					i++;
+					/*
+					 * list it 
+					 */
+					notify(player, tprintf("[%s] %-3d (%4d) To: %-*s Sub: %.25s",
+							       status_chars(mp),
+							       i,
+							       strlen(get_mail_message(mp->number)),
+							       PLAYER_NAME_LIMIT - 6,
+							       Name(mp->to),
+							       mp->subject));
+				}
 			}
 		}
 		notify(player, DASH_LINE);
 	} else {
-		if (!parse_msglist(msglist, &ms, target)) {
+		/* specific list of messages, either chosen from all our sent
+		 * messages, or from messages sent to a particular player
+		 */
+
+		if (!parse_msglist(msglist, &ms, player)) {
 			return;
 		}
-		for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab);
-		     mp; mp = mp->next) {
-			if (mp->from == player) {
-				i++;
-				if (mail_match(mp, ms, i)) {
-					/*
-					 * Read it 
-					 */
-					j++;
-					status = status_string(mp);
-					notify(player, DASH_LINE);
-					notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nSubject: %-65s",
-							       i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
-							       mp->time,
-						     (Connected(mp->from) &&
-						      (!Hidden(mp->from) || See_Hidden(player))) ?
-						    " (Conn)" : "      ", 0,
-						      status, mp->subject));
-					free_lbuf(status);
-					notify(player, DASH_LINE);
-					notify(player, get_mail_message(mp->number));
-					notify(player, DASH_LINE);
+		if (all) {
+			/* ok, choose messages from among all sent */
+			MAIL_ITER_ALL(mp, thing){
+				if (mp->from == player) {
+					i++;
+					if (mail_match(mp, ms, i)) {
+						/*
+						 * Read it 
+						 */
+						j++;
+						status = status_string(mp);
+						names = make_namelist(player, (char *)mp->tolist);
+						ccnames = make_namelist(player, (char *)mp->cclist);
+						bccnames = make_namelist(player, (char *)mp->bcclist);
+						notify(player, DASH_LINE);
+						notify(player, tprintf("%-3d         From:  %-*s  At: %-25s\r\nFldr   : %-2d Status: %s\r\nTo     : %-65s",
+							i, PLAYER_NAME_LIMIT - 6, Name(mp->from), mp->time, 0, status, names));
+						if (*ccnames)
+							notify(player, tprintf("Cc     : %-65s", ccnames));
+						if (*bccnames)
+							notify(player, tprintf("Bcc    : %-65s", bccnames));
+						notify(player, tprintf("Subject: %-65s", mp->subject));
+						free_lbuf(status);
+						free_lbuf(names);
+						free_lbuf(ccnames);
+						free_lbuf(bccnames);
+						notify(player, DASH_LINE);
+						notify(player, get_mail_message(mp->number));
+						notify(player, DASH_LINE);
+					}
 				}
 			}
-		}
+		} else {
+			/* choose messages from among those sent to a
+			 * particular player
+			 */
+			for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab); mp; mp = mp->next) {
+				if (mp->from == player) {
+					i++;
+					if (mail_match(mp, ms, i)) {
+						/*
+						 * Read it 
+						 */
+						j++;
+						status = status_string(mp);
+						names = make_namelist(player, (char *)mp->tolist);
+						ccnames = make_namelist(player, (char *)mp->cclist);
+						bccnames = make_namelist(player, (char *)mp->bcclist);
+						notify(player, DASH_LINE);
+						notify(player, tprintf("%-3d         From:  %-*s  At: %-25s\r\nFldr   : %-2d Status: %s\r\nTo     : %-65s",
+							i, PLAYER_NAME_LIMIT - 6, Name(mp->from), mp->time, 0, status, names));
+						if (*ccnames)
+							notify(player, tprintf("Cc     : %-65s", ccnames));
+						if (*bccnames)
+							notify(player, tprintf("Bcc    : %-65s", bccnames));
+						notify(player, tprintf("Subject: %-65s", mp->subject));
+						free_lbuf(status);
+						free_lbuf(names);
+						free_lbuf(ccnames);
+						free_lbuf(bccnames);
+						notify(player, DASH_LINE);
+						notify(player, get_mail_message(mp->number));
+						notify(player, DASH_LINE);
+					}
+				}
+			}
 
+		}
 		if (!j) {
 			/*
 			 * ran off the end of the list without finding
@@ -771,19 +859,21 @@ int sub;
 				time = mail_list_time(mp->time);
 				if (sub)
 					notify(player, tprintf("[%s] %-3d (%4d) From: %-*s Sub: %.25s",
-							   status_chars(mp),
-							       i, strlen(get_mail_message(mp->number)),
-							       PLAYER_NAME_LIMIT - 6, Name(mp->from),
+							       status_chars(mp),
+							       i,
+							       strlen(get_mail_message(mp->number)),
+							       PLAYER_NAME_LIMIT - 6,
+							       Name(mp->from),
 							       mp->subject));
 				else
 					notify(player, tprintf("[%s] %-3d (%4d) From: %-*s At: %s %s",
-							   status_chars(mp),
-							       i, strlen(get_mail_message(mp->number)),
-							       PLAYER_NAME_LIMIT - 6, Name(mp->from),
+							       status_chars(mp),
+							       i,
+							       strlen(get_mail_message(mp->number)),
+							       PLAYER_NAME_LIMIT - 6,
+							       Name(mp->from),
 							       time,
-						    ((Connected(mp->from) &&
-						      (!Hidden(mp->from) || See_Hidden(player)))
-						     ? "Conn" : " ")));
+							       ((Connected(mp->from) && (!Hidden(mp->from) || See_Hidden(player))) ? "Conn" : " ")));
 				free_lbuf(time);
 			}
 		}
@@ -874,6 +964,8 @@ dbref player;
 			delete_mail_message(mp->number);
 			XFREE(mp->time, "mail_purge.time");
 			XFREE(mp->tolist, "mail_purge.tolist");
+			XFREE(mp->cclist, "mail_purge.cclist");
+			XFREE(mp->bcclist, "mail_purge.bcclist");
 			XFREE(mp, "mail_purge");
 		} else {
 			nextp = mp->next;
@@ -913,11 +1005,9 @@ char *tolist;
 		notify(player, "MAIL: You can't forward non-existent messages.");
 		return;
 	}
-	mail_ok = do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", mp->subject, Name(mp->from)));
+	mail_ok = do_expmail_start(player, tolist, NULL, tprintf("%s (fwd from %s)", mp->subject, Name(mp->from)));
 	if (mail_ok) {
 	    atr_add_raw(player, A_MAILMSG, get_mail_message(mp->number));
-	}
-	if (mail_ok) {
 	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", atoi(atr_get_raw(player, A_MAILFLAGS)) | M_FORWARD));
 	}
 }
@@ -929,7 +1019,7 @@ int all, key;
 {
 	struct mail *mp;
 	int num, mail_ok;
-	char *tolist, *bp, *p, *names, *oldlist, *tokst;
+	char *tolist, *ccnames, *bp, *p, *names, *oldlist, *tokst;
 
         if (Sending_Mail(player)) {
                 notify(player, "MAIL: Mail message already in progress.");
@@ -950,43 +1040,36 @@ int all, key;
 		notify(player, "MAIL: You can't reply to non-existent messages.");
 		return;
 	}
+	ccnames = NULL;
 	if (all) {
+        	bp = oldlist = alloc_lbuf("do_mail_reply.oldlist");
+		safe_str(mp->tolist, oldlist, &bp);
+		if (*mp->cclist)
+			safe_tprintf_str(oldlist, &bp, " %s", mp->cclist);
 
-        	names = alloc_lbuf("do_mail_reply.names");
-        	oldlist = alloc_lbuf("do_mail_reply.oldlist");
-        	bp = names;
-		*bp = '\0';
-
-        	StringCopy(oldlist, (char *)mp->tolist);
-
+		bp = ccnames = alloc_lbuf("do_mail_reply.ccnames");
 	        for (p = strtok_r(oldlist, " ", &tokst);
 		     p != NULL;
 		     p = strtok_r(NULL, " ", &tokst)) {
+			if (bp != ccnames) {
+				safe_chr(' ', ccnames, &bp);
+			}
                 	if (*p == '*') {
-                        	safe_str(p, names, &bp);
-                        	safe_str(" ", names, &bp);
+                        	safe_str(p, ccnames, &bp);
                 	} else if (atoi(p) != mp->from) {
-				safe_chr('"', names, &bp);
-                        	safe_name(atoi(p), names, &bp);
-				safe_chr('"', names, &bp);
-                        	safe_str(" ", names, &bp);
+				safe_chr('"', ccnames, &bp);
+                        	safe_name(atoi(p), ccnames, &bp);
+				safe_chr('"', ccnames, &bp);
                 	}
         	}
         	free_lbuf(oldlist);
-		safe_chr(' ', names, &bp);
-		safe_chr('"', names, &bp);
-		safe_name(mp->from, names, &bp);
-		safe_chr('"', names, &bp);
-		*bp = '\0';
-		tolist = names;
-	} else {
-		tolist = msg;
 	}
-		
+	tolist = msg;
+
 	if (strncmp(mp->subject, "Re:", 3)) {
-		mail_ok = do_expmail_start(player, tolist, tprintf("Re: %s", mp->subject));
+		mail_ok = do_expmail_start(player, tolist, cclist, tprintf("Re: %s", mp->subject));
 	} else {
-		mail_ok = do_expmail_start(player, tolist, tprintf("%s", mp->subject));
+		mail_ok = do_expmail_start(player, tolist, cclist, tprintf("%s", mp->subject));
 	}
 	if (mail_ok) {
 	    if (key & MAIL_QUOTE) {
@@ -995,12 +1078,11 @@ int all, key;
 				mp->time, Name(mp->from),
 				get_mail_message(mp->number), Name(mp->from)));
 	    }
-	}
-	if (mail_ok) {
+
 	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_REPLY)));
 	}
-	if (all) {
-        	free_lbuf(names);
+	if (ccnames) {
+        	free_lbuf(ccnames);
 	}
 }
 
@@ -1086,14 +1168,12 @@ int *ucount;
 	*ucount = uc;
 }
 
-static void send_mail(player, target, tolist, subject, number, flags, silent)
-dbref player;
-dbref target;
-const char *tolist;
-const char *subject;
-int number;
+static void send_mail(player, target, tolist, cclist, bcclist, subject,
+		      number, flags, silent)
+dbref player, target;
+const char *tolist, *cclist, *bcclist, *subject;
+int number, silent;
 mail_flag flags;
-int silent;
 {
 	struct mail *newp;
 	struct mail *mp;
@@ -1118,7 +1198,17 @@ int silent;
 
 	newp->to = target;
 	newp->from = player;
-	newp->tolist = XSTRDUP((char *)tolist, "send_mail.tolist");
+	newp->tolist = XSTRDUP(tolist, "send_mail.tolist");
+	if (!cclist) {
+		newp->cclist = XSTRDUP("", "send_mail.cclist");
+	} else {
+		newp->cclist = XSTRDUP(cclist, "send_mail.cclist");
+	}
+	if (!bcclist) {
+		newp->bcclist = XSTRDUP("", "send_mail.bcclist");
+	} else {
+		newp->bcclist = XSTRDUP(bcclist, "send_mail.bcclist");
+	}
 
 	newp->number = number;
 	add_count(number);
@@ -1179,6 +1269,8 @@ dbref player;
 			delete_mail_message(mp->number);
 			XFREE(mp->subject, "mail_nuke.subject");
 			XFREE(mp->tolist, "mail_nuke.tolist");
+			XFREE(mp->cclist, "mail_nuke.cclist");
+			XFREE(mp->bcclist, "mail_nuke.bcclist");
 			XFREE(mp->time, "mail_nuke.time");
 			XFREE(mp, "mail_nuke");
 		}
@@ -1265,6 +1357,8 @@ char *victim;
 				delete_mail_message(mp->number);
 				XFREE(mp->time, "mail_debug.time");
 				XFREE(mp->tolist, "mail_debug.tolist");
+				XFREE(mp->cclist, "mail_debug.cclist");
+				XFREE(mp->bcclist, "mail_debug.bcclist");
 				XFREE(mp, "mail_debug");
 			} else
 				nextp = mp->next;
@@ -1491,7 +1585,7 @@ char *arg2;
 		/*
 		 * Sending mail 
 		 */
-		(void) do_expmail_start(player, arg1, arg2);
+		(void) do_expmail_start(player, arg1, NULL, arg2);
 		return;
 	} else {
 		/*
@@ -1597,8 +1691,14 @@ char *arg2;
 	case MAIL_RETRACT:
 		do_mail_retract(player, arg1, arg2);
 		break;
+	case MAIL_TO:
+		do_mail_to(player, arg1, A_MAILTO);
+		break;
 	case MAIL_CC:
-		do_mail_cc(player, arg1);
+		do_mail_to(player, arg1, A_MAILCC);
+		break;
+	case MAIL_BCC:
+		do_mail_to(player, arg1, A_MAILBCC);
 		break;
 	case MAIL_SAFE:
 		do_mail_safe(player, arg1);
@@ -1615,7 +1715,7 @@ FILE *fp;
 
 	/* Write out version number */
 	
-	fprintf(fp, "+V5\n");
+	fprintf(fp, "+V6\n");
 	putref(fp, mod_mail_config.mail_db_top);
 	DO_WHOLE_DB(thing) {
 		if (isPlayer(thing)) {
@@ -1626,6 +1726,8 @@ FILE *fp;
 					putref(fp, mp->from);
 					putref(fp, mp->number);
 					putstring(fp, mp->tolist);
+					putstring(fp, mp->cclist);
+					putstring(fp, mp->bcclist);
 					putstring(fp, mp->time);
 					putstring(fp, mp->subject);
 					putref(fp, mp->read);
@@ -1659,6 +1761,7 @@ FILE *fp;
 	int new = 0;
 	int pennsub = 0;
 	int read_tolist = 0;
+	int read_cclist = 0;
 	int read_newdb = 0;
 	int read_new_strings = 0;
 	int number = 0;
@@ -1683,6 +1786,12 @@ FILE *fp;
 	} else if (!strncmp(nbuf1, "+V5", 3)) {
 		new = 1;
 		read_tolist = 1;
+		read_newdb = 1;
+		read_new_strings = 1;
+	} else if (!strncmp(nbuf1, "+V6", 3)) {
+		new = 1;
+		read_tolist = 1;
+		read_cclist = 1;
 		read_newdb = 1;
 		read_new_strings = 1;
 	} else if (!strncmp(nbuf1, "+1", 2)) {
@@ -1735,6 +1844,14 @@ FILE *fp;
 			mp->tolist = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.tolist");
 		else
 			mp->tolist = XSTRDUP(tprintf("%d", mp->to), "load_mail.tolist");
+
+		if (read_cclist){
+			mp->cclist = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.cclist");
+			mp->bcclist = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.bcclist");
+		} else {
+			mp->cclist = XSTRDUP("", "load_mail.cclist");
+			mp->bcclist = XSTRDUP("", "load_mail.bcclist");
+		}
 
 		mp->time = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.time");
 		if (pennsub)
@@ -2028,10 +2145,10 @@ dbref player;
 	char tbuf1[LBUF_SIZE];
 
 	/*
-	 * Take a message list, and return the appropriate mail_selector * *
-	 * * setup. For * now, msglists are quite restricted. That'll change
-	 * * * * once all this is * working. Returns 0 if couldn't parse, and
-	 * * also * * notifys player of why. 
+	 * Take a message list, and return the appropriate mail_selector
+	 * setup. For now, msglists are quite restricted. That'll change
+	 * once all this is working. Returns 0 if couldn't parse, and
+	 * also notifies player of why. 
 	 */
 	/*
 	 * Initialize the mail selector - this matches all messages 
@@ -2305,6 +2422,10 @@ void check_mail_expiration()
 				delete_mail_message(mp->number);
 				XFREE(mp->tolist,
 				      "mail_expire.tolist");
+				XFREE(mp->cclist,
+				      "mail_expire.cclist");
+				XFREE(mp->bcclist,
+				      "mail_expire.bcclist");
 				XFREE(mp->time, "mail_expire.time");
 				XFREE(mp, "mail_expire");
 			} else
@@ -2780,11 +2901,11 @@ FILE *fp;
 	}
 }
 
-int do_expmail_start(player, arg, subject)
+static int do_expmail_start(player, arg, arg2, subject)
 dbref player;
-char *arg, *subject;
+char *arg, *arg2, *subject;
 {
-	char *tolist, *names;
+	char *tolist, *cclist, *names, *ccnames;
 
 	if (!arg || !*arg) {
 		notify(player, "MAIL: I do not know whom you want to mail.");
@@ -2802,51 +2923,95 @@ char *arg, *subject;
 		return 0;
 	}
 	atr_add_raw(player, A_MAILTO, tolist);
+	names = make_namelist(player, tolist);
+	free_lbuf(tolist);
+	if (arg2) {
+		if (!(cclist = make_numlist(player, arg2))) {
+			return 0;
+		}
+		atr_add_raw(player, A_MAILCC, cclist);
+		ccnames = make_namelist(player, cclist);
+		free_lbuf(cclist);
+	} else {
+		atr_clr(player, A_MAILCC);
+		ccnames = NULL;
+	}
+	atr_clr(player, A_MAILBCC);
 	atr_add_raw(player, A_MAILSUB, subject);
 	atr_add_raw(player, A_MAILFLAGS, "0");
 	atr_clr(player, A_MAILMSG);
 	Flags2(player) |= PLAYER_MAILS;
-	names = make_namelist(player, tolist);
-	notify(player, tprintf("MAIL: You are sending mail to '%s'.", names));
+	if (ccnames && *ccnames) {
+		notify(player, tprintf("MAIL: You are sending mail to '%s', carbon-copied to '%s'.", names, ccnames));
+	} else {
+		notify(player, tprintf("MAIL: You are sending mail to '%s'.", names));
+	}
 	free_lbuf(names);
-	free_lbuf(tolist);
+	if (ccnames) {
+		free_lbuf(ccnames);
+	}
 	return 1;
 }
 
-void do_mail_cc(player, arg)
+static void do_mail_to(player, arg, attr)
 dbref player;
 char *arg;
+int attr;
 {
-	char *tolist, *fulllist, *bp;
-	char *names;
+	char *tolist, *names, *cclist, *ccnames, *bcclist, *bccnames;
+	dbref aowner;
+	int aflags, alen;
 
 	if (!Sending_Mail(player)) {
 		notify(player, "MAIL: No mail message in progress.");
 		return;
 	}
 	if (!arg || !*arg) {
-		notify(player, "MAIL: I do not know whom you want to mail.");
-		return;
+		if (attr == A_MAILTO) {
+			notify(player, "MAIL: I do not know whom you want to mail.");
+		} else {
+			atr_clr(player, attr);
+			notify_quiet(player, "Cleared.");
+		}
+	} else if ((tolist = make_numlist(player, arg))) {
+		atr_add_raw(player, attr, tolist);
+		notify_quiet(player, "Set.");
+		free_lbuf(tolist);
 	}
-	if (!(tolist = make_numlist(player, arg))) {
-		return;
-	}
-	fulllist = alloc_lbuf("do_mail_cc");
-	bp = fulllist;
 
-	safe_str(tolist, fulllist, &bp);
-	if (atr_get_raw(player, A_MAILTO)) {
-		safe_chr(' ', fulllist, &bp);
-		safe_str(atr_get_raw(player, A_MAILTO), fulllist, &bp);
-	}
-	*bp = '\0';
+	tolist = atr_get(player, A_MAILTO, &aowner, &aflags, &alen);
+	cclist = atr_get(player, A_MAILCC, &aowner, &aflags, &alen);
+	bcclist = atr_get(player, A_MAILBCC, &aowner, &aflags, &alen);
 
-	atr_add_raw(player, A_MAILTO, fulllist);
-	names = make_namelist(player, fulllist);
-	notify(player, tprintf("MAIL: You are sending mail to '%s'.", names));
+	names = make_namelist(player, tolist);
+	ccnames = make_namelist(player, cclist);
+	bccnames = make_namelist(player, bcclist);
+
+	if (*ccnames) {
+		if (*bccnames) {
+			notify(player, tprintf("MAIL: You are sending mail to '%s', carbon-copied to '%s', blind carbon-copied to '%s'.",
+					       names, ccnames, bccnames));
+		} else {
+			notify(player, tprintf("MAIL: You are sending mail to '%s', carbon-copied to '%s'.",
+					       names, ccnames));
+		}
+	} else {
+		if (*bcclist) {
+			notify(player, tprintf("MAIL: You are sending mail to '%s', blind carbon-copied to '%s'.",
+					       names, bccnames));
+		} else {
+			notify(player, tprintf("MAIL: You are sending mail to '%s'.",
+					       names));
+		}
+	}
+
 	free_lbuf(names);
+	free_lbuf(ccnames);
+	free_lbuf(bccnames);
+
 	free_lbuf(tolist);
-	free_lbuf(fulllist);
+	free_lbuf(cclist);
+	free_lbuf(bcclist);
 }
 
 static char *make_namelist(player, arg)
@@ -2865,15 +3030,15 @@ char *arg;
 	for (p = strtok_r(oldarg, " ", &tokst);
 	     p != NULL;
 	     p = strtok_r(NULL, " ", &tokst)) {
-		if (*p == '*') {
-			safe_str(p, names, &bp);
-			safe_str(", ", names, &bp);
-		} else {
-			safe_name(atoi(p), names, &bp);
+		if (bp != names) {
 			safe_str(", ", names, &bp);
 		}
+		if (*p == '*') {
+			safe_str(p, names, &bp);
+		} else {
+			safe_name(atoi(p), names, &bp);
+		}
 	}
-	*(bp - 2) = '\0';
 	free_lbuf(oldarg);
 	return names;
 }
@@ -2917,6 +3082,9 @@ char *arg;
 		spot = *tail;
 		*tail = 0;
 
+		if (strlen(head) == 0)
+			continue;
+
 		num = atoi(head);
 		if (num) {
 			temp = mail_fetch(player, num);
@@ -2949,7 +3117,7 @@ char *arg;
 		}
 
 		/*
-		 * Get the next recip 
+		 * Get the next recip
 		 */
 		*tail = spot;
 		head = tail;
@@ -2996,29 +3164,33 @@ char *arg1, *arg2;
 		free_lbuf(buf);
 		return;
 	}
-	mail_to_list(player, make_numlist(player, buf), bp, arg2, 0, 0);
+	mail_to_list(player, make_numlist(player, buf), NULL, NULL, bp, arg2, 0, 0);
 	free_lbuf(buf);
 }
 
-void mail_to_list(player, list, subject, message, flags, silent)
+void mail_to_list(player, tolist, cclist, bcclist, subject, message, flags, silent)
 dbref player;
-char *list, *subject, *message;
+char *tolist, *cclist, *bcclist, *subject, *message;
 int flags, silent;
 {
-	char *head, *tail, spot, *tolist;
+	char *head, *tail, spot, *list, *bp;
 	struct malias *m;
 	dbref target;
 	int number, i, j, n_recips, max_recips, *recip_array, *tmp;
 
-	if (!list) {
+	if (!tolist || !*tolist) {
 		return;
 	}
-	if (!*list) {
-		free_lbuf(list);
-		return;
+	bp = list = alloc_lbuf("mail_to_list");
+	safe_str(tolist, list, &bp);
+	if (cclist && *cclist) {
+		safe_chr(' ', list, &bp);
+		safe_str(cclist, list, &bp);
 	}
-	tolist = alloc_lbuf("mail_to_list");
-	StringCopy(tolist, list);
+	if (bcclist && *bcclist) {
+		safe_chr(' ', list, &bp);
+		safe_str(bcclist, list, &bp);
+	}
 
 	number = add_mail_message(player, message);
 
@@ -3053,7 +3225,6 @@ int flags, silent;
 		    m = get_malias(player, head);
 		    if (!m) {
 			free_lbuf(list);
-			free_lbuf(tolist);
 			XFREE(recip_array, "mail_to_list.recip_array");
 			return;
 		    }
@@ -3066,7 +3237,6 @@ int flags, silent;
 					"mail_to_list.recip_array");
 				if (!tmp) {
 				    free_lbuf(list);
-				    free_lbuf(tolist);
 				    XFREE(recip_array,
 					  "mail_to_list.recip_array");
 				    return;
@@ -3076,7 +3246,7 @@ int flags, silent;
 			    recip_array[n_recips] = m->list[i];
 			    n_recips++;
 			} else {
-			    send_mail(GOD, GOD, tolist, subject,
+			    send_mail(GOD, GOD, tolist, NULL, NULL, subject,
 				      add_mail_message(player, 
 			       tprintf("Alias Error: Bad Player %d for %s",
 				       m->list[i], head)),
@@ -3093,7 +3263,6 @@ int flags, silent;
 						   "mail_to_list.recip_array");
 			    if (!tmp) {
 				free_lbuf(list);
-				free_lbuf(tolist);
 				XFREE(recip_array,
 				      "mail_to_list.recip_array");
 				return;
@@ -3123,20 +3292,21 @@ int flags, silent;
 		if (recip_array[i] == recip_array[j])
 		    recip_array[i] = NOTHING;
 	    }
+	    if (Typeof(recip_array[i]) != TYPE_PLAYER)
+		    recip_array[i] = NOTHING;
 	}
 
 	/* Send it. */
 
 	for (i = 0; i < n_recips; i++) {
 	    if (recip_array[i] != NOTHING) {
-		send_mail(player, recip_array[i], tolist, subject, number,
+		send_mail(player, recip_array[i], tolist, cclist, bcclist, subject, number,
 			  flags, silent);
 	    }
 	}
 
 	/* Clean up. */
 
-	free_lbuf(tolist);
 	free_lbuf(list);
 	XFREE(recip_array, "mail_to_list.recip_array");
 }
@@ -3145,28 +3315,34 @@ void do_expmail_stop(player, flags)
 dbref player;
 int flags;
 {
-	char *tolist, *mailsub, *mailmsg, *mailflags;
+	char *tolist, *cclist, *bcclist, *mailsub, *mailmsg, *mailflags;
 	dbref aowner;
 	int aflags, alen;
 
 	tolist = atr_get(player, A_MAILTO, &aowner, &aflags, &alen);
+	cclist = atr_get(player, A_MAILCC, &aowner, &aflags, &alen);
+	bcclist = atr_get(player, A_MAILBCC, &aowner, &aflags, &alen);
+
 	mailmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 	mailsub = atr_get(player, A_MAILSUB, &aowner, &aflags, &alen);
 	mailflags = atr_get(player, A_MAILFLAGS, &aowner, &aflags, &alen);
 
 	if (!*tolist || !*mailmsg || !Sending_Mail(player)) {
 		notify(player, "MAIL: No such message to send.");
-		free_lbuf(tolist);
 	} else {
-		mail_to_list(player, tolist, mailsub, mailmsg, flags | atoi(mailflags), 0);
+		mail_to_list(player, tolist, cclist, bcclist, mailsub, mailmsg, flags | atoi(mailflags), 0);
 	}
-	free_lbuf(mailflags);
+	free_lbuf(tolist);
+	free_lbuf(cclist);
+	free_lbuf(bcclist);
+
 	free_lbuf(mailmsg);
 	free_lbuf(mailsub);
+	free_lbuf(mailflags);
 	Flags2(player) &= ~PLAYER_MAILS;
 }
 
-void do_expmail_abort(player)
+static void do_expmail_abort(player)
 dbref player;
 {
 	Flags2(player) &= ~PLAYER_MAILS;
@@ -3264,7 +3440,7 @@ char *to;
 static void do_mail_proof(player)
 dbref player;
 {
-	char *mailto, *names, *message;
+	char *mailto, *names, *ccnames, *bccnames, *message;
 	dbref aowner;
 	int aflags, alen;
 
@@ -3272,20 +3448,32 @@ dbref player;
 		mailto = atr_get(player, A_MAILTO, &aowner, &aflags, &alen);
 		names = make_namelist(player, mailto);
 		free_lbuf(mailto);
+		mailto = atr_get(player, A_MAILCC, &aowner, &aflags, &alen);
+		ccnames = make_namelist(player, mailto);
+		free_lbuf(mailto);
+		mailto = atr_get(player, A_MAILBCC, &aowner, &aflags, &alen);
+		bccnames = make_namelist(player, mailto);
+		free_lbuf(mailto);
 
 		notify(player, DASH_LINE);
 		notify(player, tprintf("From:  %-*s  Subject: %-35s\nTo: %s",
 				       PLAYER_NAME_LIMIT - 6, Name(player),
-				    atr_get_raw(player, A_MAILSUB), names));
+				       atr_get_raw(player, A_MAILSUB), names));
+		if (*ccnames)
+			notify(player, tprintf("Cc: %s", ccnames));
+		if (*bccnames)
+			notify(player, tprintf("Bcc: %s", bccnames));
 		notify(player, DASH_LINE);
 
 		if (!(message = atr_get_raw(player, A_MAILMSG))) {
 			notify(player, "MAIL: No text.");
-			return;
+		} else {
+			notify(player, message);
+			notify(player, DASH_LINE);
 		}
-
-		notify(player, message);
-		notify(player, DASH_LINE);
+		free_lbuf(names);
+		free_lbuf(ccnames);
+		free_lbuf(bccnames);
 	} else {
 		notify(player, "MAIL: No message in progress.");
 	}
@@ -3666,6 +3854,7 @@ NAMETAB mail_sw[] = {
 {(char *)"abort",	1,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ABORT},
 {(char *)"alias",       4,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ALIAS},
 {(char *)"alist",       2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ALIST},
+{(char *)"bcc",		2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_BCC},
 {(char *)"cc",		2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_CC},
 {(char *)"clear",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_CLEAR},
 {(char *)"debug",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_DEBUG},
@@ -3687,10 +3876,11 @@ NAMETAB mail_sw[] = {
 {(char *)"replyall",	6,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REPLYALL},
 {(char *)"retract",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_RETRACT},
 {(char *)"review",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REVIEW},
-{(char *)"safe",	2,	CA_NO_SLAVE|CA_NO_GUEST,	MAIL_SAFE},
+{(char *)"safe",	2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_SAFE},
 {(char *)"send",        0,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_SEND},
 {(char *)"stats",       2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_STATS},
 {(char *)"tag",         1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_TAG},
+{(char *)"to",		2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_TO},
 {(char *)"unclear",     1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_UNCLEAR},
 {(char *)"untag",       3,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_UNTAG},
 {(char *)"urgent",      2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_URGENT},

@@ -152,6 +152,8 @@
 #define	A_OTOFAIL	142	/* Others teleport (from) fail message */
 #define	A_ATOFAIL	143	/* Teleport (from) fail action */
 
+#define A_MAILCC	198	/* Who is the mail Cc'ed to? */
+#define A_MAILBCC	199	/* Who is the mail Bcc'ed to? */
 #define A_LASTPAGE      200     /* Player last paged */
 #define A_MAIL		201	/* Message echoed to sender */
 #define A_AMAIL		202	/* Action taken when mail received */

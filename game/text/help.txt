@@ -12344,11 +12344,14 @@ Continued in 'help @malias2'.
  
 & mail-reviewing
    
-  @mail/review <player>
-	Reviews the messages you have sent to <player>.
+  @mail/review [<player> | all]
+	Reviews the messages you have sent to <player>. With no
+	argument, or "all", lists all messages you have sent.
  
-  @mail/review <player>=<msglist>
-	Reads the messages you have sent to <player>.
+  @mail/review [<player> | all]=<msglist>
+	Reads the messages you have sent to <player>. With no
+	player name, or "all", reads selected messages from among
+	all you have sent.
  
   @mail/retract <player>=<msglist>
 	Retracts (deletes) unread messages you have sent to <player>.
@@ -12393,13 +12396,23 @@ Continued in 'help @malias2'.
 	-- is the equivalent of @mail/send. @mail/urgent sends
 	the message as urgent, and should not be used often.
  
-  @mail/cc <player-list>
-        This replaces the currect player list with a new one for carbon
-        copying. It does _not_ add onto the existing list.
+  @mail/abort
+	This aborts the message currently in progress, allowing you
+	to start a new one.
  
   Continued in 'help mail-sending2'.
  
 & mail-sending2
+ 
+  @mail/to <player-list>
+  @mail/cc [<player-list>]
+  @mail/bcc [<player-list>]
+	@mail now supports three separate address lists for a mail, the
+	standard To list for recipients, a Cc list for carbon-copying,
+	and a Bcc list for blind carbon-copying. These commands set each
+	of the three address lists; they operate by replacing the list,
+	and do _not_ add onto the existing lists. @mail/cc and @mail/bcc
+	with no argument will empty the corresponding list.
  
   @mail/proof
 	This shows you the message that is currently in progress, as
@@ -12408,9 +12421,9 @@ Continued in 'help @malias2'.
   @mail/edit <old text> = <new text>
 	Like @edit, but edits the message in process.
  
-  @mail/abort
-	This aborts the message currently in progress, allowing you
-	to start a new one.
+  Continued in 'help mail-sending3'.
+ 
+& mail-sending3
  
   @mail/fwd <msg> = <player-list>
         This sends a copy of <msg> to all the players in <player-list>.
@@ -12419,10 +12432,6 @@ Continued in 'help @malias2'.
         the message to be forwarded into your mail buffer, where you can
         edit it with @mail/edit, add text with '-', or prepend text with
         '~'. You have to use '--' or @mail/send to send the message.
- 
-  Continued in 'help mail-sending3'.
- 
-& mail-sending3
  
   @mail/reply[/quote] <msg>
 	This sends a reply to the person who sent you <msg>. The

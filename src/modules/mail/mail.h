@@ -7,7 +7,7 @@
 #define __MAIL_H
 
 /* Some of this isn't implemented yet, but heralds the future! */
-#define M_ISREAD		0x0001
+#define M_ISREAD	0x0001
 #define M_CLEARED	0x0002
 #define M_URGENT	0x0004
 #define M_MASS		0x0008
@@ -65,6 +65,8 @@ struct mail {
   const char *time;
   const char *subject;
   const char *tolist;
+  const char *cclist;
+  const char *bcclist;
   int read;
 };
 
@@ -89,8 +91,6 @@ extern void	FDECL(malias_read, (FILE *));
 extern void	FDECL(malias_write, (FILE *));
 extern void	FDECL(do_malias_chown, (dbref, char *, char *));
 extern void	FDECL(do_malias_desc, (dbref, char *, char *));
-extern int	FDECL(do_expmail_start, (dbref, char *, char *));
-extern void	FDECL(do_expmail_stop, (dbref, int));
 extern void	FDECL(do_mail_quick, (dbref, char *, char *));
 extern void	FDECL(do_malias_rename, (dbref, char *, char *));
 extern void	FDECL(do_malias_adminlist, (dbref));
