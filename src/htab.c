@@ -594,6 +594,28 @@ char *flagname;
 }
 
 /* ---------------------------------------------------------------------------
+ * find_nametab_ent_flag: Search a name table for a match by flag value
+ * and return a pointer to it.
+ */
+
+NAMETAB *find_nametab_ent_flag(player, ntab, flag)
+dbref player;
+NAMETAB *ntab;
+int flag;
+{
+	NAMETAB *nt;
+
+	for (nt = ntab; nt->name; nt++) {
+		if (flag == nt->flag) {
+			if (check_access(player, nt->perm)) {
+				return nt;
+			}
+		}
+	}
+	return NULL;
+}
+
+/* ---------------------------------------------------------------------------
  * display_nametab: Print out the names of the entries in a name table.
  */
 

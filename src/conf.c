@@ -2054,6 +2054,8 @@ static void helper_cf_display(player, buff, bufc, tp)
     char *buff, **bufc;
     CONF *tp;
 {
+    NAMETAB *opt;
+
     if (!check_access(player, tp->rperms)) {
 	safe_noperm(buff, bufc);
 	return;
@@ -2072,6 +2074,10 @@ static void helper_cf_display(player, buff, bufc, tp)
     if ((tp->interpreter == cf_dbref)) {
 	safe_dbref(buff, bufc, *(tp->loc));
 	return;
+    }
+    if ((tp->interpreter == cf_option)) {
+	opt = find_nametab_ent_flag(GOD, (NAMETAB *)tp->extra, *(tp->loc));
+	safe_str((opt ? opt->name : "*UNKNOWN*"), buff, bufc);
     }
     safe_noperm(buff, bufc);
     return;

@@ -102,7 +102,8 @@ extern void	FDECL(hashresize, (HASHTAB *, int));
 #define nhashresize(h,sz)	hashresize((h), (sz))
 
 extern int	FDECL(search_nametab, (dbref, NAMETAB *, char *));
-extern NAMETAB	FDECL(*find_nametab_ent, (dbref, NAMETAB *, char *));
+extern NAMETAB *FDECL(find_nametab_ent, (dbref, NAMETAB *, char *));
+extern NAMETAB *FDECL(find_nametab_ent_flag, (dbref, NAMETAB *, int));
 extern void	FDECL(display_nametab, (dbref, NAMETAB *, char *, int));
 extern void	FDECL(interp_nametab, (dbref, NAMETAB *, int, char *, char *,
 			char *));
