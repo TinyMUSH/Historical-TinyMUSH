@@ -49,20 +49,39 @@ DESC *FDECL(new_connection, (int));
 int FDECL(process_output, (DESC *));
 int FDECL(process_input, (DESC *));
 
+/* Some systems are lame, and inet_addr() returns -1 on failure, despite
+ * the fact that it returns an unsigned long.
+ */
+#ifndef INADDR_NONE
+#define INADDR_NONE -1
+#endif
+
 /*
  * get a result from the slave 
  */
+#define GSR_SKIP_WHITESPACE(x) \
+	while (isspace(*(x))) \
+		++(x)
+
+#define GSR_REQUIRE_CHAR(x,c) \
+	if (*(x) != (c)) { \
+		goto gsr_end; \
+	} \
+	++(x)
+
+#define GSR_STRCHR_INC(x,y,c) \
+	(x) = strchr((y), (c)); \
+	if (!(x)) { \
+		goto gsr_end; \
+	} \
+	++(x)
+
 static int get_slave_result()
 {
-	char *buf;
-	char *token;
-	char *os;
-	char *userid;
-	char *host;
-	int local_port, remote_port;
-	char *p;
+	char *buf, *host1, *hostname, *host2, *p, *userid;
+	int remote_port, len;
+	unsigned long addr;
 	DESC *d;
-	int len;
 
 	buf = alloc_lbuf("slave_buf");
 
@@ -82,73 +101,104 @@ static int get_slave_result()
 	}
 	buf[len] = '\0';
 
-	token = alloc_lbuf("slave_token");
-	os = alloc_lbuf("slave_os");
-	userid = alloc_lbuf("slave_userid");
-	host = alloc_lbuf("slave_host");
+	host1 = buf;
 
-	if (sscanf(buf, "%s %s",
-		   host, token) != 2) {
-		free_lbuf(buf);
-		free_lbuf(token);
-		free_lbuf(os);
-		free_lbuf(userid);
-		free_lbuf(host);
-		return (0);
-	}
-	p = strchr(buf, '\n');
-	*p = '\0';
-	for (d = descriptor_list; d; d = d->next) {
-		if (strcmp(d->addr, host))
-			continue;
-		if (mudconf.use_hostname) {
+	GSR_STRCHR_INC(hostname, host1, ' ');
+	hostname[-1] = '\0';
+
+	GSR_STRCHR_INC(host2, hostname, '\n');
+	host2[-1] = '\0';
+
+	if (mudconf.use_hostname) {
+		for (d = descriptor_list; d; d = d->next) {
+			if (strcmp(d->addr, host1))
+				continue;
 			if (d->player != 0) {
-			    if (d->username[0]) {
-				atr_add_raw(d->player, A_LASTSITE,
-					    tprintf("%s@%s",
-						    d->username, token));
-			    } else {
-				atr_add_raw(d->player, A_LASTSITE, token);
-			    }
+				if (d->username[0]) {
+					atr_add_raw(d->player, A_LASTSITE,
+						    tprintf("%s@%s",
+							    d->username,
+							    hostname));
+				} else {
+					atr_add_raw(d->player, A_LASTSITE,
+						    hostname);
+				}
 			}
-			StringCopyTrunc(d->addr, token, 50);
+			StringCopyTrunc(d->addr, hostname, 50);
 			d->addr[50] = '\0';
 		}
 	}
 
-	if (sscanf(p + 1, "%s %d , %d : %s : %s : %s",
-		   host,
-		   &remote_port, &local_port,
-		   token, os, userid) != 6) {
-		free_lbuf(buf);
-		free_lbuf(token);
-		free_lbuf(os);
-		free_lbuf(userid);
-		free_lbuf(host);
-		return (0);
+	GSR_STRCHR_INC(p, host2, ' ');
+	p[-1] = '\0';
+
+	addr = inet_addr(host2);
+	if (addr == INADDR_NONE) {
+		goto gsr_end;
 	}
+
+	/* now we're into the RFC 1413 ident reply */
+	GSR_SKIP_WHITESPACE(p);
+	remote_port = 0;
+	while (isdigit(*p)) {
+		remote_port <<= 1;
+		remote_port += (remote_port << 2) + (*p & 0x0f);
+		++p;
+	}
+
+	GSR_SKIP_WHITESPACE(p);
+	GSR_REQUIRE_CHAR(p, ',');
+	GSR_SKIP_WHITESPACE(p);
+
+	/* skip the local port, making sure it consists of digits */
+	while (isdigit(*p)) {
+		++p;
+	}
+
+	GSR_SKIP_WHITESPACE(p);
+	GSR_REQUIRE_CHAR(p, ':');
+	GSR_SKIP_WHITESPACE(p);
+
+	/* identify the reply type */
+	if (strncmp(p, "USERID", 6)) {
+		/* the other standard possibility here is "ERROR" */
+		goto gsr_end;
+	}
+	p += 6;
+
+	GSR_SKIP_WHITESPACE(p);
+	GSR_REQUIRE_CHAR(p, ':');
+	GSR_SKIP_WHITESPACE(p);
+
+	/* don't include the trailing linefeed in the userid */
+	GSR_STRCHR_INC(userid, p, '\n');
+	userid[-1] = '\0';
+
+	/* go back and skip over the "OS [, charset] : " field */
+	GSR_STRCHR_INC(userid, p, ':');
+	GSR_SKIP_WHITESPACE(userid);
+
 	for (d = descriptor_list; d; d = d->next) {
 		if (ntohs((d->address).sin_port) != remote_port)
 			continue;
+		if ((d->address).sin_addr.s_addr != addr)
+			continue;
 		if (d->player != 0) {
-		    atr_add_raw(d->player, A_LASTSITE,
-				tprintf("%s@%s", userid, token));
+			if (mudconf.use_hostname) {
+				atr_add_raw(d->player, A_LASTSITE,
+					    tprintf("%s@%s", userid, hostname));
+			} else {
+				atr_add_raw(d->player, A_LASTSITE,
+					    tprintf("%s@%s", userid, host2));
+			}
 		}
 		StringCopyTrunc(d->username, userid, 10);
 		d->username[10] = '\0';
-		free_lbuf(buf);
-		free_lbuf(token);
-		free_lbuf(os);
-		free_lbuf(userid);
-		free_lbuf(host);
-		return (0);
+		break;
 	}
+    gsr_end:
 	free_lbuf(buf);
-	free_lbuf(token);
-	free_lbuf(os);
-	free_lbuf(userid);
-	free_lbuf(host);
-	return (0);
+	return 0;
 }
 
 void boot_slave()
