@@ -1409,10 +1409,11 @@ FUNCTION(fun_valid)
 
 	if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1]) {
 		safe_chr('0', buff, bufc);
-	} else if (!strcasecmp(fargs[0], "name"))
-		safe_ltos(buff, bufc, ok_name(fargs[1]));
-	else
+	} else if (!strcasecmp(fargs[0], "name")) {
+		safe_bool(buff, bufc, ok_name(fargs[1]));
+	} else {
 		safe_nothing(buff, bufc);
+	}
 }
 
 FUNCTION(fun_beep)

@@ -2435,7 +2435,7 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
 
     subpatterns = pcre_exec(re, NULL, fargs[0], strlen(fargs[0]),
 			    0, 0, offsets, PCRE_MAX_OFFSETS);
-    safe_ltos(buff, bufc, (subpatterns >= 0));
+    safe_bool(buff, bufc, (subpatterns >= 0));
 
     /* If we don't have a third argument, we're done. */
     if (nfargs != 3) {
