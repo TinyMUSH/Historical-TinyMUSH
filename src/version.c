@@ -67,9 +67,13 @@ void NDECL(init_version)
 #if PATCHLEVEL > 0
 	sprintf(mudstate.version, "TinyMUSH Beta version %s patchlevel %d #%s",
 		MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM);
+	sprintf(mudstate.short_ver, "TinyMUSH Beta %s.p%d",
+		MUSH_VERSION, PATCHLEVEL);
 #else
 	sprintf(mudstate.version, "TinyMUSH Beta version %s #%s",
 		MUSH_VERSION, MUSH_BUILD_NUM);
+	sprintf(mudstate.short_ver, "TinyMUSH Beta %s",
+		MUSH_VERSION);
 #endif /*
         * PATCHLEVEL 
         */
@@ -79,9 +83,13 @@ void NDECL(init_version)
 #if PATCHLEVEL > 0
 	sprintf(mudstate.version, "TinyMUSH version %s patchlevel %d #%s [%s]",
 		MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM, MUSH_RELEASE_DATE);
+	sprintf(mudstate.short_ver, "TinyMUSH %s.p%d",
+		MUSH_VERSION, PATCHLEVEL);
 #else
 	sprintf(mudstate.version, "TinyMUSH version %s #%s [%s]",
 		MUSH_VERSION, MUSH_BUILD_NUM, MUSH_RELEASE_DATE);
+	sprintf(mudstate.short_ver, "TinyMUSH %s",
+		MUSH_VERSION);
 #endif /*
         * PATCHLEVEL 
         */
