@@ -388,7 +388,7 @@ dist.tar.gz: $(DIST)
 	mv dist.tar.gz.NEW dist.tar.gz
 
 depend: $(ALLSRC) unsplit
-	for i in $(D_SRC) $(COM_SRC) $(SA_SRC) $(UDBA_SRC) $(UDBO_SRC) $(AUX_SRC) $(LIB_SRC) $(MALLOC_S) $(CONC_S) slave.c portconc.c ; do $(CPP) $(ALLCFLAGS) -M $$i || :; done | sed -e 's:/usr[^ ]* ::g' | ./unsplit > .depend~
+	for i in $(D_SRC) $(COM_SRC) $(SA_SRC) $(UDBA_SRC) $(UDBO_SRC) $(AUX_SRC) $(LIB_SRC) $(MALLOC_S) $(CONC_S) slave.c portconc.c ; do $(CPP) $(ALLCFLAGS) -M $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
 	mv .depend~ .depend
 
 index: help.indx news.indx wizhelp.indx mushman.indx plushelp.indx wiznews.indx
