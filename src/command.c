@@ -756,7 +756,7 @@ CMDENT command_table[] = {
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST,
 	0,		CS_TWO_ARG,		
 	NULL,			NULL,		do_set},
-{(char *)"@shutdown",		NULL,		CA_WIZARD,
+{(char *)"@shutdown",		shutdown_sw,	CA_WIZARD,
 	0,		CS_ONE_ARG,		
 	NULL,			NULL,		do_shutdown},
 {(char *)"@sql",		NULL,		CA_SQL_OK,
