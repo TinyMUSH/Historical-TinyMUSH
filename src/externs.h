@@ -177,7 +177,6 @@ extern int	FDECL(member, (dbref, dbref));
 extern int	FDECL(is_integer, (char *));
 extern int	FDECL(is_number, (char *));
 extern int	FDECL(could_doit, (dbref, dbref, int));
-extern int	FDECL(can_see, (dbref, dbref, int));
 extern void	FDECL(add_quota, (dbref, int, int));
 extern int	FDECL(canpayfees, (dbref, dbref, int, int, int));
 extern int	FDECL(payfees, (dbref, int, int, int));
@@ -197,7 +196,6 @@ extern dbref	FDECL(where_is, (dbref));
 extern dbref	FDECL(where_room, (dbref));
 extern int	FDECL(locatable, (dbref, dbref, dbref));
 extern int	FDECL(nearby, (dbref, dbref));
-extern int	FDECL(exit_visible, (dbref, dbref, int));
 extern void	FDECL(did_it, (dbref, dbref, int, const char *, int,
 			const char *, int, int, char *[], int));
 
@@ -503,12 +501,6 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define QTYPE_EXIT 2
 #define QTYPE_THING 3
 #define QTYPE_PLAYER 4
-
-/* Exit visibility precalculation codes */
-
-#define	VE_LOC_XAM	0x01	/* Location is examinable */
-#define	VE_LOC_DARK	0x02	/* Location is dark */
-#define	VE_BASE_DARK	0x04	/* Base location (pre-parent) is dark */
 
 /* Signal handling directives */
 

@@ -279,7 +279,7 @@ int local;
 				key |= VE_LOC_DARK;
 			if (Dark(baseloc))
 				key |= VE_BASE_DARK;
-			if (exit_visible(exit, md.player, key)) {
+			if (Exit_Visible(exit, md.player, key)) {
 				promote_match(exit, CON_DBREF | local);
 				return 1;
 			}

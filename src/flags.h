@@ -89,6 +89,7 @@
 #define REDIR_OK	0x00000001	/* Can be victim of @redirect */
 #define HAS_REDIRECT	0x00000002	/* Victim of @redirect */
 #define ORPHAN		0x00000004	/* Don't check parent chain for $cmd */
+#define HAS_DARKLOCK	0x00000008	/* Has a DarkLock */
 #define MARK_0		0x00400000	/* User-defined flags */
 #define MARK_1		0x00800000
 #define MARK_2		0x01000000
@@ -195,6 +196,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Examinable(P,X)	- Can P look at attribs of X */
 /* MyopicExam(P,X)	- Can P look at attribs of X (obeys MYOPIC) */
 /* Controls(P,X)	- Can P force X to do something */
+/* Can_See(P,X,L)	- Can P see thing X, depending on location dark (L)? */
+/* Can_See_Exit(X,L)	- Can exit X be seen, depending on loc dark (L)? */
 /* Abode(X)		- Is X an ABODE room */
 /* Link_exit(P,X)	- Can P link from exit X */
 /* Linkable(P,X)	- Can P link to X */
@@ -304,6 +307,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	H_Fwdlist(x)	((Flags2(x) & HAS_FWDLIST) != 0)
 #define	H_Listen(x)	((Flags2(x) & HAS_LISTEN) != 0)
 #define H_Redirect(x)	((Flags3(x) & HAS_REDIRECT) != 0)
+#define H_Darklock(x)	((Flags3(x) & HAS_DARKLOCK) != 0)
 
 #define H_Marker0(x)	((Flags3(x) & MARK_0) != 0)
 #define H_Marker1(x)	((Flags3(x) & MARK_1) != 0)
@@ -325,20 +329,14 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define s_Html(x) s_Flags2((x), Flags2(x) | HTML)
 #define c_Html(x) s_Flags2((x), Flags2(x) & ~HTML)
 
+/* ---------------------------------------------------------------------------
+ * Base control-oriented predicates.
+ */
+
 #define	Parentable(p,x)	(Controls(p,x) || \
 			 (Parent_ok(x) && could_doit(p,x,A_LPARENT)))
 
 #define OnControlLock(p,x) (check_zone(p,x))
-
-#define	Examinable(p,x)	(((Flags(x) & VISUAL) != 0) || \
-			 (See_All(p)) || \
-                         (Owner(p) == Owner(x)) || \
-			 OnControlLock(p,x))
-
-#define	MyopicExam(p,x)	(((Flags(x) & VISUAL) != 0) || \
-			 (!Myopic(p) && (See_All(p) || \
-			 (Owner(p) == Owner(x)) || \
-  	                 OnControlLock(p,x))))
 
 #define	Controls(p,x)	(Good_obj(x) && \
 			 (!(God(x) && !God(p))) && \
@@ -359,6 +357,64 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 				mudstate.markbits->chunk[i]=0xff
 #define	Unmark_all(i)	for ((i)=0; (i)<((mudstate.db_top+7)>>3); (i)++) \
 				mudstate.markbits->chunk[i]=0x0
+
+/* ---------------------------------------------------------------------------
+ * Visibility constraints.
+ */
+
+#define	Examinable(p,x)	(((Flags(x) & VISUAL) != 0) || \
+			 (See_All(p)) || \
+                         (Owner(p) == Owner(x)) || \
+			 OnControlLock(p,x))
+
+#define	MyopicExam(p,x)	(((Flags(x) & VISUAL) != 0) || \
+			 (!Myopic(p) && (See_All(p) || \
+			 (Owner(p) == Owner(x)) || \
+  	                 OnControlLock(p,x))))
+
+/* For an object in a room, don't show if all of the following apply:
+ * 	Sleeping players should not be seen.
+ *	The thing is a disconnected player.
+ *	The player is not a puppet.
+ *   You don't see yourself or exits.
+ *   If a location is not dark, you see it if it's not dark or you control it.
+ *   If the location is dark, you see it if you control it. Seeing your own
+ *   dark objects is controlled by mudconf.see_own_dark.
+ *   In dark locations, you also see things that are LIGHT and !DARK.
+ */ 
+
+#define Sees(p,x) \
+	(!Dark(x) || (mudconf.see_own_dark && MyopicExam(p,x)))
+
+#define Sees_Always(p,x) \
+	(!Dark(x) || (mudconf.see_own_dark && Examinable(p,x)))
+
+#define Sees_In_Dark(p,x)	((Light(x) && !Dark(x)) || \
+				 (mudconf.see_own_dark && MyopicExam(p,x)))
+
+#define Can_See(p,x,l)	(!(((p) == (x)) || isExit(x) || \
+			   (mudconf.dark_sleepers && isPlayer(x) && \
+			    !Connected(x) && !Puppet(x))) && \
+			 ((l) ? Sees(p,x) : Sees_In_Dark(p,x)))
+
+#define Can_See_Exit(x,l)	((!Dark(x) && !(l)) || (Light(x) && !Dark(x)))
+
+/* For exits visible (for lexits(), etc.), this is true if we can examine
+ * the exit's location, examine the exit, or the exit is LIGHT. It is also
+ * true if neither the location or base or exit is dark.
+ */
+
+#define	VE_LOC_XAM	0x01	/* Location is examinable */
+#define	VE_LOC_DARK	0x02	/* Location is dark */
+#define	VE_BASE_DARK	0x04	/* Base location (pre-parent) is dark */
+
+#define Exit_Visible(x,p,k) \
+	(((k) & VE_LOC_XAM) || Examinable(p,x) || Light(x) || \
+	 (!((k) & (VE_LOC_DARK | VE_BASE_DARK)) && !Dark(x)))
+
+/* ---------------------------------------------------------------------------
+ * Linking.
+ */
 
 /* Can I link this exit to something else? */
 #define	Link_exit(p,x)	((Typeof(x) == TYPE_EXIT) && \
@@ -383,7 +439,9 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 ((LinkToAny(p) && !mudconf.wiz_obey_linklock) ||  \
  could_doit(p,x,A_LLINK))
 
-/* Attribute visibility */
+/* ---------------------------------------------------------------------------
+ * Attribute visibility and write permissions.
+ */
 
 #define AttrFlags(a,f)	((f) | (a)->flags)
 

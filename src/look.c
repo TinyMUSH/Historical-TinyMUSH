@@ -132,8 +132,7 @@ const char *exit_name;
 	if (!Has_exits(parent))
 	    continue;
 	DOLIST(thing, Exits(parent)) {
-	    if ((Light(thing) && !Dark(thing)) ||
-		(!Dark(thing) && !isdark)) {
+	    if (Can_See_Exit(thing, isdark)) {
 		foundany = 1;
 		break;
 	    }
@@ -153,8 +152,7 @@ const char *exit_name;
     ITER_PARENTS(loc, parent, lev) {
 	if (Transparent(loc)) {
 	    DOLIST(thing, Exits(parent)) {
-		if ((Light(thing) && !Dark(thing)) ||
-		    (!Dark(thing) && !isdark)) {
+		if (Can_See_Exit(thing, isdark)) {
 		    strcpy(buff, Name(thing));
 		    for (e = buff; *e && (*e != ';'); e++) ;
 		    safe_ansi_normal(buff, &e);
@@ -178,8 +176,7 @@ const char *exit_name;
 	    }
 	} else {
 	    DOLIST(thing, Exits(parent)) {
-		if ((Light(thing) && !Dark(thing)) ||
-		    (!Dark(thing) && !isdark)) {
+		if (Can_See_Exit(thing, isdark)) {
 		    e1 = buff1;
 		    /* chop off first exit alias to display */
 		    if (buff != e)
@@ -261,19 +258,18 @@ int style;
 
 	/* check to see if he can see the location */
 
-	can_see_loc = (!Dark(loc) ||
-		       (mudconf.see_own_dark && Examinable(player, loc)));
+	can_see_loc = Sees_Always(player, loc);
 
 	/* check to see if there is anything there */
 
 	DOLIST(thing, Contents(loc)) {
-		if (can_see(player, thing, can_see_loc)) {
+		if (Can_See(player, thing, can_see_loc)) {
 
 			/* something exists!  show him everything */
 
 			notify(player, contents_name);
 			DOLIST(thing, Contents(loc)) {
-			    if (can_see(player, thing, can_see_loc)) {
+			    if (Can_See(player, thing, can_see_loc)) {
 				buff = unparse_object(player, thing, 1);
 #ifdef PUEBLO_SUPPORT
 				html_cp = html_buff;

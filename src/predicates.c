@@ -238,40 +238,6 @@ int locknum;
 	return doit;
 }
 
-int can_see(player, thing, can_see_loc)
-dbref player, thing;
-int can_see_loc;
-{
-	/* Don't show if all the following apply: 
-	 * Sleeping players should not be seen.
-	 * The thing is a disconnected player. 
-	 * The player is not a puppet. 
-	 */
-
-	if (mudconf.dark_sleepers && isPlayer(thing) &&
-	    !Connected(thing) && !Puppet(thing)) {
-		return 0;
-	}
-	/* You don't see yourself or exits */
-
-	if ((player == thing) || isExit(thing)) {
-		return 0;
-	}
-	/* If loc is not dark, you see it if it's not dark or you control it.
-	 * If loc is dark, you see it if you control it.  Seeing your
-	 * own dark objects is controlled by mudconf.see_own_dark.
-	 * In dark locations, you also see things that are LIGHT and !DARK. 
-	 */
-
-	if (can_see_loc) {
-		return (!Dark(thing) ||
-			(mudconf.see_own_dark && MyopicExam(player, thing)));
-	} else {
-		return ((Light(thing) && !Dark(thing)) ||
-			(mudconf.see_own_dark && MyopicExam(player, thing)));
-	}
-}
-
 static int canpayquota(player, who, cost, objtype)
 dbref player, who;
 int cost, objtype;
@@ -1790,27 +1756,6 @@ dbref player, thing;
 	if ((thing_loc == player_loc) || (thing == player_loc))
 		return 1;
 	return 0;
-}
-
-/* ---------------------------------------------------------------------------
- * exit_visible: Is exit visible?
- */
-
-int exit_visible(exit, player, key)	/* exit visible to lexits() */
-dbref exit, player;
-int key;
-{
-	if (key & VE_LOC_XAM)
-		return 1;	/* Exam exit's loc */
-	if (Examinable(player, exit))
-		return 1;	/* Exam exit */
-	if (Light(exit))
-		return 1;	/* Exit is light */
-	if (key & (VE_LOC_DARK | VE_BASE_DARK))
-		return 0;	/* Dark Loc or base */
-	if (Dark(exit))
-		return 0;	/* Dark exit */
-	return 1;		/* Default */
 }
 
 #ifndef STANDALONE

@@ -68,7 +68,7 @@ FUNCTION(fun_exit)
 		if (Dark(it))
 			key |= VE_LOC_DARK;
 		DOLIST(exit, Exits(it)) {
-			if (exit_visible(exit, player, key)) {
+			if (Exit_Visible(exit, player, key)) {
 				safe_dbref(buff, bufc, exit);
 				return;
 			}
@@ -103,7 +103,7 @@ FUNCTION(fun_next)
 					key |= VE_LOC_DARK;
 				DOLIST(exit, it) {
 					if ((exit != it) &&
-					  exit_visible(exit, player, key)) {
+					  Exit_Visible(exit, player, key)) {
 						safe_dbref(buff, bufc, exit);
 						return;
 					}
@@ -257,7 +257,6 @@ FUNCTION(fun_controls)
 FUNCTION(fun_sees)
 {
     dbref it, thing;
-    int can_see_loc;
 
     if ((it = match_thing(player, fargs[0])) == NOTHING) {
 	safe_chr('0', buff, bufc);
@@ -270,10 +269,10 @@ FUNCTION(fun_sees)
 	return;
     }
 
-    can_see_loc = (!Dark(Location(thing)) ||
-		   (mudconf.see_own_dark &&
-		    Examinable(player, Location(thing))));
-    safe_bool(buff, bufc, can_see(it, thing, can_see_loc));
+    safe_bool(buff, bufc,
+	      (isExit(thing) ?
+	       Can_See_Exit(thing, Dark(Location(thing))) :
+	       Can_See(it, thing, Sees_Always(player, Location(thing)))));
 }
 
 /* ---------------------------------------------------------------------------
@@ -563,7 +562,7 @@ FUNCTION(fun_lexits)
 		if (Dark(it))
 			key |= VE_BASE_DARK;
 		DOLIST(thing, Exits(parent)) {
-			if (exit_visible(thing, player, key)) {
+			if (Exit_Visible(thing, player, key)) {
 			    if (*bufc != bb_p)
 				safe_chr(' ', buff, bufc);
 			    safe_dbref(buff, bufc, thing);
