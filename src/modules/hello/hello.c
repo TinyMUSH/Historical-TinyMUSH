@@ -11,13 +11,13 @@
 
 struct mod_hello_confstorage {
 	int show_name;
-	char hello_string[MBUF_SIZE];
+	char *hello_string;
 	int hello_times;
 } mod_hello_config;
 
 CONF mod_hello_conftable[] = {
 {(char *)"hello_shows_name",		cf_bool,	CA_GOD,		CA_PUBLIC,	(int *)&mod_hello_config.show_name,	(long)"Greet players by name"},
-{(char *)"hello_string",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mod_hello_config.hello_string,	MBUF_SIZE},
+{(char *)"hello_string",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mod_hello_config.hello_string,	MBUF_SIZE},
 {(char *)"hello_times",			cf_int,		CA_GOD,		CA_PUBLIC,	(int *)&mod_hello_config.hello_times,	5},
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
@@ -191,8 +191,8 @@ MODNHASHES mod_hello_nhashtable[] = {
 void mod_hello_init()
 {
     mod_hello_config.show_name = 0;
-    StringCopy(mod_hello_config.hello_string, "Hello, world!");
-    mod_hello_config.hello_times = 1;;
+    mod_hello_config.hello_string = XSTRDUP("Hello, world!", "mod_hello_init");
+    mod_hello_config.hello_times = 1;
 
     register_hashtables(mod_hello_hashtable, mod_hello_nhashtable); 
     register_commands(mod_hello_cmdtable);

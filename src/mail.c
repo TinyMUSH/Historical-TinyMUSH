@@ -68,7 +68,7 @@ MODNHASHES mod_mail_nhashtable[] = {
 { NULL,			NULL,			0,	0}};
 
 struct mod_mail_confstorage {
-	char	mail_db[PBUF_SIZE];	/* name of the @mail database */
+	char	*mail_db;	/* name of the @mail database */
 	int	mail_expiration; /* Number of days to wait to delete mail */
 	int	mail_freelist;  /* The next free mail number */
 	MENT	*mail_list;     /* The mail database */
@@ -77,7 +77,7 @@ struct mod_mail_confstorage {
 } mod_mail_config;
 
 CONF mod_mail_conftable[] = {
-{(char *)"mail_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mod_mail_config.mail_db,		PBUF_SIZE},
+{(char *)"mail_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mod_mail_config.mail_db,	MBUF_SIZE},
 {(char *)"mail_expiration",		cf_int,		CA_GOD,		CA_PUBLIC,	&mod_mail_config.mail_expiration,	0},
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
@@ -1864,7 +1864,7 @@ char *arg2;
 void mod_mail_dump_database()
 {
 	FILE *fp;
-	char tmpfile[256];
+	char tmpfile[2 * MBUF_SIZE + 8]; /* depends on max size of params */
 	struct mail *mp, *mptr;
 	dbref thing;
 	int count = 0, i;
@@ -1932,7 +1932,8 @@ void mod_mail_dump_database()
 void mod_mail_load_database()
 {
 	FILE *fp;
-	char tmpfile[256], nbuf1[8];
+	char tmpfile[2 * MBUF_SIZE + 8]; /* depends on max length of params */
+	char nbuf1[8];
 	int mail_top = 0;
 	int new = 0;
 	int pennsub = 0;
@@ -4083,7 +4084,7 @@ void mod_mail_cleanup_startup()
 
 void mod_mail_init()
 {
-    StringCopy(mod_mail_config.mail_db, "mail.db");
+    mod_mail_config.mail_db = XSTRDUP("mail.db", "mod_mail_init");
     mod_mail_config.mail_expiration = 14;
     mod_mail_config.mail_db_top = 0;
     mod_mail_config.mail_db_size = 0;

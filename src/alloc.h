@@ -19,7 +19,6 @@
 #define LBUF_SIZE	8000	/* standard lbuf */
 #define GBUF_SIZE       1024    /* generic buffer size */
 #define MBUF_SIZE	400	/* standard mbuf */
-#define PBUF_SIZE       128     /* pathname buffer size */
 #define SBUF_SIZE	64	/* standard sbuf, short strings */
 
 /*

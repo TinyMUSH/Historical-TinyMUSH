@@ -78,16 +78,16 @@ struct confdata {
 	Uchar	markdata[8];	/* Masks for marking/unmarking */
 	int	ntfy_nest_lim;	/* Max nesting of notifys */
 	int	dbopt_interval; /* Optimize db every N dumps */
-	char	dbhome[MBUF_SIZE];	/* Database home directory */
+	char	*dbhome;	/* Database home directory */
 #ifndef STANDALONE
-	char	indb[PBUF_SIZE];	/* database file name */
-	char	outdb[PBUF_SIZE];	/* checkpoint the database to here */
-	char	crashdb[PBUF_SIZE];	/* write database here on crash */
-	char	gdbm[PBUF_SIZE];	/* use this gdbm file if we need one */
-	char	status_file[PBUF_SIZE]; /* Where to write arg to @shutdown */
-	char	mudlogname[PBUF_SIZE];	/* Name of the game log file */
+	char	*indb;		/* database file name */
+	char	*outdb;			/* checkpoint the database to here */
+	char	*crashdb;		/* write database here on crash */
+	char	*gdbm;			/* use this gdbm file if we need one */
+	char	*status_file;		/* Where to write arg to @shutdown */
+	char	*mudlogname;		/* Name of the game log file */
 #ifdef HAVE_DLOPEN
-	char	modhome[MBUF_SIZE];	/* Directory where the .so files are */
+	char	*modhome;		/* Directory where the .so files are */
 #endif
 	int	have_pueblo;	/* Is Pueblo support compiled in? */
 	int	have_zones;	/* Should zones be active? */
@@ -100,36 +100,36 @@ struct confdata {
 	int	guest_char;	/* player num of prototype GUEST character */
 	int     guest_nuker;    /* Wiz who nukes the GUEST characters. */
 	int     number_guests;  /* number of guest characters allowed */
-	char    guest_prefix[SBUF_SIZE]; /* Prefix for the guest char's name */
-	char	guest_file[SBUF_SIZE];	/* display if guest connects */
-	char	conn_file[SBUF_SIZE];	/* display on connect if no registration */
-	char	creg_file[SBUF_SIZE];	/* display on connect if registration */
-	char	regf_file[SBUF_SIZE];	/* display on (failed) create if reg is on */
-	char	motd_file[SBUF_SIZE];	/* display this file on login */
-	char	wizmotd_file[SBUF_SIZE]; /* display this file on login to wizards */
-	char	quit_file[SBUF_SIZE];	/* display on quit */
-	char	down_file[SBUF_SIZE];	/* display this file if no logins */
-	char	full_file[SBUF_SIZE];	/* display when max users exceeded */
-	char	site_file[SBUF_SIZE];	/* display if conn from bad site */
-	char	crea_file[SBUF_SIZE];	/* display this on login for new users */
-	char	motd_msg[GBUF_SIZE];	/* Wizard-settable login message */
-	char	wizmotd_msg[GBUF_SIZE];  /* Login message for wizards only */
-	char	downmotd_msg[GBUF_SIZE];  /* Settable 'logins disabled' message */
-	char	fullmotd_msg[GBUF_SIZE];  /* Settable 'Too many players' message */
-	char	dump_msg[PBUF_SIZE];	/* Message displayed when @dump-ing */
-	char	postdump_msg[PBUF_SIZE];  /* Message displayed after @dump-ing */
-	char	fixed_home_msg[PBUF_SIZE];  /* Message displayed when going home and FIXED */
-	char	fixed_tel_msg[PBUF_SIZE]; /* Message displayed when teleporting and FIXED */
+	char    *guest_prefix;	/* Prefix for the guest char's name */
+	char	*guest_file;	/* display if guest connects */
+	char	*conn_file;	/* display on connect if no registration */
+	char	*creg_file;	/* display on connect if registration */
+	char	*regf_file;	/* display on (failed) create if reg is on */
+	char	*motd_file;	/* display this file on login */
+	char	*wizmotd_file;	/* display this file on login to wizards */
+	char	*quit_file;	/* display on quit */
+	char	*down_file;	/* display this file if no logins */
+	char	*full_file;	/* display when max users exceeded */
+	char	*site_file;	/* display if conn from bad site */
+	char	*crea_file;	/* display this on login for new users */
+	char	*motd_msg;	/* Wizard-settable login message */
+	char	*wizmotd_msg;  /* Login message for wizards only */
+	char	*downmotd_msg;  /* Settable 'logins disabled' message */
+	char	*fullmotd_msg;  /* Settable 'Too many players' message */
+	char	*dump_msg;	/* Message displayed when @dump-ing */
+	char	*postdump_msg;  /* Message displayed after @dump-ing */
+	char	*fixed_home_msg; /* Message displayed when going home and FIXED */
+	char	*fixed_tel_msg; /* Message displayed when teleporting and FIXED */
 #ifdef PUEBLO_SUPPORT
-	char    pueblo_msg[GBUF_SIZE];	/* Message displayed to Pueblo clients */
-	char	htmlconn_file[SBUF_SIZE];	/* display on PUEBLOCLIENT message */
+	char    *pueblo_msg;	/* Message displayed to Pueblo clients */
+	char	*htmlconn_file;	/* display on PUEBLOCLIENT message */
 #endif
-	char	config_file[PBUF_SIZE]; /* name of config file, used by @restart */
-	char	exec_path[MBUF_SIZE];	/* argv[0] */
-	char	sql_host[MBUF_SIZE];	/* IP address of SQL database */
-	char	sql_db[MBUF_SIZE];	/* Database to use */
-	char	sql_username[MBUF_SIZE]; /* Username for database */
-	char	sql_password[MBUF_SIZE]; /* Password for database */
+	char	*config_file;	/* name of config file, used by @restart */
+	char	*exec_path;	/* argv[0] */
+	char	*sql_host;	/* IP address of SQL database */
+	char	*sql_db;	/* Database to use */
+	char	*sql_username;	/* Username for database */
+	char	*sql_password;	/* Password for database */
 	int	sql_reconnect;	/* Auto-reconnect if connection dropped? */
 	int	indent_desc;	/* Newlines before and after descs? */
 	int	name_spaces;	/* allow player names to have spaces */
@@ -246,9 +246,9 @@ struct confdata {
 	FLAGSET	robot_flags;	/* Flags robots start with */
 	FLAGSET stripped_flags; /* Flags stripped by @clone and @chown */
 	int	abort_on_bug;	/* Dump core after logging a bug  DBG ONLY */
-      	char	mud_name[SBUF_SIZE];	/* Name of the mud */
-	char	one_coin[SBUF_SIZE];	/* name of one coin (ie. "penny") */
-	char	many_coins[SBUF_SIZE];	/* name of many coins (ie. "pennies") */
+      	char	*mud_name;	/* Name of the mud */
+	char	*one_coin;	/* name of one coin (ie. "penny") */
+	char	*many_coins;	/* name of many coins (ie. "pennies") */
 	int	timeslice;	/* How often do we bump people's cmd quotas? */
 	int	cmd_quota_max;	/* Max commands at one time */
 	int	cmd_quota_incr;	/* Bump #cmds allowed by this each timeslice */
@@ -327,9 +327,9 @@ typedef struct statedata STATEDATA;
 struct statedata {
 	int	record_players; /* The maximum # of player logged on */
 #ifndef STANDALONE
-	char	version[PBUF_SIZE];	/* MUSH version string */
-	char	short_ver[SBUF_SIZE];	/* Short version number (for INFO) */
-	char	buildinfo[LBUF_SIZE];	/* Compile info */
+	char	*version;	/* MUSH version string */
+	char	*short_ver;	/* Short version number (for INFO) */
+	char	*buildinfo;	/* Compile info */
 	char	modloaded[MBUF_SIZE];	/* Modules loaded */
 	int	initializing;	/* are we reading config file at startup? */
 	int	loading_db;	/* are we loading the db? */

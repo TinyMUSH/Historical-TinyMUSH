@@ -22,7 +22,7 @@ typedef struct filecache_block_hdr FBLKHDR;
 typedef struct filecache_block FBLOCK;
 
 struct filecache_hdr {
-	char *filename;
+	char **filename;
 	FBLOCK *fileblock;
 	const char *desc;
 };
@@ -39,21 +39,21 @@ struct filecache_block {
 /* *INDENT-OFF* */
 
 FCACHE fcache[] = {
-	{ mudconf.conn_file,	NULL,	"Conn" },
-	{ mudconf.site_file,	NULL,	"Conn/Badsite" },
-	{ mudconf.down_file,	NULL,	"Conn/Down" },
-	{ mudconf.full_file,	NULL,	"Conn/Full" },
-	{ mudconf.guest_file,	NULL,	"Conn/Guest" },
-	{ mudconf.creg_file,	NULL,	"Conn/Reg" },
-	{ mudconf.crea_file,	NULL,	"Crea/Newuser" },
-	{ mudconf.regf_file,	NULL,	"Crea/RegFail" },
-	{ mudconf.motd_file,	NULL,	"Motd" },
-	{ mudconf.wizmotd_file,	NULL,	"Wizmotd" },
-	{ mudconf.quit_file,	NULL,	"Quit" },
+	{ &mudconf.conn_file,		NULL,	"Conn" },
+	{ &mudconf.site_file,		NULL,	"Conn/Badsite" },
+	{ &mudconf.down_file,		NULL,	"Conn/Down" },
+	{ &mudconf.full_file,		NULL,	"Conn/Full" },
+	{ &mudconf.guest_file,		NULL,	"Conn/Guest" },
+	{ &mudconf.creg_file,		NULL,	"Conn/Reg" },
+	{ &mudconf.crea_file,		NULL,	"Crea/Newuser" },
+	{ &mudconf.regf_file,		NULL,	"Crea/RegFail" },
+	{ &mudconf.motd_file,		NULL,	"Motd" },
+	{ &mudconf.wizmotd_file,	NULL,	"Wizmotd" },
+	{ &mudconf.quit_file,		NULL,	"Quit" },
 #ifdef PUEBLO_SUPPORT
-	{ mudconf.htmlconn_file,	NULL,	"Conn/Html"},
+	{ &mudconf.htmlconn_file,	NULL,	"Conn/Html"},
 #endif
-    	{ NULL,			NULL,	NULL }};
+    	{ NULL,				NULL,	NULL }};
 
 NAMETAB list_files[] = {
 {(char *)"badsite_connect",	1,	CA_WIZARD,	FC_CONN_SITE},
@@ -247,7 +247,7 @@ dbref player;
 	buff = bufc = alloc_lbuf("fcache_load.lbuf");
 	sbuf = alloc_sbuf("fcache_load.sbuf");
 	for (fp = fcache; fp->filename; fp++) {
-		i = fcache_read(&fp->fileblock, fp->filename);
+		i = fcache_read(&fp->fileblock, *(fp->filename));
 		if ((player != NOTHING) && !Quiet(player)) {
 			sprintf(sbuf, "%d", i);
 			if (fp == fcache)

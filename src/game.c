@@ -1692,11 +1692,8 @@ char *argv[];
 	}
 #endif /* HAVE_DLOPEN */
 
-	strncpy(mudconf.exec_path, argv[0], PBUF_SIZE - 1);
-	mudconf.exec_path[PBUF_SIZE - 1] = '\0';
-
-	strncpy(mudconf.mudlogname, opt_logfile, PBUF_SIZE - 1);
-	mudconf.mudlogname[PBUF_SIZE - 1] = '\0';
+	mudconf.exec_path = XSTRDUP(argv[0], "argv");
+	mudconf.mudlogname = XSTRDUP(opt_logfile, "argv");
 	
 	fcache_init();
 	helpindex_init();

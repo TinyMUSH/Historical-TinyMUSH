@@ -67,15 +67,20 @@ void NDECL(init_version)
 {
 #ifdef BETA
 #if PATCHLEVEL > 0
-	sprintf(mudstate.version, "TinyMUSH Beta version %s patchlevel %d #%s",
-		MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM);
-	sprintf(mudstate.short_ver, "TinyMUSH Beta %s.p%d",
-		MUSH_VERSION, PATCHLEVEL);
+	mudstate.version =
+		XSTRDUP(tprintf("TinyMUSH Beta version %s patchlevel %d #%s",
+				MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM),
+			"init_version");
+	mudstate.short_ver =
+		XSTRDUP(tprintf("TinyMUSH Beta %s.p%d",
+				MUSH_VERSION, PATCHLEVEL), "init_version");
 #else
-	sprintf(mudstate.version, "TinyMUSH Beta version %s #%s",
-		MUSH_VERSION, MUSH_BUILD_NUM);
-	sprintf(mudstate.short_ver, "TinyMUSH Beta %s",
-		MUSH_VERSION);
+	mudstate.version =
+		XSTRDUP(tprintf("TinyMUSH Beta version %s #%s",
+				MUSH_VERSION, MUSH_BUILD_NUM), "init_version");
+	mudstate.short_ver =
+		XSTRDUP(tprintf("TinyMUSH Beta %s",
+				MUSH_VERSION), "init_version");
 #endif /*
         * PATCHLEVEL 
         */
@@ -83,23 +88,32 @@ void NDECL(init_version)
        * not BETA 
        */
 #if PATCHLEVEL > 0
-	sprintf(mudstate.version, "TinyMUSH version %s patchlevel %d #%s [%s]",
-		MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM, MUSH_RELEASE_DATE);
-	sprintf(mudstate.short_ver, "TinyMUSH %s.p%d",
-		MUSH_VERSION, PATCHLEVEL);
+	mudstate.version =
+		XSTRDUP(tprintf("TinyMUSH version %s patchlevel %d #%s [%s]",
+				MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM,
+				MUSH_RELEASE_DATE), "init_version");
+	mudstate.short_ver =
+		XSTRDUP(tprintf("TinyMUSH %s.p%d",
+				MUSH_VERSION, PATCHLEVEL), "init_version");
 #else
-	sprintf(mudstate.version, "TinyMUSH version %s #%s [%s]",
-		MUSH_VERSION, MUSH_BUILD_NUM, MUSH_RELEASE_DATE);
-	sprintf(mudstate.short_ver, "TinyMUSH %s",
-		MUSH_VERSION);
+	mudstate.version =
+		XSTRDUP(tprintf("TinyMUSH version %s #%s [%s]",
+				MUSH_VERSION, MUSH_BUILD_NUM,
+				MUSH_RELEASE_DATE), "init_version");
+	mudstate.short_ver =
+		XSTRDUP(tprintf("TinyMUSH %s",
+				MUSH_VERSION), "init_version");
 #endif /*
         * PATCHLEVEL 
         */
 #endif /*
         * BETA 
         */
-	sprintf(mudstate.buildinfo, "%s\n            %s %s",
-		MUSH_CONFIGURE_CMD, MUSH_BUILD_COMPILER, MUSH_BUILD_CFLAGS);
+	mudstate.buildinfo =
+		XSTRDUP(tprintf("%s\n            %s %s",
+				MUSH_CONFIGURE_CMD,
+				MUSH_BUILD_COMPILER, MUSH_BUILD_CFLAGS),
+			"init_version");
 	STARTLOG(LOG_ALWAYS, "INI", "START")
 		log_printf("Starting: %s", mudstate.version);
 	ENDLOG

@@ -112,7 +112,7 @@ CONF mod_<name>_conftable[] = {
 {(char *)"<whatever>_flags",	cf_set_flags,	<set perms>,	<read perms>,
 	(int *)&mod_<name>_config.<flag_param>,	0},
 {(char *)"<word>",		cf_string,	<set perms>,	<read perms>,
-	(int *)mod_name_config.<string_buffer>,	<maximum length>},
+	(int *)&mod_<name>_config.<string_ptr>,	<maximum length>},
 { NULL,				NULL,		0,		0,
 	NULL,					0}};
 
@@ -134,7 +134,8 @@ void mod_<name>_init()
 
 	mod_<name>_config.<bool_param> = <0 or 1>; 
 	mod_<name>_config.<int_param> = <integer>;
-	StringCopy(mod_<name>_config.<string_param>, <string>);
+	mod_<name>_config.<string_param> = XSTRDUP(<string>,
+						   "mod_<name>_init");
 
 	/* Load tables. */
 

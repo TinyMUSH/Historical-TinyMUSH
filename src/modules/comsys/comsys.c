@@ -40,19 +40,19 @@ extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
  */
 
 struct mod_comsys_confstorage {
-	char	comsys_db[PBUF_SIZE];	/* name of the comsys db */
-	char	public_channel[SBUF_SIZE]; /* Name of public channel */
-	char	guests_channel[SBUF_SIZE]; /* Name of guests channel */
-	char	public_calias[SBUF_SIZE];  /* Alias of public channel */
-	char	guests_calias[SBUF_SIZE];  /* Alias of guests channel */
+	char	*comsys_db;		/* Name of the comsys db */
+	char	*public_channel;	/* Name of public channel */
+	char	*guests_channel;	/* Name of guests channel */
+	char	*public_calias;		/* Alias of public channel */
+	char	*guests_calias;		/* Alias of guests channel */
 } mod_comsys_config;
 
 CONF mod_comsys_conftable[] = {
-{(char *)"comsys_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mod_comsys_config.comsys_db,	PBUF_SIZE},
-{(char *)"guests_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mod_comsys_config.guests_calias,	SBUF_SIZE},
-{(char *)"guests_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mod_comsys_config.guests_channel,	SBUF_SIZE},
-{(char *)"public_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mod_comsys_config.public_calias,	SBUF_SIZE},
-{(char *)"public_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mod_comsys_config.public_channel,	SBUF_SIZE},
+{(char *)"comsys_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mod_comsys_config.comsys_db,		MBUF_SIZE},
+{(char *)"guests_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mod_comsys_config.guests_calias,	SBUF_SIZE},
+{(char *)"guests_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mod_comsys_config.guests_channel,	SBUF_SIZE},
+{(char *)"public_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mod_comsys_config.public_calias,	SBUF_SIZE},
+{(char *)"public_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mod_comsys_config.public_channel,	SBUF_SIZE},
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
 HASHTAB mod_comsys_comsys_htab;
@@ -1704,15 +1704,13 @@ CMDENT mod_comsys_cmdtable[] = {
 void mod_comsys_dump_database()
 {
     FILE *fp;
-    char filename[256];
-    char buffer[PBUF_SIZE + 8];	/* dependent on comsys_db conf param */
     CHANNEL *chp;
     COMALIAS *cap;
+    char buffer[2 * MBUF_SIZE + 8];	/* depends on max length of params */
 
-    sprintf(filename, "%s/%s", mudconf.dbhome, mod_comsys_config.comsys_db);
-    sprintf(buffer, "%s.#", filename);
+    sprintf(buffer, "%s/%s.#", mudconf.dbhome, mod_comsys_config.comsys_db);
     if (!(fp = fopen(buffer, "w"))) {
-	log_perror("DMP", "COM", "Opening comsys db for writing", filename);
+	log_perror("DMP", "COM", "Opening comsys db for writing", buffer);
 	return;
     }
 
@@ -1752,7 +1750,8 @@ void mod_comsys_dump_database()
 
     fprintf(fp, "*** END OF DUMP ***\n");
     fclose(fp);
-    rename(buffer, filename);
+    rename(buffer, tprintf("%s/%s",
+			   mudconf.dbhome, mod_comsys_config.comsys_db));
 }
 
 static void comsys_flag_convert(chp)
@@ -2055,24 +2054,23 @@ void mod_comsys_load_database()
     /* We do this even if we don't have the comsys turned on. */
 
     FILE *fp;
-    char filename[256];
-    char t_mbuf[MBUF_SIZE];
+    char buffer[2 * MBUF_SIZE + 8];	/* depends on max length of params */
 
-    sprintf(filename, "%s/%s", mudconf.dbhome, mod_comsys_config.comsys_db); 
+    sprintf(buffer, "%s/%s", mudconf.dbhome, mod_comsys_config.comsys_db); 
 
     STARTLOG(LOG_STARTUP, "INI", "COM")
-	log_printf("Loading comsys db: %s", filename);
+	log_printf("Loading comsys db: %s", buffer);
     ENDLOG
 
-    if (!(fp = fopen(filename, "r"))) {
-	log_perror("INI", "COM", "Opening comsys db for reading", filename);
+    if (!(fp = fopen(buffer, "r"))) {
+	log_perror("INI", "COM", "Opening comsys db for reading", buffer);
 	mod_comsys_make_minimal();
 	return;
     }
 
-    fgets(t_mbuf, sizeof(t_mbuf), fp);
-    if (!strncmp(t_mbuf, (char *) "+V", 2)) {
-	read_comsys(fp, atoi(t_mbuf + 2));
+    fgets(buffer, sizeof(buffer), fp);
+    if (!strncmp(buffer, (char *) "+V", 2)) {
+	read_comsys(fp, atoi(buffer + 2));
 	sanitize_comsys();
     } else {
 	STARTLOG(LOG_STARTUP, "INI", "COM")
@@ -2274,11 +2272,11 @@ void mod_comsys_destroy_player(player, victim)
 
 void mod_comsys_init()
 {
-    StringCopy(mod_comsys_config.comsys_db, "comsys.db");
-    StringCopy(mod_comsys_config.public_channel, "Public");
-    StringCopy(mod_comsys_config.guests_channel, "Guests");
-    StringCopy(mod_comsys_config.public_calias, "pub");
-    StringCopy(mod_comsys_config.guests_calias, "g");
+    mod_comsys_config.comsys_db = XSTRDUP("comsys.db", "mod_comsys_init");
+    mod_comsys_config.public_channel = XSTRDUP("Public", "mod_comsys_init");
+    mod_comsys_config.guests_channel = XSTRDUP("Guests", "mod_comsys_init");
+    mod_comsys_config.public_calias = XSTRDUP("pub", "mod_comsys_init");
+    mod_comsys_config.guests_calias = XSTRDUP("g", "mod_comsys_init");
 
     register_hashtables(mod_comsys_hashtable, mod_comsys_nhashtable);
     register_commands(mod_comsys_cmdtable);
