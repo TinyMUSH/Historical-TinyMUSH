@@ -1562,7 +1562,7 @@ char *command, *args[];
 {
 	static char preserve_cmd[LBUF_SIZE];
 	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str, *evcmd;
-	int succ, aflags, i, got_stop;
+	int succ, aflags, i, got_stop, pcount;
 	dbref exit, aowner, parent;
 	CMDENT *cmdp;
 
@@ -1882,16 +1882,21 @@ char *command, *args[];
 	/* 2.2 style location */
 	
 	if (!succ && mudconf.local_masters) {
-		if (Has_location(player)) {
-			parent = Parent(Location(player));
-			while (!succ && !got_stop && Good_obj(parent) && ParentZone(parent)) {
-				if (Has_contents(parent)) {
-					succ += list_check(Contents(parent), player, AMATCH_CMD,
-						lcbuf, preserve_cmd, 0, &got_stop);
-				}
-				parent = Parent(parent);
-			}
+	    if (Has_location(player)) {
+		pcount = 0;
+		parent = Parent(Location(player));
+		while (!succ && !got_stop &&
+		       Good_obj(parent) && ParentZone(parent) &&
+		       (pcount < mudconf.parent_nest_lim)) {
+		    if (Has_contents(parent)) {
+			succ += list_check(Contents(parent), player,
+					   AMATCH_CMD, lcbuf, preserve_cmd,
+					   0, &got_stop);
+		    }
+		    parent = Parent(parent);
+		    pcount++;
 		}
+	    }
 	}
 	
 	/* MUX style location */
@@ -1900,52 +1905,56 @@ char *command, *args[];
 	    (Zone(Location(player)) != NOTHING)) {
 		if (Typeof(Zone(Location(player))) == TYPE_ROOM) {
 
-			/* zone of player's location is a parent room */
-			if (Location(player) != Zone(player)) {
-
-				/* check parent room exits */
-				init_match_check_keys(player, command, TYPE_EXIT);
-				match_zone_exit();
-				exit = last_match_result();
-				if (exit != NOTHING) {
-				        CALL_PRE_HOOK(goto_cmdp, args, nargs);
-					move_exit(player, exit, 1, NULL, 0);
-				        CALL_POST_HOOK(goto_cmdp, args, nargs);
-					mudstate.debug_cmd = cmdsave;
-					return preserve_cmd;
-				}
-				if (!got_stop) {
-					succ += list_check(Contents(Zone(Location(player))), player,
-						   AMATCH_CMD, lcbuf, preserve_cmd, 1, &got_stop);
-				}
-			}	/* end of parent room checks */
-		} else
-			/* try matching commands on area zone object */
-
-			if (!got_stop && !succ && mudconf.have_zones 
-			     && (Zone(Location(player)) != NOTHING)) {
-				succ += atr_match(Zone(Location(player)), player, AMATCH_CMD,
-					  lcbuf, preserve_cmd, 1);
+		    /* zone of player's location is a parent room */
+		    if (Location(player) != Zone(player)) {
+			/* check parent room exits */
+			init_match_check_keys(player, command, TYPE_EXIT);
+			match_zone_exit();
+			exit = last_match_result();
+			if (exit != NOTHING) {
+			    CALL_PRE_HOOK(goto_cmdp, args, nargs);
+			    move_exit(player, exit, 1, NULL, 0);
+			    CALL_POST_HOOK(goto_cmdp, args, nargs);
+			    mudstate.debug_cmd = cmdsave;
+			    return preserve_cmd;
 			}
+			if (!got_stop) {
+			    succ += list_check(Contents(Zone(Location(player))),
+					       player, AMATCH_CMD, lcbuf,
+					       preserve_cmd, 1, &got_stop);
+					       
+			}
+		    }	/* end of parent room checks */
+		} else
+		    /* try matching commands on area zone object */
+
+		    if (!got_stop && !succ && mudconf.have_zones 
+			&& (Zone(Location(player)) != NOTHING)) {
+			succ += atr_match(Zone(Location(player)), player,
+					  AMATCH_CMD, lcbuf, preserve_cmd, 1);
+		    }
 	}		/* end of matching on zone of player's location */
 	
 	/* 2.2 style player */
 	
 	if (!succ && mudconf.local_masters) {
-		parent = Parent(player);
-		if ((parent != Location(player)) &&
-		    (!Good_obj(Location(player)) ||
-		     (parent != Parent(Location(player))))) {
-			while (!succ && !got_stop &&
-			       Good_obj(parent) && ParentZone(parent)) {
-				if (Has_contents(parent)) {
-					succ += list_check(Contents(parent), player,
-						AMATCH_CMD, lcbuf, preserve_cmd, 0,
-						&got_stop);
-				}
-				parent = Parent(parent);
-			}
+	    parent = Parent(player);
+	    if ((parent != Location(player)) &&
+		(!Good_obj(Location(player)) ||
+		 (parent != Parent(Location(player))))) {
+		pcount = 0;
+		while (!succ && !got_stop &&
+		       Good_obj(parent) && ParentZone(parent) &&
+		       (pcount < mudconf.parent_nest_lim)) {
+		    if (Has_contents(parent)) {
+			succ += list_check(Contents(parent), player,
+					   AMATCH_CMD, lcbuf, preserve_cmd, 0,
+					   &got_stop);
+		    }
+		    parent = Parent(parent);
+		    pcount++;
 		}
+	    }
 	}
 
 	/* MUX style player */
@@ -1953,7 +1962,8 @@ char *command, *args[];
 	/* if nothing matched with parent room/zone object, try matching
 	 * zone commands on the player's personal zone  
 	 */
-	if (!got_stop && !succ && mudconf.have_zones && (Zone(player) != NOTHING) &&
+	if (!got_stop && !succ && mudconf.have_zones &&
+	    (Zone(player) != NOTHING) &&
 	    (Zone(Location(player)) != Zone(player))) {
 		succ += atr_match(Zone(player), player, AMATCH_CMD, lcbuf, 
 			preserve_cmd, 1);
