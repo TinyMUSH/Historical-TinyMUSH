@@ -4506,12 +4506,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	filterbool()	first()		fold()		grab()		
 	index()		insert()	iter()		last()		
 	ldelete()	list()		lnum()		loop()
-	lpos()		map()		match()		matchall()	
-	member()	mix()		munge()		remove()	
-	replace()	rest()		revwords()	setdiff()	
-	setinter()	setunion()	shuffle()	sortby()	
-	sort()		splice()	step()		while()
-	words()
+	lpos()		lrand()		map()		match()
+	matchall()	member()	mix()		munge()		
+	remove()	replace()	rest()		revwords()	
+	setdiff()	setinter()	setunion()	shuffle()	
+	sortby()	sort()		splice()	step()	
+	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -7003,7 +7003,19 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "4 3 2 1 0 -1 -2"
     > say lnum(2,6,|)
     You say "2|3|4|5|6"
-
+ 
+& LRAND()
+  Function: lrand(<times>,<range bottom>,<range top>[,<output delim>])
+ 
+  Returns a list with <times> elements separated by <output delim> (or
+  a space if not specified), of random numbers between <range bottom>
+  and <range top>.
+ 
+  For instance, 'lrand(5, 3, 6)' would generate five random numbers
+  in the range 3 - 6 (i.e., 3, 4, 5, or 6), such as '4 6 3 5 6'.
+  
+  See also: rand(), die(), lnum()
+ 
 & LATTR()
   Function: lattr(<object>[/<wild-pattern>])
  
