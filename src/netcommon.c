@@ -129,8 +129,12 @@ DESC *d;
 		safe_str(msg, mudstate.poutnew, &mudstate.poutbufc);
 		return;
 	}
+
 	if (!Connected(player))
 		return;
+
+	if (!Html(player))	/* Don't splooge HTML at a non-HTML player. */
+	    return;
 
 	DESC_ITER_PLAYER(player, d) {
 		queue_string(d, msg);

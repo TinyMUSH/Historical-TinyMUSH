@@ -2518,7 +2518,7 @@ dbref player;
 		sprintf(buff, " and %d quota", mudconf.thing_quota);
 	if (mudconf.createmin == mudconf.createmax)
 		raw_notify(player,
-			   tprintf("Creating a new thing costs %d %d %s%s.",
+			   tprintf("Creating a new thing costs %d %s%s.",
 				   mudconf.createmin,
 				   coin_name(mudconf.createmin), buff));
 	else

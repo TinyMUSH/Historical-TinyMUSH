@@ -6175,7 +6175,7 @@ char *fname, *target;
 		}
 		if (hashadd(np, (int *) ufp, &mudstate.ufunc_htab)) {
 			notify_quiet(player, tprintf("Function %s not defined.", fname));
-			XFREE(ufp->name, "do_function");
+			XFREE((char *) ufp->name, "do_function");
 			XFREE(ufp, "do_function.2");
 			free_sbuf(np);
 			return;
