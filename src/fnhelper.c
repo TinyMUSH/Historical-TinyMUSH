@@ -28,9 +28,9 @@ char *str, sep;
 {
 	char *p;
 
-	if (sep != ' ')
+	if (sep != ' ' || !*str)
 		return str;
-	while (*str && (*str == ' '))
+	while (*str == ' ')
 		str++;
 	for (p = str; *p; p++) ;
 	for (p--; *p == ' ' && p > str; p--) ;

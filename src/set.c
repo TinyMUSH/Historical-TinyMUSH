@@ -1297,11 +1297,11 @@ char *src, **dst, *from, *to;
 	 */
 
 	p = from + strlen(from) - 4;
-	if (!strcmp(p, ANSI_NORMAL))
+	if (p >= from && !strcmp(p, ANSI_NORMAL))
 	    *p = '\0';
 
 	p = to + strlen(to) - 4;
-	if (!strcmp(p, ANSI_NORMAL))
+	if (p >= to && !strcmp(p, ANSI_NORMAL))
 	    *p = '\0';
 
 	/*
