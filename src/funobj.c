@@ -436,6 +436,33 @@ FUNCTION(fun_elock)
 	}
 }
 
+FUNCTION(fun_elockstr)
+{
+    dbref locked_obj, actor_obj;
+    BOOLEXP *okey;
+
+    locked_obj = match_thing(player, fargs[0]);
+    actor_obj = match_thing(player, fargs[1]);
+
+    if (!Good_obj(actor_obj)) {
+	safe_nomatch(buff, bufc);
+    } else if (!nearby_or_control(player, actor_obj) &&
+	       !nearby_or_control(player, locked_obj)) {
+	safe_str("#-1 TOO FAR AWAY", buff, bufc);
+    } else {
+	okey = parse_boolexp(player, fargs[2], 0);
+	if (okey == TRUE_BOOLEXP) {
+	    safe_str("#-1 INVALID KEY", buff, bufc);
+	} else if (Pass_Locks(actor_obj)) {
+	    safe_chr('1', buff, bufc);
+	} else {
+	    safe_ltos(buff, bufc, eval_boolexp(actor_obj,
+					       locked_obj, locked_obj, okey));
+	}
+	free_boolexp(okey);
+    }
+}
+
 /* ---------------------------------------------------------------------------
  * fun_xcon: Return a partial list of contents of an object, starting from
  *           a specified element in the list and copying a specified number

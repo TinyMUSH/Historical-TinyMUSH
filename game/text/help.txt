@@ -5606,21 +5606,21 @@ See also: @link, @open.
   Topic: Object Functions
  
 	andflags()	children()	con()		conn()
-	controls()	doing()		elock()		entrances()
-	exit()		flags()		findable()	fullname()
-	hasflag()	hasflags()	haspower()	hastype()	
-	hears()		home()		idle()		inzone()	
-	knows()		lastaccess()	lastcreate()	lastmod()	
-	lcon()		lexits()	lparent()	loc()		
-	locate()	lock()		lwho()		mail()		
-	mailfrom()	money()		moves()		name()		
-	nearby()	next()		num()		objmem()
-	orflags()	owner()		parent()	pfind()		
-	playmem()	pmatch()	ports()		programmer()	
-	rloc()		room()		search()	sees()
-	session()	stats()		type()		visible()
-	where()		writable()	xcon()		zone()
-	zwho()
+	controls()	doing()		elock()		elockstr()
+	entrances()	exit()		flags()		findable()	
+	fullname()	hasflag()	hasflags()	haspower()	
+	hastype()	hears()		home()		idle()	
+	inzone()	knows()		lastaccess()	lastcreate()	
+	lastmod()	lcon()		lexits()	lparent()	
+	loc()		locate()	lock()		lwho()		
+	mail()		mailfrom()	money()		moves()		
+	name()		nearby()	next()		num()		
+	objmem()	orflags()	owner()		parent()	
+	pfind()		playmem()	pmatch()	ports()		
+	programmer()	rloc()		room()		search()	
+	sees()		session()	stats()		type()		
+	visible()	where()		writable()	xcon()		
+	zone()		zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -6572,11 +6572,27 @@ performed and the walk down the list stops.
   the default lock is returned.  You must control <object>.
 
 & elock()
-  Function: elock(<object>[/<whichlock>],<victim>)
+  Function: elock(<object>[/<whichlock>], <actor>)
  
-  Checks if <victim> would pass the named lock on <object>. You must be
-  nearby, or control, at least one of the objects.
-
+  Checks if <actor> would pass the named lock on <object>. You must be
+  nearby, or control, at least one of the objects. Returns 0 or 1, or
+  #-1 with an error string.
+ 
+  See also: elockstr()
+ 
+& elockstr()
+  Function: elockstr(<locked object>, <actor>, <lock string>)
+ 
+  Checks if <actor> would pass a lock on <locked object> with syntax
+  <lock string>. You must be nearby, or control, at least one of the
+  objects. Returns 0 or 1, or #-1 with an error string.
+ 
+  Example:
+     > say elockstr(me, #4, #4|#5)
+     You say, "1"
+ 
+  See also: elock()
+ 
 & LWHO()
   Function: lwho()
   Returns a list of the db numbers of connected players.

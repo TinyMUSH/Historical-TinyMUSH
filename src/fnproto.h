@@ -186,6 +186,7 @@ XFUNCTION(handle_name);
 XFUNCTION(handle_pronoun);
 XFUNCTION(fun_lock);
 XFUNCTION(fun_elock);
+XFUNCTION(fun_elockstr);
 XFUNCTION(fun_xcon);
 XFUNCTION(fun_lcon);
 XFUNCTION(fun_lexits);
@@ -423,6 +424,7 @@ FUN flist[] = {
 {"EDIT",	fun_edit,	3,  0,		CA_PUBLIC,	NULL},
 {"ELEMENTS",	fun_elements,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ELOCK",	fun_elock,	2,  0,		CA_PUBLIC,	NULL},
+{"ELOCKSTR",	fun_elockstr,	3,  0,		CA_PUBLIC,	NULL},
 {"EMPTY",	fun_empty,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"ENCRYPT",	fun_encrypt,	2,  0,		CA_PUBLIC,	NULL},
 {"ENTRANCES",	fun_entrances,	0,  FN_VARARGS,	CA_NO_GUEST,	NULL},
