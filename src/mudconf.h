@@ -268,6 +268,8 @@ struct confdata {
 				  */
 	int	autozone;	/* New objs are zoned to creator's zone */
 	int	page_req_equals; /* page command must always contain '=' */
+	int	comma_say;	/* Use grammatically-correct comma in says */
+	int	you_say;	/* Show 'You say' to the player */
 	dbref	master_room;	/* Room containing default cmds/exits/etc */
 	dbref	player_proto;	/* Player prototype to clone */
 	dbref	room_proto;	/* Room prototype to clone */

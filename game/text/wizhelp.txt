@@ -1570,9 +1570,10 @@ player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
 robot_speech		rwho_transmit		safer_passwords
-see_owned_dark		signal_action		space_compress
-sweep_dark		switch_default_all	terse_shows_contents
-terse_shows_exits	terse_shows_move_messages
+say_uses_comma		say_uses_you		see_owned_dark		
+signal_action		space_compress		sweep_dark		
+switch_default_all	terse_shows_contents	terse_shows_exits	
+terse_shows_move_messages
 trace_topdown		typed_quotas		unowned_safe
 use_global_aconn	visible_wizards		wizard_obeys_linklock
 
@@ -3162,6 +3163,28 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   letter, and at least one number or symbol that is not the apostrophe (')
   or dash (-). Passwords of this type are less easily compromised using a
   brute-force password-cracker.
+ 
+& say_uses_comma
+  Config parameter: say_uses_comma <yes/no>.  Default: No
+ 
+  If this configuration parameter is enabled, the grammatically-correct
+  comma is prepended for says. 
+ 
+  Historically, TinyMUD-based servers have used 'You say "<message>"' and
+  '<name> says "<message>"' rather than 'You say, "<message>"' and
+  '<name> says, "<message>"'. Set this parameter to 'no' to use the
+  historical behavior.
+ 
+& say_uses_you
+  Config parameter: say_uses_you <yes/no>.  Default: Yes
+ 
+  If this configuration parameter is enabled, everyone, including the
+  originator of speech, sees '<name> says, "<message>"', rather than
+  the originator seeing 'You say, "<message>".
+ 
+  Historically, TinyMUD-based servers have used 'You say "<message>"'.
+  This is, however, inconvenient when one wishes to pass along logs of
+  MUSH activities to others, and users may prefer the consistency.
  
 & search_cost
   Config parameter: search_cost <amount>.  Default: 100

@@ -225,9 +225,6 @@ CHANGES TO COMMANDS
   aliases with ';'. Players no longer inherit @alias from their
   parent (this never made sense, or worked properly, anyway).
 
-- When speech is formatted, via the "say" command and the like,
-  there is now a grammatically-correct comma before "says".
-
 - Some commands that would normally be queued can now be executed
   immediately, using the /now switch: @dolist/now (@iter), @force/now,
   @switch/now (@branch), @trigger/now (@call), @verb/now
@@ -296,6 +293,16 @@ CHANGES TO COMMANDS
   by someone who does not control it, thus allowing non-Wizards to
   participate in mutual debugging sessions. Based on an idea from
   AlloyMUSH.
+
+- When speech is formatted, with the exception of say and @fsay,
+  there is now a grammatically-correct comma before "says". The
+  new conf parameter say_uses_comma will insert the comma for
+  say and @fsay, as well.
+
+- If the new conf parameter say_uses_you is turned off, the say and
+  @fsay commands will always show '<name> says' rather than 'You say'
+  to the speaker. This is more convenient for environments where
+  activity is often logged and shared.
 
 - A @dbck is automatically done before a @restart or normal @shutdown,
   so recycling cleanup is done first, thus avoiding inconsistencies

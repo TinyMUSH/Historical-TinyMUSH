@@ -204,6 +204,8 @@ void NDECL(cf_init)
 	mudconf.move_match_more = 0;
 	mudconf.autozone = 1;
 	mudconf.page_req_equals = 0;
+	mudconf.comma_say = 0;
+	mudconf.you_say = 1;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1720,6 +1722,8 @@ CONF conftable[] = {
 {(char *)"sacrifice_adjust",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacadjust,		0},
 {(char *)"sacrifice_factor",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacfactor,		0},
 {(char *)"safer_passwords",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.safer_passwords,	(long)"Passwords must satisfy minimum security standards"},
+{(char *)"say_uses_comma",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.comma_say,		(long)"Say uses a grammatically-correct comma"},
+{(char *)"say_uses_you",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.you_say,		(long)"Say uses You rather than the player name"},
 {(char *)"search_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.searchcost,		0},
 {(char *)"see_owned_dark",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.see_own_dark,		(long)"look shows DARK objects owned by you"},
 {(char *)"signal_action",		cf_option,	CA_STATIC,	CA_GOD,		&mudconf.sig_action,		(long)sigactions_nametab},

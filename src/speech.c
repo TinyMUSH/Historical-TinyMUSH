@@ -18,6 +18,9 @@
 #include "attrs.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
+#define SAY_STRING	(mudconf.comma_say ? "say," : "say")
+#define SAYS_STRING	(mudconf.comma_say ? "says," : "says")
+
 int sp_ok(player)
 dbref player;
 {
@@ -141,9 +144,17 @@ char *message;
 
 	switch (key) {
 	case SAY_SAY:
-		notify(player, tprintf("You say \"%s\"", message));
-		notify_except(loc, player, player,
-			  tprintf("%s says \"%s\"", Name(player), message));
+		if (mudconf.you_say) {
+		    notify(player,
+			   tprintf("You %s \"%s\"", SAY_STRING, message));
+		    notify_except(loc, player, player,
+				  tprintf("%s %s \"%s\"", Name(player),
+					  SAYS_STRING, message));
+		} else {
+		    notify_all_from_inside(loc, player,
+			   tprintf("%s %s \"%s\"",
+				   Name(player), SAYS_STRING, message));
+		}
 		break;
 	case SAY_POSE:
 		notify_all_from_inside(loc, player,
@@ -865,11 +876,20 @@ char *recipient, *message;
 			}
 			break;
 		case PEMIT_FSAY:
-			notify(target, tprintf("You say \"%s\"", message));
-			if (loc != NOTHING) {
+			if (mudconf.you_say) {
+			    notify(target, tprintf("You %s \"%s\"",
+						   SAY_STRING, message));
+			    if (loc != NOTHING) {
 				notify_except(loc, player, target,
-				     tprintf("%s says \"%s\"", Name(target),
-					     message));
+					      tprintf("%s %s \"%s\"",
+						      Name(target),
+						      SAYS_STRING, message));
+			    }
+			} else {
+			    notify_all_from_inside(loc, player,
+					   tprintf("%s %s \"%s\"",
+						   Name(target),
+						   SAYS_STRING, message));
 			}
 			break;
 		case PEMIT_FPOSE:

@@ -1528,8 +1528,14 @@ Command:  say[/noeval] <message>
 Says <message> out loud to everyone in your current room.
 If you use say/noeval, the message is not evaluated.
  
-You will see:  You say "<message>"
-Everyone else in your location will see:  <your name> says "<message>"
+You will see:  You say, "<message>"
+Everyone else in your location will see:  <your name> says, "<message>"
+ 
+Depending on how the MUSH is configured, it's possible that you as
+well as everyone else will see:  <your name> says, "<message>"
+ 
+Also depending on MUSH configuration, the grammatically-correct comma
+might not be present; this is true for historical reasons.
  
 See also: pose, @emit
  
@@ -2966,7 +2972,7 @@ Example:
   > @reference myobj = Data
   Referenced.
   > say [get(#_myobj/VA)]
-  You say "Test"
+  You say, "Test"
  
 & @robot
   Command: @robot <name>=<password>
@@ -3283,16 +3289,16 @@ See also: JUMP_OK, FIXED, home, @lock
     > &axtest test1="I was xtested.  Yikes.  Arg1=%0, Arg2=%1, Arg3=%2.
     > @verb test1=me,xtest,XTEST DFLT,oxtest,OXTEST DFLT,axtest,{a,b c,de}
     You just xtested test1.
-    test1 says "I was xtested. Yikes. Arg1=a, Arg2=b c, Arg3=de."
+    test1 says, "I was xtested. Yikes. Arg1=a, Arg2=b c, Arg3=de."
  
     > &xtest test1
     > @verb test1=me,xtest,XTEST DFLT,oxtest,OXTEST DFLT,axtest,{a,b c,de}
     XTEST DFLT
-    test1 says "I was xtested. Yikes. Arg1=a, Arg2=b c, Arg3=de."
+    test1 says, "I was xtested. Yikes. Arg1=a, Arg2=b c, Arg3=de."
  
     > @fo test1={@verb test1=me,xtest,XTEST D,oxtest,OXTEST D,axtest,{a,b,de}} 
     test1 just xtested test1.
-    test1 says "I was xtested. Yikes. Arg1=a, Arg2=b, Arg3=de."
+    test1 says, "I was xtested. Yikes. Arg1=a, Arg2=b, Arg3=de."
  
   See also: locate().
  
@@ -4422,7 +4428,7 @@ Example: @sex me = female
   @set foo=VERBOSE
   @force foo="Hi.
   foo] "Hi.
-  foo says "Hi."
+  foo says, "Hi."
 
   See also: TRACE
 & INHERIT
@@ -4475,7 +4481,7 @@ Example: @sex me = female
   object(#322)} 'mul(3,%0)' -> '21'
   object(#322)} 'add(4,mul(3,%0))' -> '25'
   object(#322)} 'The result is [add(4,mul(3,%0))].' -> 'The result is 25.'
-  object says "The result is 25."
+  object says, "The result is 25."
 
 { 'help trace2' for more } 
 & trace2
@@ -5547,8 +5553,8 @@ See also: @link, @open.
     > @ahear item = "-->[v(1)]<-- bar -->[v(0)]<--
     Set.
     > say Fee fie foo fum
-    You say "Fee fie foo fum"
-    item says "-->fum"<-- bar -->Wizard says "Fee fie<--"
+    You say, "Fee fie foo fum"
+    item says, "-->fum"<-- bar -->Wizard says, "Fee fie<--"
  
 & STACK FUNCTIONS
   Topic: Stack functions
@@ -5668,13 +5674,13 @@ See examples:  iter(), map(), filter()
   and neither are objects' parents.
  
   Example:
-    > @va test = ^* says "foo *":say I got a foo with %1!.
+    > @va test = ^* says, "foo *":say I got a foo with %1!.
     Set.
     > @set test=monitor
     test grows ears and can now hear.
     > say foo bar
-    You say "foo bar"
-    test says "I got a foo with bar!."
+    You say, "foo bar"
+    test says, "I got a foo with bar!."
   See also: @ahear, @listen, @set.
 
 & LISTS
@@ -6189,13 +6195,13 @@ performed and the walk down the list stops.
  
   Example:
     > say wordpos(This is a test, 4)
-    You say "1"
+    You say, "1"
     > say wordpos(This is a test, 5)
-    You say "2"
+    You say, "2"
     > say wordpos(This is a test, 6)
-    You say "2"
+    You say, "2"
     > say wordpos(This is a test, 20)
-    You say "#-1"
+    You say, "#-1"
 
 & type()
   Function: type(<object>)
@@ -6204,9 +6210,9 @@ performed and the walk down the list stops.
  
   Example:
     > say type(me)
-    You say "PLAYER"
+    You say, "PLAYER"
     > say type(here)
-    You say "ROOM"
+    You say, "ROOM"
 
 & hasflag()
   Function: hasflag(<object>[/<attribute>],<flag>)
@@ -6221,9 +6227,9 @@ performed and the walk down the list stops.
   
   Example:
     > say hasflag(me, wizard)
-    You say "0"
+    You say, "0"
     > say hasflag(me, connect) 
-    You say "1"
+    You say, "1"
 
 & ANDFLAGS()
   Function:  andflags(<object>,<list of flags>)
@@ -6269,9 +6275,9 @@ performed and the walk down the list stops.
  
   Example:
     > say delete(abcdefgh, 3, 2)
-    You say "abcfgh"
+    You say, "abcfgh"
     > say delete(Would you like coffee or perhaps tea?, 15, 18)
-    You say "Would you like tea?"
+    You say, "Would you like tea?"
 
 & lock()
   Function: lock(<object>[/<whichlock>])
@@ -6297,7 +6303,7 @@ performed and the walk down the list stops.
     Wizard                00:32   6s  
     3 Players logged in.
     > say lwho()
-    You say "#226 #271 #1"
+    You say, "#226 #271 #1"
   See also: WHO, conn(), idle().
 
 & OBJ()
@@ -6372,9 +6378,9 @@ performed and the walk down the list stops.
     > @vb test = VB from test
     > @vb me = VB from me
     > say get(test/va)
-    You say "This is a get_eval test on %n. The vb is [get(me/vb)]"
+    You say, "This is a get_eval test on %n. The vb is [get(me/vb)]"
     > say get_eval(test/va)
-    You say "This is a get_eval test on Foobar. The vb is VB from test"
+    You say, "This is a get_eval test on Foobar. The vb is VB from test"
   See also: get().
 
 & DEFAULT()
@@ -6392,10 +6398,10 @@ performed and the walk down the list stops.
   Examples:
     > &TEST me=apple orange banana
     > say default(me/Test, No fruits!)
-    You say "apple orange banana"
+    You say, "apple orange banana"
     > &TEST ME
     > say default(me/Test, No fruits!)
-    You say "No fruits!"
+    You say, "No fruits!"
  
   See also:  get(), get_eval(), u(), edefault(), udefault().
  
@@ -6411,10 +6417,10 @@ performed and the walk down the list stops.
   Example:
     > &TEST me=You have lost [rand(10)] marbles.
     > say edefault(me/Test,You have no marbles.)
-    You say "You have lost 6 marbles."
+    You say, "You have lost 6 marbles."
     > &TEST me
     > say edefault(me/Test,You have no marbles.)
-    You say "You have no marbles."
+    You say, "You have no marbles."
   
   See also:  get(), get_eval(), u(), default(), udefault().
  
@@ -6433,10 +6439,10 @@ performed and the walk down the list stops.
   Examples:
     > &TEST me=[center(%0,5,*)]
     > say udefault(Test,-- BOOM --,ACK)
-    You say "*ACK*"
+    You say, "*ACK*"
     > &TEST me
     > say udefault(me/Test,-- BOOM --,ACK)
-    You say "-- BOOM --"
+    You say, "-- BOOM --"
  
   See also:  get(), get_eval(), u(), default(), edefault().
 
@@ -6449,7 +6455,7 @@ performed and the walk down the list stops.
  
   Example:
     > say time()
-    You say "Thu Dec 19 09:48:06 1991"
+    You say, "Thu Dec 19 09:48:06 1991"
   See also: convsecs(), convtime(), secs().
  
 & TIMEFMT()
@@ -6466,7 +6472,7 @@ performed and the walk down the list stops.
  
   Example:
     > say timefmt(Today is $A. The year is $Y. It is $B $d.)
-    You say "Today is Sunday. The year is 2001. It is January 14."
+    You say, "Today is Sunday. The year is 2001. It is January 14."
  
   Day of week codes:
     $a - Abbreviated, Sun-Sat           $A - Full, Sunday-Saturday
@@ -6519,15 +6525,15 @@ performed and the walk down the list stops.
  
   Example:
     > say rand(10)
-    You say "6"
+    You say, "6"
     > say rand(10)
-    You say "1"
+    You say, "1"
     > say rand(10)
-    You say "4"
+    You say, "4"
     > say rand(10)
-    You say "9"
+    You say, "9"
     > say rand(10)
-    You say "1"
+    You say, "1"
 
 & DIE()
   Function: die(<number of times to roll die>, <number of sides on die>)
@@ -6555,11 +6561,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say abs(4)
-    You say "4"
+    You say, "4"
     > say abs(-4)
-    You say "4"
+    You say, "4"
     > say abs(0)
-    You say "0"
+    You say, "0"
 
 & MAX()
   Function: max(<number1>,<number2>[,<numberN]...)
@@ -6571,9 +6577,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say max(2,4)
-    You say "4"
+    You say, "4"
     > say max(-100,50,0,25)
-    You say "50"
+    You say, "50"
  
   See also: min(), lmax()
 
@@ -6587,9 +6593,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say min(2,4)
-    You say "2"
+    You say, "2"
     > say min(-100,50,0,25)
-    You say "-10"
+    You say, "-10"
  
   See also: max(), lmin()
 
@@ -6603,9 +6609,9 @@ performed and the walk down the list stops.
  
   Example:
     > say add(2,4)
-    You say "6"
+    You say, "6"
     > say add(5,3,7,-4)
-    You say "11"
+    You say, "11"
  
   See also: ladd(), div(), mod(), mul(), sub().
  
@@ -6618,7 +6624,7 @@ performed and the walk down the list stops.
  
   Example:
     > say sub(5,2)
-    You say "3"
+    You say, "3"
   See also: add(), div(), mod(), mul().
 
 & MUL()
@@ -6630,9 +6636,9 @@ performed and the walk down the list stops.
  
   Example:
     > say mul(3,5)
-    You say "15"
+    You say, "15"
     > say mul(3,5,-2)
-    You say "-30"
+    You say, "-30"
   See also: add(), div(), fdiv(), mod(), round(), sub(), trunc().
 
 & DIV()
@@ -6644,15 +6650,15 @@ performed and the walk down the list stops.
  
   Example:
     > say div(15,3)
-    You say "5"
+    You say, "5"
     > say div(16,3)
-    You say "5"
+    You say, "5"
     > say div(17,3)
-    You say "5"
+    You say, "5"
     > say div(18,3)
-    You say "6"
+    You say, "6"
     > say div(-17,3)
-    You say "-5"
+    You say, "-5"
   This function may also be called as idiv().
   See also: floordiv(), remainder(), add(), fdiv(), mod(), mul(), round(),
             sub(), trunc().
@@ -6667,15 +6673,15 @@ performed and the walk down the list stops.
  
   Example:
     > say floordiv(15,3)
-    You say "5"
+    You say, "5"
     > say floordiv(16,3)
-    You say "5"
+    You say, "5"
     > say floordiv(17,3)
-    You say "5"
+    You say, "5"
     > say floordiv(18,3)
-    You say "6"
+    You say, "6"
     > say floordiv(-17,3)
-    You say "-6"
+    You say, "-6"
  
   See also: div(), modulo(), add(), fdiv(), mul(), round(), sub(), trunc().
  
@@ -6688,17 +6694,17 @@ performed and the walk down the list stops.
  
   Results:
     > say fdiv(15,3)
-    You say "5"
+    You say, "5"
     > say fdiv(16,3)
-    You say "5.333333"
+    You say, "5.333333"
     > say fdiv(17,3)
-    You say "5.666667"
+    You say, "5.666667"
     > say fdiv(18,3)
-    You say "6"
+    You say, "6"
     > say fdiv(-17,3)
-    You say "-5.666667"
+    You say, "-5.666667"
     > say fdiv(10,3.5)
-    You say "2.857143"
+    You say, "2.857143"
   See also:   See also: add(), div(), mod(), mul(), round(), sub(), trunc().
  
 & MOD()
@@ -6716,17 +6722,17 @@ performed and the walk down the list stops.
  
   Example:
     > say modulo(15,3)
-    You say "0"
+    You say, "0"
     > say modulo(16,3)
-    You say "1"
+    You say, "1"
     > say modulo(17,3)
-    You say "2"
+    You say, "2"
     > say modulo(18,3)
-    You say "0"
+    You say, "0"
     > say modulo(-17,3)
-    You say "1"
+    You say, "1"
     > say modulo(17,-3)
-    You say "-1"
+    You say, "-1"
  
   See also: remainder(), div(), floordiv(), fdiv(), mul(), round(),
             add(), sub(), trunc().
@@ -6741,17 +6747,17 @@ performed and the walk down the list stops.
  
   Example:
     > say remainder(15,3)
-    You say "0"
+    You say, "0"
     > say remainder(16,3)
-    You say "1"
+    You say, "1"
     > say remainder(17,3)
-    You say "2"
+    You say, "2"
     > say remainder(18,3)
-    You say "0"
+    You say, "0"
     > say remainder(-17,3)
-    You say "-2"
+    You say, "-2"
     > say remainder(17,-3)
-    You say "2"
+    You say, "2"
  
   See also: modulo(), div(), floordiv(), fdiv(), mul(), round(),
             add(), sub(), trunc().
@@ -6764,7 +6770,7 @@ performed and the walk down the list stops.
  
   Example:
     > say dist2d(0,0,3,4)
-    You say "5"
+    You say, "5"
  
   See also: dist3d()
 
@@ -6776,7 +6782,7 @@ performed and the walk down the list stops.
  
   Example:
     > say dist3d(0,0,0,10,15,20)
-    You say "27"
+    You say, "27"
  
   See also: dist2d()
 
@@ -6895,7 +6901,7 @@ performed and the walk down the list stops.
  
   Example:
     > say [lmin(3, 1.1, 5)]
-    You say "1.1"
+    You say, "1.1"
  
   See also: min().
  
@@ -6906,7 +6912,7 @@ performed and the walk down the list stops.
  
   Example:
     > say [lmax(3.2, 1 , 5)]
-    You say "5"
+    You say, "5"
  
   See also: max().
  
@@ -6918,9 +6924,9 @@ performed and the walk down the list stops.
  
   Example:
     > say [land(1 3 x 5)]
-    You say "0"
+    You say, "0"
     > say [land(2 -1 4)]
-    You say "1"
+    You say, "1"
  
   See also: and().
  
@@ -6932,9 +6938,9 @@ performed and the walk down the list stops.
  
   Example:
     > say [landbool(1 x #2)]
-    You say "1"
+    You say, "1"
     > say [landbool(1 x 0)]
-    You say "0"
+    You say, "0"
  
   See also: andbool(). 
  
@@ -6946,9 +6952,9 @@ performed and the walk down the list stops.
  
   Example:
     > say [lor(1 x 5)]
-    You say "1"
+    You say, "1"
     > say [lor(x 0 #2)]
-    You say "0"
+    You say, "0"
  
   See also: or().
  
@@ -6960,7 +6966,7 @@ performed and the walk down the list stops.
  
   Example:
     > say [lorbool(0 x #2)]
-    You say "1"
+    You say, "1"
  
   See also: orbool(). 
  
@@ -6975,11 +6981,11 @@ performed and the walk down the list stops.
  
   Example:
     > say first(This is a test)
-    You say "This"
+    You say, "This"
     > say first(Would you like coffee, or perhaps tea)
-    You say "Would"
+    You say, "Would"
     > say first(List&with&nonstandard&delimiters,&)
-    You say "List"
+    You say, "List"
   See also: rest(), last().
 
 & REST()
@@ -6993,11 +6999,11 @@ performed and the walk down the list stops.
  
   Example:
     > say rest(This is a test) 
-    You say "is a test"
+    You say, "is a test"
     > say rest(Would you like coffee, or perhaps tea) 
-    You say "you like coffee, or perhaps tea"
+    You say, "you like coffee, or perhaps tea"
     > say rest(List!with!different!delimiters,!)
-    You say "with!different!delimiters"
+    You say, "with!different!delimiters"
  
   See also: first(), last().
 
@@ -7012,9 +7018,9 @@ performed and the walk down the list stops.
  
   Example:
     > say last(This is a test)
-    You say "test"
+    You say, "test"
     > say last(Happy-Fun-Test-Thing,-)
-    You say "Thing"
+    You say, "Thing"
  
   See also:  first(), rest().
 
@@ -7074,9 +7080,9 @@ performed and the walk down the list stops.
  
   Example:
     > say strlen(This is a test)
-    You say "14"
+    You say, "14"
     > say strlen(Would you like coffee, or perhaps tea)
-    You say "37"
+    You say, "37"
 
 & MID()
   mid(<string>, <first>, <length>)
@@ -7137,7 +7143,7 @@ performed and the walk down the list stops.
  
   Example:
     > say left(flipper,3)
-    You say "fli"
+    You say, "fli"
  
   See also: right(), mid()
 
@@ -7149,7 +7155,7 @@ performed and the walk down the list stops.
  
   Example:
     > say right(foobarbaz,4)
-    You say "rbaz"
+    You say, "rbaz"
  
   See also: left(), mid()
 
@@ -7165,7 +7171,7 @@ performed and the walk down the list stops.
  
   Example:
     > say lpos(a-bc-def-g,-)
-    You say "1 4 8"
+    You say, "1 4 8"
  
 & POS()
   pos(<string1>,<string2>)
@@ -7191,15 +7197,15 @@ performed and the walk down the list stops.
 
   Examples:
     > say match(This is a test, test)
-    You say "4"
+    You say, "4"
     > say match(This is a test, is)
-    You say "2"
+    You say, "2"
     > say match(This is a test, *is*)
-    You say "1"
+    You say, "1"
     > say match(This is a test, *not*)
-    You say "0"
+    You say, "0"
     > say match(This is a test, is a)
-    You say "0"
+    You say, "0"
   See also: LISTS, member(), matchall(), strmatch().
 
 & MATCHALL()
@@ -7216,11 +7222,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say matchall(This is a test of a test,test)
-    You say "4 7"
+    You say, "4 7"
     > say matchall(apples|bananas|oranges|pears,*a*e*,|)
-    You say "1 3"
+    You say, "1 3"
      > say matchall(apples bananas oranges pears,*a*e*, ,+)
-    You say "1+3"
+    You say, "1+3"
  
   See also: LISTS, match(), strmatch(). 
 & STRMATCH()
@@ -7237,11 +7243,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say strmatch(This is a test,*Test)
-    You say "1"
+    You say, "1"
     > say strmatch(This is a test,*This)
-    You say "0"
+    You say, "0"
     > say strmatch(This is a test,*is*is*)
-    You say "1"
+    You say, "1"
  
   See also: match(), member(), wildmatch(), regmatch(), regmatchi().
 
@@ -7344,9 +7350,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say streq(This Is A Test,this is a test)
-    You say "1"
+    You say, "1"
     > say streq(testing,test)
-    You say "0"
+    You say, "0"
  
   See also: strmatch(), comp().
  
@@ -7359,11 +7365,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say elements(Foo Ack Beep Moo Zot,2 4)
-    You say "Ack Moo"
+    You say, "Ack Moo"
     > say elements(Foof|Ack|Beep|Moo,3 1,|)
-    You say "Beep|Foof"
+    You say, "Beep|Foof"
     > say elements(Foof|Ack|Beep|Moo,3 1,|,-)
-    You say "Beep-Foof"
+    You say, "Beep-Foof"
 
 & EXTRACT()
   extract(<string>, <first>, <length>[, <delim>])
@@ -7376,9 +7382,9 @@ performed and the walk down the list stops.
 
   Examples:
     > say extract(This is a really neat example, 4, 2)
-    You say "really neat"
+    You say, "really neat"
     > say extract(Another@funky@test@for@extract, 3, 3, @)
-    You say "test@for@extract" 
+    You say, "test@for@extract" 
  
   See also: index(), insert(), ldelete(), replace().
 
@@ -7407,9 +7413,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say grab(This is a new test,?e*)
-    You say "new"
+    You say, "new"
     > say grab(Holodeck:#10~Airlock:#58~Dorm:#12~Brig:#83,Airlock:*,~)
-    You say "Airlock:#58"
+    You say, "Airlock:#58"
  
   See also: LISTS, graball(), match(), matchall().
  
@@ -7424,9 +7430,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say graball(This is a new test,?e*)
-    You say "new test"
+    You say, "new test"
     > say graball(Holodeck:#10~Airlock:#58~Dorm:#12~Brig:#83,*i*:*,~,|)
-    You say "Airlock:#58|Brig:#83"
+    You say, "Airlock:#58|Brig:#83"
  
   See also: LISTS, grab(), match(), matchall().
  
@@ -7444,14 +7450,14 @@ performed and the walk down the list stops.
  
   Examples:
     > say regrab(This is a new test,is)
-    You say "This"
+    You say, "This"
     > say regrab(This is a new test,^is)
-    You say "is"
+    You say, "is"
     > @va me = ^A.+:#\d+
     > say regrab(Holodeck:#10~Airlock:#58~Dorm:#12~Brig:#83,%va,~)
-    You say ""
+    You say, ""
     > say regrabi(Holodeck:#10~Airlock:#58~Dorm:#12~Brig:#83,%va,~)
-    You say "Airlock:#58"
+    You say, "Airlock:#58"
  
 & REGRABALL()
 & REGRABALLI()
@@ -7467,10 +7473,10 @@ performed and the walk down the list stops.
  
   Examples:
     > say regraball(This is a new test,is)
-    You say "This is"
+    You say, "This is"
     > @va me = ^[A-Z].+:#1\d+
     > say regraballi(Holodeck:#10~Airlock:#58~Dorm:#12~Brig:#83,%va,~,_)
-    You say "Holodeck:#10_Dorm:#12"
+    You say, "Holodeck:#10_Dorm:#12"
   
 & FLAGS()
   flags(<object>)
@@ -7509,15 +7515,15 @@ performed and the walk down the list stops.
     Contents:
     hat(#368)
     > say loc(me)
-    You say "#367"
+    You say, "#367"
     > enter hat
     hat(#368)
     Contents:
     cat(#325)
     > say loc(me)
-    You say "#368"
+    You say, "#368"
     > say loc(here)
-    You say "#367"
+    You say, "#367"
   See also: rloc(), room(), where().
 
 & RLOC()
@@ -7594,7 +7600,7 @@ performed and the walk down the list stops.
  
   Example:
     > say [shl(16, 2)]
-    You say "64"
+    You say, "64"
  
   See also: shr(), band(), bnand(), bor().
  
@@ -7609,7 +7615,7 @@ performed and the walk down the list stops.
  
   Example:
     > say [shr(16, 2)]
-    You say "4"
+    You say, "4"
  
   See also: shl(), band(), bnand(), bor().
  
@@ -7731,9 +7737,9 @@ performed and the walk down the list stops.
  
   Example:
     > say [cor(0[setq(0,#1)],0[setq(0,#2)],1[setq(0,#3)],1[setq(0,#4)])]%q0
-    You say "1#3"
+    You say, "1#3"
     > say [candbool(#234[setq(0,_1)],#-1[setq(0,_2)],foo[setq(0,_3)])]%q0
-    You say "0_2"
+    You say, "0_2"
  
 & gt()
   Function: gt(<number1>,<number2>)
@@ -7745,13 +7751,13 @@ performed and the walk down the list stops.
  
   Example:
     > say gt(4,5)
-    You say "0"
+    You say, "0"
     > say gt(5,5)
-    You say "0"
+    You say, "0"
     > say gt(6,5)
-    You say "1"
+    You say, "1"
     > say gt(foo, bar)
-    You say "0"
+    You say, "0"
   See also: lt(), lte(), gte(), eq(), neq(), ncomp(), comp().
 
 & gte()
@@ -7764,13 +7770,13 @@ performed and the walk down the list stops.
  
   Example:
     > say gte(4,5)
-    You say "0"
+    You say, "0"
     > say gte(5,5)
-    You say "1"
+    You say, "1"
     > say gte(6,5)
-    You say "1"
+    You say, "1"
     > say gte(foo, bar)
-    You say "1"
+    You say, "1"
   See also: lt(), lte(), gt(), eq(), neq(), ncomp(), comp().
 
 & lt()
@@ -7783,13 +7789,13 @@ performed and the walk down the list stops.
  
   Example:
     > say lt(4,5)
-    You say "1"
+    You say, "1"
     > say lt(5,5)
-    You say "0"
+    You say, "0"
     > say lt(6,5)
-    You say "0"
+    You say, "0"
     > say lt(foo, bar)
-    You say "0"
+    You say, "0"
   See also: lte(), gte(), gt(), eq(), neq(), ncomp(), comp().
 
 & lte()
@@ -7802,13 +7808,13 @@ performed and the walk down the list stops.
  
   Example:
     > say lte(4,5)
-    You say "1"
+    You say, "1"
     > say lte(5,5)
-    You say "1"
+    You say, "1"
     > say lte(6,5)
-    You say "0"
+    You say, "0"
     > say lte(foo, bar)
-    You say "1"
+    You say, "1"
   See also: lt(), gte(), gt(), eq(), neq(), ncomp(), comp().
 
 & eq()
@@ -7820,11 +7826,11 @@ performed and the walk down the list stops.
  
   Example:
     > say eq(1,-1)
-    You say "0"
+    You say, "0"
     > say eq(5,5)
-    You say "1"
+    You say, "1"
     > say eq(foo, bar)
-    You say "1"
+    You say, "1"
   See also: lt(), lte(), gte(), gt(), neq(), ncomp(), comp().
 
 & neq()
@@ -7836,11 +7842,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say neq(1,-1)
-    You say "1"
+    You say, "1"
     > say neq(5,5)
-    You say "0"
+    You say, "0"
     > say neq(foo, bar)
-    You say "0"
+    You say, "0"
   See also: lt(), lte(), gte(), gt(), eq(), not(), ncomp(), comp().
 
 & ncomp()
@@ -7864,9 +7870,9 @@ performed and the walk down the list stops.
  
   Example:
     > say cat(this is, a test)
-    You say "this is a test"
+    You say, "this is a test"
     > say cat(This is,another,test of the,CAT function)
-    You say "This is another test of the CAT function"
+    You say, "This is another test of the CAT function"
 
 & member()
   Function: member(<list>, <word>[, <delim>])
@@ -7882,13 +7888,13 @@ performed and the walk down the list stops.
  
   Example:
     > say member(This is a member test, member)
-    You say "4"
+    You say, "4"
     > say member(This is a member test, Member)
-    You say "0"
+    You say, "0"
     > say member(This is a member test, *e*)   
-    You say "0"
+    You say, "0"
     > say member(This is a member test, is a)
-    You say "#-1 CAN ONLY TEST ONE ELEMENT"
+    You say, "#-1 CAN ONLY TEST ONE ELEMENT"
  
   See also: LISTS, match(), strmatch().
 
@@ -7900,13 +7906,13 @@ performed and the walk down the list stops.
  
   Example:
     > say remove(this is a test, is)
-    You say "this a test"
+    You say, "this a test"
     > say remove(You can't remove, this)
-    You say "You can't remove"
+    You say, "You can't remove"
     > say remove(You can't remove multiple words, You can't)
-    You say "#-1 CAN ONLY DELETE ONE ELEMENT"
+    You say, "#-1 CAN ONLY DELETE ONE ELEMENT"
     > say remove(How about an o-separated list, w ab, o) 
-    You say "Hout an o-separated list"
+    You say, "Hout an o-separated list"
 
 & RESTARTS()
   Function: restarts()
@@ -7937,7 +7943,7 @@ performed and the walk down the list stops.
  
   Example:
     > say starttime()
-    You say "Sat Dec  7 00:09:13 1991
+    You say, "Sat Dec  7 00:09:13 1991
  
   See also: restarttime(), convtime().
 
@@ -7949,10 +7955,10 @@ performed and the walk down the list stops.
  
   Example:
      > say secs()
-     You say "692636020"
+     You say, "692636020"
      ... wait a bit ...
      > say secs()
-     You say "692636043"
+     You say, "692636043"
   See also: convsecs(), convtime(), time().
 
 & WORDS()
@@ -7963,7 +7969,7 @@ performed and the walk down the list stops.
  
   Example:
     > say words(This is a test)
-    You say "4"
+    You say, "4"
     say words(Would you like coffee or perhaps tea?)
     > You say "7"
     say words(This:is:a:colon:separated:list,:)
@@ -7980,7 +7986,7 @@ performed and the walk down the list stops.
      TinyMUSH Beta version 2.0 patchlevel 0 #3
      Build date: Thu Dec  5 10:10:07 EST 1991
      > say version()
-     You say "TinyMUSH Beta version 2.0 patchlevel 0 #3"
+     You say, "TinyMUSH Beta version 2.0 patchlevel 0 #3"
  
 & HASMODULE()
   Function: hasmodule(<module name>)
@@ -8020,7 +8026,7 @@ performed and the walk down the list stops.
     Home: Mortal's Room(#367R)
     Location: The Town Square
     > say home(me)
-    You say "#367"
+    You say, "#367"
 
 & MONEY()
   Function: money(<object>)
@@ -8031,7 +8037,7 @@ performed and the walk down the list stops.
     > score
     You have 1052 clams.
     > say money(me)
-    You say "1052"
+    You say, "1052"
     > exam sac test
     Sac Test(#287V)
     Type: THING Flags: VISUAL
@@ -8039,7 +8045,7 @@ performed and the walk down the list stops.
     Home: Limbo(#0RLDAJ)
     Location: The Town Square
     > say money(sac test)
-    You say "20"
+    You say, "20"
 
 & XCON()
   Function: xcon(<object>, <element number>, <number of objects>)
@@ -8059,7 +8065,7 @@ performed and the walk down the list stops.
     The Wizard's Pointy Hat(#188SO)
     You have 42463 clams.
     > say xcon(me,3,3)
-    You say "#700 #108 #223"
+    You say, "#700 #108 #223"
  
 & LCON()
   Function: lcon(<object>)
@@ -8073,7 +8079,7 @@ performed and the walk down the list stops.
     The Wizard's Pointy Hat(#188SO)
     You have 42463 clams.
     > say lcon(me)
-    You say "#366 #223 #188"
+    You say, "#366 #223 #188"
   See also: lexits(), @dolist.
 
 & LEXITS()
@@ -8089,7 +8095,7 @@ performed and the walk down the list stops.
     Obvious exits:
     foo  up  southeast  sw  north  
     > say lexits(here)
-    You say "#302 #10 #9 #8 #6"
+    You say, "#302 #10 #9 #8 #6"
   See also: lcon(), @dolist, PARENT OBJECTS.
 
 & ENTRANCES()
@@ -8131,9 +8137,9 @@ performed and the walk down the list stops.
  
     > @va me=Sneak a peek at Wiz's desc... [get(#1/desc)]
     > say secure(%va)
-    You say "Sneak a peek at Wiz's desc...  get #1/desc  "
+    You say, "Sneak a peek at Wiz's desc...  get #1/desc  "
     > say secure($foobar:this {is} a really, tough ; test.)
-    You say " foobar:this is a really tough   test."
+    You say, " foobar:this is a really tough   test."
  
   Note: 'say secure(Sneak a peek at Wiz's desc... [get(#1/desc)])' does not
   produce the expected result because the argument is evaluated BEFORE being
@@ -8159,7 +8165,7 @@ performed and the walk down the list stops.
   after evaluating it is the same as the original string.
  
   Example:
-    You say "\Sneak a peek at Wiz's desc... \[get(#1/desc)\]"
+    You say, "\Sneak a peek at Wiz's desc... \[get(#1/desc)\]"
  
   Note: 'say escape(Sneak a peek at Wiz's desc... [get(#1/desc)])' does not
   produce the expected result because the argument is evaluated BEFORE being
@@ -8252,7 +8258,7 @@ performed and the walk down the list stops.
 
   Example:
     > say ansipos(%xr%xB%xfColor!%xn,3)
-    You say "frB"
+    You say, "frB"
  
   See also: ANSI, ansi(), stripansi()
  
@@ -8329,7 +8335,7 @@ performed and the walk down the list stops.
  
   Example:
     > say mudname()
-    You say "TestMUSH"
+    You say, "TestMUSH"
 
 & CAPSTR()
   Function: capstr(<string>)
@@ -8339,7 +8345,7 @@ performed and the walk down the list stops.
  
   Example:
     > say capstr(this is a string I want capitalized)
-    You say "This is a string I want capitalized"
+    You say, "This is a string I want capitalized"
   See also: lcstr(), ucstr().
 
 & LCSTR()
@@ -8349,7 +8355,7 @@ performed and the walk down the list stops.
  
   Example:
     > say lcstr(This is something I want to TEST)
-    You say "this is something i want to test"
+    You say, "this is something i want to test"
   See also: capstr(), ucstr().
 
 & UCSTR()
@@ -8359,7 +8365,7 @@ performed and the walk down the list stops.
  
   Example:
     > say ucstr(This is a test, really!)
-    You say "THIS IS A TEST, REALLY!"
+    You say, "THIS IS A TEST, REALLY!"
   See also: capstr(), lcstr().
 
 & LNUM()
@@ -8375,13 +8381,13 @@ performed and the walk down the list stops.
  
   Examples:
     > say lnum(5) 
-    You say "0 1 2 3 4"
+    You say, "0 1 2 3 4"
     > say lnum(3,7)
-    You say "3 4 5 6 7"
+    You say, "3 4 5 6 7"
     > say lnum(4,-2)
-    You say "4 3 2 1 0 -1 -2"
+    You say, "4 3 2 1 0 -1 -2"
     > say lnum(2,6,|)
-    You say "2|3|4|5|6"
+    You say, "2|3|4|5|6"
  
 & LRAND()
   Function: lrand(<range bottom>,<range top>,<times>,[,<output delim>])
@@ -8412,9 +8418,9 @@ performed and the walk down the list stops.
     Domain:Abusees
     ....
     > say lattr(me)
-    You say "Desc VC VE Last VV Domain"
+    You say, "Desc VC VE Last VV Domain"
     > say lattr(me/v*)
-    You say "VC VE VV"
+    You say, "VC VE VV"
  
   See also: @dolist.
 
@@ -8433,11 +8439,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say reverse(This is a test)
-    You say "tset a si sihT"
+    You say, "tset a si sihT"
     > say reverse(This is a test, Really...)
-    You say "...yllaeR ,tset a si sihT"
+    You say, "...yllaeR ,tset a si sihT"
     > say reverse(A man, a plan, a canal -- Panama!)
-    You say "!amanaP -- lanac a ,nalp a ,nam A"
+    You say, "!amanaP -- lanac a ,nalp a ,nam A"
   See also: revwords().
 
 & REVWORDS()
@@ -8451,9 +8457,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say revwords(This is a test, Really...)
-    You say "Really... test, a is This"
+    You say, "Really... test, a is This"
     > say revwords(Was it a cat I saw?)
-    You say "saw? I cat a it Was"
+    You say, "saw? I cat a it Was"
   See also: reverse().
 
 & BEFORE()
@@ -8466,11 +8472,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say before(This is a test,a)
-    You say "This is "
+    You say, "This is "
     > say before(This is a test,is)
-    You say "Th"
+    You say, "Th"
     > say before(This is a test, nope) 
-    You say "This is a test"
+    You say, "This is a test"
   See also: after(), first(), rest().
 
 & AFTER()
@@ -8483,11 +8489,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say after(This is a test,a)
-    You say " test"
+    You say, " test"
     > say after(This is a test,is)
-    You say " is a test"
+    You say, " is a test"
     > say after(This is a test, nope)
-    You say ""
+    You say, ""
   See also: before(), first(), rest().
 
 & ROOM()
@@ -8506,11 +8512,11 @@ performed and the walk down the list stops.
     Mortal's Room(#367R)
     A bare room with nothing in it but a bed and a chair.
     > say I am in [room(me)], the cat is in room [room(cat)].
-    You say "I am in #367, the cat is in room #367."
+    You say, "I am in #367, the cat is in room #367."
     > @fo hat=get cat 
     cat has left.
     > say The cat is in [loc(#325)] within room [room(#325)].
-    You say "The cat is in #368 within room #367."
+    You say, "The cat is in #368 within room #367."
   See also: loc(), UNFINDABLE.
 
 & SEARCH()
@@ -8525,14 +8531,14 @@ performed and the walk down the list stops.
  
   Examples:
     > say search()
-    You say "#226 #289 #325 #364 #368 #369"
+    You say, "#226 #289 #325 #364 #368 #369"
     > @stats me
     6 objects = 0 rooms, 0 exits, 5 things, 1 players.
             (0 going, 0 garbage, 0 unknown)
     > say search(eval=\[eq(money(##),1)\])
-    You say "#289 #325 #364 #368 #369"
+    You say, "#289 #325 #364 #368 #369"
     > say search(player=wizard)
-    You say "#1"
+    You say, "#1"
   See also: @search, SEARCH CLASSES.
 
 & STATS()
@@ -8561,10 +8567,10 @@ performed and the walk down the list stops.
     7 objects = 0 rooms, 0 exits, 5 things, 1 players.
       (0 unknown, 1 going, 0 garbage)
     > say stats(me)
-    You say "7 0 0 5 1 0 1 0"
+    You say, "7 0 0 5 1 0 1 0"
  
     > say stats()
-    You say "379 51 165 134 20 0 2 7"
+    You say, "379 51 165 134 20 0 2 7"
     > @stats/all
     379 objects = 51 rooms, 165 exits, 134 things, 20 players.
       (0 unknown, 2 going, 7 garbage)
@@ -8619,15 +8625,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say [iter(This is a test,strlen(##))]
-    You say "4 2 1 4"
+    You say, "4 2 1 4"
     > say [iter(1|2|3,#@/[add(##,1)],|,-)]
-    You say "1/2-2/3-3/4"
+    You say, "1/2-2/3-3/4"
     > say [iter(lcon(me),name(##),,+)]
-    You say "apple+banana+orange"
+    You say, "apple+banana+orange"
     > say [iter(1-2-3-4,inc(##),-,@@)]
-    You say "2345"
+    You say, "2345"
     > say [iter(1 2 3 4,inc(##),%b,%r)]
-    You say "2
+    You say, "2
     3
     4
     5"
@@ -8648,7 +8654,7 @@ performed and the walk down the list stops.
     1 - apples - 6
     2 - bananas - 7
     3 - oranges - 7
-    You say ""
+    You say, ""
     > @eval list(lnum(1,5),## - #@ - #! - [iter(lnum(##),##:#@:#!)])
     1 - 1 - 1 - 0:1:2
     2 - 2 - 1 - 0:1:2 1:2:2
@@ -8724,9 +8730,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say istrue(1 2 3 4 5,mod(##,2))
-    You say "1 3 5"
+    You say, "1 3 5"
     > say istrue(1-2-3-4-5,mod(##,2),-,.)
-    You say "1.3.5"
+    You say, "1.3.5"
  
   See also: filterbool(), isfalse(), iter(), filter()
  
@@ -8745,9 +8751,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say isfalse(1 2 3 4 5,mod(##,2))
-    You say "2 4"
+    You say, "2 4"
     > say isfalse(1-2-3-4-5,mod(##,2),-,.)
-    You say "2.4"
+    You say, "2.4"
  
   See also: filterbool(), istrue(), iter(), filter()
  
@@ -8765,7 +8771,7 @@ performed and the walk down the list stops.
  
   Example:
     > say [whentrue(1 2 0 2 1,##)]
-    You say "1 2 0"
+    You say, "1 2 0"
  
   See also: iter(), BOOLEAN VALUES.
  
@@ -8783,7 +8789,7 @@ performed and the walk down the list stops.
  
   Example:
     > say [whenfalse(0 #-1 1 2,##)]
-    You say "0 #-1 1"
+    You say, "0 #-1 1"
  
   See also: iter(), BOOLEAN VALUES.
  
@@ -8832,21 +8838,21 @@ performed and the walk down the list stops.
     Nullspace(#250R)
     test1(#382)
     > say locate(me,test,i)
-    You say "#376"
+    You say, "#376"
     > say locate(me,test,n)
-    You say "#382"
+    You say, "#382"
     > say locate(me,test1,in)
-    You say "#378"
+    You say, "#378"
     > say locate(me,test1,in)
-    You say "#382"
+    You say, "#382"
     > say locate(me,tes,in)
-    You say "#-2"
+    You say, "#-2"
     > say locate(here,tes,*)
-    You say "#382"
+    You say, "#382"
     > say locate(me,out,e)
-    You say "#252"
+    You say, "#252"
     > say locate(me,here,*)
-    You say "#250"
+    You say, "#250"
  
   See also: num(), PARENT OBJECTS.
 
@@ -8863,13 +8869,13 @@ performed and the walk down the list stops.
   
   Examples:
     > say edit(This is a test,is,x)   
-    You say "Thx x a test"
+    You say, "Thx x a test"
     > say edit(Atlantic,^,Trans)
-    You say "TransAtlantic"
+    You say, "TransAtlantic"
     > say translate(edit(FOO-%xrBAR-BAZ,%xrB,%xyB),p)
-    You say "FOO-%xyBAR-BAZ%xn"
+    You say, "FOO-%xyBAR-BAZ%xn"
     > say translate(edit(FOO-BAR-BAZ,BAR,%xyBAR%xn%xn),p)
-    You say "FOO-%xyBAR%xn-BAZ"
+    You say, "FOO-%xyBAR%xn-BAZ"
  
   See also: @edit.
  
@@ -8891,9 +8897,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say [ledit(apple banana lime plum,banana plum,yellow purple)]
-    You say "apple yellow lime purple"
+    You say, "apple yellow lime purple"
     > say [ledit(apple|banana|lime|plum,banana|lime,yellow,|,+)]
-    You say "apple+yellow++plum"
+    You say, "apple+yellow++plum"
  
   See also: edit(), replace()
  
@@ -8918,9 +8924,9 @@ performed and the walk down the list stops.
   Example:
     > @va me = (.)est
     > say regedit(this test is the best string,%va,$1rash)
-    You say "this trash is the best string"
+    You say, "this trash is the best string"
     > say regeditall(this test is the best string,%va,$1rash)
-    You say "this trash is the brash string"
+    You say, "this trash is the brash string"
  
 & OBJEVAL()
   Function:  objeval(<object>,<expression>)
@@ -8952,11 +8958,11 @@ performed and the walk down the list stops.
     > @va me=Word is [extract(v(vb),add(%0,1),1)], arg2 is %1.
     > @vb me=This is a test of the u function.
     > say u(va,4,Testing 123)
-    You say "Word is of, arg2 is Testing 123."
+    You say, "Word is of, arg2 is Testing 123."
     > say u(va,7)
-    You say "Word is function., arg2 is ."
+    You say, "Word is function., arg2 is ."
     > say u(me/va,6,Foobar)
-    You say "Word is u, arg2 is Foobar."
+    You say, "Word is u, arg2 is Foobar."
   See also: s(), v(), get(), get_eval(), map().
 
 & ULOCAL()
@@ -8987,12 +8993,12 @@ performed and the walk down the list stops.
     > &SUB-FUNCTION me=[setq(0,v(FRUIT))][extract(%q0,match(%q0,%0),1)]
     > &TOP-FUNCTION me=[setq(0,are delicious!)][ulocal(SUB-FUNCTION,%0)] %q0
     > say u(TOP-FUNCTION,b*)
-    You say "bananas are delicious!"
+    You say, "bananas are delicious!"
  
   If SUB-FUNCTION had been called with u() instead of ulocal():
     > &TOP-FUNCTION me=[setq(0,are delicious!)][u(SUB-FUNCTION,%0)] %q0
     > say u(TOP-FUNCTION,b*)
-    You say "bananas apples bananas oranges pears"
+    You say, "bananas apples bananas oranges pears"
  
   In this second example, in SUB-FUNCTION, %q0 was set to "apples bananas
   oranges pears", so that when the u() "returned" and TOP-FUNCTION evaluated
@@ -9027,7 +9033,7 @@ performed and the walk down the list stops.
   Examples:
  
     > say [name(me)]
-    You say "Wizard"
+    You say, "Wizard"
     > @emit [speak(me, :tests.)]
     Wizard tests.
     > @emit [speak(me, : 's testing.)]
@@ -9159,15 +9165,15 @@ performed and the walk down the list stops.
  
   Example:
     > say switch(c,*a*,A,*b*,B,*c*,C,*d*,D,E)
-    You say "C"
+    You say, "C"
     > say switch(f,*a*,A,*b*,B,*c*,C,*d*,D,E)
-    You say "E"
+    You say, "E"
     > say switch(cab,*a*,A,*b*,B,*c*,C,*d*,D,E)
-    You say "A"
+    You say, "A"
     > say switch(f,*a*,A,*b*,B,*c*,C,*d*,D)  
-    You say ""
+    You say, ""
     > say switch(words(foo bar baz),0,No words,1,1 word,#$ words)
-    You say "3 words"
+    You say, "3 words"
  
   See also: @switch, switchall(), match().
  
@@ -9184,11 +9190,11 @@ performed and the walk down the list stops.
  
   Example:
     > say switchall(c,*a*,A,*b*,B,*c*,C,*d*,D,E)
-    You say "C"
+    You say, "C"
     > say switchall(dab,*a*,A,*b*,B,*c*,C,*d*,D,E)
-    You say "ABD"
+    You say, "ABD"
     > say switchall(f,*a*,A,*b*,B,*c*,C,*d*,D,E)  
-    You say "E"
+    You say, "E"
  
   See also: @switch, switch(), match().
   
@@ -9204,9 +9210,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say [nonzero(0,not zero,zero)] - [nonzero(1,not zero,zero)]
-    You say "zero - not zero"
+    You say, "zero - not zero"
     > say [nonzero(,not null,null)] - [nonzero(foo,not null,null)]
-    You say "null - not null"
+    You say, "null - not null"
  
   See also: ifelse(), switch(), case().
  
@@ -9222,13 +9228,13 @@ performed and the walk down the list stops.
  
   Examples:
     > say [ifelse(1,true,false)] - [ifelse(0,true,false)]
-    You say "true - false"
+    You say, "true - false"
     > say [ifelse(test,true,false)] - [ifelse(,true,false)]
-    You say "true - false"
+    You say, "true - false"
     > say [ifelse(#5,true,false)] - [ifelse(#-1,true,false)]
-    You say "true - false"
+    You say, "true - false"
     > say [ifelse(1,one)] - [ifelse(0,zero)]
-    You say "one - "
+    You say, "one - "
   
   See also: nonzero(), switch(), case(), BOOLEAN VALUES.
  
@@ -9256,9 +9262,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say space(4)
-    You say "    "
+    You say, "    "
     > say edit(Foo bar bletch, space(), X)
-    You say "FooXbarXbletch"
+    You say, "FooXbarXbletch"
 
 & PARENT()
   Function: parent(<obj>)
@@ -9268,15 +9274,15 @@ performed and the walk down the list stops.
  
   Example:
     > say parent(me)
-    You say "#-1"
+    You say, "#-1"
     > say My va is [v(va)].
-    You say "My va is "
+    You say, "My va is "
     > @parent me=test
     Parent set.
     > say parent(me)
-    You say "#323"
+    You say, "#323"
     > say My va is [v(va)].
-    You say "My va is Testing 123"
+    You say, "My va is Testing 123"
   See also: @parent, PARENT OBJECTS.
 
 & SIGN()
@@ -9312,11 +9318,11 @@ performed and the walk down the list stops.
     Wizard                00:32   6s  
     3 Players logged in.
     > say conn(wiz)
-    You say "251"
+    You say, "251"
     > say conn(e)
-    You say "770"
+    You say, "770"
     > say conn(frobozz)
-    You say "-1"
+    You say, "-1"
   See also: WHO, idle(), lwho().
 
 & IDLE()
@@ -9336,11 +9342,11 @@ performed and the walk down the list stops.
     Wizard                00:32   6s  
     3 Players logged in.
     > say idle(wiz)
-    You say "6"
+    You say, "6"
     > say idle(e)
-    You say "371"
+    You say, "371"
     > say idle(frobozz)
-    You say "-1"
+    You say, "-1"
   See also: WHO, conn(), lwho().
 
 & CONVSECS()
@@ -9351,9 +9357,9 @@ performed and the walk down the list stops.
  
   Example:
     > say secs()
-    You say "709395750"
+    You say, "709395750"
     > say convsecs(709395750)
-    You say "Wed Jun 24 10:22:54 1992"
+    You say, "Wed Jun 24 10:22:54 1992"
   This function may also be called as secs2time().
   See also: convtime(), secs(), time().
 
@@ -9369,9 +9375,9 @@ performed and the walk down the list stops.
  
   Example:
     > say time()
-    You say "Wed Jun 24 10:22:54 1992"
+    You say, "Wed Jun 24 10:22:54 1992"
     > say convtime(Wed Jun 24 10:22:54 1992)
-    You say "709395774"
+    You say, "709395774"
   This function may also be called as time2secs().
   See also: convsecs(), secs(), time().
  
@@ -9394,9 +9400,9 @@ performed and the walk down the list stops.
  
   Example:
     > say shuffle(foo bar baz gleep)
-    You say "baz foo gleep bar"
+    You say, "baz foo gleep bar"
     > say shuffle(foo-bar-baz-gleep,-,+)
-    You say "baz+foo+gleep+bar"
+    You say, "baz+foo+gleep+bar"
  
 & SCRAMBLE()
   Function:  scramble(<string>)
@@ -9408,7 +9414,7 @@ performed and the walk down the list stops.
  
   Example:
     > say scramble(abcdef)
-    You say "cfaedb"
+    You say, "cfaedb"
  
   See also:  SHUFFLE()
 
@@ -9436,15 +9442,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say sort(This is a test)
-    You say "This a is test"
+    You say, "This a is test"
     > say sort(98 99 100 101)
-    You say "98 99 100 102"
+    You say, "98 99 100 102"
     > say sort(foo-bar-bletch,,-,+)
-    You say "bar+bletch+foo"
+    You say, "bar+bletch+foo"
     > say sort(e D a c B)
-    You say "B D a c e"
+    You say, "B D a c e"
     > say sort(e D a c B,i)
-    You say "a B c D e"
+    You say, "a B c D e"
  
 & SETDIFF()
 & LDIFF()
@@ -9466,7 +9472,7 @@ performed and the walk down the list stops.
     > say setdiff(foo baz gleep bar, bar moof gleep)
     You say, "baz foo"
     > say setdiff(foo-baz-gleep-bar, bar-moof-gleep,-,+)
-    You say "baz+foo"
+    You say, "baz+foo"
  
   See also: setinter(), setunion(), sort().
 
@@ -9574,7 +9580,7 @@ performed and the walk down the list stops.
  
   Example:
     > say pi()
-    You say "3.141592654"
+    You say, "3.141592654"
  
   See also: acos(), asin(), atan(), cos(), sin(), tan().
 
@@ -9584,7 +9590,7 @@ performed and the walk down the list stops.
  
   Example:
     > say e()
-    You say "2.718281828"
+    You say, "2.718281828"
   See also: exp(), ln(), log(), power().
 
 & SIN()
@@ -9596,13 +9602,13 @@ performed and the walk down the list stops.
  
   Examples:
     > say sin(0) --- [sind(0)]
-    You say "0 --- 0"
+    You say, "0 --- 0"
     > say sin(fdiv(pi(),2)) --- [sind(90)]
-    You say "1 --- 1"
+    You say, "1 --- 1"
     > say sin(fdiv(pi(),4)) --- [sind(45)]
-    You say "0.707107 --- 0.707107"
+    You say, "0.707107 --- 0.707107"
     > say sin(fdiv(pi(),6)) --- [sind(30)]
-    You say "0.5 --- 0.5"
+    You say, "0.5 --- 0.5"
   See also: acos(), asin(), atan(), cos(), pi(), tan().
 
 & COS()
@@ -9614,13 +9620,13 @@ performed and the walk down the list stops.
  
   Examples:
     > say cos(0) --- [cosd(0)]
-    You say "1 --- 1"
+    You say, "1 --- 1"
     > say cos(fdiv(pi(),2)) --- [cosd(90)]
-    You say "0 --- 0"
+    You say, "0 --- 0"
     > say cos(fdiv(pi(),4)) --- [cosd(45)]
-    You say "0.707107 --- 0.707107"
+    You say, "0.707107 --- 0.707107"
     > say cos(fdiv(pi(),6)) --- [cosd(30)]
-    You say "0.866025 --- 0.866025"
+    You say, "0.866025 --- 0.866025"
   See also: acos(), asin(), atan(), pi(), sin(), tan().
 
 & TAN()
@@ -9632,11 +9638,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say tan(0) --- [tand(0)]
-    You say "0 --- 0"
+    You say, "0 --- 0"
     > say tan(1) --- [tand(1)]
-    You say "1.557408 --- 0.017455"
+    You say, "1.557408 --- 0.017455"
     > say tan(fdiv(pi(),4)) --- [tand(45)]
-    You say "1 --- 1"
+    You say, "1 --- 1"
   See also: acos(), asin(), atan(), cos(), pi(), sin().
 
 & ASIN()
@@ -9649,13 +9655,13 @@ performed and the walk down the list stops.
  
   Examples:
     > say asin(0) --- [asind(0)]
-    You say "0 --- 0"
+    You say, "0 --- 0"
     > say asin(1) --- [asind(1)]
-    You say "1.570796 --- 90"
+    You say, "1.570796 --- 90"
     > say asin(0.707101) --- [asind(0.707101)]
-    You say "0.78539 --- 44.999532"
+    You say, "0.78539 --- 44.999532"
     > say asin(0.5) --- [asind(0.5)]
-    You say "0.523599 --- 30"
+    You say, "0.523599 --- 30"
   See also: acos(), atan(), cos(), pi(), sin(), tan().
 
 & ACOS()
@@ -9668,13 +9674,13 @@ performed and the walk down the list stops.
  
   Examples:
     > say acos(0) --- [acosd(0)]
-    You say "1.570796 --- 90"
+    You say, "1.570796 --- 90"
     > say acos(1) --- [acosd(1)]
-    You say "0 --- 0"
+    You say, "0 --- 0"
     > say acos(0.707101) --- [acosd(0.707101)]
-    You say "0.785406 --- 45.000468"
+    You say, "0.785406 --- 45.000468"
     > say acos(0.866025) --- [acosd(0.866025)]
-    You say "0.5236 --- 30.000046"
+    You say, "0.5236 --- 30.000046"
   See also: asin(), atan(), cos(), pi(), sin(), tan().
 
 & ATAN()
@@ -9687,11 +9693,11 @@ performed and the walk down the list stops.
  
   Examples:
     > say atan(0) --- [atand(0)]
-    You say "0 --- 0"
+    You say, "0 --- 0"
     > say atan(1) --- [atand(1)]
-    You say "0.785398 --- 45"
+    You say, "0.785398 --- 45"
     > say atan(1.557408) --- [atand(1.557408)]
-    You say "1 --- 57.295784"
+    You say, "1 --- 57.295784"
   See also: acos(), asin(), cos(), pi(), sin(), tan().
 
 & FLOOR()
@@ -9702,15 +9708,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say floor(5)
-    You say "5"
+    You say, "5"
     > say floor(5.2)
-    You say "5"
+    You say, "5"
     > say floor(5.8)
-    You say "5"
+    You say, "5"
     > say floor(-5)
-    You say "-5"
+    You say, "-5"
     > say floor(-5.2)
-    You say "-6"
+    You say, "-6"
   See also: ceil(), div(), mod(), round(), trunc().
 
 & CEIL()
@@ -9721,15 +9727,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say ceil(5)
-    You say "5"
+    You say, "5"
     > say ceil(5.2)
-    You say "6"
+    You say, "6"
     > say ceil(5.8)
-    You say "6"
+    You say, "6"
     > say ceil(-5)
-    You say "-5"
+    You say, "-5"
     > say ceil(-5.2)
-    You say "-5"
+    You say, "-5"
   See also: div(), floor(), mod(), round(), trunc().
 
 & TRUNC()
@@ -9740,15 +9746,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say trunc(5)
-    You say "5"
+    You say, "5"
     > say trunc(5.2)
-    You say "5"
+    You say, "5"
     > say trunc(5.8)
-    You say "5"
+    You say, "5"
     > say trunc(-5)
-    You say "-5"
+    You say, "-5"
     > say trunc(-5.2)
-    You say "-5"
+    You say, "-5"
   See also: div(), floor(), mod(), round().
 
 & ROUND()
@@ -9759,15 +9765,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say round(5,0)
-    You say "5"
+    You say, "5"
     > say round(5.123,1)
-    You say "5.1"
+    You say, "5.1"
     > say round(9.8765,3)
-    You say "9.877"
+    You say, "9.877"
     > say round(5.5,0)
-    You say "6"
+    You say, "6"
     > say round(-5.5,0)
-    You say "-6"
+    You say, "-6"
   See also: div(), floor(), mod(), trunc().
 
 & SQRT()
@@ -9779,13 +9785,13 @@ performed and the walk down the list stops.
  
   Examples:
     > say sqrt(2)
-    You say "1.414214"
+    You say, "1.414214"
     > say sqrt(100)
-    You say "10"
+    You say, "10"
     > say sqrt(0)
-    You say "0"
+    You say, "0"
     > say sqrt(-1)
-    You say "#-1 SQUARE ROOT OF NEGATIVE"
+    You say, "#-1 SQUARE ROOT OF NEGATIVE"
   See also: power().
 
 & POWER()
@@ -9797,19 +9803,19 @@ performed and the walk down the list stops.
  
   Examples:
     > say power(2,3)
-    You say "8"
+    You say, "8"
     > say power(9, 0.5)
-    You say "3"
+    You say, "3"
     > say power(100,pi())
-    You say "1919487.587204"
+    You say, "1919487.587204"
     > say power(5, 0)
-    You say "1"
+    You say, "1"
     > say power(0, 0)
-    You say "1"
+    You say, "1"
     > say power(2,-3)
-    You say "0.125"
+    You say, "0.125"
     > say power(-2,3)
-    You say "#-1 POWER OF NEGATIVE"
+    You say, "#-1 POWER OF NEGATIVE"
   See also: exp(), ln(), log(), sqrt()
 
 & LN()
@@ -9821,13 +9827,13 @@ performed and the walk down the list stops.
  
   Examples:
     > say ln(0)
-    You say "#-1 LN OF NEGATIVE OR ZERO"
+    You say, "#-1 LN OF NEGATIVE OR ZERO"
     > say ln(1)
-    You say "0"
+    You say, "0"
     > say ln(e())
-    You say "1"
+    You say, "1"
     > say ln(10)
-    You say "2.302585"
+    You say, "2.302585"
   See also: e(), exp(), log(), power().
 
 & LOG()
@@ -9842,15 +9848,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say log(0)
-    You say "#-1 LOG OF NEGATIVE OR ZERO"
+    You say, "#-1 LOG OF NEGATIVE OR ZERO"
     > say log(1)
-    You say "0"
+    You say, "0"
     > say log(100)
-    You say "2"
+    You say, "2"
     > say log(e())
-    You say "0.434294"
+    You say, "0.434294"
     > say log(32,2)
-    You say "5"
+    You say, "5"
  
   See also: e(), exp(), ln(), power().
 
@@ -9863,11 +9869,11 @@ performed and the walk down the list stops.
  
   Examples: 
     > say exp(0)
-    You say "1"
+    You say, "1"
     > say exp(1)
-    You say "2.718282"
+    You say, "2.718282"
     > say exp(2)
-    You say "7.389056"
+    You say, "7.389056"
   See also: e(), log(), ln(), power().
 & PARSE()
   Function:  parse(<list>, <eval>[, <delim>][, <output delim>])
@@ -9975,13 +9981,13 @@ performed and the walk down the list stops.
   Examples:
     > &IS_ODD object=mod(%0,2)
     > say filter(object/is_odd,1 2 3 4 5)
-    You say "1 3 5"
+    You say, "1 3 5"
     > say filter(object/is_odd,1-2-3-4-5,-)
-    You say "1-3-5"
+    You say, "1-3-5"
     > say filter(object/is_odd,1 2 3 4 5,,+)
-    You say "1+3+5"
+    You say, "1+3+5"
     > say filter(object/is_odd,1-2-3-4-5,-,.)
-    You say "1.3.5"
+    You say, "1.3.5"
  
   See also: filterbool(), istrue(), isfalse(), u(), map(), fold()
  
@@ -9995,7 +10001,7 @@ performed and the walk down the list stops.
   Example:
     > &IS_JUMPOK object=[hasflag(%0,Jump_OK)]
     > say filterbool(object/IS_JUMPOK,#10 #25 #-1 #6)
-    You say "#25 #6"   [assuming those rooms are jump_ok]
+    You say, "#25 #6"   [assuming those rooms are jump_ok]
  
   See also: filter(), istrue(), isfalse()
   
@@ -10018,10 +10024,10 @@ performed and the walk down the list stops.
   Examples:
     > &REP_NUM object=[%0][repeat(%1,%1)]
     > say fold(object/rep_num,1 2 3 4 5,->)
-    You say "->122333444455555"
+    You say, "->122333444455555"
     > &ADD_NUMS object=add(%0,%1)
     > say fold(object/add_nums,1 2 3 4 5)
-    You say "15"
+    You say, "15"
   See also: u(), iter(), map(), filter()
 
 & RJUST()
@@ -10034,15 +10040,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say -[rjust(foo,6)]-
-    You say "-   foo-"
+    You say, "-   foo-"
     > say %r0[rjust(foo,6)]7%r01234567
-    You say "
+    You say, "
     0   foo7
     01234567"
     > say =[rjust(bar,5,.)]=
-    You say "=..bar="
+    You say, "=..bar="
     > say [rjust(foo,9,-=-)]
-    You say "-=--=-foo"
+    You say, "-=--=-foo"
  
   See also: ljust(), strlen().
 
@@ -10056,15 +10062,15 @@ performed and the walk down the list stops.
  
   Examples:
     > say -[ljust(foo,6)]-
-    You say "-foo   -"
+    You say, "-foo   -"
     > say %r0[ljust(foo,6)]7%r01234567
-    You say "
+    You say, "
     0foo   7
     01234567"
     > say =[ljust(bar,5,.)]=
-    You say "=bar..="
+    You say, "=bar..="
     > say [ljust(foo,9,-=-)]
-    You say "foo-=--=-"
+    You say, "foo-=--=-"
  
   See also: rjust(), strlen().
  
@@ -10119,7 +10125,7 @@ performed and the walk down the list stops.
   Example:
     > &TEST me=Test on [mudname()] at [time()].
     > say [setq(0,u(TEST))]'[r(0)]' has length [strlen(r(0))].
-    You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
+    You say, "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
   See also: LOCAL REGISTERS, setr(), r(), setx(), store(), x().
  
@@ -10132,7 +10138,7 @@ performed and the walk down the list stops.
   Example:
     > &TEST me=Test on [mudname()] at [time()].
     > say '[setr(0,u(TEST))]' has length [strlen(%q0)].
-    You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
+    You say, "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
   See also: LOCAL REGISTERS, setq(), r(), setx(), store(), x().
  
@@ -10147,7 +10153,7 @@ performed and the walk down the list stops.
  
   Example:
     > say Testing [setx(temp,abc)][x(temp)] - [strlen(x(temp))].
-    You say "Testing abc - 3."
+    You say, "Testing abc - 3."
  
   See also: store(), x(), VARIABLE FUNCTIONS.
  
@@ -10193,9 +10199,9 @@ performed and the walk down the list stops.
  
   Example:
     > say [xvars(foo bar baz,apple peach cherry)][x(foo)]-[x(bar)]-[x(baz)]
-    You say "apple-peach-cherry"
+    You say, "apple-peach-cherry"
     > say [xvars(foo bar baz,apple|peach|cherry,|)][x(bar)]
-    You say "peach"
+    You say, "peach"
  
   See also: x(), setx(), store(), let(), lvars(), clearvars(), regparse().
  
@@ -10225,10 +10231,10 @@ performed and the walk down the list stops.
   Examples:
  
     > say [setx(foo,old)][x(foo)]*[let(foo z,new A,[x(z)] [x(foo)])]*[x(foo)]
-    You say "old*A new*old
+    You say, "old*A new*old
  
     > say [setx(a,old)]%_a - [let(a b c,1|2|3,%_a+%_b+%_c,|)] - %_a
-    You say "old - 1+2+3 - old"
+    You say, "old - 1+2+3 - old"
  
   See also: x(), setx(), store(), regparse().
  
@@ -10372,9 +10378,9 @@ performed and the walk down the list stops.
   Examples:
     > @force me=@va me=Test\[space(5)\]Test   (which becomes 'Test     Test')
     > say squish(%va)
-    You say "Test Test"
+    You say, "Test Test"
     > say squish(---ack-----oof---,-)
-    You say "-ack-oof-"
+    You say, "-ack-oof-"
  
   See also:  trim()
 
@@ -10394,11 +10400,11 @@ performed and the walk down the list stops.
  
   Example:
     > say trim(;;;Wacka;;;,b,;)
-    You say "Wacka"
+    You say, "Wacka"
     > say trim(%b%b%b Polly Parrot %b%b%b%b,r)
-    You say "    Polly Parrot"
+    You say, "    Polly Parrot"
     > say trim(-*-Trim Rules!-*-,l,-*-)
-    You say "Trim Rules!-*-"
+    You say, "Trim Rules!-*-"
  
   See also: center(), ljust(), rjust().
 
@@ -10412,11 +10418,11 @@ performed and the walk down the list stops.
  
   Example:
     > say center(a,5,-)
-    You say "--a--"
+    You say, "--a--"
     > say center(*BAMF*,15)
-    You say "    *BAMF*     "
+    You say, "    *BAMF*     "
     > say center(ZAP,9,-=-)
-    You say "-=-ZAP-=-"
+    You say, "-=-ZAP-=-"
  
   See also: ljust(), rjust().
  
@@ -10433,9 +10439,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say insert(This is a test, 4, new)
-    You say "This is a new test"
+    You say, "This is a new test"
     > say insert(Yet@Another@List, 3, Funky, @)
-    You say "Yet@Another@Funky@List"
+    You say, "Yet@Another@Funky@List"
   See also: extract(), ldelete(), replace().
 
 & REPLACE()
@@ -10451,9 +10457,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say replace(This is a test, 4, quiz)
-    You say "This is a quiz"
+    You say, "This is a quiz"
     > say replace(Yet@Another@Mundane@List, 3, Funky, @)
-    You say "Yet@Another@Funky@List"
+    You say, "Yet@Another@Funky@List"
   See also: extract(), insert(), ldelete().
 
 & LDELETE()
@@ -10464,9 +10470,9 @@ performed and the walk down the list stops.
  
   Examples:
     > say ldelete(This is not a test, 3)
-    You say "This is a test"
+    You say, "This is a test"
     > say ldelete(Yet@Another@Mundane@List, 3, @)
-    You say "Yet@Another@List"
+    You say, "Yet@Another@List"
   See also: extract(), insert(), replace().
 
 & ISDBREF()
@@ -10480,11 +10486,11 @@ performed and the walk down the list stops.
  
   Example:
      > say isdbref(#-1)
-     You say "0"
+     You say, "0"
      > say isdbref(#1)
-     You say "1"
+     You say, "1"
      > say isdbref(This is not a dbref)
-     You say "0"
+     You say, "0"
 
 & ISNUM()
   Function: isnum(<string>)
@@ -10494,13 +10500,13 @@ performed and the walk down the list stops.
  
   Example:
      > say isnum(22223.0000)
-     You say "1"
+     You say, "1"
      > say isnum(77)
-     You say "1"
+     You say, "1"
      > say isnum(22 L)
-     You say "0"
+     You say, "0"
      >say isnum(Bad Numbers!)
-     You say "0"
+     You say, "0"
 
 & ISWORD()
   Function: isword(<string>)
@@ -10510,9 +10516,9 @@ performed and the walk down the list stops.
  
   Example:
      > say isword(Test)
-     You say "1"
+     You say, "1"
      > say isword(Test123)
-     You say "0"
+     You say, "0"
 
 & FOREACH()
   foreach([<object>/]<attribute>,<string>[,<start token>][,<end token>])
@@ -10544,13 +10550,13 @@ performed and the walk down the list stops.
  
     > &add_one me=[add(%0,1)]
     > say [foreach(add_one, 54321)]
-    You say "65432"
+    You say, "65432"
     > say [foreach(add_one,12<34>56,<,>)]
-    You say "124556"
+    You say, "124556"
     > say [foreach(add_one,12#34#56,#)]
-    You say "1245167"                        [The add() counts '#' as '0'.]
+    You say, "1245167"                        [The add() counts '#' as '0'.]
     > say [foreach(add_one,12<34>56,#,>)]
-    You say "12<34>45"
+    You say, "12<34>45"
   
 & MIX()
  
@@ -10591,7 +10597,7 @@ performed and the walk down the list stops.
  
     > &print_line me = %r%0 -- %1 -- %2
     > say [step(print_line,1 2 3 4 5 6 7 8,3)]
-    You say "
+    You say, "
     1 -- 2 -- 3
     4 -- 5 -- 6
     7 -- 8 --"
@@ -10661,12 +10667,12 @@ performed and the walk down the list stops.
   A simple example, which imitates a normal alphabetic sort:
     > &ALPHASORT test=[comp(%0,%1)]
     > say [sortby(test/ALPHASORT,foo bar baz)]
-    You say "bar baz foo"
+    You say, "bar baz foo"
  
   A slightly more complicated sort. #1 is "God", #2 is "Amby", "#3" is "Bob":
     > &NAMESORT me=[comp(name(%0),name(%1))]
     > say [sortby(NAMESORT,#1 #2 #3)]
-    You say "#2 #3 #1"
+    You say, "#2 #3 #1"
  
   Warning: the function invocation limit applies to this function. If
   this limit is exceeded, the function will fail _silently_. List and
@@ -11124,7 +11130,7 @@ performed and the walk down the list stops.
  
   Example:
     > say [strcat(foo,bar,baz)]
-    You say "foobarbaz"
+    You say, "foobarbaz"
  
 & STRTRUNC()
   Function: strtrunc(<string>, <number>)
@@ -11257,9 +11263,9 @@ performed and the walk down the list stops.
     > &EVAL_FN me = [reverse(%0)]
     > &COND_FN me = [strlen(%0)]
     > say [while(EVAL_FN,COND_FN,foo bar meep flibble baz,4)]
-    You say "oof rab peem"
+    You say, "oof rab peem"
     > SAY [while(EVAL_FN,COND_FN,foo|bar|meep|flibble|baz,4,|,-)]
-    You say "oof-rab-peem"
+    You say, "oof-rab-peem"
  
 & UNTIL()
   Function:  until([<uobj>/]<uattr>, [<cobj>/]<cattr>,
@@ -11302,7 +11308,7 @@ performed and the walk down the list stops.
     > &EVAL_FN me = [add(%0,%1)]
     > &COND_FN me = [sub(%1,%0)]
     > say [until(EVAL_FN,COND_FN,0 1 2 3,4 2 1 0,-,,|)]
-    You say "4|3|3"
+    You say, "4|3|3"
  
 & PUSH()
   Function: push([<object>,]<data>)
@@ -11326,11 +11332,11 @@ performed and the walk down the list stops.
  
   Example:
     > say [lstack()]
-    You say "5 4 3 2 1"
+    You say, "5 4 3 2 1"
     > say [dup()][lstack()]
-    You say "5 5 4 3 2 1"
+    You say, "5 5 4 3 2 1"
     > say [dup(me,4)]
-    You say "2 5 5 4 3 2 1"
+    You say, "2 5 5 4 3 2 1"
  
   See also: STACK FUNCTIONS.
 
@@ -11343,9 +11349,9 @@ performed and the walk down the list stops.
  
   Example:
     > say [lstack()]
-    You say "4 3 2 1"
+    You say, "4 3 2 1"
     > say [swap()]
-    You say "3 4 2 1"
+    You say, "3 4 2 1"
  
   See also: STACK FUNCTIONS.
 
@@ -11359,15 +11365,15 @@ performed and the walk down the list stops.
  
   Example:
     > say [lstack()]
-    You say "6 5 4 3 2 1"
+    You say, "6 5 4 3 2 1"
     > say [pop()]
-    You say "6"
+    You say, "6"
     > say [lstack()]
-    You say "5 4 3 2 1"
+    You say, "5 4 3 2 1"
     > say [pop(me,3)]
-    You say "2"
+    You say, "2"
     > say [lstack()]
-    You say "5 4 3 1"
+    You say, "5 4 3 1"
   
   See also: popn(), STACK FUNCTIONS.
 
@@ -11389,15 +11395,15 @@ performed and the walk down the list stops.
  
   Example:
     > say [lstack()]
-    You say "6 5 4 3 2 1"
+    You say, "6 5 4 3 2 1"
     > say [toss()]
-    You say ""
+    You say, ""
     > say [lstack()]
-    You say "5 4 3 2 1"
+    You say, "5 4 3 2 1"
     > say [toss(me,3)]
-    You say ""
+    You say, ""
     > say [lstack()]
-    You say "5 4 3 1"
+    You say, "5 4 3 1"
  
 & EMPTY()
   Function: empty([<object>])
@@ -11439,11 +11445,11 @@ performed and the walk down the list stops.
  
   Example:
     > say [lstack()] -- [peek()]
-    You say "5 4 3 2 1 -- 5"
+    You say, "5 4 3 2 1 -- 5"
     > say [peek(me,3)]
-    You say "2"
+    You say, "2"
     > say [lstack(Object)] -- [peek(Object)]
-    You say "c b a -- c"
+    You say, "c b a -- c"
  
   See also: STACK FUNCTIONS.
 
@@ -12200,10 +12206,10 @@ Continued in 'help @malias2'.
     > @eval [structure(grid,xcoord ycoord zcoord,i i i,0 0 0)]
     > @eval [construct(blank,grid)]
     > say [unload(blank)]
-    You say "0 0 0"
+    You say, "0 0 0"
     > @eval [construct(space,grid,xcoord ycoord,2|5,|)]
     > say [unload(space)]
-    You say "2 5 0"
+    You say, "2 5 0"
  
 & DESTRUCT()
   Function:  destruct(<instance>)
@@ -12230,7 +12236,7 @@ Continued in 'help @malias2'.
     > @eval [structure(grid,xcoord ycoord zcoord,i i i,0 0 0)]
     > @eval [load(space,grid,3 4 5)]
     > say [z(space,ycoord)]
-    You say "4"
+    You say, "4"
  
   See also: STRUCTURE FUNCTIONS
  
@@ -12246,7 +12252,7 @@ Continued in 'help @malias2'.
     > @eval [structure(grid,xcoord ycoord zcoord,i i i,0 0 0)]
     > @eval [load(space,grid,3 4 5)]
     > say [unload(space,|)]
-    You say "3|4|5"
+    You say, "3|4|5"
  
   See also: STRUCTURE FUNCTIONS
  
@@ -12300,12 +12306,12 @@ Continued in 'help @malias2'.
   Example:
     > @va me=apple|banana|orange
     > say [delimit(me/va,---,|)]
-    You say "apple---banana---orange"
+    You say, "apple---banana---orange"
     > @eval [structure(grid,xcoord ycoord zcoord,i i i,0 0 0)]
     > @eval [load(space,grid,3 4 5)]
     > @eval [write(me/coords,space)]
     > say [delimit(me/coords,_)]
-    You say "3_4_5"
+    You say, "3_4_5"
  
   See also: STRUCTURE FUNCTIONS
  
@@ -12319,7 +12325,7 @@ Continued in 'help @malias2'.
     > @eval [structure(grid,xcoord ycoord,i i,2 3)]
     > @eval [construct(space,grid)]
     > say [z(space,ycoord)]
-    You say "3"
+    You say, "3"
  
   See also: STRUCTURE FUNCTIONS
  
@@ -12339,10 +12345,10 @@ Continued in 'help @malias2'.
     > @eval [construct(space,grid)]
     > @eval [modify(space,xcoord,5)]
     > say [z(space,xcoord)]
-    You say "5"
+    You say, "5"
     > @eval [modify(space,ycoord xcoord,3 8)]
     > say X:[z(space,xcoord)] Y:[z(space,ycoord)]
-    You say "X:8 Y:3"
+    You say, "X:8 Y:3"
  
   See also: STRUCTURE FUNCTIONS
  
@@ -14230,16 +14236,22 @@ Continued in 'help 3.1 commands5'.
   participate in mutual debugging sessions. Based on an idea from
   AlloyMUSH.
  
+- The new conf parameter say_uses_comma, if enabled, will insert the
+  grammatically-correct comma into say and @fsay.
+
+- The new conf parameter say_uses_you, if enabled, will always show the
+  speaker '<name> says' rather than 'You say'.
+ 
+Continued in 'help 3.1 commands6'.
+ 
+& 3.1 commands6
+ 
 - A @dbck is automatically done before a @restart or normal @shutdown,
   so recycling cleanup is done first, thus avoiding inconsistencies
   upon startup.
  
 - The @teleport command can now be used on exits. Players with the
   Open_Anywhere power can now drop or @teleport exits to any location.
- 
-Continued in 'help 3.1 commands6'.
- 
-& 3.1 commands6
  
 - Specifying an object to @trigger is now optional; if no object is
   specified, the object defaults to 'me'.

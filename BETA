@@ -30,6 +30,13 @@ Release history:
   being prepended when that attribute is used as an @o-attr (including
   with @verb).
 
+- Feature: The new conf parameter say_uses_comma, if enabled, will insert
+  the grammatically-correct comma into say and @fsay.
+
+- Feature: The new conf parameter say_uses_you, if enabled, will always
+  show the speaker '<name> says' rather than 'You say'. This is more
+  convenient for environments where activity is often logged and shared.
+
 -----------------------------------------------------------------------------
 
 06/07/2002: Beta 3
