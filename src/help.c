@@ -58,7 +58,7 @@ char *filename;
 
 		if (hashadd(entry.topic, (int *)htab_entry, htab, 0) == 0) {
 			count++;		
-			while (p > entry.topic) {
+			while (p > (entry.topic + 1)) {
 				p--;
 				*p = '\0';
 				if (!isspace(*(p-1))) {
@@ -176,60 +176,30 @@ int eval;
 		tf_fclose(fp);
 		return;
 	}
-	line = (char *)XMALLOC(entry_length+1, "help_write");
-	if (line == NULL) {
-		fprintf(mainlog_fp, "ABORT! help.c, line_malloc() failed to get memory.\n");
-		abort();
-	}
-	result = (char *)XMALLOC(entry_length+1, "help_write.2");
-	if (result == NULL) {
-		fprintf(mainlog_fp, "ABORT! help.c, result_malloc() failed to get memory.\n");
-		abort();
-	}
-
-	fread(line, entry_length, 1, fp);
-
-	if (eval) {
-		offset = 0;
-		while(offset < entry_length) {
-			memset(tmpbuf, 0, sizeof(tmpbuf));
-			memcpy(tmpbuf, line + offset, LBUF_SIZE - 1);
-			/*
-			*  since we used a single fread() above, we're not
-			*  dealing with single lines at a time... to make sure
-			*  output to the user is pretty, we need to backtrack
-			*  to the last CR (if any)
-			*/
-			for (i=strlen(tmpbuf); i > 0 && tmpbuf[i] != '\n'; i--) ;
-			if (i == 0) {
-				/*
-				* there wasn't a CR to backtrack to. this will
-				* only be the case for single line help entries
-				*/
-				i = strlen(tmpbuf);
-			}
-			tmpbuf[i] = 0;
-			offset += i + 1;
-			str = tmpbuf;
+	line = alloc_lbuf("help_write");
+	result = alloc_lbuf("help_write.2");
+	for (;;) {
+		if (fgets(line, LBUF_SIZE - 1, fp) == NULL)
+			break;
+		if (line[0] == '&')
+			break;
+		for (p = line; *p != '\0'; p++)
+			if (*p == '\n')
+				*p = '\0';
+		if (eval) {
+			str = line;
 			bp = result;
-			exec(result, &bp, player, player, player,
+			exec(result, &bp, 0, player, player,
 			     EV_NO_COMPRESS | EV_FIGNORE | EV_EVAL, &str,
 			     (char **)NULL, 0);
-			*bp = 0;
+			*bp = '\0';
 			notify(player, result);
-		}
+		} else
+			notify(player, line);
 	}
-	else {
-		if (line[entry_length - 1] == '\n')
-			line[entry_length - 1] = 0;
-		else
-			line[entry_length] = 0;
-		notify(player, line);
-	}
-
 	tf_fclose(fp);
-	XFREE(line, "help_write");
-	XFREE(result, "help_write.2");
+	free_lbuf(line);
+	free_lbuf(result);
 }
 
 /* ---------------------------------------------------------------------------
