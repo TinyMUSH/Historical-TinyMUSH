@@ -133,7 +133,7 @@ extern int malloc_count;
 #define XFREE(x,y) (fprintf(stderr, "Free: %s\n", (y)), \
                     ((x) ? malloc_count--, free((x)), (x)=NULL : (x)))
 #else
-#define XMALLOC(x,y) (char *)malloc((x))
+#define XMALLOC(x,y) (malloc(x))
 #define XFREE(x,y) (free((x)), (x) = NULL)
 #endif  /* TEST_MALLOC */
 

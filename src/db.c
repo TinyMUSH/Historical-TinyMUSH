@@ -1309,7 +1309,7 @@ int *bufsiz, len, copy;
 	
 	if (len > *bufsiz) {
 		newsize = len + ATR_BUF_CHUNK;
-		tbuff = XMALLOC(newsize, "al_extend");
+		tbuff = (char *) XMALLOC(newsize, "al_extend");
 		if (*buffer) {
 			if (copy)
 				bcopy(*buffer, tbuff, *bufsiz);
