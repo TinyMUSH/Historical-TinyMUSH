@@ -24,14 +24,14 @@
   slay           WHO            wizhelp
  
   @addcommand    @admin         @apply_marked  @attribute     @boot
-  @chown         @chownall      @cut           @dbck          
+  @chown         @chownall      @cut           @dbck          @dbclean
   @delcommand    @destroy       @disable       @doing         @dump          
   @enable        @fixdb         @freelist      @function      @halt
-  @hook          @kick          @list          @listcommands  @list_file     
-  @listmotd      @lock          @logrotate     @mark          @mark_all
-  @motd          @newpassword   @pcreate       @poor          @power         
-  @ps            @purge         @quota         @readcache     @restart       
-  @rwho          @shutdown      @sqlconnect    @sqldisconnect @timecheck
+  @hashresize    @hook          @kick          @list          @listcommands
+  @list_file     @listmotd      @lock          @logrotate     @mark
+  @mark_all      @motd          @newpassword   @pcreate       @poor
+  @power         @ps            @purge         @quota         @readcache
+  @restart       @shutdown      @sqlconnect    @sqldisconnect @timecheck
   @startslave    @timewarp      @toad          
   @wall
  
@@ -288,6 +288,17 @@
   periodically, so there is usually no need to use this command.
   See also: @admin, @disable, @enable, @list, @purge.
 
+& @dbclean
+  Command: @dbclean
+ 
+  This God-only command cleanses the database of "stale" attributes --
+  i.e., attributes that once existed, but which no longer exist. This
+  conserves both disk space and memory, and should be performed on
+  a periodic basis (once a month should suffice).
+ 
+  Be forewarned: This command is extremely intensive, and is likely to
+  freeze the MUSH for several minutes.
+ 
 & @destroy
   Command: @destroy[/<switches>] <object>
 
@@ -457,7 +468,19 @@
  
   The /all switch may be used to halt all commands globally.
   See also: @drain, @notify, kill, HALTED, SEMAPHORES.
-
+ 
+& @hashresize
+  Command: @hashresize
+ 
+  This God-only command dynamically resizes a number of the MUSH's internal
+  hash tables. Type '@list hash' before and after to see the changes.
+ 
+  The size of the hash tables is determined automatically at startup time.
+  However, if something changes substantially -- you have done a @dbclean,
+  you have added a number of comsys channels, and so forth -- you may find
+  that this command is useful. It's safe to make this a @daily thing; the
+  resizing will only be done if it's useful.
+ 
 & @hook
   Command: @hook[/<switch>] [<command>[=<object>/<attribute>]]
  
