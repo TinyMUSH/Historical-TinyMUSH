@@ -24,130 +24,135 @@ static void look_exits(player, loc, exit_name)
 dbref player, loc;
 const char *exit_name;
 {
-	dbref thing, parent, aowner;
-	char *atr_buf, *buff, *e, *s, *buff1, *e1;
-	int foundany, lev, isdark, aflags;
+    dbref thing, parent, aowner;
+    char *atr_buf, *buff, *e, *s, *buff1, *e1;
+    int foundany, lev, isdark, aflags;
 
-	/* make sure location has exits */
+    /* make sure location has exits */
 
-	if (!Good_obj(loc) || !Has_exits(loc))
-		return;
+    if (!Good_obj(loc) || !Has_exits(loc))
+	return;
 
-	/* If conf option allows it, check to see if we're formatting
-	 * exits in a player-specified way.
-	 */
+    /* If conf option allows it, check to see if we're formatting
+     * exits in a player-specified way.
+     */
 
-	if (mudconf.fmt_exits) {
-		atr_buf = atr_pget(loc, A_LEXITS_FMT, &aowner, &aflags);
-		if (atr_buf && *atr_buf) {
-			did_it(player, loc, A_LEXITS_FMT, NULL, A_NULL, NULL,
-			       A_NULL, (char **) NULL, 0);
-			free_lbuf(atr_buf);
-			return;
-		} else if (atr_buf) {
-			free_lbuf(atr_buf);
-		}
+    if (mudconf.fmt_exits) {
+	atr_buf = atr_pget(loc, A_LEXITS_FMT, &aowner, &aflags);
+	if (atr_buf && *atr_buf) {
+	    did_it(player, loc, A_LEXITS_FMT, NULL, A_NULL, NULL,
+		   A_NULL, (char **) NULL, 0);
+	    free_lbuf(atr_buf);
+	    return;
+	} else if (atr_buf) {
+	    free_lbuf(atr_buf);
 	}
+    }
 
-	/* make sure there is at least one visible exit */
+    /* make sure there is at least one visible exit */
 
-	foundany = 0;
-	isdark = Dark(loc);
-	ITER_PARENTS(loc, parent, lev) {
-	        if (!Has_exits(parent))
-		        continue;
-		DOLIST(thing, Exits(parent)) {
-			if ((Light(thing) && !Dark(thing)) ||
-			   (!Dark(thing) && !isdark)) {
-				foundany = 1;
-				break;
-			}
-		}
-		if (foundany)
-			break;
+    foundany = 0;
+    isdark = Dark(loc);
+    ITER_PARENTS(loc, parent, lev) {
+	if (!Has_exits(parent))
+	    continue;
+	DOLIST(thing, Exits(parent)) {
+	    if ((Light(thing) && !Dark(thing)) ||
+		(!Dark(thing) && !isdark)) {
+		foundany = 1;
+		break;
+	    }
 	}
+	if (foundany)
+	    break;
+    }
 
-	if (!foundany)
-		return;
+    if (!foundany)
+	return;
 
-	/* Display the list of exit names */
+    /* Display the list of exit names */
 
-	notify(player, exit_name);
-	e = buff = alloc_lbuf("look_exits");
-	e1 = buff1 = alloc_lbuf("look_exits2");
-	ITER_PARENTS(loc, parent, lev) {
-		if (Transparent(loc)) {
-		    DOLIST(thing, Exits(parent)) {
-			if ((Light(thing) && !Dark(thing)) ||
-			    (!Dark(thing) && !isdark)) {
-			    strcpy(buff, Name(thing));
-			    for (e = buff; *e && (*e != ';'); e++) ;
-			    *e = '\0';
-			    if (Location(thing) == NOTHING) {
-				notify(player,
-				       tprintf("%s leads nowhere.", buff));
-			    } else if (Location(thing) == AMBIGUOUS) {
-				notify(player,
-				       tprintf("%s leads somewhere.", buff));
-			    } else if (Location(thing) == HOME) {
-				notify(player,
-				       tprintf("%s leads home.", buff));
-			    } else if (Good_obj(Location(thing))) {
-				notify(player, tprintf("%s leads to %s.",
-						       buff,
-						       Name(Location(thing))));
-			    } else {
-				notify(player, tprintf("%s leads elsewhere.",
-						       buff));
-			    }
-			}
+    notify(player, exit_name);
+    e = buff = alloc_lbuf("look_exits");
+    e1 = buff1 = alloc_lbuf("look_exits2");
+    ITER_PARENTS(loc, parent, lev) {
+	if (Transparent(loc)) {
+	    DOLIST(thing, Exits(parent)) {
+		if ((Light(thing) && !Dark(thing)) ||
+		    (!Dark(thing) && !isdark)) {
+		    strcpy(buff, Name(thing));
+		    for (e = buff; *e && (*e != ';'); e++) ;
+		    *e = '\0';
+		    if (Location(thing) == NOTHING) {
+			notify(player,
+			       tprintf("%s leads nowhere.", buff));
+		    } else if (Location(thing) == AMBIGUOUS) {
+			notify(player,
+			       tprintf("%s leads somewhere.", buff));
+		    } else if (Location(thing) == HOME) {
+			notify(player,
+			       tprintf("%s leads home.", buff));
+		    } else if (Good_obj(Location(thing))) {
+			notify(player, tprintf("%s leads to %s.",
+					       buff, Name(Location(thing))));
+		    } else {
+			notify(player, tprintf("%s leads elsewhere.", buff));
 		    }
-		} else {
-			DOLIST(thing, Exits(parent)) {
-				if ((Light(thing) && !Dark(thing)) ||
-				   (!Dark(thing) && !isdark)) {
-					e1 = buff1;
-					/* chop off first exit alias to display */
-					if (buff != e)
-						safe_str((char *)"  ", buff, &e);
-					for (s = Name(thing); *s && (*s != ';'); s++)
-						safe_chr(*s, buff1, &e1);
-					*e1 = '\0';
-					/* Copy the exit name into 'buff' */
-#ifdef PUEBLO_SUPPORT
-					if (Html(player)) {
-						/* XXX The exit name needs to be HTML escaped. */
-						safe_str((char *) "<a xch_cmd=\"", buff, &e);
-						safe_str(buff1, buff, &e);
-						safe_str((char *) "\"> ", buff, &e);
-						html_escape(buff1, buff, &e);
-						safe_str((char *) " </a>", buff, &e);
-					} else {
-#endif
-						/* Append this exit to the list */
-						safe_str(buff1, buff, &e);
-#ifdef PUEBLO_SUPPORT
-					}
-#endif
-				}
-			}
 		}
-	}
-
-	if (!(Transparent(loc))) {
+	    }
+	} else {
+	    DOLIST(thing, Exits(parent)) {
+		if ((Light(thing) && !Dark(thing)) ||
+		    (!Dark(thing) && !isdark)) {
+		    e1 = buff1;
+		    /* chop off first exit alias to display */
+		    if (buff != e)
+			safe_str((char *)"  ", buff, &e);
+		    for (s = Name(thing); *s && (*s != ';'); s++)
+			safe_chr(*s, buff1, &e1);
+		    *e1 = '\0';
+		    /* Copy the exit name into 'buff' */
 #ifdef PUEBLO_SUPPORT
-		safe_chr('\r', buff, &e);
-		safe_chr('\n', buff, &e);
-		*e = 0;
-		notify_html(player, buff);
-#else
-		*e = 0;
-		notify(player, buff);
+		    if (Html(player)) {
+			/* XXX The exit name needs to be HTML escaped. */
+			safe_str((char *) "<a xch_cmd=\"", buff, &e);
+			safe_str(buff1, buff, &e);
+			safe_str((char *) "\"> ", buff, &e);
+			html_escape(buff1, buff, &e);
+			safe_str((char *) " </a>", buff, &e);
+		    } else {
 #endif
+			/* Append this exit to the list */
+			safe_str(buff1, buff, &e);
+#ifdef PUEBLO_SUPPORT
+		    }
+#endif
+		}
+	    }
 	}
+    }
+
+#ifdef PUEBLO_SUPPORT
+    if (!(Transparent(loc))) {
+	if (Html(player)) {
+	    safe_chr('\r', buff, &e);
+	    safe_chr('\n', buff, &e);
+	    *e = '\0';
+	    notify_html(player, buff);
+	} else {
+	    *e = '\0';
+	    notify(player, buff);
+	}
+    }
+#else
+    if (!(Transparent(loc))) {
+	*e = '\0';
+	notify(player, buff);
+    }
+#endif /* PUEBLO_SUPPORT */
 	
-	free_lbuf(buff);
-	free_lbuf(buff1);
+    free_lbuf(buff);
+    free_lbuf(buff1);
 }
 
 #define CONTENTS_LOCAL  0
