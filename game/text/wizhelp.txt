@@ -1352,10 +1352,11 @@
 
 & PARAM OBJECTS
 	default_home		exit_flags		exit_parent
-	guest_char_num		guest_nuker		player_flags
-	player_parent		player_starting_home	player_starting_room
-	robot_flags		room_flags		room_parent
-	stripped_flags		thing_flags		thing_parent
+	guest_char_num		guest_nuker		guest_starting_room
+	player_flags		player_parent		player_starting_home
+	player_starting_room	robot_flags		room_flags
+	room_parent		stripped_flags		thing_flags
+	thing_parent
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
@@ -1962,6 +1963,13 @@ use_global_aconn	wizard_obeys_linklock
   object or a wizard, it defaults to 1 (for #1, the typical God character).
  
   See also: guest_char_num, guest_nuker, guest_prefix, number_guests.
+ 
+& guest_starting_room
+  Config parameter: guest_starting_room <number. Default: -1
+ 
+  Specifies the room that Guests start out in. If this parameter has
+  not been set, then the Guest starting room defaults to the value of
+  the player_starting_room parameter.
  
 & guests_calias
   Config parameter: guests_calias <channel alias>. Default: g
