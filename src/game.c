@@ -1575,10 +1575,6 @@ static void NDECL(process_preload)
 		if (Going(thing))
 			continue;
 		
-		/* Preload the attribute lists */
-		
-		s_Atrlist(thing, atr_get_raw(thing, A_LIST));
-
 		/* Look for a FORWARDLIST attribute. Load these before
 		 * doing anything else, so startup notifications work
 		 * correctly.
@@ -1841,7 +1837,7 @@ char *argv[];
 	 * loads is NOT representative of normal cache behavior :)
 	 */
 	
-	cache_reset(1);
+//	cache_reset(1);
 	
 	/* Start the DNS and identd lookup slave process */
 	

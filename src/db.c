@@ -817,10 +817,8 @@ char *s;
 	
 	if (s && *s) {
 		db[thing].atrlist = strdup(s);
-		atr_add_raw(thing, A_LIST, s);
 	} else {
 		db[thing].atrlist = NULL;
-		atr_clr(thing, A_LIST);
 	}
 }
 
@@ -1393,6 +1391,7 @@ void NDECL(al_store)
 {
 	if (mudstate.mod_al_id != NOTHING) {
 		s_Atrlist(mudstate.mod_al_id, mudstate.mod_alist);
+		atr_add_raw(mudstate.mod_al_id, A_LIST, mudstate.mod_alist);
 	}
 	mudstate.mod_al_id = NOTHING;
 }
@@ -1524,6 +1523,7 @@ dbref thing;
 {
 	if (mudstate.mod_al_id == thing)
 		al_store();	/* remove from cache */
+	s_Atrlist(thing, NULL);
 	atr_clr(thing, A_LIST);
 }
 
@@ -2122,18 +2122,21 @@ int atr;
 	int attr, found = 0;
 	char *as;
 	
-	for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
-		if (attr == atr) {
-			found = 1;
+	if (atr != A_LIST) {
+		for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
+			if (attr == atr) {
+				found = 1;
+			}
 		}
 	}
-
+	
 	if (!found && (atr != A_LIST)) {
 		return NULL;
 	}
 
 	if (atr == A_LIST) {
-		return Atrlist(thing);
+		if (Atrlist(thing)) 
+			return Atrlist(thing);
 	}
 
 	makekey(thing, atr, &okey);
@@ -2145,6 +2148,11 @@ int atr;
 	(void)string_decompress(a, decomp_buff);
 	return decomp_buff;
 #else
+	if (atr == A_LIST) {
+		s_Atrlist(thing, a);
+		return Atrlist(thing);
+	}
+	
 	return a;
 #endif /* RADIX_COMPRESSION */
 }
@@ -2475,7 +2483,7 @@ char **attrp;
 	if (thing == mudstate.mod_al_id) {
 		astr = mudstate.mod_alist;
 	} else {
-		astr = Atrlist(thing);
+		astr = atr_get_raw(thing, A_LIST);
 	}
 	alen = al_size(astr);
 
