@@ -52,6 +52,8 @@ char *key;
 	return checkit;
 }
 
+static dbref lock_originator = NOTHING;	/* grotesque hack */
+
 int eval_boolexp(player, thing, from, b)
 dbref player, thing, from;
 BOOLEXP *b;
@@ -101,7 +103,9 @@ BOOLEXP *b;
 			return (0);
 		}
 		key = atr_get(b->sub1->thing, A_LOCK, &aowner, &aflags, &alen);
+		lock_originator = thing;
 		c = eval_boolexp_atr(player, b->sub1->thing, from, key);
+		lock_originator = NOTHING;
 		free_lbuf(key);
 		mudstate.lock_nest_lev--;
 		return (c);
@@ -152,8 +156,10 @@ BOOLEXP *b;
 					 preserve, preserve_len);
 			buff2 = bp = alloc_lbuf("eval_boolexp");
 			str = buff;
-			exec(buff2, &bp, source, player, player,
-			     EV_FCHECK | EV_EVAL | EV_TOP,
+			exec(buff2, &bp, source, 
+			     ((lock_originator == NOTHING) ?
+			      player : lock_originator),
+			     player, EV_FCHECK | EV_EVAL | EV_TOP,
 			     &str, (char **)NULL, 0);
 			*bp = '\0';
 			restore_global_regs("eval_boolexp_save",
