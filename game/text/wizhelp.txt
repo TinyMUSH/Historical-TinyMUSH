@@ -1370,7 +1370,7 @@
 & PARAM TIMERS
 	check_interval		check_offset		command_quota_increment
 	command_quota_max	dump_interval		dump_offset
-	idle_interval		rwho_dump_interval	timeslice
+	idle_interval		opt_frequency		timeslice
 
 & PARAM OPTIONS
 abort_on_bug		addcommands_match_blindly
@@ -2372,7 +2372,18 @@ use_global_aconn	wizard_obeys_linklock
   If a destination for the new exit is specified and the link is successful,
   then the link_cost is also charged.
   See also: @open, link_cost.
-
+ 
+& opt_frequency
+  Config parameter: opt_frequency <number>.  Default: 0
+ 
+  Indicates the frequency of optimized database dumps. By default (when
+  this is 0 or 1), every database dump optimizes the GDBM database,
+  which speeds access times and minimizes the disk space it uses.
+  However, optimized dumps take longer than standard dumps; the
+  difference with large databases can be perceptible. Thus, you
+  might want to optimize only once every N dumps, where N is the
+  value of this parameter.
+ 
 & output_database
   Config parameter: output_database <pathname>.  Default: None
   Specifies the file to which the database is to be written when writing
