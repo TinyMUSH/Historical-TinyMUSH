@@ -57,6 +57,14 @@ Release history:
 - Fix: The Quota power works (this feature originally didn't make it
   into 3.0 from MUX, an oversight). [3.0]
 
+- Fix: The ampersand is no longer dropped from unrecognized entities in
+  html_unescape(). [2.0]
+
+- Fix: A quirk in the truncation of long strings has been fixed. [2.2; Brazil]
+
+- Fix: Exit names are no longer mutilated when ansi() is used to embed
+  multiple ANSI codes in them. [MUX; Pro]
+
 -----------------------------------------------------------------------------
 
 07/26/2002: Beta 5
