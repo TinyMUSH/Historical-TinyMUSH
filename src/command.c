@@ -1018,6 +1018,8 @@ int i;
 
 /* ---------------------------------------------------------------------------
  * check_access: Check if player has access to function.  
+ *               Note that the calling function may also give permission
+ *               denied messages on failure.
  */
 
 int check_access(player, mask)
@@ -1026,12 +1028,14 @@ int mask;
 {
 	int succ, fail;
 
+	/* Check if we have permission to execute */
+
 	if (mask & CA_DISABLED)
-		return 0;
+	    return 0;
 	if (mask & CA_STATIC)
-		return 0;
+	    return 0;
 	if (God(player) || mudstate.initializing)
-		return 1;
+	    return 1;
 
 	succ = fail = 0;
 	if (mask & CA_GOD)
@@ -1153,6 +1157,7 @@ int mask;
 	     ((mask & CA_NO_GUEST) && Guest(player)))) {
 		return 0;
 	}
+
 	return 1;
 }
 
@@ -1214,30 +1219,22 @@ int interactive, ncargs;
 {
 	char *buf1, *buf2, tchar, *bp, *str, *buff, *s, *j, *new;
 	char *args[MAX_ARG];
-	int nargs, i, fail, interp, key, xkey, aflags;
+	int nargs, i, interp, key, xkey, aflags;
 	int hasswitch = 0;
 	int cmd_matches = 0;
 	dbref aowner;
 	char *aargs[10];
 	ADDENT *add;
-	
-#define	Protect(x) (cmdp->perms & x)
 
 	/* Perform object type checks. */
 
-	fail = 0;
-	if (Protect(CA_LOCATION) && !Has_location(player))
-		fail++;
-	if (Protect(CA_CONTENTS) && !Has_contents(player))
-		fail++;
-	if (Protect(CA_PLAYER) && (Typeof(player) != TYPE_PLAYER))
-		fail++;
-	if (fail > 0) {
-		notify(player, "Command incompatible with invoker type.");
-		return;
+	if (Invalid_Objtype(player)) {
+	    notify(player, "Command incompatible with invoker type.");
+	    return;
 	}
+
 	/* Check if we have permission to execute the command */
-    
+
 	if (!check_access(player, cmdp->perms)) {
 		notify(player, NOPERM_MESSAGE);
 		return;
@@ -1245,15 +1242,17 @@ int interactive, ncargs;
 
 	/* Check global flags */
 
-	if ((!Builder(player)) && Protect(CA_GBL_BUILD) && !(mudconf.control_flags & CF_BUILD)) {
-		notify(player, "Sorry, building is not allowed now.");
-		return;
+	if ((!Builder(player)) && Protect(CA_GBL_BUILD) &&
+	    !(mudconf.control_flags & CF_BUILD)) {
+	    notify(player, "Sorry, building is not allowed now.");
+	    return;
 	}
 	if (Protect(CA_GBL_INTERP) && !(mudconf.control_flags & CF_INTERP)) {
-		notify(player,
-		     "Sorry, queueing and triggering are not allowed now.");
-		return;
+	    notify(player,
+		   "Sorry, queueing and triggering are not allowed now.");
+	    return;
 	}
+
 	key = cmdp->extra & ~SW_MULTIPLE;
 	if (key & SW_GOT_UNIQUE) {
 		i = 1;

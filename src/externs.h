@@ -266,6 +266,13 @@ extern char *	FDECL(uncompress_str, (char *, const char *, int));
 extern int	FDECL(check_access, (dbref, int));
 extern void	NDECL(set_prefix_cmds);
 
+#define	Protect(f) (cmdp->perms & f)
+
+#define Invalid_Objtype(x) \
+((Protect(CA_LOCATION) && !Has_location(x)) || \
+ (Protect(CA_CONTENTS) && !Has_contents(x)) || \
+ (Protect(CA_PLAYER) && (Typeof(x) != TYPE_PLAYER)))
+
 /* from db.c */
 extern int	FDECL(Commer, (dbref));
 extern void	FDECL(s_Pass, (dbref, const char *));

@@ -1109,14 +1109,28 @@ static int check_command(player, name, buff, bufc)
 dbref player;
 char *name, *buff, **bufc;
 {
-	CMDENT *cmd;
+    CMDENT *cmdp;
 
-	if ((cmd = (CMDENT *) hashfind(name, &mudstate.command_htab)))
-		if (!check_access(player, cmd->perms)) {
-			safe_str("#-1 PERMISSION DENIED", buff, bufc);
-			return (1);
-		}
-	return (0);
+    if ((cmdp = (CMDENT *) hashfind(name, &mudstate.command_htab))) {
+
+	/* Note that these permission checks are NOT identical to the
+	 * ones in process_cmdent(). In particular, side-effects are NOT
+	 * subject to the CA_GBL_INTERP flag. This is a design decision
+	 * based on the concept that these are functions and not commands,
+	 * even though they behave like commands in many respects. This
+	 * is also the same reason why side-effects don't trigger hooks.
+	 */
+
+	if (Invalid_Objtype(player) || !check_access(player, cmdp->perms) ||
+	    (!Builder(player) && Protect(CA_GBL_BUILD) &&
+	     !(mudconf.control_flags & CF_BUILD))) {
+
+	    safe_str("#-1 PERMISSION DENIED", buff, bufc);
+	    return 1;
+	}
+    }
+
+    return 0;
 }
 
 FUNCTION(fun_link)
@@ -1202,14 +1216,12 @@ FUNCTION(fun_create)
 	switch (sep) {
 	case 'r':
 		if (check_command(player, "@dig", buff, bufc)) {
-			safe_str("#-1 PERMISSION DENIED", buff, bufc);
 			return;
 		}
 		thing = create_obj(player, TYPE_ROOM, name, 0);
 		break;
 	case 'e':
 		if (check_command(player, "@open", buff, bufc)) {
-			safe_str("#-1 PERMISSION DENIED", buff, bufc);
 			return;
 		}
 		thing = create_obj(player, TYPE_EXIT, name, 0);
@@ -1221,7 +1233,6 @@ FUNCTION(fun_create)
 		break;
 	default:
 		if (check_command(player, "@create", buff, bufc)) {
-			safe_str("#-1 PERMISSION DENIED", buff, bufc);
 			return;
 		}
 		if (fargs[1] && *fargs[1])
