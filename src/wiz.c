@@ -232,7 +232,7 @@ char *what, *command, *args[];
 	 */
 
 	if (key & FRC_NOW)
-		process_cmdline(victim, player, command, args, nargs);
+		process_cmdline(victim, player, command, args, nargs, NULL);
 	else
 		wait_que(victim, player, 0, NOTHING, 0, command, args, nargs,
 			 mudstate.rdata);

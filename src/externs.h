@@ -28,7 +28,8 @@ extern void	NDECL(boot_slave);
 extern int	FDECL(check_access, (dbref, int));
 extern int	FDECL(check_mod_access, (dbref, EXTFUNCS *));
 extern void	NDECL(reset_prefix_cmds);
-extern void	FDECL(process_cmdline, (dbref, dbref, char *, char *[], int));
+extern void	FDECL(process_cmdline, (dbref, dbref, char *, char *[], int,
+					BQUE *));
 
 /* From conf.c */
 extern void	VDECL(cf_log_syntax, (dbref, char *, const char *, ...));

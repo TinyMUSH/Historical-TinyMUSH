@@ -85,6 +85,8 @@ static int que_want(entry, ptarg, otarg)
 BQUE *entry;
 dbref ptarg, otarg;
 {
+	if (!Good_obj(entry->player))
+		return 0;
 	if ((ptarg != NOTHING) && (ptarg != Owner(entry->player)))
 		return 0;
 	if ((otarg != NOTHING) && (otarg != entry->player))
@@ -114,7 +116,7 @@ dbref player, object;
 	for (point = mudstate.qfirst; point; point = point->next)
 		if (que_want(point, player, object)) {
 			numhalted++;
-			if (halt_all)
+			if (halt_all && Good_obj(point->player))
 			    dbrefs_array[Owner(point->player)] += 1;
 			point->player = NOTHING;
 		} 
@@ -124,7 +126,7 @@ dbref player, object;
 	for (point = mudstate.qlfirst; point; point = point->next)
 		if (que_want(point, player, object)) {
 			numhalted++;
-			if (halt_all)
+			if (halt_all && Good_obj(point->player))
 			    dbrefs_array[Owner(point->player)] += 1;
 			point->player = NOTHING;
 		} 
@@ -134,7 +136,7 @@ dbref player, object;
 	for (point = mudstate.qwait, trail = NULL; point; point = next)
 		if (que_want(point, player, object)) {
 			numhalted++;
-			if (halt_all)
+			if (halt_all && Good_obj(point->player))
 			    dbrefs_array[Owner(point->player)] += 1;
 			if (trail)
 				trail->next = next = point->next;
@@ -150,7 +152,7 @@ dbref player, object;
 	for (point = mudstate.qsemfirst, trail = NULL; point; point = next)
 		if (que_want(point, player, object)) {
 			numhalted++;
-			if (halt_all)
+			if (halt_all && Good_obj(point->player))
 			    dbrefs_array[Owner(point->player)] += 1;
 			if (trail)
 				trail->next = next = point->next;
@@ -800,7 +802,7 @@ int ncmds;
 		process_cmdline(player, mudstate.qfirst->cause,
 				mudstate.qfirst->comm,
 				mudstate.qfirst->env,
-				mudstate.qfirst->nargs);
+				mudstate.qfirst->nargs, mudstate.qfirst);
 
 	    }
 	}

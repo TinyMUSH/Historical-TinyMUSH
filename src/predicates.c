@@ -653,7 +653,7 @@ char *expr, *args[], *cargs[];
 		        tbuf = replace_string(SWITCH_VAR, expr, args[a+1]);
 			if (now) {
 				process_cmdline(player, cause, tbuf,
-						cargs, ncargs);
+						cargs, ncargs, NULL);
 			} else {
 				wait_que(player, cause, 0, NOTHING, 0,
 					 tbuf, cargs, ncargs, mudstate.rdata);
@@ -670,7 +670,8 @@ char *expr, *args[], *cargs[];
 	if ((a < nargs) && !any && args[a]) {
 	        tbuf = replace_string(SWITCH_VAR, expr, args[a]);
 		if (now) {
-			process_cmdline(player, cause, tbuf, cargs, ncargs);
+			process_cmdline(player, cause, tbuf, cargs, ncargs,
+					NULL);
 		} else {
 			wait_que(player, cause, 0, NOTHING, 0, tbuf, cargs,
 				 ncargs, mudstate.rdata);
@@ -2250,7 +2251,7 @@ const char *def, *odef;
 
 	    if (ctrl_flags & VERB_NOW) {
 		preserve = save_global_regs("did_it_save2");
-		process_cmdline(thing, player, tp, args, nargs);
+		process_cmdline(thing, player, tp, args, nargs, NULL);
 		restore_global_regs("did_it_restore2", preserve);
 	    } else {
 		wait_que(thing, player, 0, NOTHING, 0, tp,

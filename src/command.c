@@ -603,7 +603,7 @@ int interactive, ncargs;
 						 add->thing :
 						 player),
 						player, s, aargs,
-						NUM_ENV_VARS);
+						NUM_ENV_VARS, NULL);
 				for (i = 0; i < NUM_ENV_VARS; i++) {
 				    if (aargs[i])
 					free_lbuf(aargs[i]);
@@ -1281,12 +1281,12 @@ char *command, *args[];
  * * process_cmdline: Execute a semicolon/pipe-delimited series of commands.
  */
 
-void process_cmdline(player, cause, cmdline, args, nargs)
+void process_cmdline(player, cause, cmdline, args, nargs, qent)
 dbref player, cause;
 char *cmdline, *args[];
 int nargs;
+BQUE *qent;
 {
-	BQUE *qent;
 	char *cp, *cmdsave, *save_poutnew, *save_poutbufc, *save_pout;
 	char *log_cmdbuf;
 	int save_inpipe, numpipes;
@@ -1319,14 +1319,12 @@ int nargs;
 	save_poutbufc = mudstate.poutbufc;
 	save_pout = mudstate.pout;
 
-	qent = mudstate.qfirst;
-
-	while (cmdline && (mudstate.qfirst == qent)) {
+	while (cmdline && (!qent || qent == mudstate.qfirst)) {
 		cp = parse_to(&cmdline, ';', 0);
 		if (cp && *cp) {
 			numpipes = 0;
 			while (cmdline && (*cmdline == '|') &&
-			       (mudstate.qfirst == qent) &&
+			       (!qent || qent == mudstate.qfirst) &&
 			       (numpipes < mudconf.ntfy_nest_lim)) {
 				cmdline++;
 				numpipes++;
@@ -1357,7 +1355,7 @@ int nargs;
 			mudstate.debug_cmd = cp;
 
 			/* Is the queue still linked like we think it is? */
-			if (mudstate.qfirst != qent) {
+			if (qent && qent != mudstate.qfirst) {
 			    if (mudstate.pout && mudstate.pout != save_pout) {
 				free_lbuf(mudstate.pout);
 				mudstate.pout = NULL;

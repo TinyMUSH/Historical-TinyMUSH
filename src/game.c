@@ -306,7 +306,7 @@ int check_exclude, hash_insert;
 			match = 1;
 			if (aflags & AF_NOW) {
 			    process_cmdline(thing, player, s, args,
-					    NUM_ENV_VARS);
+					    NUM_ENV_VARS, NULL);
 			} else {
 			    wait_que(thing, player, 0, NOTHING, 0, s, args,
 				     NUM_ENV_VARS, mudstate.rdata);

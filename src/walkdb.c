@@ -43,7 +43,7 @@ char *action, *argstr, *cargs[];
 	command2 = replace_string(LISTPLACE_VAR, tprintf("%d", number),
 				  command);
 	if (now)
-		process_cmdline(player, cause, command2, cargs, ncargs);
+		process_cmdline(player, cause, command2, cargs, ncargs, NULL);
 	else
 		wait_que(player, cause, 0, NOTHING, 0, command2, cargs, ncargs,
 			 mudstate.rdata);

@@ -24,6 +24,16 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+06/XX/2003: Beta 10, or Gamma 1?
+
+- Fix: Immediate commands that modify the queue are no longer truncated
+  at the next semicolon, unless the command itself was halted. [3.1a2]
+
+- Fix: @halt checks queue entry ownership more carefully to avoid
+  referencing Owner(#-1). [MUX]
+
+-----------------------------------------------------------------------------
+
 04/28/2003: Beta 9
 
 - Feature: Added elockstr(). Idea from Joel Ricketts.
