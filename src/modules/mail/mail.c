@@ -1312,7 +1312,7 @@ int silent;
 
 	notify(target, tprintf("MAIL: You have a new message from %s.",
 			       Name(player)));
-	did_it(player, target, A_MAIL, NULL, A_NULL, NULL, A_AMAIL,
+	did_it(player, target, A_MAIL, NULL, A_NULL, NULL, A_AMAIL, 0,
 	       (char **) NULL, 0);
 	return;
 }

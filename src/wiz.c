@@ -135,7 +135,7 @@ char *arg1, *arg2;
 				notify_quiet(player, NOPERM_MESSAGE);
 			did_it(victim, destination,
 			       A_TFAIL, "You can't teleport there!",
-			       A_OTFAIL, NULL, A_ATFAIL, (char **)NULL, 0);
+			       A_OTFAIL, NULL, A_ATFAIL, 0, (char **)NULL, 0);
 			return;
 		}
 		/*
@@ -201,8 +201,11 @@ char *what, *command, *args[];
 	 * force victim to do command 
 	 */
 
-	wait_que(victim, player, 0, NOTHING, 0, command, args, nargs,
-		 mudstate.global_regs);
+	if (key & FRC_NOW)
+		process_cmdline(victim, player, command, args, nargs);
+	else
+		wait_que(victim, player, 0, NOTHING, 0, command, args, nargs,
+			 mudstate.global_regs);
 }
 
 /*

@@ -178,7 +178,7 @@ extern int	FDECL(locatable, (dbref, dbref, dbref));
 extern int	FDECL(nearby, (dbref, dbref));
 extern int	FDECL(exit_visible, (dbref, dbref, int));
 extern void	FDECL(did_it, (dbref, dbref, int, const char *, int,
-			const char *, int, char *[], int));
+			const char *, int, int, char *[], int));
 extern void	FDECL(list_bufstats, (dbref));
 extern void	FDECL(list_buftrace, (dbref));
 
@@ -247,6 +247,7 @@ extern char *	FDECL(uncompress_str, (char *, const char *, int));
 /* From command.c */
 extern int	FDECL(check_access, (dbref, int));
 extern void	NDECL(set_prefix_cmds);
+extern void	FDECL(process_cmdline, (dbref, dbref, char *, char *[], int));
 
 #define	Protect(f) (cmdp->perms & f)
 
@@ -340,7 +341,8 @@ extern void	FDECL(toast_player, (dbref));
 #define	DIG_TELEPORT	1	/* teleport to room after @digging */
 #define DOLIST_SPACE    0       /* expect spaces as delimiter */
 #define DOLIST_DELIMIT  1       /* expect custom delimiter */
-#define DOLIST_NOTIFY   2     /* queue a '@notify me' at the end */
+#define DOLIST_NOTIFY   2	/* queue a '@notify me' at the end */
+#define DOLIST_NOW	4	/* Run commands immediately, no queueing */
 #define	DOING_MESSAGE	0	/* Set my DOING message */
 #define	DOING_HEADER	1	/* Set the DOING header */
 #define	DOING_POLL	2	/* List DOING header */
@@ -364,6 +366,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	FIXDB_PENNIES	32	/* Fix PENNIES field */
 #define	FIXDB_NAME	64	/* Set NAME attribute */
 #define	FRC_COMMAND	1	/* what=command */
+#define FRC_NOW		2	/* run command immediately, no queueing */
 #define	GET_QUIET	1	/* Don't do osucc/asucc if control */
 #define	GIVE_QUIET	1	/* Inhibit give messages */
 #define	GLOB_ENABLE	1	/* key to enable */
@@ -498,6 +501,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	SWITCH_DEFAULT	0	/* Use the configured default for switch */
 #define	SWITCH_ANY	1	/* Execute all cases that match */
 #define	SWITCH_ONE	2	/* Execute only first case that matches */
+#define SWITCH_NOW	4	/* Execute case(s) immediately, no queueing */
 #define	SWEEP_ME	1	/* Check my inventory */
 #define	SWEEP_HERE	2	/* Check my location */
 #define	SWEEP_COMMANDS	4	/* Check for $-commands */
@@ -513,12 +517,14 @@ extern void	FDECL(toast_player, (dbref));
 #define TIMECHK_LOG	4	/* Write info to log */
 #define	TOAD_NO_CHOWN	1	/* Don't change ownership */
 #define	TRIG_QUIET	1	/* Don't display 'Triggered.' message. */
+#define TRIG_NOW	2	/* Run immediately, no queueing */
 #define	TWARP_QUEUE	1	/* Warp the wait and sem queues */
 #define	TWARP_DUMP	2	/* Warp the dump interval */
 #define	TWARP_CLEAN	4	/* Warp the cleaning interval */
 #define	TWARP_IDLE	8	/* Warp the idle check interval */
 /* emprty		16 */
 #define TWARP_EVENTS	32	/* Warp the events checking interval */
+#define VERB_NOW	1	/* Run @afoo immediately, no queueing */
 
 /* Hush codes for movement messages */
 

@@ -661,11 +661,14 @@ dbref player, cause;
 int key, nargs, ncargs;
 char *expr, *args[], *cargs[];
 {
-	int a, any;
+	int a, any, now;
 	char *buff, *tbuf, *bp, *str;
 
 	if (!expr || (nargs <= 0))
 		return;
+
+	now = key & SWITCH_NOW;
+	key &= ~SWITCH_NOW;
 
 	if (key == SWITCH_DEFAULT) {
 		if (mudconf.switch_df_all)
@@ -685,8 +688,14 @@ char *expr, *args[], *cargs[];
 		*bp = '\0';
 		if (wild_match(buff, expr)) {
 		        tbuf = replace_string(SWITCH_VAR, expr, args[a+1]);
-			wait_que(player, cause, 0, NOTHING, 0, tbuf,
-				 cargs, ncargs, mudstate.global_regs);
+			if (now) {
+				process_cmdline(player, cause, tbuf,
+						cargs, ncargs);
+			} else {
+				wait_que(player, cause, 0, NOTHING, 0,
+					 tbuf, cargs, ncargs,
+					 mudstate.global_regs);
+			}
 			free_lbuf(tbuf);
 			if (key == SWITCH_ONE) {
 				free_lbuf(buff);
@@ -698,8 +707,12 @@ char *expr, *args[], *cargs[];
 	free_lbuf(buff);
 	if ((a < nargs) && !any && args[a]) {
 	        tbuf = replace_string(SWITCH_VAR, expr, args[a]);
-		wait_que(player, cause, 0, NOTHING, 0, tbuf, cargs, ncargs,
-			 mudstate.global_regs);
+		if (now) {
+			process_cmdline(player, cause, tbuf, cargs, ncargs);
+		} else {
+			wait_que(player, cause, 0, NOTHING, 0, tbuf, cargs,
+				 ncargs, mudstate.global_regs);
+		}
 		free_lbuf(tbuf);
 	}
 }
@@ -1803,9 +1816,9 @@ int key;
  * did_it: Have player do something to/with thing
  */
 
-void did_it(player, thing, what, def, owhat, odef, awhat, args, nargs)
+void did_it(player, thing, what, def, owhat, odef, awhat, now, args, nargs)
 dbref player, thing;
-int what, owhat, awhat, nargs;
+int what, owhat, awhat, now, nargs;
 char *args[];
 const char *def, *odef;
 {
@@ -2016,8 +2029,14 @@ const char *def, *odef;
 		}
 	    }
 	    free_lbuf(charges);
-	    wait_que(thing, player, 0, NOTHING, 0, act, args, nargs,
-		     mudstate.global_regs);
+	    if (now) {
+		save_global_regs("did_it_save2", preserve, preserve_len);
+		process_cmdline(thing, player, act, args, nargs);
+		restore_global_regs("did_it_restore2", preserve, preserve_len);
+	    } else {
+		wait_que(thing, player, 0, NOTHING, 0, act,
+			 args, nargs, mudstate.global_regs);
+	    }
 	}
 	free_lbuf(act);
     }
@@ -2175,7 +2194,7 @@ char *victim_str, *args[];
 	 */
 
 	did_it(actor, victim, what, whatd, owhat, owhatd, awhat,
-	       xargs, nxargs);
+	       key & VERB_NOW, xargs, nxargs);
 
 	/*
 	 * Free user args 

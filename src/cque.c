@@ -712,14 +712,8 @@ int ncmds;
 {
     BQUE *tmp;
     dbref player;
-    int count, i, numpipes, len;
-    char *command, *cp, *cmdsave, *logbuf, *log_cmdbuf;
-    struct timeval begin_time, end_time, obj_time;
-    int used_time;
-#ifdef TRACK_USER_TIME
-    struct rusage usage;
-    struct timeval b_utime, e_utime;
-#endif
+    int count, i, len;
+    char *cmdsave;
 
     if ((mudconf.control_flags & CF_DEQUEUE) == 0)
 	return 0;
@@ -760,115 +754,13 @@ int ncmds;
 		    }
 		}
 
-		command = mudstate.qfirst->comm;
-		tmp = mudstate.qfirst;
-		while (command && (mudstate.qfirst == tmp)) {
-		    cp = parse_to(&command, ';', 0);
-		    if (cp && *cp) {
-			numpipes = 0;
-			while (command && (*command == '|') &&
-			       (mudstate.qfirst == tmp) &&
-			       (numpipes < mudconf.ntfy_nest_lim)) {
-			    command++;
-			    numpipes++;
-			    mudstate.inpipe = 1;
-			    mudstate.poutnew = alloc_lbuf("process_command.pipe");
-			    mudstate.poutbufc = mudstate.poutnew;
-			    mudstate.poutobj = player;
+		mudstate.cmd_invk_ctr = 0;
 
-			    /* No lag check on piped commands */
-			    process_command(player,
-					    mudstate.qfirst->cause,
-					    0, cp,
-					    mudstate.qfirst->env,
-					    mudstate.qfirst->nargs);
+		process_cmdline(player, mudstate.qfirst->cause,
+				mudstate.qfirst->comm,
+				mudstate.qfirst->env,
+				mudstate.qfirst->nargs);
 
-			    if (mudstate.pout) {
-				free_lbuf(mudstate.pout);
-				mudstate.pout = NULL;
-			    }
-
-			    *mudstate.poutbufc = '\0';
-			    mudstate.pout = mudstate.poutnew;
-			    cp = parse_to(&command, ';', 0);
-			} 
-			mudstate.inpipe = 0;
-
-			/* Is the queue still linked like we think it is? */
-			if (mudstate.qfirst != tmp) {
-			    if (mudstate.pout) {
-				free_lbuf(mudstate.pout);
-				mudstate.pout = NULL;
-			    }
-			    break;
-			}
-
-#ifndef NO_LAG_CHECK
-			get_tod(&begin_time);
-#ifdef TRACK_USER_TIME
-			getrusage(RUSAGE_SELF, &usage);
-			b_utime.tv_sec = usage.ru_utime.tv_sec;
-			b_utime.tv_usec = usage.ru_utime.tv_usec;
-#endif
-#endif /* ! NO_LAG_CHECK */
-
-			log_cmdbuf = process_command(player,
-						     mudstate.qfirst->cause,
-						     0, cp,
-						     mudstate.qfirst->env,
-						     mudstate.qfirst->nargs);
-
-			if (mudstate.pout) {
-			    free_lbuf(mudstate.pout);
-			    mudstate.pout = NULL;
-			}
-
-#ifndef NO_LAG_CHECK
-			get_tod(&end_time);
-#ifdef TRACK_USER_TIME
-			getrusage(RUSAGE_SELF, &usage);
-			e_utime.tv_sec = usage.ru_utime.tv_sec;
-			e_utime.tv_usec = usage.ru_utime.tv_usec;
-#endif
-			used_time = msec_diff(end_time, begin_time);
-			if ((used_time / 1000) >= mudconf.max_cmdsecs) {
-			    STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
-  			    log_name_and_loc(player);
-			    logbuf = alloc_lbuf("do_top.LOG.cpu");
-			    sprintf(logbuf, " queued command taking %.2f secs (enactor #%d): ", (double) (used_time / 1000), mudstate.qfirst->cause);
-			    log_text(logbuf);
-			    free_lbuf(logbuf);
-			    log_text(log_cmdbuf);
-			    ENDLOG
-			}
-
-#ifndef NO_TIMECHECKING
-			/* Don't use msec_add(), this is more accurate */
-
-			obj_time = Time_Used(player);
-#ifndef TRACK_USER_TIME
-			obj_time.tv_usec += end_time.tv_usec -
-			    begin_time.tv_usec;
-                        obj_time.tv_sec += end_time.tv_sec -
-                            begin_time.tv_sec;
-#else
-			obj_time.tv_usec += e_utime.tv_usec -
-			    b_utime.tv_usec;
-                        obj_time.tv_sec += e_utime.tv_sec -
-                            b_utime.tv_sec;
-#endif /* ! TRACK_USER_TIME */
-                        if (obj_time.tv_usec < 0) {
-                            obj_time.tv_usec += 1000000;
-                            obj_time.tv_sec--;
-                        } else if (obj_time.tv_usec >= 1000000) {
-                            obj_time.tv_sec += obj_time.tv_usec / 1000000;
-                            obj_time.tv_usec = obj_time.tv_usec % 1000000;
-                        }
-                        s_Time_Used(player, obj_time);
-#endif /* ! NO_TIMECHECKING */
-#endif /* ! NO_LAG_CHECK */
-		    }
-		}
 	    }
 	}
 

@@ -430,12 +430,12 @@ dbref player, cause;
 int interactive, ncargs;
 {
 	char *buf1, *buf2, tchar, *bp, *str, *buff, *s, *j, *new;
-	char *args[MAX_ARG];
+	char *args[MAX_ARG], *aargs[10], *preserve[MAX_GLOBAL_REGS];
 	int nargs, i, interp, key, xkey, aflags, alen;
 	int hasswitch = 0;
 	int cmd_matches = 0;
 	dbref aowner;
-	char *aargs[10];
+	int preserve_len[MAX_GLOBAL_REGS];
 	ADDENT *add;
 
 	/* Perform object type checks. */
@@ -475,7 +475,7 @@ int interactive, ncargs;
 
 	/* Check command switches.  Note that there may be more than one, 
 	 * and that we OR all of them together along with the extra value
-	 * from the command table to produce the key value in the handler call. 
+	 * from the command table to produce the key value in the handler call.
 	 */
 
 	if (switchp && cmdp->switches) {
@@ -573,6 +573,9 @@ int interactive, ncargs;
 		} else {
 		    if (cmdp->callseq & CS_ADDED) {
 
+			save_global_regs("process_cmdent_added",
+					 preserve, preserve_len);
+
 			/* Construct the matching buffer. */
 
 			/* In the case of a single-letter prefix, we want
@@ -629,9 +632,8 @@ int interactive, ncargs;
 			    if (wild(buff + 1, new, aargs, 10)) {
 				if (!mudconf.addcmd_obey_uselocks ||
 				    could_doit(player, add->thing, A_LUSE)) {
-				    wait_que(add->thing, player,
-					     0, NOTHING, 0, s, aargs, 10,
-					     mudstate.global_regs);
+				    process_cmdline(add->thing, player,
+						    s, aargs, 10);
 				    for (i = 0; i < 10; i++) {
 					if (aargs[i])
 					    free_lbuf(aargs[i]);
@@ -663,6 +665,8 @@ int interactive, ncargs;
 
 			free_lbuf(new);
 
+			restore_global_regs("process_cmdent",
+					    preserve, preserve_len);
 		    } else 
 			(*(cmdp->info.handler)) (player, cause, key, buf1);
 		}
@@ -781,6 +785,10 @@ char *command, *args[];
 	dbref exit, aowner, parent;
 	CMDENT *cmdp;
 	NUMBERTAB *np;
+
+	if (mudstate.cmd_invk_ctr == mudconf.cmd_invk_lim)
+		return;
+	mudstate.cmd_invk_ctr++;
 
 	/* Robustify player */
 
@@ -1282,6 +1290,168 @@ char *command, *args[];
 	}
 	mudstate.debug_cmd = cmdsave;
 	return preserve_cmd;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * * process_cmdline: Execute a semicolon/pipe-delimited series of commands.
+ */
+
+void process_cmdline(player, cause, cmdline, args, nargs)
+dbref player, cause;
+char *cmdline, *args[];
+int nargs;
+{
+	BQUE *qent;
+	char *cp, *cmdsave, *save_poutnew, *save_poutbufc, *save_pout;
+	char *log_cmdbuf;
+	int save_inpipe, numpipes;
+	dbref save_poutobj, save_enactor, save_player;
+#ifndef NO_LAG_CHECK
+	struct timeval begin_time, end_time;
+	int used_time;
+	char *logbuf;
+#ifndef NO_TIMECHECKING
+	struct timeval obj_time;
+#endif
+#ifdef TRACK_USER_TIME
+	struct rusage usage;
+	struct timeval b_utime, e_utime;
+#endif
+#endif
+
+	if (mudstate.cmd_nest_lev == mudconf.cmd_nest_lim)
+		return;
+	mudstate.cmd_nest_lev++;
+
+	cmdsave = mudstate.debug_cmd;
+	save_enactor = mudstate.curr_enactor;
+	save_player = mudstate.curr_player;
+	mudstate.curr_enactor = cause;
+	mudstate.curr_player = player;
+
+	save_inpipe = mudstate.inpipe;
+	save_poutobj = mudstate.poutobj;
+	save_poutnew = mudstate.poutnew;
+	save_poutbufc = mudstate.poutbufc;
+	save_pout = mudstate.pout;
+
+	qent = mudstate.qfirst;
+
+	while (cmdline && (mudstate.qfirst == qent)) {
+		cp = parse_to(&cmdline, ';', 0);
+		if (cp && *cp) {
+			numpipes = 0;
+			while (cmdline && (*cmdline == '|') &&
+			       (mudstate.qfirst == qent) &&
+			       (numpipes < mudconf.ntfy_nest_lim)) {
+				cmdline++;
+				numpipes++;
+
+				mudstate.inpipe = 1;
+				mudstate.poutnew = alloc_lbuf("process_cmdline.pipe");
+				mudstate.poutbufc = mudstate.poutnew;
+				mudstate.poutobj = player;
+				mudstate.debug_cmd = cp;
+
+				/* No lag check on piped commands */
+				process_command(player, cause, 0, cp,
+						args, nargs);
+				if (mudstate.pout && mudstate.pout != save_pout) {
+					free_lbuf(mudstate.pout);
+					mudstate.pout = NULL;
+				}
+			
+				*mudstate.poutbufc = '\0';
+				mudstate.pout = mudstate.poutnew;
+				cp = parse_to(&cmdline, ';', 0);
+			} 
+
+			mudstate.inpipe = save_inpipe;
+			mudstate.poutnew = save_poutnew;
+			mudstate.poutbufc = save_poutbufc;
+			mudstate.poutobj = save_poutobj;
+			mudstate.debug_cmd = cp;
+
+			/* Is the queue still linked like we think it is? */
+			if (mudstate.qfirst != qent) {
+			    if (mudstate.pout && mudstate.pout != save_pout) {
+				free_lbuf(mudstate.pout);
+				mudstate.pout = NULL;
+			    }
+			    break;
+			}
+
+#ifndef NO_LAG_CHECK
+			get_tod(&begin_time);
+#ifdef TRACK_USER_TIME
+			getrusage(RUSAGE_SELF, &usage);
+			b_utime.tv_sec = usage.ru_utime.tv_sec;
+			b_utime.tv_usec = usage.ru_utime.tv_usec;
+#endif
+#endif /* ! NO_LAG_CHECK */
+
+			log_cmdbuf = process_command(player, cause,
+						     0, cp, args, nargs);
+
+			if (mudstate.pout && mudstate.pout != save_pout) {
+				free_lbuf(mudstate.pout);
+				mudstate.pout = save_pout;
+			}
+
+			save_poutbufc = mudstate.poutbufc;
+#ifndef NO_LAG_CHECK
+			get_tod(&end_time);
+#ifdef TRACK_USER_TIME
+			getrusage(RUSAGE_SELF, &usage);
+			e_utime.tv_sec = usage.ru_utime.tv_sec;
+			e_utime.tv_usec = usage.ru_utime.tv_usec;
+#endif
+			used_time = msec_diff(end_time, begin_time);
+			if ((used_time / 1000) >= mudconf.max_cmdsecs) {
+			    STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
+  			    log_name_and_loc(player);
+			    logbuf = alloc_lbuf("do_top.LOG.cpu");
+			    sprintf(logbuf, " queued command taking %.2f secs (enactor #%d): ", (double) (used_time / 1000), mudstate.qfirst->cause);
+			    log_text(logbuf);
+			    free_lbuf(logbuf);
+			    log_text(log_cmdbuf);
+			    ENDLOG
+			}
+
+#ifndef NO_TIMECHECKING
+			/* Don't use msec_add(), this is more accurate */
+
+			obj_time = Time_Used(player);
+#ifndef TRACK_USER_TIME
+			obj_time.tv_usec += end_time.tv_usec -
+			    begin_time.tv_usec;
+                        obj_time.tv_sec += end_time.tv_sec -
+                            begin_time.tv_sec;
+#else
+			obj_time.tv_usec += e_utime.tv_usec -
+			    b_utime.tv_usec;
+                        obj_time.tv_sec += e_utime.tv_sec -
+                            b_utime.tv_sec;
+#endif /* ! TRACK_USER_TIME */
+                        if (obj_time.tv_usec < 0) {
+                            obj_time.tv_usec += 1000000;
+                            obj_time.tv_sec--;
+                        } else if (obj_time.tv_usec >= 1000000) {
+                            obj_time.tv_sec += obj_time.tv_usec / 1000000;
+                            obj_time.tv_usec = obj_time.tv_usec % 1000000;
+                        }
+                        s_Time_Used(player, obj_time);
+#endif /* ! NO_TIMECHECKING */
+#endif /* ! NO_LAG_CHECK */
+		}
+	}
+
+	mudstate.debug_cmd = cmdsave;
+	mudstate.curr_enactor = save_enactor;
+	mudstate.curr_player = save_player;
+
+	mudstate.cmd_nest_lev--;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1990,7 +2160,6 @@ static void list_textfiles(player)
 	list_hashstat(player, mudstate.hfiletab[i], &mudstate.hfile_hashes[i]);
 }
 			  
-
 #ifndef MEMORY_BASED
 /* These are from 'udb_cache.c'. */
 extern time_t cs_ltime;

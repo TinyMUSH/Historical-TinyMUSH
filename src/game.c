@@ -700,13 +700,13 @@ const char *msg;
 			if (sender != target)
 				did_it(sender, target,
 				       A_NULL, NULL, A_NULL, NULL,
-				       A_AHEAR, args, nargs);
+				       A_AHEAR, 0, args, nargs);
 			else
 				did_it(sender, target,
 				       A_NULL, NULL, A_NULL, NULL,
-				       A_AMHEAR, args, nargs);
+				       A_AMHEAR, 0, args, nargs);
 			did_it(sender, target, A_NULL, NULL, A_NULL, NULL,
-			       A_AAHEAR, args, nargs);
+			       A_AAHEAR, 0, args, nargs);
 		}
 		/* Get rid of match arguments. We don't need them anymore */
 
@@ -1639,7 +1639,7 @@ static void NDECL(process_preload)
 			if (Flags(thing) & HAS_STARTUP) {
 				did_it(Owner(thing), thing,
 				       A_NULL, NULL, A_NULL, NULL,
-				       A_STARTUP, (char **)NULL, 0);
+				       A_STARTUP, 0, (char **)NULL, 0);
 				/* Process queue entries as we add them */
 
 				do_second();

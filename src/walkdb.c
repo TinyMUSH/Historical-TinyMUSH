@@ -30,9 +30,9 @@ extern int FDECL(decode_power, (dbref, char *, POWERSET *));
  * * Cmds run in low-prio Q after a 1 sec delay for the first one. 
  */
 
-static void bind_and_queue(player, cause, action, argstr, cargs, ncargs, number)
+static void bind_and_queue(player, cause, action, argstr, cargs, ncargs, number, now)
 dbref player, cause;
-int ncargs, number;
+int ncargs, number, now;
 char *action, *argstr, *cargs[];
 {
 	char *command, *command2;	/*
@@ -40,11 +40,14 @@ char *action, *argstr, *cargs[];
 					 * allocated by replace_string  
 					 */
 
-	command = replace_string(BOUND_VAR, argstr, action),
-		command2 = replace_string(LISTPLACE_VAR, tprintf("%d", number),
-					  command);
-	wait_que(player, cause, 0, NOTHING, 0, command2, cargs, ncargs,
-		 mudstate.global_regs);
+	command = replace_string(BOUND_VAR, argstr, action);
+	command2 = replace_string(LISTPLACE_VAR, tprintf("%d", number),
+				  command);
+	if (now)
+		process_cmdline(player, cause, command2, cargs, ncargs);
+	else
+		wait_que(player, cause, 0, NOTHING, 0, command2, cargs, ncargs,
+			 mudstate.global_regs);
 	free_lbuf(command);
 	free_lbuf(command2);
 }
@@ -63,7 +66,7 @@ int key, ncargs;
 char *list, *command, *cargs[];
 {
 	char *tbuf, *curr, *objstring, delimiter = ' ';
-	int number = 0;
+	int number = 0, now;
 
 	if (!list || *list == '\0') {
 		notify(player,
@@ -71,6 +74,8 @@ char *list, *command, *cargs[];
 		return;
 	}
 	curr = list;
+
+	now = key & DOLIST_NOW;
 
 	if (key & DOLIST_DELIMIT) {
 		char *tempstr;
@@ -88,15 +93,15 @@ char *list, *command, *cargs[];
 			number++;
 			objstring = parse_to(&curr, delimiter, EV_STRIP);
 			bind_and_queue(player, cause, command, objstring,
-				       cargs, ncargs, number);
+				       cargs, ncargs, number, now);
 		}
 	}
 	if (key & DOLIST_NOTIFY) {
 		tbuf = alloc_lbuf("dolist.notify_cmd");
 		strcpy(tbuf, (char *) "@notify me");
-		wait_que(player, cause, 0, NOTHING, A_SEMAPHORE, tbuf, cargs, ncargs,
-			 mudstate.global_regs);
-	free_lbuf(tbuf);
+		wait_que(player, cause, 0, NOTHING, A_SEMAPHORE, tbuf,
+			 cargs, ncargs, mudstate.global_regs);
+		free_lbuf(tbuf);
 	}
 }
 
@@ -1050,7 +1055,7 @@ char *command, *cargs[];
 			sprintf(buff, "#%d", i);
 			number++;
 			bind_and_queue(player, cause, command, buff,
-				       cargs, ncargs);
+				       cargs, ncargs, number, 0);
 		}
 	}
 	free_sbuf(buff);

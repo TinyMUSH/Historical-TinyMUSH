@@ -308,6 +308,8 @@ void NDECL(cf_init)
 	mudconf.markdata[5] = 0x20;
 	mudconf.markdata[6] = 0x40;
 	mudconf.markdata[7] = 0x80;
+	mudconf.cmd_nest_lim = 50;
+	mudconf.cmd_invk_lim = 2500;
 	mudconf.func_nest_lim = 50;
 	mudconf.func_invk_lim = 2500;
 	mudconf.ntfy_nest_lim = 20;
@@ -378,6 +380,8 @@ void NDECL(cf_init)
 	mudstate.freelist = NOTHING;
 	mudstate.markbits = NULL;
 	mudstate.sql_socket = -1;
+	mudstate.cmd_nest_lev = 0;
+	mudstate.cmd_invk_ctr = 0;
 	mudstate.func_nest_lev = 0;
 	mudstate.func_invk_ctr = 0;
 	mudstate.ntfy_nest_lev = 0;
@@ -1317,8 +1321,10 @@ CONF conftable[] = {
 {(char *)"check_offset",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_offset,		0},
 {(char *)"clone_copies_cost",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.clone_copy_cost,	(long)"@clone copies object cost"},
 {(char *)"comsys_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.comsys_db,	PBUF_SIZE},
+{(char *)"command_invocation_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.cmd_invk_lim,		0},
 {(char *)"command_quota_increment",	cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.cmd_quota_incr,	0},
 {(char *)"command_quota_max",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.cmd_quota_max,		0},
+{(char *)"command_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.cmd_nest_lim,		0},
 {(char *)"compress_program",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.compress,	PBUF_SIZE},
 {(char *)"compression",			cf_bool,	CA_GOD,		CA_GOD,		&mudconf.compress_db,		(long)"Database files are compressed"},
 {(char *)"concentrator_port",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.conc_port,		0},

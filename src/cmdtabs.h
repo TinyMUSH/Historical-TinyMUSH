@@ -98,6 +98,7 @@ NAMETAB dolist_sw[] = {
 {(char *)"delimit",     1,      CA_PUBLIC,      DOLIST_DELIMIT},
 {(char *)"space",       1,      CA_PUBLIC,      DOLIST_SPACE},
 {(char *)"notify",	1,	CA_PUBLIC,	DOLIST_NOTIFY | SW_MULTIPLE },
+{(char *)"now",		1,      CA_PUBLIC,      DOLIST_NOW|SW_MULTIPLE},
 { NULL,                 0,      0,              0,}};
 
 NAMETAB	drop_sw[] = {
@@ -147,6 +148,10 @@ NAMETAB fixdb_sw[] = {
 {(char *)"pennies",	1,	CA_GOD,		FIXDB_PENNIES},
 {(char *)"rename",	1,	CA_GOD,		FIXDB_NAME},
 /* {(char *)"rm_pname",	1,	CA_GOD,		FIXDB_DEL_PN}, */
+{ NULL,			0,	0,		0}};
+
+NAMETAB force_sw[] = {
+{(char *)"now",		1,	CA_PUBLIC,	FRC_NOW|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
 NAMETAB fpose_sw[] = {
@@ -354,6 +359,7 @@ NAMETAB switch_sw[] = {
 {(char *)"all",		1,	CA_PUBLIC,	SWITCH_ANY},
 {(char *)"default",	1,	CA_PUBLIC,	SWITCH_DEFAULT},
 {(char *)"first",	1,	CA_PUBLIC,	SWITCH_ONE},
+{(char *)"now",		1,	CA_PUBLIC,	SWITCH_NOW|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
 NAMETAB teleport_sw[] = {
@@ -373,6 +379,11 @@ NAMETAB toad_sw[] = {
 
 NAMETAB	trig_sw[] = {
 {(char *)"quiet",	1,	CA_PUBLIC,	TRIG_QUIET},
+{(char *)"now",		1,	CA_PUBLIC,	TRIG_NOW|SW_MULTIPLE},
+{ NULL,			0,	0,		0}};
+
+NAMETAB	verb_sw[] = {
+{(char *)"now",		1,	CA_PUBLIC,	VERB_NOW|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
 NAMETAB wall_sw[] = {
@@ -515,7 +526,6 @@ CMDENT command_table[] = {
 	NULL,		NULL,	NULL,		do_doing},
 {(char *)"@dolist",		dolist_sw,		CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
-                                              
 	NULL,		NULL,	NULL,		do_dolist},
 {(char *)"@drain",		NULL,
 	CA_GBL_INTERP|CA_NO_SLAVE|CA_NO_GUEST,
@@ -526,7 +536,6 @@ CMDENT command_table[] = {
 	NULL,		NULL,	NULL,		do_dump},
 {(char *)"@edit",		NULL,		CA_NO_SLAVE|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_ARGV|CS_STRIP_AROUND,
-						
 	NULL,		NULL,	NULL,		do_edit},
 {(char *)"@emit",		emit_sw,
 	CA_LOCATION|CA_NO_GUEST|CA_NO_SLAVE,
@@ -551,7 +560,7 @@ CMDENT command_table[] = {
 {(char *)"@fixdb",		fixdb_sw,	CA_GOD,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_fixdb},
-{(char *)"@force",		NULL,
+{(char *)"@force",		force_sw,
 	CA_NO_SLAVE|CA_GBL_INTERP|CA_NO_GUEST,
 	FRC_COMMAND,	CS_TWO_ARG|CS_INTERP|CS_CMDARG,
 	NULL,		NULL,	NULL,		do_force},
@@ -724,7 +733,6 @@ CMDENT command_table[] = {
 	NULL,		NULL,	NULL,		do_sweep},
 {(char *)"@switch",		switch_sw,	CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_ARGV|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
-						
 	NULL,		NULL,	NULL,		do_switch},
 {(char *)"@teleport",		teleport_sw,	CA_NO_GUEST,
 	TELEPORT_DEFAULT, CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
@@ -747,13 +755,11 @@ CMDENT command_table[] = {
 {(char *)"@unlock",		lock_sw,	CA_NO_SLAVE,
 	0,		CS_ONE_ARG|CS_INTERP|CS_FUNCTION,	
 	NULL,		NULL,	NULL,		do_unlock},
-{(char *)"@verb",		NULL,		CA_GBL_INTERP|CA_NO_SLAVE,
+{(char *)"@verb",		verb_sw,	CA_GBL_INTERP|CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_ARGV|CS_INTERP|CS_STRIP_AROUND,
-						
 	NULL,		NULL,	NULL,		do_verb},
 {(char *)"@wait",		NULL,		CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
-						
 	NULL,		NULL,	NULL,		do_wait},
 {(char *)"@wall",		wall_sw,	CA_PUBLIC,
 	SAY_SHOUT,	CS_ONE_ARG|CS_INTERP,	

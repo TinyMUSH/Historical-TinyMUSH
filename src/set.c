@@ -1560,7 +1560,10 @@ char *object, *argv[];
 	dbref thing;
 	int attrib;
 
-	if (!parse_attrib(player, object, &thing, &attrib) || (attrib == NOTHING)) {
+	if (!((parse_attrib(player, object, &thing, &attrib)
+	       && (attrib != NOTHING)) ||
+	      (parse_attrib(player, tprintf("me/%s", object), &thing, &attrib)
+	       && (attrib != NOTHING)))) {
 		notify_quiet(player, "No match.");
 		return;
 	}
@@ -1568,7 +1571,8 @@ char *object, *argv[];
 		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
-	did_it(player, thing, A_NULL, NULL, A_NULL, NULL, attrib, argv, nargs);
+	did_it(player, thing, A_NULL, NULL, A_NULL, NULL,
+	       attrib, key & TRIG_NOW, argv, nargs);
 
 	/*
 	 * XXX be more descriptive as to what was triggered? 
@@ -1607,7 +1611,7 @@ char *object;
 	if (!could_doit(player, thing, A_LUSE)) {
 		did_it(player, thing, A_UFAIL,
 		       "You can't figure out how to use that.",
-		       A_OUFAIL, NULL, A_AUFAIL, (char **)NULL, 0);
+		       A_OUFAIL, NULL, A_AUFAIL, 0, (char **)NULL, 0);
 		return;
 	}
 	temp = alloc_lbuf("do_use");
@@ -1628,7 +1632,7 @@ char *object;
 		bp = df_ouse;
 		safe_tprintf_str(df_ouse, &bp, "uses %s", Name(thing));
 		did_it(player, thing, A_USE, df_use, A_OUSE, df_ouse, A_AUSE,
-		       (char **)NULL, 0);
+		       1, (char **)NULL, 0);
 		free_lbuf(df_use);
 		free_lbuf(df_ouse);
 	} else {

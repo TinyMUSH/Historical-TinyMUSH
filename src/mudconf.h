@@ -226,6 +226,8 @@ struct confdata {
 	int	lag_check;	/* Is CPU usage checking compiled in? */
 	int	max_cmdsecs;	/* Threshhold for real time taken by command */
 	int	control_flags;	/* Global runtime control flags */
+	int	cmd_nest_lim;	/* Max nesting of commands like @switch/now */
+	int	cmd_invk_lim;	/* Max commands in one queue entry */
 	int	func_nest_lim;	/* Max nesting of functions */
 	int	func_invk_lim;	/* Max funcs invoked by a command */
 	int	lock_nest_lim;	/* Max nesting of lock evals */
@@ -401,6 +403,8 @@ struct statedata {
 	int	func_invk_ctr;	/* Functions invoked so far by this command */
 	int	ntfy_nest_lev;	/* Current nesting of notifys */
 	int	lock_nest_lev;	/* Current nesting of lock evals */
+	int	cmd_nest_lev;	/* Current nesting of commands like @sw/now */
+	int	cmd_invk_ctr;	/* Commands invoked so far by this qentry */
 	char	*global_regs[MAX_GLOBAL_REGS];	/* Global registers */
 	int	glob_reg_len[MAX_GLOBAL_REGS];	/* Length of strs */
 	int	zone_nest_num;  /* Global current zone nest position */

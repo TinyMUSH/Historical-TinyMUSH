@@ -1717,6 +1717,7 @@ int first;
 #ifndef NO_LAG_CHECK
 			begin_time = time(NULL);
 #endif /* NO_LAG_CHECK */
+			mudstate.cmd_invk_ctr = 0;
             		log_cmdbuf = process_command(d->player, d->player, 1,
 					command, (char **)NULL, 0);
 #ifndef NO_LAG_CHECK

@@ -621,15 +621,38 @@
   Example:
      @va me=$foobar *:@fo #1234=%0;@@ This controls my foobar puppet.
  
-& @eval
-  Command: @eval <arg>
+& @branch
+
+  Command: @branch[/<switches>] <string>=<t1>,<c1> [,<tN>,<cN>]... [,<cD>]
+  Compares <string> against the targets <t1>, <t2>, etc, until a match is
+  found, at which time the corresponding list of commands is performed
+  immediately, without queueing. Wildcards, and the < and > operators are
+  allowed in the targets.  By default, any list whose target matches the
+  string is executed (the targets are not mutually exclusive). If no target
+  matches, the default list <cD> is executed.
  
-  This command does nothing other than evaluate <arg>, making it useful
-  for executing side-effect functions.
+  The following switches are available:
+     /all   - (default) Perform the actionlists associated with all targets
+              that match <string>.
+     /first - Perform only the actionlist associated with the first target
+              that matches <string>.
+  '@branch' is the same as '@switch/now'.
  
-  Example:
-     @va me=$test *: @eval [set(me,TEST:Set to %0)][pemit(%#,Testing %0.)]
+  See also: @switch, @call, @iter.
+
+& @call
+
+  Command: @call [<object>/]<attr> [=<param> [, <param>]... ]
+  Invokes an action list stored in an attribute on an object, performing
+  the actions immediately, without queueing.  The calling object becomes
+  the enactor and the positional parameters %0 through %9 are set to the
+  supplied parameters. If <object> is not specified, the calling object
+  is searched for the attribute.
  
+  '@call' is the same as '@trigger/now/quiet'.
+ 
+  See also: @trigger, @branch, @iter.
+
 & @chown
  
   Command: @chown[/nostrip] <object>[=<player>]
@@ -927,7 +950,7 @@
   See also: WHO.
 
 & @dolist
-  Command: @dolist[/<switch>] [<delimiter>] <list>=<action>
+  Command: @dolist[/<switches>] [<delimiter>] <list>=<action>
  
   <list> is a list of strings, which can be object numbers, attributes, or
   arbitrary words.  <action> is a command to perform once for each item in
@@ -938,10 +961,12 @@
   considered to be separated by <delimiter>. <delimiter> must be a single
   character.
  
-  If present, <switch> can be any of:
+  Supported switches are:
     /space   - (Default) List elements are separated by spaces.
     /delimit - List elements are separated by <delimiter>.
     /notify  - Queues a "@notify me" after all the @dolist'd commands.
+    /now     - Commands are run immediately rather than placed on the queue.
+  '@iter' is the same as '@dolist/now'.
  
   Continued in 'help @dolist2'.
  
@@ -1030,6 +1055,15 @@
  
   See also: @link, @unlink.
 
+& @eval
+  Command: @eval <arg>
+ 
+  This command does nothing other than evaluate <arg>, making it useful
+  for executing side-effect functions.
+ 
+  Example:
+     @va me=$test *: @eval [set(me,TEST:Set to %0)][pemit(%#,Testing %0.)]
+ 
 & @femit
   Command: @femit[/<switches>] <object>=<message>
   Forces <object> to emit <message>.  This command is similar to the command
@@ -1067,13 +1101,18 @@
   See also: @search.
 
 & @force
-  Command: @force <player/object>=<command>
+  Command: @force[/<switch>] <player/object>=<command>
+  
   Forces the game to act as though <player/object> had entered <command>.
   You may only force objects that you control.  Objects may not force players
   unless either the object or the player has their INHERIT flag set, and
   objects that do not have their INHERIT flag set may not force objects that
   do.  If the victim is specified by number, you may use an alternate form
   of the command, '#<number> <command>'.
+ 
+  If the /now switch is used, the command is run immediately rather than
+  being placed on the queue.
+ 
   See also: puppets.
 
 & @fpose
@@ -1845,6 +1884,9 @@
               that match <string>.
      /first - Perform only the actionlist associated with the first target
               that matches <string>.
+     /now   - If an actionlist is to be performed, do so immediately rather
+              than placing it on the queue.
+  '@branch' is the same as '@switch/now'.
 
 & @teleport
   Command: @teleport [<object>=] <room/thing>
@@ -1871,13 +1913,19 @@
             @tofail, @otofail, @atofail
 
 & @trigger 
-  Command: @trigger[/<switch>] <object>/<attr> [=<param> [, <param>]... ]
- 
+  Command: @trigger[/<switches>] [<object>/]<attr> [=<param> [, <param>]... ]
+  
   Invokes an action list stored in an attribute on an object.  The triggering
   object becomes the enactor and the positional parameters %0 through %9
-  are set to the supplied parameters.  If the /quiet switch is given,
-  the "Triggered." message will be omitted.
- 
+  are set to the supplied parameters. If <object> is not specified, the
+  triggering object is searched for the attribute.
+  
+  The @trigger command supports the following switches:
+     quiet      - Omit 'Triggered.' messages.
+     now        - Perform the action list immediately rather than placing
+                  it on the queue.
+  '@call' is the same as '@trigger/now/quiet'.
+  
   See also: LOOPING.
 
 & @unlink
@@ -1901,7 +1949,8 @@
   See also: @chown, @lock, ATTRIBUTE OWNERSHIP.
 
 & @verb
-  Command: @verb <victim>=<actor>,<what>,<def>,<owhat>,<odef>,<awhat>,<args>
+  Command: @verb[/<switch>] <victim>=<actor>,<what>,<def>,
+                                     <owhat>,<odef>,<awhat>,<args>
  
   This command provides a way to do user-defined verbs with associated
   @attr/@oattr/@aattr groups. Invoking it does the following:
@@ -1925,6 +1974,10 @@
  
 { 'help @verb2' for more }
 & @verb2
+  
+  If the /now switch is used, the <awhat> attribute is run immediately
+  rather than being placed on the queue.
+  
   Here is a description of the arguments to @verb:
     victim - The object that is searched for attributes, and which runs the
              <awhat> attribute if it is found.
@@ -2700,6 +2753,26 @@
     test> In the mundane world outside, Wizard waves some more.
     Wizard waves some more.
   See also: @filter, @infilter, @listen, @prefix.
+
+& @iter
+
+  Command: @iter[/<switch>] [<delimiter>] <list>=<action>
+  <list> is a list of strings, which can be object numbers, attributes, or
+  arbitrary words.  <action> is a command to perform once for each item in
+  <list>, replacing the special symbol ## with the corresponding item from
+  <list>, and the symbol #@ with the position in the list, starting with
+  one. By default, @iter considers each item in <list> to be separated
+  with spaces. If you specify the /delimit switch, then each item is
+  considered to be separated by <delimiter>. <delimiter> must be a single
+  character. <action> is run immediately for each item in <list> rather 
+  than being placed on the queue.
+ 
+  Supported switches are:
+    /space   - (Default) List elements are separated by spaces.
+    /delimit - List elements are separated by <delimiter>.
+  '@iter' is the same as '@dolist/now'.
+ 
+  See also: @dolist, @call, @branch, iter(), parse().
 
 & @kill
   Command: @kill <object> = <message>

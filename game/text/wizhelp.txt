@@ -1427,7 +1427,7 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	starting_player_quota	thing_quota		wait_cost
 
 & PARAM DATABASE
-	cache_depth		cache_width		fork_dump
+	cache_size		cache_width		fork_dump
 	fork_vfork		garbage_chunk		gdbm_cache_size
 	initial_size
 
@@ -1442,9 +1442,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	wizard_motd_file
 
 & PARAM LIMITS
-	building_limit			earn_limit
-	function_invocation_limit	function_recursion_limit
-	conn_timeout			idle_timeout
+	building_limit			command_invocation_limit
+	command_recursion_limit		conn_timeout
+	earn_limit			function_invocation_limit
+	function_recursion_limit	idle_timeout
 	instance_limit			lag_maximum
 	lock_recursion_limit		max_players			
 	notify_recursion_limit		number_guests			
@@ -1659,6 +1660,16 @@ use_global_aconn	wizard_obeys_linklock
   case.
   See also: @clone.
 
+& command_invocation_limit
+  Config parameter: command_invocation_limit <num>.  Default: 2500
+ 
+  This directive sets the maximum number of commands that can be executed
+  in a single queue entry, whether separated with semicolons, pipes, or
+  nested with @trigger/now, etc. When the limit is reached, further commands
+  will silently fail to run. This limit is intended to prevent long hangs
+  from creative uses of semicolons, pipes, or commands with the /now switch.
+  See also: command_recursion_limit.
+
 & command_quota_increment
   Config parameter: command_quota_increment <amount>. Default: 1
   Specifies the number of commands by which the command quota for connected
@@ -1675,6 +1686,16 @@ use_global_aconn	wizard_obeys_linklock
   decreases the quota by 1, and the user's commands are only executed if the
   quota is greater than zero.
   See also: command_quota_increment, timeslice.
+
+& command_recursion_limit
+  Config parameter: command_recursion_limit <num>.  Default: 50
+ 
+  This directive sets the maximum nesting of commands that can execute
+  other commands in a single queue entry, such as @branch, @call, @iter, etc.
+  When the limit is reached, more deeply nested commands will silently fail
+  to run. This limit is intended to prevent infinite loops using @call, for
+  example.
+  See also: command_invocation_limit.
 
 & comsys_database
   Config parameter: comsys_database <path>.  Default: comsys.db

@@ -830,11 +830,11 @@ int obey_terse;
 
 	if (obey_terse && Terse(player))
 		did_it(player, thing, A_NULL, "You see nothing special.",
-		       A_ODESC, NULL, A_ADESC, (char **)NULL, 0);
+		       A_ODESC, NULL, A_ADESC, 0, (char **)NULL, 0);
 	else
 #ifndef PUEBLO_SUPPORT
 		did_it(player, thing, A_DESC, "You see nothing special.",
-		       A_ODESC, NULL, A_ADESC, (char **) NULL, 0);
+		       A_ODESC, NULL, A_ADESC, 0, (char **) NULL, 0);
 #else
 		show_a_desc(player, thing, "You see nothing special.");
 #endif
@@ -859,12 +859,12 @@ const char *msg;
 		got2 = atr_pget(loc, A_HTDESC, &aowner, &aflags, &alen);
 		if (*got2)
 			did_it(player, loc, A_HTDESC, msg, A_ODESC, NULL,
-			       A_ADESC, (char **) NULL, 0);
+			       A_ADESC, 0, (char **) NULL, 0);
 		else {
 		    	if (indent)
 		    		raw_notify_newline(player); 
 		    	did_it(player, loc, A_DESC, msg, A_ODESC, NULL,
-			       A_ADESC, (char **) NULL, 0);
+			       A_ADESC, 0, (char **) NULL, 0);
 			if (indent)
 				raw_notify_newline(player);
 		}
@@ -874,7 +874,7 @@ const char *msg;
 		if (indent)
 			raw_notify_newline(player);
 		did_it(player, loc, A_DESC, msg, A_ODESC, NULL,
-		       A_ADESC, (char **) NULL, 0);
+		       A_ADESC, 0, (char **) NULL, 0);
 		if (indent)
 			raw_notify_newline(player);
 	}
@@ -893,11 +893,11 @@ int key;
 
 	if ((key & LK_OBEYTERSE) && Terse(player))
 		did_it(player, loc, A_NULL, NULL, A_ODESC, NULL,
-		       A_ADESC, (char **)NULL, 0);
+		       A_ADESC, 0, (char **)NULL, 0);
 	else if ((Typeof(loc) != TYPE_ROOM) && (key & LK_IDESC)) {
 		if (*(got = atr_pget(loc, A_IDESC, &aowner, &aflags, &alen)))
 			did_it(player, loc, A_IDESC, NULL, A_ODESC, NULL,
-			       A_ADESC, (char **)NULL, 0);
+			       A_ADESC, 0, (char **)NULL, 0);
 		else {
 #ifdef PUEBLO_SUPPORT
 			show_a_desc(player, loc, NULL);
@@ -905,7 +905,7 @@ int key;
 			if (indent)
 				raw_notify_newline(player);
 			did_it(player, loc, A_DESC, NULL, A_ODESC, NULL, 
-			       A_ADESC, (char **) NULL, 0);
+			       A_ADESC, 0, (char **) NULL, 0);
 			if (indent)
 				raw_notify_newline(player);
 #endif
@@ -917,7 +917,7 @@ int key;
 #else
 		if (indent)
 			raw_notify_newline(player);
-		did_it(player, loc, A_DESC, NULL, A_ODESC, NULL, A_ADESC,
+		did_it(player, loc, A_DESC, NULL, A_ODESC, NULL, A_ADESC, 0,
 		       (char **) NULL, 0);
 		if (indent)
 			raw_notify_newline(player);
@@ -989,7 +989,7 @@ int key;
 		if (is_terse)
 			pattr = 0;
 		did_it(player, loc, pattr, NULL, oattr, NULL,
-		       aattr, (char **)NULL, 0);
+		       aattr, 0, (char **)NULL, 0);
 	}
 	/* tell him the attributes, contents and exits */
 
