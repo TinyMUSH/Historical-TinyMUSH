@@ -18,7 +18,8 @@ int NDECL(sql_init);
  * Send a query string to the database and obtain a result string (we
  * pass an lbuf and a pointer to the appropriate place in it),
  * with the rows separated by a delimiter and the fields separated
- * by another delimiter.
+ * by another delimiter. If we encounter an error, set the result
+ * string to #-1
  * On success, return 0. On falure, return -1.
  */
 int FDECL(sql_query, (dbref, char *, char *, char **, char, char));

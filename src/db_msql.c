@@ -81,22 +81,23 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     int got_rows, got_fields;
     int i, j;
 
-    /* If we have no connection, just don't return anything. Same thing
-     * if we have a null query string.
-     * Do set the return code to -1, indicating failure, though.
+    /* If we have no connection, this is an error generating a #-1.
+     * Notify the player, too, and set the return code.
      */
     if (mudstate.sql_socket == -1) {
 	notify(player, "No SQL database connection.");
+	safe_str("#-1", buff, bufc);
 	return -1;
     }
     if (!q_string || !*q_string)
-	return -1;
+	return 0;
 
     /* Send the query. */
 
     got_rows = msqlQuery(mudstate.sql_socket, q_string);
     if (got_rows == -1) {
 	notify(player, msqlErrMsg);
+	safe_str("#-1", buff, bufc);
         return -1;
     }
 
