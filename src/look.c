@@ -1925,17 +1925,20 @@ char *name, *qual;
 			notify(player,
 			     tprintf("@create %s=%d", translate_string(thingname, 1),
 				     val));
+			StringCopy(thingname, Name(thing));
 			break;
 		case TYPE_ROOM:
-			StringCopy(thingname, "here");
+			StringCopy(thingname, Name(thing));
 			notify(player,
 			       tprintf("@dig/teleport %s",
-				       translate_string(Name(thing), 1)));
+				       translate_string(thingname, 1)));
+			StringCopy(thingname, "here");
 			break;
 		case TYPE_EXIT:
 			StringCopy(thingname, Name(thing));
 			notify(player,
-			       tprintf("@open %s", translate_string(Name(thing), 1)));
+			       tprintf("@open %s", translate_string(thingname, 1)));
+			StringCopy(thingname, Name(thing));
 			for (got = thingname; *got; got++) {
 				if (*got == EXIT_DELIMITER) {
 					*got = '\0';

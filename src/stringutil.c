@@ -59,8 +59,10 @@ char **last;
                 }
 
 
-/* Convert raw character sequences into MUSH substitutions (type = 1)
- * or strips them (type = 0). */
+/* translate_string -- Convert (type = 1) raw character sequences into
+ * MUSH substitutions or strip them (type = 0). Note this is destructive
+ * if the input contains ansi codes and type is 1.
+ */
 
 char *ansi_numtab[I_ANSI_NUM] =
 {
@@ -73,114 +75,81 @@ char *ansi_numtab[I_ANSI_NUM] =
 };
 
 char *translate_string(str, type)
-const char *str;
+char *str;
 int type;
 {
-	char old[LBUF_SIZE];
 	static char new[LBUF_SIZE];
-	char *j, *c, *bp, *p;
+	char *bp, *c, *p;
 	int i;
 
 	bp = new;
-	StringCopy(old, str);
-		
-	for (j = old; *j != '\0'; j++) {
-	    switch (*j) {
-		case ESC_CHAR:
-		    c = strchr(j, ANSI_END);
-		    if (c) {
-			if (!type) {
-			    j = c;
-			    break;
-			}
-			*c = '\0';
-			j += 2;
-			
-                       /* j points to the beginning of the string.
-			* c points to the end of the string. Between
-			* them is a set of numbers separated by
-			* semicolons.
-			*/
 
-			do {
-			    p = strchr(j, ';');
-			    if (p)
-				*p++ = '\0';
-			    i = atoi(j);
-			    if (i >= 0 && i < I_ANSI_NUM && ansi_numtab[i]) {
-				safe_known_str(ansi_numtab[i], 3, new, &bp);
-			    }
-			    j = p;
-			} while (p && *p);
-			j = c;
-		    } else {
-			safe_chr(*j, new, &bp);
-		    }
-		    break;
-		case ' ':
-		    if ((*(j+1) == ' ') && type)
-			safe_str("%b", new, &bp);
-		    else 
-			safe_chr(' ', new, &bp);
-		    break;
-		case '\\':
-		    if (type)
-			safe_str("%\\", new, &bp);
-		    else
-			safe_chr('\\', new, &bp);
-		    break;
-		case '%':
-		    if (type)
-			safe_str("%%", new, &bp);
-		    else
-			safe_chr('%', new, &bp);
-		    break;
-		case '[':
-		    if (type)
-			safe_str("%[", new, &bp);
-		    else
-			safe_chr('[', new, &bp);
-		    break;
-		case ']':
-		    if (type)
-			safe_str("%]", new, &bp);
-		    else
-			safe_chr(']', new, &bp);
-		    break;
-		case '{':
-		    if (type)
-			safe_str("%{", new, &bp);
-		    else
-			safe_chr('{', new, &bp);
-		    break;
-		case '}':
-		    if (type)
-			safe_str("%}", new, &bp);
-		    else
-			safe_chr('}', new, &bp);
-		    break;
-		case '(':
-		    if (type)
-			safe_str("%(", new, &bp);
-		    else
-			safe_chr('(', new, &bp);
-		    break;
-		case ')':
-		    if (type)
-			safe_str("%)", new, &bp);
-		    else
-			safe_chr(')', new, &bp);
-		    break;
-		case '\r':
-		    break;
-		case '\n':
-		    if (type)
-			safe_str("%r", new, &bp);
-		    else
-			safe_chr(' ', new, &bp);
-		    break;
-		default:
-		    safe_chr(*j, new, &bp);
+	if (type) {
+		while (*str) {
+			switch (*str) {
+			case ESC_CHAR:
+				c = strchr(str, ANSI_END);
+				if (c) {
+					*c = '\0';
+					str += 2;
+
+					/* str points to the beginning of the
+					 * string. c points to the end of the
+					 * string. Between them is a set of
+					 * numbers separated by semicolons.
+					 */
+
+					do {
+						p = strchr(str, ';');
+						if (p)
+							*p++ = '\0';
+						i = atoi(str);
+						if (i >= 0 && i < I_ANSI_NUM && ansi_numtab[i]) {
+							safe_known_str(ansi_numtab[i], 3, new, &bp);
+						}
+						str = p;
+					} while (p && *p);
+					str = c;
+				}
+			case ':':
+				if (str[1] == ' ')
+					safe_known_str("%b", 2, new, &bp);
+				break;
+			case '\\': case '%': case '[': case ']':
+			case '{':  case '}': case '(': case ')':
+				safe_chr('%', new, &bp);
+				safe_chr(*str, new, &bp);
+				break;
+			case '\r':
+				break;
+			case '\n':
+				safe_known_str("%r", 2, new, &bp);
+				break;
+			default:
+				safe_chr(*str, new, &bp);
+			}
+			str++;
+		}
+	} else {
+		while (*str) {
+			switch (*str) {
+			case ESC_CHAR:
+				c = strchr(str, ANSI_END);
+				if (c) {
+					str = c;
+				} else {
+					safe_chr(*str, new, &bp);
+				}
+				break;
+			case '\r':
+				break;
+			case '\n':
+				safe_chr(' ', new, &bp);
+				break;
+			default:
+				safe_chr(*str, new, &bp);
+			}
+			str++;
 		}
 	}
 	*bp = '\0';
@@ -199,22 +168,6 @@ char *s;
 	for (p = s; p && *p; p++)
 		*p = toupper(*p);
 	return s;
-}
-
-/*
- * returns a pointer to the next character in s matching c, or a pointer to
- * the \0 at the end of s.  Yes, this is a lot like index, but not exactly.
- */
-char *seek_char(s, c)
-const char *s;
-char c;
-{
-	char *cp;
-
-	cp = (char *)s;
-	while (cp && *cp && (*cp != c))
-		cp++;
-	return (cp);
 }
 
 /*

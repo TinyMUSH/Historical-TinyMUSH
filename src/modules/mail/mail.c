@@ -2337,12 +2337,11 @@ dbref player;
 		/*
 		 * Message or range 
 		 */
-		q = seek_char(p, '-');
-		if (*q) {
+		q = strchr(p, '-');
+		if (q) {
 			/*
 			 * We have a subrange, split it up and test to see if 
-			 * 
-			 * *  * *  * * it is valid 
+			 * it is valid 
 			 */
 			*q++ = '\0';
 			ms->low = atoi(p);
@@ -2350,7 +2349,7 @@ dbref player;
 				notify(player, "MAIL: Invalid message range");
 				return 0;
 			}
-			if (!q || !*q) {
+			if (!*q) {
 				/*
 				 * Unbounded range 
 				 */
