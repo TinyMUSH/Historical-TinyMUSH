@@ -3066,3 +3066,64 @@ FUNCTION(fun_translate)
 		safe_str(translate_string(fargs[0], atoi(fargs[1])), buff, bufc);
 	}
 }
+
+/* ---------------------------------------------------------------------------
+ * fun_lastcreate: Return the last object of type Y that X created.
+ */
+
+FUNCTION(fun_lastcreate)
+{
+    int i, aowner, aflags, obj_list[4], obj_type;
+    char *obj_str, *p;
+    dbref obj = match_thing(player, fargs[0]);
+
+    if (!controls(player, obj)) {    /* Automatically checks for GoodObj */
+	safe_str("#-1", buff, bufc);
+	return;
+    }
+
+    switch (*fargs[1]) {
+      case 'R':
+      case 'r':
+	obj_type = 0;
+	break;
+      case 'E':
+      case 'e':
+	obj_type = 1;;
+	break;
+      case 'T':
+      case 't':
+	obj_type = 2;
+	break;
+      case 'P':
+      case 'p':
+	obj_type = 3;
+	break;
+      default:
+	notify_quiet(player, "Invalid object type.");
+	safe_str("#-1", buff, bufc);
+	return;
+    }
+
+    if ((obj_str = atr_get(obj, A_NEWOBJS, &aowner, &aflags)) == NULL) {
+	safe_str("#-1", buff, bufc);
+	return;
+    }
+
+    if (!*obj_str) {
+	free_lbuf(obj_str);
+	safe_str("#-1", buff, bufc);
+	return;
+    }
+
+    for (p = (char *) strtok(obj_str, " "), i = 0;
+	 p && (i < 4);
+	 p = (char *) strtok(NULL, " "), i++) {
+	obj_list[i] = atoi(p);
+    }
+    free_lbuf(obj_str);
+
+    *(*bufc)++ = '#';
+    safe_ltos(buff, bufc, obj_list[obj_type]);
+}
+

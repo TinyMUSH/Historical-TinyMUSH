@@ -1602,8 +1602,9 @@ DESC *d;
 char *command;
 int first;
 {
-	char *arg, *cmdsave;
+	char *arg, *cmdsave, *logbuf, *log_cmdbuf;
 	NAMETAB *cp;
+	long begin_time, used_time;
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< do_command >";
@@ -1707,8 +1708,25 @@ int first;
 			}
 			mudstate.curr_player = d->player;
 			mudstate.curr_enactor = d->player;
-			process_command(d->player, d->player, 1,
+#ifndef NO_LAG_CHECK
+			begin_time = time(NULL);
+#endif /* NO_LAG_CHECK */
+            		log_cmdbuf = process_command(d->player, d->player, 1,
 					command, (char **)NULL, 0);
+#ifndef NO_LAG_CHECK
+			used_time = time(NULL) - begin_time;
+			if (used_time >= mudconf.max_cmdsecs) {
+				STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
+					log_name_and_loc(d->player);
+					logbuf = alloc_lbuf("do_command.LOG.cpu");
+					sprintf(logbuf, " entered command taking %d secs: ", used_time); 
+					log_text(logbuf);
+					free_lbuf(logbuf);
+					log_text(log_cmdbuf);
+				ENDLOG
+			}
+#endif /* NO_LAG_CHECK */
+
 			if (d->output_suffix) {
 				queue_string(d, d->output_suffix);
 				queue_write(d, "\r\n", 2);

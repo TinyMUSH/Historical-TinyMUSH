@@ -206,6 +206,6 @@ struct addedentry {
 #define CF_DARK		0x80000000	/* Command doesn't show up in list */
 
 extern int	FDECL(check_access, (dbref, int));
-extern void	FDECL(process_command, (dbref, dbref, int, char *, char *[], int));
+extern char *	FDECL(process_command, (dbref, dbref, int, char *, char *[], int));
 
 #endif

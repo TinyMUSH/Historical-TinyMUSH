@@ -1,9 +1,5 @@
-/*
- * cque.c -- commands and functions for manipulating the command queue 
- */
-/*
- * $Id$ 
- */
+/* cque.c -- commands and functions for manipulating the command queue */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -725,7 +721,8 @@ int ncmds;
 	BQUE *tmp;
 	dbref player;
 	int count, i;
-	char *command, *cp, *pp, *cmdsave;
+	char *command, *cp, *pp, *cmdsave, *logbuf, *log_cmdbuf;
+	long begin_time, used_time;
 
 	if ((mudconf.control_flags & CF_DEQUEUE) == 0)
 		return 0;
@@ -771,13 +768,27 @@ int ncmds;
 							mudstate.poutnew = alloc_lbuf("process_command.pipe");
 							mudstate.poutbufc = mudstate.poutnew;
 							mudstate.poutobj = player;
-						
-							process_command(player,
+#ifndef NO_LAG_CHECK
+							begin_time = time(NULL);
+#endif /* NO_LAG_CHECK */
+							log_cmdbuf = process_command(player,
 							     mudstate.qfirst->cause,
 									0, cp,
 							       mudstate.qfirst->env,
 						   	 mudstate.qfirst->nargs);
-					
+#ifndef NO_LAG_CHECK
+							used_time = time(NULL) - begin_time;
+							if (used_time >= mudconf.max_cmdsecs) {
+								STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
+									log_name_and_loc(player);
+									logbuf = alloc_lbuf("do_top.LOG.cpu");
+									sprintf(logbuf, " queued command taking %d secs (enactor #%d): ", used_time, mudstate.qfirst->cause);
+									log_text(logbuf);
+									free_lbuf(logbuf);
+									log_text(log_cmdbuf);
+								ENDLOG
+							}
+#endif /* NO_LAG_CHECK */
 							if (mudstate.pout) {
 								free_lbuf(mudstate.pout);
 								mudstate.pout = NULL;
@@ -791,12 +802,28 @@ int ncmds;
 						if (mudstate.inpipe) {
 							mudstate.inpipe = 0;
 						}
-						process_command(player,
+#ifndef NO_LAG_CHECK
+						begin_time = time(NULL);
+#endif /* NO_LAG_CHECK */
+						log_cmdbuf = process_command(player,
 						     mudstate.qfirst->cause,
 								0, cp,
 						       mudstate.qfirst->env,
 					   	 mudstate.qfirst->nargs);
-						
+#ifndef NO_LAG_CHECK
+						used_time = time(NULL) - begin_time;
+						if (used_time >= mudconf.max_cmdsecs) {
+							STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
+								log_name_and_loc(player);
+								logbuf = alloc_lbuf("do_top.LOG.cpu");
+								sprintf(logbuf, " queued command taking %d secs (enactor #%d): ", used_time, mudstate.qfirst->cause);
+								log_text(logbuf);
+								free_lbuf(logbuf);
+								log_text(log_cmdbuf);
+							ENDLOG
+						}
+#endif /* NO_LAG_CHECK */
+
 						if (mudstate.pout) {
 							free_lbuf(mudstate.pout);
 							mudstate.pout = NULL;

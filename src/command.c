@@ -1184,7 +1184,7 @@ int interactive, ncargs;
  * process_command: Execute a command.
  */
 
-void process_command(player, cause, interactive, command, args, nargs)
+char *process_command(player, cause, interactive, command, args, nargs)
 dbref player, cause;
 int interactive, nargs;
 char *command, *args[];
@@ -1216,7 +1216,7 @@ char *command, *args[];
 		free_mbuf(lcbuf);
 		ENDLOG
 			mudstate.debug_cmd = cmdsave;
-		goto endcmd;
+		return command;
 	}
 	/* Make sure player isn't going or halted */
 
@@ -1227,7 +1227,7 @@ char *command, *args[];
 		  tprintf("Attempt to execute command by halted object #%d",
 			  player));
 		mudstate.debug_cmd = cmdsave;
-		goto endcmd;
+		return command;
 	}
 	STARTLOG(LOG_ALLCOMMANDS, "CMD", "ALL")
 		log_name_and_loc(player);
@@ -1237,9 +1237,7 @@ char *command, *args[];
 	free_lbuf(lcbuf);
 	ENDLOG
 
-	/*
-	 * Reset recursion limits 
-	 */
+	/* Reset recursion limits */
 
 	mudstate.func_nest_lev = 0;
 	mudstate.func_invk_ctr = 0;
@@ -1249,6 +1247,14 @@ char *command, *args[];
 	if (Verbose(player))
 		notify(Owner(player), tprintf("%s] %s", Name(player),
 					      command));
+
+	/*
+	 * NOTE THAT THIS WILL BREAK IF "GOD" IS NOT A DBREF.
+	 */
+	if (mudconf.control_flags & CF_GODMONITOR) {
+		raw_notify(GOD, tprintf("%s(#%d)%c %s", Name(player), player,
+			(interactive) ? '|' : ':', command));
+	}
 
 	/* Eat leading whitespace, and space-compress if configured */
 
@@ -1290,13 +1296,13 @@ char *command, *args[];
 		process_cmdent(prefix_cmds[i], NULL, player, cause,
 			       interactive, command, command, args, nargs);
 		mudstate.debug_cmd = cmdsave;
-		goto endcmd;
+		return preserve_cmd;
 	}
 
 #ifdef USE_COMSYS
 	if (mudconf.have_comsys && !(Slave(player)))
 		if (!do_comsystem(player, command))
-			goto endcmd;
+			return preserve_cmd;
 #endif
 
 	/* Check for the HOME command */
@@ -1306,11 +1312,11 @@ char *command, *args[];
 		    !(WizRoy(player))) {
 			notify(player, mudconf.fixed_home_msg);
 			mudstate.debug_cmd = cmdsave;
-			goto endcmd;
+			return preserve_cmd;
 		}
 		do_move(player, cause, 0, "home");
 		mudstate.debug_cmd = cmdsave;
-		goto endcmd;
+		return preserve_cmd;
 	}
 	/* Only check for exits if we may use the goto command */
 
@@ -1324,7 +1330,7 @@ char *command, *args[];
 		if (exit != NOTHING) {
 			move_exit(player, exit, 0, "You can't go that way.", 0);
 			mudstate.debug_cmd = cmdsave;
-			goto endcmd;
+			return preserve_cmd;
 		}
 		
 		/* Check for an exit in the master room */
@@ -1335,7 +1341,7 @@ char *command, *args[];
 		if (exit != NOTHING) {
 			move_exit(player, exit, 1, NULL, 0);
 			mudstate.debug_cmd = cmdsave;
-			goto endcmd;
+			return preserve_cmd;
 		}
 	}
 	/* Set up a lowercase command and an arg pointer for the hashed
@@ -1370,7 +1376,7 @@ char *command, *args[];
 			       command, args, nargs);
 		free_lbuf(lcbuf);
 		mudstate.debug_cmd = cmdsave;
-		goto endcmd;
+		return preserve_cmd;
 	}
 	/* Check for enter and leave aliases, user-defined commands on the
 	 * player, other objects where the player is, on objects in
@@ -1398,7 +1404,7 @@ char *command, *args[];
 				free_lbuf(lcbuf);
 				free_lbuf(p);
 				do_leave(player, player, 0);
-				goto endcmd;
+				return preserve_cmd;
 			}
 		}
 		free_lbuf(p);
@@ -1412,7 +1418,7 @@ char *command, *args[];
 					free_lbuf(lcbuf);
 					free_lbuf(p);
 					do_enter_internal(player, exit, 0);
-					goto endcmd;
+					return preserve_cmd;
 				}
 			}
 			free_lbuf(p);
@@ -1470,7 +1476,7 @@ char *command, *args[];
 				if (exit != NOTHING) {
 					move_exit(player, exit, 1, NULL, 0);
 					mudstate.debug_cmd = cmdsave;
-					goto endcmd;
+					return preserve_cmd;
 				}
 				if (!got_stop) {
 					succ += list_check(Contents(Zone(Location(player))), player,
@@ -1523,9 +1529,7 @@ char *command, *args[];
 		ENDLOG
 	}
 	mudstate.debug_cmd = cmdsave;
-
-endcmd:
-	return;
+	return preserve_cmd;
 }
 
 /* ---------------------------------------------------------------------------
@@ -2163,6 +2167,10 @@ dbref player;
 #else
     notify(player, "MUSH arithmetic operations use integers.");
 #endif                          /* FLOATING_POINTS */
+
+#ifdef TCL_INTERP_SUPPORT
+	notify(player, "TCL interpreter support is enabled.");
+#endif /* TCL_INTERP_SUPPORT */
 
 	if (!Wizard(player))
 		return;

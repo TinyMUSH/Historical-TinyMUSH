@@ -761,9 +761,8 @@ char *message;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_enable: enable or disable global control flags
+/* ---------------------------------------------------------------------------
+ * do_enable: enable or disable global control flags
  */
 /* *INDENT-OFF* */
 
@@ -772,6 +771,7 @@ NAMETAB enable_names[] = {
 {(char *)"checkpointing",	2,	CA_PUBLIC,	CF_CHECKPOINT},
 {(char *)"cleaning",		2,	CA_PUBLIC,	CF_DBCHECK},
 {(char *)"dequeueing",		1,	CA_PUBLIC,	CF_DEQUEUE},
+{(char *)"god_monitoring",	1,	CA_PUBLIC,	CF_GODMONITOR},
 {(char *)"idlechecking",	2,	CA_PUBLIC,	CF_IDLECHECK},
 {(char *)"interpret",		2,	CA_PUBLIC,	CF_INTERP},
 {(char *)"logins",		3,	CA_PUBLIC,	CF_LOGIN},

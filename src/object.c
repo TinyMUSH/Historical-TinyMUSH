@@ -136,10 +136,9 @@ const char *errtype;
 	ENDLOG
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * start_home, default_home, can_set_home, new_home, clone_home:
- * * Routines for validating and determining homes.
+/* ---------------------------------------------------------------------------
+ * start_home, default_home, can_set_home, new_home, clone_home:
+ * Routines for validating and determining homes.
  */
 
 dbref NDECL(start_home)
@@ -201,10 +200,93 @@ dbref player, thing;
 	return new_home(player);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * create_obj: Create an object of the indicated type IF the player can
- * * afford it.
+/* ---------------------------------------------------------------------------
+ * update_newobjs: Update a player's most-recently-created objects.
+ */
+
+static void update_newobjs(player, obj_num, obj_type)
+     dbref player;
+     dbref obj_num;
+     int obj_type;
+{
+    int i, aowner, aflags;
+    char *newobj_str, *p, tbuf[SBUF_SIZE];
+    int obj_list[4];
+
+    newobj_str = atr_get(player, A_NEWOBJS, &aowner, &aflags);
+
+    if (!newobj_str || !*newobj_str) {
+	for (i = 0; i < 4; i++)
+	    obj_list[i] = -1;
+	if (newobj_str)
+	    free_lbuf(newobj_str);
+    } else {
+	for (p = (char *) strtok(newobj_str, " "), i = 0;
+	     p && (i < 4);
+	     p = (char *) strtok(NULL, " "), i++) {
+	    obj_list[i] = atoi(p);
+	}
+	free_lbuf(newobj_str);
+    }
+
+    switch (obj_type) {
+      case TYPE_ROOM:
+	obj_list[0] = obj_num;
+	break;
+      case TYPE_EXIT:
+	obj_list[1] = obj_num;
+	break;
+      case TYPE_THING:
+	obj_list[2] = obj_num;
+	break;
+      case TYPE_PLAYER:
+	obj_list[3] = obj_num;
+	break;
+    }
+
+    sprintf(tbuf, "%d %d %d %d", obj_list[0], obj_list[1], obj_list[2],
+	    obj_list[3]);
+    atr_add_raw(player, A_NEWOBJS, tbuf);
+}
+    
+/* ---------------------------------------------------------------------------
+ * ok_exit_name: Make sure an exit name contains no blank components.
+ */
+
+static int ok_exit_name(name)
+    char *name;
+{
+    char *p, *lastp, *s;
+    char buff[LBUF_SIZE];
+
+    strcpy(buff, name);		/* munchable buffer */
+
+    /* walk down the string, checking lengths. skip leading spaces. */
+
+    for (p = buff, lastp = buff;
+	 (p = (char *) index(lastp, ';')) != NULL;
+	 lastp = p) {
+	*p++ = '\0';
+	s = lastp;
+	while (isspace(*s))
+	    s++;
+	if (strlen(s) < 1)
+	    return 0;
+    }
+
+    /* check last component */
+
+    while (isspace(*lastp))
+	lastp++;
+    if (strlen(lastp) < 1)
+	return 0;
+
+    return 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * create_obj: Create an object of the indicated type IF the player can
+ * afford it.
  */
 
 #ifndef STANDALONE

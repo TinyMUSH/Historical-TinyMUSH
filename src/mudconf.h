@@ -420,7 +420,8 @@ extern STATEDATA mudstate;
 /* empty		0x0040 */
 /* empty		0x0080 */
 #define CF_DEQUEUE	0x0100		/* Remove entries from the queue */
-#define CF_EVENTCHECK   0x0200		/* Allow events checking */
+#define CF_GODMONITOR   0x0200  /* Display commands to the God. */
+#define CF_EVENTCHECK   0x0400		/* Allow events checking */
 /* Host information codes */
 
 #define H_REGISTRATION	0x0001	/* Registration ALWAYS on */

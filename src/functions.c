@@ -1,9 +1,5 @@
-/*
- * functions.c - MUX function handlers 
- */
-/*
- * $Id$ 
- */
+/* functions.c - MUX function handlers */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -125,8 +121,27 @@ XFUNCTION(fun_peek);
 XFUNCTION(fun_pop);
 XFUNCTION(fun_items);
 XFUNCTION(fun_lstack);
+XFUNCTION(fun_dup);
+XFUNCTION(fun_popn);
+XFUNCTION(fun_swap);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_translate);
+XFUNCTION(fun_lastcreate);
+
+#ifdef PUEBLO_SUPPORT
+XFUNCTION(fun_html_escape);
+XFUNCTION(fun_html_unescape);
+XFUNCTION(fun_url_escape);
+XFUNCTION(fun_url_unescape);
+#endif /* PUEBLO SUPPORT */
+
+#ifdef TCL_INTERP_SUPPORT
+XFUNCTION(fun_tclclear);
+XFUNCTION(fun_tcleval);
+XFUNCTION(fun_tclmodule);
+XFUNCTION(fun_tclparams);
+XFUNCTION(fun_tclregs);
+#endif /* TCL_INTERP_SUPPORT */
 
 /* This is the prototype for functions */
 
@@ -4858,6 +4873,7 @@ FUN flist[] = {
 {"DIST2D",	fun_dist2d,	4,  0,		CA_PUBLIC},
 {"DIST3D",	fun_dist3d,	6,  0,		CA_PUBLIC},
 {"DIV",		fun_div,	2,  0,		CA_PUBLIC},
+{"DUP",		fun_dup,	0,  FN_VARARGS,	CA_PUBLIC},
 {"E",		fun_e,		0,  0,		CA_PUBLIC},
 {"EDEFAULT",	fun_edefault,	2,  FN_NO_EVAL, CA_PUBLIC},
 {"EDIT",	fun_edit,	3,  0,		CA_PUBLIC},
@@ -4893,6 +4909,10 @@ FUN flist[] = {
 {"HASPOWER",    fun_haspower,   2,  0,          CA_PUBLIC},
 {"HASTYPE",	fun_hastype,	2,  0,		CA_PUBLIC},
 {"HOME",	fun_home,	1,  0,		CA_PUBLIC},
+#ifdef PUEBLO_SUPPORT
+{"HTML_ESCAPE",	fun_html_escape,-1, 0,		CA_PUBLIC},
+{"HTML_UNESCAPE",fun_html_unescape,-1,0,	CA_PUBLIC},
+#endif /* PUEBLO_SUPPORT */
 {"IDLE",	fun_idle,	1,  0,		CA_PUBLIC},
 {"IFELSE",      fun_ifelse,     3,  FN_NO_EVAL,          CA_PUBLIC},
 {"INC",         fun_inc,        1,  0,          CA_PUBLIC},
@@ -4902,9 +4922,11 @@ FUN flist[] = {
 {"ISDBREF",	fun_isdbref,	1,  0,		CA_PUBLIC},
 {"ISNUM",	fun_isnum,	1,  0,		CA_PUBLIC},
 {"ISWORD",	fun_isword,	1,  0,		CA_PUBLIC},
+{"ITEMS",	fun_items,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ITER",	fun_iter,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
 {"LAST",	fun_last,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LASTCREATE",	fun_lastcreate,	2,  0,		CA_PUBLIC},
 {"LATTR",	fun_lattr,	1,  0,		CA_PUBLIC},
 {"LCON",	fun_lcon,	1,  0,		CA_PUBLIC},
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC},
@@ -4918,7 +4940,7 @@ FUN flist[] = {
 {"LJUST",	fun_ljust,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LINK",	fun_link,	2,  0,		CA_PUBLIC},
 {"LN",		fun_ln,		1,  0,		CA_PUBLIC},
-{"LNUM",	fun_lnum,	1,  0,		CA_PUBLIC},
+{"LNUM",	fun_lnum,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LOC",		fun_loc,	1,  0,		CA_PUBLIC},
 {"LOCATE",	fun_locate,	3,  0,		CA_PUBLIC},
 {"LOCK",	fun_lock,	1,  0,		CA_PUBLIC},
@@ -4953,7 +4975,6 @@ FUN flist[] = {
 {"NOT",		fun_not,	1,  0,		CA_PUBLIC},
 {"NOTBOOL",	fun_notbool,	1,  0,		CA_PUBLIC},
 {"NUM",		fun_num,	1,  0,		CA_PUBLIC},
-{"ITEMS",	fun_items,	0,  FN_VARARGS, CA_PUBLIC},
 {"OBJ",		fun_obj,	1,  0,		CA_PUBLIC},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC},
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC},
@@ -4970,6 +4991,7 @@ FUN flist[] = {
 {"PLAYMEM",	fun_playmem,	1,  0,		CA_PUBLIC},
 {"PMATCH",	fun_pmatch,	1,  0,		CA_PUBLIC},
 {"POP",		fun_pop,	0,  FN_VARARGS, CA_PUBLIC},
+{"POPN",	fun_popn,	0,  FN_VARARGS,	CA_PUBLIC},
 {"PORTS",	fun_ports,	1,  0,		CA_PUBLIC},
 {"POS",		fun_pos,	2,  0,		CA_PUBLIC},
 {"POSS",	fun_poss,	1,  0,		CA_PUBLIC},
@@ -5023,9 +5045,17 @@ FUN flist[] = {
 {"STRTRUNC",    fun_strtrunc,   2,  0,          CA_PUBLIC},
 {"SUB",		fun_sub,	2,  0,		CA_PUBLIC},
 {"SUBJ",	fun_subj,	1,  0,		CA_PUBLIC},
+{"SWAP",	fun_swap,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SWITCH",	fun_switch,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
 {"TAN",		fun_tan,	1,  0,		CA_PUBLIC},
+#ifdef TCL_INTERP_SUPPORT
+{"TCLCLEAR",	fun_tclclear,	0,  0,		CA_WIZARD},
+{"TCLEVAL",	fun_tcleval,	1,  0,		CA_WIZARD},
+{"TCLMODULE",	fun_tclmodule,	1,  0,		CA_WIZARD},
+{"TCLPARAMS",	fun_tclparams,	0,  FN_VARARGS,	CA_WIZARD},
+{"TCLREGS",	fun_tclregs,	0,  0,		CA_WIZARD},
+#endif /* TCL_INTERP_SUPPORT */
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC},
 {"TRANSLATE",	fun_translate,	2,  0,		CA_PUBLIC},
@@ -5037,6 +5067,10 @@ FUN flist[] = {
 {"UDEFAULT",	fun_udefault,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
 {"ULOCAL",	fun_ulocal,	0,  FN_VARARGS,	CA_PUBLIC},
+#ifdef PUEBLO_SUPPORT
+{"URL_ESCAPE",	fun_url_escape,	-1, 0,		CA_PUBLIC},
+{"URL_UNESCAPE",fun_url_unescape,-1,0,		CA_PUBLIC},
+#endif /* PUEBLO_SUPPORT */
 {"V",		fun_v,		1,  0,		CA_PUBLIC},
 {"VADD",	fun_vadd,	0,  FN_VARARGS,	CA_PUBLIC},
 {"VALID",	fun_valid,	2,  FN_VARARGS, CA_PUBLIC},

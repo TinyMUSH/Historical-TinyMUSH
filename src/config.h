@@ -30,8 +30,6 @@
 
 #define PLUSHELP_COMMAND	"+help" /* What you type to see the +help file */					 
 #define OUTPUT_BLOCK_SIZE	16384
-#define StringCopy		strcpy
-#define StringCopyTrunc		strncpy
 
 /* Do NOT define these.	*/
 /* #define DSPACE */			/* Lauren's hardcoded DSPACE */
@@ -41,6 +39,7 @@
 #define USE_MAIL
 #define USE_COMSYS
 #define FLOATING_POINTS
+/* #define TCL_INTERP_SUPPORT */
 
 /* ---------------------------------------------------------------------------
  * Database R/W flags.
