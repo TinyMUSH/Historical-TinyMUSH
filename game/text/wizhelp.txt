@@ -20,8 +20,7 @@
 & commands
   Help is available for the following MUSH commands:
  
-  DOING          examine        give           SESSION        slay
-  WHO            wizhelp
+  CD             DOING          examine        give           SESSION            slay           WHO            wizhelp
  
   @addcommand    @admin         @apply_marked  @attribute     @boot
   @chown         @chownall      @clone         @cut           @dbck          
@@ -129,6 +128,12 @@
  
   See also: SESSION, WHO, DARK, UNFINDABLE, SUSPECT, idle_dark_wiz.
 
+& CD
+  Command: cd <name> <password>
+ 
+  This command is used in place of 'connect' at the connection screen,
+  and allows wizards to connect DARK.
+ 
 & wizhelp
   Command: wizhelp <topic>
   Displays information from the wizard help file.  The information is
@@ -381,12 +386,21 @@
   the arguments to the function are loaded into %0-%9, the <attr> attribute
   from <object> is fetched, and substitution is performed on the resulting
   text.  The result of that substitution is returned as the function result.
-
+ 
   If the /privileged switch is given, then the function is evaluated as if
   the evaluation were being performed by the object on which it is stored,
   instead of as if it were being performed by the invoker of the function.
   This may be used to allow access to information normally available only
   to wizards.
+ 
+  If the /preserve switch is given, then a 'local' copy of the r-registers
+  is kept for the global function -- making this the equivalent of ulocal()
+  rather than u() -- allowing r-registers to be used in global functions
+  without concerns about local use of r-registers by the calling function.
+ 
+  Continued in 'wizhelp @function2'.
+ 
+& @function2
  
   The function definitions created by @function are not stored in the database
   so they need to be re-created each time the MUSH is started.  It is
@@ -1093,8 +1107,9 @@
 	help_index		html_connect_file	include
 	input_database		motd_file		news_file
 	news_index		newuser_file		output_database
-	quit_file		register_create_file	wizard_help_file
-	wizard_help_index	wizard_motd_file
+	plushelp_file		plushelp_index		quit_file
+	register_create_file	wizard_help_file	wizard_help_index
+	wizard_motd_file	wiznews_file		wiznews_index
 
 & PARAM LIMITS
 	building_limit			earn_limit
@@ -1102,26 +1117,29 @@
 	conn_timeout			idle_timeout
 	lag_maximum			lock_recursion_limit
 	max_players			notify_recursion_limit
-	output_limit			player_queue_limit
-	retry_limit			trace_output_limit
+	number_guests			output_limit
+	player_queue_limit		retry_limit
+	trace_output_limit
 
 & PARAM MESSAGES
-	down_motd_message	dump_message		full_motd_message
-	motd_message		postdump_message	pueblo_message
-	wizard_motd_message
+	down_motd_message	dump_message		fixed_home_message
+	fixed_tel_message	full_motd_message	motd_message
+	postdump_message	pueblo_message		wizard_motd_message
 
 & PARAM MISCELLANEOUS
+	guest_prefix		guests_channel		indent_desc
 	log			log_options		money_name_plural
 	money_name_singular	mud_name		port
-	queue_active_chunk	queue_idle_chunk	rwho_data_port
-	rwho_host		rwho_info_port		rwho_password
+	public_channel		queue_active_chunk	queue_idle_chunk
+	rwho_data_port		rwho_host		rwho_info_port
+	rwho_password
 
 & PARAM OBJECTS
 	default_home		exit_flags		exit_parent
-	guests			player_flags		player_parent
-	player_starting_home	player_starting_room	robot_flags
-	room_flags		room_parent		thing_flags
-	thing_parent		user_attr_flags
+	guest_char_num		guest_nuker		player_flags
+	player_parent		player_starting_home	player_starting_room
+	robot_flags		room_flags		room_parent
+	thing_flags		thing_parent		user_attr_flags
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
@@ -1139,11 +1157,21 @@
 	idle_interval		rwho_dump_interval	timeslice
 
 & PARAM OPTIONS
-abort_on_bug		ansi_colors		clone_copies_cost
-dark_sleepers		examine_flags		examine_public_attrs
+abort_on_bug			addcommands_match_blindly
+addcommands_obey_stop		ansi_colors
+clone_copies_cost		
+comsys_database
+dark_sleepers
+examine_flags			examine_public_attrs
 fascist_teleport	format_contents		format_exits
+global_aconn_uselocks
+have_comsys
+have_mailer
+have_zones
 hostnames		idle_wiz_dark		local_master_rooms
-look_obey_terse		match_own_commands	paranoid_allocate
+look_obey_terse		
+mail_database
+match_own_commands	paranoid_allocate
 parentable_control_lock	parent_zones		pemit_any_object
 pemit_far_players	player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
@@ -1157,7 +1185,7 @@ trace_topdown		typed_quotas		unowned_safe
 use_global_aconn	wizard_obeys_linklock
 
 & abort_on_bug
-  Config parameter: abort_on_bug <yes/no>.  Default: no
+  Config parameter: abort_on_bug <yes/no>.  Default: No
   Indicates whether or not the server is to abort when it logs a bug.
   See also: log.
 
@@ -1168,13 +1196,29 @@ use_global_aconn	wizard_obeys_linklock
   remove a permission prefix it with a ! character.
   See also: PERMISSIONS, @list.
 
+& addcommands_match_blindly
+  Config parameter: addcommands_match_blindly <yes/no>.  Default: Yes
+ 
+  If a match on a command that has been @addcommand'd does not successfully
+  match any defined $-command for that @addcommand, if this parameter
+  is YES, then no 'Huh?' message wlil be produced. If this is NO, then
+  the user will receive a 'Huh?'.
+ 
+& addcommands_obey_stop
+  Config parameter: addcommands_obey_stop <yes/no>.  Default: No
+ 
+  If an @addcommand is matched on an object set STOP, then, if this
+  parameter is YES, no further matching attempts will be made. Otherwise,
+  the server will continue to try to match additional $-command patterns
+  associated with that @addcommand.
+ 
 & alias
   Config parameter: alias <new> <old>.
   Defines the command <new> to be an alias of the command <old>.
   See also:
  
 & ansi_colors
-  Config parameter: ansi_colors <yes/no>.  Default: NO
+  Config parameter: ansi_colors <yes/no>.  Default: No
  
   Specifies whether or not players are permitted to use ANSI colors
   in their text.
@@ -1211,7 +1255,7 @@ use_global_aconn	wizard_obeys_linklock
   some obscene names as well.
 
 & badsite_file
-  Config parameter: badsite_file <path>.  Default: badsite.txt
+  Config parameter: badsite_file <path>.  Default: text/badsite.txt
   Specifies the name of the file that is sent to new net connections from
   sites that have been blocked from accessing the server.  The connection
   is closed immediately after the file is sent.
@@ -1254,12 +1298,12 @@ use_global_aconn	wizard_obeys_linklock
   See also: check_interval, @dbck.
 
 & cache_steal_dirty
-  Config parameter: cache_steal_dirty <yes/no>.  Default: NO
+  Config parameter: cache_steal_dirty <yes/no>.  Default: No
   Specifies whether or not the cache manager may take a modified attribute
   and write it out when trying to insert a new attribute into the cache.
 
 & clone_copies_cost
-  Config parameter: clone_copies_cost <yes/no>.  Default: NO
+  Config parameter: clone_copies_cost <yes/no>.  Default: No
   Indicates whether or not @cloned objects inherit the cost of the original.
   If disabled, @cloned objects cost the same as a @create that doesn't specify
   the object cost.  The new owner is charged the correct amount in either
@@ -1283,6 +1327,14 @@ use_global_aconn	wizard_obeys_linklock
   quota is greater than zero.
   See also: command_quota_increment, timeslice.
 
+& comsys_database
+  Config parameter: comsys_database <path>.  Default: comsys.db
+ 
+  Specifies the file that comsystem information is stored in.
+  This database is loaded at startup if have_comsys is Yes.
+ 
+  See also: have_comsys
+ 
 & config_access
   Config parameter: config_access <param> [!]<privilege> [[!]<privilege>]...
   Changes the privileges needed to change the specified configuration
@@ -1298,7 +1350,7 @@ use_global_aconn	wizard_obeys_linklock
   connecting to a character before being automatically disconnected.
 
 & connect_file
-  Config parameter: connect_file <path>.  Default: connect.txt
+  Config parameter: connect_file <path>.  Default: text/connect.txt
   Specifies the name of the file that a user sees immediately after connecting
   to the MUSH if registration is not enabled.  This file normally contains
   help on how to connect to or create a character, as well as the WHO and QUIT
@@ -1306,7 +1358,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: connect_reg_file
 
 & connect_reg_file
-  Config parameter: connect_reg_file <path>.  Default: connect_reg.txt
+  Config parameter: connect_reg_file <path>.  Default: text/connect_reg.txt
   Specifies the name of the file that a user sees immediately after connecting
   to the MUSH if registration is enabled.  This file normally contains
   help on how to get a character (usually by sending e-mail to one of the
@@ -1315,14 +1367,14 @@ use_global_aconn	wizard_obeys_linklock
   See also: connect_file
 
 & html_connect_file
-  Config parameter: html_connect_file <path>.  Default: htmlconn.txt
+  Config parameter: html_connect_file <path>.  Default: text/htmlconn.txt
   Specifies the name of the file that a user sees when a PUEBLOCLIENT
   command is issued. Typically this is a file similar to connect_file,
   with HTML formatting.
   See also: connect_file
 
 & crash_database
-  Config parameter: crash_database <path>.  Default: none
+  Config parameter: crash_database <path>.  Default: None
   Specifies the name of the database file that should be written when mush
   detects an internal error and is about to crash.  Note that the database
   may contain corrupted links of the error occurs in the middle of moving
@@ -1342,7 +1394,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: create_max_cost, sacrifice_adjust, sacrifice_factor.
 
 & dark_sleepers
-  Config directive: dark_sleepers <yes/no>.  Default: yes
+  Config directive: dark_sleepers <yes/no>.  Default: Yes
   Indicates whether or not disconnected players are to be considered 'dark',
   so that they do not show up when a player looks in the room that they are
   in.  Disconnected players can still be found by examining the room or by
@@ -1361,7 +1413,7 @@ use_global_aconn	wizard_obeys_linklock
   Specifies how much the @dig command costs.
 
 & down_file
-  Config parameter: down_file <pathname>.  Default: down.txt
+  Config parameter: down_file <pathname>.  Default: text/down.txt
   Specifies the name of the file that is displayed when players attempt to
   connect to a non-wizard character when logins are disabled.
   See also: @disable, down_motd_message.
@@ -1400,13 +1452,13 @@ use_global_aconn	wizard_obeys_linklock
   See also: find_money_chance, paycheck.
 
 & examine_flags
-  Config parameter: examine_flags <yes/no>.  Default: yes
+  Config parameter: examine_flags <yes/no>.  Default: Yes
   Indicates whether or not the examine command should include an expanded
   flags list in the description of the object.
   See also: examine.
 
 & examine_public_attrs
-  Config parameter: examine_public_attrs <yes/no>.  Default: yes
+  Config parameter: examine_public_attrs <yes/no>.  Default: Yes
   Indicate whether or not the examine command should display the public
   attributes of the object by default when used by a player who does not
   control the object.  Regardless of the setting of this parameter, the
@@ -1423,7 +1475,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: @list, player_flags, robot_flags, room_flags, thing_flags.
 
 & exit_parent
-  Config parameter: exit_parent <dbref>.  Default: nothing
+  Config parameter: exit_parent <dbref>.  Default: Nothing
  
   If this parameter is set, every object of type EXIT will have the
   specified object as a parent.
@@ -1437,7 +1489,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: @quota, player_quota, room_quota, thing_quota, QUOTAS.
 
 & fascist_teleport
-  Config parameter: fascist_teleport <yes/no>.  Default: no
+  Config parameter: fascist_teleport <yes/no>.  Default: No
   If this parameter is set to yes, then players (and objects) may not
   teleport out of locations that they do not control or which are not set
   JUMP_OK.  If the teleporting player is inside an object, the room that
@@ -1450,6 +1502,22 @@ use_global_aconn	wizard_obeys_linklock
   is disabled if this parameter is set to zero.
   See also: earn_limit, paycheck.
 
+& fixed_home_message
+  Config parameter: fixed_home_message <string>.  Default: (none)
+ 
+  Specifies the string that is sent to a player when they try to go home
+  while they are set with the FIXED flag.
+ 
+  See also: fixed_tel_message
+ 
+& fixed_tel_message
+  Config parameter: fixed_tel_message <string>.  Default: (none)
+ 
+  Specifies the string that is sent to a player when they try to teleport
+  while they are set with the FIXED flag.
+ 
+  See also: fixed_home_message
+ 
 & flag_alias
   Config parameter: flag_alias <alias> <flagname>.
   Defines <alias> as a synonym for the flag <flagname>.
@@ -1467,7 +1535,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: badsite_file, permit_site, register_site, SITE LISTS.
 
 & fork_dump
-  Config parameter: fork_dump <yes/no>.  Default: yes
+  Config parameter: fork_dump <yes/no>.  Default: Yes
   Indicates whether or not database dumps are to be done by fork()ing off a
   separate process to perform the dump.  While enabling this parameter reduces
   the amount of time needed to perform the dump, it requires that the system
@@ -1475,28 +1543,28 @@ use_global_aconn	wizard_obeys_linklock
   See also: fork_vfork.
 
 & fork_vfork
-  Config parameter: fork_vfork <yes/no>.  Default: no
+  Config parameter: fork_vfork <yes/no>.  Default: No
   Indicates whether or not the vfork() system call should be used in place of
   fork() when a database dump is to be performed.  This parameter is only
   checked if the fork_dump parameter is set to yes.
   See also: fork_dump.
 
 & format_contents
-  Config parameter: format_contents <yes/no>. Default: yes
+  Config parameter: format_contents <yes/no>. Default: Yes
  
   Indicates whether or not the @conformat attribute is honored.
   
   See also: format_exits
 
 & format_exits
-  Config parameter: format_exits <yes/no>. Default: yes
+  Config parameter: format_exits <yes/no>. Default: Yes
   
   Indicates whether or not the @exitformat attribute is honored.
  
   See also: format_contents
 
 & full_file
-  Config parameter: down_file <pathname>.  Default: full.txt
+  Config parameter: down_file <pathname>.  Default: text/full.txt
  
   Specifies the name of the file that is displayed when players attempt to
   connect to a non-wizard character when the number of connected players
@@ -1549,28 +1617,66 @@ use_global_aconn	wizard_obeys_linklock
   Specifies the size of the cache used by the text database in 1K blocks.
 
 & gdbm_database
-  Config parameter: gdbm_database <path>.  Default: none.
+  Config parameter: gdbm_database <path>.  Default: None.
   Specifies the name of the file that stores the text portion of the
   database.  The text strings are stored in a binary format optimized for
   fast retrieval and storage rather than access with programs such as more.
 
+& global_aconn_uselocks
+  Config parameter: global_aconn_uselocks <yes/no>.  Default: No
+ 
+  If this is YES, then @aconnect/@adisconnect on Master Room objects
+  check their uselocks; if the enactor does not pass the uselock,
+  then the @aconnect/@adisconnect is not executed.
+ 
 & good_name
   Config parameter: good_name <name>.
   Removes <name> from the list of names that may not be used as a player
   name, reversing the effect of a bad_name directive.  The name must match
   exactly (wildcard matching is not performed).
 
-& guests
-  Config parameter: guests <number number  ...>.  Default: (none)
-  Indicates the database number(s) of the guest character(s).  If set,
-  the specified guest characters are subject to additional restrictions
-  (such as not being allowed to create or destroy objects).  The actual
-  restrictions can be changed with the access config parameter using the
-  no_guest permission.
-  See also: access.
-
+& guest_char_num
+  Config parameter: guest_char_num <number>.  Default: (none)
+ 
+  Indicates the dbref of the "template" guest character.  If set, Guest
+  characters are subject to additional restrictions (such as not being
+  allowed to create or destroy objects).  The actual restrictions can be
+  changed with the access config parameter using the no_guest permission.
+  All guests created will be clones of this template character, and will
+  automatically join the Guests channel with a prefix of 'g'.
+ 
+  See also: guest_prefix, guest_nuker, number_guests, guests_channel, access.
+ 
+& guest_nuker
+  Config parameter: guest_nuker <number>. Default: 1
+ 
+  Specifies who is to nuke guests when they log off. If it is not a good
+  object or a wizard, it defaults to 1 (for #1, the typical God character).
+ 
+  See also: guest_char_num, guest_nuker, guest_prefix, number_guests.
+ 
+& guests_channel
+  Config parameter: guests_channel <name>. Default: Guests
+ 
+  Specifies the name of the channel that guests join when they connect. You
+  must have created the channel already. To disable this feature, simply set
+  this parameter to nothing.
+ 
+  The default channel alias for this channel is 'g'.
+ 
+  See also: have_comsys, public_channel.
+ 
+& guest_prefix
+  Config parameter: guest_prefix <name>. Default: Guest
+ 
+  All guests have numbered names, of the format <prefix><number>; for
+  example, if the guest_prefix is 'Guest', then the guests will be named
+  Guest1, Guest2, and so forth.
+ 
+  See also: guest_char_num, guest_nuker, guests_channel, number_guests.
+ 
 & guest_file
-  Config parameter: guest_file <path>.  Default: guest.txt.
+  Config parameter: guest_file <path>.  Default: text/guest.txt.
   Specifies the file that is to be shown to people connecting to the
   guest character in place of the motd file.
   See also: guest_char_num.
@@ -1584,13 +1690,34 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: SITE LISTS.
 
+& have_comsys
+  Config parameter: have_comsys <yes/no>. Default: Yes
+ 
+  Specifies whether or not the server's native comsystem should be
+  active.
+ 
+  See also: comsys_database
+ 
+& have_mailer
+  Config parameter: have_mailer <yes/no>. Default: Yes
+ 
+  Specifies whether or not the server's native mailer should be active.
+ 
+  See also: mail_database
+ 
+& have_zones
+  Config parameter: have_zones <yes/no>.  Default: Yes
+ 
+  If this parameter is YES, then the multi-object control is supported
+  via the ZONE flag and ControlLocks.
+ 
 & help_file
-  Config parameter: help_file <path>.  Default: help.txt
+  Config parameter: help_file <path>.  Default: text/help.txt
   Specifies the name of the file containing the text used by the help command.
   See also: help, help_index
 
 & help_index
-  Config parameter: help_index <path>.  Default: help.indx
+  Config parameter: help_index <path>.  Default: text/help.indx
   Specifies the name of the index file used by the help command.  This file
   must be generated by mkindx from the wizard help file.  The contents of
   this file are read in to a hash table when the game is started and whenever
@@ -1598,7 +1725,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: help, @readcache, help_file
 
 & hostnames
-  Config parameter: hostnames <yes/no>.  Default: yes
+  Config parameter: hostnames <yes/no>.  Default: Yes
   Indicates whether or not IP addresses should be replaced with host names
   where possible in the log file and wizard WHO report.
 
@@ -1615,14 +1742,20 @@ use_global_aconn	wizard_obeys_linklock
   See also: conn_timeout, idle_interval.
 
 & idle_wiz_dark
-  Config parameter: idle_wiz_dark <yes/no>.  Default: no
+  Config parameter: idle_wiz_dark <yes/no>.  Default: No
   Indicates whether or not wizards who are idle for longer than the default
   timeout value are to automatically be set DARK, and then unDARKed when they
   type in their next command.  Wizards already set DARK are not automatically
   unDARKed.
 
+& indent_desc
+  Config parameter: indent_desc <yes/no>. Default: No
+ 
+  Places a blank line before and after every room, object, and exit
+  description when looked at.
+ 
 & include
-  Config parameter: include <path>.  Default: none
+  Config parameter: include <path>.  Default: None
   Reads and processes configuration directives from the named file.
   This directive is only valid during startup.
 
@@ -1736,7 +1869,7 @@ use_global_aconn	wizard_obeys_linklock
   XXX
 
 & look_obey_terse
-  Config parameter: look_obey_terse <yes/no>.  Default: YES
+  Config parameter: look_obey_terse <yes/no>.  Default: Yes
   Indicates whether or not the 'look' command obeys the TERSE flag when
   deciding how much information to display.  If set to yes, the
   terse_shows_contents, terse_shows_exits, and terse_shows_move_messages
@@ -1751,8 +1884,16 @@ use_global_aconn	wizard_obeys_linklock
   it interactively.  Each command run has a one in <number> chance of being
   charged one coin for machine overhead.
 
+& mail_database
+  Config parameter: mail_database <path>.  Default: mail.db
+ 
+  Sets the file that @mail information is to be stored in. The database
+  is only loaded or saved if have_mailer is set to yes.
+ 
+  See also: have_mailer.
+ 
 & match_own_commands
-  Config parameter: match_own_commands <yes/no>.  Default: NO
+  Config parameter: match_own_commands <yes/no>.  Default: No
   Specifies whether or not objects search themselves for $-commands when a
   command does not match an exit or an internal command.  In order for
   players to search themselves for commands, both match_own_commands and
@@ -1791,7 +1932,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: money_name_plural.
 
 & motd_file
-  Config parameter: motd_file <pathname>.  Default: motd.txt
+  Config parameter: motd_file <pathname>.  Default: text/motd.txt
   Specifies the name of the file to be shown to players immediately after they
   connect to their characters.
   See also: @readcache, newuser_file, motd_message.
@@ -1812,13 +1953,13 @@ use_global_aconn	wizard_obeys_linklock
             rwho_transmit.
 
 & news_file
-  Config parameter: news_file <path>.  Default: news.txt
+  Config parameter: news_file <path>.  Default: text/news.txt
   Specifies the name of the file containing the text used by the news
   command.
   See also: news, news_index
 
 & news_index
-  Config parameter: news_index <path>.  Default: news.indx
+  Config parameter: news_index <path>.  Default: text/news.indx
   Specifies the name of the index file used by the news command.  This file
   must be generated by mkindx from the news file.  The contents of this
   file are read in to a hash table when the game is started and whenever a
@@ -1826,7 +1967,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: news, @readcache, news_file
 
 & newuser_file
-  Config parameter: newuser_file <filename>.  Default: newuser.txt
+  Config parameter: newuser_file <filename>.  Default: text/newuser.txt
   Specifies the file to be shown to new players immediately after they
   create their characters, in place of the MOTD file.  This file should
   contain information about the basic commands and how to get help.
@@ -1839,6 +1980,14 @@ use_global_aconn	wizard_obeys_linklock
   recursively.  A recursive call is made whenever a message heard by an
   object is to be forwarded to its contents.
 
+& number_guests
+  Config parameter: number_guests <number>. Default: 30
+ 
+  This is the maximum number of Guest characters that can connect at
+  any given time.
+ 
+  See also: guest_char_num, guest_nuker, guests_channel, guest_prefix.
+
 & open_cost
   Config parameter: open_cost <amount>.  Default: 1
   Indicates the cost of using the @open command to open a new exit.
@@ -1847,7 +1996,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: @open, link_cost.
 
 & output_database
-  Config parameter: output_database <pathname>.  Default: none
+  Config parameter: output_database <pathname>.  Default: None
   Specifies the file to which the database is to be written when writing
   checkpoint dumps or writing the final dump after receiving a @shutdown
   command.
@@ -1871,7 +2020,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: page.
 
 & paranoid_allocate
-  Config parameter: paranoid_allocate <yes/no>.  Default: no
+  Config parameter: paranoid_allocate <yes/no>.  Default: No
 
   Controls whether or not the game performs a consistency check on the entire
   set of xbuf buffers each time one is allocated or freed.  This check
@@ -1880,14 +2029,14 @@ use_global_aconn	wizard_obeys_linklock
   is checked.
 
 & parentable_control_lock
-  Config parameter: parentable_control_lock <yes/no>.  Default: no
+  Config parameter: parentable_control_lock <yes/no>.  Default: No
  
   Specifies whether or not objects without a ControlLock inherit the
   ControlLock of their parent.  Note that the ControlLock is only obeyed
   for objects whose ZONE flag is set.
 
 & parent_zones
-  Config parameter: parent_zones <yes/no>.  Default: no
+  Config parameter: parent_zones <yes/no>.  Default: No
  
   Specifies whether or not the @parent/zone command works, and whether
   rooms that have that secondary parent have that parent chain checked
@@ -1901,14 +2050,14 @@ use_global_aconn	wizard_obeys_linklock
   See also: @allowance, earn_limit, starting_money.
 
 & pemit_any_object
-  Config parameter: pemit_any_object <yes/no>.  Default: no
+  Config parameter: pemit_any_object <yes/no>.  Default: No
   Indicates whether or not players may @pemit to faraway objects they do not
   control.  It does not affect @pemits to faraway players, the
   pemit_far_players directive is used for that purpose.
   See also: pemit_far_players.
 
 & pemit_far_players
-  Config parameter: pemit_far_players <yes/no>.  Default: no
+  Config parameter: pemit_far_players <yes/no>.  Default: No
   Controls whether or not players may use the @pemit command to send messages
   to other connected players that are not in the same room.  The rules and
   costs for this form of @pemit are the same as for page.
@@ -1933,19 +2082,19 @@ use_global_aconn	wizard_obeys_linklock
   See also: @list, exit_flags, robot_flags, room_flags, thing_flags.
 
 & player_listen
-  Config parameter: player_listen.  Default: no
+  Config parameter: player_listen.  Default: No
   Indicates whether the Listen, Aahear, Ahear, and Amhear attributes on
   player objects are to be obeyed.
 
 & player_match_own_commands
-  Config parameter: player_match_own_commands <yes/no>.  Default: no
+  Config parameter: player_match_own_commands <yes/no>.  Default: No
   Specifies whether or not players should check themselves for $-commands.
   This parameter is only checked if the match_own_commands parameter is
   set to yes.
   See also: match_own_commands.
 
 & player_name_spaces
-  Config parameter: player_name_spaces <yes/no>.  Default: yes
+  Config parameter: player_name_spaces <yes/no>.  Default: Yes
   Specifies whether or not player names are permitted to contain
   spaces.
 
@@ -1956,7 +2105,7 @@ use_global_aconn	wizard_obeys_linklock
   halt the object performing the command.
 
 & player_parent
-  Config parameter: player_parent <dbref>.  Default: nothing
+  Config parameter: player_parent <dbref>.  Default: Nothing
  
   If this parameter is set, every object of type PLAYER will have the
   specified object as a parent.
@@ -1983,6 +2132,23 @@ use_global_aconn	wizard_obeys_linklock
   is used for both.
   See also: player_starting_home, @pcreate, player_flags.
 
+& plushelp_file
+  Config parameter: plushelp_file <path>.  Default: text/plushelp.txt
+ 
+  Specifies the name of the file containing the text used by the +help command.
+ 
+  See also: plushelp_index
+ 
+& plushelp_index
+  Config parameter: plushelp_index <path>.  Default: text/plushelp.indx
+ 
+  Specifies the name of the index file used by the +help command.  This file
+  must be generated by mkindx from the plushelp file.  The contents of
+  this file are read in to a hash table when the game is started and whenever
+  a @readcache command is executed.
+ 
+  See also: @readcache, plushelp_file
+ 
 & port
   Config parameter: port <port>.  Default: 6250
   Specifies the IP port on which the game listens for new connections.
@@ -1998,8 +2164,19 @@ use_global_aconn	wizard_obeys_linklock
   Changes the access rights to the named power.
   See also: @list powers, PERMISSIONS.
 
+& public_channel
+  Config parameter: public_channel <name>. Default: Public
+ 
+  Specifies the name of the channel that new players join when they are
+  created. You must have previously created the channel. To disable this
+  feature, simply set this parameter to nothing.
+ 
+  The default alias for this channel is 'pub'.
+ 
+  See also: have_comsys, guests_channel.
+ 
 & public_flags
-  Config parameter: public_flags <yes/no>.  Default: yes
+  Config parameter: public_flags <yes/no>.  Default: Yes
   If enabled, indicates that players may get the flags of any object with the
   flags() function call.  Otherwise, they may only get the flags for objects
   that are examinable by them.
@@ -2028,19 +2205,19 @@ use_global_aconn	wizard_obeys_linklock
   See also: queue_active_chunk.
 
 & quiet_look
-  Config parameter: quiet_look <yes/no>.  Default: no
+  Config parameter: quiet_look <yes/no>.  Default: No
   Indicates whether or not players are shown the attributes set on an object
   when they look at it.  Not recommended.
 
 & quiet_whisper
-  Config parameter: quiet_whisper <yes/no>.  Default: yes
+  Config parameter: quiet_whisper <yes/no>.  Default: Yes
   Indicates whether or not whispers are completely invisible except to the
   whispered-to player, or if a '<whisperer> whispers something to
   <recipient>.' message is displayed to everyone else in the same room.
   See also: whisper.
 
 & quit_file
-  Config parameter: quit_file <filename>.  Default: quit.txt
+  Config parameter: quit_file <filename>.  Default: text/quit.txt
   Specifies the name of the file that is displayed to users after they QUIT
   but before the network connection is closed.
   See also: QUIT, @readcache.
@@ -2052,7 +2229,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: @create, @destroy, @dig, @open, @quota, QUOTAS.
 
 & quotas
-  Config parameter: quotas <yes/no>.  Default: no
+  Config parameter: quotas <yes/no>.  Default: No
  
   Indicates whether or not building quotas are enforced and maintained.
   Quotas are stored as a relative number, ie. number of objects that the
@@ -2068,26 +2245,28 @@ use_global_aconn	wizard_obeys_linklock
             quota_cost.
  
 & read_remote_desc
-  Config parameter: read_remote_desc <yes/no>.  Default: no
+  Config parameter: read_remote_desc <yes/no>.  Default: No
   Indicates whether or not the descriptions of faraway objects are available
   to players that don't control them via the examine command and get()
   function.
   See also: examine, get().
 
 & read_remote_name
-  Config parameter: read_remote_name <yes/no>.  Default: no
+  Config parameter: read_remote_name <yes/no>.  Default: No
   Indicates whether or not the names of faraway objects are available
   to players that don't control them via the examine command and get()
   function.
   See also: examine, get().
  
 & recycling
-  Config parameter: recycling <yes/no>.  Default: yes
+  Config parameter: recycling <yes/no>.  Default: Yes
   Indicates whether or not object destruction, recycling, reuse is enabled.
   Don't change it.
 
 & register_create_file
-  Config parameter: register_create_file <filename>.  Default: create_reg.txt
+  Config parameter: register_create_file <filename>.
+  Default: text/create_reg.txt
+ 
   Specifies the name of the file that is shown to players who attempt to
   create a new character when registration is in force from their site.
   See also: @list_file, @readcache, register_site.
@@ -2101,7 +2280,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: forbid_site, permit_site, REGISTRATION, SITE LISTS.
 
 & require_cmds_flag
-  Config parameter: require_cmds_flag <yes/no>.  Default: yes
+  Config parameter: require_cmds_flag <yes/no>.  Default: Yes
   Indicates whether or not the COMMANDS flag has to be set in order
   for $-commands to be checked on an object. Older versions of MUSH
   don't require it to be set. However, it can be considerably more
@@ -2126,7 +2305,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: @list, exit_flags, player_flags, room_flags, thing_flags.
 
 & robot_speech
-  Config parameter: robot_speech: <yes/no>.  Default: yes
+  Config parameter: robot_speech: <yes/no>.  Default: Yes
   Indicates whether or not robot characters are allowed to use the speech,
   pose, and emit commands in areas not controlled by their owner.
   See also: @robot, ROBOT.
@@ -2138,7 +2317,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: @list, exit_flags, player_flags, robot_flags, thing_flags.
 
 & room_parent
-  Config parameter: room_parent <dbref>.  Default: nothing
+  Config parameter: room_parent <dbref>.  Default: Nothing
  
   If this parameter is set, every object of type ROOM will have the
   specified object as a parent.
@@ -2188,7 +2367,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: mud_name, rwho_host, rwho_info_port, rwho_transmit.
 
 & rwho_transmit
-  Config parameter: rwho_transmit <yes/no>.  Default: no
+  Config parameter: rwho_transmit <yes/no>.  Default: No
   Indicates whether or not to transmit data to a remote RWHO server.
   See also: @list, mud_name, rwho_host, rwho_info_port, rwho_password.
 
@@ -2215,7 +2394,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: @create, @destroy, SACRIFICING, sacrifice_adjust.
 
 & safer_passwords
-  Config parameter: safer_passwords <yes/no>.  Default: no
+  Config parameter: safer_passwords <yes/no>.  Default: No
  
   If this configuration parameter is enabled, player passwords are 
   required to have at least one uppercase letter, at least one lowercase
@@ -2230,12 +2409,24 @@ use_global_aconn	wizard_obeys_linklock
   See also: stats, @find, @search.
 
 & see_owned_dark
-  Config parameters: see_owned_dark <yes/no>.  Default: yes
+  Config parameters: see_owned_dark <yes/no>.  Default: Yes
   Specifies whether or not players see their own DARK objects when they
   look at a room.  It does not affect the inventory or examine commands,
   both of which show all objects.
 
 & signal_action
+  Config parameter: signal_action <default|exit>.  Default: default
+ 
+  Specifies what action to take when a fatal signal is received.  The
+  possibilities are:
+ 
+     default  - Log the error, produce a panic dump, dump a core file, and
+                restart the game using the last reliably saved database.
+                For a description of the restart process, see @restart.
+ 
+     exit     - Log the error, and exit, hopefully with a core file.
+ 
+& OLD_signal_action
   Config parameter: signal_action <default|resignal|retry>.  Default: default
   Specifies what action to take when a fatal signal is received.  The
   possibilities are:
@@ -2252,7 +2443,7 @@ use_global_aconn	wizard_obeys_linklock
                 a coredump, although the stack may or may not be readable.
 
 & space_compress
-  Config parameter: space_compress <yes/no>.  Default: yes
+  Config parameter: space_compress <yes/no>.  Default: Yes
   Specifies whether or not extra spaces are to be removed from user input
   as it is processed.  If enabled, multiple spaces are compressed to a single
   space, and spaces at the ends of strings are removed.
@@ -2306,13 +2497,13 @@ use_global_aconn	wizard_obeys_linklock
   See also: trust_site, SITE LISTS.
 
 & sweep_dark
-  Config parameter: sweep_dark <yes/no>.  Default: no
+  Config parameter: sweep_dark <yes/no>.  Default: No
   Indicates whether or not players are allowed to @sweep dark places they do not
   control.
   See also: @sweep.
 
 & switch_default_all
-  Config parameter: switch_default_all <yes/no>.  Default: yes
+  Config parameter: switch_default_all <yes/no>.  Default: Yes
   Indicates whether the @switch command should perform the commands for all
   targets that match or just the first one that matches if you don't specify
   either /all or /first as a command switch.
@@ -2362,7 +2553,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: @list, exit_flags, player_flags, robot_flags, room_flags.
 
 & thing_parent
-  Config parameter: thing_parent <dbref>.  Default: nothing
+  Config parameter: thing_parent <dbref>.  Default: Nothing
  
   If this parameter is set, every object of type THING will have the
   specified object as a parent.
@@ -2398,7 +2589,7 @@ use_global_aconn	wizard_obeys_linklock
   evaluations and earlier arguments of outer functions).
 
 & trace_topdown
-  Config parameter: trace_topdown <yes/no>.  Default: yes
+  Config parameter: trace_topdown <yes/no>.  Default: Yes
   Specifies whether TRACE output is displayed top-down (complete evaluation
   shown first, followed by sub-evaluations), or bottom-up (sub-evaluations
   shown first, followed by the larger evaluation of which they are a part).
@@ -2412,7 +2603,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: suspect_site, SITE LISTS.
 
 & typed_quotas
-  Config parameter: typed_quotas <yes/no>.  Default: no
+  Config parameter: typed_quotas <yes/no>.  Default: No
   Indicates whether or not quotas are managed by type. If this is not on,
   then only total quota will be checked; otherwise, players must have both
   enough total quota and quota for that specific object type, in order to
@@ -2420,14 +2611,14 @@ use_global_aconn	wizard_obeys_linklock
   parameter "quotas" should also be 'yes'.
 
 & unowned_safe
-  Config parameter: unowned_safe <yes/no>.  Default: no
+  Config parameter: unowned_safe <yes/no>.  Default: No
   Indicates whether or not objects not owned by you are automatically
   considered SAFE.  (This parameter only affects wizards)  Note that players
   are always considered SAFE, and DESTROY_OK things are never considered SAFE.
   See also: @destroy, DESTROY_OK, SAFE.
 
 & use_global_aconn
-  Config parameter: use_global_aconn <yes/no>.  Default: yes
+  Config parameter: use_global_aconn <yes/no>.  Default: Yes
   Indicates whether or not objects in the master room should be searched
   for @aconnect and @adisconnect attributes whenever a player logs in or
   out.  If enabled, each object in the master room is searched for the
@@ -2448,18 +2639,18 @@ use_global_aconn	wizard_obeys_linklock
   See also: @wait.
 
 & wizard_obeys_linklock
-  Config parameter: wizard_obeys_linklock <yes/no>.  Default: no
+  Config parameter: wizard_obeys_linklock <yes/no>.  Default: No
   Controls whether or not wizards can link to anything, regardless of
   whether or not it has a linklock.
  
 & wizard_help_file
-  Config parameter: wizard_help_file <path>.  Default: wizhelp.txt
+  Config parameter: wizard_help_file <path>.  Default: text/wizhelp.txt
   Specifies the name of the file containing the text used by the wizhelp
   command.
   See also: wizhelp, wizard_help_index
 
 & wizard_help_index
-  Config parameter: wizard_help_index <path>.  Default: wizhelp.indx
+  Config parameter: wizard_help_index <path>.  Default: text/wizhelp.indx
   Specifies the name of the index file used by the wizhelp command.  This file
   must be generated by mkindx from the wizard help file.  The contents of
   this file are read in to a hash table when the game is started and whenever
@@ -2467,7 +2658,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: wizhelp, @readcache, wizard_help_file
 
 & wizard_motd_file
-  Config parameter: wizard_motd_file <path>.  Default: wizmotd.txt
+  Config parameter: wizard_motd_file <path>.  Default: text/wizmotd.txt
   Specifies the name of the file that contains the wizard MOTD message that
   is displayed to wizards when they log in.  This message is displayed in
   addition to the wizard MOTD message that is set by the @motd/wiz command or
@@ -2484,6 +2675,24 @@ use_global_aconn	wizard_obeys_linklock
   @listmotd command.
   See also: @listmotd, @motd, motd_message, wizard_motd_file.
 
+& wiznews_file
+  Config parameter: wiznews_file <path>.  Default: text/wiznews.txt
+ 
+  Specifies the name of the file containing the text used by the wiznews 
+  command.
+ 
+  See also: wiznews_index
+ 
+& wiznews_index
+  Config parameter: wiznews_index <path>.  Default: text/wiznews.indx
+ 
+  Specifies the name of the index file used by the help command.  This file
+  must be generated by mkindex from the wizard help file.  The contents of
+  this file are read in to a hash table when the game is started and whenever
+  a @readcache command is executed.
+ 
+  See also: @readcache, wiznews_file
+ 
 & CAUTIONS
   Topic: CAUTIONS
  
@@ -2519,6 +2728,7 @@ use_global_aconn	wizard_obeys_linklock
                   character when logins are disabled.
   help.indx:      Index for the help.txt file, produced by the mkindx program.
   help.txt:       File containing information displayed by the help command.
+ 
 { 'wizhelp files2' for more }
 & files2
   guest.txt:      Displayed to whoever connects to the guest character(s)
@@ -2529,20 +2739,32 @@ use_global_aconn	wizard_obeys_linklock
   news.txt:       File containing information displayed by the news command.
   newuser.txt:    Displayed after someone creates a new character or connects
                   to their character for the first time.
+  plushelp.indx:  Index for the plushelp.txt file, produced by the mkindx
+                  program.
+  plushelp.txt:   File containing information displayed by the +help command.
   quit.txt:       Displayed after someone QUITs but before the net connection
                   is closed.
   register.txt:   Displayed when someone connects from a site for which
                   registration is enabled.
+ 
+{ 'wizhelp files3' for more }
+& files3
   wizhelp.indx:   Index for the wizhelp.txt file, produced by the mkindx
                   program.
   wizhelp.txt:    File containing information displayed by the wizhelp
+                  command.
+  wiznews.indx:   Index for the wiznews.txt file, produced by the mkindx
+                  program.
+  wiznews.txt     File containing information displayed by the wiznews
                   command.
   wizmotd.txt:    Displayed to wizards when they connect to their characters.
  
   See also: badsite_file, connect_file, connect_reg_file, down_file,
             guest_file, help_file, help_index, motd_file, news_file,
-            news_index, newuser_file, quit_file, register_create_file,
-            wizard_help_file, wizard_help_index, wizard_motd_file.
+            news_index, newuser_file, plushelp_file, plushelp_index,
+            quit_file, register_create_file, wizard_help_file,
+            wizard_help_index, wiznews_file, wiznews_index,
+            wizard_motd_file.
 
 & INHERITANCE
   XXXX
