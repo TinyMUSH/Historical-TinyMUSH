@@ -418,6 +418,11 @@ static void process_comsys(player, arg, cap)
     char *buff, *name_buf, tbuf[LBUF_SIZE], *tp;
     int i;
 
+    if (!arg || !*arg) {
+	notify(player, "No message.");
+	return;
+    }
+
     if (!strcmp(arg, (char *) "on")) {
 
 	for (wp = cap->channel->who; wp != NULL; wp = wp->next) {
