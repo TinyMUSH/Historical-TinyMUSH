@@ -17,7 +17,9 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   to TinyMUSH 3.
 
 - The Backup, Restore, and Archive scripts can now look at a backups
-  directory (set in mush.config).
+  directory (set in mush.config). The default compression program is
+  also now set in mush.config. Compression extensions are used
+  correctly, and the bzip2 format is supported.
 
 - The Startmush script handles KILLED and CRASH databases more elegantly.
 
