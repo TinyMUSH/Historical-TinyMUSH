@@ -1861,12 +1861,14 @@ char *argv[];
 	    log_text((char *) "Startup processing complete.");
 	ENDLOG
 
+#ifndef MEMORY_BASED
 	/* Clear all reference flags in the cache-- what happens when the game
 	 * loads is NOT representative of normal cache behavior :)
 	 */
-	
+
 	cache_reset(1);
-	
+#endif /* MEMORY_BASED */
+
 	/* Start the DNS and identd lookup slave process */
 	
 	boot_slave();
