@@ -434,3 +434,18 @@ TinyMUX 1.4 patchlevel 0:
 - @wait <n>=@restart will no longer crash the MUX.
 - @oemit now works as described in the help, no longer only in the executing 
   player's location.
+
+TinyMUX 1.4 patchlevel 1:
+- This fixed a problem with the help for mail(), a crashing problem with
+  repeat(), and a compiling problem with patchlevel.h.
+
+TinyMUX 1.4 patchlevel 2:
+- This patch fixes a problem with patchlevel.h, as well as a problem with
+  @delcommand where restoring a built-in command was not functioning properly.
+
+TinyMUX 1.4 patchlevel 3:
+- Fixed problems with zone recursion, as well as a problem with examining a
+  zoned object and seeing all attributes as the same name.
+- All semaphores are now cleared on objects when they are destroyed.
+- @clone now creates object with the correct cost.
+- Fixed problem with @oemit that crept in 1.4p0.
