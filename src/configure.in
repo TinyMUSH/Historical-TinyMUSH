@@ -732,9 +732,9 @@ case "$with_sql" in
       AC_MSG_ERROR(unable to build with msql), ) ;;
   mysql)
     LDFLAGS="$SQL_LIB $SAVELDFLAGS"
-    AC_CHECK_LIB(mysqlclient, main,
+    AC_CHECK_LIB(mysqlclient, mysql_real_connect,
       LIBS="$SQL_LIB -lmysqlclient $LIBS",
-      AC_CHECK_LIB(mysqlclient, main,
+      AC_CHECK_LIB(mysqlclient, mysql_real_connect,
         LIBS="$SQL_LIB -lmysqlclient -lz $LIBS",
         AC_MSG_ERROR(unable to build with mysql), -lz ), ) ;;
 esac
