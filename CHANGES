@@ -163,6 +163,9 @@ the other have been listed in the conversion notes for both servers.
 - New /noeval switch to @function defines a user-defined function whose
   arguments are not pre-evaluated.
 
+- New @hashresize command dynamically resizes the hash tables. This is
+  also automatically done at startup time.
+
 - The @list options command has been reformatted and reorganized. A
   new command, @list params, lists additional configuration parameters.
 
