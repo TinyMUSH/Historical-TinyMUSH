@@ -1221,13 +1221,12 @@ FUNCTION(fun_max)
 	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
 	max = aton(fargs[0]);
-	for (i = 0; i < nfargs; i++) {
+	for (i = 1; i < nfargs; i++) {
 	    val = aton(fargs[i]);
 	    max = (max < val) ? val : max;
 	}
 	fval(buff, bufc, max);
     }
-    return;
 }
 
 FUNCTION(fun_min)
@@ -1239,13 +1238,12 @@ FUNCTION(fun_min)
 	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
     } else {
 	min = aton(fargs[0]);
-	for (i = 0; i < nfargs; i++) {
+	for (i = 1; i < nfargs; i++) {
 	    val = aton(fargs[i]);
 	    min = (min > val) ? val : min;
 	}
 	fval(buff, bufc, min);
     }
-    return;
 }
 
 FUNCTION(fun_inc)
