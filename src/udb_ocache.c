@@ -34,6 +34,8 @@
 extern struct Obj *dddb_get();
 extern void logf();
 
+extern void FDECL(raw_notify, (dbref, const char *));
+
 /*
  * This is by far the most complex and kinky code in UnterMUD. You should
  * never need to mess with anything in here - if you value your sanity.
@@ -339,7 +341,108 @@ int trim;
 	cs_resets++;
 }
 
+/*
+  list dbrefs of objects in the cache.
+  */
 
+void list_cached_objs(player)
+    dbref player;
+{
+    CacheLst *sp;
+    Cache *cp;
+    int x;
+    int aco, maco, ico, mico;
+    char *bp, nbuf[16], buff[LBUF_SIZE];
+
+    aco = maco = ico = mico = 0;
+
+    raw_notify(player, "Active Cache:");
+
+    bp = buff;
+    for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
+        for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
+            if (cp->op) {
+                aco++;
+                if (bp != buff) {
+                    safe_chr(' ', buff, &bp);
+                }
+                safe_chr('#', buff, &bp);
+                ltos(nbuf, (int) cp->op->name);
+                safe_str(nbuf, buff, &bp);
+            }
+        }
+    }
+    *bp = '\0';
+    if (bp != buff) {
+        raw_notify(player, buff);
+    }
+
+    raw_notify(player, "Modified Active Cache:");
+
+    bp = buff;
+    for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
+        for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
+            if (cp->op) {
+                maco++;
+                if (bp != buff) {
+                    safe_chr(' ', buff, &bp);
+                }
+                safe_chr('#', buff, &bp);
+                ltos(nbuf, (int) cp->op->name);
+                safe_str(nbuf, buff, &bp);
+            }
+        }
+    }
+    *bp = '\0';
+    if (bp != buff) {
+        raw_notify(player, buff);
+    }
+
+    raw_notify(player, "Inactive Cache:");
+
+    bp = buff;
+    for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
+        for (cp = sp->old.head; cp != NULL; cp = cp->nxt) {
+            if (cp->op) {
+                ico++;
+                if (bp != buff) {
+                    safe_chr(' ', buff, &bp);
+                }
+                safe_chr('#', buff, &bp);
+                ltos(nbuf, (int) cp->op->name);
+                safe_str(nbuf, buff, &bp);
+            }
+        }
+    }
+    *bp = '\0';
+    if (bp != buff) {
+        raw_notify(player, buff);
+    }
+
+    raw_notify(player, "Modified Inactive Cache:");
+
+    bp = buff;
+    for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
+        for (cp = sp->mold.head; cp != NULL; cp = cp->nxt) {
+            if (cp->op) {
+                mico++;
+                if (bp != buff) {
+                    safe_chr(' ', buff, &bp);
+                }
+                safe_chr('#', buff, &bp);
+                ltos(nbuf, (int) cp->op->name);
+                safe_str(nbuf, buff, &bp);
+            }
+        }
+    }
+    *bp = '\0';
+    if (bp != buff) {
+        raw_notify(player, buff);
+    }
+
+    raw_notify(player,
+               tprintf("Totals: active %d, modified active %d, inactive %d, modified inactive %d", aco, maco, ico, mico));
+}
 
 
 /*
