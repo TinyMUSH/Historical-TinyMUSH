@@ -372,6 +372,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	GLOB_ENABLE	1	/* key to enable */
 #define	GLOB_DISABLE	2	/* key to disable */
 #define	HALT_ALL	1	/* halt everything */
+#define HELP_RAWHELP	0x08000000	/* A high bit. Don't eval text. */
 #define HOOK_BEFORE	1	/* pre-command hook */
 #define HOOK_AFTER	2	/* post-command hook */
 #define HOOK_PRESERVE	4	/* preserve global regs */

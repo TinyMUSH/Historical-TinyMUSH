@@ -48,7 +48,7 @@ void NDECL(dump_database);
 void NDECL(pcache_sync);
 void FDECL(dump_database_internal, (int));
 static void NDECL(init_rlimit);
-extern int FDECL(add_helpfile, (dbref, char *));
+extern int FDECL(add_helpfile, (dbref, char *, int));
 extern void NDECL(vattr_init);
 extern void NDECL(load_restart_db);
 extern int NDECL(sql_init);
@@ -1615,9 +1615,9 @@ char *argv[];
 	hashinit(&mudstate.instance_htab, 100 * HASH_FACTOR);
 	hashinit(&mudstate.instdata_htab, 250 * HASH_FACTOR);
 
-	add_helpfile(GOD, (char *) "help text/help");
-	add_helpfile(GOD, (char *) "wizhelp text/wizhelp");
-	add_helpfile(GOD, (char *) "news text/news");
+	add_helpfile(GOD, (char *) "help text/help", 1);
+	add_helpfile(GOD, (char *) "wizhelp text/wizhelp", 1);
+	add_helpfile(GOD, (char *) "news text/news", 0);
 	cmdp = (CMDENT *) hashfind((char *) "wizhelp", &mudstate.command_htab);
 	if (cmdp)
 	    cmdp->perms |= CA_WIZARD;

@@ -940,9 +940,10 @@ CF_HAND(cf_cf_access)
  * cf_helpfile: Add a help/news-style file. Only valid during startup.
  */
 
-int add_helpfile(player, str)
+int add_helpfile(player, str, is_raw)
     dbref player;
     char *str;
+    int is_raw;
 {
     char *fcmd, *fpath, *newstr;
     CMDENT *cmdp;
@@ -970,11 +971,14 @@ int add_helpfile(player, str)
 	cmdp->cmdname = (char *) strdup(fcmd);
 	cmdp->switches = NULL;
 	cmdp->perms = 0;
-	cmdp->extra = mudstate.helpfiles;
 	cmdp->pre_hook = NULL;
 	cmdp->post_hook = NULL;
 	cmdp->callseq = CS_ONE_ARG;
 	cmdp->info.handler = do_help;
+
+	cmdp->extra = mudstate.helpfiles;
+	if (is_raw)
+	    cmdp->extra |= HELP_RAWHELP;
 
 	hashadd(fcmd, (int *) cmdp, &mudstate.command_htab);
 
@@ -1028,7 +1032,12 @@ int add_helpfile(player, str)
 
 CF_HAND(cf_helpfile)
 {
-    return add_helpfile(player, str);
+    return add_helpfile(player, str, 0);
+}
+
+CF_HAND(cf_raw_helpfile)
+{
+    return add_helpfile(player, str, 1);
 }
 
 /*
@@ -1443,6 +1452,8 @@ CONF conftable[] = {
 	cf_string,	CA_STATIC,	(int *)mudconf.quit_file,	SBUF_SIZE},
 {(char *)"quotas",
 	cf_bool,	CA_GOD,		&mudconf.quotas,		0},
+{(char *)"raw_helpfile",
+	cf_raw_helpfile,	CA_STATIC,	NULL,			0},
 {(char *)"read_remote_desc",
 	cf_bool,	CA_GOD,		&mudconf.read_rem_desc,		0},
 {(char *)"read_remote_name",

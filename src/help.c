@@ -233,11 +233,14 @@ char *message;
 {
     char *buf;
     char tbuf[SBUF_SIZE + 8];
+    int hf_num;
 
-    if (key >= mudstate.helpfiles) {
+    hf_num = key & ~HELP_RAWHELP;
+
+    if (hf_num >= mudstate.helpfiles) {
 	STARTLOG(LOG_BUGS, "BUG", "HELP")
 	    buf = alloc_mbuf("do_help.LOG");
-	    sprintf(buf, "Unknown help file number: %d", key);
+	    sprintf(buf, "Unknown help file number: %d", hf_num);
 	    log_text(buf);
 	    free_mbuf(buf);
 	ENDLOG
@@ -245,7 +248,7 @@ char *message;
 	return;
     }
 
-    sprintf(tbuf, "%s.txt", mudstate.hfiletab[key]);
-    help_write(player, message, &mudstate.hfile_hashes[key], tbuf,
-	       (key > 1) ? 1 : 0);
+    sprintf(tbuf, "%s.txt", mudstate.hfiletab[hf_num]);
+    help_write(player, message, &mudstate.hfile_hashes[hf_num], tbuf,
+	       (key & HELP_RAWHELP) ? 0 : 1);
 }
