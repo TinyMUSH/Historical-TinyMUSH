@@ -195,13 +195,13 @@ handlers in the command table, which takes the following format:
 CMDENT mod_<name>_cmdtable[] = {
 {(char *)"<command1>",		<switches>,	<permissions>,
 	0,		CS_<handler type>,
-	NULL,		NULL,	NULL,		<handler function>},
+	NULL,		NULL,	NULL,		{<handler function>}},
 {(char *)"<command2>",		<switches>,	<permissions>,
 	0,		CS_<handler type>,
-	NULL,		NULL,	NULL,		<handler function>},
+	NULL,		NULL,	NULL,		{<handler function>}},
 {(char *)NULL,			NULL,		0,
 	0,		0,
-	NULL,		NULL,	NULL,		NULL}};
+	NULL,		NULL,	NULL,		{NULL}}};
 
 You can put as many commands into this table as you'd like. Make
 sure it ends with the "null" entry, though.

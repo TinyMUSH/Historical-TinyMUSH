@@ -73,7 +73,6 @@ CacheLst *sys_c;
 
 static int cache_initted = 0;
 static int cache_frozen = 0;
-static int cache_busy = 0;
 
 /* cache stats */
 
@@ -258,7 +257,6 @@ void list_cached_objs(player)
     int x;
     int aco, maco, asize, msize, oco, moco;
     int *count_array, *size_array;
-    ATTR *atr;
     
     aco = maco = asize = msize = oco = moco = 0;
 
@@ -482,7 +480,9 @@ int type;
 		prv = cp;
 	}
 
+#ifdef MEMORY_BASED
 skipcacheget:
+#endif
 
 	/* DARN IT - at this point we have a certified, type-A cache miss */
 
@@ -824,7 +824,8 @@ int atrsize;
 				}
 						
 				/* If we haven't found one by now, the tail
-				/* of the modified chain is it */
+				 * of the modified chain is it
+				 */
 
 				if ((score < curscore) || ((score == curscore) && 
 				    (size > cursize)) ||

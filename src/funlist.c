@@ -1622,7 +1622,6 @@ static void process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
     int i, num, n_columns, *col_widths;
     Delim list_sep, pad_char;
     char fs_buf[2], *widths[LBUF_SIZE / 2];  
-    char **fseps = NULL;
 
     VaChk_Sep(&list_sep, num, 5, 0);
     VaChk_Sep(&pad_char, num, 7, 0);

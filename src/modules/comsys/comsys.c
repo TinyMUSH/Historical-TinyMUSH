@@ -1688,46 +1688,46 @@ NAMETAB cwho_sw[] = {
 CMDENT mod_comsys_cmdtable[] = {
 {(char *)"@cboot",              cboot_sw,       CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_TWO_ARG,          
-	NULL,		NULL,	NULL,		do_cboot},
+	NULL,		NULL,	NULL,		{do_cboot}},
 {(char *)"@ccreate",            NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_ONE_ARG,          
-	NULL,		NULL,	NULL,		do_ccreate},
+	NULL,		NULL,	NULL,		{do_ccreate}},
 {(char *)"@cdestroy",           NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_ONE_ARG,          
-	NULL,		NULL,	NULL,		do_cdestroy},
+	NULL,		NULL,	NULL,		{do_cdestroy}},
 {(char *)"@cemit",		cemit_sw,	CA_NO_SLAVE|CA_NO_GUEST,
 	0,		 CS_TWO_ARG,		
-	NULL,		NULL,	NULL,		do_cemit},
+	NULL,		NULL,	NULL,		{do_cemit}},
 {(char *)"@channel",		channel_sw,	CA_NO_SLAVE|CA_NO_GUEST,
 	0,		 CS_TWO_ARG|CS_INTERP,		
-	NULL,		NULL,	NULL,		do_channel},
+	NULL,		NULL,	NULL,		{do_channel}},
 {(char *)"@clist",              clist_sw,       CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,		NULL,	NULL,		do_clist},
+	NULL,		NULL,	NULL,		{do_clist}},
 {(char *)"@cwho",               cwho_sw,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,		NULL,	NULL,		do_cwho},
+	NULL,		NULL,	NULL,		{do_cwho}},
 {(char *)"addcom",              NULL,           CA_NO_SLAVE,
         0,              CS_TWO_ARG|CS_ARGV,           
-	NULL,		NULL,	NULL,		do_addcom},
+	NULL,		NULL,	NULL,		{do_addcom}},
 {(char *)"allcom",              NULL,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,		NULL,	NULL,		do_allcom},
+	NULL,		NULL,	NULL,		{do_allcom}},
 {(char *)"comlist",             NULL,           CA_NO_SLAVE,
         0,              CS_NO_ARGS,           
-	NULL,		NULL,	NULL,		do_comlist},
+	NULL,		NULL,	NULL,		{do_comlist}},
 {(char *)"comtitle",            NULL,           CA_NO_SLAVE,
         0,              CS_TWO_ARG,          
-	NULL,		NULL,	NULL,		do_comtitle},
+	NULL,		NULL,	NULL,		{do_comtitle}},
 {(char *)"clearcom",            NULL,           CA_NO_SLAVE,
         0,              CS_NO_ARGS,           
-	NULL,		NULL,	NULL,		do_clearcom},
+	NULL,		NULL,	NULL,		{do_clearcom}},
 {(char *)"delcom",              NULL,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,		NULL,	NULL,		do_delcom},
+	NULL,		NULL,	NULL,		{do_delcom}},
 {(char *)NULL,			NULL,		0,
 	0,		0,				
-	NULL,		NULL,	NULL,		NULL}};
+	NULL,		NULL,	NULL,		{NULL}}};
 
 /* --------------------------------------------------------------------------
  * Initialization, and other fun with files.
@@ -2172,8 +2172,9 @@ FUNCTION(fun_comlist)
 	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
 	if ((chp->flags & CHAN_FLAG_PUBLIC) ||
 	    Comm_All(player) || (chp->owner == player)) {
-	    if (*bufc != bb_p)
+	    if (*bufc != bb_p) {
 		print_sep(osep, osep_len, buff, bufc);
+	    }
 	    safe_str(chp->name, buff, bufc);
 	}
     }

@@ -903,7 +903,7 @@ FUNCTION(fun_escape)
 
 FUNCTION(fun_ansi)
 {
-	char *s, *bb_p;
+	char *s;
 	int ansi_state;
 
 	if (!mudconf.ansi_colors) {

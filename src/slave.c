@@ -31,7 +31,7 @@ char *arg_for_errors;
 
 char *format_inet_addr(dest, addr)
 char *dest;
-unsigned int addr;
+unsigned long addr;
 {
 	sprintf(dest, "%lu.%lu.%lu.%lu",
 		(addr & 0xFF000000) >> 24,
@@ -175,7 +175,7 @@ char *orig_arg;
 			*p = '\0';
 		}
 		(void)fclose(f);
-		p = (char *)format_inet_addr(buf2, ntohl(sin.sin_addr.s_addr));
+		p = format_inet_addr(buf2, ntohl(sin.sin_addr.s_addr));
 		*p++ = ' ';
 		p = stpcpy(p, result);
 		*p++ = '\n';

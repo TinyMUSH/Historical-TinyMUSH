@@ -220,13 +220,13 @@ NAMETAB mod_hello_hello_sw[] = {
 CMDENT mod_hello_cmdtable[] = {
 {(char *)"@hello",		mod_hello_hello_sw,	CA_PUBLIC,
 	0,		CS_NO_ARGS,
-	NULL,		NULL,	NULL,			mod_hello_do_hello},
+	NULL,		NULL,	NULL,			{mod_hello_do_hello}},
 {(char *)"@foof",		NULL,			CA_PUBLIC,
 	0,		CS_NO_ARGS,
-	NULL,		NULL,	NULL,			mod_hello_do_foof},
+	NULL,		NULL,	NULL,			{mod_hello_do_foof}},
 {(char *)NULL,			NULL,		0,
 	0,		0,
-	NULL,		NULL,	NULL,		NULL}};
+	NULL,		NULL,	NULL,		{NULL}}};
 
 /* --------------------------------------------------------------------------
  * Functions.

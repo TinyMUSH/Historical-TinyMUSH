@@ -584,8 +584,9 @@ FUNCTION(fun_mix)
 	}
 	StrCopyKnown(atextbuf, atext, alen);
 
-	if (*bufc != bb_p)
+	if (*bufc != bb_p) {
 	    print_sep(isep, isep_len, buff, bufc);
+	}
 
 	str = atextbuf;
 	

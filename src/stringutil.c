@@ -418,8 +418,7 @@ char *str;
 int type;
 {
 	static char new[LBUF_SIZE];
-	char *bp, *c, *p;
-	int i;
+	char *bp;
 
 	bp = new;
 

@@ -3765,21 +3765,21 @@ NAMETAB malias_sw[] = {
 CMDENT mod_mail_cmdtable[] = {
 {(char *)"@mail",               mail_sw,           CA_NO_SLAVE|CA_NO_GUEST,
         0,              CS_TWO_ARG|CS_INTERP,
-	NULL,		NULL,	NULL,		do_mail},
+	NULL,		NULL,	NULL,		{do_mail}},
 {(char *)"@malias",             malias_sw,         CA_NO_SLAVE|CA_NO_GUEST,
         0,              CS_TWO_ARG|CS_INTERP,
-	NULL,		NULL,	NULL,		do_malias},
+	NULL,		NULL,	NULL,		{do_malias}},
 {(char *)"-",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_ONE_ARG|CS_LEADIN,	
-	NULL,		NULL,	NULL,		do_postpend},
+	NULL,		NULL,	NULL,		{do_postpend}},
 {(char *)"~",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_ONE_ARG|CS_LEADIN,	
-	NULL,		NULL,	NULL,		do_prepend},
+	NULL,		NULL,	NULL,		{do_prepend}},
 {(char *)NULL,			NULL,		0,
 	0,		0,				
-	NULL,		NULL,	NULL,		NULL}};
+	NULL,		NULL,	NULL,		{NULL}}};
 
 /* --------------------------------------------------------------------------
  * Handlers.
