@@ -40,6 +40,23 @@ char **last;
 }
 #endif /* HAVE_STRTOK_R */
 
+#define Skip_Ansi_Code(x) \
+		savep = x;				\
+		while (*x && (*x != ANSI_END)) {	\
+		    safe_chr(*x, result, &r);		\
+		    x++;				\
+		}					\
+		if (*x) {				\
+		    safe_chr(*x, result, &r);		\
+		    x++;				\
+		}					\
+		if (!strncmp(savep, ANSI_NORMAL, 4)) {	\
+		    have_normal = 1;			\
+		} else {				\
+		    have_normal = 0;			\
+                }
+
+
 /* Convert raw character sequences into MUSH substitutions (type = 1)
  * or strips them (type = 0). */
 
@@ -437,20 +454,7 @@ char *replace_string_ansi(old, new, string)
 
 	while (*s && (*s != *old)) {
 	    if (*s == ESC_CHAR) {
-		/* Start of an ANSI code. Skip to the end. */
-		savep = s;
-		while (*s && (*s != ANSI_END)) {
-		    safe_chr(*s, result, &r);
-		    s++;
-		}
-		if (*s) {
-		    safe_chr(*s, result, &r);
-		    s++;
-		}
-		if (!strncmp(savep, ANSI_NORMAL, 4))
-		    have_normal = 1;
-		else
-		    have_normal = 0;
+		Skip_Ansi_Code(s);
 	    } else {
 		safe_chr(*s, result, &r);
 		s++;
@@ -475,20 +479,7 @@ char *replace_string_ansi(old, new, string)
 		    t = (char *) new;
 		    while (*t) {
 			if (*t == ESC_CHAR) {
-			    /* Start of an ANSI code. Skip to the end. */
-			    savep = t;
-			    while (*t && (*t != ANSI_END)) {
-				safe_chr(*t, result, &r);
-				t++;
-			    }
-			    if (*t) {
-				safe_chr(*t, result, &r);
-				t++;
-			    }
-			    if (!strncmp(savep, ANSI_NORMAL, 4))
-				have_normal = 1;
-			    else
-				have_normal = 0;
+			    Skip_Ansi_Code(t);
 			} else {
 			    safe_chr(*t, result, &r);
 			    t++;
@@ -503,19 +494,7 @@ char *replace_string_ansi(old, new, string)
 		 * we just copy the character.
 		 */
 		if (*old == ESC_CHAR) {
-		    savep = s;
-		    while (*s && (*s != ANSI_END)) {
-			safe_chr(*s, result, &r);
-			s++;
-		    }
-		    if (*s) {
-			safe_chr(*s, result, &r);
-			s++;
-		    }
-		    if (!strncmp(savep, ANSI_NORMAL, 4))
-			have_normal = 1;
-		    else
-			have_normal = 0;
+		    Skip_Ansi_Code(s);
 		} else {
 		    safe_chr(*s, result, &r);
 		    s++;

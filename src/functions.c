@@ -182,6 +182,25 @@ XFUNCTION(fun_tclregs);
 	int nfargs, ncargs;
 
 
+/* Macro for skipping to the end of an ANSI code, if we're at the
+ * beginning of one. 
+ */
+#define Skip_Ansi_Code(s) \
+	    savep = s;				\
+	    while (*s && (*s != ANSI_END)) {	\
+		safe_chr(*s, buff, bufc);	\
+		s++;				\
+	    }					\
+	    if (*s) {				\
+		safe_chr(*s, buff, bufc);	\
+		s++;				\
+	    }					\
+	    if (!strncmp(savep, ANSI_NORMAL, 4)) {	\
+		have_normal = 1;		\
+	    } else {				\
+		have_normal = 0;		\
+            }
+
 /* ---------------------------------------------------------------------------
  * Trim off leading and trailing spaces if the separator char is a space
  */
@@ -1388,20 +1407,7 @@ FUNCTION(fun_mid)
     have_normal = 1;
     for (count = 0; *s && (count < start + nchars); ) {
 	if (*s == ESC_CHAR) {
-	    /* Start of an ANSI code. Skip to the end. */
-	    savep = s;
-	    while (*s && (*s != ANSI_END)) {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    if (*s) {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    if (!strncmp(savep, ANSI_NORMAL, 4))
-		have_normal = 1;
-	    else
-		have_normal = 0;
+	    Skip_Ansi_Code(s);
 	} else {
 	    if (count >= start)
 		safe_chr(*s, buff, bufc);
@@ -1477,20 +1483,7 @@ FUNCTION(fun_left)
     have_normal = 1;
     for (count = 0; *s && (count < nchars); ) {
 	if (*s == ESC_CHAR) {
-	    /* Start of an ANSI code. Skip to the end. */
-	    savep = s;
-	    while (*s && (*s != ANSI_END)) {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    if (*s) {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    if (!strncmp(savep, ANSI_NORMAL, 4))
-		have_normal = 1;
-	    else
-		have_normal = 0;
+	    Skip_Ansi_Code(s);
 	} else {
 	    safe_chr(*s, buff, bufc);
 	    s++;
@@ -1528,20 +1521,7 @@ FUNCTION(fun_right)
     have_normal = 1;
     for (count = 0; *s && (count < start + nchars); ) {
 	if (*s == ESC_CHAR) {
-	    /* Start of an ANSI code. Skip to the end. */
-	    savep = s;
-	    while (*s && (*s != ANSI_END)) {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    if (*s) {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    if (!strncmp(savep, ANSI_NORMAL, 4))
-		have_normal = 1;
-	    else
-		have_normal = 0;
+	    Skip_Ansi_Code(s);
 	} else {
 	    if (count >= start)
 		safe_chr(*s, buff, bufc);
@@ -3731,20 +3711,7 @@ FUNCTION(fun_delete)
     have_normal = 1;
     for (count = 0; *s && (count < len); ) {
 	if (*s == ESC_CHAR) {
-	    /* Start of an ANSI code. Skip to the end. */
-	    savep = s;
-	    while (*s && (*s != ANSI_END)) {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    if (*s) {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    if (!strncmp(savep, ANSI_NORMAL, 4))
-		have_normal = 1;
-	    else
-		have_normal = 0;
+	    Skip_Ansi_Code(s);
 	} else {
 	    if ((count >= start) && (count < start + nchars)) {
 		s++;
