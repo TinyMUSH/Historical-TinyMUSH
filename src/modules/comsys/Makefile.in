@@ -39,7 +39,7 @@ build: depend
 	touch build
 
 install: build
-	mv ../../../game/modules/.libs/comsys.* ../../../game/modules/old
+	-mv ../../../game/modules/.libs/comsys.* ../../../game/modules/old
 	cp -r $(MOD_LA) .libs ../../../game/modules
 	touch install
 
