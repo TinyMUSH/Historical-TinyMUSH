@@ -7174,13 +7174,16 @@ performed and the walk down the list stops.
     You say, "1 4 8"
  
 & POS()
-  pos(<string1>,<string2>)
+  Function:  pos(<string to search for>, <string to search within>)
  
-  This function returns the position that string1 begins in string2,
-  with the first position being 1.
-  If string1 is not in string2, then it returns #-1.
+  This function returns the position that <string to search for>
+  begins in <string to search within>. Positions are numbered
+  starting at 1 (unlike other string functions, which start from 0).
+  If <string to search for> is not found, the function returns #-1.
+  ANSI is ignored.
  
   Example: pos(man,superman) returns 6
+ 
 & MATCH()
   Function: match(<string>, <pattern>[, <delim>])
  

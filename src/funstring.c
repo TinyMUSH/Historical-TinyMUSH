@@ -1191,13 +1191,14 @@ FUNCTION(fun_translate)
 FUNCTION(fun_pos)
 {
 	int i = 1;
-	char *s, *t, *u;
+	char *b, *s, *t, *u;
 
 	i = 1;
+	b = strip_ansi(fargs[0]);
 	s = strip_ansi(fargs[1]);
 	while (*s) {
 		u = s;
-		t = fargs[0];
+		t = b;
 		while (*t && *t == *u)
 			++t, ++u;
 		if (*t == '\0') {
