@@ -54,11 +54,6 @@ extern void NDECL(tcache_init);
 extern void FDECL(helpindex_load, (dbref));
 extern void NDECL(helpindex_init);
 
-#ifdef HAVE_DLOPEN
-#include <dlfcn.h>
-static void NDECL(init_modules);
-#endif
-
 #ifndef MEMORY_BASED
 extern int NDECL(dddb_optimize);
 #endif
@@ -122,6 +117,10 @@ void do_hashresize(player, cause, key)
     dbref player, cause;
     int key;
 {
+    MODULE *mp;
+    MODHASHES *m_htab, *hp;
+    MODNHASHES *m_ntab, *np;
+
     hashresize(&mudstate.command_htab, 512);
     hashresize(&mudstate.player_htab, 16);
     hashresize(&mudstate.vattr_name_htab, 256);
@@ -151,6 +150,25 @@ void do_hashresize(player, cause, key)
 	       (mudstate.max_stacks < 16) ? 16 : mudstate.max_stacks);
     hashresize(&mudstate.vars_htab,
 	       (mudstate.max_vars < 16) ? 16 : mudstate.max_vars);
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    m_htab = DLSYM_VAR(mp->handle, mp->modname,
+			       "hashtable", MODHASHES *);
+	    if (m_htab) {
+		for (hp = m_htab; hp->tabname != NULL; hp++) {
+		    hashresize(hp->htab, hp->min_size);
+		}
+	    }
+	    m_ntab = DLSYM_VAR(mp->handle, mp->modname,
+			       "nhashtable", MODNHASHES *);
+	    if (m_ntab) {
+		for (np = m_ntab; np->tabname != NULL; np++) {
+		    nhashresize(np->htab, np->min_size);
+		}
+	    }
+	}
+#endif /* HAVE_DLOPEN */
 
     if (!mudstate.restarting)
 	notify(player, "Resized.");
@@ -1619,6 +1637,10 @@ char *argv[];
 	char *opt_conf = (char *) CONF_FILE;
 	extern char *optarg;
 	extern int optind;
+	MODULE *mp;
+	char *bp;
+	MODHASHES *m_htab, *hp;
+	MODNHASHES *m_ntab, *np;
 
 	/* Parse options */
 
@@ -1713,6 +1735,17 @@ char *argv[];
 	vattr_init();
 
 	cf_read(opt_conf);
+	mudconf.func_cpu_lim = mudconf.func_cpu_lim_secs * CLOCKS_PER_SEC;
+
+#ifdef HAVE_DLOPEN
+	bp = mudstate.modloaded; 
+	WALK_ALL_MODULES(mp) {
+	    if (bp != mudstate.modloaded) {
+		safe_mb_chr(' ', mudstate.modloaded, &bp);
+	    }
+	    safe_mb_str(mp->modname, mudstate.modloaded, &bp);
+	}
+#endif /* HAVE_DLOPEN */
 
 #ifdef USE_MAIL
 	/* We initialized our command table before we read the conf file.
@@ -1759,6 +1792,7 @@ char *argv[];
 	mudstate.loading_db = 1;
 	if (mindb) {
 		db_make_minimal();
+		CALL_ALL_MODULES(make_minimal, ());
 #ifdef USE_COMSYS
 		make_vanilla_comsys();
 #endif
@@ -1809,6 +1843,25 @@ char *argv[];
 	for (i = 0; i < mudstate.helpfiles; i++)
 	    hashreset(&mudstate.hfile_hashes[i]);
 
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    m_htab = DLSYM_VAR(mp->handle, mp->modname,
+			       "hashtable", MODHASHES *);
+	    if (m_htab) {
+		for (hp = m_htab; hp->tabname != NULL; hp++) {
+		    hashreset(hp->htab);
+		}
+	    }
+	    m_ntab = DLSYM_VAR(mp->handle, mp->modname,
+			       "nhashtable", MODNHASHES *);
+	    if (m_ntab) {
+		for (np = m_ntab; np->tabname != NULL; np++) {
+		    nhashreset(np->htab);
+		}
+	    }
+	}
+#endif /* HAVE_DLOPEN */
+
 	for (mindb = 0; mindb < MAX_GLOBAL_REGS; mindb++) {
 	    mudstate.global_regs[mindb] = alloc_lbuf("main.global_reg");
 	    mudstate.glob_reg_len[mindb] = 0;
@@ -1837,13 +1890,12 @@ char *argv[];
 	/* We have to do an update, even though we're starting up, because
 	 * there may be players connected from a restart, as well as objects.
 	 */
+	CALL_ALL_MODULES(cleanup_startup, ());
 #ifdef USE_COMSYS
 	update_comwho_all();
 #endif
 
 	sql_init();		/* Make a connection to external SQL db */
-
-	mudconf.func_cpu_lim = mudconf.func_cpu_lim_secs * CLOCKS_PER_SEC;
 
 	/* You must do your startups AFTER you load your restart database,
 	 * or softcode that depends on knowing who is connected and so forth
@@ -1877,12 +1929,6 @@ char *argv[];
 	if (mudstate.restarting) {
 	    raw_broadcast(0, "GAME: Restart finished.");
 	}
-
-#ifdef HAVE_DLOPEN
-	init_modules();
-#else
-	mudstate.modloaded[0] = '\0';
-#endif /* HAVE_DLOPEN */
 
 #ifdef CONCENTRATE
 	if (!mudstate.restarting) {
@@ -1962,25 +2008,3 @@ static void NDECL(init_rlimit)
 #endif /* Sequent and unlimiting #define'd */
 #endif /* HAVE_SETRLIMIT */
 }
-
-#ifdef HAVE_DLOPEN
-static void NDECL(init_modules)
-{
-    void (*initptr)(void);
-    MODULE *mp;
-    char *bp;
-
-    mudstate.modloaded[0] = '\0';
-    bp = mudstate.modloaded;
-
-    WALK_ALL_MODULES(mp) {
-	if (bp != mudstate.modloaded) {
-	    safe_mb_chr(' ', mudstate.modloaded, &bp);
-	}
-	safe_mb_str(mp->modname, mudstate.modloaded, &bp);
-	initptr = DLSYM(mp->handle, mp->modname, "init", (void));
-	if (initptr)
-	    (*initptr)();
-    }
-}
-#endif /* HAVE_DLOPEN */

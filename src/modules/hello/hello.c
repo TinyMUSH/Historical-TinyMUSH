@@ -110,11 +110,30 @@ FUN mod_hello_functable[] = {
 {NULL,		NULL,			0,	0,	0}};
 
 /* --------------------------------------------------------------------------
+ * Hash tables.
+ */
+
+HASHTAB mod_hello_greetings;
+HASHTAB mod_hello_farewells;
+
+MODHASHES mod_hello_hashtable[] = {
+{ "Hello greetings",	&mod_hello_greetings,	5,	8},
+{ "Hello farewells",	&mod_hello_farewells,	15,	32},
+{ NULL,			NULL,			0,	0}};
+
+NHSHTAB mod_hello_numbers;
+
+MODNHASHES mod_hello_nhashtable[] = {
+{ "Hello numbers",	&mod_hello_numbers,	5,	16},
+{ NULL,			NULL,			0,	0}};
+
+/* --------------------------------------------------------------------------
  * Initialization.
  */
 	
 void mod_hello_init()
 {
+    register_hashtables(mod_hello_hashtable, mod_hello_nhashtable); 
     register_commands(mod_hello_cmdtable);
     register_functions(mod_hello_functable);
 }

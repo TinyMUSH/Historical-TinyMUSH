@@ -645,11 +645,15 @@ extern int	FDECL(quick_wild, (char *, char *));
 	(void (*)p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
 #define DLSYM_INT(h,m,x,p) \
 	(int (*)p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
+#define DLSYM_VAR(h,m,x,p) \
+	(p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
 #else
 #define DLSYM(h,m,x,p) \
 	(void (*)p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
 #define DLSYM_INT(h,m,x,p) \
 	(int (*)p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
+#define DLSYM_VAR(h,m,x,p) \
+	(p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
 #endif /* DLSYM_NEEDS_UNDERSCORE */
 
 #endif /* HAVE_DLOPEN */

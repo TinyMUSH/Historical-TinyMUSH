@@ -66,6 +66,22 @@ struct num_hashtable {
 	NHSHENT		*last_entry;
 };
 
+typedef struct mod_hashes MODHASHES;
+struct mod_hashes {
+    char *tabname;
+    HASHTAB *htab;
+    int size_factor;
+    int min_size;
+};
+
+typedef struct mod_nhashes MODNHASHES;
+struct mod_nhashes {
+    char *tabname;
+    NHSHTAB *htab;
+    int size_factor;
+    int min_size;
+};
+
 typedef struct name_table NAMETAB;
 struct name_table {
 	char	*name;

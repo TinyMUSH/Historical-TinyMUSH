@@ -19,7 +19,6 @@ struct key_linked_list {
 	struct key_linked_list *next;
 };
 
-#ifdef HAVE_DLOPEN
 typedef struct module_linked_list MODULE;
 struct module_linked_list {
     char *modname;
@@ -31,8 +30,19 @@ struct module_linked_list {
     void (*destroy_obj)(dbref, dbref);
     void (*announce_connect)(dbref);
     void (*announce_disconnect)(dbref, const char *);
+    void (*cleanup_startup)(void);
+    void (*make_minimal)(void);
 };
-#endif	/* HAVE_DLOPEN */
+
+typedef struct confparm CONF;
+struct confparm {
+	char *pname;		/* parm name */
+	int (*interpreter) ();	/* routine to interp parameter */
+	int flags;		/* control flags */
+	int rperms;		/* read permission flags */
+	int *loc;		/* where to store value */
+	long extra;		/* extra data for interpreter */
+};
 
 typedef struct confdata CONFDATA;
 struct confdata {

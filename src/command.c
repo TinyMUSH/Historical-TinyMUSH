@@ -2208,6 +2208,10 @@ const char *tab_name;
 static void list_hashstats(player)
 dbref player;
 {
+	MODULE *mp;
+	MODHASHES *m_htab, *hp;
+	MODNHASHES *m_ntab, *np;
+
 	raw_notify(player, "Hash Stats       Size Entries Deleted   Empty Lookups    Hits  Checks Longest");
 	list_hashstat(player, "Commands", &mudstate.command_htab);
 	list_hashstat(player, "Logged-out Cmds", &mudstate.logout_cmd_htab);
@@ -2228,6 +2232,26 @@ dbref player;
 	list_hashstat(player, "Component Defs", &mudstate.cdefs_htab);
 	list_hashstat(player, "Instances", &mudstate.instance_htab);
 	list_hashstat(player, "Instance Data", &mudstate.instdata_htab);
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    m_htab = DLSYM_VAR(mp->handle, mp->modname,
+			       "hashtable", MODHASHES *);
+	    if (m_htab) {
+		for (hp = m_htab; hp->htab != NULL; hp++) {
+		    list_hashstat(player, hp->tabname, hp->htab);
+		}
+	    }
+	    m_ntab = DLSYM_VAR(mp->handle, mp->modname,
+			       "nhashtable", MODNHASHES *);
+	    if (m_ntab) {
+		for (np = m_ntab; np->tabname != NULL; np++) {
+		    list_nhashstat(player, np->tabname, np->htab);
+		}
+	    }
+	}
+#endif /* HAVE_DLOPEN */
+
 #ifdef USE_MAIL
 	if (mudconf.have_mailer)
 	    list_nhashstat(player, "Mail messages", &mudstate.mail_htab);

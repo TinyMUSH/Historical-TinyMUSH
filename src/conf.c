@@ -31,20 +31,6 @@
 #define INADDR_NONE -1
 #endif
 
-/* ---------------------------------------------------------------------------
- * CONFPARM: Data used to find fields in CONFDATA.
- */
-
-typedef struct confparm CONF;
-struct confparm {
-	char *pname;		/* parm name */
-	int (*interpreter) ();	/* routine to interp parameter */
-	int flags;		/* control flags */
-	int rperms;		/* read permission flags */
-	int *loc;		/* where to store value */
-	long extra;		/* extra data for interpreter */
-};
-
 /*
  * ---------------------------------------------------------------------------
  * * External symbols.
@@ -87,6 +73,7 @@ void NDECL(cf_init)
 	StringCopy(mudconf.modhome, "modules");
 	mudstate.modules_list = NULL;
 #endif
+	mudstate.modloaded[0] = '\0';
 	mudconf.port = 6250;
 	mudconf.conc_port = 6251;
 	mudconf.init_size = 1000;
@@ -580,6 +567,7 @@ CF_HAND(cf_int)
 CF_HAND(cf_module)
 {
 	void *handle;
+	void (*initptr)(void);
 	MODULE *mp;
 	
 	handle = dlopen(tprintf("%s/%s.so", mudconf.modhome, str),
@@ -614,6 +602,11 @@ CF_HAND(cf_module)
 	mp->announce_connect = DLSYM(handle, str, "announce_connect", (dbref));
 	mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
 					(dbref));
+	mp->make_minimal = DLSYM(handle, str, "make_minimal", ());
+	mp->cleanup_startup = DLSYM(handle, str, "cleanup_startup", ());
+
+	if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)
+	    (*initptr)();
 
 	STARTLOG(LOG_STARTUP, "CNF", "MOD")
 		log_printf("Loaded module: %s", str);

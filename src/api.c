@@ -54,5 +54,25 @@ void register_functions(functab)
     free_sbuf(buff);
 }
 
+void register_hashtables(htab, ntab)
+    MODHASHES *htab;
+    MODNHASHES *ntab;
+{
+    MODHASHES *hp;
+    MODNHASHES *np;
+
+    if (htab) {
+	for (hp = htab; hp->tabname != NULL; hp++) {
+	    hashinit(hp->htab, hp->size_factor * HASH_FACTOR);
+	}
+    }
+
+    if (ntab) {
+	for (np = ntab; np->tabname != NULL; np++) {
+	    nhashinit(np->htab, np->size_factor * HASH_FACTOR);
+	}
+    }
+}
+
 #endif /* HAVE_DLOPEN */
 

@@ -60,6 +60,6 @@
 
 extern void FDECL(register_commands, (CMDENT *));
 extern void FDECL(register_functions, (FUN *));
-
+extern void FDECL(register_hashtables, (MODHASHES *, MODNHASHES *));
 
 #endif /* __API_H */

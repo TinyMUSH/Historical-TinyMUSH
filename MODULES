@@ -87,14 +87,15 @@ It should read as follows:
 
 void mod_<name>_init()
 {
+	register_hashtables(mod_<name>_hashtable, mod_<name>_nhashtable);
 	register_commands(mod_<name>_cmdtable);
 	register_functions(mod_<name>_functable);
 
 	/* Any other initialization you need to do. */
 }
 
-If you have no commands, you don't need to call register_commands().
-If you have no functions, you don't need to call register_functions().
+If you have no hashtables, numeric hashtables, commands, and/or functions,
+you should still call these functions, with a parameter of NULL.
 
 Note that there is no main() function in a module.
 
@@ -221,6 +222,30 @@ CA_PUBLIC, CA_WIZARD, and CA_GOD, just like in the main command table.
 
 -----------------------------------------------------------------------------
 
+DEFINING HASH TABLES
+
+HASHTAB mod_<name>_<htabname1>;
+HASHTAB mod_<name>_<htabnameN>;
+
+MODHASHES mod_<name>_hashtable[] = {
+{ "htabname1",	&mod_<name>_<htabname1>,	<size factor>,	<minimum>},
+{ "htabnameN",	&mod_<name>_<htabnameN>,	<size factor>,	<minimum>},
+{ NULL,		NULL,				0}};
+
+NHSHTAB mod_<name>_<nhtabname1>;
+NHSHTAB mod_<name>_<nhtabnameN>;
+
+MODNHASHES mod_<name>_nhashtable[] = {
+{ "nhtabname1",	&mod_<name>_<nhtabname1>,	<size factor>,	<minimum>},
+{ "nhtabnameN",	&mod_<name>_<nhtabnameN>,	<size factor>,	<minimum>},
+{ NULL,		NULL,				0}};
+
+The initial size factor will be multiplied by the hash factor.
+The minimum is the absolute smallest size of the hash table, which
+must be a power of 2.
+
+-----------------------------------------------------------------------------
+
 MODULE API FUNCTIONS
 
 The following are "hooks" into the server. If you place these functions
@@ -245,6 +270,13 @@ void mod_<name>_announce_connect(dbref player)
 void mod_<name>_announce_disconnect(dbref player, const char *reason)
 	Run when a player disconnects, after all other disconnect stuff
 	has been executed, but before the descriptor has been deleted.
+
+void mod_<name>_make_minimal(void)
+	Run if making a minimal database is specified.
+
+void mod_<name>_cleanup_startup(void)
+	Run after the restart database is read, but before @startups
+	on objects are done.
 
 -----------------------------------------------------------------------------
 
