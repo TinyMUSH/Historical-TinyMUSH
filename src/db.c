@@ -1249,26 +1249,31 @@ int atrnum;
 int Commer(thing)
 dbref thing;
 {
-	char *s, *as, c;
+	char *s, *as;
 	int attr, aflags, alen;
 	dbref aowner;
 	ATTR *ap;
 
+	if (!Has_Commands(thing) || Halted(thing))
+		return 0;
+
+	s = alloc_lbuf("Commer");
 	atr_push();
 	for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
 		ap = atr_num(attr);
 		if (!ap || (ap->flags & AF_NOPROG))
 			continue;
 
-		s = atr_get(thing, attr, &aowner, &aflags, &alen);
-		c = *s;
-		free_lbuf(s);
-		if ((c == '$') && !(aflags & AF_NOPROG)) {
+		s = atr_get_str(s, thing, attr, &aowner, &aflags, &alen);
+
+		if ((*s == '$') && !(aflags & AF_NOPROG)) {
 			atr_pop();
+			free_lbuf(s);
 			return 1;
 		}
 	}
 	atr_pop();
+	free_lbuf(s);
 	return 0;
 }
 
