@@ -643,19 +643,14 @@ INLINE void safe_name(thing, outbuf, bufc)
 	int aflags, alen;
 	time_t save_access_time;
 	char *buff;
-#ifdef MEMORY_BASED
-	static char tbuff[LBUF_SIZE];
-#endif
 
 	/* Retrieving a name never counts against an object's access time. */
 	save_access_time = AccessTime(thing);
 
-	if (mudconf.cache_names) {
-		if (!purenames[thing]) {
-			buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
-			set_string(&purenames[thing], strip_ansi(buff));
-			free_lbuf(buff);
-		}
+	if (!purenames[thing]) {
+		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
+		set_string(&purenames[thing], strip_ansi(buff));
+		free_lbuf(buff);
 	}
 
 #ifndef MEMORY_BASED
@@ -667,9 +662,10 @@ INLINE void safe_name(thing, outbuf, bufc)
 	}
 	safe_known_str(names[thing], NameLen(thing), outbuf, bufc);
 #else
-	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
+	buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 	s_NameLen(thing, alen);
-	safe_known_str(tbuff, NameLen(thing), outbuf, bufc);
+	safe_known_str(buff, NameLen(thing), outbuf, bufc);
+	free_lbuf(buff);
 #endif
 
 	s_AccessTime(thing, save_access_time);
@@ -688,12 +684,10 @@ dbref thing;
 
 	save_access_time = AccessTime(thing);
 
-	if (mudconf.cache_names) {
-		if (!purenames[thing]) {
-			buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
-			set_string(&purenames[thing], strip_ansi(buff));
-			free_lbuf(buff);
-		}
+	if (!purenames[thing]) {
+		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
+		set_string(&purenames[thing], strip_ansi(buff));
+		free_lbuf(buff);
 	}
 
 #ifndef MEMORY_BASED
@@ -720,7 +714,6 @@ dbref thing;
 	int aflags, alen;
 	time_t save_access_time;
 	char *buff;
-	static char tbuff[LBUF_SIZE];
 
 	save_access_time = AccessTime(thing);
 
@@ -733,19 +726,13 @@ dbref thing;
 	}
 #endif                
 
-	if (mudconf.cache_names) {
-		if (!purenames[thing]) {
-			buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
-			set_string(&purenames[thing], strip_ansi(buff));
-			free_lbuf(buff);
-		}
-		s_AccessTime(thing, save_access_time);
-		return purenames[thing];
+	if (!purenames[thing]) {
+		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
+		set_string(&purenames[thing], strip_ansi(buff));
+		free_lbuf(buff);
 	}
-	
-	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
 	s_AccessTime(thing, save_access_time);
-	return (strip_ansi((char *) tbuff));
+	return purenames[thing];
 }
 
 INLINE void s_Name(thing, s)
@@ -771,9 +758,7 @@ char *s;
 #ifndef MEMORY_BASED
     set_string(&names[thing], (char *)s);
 #endif
-    if (mudconf.cache_names) {
-	set_string(&purenames[thing], strip_ansi((char *)s));
-    }
+    set_string(&purenames[thing], strip_ansi((char *)s));
 }
 
 void s_Pass(thing, s)
@@ -2346,8 +2331,7 @@ dbref newtop;
 #ifndef MEMORY_BASED
 			names[i] = NULL;
 #endif
-			if (mudconf.cache_names)
-				purenames[i] = NULL;
+			purenames[i] = NULL;
 		}
 		initialize_objects(mudstate.db_top, newtop);
 		mudstate.db_top = newtop;
@@ -2403,41 +2387,40 @@ dbref newtop;
 	newnames = NULL;
 #endif
 
-	if (mudconf.cache_names) {
-		newpurenames = (NAME *) XCALLOC(newsize + SIZE_HACK,
-						sizeof(NAME),
-						"db_grow.purenames");
+	newpurenames = (NAME *) XCALLOC(newsize + SIZE_HACK,
+					sizeof(NAME),
+					"db_grow.purenames");
 
-		if (!newpurenames) {
-		    fprintf(mainlog_fp,
-			    "ABORT! db.c, could not allocate space for %d item name cache in db_grow().\n", newsize);
-		    abort();
-		}
-		memset((char *)newpurenames, 0, (newsize + SIZE_HACK) * sizeof(NAME));
-
-		if (purenames) {
-
-			/* An old name cache exists.  Copy it. */
-
-			purenames -= SIZE_HACK;
-			memcpy((char *)newpurenames, (char *)purenames,
-			       (newtop + SIZE_HACK) * sizeof(NAME));
-			cp = (char *)purenames;
-			XFREE(cp, "db_grow.purename");
-		} else {
-
-			/* Creating a brand new struct database.  Fill in the
-			 * 'reserved' area in case it gets referenced.  
-			 */
-
-			purenames = newpurenames;
-			for (i = 0; i < SIZE_HACK; i++) {
-				purenames[i] = NULL;
-			}
-		}
-		purenames = newpurenames + SIZE_HACK;
-		newpurenames = NULL;
+	if (!newpurenames) {
+	    fprintf(mainlog_fp,
+		    "ABORT! db.c, could not allocate space for %d item name cache in db_grow().\n", newsize);
+	    abort();
 	}
+	memset((char *)newpurenames, 0, (newsize + SIZE_HACK) * sizeof(NAME));
+
+	if (purenames) {
+
+		/* An old name cache exists.  Copy it. */
+
+		purenames -= SIZE_HACK;
+		memcpy((char *)newpurenames, (char *)purenames,
+		       (newtop + SIZE_HACK) * sizeof(NAME));
+		cp = (char *)purenames;
+		XFREE(cp, "db_grow.purename");
+	} else {
+
+		/* Creating a brand new struct database.  Fill in the
+		 * 'reserved' area in case it gets referenced.  
+		 */
+
+		purenames = newpurenames;
+		for (i = 0; i < SIZE_HACK; i++) {
+			purenames[i] = NULL;
+		}
+	}
+	purenames = newpurenames + SIZE_HACK;
+	newpurenames = NULL;
+
 	/* Grow the db array */
 
 	newdb = (OBJ *) XCALLOC(newsize + SIZE_HACK, sizeof(OBJ),
@@ -2497,9 +2480,7 @@ dbref newtop;
 #ifndef MEMORY_BASED
 		names[i] = NULL;
 #endif				
-		if (mudconf.cache_names) {
-			purenames[i] = NULL;
-		}
+		purenames[i] = NULL;
 	}
 	initialize_objects(mudstate.db_top, newtop);
 	mudstate.db_top = newtop;

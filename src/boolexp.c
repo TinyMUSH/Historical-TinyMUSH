@@ -241,15 +241,11 @@ char *key;
 
 #endif
 
-/*
- * If the parser returns TRUE_BOOLEXP, you lose 
- */
-/*
- * TRUE_BOOLEXP cannot be typed in by the user; use @unlock instead 
+/* If the parser returns TRUE_BOOLEXP, you lose TRUE_BOOLEXP cannot be typed
+ * in by the user; use @unlock instead
  */
 
-static const char *parsebuf;
-static char parsestore[LBUF_SIZE];
+static char *parsebuf, *parsestore;
 static dbref parse_player;
 
 static void NDECL(skip_whitespace)
@@ -258,11 +254,7 @@ static void NDECL(skip_whitespace)
 		parsebuf++;
 }
 
-static BOOLEXP *NDECL(parse_boolexp_E);		/*
-
-						 * 
-						 * * defined below  
-						 */
+static BOOLEXP *NDECL(parse_boolexp_E);		/* defined below */
 
 static BOOLEXP *test_atr(s)
 char *s;
@@ -351,11 +343,8 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 		break;
 	default:
 
-		/*
-		 * must have hit an object ref.  Load the name into our * * * 
-		 * 
-		 * *  * *  * * buffer 
-		 */
+		/* must have hit an object ref.  Load the name into our 
+		 * buffer */
 
 		buf = alloc_lbuf("parse_boolexp_L");
 		p = buf;
@@ -364,17 +353,13 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 			*p++ = *parsebuf++;
 		}
 
-		/*
-		 * strip trailing whitespace 
-		 */
+		/* strip trailing whitespace */
 
 		*p-- = '\0';
 		while (isspace(*p))
 			*p-- = '\0';
 
-		/*
-		 * check for an attribute 
-		 */
+		/* check for an attribute */
 
 		if ((b = test_atr(buf)) != NULL) {
 			free_lbuf(buf);
@@ -390,9 +375,9 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 #ifndef STANDALONE
 
 		/*
-		 * If we are parsing a boolexp that was a stored lock then *
-		 * * * * * * we know that object refs are all dbrefs, so we * 
-		 * skip * * the * * * expensive match code. 
+		 * If we are parsing a boolexp that was a stored lock then
+		 * we know that object refs are all dbrefs, so we skip the
+		 * expensive match code.
 		 */
 
 		if (parsing_internal) {
@@ -590,7 +575,8 @@ int internal;
 {
 	char *p;
 	int num_opens = 0;
-
+	BOOLEXP *ret;
+	
 	if (!internal) {
 	    /* Don't allow funky characters in locks.
 	     * Don't allow unbalanced parentheses.
@@ -614,13 +600,16 @@ int internal;
 		return (TRUE_BOOLEXP);
 	}
 
-	StringCopy(parsestore, buf);
-	parsebuf = parsestore;
-	parse_player = player;
 	if ((buf == NULL) || (*buf == '\0'))
 		return (TRUE_BOOLEXP);
+
+	parsestore = parsebuf = alloc_lbuf("parse_boolexp");
+	StringCopy(parsebuf, buf);
+	parse_player = player;
 #ifndef STANDALONE
 	parsing_internal = internal;
 #endif
-	return parse_boolexp_E();
+	ret = parse_boolexp_E();
+	free_lbuf(parsestore);
+	return ret;
 }

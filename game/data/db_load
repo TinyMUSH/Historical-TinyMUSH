@@ -6,7 +6,6 @@ PATH=/bin:/usr/bin:
 case $# in
 	1)	../bin/dbconvert $1 X ;;
 	2)	../bin/dbconvert $1 X <$2 ;;
-	3)	../bin/dbconvert $1 X <$2 >$3 ;;
 	*)	echo Usage: $0 'gdbm_file [source_file [dest_file]]'; exit 1 ;;
 esac
 

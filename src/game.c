@@ -500,46 +500,35 @@ void html_escape(src, dest, destp)
      char *dest;
      char **destp;
 {
-    static char new_buf[LBUF_SIZE * 5];
     const char *msg_orig;
-    char *temp, *bufp;
+    char *temp;
 
     if (destp == 0) {
 	temp = dest;
 	destp = &temp;
     }
 
-    for (*new_buf = '\0', bufp = new_buf, msg_orig = src; 
+    for (*dest = '\0', msg_orig = src; 
 	 msg_orig && *msg_orig;
 	 msg_orig++) {
 	switch (*msg_orig) {
 	  case '<':
-	    *bufp = '\0';
-	    strcat(new_buf, (char *) "&lt;");
-	    bufp += 4;
+	    safe_str("&lt;", dest, destp);
 	    break;
 	  case '>':
-	    *bufp = '\0';
-	    strcat(new_buf, (char *) "&gt;"); 
-	    bufp += 4;
+	    safe_str("&gt;", dest, destp);
 	    break;
 	  case '&':
-	    *bufp = '\0';
-	    strcat(new_buf, (char *) "&amp;"); 
-	    bufp += 5;
+	    safe_str("&amp;", dest, destp);
 	    break;
 	  case '\"':
-	    *bufp = '\0';
-	    strcat(new_buf, (char *) "&quot;"); 
-	    bufp += 6;
+	    safe_str("&quot;", dest, destp);
 	    break;
 	  default:
-	    *bufp++ = *msg_orig;
+	    safe_chr(*msg_orig, dest, destp);
 	    break;
 	}
     }
-    *bufp = '\0';
-    safe_str(new_buf, dest, destp);
     **destp = '\0';
 }
 

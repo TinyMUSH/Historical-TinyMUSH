@@ -946,17 +946,19 @@ DESC *d;
 int process_input(d)
 DESC *d;
 {
-	static char buf[LBUF_SIZE];
+	char *buf;
 	int got, in, lost;
 	char *p, *pend, *q, *qend;
 	char *cmdsave;
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< process_input >";
+	buf = alloc_lbuf("process_input.buf");
 
-	got = in = READ(d->descriptor, buf, sizeof buf);
+	got = in = READ(d->descriptor, buf, LBUF_SIZE);
 	if (got <= 0) {
 		mudstate.debug_cmd = cmdsave;
+		free_lbuf(buf);
 		return 0;
 	}
 	if (!d->raw_input) {
@@ -1008,6 +1010,7 @@ DESC *d;
 	d->input_tot += got;
 	d->input_size += in;
 	d->input_lost += lost;
+	free_lbuf(buf);
 	mudstate.debug_cmd = cmdsave;
 	return 1;
 }

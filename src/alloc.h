@@ -6,6 +6,31 @@
 #ifndef __ALLOC_H
 #define __ALLOC_H
 
+/* We need to 64-bit-align the end of the pool header. */
+
+typedef struct pool_header {
+    int magicnum;		/* For consistency check */
+    int pool_size;		/* For consistency check */
+    struct pool_header *next;	/* Next pool header in chain */
+    struct pool_header *nxtfree;	/* Next pool header in freelist */
+    char *buf_tag;		/* Debugging/trace tag */
+    char align[(2 * sizeof(int) + 3 * sizeof(char *)) & 0x7];
+} POOLHDR;
+
+typedef struct pool_footer {
+	int magicnum;		/* For consistency check */
+} POOLFTR;
+
+typedef struct pooldata {
+	int pool_size;		/* Size in bytes of a buffer */
+	POOLHDR *free_head;	/* Buffer freelist head */
+	POOLHDR *chain_head;	/* Buffer chain head */
+	int tot_alloc;		/* Total buffers allocated */
+	int num_alloc;		/* Number of buffers currently allocated */
+	int max_alloc;		/* Max # buffers allocated at one time */
+	int num_lost;		/* Buffers lost due to corruption */
+} POOL;
+
 #define	POOL_SBUF	0
 #define	POOL_MBUF	1
 #define	POOL_LBUF	2

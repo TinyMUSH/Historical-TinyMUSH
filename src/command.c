@@ -15,6 +15,7 @@
 #include "interface.h"	/* required by code */
 
 #include "command.h"	/* required by code */
+#include "functions.h"	/* required by code */
 #include "match.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
@@ -325,7 +326,7 @@ int check_userdef_access(player, cmdp, cargs, ncargs)
     char *cargs[];
     int ncargs;
 {
-    static char buf[LBUF_SIZE];	/* avoid constantly reallocating this */
+    char *buf;
     char *bp, *tstr, *str;
     dbref aowner;
     int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
@@ -354,7 +355,7 @@ int check_userdef_access(player, cmdp, cargs, ncargs)
 	
     save_global_regs("check_userdef_access", preserve, preserve_len);
 
-    bp = buf;
+    bp = buf = alloc_lbuf("check_userdef_access");
     exec(buf, &bp, cmdp->userperms->thing, player, player,
 	 EV_EVAL | EV_FIGNORE | EV_TOP,
 	 &str, cargs, ncargs);
@@ -362,6 +363,7 @@ int check_userdef_access(player, cmdp, cargs, ncargs)
 
     restore_global_regs("check_userdef_access", preserve, preserve_len);
 
+    free_lbuf(buf);
     free_lbuf(tstr);
     
     return (xlate(buf));
@@ -2455,6 +2457,7 @@ dbref player;
 
 extern CacheLst *sys_c;
 extern NAME *names, *purenames;
+extern POOL pools[NUM_POOLS];
 
 void list_memory(player)
 {
@@ -2465,6 +2468,8 @@ void list_memory(player)
 	ADDENT *add;
 	NAMETAB *name;
 	VATTR *vattr;
+	FUN *func;
+	UFUN *ufunc;
 	Cache *cp;
 	CacheLst *sp;
 	char *str;
@@ -2518,14 +2523,12 @@ void list_memory(player)
 	
 	/* Calculate size of name caches */
 	
-	if (mudconf.cache_names) {
-		each = sizeof(NAME *) * mudstate.db_top * 2;
-		for (i = 0; i < mudstate.db_top; i++) {
-			if (purenames[i])
-				each += strlen(purenames[i]) + 1;
-			if (names[i])
-				each += strlen(names[i]) + 1;
-		}
+	each = sizeof(NAME *) * mudstate.db_top * 2;
+	for (i = 0; i < mudstate.db_top; i++) {
+		if (purenames[i])
+			each += strlen(purenames[i]) + 1;
+		if (names[i])
+			each += strlen(names[i]) + 1;
 	}
 	raw_notify(player,
 		   tprintf("Name caches      : %12.2fk", each / 1024));
@@ -2584,6 +2587,45 @@ void list_memory(player)
 		   tprintf("Logout cmd htab  : %12.2fk", each / 1024));
 	total += each;
 
+	/* Calculate size of functions hashtable */
+	
+	each = 0;
+	each += sizeof(HASHENT *) * mudstate.func_htab.hashsize;
+	for(i = 0; i < mudstate.func_htab.hashsize; i++) {
+		htab = mudstate.func_htab.entry[i];
+		while (htab != NULL) {
+			each += strlen(mudstate.func_htab.entry[i]->target) + 1;
+			func = (FUN *)mudstate.func_htab.entry[i]->data;
+			each += sizeof(FUN);
+			each += strlen(func->name) + 1;
+			htab = htab->next;
+		}
+	}
+	raw_notify(player,
+		   tprintf("Functions htab   : %12.2fk", each / 1024));
+	total += each;
+
+	/* Calculate size of user-defined functions hashtable */
+	
+	each = 0;
+	each += sizeof(HASHENT *) * mudstate.ufunc_htab.hashsize;
+	for(i = 0; i < mudstate.ufunc_htab.hashsize; i++) {
+		htab = mudstate.ufunc_htab.entry[i];
+		while (htab != NULL) {
+			each += strlen(mudstate.ufunc_htab.entry[i]->target) + 1;
+			ufunc = (UFUN *)mudstate.ufunc_htab.entry[i]->data;
+			while (ufunc != NULL) {
+				each += sizeof(UFUN);
+				each += strlen(ufunc->name) + 1;
+				ufunc = ufunc->next;
+			}
+			htab = htab->next;
+		}
+	}
+	raw_notify(player,
+		   tprintf("U-functions htab : %12.2fk", each / 1024));
+	total += each;
+
 	/* Calculate size of vattr commands hashtable */
 	
 	each = 0;
@@ -2602,9 +2644,19 @@ void list_memory(player)
 		   tprintf("Vattr name htab  : %12.2fk", each / 1024));
 	total += each;
 
+	/* Calculate size of buffers */
+	
+	each = sizeof(POOL) * NUM_POOLS;
+	for (i = 0; i < NUM_POOLS; i++) {
+		each += pools[i].max_alloc * (pools[i].pool_size +
+			sizeof(POOLHDR) + sizeof(POOLFTR));
+	}
+	raw_notify(player,
+		   tprintf("Buffers          : %12.2fk", each / 1024));
+	total += each;
+
 	raw_notify(player,
 		   tprintf("\nTotal            : %12.2fk", total / 1024));
-	
 }
 
 /* ---------------------------------------------------------------------------
