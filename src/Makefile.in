@@ -216,11 +216,11 @@ slave: slave.o
 
 comsys: comsys.lo
 	$(LIBTOOL) $(CC) -module -o comsys.la comsys.lo -rpath `pwd` -disable-static
-	ln -s .libs/libcomsys.so.0 comsys.so
+	ln -s .libs/comsys.so.0 comsys.so
 
 mail: mail.lo
 	$(LIBTOOL) $(CC) -module -o mail.la mail.lo -rpath `pwd` -disable-static
-	ln -s .libs/libmail.so.0 mail.so
+	ln -s .libs/mail.so.0 mail.so
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
