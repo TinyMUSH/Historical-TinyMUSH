@@ -818,6 +818,9 @@ int *db_format, *db_version, *db_flags;
 			case 'F':	/* OPEN USER ATTRIBUTE SLOT */
 				anum = getref(f);
 				break;
+			case 'M':	/* MODULE TYPE TOP */
+				mudstate.moduletype_top = getref(f);
+				break;
 			case 'N':	/* NEXT ATTR TO ALLOC WHEN NO
 					 * FREELIST 
 					 */
@@ -1260,7 +1263,7 @@ int format, version;
 	i = mudstate.attr_next;
 
 	/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
-	fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i,
+	fprintf(f, "+T%d\n+S%d\n+N%d\n+M%d\n", flags, mudstate.db_top, i,
 		mudstate.moduletype_top);
 	fprintf(f, "-R%d\n", mudstate.record_players);
 
