@@ -25,6 +25,7 @@
 #define AF_REGEXP	0x08000	/* Do a regexp rather than wildcard match */
 #define AF_NOCLONE	0x10000	/* Don't copy this attr when cloning. */
 #define AF_CONST	0x20000	/* No one can change it (set by server) */
+#define AF_CASE		0x40000 /* Regexp matches are case-sensitive */
 
 #define A_NULL		0	/* Nothing */
 #define	A_OSUCC		1	/* Others success message */

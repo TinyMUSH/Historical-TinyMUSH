@@ -840,6 +840,8 @@ atr_has_flag(player, thing, attr, aowner, aflags, flagname)
 	    return (aflags & AF_PRIVATE);
 	else if (string_prefix("const", flagname))
 	    return (aflags & AF_CONST);
+	else if (string_prefix("case", flagname))
+	    return (aflags & AF_CASE);
 	else
 	    return 0;
     }

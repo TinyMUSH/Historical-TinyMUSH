@@ -176,9 +176,10 @@ void do_hashresize(player, cause, key)
 
 #define PCRE_MAX_OFFSETS 99
 
-int regexp_match(pattern, str, args, nargs)
+int regexp_match(pattern, str, case_opt, args, nargs)
 char *pattern;
 char *str;
+int case_opt;
 char *args[];
 int nargs;
 {
@@ -194,7 +195,8 @@ int nargs;
 	tables = pcre_maketables();
     }
 
-    if ((re = pcre_compile(pattern, 0, &errptr, &erroffset, tables)) == NULL) {
+    if ((re = pcre_compile(pattern, case_opt,
+			   &errptr, &erroffset, tables)) == NULL) {
 	/*
 	 * This is a matching error. We have an error message in
 	 * errptr that we can ignore, since we're doing command-matching.
@@ -318,6 +320,7 @@ int check_exclude, hash_insert;
                     ((aflags & AF_REGEXP) && 
                      regexp_match(buff + 1,  
                                   ((aflags & AF_NOPARSE) ? raw_str : str),  
+				  ((aflags & AF_CASE) ? 0 : PCRE_CASELESS),
                                   args, 10))) { 
 			match = 1;
 			wait_que(thing, player, 0, NOTHING, 0, s, args, 10,
@@ -391,7 +394,7 @@ const char *msg;
 	char *buf, *nbuf, *cp, *dp, *str, *preserve[MAX_GLOBAL_REGS];
 	pcre *re;
 	const char *errptr;
-	int len, erroffset, subpatterns;
+	int len, case_opt, erroffset, subpatterns;
 	int offsets[PCRE_MAX_OFFSETS];
 
 	buf = atr_pget(object, filter, &aowner, &aflags, &alen);
@@ -422,9 +425,10 @@ const char *msg;
 		tables = pcre_maketables();
 	    }
 	    len = strlen(msg);
+	    case_opt = (aflags & AF_CASE) ? 0 : PCRE_CASELESS;
 	    do {
 		cp = parse_to(&dp, ',', EV_STRIP);
-		re = pcre_compile(cp, 0, &errptr, &erroffset, tables);
+		re = pcre_compile(cp, case_opt, &errptr, &erroffset, tables);
 		if (re != NULL) {
 		    subpatterns = pcre_exec(re, NULL, (char *) msg, len,
 					    0, 0, offsets, PCRE_MAX_OFFSETS);

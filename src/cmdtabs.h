@@ -955,7 +955,8 @@ NAMETAB access_nametab[] =
  */
 
 NAMETAB attraccess_nametab[] = {
-{(char *)"const",		1,	CA_PUBLIC,	AF_CONST},
+{(char *)"case",		2,	CA_PUBLIC,	AF_CASE},
+{(char *)"const",		2,	CA_PUBLIC,	AF_CONST},
 {(char *)"dark",		2,	CA_WIZARD,	AF_DARK},
 {(char *)"deleted",		2,	CA_WIZARD,	AF_DELETED},
 {(char *)"god",			1,	CA_PUBLIC,	AF_GOD},
@@ -976,6 +977,7 @@ NAMETAB attraccess_nametab[] = {
 { NULL,				0,	0,		0}};
 
 NAMETAB indiv_attraccess_nametab[] = {
+{(char *)"case",		1,	CA_PUBLIC,	AF_CASE},
 {(char *)"hidden",		1,	CA_WIZARD,	AF_MDARK},
 {(char *)"wizard",		1,	CA_WIZARD,	AF_WIZARD},
 {(char *)"no_command",		4,	CA_PUBLIC,	AF_NOPROG},

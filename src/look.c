@@ -651,6 +651,8 @@ char *text;
 		*xbufp++ = '+';
 	if (aflags & AF_NOPROG)
 		*xbufp++ = '$';
+	if (aflags & AF_CASE)
+		*xbufp++ = 'C';
 	if (aflags & AF_HTML)
 		*xbufp++ = 'H';
 	if (aflags & AF_PRIVATE)
