@@ -80,6 +80,7 @@ void NDECL(cf_init)
 	mudconf.port = 6250;
 	mudconf.conc_port = 6251;
 	mudconf.init_size = 1000;
+	mudconf.use_global_aconn = 1;
 	mudconf.guest_char = -1;
 	mudconf.guest_nuker = 1;
 	mudconf.number_guests = 30;
