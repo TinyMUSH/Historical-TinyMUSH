@@ -49,26 +49,26 @@
 
 extern NAMETAB logout_cmdtable[];
 
-typedef struct cmd_block_hdr CBLKHDR;
 typedef struct cmd_block CBLK;
-
+typedef struct cmd_block_hdr CBLKHDR;
+struct cmd_block_hdr {
+	struct cmd_block *nxt;
+};
 struct cmd_block {
-	struct cmd_block_hdr {
-		struct cmd_block *nxt;
-	}	hdr;
+	CBLKHDR hdr;
 	char	cmd[LBUF_SIZE - sizeof(CBLKHDR)];
 };
 
-typedef struct text_block_hdr TBLKHDR;
 typedef struct text_block TBLOCK;
-
+typedef struct text_block_hdr TBLKHDR;
+struct text_block_hdr {
+	struct text_block *nxt;
+	char	*start;
+	char	*end;
+	int	nchars;
+};
 struct text_block {
-	struct text_block_hdr {
-		struct text_block *nxt;
-		char	*start;
-		char	*end;
-		int	nchars;
-	}	hdr;
+	TBLKHDR hdr;
 	char	data[OUTPUT_BLOCK_SIZE - sizeof(TBLKHDR)];
 };
 
