@@ -157,9 +157,11 @@ char *message;
 				    tprintf("%s%s", Name(player), message));
 		break;
 	case SAY_EMIT:
-		if ((say_flags & SAY_HERE) || (say_flags & SAY_HTML) || !say_flags) {
+	        if (!say_flags || (say_flags & SAY_HERE) ||
+		    ((say_flags & SAY_HTML) && !(say_flags & SAY_ROOM))) {
 			if (say_flags & SAY_HTML) {
-				notify_all_from_inside_html(loc, player, message);
+				notify_all_from_inside_html(loc, player,
+							    message);
 			} else {
 				notify_all_from_inside(loc, player, message);
 			}
@@ -178,7 +180,12 @@ char *message;
 					return;
 			}
 			if (Typeof(loc) == TYPE_ROOM) {
+			    if (say_flags & SAY_HTML) {
+				notify_all_from_inside_html(loc, player,
+							    message);
+			    } else {
 				notify_all_from_inside(loc, player, message);
+			    }
 			}
 		}
 		break;
