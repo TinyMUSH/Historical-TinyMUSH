@@ -4481,6 +4481,62 @@ FUNCTION(fun_list)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_loop: Like iter(), except the arguments can be nested.
+ * This is a separate function for reasons of backwards compatibility,
+ * since the peculiarities of the way substitutions were done in the string
+ * replacements would break a lot of code that relied upon particular
+ * patterns of necessary escaping.
+ */
+
+FUNCTION(fun_loop)
+{
+    char *list_str, *lp, *str, *input_p, *bb_p, *save_token, *work_buf;
+    char sep, osep;
+    int number, save_num;
+
+    evarargs_preamble("LOOP", 2, 4);
+
+    /* Our first argument is unevaluated. Go evaluate it, and get the list. */
+
+    input_p = lp = list_str = alloc_lbuf("fun_loop.list");
+    str = fargs[0];
+    exec(list_str, &lp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
+	 cargs, ncargs);
+    *lp = '\0';
+    input_p = trim_space_sep(input_p, sep);
+    if (!*input_p) {
+	free_lbuf(list_str);
+	return;
+    }
+
+    mudstate.in_loop++;
+    save_token = mudstate.loop_token;
+    save_num = mudstate.loop_number;
+    mudstate.loop_number = 0;
+
+    bb_p = *bufc;
+
+    while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+	if ((*bufc != bb_p) && osep) {
+	    safe_chr(osep, buff, bufc);
+	}
+	mudstate.loop_token = split_token(&input_p, sep);
+	mudstate.loop_number++;
+	work_buf = alloc_lbuf("fun_loop.eval");
+	strcpy(work_buf, fargs[1]); /* we might nibble this */
+	str = work_buf;
+	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	     &str, cargs, ncargs);
+	free_lbuf(work_buf);
+    }
+
+    free_lbuf(list_str);
+    mudstate.loop_token = save_token;
+    mudstate.loop_number = save_num;
+    mudstate.in_loop--;
+}
+
+/* ---------------------------------------------------------------------------
  * fun_fold: iteratively eval an attrib with a list of arguments
  *        and an optional base case.  With no base case, the first list element
  *    is passed as %0 and the second is %1.  The attrib is then evaluated
@@ -5000,7 +5056,7 @@ FUNCTION(fun_locate)
 FUNCTION(fun_switchall)
 {
     int i, got_one;
-    char *mbuff, *tbuff, *tbuf2, *bp, *str;
+    char *mbuff, *tbuff, *bp, *str, *save_token;
 
     /* If we don't have at least 2 args, return nothing */
 
@@ -5010,7 +5066,7 @@ FUNCTION(fun_switchall)
 
     /* Evaluate the target in fargs[0] */
 
-    mbuff = bp = alloc_lbuf("fun_switch");
+    mbuff = bp = alloc_lbuf("fun_switchall");
     str = fargs[0];
     exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	 &str, cargs, ncargs);
@@ -5018,9 +5074,12 @@ FUNCTION(fun_switchall)
 
     /* Loop through the patterns looking for a match */
 
+    mudstate.in_switch++;
+    save_token = mudstate.switch_token;
+
     got_one = 0;
     for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
-	tbuff = bp = alloc_lbuf("fun_switch.2");
+	tbuff = bp = alloc_lbuf("fun_switchall.2");
 	str = fargs[i];
 	exec(tbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	     &str, cargs, ncargs);
@@ -5028,11 +5087,10 @@ FUNCTION(fun_switchall)
 	if (quick_wild(tbuff, mbuff)) {
 	    got_one = 1;
 	    free_lbuf(tbuff);
-	    tbuf2 = replace_string(SWITCH_VAR, mbuff, fargs[i+1]);
-	    str = tbuf2;
+	    mudstate.switch_token = mbuff;
+	    str = fargs[i+1];
 	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 		 &str, cargs, ncargs);
-	    free_lbuf(tbuf2);
 	} else {
 	    free_lbuf(tbuff);
 	}
@@ -5041,20 +5099,21 @@ FUNCTION(fun_switchall)
     /* If we didn't match, return the default if there is one */
     
     if (!got_one && (i < nfargs) && fargs[i]) {
-	tbuf2 = replace_string(SWITCH_VAR, mbuff, fargs[i]);
-	str = tbuf2;
+	mudstate.switch_token = mbuff;
+	str = fargs[i];
 	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	     &str, cargs, ncargs);
-	free_lbuf(tbuf2);
     }
 
     free_lbuf(mbuff);
+    mudstate.in_switch--;
+    mudstate.switch_token = save_token;
 }
 
 FUNCTION(fun_switch)
 {
 	int i;
-	char *mbuff, *tbuff, *tbuf2, *bp, *str;
+	char *mbuff, *tbuff, *tbuf2, *bp, *str, *save_token;
 
 	/* If we don't have at least 2 args, return nothing */
 
@@ -5071,20 +5130,25 @@ FUNCTION(fun_switch)
 
 	/* Loop through the patterns looking for a match */
 
+	mudstate.in_switch++;
+	save_token = mudstate.switch_token;
+
 	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
 		tbuff = bp = alloc_lbuf("fun_switch.2");
 		str = fargs[i];
-		exec(tbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		exec(tbuff, &bp, 0, player, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, cargs, ncargs);
 		*bp = '\0';
 		if (quick_wild(tbuff, mbuff)) {
 			free_lbuf(tbuff);
-			tbuf2 = replace_string(SWITCH_VAR, mbuff, fargs[i+1]);
-			str = tbuf2;
+			mudstate.switch_token = mbuff;
+			str = fargs[i+1];
 			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 			     &str, cargs, ncargs);
 			free_lbuf(mbuff);
-			free_lbuf(tbuf2);
+			mudstate.in_switch--;
+			mudstate.switch_token = save_token;
 			return;
 		}
 		free_lbuf(tbuff);
@@ -5093,14 +5157,15 @@ FUNCTION(fun_switch)
 	/* Nope, return the default if there is one */
 
 	if ((i < nfargs) && fargs[i]) {
-	        tbuf2 = replace_string(SWITCH_VAR, mbuff, fargs[i]);
-		str = tbuf2;
+	        mudstate.switch_token = mbuff;
+		str = fargs[i];
 		exec(buff, bufc, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, cargs, ncargs);
-		free_lbuf(tbuf2);
 	}
 	free_lbuf(mbuff);
+	mudstate.in_switch--;
+	mudstate.switch_token = save_token;
 }
 
 FUNCTION(fun_case)
@@ -5872,7 +5937,6 @@ FUN flist[] = {
 {"LET",		fun_let,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
 {"LEXITS",	fun_lexits,	1,  0,		CA_PUBLIC},
-{"LPARENT",	fun_lparent,	1,  0,		CA_PUBLIC}, 
 {"LIST",	fun_list,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC}, 
 {"LIT",		fun_lit,	1,  FN_NO_EVAL,	CA_PUBLIC},
@@ -5889,6 +5953,9 @@ FUN flist[] = {
 {"LOCALIZE",    fun_localize,   1,  FN_NO_EVAL, CA_PUBLIC},
 {"LOCK",	fun_lock,	1,  0,		CA_PUBLIC},
 {"LOG",		fun_log,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LPARENT",	fun_lparent,	1,  0,		CA_PUBLIC}, 
+{"LOOP",	fun_loop,	0,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC},
 {"LOR",		fun_lor,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LORBOOL",	fun_lorbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LPOS",	fun_lpos,	2,  0,		CA_PUBLIC},

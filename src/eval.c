@@ -963,6 +963,42 @@ char *cargs[];
 					free_lbuf(fargs[i]);
 			eval &= ~EV_FCHECK;
 			break;
+		case '#':
+		        /* If we have the in_loop flag, then we look
+			 * ahead to the next character, to check if we have
+			 * the token string ## or #@. Otherwise we just
+			 * copy it.
+			 */
+
+		        at_space = 0;
+			if (mudstate.in_loop &&
+			    (mudstate.loop_token != NULL)) {
+			    (*dstr)++;
+			    if (**dstr == '#') {
+				safe_str(mudstate.loop_token, buff, bufc);
+			    } else if (**dstr == '@') {
+				safe_ltos(buff, bufc, mudstate.loop_number);
+			    } else if (**dstr == '!') { /* nesting level */
+				safe_ltos(buff, bufc, mudstate.in_loop);
+			    } else {
+				(*dstr)--;
+				safe_chr(**dstr, buff, bufc);
+			    }
+			} else if (mudstate.in_switch &&
+				   (mudstate.switch_token != NULL)) {
+			    (*dstr)++;
+			    if (**dstr == '$') {
+				safe_str(mudstate.switch_token, buff, bufc);
+			    } else if (**dstr == '!') { /* nesting level */
+				safe_ltos(buff, bufc, mudstate.in_switch);
+			    } else {
+				(*dstr)--;
+				safe_chr(**dstr, buff, bufc);
+			    }
+			} else {
+			    safe_chr(**dstr, buff, bufc);
+			}
+			break;
 		default:
 			/* A mundane character.  Just copy it */
 
