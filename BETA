@@ -45,7 +45,7 @@ Release history:
   flag. [3.1b1; Neva]
 
 - Fix: Update should now work on systems with broken local domain resolution.
-  [3.1a7; Christy Schulte]
+  [3.1a7; Neva, Christy Schulte]
 
 - Fix: Clearing an attribute updates an object's Last Modified timestamp.
   [3.1a6]
@@ -55,7 +55,8 @@ Release history:
 
 - Fix: Corrected typo in flag_alias for COMMANDS. [2.2; Felan]
 
-- Misc: More comma-in-shout stuff.
+- Cosmetic: Shout messages include the grammatically correct comma after
+  "shouts". [2.0; Neva]
 
 -----------------------------------------------------------------------------
 
@@ -116,17 +117,6 @@ Release history:
 
 - Cosmetic: Shout messages include the grammatically correct comma after
   "says". [2.0; Neva]
-
-05/xx/2002: Beta 3
-
-- Feature: helptext() function added (returns an entry from an indexed
-  helpfile).
-
-- Fix: Update script depended on the client having a resolvable hostname.
-  [3.1; Neva]
-
-- Cosmetic: Shout messages include the grammatically correct comma after
-  "shouts". [2.0; Neva]
 
 =============================================================================
 			TinyMUSH 3.0 Beta History
