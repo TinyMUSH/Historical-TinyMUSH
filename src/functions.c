@@ -79,7 +79,7 @@ char *fname, *target;
 		/* Make it case-insensitive, and look it up. */
 
 		for (bp = fname; *bp; bp++) {
-		    *bp = ToUpper(*bp);
+		    *bp = ToLower(*bp);
 		}
 
 		ufp = (UFUN *) hashfind(fname, &mudstate.ufunc_htab);
