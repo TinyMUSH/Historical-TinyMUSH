@@ -585,3 +585,17 @@ The initial beta release was on 9/27/99.
 - Fix: @tel/quiet works. [MUX; Xidus]
 
 - Fix: Prevented a buffer overflow. [3.0b15]
+
+-----------------------------------------------------------------------------
+
+11/2/99: Beta 16
+
+- Feature: Dynamic hashtable resizing via @hashresize.
+
+- Fix: Objects with a @daily, that also have a @startup, now cron-schedule
+  the @daily properly.
+
+- Misc: @timecheck can take a compile-time TRACK_USER_TIME definition,
+  to get user time used via getrusage() rather than the clock time.
+
+- Misc: Various bits of code cleanup and efficiency improvements.

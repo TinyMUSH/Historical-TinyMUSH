@@ -3,10 +3,11 @@ TinyMUSH 3.0 Baseline Release
 
 	Beta 1: September 27th, 1999
 
-The bugfixes and general code reworking done in the course of merging 
-TinyMUSH 2.2 and TinyMUX line-by-line, is too extensive and complex to
-readily be listed here. Therefore, only user-visible or otherwise
-highly significant changes are noted here.
+The bugfixes and general code reworking done in the course of merging
+TinyMUSH 2.2 and TinyMUX line-by-line, as well as throughout an
+extensive cleanup, bugfix, and performance-enhancement effort, is too
+extensive and complex to readily be listed here. Therefore, only
+user-visible or otherwise highly significant changes are noted here.
 
 Note that these are only changes that are completely new to both
 TinyMUSH 2.2 and TinyMUX; enhancements that were in one server but not
@@ -25,8 +26,9 @@ the other have been listed in the conversion notes for both servers.
   you may safely back up the MUSH while it is running, either internally
   (through @dump/flatfile) or externally (through the Backup script).
 
-- An interface to an external mSQL database is now supported, through
-  the SQL() function and supporting administrative commands.
+- An interface to an external SQL database is now supported, through
+  the SQL() function and supporting administrative commands. Currently,
+  modules for mSQL and MySQL are available.
 
 - There is now a generic indexed-textfile facility, allowing 'news'-like
   commands and their associated files to be specified via the 'helpfile'
@@ -116,6 +118,16 @@ the other have been listed in the conversion notes for both servers.
   still trigger @a-actions when moving, unless the /quiet switch is
   specified.
 
+- When the new conf parameter exit_calls_move is enabled, trying to go
+  through an exit by just typing its name is equivalent to typing
+  'move <exit name>', allowing this to be intercepted by a move
+  @addcommand.
+
+- When the new conf parameter move_match_more is enabled, the move
+  command matches exits like the main command parser does, i.e., it
+  also checks global and zone exits, and in the case of multiple 
+  matches, picks a random match.
+
 - When the new conf parameter no_ambiguous_match is enabled, ambiguous
   matches always result in a random selection amongst the matches (i.e.,
   you will never get a "I don't know which one you mean!" message).
@@ -156,6 +168,9 @@ the other have been listed in the conversion notes for both servers.
 
 - New @logrotate command and game_log conf parameter allow the log to
   be rotated while the game is running.
+
+- New /reply and /replyall switches to @mail allow replying to a mail
+  message, including quoting it via the additional /quote switch.
 
 - An object can @program another object if the first object or its owner
   has the Program power, or the first object controls the second. (This
