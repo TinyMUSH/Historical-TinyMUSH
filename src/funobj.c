@@ -1184,12 +1184,14 @@ FUNCTION(fun_lparent)
 
 FUNCTION(fun_children)
 {
-	dbref i, it = match_thing(player, fargs[0]);
+	dbref i, it;
 	char *bb_p;
 	Delim osep;
 	int osep_len;
 
 	VaChk_Only_Out(2);
+
+	it = match_thing(player, fargs[0]);
 
 	if (!Controls(player, it) && !See_All(player)) {
 		safe_noperm(buff, bufc);

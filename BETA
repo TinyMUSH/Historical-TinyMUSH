@@ -38,7 +38,15 @@ Release history:
 - Misc: More informative error message when a function is given the wrong
   number of arguments. Idea from Philip Mak.
 
+- Misc: Players with the See_Queue power can now @ps other players, not
+  just @ps/all and themselves.
+
 - Fix: dbconvert -C crash fixed. [2.0; Jake]
+
+- Fix: Fatal bug in children() fixed. [3.1b4; Pete C.]
+
+- Fix: The Quota power works (this feature originally didn't make it
+  into 3.0 from MUX, an oversight). [3.0]
 
 -----------------------------------------------------------------------------
 
