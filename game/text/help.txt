@@ -5692,7 +5692,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   vadd(<vector>,<vector>[,<delim>][,<output delim>])
  
   Returns the sum of two vectors. A vector is a list of numbers
-  separated by spaces or a delimiter, and may be up to 20-dimensional.
+  separated by spaces or a delimiter, and may have any number of
+  dimensions.
  
   Examples:
     > @pemit me=vadd(1 2 3,4 5 6)
@@ -5720,7 +5721,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
       20
  
 & VMAG()
-  vmag(<vector>[,<delimiter>]
+  vmag(<vector>[,<delim>]
  
   Returns the magnitude of a vector, using a euclidean distance metric.
   That is, for vector a b c d, returns sqrt(a^2+b^2+c^2+d^2).
@@ -5753,7 +5754,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
       1-2-2
  
 & VUNIT()
-  vunit(<vector>[,<delimiter>])
+  vunit(<vector>[,<delim>][,<output delim>])
  
   Returns the unit vector (a vector of magnitude 1), which points
   in the same direction as the given vector.

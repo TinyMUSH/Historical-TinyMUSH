@@ -432,27 +432,6 @@ double result;
 #define fval(b,p,n)  safe_ltos(b,p,n)
 #endif
 
-static void fval_buf(buff, result)
-    char *buff;
-    double result;
-{
-    char *p;
-
-    sprintf(buff, "%.6f", result);      /* get double val into buffer */
-
-    /* remove useless trailing 0's */
-    if ((p = (char *) rindex(buff, '0')) == NULL)
-        return;
-    else if (*(p + 1) == '\0') {
-        while (*p == '0')
-            *p-- = '\0';
-    }
-
-    p = (char *) rindex(buff, '.');     /* take care of dangling '.' */
-    if (*(p + 1) == '\0')
-        *p = '\0';
-}
-
 /* ---------------------------------------------------------------------------
  * Random number generator. This uses Whip's implementation of an algorithm
  * in the _Communications of the ACM_, Volume 31, Number 10, from the article
@@ -2688,7 +2667,6 @@ FUNCTION(fun_dist3d)
  * Vectors are space-separated numbers.
  */
 
-#define MAXDIM 20
 #define VADD_F 0
 #define VSUB_F 1
 #define VMUL_F 2
@@ -2705,7 +2683,6 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
     int flag;
 {
     char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
-    char vres[MAXDIM][LBUF_SIZE];
     double scalar;
     int n, m, i;
 
@@ -2726,26 +2703,22 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
 	safe_str("#-1 VECTORS MUST BE SAME DIMENSIONS", buff, bufc);
 	return;
     }
-    if (n > MAXDIM) {
-	safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
-	return;
-    }
 
     switch (flag) {
 	case VADD_F:
-	    for (i = 0; i < n; i++) {
-		fval_buf(vres[i], atof(v1[i]) + atof(v2[i]));
-		v1[i] = (char *) vres[i];
+	    fval(buff, bufc, atof(v1[0]) + atof(v2[0]));
+	    for (i = 1; i < n; i++) {
+		print_sep(osep, buff, bufc);
+		fval(buff, bufc, atof(v1[i]) + atof(v2[i]));
 	    }
-	    arr2list(v1, n, buff, bufc, osep);
 	    return;
 	    /* NOTREACHED */
 	case VSUB_F:
-	    for (i = 0; i < n; i++) {
-		fval_buf(vres[i], atof(v1[i]) - atof(v2[i]));
-		v1[i] = (char *) vres[i];
+	    fval(buff, bufc, atof(v1[0]) - atof(v2[0]));
+	    for (i = 1; i < n; i++) {
+		print_sep(osep, buff, bufc);
+		fval(buff, bufc, atof(v1[i]) - atof(v2[i]));
 	    }
-	    arr2list(v1, n, buff, bufc, osep);
 	    return;
 	    /* NOTREACHED */
 	case VMUL_F:
@@ -2754,16 +2727,17 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
 	     */
 	    if (n == 1) {
 		scalar = atof(v1[0]);
-		for (i = 0; i < m; i++) {
-		    fval_buf(vres[i], atof(v2[i]) * scalar);
-		    v1[i] = (char *) vres[i];
+		fval(buff, bufc, atof(v2[0]) * scalar);
+		for (i = 1; i < m; i++) {
+		    print_sep(osep, buff, bufc);
+		    fval(buff, bufc, atof(v2[i]) * scalar);
 		}
-		n = m;
 	    } else if (m == 1) {
 		scalar = atof(v2[0]);
-		for (i = 0; i < n; i++) {
-		    fval_buf(vres[i], atof(v1[i]) * scalar);
-		    v1[i] = (char *) vres[i];
+		fval(buff, bufc, atof(v1[0]) * scalar);
+		for (i = 1; i < n; i++) {
+		    print_sep(osep, buff, bufc);
+		    fval(buff, bufc, atof(v1[i]) * scalar);
 		}
 	    } else {
 		/* vector elementwise product.
@@ -2773,19 +2747,18 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
 		 * claims it's a dot product, but the actual behavior
 		 * isn't. We implement dot product separately!
 		 */
-		for (i = 0; i < n; i++) {
-		    fval_buf(vres[i], atof(v1[i]) * atof(v2[i]));
-		    v1[i] = (char *) vres[i];
+		fval(buff, bufc, atof(v1[0]) * atof(v2[0]));
+		for (i = 1; i < n; i++) {
+		    print_sep(osep, buff, bufc);
+		    fval(buff, bufc, atof(v1[i]) * atof(v2[i]));
 		}
 	    }
-	    arr2list(v1, n, buff, bufc, osep);
 	    return;
 	    /* NOTREACHED */
 	case VDOT_F:
 	    scalar = 0;
 	    for (i = 0; i < n; i++) {
 		scalar += atof(v1[i]) * atof(v2[i]);
-		v1[i] = (char *) vres[i];
 	    }
 	    fval(buff, bufc, scalar);
 	    return;
@@ -2851,10 +2824,6 @@ FUNCTION(fun_vmag)
     }
     n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
 
-    if (n > MAXDIM) {
-	safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
-	return;
-    }
     /*
      * calculate the magnitude 
      */
@@ -2873,12 +2842,11 @@ FUNCTION(fun_vmag)
 FUNCTION(fun_vunit)
 {
     char *v1[LBUF_SIZE];
-    char vres[MAXDIM][LBUF_SIZE];
     int n, i;
     double tmp, res = 0;
-    char sep;
+    char sep, osep;
 
-    varargs_preamble("VUNIT", 2);
+    svarargs_preamble("VUNIT", 3);
 
     /*
      * split the list up, or return if the list is empty 
@@ -2888,10 +2856,6 @@ FUNCTION(fun_vunit)
     }
     n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
 
-    if (n > MAXDIM) {
-	safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
-	return;
-    }
     /*
      * calculate the magnitude 
      */
@@ -2905,19 +2869,19 @@ FUNCTION(fun_vunit)
 		 buff, bufc);
 	return;
     }
-    for (i = 0; i < n; i++) {
-	fval_buf(vres[i], atof(v1[i]) / sqrt(res));
-	v1[i] = (char *) vres[i];
+    res = sqrt(res);
+    fval(buff, bufc, atof(v1[0]) / res);
+    for (i = 1; i < n; i++) {
+	print_sep(osep, buff, bufc);
+	fval(buff, bufc, atof(v1[i]) / res);
     }
-
-    arr2list(v1, n, buff, bufc, sep);
 }
 
 FUNCTION(fun_vdim)
 {
     char sep;
 
-    if (fargs == 0) {
+    if (nfargs == 0) {
 	safe_chr('0', buff, bufc);
     } else {
 	varargs_preamble("VDIM", 2);
