@@ -2073,7 +2073,7 @@ int stat_type;
 	    str = (char *) stat_string(stat_type, this->flag);
 	    bits = mask_to_prefix(this->mask.s_addr);
 
-	    if (htonl(pow(2, 32) - ((unsigned int) pow(2, 32 - bits))) == this->mask.s_addr) {
+	    if (htonl(((unsigned int) pow(2, 32)) - ((unsigned int) pow(2, 32 - bits))) == this->mask.s_addr) {
 
 		sprintf(buff, "%-17s /%-16d %s", inet_ntoa(this->address),
 			bits, str);
