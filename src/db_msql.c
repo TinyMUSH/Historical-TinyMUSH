@@ -80,6 +80,7 @@ int sql_init()
 	    log_text(msqlErrMsg);
 	ENDLOG
 	msqlClose(mudstate.sql_socket);
+	mudstate.sql_socket = -1;
 	return -1;
     }
 
