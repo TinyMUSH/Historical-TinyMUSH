@@ -919,17 +919,24 @@ int add_helpfile(player, str)
     dbref player;
     char *str;
 {
-    char *fcmd, *fpath;
+    char *fcmd, *fpath, *newstr;
     CMDENT *cmdp;
     char **ftab;		/* pointer to an array of filepaths */
     HASHTAB *hashes;
 
-    fcmd = strtok(str, " \t=,");
+    /* Make a new string so we won't SEGV if given a constant string */
+    
+    newstr = alloc_mbuf("add_helpfile");
+    strcpy(newstr, str);
+
+    fcmd = strtok(newstr, " \t=,");
     fpath = strtok(NULL, " \t=,");
 
-    if (strlen(fpath) > SBUF_SIZE)
+    if (strlen(fpath) > SBUF_SIZE) {
+	free_mbuf(newstr);
 	return -1;
-
+    }
+    
     if ((cmdp = (CMDENT *) hashfind(fcmd, &mudstate.command_htab)) == NULL) {
 
 	/* We need to allocate a new command structure. */
@@ -989,7 +996,7 @@ int add_helpfile(player, str)
     hashinit(&mudstate.hfile_hashes[mudstate.helpfiles], 30 * HASH_FACTOR);
 
     mudstate.helpfiles++;
-
+    free_mbuf(newstr);
 
     return 0;
 }
