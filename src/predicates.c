@@ -1354,15 +1354,28 @@ void do_restart(player, cause, key)
 
 	/* Make sure what follows knows we're restarting. No need to clear
 	 * this, since this process is going away-- this is also set on
-	 * startup when the restart.db is read */
+	 * startup when the restart.db is read.
+	 */
 	
 	mudstate.restarting = 1;
 	
-	raw_broadcast(0, "GAME: Restart by %s, please wait.", Name(Owner(player)));
+	raw_broadcast(0, "GAME: Restart by %s, please wait.",
+		      Name(Owner(player)));
 	STARTLOG(LOG_ALWAYS, "WIZ", "RSTRT")
 		log_printf("Restart by ");
 		log_name(player);
-	ENDLOG
+	ENDLOG;
+
+	/* Do a dbck first so we don't end up with an inconsistent state.
+	 * Otherwise, since we don't write out GOING objects, the initial
+	 * dbck at startup won't have valid data to work with in order to
+	 * clean things out.
+	 */
+
+	do_dbck(NOTHING, NOTHING, 0);
+
+	/* Dump databases, etc. */
+
 	dump_database_internal(2);
 	
 	SYNC;
