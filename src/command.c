@@ -359,7 +359,7 @@ int check_userdef_access(player, cmdp, cargs, ncargs)
 
     bp = buf = alloc_lbuf("check_userdef_access");
     exec(buf, &bp, cmdp->userperms->thing, player, player,
-	 EV_EVAL | EV_FIGNORE | EV_TOP,
+	 EV_EVAL | EV_FCHECK | EV_TOP,
 	 &str, cargs, ncargs);
     *bp = '\0';
 
@@ -401,7 +401,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     }
 
     buf = bp = alloc_lbuf("process_hook");
-    exec(buf, &bp, hp->thing, player, player, EV_EVAL | EV_FIGNORE | EV_TOP,
+    exec(buf, &bp, hp->thing, player, player, EV_EVAL | EV_FCHECK | EV_TOP,
 	 &str, cargs, ncargs);
     *bp = '\0';
     free_lbuf(buf);
