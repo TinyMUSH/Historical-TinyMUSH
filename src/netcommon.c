@@ -2037,18 +2037,39 @@ SITE *site_list;
 const char *header_txt;
 int stat_type;
 {
-	char *buff, *str;
+	char *buff, *str, *maskaddr;
 	SITE *this;
+	int bits;
 
 	buff = alloc_mbuf("list_sites.buff");
 	sprintf(buff, "----- %s -----", header_txt);
 	notify(player, buff);
 	notify(player, "IP Prefix                Status");
+
 	for (this = site_list; this; this = this->next) {
-		str = (char *) stat_string(stat_type, this->flag);
-		sprintf(buff, "%-17s /%-5d %s", inet_ntoa(this->address),
-			mask_to_prefix(this->mask.s_addr), str);
-		notify(player, buff);
+
+	    str = (char *) stat_string(stat_type, this->flag);
+	    bits = mask_to_prefix(this->mask.s_addr);
+
+	    if (htonl(pow(2, 32) - pow(2, 32 - bits)) == this->mask.s_addr) {
+
+		sprintf(buff, "%-17s /%-16d %s", inet_ntoa(this->address),
+			bits, str);
+
+	    } else {
+
+		/* Deal with bizarre stuff not along CIDRized boundaries.
+		 * inet_ntoa() points to a static buffer, so we've got to
+		 * allocate something temporary.
+		 */
+		maskaddr = alloc_mbuf("list_sites.mask");
+		strcpy(maskaddr, inet_ntoa(this->mask));
+		sprintf(buff, "%-17s %-17s %s", inet_ntoa(this->address),
+			maskaddr, str);
+		free_mbuf(maskaddr);
+	    }
+
+	    notify(player, buff);
 	}
 
 	free_mbuf(buff);
