@@ -653,24 +653,33 @@ DESC *d;
 	}
 #endif
 
-	if (mudconf.ansi_colors) {
-	    raw_notify(player, tprintf("\n%sMOTD:%s %s\n", ANSI_HILITE,
-				       ANSI_NORMAL, mudconf.motd_msg));
-	} else {
-	    raw_notify(player, tprintf("\nMOTD: %s\n", mudconf.motd_msg));
+	if (*mudconf.motd_msg) {
+		if (mudconf.ansi_colors) {
+			raw_notify(player, tprintf("\n%sMOTD:%s %s\n",
+						   ANSI_HILITE, ANSI_NORMAL,
+						   mudconf.motd_msg));
+		} else {
+			raw_notify(player, tprintf("\nMOTD: %s\n",
+						   mudconf.motd_msg));
+		}
 	}
 
 	if (Wizard(player)) {
-	    if (mudconf.ansi_colors) {
-		raw_notify(player, tprintf("%sWIZMOTD:%s %s\n",
-			    ANSI_HILITE, ANSI_NORMAL, mudconf.wizmotd_msg));
-	    } else {
-		raw_notify(player, tprintf("WIZMOTD: %s\n",
-					   mudconf.wizmotd_msg));
-	    }
-	    if (!(mudconf.control_flags & CF_LOGIN)) {
-		raw_notify(player, "*** Logins are disabled.");
-	    }
+		if (*mudconf.wizmotd_msg) {
+			if (mudconf.ansi_colors) {
+				raw_notify(player,
+					   tprintf("%sWIZMOTD:%s %s\n",
+						   ANSI_HILITE, ANSI_NORMAL,
+						   mudconf.wizmotd_msg));
+			} else {
+				raw_notify(player,
+					   tprintf("WIZMOTD: %s\n",
+						   mudconf.wizmotd_msg));
+			}
+		}
+		if (!(mudconf.control_flags & CF_LOGIN)) {
+			raw_notify(player, "*** Logins are disabled.");
+		}
 	}
 
 	buf = atr_get(player, A_LPAGE, &aowner, &aflags, &alen);

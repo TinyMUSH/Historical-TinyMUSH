@@ -2680,7 +2680,7 @@ int silent;
 	urgent_mail(player, folder, &gc);
 #ifdef MAIL_ALL_FOLDERS
 	notify(player,
-	       tprintf("MAIL: %d messages in folder %d [%s] (%d unread, %d cleared).\r\n",
+	       tprintf("MAIL: %d messages in folder %d [%s] (%d unread, %d cleared).",
 		 rc + uc, folder, get_folder_name(player, folder), uc, cc));
 #else
 	if (rc + uc > 0)
@@ -2688,7 +2688,7 @@ int silent;
 		       tprintf("MAIL: %d messages in folder %d [%s] (%d unread, %d cleared).",
 		 rc + uc, folder, get_folder_name(player, folder), uc, cc));
 	else if (!silent)
-		notify(player, tprintf("\r\nMAIL: You have no mail.\r\n"));
+		notify(player, "MAIL: You have no mail.");
 	if (gc > 0)
 		notify(player, tprintf("URGENT MAIL: You have %d urgent messages in folder %d [%s].",
 			      gc, folder, get_folder_name(player, folder)));
