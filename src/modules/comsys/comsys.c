@@ -2164,9 +2164,10 @@ FUNCTION(fun_cwho)
     Grab_Channel(player);
     bb_p = *bufc;
     for (i = 0; i < chp->num_connected; i++) {
-	if (!isPlayer(chp->connect_who[i]->player) ||
-	    (Connected(chp->connect_who[i]->player) &&
-	     (!Hidden(chp->connect_who[i]->player) || See_Hidden(player)))) {
+	if (chp->connect_who[i]->is_listening &&
+	    (!isPlayer(chp->connect_who[i]->player) ||
+	     (Connected(chp->connect_who[i]->player) &&
+	      (!Hidden(chp->connect_who[i]->player) || See_Hidden(player))))) {
 	    if (*bufc != bb_p)
 		safe_chr(' ', buff, bufc);
 	    safe_dbref(buff, bufc, chp->connect_who[i]->player);
