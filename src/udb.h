@@ -31,7 +31,7 @@
 
 /* Define the number of objects we may be reading/writing to at one time */
 
-#define NUM_OBJPIPES	4
+#define NUM_OBJPIPES	64
 
 /* For MUSH, an int works great as an object ID
  * And attributes are zero terminated strings, so we heave the size out.
@@ -74,6 +74,7 @@ typedef struct cache {
 	unsigned int type;
 	unsigned int flags;
 	struct cache *nxt;
+	struct cache *prvfree;
 	struct cache *nxtfree;
 } Cache;
 
