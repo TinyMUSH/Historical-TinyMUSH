@@ -37,9 +37,8 @@ char *arg1, *arg2;
 		notify(player, mudconf.fixed_tel_msg);
 		return;
 	}
-	/*
-	 * get victim 
-	 */
+
+	/* get victim */
 
 	if (*arg2 == '\0') {
 		victim = player;
@@ -54,17 +53,14 @@ char *arg1, *arg2;
 		to = arg2;
 	}
 
-	/*
-	 * Validate type of victim 
-	 */
+	/* Validate type of victim */
 
 	if (!Has_location(victim)) {
 		notify_quiet(player, "You can't teleport that.");
 		return;
 	}
-	/*
-	 * Fail if we don't control the victim or the victim's location 
-	 */
+
+	/* Fail if we don't control the victim or the victim's location */
 
 	if (!Controls(player, victim) && !Controls(player, Location(victim)) && !Tel_Anything(player)) {
 		notify_quiet(player, NOPERM_MESSAGE);
@@ -95,7 +91,7 @@ char *arg1, *arg2;
 			     "I don't know which destination you mean!");
 		return;
 	default:
-		if (victim == destination) {
+		if ((victim == destination) || Going(destination)) {
 			notify_quiet(player, "Bad destination.");
 			return;
 		}
