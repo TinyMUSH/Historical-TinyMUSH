@@ -189,7 +189,7 @@ FUNCTION(fun_last)
 {
 	char *s, *last;
 	Delim isep;
-	int len, i, isep_len;
+	int isep_len;
 
 	/* If we are passed an empty arglist return a null string */
 
@@ -201,20 +201,11 @@ FUNCTION(fun_last)
 
 	if (isep_len == 1) {
 
-	    /* If we're dealing with spaces, trim off the trailing stuff */
-
-	    if (isep.c == ' ') {
-		len = strlen(s);
-		for (i = len - 1; s[i] == ' '; i--) ;
-		if (i + 1 <= len)
-			s[i + 1] = '\0';
-	    }
 	    last = strrchr(s, isep.c);
 	    if (last)
 		safe_str(++last, buff, bufc);
 	    else
 		safe_str(s, buff, bufc);
-	    return;
 
 	} else {
 
