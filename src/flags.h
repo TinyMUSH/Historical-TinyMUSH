@@ -79,6 +79,7 @@
 #define STOP_MATCH	0x00100000	/* Stop matching commands if found */
 #define BOUNCE		0x00200000	/* Forward messages to contents */
 #define CONTROL_OK	0x00400000	/* ControlLk specifies who ctrls me */
+#define CONSTANT_ATTRS	0x00800000	/* Can't set attrs on this object */
 #define VACATION	0x01000000
 #define PLAYER_MAILS    0x02000000
 #define HTML		0x04000000      /* Player supports HTML */
@@ -356,7 +357,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Mark(x)		- Set marked flag on X */
 /* Unmark(x)		- Clear marked flag on X */
 /* Marked(x)		- Check marked flag on X */
-/* See_attr(P,X.A,O,F)	- Can P see text attr A on X if attr has owner O */
+/* See_attr(P,X,A,O,F)	- Can P see text attr A on X if attr has owner O */
 /* Set_attr(P,X,A,F)	- Can P set/change text attr A (with flags F) on X */
 /* Read_attr(P,X,A,O,F)	- Can P see attr A on X if attr has owner O */
 /* Write_attr(P,X,A,F)	- Can P set/change attr A (with flags F) on X */
@@ -426,6 +427,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			 (Flags(x) & SAFE) || \
 			 (mudconf.safe_unowned && (Owner(x) != Owner(p))))
 #define Control_ok(x)	((Flags2(x) & CONTROL_OK) != 0)
+#define Constant_Attrs(x)  ((Flags2(x) & CONSTANT_ATTRS) != 0)
 #define	Audible(x)	((Flags(x) & HEARTHRU) != 0)
 #define	Terse(x)	((Flags(x) & TERSE) != 0)
 
@@ -539,15 +541,28 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			 (((f) & AF_VISUAL) || \
 			  ((Owner(p) == (o)) && \
 			   !((a)->flags & (AF_DARK|AF_MDARK)))))
-#define	Set_attr(p,x,a,f) \
-			(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
-			 (God(p) || \
-			  (!God(x) && !(f & AF_LOCK) && \
-			   ((Controls(p,x) && \
-			     !((a)->flags & (AF_WIZARD|AF_GOD)) && \
-			     !((f) & (AF_WIZARD|AF_GOD))) || \
-			    (Wizard(p) && \
-			     !((a)->flags & AF_GOD))))))
+
+/* We can set it if:
+ * The (master) attribute is not internal or a lock AND
+ * we're God OR we meet the following criteria:
+ * - The attribute on the object is not locked.
+ * - The object is not set Constant.
+ * - We control the object, and the attribute and master attribute do
+ *   not have the Wizard or God flags,
+ *   OR
+ *   We are a Wizard and the attribute and master attribute do not have
+ *   the God flags.
+ */
+
+#define Set_attr(p,x,a,f) \
+(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
+ (God(p) || \
+  (!((f) & AF_LOCK) && !Constant_Attrs(x) && \
+   ((Controls(p,x) && \
+     !((a)->flags & (AF_WIZARD|AF_GOD)) && \
+     !((f) & (AF_WIZARD|AF_GOD))) || \
+    (Wizard(p) && !((a)->flags & AF_GOD) && !((f) & AF_GOD))))))
+
 #define	Read_attr(p,x,a,o,f) \
 			(!((a)->flags & AF_INTERNAL) && \
 			 (God(p) || \
@@ -555,8 +570,13 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
                          (((Owner(p) == o) || Examinable(p,x)) && \
 			   !((a)->flags & (AF_DARK|AF_MDARK)) && \
 			   !((f) & (AF_DARK|AF_MDARK))) || \
-			  ((Wizard(p) || Royalty(p)) && !((a)->flags & AF_DARK)) || \
+			  (WizRoy(p) && !((a)->flags & AF_DARK)) || \
 			  !((a)->flags & (AF_DARK|AF_MDARK|AF_ODARK))))
+
+/* Write_attr() is only used by atr_cpy(), and thus is not subject
+ * to the effects of the Constant flag.
+ */
+
 #define	Write_attr(p,x,a,f) \
 			(!((a)->flags & AF_INTERNAL) && \
 			 (God(p) || \

@@ -307,6 +307,8 @@ FLAGENT gen_flags[] = {
 	0,		0,			fh_wiz},
 {"GAGGED", 		GAGGED,		'j',
 	FLAG_WORD2,	0,			fh_wiz},
+{"CONSTANT",		CONSTANT_ATTRS,	'k',
+	FLAG_WORD2,	0,			fh_wiz},
 {"LIGHT",		LIGHT,		'l',
 	FLAG_WORD2,	0,			fh_any},
 {"MYOPIC",		MYOPIC,		'm',
