@@ -1730,7 +1730,7 @@ int first;
 				STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
 					log_name_and_loc(d->player);
 					logbuf = alloc_lbuf("do_command.LOG.cpu");
-					sprintf(logbuf, " entered command taking %d secs: ", used_time); 
+					sprintf(logbuf, " entered command taking %ld secs: ", used_time); 
 					log_text(logbuf);
 					free_lbuf(logbuf);
 					log_text(log_cmdbuf);
