@@ -1249,10 +1249,13 @@ void restore_global_regs(funcname, preserve)
     const char *funcname;
     GDATA *preserve; 
 {
-    if ((!mudstate.rdata && !preserve) ||
-	(mudstate.rdata && preserve &&
-	 (mudstate.rdata->dirty == preserve->dirty))) {
+    if (!mudstate.rdata && !preserve)
+	return;
+
+    if (mudstate.rdata && preserve &&
+	(mudstate.rdata->dirty == preserve->dirty)) {
 	/* No change in the values. Move along. */
+	Free_RegData(preserve);
 	return;
     }
 
