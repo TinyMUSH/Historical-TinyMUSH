@@ -188,14 +188,6 @@
  
   See also: @addcommand, @listcommands.
  
-& @listcommands
-  Command: @listcommands [<name>]
-  Lists commands added by @addcommand. With <name> specified, lists all
-  commands added under that particular command name. Without it, lists all
-  added commands.
- 
-  See also: @addcommand, @listcommands.
-
 & @admin
   Command: @admin <param>=<value>
   Sets a TinyMUSH configuration parameter to the indicated value.
@@ -451,7 +443,7 @@
  
   '@hook/before <command>' and '@hook/after <command>' delete hooks.
  
-  Continued in 'help @hook2'.
+  Continued in 'wizhelp @hook2'.
  
 & @hook2
  
@@ -471,7 +463,7 @@
   first things in the @startup on the God character, assuming you
   want them to take effect immediately when the server is started.
  
-  Continued in 'help @hook3'.
+  Continued in 'wizhelp @hook3'.
  
 & @hook3
  
@@ -486,7 +478,7 @@
     foo created as object #51
     After
  
-  Continued in 'help @hook4'.
+  Continued in 'wizhelp @hook4'.
  
 & @hook4
  
@@ -505,7 +497,6 @@
     Before - Set
     Test -  - Reset
     After - Reset
- 
  
 & @kick
   Command: @kick <count>
@@ -3094,4 +3085,12 @@ use_global_aconn	wizard_obeys_linklock
   Config directive: zone_recursion_limit <count>.  Default: 20
  
   Sets the maximum of ZMOs in a zone chain to check for zone functionality.
+ 
+& @listcommands
+  Command: @listcommands [<name>]
+  Lists commands added by @addcommand. With <name> specified, lists all
+  commands added under that particular command name. Without it, lists all
+  added commands.
+ 
+  See also: @addcommand, @listcommands.
  
