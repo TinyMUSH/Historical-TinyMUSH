@@ -1793,6 +1793,7 @@
   Continued in 'help @set2'.
 
 & @set2
+ 
   The following flags may be set using the fourth form of the @set command;
   they are displayed when the attribute is examined.
  
@@ -1804,10 +1805,8 @@
      no_inherit - Prevents children of the object from obtaining the 
                   attribute.  From their perspective the attribute does not
                   exist. (I)
-     no_parse   - When $-commands are matched, the unparsed (non-evaluated)
-                  string is used. Useful for MUSH editors. (P)
-     regexp     - When $-commands are matched, treat the pattern as a 
-                  regular expression rather than a wildcard glob pattern. (R)
+     no_parse   - When $-commands/^-listens are matched, the unparsed
+                  (non-evaluated) string is used. Useful for MUSH editors. (P)
      visual     - Anyone may see the attribute when they examine you, and
                   may get the attribute with get(). (V)
      wizard     - Wiz-only. Prevent mortals from changing the attribute. (w)
@@ -1815,6 +1814,14 @@
   Continue in 'help @set3'.
 
 & @set3
+ 
+     case	- Treat regular expression patterns as case-sensitive.
+                  Affects $-commands, ^-listens, @filter, @infilter, and
+                  @listen. (C)
+     regexp     - Treat patterns as regular expressions rather than
+                  wildcard glob patterns. Affects $-commands, ^-listens,
+                  @filter, @infilter, and @listen. (R)
+ 
   The folowing flags are unsettable:
  
      locked	- @lock'd attributes. (+)
@@ -2616,9 +2623,10 @@
  
   <pattern> is a wildcard pattern, unless the object's @filter
   attribute has been @set 'regexp', in which case a regular expression
-  match is done instead. Note that since the attribute is evaluated,
-  special characters in the regular expression, such as '[' and ']',
-  will need to be escaped out.
+  match is done instead. This is case-insensitive, unless the object's
+  @filter attribute has been @set 'case'. Note that since the attribute
+  is evaluated, special characters in the regular expression, such as
+  '[' and ']', will need to be escaped out.
  
   Continued in 'help @filter2'.
  
@@ -2742,10 +2750,11 @@
  
   <pattern> is a wildcard pattern, unless the object's @infilter
   attribute has been @set 'regexp', in which case a regular expression
-  match is done instead. Note that since the attribute is evaluated,
-  special characters in the regular expression, such as '[' and ']',
-  will need to be escaped out.
- 
+  match is done instead. This is case-insensitive, unless the object's
+  @infilter attribute has been @set 'case'. Note that since the attribute
+  is evaluated, special characters in the regular expression, such as
+  '[' and ']', will need to be escaped out.
+  
   Continued in 'help @infilter2'.
  
 & @infilter2
@@ -2880,31 +2889,46 @@
   See also: @aleave, @alfail, @lalias, @leave, @oleave, @olfail, leave.
 
 & @listen
-  Command: @listen <object> = <string>
+  Command: @listen <object> = <pattern>
   Attribute: Listen
  
-  This attribute contains a wildcard pattern that the object listens for.
+  This attribute contains a pattern that the object listens for.
   Anything spoken, posed, emitted, or whispered in the room that <object> is
   in, as well as messages resulting from using objects (such as Opay and Succ
   messages) are checked against the Listen attribute.  When the object hears 
   something that matches the pattern, it triggers the Ahear attribute, as
-  well as either the Amhear or Aahear attributes, as appropriate,
-  substituting %0 the string that matched the first wildcard character in the
-  Listen, %1 for the second. etc.  If the pattern in the Listen attribute is
-  matched, objects in <object>'s inventory will also hear the message and
-  have a chance to match it.  Objects whose Listen attribute is set to
-  anything will be listed when a @sweep command is run by someone in the
-  same room.
+  well as either the Amhear or Aahear attributes, as appropriate, passing
+  %0-%9 substitutions according to the pattern match.
+ 
+  The pattern is normally a wildcard pattern, with %0 as the string that
+  matched the first wildcard in the @listen, %1 as the string that matched
+  the second wildcard, and so forth.
+ 
+  If the 'regexp' flag is set on the @listen, the pattern is treated as
+  a regular expression, with %0 as the entire matched expression, %1
+  as the first parenthesized expression, %2 as the second parenthesized
+  expression, and so forth. This match is case-insensitive, unless the
+  'case' flag is also set on the @listen.
+ 
+  Continued in 'help @listen2'.
+
+& @listen2
+ 
+  If the pattern in the Listen attribute is matched, objects in <object>'s
+  inventory will also hear the message and have a chance to match it.
+  Objects whose Listen attribute is set to anything will be listed when a
+  @sweep command is run by someone in the same room.
  
   If the @listen pattern is matched, then the object's contents will
-  hear the message also, prefixed by the text in @inprefix if it is set.  Any
+  hear the message also, prefixed by the text in @inprefix if it is set. Any
   text that matches any pattern specified in @infilter will not be sent to
   the contents.
  
   Example: @listen camera = * has arrived.
            @ahear camera = @va me = %va %0
+ 
   See also: @aahear, @ahear, @amhear, @sweep, @inprefix, @infilter.
-
+ 
 & @move
   Command: @move <object> = <command-list>
   Attribute: Move
