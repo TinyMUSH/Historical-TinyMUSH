@@ -22,6 +22,8 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     char **bufc;
     char row_delim, field_delim;
 {
+    notify(player, "No external SQL database connectivity is configured.");
+    safe_str("#-1", buff, bufc);
     return -1;
 }
 
