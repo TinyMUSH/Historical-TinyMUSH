@@ -119,7 +119,8 @@ int fflags, reset;
 
 /* ---------------------------------------------------------------------------
  * fh_privileged: You can set this flag on a non-player object, if you
- * yourself have this flag. Only God can set this on a player.
+ * yourself have this flag and are a player who owns themselves (i.e.,
+ * no robots). Only God can set this on a player.
  */
 
 int fh_privileged(target, player, flag, fflags, reset)
@@ -131,6 +132,8 @@ int fflags, reset;
 
     if (!God(player)) {
 
+	if (!isPlayer(player) || (player != Owner(player)))
+	    return 0;
 	if (isPlayer(target))
 	    return 0;
 
