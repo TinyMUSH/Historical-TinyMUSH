@@ -1040,35 +1040,6 @@ void NDECL(check_idle)
 	}
 }
 
-void NDECL(check_events)
-{
-	struct tm *ltime;
-	dbref thing, parent;
-	int lev;
-
-	ltime = localtime(&mudstate.now);
-	if ((ltime->tm_hour == mudconf.events_daily_hour)
-	    && !(mudstate.events_flag & ET_DAILY)) {
-		mudstate.events_flag = mudstate.events_flag | ET_DAILY;
-		DO_WHOLE_DB(thing) {
-			if (Going(thing))
-				continue;
-
-			ITER_PARENTS(thing, parent, lev) {
-				if (Flags2(thing) & HAS_DAILY) {
-					did_it(Owner(thing), thing,
-					       A_NULL, NULL, A_NULL, NULL,
-					       A_DAILY, (char **) NULL, 0);
-
-					break;
-				}
-			}
-		}
-	}
-	if (ltime->tm_hour == 23) {	/* Nightly resetting */
-		mudstate.events_flag = 0;
-	}
-}
 static char *trimmed_name(player)
 dbref player;
 {

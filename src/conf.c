@@ -285,6 +285,7 @@ void NDECL(cf_init)
 
 	mudstate.events_flag = 0;
 	mudstate.initializing = 0;
+	mudstate.loading_db = 0;
 	mudstate.panicking = 0;
 	mudstate.dumping = 0;
 	mudstate.logging = 0;

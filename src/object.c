@@ -34,6 +34,7 @@ extern void FDECL(do_mail_purge, (dbref));
 extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
 extern void FDECL(xvars_clr, (dbref));
+extern int FDECL(cron_clr, (dbref, dbref));
 #endif
 
 #ifdef STANDALONE
@@ -554,6 +555,7 @@ dbref player, obj;
 		}
 	}
 	nfy_que(obj, 0, NFY_DRAIN, 0);
+	cron_clr(obj, NOTHING);
 	
 	/* Remove forwardlists and stacks from the hash tables. */
 	

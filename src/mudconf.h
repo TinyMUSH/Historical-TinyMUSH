@@ -293,6 +293,7 @@ struct statedata {
 	int	record_players; /* The maximum # of player logged on */
 #ifndef STANDALONE
 	int	initializing;	/* are we reading config file at startup? */
+	int	loading_db;	/* are we loading the db? */
 	int	panicking;	/* are we in the middle of dying horribly? */
 	int	restarting;	/* Are we restarting? */
 	int	dumping;	/* Are we dumping? */

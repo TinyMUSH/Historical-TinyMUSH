@@ -26,6 +26,10 @@ extern void FDECL(do_channelnuke, (dbref));
 extern void FDECL(del_comsys, (dbref));
 #endif
 
+#ifndef STANDALONE
+extern int FDECL(call_cron, (dbref, dbref, int, char *));
+#endif
+
 #ifndef O_ACCMODE
 #define O_ACCMODE	(O_RDONLY|O_WRONLY|O_RDWR)
 #endif
@@ -1939,6 +1943,13 @@ char *buff;
 		break;
 	case A_DAILY:
 		s_Flags2(thing, Flags2(thing) | HAS_DAILY);
+#ifndef STANDALONE
+		if (!mudstate.loading_db) {
+		    char tbuf[SBUF_SIZE];
+		    sprintf(tbuf, "0 %d * * *", mudconf.events_daily_hour);
+		    call_cron(thing, thing, A_DAILY, tbuf);
+		}
+#endif
 		break;
 	case A_FORWARDLIST:
 		s_Flags2(thing, Flags2(thing) | HAS_FWDLIST);

@@ -71,6 +71,9 @@ CMD_TWO_ARG(do_clone);			/* Create a copy of an object */
 CMD_NO_ARG(do_comment);			/* Ignore argument and do nothing */
 CMD_TWO_ARG_ARGV(do_cpattr);            /* Copy attributes */
 CMD_TWO_ARG(do_create);			/* Create a new object */
+CMD_TWO_ARG(do_cron);		        /* Add a new cron entry */
+CMD_ONE_ARG(do_crondel);		/* Delete cron entries */
+CMD_ONE_ARG(do_crontab);		/* List out cron entries */
 CMD_ONE_ARG(do_cut);			/* Truncate contents or exits list */
 CMD_NO_ARG(do_dbck);			/* Consistency check */
 CMD_TWO_ARG(do_decomp);			/* Reproduce commands to recrete obj */

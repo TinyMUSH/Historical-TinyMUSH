@@ -58,6 +58,10 @@ extern void NDECL(sql_shutdown);
 extern int NDECL(dddb_optimize);
 #endif
 
+#ifndef STANDALONE
+extern int FDECL(call_cron, (dbref, dbref, int, char *));
+#endif
+
 #ifdef USE_MAIL
 extern void NDECL(check_mail_expiration);
 #endif
@@ -1492,6 +1496,7 @@ static void NDECL(process_preload)
 	dbref thing, parent, aowner;
 	int aflags, lev, i;
 	char *tstr;
+	char tbuf[SBUF_SIZE];
 	FWDLIST *fp;
 
 	fp = (FWDLIST *) XMALLOC(sizeof(FWDLIST), "process_preload.fwdlist");
@@ -1529,7 +1534,7 @@ static void NDECL(process_preload)
 
 		do_top(10);
 
-		/* Look for a STARTUP attribute in parents */
+		/* Look for STARTUP and DAILY attributes on parents. */
 
 		ITER_PARENTS(thing, parent, lev) {
 			if (Flags(thing) & HAS_STARTUP) {
@@ -1545,8 +1550,12 @@ static void NDECL(process_preload)
 #endif /* MEMORY_BASED */
 				break;
 			}
+			if (Flags2(thing) & HAS_DAILY) {
+			    sprintf(tbuf, "0 %d * * *",
+				    mudconf.events_daily_hour);
+			    call_cron(thing, thing, A_DAILY, tbuf);
+			}
 		}
-
 	}
 	XFREE(fp, "process_preload.fwdlist");
 	free_lbuf(tstr);
@@ -1659,6 +1668,7 @@ char *argv[];
 
 	mudstate.record_players = 0;
 	
+	mudstate.loading_db = 1;
 	if (mindb)
 		db_make_minimal();
 	else if (load_game() < 0) {
@@ -1668,6 +1678,8 @@ char *argv[];
 		ENDLOG
 			exit(2);
 	}
+	mudstate.loading_db = 0;
+
 	srandom(getpid());
 	set_signals();
 
@@ -1765,7 +1777,6 @@ char *argv[];
 
 	/* go do it */
 
-	mudstate.now = time(NULL);
 	init_timer();
 	shovechars(mudconf.port);
 
