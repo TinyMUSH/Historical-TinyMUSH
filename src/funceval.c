@@ -4656,6 +4656,7 @@ int matched;
 	    }
 	    if (!matched || !re->startp[i] || !re->endp[i]) {
 		mudstate.global_regs[curq][0] = '\0'; /* empty string */
+		mudstate.glob_reg_len[curq] = 0;
 	    } else {
 		len = re->endp[i] - re->startp[i];
 		if (len > LBUF_SIZE - 1)
@@ -4663,7 +4664,8 @@ int matched;
 		else if (len < 0)
 		    len = 0;
 		strncpy(mudstate.global_regs[curq], re->startp[i], len);
-		mudstate.global_regs[curq][len] = '\0';	/* must null-terminate */
+		mudstate.global_regs[curq][len] = '\0';	/* must null-term */
+		mudstate.glob_reg_len[curq] = len;
 	    }
 	}
 
