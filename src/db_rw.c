@@ -1047,6 +1047,8 @@ int db_read()
 	memcpy((void *)&mudstate.attr_next, (void *)dptr, sizeof(int));
 	dptr++;
 	memcpy((void *)&mudstate.record_players, (void *)dptr, sizeof(int));
+	dptr++;
+	memcpy((void *)&mudstate.moduletype_top, (void *)dptr, sizeof(int));
 	RAW_FREE(data, "dddb_get");
 	
 	/* Load the attribute numbers */
@@ -1312,16 +1314,18 @@ dbref db_write()
 	/* Roll up various paramaters needed for startup into one record.
 	 * This should be the only data record of its type */
 		
-	dptr = data = (int *)XMALLOC(3 * sizeof(int), "db_write");
+	dptr = data = (int *)XMALLOC(4 * sizeof(int), "db_write");
 	memcpy((void *)dptr, (void *)&mudstate.db_top, sizeof(int));
 	dptr++;
 	memcpy((void *)dptr, (void *)&i, sizeof(int));
 	dptr++;
 	memcpy((void *)dptr, (void *)&mudstate.record_players, sizeof(int));
-		
+	dptr++;
+	memcpy((void *)dptr, (void *)&mudstate.moduletype_top, sizeof(int));
+			
 	/* "TM3" is our unique key */
 		
-	DBINFO_STORE("TM3", data, 3 * sizeof(int));
+	DBINFO_STORE("TM3", data, 4 * sizeof(int));
 	XFREE(data, "db_write");
 		
 	/* Dump user-named attribute info */
