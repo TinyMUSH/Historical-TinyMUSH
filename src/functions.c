@@ -60,6 +60,7 @@ XFUNCTION(fun_force);
 XFUNCTION(fun_trigger);
 XFUNCTION(fun_create);
 XFUNCTION(fun_set);
+XFUNCTION(fun_wipe);
 #endif
 XFUNCTION(fun_last);
 XFUNCTION(fun_matchall);
@@ -5528,6 +5529,7 @@ FUN flist[] = {
 {"VUNIT",	fun_vunit,	0,  FN_VARARGS,	CA_PUBLIC},
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC},
 {"WHILE",	fun_while,	0,  FN_VARARGS,	CA_PUBLIC},
+{"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC},
 {"WORDPOS",     fun_wordpos,    0,  FN_VARARGS,	CA_PUBLIC},
 {"WORDS",	fun_words,	0,  FN_VARARGS,	CA_PUBLIC},
 {"XCON",	fun_xcon,	3,  0,		CA_PUBLIC},
