@@ -89,5 +89,6 @@ extern void	FDECL(list_buftrace, (dbref));
 #define	safe_mb_str(s,b,p)	safe_copy_str((s),(b),(p),(MBUF_SIZE-1))
 #define	safe_mb_chr(c,b,p)	safe_copy_chr((c),(b),(p),(MBUF_SIZE-1))
 #define safe_chr_fn(c,b,p)      safe_chr_real_fn((c),(b),(p),(LBUF_SIZE-1))
+#define safe_known_str(s,n,b,p) safe_copy_known_str((s),(n),(b),(p),(LBUF_SIZE-1))
 
 #endif	/* M_ALLOC_H */

@@ -1816,7 +1816,7 @@ FUNCTION(fun_fullname)
 			return;
 		}
 	}
-	safe_str(Name(it), buff, bufc);
+	safe_name(it, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1839,7 +1839,7 @@ FUNCTION(fun_name)
 		}
 	}
 	temp = *bufc;
-	safe_str(Name(it), buff, bufc);
+	safe_name(it, buff, bufc);
 	if (isExit(it)) {
 		for (s = temp; (s != *bufc) && (*s != ';'); s++) ;
 		if (*s == ';')

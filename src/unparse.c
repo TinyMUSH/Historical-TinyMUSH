@@ -160,7 +160,7 @@ int format;
 			case TYPE_PLAYER:
 				safe_chr('*', boolexp_buf, &buftop);
 			case TYPE_THING:
-				safe_str(Name(b->thing), boolexp_buf, &buftop);
+				safe_name(b->thing, boolexp_buf, &buftop);
 				break;
 			default:
 				buff = alloc_sbuf("unparse_boolexp1");
@@ -180,7 +180,7 @@ int format;
 			switch (Typeof(b->thing)) {
 			case TYPE_PLAYER:
 				safe_chr('*', boolexp_buf, &buftop);
-				safe_str(Name(b->thing), boolexp_buf, &buftop);
+				safe_name(b->thing, boolexp_buf, &buftop);
 				break;
 			default:
 				buff = alloc_sbuf("unparse_boolexp1");

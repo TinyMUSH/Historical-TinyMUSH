@@ -783,7 +783,7 @@ char *cargs[];
 				if (gender < 0)
 					gender = get_gender(cause);
 				if (!gender) {
-					safe_str(Name(cause), buff, bufc);
+				        safe_name(cause, buff, bufc);
 					safe_chr('s', buff, bufc);
 				} else {
 					safe_str((char *)poss[gender],
@@ -805,7 +805,7 @@ char *cargs[];
 				if (gender < 0)
 					gender = get_gender(cause);
 				if (!gender) {
-					safe_str(Name(cause), buff, bufc);
+				        safe_name(cause, buff, bufc);
 					safe_chr('s', buff, bufc);
 				} else {
 					safe_str((char *)absp[gender],
@@ -828,7 +828,7 @@ char *cargs[];
 				break;
 			case 'N':	/* Invoker name */
 			case 'n':
-				safe_str(Name(cause), buff, bufc);
+				safe_name(cause, buff, bufc);
 				break;
 			case 'L':	/* Invoker location db# */
 			case 'l':

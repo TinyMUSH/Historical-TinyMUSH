@@ -658,6 +658,46 @@ safe_copy_long_str(src, buff, bufp, max)
     }
 }
 
+
+INLINE void safe_copy_known_str(src, known, buff, bufp, max)
+    char *src, *buff, **bufp;
+    int known, max;
+{
+    int n;
+    char *tp, *maxtp;
+
+    tp = *bufp;
+
+    if (!src) {
+	*tp = '\0';
+	return;
+    }
+
+    if (known > 7) {
+	n = max - (tp - buff);
+	n = ((known < n) ? known : n);
+	bcopy(src, tp, n);
+	tp += n;
+	*tp = '\0';
+	*bufp = tp;
+	return;
+    }
+
+    maxtp = buff + max;
+    while (*src && (tp < maxtp))
+	*(tp)++ = *src++;
+
+    if (!*src) {
+	if (tp < maxtp)
+	    *tp = '\0';
+	else
+	    *maxtp = '\0';
+    }
+
+    *bufp = tp;
+}
+
+
 INLINE int 
 safe_chr_real_fn(src, buff, bufp, max)
     char src, *buff, **bufp;
@@ -678,6 +718,10 @@ safe_chr_real_fn(src, buff, bufp, max)
 
     return retval;
 }
+
+/* ---------------------------------------------------------------------------
+ * More utilities.
+ */
 
 int matches_exit_from_list(str, pattern)
 char *str, *pattern;

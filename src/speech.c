@@ -436,12 +436,12 @@ int ismessage;
 	     p != NULL;
 	     p = (char *)strtok(NULL, " ")) {
 		if (ismessage)
-			safe_str(tprintf("%s, ", Name(atoi(p))), namelist, &bp);
+		    safe_tprintf_str(namelist, &bp, "%s, ", Name(atoi(p)));
 		else {
 			if (lookup_player(player, p, 1) != NOTHING) {
-				safe_str(tprintf("%s, ",
-				Name(lookup_player(player, p, 1))), namelist,
-					 &bp);
+			    safe_tprintf_str(namelist, &bp, "%s, ",
+					     Name(lookup_player(player,
+								p, 1)));
 			}
 		}
 	}
@@ -839,10 +839,10 @@ char *recipient, *message;
 				if (loc != NOTHING) {
 					buf2 = alloc_lbuf("do_pemit.whisper.buzz");
 					bp = buf2;
-					safe_str(Name(player), buf2, &bp);
+					safe_name(player, buf2, &bp);
 					safe_str((char *)" whispers something to ",
 						 buf2, &bp);
-					safe_str(Name(target), buf2, &bp);
+					safe_name(target, buf2, &bp);
 					*bp = '\0';
 					notify_except2(loc, player, player,
 						       target, buf2);

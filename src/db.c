@@ -683,6 +683,37 @@ char **ptr, *new;
  * Name, s_Name: Get or set an object's name.
  */
 
+INLINE void safe_name(thing, outbuf, bufc)
+    dbref thing;
+    char *outbuf, **bufc;
+{
+	dbref aowner;
+	int aflags, alen;
+	char *buff;
+#ifdef MEMORY_BASED
+	static char tbuff[LBUF_SIZE];
+#endif
+	if (mudconf.cache_names) {
+		if (!purenames[thing]) {
+			buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
+			set_string(&purenames[thing], strip_ansi(buff));
+			free_lbuf(buff);
+		}
+	}
+
+#ifndef MEMORY_BASED
+	if (!names[thing]) {
+		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
+		set_string(&names[thing], buff);
+		free_lbuf(buff);
+	}
+	safe_known_str(names[thing], NameLen(thing), outbuf, bufc);
+#else
+	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
+	safe_known_str(tbuff, NameLen(thing), outbuf, bufc);
+#endif
+}
+
 INLINE char *Name(thing)
 dbref thing;
 {
@@ -746,18 +777,28 @@ INLINE void s_Name(thing, s)
 dbref thing;
 char *s;
 {
-	/* Truncate the name if we have to */
-	
-	if (s && (strlen(s) > MBUF_SIZE))
-		s[MBUF_SIZE] = '\0';
-	
-	atr_add_raw(thing, A_NAME, (char *)s);
-#ifndef MEMORY_BASED
-	set_string(&names[thing], (char *)s);
-#endif
-	if (mudconf.cache_names) {
-		set_string(&purenames[thing], strip_ansi((char *)s));
+    int len;
+
+    /* Truncate the name if we have to */
+
+    if (s) {
+	len = strlen(s);
+	if (len > MBUF_SIZE) {
+	    len = MBUF_SIZE - 1;
+	    s[len] = '\0';
 	}
+    } else {
+	len = 0;
+    }
+	
+    atr_add_raw(thing, A_NAME, (char *)s);
+    s_NameLen(thing, len);
+#ifndef MEMORY_BASED
+    set_string(&names[thing], (char *)s);
+#endif
+    if (mudconf.cache_names) {
+	set_string(&purenames[thing], strip_ansi((char *)s));
+    }
 }
 
 void s_Pass(thing, s)

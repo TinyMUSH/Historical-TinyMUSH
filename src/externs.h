@@ -229,6 +229,8 @@ extern char *	FDECL(seek_char, (const char *, char));
 extern int	FDECL(minmatch, (char *, char *, int));
 extern int	FDECL(safe_copy_str, (char *, char *, char **, int));
 extern int	FDECL(safe_copy_long_str, (char *, char *, char **, int));
+extern INLINE void FDECL(safe_copy_known_str, (char *, int, char *, char **,
+					       int));
 extern int	FDECL(matches_exit_from_list, (char *, char *));
 extern char *	FDECL(translate_string, (const char *, int));
 extern int	FDECL(ltos, (char *, long));

@@ -218,15 +218,15 @@ int style;
 					     html_buff, &html_cp);
 				    switch (style) {
 					case CONTENTS_LOCAL:
-					    safe_str(Name(thing),
+					    safe_name(thing,
 						     html_buff, &html_cp);
 					    break;
 					case CONTENTS_NESTED:
-					    safe_str(Name(Location(thing)),
+					    safe_name(Location(thing),
 						     html_buff, &html_cp);
 					    safe_str("'s ",
 						     html_buff, &html_cp);
-					    safe_str(Name(thing),
+					    safe_name(thing,
 						     html_buff, &html_cp);
 					    break;
 					case CONTENTS_REMOTE:
@@ -1699,7 +1699,7 @@ int key, is_loc;
 			safe_str((char *)"player ", buf, &bp);
 		if (ispuppet) {
 			safe_str((char *)"puppet(", buf, &bp);
-			safe_str(Name(Owner(what)), buf, &bp);
+			safe_name(Owner(what), buf, &bp);
 			safe_str((char *)") ", buf, &bp);
 		}
 		if (isconnected)

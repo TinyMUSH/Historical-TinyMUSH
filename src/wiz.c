@@ -402,7 +402,7 @@ char *name;
 		buf = NULL;
 	} else {
 		bp = buf = alloc_lbuf("do_boot.msg");
-		safe_str(Name(player), buf, &bp);
+		safe_name(player, buf, &bp);
 		safe_str((char *)" gently shows you the door.", buf, &bp);
 		*bp = '\0';
 	}

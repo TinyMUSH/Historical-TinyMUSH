@@ -408,9 +408,9 @@ dbref sender, sendloc;
 	tp = tbuff = alloc_lbuf("notify_check.fwdlist");
 	safe_str((char *)"From ", tbuff, &tp);
 	if (Good_obj(sendloc))
-		safe_str(Name(sendloc), tbuff, &tp);
+	    safe_name(sendloc, tbuff, &tp);
 	else
-		safe_str(Name(sender), tbuff, &tp);
+	    safe_name(sender, tbuff, &tp);
 	safe_chr(',', tbuff, &tp);
 	return tbuff;
 }
@@ -519,7 +519,7 @@ const char *msg;
 
 			tbuff = alloc_sbuf("notify_check.nospoof");
 			safe_chr('[', msg_ns, &mp);
-			safe_str(Name(sender), msg_ns, &mp);
+			safe_name(sender, msg_ns, &mp);
 			*tbuff = '(';
 			tbuff[1] = '#';
 			ltos(&tbuff[2], sender);
@@ -528,7 +528,7 @@ const char *msg;
 			
 			if (sender != Owner(sender)) {
 				safe_chr('{', msg_ns, &mp);
-				safe_str(Name(Owner(sender)), msg_ns, &mp);
+				safe_name(Owner(sender), msg_ns, &mp);
 				safe_chr('}', msg_ns, &mp);
 			}
 			if (sender != mudstate.curr_enactor) {
@@ -599,7 +599,7 @@ const char *msg;
 		      (targetloc != Owner(target))))) {
 
 			tp = tbuff = alloc_lbuf("notify_check.puppet");
-			safe_str(Name(target), tbuff, &tp);
+			safe_name(target, tbuff, &tp);
 			safe_str((char *)"> ", tbuff, &tp);
 			safe_str(msg_ns, tbuff, &tp);
 			raw_notify(Owner(target), tbuff);

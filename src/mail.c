@@ -1081,7 +1081,7 @@ int all, key;
                         	safe_str(" ", names, &bp);
                 	} else if (atoi(p) != mp->from) {
 				safe_chr('"', names, &bp);
-                        	safe_str(Name(atoi(p)), names, &bp);
+                        	safe_name(atoi(p), names, &bp);
 				safe_chr('"', names, &bp);
                         	safe_str(" ", names, &bp);
                 	}
@@ -1089,7 +1089,7 @@ int all, key;
         	free_lbuf(oldlist);
 		safe_chr(' ', names, &bp);
 		safe_chr('"', names, &bp);
-		safe_str(Name(mp->from), names, &bp);
+		safe_name(mp->from, names, &bp);
 		safe_chr('"', names, &bp);
 		*bp = '\0';
 		tolist = names;
@@ -2947,7 +2947,7 @@ char *alias;
 	bp = buff = alloc_lbuf("do_malias_list");
 	safe_tprintf_str(buff, &bp, "MAIL: Alias *%s: ", m->name);
 	for (i = m->numrecep - 1; i > -1; i--) {
-		safe_str(Name(m->list[i]), buff, &bp);
+		safe_name(m->list[i], buff, &bp);
 		safe_chr(' ', buff, &bp);
 	}
 	*bp = '\0';
@@ -3155,7 +3155,7 @@ char *arg;
 			safe_str(p, names, &bp);
 			safe_str(", ", names, &bp);
 		} else {
-			safe_str(Name(atoi(p)), names, &bp);
+			safe_name(atoi(p), names, &bp);
 			safe_str(", ", names, &bp);
 		}
 	}

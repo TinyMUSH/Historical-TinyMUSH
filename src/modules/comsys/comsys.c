@@ -558,7 +558,7 @@ static void process_comsys(player, arg, cap)
 	    tp = tbuf;
 	    safe_str(cap->title, tbuf, &tp);
 	    safe_chr(' ', tbuf, &tp);
-	    safe_str(Name(player), tbuf, &tp);
+	    safe_name(player, tbuf, &tp);
 	    *tp = '\0';
 	    name_buf = tbuf;
 	} else {

@@ -163,6 +163,8 @@ struct object {
 	POWER 	powers;		/* ALL: Powers on object */
 	POWER	powers2;	/* ALL: even more powers */
 
+	int	name_length;	/* ALL: Length of name string */
+
 	int	stack_count;	/* ALL: number of things on the stack */
 	int	vars_count;	/* ALL: number of variables */
 	int	struct_count;	/* ALL: number of structures */
@@ -198,6 +200,7 @@ extern NAME *names;
 #define Flags3(t)		db[t].flags3
 #define Powers(t)		db[t].powers
 #define Powers2(t)		db[t].powers2
+#define NameLen(t)		db[t].name_length
 #define	Home(t)			Link(t)
 #define	Dropto(t)		Location(t)
 
@@ -231,6 +234,7 @@ extern NAME *names;
 #define s_Flags3(t,n)		db[t].flags3 = (n)
 #define s_Powers(t,n)		db[t].powers = (n)
 #define s_Powers2(t,n)		db[t].powers2 = (n)
+#define s_NameLen(t,n)		db[t].name_length = (n)
 #define	s_Home(t,n)		s_Link(t,n)
 #define	s_Dropto(t,n)		s_Location(t,n)
 
