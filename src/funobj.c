@@ -1076,9 +1076,11 @@ FUNCTION(fun_zfun)
 FUNCTION(fun_hasattr)
 {
 	dbref thing, aowner;
-	int aflags, alen;
+	int aflags, alen, check_parents;
 	ATTR *attr;
 	char *tbuf;
+
+	check_parents = ((FUN *)fargs[-1])->flags & CHECK_PARENTS;
 
 	thing = match_thing(player, fargs[0]);
 	if (thing == NOTHING) {
@@ -1093,45 +1095,19 @@ FUNCTION(fun_hasattr)
 		safe_chr('0', buff, bufc);
 		return;
 	}
-	atr_get_info(thing, attr->number, &aowner, &aflags);
+	if (check_parents) {
+		atr_pget_info(thing, attr->number, &aowner, &aflags);
+	} else {
+		atr_get_info(thing, attr->number, &aowner, &aflags);
+	}
 	if (!See_attr(player, thing, attr, aowner, aflags)) {
 		safe_chr('0', buff, bufc);
 	} else {
-		tbuf = atr_get(thing, attr->number, &aowner, &aflags, &alen);
-		if (*tbuf) {
-			safe_chr('1', buff, bufc);
+		if (check_parents) {
+			tbuf = atr_pget(thing, attr->number, &aowner, &aflags, &alen);
 		} else {
-			safe_chr('0', buff, bufc);
+			tbuf = atr_get(thing, attr->number, &aowner, &aflags, &alen);
 		}
-		free_lbuf(tbuf);
-	}
-}
-
-FUNCTION(fun_hasattrp)
-{
-	dbref thing, aowner;
-	int aflags, alen;
-	ATTR *attr;
-	char *tbuf;
-
-	thing = match_thing(player, fargs[0]);
-	if (thing == NOTHING) {
-		safe_nomatch(buff, bufc);
-		return;
-	} else if (!Examinable(player, thing)) {
-		safe_noperm(buff, bufc);
-		return;
-	}
-	attr = atr_str(fargs[1]);
-	if (!attr) {
-		safe_chr('0', buff, bufc);
-		return;
-	}
-	atr_pget_info(thing, attr->number, &aowner, &aflags);
-	if (!See_attr(player, thing, attr, aowner, aflags)) {
-		safe_chr('0', buff, bufc);
-	} else {
-		tbuf = atr_pget(thing, attr->number, &aowner, &aflags, &alen);
 		if (*tbuf) {
 			safe_chr('1', buff, bufc);
 		} else {

@@ -359,4 +359,7 @@ if ((l) > 0) { \
 /* from handle_lattr (lattr, nattr): */
 #define LATTR_COUNT	0x1	/* just return attribute count */
 
+/* from fun_hasattr (hasattr, hasattrp): */
+#define CHECK_PARENTS	0x1	/* recurse up the parent chain */
+
 #endif /* __FUNCTIONS_H */

@@ -218,7 +218,6 @@ XFUNCTION(fun_zone);
 XFUNCTION(scan_zone);
 XFUNCTION(fun_zfun);
 XFUNCTION(fun_hasattr);
-XFUNCTION(fun_hasattrp);
 XFUNCTION(fun_v);
 XFUNCTION(fun_get);
 XFUNCTION(fun_xget);
@@ -463,7 +462,8 @@ FUN flist[] = {
 {"GT",		fun_gt,		2,  0,		CA_PUBLIC,	NULL},
 {"GTE",		fun_gte,	2,  0,		CA_PUBLIC,	NULL},
 {"HASATTR",	fun_hasattr,	2,  0,		CA_PUBLIC,	NULL},
-{"HASATTRP",	fun_hasattrp,	2,  0,		CA_PUBLIC,	NULL},
+{"HASATTRP",	fun_hasattr,	2,  CHECK_PARENTS,
+						CA_PUBLIC,	NULL},
 {"HASFLAG",	fun_hasflag,	2,  0,		CA_PUBLIC,	NULL},
 {"HASMODULE",	fun_hasmodule,	1,  0,		CA_PUBLIC,	NULL},
 {"HASPOWER",    fun_haspower,   2,  0,          CA_PUBLIC,	NULL},
