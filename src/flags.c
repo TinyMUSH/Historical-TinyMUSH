@@ -672,6 +672,8 @@ dbref target;
 		strcpy(buf, "*NOTHING*");
 	} else if (target == HOME) {
 		strcpy(buf, "*HOME*");
+	} else if (target == AMBIGUOUS) {
+	        strcpy(buf, "*VARIABLE*");
 	} else if (!Good_obj(target)) {
 		sprintf(buf, "*ILLEGAL*(#%d)", target);
 	} else {
@@ -697,6 +699,8 @@ int obey_myopic;
 		strcpy(buf, "*NOTHING*");
 	} else if (target == HOME) {
 		strcpy(buf, "*HOME*");
+	} else if (target == AMBIGUOUS) {
+		strcpy(buf, "*VARIABLE*");
 	} else if (!Good_obj(target)) {
 		sprintf(buf, "*ILLEGAL*(#%d)", target);
 	} else {

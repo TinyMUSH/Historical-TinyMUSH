@@ -1408,18 +1408,16 @@ char *name;
 
 			switch (Location(thing)) {
 			case NOTHING:
+			        /* Special case. unparse_object() normally
+				 * returns -1 as '*NOTHING*'.
+				 */
 				notify(player, "Destination: *UNLINKED*");
-				break;
-			case HOME:
-				notify(player, "Destination: *HOME*");
-				break;
- 		        case AMBIGUOUS:
-				notify(player, "Destination: *VARIABLE*");
 				break;
 			default:
 				buf2 = unparse_object(player,
 						      Location(thing), 0);
-				notify(player, tprintf("Destination: %s", buf2));
+				notify(player,
+				       tprintf("Destination: %s", buf2));
 				free_lbuf(buf2);
 				break;
 			}
