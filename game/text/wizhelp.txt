@@ -1128,12 +1128,12 @@
 	postdump_message	pueblo_message		wizard_motd_message
 
 & PARAM MISCELLANEOUS
-	guest_prefix		guests_channel		indent_desc
-	log			log_options		money_name_plural
-	money_name_singular	mud_name		port
-	public_channel		queue_active_chunk	queue_idle_chunk
-	rwho_data_port		rwho_host		rwho_info_port
-	rwho_password
+	flag_name		guest_prefix		guests_channel
+	indent_desc		log			log_options
+	money_name_plural	money_name_singular	mud_name
+	port			public_channel		queue_active_chunk
+	queue_idle_chunk	rwho_data_port		rwho_host
+	rwho_info_port		rwho_password
 
 & PARAM OBJECTS
 	default_home		exit_flags		exit_parent
@@ -1144,9 +1144,9 @@
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
-	bad_name		config_access		function_access
-	good_name		list_access		logout_cmd_access
-	power_access
+	bad_name		config_access		flag_access
+	function_access		good_name		list_access
+	logout_cmd_access	power_access
 
 & PARAM SITES
 	forbid_site		guest_site		permit_site
@@ -1158,21 +1158,14 @@
 	idle_interval		rwho_dump_interval	timeslice
 
 & PARAM OPTIONS
-abort_on_bug			addcommands_match_blindly
-addcommands_obey_stop		ansi_colors
-clone_copies_cost		
-comsys_database
-dark_sleepers
-examine_flags			examine_public_attrs
-fascist_teleport	format_contents		format_exits
-global_aconn_uselocks
-have_comsys
-have_mailer
-have_zones
-hostnames		idle_wiz_dark		local_master_rooms
-look_obey_terse		
-mail_database
-match_own_commands	paranoid_allocate
+abort_on_bug		addcommands_match_blindly
+addcommands_obey_stop	ansi_colors		clone_copies_cost
+comsys_database		dark_sleepers		examine_flags
+examine_public_attrs	fascist_teleport	format_contents
+format_exits		global_aconn_uselocks	have_comsys
+have_mailer		have_zones		hostnames
+idle_wiz_dark		local_master_rooms	look_obey_terse		
+mail_database		match_own_commands	paranoid_allocate
 parentable_control_lock	parent_zones		pemit_any_object
 pemit_far_players	player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
@@ -1521,8 +1514,24 @@ use_global_aconn	wizard_obeys_linklock
  
 & flag_alias
   Config parameter: flag_alias <alias> <flagname>.
+ 
   Defines <alias> as a synonym for the flag <flagname>.
 
+& flag_name
+  Config parameter: flag_name <0 - 9> <flagname>
+ 
+  Renames a user-defined flag (MARKER0 through MARKER9) to <flagname>.
+  
+& flag_access
+  Config parameter: flag_access <0-9> <access>
+  
+  Changes who can set a user-defined flag (MARKER0 through MARKER9).
+  Access can be "any" (anyone can set it), "royalty" (only Royalty or
+  Wizards can set it), "wizard" (only Wizards can set it), or
+  "god" (only God can set it).
+ 
+  The access permissions on user-defined flags default to "god".
+ 
 & forbid_site
   Config parameter: forbid_site <site notation>
  
