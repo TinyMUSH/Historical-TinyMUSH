@@ -17,7 +17,7 @@ if test $ac_cv_header_errno_h = no; then
 else
 	AC_EGREP_HEADER(sys_errlist,errno.h, ,AC_EGREP_HEADER(sys_errlist,stdio.h,,AC_DEFINE(NEED_SYS_ERRLIST_DCL)))
 fi
-LIBS="-L./gdbm-1.7.3 -lgdbm"
+LIBS="-L./gdbm-1.8.0/.libs -lgdbm"
 AC_CHECK_LIB(crypt, main)
 AC_FUNC_STRFTIME
 AC_FUNC_VFORK
