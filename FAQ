@@ -8,6 +8,7 @@ Frequently-Asked Questions
 - How do I apply a patch upgrade or bugfix?
 - How do logfiles work?
 - How do I use multiple guests?
+- How do I create my own flags? (How do I configure marker flags?)
 - How do I tune the database cache?
 - How do I use radix compression?
 - How do I use an in-memory database?
@@ -303,6 +304,52 @@ to bar guests from using certain commands, using the 'no_guest' permission.
 All guests have the 'Guest' power, which is a marker you may use to test
 whether a player is a guest or not. Guests copy the flags, attributes,
 parent, and zone of the guest prototype (the guest_char_num object).
+
+------------------------------------------------------------------------------
+
+How do I create my own flags? (How do I configure marker flags?)
+
+You can define your own flags through the use of "marker flags".
+Flag names and permissions are defined in your conf file.
+
+There are ten marker flags, numbered 0 through 9; 0 through 9 are the
+single characters representing the flag when the flags of an object
+are displayed with the dbref when you control/can link to an object,
+by the flags() function, etc. In order to distinguish these flags from
+dbref numbers, if they are the only flags set on an object, there will
+be an underscore ('_') between the dbref and the flags.
+
+An underscore is automatically prepended to the names of marker flags
+in order to prevent a name conflict with any added flags in future
+versions of TinyMUSH. You can get around this by defining an alias
+for the flag without the underscore, but be forewarned that the
+flag name might end up conflicting with a built-in flag in the future.
+
+For example, the following conf directive:
+
+flag_name	0	CHIEF
+
+creates a flag named "_CHIEF", with the symbol 0. This means that, for
+instance, that an object with this flag and the PUPPET flag (symbol 'p')
+might appear on an examine to be:  Balloon(#25p0)  To set the flag,
+you would use '@set <object> = _CHIEF'; to unset the flag, you would
+use '@set <object> = !_CHIEF'.
+
+If you want to restrict access to a flag, use the flag_access directive;
+it takes the same parameters as regular flag access, command access, etc.
+The following:
+
+flag_access	_CHIEF	wizard
+
+makes the _CHIEF flag only settable by wizards.
+
+To alias the flag, use the flag_alias directive:
+
+flag_alias	CHIEF	_CHIEF
+
+which makes it possible to do '@set <object> = CHIEF'; the caveats listed
+above about future conflicts with built-ins should be kept in mind, though.
+
 
 ------------------------------------------------------------------------------
 
