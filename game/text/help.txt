@@ -4539,6 +4539,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   delimiter is not, the output delimiter will default to the input
   delimiter, rather than defaulting to a space.
  
+  Most functions that taken output delimiters can take a null output
+  delimiter (i.e., just string all the output together, with no
+  separator between each item). The null output delimiter is 
+  represented with '@@'.
+ 
   See examples:  iter(), map(), filter()
  
 & GENDER
@@ -6992,6 +6997,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "1/2-2/3-3/4"
     > say iter(lcon(me),name(##),,+)
     You say "apple+banana+orange"
+    > say iter(1-2-3-4,inc(##),-,@@)
+    You say "2345"
  
   See also: @dolist, map().
 
@@ -7883,6 +7890,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   You say "2-3-4-5-6"
   > say map(object/add_one,1-2-3-4-5,-,+)
   You say "2+3+4+5+6"
+  > say map(object/add_one,1 2 3 4 5,-,@@)
+  You say "23456"
   
   See also: filter(), fold(), iter(), u().
 
