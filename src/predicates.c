@@ -1082,7 +1082,7 @@ void handle_prog(d, message)
 DESC *d;
 char *message;
 {
-	DESC *all;
+	DESC *all, *dsave;
 	char *cmd;
 	dbref aowner;
 	int aflags, i;
@@ -1092,7 +1092,16 @@ char *message;
 	 */
 
 	if (*message == '|') {
-		do_command(d, message + 1, 1);
+
+	    dsave = d;
+	    do_command(d, message + 1, 1);
+
+	    if (dsave == d) {
+		
+		/* We MUST check if we still have a descriptor, and it's
+		 * the same one, since we could have piped a LOGOUT or
+		 * QUIT!
+		 */
 
 		/* Use telnet protocol's GOAHEAD command to show prompt, make
 		   sure that we haven't been issues an @quitprogram */
@@ -1107,6 +1116,7 @@ char *message;
 		    }
 		}
 		return;
+	    }
 	}
 	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags);
 	wait_que(d->program_data->wait_cause, d->player, 0, NOTHING, 0, cmd, (char **)&message,

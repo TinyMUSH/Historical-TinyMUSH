@@ -557,7 +557,6 @@ int reason;
 	char *buff, *buff2;
 	time_t now;
 	int i, num, ncon;
-	dbref dtemp;
 	DESC *dtemp;
 
 	if ((reason == R_LOGOUT) &&
@@ -650,6 +649,7 @@ int reason;
 			    free_lbuf(d->program_data->wait_regs[i]);
 			}
 			free(d->program_data);
+			d->program_data = NULL;
 			atr_clr(d->player, A_PROGCMD);
 		    }
 		}
@@ -708,6 +708,7 @@ int reason;
 					free_lbuf(d->program_data->wait_regs[i]);
 				}
 				free(d->program_data);
+				d->program_data = NULL;
 				atr_clr(d->player, A_PROGCMD);
 			}
 		}
