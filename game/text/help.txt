@@ -4059,7 +4059,7 @@
  
   Logic:
 	eq()		gt()		gte()		lt()
-	lte()		neq()
+	lte()		neq()		ncomp()
 	not()		t()
 	and()		or()		xor()
 	andbool()	notbool()	orbool()	xorbool()
@@ -5736,7 +5736,7 @@
     You say "1"
     > say gt(foo, bar)
     You say "0"
-  See also: lt(), lte(), gte(), eq(), neq(), comp().
+  See also: lt(), lte(), gte(), eq(), neq(), ncomp(), comp().
 
 & gte()
   Function: gte(<integer1>,<integer2>)
@@ -5755,7 +5755,7 @@
     You say "1"
     > say gte(foo, bar)
     You say "1"
-  See also: lt(), lte(), gt(), eq(), neq(), comp().
+  See also: lt(), lte(), gt(), eq(), neq(), ncomp(), comp().
 
 & lt()
   Function: lt(<integer1>,<integer2>)
@@ -5774,7 +5774,7 @@
     You say "0"
     > say lt(foo, bar)
     You say "0"
-  See also: lte(), gte(), gt(), eq(), neq(), comp().
+  See also: lte(), gte(), gt(), eq(), neq(), ncomp(), comp().
 
 & lte()
   Function: lte(<integer1>,<integer2>)
@@ -5793,7 +5793,7 @@
     You say "0"
     > say lte(foo, bar)
     You say "1"
-  See also: lt(), gte(), gt(), eq(), neq(), comp().
+  See also: lt(), gte(), gt(), eq(), neq(), ncomp(), comp().
 
 & eq()
   Function: eq(<integer1>,<integer2>)
@@ -5809,7 +5809,7 @@
     You say "1"
     > say eq(foo, bar)
     You say "1"
-  See also: lt(), lte(), gte(), gt(), neq(), comp().
+  See also: lt(), lte(), gte(), gt(), neq(), ncomp(), comp().
 
 & neq()
   Function: neq(<integer1>,<integer2>)
@@ -5825,8 +5825,21 @@
     You say "0"
     > say neq(foo, bar)
     You say "0"
-  See also: lt(), lte(), gte(), gt(), eq(), not(), comp().
+  See also: lt(), lte(), gte(), gt(), eq(), not(), ncomp(), comp().
 
+& ncomp()
+  Function: ncomp(<integer 1>, <integer 2>)
+ 
+  This function returns 0 if the two numbers are equal, 1 if the first
+  number is greater than the second number, and -1 if the first number
+  is less than the second number.
+ 
+  This function is useful for writing sortby() routines and other
+  instances where it is useful to have a numerical counterpart to
+  the comp() function.
+ 
+  See also: lt(), lte(), gte(), gt(), eq(), neq(), not(), comp().
+ 
 & cat()
   Function: cat(<string>[,<stringN>])
  
