@@ -1,5 +1,5 @@
 TinyMUX 1.0 is derived from TinyMUSH 2.0.10 patchlevel 6. It is maintained
-by David Passmore (Lauren@Children of the Atom) and would not exist without
+by David Passmore (Lauren@From the Ashes) and would not exist without
 the generous contributions of many individuals. Ideas for features (and
 occasionally code) came from many places, including TinyMUSE, and PennMUSH.
 
@@ -47,6 +47,9 @@ We would like to thank the following people:
 
 - Andrew Molitor, for the radix compression library, and some wonderful
   utilities.
+
+- Robby Griffin, whose skill in uncovering obscure bugs has saved everyone
+  a lot of time and effort.
 
 - Many other people who may go unnamed. Dozens of people have contributed to
   development of the TinyMU* family of servers, and we would like to thank
