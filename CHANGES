@@ -357,4 +357,12 @@ CHANGES TO FUNCTIONS
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.
 
+-----------------------------------------------------------------------------
+
+BUGFIX PATCHES
+
+Patchlevel 1:
+  - Fix of a potentially fatal error in the clearing of variables.
+    [3.0a4; S'ryon]
+
 =============================================================================
