@@ -2889,7 +2889,7 @@ FUNCTION(fun_pos)
 
 FUNCTION(fun_lpos)
 {
-    char *s;
+    char *s, *bb_p;
     char c, tbuf[8];
     int i;
 
@@ -2900,9 +2900,11 @@ FUNCTION(fun_lpos)
     if (!c)
 	c = ' ';
 
+    bb_p = *bufc;
+
     for (i = 0, s = fargs[0]; *s; i++, s++) {
 	if (*s == c) {
-	    if (*bufc != buff) {
+	    if (*bufc != bb_p) {
 		safe_chr(' ', buff, bufc);
 	    }
 	    ltos(tbuf, i);
@@ -3574,6 +3576,7 @@ FUNCTION(fun_lnum)
 {
     char tbuf[10], sep;
     int bot, top, over, i;
+    char *bb_p;
 
     if (nfargs == 0) {
 	return;
@@ -3592,13 +3595,14 @@ FUNCTION(fun_lnum)
     }
 
     over = 0;
+    bb_p = *bufc;
 
     if (top == bot) {
 	safe_ltos(buff, bufc, bot);
 	return;
     } else if (top > bot) {
 	for (i = bot; (i <= top) && !over; i++) {
-	    if (*bufc != buff) {
+	    if (*bufc != bb_p) {
 		safe_chr(sep, buff, bufc);
 	    }
 	    ltos(tbuf, i);
@@ -3606,7 +3610,7 @@ FUNCTION(fun_lnum)
 	}
     } else {
 	for (i = bot; (i >= top) && !over; i--) {
-	    if (*bufc != buff) {
+	    if (*bufc != bb_p) {
 		safe_chr(sep, buff, bufc);
 	    }
 	    ltos(tbuf, i);

@@ -1973,7 +1973,7 @@ FUNCTION(fun_mix)
     dbref aowner, thing;
     int aflags, anum, i, lastn, nwords, wc;
     ATTR *ap;
-    char *str, *atext, *os[10], *atextbuf, sep;
+    char *str, *atext, *os[10], *atextbuf, *bb_p, sep;
     char *cp[10];
 
     /* Check to see if we have an appropriate number of arguments.
@@ -2020,6 +2020,8 @@ FUNCTION(fun_mix)
     for (i = 0; i < 10; i++)
 	cp[i] = NULL;
 
+    bb_p = *bufc;
+
     /* process the lists, one element at a time. */
 
     for (i = 1; i <= lastn; i++) {
@@ -2043,7 +2045,7 @@ FUNCTION(fun_mix)
 	}
 	strcpy(atextbuf, atext);
 	
-	if (*bufc != buff)
+	if (*bufc != bb_p)
 	    safe_chr(sep, buff, bufc);
 
 	str = atextbuf;
@@ -3074,7 +3076,7 @@ FUNCTION(fun_lvars)
 {
     /* This is computationally expensive. Its use should be discouraged. */
 
-    char tbuf[SBUF_SIZE], *tp;
+    char tbuf[SBUF_SIZE], *tp, *bb_p;
     HASHTAB *htab;
     HASHENT *hptr;
     int i, len;
@@ -3085,11 +3087,13 @@ FUNCTION(fun_lvars)
     *tp = '\0';
     len = strlen(tbuf);
 
+    bb_p = *bufc;
+
     htab = &mudstate.vars_htab;
     for (i = 0; i < htab->hashsize; i++) {
 	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
 	    if (!strncmp(tbuf, hptr->target, len)) {
-		if (*bufc != buff)
+		if (*bufc != bb_p)
 		    safe_chr(' ', buff, bufc);
 		safe_str((char *) (index(hptr->target, '.') + 1), buff, bufc);
 	    }
