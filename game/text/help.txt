@@ -88,14 +88,15 @@
 	FLAG LIST		FLAGS			FUNCTION LIST
 	FUNCTIONS		GENDER			GOALS		
 	HERE			HOMES			LINKING
-	LISTENING		LISTS			LOOPING
-	ME			MONEY			MOVING
-	OBJECT TYPES		PARENT OBJECTS		PATCHLEVEL
-	PIPING			PUEBLO			PUPPETS
-	REGEXPS			ROBBERY			SEARCH CLASSES
-	SEMAPHORES		SPOOFING		STACK
-	SUBSTITUTIONS		SUCCESS			SWITCHES
-	VERBS			WIZARDS			ZONE OBJECTS
+	LISTENING		LISTS			LOCAL REGISTERS
+	LOOPING			ME			MONEY
+	MOVING			OBJECT TYPES		PARENT OBJECTS
+	PATCHLEVEL		PIPING			PUEBLO
+	PUPPETS			REGEXPS			ROBBERY
+	SEARCH CLASSES		SEMAPHORES		SPOOFING
+	STACK			SUBSTITUTIONS		SUCCESS
+	SWITCHES		VERBS			WIZARDS
+	ZONE OBJECTS
  
 & drop 
   Command: drop[/<switch>] <object>
@@ -5125,7 +5126,28 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   first(), rest(), cat(), member(), and remove(), all work on lists.
  
   See also: cat(), first(), member(), remove(), rest().
-
+ 
+& LOCAL REGISTERS
+  Topic: LOCAL REGISTERS
+ 
+  There are at least ten local registers, numbered 0 through 9, and
+  there might be, depending on the MUSH's configuration, up to 26
+  additional local registers, "numbered" A through Z.
+ 
+  The local registers are normally cleared at the start of each command,
+  but are preserved across the commands that compose an actionlist, as
+  well as commands that directly trigger actionlists, such as @switch,
+  @trigger, and @dolist.
+ 
+  Local registers are most useful for storing complex function evaluations
+  which are used repeatedly within a single actionlist; their use can
+  improve the readability of MUSH code, and cuts down the amount of
+  compute time needed.
+ 
+  Local registers are set via the setq() and setr() functions, as well as
+  a variety of speciaized functions, such as regmatch(). Local registers
+  are read via the r() function or the %q substitution.
+ 
 & LOOPING
   Topic: LOOPING
  
@@ -5352,7 +5374,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
                action list ('me').
     %c       = Text of the last command executed.
     %0-%9    = Value of positional parameter/stack location 0 through 9.
-    %q0-%q9  = Value of registers 0 through 9. Equiv: r(0) - r(9)
+    %q0-%qz  = Value of registers 0-9 and A-Z. Equiv: r(0) - r(z)
     %va-%vz  = Contents of attributes VA through VZ. Equiv: v(va) - v(vz)
     %=<var>  = The <angle brackets> are literal. Contents of an attribute.
                Equiv: v(<var>) (no <>), i.e., %=<test> is equivalent to
@@ -6574,9 +6596,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   returning 1 if it matches and 0 if it does not. There is a side-effect:
   the portions of the string which match the wildcards will be set into
   the specified local registers, in the order they were specified in
-  the list. <register list> can be a list of one through nine numbers.
-  If the specified register is -1, the substring is not copied into a
-  register.
+  the list. <register list> can be a list of one through nine registers.
+  If the specified register is -1 or otherwise invalid, the substring
+  is not copied into a register.
  
   For example, if <string> is 'cookies=30', and <pattern> is '*=*',
   then the first substring is 'cookies' and the second substring is '30'.
@@ -6595,9 +6617,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   If <register list> is specified, there is a side-effect: any
   parenthesized substrings within the regular expression will be set
   into the specified local registers, in the order they were specified
-  in the list. <register list> can be a list of one through nine numbers.
-  If the specified register is -1, the substring is not copied into a
-  register.
+  in the list. <register list> can be a list of one through nine registers.
+  If the specified register is -1 or otherwise invalid, the substring is
+  not copied into a register.
  
   For example, if <string> is 'cookies=30', and <regexp> is '(.+)=([0-9]*)'
   (parsed; note that escaping may be necessary), then the 0th substring
@@ -8067,14 +8089,14 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   attribute, %# refers to the original enactor and not the 'calling' object;
   'me' refers to the object that supplied the attribute.
  
-  However, unlike the u() function, the global registers r(0) through r(9)
-  (%q0 - %q9) are preserved in their initial state. This means that functions
-  "below" the level of the u() can reset global registers for temporary
+  However, unlike the u() function, the local registers r(0) through r(z)
+  (%q0 - %qz) are preserved in their initial state. This means that functions
+  "below" the level of the u() can reset local registers for temporary
   calculations, without needing to worry about "clobbering" the original
   values.
  
   This makes ulocal() particularly useful for global or shared code which
-  calls arbitrary u() functions, where global register values need to be
+  calls arbitrary u() functions, where local register values need to be
   preserved from accidental user clobbering.
  
   See "help ulocal2" for examples.
@@ -8982,44 +9004,31 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	set(<object>/<attr>,[!]<attrflag>)
 
 & R()
-  Function: r(<number>)
+  Function: r(<number or letter>)
  
-  The r() function is used to access "local registers", and returns
-  the contents of the specified register. There are ten such registers,
-  numbered 0 through 9.  The local registers are normally cleared at the
-  start of each command, but are preserved across the commands that compose
-  an actionlist, as well as commands that directly trigger actionlists, such
-  as @switch, @trigger, and @dolist.
+  The r() function is used to access "local reigsters", and returns
+  the contents of the specified register.
  
-  This is equivalent to the substitution %q<number>; i.e., "r(0)" == "%q0".
+  This is equivalent to the substitution %q<number> or %q<letter>;
+  i.e., "r(0)" == "%q0", "r(x)" == "%qx", etc.
  
-  See also: setq(), setx(), store(), x().
-
+  See also: LOCAL REGISTERS, setq(), setx(), store(), x().
+ 
 & SETQ()
-  Function: setq(<number>,<string>)
+  Function: setq(<number or letter>,<string>)
  
   The setq() function is used to copy strings into local registers.
   It returns a null string; it is a purely "side effect" function.
-
-  There are ten local registers, numbered 0 through 9. They are cleared
-  at the start of each command. They are most useful for storing complex
-  function evaluations which are used repeatedly within a single command.
-  The local registers may be read via the r() function or the %q substitution,
-  and a common use of setq()/r() is to temporarily store the result of a
-  complex evaluation whose result is needed more than once.
- 
-  setq() can be used to improve the readability of MUSH code, as well as to
-  cut down the amount of time needed to do complex evaluations.
  
   Example:
     > &TEST me=Test on [mudname()] at [time()].
     > say [setq(0,u(TEST))]'[r(0)]' has length [strlen(r(0))].
     You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
-  See also: setr(), r(), setx(), store(), x().
+  See also: LOCAL REGISTERS, setr(), r(), setx(), store(), x().
  
 & SETR()
-  Function: setr(<number>,<string>)
+  Function: setr(<number or letter>,<string>)
  
   This function behaves identically to the setq() function, except
   that it returns the string being copied in the register.
@@ -9029,7 +9038,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say '[setr(0,u(TEST))]' has length [strlen(%q0)].
     You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
-  See also: setq(), r(), setx(), store(), x().
+  See also: LOCAL REGISTERS, setq(), r(), setx(), store(), x().
  
 & SETX()
   Function:  setx(<variable name>,<value>)
@@ -11176,7 +11185,7 @@ removed.
  
 Function: TclRegs()
  
-This function "imports" the current value of the global registers (%q0
+This function "imports" the current value of the local registers (%q0
 through %q9) into the current instance of the executing object's Tcl
 interpreter, as the array 'mushregs'.
  
