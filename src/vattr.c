@@ -113,22 +113,27 @@ int key;
 	dbref i;
 	int notfree;
 	
-	for (vp = (VATTR *)hash_firstentry(&mudstate.vattr_name_htab); vp != NULL;
-	     vp = (VATTR *)hash_nextentry(&mudstate.vattr_name_htab))
-	{
+	DO_WHOLE_DB(i) {
+
 		notfree = 0;
 		
-		DO_WHOLE_DB(i) {
+
+		for (vp = (VATTR *)hash_firstentry(&mudstate.vattr_name_htab); vp != NULL;
+		     vp = (VATTR *)hash_nextentry(&mudstate.vattr_name_htab)) {
 			if (atr_get_raw(i, vp->number) != NULL) {
 				notfree = 1;
 			}
+			
+		
+			if (!notfree) {
+				anum_set(vp->number, NULL);
+				hashdelete(vp->name, &mudstate.vattr_name_htab);
+				free((char *)vp);
+			}
 		}
 		
-		if (!notfree) {
-			anum_set(vp->number, NULL);
-			hashdelete(vp->name, &mudstate.vattr_name_htab);
-			free((char *)vp);
-		}
+		if ((i % 100) == 0) 
+			cache_reset(0);
 	}
 #ifndef STANDALONE
 	notify(player, "Database cleared of stale attribute entries.");
