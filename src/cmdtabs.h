@@ -21,29 +21,6 @@ NAMETAB boot_sw[] = {
 {(char *)"quiet",	1,	CA_WIZARD,	BOOT_QUIET|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
-#ifdef USE_COMSYS
-
-NAMETAB cboot_sw[] = {
-{(char *)"quiet",	1,	CA_PUBLIC,	CBOOT_QUIET},
-{ NULL,			0,	0,		0}};
-
-NAMETAB cemit_sw[] = {
-{(char *)"noheader",	1,	CA_PUBLIC,	CEMIT_NOHEADER},
-{ NULL,			0,	0,		0}};
-
-NAMETAB channel_sw[] = {
-{(char *)"charge",	1,	CA_PUBLIC,	CHANNEL_CHARGE},
-{(char *)"desc",	1,	CA_PUBLIC,	CHANNEL_DESC},
-{(char *)"lock",	1,	CA_PUBLIC,	CHANNEL_LOCK},
-{(char *)"owner",	1,	CA_PUBLIC,	CHANNEL_OWNER},
-{(char *)"set",		1,	CA_PUBLIC,	CHANNEL_SET},
-{(char *)"join",	1,	CA_PUBLIC,	CHANNEL_JOIN | SW_MULTIPLE},
-{(char *)"transmit",	1,	CA_PUBLIC,	CHANNEL_TRANS | SW_MULTIPLE},
-{(char *)"receive",	1,	CA_PUBLIC,	CHANNEL_RECV | SW_MULTIPLE},
-{ NULL,			0,	0,		0}};
-
-#endif /* USE_COMSYS */
-
 NAMETAB chown_sw[] = {
 {(char *)"nostrip",	1,	CA_WIZARD,	CHOWN_NOSTRIP},
 { NULL,			0,	0,		0}};
@@ -61,18 +38,6 @@ NAMETAB clone_sw[] = {
 {(char *)"parent",	2,	CA_PUBLIC,	CLONE_PARENT|SW_MULTIPLE},
 {(char *)"preserve",	2,	CA_PUBLIC,	CLONE_PRESERVE|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
-
-#ifdef USE_COMSYS
-
-NAMETAB clist_sw[] = {
-{(char *)"full",        0,      CA_PUBLIC,      CLIST_FULL},
-{ NULL,                 0,      0,              0}};
-
-NAMETAB cwho_sw[] = {
-{(char *)"all",         0,      CA_PUBLIC,      CWHO_ALL},
-{ NULL,                 0,      0,              0}};
-
-#endif /* USE_COMSYS */
 
 NAMETAB decomp_sw[] = {
 {(char *)"pretty",	1,	CA_PUBLIC,	DECOMP_PRETTY},
@@ -437,23 +402,6 @@ CMDENT command_table[] = {
 {(char *)"@boot",		boot_sw,	CA_NO_GUEST|CA_NO_SLAVE,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_boot},
-#ifdef USE_COMSYS
-{(char *)"@cboot",              cboot_sw,       CA_NO_SLAVE|CA_NO_GUEST,
-        0,               CS_TWO_ARG,          
-	NULL,		NULL,	NULL,		do_cboot},
-{(char *)"@ccreate",            NULL,           CA_NO_SLAVE|CA_NO_GUEST,
-        0,               CS_ONE_ARG,          
-	NULL,		NULL,	NULL,		do_ccreate},
-{(char *)"@cdestroy",           NULL,           CA_NO_SLAVE|CA_NO_GUEST,
-        0,               CS_ONE_ARG,          
-	NULL,		NULL,	NULL,		do_cdestroy},
-{(char *)"@cemit",		cemit_sw,	CA_NO_SLAVE|CA_NO_GUEST,
-	0,		 CS_TWO_ARG,		
-	NULL,		NULL,	NULL,		do_cemit},
-{(char *)"@channel",		channel_sw,	CA_NO_SLAVE|CA_NO_GUEST,
-	0,		 CS_TWO_ARG,		
-	NULL,		NULL,	NULL,		do_channel},
-#endif /* USE_COMSYS */
 {(char *)"@chown",		chown_sw,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	CHOWN_ONE,	CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
@@ -469,11 +417,6 @@ CMDENT command_table[] = {
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_CONTENTS|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
 	NULL,		NULL,	NULL,		do_clone},
-#ifdef USE_COMSYS
-{(char *)"@clist",              clist_sw,       CA_NO_SLAVE,
-        0,              CS_ONE_ARG,           
-	NULL,		NULL,	NULL,		do_clist},
-#endif
 {(char *)"@cpattr",             NULL,           
          CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
          0,             CS_TWO_ARG|CS_ARGV,   
@@ -494,11 +437,6 @@ CMDENT command_table[] = {
 {(char *)"@cut",		NULL,		CA_WIZARD|CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_cut},
-#ifdef USE_COMSYS
-{(char *)"@cwho",               cwho_sw,           CA_NO_SLAVE,
-        0,              CS_ONE_ARG,           
-	NULL,		NULL,	NULL,		do_cwho},
-#endif
 {(char *)"@dbck",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
 	NULL,		NULL,	NULL,		do_dbck},
@@ -772,26 +710,6 @@ CMDENT command_table[] = {
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	0,		CS_ONE_ARG|CS_INTERP|CS_FUNCTION,	
 	NULL,		NULL,	NULL,		do_wipe},
-#ifdef USE_COMSYS
-{(char *)"addcom",              NULL,           CA_NO_SLAVE,
-        0,              CS_TWO_ARG|CS_ARGV,           
-	NULL,		NULL,	NULL,		do_addcom},
-{(char *)"allcom",              NULL,           CA_NO_SLAVE,
-        0,              CS_ONE_ARG,           
-	NULL,		NULL,	NULL,		do_allcom},
-{(char *)"comlist",             NULL,           CA_NO_SLAVE,
-        0,              CS_NO_ARGS,           
-	NULL,		NULL,	NULL,		do_comlist},
-{(char *)"comtitle",            NULL,           CA_NO_SLAVE,
-        0,              CS_TWO_ARG,          
-	NULL,		NULL,	NULL,		do_comtitle},
-{(char *)"clearcom",            NULL,           CA_NO_SLAVE,
-        0,              CS_NO_ARGS,           
-	NULL,		NULL,	NULL,		do_clearcom},
-{(char *)"delcom",              NULL,           CA_NO_SLAVE,
-        0,              CS_ONE_ARG,           
-	NULL,		NULL,	NULL,		do_delcom},
-#endif
 {(char *)"drop",		drop_sw,
 	CA_NO_SLAVE|CA_CONTENTS|CA_LOCATION|CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,	

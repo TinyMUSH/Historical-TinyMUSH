@@ -306,8 +306,6 @@ appropriate time.
 void mod_<name>_create_obj(dbref player, dbref obj)
 	Run when an object is created, after other initialization is done.
 	Passes the creating player and the object dbref created.
-	Do a check for isPlayer(obj) to do any initialization specific
-	to objects of type PLAYER.
 
 void mod_<name>_destroy_obj(dbref player, dbref obj)
 	Run when an object is destroyed, before the player is compensated
@@ -315,6 +313,10 @@ void mod_<name>_destroy_obj(dbref player, dbref obj)
 	object is wiped out.
 	Passes the destroying player and the object dbref being destroyed.
 	Note that the destroying player may be NOTHING.
+
+void mod_<name>_create_player(dbref creator, dbref player,
+				int isrobot, int isguest)
+	Run when a player is created, after create_obj() has been run.
 
 void mod_<name>_destroy_player(dbref player, dbref victim)
 	Run after the player basics have been cleared out, but before

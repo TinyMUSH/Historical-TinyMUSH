@@ -33,18 +33,11 @@ extern int FDECL(boot_off, (dbref, char *));
 extern void FDECL(do_mail_clear, (dbref, char *));
 #endif
 
-#ifdef USE_COMSYS
-extern void FDECL(comsys_chown, (dbref, dbref));
-#endif
-
 #ifndef STANDALONE
 extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
 extern void FDECL(xvars_clr, (dbref));
 extern int FDECL(structure_clr, (dbref));
-#ifdef USE_COMSYS
-extern int FDECL(channel_clr, (dbref));
-#endif
 #endif /* ! STANDALONE */
 
 #ifdef STANDALONE
@@ -598,12 +591,8 @@ dbref player, obj;
 	stack_clr(obj);
 	xvars_clr(obj);
 	structure_clr(obj);
-#ifdef USE_COMSYS
-	channel_clr(obj);
-#endif
-#endif /* ! STANDALONE */
-
 	CALL_ALL_MODULES(destroy_obj, (player, obj));
+#endif /* ! STANDALONE */
 
 	/* Compensate the owner for the object */
 
@@ -886,9 +875,6 @@ dbref victim;
 #ifdef USE_MAIL
 	do_mail_clear(victim, NULL);
 	do_mail_purge(victim);
-#endif
-#ifdef USE_COMSYS
-	comsys_chown(victim, Owner(player));
 #endif
 	CALL_ALL_MODULES(destroy_player, (player, victim));
 	destroy_obj(NOTHING, victim);

@@ -1,27 +1,7 @@
-/* comsys.c - DarkZone-based (?) channel system */
+/* comsys.c - module implementing DarkZone-style channel system */
 /* $Id$ */
 
-#include "copyright.h"
-#include "autoconf.h"
-#include "config.h"
-
-#ifdef USE_COMSYS
-
-#include "alloc.h"	/* required by mudconf */
-#include "flags.h"	/* required by mudconf */
-#include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
-#include "mudconf.h"	/* required by code */
-
-#include "db.h"		/* required by externs */
-#include "externs.h"	/* required by interface */
-#include "interface.h"	/* required by code */
-
-#include "match.h"	/* required by code */
-#include "attrs.h"	/* required by code */
-#include "powers.h"	/* required by code */
-#include "ansi.h"	/* required by code */
-#include "functions.h"	/* required by code */
+#include "api.h"
 
 extern BOOLEXP *FDECL(getboolexp1, (FILE *));
 extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
@@ -41,6 +21,39 @@ extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
 #define CHAN_FLAG_O_TRANS	0x00000400
 #define CHAN_FLAG_O_RECV	0x00000800
 #define CHAN_FLAG_SPOOF		0x00001000
+
+/* --------------------------------------------------------------------------
+ * Configuration and hash tables.
+ */
+
+struct mod_comsys_confstorage {
+	char	comsys_db[PBUF_SIZE];	/* name of the comsys db */
+	char	public_channel[SBUF_SIZE]; /* Name of public channel */
+	char	guests_channel[SBUF_SIZE]; /* Name of guests channel */
+	char	public_calias[SBUF_SIZE];  /* Alias of public channel */
+	char	guests_calias[SBUF_SIZE];  /* Alias of guests channel */
+} mod_comsys_config;
+
+CONF mod_comsys_conftable[] = {
+{(char *)"comsys_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mod_comsys_config.comsys_db,	PBUF_SIZE},
+{(char *)"guests_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mod_comsys_config.guests_calias,	SBUF_SIZE},
+{(char *)"guests_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mod_comsys_config.guests_channel,	SBUF_SIZE},
+{(char *)"public_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mod_comsys_config.public_calias,	SBUF_SIZE},
+{(char *)"public_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mod_comsys_config.public_channel,	SBUF_SIZE},
+{ NULL,					NULL,		0,		0,		NULL,				0}};
+
+HASHTAB mod_comsys_comsys_htab;
+HASHTAB mod_comsys_calias_htab;
+NHSHTAB mod_comsys_comlist_htab;
+
+MODHASHES mod_comsys_hashtable[] = {
+{ "Channels",		&mod_comsys_comsys_htab,	15,	8},
+{ "Channel aliases",	&mod_comsys_calias_htab,	500,	16},
+{ NULL,			NULL,				0,	0}};
+
+MODNHASHES mod_comsys_nhashtable[] = {
+{ "Channel lists",	&mod_comsys_comlist_htab,	100,	16},
+{ NULL,			NULL,				0,	0}};
 
 /* --------------------------------------------------------------------------
  * Structure definitions.
@@ -89,12 +102,6 @@ struct com_list {
  * Macros.
  */
 
-#define check_comsys(d) \
-if (!mudconf.have_comsys) { \
-    notify((d), "Comsys disabled."); \
-    return; \
-}
-
 #define check_owned_channel(p,c) \
 if (!Comm_All((p)) && ((p) != (c)->owner)) { \
     notify((p), NOPERM_MESSAGE); \
@@ -102,26 +109,26 @@ if (!Comm_All((p)) && ((p) != (c)->owner)) { \
 }
 
 #define find_channel(d,n,p) \
-(p) = ((CHANNEL *) hashfind((n), &mudstate.comsys_htab)); \
+(p) = ((CHANNEL *) hashfind((n), &mod_comsys_comsys_htab)); \
 if (!(p)) { \
     notify((d), NO_CHAN_MSG); \
     return; \
 }
 
 #define find_calias(d,a,p) \
-(p)=((COMALIAS *) hashfind(tprintf("%d.%s",(d),(a)), &mudstate.calias_htab)); \
+(p)=((COMALIAS *) hashfind(tprintf("%d.%s",(d),(a)), &mod_comsys_calias_htab)); \
 if (!(p)) { \
     notify((d), "No such channel alias."); \
     return; \
 }
 
-#define lookup_channel(s)  ((CHANNEL *) hashfind((s), &mudstate.comsys_htab))
+#define lookup_channel(s)  ((CHANNEL *) hashfind((s), &mod_comsys_comsys_htab))
 
 #define lookup_calias(d,s)  \
-((COMALIAS *) hashfind(tprintf("%d.%s",(d),(s)), &mudstate.calias_htab))
+((COMALIAS *) hashfind(tprintf("%d.%s",(d),(s)), &mod_comsys_calias_htab))
 
 #define lookup_clist(d) \
-((COMLIST *) nhashfind((int) (d), &mudstate.comlist_htab))
+((COMLIST *) nhashfind((int) (d), &mod_comsys_comlist_htab))
 
 #define ok_joinchannel(d,c) \
 ok_chanperms((d),(c),CHAN_FLAG_P_JOIN,CHAN_FLAG_O_JOIN,(c)->join_lock)
@@ -137,7 +144,7 @@ XFREE((a)->alias, "clear_chan_alias.astring"); \
 if ((a)->title) \
     XFREE((a)->title, "clear_chan_alias.title"); \
 XFREE((a), "clear_chan_alias.alias"); \
-hashdelete((n), &mudstate.calias_htab)
+hashdelete((n), &mod_comsys_calias_htab)
 
 /* --------------------------------------------------------------------------
  * Basic channel utilities.
@@ -474,9 +481,9 @@ INLINE static void zorch_alias_from_list(cap)
 		clist = cl_ptr->next;
 		if (clist)
 		    nhashrepl((int) cap->player, (int *) clist,
-			      &mudstate.comlist_htab);
+			      &mod_comsys_comlist_htab);
 		else
-		    nhashdelete((int) cap->player, &mudstate.comlist_htab);
+		    nhashdelete((int) cap->player, &mod_comsys_comlist_htab);
 	    }
 	    XFREE(cl_ptr, "zorch_alias.cl_ptr");
 	    return;
@@ -715,7 +722,7 @@ void join_channel(player, chan_name, alias_str, title_str)
     cap->channel = chp;
 
     hashadd(tprintf("%d.%s", player, alias_str), (int *) cap,
-	    &mudstate.calias_htab);
+	    &mod_comsys_calias_htab);
 
     /* Add this to the list of all aliases for the player. */
 
@@ -723,9 +730,9 @@ void join_channel(player, chan_name, alias_str, title_str)
     clist->alias_ptr = cap;
     clist->next = lookup_clist(player);
     if (clist->next == NULL)
-	nhashadd((int) player, (int *) clist, &mudstate.comlist_htab);
+	nhashadd((int) player, (int *) clist, &mod_comsys_comlist_htab);
     else
-	nhashrepl((int) player, (int *) clist, &mudstate.comlist_htab);
+	nhashrepl((int) player, (int *) clist, &mod_comsys_comlist_htab);
 
     /* If we haven't joined the channel, go do that. */
 
@@ -793,7 +800,7 @@ void channel_clr(player)
 
     /* Figure out all the channels we're on, then free up aliases. */
 
-    ch_array = (CHANNEL **) XCALLOC(mudstate.comsys_htab.entries,
+    ch_array = (CHANNEL **) XCALLOC(mod_comsys_comsys_htab.entries,
 				    sizeof(CHANNEL *), "channel_clr.array");
     pos = 0;
     for (cl_ptr = clist; cl_ptr != NULL; cl_ptr = next) {
@@ -803,7 +810,7 @@ void channel_clr(player)
 	 */
 	found = 0;
 	for (i = 0;
-	     (i < mudstate.comsys_htab.entries) && (ch_array[i] != NULL);
+	     (i < mod_comsys_comsys_htab.entries) && (ch_array[i] != NULL);
 	     i++) {
 	    if (ch_array[i] == cl_ptr->alias_ptr->channel) {
 		found = 1;
@@ -821,7 +828,7 @@ void channel_clr(player)
 	XFREE(cl_ptr, "channel_clr.clist_ptr");
     }
 
-    nhashdelete((int) player, &mudstate.comlist_htab);
+    nhashdelete((int) player, &mod_comsys_comlist_htab);
 
     /* Remove from channels. */
 
@@ -830,7 +837,7 @@ void channel_clr(player)
     XFREE(ch_array, "channel_clr.array");
 }
 
-void comsys_connect(player)
+void mod_comsys_announce_connect(player)
     dbref player;
 {
     CHANNEL *chp;
@@ -839,9 +846,9 @@ void comsys_connect(player)
      * which ones the player is on, for announcement purposes.
      */
 
-    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+    for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
-	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
 	if (is_onchannel(player, chp)) {
 	    update_comwho(chp);
 	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player) &&
@@ -854,14 +861,15 @@ void comsys_connect(player)
     }
 }
 
-void comsys_disconnect(player)
+void mod_comsys_announce_disconnect(player, reason)
     dbref player;
+    const char *reason;
 {
     CHANNEL *chp;
 
-    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+    for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
-	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
 	if (is_onchannel(player, chp)) {
 	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player) &&
 		is_listenchannel(player, chp)) {
@@ -878,9 +886,9 @@ void update_comwho_all()
 {
     CHANNEL *chp;
 
-    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+    for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
-	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
 	update_comwho(chp);
     }
 }
@@ -890,9 +898,9 @@ void comsys_chown(from_player, to_player)
 {
     CHANNEL *chp;
 
-    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+    for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
-	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
 	if (chp->owner == from_player)
 	    chp->owner = to_player;
     }
@@ -909,8 +917,6 @@ void do_ccreate(player, cause, key, name)
     char *name;
 {
     CHANNEL *chp;
-
-    check_comsys(player);
 
     if (!Comm_All(player)) {
 	notify(player, NOPERM_MESSAGE);
@@ -947,7 +953,7 @@ void do_ccreate(player, cause, key, name)
     chp->descrip = NULL;
     chp->join_lock = chp->trans_lock = chp->recv_lock = NULL;
 
-    hashadd(name, (int *) chp, &mudstate.comsys_htab);
+    hashadd(name, (int *) chp, &mod_comsys_comsys_htab);
 
     notify(player, tprintf("Channel %s created.", name));
 }
@@ -966,7 +972,6 @@ void do_cdestroy(player, cause, key, name)
     HASHENT *hptr;
     int i, count;
 
-    check_comsys(player);
     find_channel(player, name, chp);
     check_owned_channel(player, chp);
 
@@ -981,7 +986,7 @@ void do_cdestroy(player, cause, key, name)
 			     chp->name, Name(player)),
 		player);
 
-    htab = &mudstate.calias_htab;
+    htab = &mod_comsys_calias_htab;
     alias_array = (COMALIAS **) XCALLOC(htab->entries, sizeof(COMALIAS *),
 					"cdestroy.alias_array");
     name_array = (char **) XCALLOC(htab->entries, sizeof(char *),
@@ -1026,7 +1031,7 @@ void do_cdestroy(player, cause, key, name)
     if (chp->recv_lock)
 	free_boolexp(chp->recv_lock);
     XFREE(chp, "cdestroy.channel");
-    hashdelete(name, &mudstate.comsys_htab);
+    hashdelete(name, &mod_comsys_comsys_htab);
 
     notify(player, tprintf("Channel %s destroyed.", name));
 }
@@ -1041,7 +1046,6 @@ void do_channel(player, cause, key, chan_name, arg)
     dbref new_owner;
     int c_charge, negate, flag;
 
-    check_comsys(player);
     find_channel(player, chan_name, chp);
     check_owned_channel(player, chp);
 
@@ -1173,7 +1177,6 @@ void do_cboot(player, cause, key, name, objstr)
     char *t;
     char tbuf[SBUF_SIZE];
 
-    check_comsys(player);
     find_channel(player, name, chp);
     check_owned_channel(player, chp);
 
@@ -1206,9 +1209,9 @@ void do_cboot(player, cause, key, name, objstr)
 	    }
 	}
 	if (!clist)
-	    nhashdelete((int) thing, &mudstate.comlist_htab);
+	    nhashdelete((int) thing, &mod_comsys_comlist_htab);
 	else if (chead != clist)
-	    nhashrepl((int) thing, (int *) clist, &mudstate.comlist_htab);
+	    nhashrepl((int) thing, (int *) clist, &mod_comsys_comlist_htab);
     }
 
     notify(player, tprintf("You boot %s off channel %s.",
@@ -1235,7 +1238,6 @@ void do_cemit(player, cause, key, chan_name, str)
 {
     CHANNEL *chp;
 
-    check_comsys(player);
     find_channel(player, chan_name, chp);
     check_owned_channel(player, chp);
 
@@ -1255,7 +1257,6 @@ void do_cwho(player, cause, key, chan_name)
     int i;
     int p_count, o_count;
 
-    check_comsys(player);
     find_channel(player, chan_name, chp);
     check_owned_channel(player, chp);
 
@@ -1310,8 +1311,6 @@ void do_addcom(player, cause, key, alias_str, args, nargs)
 {
     char *chan_name, *title_str;
 
-    check_comsys(player);
-
     if (nargs < 1) {
 	notify(player, "You need to specify a channel.");
 	return;
@@ -1336,7 +1335,6 @@ void do_delcom(player, cause, key, alias_str)
     COMLIST *clist, *cl_ptr;
     int has_mult;
 
-    check_comsys(player);
     find_calias(player, alias_str, cap);
 
     chp = cap->channel;		/* save this for later */
@@ -1368,8 +1366,6 @@ void do_clearcom(player, cause, key)
     dbref player, cause;
     int key;
 {
-    check_comsys(player);
-
     notify(player, "You remove yourself from all channels.");
     channel_clr(player);
 }
@@ -1382,7 +1378,6 @@ void do_comtitle(player, cause, key, alias_str, title)
 {
     COMALIAS *cap;
 
-    check_comsys(player);
     find_calias(player, alias_str, cap);
 
     if (cap->title)
@@ -1469,9 +1464,9 @@ void do_clist(player, cause, key, chan_name)
 	notify(player, "Channel              Owner              Description");
     }
 
-    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+    for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
-	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
 	if ((chp->flags & CHAN_FLAG_PUBLIC) ||
 	    Comm_All(player) || (chp->owner == player)) {
 
@@ -1527,8 +1522,6 @@ void do_comlist(player, cause, key)
     COMLIST *clist, *cl_ptr;
     int count = 0;
 
-    check_comsys(player);
-
     clist = lookup_clist(player);
     if (!clist) {
 	notify(player, "You are not on any channels.");
@@ -1577,20 +1570,21 @@ void do_allcom(player, cause, key, cmd)
 }
 
 
-int do_comsys(player, in_cmd)
-    dbref player;
-    char *in_cmd;
+int mod_comsys_process_command(player, cause, interactive, in_cmd,
+			       args, nargs)
+    dbref player, cause;
+    int interactive;
+    char *in_cmd, *args[];
+    int nargs;
 {
-    /* Return 0 if we got something, 1 if we didn't. We should never
-     * call this function unless the comsys is enabled.
-     */
+    /* Return 1 if we got something, 0 if we didn't. */
 
     char *arg;
     COMALIAS *cap;
     char cmd[LBUF_SIZE];	/* temp -- can't nibble our input */
 
-    if (!in_cmd || !*in_cmd)
-	return 1;
+    if (!in_cmd || !*in_cmd || Slave(player))
+	return 0;
 
     strcpy(cmd, in_cmd);
 
@@ -1602,31 +1596,106 @@ int do_comsys(player, in_cmd)
 
     cap = lookup_calias(player, cmd);
     if (!cap)
-	return 1;
+	return 0;
 
     while (*arg && isspace(*arg))
 	arg++;
     if (!*arg) {
 	notify(player, "No message.");
-	return 0;
+	return 1;
     }
 
     process_comsys(player, arg, cap);
-    return 0;
+    return 1;
 }
+
+/* --------------------------------------------------------------------------
+ * Command tables.
+ */
+NAMETAB cboot_sw[] = {
+{(char *)"quiet",	1,	CA_PUBLIC,	CBOOT_QUIET},
+{ NULL,			0,	0,		0}};
+
+NAMETAB cemit_sw[] = {
+{(char *)"noheader",	1,	CA_PUBLIC,	CEMIT_NOHEADER},
+{ NULL,			0,	0,		0}};
+
+NAMETAB channel_sw[] = {
+{(char *)"charge",	1,	CA_PUBLIC,	CHANNEL_CHARGE},
+{(char *)"desc",	1,	CA_PUBLIC,	CHANNEL_DESC},
+{(char *)"lock",	1,	CA_PUBLIC,	CHANNEL_LOCK},
+{(char *)"owner",	1,	CA_PUBLIC,	CHANNEL_OWNER},
+{(char *)"set",		1,	CA_PUBLIC,	CHANNEL_SET},
+{(char *)"join",	1,	CA_PUBLIC,	CHANNEL_JOIN | SW_MULTIPLE},
+{(char *)"transmit",	1,	CA_PUBLIC,	CHANNEL_TRANS | SW_MULTIPLE},
+{(char *)"receive",	1,	CA_PUBLIC,	CHANNEL_RECV | SW_MULTIPLE},
+{ NULL,			0,	0,		0}};
+
+NAMETAB clist_sw[] = {
+{(char *)"full",        0,      CA_PUBLIC,      CLIST_FULL},
+{ NULL,                 0,      0,              0}};
+
+NAMETAB cwho_sw[] = {
+{(char *)"all",         0,      CA_PUBLIC,      CWHO_ALL},
+{ NULL,                 0,      0,              0}};
+
+CMDENT mod_comsys_cmdtable[] = {
+{(char *)"@cboot",              cboot_sw,       CA_NO_SLAVE|CA_NO_GUEST,
+        0,               CS_TWO_ARG,          
+	NULL,		NULL,	NULL,		do_cboot},
+{(char *)"@ccreate",            NULL,           CA_NO_SLAVE|CA_NO_GUEST,
+        0,               CS_ONE_ARG,          
+	NULL,		NULL,	NULL,		do_ccreate},
+{(char *)"@cdestroy",           NULL,           CA_NO_SLAVE|CA_NO_GUEST,
+        0,               CS_ONE_ARG,          
+	NULL,		NULL,	NULL,		do_cdestroy},
+{(char *)"@cemit",		cemit_sw,	CA_NO_SLAVE|CA_NO_GUEST,
+	0,		 CS_TWO_ARG,		
+	NULL,		NULL,	NULL,		do_cemit},
+{(char *)"@channel",		channel_sw,	CA_NO_SLAVE|CA_NO_GUEST,
+	0,		 CS_TWO_ARG,		
+	NULL,		NULL,	NULL,		do_channel},
+{(char *)"@clist",              clist_sw,       CA_NO_SLAVE,
+        0,              CS_ONE_ARG,           
+	NULL,		NULL,	NULL,		do_clist},
+{(char *)"@cwho",               cwho_sw,           CA_NO_SLAVE,
+        0,              CS_ONE_ARG,           
+	NULL,		NULL,	NULL,		do_cwho},
+{(char *)"addcom",              NULL,           CA_NO_SLAVE,
+        0,              CS_TWO_ARG|CS_ARGV,           
+	NULL,		NULL,	NULL,		do_addcom},
+{(char *)"allcom",              NULL,           CA_NO_SLAVE,
+        0,              CS_ONE_ARG,           
+	NULL,		NULL,	NULL,		do_allcom},
+{(char *)"comlist",             NULL,           CA_NO_SLAVE,
+        0,              CS_NO_ARGS,           
+	NULL,		NULL,	NULL,		do_comlist},
+{(char *)"comtitle",            NULL,           CA_NO_SLAVE,
+        0,              CS_TWO_ARG,          
+	NULL,		NULL,	NULL,		do_comtitle},
+{(char *)"clearcom",            NULL,           CA_NO_SLAVE,
+        0,              CS_NO_ARGS,           
+	NULL,		NULL,	NULL,		do_clearcom},
+{(char *)"delcom",              NULL,           CA_NO_SLAVE,
+        0,              CS_ONE_ARG,           
+	NULL,		NULL,	NULL,		do_delcom},
+{(char *)NULL,			NULL,		0,
+	0,		0,				
+	NULL,		NULL,	NULL,		NULL}};
 
 /* --------------------------------------------------------------------------
  * Initialization, and other fun with files.
  */
 
-void save_comsys(filename)
-    char *filename;
+void mod_comsys_dump_database()
 {
     FILE *fp;
+    char filename[256];
     char buffer[PBUF_SIZE + 8];	/* dependent on comsys_db conf param */
     CHANNEL *chp;
     COMALIAS *cap;
 
+    sprintf(filename, "%s/%s", mudconf.dbhome, mod_comsys_config.comsys_db);
     sprintf(buffer, "%s.#", filename);
     if (!(fp = fopen(buffer, "w"))) {
 	log_perror("DMP", "COM", "Opening comsys db for writing", filename);
@@ -1635,9 +1704,9 @@ void save_comsys(filename)
 
     fprintf(fp, "+V3\n");
 
-    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+    for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
-	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
 	putstring(fp, chp->name);
 	putref(fp, chp->owner);
 	putref(fp, chp->flags);
@@ -1656,9 +1725,9 @@ void save_comsys(filename)
 
     fprintf(fp, "+V1\n");
 
-    for (cap = (COMALIAS *) hash_firstentry(&mudstate.calias_htab);
+    for (cap = (COMALIAS *) hash_firstentry(&mod_comsys_calias_htab);
 	 cap != NULL;
-	 cap = (COMALIAS *) hash_nextentry(&mudstate.calias_htab)) {
+	 cap = (COMALIAS *) hash_nextentry(&mod_comsys_calias_htab)) {
 	putref(fp, cap->player);
 	putstring(fp, cap->channel->name);
 	putstring(fp, cap->alias);
@@ -1845,7 +1914,7 @@ static void read_comsys(fp, com_ver)
 	chp->num_who = 0;
 	chp->connect_who = NULL;
 	chp->num_connected = 0;
-	hashadd(chp->name, (int *) chp, &mudstate.comsys_htab);
+	hashadd(chp->name, (int *) chp, &mod_comsys_comsys_htab);
 	getstring_noalloc(fp, 0);	/* discard the < */
 	c = getc(fp);
 	if (c == '+')		/* look ahead for the end of the channels */
@@ -1874,15 +1943,15 @@ static void read_comsys(fp, com_ver)
 	else
 	    cap->title = NULL;
 	hashadd(tprintf("%d.%s", cap->player, cap->alias), (int *) cap,
-		&mudstate.calias_htab);
+		&mod_comsys_calias_htab);
 	clist = (COMLIST *) XMALLOC(sizeof(COMLIST), "load_comsys.clist");
 	clist->alias_ptr = cap;
 	clist->next = lookup_clist(cap->player);
 	if (clist->next == NULL)
-	    nhashadd((int) cap->player, (int *) clist, &mudstate.comlist_htab);
+	    nhashadd((int) cap->player, (int *) clist, &mod_comsys_comlist_htab);
 	else
 	    nhashrepl((int) cap->player, (int *) clist,
-		      &mudstate.comlist_htab);
+		      &mod_comsys_comlist_htab);
 	if (!is_onchannel(cap->player, cap->channel)) {
 	    wp = (CHANWHO *) XMALLOC(sizeof(CHANWHO), "load_comsys.who");
 	    wp->player = cap->player;
@@ -1928,7 +1997,7 @@ static void sanitize_comsys()
     int *ptab;
 
     count = 0;
-    htab = &mudstate.comlist_htab;
+    htab = &mod_comsys_comlist_htab;
     ptab = (int *) XCALLOC(htab->entries, sizeof(int), "sanitize_comsys");
 
     for (i = 0; i < htab->hashsize; i++) {
@@ -1950,30 +2019,32 @@ static void sanitize_comsys()
     XFREE(ptab, "sanitize_comsys");
 }
 
-void make_vanilla_comsys()
+void mod_comsys_make_minimal()
 {
     CHANNEL *chp;
 
-    do_ccreate(GOD, GOD, 0, mudconf.public_channel);
-    chp = lookup_channel(mudconf.public_channel);
+    do_ccreate(GOD, GOD, 0, mod_comsys_config.public_channel);
+    chp = lookup_channel(mod_comsys_config.public_channel);
     if (chp) {		/* should always be true, but be safe */
 	chp->flags |= CHAN_FLAG_PUBLIC;
     }
 
-    do_ccreate(GOD, GOD, 0, mudconf.guests_channel);
-    chp = lookup_channel(mudconf.guests_channel);
+    do_ccreate(GOD, GOD, 0, mod_comsys_config.guests_channel);
+    chp = lookup_channel(mod_comsys_config.guests_channel);
     if (chp) {		/* should always be true, but be safe */
 	chp->flags |= CHAN_FLAG_PUBLIC;
     }
 }
 
-void load_comsys(filename)
-    char *filename;
+void mod_comsys_load_database()
 {
     /* We do this even if we don't have the comsys turned on. */
 
     FILE *fp;
+    char filename[256];
     char t_mbuf[MBUF_SIZE];
+
+    sprintf(filename, "%s/%s", mudconf.dbhome, mod_comsys_config.comsys_db); 
 
     STARTLOG(LOG_STARTUP, "INI", "COM")
 	log_printf("Loading comsys db: %s", filename);
@@ -1981,7 +2052,7 @@ void load_comsys(filename)
 
     if (!(fp = fopen(filename, "r"))) {
 	log_perror("INI", "COM", "Opening comsys db for reading", filename);
-	make_vanilla_comsys();
+	mod_comsys_make_minimal();
 	return;
     }
 
@@ -1993,7 +2064,7 @@ void load_comsys(filename)
 	STARTLOG(LOG_STARTUP, "INI", "COM")
 	    log_printf("Unrecognized comsys format.");
 	ENDLOG
-	make_vanilla_comsys();
+	mod_comsys_make_minimal();
     }
 
     fclose(fp);
@@ -2009,16 +2080,14 @@ void load_comsys(filename)
 	safe_str((char *) "#-1 CHANNEL NOT FOUND", buff, bufc); \
 	return; \
     } \
-    if (!mudconf.have_comsys || \
-	(!Comm_All(p) && ((p) != chp->owner))) { \
+    if ((!Comm_All(p) && ((p) != chp->owner))) { \
 	safe_str((char *) "#-1 NO PERMISSION TO USE", buff, bufc); \
 	return; \
     }
 
 #define Comsys_User(p,t) \
     t = lookup_player(p, fargs[0], 1); \
-    if (!mudconf.have_comsys || !Good_obj(t) || \
-	(!Controls(p,t) && !Comm_All(p))) { \
+    if (!Good_obj(t) || (!Controls(p,t) && !Comm_All(p))) { \
 	safe_str((char *) "#-1 NO PERMISSION TO USE", buff, bufc); \
 	return; \
     }
@@ -2036,17 +2105,12 @@ FUNCTION(fun_comlist)
     char *bb_p;
     char sep;
 
-    if (!mudconf.have_comsys) {
-	safe_str((char *) "#-1 NO PERMISSION TO USE", buff, bufc);
-	return;
-    }
-
     varargs_preamble("COMLIST", 1);
 
     bb_p = *bufc;
-    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+    for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
-	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
 	if ((chp->flags & CHAN_FLAG_PUBLIC) ||
 	    Comm_All(player) || (chp->owner == player)) {
 	    if (*bufc != bb_p)
@@ -2147,4 +2211,62 @@ FUNCTION(fun_comtitle)
 	safe_str(cap->title, buff, bufc);
 }
 
-#endif /* USE_COMSYS */
+FUN mod_comsys_functable[] = {
+{"COMALIAS",	fun_comalias,	1,  0,		CA_PUBLIC},
+{"COMDESC",	fun_comdesc,	1,  0,		CA_PUBLIC},
+{"COMINFO",	fun_cominfo,	2,  0,		CA_PUBLIC},
+{"COMLIST",	fun_comlist,	0,  FN_VARARGS, CA_PUBLIC},
+{"COMOWNER",	fun_comowner,	1,  0,		CA_PUBLIC},
+{"COMTITLE",	fun_comtitle,	2,  0,		CA_PUBLIC},
+{"CWHO",        fun_cwho,       1,  0,          CA_PUBLIC},
+{"CWHOALL",     fun_cwhoall,    1,  0,          CA_PUBLIC},
+{NULL,		NULL,		0,  0,		0}};
+
+/* --------------------------------------------------------------------------
+ * Initialization.
+ */
+
+void mod_comsys_cleanup_startup()
+{
+    update_comwho_all();
+}
+
+void mod_comsys_create_player(creator, player, isrobot, isguest)
+    dbref creator, player;
+    int isrobot, isguest;
+{
+    if (isguest && (player != 1)) {
+	if (*mod_comsys_config.guests_channel)
+	    join_channel(player, mod_comsys_config.guests_channel,
+			 mod_comsys_config.guests_calias, NULL);
+    } else if (player != 1) { /* avoid problems with minimal db */
+	if (*mod_comsys_config.public_channel)
+	    join_channel(player, mod_comsys_config.public_channel,
+			 mod_comsys_config.public_calias, NULL);
+    }
+}
+
+void mod_comsys_destroy_obj(player, obj)
+    dbref player, obj;
+{
+    channel_clr(obj);
+}
+
+void mod_comsys_destroy_player(player, victim)
+    dbref player, victim;
+{
+    comsys_chown(victim, Owner(player));
+}
+
+void mod_comsys_init()
+{
+    StringCopy(mod_comsys_config.comsys_db, "comsys.db");
+    StringCopy(mod_comsys_config.public_channel, "Public");
+    StringCopy(mod_comsys_config.guests_channel, "Guests");
+    StringCopy(mod_comsys_config.public_calias, "pub");
+    StringCopy(mod_comsys_config.guests_calias, "g");
+
+    register_hashtables(mod_comsys_hashtable, mod_comsys_nhashtable);
+    register_commands(mod_comsys_cmdtable);
+    register_functions(mod_comsys_functable);
+}

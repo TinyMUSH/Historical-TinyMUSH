@@ -45,10 +45,6 @@ extern dbref FDECL(clone_home, (dbref, dbref));
 extern void FDECL(check_mail, (dbref, int, int));
 #endif
 
-#ifdef USE_COMSYS
-extern void FDECL(join_channel, (dbref, char *, char *, char *));
-#endif
-
 /* ---------------------------------------------------------------------------
  * decrypt_logindata, encrypt_logindata: Decode and encode login info.
  */
@@ -304,22 +300,10 @@ int isrobot, isguest;
 		free_lbuf(pbuf);
 		return NOTHING;
 	}
+
 	/* initialize everything */
 
-#ifdef USE_COMSYS
-	if (mudconf.have_comsys) {
-	    if (isguest && player != 1) {
-		if (*mudconf.guests_channel)
-		    join_channel(player, mudconf.guests_channel,
-				 mudconf.guests_calias, NULL);
-	    } else if (player != 1) { /* avoid problems with minimal db */
-		if (*mudconf.public_channel)
-		    join_channel(player, mudconf.public_channel,
-				 mudconf.public_calias, NULL);
-	    }
-	}
-#endif /* USE_COMSYS */
-
+	CALL_ALL_MODULES(create_player, (creator, player, isrobot, isguest));
 	s_Pass(player, crypt(pbuf, "XX"));
 	s_Home(player, start_home());
 	free_lbuf(pbuf);

@@ -116,7 +116,7 @@ D_OBJ	= create.o game.o help.o look.o match.o move.o player.o predicates.o \
 	  rob.o set.o speech.o wiz.o walkdb.o timer.o boolexp.o log.o cque.o \
 	  unparse.o eval.o command.o wild.o netcommon.o functions.o vattr.o \
 	  db.o db_rw.o stringutil.o object.o conf.o flags.o htab.o \
-          compat.o file_c.o player_c.o bsd.o alloc.o comsys.o mail.o \
+          compat.o file_c.o player_c.o bsd.o alloc.o mail.o \
 	  fnhelper.o funext.o funiter.o funlist.o funmath.o funmisc.o \
 	  funobj.o funstring.o funvars.o \
           mguests.o powers.o newconc.o pcre.o quota.o api.o
@@ -184,24 +184,29 @@ OUT	= netmush mkindx dbconvert
 	$(CC) $(ALLCFLAGS) -c $<
 
 # paths is likely to remain broken
-all: slave $(OUT) links 
+all: $(OUT) slave comsys links 
 
 TAGS: *.c *.h
 	etags *.c *.h
 
-links: dbconvert mkindx netmush slave
+links: dbconvert mkindx netmush slave comsys
 	cd ../game/bin ; rm -f conc ; ln -s ../../src/conc conc
 	cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/dbconvert dbconvert
 	cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx mkindx
 	cd ../game/bin ; rm -f netmush ; ln -s ../../src/netmush netmush
 	cd ../game/bin ; rm -f slave ; ln -s ../../src/slave slave
 	cd ../game/text; rm -f mkindx; ln -s ../../src/mkindx mkindx
+	cd ../game/modules; rm -f comsys.so ; ln -s ../../src/comsys.so comsys.so
 
 conc: portconc.o
 	$(CC) $(ALLCFLAGS) $(LIBS) -o conc portconc.o
 
 slave: slave.o
 	$(CC) $(ALLCFLAGS) $(LIBS) -o slave slave.o
+
+comsys: comsys.o
+	-mv -f comsys.so comsys.so~
+	$(LD) -shared -o comsys.so comsys.o
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
@@ -278,7 +283,7 @@ clean:
 	-rm -f *.o a.out core gmon.out mush.*log mush.*sum Compile.log
 
 realclean: clean
-	-rm -f $(OUT) netmush~ slave conc unsplit
+	-rm -f $(OUT) netmush~ slave conc unsplit comsys.so comsys.so~
 
 distclean: realclean cvs
 	-rm -f config.log config.cache config.status autoconf.h .depend 

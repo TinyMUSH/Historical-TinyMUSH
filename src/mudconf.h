@@ -28,6 +28,7 @@ struct module_linked_list {
     int (*process_no_match)(dbref, dbref, int, char *, char *, char *[], int);
     void (*create_obj)(dbref, dbref);
     void (*destroy_obj)(dbref, dbref);
+    void (*create_player)(dbref, dbref, int, int); 
     void (*destroy_player)(dbref, dbref);
     void (*announce_connect)(dbref);
     void (*announce_disconnect)(dbref, const char *);
@@ -83,13 +84,11 @@ struct confdata {
 	char	crashdb[PBUF_SIZE];	/* write database here on crash */
 	char	gdbm[PBUF_SIZE];	/* use this gdbm file if we need one */
 	char	mail_db[PBUF_SIZE];	/* name of the @mail database */
-	char	comsys_db[PBUF_SIZE];	/* name of the comsys db */
 	char	status_file[PBUF_SIZE]; /* Where to write arg to @shutdown */
 	char	mudlogname[PBUF_SIZE];	/* Name of the game log file */
 #ifdef HAVE_DLOPEN
 	char	modhome[MBUF_SIZE];	/* Directory where the .so files are */
 #endif
-        int	have_comsys;	/* Should the comsystem be active? */
         int	have_mailer;	/* Should @mail be active? */
 	int	have_pueblo;	/* Is Pueblo support compiled in? */
 	int	have_zones;	/* Should zones be active? */
@@ -122,10 +121,6 @@ struct confdata {
 	char	postdump_msg[PBUF_SIZE];  /* Message displayed after @dump-ing */
 	char	fixed_home_msg[PBUF_SIZE];  /* Message displayed when going home and FIXED */
 	char	fixed_tel_msg[PBUF_SIZE]; /* Message displayed when teleporting and FIXED */
-	char	public_channel[SBUF_SIZE]; /* Name of public channel */
-	char	guests_channel[SBUF_SIZE]; /* Name of guests channel */
-	char	public_calias[SBUF_SIZE];  /* Alias of public channel */
-	char	guests_calias[SBUF_SIZE];  /* Alias of guests channel */
 #ifdef PUEBLO_SUPPORT
 	char    pueblo_msg[GBUF_SIZE];	/* Message displayed to Pueblo clients */
 	char	htmlconn_file[SBUF_SIZE];	/* display on PUEBLOCLIENT message */
@@ -390,11 +385,6 @@ struct statedata {
 	HASHTAB cdefs_htab;	/* Components hashtable */
 	HASHTAB instance_htab;	/* Instances hashtable */
 	HASHTAB instdata_htab;	/* Structure data hashtable */
-#ifdef USE_COMSYS
-	HASHTAB comsys_htab;	/* Channels hashtable */
-	HASHTAB calias_htab;	/* Channel aliases */
-	NHSHTAB comlist_htab;	/* Player channel lists */
-#endif
 #ifdef USE_MAIL
 	NHSHTAB mail_htab;	/* Mail players hashtable */
 #endif

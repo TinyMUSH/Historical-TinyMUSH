@@ -67,7 +67,6 @@ void NDECL(cf_init)
 	StringCopy(mudconf.crashdb, "");
 	StringCopy(mudconf.gdbm, "");
 	StringCopy(mudconf.mail_db, "mail.db");
-	StringCopy(mudconf.comsys_db, "comsys.db");
 	StringCopy(mudconf.status_file, "shutdown.status");
 #ifdef HAVE_DLOPEN
 	StringCopy(mudconf.modhome, "modules");
@@ -105,10 +104,6 @@ void NDECL(cf_init)
 	StringCopy(mudconf.postdump_msg, "");
 	StringCopy(mudconf.fixed_home_msg, "");
 	StringCopy(mudconf.fixed_tel_msg, "");
-	StringCopy(mudconf.public_channel, "Public");
-	StringCopy(mudconf.guests_channel, "Guests");
-	StringCopy(mudconf.public_calias, "pub");
-	StringCopy(mudconf.guests_calias, "g");
 #ifdef PUEBLO_SUPPORT
 	StringCopy(mudconf.pueblo_msg, "</xch_mudtext><img xch_mode=html><tt>");
 #endif
@@ -122,11 +117,6 @@ void NDECL(cf_init)
 	mudconf.fork_dump = 0;
 	mudconf.fork_vfork = 0;
 	mudconf.dbopt_interval = 0;
-#ifdef USE_COMSYS
-	mudconf.have_comsys = 1;
-#else
-	mudconf.have_comsys = 0;
-#endif
 #ifdef USE_MAIL
 	mudconf.have_mailer = 1;
 #else
@@ -599,6 +589,8 @@ CF_HAND(cf_module)
 					 char *[], int));
 	mp->create_obj = DLSYM(handle, str, "create_obj", (dbref, dbref));
 	mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
+	mp->create_player = DLSYM(handle, str, "create_player",
+				  (dbref, dbref, int, int));
 	mp->destroy_player = DLSYM(handle, str, "destroy_player",
 				   (dbref, dbref));
 	mp->announce_connect = DLSYM(handle, str, "announce_connect", (dbref));
@@ -1372,7 +1364,6 @@ CONF conftable[] = {
 {(char *)"check_interval",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_interval,	0},
 {(char *)"check_offset",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_offset,		0},
 {(char *)"clone_copies_cost",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.clone_copy_cost,	(long)"@clone copies object cost"},
-{(char *)"comsys_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.comsys_db,	PBUF_SIZE},
 {(char *)"command_invocation_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.cmd_invk_lim,		0},
 {(char *)"command_quota_increment",	cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.cmd_quota_incr,	0},
 {(char *)"command_quota_max",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.cmd_quota_max,		0},
@@ -1433,16 +1424,8 @@ CONF conftable[] = {
 {(char *)"guest_prefix",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.guest_prefix,	SBUF_SIZE},
 {(char *)"number_guests",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.number_guests,		0},
 {(char *)"guest_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.guest_file,	SBUF_SIZE},
-{(char *)"guests_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.guests_calias,	SBUF_SIZE},
-{(char *)"guests_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.guests_channel,	SBUF_SIZE},
 {(char *)"guest_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list, 	H_GUEST},
 {(char *)"guest_starting_room",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.guest_start_room,	0},
-
-#ifdef USE_COMSYS
-{(char *)"have_comsys",			cf_bool,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_comsys,		(long)"Built-in comsys enabled"},
-#else
-{(char *)"have_comsys",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_comsys,		(long)"Built-in comsys enabled"},
-#endif
 
 #ifdef USE_MAIL
 {(char *)"have_mailer",			cf_bool,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_mailer,		(long)"Built-in @mail system enabled"},
@@ -1527,8 +1510,6 @@ CONF conftable[] = {
 {(char *)"player_quota",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_quota,		0},
 {(char *)"player_starting_home",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_home,		0},
 {(char *)"player_starting_room",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_room,		0},
-{(char *)"public_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.public_calias,	SBUF_SIZE},
-{(char *)"public_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.public_channel,	SBUF_SIZE},
 {(char *)"port",			cf_int,		CA_STATIC,	CA_PUBLIC,	&mudconf.port,			0},
 {(char *)"power_access",		cf_power_access,CA_GOD,		CA_DISABLED,	NULL,				0},
 {(char *)"public_flags",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pub_flags,		(long)"Flag information is public"},

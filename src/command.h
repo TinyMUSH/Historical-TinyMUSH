@@ -23,26 +23,6 @@
 
 /* Command function handlers */
 
-#ifdef USE_COMSYS
-
-/* from comsys.c */
-
-CMD_TWO_ARG(do_cemit);			/* channel emit */
-CMD_TWO_ARG(do_cboot);                 /* channel boot */
-CMD_ONE_ARG(do_ccreate);          /* create a channel */
-CMD_ONE_ARG(do_cdestroy);         /* destroy a channel */
-CMD_TWO_ARG(do_channel);	/* general channel commands */
-CMD_ONE_ARG(do_clist);                /* gives a channel listing */
-CMD_ONE_ARG(do_cwho);             /* who's on a channel */
-CMD_TWO_ARG_ARGV(do_addcom);                 /* adds a comalias */
-CMD_ONE_ARG(do_allcom);                 /* on, off, who, all aliases */
-CMD_NO_ARG(do_comlist);                 /* channel who by alias */
-CMD_TWO_ARG(do_comtitle);               /* sets a title on a channel */
-CMD_NO_ARG(do_clearcom);                /* clears all comaliases */
-CMD_ONE_ARG(do_delcom);                 /* deletes a comalias */
-
-#endif
-
 #ifdef USE_MAIL
 
 /* from mail.c */

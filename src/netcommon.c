@@ -40,11 +40,6 @@ extern void FDECL(do_connectid, (DESC *, long int, char *));
 extern void FDECL(do_killid, (DESC *, long int));
 #endif
 
-#ifdef USE_COMSYS
-extern void FDECL(comsys_connect, (dbref));
-extern void FDECL(comsys_disconnect, (dbref));
-#endif
-
 /* ---------------------------------------------------------------------------
  * timeval_sub: return difference between two times as a timeval
  */
@@ -699,11 +694,6 @@ DESC *d;
 	notify_check(player, player, buf, key);
 	free_lbuf(buf);
 
-#ifdef USE_COMSYS
-	if (mudconf.have_comsys)
-	    comsys_connect(player);
-#endif
-
 	CALL_ALL_MODULES(announce_connect, (player));
 
 	if (Suspect(player)) {
@@ -831,17 +821,13 @@ const char *reason;
 			      (char *)"GAME: %s has disconnected.",
 			      Name(player));
 
-		/* Must reset flags before we do comsys stuff. */
+		/* Must reset flags before we do module stuff. */
 
 		c_Connected(player);
 #ifdef PUEBLO_SUPPORT
 		c_Html(player);
 #endif
 
-#ifdef USE_COMSYS
-		if (mudconf.have_comsys)
-			comsys_disconnect(player);
-#endif
 		CALL_ALL_MODULES(announce_disconnect, (player, reason));
 
 		argv[0] = (char *)reason;

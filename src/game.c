@@ -68,13 +68,6 @@ extern int FDECL(dump_mail, (FILE *));
 extern void NDECL(check_mail_expiration);
 #endif
 
-#ifdef USE_COMSYS
-extern void FDECL(load_comsys, (char *));
-extern void FDECL(save_comsys, (char *));
-extern void NDECL(make_vanilla_comsys);
-extern void NDECL(update_comwho_all);
-#endif
-
 #ifdef CONCENTRATE
 int conc_pid = 0;
 
@@ -127,12 +120,6 @@ void do_hashresize(player, cause, key)
     nhashresize(&mudstate.fwdlist_htab, 8);
     nhashresize(&mudstate.redir_htab, 8);
     hashresize(&mudstate.ufunc_htab, 8);
-
-#ifdef USE_COMSYS
-    hashresize(&mudstate.comsys_htab, 8);
-    hashresize(&mudstate.calias_htab, 16);
-    nhashresize(&mudstate.comlist_htab, 16);
-#endif
 
 #ifdef USE_MAIL
     nhashresize(&mudstate.mail_htab, 8);
@@ -1243,12 +1230,8 @@ int dump_type;
 	    log_perror("DMP", "FAIL", "Opening mail file",
 		       tmpfile);
 	}
-#endif
-#ifdef USE_COMSYS
-	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.comsys_db);
-	save_comsys(tmpfile);
-#endif
-#endif
+#endif /* USE_MAIL */
+#endif /* ! STANDALONE */
 }
 
 void NDECL(dump_database)
@@ -1366,10 +1349,6 @@ static int NDECL(load_game)
 
 	CALL_ALL_MODULES_NOCACHE("load_database", (void), ());
 
-#ifdef USE_COMSYS
-	sprintf(infile, "%s/%s", mudconf.dbhome, mudconf.comsys_db);
-	load_comsys(infile);
-#endif
 #ifdef USE_MAIL
 	sprintf(infile, "%s/%s", mudconf.dbhome, mudconf.mail_db);
 	if ((f = fopen(infile, "r")) != NULL) {
@@ -1725,11 +1704,6 @@ char *argv[];
 #ifdef USE_MAIL
 	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
 #endif
-#ifdef USE_COMSYS
-	hashinit(&mudstate.comsys_htab, 15 * HASH_FACTOR);
-	hashinit(&mudstate.calias_htab, 500 * HASH_FACTOR);
-	nhashinit(&mudstate.comlist_htab, 100 * HASH_FACTOR);
-#endif
 	add_helpfile(GOD, (char *) "help text/help", 1);
 	add_helpfile(GOD, (char *) "wizhelp text/wizhelp", 1);
 	cmdp = (CMDENT *) hashfind((char *) "wizhelp", &mudstate.command_htab);
@@ -1797,9 +1771,6 @@ char *argv[];
 	if (mindb) {
 		db_make_minimal();
 		CALL_ALL_MODULES_NOCACHE("make_minimal", (void), ());
-#ifdef USE_COMSYS
-		make_vanilla_comsys();
-#endif
 	} else if (load_game() < 0) {
 		STARTLOG(LOG_ALWAYS, "INI", "LOAD")
 			log_printf("Couldn't load: %s", mudconf.indb);
@@ -1835,11 +1806,6 @@ char *argv[];
 	hashreset(&mudstate.cdefs_htab);
 	hashreset(&mudstate.instance_htab);
 	hashreset(&mudstate.instdata_htab);
-#ifdef USE_COMSYS
-	hashreset(&mudstate.comsys_htab);
-	hashreset(&mudstate.calias_htab);
-	nhashreset(&mudstate.comlist_htab);
-#endif
 #ifdef USE_MAIL
 	nhashreset(&mudstate.mail_htab);
 #endif
@@ -1895,9 +1861,6 @@ char *argv[];
 	 * there may be players connected from a restart, as well as objects.
 	 */
 	CALL_ALL_MODULES(cleanup_startup, ());
-#ifdef USE_COMSYS
-	update_comwho_all();
-#endif
 
 	sql_init();		/* Make a connection to external SQL db */
 

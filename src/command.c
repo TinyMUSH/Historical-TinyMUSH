@@ -39,10 +39,6 @@ extern int FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
 extern int FDECL(list_check, (dbref, dbref, char, char *, char *, int, int *));
 extern void FDECL(do_enter_internal, (dbref, dbref, int));
 
-#ifdef USE_COMSYS
-extern int FDECL(do_comsys, (dbref, char *));
-#endif
-
 #define CACHING "object"
 
 #define NOGO_MESSAGE "You can't go that way."
@@ -915,14 +911,6 @@ char *command, *args[];
 		mudstate.debug_cmd = cmdsave;
 		return preserve_cmd;
 	}
-
-#ifdef USE_COMSYS
-	if (mudconf.have_comsys && !Slave(player) &&
-	    !do_comsys(player, command)) {
-	    mudstate.debug_cmd = cmdsave;
-	    return preserve_cmd;
-	}
-#endif
 
 	/* Check for the HOME command. You cannot do hooks on this because
 	 * home is not part of the traditional command table.
@@ -2317,13 +2305,6 @@ dbref player;
 #ifdef USE_MAIL
 	if (mudconf.have_mailer)
 	    list_nhashstat(player, "Mail messages", &mudstate.mail_htab);
-#endif
-#ifdef USE_COMSYS
-	if (mudconf.have_comsys) {
-	    list_hashstat(player, "Channels", &mudstate.comsys_htab);
-	    list_hashstat(player, "Channel aliases", &mudstate.calias_htab);
-	    list_nhashstat(player, "Channel lists", &mudstate.comlist_htab);
-	}
 #endif
 }
 
