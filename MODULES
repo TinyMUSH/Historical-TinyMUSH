@@ -457,3 +457,44 @@ int mod_<name>_process_no_match(dbref player, dbref cause, int interactive,
 
 	The 'args' parameter consists of the stack (%0 - %9) and the
 	'nargs' parameter is the number of arguments on the stack.
+
+-----------------------------------------------------------------------------
+
+MODULE API FUNCTION: did_it
+
+int mod_<name>_did_it(dbref player, dbref thing, dbref master,
+		      int what, const char *def,
+		      int owhat, const char *odef,
+		      int awhat, int now, char *args[], int nargs)
+
+	Run when did_it() is called, before the server actually does
+	the notification/others-notification/action. 
+
+	The handler tries to run this on each module in sequence,
+	most recently-moduled first, to least recently-loaded module
+	last. If a module returns 0, the handler goes on to the next
+	module. If the module returns something other than 0, the
+	handler does not try any further modules. If the module
+	returns a positive number, the main body of the server's
+	own did_it() function is not executed. If the module
+	returns a negative number, the main body of the server's
+	own did_it() function is still executed.
+
+	player is the object doing something, and thing is its "victim".
+	player is the object that would normally see the <what> message
+	(@desc, @move, @succ, etc.); thing is the object that would
+	normally execute the <awhat> action (@adesc, @amove, @asucc, etc.)
+
+	what, owhat, and awhat are attribute numbers. def and odef are
+	the default strings for what and owhat.
+
+	now is 1 if the /now switch has been passed, or 0 otherwise.
+	It normally affects the queueing of actions.
+
+	args and nargs are the stack and number of items on the stack.
+
+	This function can be used to react to a large number of server
+	actions, by switching on <what>. For example, all commands that
+	move objects eventually call did_it() with <what> of A_MOVE.
+	If you want to intercept all movement, just check for 
+	'what == A_MOVE' and act accordingly in this function.

@@ -576,6 +576,10 @@ CF_HAND(cf_module)
 	mp->process_no_match = DLSYM_INT(handle, str, "process_no_match",
 					(dbref, dbref, int, char *, char *,
 					 char *[], int));
+	mp->did_it = DLSYM_INT(handle, str, "did_it",
+			       (dbref, dbref, dbref,
+				int, const char *, int, const char *, int,
+				int, char *[], int));
 	mp->create_obj = DLSYM(handle, str, "create_obj", (dbref, dbref));
 	mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
 	mp->create_player = DLSYM(handle, str, "create_player",

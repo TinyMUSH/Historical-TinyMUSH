@@ -27,8 +27,8 @@ CONF mod_hello_conftable[] = {
 
 typedef struct mod_hello_dbobj MOD_HELLO_OBJ;
 struct mod_hello_dbobj {
-    int greeted;
-    int foofed;
+    int greeted;		/* counter for @hello */
+    int foofed;			/* counter for @foof */
 };
 
 MOD_HELLO_OBJ *mod_hello_db = NULL;
@@ -53,6 +53,8 @@ int mod_hello_process_command(player, cause, interactive, command, args, nargs)
 	char *command, *args[];
 	int nargs;
 {
+	/* Command intercept before normal matching */
+
 	if (!strcmp(command, "hiya")) {
 		notify(player, "Got hiya.");
 		return 1;
@@ -67,11 +69,64 @@ int mod_hello_process_no_match(player, cause, interactive,
 	char *lc_command, *raw_command, *args[];
 	int nargs;
 {
+	/* Command intercept before 'Huh?' */
+
 	if (!strcmp(lc_command, "heythere")) {
 		notify(player, "Got heythere.");
 		return 1;
 	}
 	return 0;
+}
+
+int mod_hello_did_it(player, thing, master, what, def, owhat, odef, awhat,
+		     now, args, nargs)
+    dbref player, thing, master;
+    int what, owhat, awhat, now, nargs;
+    const char *def, *odef;
+    char *args[];
+{
+    /* Demonstrate the different ways we can intercept did_it() calls.
+     *
+     * We intercept 'look' (by trapping A_DESC), and return a message of
+     * our own, preventing other modules from showing something, and 
+     * preventing the normal server defaults from being run. (Return 1.)
+     *
+     * We intercept 'move' (by trapping A_MOVE), and return a message of
+     * our own, but don't prevent other modules from doing something,
+     * or preventing the normal server defaults from being run. (Return 0.)
+     *
+     * We intercept 'use' (by trapping A_USE), and return a message
+     * of our own. We prevent other modules from doing something, but
+     * not the normal server defaults from being run. (Return -1.)
+     *
+     * If we don't get one of these, we just pass. (Return 0.)
+     */
+
+    int f, g;
+
+    switch (what) {
+	case A_DESC:
+	    f = mod_hello_db[thing].foofed;
+	    g = mod_hello_db[thing].greeted;
+	    notify(player,
+		   tprintf("%s has been greeted %d %s and foofed %d %s.",
+			   Name(thing), g, ((g == 1) ? "time" : "times"),
+			   f, ((f == 1) ? "time" : "times")));
+	    return 1;
+	    break;		/* NOTREACHED */
+	case A_MOVE:
+	    notify(GOD,
+		   tprintf("%s(#%d) just moved.", Name(thing), thing));
+	    return 0;
+	    break;		/* NOTREACHED */
+	case A_USE:
+	    notify(GOD,
+		   tprintf("%s(#%d) was used!", Name(thing), thing));
+	    return -1;
+	    break;		/* NOTREACHED */
+	default:
+	    return 0;
+    }
 }
 
 void mod_hello_create_obj(player, obj)
@@ -114,6 +169,14 @@ void mod_hello_announce_disconnect(player, reason)
 DO_CMD_NO_ARG(mod_hello_do_hello)
 {
     int i;
+
+    /* Demonstrate what we can do:
+     *   @hello/informal greets you a configurable number of times.
+     *   If the config param 'hello_shows_name' is set to 'yes', then
+     *      this greets you by name. Otherwise, it displays the 
+     *      value of the config param 'hello_string'.
+     *   Finally, this tracks the number of times an object uses @hello.
+     */
 
     if (key & MOD_HELLO_HELLO_INFORMAL) {
 	for (i = 0; i < mod_hello_config.hello_times; i++) 
@@ -168,6 +231,7 @@ FUN mod_hello_functable[] = {
 
 /* --------------------------------------------------------------------------
  * Hash tables.
+ * (We don't use any of this data. It's just here for demo purposes.)
  */
 
 HASHTAB mod_hello_greetings;
@@ -190,9 +254,13 @@ MODNHASHES mod_hello_nhashtable[] = {
 	
 void mod_hello_init()
 {
+    /* Give our configuration some default values. */
+
     mod_hello_config.show_name = 0;
     mod_hello_config.hello_string = XSTRDUP("Hello, world!", "mod_hello_init");
     mod_hello_config.hello_times = 1;
+
+    /* Register everything we have to register. */
 
     register_hashtables(mod_hello_hashtable, mod_hello_nhashtable); 
     register_commands(mod_hello_cmdtable);

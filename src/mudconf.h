@@ -26,6 +26,9 @@ struct module_linked_list {
     struct module_linked_list *next;
     int (*process_command)(dbref, dbref, int, char *, char *[], int);
     int (*process_no_match)(dbref, dbref, int, char *, char *, char *[], int);
+    int (*did_it)(dbref, dbref, dbref,
+		  int, const char *, int, const char *, int,
+		  int, char *[], int);
     void (*create_obj)(dbref, dbref);
     void (*destroy_obj)(dbref, dbref);
     void (*create_player)(dbref, dbref, int, int); 

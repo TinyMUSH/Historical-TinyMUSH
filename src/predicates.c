@@ -1811,6 +1811,7 @@ const char *def, *odef;
     dbref loc, aowner;
     int t, num, aflags, alen, need_pres, preserve_len[MAX_GLOBAL_REGS];
     dbref master;
+    int retval = 0;
 
     /* If we need to call exec() from within this function, we first save
      * the state of the global registers, in order to avoid munging them
@@ -1839,6 +1840,20 @@ const char *def, *odef;
     }
     if (master == thing)
 	master = NOTHING;
+
+    /* Module call. Modules can return a negative number, zero, or a
+     * positive number.
+     * Positive: Stop calling modules. Return; do not execute normal did_it().
+     * Zero: Continue calling modules. Execute normal did_it() if we get
+     *       to the end of the modules and nothing has returned non-zero.
+     * Negative: Stop calling modules. Execute normal did_it().
+     */
+    CALL_SOME_MODULES(retval, did_it,
+		      (player, thing, master,
+		       what, def, owhat, def, awhat,
+		       now, args, nargs));
+    if (retval > 0)
+	return;
 
     /* message to player */
 
