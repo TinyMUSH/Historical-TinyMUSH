@@ -1581,6 +1581,7 @@ char *argv[];
 	nhashinit(&mudstate.objstack_htab, 50 * HASH_FACTOR);
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.desc_htab, 25 * HASH_FACTOR);
+	hashinit(&mudstate.vars_htab, 250 * HASH_FACTOR);
 	vattr_init();
 	
 	if (argc > 1 && !strcmp(argv[1], "-s")) {

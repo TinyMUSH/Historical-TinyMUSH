@@ -23,6 +23,11 @@ typedef struct ufun {
 	struct ufun *next;	/* Next ufun in chain */
 } UFUN;
 
+typedef struct var_entry VARENT;
+struct var_entry {
+    char *text;			/* variable text */
+};
+
 #define	FN_VARARGS	1	/* Function allows a variable # of args */
 #define	FN_NO_EVAL	2	/* Don't evaluate args to function */
 #define	FN_PRIV		4	/* Perform user-def function as holding obj */

@@ -2928,6 +2928,82 @@ FUNCTION(fun_lstack)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_x: Returns a variable. x(<variable name>)
+ * fun_setx: Sets a variable. xset(<variable name>,<value>)
+ */
+
+FUNCTION(fun_x)
+{
+    VARENT *xvar;
+
+    char tbuf[SBUF_SIZE], **tp;
+
+    /* Variable string is '<dbref number minus #>.<variable name>' */
+
+    *tp = tbuf;
+    safe_ltos(tbuf, tp, player);
+    safe_chr('.', tbuf, tp);
+    safe_str(fargs[0], tbuf, tp);
+    **tp = '\0';
+
+    if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab)))
+	safe_str(xvar->text, buff, bufc);
+}
+
+FUNCTION(fun_setx)
+{
+    VARENT *xvar;
+    char tbuf[SBUF_SIZE], **tp;
+
+    /* Variable string is '<dbref number minus #>.<variable name>' */
+
+    *tp = tbuf;
+    safe_ltos(tbuf, tp, player);
+    safe_chr('.', tbuf, tp);
+    safe_str(fargs[0], tbuf, tp);
+    **tp = '\0';
+
+    /* Search for it. If it exists, replace it. If we get a blank string,
+     * delete the variable.
+     */
+
+    if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab))) {
+	if (xvar->text) {
+	    XFREE(xvar->text, "xvar_data");
+	}
+	if (fargs[1] && *fargs[1]) {
+	    xvar->text = (char *)
+		XMALLOC(sizeof(char *) * (strlen(fargs[1]) + 1),
+			"xvar_data");
+	    if (!xvar->text)
+		return;		/* out of memory */
+	    strcpy(xvar->text, fargs[1]);
+	} else {
+	    xvar->text = NULL;
+	    XFREE(xvar, "xvar_struct");
+	    hashdelete(tbuf, &mudstate.vars_htab);
+	}
+    } else {
+
+	/* We haven't found it. If it's non-empty, set it. */
+
+	if (fargs[1] && *fargs[1]) {
+	    xvar = (VARENT *) XMALLOC(sizeof(VARENT), "xvar_struct");
+	    if (!xvar)
+		return;		/* out of memory */
+	    xvar->text = (char *)
+		XMALLOC(sizeof(char *) * (strlen(fargs[1]) + 1),
+			"xvar_data");
+	    if (!xvar->text)
+		return;		/* out of memory */
+	    strcpy(xvar->text, fargs[1]);
+	    hashadd(tbuf, (int *) xvar, &mudstate.vars_htab);
+	}
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
  * fun_regmatch: Return 0 or 1 depending on whether or not a regular
  * expression matches a string. If a third argument is specified, dump
  * the results of a regexp pattern match into a set of arbitrary r()-registers.

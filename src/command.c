@@ -2819,6 +2819,7 @@ dbref player;
 	list_nhashstat(player, "Forwardlists", &mudstate.fwdlist_htab);
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
 	list_nhashstat(player, "Object Stacks", &mudstate.objstack_htab);
+	list_hashstat(player, "Variables", &mudstate.vars_htab);
 #ifdef USE_MAIL
 	if (mudconf.have_mailer)
 	    list_nhashstat(player, "Mail messages", &mudstate.mail_htab);

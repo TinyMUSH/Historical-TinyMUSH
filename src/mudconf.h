@@ -343,6 +343,7 @@ struct statedata {
 #ifdef PARSE_TREES
 	NHSHTAB tree_htab;	/* Parse trees for evaluation */
 #endif
+	HASHTAB vars_htab;	/* Persistent variables hashtable */
 	HASHTAB	news_htab;	/* News topics hashtable */
 	HASHTAB	help_htab;	/* Help topics hashtable */
 	HASHTAB	wizhelp_htab;	/* Wizard help topics hashtable */ 

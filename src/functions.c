@@ -135,6 +135,8 @@ XFUNCTION(fun_swap);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_translate);
 XFUNCTION(fun_lastcreate);
+XFUNCTION(fun_x);
+XFUNCTION(fun_setx);
 
 #ifdef PUEBLO_SUPPORT
 XFUNCTION(fun_html_escape);
@@ -5536,6 +5538,7 @@ FUN flist[] = {
 {"SETINTER",	fun_setinter,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SETQ",	fun_setq,	2,  0,		CA_PUBLIC},
 {"SETR",	fun_setr,	2,  0,		CA_PUBLIC},
+{"SETX",	fun_setx,	2,  0,		CA_PUBLIC},
 {"SETUNION",	fun_setunion,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SHL",		fun_shl,	2,  0,		CA_PUBLIC},
 {"SHR",		fun_shr,	2,  0,		CA_PUBLIC},
@@ -5603,6 +5606,7 @@ FUN flist[] = {
 {"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC},
 {"WORDPOS",     fun_wordpos,    0,  FN_VARARGS,	CA_PUBLIC},
 {"WORDS",	fun_words,	0,  FN_VARARGS,	CA_PUBLIC},
+{"X",		fun_x,		1,  0,		CA_PUBLIC},
 {"XCON",	fun_xcon,	3,  0,		CA_PUBLIC},
 {"XGET",	fun_xget,	2,  0,		CA_PUBLIC},
 {"XOR",		fun_xor,	0,  FN_VARARGS,	CA_PUBLIC},
