@@ -974,8 +974,8 @@ int db_format, db_version;
 		    newf2 &= ~GAGGED;
 		    newf2 |= ANSI;
 		}
-		if (newf2 & COMPRESS) {
-		    newf2 &= ~COMPRESS;
+		if (newf2 & PLACEHOLDER) {
+		    newf2 &= ~PLACEHOLDER;
 		    s_Powers(thing, Powers(thing) | POW_BUILDER);
 		}
 	} else if (db_format == F_MUX) {
@@ -994,6 +994,13 @@ int db_format, db_version;
 	    } else {
 		/* And if it wasn't NO_COMMAND, then it should be COMMANDS. */
 		newf2 |= HAS_COMMANDS;
+	    }
+
+	    if (newf2 & PLACEHOLDER) {
+		/* This used to be the COMPRESS flag, which didn't do
+		 * anything, and still doesn't do anything.
+		 */
+		newf2 &= ~PLACEHOLDER;
 	    }
 
 	} else if (db_format == F_TINYMUSH) {
