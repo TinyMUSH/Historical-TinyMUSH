@@ -1700,9 +1700,9 @@ char *argv[];
 	}
 #endif /* HAVE_DLOPEN */
 
-	for (mindb = 0; mindb < MAX_GLOBAL_REGS; mindb++) {
-	    mudstate.global_regs[mindb] = NULL;
-	    mudstate.glob_reg_len[mindb] = 0;
+	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+	    mudstate.global_regs[i] = NULL;
+	    mudstate.glob_reg_len[i] = 0;
 	}
 	mudstate.now = time(NULL);
 
@@ -1748,10 +1748,13 @@ char *argv[];
 
 #ifndef MEMORY_BASED
 	/* Clear all reference flags in the cache-- what happens when the game
-	 * loads is NOT representative of normal cache behavior :)
+	 * loads is NOT representative of normal cache behavior :) Neither is
+	 * creating a new db, but in that case the objects exist only in the
+	 * cache...
 	 */
 
-	cache_reset();
+	if (!mindb)
+		cache_reset();
 #endif /* MEMORY_BASED */
 
 	/* Start the DNS and identd lookup slave process */
