@@ -183,6 +183,10 @@ struct confdata {
 	dbref	start_home;	/* initial HOME for players */
 	dbref	default_home;	/* HOME when home is inaccessable */
 	dbref	master_room;	/* Room containing default cmds/exits/etc */
+	dbref	player_parent;	/* Parent that players start with */
+	dbref	room_parent;	/* Parent that rooms start with */
+	dbref	exit_parent;	/* Parent that exits start with */
+	dbref	thing_parent;	/* Parent that things start with */
 	FLAGSET	player_flags;	/* Flags players start with */
 	FLAGSET	room_flags;	/* Flags rooms start with */
 	FLAGSET	exit_flags;	/* Flags exits start with */

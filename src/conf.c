@@ -219,6 +219,10 @@ void NDECL(cf_init)
 	mudconf.start_home = NOTHING;
 	mudconf.default_home = NOTHING;
 	mudconf.master_room = NOTHING;
+	mudconf.player_parent = NOTHING;
+	mudconf.room_parent = NOTHING;
+	mudconf.exit_parent = NOTHING;
+	mudconf.thing_parent = NOTHING;
 	mudconf.player_flags.word1 = 0;
 	mudconf.player_flags.word2 = 0;
 	mudconf.room_flags.word1 = 0;
@@ -1035,6 +1039,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.exam_public,		0},
 {(char *)"exit_flags",
 	cf_set_flags,	CA_GOD,		(int *)&mudconf.exit_flags,	0},
+{(char *)"exit_parent",
+	cf_int,		CA_GOD,		&mudconf.exit_parent,		0},
 {(char *)"exit_quota",
 	cf_int,		CA_GOD,		&mudconf.exit_quota,		0},
 {(char *)"events_daily_hour",
@@ -1210,6 +1216,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.match_mine_pl,		0},
 {(char *)"player_name_spaces",
 	cf_bool,	CA_GOD,		&mudconf.name_spaces,		0},
+{(char *)"player_parent",
+	cf_int,		CA_GOD,		&mudconf.player_parent,		0},
 {(char *)"player_queue_limit",
 	cf_int,		CA_GOD,		&mudconf.queuemax,		0},
 {(char *)"player_quota",
@@ -1265,6 +1273,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.robot_speak,		0},
 {(char *)"room_flags",
 	cf_set_flags,	CA_GOD,		(int *)&mudconf.room_flags,	0},
+{(char *)"room_parent",
+	cf_int,		CA_GOD,		&mudconf.room_parent,		0},
 {(char *)"room_quota",
 	cf_int,		CA_GOD,		&mudconf.room_quota,		0},
 {(char *)"sacrifice_adjust",
@@ -1311,6 +1321,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.terse_movemsg,		0},
 {(char *)"thing_flags",
 	cf_set_flags,	CA_GOD,		(int *)&mudconf.thing_flags,	0},
+{(char *)"thing_parent",
+	cf_int,		CA_GOD,		&mudconf.thing_parent,		0},
 {(char *)"thing_quota",
 	cf_int,		CA_GOD,		&mudconf.thing_quota,		0},
 {(char *)"timeslice",

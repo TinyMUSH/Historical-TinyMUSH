@@ -2137,6 +2137,11 @@ dbref player;
 	else
 	    raw_notify(player, "Player names may not contain spaces.");
 
+	raw_notify(player,
+		   tprintf("Default Parents:  Room...#%d  Exit...#%d  Thing...#%d  Player...#%d",
+			   mudconf.room_parent, mudconf.exit_parent,
+			   mudconf.thing_parent, mudconf.player_parent));
+
 	/* --- Config options related to Programming. -- */
 
 	raw_notify(player,
