@@ -47,12 +47,12 @@ module <name>
 
 Modules can only be loaded when the game is started.
 
-CAUTION: If you are changing a dynamically-loaded module, do NOT just
-drop the new shared object into place and do a @restart. Do a @shutdown,
-put the new shared object into place, and then a Startmush. If you don't,
-there is a very high probability that the game will crash hard, and
-do horrible things to your database. Similarly, if you are adding or
-deleting a module, you should probably @shutdown and do a clean start.
+CAUTION: If you are changing a dynamically-loaded module while the
+game is running, do NOT overwrite the old shared object. Move
+the old game/modules/<name>.so to game/modules/<name>.so~ before
+moving the new shared object into place. If you don't, the game
+will crash hard when you attempt to @restart, and do horrible
+things to your database.
 
 -----------------------------------------------------------------------------
 
@@ -246,3 +246,87 @@ void mod_<name>_announce_disconnect(dbref player, const char *reason)
 	Run when a player disconnects, after all other disconnect stuff
 	has been executed, but before the descriptor has been deleted.
 
+-----------------------------------------------------------------------------
+
+MODULE API FUNCTION: process_command
+
+int mod_<name>_process_command(dbref player, dbref cause, int interactive,
+				char *command, char *args[], int nargs)
+
+	Run when any object tries to execute a command, before any 
+	built-in commands or softcoded commands are checked.
+
+	Returns a number: 0 on failure, something greater than 0 on
+	success, and something less than 0 on failure that should stop
+	further matching of commands.
+
+	This handler tries to run on each module in sequence. If the
+	handler is not defined for a module, or 0 is returned, it tries
+	the next module. A return of a number other than 0 will result
+	in not running this handler on the other modules, this time 
+	around.
+
+	The calling server function considers a result greater than 0 to
+	be a successful	command match, and will consider the command
+	taken care of.
+
+	The 'player' and 'cause' parameters are the dbrefs of the objects
+	taking the action, and which caused the action (the enactor): the
+	equivalent of %! and %#, respectively.
+
+	The 'interactive' parameter is passed as 1 if the command was
+	entered from the keyboard (i.e., received over the network),
+	and 0 otherwise.
+
+	The 'command' parameter is a pointer to the command entered,
+	space-compressed if space compression is turned on. This
+	string SHOULD NOT be destructively modified.
+
+	The 'args' parameter consists of the stack (%0 - %9) and the
+	'nargs' parameter is the number of arguments on the stack.
+
+-----------------------------------------------------------------------------
+
+MODULE API FUNCTION: process_no_match
+
+int mod_<name>_process_no_match(dbref player, dbref cause, int interactive,
+				char *eval_cmd, char *raw_cmd,
+				char *args[], int nargs)
+
+	Run when any object tries to execute a command, after all built-in
+	and softcoded commands are checked. This occurs right before a
+	"Huh?" message is given.
+
+	Returns a number: 0 on failure, something greater than 0 on
+	success, and something less than 0 on failure that should stop
+	further matching of commands.
+
+	This handler tries to run on each module in sequence, most
+	recently-loaded module first, to least recently-loaded module
+	last. If the handler is not defined for a module, or 0 is
+	returned, it tries the next module. A return of a number other
+	than 0 will result in not running this handler on the other
+	modules, this time around.
+
+	The calling server function considers a non-zero result to
+	be a successful	command match, and will consider the command
+	taken care of. (Note that this is different from process_command,
+	which considers only results greater than zero to be successful.)
+
+	The 'player' and 'cause' parameters are the dbrefs of the objects
+	taking the action, and which caused the action (the enactor): the
+	equivalent of %! and %#, respectively.
+
+	The 'interactive' parameter is passed as 1 if the command was
+	entered from the keyboard (i.e., received over the network),
+	and 0 otherwise.
+
+	The 'eval_cmd' parameter is a pointer to the command, after it
+	has gone through percent-substitutions and other evaluations.
+
+	The 'raw_cmd' parameter is a pointer to the command entered,
+	space-compressed if space compression is turned on, but not
+	otherwise evaluated.
+
+	The 'args' parameter consists of the stack (%0 - %9) and the
+	'nargs' parameter is the number of arguments on the stack.
