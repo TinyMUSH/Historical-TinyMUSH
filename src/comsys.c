@@ -330,11 +330,17 @@ struct comsys *c;
 {
 	int i;
 
-	free(c->alias);
-	for (i = 0; i < c->numchannels; i++)
-		free(c->channels[i]);
-	free(c->channels);
-	free(c);
+	if (c) {
+	    if (c->alias)
+		free(c->alias);
+	    for (i = 0; i < c->numchannels; i++) {
+		if (c->channels[i])
+		    free(c->channels[i]);
+	    }
+	    if (c->channels)
+		free(c->channels);
+	    free(c);
+	}
 }
 
 void sort_com_aliases(c)
