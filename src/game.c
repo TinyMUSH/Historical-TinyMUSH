@@ -1820,7 +1820,7 @@ char *argv[];
 			/* Call all modules to write to GDBM */
 			
 			db_lock();
-			CALL_ALL_MODULES(db_write, ());
+			CALL_ALL_MODULES_NOCACHE(db_write, (void), ());
 			db_unlock();
 		} else {
 			db_write_flatfile(stdout, F_TINYMUSH, db_ver | db_flags);
