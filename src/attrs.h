@@ -7,26 +7,27 @@
 #define __ATTRS_H
 
 /* Attribute flags */
-#define AF_ODARK	0x00001	/* players other than owner can't see it */
-#define AF_DARK		0x00002	/* No one can see it */
-#define AF_WIZARD	0x00004	/* only wizards can change it */
-#define AF_MDARK	0x00008	/* Only wizards can see it. Dark to mortals */
-#define AF_INTERNAL	0x00010	/* Don't show even to #1 */
-#define AF_NOCMD	0x00020	/* Don't create a @ command for it */
-#define AF_LOCK		0x00040	/* Attribute is locked */
-#define AF_DELETED	0x00080	/* Attribute should be ignored */
-#define AF_NOPROG	0x00100	/* Don't process $-commands from this attr */
-#define AF_GOD		0x00200	/* Only #1 can change it */
-#define AF_IS_LOCK	0x00400	/* Attribute is a lock */
-#define AF_VISUAL	0x00800	/* Anyone can see */
-#define AF_PRIVATE	0x01000	/* Not inherited by children */
-#define AF_HTML		0x02000	/* Don't HTML escape this in did_it() */
-#define AF_NOPARSE	0x04000	/* Don't evaluate when checking for $-cmds */
-#define AF_REGEXP	0x08000	/* Do a regexp rather than wildcard match */
-#define AF_NOCLONE	0x10000	/* Don't copy this attr when cloning. */
-#define AF_CONST	0x20000	/* No one can change it (set by server) */
-#define AF_CASE		0x40000 /* Regexp matches are case-sensitive */
-#define AF_STRUCTURE	0x80000	/* Attribute contains a structure */
+#define AF_ODARK	0x00000001	/* players other than owner can't see it */
+#define AF_DARK		0x00000002	/* No one can see it */
+#define AF_WIZARD	0x00000004	/* only wizards can change it */
+#define AF_MDARK	0x00000008	/* Only wizards can see it. Dark to mortals */
+#define AF_INTERNAL	0x00000010	/* Don't show even to #1 */
+#define AF_NOCMD	0x00000020	/* Don't create a @ command for it */
+#define AF_LOCK		0x00000040	/* Attribute is locked */
+#define AF_DELETED	0x00000080	/* Attribute should be ignored */
+#define AF_NOPROG	0x00000100	/* Don't process $-commands from this attr */
+#define AF_GOD		0x00000200	/* Only #1 can change it */
+#define AF_IS_LOCK	0x00000400	/* Attribute is a lock */
+#define AF_VISUAL	0x00000800	/* Anyone can see */
+#define AF_PRIVATE	0x00001000	/* Not inherited by children */
+#define AF_HTML		0x00002000	/* Don't HTML escape this in did_it() */
+#define AF_NOPARSE	0x00004000	/* Don't evaluate when checking for $-cmds */
+#define AF_REGEXP	0x00008000	/* Do a regexp rather than wildcard match */
+#define AF_NOCLONE	0x00010000	/* Don't copy this attr when cloning. */
+#define AF_CONST	0x00020000	/* No one can change it (set by server) */
+#define AF_CASE		0x00040000	/* Regexp matches are case-sensitive */
+#define AF_STRUCTURE	0x00080000	/* Attribute contains a structure */
+#define AF_DIRTY	0x00100000	/* Attribute number has been modified */
 
 #define A_NULL		0	/* Nothing */
 #define	A_OSUCC		1	/* Others success message */

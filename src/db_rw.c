@@ -1057,6 +1057,9 @@ int db_read()
 			memcpy((void *)&vattr_flags, (void *)dptr, sizeof(int));
 			dptr++;
 			
+			/* Make sure they're not marked dirty */
+			vattr_flags &= ~AF_DIRTY;
+
 			/* dptr now points to the beginning of the atr name */
 			vattr_define((char *)dptr, i, vattr_flags);
 			free(data);
@@ -1279,7 +1282,8 @@ int format, version;
 #endif
 				fprintf(f, "+A%d\n\"%d:%s\"\n",
 					vp->number, vp->flags, vp->name);
-			} else {
+			} else if (vp->flags & AF_DIRTY) {
+				/* Only write the dirty attribute numbers */
 				len = strlen(vp->name) + 1;
 				dptr = data = (int *)malloc(sizeof(int) + len);
 				memcpy((void *)dptr, (void *)&vp->flags, sizeof(int));

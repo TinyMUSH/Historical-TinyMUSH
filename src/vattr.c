@@ -14,6 +14,7 @@
 #include "externs.h"	/* required by code */
 
 #include "vattr.h"	/* required by code */
+#include "attrs.h"	/* required by code */
 
 static void FDECL(fixcase, (char *));
 static char FDECL(*store_string, (char *));
@@ -67,6 +68,7 @@ int flags;
 	if (((number = mudstate.attr_next++) & 0x7f) == 0)
 		number = mudstate.attr_next++;
 	anum_extend(number);
+	flags |= AF_DIRTY;
 	return (vattr_define(name, number, flags));
 }
 
@@ -76,9 +78,7 @@ int number, flags;
 {
 	VATTR *vp;
 
-	/*
-	 * Be ruthless. 
-	 */
+	/* Be ruthless. */
 
 	if (strlen(name) >= VNAME_SIZE)
 		name[VNAME_SIZE - 1] = '\0';
