@@ -547,6 +547,16 @@ However, your best bet in this scenario is to restore your database
 from backup. This means it's very important to keep backups; we strongly
 recommend that you back up once a week at minimum, if not nightly.
 
+If you don't have a recent backup you can restore from, you can try a
+database reconstruction. This is likely to be most effective if you
+have corruption resulting from a host machine crash or disk problem;
+you might not be able to get back all of your data, but it'll at least
+be something. If you haven't moved any files around, you can just go
+into the game directory and type './Reconstruct'. If it completes
+successfully, you can try to start it up with './Startmush' (though
+doing a './Backup' first would be a good idea). If it doesn't complete
+successfully, you'll need to revert to a backup.
+
 ------------------------------------------------------------------------------
 
 How do I set up a link to an external SQL database?
