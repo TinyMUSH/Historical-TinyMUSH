@@ -271,7 +271,12 @@ FUNCTION(fun_tel)
 
 FUNCTION(fun_pemit)
 {
-	do_pemit_list(player, fargs[0], fargs[1]);
+	do_pemit_list(player, fargs[0], fargs[1], 0);
+}
+
+FUNCTION(fun_remit)
+{
+    	do_pemit_list(player, fargs[0], fargs[1], 1);
 }
 
 /*------------------------------------------------------------------------

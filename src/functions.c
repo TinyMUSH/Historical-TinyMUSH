@@ -55,6 +55,7 @@ XFUNCTION(fun_zone);
 XFUNCTION(fun_link);
 XFUNCTION(fun_tel);
 XFUNCTION(fun_pemit);
+XFUNCTION(fun_remit);
 XFUNCTION(fun_create);
 XFUNCTION(fun_set);
 #endif
@@ -5037,6 +5038,7 @@ FUN flist[] = {
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
 {"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC},
+{"REMIT",	fun_remit,	2,  0,		CA_PUBLIC},
 {"REMOVE",	fun_remove,	0,  FN_VARARGS,	CA_PUBLIC},
 {"REPEAT",	fun_repeat,	2,  0,		CA_PUBLIC},
 {"REPLACE",	fun_replace,	0,  FN_VARARGS,	CA_PUBLIC},
