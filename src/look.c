@@ -158,6 +158,7 @@ const char *exit_name;
 		    (!Dark(thing) && !isdark)) {
 		    strcpy(buff, Name(thing));
 		    for (e = buff; *e && (*e != ';'); e++) ;
+		    safe_ansi_normal(buff, &e);
 		    *e = '\0';
 		    if (Location(thing) == NOTHING) {
 			notify(player,
@@ -186,6 +187,7 @@ const char *exit_name;
 			safe_known_str((char *)"  ", 2, buff, &e);
 		    for (s = Name(thing); *s && (*s != ';'); s++)
 			safe_chr(*s, buff1, &e1);
+		    safe_ansi_normal(buff1, &e1);
 		    *e1 = '\0';
 		    /* Copy the exit name into 'buff' */
 #ifdef PUEBLO_SUPPORT
@@ -1559,6 +1561,7 @@ int key;
 
 			for (s = Name(thing); *s && (*s != ';'); s++)
 				safe_chr(*s, buff, &e);
+			safe_ansi_normal(buff, &e);
 			safe_str((char *)"  ", buff, &e);
 		}
 		*e = '\0';
@@ -1784,6 +1787,7 @@ int key, is_loc;
 			buf2 = alloc_lbuf("sweep_check.name");
 			strcpy(buf2, Name(what));
 			for (bp = buf2; *bp && (*bp != ';'); bp++) ;
+			safe_ansi_normal(buf2, &bp);
 			*bp = '\0';
 			notify(player,
 			     tprintf("  %s is listening. [%s]", buf2, buf));
