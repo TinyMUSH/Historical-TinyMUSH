@@ -231,6 +231,7 @@ XFUNCTION(fun_type);
 XFUNCTION(fun_hastype);
 XFUNCTION(fun_lastcreate);
 XFUNCTION(fun_speak);
+XFUNCTION(handle_okpres);
 
 /* From funstring.c */
 
@@ -462,6 +463,8 @@ FUN flist[] = {
 {"HASMODULE",	fun_hasmodule,	1,  0,		CA_PUBLIC,	NULL},
 {"HASPOWER",    fun_haspower,   2,  0,          CA_PUBLIC,	NULL},
 {"HASTYPE",	fun_hastype,	2,  0,		CA_PUBLIC,	NULL},
+{"HEARS",	handle_okpres,	2,  PRESFN_HEARS,
+						CA_PUBLIC,	NULL},
 {"HELPTEXT",	fun_helptext,	2,  0,		CA_PUBLIC,	NULL},
 {"HOME",	fun_home,	1,  0,		CA_PUBLIC,	NULL},
 #ifdef PUEBLO_SUPPORT
@@ -489,6 +492,8 @@ FUN flist[] = {
 {"ISTRUE",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|BOOL_COND_NONE|FILT_COND_TRUE,
 						CA_PUBLIC,	NULL},
 {"ITEXT",	fun_itext,	1,  0,		CA_PUBLIC,	NULL},
+{"KNOWS",	handle_okpres,	2,  PRESFN_KNOWS,
+						CA_PUBLIC,	NULL},
 {"LADD",	fun_ladd,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LAND",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_AND,
 						CA_PUBLIC,	NULL},
@@ -556,6 +561,8 @@ FUN flist[] = {
 {"MODULO",	fun_modulo,	2,  0,		CA_PUBLIC,	NULL},
 {"MODIFY",	fun_modify,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"MONEY",	fun_money,	1,  0,		CA_PUBLIC,	NULL},
+{"MOVES",	handle_okpres,	2,  PRESFN_MOVES,
+						CA_PUBLIC,	NULL},
 {"MUDNAME",	fun_mudname,	0,  0,		CA_PUBLIC,	NULL},
 {"MUL",		fun_mul,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"MUNGE",	fun_munge,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},

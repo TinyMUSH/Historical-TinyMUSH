@@ -241,13 +241,13 @@ FUNCTION(fun_controls)
 
 	x = match_thing(player, fargs[0]);
 	if (x == NOTHING) {
-		safe_tprintf_str(buff, bufc, "%s", "#-1 ARG1 NOT FOUND");
-		return;
+	    safe_str("#-1 ARG1 NOT FOUND", buff, bufc);
+	    return;
 	}
 	y = match_thing(player, fargs[1]);
 	if (y == NOTHING) {
-		safe_tprintf_str(buff, bufc, "%s", "#-1 ARG2 NOT FOUND");
-		return;
+	    safe_str("#-2 ARG2 NOT FOUND", buff, bufc);
+	    return;
 	}
 	safe_bool(buff, bufc, Controls(x, y));
 }
@@ -294,6 +294,49 @@ FUNCTION(fun_nearby)
 	} else {
 	    safe_bool(buff, bufc, nearby(obj1, obj2));
 	}
+}
+
+/* ---------------------------------------------------------------------------
+ * Presence functions.
+ *   hears(<object>, <speaker>): Can <object> hear <speaker> speak?
+ *   knows(<object>, <target>): Can <object> know about <target>?
+ *   moves(<object>, <mover>): Can <object> see <mover> move?
+ */
+
+FUNCTION(handle_okpres)
+{
+    int oper;
+    dbref object, actor;
+
+    object = match_thing(player, fargs[0]);
+    if (!Good_obj(object)) {
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    actor = match_thing(player, fargs[1]);
+    if (!Good_obj(actor)) {
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    oper = ((FUN *)fargs[-1])->flags & PRESFN_OPER;
+
+    if (oper == PRESFN_HEARS) {
+	safe_bool(buff, bufc,
+		  ((Unreal(actor) && !Check_Heard(object, actor)) ||
+		   (Unreal(object) && !Check_Hears(actor, object))) ? 0 : 1);
+    } else if (oper == PRESFN_MOVES) {
+	safe_bool(buff, bufc,
+		  ((Unreal(actor) && !Check_Noticed(object, actor)) ||
+		   (Unreal(object) && !Check_Notices(actor, object))) ? 0 : 1);
+    } else if (oper == PRESFN_KNOWS) {
+	safe_bool(buff, bufc,
+		  ((Unreal(actor) && !Check_Known(object, actor)) ||
+		   (Unreal(object) && !Check_Knows(actor, object))) ? 0 : 1);
+    } else {
+	safe_chr('0', buff, bufc);
+    }
 }
 
 /* ---------------------------------------------------------------------------

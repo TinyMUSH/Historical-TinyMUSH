@@ -371,6 +371,12 @@ if ((l) > 0) { \
 #define FILT_COND_TRUE	0x030	/* show only true results */
 #define LOOP_NOTIFY	0x100	/* send loop results directly to enactor */
 
+/* from handle_okpres (hears, moves, knows): */
+#define PRESFN_OPER	0x0f	/* Mask to select bits */
+#define PRESFN_HEARS	0x01	/* Detect hearing */
+#define PRESFN_MOVES	0x02	/* Detect movement */
+#define PRESFN_KNOWS	0x04	/* Detect knows */
+
 /* from handle_lattr (lattr, nattr): */
 #define LATTR_COUNT	0x01	/* just return attribute count */
 

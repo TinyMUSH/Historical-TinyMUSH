@@ -5430,17 +5430,18 @@ See also: @link, @open.
 	controls()	doing()		elock()		entrances()
 	exit()		flags()		findable()	fullname()
 	hasflag()	hasflags()	haspower()	hastype()	
-	home()		idle()		inzone()	lastaccess()	
-	lastcreate()	lastmod()	lcon()		lexits()	
-	lparent()	loc()		locate()	lock()		
-	lwho()		mail()		mailfrom()	money()		
-	name()		nearby()	next()		num()		
-	objmem()	orflags()	owner()		parent()	
-	pfind()		playmem()	pmatch()	ports()		
-	programmer()	rloc()		room()		search()	
-	sees()		session()	stats()		type()		
-	visible()	where()		writable()	xcon()		
-	zone()		zwho()
+	hears()		home()		idle()		inzone()	
+	knows()		lastaccess()	lastcreate()	lastmod()	
+	lcon()		lexits()	lparent()	loc()		
+	locate()	lock()		lwho()		mail()		
+	mailfrom()	money()		moves()		name()		
+	nearby()	next()		num()		objmem()
+	orflags()	owner()		parent()	pfind()		
+	playmem()	pmatch()	ports()		programmer()	
+	rloc()		room()		search()	sees()
+	session()	stats()		type()		visible()
+	where()		writable()	xcon()		zone()
+	zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -11406,6 +11407,31 @@ performed and the walk down the list stops.
     > say [until(EVAL_FN,COND_FN,0 1 2 3,4 2 1 0,-,,|)]
     You say, "4|3|3"
  
+& HEARS()
+& KNOWS()
+& MOVES()
+  Functions:  hears(<object>, <actor>)
+              knows(<object>, <actor>)
+              moves(<object>, <actor))
+ 
+  These functions return 1 if <object> can detect <actor> doing something,
+  and 0 if not. If either <object> or <actor> is not a valid object, 0 is
+  returned.
+  
+  hears():  Can <object> hear <actor> when <actor> speaks?
+            If <object> is set PRESENCE, <actor> must pass its HearsLock.
+            If <actor> is set PRESENCE, <object> must pass its HeardLock.
+ 
+  knows():  Can <object> see <actor>?
+            If <object> is set PRESENCE, <actor> must pass its KnowsLock.
+            If <actor> is set PRESENCE, <object> must pass its KnownLock.
+          
+  moves():  Can <object> notice <actor> moving?
+            If <object> is set PRESENCE, <actor> must pass its MovesLock.
+            If <actor> is set PRESENCE, <object> must pass its MovedLock.
+ 
+  See also: PRESENCE
+  
 & PUSH()
   Function: push([<object>,]<data>)
  
