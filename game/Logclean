@@ -15,14 +15,18 @@ PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
 #
 #	Check if the MUSH is running.
 #
-# SysV ps
-nmush=`ps -ef | egrep netmush | egrep -v egrep | wc -l`
+if [ -r mush.pid ]; then
+	oldpid=`cat mush.pid`
+	if [ $oldpid -gt 1 ]; then
+		nmush=`ps | grep $oldpid | grep netmush | wc -l`
+	else
+		nmush=0
+	fi
+fi
+
 #
-# BSD ps - comment out the above and uncomment this, if necessary
-# nmush=`ps ux | egrep netmush | egrep -v egrep | wc -l`
-
 #	Check for options.
-
+#
 del_old=0
 del_all=0
 if [ "$1" = "-o" ]; then
