@@ -4676,10 +4676,16 @@ FUNCTION(fun_center)
 	width = atoi(fargs[1]);
 	len = strlen((char *)strip_ansi(fargs[0]));
 
+	if (width > LBUF_SIZE) {
+		safe_str("#-1 OUT OF RANGE", buff, bufc);
+		return;
+	}
+	
 	if (len >= width) {
 		safe_str(fargs[0], buff, bufc);
 		return;
 	}
+	
 	lead_chrs = (width / 2) - (len / 2) + .5;
 	for (i = 0; i < lead_chrs; i++)
 		safe_chr(sep, buff, bufc);
