@@ -735,6 +735,9 @@ The initial beta release was on 9/27/99.
 
 - Fix: Only God can set attributes on himself. [3.0b14]
 
+- Fix: Dates of the year 2000 and later are now logged as 00, 01, etc.
+  rather than 100, 101, etc. [2.0]
+
 - Fix: rawdump now works again (modified to work with new gdbm version). [3.0]
 
 - Misc: Only God can @program himself. (This is a better fusion of the
