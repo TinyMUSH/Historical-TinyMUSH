@@ -110,23 +110,31 @@ int key;
 #ifndef STANDALONE
 
     VATTR *vp, *vpx;
-    dbref i;
+    dbref i, end;
     int ca;
-    char *as;
+    char *as, *str;
     int *used_table;
 
     raw_broadcast(0,
 	      "GAME: Cleaning database. Game may freeze for a few minutes.");
 
-    used_table = (int *) XCALLOC(mudstate.attr_next, sizeof(int), "dbclean.used_table");
+    used_table = (int *) XCALLOC(mudstate.attr_next, sizeof(int),
+				 "dbclean.used_table");
+
+    /* Non-user-defined attributes are always considered used. */
+
+    for (i = 0; i < A_USER_START; i++)
+	used_table[i] = i;
 
     /* Walk the database. Mark all the attribute numbers in use. */
 
+    atr_push();
     DO_WHOLE_DB(i) {
 	for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
-	    used_table[ca] = 1;
+	    used_table[ca] = ca;
 	}
     }
+    atr_pop();
 
     /* Walk the vattr table. If a number isn't in use, zorch it. */
 
@@ -140,6 +148,66 @@ int key;
 	    XFREE(vpx, "dbclean.vpx");
 	}
     }
+
+    /* Walk the table we've created of used statuses. When we find free
+     * slots, walk backwards to the first used slot at the end of the
+     * table. Write the number of the free slot into that used slot.
+     */
+
+    for (i = A_USER_START, end = mudstate.attr_next - 1;
+	 (i < mudstate.attr_next) && (i < end); i++) {
+	if (used_table[i] == 0) {
+	    while ((end > i) && (used_table[end] == 0)) {
+		end--;
+	    }
+	    if (end > i) {
+		used_table[end] = used_table[i] = i;
+		end--;
+	    }
+	}
+    }
+
+    /* Renumber the necessary attributes in the vattr tables. */
+
+    for (i = A_USER_START; i < mudstate.attr_next; i++) {
+	if (used_table[i] != i) {
+	    vp = (VATTR *) anum_get(i);
+	    if (vp) {
+		vp->number = used_table[i];
+		vp->flags |= AF_DIRTY;
+		anum_set(used_table[i], (ATTR *) vp);
+		anum_set(i, NULL);
+	    }
+	}
+    }
+
+    /* Now we walk the database. For every object, if we have an attribute
+     * we're renumbering (the slot number is not equal to the array value
+     * at that slot), we delete the old attribute and add the new one.
+     */
+
+    atr_push();
+    DO_WHOLE_DB(i) {
+	for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
+	    if (used_table[ca] != ca) {
+		str = atr_get_raw(i, ca);
+		atr_add_raw(i, used_table[ca], str);
+		atr_clr(i, ca);
+	    }
+	}
+    }
+    atr_pop();
+
+    /* The new end of the attribute table is the first thing we've
+     * renumbered.
+     */
+
+    for (end = A_USER_START;
+	 ((end == used_table[end]) && (end < mudstate.attr_next));
+	 end++)
+	;
+    mudstate.attr_next = end;
+
 
     XFREE(used_table, "dbclean.used_table");
 
