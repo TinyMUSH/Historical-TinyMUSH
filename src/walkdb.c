@@ -799,6 +799,7 @@ int key;
 char *arg;
 {
 	int flag, destitute;
+	int rcount, ecount, tcount, pcount, gcount;
 	char *buff, *outbuf, *bp;
 	dbref thing, from, to;
 	SEARCH searchparm;
@@ -822,6 +823,8 @@ char *arg;
 	}
 	outbuf = alloc_lbuf("do_search.outbuf");
 
+	rcount = ecount = tcount = pcount = gcount = 0;
+
 	/*
 	 * room search 
 	 */
@@ -839,6 +842,7 @@ char *arg;
 			buff = unparse_object(player, thing, 0);
 			notify(player, buff);
 			free_lbuf(buff);
+			rcount++;
 		}
 	}
 	/*
@@ -878,6 +882,7 @@ char *arg;
 			safe_chr(']', outbuf, &bp);
 			*bp = '\0';
 			notify(player, outbuf);
+			ecount++;
 		}
 	}
 	/*
@@ -907,6 +912,7 @@ char *arg;
 			safe_chr(']', outbuf, &bp);
 			*bp = '\0';
 			notify(player, outbuf);
+			tcount++;
 		}
 	}
 	/*
@@ -936,6 +942,7 @@ char *arg;
 			safe_chr(']', outbuf, &bp);
 			*bp = '\0';
 			notify(player, outbuf);
+			gcount++;
 		}
 	}
 	/*
@@ -967,6 +974,7 @@ char *arg;
 			}
 			*bp = '\0';
 			notify(player, outbuf);
+			pcount++;
 		}
 	}
 	/*
@@ -975,6 +983,11 @@ char *arg;
 
 	if (destitute) {
 		notify(player, "Nothing found.");
+	} else {
+	        sprintf(outbuf,
+			"\nFound:  Rooms...%d  Exits...%d  Objects...%d  Players...%d  Garbage...%d",
+			rcount, ecount, tcount, pcount, gcount);
+		notify(player, outbuf);
 	}
 	free_lbuf(outbuf);
 	olist_init();
