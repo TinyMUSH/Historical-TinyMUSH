@@ -53,7 +53,8 @@ char *password;
 	    move_object(player, mudconf.guest_start_room);
 	else
 	    move_object(player, mudconf.start_room);
-	s_Flags(player, Flags(player) & ~WIZARD);
+	s_Flags(player, (Flags(mudconf.guest_char) & ~TYPE_MASK & ~WIZARD) |
+		TYPE_PLAYER);
 	s_Pennies(player, Pennies(mudconf.guest_char));
 	s_Zone(player, Zone(mudconf.guest_char));
 	s_Parent(player, Parent(mudconf.guest_char));
