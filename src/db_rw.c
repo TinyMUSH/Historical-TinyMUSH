@@ -1257,6 +1257,7 @@ int format, version;
 	VATTR *vp, *vpx;
 	int n, end, ca, n_oldtotal, n_oldtop, n_deleted, n_renumbered;
 	int n_objt, n_atrt, got, anxt;
+	int *old_attrs_table;
 	char *as;
 
 	al_store();
@@ -1279,6 +1280,9 @@ int format, version;
 	    used_attrs_table = (int *) XCALLOC(mudstate.attr_next,
 					       sizeof(int),
 					       "flatfile.used_attrs_table");
+	    old_attrs_table = (int *) XCALLOC(mudstate.attr_next,
+					       sizeof(int),
+					       "flatfile.old_attrs_table");
 	    n_oldtotal = mudstate.attr_next;
 	    n_oldtop = anum_alc_top;
 	    n_deleted = n_renumbered = n_objt = n_atrt = 0;
@@ -1293,7 +1297,7 @@ int format, version;
 	    atr_push();
 	    DO_WHOLE_DB(i) {
 		for (ca = atr_head(i, &as); ca; ca = atr_next(&as))
-		    used_attrs_table[ca] = ca;
+		    used_attrs_table[ca] = old_attrs_table[ca] = ca;
 	    }
 	    atr_pop();
 
@@ -1310,6 +1314,7 @@ int format, version;
 	     * find free slots, walk backwards to the first used slot
 	     * at the end of the table. Write the number of the free
 	     * slot into that used slot.
+	     * Keep a mapping of what things used to be. 
 	     */
 
 	    for (n = A_USER_START, end = mudstate.attr_next - 1;
@@ -1318,6 +1323,7 @@ int format, version;
 		    while ((end > n) && (used_attrs_table[end] == 0))
 			end--;
 		    if (end > n) {
+			old_attrs_table[n] = end;
 			used_attrs_table[end] = used_attrs_table[n] = n;
 			end--;
 		    }
@@ -1357,10 +1363,10 @@ int format, version;
 	/* Dump user-named attribute info */
 
 	if (mudstate.standalone) {
-	    for (i = A_USER_START; i < mudstate.attr_next; i++) {
+	    for (i = A_USER_START; i < anxt; i++) {
 		if (used_attrs_table[i] == 0)
 		    continue;
-		vp = (VATTR *) anum_get(used_attrs_table[i]);
+		vp = (VATTR *) anum_get(old_attrs_table[i]);
 		if (vp) {
 		    if (!(vp->flags & AF_DELETED)) {
 			fprintf(f, "+A%d\n\"%d:%s\"\n",
@@ -1406,6 +1412,7 @@ int format, version;
 			    n_oldtotal, anxt, n_deleted, n_renumbered);
 		}
 		XFREE(used_attrs_table, "flatfile.used_attrs_table");
+		XFREE(old_attrs_table, "flatfile.old_attrs_table");
 	}
 
 	return (mudstate.db_top);
