@@ -763,7 +763,18 @@ CHANGES TO FUNCTIONS
 BUGFIX PATCHES
 
 Patchlevel 1:
-  - Fix of a potentially fatal error in the clearing of variables.
+
+  - Fixed a potentially fatal error in the clearing of variables.
     [3.0a4; S'ryon]
+
+Patchlevel 2:
+
+  - The equivalent of a @dbck is done, before a @restart, in order to
+    recycle garbage before writing out the database. [MUX; S'ryon]
+
+  - A fatal startup error under FreeBSD, related to helpfiles, has
+    been fixed. [3.0a5; Alex Garcia]
+
+  - Fixed a potentially fatal error in @dbclean. [3.0b5; Starlyn]
 
 =============================================================================
