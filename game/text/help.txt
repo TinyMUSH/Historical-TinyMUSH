@@ -4275,7 +4275,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Topic: Side-Effect Functions
  
 	create()	force()		link()		set()
-	tel()		trigger()	wipe()
+	tel()		trigger()	wait()		wipe()
  
 & LIST FUNCTIONS
   Topic: List Functions
@@ -8659,11 +8659,18 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Function: trigger(<object>/<attribute>,<arg 0>,<arg 1>,...,<arg N>)
  
   This side-effect function behaves identically to the command
-  '@trigger <object>/<attribute>=<arg 0>,<arg 1>,...<arg N>
+  '@trigger <object>/<attribute>=<arg 0>,<arg 1>,...<arg N>'
  
   Note that the triggered actions are threaded normally onto the command
   queue, and are thus not instantaneously executed.
  
+& WAIT()
+  Function: wait(<timer>,<command>)
+ 
+  This side-effect function behaves identically to the command
+  '@wait <timer>=<command>'. See 'help @wait' for the possible forms
+  that <timer> can take.
+  
 & WHILE()
   while([<uobj>/]<uattr>,[<cobj>/]<cattr>,<list>,<str>[,<delim>[,<output d>]])
  
