@@ -223,7 +223,7 @@ conc: portconc.o
 	$(CC) $(ALLCFLAGS) $(LIBS) -o conc portconc.o
 
 slave: slave.o
-	$(CC) $(ALLCFLAGS) $(LIBS) -o slave slave.o
+	$(CC) $(ALLCFLAGS) -o slave slave.o
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
