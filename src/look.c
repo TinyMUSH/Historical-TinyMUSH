@@ -653,7 +653,7 @@ char *name;
 			break;
 		case TYPE_EXIT:
 			look_simple(player, thing, !mudconf.terse_look);
-			if (Transparent(thing) && Good_obj(thing)) {
+			if (Transparent(thing) && Good_obj(Location(thing))) {
 				look_key &= ~LK_SHOWATTR;
 				look_in(player, Location(thing), look_key);
 			}
