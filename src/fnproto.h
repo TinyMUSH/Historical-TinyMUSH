@@ -73,6 +73,7 @@ XFUNCTION(fun_graball);
 XFUNCTION(fun_shuffle);
 XFUNCTION(fun_ledit);
 XFUNCTION(fun_itemize);
+XFUNCTION(fun_choose);
 
 /* From funmath.c */
 
@@ -376,6 +377,7 @@ FUN flist[] = {
 {"CENTER",	fun_center,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"CHILDREN",    fun_children,   1,  0,          CA_PUBLIC,	NULL},
 {"CHOMP",	fun_chomp,	1,  0,		CA_PUBLIC,	NULL},
+{"CHOOSE",	fun_choose,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"CLEARVARS",	fun_clearvars,	0,  0,		CA_PUBLIC,	NULL},
 {"COLUMNS",	fun_columns,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"COMMAND",	fun_command,	0,  FN_VARARGS, CA_PUBLIC,	NULL},

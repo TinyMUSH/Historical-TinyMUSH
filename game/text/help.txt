@@ -5387,21 +5387,21 @@ See also: @link, @open.
 & LIST FUNCTIONS
   Topic: List Functions
  
-	columns()	ctables()	delimit()	elements()	
-	extract()	filter()	filterbool()	first()		
-	fold()		grab()		graball()	index()		
-	insert()	itemize()	iter()		isfalse()
-	istrue()	last()		ldelete()	ldiff()		
-	ledit()		linter()	list()		lnum()		
-	loop()		lpos()		lrand()		lunion()	
-	map()		match()		matchall()	member()	
-	mix()		munge()		remove()	replace()	
-	regrab()	regraball()	regraballi()	regrabi()	
-	rest()		revwords()	rtables()	setdiff()	
-	setinter()	setunion()	shuffle()	sortby()	
-	sort()		splice()	step()		table()		
-	tables()	until()		whenfalse()	whentrue()	
-	while()		words()
+	choose()	columns()	ctables()	delimit()	
+	elements()	extract()	filter()	filterbool()	
+	first()		fold()		grab()		graball()	
+	index()		insert()	itemize()	iter()		
+	isfalse()	istrue()	last()		ldelete()	
+	ldiff()		ledit()		linter()	list()		
+	lnum()		loop()		lpos()		lrand()		
+	lunion()	map()		match()		matchall()	
+	member()	mix()		munge()		remove()	
+	replace()	regrab()	regraball()	regraballi()	
+	regrabi()	rest()		revwords()	rtables()	
+	setdiff()	setinter()	setunion()	shuffle()	
+	sortby()	sort()		splice()	step()		
+	table()		tables()	until()		whenfalse()	
+	whentrue()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -10705,6 +10705,18 @@ performed and the walk down the list stops.
  
   This function returns a list of objects that are parented to <object>.
   It may only be used by Wizards or Royalty.
+ 
+& CHOOSE()
+  Function: choose(<list of elements>, <list of weights>[, <delim>])
+ 
+  This function returns an element from <list of elements>, according to
+  a weighted random choice provided by <list of weights>. <list of elements>
+  is a <delim>-separated list (or space-separated if no delimiter is 
+  provided). <list of weights> is a space-separated list of numbers.
+ 
+  For instance, 'choose(abc def ghi jkl, 10 5 3 2)' has a 50% chance of
+  returning abc, a 25% chance of returning def, a 15% chance of returning
+  ghi, and a 10% chance of returning jkl.
  
 & COLUMNS()
   Function: columns(<list>, <width>[, <delim>[, <indent>]])

@@ -1902,3 +1902,59 @@ FUNCTION(fun_itemize)
     }
     XFREE(elems, "fun_itemize.elems");
 }
+
+/* ---------------------------------------------------------------------------
+ * fun_choose: Weighted random choice from a list.
+ *             choose(<list of items>,<list of weights>,<input delim>)
+ */
+
+FUNCTION(fun_choose)
+{
+    Delim isep;
+    int isep_len;
+    char **elems, **weights;
+    int i, num, n_elems, n_weights, *ip;
+    int sum = 0;
+
+    VaChk_Only_In(3);
+
+    n_elems = list2arr(&elems, LBUF_SIZE / 2, fargs[0], isep, isep_len);
+    n_weights = list2arr(&weights, LBUF_SIZE / 2, fargs[1], SPACE_DELIM, 1);
+
+    if (n_elems != n_weights) {
+	safe_str("#-1 LISTS MUST BE OF EQUAL SIZE", buff, bufc);
+	XFREE(elems, "fun_choose.elems");
+	XFREE(weights, "fun_choose.weights");
+	return;
+    }
+
+    /* Store the breakpoints, not the choose weights themselves. */
+
+    ip = (int *) XCALLOC(n_weights, sizeof(int), "fun_choose.ip");
+    for (i = 0; i < n_weights; i++) {
+	num = atoi(weights[i]);
+	if (num < 0)
+	    num = 0;
+	if (num == 0) {
+	    ip[i] = 0;
+	} else {
+	    sum += num;
+	    ip[i] = sum;
+	}
+    }
+
+    /* Use the "good" random function, not the system one. */
+
+    num = (int) (makerandom() * sum);
+
+    for (i = 0; i < n_weights; i++) {
+	if ((ip[i] != 0) && (num < ip[i])) {
+	    safe_str(elems[i], buff, bufc);
+	    break;
+	}
+    }
+
+    XFREE(ip, "fun_choose.ip");
+    XFREE(elems, "fun_choose.elems");
+    XFREE(weights, "fun_choose.weights");
+}
