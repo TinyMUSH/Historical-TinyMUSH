@@ -10694,12 +10694,15 @@ Continued in 'help @malias2'.
   See also: STRUCTURE FUNCTIONS
  
 & MODIFY()
-  Function:  modify(<instance>,<component>,<new value>)
+  Function:  modify(<instance>,<components>,<new values>[,<delim>])
  
-  This function changes the value of <component> in <instance> to
-  <new value>. Type-checking is performed; if the type-check fails,
-  the value is unchanged. The function returns 1 on success and 0 on
-  failure.
+  This function changes the value of each component in the list of
+  <components> in <instance> to the corresponding element of the
+  list of <new values>. <components> is a space-delimited list.
+  <new values> is a <delim>-delimited list (space, by default).
+  Type-checking is performed on each component/value pair; if the
+  type-check fails, the value is unchanged. The function returns
+  the number of components successfully modified.
  
   Example:
     > @eval [structure(grid,xcoord ycoord,i i,0 0)]
@@ -10707,6 +10710,9 @@ Continued in 'help @malias2'.
     > @eval [modify(space,xcoord,5)]
     > say [z(space,xcoord)]
     You say "5"
+    > @eval [modify(space,ycoord xcoord,3 8)]
+    > say X:[z(space,xcoord)] Y:[z(space,ycoord)]
+    You say "X:8 Y:3"
  
   See also: STRUCTURE FUNCTIONS
  

@@ -1197,11 +1197,15 @@ FUNCTION(fun_modify)
 {
     char tbuf[SBUF_SIZE], *tp;
     char cbuf[SBUF_SIZE], *cp;
-    char *p;
+    char *endp, *p;
     INSTANCE *inst_ptr;
     COMPONENT *c_ptr;
     STRUCTDATA *s_ptr;
-    int retval;
+    char *words[LBUF_SIZE / 2], *vals[LBUF_SIZE / 2];
+    int retval, nwords, nvals, i, n_mod;
+    char sep;
+
+    varargs_preamble("MODIFY", 4);
 
     /* Find the instance first, since this is how we get our typechecker. */
 
@@ -1212,6 +1216,7 @@ FUNCTION(fun_modify)
 	*p = ToLower(*p);
     safe_sb_str(fargs[0], tbuf, &tp);
     *tp = '\0';
+    endp = tp;			/* save where we are */
 
     inst_ptr = (INSTANCE *) hashfind(tbuf, &mudstate.instance_htab);
     if (!inst_ptr) {
@@ -1220,57 +1225,66 @@ FUNCTION(fun_modify)
 	return;
     }
 
-    /* Use that to find the component and check the type. */
+    /* Process for each component in the list. */
 
-    if (inst_ptr->datatype->need_typecheck) {
+    nwords = list2arr(words, LBUF_SIZE / 2, fargs[1], ' ');
+    nvals = list2arr(vals, LBUF_SIZE / 2, fargs[2], sep);
 
-	cp = cbuf;
-	safe_ltos(cbuf, &cp, player);
-	safe_sb_chr('.', cbuf, &cp);
-	safe_sb_str(inst_ptr->datatype->s_name, cbuf, &cp);
-	safe_sb_chr('.', cbuf, &cp);
-	for (p = fargs[1]; *p; p++)
-	    *p = ToLower(*p);
-	safe_sb_str(fargs[1], cbuf, &cp);
-	*cp = '\0';
+    n_mod = 0;
+    for (i = 0; i < nwords; i++) {
 
-	c_ptr = (COMPONENT *) hashfind(cbuf, &mudstate.cdefs_htab);
-	if (!c_ptr) {
-	    notify_quiet(player, "No such component.");
-	    safe_chr('0', buff, bufc);
-	    return;
-	}
-	if (c_ptr->typer_func) {
-	    retval = (*(c_ptr->typer_func)) (fargs[2]);
-	    if (!retval) {
-		notify_quiet(player, "Value is of invalid type.");
-		safe_chr('0', buff, bufc);
-		return;
+	/* Find the component and check the type. */
+
+	if (inst_ptr->datatype->need_typecheck) {
+
+	    cp = cbuf;
+	    safe_ltos(cbuf, &cp, player);
+	    safe_sb_chr('.', cbuf, &cp);
+	    safe_sb_str(inst_ptr->datatype->s_name, cbuf, &cp);
+	    safe_sb_chr('.', cbuf, &cp);
+	    for (p = words[i]; *p; p++)
+		*p = ToLower(*p);
+	    safe_sb_str(words[i], cbuf, &cp);
+	    *cp = '\0';
+
+	    c_ptr = (COMPONENT *) hashfind(cbuf, &mudstate.cdefs_htab);
+	    if (!c_ptr) {
+		notify_quiet(player, "No such component.");
+		continue;
+	    }
+
+	    if (c_ptr->typer_func) {
+		retval = (*(c_ptr->typer_func)) (fargs[2]);
+		if (!retval) {
+		    notify_quiet(player, "Value is of invalid type.");
+		    continue;
+		}
 	    }
 	}
+
+	/* Now go set it. */
+
+	tp = endp;
+	safe_sb_chr('.', tbuf, &tp);
+	safe_sb_str(words[i], tbuf, &tp);
+	*tp = '\0';
+
+	s_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
+	if (!s_ptr) {
+	    notify_quiet(player, "No such data.");
+	    continue;
+	}
+	if (s_ptr->text)
+	    free(s_ptr->text);
+	if ((i < nvals) && vals[i] && *vals[i]) {
+	    s_ptr->text = (char *) strdup(vals[i]);
+	} else {
+	    s_ptr->text = NULL;
+	}
+	n_mod++;
     }
 
-    /* Now go set it. */
-
-    safe_sb_chr('.', tbuf, &tp);
-    safe_sb_str(fargs[1], tbuf, &tp);
-    *tp = '\0';
-
-    s_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
-    if (!s_ptr) {
-	notify_quiet(player, "No such data.");
-	safe_chr('0', buff, bufc);
-	return;
-    }
-    if (s_ptr->text)
-	free(s_ptr->text);
-    if (fargs[2] && *fargs[2]) {
-	s_ptr->text = (char *) strdup(fargs[2]);
-    } else {
-	s_ptr->text = NULL;
-    }
-
-    safe_chr('1', buff, bufc);
+    safe_ltos(buff, bufc, n_mod);
 }
 
 
