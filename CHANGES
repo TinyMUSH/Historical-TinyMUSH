@@ -6,6 +6,22 @@ readily be listed here. Therefore, only user-visible or otherwise
 highly significant changes are noted here.
 
 
+- Build script allows "single-step" configuration, build, and installation.
+
+- Backup and Restore scripts simplify backup maintenance.
+
+- GNU dbm 1.8.0 is required. Database code has been rewritten to take
+  advantage of its features. Dumps are now automatically optimized, and
+  you may safely back up the MUSH while it is running.
+
+- There is now a generic indexed-textfile facility, allowing 'news'-like
+  commands and their associated files to be specified via the 'helpfile'
+  parameter in the conf file.
+
+- There are now ten user-defined flags, MARKER0 through MARKER9. The flag
+  names can be set through the flag_name option, and the permissions for
+  setting them can be set through the flag_access option.
+
 - Command-table additions (@addcommand and family) are supported (a
   cleaned-up version of the MUX implementation). Two new conf parameters:
   addcommands_match_blindly (defaults to 'yes', controls whether or not
@@ -16,32 +32,18 @@ highly significant changes are noted here.
   that object. (The defaults are MUX behavior; we suggest that the
   reverse of the defaults is more desirable, though.)
 
-- The term "zone" is now used for two things: MUX-style control-oriented
-  zones, and 2.2-style local-master-rooms. Both types of zones default
-  to on (local_master_rooms and have_zones conf parameters). MUX-style
-  zones now use ControlLock rather than EnterLock, and only objects
-  set CONTROL_OK may be controlled by a ZMO; this provides slightly
-  better security.
-
-- There are now ten user-defined flags, MARKER0 through MARKER9. The flag
-  names can be set through the flag_name option, and the permissions for
-  setting them can be set through the flag_access option.
-
 - There are now command "hooks", implemented via the @hook command. Hooks
   are functions which execute before and/or after a built-in command;
   using side-effect functions, it is thus possible to customize a
   command without needing to write a full-blown @addcommand for it,
   or to execute things before/after every move through an exit.
 
-- GNU dbm 1.8.0 is required. Database code has been rewritten to take
-  advantage of its features. Dumps are now automatically optimized, and
-  you may safely back up the MUSH while it is running.
-
-- Backup and Restore scripts simplify backup maintenance.
-
-- There is now a generic indexed-textfile facility, allowing 'news'-like
-  commands and their associated files to be specified via the 'helpfile'
-  parameter in the conf file.
+- The term "zone" is now used for two things: MUX-style control-oriented
+  zones, and 2.2-style local-master-rooms. Both types of zones default
+  to on (local_master_rooms and have_zones conf parameters). MUX-style
+  zones now use ControlLock rather than EnterLock, and only objects
+  set CONTROL_OK may be controlled by a ZMO; this provides slightly
+  better security.
 
 - Variable destination exits are implemented, via the "variable" keyword
   and the ExitTo attribute; the destination of the exit is determined when
@@ -106,7 +108,11 @@ highly significant changes are noted here.
 
 - Added doing() function, to get @doing text.
 
-- Added force() and trigger() functions. Evil, but useful.
+- Added force(), trigger(), and wait() functions. Evil, but useful.
+
+- The ladd(), lmin(), lmax(), lor(), land(), lorbool() and landbool()
+  functions operate on lists, eliminating the necessity to fold() elements
+  through their non-list counterparts.
 
 - Conf parameter lattr_default_oldstyle controls what lattr() returns when
   it fails to match: if 'yes', this is empty (2.0.10p5 and before, 2.2.1
@@ -115,6 +121,9 @@ highly significant changes are noted here.
 
 - Added localize() function, keeping changes to r-registers within the
   "local" scope of that evaluation.
+
+- The mix() function can now take an unequal number of elements in each
+  list. (The lists are considered to be padded out with nulls.)
 
 - Added ncomp() function for comparing numbers comp() style (very
   useful for sortby() afficianados).
@@ -128,6 +137,8 @@ highly significant changes are noted here.
   the two models.)
 
 - streq() does a case-insensitive comparison of two strings, returning 0 or 1.
+
+- switchall() returns the string results from all cases that match.
 
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.
