@@ -953,7 +953,7 @@ FUNCTION(fun_children)
 	dbref i, it = match_thing(player, fargs[0]);
 	char *bb_p;
 
-	if (!(Controls(player, it)) || !(WizRoy(player))) {
+	if (!Controls(player, it) && !See_All(player)) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
