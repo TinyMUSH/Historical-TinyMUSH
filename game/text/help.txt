@@ -4240,6 +4240,13 @@ Example: @sex me = female
   other players via the 'give <player> = <object>' command. Note that
   entering objects is also subject to Enter Locks.
 
+& FREE
+  Flag: FREE (F)
+ 
+  This flag can only be set by Wizards. If an object is set FREE, it 
+  ignores attribute defaults from a master object (as defined by
+  room_attr_defaults, thing_attr_defaults, etc.).
+
 & GOING
   Flag: GOING (G)
  
@@ -4519,6 +4526,18 @@ Example: @sex me = female
   attributes on the object (as well as any parents of the object).
 
   See also: @lock/parent.
+ 
+& ORPHAN
+  Flag: ORPHAN(y)
+ 
+  If an object is set ORPHAN, the object does not inherit $-commands from
+  its parent(s), just like objects in the master room do not inherit
+  $-commands from their parents when a master-room object command match
+  is done.
+ 
+  This allows you to @parent a command object to a function object
+  without worrying about the overhead of scanning the function object
+  for $-commands.
  
 & CONSTANT
   Flag: CONSTANT(k)
@@ -5303,20 +5322,20 @@ See also: @link, @open.
   Topic: FLAG LIST
  
 	A - Abode	B - Blind	C - Chown_OK	D - Dark	
-	E - Exit	G - Going	H - Haven	I - Inherit
-	J - Jump_OK	K - Key		L - Link_OK	M - Monitor
-	N - Nospoof	O - Opaque	P - Player	Q - Quiet
-	R - Room	S - Sticky	T - Trace	U - Unfindable
-	V - Visual	W - Wizard	X - Ansi	Y - Parent_OK
-	Z - Royalty	a - Audible	b - Bounce	c - Connected
-	d - Destroy_OK	e - Enter_OK	f - Fixed	g - Uninspected
-	h - Halted	i - Immortal	j - Gagged	k - Constant
-	l - Light	m - Myopic	n - Auditorium	o - Zone	
-	p - Puppet	q - Terse	r - Robot	s - Safe
-	t - Transparent	u - Suspect	v - Verbose	w - Staff
-	x - Slave	z - Control_OK	! - Stop	$ - Commands
-	- - NoBleed	~ - HTML	> - Redir_OK	? - Head
-	| - Vacation	+ - Watcher
+	E - Exit	F - Free	G - Going	H - Haven	
+	I - Inherit	J - Jump_OK	K - Key		L - Link_OK	
+	M - Monitor	N - Nospoof	O - Opaque	P - Player	
+	Q - Quiet	R - Room	S - Sticky	T - Trace	
+	U - Unfindable	V - Visual	W - Wizard	X - Ansi	
+	Y - Parent_OK	Z - Royalty	a - Audible	b - Bounce	
+	c - Connected	d - Destroy_OK	e - Enter_OK	f - Fixed	
+	g - Uninspected	h - Halted	i - Immortal	j - Gagged	
+	k - Constant	l - Light	m - Myopic	n - Auditorium	
+	o - Zone	p - Puppet	q - Terse	r - Robot	
+	s - Safe	t - Transparent	u - Suspect	v - Verbose	
+	w - Staff	x - Slave	y - Orphan	z - Control_OK	
+	! - Stop	$ - Commands	- - NoBleed	~ - HTML	
+	> - Redir_OK	? - Head	| - Vacation	+ - Watcher
   
   See 'help Marker' for help on user-defined flags (0 through 9).
  

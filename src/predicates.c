@@ -1834,21 +1834,25 @@ const char *def, *odef;
 
     need_pres = 0;
 
-    switch (Typeof(thing)) {
-	case TYPE_ROOM:
-	    master = mudconf.room_defobj;
-	    break;
-	case TYPE_EXIT:
-	    master = mudconf.exit_defobj;
-	    break;
-	case TYPE_PLAYER:
-	    master = mudconf.player_defobj;
-	    break;
-	default:
-	    master = mudconf.thing_defobj;
-    }
-    if (master == thing)
+    if (NoDefault(thing)) {
 	master = NOTHING;
+    } else {
+	switch (Typeof(thing)) {
+	    case TYPE_ROOM:
+		master = mudconf.room_defobj;
+		break;
+	    case TYPE_EXIT:
+		master = mudconf.exit_defobj;
+		break;
+	    case TYPE_PLAYER:
+		master = mudconf.player_defobj;
+		break;
+	    default:
+		master = mudconf.thing_defobj;
+	}
+	if (master == thing)
+	    master = NOTHING;
+    }
 
     /* Module call. Modules can return a negative number, zero, or a
      * positive number.

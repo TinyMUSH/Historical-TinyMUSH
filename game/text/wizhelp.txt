@@ -263,15 +263,15 @@ movement, or other command that invokes it, not from a function
 call such as get() or other such uses). It also applies to @conformat,
 @exitformat, and @nameformat, when invoked on a "look".
   
-The attribute on the default object is evaluated, just as if it
-were set on the calling object, with %0 as the normally-evaluated
-attribute on the calling object (or as null, if the attribute does
-not exist on the calling object).
+The attribute on the default object is evaluated, just as if it were set
+on the calling object, with %0 as the normally-evaluated attribute on the
+calling object (or as null, if the attribute does not exist on the calling
+object).
  
-This behavior can be used to enforce "standards" for attributes
-such as @desc and @conformat across an entire MUSH, without
-requiring universal parenting of objects and forcing builders
-to follow unusual attribute naming schemes.
+This behavior can be used to enforce "standards" for attributes such as
+@desc and @conformat across an entire MUSH, without requiring universal
+parenting of objects and forcing builders to follow unusual attribute
+naming schemes. Objects with the FREE flag ignore attribute defaults. 
  
 Continued in 'wizhelp attribute defaults2'.
  
