@@ -55,6 +55,8 @@
 #undef HAVE_STRCSPN
 /* Define if strtok_r exists */
 #undef HAVE_STRTOK_R
+/* Define if dlopen exists */
+#undef HAVE_DLOPEN
 /* Define if sys_siglist[] exists */
 #undef HAVE_SYS_SIGLIST
 /* Define if _sys_siglist[] exists */

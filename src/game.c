@@ -54,6 +54,10 @@ extern void NDECL(tcache_init);
 extern void FDECL(helpindex_load, (dbref));
 extern void NDECL(helpindex_init);
 
+#ifdef HAVE_DLOPEN
+#include <dlfcn.h>
+static void NDECL(init_modules);
+#endif
 
 #ifndef MEMORY_BASED
 extern int NDECL(dddb_optimize);
@@ -1692,6 +1696,9 @@ char *argv[];
 	hashinit(&mudstate.cdefs_htab, 15 * HASH_FACTOR);
 	hashinit(&mudstate.instance_htab, 15 * HASH_FACTOR);
 	hashinit(&mudstate.instdata_htab, 25 * HASH_FACTOR);
+#ifdef HAVE_DLOPEN
+	hashinit(&mudstate.modules_htab, 5 * HASH_FACTOR);
+#endif
 #ifdef USE_MAIL
 	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
 #endif
@@ -1874,6 +1881,10 @@ char *argv[];
 	    raw_broadcast(0, "GAME: Restart finished.");
 	}
 
+#ifdef HAVE_DLOPEN
+	init_modules();
+#endif
+
 #ifdef CONCENTRATE
 	if (!mudstate.restarting) {
 		/*
@@ -1952,3 +1963,28 @@ static void NDECL(init_rlimit)
 #endif /* Sequent and unlimiting #define'd */
 #endif /* HAVE_SETRLIMIT */
 }
+
+#ifdef HAVE_DLOPEN
+
+static void NDECL(init_modules)
+{
+	void *handle;
+	void (*initptr)(void);
+	char *modulename;
+	
+	for (modulename = hash_firstkey(&mudstate.modules_htab);
+	     modulename != NULL;
+	     modulename = hash_nextkey(&mudstate.modules_htab)) {
+		handle = (void *)hashfind(modulename, &mudstate.modules_htab);
+
+		/* Find the address of the function init_<module>, and execute
+		 * it */
+
+		initptr = (void (*)(void))dlsym(handle, tprintf("init_%s",
+				modulename));
+		if (initptr)
+			(*initptr)();
+	}
+}
+
+#endif

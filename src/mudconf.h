@@ -360,6 +360,9 @@ struct statedata {
 	HASHTAB cdefs_htab;	/* Components hashtable */
 	HASHTAB instance_htab;	/* Instances hashtable */
 	HASHTAB instdata_htab;	/* Structure data hashtable */
+#ifdef HAVE_DLOPEN
+	HASHTAB modules_htab;	/* Loadable modules hashtable */
+#endif
 #ifdef USE_COMSYS
 	HASHTAB comsys_htab;	/* Channels hashtable */
 	HASHTAB calias_htab;	/* Channel aliases */

@@ -3,6 +3,7 @@
 #	Startmush - Kick off the netmush process.
 #
 PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
+LD_LIBRARY_PATH=modules:$LD_LIBARY_PATH
 #
 . mush.config
 #

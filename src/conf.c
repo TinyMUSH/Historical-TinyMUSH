@@ -19,6 +19,10 @@
 #include "attrs.h"	/* required by code */
 #include "match.h"	/* required by code */
 
+#ifdef HAVE_DLOPEN
+#include <dlfcn.h>
+#endif
+
 /* Some systems are lame, and inet_addr() claims to return -1 on failure,
  * despite the fact that it returns an unsigned long. (It's not really a -1,
  * obviously.) Better-behaved systems use INADDR_NONE.
@@ -542,7 +546,7 @@ CF_HAND(cf_const)
 
 /*
  * ---------------------------------------------------------------------------
- * * cf_int: Set integer parameter.
+ * cf_int: Set integer parameter.
  */
 
 CF_HAND(cf_int)
@@ -558,6 +562,32 @@ CF_HAND(cf_int)
 	sscanf(str, "%d", vp);
 	return 0;
 }
+
+/*
+ * ---------------------------------------------------------------------------
+ * cf_module: Open a loadable module. Modules are initialized later in the
+ * startup.
+ */
+
+CF_HAND(cf_module)
+{
+#ifdef HAVE_DLOPEN
+
+	void *handle;
+	
+	handle = dlopen(tprintf("%s.so", str), RTLD_NOW|RTLD_GLOBAL);	
+
+	if (!handle) {
+		cf_log_syntax(player, cmd, "Loading of module %s failed",
+			str);
+		return -1;
+	}
+	
+	hashadd(str, handle, (HASHTAB *) &mudstate.modules_htab);
+#endif	
+	return 0;
+}
+
 /* *INDENT-OFF* */
 
 /* ---------------------------------------------------------------------------
@@ -1397,6 +1427,7 @@ CONF conftable[] = {
 {(char *)"master_room",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.master_room,		0},
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
+{(char *)"module",			cf_module,	CA_STATIC,	CA_WIZARD,	NULL,				0},
 {(char *)"money_name_plural",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)mudconf.many_coins,	SBUF_SIZE},
 {(char *)"money_name_singular",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)mudconf.one_coin,	SBUF_SIZE},
 {(char *)"motd_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.motd_file,	SBUF_SIZE},
