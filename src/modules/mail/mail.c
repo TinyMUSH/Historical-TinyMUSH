@@ -1039,11 +1039,8 @@ char *msg;
 int all, key;
 {
 	struct mail *mp;
-	struct mail *temp;
 	int num;
-	dbref target;
-	char *tolist ,*fulllist, *bp, *p, *names, *oldlist;
-	static char buf[MBUF_SIZE];
+	char *tolist, *bp, *p, *names, *oldlist;
 
         if (Flags2(player) & PLAYER_MAILS) {
                 notify(player, "MAIL: Mail message already in progress.");

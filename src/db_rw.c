@@ -395,7 +395,7 @@ int new_strings;
 	int c;
 	char *buff;
 #ifdef STANDALONE
-	int aflags, alen, xflags, anum;
+	int aflags, xflags, anum;
 	char *buf2, *buf2p, *ownp, *flagp;
 	dbref aowner;
 #endif
@@ -1351,7 +1351,7 @@ int *db_format, *db_version, *db_flags;
 	int read_powers, read_powers_player, read_powers_any;
 	int has_typed_quotas;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
-	int aflags, alen, f1, f2, f3;
+	int aflags, f1, f2, f3;
 	BOOLEXP *tempbool;
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;

@@ -3038,7 +3038,6 @@ FUNCTION(fun_lexits)
 	dbref thing, it, parent;
 	char *bb_p;
 	int exam, lev, key;
-	int first = 1;
 	
 	it = match_thing(player, fargs[0]);
 
@@ -5200,7 +5199,6 @@ FUNCTION(fun_case)
 FUNCTION(fun_space)
 {
 	int num, max;
-	char *cp;
 
 	if (!fargs[0] || !(*fargs[0])) {
 		num = 1;
