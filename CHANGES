@@ -22,7 +22,8 @@ the other have been listed in the conversion notes for both servers.
   them. This is now called by Startmush.
 
 - GNU dbm 1.8.0 is required. Database code has been rewritten to take
-  advantage of its features. Dumps are now automatically optimized, and
+  advantage of its features. Dumps are now automatically optimized (though
+  you can turn this off using the new conf parameter opt_frequency), and
   you may safely back up the MUSH while it is running, either internally
   (through @dump/flatfile) or externally (through the Backup script).
 
@@ -132,6 +133,9 @@ the other have been listed in the conversion notes for both servers.
   matches always result in a random selection amongst the matches (i.e.,
   you will never get a "I don't know which one you mean!" message).
 
+- The new conf parameter guest_starting_room allows Guest characters to
+  start in a different default room than other characters.
+
 - New /info switch to @attribute shows global attribute flags for a single
   attribute (similar to what '@list user_attributes' produces for all
   user-defined attributes).
@@ -182,6 +186,9 @@ the other have been listed in the conversion notes for both servers.
 - @program now reads attributes on the object's parent chain as well,
   not just the object itself (thus behaving like @trigger and friends).
 
+- @ps now shows the attribute being waited upon, for non-Semaphore
+  semaphore waits.
+
 - Functions for generic named variables, preserved in a manner similar to
   the stack (i.e., associated with a specific object, persistent until a
   restart is done), have been added. setx() sets a named variable,
@@ -221,6 +228,9 @@ the other have been listed in the conversion notes for both servers.
 
 - Added command() function, which allows the execution of a variety of
   built-in commands in function form, such as @parent and @name.
+
+- Added config() function, which allows wizards to obtain the value of
+  most configuration parameters.
 
 - Added doing() function, to get @doing text.
 
