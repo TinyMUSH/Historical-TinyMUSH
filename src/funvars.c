@@ -2252,6 +2252,104 @@ FUNCTION(fun_regparsei)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_regrab: Like grab() and graball(), but with a regexp pattern.
+ *             Derived from PennMUSH.
+ */
+
+void perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs,  
+		    case_option, all_option)
+    char *buff, **bufc;
+    char sep, osep;
+    dbref player;
+    char *fargs[];
+    int nfargs, case_option, all_option;
+{
+    char *r, *s, *bb_p;
+    pcre *re;
+    pcre_extra *study;
+    const char *errptr;
+    int erroffset;
+    int offsets[PCRE_MAX_OFFSETS];
+
+    if (!tables) {
+	pcre_maketables();
+    }
+
+    s = trim_space_sep(fargs[0], sep);
+    bb_p = *bufc;
+
+    if ((re = pcre_compile(fargs[1], case_option, &errptr, &erroffset,
+			   tables)) == NULL) {
+	/* Matching error.
+	 * Note difference from PennMUSH behavior:
+	 * Regular expression errors return 0, not #-1 with an error
+	 * message.
+	 */
+	notify_quiet(player, errptr);
+	return;
+    }
+
+    study = pcre_study(re, 0, &errptr);
+    if (errptr != NULL) {
+	notify_quiet(player, errptr);
+	XFREE(re, "perform_regrab.re");
+	return;
+    }
+
+    do {
+	r = split_token(&s, sep);
+	if (pcre_exec(re, study, r, strlen(r), 0, 0,
+		      offsets, PCRE_MAX_OFFSETS) >= 0) {
+	    if (*bufc != bb_p) { /* if true, all_option also true */
+		print_sep(osep, buff, bufc);
+	    }
+	    safe_str(r, buff, bufc);
+	    if (!all_option)
+		break;
+	}
+    } while (s);
+
+    XFREE(re, "perform_regrab.re");
+    if (study) {
+	XFREE(study, "perform_regrab.study");
+    }
+}
+
+FUNCTION(fun_regrab)
+{
+    char sep;
+
+    varargs_preamble("REGRAB", 3);
+    perform_regrab(buff, bufc, sep, ' ', player, fargs, nfargs, 0, 0);
+}
+
+FUNCTION(fun_regrabi)
+{
+    char sep;
+
+    varargs_preamble("REGRABI", 3);
+    perform_regrab(buff, bufc, sep, ' ', player, fargs, nfargs,
+		   PCRE_CASELESS, 0);
+}
+
+FUNCTION(fun_regraball)
+{
+    char sep, osep;
+
+    svarargs_preamble("REGRABALL", 4);
+    perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs, 0, 1);
+}
+
+FUNCTION(fun_regraballi)
+{
+    char sep, osep;
+
+    svarargs_preamble("REGRABALLI", 4);
+    perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs,
+		   PCRE_CASELESS, 1);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_regmatch: Return 0 or 1 depending on whether or not a regular
  * expression matches a string. If a third argument is specified, dump
  * the results of a regexp pattern match into a set of arbitrary r()-registers.
@@ -2282,7 +2380,8 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
     int offsets[PCRE_MAX_OFFSETS];
     int subpatterns; 
 
-    if (!fn_range_check("REGMATCH", nfargs, 2, 3, buff, bufc))
+    if (!fn_range_check((case_option ? "REGMATCHI" : "REGMATCH"),
+			nfargs, 2, 3, buff, bufc))
 	return;
 
     if (!tables) {

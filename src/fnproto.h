@@ -349,6 +349,10 @@ XFUNCTION(fun_regediti);
 XFUNCTION(fun_wildparse);
 XFUNCTION(fun_regparse);
 XFUNCTION(fun_regparsei);
+XFUNCTION(fun_regrab);
+XFUNCTION(fun_regraball);
+XFUNCTION(fun_regraballi);
+XFUNCTION(fun_regrabi);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_regmatchi);
 XFUNCTION(fun_until);
@@ -593,10 +597,14 @@ FUN flist[] = {
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC},
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
-{"REGEDIT",	fun_regedit,	3,  FN_VARARGS, CA_PUBLIC},
-{"REGEDITALL",	fun_regeditall,	3,  FN_VARARGS, CA_PUBLIC},
-{"REGEDITALLI",	fun_regeditalli, 3, FN_VARARGS, CA_PUBLIC},
-{"REGEDITI",	fun_regediti,	3,  FN_VARARGS, CA_PUBLIC},
+{"REGEDIT",	fun_regedit,	0,  FN_VARARGS, CA_PUBLIC},
+{"REGEDITALL",	fun_regeditall,	0,  FN_VARARGS, CA_PUBLIC},
+{"REGEDITALLI",	fun_regeditalli, 0, FN_VARARGS, CA_PUBLIC},
+{"REGEDITI",	fun_regediti,	0,  FN_VARARGS, CA_PUBLIC},
+{"REGRAB",	fun_regrab,	0,  FN_VARARGS, CA_PUBLIC},
+{"REGRABALL",	fun_regraball,	0,  FN_VARARGS, CA_PUBLIC},
+{"REGRABALLI",	fun_regraballi, 0,  FN_VARARGS, CA_PUBLIC},
+{"REGRABI",	fun_regrabi,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC},
