@@ -742,7 +742,8 @@ int reason;
 			
 			if (num == 0) {
 				for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-					free_lbuf(d->program_data->wait_regs[i]);
+					if (d->program_data->wait_regs[i])
+						free_lbuf(d->program_data->wait_regs[i]);
 				}
 				XFREE(d->program_data, "do_prog");
 				d->program_data = NULL;
