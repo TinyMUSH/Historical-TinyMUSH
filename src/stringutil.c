@@ -87,6 +87,19 @@ char ansi_lettab[I_ANSI_NUM] =
 
 /* ---------------------------------------------------------------------------
  * ANSI packed state definitions -- number-to-bitmask translation table.
+ *
+ * The mask specifies the state bits that are altered by a particular ansi
+ * code. Bits are laid out as follows:
+ *
+ *  0x1000 -- No ansi. Every valid ansi code clears this bit.
+ *  0x0800 -- inverse
+ *  0x0400 -- flash
+ *  0x0200 -- underline
+ *  0x0100 -- highlight
+ *  0x0080 -- "use default bg", set by ansi normal, cleared by other bg's
+ *  0x0070 -- three bits of bg color
+ *  0x0008 -- "use default fg", set by ansi normal, cleared by other fg's
+ *  0x0007 -- three bits of fg color
  */
 
 int ansi_mask_bits[I_ANSI_LIM] = {
@@ -102,11 +115,11 @@ int ansi_mask_bits[I_ANSI_LIM] = {
  */
 
 int ansi_bits[I_ANSI_LIM] = {
-	0x099, 0x100, 0x000, 0,     0x200, 0x400, 0,     0x800, 0,     0,
-	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-	0,     0x000, 0x000, 0,     0x000, 0x000, 0,     0x000, 0,     0,
-	0x000, 0x001, 0x002, 0x003, 0x004, 0x005, 0x006, 0x007, 0,     0,
-	0x000, 0x010, 0x020, 0x030, 0x040, 0x050, 0x060, 0x070, 0,     0
+	0x0099, 0x0100, 0x0000, 0,      0x0200, 0x0400, 0,      0x0800, 0, 0,
+	0,      0,      0,      0,      0,      0,      0,      0,      0, 0,
+	0,      0x0000, 0x0000, 0,      0x0000, 0x0000, 0,      0x0000, 0, 0,
+	0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0, 0,
+	0x0000, 0x0010, 0x0020, 0x0030, 0x0040, 0x0050, 0x0060, 0x0070, 0, 0
 };
 
 /* ---------------------------------------------------------------------------
