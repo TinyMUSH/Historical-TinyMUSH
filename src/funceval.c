@@ -637,12 +637,18 @@ FUNCTION(fun_objeval)
 	*bp = '\0';
 	obj = match_thing(player, name);
 
-	if ((obj == NOTHING) ||
-	    ((Owner(obj) != player) && (!(Wizard(player)))) || (obj == GOD))
+	/* In order to evaluate from something else's viewpoint, you must
+	 * have the same owner as it, or be a wizard. Otherwise, we default
+	 * to evaluating from our own viewpoint. Also, you cannot evaluate
+	 * things from the point of view of God.
+	 */
+	if ((obj == NOTHING) || (obj == GOD) ||
+	    ((Owner(obj) != Owner(player)) && !Wizard(player))) {
 		obj = player;
+	}
 
 	str = fargs[1];
-	exec(buff, bufc, 0, obj, obj, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
+	exec(buff, bufc, 0, obj, cause, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
 	     cargs, ncargs);
 	free_lbuf(name);
 }
