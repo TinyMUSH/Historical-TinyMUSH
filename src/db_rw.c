@@ -9,13 +9,13 @@
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
 #include "mudconf.h"	/* required by code */
-
+#include "udb.h"	/* required by code */
 #include "db.h"		/* required by externs */
+
 #include "externs.h"	/* required by code */
 
 #include "vattr.h"	/* required by code */
 #include "attrs.h"	/* required by code */
-#include "udb.h"	/* required by code */
 
 #ifdef STANDALONE
 #include "powers.h"	/* required by code */
@@ -1081,7 +1081,6 @@ int db_read()
 	
 	blksize = OBJECT_BLOCK_SIZE;
 	
-	num = mudstate.min_size;
 	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.min_size, blksize); i++) {
 		OBJECT_FETCH(i, &cdata, &len);
 		if (cdata) {
@@ -1107,7 +1106,10 @@ int db_read()
 				s_VarsCount(num, 0);
 				s_StructCount(num, 0);
 				s_InstanceCount(num, 0);
-			
+#ifdef MEMORY_BASED
+				db[num].attrtext.at_count = 0;
+				db[num].attrtext.atrs = NULL;
+#endif
 				/* Check to see if it's a player */
 
 				if (Typeof(i) == TYPE_PLAYER) {

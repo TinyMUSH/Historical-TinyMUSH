@@ -2484,6 +2484,19 @@ void list_memory(player)
 	raw_notify(player,
 		   tprintf("Object structures: %12.2fk", each / 1024));
 	total += each;
+
+#ifdef MEMORY_BASED
+	each = 0;
+	/* Calculate size of stored attribute text */
+	DO_WHOLE_DB(i) {
+		each += obj_siz(&(db[i].attrtext));
+		each -= sizeof(Obj);
+	}
+
+	raw_notify(player,
+		   tprintf("Stored attrtext  : %12.2fk", each / 1024));
+	total += each;
+#endif
 	
 	/* Calculate size of mudstate and mudconf structures */
 	

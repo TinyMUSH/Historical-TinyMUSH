@@ -398,6 +398,9 @@ int type;
 	int hv = 0;
 	void *newdata;
 	int newdatalen;
+#ifdef MEMORY_BASED
+	char *cdata;
+#endif
 
 	if (!keydata || !cache_initted) {
 		if (dataptr)
@@ -410,10 +413,16 @@ int type;
 	 * resulting from a dump does not push out entries that are already
 	 * in the cache */
 
-#ifndef STANDALONE
+#if !defined(STANDALONE) && !defined(MEMORY_BASED)
 	if (!mudstate.dumping)
 		cs_reads++;
 #endif
+
+#ifdef MEMORY_BASED
+	if (type == DBTYPE_ATTRIBUTE)
+		goto skipcacheget;
+#endif
+
 
 	hv = cachehash(keydata, keylen, type);
 	sp = &sys_c[hv];
@@ -472,13 +481,25 @@ int type;
 		prv = cp;
 	}
 
+skipcacheget:
+
 	/* DARN IT - at this point we have a certified, type-A cache miss */
 
 	/* Grab the data from whereever */
 	
 	switch(type) {
 	case DBTYPE_ATTRIBUTE:
-	
+#ifdef MEMORY_BASED
+		cdata = get_attrib(((Aname *)keydata)->attrnum,
+			&(db[((Aname *)keydata)->object].attrtext));
+		if (cdata) {
+			if (dataptr)
+				*dataptr = cdata;
+			if (datalenptr)
+				*datalenptr = strlen(cdata) + 1;
+			return;
+		}
+#endif		
 		newdata = (void *)fetch_attrib(((Aname *)keydata)->attrnum,
 			((Aname *)keydata)->object); 
 		if (newdata == NULL) {
@@ -486,6 +507,33 @@ int type;
 		} else {
 			newdatalen = strlen(newdata) + 1;
 		}
+
+#ifdef MEMORY_BASED
+#ifndef STANDALONE
+		if (!mudstate.dumping)
+			cs_dbreads++;
+#endif
+		if (newdata) {
+			newdatalen = strlen(newdata) + 1;
+			cdata = XMALLOC(newdatalen, "cache_get.membased");
+			memcpy((void *)cdata, (void *)newdata, newdatalen);
+			
+			set_attrib(((Aname *)keydata)->attrnum,
+				&(db[((Aname *)keydata)->object].attrtext),
+				cdata);
+			if (dataptr)
+				*dataptr = cdata;
+			if (datalenptr)
+				*datalenptr = newdatalen;
+			return;
+		} else {
+			if (dataptr)
+				*dataptr = NULL;
+			if (datalenptr)
+				*datalenptr = 0;
+			return;
+		}
+#endif			
 		break;
 	default:
 		dddb_get(keydata, keylen, &newdata, &newdatalen, type);
@@ -577,11 +625,14 @@ int type;
 	CacheLst *sp;
 	int hv = 0;
 #endif
+#ifdef MEMORY_BASED
+	char *cdata;
+#endif
 	
 	if (!keydata || !data || !cache_initted) {
 		return (1);
 	}
-#ifndef STANDALONE
+#if !defined(STANDALONE) && !defined(MEMORY_BASED)
 	cs_writes++;
 
 	/* generate hash */
@@ -656,12 +707,16 @@ int type;
 	INCCOUNTER(cp);
 	return (0);
 #else
-	/* Bypass the cache when standalone for writes */
+	/* Bypass the cache when standalone or memory based for writes */
 	if (data == NULL) {
 		switch(type) {
 		case DBTYPE_ATTRIBUTE:
 			delete_attrib(((Aname *)keydata)->attrnum, 
 				      ((Aname *)keydata)->object);
+#ifdef MEMORY_BASED
+			del_attrib(((Aname *)keydata)->attrnum,
+				   &(db[((Aname *)keydata)->object].attrtext));
+#endif
 			break;
 		default:
 			dddb_del(keydata, keylen, type);
@@ -672,6 +727,14 @@ int type;
 			put_attrib(((Aname *)keydata)->attrnum, 
 				   ((Aname *)keydata)->object,
 				   (char *)data);
+#ifdef MEMORY_BASED
+			cdata = XMALLOC(datalen, "cache_get.membased");
+			memcpy((void *)cdata, (void *)data, datalen);
+			
+			set_attrib(((Aname *)keydata)->attrnum,
+				&(db[((Aname *)keydata)->object].attrtext),
+				cdata);
+#endif
 			break;
 		default:
 			dddb_put(keydata, keylen, data, datalen, type);
@@ -936,6 +999,14 @@ int type;
 	
 	if (!keydata || !cache_initted)
 		return;
+
+#ifdef MEMORY_BASED
+	delete_attrib(((Aname *)keydata)->attrnum, 
+		      ((Aname *)keydata)->object);
+	del_attrib(((Aname *)keydata)->attrnum,
+		   &(db[((Aname *)keydata)->object].attrtext));
+	return;
+#endif
 
 	cs_dels++;
 

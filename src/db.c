@@ -2088,6 +2088,10 @@ dbref first, last;
 		s_Next(thing, NOTHING);
 		s_Zone(thing, NOTHING);
 		s_Parent(thing, NOTHING);
+#ifdef MEMORY_BASED
+		db[thing].attrtext.atrs = NULL;
+		db[thing].attrtext.at_count = 0;
+#endif
 	}
 }
 

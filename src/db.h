@@ -89,15 +89,6 @@ struct attr {
 	int	FDECL((*check),(int, dbref, dbref, int, char *));
 };
 
-#ifdef MEMORY_BASED
-typedef struct atrlist ATRLIST;
-struct atrlist {
-	char *data;		/* Attribute text. */
-	int size;		/* Length of attribute */
-	int number;		/* Attribute number. */
-};
-#endif
-
 extern ATTR *	FDECL(atr_num, (int anum));
 extern ATTR *	FDECL(atr_str, (char *s));
 
@@ -223,15 +214,14 @@ struct object {
 #endif
 	
 #ifdef MEMORY_BASED
-	ATRLIST	*ahead;		/* The head of the attribute list. */
-	int	at_count;	/* How many attributes do we have? */
+	Obj	attrtext;		/* Array of attribute text */
 #endif	
 };
 
 /* The DUMPOBJ structure exists for use during database writes. It is
  * a duplicate of the OBJ structure except for items we don't need to write */
 
-typedef struct object DUMPOBJ;
+typedef struct dump_object DUMPOBJ;
 struct dump_object {
 	dbref	location;	/* PLAYER, THING: where it is */
 				/* ROOM: dropto: */
