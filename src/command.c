@@ -199,6 +199,7 @@ NAMETAB listmotd_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB lock_sw[] = {
+{(char *)"controllock",	1,	CA_PUBLIC,	A_LCONTROL},
 {(char *)"defaultlock",	1,	CA_PUBLIC,	A_LOCK},
 {(char *)"droplock",	1,	CA_PUBLIC,	A_LDROP},
 {(char *)"enterlock",	1,	CA_PUBLIC,	A_LENTER},
@@ -1199,7 +1200,7 @@ char *command, *args[];
 	static char preserve_cmd[LBUF_SIZE];
 	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str;
 	int succ, aflags, i, got_stop;
-	dbref exit, aowner;
+	dbref exit, aowner, parent;
 	CMDENT *cmdp;
 
 #ifndef MEMORY_BASED
@@ -1467,7 +1468,32 @@ char *command, *args[];
 		succ += list_check(Contents(player), player,
 				   AMATCH_CMD, lcbuf, preserve_cmd, 1, &got_stop);
 
-	/* now do check on zones */
+	/* If we didn't find anything, and we're checking local masters,
+	 * do those checks. Do it for the zone of the player's location first,
+	 * and then, if nothing is found, on the player's personal zone.
+	 * Walking back through the parent tree stops when a match is found.
+	 * Also note that these matches are done in the style of the master room:
+	 * parents of the contents of the rooms aren't checked for commands.
+	 * We try to maintain 2.2/MUX compatibility here, putting both sets
+	 * of checks together.
+	 */
+
+	/* 2.2 style location */
+	
+	if (!succ && mudconf.local_masters) {
+		if (Has_location(player)) {
+			parent = Parent(Location(player));
+			while (!succ && !got_stop && Good_obj(parent) && ParentZone(parent)) {
+				if (Has_contents(parent)) {
+					succ += list_check(Contents(parent), player, AMATCH_CMD,
+						lcbuf, preserve_cmd, 0, &got_stop);
+				}
+				parent = Parent(parent);
+			}
+		}
+	}
+	
+	/* MUX style location */
 
 	if ((!succ) && mudconf.have_zones &&
 	    (Zone(Location(player)) != NOTHING)) {
@@ -1499,6 +1525,27 @@ char *command, *args[];
 					  lcbuf, preserve_cmd, 1);
 			}
 	}		/* end of matching on zone of player's location */
+	
+	/* 2.2 style player */
+	
+	if (!succ && mudconf.local_masters) {
+		parent = Parent(player);
+		if ((parent != Location(player)) &&
+		   (parent != Parent(Location(player)))) {
+			while (!succ && !got_stop &&
+			       Good_obj(parent) && ParentZone(parent)) {
+				if (Has_contents(parent)) {
+					succ += list_check(Contents(parent), player,
+						AMATCH_CMD, lcbuf, preserve_cmd, 0,
+						&got_stop);
+				}
+				parent = Parent(parent);
+			}
+		}
+	}
+
+	/* MUX style player */
+	
 	/* if nothing matched with parent room/zone object, try matching
 	 * zone commands on the player's personal zone  
 	 */
@@ -2206,6 +2253,11 @@ dbref player;
 		raw_notify(player, "Database dumps are performed by a fork()ed process.");
 		if (mudconf.fork_vfork)
 			raw_notify(player, "The 'vfork()' call is used to perform the fork.");
+	}
+	if (mudconf.use_global_aconn)
+		notify(player, "Global aconnects and disconnects are executed by Master Room objects.");
+	if (mudconf.local_masters) {
+		notify(player, "Objects set ZONE are treated as local master rooms.");
 	}
 	if (mudconf.max_players >= 0)
 		raw_notify(player,

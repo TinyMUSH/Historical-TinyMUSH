@@ -1,7 +1,4 @@
-
-/*
- * $Id$ 
- */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -34,7 +31,7 @@ extern char *FDECL(vsprintf, (char *, char *, va_list));
 
 #endif
 
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 char *tprintf(char *format,...)
 #else
 char *tprintf(va_alist)
@@ -46,7 +43,7 @@ va_dcl
 	static char buff[20000];
 	va_list ap;
 
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 	va_start(ap, format);
 #else
 	char *format;
@@ -86,9 +83,7 @@ va_dcl
 	format = va_arg(ap, char *);
 
 #endif
-	/*
-	 * Sigh, don't we wish _all_ vsprintf's returned int... 
-	 */
+	/* Sigh, don't we wish _all_ vsprintf's returned int... */
 
 	vsprintf(buff, format, ap);
 	va_end(ap);
@@ -96,9 +91,8 @@ va_dcl
 	safe_str(buff, str, bp);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * insert_first, remove_first: Insert or remove objects from lists.
+/* ---------------------------------------------------------------------------
+ * insert_first, remove_first: Insert or remove objects from lists.
  */
 
 dbref insert_first(head, thing)
@@ -125,9 +119,8 @@ dbref head, thing;
 	return head;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * reverse_list: Reverse the order of members in a list.
+/* ---------------------------------------------------------------------------
+ * reverse_list: Reverse the order of members in a list.
  */
 
 dbref reverse_list(list)
@@ -145,9 +138,8 @@ dbref list;
 	return newlist;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * member - indicate if thing is in list
+/* ---------------------------------------------------------------------------
+ * member - indicate if thing is in list
  */
 
 int member(thing, list)
@@ -160,39 +152,26 @@ dbref thing, list;
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * is_integer, is_number: see if string contains just a number.
+/* ---------------------------------------------------------------------------
+ * is_integer, is_number: see if string contains just a number.
  */
 
 int is_integer(str)
 char *str;
 {
 	while (*str && isspace(*str))
-		str++;		/*
-				 * Leading spaces 
-				 */
-	if (*str == '-') {	/*
-				 * Leading minus 
-				 */
+		str++;		/* Leading spaces */
+	if (*str == '-') {	/* Leading minus */
 		str++;
 		if (!*str)
-			return 0;	/*
-					 * but not if just a minus 
-					 */
+			return 0;	/* but not if just a minus */
 	}
-	if (!isdigit(*str))	/*
-				 * Need at least 1 integer 
-				 */
+	if (!isdigit(*str))	/* Need at least 1 integer */
 		return 0;
 	while (*str && isdigit(*str))
-		str++;		/*
-				 * The number (int) 
-				 */
+		str++;		/* The number (int) */
 	while (*str && isspace(*str))
-		str++;		/*
-				 * Trailing spaces 
-				 */
+		str++;		/* Trailing spaces */
 	return (*str ? 0 : 1);
 }
 
@@ -202,43 +181,25 @@ char *str;
 	int got_one;
 
 	while (*str && isspace(*str))
-		str++;		/*
-				 * Leading spaces 
-				 */
-	if (*str == '-') {	/*
-				 * Leading minus 
-				 */
+		str++;		/* Leading spaces */
+	if (*str == '-') {	/* Leading minus */
 		str++;
 		if (!*str)
-			return 0;	/*
-					 * but not if just a minus 
-					 */
+			return 0;	/* but not if just a minus */
 	}
 	got_one = 0;
 	if (isdigit(*str))
-		got_one = 1;	/*
-				 * Need at least one digit 
-				 */
+		got_one = 1;	/* Need at least one digit */
 	while (*str && isdigit(*str))
-		str++;		/*
-				 * The number (int) 
-				 */
+		str++;		/* The number (int) */
 	if (*str == '.')
-		str++;		/*
-				 * decimal point 
-				 */
+		str++;		/* decimal point */
 	if (isdigit(*str))
-		got_one = 1;	/*
-				 * Need at least one digit 
-				 */
+		got_one = 1;	/* Need at least one digit */
 	while (*str && isdigit(*str))
-		str++;		/*
-				 * The number (fract) 
-				 */
+		str++;		/* The number (fract) */
 	while (*str && isspace(*str))
-		str++;		/*
-				 * Trailing spaces 
-				 */
+		str++;		/* Trailing spaces */
 	return ((*str || !got_one) ? 0 : 1);
 }
 
@@ -252,9 +213,7 @@ int locknum;
 	dbref aowner;
 	int aflags, doit;
 
-	/*
-	 * no if nonplayer trys to get key 
-	 */
+	/* no if nonplayer trys to get key */
 
 	if (!isPlayer(player) && Key(thing)) {
 		return 0;
@@ -272,30 +231,25 @@ int can_see(player, thing, can_see_loc)
 dbref player, thing;
 int can_see_loc;
 {
-	/*
-	 * Don't show if all the following apply: * Sleeping players should * 
-	 * 
-	 * *  * * not be seen. * The thing is a disconnected player. * The
-	 * player * is  *  * * not a puppet. 
+	/* Don't show if all the following apply: 
+	 * Sleeping players should not be seen.
+	 * The thing is a disconnected player. 
+	 * The player is not a puppet. 
 	 */
 
 	if (mudconf.dark_sleepers && isPlayer(thing) &&
 	    !Connected(thing) && !Puppet(thing)) {
 		return 0;
 	}
-	/*
-	 * You don't see yourself or exits 
-	 */
+	/* You don't see yourself or exits */
 
 	if ((player == thing) || isExit(thing)) {
 		return 0;
 	}
-	/*
-	 * If loc is not dark, you see it if it's not dark or you control it.
-	 * * * * * If loc is dark, you see it if you control it.  Seeing your
-	 * * own * * * dark objects is controlled by mudconf.see_own_dark. *
-	 * In * dark *  * locations, you also see things that are LIGHT and
-	 * !DARK. 
+	/* If loc is not dark, you see it if it's not dark or you control it.
+	 * If loc is dark, you see it if you control it.  Seeing your
+	 * own dark objects is controlled by mudconf.see_own_dark.
+	 * In dark locations, you also see things that are LIGHT and !DARK. 
 	 */
 
 	if (can_see_loc) {
@@ -315,32 +269,24 @@ int cost;
 	int quota, aflags;
 	char buf[20], *quota_str;
 
-	/*
-	 * If no cost, succeed 
-	 */
+	/* If no cost, succeed */
 
 	if (cost <= 0)
 		return 1;
 
-	/*
-	 * determine quota 
-	 */
+	/* determine quota */
 
 	quota = atoi(quota_str = atr_get(Owner(who), A_RQUOTA, &aowner, &aflags));
 	free_lbuf(quota_str);
 
-	/*
-	 * enough to build?  Wizards always have enough. 
-	 */
+	/* enough to build?  Wizards always have enough. */
 
 	quota -= cost;
 	if ((quota < 0) && !Free_Quota(who) && !Free_Quota(Owner(who)))
 		return 0;
 
-	/*
-	 * dock the quota 
-	 */
-	sprintf(buf, "%d", quota);
+	/* dock the quota */
+	ltos(buf, quota);
 	atr_add_raw(Owner(who), A_RQUOTA, buf);
 
 	return 1;
@@ -429,7 +375,7 @@ int payment;
 	char buf[20], *quota;
 
 	quota = atr_get(who, A_RQUOTA, &aowner, &aflags);
-	sprintf(buf, "%d", atoi(quota) + payment);
+	ltos(buf, atoi(quota) + payment);
 	free_lbuf(quota);
 	atr_add_raw(who, A_RQUOTA, buf);
 }
@@ -452,32 +398,24 @@ const char *name;
 {
 	const char *cp;
 
-	/*
-	 * Disallow leading spaces 
-	 */
+	/* Disallow leading spaces */
 
 	if (isspace(*name))
 		return 0;
 
-	/*
-	 * Only printable characters 
-	 */
+	/* Only printable characters */
 
 	for (cp = name; cp && *cp; cp++) {
 		if ((!isprint(*cp)) && (*cp != ESC_CHAR))
 			return 0;
 	}
 
-	/*
-	 * Disallow trailing spaces 
-	 */
+	/* Disallow trailing spaces */
 	cp--;
 	if (isspace(*cp))
 		return 0;
 
-	/*
-	 * Exclude names that start with or contain certain magic cookies 
-	 */
+	/* Exclude names that start with or contain certain magic cookies */
 
 	return (name &&
 		*name &&
@@ -497,16 +435,12 @@ const char *name;
 {
 	const char *cp, *good_chars;
 
-	/*
-	 * No leading spaces 
-	 */
+	/* No leading spaces */
 
 	if (isspace(*name))
 		return 0;
 
-	/*
-	 * Not too long and a good name for a thing 
-	 */
+	/* Not too long and a good name for a thing */
 
 	if (!ok_name(name) || (strlen(name) >= PLAYER_NAME_LIMIT))
 		return 0;
@@ -519,9 +453,7 @@ const char *name;
 #else
 	good_chars = " `$_-.,'";
 #endif
-	/*
-	 * Make sure name only contains legal characters 
-	 */
+	/* Make sure name only contains legal characters */
 
 	for (cp = name; cp && *cp; cp++) {
 		if (isalnum(*cp))
@@ -562,9 +494,7 @@ const char *password;
 		}
 	}
 
-	/*
-	 * Needed.  Change it if you like, but be sure yours is the same. 
-	 */
+	/* Needed.  Change it if you like, but be sure yours is the same. */
 	if ((strlen(password) == 13) &&
 	    (password[0] == 'X') &&
 	    (password[1] == 'X'))
@@ -575,9 +505,8 @@ const char *password;
 
 #ifndef STANDALONE
 
-/*
- * ---------------------------------------------------------------------------
- * * handle_ears: Generate the 'grows ears' and 'loses ears' messages.
+/* ---------------------------------------------------------------------------
+ * handle_ears: Generate the 'grows ears' and 'loses ears' messages.
  */
 
 void handle_ears(thing, could_hear, can_hear)
@@ -586,8 +515,6 @@ int could_hear, can_hear;
 {
 	char *buff, *bp;
 	int gender;
-	static const char *poss[5] =
-	{"", "its", "her", "his", "their"};
 
 	if (!could_hear && can_hear) {
 		buff = alloc_lbuf("handle_ears.grow");
@@ -598,8 +525,8 @@ int could_hear, can_hear;
 		}
 		gender = get_gender(thing);
 		notify_check(thing, thing,
-			     tprintf("%s grow%s ears and can now hear.",
-				     buff, (gender == 4) ? "" : "s"),
+			     tprintf("%s %s now listening.",
+				     buff, (gender == 4) ? "are" : "is"),
 			     (MSG_ME | MSG_NBR | MSG_LOC | MSG_INV));
 		free_lbuf(buff);
 	} else if (could_hear && !can_hear) {
@@ -611,17 +538,14 @@ int could_hear, can_hear;
 		}
 		gender = get_gender(thing);
 		notify_check(thing, thing,
-			     tprintf("%s lose%s %s ears and become%s deaf.",
-				     buff, (gender == 4) ? "" : "s",
-				     poss[gender], (gender == 4) ? "" : "s"),
+			     tprintf("%s %s no longer listening..",
+				     buff, (gender == 4) ? "are" : "is"),
 			     (MSG_ME | MSG_NBR | MSG_LOC | MSG_INV));
 		free_lbuf(buff);
 	}
 }
 
-/*
- * for lack of better place the @switch code is here 
- */
+/* for lack of better place the @switch code is here */
 
 void do_switch(player, cause, key, expr, args, nargs, cargs, ncargs)
 dbref player, cause;
@@ -640,9 +564,7 @@ char *expr, *args[], *cargs[];
 		else
 			key = SWITCH_ONE;
 	}
-	/*
-	 * now try a wild card match of buff with stuff in coms 
-	 */
+	/* now try a wild card match of buff with stuff in coms */
 
 	any = 0;
 	buff = bp = alloc_lbuf("do_switch");
@@ -895,9 +817,8 @@ char *s;
 	}
 }
 
-/*
- * @prog 'glues' a user's input to a command. Once executed, the first string
- * input from any of the doers's logged in descriptors, will go into
+/* @program 'glues' a user's input to a command. Once executed, the first 
+ * string input from any of the doers's logged in descriptors, will go into
  * A_PROGMSG, which can be substituted in <command> with %0. Commands already
  * queued by the doer will be processed normally.
  */
@@ -912,16 +833,17 @@ char *message;
 	dbref aowner;
 	int aflags, i;
 
-	/*
-	 * Allow the player to pipe a command while in interactive mode. 
+	/* Allow the player to pipe a command while in interactive mode.
+	 * Use telnet protocol's GOAHEAD command to show prompt
 	 */
 
 	if (*message == '|') {
 		do_command(d, message + 1, 1);
-		/*
-		 * Use telnet protocol's GOAHEAD command to show prompt 
+		/* We might have been handed a @quitprogram, so check to make
+		 * sure we really do want to display a prompt.
 		 */
-		queue_string(d, tprintf("%s>%s \377\371", ANSI_HILITE, ANSI_NORMAL));
+		if (d->program_data != NULL)
+			queue_string(d, tprintf("%s>%s \377\371", ANSI_HILITE, ANSI_NORMAL));
 		return;
 	}
 	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags);
@@ -929,7 +851,6 @@ char *message;
 		 1, (char **)d->program_data->wait_regs);
 
 	/* First, set 'all' to a descriptor we find for this player */
-	
 
 	all = (DESC *)nhashfind(d->player, &mudstate.desc_htab) ;
 
@@ -947,6 +868,25 @@ char *message;
 	free_lbuf(cmd);
 }
 
+static int ok_program(player, doer)
+    dbref player;
+    dbref doer;
+{
+    if (! Controls(player, doer)) {
+        notify(player, "Permission denied.");
+        return 0;
+    }
+    if (!isPlayer(doer) || !Good_obj(doer)) {
+        notify(player, "No such player.");
+        return 0;
+    }
+    if (!Connected(doer)) {
+        notify(player, "Sorry, that player is not connected.");
+        return 0;
+    }
+    return 1;
+}
+
 void do_quitprog(player, cause, key, name)
 dbref player, cause;
 int key;
@@ -962,18 +902,9 @@ char *name;
 		doer = player;
 	}
 
-	if (!(Prog(player) || Prog(Owner(player))) && (player != doer)) {
-		notify(player, "Permission denied.");
+	if (!ok_program(player, doer))
 		return;
-	}
-	if (!isPlayer(doer) || !Good_obj(doer)) {
-		notify(player, "That is not a player.");
-		return;
-	}
-	if (!Connected(doer)) {
-		notify(player, "That player is not connected.");
-		return;
-	}
+
 	DESC_ITER_PLAYER(doer, d) {
 		if (d->program_data != NULL) {
 			isprog = 1;
@@ -1020,18 +951,9 @@ char *name, *command;
 	}
 	doer = match_thing(player, name);
 
-	if (!(Prog(player) || Prog(Owner(player))) && (player != doer)) {
-		notify(player, "Permission denied.");
+	if (!ok_program(player, doer))
 		return;
-	}
-	if (!isPlayer(doer) || !Good_obj(doer)) {
-		notify(player, "That is not a player.");
-		return;
-	}
-	if (!Connected(doer)) {
-		notify(player, "That player is not connected.");
-		return;
-	}
+	
 	msg = command;
 	attrib = parse_to(&msg, ':', 1);
 
@@ -1057,9 +979,7 @@ char *name, *command;
 		return;
 	}
 
-	/*
-	 * Check to see if the cause already has an @prog input pending 
-	 */
+	/* Check to see if the cause already has an @prog input pending */
 	DESC_ITER_PLAYER(doer, d) {
 		if (d->program_data != NULL) {
 			notify(player, "Input already pending.");
@@ -1067,22 +987,18 @@ char *name, *command;
 		}
 	}
 
-	program = (PROG *) malloc(sizeof(PROG));
+	program = (PROG *) XMALLOC(sizeof(PROG), "do_prog");
 	program->wait_cause = player;
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 		program->wait_regs[i] = alloc_lbuf("prog_regs");
-		StringCopy(program->wait_regs[i], mudstate.global_regs[i]);
+		strcpy(program->wait_regs[i], mudstate.global_regs[i]);
 	}
 
-	/*
-	 * Now, start waiting. 
-	 */
+	/* Now, start waiting. */
 	DESC_ITER_PLAYER(doer, d) {
 		d->program_data = program;
 
-		/*
-		 * Use telnet protocol's GOAHEAD command to show prompt 
-		 */
+		/* Use telnet protocol's GOAHEAD command to show prompt */
 		queue_string(d, tprintf("%s>%s \377\371", ANSI_HILITE, ANSI_NORMAL));
 	}
 
@@ -1121,9 +1037,8 @@ void do_restart(player, cause, key)
 	execl(mudconf.exec_path, mudconf.exec_path, mudconf.config_file, NULL);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_comment: Implement the @@ (comment) command. Very cpu-intensive :-)
+/* ---------------------------------------------------------------------------
+ * do_comment: Implement the @@ (comment) command. Very cpu-intensive :-)
  */
 
 void do_comment(player, cause, key)
@@ -1160,40 +1075,30 @@ int check_enter;
 	int control;
 	char *buff, *start, *place, *s1, *d1, *temp;
 
-	/*
-	 * First, check normally 
-	 */
+	/* First, check normally */
 
 	if (Good_obj(dflt))
 		return dflt;
 
-	/*
-	 * Didn't find it directly.  Recursively do a contents check 
-	 */
+	/* Didn't find it directly.  Recursively do a contents check */
 
 	start = target;
 	while (*target) {
 
-		/*
-		 * Fail if no ' characters 
-		 */
+		/* Fail if no ' characters */
 
 		place = target;
 		target = (char *)index(place, '\'');
 		if ((target == NULL) || !*target)
 			return dflt;
 
-		/*
-		 * If string started with a ', skip past it 
-		 */
+		/* If string started with a ', skip past it */
 
 		if (place == target) {
 			target++;
 			continue;
 		}
-		/*
-		 * If next character is not an s or a space, skip past 
-		 */
+		/* If next character is not an s or a space, skip past */
 
 		temp = target++;
 		if (!*target)
@@ -1201,10 +1106,8 @@ int check_enter;
 		if ((*target != 's') && (*target != 'S') && (*target != ' '))
 			continue;
 
-		/*
-		 * If character was not a space make sure the following * * * 
-		 * 
-		 * * character is a space. 
+		/* If character was not a space make sure the following
+		 * character is a space. 
 		 */
 
 		if (*target != ' ') {
@@ -1214,8 +1117,7 @@ int check_enter;
 			if (*target != ' ')
 				continue;
 		}
-		/*
-		 * Copy the container name to a new buffer so we can * * * *
+		/* Copy the container name to a new buffer so we can
 		 * terminate it. 
 		 */
 
@@ -1223,9 +1125,8 @@ int check_enter;
 		for (s1 = start, d1 = buff; *s1 && (s1 < temp); *d1++ = (*s1++)) ;
 		*d1 = '\0';
 
-		/*
-		 * Look for the container here and in our inventory.  Skip *
-		 * * * * past if we can't find it. 
+		/* Look for the container here and in our inventory.  Skip
+		 * past if we can't find it. 
 		 */
 
 		init_match(thing, buff, NOTYPE);
@@ -1242,9 +1143,8 @@ int check_enter;
 			dflt = promote_dflt(dflt, result1);
 			continue;
 		}
-		/*
-		 * If we don't control it and it is either dark or opaque, *
-		 * * * * skip past. 
+		/* If we don't control it and it is either dark or opaque,
+		 * skip past. 
 		 */
 
 		control = Controls(player, result1);
@@ -1252,17 +1152,13 @@ int check_enter;
 			dflt = promote_dflt(dflt, NOTHING);
 			continue;
 		}
-		/*
-		 * Validate object has the ENTER bit set, if requested 
-		 */
+		/* Validate object has the ENTER bit set, if requested */
 
 		if ((check_enter) && !Enter_ok(result1) && !control) {
 			dflt = promote_dflt(dflt, NOPERM);
 			continue;
 		}
-		/*
-		 * Look for the object in the container 
-		 */
+		/* Look for the object in the container */
 
 		init_match(result1, target, NOTYPE);
 		match_possession();
@@ -1276,9 +1172,8 @@ int check_enter;
 	return dflt;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * parse_range: break up <what>,<low>,<high> syntax
+/* ---------------------------------------------------------------------------
+ * parse_range: break up <what>,<low>,<high> syntax
  */
 
 void parse_range(name, low_bound, high_bound)
@@ -1322,14 +1217,10 @@ char *thing, **after;
 {
 	char *str;
 
-	/*
-	 * get name up to / 
-	 */
+	/* get name up to / */
 	for (str = thing; *str && (*str != '/'); str++) ;
 
-	/*
-	 * If no / in string, return failure 
-	 */
+	/* If no / in string, return failure */
 
 	if (!*str) {
 		*after = NULL;
@@ -1338,7 +1229,7 @@ char *thing, **after;
 	}
 	*str++ = '\0';
 	*after = str;
-
+/*foobar*/
 	/*
 	 * Look for the object 
 	 */
@@ -1728,7 +1619,7 @@ int key, nargs;
 char *victim_str, *args[];
 {
 	dbref actor, victim, aowner;
-	int what, owhat, awhat, nxargs, restrict, aflags, i;
+	int what, owhat, awhat, nxargs, restriction, aflags, i;
 	ATTR *ap;
 	const char *whatd, *owhatd;
 	char *xargs[10];
@@ -1778,7 +1669,7 @@ char *victim_str, *args[];
 		notify_quiet(player, "Permission denied,");
 		return;
 	}
-	restrict = !controls(player, victim);
+	restriction = !controls(player, victim);
 
 	what = -1;
 	owhat = -1;
@@ -1841,7 +1732,7 @@ char *victim_str, *args[];
 	 * If player doesn't control both, enforce visibility restrictions 
 	 */
 
-	if (restrict) {
+	if (restriction) {
 		ap = NULL;
 		if (what != -1) {
 			atr_get_info(victim, what, &aowner, &aflags);

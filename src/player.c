@@ -1,9 +1,5 @@
-/*
- * player.c 
- */
-/*
- * $Id$ 
- */
+/* player.c */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -17,12 +13,8 @@
 #include "attrs.h"
 #include "powers.h"
 
-#define	NUM_GOOD	4	/*
-				 * # of successful logins to save data for 
-				 */
-#define NUM_BAD		3	/*
-				 * # of failed logins to save data for 
-				 */
+#define	NUM_GOOD	4	/* # of successful logins to save data for */
+#define NUM_BAD		3	/* # of failed logins to save data for */
 
 typedef struct hostdtm HOSTDTM;
 struct hostdtm {
@@ -54,9 +46,8 @@ char *crypt(const char *inptr, const char *inkey)
 
 extern time_t FDECL(time, (time_t *));
 
-/*
- * ---------------------------------------------------------------------------
- * * decrypt_logindata, encrypt_logindata: Decode and encode login info.
+/* ---------------------------------------------------------------------------
+ * decrypt_logindata, encrypt_logindata: Decode and encode login info.
  */
 
 static void decrypt_logindata(atrbuf, info)
@@ -100,10 +91,8 @@ LDATA *info;
 	char *bp, nullc;
 	int i;
 
-	/*
-	 * Make sure the SPRINTF call tracks NUM_GOOD and NUM_BAD for the * * 
-	 * 
-	 * *  * * number of host/dtm pairs of each type. 
+	/* Make sure the SPRINTF call tracks NUM_GOOD and NUM_BAD for the 
+	 * number of host/dtm pairs of each type. 
 	 */
 
 	nullc = '\0';
@@ -130,15 +119,14 @@ LDATA *info;
 		info->bad[0].host, info->bad[0].dtm,
 		info->bad[1].host, info->bad[1].dtm,
 		info->bad[2].host, info->bad[2].dtm);
-	StringCopy(atrbuf, bp);
+	strcpy(atrbuf, bp);
 	free_lbuf(bp);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * record_login: Record successful or failed login attempt.
- * * If successful, report last successful login and number of failures since
- * * last successful login.
+/* ---------------------------------------------------------------------------
+ * record_login: Record successful or failed login attempt.
+ * If successful, report last successful login and number of failures since
+ * last successful login.
  */
 
 void record_login(player, isgood, ldate, lhost, lusername)
@@ -202,9 +190,8 @@ char *ldate, *lhost, *lusername;
 	free_lbuf(atrbuf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * check_pass: Test a password to see if it is correct.
+/* ---------------------------------------------------------------------------
+ * check_pass: Test a password to see if it is correct.
  */
 
 int check_pass(player, password)
@@ -223,9 +210,8 @@ const char *password;
 	}
 	free_lbuf(target);
 
-	/*
-	 * This is needed to prevent entering the raw encrypted password from
-	 * * * working.  Do it better if you like, but it's needed. 
+	/* This is needed to prevent entering the raw encrypted password from
+	 * working.  Do it better if you like, but it's needed. 
 	 */
 
 	if ((strlen(password) == 13) &&
@@ -235,9 +221,8 @@ const char *password;
 	return 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * connect_player: Try to connect to an existing player.
+/* ---------------------------------------------------------------------------
+ * connect_player: Try to connect to an existing player.
  */
 
 dbref connect_player(name, password, host, username)
@@ -262,26 +247,26 @@ char *name, *password, *host, *username;
 	time_str = ctime(&tt);
 	time_str[strlen(time_str) - 1] = '\0';
 
-	/*
-	 * compare to last connect see if player gets salary 
-	 */
+	/* compare to last connect see if player gets salary */
 	player_last = atr_get(player, A_LAST, &aowner, &aflags);
 	if (strncmp(player_last, time_str, 10) != 0) {
-		allowance = atr_pget(player, A_ALLOWANCE, &aowner, &aflags);
-		if (*allowance == '\0')
-			giveto(player, mudconf.paycheck);
-		else
-			giveto(player, atoi(allowance));
-		free_lbuf(allowance);
+		if (Pennies(player) < mudconf.paylimit) {
+			/* Don't heap coins on players who already have lots of money. */
+			allowance = atr_pget(player, A_ALLOWANCE, &aowner, &aflags);
+			if (*allowance == '\0')
+				giveto(player, mudconf.paycheck);
+			else
+				giveto(player, atoi(allowance));
+			free_lbuf(allowance);
+		}
 	}
 	atr_add_raw(player, A_LAST, time_str);
 	free_lbuf(player_last);
 	return player;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * create_player: Create a new player.
+/* ---------------------------------------------------------------------------
+ * create_player: Create a new player.
  */
 
 dbref create_player(name, password, creator, isrobot, isguest)
@@ -292,27 +277,21 @@ int isrobot, isguest;
 	dbref player;
 	char *pbuf;
 
-	/*
-	 * Make sure the password is OK.  Name is checked in create_obj 
-	 */
+	/* Make sure the password is OK.  Name is checked in create_obj */
 
 	pbuf = trim_spaces(password);
 	if (!ok_password(pbuf)) {
 		free_lbuf(pbuf);
 		return NOTHING;
 	}
-	/*
-	 * If so, go create him 
-	 */
+	/* If so, go create him */
 
 	player = create_obj(creator, TYPE_PLAYER, name, isrobot);
 	if (player == NOTHING) {
 		free_lbuf(pbuf);
 		return NOTHING;
 	}
-	/*
-	 * initialize everything 
-	 */
+	/* initialize everything */
 	if (isguest) {
 		if (*mudconf.guests_channel)
 			do_addcom(player, player, 0, "g", mudconf.guests_channel);
@@ -327,9 +306,8 @@ int isrobot, isguest;
 	return player;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_password: Change the password for a player
+/* ---------------------------------------------------------------------------
+ * do_password: Change the password for a player
  */
 
 void do_password(player, cause, key, oldpass, newpass)
@@ -353,9 +331,8 @@ char *oldpass, *newpass;
 	free_lbuf(target);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_last Display login history data.
+/* ---------------------------------------------------------------------------
+ * do_last Display login history data.
  */
 
 static void disp_from_on(player, dtm_str, host_str)
@@ -412,10 +389,9 @@ char *who;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * add_player_name, delete_player_name, lookup_player:
- * * Manage playername->dbref mapping
+/* ---------------------------------------------------------------------------
+ * add_player_name, delete_player_name, lookup_player:
+ * Manage playername->dbref mapping
  */
 
 int add_player_name(player, name)
@@ -426,31 +402,27 @@ char *name;
 	dbref *p;
 	char *temp, *tp;
 
-	/*
-	 * Convert to all lowercase 
-	 */
+	/* Convert to all lowercase */
 
 	tp = temp = alloc_lbuf("add_player_name");
 	safe_str(name, temp, &tp);
-	*tp = '\0';
 	for (tp = temp; *tp; tp++)
 		*tp = ToLower(*tp);
 
 	p = (int *)hashfind(temp, &mudstate.player_htab);
 	if (p) {
 
-		/*
-		 * Entry found in the hashtable.  If a player, succeed if the
-		 * * * numbers match (already correctly in the hash table),
-		 * fail * * if they don't.  Fail if the name is a disallowed
-		 * name * * (value AMBIGUOUS). 
+		/* Entry found in the hashtable.  If a player, succeed if the
+		 * numbers match (already correctly in the hash table),
+		 * fail if they don't.  Fail if the name is a disallowed
+		 * name (value AMBIGUOUS). 
 		 */
 
 		if (*p == AMBIGUOUS) {
 			free_lbuf(temp);
 			return 0;
 		}
-		if (Good_obj(*p) && (Typeof(*p) == TYPE_PLAYER)) {
+		if (Good_obj(*p) && isPlayer(*p)) {
 			free_lbuf(temp);
 			if (*p == player) {
 				return 1;
@@ -458,17 +430,15 @@ char *name;
 				return 0;
 			}
 		}
-		/*
-		 * It's an alias (or an incorrect entry).  Clobber it 
-		 */
+		/* It's an alias (or an incorrect entry).  Clobber it */
 		free(p);
-		p = (dbref *) malloc(sizeof(int));
+		p = (dbref *) XMALLOC(sizeof(int), "add_player_name");
 
 		*p = player;
 		stat = hashrepl(temp, p, &mudstate.player_htab);
 		free_lbuf(temp);
 	} else {
-		p = (dbref *) malloc(sizeof(int));
+		p = (dbref *) XMALLOC(sizeof(int), "add_player_name.2");
 
 		*p = player;
 		stat = hashadd(temp, p, &mudstate.player_htab);
@@ -487,10 +457,8 @@ char *name;
 
 	tp = temp = alloc_lbuf("delete_player_name");
 	safe_str(name, temp, &tp);
-	*tp = '\0';
 	for (tp = temp; *tp; tp++)
 		*tp = ToLower(*tp);
-
 	p = (int *)hashfind(temp, &mudstate.player_htab);
 	if (!p || (*p == NOTHING) || ((player != NOTHING) && (*p != player))) {
 		free_lbuf(temp);
@@ -526,7 +494,6 @@ int check_who;
 	}
 	tp = temp = alloc_lbuf("lookup_player");
 	safe_str(name, temp, &tp);
-	*tp = '\0';
 	for (tp = temp; *tp; tp++)
 		*tp = ToLower(*tp);
 	p = (int *)hashfind(temp, &mudstate.player_htab);
@@ -561,9 +528,7 @@ void NDECL(load_player_names)
 				cache_reset(0);
 				j = 0;
 			}
-#endif /*
-        * MEMORY_BASED 
-        */
+#endif /* MEMORY_BASED */
 		}
 	}
 	alias = alloc_lbuf("load_player_names");
@@ -579,17 +544,14 @@ void NDECL(load_player_names)
 				cache_reset(0);
 				j = 0;
 			}
-#endif /*
-        * MEMORY_BASED 
-        */
+#endif /* MEMORY_BASED */
 		}
 	}
 	free_lbuf(alias);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * badname_add, badname_check, badname_list: Add/look for/display bad names.
+/* ---------------------------------------------------------------------------
+ * badname_add, badname_check, badname_list: Add/look for/display bad names.
  */
 
 void badname_add(bad_name)
@@ -597,15 +559,12 @@ char *bad_name;
 {
 	BADNAME *bp;
 
-	/*
-	 * Make a new node and link it in at the top 
-	 */
+	/* Make a new node and link it in at the top */
 
 	bp = (BADNAME *) XMALLOC(sizeof(BADNAME), "badname.struc");
-	bp->name = XMALLOC(strlen(bad_name) + 1, "badname.name");
+	bp->name = strsave(bad_name);
 	bp->next = mudstate.badname_head;
 	mudstate.badname_head = bp;
-	StringCopy(bp->name, bad_name);
 }
 
 void badname_remove(bad_name)
@@ -613,9 +572,7 @@ char *bad_name;
 {
 	BADNAME *bp, *backp;
 
-	/*
-	 * Look for an exact match on the bad name and remove if found 
-	 */
+	/* Look for an exact match on the bad name and remove if found */
 
 	backp = NULL;
 	for (bp = mudstate.badname_head; bp; backp = bp, bp = bp->next) {
@@ -636,11 +593,8 @@ char *bad_name;
 {
 	BADNAME *bp;
 
-	/*
-	 * Walk the badname list, doing wildcard matching.  If we get a hit * 
-	 * 
-	 * *  * *  * * then return false.  If no matches in the list, return
-	 * true.  
+	/* Walk the badname list, doing wildcard matching.  If we get a hit
+	 * then return false.  If no matches in the list, return true.  
 	 */
 
 	for (bp = mudstate.badname_head; bp; bp = bp->next) {
@@ -657,9 +611,7 @@ const char *prefix;
 	BADNAME *bp;
 	char *buff, *bufp;
 
-	/*
-	 * Construct an lbuf with all the names separated by spaces 
-	 */
+	/* Construct an lbuf with all the names separated by spaces */
 
 	buff = bufp = alloc_lbuf("badname_list");
 	safe_str((char *)prefix, buff, &bufp);
@@ -667,11 +619,8 @@ const char *prefix;
 		safe_chr(' ', buff, &bufp);
 		safe_str(bp->name, buff, &bufp);
 	}
-	*bufp = '\0';
 
-	/*
-	 * Now display it 
-	 */
+	/* Now display it */
 
 	notify(player, buff);
 	free_lbuf(buff);

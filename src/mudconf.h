@@ -172,12 +172,11 @@ struct confdata {
 	int	trace_limit;	/* Max lines of trace output if top-down */
 	int	safe_unowned;	/* Are objects not owned by you safe? */
 	int	parent_control; /* Obey ControlLock on parent */
-      int wiz_obey_linklock;    /* Do wizards obey linklocks? */
-      int local_masters;        /* Do we check Zone rooms as local masters? */
-      int req_cmds_flag;        /* COMMANDS flag required to check $-cmds? */
-      int parent_zones;         /* Treat Next() on rooms as zone? */
-      int fmt_contents;         /* allow user-formattable Contents? */
-      int fmt_exits;            /* allow user-formattable Exits? */
+	int	wiz_obey_linklock;	/* Do wizards obey linklocks? */
+	int	local_masters;	/* Do we check Zone rooms as local masters? */
+	int	req_cmds_flag;	/* COMMANDS flag required to check $-cmds? */
+	int	fmt_contents;	/* allow user-formattable Contents? */
+	int	fmt_exits;	/* allow user-formattable Exits? */
 	int	space_compress;	/* Convert multiple spaces into one space */
 	int	start_room;	/* initial location and home for players */
 	int	start_home;	/* initial HOME for players */

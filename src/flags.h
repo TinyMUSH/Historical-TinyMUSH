@@ -69,6 +69,7 @@
 #define HEAD_FLAG       0x00000400
 #define FIXED           0x00000800
 #define UNINSPECTED     0x00001000
+#define ZONE_PARENT	0x00002000	/* Check as local master room */
 #define DYNAMIC         0x00004000
 #define NOBLEED         0x00008000
 #define STAFF           0x00010000
@@ -77,6 +78,7 @@
 #define HAS_COMMANDS	0x00080000	/* Check it for $commands */
 #define STOP_MATCH	0x00100000	/* Stop matching commands if found */
 #define BOUNCE		0x00200000	/* Forward messages to contents */
+#define CONTROL_OK	0x00400000	/* ControlLk specifies who ctrls me */
 #define VACATION	0x01000000
 #define PLAYER_MAILS    0x02000000
 #define HTML		0x04000000      /* Player supports HTML */
@@ -413,6 +415,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Safe(x,p)	(OwnsOthers(x) || \
 			 (Flags(x) & SAFE) || \
 			 (mudconf.safe_unowned && (Owner(x) != Owner(p))))
+#define Control_ok(x)	((Flags2(x) & CONTROL_OK) != 0)
 #define	Audible(x)	((Flags(x) & HEARTHRU) != 0)
 #define	Terse(x)	((Flags(x) & TERSE) != 0)
 
@@ -430,6 +433,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Connected(x)	(((Flags2(x) & CONNECTED) != 0) && \
 			 (Typeof(x) == TYPE_PLAYER))
 #define	Slave(x)	((Flags2(Owner(x)) & SLAVE) != 0)
+#define ParentZone(x)	((Flags2(x) & ZONE_PARENT) != 0)
 #define Stop_Match(x)   ((Flags2(x) & STOP_MATCH) != 0)
 #define Has_Commands(x) ((Flags2(x) & HAS_COMMANDS) != 0)
 #define Bouncer(x)      ((Flags2(x) & BOUNCE) != 0)
@@ -447,25 +451,24 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Parentable(p,x)	(Controls(p,x) || \
 			 (Parent_ok(x) && could_doit(p,x,A_LPARENT)))
 
-#define OnEnterLock(p,x) (check_zone(p,x))
+#define OnControlLock(p,x) (check_zone(p,x))
 
 #define	Examinable(p,x)	(((Flags(x) & VISUAL) != 0) || \
 			 (See_All(p)) || \
                          (Owner(p) == Owner(x)) || \
-			 OnEnterLock(p,x))
+			 OnControlLock(p,x))
 
 #define	MyopicExam(p,x)	(((Flags(x) & VISUAL) != 0) || \
 			 (!Myopic(p) && (See_All(p) || \
 			 (Owner(p) == Owner(x)) || \
-  	                 OnEnterLock(p,x))))
+  	                 OnControlLock(p,x))))
 
 #define	Controls(p,x)	(Good_obj(x) && \
 			 (!(God(x) && !God(p))) && \
 			 (Control_All(p) || \
 			  ((Owner(p) == Owner(x)) && \
 			   (Inherits(p) || !Inherits(x))) || \
-			   OnEnterLock(p,x)))
-
+			   OnControlLock(p,x)))
 #define	Affects(p,x)	(Good_obj(x) && \
 			 (!(God(x) && !God(p))) && \
 			 (Wizard(p) || \

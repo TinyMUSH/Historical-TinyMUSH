@@ -143,10 +143,10 @@ void regerror(msg)
 /*
  * Utility definitions.
  */
-#ifndef CHARBITS
+#ifndef CHARMASK
 #define	UCHARAT(p)	((int)*(unsigned char *)(p))
 #else
-#define	UCHARAT(p)	((int)*(p)&CHARBITS)
+#define	UCHARAT(p)	((int)*(p)&CHARMASK)
 #endif
 
 #define	FAIL(m)	{ regerror(m); return(NULL); }

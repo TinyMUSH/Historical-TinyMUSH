@@ -1010,6 +1010,7 @@ char *command, *cargs[];
 {
 	char *buff;
 	int i;
+	int number = 0;
 
 	if (mudconf.control_flags & CF_DBCHECK) {
 		er_mark_disabled(player);
@@ -1019,6 +1020,7 @@ char *command, *cargs[];
 	DO_WHOLE_DB(i) {
 		if (Marked(i)) {
 			sprintf(buff, "#%d", i);
+			number++;
 			bind_and_queue(player, cause, command, buff,
 				       cargs, ncargs);
 		}

@@ -30,7 +30,7 @@
 extern regexp *FDECL(regcomp, (char *));
 extern int FDECL(regexec, (register regexp *, register char *));
 extern void FDECL(regerror, (char *));
-extern *regexp_errbuf;
+extern char regexp_errbuf[];
 
 /* From conf.c */
 extern int	FDECL(cf_modify_bits, (int *, char *, long, dbref, char *));

@@ -1,10 +1,5 @@
-
-/*
- * player_c.c -- Player cache routines 
- */
-/*
- * $Id$ 
- */
+/* player_c.c -- Player cache routines */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -106,7 +101,7 @@ PCACHE *pp;
 	if (pp->cflags & PF_DEAD)
 		return;
 	if (pp->cflags & PF_MONEY_CH) {
-		sprintf(tbuf, "%d", pp->money);
+		ltos(tbuf, pp->money);
 		atr_add_raw(pp->player, A_MONEY, tbuf);
 	}
 	if (pp->cflags & PF_QMAX_CH) {
@@ -254,6 +249,6 @@ int howfew;
 		}
 	}
 #endif
-	sprintf(tbuf, "%d", howfew);
+	ltos(tbuf, howfew);
 	atr_add_raw(obj, A_MONEY, tbuf);
 }

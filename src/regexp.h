@@ -11,9 +11,9 @@
  */
 
 /*
- * -DCHARBITS=0377       compilers without unsigned char (ok on those with it)
+ * -DCHARMASK=0377       compilers without unsigned char (ok on those with it)
  */
-#define CHARBITS 0377
+#define CHARMASK 0377
 
 #define NSUBEXP  10
 typedef struct regexp {

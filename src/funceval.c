@@ -3056,6 +3056,12 @@ regexp *re;
 	free(re);
 }
 
+/* ---------------------------------------------------------------------------
+ * fun_translate: Takes a string and a second argument. If the second argument
+ * is 0 or s, control characters are converted to spaces. If it's 1 or p,
+ * they're converted to percent substitutions.
+ */
+
 FUNCTION(fun_translate)
 {
 	if (*fargs[0] && *fargs[1]) {

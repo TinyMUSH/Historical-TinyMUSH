@@ -103,33 +103,19 @@ dbref player, object;
 
 	/* Player queue */
 
-	for (point = mudstate.qfirst, trail = NULL; point; point = next)
+	for (point = mudstate.qfirst; point; point = point->next)
 		if (que_want(point, player, object)) {
 			numhalted++;
-			if (trail)
-				trail->next = next = point->next;
-			else
-				mudstate.qfirst = next = point->next;
-			free(point->text);
-			free_qentry(point);
-		} else
-			next = (trail = point)->next;
-	mudstate.qlast = NULL;
+			point->player = 0;
+		} 
 
 	/* Object queue */
 
-	for (point = mudstate.qlfirst, trail = NULL; point; point = next)
+	for (point = mudstate.qlfirst; point; point = point->next)
 		if (que_want(point, player, object)) {
 			numhalted++;
-			if (trail)
-				trail->next = next = point->next;
-			else
-				mudstate.qlfirst = next = point->next;
-			free(point->text);
-			free_qentry(point);
-		} else
-			next = (trail = point)->next;
-	mudstate.qllast = NULL;
+			point->player = 0;
+		} 
 
 	/* Wait queue */
 
@@ -758,8 +744,7 @@ int ncmds;
 				}
 
 				command = mudstate.qfirst->comm;
-				tmp = mudstate.qfirst;
-				while (command && (mudstate.qfirst == tmp)) {
+				while (command) {
 					cp = parse_to(&command, ';', 0);
 					if (cp && *cp) {
 						while (command && (*command == '|')) {
@@ -828,16 +813,12 @@ int ncmds;
 				}
 			}
 		}
-                if (mudstate.qfirst) {
-                        tmp = mudstate.qfirst;
-                        mudstate.qfirst = mudstate.qfirst->next;
-                        if (!mudstate.qfirst)
-                        	mudstate.qlast = NULL;
-                        free(tmp->text);
-                        free_qentry(tmp);
-                } else {
-                         mudstate.qlast = NULL;
-                }
+		tmp = mudstate.qfirst;
+		mudstate.qfirst = mudstate.qfirst->next;
+		if (!mudstate.qfirst)
+			mudstate.qlast = NULL;
+		free(tmp->text);
+		free_qentry(tmp);
 	}
 
 	for (i = 0; i < MAX_GLOBAL_REGS; i++)

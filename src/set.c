@@ -1062,9 +1062,10 @@ char *what, *args[];
 					     tprintf("%s: Cleared.",
 						     in_attr->name));
 		} else {
-			notify_quiet(player,
-				     tprintf("%s: Could not remove old attribute.  Permission denied.",
-					     in_attr->name));
+			if (in_attr)
+				notify_quiet(player,
+					     tprintf("%s: Could not remove old attribute.  Permission denied.",
+						     in_attr->name));
 		}
 	}
 	free_lbuf(astr);

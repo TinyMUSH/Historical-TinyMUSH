@@ -273,6 +273,8 @@ ATTR attr[] =
 	{"Charges", A_CHARGES, AF_ODARK | AF_NOPROG, NULL},
 	{"Comment", A_COMMENT, AF_MDARK | AF_WIZARD, NULL},
 	{"ConFormat", A_LCON_FMT, AF_ODARK | AF_NOPROG, NULL},
+	{"ControlLock", A_LCONTROL, AF_ODARK | AF_NOPROG | AF_NOCMD | AF_IS_LOCK,
+	 NULL},
     	{"Cost", A_COST, AF_ODARK, NULL},
 	{"Daily", A_DAILY, AF_ODARK, NULL},
 	{"Desc", A_DESC, AF_NOPROG, NULL},
@@ -2863,6 +2865,10 @@ char *gdbmfile;
 int check_zone(player, thing)
 dbref player, thing;
 {
+	if (!Control_ok(Zone(thing))) {
+		return 0;
+	}
+	
 	mudstate.zone_nest_num++;
 
 	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
@@ -2873,7 +2879,7 @@ dbref player, thing;
 
 	/* If the zone doesn't have an enterlock, DON'T allow control. */
 
-	if (atr_get_raw(Zone(thing), A_LENTER) && could_doit(player, Zone(thing), A_LENTER)) {
+	if (atr_get_raw(Zone(thing), A_LCONTROL) && could_doit(player, Zone(thing), A_LCONTROL)) {
 		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {
@@ -2885,6 +2891,10 @@ dbref player, thing;
 int check_zone_for_player(player, thing)
 dbref player, thing;
 {
+	if (!Control_ok(Zone(thing))) {
+		return 0;
+	}
+
 	mudstate.zone_nest_num++;
 
 	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
@@ -2893,7 +2903,7 @@ dbref player, thing;
 		return 0;
 	}
 
-	if (atr_get_raw(Zone(thing), A_LENTER) && could_doit(player, Zone(thing), A_LENTER)) {
+	if (atr_get_raw(Zone(thing), A_LCONTROL) && could_doit(player, Zone(thing), A_LCONTROL)) {
 		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {

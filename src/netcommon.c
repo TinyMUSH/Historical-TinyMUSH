@@ -1346,6 +1346,9 @@ char *msg;
 		    (mudconf.control_flags & CF_LOGIN)) {
 			if ((p = make_guest(d)) == NULL) {
 				queue_string(d, "All guests are tied up, please try again later.\n");
+				free_lbuf(command);
+				free_lbuf(user);
+				free_lbuf(password);
 				return 0;
 			}
 			StringCopy(user, p);
