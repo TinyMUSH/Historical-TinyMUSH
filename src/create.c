@@ -823,17 +823,29 @@ char *what;
 	    typename = "thing";
 	    can_doit = 1;
 	    break;
+	case TYPE_GARBAGE:
+	    typename = "garbage";
+	    can_doit = 1;
+	    break;
 	default:
-	    typename = "weird";
+	    typename = "weird object";
 	    can_doit = 1;
 	    break;
     }
     if (!can_doit)
 	return;
 
-    if (Going(thing)) {
-	notify_quiet(player, tprintf("No sense beating a dead %s.", typename));
-	return;
+    /* We can use @destroy/instant to immediately blow up an object
+     * that was already queued for destruction -- that object is
+     * unmodified except for being Going.
+     */
+
+    if (Going(thing) &&
+	!((key & DEST_INSTANT) && (Typeof(thing) != TYPE_GARBAGE))) {
+	    notify_quiet(player,
+			 tprintf("That %s has already been destroyed.",
+				 typename));
+	    return;
     }
 
     /* If we specified the instant switch, or we're configured to
