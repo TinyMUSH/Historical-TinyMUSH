@@ -26,6 +26,7 @@
 #define AF_NOCLONE	0x10000	/* Don't copy this attr when cloning. */
 #define AF_CONST	0x20000	/* No one can change it (set by server) */
 #define AF_CASE		0x40000 /* Regexp matches are case-sensitive */
+#define AF_STRUCTURE	0x80000	/* Attribute contains a structure */
 
 #define A_NULL		0	/* Nothing */
 #define	A_OSUCC		1	/* Others success message */
@@ -188,6 +189,7 @@
 	if (a & AF_PRIVATE) *p++ = 'I'; \
 	if (a & AF_NOPARSE) *p++ = 'P'; \
 	if (a & AF_REGEXP) *p++ = 'R'; \
+	if (a & AF_STRUCTURE) *p++ = 'S'; \
 	if (a & AF_VISUAL) *p++ = 'V'; \
 	if (a & AF_DARK) *p++ = 'd'; \
 	if (a & AF_GOD) *p++ = 'g'; \

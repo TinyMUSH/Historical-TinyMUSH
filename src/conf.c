@@ -255,6 +255,7 @@ void NDECL(cf_init)
 	mudconf.mud_name = XSTRDUP("TinyMUSH", "cf_init");
 	mudconf.one_coin = XSTRDUP("penny", "cf_init");
 	mudconf.many_coins = XSTRDUP("pennies", "cf_init");
+	mudconf.struct_dstr = XSTRDUP("\r\n", "cf_init");
 	mudconf.timeslice = 1000;
 	mudconf.cmd_quota_max = 100;
 	mudconf.cmd_quota_incr = 1;
@@ -305,6 +306,7 @@ void NDECL(cf_init)
 	mudstate.panicking = 0;
 	mudstate.dumping = 0;
 	mudstate.logging = 0;
+	mudstate.struct_check = 0;
 	mudstate.epoch = 0;
 	mudstate.generation = 0;
 	mudstate.reboot_nums = 0;
@@ -405,6 +407,7 @@ void NDECL(cf_init)
 	mudconf.ntfy_nest_lim = 20;
 
 	mudstate.logging = 0;
+	mudstate.struct_check = 0; 
 	mudstate.attr_next = A_USER_START;
 	mudstate.iter_alist.data = NULL;
 	mudstate.iter_alist.len = 0;
@@ -1545,6 +1548,7 @@ CONF conftable[] = {
 {(char *)"starting_thing_quota",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_thing_quota,	0},
 {(char *)"status_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.status_file,	MBUF_SIZE},
 {(char *)"stripped_flags",		cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.stripped_flags,	0},
+{(char *)"structure_delimiter_string",	cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.struct_dstr,	0},
 {(char *)"structure_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.struct_lim,		0},
 {(char *)"suspect_site",		cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.suspect_list,	H_SUSPECT},
 {(char *)"sweep_dark",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.sweep_dark,		(long)"@sweep works on Dark locations"},

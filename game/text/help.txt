@@ -324,10 +324,12 @@ The following are the possible attribute flags:
      visual     - Anyone may see the attribute, including obtaining it with 
                   a function such as get(). (V)
  
-     locked	- Cannot be changed by anyone. Set via '@lock <obj>/<attr>'
-                  and '@unlock <obj>/<attr>', not the @set command.
-                  Local only. (+)
+     locked     - Cannot be changed by anyone. Set via '@lock <obj>/<attr>'
+                  and '@unlock <obj>/<attr>', not @set. Local only. (+)
  
+     structure	- Contains structure data set via write(). Cannot be read
+                  by other means. Local only. (S)
+  
 Continued in 'help Attribute Flags2'.
  
 & Attribute Flags2
@@ -5230,19 +5232,19 @@ See also: @link, @open.
 & LIST FUNCTIONS
   Topic: List Functions
  
-	columns()	elements()	extract()	filter()	
-	filterbool()	first()		fold()		grab()		
-	graball()	index()		insert()	iter()		
-	last()		ldelete()	ldiff()		ledit()
-	linter()	list()		lnum()		loop()
-	lpos()		lrand()		lunion()	map()
-	match()		matchall()	member()	mix()
-	munge()		remove()	replace()	regrab()
-	regraball()	regraballi()	regrabi()	rest()
-	revwords()	setdiff()	setinter()	setunion()
-	shuffle()	sortby()	sort()		splice()
-	step()		until()		whenfalse()	whentrue()
-	while()		words()
+	columns()	delimit()	elements()	extract()	
+	filter()	filterbool()	first()		fold()		
+	grab()		graball()	index()		insert()	
+	iter()		last()		ldelete()	ldiff()		
+	ledit()		linter()	list()		lnum()		
+	loop()		lpos()		lrand()		lunion()	
+	map()		match()		matchall()	member()	
+	mix()		munge()		remove()	replace()	
+	regrab()	regraball()	regraballi()	regrabi()	
+	rest()		revwords()	setdiff()	setinter()	
+	setunion()	shuffle()	sortby()	sort()		
+	splice()	step()		until()		whenfalse()	
+	whentrue()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -5326,8 +5328,8 @@ See also: @link, @open.
   The structure functions are:
  
 	construct()	destruct()	load()		linstances()
-	lstructures()	modify()	structure()	unload()	
-	unstructure()	z()
+	lstructures()	modify()	read()		structure()
+	unload()	unstructure()	write()		z()
  
   All of these functions operate on the calling object; to manipulate
   structures on other objects, wrap the function calls in an objeval().
@@ -11484,6 +11486,65 @@ Continued in 'help @malias2'.
     > @eval [load(space,grid,3 4 5)]
     > say [unload(space,|)]
     You say "3|4|5"
+ 
+  See also: STRUCTURE FUNCTIONS
+ 
+& READ()
+  Function:  read(<obj>/<attr>,<instance>,<struct>)
+ 
+  Similar to load(), this function creates a new instance of <struct>
+  named <instance>. However, this function loads text from <obj>/<attr>
+  (assuming that the player has permissions to read it), and assumes that
+  the fields within that attribute's data are separated by the invisible
+  structure delimiter, as would be true if the attribute had been written
+  via the write() function. The function returns 1 on success and
+  0 on failure. As with construct(), you cannot re-create an instance
+  that already exists; you must destruct it first(). 
+ 
+  See also: STRUCTURE FUNCTIONS
+ 
+& WRITE()
+  Function:  write(<obj>/<attr>,<instance>) 
+ 
+  This function writes the value of the data held within <instance>
+  to <obj>/<attr> (assuming the player can set that attribute), 
+  with the fields delimited by the invisible structure delimiter.
+  If it is successful, an empty string will be returned; otherwise,
+  some form of error message beginning with #-1 will be returned.
+ 
+  This function is very useful if the data within a structure contains
+  arbitrary characters that might otherwise be used for delimiters,
+  such as the '|' symbol. The data can be read back in via the read()
+  function, or retrieved in some other form via the delimit() function.
+ 
+  Attributes containing this kind of data are marked with the 'structure'
+  flag; when examined, the data fields are normally delimited by a
+  linefeed (but this can be changed via the conf parameter
+  'structure_delimiter_string'). These attributes are not readable
+  via other means.
+ 
+  See also: STRUCTURE FUNCTIONS
+ 
+& DELIMIT()
+  Function:  delimit(<obj>/<attr>,<separator string>[,<input delim>])
+ 
+  This function is intended to be used to take structure data written
+  to an attribute with an invisible delimiter, and output that data
+  with the fields delimited by an arbitrary <separator string>.
+ 
+  However, it can also be used to take an arbitrary <input delim>-delimited
+  list from an attribute, and print out that list delimited by the
+  <separator string>.
+ 
+  Example:
+    > @va me=apple|banana|orange
+    > say [delimit(me/va,---,|)]
+    You say "apple---banana---orange"
+    > @eval [structure(grid,xcoord ycoord zcoord,i i i,0 0 0)]
+    > @eval [load(space,grid,3 4 5)]
+    > @eval [write(me/coords,space)]
+    > say [delimit(me/coords,_)]
+    You say "3_4_5"
  
   See also: STRUCTURE FUNCTIONS
  

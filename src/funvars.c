@@ -1075,7 +1075,13 @@ FUNCTION(fun_construct)
 }
 
 
-FUNCTION(fun_load)
+static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
+			   sep, use_def_delim)
+    dbref player;
+    char *buff, **bufc;
+    char *inst_name, *str_name, *raw_text;
+    char sep;
+    int use_def_delim;
 {
     char tbuf[SBUF_SIZE], *tp;
     char ibuf[SBUF_SIZE], *ip;
@@ -1087,9 +1093,6 @@ FUNCTION(fun_load)
     INSTANCE *inst_ptr;
     STRUCTDATA *d_ptr;
     int i;
-    char sep;
-
-    varargs_preamble("LOAD", 4);
 
     /* Enforce limits. */
 
@@ -1101,7 +1104,7 @@ FUNCTION(fun_load)
 
     /* If our instance name is too long, reject it. */
 
-    if (strlen(fargs[0]) > (SBUF_SIZE / 2) - 9) {
+    if (strlen(inst_name) > (SBUF_SIZE / 2) - 9) {
 	notify_quiet(player, "Instance name is too long.");
 	safe_chr('0', buff, bufc);
 	return;
@@ -1112,9 +1115,9 @@ FUNCTION(fun_load)
     ip = ibuf;
     safe_ltos(ibuf, &ip, player);
     safe_sb_chr('.', ibuf, &ip);
-    for (p = fargs[0]; *p; p++)
+    for (p = inst_name; *p; p++)
 	*p = tolower(*p);
-    safe_sb_str(fargs[0], ibuf, &ip);
+    safe_sb_str(inst_name, ibuf, &ip);
     *ip = '\0';
 
     if (hashfind(ibuf, &mudstate.instance_htab)) {
@@ -1128,9 +1131,9 @@ FUNCTION(fun_load)
     tp = tbuf;
     safe_ltos(tbuf, &tp, player);
     safe_sb_chr('.', tbuf, &tp);
-    for (p = fargs[1]; *p; p++)
+    for (p = str_name; *p; p++)
 	*p = tolower(*p);
-    safe_sb_str(fargs[1], tbuf, &tp);
+    safe_sb_str(str_name, tbuf, &tp);
     *tp = '\0';
 
     this_struct = (STRUCTDEF *) hashfind(tbuf, &mudstate.structs_htab);
@@ -1142,11 +1145,11 @@ FUNCTION(fun_load)
 
     /* Chop up the raw stuff according to the delimiter. */
 
-    if (nfargs != 4)
+    if (use_def_delim)
 	sep = this_struct->delim;
 
     val_list = alloc_lbuf("load.val_list");
-    strcpy(val_list, fargs[2]);
+    strcpy(val_list, raw_text);
     n_vals = list2arr(val_array, LBUF_SIZE / 2, val_list, sep);
     if (n_vals != this_struct->c_count) {
 	notify_quiet(player, "Incorrect number of components.");
@@ -1197,6 +1200,80 @@ FUNCTION(fun_load)
     this_struct->n_instances += 1;
     s_InstanceCount(player, InstanceCount(player) + 1);
     safe_chr('1', buff, bufc);
+}
+
+FUNCTION(fun_load)
+{
+    char sep;
+
+    varargs_preamble("LOAD", 4);
+
+    load_structure(player, buff, bufc,
+		   fargs[0], fargs[1], fargs[2],
+		   sep, (nfargs != 4) ? 1 : 0);
+}
+
+FUNCTION(fun_read)
+{
+    dbref it, aowner;
+    int atr, aflags, alen;
+    char *atext;
+
+    mudstate.struct_check = 1;
+    if (!parse_attrib(player, fargs[0], &it, &atr) || (atr == NOTHING)) {
+	safe_chr('0', buff, bufc);
+	mudstate.struct_check = 0;
+	return;
+    }
+
+    atext = atr_pget(it, atr, &aowner, &aflags, &alen);
+    mudstate.struct_check = 0;
+    load_structure(player, buff, bufc,
+		   fargs[1], fargs[2], atext,
+		   GENERIC_STRUCT_DELIM, 0);
+    free_lbuf(atext);
+}
+
+FUNCTION(fun_delimit)
+{
+    dbref it, aowner;
+    int atr, aflags, alen, nitems, i, over = 0;
+    char *atext, *ptrs[LBUF_SIZE / 2];
+    char sep;
+
+    /* This function is unusual in that the second argument is a delimiter
+     * string of arbitrary length, rather than a character. The input
+     * delimiter is the final, optional argument; if it's not specified
+     * it defaults to the "null" structure delimiter. (This function's
+     * primary purpose is to extract out data that's been stored as a
+     * "null"-delimited structure, but it's also useful for transforming
+     * any delim-separated list to a list whose elements are separated
+     * by arbitrary strings.)
+     */
+
+    varargs_preamble("DELIMIT", 3);
+    if (nfargs != 3)
+	sep = GENERIC_STRUCT_DELIM;
+
+    mudstate.struct_check = 1;
+    if (!parse_attrib(player, fargs[0], &it, &atr) || (atr == NOTHING)) {
+	safe_noperm(buff, bufc);
+	mudstate.struct_check = 0;
+	return;
+    }
+
+    atext = atr_pget(it, atr, &aowner, &aflags, &alen);
+    mudstate.struct_check = 0;
+    nitems = list2arr(ptrs, LBUF_SIZE / 2, atext, sep);
+    if (nitems) {
+	over = safe_str(ptrs[0], buff, bufc);
+    }
+    for (i = 1; !over && (i < nitems); i++) {
+	over = safe_str(fargs[1], buff, bufc);
+	if (!over)
+	    over = safe_str(ptrs[i], buff, bufc);
+    }
+    free_lbuf(atext);
 }
 
 
@@ -1320,7 +1397,12 @@ FUNCTION(fun_modify)
 }
 
 
-FUNCTION(fun_unload)
+static void unload_structure(player, buff, bufc, inst_name, sep, use_def_delim)
+    dbref player;
+    char *buff, **bufc;
+    char *inst_name;
+    char sep;
+    int use_def_delim;
 {
     char tbuf[SBUF_SIZE], *tp;
     char ibuf[SBUF_SIZE], *ip;
@@ -1329,18 +1411,15 @@ FUNCTION(fun_unload)
     STRUCTDEF *this_struct;
     STRUCTDATA *d_ptr;
     int i;
-    char sep;
-
-    varargs_preamble("UNLOAD", 2);
 
     /* Get the instance. */
 
     ip = ibuf;
     safe_ltos(ibuf, &ip, player);
     safe_sb_chr('.', ibuf, &ip);
-    for (p = fargs[0]; *p; p++)
+    for (p = inst_name; *p; p++)
 	*p = tolower(*p);
-    safe_sb_str(fargs[0], ibuf, &ip);
+    safe_sb_str(inst_name, ibuf, &ip);
     *ip = '\0';
 
     inst_ptr = (INSTANCE *) hashfind(ibuf, &mudstate.instance_htab);
@@ -1358,7 +1437,7 @@ FUNCTION(fun_unload)
     this_struct = inst_ptr->datatype;
 
     /* Our delimiter is a special case. */
-    if (nfargs != 2)
+    if (use_def_delim)
 	sep = this_struct->delim;
 
     for (i = 0; i < this_struct->c_count; i++) {
@@ -1372,6 +1451,46 @@ FUNCTION(fun_unload)
 	d_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
 	if (d_ptr && d_ptr->text)
 	    safe_str(d_ptr->text, buff, bufc);
+    }
+}
+
+FUNCTION(fun_unload)
+{
+    char sep;
+
+    varargs_preamble("UNLOAD", 2);
+    unload_structure(player, buff, bufc, fargs[0], sep, (nfargs != 2) ? 1 : 0);
+}
+
+FUNCTION(fun_write)
+{
+    dbref it, aowner;
+    int atrnum, aflags;
+    char tbuf[LBUF_SIZE], *tp, *str;
+    ATTR *attr;
+
+    if (!parse_thing_slash(player, fargs[0], &str, &it)) {
+	safe_nomatch(buff, bufc);
+	return;
+    }
+
+    tp = tbuf;
+    *tp = '\0';
+    unload_structure(player, tbuf, &tp, fargs[1], GENERIC_STRUCT_DELIM, 0);
+    if (*tbuf) {
+	atrnum = mkattr(str);
+	if (atrnum <= 0) {
+	    safe_str("#-1 UNABLE TO CREATE ATTRIBUTE", buff, bufc);
+	    return;
+	}
+	attr = atr_num(atrnum);
+	atr_pget_info(it, atrnum, &aowner, &aflags);
+	if (!attr || !Set_attr(player, it, attr, aflags) ||
+	    (attr->check != NULL)) {
+	    safe_noperm(buff, bufc);
+	} else {
+	    atr_add(it, atrnum, tbuf, Owner(player), aflags | AF_STRUCTURE);
+	}
     }
 }
 

@@ -22,6 +22,9 @@
 extern char *FDECL(upcasestr, (char *));
 extern dbref FDECL(find_connected_ambiguous, (dbref, char *));
 
+extern NAMETAB attraccess_nametab[];
+extern NAMETAB indiv_attraccess_nametab[];
+
 /* ---------------------------------------------------------------------------
  * nearby_or_control: Check if player is near or controls thing
  */
@@ -816,38 +819,18 @@ atr_has_flag(player, thing, attr, aowner, aflags, flagname)
     int aowner, aflags;
     char *flagname;
 {
+    int flagval;
+
     if (!See_attr(player, thing, attr, aowner, aflags))
 	return 0;
-    else {
-	if (string_prefix("dark", flagname))
-	    return (aflags & AF_DARK);
-	else if (string_prefix("wizard", flagname))
-	    return (aflags & AF_WIZARD);
-	else if (string_prefix("hidden", flagname))
-	    return (aflags & AF_MDARK);
-	else if (string_prefix("html", flagname))
-	    return (aflags & AF_HTML);
-	else if (string_prefix("locked", flagname))
-	    return (aflags & AF_LOCK);
-	else if (string_prefix("no_command", flagname))
-	    return (aflags & AF_NOPROG);
-	else if (string_prefix("no_parse", flagname))
-	    return (aflags & AF_NOPARSE);
-	else if (string_prefix("regexp", flagname))
-	    return (aflags & AF_REGEXP);
-	else if (string_prefix("god", flagname))
-	    return (aflags & AF_GOD);
-	else if (string_prefix("visual", flagname))
-	    return (aflags & AF_VISUAL);
-	else if (string_prefix("no_inherit", flagname))
-	    return (aflags & AF_PRIVATE);
-	else if (string_prefix("const", flagname))
-	    return (aflags & AF_CONST);
-	else if (string_prefix("case", flagname))
-	    return (aflags & AF_CASE);
-	else
-	    return 0;
-    }
+
+    flagval = search_nametab(player, indiv_attraccess_nametab, flagname);
+    if (flagval < 0)
+	flagval = search_nametab(player, attraccess_nametab, flagname);
+    if (flagval < 0)
+	return 0;
+
+    return (aflags & flagval);
 }
 
 FUNCTION(fun_hasflag)
@@ -1220,17 +1203,16 @@ static void perform_get(player, str, buff, bufc)
     char *buff, **bufc;
 {
     dbref thing, aowner;
-    int attrib, free_buffer, aflags, alen;
+    int attrib, free_buffer, aflags, alen, rval;
     ATTR *attr;
     char *atr_gotten;
     struct boolexp *bool;
 
-    if (!parse_attrib(player, str, &thing, &attrib)) {
+    if ((rval = parse_attrib(player, str, &thing, &attrib)) == 0) {
 	safe_nomatch(buff, bufc);
 	return;
     }
     if (attrib == NOTHING) {
-	safe_noperm(buff, bufc);
 	return;
     }
     free_buffer = 1;

@@ -806,10 +806,10 @@ char *name, *newown;
  * * do_set: Set flags or attributes on objects, or flags on attributes.
  */
 
-static void set_attr_internal(player, thing, attrnum, attrtext, key)
+void set_attr_internal(player, thing, attrnum, attrtext, key, buff, bufc)
 dbref player, thing;
 int attrnum, key;
-char *attrtext;
+char *attrtext, *buff, **bufc;
 {
 	dbref aowner;
 	int aflags, could_hear;
@@ -817,18 +817,35 @@ char *attrtext;
 
 	attr = atr_num(attrnum);
 	atr_pget_info(thing, attrnum, &aowner, &aflags);
+	if ((aflags & AF_STRUCTURE) && (!attrtext || !*attrtext)) {
+	    /* We are allowed to wipe out this attribute, but we can't
+	     * do anything else to it.
+	     */
+	    mudstate.struct_check = 1;
+	}
 	if (attr && Set_attr(player, thing, attr, aflags)) {
 		if ((attr->check != NULL) &&
-		    (!(*attr->check) (0, player, thing, attrnum, attrtext)))
-			return;
+		    (!(*attr->check) (0, player, thing, attrnum, attrtext))) {
+		    if (buff) {
+			safe_noperm(buff, bufc);
+		    }
+		    mudstate.struct_check = 0;
+		    return;
+		}
 		could_hear = Hearer(thing);
-		atr_add(thing, attrnum, attrtext, Owner(player), aflags);
+		atr_add(thing, attrnum, attrtext, Owner(player),
+			aflags & ~AF_STRUCTURE);
 		handle_ears(thing, could_hear, Hearer(thing));
 		if (!(key & SET_QUIET) && !Quiet(player) && !Quiet(thing))
 			notify_quiet(player, "Set.");
 	} else {
+	    if (buff) {
+		safe_noperm(buff, bufc);
+	    } else {
 		notify_quiet(player, NOPERM_MESSAGE);
+	    }
 	}
+	mudstate.struct_check = 0;
 }
 
 void do_set(player, cause, key, name, flag)
@@ -978,7 +995,7 @@ char *name, *flag;
 		 * Go set it 
 		 */
 
-		set_attr_internal(player, thing, atr, p, key);
+		set_attr_internal(player, thing, atr, p, key, NULL, NULL);
 		free_lbuf(buff);
 		return;
 	}
@@ -1024,7 +1041,7 @@ char *name, *attrtext;
 
 	if (thing == NOTHING)
 		return;
-	set_attr_internal(player, thing, attrnum, attrtext, 0);
+	set_attr_internal(player, thing, attrnum, attrtext, 0, NULL, NULL);
 }
 
 
@@ -1235,6 +1252,7 @@ char *str;
 	free_lbuf(buff);
 	if (!attr) {
 		*atr = NOTHING;
+		return NOTHING;
 	} else {
 		atr_pget_info(*thing, attr->number, &aowner, &aflags);
 		if (!See_attr(player, *thing, attr, aowner, aflags)) {

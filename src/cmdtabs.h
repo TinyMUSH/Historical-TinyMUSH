@@ -831,13 +831,11 @@ NAMETAB access_nametab[] =
  */
 
 NAMETAB attraccess_nametab[] = {
-{(char *)"case",		2,	CA_PUBLIC,	AF_CASE},
 {(char *)"const",		2,	CA_PUBLIC,	AF_CONST},
 {(char *)"dark",		2,	CA_WIZARD,	AF_DARK},
 {(char *)"deleted",		2,	CA_WIZARD,	AF_DELETED},
 {(char *)"god",			1,	CA_PUBLIC,	AF_GOD},
 {(char *)"hidden",		1,	CA_WIZARD,	AF_MDARK},
-{(char *)"html",		2,	CA_PUBLIC,	AF_HTML},
 {(char *)"ignore",		2,	CA_WIZARD,	AF_NOCMD},
 {(char *)"internal",		2,	CA_WIZARD,	AF_INTERNAL},
 {(char *)"is_lock",		4,	CA_PUBLIC,	AF_IS_LOCK},
@@ -845,8 +843,6 @@ NAMETAB attraccess_nametab[] = {
 {(char *)"no_clone",		5,	CA_PUBLIC,	AF_NOCLONE},
 {(char *)"no_command",		5,	CA_PUBLIC,	AF_NOPROG},
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
-{(char *)"no_parse",		4,	CA_PUBLIC,	AF_NOPARSE},
-{(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
 {(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
 {(char *)"wizard",		1,	CA_PUBLIC,	AF_WIZARD},
 { NULL,				0,	0,		0}};
@@ -858,8 +854,9 @@ NAMETAB indiv_attraccess_nametab[] = {
 {(char *)"no_command",		4,	CA_PUBLIC,	AF_NOPROG},
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
 {(char *)"no_parse",		4,	CA_PUBLIC,	AF_NOPARSE},
-{(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
 {(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
+{(char *)"structure",		1,	CA_GOD,		AF_STRUCTURE},
+{(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
 {(char *)"html",		2,	CA_PUBLIC,	AF_HTML},
 { NULL,				0,	0,		0}};
 

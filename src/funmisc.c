@@ -21,6 +21,8 @@
 extern NAMETAB indiv_attraccess_nametab[];
 
 extern void FDECL(do_pemit_list, (dbref, char *, const char *, int));
+extern void FDECL(set_attr_internal, (dbref, dbref, int, char *, int,
+				      char *, char **));
 
 /* ---------------------------------------------------------------------------
  * fun_switch: Return value based on pattern matching (ala @switch/first)
@@ -954,34 +956,6 @@ FUNCTION(fun_create)
 /*---------------------------------------------------------------------------
  * fun_set: sets an attribute on an object
  */
-
-static void set_attr_internal(player, thing, attrnum, attrtext, key, buff, bufc)
-dbref player, thing;
-int attrnum, key;
-char *attrtext, *buff;
-char **bufc;
-{
-	dbref aowner;
-	int aflags, could_hear;
-	ATTR *attr;
-
-	attr = atr_num(attrnum);
-	atr_pget_info(thing, attrnum, &aowner, &aflags);
-	if (attr && Set_attr(player, thing, attr, aflags)) {
-		if ((attr->check != NULL) &&
-		    (!(*attr->check) (0, player, thing, attrnum, attrtext))) {
-		        safe_noperm(buff, bufc);
-			return;
-		}
-		could_hear = Hearer(thing);
-		atr_add(thing, attrnum, attrtext, Owner(player), aflags);
-		handle_ears(thing, could_hear, Hearer(thing));
-		if (!(key & SET_QUIET) && !Quiet(player) && !Quiet(thing))
-			notify_quiet(player, "Set.");
-	} else {
-		safe_str("#-1 PERMISSION DENIED.", buff, bufc);
-	}
-}
 
 FUNCTION(fun_set)
 {

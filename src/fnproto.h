@@ -326,9 +326,12 @@ XFUNCTION(fun_clearvars);
 XFUNCTION(fun_structure);
 XFUNCTION(fun_construct);
 XFUNCTION(fun_load);
+XFUNCTION(fun_read);
+XFUNCTION(fun_delimit);
 XFUNCTION(fun_z);
 XFUNCTION(fun_modify);
 XFUNCTION(fun_unload);
+XFUNCTION(fun_write);
 XFUNCTION(fun_destruct);
 XFUNCTION(fun_unstructure);
 XFUNCTION(fun_lstructures);
@@ -422,6 +425,7 @@ FUN flist[] = {
 {"DECRYPT",	fun_decrypt,	2,  0,		CA_PUBLIC},
 {"DEFAULT",	fun_default,	2,  FN_NO_EVAL, CA_PUBLIC},
 {"DELETE",	fun_delete,	3,  0,		CA_PUBLIC},
+{"DELIMIT",	fun_delimit,	0,  FN_VARARGS,	CA_PUBLIC},
 {"DESTRUCT",	fun_destruct,	1,  0,		CA_PUBLIC},
 {"DIE",		fun_die,	2,  0,		CA_PUBLIC},
 {"DIST2D",	fun_dist2d,	4,  0,		CA_PUBLIC},
@@ -590,6 +594,7 @@ FUN flist[] = {
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC},
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
+{"READ",	fun_read,	3,  0,		CA_PUBLIC},
 {"REGEDIT",	fun_regedit,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGEDITALL",	fun_regeditall,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGEDITALLI",	fun_regeditalli, 0, FN_VARARGS, CA_PUBLIC},
@@ -710,6 +715,7 @@ FUN flist[] = {
 {"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC},
 {"WORDPOS",     fun_wordpos,    0,  FN_VARARGS,	CA_PUBLIC},
 {"WORDS",	fun_words,	0,  FN_VARARGS,	CA_PUBLIC},
+{"WRITE",	fun_write,	2,  0,		CA_PUBLIC},
 {"X",		fun_x,		1,  0,		CA_PUBLIC},
 {"XCON",	fun_xcon,	3,  0,		CA_PUBLIC},
 {"XGET",	fun_xget,	2,  0,		CA_PUBLIC},

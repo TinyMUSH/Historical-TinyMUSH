@@ -466,7 +466,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Invisible_attr(p,x,a,o,f) \
 ((!Examinable(p,x) && (Owner(p) != o)) || \
    ((AttrFlags(a,f) & AF_MDARK) && !WizRoy(p)) || \
-   ((AttrFlags(a,f) & AF_DARK) && !God(p)))
+   ((AttrFlags(a,f) & AF_DARK) && !God(p)) || \
+   ((f & AF_STRUCTURE) && !mudstate.struct_check))
 
 #define Visible_attr(p,x,a,o,f) \
 (((AttrFlags(a,f) & AF_VISUAL) && Visible_desc(p,x,a)) || \

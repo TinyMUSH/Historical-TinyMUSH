@@ -93,6 +93,11 @@
 
 #define INDENT_STR	"  "
 
+/* This is used as the 'null' delimiter for structures stored via write(). */
+
+#define GENERIC_STRUCT_DELIM		'\f'	/* form feed char */
+#define GENERIC_STRUCT_STRDELIM		"\f"
+
 /* amount of object endowment, based on cost */
 #define OBJECT_ENDOWMENT(cost) (((cost)/mudconf.sacfactor) +mudconf.sacadjust)
 

@@ -587,24 +587,31 @@ static void pretty_print(dest, name, text)
 }
 
 
-static void view_atr(player, thing, ap, text, aowner, aflags,
+static void view_atr(player, thing, ap, raw_text, aowner, aflags,
 		     skip_tag, is_special)
 dbref player, thing, aowner;
 int aflags, skip_tag, is_special;
 ATTR *ap;
-char *text;
+char *raw_text;
 {
-	char *buf, *bp, *name_buf, *bb_p;
+	char *text, *buf, *bp, *name_buf, *bb_p;
 	char xbuf[16], gbuf[16]; /* larger than number of attr flags! */
 	char flag_buf[32];
 	char *xbufp, *gbufp, *fbp;
 	BOOLEXP *bool;
 
 	if (ap->flags & AF_IS_LOCK) {
-		bool = parse_boolexp(player, text, 1);
+		bool = parse_boolexp(player, raw_text, 1);
 		text = unparse_boolexp(player, bool);
 		free_boolexp(bool);
+	} else if (aflags & AF_STRUCTURE) {
+		text = replace_string(GENERIC_STRUCT_STRDELIM,
+				      mudconf.struct_dstr,
+				      raw_text);
+	} else {
+		text = raw_text;
 	}
+
 	/* If we don't control the object or own the attribute, hide the
 	 * attr owner and flag info. 
 	 */
@@ -709,6 +716,9 @@ char *text;
 	    }
 	    notify(player, buf);
 	}
+
+	if ((aflags & AF_STRUCTURE) && text)
+	    free_lbuf(text);
 }
 
 static void look_atrs1(player, thing, othing, check_exclude, hash_insert,
@@ -721,6 +731,7 @@ int check_exclude, hash_insert, is_special;
 	ATTR *attr, *cattr;
 	char *as, *buf;
 
+	mudstate.struct_check = 1;
 	cattr = (ATTR *) XMALLOC(sizeof(ATTR), "look_atrs1");
 	for (ca = atr_head(thing, &as); ca; ca = atr_next(&as)) {
 		if ((ca == A_DESC) || (ca == A_LOCK))
@@ -761,6 +772,7 @@ int check_exclude, hash_insert, is_special;
 		free_lbuf(buf);
 	}
 	XFREE(cattr, "look_atrs1");
+	mudstate.struct_check = 0;
 }
 
 static void look_atrs(player, thing, check_parents, is_special)
@@ -1133,6 +1145,7 @@ dbref player, thing;
 	notify(player, buf);
 	free_lbuf(buf);
 
+	mudstate.struct_check = 1;
 	for (ca = atr_head(thing, &as); ca; ca = atr_next(&as)) {
 		attr = atr_num(ca);
 		if (!attr)
@@ -1144,6 +1157,7 @@ dbref player, thing;
 				 0, 0);
 		free_lbuf(buf);
 	}
+	mudstate.struct_check = 0;
 }
 
 static void exam_wildattrs(player, thing, do_parent, is_special)
@@ -1155,6 +1169,7 @@ int do_parent, is_special;
 	dbref aowner;
 	ATTR *ap;
 
+	mudstate.struct_check = 1;
 	got_any = 0;
 	for (atr = olist_first(); atr != NOTHING; atr = olist_next()) {
 		ap = atr_num(atr);
@@ -1220,7 +1235,7 @@ int do_parent, is_special;
 	}
 	if (!got_any)
 		notify_quiet(player, "No matching attributes found.");
-
+	mudstate.struct_check = 0;
 }
 
 void do_examine(player, cause, key, name)
@@ -1254,6 +1269,7 @@ char *name;
 	} else {
 		/* Check for obj/attr first. */
 
+		mudstate.struct_check = 1;
 		olist_push();
 		if (parse_attrib_wild(player, name, &thing, do_parent, 1, 0)) {
 			exam_wildattrs(player, thing, do_parent, is_special);
@@ -1261,6 +1277,8 @@ char *name;
 			return;
 		}
 		olist_pop();
+		mudstate.struct_check = 0;
+
 		/* Look it up */
 
 		init_match(player, name, NOTYPE);
@@ -1876,7 +1894,7 @@ int key;
 char *name, *qual;
 {
 	BOOLEXP *bool;
-	char *got, *thingname, *as, *ltext, *buff, *tbuf, *sname;
+	char *got, *thingname, *as, *ltext, *buff, *tbuf, *sname, *tmp;
 	dbref aowner, thing;
 	int val, aflags, alen, ca, wild_decomp;
 	ATTR *attr;
@@ -1884,6 +1902,7 @@ char *name, *qual;
 
 	/* Check for obj/attr first */
 	
+	mudstate.struct_check = 1;
 	olist_push();
 	if (parse_attrib_wild(player, name, &thing, 0, 1, 0)) {
 		wild_decomp = 1;
@@ -1893,6 +1912,7 @@ char *name, *qual;
 		match_everything(MAT_EXIT_PARENTS);
 		thing = noisy_match_result();
 	}
+	mudstate.struct_check = 0;
 
 	/* get result */
 	if (thing == NOTHING) {
@@ -1963,6 +1983,7 @@ char *name, *qual;
 
 	/* Report attributes */
 
+	mudstate.struct_check = 1;
 	buff = alloc_mbuf("do_decomp.attr_name");
 	for (ca = (wild_decomp ? olist_first() : atr_head(thing, &as));
 	      (wild_decomp) ? (ca != NOTHING) : (ca != (int) NULL);
@@ -1976,6 +1997,13 @@ char *name, *qual;
 			continue;
 
 		got = atr_get(thing, ca, &aowner, &aflags, &alen);
+		if (aflags & AF_STRUCTURE) {
+		    tmp = replace_string(GENERIC_STRUCT_STRDELIM,
+					 mudconf.struct_dstr,
+					 got);
+		    free_lbuf(got);
+		    got = tmp;
+		}
 		if (Read_attr(player, thing, attr, aowner, aflags)) {
 			if (attr->flags & AF_IS_LOCK) {
 				bool = parse_boolexp(player, got, 1);
@@ -2030,6 +2058,7 @@ char *name, *qual;
 		free_lbuf(got);
 	}
 	free_mbuf(buff);
+	mudstate.struct_check = 0;
 
 	if (!wild_decomp) {
 		decompile_flags(player, thing, sname);
