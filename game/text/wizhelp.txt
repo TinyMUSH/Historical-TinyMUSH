@@ -1273,7 +1273,7 @@
 	port			public_channel		queue_active_chunk
 	queue_idle_chunk	rwho_data_port		rwho_host
 	rwho_info_port		rwho_password		sql_database
-	sql_host
+	sql_host		sql_reconnect
 
 & PARAM OBJECTS
 	default_home		exit_flags		exit_parent
@@ -2628,6 +2628,21 @@ use_global_aconn	wizard_obeys_linklock
   machine that the MUSH is running on), via a Unix domain socket. To
   connect to a database on the local host via a network socket, specify
   127.0.0.1 (which is the IP address of localhost) instead.
+ 
+& sql_reconnect
+  Config parameter: sql_reconnect <yes/no>.  Default: no
+ 
+  Specifies whether or not the MUSH should automatically attempt to
+  connect to the external SQL database (if one is being used), if
+  a query is made against it.
+ 
+  If this parameter is 'no', then no attempt will be made and the
+  query attempt will return an error.
+ 
+  If this parameter is 'yes', then a connection attempt will be made
+  and the query will be executed if the connection is successful. Note
+  that this is true even if a @sqldisconnect has been done (i.e., doing
+  a query does the equivalent of a @sqlconnect if no connection is open).
  
 & starting_money
   Config parameter: starting_money <amount>.  Default: 0
