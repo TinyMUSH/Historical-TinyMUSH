@@ -794,4 +794,18 @@ Patchlevel 2:
 
   - Fixed a potentially fatal error in @dbclean. [3.0b5; Starlyn]
 
+Patchlevel 3:
+
+  - Fixed a problem with incorrect object names in @decompile
+    output. [???; Ed Thomas]
+
+  - Removed buggy code that complained when sending mail with only
+    the word "clear". [MUX; Sally MacKay]
+
+  - Uppercase flag names will now work with player_flags, etc.
+    [2.0; Robert M. Zigweid]
+
+  - Removed ANSI codes from Pueblo xch_cmd link attributes for
+    MUSHclient compatibility. [MUX; Nick Gammon]
+
 =============================================================================
