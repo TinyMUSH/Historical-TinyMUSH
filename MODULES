@@ -402,6 +402,9 @@ void mod_<name>_cleanup_startup(void)
 	Run after the restart database is read, but before @startups
 	on objects are done.
 
+void mod_<name>_do_second(void)
+	Runs once a second. 
+
 -----------------------------------------------------------------------------
 
 MODULE API FUNCTION: process_command

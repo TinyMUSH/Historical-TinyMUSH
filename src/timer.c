@@ -455,9 +455,7 @@ void NDECL(dispatch)
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< dispatch >";
 
-	/*
-	 * this routine can be used to poll from interface.c 
-	 */
+	/* This routine can be used to poll from interface.c */
 
 	if (!mudstate.alarm_triggered)
 		return;
@@ -465,10 +463,12 @@ void NDECL(dispatch)
 	mudstate.now = time(NULL);
 
 	do_second();
+	
+	/* Module API hook */
+	
+	CALL_ALL_MODULES(do_second, ());
 
-	/*
-	 * Free list reconstruction 
-	 */
+	/* Free list reconstruction */
 
 	if ((mudconf.control_flags & CF_DBCHECK) &&
 	    (mudstate.check_counter <= mudstate.now)) {
@@ -479,9 +479,8 @@ void NDECL(dispatch)
 		pcache_trim();
 		pool_reset();
 	}
-	/*
-	 * Database dump routines 
-	 */
+	
+	/* Database dump routines */
 
 	if ((mudconf.control_flags & CF_CHECKPOINT) &&
 	    (mudstate.dump_counter <= mudstate.now)) {
@@ -489,9 +488,8 @@ void NDECL(dispatch)
 		mudstate.debug_cmd = (char *)"< dump >";
 		fork_and_dump(0);
 	}
-	/*
-	 * Idle user check 
-	 */
+	
+	/* Idle user check */
 
 	if ((mudconf.control_flags & CF_IDLECHECK) &&
 	    (mudstate.idle_counter <= mudstate.now)) {
@@ -500,9 +498,8 @@ void NDECL(dispatch)
 		check_idle();
 
 	}
-	/*
-	 * Check for execution of attribute events 
-	 */
+	
+	/* Check for execution of attribute events */
 
 	if (mudconf.control_flags & CF_EVENTCHECK) {
 	    if (mudstate.now >= mudstate.events_counter) {
@@ -513,9 +510,8 @@ void NDECL(dispatch)
 	}
 
 #if defined(HAVE_GETRUSAGE) && defined(STRUCT_RUSAGE_COMPLETE)
-	/*
-	 * Memory use stats 
-	 */
+
+	/* Memory use stats */
 
 	if (mudstate.mstats_counter <= mudstate.now) {
 
@@ -538,9 +534,7 @@ void NDECL(dispatch)
 	}
 #endif
 
-	/*
-	 * reset alarm 
-	 */
+	/* reset alarm */
 
 	alarm(1);
 	mudstate.debug_cmd = cmdsave;

@@ -593,6 +593,7 @@ CF_HAND(cf_module)
 	mp->db_grow = DLSYM(handle, str, "db_grow", (int, int));
 	mp->db_write = DLSYM(handle, str, "db_write", (void));
 	mp->db_write_flatfile = DLSYM(handle, str, "db_write_flatfile", (FILE *));
+	mp->do_second = DLSYM(handle, str, "do_second", (void));
 
 	if (!mudstate.standalone) {
 		if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)

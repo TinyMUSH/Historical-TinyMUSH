@@ -37,6 +37,9 @@ Release history:
 - Feature: The Build script accepts options to be passed to the configure
   script, enabling simple custom installation.
 
+- Feature: Introduced do_second() module API hook. Useful for modules which
+  must update regularly.
+
 - Fix: The game/data directory is once again included in the
   distribution. [3.1; Neva]
 
