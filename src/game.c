@@ -904,13 +904,13 @@ static void report_timecheck(player, yes_screen, yes_log, yes_clear)
                    tprintf("Counted %d objects using %ld msecs over %d seconds."
 ,
                            obj_counted, total_msecs,
-                           time(NULL) - mudstate.cpu_count_from));
+                           (int) (time(NULL) - mudstate.cpu_count_from)));
     }
 
     if (yes_log) {
         fprintf(stderr, "Counted %d objects using %ld msecs over %d seconds.",
                 obj_counted, total_msecs,
-                time(NULL) - mudstate.cpu_count_from);
+                (int) (time(NULL) - mudstate.cpu_count_from));
         end_log();
     }
 

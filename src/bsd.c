@@ -493,8 +493,11 @@ char *inet_ntoa(in)
     static char buf[MBUF_SIZE];
     long a = in.s_addr;
 
-    sprintf(buf, "%d.%d.%d.%d", (a >> 24) & 0xff, (a >> 16) & 0xff,
-	    (a >> 8) & 0xff, a & 0xff);
+    sprintf(buf, "%d.%d.%d.%d",
+	    (int) ((a >> 24) & 0xff),
+	    (int) ((a >> 16) & 0xff),
+	    (int) ((a >> 8) & 0xff),
+	    (int) (a & 0xff));
     return buf;
 }
 #endif /* BROKEN_GCC_PADDING */
@@ -634,7 +637,7 @@ int reason;
 			sprintf(buff, " <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
 				disc_reasons[reason], d->command_count,
 				d->input_tot, d->output_tot,
-				time(NULL) - d->connected_at);
+				(int) (time(NULL) - d->connected_at));
 			log_text(buff);
 			free_mbuf(buff);
 			ENDLOG
@@ -648,43 +651,42 @@ int reason;
 			sprintf(buff, " <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
 				disc_reasons[reason], d->command_count,
 				d->input_tot, d->output_tot,
-				time(NULL) - d->connected_at);
+				(int) (time(NULL) - d->connected_at));
 			log_text(buff);
 			free_mbuf(buff);
 			ENDLOG
 		}
 
 		/*
-		 * If requested, write an accounting record of the form: * *
-		 * * * * * Plyr# Flags Cmds ConnTime Loc Money [Site]
-		 * <DiscRsn>  * *  * Name 
+		 * If requested, write an accounting record of the form:
+		 * Plyr# Flags Cmds ConnTime Loc Money [Site] <DiscRsn> Name
 		 */
 
 		STARTLOG(LOG_ACCOUNTING, "DIS", "ACCT")
-			now = mudstate.now - d->connected_at;
-		buff = alloc_lbuf("shutdownsock.LOG.accnt");
-		buff2 = decode_flags(GOD, Flags(d->player),
-				     Flags2(d->player), Flags3(d->player));
-		sprintf(buff, "%d %s %d %d %d %d [%s] <%s> ",
-			d->player, buff2, d->command_count, now,
-			Location(d->player), Pennies(d->player),
-			d->addr, disc_reasons[reason]);
-		log_text(buff);
-		log_text(Name(d->player));
-		free_lbuf(buff);
-		free_sbuf(buff2);
+		    now = mudstate.now - d->connected_at;
+		    buff = alloc_lbuf("shutdownsock.LOG.accnt");
+		    buff2 = decode_flags(GOD, Flags(d->player),
+					 Flags2(d->player), Flags3(d->player));
+		    sprintf(buff, "%d %s %d %d %d %d [%s] <%s> ",
+			    d->player, buff2, d->command_count, (int) now,
+			    Location(d->player), Pennies(d->player),
+			    d->addr, disc_reasons[reason]);
+		    log_text(buff);
+		    log_text(Name(d->player));
+		    free_lbuf(buff);
+		    free_sbuf(buff2);
 		ENDLOG
-			announce_disconnect(d->player, d, disc_messages[reason]);
+		announce_disconnect(d->player, d, disc_messages[reason]);
 	} else {
 		if (reason == R_LOGOUT)
-			reason = R_QUIT;
+		    reason = R_QUIT;
 		STARTLOG(LOG_SECURITY | LOG_NET, "NET", "DISC")
-			buff = alloc_mbuf("shutdownsock.LOG.neverconn");
-		sprintf(buff,
-		 "[%d/%s] Connection closed, never connected. <Reason: %s>",
-			d->descriptor, d->addr, disc_reasons[reason]);
-		log_text(buff);
-		free_mbuf(buff);
+		    buff = alloc_mbuf("shutdownsock.LOG.neverconn");
+		    sprintf(buff,
+		    "[%d/%s] Connection closed, never connected. <Reason: %s>",
+			    d->descriptor, d->addr, disc_reasons[reason]);
+		    log_text(buff);
+		    free_mbuf(buff);
 		ENDLOG
 	}
 	process_output(d);

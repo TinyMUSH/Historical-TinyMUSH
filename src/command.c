@@ -2875,8 +2875,9 @@ dbref player;
 	raw_notify(player, buff);
 
 	sprintf(buff, "Timers: Dump...%d  Clean...%d  Idlecheck...%d",
-		mudstate.dump_counter - now, mudstate.check_counter - now,
-		mudstate.idle_counter - now);
+		(int) (mudstate.dump_counter - now),
+		(int) (mudstate.check_counter - now),
+		(int) (mudstate.idle_counter - now));
 	raw_notify(player, buff);
 
 	sprintf(buff,
@@ -3057,7 +3058,7 @@ dbref player;
 #else
 	raw_notify(player,
 	   tprintf("DB Cache Stats   Writes       Reads  (over %d seconds)",
-		   time(0) - cs_ltime));
+		   (int) (time(NULL) - cs_ltime)));
 	raw_notify(player, tprintf("Calls      %12d%12d", cs_writes, cs_reads));
 	raw_notify(player, tprintf("Cache Hits %12d%12d  (%d in active cache)",
 				   cs_whits, cs_rhits, cs_ahits));
