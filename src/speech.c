@@ -676,11 +676,11 @@ int do_contents;
 	     p != NULL;
 	     p = strtok_r(NULL, " ", &tokst)) {
 
-		ok_to_do = 0;
 		init_match(player, p, TYPE_PLAYER);
 		match_everything(0);
 		who = match_result();
 
+		ok_to_do = (mudconf.pemit_any) ? 1 : 0;
 		if (!ok_to_do &&
 		    (Long_Fingers(player) || nearby(player, who) || 
 		     Controls(player, who))) {
@@ -692,6 +692,11 @@ int do_contents;
 				continue;
 			ok_to_do = 1;
 		}
+		if (do_contents && !mudconf.pemit_any &&
+		    !Controls(player, who)) {
+		    ok_to_do = 0;
+		}
+
 		switch (who) {
 		case NOTHING:
 			notify(player, "Emit to whom?");
