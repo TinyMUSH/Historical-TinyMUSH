@@ -4960,7 +4960,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     %0-%9    = Value of positional parameter/stack location 0 through 9.
     %q0-%q9  = Value of registers 0 through 9. Equiv: r(0) - r(9)
     %va-%vz  = Contents of attributes VA through VZ. Equiv: v(va) - v(vz)
-    %_<var>  = Value of a single-letter/number variable. Equiv: x(<var>)
+    %=<var>  = The <angle brackets> are literal. Contents of an attribute.
+               Equiv: v(<var>) (no <>), i.e., %=<test> is equivalent to
+               v(test) or get(me/test)
+    %_<var>  = Value of a variable set via setx(). Equiv: x(<var>)
+               Normally, this is a single-letter variable name, but if
+               the name is enclosed in angle brackets, multi-letter variable
+               names can be used. '%_<foo>' is equivalent to 'x(foo)'.
     %x<code> = ANSI color substitution.
  
   Note: %<whatever> is equivalent to [v(<whatever>)], but is more efficient.
@@ -5161,6 +5167,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
 & V()
   Function: v(<string>)
+ 
   The V function can be used as an alternative for percent (%) substitution
   and also as a replacement for get(me/<arg>).  If the argument is two
   characters long or longer and starts with a letter, then the object
@@ -5171,8 +5178,14 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   example) is preferred as it is faster, and there are no longer any security
   problems associated with it.  Note that attributes with single-character
   names cannot be retrieved with v().
+ 
+  A percent-substitution is available for the equivalent of v()'s ability
+  to retrieve an attribute: %=<var>, where the variable named <var> is
+  literally enclosed within angle-brackets. For instance, v(test) is
+  equivalent to %=<test> (and to get(me/test), as well).
+ 
   See also: GENDER, SUBSTITUTION, PARENT OBJECTS.
-
+ 
 & wordpos()
   Function: wordpos(<string>, <charpos>[, <delim>)
  
@@ -5341,11 +5354,17 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   than the description of players wherever they may be.  If the attribute is
   not present on <object>, its parent is searched for the attribute.
  
+  A percent-substitution equivalent to 'get(me/<attribute>)' is available.
+  This is '%=<attribute>', where the name of the attribute is literally
+  enclosed in angle brackets. For instance, 'get(me/test)' is equivalent
+  to '%=<test>', and to 'v(test)'.
+ 
   Example:
     > read me
     > say get(me/desc)
+ 
   See also: get_eval().
-
+ 
 & GET_EVAL()
   Function: get_eval(<object>/<attribute>)
  
@@ -8274,10 +8293,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   This function retrieves a temporary variable associated with the object
   making the function call.
   
-  For variable names of a single letter or digit (A - Z, 0 - 9), the
-  variable can also be retrieved via the more efficient percent-substitution,
-  %_<variable name> -- x(a) is equivalent to %_a, x(0) is equivalent to %_0,
-  and so forth.
+  The variable can also be retrieved via the more efficient percent
+  substitution, For variable names of a single letter or digit (A - Z,
+  0 - 9), this is %_<variable name> -- x(a) is equivalent to %_a, x(0) is
+  equivalent to %_0, and so forth. Multi-letter variable names can also
+  be accessed in this way, if the variable name is enclosed in angle
+  brackets -- x(foo) is equivalent to %_<foo>, x(test) is equivalent
+  to %_<test>, etc.
  
   See also: setx(), lvars(), setq(), setr(), r().
  

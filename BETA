@@ -374,21 +374,7 @@ The initial beta release was on 9/27/99.
 
 -----------------------------------------------------------------------------
 
-10/16/99: Beta 13
-
-- Fix: Channel names and aliases are sanity-checked. [MUX; RMG]
-
-- Misc: Use of *VARIABLE* as the object name associated with #-2 is
-  now consistent. [3.0a3; Keran]
-
-- Misc: Corrected a typo in @quota. [2.0; RMG]
-
-- Misc: Leaving a channel you are not on generates a notification
-  that you're not on the channel. [MUX; stile]
-
------------------------------------------------------------------------------
-
-10/16/99: Beta 14
+10/17/99: Beta 13
 
 - Feature: New comsystem.
 
@@ -420,6 +406,19 @@ The initial beta release was on 9/27/99.
     from scratch), a basic comsys database is now created, with the
     Public and Guests channels.
 
+- Feature: Attributes can now be retrieved with %=<variable>, where
+  the angle-brackets are literal. In other words, '%=<test>' is 
+  equivalent to 'v(test)' is equivalent to 'get(me/test)'.
+
+- Feature: Multi-letter variables set with setx() can now be retrieved
+  with %_<variable>, where the angle-brackets are literal.
+
+- Misc: Use of *VARIABLE* as the object name associated with #-2 is
+  now consistent. [3.0a3; Keran]
+
+- Misc: Corrected a typo in @quota. [2.0; RMG]
+
 - Misc: Startmush script saves a copy of the old comsys.db and mail.db files.
 
 - Misc: Minor cleanup in various places.
+
