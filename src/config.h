@@ -51,7 +51,7 @@
 #define OUTPUT_FLAGS	(MANDFLAGS|OFLAGS1|OFLAGS2)
 						/* format for dumps */
 
-#define UNLOAD_VERSION	1			/* verison for export */
+#define UNLOAD_VERSION	1			/* version for export */
 #define UNLOAD_OUTFLAGS	(MANDFLAGS)		/* format for export */
 
 /* magic lock cookies */
