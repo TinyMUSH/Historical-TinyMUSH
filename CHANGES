@@ -129,8 +129,9 @@ the other have been listed in the conversion notes for both servers.
   defines a structure, unstructure() undefines one, construct() and
   load() create instances of structures, destruct() removes an instance
   of a structure, unload() dumps the components of an instance, z()
-  gets the component of an instance, and modify() modifies a component
-  of an instance.
+  gets the component of an instance, modify() modifies a component
+  of an instance, and lstructures() and linstances() list the names
+  of structures and instances, respectively.
 
 - Added chomp() function -- akin to perl chomp(), it chomps off a
   trailing carriage-return newline from a string, if there is one.
