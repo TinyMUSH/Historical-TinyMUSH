@@ -421,7 +421,6 @@ int ismessage;
 {
 	char *bp, *p;
 	char oldlist[LBUF_SIZE];
-	dbref target;
 
 	StringCopy(oldlist, list);
 	bp = namelist;

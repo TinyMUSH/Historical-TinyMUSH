@@ -1285,7 +1285,7 @@ int full;
 	dbref target, thing;
 	int fc, fr, fu, tc, tr, tu, fchars, tchars, cchars, count, len;
 	char last[50];
-	struct mail *mp, *mptr;
+	struct mail *mp;
 
 	fc = fr = fu = tc = tr = tu = cchars = fchars = tchars = count = 0;
 

@@ -135,7 +135,7 @@ static void mung_quotas(player, key, value)
 dbref player;
 int key, value;
 {
-	int xq, aflags, rooms, exits, things, players;
+	int xq, rooms, exits, things, players;
 	int q_list[5], rq_list[5];
 
 	if (key & QUOTA_FIX) {

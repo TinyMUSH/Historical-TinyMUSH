@@ -2411,8 +2411,6 @@ static const char *examd[] =
 {"/brief", "/full"};
 static const char *ed[] =
 {"Disabled", "Enabled"};
-static const char *ud[] =
-{"Down", "Up"};
 
 static void list_options(player)
 dbref player;
