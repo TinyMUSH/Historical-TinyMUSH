@@ -14,7 +14,8 @@ such as "Unix for Dummies" or "Unix for the Impatient".
 TABLE OF CONTENTS
 
 - One-step installation
-- Basic installation
+- Simple custom installation
+- Step-by-step installation
 - Starting a new game
 - Upgrading from TinyMUSH 3.0
 - Converting from another MU* type
@@ -40,7 +41,34 @@ install guide titled COMPATIBILITY for help.
 
 ----------------------------------------------------------------------------
 
-BASIC INSTALLATION
+SIMPLE CUSTOM INSTALLATION
+
+For your convenience, the Build script accepts options to be passed to
+the configure script. For more information, type:
+
+./Build --help
+
+(You must be in the directory that this INSTALL file is in.)
+
+This will show you a long list of optional features you can enable or
+disable using configure options, including modules, and lists the
+default settings. Make a note of the options you would like to use,
+and then run the Build script with those options. For example, to
+build the mush without Pueblo client support, you'd type:
+
+./Build --disable-pueblo
+
+(You must be in the directory that this INSTALL file is in.)
+
+When the build finishes, assuming there are no errors, you are ready to
+start a new MUSH, or convert an existing MUSH to TinyMUSH 3.
+
+If the build fails for some reason, look in the section of this
+install guide titled COMPATIBILITY for help.
+
+----------------------------------------------------------------------------
+
+STEP-BY-STEP INSTALLATION
 
 If you decide not to use the one-step install, or you encounter problems
 in the one-step install, the installation process is as follows:
@@ -295,16 +323,16 @@ the release date of this server version.
 Irix may need HAVE_SRANDOM manually defined in autoconf.h --
 for some reason, autoconf doesn't detect this properly.
 
-The Build script (or the directions given above for basic installation)
-produces a file in the src directory called Compile.log; if the compile
-fails, the developers would like to know what it failed on so it can
-be fixed in future releases (and so they can assist you in getting the
-server to work on your system), so please mail tinymush-bugs@godlike.com
-with that file included or attached, as well as the output of the command
-'uname -a' and any other relevant details about your machine's specific
-configuration. If you figured out what you needed to change in order to
-make the build successful, please include those instructions in your
-email, as well.
+The Build script (or the directions given above for step-by-step
+installation) produces a file in the src directory called Compile.log;
+if the compile fails, the developers would like to know what it failed
+on so it can be fixed in future releases (and so they can assist you
+in getting the server to work on your system), so please mail
+tinymush-bugs@godlike.com with that file included or attached, as well
+as the output of the command 'uname -a' and any other relevant details
+about your machine's specific configuration. If you figured out what
+you needed to change in order to make the build successful, please
+include those instructions in your email, as well.
 
 ----------------------------------------------------------------------------
 

@@ -32,6 +32,9 @@ Release history:
 - Feature: If invoked with the -f switch, the Backup script only makes
   a flatfile.
 
+- Feature: The Build script accepts options to be passed to the configure
+  script, enabling simple custom installation.
+
 - Fix: The game/data directory is once again included in the
   distribution. [3.1; Neva]
 

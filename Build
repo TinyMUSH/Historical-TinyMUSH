@@ -1,4 +1,13 @@
 #!/bin/sh
+#
+# $Id$
+#
+#	Build [options] - Configure and compile the mush.
+
+case "$1" in
+    -help | --help | --hel | --he)
+	exec src/configure --help ;;
+esac
 
 echo "Building TinyMUSH 3.1..."
 
@@ -6,7 +15,7 @@ echo
 echo "***** Configuring GNU DBM..."
 echo
 cd src/gdbm-1.8.0
-./configure --enable-shared=no --enable-static=yes
+./configure --enable-shared=no --enable-static=yes "$@"
 echo
 echo "***** Building GNU DBM..."
 echo
@@ -15,8 +24,13 @@ make
 echo
 echo "***** Configuring the server..."
 cd ..
-./configure
-echo "***** Building server using default config..."
+if test -z "$*"; then
+    ./configure
+    echo "***** Building server using default config..."
+else
+    ./configure "$@"
+    echo "***** Building server using custom config..."
+fi
 echo
 rm -f .depend
 touch .depend
