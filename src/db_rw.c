@@ -1053,8 +1053,6 @@ int db_read()
 			/* Unroll the data into flags and name */
 			
 			cdptr = cdata;	
-			memcpy((void *)&num, (void *)cdptr, sizeof(int));
-			cdptr += sizeof(int);
 
 			while ((cdptr - cdata) < len) {
 				memcpy((void *)&j, (void *)cdptr, sizeof(int));
@@ -1308,7 +1306,6 @@ dbref db_write()
 	VATTR *vp;
 	int *data, *dptr, len, blksize, num, i, j, k, dirty;
 	char *cdata, *cdptr;
-	int *dirty_table;
 
 #ifndef MEMORY_BASED
 	al_store();
@@ -1345,12 +1342,11 @@ dbref db_write()
 	 * in which case you'd have to reload anyway */
 	 
 	blksize = ATRNUM_BLOCK_SIZE;
-	dirty_table = (int *)XMALLOC(blksize * sizeof(int), "db_write.dirt");
 	
 	/* Step through the attribute number array, writing stuff in 'num'
 	 * sized chunks */
 	 
-	cdata = (char *)XMALLOC(ATRNUM_BLOCK_BYTES + sizeof(int), "db_write.cdata");
+	cdata = (char *)XMALLOC(ATRNUM_BLOCK_BYTES, "db_write.cdata");
 	
 	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.attr_next, blksize); i++) {
 		dirty = 0;
@@ -1363,7 +1359,6 @@ dbref db_write()
 		     j++, k++) {
 
 			vp = (VATTR *)anum_table[j];
-			dirty_table[k] = 0;
 
 			if (vp && !(vp->flags & AF_DELETED)) {
 #ifndef STANDALONE
@@ -1374,7 +1369,6 @@ dbref db_write()
 					vp->flags &= ~AF_DIRTY;
 
 #endif					
-					dirty_table[k] = 1;
 					dirty = 1;
 					
 #ifndef STANDALONE
@@ -1394,21 +1388,15 @@ dbref db_write()
 			/* Something is dirty in this block, write all of
 			 * the attribute numbers in this block */
 			
-			/* First write the number of entries */ 
-			memcpy((void *)cdptr, (void *)&num, sizeof(int));
-			cdptr += sizeof(int);
-			
-			/* Write the entries*/
 			for (j = 0; (j < blksize) &&
 			    ((ENTRY_BLOCK_STARTS(i, blksize) + j) < mudstate.attr_next);
 			    j++) {
-				if (dirty_table[j]) {
-				
-					/* j is an offset of attribute
-				 	 * numbers into the current block */
+				/* j is an offset of attribute
+				 * numbers into the current block */
 					
-					vp = (VATTR *)anum_table[ENTRY_BLOCK_STARTS(i, blksize) + j];
+				vp = (VATTR *)anum_table[ENTRY_BLOCK_STARTS(i, blksize) + j];
 				
+				if (vp && !(vp->flags & AF_DELETED)) {
 					len = strlen(vp->name) + 1;
 					memcpy((void *)cdptr, (void *)&vp->number, sizeof(int));
 					cdptr += sizeof(int);
@@ -1425,7 +1413,6 @@ dbref db_write()
 		}
 	}
 	XFREE(cdata, "db_write.cdata");
-	XFREE(dirty_table, "db_write.dirt");
 
 	DO_WHOLE_DB(obj) {
 
