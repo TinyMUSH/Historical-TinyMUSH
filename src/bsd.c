@@ -102,15 +102,17 @@ static int get_slave_result()
 		if (strcmp(d->addr, host))
 			continue;
 		if (mudconf.use_hostname) {
+			if (d->player != 0) {
+			    if (d->username[0]) {
+				atr_add_raw(d->player, A_LASTSITE,
+					    tprintf("%s@%s",
+						    d->username, token));
+			    } else {
+				atr_add_raw(d->player, A_LASTSITE, token);
+			    }
+			}
 			StringCopyTrunc(d->addr, token, 50);
 			d->addr[50] = '\0';
-			if (d->player != 0) {
-				if (d->username[0])
-					atr_add_raw(d->player, A_LASTSITE, tprintf("%s@%s",
-						     d->username, d->addr));
-				else
-					atr_add_raw(d->player, A_LASTSITE, d->addr);
-			}
 		}
 	}
 
@@ -128,12 +130,12 @@ static int get_slave_result()
 	for (d = descriptor_list; d; d = d->next) {
 		if (ntohs((d->address).sin_port) != remote_port)
 			continue;
+		if (d->player != 0) {
+		    atr_add_raw(d->player, A_LASTSITE,
+				tprintf("%s@%s", userid, token));
+		}
 		StringCopyTrunc(d->username, userid, 10);
 		d->username[10] = '\0';
-		if (d->player != 0) {
-			atr_add_raw(d->player, A_LASTSITE, tprintf("%s@%s",
-						     d->username, d->addr));
-		}
 		free_lbuf(buf);
 		free_lbuf(token);
 		free_lbuf(os);
