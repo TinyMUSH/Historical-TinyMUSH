@@ -16,6 +16,16 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
 3.1 Patchlevel 2
 
+  - The engine is now able to find the data directory and names of 
+    the db/crash files from the environment. The configuration
+    parameters 'database_home',  'crash_database' and 'gdbm_database'
+    are still avalable for backward compatibility.
+
+  - Startmush now terminate correctly on most platform. awk now kill
+    the tail process instead of just closing the pipe (on some
+    platform, tail doesn't exit when the pipe is close, leaving a
+    zombie tail process running)
+
   - Added EXIT, ROOMS and VEHICLE topics in qhelp.txt. 
 
   - Fixed a memory leak in sql_query function where result was stored but

@@ -2186,7 +2186,7 @@ char *argv[];
 	if (mudstate.restarting) {
 	    raw_broadcast(0, "GAME: Restart finished.");
 	}
-
+	
 #ifdef CONCENTRATE
 	if (!mudstate.restarting) {
 		/*

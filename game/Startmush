@@ -161,4 +161,4 @@ fi
 touch $LOGNAME
 $BIN/netmush $make_db -c $GAMENAME.conf -l $LOGNAME -p $PIDFILE >>$LOGNAME 2>&1 &
 echo "Process $!"
-tail -f $LOGNAME | awk '{ print $0 }; /Cleanup completed/ { exit };'
+tail -f $LOGNAME | awk '{ print $0 }; /Cleanup completed/ { system("killall tail") };'

@@ -50,9 +50,24 @@ extern LOGFILETAB logfds_table[];
 
 void NDECL(cf_init)
 {
-	mudconf.dbhome = XSTRDUP(".", "cf_string");
-	mudconf.crashdb = XSTRDUP("", "cf_string");
-	mudconf.gdbm = XSTRDUP("", "cf_string");
+	char * buffer;
+
+	if ( (buffer=getenv("DATA")) != NULL ) {
+	  mudconf.dbhome = XSTRDUP(buffer, "cf_string");
+	} else {
+		mudconf.dbhome = XSTRDUP(".", "cf_string");
+	}
+	if ( (buffer=getenv("CRASH_DB")) != NULL ) {
+	  mudconf.crashdb = XSTRDUP(buffer, "cf_string");
+	} else {
+	  mudconf.crashdb = XSTRDUP("", "cf_string");
+	}
+	if ( (buffer=getenv("GDBM_DB")) != NULL ) {
+	  mudconf.gdbm = XSTRDUP(buffer, "cf_string");
+	} else {
+	  mudconf.gdbm = XSTRDUP("", "cf_string");
+	}
+
 	mudconf.status_file = XSTRDUP("shutdown.status", "cf_string");
 	mudstate.modules_list = NULL;
 	mudstate.modloaded[0] = '\0';
