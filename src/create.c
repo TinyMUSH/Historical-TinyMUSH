@@ -483,16 +483,7 @@ char *name, *arg2;
 	/* Determine the cost of cloning */
 
 	new_owner = (key & CLONE_PRESERVE) ? Owner(thing) : Owner(player);
-	if (key & CLONE_SET_COST) {
-		cost = atoi(arg2);
-		if (cost < mudconf.createmin)
-			cost = mudconf.createmin;
-		if (cost > mudconf.createmax)
-			cost = mudconf.createmax;
-		arg2 = NULL;
-	} else {
-		cost = 1;
-		switch (Typeof(thing)) {
+	switch (Typeof(thing)) {
 		case TYPE_THING:
 			cost = OBJECT_DEPOSIT((mudconf.clone_copy_cost) ?
 					      Pennies(thing) : 1);
@@ -507,7 +498,14 @@ char *name, *arg2;
 			}
 			cost = mudconf.digcost;
 			break;
-		}
+	}
+	if (key & CLONE_SET_COST) {
+		cost = atoi(arg2);
+		if (cost < mudconf.createmin)
+			cost = mudconf.createmin;
+		if (cost > mudconf.createmax)
+			cost = mudconf.createmax;
+		arg2 = NULL;
 	}
 
 	/* Go make the clone object */
