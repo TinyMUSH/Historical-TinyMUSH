@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-09/xx/2002: Beta 8
+10/xx/2002: Beta 8
 
 - Feature: lpos() can check multiple characters. Based on a suggestion from
   Joel Ricketts.
@@ -40,6 +40,12 @@ Release history:
 - Feature: A new conf parameter, c_is_command, controls whether %c is
   last command (default) or ANSI substitution.
 
+- Feature: @mail supports separate to/cc/bcc lists. Patch from
+  Simon Bland, plus misc fixes.
+
+- Feature: @doing has a /quiet switch to avoid "Set." messages. Based
+  on a suggestion from [XXX].
+
 - Fix: The border() family of functions supports left-indentation (spaces
   at the beginning of a line) properly. [3.1; Sally Schreiber]
 
@@ -49,6 +55,74 @@ Release history:
   setting an attribute has been fixed. [2.0; Joel Ricketts]
 
 - Fix: Running MEMORY_BASED works again. [3.1; Tyr]
+
+- Fix: Since our copy of gdbm includes an important change, we build it
+  as libtinygdbm.a to avoid linking netmush with an unmodified gdbm.
+
+- Fix: Permission to lock/unlock an attribute should depend on the
+  victim's CONSTANT flag, not the executor's. [3.0b14]
+
+- Fix: Some integer math results were displayed as "-0".
+
+- Fix: Numeric conf parameters such as sacrifice_factor that are used
+  in division may not be set to zero.
+
+- Fix: rloc() now works on exits.
+
+- Fix: Buffer overflow in SIGTERM handler. [3.0b8]
+
+- Fix: God can't be set GOING or @chowned. [2.0; Brazil]
+
+- Fix: A player being destroyed may lack a Destroyer attribute if
+  simply set GOING by God. [MUX; Jeff Czyz]
+
+- Fix: Valid hostnames returned by the lookup slave may start with
+  numbers. [MUX; Brazil]
+
+- Fix: Global registers should be cleared between interactive
+  commands. [2.0; Brazil]
+
+- Fix: Fatal bug in regedit() fixed. [3.1a4]
+
+- Fix: Infinite loop in regeditall() fixed. [3.1a4]
+
+- Fix: Player names consisting of only whitespace are not allowed.
+  [3.0; Brazil]
+
+- Fix: Corrected the function that's supposed to avoid random
+  number generator bias. [3.1b6]
+
+- Fix: children(no such object) should not return all unparented
+  objects, but children(#-1) should. Similar fixes for inzone and
+  zwho. [MUX]
+
+- Fix: Extra space no longer appears after columns() output. [MUX]
+
+- Fix: config() can access dbref conf parameters [3.1a8; Eric Kidder],
+  and dbref conf parameters can be registered by modules. [3.1a8; Tyr]
+
+- Misc: config() can access option conf parameters, of which the
+  only one is signal_action, readable by God.
+
+- Misc: Unprivileged exits may destroy themselves, requested by
+  drdubious.
+
+- Misc: The hide power is also required in order for non-wizard
+  idlers to be affected by the idle_wiz_dark conf parameter.
+  [MUX; Dellin@Aftermath]
+
+- Misc: Improved protection against invalid dbrefs in dbref-type
+  conf parameters.
+
+- Misc: Logic for 64-bit alignment of the alloc pool_header struct was
+  wrong, but worked anyway. [3.1a8]
+
+- Misc: The paranoid_allocate conf parameter checks all buffer pools
+  (previously omitted the player cache pool).
+
+- Misc: Assorted spelling corrections and other minor cleanup.
+
+- Misc: Re-released under the Artistic License.
 
 -----------------------------------------------------------------------------
 
