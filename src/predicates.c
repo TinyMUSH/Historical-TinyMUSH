@@ -902,9 +902,10 @@ char *message;
 
 	if (*message == '|') {
 		do_command(d, message + 1, 1);
-		/* We might have been handed a @quitprogram, so check to make
-		 * sure we really do want to display a prompt.
-		 */
+
+		/* Use telnet protocol's GOAHEAD command to show prompt, make
+		   sure that we haven't been issues an @quitprogram */
+		
 		if (d->program_data != NULL)
 			queue_string(d, tprintf("%s>%s \377\371", ANSI_HILITE, ANSI_NORMAL));
 		return;
