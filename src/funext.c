@@ -35,7 +35,8 @@ extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 		p = atoi(s);	\
 	} else {	\
 		t = lookup_player(x, s, 1);	\
-		if (Good_obj(t) && Hidden(t) && !See_Hidden(x))	\
+		if (Good_obj(t) && Can_Hide(t) && Hidden(t) && \
+		    !See_Hidden(x))	\
 			t = NOTHING;	\
 	}
 
