@@ -823,7 +823,8 @@ char *cargs[];
 			else
 				nfargs = NFARGS;
 			tstr = *dstr;
-			if (fp && (fp->flags & FN_NO_EVAL))
+			if ((fp && (fp->flags & FN_NO_EVAL)) ||
+			    (ufp && (ufp->flags & FN_NO_EVAL)))
 				feval = (eval & ~EV_EVAL) | EV_STRIP_ESC;
 			else
 				feval = eval;
@@ -873,7 +874,9 @@ char *cargs[];
 						save_global_regs("eval_save", preserve);
 					}
 					
-					exec(buff, &oldp, 0, i, cause, feval,
+					exec(buff, &oldp, 0, i, cause,
+					     ((ufp->flags & FN_NO_EVAL) ?
+					      (EV_FCHECK | EV_EVAL) : feval),
 					     &str, fargs, nfargs);
 					*bufc = oldp;
 					
