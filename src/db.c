@@ -2157,7 +2157,7 @@ int atr, *flags;
 	ITER_PARENTS(thing, parent, lev) {
 #ifdef RADIX_COMPRESSION
 		retval = atr_get_raw_decode(parent, s, owner, flags, atr);
-		if (retval && ((lev = 0) || !(*flags & AF_PRIVATE))) {
+		if (retval && ((lev == 0) || !(*flags & AF_PRIVATE))) {
 			return s;
 		}
 #else
