@@ -3064,6 +3064,18 @@
  
   See also: @conformat
 
+& MARKER
+  Flag: Marker0 (0), Marker1 (1) ... through Marker9 (9)
+ 
+  The ten "marker" flags are "user-defined" flags. Through the flag_name
+  and flag_access configuration parameters, the names of these flags, and
+  the permissions it takes to set/unset them, can be changed. Thus, the
+  exact names of the flags will vary on a per-MUSH basis, though Marker0
+  through Marker9 will always remain aliases for them, and their
+  one-character symbols are always 0 through 9. All user-defined flag
+  names are prefixed with an underscore (_), clearly differentiating
+  them from normal built-in flags.
+  
 & ABODE
   Flag: ABODE (A)
  
@@ -4101,9 +4113,11 @@
 	x - Slave	z - Control_OK	! - Stop	$ - Commands
 	- - NoBleed	~ - HTML	. - Compress	? - Head	
 	| - Vacation
+  
+  See 'help Marker' for help on user-defined flags (0 through 9).
  
   For information on a particular flag, type 'help <flagname>'.
-
+ 
 & FUNCTIONS
   Topic: FUNCTIONS
  
