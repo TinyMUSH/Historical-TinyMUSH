@@ -4752,8 +4752,7 @@ FUNCTION(fun_lastcreate)
     }
     free_lbuf(obj_str);
 
-    *(*bufc)++ = '#';
-    safe_ltos(buff, bufc, obj_list[obj_type]);
+    safe_dbref(buff, bufc, obj_list[obj_type]);
 }
 
 /*---------------------------------------------------------------------------
