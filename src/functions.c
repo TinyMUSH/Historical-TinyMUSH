@@ -4888,7 +4888,7 @@ int oper;
 {
 	char *list1, *list2, *oldp;
 	char *ptrs1[LBUF_SIZE], *ptrs2[LBUF_SIZE];
-	int i1, i2, n1, n2, val, first;
+	int i1, i2, n1, n2, val;
 
 	list1 = alloc_lbuf("fun_setunion.1");
 	strcpy(list1, fargs[0]);
@@ -4901,7 +4901,6 @@ int oper;
 	do_asort(ptrs2, n2, ALPHANUM_LIST);
 
 	i1 = i2 = 0;
-	first = 1;
 	oldp = *bufc;
 	**bufc = '\0';
 
@@ -4932,9 +4931,8 @@ int oper;
 			/* Compare and copy */
 
 			if ((i1 < n1) && (i2 < n2)) {
-				if (!first)
+			        if (*bufc != buff)
 					safe_chr(osep, buff, bufc);
-				first = 0;
 				oldp = *bufc;
 				if (strcmp(ptrs1[i1], ptrs2[i2]) < 0) {
 					safe_str(ptrs1[i1], buff, bufc);
@@ -4951,9 +4949,8 @@ int oper;
 
 		for (; i1 < n1; i1++) {
 			if (strcmp(oldp, ptrs1[i1])) {
-				if (!first)
+				if (*bufc != buff)
 					safe_chr(osep, buff, bufc);
-				first = 0;
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
 				**bufc = '\0';
@@ -4961,9 +4958,8 @@ int oper;
 		}
 		for (; i2 < n2; i2++) {
 			if (strcmp(oldp, ptrs2[i2])) {
-				if (!first)
+				if (*bufc != buff)
 					safe_chr(osep, buff, bufc);
-				first = 0;
 				oldp = *bufc;
 				safe_str(ptrs2[i2], buff, bufc);
 				**bufc = '\0';
@@ -4978,9 +4974,8 @@ int oper;
 
 				/* Got a match, copy it */
 
-				if (!first)
+				if (*bufc != buff)
 					safe_chr(osep, buff, bufc);
-				first = 0;
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
 				i1++;
@@ -5013,9 +5008,8 @@ int oper;
 
 				/* Item in list1 not in list2, copy */
 
-				if (!first)
+				if (*bufc != buff)
 					safe_chr(osep, buff, bufc);
-				first = 0;
 				safe_str(ptrs1[i1], buff, bufc);
 				oldp = ptrs1[i1];
 				i1++;
@@ -5035,9 +5029,8 @@ int oper;
 		/* Copy remainder of list1 */
 
 		while (i1 < n1) {
-			if (!first)
+			if (*bufc != buff)
 				safe_chr(osep, buff, bufc);
-			first = 0;
 			safe_str(ptrs1[i1], buff, bufc);
 			oldp = ptrs1[i1];
 			i1++;
