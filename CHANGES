@@ -62,6 +62,10 @@ highly significant changes are noted here.
 - Default channel aliases can now be set with the public_calias and
   guests_calias config parameters.
 
+- New /info switch to @attribute shows global attribute flags for a single
+  attribute (similar to what '@list user_attributes' produces for all
+  user-defined attributes).
+
 - @chown now checks a ChownLock on CHOWN_OK objects.
 
 - New @freelist command moves an object to the head of the freelist,
