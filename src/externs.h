@@ -449,7 +449,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 
 /* Function flags */
 
-#define	FN_VARARGS	0x80000000U	/* allows variable # of args */
+#define	FN_VARARGS	0x80000000	/* allows variable # of args */
 #define	FN_NO_EVAL	0x40000000	/* Don't evaluate args to function */
 #define	FN_PRIV		0x20000000	/* Perform ufun as holding obj */
 #define FN_PRES		0x10000000	/* Preserve r-regs before ufun */
