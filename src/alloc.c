@@ -99,12 +99,11 @@ const char *tag;
 void pool_check(tag)
 const char *tag;
 {
-	pool_vfy(POOL_LBUF, tag);
-	pool_vfy(POOL_MBUF, tag);
-	pool_vfy(POOL_SBUF, tag);
-	pool_vfy(POOL_BOOL, tag);
-	pool_vfy(POOL_DESC, tag);
-	pool_vfy(POOL_QENTRY, tag);
+	int poolnum;
+
+	for (poolnum = 0; poolnum < NUM_POOLS; ++poolnum) {
+		pool_vfy(poolnum, tag);
+	}
 }
 
 char *pool_alloc(poolnum, tag)
