@@ -396,9 +396,11 @@ const char *src, *sub;
 
 /*
  * ---------------------------------------------------------------------------
- * * replace_string: Returns an lbuf containing string STRING with all occurances
- * * of OLD replaced by NEW. OLD and NEW may be different lengths.
- * * (mitch 1 feb 91)
+ * replace_string: Returns an lbuf containing string STRING with all occurances
+ * of OLD replaced by NEW. OLD and NEW may be different lengths.
+ * (mitch 1 feb 91)
+ * replace_string_ansi: Like replace_string, but sensitive about ANSI codes.
+ * Note that unlike replace_string, it destructively modifies its input!
  */
 
 char *replace_string(old, new, string)
@@ -422,10 +424,9 @@ const char *old, *new, *string;
 		}
 
 		/*
-		 * If we are really at an OLD, append NEW to the result and * 
-		 * 
-		 * *  * *  * * bump the input string past the occurrence of
-		 * OLD. *  * * * Otherwise, copy the char and try again. 
+		 * If we are really at an OLD, append NEW to the result and
+		 * bump the input string past the occurrence of
+		 * OLD. Otherwise, copy the char and try again. 
 		 */
 
 		if (*s) {
@@ -440,6 +441,144 @@ const char *old, *new, *string;
 	}
 	*r = '\0';
 	return result;
+}
+
+char *replace_string_ansi(old, new, string)
+    char *old, *new;
+    const char *string;
+{
+    char *p, *result, *r, *s, *t, *savep;
+    int count, olen, have_normal, new_ansi;
+    char oldbuf[LBUF_SIZE], newbuf[LBUF_SIZE];
+
+    if (!string)
+	return NULL;
+
+    s = (char *) string;
+    r = result = alloc_lbuf("replace_string_ansi");
+
+    /* We may have gotten an ANSI_NORMAL termination to OLD and NEW,
+     * that the user probably didn't intend to be there. (If the
+     * user really did want it there, he simply has to put a double
+     * ANSI_NORMAL in; this is non-intuitive but without it we can't
+     * let users swap one ANSI code for another using this.)  Thus,
+     * we chop off the terminating ANSI_NORMAL on both, if there is
+     * one.
+     */
+
+    p = old + strlen(old) - 4;
+    if (!strcmp(p, ANSI_NORMAL))
+	*p = '\0';
+    p = new + strlen(new) - 4;
+    if (!strcmp(p, ANSI_NORMAL))
+	*p = '\0';
+
+    olen = strlen(old);
+
+    /* Scan the contents of the string. Figure out whether we have any
+     * embedded ANSI codes.
+     */
+    new_ansi = (((char *) index(new, ESC_CHAR)) == NULL) ? 0 : 1;
+
+    have_normal = 1;
+    while (*s) {
+
+	/* Copy up to the next occurrence of the first char of OLD. */
+
+	while (*s && (*s != *old)) {
+	    if (*s == ESC_CHAR) {
+		/* Start of an ANSI code. Skip to the end. */
+		savep = s;
+		while (*s && (*s != ANSI_END)) {
+		    safe_chr(*s, result, &r);
+		    s++;
+		}
+		if (*s) {
+		    safe_chr(*s, result, &r);
+		    s++;
+		}
+		if (!strncmp(savep, ANSI_NORMAL, 4))
+		    have_normal = 1;
+		else
+		    have_normal = 0;
+	    } else {
+		safe_chr(*s, result, &r);
+		s++;
+	    }
+	}
+
+	/* If we are really at an OLD, append NEW to the result and
+	 * bump the input string past the occurrence of OLD. Otherwise,
+	 * copy the char and try again.
+	 */
+
+	if (*s) {
+	    if (!strncmp(old, s, olen)) {
+
+		/* If the string contains no ANSI characters, we can
+		 * just copy it. Otherwise we need to scan through it.
+		 */
+
+		if (!new_ansi) {
+		    safe_str((char *) new, result, &r);
+		} else {
+		    t = (char *) new;
+		    while (*t) {
+			if (*t == ESC_CHAR) {
+			    /* Start of an ANSI code. Skip to the end. */
+			    savep = t;
+			    while (*t && (*t != ANSI_END)) {
+				safe_chr(*t, result, &r);
+				t++;
+			    }
+			    if (*t) {
+				safe_chr(*t, result, &r);
+				t++;
+			    }
+			    if (!strncmp(savep, ANSI_NORMAL, 4))
+				have_normal = 1;
+			    else
+				have_normal = 0;
+			} else {
+			    safe_chr(*t, result, &r);
+			    t++;
+			}
+		    }
+		}
+		s += olen;
+	    } else {
+		/* We have to handle the case where the first character
+		 * in OLD is the ANSI escape character. In that case
+		 * we move over and copy the entire ANSI code. Otherwise
+		 * we just copy the character.
+		 */
+		if (*old == ESC_CHAR) {
+		    savep = s;
+		    while (*s && (*s != ANSI_END)) {
+			safe_chr(*s, result, &r);
+			s++;
+		    }
+		    if (*s) {
+			safe_chr(*s, result, &r);
+			s++;
+		    }
+		    if (!strncmp(savep, ANSI_NORMAL, 4))
+			have_normal = 1;
+		    else
+			have_normal = 0;
+		} else {
+		    safe_chr(*s, result, &r);
+		    s++;
+		}
+	    }
+	}
+    }
+
+    if (!have_normal)
+	safe_str(ANSI_NORMAL, result, &r);
+
+    *r = '\0';
+    return result;
 }
 
 int minmatch(str, target, min)

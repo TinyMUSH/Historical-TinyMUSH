@@ -1297,7 +1297,7 @@ char *src, **dst, *from, *to;
 		    ((from[1] == '$') || (from[1] == '^')) &&
 		    (from[2] == '\0'))
 			from++;
-		*dst = replace_string(from, to, src);
+		*dst = replace_string_ansi(from, to, src);
 	}
 }
 
@@ -1370,14 +1370,15 @@ char *src, **dst, **returnstr, *from, *to;
 		    (from[2] == '\0'))
 			from++;
 
-		*dst = replace_string(from, to, src);
+		*dst = replace_string_ansi(from, to, src);
 		if (mudconf.ansi_colors) {
-		    *returnstr = replace_string(from,
-						tprintf("%s%s%s",
+		    *returnstr = replace_string_ansi(from,
+						tprintf("%s%s%s%s",
 							ANSI_HILITE, to,
+							ANSI_NORMAL,
 							ANSI_NORMAL), src);
 		} else {
-		    *returnstr = replace_string(from, to, src);
+		    *returnstr = replace_string_ansi(from, to, src);
 		}
 	}
 }

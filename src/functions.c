@@ -4880,7 +4880,7 @@ FUNCTION(fun_edit)
 {
 	char *tstr;
 
-	edit_string((char *)strip_ansi(fargs[0]), &tstr, fargs[1], fargs[2]);
+	edit_string(fargs[0], &tstr, fargs[1], fargs[2]);
 	safe_str(tstr, buff, bufc);
 	free_lbuf(tstr);
 }

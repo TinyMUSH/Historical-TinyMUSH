@@ -222,6 +222,8 @@ extern const char *	FDECL(string_match, (const char * ,const char *));
 extern char *	FDECL(dollar_to_space, (const char *));
 extern char *	FDECL(replace_string, (const char *, const char *,
 			const char *));
+extern char *	FDECL(replace_string_ansi, (char *, char *,
+			const char *));
 extern char *	FDECL(skip_space, (const char *));
 extern char *	FDECL(seek_char, (const char *, char));
 extern int	FDECL(minmatch, (char *, char *, int));
