@@ -4304,9 +4304,17 @@ int matched;
 
 FUNCTION(fun_translate)
 {
-	if (*fargs[0] && *fargs[1]) {
-		safe_str(translate_string(fargs[0], atoi(fargs[1])), buff, bufc);
-	}
+    if (*fargs[0] && *fargs[1]) {
+
+	/* Strictly speaking, we're just checking the first char */
+
+	if (fargs[1][0] == 's')
+	    safe_str(translate_string(fargs[0], 0), buff, bufc);
+	else if (fargs[1][0] == 'p')
+	    safe_str(translate_string(fargs[0], 1), buff, bufc);
+	else
+	    safe_str(translate_string(fargs[0], atoi(fargs[1])), buff, bufc);
+    }
 }
 
 /* ---------------------------------------------------------------------------
