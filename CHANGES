@@ -50,11 +50,29 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   - @list cache now shows the number of recent references to each listed
     object.
 
+- Various changes to the database structure:
+
+  - GDBM databases now contains meta-data that allow easier recovery of
+    databases that have been trashed (due to a host machine crash or
+    running out of disk space, for instance). A new script, Reconstruct,
+    calls the new recover binary to attempt to rebuild damaged databases.
+
+  - There are no longer separate structure and GDBM files ("numeric" and
+    "string" databases).
+
+  - GDBM's native free space management has been enabled. Optimized dumps
+    have been disabled by default.
+
 - Extensive work on improving autoconf and libtool use (thus improving
   portability). Compile-time options are now specified as switches to
   the configure script.
 
 - Help entries can now have multiple index terms.
+
+- Conf parameters that are dbrefs (such as master_room) are now sanity
+  checked, both when they are set and when a @dbck is run. Also, a dbref
+  as well as a number can be used, i.e. the syntax 'master_room #2' is
+  now also valid (whereas 'master_room 2' was previously required).
 
 - A new conf parameter, attr_type, allows attributes whose names match
   certain wildcard patterns to be given certain default flags. Attribute
@@ -207,13 +225,25 @@ CHANGES TO COMMANDS
 
 - Functions defined via @function can be listed via @function/list.
 
-- Function permissions can be listed via @list func_permissions.
+- Function permissions can be listed via '@list func_permissions'.
+
+- A summary of memory utilization can be listed via '@list memory'.
+
+- Lock syntax is now always sanity-checked. Unbalanced parentheses within
+  a lock are no longer permitted.
 
 - The new @log command can be used to log arbitrary messages to the
   logfile(s).
 
 - When you log in, you are warned if you are currently in the midst
   of writing a @mail message.
+
+- A @mail recipient now receives only a single copy of a @mail message,
+  even if he appears multiple times in the list of players the message
+  is to.
+
+- The new attribute @nameformat controls the display of location's name
+  when someone looks at the location.
 
 - The new @redirect command can be used to redirect Trace, Puppet, and
   Verbose output from an object, to a player other than the object's
@@ -232,9 +262,16 @@ CHANGES TO COMMANDS
 - Specifying an object to @trigger is now optional; if no object is
   specified, the object defaults to 'me'.
 
+- Attributes containing a $command or ^monitor can now be @trigger'd 
+  directly, as well as used as @a-actions; everything before the first
+  un-escaped ':' is ignored.  Based on an idea from PennMUSH.
+
 -----------------------------------------------------------------------------
 
 CHANGES TO FUNCTIONS
+
+- Multi-character input and output delimiters are now supported for
+  most functions.
 
 - The number of global registers is now configurable, from 10 to 36.
   Beyond %q0-%q9 are %qa-%qz. Based on an idea from PennMUSH.
@@ -264,6 +301,10 @@ CHANGES TO FUNCTIONS
 
 - The escape(), secure(), capstr(), lcstr(), and ucstr() functions now
   handle ANSI properly.
+
+- Added border(), rborder(), and cborder(). These are word-wrap functions
+  which can left/right/center-justify text within the field, and add
+  left and right-margin borders.
 
 - Added cand(), cor(), candbool(), and corbool(), similar to and() etc.,
   except these functions stop evaluating their arguments once a terminating
@@ -317,6 +358,16 @@ CHANGES TO FUNCTIONS
   delimiter character. The delimit() function processes a stored
   list, substituting a separator string for a delimiter.
 
+- Added table(), tables(), rtables(), and ctables() functions. table()
+  is based on an idea from PennMUSH, formatting text within a table of
+  equally wide columns. The other three functions format text within
+  a table of variably-wide columns (left/right/center-justified), with
+  left and right-margin borders.
+
+- Added timefmt() function. This is essentially an interface to the C
+  library function strftime(), allowing the time to be formatted in
+  psuedo-arbitrary ways. Based on an idea from PennMUSH.
+
 - translate() now handles tabs.
 
 - Added until() function, which is similar to while(), except it operates
@@ -328,6 +379,9 @@ CHANGES TO FUNCTIONS
 - Added wildgrep(), wildmatch(), and wildparse(), which are similar to
   regrep(), regmatch() and regparse(), but work against wildcard patterns
   rather than regexps.
+
+- Added writable() function, which returns 1 if object X can set an
+  attribute A on object Y.
 
 -----------------------------------------------------------------------------
 
@@ -341,8 +395,11 @@ OTHER CHANGES
   Break-out of the command tables into a separate file, for ease of
   maintenance.
 
-- Other cleanup in many parts of the code, including performance enhancements
-  and portability improvements.
+- Other cleanup in many parts of the code, including performance
+  enhancements and significant reductions in memory used.
+
+- Many portability improvements, including support of UWIN, so TinyMUSH 3
+  can be run under Windows.
 
 =============================================================================
 			TinyMUSH 3.0 Changes
