@@ -21,6 +21,8 @@
 #include "alloc.h"
 #include "htab.h"
 
+#ifdef USE_MAIL
+
 /*
  * Buffers used for RADIX_COMPRESSION 
  */
@@ -3649,3 +3651,5 @@ dbref player;
 		notify(player, tprintf("MAIL: Allocated slots %d", ma_size));
 	}
 }
+
+#endif /* USE_MAIL */

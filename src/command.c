@@ -933,6 +933,7 @@ CMDENT command_table[] = {
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_TWO_ARG|CS_LEADIN,	
 	NULL,			NULL,		do_setvattr},
+#ifdef USE_MAIL
 {(char *)"-",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_ONE_ARG|CS_LEADIN,	
@@ -941,6 +942,7 @@ CMDENT command_table[] = {
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_ONE_ARG|CS_LEADIN,	
 	NULL,			NULL,		do_prepend},
+#endif
 {(char *)NULL,			NULL,		0,
 	0,		0,				
 	NULL,		NULL,			NULL}};
