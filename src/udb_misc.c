@@ -64,7 +64,7 @@ va_dcl
 			break;
 
 		if (p == (char *)-1)
-			p = sys_errlist[errno];
+			p = (char *) sys_errlist[errno];
 
 		(void)fprintf(stderr, "%s", p);
 		p = va_arg(ap, char *);
@@ -103,7 +103,7 @@ va_dcl
 			break;
 
 		if (p == (char *)-1)
-			p = sys_errlist[errno];
+			p = (char *) sys_errlist[errno];
 
 		(void)fprintf(stderr, "%s", p);
 		p = va_arg(ap, char *);
