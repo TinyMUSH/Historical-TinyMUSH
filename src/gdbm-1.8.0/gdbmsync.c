@@ -53,7 +53,6 @@ gdbm_sync (dbf)
 
   /* Initialize the gdbm_errno variable. */
   gdbm_errno = GDBM_NO_ERROR;
-
 #ifdef TM3
   file_pos = lseek (dbf->desc, start_file_adr, L_SET);
   if (file_pos != start_file_adr) _gdbm_fatal (dbf, "lseek error");
