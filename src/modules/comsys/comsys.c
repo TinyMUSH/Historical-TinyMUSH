@@ -757,7 +757,8 @@ void comsys_connect(player)
 	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
 	if (is_onchannel(player, chp)) {
 	    update_comwho(chp);
-	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player)) {
+	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player) &&
+		is_listenchannel(player, chp)) {
 		com_message(chp, tprintf("[%s] %s has connected.",
 					 chp->name, Name(player)));
 	    }
@@ -775,7 +776,8 @@ void comsys_disconnect(player)
 	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
 	if (is_onchannel(player, chp)) {
 	    update_comwho(chp);
-	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player)) {
+	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player) &&
+		is_listenchannel(player, chp)) {
 		com_message(chp, tprintf("[%s] %s has disconnected.",
 					 chp->name, Name(player)));
 	    }
