@@ -39,6 +39,10 @@ struct external_funcs {
 	NAMEDFUNC **ext_funcs;
 };
 
+/* ---------------------------------------------------------------------------
+ * Modules and related things.
+ */
+
 typedef struct module_linked_list MODULE;
 struct module_linked_list {
     char *modname;
@@ -60,7 +64,16 @@ struct module_linked_list {
     void (*db_grow)(int, int);
 };
 
-/* CONFDATA:	runtime configurable parameters */
+typedef struct api_function_data API_FUNCTION;
+struct api_function_data {
+    const char *name;
+    const char *param_fmt;
+    void (*handler)(void *, void *);
+};
+
+/* ---------------------------------------------------------------------------
+ * CONFDATA:	runtime configurable parameters
+ */
 
 typedef struct confparm CONF;
 struct confparm {
@@ -298,6 +311,10 @@ struct confdata {
 
 extern CONFDATA mudconf;
 
+/* ---------------------------------------------------------------------------
+ * Various types.
+ */
+
 typedef struct site_data SITE;
 struct site_data {
 	struct site_data *next;		/* Next site in chain */
@@ -347,6 +364,10 @@ struct forward_list {
 	int	count;
 	int	*data;
 };
+
+/* ---------------------------------------------------------------------------
+ * State data.
+ */
 
 typedef struct statedata STATEDATA;
 struct statedata {
@@ -414,6 +435,7 @@ struct statedata {
 	HASHTAB cdefs_htab;	/* Components hashtable */
 	HASHTAB instance_htab;	/* Instances hashtable */
 	HASHTAB instdata_htab;	/* Structure data hashtable */
+	HASHTAB api_func_htab;	/* Registered module API functions */
 	MODULE *modules_list;	/* Loadable modules hashtable */
 	int	max_structs;
 	int	max_cdefs;
@@ -491,7 +513,9 @@ struct statedata {
 
 extern STATEDATA mudstate;
 
-/* Configuration parameter handler definition */
+/* ---------------------------------------------------------------------------
+ * Configuration parameter handler definition
+ */
 
 #define CF_HAND(proc)	int proc (vp, str, extra, player, cmd) \
 			int	*vp; \
@@ -506,6 +530,10 @@ extern STATEDATA mudstate;
 			dbref	player;
 			
 #define CF_HDCL(proc)	int FDECL(proc, (int *, char *, long, dbref, char *))
+
+/* ---------------------------------------------------------------------------
+ * Misc. constants.
+ */
 
 /* Global flags */
 

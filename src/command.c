@@ -2309,6 +2309,7 @@ dbref player;
 	list_hashstat(player, "Component Defs", &mudstate.cdefs_htab);
 	list_hashstat(player, "Instances", &mudstate.instance_htab);
 	list_hashstat(player, "Instance Data", &mudstate.instdata_htab);
+	list_hashstat(player, "Module APIs", &mudstate.api_func_htab); 
 
 	WALK_ALL_MODULES(mp) {
 	    m_htab = DLSYM_VAR(mp->handle, mp->modname,

@@ -93,6 +93,9 @@
  * API interface functions.
  */
 
+extern void FDECL(register_api, (char *, char *, API_FUNCTION *));
+extern void *FDECL(request_api_function, (char *, char *));
+
 extern void FDECL(register_commands, (CMDENT *));
 extern void FDECL(register_functions, (FUN *));
 extern void FDECL(register_hashtables, (MODHASHES *, MODNHASHES *));

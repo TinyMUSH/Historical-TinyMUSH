@@ -119,6 +119,7 @@ void do_hashresize(player, cause, key)
 	       (mudstate.max_stacks < 16) ? 16 : mudstate.max_stacks);
     hashresize(&mudstate.vars_htab,
 	       (mudstate.max_vars < 16) ? 16 : mudstate.max_vars);
+    hashresize(&mudstate.api_func_htab, 8);
 
 	WALK_ALL_MODULES(mp) {
 	    m_htab = DLSYM_VAR(mp->handle, mp->modname,
@@ -1581,6 +1582,7 @@ char *argv[];
 	hashinit(&mudstate.cdefs_htab, 15 * HASH_FACTOR);
 	hashinit(&mudstate.instance_htab, 15 * HASH_FACTOR);
 	hashinit(&mudstate.instdata_htab, 25 * HASH_FACTOR);
+	hashinit(&mudstate.api_func_htab, 5 * HASH_FACTOR);
 
 	add_helpfile(GOD, (char *) "help text/help", 1);
 	add_helpfile(GOD, (char *) "wizhelp text/wizhelp", 1);
@@ -1666,6 +1668,7 @@ char *argv[];
 	hashreset(&mudstate.cdefs_htab);
 	hashreset(&mudstate.instance_htab);
 	hashreset(&mudstate.instdata_htab);
+	hashreset(&mudstate.api_func_htab);
 
 	for (i = 0; i < mudstate.helpfiles; i++)
 	    hashreset(&mudstate.hfile_hashes[i]);

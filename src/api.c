@@ -22,6 +22,54 @@
 #include "udb_defs.h"	/* required by code */
 #include "udb.h"	/* required by code */
 
+/* ---------------------------------------------------------------------------
+ * Exporting a module's own API.
+ */
+
+void register_api(module_name, api_name, ftable)
+    char *module_name, *api_name;
+    API_FUNCTION *ftable;
+{
+    MODULE *mp;
+    API_FUNCTION *afp;
+    void (*fn_ptr)(void *, void *);
+    int succ = 0;
+
+    WALK_ALL_MODULES(mp) {
+	if (!strcmp(module_name, mp->modname)) {
+	    succ = 1;
+	    break;
+	}
+    }
+    if (!succ)		/* no such module */
+	return;
+
+    for (afp = ftable; afp->name; afp++) { 
+	fn_ptr = DLSYM(mp->handle, module_name, afp->name, (void *, void *));
+	if (fn_ptr != NULL) {
+	    afp->handler = fn_ptr;
+	    hashadd(tprintf("%s_%s", api_name, afp->name),
+		    (int *) afp, &mudstate.api_func_htab, 0);
+	}
+    }
+}
+
+void *request_api_function(api_name, fn_name)
+    char *api_name, *fn_name;
+{
+    API_FUNCTION *afp;
+
+    afp = (API_FUNCTION *) hashfind(tprintf("%s_%s", api_name, fn_name),
+				    &mudstate.api_func_htab);
+    if (!afp)
+	return NULL;
+    return afp->handler;
+}
+
+/* ---------------------------------------------------------------------------
+ * Handle tables.
+ */
+
 void register_commands(cmdtab)
     CMDENT *cmdtab;
 {
@@ -60,6 +108,10 @@ void register_hashtables(htab, ntab)
 	}
     }
 }
+
+/* ---------------------------------------------------------------------------
+ * Deal with additional database info.
+ */
 
 unsigned int register_dbtype(modname)
 char *modname;

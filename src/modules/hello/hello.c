@@ -44,6 +44,45 @@ void mod_hello_db_grow(newsize, newtop)
 }
 
 /* --------------------------------------------------------------------------
+ * API export.
+ */
+
+API_FUNCTION mod_hello_exports[] = {
+{ "print_greeting",		NULL },
+{ NULL,				NULL }};
+
+typedef struct greeting_input HI_INPUT;
+struct greeting_input {
+    dbref player;
+    char *name;
+};
+
+typedef struct greeting_output HI_OUTPUT;
+struct greeting_output {
+    int success_code;
+};
+
+void mod_hello_print_greeting(in_ptr, out_ptr)
+    void *in_ptr, *out_ptr;
+{
+    dbref target;
+    HI_INPUT *in_p;
+    HI_OUTPUT *out_p;
+
+    in_p = (HI_INPUT *) in_ptr;
+    out_p = (HI_OUTPUT *) out_ptr;
+
+    target = lookup_player(in_p->player, in_p->name, 0);
+    if (target == NOTHING) {
+	out_p->success_code = 0;
+	return;
+    }
+
+    notify(target, "Greetings!");
+    out_p->success_code = 1;
+}   
+
+/* --------------------------------------------------------------------------
  * Handlers.
  */
 
@@ -234,11 +273,39 @@ CMDENT mod_hello_cmdtable[] = {
 
 FUNCTION(mod_hello_fun_hello)
 {
-	safe_str("Hello, world!", buff, bufc);
+    safe_str("Hello, world!", buff, bufc);
 }
+
+FUNCTION(mod_hello_fun_hi)
+{
+    /* Normally we would not call our own API, but here's just an
+     * example.
+     */
+
+    static void (*handler)(void *, void *) = NULL;
+    HI_INPUT in_info;
+    HI_OUTPUT out_info;
+
+    if (!handler)
+	handler = request_api_function("hi", "print_greeting");
+
+    if (!handler) {
+	safe_str("#-1 API FUNCTION MISSING", buff, bufc);
+	return;
+    }
+
+    in_info.player = player;
+    in_info.name = fargs[0];
+    handler(&in_info, &out_info);
+
+    if (out_info.success_code == 0)
+	safe_str("#-1 NO SUCH PLAYER", buff, bufc);
+}
+
 
 FUN mod_hello_functable[] = {
 {"HELLO",	mod_hello_fun_hello,	0,	0,	CA_PUBLIC,	NULL},
+{"HI",		mod_hello_fun_hi,	1,	0,	CA_PUBLIC,	NULL},
 {NULL,		NULL,			0,	0,	0,		NULL}};
 
 /* --------------------------------------------------------------------------
@@ -277,4 +344,5 @@ void mod_hello_init()
     register_hashtables(mod_hello_hashtable, mod_hello_nhashtable); 
     register_commands(mod_hello_cmdtable);
     register_functions(mod_hello_functable);
+    register_api("hello", "hi", mod_hello_exports);
 }
