@@ -303,6 +303,7 @@ void NDECL(cf_init)
 	mudstate.panicking = 0;
 	mudstate.standalone = 0;
 	mudstate.dumping = 0;
+	mudstate.dumper = 0;
 	mudstate.logging = 0;
 	mudstate.epoch = 0;
 	mudstate.generation = 0;

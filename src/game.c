@@ -1307,10 +1307,12 @@ int key;
 			log_perror("DMP", "FORK", NULL, "fork()");
 		}
 	}
-	
-	if (!mudconf.fork_dump)
+
+	if (mudstate.dumper <= 0 || kill(mudstate.dumper, 0) == -1) {
 		mudstate.dumping = 0;
-		
+		mudstate.dumper = 0;
+	}
+
 	if (*mudconf.postdump_msg)
 		raw_broadcast(0, "%s", mudconf.postdump_msg);
 }
