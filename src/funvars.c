@@ -2476,12 +2476,29 @@ FUNCTION(perform_regedit)
 				tbuf, LBUF_SIZE);
 	    safe_str(tbuf, buff, bufc);
 	}
+
 	start = fargs[0] + offsets[1];
 	match_offset = offsets[1];
 
     } while (all_option &&
-	     ((subpatterns = pcre_exec(re, study, fargs[0], len, match_offset,
-				       0, offsets, PCRE_MAX_OFFSETS)) >= 0));
+	     (((offsets[0] == offsets[1]) &&
+	       /* PCRE docs note:
+		* Perl special-cases the empty-string match in split and /g.
+		* To emulate, first try the match again at the same position
+		* with PCRE_NOTEMPTY, then advance the starting offset if that
+		* fails.
+		*/
+	       (((subpatterns = pcre_exec(re, study, fargs[0], len,
+					  match_offset, PCRE_NOTEMPTY, offsets,
+					  PCRE_MAX_OFFSETS)) >= 0) ||
+		((match_offset++ < len) &&
+		 (subpatterns = pcre_exec(re, study, fargs[0], len,
+					  match_offset, 0, offsets,
+					  PCRE_MAX_OFFSETS)) >= 0))) ||
+	      ((match_offset <= len) &&
+	       (subpatterns = pcre_exec(re, study, fargs[0], len,
+					match_offset, 0, offsets,
+					PCRE_MAX_OFFSETS)) >= 0)));
 
     /* Copy everything after the matched bit. */
 
