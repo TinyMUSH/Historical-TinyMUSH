@@ -1564,7 +1564,7 @@ void save_comsys(filename)
 	return;
     }
 
-    fprintf(fp, "+V2\n");
+    fprintf(fp, "+V3\n");
 
     for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
 	 chp != NULL;
@@ -1577,8 +1577,11 @@ void save_comsys(filename)
 	putref(fp, chp->num_sent);
 	putstring(fp, chp->descrip);
 	putboolexp(fp, chp->join_lock);
+	fprintf(fp, "-\n");
 	putboolexp(fp, chp->trans_lock);
+	fprintf(fp, "-\n");
 	putboolexp(fp, chp->recv_lock);
+	fprintf(fp, "-\n");
 	fprintf(fp, "<\n");
     }
 
@@ -1701,15 +1704,73 @@ static void read_comsys(fp, com_ver)
 	    else
 		chp->descrip = NULL;
 
-	    /* Call getboolexp1() rather than getboolexp() because we
-	     * cannot have an additional newline.
-	     */
-	    chp->join_lock = getboolexp1(fp);
-	    getc(fp);		/* eat newline */
-	    chp->trans_lock = getboolexp1(fp);
-	    getc(fp);		/* eat newline */
-	    chp->recv_lock = getboolexp1(fp);
-	    getc(fp);		/* eat newline */
+	    if (com_ver == 2) {
+		/* Inherently broken behavior. Can't deal with eval locks,
+		 * among other things.
+		 */
+		chp->join_lock = getboolexp1(fp);
+		getc(fp);		/* eat newline */
+		chp->trans_lock = getboolexp1(fp);
+		getc(fp);		/* eat newline */
+		chp->recv_lock = getboolexp1(fp);
+		getc(fp);		/* eat newline */
+	    } else {
+		chp->join_lock = getboolexp1(fp);
+		if (getc(fp) != '\n') {
+		    /* Ut oh. Format error. Trudge on valiantly... probably
+		     * won't work, but we can try.
+		     */
+		    fprintf(stderr,
+	    "Missing newline while reading join lock for channel %s\n",
+			    chp->name);
+		}
+		c = getc(fp);
+		if (c == '\n') {
+		    getc(fp);	/* eat the dash on the next line */
+		    getc(fp);	/* eat the newline on the next line */
+		} else if (c == '-') {
+		    getc(fp);	/* eat the next newline */
+		} else {
+		    fprintf(stderr,
+    "Expected termination sequence while reading join lock for channel %s\n",
+			    chp->name);
+		}
+		chp->trans_lock = getboolexp1(fp);
+		if (getc(fp) != '\n') {
+		    fprintf(stderr,
+	    "Missing newline while reading transmit lock for channel %s\n",
+			    chp->name);
+		}
+		c = getc(fp);
+		if (c == '\n') {
+		    getc(fp);	/* eat the dash on the next line */
+		    getc(fp);	/* eat the newline on the next line */
+		} else if (c == '-') {
+		    getc(fp);	/* eat the next newline */
+		} else {
+		    fprintf(stderr,
+ "Expected termination sequence while reading transmit lock for channel %s\n",
+			    chp->name);
+		}
+		chp->recv_lock = getboolexp1(fp);
+		if (getc(fp) != '\n') {
+		    fprintf(stderr,
+	    "Missing newline while reading receive lock for channel %s\n",
+			    chp->name);
+		}
+		c = getc(fp);
+		if (c == '\n') {
+		    getc(fp);	/* eat the dash on the next line */
+		    getc(fp);	/* eat the newline on the next line */
+		} else if (c == '-') {
+		    getc(fp);	/* eat the next newline */
+		} else {
+		    fprintf(stderr,
+  "Expected termination sequence while reading receive lock for channel %s\n",
+			    chp->name);
+		}
+	    }
+		    
 	}
 	chp->who = NULL;
 	chp->num_who = 0;
