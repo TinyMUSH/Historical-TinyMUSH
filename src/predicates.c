@@ -176,10 +176,10 @@ char *str;
 {
 	while (*str && isspace(*str))
 		str++;		/* Leading spaces */
-	if (*str == '-') {	/* Leading minus */
+	if ((*str == '-') || (*str == '+')) {	/* Leading minus or plus */
 		str++;
 		if (!*str)
-			return 0;	/* but not if just a minus */
+			return 0;	/* but not if just a minus or plus*/
 	}
 	if (!isdigit(*str))	/* Need at least 1 integer */
 		return 0;
@@ -197,10 +197,10 @@ char *str;
 
 	while (*str && isspace(*str))
 		str++;		/* Leading spaces */
-	if (*str == '-') {	/* Leading minus */
+	if ((*str == '-') || (*str == '+')) {	/* Leading minus or plus */
 		str++;
 		if (!*str)
-			return 0;	/* but not if just a minus */
+			return 0;	/* but not if just a minus or plus */
 	}
 	got_one = 0;
 	if (isdigit(*str))
