@@ -999,7 +999,7 @@ char *cargs[];
 							     preserve_len);
 					}
 					
-					exec(buff, bufc, 0, i, caller, cause,
+					exec(buff, bufc, 0, i, player, cause,
 					     ((ufp->flags & FN_NO_EVAL) ?
 					      (EV_FCHECK | EV_EVAL) : feval),
 					     &str, fargs, nfargs);

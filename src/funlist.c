@@ -938,6 +938,7 @@ FUNCTION(fun_sortby)
 
 	strcpy(ucomp_buff, atext);
 	ucomp_player = thing;
+	ucomp_caller = player;
 	ucomp_cause = cause;
 
 	list = alloc_lbuf("fun_sortby");

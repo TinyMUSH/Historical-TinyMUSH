@@ -1404,7 +1404,7 @@ int nfargs, ncargs, is_local;
 	/* Evaluate it using the rest of the passed function args */
 
 	str = atext;
-	exec(buff, bufc, 0, thing, caller, cause, EV_FCHECK | EV_EVAL, &str,
+	exec(buff, bufc, 0, thing, player, cause, EV_FCHECK | EV_EVAL, &str,
 	     &(fargs[1]), nfargs - 1);
 	free_lbuf(atext);
 
@@ -1530,7 +1530,7 @@ FUNCTION(fun_edefault)
 				check_read_perms(player, thing, attr, aowner,
 						 aflags, buff, bufc)) {
 					str = atr_gotten;
-					exec(buff, bufc, 0, thing, caller,
+					exec(buff, bufc, 0, thing, player,
 					     player, EV_FIGNORE | EV_EVAL,
 					     &str, (char **)NULL, 0);
 					free_lbuf(atr_gotten);
@@ -1594,7 +1594,7 @@ FUNCTION(fun_udefault)
 		}
     
 		str = atext;
-		exec(buff, bufc, 0, thing, caller, cause, EV_FCHECK | EV_EVAL,
+		exec(buff, bufc, 0, thing, player, cause, EV_FCHECK | EV_EVAL,
 		     &str, xargs, nfargs - 2);
 
 		/* Then clean up after ourselves. */
@@ -1655,7 +1655,7 @@ FUNCTION(fun_objeval)
 	}
 
 	str = fargs[1];
-	exec(buff, bufc, 0, obj, caller, cause,
+	exec(buff, bufc, 0, obj, player, cause,
 	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 	free_lbuf(name);
 }
