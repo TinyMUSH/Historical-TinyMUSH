@@ -361,6 +361,11 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			   (Inherits(p) || !Inherits(x))) || \
 			  OnControlLock(p,x)))
 
+#define Cannot_Objeval(p,x)  ((x == NOTHING) || God(x) || \
+			      (mudconf.fascist_objeval ? \
+			       !Controls(p, x) : \
+			       ((Owner(x) != Owner(p)) && !Wizard(p))))
+
 #define	Has_power(p,x)	(check_access((p),powers_nametab[x].flag))
 
 #define	Mark(x)		(mudstate.markbits->chunk[(x)>>3] |= \

@@ -5400,8 +5400,8 @@ The caller is the object responsible for invoking a function. It is
 normally equal to the enactor, except when a function defined by
 @function is called, or the following functions are called:
  
-	edefault()		get_eval()		objeval()
-	u()			udefault()		ulocal()
+	edefault()	get_eval()	objcall()	objeval()
+	u()		udefault()	ulocal()
  
 These functions set the caller to be the object that is invoking
 that particular function.
@@ -5579,10 +5579,10 @@ See also: @link, @open.
 	aposs()		default()	edefault()	eval()
 	get()		get_eval()	grep()		grepi()
 	hasattr()	hasattrp()	lattr()		nattr()
-	obj()		objeval()	poss()		regrep()	
-	regrepi()	subj()		u()		udefault()
-	ulocal()	v()		wildgrep()	xget()
-	zfun()
+	obj()		objcall()	objeval()	poss()		
+	regrep()	regrepi()	subj()		u()		
+	udefault()	ulocal()	v()		wildgrep()	
+	xget()		zfun()
  
 & OBJECT FUNCTIONS
   Topic: Object Functions
@@ -9279,7 +9279,8 @@ performed and the walk down the list stops.
     You say, "Word is function., arg2 is ."
     > say u(me/va,6,Foobar)
     You say, "Word is u, arg2 is Foobar."
-  See also: s(), v(), get(), get_eval(), map().
+ 
+  See also: ulocal(), udefault(), objcall(), s(), get(), get_eval(), map()
 
 & ULOCAL()
   Function:  ulocal([<obj>/]<attr>[,<arg>]...)
@@ -9321,7 +9322,22 @@ performed and the walk down the list stops.
   %q0, this is what was printed. In the first example, ulocal() reset the
   value of %q0 to its original "are delicious!"
  
-  See also:  u(), setq(), r()
+  See also:  u(), setq(), r(), localize()
+ 
+& OBJCALL()
+  Function: objcall(<victim>, [<obj>/]<attr> [,<arg1>, ..., <argN>])
+ 
+  This function evaluates <attribute> on <object>, passing in arguments
+  on the stack, from the viewpoint of <victim>. The <attribute> is
+  read using your permissions, and <obj>, if not specified, defaults
+  to you, NOT <victim>. You must own <object> or have Wizard powers;
+  if you do not, the function defaults to evaluating from your viewpoint. 
+ 
+  This is useful when you want an object to execute a u-function, using
+  its own privileges, but you do not want to make the text of the
+  u-function visible to the object.
+ 
+  See also: u(), objeval()
  
 & SPEAK()
   Function: speak(<speaker>, <string>[, [<transform obj>/]<transform attr>,

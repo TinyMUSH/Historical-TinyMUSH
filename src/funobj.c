@@ -1442,6 +1442,43 @@ FUNCTION(do_ufun)
 }
 
 /* ---------------------------------------------------------------------------
+ * objcall: Call the text of a u-function from a specific object's 
+ *          perspective. (i.e., get the text as the player, but execute
+ *          it as the specified object.
+ */
+
+FUNCTION(fun_objcall)
+{
+    dbref obj, aowner, thing;
+    int aflags, alen, anum;
+    ATTR *ap;
+    char *atext, *str;
+
+    if (nfargs < 2) {
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+	return;
+    }
+
+    /* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
+
+    Parse_Uattr(player, fargs[1], thing, anum, ap);
+    Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+
+    /* Find our perspective. */
+
+    obj = match_thing(player, fargs[0]);
+    if (Cannot_Objeval(player, obj))
+	obj = player;
+	
+    /* Evaluate using the rest of the passed function args. */
+
+    str = atext;
+    exec(buff, bufc, obj, player, cause, EV_FCHECK | EV_EVAL, &str,
+	 &(fargs[2]), nfargs - 2);
+    free_lbuf(atext);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_localize: Evaluate a function with local scope (i.e., preserve and
  * restore the r-registers). Essentially like calling ulocal() but with the
  * function string directly.
@@ -1656,12 +1693,8 @@ FUNCTION(fun_objeval)
 	 * from our own viewpoint. Also, you cannot evaluate things from
 	 * the point of view of God.
 	 */
-	if ((obj == NOTHING) || God(obj) ||
-	    (mudconf.fascist_objeval ?
-	     !Controls(player, obj) :
-	     ((Owner(obj) != Owner(player)) && !Wizard(player)))) {
-		obj = player;
-	}
+	if (Cannot_Objeval(player, obj))
+	    obj = player;
 
 	str = fargs[1];
 	exec(buff, bufc, obj, player, cause,

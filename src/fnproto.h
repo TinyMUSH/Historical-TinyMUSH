@@ -208,6 +208,7 @@ XFUNCTION(fun_v);
 XFUNCTION(perform_get);
 XFUNCTION(fun_eval);
 XFUNCTION(do_ufun);
+XFUNCTION(fun_objcall);
 XFUNCTION(fun_localize);
 XFUNCTION(fun_default);
 XFUNCTION(fun_edefault);
@@ -577,6 +578,7 @@ FUN flist[] = {
 {"NULL",	fun_null,	1,  0,		CA_PUBLIC,	NULL},
 {"NUM",		fun_num,	1,  0,		CA_PUBLIC,	NULL},
 {"OBJ",		handle_pronoun,	1,  PRONOUN_OBJ, CA_PUBLIC,	NULL},
+{"OBJCALL",     fun_objcall,    0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC,	NULL},
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC,	NULL},
 {"OEMIT",	fun_oemit,	2,  0,		CA_PUBLIC,	NULL},
