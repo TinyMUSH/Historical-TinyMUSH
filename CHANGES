@@ -865,4 +865,9 @@ Patchlevel 3:
 
   - Added regexp attribute flag support to @addcommand. [MUX]
 
+Patchlevel 4:
+
+  - Fixed a problem with skipped or doubled cron jobs.
+    [3.0b8; Adam Dray]
+
 =============================================================================
