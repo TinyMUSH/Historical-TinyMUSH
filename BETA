@@ -571,3 +571,17 @@ The initial beta release was on 9/27/99.
 
 - Misc: Strict ANSI compilers objected to use of typecasts within XFREE().
 
+-----------------------------------------------------------------------------
+
+10/30/99: Beta 15 patchlevel 1
+
+- Fix: Typing a bare channel alias results in a 'No message.' error, 
+  rather than garbage. [3.0b14]
+
+- Fix: Fixed fatal error in regparse(). [3.0a4; Sorien]
+
+- Fix: @shutdown takes switches again. [3.0; jonespl]
+
+- Fix: @tel/quiet works. [MUX; Xidus]
+
+- Fix: Prevented a buffer overflow. [3.0b15]
