@@ -67,10 +67,10 @@ struct data_def {
     char *text;
 };
 
-typedef struct object_stack STACK;
+typedef struct object_stack OBJSTACK;
 struct object_stack {
 	char *data;
-	STACK *next;
+	OBJSTACK *next;
 };
 
 #ifdef FLOATING_POINTS

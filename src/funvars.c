@@ -1752,7 +1752,7 @@ void structure_clr(thing)
  * Auxiliary functions for stacks.
  */
 
-#define stack_get(x)   ((STACK *) nhashfind(x, &mudstate.objstack_htab))
+#define stack_get(x)   ((OBJSTACK *) nhashfind(x, &mudstate.objstack_htab))
 
 #define stack_object(p,x)				\
         x = match_thing(p, fargs[0]);			\
@@ -1771,7 +1771,7 @@ void structure_clr(thing)
 void stack_clr(thing)
     dbref thing;
 {
-    STACK *sp, *tp, *xp;
+    OBJSTACK *sp, *tp, *xp;
 
     sp = stack_get(thing);
     if (sp) {
@@ -1788,9 +1788,9 @@ void stack_clr(thing)
 
 static void stack_set(thing, sp)
     dbref thing;
-    STACK *sp;
+    OBJSTACK *sp;
 {
-    STACK *xsp;
+    OBJSTACK *xsp;
     int stat;
 
     if (!sp) {
@@ -1840,7 +1840,7 @@ FUNCTION(fun_items)
 {
     dbref it;
     int i;
-    STACK *sp;
+    OBJSTACK *sp;
 
     if (!fargs[0]) {
 	it = player;
@@ -1858,7 +1858,7 @@ FUNCTION(fun_push)
 {
     dbref it;
     char *data;
-    STACK *sp;
+    OBJSTACK *sp;
 
     VaChk_Range(1, 2);
 
@@ -1870,7 +1870,7 @@ FUNCTION(fun_push)
 	data = fargs[1];
     }
 
-    sp = (STACK *) XMALLOC(sizeof(STACK), "stack_push");
+    sp = (OBJSTACK *) XMALLOC(sizeof(OBJSTACK), "stack_push");
     if (!sp)			/* out of memory, ouch */
 	return;
     sp->next = stack_get(it);
@@ -1885,9 +1885,9 @@ FUNCTION(fun_push)
 FUNCTION(fun_dup)
 {
     dbref it;
-    STACK *hp;			/* head of stack */
-    STACK *tp;			/* temporary stack pointer */
-    STACK *sp;			/* new stack element */
+    OBJSTACK *hp;		/* head of stack */
+    OBJSTACK *tp;		/* temporary stack pointer */
+    OBJSTACK *sp;		/* new stack element */
     int pos, count = 0;
 
     VaChk_Range(0, 2);
@@ -1912,7 +1912,7 @@ FUNCTION(fun_dup)
 	return;
     }
 
-    sp = (STACK *) XMALLOC(sizeof(STACK), "stack_dup");
+    sp = (OBJSTACK *) XMALLOC(sizeof(OBJSTACK), "stack_dup");
     if (!sp)
 	return;
     sp->next = hp;
@@ -1927,7 +1927,7 @@ FUNCTION(fun_dup)
 FUNCTION(fun_swap)
 {
     dbref it;
-    STACK *sp, *tp;
+    OBJSTACK *sp, *tp;
 
     VaChk_Range(0, 1);
 
@@ -1953,8 +1953,8 @@ FUNCTION(handle_pop)
 {
 	dbref it;
 	int pos, count = 0, peek_flag, toss_flag;
-	STACK *sp;
-	STACK *prev = NULL;
+	OBJSTACK *sp;
+	OBJSTACK *prev = NULL;
 
 	peek_flag = ((FUN *)fargs[-1])->flags & POP_PEEK;
 	toss_flag = ((FUN *)fargs[-1])->flags & POP_TOSS;
@@ -2006,8 +2006,8 @@ FUNCTION(fun_popn)
 {
     dbref it;
     int pos, nitems, i, osep_len, count = 0, over = 0;
-    STACK *sp, *tp, *xp;
-    STACK *prev = NULL;
+    OBJSTACK *sp, *tp, *xp;
+    OBJSTACK *prev = NULL;
     Delim osep;
     char *bb_p;
 
@@ -2064,7 +2064,7 @@ FUNCTION(fun_lstack)
 {
     Delim osep;
     dbref it;
-    STACK *sp;
+    OBJSTACK *sp;
     char *bp, *bb_p;
     int osep_len, over = 0;
 

@@ -2502,7 +2502,7 @@ void list_memory(player)
 	struct help_entry *hlp;
 	FLAGENT *flag;
 	POWERENT *power;
-	STACK *stack;
+	OBJSTACK *stack;
 	VARENT *xvar;
 	STRUCTDEF *this_struct;
 	INSTANCE *inst_ptr;
@@ -2826,10 +2826,10 @@ void list_memory(player)
 	/* Calculate size of object stacks */
 	
 	each = 0;
-	for (stack = (STACK *)hash_firstentry((HASHTAB *)&mudstate.objstack_htab);
+	for (stack = (OBJSTACK *)hash_firstentry((HASHTAB *)&mudstate.objstack_htab);
 	     stack != NULL;
-	     stack = (STACK *)hash_nextentry((HASHTAB *)&mudstate.objstack_htab)) {
-		each += sizeof(STACK);
+	     stack = (OBJSTACK *)hash_nextentry((HASHTAB *)&mudstate.objstack_htab)) {
+		each += sizeof(OBJSTACK);
 		each += strlen(stack->data) + 1;
 	}
 	if (each) {
