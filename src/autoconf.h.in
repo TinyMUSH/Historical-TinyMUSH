@@ -226,8 +226,6 @@
 #undef NEED_MALLOC_DCL
 /* Define if you need to declare vsprintf yourself */
 #undef NEED_VSPRINTF_DCL
-/* Define if you need to declare sys_errlist yourself */
-#undef NEED_SYS_ERRLIST_DCL
 /* Define if you need to declare perror yourself */
 #undef NEED_PERROR_DCL
 /* Define if you need to declare sprintf yourself */
@@ -418,10 +416,6 @@ extern char *	FDECL(malloc, (int));
 extern char *	FDECL(realloc, (char *, int));
 extern int	FDECL(free, (char *));
 #endif
-#endif
-
-#ifdef NEED_SYS_ERRLIST_DCL
-extern char *sys_errlist[];
 #endif
 
 #ifndef HAVE_TIMELOCAL
