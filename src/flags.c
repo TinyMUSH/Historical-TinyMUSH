@@ -31,6 +31,16 @@ dbref target, player;
 FLAG flag;
 int fflags, reset;
 {
+        /* Never let God drop his own wizbit. */
+
+        if (God(target) && reset && (flag == WIZARD) &&
+	    !(fflags & FLAG_WORD2) && !(fflags & FLAG_WORD3)) {
+	    notify(player, "You cannot make God mortal.");
+	    return 0;
+	}
+
+	/* Otherwise we can go do it. */
+
 	if (fflags & FLAG_WORD3) {
 		if (reset)
 			s_Flags3(target, Flags3(target) & ~flag);
@@ -79,21 +89,6 @@ int fflags, reset;
 }
 
 /* ---------------------------------------------------------------------------
- * fh_fixed: Settable only on players by WIZARDS
- */
-
-int fh_fixed(target, player, flag, fflags, reset)
-dbref target, player;
-FLAG flag;
-int fflags, reset;
-{
-	if (isPlayer(target))
-		if (!Wizard(player) && !God(player))
-			return 0;
-	return (fh_any(target, player, flag, fflags, reset));
-}
-
-/* ---------------------------------------------------------------------------
  * fh_wizroy: only WIZARDS, ROYALTY, (or GOD) may set or clear the bit
  */
 
@@ -108,6 +103,52 @@ int fflags, reset;
 }
 
 /* ---------------------------------------------------------------------------
+ * fh_restrict_player: Only Wizards can set this on players, but
+ * ordinary players can set it on other types of objects.
+ */
+
+int fh_restrict_player(target, player, flag, fflags, reset)
+dbref target, player;
+FLAG flag;
+int fflags, reset;
+{
+    if (isPlayer(target) && !Wizard(player) && !God(player))
+	    return 0;
+    return (fh_any(target, player, flag, fflags, reset));
+}
+
+/* ---------------------------------------------------------------------------
+ * fh_privileged: You can set this flag on a non-player object, if you
+ * yourself have this flag. Only God can set this on a player.
+ */
+
+int fh_privileged(target, player, flag, fflags, reset)
+dbref target, player;
+FLAG flag;
+int fflags, reset;
+{
+    int has_it;
+
+    if (!God(player)) {
+
+	if (isPlayer(target))
+	    return 0;
+
+	if (fflags & FLAG_WORD3)
+	    has_it = (Flags3(player) & flag) ? 1 : 0;
+	else if (fflags & FLAG_WORD2)
+	    has_it = (Flags2(player) & flag) ? 1 : 0;
+	else
+	    has_it = (Flags(player) & flag) ? 1 : 0;
+
+	if (!has_it)
+	    return 0;
+    }
+
+    return (fh_any(target, player, flag, fflags, reset));
+}
+
+/* ---------------------------------------------------------------------------
  * fh_inherit: only players may set or clear this bit.
  */
 
@@ -118,24 +159,6 @@ int fflags, reset;
 {
 	if (!Inherits(player))
 		return 0;
-	return (fh_any(target, player, flag, fflags, reset));
-}
-
-/* ---------------------------------------------------------------------------
- * fh_wiz_bit: Only GOD may set/clear this bit on others.
- */
-
-int fh_wiz_bit(target, player, flag, fflags, reset)
-dbref target, player;
-FLAG flag;
-int fflags, reset;
-{
-	if (!God(player))
-		return 0;
-	if (God(target) && reset) {
-		notify(player, "You cannot make yourself mortal.");
-		return 0;
-	}
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
@@ -156,7 +179,8 @@ int fflags, reset;
 }
 
 /* ---------------------------------------------------------------------------
- * fh_going_bit: manipulate the going bit.  Non-gods may only clear on rooms.
+ * fh_going_bit: Manipulate the going bit. Can only be cleared on
+ * objects slated for destruction, by non-god.
  */
 
 int fh_going_bit(target, player, flag, fflags, reset)
@@ -253,7 +277,7 @@ FLAGENT gen_flags[] = {
 {"VISUAL",		VISUAL,		'V',
 	0,		0,			fh_any},
 {"WIZARD",		WIZARD,		'W',
-	0,		0,			fh_wiz_bit},
+	0,		0,			fh_god},
 {"ANSI",                ANSI,           'X',   
         FLAG_WORD2,       0,                      fh_any},
 {"PARENT_OK",		PARENT_OK,	'Y',
@@ -271,7 +295,7 @@ FLAGENT gen_flags[] = {
 {"ENTER_OK",		ENTER_OK,	'e',
 	0,		0,			fh_any},
 {"FIXED",               FIXED,          'f',
-        FLAG_WORD2,       0,                      fh_fixed}, 
+        FLAG_WORD2,       0,                      fh_restrict_player}, 
 {"UNINSPECTED",         UNINSPECTED,    'g',
         FLAG_WORD2,       0,                      fh_wizroy},
 {"HALTED",		HALT,		'h',
@@ -315,7 +339,7 @@ FLAGENT gen_flags[] = {
 {"NOBLEED",             NOBLEED,         '-',
         FLAG_WORD2,       0,                      fh_any},
 {"VACATION",		VACATION,	'|',
-	FLAG_WORD2,	0,			fh_fixed},
+	FLAG_WORD2,	0,			fh_restrict_player},
 {"HEAD",                HEAD_FLAG,      '?',
         FLAG_WORD2,       0,                      fh_wiz},
 {"COMPRESS",		COMPRESS,	'.',
@@ -712,7 +736,7 @@ FLAGENT *letter_to_flag(this_letter)
 }
 
 /* ---------------------------------------------------------------------------
- * cf_flag_access: Modify who can set a user-defined flag.
+ * cf_flag_access: Modify who can set a flag.
  */
 
 CF_HAND(cf_flag_access)
@@ -737,10 +761,12 @@ CF_HAND(cf_flag_access)
     if ((fp->handler != fh_any) &&
 	(fp->handler != fh_wizroy) &&
 	(fp->handler != fh_wiz) &&
-	(fp->handler != fh_god)) {
+	(fp->handler != fh_god) &&
+	(fp->handler != fh_restrict_player) &&
+	(fp->handler != fh_privileged)) {
 
 	STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
-	    log_text((char *) "Cannot change access for special flag: ");
+	    log_text((char *) "Cannot change access for flag: ");
 	    log_text((char *) fp->flagname);
 	ENDLOG
 	return -1;
@@ -754,6 +780,10 @@ CF_HAND(cf_flag_access)
 	fp->handler = fh_wiz;
     } else if (!strcmp(permstr, (char *) "god")) {
 	fp->handler = fh_god;
+    } else if (!strcmp(permstr, (char *) "restrict_player")) {
+	fp->handler = fh_restrict_player;
+    } else if (!strcmp(permstr, (char *) "privileged")) {
+	fp->handler = fh_privileged;
     } else {
 	cf_log_notfound(player, cmd, "Flag access", permstr);
 	return -1;
