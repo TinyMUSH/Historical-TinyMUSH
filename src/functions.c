@@ -4309,6 +4309,128 @@ FUNCTION(fun_map)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_while: Evaluate a list until a termination condition is met:
+ * while(EVAL_FN,CONDITION_FN,foo|flibble|baz|meep,1,|,-)
+ * where EVAL_FN is "[strlen(%0)]" and CONDITION_FN is "[strmatch(%0,baz)]"
+ * would result in '3-7-3' being returned.
+ * The termination condition is an EXACT not wild match.
+ */
+
+FUNCTION(fun_while)
+{
+    char sep, osep;
+    dbref aowner1, thing1, aowner2, thing2;
+    int aflags1, aflags2, anum1, anum2, first;
+    int is_same;
+    ATTR *ap;
+    char *atext1, *atext2, *atextbuf, *condbuf;
+    char *objstring, *bp, *cp, *str, *dp, *savep;
+
+    svarargs_preamble("WHILE", 6);
+
+    /* If our third arg is null (empty list), don't bother. */
+
+    if (!fargs[2] || !*fargs[2])
+	return;
+
+    /* Our first and second args can be <obj>/<attr> or just <attr>.
+     * Use them if we can access them, otherwise return an empty string.
+     *
+     * Note that for user-defined attributes, atr_str() returns a pointer
+     * to a static, and that therefore we have to be careful about what
+     * we're doing.
+     */
+
+    if (parse_attrib(player, fargs[0], &thing1, &anum1)) {
+	if ((anum1 == NOTHING) || !Good_obj(thing1))
+	    ap = NULL;
+	else
+	    ap = atr_num(anum1);
+    } else {
+	thing1 = player;
+	ap = atr_str(fargs[0]);
+    }
+    if (!ap)
+	return;
+    atext1 = atr_pget(thing1, ap->number, &aowner1, &aflags1);
+    if (!atext1) {
+	return;
+    } else if (!*atext1 || !See_attr(player, thing1, ap, aowner1, aflags1)) {
+	free_lbuf(atext1);
+	return;
+    }
+
+    if (parse_attrib(player, fargs[1], &thing2, &anum2)) {
+	if ((anum2 == NOTHING) || !Good_obj(thing2))
+	    ap = NULL;
+	else
+	    ap = atr_num(anum2);
+    } else {
+	thing2 = player;
+	ap = atr_str(fargs[1]);
+    }
+    if (!ap) {
+	free_lbuf(atext1);	/* we allocated this, remember? */
+	return;
+    }
+    atext2 = atr_pget(thing2, ap->number, &aowner2, &aflags2);
+    if (!atext2) {
+	free_lbuf(atext1);
+	return;
+    } else if (!*atext2 || !See_attr(player, thing2, ap, aowner2, aflags2)) {
+	free_lbuf(atext1);
+	free_lbuf(atext2);
+	return;
+    }
+
+    /* If our evaluation and condition are the same, we can save ourselves
+     * some time later.
+     */
+    if (!strcmp(atext1, atext2))
+	is_same = 1;
+    else 
+	is_same = 0;
+
+    /* Process the list one element at a time. */
+
+    cp = trim_space_sep(fargs[2], sep);
+    atextbuf = alloc_lbuf("fun_while.eval");
+    if (!is_same)
+	condbuf = alloc_lbuf("fun_while.cond");
+    first = 1;
+    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+	if (!first) {
+	    safe_chr(osep, buff, bufc);
+	} else {
+	    first = 0;
+	}
+	objstring = split_token(&cp, sep);
+	strcpy(atextbuf, atext1);
+	str = atextbuf;
+	savep = *bufc;
+	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	     &str, &objstring, 1);
+	if (is_same) {
+	    if (!strcmp(savep, fargs[3]))
+		break;
+	} else {
+	    strcpy(condbuf, atext2);
+	    dp = str = savep = condbuf;
+	    exec(condbuf, &dp, 0, player, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
+	    if (!strcmp(savep, fargs[3]))
+		break;
+	}
+    }
+    free_lbuf(atext1);
+    free_lbuf(atext2);
+    free_lbuf(atextbuf);
+    if (!is_same)
+	free_lbuf(condbuf);
+}
+
+
+/* ---------------------------------------------------------------------------
  * fun_edit: Edit text.
  */
 
@@ -5405,6 +5527,7 @@ FUN flist[] = {
 {"VSUB",	fun_vsub,	0,  FN_VARARGS,	CA_PUBLIC},
 {"VUNIT",	fun_vunit,	0,  FN_VARARGS,	CA_PUBLIC},
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC},
+{"WHILE",	fun_while,	0,  FN_VARARGS,	CA_PUBLIC},
 {"WORDPOS",     fun_wordpos,    0,  FN_VARARGS,	CA_PUBLIC},
 {"WORDS",	fun_words,	0,  FN_VARARGS,	CA_PUBLIC},
 {"XCON",	fun_xcon,	3,  0,		CA_PUBLIC},
