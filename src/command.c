@@ -97,6 +97,7 @@ void NDECL(init_cmdtab)
 	ATTR *ap;
 	char *p, *q;
 	char *cbuff;
+	int i;
 
 	hashinit(&mudstate.command_htab, 250 * HASH_FACTOR);
 	
@@ -140,37 +141,28 @@ void NDECL(init_cmdtab)
 		hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab, 0);
 		hashadd(tprintf("__%s", cp->cmdname), (int *)cp, &mudstate.command_htab, HASH_ALIAS);
 	}
-	set_prefix_cmds();
-	
+
+	/* Set the builtin prefix commands */
+	for (i = 0; i < 256; i++)
+		prefix_cmds[i] = NULL;
+	register_prefix_cmds("\":;\\#&");	/*  ":;\#&  */
+
 	goto_cmdp = (CMDENT *) hashfind("goto", &mudstate.command_htab);
 	enter_cmdp = (CMDENT *) hashfind("enter", &mudstate.command_htab);
 	leave_cmdp = (CMDENT *) hashfind("leave", &mudstate.command_htab);
 }
 
-void set_prefix_cmds()
+void reset_prefix_cmds()
 {
-int i;
+	int i;
+        char cn[2] = "x";
 
-	/* Load the command prefix table.  Note - these commands can never
-	 * be typed in by a user because commands are lowercased
-	 * before the hash table is checked. The names are
-	 * abbreviated to minimise name checking time. 
-	 */
-
-	for (i = 0; i < 256; i++)
-		prefix_cmds[i] = NULL;
-	prefix_cmds['"'] = (CMDENT *) hashfind((char *)"\"",
-					       &mudstate.command_htab);
-	prefix_cmds[':'] = (CMDENT *) hashfind((char *)":",
-					       &mudstate.command_htab);
-	prefix_cmds[';'] = (CMDENT *) hashfind((char *)";",
-					       &mudstate.command_htab);
-	prefix_cmds['\\'] = (CMDENT *) hashfind((char *)"\\",
-						&mudstate.command_htab);
-	prefix_cmds['#'] = (CMDENT *) hashfind((char *)"#",
-					       &mudstate.command_htab);
-	prefix_cmds['&'] = (CMDENT *) hashfind((char *)"&",
-					       &mudstate.command_htab);
+	for (i = 0; i < 256; i++) {
+		if (prefix_cmds[i]) {
+			cn[0] = i;
+			prefix_cmds[i] = (CMDENT *) hashfind(cn, &mudstate.command_htab);
+		}
+	}
 }
 
 /* ---------------------------------------------------------------------------

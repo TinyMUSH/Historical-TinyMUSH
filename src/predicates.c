@@ -28,7 +28,6 @@ extern void NDECL(dump_database);
 extern LOGFILETAB logfds_table[];
 extern int slave_pid;
 extern int slave_socket;
-extern CMDENT *prefix_cmds[256];
 extern void FDECL(load_quota, (int *, dbref, int));
 extern void FDECL(save_quota, (int *, dbref, int));
 extern int FDECL(get_gender, (dbref));
@@ -947,7 +946,7 @@ char *name, *command;
 
 	/* We reset the one letter commands here so you can overload them */
 
-	set_prefix_cmds();
+	reset_prefix_cmds();
 	notify(player, tprintf("Command %s added.", name));
 }
 
@@ -1068,7 +1067,7 @@ char *name, *command;
 			}
 			XFREE(old->cmdname, "delcommand.cmdname");
 			XFREE(old, "delcommand.cmdp");
-			set_prefix_cmds();
+			reset_prefix_cmds();
 			notify(player, "Done.");
 			return;
 		} else {
@@ -1106,7 +1105,7 @@ char *name, *command;
 						prev->next = nextp->next;
 						XFREE(nextp, "delcommand.addent");
 					}
-					set_prefix_cmds();
+					reset_prefix_cmds();
 					notify(player, "Done.");
 					return;
 				}

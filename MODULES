@@ -153,6 +153,7 @@ void mod_<name>_init()
 
 	register_hashtables(mod_<name>_hashtable, mod_<name>_nhashtable);
 	register_commands(mod_<name>_cmdtable);
+	register_prefix_cmds("<prefix chars>");
 	register_functions(mod_<name>_functable);
 
 	/* Any other initialization you need to do. */
@@ -244,6 +245,12 @@ should add '|SW_MULTIPLE' to <key>.
 
 Switch tables should be placed BEFORE the command table, in your
 module's .c file.
+
+If your module defines any single-character prefix commands, you
+should enter them as CS_ONE_ARG|CS_LEADIN commands in your command
+table, and also pass the relevant prefix characters in a string
+to register_prefix_cmds(). See the "-" command in the included mail
+module for example.
 
 -----------------------------------------------------------------------------
 

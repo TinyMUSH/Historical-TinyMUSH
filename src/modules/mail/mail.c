@@ -79,8 +79,6 @@ CONF mod_mail_conftable[] = {
 {(char *)"mail_expiration",		cf_int,		CA_GOD,		CA_PUBLIC,	&mod_mail_config.mail_expiration,	0},
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
-extern CMDENT *prefix_cmds[256];
-
 extern int FDECL(do_convtime, (char *, struct tm *));
 
 static int FDECL(sign, (int));
@@ -3807,11 +3805,7 @@ void mod_mail_init()
     mod_mail_config.mail_freelist = 0;
 
     register_commands(mod_mail_cmdtable);
+    register_prefix_cmds("-~");
     register_functions(mod_mail_functable);
     register_hashtables(NULL, mod_mail_nhashtable);
-
-    prefix_cmds['-'] = (CMDENT *) hashfind((char *)"-",
-					   &mudstate.command_htab);
-    prefix_cmds['~'] = (CMDENT *) hashfind((char *)"~",
-					   &mudstate.command_htab);
 }

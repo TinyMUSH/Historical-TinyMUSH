@@ -65,7 +65,6 @@ extern pid_t slave_pid;
 extern int slave_socket;
 
 extern char qidx_chartab[256];
-extern CMDENT *prefix_cmds[256];
 
 /*
  * used to allocate storage for temporary stuff, cleared before command

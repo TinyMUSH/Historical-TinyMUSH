@@ -22,6 +22,8 @@
 #include "udb_defs.h"	/* required by code */
 #include "udb.h"	/* required by code */
 
+extern CMDENT *prefix_cmds[256];
+
 /* ---------------------------------------------------------------------------
  * Exporting a module's own API.
  */
@@ -71,24 +73,42 @@ void *request_api_function(api_name, fn_name)
  */
 
 void register_commands(cmdtab)
-    CMDENT *cmdtab;
+	CMDENT *cmdtab;
 {
-    CMDENT *cp;
+	CMDENT *cp;
 
-    for (cp = cmdtab; cp->cmdname; cp++) {
-	hashadd(cp->cmdname, (int *) cp, &mudstate.command_htab, 0);
-	hashadd(tprintf("__%s", cp->cmdname), (int *) cp, &mudstate.command_htab, HASH_ALIAS);
-    }
+	if (cmdtab) {
+		for (cp = cmdtab; cp->cmdname; cp++) {
+			hashadd(cp->cmdname, (int *) cp, &mudstate.command_htab, 0);
+			hashadd(tprintf("__%s", cp->cmdname), (int *) cp, &mudstate.command_htab, HASH_ALIAS);
+		}
+	}
+}
+
+void register_prefix_cmds(cmdchars)
+	const char *cmdchars;
+{
+	const char *cp;
+	char cn[2] = "x";
+
+	if (cmdchars) {
+		for (cp = cmdchars; *cp; cp++) {
+			cn[0] = *cp;
+			prefix_cmds[(unsigned char)*cp] = (CMDENT *) hashfind(cn, &mudstate.command_htab);
+		}
+	}
 }
 
 void register_functions(functab)
-    FUN *functab;
+	FUN *functab;
 {
-    FUN *fp;
+	FUN *fp;
 
-    for (fp = functab; fp->name; fp++) {
-	hashadd((char *)fp->name, (int *) fp, &mudstate.func_htab, 0);
-    }
+	if (functab) {
+		for (fp = functab; fp->name; fp++) {
+			hashadd((char *)fp->name, (int *) fp, &mudstate.func_htab, 0);
+		}
+	}
 }
 
 void register_hashtables(htab, ntab)
@@ -150,4 +170,3 @@ char *modname;
 		return 0;
 	}
 }
-	
