@@ -4269,7 +4269,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	mix()		munge()		remove()	replace()	
 	rest()		revwords()	setdiff()	setinter()	
 	setunion()	shuffle()	sortby()	sort()		
-	splice()	while()		words()
+	splice()	while()		words()		xvars()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -4327,11 +4327,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	foreach()	isdbref()	isnum()		isword()	
 	lcstr()		left()		lit()		ljust()
 	merge()		mid()		null()		pos()		
-	regmatch()	repeat()	reverse()	right()		
-	rjust()		secure()	scramble()	space()		
-	squish()	strcat()	streq()		stripansi()
-	strlen()	strmatch()	strtrunc()	translate()	
-	trim()		ucstr()		valid()		wordpos()
+	regmatch()	regparse()	repeat()	reverse()	
+	right()		rjust()		secure()	scramble()	
+	space()		squish()	strcat()	streq()		
+	stripansi()	strlen()	strmatch()	strtrunc()	
+	translate()	trim()		ucstr()		valid()		
+	wordpos()
  
 & STACK FUNCTIONS
   Topic: Stack functions
@@ -5730,7 +5731,23 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   simply be discarded.
  
   See 'help regexp syntax' for an explanation of regular expressions.
-
+ 
+& REGPARSE()
+  regparse(<string>,<regexp>,<list of variable names>)
+ 
+  This side-effect function matches the regular expression <regexp>
+  against the entirety of <string>; if there's a match, it places
+  the parenthesized substrings within the regular expression, into
+  the corresponding named variables. <list of variable names> can be
+  up to ten strings.
+ 
+  For example, if <string> is 'cookies=30' and <regexp> is '(.+)=([0-9]*)'
+  and <list> is 'x y z', the the 0th substring matched is 'cookies=30'
+  (which is set into the named variable 'x'), the 1st substring is
+  'cookies' (set into 'y'), and the 2nd substring is '30' (set into 'z').
+ 
+  See 'help regexp syntax' for an explanation of regular expressions.
+ 
 & STREQ()
   streq(<string 1>,<string 2>)
  
@@ -7795,7 +7812,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say Testing [setx(temp,abc)][x(temp)] - [strlen(x(temp))].
     You say "Testing abc - 3."
  
-  See also: x(), setq(), setr(), r().
+  See also: x(), xvars(), setq(), setr(), r().
  
 & X()
   Function:  x(<variable name>)
@@ -7804,7 +7821,23 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   making the function call. If you need to retrieve a variable associated
   with another object you control, wrap this function call in an objeval().
  
-  See also: setx(), setq(), setr(), r().
+  See also: setx(), xvars(), setq(), setr(), r().
+ 
+& XVARS()
+  Function:  xvars(<list of strings>,<list of variables>[,<delim>])
+ 
+  This side-function takes the list of strings, and sets each string into 
+  the corresponding variable from the list. If <delim> is specified, the
+  list of strings is considered to be <delim>-separated; the list of
+  variables is always space-separated.
+ 
+  Example:
+    > say [xvars(apple peach cherry,foo bar baz)][x(foo)]-[x(bar)]-[x(baz)]
+    You say "apple-peach-cherry"
+    > say [xvars(apple|peach|cherry,foo bar baz,|)][x(bar)]
+    You say "peach"
+ 
+  See also: x(), setx(), setq(), setr(), r().
  
 & PEMIT()
   Function:  pemit(<list of dbrefs>,<string>)
