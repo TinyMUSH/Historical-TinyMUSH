@@ -206,6 +206,22 @@ do {									\
 	}								\
 } while (0) 
 
+#define track_all_esccodes(s, p, ansi_state) \
+do {								 \
+	(p) = (s);						 \
+	while (*(p)) {						 \
+		if (*(p) == ESC_CHAR) {				 \
+			track_esccode((p), (ansi_state));	 \
+		} else {					 \
+			++(p);					 \
+		}						 \
+	}							 \
+} while (0)
+
+#define safe_copy_tracking(s, p, ansi_state, buff, bufc) \
+track_all_esccodes((s), (p), (ansi_state));		 \
+safe_known_str((s), (p) - (s), (buff), (bufc))
+
 /* Macro for turning mushcode ansi letters into a packed ansi state.
  * s is a throwaway char *, t is the sequence of ansi letters, and
  * ansi_state is an int that will contain the result.
@@ -222,32 +238,5 @@ do {									\
 			++(s); \
 		} \
 	}
-
-/* Macro for skipping to the end of an ANSI code, if we're at the
- * beginning of one. 
- */
-#define Skip_Ansi_Code(s, buff, bufc) \
-	savep = (s);				\
-	while (*(s) && (*(s) != ANSI_END)) {	\
-		safe_chr(*(s), (buff), (bufc));	\
-		++(s);				\
-	}					\
-	if (*(s)) {				\
-		safe_chr(*(s), (buff), (bufc));	\
-		++(s);				\
-	}					\
-	if (!strncmp(savep, ANSI_NORMAL, 4)) {	\
-		have_normal = 1;		\
-	} else {				\
-		have_normal = 0;		\
-	}
-
-/* Macro for turning an ANSI state back into ANSI codes.
- * x is a throwaway character pointer.
- * w is a pointer to the ANSI state of the previous word.
- */
-#define print_ansi_state(x,w) \
-	track_ansi_letters((x), (w), packed_state); \
-	safe_str(ansi_transition_esccode(ANST_NORMAL, packed_state), buff, bufc)
 
 #endif /* __ANSI_H */

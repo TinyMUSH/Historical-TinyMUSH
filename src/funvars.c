@@ -398,7 +398,7 @@ FUNCTION(fun_wildmatch)
      * to be -1. Fill them in.
      */
 
-    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
+    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], &SPACE_DELIM);
     for (i = 0; i < nqregs; i++) {
 	set_register("fun_wildmatch", qregs[i], t_args[i]);
     }
@@ -662,14 +662,14 @@ FUNCTION(fun_xvars)
     char **xvar_names, **elems;
     int n_xvars, n_elems;
     char *varlist, *elemlist;
-    int i, isep_len;
+    int i;
     Delim isep;
 
     VaChk_Only_In(3);
    
     varlist = alloc_lbuf("fun_xvars.vars");
     strcpy(varlist, fargs[0]);
-    n_xvars = list2arr(&xvar_names, LBUF_SIZE / 2, varlist, SPACE_DELIM, 1);
+    n_xvars = list2arr(&xvar_names, LBUF_SIZE / 2, varlist, &SPACE_DELIM);
 
     if (n_xvars == 0) {
 	free_lbuf(varlist);
@@ -687,7 +687,7 @@ FUNCTION(fun_xvars)
 
     elemlist = alloc_lbuf("fun_xvars.elems");
     strcpy(elemlist, fargs[1]);
-    n_elems = list2arr(&elems, LBUF_SIZE / 2, elemlist, isep, isep_len);
+    n_elems = list2arr(&elems, LBUF_SIZE / 2, elemlist, &isep);
 
     if (n_elems != n_xvars) {
 	safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
@@ -718,7 +718,7 @@ FUNCTION(fun_let)
     char *str, *bp, *p;
     char pre[SBUF_SIZE], tbuf[SBUF_SIZE], *tp;
     VARENT *xvar;
-    int i, isep_len;
+    int i;
     Delim isep;
 
     VaChk_Only_In(4);
@@ -731,7 +731,7 @@ FUNCTION(fun_let)
     exec(varlist, &bp, player, caller, cause,
 	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
     *bp = '\0';
-    n_xvars = list2arr(&xvar_names, LBUF_SIZE / 2, varlist, SPACE_DELIM, 1);
+    n_xvars = list2arr(&xvar_names, LBUF_SIZE / 2, varlist, &SPACE_DELIM);
 
     if (n_xvars == 0) {
 	free_lbuf(varlist);
@@ -784,7 +784,7 @@ FUNCTION(fun_let)
 	exec(elemlist, &bp, player, caller, cause,
 	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
-	n_elems = list2arr(&elems, LBUF_SIZE / 2, elemlist, isep, isep_len);
+	n_elems = list2arr(&elems, LBUF_SIZE / 2, elemlist, &isep);
 
 	if (n_elems != n_xvars) {
 	    safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
@@ -904,7 +904,7 @@ FUNCTION(fun_structure)
     char *comp_names, *type_names, *default_vals;
     char **comp_array, **type_array, **def_array;
     int n_comps, n_types, n_defs;
-    int i, isep_len, osep_len;
+    int i;
     STRUCTDEF *this_struct;
     COMPONENT *this_comp;
     int check_type = 0;
@@ -913,7 +913,7 @@ FUNCTION(fun_structure)
 
     /* Prevent null delimiters and line delimiters. */
 
-    if ((osep_len > 1) || (osep.c == '\0') || (osep.c == '\r')) {
+    if ((osep.len > 1) || (osep.str[0] == '\0') || (osep.str[0] == '\r')) {
 	notify_quiet(player, "You cannot use that output delimiter.");
 	safe_chr('0', buff, bufc);
 	return;
@@ -967,7 +967,7 @@ FUNCTION(fun_structure)
      */
 
     comp_names = XSTRDUP(fargs[1], "struct.comps");
-    n_comps = list2arr(&comp_array, LBUF_SIZE / 2, comp_names, SPACE_DELIM, 1);
+    n_comps = list2arr(&comp_array, LBUF_SIZE / 2, comp_names, &SPACE_DELIM);
 
     if (n_comps < 1) {
 	notify_quiet(player, "There must be at least one component.");
@@ -993,7 +993,7 @@ FUNCTION(fun_structure)
 
     type_names = alloc_lbuf("struct.types");
     strcpy(type_names, fargs[2]);
-    n_types = list2arr(&type_array, LBUF_SIZE / 2, type_names, SPACE_DELIM, 1);
+    n_types = list2arr(&type_array, LBUF_SIZE / 2, type_names, &SPACE_DELIM);
 
     /* Make sure all types are valid. We look only at the first char, so
      * typos will not be caught.
@@ -1022,8 +1022,7 @@ FUNCTION(fun_structure)
 
     if (fargs[3] && *fargs[3]) {
 	default_vals = XSTRDUP(fargs[3], "struct.defaults");
-	n_defs = list2arr(&def_array, LBUF_SIZE / 2, default_vals,
-			  isep, isep_len);
+	n_defs = list2arr(&def_array, LBUF_SIZE / 2, default_vals, &isep);
     } else {
 	default_vals = NULL;
 	n_defs = 0;
@@ -1051,7 +1050,7 @@ FUNCTION(fun_structure)
     this_struct->c_names = comp_array;
     this_struct->c_array = (COMPONENT **) XCALLOC(n_comps, sizeof(COMPONENT *), "struct.n_comps");
     this_struct->c_count = n_comps;
-    this_struct->delim = osep.c;
+    this_struct->delim = osep.str[0];
     this_struct->n_instances = 0;
     this_struct->names_base = comp_names;
     this_struct->defs_base = default_vals;
@@ -1132,7 +1131,7 @@ FUNCTION(fun_construct)
     char *comp_names, *init_vals;
     char **comp_array, **vals_array;
     int n_comps, n_vals;
-    int i, isep_len;
+    int i;
     COMPONENT *c_ptr;
     INSTANCE *inst_ptr;
     STRUCTDATA *d_ptr;
@@ -1209,12 +1208,10 @@ FUNCTION(fun_construct)
 
 	comp_names = alloc_lbuf("construct.comps");
 	strcpy(comp_names, fargs[2]);
-	n_comps = list2arr(&comp_array, LBUF_SIZE / 2, comp_names,
-			   SPACE_DELIM, 1);
+	n_comps = list2arr(&comp_array, LBUF_SIZE / 2, comp_names, &SPACE_DELIM);
 	init_vals = alloc_lbuf("construct.vals");
 	strcpy(init_vals, fargs[3]);
-	n_vals = list2arr(&vals_array, LBUF_SIZE / 2, init_vals,
-			  isep, isep_len);
+	n_vals = list2arr(&vals_array, LBUF_SIZE / 2, init_vals, &isep);
 	if (n_comps != n_vals) {
 	    notify_quiet(player, "List sizes must be identical.");
 	    safe_chr('0', buff, bufc);
@@ -1400,13 +1397,13 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
     /* Chop up the raw stuff according to the delimiter. */
 
     if (use_def_delim)
-	isep.c = this_struct->delim;
+	isep.str[0] = this_struct->delim;
     else
-	isep.c = sep;
+	isep.str[0] = sep;
 
     val_list = alloc_lbuf("load.val_list");
     strcpy(val_list, raw_text);
-    n_vals = list2arr(&val_array, LBUF_SIZE / 2, val_list, isep, 1);
+    n_vals = list2arr(&val_array, LBUF_SIZE / 2, val_list, &isep);
     if (n_vals != this_struct->c_count) {
 	notify_quiet(player, "Incorrect number of components.");
 	safe_chr('0', buff, bufc);
@@ -1469,7 +1466,7 @@ FUNCTION(fun_load)
 
     load_structure(player, buff, bufc,
 		   fargs[0], fargs[1], fargs[2],
-		   isep.c, (nfargs != 4) ? 1 : 0);
+		   isep.str[0], (nfargs != 4) ? 1 : 0);
 }
 
 FUNCTION(fun_read)
@@ -1509,7 +1506,7 @@ FUNCTION(fun_delimit)
 
     VaChk_Only_InPure(3);
     if (nfargs != 3)
-	isep.c = GENERIC_STRUCT_DELIM;
+	isep.str[0] = GENERIC_STRUCT_DELIM;
 
     if (!parse_attrib(player, fargs[0], &it, &atr, 1) || (atr == NOTHING)) {
 	safe_noperm(buff, bufc);
@@ -1517,7 +1514,7 @@ FUNCTION(fun_delimit)
     }
 
     atext = atr_pget(it, atr, &aowner, &aflags, &alen);
-    nitems = list2arr(&ptrs, LBUF_SIZE / 2, atext, isep, 1);
+    nitems = list2arr(&ptrs, LBUF_SIZE / 2, atext, &isep);
     if (nitems) {
 	over = safe_str_fn(ptrs[0], buff, bufc);
     }
@@ -1565,7 +1562,7 @@ FUNCTION(fun_modify)
     COMPONENT *c_ptr;
     STRUCTDATA *s_ptr;
     char **words, **vals;
-    int retval, nwords, nvals, i, n_mod, isep_len;
+    int retval, nwords, nvals, i, n_mod;
     Delim isep;
 
     VaChk_Only_In(4);
@@ -1590,8 +1587,8 @@ FUNCTION(fun_modify)
 
     /* Process for each component in the list. */
 
-    nwords = list2arr(&words, LBUF_SIZE / 2, fargs[1], SPACE_DELIM, 1);
-    nvals = list2arr(&vals, LBUF_SIZE / 2, fargs[2], isep, isep_len);
+    nwords = list2arr(&words, LBUF_SIZE / 2, fargs[1], &SPACE_DELIM);
+    nvals = list2arr(&vals, LBUF_SIZE / 2, fargs[2], &isep);
 
     n_mod = 0;
     for (i = 0; i < nwords; i++) {
@@ -1715,7 +1712,7 @@ FUNCTION(fun_unload)
     Delim isep;
 
     VaChk_Only_InPure(2);
-    unload_structure(player, buff, bufc, fargs[0], isep.c,
+    unload_structure(player, buff, bufc, fargs[0], isep.str[0],
 		     (nfargs != 2) ? 1 : 0);
 }
 
@@ -2301,7 +2298,7 @@ FUNCTION(handle_pop)
 FUNCTION(fun_popn)
 {
     dbref it;
-    int pos, nitems, i, osep_len, count = 0, over = 0;
+    int pos, nitems, i, count = 0, over = 0;
     OBJSTACK *sp, *tp, *xp;
     OBJSTACK *prev = NULL;
     Delim osep;
@@ -2336,7 +2333,7 @@ FUNCTION(fun_popn)
 	     * some copying if so.
 	     */
 	    if (*bufc != bb_p) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 	    }
 	    over = safe_str_fn(tp->data, buff, bufc);
 	}
@@ -2362,7 +2359,7 @@ FUNCTION(fun_lstack)
     dbref it;
     OBJSTACK *sp;
     char *bp, *bb_p;
-    int osep_len, over = 0;
+    int over = 0;
 
     VaChk_Out(0, 2);
 
@@ -2376,7 +2373,7 @@ FUNCTION(fun_lstack)
     bb_p = *bufc;
     for (sp = stack_get(it); (sp != NULL) && !over; sp = sp->next) {
 	if (*bufc != bb_p) {
-	    print_sep(osep, osep_len, buff, bufc);
+	    print_sep(&osep, buff, bufc);
 	}
 	over = safe_str_fn(sp->data, buff, bufc);
     }
@@ -2522,7 +2519,7 @@ FUNCTION(fun_wildparse)
     if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS))
 	return;
 
-    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
+    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], &SPACE_DELIM);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i])
 	    set_xvar(player, qregs[i], t_args[i]);
@@ -2567,7 +2564,7 @@ FUNCTION(perform_regparse)
     subpatterns = pcre_exec(re, NULL, fargs[0], strlen(fargs[0]),
 			    0, 0, offsets, PCRE_MAX_OFFSETS);
 
-    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
+    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], &SPACE_DELIM);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i]) {
 	    if (subpatterns < 0) {
@@ -2592,7 +2589,6 @@ FUNCTION(perform_regparse)
 FUNCTION(perform_regrab)
 {
     Delim isep, osep;
-    int isep_len, osep_len;
     int case_option, all_option;
     char *r, *s, *bb_p;
     pcre *re;
@@ -2610,7 +2606,7 @@ FUNCTION(perform_regrab)
 	VaChk_Only_In(3);
     }
 
-    s = trim_space_sep(fargs[0], isep, isep_len);
+    s = trim_space_sep(fargs[0], &isep);
     bb_p = *bufc;
 
     if ((re = pcre_compile(fargs[1], case_option, &errptr, &erroffset,
@@ -2632,11 +2628,11 @@ FUNCTION(perform_regrab)
     }
 
     do {
-	r = split_token(&s, isep, isep_len);
+	r = split_token(&s, &isep);
 	if (pcre_exec(re, study, r, strlen(r), 0, 0,
 		      offsets, PCRE_MAX_OFFSETS) >= 0) {
 	    if (*bufc != bb_p) { /* if true, all_option also true */
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 	    }
 	    safe_str(r, buff, bufc);
 	    if (!all_option)
@@ -2714,7 +2710,7 @@ FUNCTION(perform_regmatch)
     if (subpatterns == 0)
 	subpatterns = PCRE_MAX_OFFSETS / 3;
 
-    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
+    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], &SPACE_DELIM);
     for (i = 0; i < nqregs; i++) {
 	if (subpatterns < 0) {
 	    set_register("perform_regmatch", qregs[i], NULL);
@@ -2741,7 +2737,6 @@ FUNCTION(perform_regmatch)
 FUNCTION(fun_until)
 {
     Delim isep, osep;
-    int isep_len, osep_len;
     dbref aowner1, thing1, aowner2, thing2;
     int aflags1, aflags2, anum1, anum2, alen1, alen2;
     ATTR *ap, *ap2;
@@ -2824,11 +2819,11 @@ FUNCTION(fun_until)
 
     for (i = 0; i < NUM_ENV_VARS; i++)
 	cp[i] = NULL;
-    cp[2] = trim_space_sep(fargs[2], isep, isep_len);
-    nwords = count[2] = countwords(cp[2], isep, isep_len);
+    cp[2] = trim_space_sep(fargs[2], &isep);
+    nwords = count[2] = countwords(cp[2], &isep);
     for (i = 3; i <= lastn; i++) {
-	cp[i] = trim_space_sep(fargs[i], isep, isep_len);
-	count[i] = countwords(cp[i], isep, isep_len);
+	cp[i] = trim_space_sep(fargs[i], &isep);
+	count[i] = countwords(cp[i], &isep);
 	if (count[i] > nwords)
 	    nwords = count[i];
     }
@@ -2839,7 +2834,7 @@ FUNCTION(fun_until)
 	 wc++) {
 	for (i = 2; i <= lastn; i++) {
 	    if (count[i]) {
-		os[i - 2] = split_token(&cp[i], isep, isep_len);
+		os[i - 2] = split_token(&cp[i], &isep);
 	    } else {
 		tmpbuf[0] = '\0';
 		os[i - 2] = tmpbuf;
@@ -2847,7 +2842,7 @@ FUNCTION(fun_until)
 	}
 
 	if (*bufc != bb_p) {
-	    print_sep(osep, osep_len, buff, bufc);
+	    print_sep(&osep, buff, bufc);
 	}
 
 	StrCopyKnown(atextbuf, atext1, alen1);
@@ -2896,7 +2891,7 @@ FUNCTION(perform_grep)
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
     char *patbuf, *patc, *attrib, *p, *bb_p;
-    int ca, aflags, alen, osep_len;
+    int ca, aflags, alen;
     dbref thing, aowner, it;
     Delim osep;
 
@@ -2967,7 +2962,7 @@ FUNCTION(perform_grep)
 		 (pcre_exec(re, study, attrib, alen, 0, 0,
 			    offsets, PCRE_MAX_OFFSETS) >= 0))) {
 		if (*bufc != bb_p) {
-		    print_sep(osep, osep_len, buff, bufc);
+		    print_sep(&osep, buff, bufc);
 		}
 		safe_str((char *)(atr_num(ca))->name, buff, bufc);
 	    }

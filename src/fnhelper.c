@@ -19,20 +19,19 @@
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
-static long genrand_int31();
+static long NDECL(genrand_int31);
 
 /* ---------------------------------------------------------------------------
  * Trim off leading and trailing spaces if the separator char is a space
  */
 
-char *trim_space_sep(str, sep, sep_len)
+char *trim_space_sep(str, sep)
 char *str;
-Delim sep;
-int sep_len;
+const Delim *sep;
 {
 	char *p;
 
-	if ((sep_len > 1) || (sep.c != ' ') || !*str)
+	if ((sep->len > 1) || (sep->str[0] != ' ') || !*str)
 		return str;
 	while (*str == ' ')
 		str++;
@@ -51,18 +50,17 @@ int sep_len;
  * next_token_ansi: Point at start of next token, and tell what color it is.
  */
 
-char *next_token(str, sep, sep_len)
+char *next_token(str, sep)
 char *str;
-Delim sep;
-int sep_len;
+const Delim *sep;
 {
 	char *p;
 
-	if (sep_len == 1) {
+	if (sep->len == 1) {
 		while (*str == ESC_CHAR) {
 			skip_esccode(str);
 		}
-		while (*str && (*str != sep.c)) {
+		while (*str && (*str != sep->str[0])) {
 			++str;
 			while (*str == ESC_CHAR) {
 				skip_esccode(str);
@@ -71,22 +69,21 @@ int sep_len;
 		if (!*str)
 			return NULL;
 		++str;
-		if (sep.c == ' ') {
-			while (*str == sep.c)
+		if (sep->str[0] == ' ') {
+			while (*str == ' ')
 				++str;
 		}
 	} else {
-		if ((p = strstr(str, sep.str)) == NULL)
+		if ((p = strstr(str, sep->str)) == NULL)
 			return NULL;
-		str = p + sep_len;
+		str = p + sep->len;
 	}
 	return str;
 }
 
-char *split_token(sp, sep, sep_len)
+char *split_token(sp, sep)
 char **sp;
-Delim sep;
-int sep_len;
+const Delim *sep;
 {
 	char *str, *save, *p;
 
@@ -95,11 +92,11 @@ int sep_len;
 		*sp = NULL;
 		return NULL;
 	}
-	if (sep_len == 1) {
+	if (sep->len == 1) {
 		while (*str == ESC_CHAR) {
 			skip_esccode(str);
 		}
-		while (*str && (*str != sep.c)) {
+		while (*str && (*str != sep->str[0])) {
 			++str;
 			while (*str == ESC_CHAR) {
 				skip_esccode(str);
@@ -107,17 +104,17 @@ int sep_len;
 		}
 		if (*str) {
 			*str++ = '\0';
-			if (sep.c == ' ') {
-				while (*str == sep.c)
+			if (sep->str[0] == ' ') {
+				while (*str == ' ')
 					++str;
 			}
 		} else {
 			str = NULL;
 		}
 	} else {
-		if ((p = strstr(str, sep.str)) != NULL) {
+		if ((p = strstr(str, sep->str)) != NULL) {
 			*p = '\0';
-			str = p + sep_len;
+			str = p + sep->len;
 		} else {
 			str = NULL;
 		}
@@ -126,20 +123,19 @@ int sep_len;
 	return save;
 }
 
-char *next_token_ansi(str, sep, sep_len, ansi_state_ptr)
+char *next_token_ansi(str, sep, ansi_state_ptr)
 char *str;
-Delim sep;
-int sep_len;
+const Delim *sep;
 int *ansi_state_ptr;
 {
 	int ansi_state = *ansi_state_ptr;
 	char *p;
 
-	if (sep_len == 1) {
+	if (sep->len == 1) {
 		while (*str == ESC_CHAR) {
 			track_esccode(str, ansi_state);
 		}
-		while (*str && (*str != sep.c)) {
+		while (*str && (*str != sep->str[0])) {
 			++str;
 			while (*str == ESC_CHAR) {
 				track_esccode(str, ansi_state);
@@ -150,15 +146,15 @@ int *ansi_state_ptr;
 			return NULL;
 		}
 		++str;
-		if (sep.c == ' ') {
-			while (*str == sep.c)
+		if (sep->str[0] == ' ') {
+			while (*str == ' ')
 				++str;
 		}
 	} else {
 		/* ansi tracking not supported yet in multichar delims */
-		if ((p = strstr(str, sep.str)) == NULL)
+		if ((p = strstr(str, sep->str)) == NULL)
 			return NULL;
-		str = p + sep_len;
+		str = p + sep->len;
 	}
 	*ansi_state_ptr = ansi_state;
 	return str;
@@ -168,17 +164,16 @@ int *ansi_state_ptr;
  * Count the words in a delimiter-separated list.
  */
 
-int countwords(str, sep, sep_len)
+int countwords(str, sep)
 char *str;
-Delim sep;
-int sep_len;
+const Delim *sep;
 {
 	int n;
 
-	str = trim_space_sep(str, sep, sep_len);
+	str = trim_space_sep(str, sep);
 	if (!*str)
 		return 0;
-	for (n = 0; str; str = next_token(str, sep, sep_len), n++) ;
+	for (n = 0; str; str = next_token(str, sep), n++) ;
 	return n;
 }
 
@@ -186,10 +181,10 @@ int sep_len;
  * list2arr, arr2list: Convert lists to arrays and vice versa.
  */
 
-int list2arr(arr, maxtok, list, sep, sep_len)
+int list2arr(arr, maxtok, list, sep)
 char ***arr, *list;
-Delim sep;
-int maxtok, sep_len;
+const Delim *sep;
+int maxtok;
 {
 	static unsigned char tok_starts[(LBUF_SIZE >> 3) + 1];
 	static int initted = 0;
@@ -206,10 +201,10 @@ int maxtok, sep_len;
 		initted = 1;
 	}
 
-	liststart = list = trim_space_sep(list, sep, sep_len);
-	tok = split_token(&list, sep, sep_len);
+	liststart = list = trim_space_sep(list, sep);
+	tok = split_token(&list, sep);
 	for (ntok = 0, tokpos = 0; tok && ntok < maxtok;
-	     ++ntok, tok = split_token(&list, sep, sep_len)) {
+	     ++ntok, tok = split_token(&list, sep)) {
 		tokpos = tok - liststart;
 		tok_starts[tokpos >> 3] |= (1 << (tokpos & 0x7));
 	}
@@ -247,10 +242,10 @@ int maxtok, sep_len;
 	return ntok;
 }
 
-void arr2list(arr, alen, list, bufc, sep, sep_len)
+void arr2list(arr, alen, list, bufc, sep)
 char **arr, **bufc, *list;
-Delim sep;
-int alen, sep_len;
+const Delim *sep;
+int alen;
 {
 	int i;
 
@@ -258,99 +253,36 @@ int alen, sep_len;
 	    safe_str(arr[0], list, bufc);
 	}
 	for (i = 1; i < alen; i++) {
-	    print_sep(sep, sep_len, list, bufc);
+	    print_sep(sep, list, bufc);
 	    safe_str(arr[i], list, bufc);
 	}
 }
 
 /* ---------------------------------------------------------------------------
- * Find the ANSI states at the end of each word of a list.
- * Note that list2ansi() function malloc()s memory which must be freed.
+ * Find the ANSI states at the beginning and end of each word of a list.
+ * NOTE! Needs one more array slot than list2arr (think fenceposts) but
+ * still takes the same maxlen and returns the same number of words.
  */
 
-static char *split_ansi_state(sp, sep, ansi_state, asp)
-char **sp, sep, *ansi_state, **asp;
-{
-	char *str, *save, *endp, *p;
-	int i;
-
-	/* Note: Anything that calls this function MUST check for
-	 * sep being ESC_CHAR or ANSI_END, which should be illegal
-	 * separators here.
-	 */
-
-	save = str = *sp;
-	if (!str) {
-		*sp = NULL;
-		return NULL;
-	}
-
-	while (*str && (*str != sep)) {
-	    if (*str == ESC_CHAR) {
-		endp = strchr(str, ANSI_END);
-		if (endp) {
-		    /* Between p and endp is a set of numbers separated by
-		     * semicolons.
-		     */
-		    *endp = '\0';
-		    str += 2;
-		    do {
-			p = strchr(str, ';');
-			if (p)
-			    *p++ = '\0';
-			i = atoi(str);
-			if (i == 0) {
-			    *asp = ansi_state;
-			    **asp = '\0';
-			} else if ((i < I_ANSI_NUM) && ansi_lettab[i]) {
-			    **asp = ansi_lettab[i];
-			    (*asp)++;
-			}
-			str = p;
-		    } while (p && *p);
-		    **asp = '\0';
-		    str = endp;
-		}
-	    }
-	    str++;
-	}
-
-	if (*str) {
-		*str++ = '\0';
-		if (sep == ' ') {
-			while (*str == sep)
-				str++;
-		}
-	} else {
-		str = NULL;
-	}
-	*sp = str;
-	return save;
-}
-
 int list2ansi(arr, prior_state, maxlen, list, sep)
-    char *arr[], *prior_state, *list;
-    Delim sep;
-    int maxlen;
+    int *arr, *prior_state, maxlen;
+    char *list;
+    const Delim *sep;
 {
-    int i;
-    char *p, *asp;
-    static char ansi_status[LBUF_SIZE / 2];
+	int i, ansi_state;
 
-    if (*prior_state) {
-	strcpy(ansi_status, prior_state);
-	asp = ansi_status + strlen(prior_state);
-    } else {
-	ansi_status[0] = '\0';
-	asp = ansi_status;
-    }
-    list = trim_space_sep(list, sep, 1);
-    p = split_ansi_state(&list, sep.c, ansi_status, &asp);
-    for (i = 0; p && (i < maxlen);
-	 i++, p = split_ansi_state(&list, sep.c, ansi_status, &asp)) {
-	arr[i] = XSTRDUP(ansi_status, "list2ansi");
-    }
-    return i;
+	if (maxlen <= 0)
+		return 0;
+
+	ansi_state = arr[0] = *prior_state;
+	list = trim_space_sep(list, sep);
+    
+	for (i = 1; list && i < maxlen;
+	     list = next_token_ansi(list, sep, &ansi_state), ++i) {
+		arr[i - 1] = ansi_state;
+	}
+	arr[i] = ANST_NONE;
+	return i - 1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -399,10 +331,11 @@ int nfargs, ncargs, sep_arg, dflags;
 dbref player, caller, cause;
 {
     char *tstr, *bp, *str;
-    int tlen, retcode;
+    int tlen;
 
     if (nfargs < sep_arg) {
-	(*sep).c = ' ';
+	sep->str[0] = ' ';
+	sep->len = 1;
 	return 1;
     }
 
@@ -421,37 +354,37 @@ dbref player, caller, cause;
 	tstr = fargs[sep_arg - 1];
     }
 
-    retcode = 1;
+    sep->len = 1;
     if (tlen == 0) {
-	(*sep).c = ' ';
+	sep->str[0] = ' ';
     } else if (tlen == 1) {
-	(*sep).c = *tstr;
+	sep->str[0] = *tstr;
     } else {
 	if ((dflags & DELIM_NULL) &&
 	    !strcmp(tstr, (char *) NULL_DELIM_VAR)) {
-	    (*sep).c = '\0';
+	    sep->str[0] = '\0';
 	} else if ((dflags & DELIM_CRLF) &&
 		   !strcmp(tstr, (char *) "\r\n")) {
-	    (*sep).c = '\r';
+	    sep->str[0] = '\r';
 	} else if (dflags & DELIM_STRING) {
 	    if (tlen > MAX_DELIM_LEN) {
 		safe_str("#-1 SEPARATOR TOO LONG", buff, bufc);
-		retcode = 0;
+		sep->len = 0;
 	    } else {
-		strcpy((*sep).str, tstr);
-		retcode = tlen;
+		strcpy(sep->str, tstr);
+		sep->len = tlen;
 	    }
 	} else {
 	    safe_str("#-1 SEPARATOR MUST BE ONE CHARACTER",
 		     buff, bufc);
-	    retcode = 0;
+	    sep->len = 0;
 	}
     }
 
     if (dflags & DELIM_EVAL)
 	free_lbuf(tstr);
 
-    return (retcode);
+    return (sep->len);
 }
 
 /* ---------------------------------------------------------------------------
@@ -657,7 +590,7 @@ static void next_state()
 }
 
 /* generates a random number on [0,0x7fffffff]-interval */
-static long genrand_int31()
+static long NDECL(genrand_int31)
 {
     unsigned long y;
 

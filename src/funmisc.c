@@ -314,7 +314,7 @@ FUNCTION(fun_die)
 FUNCTION(fun_lrand)
 {
     Delim osep;
-    int n_times, r_bot, r_top, i, osep_len;
+    int n_times, r_bot, r_top, i;
     double n_range;
     unsigned int tmp;
     char *bb_p;
@@ -353,7 +353,7 @@ FUNCTION(fun_lrand)
 	bb_p = *bufc;
 	for (i = 0; i < n_times; i++) {
 	    if (*bufc != bb_p) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 	    }
 	    safe_ltos(buff, bufc, r_bot);
 	}
@@ -366,7 +366,7 @@ FUNCTION(fun_lrand)
     bb_p = *bufc;
     for (i = 0; i < n_times; i++) {
 	if (*bufc != bb_p) {
-	    print_sep(osep, osep_len, buff, bufc);
+	    print_sep(&osep, buff, bufc);
 	}
 	tmp = (unsigned int) Randomize(n_range);
 	safe_ltos(buff, bufc, r_bot + tmp);
@@ -383,7 +383,7 @@ FUNCTION(fun_lnum)
 {
     char tbuf[12];
     Delim osep;
-    int bot, top, over, i, osep_len;
+    int bot, top, over, i;
     char *bb_p, *startp, *endp;
     static int lnum_init = 0;
     static char lnum_buff[290];
@@ -421,10 +421,10 @@ FUNCTION(fun_lnum)
 
     bb_p = *bufc;
     over = 0;
-    if ((bot < 0) && (top >= 0) && (osep_len == 1) && (osep.c == ' ')) {
+    if ((bot < 0) && (top >= 0) && (osep.len == 1) && (osep.str[0] == ' ')) {
 	while ((bot < 0) && !over) {
 	    if (*bufc != bb_p) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 	    }
 	    ltos(tbuf, bot);
 	    over = safe_str_fn(tbuf, buff, bufc);
@@ -437,9 +437,9 @@ FUNCTION(fun_lnum)
     /* Copy as much out of the pre-gen as we can. */
     
     if ((bot >= 0) && (bot < 100) && (top > bot) &&
-	(osep_len == 1) && (osep.c == ' ')) {
+	(osep.len == 1) && (osep.str[0] == ' ')) {
 	if (*bufc != bb_p) {
-	    print_sep(osep, osep_len, buff, bufc);
+	    print_sep(&osep, buff, bufc);
 	}
 	startp = lnum_buff + Lnum_Place(bot);
 	if (top >= 99) {
@@ -460,14 +460,14 @@ FUNCTION(fun_lnum)
 
     if (top == bot) {
 	if (*bufc != bb_p) {
-	    print_sep(osep, osep_len, buff, bufc);
+	    print_sep(&osep, buff, bufc);
 	}
 	safe_ltos(buff, bufc, bot);
 	return;
     } else if (top > bot) {
 	for (i = bot; (i <= top) && !over; i++) {
 	    if (*bufc != bb_p) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 	    }
 	    ltos(tbuf, i);
 	    over = safe_str_fn(tbuf, buff, bufc);
@@ -475,7 +475,7 @@ FUNCTION(fun_lnum)
     } else {
 	for (i = bot; (i >= top) && !over; i--) {
 	    if (*bufc != bb_p) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 	    }
 	    ltos(tbuf, i);
 	    over = safe_str_fn(tbuf, buff, bufc);
@@ -1043,12 +1043,8 @@ FUNCTION(fun_create)
 		safe_str("#-1 ILLEGAL NAME", buff, bufc);
 		return;
 	}
-	if (fargs[2] && *fargs[2])
-		isep.c = *fargs[2];
-	else
-		isep.c = 't';
 
-	switch (isep.c) {
+	switch (isep.str[0]) {
 	case 'r':
 		if (check_command(player, "@dig", buff, bufc)) {
 			return;

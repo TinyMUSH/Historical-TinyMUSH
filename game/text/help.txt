@@ -11202,9 +11202,9 @@ performed and the walk down the list stops.
   <field width> specifies how wide each column of the table is;	it defaults
   to 10 characters. <line length> specifies how wide the entire table is;
   it defaults to 78 characters. The number of columns is equal to
-  (line length) / (field width + 1).
+  (line length) / (field width + field sep width).
  
-  <field sep> is the single character to be used between columns of the
+  <field sep> is the output delimiter to be used between columns of the
   table; the default is a space. <fill> is the single character used to
   pad out a field; the default is a space.
  
@@ -11234,7 +11234,7 @@ performed and the walk down the list stops.
  
 & TABLES()
   Function: tables(<word list>,<field widths>[,<lead string>[,<trail string>
-                   [,<list delim>[,<field sep string>[,<fill>]]]]])
+                   [,<list delim>[,<field sep>[,<fill>]]]]])
  
   This function returns the elements of the <list delim>-delimited list
   <word list>, in a tabular format, with the elements left-justified
@@ -11248,10 +11248,9 @@ performed and the walk down the list stops.
   the list is not evenly divisible by the number of columns, blank
   columns will be inserted to make up a full line.
  
-  <field sep string> is a string of arbitrary length which will be
-  used between the columns of the table. The default is a single space.
-  <fill> is the single character used to pad out a field; the default
-  is a space.
+  <field sep string> is the output delimiter which will be used between
+  the columns of the table. The default is a single space. <fill> is the
+  single character used to pad out a field; the default is a space.
  
   Continued in 'help tables2'.
  

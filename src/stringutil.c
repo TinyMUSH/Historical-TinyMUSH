@@ -713,7 +713,9 @@ const char *src, *sub;
  * replace_string: Returns an lbuf containing string STRING with all occurances
  * of OLD replaced by NEW. OLD and NEW may be different lengths.
  * (mitch 1 feb 91)
- * replace_string_ansi: Like replace_string, but sensitive about ANSI codes.
+ *
+ * edit_string: Like replace_string, but sensitive about ANSI codes, and
+ * handles special ^ and $ cases.
  */
 
 char *replace_string(old, new, string)
@@ -756,86 +758,132 @@ const char *old, *new, *string;
 	return result;
 }
 
-char *replace_string_ansi(old, new, string)
-    const char *old, *new, *string;
+void edit_string(src, dst, from, to)
+char *src, **dst, *from, *to;
 {
-    char *result, *r, *s, *t, *savep;
-    int olen, have_normal, new_ansi;
+	char *cp, *p;
+	int ansi_state, to_ansi_set, to_ansi_clr, tlen, flen;
 
-    if (!string)
-	return NULL;
-
-    s = (char *) string;
-    r = result = alloc_lbuf("replace_string_ansi");
-
-    olen = strlen(old);
-
-    /* Scan the contents of the string. Figure out whether we have any
-     * embedded ANSI codes.
-     */
-    new_ansi = strchr(new, ESC_CHAR) ? 1 : 0;
-
-    have_normal = 1;
-    while (*s) {
-
-	/* Copy up to the next occurrence of the first char of OLD. */
-
-	while (*s && (*s != *old)) {
-	    if (*s == ESC_CHAR) {
-		Skip_Ansi_Code(s, result, &r);
-	    } else {
-		safe_chr(*s, result, &r);
-		s++;
-	    }
-	}
-
-	/* If we are really at an OLD, append NEW to the result and
-	 * bump the input string past the occurrence of OLD. Otherwise,
-	 * copy the char and try again.
+        /* We may have gotten an ANSI_NORMAL termination to OLD and NEW,
+	 * that the user probably didn't intend to be there. (If the
+	 * user really did want it there, he simply has to put a double
+	 * ANSI_NORMAL in; this is non-intuitive but without it we can't
+	 * let users swap one ANSI code for another using this.)  Thus,
+	 * we chop off the terminating ANSI_NORMAL on both, if there is
+	 * one.
 	 */
 
-	if (*s) {
-	    if (!strncmp(old, s, olen)) {
+	p = from + strlen(from) - 4;
+	if (p >= from && !strcmp(p, ANSI_NORMAL))
+	    *p = '\0';
 
-		/* If the string contains no ANSI characters, we can
-		 * just copy it. Otherwise we need to scan through it.
+	p = to + strlen(to) - 4;
+	if (p >= to && !strcmp(p, ANSI_NORMAL))
+	    *p = '\0';
+
+
+	/* Scan the contents of the TO string. Figure out whether we
+	 * have any embedded ANSI codes.
+	 */
+	ansi_state = ANST_NONE;
+	track_all_esccodes(to, p, ansi_state);
+	to_ansi_set = (~ANST_NONE) & ansi_state;
+	to_ansi_clr = ANST_NONE & (~ansi_state);
+	tlen = p - to;
+
+	/*
+	 * Do the substitution.  Idea for prefix/suffix from R'nice@TinyTIM 
+	 */
+
+	cp = *dst = alloc_lbuf("edit_string");
+
+	if (!strcmp(from, "^")) {
+		/*
+		 * Prepend 'to' to string 
 		 */
 
-		if (!new_ansi) {
-		    safe_str((char *) new, result, &r);
-		} else {
-		    t = (char *) new;
-		    while (*t) {
-			if (*t == ESC_CHAR) {
-			    Skip_Ansi_Code(t, result, &r);
-			} else {
-			    safe_chr(*t, result, &r);
-			    t++;
+		safe_known_str(to, tlen, *dst, &cp);
+		safe_copy_tracking(src, p, ansi_state, *dst, &cp);
+
+	} else if (!strcmp(from, "$")) {
+
+		/*
+		 * Append 'to' to string 
+		 */
+
+		ansi_state = ANST_NONE;
+		safe_copy_tracking(src, p, ansi_state, *dst, &cp);
+
+		ansi_state |= to_ansi_set;
+		ansi_state &= ~to_ansi_clr;
+		safe_known_str(to, tlen, *dst, &cp);
+
+	} else {
+		/*
+		 * Replace all occurances of 'from' with 'to'.  Handle the
+		 * special cases of from = \$ and \^. 
+		 */
+
+		if (((from[0] == '\\') || (from[0] == '%')) &&
+		    ((from[1] == '$') || (from[1] == '^')) &&
+		    (from[2] == '\0'))
+			from++;
+
+		flen = strlen(from);
+
+		ansi_state = ANST_NONE;
+		while (*src) {
+
+			/* Copy up to the next occurrence of the first
+			 * char of FROM. */
+
+			p = src;
+			while (*src && (*src != *from)) {
+				if (*src == ESC_CHAR) {
+					track_esccode(src, ansi_state);
+				} else {
+					++src;
+				}
 			}
-		    }
+			safe_known_str(p, src - p, *dst, &cp);
+
+			/* If we are really at a FROM, append TO to the result
+			 * and bump the input string past the occurrence of
+			 * FROM. Otherwise, copy the char and try again.
+			 */
+
+			if (*src) {
+				if (!strncmp(from, src, flen)) {
+					/* Apply whatever ANSI transition
+					 * happens in TO */
+					ansi_state |= to_ansi_set;
+					ansi_state &= ~to_ansi_clr;
+
+					safe_known_str(to, tlen, *dst, &cp);
+					src += flen;
+				} else {
+					/* We have to handle the case where
+					 * the first character in FROM is the
+					 * ANSI escape character. In that case
+					 * we move over and copy the entire
+					 * ANSI code. Otherwise we just copy
+					 * the character.
+					 */
+					if (*from == ESC_CHAR) {
+						p = src;
+						track_esccode(src, ansi_state);
+						safe_known_str(p, src - p,
+							       *dst, &cp);
+					} else {
+						safe_chr(*src, *dst, &cp);
+						++src;
+					}
+				}
+			}
 		}
-		s += olen;
-	    } else {
-		/* We have to handle the case where the first character
-		 * in OLD is the ANSI escape character. In that case
-		 * we move over and copy the entire ANSI code. Otherwise
-		 * we just copy the character.
-		 */
-		if (*old == ESC_CHAR) {
-		    Skip_Ansi_Code(s, result, &r);
-		} else {
-		    safe_chr(*s, result, &r);
-		    s++;
-		}
-	    }
 	}
-    }
 
-    if (!have_normal)
-	safe_ansi_normal(result, &r);
-
-    *r = '\0';
-    return result;
+        safe_str(ansi_transition_esccode(ansi_state, ANST_NONE), *dst, &cp);
 }
 
 int minmatch(str, target, min)
@@ -902,7 +950,8 @@ safe_copy_str(src, buff, bufp, max)
 
 INLINE int 
 safe_copy_str_fn(src, buff, bufp, max)
-    char *src, *buff, **bufp;
+    const char *src;
+    char *buff, **bufp;
     int max;
 {
     char *tp, *maxtp, *longtp;
@@ -976,7 +1025,8 @@ safe_copy_long_str(src, buff, bufp, max)
 
 
 INLINE void safe_known_str(src, known, buff, bufp)
-    char *src, *buff, **bufp;
+    const char *src;
+    char *buff, **bufp;
     int known;
 {
     int n;

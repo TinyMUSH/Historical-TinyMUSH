@@ -21,6 +21,7 @@
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
+#include "functions.h"  /* required by code */
 #include "db_sql.h"	/* required by code */
 
 extern int FDECL(do_command, (DESC *, char *, int));
@@ -2704,6 +2705,6 @@ void do_sql(player, cause, key, name)
     int key;
     char *name;
 {
-    sql_query(player, name, NULL, NULL, ' ', ' ');
+    sql_query(player, name, NULL, NULL, &SPACE_DELIM, &SPACE_DELIM);
 }
 

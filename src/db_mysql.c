@@ -12,6 +12,7 @@
 
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
+#include "functions.h"  /* required by code */
 
 #include "mysql.h"
 #include "errmsg.h"
@@ -90,21 +91,12 @@ int sql_init()
     return 1;
 }
 
-#define print_sep(s,b,p) \
-if (s) { \
-    if (s != '\r') { \
-      safe_chr(s,b,p); \
-    } else { \
-      safe_crlf(b,p); \
-    } \
-}
-
 int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     dbref player;
     char *q_string;
     char *buff;
     char **bufc;
-    char row_delim, field_delim;
+    const Delim *row_delim, *field_delim;
 {
     MYSQL_RES *qres;
     MYSQL_ROW row_p;

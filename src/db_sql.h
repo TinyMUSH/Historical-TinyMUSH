@@ -28,7 +28,8 @@ int NDECL(sql_init);
  * the player of results, rather than writing into the result string.
  * On success, return 0. On failure, return -1.
  */
-int FDECL(sql_query, (dbref, char *, char *, char **, char, char));
+int FDECL(sql_query, (dbref, char *, char *, char **,
+		      const Delim *, const Delim *));
 
 /*
  * Shut down the database connection.

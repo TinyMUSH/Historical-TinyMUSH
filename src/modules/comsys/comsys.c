@@ -2137,7 +2137,6 @@ FUNCTION(fun_comlist)
     CHANNEL *chp;
     char *bb_p;
     Delim osep;
-    int osep_len;
 
     VaChk_Only_Out(1);
 
@@ -2148,7 +2147,7 @@ FUNCTION(fun_comlist)
 	if ((chp->flags & CHAN_FLAG_PUBLIC) ||
 	    Comm_All(player) || (chp->owner == player)) {
 	    if (*bufc != bb_p) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 	    }
 	    safe_str(chp->name, buff, bufc);
 	}

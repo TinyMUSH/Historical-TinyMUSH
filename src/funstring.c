@@ -103,7 +103,7 @@ FUNCTION(fun_squish)
 
 		/* Move over and copy the non-sep characters */
 
-		while (*tp && *tp != isep.c) {
+		while (*tp && *tp != isep.str[0]) {
 			if (*tp == ESC_CHAR) {
 				copy_esccode(tp, bp);
 			} else {
@@ -124,7 +124,7 @@ FUNCTION(fun_squish)
 		 */
 
 		*bp++ = *tp++;
-		while (*tp && (*tp == isep.c))
+		while (*tp && (*tp == isep.str[0]))
 			tp++;
 	}
 
@@ -145,7 +145,7 @@ FUNCTION(fun_trim)
 {
 	char *p, *q, *endchar, *ep;
 	Delim isep;
-	int isep_len, trim;
+	int trim;
 
 	if (nfargs == 0) {
 		return;
@@ -171,9 +171,9 @@ FUNCTION(fun_trim)
 
 	/* Single-character delimiters are easy. */
 
-	if (isep_len == 1) { 
+	if (isep.len == 1) { 
 	    if (trim & TRIM_L) {
-		while (*p == isep.c) {
+		while (*p == isep.str[0]) {
 			p++;
 		}
 	    }
@@ -183,7 +183,7 @@ FUNCTION(fun_trim)
 			if (*q == ESC_CHAR) {
 				skip_esccode(q);
 				endchar = q;
-			} else if (*q++ != isep.c) {
+			} else if (*q++ != isep.str[0]) {
 				endchar = q;
 			}
 		}
@@ -198,8 +198,8 @@ FUNCTION(fun_trim)
 	ep = p + strlen(fargs[0]) - 1; /* last char in string */
 
 	if (trim & TRIM_L) {
-	    while (!strncmp(p, isep.str, isep_len) && (p <= ep))
-		p = p + isep_len;
+	    while (!strncmp(p, isep.str, isep.len) && (p <= ep))
+		p = p + isep.len;
 	    if (p > ep)
 		return;
 	}
@@ -210,8 +210,8 @@ FUNCTION(fun_trim)
 		if (*q == ESC_CHAR) {
 		    skip_esccode(q);
 		    endchar = q;
-		} else if (!strncmp(q, isep.str, isep_len)) {
-		    q = q + isep_len;
+		} else if (!strncmp(q, isep.str, isep.len)) {
+		    q = q + isep.len;
 		} else {
 		    q++;
 		    endchar = q;
@@ -1233,7 +1233,7 @@ FUNCTION(fun_pos)
 FUNCTION(fun_lpos)
 {
     char *s, *bb_p, *scratch_chartab;
-    int i, osep_len;
+    int i;
     Delim osep; 
 
     if (!fargs[0] || !*fargs[0])
@@ -1255,7 +1255,7 @@ FUNCTION(fun_lpos)
     for (i = 0, s = strip_ansi(fargs[0]); *s; i++, s++) {
 	if (scratch_chartab[(unsigned char) *s]) {
 	    if (*bufc != bb_p) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 	    }
 	    safe_ltos(buff, bufc, i);
 	}
@@ -1271,7 +1271,7 @@ FUNCTION(fun_lpos)
 
 FUNCTION(fun_wordpos)
 {
-	int charpos, i, isep_len;
+	int charpos, i;
 	char *cp, *tp, *xp;
 	Delim isep;
 
@@ -1281,12 +1281,12 @@ FUNCTION(fun_wordpos)
 	cp = strip_ansi(fargs[0]);
 	if ((charpos > 0) && (charpos <= (int)strlen(cp))) {
 		tp = &(cp[charpos - 1]);
-		cp = trim_space_sep(cp, isep, isep_len);
-		xp = split_token(&cp, isep, isep_len);
+		cp = trim_space_sep(cp, &isep);
+		xp = split_token(&cp, &isep);
 		for (i = 1; xp; i++) {
 			if (tp < (xp + strlen(xp)))
 				break;
-			xp = split_token(&cp, isep, isep_len);
+			xp = split_token(&cp, &isep);
 		}
 		safe_ltos(buff, bufc, i);
 		return;

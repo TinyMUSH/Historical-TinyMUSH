@@ -25,11 +25,7 @@
 #endif
 
 #ifndef MAX_DELIM_LEN
-#if __GNUC__ == 3 && __GNUC_MINOR__ == 1
-#define MAX_DELIM_LEN		63	/* Avoid gcc 3.1 large-unions bug */
-#else
 #define MAX_DELIM_LEN		128	/* Maximum length of a delimiter. */
-#endif
 #endif
 
 #define MARK_FLAG_SEP		'_'	/* sep. of dbref from marker flags */

@@ -12,6 +12,7 @@
 
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
+#include "functions.h"  /* required by code */
 
 /* See db_sql.h for details of what each of these functions do. */
 
@@ -25,7 +26,7 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     char *q_string;
     char *buff;
     char **bufc;
-    char row_delim, field_delim;
+    const Delim *row_delim, *field_delim;
 {
     notify(player, "No external SQL database connectivity is configured.");
     if (buff)

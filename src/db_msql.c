@@ -12,6 +12,7 @@
 
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
+#include "functions.h"  /* required by code */
 
 #include "msql.h"	/* required by code */
 
@@ -102,23 +103,12 @@ int sql_init()
     return (mudstate.sql_socket);
 }
 
-/* Special handling of separators -- identical to functions.h definition. */
-
-#define print_sep(s,b,p) \
-if (s) { \
-    if (s != '\r') { \
-	safe_chr(s,b,p); \
-    } else { \
-	safe_crlf(b,p); \
-    } \
-}
-
 int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     dbref player;
     char *q_string;
     char *buff;
     char **bufc;
-    char row_delim, field_delim;
+    const Delim *row_delim, *field_delim;
 {
     m_result *qres;
     m_row row_p;

@@ -30,9 +30,9 @@ typedef struct ufun {
 	struct ufun	*next;		/* Next ufun in chain */
 } UFUN;
 
-typedef union char_or_string {
-    char c;
-    char str[MAX_DELIM_LEN];
+typedef struct delim {
+	size_t		len;
+	char		str[MAX_DELIM_LEN];
 } Delim;
 
 typedef struct var_entry VARENT;
@@ -99,16 +99,16 @@ typedef int NVAL;
  * Function declarations.
  */
 
-extern Delim SPACE_DELIM;
+extern const Delim SPACE_DELIM;
 
-extern char *FDECL(trim_space_sep, (char *, Delim, int));
-extern char *FDECL(next_token, (char *, Delim, int));
-extern char *FDECL(split_token, (char **, Delim, int));
-extern char *FDECL(next_token_ansi, (char *, Delim, int, int *));
-extern int FDECL(countwords, (char *, Delim, int));
-extern int FDECL(list2arr, (char ***, int, char *, Delim, int));
-extern void FDECL(arr2list, (char **, int, char *, char **, Delim, int));
-extern int FDECL(list2ansi, (char **, char *, int, char *, Delim));
+extern char *FDECL(trim_space_sep, (char *, const Delim *));
+extern char *FDECL(next_token, (char *, const Delim *));
+extern char *FDECL(split_token, (char **, const Delim *));
+extern char *FDECL(next_token_ansi, (char *, const Delim *, int *));
+extern int FDECL(countwords, (char *, const Delim *));
+extern int FDECL(list2arr, (char ***, int, char *, const Delim *));
+extern void FDECL(arr2list, (char **, int, char *, char **, const Delim *));
+extern int FDECL(list2ansi, (int *, int *, int, char *, const Delim *));
 extern INLINE void FDECL(do_reverse, (char *, char *));
 extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
 extern int FDECL(delim_check, ( char *, char **, dbref, dbref, dbref, char **, int, char **, int, int, Delim *, int ));
@@ -130,6 +130,13 @@ extern int FDECL(delim_check, ( char *, char **, dbref, dbref, dbref, char **, i
  * Delimiter macros for functions that take an optional delimiter character.
  */
 
+/* Minimum work needed to copy a delimiter. Assumes that the "str" member
+ * of the Delim struct is last.
+ */
+#define Delim_Copy(sep_dest, sep_src) \
+memcpy((sep_dest), (sep_src), \
+       sizeof(Delim) - MAX_DELIM_LEN + 1 + (sep_src)->len)
+
 /* Separator checking "helper" macros.
  *   VaChk_Sep(sep_ptr, sep_len, arg_n, flags): Use arg_n as separator.
  *   VaChk_InSep(arg_number, flags): Use arg_number as input sep.
@@ -138,27 +145,20 @@ extern int FDECL(delim_check, ( char *, char **, dbref, dbref, dbref, char **, i
  *   VaChk_OutSep(arg_number, flags): Use arg_number as output sep.
  */
 
-#define VaChk_Sep(xsep, xlen, xargnum, xflags) \
-if (!(xlen = delim_check( FUNCTION_ARGLIST, xargnum, xsep, xflags))) \
+#define VaChk_Sep(xsep, xargnum, xflags) \
+if (!delim_check( FUNCTION_ARGLIST, xargnum, xsep, xflags)) \
 	return
 
 #define VaChk_InSep(xargnum, xflags) \
-VaChk_Sep(&isep, isep_len, xargnum, (xflags)|DELIM_STRING)
+VaChk_Sep(&isep, xargnum, (xflags)|DELIM_STRING)
 
 #define VaChk_DefaultOut(xargnum) \
 if (nfargs < xargnum) { \
-	if (isep_len == 1) { \
-		osep.c = isep.c; \
-		osep_len = 1; \
-	} else { \
-		strcpy(osep.str, isep.str); \
-		osep_len = isep_len; \
-	} \
+	Delim_Copy(&osep, &isep); \
 } else
 
 #define VaChk_OutSep(xargnum, xflags) \
-VaChk_Sep(&osep, osep_len, xargnum, \
-          (xflags)|DELIM_NULL|DELIM_CRLF|DELIM_STRING)
+VaChk_Sep(&osep, xargnum, (xflags)|DELIM_STRING|DELIM_NULL|DELIM_CRLF)
 
 /*
  * VaChk_Range(min_args, max_args): Functions which take
@@ -266,19 +266,19 @@ VaChk_OutSep(xnargs, DELIM_EVAL)
 
 /* Trim spaces. */
 
-#define Eat_Spaces(x)	trim_space_sep((x), SPACE_DELIM, 1)
+#define Eat_Spaces(x)	trim_space_sep((x), &SPACE_DELIM)
 
 /* Special handling of separators. */
 
-#define print_sep(s,l,b,p) \
-if ((l) == 1) { \
-    if ((s).c == '\r') { \
+#define print_sep(s,b,p) \
+if ((s)->len == 1) { \
+    if ((s)->str[0] == '\r') { \
 	safe_crlf((b),(p)); \
-    } else if ((s).c != '\0') { \
-	safe_chr((s).c,(b),(p)); \
+    } else if ((s)->str[0] != '\0') { \
+	safe_chr((s)->str[0],(b),(p)); \
     } \
 } else { \
-    safe_known_str((s).str, (l), (b), (p)); \
+    safe_known_str((s)->str, (s)->len, (b), (p)); \
 }
 
 /* Macro for finding an <attr> or <obj>/<attr>

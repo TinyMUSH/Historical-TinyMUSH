@@ -737,7 +737,6 @@ FUNCTION(fun_ladd)
     NVAL sum;
     char *cp, *curr;
     Delim isep;
-    int isep_len;
 
     if (nfargs == 0) {
 	safe_chr('0', buff, bufc);
@@ -747,9 +746,9 @@ FUNCTION(fun_ladd)
     VaChk_Only_In(2);
 
     sum = 0;
-    cp = trim_space_sep(fargs[0], isep, isep_len);
+    cp = trim_space_sep(fargs[0], &isep);
     while (cp) {
-	curr = split_token(&cp, isep, isep_len);
+	curr = split_token(&cp, &isep);
 	sum += aton(curr);
     }
     fval(buff, bufc, sum);
@@ -760,16 +759,15 @@ FUNCTION(fun_lmax)
     NVAL max, val;
     char *cp, *curr;
     Delim isep;
-    int isep_len;
 
     VaChk_Only_In(2);
 
-    cp = trim_space_sep(fargs[0], isep, isep_len);
+    cp = trim_space_sep(fargs[0], &isep);
     if (cp) {
-	curr = split_token(&cp, isep, isep_len);
+	curr = split_token(&cp, &isep);
 	max = aton(curr);
 	while (cp) {
-	    curr = split_token(&cp, isep, isep_len);
+	    curr = split_token(&cp, &isep);
 	    val = aton(curr);
 	    if (max < val)
 		max = val;
@@ -783,16 +781,15 @@ FUNCTION(fun_lmin)
     NVAL min, val;
     char *cp, *curr;
     Delim isep;
-    int isep_len;
 
     VaChk_Only_In(2);
 
-    cp = trim_space_sep(fargs[0], isep, isep_len);
+    cp = trim_space_sep(fargs[0], &isep);
     if (cp) {
-	curr = split_token(&cp, isep, isep_len);
+	curr = split_token(&cp, &isep);
 	min = aton(curr);
 	while (cp) {
-	    curr = split_token(&cp, isep, isep_len);
+	    curr = split_token(&cp, &isep);
 	    val = aton(curr);
 	    if (min > val)
 		min = val;
@@ -809,7 +806,7 @@ FUNCTION(fun_lmin)
 FUNCTION(handle_vector)
 {
     char **v1;
-    int n, i, isep_len, osep_len, oper;
+    int n, i, oper;
     NVAL tmp, res = 0;
     Delim isep, osep;
 
@@ -825,7 +822,7 @@ FUNCTION(handle_vector)
     if (!fargs[0] || !*fargs[0]) {
 	return;
     }
-    n = list2arr(&v1, LBUF_SIZE, fargs[0], isep, isep_len);
+    n = list2arr(&v1, LBUF_SIZE, fargs[0], &isep);
 
     /* calculate the magnitude */
     for (i = 0; i < n; i++) {
@@ -853,7 +850,7 @@ FUNCTION(handle_vector)
     res = sqrt(res);
     fval(buff, bufc, aton(v1[0]) / res);
     for (i = 1; i < n; i++) {
-	print_sep(osep, osep_len, buff, bufc);
+	print_sep(&osep, buff, bufc);
 	fval(buff, bufc, aton(v1[i]) / res);
     }
     XFREE(v1, "handle_vector.v1");
@@ -866,7 +863,7 @@ FUNCTION(handle_vector)
 FUNCTION(handle_vectors)
 {
     Delim isep, osep;
-    int isep_len, osep_len, oper;
+    int oper;
     char **v1, **v2;
     NVAL scalar;
     int n, m, i;
@@ -886,8 +883,8 @@ FUNCTION(handle_vectors)
     if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1]) {
 	return;
     }
-    n = list2arr(&v1, LBUF_SIZE, fargs[0], isep, isep_len);
-    m = list2arr(&v2, LBUF_SIZE, fargs[1], isep, isep_len);
+    n = list2arr(&v1, LBUF_SIZE, fargs[0], &isep);
+    m = list2arr(&v2, LBUF_SIZE, fargs[1], &isep);
 
     /* It's okay to have vmul() be passed a scalar first or second arg,
      * but everything else has to be same-dimensional.
@@ -904,14 +901,14 @@ FUNCTION(handle_vectors)
 	case VEC_ADD:
 	    fval(buff, bufc, aton(v1[0]) + aton(v2[0]));
 	    for (i = 1; i < n; i++) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 		fval(buff, bufc, aton(v1[i]) + aton(v2[i]));
 	    }
 	    break;
 	case VEC_SUB:
 	    fval(buff, bufc, aton(v1[0]) - aton(v2[0]));
 	    for (i = 1; i < n; i++) {
-		print_sep(osep, osep_len, buff, bufc);
+		print_sep(&osep, buff, bufc);
 		fval(buff, bufc, aton(v1[i]) - aton(v2[i]));
 	    }
 	    break;
@@ -923,14 +920,14 @@ FUNCTION(handle_vectors)
 		scalar = aton(v1[0]);
 		fval(buff, bufc, aton(v2[0]) * scalar);
 		for (i = 1; i < m; i++) {
-		    print_sep(osep, osep_len, buff, bufc);
+		    print_sep(&osep, buff, bufc);
 		    fval(buff, bufc, aton(v2[i]) * scalar);
 		}
 	    } else if (m == 1) {
 		scalar = aton(v2[0]);
 		fval(buff, bufc, aton(v1[0]) * scalar);
 		for (i = 1; i < n; i++) {
-		    print_sep(osep, osep_len, buff, bufc);
+		    print_sep(&osep, buff, bufc);
 		    fval(buff, bufc, aton(v1[i]) * scalar);
 		}
 	    } else {
@@ -943,7 +940,7 @@ FUNCTION(handle_vectors)
 		 */
 		fval(buff, bufc, aton(v1[0]) * aton(v2[0]));
 		for (i = 1; i < n; i++) {
-		    print_sep(osep, osep_len, buff, bufc);
+		    print_sep(&osep, buff, bufc);
 		    fval(buff, bufc, aton(v1[i]) * aton(v2[i]));
 		}
 	    }
@@ -996,7 +993,7 @@ FUNCTION(fun_t)
 FUNCTION(handle_logic)
 {
 	Delim isep;
-	int isep_len, flag, oper, i, val;
+	int flag, oper, i, val;
 	char *str, *tbuf, *bp;
 	int (*cvtfun)(char *);
 
@@ -1011,9 +1008,9 @@ FUNCTION(handle_logic)
 		/* the arguments come in a pre-evaluated list */
 		VaChk_Only_In(2);
 
-		bp = trim_space_sep(fargs[0], isep, isep_len);
+		bp = trim_space_sep(fargs[0], &isep);
 		while (bp) {
-	  		tbuf = split_token(&bp, isep, isep_len);
+	  		tbuf = split_token(&bp, &isep);
 			val = ((oper == LOGIC_XOR) && val) ? !cvtfun(tbuf) : cvtfun(tbuf);
 			if (((oper == LOGIC_AND) && !val) ||
 			    ((oper == LOGIC_OR) && val))

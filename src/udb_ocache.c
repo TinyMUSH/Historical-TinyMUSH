@@ -59,9 +59,9 @@ extern void FDECL(raw_notify, (dbref, const char *));
 
 #define CLRCOUNTER(cp)	cp->counter = 0;
 
-static Cache *get_free_entry();
-static int cache_write();
-static void cache_clean();
+static Cache * FDECL(get_free_entry, (int));
+static int     FDECL(cache_write, (Cache *));
+static void    FDECL(cache_clean, (CacheLst *));
 
 /* initial settings for cache sizes */
 

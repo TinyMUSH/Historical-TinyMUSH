@@ -474,7 +474,7 @@ FUNCTION(fun_xcon)
 {
     dbref thing, it;
     char *bb_p;
-    int i, first, last, osep_len;
+    int i, first, last;
     Delim osep;
 
     VaChk_Only_Out(4);
@@ -500,7 +500,7 @@ FUNCTION(fun_xcon)
 		 (i < last) && (thing != NOTHING) && (Next(thing) != thing);
 		 thing = Next(thing), i++) {
 		if (*bufc != bb_p) {
-		    print_sep(osep, osep_len, buff, bufc);
+		    print_sep(&osep, buff, bufc);
 		}
 		safe_dbref(buff, bufc, thing);
 	    }
@@ -518,7 +518,6 @@ FUNCTION(fun_lcon)
 	dbref thing, it;
 	char *bb_p;
 	Delim osep;
-	int osep_len;
 
 	VaChk_Only_Out(2);
 
@@ -530,7 +529,7 @@ FUNCTION(fun_lcon)
 	     (it == cause))) {
 		DOLIST(thing, Contents(it)) {
 		    if (*bufc != bb_p) {
-			print_sep(osep, osep_len, buff, bufc);
+			print_sep(&osep, buff, bufc);
 		    }
 		    safe_dbref(buff, bufc, thing);
 		}
@@ -546,7 +545,7 @@ FUNCTION(fun_lexits)
 {
 	dbref thing, it, parent;
 	char *bb_p;
-	int exam, lev, key, osep_len;
+	int exam, lev, key;
 	Delim osep;
 
 	VaChk_Only_Out(2);
@@ -582,7 +581,7 @@ FUNCTION(fun_lexits)
 		DOLIST(thing, Exits(parent)) {
 			if (Exit_Visible(thing, player, key)) {
 			    if (*bufc != bb_p) {
-				print_sep(osep, osep_len, buff, bufc);
+				print_sep(&osep, buff, bufc);
 			    }
 			    safe_dbref(buff, bufc, thing);
 			}
@@ -1057,7 +1056,7 @@ FUNCTION(fun_hasflags)
     result = 0;
 
     for (i = 1; !result && (i < nfargs); i++) { 
-	n_elems = list2arr(&elems, LBUF_SIZE / 2, fargs[i], SPACE_DELIM, 1);
+	n_elems = list2arr(&elems, LBUF_SIZE / 2, fargs[i], &SPACE_DELIM);
 	if (n_elems > 0) {
 	    result = 1;
 	    for (j = 0; result && (j < n_elems); j++) {
@@ -1109,7 +1108,7 @@ FUNCTION(fun_parent)
 FUNCTION(fun_lparent)
 {
 	dbref it, par;
-	int i, osep_len;
+	int i;
 	Delim osep;
 
 	VaChk_Only_Out(2);
@@ -1128,7 +1127,7 @@ FUNCTION(fun_lparent)
 	i = 1;
 	while (Good_obj(par) && Examinable(player, it) &&
 	    (i < mudconf.parent_nest_lim)) {
-	    print_sep(osep, osep_len, buff, bufc);
+	    print_sep(&osep, buff, bufc);
 	    safe_dbref(buff, bufc, par);
 	    it = par;
 	    par = Parent(par);
@@ -1141,7 +1140,6 @@ FUNCTION(fun_children)
 	dbref i, it;
 	char *bb_p;
 	Delim osep;
-	int osep_len;
 
 	VaChk_Only_Out(2);
 
@@ -1162,7 +1160,7 @@ FUNCTION(fun_children)
 	DO_WHOLE_DB(i) {
 		if (Parent(i) == it) {
 			if (*bufc != bb_p) {
-				print_sep(osep, osep_len, buff, bufc);
+				print_sep(&osep, buff, bufc);
 			}
 			safe_dbref(buff, bufc, i);
 		}
@@ -1923,7 +1921,7 @@ FUNCTION(handle_lattr)
 	dbref thing;
 	ATTR *attr;
 	char *bb_p;
-	int ca, total = 0, count_only, osep_len;
+	int ca, total = 0, count_only;
 	Delim osep;
 
 	count_only = Is_Func(LATTR_COUNT);
@@ -1947,7 +1945,7 @@ FUNCTION(handle_lattr)
 				total++;
 			    } else {
 				if (*bufc != bb_p) {
-				    print_sep(osep, osep_len, buff, bufc);
+				    print_sep(&osep, buff, bufc);
 				}
 				safe_str((char *)attr->name, buff, bufc);
 			    }
@@ -2267,12 +2265,12 @@ FUNCTION(fun_lastcreate)
  */
 
 static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
-			  open_sep, close_sep, open_len, close_len,
+			  open_sep, close_sep,
 			  player, caller, cause, buff, bufc)
     dbref speaker, player, caller, cause;
     char *str, *say_str, *trans_str, *empty_str, *buff, **bufc;
-    Delim open_sep, close_sep;
-    int key, open_len, close_len;
+    const Delim *open_sep, *close_sep;
+    int key;
 {
     char *sp, *ep, *save, *tp, *bp;
     char *result, *tstack[3], *estack[2], tbuf[LBUF_SIZE];
@@ -2301,7 +2299,7 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
     if (key == SAY_SAY) {
 	spos = 0;
     } else {
-	save = split_token(&sp, open_sep, open_len);
+	save = split_token(&sp, open_sep);
 	safe_str(save, buff, bufc);
 	if (!sp)
 	    return;
@@ -2315,7 +2313,7 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
 	/* Find the end of the speech string. */
 
 	ep = sp;
-	sp = split_token(&ep, close_sep, close_len);
+	sp = split_token(&ep, close_sep);
 
 	/* Pass the stuff in-between through the u-functions. */
 
@@ -2356,7 +2354,7 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
 	
 	if (ep && *ep) {
 	    sp = ep;
-	    save = split_token(&sp, open_sep, open_len);
+	    save = split_token(&sp, open_sep);
 	    safe_str(save, buff, bufc);
 	    if (!sp)
 		done = 1;
@@ -2380,7 +2378,6 @@ FUNCTION(fun_speak)
 {
     dbref thing, obj1, obj2;
     Delim isep, osep;		/* really open and close separators */
-    int isep_len, osep_len;
     dbref aowner1, aowner2;
     int aflags1, alen1, anum1, aflags2, alen2, anum2;
     ATTR *ap1, *ap2;
@@ -2394,9 +2391,9 @@ FUNCTION(fun_speak)
 
     VaChk_Range(2, 7);
     VaChk_InSep(6, 0);
-    if ((isep_len == 1) && (isep.c == ' ')) {
+    if ((isep.len == 1) && (isep.str[0] == ' ')) {
 	if ((nfargs < 6) || !fargs[5] || !*fargs[5]) {
-	    isep.c = '"';
+	    isep.str[0] = '"';
 	}
     }
     VaChk_DefaultOut(7) {
@@ -2529,6 +2526,5 @@ FUNCTION(fun_speak)
     }
 
     transform_say(thing, str, key, say_str, atext1, atext2,
-		  isep, osep, isep_len, osep_len,
-		  player, caller, cause, buff, bufc);
+		  &isep, &osep, player, caller, cause, buff, bufc);
 }
