@@ -865,7 +865,7 @@ const char *reason;
 				atr_temp = atr_pget(zone, A_ADISCONNECT, &aowner, &aflags, &alen);
 				if (*atr_temp) {
 					wait_que(zone, player, 0, NOTHING, 0, atr_temp,
-						 (char **)NULL, 0, NULL);
+						 argv, 1, NULL);
 				}
 				free_lbuf(atr_temp);
 				break;
@@ -878,7 +878,7 @@ const char *reason;
 					atr_temp = atr_pget(obj, A_ADISCONNECT, &aowner, &aflags, &alen);
 					if (*atr_temp) {
 						wait_que(obj, player, 0, NOTHING, 0, atr_temp,
-						    (char **)NULL, 0, NULL);
+							 argv, 1, NULL);
 					}
 					free_lbuf(atr_temp);
 				}
