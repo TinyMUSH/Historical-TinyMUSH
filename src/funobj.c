@@ -26,17 +26,8 @@ extern dbref FDECL(find_connected_ambiguous, (dbref, char *));
  * nearby_or_control: Check if player is near or controls thing
  */
 
-static int nearby_or_control(player, thing)
-dbref player, thing;
-{
-	if (!Good_obj(player) || !Good_obj(thing))
-		return 0;
-	if (Controls(player, thing))
-		return 1;
-	if (!nearby(player, thing))
-		return 0;
-	return 1;
-}
+#define nearby_or_control(p,t) \
+(Good_obj(p) && Good_obj(t) && (Controls(p,t) || nearby(p,t)))
 
 /* ---------------------------------------------------------------------------
  * fun_con: Returns first item in contents list of object/room
@@ -255,7 +246,7 @@ FUNCTION(fun_controls)
 		safe_tprintf_str(buff, bufc, "%s", "#-1 ARG2 NOT FOUND");
 		return;
 	}
-	safe_ltos(buff, bufc, Controls(x, y));
+	safe_bool(buff, bufc, Controls(x, y));
 }
 
 /* ---------------------------------------------------------------------------
@@ -282,7 +273,7 @@ FUNCTION(fun_sees)
     can_see_loc = (!Dark(Location(thing)) ||
 		   (mudconf.see_own_dark &&
 		    Examinable(player, Location(thing))));
-    safe_ltos(buff, bufc, can_see(it, thing, can_see_loc));
+    safe_bool(buff, bufc, can_see(it, thing, can_see_loc));
 }
 
 /* ---------------------------------------------------------------------------
@@ -456,7 +447,7 @@ FUNCTION(fun_elock)
 			safe_chr('1', buff, bufc);
 		    } else {
 			bool = parse_boolexp(player, tbuf, 1);
-			safe_ltos(buff, bufc, eval_boolexp(victim, it, it,
+			safe_bool(buff, bufc, eval_boolexp(victim, it, it,
 							   bool));
 			free_boolexp(bool);
 		    }
@@ -635,7 +626,7 @@ FUNCTION(fun_findable)
 	else if (victim == NOTHING)
 		safe_str("#-1 ARG2 NOT FOUND", buff, bufc);
 	else
-		safe_ltos(buff, bufc, locatable(obj, victim, obj));
+		safe_bool(buff, bufc, locatable(obj, victim, obj));
 }
 
 /* ---------------------------------------------------------------------------
@@ -658,12 +649,12 @@ FUNCTION(fun_visible)
 	}
 	if (parse_attrib(player, fargs[1], &thing, &atr)) {
 		if (atr == NOTHING) {
-			safe_ltos(buff, bufc, Examinable(it, thing));
+			safe_bool(buff, bufc, Examinable(it, thing));
 			return;
 		}
 		ap = atr_num(atr);
 		atr_pget_info(thing, atr, &aowner, &aflags);
-		safe_ltos(buff, bufc, See_attr(it, thing, ap, aowner, aflags));
+		safe_bool(buff, bufc, See_attr(it, thing, ap, aowner, aflags));
 		return;
 	}
 	thing = match_thing(player, fargs[1]);
@@ -671,7 +662,7 @@ FUNCTION(fun_visible)
 		safe_chr('0', buff, bufc);
 		return;
 	}
-	safe_ltos(buff, bufc, Examinable(it, thing));
+	safe_bool(buff, bufc, Examinable(it, thing));
 }
 
 /* ------------------------------------------------------------------------
@@ -805,12 +796,14 @@ int type;			/* 0 for orflags, 1 for andflags */
 
 FUNCTION(fun_orflags)
 {
-	safe_ltos(buff, bufc, handle_flaglists(player, cause, fargs[0], fargs[1], 0));
+    safe_bool(buff, bufc,
+	      handle_flaglists(player, cause, fargs[0], fargs[1], 0));
 }
 
 FUNCTION(fun_andflags)
 {
-	safe_ltos(buff, bufc, handle_flaglists(player, cause, fargs[0], fargs[1], 1));
+    safe_bool(buff, bufc,
+	      handle_flaglists(player, cause, fargs[0], fargs[1], 1));
 }
 
 /*---------------------------------------------------------------------------
