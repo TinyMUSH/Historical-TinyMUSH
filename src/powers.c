@@ -120,14 +120,11 @@ POWERENT gen_powers[] =
 {(char *)"hide",		POW_HIDE,	0, 0,	ph_wiz},
 {(char *)"idle",		POW_IDLE, 	0, 0,	ph_wiz},
 {(char *)"search",		POW_SEARCH,	0, 0,	ph_wiz},
-{(char *)"link_variable",	POW_LINKVAR,	0, 0,	ph_wiz},
-{(char *)"link_to_anything",	POW_LINKTOANY,	0, 0,	ph_wiz},
 {(char *)"long_fingers",	POW_LONGFINGERS,0, 0,	ph_wiz},
 {(char *)"comm_all",		POW_COMM_ALL,	0, 0,	ph_wiz},
 {(char *)"see_queue",		POW_SEE_QUEUE,	0, 0,	ph_wiz},
 {(char *)"see_hidden",		POW_SEE_HIDDEN, 0, 0,	ph_wiz},
 {(char *)"monitor",		POW_MONITOR,	0, 0,	ph_wiz},
-{(char *)"open_anywhere",	POW_OPENANYLOC,	0, 0,	ph_wiz},
 {(char *)"poll",		POW_POLL,	0, 0,	ph_wiz},
 {(char *)"no_destroy",		POW_NO_DESTROY, 0, 0,	ph_wiz},
 {(char *)"guest",		POW_GUEST,	0, 0,	ph_god},
@@ -137,9 +134,11 @@ POWERENT gen_powers[] =
 {(char *)"tel_anything",	POW_TEL_UNRST,	0, 0,	ph_wiz},
 {(char *)"unkillable",		POW_UNKILLABLE, 0, 0,	ph_wiz},
 {(char *)"pass_locks",		POW_PASS_LOCKS, 0, 0,   ph_wiz},
-{(char *)"builder",		POW_BUILDER,	POWER_EXT, 
-						   0,	ph_wiz},
-{NULL,				0,		0, 0,	0}};
+{(char *)"builder",		POW_BUILDER,	POWER_EXT, 0,	ph_wiz},
+{(char *)"link_variable",	POW_LINKVAR,	POWER_EXT, 0,	ph_wiz},
+{(char *)"link_to_anything",	POW_LINKTOANY,	POWER_EXT, 0,	ph_wiz},
+{(char *)"open_anywhere",	POW_OPENANYLOC,	POWER_EXT, 0,	ph_wiz},
+{NULL,				0,		POWER_EXT, 0,	0}};
 
 #endif /* STANDALONE */
 /* *INDENT-ON* */
