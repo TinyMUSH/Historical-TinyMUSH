@@ -1354,14 +1354,14 @@ abort_on_bug		addcommands_match_blindly
 addcommands_obey_stop	addcommands_obey_uselocks
 ansi_colors		clone_copies_cost	comsys_database
 dark_actions		dark_sleepers		events_daily_hour
-examine_flags		examine_public_attrs	fascist_teleport
-format_contents		format_exits		global_aconn_uselocks
-have_comsys		have_mailer		have_zones		
-hostnames		idle_wiz_dark		lattr_default_oldstyle	
-local_master_rooms	look_obey_terse		mail_database		
-match_own_commands	no_ambiguous_match	paranoid_allocate
-pemit_any_object	pemit_far_players	player_listen
-player_match_own_commands
+examine_flags		examine_public_attrs	exit_calls_move
+fascist_teleport	format_contents		format_exits		
+global_aconn_uselocks	have_comsys		have_mailer		
+have_zones		hostnames		idle_wiz_dark		
+lattr_default_oldstyle	local_master_rooms	look_obey_terse		
+mail_database		match_own_commands	move_match_more
+no_ambiguous_match	paranoid_allocate	pemit_any_object	
+pemit_far_players	player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -1686,6 +1686,21 @@ use_global_aconn	wizard_obeys_linklock
   examine/long.
   See also: examine.
 
+& exit_calls_move
+  Config parameter: exit_calls_move <yes/no>.  Default: No
+ 
+  Indicates whether or not typing the name of an exit is identical to
+  typing 'move <name of exit>'.
+ 
+  This parameter should only be set to Yes if you have @addcommand'd
+  the goto command (automatically getting its aliases move, go, etc.),
+  and you would like the added command called if the player tries to
+  go through an exit.
+ 
+  You will probably want the conf option 'move_match_more' set to
+  Yes as well, if you use this, or you will not be able to use
+  global and zone exits.
+ 
 & exit_flags
   Config parameter: exit_flags <flags>.  Default: blank
   Modifies the set of flags that an exit receives when it is created via the
@@ -2254,7 +2269,26 @@ use_global_aconn	wizard_obeys_linklock
   Specifies the string to use to describe the coin of the realm when they
   are being referred to singularly (such as: 'You found a penny!').
   See also: money_name_plural.
-
+ 
+& move_match_more
+  Config parameter: move_match_more <yes/no>.  Default: No
+ 
+  When this parameter is set to 'No', the move (goto) command only looks
+  for local exits, and if multiple exit names are found, it returns a
+  "I don't know which way you mean!" error.
+ 
+  However, if you simply type the name of an exit (rather than typing
+  'move <exit>'), the command parser normally looks at local exits,
+  then global exits (if no local exits were found), then zone exits
+  (if no global exits were found). If, at any level, multiple exits
+  with the same name are found, one will be chosen at random.
+ 
+  When this parameter is set to 'Yes', the move command behaves in
+  the same way the main command parser does. 
+ 
+  If you have @addcommand'd the 'move' command, you will probably want
+  to have this parameter, and exit_calls_move, both set to Yes.
+ 
 & motd_file
   Config parameter: motd_file <pathname>.  Default: text/motd.txt
   Specifies the name of the file to be shown to players immediately after they
