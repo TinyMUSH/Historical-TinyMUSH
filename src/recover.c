@@ -21,6 +21,9 @@ char *mesg;
 	fprintf(stderr, "GDBM panic: %s\n", mesg);
 }
 
+extern char *optarg;
+extern int optind;
+
 int main(argc, argv)
 int argc;
 char *argv[];
@@ -33,8 +36,6 @@ char *argv[];
 	bucket_element be;
 	int c;
 	char cp;
-	extern char *optarg;
-	extern int optind;
 	char *infile, *outfile;
 	int errflg = 0; 
 

@@ -40,6 +40,7 @@ extern int FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
 extern int FDECL(list_check, (dbref, dbref, char, char *, char *, int, int *));
 extern void FDECL(do_enter_internal, (dbref, dbref, int));
 extern int FDECL(regexp_match, (char *, char *, int, char **, int)); 
+extern void FDECL(register_prefix_cmds, (const char *));
 
 #define CACHING "attribute"
 

@@ -40,6 +40,7 @@ extern void FDECL(logfile_init, (char *));
 
 void FDECL(fork_and_dump, (int));
 void NDECL(dump_database);
+dbref FDECL(db_read_flatfile, (FILE *, int *, int *, int *));
 void NDECL(pcache_sync);
 static void NDECL(init_rlimit);
 extern int FDECL(add_helpfile, (dbref, char *, char *, int));
@@ -67,6 +68,9 @@ extern char qidx_chartab[256];
 #ifdef NEED_EMPTY_LTPLSYM
 const lt_dlsymlist lt_preloaded_symbols[] = { {0, (lt_ptr_t) 0} };
 #endif
+
+extern char *optarg;
+extern int optind;
 
 /*
  * used to allocate storage for temporary stuff, cleared before command
@@ -1653,8 +1657,6 @@ char *argv[];
 {
 	int setflags, clrflags, ver;
 	int db_ver, db_format, db_flags, do_check, do_write;
-	extern char *optarg;
-	extern int optind;
 	int c, errflg = 0;
 	char *opt_conf = (char *) CONF_FILE;
 	FILE *f;
@@ -1848,7 +1850,6 @@ char *argv[];
 	exit(0);
 }
 
-
 int main(argc, argv)
 int argc;
 char *argv[];
@@ -1861,8 +1862,6 @@ char *argv[];
 	char *opt_conf = (char *) CONF_FILE;
 	char *opt_pidfile = (char *) PID_FILE;
 	char *s;
-	extern char *optarg;
-	extern int optind;
 	MODULE *mp;
 	char *bp;
 	MODHASHES *m_htab, *hp;

@@ -100,6 +100,7 @@ extern void FDECL(register_commands, (CMDENT *));
 extern void FDECL(register_prefix_cmds, (const char *));
 extern void FDECL(register_functions, (FUN *));
 extern void FDECL(register_hashtables, (MODHASHES *, MODNHASHES *));
+extern unsigned int FDECL(register_dbtype, (char *));
 
 /* ------------------------------------------------------------------------
  * External necessities.
