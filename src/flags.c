@@ -558,7 +558,7 @@ FLAG flagword, flag2word, flag3word;
 			if ((flagtype == TYPE_PLAYER) &&
 			    (fp->flagvalue == CONNECTED) &&
 			((flagword & (WIZARD | DARK)) == (WIZARD | DARK)) &&
-			    !Wizard(player))
+			    !See_Hidden(player))
 				continue;
 			safe_sb_chr(fp->flaglett, buf, &bp);
 		}
