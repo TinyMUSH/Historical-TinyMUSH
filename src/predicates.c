@@ -859,45 +859,45 @@ dbref player, cause;
 int key;
 char *name, *command;
 {
-CMDENT *old, *cmd;
-ADDENT *add, *nextp;
+	CMDENT *old, *cmd;
+	ADDENT *add, *nextp;
 
-dbref thing;
-int atr;
-char *s;
+	dbref thing;
+	int atr;
+	char *s;
 
-	if (!*name) {
+	if (!*name || (name[0] == '_' && name[1] == '_')) {
 		notify(player, "Sorry.");
 		return;
 	}
-	
+
 	if (!parse_attrib(player, command, &thing, &atr) || (atr == NOTHING)) {
 		notify(player, "No such attribute.");
 		return;
 	}
-	
+
 	/* Let's make this case insensitive... */
-	
+
 	for (s = name; *s; s++) {
 		*s = tolower(*s);
 	}
-	 
+
 	old = (CMDENT *)hashfind(name, &mudstate.command_htab);
-	
+
 	if (old && (old->callseq & CS_ADDED)) {
-		
+
 		/* If it's already found in the hash table, and it's being
 		   added using the same object and attribute... */
-		   
+
 		for (nextp = (ADDENT *)old->info.added; nextp != NULL; nextp = nextp->next) {
 			if ((nextp->thing == thing) && (nextp->atr == atr)) {
 				notify(player, tprintf("%s already added.", name));
 				return;
 			}
 		}
-		
+
 		/* else tack it on to the existing entry... */
-		
+
 		add = (ADDENT *)XMALLOC(sizeof(ADDENT), "addcommand.add");
 		add->thing = thing;
 		add->atr = atr;
@@ -906,12 +906,12 @@ char *s;
 		old->info.added = add;
 	} else {
 		if (old) {
-			/* Delete the old built-in and rename it __name */
+			/* Delete the old built-in */
 			hashdelete(name, &mudstate.command_htab);
 		}
-		
+
 		cmd = (CMDENT *) XMALLOC(sizeof(CMDENT), "addcommand.cmd");
-		
+
 		cmd->cmdname = (char *)strdup(name);
 		cmd->switches = NULL;
 		cmd->perms = 0;
@@ -929,18 +929,24 @@ char *s;
 		add->name = (char *)strdup(name);
 		add->next = NULL;
 		cmd->info.added = add;
-	
+
 		hashadd(name, (int *)cmd, &mudstate.command_htab);
-		
+
 		if (old) {
-			/* Fix any aliases of this command. */
-			hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
-			hashadd(tprintf("__%s", name), (int *)old, &mudstate.command_htab);
+			/* If this command was the canonical form of the
+			 * command (not an alias), point its aliases to
+			 * the added command, while keeping the __ alias.
+			 */
+			if (!strcmp(name, old->cmdname)) {
+				hashdelete(tprintf("__%s", name), &mudstate.command_htab);
+				hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
+				hashadd(tprintf("__%s", name), (int *)old, &mudstate.command_htab);
+			}
 		}
 	}
 
 	/* We reset the one letter commands here so you can overload them */
-	
+
 	set_prefix_cmds();
 	notify(player, tprintf("Command %s added.", name));
 }
@@ -966,12 +972,13 @@ char *s, *keyname;
 		old = (CMDENT *)hashfind(name, &mudstate.command_htab);
 		
 		if (old && (old->callseq & CS_ADDED)) {
-			
-			/* If it's already found in the hash table, and it's being
-			   added using the same object and attribute... */
-			   
+			if (strcmp(name, old->cmdname)) {
+				notify(player, tprintf("%s: alias for %s", name, old->cmdname));
+				return;
+			}
+
 			for (nextp = (ADDENT *)old->info.added; nextp != NULL; nextp = nextp->next) {
-				notify(player, tprintf("%s: #%d/%s", nextp->name, nextp->thing, ((ATTR *)atr_num(nextp->atr))->name));
+				notify(player, tprintf("%s: #%d/%s", keyname, nextp->thing, ((ATTR *)atr_num(nextp->atr))->name));
 			}
 		} else {
 			notify(player, tprintf("%s not found in command table.",name));
@@ -985,10 +992,12 @@ char *s, *keyname;
 		
 			if (old && (old->callseq & CS_ADDED)) {
 				
+				if (strcmp(keyname, old->cmdname)) {
+					notify(player, tprintf("%s: alias for %s", keyname, old->cmdname));
+					continue;
+				}
 				for (nextp = (ADDENT *)old->info.added; nextp != NULL; nextp = nextp->next) {
-					if (strcmp(keyname, nextp->name))
-						continue;
-					notify(player, tprintf("%s: #%d/%s", nextp->name, nextp->thing, ((ATTR *)atr_num(nextp->atr))->name));
+					notify(player, tprintf("%s: #%d/%s", keyname, nextp->thing, ((ATTR *)atr_num(nextp->atr))->name));
 					didit = 1;
 				}
 			}
@@ -1039,10 +1048,11 @@ char *s;
 				free(prev);
 			}
 			hashdelete(name, &mudstate.command_htab);
-			if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
-				hashdelete(tprintf("__%s", name), &mudstate.command_htab);
+			if ((cmd = (CMDENT *)hashfind(tprintf("__%s", old->cmdname), &mudstate.command_htab)) != NULL && cmd != old) {
 				hashadd(name, (int *)cmd, &mudstate.command_htab);
 				hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
+			} else {
+				hashdelall((int *)old, &mudstate.command_htab);
 			}
 			free(old);
 			set_prefix_cmds();
@@ -1056,10 +1066,11 @@ char *s;
 					if (!prev) {
 						if (!nextp->next) {
 							hashdelete(name, &mudstate.command_htab);
-							if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
-								hashdelete(tprintf("__%s", name), &mudstate.command_htab);
+							if ((cmd = (CMDENT *)hashfind(tprintf("__%s", old->cmdname), &mudstate.command_htab)) != NULL && cmd != old) {
 								hashadd(name, (int *)cmd, &mudstate.command_htab);
 								hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
+							} else {
+								hashdelall((int *)old, &mudstate.command_htab);
 							}
 							free(old);
 						} else {
