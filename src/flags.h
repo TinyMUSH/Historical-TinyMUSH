@@ -385,6 +385,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 
 #define Royalty(x)      ((Flags(x) & ROYALTY) != 0)
 #define WizRoy(x)       (Royalty(x) || Wizard(x))
+#define Staff(x)	((Flags2(x) & STAFF) != 0)
+#define Head(x)		((Flags2(x) & HEAD_FLAG) != 0)
 #define Fixed(x)        ((Flags2(x) & FIXED) != 0)
 #define Uninspected(x)  ((Flags2(x) & UNINSPECTED) != 0)
 #define Ansi(x)         ((Flags2(x) & ANSI) != 0)
@@ -451,6 +453,17 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	H_Startup(x)	((Flags(x) & HAS_STARTUP) != 0)
 #define	H_Fwdlist(x)	((Flags2(x) & HAS_FWDLIST) != 0)
 #define	H_Listen(x)	((Flags2(x) & HAS_LISTEN) != 0)
+
+#define H_Marker0(x)	((Flags3(x) & MARK_0) != 0)
+#define H_Marker1(x)	((Flags3(x) & MARK_1) != 0)
+#define H_Marker2(x)	((Flags3(x) & MARK_2) != 0)
+#define H_Marker3(x)	((Flags3(x) & MARK_3) != 0)
+#define H_Marker4(x)	((Flags3(x) & MARK_4) != 0)
+#define H_Marker5(x)	((Flags3(x) & MARK_5) != 0)
+#define H_Marker6(x)	((Flags3(x) & MARK_6) != 0)
+#define H_Marker7(x)	((Flags3(x) & MARK_7) != 0)
+#define H_Marker8(x)	((Flags3(x) & MARK_8) != 0)
+#define H_Marker9(x)	((Flags3(x) & MARK_9) != 0)
 
 #define	s_Halted(x)	s_Flags((x), Flags(x) | HALT)
 #define	s_Going(x)	s_Flags((x), Flags(x) | GOING)

@@ -1044,6 +1044,24 @@ int mask;
 		else
 			fail++;
 	}
+	if ((succ == 0) && (mask & CA_BUILDER)) {
+		if (Builder(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_STAFF)) {
+		if (Staff(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_HEAD)) {
+		if (Head(player))
+			succ++;
+		else
+			fail++;
+	}
 	if ((succ == 0) && (mask & CA_ANNOUNCE)) {
 		if (Announce(player))
 			succ++;
@@ -1056,23 +1074,71 @@ int mask;
 		else
 			fail++;
 	}
-	if ((succ == 0) && (mask & CA_BUILDER)) {
-		if (Builder(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_ROBOT)) {
-		if (Robot(player))
-			succ++;
-		else
-			fail++;
-	}
 	if (mask & CA_SQL_OK) {
 	    if (Can_Use_SQL(player))
 		succ++;
 	    else
 		fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER0)) {
+		if (H_Marker0(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER1)) {
+		if (H_Marker1(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER2)) {
+		if (H_Marker2(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER3)) {
+		if (H_Marker3(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER4)) {
+		if (H_Marker4(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER5)) {
+		if (H_Marker5(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER6)) {
+		if (H_Marker6(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER7)) {
+		if (H_Marker7(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER8)) {
+		if (H_Marker8(player))
+			succ++;
+		else
+			fail++;
+	}
+	if ((succ == 0) && (mask & CA_MARKER9)) {
+		if (H_Marker9(player))
+			succ++;
+		else
+			fail++;
 	}
 	if (succ > 0)
 		fail = 0;
@@ -1989,24 +2055,35 @@ dbref player;
 
 NAMETAB access_nametab[] =
 {
-	{(char *)"god", 2, CA_GOD, CA_GOD},
-	{(char *)"wizard", 3, CA_WIZARD, CA_WIZARD},
 	{(char *)"builder", 6, CA_WIZARD, CA_BUILDER},
+	{(char *)"dark", 4, CA_GOD, CF_DARK},
+	{(char *)"disabled", 4, CA_GOD, CA_DISABLED},
+	{(char *)"global_build", 8, CA_PUBLIC, CA_GBL_BUILD},
+	{(char *)"global_interp", 8, CA_PUBLIC, CA_GBL_INTERP},
+	{(char *)"god", 2, CA_GOD, CA_GOD},
+	{(char *)"head", 2, CA_WIZARD, CA_HEAD},
 	{(char *)"immortal", 3, CA_WIZARD, CA_IMMORTAL},
-	{(char *)"robot", 2, CA_WIZARD, CA_ROBOT},
+	{(char *)"marker0", 7, CA_WIZARD, CA_MARKER0},
+	{(char *)"marker1", 7, CA_WIZARD, CA_MARKER1},
+	{(char *)"marker2", 7, CA_WIZARD, CA_MARKER2},
+	{(char *)"marker3", 7, CA_WIZARD, CA_MARKER3},
+	{(char *)"marker4", 7, CA_WIZARD, CA_MARKER4},
+	{(char *)"marker5", 7, CA_WIZARD, CA_MARKER5},
+	{(char *)"marker6", 7, CA_WIZARD, CA_MARKER6},
+	{(char *)"marker7", 7, CA_WIZARD, CA_MARKER7},
+	{(char *)"marker8", 7, CA_WIZARD, CA_MARKER8},
+	{(char *)"marker9", 7, CA_WIZARD, CA_MARKER9},
+	{(char *)"need_location", 6, CA_PUBLIC, CA_LOCATION},
+	{(char *)"need_contents", 6, CA_PUBLIC, CA_CONTENTS},
+	{(char *)"need_player", 6, CA_PUBLIC, CA_PLAYER},
 	{(char *)"no_haven", 4, CA_PUBLIC, CA_NO_HAVEN},
 	{(char *)"no_robot", 4, CA_WIZARD, CA_NO_ROBOT},
 	{(char *)"no_slave", 5, CA_PUBLIC, CA_NO_SLAVE},
 	{(char *)"no_suspect", 5, CA_WIZARD, CA_NO_SUSPECT},
 	{(char *)"no_guest", 5, CA_WIZARD, CA_NO_GUEST},
-	{(char *)"global_build", 8, CA_PUBLIC, CA_GBL_BUILD},
-	{(char *)"global_interp", 8, CA_PUBLIC, CA_GBL_INTERP},
-	{(char *)"disabled", 4, CA_GOD, CA_DISABLED},
-	{(char *)"need_location", 6, CA_PUBLIC, CA_LOCATION},
-	{(char *)"need_contents", 6, CA_PUBLIC, CA_CONTENTS},
-	{(char *)"need_player", 6, CA_PUBLIC, CA_PLAYER},
-	{(char *)"dark", 4, CA_GOD, CF_DARK},
 	{(char *)"sql", 2, CA_GOD, CA_SQL_OK},
+	{(char *)"staff", 2, CA_WIZARD, CA_STAFF},
+	{(char *)"wizard", 3, CA_WIZARD, CA_WIZARD},
 	{NULL, 0, 0, 0}};
 
 static void list_cmdaccess(player)
