@@ -2704,11 +2704,7 @@ void list_memory(player)
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
 			each += strlen(htab->target.s) + 1;
-			if (!(htab->flags & HASH_ALIAS)) {
-				vattr = (VATTR *)htab->data;
-				each += sizeof(VATTR);
-				each += strlen(vattr->name) + 1;
-			}
+			each += sizeof(VATTR);
 			htab = htab->next;
 		}
 	}
