@@ -44,11 +44,13 @@
 					DBTYPE_ATRNUM);
 #define ATRNUM_DEL(key)		dddb_del((void *)&key, sizeof(int), \
 					DBTYPE_ATRNUM);
-#define OBJECT_FETCH(key, data)	dddb_get((void *)&key, sizeof(int), \
-					(void **)data, NULL, \
+#define OBJECT_FETCH(key, data, len) \
+				dddb_get((void *)&key, sizeof(int), \
+					(void **)data, (int *)len, \
 					DBTYPE_OBJECT);
-#define OBJECT_STORE(key)	dddb_put((void *)&key, sizeof(int), \
-					(void *)&(db[key]), sizeof(DUMPOBJ), \
+#define OBJECT_STORE(key, data, len) \
+				dddb_put((void *)&key, sizeof(int), \
+					(void *)data, len, \
 					DBTYPE_OBJECT);
 #define OBJECT_DEL(key)		dddb_del((void *)&key, sizeof(int), \
 					DBTYPE_OBJECT);
@@ -65,9 +67,13 @@
 /* Macros to help deal with batch writes of attribute numbers and objects */
 
 #define ATRNUM_BLOCK_SIZE	(int) ((mudstate.db_block_size - 32) / \
-					((sizeof (int)) + VNAME_SIZE))
+					(sizeof (int) + VNAME_SIZE))
 #define ATRNUM_BLOCK_BYTES	(int) ((ATRNUM_BLOCK_SIZE) * \
 					(sizeof (int) + VNAME_SIZE))
+#define OBJECT_BLOCK_SIZE	(int) ((mudstate.db_block_size - 32) / \
+					(sizeof(int) + sizeof(DUMPOBJ)))
+#define OBJECT_BLOCK_BYTES	(int) ((OBJECT_BLOCK_SIZE) * \
+					(sizeof(int) + sizeof(DUMPOBJ)))
 #define ENTRY_IN_BLOCK(i, blksize)	(int) (i ? (i / blksize) : 0)
 #define ENTRY_NUM_BLOCKS(total, blksize)	(int) (total / blksize)
 #define ENTRY_BLOCK_STARTS(blk, blksize)	(int) (blk * blksize)

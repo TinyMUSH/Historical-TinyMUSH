@@ -1078,34 +1078,45 @@ int db_read()
 	
 	/* Load the object structures */
 	
+	blksize = OBJECT_BLOCK_SIZE;
+	
 	num = mudstate.min_size;
-	for (i = 0; i < num; i++) {
-		OBJECT_FETCH(i, &data);
-		if (data) {
+	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.min_size, blksize); i++) {
+		OBJECT_FETCH(i, &cdata, &len);
+		if (cdata) {
+			/* Unroll the data into objnum and object */
 			
-			db_grow(i + 1);
+			cdptr = cdata;
+			
+			while ((cdptr - cdata) < len) {
+				memcpy((void *)&num, (void *)cdptr, sizeof(int));
+				cdptr += sizeof(int);
+				db_grow(num + 1);
 
-			/* We read the entire object structure in and copy
-			 * it into place */
+				/* We read the entire object structure in
+				 * and copy it into place */
 			
-			memcpy((void *)&(db[i]), (void *)data, sizeof(DUMPOBJ));
+				memcpy((void *)&(db[num]), (void *)cdptr, sizeof(DUMPOBJ));
+				cdptr += sizeof(DUMPOBJ);
 #ifndef NO_TIMECHECKING
-			obj_time.tv_sec = obj_time.tv_usec = 0;
-			s_Time_Used(i, obj_time);
+				obj_time.tv_sec = obj_time.tv_usec = 0;
+				s_Time_Used(i, obj_time);
 #endif
-			s_StackCount(i, 0);
-			s_VarsCount(i, 0);
-			s_StructCount(i, 0);
-			s_InstanceCount(i, 0);
+				s_StackCount(num, 0);
+				s_VarsCount(num, 0);
+				s_StructCount(num, 0);
+				s_InstanceCount(num, 0);
 			
-			/* Check to see if it's a player */
+				/* Check to see if it's a player */
 
-			if (Typeof(i) == TYPE_PLAYER) {
-				c_Connected(i);
+				if (Typeof(i) == TYPE_PLAYER) {
+					c_Connected(i);
+				}
+				
+				s_Clean(i);
 			}
 			
-			RAW_FREE(data, "dddb_get");
-			s_Clean(i);
+			RAW_FREE(cdata, "dddb_get");
 		}
 	}	
 
@@ -1212,31 +1223,6 @@ int db_format, flags;
 	return 0;
 }
 
-static int db_write_object(i)
-dbref i;
-{
-	/* We assume you always do a dbck before dump, and Going objects
-	 * are really destroyed! */
-	 
-	if (Going(i)) {
-		OBJECT_DEL(i);
-		return (0);
-	}
-	
-#ifndef STANDALONE
-	if (Flags3(i) & DIRTY) {
-		/* Write the object only if it's dirty, and clear the
-		 * dirty flag */
-		
-		s_Clean(i);
-#endif		
-		OBJECT_STORE(i);
-#ifndef STANDALONE
-	}
-#endif
-	return 0;
-}
-
 dbref db_write_out(f, format, version)
 FILE *f;
 int format, version;
@@ -1338,7 +1324,7 @@ dbref db_write()
 	/* Dump user-named attribute info */
 
 	/* First, calculate the number of attribute entries we can fit in 
-	 * a block, keeping in mind some minor key overhead. This should
+	 * a block, allowing for some minor DBM key overhead. This should
 	 * not change unless the size of VNAME_SIZE or LBUF_SIZE changes,
 	 * in which case you'd have to reload anyway */
 	 
@@ -1354,10 +1340,10 @@ dbref db_write()
 		num = 0;
 		cdptr = cdata;
 				
-		for (j = ENTRY_BLOCK_STARTS(i, blksize), k = 0;
+		for (j = ENTRY_BLOCK_STARTS(i, blksize);
 		     (j <= ENTRY_BLOCK_ENDS(i, blksize)) &&
 		     (j < mudstate.attr_next);
-		     j++, k++) {
+		     j++) {
 
 			vp = (VATTR *)anum_table[j];
 
@@ -1415,16 +1401,85 @@ dbref db_write()
 	}
 	XFREE(cdata, "db_write.cdata");
 
-	DO_WHOLE_DB(obj) {
+	/* Dump object structures using the same block-based method we use
+	 * to dump attribute numbers */
+
+	blksize = OBJECT_BLOCK_SIZE;
+
+	/* Step through the object structure array, writing stuff in 'num'
+	 * sized chunks */
+
+	cdata = (char *)XMALLOC(OBJECT_BLOCK_BYTES, "db_write.cdata");
+
+	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.db_top, blksize); i++) {
+		dirty = 0;
+		num = 0;
+		cdptr = cdata;
+		
+		for (j = ENTRY_BLOCK_STARTS(i, blksize);
+		     (j <= ENTRY_BLOCK_ENDS(i, blksize)) &&
+		     (j < mudstate.attr_next);
+		     j++) {
 
 #ifdef STANDALONE
-		if (!(obj % 100)) {
-			fputc('.', mainlog_fp);
-		}
+			if (!(j % 100)) {
+				fputc('.', mainlog_fp);
+			}
 #endif
 
-		db_write_object(obj);
+			/* We assume you always do a dbck before dump, and
+			 * Going objects are really destroyed! */
+	 
+			if (!Going(j)) {
+#ifndef STANDALONE
+				if (Flags3(j) & DIRTY) {
+					/* Only write the dirty objects and
+					 * clear the flag */
+					
+					s_Clean(j);
+#endif
+					dirty = 1;
+#ifndef STANDALONE
+				}
+#endif
+				num++;
+			}
+		}	
+
+		if (!num) {
+			/* No valid objects in this block, delete it */
+			
+			OBJECT_DEL(i);
+		}
+		
+		if (dirty) {
+			/* Something is dirty in this block, write all of the
+			 * objects in this block */
+			 
+			 for (j = 0; (j < blksize) &&
+			      ((ENTRY_BLOCK_STARTS(i, blksize) + j) < mudstate.db_top);
+			      j++) {
+				/* j is an offset of object numbers into the
+				 * current block */
+				
+				k = ENTRY_BLOCK_STARTS(i, blksize) + j;
+				
+				if (!Going(k)) {
+					memcpy((void *)cdptr, (void *)&k, sizeof(int));
+					cdptr += sizeof(int);
+					memcpy((void *)cdptr, (void *)&(db[k]), sizeof(DUMPOBJ));
+					cdptr += sizeof(DUMPOBJ);
+				}
+			}
+			
+			/* Write the block: Block number is our key */
+			
+			OBJECT_STORE(i, cdata, cdptr - cdata);
+		}
 	}
+		
+	XFREE(cdata, "db_write.cdata");
+	
 
 #ifdef STANDALONE
 	fprintf(mainlog_fp, "\n");
