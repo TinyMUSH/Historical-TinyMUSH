@@ -4544,10 +4544,18 @@ FUNCTION(fun_loop)
  * replacements make it necessary to provide some way of doing backwards
  * compatibility, in order to avoid breaking a lot of code that relies upon
  * particular patterns of necessary escaping.
+ *
+ * fun_whentrue() and fun_whenfalse() work similarly to iter(). 
+ * whentrue() loops as long as the expression evaluates to true.
+ * whenfalse() loops as long as the expression evaluates to false.
  */
 
+#define BOOL_COND_NONE -1
+#define BOOL_COND_FALSE 0
+#define BOOL_COND_TRUE 1 
+
 static void perform_iter(buff, bufc, player, cause, list, exprstr,
-			 cargs, ncargs, sep, osep, flag)
+			 cargs, ncargs, sep, osep, flag, bool_flag)
     char *buff, **bufc;
     dbref player, cause;
     char *list, *exprstr;
@@ -4555,10 +4563,11 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
     int ncargs;
     char sep, osep;
     int flag;			/* 0 is iter(), 1 is list() */
+    int bool_flag;
 {
     char *list_str, *lp, *str, *input_p, *bb_p, *save_token, *work_buf;
-    char *dp, *result;
-    int save_num;
+    char *savep, *dp, *result;
+    int save_num, is_true;
 
     /* The list argument is unevaluated. Go evaluate it. */
 
@@ -4590,6 +4599,7 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 	strcpy(work_buf, exprstr); /* we might nibble this */
 	str = work_buf;
 	if (!flag) {
+	    savep = *bufc;
 	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 		 &str, cargs, ncargs);
 	} else {
@@ -4601,6 +4611,13 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 	    free_lbuf(result);
 	}
 	free_lbuf(work_buf);
+	if (bool_flag != BOOL_COND_NONE) {
+	    is_true = xlate(savep);
+	    if (!is_true && (bool_flag == BOOL_COND_TRUE))
+		break;
+	    if (is_true && (bool_flag == BOOL_COND_FALSE))
+		break;
+	} 
     }
 
     free_lbuf(list_str);
@@ -4615,7 +4632,25 @@ FUNCTION(fun_iter)
 
     evarargs_preamble("ITER", 2, 4);
     perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
-		 cargs, ncargs, sep, osep, 0);
+		 cargs, ncargs, sep, osep, 0, BOOL_COND_NONE);
+}
+
+FUNCTION(fun_whenfalse)
+{
+    char sep, osep;
+
+    evarargs_preamble("WHENFALSE", 2, 4);
+    perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
+		 cargs, ncargs, sep, osep, 0, BOOL_COND_FALSE);
+}
+
+FUNCTION(fun_whentrue)
+{
+    char sep, osep;
+
+    evarargs_preamble("WHENTRUE", 2, 4);
+    perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
+		 cargs, ncargs, sep, osep, 0, BOOL_COND_TRUE);
 }
 
 FUNCTION(fun_list)
@@ -4624,7 +4659,7 @@ FUNCTION(fun_list)
 
     varargs_preamble("LIST", 3);
     perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
-		 cargs, ncargs, sep, ' ', 1);
+		 cargs, ncargs, sep, ' ', 1, BOOL_COND_NONE);
 }
 
 /* ---------------------------------------------------------------------------
@@ -6272,6 +6307,10 @@ FUN flist[] = {
 {"VSUB",	fun_vsub,	0,  FN_VARARGS,	CA_PUBLIC},
 {"VUNIT",	fun_vunit,	0,  FN_VARARGS,	CA_PUBLIC},
 {"WAIT",	fun_wait,	2,  0,		CA_PUBLIC},
+{"WHENFALSE",	fun_whenfalse,	0,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC},
+{"WHENTRUE",	fun_whentrue,	0,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC},
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC},
 {"WHILE",	fun_while,	0,  FN_VARARGS,	CA_PUBLIC},
 {"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC},
