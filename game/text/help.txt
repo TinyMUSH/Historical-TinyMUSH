@@ -482,14 +482,15 @@ FAILURE			FLAG LIST		FLAGS
 FUNCTION LIST		FUNCTIONS		HOMES			
 LINKING			LISTENING		LISTS			
 LOCAL REGISTERS		Location		Locks			
-LOOPING			Matching		MONEY			
-Moving			OBJECT TYPES		PARENT OBJECTS		
-Patchlevel		PIPING			PUEBLO
-PUPPETS			REGEXPS			ROBBERY
-Scan Order		SEARCH CLASSES		SEMAPHORES
-SPOOFING		STACK			SUBSTITUTIONS
-SUCCESS			SWITCHES		Syntax
-User Commands		Zone Control		ZONE OBJECTS
+LOOPING			Matching		Modules
+MONEY			Moving			OBJECT TYPES		
+PARENT OBJECTS		Patchlevel		PIPING			
+PUEBLO			PUPPETS			REGEXPS			
+ROBBERY			Scan Order		SEARCH CLASSES		
+SEMAPHORES		SPOOFING		STACK			
+SUBSTITUTIONS		SUCCESS			SWITCHES		
+Syntax			User Commands		Zone Control		
+ZONE OBJECTS
  
 & drop
  
@@ -1598,9 +1599,11 @@ See also: @pemit, @eval
 
 & version
   Command: version
-  Displays the version of MUSH that is running and the date it was last
-  rebuilt.
-
+ 
+  Displays the version of MUSH that is running, the date it was last
+  compiled, the options it was compiled with, and a list of loaded
+  modules.
+ 
 & whisper 
  
 Command:  whisper <mobile> = <message>
@@ -5642,6 +5645,18 @@ Continued in 'help Matching2'.
 - A match against the names of objects you're carrying is performed.
   Partial names are okay; i.e., 'bal' will match 'balloon'.
  
+& Modules
+ 
+Topic: Modules
+ 
+The capabilities of the core MUSH server can be extended via the use of
+runtime-loadable modules. These modules include the comsys, mail system,
+and any other optional functionality that a specific MUSH might wish to
+utilize. For instance, a MUSH might wish to extend its functionality with
+a "hard-coded" 3-D space system, or a webserver.
+ 
+The list of loaded modules can be obtained via the 'version' command.
+ 
 & MONEY
   Topic: MONEY
  
@@ -9020,11 +9035,14 @@ performed and the walk down the list stops.
     You say "709395774"
   This function may also be called as time2secs().
   See also: convsecs(), secs(), time().
-
+ 
 & CONFIG()
   Function:  config(<parameter name>)
  
-  This function returns the value of the named configuration parameter.
+  This function returns the value of the named configuration parameter,
+  whether this is a parameter built into the core MUSH server, or a
+  parameter from module.
+ 
   Not all configuration options can be obtained this way; some are protected
   for security reasons, while others don't have a single simple value
   (access directives, for instance).
