@@ -151,6 +151,10 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 - Named references ("nrefs"), which behave like aliases for dbrefs, 
   in the form of '#_<name>' are now supported. Nrefs are globally unique.
 
+- When an object name is ambiguously matched (i.e., potentially matches
+  several objects), the match is now truly chosen randomly; in the past,
+  the last match was heavily favored.
+
 - A rewrite has begun on the help files.
 
 -----------------------------------------------------------------------------
@@ -291,10 +295,6 @@ CHANGES TO COMMANDS
 - Attributes containing a $command or ^monitor can now be @trigger'd 
   directly, as well as used as @a-actions; everything before the first
   un-escaped ':' is ignored.  Based on an idea from PennMUSH.
-
-- When an object name is ambiguously matched (i.e., potentially matches
-  several objects), the match is now truly chosen randomly; in the past,
-  the last match was heavily favored.
 
 -----------------------------------------------------------------------------
 
