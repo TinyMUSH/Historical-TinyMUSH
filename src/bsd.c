@@ -16,6 +16,7 @@
 #include <sys/ioctl.h>
 #include <sys/wait.h>
 #endif
+#include <sys/stat.h>
 #include <signal.h>
 
 #include "mudconf.h"
@@ -258,6 +259,7 @@ int port;
 	int found, check;
 	DESC *d, *dnext, *newd;
 	int avail_descriptors, maxfds;
+	struct stat fstatbuf;
 
 #define CheckInput(x)	FD_ISSET(x, &input_set)
 #define CheckOutput(x)	FD_ISSET(x, &output_set)
@@ -337,11 +339,51 @@ int port;
 			       &timeout);
 
 		if (found < 0) {
-			if (errno != EINTR) {
-				log_perror("NET", "FAIL",
-					 "checking for activity", "select");
+		    if (errno == EBADF) {
+			/* This one is bad, as it results in a
+			 * spiral of doom, unless we can figure
+			 * out what the bad file descriptor is
+			 * and get rid of it.
+			 */
+			log_perror("NET", "FAIL",
+				   "checking for activity", "select");
+			DESC_ITER_ALL(d) {
+			    if (fstat(d->descriptor, &fstatbuf) < 0) {
+				/* It's a player. Just toss the
+				 * connection.
+				 */
+				STARTLOG(LOG_PROBLEMS, "ERR", "EBADF")
+				    log_text((char *) "Bad descriptor ");
+				    log_number(d->descriptor);
+				ENDLOG
+				shutdownsock(d, R_SOCKDIED);
+			    }
 			}
-			continue;
+			if ((slave_socket != -1) &&
+			    (fstat(slave_socket, &fstatbuf) < 0)) {
+			    /* Try to restart the slave, since
+			     * it presumably died.
+			     */
+			    STARTLOG(LOG_PROBLEMS, "ERR", "EBADF")
+				log_text((char *) "Bad slave descriptor ");
+			        log_number(slave_socket);
+			    ENDLOG
+			    boot_slave();
+			}
+			if ((mudstate.sql_socket != -1) &&
+			    (fstat(mudstate.sql_socket, &fstatbuf) < 0)) {
+			    /* Just mark it dead. */
+			    STARTLOG(LOG_PROBLEMS, "ERR", "EBADF")
+				log_text((char *) "Bad SQL descriptor ");
+			        log_number(mudstate.sql_socket);
+			    ENDLOG
+			    mudstate.sql_socket = -1;
+			}
+		    } else if (errno != EINTR) {
+			log_perror("NET", "FAIL",
+				   "checking for activity", "select");
+		    }
+		    continue;
 		}
 		/*
 		 * if !found then time for robot commands 
