@@ -61,6 +61,9 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   - GDBM's native free space management has been enabled. Optimized dumps
     have been disabled by default.
 
+- dbconvert is now just a symlink to netmush; its functionality has been
+  merged into the main program.
+
 - Extensive work on improving autoconf and libtool use (thus improving
   portability). Compile-time options are now specified as switches to
   the configure script.
@@ -147,6 +150,8 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 
 - Named references ("nrefs"), which behave like aliases for dbrefs, 
   in the form of '#_<name>' are now supported. Nrefs are globally unique.
+
+- A rewrite has begun on the help files.
 
 -----------------------------------------------------------------------------
 
@@ -281,6 +286,10 @@ CHANGES TO COMMANDS
   directly, as well as used as @a-actions; everything before the first
   un-escaped ':' is ignored.  Based on an idea from PennMUSH.
 
+- When an object name is ambiguously matched (i.e., potentially matches
+  several objects), the match is now truly chosen randomly; in the past,
+  the last match was heavily favored.
+
 -----------------------------------------------------------------------------
 
 CHANGES TO FUNCTIONS
@@ -295,6 +304,9 @@ CHANGES TO FUNCTIONS
   to the enactor, except where u()-type functions, including objeval()
   and @functions, are called. This provides better security-checking
   capabilities. Based on an idea from PennMUSH.
+
+- The %m substitution can now be used for last command (MUX2 compatibility;
+  %c is the usual substitution).
 
 - Brackets are no longer required around eval-locks, hooks, or @exitto code.
 
@@ -393,6 +405,9 @@ CHANGES TO FUNCTIONS
   psuedo-arbitrary ways. Based on an idea from PennMUSH.
 
 - translate() now handles tabs.
+
+- Added sind(), cosd(), tand(), asind(), acosd(), atand() degree-based
+  trigonometry functions.
 
 - Added until() function, which is similar to while(), except it operates
   on multiple lists and terminates on a regular expression condition.
