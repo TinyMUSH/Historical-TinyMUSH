@@ -2131,6 +2131,37 @@ char *buff, **bufc;
 }
 
 /* ---------------------------------------------------------------------------
+ * make_sessioninfo: Return information about a port, for SESSION().
+ * List of numbers: command_count input_tot output_tot
+ */
+
+void make_sessioninfo(player, port_num, buff, bufc)
+    dbref player;
+    int port_num;
+    char *buff, **bufc;
+{
+    DESC *d;
+
+    DESC_ITER_CONN(d) {
+	if (d->descriptor == port_num) {
+	    if (Wizard_Who(player) || Controls(player, d->player)) {
+		safe_str(tprintf("%d %d %d", d->command_count,
+				 d->input_tot, d->output_tot), buff, bufc);
+		return;
+	    } else {
+		notify_quiet(player, NOPERM_MESSAGE);
+		safe_str((char *) "-1 -1 -1", buff, bufc);
+		return;
+	    }
+	}
+    }
+
+    /* Not found, return error. */
+
+    safe_str((char *) "-1 -1 -1", buff, bufc);
+}
+
+/* ---------------------------------------------------------------------------
  * get_doing: Return the DOING string of a player.
  */
 

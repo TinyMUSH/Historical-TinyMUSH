@@ -23,6 +23,7 @@ extern void FDECL(make_portlist, (dbref, dbref, char *, char **));
 extern int FDECL(fetch_idle, (dbref));
 extern int FDECL(fetch_connect, (dbref));
 extern char * FDECL(get_doing, (dbref));
+extern void FDECL(make_sessioninfo, (dbref, int, char *, char **));
 extern dbref FDECL(get_programmer, (dbref));
 extern void FDECL(cf_display, (dbref, char *, char *, char **));
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
@@ -107,6 +108,15 @@ FUNCTION(fun_conn)
 	if (Good_obj(target) && Hidden(target) && !See_Hidden(player))
 		target = NOTHING;
 	safe_ltos(buff, bufc, fetch_connect(target));
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_session: Return session info about a port.
+ */
+
+FUNCTION(fun_session)
+{
+	make_sessioninfo(player, atoi(fargs[0]), buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

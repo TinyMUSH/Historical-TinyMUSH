@@ -30,6 +30,7 @@ XFUNCTION(fun_ports);
 XFUNCTION(fun_doing);
 XFUNCTION(fun_idle);
 XFUNCTION(fun_conn);
+XFUNCTION(fun_session);
 XFUNCTION(fun_programmer);
 XFUNCTION(fun_sql);
 
@@ -622,6 +623,7 @@ FUN flist[] = {
 {"SECS",	fun_secs,	0,  0,		CA_PUBLIC},
 {"SECURE",	fun_secure,	-1, 0,		CA_PUBLIC},
 {"SEES",	fun_sees,	2,  0,		CA_PUBLIC},
+{"SESSION",	fun_session,	1,  0,		CA_PUBLIC},
 {"SET",		fun_set,	2,  0,		CA_PUBLIC},
 {"SETDIFF",	fun_setdiff,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SETINTER",	fun_setinter,	0,  FN_VARARGS,	CA_PUBLIC},
