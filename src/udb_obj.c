@@ -223,7 +223,7 @@ Obj *o;
 
 /* Routines to manipulate attributes within the object structure */
 
-char *get_attrib(anam, obj)
+char *obj_get_attrib(anam, obj)
 int anam;
 Obj *obj;
 {
@@ -249,7 +249,7 @@ Obj *obj;
 	return (NULL);
 }
 
-void set_attrib(anam, obj, value)
+void obj_set_attrib(anam, obj, value)
 int anam;
 Obj *obj;
 char *value;
@@ -261,7 +261,7 @@ char *value;
 	 * empty object. */
 
 	if (obj->atrs == NULL) {
-		a = (Attrib *) XMALLOC(sizeof(Attrib), "set_attrib.a");
+		a = (Attrib *) XMALLOC(sizeof(Attrib), "obj_set_attrib.a");
 		obj->atrs = a;
 		obj->at_count = 1;
 		a[0].attrnum = anam;
@@ -279,7 +279,7 @@ char *value;
 	while (lo <= hi) {
 		mid = ((hi - lo) >> 1) + lo;
 		if (a[mid].attrnum == anam) {
-			XFREE(a[mid].data, "set_attrib");
+			XFREE(a[mid].data, "obj_set_attrib");
 			a[mid].data = (char *)value;
 			a[mid].size = strlen(value) + 1;
 			return;
@@ -294,7 +294,7 @@ char *value;
 	 * attribute should be inserted between them. */
 
 	a = (Attrib *) XREALLOC(obj->atrs, 
-		(obj->at_count + 1) * sizeof(Attrib), "set_attrib.a");
+		(obj->at_count + 1) * sizeof(Attrib), "obj_set_attrib.a");
 
 	/* Move the stuff upwards one slot. */
 
@@ -309,7 +309,7 @@ char *value;
 	obj->atrs = a;
 }
 
-void del_attrib(anam, obj)
+void obj_del_attrib(anam, obj)
 int anam;
 Obj *obj;
 {
@@ -330,7 +330,7 @@ Obj *obj;
 	while (lo <= hi) {
 		mid = ((hi - lo) >> 1) + lo;
 		if (a[mid].attrnum == anam) {
-			XFREE(a[mid].data, "del_attrib.data");
+			XFREE(a[mid].data, "obj_del_attrib.data");
 			obj->at_count--;
 			if (mid != obj->at_count)
 				memcpy((void *)(a + mid), (void *)(a + mid + 1), 
@@ -439,7 +439,7 @@ int obj;
 }
 	
 	
-char *fetch_attrib(anum, obj)
+char *pipe_get_attrib(anum, obj)
 int anum;
 int obj;
 {
@@ -447,16 +447,16 @@ int obj;
 	char *value, *tmp;
 			
 	object = get_free_objpipe(obj);
-	value = get_attrib(anum, object);
+	value = obj_get_attrib(anum, object);
 	if (value) {
-		tmp = XSTRDUP(value, "fetch_attrib");
+		tmp = XSTRDUP(value, "pipe_get_attrib");
 		return tmp;
 	} else {
 		return NULL;
 	}
 }
 
-void put_attrib(anum, obj, value)
+void pipe_set_attrib(anum, obj, value)
 int anum;
 int obj;
 char *value;
@@ -468,12 +468,12 @@ char *value;
 	
 	object = get_free_objpipe(obj);
 	object->dirty = 1;
-	newvalue = XSTRDUP(value, "put_attrib");
-	set_attrib(anum, object, newvalue);
+	newvalue = XSTRDUP(value, "pipe_set_attrib");
+	obj_set_attrib(anum, object, newvalue);
 	return;
 }
 
-void delete_attrib(anum, obj)
+void pipe_del_attrib(anum, obj)
 int anum;
 int obj;
 {
@@ -483,9 +483,8 @@ int obj;
 
 	object = get_free_objpipe(obj);
 	object->dirty = 1;
-	del_attrib(anum, object);
+	obj_del_attrib(anum, object);
 	return;
-	
 }
 
 void attrib_sync()

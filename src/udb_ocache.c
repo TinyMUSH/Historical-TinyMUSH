@@ -197,7 +197,7 @@ void cache_reset()
 			if (cp->data == NULL) {
 				switch(cp->type) {
 				case DBTYPE_ATTRIBUTE:
-					delete_attrib(((Aname *)cp->keydata)->attrnum, 
+					pipe_del_attrib(((Aname *)cp->keydata)->attrnum, 
 						      ((Aname *)cp->keydata)->object);
 					break;
 				default:
@@ -207,7 +207,7 @@ void cache_reset()
 			} else {
 				switch(cp->type) {
 				case DBTYPE_ATTRIBUTE:
-					put_attrib(((Aname *)cp->keydata)->attrnum, 
+					pipe_set_attrib(((Aname *)cp->keydata)->attrnum, 
 						   ((Aname *)cp->keydata)->object,
 						   (char *)cp->data);
 					break;
@@ -490,7 +490,7 @@ skipcacheget:
 	switch(type) {
 	case DBTYPE_ATTRIBUTE:
 #ifdef MEMORY_BASED
-		cdata = get_attrib(((Aname *)keydata)->attrnum,
+		cdata = obj_get_attrib(((Aname *)keydata)->attrnum,
 			&(db[((Aname *)keydata)->object].attrtext));
 		if (cdata) {
 			if (dataptr)
@@ -500,7 +500,7 @@ skipcacheget:
 			return;
 		}
 #endif		
-		newdata = (void *)fetch_attrib(((Aname *)keydata)->attrnum,
+		newdata = (void *)pipe_get_attrib(((Aname *)keydata)->attrnum,
 			((Aname *)keydata)->object); 
 		if (newdata == NULL) {
 			newdatalen = 0;
@@ -518,7 +518,7 @@ skipcacheget:
 			cdata = XMALLOC(newdatalen, "cache_get.membased");
 			memcpy((void *)cdata, (void *)newdata, newdatalen);
 			
-			set_attrib(((Aname *)keydata)->attrnum,
+			obj_set_attrib(((Aname *)keydata)->attrnum,
 				&(db[((Aname *)keydata)->object].attrtext),
 				cdata);
 			if (dataptr)
@@ -711,10 +711,10 @@ int type;
 	if (data == NULL) {
 		switch(type) {
 		case DBTYPE_ATTRIBUTE:
-			delete_attrib(((Aname *)keydata)->attrnum, 
+			pipe_del_attrib(((Aname *)keydata)->attrnum, 
 				      ((Aname *)keydata)->object);
 #ifdef MEMORY_BASED
-			del_attrib(((Aname *)keydata)->attrnum,
+			obj_del_attrib(((Aname *)keydata)->attrnum,
 				   &(db[((Aname *)keydata)->object].attrtext));
 #endif
 			break;
@@ -724,14 +724,14 @@ int type;
 	} else {
 		switch(type) {
 		case DBTYPE_ATTRIBUTE:
-			put_attrib(((Aname *)keydata)->attrnum, 
+			pipe_set_attrib(((Aname *)keydata)->attrnum, 
 				   ((Aname *)keydata)->object,
 				   (char *)data);
 #ifdef MEMORY_BASED
 			cdata = XMALLOC(datalen, "cache_get.membased");
 			memcpy((void *)cdata, (void *)data, datalen);
 			
-			set_attrib(((Aname *)keydata)->attrnum,
+			obj_set_attrib(((Aname *)keydata)->attrnum,
 				&(db[((Aname *)keydata)->object].attrtext),
 				cdata);
 #endif
@@ -843,7 +843,7 @@ replace:
 			if (cp->data == NULL) {
 				switch(cp->type) {
 				case DBTYPE_ATTRIBUTE:
-					delete_attrib(((Aname *)cp->keydata)->attrnum, 
+					pipe_del_attrib(((Aname *)cp->keydata)->attrnum, 
 						      ((Aname *)cp->keydata)->object);
 					break;
 				default:
@@ -853,7 +853,7 @@ replace:
 			} else {
 				switch(cp->type) {
 				case DBTYPE_ATTRIBUTE:
-					put_attrib(((Aname *)cp->keydata)->attrnum, 
+					pipe_set_attrib(((Aname *)cp->keydata)->attrnum, 
 						   ((Aname *)cp->keydata)->object,
 						   (char *)cp->data);
 					break;
@@ -905,7 +905,7 @@ Cache *cp;
 		if (cp->data == NULL) {
 			switch(cp->type) {
 			case DBTYPE_ATTRIBUTE:
-				delete_attrib(((Aname *)cp->keydata)->attrnum, 
+				pipe_del_attrib(((Aname *)cp->keydata)->attrnum, 
 					      ((Aname *)cp->keydata)->object);
 				break;
 			default:
@@ -915,7 +915,7 @@ Cache *cp;
 		} else {
 			switch(cp->type) {
 			case DBTYPE_ATTRIBUTE:
-				put_attrib(((Aname *)cp->keydata)->attrnum, 
+				pipe_set_attrib(((Aname *)cp->keydata)->attrnum, 
 					   ((Aname *)cp->keydata)->object,
 					   (char *)cp->data);
 				break;
@@ -1001,9 +1001,9 @@ int type;
 		return;
 
 #ifdef MEMORY_BASED
-	delete_attrib(((Aname *)keydata)->attrnum, 
+	pipe_del_attrib(((Aname *)keydata)->attrnum, 
 		      ((Aname *)keydata)->object);
-	del_attrib(((Aname *)keydata)->attrnum,
+	obj_del_attrib(((Aname *)keydata)->attrnum,
 		   &(db[((Aname *)keydata)->object].attrtext));
 	return;
 #endif
