@@ -4886,7 +4886,7 @@ static void handle_sets(fargs, buff, bufc, oper, sep, osep)
 char *fargs[], *buff, **bufc, sep, osep;
 int oper;
 {
-	char *list1, *list2, *oldp;
+	char *list1, *list2, *oldp, *bb_p;
 	char *ptrs1[LBUF_SIZE], *ptrs2[LBUF_SIZE];
 	int i1, i2, n1, n2, val;
 
@@ -4901,7 +4901,7 @@ int oper;
 	do_asort(ptrs2, n2, ALPHANUM_LIST);
 
 	i1 = i2 = 0;
-	oldp = *bufc;
+	bb_p = oldp = *bufc;
 	**bufc = '\0';
 
 	switch (oper) {
@@ -4931,7 +4931,7 @@ int oper;
 			/* Compare and copy */
 
 			if ((i1 < n1) && (i2 < n2)) {
-			        if (*bufc != buff)
+			        if (*bufc != bb_p)
 					safe_chr(osep, buff, bufc);
 				oldp = *bufc;
 				if (strcmp(ptrs1[i1], ptrs2[i2]) < 0) {
@@ -4949,7 +4949,7 @@ int oper;
 
 		for (; i1 < n1; i1++) {
 			if (strcmp(oldp, ptrs1[i1])) {
-				if (*bufc != buff)
+				if (*bufc != bb_p)
 					safe_chr(osep, buff, bufc);
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
@@ -4958,7 +4958,7 @@ int oper;
 		}
 		for (; i2 < n2; i2++) {
 			if (strcmp(oldp, ptrs2[i2])) {
-				if (*bufc != buff)
+				if (*bufc != bb_p)
 					safe_chr(osep, buff, bufc);
 				oldp = *bufc;
 				safe_str(ptrs2[i2], buff, bufc);
@@ -4974,7 +4974,7 @@ int oper;
 
 				/* Got a match, copy it */
 
-				if (*bufc != buff)
+				if (*bufc != bb_p)
 					safe_chr(osep, buff, bufc);
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
@@ -5008,7 +5008,7 @@ int oper;
 
 				/* Item in list1 not in list2, copy */
 
-				if (*bufc != buff)
+				if (*bufc != bb_p)
 					safe_chr(osep, buff, bufc);
 				safe_str(ptrs1[i1], buff, bufc);
 				oldp = ptrs1[i1];
@@ -5029,7 +5029,7 @@ int oper;
 		/* Copy remainder of list1 */
 
 		while (i1 < n1) {
-			if (*bufc != buff)
+			if (*bufc != bb_p)
 				safe_chr(osep, buff, bufc);
 			safe_str(ptrs1[i1], buff, bufc);
 			oldp = ptrs1[i1];
