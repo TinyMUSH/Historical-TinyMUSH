@@ -26,6 +26,14 @@ Release history:
 
 10/xx/2002: Beta 8
 
+- Feature: speak() now takes a says-string parameter, and obeys the
+  say_uses_comma conf parameer. Please note that the argument order has
+  changed, to facilitate the common case of not wanting a total
+  transformation. 
+
+- Feature: If @speechformat has the no_name attribute flag, an empty
+  result is treated as valid, so all-side-effect results are possible.
+
 - Feature: lpos() can check multiple characters. Based on a suggestion from
   Joel Ricketts.
 
@@ -44,7 +52,7 @@ Release history:
   Simon Bland, plus misc fixes.
 
 - Feature: @doing has a /quiet switch to avoid "Set." messages. Based
-  on a suggestion from [XXX].
+  on a suggestion from Solace@Evolution.
 
 - Fix: The border() family of functions supports left-indentation (spaces
   at the beginning of a line) properly. [3.1; Sally Schreiber]
@@ -106,6 +114,9 @@ Release history:
 
 - Fix: Commands that begin with a single backslash are handled properly
   as @emits. [2.0; sTiLe]
+
+- Misc: The global attribute flags no_clone (c) and constant (k) now sohw
+  up in an examine.
 
 - Misc: Unprivileged exits may destroy themselves, requested by
   drdubious.
