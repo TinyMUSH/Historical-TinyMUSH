@@ -1407,9 +1407,11 @@ void do_restart(player, cause, key)
 	    }
 	}
 
-	fclose(mainlog_fp);
-	rename(mudconf.mudlogname,
-	       tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
+	if (mainlog_fp != stderr) {
+	    fclose(mainlog_fp);
+	    rename(mudconf.mudlogname,
+		   tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
+	}
 
 	alarm(0);
 	dump_restart_db();

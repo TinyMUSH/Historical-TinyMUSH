@@ -939,10 +939,11 @@ static void report_timecheck(player, yes_screen, yes_log, yes_clear)
 		       (int) (time(NULL) - mudstate.cpu_count_from));
         ENDLOG
    } else {
-        start_log("OBJ", "CPU", LOG_ALWAYS);
+        STARTLOG(LOG_ALWAYS, "OBJ", "CPU")
         log_name(player);
 	log_printf(" checks object time use over %d seconds\n",
 		   (int) (time(NULL) - mudstate.cpu_count_from));
+	ENDLOG
    }
 
     obj_counted = 0;
@@ -1032,6 +1033,10 @@ char *fn;
 	if ((f = fopen(fn, "w")) != NULL) {
 		fprintf(f, "%d\n", getpid());
 		fclose(f);
+	} else {
+		STARTLOG(LOG_ALWAYS, "PID", "FAIL")
+			log_printf("Failed to write pidfile %s\n", fn);
+		ENDLOG
 	}
 }
 
@@ -1438,10 +1443,14 @@ void do_logrotate(player, cause, key)
 	
     mudstate.mudlognum++;
 
-    fclose(mainlog_fp);
-    rename(mudconf.mudlogname,
-	tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
-    logfile_init(mudconf.mudlogname);
+    if (mainlog_fp == stderr) {
+        notify(player, "Warning: can't rotate main log when logging to stderr.");
+    } else {
+	fclose(mainlog_fp);
+	rename(mudconf.mudlogname,
+	       tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
+	logfile_init(mudconf.mudlogname);
+    }
 
     notify(player, "Logs rotated.");
     STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
@@ -1458,7 +1467,7 @@ void do_logrotate(player, cause, key)
 		   tprintf("%s.%ld", lp->filename, (long) mudstate.now));
 	    lp->fileptr = fopen(lp->filename, "w");
 	    if (lp->fileptr)
-		setbuf(lp->fileptr, NULL);
+	      setbuf(lp->fileptr, NULL);
 	}
     }
 
