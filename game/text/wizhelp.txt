@@ -1372,13 +1372,14 @@
 & PARAM TIMERS
 	check_interval		check_offset		command_quota_increment
 	command_quota_max	dump_interval		dump_offset
-	idle_interval		opt_frequency		timeslice
+	events_daily_hour	idle_interval		opt_frequency
+	timeslice
  
 & PARAM OPTIONS
 abort_on_bug		addcommands_match_blindly
 addcommands_obey_stop	addcommands_obey_uselocks
-ansi_colors		booleans_oldstyle	clone_copies_cost
-dark_actions		dark_sleepers		events_daily_hour
+ansi_colors		autozone		booleans_oldstyle	
+clone_copies_cost	dark_actions		dark_sleepers
 examine_flags		examine_public_attrs	exit_calls_move
 fascist_teleport	format_contents		format_exits		
 global_aconn_uselocks	have_comsys		have_mailer		
@@ -1441,7 +1442,7 @@ use_global_aconn	wizard_obeys_linklock
   See also:
  
 & ansi_colors
-  Config parameter: ansi_colors <yes/no>.  Default: No
+  Config parameter: ansi_colors <yes/no>.  Default: Yes
  
   Specifies whether or not players are permitted to use ANSI colors
   in their text.
@@ -1469,6 +1470,13 @@ use_global_aconn	wizard_obeys_linklock
   to properly set access to restricted attributes.
   See also: access, PERMISSIONS.
 
+& autozone
+  Config parameter: autozone <yes/no>.  Default: Yes
+ 
+  If this parameter is enabled, newly-created objects are automatically
+  part of the same zone that their creator is. Otherwise, newly-created
+  objects do not have a zone.
+  
 & bad_name
   Config parameter: bad_name <wildcarded-name>.
   Specifies that any name that matches <wildcarded-name> may not be used as a
