@@ -527,6 +527,7 @@ struct statedata {
 	dbref	poutobj;	/* Object doing the piping */
 	int	sql_socket;	/* Socket fd for SQL database connection */
 	clock_t	cputime_base;	/* CPU baselined at beginning of command */
+	clock_t	cputime_now;	/* CPU time recorded during command */
 	const unsigned char *retabs; /* PCRE regexp tables */
 #if !defined(TEST_MALLOC) && defined(RAW_MEMTRACKING)
 	MEMTRACK *raw_allocs;	/* Tracking of raw memory allocations */

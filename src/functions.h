@@ -323,10 +323,12 @@ if ((l) > 0) { \
 
 /* Handling CPU time checking. */
 
-#define Too_Much_CPU(x) \
-((mudconf.func_cpu_lim > (x)) && \
- (mudstate.cputime_base > 0) && \
- (clock() > mudstate.cputime_base + mudconf.func_cpu_lim))
+#define Too_Much_CPU() \
+((mudstate.cputime_now = clock()),
+ ((mudstate.cputime_now > mudstate.cputime_base + mudconf.func_cpu_lim) && \
+  (mudstate.cputime_base + mudconf.func_cpu_lim > mudstate.cputime_base) && \
+  (mudstate.cputime_base != -1) && \
+  (mudstate.cputime_now != -1)))
 
 
 /* ---------------------------------------------------------------------------

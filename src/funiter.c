@@ -53,7 +53,7 @@ FUNCTION(perform_loop)
     bb_p = *bufc;
 
     while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	   !Too_Much_CPU(0)) {
+	   !Too_Much_CPU()) {
 	if (!flag && (*bufc != bb_p)) {
 	    print_sep(osep, osep_len, buff, bufc);
 	}
@@ -154,7 +154,7 @@ FUNCTION(perform_iter)
     elen = strlen(fargs[1]);
 
     while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	   !Too_Much_CPU(0)) {
+	   !Too_Much_CPU()) {
 	if (!need_result && (*bufc != bb_p)) {
 	    print_sep(osep, osep_len, buff, bufc);
 	}
@@ -305,7 +305,7 @@ FUNCTION(fun_fold)
 	result = NULL;
 
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	       !Too_Much_CPU(0)) {
+	       !Too_Much_CPU()) {
 		clist[0] = rstore;
 		clist[1] = split_token(&cp, isep, isep_len);
 		op = clist[2];
@@ -430,7 +430,7 @@ FUNCTION(fun_map)
 	bb_p = *bufc;
 	i = 1;
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	       !Too_Much_CPU(0)) {
+	       !Too_Much_CPU()) {
 	        if (*bufc != bb_p) {
 		    print_sep(osep, osep_len, buff, bufc);
 		}
@@ -506,7 +506,7 @@ FUNCTION(fun_mix)
 
     for (wc = 0;
 	 (wc < nwords) && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	     !Too_Much_CPU(0);
+	     !Too_Much_CPU();
 	 wc++) {
 	for (i = 1; i <= lastn; i++) {
 	    if (count[i]) {
@@ -563,7 +563,7 @@ FUNCTION(fun_step)
     atextbuf = alloc_lbuf("fun_step");
     bb_p = *bufc;
     while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	   !Too_Much_CPU(0)) {
+	   !Too_Much_CPU()) {
 	if (*bufc != bb_p) {
 	    print_sep(osep, osep_len, buff, bufc);
 	}
@@ -617,7 +617,7 @@ FUNCTION(fun_foreach)
     cbuf[1] = alloc_sbuf("fun_foreach.objplace");
 
     while (cp && *cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	   !Too_Much_CPU(0)) {
+	   !Too_Much_CPU()) {
 
 	if (!in_string) {
 	    /* Look for a start token. */
@@ -827,7 +827,7 @@ FUNCTION(fun_while)
     bb_p = *bufc;
     i = 1; 
     while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	   !Too_Much_CPU(0)) {
+	   !Too_Much_CPU()) {
 	if (*bufc != bb_p) {
 	    print_sep(osep, osep_len, buff, bufc);
 	}
