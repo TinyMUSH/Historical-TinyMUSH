@@ -372,22 +372,14 @@ char *name;
 			free_lbuf(buff);
 			return NOTHING;
 		}
-		if (*buff) {
-			okname = ok_player_name(buff);
-			if (!okname) {
-				notify(player, "That's a silly name for a player.");
-				free_lbuf(buff);
-				return NOTHING;
-			}
-		}
+		if (okname && *buff)
+		        okname = ok_player_name(buff);
 		if (okname) {
-			okname = (lookup_player(NOTHING, buff, 0) == NOTHING);
-			if (!okname) {
-				notify(player, tprintf("The name %s is already taken.",
-						       name));
-				free_lbuf(buff);
-				return NOTHING;
-			}
+		        okname = (lookup_player(NOTHING, buff, 0) == NOTHING);
+		        notify(player, tprintf("The name %s is already taken.",
+					       name));
+			free_lbuf(buff);
+			return NOTHING;
 		}
 		free_lbuf(buff);
 		break;
@@ -395,6 +387,11 @@ char *name;
 		LOG_SIMPLE(LOG_BUGS, "BUG", "OTYPE",
 			   tprintf("Bad object type in create_obj: %d.",
 				   objtype));
+		return NOTHING;
+	}
+
+	if (!okname) {
+	        notify(player, tprintf("That's a silly name for %s!", tname));
 		return NOTHING;
 	}
 
@@ -414,6 +411,7 @@ char *name;
 			return NOTHING;
 		}
 	}
+
 	/* Make sure the creator can pay for the object. */
 
 	if ((player != NOTHING) &&
