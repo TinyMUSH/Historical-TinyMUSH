@@ -1161,15 +1161,11 @@ int newtop;
 	if (anum_table == NULL) {
 		anum_table = (ATTR **) XCALLOC(newtop + 1, sizeof(ATTR *),
 					       "anum_extend.1");
-		for (i = 0; i <= newtop; i++)
-			anum_table[i] = NULL;
 	} else {
 		anum_table2 = (ATTR **) XCALLOC(newtop + 1, sizeof(ATTR *),
 						"anum_extend.2");
 		for (i = 0; i <= anum_alc_top; i++)
 			anum_table2[i] = anum_table[i];
-		for (i = anum_alc_top + 1; i <= newtop; i++)
-			anum_table2[i] = NULL;
 		XFREE(anum_table, "anum_extend.3");
 		anum_table = anum_table2;
 	}
