@@ -1687,12 +1687,15 @@ use_global_aconn	wizard_obeys_linklock
   30 characters, and can contain only letters, numbers, and underscores.
   
 & flag_access
-  Config parameter: flag_access <0-9> <access>
+  Config parameter: flag_access <flag name> <access>
   
-  Changes who can set a user-defined flag (MARKER0 through MARKER9).
-  Access can be "any" (anyone can set it), "royalty" (only Royalty or
-  Wizards can set it), "wizard" (only Wizards can set it), or
-  "god" (only God can set it).
+  Changes who can set a flag. Access can be "any" (anyone can set it),
+  "royalty" (only Royalty or Wizards can set it), "wizard" (only Wizards
+  can set it), or "god" (only God can set it).
+ 
+  There are some flags whose access permissions cannot be changed,
+  since they are handled in a special way. This includes the DARK,
+  FIXED, and MONITOR flags.
  
   The access permissions on user-defined flags default to "god".
  
