@@ -28,7 +28,7 @@ dbref player, cause;
 int key;
 char *arg1, *arg2;
 {
-	dbref victim, destination, loc;
+	dbref victim, destination, loc, exitloc;
 	char *to;
 	int hush = 0;
 
@@ -45,7 +45,7 @@ char *arg1, *arg2;
 		to = arg1;
 	} else {
 		init_match(player, arg1, NOTYPE);
-		match_everything(MAT_NO_EXITS);
+		match_everything(0);
 		victim = noisy_match_result();
 
 		if (victim == NOTHING)
@@ -55,23 +55,39 @@ char *arg1, *arg2;
 
 	/* Validate type of victim */
 
-	if (!Has_location(victim)) {
+	if (!Has_location(victim) && !isExit(victim)) {
 		notify_quiet(player, "You can't teleport that.");
 		return;
 	}
 
-	/* Fail if we don't control the victim or the victim's location */
+	/* If this is an exit, we need to control it, or it must be
+	 * unlinked. (Same permissions as @link.)  Or, we can control
+	 * the room. (Same permissions as get.)
+	 * Otherwise, fail if we're not Tel_Anything, and we don't control
+	 * the victim or the victim's location.
+	 */
 
-	if (!Controls(player, victim) && !Controls(player, Location(victim)) && !Tel_Anything(player)) {
+	if (isExit(victim)) {
+	    if ((Location(victim) != NOTHING) && !Controls(player, victim) &&
+		!Controls(player, Exits(victim))) {
 		notify_quiet(player, NOPERM_MESSAGE);
 		return;
+	    }
+	} else if (!Controls(player, victim) &&
+		   !Controls(player, Location(victim)) &&
+		   !Tel_Anything(victim)) {
+	    notify_quiet(player, NOPERM_MESSAGE);
+	    return;
 	}
 	/*
-	 * Check for teleporting home 
+	 * Check for teleporting home. Exits don't have homes.
 	 */
 
 	if (!string_compare(to, "home")) {
-		(void)move_via_teleport(victim, HOME, cause, 0);
+		if (isExit(victim))
+		    notify_quiet(player, NOPERM_MESSAGE);
+		else
+		    move_via_teleport(victim, HOME, cause, 0);
 		return;
 	}
 	/*
@@ -111,6 +127,23 @@ char *arg1, *arg2;
 			return;
 		}
 	}
+
+	/* If this is an exit, the same privs involved as @open apply. */
+
+	if (isExit(victim)) {
+	    if (!Has_exits(destination) ||
+		(!Controls(player, destination) && !Open_Anywhere(player))) {
+		notify_quiet(player, NOPERM_MESSAGE);
+		return;
+	    }
+	    exitloc = Exits(victim);
+	    s_Exits(exitloc, remove_first(Exits(exitloc), victim));
+	    s_Exits(destination, insert_first(Exits(destination), victim));
+	    s_Exits(victim, destination);
+	    notify_quiet(player, "Teleported.");
+	    return;
+	}
+
 	if (Has_contents(destination)) {
 
 		/*
