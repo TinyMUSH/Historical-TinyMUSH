@@ -360,7 +360,7 @@ if ((l) > 0) { \
 #define VEC_UNIT	6
 
 /* from perform_loop (loop, parse): */
-/* from perform_iter (list, iter, whentrue, whenfalse): */
+/* from perform_iter (list, iter, whentrue, whenfalse, istrue, isfalse): */
 #define BOOL_COND_TYPE	0x0f	/* mask to select exit-condition bits */
 #define BOOL_COND_NONE	1	/* loop until end of list */
 #define BOOL_COND_FALSE	2	/* loop until true */
