@@ -752,8 +752,8 @@ int atrsize;
 			/* Score is the age of an attribute in seconds.
 			   We use size as a secondary metric-- if the scores
 			   are the same, we should try to toss the bigger
-			   attribute. Only consider the tail of each chain
-			   since we re-insert each cache entry at the head
+			   attribute. Only consider the head of each chain
+			   since we re-insert each cache entry at the tail
 			   when it's accessed */
 
 			if (p) {
@@ -805,13 +805,12 @@ int atrsize;
 					size = p->datalen;
 				}
 						
-				/* If we haven't found one by now, the tail
+				/* If we haven't found one by now, the head
 				 * of the modified chain is it
 				 */
 
 				if ((score < curscore) || ((score == curscore) && 
-				    (size > cursize)) ||
-				    ((p == sp->mactive.tail) && !cp)) {
+				    (size > cursize)) || !cp) {
 					curscore = score;
 					cursize = size;
 					cp = p;
