@@ -1,4 +1,3 @@
-
 /*
  * comsys.c 
  */
@@ -1023,7 +1022,7 @@ char *channel;
 	if (!ch) {
 		raw_notify(player, tprintf("Could not find channel %s.", channel));
 		return;
-	} else if (!(Comm_All(player) || (player != ch->charge_who))) {
+	} else if (!(Comm_All(player)) && (player != ch->charge_who)) {
 		raw_notify(player, "You do not have permission to do that. ");
 		return;
 	}
