@@ -2816,6 +2816,8 @@ FUNCTION(fun_mix)
     ATTR *ap;
     char *str, *atext, *os[10], *atextbuf, *bb_p, sep;
     char *cp[10];
+    int count[LBUF_SIZE / 2];
+    char tmpbuf[2];
 
     /* Check to see if we have an appropriate number of arguments.
      * If there are more than three arguments, the last argument is
@@ -2868,13 +2870,11 @@ FUNCTION(fun_mix)
     for (i = 1; i <= lastn; i++) {
 	cp[i] = trim_space_sep(fargs[i], sep);
     }
-    nwords = countwords(cp[1], sep);
+    nwords = count[1] = countwords(cp[1], sep);
     for (i = 2; i<= lastn; i++) {
-	if (countwords(cp[i], sep) != nwords) {
-	    free_lbuf(atext);
-	    safe_str("#-1 LISTS MUST BE OF EQUAL SIZE", buff, bufc);
-	    return;
-	}
+	count[i] = countwords(cp[i], sep);
+	if (count[i] > nwords)
+	    nwords = count[i];
     }
     atextbuf = alloc_lbuf("fun_mix");
 
@@ -2882,10 +2882,15 @@ FUNCTION(fun_mix)
 	 (wc < nwords) && (mudstate.func_invk_ctr < mudconf.func_invk_lim);
 	 wc++) {
 	for (i = 1; i <= lastn; i++) {
-	    os[i - 1] = split_token(&cp[i], sep);
+	    if (count[i]) {
+		os[i - 1] = split_token(&cp[i], sep);
+	    } else {
+		tmpbuf[0] = '\0';
+		os[i - 1] = tmpbuf;
+	    }
 	}
 	strcpy(atextbuf, atext);
-	
+
 	if (*bufc != bb_p)
 	    safe_chr(sep, buff, bufc);
 
