@@ -43,6 +43,7 @@ extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
 #define CHAN_FLAG_O_JOIN	0x00000200
 #define CHAN_FLAG_O_TRANS	0x00000400
 #define CHAN_FLAG_O_RECV	0x00000800
+#define CHAN_FLAG_SPOOF		0x00001000
 
 /* --------------------------------------------------------------------------
  * Structure definitions.
@@ -628,12 +629,16 @@ static void process_comsys(player, arg, cap)
 	giveto(cap->channel->owner, cap->channel->charge);
 
 	if (cap->title) {
-	    tp = tbuf;
-	    safe_str(cap->title, tbuf, &tp);
-	    safe_chr(' ', tbuf, &tp);
-	    safe_name(player, tbuf, &tp);
-	    *tp = '\0';
-	    name_buf = tbuf;
+	    if (cap->channel->flags & CHAN_FLAG_SPOOF) {
+		name_buf = cap->title;
+	    } else {
+		tp = tbuf;
+		safe_str(cap->title, tbuf, &tp);
+		safe_chr(' ', tbuf, &tp);
+		safe_name(player, tbuf, &tp);
+		*tp = '\0';
+		name_buf = tbuf;
+	    }
 	} else {
 	    name_buf = NULL;
 	}
@@ -1056,6 +1061,8 @@ void do_channel(player, cause, key, chan_name, arg)
 	    flag = CHAN_FLAG_PUBLIC;
 	} else if (!strcasecmp(arg, (char *) "loud")) {
 	    flag = CHAN_FLAG_LOUD;
+	} else if (!strcasecmp(arg, (char *) "spoof")) {
+	    flag = CHAN_FLAG_SPOOF;
 	} else if (!strcasecmp(arg, (char *) "p_join")) {
 	    flag = CHAN_FLAG_P_JOIN;
 	} else if (!strcasecmp(arg, (char *) "p_transmit")) {
@@ -1418,6 +1425,8 @@ void do_clist(player, cause, key, chan_name)
 	    safe_str(" Public", tbuf, &tp);
 	if (chp->flags & CHAN_FLAG_LOUD)
 	    safe_str(" Loud", tbuf, &tp);
+	if (chp->flags & CHAN_FLAG_SPOOF)
+	    safe_str(" Spoof", tbuf, &tp);
 	if (chp->flags & CHAN_FLAG_P_JOIN)
 	    safe_str(" P_Join", tbuf, &tp);
 	if (chp->flags & CHAN_FLAG_P_RECV)
@@ -1471,10 +1480,11 @@ void do_clist(player, cause, key, chan_name)
 
 	    if (key & CLIST_FULL) {
 		notify(player,
-	  tprintf("%-20s %c%c%c%c%c%c%c%c  %c%c%c    %6d  %7d  %5d  %8d  #%d",
+         tprintf("%-20s %c%c%c%c%c%c%c%c%c  %c%c%c    %6d  %7d  %5d  %8d  #%d",
 		  chp->name,
 		  (chp->flags & CHAN_FLAG_PUBLIC) ? 'P' : '-',
 		  (chp->flags & CHAN_FLAG_LOUD) ? 'L' : '-',
+		  (chp->flags & CHAN_FLAG_SPOOF) ? 'S' : '-',
 		  (chp->flags & CHAN_FLAG_P_JOIN) ? 'J' : '-',
 		  (chp->flags & CHAN_FLAG_P_TRANS) ? 'X' : '-',
 		  (chp->flags & CHAN_FLAG_P_RECV) ? 'R' : '-',
