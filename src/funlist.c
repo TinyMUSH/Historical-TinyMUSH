@@ -1911,3 +1911,54 @@ FUNCTION(fun_ledit)
     free_lbuf(old_list);
     free_lbuf(new_list);
 }
+
+/* ---------------------------------------------------------------------------
+ * fun_itemize: Turn a list into a punctuated list.
+ */
+
+FUNCTION(fun_itemize)
+{
+    Delim isep, osep;
+    int isep_len, osep_len, n_elems, i;
+    char *conj_str, *elems[LBUF_SIZE / 2];
+
+    VaChk_Range("ITEMIZE", 1, 4);
+    if (!fargs[0] || !*fargs[0])
+	return;
+    VaChk_InSep(2, 0);
+    if (nfargs < 3) {
+	conj_str = (char *) "and";
+    } else {
+	conj_str = fargs[2];
+    }
+    if (nfargs < 4) {
+	osep.c = ',';
+	osep_len = 1;
+    } else {
+	VaChk_OutSep(4, 0);
+    }
+
+    n_elems = list2arr(elems, LBUF_SIZE / 2, fargs[0], isep, isep_len);
+    if (n_elems == 1) {
+	safe_str(elems[0], buff, bufc);
+    } else if (n_elems == 2) {
+	safe_str(elems[0], buff, bufc);
+	if (*conj_str) {
+	    safe_chr(' ', buff, bufc);
+	    safe_str(conj_str, buff, bufc);
+	}
+	safe_chr(' ', buff, bufc);
+	safe_str(elems[1], buff, bufc);
+    } else {
+	for (i = 0; i < (n_elems - 1); i++) {
+	    safe_str(elems[i], buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
+	    safe_chr(' ', buff, bufc);
+	}
+	if (*conj_str) {
+	    safe_str(conj_str, buff, bufc);
+	    safe_chr(' ', buff, bufc);
+	}
+	safe_str(elems[i], buff, bufc);
+    }
+}

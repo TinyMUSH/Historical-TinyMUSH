@@ -5266,17 +5266,17 @@ See also: @link, @open.
 	columns()	ctables()	delimit()	elements()	
 	extract()	filter()	filterbool()	first()		
 	fold()		grab()		graball()	index()		
-	insert()	iter()		last()		ldelete()	
-	ldiff()		ledit()		linter()	list()		
-	lnum()		loop()		lpos()		lrand()		
-	lunion()	map()		match()		matchall()	
-	member()	mix()		munge()		remove()	
-	replace()	regrab()	regraball()	regraballi()	
-	regrabi()	rest()		revwords()	rtables()
-	setdiff()	setinter()	setunion()	shuffle()	
-	sortby()	sort()		splice()	step()		
-	table()		tables()	until()		whenfalse()	
-	whentrue()	while()		words()
+	insert()	itemize()	iter()		last()		
+	ldelete()	ldiff()		ledit()		linter()	
+	list()		lnum()		loop()		lpos()		
+	lrand()		lunion()	map()		match()		
+	matchall()	member()	mix()		munge()		
+	remove()	replace()	regrab()	regraball()	
+	regraballi()	regrabi()	rest()		revwords()	
+	rtables()	setdiff()	setinter()	setunion()	
+	shuffle()	sortby()	sort()		splice()	
+	step()		table()		tables()	until()		
+	whenfalse()	whentrue()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -8368,6 +8368,25 @@ performed and the walk down the list stops.
       (0 unknown, 2 going, 7 garbage)
  
   See also: @stats.
+ 
+& ITEMIZE()
+  Function: itemize(<list>[,<delim>[,<conjunction>[,<punctuation>]]])
+ 
+  This function creates a word-list, punctuated by <punctuation> and,
+  if there are three or more elements in the list, with <conjunction>
+  before the last word. <list> is a <delim>-separated list of words,
+  where <delim> defaults to a space and can be any valid input delimiter.
+  <conjunction> is an arbitrary string, and defaults to the word "and".
+  <punctuation> can be any valid output delimiter, and defaults to a comma.
+  
+  Examples:
+    itemize(a)                         ==>  a
+    itemize(a b)                       ==>  a and b
+    itemize(a b c)                     ==>  a, b, and c
+    itemize(a b c,,or)                 ==>  a, b, or c
+    itemize(a b c,,or,;)               ==>  a; b; or c
+    itemize(a b,,,;)                   ==>  a b
+    itemize(a<>b<>c<>d<>e,<>,+==|,->)  ==>  a-> b-> c-> d-> +==| e
  
 & ITER()
   Function: iter(<list>, <eval>[, <delim>[, <output delim>]])

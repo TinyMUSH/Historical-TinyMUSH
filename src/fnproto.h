@@ -83,6 +83,7 @@ XFUNCTION(fun_grab);
 XFUNCTION(fun_graball);
 XFUNCTION(fun_shuffle);
 XFUNCTION(fun_ledit);
+XFUNCTION(fun_itemize);
 
 /* From funmath.c */
 
@@ -500,6 +501,7 @@ FUN flist[] = {
 {"ISDBREF",	fun_isdbref,	1,  0,		CA_PUBLIC},
 {"ISNUM",	fun_isnum,	1,  0,		CA_PUBLIC},
 {"ISWORD",	fun_isword,	1,  0,		CA_PUBLIC},
+{"ITEMIZE",	fun_itemize,	0,  FN_VARARGS, CA_PUBLIC},
 {"ITEMS",	fun_items,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ITER",	fun_iter,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
