@@ -1689,7 +1689,7 @@ static void read_comsys(fp, com_ver)
 	chp = (CHANNEL *) XMALLOC(sizeof(CHANNEL), "load_comsys.channel");
 	chp->name = (char *) strdup(getstring_noalloc(fp, 1));
 	chp->owner = getref(fp);
-	if (!Good_obj(chp->owner) || isPlayer(chp->owner))
+	if (!Good_obj(chp->owner) || !isPlayer(chp->owner))
 	    chp->owner = GOD;	/* sanitize */
 	chp->flags = getref(fp);
 	if (com_ver == 1)
