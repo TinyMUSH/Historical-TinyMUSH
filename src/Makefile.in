@@ -1,4 +1,4 @@
-# Makefile for TinyMUX 1.2
+# Makefile for TinyMUSH 3.0
 #
 # Search for the text 'CONFIGURATION SECTION' and make any changes needed
 # there.
@@ -59,7 +59,7 @@ CONC_DEFS =
 # Malloc debugging options. The first set is with debugging off.
 # If you wish to use malloc debugging, comment the first set and uncomment
 # the second set. This should only be turned on if you're looking for memory
-# leaks or corruption, as it slows down the MUX considerably.
+# leaks or corruption, as it slows down the MUSH considerably.
 MALLOC_S = malloc.c
 MALLOC_O = malloc.o
 MALLOC_DEFS =
@@ -108,8 +108,8 @@ D_INC	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 VER_SRC	= version.c
 VER_OBJ	= version.o
 VER_INC	= patchlevel.h
-VER_FLG	= -DMUX_BUILD_DATE="\"`date`\"" \
-	  -DMUX_BUILD_NUM="\"`sh ./buildnum.sh`\""
+VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
+	  -DMUSH_BUILD_NUM="\"`sh ./buildnum.sh`\""
 
 # ===================== CONFIGURATION SECTION ====================
 #

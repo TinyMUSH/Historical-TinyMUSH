@@ -56,7 +56,7 @@ int extra;
 
 	notify(player, mudstate.version);
 	buff = alloc_mbuf("do_version");
-	sprintf(buff, "Build date: %s", MUX_BUILD_DATE);
+	sprintf(buff, "Build date: %s", MUSH_BUILD_DATE);
 	notify(player, buff);
 	free_mbuf(buff);
 }
@@ -65,11 +65,11 @@ void NDECL(init_version)
 {
 #ifdef BETA
 #if PATCHLEVEL > 0
-	sprintf(mudstate.version, "TinyMUX Beta version %s patchlevel %d #%s",
-		MUX_VERSION, PATCHLEVEL, MUX_BUILD_NUM);
+	sprintf(mudstate.version, "TinyMUSH Beta version %s patchlevel %d #%s",
+		MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM);
 #else
-	sprintf(mudstate.version, "TinyMUX Beta version %s #%s",
-		MUX_VERSION, MUX_BUILD_NUM);
+	sprintf(mudstate.version, "TinyMUSH Beta version %s #%s",
+		MUSH_VERSION, MUSH_BUILD_NUM);
 #endif /*
         * PATCHLEVEL 
         */
@@ -77,11 +77,11 @@ void NDECL(init_version)
        * not BETA 
        */
 #if PATCHLEVEL > 0
-	sprintf(mudstate.version, "TinyMUX version %s patchlevel %d #%s [%s]",
-		MUX_VERSION, PATCHLEVEL, MUX_BUILD_NUM, MUX_RELEASE_DATE);
+	sprintf(mudstate.version, "TinyMUSH version %s patchlevel %d #%s [%s]",
+		MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM, MUSH_RELEASE_DATE);
 #else
-	sprintf(mudstate.version, "TinyMUX version %s #%s [%s]",
-		MUX_VERSION, MUX_BUILD_NUM, MUX_RELEASE_DATE);
+	sprintf(mudstate.version, "TinyMUSH version %s #%s [%s]",
+		MUSH_VERSION, MUSH_BUILD_NUM, MUSH_RELEASE_DATE);
 #endif /*
         * PATCHLEVEL 
         */
@@ -94,6 +94,6 @@ void NDECL(init_version)
 	ENDLOG
 		STARTLOG(LOG_ALWAYS, "INI", "START")
 		log_text((char *)"Build date: ");
-	log_text((char *)MUX_BUILD_DATE);
+	log_text((char *)MUSH_BUILD_DATE);
 	ENDLOG
 }
