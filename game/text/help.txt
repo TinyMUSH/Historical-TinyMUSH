@@ -4217,7 +4217,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Side-Effect Functions: side-effect functions.
   Stack Functions: manipulation of object stacks.
   String Functions: manipulation of strings.
-  Tcl Functions: available only when Tcl is enabled.
+  Variable Functions: manipulation of object-associated variables.
    
   See 'help <function name>' for more information about a specific function.
  
@@ -4314,8 +4314,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	ifelse()	localize()	mudname()	nonzero()
 	pemit()		r()		rand()		remit()		
 	restarts()	restarttime()	s()		secs()		
-	setq()		setr()		setx()		switch()
-	starttime()	time()		version()	x()
+	setq()		setr()		switch()	starttime()
+	time()		version()	x()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -4327,12 +4327,31 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	foreach()	isdbref()	isnum()		isword()	
 	lcstr()		left()		lit()		ljust()
 	merge()		mid()		null()		pos()		
-	regmatch()	regparse()	repeat()	reverse()	
-	right()		rjust()		secure()	scramble()	
-	space()		squish()	strcat()	streq()		
-	stripansi()	strlen()	strmatch()	strtrunc()	
-	translate()	trim()		ucstr()		valid()		
-	wordpos()
+	regmatch()	repeat()	reverse()	right()		
+	rjust()		secure()	scramble()	space()
+	squish()	strcat()	streq()		stripansi()
+	strlen()	strmatch()	strtrunc()	translate()
+	trim()		ucstr()		valid()		wordpos()
+ 
+& VARIABLE FUNCTIONS
+  Topic: Variable functions
+ 
+  Every object has the ability to be associated with a number of temporary
+  variables. These variables can be arbitrarily named, and persist until
+  the game is restarted. Functions are used to set and retrieve these
+  variables, and all operate directly on the object making the function
+  call; to manipulate variables on other objects, wrap the call in an
+  objeval(). With the exception of lvars() and x(), all the functions
+  operate strictly via side-effects, and return an empty string.
+ 
+  The variable functions are:
+ 
+	clearvars()	lvars()		regparse()	setx()
+	x()
+  
+  There is a configurable maximum number of variables per object,
+  typically 50. If an attempt is made to set more than 50 variables,
+  it will fail silently. See 'wizhelp variables_limit' for details.
  
 & STACK FUNCTIONS
   Topic: Stack functions
@@ -4350,6 +4369,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	swap()		toss()
  
   All stack functions require the caller to control the object.
+  There is a configurable maximum number of stack items per object,
+  usually 50, beyond which point attempts to push additional items onto
+  the stack will fail silently; see 'wizhelp stack_limit' for details.
  
   Continued in 'help Stack Funcs2'.
  
@@ -7797,31 +7819,25 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & SETX()
   Function:  setx(<variable name>,<value>)
  
-  This side-effect function sets a temporary variable associated with
-  the object making the function call. The temporary variable has
-  limited persistence -- unlike an attribute, it is not saved over
-  restarts. Using an empty <value> will unset the variable. For
+  This function sets the valuable of a variable associated with the
+  calling object. Using an empty <value> will unset the variable. For
   reasons of memory consumption, variables should ALWAYS be explicitly
   unset when they are not immediately needed. This function does not
   return anything.
- 
-  If you need to set a variable for an object that you control, wrap
-  this function call in an objeval().
  
   Example:
     > say Testing [setx(temp,abc)][x(temp)] - [strlen(x(temp))].
     You say "Testing abc - 3."
  
-  See also: x(), xvars(), setq(), setr(), r().
+  See also: x(), lvars(), clearvars(), xvars(), regparse().
  
 & X()
   Function:  x(<variable name>)
  
   This function retrieves a temporary variable associated with the object
-  making the function call. If you need to retrieve a variable associated
-  with another object you control, wrap this function call in an objeval().
- 
-  See also: setx(), xvars(), setq(), setr(), r().
+  making the function call.
+  
+  See also: setx(), lvars(), setq(), setr(), r().
  
 & XVARS()
   Function:  xvars(<list of strings>,<list of variables>[,<delim>])
@@ -7837,7 +7853,25 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say [xvars(apple|peach|cherry,foo bar baz,|)][x(bar)]
     You say "peach"
  
-  See also: x(), setx(), setq(), setr(), r().
+  See also: x(), setx(), lvars(), clearvars(), regparse().
+ 
+& LVARS()
+  Function:  lvars()
+ 
+  Returns a space-separated list of all variable names associated with
+  the calling object. This is potentially computationally expensive and
+  should be avoided if possible.
+ 
+  See also: x(), setx(), lvars(), clearvars().
+ 
+& CLEARVARS()
+  Function:  clearvars()
+ 
+  Unsets all variables associated with the calling object. This is
+  potentially computationally expensive, and should be avoided if
+  possible.
+ 
+  See also: x(), setx(), lvars().
  
 & PEMIT()
   Function:  pemit(<list of dbrefs>,<string>)
