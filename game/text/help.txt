@@ -9691,14 +9691,8 @@ performed and the walk down the list stops.
   Function:  writable(<object>,<victim>/<attr>)
  
   Returns 1 if <object> can set <victim>'s <attr>, or 0 otherwise. If
-  <object> or <victim> do not exist, 0 is returned.
- 
-  If an attribute by the name of <attr> has never been defined on the
-  MUSH before, writable() always returns 0. To prevent this in a situation
-  where you know that <attr> might not exist, you can do the following: 
-      [set(<trash>,<attr>:)][writable(<object>,<victim>/<attr>)]
-  <trash> should be some object that you control, which can have its
-  attributes trashed to no ill-effect.
+  <object> or <victim> do not exist, 0 is returned. Note that this 
+  check does not take into account whether or not <attr> is @lock'd.
  
 & controls()
   Function: controls(<object>,<victim>)

@@ -673,21 +673,55 @@ FUNCTION(fun_visible)
 FUNCTION(fun_writable)
 {
 	dbref it, thing, aowner;
-	int aflags, atr;
+	int aflags, atr, retval;
 	ATTR *ap;
+	char *s;
 
 	if ((it = match_thing(player, fargs[0])) == NOTHING) {
 		safe_chr('0', buff, bufc);
 		return;
 	}
-	if (parse_attrib(player, fargs[1], &thing, &atr, 1) &&
-	    (atr != NOTHING)) {
+
+	retval = parse_attrib(player, fargs[1], &thing, &atr, 1);
+
+	/* Possibilities:
+	 * retval is 0, which means we didn't match a thing.
+	 * retval is NOTHING, which means we matched a thing but have a
+	 *   non-existent attribute.
+	 * retval is 1; atr is either NOTHING (no permission to see)
+	 *   or a valid attr number.
+	 */
+
+	if (retval == 0) {
+	    safe_chr('0', buff, bufc);
+	    return;
+	}
+	if (retval == 1) {
+	    if (atr == NOTHING) {
+		safe_chr('0', buff, bufc);
+		return;
+	    } else {
 		ap = atr_num(atr);
 		atr_pget_info(thing, atr, &aowner, &aflags);
 		safe_bool(buff, bufc, Set_attr(it, thing, ap, aflags));
 		return;
+	    }
 	}
-	safe_chr('0', buff, bufc);
+
+	/* fargs[1] should now contain the attribute name. */
+
+	if (!fargs[1] || !*fargs[1]) {
+	    safe_chr('0', buff, bufc);
+	    return;
+	}
+
+	atr = mkattr(fargs[1]);
+	if ((atr <= 0) || ((ap = atr_num(atr)) == NULL)) {
+	    safe_chr('0', buff, bufc);
+	    return;
+	}
+	atr_pget_info(thing, atr, &aowner, &aflags);
+	safe_bool(buff, bufc, Set_attr(it, thing, ap, aflags));
 }
 
 /* ------------------------------------------------------------------------
