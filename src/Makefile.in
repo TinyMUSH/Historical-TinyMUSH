@@ -177,10 +177,10 @@ $(VER_O): $(VER_S) $(MUSH_S) $(MOD_S) $(ALL_I)
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $<
 
 $(MOD_O):
-	$(LIBTOOL) --mode=compile $(CC) $(ALLCFLAGS) -c $<
+	$(LIBTOOL) --mode=compile $(CC) $(ALLCFLAGS) -c `echo $@ | sed -e 's/o$$/c/'`
 
 $(MOD_LA):
-	$(LIBTOOL) --mode=link $(CC) -module -o $@ `echo $@ | sed -e s/a$$/o/` -rpath `pwd`
+	$(LIBTOOL) --mode=link $(CC) -module -o $@ `echo $@ | sed -e 's/a$$/o/'` -rpath `pwd`
 
 links: $(OUT)
 	cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/dbconvert dbconvert
