@@ -758,6 +758,19 @@ void do_hook(player, cause, key, cmdname, target)
 	    notify(player, "After Hook: none");
 	}
 
+	if (cmdp->userperms) {
+	    ap = atr_num(cmdp->userperms->atr);
+	    if (!ap) {
+		notify(player,
+ 	          "User Permissions contains bad attribute number.");
+	    } else {
+		notify(player, tprintf("User Permissions: #%d/%s",
+				       cmdp->userperms->thing, ap->name));
+	    }
+	} else {
+	    notify(player, "User Permissions: none");
+	}
+
 	return;
     }
 
@@ -791,6 +804,12 @@ void do_hook(player, cause, key, cmdname, target)
 		cmdp->post_hook = NULL;
 	    }
 	    notify(player, "Hook removed.");
+	} else if (key & HOOK_PERMIT) {
+	    if (cmdp->userperms) {
+		XFREE(cmdp->userperms, "do_hook");
+		cmdp->userperms = NULL;
+	    }
+	    notify(player, "User-defined permissions removed.");
 	} else {
 	    notify(player, "Unknown command switch.");
 	}
@@ -846,6 +865,12 @@ void do_hook(player, cause, key, cmdname, target)
 	}
 	cmdp->post_hook = hp;
 	notify(player, "Hook added.");
+    } else if (key & HOOK_PERMIT) {
+	if (cmdp->userperms) {
+	    XFREE(cmdp->userperms, "do_hook");
+	}
+	cmdp->userperms = hp;
+	notify(player, "User-defined permissions will now be checked.");
     } else {
 	XFREE(hp, "do_hook");
 	notify(player, "Unknown command switch.");
@@ -920,6 +945,7 @@ char *s;
 		cmd->extra = 0;
 		cmd->pre_hook = NULL;
 		cmd->post_hook = NULL;
+		cmd->userperms = NULL;
 		if (old && (old->callseq & CS_LEADIN)) {
 			cmd->callseq = CS_ADDED|CS_ONE_ARG|CS_LEADIN;
 		} else {

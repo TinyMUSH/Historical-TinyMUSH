@@ -248,6 +248,7 @@ NAMETAB halt_sw[] = {
 NAMETAB hook_sw[] = {
 {(char *)"before",	1,	CA_GOD,		HOOK_BEFORE},
 {(char *)"after",	1,	CA_GOD,		HOOK_AFTER},
+{(char *)"permit",	1,	CA_GOD,		HOOK_PERMIT},
 {(char *)"preserve",	1,	CA_GOD,		HOOK_PRESERVE},
 {(char *)"nopreserve",	1,	CA_GOD,		HOOK_NOPRESERVE},
 { NULL,			0,	0,		0}};
@@ -471,504 +472,504 @@ NAMETAB warp_sw[] = {
 CMDENT command_table[] = {
 {(char *)"@@",			NULL,		CA_PUBLIC,
 	0,		CS_NO_ARGS,		
-	NULL,			NULL,		do_comment},
+	NULL,		NULL,	NULL,		do_comment},
 {(char *)"@addcommand",		NULL,		CA_GOD,
 	0,		CS_TWO_ARG,		
-	NULL,			NULL,		do_addcommand},
+	NULL,		NULL,	NULL,		do_addcommand},
 {(char *)"@admin",		NULL,		CA_WIZARD,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_admin},
+	NULL,		NULL,	NULL,		do_admin},
 {(char *)"@alias",		NULL,		CA_NO_GUEST|CA_NO_SLAVE,
 	0,		CS_TWO_ARG,		
-	NULL,			NULL,		do_alias},
+	NULL,		NULL,	NULL,		do_alias},
 {(char *)"@apply_marked",	NULL,		CA_WIZARD|CA_GBL_INTERP,
 	0,		CS_ONE_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
-	NULL,			NULL,		do_apply_marked},
+	NULL,		NULL,	NULL,		do_apply_marked},
 {(char *)"@attribute",		attrib_sw,	CA_WIZARD,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_attribute},
+	NULL,		NULL,	NULL,		do_attribute},
 {(char *)"@boot",		boot_sw,	CA_NO_GUEST|CA_NO_SLAVE,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_boot},
+	NULL,		NULL,	NULL,		do_boot},
 #ifdef USE_COMSYS
 {(char *)"@cboot",              cboot_sw,       CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_TWO_ARG,          
-	NULL,			NULL,		do_cboot},
+	NULL,		NULL,	NULL,		do_cboot},
 {(char *)"@ccreate",            NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_ONE_ARG,          
-	NULL,			NULL,		do_ccreate},
+	NULL,		NULL,	NULL,		do_ccreate},
 {(char *)"@cdestroy",           NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_ONE_ARG,          
-	NULL,			NULL,		do_cdestroy},
+	NULL,		NULL,	NULL,		do_cdestroy},
 {(char *)"@cemit",		cemit_sw,	CA_NO_SLAVE|CA_NO_GUEST,
 	0,		 CS_TWO_ARG,		
-	NULL,			NULL,		do_cemit},
+	NULL,		NULL,	NULL,		do_cemit},
 {(char *)"@channel",		channel_sw,	CA_NO_SLAVE|CA_NO_GUEST,
 	0,		 CS_TWO_ARG,		
-	NULL,			NULL,		do_channel},
+	NULL,		NULL,	NULL,		do_channel},
 #endif /* USE_COMSYS */
 {(char *)"@chown",		chown_sw,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	CHOWN_ONE,	CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_chown},
+	NULL,		NULL,	NULL,		do_chown},
 {(char *)"@chownall",		chown_sw,		CA_WIZARD|CA_GBL_BUILD,
 	CHOWN_ALL,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_chownall},
+	NULL,		NULL,	NULL,		do_chownall},
 {(char *)"@chzone",             NULL,           
         CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
         0,              CS_TWO_ARG|CS_INTERP, 
-	NULL,			NULL,		do_chzone},
+	NULL,		NULL,	NULL,		do_chzone},
 {(char *)"@clone",		clone_sw,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_CONTENTS|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_clone},
+	NULL,		NULL,	NULL,		do_clone},
 #ifdef USE_COMSYS
 {(char *)"@clist",              clist_sw,       CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,			NULL,		do_clist},
+	NULL,		NULL,	NULL,		do_clist},
 #endif
 {(char *)"@cpattr",             NULL,           
          CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
          0,             CS_TWO_ARG|CS_ARGV,   
-	NULL,			NULL,		do_cpattr},
+	NULL,		NULL,	NULL,		do_cpattr},
 {(char *)"@create",		NULL,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_CONTENTS|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_create},
+	NULL,		NULL,	NULL,		do_create},
 {(char *)"@cron",		NULL,		CA_NO_SLAVE|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP,
-	NULL,			NULL,		do_cron},
+	NULL,		NULL,	NULL,		do_cron},
 {(char *)"@crondel",		NULL,		CA_NO_SLAVE|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP,
-	NULL,			NULL,		do_crondel},
+	NULL,		NULL,	NULL,		do_crondel},
 {(char *)"@crontab",		NULL,		CA_NO_SLAVE|CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,
-	NULL,			NULL,		do_crontab},
+	NULL,		NULL,	NULL,		do_crontab},
 {(char *)"@cut",		NULL,		CA_WIZARD|CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_cut},
+	NULL,		NULL,	NULL,		do_cut},
 #ifdef USE_COMSYS
 {(char *)"@cwho",               cwho_sw,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,			NULL,		do_cwho},
+	NULL,		NULL,	NULL,		do_cwho},
 #endif
 {(char *)"@dbck",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
-	NULL,			NULL,		do_dbck},
+	NULL,		NULL,	NULL,		do_dbck},
 {(char *)"@dbclean",		NULL,		CA_GOD,
 	0,		CS_NO_ARGS,		
-	NULL,			NULL,		do_dbclean},
+	NULL,		NULL,	NULL,		do_dbclean},
 {(char *)"@decompile",		decomp_sw,		CA_PUBLIC,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_decomp},
+	NULL,		NULL,	NULL,		do_decomp},
 {(char *)"@delcommand",		NULL,		CA_GOD,
 	0,		CS_TWO_ARG,		
-	NULL,			NULL,		do_delcommand},
+	NULL,		NULL,	NULL,		do_delcommand},
 {(char *)"@destroy",		destroy_sw,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	DEST_ONE,	CS_ONE_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_destroy},
+	NULL,		NULL,	NULL,		do_destroy},
 /*{(char *)"@destroyall",	NULL,		CA_WIZARD|CA_GBL_BUILD,
 	DEST_ALL,	CS_ONE_ARG,		
-	NULL,			NULL,		do_destroy}, */
+	NULL,		NULL,	NULL,		do_destroy}, */
 {(char *)"@dig",		dig_sw,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	0,		CS_TWO_ARG|CS_ARGV|CS_INTERP,
-	NULL,			NULL,		do_dig},
+	NULL,		NULL,	NULL,		do_dig},
 {(char *)"@disable",		NULL,		CA_WIZARD,
 	GLOB_DISABLE,	CS_ONE_ARG,		
-	NULL,			NULL,		do_global},
+	NULL,		NULL,	NULL,		do_global},
 {(char *)"@doing",		doing_sw,	CA_PUBLIC,
 	0,		CS_ONE_ARG,		
-	NULL,			NULL,		do_doing},
+	NULL,		NULL,	NULL,		do_doing},
 {(char *)"@dolist",		dolist_sw,		CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
                                               
-	NULL,			NULL,		do_dolist},
+	NULL,		NULL,	NULL,		do_dolist},
 {(char *)"@drain",		NULL,
 	CA_GBL_INTERP|CA_NO_SLAVE|CA_NO_GUEST,
 	NFY_DRAIN,	CS_TWO_ARG,		
-	NULL,			NULL,		do_notify},
+	NULL,		NULL,	NULL,		do_notify},
 {(char *)"@dump",		dump_sw,	CA_WIZARD,
 	0,		CS_NO_ARGS,		
-	NULL,			NULL,		do_dump},
+	NULL,		NULL,	NULL,		do_dump},
 {(char *)"@edit",		NULL,		CA_NO_SLAVE|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_ARGV|CS_STRIP_AROUND,
 						
-	NULL,			NULL,		do_edit},
+	NULL,		NULL,	NULL,		do_edit},
 {(char *)"@emit",		emit_sw,
 	CA_LOCATION|CA_NO_GUEST|CA_NO_SLAVE,
 	SAY_EMIT,	CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_say},
+	NULL,		NULL,	NULL,		do_say},
 {(char *)"@enable",		NULL,		CA_WIZARD,
 	GLOB_ENABLE,	CS_ONE_ARG,		
-	NULL,			NULL,		do_global},
+	NULL,		NULL,	NULL,		do_global},
 {(char *)"@entrances",		NULL,		CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,
-	NULL,			NULL,		do_entrances},
+	NULL,		NULL,	NULL,		do_entrances},
 {(char *)"@eval",		NULL,		CA_NO_SLAVE,
 	0,		CS_ONE_ARG | CS_INTERP,
-	NULL,			NULL,		do_eval},
+	NULL,		NULL,	NULL,		do_eval},
 {(char *)"@femit",		femit_sw,
 	CA_LOCATION|CA_NO_GUEST|CA_NO_SLAVE,
 	PEMIT_FEMIT,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_pemit},
+	NULL,		NULL,	NULL,		do_pemit},
 {(char *)"@find",		NULL,		CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_find},
+	NULL,		NULL,	NULL,		do_find},
 {(char *)"@fixdb",		fixdb_sw,	CA_GOD,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_fixdb},
+	NULL,		NULL,	NULL,		do_fixdb},
 {(char *)"@force",		NULL,
 	CA_NO_SLAVE|CA_GBL_INTERP|CA_NO_GUEST,
 	FRC_COMMAND,	CS_TWO_ARG|CS_INTERP|CS_CMDARG,
-	NULL,			NULL,		do_force},
+	NULL,		NULL,	NULL,		do_force},
 {(char *)"@fpose",		fpose_sw,	CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_FPOSE,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_pemit},
+	NULL,		NULL,	NULL,		do_pemit},
 {(char *)"@fsay",		NULL,		CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_FSAY,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_pemit},
+	NULL,		NULL,	NULL,		do_pemit},
 {(char *)"@freelist",		NULL,		CA_WIZARD,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_freelist},
+	NULL,		NULL,	NULL,		do_freelist},
 {(char *)"@function",		function_sw,	CA_GOD,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_function},
+	NULL,		NULL,	NULL,		do_function},
 {(char *)"@halt",		halt_sw,	CA_NO_SLAVE,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_halt},
+	NULL,		NULL,	NULL,		do_halt},
 {(char *)"@hashresize",		NULL,		CA_GOD,
 	0,		CS_NO_ARGS,
-	NULL,			NULL,		do_hashresize},
+	NULL,		NULL,	NULL,		do_hashresize},
 {(char *)"@hook",		hook_sw,	CA_GOD,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_hook},
+	NULL,		NULL,	NULL,		do_hook},
 {(char *)"@kick",		NULL,		CA_WIZARD,
 	QUEUE_KICK,	CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_queue},
+	NULL,		NULL,	NULL,		do_queue},
 {(char *)"@last",		NULL,		CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_last},
+	NULL,		NULL,	NULL,		do_last},
 {(char *)"@link",		NULL,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_link},
+	NULL,		NULL,	NULL,		do_link},
 {(char *)"@list",		NULL,		CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_list},
+	NULL,		NULL,	NULL,		do_list},
 {(char *)"@listcommands",		NULL,		CA_GOD,
 	0,		CS_ONE_ARG,		
-	NULL,			NULL,		do_listcommands},
+	NULL,		NULL,	NULL,		do_listcommands},
 {(char *)"@list_file",		NULL,		CA_WIZARD,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_list_file},
+	NULL,		NULL,	NULL,		do_list_file},
 {(char *)"@listmotd",		listmotd_sw,	CA_PUBLIC,
 	MOTD_LIST,	CS_ONE_ARG,		
-	NULL,			NULL,		do_motd},
+	NULL,		NULL,	NULL,		do_motd},
 {(char *)"@lock",		lock_sw,	CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_lock},
+	NULL,		NULL,	NULL,		do_lock},
 {(char *)"@log",		NULL,		CA_WIZARD,
 	0,		CS_TWO_ARG,
-	NULL,			NULL,		do_logwrite},
+	NULL,		NULL,	NULL,		do_logwrite},
 {(char *)"@logrotate",		NULL,		CA_GOD,
 	0,		CS_NO_ARGS,
-	NULL,			NULL,		do_logrotate},
+	NULL,		NULL,	NULL,		do_logrotate},
 #ifdef USE_MAIL
 {(char *)"@mail",               mail_sw,           CA_NO_SLAVE|CA_NO_GUEST,
         0,              CS_TWO_ARG|CS_INTERP,
-	NULL,			NULL,		do_mail},
+	NULL,		NULL,	NULL,		do_mail},
 {(char *)"@malias",             malias_sw,         CA_NO_SLAVE|CA_NO_GUEST,
         0,              CS_TWO_ARG|CS_INTERP,
-	NULL,			NULL,		do_malias},
+	NULL,		NULL,	NULL,		do_malias},
 #endif
 {(char *)"@mark",		mark_sw,	CA_WIZARD,
 	SRCH_MARK,	CS_ONE_ARG|CS_NOINTERP,	
-	NULL,			NULL,		do_search},
+	NULL,		NULL,	NULL,		do_search},
 {(char *)"@mark_all",		markall_sw,	CA_WIZARD,
 	MARK_SET,	CS_NO_ARGS,		
-	NULL,			NULL,		do_markall},
+	NULL,		NULL,	NULL,		do_markall},
 {(char *)"@motd",		motd_sw,	CA_WIZARD,
 	0,		CS_ONE_ARG,		
-	NULL,			NULL,		do_motd},
+	NULL,		NULL,	NULL,		do_motd},
 {(char *)"@mvattr",		NULL,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	0,		CS_TWO_ARG|CS_ARGV,	
-	NULL,			NULL,		do_mvattr},
+	NULL,		NULL,	NULL,		do_mvattr},
 {(char *)"@name",		NULL,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_name},
+	NULL,		NULL,	NULL,		do_name},
 {(char *)"@newpassword",	NULL,		CA_WIZARD,
 	PASS_ANY,	CS_TWO_ARG,		
-	NULL,			NULL,		do_newpassword},
+	NULL,		NULL,	NULL,		do_newpassword},
 {(char *)"@notify",		notify_sw,
 	CA_GBL_INTERP|CA_NO_SLAVE|CA_NO_GUEST,
 	0,		CS_TWO_ARG,		
-	NULL,			NULL,		do_notify},
+	NULL,		NULL,	NULL,		do_notify},
 {(char *)"@oemit",		NULL,
 	CA_LOCATION|CA_NO_GUEST|CA_NO_SLAVE,
 	PEMIT_OEMIT,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_pemit},
+	NULL,		NULL,	NULL,		do_pemit},
 {(char *)"@open",		open_sw,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_CONTENTS|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_ARGV|CS_INTERP,
-	NULL,			NULL,		do_open},
+	NULL,		NULL,	NULL,		do_open},
 {(char *)"@parent",		NULL,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_FUNCTION,		
-	NULL,			NULL,		do_parent},
+	NULL,		NULL,	NULL,		do_parent},
 {(char *)"@password",		NULL,		CA_NO_GUEST,
 	PASS_MINE,	CS_TWO_ARG,		
-	NULL,			NULL,		do_password},
+	NULL,		NULL,	NULL,		do_password},
 {(char *)"@pcreate",		NULL,		CA_WIZARD|CA_GBL_BUILD,
 	PCRE_PLAYER,	CS_TWO_ARG,		
-	NULL,			NULL,		do_pcreate},
+	NULL,		NULL,	NULL,		do_pcreate},
 {(char *)"@pemit",		pemit_sw,	CA_NO_GUEST|CA_NO_SLAVE,
 	PEMIT_PEMIT,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_pemit},
+	NULL,		NULL,	NULL,		do_pemit},
 {(char *)"@npemit",		pemit_sw,	CA_NO_GUEST|CA_NO_SLAVE,
 	PEMIT_PEMIT,	CS_TWO_ARG|CS_UNPARSE|CS_NOSQUISH,	
-	NULL,			NULL,		do_pemit},
+	NULL,		NULL,	NULL,		do_pemit},
 {(char *)"@poor",		NULL,		CA_GOD,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_poor},
+	NULL,		NULL,	NULL,		do_poor},
 {(char *)"@power",		NULL,		CA_PUBLIC,
 	0,		CS_TWO_ARG,		
-	NULL,			NULL,		do_power},
+	NULL,		NULL,	NULL,		do_power},
 {(char *)"@program",		NULL,		CA_PUBLIC,
 	0,		CS_TWO_ARG|CS_INTERP,		
-	NULL,			NULL,		do_prog},
+	NULL,		NULL,	NULL,		do_prog},
 {(char *)"@ps",			ps_sw,		CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_ps},
+	NULL,		NULL,	NULL,		do_ps},
 {(char *)"@quota",		quota_sw,	CA_PUBLIC,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_quota},
+	NULL,		NULL,	NULL,		do_quota},
 {(char *)"@quitprogram",	NULL,		CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_quitprog},
+	NULL,		NULL,	NULL,		do_quitprog},
 {(char *)"@readcache",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
-	NULL,			NULL,		do_readcache},
+	NULL,		NULL,	NULL,		do_readcache},
 {(char *)"@restart",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
-	NULL,			NULL,		do_restart},
+	NULL,		NULL,	NULL,		do_restart},
 {(char *)"@robot",		NULL,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST|CA_PLAYER,
 	PCRE_ROBOT,	CS_TWO_ARG,		
-	NULL,			NULL,		do_pcreate},
+	NULL,		NULL,	NULL,		do_pcreate},
 {(char *)"@search",		NULL,		CA_PUBLIC,
 	SRCH_SEARCH,	CS_ONE_ARG|CS_NOINTERP,	
-	NULL,			NULL,		do_search},
+	NULL,		NULL,	NULL,		do_search},
 {(char *)"@set",		set_sw,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST,
 	0,		CS_TWO_ARG,		
-	NULL,			NULL,		do_set},
+	NULL,		NULL,	NULL,		do_set},
 {(char *)"@shutdown",		shutdown_sw,	CA_WIZARD,
 	0,		CS_ONE_ARG,		
-	NULL,			NULL,		do_shutdown},
+	NULL,		NULL,	NULL,		do_shutdown},
 {(char *)"@sql",		NULL,		CA_SQL_OK,
 	0,		CS_ONE_ARG,
-	NULL,			NULL,		do_sql},
+	NULL,		NULL,	NULL,		do_sql},
 {(char *)"@sqlconnect",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,
-	NULL,			NULL,		do_sql_connect},
+	NULL,		NULL,	NULL,		do_sql_connect},
 {(char *)"@sqldisconnect",	NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,
-	NULL,			NULL,		sql_shutdown},
+	NULL,		NULL,	NULL,		sql_shutdown},
 {(char *)"@stats",		stats_sw,	CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_stats},
+	NULL,		NULL,	NULL,		do_stats},
 {(char *)"@startslave",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,			
-	NULL,			NULL,		boot_slave},
+	NULL,		NULL,	NULL,		boot_slave},
 {(char *)"@sweep",		sweep_sw,	CA_PUBLIC,
 	0,		CS_ONE_ARG,		
-	NULL,			NULL,		do_sweep},
+	NULL,		NULL,	NULL,		do_sweep},
 {(char *)"@switch",		switch_sw,	CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_ARGV|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
 						
-	NULL,			NULL,		do_switch},
+	NULL,		NULL,	NULL,		do_switch},
 {(char *)"@teleport",		teleport_sw,	CA_NO_GUEST,
 	TELEPORT_DEFAULT, CS_TWO_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_teleport},
+	NULL,		NULL,	NULL,		do_teleport},
 {(char *)"@timecheck",		timecheck_sw,	CA_WIZARD,
 	0,		CS_NO_ARGS,		
-	NULL,			NULL,		do_timecheck},
+	NULL,		NULL,	NULL,		do_timecheck},
 {(char *)"@timewarp",		warp_sw,	CA_WIZARD,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_timewarp},
+	NULL,		NULL,	NULL,		do_timewarp},
 {(char *)"@toad",		toad_sw,	CA_WIZARD,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_toad},
+	NULL,		NULL,	NULL,		do_toad},
 {(char *)"@trigger",		trig_sw,	CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_ARGV,	
-	NULL,			NULL,		do_trigger},
+	NULL,		NULL,	NULL,		do_trigger},
 {(char *)"@unlink",		NULL,		CA_NO_SLAVE|CA_GBL_BUILD,
 	0,		CS_ONE_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_unlink},
+	NULL,		NULL,	NULL,		do_unlink},
 {(char *)"@unlock",		lock_sw,	CA_NO_SLAVE,
 	0,		CS_ONE_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_unlock},
+	NULL,		NULL,	NULL,		do_unlock},
 {(char *)"@verb",		NULL,		CA_GBL_INTERP|CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_ARGV|CS_INTERP|CS_STRIP_AROUND,
 						
-	NULL,			NULL,		do_verb},
+	NULL,		NULL,	NULL,		do_verb},
 {(char *)"@wait",		NULL,		CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
 						
-	NULL,			NULL,		do_wait},
+	NULL,		NULL,	NULL,		do_wait},
 {(char *)"@wall",		wall_sw,	CA_PUBLIC,
 	SAY_SHOUT,	CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_say},
+	NULL,		NULL,	NULL,		do_say},
 {(char *)"@wipe",		NULL,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	0,		CS_ONE_ARG|CS_INTERP|CS_FUNCTION,	
-	NULL,			NULL,		do_wipe},
+	NULL,		NULL,	NULL,		do_wipe},
 #ifdef USE_COMSYS
 {(char *)"addcom",              NULL,           CA_NO_SLAVE,
         0,              CS_TWO_ARG|CS_ARGV,           
-	NULL,			NULL,		do_addcom},
+	NULL,		NULL,	NULL,		do_addcom},
 {(char *)"allcom",              NULL,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,			NULL,		do_allcom},
+	NULL,		NULL,	NULL,		do_allcom},
 {(char *)"comlist",             NULL,           CA_NO_SLAVE,
         0,              CS_NO_ARGS,           
-	NULL,			NULL,		do_comlist},
+	NULL,		NULL,	NULL,		do_comlist},
 {(char *)"comtitle",            NULL,           CA_NO_SLAVE,
         0,              CS_TWO_ARG,          
-	NULL,			NULL,		do_comtitle},
+	NULL,		NULL,	NULL,		do_comtitle},
 {(char *)"clearcom",            NULL,           CA_NO_SLAVE,
         0,              CS_NO_ARGS,           
-	NULL,			NULL,		do_clearcom},
+	NULL,		NULL,	NULL,		do_clearcom},
 {(char *)"delcom",              NULL,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,			NULL,		do_delcom},
+	NULL,		NULL,	NULL,		do_delcom},
 #endif
 {(char *)"drop",		drop_sw,
 	CA_NO_SLAVE|CA_CONTENTS|CA_LOCATION|CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_drop},
+	NULL,		NULL,	NULL,		do_drop},
 {(char *)"enter",		enter_sw,	CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_enter},
+	NULL,		NULL,	NULL,		do_enter},
 {(char *)"examine",		examine_sw,	CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_examine},
+	NULL,		NULL,	NULL,		do_examine},
 {(char *)"get",			get_sw,		CA_LOCATION|CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_get},
+	NULL,		NULL,	NULL,		do_get},
 {(char *)"give",		give_sw,	CA_LOCATION|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_give},
+	NULL,		NULL,	NULL,		do_give},
 {(char *)"goto",		goto_sw,	CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_move},
+	NULL,		NULL,	NULL,		do_move},
 {(char *)"inventory",		NULL,		CA_PUBLIC,
 	LOOK_INVENTORY,	CS_NO_ARGS,		
-	NULL,			NULL,		do_inventory},
+	NULL,		NULL,	NULL,		do_inventory},
 {(char *)"kill",		NULL,		CA_NO_GUEST|CA_NO_SLAVE,
 	KILL_KILL,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_kill},
+	NULL,		NULL,	NULL,		do_kill},
 {(char *)"leave",		leave_sw,		CA_LOCATION,
 	0,		CS_NO_ARGS|CS_INTERP,	
-	NULL,			NULL,		do_leave},
+	NULL,		NULL,	NULL,		do_leave},
 {(char *)"look",		look_sw,		CA_LOCATION,
 	LOOK_LOOK,	CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_look},
+	NULL,		NULL,	NULL,		do_look},
 {(char *)"page",		NULL,		CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_page},
+	NULL,		NULL,	NULL,		do_page},
 {(char *)"pose",		pose_sw,	CA_LOCATION|CA_NO_SLAVE,
 	SAY_POSE,	CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_say},
+	NULL,		NULL,	NULL,		do_say},
 {(char *)"say",			NULL,		CA_LOCATION|CA_NO_SLAVE,
 	SAY_SAY,	CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_say},
+	NULL,		NULL,	NULL,		do_say},
 {(char *)"score",		NULL,		CA_PUBLIC,
 	LOOK_SCORE,	CS_NO_ARGS,		
-	NULL,			NULL,		do_score},
+	NULL,		NULL,	NULL,		do_score},
 {(char *)"slay",		NULL,		CA_WIZARD,
 	KILL_SLAY,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_kill},
+	NULL,		NULL,	NULL,		do_kill},
 {(char *)"think",               NULL,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,			NULL,		do_think},
+	NULL,		NULL,	NULL,		do_think},
 {(char *)"use",			NULL,		CA_NO_SLAVE|CA_GBL_INTERP,
 	0,		CS_ONE_ARG|CS_INTERP,	
-	NULL,			NULL,		do_use},
+	NULL,		NULL,	NULL,		do_use},
 {(char *)"version",		NULL,		CA_PUBLIC,
 	0,		CS_NO_ARGS,		
-	NULL,			NULL,		do_version},
+	NULL,		NULL,	NULL,		do_version},
 {(char *)"whisper",		NULL,		CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_WHISPER,	CS_TWO_ARG|CS_INTERP,	
-	NULL,			NULL,		do_pemit},
+	NULL,		NULL,	NULL,		do_pemit},
 {(char *)"doing",		NULL,		CA_PUBLIC,
 	CMD_DOING,	CS_ONE_ARG,		
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"quit",		NULL,		CA_PUBLIC,
 	CMD_QUIT,	CS_NO_ARGS,		
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"logout",		NULL,		CA_PUBLIC,
 	CMD_LOGOUT,	CS_NO_ARGS,		
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"who",			NULL,		CA_PUBLIC,
 	CMD_WHO,	CS_ONE_ARG,		
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"session",		NULL,		CA_PUBLIC,
 	CMD_SESSION,	CS_ONE_ARG,		
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"info",		NULL,		CA_PUBLIC,
 	CMD_INFO,	CS_NO_ARGS,
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"outputprefix",	NULL,		CA_PUBLIC,
 	CMD_PREFIX,	CS_ONE_ARG,		
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"outputsuffix",	NULL,		CA_PUBLIC,
 	CMD_SUFFIX,	CS_ONE_ARG,		
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"puebloclient",	NULL,           CA_PUBLIC,
       CMD_PUEBLOCLIENT,CS_ONE_ARG,              
-	NULL,			NULL,		logged_out},
+	NULL,		NULL,	NULL,		logged_out},
 {(char *)"\\",			NULL,
 	CA_NO_GUEST|CA_LOCATION|CF_DARK|CA_NO_SLAVE,
 	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,
-	NULL,			NULL,		do_say},
+	NULL,		NULL,	NULL,		do_say},
 {(char *)"#",			NULL,
 	CA_NO_SLAVE|CA_GBL_INTERP|CF_DARK,
 	0,		CS_ONE_ARG|CS_INTERP|CS_CMDARG|CS_LEADIN,
-	NULL,			NULL,		do_force_prefixed},
+	NULL,		NULL,	NULL,		do_force_prefixed},
 {(char *)":",			NULL,
 	CA_LOCATION|CF_DARK|CA_NO_SLAVE,
 	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,
-	NULL,			NULL,		do_say},
+	NULL,		NULL,	NULL,		do_say},
 {(char *)";",			NULL,
 	CA_LOCATION|CF_DARK|CA_NO_SLAVE,
 	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,
-	NULL,			NULL,		do_say},
+	NULL,		NULL,	NULL,		do_say},
 {(char *)"\"",			NULL,
 	CA_LOCATION|CF_DARK|CA_NO_SLAVE,
 	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,
-	NULL,			NULL,		do_say},
+	NULL,		NULL,	NULL,		do_say},
 {(char *)"&",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_TWO_ARG|CS_LEADIN,	
-	NULL,			NULL,		do_setvattr},
+	NULL,		NULL,	NULL,		do_setvattr},
 #ifdef USE_MAIL
 {(char *)"-",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_ONE_ARG|CS_LEADIN,	
-	NULL,			NULL,		do_postpend},
+	NULL,		NULL,	NULL,		do_postpend},
 {(char *)"~",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_ONE_ARG|CS_LEADIN,	
-	NULL,			NULL,		do_prepend},
+	NULL,		NULL,	NULL,		do_prepend},
 #endif
 {(char *)NULL,			NULL,		0,
 	0,		0,				
-	NULL,		NULL,			NULL}};
+	NULL,		NULL,	NULL,		NULL}};
 
 /* *INDENT-ON* */
 
@@ -1006,6 +1007,7 @@ void NDECL(init_cmdtab)
 			cp->callseq = CS_TWO_ARG;
 			cp->pre_hook = NULL;
 			cp->post_hook = NULL;
+			cp->userperms = NULL;
 			cp->info.handler = do_setattr;
 			if (hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab)) {
 				XFREE(cp->cmdname, "init_cmdtab.2");
@@ -1211,6 +1213,59 @@ int mask;
 }
 
 /* ---------------------------------------------------------------------------
+ * check_userdef_access: Check if user has access to command with user-def'd
+ * permissions. 
+ */
+
+int check_userdef_access(player, cmdp, cargs, ncargs)
+    dbref player;
+    CMDENT *cmdp;
+    char *cargs[];
+    int ncargs;
+{
+    static char buf[LBUF_SIZE];	/* avoid constantly reallocating this */
+    char *bp, *tstr, *str;
+    dbref aowner;
+    int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
+    char *preserve[MAX_GLOBAL_REGS];
+
+    /* We have user-defined command permissions. Go evaluate the
+     * obj/attr pair that we've been given. If that result is
+     * nonexistent, we consider it a failure. We use boolean
+     * truth here.
+     *
+     * Note that unlike before and after hooks, we always preserve
+     * the registers. (When you get right down to it, this thing isn't
+     * really a hook. It's just convenient to re-use the same code
+     * that we use with hooks.)
+     */
+
+    tstr = atr_get(cmdp->userperms->thing, cmdp->userperms->atr,
+		   &aowner, &aflags, &alen);
+    if (!tstr)
+	return 0;
+    if (!*tstr) {
+	free_lbuf(tstr);
+	return 0;
+    }
+    str = tstr;
+	
+    save_global_regs("check_userdef_access", preserve, preserve_len);
+
+    bp = buf;
+    exec(buf, &bp, 0, cmdp->userperms->thing, player,
+	 EV_EVAL | EV_FIGNORE | EV_TOP,
+	 &str, cargs, ncargs);
+    *bp = '\0';
+
+    restore_global_regs("check_userdef_access", preserve, preserve_len);
+
+    free_lbuf(tstr);
+    
+    return (xlate(buf));
+}
+
+/* ---------------------------------------------------------------------------
  * process_hook: Evaluate a hook function.
  */
 
@@ -1281,7 +1336,7 @@ int interactive, ncargs;
 
 	/* Check if we have permission to execute the command */
 
-	if (!check_access(player, cmdp->perms)) {
+	if (!Check_Cmd_Access(player, cmdp, cargs, ncargs)) {
 		notify(player, NOPERM_MESSAGE);
 		return;
 	}
@@ -1740,7 +1795,7 @@ char *command, *args[];
 	}
 	/* Only check for exits if we may use the goto command */
 
-	if (check_access(player, goto_cmdp->perms)) {
+	if (Check_Cmd_Access(player, goto_cmdp, args, nargs)) {
 
 		/* Check for an exit name */
 
@@ -1887,7 +1942,7 @@ char *command, *args[];
 	     * use the 'leave' command.
 	     */
 
-	    if (check_access(player, leave_cmdp->perms)) {
+	    if (Check_Cmd_Access(player, leave_cmdp, args, nargs)) {
 		p = atr_pget(Location(player), A_LALIAS, &aowner, &aflags, &alen);
 		if (*p) {
 		    if (matches_exit_from_list(lcbuf, p)) {
@@ -1906,7 +1961,7 @@ char *command, *args[];
 	     * 'enter' command.
 	     */
 
-	    if (check_access(player, enter_cmdp->perms)) {
+	    if (Check_Cmd_Access(player, enter_cmdp, args, nargs)) {
 		DOLIST(exit, Contents(Location(player))) {
 		    p = atr_pget(exit, A_EALIAS, &aowner, &aflags, &alen);
 		    if (*p) {
@@ -2106,7 +2161,8 @@ char *command, *args[];
 }
 
 /* ---------------------------------------------------------------------------
- * list_cmdtable: List internal commands.
+ * list_cmdtable: List internal commands. Note that user-defined command
+ * permissions are ignored in this context.
  */
 
 static void list_cmdtable(player)
@@ -2215,7 +2271,21 @@ dbref player;
 	for (cmdp = command_table; cmdp->cmdname; cmdp++) {
 		if (check_access(player, cmdp->perms)) {
 			if (!(cmdp->perms & CF_DARK)) {
-				sprintf(buff, "%s:", cmdp->cmdname);
+				if (cmdp->userperms) {
+				    ap = atr_num(cmdp->userperms->atr);
+				    if (!ap) {
+					sprintf(buff, "%s: user(#%d/?BAD?)",
+						cmdp->cmdname,
+						cmdp->userperms->thing);
+				    } else {
+					sprintf(buff, "%s: user(#%d/%s)",
+						cmdp->cmdname,
+						cmdp->userperms->thing,
+						ap->name);
+				    }
+				} else {
+				    sprintf(buff, "%s:", cmdp->cmdname);
+				}
 				listset_nametab(player, access_nametab,
 						cmdp->perms, buff, 1);
 			}
@@ -2483,6 +2553,7 @@ CF_HAND(cf_cmd_alias)
 		 */
 		cmd2->pre_hook = NULL;
 		cmd2->post_hook = NULL;
+		cmd2->userperms = NULL;
 
 		cmd2->info.handler = cmdp->info.handler;
 		if (hashadd(cmd2->cmdname, (int *)cmd2, (HASHTAB *) vp)) {

@@ -181,6 +181,7 @@ struct cmdentry {
 	int	perms;
 	int	extra;
 	int	callseq;
+	HOOKENT *userperms;
 	HOOKENT	*pre_hook;
 	HOOKENT	*post_hook;
 	union {
@@ -256,7 +257,12 @@ struct cmdentry {
 					 */
 					/* (typically via a switch alias) */
 
+#define Check_Cmd_Access(p,c,a,n) \
+(check_access(p,(c)->perms) && \
+ (!(c)->userperms || check_userdef_access(p,c,a,n)))
+
 extern int	FDECL(check_access, (dbref, int));
+extern int	FDECL(check_userdef_access, (dbref, CMDENT *, char *[], int));
 extern char *	FDECL(process_command, (dbref, dbref, int, char *, char *[], int));
 
 #endif /* __COMMAND_H */

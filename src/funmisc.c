@@ -678,9 +678,11 @@ FUNCTION(fun_subeval)
  * Side-effect functions.
  */
 
-static int check_command(player, name, buff, bufc)
+static int check_command(player, name, buff, bufc, cargs, ncargs)
 dbref player;
 char *name, *buff, **bufc;
+char *cargs[];
+int ncargs;
 {
     CMDENT *cmdp;
 
@@ -694,7 +696,8 @@ char *name, *buff, **bufc;
 	 * is also the same reason why side-effects don't trigger hooks.
 	 */
 
-	if (Invalid_Objtype(player) || !check_access(player, cmdp->perms) ||
+	if (Invalid_Objtype(player) ||
+	    !Check_Cmd_Access(player, cmdp, cargs, ncargs) ||
 	    (!Builder(player) && Protect(CA_GBL_BUILD) &&
 	     !(mudconf.control_flags & CF_BUILD))) {
 
@@ -709,42 +712,42 @@ char *name, *buff, **bufc;
 
 FUNCTION(fun_link)
 {
-    if (check_command(player, "@link", buff, bufc))
+    if (check_command(player, "@link", buff, bufc, cargs, ncargs))
 	return;
     do_link(player, cause, 0, fargs[0], fargs[1]);
 }
 
 FUNCTION(fun_tel)
 {
-    if (check_command(player, "@teleport", buff, bufc))
+    if (check_command(player, "@teleport", buff, bufc, cargs, ncargs))
 	return;
     do_teleport(player, cause, 0, fargs[0], fargs[1]);
 }
 
 FUNCTION(fun_wipe)
 {
-    if (check_command(player, "@wipe", buff, bufc))
+    if (check_command(player, "@wipe", buff, bufc, cargs, ncargs))
 	return;
     do_wipe(player, cause, 0, fargs[0]);
 }
 
 FUNCTION(fun_pemit)
 {
-    if (check_command(player, "@pemit", buff, bufc))
+    if (check_command(player, "@pemit", buff, bufc, cargs, ncargs))
 	return;
     do_pemit_list(player, fargs[0], fargs[1], 0);
 }
 
 FUNCTION(fun_remit)
 {
-    if (check_command(player, "@pemit", buff, bufc))
+    if (check_command(player, "@pemit", buff, bufc, cargs, ncargs))
 	return;
     do_pemit_list(player, fargs[0], fargs[1], 1);
 }
 
 FUNCTION(fun_force)
 {
-    if (check_command(player, "@force", buff, bufc))
+    if (check_command(player, "@force", buff, bufc, cargs, ncargs))
 	return;
     do_force(player, cause, 0, fargs[0], fargs[1], cargs, ncargs);
 }
@@ -755,7 +758,7 @@ FUNCTION(fun_trigger)
 		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
 		return;
 	}
-	if (check_command(player, "@trigger", buff, bufc))
+	if (check_command(player, "@trigger", buff, bufc, cargs, ncargs))
 	    return;
 	do_trigger(player, cause, 0, fargs[0], &(fargs[1]), nfargs - 1);
 }
@@ -780,7 +783,8 @@ FUNCTION(fun_command)
 	return;
     }
 
-    if (Invalid_Objtype(player) || !check_access(player, cmdp->perms) ||
+    if (Invalid_Objtype(player) ||
+	!Check_Cmd_Access(player, cmdp, cargs, ncargs) ||
 	(!Builder(player) && Protect(CA_GBL_BUILD) &&
 	 !(mudconf.control_flags & CF_BUILD))) {
 	notify(player, "Permission denied.");
