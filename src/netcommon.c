@@ -1501,7 +1501,7 @@ char *msg;
 			/* If stuck in an @prog, show the prompt */
 			
 			if (d->program_data != NULL)
-				queue_string(d, ">\377\371");
+				queue_string(d, "> \377\371");
 				
 		} else if (!(mudconf.control_flags & CF_LOGIN)) {
 			failconn("CON", "Connect", "Logins Disabled", d,
