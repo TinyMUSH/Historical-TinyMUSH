@@ -7368,15 +7368,18 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   Multiple iter()s and list()s can be nested, with the ## and #@ tokens
   evaluating appropriately at each level. The nesting level can also
-  be obtained, using the '#!' token.
- 
-  The effect is very similar to @dolist, except that the results are made
-  into a list and returned, not executed. Note that @dolist's use of ##
-  and #@ conflicts with iter()'s, though.
+  be obtained, using the '#!' token or the ilev() function; the first call
+  to iter(), list(), whentrue(), or whenfalse() is level 0, the next is
+  level 1, and so forth. itext() and inum() can be used to retrieve the
+  ##/#@-equivalent values at other nesting levels.
  
   Continued in 'help ITER2'.
  
 & ITER2
+ 
+  The effect is very similar to @dolist, except that the results are made
+  into a list and returned, not executed. Note that @dolist's use of ##
+  and #@ conflicts with iter()'s, though.
  
   Examples:
     > say [iter(This is a test,strlen(##))]
@@ -7394,7 +7397,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     5"
  
   See also: @dolist, parse(), list(), whentrue(), whenfalse(),
-            loop(), map(), DELIMITERS.
+            loop(), ilev(), itext(), inum(), map(), DELIMITERS.
  
 & LIST()
   Function: list(<list>, <eval>[, <delim>])
@@ -7418,6 +7421,39 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     5 - 5 - 1 - 0:1:2 1:2:2 2:3:2 3:4:2 4:5:2
  
   See also: iter(), parse(), loop().
+ 
+& ILEV()
+  Function: ilev()
+ 
+  Returns the nesting level of iter(), list(), whentrue() and whenfalse().
+  Equivalent to the substitution '#!' when used within one of those
+  functions.
+ 
+  See also: itext(), inum().
+ 
+& ITEXT()
+  Function: itext(<level>)
+ 
+  Returns the '##'-equivalent substitution text at the appropriate nesting
+  <level> of iter(), list(), whentrue() and whenfalse(). 'itext(0)' is
+  equivalent to '##'.
+ 
+  If used outside one of those functions, or with a nesting level that
+  is too deep, this function returns a null string.
+ 
+  See also: ilev(), inum().
+ 
+& INUM()
+  Function: inum(<level>)
+ 
+  Returns the '#@'-equivalent substitution text at the appropriate nesting
+  <level> of iter(), list(), whentrue() and whenfalse(). 'inum(0)' is
+  equivalent to '#@'.
+ 
+  If used outside one of those functions, or with a nesting level that
+  is too deep, this function returns 0.
+ 
+  See also: ilev(), itext().
  
 & LOOP()
   Function: loop(<list>, <eval>[, <delim>])
