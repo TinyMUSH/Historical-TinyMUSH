@@ -16,6 +16,7 @@
 static gdbm_file_info *dbp = NULL;
 
 static void gdbm_panic(mesg)
+char *mesg;
 {
 	fprintf(stderr, "GDBM panic: %s\n", mesg);
 }
@@ -89,7 +90,7 @@ char *argv[];
 			if (fread((void *)&be, sizeof(bucket_element),
 				  1, f) == 0) {
 				fprintf(stderr,
-					"Fatal error at file position %d.\n",
+					"Fatal error at file position %ld.\n",
 					filepos);
 				exit(1);
 			}
@@ -115,7 +116,7 @@ char *argv[];
 				if ((numbytes = fread((void *)(key.dptr), 1,
 					  key.dsize, f)) == 0) {
 					fprintf(stderr,
-				    "Fatal error at file position %d.\n",
+				    "Fatal error at file position %ld.\n",
 						filepos);
 					exit(1);
 				}
@@ -123,7 +124,7 @@ char *argv[];
 				if (fread((void *)(dat.dptr), dat.dsize,
 					  1, f) == 0) {
 					fprintf(stderr,
-				    "Fatal error at file position %d.\n",
+				    "Fatal error at file position %ld.\n",
 						filepos);
 					exit(1);
 				}

@@ -822,8 +822,8 @@ dbref player;
 DESC *d;
 const char *reason;
 {
-	dbref loc, aowner, temp;
-	int num, aflags, alen, key;
+	dbref loc, temp;
+	int num, key;
 	char *buf;
 	DESC *dtemp;
 

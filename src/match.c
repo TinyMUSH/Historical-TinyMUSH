@@ -175,7 +175,7 @@ static dbref absolute_name(need_pound)
 int need_pound;
 {
 	dbref match;
-	char *mname, *s;
+	char *mname;
 
 	mname = md.string;
 	if (need_pound) {
