@@ -26,6 +26,7 @@ static int check_type;
 #ifndef STANDALONE
 extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
+extern void FDECL(xvars_clr, (dbref));
 #endif
 
 #ifdef STANDALONE
@@ -546,6 +547,7 @@ dbref player, obj;
 	
 	fwdlist_clr(obj);
 	stack_clr(obj);
+	xvars_clr(obj);
 #endif
 
 	/* Compensate the owner for the object */

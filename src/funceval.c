@@ -3067,6 +3067,49 @@ static void clear_xvars(obj, xvar_names, n_xvars)
 }
 
 
+void xvars_clr(player)
+    dbref player;
+{
+    char tbuf[SBUF_SIZE], *tp;
+    HASHTAB *htab;
+    HASHENT *hptr, *last, *next;
+    int i, len;
+    VARENT *xvar;
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_chr('.', tbuf, &tp);
+    *tp = '\0';
+    len = strlen(tbuf);
+
+    htab = &mudstate.vars_htab;
+    for (i = 0; i < htab->hashsize; i++) {
+	last = NULL;
+	for (hptr = htab->entry->element[i]; hptr != NULL; last = hptr) {
+	    next = hptr->next;
+	    if (!strncmp(tbuf, hptr->target, len)) {
+		if (last == NULL)
+		    htab->entry->element[i] = next;
+		else
+		    last->next = next;
+		xvar = (VARENT *) hptr->data;
+		XFREE(xvar->text, "xvar_data");
+		XFREE(xvar, "xvar_struct");
+		free(hptr->target);
+		free(hptr);
+		htab->deletes++;
+		htab->entries--;
+		if (htab->entry->element[i] == NULL)
+		    htab->nulls++;
+	    }
+	    hptr = next;
+	}
+    }
+
+    s_VarsCount(player, 0);
+}
+
+
 FUNCTION(fun_x)
 {
     VARENT *xvar;
@@ -3279,43 +3322,7 @@ FUNCTION(fun_clearvars)
      * be avoided if possible.
      */
 
-    char tbuf[SBUF_SIZE], *tp;
-    HASHTAB *htab;
-    HASHENT *hptr, *last, *next;
-    int i, len;
-    VARENT *xvar;
-
-    tp = tbuf;
-    safe_ltos(tbuf, &tp, player);
-    safe_chr('.', tbuf, &tp);
-    *tp = '\0';
-    len = strlen(tbuf);
-
-    htab = &mudstate.vars_htab;
-    for (i = 0; i < htab->hashsize; i++) {
-	last = NULL;
-	for (hptr = htab->entry->element[i]; hptr != NULL; last = hptr) {
-	    next = hptr->next;
-	    if (!strncmp(tbuf, hptr->target, len)) {
-		if (last == NULL)
-		    htab->entry->element[i] = next;
-		else
-		    last->next = next;
-		xvar = (VARENT *) hptr->data;
-		XFREE(xvar->text, "xvar_data");
-		XFREE(xvar, "xvar_struct");
-		free(hptr->target);
-		free(hptr);
-		htab->deletes++;
-		htab->entries--;
-		if (htab->entry->element[i] == NULL)
-		    htab->nulls++;
-	    }
-	    hptr = next;
-	}
-    }
-
-    s_VarsCount(player, 0);
+    xvars_clr(player);
 }
 
 /* ---------------------------------------------------------------------------
