@@ -1299,9 +1299,9 @@ int key;
 static int NDECL(load_game)
 {
 	FILE *f;
-	int compressed;
+	int fd, compressed;
 	char infile[256];
-	struct stat statbuf;
+	struct stat file_stat;
 	int db_format, db_version, db_flags;
 
 	f = NULL;
@@ -1329,6 +1329,12 @@ static int NDECL(load_game)
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 		log_printf("Load complete.");
 	ENDLOG
+
+	/* Try to figure out the filesystem block size */
+	fd = fileno(f);
+	fstat(fd, &file_stat);
+	
+	mudstate.fs_block_size = STATBLKSIZE;
 
 	/* everything ok */
 	tf_fclose(f);

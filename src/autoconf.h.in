@@ -192,6 +192,8 @@
 #undef NEED_GETPAGESIZE_DCL
 /* Define if you need to declare strtok_r yourself */
 #undef NEED_STRTOK_R_DCL
+/* Define if your struct stat has st_blksize.  */
+#undef HAVE_ST_BLKSIZE
 
 /* ---------------------------------------------------------------------------
  * Setup section:
@@ -311,6 +313,8 @@ extern int FDECL(wait3, (int *, int, struct rusage *));
 #endif
 #endif
 #endif
+
+
 
 #include <sys/param.h>
 #ifndef HAVE_GETPAGESIZE
@@ -435,6 +439,12 @@ extern int	FDECL(setsockopt, (int, int, int, void *, int));
 extern int	FDECL(shutdown, (int, int));
 extern int	FDECL(socket, (int, int, int));
 extern int	FDECL(select, (int, fd_set *, fd_set *, fd_set *, struct timeval *));
+#endif
+
+#ifdef HAVE_ST_BLKSIZE
+#define STATBLKSIZE file_stat.st_blksize
+#else
+#define STATBLKSIZE 8192
 #endif
 
 #ifdef __linux__

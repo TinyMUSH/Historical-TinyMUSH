@@ -422,9 +422,8 @@ void NDECL(cf_init)
 	mudstate.db_size = 0;
 	mudstate.freelist = NOTHING;
 	mudstate.markbits = NULL;
-#endif /*
-        * * STANDALONE  
-        */
+	mudstate.fs_block_size = 8192;
+#endif /* STANDALONE */
 }
 
 #ifndef STANDALONE
@@ -1886,6 +1885,4 @@ dbref player;
 
 }
 
-#endif /*
-        * * STANDALONE  
-        */
+#endif /* STANDALONE */

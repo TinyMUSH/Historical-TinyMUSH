@@ -329,6 +329,7 @@ struct forward_list {
 typedef struct statedata STATEDATA;
 struct statedata {
 	int	record_players; /* The maximum # of player logged on */
+	int	fs_block_size;	/* Filesystem block size */
 #ifndef STANDALONE
 	char	*version;	/* MUSH version string */
 	char	*short_ver;	/* Short version number (for INFO) */
