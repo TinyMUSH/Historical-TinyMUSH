@@ -1,7 +1,7 @@
 /* hello.c - demonstration module */
 /* $Id$ */
 
-#include "../api.h"
+#include "../../api.h"
 
 #define MOD_HELLO_HELLO_INFORMAL	1
 
