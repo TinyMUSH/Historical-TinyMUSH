@@ -611,7 +611,7 @@
   @chown'ing an object automatically sets it HALT, and strips the INHERIT
   flag and all powers from it.
  
-  Contined in 'help @chown2'.
+  Continued in 'help @chown2'.
  
 & @chown2
  
@@ -10171,7 +10171,7 @@ set objects(1) "Wizard"				set errstr "Error!";
 set objects(2) "Master Room"		}
 set objects(limbo) 0
  
-Contined in 'help Tcl Arrays2'.
+Continued in 'help Tcl Arrays2'.
 
 & Tcl Arrays2
  

@@ -27,7 +27,7 @@ highly significant changes are noted here.
   addcommands_match_blindly (defaults to 'yes', controls whether or not
   a 'Huh?' is produced when a match on an @addcommand'd command doesn't
   actually match a $command), and addcommands_obey_stop (defaults to 'no')
-  controls whether or not an object with the Stop flag actually enfores
+  controls whether or not an object with the Stop flag actually enforces
   a stop of match attempts when a match is found on an @addcomand for
   that object. (The defaults are MUX behavior; we suggest that the
   reverse of the defaults is more desirable, though.)
