@@ -1071,8 +1071,8 @@ int db_read()
 				
 				cdptr++;
 			}
+			RAW_FREE(data, "dddb_get");
 		}
-		RAW_FREE(data, "dddb_get");
 	}
 	
 	/* Load the object structures */
