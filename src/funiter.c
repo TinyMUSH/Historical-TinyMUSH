@@ -50,7 +50,9 @@ static void perform_loop(buff, bufc, player, cause, list, exprstr,
 
     bb_p = *bufc;
 
-    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+	   ((mudconf.func_cpu_lim <= 0) ||
+	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (!flag && (*bufc != bb_p)) {
 	    print_sep(osep, buff, bufc);
 	}
@@ -157,7 +159,9 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
     bb_p = *bufc;
     elen = strlen(exprstr);
 
-    while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+    while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+	   ((mudconf.func_cpu_lim <= 0) ||
+	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (!flag && (*bufc != bb_p)) {
 	    print_sep(osep, buff, bufc);
 	}
@@ -322,7 +326,9 @@ FUNCTION(fun_fold)
 	rstore = result;
 	result = NULL;
 
-	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+	       ((mudconf.func_cpu_lim <= 0) ||
+		(clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 		clist[0] = rstore;
 		clist[1] = split_token(&cp, sep);
 		StrCopyKnown(atextbuf, atext, alen);
@@ -450,7 +456,9 @@ FUNCTION(fun_map)
 	cp = trim_space_sep(fargs[1], sep);
 	atextbuf = alloc_lbuf("fun_map");
 	bb_p = *bufc;
-	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+	       ((mudconf.func_cpu_lim <= 0) ||
+		(clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	        if (*bufc != bb_p) {
 		    print_sep(osep, buff, bufc);
 		}
@@ -521,7 +529,9 @@ FUNCTION(fun_mix)
     atextbuf = alloc_lbuf("fun_mix");
 
     for (wc = 0;
-	 (wc < nwords) && (mudstate.func_invk_ctr < mudconf.func_invk_lim);
+	 (wc < nwords) && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+	       ((mudconf.func_cpu_lim <= 0) ||
+		(clock() - mudstate.cputime_base < mudconf.func_cpu_lim));
 	 wc++) {
 	for (i = 1; i <= lastn; i++) {
 	    if (count[i]) {
@@ -576,7 +586,9 @@ FUNCTION(fun_step)
     cp = trim_space_sep(fargs[1], sep);
     atextbuf = alloc_lbuf("fun_step");
     bb_p = *bufc;
-    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+	   ((mudconf.func_cpu_lim <= 0) ||
+	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (*bufc != bb_p) {
 	    print_sep(osep, buff, bufc);
 	}
@@ -627,7 +639,9 @@ FUNCTION(fun_foreach)
 	end_token = *fargs[3];
     }
 
-    while (cp && *cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+    while (cp && *cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+	   ((mudconf.func_cpu_lim <= 0) ||
+	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 
 	if (!in_string) {
 	    /* Look for a start token. */
@@ -810,7 +824,9 @@ FUNCTION(fun_while)
     if (!is_same)
 	condbuf = alloc_lbuf("fun_while.cond");
     bb_p = *bufc;
-    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+	   ((mudconf.func_cpu_lim <= 0) ||
+	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (*bufc != bb_p) {
 	    print_sep(osep, buff, bufc);
 	}
