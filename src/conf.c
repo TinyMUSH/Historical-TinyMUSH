@@ -659,12 +659,13 @@ CF_HAND(cf_alias)
 				return -1;
 			}
 		}
+		hashadd(alias, cp, (HASHTAB *) vp);
+		return 0;
 	} else {
+		cf_log_syntax(player, cmd, "Invalid original for alias %s",
+			      alias);
 		return -1;
 	}
-	
-	hashadd(alias, cp, (HASHTAB *) vp);
-	return 0;
 }
 
 /*
