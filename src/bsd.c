@@ -430,6 +430,28 @@ int port;
 	}
 }
 
+#ifdef BROKEN_GCC_PADDING
+char *inet_ntoa(in)
+    struct in_addr in;
+{
+    /* gcc 2.8.1 does not correctly pass/return structures which are smaller
+     * than 16 bytes, but are not 8 bytes. Structures get padded at the
+     * wrong end. gcc is consistent with itself, but if you try to link
+     * with library files, there's a problem. This particularly affects
+     * Irix 6, but also affects other 64-bit targets.
+     *
+     * There may be little/big-endian problems with this, too.
+     */
+
+    static char buf[MBUF_SIZE];
+    long a = in.s_addr;
+
+    sprintf(buf, "%d.%d.%d.%d", (a >> 24) & 0xff, (a >> 16) & 0xff,
+	    (a >> 8) & 0xff, a & 0xff);
+    return buf;
+}
+#endif /* BROKEN_GCC_PADDING */
+
 DESC *new_connection(sock)
 int sock;
 {
