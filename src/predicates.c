@@ -1724,32 +1724,32 @@ char *victim_str, *args[];
 		for (nxargs = 0; (nxargs < 10) && xargs[nxargs]; nxargs++) ;
 	}
 	/*
-	 * If player doesn't control both, enforce visibility restrictions 
+	 * If player doesn't control both, enforce visibility restrictions.
+	 * Regardless of control we still check if the player can read the
+	 * attribute, since we don't want him getting wiz-readable-only attrs.
 	 */
 
-	if (restriction) {
-		ap = NULL;
-		if (what != -1) {
-			atr_get_info(victim, what, &aowner, &aflags);
-			ap = atr_num(what);
-		}
+	atr_get_info(victim, what, &aowner, &aflags);
+	if (what != -1) {
+	        ap = atr_num(what);
 		if (!ap || !Read_attr(player, victim, ap, aowner, aflags) ||
-		    ((ap->number == A_DESC) && !mudconf.read_rem_desc &&
-		     !Examinable(player, victim) && !nearby(player, victim)))
-			what = -1;
-
-		ap = NULL;
-		if (owhat != -1) {
-			atr_get_info(victim, owhat, &aowner, &aflags);
-			ap = atr_num(owhat);
-		}
-		if (!ap || !Read_attr(player, victim, ap, aowner, aflags) ||
-		    ((ap->number == A_DESC) && !mudconf.read_rem_desc &&
-		     !Examinable(player, victim) && !nearby(player, victim)))
-			owhat = -1;
-
-		awhat = 0;
+		    (restriction &&
+		     ((ap->number == A_DESC) && !mudconf.read_rem_desc &&
+		     !Examinable(player, victim) && !nearby(player, victim))))
+		        what = -1;
 	}
+	atr_get_info(victim, owhat, &aowner, &aflags);
+	if (owhat != -1) {
+	        ap = atr_num(owhat);
+		if (!ap || !Read_attr(player, victim, ap, aowner, aflags) ||
+		    (restriction &&
+		     ((ap->number == A_DESC) && !mudconf.read_rem_desc &&
+		     !Examinable(player, victim) && !nearby(player, victim))))
+		        owhat = -1;
+	}
+	if (restriction)
+	    awhat = 0;
+
 	/*
 	 * Go do it 
 	 */
