@@ -48,8 +48,14 @@ Release history:
 - Feature: @conformat and @exitformat get their visible contents/exits
   lists passed as %0.
 
+- Feature: Flatfiling now automatically cleans the attribute table.
+  Removed @dbclean, since this is now unnecessary.
+
 - Fix: Minor parts of structure db were not properly cleared at startup:
   connected flag, internal 'dirty' flag, and cpu time used.
+
+- Fix: Prevent infinite loop in cache when cache fills with nothing but
+  modified attributes (extremely rare, but impossible).
 
 - Misc: The expanded_who power no longer grants the ability to see
   Dark players in WHO. (Previously those with the power could, but
@@ -59,6 +65,8 @@ Release history:
   to the string to search within.
 
 - Misc: @addcommand sanity-checks command names.
+
+- Misc: Minor cleanup. 
 
 -----------------------------------------------------------------------------
 
