@@ -4524,12 +4524,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & MISC FUNCTIONS
   Topic: Miscellaneous Functions
  
-	case()		convsecs()	convtime()	die()		
-	ifelse()	localize()	mudname()	nonzero()
-	pemit()		r()		rand()		remit()		
-	restarts()	restarttime()	s()		secs()		
-	setq()		setr()		sql()		starttime()
-	switch()	switchall()	time()		version()
+	case()		config()	convsecs()	convtime()	
+	die()		ifelse()	localize()	mudname()	
+	nonzero()	pemit()		r()		rand()		
+	remit()		restarts()	restarttime()	s()		
+	secs()		setq()		setr()		sql()		
+	starttime()	switch()	switchall()	time()		
+	version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -7596,6 +7597,15 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   This function may also be called as time2secs().
   See also: convsecs(), secs(), time().
 
+& CONFIG()
+  Function:  config(<parameter name>)
+ 
+  This function, which is restricted to Wizards, returns the value of
+  the named configuration parameter. Not all configuration options can
+  be obtained this way; some are protected for security reasons, while
+  others don't have a single simple value (access directives, for
+  instance).
+ 
 & SHUFFLE()
   Function:  shuffle(<word1> <word2> <...<wordN>[,<delim>][,<output delim>])
  
