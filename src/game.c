@@ -89,6 +89,11 @@ void do_dump(player, cause, key)
 dbref player, cause;
 int key;
 {
+        if (mudstate.dumping) {
+		notify(player, "Dumping. Please try again later.");
+		return;
+	}
+	
 	notify(player, "Dumping...");
 	fork_and_dump(key);
 }
@@ -956,17 +961,23 @@ char *message;
 {
 	int fd;
 
-    if (key & SHUTDN_COREDUMP) {
-	if (player != NOTHING) {
-	    raw_broadcast(0, "Game: Aborted by %s", Name(Owner(player)));
-	    STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
-		log_text((char *) "Abort and coredump by ");
-	    log_name(player);
-	    ENDLOG
+	if (key & SHUTDN_COREDUMP) {
+		if (player != NOTHING) {
+			raw_broadcast(0, "Game: Aborted by %s", Name(Owner(player)));
+			STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
+				log_text((char *) "Abort and coredump by ");
+				log_name(player);
+			ENDLOG
+		}
+		/* Don't bother to even shut down the network or dump. */
+		/* Die. Die now. */
+		abort();
 	}
-	/* Don't bother to even shut down the network or dump. Die. Die now. */
-	abort();
-    }
+
+        if (mudstate.dumping) {
+		notify(player, "Dumping. Please try again later.");
+		return;
+	}
 
 	if (player != NOTHING) {
 		raw_broadcast(0, "Game: Shutdown by %s", Name(Owner(player)));
