@@ -3042,15 +3042,21 @@ See also: JUMP_OK, FIXED, home, @lock
   object becomes the enactor and the positional parameters %0 through %9
   are set to the supplied parameters. If <object> is not specified, the
   triggering object is searched for the attribute.
+ 
+  If the action list has the format of a $command or ^listen, everything
+  up to the first unescaped ':' is ignored. Thus, you can do the following:
+     &DO_TT obj = $tt *: @pemit %# = u(TABLETALK,%0)
+     &DO_PLUSTT obj = $+tt *: @trig me/DO_TT=%0
   
   The @trigger command supports the following switches:
      quiet      - Omit 'Triggered.' messages.
      now        - Perform the action list immediately rather than placing
                   it on the queue.
+ 
   '@call' is the same as '@trigger/now/quiet'.
   
   See also: LOOPING.
-
+ 
 & @unlink
   Command: @unlink <room/exit>
   This command removes drop-tos on rooms and clears the destination on exits.

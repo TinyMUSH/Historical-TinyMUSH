@@ -1995,12 +1995,35 @@ const char *def, *odef;
 		}
 	    }
 	    free_lbuf(charges);
+
+	    /* Skip any leading $<command>: or ^<monitor>: pattern.
+	     * If we run off the end of string without finding an unescaped
+	     * ':' (or there's nothing after it), go back to the beginning
+	     * of the string and just use that.
+	     */
+
+	    if ((*act == '$') || (*act == '^')) {
+		for (tp = act + 1;
+		     *tp && ((*tp != ':') || (*(tp - 1) == '\\'));
+		     tp++)
+		    ;
+		if (!*tp) {
+		    tp = act;
+		} else {
+		    tp++;	/* must advance past the ':' */
+		}
+	    } else {
+		tp = act;
+	    }
+
+	    /* Go do it. */
+
 	    if (now) {
 		save_global_regs("did_it_save2", preserve, preserve_len);
-		process_cmdline(thing, player, act, args, nargs);
+		process_cmdline(thing, player, tp, args, nargs);
 		restore_global_regs("did_it_restore2", preserve, preserve_len);
 	    } else {
-		wait_que(thing, player, 0, NOTHING, 0, act,
+		wait_que(thing, player, 0, NOTHING, 0, tp,
 			 args, nargs, mudstate.global_regs);
 	    }
 	}
