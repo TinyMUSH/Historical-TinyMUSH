@@ -556,6 +556,7 @@ FLAG flagword, flag2word, flag3word;
 				continue;
 			/* don't show CONNECT on dark wizards to mortals */
 			if ((flagtype == TYPE_PLAYER) &&
+			    (fp->flagflag & FLAG_WORD2) &&
 			    (fp->flagvalue == CONNECTED) &&
 			((flagword & (WIZARD | DARK)) == (WIZARD | DARK)) &&
 			    !See_Hidden(player))
