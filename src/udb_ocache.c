@@ -13,6 +13,7 @@
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
 #include "udb_defs.h"	/* required by code */
+#include "ansi.h"	/* required by code */
 
 extern void VDECL(logf, (char *, ...));
 extern void VDECL(fatal, (char *, ...));

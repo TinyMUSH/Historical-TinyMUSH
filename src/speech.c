@@ -16,6 +16,7 @@
 #include "match.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "attrs.h"	/* required by code */
+#include "ansi.h"	/* required by code */
 
 int sp_ok(player)
 dbref player;

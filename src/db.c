@@ -22,6 +22,7 @@
 #include "match.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "udb.h"	/* required by code */
+#include "ansi.h"	/* required by code */
 
 #ifndef O_ACCMODE
 #define O_ACCMODE	(O_RDONLY|O_WRONLY|O_RDWR)

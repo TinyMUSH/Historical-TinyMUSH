@@ -17,6 +17,7 @@
 #include "command.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
+#include "ansi.h"	/* required by code */
 
 extern dbref FDECL(match_controlled_quiet, (dbref, const char *));
 extern dbref FDECL(clone_home, (dbref, dbref));

@@ -17,6 +17,7 @@
 #include "command.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 #include "match.h"	/* required by code */
+#include "ansi.h"	/* required by code */
 
 /* Some systems are lame, and inet_addr() claims to return -1 on failure,
  * despite the fact that it returns an unsigned long. (It's not really a -1,
