@@ -98,7 +98,7 @@ void NDECL(cf_init)
 	StringCopy(mudconf.site_file, "text/badsite.txt");
 	StringCopy(mudconf.crea_file, "text/newuser.txt");
 #ifdef PUEBLO_SUPPORT
-	strcpy(mudconf.htmlconn_file, "htmlconn.txt");
+	strcpy(mudconf.htmlconn_file, "text/htmlconn.txt");
 #endif
 	StringCopy(mudconf.help_file, "text/help.txt");
 	StringCopy(mudconf.help_indx, "text/help.indx");
