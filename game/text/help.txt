@@ -4968,14 +4968,15 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	decrypt()	delete()	edit()		encrypt()	
 	escape()	foreach()	isdbref()	isnum()		
 	isword()	lcstr()		left()		lit()	
-	ljust()		merge()		mid()		null()		
-	pos()		regedit()	regediti()	regeditall()
-	regeditalli()	regmatch()	regmatchi()	repeat()
-	reverse()	right()		rjust()		secure()	
-	scramble()	space()		squish()	strcat()	
-	streq()		stripansi()	strlen()	strmatch()	
-	strtrunc()	translate()	trim()		ucstr()		
-	valid()		wildmatch()	wordpos()
+	ljust()		merge()		mid()		nescape()
+	nsecure()	null()		pos()		regedit()
+	regediti()	regeditall()	regeditalli()	regmatch()
+	regmatchi()	repeat()	reverse()	right()	
+	rjust()		secure()	scramble()	space()
+	squish()	strcat()	streq()		stripansi()
+	strlen()	strmatch()	strtrunc()	translate()	
+	trim()		ucstr()		valid()		wildmatch()
+	wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -7496,6 +7497,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 
 & SECURE()
   Function: secure(<string>)
+            nsecure(<string>)
  
   Returns <string> after replacing the characters [](){};,%\$ with spaces.
   This prevents strings entered by players from causing undesired side
@@ -7514,11 +7516,14 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Note: 'say secure(Sneak a peek at Wiz's desc... [get(#1/desc)])' does not
   produce the expected result because the argument is evaluated BEFORE being
   processed by secure(), therefore the [get()] call has already been
-  performed.
+  performed. To avoid prior evaluation of the string, use nsecure().
+ 
   See also: escape().
 
 & ESCAPE()
+& NESCAPE()
   Function: escape(<string>)
+            nescape(<string>)
  
   Returns <string> after adding an escape character (\) at the start of the
   string and also before each of the characters %;[]{}\ that appear in the
@@ -7537,7 +7542,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Note: 'say escape(Sneak a peek at Wiz's desc... [get(#1/desc)])' does not
   produce the expected result because the argument is evaluated BEFORE being
   processed by escape(), therefore the [get()] call has already been
-  performed.
+  performed. To avoid prior evaluation of the string, use nescape().
+ 
   See also: secure().
 
 & LIT()
