@@ -195,6 +195,8 @@ void NDECL(cf_init)
 	mudconf.idle_wiz_dark = 0;
 	mudconf.pemit_players = 0;
 	mudconf.pemit_any = 0;
+	mudconf.addcmd_match_blindly = 1;
+	mudconf.addcmd_obey_stop = 0;
 	mudconf.match_mine = 0;
 	mudconf.match_mine_pl = 0;
 	mudconf.switch_df_all = 1;
@@ -948,6 +950,10 @@ CONF conftable[] = {
 {(char *)"access",
 	cf_access,	CA_GOD,		NULL,
 	(long)access_nametab},
+{(char *)"addcommands_match_blindly",
+	cf_bool,	CA_GOD,		&mudconf.addcmd_match_blindly,	0},
+{(char *)"addcommands_obey_stop",
+	cf_bool,	CA_GOD,		&mudconf.addcmd_obey_stop,	0},
 {(char *)"alias",
 	cf_cmd_alias,	CA_GOD,		(int *)&mudstate.command_htab,	0},
 {(char *)"attr_access",

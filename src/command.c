@@ -902,6 +902,7 @@ int interactive, ncargs;
 	char *args[MAX_ARG];
 	int nargs, i, fail, interp, key, xkey, aflags;
 	int hasswitch = 0;
+	int cmd_matches = 0;
 	dbref aowner;
 	char *aargs[10];
 	ADDENT *add;
@@ -1040,6 +1041,48 @@ int interactive, ncargs;
 					    cargs, ncargs);
 		} else {
 		    if (cmdp->callseq & CS_ADDED) {
+
+			/* Construct the matching buffer. */
+
+			/* In the case of a single-letter prefix, we want
+			 * to just skip past that first letter. Otherwise
+			 * we want to go past the first word.
+			 */
+			if (!(cmdp->callseq & CS_LEADIN)) {
+			    for (j = unp_command; *j && (*j != ' '); j++) ;
+			} else {
+			    j = unp_command; j++;
+			}
+			new = alloc_lbuf("process_cmdent.soft");
+			bp = new;
+			if (!*j) {
+			    /* No args */
+			    if (!(cmdp->callseq & CS_LEADIN)) {
+				safe_str(cmdp->cmdname, new, &bp);
+			    } else {
+				safe_str(unp_command, new, &bp);
+			    }
+			    if (switchp) {
+				safe_chr('/', new, &bp);
+				safe_str(switchp, new, &bp);
+			    }
+			    *bp = '\0';
+			} else {
+			    if (!(cmdp->callseq & CS_LEADIN))
+				j++;
+			    safe_str(cmdp->cmdname, new, &bp);
+			    if (switchp) {
+				safe_chr('/', new, &bp);
+				safe_str(switchp, new, &bp);
+			    }
+			    if (!(cmdp->callseq & CS_LEADIN))
+				safe_chr(' ', new, &bp);
+			    safe_str(j, new, &bp);
+			    *bp = '\0';
+			} 
+
+			/* Now search against the attributes. */
+
 			for (add = (ADDENT *)cmdp->info.added;
 			     add != NULL; add = add->next) {
 			    buff = atr_get(add->thing,
@@ -1049,42 +1092,6 @@ int interactive, ncargs;
 			    if (!*s)
 				break;
 			    *s++ = '\0';
-			    /* In the case of a single-letter prefix, we want
-			     * to just skip past that first letter. Otherwise
-			     * we want to go past the first word.
-			     */
-			    if (!(cmdp->callseq & CS_LEADIN)) {
-				for (j = unp_command; *j && (*j != ' '); j++) ;
-			    } else {
-				j = unp_command; j++;
-			    }
-			    new = alloc_lbuf("process_cmdent.soft");
-			    bp = new;
-			    if (!*j) {
-				/* No args */
-				if (!(cmdp->callseq & CS_LEADIN)) {
-				    safe_str(cmdp->cmdname, new, &bp);
-				} else {
-				    safe_str(unp_command, new, &bp);
-				}
-				if (switchp) {
-				    safe_chr('/', new, &bp);
-				    safe_str(switchp, new, &bp);
-				}
-				*bp = '\0';
-			    } else {
-				if (!(cmdp->callseq & CS_LEADIN))
-				    j++;
-				safe_str(cmdp->cmdname, new, &bp);
-				if (switchp) {
-				    safe_chr('/', new, &bp);
-				    safe_str(switchp, new, &bp);
-				}
-				if (!(cmdp->callseq & CS_LEADIN))
-				    safe_chr(' ', new, &bp);
-				safe_str(j, new, &bp);
-				*bp = '\0';
-			    } 
 			    
 			    if (wild(buff + 1, new, aargs, 10)) {
 				wait_que(add->thing, player,
@@ -1094,10 +1101,32 @@ int interactive, ncargs;
 				    if (aargs[i])
 					free_lbuf(aargs[i]);
 				}
+				cmd_matches++;
 			    }
-			    free_lbuf(new);
 			    free_lbuf(buff);
+			    if (cmd_matches && mudconf.addcmd_obey_stop &&
+				Stop_Match(add->thing)) {
+				break;
+			    }
 			}
+
+			if (!cmd_matches && !mudconf.addcmd_match_blindly) {
+			    /* The command the player typed didn't match
+			     * any of the wildcard patterns we have for
+			     * that addcommand. We should raise an error.
+			     * We DO NOT go back into trying to match
+			     * other stuff -- this is a 'Huh?' situation.
+			     */
+			    notify(player, "Huh?  (Type \"help\" for help.)");
+			    STARTLOG(LOG_BADCOMMANDS, "CMD", "BAD")
+				log_name_and_loc(player);
+			        log_text((char *) " entered: ");
+			        log_text(new);
+			    ENDLOG
+			}
+
+			free_lbuf(new);
+
 		    } else 
 			(*(cmdp->info.handler)) (player, cause, key, buf1);
 		}
@@ -1583,10 +1612,8 @@ char *command, *args[];
 		notify(player, "Huh?  (Type \"help\" for help.)");
 		STARTLOG(LOG_BADCOMMANDS, "CMD", "BAD")
 			log_name_and_loc(player);
-		lcbuf = alloc_lbuf("process_commands.LOG.badcmd");
-		sprintf(lcbuf, " entered: '%s'", command);
-		log_text(lcbuf);
-		free_lbuf(lcbuf);
+			log_text((char *) " entered: ");
+			log_text(command);
 		ENDLOG
 	}
 	mudstate.debug_cmd = cmdsave;
@@ -2313,7 +2340,19 @@ dbref player;
 	        raw_notify(player, "Global aconnects and disconnects obey Uselocks.");
 
 	if (mudconf.local_masters) {
-		notify(player, "Objects set ZONE are treated as local master rooms.");
+		raw_notify(player, "Objects set ZONE are treated as local master rooms.");
+	}
+
+	if (mudconf.addcmd_match_blindly) {
+	    raw_notify(player, "Failure to correctly match syntax on an @addcommand does not produce an error message.");
+	} else {
+	    raw_notify(player, "Failure to correctly match syntax on an @addcommand produces an error message.");
+	}
+
+	if (mudconf.addcmd_obey_stop) {
+	    raw_notify(player, "Matching an @addcommand on an object set STOP ends matching attempts.");
+	} else {
+	    raw_notify(player, "Matching an @addcommand on an object set STOP does not end matching attempts.");
 	}
 
 	if (mudconf.max_players >= 0)

@@ -161,6 +161,13 @@ struct confdata {
 	int	idle_wiz_dark;	/* Do idling wizards get set dark? */
 	int	pemit_players;	/* Can you @pemit to faraway players? */
 	int	pemit_any;	/* Can you @pemit to ANY remote object? */
+        int	addcmd_match_blindly;   /* Does @addcommand produce a Huh?
+					 * if syntax issues mean no wildcard
+					 * is matched?
+					 */
+        int	addcmd_obey_stop;	/* Does @addcommand still multiple
+					 * match on STOP objs?
+					 */
 	int	match_mine;	/* Should you check yourself for $-commands? */
 	int	match_mine_pl;	/* Should players check selves for $-cmds? */
 	int	switch_df_all;	/* Should @switch match all by default? */
