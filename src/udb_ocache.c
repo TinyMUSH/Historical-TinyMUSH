@@ -300,7 +300,7 @@ void list_cached_objs(player)
 
     raw_notify(player, "Active Cache:");
     raw_notify(player, 
-       "Name                           Dbref   Time                      Size");
+       "Name                           Dbref   Time                        Size");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
             if (cp->op) {
@@ -309,13 +309,13 @@ void list_cached_objs(player)
 		temp = (char *)ctime(&(cp->lastreferenced));
 		temp[strlen(temp) - 1] = '\0';
 		raw_notify(player, 
-			tprintf("%30s #%6d %25s %6d", Name(cp->op->name),
+			tprintf("%-30.30s #%-6.6d %24s %6.6d", Name(cp->op->name),
 			cp->op->name, temp, cp->op->size));
             }
         }
     }
 
-    raw_notify(player, "Modified Active Cache:");
+    raw_notify(player, "\nModified Active Cache:");
     raw_notify(player, 
        "Name                           Dbref   Time                      Size");
 
@@ -334,7 +334,7 @@ void list_cached_objs(player)
     }
 
     raw_notify(player,
-               tprintf("Totals: active %d, modified active %d, total objects %d", aco, maco, aco + maco));
+               tprintf("\nTotals: active %d, modified active %d, total objects %d", aco, maco, aco + maco));
     raw_notify(player,
                tprintf("Size: active %d bytes, modified active %d bytes", asize, msize));
 }
