@@ -46,7 +46,7 @@ echo "Moving old files out of the way. Please ignore file-not-found warnings."
 #
 DBDATE=`date +%m%d-%H%M`
 mkdir db-$DBDATE
-mv -f $DATA/$GDBM_DB $DATA/$CRASH_DB $DATA/$BACKUP_DB db-$DBDATE
+mv -f $DATA/$GDBM_DB $DATA/$CRASH_DB $DATA/$BACKUP_DB $DATA/mod_*.db db-$DBDATE
 #
 # Reload the archive.
 #
