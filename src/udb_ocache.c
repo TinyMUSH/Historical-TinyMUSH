@@ -205,7 +205,7 @@ int width, depth;
 {
 	int x;
 	int y;
-	Cache *np, *cp;
+	Cache *np;
 	CacheLst *sp;
 	static char *ncmsg = "cache_init: cannot allocate cache: ";
 
@@ -229,14 +229,11 @@ int width, depth;
 		logf(ncmsg, (char *)-1, "\n", (char *)0);
 		return (-1);
 	}
+
 	/*
-	 * Pre-allocate the initial cache entries in one chunk 
+	 * Allocate the initial cache entries
 	 */
-	cp = (Cache *) malloc(cwidth * cdepth * sizeof(Cache));
-	if (cp == (Cache *) 0) {
-		logf(ncmsg, (char *)-1, "\n", (char *)0);
-		return (-1);
-	}
+
 	for (x = 0; x < cwidth; x++, sp++) {
 		sp->active.head = sp->old.head = (Cache *) 0;
 		sp->old.tail = (Cache *) 0;
@@ -246,7 +243,12 @@ int width, depth;
 
 		for (y = 0; y < cdepth; y++) {
 
-			np = cp++;
+			np = (Cache *) malloc(sizeof(Cache));
+			if (np == (Cache *) 0) {
+				logf(ncmsg, (char *)-1, "\n", (char *)0);
+				return (-1);
+			}
+
 			if ((np->nxt = sp->old.head) != (Cache *) 0)
 				np->nxt->prv = np;
 			else
