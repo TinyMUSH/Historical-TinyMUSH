@@ -87,3 +87,26 @@ void mod_<name>_init()
 
 	/* Any other initialization you need to do. */
 }
+
+
+Other module functions:
+
+void mod_<name>_create_obj(dbref player, dbref obj)
+	Run when an object is created, after other initialization is done.
+	Passes the creating player and the object dbref created.
+
+void mod_<name>_destroy_obj(dbref player, dbref obj)
+	Run when an object is destroyed, after player is notified of its
+	destruction, but before everything is wiped out from it.
+	Use with caution, as the object is on the path to garbage.
+	Passes the destroying player and the object dbref being destroyed.
+	Note that the destroying player may be NOTHING.
+
+void mod_<name>_announce_connect(dbref player)
+	Run when a player connects, before the player looks at his current
+	location, but after all other connect stuff has been executed.
+
+void mod_<name>_announce_disconnect(dbref player, const char *reason)
+	Run when a player disconnects, after all other disconnect stuff
+	has been executed, but before the descriptor has been deleted.
+

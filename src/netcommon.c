@@ -773,6 +773,9 @@ DESC *d;
 	time_str = ctime(&mudstate.now);
 	time_str[strlen(time_str) - 1] = '\0';
 	record_login(player, 1, time_str, d->addr, d->username);
+
+	CALL_ALL_MODULES("announce_connect", (dbref), (player));
+
 #ifdef PUEBLO_SUPPORT
 	look_in(player, Location(player), (LK_SHOWEXIT | LK_OBEYTERSE | LK_SHOWVRML));
 #else
@@ -791,7 +794,6 @@ const char *reason;
 	char *buf, *atr_temp;
 	DESC *dtemp;
 	char *argv[1];
-
 
 	if (Suspect(player)) {
 		raw_broadcast(WIZARD,
@@ -923,6 +925,10 @@ const char *reason;
 			      Name(player));
 		free_mbuf(buf);
 	}
+
+	CALL_ALL_MODULES("announce_disconnect", (dbref, const char *),
+			 (player, reason));
+
 	mudstate.curr_enactor = temp;
 	desc_delhash(d);
 }

@@ -649,6 +649,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 
 /* Syntax: CALL_ALL_MODULES(<name of function>, (<args>)) */
 
+#ifndef STANDALONE
 #define CALL_ALL_MODULES(xfn,proto,args) \
 { \
 MODULE *cam__mp; \
@@ -658,6 +659,9 @@ if ((cam__ip = DLSYM(cam__mp->handle, cam__mp->modname, xfn, proto)) != NULL) \
     (*cam__ip)args; \
 } \
 }
+#else  /* STANDALONE */
+#define CALL_ALL_MODULES(xfn,proto,args)
+#endif /* STANDALONE */
 
 #else  /* ! HAVE_DLOPEN */
 
