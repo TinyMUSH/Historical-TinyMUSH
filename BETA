@@ -44,6 +44,9 @@ Release history:
 - Fix: @nameformat, @conformat, and @exitformat now respect the FREE
   flag. [3.1b1; Neva]
 
+- Fix: Conf file entries with a dbref, like 'master_room #2', should now
+  work properly. [3.1a8; H'kar] 
+
 - Fix: Update should now work on systems with broken local domain resolution.
   [3.1a7; Neva, Christy Schulte]
 
