@@ -724,8 +724,12 @@ char *msglist;
 		return;
 	}
 	if (!msglist || !*msglist) {
-		notify(player, tprintf(
-					      "--------------------   MAIL: %-25s   ------------------", Name(target)));
+		notify(player, tprintf("%.*s   MAIL: %s   %.*s",
+				       (63 - strlen(Name(target))) >> 1,
+				       "--------------------------------",
+				       Name(target),
+				       (64 - strlen(Name(target))) >> 1,
+				       "--------------------------------"));
 		for (mp = (struct mail *)nhashfind((int)target, &mudstate.mail_htab);
 		     mp; mp = mp->next) {
 			if (mp->from == player) {
@@ -843,8 +847,9 @@ int sub;
 	}
 	folder = player_folder(player);
 
-	notify(player, tprintf(
-				      "---------------------------   MAIL: Folder %d   ----------------------------", folder));
+	notify(player,
+	       tprintf("--------------------------%s   MAIL: Folder %d   ----------------------------",
+		       ((folder > 9) ? "" : "-"), folder));
 
 	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
 	     mp; mp = mp->next) {
@@ -1327,7 +1332,7 @@ dbref player;
 		XFREE(mp->time, "mail_nuke.time");
 		XFREE(mp, "mail_nuke");
 	}
-	nhashdelete((int)thing, &mudsate.mail_htab);
+	nhashdelete((int)thing, &mudstate.mail_htab);
 
 	log_text(tprintf("** MAIL PURGE ** done by %s(#%d).",
 			 Name(player), (int)player));
