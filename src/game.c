@@ -540,7 +540,7 @@ const char *msg;
 			safe_str((char *)"] ", msg_ns, &mp);
 			free_sbuf(tbuff);
 		}
-		safe_long_str((char *)msg, msg_ns, &mp);
+		safe_str((char *)msg, msg_ns, &mp);
 	} else {
 		msg_ns = NULL;
 	}

@@ -693,7 +693,7 @@ char *cargs[];
 					     aowner, aflags)) {
 				    atr_gotten = atr_pget(player, ap->number,
 							  &aowner, &aflags);
-				    safe_long_str(atr_gotten, buff, bufc);
+				    safe_str(atr_gotten, buff, bufc);
 				    free_lbuf(atr_gotten);
 				}
 				break;
@@ -752,7 +752,7 @@ char *cargs[];
 				i = 100 + ch - 'A';
 				atr_gotten = atr_pget(player, i, &aowner,
 						      &aflags);
-				safe_long_str(atr_gotten, buff, bufc);
+				safe_str(atr_gotten, buff, bufc);
 				free_lbuf(atr_gotten);
 				break;
 			case 'Q':	/* Local registers */
