@@ -62,8 +62,8 @@ extern LOGFILETAB logfds_table[];
 int conc_pid = 0;
 #endif
 
-extern pid_t slave_pid;
-extern int slave_socket;
+extern volatile pid_t slave_pid;
+extern volatile int slave_socket;
 
 extern char qidx_chartab[256];
 
@@ -2234,6 +2234,11 @@ char *argv[];
 	CLOSE;
 
 	if (slave_socket != -1) {
+		shutdown(slave_socket, 2);
+		close(slave_socket);
+		slave_socket = -1;
+	}
+	if (slave_pid != 0) {
 		kill(slave_pid, SIGKILL);
 	}
 #ifdef CONCENTRATE

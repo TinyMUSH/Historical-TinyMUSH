@@ -10,8 +10,6 @@
 
 #include <netdb.h>
 #include <netinet/in.h>
-#include <sys/wait.h>
-#include <sys/file.h>
 #include <sys/ioctl.h>
 #include <signal.h>
 #include "slave.h"
@@ -27,6 +25,10 @@
 pid_t parent_pid;
 
 #define MAX_STRING 1000
+#define MAX_CHILDREN 20
+
+volatile int children = 0;
+
 char *arg_for_errors;
 
 char *format_inet_addr(dest, addr)
@@ -184,14 +186,12 @@ void child_signal(sig)
 int sig;
 {
 	/*
-	 * collect any children 
+	 * collect any children, but don't block
 	 */
 
-#ifdef NEXT
-	while (wait3(NULL, WNOHANG, NULL) > 0);
-#else
-	while (waitpid(0, NULL, WNOHANG) > 0) ;
-#endif
+	while (WAITOPT(NULL, WNOHANG) > 0) {
+		children--;
+	}
 	signal(SIGCHLD, (void (*)(int))child_signal);
 }
 
@@ -246,6 +246,7 @@ char **argv;
 		p = strchr(arg, '\n');
 		if (p)
 			*p = '\0';
+		children++;
 		switch (fork()) {
 		case -1:
 			exit(1);
@@ -274,13 +275,12 @@ char **argv;
 
 		}
 		/*
-		 * collect any children 
+		 * collect any children, blocking if there are too many
 		 */
-#ifdef NEXT
-		while (wait3(NULL, WNOHANG, NULL) > 0) ;
-#else
-	 	while (waitpid(0, NULL, WNOHANG) > 0) ;
-#endif
+		while (WAITOPT(NULL,
+			       (children < MAX_CHILDREN) ? WNOHANG : 0) > 0) {
+			children--;
+		}
 	}
 	exit(0);
 }

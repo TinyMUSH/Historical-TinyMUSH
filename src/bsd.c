@@ -40,8 +40,8 @@ int ndescriptors = 0;
 int maxd = 0;
 
 DESC *descriptor_list = NULL;
-pid_t slave_pid;
-int slave_socket = -1;
+volatile pid_t slave_pid = 0;
+volatile int slave_socket = -1;
 
 DESC *FDECL(initializesock, (int, struct sockaddr_in *));
 DESC *FDECL(new_connection, (int));
@@ -428,7 +428,7 @@ int port;
 				shutdownsock(d, R_SOCKDIED);
 			    }
 			}
-			if ((slave_socket != -1) &&
+			if ((slave_socket == -1) ||
 			    (fstat(slave_socket, &fstatbuf) < 0)) {
 			    /* Try to restart the slave, since
 			     * it presumably died.
@@ -1287,24 +1287,18 @@ int sig;
 #ifndef SIGNAL_SIGCHLD_BRAINDAMAGE
 		signal(SIGCHLD, sighandler);
 #endif
-#ifdef HAVE_WAIT3
-		while ((child = wait3(&stat, WNOHANG, NULL)) > 0) {
+		while ((child = WAITOPT(&stat, WNOHANG)) > 0) {
 			if (mudconf.fork_dump && mudstate.dumping &&
 			    child == mudstate.dumper &&
 			    (WIFEXITED(stat) || WIFSIGNALED(stat))) {
 				mudstate.dumping = 0;
 				mudstate.dumper = 0;
+			} else if (child == slave_pid &&
+				   (WIFEXITED(stat) || WIFSIGNALED(stat))) {
+				slave_pid = 0;
+				slave_socket = -1;
 			}
 		}
-#else
-		child = wait((int *) &stat);
-		if (mudconf.fork_dump && mudstate.dumping &&
-		    child == mudstate.dumper &&
-		    (WIFEXITED(stat) || WIFSIGNALED(stat))) {
-			mudstate.dumping = 0;
-			mudstate.dumper = 0;
-		}
-#endif
 		break;
 	case SIGHUP:		/* Dump database soon */
 		log_signal(signames[sig]);
@@ -1354,9 +1348,14 @@ int sig;
 			
 			dump_database_internal(DUMP_DB_CRASH);
 			CLOSE;
-			shutdown(slave_socket, 2);
-			close(slave_socket);
-			kill(slave_pid, SIGKILL);
+			if (slave_socket != -1) {
+				shutdown(slave_socket, 2);
+				close(slave_socket);
+				slave_socket = -1;
+			}
+			if (slave_pid != 0) {
+				kill(slave_pid, SIGKILL);
+			}
 
 			/* Try our best to dump a usable core by generating
 			 * a second signal with the SIG_DFL action.

@@ -359,10 +359,10 @@ extern int NDECL(getdtablesize);
 #include <fcntl.h>
 #endif
 
-#ifdef HAVE_WAIT3
 #ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
+#ifdef HAVE_WAIT3
 #ifdef NEED_WAIT3_DCL
 #ifdef HAVE_UNION_WAIT
 extern int FDECL(wait3, (union wait *, int, struct rusage *));
@@ -370,9 +370,10 @@ extern int FDECL(wait3, (union wait *, int, struct rusage *));
 extern int FDECL(wait3, (int *, int, struct rusage *));
 #endif
 #endif
+#define WAITOPT(s,o) wait3((s), (o), NULL)
+#else
+#define WAITOPT(s,o) waitpid(0, (s), (o))
 #endif
-
-
 
 #include <sys/param.h>
 #ifndef HAVE_GETPAGESIZE

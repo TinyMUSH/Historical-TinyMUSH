@@ -27,8 +27,8 @@
 extern int FDECL(do_command, (DESC *, char *, int));
 extern void NDECL(dump_database);
 extern LOGFILETAB logfds_table[];
-extern int slave_pid;
-extern int slave_socket;
+extern volatile int slave_pid;
+extern volatile int slave_socket;
 extern void FDECL(load_quota, (int *, dbref, int));
 extern void FDECL(save_quota, (int *, dbref, int));
 extern int FDECL(get_gender, (dbref));
@@ -1393,13 +1393,14 @@ void do_restart(player, cause, key)
 
 	sql_shutdown();
 
-	/* Even with WNOHANG, this leaves zombies around on Linux
-	 * unless we do the waitpid().
-	 */
-	shutdown(slave_socket, 2);
-	close(slave_socket);
-	kill(slave_pid, SIGKILL);
-	waitpid(slave_pid, (int *) NULL, (int) NULL);
+	if (slave_socket != -1) {
+		shutdown(slave_socket, 2);
+		close(slave_socket);
+		slave_socket = -1;
+	}
+	if (slave_pid != 0) {
+		kill(slave_pid, SIGKILL);
+	}
 
 	for (lp = logfds_table; lp->log_flag; lp++) {
 	    if (lp->filename && lp->fileptr) {

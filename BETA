@@ -52,7 +52,10 @@ Release history:
 
 - Misc: When logging, garbage isn't out-of-range.
 
-- Misc: Improvements made to slave.
+- Misc: Improvements made to lookup-slave buffer overflow protection.
+
+- Misc: Limited lookup-slave child processes to 20 in case of
+  denial-of-service attack. [MUX; Brazil]
 
 - Misc: Configure always checks for zlib if using MySQL.
 
