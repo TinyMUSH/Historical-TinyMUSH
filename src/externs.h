@@ -278,21 +278,10 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define ATTRIB_INFO	8	/* Info (number, flags) about attribute */
 #define	BOOT_QUIET	1	/* Inhibit boot message to victim */
 #define	BOOT_PORT	2	/* Boot by port number */
-#define CBOOT_QUIET	1	/* No boot message, just has left */
-#define CEMIT_NOHEADER  1	/* Channel emit without header */
-#define CHANNEL_SET	1	/* Set channel flag */
-#define CHANNEL_CHARGE	2	/* Set channel charge */
-#define CHANNEL_DESC	4	/* Set channel desc */
-#define CHANNEL_LOCK	8	/* Set channel lock */
-#define CHANNEL_OWNER	16	/* Set channel owner */
-#define CHANNEL_JOIN	32	/* Channel lock: join */
-#define CHANNEL_TRANS	64	/* Channel lock: transmit */
-#define CHANNEL_RECV	128	/* Channel lock: receive */
 #define	CHOWN_ONE	1	/* item = new_owner */
 #define	CHOWN_ALL	2	/* old_owner = new_owner */
 #define CHOWN_NOSTRIP	4	/* Don't strip (most) flags from object */
 #define CHZONE_NOSTRIP	1	/* Don't strip (most) flags from object */
-#define CLIST_FULL	1	/* Full listing of channels */
 #define	CLONE_LOCATION	0	/* Create cloned object in my location */
 #define	CLONE_INHERIT	1	/* Keep INHERIT bit if set */
 #define	CLONE_PRESERVE	2	/* Preserve the owner of the object */
@@ -300,7 +289,6 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	CLONE_SET_COST	8	/* ARG2 is cost of cloned object */
 #define	CLONE_PARENT	16	/* Set parent on obj instd of cloning attrs */
 #define CLONE_NOSTRIP	32	/* Don't strip (most) flags from clone */
-#define CWHO_ALL	1	/* Show disconnected players on channel */
 #define	DBCK_FULL	1	/* Do all tests */
 #define DECOMP_PRETTY	1	/* pretty-format output */
 #define	DEST_ONE	1	/* object */

@@ -22,6 +22,19 @@ extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
 #define CHAN_FLAG_O_RECV	0x00000800
 #define CHAN_FLAG_SPOOF		0x00001000
 
+#define CBOOT_QUIET	1	/* No boot message, just has left */
+#define CEMIT_NOHEADER  1	/* Channel emit without header */
+#define CHANNEL_SET	1	/* Set channel flag */
+#define CHANNEL_CHARGE	2	/* Set channel charge */
+#define CHANNEL_DESC	4	/* Set channel desc */
+#define CHANNEL_LOCK	8	/* Set channel lock */
+#define CHANNEL_OWNER	16	/* Set channel owner */
+#define CHANNEL_JOIN	32	/* Channel lock: join */
+#define CHANNEL_TRANS	64	/* Channel lock: transmit */
+#define CHANNEL_RECV	128	/* Channel lock: receive */
+#define CLIST_FULL	1	/* Full listing of channels */
+#define CWHO_ALL	1	/* Show disconnected players on channel */
+
 /* --------------------------------------------------------------------------
  * Configuration and hash tables.
  */
@@ -1612,6 +1625,7 @@ int mod_comsys_process_command(player, cause, interactive, in_cmd,
 /* --------------------------------------------------------------------------
  * Command tables.
  */
+
 NAMETAB cboot_sw[] = {
 {(char *)"quiet",	1,	CA_PUBLIC,	CBOOT_QUIET},
 { NULL,			0,	0,		0}};
