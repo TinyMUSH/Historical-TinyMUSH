@@ -1696,7 +1696,7 @@ int atr;
 		s_Flags(thing, Flags(thing) & ~HAS_STARTUP);
 		break;
 	case A_DAILY:
-		s_Flags2(thing, Flags(thing) & ~HAS_DAILY);
+		s_Flags2(thing, Flags2(thing) & ~HAS_DAILY);
 		break;
 	case A_FORWARDLIST:
 		s_Flags2(thing, Flags2(thing) & ~HAS_FWDLIST);

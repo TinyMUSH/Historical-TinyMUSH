@@ -721,7 +721,7 @@ int ncmds;
 	BQUE *tmp;
 	dbref player;
 	int count, i;
-	char *command, *cp, *pp, *cmdsave, *logbuf, *log_cmdbuf;
+	char *command, *cp, *cmdsave, *logbuf, *log_cmdbuf;
 	long begin_time, used_time;
 
 	if ((mudconf.control_flags & CF_DEQUEUE) == 0)
@@ -758,12 +758,12 @@ int ncmds;
 				}
 
 				command = mudstate.qfirst->comm;
-				while (command) {
+				tmp = mudstate.qfirst;
+				while (command && (mudstate.qfirst == tmp)) {
 					cp = parse_to(&command, ';', 0);
 					if (cp && *cp) {
-						pp = cp;
-						cp = parse_to(&pp, '|', 0);
-						while (pp) {
+						while (command && (*command == '|')) {
+							command++;
 							mudstate.inpipe = 1;
 							mudstate.poutnew = alloc_lbuf("process_command.pipe");
 							mudstate.poutbufc = mudstate.poutnew;
@@ -796,12 +796,9 @@ int ncmds;
 						
 							*mudstate.poutbufc = '\0';
 							mudstate.pout = mudstate.poutnew;
-							cp = parse_to(&pp, '|', 0);						
-						}
-						
-						if (mudstate.inpipe) {
-							mudstate.inpipe = 0;
-						}
+							cp = parse_to(&command, ';', 0);
+						} 
+						mudstate.inpipe = 0;
 #ifndef NO_LAG_CHECK
 						begin_time = time(NULL);
 #endif /* NO_LAG_CHECK */
@@ -819,11 +816,10 @@ int ncmds;
 								sprintf(logbuf, " queued command taking %d secs (enactor #%d): ", used_time, mudstate.qfirst->cause);
 								log_text(logbuf);
 								free_lbuf(logbuf);
-								log_text(log_cmdbuf);
+									log_text(log_cmdbuf);
 							ENDLOG
 						}
 #endif /* NO_LAG_CHECK */
-
 						if (mudstate.pout) {
 							free_lbuf(mudstate.pout);
 							mudstate.pout = NULL;
@@ -832,12 +828,16 @@ int ncmds;
 				}
 			}
 		}
-		tmp = mudstate.qfirst;
-		mudstate.qfirst = mudstate.qfirst->next;
-		if (!mudstate.qfirst)
-			mudstate.qlast = NULL;
-		free(tmp->text);
-		free_qentry(tmp);
+                if (mudstate.qfirst) {
+                        tmp = mudstate.qfirst;
+                        mudstate.qfirst = mudstate.qfirst->next;
+                        if (!mudstate.qfirst)
+                        	mudstate.qlast = NULL;
+                        free(tmp->text);
+                        free_qentry(tmp);
+                } else {
+                         mudstate.qlast = NULL;
+                }
 	}
 
 	for (i = 0; i < MAX_GLOBAL_REGS; i++)

@@ -48,64 +48,64 @@ int type;
 				i = atoi(j + 2);
 				switch (i) {
 				case 0:
-					safe_str("%cn", new, &bp);
+					safe_str("%xn", new, &bp);
 					break;
 				case 1:
-					safe_str("%ch", new, &bp);
+					safe_str("%xh", new, &bp);
 					break;
 				case 5:
-					safe_str("%cf", new, &bp);
+					safe_str("%xf", new, &bp);
 					break;
 				case 7:
-					safe_str("%ci", new, &bp);
+					safe_str("%xi", new, &bp);
 					break;
 				case 30:
-					safe_str("%cx", new, &bp);
+					safe_str("%xx", new, &bp);
 					break;
 				case 31:
-					safe_str("%cr", new, &bp);
+					safe_str("%xr", new, &bp);
 					break;
 				case 32:
-					safe_str("%cg", new, &bp);
+					safe_str("%xg", new, &bp);
 					break;
 				case 33:
-					safe_str("%cy", new, &bp);
+					safe_str("%xy", new, &bp);
 					break;
 				case 34:
-					safe_str("%cb", new, &bp);
+					safe_str("%xb", new, &bp);
 					break;
 				case 35:
-					safe_str("%cm", new, &bp);
+					safe_str("%xm", new, &bp);
 					break;
 				case 36:
-					safe_str("%cc", new, &bp);
+					safe_str("%xc", new, &bp);
 					break;
 				case 37:
-					safe_str("%cw", new, &bp);
+					safe_str("%xw", new, &bp);
 					break;
 				case 40:
-					safe_str("%cX", new, &bp);
+					safe_str("%xX", new, &bp);
 					break;
 				case 41:
-					safe_str("%cR", new, &bp);
+					safe_str("%xR", new, &bp);
 					break;
 				case 42:
-					safe_str("%cG", new, &bp);
+					safe_str("%xG", new, &bp);
 					break;
 				case 43:
-					safe_str("%cY", new, &bp);
+					safe_str("%xY", new, &bp);
 					break;
 				case 44:
-					safe_str("%cB", new, &bp);
+					safe_str("%xB", new, &bp);
 					break;
 				case 45:
-					safe_str("%cM", new, &bp);
+					safe_str("%xM", new, &bp);
 					break;
 				case 46:
-					safe_str("%cC", new, &bp);
+					safe_str("%xC", new, &bp);
 					break;
 				case 47:
-					safe_str("%cW", new, &bp);
+					safe_str("%xW", new, &bp);
 					break;
 				}
 				j = c;

@@ -66,7 +66,7 @@ char *filename;
 							  "helpindex_read.1");
 
 		htab_entry->pos = entry.pos;
-foobar		htab_entry->original = 1;	/* First is the longest */
+/*foobar*/		htab_entry->original = 1;	/* First is the longest */
 		htab_entry->key = (char *)malloc(strlen(entry.topic) + 1);
 		StringCopy(htab_entry->key, entry.topic);
 		while (p > entry.topic) {

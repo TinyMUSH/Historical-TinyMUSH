@@ -177,7 +177,8 @@ struct addedentry {
 #define CS_CMDARG	0x0100	/* Pass in given command args */	
 #define CS_STRIP	0x0200	/* Strip braces even when not interpreting */
 #define	CS_STRIP_AROUND	0x0400	/* Strip braces around entire string only */
-#define CS_ADDED	0X0800  /* Command has been added by @addcommand */
+#define CS_ADDED	0x0800  /* Command has been added by @addcommand */
+#define CS_LEADIN	0x1000	/* Command is a single-letter lead-in */
 
 /* Command permission flags */
 

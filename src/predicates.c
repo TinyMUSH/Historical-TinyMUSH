@@ -702,9 +702,10 @@ char *s;
 		add->next = (ADDENT *)old->handler;
 		old->handler = (void *)add;
 	} else {
-		/* Delete the old built-in and rename it __name */
-		
-		hashdelete(name, &mudstate.command_htab);
+		if (old) {
+			/* Delete the old built-in and rename it __name */
+			hashdelete(name, &mudstate.command_htab);
+		}
 		
 		cmd = (CMDENT *) malloc(sizeof(CMDENT));
 		
@@ -712,7 +713,11 @@ char *s;
 		cmd->switches = NULL;
 		cmd->perms = 0;
 		cmd->extra = 0;
-		cmd->callseq = CS_ADDED|CS_ONE_ARG;
+		if (old && (old->callseq & CS_LEADIN)) {
+			cmd->callseq = CS_ADDED|CS_ONE_ARG|CS_LEADIN;
+		} else {
+			cmd->callseq = CS_ADDED|CS_ONE_ARG;
+		}
 		add = (ADDENT *)malloc(sizeof(ADDENT));
 		add->thing = thing;
 		add->atr = atr;
@@ -722,10 +727,11 @@ char *s;
 	
 		hashadd(name, (int *)cmd, &mudstate.command_htab);
 		
-		/* Fix any aliases of this command. */
-		
-		hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
-		hashadd(tprintf("__%s", name), (int *)old, &mudstate.command_htab);
+		if (old) {
+			/* Fix any aliases of this command. */
+			hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
+			hashadd(tprintf("__%s", name), (int *)old, &mudstate.command_htab);
+		}
 	}
 
 	/* We reset the one letter commands here so you can overload them */

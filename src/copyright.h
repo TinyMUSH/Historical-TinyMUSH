@@ -3,9 +3,8 @@
 /* $Id$ */
 
 /*
- * TinyMUX 1.0, 1.1 and 1.2 Source code is maintained by David Passmore
- * (Lauren@Children of the Atom).
- * Comments should be sent to lauren@ranger.range.orst.edu.
+ * TinyMUX source code is maintained by David Passmore
+ * Comments should be sent to lauren@sneakers.org.
  * TinyMUX is Copyright (c) 1995 by David Passmore.
  *
  * Many parts of the source code, and the help text were derived from

@@ -3958,7 +3958,7 @@ FUNCTION(fun_map)
 	ATTR *ap;
 	char *atext, *objstring, *bp, *str, *cp, *atextbuf, sep, osep;
 
-	svarargs_preamble("MAP", 3);
+	varargs_preamble("MAP", 3);
 
 	/* Two possibilities for the second arg: <obj>/<attr> and <attr>. */
 

@@ -511,11 +511,13 @@ char *cargs[];
 			case '%':	/* Percent - a literal % */
 				safe_chr('%', buff, bufc);
 				break;
-			case 'c':
-			case 'C':
+			case 'x':
+			case 'X':
 				(*dstr)++;
-				if (!**dstr)
+				if (!**dstr) {
 					(*dstr)--;
+					break;
+				}
 				ansi = 1;
 				switch (**dstr) {
 				case 'h':	/* hilite */

@@ -18,7 +18,9 @@
 #include        "vms_dbm.h"
 #else
 #ifndef NEXT
+#ifndef MALLOC_IN_STDLIB_H
 #include	<malloc.h>
+#endif
 #endif /* NEXT */
 #include	<sys/param.h>
 #include	<sys/types.h>
@@ -71,7 +73,11 @@ int dddb_init()
 
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
 
+#ifndef STANDALONE
 	if ((dbp = gdbm_open(dbfile, block_size, GDBM_WRCREAT, 0600, gdbm_panic)) == (GDBM_FILE) 0) {
+#else
+	if ((dbp = gdbm_open(dbfile, block_size, GDBM_READER, 0600, gdbm_panic)) == (GDBM_FILE) 0) {
+#endif
 		gdbm_error = gdbm_strerror(gdbm_errno);
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);

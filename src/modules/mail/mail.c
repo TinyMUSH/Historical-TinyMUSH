@@ -2796,11 +2796,11 @@ char *tolist;
 	malias[ma_top]->list[i] = NOTHING;
 
 	na = alias + 1;
-	malias[ma_top]->name = (char *)malloc(strlen(na));
+	malias[ma_top]->name = (char *)malloc(strlen(na) + 1);
 	malias[ma_top]->numrecep = i;
 	malias[ma_top]->owner = player;
 	StringCopy(malias[ma_top]->name, na);
-	malias[ma_top]->desc = (char *)malloc(strlen(na));
+	malias[ma_top]->desc = (char *)malloc(strlen(na) + 1);
 	StringCopy(malias[ma_top]->desc, na);	/*
 						 * For now do this. 
 						 */

@@ -221,44 +221,44 @@ NAMETAB look_sw[] = {
 
 #ifdef USE_MAIL
 NAMETAB mail_sw[] = {
-{(char *)"stats",       1,      CA_PUBLIC,      MAIL_STATS},
-{(char *)"dstats",      1,      CA_PUBLIC,      MAIL_DSTATS},
-{(char *)"fstats",      1,      CA_PUBLIC,      MAIL_FSTATS},
-{(char *)"debug",       1,      CA_PUBLIC,      MAIL_DEBUG},
-{(char *)"nuke",        1,      CA_PUBLIC,      MAIL_NUKE},
-{(char *)"folder",      1,      CA_PUBLIC,      MAIL_FOLDER},
-{(char *)"list",        1,      CA_PUBLIC,      MAIL_LIST},
-{(char *)"read",        1,      CA_PUBLIC,      MAIL_READ},
-{(char *)"clear",       1,      CA_PUBLIC,      MAIL_CLEAR},
-{(char *)"unclear",     1,      CA_PUBLIC,      MAIL_UNCLEAR},
-{(char *)"purge",       1,      CA_PUBLIC,      MAIL_PURGE},
-{(char *)"file",        1,      CA_PUBLIC,      MAIL_FILE},
-{(char *)"tag",         1,      CA_PUBLIC,      MAIL_TAG},
-{(char *)"untag",       1,      CA_PUBLIC,      MAIL_UNTAG},
-{(char *)"fwd",         2,      CA_PUBLIC,      MAIL_FORWARD},
-{(char *)"forward",     2,      CA_PUBLIC,      MAIL_FORWARD},
-{(char *)"send",        0,      CA_PUBLIC,      MAIL_SEND},
-{(char *)"edit",        2,      CA_PUBLIC,      MAIL_EDIT},
-{(char *)"urgent",      1,      CA_PUBLIC,      MAIL_URGENT},
-{(char *)"alias",       1,      CA_PUBLIC,      MAIL_ALIAS},
-{(char *)"alist",       1,      CA_PUBLIC,      MAIL_ALIST},
-{(char *)"proof",       1,      CA_PUBLIC,      MAIL_PROOF},
-{(char *)"abort",	0,	CA_PUBLIC,      MAIL_ABORT},
-{(char *)"quick",	0,	CA_PUBLIC,      MAIL_QUICK},
-{(char *)"review",	2,	CA_PUBLIC,      MAIL_REVIEW},
-{(char *)"retract",	2,	CA_PUBLIC,      MAIL_RETRACT},
-{(char *)"cc",		2,	CA_PUBLIC,	MAIL_CC},
-{(char *)"safe",	2,	CA_PUBLIC,	MAIL_SAFE}};
+{(char *)"stats",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_STATS},
+{(char *)"dstats",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_DSTATS},
+{(char *)"fstats",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FSTATS},
+{(char *)"debug",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_DEBUG},
+{(char *)"nuke",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_NUKE},
+{(char *)"folder",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FOLDER},
+{(char *)"list",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_LIST},
+{(char *)"read",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_READ},
+{(char *)"clear",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_CLEAR},
+{(char *)"unclear",     1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_UNCLEAR},
+{(char *)"purge",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_PURGE},
+{(char *)"file",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FILE},
+{(char *)"tag",         1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_TAG},
+{(char *)"untag",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_UNTAG},
+{(char *)"fwd",         2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FORWARD},
+{(char *)"forward",     2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FORWARD},
+{(char *)"send",        0,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_SEND},
+{(char *)"edit",        2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_EDIT},
+{(char *)"urgent",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_URGENT},
+{(char *)"alias",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ALIAS},
+{(char *)"alist",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ALIST},
+{(char *)"proof",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_PROOF},
+{(char *)"abort",	0,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ABORT},
+{(char *)"quick",	0,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_QUICK},
+{(char *)"review",	2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REVIEW},
+{(char *)"retract",	2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_RETRACT},
+{(char *)"cc",		2,	CA_NO_SLAVE|CA_NO_GUEST,	MAIL_CC},
+{(char *)"safe",	2,	CA_NO_SLAVE|CA_NO_GUEST,	MAIL_SAFE}};
 
 NAMETAB malias_sw[] = {
-{(char *)"desc",        1,      CA_PUBLIC,      MALIAS_DESC},
-{(char *)"chown",       1,      CA_PUBLIC,      MALIAS_CHOWN},
-{(char *)"add",         1,      CA_PUBLIC,      MALIAS_ADD},
-{(char *)"remove",      1,      CA_PUBLIC,      MALIAS_REMOVE},
-{(char *)"delete",      1,      CA_PUBLIC,      MALIAS_DELETE},
-{(char *)"rename",      1,      CA_PUBLIC,      MALIAS_RENAME},
-{(char *)"list",        1,      CA_PUBLIC,      MALIAS_LIST},
-{(char *)"status",      1,      CA_PUBLIC,      MALIAS_STATUS}};
+{(char *)"desc",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_DESC},
+{(char *)"chown",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_CHOWN},
+{(char *)"add",         1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_ADD},
+{(char *)"remove",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_REMOVE},
+{(char *)"delete",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_DELETE},
+{(char *)"rename",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_RENAME},
+{(char *)"list",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_LIST},
+{(char *)"status",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_STATUS}};
 #endif
 
 NAMETAB mark_sw[] = {
@@ -704,25 +704,25 @@ CMDENT command_table[] = {
       CMD_PUEBLOCLIENT,CS_ONE_ARG,                    logged_out},
 {(char *)"\\",			NULL,
 	CA_NO_GUEST|CA_LOCATION|CF_DARK|CA_NO_SLAVE,
-	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP,		do_say},
+	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,	do_say},
 {(char *)"#",			NULL,
 	CA_NO_SLAVE|CA_GBL_INTERP|CF_DARK,
-	0,		CS_ONE_ARG|CS_INTERP|CS_CMDARG,	do_force_prefixed},
+	0,		CS_ONE_ARG|CS_INTERP|CS_CMDARG|CS_LEADIN, do_force_prefixed},
 {(char *)":",			NULL,
 	CA_LOCATION|CF_DARK|CA_NO_SLAVE,
-	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP,		do_say},
+	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,	do_say},
 {(char *)"\"",			NULL,
 	CA_LOCATION|CF_DARK|CA_NO_SLAVE,
-	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP,		do_say},
+	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,	do_say},
 {(char *)"&",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
-	0,		CS_TWO_ARG,			do_setvattr},
+	0,		CS_TWO_ARG|CS_LEADIN,		do_setvattr},
 {(char *)"-",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
-	0,		CS_ONE_ARG,			do_postpend},
+	0,		CS_ONE_ARG|CS_LEADIN,		do_postpend},
 {(char *)"~",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
-	0,		CS_ONE_ARG,			do_prepend},
+	0,		CS_ONE_ARG|CS_LEADIN,		do_prepend},
 {(char *)NULL,			NULL,		0,
 	0,		0,				NULL}};
 
@@ -1049,7 +1049,11 @@ int interactive, ncargs;
 					bp = new;
 					if (!*j) {
 						/* No args */
-						safe_str(unp_command, new, &bp);
+						if (!(cmdp->callseq & CS_LEADIN)) {
+							safe_str(cmdp->cmdname, new, &bp);
+						} else {
+							safe_str(unp_command, new, &bp);
+						}
 						if (switchp) {
 							safe_chr('/', new, &bp);
 							safe_str(switchp, new, &bp);

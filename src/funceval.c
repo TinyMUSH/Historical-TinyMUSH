@@ -510,7 +510,7 @@ FUNCTION(fun_zwho)
 	int len = 0;
 	char *smbuf;
 	
-	if (!mudconf.have_zones || !(Controls(player, it) || WizRoy(player))) {
+	if (!mudconf.have_zones || (!Controls(player, it) && !WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
@@ -542,7 +542,7 @@ FUNCTION(fun_inzone)
 	int len = 0;
 	char *smbuf;
 
-	if (!mudconf.have_zones || !(Controls(player, it) || WizRoy(player))) {
+	if (!mudconf.have_zones || (!Controls(player, it) && !WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
@@ -626,7 +626,7 @@ FUNCTION(fun_objeval)
 	obj = match_thing(player, name);
 
 	if ((obj == NOTHING) ||
-	    ((Owner(obj) != player) && (!(WizRoy(player)))) || (obj == GOD))
+	    ((Owner(obj) != player) && (!(Wizard(player)))) || (obj == GOD))
 		obj = player;
 
 	str = fargs[1];

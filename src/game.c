@@ -283,6 +283,7 @@ int check_exclude, hash_insert;
 			}
 		}
 	}
+	free_lbuf(buff);
 	atr_pop();
 	return (match);
 }
