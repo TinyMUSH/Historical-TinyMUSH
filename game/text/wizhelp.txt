@@ -324,18 +324,25 @@
 
 & @dump
   Command: @dump[/<switches>]
+ 
   Writes a checkpoint dump of the database to disk.  Checkpoint dumps are
   automatically performed periodically, so there is usually no need to use
   this command.  Switches may be used to either dump just the structure
   portion of the database to a flat file, or to ensure that all changes to
   the text database are written out to disk.  The default is to write out
   both files.
+ 
   The following options are available:
-     structure  - Dump the structure portion of the database to a flat file.
+ 
+     flatfile   - Dump a flat file. This is a "hot backup".
+     structure  - Dump the structure portion of the database to a flat file
+                  (the "numeric database").
      text       - Ensure that all changes to the text portion of the
-                  database are written out to disk.
+                  database are written out to disk (the "string database",
+                  or "GDBM database").
+   
   See also: @admin, @disable, @enable, @list, @shutdown.
-
+ 
 & @enable
   Command: @enable <option>
   Turns on the indicated MUSH runtime parameter.  The following parameters
