@@ -20,13 +20,6 @@
 #include "alloc.h"
 #include "slave.h"
 
-#ifdef HAVE_IEEEFP_H
-#include <ieeefp.h>
-#endif
-#ifdef HAVE_SYS_UCONTEXT_H
-#include <sys/ucontext.h>
-#endif
-
 extern void NDECL(init_attrtab);
 extern void NDECL(init_cmdtab);
 extern void NDECL(cf_init);
@@ -1647,12 +1640,6 @@ char *argv[];
 		fprintf(stderr, "Usage: %s [-s] [config-file]\n", argv[0]);
 		exit(1);
 	}
-
-#if defined(HAVE_IEEEFP_H) && defined(HAVE_SYS_UCONTEXT_H)
-	/* Inhibit IEEE fp exception on overflow */
-
-	fpsetmask(fpgetmask() & ~FP_X_OFL);
-#endif
 
 	tf_init();
 #ifdef RADIX_COMPRESSION
