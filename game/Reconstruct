@@ -9,7 +9,7 @@ PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 # If no filename was specified, use the name of the GDBM database.
 #
 DBFILE="$1"
-if [ ! "$DBFILE"]; then
+if [ ! "$DBFILE" ]; then
     DBFILE=$DATA/$GDBM_DB
 fi
 if [ ! -r "$DBFILE" ]; then
