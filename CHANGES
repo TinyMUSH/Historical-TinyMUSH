@@ -18,8 +18,10 @@ highly significant changes are noted here.
 
 - The term "zone" is now used for two things: MUX-style control-oriented
   zones, and 2.2-style local-master-rooms. Both types of zones default
-  to on (local_master_rooms and have_zones conf parameters). MUX zones
-  now use CONTROL_OK and ControlLock.
+  to on (local_master_rooms and have_zones conf parameters). MUX-style
+  zones now use ControlLock rather than EnterLock, and only objects
+  set CONTROL_OK may be controlled by a ZMO; this provides slightly
+  better security.
 
 - There are now ten user-defined flags, MARKER0 through MARKER9. The flag
   names can be set through the flag_name option, and the permissions for
