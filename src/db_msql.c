@@ -26,16 +26,23 @@
 
 #define MSQL_RETRY_TIMES 3
 
+/* ------------------------------------------------------------------------
+ * Do the work here.
+ */
+
+
+void sql_shutdown()
+{
+    if (mudstate.sql_socket == -1)
+	return;
+    msqlClose(mudstate.sql_socket);
+    mudstate.sql_socket = -1;
+}
+
+
 int sql_init()
 {
     int result;
-
-    /* If we are already connected, drop and retry the connection, in
-     * case for some reason the server went away.
-     */
-
-    if (mudstate.sql_socket != -1)
-	msqlClose(mudstate.sql_socket);
 
     /* Make sure we have valid config options. */
 
@@ -43,6 +50,12 @@ int sql_init()
 	return -1;
     if (!mudconf.sql_db || !*mudconf.sql_db)
 	return -1;
+
+    /* If we are already connected, drop and retry the connection, in
+     * case for some reason the server went away.
+     */
+
+    sql_shutdown();
 
     /* Try to connect to the database host. If we have specified
      * localhost, use the Unix domain socket instead.
@@ -90,6 +103,7 @@ int sql_init()
     ENDLOG
     return (mudstate.sql_socket);
 }
+
 
 int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     dbref player;
@@ -220,13 +234,4 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 
     msqlFreeResult(qres);
     return 0;
-}
-
-
-void sql_shutdown()
-{
-    if (mudstate.sql_socket == -1)
-	return;
-    msqlClose(mudstate.sql_socket);
-    mudstate.sql_socket = -1;
 }
