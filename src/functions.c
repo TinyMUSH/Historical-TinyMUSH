@@ -2033,7 +2033,7 @@ FUNCTION(fun_pmatch)
     safe_str(name, temp, &tp);
     for (tp = temp; *tp; tp++)
 	*tp = ToLower(*tp);
-    p_ptr = (int *) = hashfind(temp, &mudstate.player_htab);
+    p_ptr = (int *) hashfind(temp, &mudstate.player_htab);
     free_lbuf(temp);
 
     if (p_ptr) {
@@ -5774,6 +5774,7 @@ FUN flist[] = {
 						CA_PUBLIC},
 {"PEEK",	fun_peek,	0,  FN_VARARGS, CA_PUBLIC},
 {"PEMIT",	fun_pemit,	2,  0,		CA_PUBLIC},
+{"PFIND",	fun_pfind,	1,  0,		CA_PUBLIC},
 {"PI",		fun_pi,		0,  0,		CA_PUBLIC},
 {"PLAYMEM",	fun_playmem,	1,  0,		CA_PUBLIC},
 {"PMATCH",	fun_pmatch,	1,  0,		CA_PUBLIC},
