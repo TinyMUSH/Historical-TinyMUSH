@@ -22,9 +22,15 @@ struct key_linked_list {
 #ifdef HAVE_DLOPEN
 typedef struct module_linked_list MODULE;
 struct module_linked_list {
-	char *modname;
-	void *handle;
-	struct module_linked_list *next;
+    char *modname;
+    void *handle;
+    struct module_linked_list *next;
+    int (*process_command)(dbref, dbref, int, char *, char *[], int);
+    int (*process_no_match)(dbref, dbref, int, char *, char *, char *[], int);
+    void (*create_obj)(dbref, dbref);
+    void (*destroy_obj)(dbref, dbref);
+    void (*announce_connect)(dbref);
+    void (*announce_disconnect)(dbref, const char *);
 };
 #endif	/* HAVE_DLOPEN */
 

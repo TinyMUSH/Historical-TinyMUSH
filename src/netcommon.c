@@ -774,7 +774,7 @@ DESC *d;
 	time_str[strlen(time_str) - 1] = '\0';
 	record_login(player, 1, time_str, d->addr, d->username);
 
-	CALL_ALL_MODULES("announce_connect", (dbref), (player));
+	CALL_ALL_MODULES(announce_connect, (player));
 
 #ifdef PUEBLO_SUPPORT
 	look_in(player, Location(player), (LK_SHOWEXIT | LK_OBEYTERSE | LK_SHOWVRML));
@@ -926,8 +926,7 @@ const char *reason;
 		free_mbuf(buf);
 	}
 
-	CALL_ALL_MODULES("announce_disconnect", (dbref, const char *),
-			 (player, reason));
+	CALL_ALL_MODULES(announce_disconnect, (player, reason));
 
 	mudstate.curr_enactor = temp;
 	desc_delhash(d);

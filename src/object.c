@@ -550,7 +550,7 @@ char *name;
 	if (player != NOTHING) {
 		update_newobjs(player, obj, objtype);
 	}
-	CALL_ALL_MODULES("create_obj", (dbref, dbref), (player, obj));
+	CALL_ALL_MODULES(create_obj, (player, obj));
 	return obj;
 }
 
@@ -655,7 +655,7 @@ dbref player, obj;
 	}
 #endif
 
-	CALL_ALL_MODULES("destroy_obj", (dbref, dbref), (player, obj));
+	CALL_ALL_MODULES(destroy_obj, (player, obj));
 	atr_free(obj);
 	s_Name(obj, NULL);
 	s_Flags(obj, (TYPE_GARBAGE | GOING));

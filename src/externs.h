@@ -656,43 +656,41 @@ extern int	FDECL(quick_wild, (char *, char *));
 
 #if defined(HAVE_DLOPEN) && !defined(STANDALONE)
 
-/* Syntax: CALL_ALL_MODULES(<name of function>, (<arg types>), (<args>))
+/* Syntax: CALL_ALL_MODULES(<name of function>, (<args>))
  * Call all modules defined for this symbol.
  */
 
-#define CALL_ALL_MODULES(xfn,proto,args) \
+#define CALL_ALL_MODULES(xfn,args) \
 { \
-MODULE *cam__mp; \
-void (*cam__ip)proto; \
-WALK_ALL_MODULES(cam__mp) { \
-if ((cam__ip = DLSYM(cam__mp->handle, cam__mp->modname, xfn, proto)) != NULL) \
-    (*cam__ip)args; \
-} \
+    MODULE *cam__mp; \
+    WALK_ALL_MODULES(cam__mp) { \
+        if (cam__mp->xfn) { \
+            (*(cam__mp->xfn))args; \
+        } \
+    } \
 }
 
 /* Syntax: CALL_SOME_MODULES(<return value variable>,
- *                           <name of function>, (<arg types>), (<args>))
+ *                           <name of function>, (<args>))
  * Call modules in sequence until we get back a non-zero value.
  */
 
-#define CALL_SOME_MODULES(rv,xfn,proto,args) \
+#define CALL_SOME_MODULES(rv,xfn,args) \
 { \
     MODULE *csm__mp; \
-    int (*csm__ip)proto; \
     for (csm__mp = mudstate.modules_list, rv = 0; \
 	 (csm__mp != NULL) && !rv; \
 	 csm__mp = csm__mp->next) { \
-	if ((csm__ip = DLSYM_INT(csm__mp->handle, csm__mp->modname, \
-				 xfn, proto)) != NULL) { \
-	    rv = (*csm__ip)args; \
-	} \
+        if (csm__mp->xfn) { \
+            rv = (*(csm__mp->xfn))args; \
+        } \
     } \
 }
 
 #else  /* ! HAVE_DLOPEN or STANDALONE */
 
-#define CALL_ALL_MODULES(xfn,proto,args)
-#define CALL_MODULES_TIL_SUCCESS(rv,xfn,proto,args)
+#define CALL_ALL_MODULES(xfn,args)
+#define CALL_MODULES_TIL_SUCCESS(rv,xfn,args)
 
 #endif /* ! HAVE_DLOPEN or STANDALONE */
 

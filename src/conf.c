@@ -593,15 +593,31 @@ CF_HAND(cf_module)
 		return -1;
 	}
 
-	STARTLOG(LOG_STARTUP, "CNF", "MOD")
-		log_printf("Loaded module: %s", str);
-	ENDLOG
-
 	mp = (MODULE *) XMALLOC(sizeof(MODULE), "cf_module.mp");
 	mp->modname = XSTRDUP(str, "cf_module.name");
 	mp->handle = handle;
 	mp->next = mudstate.modules_list;
 	mudstate.modules_list = mp;
+
+	/* Look up our symbols now, and cache the pointers. They're
+	 * not going to change from here on out.
+	 */
+
+	mp->process_command = DLSYM_INT(handle, str, "process_command",
+					(dbref, dbref, int, char *,
+					 char *[], int));
+	mp->process_no_match = DLSYM_INT(handle, str, "process_no_match",
+					(dbref, dbref, int, char *, char *,
+					 char *[], int));
+	mp->create_obj = DLSYM(handle, str, "create_obj", (dbref, dbref));
+	mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
+	mp->announce_connect = DLSYM(handle, str, "announce_connect", (dbref));
+	mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
+					(dbref));
+
+	STARTLOG(LOG_STARTUP, "CNF", "MOD")
+		log_printf("Loaded module: %s", str);
+	ENDLOG
 
 	return 0;
 }

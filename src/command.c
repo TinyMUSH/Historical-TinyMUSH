@@ -895,8 +895,7 @@ char *command, *args[];
 
 	/* Allow modules to intercept command strings. */
 
-	CALL_SOME_MODULES(retval, "process_command",
-			 (dbref, dbref, int, char *, char **, int),
+	CALL_SOME_MODULES(retval, process_command,
 			 (player, cause, interactive, command, args, nargs));
 	if (retval > 0) {
 	    mudstate.debug_cmd = cmdsave;
@@ -1298,9 +1297,7 @@ char *command, *args[];
 	 */
 
 	if (!succ) {
-	    CALL_SOME_MODULES(succ, "process_no_match",
-			      (dbref, dbref, int, char *, char *,
-			       char **, int),
+	    CALL_SOME_MODULES(succ, process_no_match,
 			      (player, cause, interactive, lcbuf, preserve_cmd,
 			       args, nargs));
 	}
