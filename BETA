@@ -24,6 +24,14 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+07/xx/2002: Beta 5
+
+- Feature: "Altered reality" realm states like invisibility are supported
+  through the use of the PRESENCE flag and three new locks, HeardLock,
+  KnownLock, and MotionLock.
+
+-----------------------------------------------------------------------------
+
 06/27/2002: Beta 4
 
 - Feature: The new no_name attribute flag prevents the actor's name from
@@ -33,7 +41,7 @@ Release history:
 - Feature: The new conf parameter say_uses_comma, if enabled, will insert
   the grammatically-correct comma into say and @fsay.
 
-- Feature: The new conf parameter say_uses_you, if enabled, will always
+- Feature: The new conf parameter say_uses_you, if disabled, will always
   show the speaker '<name> says' rather than 'You say'. This is more
   convenient for environments where activity is often logged and shared.
 

@@ -218,6 +218,10 @@ CHANGES TO FLAGS AND POWERS
   @parent a command object to a data object, without worrying about the
   overhead of scanning the data object for $-commands.
 
+- The new PRESENCE flag, in conjunction with three new locks (HeardLock,
+  KnownLock, MotionLock) supports "altered reality" realm states such
+  as invisibility.
+
 - @filter, @infilter, and @listen do regular expression matches if
   set 'regexp'. They do not evaluate themselves before matching,
   if set 'no_parse'.

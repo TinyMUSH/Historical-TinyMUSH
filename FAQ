@@ -9,6 +9,7 @@ Frequently-Asked Questions
 - How do logfiles work?
 - How do I use multiple guests?
 - How do I create my own flags? (How do I configure marker flags?)
+= How can I create "altered reality" realm states like invisibility?
 - How do I tune the database cache?
 - How do I use an in-memory database?
 - Help! I'm having database problems.
@@ -362,6 +363,103 @@ flag_alias	CHIEF	_CHIEF
 
 which makes it possible to do '@set <object> = CHIEF'; the caveats listed
 above about future conflicts with built-ins should be kept in mind, though.
+
+
+------------------------------------------------------------------------------
+
+How do I create "altered reality" realm states like invisibility?
+
+There are three special locks -- the HeardLock, KnownLock, and MotionLock --
+that are only activated by the PRESENCE flag.
+
+When an object which is set PRESENCE tries to speak via a speech command
+such as "say", "pose", or "@emit", only those objects which pass the
+speaker's HeardLock are able to hear the message.
+
+When an object does a "look" at a room or otherwise tries to see a target,
+if the target is set PRESENCE, the object must pass the target's KnownLock.
+This is also true for messages generated via attributes like @odesc.
+
+When an object which is set PRESENCE moves or tries to move, its movement 
+is only seen by those objects which pass the object's MotionLock.
+
+When an object set PRESENCE wants to hear another thing speak, that thing
+must pass the object's HearsLock.
+
+When an object set PRESENCE wants to see another thing, that thing must
+pass the object's KnowsLock.
+
+When an object set PRESENCE wants to notice another thing's movement,
+that thing must pass the object's GoesLock.
+
+Motion and the ability to see an object already in the room are treated
+differently, since it's possible that you might want to have something
+noticed when it's moving, but not when it's still. (For instance, your
+game might have Ninjas that are invisible when they're just in a room,
+but are noticed when they move.)
+
+Basic invisibility is a very easy state to implement. Invisible
+objects are not seen by anyone, whether or not they're static or
+moving, but they can be heard. They can see and hear other things just
+fine, though. Thus, to make an object invisible, set it PRESENCE, and
+@lock/known <object> = #0, and @lock/motion <object> = #0.
+
+A more difficult state is something like the World of Darkness's 
+vampiric Obfuscation. Let's say that vampires have three levels of
+obfuscation ability, stored on their OBF_ABIL attribute; vampires
+who have an obfuscation ability higher than a target's can see that
+target even if they are obfuscated.
+
+That can be done as follows:
+
+  > @create Obsfucator
+  Obfuscator created as object #11.
+
+  > &OCHECK Obfuscator = [gt(get(%#/OBF_ABIL),get(%@/OBF_ABIL))]
+  > @lock Obfuscator = OCHECK/1
+
+Now, to allow Vlad to Obfuscate, merely do:
+
+  > @set *Vlad = PRESENCE
+  > @lock/known *Vlad = @#11
+  > @lock/motion *Vlad = @#11
+  > &OBF_ABIL *Vlad = 1
+
+(Clearly more complex implementations are possible and are likely to be
+desirable; this is just an example.)
+
+Alternatively, take something like the state of a ghost. Let's say that
+ghosts can see each other and hear each other, but no one else can.
+They can see the normal world just fine -- but they don't hear everything
+that's said, they have a random chance of not hearing normal speech. 
+A way to do this might be putting the following in your conf file:
+
+  flag_name    0    GHOST
+
+and then @set all your ghostly players _GHOST.
+
+Then, handle the locks:
+
+  > @create Ghost Ears
+  Ghost Ears created as object #22.
+
+  > &GCHECK Ghost Ears = or(hasflag(%#,Ghost),rand(2))
+  > @lock Ghost Ears = GCHECK/1
+
+  > @create Ghost Haze
+  Ghost Haze created as object #33.
+
+  > &HCHECK Ghost Haze = hasflag(%#,Ghost)
+  > @lock Ghost Haze = HCHECK/1
+
+  > @set *Caspar = PRESENCE
+  > @lock/hears *Caspar = @#22
+  > @lock/heard *Caspar = @#33
+  > @lock/known *Caspar = @#33
+  > @lock/motion *Caspar = @#33
+
+Fundamentally, you can combine these six locks to end up with any combination
+of what can hear, be heard, see, be seen, notice, and be noticed.
 
 
 ------------------------------------------------------------------------------

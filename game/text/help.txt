@@ -2425,11 +2425,23 @@ Type 'help @lock locks' for a list of the different types of locks.
      EnterLock:    Players/Things: controls who may ENTER the object if the
                                    object is ENTER_OK.
      GiveLock:     Players/Things: controls who may give the object.
+     GoesLock:     All:            controls what motion a PRESENCE object sees.
+     HeardLock:    All:            controls who can hear a PRESENCE object.
+     HearsLock:    All:            controls what a PRESENCE object hears.
+     KnownLock:    All:            controls who can see a PRESENCE object.
+     KnowsLock:    All:            controls what a PRESENCE object sees.
      LeaveLock:    Players/Things: controls who may LEAVE the object.
      LinkLock:     All but Exits:  controls who may link to the location if the
                                    location is LINK_OK (for linking exits or
                                    setting drop-tos) or ABODE (for setting
                                    homes).
+     MotionLock:   All:            controls who notices a PRESENCE object's
+                                   movement.
+ 
+{ 'help @lock locks3' for more }
+ 
+& @lock locks3
+ 
      PageLock:     Players:        controls who may page the player.
      ParentLock:   All:            controls who may make @parent links to the
                                    object.
@@ -2437,11 +2449,6 @@ Type 'help @lock locks' for a list of the different types of locks.
      SpeechLock:   All but Exits:  controls who may speak in this location
                                    (only checked if the AUDITORIUM flag is
                                    set on that location)
- 
-{ 'help @lock locks3' for more }
- 
-& @lock locks3
- 
      TeloutLock:   All but Exits:  controls who may teleport out of the
                                    location.
      TportLock:    Rooms/Things:   controls who may teleport there if the
@@ -3300,6 +3307,21 @@ See also: JUMP_OK, FIXED, home, @lock
     > @fo test1={@verb test1=me,xtest,XTEST D,oxtest,OXTEST D,axtest,{a,b,de}} 
     test1 just xtested test1.
     test1 says, "I was xtested. Yikes. Arg1=a, Arg2=b, Arg3=de."
+ 
+{ 'help @verb4' for more }
+
+& @verb4
+ 
+  @verb also takes three additional switches:
+
+    /move    - Treat this message as if it were movement, for the purpose
+               of checking PRESENCE objects.
+ 
+    /known   - Treat this message as if it were something seen, for the
+               purpose of checking PRESENCE objects.
+ 
+    /speech  - Treat this message as if it were speech, for the purpose
+               of checking PRESENCE objects.
  
   See also: locate().
  
@@ -4296,6 +4318,18 @@ Example: @sex me = female
   @set <object> = puppet. Causes an object to grow eyes and 
   ears, and relay all it sees and hears to its owner.  
   See: @force, PUPPETS
+
+& PRESENCE
+  Flag: PRESENCE (^)
+ 
+  If an object is set PRESENCE, only things that pass its KnownLock
+  can see it, only things that pass its MotionLock can notice it move,
+  and only things that pass its HeardLock will hear its speech.
+ 
+  Furthermore, an object that is set PRESENCE only sees the things
+  that pass its KnowsLock, only notices the motion of things that
+  pass its GoesLock, and only hears things which passes its HearsLock.
+  
 & ROOM
   Flag: ROOM (R)
  
@@ -5208,6 +5242,10 @@ normally equal to the enactor, except when a function defined by
 These functions set the caller to be the object that is invoking
 that particular function.
  
+The caller is also set when an indirect lock is used in conjunction
+with an evaluation lock; the user-function called by the evaluation
+lock uses the locked object as the caller.
+ 
 The caller's dbref can be accessed via the percent-substitution '%@'.
  
 Checking the caller, especially in functions intended for global use,
@@ -5229,6 +5267,13 @@ Examples (assuming the player performing these actions is #1):
   > &DO_TEST2 #9 = $test2: @pemit %# = [TestFN_NoPriv()] - [TestFN_Priv()]
   > test2
   #9 #9 #1 - #10 #9 #1
+ 
+  > &TEST #10 = 0[pemit(%#,enactor %# - me %! - caller %@)]
+  > @lock #10 = TEST/1
+  > @lock/telout here = @#10        (assuming "here" is #2)
+  > @tel #0
+  enactor #1 - me #10 - caller #2
+  You can't teleport out!
  
 See also: ENACTOR, SUBSTITUTION.
  
@@ -5311,8 +5356,9 @@ See also: @link, @open.
 	o - Zone	p - Puppet	q - Terse	r - Robot	
 	s - Safe	t - Transparent	u - Suspect	v - Verbose	
 	w - Staff	x - Slave	y - Orphan	z - Control_OK	
-	! - Stop	$ - Commands	- - NoBleed	~ - HTML	
-	> - Redir_OK	? - Head	| - Vacation	+ - Watcher
+	! - Stop	$ - Commands	^ - Presence	- - NoBleed
+	~ - HTML	> - Redir_OK	? - Head	| - Vacation
+	+ - Watcher
   
   See 'help Marker' for help on user-defined flags (0 through 9).
  
@@ -14138,6 +14184,10 @@ Continued in 'help 3.1 flags2'.
   room do not inherit $-commands from their parents). This allows you to
   @parent a command object to a data object, without worrying about the
   overhead of scanning the data object for $-commands.
+ 
+- The new PRESENCE flag, in conjunction with three new locks (HeardLock,
+  KnownLock, MotionLock) supports "altered reality" realm states such
+  as invisibility.
  
 - @filter, @infilter, and @listen do regular expression matches if
   set 'regexp'. They do not evaluate themselves before matching,

@@ -423,12 +423,12 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			   (mudconf.dark_sleepers && isPlayer(x) && \
 			    !Connected(x) && !Puppet(x))) && \
 			 ((l) ? Sees(p,x) : Sees_In_Dark(p,x)) && \
-			 ((!Unreal(p) || Check_Known(x,p)) && \
-			  (!Unreal(x) || Check_Knows(p,x))))
+			 ((!Unreal(x) || Check_Known(p,x)) && \
+			  (!Unreal(p) || Check_Knows(x,p))))
 
 #define Can_See_Exit(p,x,l)	(!Darkened(p,x) && (!(l) || Light(x)) && \
-				 ((!Unreal(p) || Check_Known(x,p)) && \
-				  (!Unreal(x) || Check_Knows(x,p))))
+				 ((!Unreal(x) || Check_Known(p,x)) && \
+				  (!Unreal(p) || Check_Knows(x,p))))
 				 
 
 /* For exits visible (for lexits(), etc.), this is true if we can examine

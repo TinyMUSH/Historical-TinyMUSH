@@ -843,8 +843,8 @@ char *recipient, *message;
 			notify_except(Location(target), player, target, message, 0);
 			break;
 		case PEMIT_WHISPER:
-		        if ((!Unreal(player) || Check_Heard(target, player)) &&
-			    (!Unreal(target) || Check_Hears(player, target))) {
+		        if ((Unreal(player) && !Check_Heard(target, player)) ||
+			    (Unreal(target) && !Check_Hears(player, target))) {
 			    notify(player, CANNOT_HEAR_MSG);
 			} else {
 			    switch (*message) {
