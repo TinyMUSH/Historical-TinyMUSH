@@ -559,35 +559,29 @@ const char *msg;
 		    (target != sender) &&
 		    (target != mudstate.curr_enactor) &&
 		    (target != mudstate.curr_player)) {
-
-			/* I'd really like to use tprintf here but I can't 
-			 * because the caller may have.
-			 * notify(target, tprintf(...)) is quite common 
-			 * in the code. 
-			 */
-
-			tbuff = alloc_sbuf("notify_check.nospoof");
-			safe_chr('[', msg_ns, &mp);
-			safe_name(sender, msg_ns, &mp);
-			*tbuff = '(';
-			tbuff[1] = '#';
-			ltos(&tbuff[2], sender);
-			safe_str(tbuff, msg_ns, &mp);
-			safe_chr(')', msg_ns, &mp);
-			
 			if (sender != Owner(sender)) {
-				safe_chr('{', msg_ns, &mp);
-				safe_name(Owner(sender), msg_ns, &mp);
-				safe_chr('}', msg_ns, &mp);
+			    if (sender != mudstate.curr_enactor) {
+				safe_tprintf_str(msg_ns, &mp,
+						 "[%s(#%d){%s}<-(#%d)] ",
+						 Name(sender), sender,
+						 Name(Owner(sender)),
+						 mudstate.curr_enactor);
+			    } else {
+				safe_tprintf_str(msg_ns, &mp,
+						 "[%s(#%d){%s}] ",
+						 Name(sender), sender,
+						 Name(Owner(sender)));
+			    }
+			} else if (sender != mudstate.curr_enactor) {
+				safe_tprintf_str(msg_ns, &mp,
+						 "[%s(#%d)<-(#%d)] ",
+						 Name(sender), sender,
+						 mudstate.curr_enactor);
+			} else {
+				safe_tprintf_str(msg_ns, &mp,
+						 "[%s(#%d)] ",
+						 Name(sender), sender);
 			}
-			if (sender != mudstate.curr_enactor) {
-				strcpy(tbuff, (const char *) "<-(#");
-				ltos(&tbuff[4], mudstate.curr_enactor);
-				safe_str(tbuff, msg_ns, &mp);
-				safe_chr(')', msg_ns, &mp);
-			}
-			safe_known_str((char *)"] ", 2, msg_ns, &mp);
-			free_sbuf(tbuff);
 		}
 		safe_str((char *)msg, msg_ns, &mp);
 	} else {
