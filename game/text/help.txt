@@ -4304,10 +4304,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	add()		abs()		ceil()		dec()
 	dist2d()	dist3d()	div()		e()		
 	exp()		fdiv()		floor()		inc()
-	ln()		log()		max()		min()		
-	mod()		mul()		pi()		power()		
-	round()		sign()		sqrt()		sub()		
-	trunc()
+	ladd()		land()		landbool()	lmax()
+	lmin()		ln()		log()		lor()
+	lorbool()	max()		min()		mod()
+	mul()		pi()		power()		round()
+	sign()		sqrt()		sub()		trunc()
  
   Continued in 'help Advanced Math Functions'.
  
@@ -5320,7 +5321,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say max(-100,50,0,25)
     You say "50"
  
-  See also: min()
+  See also: min(), lmax()
 
 & MIN()
   Function: min(<number1>,<number2>[,<numberN]...)
@@ -5336,7 +5337,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say min(-100,50,0,25)
     You say "-10"
  
-  See also: max()
+  See also: max(), lmin()
 
 & ADD()
   Function: add(<number1>,<number2>[,<numberN>]...)
@@ -5351,8 +5352,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "6"
     > say add(5,3,7,-4)
     You say "11"
-  See also: div(), mod(), mul(), sub().
-
+ 
+  See also: ladd(), div(), mod(), mul(), sub().
+ 
 & SUB()
   Function: sub(<number1>,<number2>)
  
@@ -5555,6 +5557,96 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Decimal places will be truncated.
  
   See also: inc(), add(), sub(). 
+
+& LADD()
+  Function:  ladd(<list of numbers>[,<delim>])
+ 
+  Adds a list of numbers together.
+ 
+  Examples:
+    > say [ladd(1 3 5 -1)]
+    You say, "8"
+    > say [ladd(1:2:3,:)]
+    You say, "6" 
+ 
+  See also: add().
+ 
+& LMIN()
+  Function:  lmin(<list of numbers>[,<delim>])
+ 
+  Obtains the smallest number out of a list of numbers (i.e., the minimum).
+ 
+  Example:
+    > say [lmin(3, 1.1, 5)]
+    You say "1.1"
+ 
+  See also: min().
+ 
+& LMAX()
+  Function:  lmax(<list of numbers>[,<delim>])
+ 
+  Obtains the largest number out of a list of numbers (i.e., the minimum).
+ 
+  Example:
+    > say [lmax(3.2, 1 , 5)]
+    You say "5"
+ 
+  See also: max().
+ 
+& LAND()
+  Function:  land(<list of strings>[,<delim>])
+ 
+  Takes a list of strings, and returns 1 if all words in the string are
+  non-zero numbers, and 0 otherwise.
+ 
+  Example:
+    > say [land(1 3 x 5)]
+    You say "0"
+    > say [land(2 -1 4)]
+    You say "1"
+ 
+  See also: and().
+ 
+& LANDBOOL()
+  Function:  landbool(<list of strings>[,<delim>])
+ 
+  Takes a list of strings, and returns 1 if all the words in the string
+  have a boolean true value, and 0 otherwise.
+ 
+  Example:
+    > say [landbool(1 x #2)]
+    You say "1"
+    > say [landbool(1 x 0)]
+    You say "0"
+ 
+  See also: andbool(). 
+ 
+& LOR()
+  Function:  lor(<list of strings>[,<delim>])
+ 
+  Takes a list of strings, and returns 1 if at least one of the words in
+  the string is a non-zero number, and 0 otherwise.
+ 
+  Example:
+    > say [lor(1 x 5)]
+    You say "1"
+    > say [lor(x 0 #2)]
+    You say "0"
+ 
+  See also: or().
+ 
+& LORBOOL()
+  Function:  lorbool(<list of strings>[,<delim>])
+ 
+  Takes a list of strings, and returns 1 if at least one of the words in
+  the string has a boolean true value, and 0 otherwise.
+ 
+  Example:
+    > say [lorbool(0 x #2)]
+    You say "1"
+ 
+  See also: orbool(). 
+ 
 & FIRST()
   Function: first(<string>[, <delim>])
  
@@ -6125,7 +6217,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   This function stops evaluating as soon as something is false.
  
-  See also: andbool(), or(), xor(), not()
+  See also: land(), andbool(), or(), xor(), not()
+ 
 & OR()
   Function: or(<number1>,<number2>[,<numberN>]...)
   
@@ -6134,7 +6227,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   This function stops evaluating as soon as something is true.
  
-  See also: orbool(), and(), xor(), not()
+  See also: lor(), orbool(), and(), xor(), not()
+ 
 & NOT()
   Function: not(<number>)
  
