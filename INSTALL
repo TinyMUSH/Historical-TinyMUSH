@@ -61,30 +61,30 @@ in the one-step install, the installation process is as follows:
 
 - Go back to the src directory ('cd ..').
 
-- Run the configure script, by typing './configure'. This will customize
-  autoconf.h and the Makefile for your system. If you have gcc (the GNU C
-  compiler) installed on your system, it will automatically be selected
-  as the compiler of choice.
+- View options for the configure script, by typing './configure --help'.
+  This will show you a long list of optional features you can enable or
+  disable using configure options, including modules, and lists the
+  default settings. Make a note of the options you would like to use.
 
-- Go into the modules directory ('cd modules'). An 'ls' will list all of
-  the module directories that are present. For each module that you will
-  want to use, 'cd <modulename>' and type 'make', then 'cd ..'. This will
-  compile and install the module and return you to the modules directory.
-  When you are done, go back to the 'src' directory by typing 'cd ..'.
+- Run the configure script, by typing './configure' followed by the
+  options you've selected. This will customize autoconf.h and the
+  Makefile for your system. If you have gcc (the GNU C compiler)
+  installed on your system, it will automatically be selected as the
+  compiler of choice.
 
 - Edit the Makefile and make any changes that might be necessary (go down
-  to the line that says 'CONFIGURATION SECTION'). See the notes on
-  Compatibility, later in this file, for some operating-system-specific
-  notes and modifications that might need to be made that are not
-  handled by the configure script.
+  to the line that says 'CONFIGURATION SECTION'). Note that most of the
+  options that used to be set in this section are now set with ./configure
+  options. See the notes on Compatibility, later in this file, for some
+  operating-system-specific notes and modifications that might need to be
+  made that are not handled by the configure script.
 
 - Edit config.h and select the configuration options you want. The options
   are documented in that file.
 
-- Type 'make depend' to update the dependencies.
-
-- To perform the actual build (producing a number of binaries, and
-  linking them into the appropriate place in the directory structure),
+- To build the program (updating the dependencies if needed, producing a
+  number of binaries, as well as modules, and linking them into the
+  appropriate place in the directory structure),
 
   If you are a bash, ksh, pdksh, bsh, or sh shell user, type:
 
@@ -273,11 +273,9 @@ TinyMUSH 3 is believed to be compatible with all major versions of
 Unix, including SunOS 4.1.x, Solaris, Irix, AIX, HP-UX, NetBSD, Linux,
 and MacOS X. There is no official Windows NT port, at present.
 
-TinyMUSH 3.1 utilizes dynamically loadable modules. Some functionality
-will not be available with Unix versions that do not have a reasonable
-implementation of dlopen() and related functions. This includes HP-UX
-and AIX; if you are running on such a system and can make it available
-to the developers to do a port, it would be appreciated.
+TinyMUSH 3.1 utilizes dynamically loadable modules on many platforms,
+thanks to the GNU libtool project, and will be statically linked with
+its modules on platforms that do not support dynamic loading.
 
 The frequent releases of new Linux versions, the proliferation of
 multiple Linux development paths, and the incompatibility between
