@@ -42,7 +42,7 @@ typedef struct {
 	Chain mactive;
 } CacheLst;
 
-#define NAMECMP(a,b,c,d,e)	(!memcmp(a,b,c) && (d == e))
+#define NAMECMP(a,b,c,d,e)	((d == e) && !memcmp(a,b,c))
 
 #define DEQUEUE(q, e)	if(e->nxt == (Cache *)0) { \
 				if (e->prv != (Cache *)0) { \
@@ -146,7 +146,7 @@ int type;
 
         if (keydata == NULL)
                 return 0;
-        for (sp = (char *)keydata; ((int *)sp - (int *)keydata) < keylen; sp++)
+        for (sp = (char *)keydata; ((void *)sp - keydata) < keylen; sp++)
                 hash = (hash << 5) + hash + *sp;
         return ((hash + type) % cwidth);
 }
