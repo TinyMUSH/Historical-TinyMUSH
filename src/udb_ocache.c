@@ -387,7 +387,8 @@ void list_cached_attrs(player)
 }
 
 /* Search the cache for an entry of a specific type, if found, copy the data
- * and length into pointers provided by the caller, if not, fetch from DB */
+ * and length into pointers provided by the caller, if not, fetch from DB.
+ * You do not need to free data returned by this call. */
 
 DBData cache_get(key, type)
 DBData key;
@@ -1001,7 +1002,7 @@ unsigned int type;
 		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			DEQUEUE(sp->active, cp);
 			INSHEAD(sp->mactive, cp);
-			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
+			cache_repl(cp, NULL, 0, type);
 			INCCOUNTER(cp);
 			return;
 		}
@@ -1013,7 +1014,7 @@ unsigned int type;
 		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			DEQUEUE(sp->mactive, cp);
 			INSHEAD(sp->mactive, cp);
-			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
+			cache_repl(cp, NULL, 0, type);
 			INCCOUNTER(cp);
 			return;
 		}

@@ -584,9 +584,10 @@ There are four API hooks provided for reading data needed at startup and
 checkpointing to GDBM as well as reading and writing flatfiles:
 
 void mod_<name>_db_read(void)
-	Load any module-specific data from GDBM at startup.  Called during
+	Load any module-specific data from GDBM at startup. Called during
 	MUSH startup, and during the backup conversion process before
-	db_write_flatfile() is called.
+	db_write_flatfile() is called. Use this to load data which must be
+	present when the MUSH starts.
 
 void mod_<name>_db_write(void)
 	Write any module-specific data to GDBM. Called during MUSH
@@ -609,7 +610,11 @@ void mod_<name>_db_write_flatfile(FILE *f)
 It is important to note that register_dbtype() must be called at the
 beginning of each of these four functions since module initialization DOES
 NOT TAKE PLACE when your module is loaded during database conversion, and
-your module cannot know which of these functions will be called first.
+your module cannot know which of these functions will be called first. If
+your module does not use db_read or db_write, you should call
+register_dbtype during your cleanup_startup hook to make sure it gets called
+before anything else. You cannot call register_dbtype in your init hook
+because init is called before the database is opened.
 
 A typical MUSH server run will look like this:
 
@@ -737,6 +742,10 @@ the most often accessed data is already in memory, and making writes more
 efficient by buffering them until a number of entries may be written at
 once. You don't need to worry about how the cache operates; it will make
 sure everything gets read and written properly.
+
+Note that you cannot pass a non-malloc()ed piece of memory to cache_put. It
+must have been malloc()ed, and it will become the cache subsystem's
+responsibility to free it.
 
 -----------------------------------------------------------------------------
 

@@ -4,6 +4,7 @@
 #include "../../api.h"
 
 #define MOD_HELLO_HELLO_INFORMAL	1
+#define MOD_HELLO_FOOF_SHOW		1
 
 /* --------------------------------------------------------------------------
  * Conf table.
@@ -24,6 +25,8 @@ CONF mod_hello_conftable[] = {
 /* --------------------------------------------------------------------------
  * Database.
  */
+
+unsigned int mod_hello_dbtype;
 
 typedef struct mod_hello_dbobj MOD_HELLO_OBJ;
 struct mod_hello_dbobj {
@@ -224,13 +227,6 @@ DO_CMD_NO_ARG(mod_hello_do_hello)
 {
     int i;
 
-    /* Demonstrate what we can do:
-     *   @hello/informal greets you a configurable number of times.
-     *   If the config param 'hello_shows_name' is set to 'yes', then
-     *      this greets you by name. Otherwise, it displays the 
-     *      value of the config param 'hello_string'.
-     *   Finally, this tracks the number of times an object uses @hello.
-     */
 
     if (key & MOD_HELLO_HELLO_INFORMAL) {
 	for (i = 0; i < mod_hello_config.hello_times; i++) 
@@ -247,9 +243,53 @@ DO_CMD_NO_ARG(mod_hello_do_hello)
 			   mod_hello_db[player].greeted));
 }
 
-DO_CMD_NO_ARG(mod_hello_do_foof)
+DO_CMD_ONE_ARG(mod_hello_do_foof)
 {
-    notify(player, "Yay.");
+    DBData dbkey;
+    DBData data;
+
+    /* Demonstrate what we can do:
+     *   @foof greets you with a generic message.
+     *
+     *   @foof <message> greets you with a customized message that is
+     *	 preserved in the database.
+     *
+     *   @foof/show will show you the message you were last 'foofed' with.
+     *   This illustrates the use of the database cache.
+     */
+
+    /* Set up our DB key. We'll either be getting, adding or deleting an
+     * entry */
+    
+    dbkey.dptr = &player;
+    dbkey.dsize = sizeof(dbref);
+    
+    if (key & MOD_HELLO_FOOF_SHOW) {
+    	data = cache_get(dbkey, mod_hello_dbtype);
+    	if (data.dptr) {
+    		notify(player, tprintf("You were last foofed with: %s", data.dptr));
+    	} else {
+    		notify(player, "You have not been foofed with a message.");
+    	}
+    	return;
+    }
+    
+    if (arg1 && *arg1) {
+    	notify(player, tprintf("Yay: \"%s\"", arg1));
+    	
+    	/* Set up data and store it in cache */
+    	
+    	data.dptr = XSTRDUP(arg1, "mod_hello_do_foof");
+    	data.dsize = strlen(arg1) + 1;
+    	cache_put(dbkey, data, mod_hello_dbtype);
+    } else {
+	notify(player, "Yay.");
+	
+	/* Delete the entry from cache if it exists */
+	
+	cache_del(dbkey, mod_hello_dbtype);
+    }
+    
     mod_hello_db[player].foofed += 1;
     notify(player, tprintf("You have been foofed %d times.", 
 			   mod_hello_db[player].foofed));
@@ -259,12 +299,16 @@ NAMETAB mod_hello_hello_sw[] = {
 {(char *)"informal",	1,	CA_PUBLIC,	MOD_HELLO_HELLO_INFORMAL},
 { NULL,			0,	0,		0}};
 
+NAMETAB mod_hello_foof_sw[] = {
+{(char *)"show",	1,	CA_PUBLIC,	MOD_HELLO_FOOF_SHOW},
+{ NULL,			0,	0,		0}};
+
 CMDENT mod_hello_cmdtable[] = {
 {(char *)"@hello",		mod_hello_hello_sw,	CA_PUBLIC,
 	0,		CS_NO_ARGS,
 	NULL,		NULL,	NULL,			{mod_hello_do_hello}},
-{(char *)"@foof",		NULL,			CA_PUBLIC,
-	0,		CS_NO_ARGS,
+{(char *)"@foof",		mod_hello_foof_sw,	CA_PUBLIC,
+	0,		CS_ONE_ARG,
 	NULL,		NULL,	NULL,			{mod_hello_do_foof}},
 {(char *)NULL,			NULL,		0,
 	0,		0,
@@ -349,3 +393,85 @@ void mod_hello_init()
     register_functions(mod_hello_functable);
     register_api("hello", "hi", mod_hello_exports);
 }
+
+void mod_hello_cleanup_startup()
+{
+    mod_hello_dbtype = register_dbtype("hello");
+}
+
+/* --------------------------------------------------------------------------
+ * Database routines: read and write a flatfile at db conversion time.
+ */
+
+void mod_hello_db_write_flatfile(f)
+FILE *f;
+{
+	unsigned int dbtype;
+	dbref thing;
+	DBData key;
+	DBData data;
+	
+	/* Find out our dbtype */
+
+	mod_hello_dbtype = register_dbtype("hello");
+		
+	/* Write out our version number */
+	
+	fprintf(f, "+V1\n");
+	
+	DO_WHOLE_DB(thing) {
+		key.dptr = &thing;
+		key.dsize = sizeof(dbref);
+		data = cache_get(key, mod_hello_dbtype);
+		if (data.dptr) {
+			fprintf(f, "!%d\n", thing);
+			putstring(f, data.dptr);
+		}
+	}
+	
+	fputs("***END OF DUMP***\n", f);
+}
+
+void mod_hello_db_read_flatfile(f)
+FILE *f;
+{
+	unsigned int dbtype, version;
+	char c;
+	dbref thing;
+	DBData key;
+	DBData data;
+	
+	/* Find out our dbtype */
+
+	mod_hello_dbtype = register_dbtype("hello");
+
+	/* Load entries */
+	
+	while(1) {
+		switch(c = getc(f)) {
+		case '+':	/* Header */
+			switch(c = getc(f)) {
+				case 'V':	/* Version number */
+					version = getref(f);
+					break;
+				default:
+					(void)getstring_noalloc(f, 1);
+				}
+				break;
+		case '!':	/* DBref */
+			thing = getref(f);
+			
+			/* Grab the string and put it in cache */
+			
+			data.dptr = XSTRDUP(getstring_noalloc(f, 1), "mod_hello_db_read_flatfile");
+			data.dsize = strlen(data.dptr) + 1;
+			key.dptr = &thing;
+			key.dsize = sizeof(dbref);
+			
+			cache_put(key, data, mod_hello_dbtype);
+			break;
+		case '*':	/* EOF marker */
+			return;
+		}
+	}
+}	

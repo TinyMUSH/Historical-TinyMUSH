@@ -1816,7 +1816,11 @@ dbref player;
 	 * call the handler to parse the argument. 
 	 */
 
-	if (mudstate.standalone && strcmp(cp, "module")) {
+	/* Make sure that if we're standalone, the paramaters we need to
+	 * load module flatfiles are loaded */
+	 
+	if (mudstate.standalone && strcmp(cp, "module") && 
+	    strcmp(cp, "database_home")) {
 		return 0;
 	}
 

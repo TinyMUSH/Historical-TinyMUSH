@@ -1114,6 +1114,19 @@ int dump_type;
 			log_perror("DMP", "FAIL", "Opening flatfile",
 				   tmpfile);
 		}
+		
+		/* Trigger modules to write their flatfile */
+		
+		WALK_ALL_MODULES(mp) {
+			if (mp->db_write_flatfile) {
+				f = db_module_flatfile(mp->modname, 1);
+				if (f) {
+					(*(mp->db_write_flatfile))(f);
+					tf_fclose(f);
+				}
+			}
+		}
+
 		break;
 	case DUMP_DB_KILLED:	
 		strcpy(prevfile, mudconf.gdbm);
@@ -1777,10 +1790,10 @@ char *argv[];
 			/* Call all modules to write to flatfile */
 			
 			WALK_ALL_MODULES(mp) {
-				if (mp->db_write_flatfile) {
+			if ((modfunc = DLSYM(mp->handle, mp->modname, "db_write_flatfile", (FILE *))) != NULL) {
 					f = db_module_flatfile(mp->modname, 1);
 					if (f) {
-						(*(mp->db_write_flatfile))(f);
+						(*modfunc)(f);
 						tf_fclose(f);
 					}
 				}

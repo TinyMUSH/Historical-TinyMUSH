@@ -1641,9 +1641,8 @@ FILE *fp;
 	dbref thing;
 	int count = 0, i;
 
-	/*
-	 * Write out version number 
-	 */
+	/* Write out version number */
+	
 	fprintf(fp, "+V5\n");
 	putref(fp, mod_mail_config.mail_db_top);
 	DO_WHOLE_DB(thing) {
@@ -1722,12 +1721,12 @@ FILE *fp;
 		return;
 	}
 	
-	if (pennsub)
-		fgets(nbuf1, sizeof(nbuf1), fp);	/*
-							 * Toss away the * *
-							 * * number of
-							 * messages  *  * *  
-							 */
+	if (pennsub) {
+		/* Toss away the number of messages */
+		
+		fgets(nbuf1, sizeof(nbuf1), fp);
+	}
+	
 	if (read_newdb) {
 		mail_top = getref(fp);
 		mail_db_grow(mail_top + 1);

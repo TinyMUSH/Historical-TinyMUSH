@@ -13,14 +13,17 @@ ZIP=gzip
 DBDATE=`date +%m%d-%H%M`
 #
 if [ -d $BACKUP_DIR ]; then
-    OUTFILE=$BACKUP_DIR/$GAMENAME.$DBDATE.gz
+    OUTFILE=$BACKUP_DIR/$GAMENAME.$DBDATE
 else
-    OUTFILE=$GAMENAME.$DBDATE.gz
+    OUTFILE=$GAMENAME.$DBDATE
 fi
 #
 if [ -r $DATA/$GDBM_DB ]; then
     echo "Backing up to $OUTFILE"
-    $BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB | $ZIP -c > $OUTFILE
+    $BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB > $OUTFILE
+    tar -cf $OUTFILE.tar $OUTFILE $DATA/mod_*.db
+    $ZIP $OUTFILE.tar
+    rm $OUTFILE
 else
     echo "No dbs. Backup attempt failed."
 fi
