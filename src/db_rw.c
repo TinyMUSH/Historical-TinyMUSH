@@ -1000,6 +1000,11 @@ int db_format, db_version;
 		newf2 &= ~WATCHER;
 	    }
 
+	    if ((newf1 & MONITOR) && ((newf1 & TYPE_MASK) == TYPE_PLAYER)) {
+		/* Players set MONITOR should be set WATCHER as well. */
+		newf2 |= WATCHER;
+	    }
+
 	} else if (db_format == F_TINYMUSH) {
 		/* Native TinyMUSH 3.0 database.
 		 * The only thing we have to do is clear the redirection
