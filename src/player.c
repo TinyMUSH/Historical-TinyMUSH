@@ -471,6 +471,12 @@ int check_who;
 	if (!string_compare(name, "me"))
 		return doer;
 
+	if (*name == LOOKUP_TOKEN) {
+		do {
+			name++;
+		} while (isspace(*name));
+	}
+
 	if (*name == NUMBER_TOKEN) {
 		name++;
 		if (!is_number(name))
@@ -483,11 +489,6 @@ int check_who;
 		return thing;
 	}
 
-	if (*name == LOOKUP_TOKEN) {
-		do {
-			name++;
-		} while (isspace(*name));
-	}
 	tp = temp = alloc_lbuf("lookup_player");
 	safe_str(name, temp, &tp);
 	for (tp = temp; *tp; tp++)
