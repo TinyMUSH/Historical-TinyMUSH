@@ -569,10 +569,9 @@ CF_HAND(cf_int)
  * startup.
  */
 
+#ifdef HAVE_DLOPEN
 CF_HAND(cf_module)
 {
-#ifdef HAVE_DLOPEN
-
 	void *handle;
 	
 	handle = dlopen(tprintf("%s.so", str), RTLD_NOW|RTLD_GLOBAL);	
@@ -584,11 +583,23 @@ CF_HAND(cf_module)
 		ENDLOG
 		return -1;
 	}
-	
+
+	STARTLOG(LOG_STARTUP, "CNF", "MOD")
+		log_printf("Loaded module: %s", str);
+	ENDLOG
+
 	hashadd(str, handle, (HASHTAB *) &mudstate.modules_htab);
-#endif	
 	return 0;
 }
+#else  /* ! HAVE_DLOPEN */
+CF_HAND(cf_module)
+{
+    STARTLOG(LOG_STARTUP, "CNF", "MOD")
+	log_printf("Loading of %s module failed: feature disabled", str);
+    ENDLOG
+    return -1;
+}
+#endif /* HAVE_DLOPEN */
 
 /* *INDENT-OFF* */
 
