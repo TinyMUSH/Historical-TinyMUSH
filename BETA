@@ -27,8 +27,11 @@ Release history:
 07/xx/2002: Beta 5
 
 - Feature: "Altered reality" realm states like invisibility are supported
-  through the use of the PRESENCE flag and three new locks, HeardLock,
-  KnownLock, and MotionLock.
+  through the use of the PRESENCE flag and six new locks (HeardLock,
+  HearsLock, KnownLock, KnowsLock, MotionLock, and GoesLock).
+
+- Fix: The game/backups directory is now correctly included with the
+  distribution.
 
 -----------------------------------------------------------------------------
 

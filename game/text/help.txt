@@ -4328,7 +4328,8 @@ Example: @sex me = female
  
   Furthermore, an object that is set PRESENCE only sees the things
   that pass its KnowsLock, only notices the motion of things that
-  pass its GoesLock, and only hears things which passes its HearsLock.
+  pass its GoesLock, and only hears the speech of things which pass
+  its HearsLock.
   
 & ROOM
   Flag: ROOM (R)
@@ -14185,9 +14186,9 @@ Continued in 'help 3.1 flags2'.
   @parent a command object to a data object, without worrying about the
   overhead of scanning the data object for $-commands.
  
-- The new PRESENCE flag, in conjunction with three new locks (HeardLock,
-  KnownLock, MotionLock) supports "altered reality" realm states such
-  as invisibility.
+- The new PRESENCE flag, in conjunction with six new locks (HeardLock,
+  HearsLock, KnownLock, KnowsLock, MotionLock, GoesLock) supports "altered
+  reality" realm states such as invisibility.
  
 - @filter, @infilter, and @listen do regular expression matches if
   set 'regexp'. They do not evaluate themselves before matching,
