@@ -110,9 +110,12 @@ int type;
 					} while (p && *p);
 					str = c;
 				}
-			case ':':
-				if (str[1] == ' ')
+			case ' ':
+				if (str[1] == ' ') {
 					safe_known_str("%b", 2, new, &bp);
+				} else {
+					safe_chr(' ', new, &bp);
+				}
 				break;
 			case '\\': case '%': case '[': case ']':
 			case '{':  case '}': case '(': case ')':
@@ -123,6 +126,9 @@ int type;
 				break;
 			case '\n':
 				safe_known_str("%r", 2, new, &bp);
+				break;
+			case '\t':
+				safe_known_str("%t", 2, new, &bp);
 				break;
 			default:
 				safe_chr(*str, new, &bp);
@@ -142,7 +148,7 @@ int type;
 				break;
 			case '\r':
 				break;
-			case '\n':
+			case '\n': case '\t':
 				safe_chr(' ', new, &bp);
 				break;
 			default:
