@@ -148,8 +148,10 @@
 
   > &LOOK me=$look:say I looked here!
   > &LOOK_WITH_ARG me=$look *:say I looked at %0!
+  > &LOOK_OUTSIDE me=$look/outside *:say I looked outside at %0!
   > @addcommand look=me/look
   > @addcommand look=me/look_with_arg
+  > @addcommand look=me/look_outside
  
   { 'help @addcommand2' for more }
  

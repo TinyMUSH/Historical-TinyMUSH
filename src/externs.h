@@ -418,6 +418,7 @@ extern void	FDECL(toast_player, (dbref));
 #define MAIL_REVIEW	24	/* Reviews @mail sent to a player */
 #define MAIL_RETRACT	25	/* Retracts @mail sent to a player */
 #define MAIL_CC		26	/* Carbon copy */
+#define MAIL_SAFE	27	/* Defines a piece of mail as safe. */
 
 #define MALIAS_DESC	1	/* Describes a mail alias */
 #define MALIAS_CHOWN	2	/* Changes a mail alias's owner */

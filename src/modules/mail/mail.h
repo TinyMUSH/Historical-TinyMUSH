@@ -14,7 +14,7 @@
 #define M_CLEARED	0x0002
 #define M_URGENT	0x0004
 #define M_MASS		0x0008
-#define M_EXPIRE	0x0010
+#define M_SAFE		0x0010
 #define M_RECEIPT	0x0020
 #define M_TAG		0x0040
 #define M_FORWARD	0x0080
@@ -30,7 +30,7 @@
 
 #define Urgent(m)	(m->read & M_URGENT)
 #define Mass(m)		(m->read & M_MASS)
-#define Expire(m)	(m->read & M_EXPIRE)
+#define M_Safe(m)		(m->read & M_SAFE)
 #define Receipt(m)	(m->read & M_RECEIPT)
 #define Forward(m)	(m->read & M_FORWARD)
 #define Tagged(m)	(m->read & M_TAG)

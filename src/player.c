@@ -532,9 +532,11 @@ int check_who;
 	p = (int *)hashfind(temp, &mudstate.player_htab);
 	free_lbuf(temp);
 	if (!p) {
-		if (check_who)
+		if (check_who) {
 			thing = find_connected_name(doer, name);
-		else
+			if (Dark(thing))
+				thing = NOTHING;
+		} else
 			thing = NOTHING;
 	} else if (!Good_obj(*p)) {
 		thing = NOTHING;

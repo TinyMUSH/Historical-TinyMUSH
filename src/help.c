@@ -86,13 +86,17 @@ char *filename;
 		StringCopy(htab_entry->key, entry.topic);
 		while (p > entry.topic) {
 			p--;
-			if (!isspace(*p))
+			if (!isspace(*p)) {
 				if ((hashadd(entry.topic, (int *)htab_entry, htab)) == 0)
 					count++;
 				else {
 					free(htab_entry->key);
 					free(htab_entry);
 				}
+			} else {
+				free(htab_entry->key);
+				free(htab_entry);
+			}
 			*p = '\0';
 			htab_entry = (struct help_entry *)malloc(sizeof(struct help_entry));
 

@@ -234,7 +234,8 @@ NAMETAB mail_sw[] = {
 {(char *)"quick",	0,	CA_PUBLIC,      MAIL_QUICK},
 {(char *)"review",	2,	CA_PUBLIC,      MAIL_REVIEW},
 {(char *)"retract",	2,	CA_PUBLIC,      MAIL_RETRACT},
-{(char *)"cc",		2,	CA_PUBLIC,	MAIL_CC}};
+{(char *)"cc",		2,	CA_PUBLIC,	MAIL_CC},
+{(char *)"safe",	2,	CA_PUBLIC,	MAIL_SAFE}};
 
 NAMETAB malias_sw[] = {
 {(char *)"desc",        1,      CA_PUBLIC,      MALIAS_DESC},
@@ -958,7 +959,7 @@ int interactive, ncargs;
 			switchp = buf1;
 			hasswitch = 1;
 		} while (buf1);
-	} else if (switchp) {
+	} else if (switchp && !(cmdp->callseq & CS_ADDED)) {
 		notify(player,
 		       tprintf("Command %s does not take switches.",
 			       cmdp->cmdname));
@@ -974,8 +975,8 @@ int interactive, ncargs;
 			return;
 		}
 	/*
-	 * We are allowed to run the command.  Now, call the handler using *
-	 * * * * * the * appropriate calling sequence and arguments. 
+	 * We are allowed to run the command.  Now, call the handler using
+	 * the appropriate calling sequence and arguments. 
 	 */
 
 	if ((cmdp->callseq & CS_INTERP) ||
@@ -1039,18 +1040,25 @@ int interactive, ncargs;
 					new = alloc_lbuf("process_cmdent.soft");
 					if (!*j) {
 						/* No args */
-						strcpy(new, cmdp->cmdname);
+						if (switchp)
+							sprintf(new, "%s/%s", cmdp->cmdname, switchp);
+						else
+							strcpy(new, cmdp->cmdname);
 					} else {
 						bp = new;
 						j++;
 						safe_str(cmdp->cmdname, new, &bp);
+						if (switchp) {
+							safe_chr('/', new, &bp);
+							safe_str(switchp, new, &bp);
+						}
 						safe_chr(' ', new, &bp);
 						safe_str(j, new, &bp);
 						*bp = '\0';
 					} 
 					if (wild(buff + 1, new, aargs, 10)) {
 						wait_que(add->thing, player,
-							0, NOTHING, 0, s, aargs, 10,
+					        	0, NOTHING, 0, s, aargs, 10,
 							mudstate.global_regs);
 						for (i = 0; i < 10; i++) {
 							if (aargs[i])

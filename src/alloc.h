@@ -15,13 +15,16 @@
 #define POOL_PCACHE	6
 #define	NUM_POOLS	7
 
+
 #define LBUF_SIZE	8000
 #define MBUF_SIZE	400
 #define SBUF_SIZE	64
 
-/* #define LBUF_SIZE	4000	*/
-/* #define MBUF_SIZE	200	*/
-/* #define SBUF_SIZE	32	*/
+/*
+#define LBUF_SIZE	4000
+#define MBUF_SIZE	200
+#define SBUF_SIZE	32
+*/
 
 #ifndef STANDALONE
 

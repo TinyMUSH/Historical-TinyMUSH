@@ -285,6 +285,8 @@ dbref thing;
 		return (char *)"ROOM";
 	case TYPE_EXIT:
 		return (char *)"EXIT";
+	case TYPE_GARBAGE:
+		return (char *)"GARBAGE";
 	default:
 		return (char *)"??ILLEGAL??";
 	}

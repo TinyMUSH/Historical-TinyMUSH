@@ -2315,6 +2315,7 @@ FUNCTION(fun_lcon)
 {
 	dbref thing, it;
 	char *tbuf;
+	int first = 1;
 
 	it = match_thing(player, fargs[0]);
 	if ((it != NOTHING) &&
@@ -2324,10 +2325,12 @@ FUNCTION(fun_lcon)
 	     (it == cause))) {
 		tbuf = alloc_sbuf("fun_lcon");
 		DOLIST(thing, Contents(it)) {
-			if (*buff)
+			if (!first)
 				sprintf(tbuf, " #%d", thing);
-			else
+			else {
 				sprintf(tbuf, "#%d", thing);
+				first = 0;
+			}
 			safe_str(tbuf, buff, bufc);
 		}
 		free_sbuf(tbuf);
@@ -3265,7 +3268,7 @@ FUNCTION(fun_before)
 	if (nfargs == 0) {
 		return;
 	}
-	if (!fn_range_check("BEFORE", nfargs, 1, 2, buff))
+	if (!fn_range_check("BEFORE", nfargs, 1, 2, buff, bufc))
 		return;
 
 	bp = fargs[0];
