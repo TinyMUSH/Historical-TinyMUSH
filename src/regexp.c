@@ -24,7 +24,7 @@
  * regular-expression syntax might require a total rethink.
  */
 
-/* Modified by Lydia Leong (lydia@digex.net) to work with TinyMUSH. */
+/* Modified by Lydia Leong (lwl@godlike.com) to work with TinyMUSH. */
 
 #include <stdio.h>
 #include "autoconf.h"
@@ -721,7 +721,6 @@ register regexp *prog;
 register char *string;
 {
 	register char *s;
-	extern char *strchr();
 
 	/* Be paranoid... */
 	if (prog == NULL || string == NULL) {
