@@ -47,6 +47,7 @@ struct confdata {
 	int	conc_port;	/* concentrator port */
 	int	init_size;	/* initial db size */
 	int	use_global_aconn;     /* Do we want to use global @aconn code? */
+    	int	global_aconn_uselocks; /* global @aconn obeys uselocks? */
 	int	have_guest;	/* Do we wish to allow a GUEST character? */
 	int	guest_char;	/* player num of prototype GUEST character */
 	int     guest_nuker;    /* Wiz who nukes the GUEST characters. */

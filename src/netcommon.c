@@ -679,12 +679,16 @@ DESC *d;
 				 buf, (char **)NULL, 0, NULL);
 		free_lbuf(buf);
 		DOLIST(obj, Contents(mudconf.master_room)) {
-			buf = atr_pget(obj, A_ACONNECT, &aowner, &aflags);
-			if (buf && *buf) {
-				wait_que(obj, player, 0, NOTHING, 0, buf,
-					 (char **)NULL, 0, NULL);
+		        if (!mudconf.global_aconn_uselocks ||
+			    could_doit(player, obj, A_LUSE)) {
+			        buf = atr_pget(obj, A_ACONNECT, &aowner,
+					       &aflags);
+				if (buf && *buf) {
+				        wait_que(obj, player, 0, NOTHING, 0,
+						 buf, (char **)NULL, 0, NULL);
+				}
+				free_lbuf(buf);
 			}
-			free_lbuf(buf);
 		}
 	}
 	/* do the zone of the player's location's possible aconnect */
@@ -788,20 +792,28 @@ const char *reason;
 				 NULL);
 		free_lbuf(atr_temp);
 
-		if ((mudconf.master_room != NOTHING) && mudconf.use_global_aconn) {
-			atr_temp = atr_pget(mudconf.master_room, A_ADISCONNECT, &aowner,
-					    &aflags);
+		if ((mudconf.master_room != NOTHING)
+		    && mudconf.use_global_aconn) {
+			atr_temp = atr_pget(mudconf.master_room,
+					    A_ADISCONNECT, &aowner, &aflags);
 			if (atr_temp && *atr_temp)
-				wait_que(mudconf.master_room, player, 0, NOTHING, 0,
-					 atr_temp, (char **)NULL, 0, NULL);
+				wait_que(mudconf.master_room, player, 0,
+					 NOTHING, 0, atr_temp, (char **)NULL,
+					 0, NULL);
 			free_lbuf(atr_temp);
 			DOLIST(obj, Contents(mudconf.master_room)) {
-				atr_temp = atr_pget(obj, A_ADISCONNECT, &aowner, &aflags);
-				if (atr_temp && *atr_temp) {
-					wait_que(obj, player, 0, NOTHING, 0, atr_temp,
-						 (char **)NULL, 0, NULL);
+			        if (!mudconf.global_aconn_uselocks ||
+				    could_doit(player, obj, A_LUSE)) {
+				        atr_temp = atr_pget(obj, A_ADISCONNECT,
+							    &aowner, &aflags);
+					if (atr_temp && *atr_temp) {
+					        wait_que(obj, player, 0,
+							 NOTHING, 0, atr_temp,
+							 (char **)NULL, 0,
+							 NULL);
+					}
+					free_lbuf(atr_temp);
 				}
-				free_lbuf(atr_temp);
 			}
 		}
 		/* do the zone of the player's location's possible adisconnect */
