@@ -155,7 +155,9 @@ STATS *info;
 	info->s_exits = 0;
 	info->s_things = 0;
 	info->s_players = 0;
+	info->s_going = 0;
 	info->s_garbage = 0;
+	info->s_unknown = 0;
 
 	/*
 	 * Do we have permission? 
@@ -177,8 +179,8 @@ STATS *info;
 	DO_WHOLE_DB(i) {
 		if ((who == NOTHING) || (who == Owner(i))) {
 			info->s_total++;
-			if (Going(i) && (Typeof(i) != TYPE_ROOM)) {
-				info->s_garbage++;
+			if (Going(i) && (Typeof(i) < GOODTYPE)) {
+				info->s_going++;
 				continue;
 			}
 			switch (Typeof(i)) {
@@ -194,8 +196,11 @@ STATS *info;
 			case TYPE_PLAYER:
 				info->s_players++;
 				break;
-			default:
+			case TYPE_GARBAGE:
 				info->s_garbage++;
+				break;
+			default:
+				info->s_unknown++;
 			}
 		}
 	}
@@ -245,10 +250,10 @@ char *name;
 	if (!get_stats(player, owner, &statinfo))
 		return;
 	notify(player,
-	       tprintf("%d objects = %d rooms, %d exits, %d things, %d players. (%d garbage)",
+	       tprintf("%d objects = %d rooms, %d exits, %d things, %d players.\n\t(%d going, %d garbage, %d unknown)",
 		       statinfo.s_total, statinfo.s_rooms, statinfo.s_exits,
-		       statinfo.s_things, statinfo.s_players,
-		       statinfo.s_garbage));
+		       statinfo.s_things, statinfo.s_players, statinfo.s_going,
+		       statinfo.s_garbage, statinfo.s_unknown));
 
 #ifdef TEST_MALLOC
 	if (Wizard(player))

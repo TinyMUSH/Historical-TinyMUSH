@@ -4359,10 +4359,11 @@ FUNCTION(fun_stats)
 		safe_str("#-1 ERROR GETTING STATS", buff, bufc);
 		return;
 	}
-	safe_tprintf_str(buff, bufc, "%d %d %d %d %d %d",
+	safe_tprintf_str(buff, bufc, "%d %d %d %d %d %d %d %d",
 			 statinfo.s_total, statinfo.s_rooms,
 			 statinfo.s_exits, statinfo.s_things,
-			 statinfo.s_players, statinfo.s_garbage);
+			 statinfo.s_players, statinfo.s_going,
+			 statinfo.s_garbage, statinfo.s_unknown);
 }
 
 /* ---------------------------------------------------------------------------

@@ -1784,9 +1784,10 @@
   that will be created. This version of the command is free.
  
   @stats/all gives a  breakdown by object types. If <player> is specified,
-  the breakdown for the named player is given. You may only list individual
-  counts for yourself. These versions of the command are computationally
-  expensive, and cost the same as a @search.
+  the breakdown for the named player is given. You may not list individual
+  counts for other players unless you control them or have the stat_any 
+  power. These versions of the command are computationally expensive, and
+  cost the same as a @search.
  
   See also: stats().
 
@@ -7269,7 +7270,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say search()
     You say "#226 #289 #325 #364 #368 #369"
     > @stats me
-    6 objects = 0 rooms, 0 exits, 5 things, 1 players. (0 garbage)
+    6 objects = 0 rooms, 0 exits, 5 things, 1 players.
+            (0 going, 0 garbage, 0 unknown)
     > say search(eval=\[eq(money(##),1)\])
     You say "#289 #325 #364 #368 #369"
     > say search(player=wizard)
@@ -7282,22 +7284,27 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   This function returns information about the number of objects on the MUSH,
   much like the @stats command.  If the argument is omitted or is 'all', then
   the stats for the entire MUSH are returned, otherwise the stats for the
-  named player are returned.  You can only get stats for yourself.
+  named player are returned.  You may not get stats for other players unless
+  you control them or have the stat_any power.
  
-  The stats are returned as a set of 6 numbers, in the same order as reported
+  The stats are returned as a set of 8 numbers, in the same order as reported
   by the @stats command: total objects, rooms, exits, things, players, and
-  garbage.  This command costs as much as the equivalent @stats command (ie:
-  '@stats/all' or '@stats <player>', not the free '@stats').
+  then GOING objects, garbage, and objects of unknown type.  Unknown and GOING
+  objects are converted to garbage during @dbck, and thus were counted as
+  garbage in the past.  This command costs as much as the equivalent @stats
+  command (ie: '@stats/all' or '@stats <player>', not the free '@stats').
  
   Examples:
     > @stats me
-    6 objects = 0 rooms, 0 exits, 5 things, 1 players. (0 garbage)
+    7 objects = 0 rooms, 0 exits, 5 things, 1 players.
+            (1 going, 0 garbage, 0 unknown)
     > say stats(me)
-    You say "6 0 0 5 1 0"
+    You say "7 0 0 5 1 1 0 0"
     > say stats()
-    You say "377 51 165 134 20 7"
+    You say "379 51 165 134 20 2 7 0"
     > @stats/all
-    377 objects = 51 rooms, 165 exits, 134 things, 20 players. (7 garbage)
+    379 objects = 51 rooms, 165 exits, 134 things, 20 players.
+            (2 going, 7 garbage, 0 unknown)
   See also: @stats.
 
 & ITER()
