@@ -90,6 +90,7 @@
 #define HAS_REDIRECT	0x00000002	/* Victim of @redirect */
 #define ORPHAN		0x00000004	/* Don't check parent chain for $cmd */
 #define HAS_DARKLOCK	0x00000008	/* Has a DarkLock */
+#define DIRTY		0x00000010	/* Temporary flag: object is dirty */
 #define MARK_0		0x00400000	/* User-defined flags */
 #define MARK_1		0x00800000
 #define MARK_2		0x01000000

@@ -112,7 +112,7 @@ const char *newobj;
 
 	/* everything is okay, do the change */
 
-	db[thing].zone = zone;
+	s_Zone(thing, zone);
 	if (Typeof(thing) != TYPE_PLAYER) {
 	    /* We do not strip flags and powers on players, due to the
 	     * inconvenience involved in resetting them. Players will just
@@ -761,11 +761,12 @@ char *name, *newown;
 	     * WIZARD flag. Otherwise, do that, at least.
 	     */
 	    if (key & CHOWN_NOSTRIP) {
-		if (God(player))
+		if (God(player)) {
 		    s_Flags(thing, (Flags(thing) & ~CHOWN_OK) | HALT);
-		else
+		} else {
 		    s_Flags(thing,
 			    (Flags(thing) & ~(CHOWN_OK | WIZARD)) | HALT);
+		}
 	    } else {
 		s_Flags(thing,
 			(Flags(thing) &

@@ -245,19 +245,11 @@ extern NAME *names;
 
 #define AccessTime(t)		db[t].last_access
 #define ModTime(t)		db[t].last_mod
-#define s_AccessTime(t,n)	db[t].last_access = n;
-#define s_ModTime(t,n)		db[t].last_mod = n;
-#define s_Accessed(t)		db[t].last_access = mudstate.now;
-#define s_Modified(t)		db[t].last_mod = mudstate.now;
 
 #define VarsCount(t)		db[t].vars_count
 #define StackCount(t)		db[t].stack_count
 #define StructCount(t)		db[t].struct_count
 #define InstanceCount(t)	db[t].instance_count
-#define s_VarsCount(t,n)	db[t].vars_count = n;
-#define s_StackCount(t,n)	db[t].stack_count = n;
-#define s_StructCount(t,n)	db[t].struct_count = n;
-#define s_InstanceCount(t,n)	db[t].instance_count = n;
 
 #ifndef NO_TIMECHECKING
 #define Time_Used(t)		db[t].cpu_time_used
@@ -265,24 +257,50 @@ extern NAME *names;
 				db[t].cpu_time_used.tv_usec = n.tv_usec
 #endif
 
-#define	s_Location(t,n)		db[t].location = (n)
+/* If we modify something on the db object that needs to be written
+ * at dump time, set the object DIRTY */
 
-#define	s_Zone(t,n)		db[t].zone = (n)
-
-#define	s_Contents(t,n)		db[t].contents = (n)
-#define	s_Exits(t,n)		db[t].exits = (n)
-#define	s_Next(t,n)		db[t].next = (n)
-#define	s_Link(t,n)		db[t].link = (n)
-#define	s_Owner(t,n)		db[t].owner = (n)
-#define	s_Parent(t,n)		db[t].parent = (n)
-#define	s_Flags(t,n)		db[t].flags = (n)
-#define	s_Flags2(t,n)		db[t].flags2 = (n)
-#define s_Flags3(t,n)		db[t].flags3 = (n)
-#define s_Powers(t,n)		db[t].powers = (n)
-#define s_Powers2(t,n)		db[t].powers2 = (n)
+#define	s_Location(t,n)		db[t].location = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Zone(t,n)		db[t].zone = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Contents(t,n)		db[t].contents = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Exits(t,n)		db[t].exits = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Next(t,n)		db[t].next = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Link(t,n)		db[t].link = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Owner(t,n)		db[t].owner = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Parent(t,n)		db[t].parent = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Flags(t,n)		db[t].flags = (n); \
+				db[t].flags3 |= DIRTY
+#define	s_Flags2(t,n)		db[t].flags2 = (n); \
+				db[t].flags3 |= DIRTY
+#define s_Flags3(t,n)		db[t].flags3 = (n); \
+				db[t].flags3 |= DIRTY
+#define s_Powers(t,n)		db[t].powers = (n); \
+				db[t].flags3 |= DIRTY
+#define s_Powers2(t,n)		db[t].powers2 = (n); \
+				db[t].flags3 |= DIRTY
+#define s_AccessTime(t,n)	db[t].last_access = (n); \
+				db[t].flags3 |= DIRTY
+#define s_ModTime(t,n)		db[t].last_mod = (n); \
+				db[t].flags3 |= DIRTY
+#define s_Accessed(t)		db[t].last_access = mudstate.now; \
+				db[t].flags3 |= DIRTY
+#define s_Modified(t)		db[t].last_mod = mudstate.now; \
+				db[t].flags3 |= DIRTY
 #define s_NameLen(t,n)		db[t].name_length = (n)
 #define	s_Home(t,n)		s_Link(t,n)
 #define	s_Dropto(t,n)		s_Location(t,n)
+#define s_VarsCount(t,n)	db[t].vars_count = n;
+#define s_StackCount(t,n)	db[t].stack_count = n;
+#define s_StructCount(t,n)	db[t].struct_count = n;
+#define s_InstanceCount(t,n)	db[t].instance_count = n;
 
 extern int	FDECL(Pennies, (dbref));
 extern void	FDECL(s_Pennies, (dbref, int));

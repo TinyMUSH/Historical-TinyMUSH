@@ -908,10 +908,11 @@ int *db_format, *db_version, *db_flags;
 
 			/* LINK */
 
-			if (read_link)
+			if (read_link) {
 				s_Link(i, getref(f));
-			else
+			} else {
 				s_Link(i, NOTHING);
+			}
 
 			/* NEXT */
 
@@ -1083,8 +1084,12 @@ int db_read()
 			s_VarsCount(i, 0);
 			s_StructCount(i, 0);
 			s_InstanceCount(i, 0);
+			
+			/* Clear the dirty flag */
+			
+			s_Flags3(i, Flags3(i) & ~DIRTY);
 
-			/* check to see if it's a player */
+			/* Check to see if it's a player */
 
 			if (Typeof(i) == TYPE_PLAYER) {
 				c_Connected(i);
@@ -1203,7 +1208,12 @@ int db_format, flags;
 			}
 		}
 		fprintf(f, "<\n");
-	} else {
+	} else if (Flags3(i) & DIRTY) {
+		/* Write the object only if it's dirty, and clear the
+		 * dirty flag */
+		
+		s_Flags3(i, Flags3(i) & ~DIRTY);
+		
 		/* DBREF is our key */
 		
 		dddb_put((void *)&i, sizeof(int), (void *)&(db[i]),
