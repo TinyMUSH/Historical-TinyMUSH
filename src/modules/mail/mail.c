@@ -338,6 +338,7 @@ int number;
  * do_mail_flags - tagging, untagging, clearing, unclearing of messages
  * do_mail_file - files messages into a new folder
  * do_mail_fwd - forward messages to another player(s)
+ * do_mail_reply - reply to a message
  * do_mail_count - count messages
  * do_mail_purge - purge cleared messages
  * do_mail_change_folder - change current folder
@@ -997,10 +998,10 @@ char *tolist;
 	struct mail *mp;
 	int num;
 
-	if (Flags2(player) & PLAYER_MAILS) {
-	    notify(player, "MAIL: Mail message already in progress.");
-	    return;
-	}
+        if (Flags2(player) & PLAYER_MAILS) {
+                notify(player, "MAIL: Mail message already in progress.");
+                return;
+        }
 
 	if (!msg || !*msg) {
 		notify(player, "MAIL: No message list.");
@@ -1030,6 +1031,104 @@ char *tolist;
 	atr_add_raw(player, A_MAILMSG, get_mail_message(mp->number));
 #endif
 	atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_FORWARD)));
+}
+
+void do_mail_reply(player, msg, all, key)
+dbref player;
+char *msg;
+int all, key;
+{
+	struct mail *mp;
+	struct mail *temp;
+	int num;
+	dbref target;
+	char *tolist ,*fulllist, *bp, *p, *names, *oldlist;
+	static char buf[MBUF_SIZE];
+
+        if (Flags2(player) & PLAYER_MAILS) {
+                notify(player, "MAIL: Mail message already in progress.");
+                return;
+        }
+
+	if (!msg || !*msg) {
+		notify(player, "MAIL: No message list.");
+		return;
+	}
+	num = atoi(msg);
+	if (!num) {
+		notify(player, "MAIL: I don't understand that message number.");
+		return;
+	}
+	mp = mail_fetch(player, num);
+	if (!mp) {
+		notify(player, "MAIL: You can't reply to non-existent messages.");
+		return;
+	}
+	if (all) {
+
+        	names = alloc_lbuf("do_mail_reply.names");
+        	oldlist = alloc_lbuf("do_mail_reply.oldlist");
+        	bp = names;
+		*bp = '\0';
+
+        	StringCopy(oldlist, (char *)mp->tolist);
+
+	        for (p = (char *)strtok(oldlist, " ");
+             	p != NULL;
+             	p = (char *)strtok(NULL, " ")) {
+                	if (*p == '*') {
+                        	safe_str(p, names, &bp);
+                        	safe_str(" ", names, &bp);
+                	} else if (atoi(p) != mp->from) {
+				safe_chr('"', names, &bp);
+                        	safe_str(Name(atoi(p)), names, &bp);
+				safe_chr('"', names, &bp);
+                        	safe_str(" ", names, &bp);
+                	}
+        	}
+        	free_lbuf(oldlist);
+		safe_chr(' ', names, &bp);
+		safe_chr('"', names, &bp);
+		safe_str(Name(mp->from), names, &bp);
+		safe_chr('"', names, &bp);
+		*bp = '\0';
+		tolist = names;
+	} else {
+		tolist = msg;
+	}
+		
+#ifdef RADIX_COMPRESSION
+	string_decompress(mp->subject, subbuff);
+	string_decompress(get_mail_message(mp->number), msgbuff);
+	string_decompress(mp->time, timebuff);
+	if (strncmp(subbuff, "Re:", 3)) {
+		do_expmail_start(player, tolist, tprintf("Re: %s", subbuff));
+	} else {
+		do_expmail_start(player, tolist, tprintf("%s", subbuff));
+	}
+	if (key & MAIL_QUOTE) {
+	    atr_add_raw(player, A_MAILMSG,
+			tprintf("On %s, %s wrote:\r\n\r\n%s\r\n\r\n********** End of included message from %s\r\n",
+				timebuff, Name(mp->from),
+				msgbuff, Name(mp->from)));
+	}
+#else
+	if (strncmp(mp->subject, "Re:", 3)) {
+		do_expmail_start(player, tolist, tprintf("Re: %s", mp->subject));
+	} else {
+		do_expmail_start(player, tolist, tprintf("%s", mp->subject));
+	}
+	if (key & MAIL_QUOTE) {
+	    atr_add_raw(player, A_MAILMSG,
+			tprintf("On %s, %s wrote:\r\n\r\n%s\r\n\r\n********** End of included message from %s\r\n",
+				mp->time, Name(mp->from),
+				get_mail_message(mp->number), Name(mp->from)));
+	}
+#endif
+	atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_REPLY)));
+	if (all) {
+        	free_lbuf(names);
+	}
 }
 
 /*-------------------------------------------------------------------------*
@@ -1590,7 +1689,7 @@ char *arg2;
 		notify(player, "Mailer is disabled.");
 		return;
 	}
-	switch (key) {
+	switch (key & ~MAIL_QUOTE) {
 	case 0:
 		do_mail_stub(player, arg1, arg2);
 		break;
@@ -1638,6 +1737,12 @@ char *arg2;
 		break;
 	case MAIL_FORWARD:
 		do_mail_fwd(player, arg1, arg2);
+		break;
+	case MAIL_REPLY:
+		do_mail_reply(player, arg1, 0, key);
+		break;
+	case MAIL_REPLYALL:
+		do_mail_reply(player, arg1, 1, key);
 		break;
 	case MAIL_SEND:
 		do_expmail_stop(player, 0);

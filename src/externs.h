@@ -418,6 +418,13 @@ extern void	FDECL(toast_player, (dbref));
 #define MAIL_RETRACT	25	/* Retracts @mail sent to a player */
 #define MAIL_CC		26	/* Carbon copy */
 #define MAIL_SAFE	27	/* Defines a piece of mail as safe. */
+#define MAIL_REPLY	28	/* Replies to a message. */
+#define MAIL_REPLYALL	29	/* Replies to all recipients of msg */
+#define MAIL_QUOTE	0x100	/* Quote back original in the reply? */
+
+/* Note that we don't use all hex for mail flags, because the upper 3 bits
+ * of the switch word gets occupied by SW_<foo>.
+ */
 
 #define MALIAS_DESC	1	/* Describes a mail alias */
 #define MALIAS_CHOWN	2	/* Changes a mail alias's owner */

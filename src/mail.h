@@ -21,6 +21,7 @@
 #define M_ALL		0x1000	/* Used in mail_selectors */
 #define M_MSUNREAD	0x2000  /* Mail selectors */
 		/* 0x4000 - 0x8000 available */
+#define M_REPLY		0x4000
  
 #define MAX_FOLDERS	15
 #define FOLDER_NAME_LEN MBUF_SIZE
@@ -37,6 +38,7 @@
 #define Unread(m)	(!Read(m))
 #define All(ms)		(ms.flags & M_ALL)
 #define ExpMail(x)	(Wizard(x))
+#define Reply(m)	(m->read & M_REPLY)
 
 #define MA_INC		2	/* what interval to increase the malias list */
 
