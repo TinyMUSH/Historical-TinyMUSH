@@ -1145,7 +1145,8 @@ FILE *f;
 static void getpenn_new_locks(f, i)
 FILE *f;
 {
-	int c, *buf, *p;
+	int c;
+	char *buf, *p;
 	struct boolexp *tempbool;
 
 	buf = alloc_lbuf("getpenn_new_locks");

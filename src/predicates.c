@@ -412,6 +412,7 @@ int payfees(who, pennies, quota, objtype)
 dbref who;
 int pennies, quota, objtype;
 {
+return 0;
 }
 #endif
 
@@ -677,7 +678,7 @@ char *s;
 		/* If it's already found in the hash table, and it's being
 		   added using the same object and attribute... */
 		   
-		for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
+		for (nextp = (ADDENT *)old->info.added; nextp != NULL; nextp = nextp->next) {
 			if ((nextp->thing == thing) && (nextp->atr == atr)) {
 				notify(player, tprintf("%s already added.", name));
 				return;
@@ -690,8 +691,8 @@ char *s;
 		add->thing = thing;
 		add->atr = atr;
 		add->name = (char *)strdup(name);
-		add->next = (ADDENT *)old->handler;
-		old->handler = (void (*)())add;
+		add->next = (ADDENT *)old->info.added;
+		old->info.added = add;
 	} else {
 		if (old) {
 			/* Delete the old built-in and rename it __name */
@@ -714,7 +715,7 @@ char *s;
 		add->atr = atr;
 		add->name = (char *)strdup(name);
 		add->next = NULL;
-		cmd->handler = (void (*)())add;
+		cmd->info.added = add;
 	
 		hashadd(name, (int *)cmd, &mudstate.command_htab);
 		
@@ -756,7 +757,7 @@ char *s, *keyname;
 			/* If it's already found in the hash table, and it's being
 			   added using the same object and attribute... */
 			   
-			for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
+			for (nextp = (ADDENT *)old->info.added; nextp != NULL; nextp = nextp->next) {
 				notify(player, tprintf("%s: #%d/%s", nextp->name, nextp->thing, ((ATTR *)atr_num(nextp->atr))->name));
 			}
 		} else {
@@ -771,7 +772,7 @@ char *s, *keyname;
 		
 			if (old && (old->callseq & CS_ADDED)) {
 				
-				for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
+				for (nextp = (ADDENT *)old->info.added; nextp != NULL; nextp = nextp->next) {
 					if (strcmp(keyname, nextp->name))
 						continue;
 					notify(player, tprintf("%s: #%d/%s", nextp->name, nextp->thing, ((ATTR *)atr_num(nextp->atr))->name));
@@ -818,7 +819,7 @@ char *s;
 	
 	if (old && (old->callseq & CS_ADDED)) {
 		if (!*command) {
-			for (prev = (ADDENT *)old->handler; prev != NULL; prev = nextp) {
+			for (prev = (ADDENT *)old->info.added; prev != NULL; prev = nextp) {
 				nextp = prev->next;
 				/* Delete it! */
 				free(prev->name);
@@ -835,7 +836,7 @@ char *s;
 			notify(player, "Done.");
 			return;
 		} else {
-			for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
+			for (nextp = (ADDENT *)old->info.added; nextp != NULL; nextp = nextp->next) {
 				if ((nextp->thing == thing) && (nextp->atr == atr)) {
 					/* Delete it! */
 					free(nextp->name);
@@ -849,7 +850,7 @@ char *s;
 							}
 							free(old);
 						} else {
-							old->handler = (void (*)())nextp->next;
+							old->info.added = nextp->next;
 							free(nextp);
 						}
 					} else {

@@ -764,7 +764,7 @@ void NDECL(init_cmdtab)
 			}
 			cp->extra = ap->number;
 			cp->callseq = CS_TWO_ARG;
-			cp->handler = do_setattr;
+			cp->info.handler = do_setattr;
 			if (hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab)) {
 				XFREE(cp->cmdname, "init_cmdtab.2");
 				XFREE(cp, "init_cmdtab.3");
@@ -1012,14 +1012,14 @@ int interactive, ncargs;
 
 	switch (cmdp->callseq & CS_NARG_MASK) {
 	case CS_NO_ARGS:	/* <cmd>   (no args) */
-		(*(cmdp->handler)) (player, cause, key);
+		(*(cmdp->info.handler)) (player, cause, key);
 		break;
 	case CS_ONE_ARG:	/* <cmd> <arg> */
 
 		/* If an unparsed command, just give it to the handler */
 
 		if (cmdp->callseq & CS_UNPARSE) {
-			(*(cmdp->handler)) (player, unp_command);
+			(*(cmdp->info.handler)) (player, unp_command);
 			break;
 		}
 		/* Interpret if necessary, but not twice for CS_ADDED */
@@ -1036,11 +1036,11 @@ int interactive, ncargs;
 		/* Call the correct handler */
 
 		if (cmdp->callseq & CS_CMDARG) {
-			(*(cmdp->handler)) (player, cause, key, buf1,
+			(*(cmdp->info.handler)) (player, cause, key, buf1,
 					    cargs, ncargs);
 		} else {
 			if (cmdp->callseq & CS_ADDED) {
-				for (add = (ADDENT *)cmdp->handler; add != NULL; add = add->next) {
+				for (add = (ADDENT *)cmdp->info.added; add != NULL; add = add->next) {
 					buff = atr_get(add->thing,
 						add->atr, &aowner, &aflags);
 					/* Skip the '$' character, and the next */
@@ -1095,7 +1095,7 @@ int interactive, ncargs;
 					free_lbuf(buf1);
 				}
 			} else 
-				(*(cmdp->handler)) (player, cause, key, buf1);
+				(*(cmdp->info.handler)) (player, cause, key, buf1);
 		}
 
 		/* Free the buffer if one was allocated */
@@ -1134,10 +1134,10 @@ int interactive, ncargs;
 			/* Call the correct command handler */
 
 			if (cmdp->callseq & CS_CMDARG) {
-				(*(cmdp->handler)) (player, cause, key,
+				(*(cmdp->info.handler)) (player, cause, key,
 					  buf1, args, nargs, cargs, ncargs);
 			} else {
-				(*(cmdp->handler)) (player, cause, key,
+				(*(cmdp->info.handler)) (player, cause, key,
 						    buf1, args, nargs);
 			}
 
@@ -1170,10 +1170,10 @@ int interactive, ncargs;
 			/* Call the correct command handler */
 
 			if (cmdp->callseq & CS_CMDARG) {
-				(*(cmdp->handler)) (player, cause, key,
+				(*(cmdp->info.handler)) (player, cause, key,
 						 buf1, buf2, cargs, ncargs);
 			} else {
-				(*(cmdp->handler)) (player, cause, key,
+				(*(cmdp->info.handler)) (player, cause, key,
 						    buf1, buf2);
 			}
 
@@ -1962,7 +1962,7 @@ CF_HAND(cf_cmd_alias)
 		if (!(nt->flag & SW_MULTIPLE))
 			cmd2->extra |= SW_GOT_UNIQUE;
 		cmd2->callseq = cmdp->callseq;
-		cmd2->handler = cmdp->handler;
+		cmd2->info.handler = cmdp->info.handler;
 		if (hashadd(cmd2->cmdname, (int *)cmd2, (HASHTAB *) vp)) {
 			XFREE(cmd2->cmdname, "cf_cmd_alias.2");
 			XFREE(cmd2, "cf_cmd_alias.3");

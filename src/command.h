@@ -145,6 +145,14 @@ CMD_TWO_ARG(do_addcommand);		/* Add or replace a global command */
 CMD_TWO_ARG(do_delcommand);		/* Delete an added global command */
 CMD_ONE_ARG(do_listcommands);		/* List added global commands */
 
+typedef struct addedentry ADDENT;
+struct addedentry {
+	dbref	thing;
+	int	atr;
+	char	*name;
+	struct addedentry *next;
+};
+
 typedef struct cmdentry CMDENT;
 struct cmdentry {
 	char	*cmdname;
@@ -152,15 +160,10 @@ struct cmdentry {
 	int	perms;
 	int	extra;
 	int	callseq;
-	void	(*handler)();
-};
-
-typedef struct addedentry ADDENT;
-struct addedentry {
-	dbref	thing;
-	int	atr;
-	char	*name;
-	struct addedentry *next;
+	union {
+		void	(*handler)();
+		ADDENT	*added;
+	} info;
 };
 
 /* Command handler call conventions */
