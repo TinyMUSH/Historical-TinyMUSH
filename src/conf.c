@@ -874,7 +874,7 @@ CF_AHAND(cf_site)
 
     if (mudstate.initializing) {
 	if (head == NULL) {
-	    *vp = (int *) site;
+	    *vp = (long *) site;
 	} else {
 	    for (last = head; last->next; last = last->next)
 		;
@@ -882,7 +882,7 @@ CF_AHAND(cf_site)
 	}
     } else {
 	site->next = head;
-	*vp = (int *) site;
+	*vp = (long *) site;
     }
     return 0;
 }
