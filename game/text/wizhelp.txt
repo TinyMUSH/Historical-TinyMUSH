@@ -1271,7 +1271,7 @@
 	guest_char_num		guest_nuker		player_flags
 	player_parent		player_starting_home	player_starting_room
 	robot_flags		room_flags		room_parent
-	thing_flags		thing_parent		user_attr_flags
+	thing_flags		thing_parent
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
@@ -1291,15 +1291,15 @@
 & PARAM OPTIONS
 abort_on_bug		addcommands_match_blindly
 addcommands_obey_stop	addcommands_obey_uselocks
-ansi_colors		clone_copies_cost
-comsys_database		dark_sleepers		examine_flags
+ansi_colors		clone_copies_cost	comsys_database
+dark_sleepers		events_daily_hour	examine_flags
 examine_public_attrs	fascist_teleport	format_contents
 format_exits		global_aconn_uselocks	have_comsys
 have_mailer		have_zones		hostnames
 idle_wiz_dark		local_master_rooms	look_obey_terse		
 mail_database		match_own_commands	paranoid_allocate
-parentable_control_lock	parent_zones		pemit_any_object
-pemit_far_players	player_listen		player_match_own_commands
+pemit_any_object	pemit_far_players	player_listen
+player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -1594,6 +1594,13 @@ use_global_aconn	wizard_obeys_linklock
   don't find money lying in the streets.
   See also: find_money_chance, paycheck.
 
+& events_daily_hour
+  Config parameter: events_daily_hour <hour>.  Default: 7
+ 
+  Specifies the hour that @daily is executed. No guarantee is made as to
+  what time during this hour this will be executed. This should be a 
+  number between 0 and 23.
+ 
 & examine_flags
   Config parameter: examine_flags <yes/no>.  Default: Yes
   Indicates whether or not the examine command should include an expanded
@@ -2219,20 +2226,6 @@ use_global_aconn	wizard_obeys_linklock
   involves making sure that nobody has written to the memory immediately before
   and after each buffer.  Normally, only the buffer being allocated or freed
   is checked.
-
-& parentable_control_lock
-  Config parameter: parentable_control_lock <yes/no>.  Default: No
- 
-  Specifies whether or not objects without a ControlLock inherit the
-  ControlLock of their parent.  Note that the ControlLock is only obeyed
-  for objects whose ZONE flag is set.
-
-& parent_zones
-  Config parameter: parent_zones <yes/no>.  Default: No
- 
-  Specifies whether or not the @parent/zone command works, and whether
-  rooms that have that secondary parent have that parent chain checked
-  for ZONE local masters.
 
 & paycheck
   Config parameter: paycheck <amount>.  Default: 0
