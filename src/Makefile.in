@@ -213,11 +213,11 @@ TAGS: *.c *.h
 	etags *.c *.h
 
 links: dbconvert mkindx netmux slave
-        cd ../game/bin ; rm -f conc ; ln -s ../../src/conc conc
-        cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/dbconvert
-        cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx
-        cd ../game/bin ; rm -f netmux ; ln -s ../../src/netmux
-        cd ../game/bin ; rm -f slave ; ln -s ../../src/slave
+	cd ../game/bin ; rm -f conc ; ln -s ../../src/conc conc
+	cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/dbconvert
+	cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx
+	cd ../game/bin ; rm -f netmux ; ln -s ../../src/netmux
+	cd ../game/bin ; rm -f slave ; ln -s ../../src/slave
 	cd ../game/text; rm -f mkindx; ln -s ../../src/mkindx
 
 conc: portconc.o
