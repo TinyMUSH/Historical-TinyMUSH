@@ -3649,6 +3649,8 @@ atr_has_flag(player, thing, attr, aowner, aflags, flagname)
 	    return (aflags & AF_VISUAL);
 	else if (string_prefix("no_inherit", flagname))
 	    return (aflags & AF_PRIVATE);
+	else if (string_prefix("const", flagname))
+	    return (aflags & AF_CONST);
 	else
 	    return 0;
     }

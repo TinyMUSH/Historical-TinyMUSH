@@ -2282,6 +2282,7 @@ dbref player;
  */
 
 NAMETAB attraccess_nametab[] = {
+{(char *)"const",		1,	CA_PUBLIC,	AF_CONST},
 {(char *)"dark",		2,	CA_WIZARD,	AF_DARK},
 {(char *)"deleted",		2,	CA_WIZARD,	AF_DELETED},
 {(char *)"god",			1,	CA_PUBLIC,	AF_GOD},
