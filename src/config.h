@@ -120,7 +120,7 @@ extern int malloc_count;
                     (char *)calloc((x),(z)))
 #define XREALLOC(x,z,y) (fprintf(stderr,"Realloc: %s/%d\n", (y), (z)), \
                     (char *)realloc((x),(z)))
-#define XSTRDUP(x,y) (fprintf(stderr,"Strdup: %s/%d\n", (y)), malloc_count++, \
+#define XSTRDUP(x,y) (fprintf(stderr,"Strdup: %s\n", (y)), malloc_count++, \
                     (char *)strdup((x)))
 #define XSTRNDUP(x,z,y) (fprintf(stderr,"Strndup: %s/%d\n", (y), (z)),malloc_count++, \
                     (char *)strndup((x),(z)))
