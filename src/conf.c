@@ -313,6 +313,7 @@ void NDECL(cf_init)
 	mudstate.curr_enactor = NOTHING;
 	mudstate.curr_cmd = (char *) "< none >";
     	mudstate.shutdown_flag = 0;
+    	mudstate.flatfile_flag = 0;
 	mudstate.attr_next = A_USER_START;
 	mudstate.debug_cmd = (char *)"< init >";
 	StringCopy(mudstate.doing_hdr, "Doing");

@@ -1113,6 +1113,27 @@ int dump_type;
 		db_write();
 		break;
 	case DUMP_DB_FLATFILE:
+		/* Trigger modules to write their flat-text dbs */
+		
+		WALK_ALL_MODULES(mp) {
+			if (mp->db_write_flatfile) {
+				f = db_module_flatfile(mp->modname, 1);
+				if (f) {
+					(*(mp->db_write_flatfile))(f);
+					tf_fclose(f);
+				}
+			}
+			if (mp->dump_database) {
+				f = db_module_flatfile(mp->modname, 1);
+				if (f) {
+					(*(mp->dump_database))(f);
+					tf_fclose(f);
+				}
+			}
+		}
+
+		/* Write the game's flatfile */
+
 		strcpy(prevfile, mudconf.gdbm);
 		if ((c = strchr(prevfile, '.')) != NULL)
 			*c = '\0';
@@ -1127,18 +1148,6 @@ int dump_type;
 				   tmpfile);
 		}
 		
-		/* Trigger modules to write their flatfile */
-		
-		WALK_ALL_MODULES(mp) {
-			if (mp->db_write_flatfile) {
-				f = db_module_flatfile(mp->modname, 1);
-				if (f) {
-					(*(mp->db_write_flatfile))(f);
-					tf_fclose(f);
-				}
-			}
-		}
-
 		break;
 	case DUMP_DB_KILLED:	
 		strcpy(prevfile, mudconf.gdbm);

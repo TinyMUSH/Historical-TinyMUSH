@@ -285,8 +285,29 @@ int port;
 		last_slice = update_quotas(last_slice, current_time);
 
 		process_commands();
+	
 		if (mudstate.shutdown_flag)
 			break;
+
+		/* We've gotten a signal to dump flatfiles */
+		
+		if (mudstate.flatfile_flag) {
+			if (*mudconf.dump_msg)
+				raw_broadcast(0, "%s", mudconf.dump_msg);
+
+			mudstate.dumping = 1;
+			STARTLOG(LOG_DBSAVES, "DMP", "CHKPT")
+			log_printf("Flatfiling: %s.#%d#",
+				mudconf.gdbm, mudstate.epoch);
+			ENDLOG
+			
+			dump_database_internal(DUMP_DB_FLATFILE);
+			mudstate.dumping = 0;
+
+			if (*mudconf.postdump_msg)
+				raw_broadcast(0, "%s", mudconf.postdump_msg);
+			mudstate.flatfile_flag = 0;
+		}			
 
 		/*
 		 * test for events 
@@ -1217,7 +1238,7 @@ int sig;
 		do_restart(GOD, GOD, 0);
 		break;
 	case SIGUSR2:
-		fork_and_dump(DUMP_FLATFILE);
+		mudstate.flatfile_flag = 1;
 		break;
 	case SIGALRM:		/*
 				 * Timer 

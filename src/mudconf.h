@@ -408,6 +408,7 @@ struct statedata {
 	time_t  events_counter; /* Countdown to next events check */
 	int	events_flag;	/* Flags for check_events */
 	int	shutdown_flag;	/* Should interface be shut down? */
+	int	flatfile_flag;	/* Dump a flatfile when we have the chance */
 	time_t	start_time;	/* When was MUSH started */
 	time_t	restart_time;	/* When did we last restart? */
 	int	reboot_nums;	/* How many times have we restarted? */
