@@ -1544,29 +1544,29 @@ void do_logrotate(player, cause, key)
      */
 
     LOGFILETAB *lp;
+    char buf[PBUF_SIZE + 16];
 
     mudstate.mudlognum++;
 
     /* Main logfile */
 
-    if (!freopen((const char *) tprintf("%s.%d", mudconf.mudlogname,
-					mudstate.mudlognum),
-		 "w", stderr)) {
+    if (!freopen((const char *) ".netmush_tmp_log", "w", stderr)) {
 	/* Ugh. We're in trouble here. Let's try to print to stderr
 	 * anyway.
 	 */
 	notify(player, "Log rotation failed.");
-	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
+	STARTLOG(LOG_ALWAYS, "WIZ", "LOGRT")
 	    log_name(player);
 	    log_text((char *) " attempted failed log rotation");
 	ENDLOG
     } else {
-	notify(player, "Log rotated.");
+	rename(mudconf.mudlogname,
+	       tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
+	freopen((const char *) mudconf.mudlogname, "w", stderr);
+	notify(player, "Logs rotated.");
 	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
 	    log_name(player);
-	    log_text((char *) " rotated logfile to ");
-	    log_text(mudconf.mudlogname);
-	    log_text((char *) ".");
+	    log_text((char *) ": logfile rotation ");
 	    log_number(mudstate.mudlognum);
         ENDLOG
     }
@@ -1575,11 +1575,14 @@ void do_logrotate(player, cause, key)
 
     for (lp = logfds_table; lp->log_flag; lp++) {
 	if (lp->filename && lp->fileptr) {
-	    freopen((const char *) tprintf("%s.%d", lp->filename,
-					   mudstate.mudlognum),
-		    "w", lp->fileptr);
+	    freopen((const char *) ".netmush_tmp_log", "w", lp->fileptr);
+	    rename(lp->filename,
+		   tprintf("%s.%ld", lp->filename, (long) mudstate.now));
+	    freopen((const char *) lp->filename, "w", lp->fileptr);
 	}
     }
+
+    unlink((const char *) ".netmush_tmp_log");
 }
 
 
