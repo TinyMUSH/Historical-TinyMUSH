@@ -371,12 +371,13 @@ char *what, *count;
  * setup_que: Set up a queue entry.
  */
 
-static BQUE *setup_que(player, cause, command, args, nargs, sargs, slens)
+static BQUE *setup_que(player, cause, command, args, nargs, gargs)
 dbref player, cause;
-char *command, *args[], *sargs[];
-int nargs, slens[];
+char *command, *args[];
+int nargs;
+GDATA *gargs;
 {
-	int a, tlen;
+	int a, tlen, nqregs;
 	BQUE *tmp;
 	char *tptr;
 
@@ -421,27 +422,53 @@ int nargs, slens[];
 		if (args[a])
 			tlen += (strlen(args[a]) + 1);
 	}
-	if (sargs) {
+	nqregs = 0;
+	if (gargs) {
 		for (a = 0; a < MAX_GLOBAL_REGS; a++) {
-			if (sargs[a])
-				tlen += slens[a] + 1;
+		    if (gargs->q_regs[a]) {
+			tlen += gargs->q_lens[a] + 1;
+			nqregs++;
+		    }
+		}
+		for (a = 0; a < gargs->xr_alloc; a++) {
+		    if (gargs->x_names[a] && gargs->x_regs[a]) {
+			tlen += strlen(gargs->x_names[a]) + 
+			        gargs->x_lens[a] + 2;
+		    }
 		}
 	}
+
 	/* Create the queue entry and load the save string */
 
 	tmp = alloc_qentry("setup_que.qblock");
-	tmp->comm = NULL;
-	for (a = 0; a < NUM_ENV_VARS; a++) {
-		tmp->env[a] = NULL;
-	}
-	for (a = 0; a < MAX_GLOBAL_REGS; a++) {
-		tmp->scr[a] = NULL;
-	}
-
 	if (!(tptr = tmp->text = (char *) XMALLOC(tlen, "setup_que"))) {
 		free_qentry(tmp);
 		return (BQUE *) NULL;
 	}
+
+	tmp->comm = NULL;
+	for (a = 0; a < NUM_ENV_VARS; a++) {
+		tmp->env[a] = NULL;
+	}
+	if (nqregs || gargs->xr_alloc) {
+	    tmp->gdata = (GDATA *) XMALLOC(sizeof(GDATA), "setup_que.gdata");
+	    for (a = 0; a < MAX_GLOBAL_REGS; a++) {
+		tmp->gdata->q_regs[a] = NULL;
+		tmp->gdata->q_lens[a] = 0;
+	    }
+	    tmp->gdata->xr_alloc = gargs->xr_alloc;
+	    if (gargs->xr_alloc) {
+		tmp->gdata->x_names = XCALLOC(gargs->xr_alloc, sizeof(char *),
+					      "setup_que.x_names");
+		tmp->gdata->x_regs = XCALLOC(gargs->xr_alloc, sizeof(char *),
+					     "setup_que.x_regs");
+		tmp->gdata->x_lens = XCALLOC(gargs->xr_alloc, sizeof(int),
+					     "setup_que.x_lens");
+	    }
+	} else {
+	    tmp->gdata = NULL;
+	}
+
 	if (command) {
 		strcpy(tptr, command);
 		tmp->comm = tptr;
@@ -454,15 +481,28 @@ int nargs, slens[];
 			tptr += (strlen(args[a]) + 1);
 		}
 	}
-	if (sargs) {
-		for (a = 0; a < MAX_GLOBAL_REGS; a++) {
-			if (sargs[a]) {
-				memcpy(tptr, sargs[a], slens[a] + 1);
-				tmp->scr[a] = tptr;
-				tptr += slens[a] + 1;
-			}
+	if (nqregs) {
+	    for (a = 0; a < MAX_GLOBAL_REGS; a++) {
+		if (gargs->q_regs[a]) {
+		    memcpy(tptr, gargs->q_regs[a], gargs->q_lens[a] + 1);
+		    tmp->gdata->q_regs[a] = tptr;
+		    tptr += gargs->q_lens[a] + 1;
 		}
+	    }
 	}
+	if (gargs->xr_alloc) {
+	    for (a = 0; a < gargs->xr_alloc; a++) {
+		if (gargs->x_names[a] && gargs->x_regs[a]) {
+		    strcpy(tptr, gargs->x_names[a]);
+		    tmp->gdata->x_names[a] = tptr;
+		    tptr += strlen(gargs->x_names[a]) + 1;
+		    memcpy(tptr, gargs->x_regs[a], gargs->x_lens[a] + 1);
+		    tmp->gdata->x_regs[a] = tptr;
+		    tptr += gargs->x_lens[a] + 1;
+		}
+	    }
+	}
+
 	/* Load the rest of the queue block */
 
 	tmp->player = player;
@@ -485,11 +525,25 @@ int wait, nargs, attr, slens[];
 char *command, *args[], *sargs[];
 {
 	BQUE *tmp, *point, *trail;
+#ifndef NOT_TEMPORARY
+	GDATA *gargs;
+	int i;
+#endif
 
-	if (mudconf.control_flags & CF_INTERP)
-		tmp = setup_que(player, cause, command, args, nargs,
-				sargs, slens);
-	else
+	if (mudconf.control_flags & CF_INTERP) {
+#ifndef NOT_TEMPORARY
+		gargs = (GDATA *) XMALLOC(sizeof(GDATA), "wait_que.gdata");
+		for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+		    gargs->q_regs[i] = sargs[i];
+		    gargs->q_lens[i] = slens[i];
+		}
+		gargs->xr_alloc = 0;
+		gargs->x_names = NULL;
+		gargs->x_regs = NULL;
+		gargs->x_lens = NULL;
+#endif
+		tmp = setup_que(player, cause, command, args, nargs, gargs);
+	} else
 		tmp = NULL;
 	if (tmp == NULL) {
 		return;
@@ -767,22 +821,31 @@ int ncmds;
 	    if (!Halted(player)) {
 
 		/* Load scratch args */
-		
-		for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		    if (mudstate.qfirst->scr[i] &&
-		    	  (*mudstate.qfirst->scr[i] != '\0')) {
-			len = strlen(mudstate.qfirst->scr[i]);
-			if (!mudstate.global_regs[i]) {
+
+		if (mudstate.qfirst->gdata) {
+		    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+			if (mudstate.qfirst->gdata->q_regs[i] &&
+			    *(mudstate.qfirst->gdata->q_regs[i])) {
+			    len = strlen(mudstate.qfirst->gdata->q_regs[i]);
+			    if (!mudstate.global_regs[i]) {
 				mudstate.global_regs[i] = 
 					alloc_lbuf("do_top.global_regs");
-			}
-			memcpy(mudstate.global_regs[i],
-			       mudstate.qfirst->scr[i],
-			       len + 1);
-			mudstate.glob_reg_len[i] = len;
-		    } else {
-		    	if (mudstate.global_regs[i])
+			    }
+			    memcpy(mudstate.global_regs[i],
+				   mudstate.qfirst->gdata->q_regs[i],
+				   len + 1);
+			    mudstate.glob_reg_len[i] = len;
+			} else {
+			    if (mudstate.global_regs[i])
 		    		free_lbuf(mudstate.global_regs[i]);
+			    mudstate.global_regs[i] = NULL;
+			    mudstate.glob_reg_len[i] = 0;
+			}
+		    }
+		} else {
+		    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+			if (mudstate.global_regs[i])
+			    free_lbuf(mudstate.global_regs[i]);
 			mudstate.global_regs[i] = NULL;
 			mudstate.glob_reg_len[i] = 0;
 		    }

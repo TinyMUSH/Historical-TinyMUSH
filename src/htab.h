@@ -55,23 +55,6 @@ struct name_table {
 	int	flag;
 };
 
-/* BQUE - Command queue */
-
-typedef struct bque BQUE;
-struct bque {
-	BQUE	*next;
-	dbref	player;		/* player who will do command */
-	dbref	cause;		/* player causing command (for %N) */
-	dbref	sem;		/* blocking semaphore */
-	int	waittime;	/* time to run command */
-	int	attr;		/* blocking attribute */
-	char	*text;		/* buffer for comm, env, and scr text */
-	char	*comm;		/* command */
-	char	*env[NUM_ENV_VARS];	/* environment vars */
-	char	*scr[MAX_GLOBAL_REGS];	/* temp vars */
-	int	nargs;		/* How many args I have */
-};
-
 /* Hash entry flags */
 
 #define	HASH_ALIAS	0x00000001	/* This entry is just a copy */

@@ -39,6 +39,31 @@ struct external_funcs {
 	NAMEDFUNC **ext_funcs;
 };
 
+typedef struct global_register_data GDATA;
+struct global_register_data {
+    char *q_regs[MAX_GLOBAL_REGS];
+    int q_lens[MAX_GLOBAL_REGS];
+    int xr_alloc;
+    char **x_names;
+    char **x_regs;
+    int *x_lens;
+};
+
+typedef struct bque BQUE;	/* Command queue */
+struct bque {
+	BQUE	*next;
+	dbref	player;		/* player who will do command */
+	dbref	cause;		/* player causing command (for %N) */
+	dbref	sem;		/* blocking semaphore */
+	int	waittime;	/* time to run command */
+	int	attr;		/* blocking attribute */
+	char	*text;		/* buffer for comm, env, and scr text */
+	char	*comm;		/* command */
+	char	*env[NUM_ENV_VARS];	/* environment vars */
+	GDATA	*gdata;		/* temp vars */
+	int	nargs;		/* How many args I have */
+};
+
 /* ---------------------------------------------------------------------------
  * Modules and related things.
  */
@@ -487,8 +512,9 @@ struct statedata {
 	int	lock_nest_lev;	/* Current nesting of lock evals */
 	int	cmd_nest_lev;	/* Current nesting of commands like @sw/now */
 	int	cmd_invk_ctr;	/* Commands invoked so far by this qentry */
-	char	*global_regs[MAX_GLOBAL_REGS];	/* Global registers */
-	int	glob_reg_len[MAX_GLOBAL_REGS];	/* Length of strs */
+	GDATA	*global_data;	/* Global register data */
+	char	*global_regs[MAX_GLOBAL_REGS];
+	int	glob_reg_len[MAX_GLOBAL_REGS];	
 	int	zone_nest_num;  /* Global current zone nest position */
 	int	inpipe;		/* Boolean flag for command piping */
 	char	*pout;		/* The output of the pipe used in %| */
