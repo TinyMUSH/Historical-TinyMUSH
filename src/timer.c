@@ -520,7 +520,7 @@ void NDECL(dispatch)
 	    }
 	}
 
-#ifdef HAVE_GETRUSAGE
+#if defined(HAVE_GETRUSAGE) && defined(STRUCT_RUSAGE_COMPLETE)
 	/*
 	 * Memory use stats 
 	 */
