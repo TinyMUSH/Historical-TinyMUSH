@@ -699,23 +699,33 @@ FLAGENT *letter_to_flag(this_letter)
 
 CF_HAND(cf_flag_access)
 {
-    char *numstr, *permstr;
+    char *fstr, *permstr;
     FLAGENT *fp;
     int flagnum = -1;
 
-    numstr = strtok(str, " \t=,");
+    fstr = strtok(str, " \t=,");
     permstr = strtok(NULL, " \t=,");
 
-    if (numstr && (strlen(numstr) == 1)) {
-	flagnum = atoi(numstr);
-    }
-    if ((flagnum < 0) || (flagnum > 9)) {
-	cf_log_notfound(player, cmd, "Not a marker flag", numstr);
+    if (!fstr || !*fstr) {
 	return -1;
     }
 
-    if ((fp = letter_to_flag(*numstr)) == NULL) {
-	cf_log_notfound(player, cmd, "Marker flag", numstr);
+    if ((fp = find_flag(GOD, fstr)) == NULL) {
+	cf_log_notfound(player, cmd, "No such flag", fstr);
+	return -1;
+    }
+
+    /* Don't change the handlers on special things. */
+
+    if ((fp->handler != fh_any) &&
+	(fp->handler != fh_wizroy) &&
+	(fp->handler != fh_wiz) &&
+	(fp->handler != fh_god)) {
+
+	STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
+	    log_text((char *) "Cannot change access for special flag: ");
+	    log_text(fp->flagname);
+	ENDLOG
 	return -1;
     }
 
