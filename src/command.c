@@ -77,12 +77,6 @@ if (((x)->post_hook != NULL) && !((x)->callseq & CS_ADDED)) { \
  * Switch tables for the various commands.
  */
 
-#define	SW_MULTIPLE	0x80000000	/* This sw may be spec'd w/others */
-#define	SW_GOT_UNIQUE	0x40000000	/* Already have a unique option */
-#define SW_NOEVAL       0x20000000      /* Don't parse args before calling
-					 * handler
-					 */
-					/* (typically via a switch alias) */
 /* *INDENT-OFF* */
 
 NAMETAB attrib_sw[] = {

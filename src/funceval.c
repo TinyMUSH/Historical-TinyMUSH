@@ -1435,6 +1435,7 @@ FUNCTION(fun_command)
 {
     CMDENT *cmdp;
     char tbuf1[1], tbuf2[1];
+    int key;
 
     if (!fargs[0] || !*fargs[0])
 	return;
@@ -1457,6 +1458,11 @@ FUNCTION(fun_command)
 	return;
     }
 
+    /* Strip command flags that are irrelevant. */
+
+    key = cmdp->extra;
+    key &= ~(SW_GOT_UNIQUE | SW_MULTIPLE | SW_NOEVAL);
+
     /* Can't handle null args, so make sure there's something there. */
 
     tbuf1[0] = '\0';
@@ -1464,14 +1470,14 @@ FUNCTION(fun_command)
 
     switch (cmdp->callseq & CS_NARG_MASK) {
 	case CS_NO_ARGS:
-	    (*(cmdp->info.handler)) (player, cause, cmdp->extra);
+	    (*(cmdp->info.handler)) (player, cause, key);
 	    break;
 	case CS_ONE_ARG:
-	    (*(cmdp->info.handler)) (player, cause, cmdp->extra,
+	    (*(cmdp->info.handler)) (player, cause, key,
 				     ((fargs[1]) ? (fargs[1]) : tbuf1));
 	    break;
 	case CS_TWO_ARG:
-	    (*(cmdp->info.handler)) (player, cause, cmdp->extra,
+	    (*(cmdp->info.handler)) (player, cause, key,
 				     ((fargs[1]) ? (fargs[1]) : tbuf1),
 				     ((fargs[2]) ? (fargs[2]) : tbuf2));
 	    break;

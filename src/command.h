@@ -249,6 +249,13 @@ struct cmdentry {
 #define CA_PLAYER	0x40000000	/* Invoker must be a player */
 #define CF_DARK		0x80000000	/* Command doesn't show up in list */
 
+#define	SW_MULTIPLE	0x80000000	/* This sw may be spec'd w/others */
+#define	SW_GOT_UNIQUE	0x40000000	/* Already have a unique option */
+#define SW_NOEVAL       0x20000000      /* Don't parse args before calling
+					 * handler
+					 */
+					/* (typically via a switch alias) */
+
 extern int	FDECL(check_access, (dbref, int));
 extern char *	FDECL(process_command, (dbref, dbref, int, char *, char *[], int));
 
