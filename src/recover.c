@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/file.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "gdbmdefs.h"
 
@@ -19,41 +20,62 @@ static void gdbm_panic(mesg)
 	fprintf(stderr, "GDBM panic: %s\n", mesg);
 }
 
-int main(ac, av)
-int ac;
-char *av[];
+int main(argc, argv)
+int argc;
+char *argv[];
 {
 	datum key, dat;
-	char newfile[256];
 	FILE *f;
 	int numbytes, filesize;
 	long filepos;
 	struct stat buf;
 	bucket_element be;
 	int c;
-		
-	if (ac != 2) {
-		fprintf(stderr, "usage: %s <database name>\n", av[0]);
-		exit(0);
+	extern char *optarg;
+	extern int optind;
+	char *infile, *outfile;
+	int errflg = 0; 
+
+	/* Parse options */
+
+	infile = outfile = NULL;
+
+	while ((c = getopt(argc, argv, "i:o:")) != -1) {
+	    switch (c) {
+		case 'i':
+		    infile = optarg;
+		    break;
+		case 'o':
+		    outfile = optarg;
+		    break;
+		default:
+		    errflg++;
+	    }
+	}
+	if (errflg || !infile || !outfile) {
+		fprintf(stderr, "Usage: %s -i input_file -o output_file\n",
+			argv[0]);
+		exit(1);
 	}
 	
 	/* Open files */
 	
-	sprintf(newfile, "%s.new", av[1]);
-	
-	if ((dbp = gdbm_open(newfile, 8192, GDBM_WRCREAT, 0600, gdbm_panic)) == NULL) {
-		fprintf(stderr, "Can't open gdbm database %s\n", newfile);
-		exit(0);
+	if ((dbp = gdbm_open(outfile, 8192, GDBM_WRCREAT, 0600,
+			     gdbm_panic)) == NULL) {
+		fprintf(stderr, "Fatal error in gdbm_open (%s): %s\n",
+			outfile, strerror(errno));
+		exit(1);
 	}
 	
-	if (stat(av[1], &buf)) {
-		fprintf(stderr, "could not stat %s\n", av[1]);
-		exit(0);
+	if (stat(infile, &buf)) {
+		fprintf(stderr, "Fatal error in stat (%s): %s\n",
+			infile, strerror(errno));
+		exit(1);
 	}
 
 	filesize = buf.st_size;
 	
-	f = fopen(av[1], "r");
+	f = fopen(infile, "r");
 	
 	while (fread((void *)&c, 1, 1, f) != 0) {
 		/* Quick and dirty */
@@ -65,12 +87,14 @@ char *av[];
 			
 			if (fread((void *)&be, sizeof(bucket_element),
 				  1, f) == 0) {
-				fprintf(stderr, "Could not read	at %d\n",
+				fprintf(stderr,
+					"Fatal error at file position %d.\n",
 					filepos);
-				exit(0);
+				exit(1);
 			}
 			
-			if (!memcmp((void *)(be.start_tag), (void *)"TM3S", 4) &&
+			if (!memcmp((void *)(be.start_tag),
+				    (void *)"TM3S", 4) &&
 			    be.data_pointer < filesize &&
 			    be.key_size < filesize &&
 			    be.data_size < filesize) {
@@ -86,23 +110,29 @@ char *av[];
 				
 				if ((numbytes = fread((void *)(key.dptr), 1,
 					  key.dsize, f)) == 0) {
-					fprintf(stderr, "Could not read	at %d\n",
+					fprintf(stderr,
+				    "Fatal error at file position %d.\n",
 						filepos);
-					exit(0);
+					exit(1);
 				}
 				
 				if (fread((void *)(dat.dptr), dat.dsize,
 					  1, f) == 0) {
-					fprintf(stderr, "Could not read	at %d\n",
+					fprintf(stderr,
+				    "Fatal error at file position %d.\n",
 						filepos);
-					exit(0);
+					exit(1);
 				}
-				
+
+#ifdef DEBUG				
 				fprintf(stdout, "%d:%d:%d:%s\n", numbytes, ((Aname *)key.dptr)->object, ((Aname *)key.dptr)->attrnum, (char *)dat.dptr);
+#endif
 				
 				if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
-					fprintf(stderr, "Cannot write to GDBM database\n");
-					exit(0);
+					fprintf(stderr,
+					"Fatal error in gdbm_store (%s): %s\n",
+						outfile, strerror(errno));
+					exit(1);
 				}
 				
 				free(key.dptr);
@@ -122,5 +152,5 @@ char *av[];
 	
 	fclose(f);
 	gdbm_close(dbp);
-	exit(1);
+	exit(0);
 }
