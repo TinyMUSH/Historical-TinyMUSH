@@ -4891,7 +4891,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	escape()	foreach()	isdbref()	isnum()		
 	isword()	lcstr()		left()		lit()	
 	ljust()		merge()		mid()		null()		
-	pos()		regmatch()	regmatchi()	repeat()
+	pos()		regedit()	regediti()	regeditall()
+	regeditalli()	regmatch()	regmatchi()	repeat()
 	reverse()	right()		rjust()		secure()	
 	scramble()	space()		squish()	strcat()	
 	streq()		stripansi()	strlen()	strmatch()	
@@ -7940,6 +7941,31 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "apple+yellow++plum"
  
   See also: edit(), replace()
+ 
+& REGEDIT()
+& REGEDITI()
+& REGEDITALL()
+& REGEDITALLI()
+  Function:  regedit(<original string>,<regexp>,<replacement string>
+  Function:  regediti(<original string>,<regexp>,<replacement string>
+  Function:  regeditall(<original string>,<regexp>,<replacement string>
+  Function:  regeditalli(<original string>,<regexp>,<replacement string>
+ 
+  These functions search <original string> for a portion that matches
+  <regexp>, and replaces that portion with <replacement string>, with
+  $<number> in <replacement string> expanded to the corresponding
+  matching parenthesized sub-expression of <regexp>; $0 is the entire
+  matched section.
+ 
+  regedit() replaces just the first match; regeditall() replaces all
+  matches. The versions ending in 'i' are case-insensitive.
+ 
+  Example:
+    > @va me = (.)est
+    > say regedit(this test is the best string,%va,$1rash)
+    You say "this trash is the best string"
+    > say regeditall(this test is the best string,%va,$1rash)
+    You say "this trash is the brash string"
  
 & OBJEVAL()
   Function:  objeval(<object>,<expression>)
