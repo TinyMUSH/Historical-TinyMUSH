@@ -640,3 +640,40 @@ The initial beta release was on 9/27/99.
 - Fix: encrypt() and decrypt() exist again. [3.0; Chimera]
 
 - Misc: Robby Griffin has joined the 3.0 development team.
+
+-----------------------------------------------------------------------------
+
+11/28/99: Beta 19
+
+- Feature: examine/brief now works MUX-style again (it shows everything but
+  the attributes). To get the 2.2-style show-owner-only, use the new /owner
+  switch. Also, /parent can be combined with other switches.
+
+- Feature: Conf parameter opt_frequency controls how often the database
+  is optimized. (Defaults to every dump.)
+
+- Feature: Conf parameter guest_starting_room allows guests to start in
+  a room different than the usual player starting room.
+
+- Feature: For semaphore waits on non-Semaphore attributes, @ps shows
+  the name of the attribute being waited upon.
+
+- Feature: New wizard-only function config() shows the value of most
+  config parameters.
+
+- Fix: Channel transmit locks are set properly. [3.0b13; utoxin]
+
+- Fix: Global registers work reliably again; regmatch(), preservation, and
+  some queue uses were broken on some operating systems. [3.0b16]
+
+- Fix: Memory leak in edit_string_ansi(). [3.0b10]
+
+- Fix: Lastpaged instability issues have been dealt with. [3.0b16]
+
+- Misc: A significant chunk of the page routine has been rewritten; it
+  should be more efficient and more robust.
+
+- Misc: The HAS_FORWARDLIST flag is usually checked before trying to fetch
+  a forwardlist.
+
+- Misc: Some minor general cleanup.
