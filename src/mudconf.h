@@ -66,6 +66,7 @@ struct confdata {
 	char	mudlogname[PBUF_SIZE];	/* Name of the game log file */
         int	have_comsys;	/* Should the comsystem be active? */
         int	have_mailer;	/* Should @mail be active? */
+	int	have_pueblo;	/* Is Pueblo support compiled in? */
 	int	have_zones;	/* Should zones be active? */
 	int	port;		/* user port */
 	int	conc_port;	/* concentrator port */
@@ -225,6 +226,7 @@ struct confdata {
 	int	timeslice;	/* How often do we bump people's cmd quotas? */
 	int	cmd_quota_max;	/* Max commands at one time */
 	int	cmd_quota_incr;	/* Bump #cmds allowed by this each timeslice */
+	int	lag_check;	/* Is CPU usage checking compiled in? */
 	int	max_cmdsecs;	/* Threshhold for real time taken by command */
 	int	control_flags;	/* Global runtime control flags */
 	int	func_nest_lim;	/* Max nesting of functions */

@@ -34,18 +34,11 @@
 typedef struct confparm CONF;
 struct confparm {
 	char *pname;		/* parm name */
-	int (*interpreter) ();	/*
-				 * routine to interp parameter 
-				 */
-	int flags;		/*
-				 * control flags 
-				 */
-	int *loc;		/*
-				 * where to store value 
-				 */
-	long extra;		/*
-				 * extra data for interpreter 
-				 */
+	int (*interpreter) ();	/* routine to interp parameter */
+	int flags;		/* control flags */
+	int rperms;		/* read permission flags */
+	int *loc;		/* where to store value */
+	long extra;		/* extra data for interpreter */
 };
 
 /*
@@ -137,8 +130,21 @@ void NDECL(cf_init)
 	mudconf.fork_dump = 0;
 	mudconf.fork_vfork = 0;
 	mudconf.dbopt_interval = 0;
+#ifdef USE_COMSYS
 	mudconf.have_comsys = 1;
+#else
+	mudconf.have_comsys = 0;
+#endif
+#ifdef USE_MAIL
 	mudconf.have_mailer = 1;
+#else
+	mudconf.have_mailer = 0;
+#endif
+#ifdef PUEBLO_SUPPORT
+	mudconf.have_pueblo = 1;
+#else
+	mudconf.have_pueblo = 0;
+#endif
 	mudconf.have_zones = 1;
 	mudconf.paranoid_alloc = 0;
 	mudconf.sig_action = SA_DFLT;
@@ -272,6 +278,11 @@ void NDECL(cf_init)
 	mudconf.timeslice = 1000;
 	mudconf.cmd_quota_max = 100;
 	mudconf.cmd_quota_incr = 1;
+#ifdef NO_LAG_CHECK
+	mudconf.lag_check = 0;
+#else
+	mudconf.lag_check = 1;
+#endif
 	mudconf.max_cmdsecs = 120;
 	mudconf.control_flags = 0xffffffff;	/* Everything for now... */
 	mudconf.control_flags &= ~CF_GODMONITOR; /* Except for monitoring... */
@@ -525,6 +536,20 @@ int success, failure;
  * * cf_int: Set integer parameter.
  */
 
+CF_HAND(cf_const)
+{
+	/*
+	 * Ignore any attempt to change the value
+	 */
+
+	return 0;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * * cf_int: Set integer parameter.
+ */
+
 CF_HAND(cf_int)
 {
 	/*
@@ -550,12 +575,6 @@ NAMETAB bool_names[] = {
 {NULL,			0,	0,	0}};
 
 /* *INDENT-ON* */
-
-
-
-
-
-
 
 
 CF_HAND(cf_bool)
@@ -1017,7 +1036,9 @@ CF_AHAND(cf_site)
 
 /*
  * ---------------------------------------------------------------------------
- * * cf_cf_access: Set access on config directives
+ * * cf_cf_access: Set write or read access on config directives
+ * kludge: this cf handler uses vp as an extra extra field since the
+ * first extra field is taken up with the access nametab.
  */
 
 CF_HAND(cf_cf_access)
@@ -1038,13 +1059,20 @@ CF_HAND(cf_cf_access)
 			notify(player, NOPERM_MESSAGE);
 			STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
 			    log_name(player);
-			    log_text((char *) " tried to change access to static param: ");
+			    log_text((char *) " tried to change ");
+			    log_text((char *) (((long)vp) ? "read" : "write"));
+			    log_text((char *) " access to static param: ");
 			    log_text(tp->pname);
 			ENDLOG
 			return -1;
 		    }
-		    return (cf_modify_bits(&tp->flags, ap, extra,
-					   player, cmd));
+		    if ((long)vp) {
+			return (cf_modify_bits(&tp->rperms, ap, extra,
+					       player, cmd));
+		    } else {
+			return (cf_modify_bits(&tp->flags, ap, extra,
+					       player, cmd));
+		    }
 		}
 	}
 	cf_log_notfound(player, cmd, "Config directive", str);
@@ -1253,467 +1281,246 @@ extern CF_HDCL(cf_power_access);
  */
 
 CONF conftable[] = {
-{(char *)"abort_on_bug",
-	cf_bool,	CA_STATIC,	(int *)&mudconf.abort_on_bug,	0},
-{(char *)"access",
-	cf_access,	CA_GOD,		NULL,
-	(long)access_nametab},
-{(char *)"addcommands_match_blindly",
-	cf_bool,	CA_GOD,		&mudconf.addcmd_match_blindly,	0},
-{(char *)"addcommands_obey_stop",
-	cf_bool,	CA_GOD,		&mudconf.addcmd_obey_stop,	0},
-{(char *)"addcommands_obey_uselocks",
-	cf_bool,	CA_GOD,		&mudconf.addcmd_obey_uselocks,	0},
-{(char *)"alias",
-	cf_cmd_alias,	CA_GOD,		(int *)&mudstate.command_htab,	0},
-{(char *)"ansi_colors",
-	cf_bool,	CA_GOD,		&mudconf.ansi_colors,		0},
-{(char *)"attr_access",
-	cf_attr_access,	CA_GOD,		NULL,
-	(long)attraccess_nametab},
-{(char *)"attr_alias",
-	cf_alias,	CA_GOD,		(int *)&mudstate.attr_name_htab,0},
-{(char *)"attr_cmd_access",
-	cf_acmd_access,	CA_GOD,		NULL,
-	(long)access_nametab},
-{(char *)"autozone",
-	cf_bool,	CA_GOD,		&mudconf.autozone,		0},
-{(char *)"bad_name",
-	cf_badname,	CA_GOD,		NULL,				0},
-{(char *)"badsite_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.site_file,	SBUF_SIZE},
-{(char *)"booleans_oldstyle",
-     	cf_bool,	CA_GOD,		&mudconf.bools_oldstyle,	0},
-{(char *)"building_limit",
-	cf_int,		CA_GOD,		(int *)&mudconf.building_limit,	0},
-{(char *)"cache_depth",
-	cf_int,		CA_STATIC,	&mudconf.cache_depth,		0},
-{(char *)"cache_names",
-	cf_bool,	CA_STATIC,	&mudconf.cache_names,		0},
-{(char *)"cache_trim",
-	cf_bool,	CA_GOD,		&mudconf.cache_trim,		0},
-{(char *)"cache_width",
-	cf_int,		CA_STATIC,	&mudconf.cache_width,		0},
-{(char *)"check_interval",
-	cf_int,		CA_GOD,		&mudconf.check_interval,	0},
-{(char *)"check_offset",
-	cf_int,		CA_GOD,		&mudconf.check_offset,		0},
-{(char *)"clone_copies_cost",
-	cf_bool,	CA_GOD,		&mudconf.clone_copy_cost,	0},
-{(char *)"comsys_database",
-	cf_string,	CA_STATIC,	(int *)mudconf.comsys_db,	PBUF_SIZE},
-{(char *)"command_quota_increment",
-	cf_int,		CA_GOD,		&mudconf.cmd_quota_incr,	0},
-{(char *)"command_quota_max",
-	cf_int,		CA_GOD,		&mudconf.cmd_quota_max,		0},
-{(char *)"compress_program",
-	cf_string,	CA_STATIC,	(int *)mudconf.compress,	PBUF_SIZE},
-{(char *)"compression",
-	cf_bool,	CA_GOD,		&mudconf.compress_db,		0},
-{(char *)"concentrator_port",
-	cf_int,		CA_STATIC,	&mudconf.conc_port,		0},
-{(char *)"config_access",
-	cf_cf_access,	CA_GOD,		NULL,
-	(long)access_nametab},
-{(char *)"conn_timeout",
-	cf_int,		CA_GOD,		&mudconf.conn_timeout,		0},
-{(char *)"connect_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.conn_file,	SBUF_SIZE},
-{(char *)"connect_reg_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.creg_file,	SBUF_SIZE},
-{(char *)"crash_database",
-	cf_string,	CA_STATIC,	(int *)mudconf.crashdb,		PBUF_SIZE},
-{(char *)"create_max_cost",
-	cf_int,		CA_GOD,		&mudconf.createmax,		0},
-{(char *)"create_min_cost",
-	cf_int,		CA_GOD,		&mudconf.createmin,		0},
-{(char *)"dark_actions",
-	cf_bool,	CA_GOD,		&mudconf.dark_actions,		0},
-{(char *)"dark_sleepers",
-	cf_bool,	CA_GOD,		&mudconf.dark_sleepers,		0},
-{(char *)"default_home",
-	cf_int,		CA_GOD,		&mudconf.default_home,		0},
-{(char *)"dig_cost",
-	cf_int,		CA_GOD,		&mudconf.digcost,		0},
-{(char *)"divert_log",
-	cf_divert_log,	CA_STATIC,	&mudconf.log_diversion,		(long) logoptions_nametab},
-{(char *)"down_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.down_file,	SBUF_SIZE},
-{(char *)"down_motd_message",
-	cf_string,	CA_GOD,		(int *)mudconf.downmotd_msg,	GBUF_SIZE},
-{(char *)"dump_interval",
-	cf_int,		CA_GOD,		&mudconf.dump_interval,		0},
-{(char *)"dump_message",
-	cf_string,	CA_GOD,		(int *)mudconf.dump_msg,	PBUF_SIZE},
-{(char *)"postdump_message",
-	cf_string,	CA_GOD,		(int *)mudconf.postdump_msg,	PBUF_SIZE},
-{(char *)"dump_offset",
-	cf_int,		CA_GOD,		&mudconf.dump_offset,		0},
-{(char *)"earn_limit",
-	cf_int,		CA_GOD,		&mudconf.paylimit,		0},
-{(char *)"examine_flags",
-	cf_bool,	CA_GOD,		&mudconf.ex_flags,		0},
-{(char *)"examine_public_attrs",
-	cf_bool,	CA_GOD,		&mudconf.exam_public,		0},
-{(char *)"exit_flags",
-	cf_set_flags,	CA_GOD,		(int *)&mudconf.exit_flags,	0},
-{(char *)"exit_calls_move",
-	cf_bool,	CA_GOD,		&mudconf.exit_calls_move,	0},
-{(char *)"exit_parent",
-	cf_int,		CA_GOD,		&mudconf.exit_parent,		0},
-{(char *)"exit_quota",
-	cf_int,		CA_GOD,		&mudconf.exit_quota,		0},
-{(char *)"events_daily_hour",
-	cf_int,		CA_GOD,		&mudconf.events_daily_hour,	0},
-{(char *)"fascist_teleport",
-	cf_bool,	CA_GOD,		&mudconf.fascist_tport,		0},
-{(char *)"fixed_home_message",
-	cf_string,	CA_STATIC,	(int *)mudconf.fixed_home_msg,	PBUF_SIZE},
-{(char *)"fixed_tel_message",
-	cf_string,	CA_STATIC,	(int *)mudconf.fixed_tel_msg,	PBUF_SIZE},
-{(char *)"find_money_chance",
-	cf_int,		CA_GOD,		&mudconf.payfind, 		0},
-{(char *)"flag_alias",
-	cf_flagalias,	CA_GOD,		NULL,				0},
-{(char *)"flag_access",
-	cf_flag_access,	CA_GOD,		NULL,				0},
-{(char *)"flag_name",
-	cf_flag_name,	CA_GOD,		NULL,				0},
-{(char *)"forbid_site",
-	cf_site,	CA_GOD,		(int *)&mudstate.access_list,
-	H_FORBIDDEN},
-{(char *)"fork_dump",
-	cf_bool,	CA_GOD,		&mudconf.fork_dump,		0},
-{(char *)"fork_vfork",
-	cf_bool,	CA_GOD,		&mudconf.fork_vfork,		0},
-{(char *)"format_contents",
-	cf_bool,	CA_GOD,		&mudconf.fmt_contents,		0},
-{(char *)"format_exits",
-	cf_bool,	CA_GOD,		&mudconf.fmt_exits,		0},
-{(char *)"full_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.full_file,	SBUF_SIZE},
-{(char *)"full_motd_message",
-	cf_string,	CA_GOD,		(int *)mudconf.fullmotd_msg,	GBUF_SIZE},
-{(char *)"function_access",
-	cf_func_access,	CA_GOD,		NULL,
-	(long)access_nametab},
-{(char *)"function_alias",
-	cf_alias,	CA_GOD,		(int *)&mudstate.func_htab,	0},
-{(char *)"function_invocation_limit",
-	cf_int,         CA_GOD,         &mudconf.func_invk_lim,		0},
-{(char *)"function_recursion_limit",
-	cf_int,         CA_GOD,         &mudconf.func_nest_lim,		0},
-{(char *)"game_log",
-     	cf_string,	CA_STATIC,	(int *)mudconf.mudlogname,	PBUF_SIZE},
-{(char *)"gdbm_database",
-	cf_string,	CA_STATIC,	(int *)mudconf.gdbm,		PBUF_SIZE},
-{(char *)"global_aconn_uselocks",
-     	cf_bool,	CA_GOD,		&mudconf.global_aconn_uselocks,	0},
-{(char *)"good_name",
-	cf_badname,	CA_GOD,		NULL,				1},
-{(char *)"guest_char_num",
-	cf_int,		CA_STATIC,	&mudconf.guest_char,		0},
-{(char *)"guest_nuker",
-        cf_int,         CA_GOD,         &mudconf.guest_nuker,           0},
-{(char *)"guest_prefix",
-        cf_string,      CA_STATIC,    (int *)mudconf.guest_prefix,    SBUF_SIZE},
-{(char *)"number_guests",
-        cf_int,         CA_STATIC,    &mudconf.number_guests,         0},
-{(char *)"guest_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.guest_file,	SBUF_SIZE},
-{(char *)"guests_calias",
-	cf_string,	CA_STATIC,	(int *)mudconf.guests_calias,	SBUF_SIZE},
-{(char *)"guests_channel",
-	cf_string,	CA_STATIC,	(int *)mudconf.guests_channel,	SBUF_SIZE},
-{(char *)"guest_site",
-	cf_site,	CA_GOD,		(int *)&mudstate.access_list, 
-	H_GUEST},
-{(char *)"guest_starting_room",
-	cf_int,		CA_GOD,		&mudconf.guest_start_room,	0},
-{(char *)"have_comsys",
-	cf_bool,	CA_STATIC,	&mudconf.have_comsys,		0},
-{(char *)"have_mailer",
-	cf_bool,	CA_STATIC,	&mudconf.have_mailer,		0},
-{(char *)"have_zones",
-	cf_bool,	CA_STATIC,	&mudconf.have_zones,		0},
-{(char *)"helpfile",
-	cf_helpfile,	CA_STATIC,	NULL,			0},
-{(char *)"hostnames",
-	cf_bool,	CA_GOD,		&mudconf.use_hostname,		0},
-#ifdef PUEBLO_SUPPORT
-{(char *)"html_connect_file",
-	cf_string,	CA_STATIC,	(int *) mudconf.htmlconn_file, SBUF_SIZE},
-{(char *)"pueblo_message",
-	cf_string,      CA_GOD,         (int *) mudconf.pueblo_msg,     1024},
+{(char *)"abort_on_bug",		cf_bool,	CA_STATIC,	CA_GOD,		(int *)&mudconf.abort_on_bug,	(long)"Dump core after logging a bug"},
+{(char *)"access",			cf_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
+{(char *)"addcommands_match_blindly",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.addcmd_match_blindly,	(long)"@addcommands don't error if no match is found"},
+{(char *)"addcommands_obey_stop",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.addcmd_obey_stop,	(long)"@addcommands obey STOP"},
+{(char *)"addcommands_obey_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.addcmd_obey_uselocks,	(long)"@addcommands obey UseLocks"},
+{(char *)"alias",			cf_cmd_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.command_htab,	0},
+{(char *)"ansi_colors",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.ansi_colors,		(long)"ANSI color codes enabled"},
+{(char *)"attr_access",			cf_attr_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)attraccess_nametab},
+{(char *)"attr_alias",			cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.attr_name_htab,0},
+{(char *)"attr_cmd_access",		cf_acmd_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
+{(char *)"autozone",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.autozone,		(long)"New objects are @chzoned to their creator's zone"},
+{(char *)"bad_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				0},
+{(char *)"badsite_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.site_file,	SBUF_SIZE},
+{(char *)"booleans_oldstyle",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.bools_oldstyle,	(long)"Dbrefs #0 and #-1 are boolean false, all other\n\t\t\t\tdbrefs are boolean true"},
+{(char *)"building_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	(int *)&mudconf.building_limit,	0},
+{(char *)"cache_names",			cf_bool,	CA_STATIC,	CA_GOD,		&mudconf.cache_names,		(long)"Names are cached separately"},
+{(char *)"cache_size",			cf_int,		CA_STATIC,	CA_GOD,		&mudconf.cache_size,		0},
+{(char *)"cache_trim",			cf_bool,	CA_GOD,		CA_GOD,		&mudconf.cache_trim,		(long)"Cache trimmed periodically"},
+{(char *)"cache_width",			cf_int,		CA_STATIC,	CA_GOD,		&mudconf.cache_width,		0},
+{(char *)"check_interval",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_interval,	0},
+{(char *)"check_offset",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_offset,		0},
+{(char *)"clone_copies_cost",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.clone_copy_cost,	(long)"@clone copies object cost"},
+{(char *)"comsys_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.comsys_db,	PBUF_SIZE},
+{(char *)"command_quota_increment",	cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.cmd_quota_incr,	0},
+{(char *)"command_quota_max",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.cmd_quota_max,		0},
+{(char *)"compress_program",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.compress,	PBUF_SIZE},
+{(char *)"compression",			cf_bool,	CA_GOD,		CA_GOD,		&mudconf.compress_db,		(long)"Database files are compressed"},
+{(char *)"concentrator_port",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.conc_port,		0},
+{(char *)"config_access",		cf_cf_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
+{(char *)"config_read_access",		cf_cf_access,	CA_GOD,		CA_DISABLED,	(int *)1,			(long)access_nametab},
+{(char *)"conn_timeout",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.conn_timeout,		0},
+{(char *)"connect_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.conn_file,	SBUF_SIZE},
+{(char *)"connect_reg_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.creg_file,	SBUF_SIZE},
+{(char *)"crash_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.crashdb,		PBUF_SIZE},
+{(char *)"create_max_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.createmax,		0},
+{(char *)"create_min_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.createmin,		0},
+{(char *)"dark_actions",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.dark_actions,		(long)"Dark objects still trigger @a-actions when moving"},
+{(char *)"dark_sleepers",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.dark_sleepers,		(long)"Disconnected players not shown in room contents"},
+{(char *)"default_home",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.default_home,		0},
+{(char *)"dig_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.digcost,		0},
+{(char *)"divert_log",			cf_divert_log,	CA_STATIC,	CA_DISABLED,	&mudconf.log_diversion,		(long) logoptions_nametab},
+{(char *)"down_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.down_file,	SBUF_SIZE},
+{(char *)"down_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mudconf.downmotd_msg,	GBUF_SIZE},
+{(char *)"dump_interval",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.dump_interval,		0},
+{(char *)"dump_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mudconf.dump_msg,	PBUF_SIZE},
+{(char *)"postdump_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mudconf.postdump_msg,	PBUF_SIZE},
+{(char *)"dump_offset",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.dump_offset,		0},
+{(char *)"earn_limit",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.paylimit,		0},
+{(char *)"examine_flags",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.ex_flags,		(long)"examine shows names of flags"},
+{(char *)"examine_public_attrs",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.exam_public,		(long)"examine shows public attributes"},
+{(char *)"exit_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.exit_flags,	0},
+{(char *)"exit_calls_move",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.exit_calls_move,	(long)"Using an exit calls the move command"},
+{(char *)"exit_parent",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_parent,		0},
+{(char *)"exit_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_quota,		0},
+{(char *)"events_daily_hour",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.events_daily_hour,	0},
+{(char *)"fascist_teleport",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fascist_tport,		(long)"@teleport source restricted to control or JUMP_OK"},
+{(char *)"fixed_home_message",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.fixed_home_msg,	PBUF_SIZE},
+{(char *)"fixed_tel_message",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.fixed_tel_msg,	PBUF_SIZE},
+{(char *)"find_money_chance",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.payfind, 		0},
+{(char *)"flag_alias",			cf_flagalias,	CA_GOD,		CA_DISABLED,	NULL,				0},
+{(char *)"flag_access",			cf_flag_access,	CA_GOD,		CA_DISABLED,	NULL,				0},
+{(char *)"flag_name",			cf_flag_name,	CA_GOD,		CA_DISABLED,	NULL,				0},
+{(char *)"forbid_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list,	H_FORBIDDEN},
+{(char *)"fork_dump",			cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.fork_dump,		(long)"Dumps are performed using a forked process"},
+{(char *)"fork_vfork",			cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.fork_vfork,		(long)"Forks are done using vfork()"},
+{(char *)"format_contents",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fmt_contents,		(long)"@ConFormat is obeyed when displaying contents"},
+{(char *)"format_exits",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fmt_exits,		(long)"@ExitFormat is obeyed when displaying exit lists"},
+{(char *)"full_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.full_file,	SBUF_SIZE},
+{(char *)"full_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mudconf.fullmotd_msg,	GBUF_SIZE},
+{(char *)"function_access",		cf_func_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
+{(char *)"function_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.func_htab,	0},
+{(char *)"function_invocation_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_invk_lim,		0},
+{(char *)"function_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_nest_lim,		0},
+{(char *)"game_log",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.mudlogname,	PBUF_SIZE},
+{(char *)"gdbm_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.gdbm,		PBUF_SIZE},
+{(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @aconnect and @adisconnect"},
+{(char *)"good_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				1},
+{(char *)"guest_char_num",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.guest_char,		0},
+{(char *)"guest_nuker",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.guest_nuker,		0},
+{(char *)"guest_prefix",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.guest_prefix,	SBUF_SIZE},
+{(char *)"number_guests",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.number_guests,		0},
+{(char *)"guest_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.guest_file,	SBUF_SIZE},
+{(char *)"guests_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.guests_calias,	SBUF_SIZE},
+{(char *)"guests_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.guests_channel,	SBUF_SIZE},
+{(char *)"guest_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list, 	H_GUEST},
+{(char *)"guest_starting_room",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.guest_start_room,	0},
+
+#ifdef USE_COMSYS
+{(char *)"have_comsys",			cf_bool,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_comsys,		(long)"Built-in comsys enabled"},
+#else
+{(char *)"have_comsys",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_comsys,		(long)"Built-in comsys enabled"},
 #endif
-{(char *)"idle_wiz_dark",
-	cf_bool,	CA_GOD,		&mudconf.idle_wiz_dark,		0},
-{(char *)"idle_interval",
-	cf_int,		CA_GOD,		&mudconf.idle_interval,		0},
-{(char *)"idle_timeout",
-	cf_int,		CA_GOD,		&mudconf.idle_timeout,		0},
-{(char *)"include",
-	cf_include,	CA_STATIC,	NULL,				0},
-{(char *)"indent_desc",
-	cf_bool,	CA_GOD,		&mudconf.indent_desc,		0},
-{(char *)"initial_size",
-	cf_int,		CA_STATIC,	&mudconf.init_size,		0},
-{(char *)"input_database",
-	cf_string,	CA_STATIC, 	(int *)mudconf.indb,		PBUF_SIZE},
-{(char *)"instance_limit",
-	cf_int,		CA_GOD,		&mudconf.instance_lim,		0},
-{(char *)"instant_recycle",
-	cf_bool,	CA_GOD,		&mudconf.instant_recycle,	0},
-{(char *)"kill_guarantee_cost",
-	cf_int,		CA_GOD,		&mudconf.killguarantee,		0},
-{(char *)"kill_max_cost",
-	cf_int,		CA_GOD,		&mudconf.killmax,		0},
-{(char *)"kill_min_cost",
-	cf_int,		CA_GOD,		&mudconf.killmin,		0},
-{(char *)"lag_maximum",
-	cf_int,		CA_GOD,		&mudconf.max_cmdsecs,		0},
-{(char *)"lattr_default_oldstyle",
-     	cf_bool,	CA_GOD,		&mudconf.lattr_oldstyle,	0},
-{(char *)"link_cost",
-	cf_int,		CA_GOD,		&mudconf.linkcost,		0},
-{(char *)"list_access",
-	cf_ntab_access,	CA_GOD,		(int *)list_names,
-	(long)access_nametab},
-{(char *)"local_master_rooms",
-	cf_bool,	CA_GOD,		&mudconf.local_masters,		0},
-{(char *)"lock_recursion_limit",
-	cf_int,         CA_WIZARD,         &mudconf.lock_nest_lim,		0},
-{(char *)"log",
-	cf_modify_bits,	CA_GOD,		&mudconf.log_options,
-	(long)logoptions_nametab},
-{(char *)"log_options",
-	cf_modify_bits,	CA_GOD,		&mudconf.log_info,
-	(long)logdata_nametab},
-{(char *)"logout_cmd_access",
-	cf_ntab_access,	CA_GOD,		(int *)logout_cmdtable,
-	(long)access_nametab},
-{(char *)"logout_cmd_alias",
-	cf_alias,	CA_GOD,		(int *)&mudstate.logout_cmd_htab,0},
-{(char *)"look_obey_terse",
-	cf_bool,	CA_GOD,		&mudconf.terse_look,		0},
-{(char *)"machine_command_cost",
-	cf_int,		CA_GOD,		&mudconf.machinecost,		0},
-{(char *)"mail_database",
-	cf_string,	CA_STATIC,	(int *)mudconf.mail_db,		PBUF_SIZE},
-{(char *)"mail_expiration",
-	cf_int,		CA_GOD,		&mudconf.mail_expiration,	0},
-{(char *)"master_room",
-	cf_int,		CA_GOD,		&mudconf.master_room,		0},
-{(char *)"match_own_commands",
-	cf_bool,	CA_GOD,		&mudconf.match_mine,		0},
-{(char *)"max_players",
-	cf_int,		CA_GOD,		&mudconf.max_players,		0},
-{(char *)"money_name_plural",
-	cf_string,	CA_GOD,		(int *)mudconf.many_coins,	SBUF_SIZE},
-{(char *)"money_name_singular",
-	cf_string,	CA_GOD,		(int *)mudconf.one_coin,	SBUF_SIZE},
-{(char *)"motd_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.motd_file,	SBUF_SIZE},
-{(char *)"motd_message",
-	cf_string,	CA_GOD,		(int *)mudconf.motd_msg,	GBUF_SIZE},
-{(char *)"move_match_more",
-	cf_bool,	CA_GOD,		&mudconf.move_match_more,	0},
-{(char *)"mud_name",
-	cf_string,	CA_GOD,		(int *)mudconf.mud_name,	SBUF_SIZE},
-{(char *)"newuser_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.crea_file,	SBUF_SIZE},
-{(char *)"no_ambiguous_match",
-	cf_bool,	CA_GOD,		&mudconf.no_ambiguous_match,	0},
-{(char *)"notify_recursion_limit",
-	cf_int,         CA_GOD,         &mudconf.ntfy_nest_lim,		0},
-{(char *)"open_cost",
-	cf_int,		CA_GOD,		&mudconf.opencost,		0},
-{(char *)"opt_frequency",
-	cf_int,		CA_GOD,		&mudconf.dbopt_interval,	0},
-{(char *)"output_database",
-	cf_string,	CA_STATIC,	(int *)mudconf.outdb,		PBUF_SIZE},
-{(char *)"output_limit",
-	cf_int,		CA_GOD,		&mudconf.output_limit,		0},
-{(char *)"page_cost",
-	cf_int,		CA_GOD,		&mudconf.pagecost,		0},
-{(char *)"paranoid_allocate",
-	cf_bool,	CA_GOD,		&mudconf.paranoid_alloc,	0},
-{(char *)"parent_recursion_limit",
-	cf_int,		CA_GOD,		&mudconf.parent_nest_lim,	0},
-{(char *)"paycheck",
-	cf_int,		CA_GOD,		&mudconf.paycheck,		0},
-{(char *)"pemit_far_players",
-	cf_bool,	CA_GOD,		&mudconf.pemit_players,		0},
-{(char *)"pemit_any_object",
-	cf_bool,	CA_GOD,		&mudconf.pemit_any,		0},
-{(char *)"permit_site",
-	cf_site,	CA_GOD,		(int *)&mudstate.access_list,	0},
-{(char *)"player_flags",
-	cf_set_flags,	CA_GOD,		(int *)&mudconf.player_flags,	0},
-{(char *)"player_listen",
-	cf_bool,	CA_GOD,		&mudconf.player_listen,		0},
-{(char *)"player_match_own_commands",
-	cf_bool,	CA_GOD,		&mudconf.match_mine_pl,		0},
-{(char *)"player_name_spaces",
-	cf_bool,	CA_GOD,		&mudconf.name_spaces,		0},
-{(char *)"player_parent",
-	cf_int,		CA_GOD,		&mudconf.player_parent,		0},
-{(char *)"player_queue_limit",
-	cf_int,		CA_GOD,		&mudconf.queuemax,		0},
-{(char *)"player_quota",
-	cf_int,		CA_GOD,		&mudconf.player_quota,		0},
-{(char *)"player_starting_home",
-	cf_int,		CA_GOD,		&mudconf.start_home,		0},
-{(char *)"player_starting_room",
-	cf_int,		CA_GOD,		&mudconf.start_room,		0},
-{(char *)"public_calias",
-	cf_string,	CA_STATIC,	(int *)mudconf.public_calias,	SBUF_SIZE},
-{(char *)"public_channel",
-	cf_string,	CA_STATIC,	(int *)mudconf.public_channel,	SBUF_SIZE},
-{(char *)"port",
-	cf_int,		CA_STATIC,	&mudconf.port,			0},
-{(char *)"power_access",
-	cf_power_access, CA_GOD,	NULL,				0},
-{(char *)"public_flags",
-	cf_bool,	CA_GOD,		&mudconf.pub_flags,		0},
-{(char *)"queue_active_chunk",
-	cf_int,		CA_GOD,		&mudconf.active_q_chunk,	0},
-{(char *)"queue_idle_chunk",
-	cf_int,		CA_GOD,		&mudconf.queue_chunk,		0},
-{(char *)"quiet_look",
-	cf_bool,	CA_GOD,		&mudconf.quiet_look,		0},
-{(char *)"quiet_whisper",
-	cf_bool,	CA_GOD,		&mudconf.quiet_whisper,		0},
-{(char *)"quit_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.quit_file,	SBUF_SIZE},
-{(char *)"quotas",
-	cf_bool,	CA_GOD,		&mudconf.quotas,		0},
-{(char *)"raw_helpfile",
-	cf_raw_helpfile,	CA_STATIC,	NULL,			0},
-{(char *)"read_remote_desc",
-	cf_bool,	CA_GOD,		&mudconf.read_rem_desc,		0},
-{(char *)"read_remote_name",
-	cf_bool,	CA_GOD,		&mudconf.read_rem_name,		0},
-{(char *)"register_create_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.regf_file,	SBUF_SIZE},
-{(char *)"register_site",
-	cf_site,	CA_GOD,		(int *)&mudstate.access_list,
-	H_REGISTRATION},
-{(char *)"require_cmds_flag",
-	cf_bool,	CA_GOD, 	(int *)&mudconf.req_cmds_flag,	0},
-{(char *)"retry_limit",
-	cf_int,		CA_GOD,		&mudconf.retry_limit,		0},
-{(char *)"robot_cost",
-	cf_int,		CA_GOD,		&mudconf.robotcost,		0},
-{(char *)"robot_flags",
-	cf_set_flags,	CA_GOD,		(int *)&mudconf.robot_flags,	0},
-{(char *)"robot_speech",
-	cf_bool,	CA_GOD,		&mudconf.robot_speak,		0},
-{(char *)"room_flags",
-	cf_set_flags,	CA_GOD,		(int *)&mudconf.room_flags,	0},
-{(char *)"room_parent",
-	cf_int,		CA_GOD,		&mudconf.room_parent,		0},
-{(char *)"room_quota",
-	cf_int,		CA_GOD,		&mudconf.room_quota,		0},
-{(char *)"sacrifice_adjust",
-	cf_int,		CA_GOD,		&mudconf.sacadjust,		0},
-{(char *)"sacrifice_factor",
-	cf_int,		CA_GOD,		&mudconf.sacfactor,		0},
-{(char *)"safer_passwords",
-	cf_bool,	CA_GOD,		&mudconf.safer_passwords,	0},
-{(char *)"search_cost",
-	cf_int,		CA_GOD,		&mudconf.searchcost,		0},
-{(char *)"see_owned_dark",
-	cf_bool,	CA_GOD,		&mudconf.see_own_dark,		0},
-{(char *)"signal_action",
-	cf_option,	CA_STATIC,	&mudconf.sig_action,
-	(long)sigactions_nametab},
-{(char *)"site_chars",
-	cf_int,		CA_GOD,		&mudconf.site_chars,		0},
-{(char *)"space_compress",
-	cf_bool,	CA_GOD,		&mudconf.space_compress,	0},
-{(char *)"sql_database",
-	cf_string,	CA_STATIC,	(int *)mudconf.sql_db,		MBUF_SIZE},
-{(char *)"sql_host",
-	cf_string,	CA_STATIC,	(int *)mudconf.sql_host,	MBUF_SIZE},
-{(char *)"sql_username",
-	cf_string,	CA_STATIC,	(int *)mudconf.sql_username,	MBUF_SIZE},
-{(char *)"sql_password",
-	cf_string,	CA_STATIC,	(int *)mudconf.sql_password,	MBUF_SIZE},
-{(char *)"sql_reconnect",
- 	cf_bool,	CA_GOD,		&mudconf.sql_reconnect,		0},
-{(char *)"stack_limit",
-	cf_int,		CA_GOD,		&mudconf.stack_lim,		0},
-{(char *)"starting_money",
-	cf_int,		CA_GOD,		&mudconf.paystart,		0},
-{(char *)"starting_quota",
-	cf_int,		CA_GOD,		&mudconf.start_quota,		0},
-{(char *)"starting_exit_quota",
-	cf_int,		CA_GOD,		&mudconf.start_exit_quota,	0},
-{(char *)"starting_player_quota",
-	cf_int,		CA_GOD,		&mudconf.start_player_quota,	0},
-{(char *)"starting_room_quota",
-	cf_int,		CA_GOD,		&mudconf.start_room_quota,	0},
-{(char *)"starting_thing_quota",
-	cf_int,		CA_GOD,		&mudconf.start_thing_quota,	0},
-{(char *)"status_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.status_file,	PBUF_SIZE},
-{(char *)"stripped_flags",
-	cf_set_flags,	CA_GOD,		(int *)&mudconf.stripped_flags,	0},
-{(char *)"structure_limit",
-	cf_int,		CA_GOD,		&mudconf.struct_lim,		0},
-{(char *)"suspect_site",
-	cf_site,	CA_GOD,		(int *)&mudstate.suspect_list,
-	H_SUSPECT},
-{(char *)"sweep_dark",
-	cf_bool,	CA_GOD,		&mudconf.sweep_dark,		0},
-{(char *)"switch_default_all",
-	cf_bool,	CA_GOD,		&mudconf.switch_df_all,		0},
-{(char *)"terse_shows_contents",
-	cf_bool,	CA_GOD,		&mudconf.terse_contents,	0},
-{(char *)"terse_shows_exits",
-	cf_bool,	CA_GOD,		&mudconf.terse_exits,		0},
-{(char *)"terse_shows_move_messages",
-	cf_bool,	CA_GOD,		&mudconf.terse_movemsg,		0},
-{(char *)"thing_flags",
-	cf_set_flags,	CA_GOD,		(int *)&mudconf.thing_flags,	0},
-{(char *)"thing_parent",
-	cf_int,		CA_GOD,		&mudconf.thing_parent,		0},
-{(char *)"thing_quota",
-	cf_int,		CA_GOD,		&mudconf.thing_quota,		0},
-{(char *)"timeslice",
-	cf_int,		CA_GOD,		&mudconf.timeslice,		0},
-{(char *)"trace_output_limit",
-	cf_int,		CA_GOD,		&mudconf.trace_limit,		0},
-{(char *)"trace_topdown",
-	cf_bool,	CA_GOD,		&mudconf.trace_topdown,		0},
-{(char *)"trust_site",
-	cf_site,	CA_GOD,		(int *)&mudstate.suspect_list,	0},
-{(char *)"typed_quotas",
-	cf_bool,	CA_GOD,		&mudconf.typed_quotas,		0},
-{(char *)"uncompress_program",
-	cf_string,	CA_STATIC,	(int *)mudconf.uncompress,	PBUF_SIZE},
-{(char *)"unowned_safe",
-	cf_bool,	CA_GOD,		&mudconf.safe_unowned,		0},
-{(char *)"user_attr_access",
-	cf_modify_bits,	CA_GOD,		&mudconf.vattr_flags,
-	(long)attraccess_nametab},
-{(char *)"use_global_aconn",
-	cf_bool,	CA_GOD,		&mudconf.use_global_aconn,	0},
-{(char *)"variables_limit",
-	cf_int,		CA_GOD,		&mudconf.numvars_lim,		0},
-{(char *)"wait_cost",
-	cf_int,		CA_GOD,		&mudconf.waitcost,		0},
-{(char *)"wizard_obeys_linklock",
-	cf_bool,	CA_GOD,		&mudconf.wiz_obey_linklock,	0},
-{(char *)"wizard_motd_file",
-	cf_string,	CA_STATIC,	(int *)mudconf.wizmotd_file,	SBUF_SIZE},
-{(char *)"wizard_motd_message",
-	cf_string,	CA_GOD,		(int *)mudconf.wizmotd_msg,	GBUF_SIZE},
-{(char *)"zone_recursion_limit",
-	cf_int,		CA_GOD,		&mudconf.zone_nest_lim,		0},
-{ NULL,
-	NULL,		0,		NULL,				0}};
+
+#ifdef USE_MAIL
+{(char *)"have_mailer",			cf_bool,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_mailer,		(long)"Built-in @mail system enabled"},
+#else
+{(char *)"have_mailer",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_mailer,		(long)"Built-in @mail system enabled"},
+#endif
+
+{(char *)"have_pueblo",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_pueblo,		(long)"Pueblo client extensions are supported"},
+{(char *)"have_zones",			cf_bool,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_zones,		(long)"Multiple control via ControlLocks is permitted"},
+{(char *)"helpfile",			cf_helpfile,	CA_STATIC,	CA_DISABLED,	NULL,				0},
+{(char *)"hostnames",			cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.use_hostname,		(long)"DNS lookups are done on hostnames"},
+
+#ifdef PUEBLO_SUPPORT
+{(char *)"html_connect_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *) mudconf.htmlconn_file,	SBUF_SIZE},
+{(char *)"pueblo_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *) mudconf.pueblo_msg,	GBUF_SIZE},
+#endif
+
+{(char *)"idle_wiz_dark",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.idle_wiz_dark,		(long)"Wizards who idle are set DARK"},
+{(char *)"idle_interval",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.idle_interval,		0},
+{(char *)"idle_timeout",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.idle_timeout,		0},
+{(char *)"include",			cf_include,	CA_STATIC,	CA_DISABLED,	NULL,				0},
+{(char *)"indent_desc",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.indent_desc,		(long)"Descriptions are indented"},
+{(char *)"initial_size",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.init_size,		0},
+{(char *)"input_database",		cf_string,	CA_STATIC, 	CA_GOD,		(int *)mudconf.indb,		PBUF_SIZE},
+{(char *)"instance_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.instance_lim,		0},
+{(char *)"instant_recycle",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.instant_recycle,	(long)"@destroy instantly recycles objects set DESTROY_OK"},
+{(char *)"kill_guarantee_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.killguarantee,		0},
+{(char *)"kill_max_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.killmax,		0},
+{(char *)"kill_min_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.killmin,		0},
+{(char *)"lag_check",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.lag_check,		(long)"CPU usage warnings are enabled"},
+{(char *)"lag_maximum",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_cmdsecs,		0},
+{(char *)"lattr_default_oldstyle",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.lattr_oldstyle,	(long)"Empty lattr() returns blank, not #-1 NO MATCH"},
+{(char *)"link_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.linkcost,		0},
+{(char *)"list_access",			cf_ntab_access,	CA_GOD,		CA_DISABLED,	(int *)list_names,		(long)access_nametab},
+{(char *)"local_master_rooms",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.local_masters,		(long)"Objects set ZONE act as local master rooms"},
+{(char *)"lock_recursion_limit",	cf_int,		CA_WIZARD,	CA_PUBLIC,	&mudconf.lock_nest_lim,		0},
+{(char *)"log",				cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.log_options,		(long)logoptions_nametab},
+{(char *)"log_options",			cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.log_info,		(long)logdata_nametab},
+{(char *)"logout_cmd_access",		cf_ntab_access,	CA_GOD,		CA_DISABLED,	(int *)logout_cmdtable,		(long)access_nametab},
+{(char *)"logout_cmd_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.logout_cmd_htab,0},
+{(char *)"look_obey_terse",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_look,		(long)"look obeys the TERSE flag"},
+{(char *)"machine_command_cost",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.machinecost,		0},
+{(char *)"mail_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.mail_db,		PBUF_SIZE},
+{(char *)"mail_expiration",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.mail_expiration,	0},
+{(char *)"master_room",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.master_room,		0},
+{(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
+{(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
+{(char *)"money_name_plural",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)mudconf.many_coins,	SBUF_SIZE},
+{(char *)"money_name_singular",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)mudconf.one_coin,	SBUF_SIZE},
+{(char *)"motd_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.motd_file,	SBUF_SIZE},
+{(char *)"motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mudconf.motd_msg,	GBUF_SIZE},
+{(char *)"move_match_more",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.move_match_more,	(long)"Move command checks for global and zone exits,\n\t\t\t\tresolves ambiguity"},
+{(char *)"mud_name",			cf_string,	CA_GOD,		CA_PUBLIC,	(int *)mudconf.mud_name,	SBUF_SIZE},
+{(char *)"newuser_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.crea_file,	SBUF_SIZE},
+{(char *)"no_ambiguous_match",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.no_ambiguous_match,	(long)"Ambiguous matches resolve to the last match"},
+{(char *)"notify_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.ntfy_nest_lim,		0},
+{(char *)"open_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.opencost,		0},
+{(char *)"opt_frequency",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.dbopt_interval,	0},
+{(char *)"output_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.outdb,		PBUF_SIZE},
+{(char *)"output_limit",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.output_limit,		0},
+{(char *)"page_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.pagecost,		0},
+{(char *)"paranoid_allocate",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.paranoid_alloc,	(long)"Buffer pools sanity-checked on alloc/free"},
+{(char *)"parent_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.parent_nest_lim,	0},
+{(char *)"paycheck",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.paycheck,		0},
+{(char *)"pemit_far_players",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pemit_players,		(long)"@pemit targets can be players in other locations"},
+{(char *)"pemit_any_object",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pemit_any,		(long)"@pemit targets can be objects in other locations"},
+{(char *)"permit_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list,	0},
+{(char *)"player_flags",		cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.player_flags,	0},
+{(char *)"player_listen",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.player_listen,		(long)"@listen and ^-monitors are checked on players"},
+{(char *)"player_match_own_commands",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine_pl,		(long)"Players can match $-commands on themselves"},
+{(char *)"player_name_spaces",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.name_spaces,		(long)"Player names can contain spaces"},
+{(char *)"player_parent",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_parent,		0},
+{(char *)"player_queue_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.queuemax,		0},
+{(char *)"player_quota",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_quota,		0},
+{(char *)"player_starting_home",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_home,		0},
+{(char *)"player_starting_room",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_room,		0},
+{(char *)"public_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.public_calias,	SBUF_SIZE},
+{(char *)"public_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)mudconf.public_channel,	SBUF_SIZE},
+{(char *)"port",			cf_int,		CA_STATIC,	CA_PUBLIC,	&mudconf.port,			0},
+{(char *)"power_access",		cf_power_access,CA_GOD,		CA_DISABLED,	NULL,				0},
+{(char *)"public_flags",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pub_flags,		(long)"Flag information is public"},
+{(char *)"queue_active_chunk",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.active_q_chunk,	0},
+{(char *)"queue_idle_chunk",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.queue_chunk,		0},
+{(char *)"quiet_look",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.quiet_look,		(long)"look shows public attributes in addition to @Desc"},
+{(char *)"quiet_whisper",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.quiet_whisper,		(long)"whisper is quiet"},
+{(char *)"quit_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.quit_file,	SBUF_SIZE},
+{(char *)"quotas",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.quotas,		(long)"Quotas are enforced"},
+{(char *)"raw_helpfile",		cf_raw_helpfile,CA_STATIC,	CA_DISABLED,	NULL,				0},
+{(char *)"read_remote_desc",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.read_rem_desc,		(long)"@Desc is public, even to players not nearby"},
+{(char *)"read_remote_name",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.read_rem_name,		(long)"Names are public, even to players not nearby"},
+{(char *)"register_create_file",	cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.regf_file,	SBUF_SIZE},
+{(char *)"register_site",		cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list,	H_REGISTRATION},
+{(char *)"require_cmds_flag",		cf_bool,	CA_GOD, 	CA_PUBLIC,	(int *)&mudconf.req_cmds_flag,	(long)"Only objects with COMMANDS flag are searched\n\t\t\t\tfor $-commands"},
+{(char *)"retry_limit",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.retry_limit,		0},
+{(char *)"robot_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.robotcost,		0},
+{(char *)"robot_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.robot_flags,	0},
+{(char *)"robot_speech",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.robot_speak,		(long)"Robots can speak in locations their owners do not\n\t\t\t\tcontrol"},
+{(char *)"room_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.room_flags,	0},
+{(char *)"room_parent",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_parent,		0},
+{(char *)"room_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_quota,		0},
+{(char *)"sacrifice_adjust",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacadjust,		0},
+{(char *)"sacrifice_factor",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacfactor,		0},
+{(char *)"safer_passwords",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.safer_passwords,	(long)"Passwords must satisfy minimum security standards"},
+{(char *)"search_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.searchcost,		0},
+{(char *)"see_owned_dark",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.see_own_dark,		(long)"look shows DARK objects owned by you"},
+{(char *)"signal_action",		cf_option,	CA_STATIC,	CA_GOD,		&mudconf.sig_action,		(long)sigactions_nametab},
+{(char *)"site_chars",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.site_chars,		0},
+{(char *)"space_compress",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.space_compress,	(long)"Multiple spaces are compressed to a single space"},
+{(char *)"sql_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.sql_db,		MBUF_SIZE},
+{(char *)"sql_host",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.sql_host,	MBUF_SIZE},
+{(char *)"sql_username",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.sql_username,	MBUF_SIZE},
+{(char *)"sql_password",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.sql_password,	MBUF_SIZE},
+{(char *)"sql_reconnect",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.sql_reconnect,		(long)"SQL queries re-initiate dropped connections"},
+{(char *)"stack_limit",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.stack_lim,		0},
+{(char *)"starting_money",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.paystart,		0},
+{(char *)"starting_quota",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_quota,		0},
+{(char *)"starting_exit_quota",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_exit_quota,	0},
+{(char *)"starting_player_quota",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_player_quota,	0},
+{(char *)"starting_room_quota",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_room_quota,	0},
+{(char *)"starting_thing_quota",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_thing_quota,	0},
+{(char *)"status_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.status_file,	PBUF_SIZE},
+{(char *)"stripped_flags",		cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.stripped_flags,	0},
+{(char *)"structure_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.struct_lim,		0},
+{(char *)"suspect_site",		cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.suspect_list,	H_SUSPECT},
+{(char *)"sweep_dark",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.sweep_dark,		(long)"@sweep works on Dark locations"},
+{(char *)"switch_default_all",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.switch_df_all,		(long)"@switch default is /all, not /first"},
+{(char *)"terse_shows_contents",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_contents,	(long)"TERSE suppresses the contents list of a location"},
+{(char *)"terse_shows_exits",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_exits,		(long)"TERSE suppresses the exit list of a location"},
+{(char *)"terse_shows_move_messages",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_movemsg,		(long)"TERSE suppresses movement messages"},
+{(char *)"thing_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.thing_flags,	0},
+{(char *)"thing_parent",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_parent,		0},
+{(char *)"thing_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_quota,		0},
+{(char *)"timeslice",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.timeslice,		0},
+{(char *)"trace_output_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.trace_limit,		0},
+{(char *)"trace_topdown",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.trace_topdown,		(long)"Trace output is top-down"},
+{(char *)"trust_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.suspect_list,	0},
+{(char *)"typed_quotas",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.typed_quotas,		(long)"Quotas are enforced per object type"},
+{(char *)"uncompress_program",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.uncompress,	PBUF_SIZE},
+{(char *)"unowned_safe",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.safe_unowned,		(long)"Objects not owned by you are considered SAFE"},
+{(char *)"user_attr_access",		cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.vattr_flags,		(long)attraccess_nametab},
+{(char *)"use_global_aconn",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.use_global_aconn,	(long)"Global @aconnects and @adisconnects are used"},
+{(char *)"variables_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.numvars_lim,		0},
+{(char *)"wait_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.waitcost,		0},
+{(char *)"wizard_obeys_linklock",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.wiz_obey_linklock,	(long)"Check LinkLock even if player can link to anything"},
+{(char *)"wizard_motd_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.wizmotd_file,	SBUF_SIZE},
+{(char *)"wizard_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mudconf.wizmotd_msg,	GBUF_SIZE},
+{(char *)"zone_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.zone_nest_lim,		0},
+{ NULL,					NULL,		0,		0,		NULL,				0}};
 
 /* *INDENT-ON* */
 
@@ -1835,7 +1642,8 @@ char *fn;
 
 /*
  * ---------------------------------------------------------------------------
- * * list_cf_access: List access to config directives.
+ * * list_cf_access, list_cf_read_access: List write or read access to
+ * config directives.
  */
 
 void list_cf_access(player)
@@ -1855,12 +1663,30 @@ dbref player;
 	free_mbuf(buff);
 }
 
+void list_cf_read_access(player)
+dbref player;
+{
+	CONF *tp;
+	char *buff;
+
+	buff = alloc_mbuf("list_cf_read_access");
+	for (tp = conftable; tp->pname; tp++) {
+		if (God(player) || check_access(player, tp->rperms)) {
+			sprintf(buff, "%s:", tp->pname);
+			listset_nametab(player, access_nametab, tp->rperms,
+					buff, 1);
+		}
+	}
+	free_mbuf(buff);
+}
+
 /* ---------------------------------------------------------------------------
  * cf_display: Given a config parameter by name, return its value in some
  * sane fashion.
  */
 
-void cf_display(param_name, buff, bufc)
+void cf_display(player, param_name, buff, bufc)
+    dbref player;
     char *param_name;
     char *buff;
     char **bufc;
@@ -1869,15 +1695,17 @@ void cf_display(param_name, buff, bufc)
 
     for (tp = conftable; tp->pname; tp++) {
 	if (!strcasecmp(tp->pname, param_name)) {
-	    if ((tp->interpreter == cf_int) || (tp->interpreter == cf_bool)) {
+	    if (!check_access(player, tp->rperms)) {
+		safe_noperm(buff, bufc);
+		return;
+	    }
+	    if ((tp->interpreter == cf_int) ||
+	        (tp->interpreter == cf_bool) ||
+	        (tp->interpreter == cf_const)) {
 		safe_ltos(buff, bufc, *(tp->loc));
 		return;
 	    }
-	    /* We have one exception for the string parameter, and that's
-	     * the name of our money.
-	     */
-	    if ((tp->interpreter == cf_string) &&
-		string_prefix(tp->pname, "money_name_")) {
+	    if ((tp->interpreter == cf_string)) {
 		safe_str((char *) tp->loc, buff, bufc);
 		return;
 	    }
@@ -1887,6 +1715,24 @@ void cf_display(param_name, buff, bufc)
     }
 
     safe_nomatch(buff, bufc);
+}
+
+void list_options(player)
+dbref player;
+{
+    CONF *tp;
+
+    for (tp = conftable; tp->pname; tp++) {
+	if (((tp->interpreter == cf_const) ||
+	     (tp->interpreter == cf_bool)) &&
+	    (check_access(player, tp->rperms))) {
+
+	    raw_notify(player, tprintf("%-25s %c %s?",
+				       tp->pname,
+				       (*(tp->loc) ? 'Y' : 'N'),
+				       (tp->extra ? (char *)tp->extra : "")));
+	}
+    }
 }
 
 #endif /*
