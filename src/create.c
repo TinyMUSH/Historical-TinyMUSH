@@ -720,8 +720,10 @@ dbref player, exit;
 	dbref loc;
 
 	loc = Exits(exit);
-	if ((loc != Location(player)) && (loc != player) && !Wizard(player)) {
-		notify_quiet(player, "You can not destroy exits in another room.");
+	if (!((Has_location(player) && (loc == Location(player))) ||
+	      (player == loc) || (player == exit) || Wizard(player))) {
+		notify_quiet(player,
+			     "You cannot destroy exits in another room.");
 		return 0;
 	}
 	return 1;
