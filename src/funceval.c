@@ -4029,6 +4029,9 @@ FUNCTION(fun_let)
     char sep;
 
     varargs_preamble("LET", 4);
+
+    if (!fargs[0] || !*fargs[0])
+	return;
    
     varlist = bp = alloc_lbuf("fun_let.vars");
     str = fargs[0];
