@@ -1028,22 +1028,28 @@ FUNCTION(fun_decrypt)
 /* Borrowed from PennMUSH 1.50 */
 FUNCTION(fun_scramble)
 {
-	int n, i, j;
-	char c;
+	int n, i, j, ansi_state, *ansi_map;
 
 	if (!fargs[0] || !*fargs[0]) {
 	    return;
 	}
 
-	n = strlen(fargs[0]);
+	n = ansi_map_states(fargs[0], &ansi_map);
+
+	ansi_state = ANST_NORMAL;
+
 	for (i = 0; i < n; i++) {
-	    j = (random() % (n - i)) + i;
-	    c = fargs[0][i];
-	    fargs[0][i] = fargs[0][j];
-	    fargs[0][j] = c;
+		j = (random() % (n - i)) + i;
+		safe_str(ansi_transition_esccode(ansi_state, ansi_map[j]),
+			 buff, bufc);
+		safe_chr(ansi_map[j] >> 16, buff, bufc);
+
+		ansi_state = ansi_map[j];
+		ansi_map[j] = ansi_map[i];
 	}
 
-	safe_str(fargs[0], buff, bufc);
+	safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL),
+		 buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1052,13 +1058,22 @@ FUNCTION(fun_scramble)
 
 FUNCTION(fun_reverse)
 {
-    /* Nasty bounds checking */
+	int n, *ansi_map;
 
-    if ((int)strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff) - 1) {
-	*(fargs[0] + (LBUF_SIZE - (*bufc - buff) - 1)) = '\0';
-    }
-    do_reverse(fargs[0], *bufc);
-    *bufc += strlen(fargs[0]);
+	if (!fargs[0] || !*fargs[0]) {
+	    return;
+	}
+
+	n = ansi_map_states(fargs[0], &ansi_map);
+
+	while (n--) {
+		safe_str(ansi_transition_esccode(ansi_map[n+1], ansi_map[n]),
+			 buff, bufc);
+		safe_chr(ansi_map[n] >> 16, buff, bufc);
+	}
+
+	safe_str(ansi_transition_esccode(ansi_map[0], ANST_NORMAL),
+		 buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

@@ -325,6 +325,32 @@ int ansi_before, ansi_after;
 	return buffer;
 }
 
+/* ansi_map_states -- Identify ansi state of every character in a string */
+
+int ansi_map_states(s, m)
+const char *s;
+int **m;
+{
+	static int ansi_map[LBUF_SIZE + 1];
+	int n, ansi_state;
+
+	n = 0;
+	ansi_state = ANST_NORMAL;
+
+	while (*s) {
+		if (*s == ESC_CHAR) {
+			track_esccode(s, ansi_state);
+		} else {
+			ansi_map[n++] = (((int)*s++) << 16) | ansi_state;
+		}
+	}
+
+	ansi_map[n] = ANST_NORMAL;
+
+	*m = ansi_map;
+	return n;
+}
+
 /* translate_string -- Convert (type = 1) raw character sequences into
  * MUSH substitutions or strip them (type = 0).
  */
