@@ -1327,6 +1327,7 @@ dbref player;
 		XFREE(mp->time, "mail_nuke.time");
 		XFREE(mp, "mail_nuke");
 	}
+	nhashdelete((int)thing, &mudsate.mail_htab);
 
 	log_text(tprintf("** MAIL PURGE ** done by %s(#%d).",
 			 Name(player), (int)player));
@@ -1381,7 +1382,7 @@ char *victim;
 				 * head and tail of the list are * special 
 				 */
 				if (mp->prev == NULL)
-					nhashrepl((int)player, (int *)mp->next, &mudstate.mail_htab);
+					nhashrepl((int)thing, (int *)mp->next, &mudstate.mail_htab);
 				else if (mp->next == NULL)
 					mp->prev->next = NULL;
 				/*
