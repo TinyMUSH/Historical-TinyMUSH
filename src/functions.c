@@ -4693,6 +4693,11 @@ FUNCTION(fun_center)
 	width = atoi(fargs[1]);
 	len = strlen((char *)strip_ansi(fargs[0]));
 
+	if (width > LBUF_SIZE) {
+		safe_str("#-1 OUT OF RANGE");
+		return;
+	}
+	
 	if (len >= width) {
 		safe_str(fargs[0], buff, bufc);
 		return;
