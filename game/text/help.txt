@@ -9453,6 +9453,28 @@ You must use the 'mkindx' program to re-index the news file when it
 is changed. If you change any text files while the game is running,
 a Wizard must do a @readcache from within the game.
   
+& Patchlevel
+ 
+TinyMUSH 3.0 starts out from a fusion of the TinyMUSH 2.2.4 and TinyMUX 1.5
+code bases; thus, this list of user-visible changes will track ONLY those
+features that are not part of either code base.
+ 
+Type 'help patchlevel <patchlevel>' to view that list of changes.
+ 
+	3.0b2	(12/31/98)
+ 
+& Patchlevel 3.0b2
+ 
+- New functions chomp(), filterbool(), force(), null(), remit(), t(), toss(),
+  trigger(), while(), wipe()
+ 
+- Modified function: matchall() can take an output delimiter.
+ 
+- New commands @eval, @timecheck, @list cache
+ 
+- New conf parameters addcommands_match_blindly, addcommands_obey_stop,
+  global_aconn_uselocks, have_mailer, have_comsys, lattr_oldstyle
+ 
 & Patchlevel 2.2
  
 User-visible changes in TinyMUSH 2.2
@@ -9464,7 +9486,6 @@ Type 'help patchlevel <patchlevel>' for that list of changes.
    2.2.2    (2/13/96) 
    2.2.3    (11/17/96)
    2.2.4    (11/21/97)
-   Pre-3.0  (12/02/97)
  
 & Patchlevel 2.2.0
  
@@ -9627,18 +9648,4 @@ TinyMUX code bases back into a single enhanced server.
   commands coming from the network).
 - New log option suspect_commands logs all commands executed by Suspect
   players.
- 
-& Patchlevel Pre-3.0
- 
-This set of patchlevels represents ongoing modification to the
-TinyMUSH 2.2 source code, mostly in the form of new features, on the
-way towards the TinyMUSH 3.0 integration. This does not list bugfixes
-or other non-user-visible enhancements.
- 
-- New commands: @eval, @list cache, @timecheck
- 
-- New functions: dec(), filterbool(), inc(), pemit(), remit(), t(),
-  toss(), wipe()
- 
-- Modified function: matchall() can take an output delimiter.
  
