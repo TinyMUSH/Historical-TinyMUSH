@@ -2930,12 +2930,21 @@ use_global_aconn	wizard_obeys_linklock
   Access to many MUSH features is controlled by a set of permissions, which
   can usually be changed via the configuration file or the @admin command.
   This is a list of the valid permissions and their meanings.
-    god           - Only player #1 may use this feature.
-   +wizard        - Only wizards (players with their WIZARD bit set) may use
-                    this feature.
-   +builder       - Only builders (BUILDER bit) may use this feature.
-   +immortals     - Only immortals (IMMORTAL bit) may use this feature.
-   +robot         - Only robots (ROBOT bit) may use this feature
+ 
+    god           - Requires the GOD player (normally #1).
+   +wizard        - Requires the WIZARD flag.
+   +admin         - Requires the WIZARD or ROYALTY flags.
+   +immortal      - Requires the IMMORTAL flag.
+   +staff         - Requires the STAFF flag.
+   +head          - Requires the HEAD flag.
+   +builder       - Requires the Builder power.
+   +sql_ok        - Requires the SQL_Ok power.
+   +marker0       - Requires the MARKER0 flag (whatever it is named locally).
+   +marker1       - Like marker0. (Also for marker2 through marker9.)
+  
+{ 'wizhelp permissions2' for more }
+& permissions2
+ 
     no_haven      - Only players who are not set HAVEN may use this feature.
     no_robot      - Robots may not use this feature.
     no_gagged     - Gagged players (GAGGED bit) may not use this feature.
@@ -2943,8 +2952,6 @@ use_global_aconn	wizard_obeys_linklock
     no_suspect    - Suspect players (SUSPECT bit) may not use this feature.
     no_guest      - Guest players (guest_character config directive) may not
                     use this feature.
-{ 'wizhelp permissions2' for more }
-& permissions2
     global_build  - This feature may only be used when the global building
                     flag is turned on.
     global_interp - This feature may only be used when the global
