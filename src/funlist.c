@@ -201,11 +201,9 @@ FUNCTION(fun_last)
 
 	if (isep_len == 1) {
 
-		s = trim_space_sep(fargs[0], isep, isep_len);
+		last = s = trim_space_sep(fargs[0], isep, isep_len);
 
 		do {
-			last = s;
-
 			/* this is like next_token(), but tracking ansi */
 			while (*s == ESC_CHAR) {
 				track_esccode(s, ansi_state);
@@ -222,6 +220,7 @@ FUNCTION(fun_last)
 					while (*s == isep.c)
 						++s;
 				}
+				last = s;
 			}
 		} while (*s);
 
