@@ -50,7 +50,7 @@ const char *txt;
 /*
  * VARARGS 
  */
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 void logf(char *p,...)
 #else
 void logf(va_alist)
@@ -61,7 +61,7 @@ va_dcl
 {
 	va_list ap;
 
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 	va_start(ap, p);
 #else
 	char *p;
@@ -89,7 +89,7 @@ va_dcl
 /*
  * VARARGS 
  */
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 void fatal(char *p,...)
 #else
 void fatal(va_alist)
@@ -99,7 +99,7 @@ va_dcl
 {
 	va_list ap;
 
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 	va_start(ap, p);
 #else
 	char *p;
