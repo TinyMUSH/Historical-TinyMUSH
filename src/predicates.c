@@ -1754,7 +1754,7 @@ const char *def, *odef;
 {
 	char *d, *buff, *act, *charges, *bp, *str, *preserve[MAX_GLOBAL_REGS];
 	dbref loc, aowner;
-	int num, aflags, alen, need_pres;
+	int num, aflags, alen, need_pres, preserve_len[MAX_GLOBAL_REGS];
 
 	/* If we need to call exec() from within this function, we first save
 	 * the state of the global registers, in order to avoid munging them
@@ -1774,7 +1774,8 @@ const char *def, *odef;
 		d = atr_pget(thing, what, &aowner, &aflags, &alen);
 		if (*d) {
 			need_pres = 1;
-			save_global_regs("did_it_save", preserve);
+			save_global_regs("did_it_save", preserve,
+					 preserve_len);
 			buff = bp = alloc_lbuf("did_it.1");
 			str = d;
 			exec(buff, &bp, 0, thing, player, EV_EVAL | EV_FIGNORE | EV_TOP,
@@ -1806,7 +1807,8 @@ const char *def, *odef;
 		if (*d) {
 			if (!need_pres) {
 				need_pres = 1;
-				save_global_regs("did_it_save", preserve);
+				save_global_regs("did_it_save", preserve,
+						 preserve_len);
 			}
 			buff = bp = alloc_lbuf("did_it.2");
 			str = d;
@@ -1831,7 +1833,7 @@ const char *def, *odef;
 	/* If we preserved the state of the global registers, restore them. */
 
 	if (need_pres)
-		restore_global_regs("did_it_restore", preserve);
+		restore_global_regs("did_it_restore", preserve, preserve_len);
 		
 	/* do the action attribute */
 

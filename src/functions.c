@@ -1211,7 +1211,7 @@ char *fargs[], *cargs[];
 int nfargs, ncargs, is_local;
 {
 	dbref aowner, thing;
-	int aflags, alen, anum;
+	int aflags, alen, anum, preserve_len[MAX_GLOBAL_REGS];
 	ATTR *ap;
 	char *atext, *preserve[MAX_GLOBAL_REGS], *str;
 	
@@ -1256,7 +1256,7 @@ int nfargs, ncargs, is_local;
 	/* If we're evaluating locally, preserve the global registers. */
 
 	if (is_local) {
-		save_global_regs("fun_ulocal_save", preserve);
+		save_global_regs("fun_ulocal_save", preserve, preserve_len);
 	}
 	
 	/* Evaluate it using the rest of the passed function args */
@@ -1269,7 +1269,8 @@ int nfargs, ncargs, is_local;
 	/* If we're evaluating locally, restore the preserved registers. */
 
 	if (is_local) {
-		restore_global_regs("fun_ulocal_restore", preserve);
+		restore_global_regs("fun_ulocal_restore", preserve,
+				    preserve_len);
 	}
 }
 

@@ -1217,7 +1217,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     char *buf, *bp;
     char *tstr, *str;
     dbref aowner;
-    int aflags, alen;
+    int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
     char *preserve[MAX_GLOBAL_REGS];
 
     /* We know we have a non-null hook. We want to evaluate the obj/attr
@@ -1232,7 +1232,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
 	return;
 
     if (save_globs) {
-	save_global_regs("process_hook", preserve);
+	save_global_regs("process_hook", preserve, preserve_len);
     }
 
     buf = bp = alloc_lbuf("process_hook");
@@ -1242,7 +1242,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     free_lbuf(buf);
 
     if (save_globs) {
-	restore_global_regs("process_hook", preserve);
+	restore_global_regs("process_hook", preserve, preserve_len);
     }
 
     free_lbuf(tstr);

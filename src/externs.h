@@ -69,8 +69,8 @@ extern char *	FDECL(parse_arglist, (dbref, dbref, char *, char, int,
 extern int	FDECL(get_gender, (dbref));
 extern void	FDECL(exec, (char *, char **, int, dbref, dbref, int, char **,
 			char *[], int));
-extern void	FDECL(save_global_regs, (const char *, char *[]));
-extern void	FDECL(restore_global_regs, (const char *, char *[]));
+extern void	FDECL(save_global_regs, (const char *, char *[], int []));
+extern void	FDECL(restore_global_regs, (const char *, char *[], int []));
 
 /* From game.c */
 #define	notify(p,m)			notify_check(p,p,m, \

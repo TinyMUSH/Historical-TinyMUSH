@@ -1853,14 +1853,15 @@ FUNCTION(fun_objeval)
 FUNCTION(fun_localize)
 {
     char *str, *preserve[MAX_GLOBAL_REGS];
+    int preserve_len[MAX_GLOBAL_REGS];
 
-    save_global_regs("fun_localize_save", preserve);
+    save_global_regs("fun_localize_save", preserve, preserve_len);
 
     str = fargs[0];
     exec(buff, bufc, 0, player, cause, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
 	 cargs, ncargs);
 
-    restore_global_regs("fun_localize_restore", preserve);
+    restore_global_regs("fun_localize_restore", preserve, preserve_len);
 }
 
 /* ---------------------------------------------------------------------------

@@ -414,15 +414,14 @@ char **dstr;
 char *cargs[];
 {
 #define	NFARGS	30
-	char *fargs[NFARGS];
-	char *preserve[MAX_GLOBAL_REGS];
+	char *fargs[NFARGS], *preserve[MAX_GLOBAL_REGS];
 	char *tstr, *tbuf, *tbufc, *savepos, *atr_gotten, *start, *oldp;
 	char savec, ch, *savestr, *str, *xptr, *mundane, *p;
 	char *realbuff = NULL, *realbp = NULL;
 	char xtbuf[SBUF_SIZE], *xtp;
 	dbref aowner;
 	int at_space, nfargs, gender, i, j, alldone, aflags, alen, feval;
-	int is_trace, is_top, save_count;
+	int is_trace, is_top, save_count, preserve_len[MAX_GLOBAL_REGS];
 	int ansi, nchar, navail;
 	FUN *fp;
 	UFUN *ufp;
@@ -973,7 +972,9 @@ char *cargs[];
 					str = tstr;
 					
 					if (ufp->flags & FN_PRES) {
-						save_global_regs("eval_save", preserve);
+					    save_global_regs("eval_save",
+							     preserve,
+							     preserve_len);
 					}
 					
 					exec(buff, &oldp, 0, i, cause,
@@ -983,7 +984,9 @@ char *cargs[];
 					*bufc = oldp;
 					
 					if (ufp->flags & FN_PRES) {
-						restore_global_regs("eval_restore", preserve);
+					    restore_global_regs("eval_restore",
+								preserve,
+								preserve_len);
 					}
 
 					free_lbuf(tstr);
@@ -1158,25 +1161,29 @@ char *cargs[];
  * registers to protect them from various sorts of munging.
  */
 
-void save_global_regs(funcname, preserve)
-const char *funcname;
-char *preserve[];
+void save_global_regs(funcname, preserve, preserve_len)
+    const char *funcname;
+    char *preserve[];
+    int preserve_len[];
 {
     int i;
 
     for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	if (!mudstate.global_regs[i])
+	if (!mudstate.global_regs[i]) {
 	    preserve[i] = NULL;
-	else {
+	    preserve_len[i] = 0;
+	} else {
 	    preserve[i] = alloc_lbuf(funcname);
 	    strcpy(preserve[i], mudstate.global_regs[i]);
+	    preserve_len[i] = mudstate.glob_reg_len[i];
 	}
     }
 }
 
-void restore_global_regs(funcname, preserve)
-     const char *funcname;
-     char *preserve[];
+void restore_global_regs(funcname, preserve, preserve_len)
+    const char *funcname;
+    char *preserve[];
+    int preserve_len[];
 {
     int i;
 
@@ -1186,9 +1193,11 @@ void restore_global_regs(funcname, preserve)
 		mudstate.global_regs[i] = alloc_lbuf(funcname);
 	    strcpy(mudstate.global_regs[i], preserve[i]);
 	    free_lbuf(preserve[i]);
+	    mudstate.glob_reg_len[i] = preserve_len[i];
 	} else {
 	    if (mudstate.global_regs[i])
 		*(mudstate.global_regs[i]) = '\0';
+	    mudstate.glob_reg_len[i] = 0;
 	}
     }
 }

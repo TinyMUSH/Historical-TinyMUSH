@@ -382,7 +382,7 @@ dbref object, player;
 int filter;
 const char *msg;
 {
-	int aflags, alen;
+	int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
 	dbref aowner;
 	char *buf, *nbuf, *cp, *dp, *str, *preserve[MAX_GLOBAL_REGS];
 
@@ -391,7 +391,7 @@ const char *msg;
 		free_lbuf(buf);
 		return (1);
 	}
-	save_global_regs("check_filter_save", preserve);
+	save_global_regs("check_filter_save", preserve, preserve_len);
 	nbuf = dp = alloc_lbuf("check_filter");
 	str = buf;
 	exec(nbuf, &dp, 0, object, player, EV_FIGNORE | EV_EVAL | EV_TOP, &str,
@@ -399,7 +399,7 @@ const char *msg;
 	*dp = '\0';
 	dp = nbuf;
 	free_lbuf(buf);
-	restore_global_regs("check_filter_restore", preserve);
+	restore_global_regs("check_filter_restore", preserve, preserve_len);
 	
 	do {
 		cp = parse_to(&dp, ',', EV_STRIP);
@@ -417,7 +417,7 @@ dbref object, player;
 int prefix;
 const char *msg, *dflt;
 {
-	int aflags, alen;
+	int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
 	dbref aowner;
 	char *buf, *nbuf, *cp, *bp, *str, *preserve[MAX_GLOBAL_REGS];
 
@@ -426,14 +426,15 @@ const char *msg, *dflt;
 		cp = buf;
 		safe_str((char *)dflt, buf, &cp);
 	} else {
-		save_global_regs("add_prefix_save", preserve);
+		save_global_regs("add_prefix_save", preserve, preserve_len);
 		nbuf = bp = alloc_lbuf("add_prefix");
 		str = buf;
 		exec(nbuf, &bp, 0, object, player, EV_FIGNORE | EV_EVAL | EV_TOP, &str,
 		     (char **)NULL, 0);
 		*bp = '\0';
 		free_lbuf(buf);
-		restore_global_regs("add_prefix_restore", preserve);
+		restore_global_regs("add_prefix_restore", preserve,
+				    preserve_len);
 		buf = nbuf;
 		cp = &buf[strlen(buf)];
 	}

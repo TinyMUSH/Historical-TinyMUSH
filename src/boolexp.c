@@ -59,7 +59,7 @@ dbref player, thing, from;
 BOOLEXP *b;
 {
 	dbref aowner, obj, source;
-	int aflags, alen, c, checkit;
+	int aflags, alen, c, checkit, preserve_len[MAX_GLOBAL_REGS];
 	char *key, *buff, *buff2, *bp, *str, *preserve[MAX_GLOBAL_REGS];
 	ATTR *a;
 
@@ -162,13 +162,15 @@ BOOLEXP *b;
 			checkit = 1;
 		}
 		if (checkit) {
-		        save_global_regs("eval_boolexp_save", preserve);
+		        save_global_regs("eval_boolexp_save",
+					 preserve, preserve_len);
 			buff2 = bp = alloc_lbuf("eval_boolexp");
 			str = buff;
 			exec(buff2, &bp, 0, source, player, EV_FIGNORE | EV_EVAL | EV_TOP,
 			     &str, (char **)NULL, 0);
 			*bp = '\0';
-			restore_global_regs("eval_boolexp_save", preserve);
+			restore_global_regs("eval_boolexp_save",
+					    preserve, preserve_len);
 			checkit = !string_compare(buff2, (char *)b->sub1);
 			free_lbuf(buff2);
 		}
