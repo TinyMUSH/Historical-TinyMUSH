@@ -111,8 +111,6 @@ extern int FDECL(delim_check, (char **, int, int, Delim *, char *, char **,
 			       dbref, dbref, dbref, char **, int, int));
 extern INLINE void FDECL(do_reverse, (char *, char *));
 
-extern char *ansi_nchartab[];	/* from fnhelper.c */
-
 /* ---------------------------------------------------------------------------
  * Function prototype macro.
  */

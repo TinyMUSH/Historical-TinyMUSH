@@ -45,25 +45,25 @@ char **last;
  * ANSI character-to-number translation table.
  */
 
-char *ansi_nchartab[256] =
+int ansi_nchartab[256] =
 {
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-    0,               0,               N_ANSI_BBLUE,    N_ANSI_BCYAN,
-    0,               0,               0,               N_ANSI_BGREEN,
+    0,               0,               I_ANSI_BBLUE,    I_ANSI_BCYAN,
+    0,               0,               0,               I_ANSI_BGREEN,
     0,               0,               0,               0,
-    0,               N_ANSI_BMAGENTA, 0,               0,
-    0,               0,               N_ANSI_BRED,     0,
-    0,               0,               0,               N_ANSI_BWHITE,
-    N_ANSI_BBLACK,   N_ANSI_BYELLOW,  0,               0,
+    0,               I_ANSI_BMAGENTA, 0,               0,
+    0,               0,               I_ANSI_BRED,     0,
+    0,               0,               0,               I_ANSI_BWHITE,
+    I_ANSI_BBLACK,   I_ANSI_BYELLOW,  0,               0,
     0,               0,               0,               0,
-    0,               0,               N_ANSI_BLUE,     N_ANSI_CYAN,
-    0,               0,               N_ANSI_BLINK,    N_ANSI_GREEN,
-    N_ANSI_HILITE,   N_ANSI_INVERSE,  0,               0,
-    0,               N_ANSI_MAGENTA,  N_ANSI_NORMAL,   0,
-    0,               0,               N_ANSI_RED,      0,
-    0,               N_ANSI_UNDER,    0,               N_ANSI_WHITE,
-    N_ANSI_BLACK,    N_ANSI_YELLOW,   0,               0,
+    0,               0,               I_ANSI_BLUE,     I_ANSI_CYAN,
+    0,               0,               I_ANSI_BLINK,    I_ANSI_GREEN,
+    I_ANSI_HILITE,   I_ANSI_INVERSE,  0,               0,
+    0,               I_ANSI_MAGENTA,  I_ANSI_NORMAL,   0,
+    0,               0,               I_ANSI_RED,      0,
+    0,               I_ANSI_UNDER,    0,               I_ANSI_WHITE,
+    I_ANSI_BLACK,    I_ANSI_YELLOW,   0,               0,
     0,               0,               0,               0,
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
@@ -207,8 +207,11 @@ int ansi_before, ansi_after;
 	char *p;
 	static char buffer[64];
 
+	if (ansi_before == ansi_after)
+		return "";
+
 	buffer[0] = ESC_CHAR;
-	buffer[1] = '[';
+	buffer[1] = ANSI_CSI;
 	p = buffer + 2;
 
 	/* If they turn off any highlight bits, or they change from some color
@@ -217,7 +220,9 @@ int ansi_before, ansi_after;
 
 	ansi_bits_set = (~ansi_before) & ansi_after;
 	ansi_bits_clr = ansi_before & (~ansi_after);
-	if ((ansi_bits_clr & 0xf00) || (ansi_bits_set & 0x088)) {
+	if ((ansi_bits_clr & 0xf00) ||		/* highlights off */
+	    (ansi_bits_set & 0x088) ||		/* normal to color */
+	    (ansi_bits_clr == 0x1000)) {	/* explicit normal */
 		strcpy(p, "0;"); p += 2;
 		ansi_bits_set = (~ansi_bits[0]) & ansi_after;
 		ansi_bits_clr = ansi_bits[0] & (~ansi_after);
@@ -252,7 +257,7 @@ int ansi_before, ansi_after;
 
 	/* Terminate */
 	if (p > buffer + 2) {
-		p[-1] = 'm';
+		p[-1] = ANSI_END;
 		/* Buffer is already null-terminated by strcpy */
 	} else {
 		buffer[0] = '\0';
@@ -269,6 +274,9 @@ int ansi_before, ansi_after;
 	static char ansi_mushcode_bg[9] = "XRGYBMCW";
 	static char buffer[64];
 
+	if (ansi_before == ansi_after)
+		return "";
+
 	p = buffer;
 
 	/* If they turn off any highlight bits, or they change from some color
@@ -277,7 +285,9 @@ int ansi_before, ansi_after;
 
 	ansi_bits_set = (~ansi_before) & ansi_after;
 	ansi_bits_clr = ansi_before & (~ansi_after);
-	if ((ansi_bits_clr & 0xf00) || (ansi_bits_set & 0x088)) {
+	if ((ansi_bits_clr & 0xf00) ||		/* highlights off */
+	    (ansi_bits_set & 0x088) ||		/* normal to color */
+	    (ansi_bits_clr == 0x1000)) {	/* explicit normal */
 		strcpy(p, "%xn"); p += 3;
 		ansi_bits_set = (~ansi_bits[0]) & ansi_after;
 		ansi_bits_clr = ansi_bits[0] & (~ansi_after);
@@ -314,7 +324,6 @@ int ansi_before, ansi_after;
 	*p = '\0';
 	return buffer;
 }
-
 
 /* translate_string -- Convert (type = 1) raw character sequences into
  * MUSH substitutions or strip them (type = 0).

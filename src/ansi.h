@@ -10,6 +10,7 @@
 #define ESC_CHAR      '\033'
 
 #define ANSI_BEGIN    "\033["
+#define ANSI_CSI      '['
 #define ANSI_END      'm'
 
 #define ANSI_NORMAL   "\033[0m"
@@ -109,7 +110,7 @@
 #define ANST_NONE	0x1099
 
 /* From stringutil.c */
-extern char *	ansi_nchartab[256];
+extern int	ansi_nchartab[256];
 extern char	ansi_lettab[I_ANSI_NUM];
 extern int	ansi_mask_bits[I_ANSI_LIM];
 extern int	ansi_bits[I_ANSI_LIM];
@@ -122,7 +123,7 @@ extern char *	FDECL(ansi_transition_mushcode, (int, int));
 
 #define skip_esccode(s) \
 	++(s);						\
-	if (*(s) == '[') {				\
+	if (*(s) == ANSI_CSI) {				\
 		do {					\
 			++(s);				\
 		} while ((*(s) & 0xf0) == 0x30);	\
@@ -136,7 +137,7 @@ extern char *	FDECL(ansi_transition_mushcode, (int, int));
 
 #define copy_esccode(s, t) \
 	*(t)++ = *(s)++;				\
-	if (*(s) == '[') {				\
+	if (*(s) == ANSI_CSI) {				\
 		do {					\
 			*(t)++ = *(s)++;		\
 		} while ((*(s) & 0xf0) == 0x30);	\
@@ -148,6 +149,24 @@ extern char *	FDECL(ansi_transition_mushcode, (int, int));
 		*(t)++ = *(s)++;			\
 	}
 
+#define safe_copy_esccode(s, buff, bufc) \
+	safe_chr(*(s), (buff), (bufc));			\
+	++(s);						\
+	if (*(s) == ANSI_CSI) {				\
+		do {					\
+			safe_chr(*(s), (buff), (bufc));	\
+			++(s);				\
+		} while ((*(s) & 0xf0) == 0x30);	\
+	}						\
+	while ((*(s) & 0xf0) == 0x20) {			\
+		safe_chr(*(s), (buff), (bufc));		\
+		++(s);					\
+	}						\
+	if (*(s)) {					\
+		safe_chr(*(s), (buff), (bufc));		\
+		++(s);					\
+	}
+
 #define track_esccode(s, ansi_state) \
 do {									\
 	int ansi_mask = 0;						\
@@ -155,7 +174,7 @@ do {									\
 	unsigned int param_val = 0;					\
 									\
 	++(s);								\
-	if (*(s) == '[') {						\
+	if (*(s) == ANSI_CSI) {						\
 		while ((*(++(s)) & 0xf0) == 0x30) {			\
 			if (*(s) < 0x3a) {				\
 				param_val <<= 1;			\
@@ -173,7 +192,7 @@ do {									\
 	while ((*(s) & 0xf0) == 0x20) {					\
 		++(s);							\
 	}								\
-	if (*(s) == 'm') {						\
+	if (*(s) == ANSI_END) {						\
 		if (param_val < I_ANSI_LIM) {				\
 			ansi_mask |= ansi_mask_bits[param_val];		\
 			ansi_diff = ((ansi_diff & ~ansi_mask_bits[param_val]) | \
@@ -185,6 +204,23 @@ do {									\
 		++(s);							\
 	}								\
 } while (0) 
+
+/* Macro for turning mushcode ansi letters into a packed ansi state.
+ * s is a throwaway char *, t is the sequence of ansi letters, and
+ * ansi_state is an int that will contain the result.
+ */
+#define track_ansi_letters(s, t, ansi_state) \
+	ansi_state = ANST_NONE; \
+	(s) = (t); \
+	while (*(s)) { \
+		if (*(s) == ESC_CHAR) { \
+			skip_esccode((s)); \
+		} else { \
+			(ansi_state) = (((ansi_state) & ~ansi_mask_bits[ansi_nchartab[(unsigned char) *(s)]]) | \
+					ansi_bits[ansi_nchartab[(unsigned char) *(s)]]); \
+			++(s); \
+		} \
+	}
 
 /* Macro for skipping to the end of an ANSI code, if we're at the
  * beginning of one. 
@@ -210,13 +246,7 @@ do {									\
  * w is a pointer to the ANSI state of the previous word.
  */
 #define print_ansi_state(x,w) \
-safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 1); \
-for ((x) = (w); *(x); (x)++) { \
-    if ((x) != (w)) { \
-	safe_chr(';', buff, bufc); \
-    } \
-    safe_str(ansi_nchartab[(unsigned char) *(x)], buff, bufc); \
-} \
-safe_chr(ANSI_END, buff, bufc)
+	track_ansi_letters((x), (w), packed_state); \
+	safe_str(ansi_transition_esccode(ANST_NORMAL, packed_state), buff, bufc)
 
 #endif /* __ANSI_H */

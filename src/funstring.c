@@ -535,7 +535,7 @@ FUNCTION(fun_rjust)
 		}
 		else {
 			/* multi character fill */
-			for (i=spaces; i >= slen; i -= slen) {
+			for (i = spaces; i >= slen; i -= slen) {
 				memcpy(tp, fillchars, slen);
 				tp += slen;
 			}
@@ -593,7 +593,7 @@ FUNCTION(fun_center)
 		}
 		else {
 			/* multi character fill */
-			for (i=lead_chrs; i >= slen; i -= slen) {
+			for (i = lead_chrs; i >= slen; i -= slen) {
 				memcpy(tp, fillchars, slen);
 				tp += slen;
 			}
@@ -632,7 +632,7 @@ FUNCTION(fun_center)
 		}
 		else {
 			/* multi character fill */
-			for (i=trail_chrs; i >= slen; i -= slen) {
+			for (i = trail_chrs; i >= slen; i -= slen) {
 				memcpy(tp, fillchars, slen);
 				tp += slen;
 			}
@@ -842,13 +842,8 @@ FUNCTION(fun_secure)
 	while (*s) {
 		switch (*s) {
 		case ESC_CHAR:
-			while (*s && (*s != ANSI_END)) {
-				safe_chr(*s, buff, bufc);
-				s++;
-			}
-			if (*(s-1) != ESC_CHAR)
-				s--;
-			break;
+			safe_copy_esccode(s, buff, bufc);
+			continue;
 		case '%':
 		case '$':
 		case '\\':
@@ -865,7 +860,7 @@ FUNCTION(fun_secure)
 		default:
 			safe_chr(*s, buff, bufc);
 		}
-		s++;
+		++s;
 	}
 }
 
@@ -873,22 +868,18 @@ FUNCTION(fun_escape)
 {
 	char *s, *d;
 
-	d = *bufc;
 	s = fargs[0];
+	if (!*s)
+		return;
+
+	safe_chr('\\', buff, bufc);
+	d = *bufc;
+
 	while (*s) {
 		switch (*s) {
 		case ESC_CHAR:
-			if (*bufc == d)
-				safe_chr('\\', buff, bufc);
-			safe_chr(*s, buff, bufc);
-			s++;
-			while (*s && (*s != ANSI_END)) {
-				safe_chr(*s, buff, bufc);
-				s++;
-			}
-			if (*(s-1) != ESC_CHAR)
-				s--;
-			break;
+			safe_copy_esccode(s, buff, bufc);
+			continue;
 		case '%':
 		case '\\':
 		case '[':
@@ -896,14 +887,13 @@ FUNCTION(fun_escape)
 		case '{':
 		case '}':
 		case ';':
-			safe_chr('\\', buff, bufc);
+			if (*bufc != d)
+				safe_chr('\\', buff, bufc);
 			/* FALLTHRU */
 		default:
-			if (*bufc == d)
-				safe_chr('\\', buff, bufc);
 			safe_chr(*s, buff, bufc);
 		}
-		s++;
+		++s;
 	}
 }
 
@@ -914,56 +904,33 @@ FUNCTION(fun_escape)
 FUNCTION(fun_ansi)
 {
 	char *s, *bb_p;
+	int ansi_state;
 
 	if (!mudconf.ansi_colors) {
-	    safe_str(fargs[1], buff, bufc);
-	    return;
+		safe_str(fargs[1], buff, bufc);
+		return;
 	}
 
 	if (!fargs[0] || !*fargs[0]) {
-	    safe_str(fargs[1], buff, bufc);
-	    return;
+		safe_str(fargs[1], buff, bufc);
+		return;
 	}
 
-	/* Favor truncating the string over truncating the ANSI codes,
-	 * but make sure to leave room for ANSI_NORMAL (4 characters).
-	 * That means that we need a minimum of 9 (maybe 10) characters
-	 * left in the buffer (8 or 9 in ANSI codes, plus at least one
-	 * character worth of string to hilite). We do 10 just to be safe.
-	 *
-	 * This means that in MOST cases, we are not going to drop the
-	 * trailing ANSI code for lack of space in the buffer. However,
-	 * because of the possibility of an extended buffer created by
-	 * exec(), this is not a guarantee (because extending the buffer
-	 * gives us a fresh new buff, rather than having us continue to
-	 * copy through the new buffer). Sadly, the times when we extend
-	 * are also to be the times we're most likely to run out of space
-	 * in the buffer. There's nothing we can do about that, though.
-	 */
+	track_ansi_letters(s, fargs[0], ansi_state);
 
-	if (strlen(buff) > LBUF_SIZE - 11)
-	    return;
+	safe_str(ansi_transition_esccode(ANST_NONE, ansi_state), buff, bufc);
 
-	s = fargs[0];
-	bb_p = *bufc;
-
+	s = fargs[1];
 	while (*s) {
-	    if (ansi_nchartab[(unsigned char) *s]) {
-		if (*bufc != bb_p) {
-		    safe_copy_chr(';', buff, bufc, LBUF_SIZE - 5);
+		if (*s == ESC_CHAR) {
+			track_esccode(s, ansi_state);
 		} else {
-		    safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 5);
+			++s;
 		}
-		safe_copy_str(ansi_nchartab[(unsigned char) *s],
-			      buff, bufc, LBUF_SIZE - 5);
-	    }
-	    s++;
 	}
-	if (*bufc != bb_p) {
-	    safe_copy_chr(ANSI_END, buff, bufc, LBUF_SIZE - 5);
-	}
-	safe_copy_str(fargs[1], buff, bufc, LBUF_SIZE - 5);
-	safe_ansi_normal(buff, bufc);
+	safe_str(fargs[1], buff, bufc);
+
+	safe_str(ansi_transition_esccode(ansi_state, ANST_NONE), buff, bufc);
 }
 
 FUNCTION(fun_stripansi)
@@ -988,32 +955,13 @@ char *code;
 	char *in, *out;
 	
 	in = out = code;
-	while (*in && (out == in)) {
-		if ((*in >= CRYPTCODE_LO) && (*in <= CRYPTCODE_HI)) {
-			out++; in++;
-		} else if (*in == ESC_CHAR) {
-			while (*in && (*in != ANSI_END)) {
-				in++;
-			}
-			if (*in) {
-				in++;
-			}
-		} else {
-			in++;
-		}
-	}
 	while (*in) {
 		if ((*in >= CRYPTCODE_LO) && (*in <= CRYPTCODE_HI)) {
 			*out++ = *in++;
 		} else if (*in == ESC_CHAR) {
-			while (*in && (*in != ANSI_END)) {
-				in++;
-			}
-			if (*in) {
-				in++;
-			}
+			skip_esccode(in);
 		} else {
-			in++;
+			++in;
 		}
 	}
 	*out = '\0';
@@ -1023,7 +971,7 @@ static void crypt_code(buff, bufc, code, text, type)
 char *buff, **bufc, *code, *text;
 int type;
 {
-	char *q;
+	char *p, *q;
 
 	if (!*text)
 		return;
@@ -1035,32 +983,30 @@ int type;
 
 	q = code;
 
+	p = *bufc;
+	safe_str(text, buff, bufc);
+
 	/*
 	 * Encryption: Simply go through each character of the text, get its
 	 * ascii value, subtract LO, add the ascii value (less
 	 * LO) of the code, mod the result, add LO. Continue
 	 */
-	while (*text) {
-		if ((*text >= CRYPTCODE_LO) && (*text <= CRYPTCODE_HI)) {
+	while (*p) {
+		if ((*p >= CRYPTCODE_LO) && (*p <= CRYPTCODE_HI)) {
 			if (type) {
-				safe_chr(((((*text - CRYPTCODE_LO) + (*q - CRYPTCODE_LO)) % CRYPTCODE_MOD) + CRYPTCODE_LO), buff, bufc);
+				*p = (((*p - CRYPTCODE_LO) + (*q - CRYPTCODE_LO)) % CRYPTCODE_MOD) + CRYPTCODE_LO;
 			} else {
-				safe_chr(((((*text - *q) + 2 * CRYPTCODE_MOD) % CRYPTCODE_MOD) + CRYPTCODE_LO), buff, bufc);
+				*p = (((*p - *q) + 2 * CRYPTCODE_MOD) % CRYPTCODE_MOD) + CRYPTCODE_LO;
 			}
-			text++;
-			q++;
+			++p, ++q;
+
 			if (!*q) {
 				q = code;
 			}
-		} else if (*text == ESC_CHAR) {
-			while (*text && (*text != ANSI_END)) {
-				safe_chr(*text++, buff, bufc);
-			}
-			if (*text) {
-				safe_chr(*text++, buff, bufc);
-			}
+		} else if (*p == ESC_CHAR) {
+			skip_esccode(p);
 		} else {
-			safe_chr(*text++, buff, bufc);
+			++p;
 		}
 	}
 }
@@ -1326,7 +1272,7 @@ static void border_helper(player, str, last_state,
     int key;
 {
     int i, nwords, nstates, over, copied, nleft, max, lens[LBUF_SIZE / 2];
-    int start, end, out, lead_chrs;
+    int start, end, out, lead_chrs, packed_state;
     char *words[LBUF_SIZE / 2], *states[LBUF_SIZE / 2], tbuf[LBUF_SIZE];
     char *p;
 

@@ -1437,7 +1437,7 @@ static void tables_helper(list, last_state, n_cols, col_widths,
     char *field_sep, pad_char, *buff, **bufc;
     int key;
 {
-    int i, nwords, nstates, cpos, wcount, over, have_normal;
+    int i, nwords, nstates, cpos, wcount, over, have_normal, packed_state;
     int max, nleft, lead_chrs, lens[LBUF_SIZE / 2];
     char *s, *savep, *p, tbuf[LBUF_SIZE];
     char *words[LBUF_SIZE / 2], *states[LBUF_SIZE / 2];
