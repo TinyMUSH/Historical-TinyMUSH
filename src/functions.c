@@ -361,12 +361,13 @@ int alen;
 {
 	int i;
 
-	for (i = 0; i < alen; i++) {
-		safe_str(arr[i], list, bufc);
-		print_sep(sep, list, bufc);
+	if (alen) {
+	    safe_str(arr[0], list, bufc);
 	}
-	if (*bufc != list)
-		(*bufc)--;
+	for (i = 1; i < alen; i++) {
+	    print_sep(sep, list, bufc);
+	    safe_str(arr[i], list, bufc);
+	}
 }
 
 static int dbnum(dbr)
