@@ -4,7 +4,7 @@
 *  mkindx now supports multiple tags for a single entry.
 *  example:
 *
-*	   & foo
+*		& foo
 *		& bar
 *		This is foo and bar.
 *		& baz
@@ -54,7 +54,7 @@ char *argv[];
 	actualdata = 0;
 
 	/* create initial entry storage */
-   entries = (help_indx_list *)malloc(sizeof(help_indx_list));
+	entries = (help_indx_list *)malloc(sizeof(help_indx_list));
 	memset(entries, 0, sizeof(help_indx_list));
 
 	while (fgets(line, LINE_SIZE, rfp) != NULL) {
@@ -77,7 +77,7 @@ char *argv[];
 					fprintf(stderr, "error writing %s\n", argv[2]);
 					exit(-1);
 				}
-            memset(entries, 0, sizeof(help_indx_list));
+				memset(entries, 0, sizeof(help_indx_list));
 			}
 
 			if (entries->entry.pos) {
