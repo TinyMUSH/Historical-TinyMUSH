@@ -399,7 +399,11 @@ static dbref find_var_dest(player, exit)
     free_lbuf(buf);
     restore_global_regs("find_var_dest_save", preserve);
 
-    dest_room = parse_dbref(ebuf);
+    if (*ebuf == '#')
+	dest_room = parse_dbref(ebuf + 1);
+    else
+	dest_room = NOTHING;
+
     free_lbuf(ebuf);
     return dest_room;
 }
