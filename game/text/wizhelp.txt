@@ -146,12 +146,12 @@
  
   Example:
  
-  > &LOOK me=$look:say I looked here!
-  > &LOOK_WITH_ARG me=$look *:say I looked at %0!
-  > &LOOK_OUTSIDE me=$look/outside *:say I looked outside at %0!
-  > @addcommand look=me/look
-  > @addcommand look=me/look_with_arg
-  > @addcommand look=me/look_outside
+  > &LOOK global = $look: say I looked here!
+  > &LOOK_WITH_ARG global = $look *: say I looked at %0!
+  > &LOOK_OUTSIDE global = $look/outside *: say I looked outside at %0!
+  > @addcommand/preserve look=global look
+  > @addcommand/preserve look=global/look_with_arg
+  > @addcommand/preserve look=global/look_outside
  
   Continued in 'help @addcommand3'.
  
@@ -168,6 +168,10 @@
   Another use is to speed up use of a particular global command. Just use
   @addcommand to add it to the built-in list, and it will be looked up
   much faster.
+ 
+  This command only takes one possible switch:
+    /preserve  - Execute as the invoker, not as the object containing the
+                 @addcommand'd attribute.
  
   See also: @delcommand, @listcommands.
  
