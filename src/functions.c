@@ -2641,6 +2641,26 @@ FUNCTION(fun_comp)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_ncomp: numerical compare.
+ */
+
+FUNCTION(fun_ncomp)
+{
+    int x, y;
+
+    x = atoi(fargs[0]);
+    y = atoi(fargs[1]);
+
+    if (x == y) {
+	safe_chr('0', buff, bufc);
+    } else if (x < y) {
+	safe_str("-1", buff, bufc);
+    } else {
+	safe_chr('1', buff, bufc);
+    }
+}
+
+/* ---------------------------------------------------------------------------
  * fun_xcon: Return a partial list of contents of an object, starting from
  *           a specified element in the list and copying a specified number
  *           of elements.
@@ -5427,6 +5447,7 @@ FUN flist[] = {
 {"MUL",		fun_mul,	0,  FN_VARARGS,	CA_PUBLIC},
 {"MUNGE",	fun_munge,	0,  FN_VARARGS,	CA_PUBLIC},
 {"NAME",	fun_name,	1,  0,		CA_PUBLIC},
+{"NCOMP",	fun_ncomp,	2,  0,		CA_PUBLIC},
 {"NEARBY",	fun_nearby,	2,  0,		CA_PUBLIC},
 {"NEQ",		fun_neq,	2,  0,		CA_PUBLIC},
 {"NEXT",	fun_next,	1,  0,		CA_PUBLIC},
