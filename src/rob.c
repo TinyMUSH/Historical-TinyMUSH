@@ -302,7 +302,7 @@ int amount;
 				   mudconf.many_coins));
 			return;
 		}
-		if (!could_doit(giver, recipient, A_LUSE)) {
+		if (!could_doit(giver, recipient, A_LGIVE)) {
 			notify(giver,
 			       tprintf("%s won't take your money.",
 				       Name(recipient)));
