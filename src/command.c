@@ -725,6 +725,9 @@ CMDENT command_table[] = {
 {(char *)"@shutdown",		NULL,		CA_WIZARD,
 	0,		CS_ONE_ARG,		
 	NULL,			NULL,		do_shutdown},
+{(char *)"@sql",		NULL,		CA_SQL_OK,
+	0,		CS_ONE_ARG,
+	NULL,			NULL,		do_sql},
 {(char *)"@sqlconnect",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,
 	NULL,			NULL,		do_sql_connect},
@@ -3168,12 +3171,3 @@ char *arg;
 	}
 }
 
-
-void do_sql_connect(player, cause, key)
-{
-    if (sql_init() < 0) {
-	notify(player, "Database connection attempt failed.");
-    } else {
-	notify(player, "Database connection succeeded.");
-    }
-}

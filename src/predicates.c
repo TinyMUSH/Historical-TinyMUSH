@@ -2015,6 +2015,24 @@ char *victim_str, *args[];
 
 }
 
+
+void do_sql_connect(player, cause, key)
+{
+    if (sql_init() < 0) {
+	notify(player, "Database connection attempt failed.");
+    } else {
+	notify(player, "Database connection succeeded.");
+    }
+}
+
+void do_sql(player, cause, key, name)
+    dbref player, cause;
+    int key;
+    char *name;
+{
+    sql_query(player, name, NULL, NULL, ' ', ' ');
+}
+
 #endif /*
         * STANDALONE 
         */

@@ -19,7 +19,9 @@ int NDECL(sql_init);
  * pass an lbuf and a pointer to the appropriate place in it),
  * with the rows separated by a delimiter and the fields separated
  * by another delimiter. If we encounter an error, set the result
- * string to #-1
+ * string to #-1.
+ * If buff is NULL, we are in interactive mode and we simply notify
+ * the player of results, rather than writing into the result string.
  * On success, return 0. On falure, return -1.
  */
 int FDECL(sql_query, (dbref, char *, char *, char **, char, char));

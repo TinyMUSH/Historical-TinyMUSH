@@ -109,7 +109,8 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
      */
     if (mudstate.sql_socket == -1) {
 	notify(player, "No SQL database connection.");
-	safe_str("#-1", buff, bufc);
+	if (buff)
+	    safe_str("#-1", buff, bufc);
 	return -1;
     }
     if (!q_string || !*q_string)
@@ -147,15 +148,19 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     }
     if (got_rows == -1) {
 	notify(player, msqlErrMsg);
-	safe_str("#-1", buff, bufc);
+	if (buff)
+	    safe_str("#-1", buff, bufc);
         return -1;
     }
 
     /* A null store means that this wasn't a SELECT */
 
     qres = msqlStoreResult();
-    if (!qres)
+    if (!qres) {
+	notify(player, tprintf("SQL query touched %d %s.",
+			       got_rows, (got_rows == 1) ? "row" : "rows"));
 	return 0;
+    }
 
     /* Check to make sure we got rows back. */
 
@@ -166,17 +171,37 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 
     /* Construct properly-delimited data. */
 
-    for (i = 0; i < got_rows; i++) {
-	if (i > 0)
-	    safe_chr(row_delim, buff, bufc);
-	row_p = msqlFetchRow(qres);
-	if (row_p) {
-	    got_fields = msqlNumFields(qres);
-	    for (j = 0; j < got_fields; j++) {
-		if (j > 0)
-		    safe_chr(field_delim, buff, bufc);
-		if (row_p[j] && *row_p[j])
-		    safe_str(row_p[j], buff, bufc);
+    if (buff) {
+	for (i = 0; i < got_rows; i++) {
+	    if (i > 0)
+		safe_chr(row_delim, buff, bufc);
+	    row_p = msqlFetchRow(qres);
+	    if (row_p) {
+		got_fields = msqlNumFields(qres);
+		for (j = 0; j < got_fields; j++) {
+		    if (j > 0)
+			safe_chr(field_delim, buff, bufc);
+		    if (row_p[j] && *row_p[j])
+			safe_str(row_p[j], buff, bufc);
+		}
+	    }
+	}
+    } else {
+	for (i = 0; i < got_rows; i++) {
+	    row_p = msqlFetchRow(qres);
+	    if (row_p) {
+		got_fields = msqlNumFields(qres);
+		for (j = 0; j < got_fields; j++) {
+		    if (row_p[j] && *row_p[j]) {
+			notify(player, tprintf("Row %d, Field %d: %s",
+					       i+1, j+1, row_p[j]));
+		    } else {
+			notify(player,
+			       tprintf("Row %d, Field %d: NULL", i+1, j+1));
+		    }
+		}
+	    } else {
+		notify(player, tprintf("Row %d: NULL", i+1));
 	    }
 	}
     }

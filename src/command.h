@@ -150,6 +150,7 @@ CMD_TWO_ARG(do_delcommand);		/* Delete an added global command */
 CMD_ONE_ARG(do_listcommands);		/* List added global commands */
 CMD_NO_ARG(do_logrotate);		/* Rotate the logfile */
 CMD_NO_ARG(do_sql_connect);		/* Create a SQL db connection */
+CMD_ONE_ARG(do_sql);			/* Execute a SQL command */
 
 typedef struct hookentry HOOKENT;
 struct hookentry {
