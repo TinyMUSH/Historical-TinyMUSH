@@ -1,9 +1,35 @@
-If you are converting your game from TinyMUX, you will need to do the
-following:
+If you are converting your game from TinyMUX, upgrading to TinyMUSH
+3.0 is just like doing a MUX version upgrade, with some additional
+steps. You will need to do the following:
 
-- Flatfile your database using the dbconvert utility from TinyMUX.
+- Flatfile your database using the dbconvert utility from TinyMUX
+  (the db_unload script will work -- this is just like doing a normal
+  backup of your database).
 
-- Unflatfile your database using the dbconvert utility from TinyMUSH 3.0.
+- Copy that flatfile to some safe place, and save it.
+
+- Edit mush.config and make sure it's correct (it should basically be
+  like your old mux.config file).
+
+- Assuming that your flatfile is in the game directory, go into the game
+  directory and type the following:
+
+  sed -f cvtmux.sed mygame.flat > NEW.flatfile
+
+  (Substitute the name of your flatfile for 'mygame.flat'.)
+  This will take care of converting '%c' to '%x' and ifelse() function
+  calls to nonzero() function calls.
+
+- From the game directory, type:  ./Restore NEW.flatfile
+  This will unflatfile (load) your database into TinyMUSH 3.0 format.
+
+- From the game directory, type:  ./Backup
+  This will back up your datbase in TinyMUSH 3.0 format.
+  (This step is not necessary and can be skipped, but it's worthwhile
+  doing anyway.)
+
+- From the game directory, type:  ./Startmush
+  This will start the game.
 
 -----------------------------------------------------------------------------
 

@@ -1,9 +1,40 @@
-If you are converting your game from TinyMUSH 2.2, you will need to
-do the following:
+If you are converting your game from TinyMUSH 2.2, upgrading to TinyMUSH
+3.0 is similar to doing a normal upgrade, with a couple of additional
+steps. You will need to do the following:
 
-- Flatfile your database using the dbconvert utility from TinyMUSH 2.2.
+- Flatfile your database using the dbconvert utility from TinyMUSH 2.2
+  (the db_unload script will work -- this is just like doing a normal
+  backup of your database).
 
-- Unflatfile your database using the dbconvert utility from TinyMUSH 3.0.
+- Copy that flatfile to some safe place, and save it.
+
+- The file directory structure has been altered. All game files now
+  go into the 'game' directory. You'll want to move your database
+  files into the 'data' directory, and your text files into the
+  'text' directory.
+
+- Edit mush.config and make sure that it's correct; it's basically like
+  the old mush.config file from TinyMUSH 2.2, with some additional things.
+
+- Assuming that your flatfile is in the game directory, go into the game
+  directory and type the following:
+
+  sed -f cvt22.sed mygame.flat > NEW.flatfile
+
+  (Substitute the name of your flatfile for 'mygame.flat'.)
+  This will take care of converting hasattr() function calls to
+  hasattrp() function calls.
+
+- From the game directory, type:  ./Restore NEW.flatfile
+  This will unflatfile (load) your database into TinyMUSH 3.0 format.
+
+- From the game directory, type:  ./Backup
+  This will back up your datbase in TinyMUSH 3.0 format.
+  (This step is not necessary and can be skipped, but it's worthwhile
+  doing anyway.)
+
+- From the game directory, type:  ./Startmush
+  This will start the game.
 
 -----------------------------------------------------------------------------
 
