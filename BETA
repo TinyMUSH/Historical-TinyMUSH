@@ -34,6 +34,9 @@ Release history:
 - Cosmetic: Shout messages include the grammatically correct comma after
   "says". [2.0; Neva]
 
+- Fix: Potential crash if netmush or dbconvert is invoked without
+  a slash in the name. [3.1]
+
 =============================================================================
 			TinyMUSH 3.0 Beta History
 =============================================================================

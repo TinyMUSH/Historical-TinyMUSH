@@ -1874,7 +1874,11 @@ char *argv[];
 	/* Try to get the binary name */
 	
 	s = strrchr(argv[0], (int) '/');
-	s++;
+	if (s) {
+		s++;
+	} else {
+		s = argv[0];
+	}
 
 	/* If we are called with the name 'dbconvert', do a DB conversion
 	 * and exit */
