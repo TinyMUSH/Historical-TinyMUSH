@@ -4762,77 +4762,101 @@ FUNCTION(fun_lastcreate)
 /*
  * Copy over only alphanumeric chars 
  */
-static char *crunch_code(code)
+#define CRYPTCODE_LO   32	/* space */
+#define CRYPTCODE_HI  126	/* tilde */
+#define CRYPTCODE_MOD  95	/* count of printable ascii chars */
+
+static void crunch_code(code)
 char *code;
 {
-	char *in;
-	char *out;
-	static char output[LBUF_SIZE];
-
-	out = output;
-	in = code;
-	while (*in) {
-		if ((*in >= 32) && (*in <= 126)) {
-			*out++ = *in;
+	char *in, *out;
+	
+	in = out = code;
+	while (*in && (out == in)) {
+		if ((*in >= CRYPTCODE_LO) && (*in <= CRYPTCODE_HI)) {
+			out++; in++;
+		} else if (*in == ESC_CHAR) {
+			while (*in && (*in != ANSI_END)) {
+				in++;
+			}
+			if (*in) {
+				in++;
+			}
+		} else {
+			in++;
 		}
-		in++;
+	}
+	while (*in) {
+		if ((*in >= CRYPTCODE_LO) && (*in <= CRYPTCODE_HI)) {
+			*out++ = *in++;
+		} else if (*in == ESC_CHAR) {
+			while (*in && (*in != ANSI_END)) {
+				in++;
+			}
+			if (*in) {
+				in++;
+			}
+		} else {
+			in++;
+		}
 	}
 	*out = '\0';
-	return (output);
 }
 
-static char *crypt_code(code, text, type)
-char *code;
-char *text;
+static void crypt_code(buff, bufc, code, text, type)
+char *buff, **bufc, *code, *text;
 int type;
 {
-	static char textbuff[LBUF_SIZE];
-	char codebuff[LBUF_SIZE];
-	int start = 32;
-	int end = 126;
-	int mod = end - start + 1;
-	char *p, *q, *r;
+	char *q;
 
-	if (!text && !*text)
-		return ((char *)"");
-	StringCopy(codebuff, crunch_code(code));
-	if (!code || !*code || !codebuff || !*codebuff)
-		return (text);
-	StringCopy(textbuff, "");
+	if (!*text)
+		return;
+	crunch_code(code);
+	if (!*code) {
+		safe_str(text, buff, bufc);
+		return;
+	}
 
-	p = text;
-	q = codebuff;
-	r = textbuff;
+	q = code;
 
 	/*
 	 * Encryption: Simply go through each character of the text, get its
-	 * ascii value, subtract start, add the ascii value (less
-	 * start) of the code, mod the result, add start. Continue
+	 * ascii value, subtract LO, add the ascii value (less
+	 * LO) of the code, mod the result, add LO. Continue
 	 */
-	while (*p) {
-		if ((*p < start) || (*p > end)) {
-			p++;
-			continue;
+	while (*text) {
+		if ((*text >= CRYPTCODE_LO) && (*text <= CRYPTCODE_HI)) {
+			if (type) {
+				safe_chr(((((*text - CRYPTCODE_LO) + (*q - CRYPTCODE_LO)) % CRYPTCODE_MOD) + CRYPTCODE_LO), buff, bufc);
+			} else {
+				safe_chr(((((*text - *q) + 2 * CRYPTCODE_MOD) % CRYPTCODE_MOD) + CRYPTCODE_LO), buff, bufc);
+			}
+			text++;
+			q++;
+			if (!*q) {
+				q = code;
+			}
+		} else if (*text == ESC_CHAR) {
+			while (*text && (*text != ANSI_END)) {
+				safe_chr(*text++, buff, bufc);
+			}
+			if (*text) {
+				safe_chr(*text++, buff, bufc);
+			}
+		} else {
+			safe_chr(*text++, buff, bufc);
 		}
-		if (type)
-			*r++ = (((*p++ - start) + (*q++ - start)) % mod) + start;
-		else
-			*r++ = (((*p++ - *q++) + 2 * mod) % mod) + start;
-		if (!*q)
-			q = codebuff;
 	}
-	*r = '\0';
-	return (textbuff);
 }
 
 FUNCTION(fun_encrypt)
 {
-	safe_str(crypt_code(fargs[1], fargs[0], 1), buff, bufc);
+	crypt_code(buff, bufc, fargs[1], fargs[0], 1);
 }
 
 FUNCTION(fun_decrypt)
 {
-	safe_str(crypt_code(fargs[1], fargs[0], 0), buff, bufc);
+	crypt_code(buff, bufc, fargs[1], fargs[0], 0);
 }
 
 /*---------------------------------------------------------------------------
