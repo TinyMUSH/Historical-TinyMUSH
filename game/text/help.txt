@@ -581,29 +581,40 @@
      @va me=$test *: @eval [set(me,TEST:Set to %0)][pemit(%#,Testing %0.)]
  
 & @chown
+ 
   Command: @chown <object>[=<player>]
            @chown <object>/<attr>[=<player>]
+ 
   The first form changes the ownership of <object> to <player> (default is
-  to yourself).  Objects may be things, rooms or exits. To chown things, you
-  have to be carrying the thing. For rooms or exits, you have to be in the
-  room. Objects must have the CHOWN_OK flag set before they may be @chowned.
-  In a room, the command used must be @chown here = <name>, and for an object,
-  you must be very specific.
+  to yourself).  Objects may be things, rooms or exits. Unless you are a
+  Wizard or have the chown_anything power, the object you are @chown'ing
+  must have the CHOWN_OK flag set, and you must be able to pass its
+  ChownLock.
+ 
+  If you are neither a Wizard nor have the chown_anything power, to @chown
+  a thing, you must be carrying it, and refer very specifically to that 
+  object, and to @chown a room, you must '@chown here = me'. Players cannot
+  be @chown'd; they always own themselves (unless they are robots).
+ 
+  @chown'ing an object automatically sets it HALT, and strips the INHERIT
+  flag and all powers from it.
+ 
+  Contined in 'help @chown2'.
+ 
+& @chown2
+ 
+  When an object is @chowned, all unlocked attributes on the object are
+  automatically @chowned as well, locked attributes remain owned by their
+  original owners.
  
   The second form changes the ownership of the indicated attribute on <object>
   to <player> (default is the owner of the object).  You may only @chown
   unlocked attributes.  You may @chown unlocked attributes on objects that
   you own to yourself, and you may also @chown attributes that you own on
   objects owned by others to the owner of the object.
+  
+  See also: @lock, @unlock, CHOWN_OK, ATTRIBUTE OWNERSHIP.
  
-  When an object is @chowned, all unlocked attributes on the object are
-  automatically @chowned as well, locked attributes remain owned by their
-  original owners.
- 
-  The HALTED flag is automatically set on the new copy of the object.
-  Players can't be @chowned; they always own themselves. 
-  See also: @lock, @Unlock, CHOWN_OK, ATTRIBUTE OWNERSHIP.
-
 & @clone
   Command: @clone[/<switches>] <object>[=<newname/cost>]
  
@@ -988,21 +999,24 @@
                                    or FAIL message for the room following the
                                    room description when looking at the room.
                    Players/Things: controls who may GET the object.
+     ChownLock:    All:            controls who may @chown the object if the
+                                   object is CHOWN_OK.
      ControlLock:  All:            controls which objects can Control this
                                    object (only checked if CONTROL_OK flag
-                                   is set)
+                                   is set).
      DropLock:     Players/Things: controls who may DROP the object.
      EnterLock:    Players/Things: controls who may ENTER the object if the
                                    object is ENTER_OK.
      GiveLock:     Players/Things: controls who may give the object.
      LeaveLock:    Players/Things: controls who may LEAVE the object.
-     LinkLock:     All but Exits:  controls who may link to the location if the
-                                   location is LINK_OK (for linking exits or
-                                   setting drop-tos) or ABODE (for setting
-                                   homes)
   
 { 'help @lock locks2' for more }
 & @lock locks2
+ 
+     LinkLock:     All but Exits:  controls who may link to the location if the
+                                   location is LINK_OK (for linking exits or
+                                   setting drop-tos) or ABODE (for setting
+                                   homes).
      PageLock:     Players:        controls who may page the player.
      ParentLock:   All:            controls who may make @parent links to the
                                    object.
@@ -1014,6 +1028,11 @@
                                    location.
      TportLock:    Rooms/Things:   controls who may teleport there if the
                                    location is JUMP_OK.
+ 
+{ 'help @lock locks3' for more }
+ 
+& @lock locks3
+ 
      UseLock:      All but Exits:  controls who may USE the object, GIVE the
                                    object money and have the PAY attributes
                                    run, have their messages heard and possibly
@@ -1022,7 +1041,7 @@
      UserLock:     All:            Not used by MUSH, is intended to be used
                                    in MUSH programming where a user-defined
                                    lock is needed.
-
+ 
 & @Lock keys
  
   You may use the following keys when setting locks.  For information about
@@ -3142,7 +3161,12 @@
   also have to be in the room if you want to set this flag on rooms 
   or exits.  After this flag is set, the new player may gain 
   ownership of the object by using the @chown command (See @chown).
-
+ 
+  Note that setting an object CHOWN_OK lets anyone on the game @chown it.
+  To restrict this (for example, if you intend a particular player to own
+  the object, but they aren't logged in right now), @lock the object's
+  ChownLock to the appropriate player.
+ 
 & CONNECTED
   Flag: CONNECTED (c)
  
