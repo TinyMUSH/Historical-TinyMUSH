@@ -821,7 +821,11 @@ Cache *cp;
 	
 	/* Write a single cache chain to disk */
 
-	while ((cp != NULL) && (cp->flags & CACHE_DIRTY)) {
+	while (cp != NULL) {
+	        if (!(cp->flags & CACHE_DIRTY)) {
+			cp = cp->nxt;
+			continue;
+		}
 		if (cp->data == NULL) {
 			switch(cp->type) {
 			case DBTYPE_ATTRIBUTE:
