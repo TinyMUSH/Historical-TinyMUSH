@@ -37,7 +37,9 @@
 
 #ifdef TM3
 char *data, *dptr = NULL;
-int size, next_file_adr, start_file_adr = 0;
+int size;
+off_t next_file_adr = 0;
+off_t start_file_adr = 0;
 #endif
 
 /* Add a new element to the database.  CONTENT is keyed by KEY.  The

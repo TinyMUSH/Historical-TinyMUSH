@@ -37,7 +37,8 @@
 
 #ifdef TM3
 extern char *data, *dptr;
-extern int size, cur_file_adr, start_file_adr;
+extern int size;
+extern off_t start_file_adr;
 #endif
 
 /* Make sure the database is all on disk. */
@@ -54,13 +55,15 @@ gdbm_sync (dbf)
   /* Initialize the gdbm_errno variable. */
   gdbm_errno = GDBM_NO_ERROR;
 #ifdef TM3
-  file_pos = lseek (dbf->desc, start_file_adr, L_SET);
-  if (file_pos != start_file_adr) _gdbm_fatal (dbf, "lseek error");
-  num_bytes = write (dbf->desc, data, size);
-  if (num_bytes != size) _gdbm_fatal (dbf, "write error");
-  start_file_adr = 0;
-  size = 0;
-  dptr = data;
+  if (size) {
+    file_pos = lseek (dbf->desc, start_file_adr, L_SET);
+    if (file_pos != start_file_adr) _gdbm_fatal (dbf, "lseek error");
+    num_bytes = write (dbf->desc, data, size);
+    if (num_bytes != size) _gdbm_fatal (dbf, "write error");
+    start_file_adr = 0;
+    size = 0;
+    dptr = data;
+  }
 #endif
 
   /* Do the sync on the file. */
