@@ -2848,6 +2848,10 @@ char *tolist;
 		notify(player, "MAIL: All Mail aliases must begin with '*'.");
 		return;
 	}
+	if (strlen(alias) > 31)  {
+		notify(player, "MAIL: Alias name too long, truncated.");
+		alias[31] = '\0';
+	}
 	m = get_malias(player, alias);
 	if (m) {
 		notify(player,
@@ -3548,6 +3552,10 @@ char *desc;
 		return;
 	} else if ((m->owner != GOD) || ExpMail(player)) {
 	        XFREE(m->desc, "malias_desc");	/* free it up */
+		if (strlen(desc) > 63) {
+			notify(player, "MAIL: Description too long, truncated.");
+			desc[63] = '\0';
+		}
 		m->desc = (char *) XMALLOC(sizeof(char) * (strlen(desc) + 1),
 					   "malias_desc");
 		StringCopy(m->desc, desc);
@@ -3689,20 +3697,24 @@ char *newname;
 {
 	struct malias *m;
 
-	if (get_malias(player, newname) != NULL) {
-		notify(player, "MAIL: That name already exists!");
-		return;
-	}
 	if ((m = get_malias(player, alias)) == NULL) {
 		notify(player, "MAIL: I cannot find that alias!");
+		return;
+	}
+	if (!ExpMail(player) && !(m->owner == player)) {
+		notify(player, "MAIL: Permission denied.");
 		return;
 	}
 	if (*newname != '*') {
 		notify(player, "MAIL: Bad alias.");
 		return;
 	}
-	if (!ExpMail(player) && !(m->owner == player)) {
-		notify(player, "MAIL: Permission denied.");
+	if (strlen(newname) > 31)  {
+		notify(player, "MAIL: Alias name too long, truncated.");
+		newname[31] = '\0';
+	}
+	if (get_malias(player, newname) != NULL) {
+		notify(player, "MAIL: That name already exists!");
 		return;
 	}
 	XFREE(m->name, "malias_rename");
