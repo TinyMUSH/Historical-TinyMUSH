@@ -1,0 +1,116 @@
+#!/bin/sh
+#
+#	Logclean - Get rid of old logfiles of the format <filename>.<time>
+#		   If the MUSH is not running, also move <filename> to
+#		   <filename>.old
+#
+#       Options:
+#		-o	If the MUSH is running, this also deletes the 
+#			<filename>.old logs.
+#		-a	Gets rid of all logs. MUSH cannot be running.
+
+PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
+#
+. mush.config
+#
+#	Check if the MUSH is running.
+#
+# BSD ps
+nmush=`ps ux | egrep netmush | egrep -v egrep | wc -l`
+#
+# SysV ps - comment out the above and uncomment this, if necessary
+# nmush=`ps -ef | egrep netmush | egrep -v egrep | wc -l`
+
+#	Check for options.
+
+del_old=0
+del_all=0
+if [ "$1" = "-o" ]; then
+	if [ $nmush -le 0 ]; then
+		echo "Use the -o option only when the MUSH is running."
+		exit 0
+	fi
+	del_old=1
+elif [ "$1" = "-a" ]; then
+	if [ $nmush -gt 0 ]; then
+		echo "The -a option cannot be used when the MUSH is running."
+		exit 0
+	fi
+	del_all=1
+fi
+
+#	Find the name of the game log.
+#	If the game log as used by Startmush is different from the
+#	regular game log, we handle it separately, as it can never
+#	be rotated.
+
+game_log=`egrep -i game_log $GAMENAME.conf | awk '{ print $2; }'`
+if [ -z "$game_log" ]; then
+    game_log="netmush.conf"
+fi
+if [ "$game_log" != "$LOGNAME" ]; then
+	if [ $nmush -le 0 ]; then
+		if [ $del_all -eq 1 ]; then
+			echo "Removing initial startup logs ($LOGNAME)"
+			rm -f $LOGNAME $LOGNAME.old
+		else	
+			if [ -r $LOGNAME ]; then
+				echo "Saving old initial startup log $LOGNAME"
+				mv -f $LOGNAME $LOGNAME.old
+			else
+				echo "No previous startup log."
+			fi
+		fi
+	else
+		echo "MUSH is running. $LOGNAME untouched."
+	fi
+fi
+
+rm -f $game_log.+([0-9])
+if [ $del_all -eq 1 ]; then
+	echo "Removing game logs ($game_log)"
+	rm -f $game_log $game_log.old
+else
+	if [ $del_old -eq 1 ]; then
+		if [ -r $game_log.old ]; then
+			echo "Removing old game log"
+			rm -f $game_log.old
+		fi
+	elif [ $nmush -le 0 ]; then
+		if [ -r $game_log ]; then
+			echo "Saving old game log $game_log"
+			mv -f $game_log $game_log.old
+		else
+			echo "No previous game log."
+		fi
+	fi
+fi
+
+#	Go through the conf file to find all of the diverted log filenames.
+#	Do something similar with them.
+
+log_list=`egrep -i divert_log $GAMENAME.conf | awk '{ print $3; }'`
+if [ -n "$log_list" ]; then
+	for logfile in $log_list
+	do
+		rm -f $logfile.+([0-9])
+		if [ $del_all -eq 1 ]; then
+			echo "Removing logs ($logfile)"
+			rm -f $logfile $logfile.old
+		else
+			if [ $del_old -eq 1 ]; then
+				if [ -r $logfile.old ]; then
+					echo "Removing old log $logfile"
+					rm -f $logfile.old
+				fi
+			elif [ $nmush -le 0 ]; then
+				if [ -r $logfile ]; then
+					echo "Saving old log $logfile"
+					mv -f $logfile $logfile.old
+				fi
+			fi
+		fi
+	done
+fi
+
+echo "Log cleanup done."
