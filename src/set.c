@@ -942,7 +942,7 @@ void do_cpattr(player, cause, key, oldpair, newpair, nargs)
     char *oldpair;
     char *newpair[];
 {
-    int i, ca;
+    int i, ca, got = 0;
     dbref oldthing;
     char **newthings, **newattrs, *tp, oldbuf[LBUF_SIZE];
     ATTR *oldattr;
@@ -970,6 +970,7 @@ void do_cpattr(player, cause, key, oldpair, newpair, nargs)
 	for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 	    oldattr = atr_num(ca);
 	    if (oldattr) {
+		got = 1;
 		for (i = 0; i < nargs; i++) {
 		    do_set(player, cause, 0, newthings[i],
 			   tprintf("%s:_#%d/%s",
@@ -978,6 +979,9 @@ void do_cpattr(player, cause, key, oldpair, newpair, nargs)
 		}
 	    }
 	}
+    }
+    if (!got) {
+	notify_quiet(player, "No matching attributes found.");
     }
     olist_pop();
     XFREE(newthings, "do_cpattr.dbrefs");
