@@ -15,9 +15,7 @@
  */
 
 /* Define if we should run memory-based (no dbm hashfile) */
-#ifndef STANDALONE
 #undef MEMORY_BASED
-#endif
 /* Define if we're using the port concentrator */
 #undef CONCENTRATE
 /* Define if we're using a tracing version of malloc */

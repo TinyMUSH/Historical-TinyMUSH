@@ -106,10 +106,8 @@ extern void	FDECL(notify_except2, (dbref, dbref, dbref, dbref,
 extern void	FDECL(notify_check, (dbref, dbref, const char *, int));
 extern int	FDECL(Hearer, (dbref));
 extern void	FDECL(html_escape, (const char *, char *, char **));
-#ifndef STANDALONE
 extern void	FDECL(dump_database_internal, (int)); 
 extern void	FDECL(fork_and_dump, (int));
-#endif
 
 /* From htab.c */
 extern		CF_HDCL(cf_ntab_access);
@@ -223,10 +221,8 @@ extern int	FDECL(ltos, (char *, long));
 extern INLINE void FDECL(safe_ltos, (char *, char **, long));
 
 /* From timer.c */
-#ifndef STANDALONE
 extern int	FDECL(call_cron, (dbref, dbref, int, char *));
 extern int	FDECL(cron_clr, (dbref, int));
-#endif
 
 /* From udb_achunk.c */
 extern int	NDECL(dddb_close);
@@ -580,8 +576,6 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define DLSYM_VAR(h,m,x,p) \
 	(p)lt_dlsym((h), tprintf("mod_%s_%s", (m), (x)))
 
-#ifndef STANDALONE
-
 /* Syntax: CALL_ALL_MODULES(<name of function>, (<args>))
  * Call all modules defined for this symbol.
  */
@@ -622,14 +616,6 @@ extern int	FDECL(quick_wild, (char *, char *));
         } \
     } \
 }
-
-#else  /* STANDALONE */
-
-#define CALL_ALL_MODULES(xfn,args)
-#define CALL_ALL_MODULES_NOCACHE(xfn,proto,args) 
-#define CALL_SOME_MODULES(rv,xfn,args)
-
-#endif /* STANDALONE */
 
 /* --------------------------------------------------------------------------
  * String things.

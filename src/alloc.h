@@ -96,7 +96,7 @@ extern char *malloc_ptr;
 
 #else  /* ! TEST_MALLOC  */
 
-#if defined(RAW_MEMTRACKING) && !defined(STANDALONE)
+#ifdef RAW_MEMTRACKING
 
 #define XMALLOC(x,y) (track_malloc((x),(y)))
 #define XCALLOC(x,z,y) (track_calloc((x),(z),(y)))
@@ -118,7 +118,7 @@ extern void	FDECL(track_free, (void *, const char *));
 #define XSTRDUP(x,y)	RAW_STRDUP((x),(y))
 #define XFREE(x,y)	RAW_FREE((x),(y))
 
-#endif  /* RAW_MEMTRACKING && ! STANDALONE */
+#endif  /* RAW_MEMTRACKING */
 #endif  /* TEST_MALLOC */
 
 typedef struct tracemem_header {
@@ -131,8 +131,6 @@ typedef struct tracemem_header {
 /* ---------------------------------------------------------------------------
  * Pool allocation.
  */
-
-#ifndef STANDALONE
 
 extern void	FDECL(pool_init, (int, int));
 extern char *	FDECL(pool_alloc, (int, const char *));
@@ -152,23 +150,6 @@ extern void	FDECL(list_buftrace, (dbref));
 #define	free_qentry(b)	pool_free(POOL_QENTRY,((char **)&(b)))
 #define alloc_pcache(s)	(PCACHE *)pool_alloc(POOL_PCACHE,s)
 #define free_pcache(b)	pool_free(POOL_PCACHE,((char **)&(b)))
-
-#else
-
-#define	alloc_lbuf(s)	(char *)XMALLOC(LBUF_SIZE, "alloc_lbuf")
-#define	free_lbuf(b)	if (b) XFREE(b, "alloc_lbuf")
-#define	alloc_mbuf(s)	(char *)XMALLOC(MBUF_SIZE, "alloc_mbuf")
-#define	free_mbuf(b)	if (b) XFREE(b, "alloc_mbuf")
-#define	alloc_sbuf(s)	(char *)XMALLOC(SBUF_SIZE, "alloc_sbuf")
-#define	free_sbuf(b)	if (b) XFREE(b, "alloc_sbuf")
-#define	alloc_bool(s)	(struct boolexp *)XMALLOC(sizeof(struct boolexp), \
-						"alloc_bool")
-#define	free_bool(b)	if (b) XFREE(b, "alloc_bool")
-#define	alloc_qentry(s)	(BQUE *)XMALLOC(sizeof(BQUE), "alloc_qentry")
-#define	free_qentry(b)	if (b) XFREE(b, "alloc_qentry")
-#define	alloc_pcache(s)	(PCACHE *)XMALLOC(sizeof(PCACHE), "alloc_pcache")
-#define free_pcache(b)	if (b) XFREE(b, "alloc_pcache")
-#endif
 
 #define safe_copy_chr(scc__src,scc__buff,scc__bufp,scc__max) {\
     char *scc__tp;\

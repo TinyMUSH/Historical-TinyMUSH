@@ -122,7 +122,6 @@ struct confdata {
 	char	*config_file;	/* name of config file, used by @restart */
 	char	*crashdb;		/* write database here on crash */
 	char	*gdbm;			/* use this gdbm file if we need one */
-#ifndef STANDALONE
 	char	*status_file;		/* Where to write arg to @shutdown */
 	char	*mudlogname;		/* Name of the game log file */
 	int	have_pueblo;	/* Is Pueblo support compiled in? */
@@ -309,7 +308,6 @@ struct confdata {
 	int	instance_lim;	/* Max number of struct insances for obj */
 	int	max_player_aliases; /* Max number of aliases for a player */
 	char	*struct_dstr;	/* Delim string used for struct 'examine' */
-#endif	/* STANDALONE */
 };
 
 extern CONFDATA mudconf;
@@ -380,7 +378,6 @@ struct statedata {
 				/* Number of object pipelines */
 	unsigned int objc;	/* Object reference counter */
 	unsigned int attrc;	/* Attribute reference counter */
-#ifndef STANDALONE
 	char	*version;	/* MUSH version string */
 	char	*short_ver;	/* Short version number (for INFO) */
 	char	*buildinfo;	/* Compile info */
@@ -496,23 +493,6 @@ struct statedata {
 	clock_t	cputime_base;	/* CPU baselined at beginning of command */
 	MEMTRACK *raw_allocs;	/* Tracking of raw memory allocations */
 	const unsigned char *retabs; /* PCRE regexp tables */
-#else  /* STANDALONE */
-	int	initializing;	/* are we reading config file at startup? */
-	int	logging;	/* Are we in the middle of logging? */
-	int	attr_next;	/* Next attr to alloc when freelist is empty */
-	ALIST	iter_alist;	/* Attribute list for iterations */
-	char	*mod_alist;	/* Attribute list for modifying */
-	int	mod_size;	/* Length of modified buffer */
-	dbref	mod_al_id;	/* Where did mod_alist come from? */
-	int	min_size;	/* Minimum db size (from file header) */
-	int	db_top;		/* Number of items in the db */
-	int	db_size;	/* Allocated size of db structure */
-	MODULE *modules_list;	/* Loadable modules hashtable */
-	unsigned int moduletype_top;	/* Highest module DBTYPE */
-	dbref	freelist;	/* Head of object freelist */
-	MARKBUF	*markbits;	/* temp storage for marking/unmarking */
-	HASHTAB vattr_name_htab;/* User attribute names hashtable */
-#endif	/* STANDALONE */
 };
 
 extern STATEDATA mudstate;

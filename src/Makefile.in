@@ -100,18 +100,6 @@ PURIFYDIR = /local/rational/purify-4.2-sunos4
 PURECOVDIR = /local/rational/purecov-4.2-sunos4
 QUANTDIR = /local/rational/quantify-4.2-sunos4
 
-# Standalone cache code.
-SA_UDB_S = sa-udb_ocache.c sa-udb_ochunk.c sa-udb_obj.c sa-udb_misc.c
-SA_UDB_O = sa-udb_ocache.o sa-udb_ochunk.o sa-udb_obj.o sa-udb_misc.o
-
-# Everything needed to use the database in standalone mode.
-SA_S	= sa-db.c sa-db_rw.c sa-boolexp.c sa-unparse.c \
-	  sa-pred.c sa-stringu.c sa-conf.c sa-log.c sa-object.c \
-	  sa-vattr.c sa-htab.c sa-player_c.c sa-flags.c sa-ltdl.c
-SA_O	= sa-db.o sa-db_rw.o sa-boolexp.o sa-unparse.o \
-	  sa-pred.o sa-stringu.o sa-conf.o sa-log.o sa-object.o \
-	  sa-vattr.o sa-htab.o sa-player_c.o sa-flags.o sa-ltdl.o
-
 # Distribution source files
 D_S	= alloc.c api.c boolexp.c command.c compat.c conf.c cque.c create.c \
 	  db.c db_rw.c eval.c file_c.c flags.c fnhelper.c functions.c \
@@ -133,7 +121,7 @@ D_I	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  api.h pcre.h bitstring.h db_sql.h ltdl.h
 
 # Auxiliary source files: only used by offline utilities.
-AUX_S	= dbconvert.c mkindx.c unsplit.c slave.c portconc.c recover.c
+AUX_S	= mkindx.c unsplit.c slave.c portconc.c recover.c
 
 # Version number routine
 VER_S	= version.c
@@ -147,7 +135,7 @@ VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
 
 # Compilation source files
 ALL_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S) \
-	  $(SA_S) $(SA_UDB_S) $(AUX_S)
+	  $(AUX_S)
 
 ALL_I	= $(D_I) $(UDB_I) $(VER_I)
 
@@ -155,7 +143,7 @@ MUSH_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S)
 MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
 	  $(LIBOBJS)
 
-OUT	= netmush mkindx dbconvert slave recover
+OUT	= netmush mkindx slave recover
 
 # paths is likely to remain broken
 all: install
@@ -170,7 +158,7 @@ build: depend
 	touch build
 
 install: build
-	cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/dbconvert dbconvert
+	cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/netmush dbconvert
 	cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx mkindx
 	cd ../game/bin ; rm -f netmush ; ln -s ../../src/netmush netmush
 	cd ../game/bin ; rm -f slave ; ln -s ../../src/slave slave
@@ -199,9 +187,6 @@ recover: recover.o
 
 unsplit: unsplit.o
 	$(CC) $(ALLCFLAGS) -o unsplit unsplit.o
-
-dbconvert: dbconvert.o $(SA_O) $(SA_UDB_O) $(MALLOC_O) $(LIBOBJS)
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o dbconvert dbconvert.o $(SA_O) $(SA_UDB_O) $(MALLOC_O) $(MOD_DL) $(LIBS) $(LIBOBJS)
 
 netmush: $(MUSH_O) $(MOD_LA)
 	-mv -f netmush netmush~
