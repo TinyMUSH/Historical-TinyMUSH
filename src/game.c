@@ -19,6 +19,7 @@
 #include "attrs.h"
 #include "alloc.h"
 #include "slave.h"
+#include "pcre.h"
 
 #ifdef HAVE_IEEEFP_H
 #include <ieeefp.h>
@@ -172,8 +173,10 @@ void do_hashresize(player, cause, key)
 
 /* ----------------------------------------------------------------------
  * regexp_match: Load a regular expression match and insert it into
- * registers.
+ * registers. PCRE modifications adapted from PennMUSH.
  */
+
+#define PCRE_MAX_OFFSETS 99
 
 int regexp_match(pattern, str, args, nargs)
 char *pattern;
@@ -181,62 +184,61 @@ char *str;
 char *args[];
 int nargs;
 {
-regexp *re;
-int got_match;
-int i, len;
+    int i, j, len;
+    pcre *re;
+    static const unsigned char *tables = NULL;
+    const char *errptr;
+    int erroffset;
+    int offsets[PCRE_MAX_OFFSETS];
+    int subpatterns;
 
+    if (!tables) {
+	/* Initialize char tables so they match current locale. */
+	tables = pcre_maketables();
+    }
+
+    if ((re = pcre_compile(pattern, 0, &errptr, &erroffset, tables)) == NULL) {
 	/*
-	 * Load the regexp pattern. This allocates memory which must be
-	 * later freed. A free() of the regexp does free all structures
-	 * under it.
+	 * This is a matching error. We have an error message in
+	 * errptr that we can ignore, since we're doing command-matching.
 	 */
+	return 0;
+    }
 
-	if ((re = regcomp(pattern)) == NULL) {
-		/*
-		 * This is a matching error. We have an error message in
-		 * regexp_errbuf that we can ignore, since we're doing
-		 * command-matching.
-		 */
-		return 0;
-	}
-
-	/* 
-	 * Now we try to match the pattern. The relevant fields will
-	 * automatically be filled in by this.
-	 */
-	got_match = regexec(re, str);
-	if (!got_match) {
-		free(re);
-		return 0;
-	}
-
-	/*
-	 * Now we fill in our args vector. Note that in regexp matching,
-	 * 0 is the entire string matched, and the parenthesized strings
-	 * go from 1 to 9. We DO PRESERVE THIS PARADIGM, for consistency
-	 * with other languages.
-	 */
-
-	for (i = 0; i < nargs; i++) {
-		args[i] = NULL;
-	}
-
-	/* Convenient: nargs and NSUBEXP are the same.
-	 * We are also guaranteed that our buffer is going to be LBUF_SIZE
-	 * so we can copy without fear.
-	 */
-
-	for (i = 0;
-		 (i < NSUBEXP) && (re->startp[i]) && (re->endp[i]);
-		 i++) {
-		len = re->endp[i] - re->startp[i];
-		args[i] = alloc_lbuf("regexp_match");
-		strncpy(args[i], re->startp[i], len);
-		args[i][len] = '\0';	/* strncpy() does not null-terminate */
-	}
-	
+    /* 
+     * Now we try to match the pattern. The relevant fields will
+     * automatically be filled in by this.
+     */
+    if ((subpatterns = pcre_exec(re, NULL, str, strlen(str), 0, 0,
+				 offsets, PCRE_MAX_OFFSETS)) < 0) {
 	free(re);
-	return 1;
+	return 0;
+    }
+
+    /* If we had too many subpatterns for the offsets vector, set the
+     * number to 1/3rd of the size of the offsets vector.
+     */
+    if (subpatterns == 0)
+	subpatterns = PCRE_MAX_OFFSETS / 3;
+
+    /*
+     * Now we fill in our args vector. Note that in regexp matching,
+     * 0 is the entire string matched, and the parenthesized strings
+     * go from 1 to 9. We DO PRESERVE THIS PARADIGM, for consistency
+     * with other languages.
+     */
+
+    for (i = 0; i < nargs; i++) {
+	args[i] = NULL;
+    }
+
+    for (i = 0; i < nargs; i++) {
+	args[i] = alloc_lbuf("regexp_match");
+	pcre_copy_substring(str, offsets, subpatterns, i, args[i], LBUF_SIZE);
+    }
+
+    free(re);
+    return 1;
 }
 
 /* ----------------------------------------------------------------------

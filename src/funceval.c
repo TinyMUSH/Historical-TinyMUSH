@@ -20,6 +20,7 @@
 #include "misc.h"
 #include "alloc.h"
 #include "ansi.h"
+#include "pcre.h"
 #include "db_sql.h"
 
 extern NAMETAB indiv_attraccess_nametab[];
@@ -56,6 +57,8 @@ extern void FDECL(make_cwho, (dbref, char *, char *, char **));
 	int nfargs, ncargs;
 
 #define Set_Max(x,y)     (x) = ((y) > (x)) ? (y) : (x);
+
+static const unsigned char *tables = NULL; /* for PCRE */
 
 /* --------------------------------------------------------------------------
  * Auxiliary functions for stacks.
@@ -4565,33 +4568,38 @@ FUNCTION(fun_clearvars)
 
 FUNCTION(fun_regparse)
 {
-    int i, nqregs, len;
-    char *qregs[NSUBEXP];
+    int i, nqregs;
+    char *qregs[NUM_ENV_VARS];
     char matchbuf[LBUF_SIZE];
-    regexp *re;
-    int matched;
+    pcre *re;
+    const char *errptr;
+    int erroffset;
+    int offsets[PCRE_MAX_OFFSETS];
+    int subpatterns;
 
-    if ((re = regcomp(fargs[1])) == NULL) {
+    if (!tables) {
+	/* Initialize char tables so they match current locale. */
+	tables = pcre_maketables();
+    }
+
+    if ((re = pcre_compile(fargs[1], 0,
+			   &errptr, &erroffset, tables)) == NULL) {
 	/* Matching error. */
-	notify_quiet(player, (const char *) regexp_errbuf);
+	notify_quiet(player, errptr);
 	return;
     }
 
-    matched = (int) regexec(re, fargs[0]);
+    subpatterns = pcre_exec(re, NULL, fargs[0], strlen(fargs[0]),
+			    0, 0, offsets, PCRE_MAX_OFFSETS);
 
-    nqregs = list2arr(qregs, NSUBEXP, fargs[2], ' ');
+    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i]) {
-	    if (!matched || !re->startp[i] || !re->endp[i]) {
+	    if (subpatterns < 0) {
 		set_xvar(player, qregs[i], NULL);
 	    } else {
-		len = re->endp[i] - re->startp[i];
-		if (len > LBUF_SIZE - 1)
-		    len = LBUF_SIZE - 1;
-		else if (len < 0)
-		    len = 0;
-		strncpy(matchbuf, re->startp[i], len);
-		matchbuf[len] = '\0';
+		pcre_copy_substring(fargs[0], offsets, subpatterns, i,
+				    matchbuf, LBUF_SIZE);
 		set_xvar(player, qregs[i], matchbuf);
 	    }
 	}
@@ -4612,66 +4620,81 @@ FUNCTION(fun_regparse)
  * Therefore, if the list is "-1 0 3 5", the regexp $0 is tossed, and
  * the regexp $1, $2, and $3 become r(0), r(3), and r(5), respectively.
  *
+ * PCRE modifications adapted from PennMUSH.
+ *
  */
 
 FUNCTION(fun_regmatch)
 {
-int i, nqregs, curq, len;
-char *qregs[NSUBEXP];
-regexp *re;
-int matched;
+    int i, nqregs, curq;
+    char *qregs[NUM_ENV_VARS];
+    pcre *re;
+    const char *errptr;
+    int erroffset;
+    int offsets[PCRE_MAX_OFFSETS];
+    int subpatterns; 
 
-	if (!fn_range_check("REGMATCH", nfargs, 2, 3, buff, bufc))
-		return;
+    if (!fn_range_check("REGMATCH", nfargs, 2, 3, buff, bufc))
+	return;
 
-	if ((re = regcomp(fargs[1])) == NULL) {
-		/* Matching error. */
-		notify_quiet(player, (const char *) regexp_errbuf);
-		safe_chr('0', buff, bufc);
-		return;
-	}
+    if (!tables) {
+	/* Initialize char tables so they match current locale. */
+	tables = pcre_maketables();
+    }
 
-	matched = (int) regexec(re, fargs[0]);
-	safe_ltos(buff, bufc, matched);
-
-	/* If we don't have a third argument, we're done. */
-	if (nfargs != 3) {
-		free(re);
-		return;
-	}
-
-	/* We need to parse the list of registers. Anything that we don't get
-	 * is assumed to be -1. If we didn't match, or the match went wonky,
-	 * then set the register to empty. Otherwise, fill the register
-	 * with the subexpression.
+    if ((re = pcre_compile(fargs[1], 0,
+			   &errptr, &erroffset, tables)) == NULL) {
+	/* Matching error.
+	 * Note difference from PennMUSH behavior:
+	 * Regular expression errors return 0, not #-1 with an error
+	 * message.
 	 */
-	nqregs = list2arr(qregs, NSUBEXP, fargs[2], ' ');
-	for (i = 0; i < nqregs; i++) {
-	    if (qregs[i] && *qregs[i] && is_integer(qregs[i]))
-		curq = atoi(qregs[i]);
-	    else
-		curq = -1;
-	    if ((curq < 0) || (curq > 9))
-		continue;
-	    if (!mudstate.global_regs[curq]) {
-		mudstate.global_regs[curq] = alloc_lbuf("fun_regmatch");
-	    }
-	    if (!matched || !re->startp[i] || !re->endp[i]) {
-		mudstate.global_regs[curq][0] = '\0'; /* empty string */
-		mudstate.glob_reg_len[curq] = 0;
-	    } else {
-		len = re->endp[i] - re->startp[i];
-		if (len > LBUF_SIZE - 1)
-		    len = LBUF_SIZE - 1;
-		else if (len < 0)
-		    len = 0;
-		strncpy(mudstate.global_regs[curq], re->startp[i], len);
-		mudstate.global_regs[curq][len] = '\0';	/* must null-term */
-		mudstate.glob_reg_len[curq] = len;
-	    }
-	}
+	notify_quiet(player, errptr);
+	safe_chr('0', buff, bufc);
+	return;
+    }
 
+    subpatterns = pcre_exec(re, NULL, fargs[0], strlen(fargs[0]),
+			    0, 0, offsets, PCRE_MAX_OFFSETS);
+    safe_ltos(buff, bufc, (subpatterns >= 0));
+
+    /* If we don't have a third argument, we're done. */
+    if (nfargs != 3) {
 	free(re);
+	return;
+    }
+
+    /* We need to parse the list of registers. Anything that we don't get
+     * is assumed to be -1. If we didn't match, or the match went wonky,
+     * then set the register to empty. Otherwise, fill the register
+     * with the subexpression.
+     */
+
+    if (subpatterns == 0)
+	subpatterns = PCRE_MAX_OFFSETS / 3;
+
+    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
+    for (i = 0; i < nqregs; i++) {
+	if (qregs[i] && *qregs[i] && is_integer(qregs[i]))
+	    curq = atoi(qregs[i]);
+	else
+	    curq = -1;
+	if ((curq < 0) || (curq >= NUM_ENV_VARS))
+	    continue;
+	if (!mudstate.global_regs[curq]) {
+	    mudstate.global_regs[curq] = alloc_lbuf("fun_regmatch");
+	}
+	if (subpatterns < 0) {
+	    mudstate.global_regs[curq][0] = '\0'; /* empty string */
+	    mudstate.glob_reg_len[curq] = 0;
+	} else {
+	    pcre_copy_substring(fargs[0], offsets, subpatterns, i,
+				mudstate.global_regs[curq], LBUF_SIZE);
+	    mudstate.glob_reg_len[curq] = strlen(mudstate.global_regs[curq]);
+	}
+    }
+
+    free(re);
 }
 
 /* ---------------------------------------------------------------------------

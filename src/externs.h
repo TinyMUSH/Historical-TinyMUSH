@@ -9,20 +9,12 @@
 
 #include "db.h"
 #include "mudconf.h"
-#include "regexp.h"
 
 #define INLINE inline
 
 #define ToUpper(C)	(((C) >= 'a' && (C) <= 'z')? (C) - 'a' + 'A': (C))
 #define ToLower(C)	(((C) >= 'A' && (C) <= 'Z')? (C) - 'A' + 'a': (C))
 #define safe_atoi(s)	((s == NULL) ? 0 : atoi(s))
-
-/* From regexp.c (extract from Henry Spencer's package) */
-
-extern regexp *FDECL(regcomp, (char *));
-extern int FDECL(regexec, (register regexp *, register char *));
-extern void FDECL(regerror, (char *));
-extern char regexp_errbuf[];
 
 /* From conf.c */
 extern int	FDECL(cf_modify_bits, (int *, char *, long, dbref, char *));
