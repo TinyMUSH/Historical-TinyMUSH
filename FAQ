@@ -6,7 +6,7 @@ Frequently-Asked Questions
 - How do I use multiple guests?
 - How do I tune the database cache?
 - How do I use radix compression?
-- How do I use the in-memory database?
+- How do I use an in-memory database?
 
 ------------------------------------------------------------------------------
 
@@ -35,26 +35,28 @@ I found a bug! What do I do?
 
   If you don't have gdb, use dbx.
 
-
 ------------------------------------------------------------------------------
 
 How do I make a new configuration file?
 
-  TinyMUX 1.4 gets the information it needs to operate the game (aside from
-  the database itself) from a configuration file that is read in at startup.
-  The configuration file contains various parameters, such as where to find
-  the database, what port to listen for connects, and many other things.
+TinyMUSH 3.0 gets the information it needs to operate the game (aside from
+the database itself) from a configuration file that is read in at startup.
+The configuration file contains various parameters, such as where to find
+the database, what port to listen for connects, and many other things.
 
-  Follow these instructions to make a configuration file for your mush from
-  the supplied template configuration file:
+Follow these instructions to make a configuration file for your MUSH from
+the supplied template configuration file:
 
-    In your game directory, copy the file netmux.conf to <your-mud-name>.conf
-    and edit it as follows:
+In your game directory, copy the file netmush.conf to <your-mud-name>.conf
+and edit it as follows:
 
-    - Replace netmux.<whatever> in the 'xxx_database' lines with
+    - Replace netmush.<whatever> in the 'xxx_database' lines with
       <your-mud-name>.<whatever>.
+
     - Set the port number on the 'port' line to the correct port.
+
     - Set the mud name on the 'mud_name' line to the name of your mud.
+
     - Make any other configuration changes you want to make at this time.
       Here are some of the common ones to change:
          o money_name_singular <text>  The name of one coin (penny)
@@ -68,9 +70,9 @@ How do I make a new configuration file?
          o player_starting_room <roomno>  The room that new players are
                                   created in.
 
-  There are many more configuration directives available. Information
-  on individual directives can be obtained with the WIZHELP <directive>
-  command within the mush.
+There are many more configuration directives available. Information
+on individual directives can be obtained with the WIZHELP <directive>
+command within the MUSH.
 
 ------------------------------------------------------------------------------
 
@@ -92,7 +94,7 @@ attributes. (NOTE: Guests always start off in the room specified by the
 player_starting_room).
 
 3. Set the config parameter 'guest_prefix' to whatever you want your guests
-to be named (this defaults to 'Guest'). MUX keeps track of multiple guests
+to be named (this defaults to 'Guest'). MUSH keeps track of multiple guests
 by naming them using a numbering system: <prefix><number>. For example,
 Guest1, Guest2, Guest3, etc. People who wish to connect as a guest will have
 to use this prefix, for example, if 'guest_prefix' was set to 'Visitor', one
@@ -104,9 +106,6 @@ This number can be as small or as large as you wish.
 5. Optionally, set 'guest_nuker' to a wizard's database number, if you wish
 to have a wizard other than #1 to nuke the guests.
 
-
-Miscellaneous information:
--------------------------
 
 The file specified by the config parameter 'guest_file' is shown to every
 guest when they connect. You may wish to use the 'access' config parameter
@@ -217,7 +216,7 @@ compresstab.h exists.
 the radixlib subdirectory.
 
 3. Rebuild your server. Edit the Makefile section called 'Radix
-Compression', uncommenting the necessary defines, and rebuild netmux
+Compression', uncommenting the necessary defines, and rebuild netMUSH
 from scratch. Make damn sure have a copy of dbconvert that does not use
 compression. Use it to get a flat dump of your uncompressed DB before moving
 on.
@@ -231,7 +230,7 @@ up the gdbm database from the flat dump. You're ready to roll!
 
 How do I use the in-memory database?
 
-If you're starting your MUX from scratch, all you need to do is specify in
+If you're starting your MUSH from scratch, all you need to do is specify in
 the Makefile whether you want to be disk based or memory based, and compile,
 following the instructions for creating a database. Converting from disk
 based to memory based, and vice versa, is a bit more difficult.
@@ -267,7 +266,7 @@ A comparison of disk based and memory based database storage methods.
 	- Total database usage on disk is usually smaller that a disk-based
 	  setup.
 	- A memory based setup dumps and loads using a flatfile, which is
-	  easier to manage and easily compressible when dumped by the MUX.
+	  easier to manage and easily compressible when dumped by the MUSH.
 - Disadvantages:
 	- Memory usage grows as the size of the database grows.
 
@@ -317,7 +316,7 @@ Saving memory:
 
 
 You should juggle these options until you find a setup that works, and gives
-you the best performance. There is no 'right' way to set up a MUX, it always
+you the best performance. There is no 'right' way to set up a MUSH, it always
 depends on the capabilities of the system you are running on, and how much
 of those capabilities you can use.
 
