@@ -949,7 +949,7 @@ char *buff, **bufc;
 FUNCTION(fun_get)
 {
 	dbref thing, aowner;
-	int attrib, free_buffer, aflags;
+	int attrib, free_buffer, aflags, alen;
 	ATTR *attr;
 	char *atr_gotten;
 	struct boolexp *bool;
@@ -967,7 +967,7 @@ FUNCTION(fun_get)
 		return;
 	}
 	if (attr->flags & AF_IS_LOCK) {
-		atr_gotten = atr_get(thing, attrib, &aowner, &aflags);
+		atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
 		if (Read_attr(player, thing, attr, aowner, aflags)) {
 			bool = parse_boolexp(player, atr_gotten, 1);
 			free_lbuf(atr_gotten);
@@ -979,7 +979,7 @@ FUNCTION(fun_get)
 		}
 		free_buffer = 0;
 	} else {
-		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags);
+		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
 	}
 
 	/* Perform access checks.  c_r_p fills buff with an error message
@@ -996,7 +996,7 @@ FUNCTION(fun_get)
 FUNCTION(fun_xget)
 {
 	dbref thing, aowner;
-	int attrib, free_buffer, aflags;
+	int attrib, free_buffer, aflags, alen;
 	ATTR *attr;
 	char *atr_gotten;
 	struct boolexp *bool;
@@ -1018,7 +1018,7 @@ FUNCTION(fun_xget)
 		return;
 	}
 	if (attr->flags & AF_IS_LOCK) {
-		atr_gotten = atr_get(thing, attrib, &aowner, &aflags);
+		atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
 		if (Read_attr(player, thing, attr, aowner, aflags)) {
 			bool = parse_boolexp(player, atr_gotten, 1);
 			free_lbuf(atr_gotten);
@@ -1030,7 +1030,7 @@ FUNCTION(fun_xget)
 		}
 		free_buffer = 0;
 	} else {
-		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags);
+		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
 	}
 
 	/* Perform access checks.  c_r_p fills buff with an error message  
@@ -1047,7 +1047,7 @@ FUNCTION(fun_xget)
 FUNCTION(fun_get_eval)
 {
 	dbref thing, aowner;
-	int attrib, free_buffer, aflags, eval_it;
+	int attrib, free_buffer, aflags, alen, eval_it;
 	ATTR *attr;
 	char *atr_gotten, *str;
 	struct boolexp *bool;
@@ -1066,7 +1066,7 @@ FUNCTION(fun_get_eval)
 		return;
 	}
 	if (attr->flags & AF_IS_LOCK) {
-		atr_gotten = atr_get(thing, attrib, &aowner, &aflags);
+		atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
 		if (Read_attr(player, thing, attr, aowner, aflags)) {
 			bool = parse_boolexp(player, atr_gotten, 1);
 			free_lbuf(atr_gotten);
@@ -1079,7 +1079,7 @@ FUNCTION(fun_get_eval)
 		free_buffer = 0;
 		eval_it = 0;
 	} else {
-		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags);
+		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
 	}
 	if (!check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)) {
 		if (free_buffer)
@@ -1115,7 +1115,7 @@ FUNCTION(fun_subeval)
 FUNCTION(fun_eval)
 {
 	dbref thing, aowner;
-	int attrib, free_buffer, aflags, eval_it;
+	int attrib, free_buffer, aflags, alen, eval_it;
 	ATTR *attr;
 	char *atr_gotten, *str;
 	struct boolexp *bool;
@@ -1148,7 +1148,7 @@ FUNCTION(fun_eval)
 		return;
 	}
 	if (attr->flags & AF_IS_LOCK) {
-		atr_gotten = atr_get(thing, attrib, &aowner, &aflags);
+		atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
 		if (Read_attr(player, thing, attr, aowner, aflags)) {
 			bool = parse_boolexp(player, atr_gotten, 1);
 			free_lbuf(atr_gotten);
@@ -1161,7 +1161,7 @@ FUNCTION(fun_eval)
 		free_buffer = 0;
 		eval_it = 0;
 	} else {
-		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags);
+		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
 	}
 	if (!check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)) {
 		if (free_buffer)
@@ -1194,7 +1194,7 @@ char *fargs[], *cargs[];
 int nfargs, ncargs, is_local;
 {
 	dbref aowner, thing;
-	int aflags, anum;
+	int aflags, alen, anum;
 	ATTR *ap;
 	char *atext, *preserve[MAX_GLOBAL_REGS], *str;
 	
@@ -1223,7 +1223,7 @@ int nfargs, ncargs, is_local;
 	}
 	/* Use it if we can access it, otherwise return an error. */
 
-	atext = atr_pget(thing, ap->number, &aowner, &aflags);
+	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
 	if (!atext) {
 		free_lbuf(atext);
 		return;
@@ -1498,7 +1498,7 @@ FUNCTION(fun_chomp)
 FUNCTION(fun_v)
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	char *sbuf, *sbufc, *tbuf, *str;
 	ATTR *ap;
 
@@ -1519,7 +1519,7 @@ FUNCTION(fun_v)
 
 		atr_pget_info(player, ap->number, &aowner, &aflags);
 		if (See_attr(player, player, ap, aowner, aflags)) {
-			tbuf = atr_pget(player, ap->number, &aowner, &aflags);
+			tbuf = atr_pget(player, ap->number, &aowner, &aflags, &alen);
 			safe_str(tbuf, buff, bufc);
 			free_lbuf(tbuf);
 		}
@@ -3651,7 +3651,7 @@ FUNCTION(fun_delete)
 FUNCTION(fun_lock)
 {
 	dbref it, aowner;
-	int aflags;
+	int aflags, alen;
 	char *tbuf;
 	ATTR *attr;
 	struct boolexp *bool;
@@ -3663,7 +3663,7 @@ FUNCTION(fun_lock)
 
 	/* Get the attribute and decode it if we can read it */
 
-	tbuf = atr_get(it, attr->number, &aowner, &aflags);
+	tbuf = atr_get(it, attr->number, &aowner, &aflags, &alen);
 	if (Read_attr(player, it, attr, aowner, aflags)) {
 		bool = parse_boolexp(player, tbuf, 1);
 		free_lbuf(tbuf);
@@ -3677,7 +3677,7 @@ FUNCTION(fun_lock)
 FUNCTION(fun_elock)
 {
 	dbref it, victim, aowner;
-	int aflags;
+	int aflags, alen;
 	char *tbuf;
 	ATTR *attr;
 	struct boolexp *bool;
@@ -3696,7 +3696,7 @@ FUNCTION(fun_elock)
 		   !nearby_or_control(player, it)) {
 		safe_str("#-1 TOO FAR AWAY", buff, bufc);
 	} else {
-		tbuf = atr_get(it, attr->number, &aowner, &aflags);
+		tbuf = atr_get(it, attr->number, &aowner, &aflags, &alen);
 		if ((aflags & AF_IS_LOCK) || 
 		    Read_attr(player, it, attr, aowner, aflags)) {
 		    if (Pass_Locks(player)) {
@@ -4564,7 +4564,7 @@ FUNCTION(fun_list)
 FUNCTION(fun_fold)
 {
 	dbref aowner, thing;
-	int aflags, anum;
+	int aflags, alen, anum;
 	ATTR *ap;
 	char *atext, *result, *curr, *bp, *str, *cp, *atextbuf, *clist[2],
 	*rstore, sep;
@@ -4592,7 +4592,7 @@ FUNCTION(fun_fold)
 	}
 	/* Use it if we can access it, otherwise return an error. */
 
-	atext = atr_pget(thing, ap->number, &aowner, &aflags);
+	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
 	if (!atext) {
 		return;
 	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
@@ -4670,7 +4670,7 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
     int flag;			/* 0 is filter(), 1 is filterbool() */
 {
 	dbref aowner, thing;
-	int aflags, anum;
+	int aflags, alen, anum;
 	ATTR *ap;
 	char *atext, *result, *curr, *objstring, *bp, *str, *cp, *atextbuf;
 	char *bb_p;
@@ -4696,7 +4696,7 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
 	 * Use it if we can access it, otherwise return an error. 
 	 */
 
-	atext = atr_pget(thing, ap->number, &aowner, &aflags);
+	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
 	if (!atext) {
 		return;
 	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
@@ -4759,7 +4759,7 @@ FUNCTION(fun_filterbool)
 FUNCTION(fun_map)
 {
 	dbref aowner, thing;
-	int aflags, anum;
+	int aflags, alen, anum;
 	ATTR *ap;
 	char *atext, *objstring, *str, *cp, *atextbuf, *bb_p, sep, osep;
 
@@ -4788,7 +4788,7 @@ FUNCTION(fun_map)
 	}
 	/* Use it if we can access it, otherwise return an error. */
 
-	atext = atr_pget(thing, ap->number, &aowner, &aflags);
+	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
 	if (!atext) {
 		return;
 	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
@@ -4826,7 +4826,7 @@ FUNCTION(fun_while)
 {
     char sep, osep;
     dbref aowner1, thing1, aowner2, thing2;
-    int aflags1, aflags2, anum1, anum2;
+    int aflags1, aflags2, anum1, anum2, alen1, alen2;
     int is_same;
     ATTR *ap;
     char *atext1, *atext2, *atextbuf, *condbuf;
@@ -4858,7 +4858,7 @@ FUNCTION(fun_while)
     }
     if (!ap)
 	return;
-    atext1 = atr_pget(thing1, ap->number, &aowner1, &aflags1);
+    atext1 = atr_pget(thing1, ap->number, &aowner1, &aflags1, &alen1);
     if (!atext1) {
 	return;
     } else if (!*atext1 || !See_attr(player, thing1, ap, aowner1, aflags1)) {
@@ -4879,7 +4879,7 @@ FUNCTION(fun_while)
 	free_lbuf(atext1);	/* we allocated this, remember? */
 	return;
     }
-    atext2 = atr_pget(thing2, ap->number, &aowner2, &aflags2);
+    atext2 = atr_pget(thing2, ap->number, &aowner2, &aflags2, &alen2);
     if (!atext2) {
 	free_lbuf(atext1);
 	return;

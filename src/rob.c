@@ -275,7 +275,7 @@ int key;
 int amount;
 {
 	dbref aowner;
-	int cost, aflags;
+	int cost, aflags, alen;
 	char *str;
 
 	/*
@@ -324,7 +324,7 @@ int amount;
 	 */
 
 	if (Typeof(recipient) == TYPE_THING) {
-		str = atr_pget(recipient, A_COST, &aowner, &aflags);
+		str = atr_pget(recipient, A_COST, &aowner, &aflags, &alen);
 		cost = atoi(str);
 		free_lbuf(str);
 

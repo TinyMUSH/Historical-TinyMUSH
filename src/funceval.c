@@ -1587,7 +1587,7 @@ FUNCTION(fun_set)
 {
 	dbref thing, thing2, aowner;
 	char *p, *buff2;
-	int atr, atr2, aflags, clear, flagvalue, could_hear;
+	int atr, atr2, aflags, alen, clear, flagvalue, could_hear;
 	ATTR *attr, *attr2;
 
 	/* obj/attr form? */
@@ -1683,7 +1683,8 @@ FUNCTION(fun_set)
 			}
 			attr2 = atr_num(atr);
 			p = buff2;
-			atr_pget_str(buff2, thing2, atr2, &aowner, &aflags);
+			atr_pget_str(buff2, thing2, atr2, &aowner,
+				     &aflags, &alen);
 
 			if (!attr2 ||
 			 !See_attr(player, thing2, attr2, aowner, aflags)) {
@@ -1928,7 +1929,7 @@ FUNCTION(fun_stripansi)
 FUNCTION(fun_zfun)
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	int attrib;
 	char *tbuf1, *str;
 
@@ -1951,7 +1952,7 @@ FUNCTION(fun_zfun)
 		safe_str("#-1 NO SUCH USER FUNCTION", buff, bufc);
 		return;
 	}
-	tbuf1 = atr_pget(zone, attrib, &aowner, &aflags);
+	tbuf1 = atr_pget(zone, attrib, &aowner, &aflags, &alen);
 	if (!See_attr(player, zone, (ATTR *) atr_num(attrib), aowner, aflags)) {
 		safe_str("#-1 NO PERMISSION TO GET ATTRIBUTE", buff, bufc);
 		free_lbuf(tbuf1);
@@ -2109,7 +2110,7 @@ static int mem_usage_attr(player, str)
     char *str;
 {
     dbref thing, aowner;
-    int atr, aflags;
+    int atr, aflags, alen;
     char *abuf;
     ATTR *ap;
     int bytes_atext = 0;
@@ -2120,7 +2121,7 @@ static int mem_usage_attr(player, str)
 	    ap = atr_num(atr);
 	    if (!ap)
 		continue;
-	    abuf = atr_get(thing, atr, &aowner, &aflags);
+	    abuf = atr_get(thing, atr, &aowner, &aflags, &alen);
 	    /* Player must be able to read attribute with 'examine' */
 	    if (Examinable(player, thing) &&
 		Read_attr(player, thing, ap, aowner, aflags))
@@ -2498,7 +2499,7 @@ FUNCTION(fun_mailfrom)
 FUNCTION(fun_hasattr)
 {
 	dbref thing, aowner;
-	int aflags;
+	int aflags, alen;
 	ATTR *attr;
 	char *tbuf;
 
@@ -2519,7 +2520,7 @@ FUNCTION(fun_hasattr)
 	if (!See_attr(player, thing, attr, aowner, aflags)) {
 		safe_chr('0', buff, bufc);
 	} else {
-		tbuf = atr_get(thing, attr->number, &aowner, &aflags);
+		tbuf = atr_get(thing, attr->number, &aowner, &aflags, &alen);
 		if (*tbuf) {
 			safe_chr('1', buff, bufc);
 		} else {
@@ -2532,7 +2533,7 @@ FUNCTION(fun_hasattr)
 FUNCTION(fun_hasattrp)
 {
 	dbref thing, aowner;
-	int aflags;
+	int aflags, alen;
 	ATTR *attr;
 	char *tbuf;
 
@@ -2553,7 +2554,7 @@ FUNCTION(fun_hasattrp)
 	if (!See_attr(player, thing, attr, aowner, aflags)) {
 		safe_chr('0', buff, bufc);
 	} else {
-		tbuf = atr_pget(thing, attr->number, &aowner, &aflags);
+		tbuf = atr_pget(thing, attr->number, &aowner, &aflags, &alen);
 		if (*tbuf) {
 			safe_chr('1', buff, bufc);
 		} else {
@@ -2575,7 +2576,7 @@ FUNCTION(fun_hasattrp)
 FUNCTION(fun_default)
 {
 	dbref thing, aowner;
-	int attrib, aflags;
+	int attrib, aflags, alen;
 	ATTR *attr;
 	char *objname, *atr_gotten, *bp, *str;
 
@@ -2594,7 +2595,7 @@ FUNCTION(fun_default)
 		    (attrib != NOTHING)) {
 			attr = atr_num(attrib);
 			if (attr && !(attr->flags & AF_IS_LOCK)) {
-				atr_gotten = atr_pget(thing, attrib, &aowner, &aflags);
+				atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
 				if (*atr_gotten &&
 				check_read_perms(player, thing, attr, aowner,
 						 aflags, buff, bufc)) {
@@ -2620,7 +2621,7 @@ FUNCTION(fun_default)
 FUNCTION(fun_edefault)
 {
 	dbref thing, aowner;
-	int attrib, aflags;
+	int attrib, aflags, alen;
 	ATTR *attr;
 	char *objname, *atr_gotten, *bp, *str;
 
@@ -2639,7 +2640,7 @@ FUNCTION(fun_edefault)
 		    (attrib != NOTHING)) {
 			attr = atr_num(attrib);
 			if (attr && !(attr->flags & AF_IS_LOCK)) {
-				atr_gotten = atr_pget(thing, attrib, &aowner, &aflags);
+				atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
 				if (*atr_gotten &&
 				check_read_perms(player, thing, attr, aowner,
 						 aflags, buff, bufc)) {
@@ -2667,7 +2668,7 @@ FUNCTION(fun_edefault)
 FUNCTION(fun_udefault)
 {
     dbref thing, aowner;
-    int aflags, anum, i, j;
+    int aflags, alen, anum, i, j;
     ATTR *ap;
     char *objname, *atext, *str, *bp, *xargs[NUM_ENV_VARS];
 
@@ -2695,7 +2696,7 @@ FUNCTION(fun_udefault)
 	    ap = atr_str(objname);
 	}
 	if (ap) {
-	    atext = atr_pget(thing, ap->number, &aowner, &aflags);
+	    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
 	    if (atext) {
 		if (*atext &&
 		    check_read_perms(player, thing, ap, aowner, aflags,
@@ -3034,7 +3035,7 @@ int (*compare) ();
 FUNCTION(fun_sortby)
 {
 	char *atext, *list, *ptrs[LBUF_SIZE / 2], sep, osep;
-	int nptrs, aflags, anum;
+	int nptrs, aflags, alen, anum;
 	dbref thing, aowner;
 	ATTR *ap;
 
@@ -3056,7 +3057,7 @@ FUNCTION(fun_sortby)
 	if (!ap) {
 		return;
 	}
-	atext = atr_pget(thing, ap->number, &aowner, &aflags);
+	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
 	if (!atext) {
 		return;
 	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
@@ -3172,7 +3173,7 @@ FUNCTION(fun_ports)
 FUNCTION(fun_mix)
 {
     dbref aowner, thing;
-    int aflags, anum, i, lastn, nwords, wc;
+    int aflags, alen, anum, i, lastn, nwords, wc;
     ATTR *ap;
     char *str, *atext, *os[10], *atextbuf, *bb_p, sep;
     char *cp[10];
@@ -3212,7 +3213,7 @@ FUNCTION(fun_mix)
     if (!ap) {
 	return;
     }
-    atext = atr_pget(thing, ap->number, &aowner, &aflags);
+    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
     if (!atext) {
 	return;
     } else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
@@ -3273,7 +3274,7 @@ FUNCTION(fun_step)
 {
     ATTR *ap;
     dbref aowner, thing;
-    int aflags, anum;
+    int aflags, alen, anum;
     char *atext, *str, *cp, *atextbuf, *bb_p, *os[10];
     char sep, osep;
     int step_size, i;
@@ -3300,7 +3301,7 @@ FUNCTION(fun_step)
     if (!ap)
 	return;
 
-    atext = atr_pget(thing, ap->number, &aowner, &aflags);
+    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
     if (!atext)
 	return;
     if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
@@ -3336,7 +3337,7 @@ FUNCTION(fun_step)
 FUNCTION(fun_foreach)
 {
     dbref aowner, thing;
-    int aflags, anum;
+    int aflags, alen, anum;
     ATTR *ap;
     char *str, *atext, *atextbuf, *cp, *cbuf;
     char start_token, end_token;
@@ -3358,7 +3359,7 @@ FUNCTION(fun_foreach)
     if (!ap) {
 	return;
     }
-    atext = atr_pget(thing, ap->number, &aowner, &aflags);
+    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
     if (!atext) {
 	return;
     } else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
@@ -3427,7 +3428,7 @@ FUNCTION(fun_foreach)
 FUNCTION(fun_munge)
 {
 	dbref aowner, thing;
-	int aflags, anum, nptrs1, nptrs2, nresults, i, j;
+	int aflags, alen, anum, nptrs1, nptrs2, nresults, i, j;
 	ATTR *ap;
 	char *list1, *list2, *rlist;
 	char *ptrs1[LBUF_SIZE / 2], *ptrs2[LBUF_SIZE / 2], *results[LBUF_SIZE / 2];
@@ -3454,7 +3455,7 @@ FUNCTION(fun_munge)
 	if (!ap) {
 		return;
 	}
-	atext = atr_pget(thing, ap->number, &aowner, &aflags);
+	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
 	if (!atext) {
 		return;
 	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
@@ -3599,7 +3600,7 @@ int insensitive;
 	char *tbuf1, *buf, *text, *attrib;
 	char *bp, *bufc;
 	int found;
-	int ca, aflags;
+	int ca, aflags, alen;
 
 	bp = tbuf1 = alloc_lbuf("grep_util");
 	bufc = buf = alloc_lbuf("grep_util.parse_attrib");
@@ -3607,7 +3608,7 @@ int insensitive;
 	olist_push();
 	if (parse_attrib_wild(player, buf, &thing, 0, 0, 1)) {
 		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
-			attrib = atr_get(thing, ca, &aowner, &aflags);
+			attrib = atr_get(thing, ca, &aowner, &aflags, &alen);
 			text = attrib;
 			found = 0;
 			while (*text && !found) {
@@ -4697,7 +4698,7 @@ FUNCTION(fun_translate)
 
 FUNCTION(fun_lastcreate)
 {
-    int i, aowner, aflags, obj_list[4], obj_type;
+    int i, aowner, aflags, alen, obj_list[4], obj_type;
     char *obj_str, *p;
     dbref obj = match_thing(player, fargs[0]);
 
@@ -4729,7 +4730,7 @@ FUNCTION(fun_lastcreate)
 	return;
     }
 
-    if ((obj_str = atr_get(obj, A_NEWOBJS, &aowner, &aflags)) == NULL) {
+    if ((obj_str = atr_get(obj, A_NEWOBJS, &aowner, &aflags, &alen)) == NULL) {
 	safe_str("#-1", buff, bufc);
 	return;
     }

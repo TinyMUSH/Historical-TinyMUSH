@@ -32,12 +32,13 @@ static int add_to(player, am, attrnum)
 dbref player;
 int am, attrnum;
 {
-	int num, aflags;
+	int num, aflags, alen;
 	dbref aowner;
 	char buff[20];
 	char *atr_gotten;
 
-	num = atoi(atr_gotten = atr_get(player, attrnum, &aowner, &aflags));
+	num = atoi(atr_gotten = atr_get(player, attrnum, &aowner,
+					&aflags, &alen));
 	free_lbuf(atr_gotten);
 	num += am;
 	if (num)
@@ -225,12 +226,12 @@ dbref sem;
 int attr, key, count;
 {
 	BQUE *point, *trail, *next;
-	int num, aflags;
+	int num, aflags, alen;
 	dbref aowner;
 	char *str;
 
 	if (attr) {
-		str = atr_get(sem, attr, &aowner, &aflags);
+		str = atr_get(sem, attr, &aowner, &aflags, &alen);
 		num = atoi(str);
 		free_lbuf(str);
 	} else {

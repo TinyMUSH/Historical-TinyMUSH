@@ -86,7 +86,7 @@ static void NDECL(check_cron)
     CRONTAB *crp;
     char *cmd;
     dbref aowner;
-    int aflags;
+    int aflags, alen;
 
     /* Convert our time to a zero basis, so the elements can be used
      * as indices.
@@ -111,7 +111,7 @@ static void NDECL(check_cron)
 	    (((crp->flags & DOM_STAR) || (crp->flags & DOW_STAR)) ?
 	     (bit_test(crp->dow, dow) && bit_test(crp->dom, dom)) :
 	     (bit_test(crp->dow, dow) || bit_test(crp->dom, dom)))) {
-	    cmd = atr_pget(crp->obj, crp->atr, &aowner, &aflags);
+	    cmd = atr_pget(crp->obj, crp->atr, &aowner, &aflags, &alen);
 	    if (cmd && *cmd && Good_obj(crp->obj)) {
 		wait_que(crp->obj, crp->obj, 0, NOTHING, 0, cmd,
 			 (char **) NULL, 0, NULL);

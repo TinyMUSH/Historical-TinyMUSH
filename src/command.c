@@ -1214,7 +1214,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     char *buf, *bp;
     char *tstr, *str;
     dbref aowner;
-    int aflags;
+    int aflags, alen;
     char *preserve[MAX_GLOBAL_REGS];
 
     /* We know we have a non-null hook. We want to evaluate the obj/attr
@@ -1222,7 +1222,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
      * executed the command that caused this hook to be called.
      */
 
-    tstr = atr_get(hp->thing, hp->atr, &aowner, &aflags);
+    tstr = atr_get(hp->thing, hp->atr, &aowner, &aflags, &alen);
     str = tstr;
 
     if (!tstr)
@@ -1258,7 +1258,7 @@ int interactive, ncargs;
 {
 	char *buf1, *buf2, tchar, *bp, *str, *buff, *s, *j, *new;
 	char *args[MAX_ARG];
-	int nargs, i, interp, key, xkey, aflags;
+	int nargs, i, interp, key, xkey, aflags, alen;
 	int hasswitch = 0;
 	int cmd_matches = 0;
 	dbref aowner;
@@ -1444,7 +1444,7 @@ int interactive, ncargs;
 			for (add = (ADDENT *)cmdp->info.added;
 			     add != NULL; add = add->next) {
 			    buff = atr_get(add->thing,
-					   add->atr, &aowner, &aflags);
+					   add->atr, &aowner, &aflags, &alen);
 			    /* Skip the '$' character, and the next */
 			    for (s = buff + 2; *s && (*s != ':'); s++) ;
 			    if (!*s) {
@@ -1604,7 +1604,7 @@ char *command, *args[];
 	static char preserve_cmd[LBUF_SIZE];
 	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str, *evcmd;
 	char *gbuf, *gc;
-	int succ, aflags, i, got_stop, pcount;
+	int succ, aflags, alen, i, got_stop, pcount;
 	dbref exit, aowner, parent;
 	CMDENT *cmdp;
 
@@ -1890,7 +1890,7 @@ char *command, *args[];
 	     */
 
 	    if (check_access(player, leave_cmdp->perms)) {
-		p = atr_pget(Location(player), A_LALIAS, &aowner, &aflags);
+		p = atr_pget(Location(player), A_LALIAS, &aowner, &aflags, &alen);
 		if (p && *p) {
 		    if (matches_exit_from_list(lcbuf, p)) {
 			free_lbuf(lcbuf);
@@ -1910,7 +1910,7 @@ char *command, *args[];
 
 	    if (check_access(player, enter_cmdp->perms)) {
 		DOLIST(exit, Contents(Location(player))) {
-		    p = atr_pget(exit, A_EALIAS, &aowner, &aflags);
+		    p = atr_pget(exit, A_EALIAS, &aowner, &aflags, &alen);
 		    if (p && *p) {
 			if (matches_exit_from_list(lcbuf, p)) {
 			    free_lbuf(lcbuf);

@@ -606,7 +606,7 @@ DESC *d;
 {
 	dbref loc, aowner, temp;
 	dbref zone, obj;
-	int aflags, num, key, count;
+	int aflags, alen, num, key, count;
 	char *buf, *time_str;
 	DESC *dtemp;
 
@@ -619,7 +619,7 @@ DESC *d;
 	if (mudstate.record_players < count)
 		mudstate.record_players = count;
 
-	buf = atr_pget(player, A_TIMEOUT, &aowner, &aflags);
+	buf = atr_pget(player, A_TIMEOUT, &aowner, &aflags, &alen);
 	if (buf) {
 		d->timeout = atoi(buf);
 		if (d->timeout <= 0)
@@ -656,7 +656,7 @@ DESC *d;
 	    }
 	}
 
-	buf = atr_get(player, A_LPAGE, &aowner, &aflags);
+	buf = atr_get(player, A_LPAGE, &aowner, &aflags, &alen);
 	if (buf && *buf) {
 		raw_notify(player, "Your PAGE LOCK is set.  You may be unable to receive some pages.");
 	}
@@ -707,14 +707,14 @@ DESC *d;
 			      (char *)"[Suspect site: %s] %s has connected.",
 			      d->addr, Name(player));
 	}
-	buf = atr_pget(player, A_ACONNECT, &aowner, &aflags);
+	buf = atr_pget(player, A_ACONNECT, &aowner, &aflags, &alen);
 	if (buf && *buf)
 		wait_que(player, player, 0, NOTHING, 0, buf, (char **)NULL, 0,
 			 NULL);
 	free_lbuf(buf);
 	if ((mudconf.master_room != NOTHING) && mudconf.use_global_aconn) {
 		buf = atr_pget(mudconf.master_room, A_ACONNECT, &aowner,
-			       &aflags);
+			       &aflags, &alen);
 		if (buf && *buf)
 			wait_que(mudconf.master_room, player, 0, NOTHING, 0,
 				 buf, (char **)NULL, 0, NULL);
@@ -723,7 +723,7 @@ DESC *d;
 		        if (!mudconf.global_aconn_uselocks ||
 			    could_doit(player, obj, A_LUSE)) {
 			        buf = atr_pget(obj, A_ACONNECT, &aowner,
-					       &aflags);
+					       &aflags, &alen);
 				if (buf && *buf) {
 				        wait_que(obj, player, 0, NOTHING, 0,
 						 buf, (char **)NULL, 0, NULL);
@@ -736,7 +736,7 @@ DESC *d;
 	if (mudconf.have_zones && ((zone = Zone(loc)) != NOTHING)) {
 		switch (Typeof(zone)) {
 		case TYPE_THING:
-			buf = atr_pget(zone, A_ACONNECT, &aowner, &aflags);
+			buf = atr_pget(zone, A_ACONNECT, &aowner, &aflags, &alen);
 			if (buf && *buf) {
 				wait_que(zone, player, 0, NOTHING, 0, buf,
 					 (char **)NULL, 0, NULL);
@@ -748,7 +748,7 @@ DESC *d;
 			 * action 
 			 */
 			DOLIST(obj, Contents(zone)) {
-				buf = atr_pget(obj, A_ACONNECT, &aowner, &aflags);
+				buf = atr_pget(obj, A_ACONNECT, &aowner, &aflags, &alen);
 				if (buf && *buf) {
 					wait_que(obj, player, 0, NOTHING, 0, buf,
 						 (char **)NULL, 0, NULL);
@@ -778,7 +778,7 @@ DESC *d;
 const char *reason;
 {
 	dbref loc, aowner, temp, zone, obj;
-	int num, aflags, key;
+	int num, aflags, alen, key;
 	char *buf, *atr_temp;
 	DESC *dtemp;
 	char *argv[1];
@@ -832,7 +832,7 @@ const char *reason;
 #endif
 
 		argv[0] = (char *)reason;
-		atr_temp = atr_pget(player, A_ADISCONNECT, &aowner, &aflags);
+		atr_temp = atr_pget(player, A_ADISCONNECT, &aowner, &aflags, &alen);
 		if (atr_temp && *atr_temp)
 			wait_que(player, player, 0, NOTHING, 0, atr_temp, argv, 1,
 				 NULL);
@@ -841,7 +841,7 @@ const char *reason;
 		if ((mudconf.master_room != NOTHING)
 		    && mudconf.use_global_aconn) {
 			atr_temp = atr_pget(mudconf.master_room,
-					    A_ADISCONNECT, &aowner, &aflags);
+					    A_ADISCONNECT, &aowner, &aflags, &alen);
 			if (atr_temp && *atr_temp)
 				wait_que(mudconf.master_room, player, 0,
 					 NOTHING, 0, atr_temp, argv, 1, NULL);
@@ -850,7 +850,7 @@ const char *reason;
 			        if (!mudconf.global_aconn_uselocks ||
 				    could_doit(player, obj, A_LUSE)) {
 				        atr_temp = atr_pget(obj, A_ADISCONNECT,
-							    &aowner, &aflags);
+							    &aowner, &aflags, &alen);
 					if (atr_temp && *atr_temp) {
 					        wait_que(obj, player, 0,
 							 NOTHING, 0, atr_temp,
@@ -865,7 +865,7 @@ const char *reason;
 		if (mudconf.have_zones && ((zone = Zone(loc)) != NOTHING)) {
 			switch (Typeof(zone)) {
 			case TYPE_THING:
-				atr_temp = atr_pget(zone, A_ADISCONNECT, &aowner, &aflags);
+				atr_temp = atr_pget(zone, A_ADISCONNECT, &aowner, &aflags, &alen);
 				if (atr_temp && *atr_temp) {
 					wait_que(zone, player, 0, NOTHING, 0, atr_temp,
 						 (char **)NULL, 0, NULL);
@@ -878,7 +878,7 @@ const char *reason;
 				 * connect action 
 				 */
 				DOLIST(obj, Contents(zone)) {
-					atr_temp = atr_pget(obj, A_ADISCONNECT, &aowner, &aflags);
+					atr_temp = atr_pget(obj, A_ADISCONNECT, &aowner, &aflags, &alen);
 					if (atr_temp && *atr_temp) {
 						wait_que(obj, player, 0, NOTHING, 0, atr_temp,
 						    (char **)NULL, 0, NULL);
@@ -964,10 +964,10 @@ dbref player;
 	DESC *d;
 	char *buf;
 	dbref aowner;
-	FLAG aflags;
+	int aflags, alen;
 
 	DESC_ITER_PLAYER(player, d) {
-		buf = atr_pget(player, A_TIMEOUT, &aowner, &aflags);
+		buf = atr_pget(player, A_TIMEOUT, &aowner, &aflags, &alen);
 		if (buf) {
 			d->timeout = atoi(buf);
 			if (d->timeout <= 0)
@@ -1393,7 +1393,7 @@ char *msg;
 {
 	char *command, *user, *password, *buff, *cmdsave;
 	dbref player, aowner;
-	int aflags, nplayers;
+	int aflags, alen, nplayers;
 	DESC *d2;
 	char *p;
 
@@ -1509,7 +1509,7 @@ char *msg;
 			if (Guest(player)) {
 				fcache_dump(d, FC_CONN_GUEST);
 			} else {
-				buff = atr_get(player, A_LAST, &aowner, &aflags);
+				buff = atr_get(player, A_LAST, &aowner, &aflags, &alen);
 				if ((buff == NULL) || (*buff == '\0'))
 					fcache_dump(d, FC_CREA_NEW);
 				else

@@ -301,10 +301,12 @@ extern void	FDECL(atr_add, (dbref, int, char *, dbref, int));
 extern void	FDECL(atr_set_owner, (dbref, int, dbref));
 extern void	FDECL(atr_set_flags, (dbref, int, int));
 extern char *	FDECL(atr_get_raw, (dbref, int));
-extern char *	FDECL(atr_get, (dbref, int, dbref *, int *));
-extern char *	FDECL(atr_pget, (dbref, int, dbref *, int *));
-extern char *	FDECL(atr_get_str, (char *, dbref, int, dbref *, int *));
-extern char *	FDECL(atr_pget_str, (char *, dbref, int, dbref *, int *));
+extern char *	FDECL(atr_get, (dbref, int, dbref *, int *, int *));
+extern char *	FDECL(atr_pget, (dbref, int, dbref *, int *, int *));
+extern char *	FDECL(atr_get_str, (char *, dbref, int, dbref *, int *,
+				    int *));
+extern char *	FDECL(atr_pget_str, (char *, dbref, int, dbref *, int *,
+				     int *));
 extern int	FDECL(atr_get_info, (dbref, int, dbref *, int *));
 extern int	FDECL(atr_pget_info, (dbref, int, dbref *, int *));
 extern void	FDECL(atr_free, (dbref));

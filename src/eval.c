@@ -252,9 +252,9 @@ dbref player;
 {
 	char first, *atr_gotten;
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 
-	atr_gotten = atr_pget(player, A_SEX, &aowner, &aflags);
+	atr_gotten = atr_pget(player, A_SEX, &aowner, &aflags, &alen);
 	first = *atr_gotten;
 	free_lbuf(atr_gotten);
 	switch (first) {
@@ -421,7 +421,7 @@ char *cargs[];
 	char *realbuff = NULL, *realbp = NULL;
 	char xtbuf[SBUF_SIZE], *xtp;
 	dbref aowner;
-	int at_space, nfargs, gender, i, j, alldone, aflags, feval;
+	int at_space, nfargs, gender, i, j, alldone, aflags, alen, feval;
 	int is_trace, is_top, save_count;
 	int ansi, nchar, navail;
 	FUN *fp;
@@ -692,7 +692,7 @@ char *cargs[];
 				if (See_attr(player, player, ap,
 					     aowner, aflags)) {
 				    atr_gotten = atr_pget(player, ap->number,
-							  &aowner, &aflags);
+							  &aowner, &aflags, &alen);
 				    safe_str(atr_gotten, buff, bufc);
 				    free_lbuf(atr_gotten);
 				}
@@ -751,7 +751,7 @@ char *cargs[];
 					break;
 				i = 100 + ch - 'A';
 				atr_gotten = atr_pget(player, i, &aowner,
-						      &aflags);
+						      &aflags, &alen);
 				safe_str(atr_gotten, buff, bufc);
 				free_lbuf(atr_gotten);
 				break;
@@ -961,7 +961,8 @@ char *cargs[];
 					*bufc = oldp;
 				} else {
 					tstr = atr_get(ufp->obj, ufp->atr,
-						       &aowner, &aflags);
+						       &aowner, &aflags,
+						       &alen);
 					if (ufp->flags & FN_PRIV)
 						i = ufp->obj;
 					else

@@ -390,10 +390,10 @@ static dbref find_var_dest(player, exit)
 {
     char *buf, *ebuf, *ep, *str;
     dbref aowner, dest_room;
-    int aflags;
+    int aflags, alen;
     char *preserve[MAX_GLOBAL_REGS];
 
-    buf = atr_pget(exit, A_EXITVARDEST, &aowner, &aflags);
+    buf = atr_pget(exit, A_EXITVARDEST, &aowner, &aflags, &alen);
     if (!buf || !*buf) {
 	free_lbuf(buf);
 	return NOTHING;
@@ -438,7 +438,7 @@ const char *failmsg;
 		loc = find_var_dest(player, exit);
 		break;
 	    default:
-		/* No change */
+		/* EMPTY */
 	}
 
 	if (Good_obj(loc) && could_doit(player, exit, A_LOCK)) {

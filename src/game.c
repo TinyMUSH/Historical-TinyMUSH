@@ -205,7 +205,7 @@ char type, *str, *raw_str;
 int check_exclude, hash_insert;
 {
 	dbref aowner;
-	int match, attr, aflags, i;
+	int match, attr, aflags, alen, i;
 	char *buff, *s, *as;
 	char *args[10];
 	ATTR *ap;
@@ -235,7 +235,7 @@ int check_exclude, hash_insert;
 		     nhashfind(ap->number, &mudstate.parent_htab))) {
 			continue;
 		}
-		atr_get_str(buff, parent, attr, &aowner, &aflags);
+		atr_get_str(buff, parent, attr, &aowner, &aflags, &alen);
 
 		/* Skip if private and on a parent */
 
@@ -338,11 +338,11 @@ dbref object, player;
 int filter;
 const char *msg;
 {
-	int aflags;
+	int aflags, alen;
 	dbref aowner;
 	char *buf, *nbuf, *cp, *dp, *str, *preserve[MAX_GLOBAL_REGS];
 
-	buf = atr_pget(object, filter, &aowner, &aflags);
+	buf = atr_pget(object, filter, &aowner, &aflags, &alen);
 	if (!*buf) {
 		free_lbuf(buf);
 		return (1);
@@ -373,11 +373,11 @@ dbref object, player;
 int prefix;
 const char *msg, *dflt;
 {
-	int aflags;
+	int aflags, alen;
 	dbref aowner;
 	char *buf, *nbuf, *cp, *bp, *str, *preserve[MAX_GLOBAL_REGS];
 
-	buf = atr_pget(object, prefix, &aowner, &aflags);
+	buf = atr_pget(object, prefix, &aowner, &aflags, &alen);
 	if (!*buf) {
 		cp = buf;
 		safe_str((char *)dflt, buf, &cp);
@@ -484,7 +484,7 @@ const char *msg;
 	char *msg_ns, *mp, *tbuff, *tp, *buff;
 	char *args[10];
 	dbref aowner, targetloc, recip, obj;
-	int i, nargs, aflags, has_neighbors, pass_listen;
+	int i, nargs, aflags, alen, has_neighbors, pass_listen;
 	int check_listens, pass_uselock, is_audible;
 	FWDLIST *fp;
 
@@ -611,7 +611,7 @@ const char *msg;
 		nargs = 0;
 		if (check_listens && (key & (MSG_ME | MSG_INV_L)) &&
 		    H_Listen(target)) {
-			tp = atr_get(target, A_LISTEN, &aowner, &aflags);
+			tp = atr_get(target, A_LISTEN, &aowner, &aflags, &alen);
 			if (*tp && wild(tp, (char *)msg, args, 10)) {
 				for (nargs = 10;
 				     nargs &&
@@ -1393,7 +1393,7 @@ dbref thing;
 {
 	char *as, *buff, *s;
 	dbref aowner;
-	int attr, aflags;
+	int attr, aflags, alen;
 	ATTR *ap;
 
 	if (mudstate.inpipe && (thing == mudstate.poutobj))
@@ -1419,7 +1419,7 @@ dbref thing;
 			if (!ap || (ap->flags & AF_NOPROG))
 				continue;
 
-			atr_get_str(buff, thing, attr, &aowner, &aflags);
+			atr_get_str(buff, thing, attr, &aowner, &aflags, &alen);
 
 			/* Make sure we can execute it */
 
@@ -1495,7 +1495,7 @@ int key;
 static void NDECL(process_preload)
 {
 	dbref thing, parent, aowner;
-	int aflags, lev, i;
+	int aflags, alen, lev, i;
 	char *tstr;
 	char tbuf[SBUF_SIZE];
 	FWDLIST *fp;
@@ -1517,7 +1517,7 @@ static void NDECL(process_preload)
 
 		if (H_Fwdlist(thing)) {
 			(void)atr_get_str(tstr, thing, A_FORWARDLIST,
-					  &aowner, &aflags);
+					  &aowner, &aflags, &alen);
 			if (*tstr) {
 			    fp->data = NULL;
 			    fwdlist_load(fp, GOD, tstr);

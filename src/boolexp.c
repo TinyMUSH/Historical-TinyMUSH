@@ -34,9 +34,9 @@ char *key;
 {
 	char *buff;
 	dbref aowner;
-	int aflags, checkit;
+	int aflags, alen, checkit;
 
-	buff = atr_pget(player, attr->number, &aowner, &aflags);
+	buff = atr_pget(player, attr->number, &aowner, &aflags, &alen);
 	checkit = 0;
 
 	if (attr->number == A_LENTER) {
@@ -59,7 +59,7 @@ dbref player, thing, from;
 BOOLEXP *b;
 {
 	dbref aowner, obj, source;
-	int aflags, c, checkit;
+	int aflags, alen, c, checkit;
 	char *key, *buff, *buff2, *bp, *str, *preserve[MAX_GLOBAL_REGS];
 	ATTR *a;
 
@@ -114,7 +114,7 @@ BOOLEXP *b;
 			mudstate.lock_nest_lev--;
 			return (0);
 		}
-		key = atr_get(b->sub1->thing, A_LOCK, &aowner, &aflags);
+		key = atr_get(b->sub1->thing, A_LOCK, &aowner, &aflags, &alen);
 		c = eval_boolexp_atr(player, b->sub1->thing, from, key);
 		free_lbuf(key);
 		mudstate.lock_nest_lev--;
@@ -147,10 +147,11 @@ BOOLEXP *b;
 					 * no such attribute 
 					 */
 		source = from;
-		buff = atr_pget(from, a->number, &aowner, &aflags);
+		buff = atr_pget(from, a->number, &aowner, &aflags, &alen);
 		if (!buff || !*buff) {
 			free_lbuf(buff);
-			buff = atr_pget(thing, a->number, &aowner, &aflags);
+			buff = atr_pget(thing, a->number, &aowner,
+					&aflags, &alen);
 			source = thing;
 		}
 		checkit = 0;

@@ -228,11 +228,11 @@ static void update_newobjs(player, obj_num, obj_type)
      dbref obj_num;
      int obj_type;
 {
-    int i, aowner, aflags;
+    int i, aowner, aflags, alen;
     char *newobj_str, *p, tbuf[SBUF_SIZE];
     int obj_list[4];
 
-    newobj_str = atr_get(player, A_NEWOBJS, &aowner, &aflags);
+    newobj_str = atr_get(player, A_NEWOBJS, &aowner, &aflags, &alen);
 
     if (!newobj_str || !*newobj_str) {
 	for (i = 0; i < 4; i++)
@@ -823,7 +823,7 @@ dbref victim;
 {
 #ifndef STANDALONE
 	dbref aowner, player;
-	int count, aflags;
+	int count, aflags, alen;
 	char *buf;
 
 	/* Bye bye... */
@@ -836,7 +836,7 @@ dbref victim;
 	/* Remove the name from the name hash table */
 
 	delete_player_name(victim, Name(victim));
-	buf = atr_pget(victim, A_ALIAS, &aowner, &aflags);
+	buf = atr_pget(victim, A_ALIAS, &aowner, &aflags, &alen);
 	delete_player_name(victim, buf);
 	free_lbuf(buf);
 

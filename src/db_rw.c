@@ -395,7 +395,7 @@ int new_strings;
 	int c;
 	char *buff;
 #ifdef STANDALONE
-	int aflags, xflags, anum;
+	int aflags, alen, xflags, anum;
 	char *buf2, *buf2p, *ownp, *flagp;
 	dbref aowner;
 #endif
@@ -526,7 +526,7 @@ int new_strings;
 			(void)getstring_noalloc(f, new_strings);
 		}
 	}
-	return 1;
+	return 1;		/* UNREACHED */
 }
 
 /* ---------------------------------------------------------------------------
@@ -1155,7 +1155,7 @@ void unscraw_foreign(db_format, db_version, db_flags)
 int db_format, db_version, db_flags;
 {
 	dbref tmp, i, aowner;
-	int aflags;
+	int aflags, alen;
 	char *p_str;
 
 	switch (db_format) {
@@ -1176,7 +1176,7 @@ int db_format, db_version, db_flags;
 				 * unscramble_attrnum) 
 				 */
 
-				p_str = atr_get(i, A_TEMP, &aowner, &aflags);
+				p_str = atr_get(i, A_TEMP, &aowner, &aflags, &alen);
 				s_Pennies(i, atoi(p_str));
 				free_lbuf(p_str);
 				atr_clr(i, A_TEMP);
@@ -1352,7 +1352,7 @@ int *db_format, *db_version, *db_flags;
 	int read_powers, read_powers_player, read_powers_any;
 	int has_typed_quotas;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
-	int aflags, f1, f2, f3;
+	int aflags, alen, f1, f2, f3;
 	BOOLEXP *tempbool;
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;
@@ -2066,7 +2066,7 @@ int db_format, flags;
 #endif
 	char *got, *as;
 	dbref aowner;
-	int ca, aflags, save, j;
+	int ca, aflags, alen, save, j;
 	BOOLEXP *tempbool;
 
 	if (!(flags & V_ATRNAME))
@@ -2080,7 +2080,7 @@ int db_format, flags;
 		putref(f, Link(i));
 	putref(f, Next(i));
 	if (!(flags & V_ATRKEY)) {
-		got = atr_get(i, A_LOCK, &aowner, &aflags);
+		got = atr_get(i, A_LOCK, &aowner, &aflags, &alen);
 		tempbool = parse_boolexp(GOD, got, 1);
 		free_lbuf(got);
 		putboolexp(f, tempbool);

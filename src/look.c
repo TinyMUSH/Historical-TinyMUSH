@@ -26,7 +26,7 @@ const char *exit_name;
 {
     dbref thing, parent, aowner;
     char *atr_buf, *buff, *e, *s, *buff1, *e1;
-    int foundany, lev, isdark, aflags;
+    int foundany, lev, isdark, aflags, alen;
 
     /* make sure location has exits */
 
@@ -38,7 +38,7 @@ const char *exit_name;
      */
 
     if (mudconf.fmt_exits) {
-	atr_buf = atr_pget(loc, A_LEXITS_FMT, &aowner, &aflags);
+	atr_buf = atr_pget(loc, A_LEXITS_FMT, &aowner, &aflags, &alen);
 	if (atr_buf && *atr_buf) {
 	    did_it(player, loc, A_LEXITS_FMT, NULL, A_NULL, NULL,
 		   A_NULL, (char **) NULL, 0);
@@ -168,7 +168,7 @@ int style;
 	dbref can_see_loc;
 	char *buff, *atr_buf;
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	
 #ifdef PUEBLO_SUPPORT
 	char *html_buff, *html_cp;
@@ -180,7 +180,7 @@ int style;
 	 */
 
 	if (mudconf.fmt_contents) {
-		atr_buf = atr_pget(loc, A_LCON_FMT, &aowner, &aflags);
+		atr_buf = atr_pget(loc, A_LCON_FMT, &aowner, &aflags, &alen);
 		if (atr_buf && *atr_buf) {
 			did_it(player, loc, A_LCON_FMT, NULL, A_NULL, NULL,
 			       A_NULL, (char **) NULL, 0);
@@ -666,7 +666,7 @@ dbref player, thing, othing;
 int check_exclude, hash_insert, is_special;
 {
 	dbref aowner;
-	int ca, aflags;
+	int ca, aflags, alen;
 	ATTR *attr, *cattr;
 	char *as, *buf;
 
@@ -696,7 +696,7 @@ int check_exclude, hash_insert, is_special;
 		     nhashfind(ca, &mudstate.parent_htab)))
 			continue;
 
-		buf = atr_get(thing, ca, &aowner, &aflags);
+		buf = atr_get(thing, ca, &aowner, &aflags, &alen);
 		if (Read_attr(player, othing, attr, aowner, aflags)) {
 			/* check_zone/atr_num overwrites attr!! */
 			
@@ -780,12 +780,12 @@ dbref player, loc;
 {
 	char *got2;
 	dbref aowner;
-	int aflags, indent = 0;
+	int aflags, alen, indent = 0;
 	
 	indent = (isRoom(loc) && mudconf.indent_desc && atr_get_raw(loc, A_DESC));
 	
 	if (Html(player)) {
-		got2 = atr_pget(loc, A_HTDESC, &aowner, &aflags);
+		got2 = atr_pget(loc, A_HTDESC, &aowner, &aflags, &alen);
 		if (*got2)
 			did_it(player, loc, A_HTDESC, NULL, A_ODESC, NULL,
 			       A_ADESC, (char **) NULL, 0);
@@ -816,7 +816,7 @@ int key;
 {
 	char *got;
 	dbref aowner;
-	int aflags, indent = 0;
+	int aflags, alen, indent = 0;
 
 	indent = (isRoom(loc) && mudconf.indent_desc && atr_get_raw(loc, A_DESC));
 
@@ -824,7 +824,7 @@ int key;
 		did_it(player, loc, A_NULL, NULL, A_ODESC, NULL,
 		       A_ADESC, (char **)NULL, 0);
 	else if ((Typeof(loc) != TYPE_ROOM) && (key & LK_IDESC)) {
-		if (*(got = atr_pget(loc, A_IDESC, &aowner, &aflags)))
+		if (*(got = atr_pget(loc, A_IDESC, &aowner, &aflags, &alen)))
 			did_it(player, loc, A_IDESC, NULL, A_ODESC, NULL,
 			       A_ADESC, (char **)NULL, 0);
 		else {
@@ -1031,7 +1031,7 @@ dbref player, thing;
 {
 	dbref aowner;
 	char *buf;
-	int aflags, ca;
+	int aflags, alen, ca;
 	BOOLEXP *bool;
 	ATTR *attr;
 	char *as, *cp, nbuf[20];
@@ -1055,7 +1055,7 @@ dbref player, thing;
 	buf = power_description(player, thing);
 	notify(player, tprintf("Powers  = %s", buf));
 	free_mbuf(buf);
-	buf = atr_get(thing, A_LOCK, &aowner, &aflags);
+	buf = atr_get(thing, A_LOCK, &aowner, &aflags, &alen);
 	bool = parse_boolexp(player, buf, 1);
 	free_lbuf(buf);
 	notify(player, tprintf("Lock    = %s", unparse_boolexp(player, bool)));
@@ -1090,7 +1090,7 @@ dbref player, thing;
 		if (!attr)
 			continue;
 
-		buf = atr_get(thing, ca, &aowner, &aflags);
+		buf = atr_get(thing, ca, &aowner, &aflags, &alen);
 		if (Read_attr(player, thing, attr, aowner, aflags))
 			view_atr(player, thing, attr, buf, aowner, aflags,
 				 0, 0);
@@ -1102,7 +1102,7 @@ static void exam_wildattrs(player, thing, do_parent, is_special)
 dbref player, thing;
 int do_parent, is_special;
 {
-	int atr, aflags, got_any;
+	int atr, aflags, alen, got_any;
 	char *buf;
 	dbref aowner;
 	ATTR *ap;
@@ -1114,9 +1114,9 @@ int do_parent, is_special;
 			continue;
 
 		if (do_parent && !(ap->flags & AF_PRIVATE))
-			buf = atr_pget(thing, atr, &aowner, &aflags);
+			buf = atr_pget(thing, atr, &aowner, &aflags, &alen);
 		else
-			buf = atr_get(thing, atr, &aowner, &aflags);
+			buf = atr_get(thing, atr, &aowner, &aflags, &alen);
 
 		/*
 		 * Decide if the player should see the attr: 
@@ -1184,7 +1184,7 @@ char *name;
 	char savec;
 	char *temp, *buf, *buf2;
 	BOOLEXP *bool;
-	int control, aflags, do_parent, is_special;
+	int control, aflags, alen, do_parent, is_special;
 
 	/* This command is pointless if the player can't hear. */
 
@@ -1264,7 +1264,7 @@ char *name;
 	temp = alloc_lbuf("do_examine.info");
 
 	if (control || mudconf.read_rem_desc || nearby(player, thing)) {
-		temp = atr_get_str(temp, thing, A_DESC, &aowner, &aflags);
+		temp = atr_get_str(temp, thing, A_DESC, &aowner, &aflags, &alen);
 		if (*temp) {
 			if (Examinable(player, thing) ||
 			    (aowner == Owner(player))) {
@@ -1285,7 +1285,7 @@ char *name;
 		savec = mudconf.many_coins[0];
 		mudconf.many_coins[0] =
 			(islower(savec) ? toupper(savec) : savec);
-		buf2 = atr_get(thing, A_LOCK, &aowner, &aflags);
+		buf2 = atr_get(thing, A_LOCK, &aowner, &aflags, &alen);
 		bool = parse_boolexp(player, buf2, 1);
 		buf = unparse_boolexp(player, bool);
 		free_boolexp(bool);
@@ -1608,7 +1608,7 @@ dbref player, what;
 int key, is_loc;
 {
 	dbref aowner, parent;
-	int canhear, cancom, isplayer, ispuppet, isconnected, is_audible, attr, aflags;
+	int canhear, cancom, isplayer, ispuppet, isconnected, is_audible, attr, aflags, alen;
 	int is_parent, lev;
 	char *buf, *buf2, *bp, *as, *buff = NULL, *s;
 	ATTR *ap;
@@ -1637,7 +1637,7 @@ int key, is_loc;
 					continue;
 
 				atr_get_str(buff, what, attr, &aowner,
-					    &aflags);
+					    &aflags, &alen);
 
 				/* Make sure we can execute it */
 
@@ -1811,7 +1811,7 @@ char *name, *qual;
 	BOOLEXP *bool;
 	char *got, *thingname, *as, *ltext, *buff, *tbuf;
 	dbref aowner, thing;
-	int val, aflags, ca, wild_decomp;
+	int val, aflags, alen, ca, wild_decomp;
 	ATTR *attr;
 	NAMETAB *np;
 
@@ -1839,7 +1839,7 @@ char *name, *qual;
 		olist_pop();
 		return;
 	}
-	thingname = atr_get(thing, A_LOCK, &aowner, &aflags);
+	thingname = atr_get(thing, A_LOCK, &aowner, &aflags, &alen);
 	bool = parse_boolexp(player, thingname, 1);
 
 	/* Determine the name of the thing to use in reporting and then
@@ -1902,7 +1902,7 @@ char *name, *qual;
 		if ((attr->flags & AF_NOCMD) && !(attr->flags & AF_IS_LOCK))
 			continue;
 
-		got = atr_get(thing, ca, &aowner, &aflags);
+		got = atr_get(thing, ca, &aowner, &aflags, &alen);
 		if (Read_attr(player, thing, attr, aowner, aflags)) {
 			if (attr->flags & AF_IS_LOCK) {
 				bool = parse_boolexp(player, got, 1);
@@ -1987,13 +1987,13 @@ dbref thing, loc;
 {
     char *vrml_url;
     dbref aowner;
-    int aflags;
+    int aflags, alen;
 
     /* If they don't care about HTML, just return. */
     if (!Html(thing))
 	return;
 
-    vrml_url = atr_pget(loc, A_VRML_URL, &aowner, &aflags);
+    vrml_url = atr_pget(loc, A_VRML_URL, &aowner, &aflags, &alen);
     if (*vrml_url) {
 	char *vrml_message, *vrml_cp;
 

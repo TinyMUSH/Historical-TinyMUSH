@@ -180,7 +180,7 @@ char *message;
 	int len;
 #endif
 	char *atrstr, *execstr, *msg, *bp, *str;
-	int aflags;
+	int aflags, alen;
 	dbref aowner;
 
 	if (!strcasecmp(message, "clear")) {
@@ -198,7 +198,7 @@ char *message;
 	}
 	number = mudstate.mail_freelist;
 
-	atrstr = atr_get(player, A_SIGNATURE, &aowner, &aflags);
+	atrstr = atr_get(player, A_SIGNATURE, &aowner, &aflags, &alen);
 	execstr = bp = alloc_lbuf("add_mail_message");
 	str = atrstr;
 	exec(execstr, &bp, 0, player, player, EV_STRIP | EV_FCHECK | EV_EVAL,
@@ -1994,14 +1994,14 @@ static int get_folder_number(player, name)
 dbref player;
 char *name;
 {
-	int aflags;
+	int aflags, alen;
 	dbref aowner;
 	char *atrstr;
 	char *str, *pat, *res, *p, *bp;
 
 	/* Look up a folder name and return the appopriate number */
 	
-	atrstr = atr_get(player, A_MAILFOLDERS, &aowner, &aflags);
+	atrstr = atr_get(player, A_MAILFOLDERS, &aowner, &aflags, &alen);
 	if (!*atrstr) {
 		free_lbuf(atrstr);
 		return -1;
@@ -2037,7 +2037,7 @@ int fld;
 	char *pat;
 	static char *old;
 	char *r, *atrstr;
-	int flags, len;
+	int flags, len, alen;
 
 	/*
 	 * Get the name of the folder, or "nameless" 
@@ -2045,7 +2045,7 @@ int fld;
 	pat = alloc_lbuf("get_folder_name");
 	sprintf(pat, "%d:", fld);
 	old = NULL;
-	atrstr = atr_get(player, A_MAILFOLDERS, &player, &flags);
+	atrstr = atr_get(player, A_MAILFOLDERS, &player, &flags, &alen);
 	if (!*atrstr) {
 		StringCopy(str, "unnamed");
 		free_lbuf(pat);
@@ -2077,7 +2077,7 @@ char *name;
 {
 	char *old, *res, *r, *atrstr;
 	char *new, *pat, *str, *tbuf;
-	int aflags;
+	int aflags, alen;
 
 	/*
 	 * Muck with the player's MAILFOLDERS attrib to add a string of the * 
@@ -2098,7 +2098,7 @@ char *name;
 	 */
 	old = NULL;
 
-	atrstr = atr_get(player, A_MAILFOLDERS, &player, &aflags);
+	atrstr = atr_get(player, A_MAILFOLDERS, &player, &aflags, &alen);
 	if (*atrstr) {
 		StringCopy(str, atrstr);
 		old = (char *)string_match(str, pat);
@@ -2138,10 +2138,10 @@ dbref player;
 	 * 
 	 * *  * *  * * set * it to 0 
 	 */
-	int flags, number;
+	int flags, number, alen;
 	char *atrstr;
 
-	atrstr = atr_pget(player, A_MAILCURF, &player, &flags);
+	atrstr = atr_pget(player, A_MAILCURF, &player, &flags, &alen);
 	if (!*atrstr) {
 		free_lbuf(atrstr);
 		set_player_folder(player, 0);
@@ -3363,12 +3363,12 @@ int flags;
 {
 	char *tolist, *mailsub, *mailmsg, *mailflags;
 	dbref aowner;
-	dbref aflags;
+	int aflags, alen;
 
-	tolist = atr_get(player, A_MAILTO, &aowner, &aflags);
-	mailmsg = atr_get(player, A_MAILMSG, &aowner, &aflags);
-	mailsub = atr_get(player, A_MAILSUB, &aowner, &aflags);
-	mailflags = atr_get(player, A_MAILFLAGS, &aowner, &aflags);
+	tolist = atr_get(player, A_MAILTO, &aowner, &aflags, &alen);
+	mailmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
+	mailsub = atr_get(player, A_MAILSUB, &aowner, &aflags, &alen);
+	mailflags = atr_get(player, A_MAILFLAGS, &aowner, &aflags, &alen);
 
 	if (!*tolist || !*mailmsg || !(Flags2(player) & PLAYER_MAILS)) {
 		notify(player, "MAIL: No such message to send.");
@@ -3396,7 +3396,7 @@ char *text;
 {
 	char *oldmsg, *newmsg, *bp, *attr;
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 
 	if (!mudconf.have_mailer) {
 		wait_que(player, cause, 0, NOTHING, 0, text, (char **)NULL, 0,
@@ -3405,7 +3405,7 @@ char *text;
 	};
 
 	if (Flags2(player) & PLAYER_MAILS) {
-		oldmsg = atr_get(player, A_MAILMSG, &aowner, &aflags);
+		oldmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		if (*oldmsg) {
 			bp = newmsg = alloc_lbuf("do_prepend");
 			safe_str(text + 1, newmsg, &bp);
@@ -3434,7 +3434,7 @@ char *text;
 {
 	char *oldmsg, *newmsg, *bp, *attr;
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 
 	if (!mudconf.have_mailer) {
 		wait_que(player, cause, 0, NOTHING, 0, text, (char **)NULL, 0,
@@ -3447,7 +3447,7 @@ char *text;
 		return;
 	}
 	if (Flags2(player) & PLAYER_MAILS) {
-		oldmsg = atr_get(player, A_MAILMSG, &aowner, &aflags);
+		oldmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		if (*oldmsg) {
 			bp = newmsg = alloc_lbuf("do_postpend");
 			safe_str(oldmsg, newmsg, &bp);
@@ -3475,10 +3475,10 @@ char *to;
 {
 	char *result, *msg;
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 
 	if (Flags2(player) & PLAYER_MAILS) {
-		msg = atr_get(player, A_MAILMSG, &aowner, &aflags);
+		msg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		result = replace_string(from, to, msg);
 		atr_add(player, A_MAILMSG, result, aowner, aflags);
 		notify(player, "Text edited.");
@@ -3495,16 +3495,16 @@ dbref player;
 	char *mailto, *names;
 	char *mailmsg, *msg, *bp, *str;
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 
-	mailto = atr_get(player, A_MAILTO, &aowner, &aflags);
+	mailto = atr_get(player, A_MAILTO, &aowner, &aflags, &alen);
 
 	if (!atr_get_raw(player, A_MAILMSG)) {
 		notify(player, "MAIL: No text.");
 		free_lbuf(mailto);
 		return;
 	} else {
-		str = mailmsg = atr_get(player, A_MAILMSG, &aowner, &aflags);
+		str = mailmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		bp = msg = alloc_lbuf("do_mail_proof");
 		exec(msg, &bp, 0, player, player, EV_EVAL | EV_FCHECK, &str,
 		     (char **)NULL, 0);

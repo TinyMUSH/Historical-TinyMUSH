@@ -1650,21 +1650,21 @@ static void comsys_data_update(chp, obj)
 
     char *key;
     dbref aowner;
-    int aflags;
+    int aflags, alen;
 
-    key = atr_get(obj, A_LOCK, &aowner, &aflags);
+    key = atr_get(obj, A_LOCK, &aowner, &aflags, &alen);
     chp->join_lock = parse_boolexp(obj, key, 1);
     free_lbuf(key);
 
-    key = atr_get(obj, A_LUSE, &aowner, &aflags);
+    key = atr_get(obj, A_LUSE, &aowner, &aflags, &alen);
     chp->trans_lock = parse_boolexp(obj, key, 1);
     free_lbuf(key);
 
-    key = atr_get(obj, A_LENTER, &aowner, &aflags);
+    key = atr_get(obj, A_LENTER, &aowner, &aflags, &alen);
     chp->recv_lock = parse_boolexp(obj, key, 1);
     free_lbuf(key);
 
-    key = atr_pget(obj, A_DESC, &aowner, &aflags);
+    key = atr_pget(obj, A_DESC, &aowner, &aflags, &alen);
     if (key && *key)
 	chp->descrip = (char *) strdup(key);
     else

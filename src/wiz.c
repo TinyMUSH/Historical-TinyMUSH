@@ -217,7 +217,7 @@ char *toad, *newowner;
 {
 	dbref victim, recipient, loc, aowner;
 	char *buf;
-	int count, aflags;
+	int count, aflags, alen;
 
 	init_match(player, toad, TYPE_PLAYER);
 	match_neighbor();
@@ -293,7 +293,7 @@ char *toad, *newowner;
 	 * Zap the alias too 
 	 */
 
-	buf = atr_pget(victim, A_ALIAS, &aowner, &aflags);
+	buf = atr_pget(victim, A_ALIAS, &aowner, &aflags, &alen);
 	delete_player_name(victim, buf);
 	free_lbuf(buf);
 

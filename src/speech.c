@@ -351,12 +351,12 @@ int anum;
 const char *tag, *dflt;
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	char *str, *str2, *buf, *bp;
 	struct tm *tp;
 	time_t t;
 
-	str = atr_pget(target, anum, &aowner, &aflags);
+	str = atr_pget(target, anum, &aowner, &aflags, &alen);
 	if (*str) {
 		str2 = bp = alloc_lbuf("page_return");
 		buf = str;
@@ -461,7 +461,7 @@ char *tname, *message;
 	int ismessage = 0;
 	int count = 0;
 	int n = 0;
-	int aflags = 0;
+	int aflags, alen;
 
 	buf1 = alloc_lbuf("page_return_list");
 	bp = buf1;
@@ -477,7 +477,7 @@ char *tname, *message;
 
 
 	if (!*message) {
-		atr_get_str(targetname, player, A_LASTPAGE, &aowner, &aflags);
+		atr_get_str(targetname, player, A_LASTPAGE, &aowner, &aflags, &alen);
 		if (!*tname) {
 			if (!*targetname)
 				notify(player, "You have not paged anyone.");

@@ -146,9 +146,9 @@ char *ldate, *lhost, *lusername;
 	LDATA login_info;
 	char *atrbuf;
 	dbref aowner;
-	int aflags, i;
+	int aflags, alen, i;
 
-	atrbuf = atr_get(player, A_LOGINDATA, &aowner, &aflags);
+	atrbuf = atr_get(player, A_LOGINDATA, &aowner, &aflags, &alen);
 	decrypt_logindata(atrbuf, &login_info);
 	if (isgood) {
 		if (login_info.new_bad > 0) {
@@ -210,10 +210,10 @@ dbref player;
 const char *password;
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	char *target;
 
-	target = atr_get(player, A_PASS, &aowner, &aflags);
+	target = atr_get(player, A_PASS, &aowner, &aflags, &alen);
 	if (*target && strcmp(target, password) &&
 	    strcmp(crypt(password, "XX"), target)) {
 		free_lbuf(target);
@@ -240,7 +240,7 @@ dbref connect_player(name, password, host, username)
 char *name, *password, *host, *username;
 {
 	dbref player, aowner;
-	int aflags;
+	int aflags, alen;
 	time_t tt;
 	char *time_str, *player_last, *allowance;
 
@@ -259,11 +259,11 @@ char *name, *password, *host, *username;
 	time_str[strlen(time_str) - 1] = '\0';
 
 	/* compare to last connect see if player gets salary */
-	player_last = atr_get(player, A_LAST, &aowner, &aflags);
+	player_last = atr_get(player, A_LAST, &aowner, &aflags, &alen);
 	if (strncmp(player_last, time_str, 10) != 0) {
 		if (Pennies(player) < mudconf.paylimit) {
 			/* Don't heap coins on players who already have lots of money. */
-			allowance = atr_pget(player, A_ALLOWANCE, &aowner, &aflags);
+			allowance = atr_pget(player, A_ALLOWANCE, &aowner, &aflags, &alen);
 			if (*allowance == '\0')
 				giveto(player, mudconf.paycheck);
 			else
@@ -334,10 +334,10 @@ int key;
 char *oldpass, *newpass;
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	char *target;
 
-	target = atr_get(player, A_PASS, &aowner, &aflags);
+	target = atr_get(player, A_PASS, &aowner, &aflags, &alen);
 	if (!*target || !check_pass(player, oldpass)) {
 		notify(player, "Sorry.");
 	} else if (!ok_password(newpass, player)) {
@@ -371,7 +371,7 @@ char *who;
 	dbref target, aowner;
 	LDATA login_info;
 	char *atrbuf;
-	int i, aflags;
+	int i, aflags, alen;
 
 	if (!who || !*who) {
 		target = Owner(player);
@@ -386,7 +386,7 @@ char *who;
 	} else if (!Controls(player, target)) {
 		notify(player, NOPERM_MESSAGE);
 	} else {
-		atrbuf = atr_get(target, A_LOGINDATA, &aowner, &aflags);
+		atrbuf = atr_get(target, A_LOGINDATA, &aowner, &aflags, &alen);
 		decrypt_logindata(atrbuf, &login_info);
 
 		notify(player, tprintf("Total successful connects: %d",
@@ -534,7 +534,7 @@ int check_who;
 void NDECL(load_player_names)
 {
 	dbref i, j, aowner;
-	int aflags;
+	int aflags, alen;
 	char *alias;
 
 	j = 0;
@@ -554,7 +554,7 @@ void NDECL(load_player_names)
 	DO_WHOLE_DB(i) {
 		if (Typeof(i) == TYPE_PLAYER) {
 			alias = atr_pget_str(alias, i, A_ALIAS,
-					     &aowner, &aflags);
+					     &aowner, &aflags, &alen);
 			if (*alias)
 				add_player_name(i, alias);
 #ifndef MEMORY_BASED

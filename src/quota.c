@@ -21,10 +21,10 @@ int q_list[];
 dbref player;
 int qtype;
 {
-	int i, aowner, aflags;
+	int i, aowner, aflags, alen;
 	char *quota_str, *p;
 
-	quota_str = atr_get(player, qtype, &aowner, &aflags);
+	quota_str = atr_get(player, qtype, &aowner, &aflags, &alen);
 
 	/* This should never be null, but just in case. */
 	if (!quota_str || !*quota_str) {

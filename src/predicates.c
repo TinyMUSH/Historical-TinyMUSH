@@ -226,7 +226,7 @@ int locknum;
 {
 	char *key;
 	dbref aowner;
-	int aflags, doit;
+	int aflags, alen, doit;
 
 	/* no if nonplayer trys to get key */
 
@@ -236,7 +236,7 @@ int locknum;
 	if (Pass_Locks(player))
 		return 1;
 
-	key = atr_get(thing, locknum, &aowner, &aflags);
+	key = atr_get(thing, locknum, &aowner, &aflags, &alen);
 	doit = eval_boolexp_atr(player, thing, thing, key);
 	free_lbuf(key);
 	return doit;
@@ -1095,7 +1095,7 @@ char *message;
 	DESC *all, *dsave;
 	char *cmd;
 	dbref aowner;
-	int aflags, i;
+	int aflags, alen, i;
 
 	/* Allow the player to pipe a command while in interactive mode.
 	 * Use telnet protocol's GOAHEAD command to show prompt
@@ -1122,7 +1122,7 @@ char *message;
 		return;
 	    }
 	}
-	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags);
+	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags, &alen);
 	wait_que(d->program_data->wait_cause, d->player, 0, NOTHING, 0, cmd, (char **)&message,
 		 1, (char **)d->program_data->wait_regs);
 
@@ -1754,7 +1754,7 @@ const char *def, *odef;
 {
 	char *d, *buff, *act, *charges, *bp, *str, *preserve[MAX_GLOBAL_REGS];
 	dbref loc, aowner;
-	int num, aflags, need_pres;
+	int num, aflags, alen, need_pres;
 
 	/* If we need to call exec() from within this function, we first save
 	 * the state of the global registers, in order to avoid munging them
@@ -1771,7 +1771,7 @@ const char *def, *odef;
 	/* message to player */
 
 	if (what > 0) {
-		d = atr_pget(thing, what, &aowner, &aflags);
+		d = atr_pget(thing, what, &aowner, &aflags, &alen);
 		if (*d) {
 			need_pres = 1;
 			save_global_regs("did_it_save", preserve);
@@ -1802,7 +1802,7 @@ const char *def, *odef;
 
 	if ((owhat > 0) && Has_location(player) &&
 	    Good_obj(loc = Location(player))) {
-		d = atr_pget(thing, owhat, &aowner, &aflags);
+		d = atr_pget(thing, owhat, &aowner, &aflags, &alen);
 		if (*d) {
 			if (!need_pres) {
 				need_pres = 1;
@@ -1836,8 +1836,8 @@ const char *def, *odef;
 	/* do the action attribute */
 
 	if (awhat > 0) {
-		if (*(act = atr_pget(thing, awhat, &aowner, &aflags))) {
-			charges = atr_pget(thing, A_CHARGES, &aowner, &aflags);
+		if (*(act = atr_pget(thing, awhat, &aowner, &aflags, &alen))) {
+			charges = atr_pget(thing, A_CHARGES, &aowner, &aflags, &alen);
 			if (*charges) {
 				num = atoi(charges);
 				if (num > 0) {
@@ -1845,7 +1845,7 @@ const char *def, *odef;
 					sprintf(buff, "%d", num - 1);
 					atr_add_raw(thing, A_CHARGES, buff);
 					free_sbuf(buff);
-				} else if (*(buff = atr_pget(thing, A_RUNOUT, &aowner, &aflags))) {
+				} else if (*(buff = atr_pget(thing, A_RUNOUT, &aowner, &aflags, &alen))) {
 					free_lbuf(act);
 					act = buff;
 				} else {

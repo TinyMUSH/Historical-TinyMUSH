@@ -81,6 +81,12 @@ struct atrcount {
 	int count;
 };
 
+/* string to copy to, string to copy from, length (pointer to int) */
+
+#define StrCopyLen(scl__dest,scl__src,scl__len) \
+*scl__len = strlen(scl__src); \
+bcopy(scl__src,scl__dest,(int) *scl__len + 1);
+
 /*
  * ---------------------------------------------------------------------------
  * * Temp file management, used to get around static limits in some versions
@@ -637,7 +643,7 @@ dbref thing;
 #ifdef STANDALONE
 
 	dbref aowner;
-	int aflags, errors;
+	int aflags, alen, errors;
 	char *tp;
 
 	static FWDLIST *fp = NULL;
@@ -646,7 +652,7 @@ dbref thing;
 	    fp = (FWDLIST *) XMALLOC(sizeof(FWDLIST), "fwdlist_get");
 	    fp->data = NULL;
 	}
-	tp = atr_get(thing, A_FORWARDLIST, &aowner, &aflags);
+	tp = atr_get(thing, A_FORWARDLIST, &aowner, &aflags, &alen);
 	errors = fwdlist_load(fp, GOD, tp);
 	free_lbuf(tp);
 #else
@@ -681,14 +687,14 @@ INLINE char *Name(thing)
 dbref thing;
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	char *buff;
 #ifdef MEMORY_BASED
 	static char tbuff[LBUF_SIZE];
 #endif
 	if (mudconf.cache_names) {
 		if (!purenames[thing]) {
-			buff = atr_get(thing, A_NAME, &aowner, &aflags);
+			buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 			set_string(&purenames[thing], strip_ansi(buff));
 			free_lbuf(buff);
 		}
@@ -696,13 +702,13 @@ dbref thing;
 
 #ifndef MEMORY_BASED
 	if (!names[thing]) {
-		buff = atr_get(thing, A_NAME, &aowner, &aflags);
+		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 		set_string(&names[thing], buff);
 		free_lbuf(buff);
 	}
 	return names[thing];
 #else
-	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags);
+	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
 	return ((char *) tbuff);
 #endif
 }
@@ -711,13 +717,13 @@ INLINE char *PureName(thing)
 dbref thing;
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	char *buff;
 	static char tbuff[LBUF_SIZE];
 
 #ifndef MEMORY_BASED
 	if (!names[thing]) {
-		buff = atr_get(thing, A_NAME, &aowner, &aflags);
+		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 		set_string(&names[thing], buff);
 		free_lbuf(buff);
 	}
@@ -725,14 +731,14 @@ dbref thing;
 
 	if (mudconf.cache_names) {
 		if (!purenames[thing]) {
-			buff = atr_get(thing, A_NAME, &aowner, &aflags);
+			buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 			set_string(&purenames[thing], strip_ansi(buff));
 			free_lbuf(buff);
 		}
 		return purenames[thing];
 	}
 	
-	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags);
+	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
 	return (strip_ansi((char *) tbuff));
 }
 
@@ -1263,7 +1269,7 @@ int Commer(thing)
 dbref thing;
 {
 	char *s, *as, c;
-	int attr, aflags;
+	int attr, aflags, alen;
 	dbref aowner;
 	ATTR *ap;
 
@@ -1273,7 +1279,7 @@ dbref thing;
 		if (!ap || (ap->flags & AF_NOPROG))
 			continue;
 
-		s = atr_get(thing, attr, &aowner, &aflags);
+		s = atr_get(thing, attr, &aowner, &aflags, &alen);
 		c = *s;
 		free_lbuf(s);
 		if ((c == '$') && !(aflags & AF_NOPROG)) {
@@ -1504,11 +1510,11 @@ int flags, atr;
  * used to roll the two operations together.
  */
 
-static int atr_get_raw_decode(thing, oattr, owner, flags, atr)
+static int atr_get_raw_decode(thing, oattr, owner, flags, atr, alen)
 dbref thing;
 char *oattr;
 dbref *owner;
-int *flags, atr;
+int *flags, atr, *alen;
 {
 	Attr *a;
 	char *cp;
@@ -1537,6 +1543,7 @@ int *flags, atr;
 	if (!a) {
 		*owner = Owner(thing);
 		*flags = 0;
+		*alen = 0;
 		if (oattr) {
 			*oattr = '\0';
 		}
@@ -1567,6 +1574,8 @@ int *flags, atr;
 		cp = oattr;
 	}
 #endif /* MEMORY_BASED  */
+
+	*alen = len;
 
 	if (*cp == ATR_INFO_CHAR) {
 
@@ -1608,8 +1617,11 @@ int *flags, atr;
 		}
 		/* Get the attribute text */
 
+		len -= cp - oattr;
+		*alen = len;
+
 		if (oattr != NULL)
-			bcopy(cp, oattr, len - (cp - oattr));
+			bcopy(cp, oattr, len);
 
 		if (*owner == NOTHING)
 			*owner = Owner(thing);
@@ -1630,10 +1642,10 @@ int *flags, atr;
  * atr_decode: Decode an attribute string.
  */
 
-static void atr_decode(iattr, oattr, thing, owner, flags, atr)
+static void atr_decode(iattr, oattr, thing, owner, flags, atr, alen)
 char *iattr, *oattr;
 dbref thing, *owner;
-int *flags, atr;
+int *flags, atr, *alen;
 {
 	char *cp;
 	int neg;
@@ -1666,7 +1678,7 @@ int *flags, atr;
 			*owner = Owner(thing);
 			*flags = 0;
 			if (oattr) {
-				strcpy(oattr, iattr);
+			    StrCopyLen(oattr, iattr, alen);
 			}
 			return;
 		}
@@ -1683,13 +1695,13 @@ int *flags, atr;
 			*owner = Owner(thing);
 			*flags = 0;
 			if (oattr) {
-				strcpy(oattr, iattr);
+			    StrCopyLen(oattr, iattr, alen);
 			}
 		}
 		/* Get the attribute text */
 
 		if (oattr) {
-			strcpy(oattr, cp);
+			StrCopyLen(oattr, cp, alen);
 		}
 		if (*owner == NOTHING)
 			*owner = Owner(thing);
@@ -1700,7 +1712,7 @@ int *flags, atr;
 		*owner = Owner(thing);
 		*flags = 0;
 		if (oattr) {
-			strcpy(oattr, iattr);
+		    StrCopyLen(oattr, iattr, alen);
 		}
 	}
 }
@@ -1986,10 +1998,10 @@ dbref thing, owner;
 int atr;
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	char *buff;
 
-	buff = atr_get(thing, atr, &aowner, &aflags);
+	buff = atr_get(thing, atr, &aowner, &aflags, &alen);
 	atr_add(thing, atr, buff, owner, aflags);
 	free_lbuf(buff);
 }
@@ -1999,10 +2011,10 @@ dbref thing, flags;
 int atr;
 {
 	dbref aowner;
-	int aflags;
+	int aflags, alen;
 	char *buff;
 
-	buff = atr_get(thing, atr, &aowner, &aflags);
+	buff = atr_get(thing, atr, &aowner, &aflags, &alen);
 	atr_add(thing, atr, buff, aowner, flags);
 	free_lbuf(buff);
 }
@@ -2082,13 +2094,13 @@ int atr;
 }
 #endif /* MEMORY_BASED */
 
-char *atr_get_str(s, thing, atr, owner, flags)
+char *atr_get_str(s, thing, atr, owner, flags, alen)
 char *s;
 dbref thing, *owner;
-int atr, *flags;
+int atr, *flags, *alen;
 {
 #ifdef RADIX_COMPRESSION
-	(void)atr_get_raw_decode(thing, s, owner, flags, atr);
+	(void)atr_get_raw_decode(thing, s, owner, flags, atr, alen);
 #else
 	char *buff;
 
@@ -2098,30 +2110,31 @@ int atr, *flags;
 		*flags = 0;
 		*s = '\0';
 	} else {
-		atr_decode(buff, s, thing, owner, flags, atr);
+		atr_decode(buff, s, thing, owner, flags, atr, alen);
 	}
 #endif /* RADIX_COMPRESSION */
 	return s;
 }
 
-char *atr_get(thing, atr, owner, flags)
+char *atr_get(thing, atr, owner, flags, alen)
 dbref thing, *owner;
-int atr, *flags;
+int atr, *flags, *alen;
 {
 	char *buff;
 
 	buff = alloc_lbuf("atr_get");
-	return atr_get_str(buff, thing, atr, owner, flags);
+	return atr_get_str(buff, thing, atr, owner, flags, alen);
 }
 
 int atr_get_info(thing, atr, owner, flags)
 dbref thing, *owner;
 int atr, *flags;
 {
+        int alen;
 #ifdef RADIX_COMPRESSION
 	int retval;
 
-	retval = atr_get_raw_decode(thing, NULL, owner, flags, atr);
+	retval = atr_get_raw_decode(thing, NULL, owner, flags, atr, &alen);
 	return retval;
 #else
 	char *buff;
@@ -2132,17 +2145,17 @@ int atr, *flags;
 		*flags = 0;
 		return 0;
 	}
-	atr_decode(buff, NULL, thing, owner, flags, atr);
+	atr_decode(buff, NULL, thing, owner, flags, atr, &alen);
 	return 1;
 #endif /* RADIX_COMPRESSION */
 }
 
 #ifndef STANDALONE
 
-char *atr_pget_str(s, thing, atr, owner, flags)
+char *atr_pget_str(s, thing, atr, owner, flags, alen)
 char *s;
 dbref thing, *owner;
-int atr, *flags;
+int atr, *flags, *alen;
 {
 	char *buff;
 	dbref parent;
@@ -2156,14 +2169,15 @@ int atr, *flags;
 
 	ITER_PARENTS(thing, parent, lev) {
 #ifdef RADIX_COMPRESSION
-		retval = atr_get_raw_decode(parent, s, owner, flags, atr);
+	        retval = atr_get_raw_decode(parent, s, owner, flags, atr,
+					    alen);
 		if (retval && ((lev == 0) || !(*flags & AF_PRIVATE))) {
 			return s;
 		}
 #else
 		buff = atr_get_raw(parent, atr);
 		if (buff && *buff) {
-			atr_decode(buff, s, thing, owner, flags, atr);
+			atr_decode(buff, s, thing, owner, flags, atr, alen);
 			if ((lev == 0) || !(*flags & AF_PRIVATE))
 				return s;
 		}
@@ -2180,14 +2194,14 @@ int atr, *flags;
 	return s;
 }
 
-char *atr_pget(thing, atr, owner, flags)
+char *atr_pget(thing, atr, owner, flags, alen)
 dbref thing, *owner;
-int atr, *flags;
+int atr, *flags, *alen;
 {
 	char *buff;
 
 	buff = alloc_lbuf("atr_pget");
-	return atr_pget_str(buff, thing, atr, owner, flags);
+	return atr_pget_str(buff, thing, atr, owner, flags, alen);
 }
 
 int atr_pget_info(thing, atr, owner, flags)
@@ -2196,13 +2210,13 @@ int atr, *flags;
 {
 	char *buff;
 	dbref parent;
-	int lev;
+	int lev, alen;
 	ATTR *ap;
 
 	ITER_PARENTS(thing, parent, lev) {
 		buff = atr_get_raw(parent, atr);
 		if (buff && *buff) {
-			atr_decode(buff, NULL, thing, owner, flags, atr);
+			atr_decode(buff, NULL, thing, owner, flags, atr, &alen);
 			if ((lev == 0) || !(*flags & AF_PRIVATE))
 				return 1;
 		}
@@ -2251,7 +2265,7 @@ dbref thing;
 void atr_cpy(player, dest, source)
 dbref player, dest, source;
 {
-	int attr, aflags;
+	int attr, aflags, alen;
 	dbref owner, aowner;
 	char *as, *buf;
 	ATTR *at;
@@ -2259,7 +2273,7 @@ dbref player, dest, source;
 	owner = Owner(dest);
 	atr_push();
 	for (attr = atr_head(source, &as); attr; attr = atr_next(&as)) {
-		buf = atr_get(source, attr, &aowner, &aflags);
+		buf = atr_get(source, attr, &aowner, &aflags, &alen);
 		if (!(aflags & AF_LOCK))
 			aowner = owner;		/* chg owner */
 		at = atr_num(attr);
@@ -2281,14 +2295,14 @@ dbref player, dest, source;
 void atr_chown(obj)
 dbref obj;
 {
-	int attr, aflags;
+	int attr, aflags, alen;
 	dbref owner, aowner;
 	char *as, *buf;
 
 	owner = Owner(obj);
 	atr_push();
 	for (attr = atr_head(obj, &as); attr; attr = atr_next(&as)) {
-		buf = atr_get(obj, attr, &aowner, &aflags);
+		buf = atr_get(obj, attr, &aowner, &aflags, &alen);
 		if ((aowner != owner) && !(aflags & AF_LOCK))
 			atr_add(obj, attr, buf, owner, aflags);
 		free_lbuf(buf);

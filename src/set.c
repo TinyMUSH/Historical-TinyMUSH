@@ -219,7 +219,7 @@ int key;
 char *name, *alias;
 {
 	dbref thing, aowner;
-	int aflags;
+	int aflags, alen;
 	ATTR *ap;
 	char *oldalias, *trimalias;
 
@@ -237,7 +237,7 @@ char *name, *alias;
 		 * Fetch the old alias 
 		 */
 
-		oldalias = atr_pget(thing, A_ALIAS, &aowner, &aflags);
+		oldalias = atr_pget(thing, A_ALIAS, &aowner, &aflags, &alen);
 		trimalias = trim_spaces(alias);
 
 		if (!Controls(player, thing)) {
@@ -729,7 +729,7 @@ char *name, *flag;
 {
 	dbref thing, thing2, aowner;
 	char *p, *buff;
-	int atr, atr2, aflags, clear, flagvalue, could_hear;
+	int atr, atr2, aflags, alen, clear, flagvalue, could_hear;
 	ATTR *attr, *attr2;
 
 	/*
@@ -856,7 +856,7 @@ char *name, *flag;
 			}
 			attr2 = atr_num(atr2);
 			p = buff;
-			atr_pget_str(buff, thing2, atr2, &aowner, &aflags);
+			atr_pget_str(buff, thing2, atr2, &aowner, &aflags, &alen);
 
 			if (!attr2 ||
 			 !See_attr(player, thing2, attr2, aowner, aflags)) {
@@ -966,7 +966,7 @@ char *what, *args[];
 {
 	dbref thing, aowner, axowner;
 	ATTR *in_attr, *out_attr;
-	int i, anum, in_anum, aflags, axflags, no_delete, num_copied;
+	int i, anum, in_anum, aflags, alen, axflags, no_delete, num_copied;
 	char *astr;
 
 	/*
@@ -996,7 +996,7 @@ char *what, *args[];
 	if (in_attr == NULL) {
 		*astr = '\0';
 	} else {
-		atr_get_str(astr, thing, in_attr->number, &aowner, &aflags);
+		atr_get_str(astr, thing, in_attr->number, &aowner, &aflags, &alen);
 		if (!See_attr(player, thing, in_attr, aowner, aflags)) {
 			*astr = '\0';
 		} else {
@@ -1397,7 +1397,7 @@ int key, nargs;
 char *it, *args[];
 {
 	dbref thing, aowner;
-	int attr, got_one, aflags, doit;
+	int attr, got_one, aflags, alen, doit;
 	int could_hear;
 	char *from, *to, *result, *returnstr, *atext;
 	ATTR *ap;
@@ -1440,7 +1440,7 @@ char *it, *args[];
 			 */
 
 			atr_get_str(atext, thing, ap->number,
-				    &aowner, &aflags);
+				    &aowner, &aflags, &alen);
 			if (Set_attr(player, thing, ap, aflags)) {
 
 				/*
@@ -1500,7 +1500,7 @@ int key;
 char *it;
 {
 	dbref thing, aowner;
-	int attr, got_one, aflags;
+	int attr, got_one, aflags, alen;
 	int could_hear;
 	ATTR *ap;
 	char *atext;
@@ -1528,7 +1528,7 @@ char *it;
 			 */
 
 			atr_get_str(atext, thing, ap->number,
-				    &aowner, &aflags);
+				    &aowner, &aflags, &alen);
 			if (Set_attr(player, thing, ap, aflags)) {
 				atr_clr(thing, ap->number);
 				got_one = 1;
@@ -1584,7 +1584,7 @@ char *object;
 {
 	char *df_use, *df_ouse, *temp, *bp;
 	dbref thing, aowner;
-	int aflags, doit;
+	int aflags, alen, doit;
 
 	init_match(player, object, NOTYPE);
 	match_neighbor();
@@ -1611,11 +1611,11 @@ char *object;
 	}
 	temp = alloc_lbuf("do_use");
 	doit = 0;
-	if (*atr_pget_str(temp, thing, A_USE, &aowner, &aflags))
+	if (*atr_pget_str(temp, thing, A_USE, &aowner, &aflags, &alen))
 		doit = 1;
-	else if (*atr_pget_str(temp, thing, A_OUSE, &aowner, &aflags))
+	else if (*atr_pget_str(temp, thing, A_OUSE, &aowner, &aflags, &alen))
 		doit = 1;
-	else if (*atr_pget_str(temp, thing, A_AUSE, &aowner, &aflags))
+	else if (*atr_pget_str(temp, thing, A_AUSE, &aowner, &aflags, &alen))
 		doit = 1;
 	free_lbuf(temp);
 
