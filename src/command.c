@@ -2258,6 +2258,14 @@ dbref player;
 	      tprintf("The default switch for the 'examine' command is %s.",
 		      examd[mudconf.exam_public]));
 
+	if (mudconf.lattr_oldstyle) {
+	    raw_notify(player,
+		       "The lattr() function returns an empty string on a bad match.");
+	} else {
+	    raw_notify(player,
+		       "The lattr() function returns #-1 NO MATCH on a bad match.");
+	}
+
 	/* --- Config options related to Looking and other information --- */
 
 	if (mudconf.ex_flags)

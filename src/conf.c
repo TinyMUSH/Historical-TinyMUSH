@@ -197,6 +197,7 @@ void NDECL(cf_init)
 	mudconf.pemit_any = 0;
 	mudconf.addcmd_match_blindly = 1;
 	mudconf.addcmd_obey_stop = 0;
+	mudconf.lattr_oldstyle = 0;
 	mudconf.match_mine = 0;
 	mudconf.match_mine_pl = 0;
 	mudconf.switch_df_all = 1;
@@ -1140,6 +1141,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.killmin,		0},
 {(char *)"lag_maximum",
 	cf_int,		CA_GOD,		&mudconf.max_cmdsecs,		0},
+{(char *)"lattr_default_oldstyle",
+     	cf_bool,	CA_GOD,		&mudconf.lattr_oldstyle,	0},
 {(char *)"link_cost",
 	cf_int,		CA_GOD,		&mudconf.linkcost,		0},
 {(char *)"list_access",

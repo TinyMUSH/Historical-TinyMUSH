@@ -3291,7 +3291,8 @@ FUNCTION(fun_lattr)
 			}
 		}
 	} else {
-		safe_str("#-1 NO MATCH", buff, bufc);
+	        if (! mudconf.lattr_oldstyle)
+		        safe_str("#-1 NO MATCH", buff, bufc);
 	}
 	return;
 }
