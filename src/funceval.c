@@ -661,6 +661,25 @@ FUNCTION(fun_objeval)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_localize: Evaluate a function with local scope (i.e., preserve and
+ * restore the r-registers). Essentially like calling ulocal() but with the
+ * function string directly.
+ */
+
+FUNCTION(fun_localize)
+{
+    char *str, *preserve[MAX_GLOBAL_REGS];
+
+    save_global_regs("fun_localize_save", preserve);
+
+    str = fargs[0];
+    exec(buff, bufc, 0, player, cause, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
+	 cargs, ncargs);
+
+    restore_global_regs("fun_localize_restore", preserve);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_null: Just eat the contents of the string. Handy for those times
  *           when you've output a bunch of junk in a function call and
  *           just want to dispose of the output (like if you've done an

@@ -87,6 +87,7 @@ XFUNCTION(fun_zwho);
 XFUNCTION(fun_inzone);
 XFUNCTION(fun_children);
 XFUNCTION(fun_objeval);
+XFUNCTION(fun_localize);
 XFUNCTION(fun_null);
 XFUNCTION(fun_squish);
 XFUNCTION(fun_stripansi);
@@ -5446,6 +5447,7 @@ FUN flist[] = {
 {"LNUM",	fun_lnum,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LOC",		fun_loc,	1,  0,		CA_PUBLIC},
 {"LOCATE",	fun_locate,	3,  0,		CA_PUBLIC},
+{"LOCALIZE",    fun_localize,   1,  FN_NO_EVAL, CA_PUBLIC},
 {"LOCK",	fun_lock,	1,  0,		CA_PUBLIC},
 {"LOG",		fun_log,	1,  0,		CA_PUBLIC},
 {"LPOS",	fun_lpos,	2,  0,		CA_PUBLIC},
