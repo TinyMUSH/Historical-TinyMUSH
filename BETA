@@ -344,3 +344,30 @@ The initial beta release was on 9/27/99.
   now exist, and are recommended. (The vast majority of users will
   have perl, and the perl regular expressions are less likely to
   result in "false positive" conversions.)
+
+-----------------------------------------------------------------------------
+
+10/13/99: Beta 12
+
+- Feature: '%r' is now a legal output delimiter. lnum() now treats its
+  delimiter like an output delimiter (so '@@' and '%r' are both legal).
+  sql() now treats both of its delimiters like output delimiters.
+
+- Fix: dark_sleepers conf option is displayed in reverse. [3.0b9; Tina Verras]
+
+- Fix: Structure-related data is cleared out when an object is
+  destroyed. [3.0a8; RMG]
+
+- Fix: Absurd channel charges are no longer allowed. [MUX; RMG]
+
+- Fix: There are no spurious spaces embedded between the psuedo-HTML tags
+  and exit names, for Pueblo display of exits. [MUX]
+
+- Fix: @emit/room/html no longer produces double output. [2.2/MUX; GrimJim]
+
+- Misc: You can no longer use addcom to join a channel multiple times.
+  (Previously, it was permitted, but you got a warning; there didn't seem
+  to be a good reason to ever allow it, though.)
+
+- Misc: Dealt with a few more compiler warnings, and got rid of some
+  unnecessarily clumsy constructs.

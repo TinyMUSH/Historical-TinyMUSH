@@ -166,8 +166,8 @@ the other have been listed in the conversion notes for both servers.
   of an instance, and lstructures() and linstances() list the names
   of structures and instances, respectively.
 
-- Functions that take output delimiters can take a null output delimiter,
-  symbolized by the token '@@'.
+- Functions that take output delimiters can take a null output delimiters
+  (symbolized by the token '@@') and newline ('%r') output delimiters.
 
 - The ansi() function compacts multiple ANSI attributes into a single
   ANSI code.
