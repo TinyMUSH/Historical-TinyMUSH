@@ -639,7 +639,7 @@ char *raw_text;
 		} else if (is_special == 1) {
 		    buf = alloc_lbuf("view_atr.pretty");
 		    pretty_print(buf,
-				 tprintf("%s%s:%s %s",
+				 tprintf("%s%s:%s ",
 					 ANSI_HILITE, ap->name, ANSI_NORMAL),
 				 text);
 		    notify(player, buf);
