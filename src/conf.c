@@ -212,9 +212,9 @@ void NDECL(cf_init)
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
 	mudconf.start_room = 0;
-	mudconf.start_home = -1;
-	mudconf.default_home = -1;
-	mudconf.master_room = -1;
+	mudconf.start_home = NOTHING;
+	mudconf.default_home = NOTHING;
+	mudconf.master_room = NOTHING;
 	mudconf.player_flags.word1 = 0;
 	mudconf.player_flags.word2 = 0;
 	mudconf.room_flags.word1 = 0;
