@@ -2198,6 +2198,121 @@ void do_sql_connect(player, cause, key)
     }
 }
 
+/* ---------------------------------------------------------------------------
+ * do_redirect: Redirect PUPPET, TRACE, VERBOSE output to another player.
+ */
+
+void do_redirect(player, cause, key, from_name, to_name)
+    dbref player, cause;
+    int key;
+    char *from_name, *to_name;
+{
+    dbref from_ref, to_ref;
+    NUMBERTAB *np;
+
+    /* Find what object we're redirecting from. We must either control it,
+     * or it must be REDIR_OK.
+     */
+
+    init_match(player, from_name, NOTYPE);
+    match_everything(0);
+    from_ref = noisy_match_result();
+    if (!Good_obj(from_ref))
+	return;
+
+    /* If we have no second argument, we are un-redirecting something
+     * which is already redirected. We can get rid of it if we control
+     * the object being redirected, or we control the target of the
+     * redirection.
+     */
+
+    if (!to_name || !*to_name) {
+	if (!H_Redirect(from_ref)) {
+	    notify(player, "That object is not being redirected.");
+	    return;
+	}
+	np = (NUMBERTAB *) hashfind(from_ref, &mudstate.redir_htab);
+	if (np) {
+	    /* This should always be true -- if we have the flag the
+	     * hashtable lookup should succeed -- but just in case,
+	     * we check. (We clear the flag upon startup.)
+	     * If we have a weird situation, we don't care whether
+	     * or not the control criteria gets met; we just fix it. 
+	     */
+	    if (!Controls(player, from_ref) && (np->num != player)) {
+		notify(player, NOPERM_MESSAGE);
+		return;
+	    }
+	    if (np->num != player) {
+		notify(np->num,
+	          tprintf("Output from %s(#%d) is no being redirected to you.",
+			  Name(from_ref), from_ref));
+	    }
+	    XFREE(np, "redir_struct");
+	    nhashdelete(from_ref, &mudstate.redir_htab);
+	}
+	s_Flags3(from_ref, Flags3(from_ref) & ~HAS_REDIRECT);
+	notify(player, "Redirection stopped.");
+	if (from_ref != player) {
+	    notify(from_ref, "You are no longer being redirected.");
+	}
+	return;
+    }
+
+    /* If the object is already being redirected, we cannot do so again. */
+
+    if (H_Redirect(from_ref)) {
+	notify(player, "That object is already being redirected.");
+	return;
+    }
+
+    /* To redirect something, it needs to either be Redir_OK or we
+     * need to control it.
+     */
+
+    if (!Controls(player, from_ref) && !Redir_ok(from_ref)) {
+	notify(player, NOPERM_MESSAGE);
+	return;
+    }
+
+    /* Find the player that we're redirecting to. We must control the
+     * player.
+     */
+
+    to_ref = lookup_player(player, to_name, 1);
+    if (!Good_obj(to_ref)) {
+	notify(player, "No such player.");
+	return;
+    }
+    if (!Controls(player, to_ref)) {
+	notify(player, NOPERM_MESSAGE);
+	return;
+    }
+
+    /* Insert it into the hashtable. */
+
+    np = (NUMBERTAB *) XMALLOC(sizeof(NUMBERTAB), "redir_struct");
+    np->num = to_ref;
+    nhashadd(from_ref, (int *) np, &mudstate.redir_htab);
+    s_Flags3(from_ref, Flags3(from_ref) | HAS_REDIRECT);
+
+    if (from_ref != player) {
+	notify(from_ref,
+	       tprintf("You have been redirected to %s.", Name(to_ref)));
+    }
+    if (to_ref != player) {
+	notify(to_ref,
+	       tprintf("Output from %s(#%d) has been redirected to you.",
+		       Name(from_ref), from_ref));
+    }
+    notify(player, "Redirected.");
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Miscellaneous stuff below.
+ */
+
 void do_sql(player, cause, key, name)
     dbref player, cause;
     int key;

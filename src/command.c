@@ -757,6 +757,9 @@ CMDENT command_table[] = {
 {(char *)"@readcache",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
 	NULL,		NULL,	NULL,		do_readcache},
+{(char *)"@redirect",		NULL,		CA_PUBLIC,
+	0,		CS_TWO_ARG|CS_INTERP,
+	NULL,		NULL,	NULL,		do_redirect},
 {(char *)"@restart",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
 	NULL,		NULL,	NULL,		do_restart},
@@ -1673,6 +1676,7 @@ char *command, *args[];
 	int succ, aflags, alen, i, got_stop, pcount;
 	dbref exit, aowner, parent;
 	CMDENT *cmdp;
+	NUMBERTAB *np;
 
 	/* Robustify player */
 
@@ -1728,9 +1732,21 @@ char *command, *args[];
 	mudstate.ntfy_nest_lev = 0;
 	mudstate.lock_nest_lev = 0;
 
-	if (Verbose(player))
+	if (Verbose(player)) {
+	    if (H_Redirect(player)) {
+		np = (NUMBERTAB *) nhashfind(player, &mudstate.redir_htab);
+		if (np) {
+		    notify(np->num,
+			   tprintf("%s] %s", Name(player), command));
+		} else {
+		    /* We have no pointer, we should have no flag. */
+		    s_Flags3(player, Flags3(player) & ~HAS_REDIRECT);
+		}
+	    } else {
 		notify(Owner(player), tprintf("%s] %s", Name(player),
 					      command));
+	    }
+	}
 
 	/*
 	 * NOTE THAT THIS WILL BREAK IF "GOD" IS NOT A DBREF.
@@ -2906,6 +2922,7 @@ dbref player;
 	list_hashstat(player, "Player Names", &mudstate.player_htab);
 	list_nhashstat(player, "Net Descriptors", &mudstate.desc_htab);
 	list_nhashstat(player, "Forwardlists", &mudstate.fwdlist_htab);
+	list_nhashstat(player, "Redirections", &mudstate.redir_htab);
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
 	list_nhashstat(player, "Object Stacks", &mudstate.objstack_htab);
 	list_hashstat(player, "Variables", &mudstate.vars_htab);

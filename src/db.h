@@ -283,4 +283,9 @@ struct logfiletable {
     char *filename;
 };
 
+typedef struct numbertable NUMBERTAB;
+struct numbertable {
+    int num;
+};
+
 #endif /* __DB_H */

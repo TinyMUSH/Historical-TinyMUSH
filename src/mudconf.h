@@ -345,6 +345,7 @@ struct statedata {
 	HASHTAB player_htab;	/* Player name->number hashtable */
 	NHSHTAB	desc_htab;	/* Socket descriptor hashtable */
 	NHSHTAB	fwdlist_htab;	/* Room forwardlists */
+	NHSHTAB redir_htab;	/* Redirections */
 	NHSHTAB objstack_htab;	/* Object stacks */
 	NHSHTAB	parent_htab;	/* Parent $-command exclusion */
 	HASHTAB vars_htab;	/* Persistent variables hashtable */

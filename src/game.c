@@ -138,6 +138,7 @@ void do_hashresize(player, cause, key)
     hashresize(&mudstate.player_htab, 16);
     hashresize(&mudstate.vattr_name_htab, 256);
     nhashresize(&mudstate.fwdlist_htab, 8);
+    nhashresize(&mudstate.redir_htab, 8);
     hashresize(&mudstate.ufunc_htab, 8);
 
 #ifdef USE_COMSYS
@@ -534,6 +535,7 @@ const char *msg;
 	int i, nargs, aflags, alen, has_neighbors, pass_listen;
 	int check_listens, pass_uselock, is_audible;
 	FWDLIST *fp;
+	NUMBERTAB *np;
 
 	/* If speaker is invalid or message is empty, just exit */
 
@@ -649,7 +651,22 @@ const char *msg;
 			safe_name(target, tbuff, &tp);
 			safe_known_str((char *)"> ", 2, tbuff, &tp);
 			safe_str(msg_ns, tbuff, &tp);
-			raw_notify(Owner(target), tbuff);
+
+			/* Criteria for redirection of a puppet is based
+			 * on the "normal" conditions for hearing and
+			 * not conditions based on who the target of
+			 * the redirection. Use of raw_notify() means
+			 * that recursion is avoided.
+			 */
+			if (H_Redirect(target)) {
+			    np = (NUMBERTAB *) nhashfind(target,
+							 &mudstate.redir_htab);
+			    if (np && Good_obj(np->num)) {
+				raw_notify(Owner(np->num), tbuff);
+			    }
+			} else {
+			    raw_notify(Owner(target), tbuff);
+			}
 			free_lbuf(tbuff);
 		}
 		/* Check for @Listen match if it will be useful */
@@ -1621,7 +1638,7 @@ static void NDECL(process_preload)
 
 		if (Going(thing))
 			continue;
-		
+
 		/* Look for a FORWARDLIST attribute. Load these before
 		 * doing anything else, so startup notifications work
 		 * correctly.
@@ -1717,6 +1734,7 @@ char *argv[];
 	init_version();
 	hashinit(&mudstate.player_htab, 250 * HASH_FACTOR);
 	nhashinit(&mudstate.fwdlist_htab, 25 * HASH_FACTOR);
+	nhashinit(&mudstate.redir_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.objstack_htab, 50 * HASH_FACTOR);
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.desc_htab, 25 * HASH_FACTOR);

@@ -85,6 +85,8 @@
 #define	SLAVE		0x80000000	/* Disallow most commands */
 
 /* Third word of flags */
+#define REDIR_OK	0x00000001	/* Can be victim of @redirect */
+#define HAS_REDIRECT	0x00000002	/* Victim of @redirect */
 #define MARK_0		0x00400000	/* User-defined flags */
 #define MARK_1		0x00800000
 #define MARK_2		0x01000000
@@ -445,10 +447,12 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Bouncer(x)      ((Flags2(x) & BOUNCE) != 0)
 #define	Hidden(x)	((Flags(x) & DARK) != 0)
 #define Blind(x)	((Flags2(x) & BLIND) != 0)
+#define Redir_ok(x)	((Flags3(x) & REDIR_OK) != 0)
 
 #define	H_Startup(x)	((Flags(x) & HAS_STARTUP) != 0)
 #define	H_Fwdlist(x)	((Flags2(x) & HAS_FWDLIST) != 0)
 #define	H_Listen(x)	((Flags2(x) & HAS_LISTEN) != 0)
+#define H_Redirect(x)	((Flags3(x) & HAS_REDIRECT) != 0)
 
 #define H_Marker0(x)	((Flags3(x) & MARK_0) != 0)
 #define H_Marker1(x)	((Flags3(x) & MARK_1) != 0)

@@ -1004,9 +1004,13 @@ int db_format, db_version;
 	    }
 
 	} else if (db_format == F_TINYMUSH) {
+		/* Native TinyMUSH 3.0 database.
+		 * The only thing we have to do is clear the redirection
+		 * flag, as nothing is ever redirected at startup.
+		 */
 		newf1 = f1;
 		newf2 = f2;
-		newf3 = f3;
+		newf3 = f3 & ~HAS_REDIRECT;
 	}
 	*flags1 = newf1;
 	*flags2 = newf2;

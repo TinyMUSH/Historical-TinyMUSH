@@ -338,11 +338,26 @@ static void tcache_finish(player)
 dbref player;
 {
 	TCENT *xp;
+	NUMBERTAB *np;
+	dbref target;
+
+	if (H_Redirect(player)) {
+	    np = (NUMBERTAB *) nhashfind(player, &mudstate.redir_htab);
+	    if (np) {
+		target = np->num; 
+	    } else {
+		/* Ick. If we have no pointer, we should have no flag. */
+		s_Flags3(player, Flags3(player) & ~HAS_REDIRECT);
+		target = Owner(player);
+	    }
+	} else {
+	    target = Owner(player);
+	}
 
 	while (tcache_head != NULL) {
 		xp = tcache_head;
 		tcache_head = xp->next;
-		notify(Owner(player),
+		notify(target,
 		       tprintf("%s(#%d)} '%s' -> '%s'", Name(player), player,
 			       xp->orig, xp->result));
 		free_lbuf(xp->orig);
