@@ -696,16 +696,18 @@ FUNCTION(fun_strtrunc)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_chomp: If the line ends with a newline ('\r\n'), chop it off.
+ * fun_chomp: If the line ends with CRLF, CR, or LF, chop it off.
  */
 
 FUNCTION(fun_chomp)
 {
-    int len = strlen(fargs[0]);
-    if ((fargs[0][len - 2] == '\r') && (fargs[0][len - 1] == '\n')) {
-	fargs[0][len - 2] = '\0';
-    }
-    safe_str(fargs[0], buff, bufc);
+	char *bb_p = *bufc;
+
+	safe_str(fargs[0], buff, bufc);
+	if (*bufc != bb_p && (*bufc)[-1] == '\n')
+		(*bufc)--;
+	if (*bufc != bb_p && (*bufc)[-1] == '\r')
+		(*bufc)--;
 }
 
 /* ---------------------------------------------------------------------------
