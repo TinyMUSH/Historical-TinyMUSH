@@ -86,17 +86,16 @@ int eval;
 		switch (*cstr) {
 		case '\\':	/* general escape */
 		case '%':	/* also escapes chars */
-			first = 0;
 			if ((*cstr == '\\') && (eval & EV_STRIP_ESC))
 				cstr++;
 			else
 				NEXTCHAR;
 			if (*cstr)
 				NEXTCHAR;
+			first = 0;
 			break;
 		case ']':
 		case ')':
-			first = 0;
 			for (tp = sp - 1; (tp >= 0) && (stack[tp] != *cstr); tp--) ;
 
 			/* If we hit something on the stack, unwind to it 
@@ -115,10 +114,10 @@ int eval;
 				*dstr = ++cstr;
 				return rstr;
 			}
+			first = 0;
 			NEXTCHAR;
 			break;
 		case '{':
-			first = 0;
 			bracketlev = 1;
 			if (eval & EV_STRIP) {
 				cstr++;
@@ -153,6 +152,7 @@ int eval;
 			} else if (bracketlev == 0) {
 				NEXTCHAR;
 			}
+			first = 0;
 			break;
 		default:
 			if ((*cstr == delim) && (sp == 0)) {
