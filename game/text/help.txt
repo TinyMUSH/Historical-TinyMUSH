@@ -10180,7 +10180,10 @@ See the individual help entries for comsys commands for details.
  
   Command: comtitle <alias>=<title>
  
-  This command allows you to prefix your name on a channel with a title.
+  This command allows you to prefix your name on a channel with a title,
+  or, if the channel if set Spoof, allows you to replace your name on
+  that channel with a title.
+  
   Titles are associated with specific aliases, so if you have multiple
   aliases associated with a single channel, you can have different titles
   for each alias.
@@ -10290,6 +10293,7 @@ See the individual help entries for comsys commands for details.
     public     -- All players see this on a @clist.
     loud       -- People on the channel see when someone on the channel
                   connects or disconnects.
+    spoof      -- Comtitles replace names, rather than prepending them.
     p_join     -- Any player can join this channel.
     p_transmit -- Any player can transmit on this channel.
     p_receive  -- Any player can receive on this channel.
