@@ -208,6 +208,7 @@ FUNCTION(fun_floor)
 	fval(buff, bufc, aton(fargs[0]));
 #endif
 }
+
 FUNCTION(fun_ceil)
 {
 #ifdef FLOATING_POINTS
@@ -232,6 +233,7 @@ FUNCTION(fun_ceil)
 	fval(buff, bufc, aton(fargs[0]));
 #endif
 }
+
 FUNCTION(fun_round)
 {
 #ifdef FLOATING_POINTS
