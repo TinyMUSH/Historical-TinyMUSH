@@ -965,6 +965,9 @@ int *db_format, *db_version, *db_flags;
 				s_Powers(i, f1);
 				s_Powers2(i, f2);
 			}
+
+			db[i].last_access = time(NULL);
+			db[i].last_mod = time(NULL);
 				
 			/* ATTRIBUTES */
 

@@ -644,6 +644,7 @@ const char *msg;
 
 	/* msg contains the raw message, msg_ns contains the NOSPOOFed msg */
 
+	s_Accessed(target);
 	check_listens = Halted(target) ? 0 : 1;
 	switch (Typeof(target)) {
 	case TYPE_PLAYER:

@@ -831,6 +831,8 @@ char *command, *args[];
 	    ENDLOG
        }
 
+	s_Accessed(player);
+
 	/* Reset recursion limits. Baseline the CPU counter. */
 
 	mudstate.func_nest_lev = 0;

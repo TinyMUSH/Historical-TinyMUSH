@@ -160,6 +160,9 @@ struct object {
 
 	int	name_length;	/* ALL: Length of name string */
 
+	time_t	last_access;	/* ALL: Time last accessed */
+	time_t	last_mod;	/* ALL: Time last modified */
+
 	int	stack_count;	/* ALL: number of things on the stack */
 	int	vars_count;	/* ALL: number of variables */
 	int	struct_count;	/* ALL: number of structures */
@@ -199,6 +202,13 @@ extern NAME *names;
 #define	Home(t)			Link(t)
 #define	Dropto(t)		Location(t)
 #define Atrlist(t)		db[t].atrlist
+
+#define AccessTime(t)		db[t].last_access
+#define ModTime(t)		db[t].last_mod
+#define s_AccessTime(t,n)	db[t].last_access = n;
+#define s_ModTime(t,n)		db[t].last_mod = n;
+#define s_Accessed(t)		db[t].last_access = mudstate.now;
+#define s_Modified(t)		db[t].last_mod = mudstate.now;
 
 #define VarsCount(t)		db[t].vars_count
 #define StackCount(t)		db[t].stack_count

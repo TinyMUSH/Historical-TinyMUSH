@@ -685,10 +685,15 @@ INLINE void safe_name(thing, outbuf, bufc)
 {
 	dbref aowner;
 	int aflags, alen;
+	time_t save_access_time;
 	char *buff;
 #ifdef MEMORY_BASED
 	static char tbuff[LBUF_SIZE];
 #endif
+
+	/* Retrieving a name never counts against an object's access time. */
+	save_access_time = AccessTime(thing);
+
 	if (mudconf.cache_names) {
 		if (!purenames[thing]) {
 			buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
@@ -710,6 +715,8 @@ INLINE void safe_name(thing, outbuf, bufc)
 	s_NameLen(thing, alen);
 	safe_known_str(tbuff, NameLen(thing), outbuf, bufc);
 #endif
+
+	s_AccessTime(thing, save_access_time);
 }
 
 INLINE char *Name(thing)
@@ -717,10 +724,14 @@ dbref thing;
 {
 	dbref aowner;
 	int aflags, alen;
+	time_t save_access_time;
 	char *buff;
 #ifdef MEMORY_BASED
 	static char tbuff[LBUF_SIZE];
 #endif
+
+	save_access_time = AccessTime(thing);
+
 	if (mudconf.cache_names) {
 		if (!purenames[thing]) {
 			buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
@@ -736,10 +747,12 @@ dbref thing;
     		s_NameLen(thing, alen);
     		free_lbuf(buff);
 	}
+	s_AccessTime(thing, save_access_time);
 	return names[thing];
 #else
 	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
         s_NameLen(thing, alen);
+	s_AccessTime(thing, save_access_time);
 	return ((char *) tbuff);
 #endif
 }
@@ -749,8 +762,11 @@ dbref thing;
 {
 	dbref aowner;
 	int aflags, alen;
+	time_t save_access_time;
 	char *buff;
 	static char tbuff[LBUF_SIZE];
+
+	save_access_time = AccessTime(thing);
 
 #ifndef MEMORY_BASED
 	if (!names[thing]) {
@@ -767,10 +783,12 @@ dbref thing;
 			set_string(&purenames[thing], strip_ansi(buff));
 			free_lbuf(buff);
 		}
+		s_AccessTime(thing, save_access_time);
 		return purenames[thing];
 	}
 	
 	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
+	s_AccessTime(thing, save_access_time);
 	return (strip_ansi((char *) tbuff));
 }
 
@@ -1456,6 +1474,12 @@ int attrnum;
 
 	al_code(&cp, attrnum);
 	*cp = '\0';
+
+#ifndef STANDALONE
+	if (!mudstate.loading_db)
+	    s_Modified(thing);
+#endif
+
 	return;
 }
 
@@ -1477,6 +1501,11 @@ int attrnum;
 	abuf = al_fetch(thing);
 	if (!abuf)
 		return;
+
+#ifndef STANDALONE
+	if (!mudstate.loading_db)
+	    s_Modified(thing);
+#endif
 
 	cp = abuf;
 	while (*cp) {
@@ -1572,6 +1601,10 @@ int *flags, atr, *alen;
 
 	if (!Good_obj(thing))
 		return 0;
+
+#ifndef STANDALONE
+	s_Accessed(thing);
+#endif
 
 	if (atr == A_LIST) {	/* This is not supposed to be compressed! */
 	    fprintf(mainlog_fp, "ABORT! db.c, list is compressed in atr_get_raw_decode().\n");
@@ -1809,6 +1842,11 @@ int atr;
 	al_delete(thing, atr);
 
 #endif /* MEMORY_BASED */
+
+#ifndef STANDALONE
+	s_Modified(thing);
+#endif /* STANDALONE */
+
 	switch (atr) {
 	case A_STARTUP:
 		s_Flags(thing, Flags(thing) & ~HAS_STARTUP);
@@ -2083,8 +2121,12 @@ int atr;
 	ATRLIST *list;
 	char *text;
 
-	if (thing < 0)
+	if (!Good_dbref(thing))
 		return NULL;
+
+#ifndef STANDALONE
+	s_Accessed(thing);
+#endif
 
 	/* Binary search for the attribute */
 	lo = 0;
@@ -2123,6 +2165,10 @@ int atr;
 	
 	if (Typeof(thing) == TYPE_GARBAGE)
 		return NULL;
+
+#ifndef STANDALONE
+	s_Accessed(thing);
+#endif
 	
 	if (atr != A_LIST) {
 		atr_push();

@@ -520,6 +520,9 @@ char *name;
 	s_Time_Used(obj, obj_time);
 #endif
 
+	s_Accessed(obj);
+	s_Modified(obj);
+
 	s_StackCount(obj, 0);
 	s_VarsCount(obj, 0);
 	s_StructCount(obj, 0);

@@ -1249,9 +1249,10 @@ char *name;
 {
 	dbref thing, content, exit, aowner, loc;
 	char savec;
-	char *temp, *buf, *buf2;
+	char *temp, *buf, *buf2, timebuf[32];
 	BOOLEXP *bool;
 	int control, aflags, alen, do_parent, is_special;
+	time_t save_access_time;
 
 	/* This command is pointless if the player can't hear. */
 
@@ -1287,6 +1288,11 @@ char *name;
 		if (!Good_obj(thing))
 			return;
 	}
+
+	/* We have to save our access time, because the very act of
+	 * trying to examine the object will have touched it.
+	 */
+	save_access_time = AccessTime(thing);
 
 	/* Check for the /debug switch */
 
@@ -1362,6 +1368,15 @@ char *name;
 			       mudconf.many_coins, Pennies(thing)));
 		free_lbuf(buf2);
 		mudconf.many_coins[0] = savec;
+
+		buf2 = (char *) ctime(&save_access_time);
+		buf2[strlen(buf2) - 1] = '\0';
+		strcpy(timebuf, buf2);
+		buf2 = (char *) ctime(&ModTime(thing));
+		buf2[strlen(buf2) - 1] = '\0';
+		notify(player,
+		       tprintf("Accessed: %s    Modified: %s",
+			       timebuf, buf2));
 
 		/* Print the zone */
 		
