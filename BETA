@@ -10,7 +10,9 @@ introduced. Non-specific version numbers indicate the following:
 
 Names after the bug origin version are the first sources for the bug
 reports. Where no name is given, the bug was discovered by the
-developers. ("RMG" refers to Robby Griffin, aka Alierak.)
+developers. ("RMG" refers to Robby Griffin, aka Alierak; he joined
+the development team on beta 18 and is not individually credit
+after that point.)
 
 The initial beta release was on 9/27/99.
 
@@ -810,3 +812,85 @@ The initial beta release was on 9/27/99.
 - Misc: Some configuration parameters have been moved from config.h
   to the Makefile. It should no longer be necessary to edit config.h
   before compiling, unless you are changing something pretty esoteric.
+
+-----------------------------------------------------------------------------
+
+9/10/2000: Beta 22
+
+- Feature: The Startmush script now writes a mush.pid file, and checks
+  it when restarting. This eliminates the need to edit Startmush if
+  you have a non-BSDish 'ps' command on your system, or have multiple
+  MUSHes running on the same system. 
+
+- Feature: The new Logclean script handles cleanup of logfiles, included
+  diverted logs. Startmush now calls it.
+
+- Feature: @chzone behavior now matches @chown, with regards to flags and
+  powers, including a new /nostrip switch. @chzone with no second argument
+  unzones the object ("none" still works as well).
+
+- Feature: @destroy/instant can now be used to immediately destroy objects
+  that are currently queued for destruction.
+
+- Feature: New conf parameter objeval_requires_control allows you to
+  prevent wizard-owned objects from using objeval() to evaluate functions
+  on objects with the same owner that it does not have permission to 
+  control (i.e., respects Inherit). Defaults to no.
+
+- Fix: You can escape out a colon in a $-command/^-listen match now. [2.0]
+
+- Fix: A variety of game-internal attributes are no longer copied by
+  @clone. [2.0]
+
+- Fix: The flags and owner of an attribute used as a semaphore are now
+  preserved. [MUX]
+
+- Fix: HTML is escaped on channels. [MUX; GrimJim]
+
+- Fix: Clearing @daily clears the cron entry. [3.0b16]
+
+- Fix: @decompile name ANSIfication is consistent. [MUX]
+
+- Fix: The parent of an object is cleared when it is destroyed. [2.0]
+
+- Fix: @mail/debug and @mail/nuke hashtable problems dealt with. [MUX]
+
+- Fix: @mail and @mail/review headers are now consistently centered. [MUX]
+
+- Fix: elock() now correctly detects lock attributes. [MUX]
+
+- Fix: The method of tracking connect times of open descriptors is now
+  consistent with that of tracking login times. [2.0]
+
+- Fix: Invalid syntax in an alias now logs an error message. [2.0]
+
+- Fix: The GARBAGE type is now denoted with '_' rather than '-' to
+  avoid conflict with the NOBLEED flag. [MUX]
+
+- Fix: ANSI bleeding in exits is now fixed. [MUX] 
+
+- Fix: Double output in pipes for disconnected players is now fixed. [MUX]
+
+- Misc: Players set Nospoof will now see Nospoof-formatted comsys messages.
+  Things on channels can now obtain the cause of a comsys message.
+
+- Misc: Gagged players can no longer talk on channels.
+
+- Misc: Zone adisconnects are also passed the reason as %0.
+
+- Misc: Some additional length-checking is done in the mail system.
+
+- Misc: Don't call Name() twice in a row.
+
+- Misc: Don't let the slave close its own pipe. Also check the game port
+  when a bad file descriptor is encountered.
+
+- Misc: Flag aliases are now set more sanely.
+
+- Misc: Attempting to change a constant conf parameter is now treated as
+  an error, instead of silently ignored.
+
+- Misc: The Build script now tee's off a Compile.log file, for easier
+  reporting of compilation problems to the developers.
+
+- Misc: A variety of unused code has been removed.
