@@ -53,7 +53,7 @@ mv -f $DATA/$GDBM_DB $DATA/$CRASH_DB $DATA/$BACKUP_DB $DATA/mod_*.db db-$DBDATE
 #
 case $ARCHIVE in
     *.tar.*) echo "Restoring archive."
-	INFILE=`echo $ARCHIVE | cut -d'.' -f1,2`
+	INFILE=`echo $ARCHIVE | sed -e "s/\\.tar\\.gz\$//"`
 	$UNZIP $ARCHIVE | tar -xvf -
 	$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
 	rm $INFILE ;;
