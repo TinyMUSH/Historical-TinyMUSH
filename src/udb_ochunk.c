@@ -77,8 +77,12 @@ int dddb_init()
 	 
 	cache_size = 2;
 	
+#ifndef STANDALONE
 	sprintf(tmpfile, "%s/%s", mudconf.dbhome, dbfile);
-                
+#else
+	strcpy(tmpfile, dbfile);
+#endif
+ 
 	if ((dbp = gdbm_open(tmpfile, block_size, GDBM_WRCREAT|GDBM_SYNC|GDBM_NOLOCK, 0600, dbm_error)) == (GDBM_FILE) 0) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
