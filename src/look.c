@@ -216,10 +216,8 @@ const char *exit_name;
 	if (Transparent(loc)) {
 	    DOLIST(thing, Exits(parent)) {
 		if (Can_See_Exit(player, thing, isdark)) {
-		    strcpy(buff, Name(thing));
-		    for (e = buff; *e && (*e != ';'); e++) ;
-		    safe_ansi_normal(buff, &e);
-		    *e = '\0';
+		    e = buff;
+		    safe_exit_name(thing, buff, &e);
 		    if (Location(thing) == NOTHING) {
 			notify(player,
 			       tprintf("%s leads nowhere.", buff));
@@ -240,17 +238,12 @@ const char *exit_name;
 	} else {
 	    DOLIST(thing, Exits(parent)) {
 		if (Can_See_Exit(player, thing, isdark)) {
-		    e1 = buff1;
-		    /* chop off first exit alias to display */
 		    if (buff != e)
 			safe_known_str((char *)"  ", 2, buff, &e);
-		    for (s = Name(thing); *s && (*s != ';'); s++)
-			safe_chr(*s, buff1, &e1);
-		    safe_ansi_normal(buff1, &e1);
-		    *e1 = '\0';
-		    /* Copy the exit name into 'buff' */
 #ifdef PUEBLO_SUPPORT
 		    if (Html(player)) {
+			e1 = buff1;
+			safe_exit_name(thing, buff1, &e1);
 			safe_str((char *) "<a xch_cmd=\"", buff, &e);
 			/* XXX Just stripping ansi isn't really enough. */
 			safe_str(strip_ansi(buff1), buff, &e);
@@ -261,7 +254,7 @@ const char *exit_name;
 		    } else {
 #endif
 			/* Append this exit to the list */
-			safe_str(buff1, buff, &e);
+			safe_exit_name(thing, buff, &e);
 #ifdef PUEBLO_SUPPORT
 		    }
 #endif
@@ -1635,13 +1628,10 @@ int key;
 		notify(player, "Exits:");
 		e = buff = alloc_lbuf("look_exits");
 		DOLIST(thing, thing) {
-
-			/* chop off first exit alias to display */
-
-			for (s = Name(thing); *s && (*s != ';'); s++)
-				safe_chr(*s, buff, &e);
-			safe_ansi_normal(buff, &e);
-			safe_str((char *)"  ", buff, &e);
+		    if (e != buff) {
+			safe_known_str((char *)"  ", 2, buff, &e);
+		    }
+		    safe_exit_name(thing, buff, &e);
 		}
 		*e = '\0';
 		notify(player, buff);
@@ -1863,11 +1853,8 @@ int key, is_loc;
 			       tprintf("  %s is listening. [%s]",
 				       Name(what), buf));
 		} else {
-			buf2 = alloc_lbuf("sweep_check.name");
-			strcpy(buf2, Name(what));
-			for (bp = buf2; *bp && (*bp != ';'); bp++) ;
-			safe_ansi_normal(buf2, &bp);
-			*bp = '\0';
+			bp = buf2 = alloc_lbuf("sweep_check.name");
+			safe_exit_name(what, buf2, &bp);
 			notify(player,
 			     tprintf("  %s is listening. [%s]", buf2, buf));
 			free_lbuf(buf2);
@@ -2020,12 +2007,8 @@ char *name, *qual;
 			StringCopy(thingname, Name(thing));
 			notify(player,
 			       tprintf("@open %s", translate_string(thingname, 1)));
-			for (got = thingname; *got; got++) {
-				if (*got == EXIT_DELIMITER) {
-					*got = '\0';
-					break;
-				}
-			}
+			got = thingname;
+			safe_exit_name(thing, thingname, &got);
 			break;
 		case TYPE_PLAYER:
 			StringCopy(thingname, "me");

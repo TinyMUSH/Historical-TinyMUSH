@@ -769,6 +769,41 @@ char *s;
     set_string(&purenames[thing], strip_ansi((char *)s));
 }
 
+void safe_exit_name(it, buff, bufc)
+    dbref it;
+    char *buff, **bufc;
+{
+    char *startp, *savep, *bp;
+    int have_normal, is_ansi = 0;
+
+    bp = *bufc;
+    startp = bp;
+    safe_name(it, buff, &bp);
+
+    bp = startp;
+    while (*bp && (*bp != EXIT_DELIMITER)) {
+	if (*bp == ESC_CHAR) {
+	    is_ansi = 1;
+	    savep = bp;
+	    while (*bp && (*bp != ANSI_END))
+		bp++;
+	    if (*bp)
+		bp++;
+	    if (!strncmp(savep, ANSI_NORMAL, 4))
+		have_normal = 1;
+	    else
+		have_normal = 0;
+	} else {
+	    bp++;
+	}
+    }
+
+    if (is_ansi && !have_normal)
+	safe_ansi_normal(buff, &bp);
+    *bp = '\0';
+    *bufc = bp;
+}
+
 void s_Pass(thing, s)
 dbref thing;
 const char *s;

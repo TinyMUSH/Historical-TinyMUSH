@@ -380,13 +380,10 @@ FUNCTION(fun_name)
 			return;
 		}
 	}
-	temp = *bufc;
-	safe_name(it, buff, bufc);
-	if (isExit(it)) {
-		for (s = temp; (s != *bufc) && (*s != ';'); s++) ;
-		if (*s == ';')
-			*bufc = s;
-	}
+	if (isExit(it))
+	    safe_exit_name(it, buff, bufc);
+	else
+	    safe_name(it, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

@@ -596,12 +596,11 @@ int could_hear, can_hear;
 	int gender;
 
 	if (!could_hear && can_hear) {
-		buff = alloc_lbuf("handle_ears.grow");
-		StringCopy(buff, Name(thing));
-		if (isExit(thing)) {
-			for (bp = buff; *bp && (*bp != ';'); bp++) ;
-			*bp = '\0';
-		}
+		bp = buff = alloc_lbuf("handle_ears.grow");
+		if (isExit(thing))
+		    safe_exit_name(thing, buff, &bp);
+		else
+		    safe_name(thing, buff, &bp);
 		gender = get_gender(thing);
 		notify_check(thing, thing,
 			     tprintf("%s %s now listening.",
@@ -609,12 +608,11 @@ int could_hear, can_hear;
 			     (MSG_ME | MSG_NBR | MSG_LOC | MSG_INV));
 		free_lbuf(buff);
 	} else if (could_hear && !can_hear) {
-		buff = alloc_lbuf("handle_ears.lose");
-		StringCopy(buff, Name(thing));
-		if (isExit(thing)) {
-			for (bp = buff; *bp && (*bp != ';'); bp++) ;
-			*bp = '\0';
-		}
+		bp = buff = alloc_lbuf("handle_ears.lose");
+		if (isExit(thing))
+		    safe_exit_name(thing, buff, &bp);
+		else
+		    safe_name(thing, buff, &bp);
 		gender = get_gender(thing);
 		notify_check(thing, thing,
 			     tprintf("%s %s no longer listening.",
