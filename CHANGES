@@ -75,8 +75,9 @@ highly significant changes are noted here.
   the stack (i.e., associated with a specific object, persistent until a
   restart is done), have been added. setx() sets a named variable,
   xvars() parses a list of strings into a list of variables, regparse()
-  parses a regular expression into a list of variables, and x() accesses
-  a named variable.
+  parses a regular expression into a list of variables, x() accesses
+  a named variable, lvars() lists named variables, and clearvars()
+  mass-unsets named variables.
 
 - Added chomp() function -- akin to perl chomp(), it chomps off a
   trailing carriage-return newline from a string, if there is one.
