@@ -13,6 +13,12 @@ TinyMUSH 3.0 beta 1 was released on ?????.
 
 CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 
+- A new script, Update, automatically downloads and applies official patches
+  to TinyMUSH 3.
+
+- The Backup, Restore, and Archive scripts can now look at a backups
+  directory (set in mush.config).
+
 - Dynamically loadable modules. There is now an interface for writing your
   own hardcode extensions to the server, and loading them at runtime.
   The comsys and mailer are now loadable modules; the USE_COMSYS and 
@@ -52,7 +58,7 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   certain wildcard patterns to be given certain default flags. Attribute
   names can now start with '_'. (To implement a rule like, "All attributes
   whose names start with '_' can only be set by wizards," you would add,
-  "attr_type _* private wizard" to your conf file.)
+  "attr_type _* wizard" to your conf file.)
 
 - A new conf parameter, database_home, has been introduced. This is
   the directory where all the database files are stored. This eliminates
@@ -78,6 +84,20 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   for the number of seconds of CPU time that can be taken up by
   function evaluations associated with a command.
 
+- The new conf parameters guest_basename, guest_prefixes, guest_suffixes,
+  and guest_password allow flexible naming of guests. See the FAQ for
+  details. (The guest_prefix parameter is now obsolete, and has been
+  removed.)
+
+- The new conf parameter power_alias allows you to set aliases for
+  powers. The compat.conf file now contains aliases for mapping PennMUSH
+  and TinyMUX power names.
+
+- The new conf parameter visible_wizards (disabled by default) results
+  in DARK wizards being hidden from WHO (and related things), but not
+  being invisible and silent. This prevents accidental or deliberate
+  spying by DARK wizards.
+
 - Last-accessed and last-modified timestamps are now tracked for all
   objects. The timestamps are visible on an 'examine', and the seconds-value
   can be retrieved via the new functions lastaccess() and lastmod().
@@ -86,10 +106,34 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   bloat due to tail-end garbage.
 
 - A new attribute, LastIP, tracks the last IP address of a player.
+  When Lastsite is set, the identd user and hostname are no longer
+  truncated.
+
+- General visibility of an attribute is now consistently controlled by the
+  'visual' attribute flag (previously it was controlled by 'private' on the
+  global attribute definition, and 'visual' on the specific attribute).
+  Attributes default to not visual; if you were previously defining global
+  attributes with '!private' (via @attribute/access, user_attr_access, etc.)
+  you should now define them as 'visual'. Databases are automatically
+  converted to have the appropriate attribute flags.
+
+- Visibility restrictions on attributes have been sanitized, so they are
+  consistent across commands and functions. This changes the behavior of
+  get() and related functions, which now return #-1 PERMISSION DENIED
+  rather than #-1 TOO FAR AWAY TO SEE when attempting to read a remote
+  @desc without permission.
 
 -----------------------------------------------------------------------------
 
 CHANGES TO FLAGS AND POWERS
+
+- If a wizard connects while DARK, they are reminded that they are
+  currently set DARK. Also, wizards are notified when they are set
+  DARK due to idle-wizards-being-set-dark.
+
+- There is a new type of lock, the DarkLock, which controls whether or
+  not a player sees an object as DARK. Based loosely on a patch by
+  Malcolm Campbell (Calum).
 
 - The new ORPHAN flag, when set on an object, prevents the object from
   inheriting $-commands from its parents (just like objects in the master
@@ -109,6 +153,13 @@ CHANGES TO FLAGS AND POWERS
 
 CHANGES TO COMMANDS
 
+- A new command, @floaters, shows floating rooms. Floating rooms are no
+  longer reported by @dbck, and thus the FLOATING flag has been eliminated
+  (since it's no longer needed to suppress @dbck spam).
+
+- The @emit, @femit, @fpose, page, pose, and say commands now take a
+  /noeval switch. (Analogous to the /noeval switch for @pemit.)
+
 - The new /permit switch to @hook allows the permissions for a built-in
   command to be defined via a user-defined function.
 
@@ -124,6 +175,11 @@ CHANGES TO COMMANDS
   command_recursion_limit are used to limit this behavior.
 
 - Commands added via @addcommand are now run immediately.
+
+- @cpattr can copy multiple attributes at a time.
+
+- The global flags for attributes are now shown in parentheses, when
+  an object is examined.
 
 - Functions defined via @function can be listed via @function/list.
 
@@ -141,6 +197,10 @@ CHANGES TO COMMANDS
   by someone who does not control it, thus allowing non-Wizards to
   participate in mutual debugging sessions. Based on an idea from
   AlloyMUSH.
+
+- A @dbck is automatically done before a @restart or normal @shutdown,
+  so recycling cleanup is done first, thus avoiding inconsistencies
+  upon startup.
 
 - The @teleport command can now be used on exits. Players with the
   Open_Anywhere power can now drop or @teleport exits to any location.
@@ -170,6 +230,26 @@ CHANGES TO FUNCTIONS
 - Added a variety of comsys-related functions: comalias(), comdesc(),
   cominfo(), comlist(), comowner(), comtitle(), cwhoall().
 
+- The filter(), filterbool(), map(), and while() functions pass the
+  position of the element in the list as %1. fold() passes the position
+  of the element in the list as %2. foreach() passes the position of
+  the character in the string (starting from position 0). Based on
+  an idea from PennMUSH.
+
+- The idle(), conn(), and doing() functions can now take a port number.
+
+- The escape(), secure(), capstr(), lcstr(), and ucstr() functions now
+  handle ANSI properly.
+
+- Added cand(), cor(), candbool(), and corbool(), similar to and() etc.,
+  except these functions stop evaluating their arguments once a terminating
+  conclusion is reached. Based on an idea from PennMUSH.
+
+- chomp() can now handle a lone CR or LF.
+
+- You can now get attribute flags with flags(<obj>/<attr>). Based on an
+  idea from PennMUSH.
+
 - Added graball(), which is to grab() what matchall() is to match().
 
 - Added ilev(), itext(), and inum() functions, for retrieving data
@@ -182,6 +262,10 @@ CHANGES TO FUNCTIONS
 - The ljust(), rjust(), and center() functions can take multi-character
   fills.
 
+- The lunion(), linter(), and ldiff() functions are similar to setunion(),
+  etc., but an attempt is made to autodetect the list type and sort
+  accordingly, or you can specify a sort type, as you can with sort().
+
 - The modify() function now takes lists, enabling multiple variables
   to be modified at once.
 
@@ -190,6 +274,13 @@ CHANGES TO FUNCTIONS
   new modulo(), remainder(), and floordiv() functions. The mod()
   function is now an alias for modulo(); if you want it to be an
   alias for remainder() instead, change it in alias.conf
+
+- Added nattr(), which counts the number of attributes on an object.
+
+- sees() can now evaluate the visibility of exits as well as things.
+  Also, a small bug has been fixed: the see_owned_dark calculation in
+  sees() now uses the object doing the looking, not the player invoking
+  the function.
 
 - Added session(), which returns command count, bytes of input, and
   bytes of output associated with a port.
@@ -215,8 +306,7 @@ OTHER CHANGES
 - Dynamic allocation of string conf parameters.
 
 - Break-out of functions into many files, sorted by function type.
-
-- Break-out of the command tables into a separate file, for ease of
+  Break-out of the command tables into a separate file, for ease of
   maintenance.
 
 - Other cleanup in many parts of the code, including performance enhancements
