@@ -305,6 +305,10 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	FIXDB_PENNIES	32	/* Fix PENNIES field */
 #define	FIXDB_NAME	64	/* Set NAME attribute */
 #define	FLOATERS_ALL	1	/* Display all floating rooms in db */ 
+#define FUNCT_LIST	1	/* List the user-defined functions */
+#define FUNCT_NO_EVAL	2	/* Don't evaluate args to function */
+#define FUNCT_PRIV	4	/* Perform ufun as holding obj */
+#define FUNCT_PRES	8	/* Preserve r-regs before ufun */
 #define	FRC_COMMAND	1	/* what=command */
 #define FRC_NOW		2	/* run command immediately, no queueing */
 #define	GET_QUIET	1	/* Don't do osucc/asucc if control */
@@ -453,7 +457,6 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	FN_NO_EVAL	0x40000000	/* Don't evaluate args to function */
 #define	FN_PRIV		0x20000000	/* Perform ufun as holding obj */
 #define FN_PRES		0x10000000	/* Preserve r-regs before ufun */
-#define FN_LIST		0x08000000	/* List the user-defined functions */
 /* Lower flag values are used for function-specific switches */
 
 /* Message forwarding directives */

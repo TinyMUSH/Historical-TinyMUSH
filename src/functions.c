@@ -55,7 +55,7 @@ char *fname, *target;
 
 	/* Check for list first */
 
-	if (key & FN_LIST) {
+	if (key & FUNCT_LIST) {
 	    
 	    if (fname && *fname) {
 
@@ -140,7 +140,7 @@ char *fname, *target;
 	}
 	/* Privileged functions require you control the obj.  */
 
-	if ((key & FN_PRIV) && !Controls(player, obj)) {
+	if ((key & FUNCT_PRIV) && !Controls(player, obj)) {
 		notify_quiet(player, NOPERM_MESSAGE);
 		free_sbuf(np);
 		return;
@@ -174,7 +174,15 @@ char *fname, *target;
         }
 	ufp->obj = obj;
 	ufp->atr = atr;
-	ufp->flags = key;
+
+	ufp->flags = 0;
+	if (key & FUNCT_NO_EVAL)
+	    ufp->flags |= FN_NO_EVAL;
+	if (key & FUNCT_PRIV)
+	    ufp->flags |= FN_PRIV;
+	if (key & FUNCT_PRES)
+	    ufp->flags |= FN_PRES;
+
 	free_sbuf(np);
 	if (!Quiet(player))
 		notify_quiet(player, tprintf("Function %s defined.", fname));
