@@ -239,20 +239,30 @@ AC_ARG_ENABLE(cpu-checking,
     fi
   ], AC_MSG_RESULT(no))
 
-AC_MSG_CHECKING(whether to enable malloc-logging macros)
-AC_ARG_ENABLE(malloc-logging,
-  [  --enable-malloc-logging use wrapper macros for malloc(), free(), and
-                          related functions to print log messages when the
-                          functions are called. This can be useful for
-                          tracking down memory leaks, but it is spammy;
-                          try other debugging tools first [default=no]],
+AC_MSG_CHECKING(whether to enable malloc-wrapper macros)
+AC_ARG_ENABLE(malloc-wrapper,
+  [  --enable-malloc-wrapper=TYPE
+                          use wrapper macros for malloc(), free(), and
+                          related functions to do one of the following,
+                          which can help identify memory leaks:
+                          track - maintain a tagged list of memory
+                                  allocated for purposes other than the
+                                  buffer pool (see @list raw_memory)
+                          log   - print log messages when the functions
+                                  are called. This is spammy; try other
+                                  debugging tools first
+                          [default=no]],
   [
-    if test "x$enableval" = "xno"; then
-      AC_MSG_RESULT(no)
-    else
+    case "$enableval" in
+    trac*)
+      AC_DEFINE(RAW_MEMTRACKING)
+        AC_MSG_RESULT(tracking) ;;
+    log*)
       AC_DEFINE(TEST_MALLOC)
-        AC_MSG_RESULT(yes)
-    fi
+        AC_MSG_RESULT(logging) ;;
+    *)
+      AC_MSG_RESULT(no) ;;
+    esac
   ], AC_MSG_RESULT(no))
 
 AC_MSG_CHECKING(how many global registers to use)

@@ -32,6 +32,8 @@
 /* Define if we should track cpu time instead of wall clock time */
 #undef TRACK_USER_TIME
 /* Define if we should track XMALLOC and XFREE usage */
+#undef RAW_MEMTRACKING
+/* Alternatively, define if we should log XMALLOC and XFREE usage */
 #undef TEST_MALLOC
 /* Set this to the desired number of global registers (10-36) */
 #undef MAX_GLOBAL_REGS
