@@ -1,7 +1,232 @@
-TinyMUSH 3.0 Baseline Release
-=============================
+This document details changes for TinyMUSH 3 "mainline" releases, 
+as well as bugfix updates issued against those mainline releases.
 
-This document details user-visible or otherwise highly significant
+For changes between beta versions, consult the BETA document. 
+
+=============================================================================
+			TinyMUSH 3.1 Changes
+=============================================================================
+
+TinyMUSH 3.0 beta 1 was released on ?????.
+
+-----------------------------------------------------------------------------
+
+CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
+
+- Dynamically loadable modules. There is now an interface for writing your
+  own hardcode extensions to the server, and loading them at runtime.
+  The comsys and mailer are now loadable modules; the USE_COMSYS and 
+  USE_MAIL #ifdef's and the have_comsys and have_mailer conf directives
+  are no longer needed.
+
+- Many changes and improvements to caching.
+
+  - Instead of starting the cache at some fixed width and depth, and
+    growing the depth (but not the width) to whatever size is demanded by
+    the game, which can cause "cache bloat" if a very large number of
+    objects gets loaded into the cache as part of a single operation,
+    the total size of the cache is fixed -- the amount of memory that
+    the cached data takes cannot exceed a specified limit.
+
+  - The attribute list for each object is now cached, which speeds up
+    attribute lookups, and removes the necessity to pull the entire
+    object from the cache if we're just looking for an attribute that
+    turns out to be non-existent on the object.
+
+  - Removal of elements from the cache is based on "least recently used"
+    rather than "not frequently used".
+
+  - Attribute caching is now used, with cache bypass in situations where
+    this is not efficient.
+
+  - @list cache now shows the number of recent references to each listed
+    object.
+
+- Extensive work on improving autoconf and libtool use (thus improving
+  portability). Compile-time options are now specified as switches to
+  the configure script.
+
+- Help entries can now have multiple index terms.
+
+- A new conf parameter, attr_type, allows attributes whose names match
+  certain wildcard patterns to be given certain default flags. Attribute
+  names can now start with '_'. (To implement a rule like, "All attributes
+  whose names start with '_' can only be set by wizards," you would add,
+  "attr_type _* private wizard" to your conf file.)
+
+- A new conf parameter, database_home, has been introduced. This is
+  the directory where all the database files are stored. This eliminates
+  the necessity to provide a directory path for input_database, etc.
+
+- New conf parameters exit_proto, room_proto, etc. allow one object of
+  each type to be defined as the "prototype" for new objects of that
+  type. When an object of that type is created, it copies the flags,
+  parent, zone (if 'autozone' is off), and attributes of the prototype;
+  the effect is similar to cloning.
+
+- New conf parameters exit_attr_defaults, room_attr_defaults, etc.
+  allow one object of each type to be defined as the repository for
+  "attribute defaults" for many built-in attributes, such as
+  attr/oattr pairs (@desc, @odesc, @succ, @osucc, etc.), @conformat,
+  and @exitformat. These defaults override the attributes set on
+  objects of that type (the local value of the attribute is passed
+  to it as %0, for evaluation). This allows the global definition
+  of formats for those attributes, without requiring a global
+  parenting scheme or an unusual attribute naming scheme.
+
+- The new conf parameter function_cpu_limit allows you to set a limit
+  for the number of seconds of CPU time that can be taken up by
+  function evaluations associated with a command.
+
+- Last-accessed and last-modified timestamps are now tracked for all
+  objects. The timestamps are visible on an 'examine', and the seconds-value
+  can be retrieved via the new functions lastaccess() and lastmod().
+
+- Garbage is trimmed from the top of the database, if possible, reducing
+  bloat due to tail-end garbage.
+
+- A new attribute, LastIP, tracks the last IP address of a player.
+
+-----------------------------------------------------------------------------
+
+CHANGES TO FLAGS AND POWERS
+
+- The new ORPHAN flag, when set on an object, prevents the object from
+  inheriting $-commands from its parents (just like objects in the master
+  room do not inherit $-commands from their parents). This allows you to
+  @parent a command object to a data object, without worrying about the
+  overhead of scanning the data object for $-commands.
+
+- @filter, @infilter, and @listen do regular expression matches if
+  set 'regexp'. They do not evaluate themselves before matching,
+  if set 'no_parse'.
+
+- A new attribute flag, 'case', controls whether regular expression matching
+  is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
+  @listen.
+
+-----------------------------------------------------------------------------
+
+CHANGES TO COMMANDS
+
+- The new /permit switch to @hook allows the permissions for a built-in
+  command to be defined via a user-defined function.
+
+- The new Spoof comsys flag, when set on a channel, replaces player names
+  with their comtitles, instead of prepending the comtitle to the player
+  name.
+
+- Some commands that would normally be queued can now be executed
+  immediately, using the /now switch: @dolist/now (@iter), @force/now,
+  @switch/now (@branch), @trigger/now (@call), @verb/now
+  force() and trigger() now behave like @force/now and @trigger/now.
+  The new conf parameters command_invocation_limit and 
+  command_recursion_limit are used to limit this behavior.
+
+- Commands added via @addcommand are now run immediately.
+
+- Functions defined via @function can be listed via @function/list.
+
+- Function permissions can be listed via @list func_permissions.
+
+- The new @log command can be used to log arbitrary messages to the
+  logfile(s).
+
+- When you log in, you are warned if you are currently in the midst
+  of writing a @mail message.
+
+- The new @redirect command can be used to redirect Trace, Puppet, and
+  Verbose output from an object, to a player other than the object's
+  owner. The REDIR_OK flag allows an object's output to be redirected
+  by someone who does not control it, thus allowing non-Wizards to
+  participate in mutual debugging sessions. Based on an idea from
+  AlloyMUSH.
+
+- The @teleport command can now be used on exits. Players with the
+  Open_Anywhere power can now drop or @teleport exits to any location.
+
+- Specifying an object to @trigger is now optional; if no object is
+  specified, the object defaults to 'me'.
+
+-----------------------------------------------------------------------------
+
+CHANGES TO FUNCTIONS
+
+- The number of global registers is now configurable, from 10 to 36.
+  Beyond %q0-%q9 are %qa-%qz. Based on an idea from PennMUSH.
+
+- The caller of a function can now be tracked via %@; it's normally equal
+  to the enactor, except where u()-type functions, including objeval()
+  and @functions, are called. This provides better security-checking
+  capabilities. Based on an idea from PennMUSH.
+
+- Extended regular expression syntax from Perl 5 is now supported.
+  This is based on the PCRE library, as modified by the PennMUSH team.
+
+- New regular expression functions: regedit(), regediti(), regeditall(),
+  regeditalli(), regrab(), regrabi(), regraball(), regraballi(),
+  regrep(), regrepi(), regmatchi(), regparsei().
+
+- Added a variety of comsys-related functions: comalias(), comdesc(),
+  cominfo(), comlist(), comowner(), comtitle(), cwhoall().
+
+- Added graball(), which is to grab() what matchall() is to match().
+
+- Added ilev(), itext(), and inum() functions, for retrieving data
+  from multiple levels of nested iter()-type functions. Based on
+  an idea from PennMUSH.
+
+- Added ledit() function, a mass find-and-replace on a list which can
+  replace many instances of nested edit() calls.
+
+- The ljust(), rjust(), and center() functions can take multi-character
+  fills.
+
+- The modify() function now takes lists, enabling multiple variables
+  to be modified at once.
+
+- The behavior of remainders in division with negative numbers is
+  now consistent (rather than being compiler-dependent), including
+  new modulo(), remainder(), and floordiv() functions. The mod()
+  function is now an alias for modulo(); if you want it to be an
+  alias for remainder() instead, change it in alias.conf
+
+- Added session(), which returns command count, bytes of input, and
+  bytes of output associated with a port.
+
+- Added store(), which is basically to setx() what setr() is to setq().
+
+- Added until() function, which is similar to while(), except it operates
+  on multiple lists and terminates on a regular expression condition.
+
+- Added whentrue() and whenfalse() functions, which go through a list
+  iter()-style until a terminating boolean condition is reached.
+
+- Added wildgrep(), wildmatch(), and wildparse(), which are similar to
+  regrep(), regmatch() and regparse(), but work against wildcard patterns
+  rather than regexps.
+
+-----------------------------------------------------------------------------
+
+OTHER CHANGES
+
+- Improvement in logging facilities.
+
+- Dynamic allocation of string conf parameters.
+
+- Break-out of functions into many files, sorted by function type.
+
+- Break-out of the command tables into a separate file, for ease of
+  maintenance.
+
+- Other cleanup in many parts of the code, including performance enhancements
+  and portability improvements.
+
+=============================================================================
+			TinyMUSH 3.0 Changes
+=============================================================================
+
+This change list details user-visible or otherwise highly significant
 changes in TinyMUSH 3.0. The bugfixes and general code reworking done
 in the course of merging TinyMUSH 2.2 and TinyMUX line-by-line, as
 well as throughout an extensive cleanup, bugfix, and
@@ -12,11 +237,8 @@ Note that these are only changes that are completely new to both
 TinyMUSH 2.2 and TinyMUX; enhancements that were in one server but not
 the other have been listed in the conversion notes for both servers.
 
-Future versions of this document will include changes between each
-release of TinyMUSH 3.
-
 TinyMUSH 3.0 beta 1 was released on September 27th, 1999.
-This "full", gamma release of TinyMUSH 3.0 is dated December 1st, 2000.
+The "full", gamma release of TinyMUSH 3.0 is dated December 1st, 2000.
 
 -----------------------------------------------------------------------------
 
@@ -356,5 +578,13 @@ CHANGES TO FUNCTIONS
 
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.
+
+-----------------------------------------------------------------------------
+
+BUGFIX PATCHES
+
+Patchlevel 1:
+  - Fix of a potentially fatal error in the clearing of variables.
+    [3.0a4; S'ryon]
 
 =============================================================================

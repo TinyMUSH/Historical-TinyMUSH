@@ -1,6 +1,6 @@
 INSTALLATION
 
-TinyMUSH 3.0 should be straightforward to install and run.
+TinyMUSH 3 should be straightforward to install and run.
 
 The installation process assumes that you are familiar with basic Unix
 commands. If you are not familiar with basic Unix commands, you will
@@ -21,7 +21,7 @@ just type:
 (You must be in the directory that this INSTALL file is in.)
 
 When the build finishes, assuming there are no errors, you are ready to
-start a new MUSH, or convert an existing MUSH to TinyMUSH 3.0.
+start a new MUSH, or convert an existing MUSH to TinyMUSH 3.
 
 If the build fails for some reason, look in the section of this
 install guide titled COMPATIBILITY for help.
@@ -41,9 +41,9 @@ in the one-step install, the installation process is as follows:
 
 - Type './configure --enable-shared=no --enable-static=yes', then type
   'make' . This will compile the GNU dbm library, which is required by
-  TinyMUSH 3.0.
+  TinyMUSH 3.
 
-  Please Note: TinyMUSH 3.0 requires gdbm-1.8.0! If gdbm is already
+  Please Note: TinyMUSH 3 requires gdbm-1.8.0! If gdbm is already
   installed on your system, chances are that it's version 1.7.3 or
   earlier -- do NOT ignore this step.
 
@@ -87,7 +87,7 @@ in the one-step install, the installation process is as follows:
   guide titled COMPATIBILITY for help.)
 
 - You are now ready to start a new game, or convert an existing game to
-  TinyMUSH 3.0.
+  TinyMUSH 3.
 
 ----------------------------------------------------------------------------
 
@@ -146,9 +146,15 @@ instructions.
 
 COMPATIBILITY
 
-TinyMUSH 3.0 is believed to be compatible with all major versions of
+TinyMUSH 3 is believed to be compatible with all major versions of
 Unix, including SunOS 4.1.x, Solaris, Irix, AIX, HP-UX, NetBSD, Linux,
 and MacOS X. There is no official Windows NT port, at present.
+
+TinyMUSH 3.1 utilizes dynamically loadable modules. Some functionality
+will not be available with Unix versions that do not have a reasonable
+implementation of dlopen() and related functions. This includes HP-UX
+and AIX; if you are running on such a system and can make it available
+to the developers to do a port, it would be appreciated.
 
 The frequent releases of new Linux versions, the proliferation of
 multiple Linux development paths, and the incompatibility between
