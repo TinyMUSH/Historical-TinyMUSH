@@ -176,7 +176,6 @@ struct confdata {
 	int	trace_topdown;	/* Is TRACE output top-down or bottom-up? */
 	int	trace_limit;	/* Max lines of trace output if top-down */
 	int	safe_unowned;	/* Are objects not owned by you safe? */
-	int	parent_control; /* Obey ControlLock on parent */
 	int	wiz_obey_linklock;	/* Do wizards obey linklocks? */
 	int	local_masters;	/* Do we check Zone rooms as local masters? */
 	int	req_cmds_flag;	/* COMMANDS flag required to check $-cmds? */

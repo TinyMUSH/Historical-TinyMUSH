@@ -206,7 +206,6 @@ void NDECL(cf_init)
 	mudconf.trace_topdown = 1;
 	mudconf.trace_limit = 200;
 	mudconf.safe_unowned = 0;
-	mudconf.parent_control = 0;
 	mudconf.wiz_obey_linklock = 0;
 	mudconf.local_masters = 1;
 	mudconf.req_cmds_flag = 1;
@@ -1389,8 +1388,6 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.pagecost,		0},
 {(char *)"paranoid_allocate",
 	cf_bool,	CA_GOD,		&mudconf.paranoid_alloc,	0},
-{(char *)"parentable_control_lock",
-	cf_bool,	CA_STATIC,	&mudconf.parent_control,	0},
 {(char *)"parent_recursion_limit",
 	cf_int,		CA_GOD,		&mudconf.parent_nest_lim,	0},
 {(char *)"paycheck",
