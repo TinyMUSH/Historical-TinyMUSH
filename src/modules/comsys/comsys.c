@@ -1846,10 +1846,6 @@ void load_comsys(filename)
     FILE *fp;
     char t_mbuf[MBUF_SIZE];
 
-    hashinit(&mudstate.comsys_htab, 15 * HASH_FACTOR);
-    hashinit(&mudstate.calias_htab, 500 * HASH_FACTOR);
-    nhashinit(&mudstate.comlist_htab, 100 * HASH_FACTOR);
-
     STARTLOG(LOG_STARTUP, "INI", "COM")
 	log_text((char *) "Loading comsys db: ");
 	log_text(filename);

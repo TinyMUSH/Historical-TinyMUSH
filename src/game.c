@@ -1623,7 +1623,11 @@ char *argv[];
 #ifdef USE_MAIL
 	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
 #endif
-
+#ifdef USE_COMSYS
+	hashinit(&mudstate.comsys_htab, 15 * HASH_FACTOR);
+	hashinit(&mudstate.calias_htab, 500 * HASH_FACTOR);
+	nhashinit(&mudstate.comlist_htab, 100 * HASH_FACTOR);
+#endif
 	add_helpfile(GOD, (char *) "help text/help", 1);
 	add_helpfile(GOD, (char *) "wizhelp text/wizhelp", 1);
 	add_helpfile(GOD, (char *) "news text/news", 0);
