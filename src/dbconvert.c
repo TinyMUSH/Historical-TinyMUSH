@@ -16,6 +16,17 @@
 extern void NDECL(cf_init);
 extern void FDECL(do_dbck, (dbref, dbref, int));
 extern void NDECL(vattr_init);
+
+/* ---------------------------------------------------------------------------
+ * Cheap hack to avoid issues in compiling standalone.
+ */
+
+void raw_notify(player, msg)
+    dbref player;
+    const char *msg;
+{
+}
+
 /* ---------------------------------------------------------------------------
  * info: display info about the file being read or written.
  */
