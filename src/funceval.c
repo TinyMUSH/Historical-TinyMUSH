@@ -2943,6 +2943,8 @@ FUNCTION(fun_lstack)
  * fun_setx: Sets a variable. xset(<variable name>,<value>)
  * fun_xvars: Takes a list, parses it, sets it into variables.
  *            xvars(<list>,<space-separated variable list>,<delimiter>)
+ * fun_lvars: Shows a list of variables associated with that object.
+ * fun_clearvars: Clears all variables associated with that object.
  */
 
 FUNCTION(fun_x)
@@ -2969,6 +2971,11 @@ static void set_xvar(obj, name, data)
 {
     VARENT *xvar;
     char tbuf[SBUF_SIZE], *tp;
+
+    /* If we don't have at least one character in the name, toss it. */
+
+    if (!name || !*name)
+	return;
 
     /* Variable string is '<dbref number minus #>.<variable name>' */
 
@@ -3060,6 +3067,80 @@ FUNCTION(fun_xvars)
 
     free_lbuf(elemlist);
     free_lbuf(varlist);
+}
+
+
+FUNCTION(fun_lvars)
+{
+    /* This is computationally expensive. Its use should be discouraged. */
+
+    char tbuf[SBUF_SIZE], *tp;
+    HASHTAB *htab;
+    HASHENT *hptr;
+    int i, len;
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_chr('.', tbuf, &tp);
+    *tp = '\0';
+    len = strlen(tbuf);
+
+    htab = &mudstate.vars_htab;
+    for (i = 0; i < htab->hashsize; i++) {
+	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	    if (!strncmp(tbuf, hptr->target, len)) {
+		if (*bufc != buff)
+		    safe_chr(' ', buff, bufc);
+		safe_str((char *) (index(hptr->target, '.') + 1), buff, bufc);
+	    }
+	}
+    }
+}
+
+
+FUNCTION(fun_clearvars)
+{
+    /* This is computationally expensive. Necessary, but its use should
+     * be avoided if possible.
+     */
+
+    char tbuf[SBUF_SIZE], *tp;
+    HASHTAB *htab;
+    HASHENT *hptr, *last, *next;
+    int i, len;
+    VARENT *xvar;
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_chr('.', tbuf, &tp);
+    *tp = '\0';
+    len = strlen(tbuf);
+
+    htab = &mudstate.vars_htab;
+    for (i = 0; i < htab->hashsize; i++) {
+	last = NULL;
+	for (hptr = htab->entry->element[i]; hptr != NULL; last = hptr) {
+	    next = hptr->next;
+	    if (!strncmp(tbuf, hptr->target, len)) {
+		if (last == NULL)
+		    htab->entry->element[i] = next;
+		else
+		    last->next = next;
+		xvar = (VARENT *) hptr->data;
+		XFREE(xvar->text, "xvar_data");
+		XFREE(xvar, "xvar_struct");
+		free(hptr->target);
+		free(hptr);
+		htab->deletes++;
+		htab->entries--;
+		if (htab->entry->element[i] == NULL)
+		    htab->nulls++;
+	    }
+	    hptr = next;
+	}
+    }
+
+    s_VarsCount(player, 0);
 }
 
 /* ---------------------------------------------------------------------------

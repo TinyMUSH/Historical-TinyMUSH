@@ -135,6 +135,8 @@ XFUNCTION(fun_swap);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
 XFUNCTION(fun_xvars);
+XFUNCTION(fun_lvars);
+XFUNCTION(fun_clearvars);
 XFUNCTION(fun_regparse);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_translate);
@@ -5359,6 +5361,7 @@ FUN flist[] = {
 {"CENTER",	fun_center,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CHILDREN",    fun_children,   1,  0,          CA_PUBLIC},
 {"CHOMP",	fun_chomp,	1,  0,		CA_PUBLIC},
+{"CLEARVARS",	fun_clearvars,	0,  0,		CA_PUBLIC},
 {"COLUMNS",	fun_columns,	0,  FN_VARARGS, CA_PUBLIC},
 {"COMP",	fun_comp,	2,  0,		CA_PUBLIC},
 {"CON",		fun_con,	1,  0,		CA_PUBLIC},
@@ -5458,6 +5461,7 @@ FUN flist[] = {
 {"LSTACK",	fun_lstack,	0,  FN_VARARGS, CA_PUBLIC},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC},
 {"LTE",		fun_lte,	2,  0,		CA_PUBLIC},
+{"LVARS",	fun_lvars,	0,  0,		CA_PUBLIC},
 {"LWHO",	fun_lwho,	0,  0,		CA_PUBLIC},
 #ifdef USE_MAIL
 {"MAIL",        fun_mail,       0,  FN_VARARGS, CA_PUBLIC},
