@@ -30,7 +30,7 @@ int num;
     char prefixes[LBUF_SIZE], suffixes[LBUF_SIZE], *pp, *sp, *tokp, *toks;
 
     if (!Wizard(mudconf.guest_nuker) || !Good_obj(mudconf.guest_nuker))
-	mudconf.guest_nuker = 1;
+	mudconf.guest_nuker = GOD;
 
     /* If basename only is provided, guests are named <basename><number>.
      * if guest_prefixes and/or guest_suffixes is provided, names will
