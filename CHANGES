@@ -13,10 +13,10 @@ Note that these are only changes that are completely new to both
 TinyMUSH 2.2 and TinyMUX; enhancements that were in one server but not
 the other have been listed in the conversion notes for both servers.
 
-
 - Build script allows "single-step" configuration, build, and installation.
 
-- Backup and Restore scripts simplify backup maintenance.
+- Backup and Restore scripts simplify backup maintenance. Archive script
+  allows the archival of all the important files.
 
 - Index script detects help-style files (help, news, etc.) and indexes
   them. This is now called by Startmush.
@@ -95,6 +95,9 @@ the other have been listed in the conversion notes for both servers.
 - A new flag, CONSTANT, prevents attributes from being set or altered
   on an object by anyone other than God.
 
+- The FLOATING flag, if set on a player, now suppresses floating-room
+  messages sent to that player.
+
 - Variable destination exits are implemented, via the "variable" keyword
   and the ExitTo attribute; the destination of the exit is determined when
   it is used. The link_variable power has been added in support of this.
@@ -171,6 +174,9 @@ the other have been listed in the conversion notes for both servers.
 
 - New /noeval switch to @function defines a user-defined function whose
   arguments are not pre-evaluated.
+
+- When you try to 'give' someone money, their ReceiveLock, rather than
+  their UseLock, is checked.
 
 - New @hashresize command dynamically resizes the hash tables. This is
   also automatically done at startup time.
@@ -285,6 +291,10 @@ the other have been listed in the conversion notes for both servers.
 
 - The mix() function can now take an unequal number of elements in each
   list. (The lists are considered to be padded out with nulls.)
+
+- If the new conf parameter, objeval_requires_control, is enabled (it
+  is disabled by default), the objeval() function requires that you
+  control the evaluator, not just have the same owner as it.
 
 - Added ncomp() function for comparing numbers comp() style (very
   useful for sortby() afficianados).

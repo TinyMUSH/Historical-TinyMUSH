@@ -103,6 +103,11 @@ The following are important changes in behavior between MUX and 3.0:
 - The COMPRESS flag has been eliminated. It was unused in MUX, though
   you could manually set it on objects.
 
+- The WATCHER flag is now used to watch logins, rather than MONITOR.
+  The power to do this is now called Watch_Logsin, and it allows
+  you to set WATCHER on objects that you own (rather than on objects
+  that you control).
+
 - There is no longer a /dbref switch for @decompile; just use
   '@decompile <object>=<dbref of object>' to get the same effect.
 
@@ -124,12 +129,17 @@ include:
 - Multiple aliases for a single channel work in a much saner manner.
   Each alias can be associated with a different comtitle.
 
-The final change to be aware of is that two additional categories have
-been added to the stats() function. If you have softcode that extracts
-the number of garbage objects in the database from stats(), it will
-be fine if you used last(stats()) to get the data; if you used extract()
-or another function that depended upon list position, you will need to
-modify your code.
+Other changes to be aware of:
+
+- Two additional categories have been added to the stats() function. If
+  you have softcode that extracts the number of garbage objects in the
+  database from stats(), it will be fine if you used last(stats()) to
+  get the data; if you used extract() or another function that depended
+  upon list position, you will need to modify your code.
+
+- Though MUX's help files documented the behavior of teleport locks, the
+  implementation didn't reflect the help. The implementation now works
+  the way help says it does.
 
 -----------------------------------------------------------------------------
 
