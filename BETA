@@ -82,6 +82,17 @@ Release history:
 - Cosmetic: Shout messages include the grammatically correct comma after
   "says". [2.0; Neva]
 
+05/xx/2002: Beta 3
+
+- Feature: helptext() function added (returns an entry from an indexed
+  helpfile).
+
+- Fix: Update script depended on the client having a resolvable hostname.
+  [3.1; Neva]
+
+- Cosmetic: Shout messages include the grammatically correct comma after
+  "shouts". [2.0; Neva]
+
 =============================================================================
 			TinyMUSH 3.0 Beta History
 =============================================================================

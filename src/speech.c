@@ -201,7 +201,7 @@ char *message;
 		default:
 			buf2 = alloc_lbuf("do_say.shout");
 			bp = buf2;
-			safe_str((char *)" shouts \"", buf2, &bp);
+			safe_str((char *)" shouts, \"", buf2, &bp);
 			safe_str(message, buf2, &bp);
 			safe_chr('"', buf2, &bp);
 			say_shout(0, announce_msg, say_flags, player, buf2);
