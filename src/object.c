@@ -782,7 +782,7 @@ dbref victim;
 {
 	dbref aowner, player;
 	int count, aflags, alen;
-	char *buf, a_dest;
+	char *buf, *a_dest;
 
 	/* Bye bye... */
 	a_dest = atr_get_raw(victim, A_DESTROYER);
