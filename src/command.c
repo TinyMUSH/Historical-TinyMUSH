@@ -2508,6 +2508,7 @@ dbref player;
 	list_hashstat(player, "Commands", &mudstate.command_htab);
 	list_hashstat(player, "Logged-out Cmds", &mudstate.logout_cmd_htab);
 	list_hashstat(player, "Functions", &mudstate.func_htab);
+	list_hashstat(player, "User Functions", &mudstate.ufunc_htab);
 	list_hashstat(player, "Flags", &mudstate.flags_htab);
 	list_hashstat(player, "Powers", &mudstate.powers_htab);
 	list_hashstat(player, "Attr names", &mudstate.attr_name_htab);
@@ -2518,10 +2519,12 @@ dbref player;
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
 	list_nhashstat(player, "Object Stacks", &mudstate.objstack_htab);
 #ifdef USE_MAIL
-	list_nhashstat(player, "Mail messages", &mudstate.mail_htab);
+	if (mudconf.have_mailer)
+	    list_nhashstat(player, "Mail messages", &mudstate.mail_htab);
 #endif
 #ifdef USE_COMSYS
-	list_hashstat(player, "Channel names", &mudstate.channel_htab);
+	if (mudconf.have_comsys)
+	    list_hashstat(player, "Channel names", &mudstate.channel_htab);
 #endif
 	list_hashstat(player, "News topics", &mudstate.news_htab);
 	list_hashstat(player, "Help topics", &mudstate.help_htab);
