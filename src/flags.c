@@ -740,6 +740,11 @@ int obey_myopic;
 		strcpy(buf, "*HOME*");
 	} else if (target == AMBIGUOUS) {
 		strcpy(buf, "*VARIABLE*");
+	} else if (isGarbage(target)) {
+		fp = unparse_flags(player, target);
+		bp = buf;
+		safe_tprintf_str(buf, &bp, "*GARBAGE*(#%d%s)", target, fp);
+		free_sbuf(fp);
 	} else if (!Good_obj(target)) {
 		sprintf(buf, "*ILLEGAL*(#%d)", target);
 	} else {
