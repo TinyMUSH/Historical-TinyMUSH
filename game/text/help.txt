@@ -9531,7 +9531,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   @cboot	@ccreate	@cdestroy	@cemit		@channel
   @clist	@cwho
  
-  See 'help comsys intro' for an introduction ot the comsys.
+  See 'help comsys intro' for an introduction to the comsys.
   See 'help comsys aliases' for details on how to use comsys aliases.
   See 'help <name of command>' for details on specific commands.
  
@@ -9832,10 +9832,7 @@ See the individual help entries for comsys commands for details.
   @malias                   Displays a list of all mail aliases.
   @malias *<alias>          Displays a list of people on that alias.
   @malias *<alias>=<list>   Creates that mailing list, using <list>.
-  
-  For more help, see the following help topics.  All errors can be
-  sent to *Bugs, or Lauren.
- 
+   
 Continued in 'help @malias2'.
  
 & @malias2
@@ -11083,9 +11080,10 @@ traced from the caller's scope.
   functionality and performance.
  
   TinyMUSH 3.0 is under active development, and is the standard supported
-  version of TinyMUSH for the forseeable future. Lydia Leong ("Amberyl")
-  and David Passmore ("Lauren") are the primary developers of the codebase.
-  Robby Griffin ("Alierak") joined the development team as of 3.0 beta 18.
+  version of TinyMUSH for the forseeable future. The primary developers are 
+  Lydia Leong ("Amberyl"), David Passmore ("Lauren"), Robby Griffin
+  ("Alierak", as of 3.0 beta 18), and Scott Dorr ("Myrddin", as of
+  3.0 beta 23).
  
   See 'help Patchlevel' for notes on TinyMUSH 3.0 changes.
   See 'help Writing News' for an explanation of how to write news files.
