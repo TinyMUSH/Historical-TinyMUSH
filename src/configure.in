@@ -2,6 +2,322 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(mudconf.h)
 AC_CONFIG_HEADER(autoconf.h)
 
+dnl Option checks
+
+if test "$#" -gt 0; then
+  CONFIGURE_CMD="$0 $*"
+else
+  CONFIGURE_CMD="$0"
+fi
+AC_SUBST(CONFIGURE_CMD)
+
+AC_MSG_CHECKING(whether to build with SQL support)
+AC_ARG_WITH(sql,
+  [  --with-sql=TYPE         build with support for SQL database connection
+                          (TYPE can be mysql or msql) [default=no]],
+  [
+    case "$withval" in
+      msql) SQL_OBJ="db_msql.o"
+              AC_MSG_RESULT(msql) ;;
+      mysql) SQL_OBJ="db_mysql.o"
+               AC_MSG_RESULT(mysql) ;;
+      *) SQL_OBJ="db_empty.o"
+           AC_MSG_RESULT(no) ;;
+    esac
+  ], SQL_OBJ="db_empty.o"
+       AC_MSG_RESULT(no))
+AC_SUBST(SQL_OBJ)
+
+AC_MSG_CHECKING(for location of SQL header files)
+AC_ARG_WITH(sql-inc,
+  [  --with-sql-inc=PATH     set the include path for SQL header files
+                          [default for msql=/usr/local/Hughes/include]
+                          [default for mysql=/usr/local/include/mysql]],
+  [
+    case "$with_sql" in
+      msql | mysql) SQL_INC="-I$withval"
+                      AC_MSG_RESULT($withval) ;;
+      *) AC_MSG_RESULT(none) ;;
+    esac
+  ], [
+    case "$with_sql" in
+      msql) SQL_INC="I/usr/local/Hughes/include"
+              AC_MSG_RESULT(/usr/local/Hughes/include) ;;
+      mysql) SQL_INC="-I/usr/local/include/mysql"
+               AC_MSG_RESULT(/usr/local/include/mysql) ;;
+      *) AC_MSG_RESULT(none) ;;
+    esac
+  ])
+AC_SUBST(SQL_INC)
+
+AC_MSG_CHECKING(for location of SQL library files)
+AC_ARG_WITH(sql-libs,
+  [  --with-sql-libs=PATH    set the library path for SQL library files
+                          [default for msql=/usr/local/Hughes/lib]
+                          [default for mysql=/usr/local/lib/mysql]],
+  [
+    case "$with_sql" in
+      msql | mysql) SQL_LIB="-L$withval"
+                      AC_MSG_RESULT($withval) ;;
+      *) AC_MSG_RESULT(none) ;;
+    esac
+  ], [
+    case "$with_sql" in
+      msql) SQL_LIB="L/usr/local/Hughes/lib"
+              AC_MSG_RESULT(/usr/local/Hughes/lib) ;;
+      mysql) SQL_LIB="-L/usr/local/lib/mysql"
+               AC_MSG_RESULT(/usr/local/lib/mysql) ;;
+      *) AC_MSG_RESULT(none) ;;
+    esac
+  ])
+
+AC_MSG_CHECKING(whether to enable disk-based database)
+AC_ARG_ENABLE(disk-based,
+  [  --enable-disk-based     store the database on disk using a DBM hashfile,
+                          and cache some attributes in a limited amount of
+                          memory. The alternative is memory-based, where the
+                          database is kept in memory. Disk-based uses less
+                          memory and more disk space. Disabling the disk-based
+                          cache can improve performance if enough memory is
+                          available. [default=yes]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_DEFINE(MEMORY_BASED)
+      AC_MSG_RESULT(no)
+    else
+      UDB_S="udb_ocache.c udb_ochunk.c udb_obj.c udb_misc.c"
+      UDB_O="udb_ocache.o udb_ochunk.o udb_obj.o udb_misc.o"
+      UDB_INC="udb.h udb_defs.h"
+      AC_MSG_RESULT(yes)
+    fi
+  ], [
+    UDB_S="udb_ocache.c udb_ochunk.c udb_obj.c udb_misc.c"
+    UDB_O="udb_ocache.o udb_ochunk.o udb_obj.o udb_misc.o"
+    UDB_INC="udb.h udb_defs.h"
+    AC_MSG_RESULT(yes)
+  ])
+AC_SUBST(UDB_S)
+AC_SUBST(UDB_O)
+AC_SUBST(UDB_INC)
+
+AC_MSG_CHECKING(whether to enable radix compression)
+AC_ARG_ENABLE(radix-compression,
+  [  --enable-radix-compression
+                          use radix tree string compression. This will reduce
+                          memory and disk usage. You MUST carefully read
+                          README.COMPRESSION and follow the instructions
+                          exactly before you enable this, or you may cause
+                          damage to your database. NOTE: You should have a
+                          fairly large database before you begin to use radix
+                          compression. [default=no]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_MSG_RESULT(no)
+    else
+      AC_DEFINE(RADIX_COMPRESSION)
+        AC_MSG_RESULT(yes)
+    fi
+  ], AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING(whether to enable port concentrator)
+AC_ARG_ENABLE(concentrator,
+  [  --enable-concentrator   use the port concentrator (not included with
+                          the main distribution) if you hit resource limits
+                          when too many connections are open at once (talk
+                          to David) [default=no]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_MSG_RESULT(no)
+    else
+      CONC_S="newconc.c"
+      CONC_O="newconc.o"
+      AC_DEFINE(CONCENTRATE)
+      AC_MSG_RESULT(yes)
+    fi
+  ], AC_MSG_RESULT(no))
+AC_SUBST(CONC_S)
+AC_SUBST(CONC_O)
+
+AC_MSG_CHECKING(for which version of malloc to use)
+AC_ARG_WITH(malloc,
+  [  --with-malloc=TYPE      build with a particular malloc package.
+                          TYPE can be sys (use your system libraries),
+                          gnu (use our copy of GNU malloc), or trace (use
+                          our GNU malloc with mtrace turned on). If your
+                          system malloc library is broken for some reason,
+                          try gnu. Don't use trace unless you're debugging
+                          a memory leak or corruption problem and you're
+                          willing to put up with the performance hit. Try
+                          using Purify (make netmush-pure) if you have it.
+                          [default=sys]],
+  [
+     case "$withval" in
+       gnu)
+         MALLOC_S="malloc.c"
+         MALLOC_O="malloc.o"
+         AC_MSG_RESULT(gnu)
+         ;;
+       trace)
+         MALLOC_S="malloc.c mcheck.c mstats.c mtrace.c"
+         MALLOC_O="malloc.o mcheck.o mstats.o mtrace.o"
+         AC_DEFINE(MCHECK)
+         AC_DEFINE(MTRACE_FILE,"mtrace.out")
+         AC_MSG_RESULT(trace)
+         ;;
+       *)
+         AC_MSG_RESULT(sys)
+         ;;
+     esac 
+  ], AC_MSG_RESULT(sys))
+AC_SUBST(MALLOC_S)
+AC_SUBST(MALLOC_O)
+
+AC_MSG_CHECKING(whether to build with Pueblo support)
+AC_ARG_ENABLE(pueblo,
+  [  --enable-pueblo         build with support for Pueblo client
+                          [default=yes]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_MSG_RESULT(no)
+    else
+      AC_DEFINE(PUEBLO_SUPPORT)
+        AC_MSG_RESULT(yes)
+    fi
+  ], AC_DEFINE(PUEBLO_SUPPORT)
+       AC_MSG_RESULT(yes))
+
+AC_MSG_CHECKING(whether to use included comsys)
+AC_ARG_ENABLE(comsys,
+  [  --enable-comsys         build with included hardcode channel system
+                          (If you do build the comsys, you can always turn
+                          it off at runtime by putting 'have_comsys no' in
+                          your conf file.) [default=yes]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_MSG_RESULT(no)
+    else
+      AC_DEFINE(USE_COMSYS)
+        AC_MSG_RESULT(yes)
+    fi
+  ], AC_DEFINE(USE_COMSYS)
+       AC_MSG_RESULT(yes))
+
+AC_MSG_CHECKING(whether to use included mailer)
+AC_ARG_ENABLE(mailer,
+  [  --enable-mailer         build with included hardcode mail system
+                          (If you do build the mailer, you can always turn
+                          it off at runtime by putting 'have_mailer no' in
+                          your conf file.) [default=yes]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_MSG_RESULT(no)
+    else
+      AC_DEFINE(USE_MAIL)
+        AC_MSG_RESULT(yes)
+    fi
+  ], AC_DEFINE(USE_MAIL)
+       AC_MSG_RESULT(yes))
+
+AC_MSG_CHECKING(whether to use floating-point math)
+AC_ARG_ENABLE(fpmath,
+  [  --enable-fpmath         build math functions (lt, gt, add, etc.) with
+                          IEEE 754 floating-point support instead of allowing
+                          only integer calculations [default=yes]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_MSG_RESULT(no)
+    else
+      AC_DEFINE(FLOATING_POINTS)
+        AC_MSG_RESULT(yes)
+    fi
+  ], AC_DEFINE(FLOATING_POINTS)
+       AC_MSG_RESULT(yes))
+
+AC_MSG_CHECKING(whether to enable command lag detection)
+AC_ARG_ENABLE(lag-checking,
+  [  --enable-lag-checking   enable warnings that a certain command has
+                          exceeded a certain amount of wall-clock time to
+                          execute. Disable this if you have severe problems
+                          with computational resources on your host machine.
+                          [default=yes]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_DEFINE(NO_LAG_CHECK)
+        AC_MSG_RESULT(no)
+    else
+      AC_MSG_RESULT(yes)
+    fi
+  ], AC_MSG_RESULT(yes))
+
+AC_MSG_CHECKING(whether to enable per-object time usage tracking)
+AC_ARG_ENABLE(time-checking,
+  [  --enable-time-checking  enable tracking of the amount of wall-clock time
+                          that individual objects are using. Disable this
+                          if you have severe problems with computational
+                          resources on your host machine. (This is assumed to
+                          be disabled if lag-checking is disabled)
+                          [default=yes]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_DEFINE(NO_TIMECHECKING)
+        AC_MSG_RESULT(no)
+    else
+      AC_MSG_RESULT(yes)
+    fi
+  ], AC_MSG_RESULT(yes))
+
+AC_MSG_CHECKING(whether to enable cpu time checking)
+AC_ARG_ENABLE(cpu-checking,
+  [  --enable-cpu-checking   for lag-checking and time-checking features,
+                          use CPU time reported with getrusage() instead
+                          of tracking wall-clock time. This is more accurate
+                          but also more computationally expensive
+                          [default=no]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_MSG_RESULT(no)
+    else
+      AC_DEFINE(TRACK_USER_TIME)
+        AC_MSG_RESULT(yes)
+    fi
+  ], AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING(whether to enable malloc-logging macros)
+AC_ARG_ENABLE(malloc-logging,
+  [  --enable-malloc-logging use wrapper macros for malloc(), free(), and
+                          related functions to print log messages when the
+                          functions are called. This can be useful for
+                          tracking down memory leaks, but it is spammy;
+                          try other debugging tools first [default=no]],
+  [
+    if test "x$enableval" = "xno"; then
+      AC_MSG_RESULT(no)
+    else
+      AC_DEFINE(TEST_MALLOC)
+        AC_MSG_RESULT(yes)
+    fi
+  ], AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING(how many global registers to use)
+AC_ARG_WITH(global-regs,
+  [  --with-global-regs=N    use N global registers (%q0-%q9,%qa-%qz)
+                          N must be a number from 10 to 36. Set lower
+                          to conserve memory if you don't need all the
+                          possible registers [default=36]],
+  [
+    if test "$withval" -lt "10"; then
+      AC_DEFINE(MAX_GLOBAL_REGS,10)
+        AC_MSG_RESULT(10)
+    elif test "$withval" -gt "36"; then
+      AC_DEFINE(MAX_GLOBAL_REGS,36)
+        AC_MSG_RESULT(36)
+    else
+      AC_DEFINE_UNQUOTED(MAX_GLOBAL_REGS,$withval)
+        AC_MSG_RESULT($withval)
+    fi
+  ], AC_DEFINE(MAX_GLOBAL_REGS,36)
+       AC_MSG_RESULT(36))
+
 dnl Program checks
 
 AC_PROG_CC
@@ -23,10 +339,38 @@ AC_AIX
 dnl Library checks
 
 SAVELDFLAGS="$LDFLAGS"
-LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
-AC_CHECK_LIB(gdbm, main,
-  LIBS="-L./gdbm-1.8.0/.libs -lgdbm $LIBS",
-  AC_MSG_ERROR(This program requires GNU DBM (src/gdbm-1.8.0) to be built first), )
+
+case "$enable_radix_compression" in
+  yes)
+    LDFLAGS="-L./radixlib $SAVELDFLAGS"
+    AC_CHECK_LIB(compress, main,
+      LIBS="-L./radixlib -lcompress $LIBS",
+      AC_MSG_ERROR(Using radix compression requires the compress library (src/radixlib) to be built first), )
+    ;;
+esac
+
+case "$enable_disk_based" in
+  yes | gdbm | "")
+    LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
+    AC_CHECK_LIB(gdbm, main,
+      LIBS="-L./gdbm-1.8.0/.libs -lgdbm $LIBS",
+      AC_MSG_ERROR(This program requires GNU DBM (src/gdbm-1.8.0) to be built first), )
+    ;;
+esac
+
+case "$with_sql" in
+  msql)
+    LDFLAGS="$SQL_LIB $SAVELDFLAGS"
+    AC_CHECK_LIB(msql, main,
+      LIBS="$SQL_LIB -lmsql $LIBS",
+      AC_MSG_ERROR(unable to build with msql), ) ;;
+  mysql)
+    LDFLAGS="$SQL_LIB $SAVELDFLAGS"
+    AC_CHECK_LIB(mysqlclient, main,
+      LIBS="$SQL_LIB -lmysqlclient $LIBS",
+      AC_MSG_ERROR(unable to build with mysql), ) ;;
+esac
+
 LDFLAGS="-L/usr/ucblib $SAVELDFLAGS"
 AC_CHECK_LIB(ucb, getdtablesize,
   LIBS="-L/usr/ucblib -lucb $LIBS", , , )
@@ -63,7 +407,10 @@ AC_TRY_COMPILE([#include <sys/types.h>
 [struct linger ling; ling.l_onoff = 1;],
 AC_DEFINE(HAVE_LINGER) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for union wait)
-AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],AC_DEFINE(HAVE_UNION_WAIT) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],
+  AC_DEFINE(HAVE_UNION_WAIT)
+    AC_MSG_RESULT(yes),
+  AC_MSG_RESULT(no))
 
 AC_MSG_CHECKING(for signal SIGCHLD braindamage)
 AC_TRY_RUN([
@@ -103,7 +450,11 @@ char **argv;
   }
   exit(0);
 }
-], AC_MSG_RESULT(no),AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE) AC_MSG_RESULT(yes),AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE) AC_MSG_RESULT(unable to test... assuming yes))
+], AC_MSG_RESULT(no),
+  AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE)
+    AC_MSG_RESULT(yes),
+  AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE)
+    AC_MSG_RESULT(unable to test... assuming yes))
 
 AC_MSG_CHECKING(for broken small struct padding)
 AC_TRY_RUN([
@@ -125,11 +476,14 @@ char **argv;
       dq[4] != '3' || dq[5] != '.' || dq[6] != '4' || dq[7] != '\0')
     return 1;
   return 0;
-}],AC_MSG_RESULT(no),AC_DEFINE(BROKEN_GCC_PADDING) AC_MSG_RESULT(yes), AC_DEFINE(BROKEN_GCC_PADDING) AC_MSG_RESULT(unable to test... assuming yes))
+}],AC_MSG_RESULT(no),
+  AC_DEFINE(BROKEN_GCC_PADDING)
+    AC_MSG_RESULT(yes),
+  AC_DEFINE(BROKEN_GCC_PADDING)
+    AC_MSG_RESULT(unable to test... assuming yes))
 
 dnl Function checks
 
-AC_FUNC_STRFTIME
 AC_FUNC_VFORK
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(setrlimit getrusage timelocal mktime srandom)

@@ -42,127 +42,27 @@ DEFS =
 OPTIM = -g -O
 
 # ----- TinyMUSH can read and write directly from external databases.
-#        If you wish to use this functionality, comment out all definition
-#        sets other than the one you wish to use.
-#
-# No external database.
-SQL_INC =
-SQL_LIB =
-SQL_OBJ = db_empty.o
-#
-# mSQL database. You must have mSQL already installed. You will need
-# to change the pathname, if your mSQL installation is not in the
-# normal default location of /usr/local/Hughes
-#SQL_INC = -I/usr/local/Hughes/include
-#SQL_LIB = -L/usr/local/Hughes/lib -lmsql
-#SQL_OBJ = db_msql.o
-#
-# mySQL database. You must have mySQL already installed. You will need
-# to change the pathnames below, if your mySQL installation is not in the
-# normal default location of /usr/local
-#SQL_INC = -I/usr/local/include/mysql
-#SQL_LIB = -L/usr/local/lib/mysql -lmysqlclient
-#SQL_OBJ = db_mysql.o
+#        These variables are set by the configure script (--help for options).
+SQL_INC = @SQL_INC@
+SQL_OBJ = @SQL_OBJ@
 
-# This set of definitions is for disk-based caching. If you wish to be
-# memory based, comment the first set and uncomment the second set. Being
-# disk-based usually uses less memory, but more disk-space. Being memory
-# entails using more memory, less disk-space, and some gain in performance.
-BASED =
-UDB_S = udb_ocache.c udb_ochunk.c udb_obj.c udb_misc.c
-UDB_O = udb_ocache.o udb_ochunk.o udb_obj.o udb_misc.o
-UDB_INC	= udb.h udb_defs.h
+# ----- This set of definitions is for disk-based caching (as opposed to
+#        running memory-based).
+#        These variables are set by the configure script (--help for options).
+UDB_S = @UDB_S@
+UDB_O = @UDB_O@
+UDB_INC	= @UDB_INC@
 
-#BASED = -DMEMORY_BASED
-#UDB_S =
-#UDB_O =
-#UDB_INC = 
+# ----- This set of definitions is for the port concentrator.
+#        These variables are set by the configure script (--help for options).
+CONC_S = @CONC_S@
+CONC_O = @CONC_O@
 
-# Uncomment these definitions to use radix tree string compression. This
-# will result in less memory usage in both memory and disk based schemes, 
-# and reduced disk space as well when disk based. You MUST carefully read 
-# README.COMPRESSION and follow the instructions exactly before you define 
-# these, or you may cause damage to your database.
-# NOTE: You should have a fairly large database before you begin to use
-#       radix compression. 
-#COMPRESS_DEFS = -DRADIX_COMPRESSION 
-#COMPRESS_LIB = -L./radixlib -lcompress
-
-# Miscellaneous options. Add/subtract the definitions if you want to
-# add or subtract a feature.
-#   -DPUEBLO_SUPPORT	Defining this allows support of the Pueblo client.
-#			It is a recommended parameter.
-#   -DUSE_COMSYS	Defining this allows the built-in chat channels
-#			system to be utilized. It is a recommended parameter.
-#			(You can always turn it off at runtime by putting
-#			'have_comsys no' in your conf file.)
-#   -DUSE_MAIL		Defining this allows the built-in @mail system
-#			to be utilized. It is a recommended parameter.
-#			(You can always turn it off at runtime by putting
-#			'have_mailer no' in your conf file.)
-#   -DFLOATING_POINTS	Defining this allows calculations to be performed
-#			using floating-point numbers as well as integers.
-#			You should always have this enabled, unless you
-#			are running on an ancient system that does not
-#			have a CPU with a floating-point coprocessor.
-#   -DNO_LAG_CHECK	Defining this turns off warnings that a certain
-#			command has exceeded a certain amount of wall-clock
-#			time to execute. You should not define this unless
-#			you have severe problems with computational 
-#			resources on your host machine.
-#   -DNO_TIMECHECKING	Defining this turns off the tracking of the amount
-#			of wall-clock time that individual objects are using.
-#			You should not define this unless you have severe
-#			problems with computational resources on your host
-#			machine. (If -DNO_LAG_CHECK is defined, this is
-#			assumed to be off.)
-#   -DTRACK_USER_TIME	When defined, timechecking (the results of @timecheck)
-#			tracks system user time (from the getrusage() system
-#			call) rather than the wall clock time. This is more
-#			accurate but also more computationally expensive.
-#			Define this if the accuracy matters to you.
-#   -DTEST_MALLOC	Defining this results in malloc() keeping track of
-#			the number of blocks allocated. It can be useful
-#			for tracking down memory leaks. You SHOULD NOT
-#			compile with this unless you are doing some
-#			heavy-duty source code debugging and no other
-#			tools are available to you.
-#
-#   If you have a need to conserve memory, and are willing to sacrifice
-#   some global registers (some or all of %qa-%qz), you can add
-#   -DMAX_GLOBAL_REGS=10 (or some other number between 10 and 36).
-#
-MISC_DEFS = -DPUEBLO_SUPPORT -DUSE_COMSYS -DUSE_MAIL -DFLOATING_POINTS
-
-# If we want to use the port concentrator, comment out the first set and
-# uncomment the second set of definitions. There is no need to use the
-# concentrator unless you run into problems with too many players being
-# online at once.
-CONC_S =
-CONC_O =
-CONC_DEFS =
-
-#CONC_S = newconc.c
-#CONC_S = newconc.o
-#CONC_DEFS = -DCONCENTRATE
-
-# Malloc options.
-# If your system malloc library is broken for some reason, uncomment the
-# first set of options.
-# If you wish to use malloc debugging, uncomment the second set of options.
-# You should not use malloc debugging unless you are looking for memory
-# leaks or corruption, as it drastically impacts server performance.
-# If you are trying to hunt down memory issues, though, and you have
-# access to Purify (a commercial package), it is recommended that you
-# use that instead (make netmush-pure).
-
-#MALLOC_S = malloc.c
-#MALLOC_O = malloc.o
-#MALLOC_DEFS =
-
-#MALLOC_S = malloc.c mcheck.c mstats.c mtrace.c
-#MALLOC_O = malloc.o mcheck.o mstats.o mtrace.o
-#MALLOC_DEFS = -DMCHECK -DMTRACE_FILE=\"mtrace.out\"
+# ----- This set of definitions is for using our version of malloc, with
+#        optional tracing.
+#        These variables are set by the configure script (--help for options).
+MALLOC_S = @MALLOC_S@
+MALLOC_O = @MALLOC_O@
 
 # Select the networking support you have.  Currently only BSD networking
 # is supported.
@@ -236,7 +136,7 @@ AUX_SRC	= dbconvert.c mkindx.c unsplit.c
 LIB_SRC = 
 LIB_INC = 
 DEBUG	= $(OPTIM)
-ALLCFLAGS = $(CFLAGS) $(SQL_INC) $(DEBUG) $(DEFS) $(MISC_DEFS) $(COMPRESS_DEFS) $(BASED) $(MALLOC_DEFS) $(CONC_DEFS) $(VSIZE_F)
+ALLCFLAGS = $(CFLAGS) $(SQL_INC) $(DEBUG) $(DEFS)
 
 # Version number routine
 VER_SRC	= version.c
@@ -245,7 +145,8 @@ VER_INC	= patchlevel.h
 VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
 	  -DMUSH_BUILD_NUM="\"`sh ./buildnum.sh`\"" \
 	  -DMUSH_BUILD_COMPILER="\"$(CC)\"" \
-	  -DMUSH_BUILD_CFLAGS="\"$(ALLCFLAGS)\""
+	  -DMUSH_BUILD_CFLAGS="\"$(ALLCFLAGS)\"" \
+	  -DMUSH_CONFIGURE_CMD="\"@CONFIGURE_CMD@\""
 
 #Auxiliary files
 A_INST	= CREDITS CHANGES CHANGES.TINY20 CHANGES.TINY22 CHANGES.MUX \
@@ -309,7 +210,7 @@ unsplit: unsplit.o
 	$(CC) $(ALLCFLAGS) -o unsplit unsplit.o
 
 dbconvert: dbconvert.o $(SA_OBJ) $(SA_UDB_O) $(ALLOC_O) $(LIBOBJS)
-	$(CC) $(ALLCFLAGS) -o dbconvert dbconvert.o $(SA_OBJ) $(COM_OBJ) $(SA_UDB_O) $(ALLOC_O) $(LIBS) $(COMPRESS_LIB) $(LIBOBJS)
+	$(CC) $(ALLCFLAGS) -o dbconvert dbconvert.o $(SA_OBJ) $(COM_OBJ) $(SA_UDB_O) $(ALLOC_O) $(LIBS) $(LIBOBJS)
 
 $(VER_OBJ):
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $(VER_SRC)
@@ -319,21 +220,21 @@ update_buildnum:
 
 netmush: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-mv -f netmush netmush~
-	$(CC) $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) $(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
+	$(CC) $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) $(LIBS)
 
 netmush-pure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-pure
 	$(PUREDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
+	$(LIBS)
 
 netmush-purecov: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-purecov
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	-log-file=purify/netmush.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-purecov $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
+	$(LIBS)
 
 netmush-realpure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-realpure
@@ -341,14 +242,14 @@ netmush-realpure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-log-file=purify/netmush.plog \
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	$(CC) $(ALLCFLAGS) -o netmush-realpure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
+	$(LIBS)
 
 netmush-quant: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-quant
 	$(QUANTDIR)/quantify -view-file=purify/quant.pv \
 	-log-file=purify/quant.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
+	$(LIBS)
 
 cvs:
 	rm -f buildnum.data

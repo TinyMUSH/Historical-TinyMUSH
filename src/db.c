@@ -3005,7 +3005,7 @@ BOOLEXP *b;
 		break;
 	case BOOLEXP_ATR:
 	case BOOLEXP_EVAL:
-		XFREE((char *)b->sub1, "free_boolexp");
+		XFREE(b->sub1, "free_boolexp");
 		free_bool(b);
 		break;
 	}
