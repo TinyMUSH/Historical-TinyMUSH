@@ -355,7 +355,7 @@ int new_strings;
 			(void)getstring_noalloc(f, new_strings);
 		}
 	}
-	return 1;		/* UNREACHED */
+	return 1;		/* NOTREACHED */
 }
 
 /* ---------------------------------------------------------------------------
