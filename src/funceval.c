@@ -4843,8 +4843,10 @@ FUNCTION(fun_url_unescape)
 	  case '%':
 	    strncpy(tempstr, msg_orig+1, 2);
 	    tempstr[2] = '\0';
-	    if (sscanf(tempstr, "%x", &tempchar) == 1)
+	    if ((sscanf(tempstr, "%x", &tempchar) == 1) &&
+		(tempchar > 0x1F) && (tempchar < 0x7F)) {
 		ret = safe_chr_fn(tempchar, buff, bufc);
+	    }
 	    if (*msg_orig)
 		msg_orig++;	/* Skip the '%' */
 	    if (*msg_orig) 	/* Skip the 1st hex character. */
