@@ -376,4 +376,9 @@ Patchlevel 2:
 
   - Fixed a potentially fatal error in @dbclean. [3.0b5; Starlyn]
 
+Patchlevel 3:
+
+  - Fixed a problem with incorrect object names in @decompile
+    output. [???; Ed Thomas]
+
 =============================================================================
