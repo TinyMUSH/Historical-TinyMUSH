@@ -24,13 +24,23 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-06/XX/2003: Beta 10, or Gamma 1?
+07/30/2003: Beta 10
+
+- Fix: The cache now keeps a single freelist. Fixed several bugs. [3.1]
 
 - Fix: Immediate commands that modify the queue are no longer truncated
   at the next semicolon, unless the command itself was halted. [3.1a2]
 
 - Fix: @halt checks queue entry ownership more carefully to avoid
   referencing Owner(#-1). [MUX]
+
+- Fix: Don't allow tel_anything objects to be teleported by anyone. [3.1a6]
+
+- Fix: If no database is loaded, do not log the name of the player when
+  setting config permissions. [3.1]
+
+Because this version has cache code changes, games running on this
+version should be backed up daily!
 
 -----------------------------------------------------------------------------
 
