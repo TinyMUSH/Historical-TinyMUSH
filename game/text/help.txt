@@ -4033,7 +4033,7 @@ Example: @sex me = female
   '@exitformat here = Exits: [iter(lexits(me),name(##))]', for example.
  
   Or, to imitate a PennMUSH-style room-TRANSPARENT "long exits" format:
-  'Obvious Exits:[iter(lexits(me),%r [name(##)] leads to [name(loc(##))].'
+  'Obvious Exits:[iter(lexits(me),%r [name(##)] leads to [name(loc(##))])].'
  
   See also: @conformat, @nameformat
 
