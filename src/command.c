@@ -32,7 +32,7 @@ extern void FDECL(list_cached_objs, (dbref));
 #endif
 
 #ifdef USE_COMSYS
-extern int FDECL(do_comsystem, (dbref, char *));
+extern int FDECL(do_comsys, (dbref, char *));
 #endif
 
 #define CACHING "object"
@@ -98,10 +98,23 @@ NAMETAB boot_sw[] = {
 { NULL,			0,	0,		0}};
 
 #ifdef USE_COMSYS
+
 NAMETAB cemit_sw[] = {
 {(char *)"noheader",	1,	CA_PUBLIC,	CEMIT_NOHEADER},
 { NULL,			0,	0,		0}};
-#endif
+
+NAMETAB channel_sw[] = {
+{(char *)"charge",	1,	CA_PUBLIC,	CHANNEL_CHARGE},
+{(char *)"desc",	1,	CA_PUBLIC,	CHANNEL_DESC},
+{(char *)"lock",	1,	CA_PUBLIC,	CHANNEL_LOCK},
+{(char *)"owner",	1,	CA_PUBLIC,	CHANNEL_OWNER},
+{(char *)"set",		1,	CA_PUBLIC,	CHANNEL_SET},
+{(char *)"join",	1,	CA_PUBLIC,	CHANNEL_JOIN | SW_MULTIPLE},
+{(char *)"transmit",	1,	CA_PUBLIC,	CHANNEL_TRANS | SW_MULTIPLE},
+{(char *)"receive",	1,	CA_PUBLIC,	CHANNEL_RECV | SW_MULTIPLE},
+{ NULL,			0,	0,		0}};
+
+#endif /* USE_COMSYS */
 
 NAMETAB chown_sw[] = {
 {(char *)"nostrip",	1,	CA_WIZARD,	CHOWN_NOSTRIP},
@@ -118,20 +131,16 @@ NAMETAB clone_sw[] = {
 { NULL,			0,	0,		0}};
 
 #ifdef USE_COMSYS
+
 NAMETAB clist_sw[] = {
 {(char *)"full",        0,      CA_PUBLIC,      CLIST_FULL},
 { NULL,                 0,      0,              0}};
 
-NAMETAB cset_sw[] = {
-{(char *)"public",      2,      CA_PUBLIC,      CSET_PUBLIC},
-{(char *)"private",     2,      CA_PUBLIC,      CSET_PRIVATE},
-{(char *)"loud",        2,      CA_PUBLIC,      CSET_LOUD},
-{(char *)"quiet",       1,      CA_PUBLIC,      CSET_QUIET},
-{(char *)"mute",        1,      CA_PUBLIC,      CSET_QUIET},
-{(char *)"list",        2,      CA_PUBLIC,      CSET_LIST},
-{(char *)"object",      2,      CA_PUBLIC,      CSET_OBJECT},
-{ NULL,                 0,      0,              0}}; 
-#endif
+NAMETAB cwho_sw[] = {
+{(char *)"all",         0,      CA_PUBLIC,      CWHO_ALL},
+{ NULL,                 0,      0,              0}};
+
+#endif /* USE_COMSYS */
 
 NAMETAB decomp_sw[] = {
 {(char *)"dbref",	1,	CA_PUBLIC,	DECOMP_DBREF},
@@ -479,22 +488,19 @@ CMDENT command_table[] = {
 #ifdef USE_COMSYS
 {(char *)"@cboot",              NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_TWO_ARG,          
-	NULL,			NULL,		do_chboot},
-{(char *)"@ccharge",            NULL,           CA_NO_SLAVE|CA_NO_GUEST,
-        1,               CS_TWO_ARG,          
-	NULL,			NULL,		do_editchannel},
-{(char *)"@cchown",             NULL,           CA_NO_SLAVE|CA_NO_GUEST,
-        0,               CS_TWO_ARG,          
-	NULL,			NULL,		do_editchannel},
+	NULL,			NULL,		do_cboot},
 {(char *)"@ccreate",            NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_ONE_ARG,          
-	NULL,			NULL,		do_createchannel},
+	NULL,			NULL,		do_ccreate},
 {(char *)"@cdestroy",           NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_ONE_ARG,          
-	NULL,			NULL,		do_destroychannel},
+	NULL,			NULL,		do_cdestroy},
 {(char *)"@cemit",		cemit_sw,	CA_NO_SLAVE|CA_NO_GUEST,
 	0,		 CS_TWO_ARG,		
 	NULL,			NULL,		do_cemit},
+{(char *)"@channel",		channel_sw,	CA_NO_SLAVE|CA_NO_GUEST,
+	0,		 CS_TWO_ARG,		
+	NULL,			NULL,		do_channel},
 #endif /* USE_COMSYS */
 {(char *)"@chown",		chown_sw,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
@@ -513,21 +519,13 @@ CMDENT command_table[] = {
 	NULL,			NULL,		do_clone},
 #ifdef USE_COMSYS
 {(char *)"@clist",              clist_sw,       CA_NO_SLAVE,
-        0,              CS_NO_ARGS,           
-	NULL,			NULL,		do_chanlist},
-{(char *)"@coflags",            NULL,           CA_NO_SLAVE,
-        4,              CS_TWO_ARG,           
-	NULL,			NULL,		do_editchannel},
+        0,              CS_ONE_ARG,           
+	NULL,			NULL,		do_clist},
 #endif
 {(char *)"@cpattr",             NULL,           
          CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
          0,             CS_TWO_ARG|CS_ARGV,   
 	NULL,			NULL,		do_cpattr},
-#ifdef USE_COMSYS
-{(char *)"@cpflags",            NULL,           CA_NO_SLAVE,
-        3,              CS_TWO_ARG,           
-	NULL,			NULL,		do_editchannel},
-#endif
 {(char *)"@create",		NULL,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_CONTENTS|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP,	
@@ -541,18 +539,13 @@ CMDENT command_table[] = {
 {(char *)"@crontab",		NULL,		CA_NO_SLAVE|CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,
 	NULL,			NULL,		do_crontab},
-#ifdef USE_COMSYS
-{(char *)"@cset",               cset_sw,        CA_NO_SLAVE,
-        0,              CS_TWO_ARG|CS_INTERP, 
-	NULL,			NULL,		do_chopen},
-#endif
 {(char *)"@cut",		NULL,		CA_WIZARD|CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_cut},
 #ifdef USE_COMSYS
-{(char *)"@cwho",               NULL,           CA_NO_SLAVE,
+{(char *)"@cwho",               cwho_sw,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
-	NULL,			NULL,		do_channelwho},
+	NULL,			NULL,		do_cwho},
 #endif
 {(char *)"@dbck",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
@@ -825,7 +818,7 @@ CMDENT command_table[] = {
 	NULL,			NULL,		do_wipe},
 #ifdef USE_COMSYS
 {(char *)"addcom",              NULL,           CA_NO_SLAVE,
-        0,              CS_TWO_ARG,           
+        0,              CS_TWO_ARG|CS_ARGV,           
 	NULL,			NULL,		do_addcom},
 {(char *)"allcom",              NULL,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
@@ -1723,9 +1716,9 @@ char *command, *args[];
 	}
 
 #ifdef USE_COMSYS
-	if (mudconf.have_comsys && !(Slave(player)))
-		if (!do_comsystem(player, command))
-			return preserve_cmd;
+	if (mudconf.have_comsys && !Slave(player) &&
+	    !do_comsys(player, command))
+	    return preserve_cmd;
 #endif
 
 	/* Check for the HOME command. You cannot do hooks on this because
@@ -2893,8 +2886,11 @@ dbref player;
 	    list_nhashstat(player, "Mail messages", &mudstate.mail_htab);
 #endif
 #ifdef USE_COMSYS
-	if (mudconf.have_comsys)
-	    list_hashstat(player, "Channel names", &mudstate.channel_htab);
+	if (mudconf.have_comsys) {
+	    list_hashstat(player, "Channels", &mudstate.comsys_htab);
+	    list_hashstat(player, "Channel aliases", &mudstate.calias_htab);
+	    list_nhashstat(player, "Channel lists", &mudstate.comlist_htab);
+	}
 #endif
 }
 

@@ -20,7 +20,6 @@
 #include "misc.h"
 #include "alloc.h"
 #include "ansi.h"
-#include "comsys.h"
 #include "db_sql.h"
 
 extern NAMETAB indiv_attraccess_nametab[];
@@ -42,6 +41,10 @@ extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, 
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 extern char *FDECL(upcasestr, (char *));
 extern void FDECL(do_pemit_list, (dbref, char *, const char *, int));
+
+#ifdef USE_COMSYS
+extern void FDECL(make_cwho, (dbref, char *, char *, char **));
+#endif
 
 /* This is the prototype for functions */
 
@@ -152,40 +155,7 @@ static void print_htab_matches(obj, htab, buff, bufc)
 #ifdef USE_COMSYS
 FUNCTION(fun_cwho)
 {
-	struct channel *ch;
-	struct comuser *user;
-	int len = 0;
-	char *smbuf;
-
-	if (!(ch = select_channel(fargs[0]))) {
-		safe_str("#-1 CHANNEL NOT FOUND", buff, bufc);
-		return;
-	}
-	if (!mudconf.have_comsys || (!Comm_All(player) && (player != ch->charge_who))) {
-		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
-		return;
-	}
-
-	smbuf = alloc_sbuf("fun_cwho");
-
-	for (user = ch->on_users; user; user = user->on_next) {
-		if (Connected(user->who)) {
-			if (len) {
-				sprintf(smbuf, " #%d", user->who);
-				if ((strlen(smbuf) + len) > 990) {
-					safe_str(" #-1", buff, bufc);
-					free_sbuf(smbuf);
-					return;
-				}
-				safe_str(smbuf, buff, bufc);
-				len += strlen(smbuf);
-			} else {
-				safe_tprintf_str(buff, bufc, "#%d", user->who);
-				len = strlen(buff);
-			}
-		}
-	}
-	free_sbuf(smbuf);
+    make_cwho(player, fargs[0], buff, bufc);
 }
 #endif
 

@@ -321,6 +321,14 @@ extern void	FDECL(toast_player, (dbref));
 #define	BOOT_QUIET	1	/* Inhibit boot message to victim */
 #define	BOOT_PORT	2	/* Boot by port number */
 #define CEMIT_NOHEADER  1	/* Channel emit without header */
+#define CHANNEL_SET	1	/* Set channel flag */
+#define CHANNEL_CHARGE	2	/* Set channel charge */
+#define CHANNEL_DESC	4	/* Set channel desc */
+#define CHANNEL_LOCK	8	/* Set channel lock */
+#define CHANNEL_OWNER	16	/* Set channel owner */
+#define CHANNEL_JOIN	32	/* Channel lock: join */
+#define CHANNEL_TRANS	64	/* Channel lock: transmit */
+#define CHANNEL_RECV	128	/* Channel lock: receive */
 #define	CHOWN_ONE	1	/* item = new_owner */
 #define	CHOWN_ALL	2	/* old_owner = new_owner */
 #define CHOWN_NOSTRIP	4	/* Don't strip (most) flags from object */
@@ -332,12 +340,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	CLONE_SET_COST	8	/* ARG2 is cost of cloned object */
 #define	CLONE_PARENT	16	/* Set parent on obj instd of cloning attrs */
 #define CLONE_NOSTRIP	32	/* Don't strip (most) flags from clone */
-#define CSET_PUBLIC	0	/* Sets a channel public */
-#define CSET_PRIVATE	1	/* Sets a channel private (default) */
-#define CSET_LOUD	2	/* Channel shows connects and disconnects */
-#define CSET_QUIET	3	/* Channel doesn't show connects/disconnects */
-#define CSET_LIST	4	/* Lists channels */
-#define CSET_OBJECT	5	/* Sets the channel object for the channel */
+#define CWHO_ALL	1	/* Show disconnected players on channel */
 #define	DBCK_FULL	1	/* Do all tests */
 #define DECOMP_DBREF    1	/* decompile by dbref */
 #define DECOMP_PRETTY	2	/* pretty-format output */

@@ -29,7 +29,7 @@ static int g_flags;
  * getboolexp1: Get boolean subexpression from file.
  */
 
-static BOOLEXP *getboolexp1(f)
+BOOLEXP *getboolexp1(f)
 FILE *f;
 {
 	BOOLEXP *b;
@@ -612,7 +612,7 @@ BOOLEXP *b;
  * putboolexp: Write boolean expression to the flat file.
  */
 
-static void putboolexp(f, b)
+void putboolexp(f, b)
 FILE *f;
 BOOLEXP *b;
 {

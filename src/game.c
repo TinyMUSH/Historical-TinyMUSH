@@ -67,7 +67,6 @@ extern void NDECL(check_mail_expiration);
 #endif
 
 #ifdef USE_COMSYS
-extern void NDECL(init_chantab);
 extern void FDECL(load_comsys, (char *));
 extern void FDECL(save_comsys, (char *));
 #endif
@@ -1603,9 +1602,6 @@ char *argv[];
 	cf_init();
 	init_rlimit();
 	init_cmdtab();
-#ifdef USE_COMSYS
-	init_chantab();
-#endif
 	init_logout_cmdtab();
 	init_flagtab();
 	init_powertab();
@@ -1613,7 +1609,6 @@ char *argv[];
 	init_attrtab();
 	init_version();
 	hashinit(&mudstate.player_htab, 250 * HASH_FACTOR);
-	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
 	nhashinit(&mudstate.fwdlist_htab, 25 * HASH_FACTOR);
 	nhashinit(&mudstate.objstack_htab, 50 * HASH_FACTOR);
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
@@ -1623,6 +1618,9 @@ char *argv[];
 	hashinit(&mudstate.cdefs_htab, 100 * HASH_FACTOR);
 	hashinit(&mudstate.instance_htab, 100 * HASH_FACTOR);
 	hashinit(&mudstate.instdata_htab, 250 * HASH_FACTOR);
+#ifdef USE_MAIL
+	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
+#endif
 
 	add_helpfile(GOD, (char *) "help text/help", 1);
 	add_helpfile(GOD, (char *) "wizhelp text/wizhelp", 1);
@@ -1691,16 +1689,31 @@ char *argv[];
 	/* Reset all the hash stats */
 
 	hashreset(&mudstate.command_htab);
-	hashreset(&mudstate.channel_htab);
-	nhashreset(&mudstate.mail_htab);
 	hashreset(&mudstate.logout_cmd_htab);
 	hashreset(&mudstate.func_htab);
+	hashreset(&mudstate.ufunc_htab);
+	hashreset(&mudstate.powers_htab);
 	hashreset(&mudstate.flags_htab);
 	hashreset(&mudstate.attr_name_htab);
+	hashreset(&mudstate.vattr_name_htab);
 	hashreset(&mudstate.player_htab);
+	nhashreset(&mudstate.desc_htab);
 	nhashreset(&mudstate.fwdlist_htab);
 	nhashreset(&mudstate.objstack_htab);
-	nhashreset(&mudstate.desc_htab);
+	nhashreset(&mudstate.parent_htab);
+	hashreset(&mudstate.vars_htab);
+	hashreset(&mudstate.structs_htab);
+	hashreset(&mudstate.cdefs_htab);
+	hashreset(&mudstate.instance_htab);
+	hashreset(&mudstate.instdata_htab);
+#ifdef USE_COMSYS
+	hashreset(&mudstate.comsys_htab);
+	hashreset(&mudstate.calias_htab);
+	nhashreset(&mudstate.comlist_htab);
+#endif
+#ifdef USE_MAIL
+	nhashreset(&mudstate.mail_htab);
+#endif
 
 	for (i = 0; i < mudstate.helpfiles; i++)
 	    hashreset(&mudstate.hfile_hashes[i]);

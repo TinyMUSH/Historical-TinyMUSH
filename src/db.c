@@ -20,12 +20,6 @@
 #include "interface.h"
 #include "flags.h"
 
-#ifdef USE_COMSYS
-extern void FDECL(do_clearcom, (dbref, dbref, int));
-extern void FDECL(do_channelnuke, (dbref));
-extern void FDECL(del_comsys, (dbref));
-#endif
-
 #ifndef STANDALONE
 extern int FDECL(call_cron, (dbref, dbref, int, char *));
 #endif
@@ -2973,16 +2967,6 @@ dbref player, thing;
 		return check_zone(player, Zone(thing));
 	}
 
-}
-
-void toast_player(player)
-dbref player;
-{
-#ifdef USE_COMSYS
-	do_clearcom(player, GOD, 0);
-	do_channelnuke(player);
-	del_comsys(player);
-#endif
 }
 
 #else

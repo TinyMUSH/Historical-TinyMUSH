@@ -36,7 +36,10 @@ extern void FDECL(stack_clr, (dbref));
 extern void FDECL(xvars_clr, (dbref));
 extern int FDECL(cron_clr, (dbref, dbref));
 extern int FDECL(structure_clr, (dbref));
+#ifdef USE_COMSYS
+extern int FDECL(channel_clr, (dbref));
 #endif
+#endif /* ! STANDALONE */
 
 #ifdef STANDALONE
 
@@ -564,7 +567,10 @@ dbref player, obj;
 	stack_clr(obj);
 	xvars_clr(obj);
 	structure_clr(obj);
+#ifdef USE_COMSYS
+	channel_clr(obj);
 #endif
+#endif /* ! STANDALONE */
 
 	/* Compensate the owner for the object */
 
@@ -634,12 +640,6 @@ dbref player, obj;
 	s_Owner(obj, GOD);
 	s_Pennies(obj, 0);
 	s_Zone(obj, NOTHING);
-
-#ifndef STANDALONE
-	if (mudconf.have_comsys)
-		toast_player(obj);
-#endif
-	return;
 }
 
 #ifndef STANDALONE
@@ -824,9 +824,6 @@ dbref victim;
 
 	/* Bye bye... */
 	player = (dbref) atoi(atr_get_raw(victim, A_DESTROYER));
-
-	if (mudconf.have_comsys)
-		toast_player(victim);
 
 	boot_off(victim, (char *)"You have been destroyed!");
 	halt_que(victim, NOTHING);

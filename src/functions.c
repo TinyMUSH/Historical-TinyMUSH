@@ -7,20 +7,13 @@
 #include <limits.h>
 #include <math.h>
 
-#include "mudconf.h"
-#include "config.h"
-#include "db.h"
-#include "flags.h"
-#include "powers.h"
-#include "attrs.h"
 #include "externs.h"
+#include "misc.h"
+#include "attrs.h"
 #include "match.h"
 #include "command.h"
 #include "functions.h"
-#include "misc.h"
-#include "alloc.h"
 #include "ansi.h"
-#include "comsys.h"
 
 #ifdef FLOATING_POINTS
 #ifndef linux                   /* linux defines atof as a macro */

@@ -39,13 +39,13 @@ extern void FDECL(do_killid, (DESC *, long int));
 
 #endif
 
-#ifdef USE_COMSYS
-extern void FDECL(do_comconnect, (dbref));
-extern void FDECL(do_comdisconnect, (dbref));
-#endif
-
 #ifdef USE_MAIL
 extern void FDECL(do_mail_purge, (dbref));
+#endif
+
+#ifdef USE_COMSYS
+extern void FDECL(comsys_connect, (dbref));
+extern void FDECL(comsys_disconnect, (dbref));
 #endif
 
 /* ---------------------------------------------------------------------------
@@ -669,11 +669,6 @@ DESC *d;
 	if (num < 2) {
 		sprintf(buf, "%s has connected.", Name(player));
 
-#ifdef USE_COMSYS
-		if (mudconf.have_comsys)
-			do_comconnect(player);
-#endif
-
 		if (Hidden(player)) {
 			raw_broadcast(MONITOR,
 				      (char *)"GAME: %s has DARK-connected.",
@@ -697,6 +692,11 @@ DESC *d;
 	mudstate.curr_enactor = player;
 	notify_check(player, player, buf, key);
 	free_lbuf(buf);
+
+#ifdef USE_COMSYS
+	if (mudconf.have_comsys)
+	    comsys_connect(player);
+#endif
 
 	if (Suspect(player)) {
 		raw_broadcast(WIZARD, (char *)"[Suspect] %s has connected.",
@@ -811,11 +811,6 @@ const char *reason;
 		notify_check(player, player, buf, key);
 		free_mbuf(buf);
 
-#ifdef USE_COMSYS
-		if (mudconf.have_comsys)
-			do_comdisconnect(player);
-#endif
-
 #ifdef USE_MAIL
 		if (mudconf.have_mailer)
 			do_mail_purge(player);
@@ -824,14 +819,19 @@ const char *reason;
 		raw_broadcast(MONITOR, (char *)"GAME: %s has disconnected.",
 			      Name(player));
 
-		if (Guest(player) && mudconf.have_comsys)
-			toast_player(player);
+		/* Must reset flags before we do comsys stuff. */
 
-		argv[0] = (char *)reason;
 		c_Connected(player);
 #ifdef PUEBLO_SUPPORT
 		c_Html(player);
 #endif
+
+#ifdef USE_COMSYS
+		if (mudconf.have_comsys)
+			comsys_disconnect(player);
+#endif
+
+		argv[0] = (char *)reason;
 		atr_temp = atr_pget(player, A_ADISCONNECT, &aowner, &aflags);
 		if (atr_temp && *atr_temp)
 			wait_que(player, player, 0, NOTHING, 0, atr_temp, argv, 1,

@@ -78,7 +78,6 @@ dbref guest;
 	if (!Guest(guest))
 		return;
 
-	toast_player(guest);
 	atr_add_raw(guest, A_DESTROYER, tprintf("%d", mudconf.guest_nuker));
 	destroy_player(guest);
 	destroy_obj(mudconf.guest_nuker, guest);

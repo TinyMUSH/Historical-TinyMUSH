@@ -328,8 +328,6 @@ struct statedata {
 	SITE	*access_list;	/* Access states for sites */
 	SITE	*suspect_list;	/* Sites that are suspect */
 	HASHTAB	command_htab;	/* Commands hashtable */
-	HASHTAB channel_htab;	/* Channels hashtable */
-	NHSHTAB mail_htab;	/* Mail players hashtable */
 	HASHTAB	logout_cmd_htab;/* Logged-out commands hashtable (WHO, etc) */
 	HASHTAB func_htab;	/* Functions hashtable */
 	HASHTAB ufunc_htab;	/* Local functions hashtable */
@@ -350,6 +348,14 @@ struct statedata {
 	HASHTAB cdefs_htab;	/* Components hashtable */
 	HASHTAB instance_htab;	/* Instances hashtable */
 	HASHTAB instdata_htab;	/* Structure data hashtable */
+#ifdef USE_COMSYS
+	HASHTAB comsys_htab;	/* Channels hashtable */
+	HASHTAB calias_htab;	/* Channel aliases */
+	NHSHTAB comlist_htab;	/* Player channel lists */
+#endif
+#ifdef USE_MAIL
+	NHSHTAB mail_htab;	/* Mail players hashtable */
+#endif
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
 	BQUE	*qfirst;	/* Head of player queue */
 	BQUE	*qlast;		/* Tail of player queue */

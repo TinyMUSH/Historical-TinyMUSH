@@ -52,7 +52,7 @@ extern void FDECL(check_mail, (dbref, int, int));
 #endif
 
 #ifdef USE_COMSYS
-extern void FDECL(do_addcom, (dbref, dbref, int, char *, char *));
+extern void FDECL(join_channel, (dbref, char *, char *, char *));
 #endif
 
 /* ---------------------------------------------------------------------------
@@ -308,15 +308,15 @@ int isrobot, isguest;
 	if (mudconf.have_comsys) {
 	    if (isguest) {
 		if (*mudconf.guests_channel)
-			do_addcom(player, player, 0, mudconf.guests_calias,
-				  mudconf.guests_channel);
+		    join_channel(player, mudconf.guests_channel,
+				 mudconf.guests_calias, NULL);
 	    } else {
 		if (*mudconf.public_channel)
-			do_addcom(player, player, 0, mudconf.public_calias,
-				  mudconf.public_channel);
+		    join_channel(player, mudconf.public_channel,
+				 mudconf.public_calias, NULL);
 	    }
 	}
-#endif
+#endif /* USE_COMSYS */
 
 	s_Pass(player, crypt(pbuf, "XX"));
 	s_Home(player, start_home());

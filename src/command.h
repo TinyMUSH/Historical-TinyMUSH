@@ -30,16 +30,13 @@
 /* from comsys.c */
 
 CMD_TWO_ARG(do_cemit);			/* channel emit */
-CMD_TWO_ARG(do_chboot);                 /* channel boot */
-CMD_TWO_ARG(do_editchannel);            /* edit a channel */
-CMD_ONE_ARG(do_checkchannel);           /* check a channel */
-CMD_ONE_ARG(do_createchannel);          /* create a channel */
-CMD_ONE_ARG(do_destroychannel);         /* destroy a channel */
-CMD_TWO_ARG(do_edituser);               /* edit a channel user */
-CMD_NO_ARG(do_chanlist);                /* gives a channel listing */
-CMD_TWO_ARG(do_chopen);                 /* opens a channel */
-CMD_ONE_ARG(do_channelwho);             /* who's on a channel */
-CMD_TWO_ARG(do_addcom);                 /* adds a comalias */
+CMD_TWO_ARG(do_cboot);                 /* channel boot */
+CMD_ONE_ARG(do_ccreate);          /* create a channel */
+CMD_ONE_ARG(do_cdestroy);         /* destroy a channel */
+CMD_TWO_ARG(do_channel);	/* general channel commands */
+CMD_ONE_ARG(do_clist);                /* gives a channel listing */
+CMD_ONE_ARG(do_cwho);             /* who's on a channel */
+CMD_TWO_ARG_ARGV(do_addcom);                 /* adds a comalias */
 CMD_ONE_ARG(do_allcom);                 /* on, off, who, all aliases */
 CMD_NO_ARG(do_comlist);                 /* channel who by alias */
 CMD_TWO_ARG(do_comtitle);               /* sets a title on a channel */
