@@ -44,15 +44,16 @@
   take         throw        use          version      whisper      WHO
   "            :            ;            &            #            \\
  
-  @@           @chown       @clone       @create      @decompile   @destroy
-  @dig         @doing       @dolist      @drain       @edit        @emit
-  @entrances   @eval        @femit       @find        @force       @fpose    
-  @fsay        @halt        @last        @link        @list        @listmotd
-  @lock        @mvattr      @mail        @malias      @name        @notify
-  @npemit      @oemit       @open        @parent      @password    @pemit
-  @program     @ps          @quitprog    @quota       @robot       @search
-  @set         @sql         @stats       @sweep       @switch      @teleport
-  @trigger     @unlink      @unlock      @verb        @wait        @wipe
+  @@           @chown       @clone       @create      @cron        @crondel
+  @crontab     @decompile   @destroy     @dig         @doing       @dolist
+  @drain       @edit        @emit        @entrances   @eval        @femit
+  @find        @force       @fpose       @fsay        @halt        @last
+  @link        @list        @listmotd    @lock        @mvattr      @mail
+  @malias      @name        @notify      @npemit      @oemit       @open
+  @parent      @password    @pemit       @program     @ps          @quitprog
+  @quota       @robot       @search      @set         @sql         @stats
+  @sweep       @switch      @teleport    @trigger     @unlink      @unlock
+  @verb        @wait        @wipe
  
 { 'help commands2' for more }
 & commands2
@@ -716,6 +717,72 @@
   than 100, values that would be greater than 100 are rounded down to 100.
   See also: @destroy, TYPES OF OBJECTS.
 
+& @cron
+  Command: @cron <object>/<attribute> = <timestring>
+ 
+  This command causes <object> to execute the contents of <attribute>
+  (just as if a '@trigger <object>/<attribute>' had been done), at the
+  times specified by <timestring>. You must control <object> and be
+  able to read <attribute>.
+  
+  The syntax of the @cron <timestring> is virtually identical to that of
+  Unix cron; it's a list of five space-separated fields, as follows:
+ 
+    <minute> <hour> <day of month> <month> <day of week>
+ 
+  Each component of <timestring> is the asterisk ('*'), or a
+  comma-separated list of numbers or number ranges (i.e., '5-7').
+  For instance, '2,5-7,10' means '2, 5, 6, 7, and 10'. The restrictions
+  on numbers is as follows: <minute> is a number between 0 and 59,
+  <hour> is a number between 0 and 23 (equivalent to 12 am to 11 pm),
+  <day of month> is a number between 1 and 31, <month> is a number
+  between 1 and 12 (January through December), and <day of week> is
+  a number between 0 and 6 (Sunday through Saturday).
+ 
+  Continued in 'help @cron2'.
+ 
+& @cron2
+ 
+  The specification of a day may be made by either day of week, or day
+  of month. If both are specified, both are adhered to. In other words,
+  '0 3 1,15 * 2' indicates that the task is scheduled for 3 am on
+  Tuesdays, as well as the 1st and 15th of each month.
+ 
+  Examples of timestrings:
+ 
+    Run every hour, on the hour:  0 * * * *
+    Run once every month, at 3:10 am the 1st:  10 3 1 * *
+    Run every five minutes:  0,5,10,15,20,25,30,35,40,45,50,55 * * * *
+    Run once a day, at 6 am:  0 6 * * *
+ 
+  Cron entries are not preserved over restarts. To make a cron entry
+  'permanent', it should be entered as part of a @startup on an object.
+ 
+  See also: @crondel, @crontab, @daily
+ 
+& @crondel
+  @crondel <object>[/<attribute>]
+ 
+  If no <attribute> is specified, this command removes all cron entries
+  for <object>. If <attribute> is specified, this command removes all
+  cron entries associated with that object and attribute. You must
+  control <object>.
+ 
+  See also: @cron, @crontab, @daily
+ 
+& @crontab
+  @crontab [<object>]
+ 
+  If <object> is specified, this command shows the cron entries
+  associated with that object. You must control <object>.
+ 
+  If <object> is not specified, this command shows all cron entries
+  (if you are a Wizard, Royalty, or have the see_queue power) or
+  all cron entries for objects you own (if you are not any of the
+  above).
+ 
+  See also: @cron, @crontab, @daily
+ 
 & @decompile
   Command: @decompile <object>[/<wildcard>] [=<newname>]
  
@@ -2229,8 +2296,25 @@
   Command: @daily <object> = <command list>
   Attribute: Daily
  
-  This attribute is automatically triggered once per day. No guarantees
-  are made as to what time it will execute.
+  This attribute is automatically triggered once per day, at whatever
+  hour is set by the config parameter events_daily_hour. 
+  Doing a '@daily <object> = <commands>' is functionally equivalent
+  to doing '&SOME_ATTR <object> = <commands>', and then a
+  '@cron <object>/SOME_ATTR = 0 7 * * *' (substitute whatever
+  events_daily_hour is for '7').
+ 
+  @daily attributes are handled entirely through the cron facility;
+  they appear in the @crontab schedule, and can be unscheduled by
+  using @crondel. However, cron entries are automatically entered
+  for objects with an @daily, at startup time.
+ 
+  Changing events_daily_hour while the MUSH is running does NOT
+  re-schedule already-scheduled @daily triggers; it only affects
+  future sets of @daily. Thus, it is possible for an object to
+  end up with two such entries, if a @daily is set on it, the
+  events_daily_hour is changed, and the @daily is re-set.
+ 
+  See also: @cron, @crondel, @crontab
  
 & @describe
   Command: @describe <object> = <description>
