@@ -2143,3 +2143,285 @@ FUNCTION(fun_lastcreate)
 
     safe_dbref(buff, bufc, obj_list[obj_type]);
 }
+
+/* ---------------------------------------------------------------------------
+ * fun_speak: Complex say-format-processing function.
+ *
+ * speak(<object>, <string>[, <transform>[, <empty>[, <open>[, <close>]]]])
+ *
+ * <string> can be a plain string (treated like say), :<foo> (pose),
+ * : <foo> (pose/nospace), ;<foo> (pose/nospace), |<foo> (emit), or
+ * "<foo> (also treated like say).
+ *
+ * If we are given <transform>, we parse through the string, pulling out
+ * the things that fall between <open in> and <close in> (which default to
+ * double-quotes). We pass the speech between those things to the
+ * u-function (or everything, if a plain say string), with the speech
+ * as %0, <object>'s resolved dbref as %1, and the speech part number
+ * (plain say begins numbering at 0, others at 1) as %2.
+ *
+ * We rely on the u-function to do any necessary formatting of the
+ * return string, including putting quotes (or whatever) back around it
+ * if necessary.
+ *
+ * If the return string is null, we call <empty>, with <object>'s resolved
+ * dbref as %0, and the speech part number as %1.
+ */
+
+static void transform_say(speaker, str, key, trans_str, empty_str,
+			  open_sep, close_sep, open_len, close_len,
+			  player, caller, cause, buff, bufc)
+    dbref speaker, player, caller, cause;
+    char *str, *trans_str, *empty_str, *buff, **bufc;
+    Delim open_sep, close_sep;
+    int key, open_len, close_len;
+{
+    char *sp, *ep, *save, *tp, *bp;
+    char *result, *tstack[3], *estack[2], tbuf[LBUF_SIZE];
+    int spos, trans_len, empty_len;
+    int done = 0;
+
+    tstack[1] = alloc_sbuf("transform_say.dbref1");
+    tstack[2] = alloc_sbuf("transform_say.pos1");
+
+    if (trans_str && *trans_str)
+	trans_len = strlen(trans_str);
+    else
+	return;			/* should never happen; caller should check */
+				   
+    if (empty_str && *empty_str) {
+	empty_len = strlen(empty_str);
+	estack[0] = alloc_sbuf("transform_say.dbref2");
+	estack[1] = alloc_sbuf("transform_say.pos2");
+    } else {
+	empty_len = 0;
+    }
+
+    /* Find the start of the speech string. Copy up to it. */
+
+    sp = str;
+    if (key == SAY_SAY) {
+	spos = 0;
+    } else {
+	save = split_token(&sp, open_sep, open_len);
+	safe_str(save, buff, bufc);
+	if (!sp)
+	    return;
+	spos = 1;
+    }
+
+    result = alloc_lbuf("transform_say.out");
+
+    while (!done) {
+
+	/* Find the end of the speech string. */
+
+	ep = sp;
+	sp = split_token(&ep, close_sep, close_len);
+
+	/* Pass the stuff in-between through the u-functions. */
+
+	tstack[0] = sp;
+	sprintf(tstack[1], "#%d", speaker);
+	sprintf(tstack[2], "%d", spos);
+
+	StrCopyKnown(tbuf, trans_str, trans_len);
+	tp = tbuf;
+	bp = result;
+	exec(result, &bp, player, caller, cause, 
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &tp, tstack, 3);
+	*bp = '\0';
+	if (result && *result) {
+	    if ((key == SAY_SAY) && (spos == 0)) {
+		safe_tprintf_str(buff, bufc, "%s says, %s",
+				 Name(speaker), result);
+	    } else {
+		safe_str(result, buff, bufc);
+	    }
+	} else if (empty_len > 0) {
+	    sprintf(estack[0], "#%d", speaker);
+	    sprintf(estack[1], "%d", spos);
+	    StrCopyKnown(tbuf, empty_str, empty_len);
+	    tp = tbuf;
+	    bp = result;
+	    exec(result, &bp, player, caller, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &tp, estack, 2);
+	    *bp = '\0';
+	    if (result && *result) {
+		safe_str(result, buff, bufc);
+	    }
+	}
+
+	/* If there's more, find it and copy it. sp will point to the
+	 * beginning of the next speech string.
+	 */
+	
+	if (ep && *ep) {
+	    sp = ep;
+	    save = split_token(&sp, open_sep, open_len);
+	    safe_str(save, buff, bufc);
+	    if (!sp)
+		done = 1;
+	} else {
+	    done = 1;
+	}
+
+	spos++;
+    }
+
+    free_lbuf(result);
+    free_sbuf(tstack[1]);
+    free_sbuf(tstack[2]);
+    if (empty_len > 0) {
+	free_sbuf(estack[0]);
+	free_sbuf(estack[1]);
+    }
+}
+
+FUNCTION(fun_speak)
+{
+    dbref thing, obj1, obj2;
+    Delim isep, osep;		/* really open and close separators */
+    int isep_len, osep_len;
+    dbref aowner1, aowner2;
+    int aflags1, alen1, anum1, aflags2, alen2, anum2;
+    ATTR *ap1, *ap2;
+    char *atext1, *atext2, *str;
+    int is_transform, key;
+
+    /* Delimiter processing here is different. We have to do some
+     * funky stuff to make sure that a space delimiter is really an
+     * intended space, not delim_check() defaulting.
+     */
+
+    VaChk_Range(2, 6);
+    VaChk_InSep(5, 0);
+    if ((isep_len == 1) && (isep.c == ' ')) {
+	if ((nfargs < 5) || !fargs[4] || !*fargs[4]) {
+	    isep.c = '"';
+	}
+    }
+    VaChk_DefaultOut(6) {
+	VaChk_OutSep(6, 0);
+    }
+
+    /* Just need a match. Don't need to control it or anything. */
+
+    thing = match_thing(player, fargs[0]);
+    if (thing == NOTHING) {
+	safe_nomatch(buff, bufc);
+	return;
+    }
+
+    /* Must have an input string. Otherwise silent fail. */
+
+    if (!fargs[1] || !*fargs[1])
+	return;
+
+    /* Find the u-function. If we have a problem with it, we just default
+     * to no transformation.
+     */
+
+    is_transform = 0;
+    if (nfargs >= 3) { 
+	Parse_Uattr(player, fargs[2], obj1, anum1, ap1);
+	if (ap1) {
+	    atext1 = atr_pget(obj1, ap1->number,
+			      &aowner1, &aflags1, &alen1);
+	    if (!*atext1 || !(See_attr(player, obj1,
+				       ap1, aowner1, aflags1))) {
+		free_lbuf(atext1);
+		atext1 = NULL;
+	    } else {
+		is_transform = 1;
+	    }
+	} else {
+	    atext1 = NULL;
+	}
+    }
+
+    /* Do some up-front work on the empty-case u-function, too. */
+
+    if (nfargs >= 4) {
+	Parse_Uattr(player, fargs[3], obj2, anum2, ap2);
+	if (ap2) {
+	    atext2 = atr_pget(obj2, ap2->number,
+			      &aowner2, &aflags2, &alen2);
+	    if (!*atext2 || !(See_attr(player, obj2,
+				       ap2, aowner2, aflags2))) {
+		free_lbuf(atext2);
+		atext2 = NULL;
+	    }
+	} else {
+	    atext2 = NULL;
+	}
+    }
+
+    /* Take care of the easy case, no u-function. */
+
+    if (!is_transform) {
+	switch (*fargs[1]) {
+	    case ':':
+		if (*(fargs[1] + 1) == ' ') {
+		    safe_tprintf_str(buff, bufc, "%s%s", Name(thing),
+				     fargs[1] + 2);
+		} else {
+		    safe_tprintf_str(buff, bufc, "%s %s", Name(thing),
+				     fargs[1] + 1);
+		}
+		break;
+	    case ';':
+		safe_tprintf_str(buff, bufc, "%s%s", Name(thing),
+				 fargs[1] + 1);
+		break;
+	    case '|':
+		safe_tprintf_str(buff, bufc, "%s", fargs[1] + 1);
+		break;
+	    case '"':
+		safe_tprintf_str(buff, bufc, "%s says, \"%s\"",
+				 Name(thing), fargs[1] + 1);
+		break;
+	    default:
+		safe_tprintf_str(buff, bufc, "%s says, \"%s\"",
+				 Name(thing), fargs[1]);
+		break;
+	}
+	return;
+    }
+
+    /* Now for the nasty stuff. */
+
+    switch (*fargs[1]) {
+	case ':':
+	    safe_name(thing, buff, bufc);
+	    if (*(fargs[1] + 1) != ' ') {
+		safe_chr(' ', buff, bufc);
+		str = fargs[1] + 1;
+		key = SAY_POSE;
+	    } else {
+		str = fargs[1] + 2;
+		key = SAY_POSE_NOSPC;
+	    }
+	    break;
+	case ';':
+	    safe_name(thing, buff, bufc);
+	    str = fargs[1] + 1;
+	    key = SAY_POSE_NOSPC;
+	    break;
+	case '|':
+	    str = fargs[1] + 1;
+	    key = SAY_EMIT;
+	    break;
+	case '"':
+	    str = fargs[1] + 1;
+	    key = SAY_SAY;
+	    break;
+	default:
+	    str = fargs[1];
+	    key = SAY_SAY;
+    }
+
+    transform_say(thing, str, key, atext1, atext2,
+		  isep, osep, isep_len, osep_len,
+		  player, caller, cause, buff, bufc);
+}

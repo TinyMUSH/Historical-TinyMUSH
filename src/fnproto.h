@@ -225,6 +225,7 @@ XFUNCTION(fun_playmem);
 XFUNCTION(fun_type);
 XFUNCTION(fun_hastype);
 XFUNCTION(fun_lastcreate);
+XFUNCTION(fun_speak);
 
 /* From funstring.c */
 
@@ -663,6 +664,7 @@ FUN flist[] = {
 {"SORT",	fun_sort,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"SORTBY",	fun_sortby,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"SPACE",	fun_space,	1,  0,		CA_PUBLIC,	NULL},
+{"SPEAK",	fun_speak,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"SPLICE",	fun_splice,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"SQL",		fun_sql,	0,  FN_VARARGS, CA_SQL_OK,	NULL},
 {"SQRT",	fun_sqrt,	1,  0,		CA_PUBLIC,	NULL},
