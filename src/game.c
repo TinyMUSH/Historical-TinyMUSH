@@ -1529,7 +1529,7 @@ static void NDECL(process_preload)
 }
 
 #ifndef VMS
-void
+int
 #endif				/* VMS */
  main(argc, argv)
 int argc;
