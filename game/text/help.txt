@@ -900,6 +900,7 @@
 
 & @fpose
   Command: @fpose[/<switches>] <object>=<message>
+ 
   Forces <object> to pose <message>.  This command is similar to the command
   '@force <object> = :<message>', except that it will work so long as you
   own the object, whereas @force may fail if the object has its INHERIT flag
@@ -910,8 +911,19 @@
                 the message (ie, send '<name> <message>').
      /nospace - Don't put a space between the name of the object and the
                 message (ie, send '<name><message>').
+ 
   See also: @femit, @fsay, pose, :, ;, INHERIT.
-
+ 
+& @fsay
+  Command: @fsay <object>=<message>
+ 
+  Forces <object> to say <message>. This command is similar to the command
+  '@force <object> = "<message>', except that it will work so long as you
+  own the object, whereas @force may fail if the object has its INHERIT
+  flag set and the object performing the @force does not.
+ 
+  See also: @femit, @fsay, say, ", INHERIT.
+ 
 & @halt
   Command: @halt [<object>]
   Halts all commands being run by <object>, or by the object running the
