@@ -476,8 +476,10 @@ char *cargs[];
 	{"", "its", "hers", "his", "theirs"};
 
 
-	if (*dstr == NULL)
+	if (*dstr == NULL) {
+		**bufc = '\0';
 		return;
+	}
 
 	at_space = 1;
 	gender = -1;
