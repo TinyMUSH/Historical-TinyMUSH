@@ -13,9 +13,9 @@
 /* Macros to help deal with batch writes of attribute numbers and objects */
 
 #define ATRNUM_BLOCK_SIZE	(int) ((mudstate.db_block_size - 32) / \
-					(sizeof (int) + VNAME_SIZE))
+					(2 * sizeof (int) + VNAME_SIZE))
 #define ATRNUM_BLOCK_BYTES	(int) ((ATRNUM_BLOCK_SIZE) * \
-					(sizeof (int) + VNAME_SIZE))
+					(2 * sizeof (int) + VNAME_SIZE))
 #define OBJECT_BLOCK_SIZE	(int) ((mudstate.db_block_size - 32) / \
 					(sizeof(int) + sizeof(DUMPOBJ)))
 #define OBJECT_BLOCK_BYTES	(int) ((OBJECT_BLOCK_SIZE) * \
