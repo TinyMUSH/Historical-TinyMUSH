@@ -347,9 +347,6 @@ struct statedata {
 	NHSHTAB	fwdlist_htab;	/* Room forwardlists */
 	NHSHTAB objstack_htab;	/* Object stacks */
 	NHSHTAB	parent_htab;	/* Parent $-command exclusion */
-#ifdef PARSE_TREES
-	NHSHTAB tree_htab;	/* Parse trees for evaluation */
-#endif
 	HASHTAB vars_htab;	/* Persistent variables hashtable */
 	HASHTAB structs_htab;	/* Structure hashtable */
 	HASHTAB cdefs_htab;	/* Components hashtable */
