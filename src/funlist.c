@@ -190,6 +190,7 @@ FUNCTION(fun_last)
 	char *s, *last;
 	Delim isep;
 	int isep_len;
+	int ansi_state = ANST_NONE;
 
 	/* If we are passed an empty arglist return a null string */
 
@@ -197,17 +198,39 @@ FUNCTION(fun_last)
 		return;
 	}
 	VaChk_Only_In("LAST", 2);
-	s = trim_space_sep(fargs[0], isep, isep_len);	/* leading spaces */
 
 	if (isep_len == 1) {
 
-	    last = strrchr(s, isep.c);
-	    if (last)
-		safe_str(++last, buff, bufc);
-	    else
-		safe_str(s, buff, bufc);
+		s = trim_space_sep(fargs[0], isep, isep_len);
+
+		do {
+			last = s;
+
+			/* this is like next_token(), but tracking ansi */
+			while (*s == ESC_CHAR) {
+				track_esccode(s, ansi_state);
+			}
+			while (*s && (*s != isep.c)) {
+				++s;
+				while (*s == ESC_CHAR) {
+					track_esccode(s, ansi_state);
+				}
+			}
+			if (*s) {
+				++s;
+				if (isep.c == ' ') {
+					while (*s == isep.c)
+						++s;
+				}
+			}
+		} while (*s);
+
+		safe_str(ansi_transition_esccode(ANST_NORMAL, ansi_state), buff, bufc);
+		safe_known_str(last, s - last, buff, bufc);
 
 	} else {
+
+	    s = fargs[0];
 
 	    /* Walk backwards through the string to find the separator.
 	     * Find the last character, and compare the previous characters,
