@@ -269,6 +269,7 @@ void NDECL(cf_init)
 	mudstate.logging = 0;
 	mudstate.epoch = 0;
 	mudstate.generation = 0;
+	mudstate.reboot_nums = 0;
 	mudstate.curr_player = NOTHING;
 	mudstate.curr_enactor = NOTHING;
 	mudstate.curr_cmd = (char *) "< none >";

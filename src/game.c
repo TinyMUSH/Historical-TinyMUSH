@@ -1404,6 +1404,7 @@ char *argv[];
 #endif /* RADIX_COMPRESSION */
 	mindb = 0;		/* Are we creating a new db? */
 	time(&mudstate.start_time);
+	mudstate.restart_time = mudstate.start_time;
 	pool_init(POOL_LBUF, LBUF_SIZE);
 	pool_init(POOL_MBUF, MBUF_SIZE);
 	pool_init(POOL_SBUF, SBUF_SIZE);

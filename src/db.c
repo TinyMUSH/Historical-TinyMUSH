@@ -29,6 +29,7 @@
 #define RS_CONCENTRATE		0x00000002
 #define RS_RECORD_PLAYERS	0x00000004
 #define RS_NEW_STRINGS		0x00000008
+#define RS_COUNT_REBOOTS	0x00000010
 
 OBJ *db = NULL;
 NAME *names = NULL;
@@ -2946,11 +2947,13 @@ void dump_restart_db()
 #endif
 	version |= RS_RECORD_PLAYERS;
 	version |= RS_NEW_STRINGS;
+	version |= RS_COUNT_REBOOTS;
 	
 	f = fopen("restart.db", "w");
 	fprintf(f, "+V%d\n", version);
 	putref(f, sock);
 	putref(f, mudstate.start_time);
+	putref(f, mudstate.reboot_nums);
 	putstring(f, mudstate.doing_hdr);
 #ifdef CONCENTRATE
 	putref(f, conc_pid);
@@ -3009,6 +3012,10 @@ void load_restart_db()
 		
 	maxd = sock + 1;
 	mudstate.start_time = getref(f);
+
+	if (version & RS_COUNT_REBOOTS)
+	    mudstate.reboot_nums = getref(f) + 1;
+
 	strcpy(mudstate.doing_hdr, getstring_noalloc(f, new_strings));
 
 	if (version & RS_CONCENTRATE) {

@@ -825,6 +825,28 @@ FUNCTION(fun_starttime)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_restarts: How many times have we restarted?
+ */
+
+FUNCTION(fun_restarts)
+{
+    safe_ltos(buff, bufc, mudstate.reboot_nums);
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_restarttime: When did we last restart?
+ */
+
+FUNCTION(fun_restarttime)
+{
+	char *temp;
+
+	temp = (char *)ctime(&mudstate.restart_time);
+	temp[strlen(temp) - 1] = '\0';
+	safe_str(temp, buff, bufc);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_get, fun_get_eval: Get attribute from object.
  */
 
@@ -5013,6 +5035,8 @@ FUN flist[] = {
 {"REPEAT",	fun_repeat,	2,  0,		CA_PUBLIC},
 {"REPLACE",	fun_replace,	0,  FN_VARARGS,	CA_PUBLIC},
 {"REST",	fun_rest,	0,  FN_VARARGS,	CA_PUBLIC},
+{"RESTARTS",	fun_restarts,	0,  0,		CA_PUBLIC},
+{"RESTARTTIME",	fun_restarttime, 0, 0,		CA_PUBLIC},
 {"REVERSE",	fun_reverse,	-1, 0,		CA_PUBLIC},
 {"REVWORDS",	fun_revwords,	0,  FN_VARARGS,	CA_PUBLIC},
 {"RIGHT",	fun_right,	2,  0,		CA_PUBLIC},

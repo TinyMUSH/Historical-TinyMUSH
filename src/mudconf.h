@@ -299,6 +299,8 @@ struct statedata {
 	int	shutdown_flag;	/* Should interface be shut down? */
 	char	version[PBUF_SIZE];	/* MUX version string */
 	time_t	start_time;	/* When was MUX started */
+	time_t	restart_time;	/* When did we last restart? */
+	int	reboot_nums;	/* How many times have we restarted? */
 	char	buffer[256];	/* A buffer for holding temp stuff */
 	char	*debug_cmd;	/* The command we are executing (if any) */
 	char	doing_hdr[41];	/* Doing column header in the WHO display */
