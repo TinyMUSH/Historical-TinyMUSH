@@ -1741,7 +1741,7 @@ char *argv[];
 		/* Call modules to load their flatfiles */
 
 		WALK_ALL_MODULES(mp) {
-			if ((modfunc = DLSYM(mp->handle, mp->modname, "db_convert", (FILE *))) != NULL) {
+			if ((modfunc = DLSYM(mp->handle, mp->modname, "db_read_flatfile", (FILE *))) != NULL) {
 				f = db_module_flatfile(mp->modname, 0);
 				if (f) {
 					(*modfunc)(f);
