@@ -71,7 +71,7 @@ LOGFILETAB logfds_table[] = {
 { LOG_SUSPECTCMDS,	NULL,		NULL},
 { LOG_TIMEUSE,		NULL,		NULL},
 { LOG_WIZARD,		NULL,		NULL},
-{ NULL,			0,		NULL}};
+{ 0,			NULL,		NULL}};
 
 /* *INDENT-ON* */
 
