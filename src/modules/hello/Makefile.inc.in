@@ -18,3 +18,16 @@ install-hello: modules/hello/hello.la
 	-mv ../game/modules/hello.* ../game/modules/libhello.* ../game/modules/old/
 	$(LIBTOOL) --mode=install cp modules/hello/hello.la `pwd`/../game/modules/hello.la
 	touch install-hello
+
+clean: clean-hello
+
+clean-hello:
+	-rm -f modules/hello/*.o modules/hello/*.lo modules/hello/*.la
+	-rm -rf modules/hello/.libs
+
+distclean: distclean-hello
+
+distclean-hello:
+	-rm -f modules/hello/config.status modules/hello/config.log
+	-rm -f install-hello ../game/modules/hello.* ../game/modules/libhello.* ../game/modules/old/hello.* ../game/modules/old/libhello.*
+	-rm -f modules/hello/Makefile.inc

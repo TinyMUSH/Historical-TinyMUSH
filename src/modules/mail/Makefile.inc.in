@@ -19,3 +19,16 @@ install-mail: modules/mail/mail.la
 	-mv ../game/modules/mail.* ../game/modules/libmail.* ../game/modules/old/
 	$(LIBTOOL) --mode=install cp modules/mail/mail.la `pwd`/../game/modules/mail.la
 	touch install-mail
+
+clean: clean-mail
+
+clean-mail:
+	-rm -f modules/mail/*.o modules/mail/*.lo modules/mail/*.la
+	-rm -rf modules/mail/.libs
+
+distclean: distclean-mail
+
+distclean-mail:
+	-rm -f modules/mail/config.status modules/mail/config.log
+	-rm -f install-mail ../game/modules/mail.* ../game/modules/libmail.* ../game/modules/old/mail.* ../game/modules/old/libmail.*
+	-rm -f modules/mail/Makefile.inc

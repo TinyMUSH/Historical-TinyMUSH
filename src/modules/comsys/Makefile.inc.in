@@ -18,3 +18,16 @@ install-comsys: modules/comsys/comsys.la
 	-mv ../game/modules/comsys.* ../game/modules/libcomsys.* ../game/modules/old/
 	$(LIBTOOL) --mode=install cp modules/comsys/comsys.la `pwd`/../game/modules/comsys.la
 	touch install-comsys
+
+clean: clean-comsys
+
+clean-comsys:
+	-rm -f modules/comsys/*.o modules/comsys/*.lo modules/comsys/*.la
+	-rm -rf modules/comsys/.libs
+
+distclean: distclean-comsys
+
+distclean-comsys:
+	-rm -f modules/comsys/config.status modules/comsys/config.log
+	-rm -f install-comsys ../game/modules/comsys.* ../game/modules/libcomsys.* ../game/modules/old/comsys.* ../game/modules/old/libcomsys.*
+	-rm -f modules/comsys/Makefile.inc

@@ -224,27 +224,20 @@ verify:
 
 clean:
 	-rm -f *.o *.lo a.out core gmon.out mush.*log mush.*sum Compile.log
-	-rm -rf .libs
-
-recursive-clean: clean
-	for module in $(subdirs); do \
-		curdir=`pwd` ;\
-		cd $$module && $(MAKE) recursive-clean;\
-		cd $$curdir ;\
-	done
+	curdir=`pwd`
+	cd gdbm-1.8.0 && $(MAKE) clean
+	cd $$curdir
 
 realclean: clean
-	-rm -f $(OUT) netmush~ conc unsplit *.so *.so~ *.la *.a
+	-rm -f $(OUT) netmush~ conc unsplit
 
-distclean: realclean cvs
-	for module in gdbm-1.8.0 $(subdirs); do \
-		curdir=`pwd` ;\
-		cd $$module && $(MAKE) distclean;\
-		cd $$curdir ;\
-	done
+distclean: realclean
+	curdir=`pwd`
+	cd gdbm-1.8.0 && $(MAKE) distclean
+	cd $$curdir
 	-rm -f libtool config.log config.cache config.status autoconf.h
-	-rm -f depend build install
-	-rm -f .depend 
+	-rm -f depend build install install-modules
+	-rm -f .depend buildnum.data
 	touch .depend
 	-rm -f Makefile
 
