@@ -1274,8 +1274,6 @@ int sig;
 		log_signal(signames[sig]);
 		report();
 		if (mudconf.sig_action != SA_EXIT) {
-			char outdb[128];
-			char indb[128];
 
 			raw_broadcast(0, "GAME: Fatal signal %s caught, restarting with previous database.", signames[sig]);
 			
@@ -1287,18 +1285,13 @@ int sig;
 			close(slave_socket);
 			kill(slave_pid, SIGKILL);
 
-			/*
-			 * Try our best to dump a core first 
-			 */
+			/* Try our best to dump a core first */
+			
 			if (!fork()) {
 				unset_signals();
 				exit(1);
 			}
 			
-			sprintf(outdb, "%s/%s", mudconf.dbhome, mudconf.outdb);
-			sprintf(indb, "%s/%s", mudconf.dbhome, mudconf.indb);
-			rename(outdb, indb);
-
 			alarm(0);
 			dump_restart_db();
 			execl(mudconf.exec_path, mudconf.exec_path,
@@ -1311,9 +1304,7 @@ int sig;
 			signal(sig, SIG_DFL);
 			exit(1);
 		}
-	case SIGABRT:		/*
-				 * Coredump. 
-				 */
+	case SIGABRT:		/* Coredump. */
 		check_panicking(sig);
 		log_signal(signames[sig]);
 		report();
