@@ -4936,17 +4936,18 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   Other substitutions:
  
-    %!      = Dbref of the object holding the message or running the
-              action list ('me').
-    %c      = Text of the last command executed.
-    %0-%9   = Value of positional parameter/stack location 0 through 9.
-    %q0-%q9 = Value of registers 0 through 9. Equiv: r(0) - r(9)
-    %va-%vz = Contents of attributes VA through VZ. Equiv: v(va) - v(vz)
-    %_<var> = Value of a single-letter/number variable. Equiv: x(<var>)
+    %!       = Dbref of the object holding the message or running the
+               action list ('me').
+    %c       = Text of the last command executed.
+    %0-%9    = Value of positional parameter/stack location 0 through 9.
+    %q0-%q9  = Value of registers 0 through 9. Equiv: r(0) - r(9)
+    %va-%vz  = Contents of attributes VA through VZ. Equiv: v(va) - v(vz)
+    %_<var>  = Value of a single-letter/number variable. Equiv: x(<var>)
+    %x<code> = ANSI color substitution.
  
   Note: %<whatever> is equivalent to [v(<whatever>)], but is more efficient.
  
-  See also: GENDER, V().
+  See also: GENDER, V(), ANSI().
  
 & SUCCESS
   Topic: SUCCESS
@@ -6814,6 +6815,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
         f - flash                       i - inverse
         h - hilite                      n - normal
+        u - underline
 
         x - black foreground            X - black background
         r - red foreground              R - red background
@@ -6834,7 +6836,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   For example, the equivalent to [ansi(rBf,Color!)] would be:
   %xr%xB%xfColor!%xn
-
+ 
   The %xn (to return to normal) is not necessary, but if it is not specified,
   the ANSI color codes will continue to the end of the string.
  
@@ -7182,6 +7184,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "Thx x a test"
     > say edit(Atlantic,^,Trans)
     You say "TransAtlantic"
+ 
+  Note that edit() strips its input of ANSI characters.
+ 
   See also: @edit.
 
 & OBJEVAL()
@@ -7876,9 +7881,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See also: e(), exp(), log(), power().
 
 & LOG()
-  Function: log(<number>)
+  Function: log(<number>[,<base>])
  
-  Returns the result of taking the common logarithm (base 10) of <number>.
+  If <base> is not specified, this returns the result of taking the
+  common logarithm (base 10) of <number>. If <base> is specified, 
+  then this returns the result of taking the log base <base> of
+  <number>. To take the natural log of a number, make its base e().
   <number> may be a floating point number, and a floating point result
   is returned.
  
@@ -7887,10 +7895,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "#-1 LOG OF NEGATIVE OR ZERO"
     > say log(1)
     You say "0"
-    > say log(10)
-    You say "1"
+    > say log(100)
+    You say "2"
     > say log(e())
     You say "0.434294"
+    > say log(32,2)
+    You say "5"
+ 
   See also: e(), exp(), ln(), power().
 
 & EXP()
@@ -8854,10 +8865,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   This function truncates <string> to a length of <number> characters.
   If <number> is greater than the length of <string>, this simply
-  returns <string>. Unlike similar functions, strtrunc() does not
-  strip ANSI characters from the string.
+  returns <string>.
  
-  See also: mid(), left(), right()
+  See also: mid(), delete(), left(), right()
  
 & VALID()
   Function: valid(<option>, <string>)
