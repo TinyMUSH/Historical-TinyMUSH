@@ -380,6 +380,7 @@ CHANGES TO FUNCTIONS
 - chomp() can now handle a lone CR or LF.
 
 - Added choose(), weighted-random-choice pick of an element from a list.
+  Idea from FiranMUX.
 
 - Added connrecord(), connected player record (as in WHO).
 
