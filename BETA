@@ -26,9 +26,24 @@ Release history:
 
 05/xx/2002: Beta 3
 
+- Feature: The new choose() function picks an element from a list on a
+  weighted-random-choice basis. 
+
+- Feature: The new helptext() function retrieves an entry from an indexed
+  textfile (i.e., help, news, or anything else added via the helpfile or
+  raw_helpfile conf directives).
+
 - Feature: Added cache_put_notify and cache_del_notify modules API hooks.
   These hooks are called when data is added, changed, or deleted from the
   MUSH cache.
+
+- Fix: Update should now work on systems with broken local domain resolution.
+
+- Fix: Clearing an attribute updates an object's Last Modified timestamp.
+
+- Misc: More comma-in-shout stuff.
+
+-----------------------------------------------------------------------------
 
 05/19/2002: Beta 2
 

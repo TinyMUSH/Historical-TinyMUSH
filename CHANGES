@@ -363,6 +363,8 @@ CHANGES TO FUNCTIONS
 
 - chomp() can now handle a lone CR or LF.
 
+- Added choose(), weighted-random-choice pick of an element from a list.
+
 - Added entrances() function, similar to @entrances command. Based on an
   idea from PennMUSH.
 
@@ -370,6 +372,10 @@ CHANGES TO FUNCTIONS
   idea from PennMUSH.
 
 - Added graball(), which is to grab() what matchall() is to match().
+
+- Added helptext(), which retrieves an enetry from an indexed textfile
+  (i.e., help, news, or anything else added via the helpfile or
+  raw_helpfile conf directives).
 
 - The third argument to ifelse() -- the 'false' result -- is now optional.
 
