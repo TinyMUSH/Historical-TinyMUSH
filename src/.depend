@@ -7,18 +7,18 @@ conf.o: conf.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h 
 cque.o: cque.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h match.h attrs.h powers.h command.h
 create.o: create.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h match.h command.h attrs.h powers.h ansi.h
 db.o: db.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h attrs.h vattr.h match.h powers.h ansi.h
-db_rw.o: db_rw.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h vattr.h attrs.h
+db_rw.o: db_rw.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h vattr.h attrs.h powers.h
 eval.o: eval.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h powers.h attrs.h functions.h ansi.h
 file_c.o: file_c.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h command.h file_c.h
 flags.o: flags.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h command.h powers.h match.h ansi.h
 fnhelper.o: fnhelper.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h match.h attrs.h powers.h ansi.h
 functions.o: functions.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h command.h match.h attrs.h powers.h functions.h fnproto.h
-funext.o: funext.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h powers.h db_sql.h
+funext.o: funext.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h powers.h command.h db_sql.h
 funiter.o: funiter.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h attrs.h powers.h
 funlist.o: funlist.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h attrs.h powers.h ansi.h
 funmath.o: funmath.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h
 funmisc.o: funmisc.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h attrs.h powers.h command.h
-funobj.o: funobj.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h match.h attrs.h powers.h misc.h
+funobj.o: funobj.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h match.h attrs.h powers.h walkdb.h
 funstring.o: funstring.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h powers.h ansi.h
 funvars.o: funvars.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h functions.h match.h attrs.h powers.h pcre.h
 game.o: game.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h file_c.h command.h powers.h attrs.h pcre.h
@@ -45,7 +45,7 @@ stringutil.o: stringutil.c copyright.h autoconf.h config.h alloc.h flags.h htab.
 timer.o: timer.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h match.h command.h powers.h bitstring.h
 unparse.o: unparse.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
 vattr.o: vattr.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h vattr.h attrs.h functions.h command.h
-walkdb.o: walkdb.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h match.h powers.h misc.h attrs.h
+walkdb.o: walkdb.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h match.h powers.h walkdb.h attrs.h
 wild.o: wild.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
 wiz.o: wiz.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h file_c.h match.h command.h attrs.h powers.h
 bsd.o: bsd.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h file_c.h command.h attrs.h
@@ -55,24 +55,6 @@ udb_obj.o: udb_obj.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudc
 udb_misc.o: udb_misc.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
 db_empty.o: db_empty.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
 version.o: version.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h patchlevel.h
-sa-db.o: sa-db.c db.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h attrs.h vattr.h match.h powers.h ansi.h
-sa-db_rw.o: sa-db_rw.c db_rw.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h vattr.h attrs.h powers.h
-sa-boolexp.o: sa-boolexp.c boolexp.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h match.h attrs.h powers.h ansi.h
-sa-unparse.o: sa-unparse.c unparse.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
-sa-pred.o: sa-pred.c predicates.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h match.h command.h attrs.h powers.h ansi.h db_sql.h
-sa-stringu.o: sa-stringu.c stringutil.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h ansi.h
-sa-conf.o: sa-conf.c conf.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h command.h attrs.h match.h ansi.h
-sa-log.o: sa-log.c log.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h ansi.h
-sa-object.o: sa-object.c object.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h powers.h attrs.h match.h
-sa-vattr.o: sa-vattr.c vattr.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h vattr.h attrs.h functions.h command.h
-sa-htab.o: sa-htab.c htab.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
-sa-player_c.o: sa-player_c.c player_c.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h attrs.h
-sa-flags.o: sa-flags.c flags.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h command.h powers.h match.h ansi.h
-sa-udb_ocache.o: sa-udb_ocache.c udb_ocache.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h ansi.h
-sa-udb_ochunk.o: sa-udb_ochunk.c udb_ochunk.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h gdbm.h
-sa-udb_obj.o: sa-udb_obj.c udb_obj.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
-sa-udb_misc.o: sa-udb_misc.c udb_misc.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
-dbconvert.o: dbconvert.c copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h
 mkindx.o: mkindx.c copyright.h autoconf.h help.h
 unsplit.o: unsplit.c copyright.h autoconf.h
 slave.o: slave.c autoconf.h copyright.h slave.h
