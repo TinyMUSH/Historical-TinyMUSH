@@ -198,6 +198,11 @@ CHANGES TO FLAGS AND POWERS
   parameter is enabled, wizards will need this power in order to
   become invisible.
 
+- The Expanded_Who power no longer grants the ability to see Dark 
+  players in WHO. (Previously those with the power could, but weren't
+  able to see them in functions. Use the See_Hidden power to grant
+  the ability to see Dark players.)
+
 - The new ORPHAN flag, when set on an object, prevents the object from
   inheriting $-commands from its parents (just like objects in the master
   room do not inherit $-commands from their parents). This allows you to
@@ -429,6 +434,9 @@ CHANGES TO FUNCTIONS
 - Added nattr(), which counts the number of attributes on an object.
 
 - Added oemit(), which is the function equivalent of @oemit.
+
+- pos() strips ANSI out of the string to search for, in addition to the
+  string to search within.
 
 - sees() can now evaluate the visibility of exits as well as things.
   Also, a small bug has been fixed: the see_owned_dark calculation in
