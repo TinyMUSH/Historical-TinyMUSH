@@ -1357,13 +1357,14 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	fork_vfork		garbage_chunk		initial_size
 
 & PARAM FILES
-	badsite_file		connect_file		comsys_database
-	connect_reg_file	crash_database		database_home
-	down_file		full_file		gdbm_database
-	guest_file		helpfile		html_connect_file
-	include			mail_database		module
-	motd_file		newuser_file		quit_file
-	raw_helpfile		register_create_file	wizard_motd_file
+	badsite_file		binary_home		connect_file
+	comsys_database		connect_reg_file	crash_database
+	database_home		down_file		full_file
+	gdbm_database		guest_file		helpfile
+	html_connect_file	include			mail_database
+	module			motd_file		newuser_file
+	quit_file		raw_helpfile		register_create_file
+	text_home		wizard_motd_file
 
 & PARAM LIMITS
 	building_limit			command_invocation_limit
@@ -1557,6 +1558,17 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   is closed immediately after the file is sent.
   See also: forbid_site, permit_site.
 
+& binary_home
+  Config parameter: binary_home <path>.  Default: ./bin
+  Specifies the directory in which binary files are stored. You do not
+  need to follow this with a trailing slash (/).
+  
+  Note: This parameter is depreciated and is only kept for backward 
+  compatibility. All path are now define in 'mush.config', if you set this 
+  value, make sure it match the value of 'BIN' in 'mush.config'
+  
+  See also: database_home, gdbm_database, crash_database, text_home.
+
 & booleans_oldstyle
   Config parameter: booleans_oldstyle <yes/no>.  Default: No
  
@@ -1730,6 +1742,10 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   may contain corrupted links of the error occurs in the middle of moving
   links about.
   Dumping a crash database is currently not implemented.
+  
+  Note: This parameter is depreciated and is only kept for backward 
+  compatibility. All path are now define in 'mush.config', if you set this 
+  value, make sure it match the value of 'CRASH_DB' in 'mush.config'
 
 & create_max_cost
   Config directive: create_max_cost <amount>.  Default: 505
@@ -1762,7 +1778,12 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Config parameter: database_home <path>.  Default: .
   Specifies the directory in which database files will be stored. You do not
   need to follow this with a trailing slash (/).
-  See also: gdbm_database, crash_database.
+  
+  Note: This parameter is depreciated and is only kept for backward 
+  compatibility. All path are now define in 'mush.config', if you set this 
+  value, make sure it match the value of 'DATA' in 'mush.config'
+  
+  See also: gdbm_database, crash_database, text_home, binary_home.
  
 & default_home
   Config directive: default_home <location>.  Default (player_starting_home)
@@ -2082,6 +2103,10 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Specifies the name of the file that stores the text portion of the
   database.  The text strings are stored in a binary format optimized for
   fast retrieval and storage rather than access with programs such as more.
+  
+  Note: This parameter is depreciated and is only kept for backward 
+  compatibility. All path are now define in 'mush.config', if you set this 
+  value, make sure it match the value of 'GDBM_DB' in 'mush.config'
 
 & global_aconn_uselocks
   Config parameter: global_aconn_uselocks <yes/no>.  Default: No
@@ -3252,6 +3277,17 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
  
   See also: look_obey_terse, terse_shows_contents, terse_shows_exits.
  
+& text_home
+  Config parameter: database_home <path>.  Default: ./text
+  Specifies the directory in which text files are stored. You do not
+  need to follow this with a trailing slash (/).
+  
+  Note: This parameter is depreciated and is only kept for backward 
+  compatibility. All path are now define in 'mush.config', if you set this 
+  value, make sure it match the value of 'TEXT' in 'mush.config'
+  
+  See also: binary_home, database_home, gdbm_database, crash_database.
+
 & thing_attr_defaults
  Config parameter: thing_attr_defaults <dbref>.  Default: Nothing
  

@@ -1427,6 +1427,11 @@ void do_restart(player, cause, key)
 	      (char *) "-c", mudconf.config_file,
 	      (char *) "-l", mudconf.mudlogname,
 	      (char *) "-p", mudconf.pid_file,
+	      (char *) "-t", mudconf.txthome,
+	      (char *) "-b", mudconf.binhome,
+	      (char *) "-d", mudconf.dbhome,
+	      (char *) "-g", mudconf.gdbm,
+	      (char *) "-k", mudconf.crashdb,
 	      NULL);
 }
 

@@ -16,6 +16,11 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
 3.1 Patchlevel 2
 
+  - Removed hardcoded binaries path from the engine, a new command
+    line switch ( -b binpath ) new feed the engine with the correct
+    value. The engine can now run its binaries from any directory,
+    not just ./bin/. (slave path was hardcoded.)
+
   - Removed hardcoded textfiles path from the engine, a new command
     line switch ( -t textpath ) now feed the engine with the 
     correct value. This eliminate the need of adding every

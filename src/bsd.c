@@ -205,6 +205,7 @@ void boot_slave()
 	int sv[2];
 	int i;
 	int maxfds;
+	char *s;
 
 #ifdef HAVE_GETDTABLESIZE
 	maxfds = getdtablesize();
@@ -251,7 +252,10 @@ void boot_slave()
 		for (i = 3; i < maxfds; ++i) {
 			close(i);
 		}
-		execlp("bin/slave", "slave", NULL);
+		s=(char *) XMALLOC(MBUF_SIZE, "boot_slave");
+		snprintf(s, MBUF_SIZE, "%s/slave", mudconf.binhome);
+		execlp(s, "slave", NULL);
+		XFREE(s,"boot_slave");
 		_exit(1);
 	}
 	close(sv[1]);
@@ -1383,6 +1387,11 @@ int sig;
 			      (char *) "-c", mudconf.config_file,
 			      (char *) "-l", mudconf.mudlogname,
 			      (char *) "-p", mudconf.pid_file,
+			      (char *) "-t", mudconf.txthome,
+			      (char *) "-b", mudconf.binhome,
+			      (char *) "-d", mudconf.dbhome,
+			      (char *) "-g", mudconf.gdbm,
+			      (char *) "-k", mudconf.crashdb,
 			      NULL);
 			break;
 		} else {

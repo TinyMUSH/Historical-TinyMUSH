@@ -2246,14 +2246,17 @@ char *argv[];
 			exit(-1);
 		}
 		if (conc_pid == 0) {
-			char mudp[32], inetp[32];
+			char mudp[32], inetp[32], *s;
 
 			/*
 			 * Add port argument to concentrator 
 			 */
 			sprintf(mudp, "%d", mudconf.port);
 			sprintf(inetp, "%d", mudconf.conc_port);
-			execl("./bin/conc", "concentrator", inetp, mudp, "1", NULL);
+			s = (char *) XMALLOC(MBUF_SIZE, "main_concentrate");
+			snprintf(s, MBUF_SIZE, "%s/conc", mudconf.binhome);
+			execl(s, "concentrator", inetp, mudp, "1", NULL);
+			XFREE(s, "main_concentrate");
 		}
 		STARTLOG(LOG_ALWAYS, "CNC", "STRT")
 			log_printf("Concentrating ports... Main: %d Conc: %d",
