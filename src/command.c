@@ -2427,7 +2427,7 @@ CF_HAND(cf_cmd_alias)
 static void list_df_flags(player)
 dbref player;
 {
-	char *playerb, *roomb, *thingb, *exitb, *robotb, *buff;
+	char *playerb, *roomb, *thingb, *exitb, *robotb, *stripb, *buff;
 
 	playerb = decode_flags(player,
 			       (mudconf.player_flags.word1 | TYPE_PLAYER),
@@ -2449,10 +2449,14 @@ dbref player;
 			      (mudconf.robot_flags.word1 | TYPE_PLAYER),
 			      mudconf.robot_flags.word2,
 			      mudconf.robot_flags.word3);
+	stripb = decode_flags(player,
+			      mudconf.stripped_flags.word1,
+			      mudconf.stripped_flags.word2,
+			      mudconf.stripped_flags.word3);
 	buff = alloc_lbuf("list_df_flags");
 	sprintf(buff,
-		"Default flags: Players...%s Rooms...%s Exits...%s Things...%s Robots...%s",
-		playerb, roomb, exitb, thingb, robotb);
+		"Default flags: Players...%s  Rooms...%s  Exits...%s  Things...%s  Robots...%s  Stripped...%s",
+		playerb, roomb, exitb, thingb, robotb, stripb);
 	raw_notify(player, buff);
 	free_lbuf(buff);
 	free_sbuf(playerb);
@@ -2460,6 +2464,7 @@ dbref player;
 	free_sbuf(exitb);
 	free_sbuf(thingb);
 	free_sbuf(robotb);
+	free_sbuf(stripb);
 }
 
 /* ---------------------------------------------------------------------------

@@ -650,21 +650,27 @@ char *name, *newown;
 		   (!controls(player, owner) && !Chown_Any(player))) {
 		notify_quiet(player, NOPERM_MESSAGE);
 	} else if (canpayfees(player, owner, cost, quota, Typeof(thing))) {
-		payfees(owner, cost, quota, Typeof(thing));
-		payfees(Owner(thing), -cost, -quota, Typeof(thing));
+	    payfees(owner, cost, quota, Typeof(thing));
+	    payfees(Owner(thing), -cost, -quota, Typeof(thing));
 		
-		if (God(player)) {
-			s_Owner(thing, owner);
-		} else {
-			s_Owner(thing, Owner(owner));
-		}
-		atr_chown(thing);
-		s_Flags(thing, (Flags(thing) & ~(CHOWN_OK | INHERIT)) | HALT);
-		s_Powers(thing, 0);
-		s_Powers2(thing, 0);
-		halt_que(NOTHING, thing);
-		if (!Quiet(player))
-			notify_quiet(player, "Owner changed.");
+	    if (God(player)) {
+		s_Owner(thing, owner);
+	    } else {
+		s_Owner(thing, Owner(owner));
+	    }
+	    atr_chown(thing);
+	    s_Flags(thing,
+		    (Flags(thing) &
+		     ~(CHOWN_OK | mudconf.stripped_flags.word1)) | HALT);
+	    s_Flags2(thing,
+		     (Flags2(thing) & ~(mudconf.stripped_flags.word2)));
+	    s_Flags3(thing,
+		     (Flags3(thing) & ~(mudconf.stripped_flags.word3)));
+	    s_Powers(thing, 0);
+	    s_Powers2(thing, 0);
+	    halt_que(NOTHING, thing);
+	    if (!Quiet(player))
+		notify_quiet(player, "Owner changed.");
 	}
 }
 

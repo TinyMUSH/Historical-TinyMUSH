@@ -197,6 +197,7 @@ struct confdata {
 	FLAGSET	exit_flags;	/* Flags exits start with */
 	FLAGSET	thing_flags;	/* Flags things start with */
 	FLAGSET	robot_flags;	/* Flags robots start with */
+	FLAGSET stripped_flags; /* Flags stripped by @clone and @chown */
 	int	vattr_flags;	/* Attr flags for all user-defined attrs */
 	int	abort_on_bug;	/* Dump core after logging a bug  DBG ONLY */
       	char	mud_name[SBUF_SIZE];	/* Name of the mud */

@@ -549,16 +549,16 @@ char *name, *arg2;
 
 	s_Name(clone, (char *)clone_name);
 
-	/* Clear out problem flags from the original */
+	/* Clear out problem flags from the original. Don't strip
+	 * the INHERIT bit if we got the Inherit switch.
+	 */
 
-	rmv_flags = WIZARD;
-	if (!(key & CLONE_INHERIT) || (!Inherits(player)))
-		rmv_flags |= INHERIT | IMMORTAL;
+	rmv_flags = mudconf.stripped_flags.word1;
+	if ((key & CLONE_INHERIT) && Inherits(player))
+	    rmv_flags &= ~INHERIT;
 	s_Flags(clone, Flags(thing) & ~rmv_flags);
-	rmv_flags = SUSPECT | CONNECTED |  SLAVE;
-	s_Flags2(clone, Flags2(thing) & ~rmv_flags);
-	/* No flags in flag word 3 to remove */
-	s_Flags3(clone, Flags3(thing));
+	s_Flags2(clone, Flags2(thing) & ~mudconf.stripped_flags.word2);
+	s_Flags3(clone, Flags3(thing) & ~mudconf.stripped_flags.word3);
 
 	/* Tell creator about it */
 

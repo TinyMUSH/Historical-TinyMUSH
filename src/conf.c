@@ -241,6 +241,10 @@ void NDECL(cf_init)
 	mudconf.robot_flags.word1 = ROBOT;
 	mudconf.robot_flags.word2 = 0;
 	mudconf.robot_flags.word3 = 0;
+	mudconf.stripped_flags.word1 = IMMORTAL | INHERIT | ROYALTY | WIZARD;
+	mudconf.stripped_flags.word2 = BLIND | CONNECTED | GAGGED |
+	    HEAD_FLAG | SLAVE | STAFF | STOP_MATCH | SUSPECT | UNINSPECTED;
+	mudconf.stripped_flags.word3 = 0;
 	mudconf.vattr_flags = AF_ODARK;
 	StringCopy(mudconf.mud_name, "TinyMUSH");
 	StringCopy(mudconf.one_coin, "penny");
@@ -1503,6 +1507,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.start_thing_quota,	0},
 {(char *)"status_file",
 	cf_string,	CA_STATIC,	(int *)mudconf.status_file,	PBUF_SIZE},
+{(char *)"stripped_flags",
+	cf_set_flags,	CA_GOD,		(int *)&mudconf.stripped_flags,	0},
 {(char *)"structure_limit",
 	cf_int,		CA_GOD,		&mudconf.struct_lim,		0},
 {(char *)"suspect_site",
