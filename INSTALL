@@ -148,11 +148,6 @@ broken. Add a '-DBROKEN_GCC_PADDING' to the Makefile, or the line
 Also, Irix may need HAVE_SRANDOM manually defined in autoconf.h --
 for some reason, autoconf doesn't detect this properly.
 
-There is a known problem with NetBSD 1.3.2 Sparc (and possibly other
-versions of NetBSD); getrlimit() seems not to return valid values,
-causing the server to crash on a bus error. You can work around this
-by commenting out the '#define HAVE_SETRLIMIT 1' in autoconf.h.
-
 If you find that you need to make modifications to anything in order
 to compile successfully, the developers would like to know about it.
 Send email to tinymush-support@godlike.com with the output of the
