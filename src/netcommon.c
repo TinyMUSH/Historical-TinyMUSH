@@ -986,32 +986,56 @@ dbref player;
  * for a player (or -1 if not logged in)
  */
 
-int fetch_idle(target)
+int fetch_idle(target, port_num)
 dbref target;
+int port_num;
 {
 	DESC *d;
 	int result, idletime;
 
 	result = -1;
-	DESC_ITER_PLAYER(target, d) {
+	if (port_num < 0) {
+	    DESC_ITER_PLAYER(target, d) {
 		idletime = (mudstate.now - d->last_time);
 		if ((result == -1) || (idletime < result))
 			result = idletime;
+	    }
+	} else {
+	    DESC_ITER_CONN(d) {
+		if (d->descriptor == port_num) {
+		    idletime = (mudstate.now - d->last_time);
+		    if ((result == -1) || (idletime < result))
+			result = idletime;
+		    return result;
+		}
+	    }
 	}
 	return result;
 }
 
-int fetch_connect(target)
+int fetch_connect(target, port_num)
 dbref target;
+int port_num;
 {
 	DESC *d;
 	int result, conntime;
 
 	result = -1;
-	DESC_ITER_PLAYER(target, d) {
+	if (port_num < 0) {
+	    DESC_ITER_PLAYER(target, d) {
 		conntime = (mudstate.now - d->connected_at);
 		if (conntime > result)
 			result = conntime;
+	    }
+	} else {
+	    DESC_ITER_CONN(d) {
+		if (d->descriptor == port_num) {
+		    conntime = (mudstate.now - d->connected_at);
+		    if (conntime > result)
+			result = conntime;
+		    return result;
+		}
+	    }
 	}
 	return result;
 }
@@ -2121,15 +2145,15 @@ char *buff, **bufc;
  * List of numbers: command_count input_tot output_tot
  */
 
-void make_sessioninfo(player, port_num, buff, bufc)
-    dbref player;
+void make_sessioninfo(player, target, port_num, buff, bufc)
+    dbref player, target;
     int port_num;
     char *buff, **bufc;
 {
     DESC *d;
 
     DESC_ITER_CONN(d) {
-	if (d->descriptor == port_num) {
+	if ((d->descriptor == port_num) || (d->player == target)) {
 	    if (Wizard_Who(player) || Controls(player, d->player)) {
 		safe_str(tprintf("%d %d %d", d->command_count,
 				 d->input_tot, d->output_tot), buff, bufc);
@@ -2151,17 +2175,22 @@ void make_sessioninfo(player, port_num, buff, bufc)
  * get_doing: Return the DOING string of a player.
  */
 
-char *get_doing(target)
+char *get_doing(target, port_num)
     dbref target;
+    int port_num;
 {
     DESC *d;
 
-    DESC_ITER_CONN(d) {
-	if (d->player == target) {
+    if (port_num < 0) {
+	DESC_ITER_PLAYER(target, d) {
 	    return d->doing;
 	}
+    } else {
+	DESC_ITER_CONN(d) {
+	    if (d->descriptor == port_num) 
+		return d->doing;
+	}
     }
-
     return NULL;
 }
 

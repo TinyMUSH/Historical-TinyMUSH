@@ -19,13 +19,23 @@
 
 extern void FDECL(make_ulist, (dbref, char *, char **));
 extern void FDECL(make_portlist, (dbref, dbref, char *, char **));
-extern int FDECL(fetch_idle, (dbref));
-extern int FDECL(fetch_connect, (dbref));
-extern char * FDECL(get_doing, (dbref));
-extern void FDECL(make_sessioninfo, (dbref, int, char *, char **));
+extern int FDECL(fetch_idle, (dbref, int));
+extern int FDECL(fetch_connect, (dbref, int));
+extern char * FDECL(get_doing, (dbref, int));
+extern void FDECL(make_sessioninfo, (dbref, dbref, int, char *, char **));
 extern dbref FDECL(get_programmer, (dbref));
 extern void FDECL(cf_display, (dbref, char *, char *, char **));
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
+
+#define Find_Connection(x,s,t,p) \
+	p = t = NOTHING;	\
+	if (is_integer(s)) {	\
+		p = atoi(s);	\
+	} else {	\
+		t = lookup_player(x, s, 1);	\
+		if (Good_obj(t) && Hidden(t) && !See_Hidden(x))	\
+			t = NOTHING;	\
+	}
 
 /* ---------------------------------------------------------------------------
  * config: Display a MUSH config parameter.
@@ -70,14 +80,18 @@ FUNCTION(fun_ports)
 FUNCTION(fun_doing)
 {
     dbref target;
+    int port;
     char *str;
 
-    target = lookup_player(player, fargs[0], 1);
-    if (!Good_obj(target) || !Connected(target))
+    Find_Connection(player, fargs[0], target, port); 
+    if ((port < 0) && (target == NOTHING)) {
 	return;
+    }
 
-    if ((str = get_doing(target)) != NULL)
-	safe_str(get_doing(target), buff, bufc);
+    str = get_doing(target, port);
+    if (str) {
+	safe_str(str, buff, bufc);
+    }
 }
 
 /* ---------------------------------------------------------------------------
@@ -87,21 +101,28 @@ FUNCTION(fun_doing)
 FUNCTION(fun_idle)
 {
 	dbref target;
+	int port;
+	
+	Find_Connection(player, fargs[0], target, port); 
+	if ((port < 0) && (target == NOTHING)) {
+	    safe_known_str((char *) "-1", 2, buff, bufc);
+	    return;
+	}
 
-	target = lookup_player(player, fargs[0], 1);
-	if (Good_obj(target) && Hidden(target) && !See_Hidden(player))
-		target = NOTHING;
-	safe_ltos(buff, bufc, fetch_idle(target));
+	safe_ltos(buff, bufc, fetch_idle(target, port));
 }
 
 FUNCTION(fun_conn)
 {
 	dbref target;
-
-	target = lookup_player(player, fargs[0], 1);
-	if (Good_obj(target) && Hidden(target) && !See_Hidden(player))
-		target = NOTHING;
-	safe_ltos(buff, bufc, fetch_connect(target));
+	int port;
+	
+	Find_Connection(player, fargs[0], target, port); 
+	if ((port < 0) && (target == NOTHING)) {
+	    safe_known_str((char *) "-1", 2, buff, bufc);
+	    return;
+	}
+	safe_ltos(buff, bufc, fetch_connect(target, port));
 }
 
 /* ---------------------------------------------------------------------------
@@ -110,7 +131,15 @@ FUNCTION(fun_conn)
 
 FUNCTION(fun_session)
 {
-	make_sessioninfo(player, atoi(fargs[0]), buff, bufc);
+	dbref target;
+	int port;
+	
+	Find_Connection(player, fargs[0], target, port); 
+	if ((port < 0) && (target == NOTHING)) {
+	    safe_str((char *) "-1 -1 -1", buff, bufc);
+	    return;
+	}
+	make_sessioninfo(player, target, port, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

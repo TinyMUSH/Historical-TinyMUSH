@@ -8384,7 +8384,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   Returns the number of seconds that <player> has been connected.  If <player>
   is not connected then -1 is returned.  If <player> is connected more than
-  once, the longest connect time is returned.
+  once, the longest connect time is returned. <player> can be the name of
+  a player, or a port number (from SESSION).
  
   Example:
     > WHO
@@ -8407,7 +8408,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   Returns the number of seconds that <player> has been idle.  If <player>
   is not connected then -1 is returned.  If <player> is connected more than
-  once, the smallest idle time is returned.
+  once, the smallest idle time is returned. <player> can be the name of
+  a player, or a port number (from SESSION).
  
   Example:
     > WHO
@@ -9637,11 +9639,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     7 -- 8 --"
  
 & DOING()
-  doing(<player name>)
+  doing(<player>)
  
   This function returns the @doing string of a connected player. If the
   player does not exist, or is not connected, this function returns an
-  empty string.
+  empty string. <player> can be the name of a player, or a port number
+  (from SESSION).
  
 & PROGRAMMER()
   programmer(<player name>)
@@ -9663,11 +9666,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   These ports correspond to those given by the SESSION command.
   
 & SESSION()
-  session(<port number>)
+  session(<player>)
  
   This function returns a list of three numbers associated with a port:
   the number of commands entered this session, the bytes of input entered
   this session, and the bytes of output received this session.
+   <player> can be the name of a player, or a port number.
  
   You must have the Expanded_Who power, be a Wizard or Royalty, or control
   the player whose port that is, in order to obtain this information.
