@@ -1658,7 +1658,7 @@ static NDECL(void check_floating)
 		if (isRoom(i) && !Floating(i) && !Going(i) && !Marked(i)) {
 			owner = Owner(i);
 #ifndef STANDALONE
-			if (Good_owner(owner)) {
+			if (Good_owner(owner) && !Floating(owner)) {
 				notify(owner, tprintf(
 					 "You own a floating room: %s(#%d)",
 							     Name(i), i));
