@@ -51,7 +51,7 @@ int q_list[];
 dbref player;
 int qtype;
 {
-	char buf[32];
+	char buf[MBUF_SIZE];
 
 	sprintf(buf, "%d %d %d %d %d", q_list[0], q_list[1], q_list[2],
 		q_list[3], q_list[4]);
