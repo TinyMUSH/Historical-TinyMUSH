@@ -1809,119 +1809,220 @@ int what, owhat, awhat, nargs;
 char *args[];
 const char *def, *odef;
 {
-	char *d, *buff, *act, *charges, *bp, *str, *preserve[MAX_GLOBAL_REGS];
-	dbref loc, aowner;
-	int num, aflags, alen, need_pres, preserve_len[MAX_GLOBAL_REGS];
+    char *d, *m, *buff, *act, *charges, *bp, *str, *preserve[MAX_GLOBAL_REGS];
+    char *tbuf, *tp, *sp;
+    dbref loc, aowner;
+    int t, num, aflags, alen, need_pres, preserve_len[MAX_GLOBAL_REGS];
+    dbref master;
 
-	/* If we need to call exec() from within this function, we first save
-	 * the state of the global registers, in order to avoid munging them
-	 * inappropriately. Do note that the restoration to their original
-	 * values occurs BEFORE the execution of the @a-attribute. Therefore,
-	 * any changing of setq() values done in the @-attribute and @o-attribute
-	 * will NOT be passed on. This prevents odd behaviors that result from
-	 * odd @verbs and so forth (the idea is to preserve the caller's control
-	 * of the global register values).
+    /* If we need to call exec() from within this function, we first save
+     * the state of the global registers, in order to avoid munging them
+     * inappropriately. Do note that the restoration to their original
+     * values occurs BEFORE the execution of the @a-attribute. Therefore,
+     * any changing of setq() values done in the @-attribute and @o-attribute
+     * will NOT be passed on. This prevents odd behaviors that result from
+     * odd @verbs and so forth (the idea is to preserve the caller's control
+     * of the global register values).
+     */
+
+    need_pres = 0;
+
+    switch (Typeof(thing)) {
+	case TYPE_ROOM:
+	    master = mudconf.room_defobj;
+	    break;
+	case TYPE_EXIT:
+	    master = mudconf.exit_defobj;
+	    break;
+	case TYPE_PLAYER:
+	    master = mudconf.player_defobj;
+	    break;
+	default:
+	    master = mudconf.thing_defobj;
+    }
+    if (master == thing)
+	master = NOTHING;
+
+    /* message to player */
+
+    m = NULL; 
+
+    if (what > 0) {
+
+	/* Check for global attribute format override. If it exists,
+	 * use that. The actual attribute text we were provided
+	 * will be passed to that as %0.
+	 * Otherwise, we just go evaluate what we've got, and
+	 * if that's nothing, we go do the default.
 	 */
 
-	need_pres = 0;
+	d = atr_pget(thing, what, &aowner, &aflags, &alen);
+	t = ((what < A_USER_START) && Good_obj(master)) ? 1 : 0;
 
-	/* message to player */
+	if (t) {
+	    m = atr_pget(master, what, &aowner, &aflags, &alen);
+	}
 
-	if (what > 0) {
-		d = atr_pget(thing, what, &aowner, &aflags, &alen);
+	if (*d || (t && *m)) {
+	    need_pres = 1;
+	    save_global_regs("did_it_save", preserve, preserve_len);
+	    buff = bp = alloc_lbuf("did_it.1");
+	    if (t && *m) {
+		str = m;
 		if (*d) {
-			need_pres = 1;
-			save_global_regs("did_it_save", preserve,
-					 preserve_len);
-			buff = bp = alloc_lbuf("did_it.1");
-			str = d;
-			exec(buff, &bp, 0, thing, player, EV_EVAL | EV_FIGNORE | EV_TOP,
-			     &str, args, nargs);
-			*bp = '\0';
-#ifdef PUEBLO_SUPPORT
-			if ((aflags & AF_HTML) && Html(player)) {
-				char *buff_cp = buff + strlen(buff);
-				safe_crlf(buff, &buff_cp);
-				notify_html(player, buff);
-			} else
-				notify(player, buff);
-#else
-			notify(player, buff);
-#endif /* PUEBLO_SUPPORT */
-			free_lbuf(buff);
+		    sp = d;
+		    tbuf = tp = alloc_lbuf("did_it.deval");
+		    exec(tbuf, &tp, 0, thing, player,
+			 EV_EVAL | EV_FIGNORE | EV_TOP,
+			 &sp, args, nargs);
+		    *tp = '\0';
+		    exec(buff, &bp, 0, thing, player,
+			 EV_EVAL | EV_FIGNORE | EV_TOP,
+			 &str, &tbuf, 1);
+		    free_lbuf(tbuf);
 		} else if (def) {
-			notify(player, def);
+		    exec(buff, &bp, 0, thing, player,
+			 EV_EVAL | EV_FIGNORE | EV_TOP,
+			 &str, (char **) &def, 1);
+		} else {
+		    exec(buff, &bp, 0, thing, player,
+			 EV_EVAL | EV_FIGNORE | EV_TOP,
+			 &str, (char **) NULL, 0);
 		}
-		free_lbuf(d);
-	} else if ((what < 0) && def) {
-		notify(player, def);
+	    } else if (*d) {
+		str = d;
+		exec(buff, &bp, 0, thing, player,
+		     EV_EVAL | EV_FIGNORE | EV_TOP,
+		     &str, args, nargs);
+	    }
+	    *bp = '\0';
+#ifdef PUEBLO_SUPPORT
+	    if ((aflags & AF_HTML) && Html(player)) {
+		char *buff_cp = buff + strlen(buff);
+		safe_crlf(buff, &buff_cp);
+		notify_html(player, buff);
+	    } else
+		notify(player, buff);
+#else
+	    notify(player, buff);
+#endif /* PUEBLO_SUPPORT */
+	    free_lbuf(buff);
+	} else if (def) {
+	    notify(player, def);
 	}
-	/* message to neighbors */
+	free_lbuf(d);
+    } else if ((what < 0) && def) {
+	notify(player, def);
+    }
 
-	if ((owhat > 0) && Has_location(player) &&
-	    Good_obj(loc = Location(player))) {
-		d = atr_pget(thing, owhat, &aowner, &aflags, &alen);
+    if (m) {
+	free_lbuf(m);
+    }
+
+    /* message to neighbors */
+
+    m = NULL;
+
+    if ((owhat > 0) && Has_location(player) &&
+	Good_obj(loc = Location(player))) {
+
+	d = atr_pget(thing, owhat, &aowner, &aflags, &alen);
+	t = ((owhat < A_USER_START) && Good_obj(master)) ? 1 : 0;
+
+	if (t) {
+	    m = atr_pget(master, owhat, &aowner, &aflags, &alen);
+	}
+
+	if (*d || (t && *m)) {
+	    if (!need_pres) {
+		need_pres = 1;
+		save_global_regs("did_it_save", preserve, preserve_len);
+	    }
+	    buff = bp = alloc_lbuf("did_it.2");
+	    if (t && *m) {
+		str = m;
 		if (*d) {
-			if (!need_pres) {
-				need_pres = 1;
-				save_global_regs("did_it_save", preserve,
-						 preserve_len);
-			}
-			buff = bp = alloc_lbuf("did_it.2");
-			str = d;
-			exec(buff, &bp, 0, thing, player, EV_EVAL | EV_FIGNORE | EV_TOP,
-			     &str, args, nargs);
-			*bp = '\0';
-			if (*buff)
-				notify_except2(loc, player, player, thing,
-				       tprintf("%s %s", Name(player), buff));
-			free_lbuf(buff);
+		    sp = d;
+		    tbuf = tp = alloc_lbuf("did_it.deval");
+		    exec(tbuf, &tp, 0, thing, player,
+			 EV_EVAL | EV_FIGNORE | EV_TOP,
+			 &sp, args, nargs);
+		    *tp = '\0';
+		    exec(buff, &bp, 0, thing, player,
+			 EV_EVAL | EV_FIGNORE | EV_TOP,
+			 &str, &tbuf, 1);
+		    free_lbuf(tbuf);
 		} else if (odef) {
-			notify_except2(loc, player, player, thing,
-				       tprintf("%s %s", Name(player), odef));
+		    exec(buff, &bp, 0, thing, player,
+			 EV_EVAL | EV_FIGNORE | EV_TOP,
+			 &str, (char **) &odef, 1);
+		} else {
+		    exec(buff, &bp, 0, thing, player,
+			 EV_EVAL | EV_FIGNORE | EV_TOP,
+			 &str, (char **) NULL, 0);
 		}
-		free_lbuf(d);
-	} else if ((owhat < 0) && odef && Has_location(player) &&
-		   Good_obj(loc = Location(player))) {
+	    } else if (*d) {
+		str = d;
+		exec(buff, &bp, 0, thing, player,
+		     EV_EVAL | EV_FIGNORE | EV_TOP,
+		     &str, args, nargs);
+	    }
+	    *bp = '\0';
+	    if (*buff)
 		notify_except2(loc, player, player, thing,
-			       tprintf("%s %s", Name(player), odef));
+			       tprintf("%s %s", Name(player), buff));
+	    free_lbuf(buff);
+	} else if (odef) {
+	    notify_except2(loc, player, player, thing,
+			   tprintf("%s %s", Name(player), odef));
 	}
+	free_lbuf(d);
+    } else if ((owhat < 0) && odef && Has_location(player) &&
+	       Good_obj(loc = Location(player))) {
+	notify_except2(loc, player, player, thing,
+		       tprintf("%s %s", Name(player), odef));
+    }
 
-	/* If we preserved the state of the global registers, restore them. */
+    if (m) {
+	free_lbuf(m);
+    }
 
-	if (need_pres)
-		restore_global_regs("did_it_restore", preserve, preserve_len);
+    /* If we preserved the state of the global registers, restore them. */
+
+    if (need_pres)
+	restore_global_regs("did_it_restore", preserve, preserve_len);
 		
-	/* do the action attribute */
+    /* do the action attribute */
 
-	if (awhat > 0) {
-		if (*(act = atr_pget(thing, awhat, &aowner, &aflags, &alen))) {
-			charges = atr_pget(thing, A_CHARGES, &aowner, &aflags, &alen);
-			if (*charges) {
-				num = atoi(charges);
-				if (num > 0) {
-					buff = alloc_sbuf("did_it.charges");
-					sprintf(buff, "%d", num - 1);
-					atr_add_raw(thing, A_CHARGES, buff);
-					free_sbuf(buff);
-				} else if (*(buff = atr_pget(thing, A_RUNOUT, &aowner, &aflags, &alen))) {
-					free_lbuf(act);
-					act = buff;
-				} else {
-					free_lbuf(act);
-					free_lbuf(buff);
-					free_lbuf(charges);
-					return;
-				}
-			}
-			free_lbuf(charges);
-			wait_que(thing, player, 0, NOTHING, 0, act, args, nargs,
-				 mudstate.global_regs);
+    if (awhat > 0) {
+	if (*(act = atr_pget(thing, awhat, &aowner, &aflags, &alen))) {
+	    charges = atr_pget(thing, A_CHARGES, &aowner, &aflags, &alen);
+	    if (*charges) {
+		num = atoi(charges);
+		if (num > 0) {
+		    buff = alloc_sbuf("did_it.charges");
+		    sprintf(buff, "%d", num - 1);
+		    atr_add_raw(thing, A_CHARGES, buff);
+		    free_sbuf(buff);
+		} else if (*(buff = atr_pget(thing, A_RUNOUT,
+					     &aowner, &aflags, &alen))) {
+		    free_lbuf(act);
+		    act = buff;
+		} else {
+		    free_lbuf(act);
+		    free_lbuf(buff);
+		    free_lbuf(charges);
+		    return;
 		}
-		free_lbuf(act);
+	    }
+	    free_lbuf(charges);
+	    wait_que(thing, player, 0, NOTHING, 0, act, args, nargs,
+		     mudstate.global_regs);
 	}
+	free_lbuf(act);
+    }
 }
-/*foobar*/
+
 /*
  * ---------------------------------------------------------------------------
  * * do_verb: Command interface to did_it.

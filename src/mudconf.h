@@ -208,6 +208,10 @@ struct confdata {
 	dbref	room_proto;	/* Room prototype to clone */
 	dbref	exit_proto;	/* Exit prototype to clone */
 	dbref	thing_proto;	/* Thing prototype to clone */
+	dbref	player_defobj;	/* Players use this for attr template */
+	dbref	room_defobj;	/* Rooms use this for attr template */
+	dbref	exit_defobj;	/* Exits use this for attr template */
+	dbref	thing_defobj;	/* Things use this for attr template */
 	dbref	player_parent;	/* Parent that players start with */
 	dbref	room_parent;	/* Parent that rooms start with */
 	dbref	exit_parent;	/* Parent that exits start with */

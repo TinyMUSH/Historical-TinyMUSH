@@ -253,6 +253,10 @@ void NDECL(cf_init)
 	mudconf.room_proto = NOTHING;
 	mudconf.exit_proto = NOTHING;
 	mudconf.thing_proto = NOTHING;
+	mudconf.player_defobj = NOTHING;
+	mudconf.room_defobj = NOTHING;
+	mudconf.thing_defobj = NOTHING;
+	mudconf.exit_defobj = NOTHING;
 	mudconf.player_parent = NOTHING;
 	mudconf.room_parent = NOTHING;
 	mudconf.exit_parent = NOTHING;
@@ -1344,6 +1348,7 @@ CONF conftable[] = {
 {(char *)"exit_calls_move",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.exit_calls_move,	(long)"Using an exit calls the move command"},
 {(char *)"exit_parent",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_parent,		0},
 {(char *)"exit_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_proto,		0},
+{(char *)"exit_attr_defaults",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_defobj,		0},
 {(char *)"exit_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.exit_quota,		0},
 {(char *)"events_daily_hour",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.events_daily_hour,	0},
 {(char *)"fascist_teleport",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fascist_tport,		(long)"@teleport source restricted to control or JUMP_OK"},
@@ -1456,6 +1461,7 @@ CONF conftable[] = {
 {(char *)"player_name_spaces",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.name_spaces,		(long)"Player names can contain spaces"},
 {(char *)"player_parent",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_parent,		0},
 {(char *)"player_proto",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_proto,		0},
+{(char *)"player_attr_defaults",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_defobj,		0},
 {(char *)"player_queue_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.queuemax,		0},
 {(char *)"player_quota",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.player_quota,		0},
 {(char *)"player_starting_home",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_home,		0},
@@ -1484,6 +1490,7 @@ CONF conftable[] = {
 {(char *)"room_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.room_flags,	0},
 {(char *)"room_parent",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_parent,		0},
 {(char *)"room_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_proto,		0},
+{(char *)"room_attr_defaults",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_defobj,		0},
 {(char *)"room_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_quota,		0},
 {(char *)"sacrifice_adjust",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacadjust,		0},
 {(char *)"sacrifice_factor",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacfactor,		0},
@@ -1517,6 +1524,7 @@ CONF conftable[] = {
 {(char *)"thing_flags",			cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.thing_flags,	0},
 {(char *)"thing_parent",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_parent,		0},
 {(char *)"thing_proto",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_proto,		0},
+{(char *)"thing_attr_defaults",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_defobj,		0},
 {(char *)"thing_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_quota,		0},
 {(char *)"timeslice",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.timeslice,		0},
 {(char *)"trace_output_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.trace_limit,		0},
