@@ -1377,6 +1377,19 @@ FUNCTION(fun_right)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_chomp: If the line ends with a newline ('\r\n'), chop it off.
+ */
+
+FUNCTION(fun_chomp)
+{
+    int len = strlen(fargs[0]);
+    if ((fargs[0][len - 2] == '\r') && (fargs[0][len - 1] == '\n')) {
+	fargs[0][len - 2] = '\0';
+    }
+    safe_str(fargs[0], buff, bufc);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_v: Function form of %-substitution
  */
 
@@ -4891,6 +4904,7 @@ FUN flist[] = {
 {"CEIL",	fun_ceil,	1,  0,		CA_PUBLIC},
 {"CENTER",	fun_center,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CHILDREN",    fun_children,   1,  0,          CA_PUBLIC},
+{"CHOMP",	fun_chomp,	1,  0,		CA_PUBLIC},
 {"COLUMNS",	fun_columns,	0,  FN_VARARGS, CA_PUBLIC},
 {"COMP",	fun_comp,	2,  0,		CA_PUBLIC},
 {"CON",		fun_con,	1,  0,		CA_PUBLIC},
