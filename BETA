@@ -1,0 +1,235 @@
+Changelog for the Beta Releases
+===============================
+
+Where possible, notes in [brackets] indicate when the error was
+introduced. Non-specific version numbers indicate the following:
+	- 2.0 (Introduced in TinyMUSH 2.0.10p6 or earlier.)
+	- 2.2 (Introduced in TinyMUSH 2.2.5 or earlier.)
+	- MUX (Introduced in TinyMUX 1.6 or earlier.)
+	- 3.0 (Introduced in TinyMUSH 3.0 at some point in time.)
+
+The initial beta release was on 9/27/99.
+
+-----------------------------------------------------------------------------
+
+9/28/99: Beta 2
+
+- Fix: Compilation problem with MEMORY_BASED defined. [3.0]
+
+- Fix: XFREE macro missing argument compiler error. [3.0]
+
+- Fix: Fatal error in let(). [3.0a8]
+
+- Fix: Off-by-one, integer overflow, and bounds-checking issues. Verified
+  with Purify.
+
+- Fix: Cannot set/reset ROBOT flag on players. [MUX]
+
+-----------------------------------------------------------------------------
+
+9/29/99: Beta 3
+
+- Fix: Pueblo support works again. [3.0]
+
+- Fix: Structure names cannot contain periods. [3.0a8]
+
+- Fix: translate() works as documented, and handles backslashes correctly.
+  [MUX]
+
+- Fix: pmatch() correctly handles dbrefs. [3.0]
+
+- Fix: Command switch issues fixed for @mail, @malias, @wipe. [2.0]
+
+- Fix: Side-effect function permissions are checked more thoroughly. [MUX]
+
+- Fix: Double-free issue in switchall(). [3.0a8]
+
+- Change: mix() can take up to twelve arguments (rather than ten).
+
+- Cosmetic: Dealt with a compiler warning in flags.c.
+
+- Docs: Updated mailing list subscription info in help.
+
+-----------------------------------------------------------------------------
+
+9/30/99: Beta 4
+
+- Fix: @clone correctly copies all flags. [3.0]
+
+- Fix: @open requires the invoker to have contents. [2.0]
+
+- Fix: Parent recursion issues have been prevented in various places. [2.0]
+
+- Fix: parse() checks function invocations in a manner identical to iter().
+  [2.0]
+
+- Fix: Slaves are reaped with waitpid() so zombies are not created by
+  @restart (may be Linux-specific problem). [MUX]
+
+- Fix: Signals are unblocked at startup, allowing SIGUSR1 to be invoked
+  for later instances in restarts. [MUX]
+
+- Misc: The unused parentable_control_lock parameter has been removed.
+
+- Misc: A variety of compiler warnings related to uninitialized variables, 
+  unused variables, implicit function declarations, etc. have been taken
+  care of.
+
+-----------------------------------------------------------------------------
+
+10/2/99: Beta 5
+
+- Feature: lstructures() and linstances() functions added.
+
+- Fix: @dbclean has been rewritten, and now works (and is more efficient).
+  [3.0]
+
+- Fix: Where pow() is used in conjunction with htonl(), it is cast to
+  unsigned int. This fixes a compilation issue with Linux and gcc -O.
+  [3.0]
+
+- Fix: Some structures are no longer allocated as lbufs, but are explicitly
+  malloc'd in a type-specific manner. [2.0]
+
+- Fix: Forwardlists are loaded before startups are run. [2.0]
+
+- Fix: @mail/fwd now explicitly checks to see if a mail message is in
+  progress. [MUX]
+
+- Fix: INFO now works when used by logged-in players. [3.0]
+
+- Fix: trunc() truncates rather than rounds. [MUX]
+
+- Fix: Dumping and shutdown check to make sure the game is not already
+  dumping. [2.0]
+
+- Fix: The display of exit destinations for Transparent rooms now handles
+  "special" exit destinations. [2.2/MUX]
+
+- Fix: Some oddities with attribute renaming have been taken care of. [2.0]
+
+- Fix: The static buffers for Name and PureName are of the appropriate type.
+  [MUX]
+
+- Fix: Instance name lengths are restricted to half an sbuf. [3.0a8]
+
+- Fix: Startmush handles checking if the game is running in a better manner.
+
+- Misc: The GDBM bucket cache size has been reduced to 1 bucket.
+
+-----------------------------------------------------------------------------
+
+10/4/99: Beta 6
+
+- Fix: Money is no longer deducted twice when creating an object. [3.0]
+
+- Fix: Another pow()/htonl() fix. [3.0]
+
+- Fix: Various compile-time option #ifdef's cleaned up.
+
+- Fix: Removed spurious spaces in columns() when a string is truncated.
+  [3.0b2]
+
+- Fix: Cosmetic change to @list textfiles.
+
+- Misc: chown_anything also lets you @chown to anyone.
+
+- Misc: Doubled the size of the function and user function hash tables.
+
+- Misc: Got rid of the SIDE_EFFECT_FUNCTIONS compile-time option, since
+  you can simply function_access the side-effect functions to 'disabled'.
+
+-----------------------------------------------------------------------------
+
+10/5/99: Beta 7
+
+- Feature: New conf parameter stripped_flags determines what flags are
+  stripped when an object is subject to a @chown, @chownall, or @clone.
+  These commands now take a /nostrip switch, which negates stripping.
+  For consistency, @clone/inherit no longer preserves IMMORTAL (only
+  INHERIT).
+
+- Fix: Side-effect function prototypes exist again. [3.0b6]
+
+- Fix: You can no longer set the cost of non-things in @clone (consistent
+  with other object-creation commands). [MUX]
+
+- Fix: The value of @clone'd objects is now correctly set. (Previously,
+  all cloned objects had a value, i.e. Pennies, of zero.) [MUX]
+
+- Misc: All @clone switches except /inventory and /location can be combined.
+
+- Misc: @clone/preserve can be used by anyone, but you must control the
+  original object's owner.
+
+- Misc: ansi() compacts the ANSI codes, and makes a better attempt against
+  avoiding bleeding.
+
+-----------------------------------------------------------------------------
+
+10/7/99: Beta 8
+
+- Feature: @cron implemented, providing Unix-style cron scheduling.
+  @daily has been re-implemented using the @cron facility.
+
+- Feature: Functions that take output delimiters can now take a null
+  output delimiter, signified by the token '@@'.
+
+- Feature: New conf directive raw_helpfile allows the addition of
+  non-evaluated helpfiles.
+
+- Feature: Added the MUSH Manual to the distribution in helpfile format.
+  (Thanks to Alierak and sTiLe.)
+
+- Feature: delete(), mid(), left() and right() no longer strip ANSI
+  characters.
+
+- Fix: SQL queries error out properly when support is not compiled in.
+  [3.0a13]
+
+- Fix: @clone/nostrip can be combined with all other @clone switches.
+  [3.0b7]
+
+- Fix: The 2.2 database conversion converts the Builder flag to the
+  Builder power, rather than just discarding the flag. [3.0a4]
+
+- Fix: Comtitles are terminated with ANSI_NORMAL where appropriate. [MUX]
+
+- Fix: sortby() no longer ignores its output delimiter. [2.2]
+
+- Fix: translate() can handle compacted ANSI strings generated by
+  ansi(). [3.0b7]
+
+- Misc: Typecast time_t to int when using it in conjunction with printf().
+
+- Did a diff between ChaoticMUX-S3, and TinyMUX 1.6p0. Derived a suite
+  of bugfixes and some enhancements, as follows:
+
+  - Feature: @function/noeval defines a user-defined function whose
+    arguments are not pre-evaluated.
+
+  - Feature: An ANSI underline code, %xu, has been added.
+
+  - Feature: log() can take an optional second argument, the base.
+
+  - Fix: elock() obeys the pass_locks power. [MUX]
+
+  - Fix: Pool headers are 64-bit aligned. [2.0]
+
+  - Fix: Calls to site_check() check the return value ANDed against the flag.
+    [2.0]
+
+  - Fix: The overflow buffer for functions is terminated properly. [MUX]
+
+  - Fix: Missed some places where see_hidden should apply. [3.0a14]
+
+  - OUTPUTSUFFIX without OUTPUTPREFIX works. [2.0]
+
+  - Misc: All calls to abort() log a message.
+
+  - Misc: mail() and mailfrom() check arg ranges in the standard way.
+
+  - Misc: ANSI defines are used rather than embedding raw codes.
+
+  - Misc: No spurious extra args to raw_broadcast() calls.
+
