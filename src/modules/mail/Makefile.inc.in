@@ -16,6 +16,6 @@ modules/mail/mail.la: modules/mail/mail.o
 install-modules: install-mail
 
 install-mail: modules/mail/mail.la
-	-mv ../game/modules/mail.* ../game/modules/old
+	-mv ../game/modules/mail.* ../game/modules/libmail.* ../game/modules/old/
 	$(LIBTOOL) --mode=install cp modules/mail/mail.la `pwd`/../game/modules/mail.la
 	touch install-mail

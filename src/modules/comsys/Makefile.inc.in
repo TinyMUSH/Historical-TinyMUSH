@@ -15,6 +15,6 @@ modules/comsys/comsys.la: modules/comsys/comsys.o
 install-modules: install-comsys
 
 install-comsys: modules/comsys/comsys.la
-	-mv ../game/modules/comsys.* ../game/modules/old
+	-mv ../game/modules/comsys.* ../game/modules/libcomsys.* ../game/modules/old/
 	$(LIBTOOL) --mode=install cp modules/comsys/comsys.la `pwd`/../game/modules/comsys.la
 	touch install-comsys
