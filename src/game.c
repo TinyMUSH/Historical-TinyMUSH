@@ -1559,6 +1559,10 @@ char *argv[];
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.desc_htab, 25 * HASH_FACTOR);
 	hashinit(&mudstate.vars_htab, 250 * HASH_FACTOR);
+	hashinit(&mudstate.structs_htab, 50 * HASH_FACTOR);
+	hashinit(&mudstate.cdefs_htab, 100 * HASH_FACTOR);
+	hashinit(&mudstate.instance_htab, 100 * HASH_FACTOR);
+	hashinit(&mudstate.instdata_htab, 250 * HASH_FACTOR);
 
 	add_helpfile(GOD, (char *) "help text/help");
 	add_helpfile(GOD, (char *) "wizhelp text/wizhelp");

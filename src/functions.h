@@ -33,6 +33,64 @@ struct var_entry {
 #define	FN_PRIV		4	/* Perform user-def function as holding obj */
 #define FN_PRES		8	/* Preseve r-regs before user-def functions */
 
+/* This is for functions that take an optional delimiter character.
+ *
+ * Call varargs_preamble("FUNCTION", max_args) for functions which
+ * take either max_args - 1 args, or, with a delimiter, max_args args.
+ *
+ * Call mvarargs_preamble("FUNCTION", min_args, max_args) if there can
+ * be more variable arguments than just the delimiter.
+ *
+ * Call evarargs_preamble("FUNCTION", min_args, max_args) if the delimiters
+ * need to be evaluated.
+ *
+ * Call svarargs_preamble("FUNCTION", max_args) if the second to last and
+ * last arguments are delimiters.
+ *
+ * Call xvarargs_preamble("FUNCTION", min_args, max_args) if this is varargs
+ * but does not involve a delimiter.
+ */
+
+#define xvarargs_preamble(xname,xminargs,xnargs)                \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))     \
+return;
+
+#define varargs_preamble(xname,xnargs)	                        \
+if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
+    player, cause, cargs, ncargs))                              \
+return;
+
+#define mvarargs_preamble(xname,xminargs,xnargs)	        \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,          \
+    player, cause, cargs, ncargs))                              \
+return;
+
+#define evarargs_preamble(xname, xminargs, xnargs)              \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs - 1, &sep, buff, bufc, 1,      \
+    player, cause, cargs, ncargs))                              \
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 1,         \
+    player, cause, cargs, ncargs))                              \
+return;
+
+#define svarargs_preamble(xname,xnargs)                         \
+if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
+    player, cause, cargs, ncargs))                              \
+return;							        \
+if (nfargs < xnargs)				                \
+    osep = sep;				                        \
+else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
+    player, cause, cargs, ncargs))                              \
+return;
+
 extern void	NDECL(init_functab);
 extern void	FDECL(list_functable, (dbref));
 

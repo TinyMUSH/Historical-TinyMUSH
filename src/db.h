@@ -165,6 +165,8 @@ struct object {
 
 	int	stack_count;	/* ALL: number of things on the stack */
 	int	vars_count;	/* ALL: number of variables */
+	int	struct_count;	/* ALL: number of structures */
+	int	instance_count;	/* ALL: number of struct instances */
 
 #ifndef NO_TIMECHECKING
 	struct timeval cpu_time_used;	/* ALL: CPU time eaten */
@@ -201,8 +203,12 @@ extern NAME *names;
 
 #define VarsCount(t)		db[t].vars_count
 #define StackCount(t)		db[t].stack_count
+#define StructCount(t)		db[t].struct_count
+#define InstanceCount(t)	db[t].instance_count
 #define s_VarsCount(t,n)	db[t].vars_count = n;
 #define s_StackCount(t,n)	db[t].stack_count = n;
+#define s_StructCount(t,n)	db[t].struct_count = n;
+#define s_InstanceCount(t,n)	db[t].instance_count = n;
 
 #ifndef NO_TIMECHECKING
 #define Time_Used(t)		db[t].cpu_time_used

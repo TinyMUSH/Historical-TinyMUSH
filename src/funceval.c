@@ -42,63 +42,6 @@ extern INLINE char *FDECL(get_mail_message, (int));
 	char *fargs[], *cargs[]; \
 	int nfargs, ncargs;
 
-/* This is for functions that take an optional delimiter character.
- *
- * Call varargs_preamble("FUNCTION", max_args) for functions which
- * take either max_args - 1 args, or, with a delimiter, max_args args.
- *
- * Call mvarargs_preamble("FUNCTION", min_args, max_args) if there can
- * be more variable arguments than just the delimiter.
- *
- * Call evarargs_preamble("FUNCTION", min_args, max_args) if the delimiters
- * need to be evaluated.
- *
- * Call svarargs_preamble("FUNCTION", max_args) if the second to last and
- * last arguments are delimiters.
- *
- * Call xvarargs_preamble("FUNCTION", min_args, max_args) if this is varargs
- * but does not involve a delimiter.
- */
-
-#define xvarargs_preamble(xname,xminargs,xnargs)                \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))     \
-return;
-
-#define varargs_preamble(xname,xnargs)	                        \
-if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
-    player, cause, cargs, ncargs))                              \
-return;
-
-#define mvarargs_preamble(xname,xminargs,xnargs)	        \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,          \
-    player, cause, cargs, ncargs))                              \
-return;
-
-#define evarargs_preamble(xname, xminargs, xnargs)              \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs - 1, &sep, buff, bufc, 1,      \
-    player, cause, cargs, ncargs))                              \
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 1,         \
-    player, cause, cargs, ncargs))                              \
-return;
-
-#define svarargs_preamble(xname,xnargs)                         \
-if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
-    player, cause, cargs, ncargs))                              \
-return;							        \
-if (nfargs < xnargs)				                \
-    osep = sep;				                        \
-else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
-    player, cause, cargs, ncargs))                              \
-return;
 
 /* --------------------------------------------------------------------------
  * Auxiliary functions for stacks.
@@ -121,6 +64,43 @@ typedef struct object_stack STACK;
             notify_quiet(p, NOPERM_MESSAGE);		\
 	    return;					\
 	}
+
+/* --------------------------------------------------------------------------
+ * Auxiliary stuff for structures.
+ */
+
+typedef struct component_def COMPONENT;
+struct component_def {
+    int (*typer_func)();	/* type-checking handler */
+    char *def_val;		/* default value */
+};
+
+typedef struct structure_def STRUCTDEF;
+struct structure_def {
+    char *s_name;		/* name of the structure */
+    char **c_names;		/* array of component names */
+    COMPONENT **c_array;	/* array of pointers to components */
+    int c_count;		/* number of components */
+    char delim;			/* output delimiter when unloading */
+    int need_typecheck;		/* any components without types of any? */
+    int n_instances;		/* number of instances out there */
+    char *names_base;		/* pointer for later freeing */
+    char *defs_base;		/* pointer for later freeing */
+};
+
+typedef struct instance_def INSTANCE;
+struct instance_def {
+    STRUCTDEF *datatype;	/* pointer to structure data type def */
+};
+
+typedef struct data_def STRUCTDATA;
+struct data_def {
+    char *text;
+};
+
+/* --------------------------------------------------------------------------
+ * Main body of functions starts here.
+ */
 	
 #ifdef USE_COMSYS
 FUNCTION(fun_cwho)
@@ -262,6 +242,843 @@ FUNCTION(fun_zone)
 		return;
 	}
 	safe_tprintf_str(buff, bufc, "#%d", Zone(it));
+}
+
+/* ---------------------------------------------------------------------------
+ * Structures.
+ */
+
+static int istype_char(str)
+    char *str;
+{
+    if (strlen(str) == 1)
+	return 1;
+    else
+	return 0;
+}
+
+static int istype_dbref(str)
+    char *str;
+{
+    int n;
+
+    if (*str != NUMBER_TOKEN)
+	return 0;
+    n = atoi(str + 1);
+    if ((n >= 0) && (n < mudstate.db_top))
+	return 1;
+    else
+	return 0;
+}
+
+static int istype_int(str)
+    char *str;
+{
+    return (is_integer(str));
+}
+
+static int istype_float(str)
+    char *str;
+{
+    return (is_number(str));
+}
+
+static int istype_string(str)
+    char *str;
+{
+    char *p;
+
+    for (p = str; *p; p++) {
+	if (isspace(*p))
+	    return 0;
+    }
+    return 1;
+}
+
+
+FUNCTION(fun_structure)
+{
+    char sep;			/* delim for default values */
+    char osep;			/* output delim for structure values */
+    char tbuf[SBUF_SIZE], *tp;
+    char cbuf[SBUF_SIZE], *cp;
+    char *p;
+    char *comp_names, *type_names, *default_vals;
+    char *comp_array[LBUF_SIZE / 2];
+    char *type_array[LBUF_SIZE / 2];
+    char *def_array[LBUF_SIZE / 2];
+    int n_comps, n_types, n_defs;
+    int i;
+    STRUCTDEF *this_struct;
+    COMPONENT *this_comp;
+    int check_type = 0;
+
+    svarargs_preamble("STRUCTURE", 6);
+
+    /* Enforce limits. */
+
+    if (StructCount(player) > mudconf.struct_lim) {
+	notify_quiet(player, "Too many structures.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* If our structure name is too long, reject it. */
+
+    if (strlen(fargs[0]) > (SBUF_SIZE / 2) - 9) {
+	notify_quiet(player, "Structure name is too long.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* The hashtable is indexed by <dbref number>.<structure name> */
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_sb_chr('.', tbuf, &tp);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[0], tbuf, &tp);
+    *tp = '\0';
+
+    /* If we have this structure already, reject. */
+
+    if (hashfind(tbuf, &mudstate.structs_htab)) {
+	notify_quiet(player, "Structure is already defined.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Split things up. Make sure lists are the same size.
+     * If everything eventually goes well, comp_names and default_vals will
+     * REMAIN allocated. 
+     */
+
+
+    comp_names = (char *) strdup(fargs[1]);
+    n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, ' ');
+
+    if (n_comps < 1) {
+	notify_quiet(player, "There must be at least one component.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Make sure that we have a sane name for the components. They must
+     * be smaller than half an SBUF.
+     */
+
+    for (i = 0; i < n_comps; i++) {
+	if (strlen(comp_array[i]) > (SBUF_SIZE / 2) - 9) {
+	    notify_quiet(player, "Component name is too long.");
+	    safe_chr('0', buff, bufc);
+	    free(comp_names);
+	    return;
+	}
+    }
+
+    type_names = alloc_lbuf("struct.types");
+    strcpy(type_names, fargs[2]);
+    n_types = list2arr(type_array, LBUF_SIZE / 2, type_names, ' ');
+
+    /* Make sure all types are valid. We look only at the first char, so
+     * typos will not be caught.
+     */
+
+    for (i = 0; i < n_types; i++) {
+	switch (*(type_array[i])) {
+	    case 'a': case 'A':
+	    case 'c': case 'C':
+	    case 'd': case 'D':
+	    case 'i': case 'I':
+	    case 'f': case 'F':
+	    case 's': case 'S':
+		/* Valid types */
+		break;
+	    default:
+		notify_quiet(player, "Invalid data type specified.");
+		safe_chr('0', buff, bufc);
+		free(comp_names);
+		free_lbuf(type_names);
+		return;
+	}
+    }
+
+    if (fargs[3] && *fargs[3]) {
+	default_vals = (char *) strdup(fargs[3]);
+	n_defs = list2arr(def_array, LBUF_SIZE / 2, default_vals, sep);
+    } else {
+	default_vals = NULL;
+	n_defs = 0;
+    }
+
+    if ((n_comps != n_types) || (n_defs && (n_comps != n_defs))) {
+	notify_quiet(player, "List sizes must be identical.");
+	safe_chr('0', buff, bufc);
+	free(comp_names);
+	free_lbuf(type_names);
+	if (default_vals)
+	    free(default_vals);
+	return;
+    }
+
+    /* Allocate the structure and stuff it in the hashtable. */
+
+    this_struct = (STRUCTDEF *) XMALLOC(sizeof(STRUCTDEF), "struct_alloc");
+    this_struct->s_name = (char *) strdup(fargs[0]);
+    this_struct->c_names = comp_array;
+    this_struct->c_array = (COMPONENT **) calloc(n_comps, sizeof(COMPONENT *));
+    this_struct->c_count = n_comps;
+    this_struct->delim = osep;
+    this_struct->n_instances = 0;
+    this_struct->names_base = comp_names;
+    this_struct->defs_base = default_vals;
+    hashadd(tbuf, (int *) this_struct, &mudstate.structs_htab);
+
+    /* Now that we're done with the base name, we can stick the 
+     * joining period on the end.
+     */
+    
+    safe_sb_chr('.', tbuf, &tp);
+    *tp = '\0';
+
+    /* Allocate each individual component. */
+
+    for (i = 0; i < n_comps; i++) {
+
+	cp = cbuf;
+	safe_sb_str(tbuf, cbuf, &cp);
+	for (p = comp_array[i]; *p; p++)
+	    *p = ToLower(*p);
+	safe_sb_str(comp_array[i], cbuf, &cp);
+	*cp = '\0';
+
+	this_comp = (COMPONENT *) XMALLOC(sizeof(COMPONENT), "comp_alloc");
+	this_comp->def_val = def_array[i];
+	switch (*(type_array[i])) {
+	    case 'a': case 'A':
+		this_comp->typer_func = NULL;
+		break;
+	    case 'c': case 'C':
+		this_comp->typer_func = istype_char;
+		check_type = 1;
+		break;
+	    case 'd': case 'D':
+		this_comp->typer_func = istype_dbref;
+		check_type = 1;
+		break;
+	    case 'i': case 'I':
+		this_comp->typer_func = istype_int;
+		check_type = 1;
+		break;
+	    case 'f': case 'F':
+		this_comp->typer_func = istype_float;
+		check_type = 1;
+		break;
+	    case 's': case 'S':
+		this_comp->typer_func = istype_string;
+		check_type = 1;
+		break;
+	    default:
+		/* Should never happen */
+		this_comp->typer_func = NULL;
+	}
+	this_struct->need_typecheck = check_type;
+	this_struct->c_array[i] = this_comp;
+	hashadd(cbuf, (int *) this_comp, &mudstate.cdefs_htab);
+    }
+
+    free_lbuf(type_names);
+    s_StructCount(player, StructCount(player) + 1);
+    safe_chr('1', buff, bufc);
+}
+
+
+FUNCTION(fun_construct)
+{
+    char sep;
+    char tbuf[SBUF_SIZE], *tp;
+    char ibuf[SBUF_SIZE], *ip;
+    char cbuf[SBUF_SIZE], *cp;
+    char *p;
+    STRUCTDEF *this_struct;
+    char *comp_names, *init_vals;
+    char *comp_array[LBUF_SIZE / 2], *vals_array[LBUF_SIZE / 2];
+    int n_comps, n_vals;
+    int i;
+    COMPONENT *c_ptr;
+    INSTANCE *inst_ptr;
+    STRUCTDATA *d_ptr;
+    int retval;
+
+    /* This one is complicated: We need two, four, or five args. */
+
+    mvarargs_preamble("CONSTRUCT", 2, 5);
+    if (nfargs == 3) {
+	safe_str("#-1 FUNCTION (CONSTRUCT) EXPECTS 2 OR 4 OR 5 ARGUMENTS",
+		 buff, bufc);
+	return;
+    }
+
+    /* Enforce limits. */
+
+    if (InstanceCount(player) > mudconf.instance_lim) {
+	notify_quiet(player, "Too many instances.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Make sure this instance doesn't exist. */
+
+    ip = ibuf;
+    safe_ltos(ibuf, &ip, player);
+    safe_sb_chr('.', ibuf, &ip);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[0], ibuf, &ip);
+    *ip = '\0';
+
+    if (hashfind(ibuf, &mudstate.instance_htab)) {
+	notify_quiet(player, "That instance has already been defined.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Look up the structure. */
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_sb_chr('.', tbuf, &tp);
+    for (p = fargs[1]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[1], tbuf, &tp);
+    *tp = '\0';
+
+    this_struct = (STRUCTDEF *) hashfind(tbuf, &mudstate.structs_htab);
+    if (!this_struct) {
+	notify_quiet(player, "No such structure.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Check to make sure that all the component names are valid, if we
+     * have been given defaults. Also, make sure that the defaults are
+     * of the appropriate type.
+     */
+
+    safe_sb_chr('.', tbuf, &tp);
+    *tp = '\0';
+
+    if (fargs[2] && *fargs[2] && fargs[3] && *fargs[3]) {
+
+	comp_names = alloc_lbuf("construct.comps");
+	strcpy(comp_names, fargs[2]);
+	n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, ' ');
+	init_vals = alloc_lbuf("construct.vals");
+	strcpy(init_vals, fargs[3]);
+	n_vals = list2arr(vals_array, LBUF_SIZE / 2, init_vals, sep);
+	if (n_comps != n_vals) {
+	    notify_quiet(player, "List sizes must be identical.");
+	    safe_chr('0', buff, bufc);
+	    free_lbuf(comp_names);
+	    free_lbuf(init_vals);
+	    return;
+	}
+
+	for (i = 0; i < n_comps; i++) {
+	    cp = cbuf;
+	    safe_sb_str(tbuf, cbuf, &cp);
+	    for (p = comp_array[i]; *p; p++)
+		*p = ToLower(*p);
+	    safe_sb_str(comp_array[i], cbuf, &cp);
+	    c_ptr = (COMPONENT *) hashfind(cbuf, &mudstate.cdefs_htab);
+	    if (!c_ptr) {
+		notify_quiet(player, "Invalid component name.");
+		safe_chr('0', buff, bufc);
+		free_lbuf(comp_names);
+		free_lbuf(init_vals);
+		return;
+	    }
+	    if (c_ptr->typer_func) {
+		retval = (*(c_ptr->typer_func)) (vals_array[i]);
+		if (!retval) {
+		    notify_quiet(player, "Default value is of invalid type.");
+		    safe_chr('0', buff, bufc);
+		    free_lbuf(comp_names);
+		    free_lbuf(init_vals);
+		    return;
+		}
+	    }
+	}
+
+    } else if ((!fargs[2] || !*fargs[2]) && (!fargs[3] || !*fargs[3])) {
+	/* Blank initializers. This is just fine. */
+	comp_names = init_vals = NULL;
+	n_comps = n_vals = 0;
+    } else {
+	notify_quiet(player, "List sizes must be identical.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Go go gadget constructor.
+     * Allocate the instance. We should have already made sure that the
+     * instance doesn't exist.
+     */
+
+    inst_ptr = (INSTANCE *) XMALLOC(sizeof(INSTANCE), "constructor.inst");
+    inst_ptr->datatype = this_struct;
+    hashadd(ibuf, (int *) inst_ptr, &mudstate.instance_htab);
+
+    /* Populate with default values. */
+
+    for (i = 0; i < this_struct->c_count; i++) {
+	d_ptr = (STRUCTDATA *) XMALLOC(sizeof(STRUCTDATA), "constructor.data");
+	if (this_struct->c_array[i]->def_val) {
+	    d_ptr->text = (char *)
+		strdup(this_struct->c_array[i]->def_val);
+	} else {
+	    d_ptr->text = NULL;
+	}
+	tp = tbuf;
+	safe_sb_str(ibuf, tbuf, &tp);
+	safe_sb_chr('.', tbuf, &tp);
+	safe_sb_str(this_struct->c_names[i], tbuf, &tp);
+	*tp = '\0';
+	hashadd(tbuf, (int *) d_ptr, &mudstate.instdata_htab);
+    }
+
+    /* Overwrite with component values. */
+
+    for (i = 0; i < n_comps; i++) {
+	tp = tbuf;
+	safe_sb_str(ibuf, tbuf, &tp);
+	safe_sb_chr('.', tbuf, &tp);
+	safe_sb_str(comp_array[i], tbuf, &tp);
+	*tp = '\0';
+	d_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
+	if (d_ptr) {
+	    if (d_ptr->text)
+		free(d_ptr->text);
+	    if (vals_array[i] && *(vals_array[i]))
+		d_ptr->text = (char *) strdup(vals_array[i]);
+	    else
+		d_ptr->text = NULL;
+	}
+    }
+
+    if (comp_names)
+	free_lbuf(comp_names);
+    if (init_vals)
+	free_lbuf(init_vals);
+    this_struct->n_instances += 1;
+    s_InstanceCount(player, InstanceCount(player) + 1);
+    safe_chr('1', buff, bufc);
+}
+
+
+FUNCTION(fun_load)
+{
+    char tbuf[SBUF_SIZE], *tp;
+    char ibuf[SBUF_SIZE], *ip;
+    char *p;
+    STRUCTDEF *this_struct;
+    char *val_list;
+    char *val_array[LBUF_SIZE / 2];
+    int n_vals;
+    INSTANCE *inst_ptr;
+    STRUCTDATA *d_ptr;
+    int i;
+    char sep;
+
+    varargs_preamble("LOAD", 4);
+
+    /* Enforce limits. */
+
+    if (InstanceCount(player) > mudconf.instance_lim) {
+	notify_quiet(player, "Too many instances.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Make sure this instance doesn't exist. */
+
+    ip = ibuf;
+    safe_ltos(ibuf, &ip, player);
+    safe_sb_chr('.', ibuf, &ip);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[0], ibuf, &ip);
+    *ip = '\0';
+
+    if (hashfind(ibuf, &mudstate.instance_htab)) {
+	notify_quiet(player, "That instance has already been defined.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Look up the structure. */
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_sb_chr('.', tbuf, &tp);
+    for (p = fargs[1]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[1], tbuf, &tp);
+    *tp = '\0';
+
+    this_struct = (STRUCTDEF *) hashfind(tbuf, &mudstate.structs_htab);
+    if (!this_struct) {
+	notify_quiet(player, "No such structure.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Chop up the raw stuff according to the delimiter. */
+
+    if (nfargs != 4)
+	sep = this_struct->delim;
+
+    val_list = alloc_lbuf("load.val_list");
+    strcpy(val_list, fargs[2]);
+    n_vals = list2arr(val_array, LBUF_SIZE / 2, val_list, sep);
+    if (n_vals != this_struct->c_count) {
+	notify_quiet(player, "Incorrect number of components.");
+	safe_chr('0', buff, bufc);
+	free_lbuf(val_list);
+	return;
+    }
+
+    /* Check the types of the data we've been passed. */
+
+    for (i = 0; i < n_vals; i++) {
+	if (this_struct->c_array[i]->typer_func &&
+	    !((*(this_struct->c_array[i]->typer_func)) (val_array[i]))) {
+	    notify_quiet(player, "Value is of invalid type.");
+	    safe_chr('0', buff, bufc);
+	    free_lbuf(val_list);
+	    return;
+	}
+    }
+
+    /* Allocate the instance. We should have already made sure that the
+     * instance doesn't exist.
+     */
+
+    inst_ptr = (INSTANCE *) XMALLOC(sizeof(INSTANCE), "constructor.inst");
+    inst_ptr->datatype = this_struct;
+    hashadd(ibuf, (int *) inst_ptr, &mudstate.instance_htab);
+
+    /* Stuff data into memory. */
+
+    for (i = 0; i < this_struct->c_count; i++) {
+	d_ptr = (STRUCTDATA *) XMALLOC(sizeof(STRUCTDATA), "constructor.data");
+	if (val_array[i] && *(val_array[i]))
+	    d_ptr->text = (char *) strdup(val_array[i]);
+	else
+	    d_ptr->text = NULL;
+	tp = tbuf;
+	safe_sb_str(ibuf, tbuf, &tp);
+	safe_sb_chr('.', tbuf, &tp);
+	safe_sb_str(this_struct->c_names[i], tbuf, &tp);
+	*tp = '\0';
+	hashadd(tbuf, (int *) d_ptr, &mudstate.instdata_htab);
+    }
+
+    free_lbuf(val_list);
+    this_struct->n_instances += 1;
+    s_InstanceCount(player, InstanceCount(player) + 1);
+    safe_chr('1', buff, bufc);
+}
+
+
+FUNCTION(fun_z)
+{
+    char tbuf[SBUF_SIZE], *tp;
+    char *p;
+    STRUCTDATA *s_ptr;
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_sb_chr('.', tbuf, &tp);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[0], tbuf, &tp);
+    safe_sb_chr('.', tbuf, &tp);
+    for (p = fargs[1]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[1], tbuf, &tp);
+    *tp = '\0';
+
+    s_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
+    if (!s_ptr || !s_ptr->text)
+	return;
+    safe_str(s_ptr->text, buff, bufc);
+}
+
+
+FUNCTION(fun_modify)
+{
+    char tbuf[SBUF_SIZE], *tp;
+    char cbuf[SBUF_SIZE], *cp;
+    char *p;
+    INSTANCE *inst_ptr;
+    COMPONENT *c_ptr;
+    STRUCTDATA *s_ptr;
+    int retval;
+
+    /* Find the instance first, since this is how we get our typechecker. */
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_sb_chr('.', tbuf, &tp);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[0], tbuf, &tp);
+    *tp = '\0';
+
+    inst_ptr = (INSTANCE *) hashfind(tbuf, &mudstate.instance_htab);
+    if (!inst_ptr) {
+	notify_quiet(player, "No such instance.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Use that to find the component and check the type. */
+
+    if (inst_ptr->datatype->need_typecheck) {
+
+	cp = cbuf;
+	safe_ltos(cbuf, &cp, player);
+	safe_sb_chr('.', cbuf, &cp);
+	safe_sb_str(inst_ptr->datatype->s_name, cbuf, &cp);
+	safe_sb_chr('.', cbuf, &cp);
+	for (p = fargs[1]; *p; p++)
+	    *p = ToLower(*p);
+	safe_sb_str(fargs[1], cbuf, &cp);
+	*cp = '\0';
+
+	c_ptr = (COMPONENT *) hashfind(cbuf, &mudstate.cdefs_htab);
+	if (!c_ptr) {
+	    notify_quiet(player, "No such component.");
+	    safe_chr('0', buff, bufc);
+	    return;
+	}
+	if (c_ptr->typer_func) {
+	    retval = (*(c_ptr->typer_func)) (fargs[2]);
+	    if (!retval) {
+		notify_quiet(player, "Value is of invalid type.");
+		safe_chr('0', buff, bufc);
+		return;
+	    }
+	}
+    }
+
+    /* Now go set it. */
+
+    safe_sb_chr('.', tbuf, &tp);
+    safe_sb_str(fargs[1], tbuf, &tp);
+    *tp = '\0';
+
+    s_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
+    if (!s_ptr) {
+	notify_quiet(player, "No such data.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+    if (s_ptr->text)
+	free(s_ptr->text);
+    if (fargs[2] && *fargs[2]) {
+	s_ptr->text = (char *) strdup(fargs[2]);
+    } else {
+	s_ptr->text = NULL;
+    }
+
+    safe_chr('1', buff, bufc);
+}
+
+
+FUNCTION(fun_unload)
+{
+    char tbuf[SBUF_SIZE], *tp;
+    char ibuf[SBUF_SIZE], *ip;
+    INSTANCE *inst_ptr;
+    char *p;
+    STRUCTDEF *this_struct;
+    STRUCTDATA *d_ptr;
+    int i;
+    char sep;
+
+    varargs_preamble("UNLOAD", 2);
+
+    /* Get the instance. */
+
+    ip = ibuf;
+    safe_ltos(ibuf, &ip, player);
+    safe_sb_chr('.', ibuf, &ip);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[0], ibuf, &ip);
+    *ip = '\0';
+
+    inst_ptr = (INSTANCE *) hashfind(ibuf, &mudstate.instance_htab);
+    if (!inst_ptr)
+	return;
+
+    /* From the instance, we can get a pointer to the structure. We then
+     * have the information we need to figure out what components are
+     * associated with this, and print them appropriately.
+     */
+
+    safe_sb_chr('.', ibuf, &ip);
+    *ip = '\0';
+
+    this_struct = inst_ptr->datatype;
+
+    /* Our delimiter is a special case. */
+    if (nfargs != 2)
+	sep = this_struct->delim;
+
+    for (i = 0; i < this_struct->c_count; i++) {
+	if (i != 0) {
+	    safe_chr(sep, buff, bufc);
+	}
+	tp = tbuf;
+	safe_sb_str(ibuf, tbuf, &tp);
+	safe_sb_str(this_struct->c_names[i], tbuf, &tp);
+	*tp = '\0';
+	d_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
+	if (d_ptr && d_ptr->text)
+	    safe_str(d_ptr->text, buff, bufc);
+    }
+}
+
+
+FUNCTION(fun_destruct)
+{
+    char tbuf[SBUF_SIZE], *tp;
+    char ibuf[SBUF_SIZE], *ip;
+    INSTANCE *inst_ptr;
+    char *p;
+    STRUCTDEF *this_struct;
+    STRUCTDATA *d_ptr;
+    int i;
+
+    /* Get the instance. */
+
+    ip = ibuf;
+    safe_ltos(ibuf, &ip, player);
+    safe_sb_chr('.', ibuf, &ip);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[0], ibuf, &ip);
+    *ip = '\0';
+
+    inst_ptr = (INSTANCE *) hashfind(ibuf, &mudstate.instance_htab);
+    if (!inst_ptr) {
+	notify_quiet(player, "No such instance.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Now we can get a pointer to the structure and find the rest of the
+     * components.
+     */
+
+    this_struct = inst_ptr->datatype;
+
+    XFREE(inst_ptr, "constructor.inst");
+    hashdelete(ibuf, &mudstate.instance_htab);
+
+    safe_sb_chr('.', ibuf, &ip);
+    *ip = '\0';
+
+    for (i = 0; i < this_struct->c_count; i++) {
+	tp = tbuf;
+	safe_sb_str(ibuf, tbuf, &tp);
+	safe_sb_str(this_struct->c_names[i], tbuf, &tp);
+	*tp = '\0';
+	d_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
+	if (d_ptr) {
+	    if (d_ptr->text)
+		free(d_ptr->text);
+	    XFREE(d_ptr, "constructor.data");
+	    hashdelete(tbuf, &mudstate.instdata_htab);
+	}
+    }
+
+    this_struct->n_instances -= 1;
+    s_InstanceCount(player, InstanceCount(player) - 1);
+    safe_chr('1', buff, bufc);
+}
+
+
+FUNCTION(fun_unstructure)
+{
+    char tbuf[SBUF_SIZE], *tp;
+    char cbuf[SBUF_SIZE], *cp;
+    char *p;
+    STRUCTDEF *this_struct;
+    int i;
+
+    /* Find the structure */
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_sb_chr('.', tbuf, &tp);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_sb_str(fargs[0], tbuf, &tp);
+    *tp = '\0';
+
+    this_struct = (STRUCTDEF *) hashfind(tbuf, &mudstate.structs_htab);
+    if (!this_struct) {
+	notify_quiet(player, "No such structure.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Can't delete what's in use. */
+
+    if (this_struct->n_instances > 0) {
+	notify_quiet(player, "This structure is in use.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* Wipe the structure from the hashtable. */
+
+    hashdelete(tbuf, &mudstate.structs_htab);
+
+    /* Wipe out every component definition. */
+
+    safe_sb_chr('.', tbuf, &tp);
+    *tp = '\0';
+
+
+    for (i = 0; i < this_struct->c_count; i++) {
+	cp = cbuf;
+	safe_sb_str(tbuf, cbuf, &cp);
+	safe_sb_str(this_struct->c_names[i], cbuf, &cp);
+	*cp = '\0';
+	if (this_struct->c_array[i]) {
+	    XFREE(this_struct->c_array[i], "comp_alloc");
+	}
+	hashdelete(cbuf, &mudstate.cdefs_htab);
+    }
+
+
+    /* Free up our bit of memory. */
+
+    free(this_struct->s_name);
+    if (this_struct->names_base)
+	free(this_struct->names_base);
+    if (this_struct->defs_base)
+	free(this_struct->defs_base);
+    XFREE(this_struct, "struct_alloc");
+
+    s_StructCount(player, StructCount(player) - 1);
+    safe_chr('1', buff, bufc);
 }
 
 /*------------------------------------------------------------------------

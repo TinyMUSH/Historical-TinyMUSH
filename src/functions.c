@@ -142,6 +142,14 @@ XFUNCTION(fun_regparse);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_translate);
 XFUNCTION(fun_lastcreate);
+XFUNCTION(fun_structure);
+XFUNCTION(fun_construct);
+XFUNCTION(fun_load);
+XFUNCTION(fun_unload);
+XFUNCTION(fun_destruct);
+XFUNCTION(fun_unstructure);
+XFUNCTION(fun_z);
+XFUNCTION(fun_modify);
 
 #ifdef PUEBLO_SUPPORT
 XFUNCTION(fun_html_escape);
@@ -167,58 +175,10 @@ XFUNCTION(fun_tclregs);
 	char *fargs[], *cargs[]; \
 	int nfargs, ncargs;
 
-/* This is for functions that take an optional delimiter character.
- *
- * Call varargs_preamble("FUNCTION", max_args) for functions which
- * take either max_args - 1 args, or, with a delimiter, max_args args.
- *
- * Call mvarargs_preamble("FUNCTION", min_args, max_args) if there can
- * be more variable arguments than just the delimiter.
- *
- * Call evarargs_preamble("FUNCTION", min_args, max_args) if the delimiters
- * need to be evaluated.
- *
- * Call svarargs_preamble("FUNCTION", max_args) if the second to last and
- * last arguments are delimiters.
+
+/* ---------------------------------------------------------------------------
+ * Trim off leading and trailing spaces if the separator char is a space
  */
-
-#define varargs_preamble(xname,xnargs)	                        \
-if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
-    player, cause, cargs, ncargs))                              \
-return;
-
-#define mvarargs_preamble(xname,xminargs,xnargs)	        \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,          \
-    player, cause, cargs, ncargs))                              \
-return;
-
-#define evarargs_preamble(xname, xminargs, xnargs)              \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs - 1, &sep, buff, bufc, 1,      \
-    player, cause, cargs, ncargs))                              \
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 1,         \
-    player, cause, cargs, ncargs))                              \
-return;
-
-#define svarargs_preamble(xname,xnargs)                         \
-if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
-return;							        \
-if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
-    player, cause, cargs, ncargs))                              \
-return;							        \
-if (nfargs < xnargs)				                \
-    osep = sep;				                        \
-else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
-    player, cause, cargs, ncargs))                              \
-return;
-
-/* Trim off leading and trailing spaces if the separator char is a space */
 
 char *trim_space_sep(str, sep)
 char *str, sep;
@@ -5361,6 +5321,8 @@ FUN flist[] = {
 {"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC},
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC},
 {"CAPSTR",	fun_capstr,	-1, 0,		CA_PUBLIC},
+{"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC},
 {"CAT",		fun_cat,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CEIL",	fun_ceil,	1,  0,		CA_PUBLIC},
 {"CENTER",	fun_center,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -5371,6 +5333,7 @@ FUN flist[] = {
 {"COMP",	fun_comp,	2,  0,		CA_PUBLIC},
 {"CON",		fun_con,	1,  0,		CA_PUBLIC},
 {"CONN",	fun_conn,	1,  0,		CA_PUBLIC},
+{"CONSTRUCT",	fun_construct,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC},
 {"CONVSECS",    fun_convsecs,   1,  0,		CA_PUBLIC},
 {"CONVTIME",    fun_convtime,   1,  0,		CA_PUBLIC},
@@ -5382,6 +5345,7 @@ FUN flist[] = {
 {"DEC",         fun_dec,        1,  0,          CA_PUBLIC},
 {"DEFAULT",	fun_default,	2,  FN_NO_EVAL, CA_PUBLIC},
 {"DELETE",	fun_delete,	3,  0,		CA_PUBLIC},
+{"DESTRUCT",	fun_destruct,	1,  0,		CA_PUBLIC},
 {"DIE",		fun_die,	2,  0,		CA_PUBLIC},
 {"DIST2D",	fun_dist2d,	4,  0,		CA_PUBLIC},
 {"DIST3D",	fun_dist3d,	6,  0,		CA_PUBLIC},
@@ -5459,6 +5423,7 @@ FUN flist[] = {
 {"LINK",	fun_link,	2,  0,		CA_PUBLIC},
 {"LN",		fun_ln,		1,  0,		CA_PUBLIC},
 {"LNUM",	fun_lnum,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LOAD",	fun_load,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LOC",		fun_loc,	1,  0,		CA_PUBLIC},
 {"LOCATE",	fun_locate,	3,  0,		CA_PUBLIC},
 {"LOCALIZE",    fun_localize,   1,  FN_NO_EVAL, CA_PUBLIC},
@@ -5484,6 +5449,7 @@ FUN flist[] = {
 {"MIN",		fun_min,	0,  FN_VARARGS,	CA_PUBLIC},
 {"MIX",		fun_mix,	0,  FN_VARARGS,	CA_PUBLIC},
 {"MOD",		fun_mod,	2,  0,		CA_PUBLIC},
+{"MODIFY",	fun_modify,	3,  0,		CA_PUBLIC},
 {"MONEY",	fun_money,	1,  0,		CA_PUBLIC},
 {"MUDNAME",	fun_mudname,	0,  0,		CA_PUBLIC},
 {"MUL",		fun_mul,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -5521,8 +5487,6 @@ FUN flist[] = {
 {"POWER",	fun_power,	2,  0,		CA_PUBLIC},
 {"PROGRAMMER",	fun_programmer,	1,  0,		CA_PUBLIC},
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC},
-{"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
-						CA_PUBLIC},
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
 {"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC},
@@ -5573,6 +5537,7 @@ FUN flist[] = {
 {"STRLEN",	fun_strlen,	-1, 0,		CA_PUBLIC},
 {"STRMATCH",	fun_strmatch,	2,  0,		CA_PUBLIC},
 {"STRTRUNC",    fun_strtrunc,   2,  0,          CA_PUBLIC},
+{"STRUCTURE",	fun_structure,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SUB",		fun_sub,	2,  0,		CA_PUBLIC},
 {"SUBJ",	fun_subj,	1,  0,		CA_PUBLIC},
 {"SWAP",	fun_swap,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -5600,6 +5565,8 @@ FUN flist[] = {
 {"UDEFAULT",	fun_udefault,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
 {"ULOCAL",	fun_ulocal,	0,  FN_VARARGS,	CA_PUBLIC},
+{"UNLOAD",	fun_unload,	0,  FN_VARARGS,	CA_PUBLIC},
+{"UNSTRUCTURE",	fun_unstructure,1,  0,		CA_PUBLIC},
 #ifdef PUEBLO_SUPPORT
 {"URL_ESCAPE",	fun_url_escape,	-1, 0,		CA_PUBLIC},
 {"URL_UNESCAPE",fun_url_unescape,-1,0,		CA_PUBLIC},
@@ -5626,6 +5593,7 @@ FUN flist[] = {
 {"XOR",		fun_xor,	0,  FN_VARARGS,	CA_PUBLIC},
 {"XORBOOL",	fun_xorbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"XVARS",	fun_xvars,	0,  FN_VARARGS, CA_PUBLIC},
+{"Z",		fun_z,		2,  0,		CA_PUBLIC},
 {"ZFUN",	fun_zfun,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ZONE",        fun_zone,       1,  0,          CA_PUBLIC},
 {"ZWHO",        fun_zwho,       1,  0,          CA_PUBLIC},

@@ -267,6 +267,8 @@ void NDECL(cf_init)
 	mudconf.zone_nest_lim = 20;
 	mudconf.numvars_lim = 50;
 	mudconf.stack_lim = 50;
+	mudconf.struct_lim = 100;
+	mudconf.instance_lim = 100;
 	mudconf.cache_trim = 0;
 	mudconf.cache_depth = CACHE_DEPTH;
 	mudconf.cache_width = CACHE_WIDTH;
@@ -1298,6 +1300,8 @@ CONF conftable[] = {
 	cf_int,		CA_DISABLED,	&mudconf.init_size,		0},
 {(char *)"input_database",
 	cf_string,	CA_DISABLED, 	(int *)mudconf.indb,		PBUF_SIZE},
+{(char *)"instance_limit",
+	cf_int,		CA_GOD,		&mudconf.instance_lim,		0},
 {(char *)"kill_guarantee_cost",
 	cf_int,		CA_GOD,		&mudconf.killguarantee,		0},
 {(char *)"kill_max_cost",
@@ -1474,6 +1478,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.start_thing_quota,	0},
 {(char *)"status_file",
 	cf_string,	CA_DISABLED,	(int *)mudconf.status_file,	PBUF_SIZE},
+{(char *)"structure_limit",
+	cf_int,		CA_GOD,		&mudconf.struct_lim,		0},
 {(char *)"suspect_site",
 	cf_site,	CA_GOD,		(int *)&mudstate.suspect_list,
 	H_SUSPECT},

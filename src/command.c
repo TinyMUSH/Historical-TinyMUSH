@@ -2727,10 +2727,11 @@ dbref player;
 	sprintf(buff, "Misc: GuestChar...#%d", mudconf.guest_char);
 	raw_notify(player, buff);
 
-	sprintf(buff, "Limits: Output...%d  Recursion...%d  Invocation...%d  Parents...%d  Stacks...%d  Variables...%d",
+	sprintf(buff, "Limits: Output...%d  Recursion...%d  Invocation...%d  Parents...%d  Stacks...%d  Variables...%d  Structures...%d  Instances...%d",
 		mudconf.output_limit, mudconf.func_nest_lim,
 		mudconf.func_invk_lim, mudconf.parent_nest_lim,
-		mudconf.stack_lim, mudconf.numvars_lim);
+		mudconf.stack_lim, mudconf.numvars_lim,
+		mudconf.struct_lim, mudconf.instance_lim);
 	raw_notify(player, buff);
 
 	free_mbuf(buff);
@@ -2808,6 +2809,10 @@ dbref player;
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
 	list_nhashstat(player, "Object Stacks", &mudstate.objstack_htab);
 	list_hashstat(player, "Variables", &mudstate.vars_htab);
+	list_hashstat(player, "Structure Defs", &mudstate.structs_htab);
+	list_hashstat(player, "Component Defs", &mudstate.cdefs_htab);
+	list_hashstat(player, "Instances", &mudstate.instance_htab);
+	list_hashstat(player, "Instance Data", &mudstate.instdata_htab);
 #ifdef USE_MAIL
 	if (mudconf.have_mailer)
 	    list_nhashstat(player, "Mail messages", &mudstate.mail_htab);

@@ -215,6 +215,8 @@ struct confdata {
 	int	zone_nest_lim;	/* Max nesting of zones */
 	int	numvars_lim;	/* Max number of variables per object */
 	int	stack_lim;	/* Max number of items on an object stack */
+	int	struct_lim;	/* Max number of defined structures for obj */
+	int	instance_lim;	/* Max number of struct insances for obj */
 #else
 	int	paylimit;	/* getting money gets hard over this much */
 	int	digcost;	/* cost of @dig command */
@@ -340,6 +342,10 @@ struct statedata {
 	NHSHTAB tree_htab;	/* Parse trees for evaluation */
 #endif
 	HASHTAB vars_htab;	/* Persistent variables hashtable */
+	HASHTAB structs_htab;	/* Structure hashtable */
+	HASHTAB cdefs_htab;	/* Components hashtable */
+	HASHTAB instance_htab;	/* Instances hashtable */
+	HASHTAB instdata_htab;	/* Structure data hashtable */
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
 	BQUE	*qfirst;	/* Head of player queue */
 	BQUE	*qlast;		/* Tail of player queue */
