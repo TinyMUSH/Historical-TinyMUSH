@@ -28,8 +28,8 @@ extern dbref FDECL(match_thing, (dbref, char *));
  * add_to: Adjust an object's queue or semaphore count.
  */
 
-static int add_to(player, am, attrnum)
-dbref player;
+static int add_to(doer, player, am, attrnum)
+dbref doer, player;
 int am, attrnum;
 {
 	int num, aflags, alen;
@@ -45,7 +45,7 @@ int am, attrnum;
 		ltos(buff, num);
 	else
 		*buff = '\0';
-	atr_add_raw(player, attrnum, buff);
+	atr_add(player, attrnum, buff, Owner(doer), aflags);
 	return (num);
 }
 
@@ -144,7 +144,7 @@ dbref player, object;
 				mudstate.qsemfirst = next = point->next;
 			if (point == mudstate.qsemlast)
 				mudstate.qsemlast = trail;
-			add_to(point->sem, -1, point->attr);
+			add_to(player, point->sem, -1, point->attr);
 			free(point->text);
 			free_qentry(point);
 		} else
@@ -221,8 +221,8 @@ char *target;
  * nfy_que: Notify commands from the queue and perform or discard them.
  */
 
-int nfy_que(sem, attr, key, count)
-dbref sem;
+int nfy_que(player, sem, attr, key, count)
+dbref player, sem;
 int attr, key, count;
 {
 	BQUE *point, *trail, *next;
@@ -278,7 +278,7 @@ int attr, key, count;
 	/* Update the sem waiters count */
 
 	if (key == NFY_NFY)
-		add_to(sem, -count, (attr ? attr : A_SEMAPHORE));
+		add_to(player, sem, -count, (attr ? attr : A_SEMAPHORE));
 	else
 		atr_clr(sem, (attr ? attr: A_SEMAPHORE));
 
@@ -332,7 +332,7 @@ char *what, *count;
 		else
 			loccount = 1;
 		if (loccount > 0) {
-			nfy_que(thing, attr, key, loccount);
+			nfy_que(player, thing, attr, key, loccount);
 			if (!(Quiet(player) || Quiet(thing))) {
 				if (key == NFY_DRAIN)
 					notify_quiet(player, "Drained.");
@@ -569,7 +569,7 @@ char *event, *cmd, *cargs[];
 			}
 		}
 		
-		num = add_to(thing, 1, attr);
+		num = add_to(player, thing, 1, attr);
 		if (num <= 0) {
 
 			/* thing over-notified, run the command immediately */
@@ -689,7 +689,8 @@ void NDECL(do_second)
 				mudstate.qsemfirst = next = point->next;
 			if (point == mudstate.qsemlast)
 				mudstate.qsemlast = trail;
-			add_to(point->sem, -1, (point->attr ? point->attr : A_SEMAPHORE));
+			add_to(point->player, point->sem, -1,
+			       (point->attr ? point->attr : A_SEMAPHORE));
 			point->sem = NOTHING;
 			give_que(point);
 		} else

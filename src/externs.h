@@ -45,7 +45,7 @@ extern int	FDECL(fetch_connect, (dbref));
 extern void	VDECL(raw_broadcast, (int, char *, ...));
 
 /* From cque.c */
-extern int	FDECL(nfy_que, (dbref, int, int, int));
+extern int	FDECL(nfy_que, (dbref, dbref, int, int, int));
 extern int	FDECL(halt_que, (dbref, dbref));
 extern void	FDECL(wait_que, (dbref, dbref, int, dbref, int, char *, char *[],
 			int, char *[]));
