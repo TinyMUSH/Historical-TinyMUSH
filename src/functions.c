@@ -4462,7 +4462,7 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
 {
     char *list_str, *lp, *str, *input_p, *bb_p, *save_token, *work_buf;
     char *dp, *result;
-    int number, save_num;
+    int save_num;
 
     /* The list argument is unevaluated. Go evaluate it. */
 
@@ -5108,7 +5108,7 @@ FUNCTION(fun_switchall)
 FUNCTION(fun_switch)
 {
 	int i;
-	char *mbuff, *tbuff, *tbuf2, *bp, *str, *save_token;
+	char *mbuff, *tbuff, *bp, *str, *save_token;
 
 	/* If we don't have at least 2 args, return nothing */
 
