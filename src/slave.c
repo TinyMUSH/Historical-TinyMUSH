@@ -26,7 +26,7 @@
 
 pid_t parent_pid;
 
-#define MAX_STRING 8000
+#define MAX_STRING 1000
 char *arg_for_errors;
 
 char *format_inet_addr(dest, addr)
@@ -72,9 +72,9 @@ char *orig_arg;
 	int s;
 	FILE *f;
 	char result[MAX_STRING];
-	char buf[MAX_STRING];
-	char buf2[MAX_STRING];
-	char buf3[MAX_STRING];
+	char buf[MAX_STRING * 2];
+	char buf2[MAX_STRING * 2];
+	char buf3[MAX_STRING * 4];
 	char arg[MAX_STRING];
 	size_t len;
 	char *p;
@@ -87,7 +87,7 @@ char *orig_arg;
 	}
 	hp = gethostbyaddr((char *)&addr, sizeof(addr), AF_INET);
 	sprintf(buf, "%s %s\n",
-		ip, ((hp && strlen(hp->h_name) < MAX_STRING / 2) ?
+		ip, ((hp && strlen(hp->h_name) < MAX_STRING) ?
 		     hp->h_name : ip));
 	arg_for_errors = orig_arg;
 	strcpy(arg, orig_arg);
@@ -108,7 +108,7 @@ char *orig_arg;
 		static struct hostent def;
 		static struct in_addr defaddr;
 		static char *alist[1];
-		static char namebuf[128];
+		static char namebuf[MAX_STRING];
 
 		defaddr.s_addr = (unsigned int) inet_addr(arg);
 		if (defaddr.s_addr == INADDR_NONE) {
@@ -219,7 +219,7 @@ int main(argc, argv)
 int argc;
 char **argv;
 {
-	char arg[MAX_STRING + 1];
+	char arg[MAX_STRING];
 	char *p;
 	int len;
 
@@ -232,7 +232,7 @@ char **argv;
 	signal(SIGPIPE, SIG_DFL);
 
 	for (;;) {
-		len = read(0, arg, MAX_STRING);
+		len = read(0, arg, MAX_STRING - 1);
 		if (len == 0)
 			break;
 		if (len < 0) {
