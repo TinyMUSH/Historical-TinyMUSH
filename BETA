@@ -55,6 +55,8 @@ Release history:
 
 - Fix: Corrected typo in flag_alias for COMMANDS. [2.2; Felan]
 
+- Fix: Startmush still didn't back up module dbs correctly. [3.1b2]
+
 - Cosmetic: Shout messages include the grammatically correct comma after
   "shouts". [2.0; Neva]
 
