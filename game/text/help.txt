@@ -4071,88 +4071,145 @@
 
 & REGEXP SYNTAX
   Topic: REGEXP SYNTAX
-
-  The following explanation is taken from Henry Spencer's regexp(3)
-  package, the regular expression library used in TinyMUSH 2.2.
  
-          A regular expression is zero or more branches, separated by
-          `|'.  It matches anything that matches one of the branches.
+  TinyMUSH supports regular expression syntax virtually identical to
+  the extended regular expressions supported by Perl 5.
+  See 'help regexp examples' for a very simple explanation of the basics.
  
-          A branch is zero or more pieces, concatenated.  It matches a
-          match for the first, followed by a match for the second,
-          etc.
+  TinyMUSH implements this functionality using the PCRE 2.04 library,
+  written by Philip Hazel <ph10@cam.ac.uk>, Copyright (c) 1997-1999
+  University of Cambridge. The remainder of this help entry is derived
+  from its manual pages. The supported functionality is equivalent to
+  Perl 5.005 regular expressions.
  
-          A piece is an atom possibly followed by `*', `+', or `?'.
-          An atom followed by `*' matches a sequence of 0 or more
-          matches of the atom.  An atom followed by `+' matches a
-          sequence of 1 or more matches of the atom.  An atom followed
-          by `?' matches a match of the atom, or the null string.
-  
+  A regular expression is a pattern that is matched against a subject
+  string from left to right. Most characters stand for themselves in a
+  pattern, and match the corresponding characters in the subject. 
+ 
   Continued in 'help regexp syntax2'.
-
+ 
 & REGEXP SYNTAX2
-          An atom is a regular expression in parentheses (matching a
-          match for the regular expression), a range (see below), `.'
-          (matching any single character), `^' (matching the null
-          string at the beginning of the input string), `$' (matching
-          the null string at the end of the input string), a `\'
-          followed by a single character (matching that character), or
-          a single character with no other significance (matching that
-          character).
  
-          A range is a sequence of characters enclosed in `[]'.  It
-          normally matches any single character from the sequence.  If
-          the sequence begins with `^', it matches any single
-          character not from the rest of the sequence.  If two
-          characters in the sequence are separated by `-', this is
-          shorthand for the full list of ASCII characters between them
-          (e.g. `[0-9]' matches any decimal digit).  To include a
-          literal `]' in the sequence, make it the first character
-          (following a possible `^').  To include a literal `-', make
-          it the first or last character.
+  There are two different sets of meta-characters: those that
+  are recognized anywhere in the pattern except within square
+  brackets, and those that are recognized in square brackets.
+  Outside square brackets, the meta-characters are as follows:
  
-  Continued in 'help regexp ambiguity' and 'help regexp examples'.
+       \      general escape character with several uses
+       ^      assert start of subject
+       $      assert end of subject
+       .      match any character except newline
+       [      start character class definition
+       |      start of alternative branch ("or")
+       (      start subpattern
+       )      end subpattern
+       ?      0 or 1 quantifier (after a unit to quantify)
+              or, minimal match (after a quanitifier)
+              or,  extends the meaning of ( after a ( 
+       *      0 or more quantifier
+       +      1 or more quantifier
+ 
+  Continued in 'help regexp syntax3'.
+ 
+& REGEXP SYNTAX3
+ 
+  Part of a pattern that is in square brackets is called a
+  "character class". It matches any character listed in the class.
+  In a character class, the only metacharacters are:
+ 
+       \      general escape character
+       ^      negate the class, if the first character in the class
+       -      indicates character range (e.g. A-Z, 0-4)
+       ]      terminates the character class
+ 
+  A backslash will escape most metacharacters, and can turn
+  some normal characters into generic character types:
+ 
+       \d     any decimal digit
+       \D     any character that is not a decimal digit
+       \s     any whitespace character
+       \S     any character that is not a whitespace character
+       \w     any "word" character (letter, digit, or underscore)
+       \W     any "non-word" character
+ 
+  Continued in 'help regexp syntax4'.
+ 
+& REGEXP SYNTAX4
+ 
+  Quantifiers specify repetition of characters. They are:
+ 
+       {N}    match exactly N of whatever came before
+       {M,N}  match at least M but not more than N of whatever came before
+       *      match 0 or more of whatever came before, equiv. to {0,}
+       +      match 1 or more of whatever came before, equiv. to {1,}
+       ?      match 0 or 1 of whatever came before, equiv. to {0,1}
+ 
+  Quantifiers are usually "greedy" -- they match as much as possible.
+  Adding a ? after a quantifier causes it to match as little as
+  possible instead. 
+ 
+  Continued in 'help regexp syntax5'.
+ 
+& REGEXP SYNTAX5
+ 
+  Outside a character class, a backslash followed by a digit greater
+  than 0 (and possibly further digits) is a back reference to a
+  capturing subpattern earlier (i.e. to its left) in the pattern,
+  provided there have been that many previous capturing left parentheses.
+  A back reference matches whatever actually matched the capturing
+  subpattern in the current subject string, rather than anything matching
+  the subpattern itself. Thus, the pattern:
+ 
+    (sens|respons)e and \1ibility
+ 
+  matches "sense and sensibility" and "response and responsibility",
+  but not "sense and responsibility". 
+ 
+  Continued in 'help regexp syntax6'.
+ 
+& REGEXP SYNTAX6
+ 
+  An assertion is a test on the characters following or preceding the
+  current matching point that does not actually consume any characters.
+  There are two kinds: those that look ahead of the current position in
+  the subject string, and those that look behind it.
+ 
+  An assertion subpattern is matched in the normal way, except that it
+  does not cause the current matching position to be changed. Lookahead
+  assertions start with  (?=  for positive assertions and (?! for
+  negative assertions. For example, lookbehind assertions start with
+  (?<=  for  positive  asser- tions and (?<! for negative assertions.
 
-& REGEXP AMBIGUITY
-  Topic: REGEXP AMBIGUITY
- 
-          If a regular expression could match two different parts of
-          the input string, it will match the one which begins
-          earliest.  If both begin in the same place    but match
-          different lengths, or match the same length in different
-          ways, life gets messier, as follows.
- 
-          In general, the possibilities in a list of branches are
-          considered in left-to-right order, the possibilities for
-          `*', `+', and `?' are considered longest-first, nested
-          constructs are considered from the outermost in, and
-          concatenated constructs are considered leftmost-first.  The
-          match that will be chosen is the one that uses the earliest
-          possibility in the first choice that has to be made.  If
-          there is more than one choice, the next will be made in the
-          same manner (earliest possibility) subject to the decision
-          on the first choice.  And so forth.
- 
-  Continued in 'help regexp ambiguity2'.
+  Assertion subpatterns are not capturing subpatterns, and may not
+  be repeated, because it makes no sense to assert the same thing
+  several times. If an assertion contains capturing subpatterns within it,
+  these are always counted for the purposes of numbering the capturing
+  subpatterns in the whole pattern.
 
-& REGEXP AMBIGUITY2
-          For example, `(ab|a)b*c' could match `abc' in one of two
-          ways.  The first choice is between `ab' and `a'; since `ab'
-          is earlier, and does lead to a successful overall match, it
-          is chosen.  Since the `b' is already spoken for, the `b*'
-          must match its last possibility-the empty string-since it
-          must respect the earlier choice.
- 
-          In the particular case where no `|'s are present and there
-          is only one `*', `+', or `?', the net effect is that the
-          longest possible match will be chosen.  So `ab*', presented
-          with `xabbbby', will match `abbbb'.  Note that if `ab*' is
-          tried against `xabyabbbz', it will match `ab' just after
-          `x', due to the begins-earliest rule.  (In effect, the
-          decision on where to start the match is the first choice to
-          be made, hence subsequent choices must respect it even if
-          this leads them to less-preferred alternatives.)
+  Continued in 'help regexp syntax7'.
 
+& REGEXP SYNTAX7
+ 
+  There are also two useful backslash assertions:
+  
+       \b     word boundary
+       \B     not a word boundary
+ 
+  A word boundary is a position in the subject string where the
+  current character and the previous character do not both match \w or
+  \W (i.e. one matches \w and the other matches \W), or the start
+  or end of the string if the first or last character matches \w,
+  respectively.
+ 
+  Continued in 'help rexpexp syntax8'.
+ 
+& REGEXP SYNTAX8
+ 
+  Other, more complex features, such as conditional subpattern patching,
+  and embedded comments in regular expressions, are also supported. 
+  Try a World-Wide Web search for PCRE, or consult a book on regular
+  expressions, for more details.
+ 
 & REGEXP EXAMPLES
   Topic: REGEXP EXAMPLES
  
