@@ -22,23 +22,25 @@
  * See notes on fun_iter for the explanation.
  */
 
-static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
-			 cargs, ncargs, isep, osep, isep_len, osep_len, flag)
-    char *buff, **bufc;
-    dbref player, caller, cause;
-    char *list, *exprstr;
-    char *cargs[];
-    int ncargs;
+FUNCTION(perform_loop)
+{
     Delim isep, osep;
     int isep_len, osep_len;
     int flag;			/* 0 is parse(), 1 is loop() */
-{
     char *curr, *objstring, *buff2, *buff3, *cp, *dp, *str, *result, *bb_p;
     char tbuf[8];
     int number = 0;
 
+    flag = ((FUN *)fargs[-1])->flags & LOOP_NOTIFY;
+    
+    if (flag) {
+	VaChk_Only_In(3);
+    } else {
+	VaChk_InEval_OutEval(2, 4);
+    }
+
     dp = cp = curr = alloc_lbuf("perform_loop.1");
-    str = list;
+    str = fargs[0];
     exec(curr, &dp, player, caller, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	 &str, cargs, ncargs);
     *dp = '\0';
@@ -58,7 +60,7 @@ static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
 	}
 	number++;
 	objstring = split_token(&cp, isep, isep_len);
-	buff2 = replace_string(BOUND_VAR, objstring, exprstr);
+	buff2 = replace_string(BOUND_VAR, objstring, fargs[1]);
 	ltos(tbuf, number);
 	buff3 = replace_string(LISTPLACE_VAR, tbuf, buff2);
 	str = buff3;
@@ -79,26 +81,6 @@ static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
     free_lbuf(curr);
 }
 
-FUNCTION(fun_parse)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_InEval_OutEval(2, 4);
-    perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, isep, osep, isep_len, osep_len, 0);
-}
-
-FUNCTION(fun_loop)
-{
-    Delim isep;
-    int isep_len;
-
-    VaChk_Only_In(3);
-    perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, isep, SPACE_DELIM, isep_len, 1, 1);
-}
-
 /* ---------------------------------------------------------------------------
  * fun_iter() and fun_list() parse an expression, substitute elements of
  * a list, one at a time, using the '##' replacement token. Uses of these
@@ -115,27 +97,25 @@ FUNCTION(fun_loop)
  * whenfalse() loops as long as the expression evaluates to false.
  */
 
-#define BOOL_COND_NONE -1
-#define BOOL_COND_FALSE 0
-#define BOOL_COND_TRUE 1 
-
-static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
-			 cargs, ncargs, isep, osep, isep_len, osep_len,
-			 flag, bool_flag)
-    char *buff, **bufc;
-    dbref player, caller, cause;
-    char *list, *exprstr;
-    char *cargs[];
-    int ncargs;
+FUNCTION(perform_iter)
+{
     Delim isep, osep;
     int isep_len, osep_len;
     int flag;			/* 0 is iter(), 1 is list() */
     int bool_flag;
-{
     char *list_str, *lp, *str, *input_p, *bb_p, *work_buf;
     char *savep, *dp, *result;
     int is_true, cur_lev, elen;
+
+    flag = ((FUN *)fargs[-1])->flags & LOOP_NOTIFY;
+    bool_flag = ((FUN *)fargs[-1])->flags & BOOL_COND_TYPE;
     
+    if (flag) {
+	VaChk_Only_In(3);
+    } else {
+	VaChk_InEval_OutEval(2, 4);
+    }
+
     /* Enforce maximum nesting level. */
 
     if (mudstate.in_loop >= MAX_ITER_NESTING - 1) {
@@ -146,7 +126,7 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
     /* The list argument is unevaluated. Go evaluate it. */
 
     input_p = lp = list_str = alloc_lbuf("perform_iter.list");
-    str = list;
+    str = fargs[0];
     exec(list_str, &lp, player, caller, cause,
 	 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
     *lp = '\0';
@@ -161,7 +141,7 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
     mudstate.loop_number[cur_lev] = 0;
 
     bb_p = *bufc;
-    elen = strlen(exprstr);
+    elen = strlen(fargs[1]);
 
     while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	   ((mudconf.func_cpu_lim <= 0) ||
@@ -172,7 +152,7 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
 	mudstate.loop_token[cur_lev] = split_token(&input_p, isep, isep_len);
 	mudstate.loop_number[cur_lev] += 1;
 	work_buf = alloc_lbuf("perform_iter.eval");
-	StrCopyKnown(work_buf, exprstr, elen); /* we might nibble this */
+	StrCopyKnown(work_buf, fargs[1], elen); /* we might nibble this */
 	str = work_buf;
 	savep = *bufc;
 	if (!flag) {
@@ -198,50 +178,6 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
 
     free_lbuf(list_str);
     mudstate.in_loop--;
-}
-
-FUNCTION(fun_iter)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_InEval_OutEval(2, 4);
-    perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, isep, osep, isep_len, osep_len,
-		 0, BOOL_COND_NONE);
-}
-
-FUNCTION(fun_whenfalse)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_InEval_OutEval(2, 4);
-    perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, isep, osep, isep_len, osep_len,
-		 0, BOOL_COND_FALSE);
-}
-
-FUNCTION(fun_whentrue)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_InEval_OutEval(2, 4);
-    perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, isep, osep, isep_len, osep_len,
-		 0, BOOL_COND_TRUE);
-}
-
-FUNCTION(fun_list)
-{
-    Delim isep;
-    int isep_len;
-
-    VaChk_Only_In(3);
-    perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, isep, SPACE_DELIM, isep_len, 1,
-		 1, BOOL_COND_NONE);
 }
 
 /* ---------------------------------------------------------------------------
@@ -384,30 +320,29 @@ FUNCTION(fun_fold)
  *  NOTE:  If you specify a separator it is used to delimit returned list
  */
 
-static void handle_filter(player, caller, cause, arg_func, arg_list,
-			  buff, bufc, isep, osep, isep_len, osep_len, flag)
-    dbref player, caller, cause;
-    char *arg_func, *arg_list;
-    char *buff;
-    char **bufc;
-    Delim isep, osep;
-    int isep_len, osep_len;
-    int flag;			/* 0 is filter(), 1 is filterbool() */
+FUNCTION(handle_filter)
 {
+	Delim isep, osep;
+	int isep_len, osep_len;
+	int flag;			/* 0 is filter(), 1 is filterbool() */
 	dbref aowner, thing;
 	int aflags, alen, anum, i;
 	ATTR *ap;
 	char *atext, *result, *curr, *objs[2], *bp, *str, *cp, *op, *atextbuf;
 	char *bb_p;
 
+	flag = ((FUN *)fargs[-1])->flags & FILTER_BOOL;
+
+	VaChk_Only_In_Out(4);
+
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
-	Parse_Uattr(player, arg_func, thing, anum, ap);
+	Parse_Uattr(player, fargs[0], thing, anum, ap);
 	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
 	/* Now iteratively eval the attrib with the argument list */
 
-	cp = curr = trim_space_sep(arg_list, isep, isep_len);
+	cp = curr = trim_space_sep(fargs[1], isep, isep_len);
 	atextbuf = alloc_lbuf("fun_filter.atextbuf");
 	objs[1] = alloc_sbuf("fun_filter.objplace");
 	bb_p = *bufc;
@@ -434,26 +369,6 @@ static void handle_filter(player, caller, cause, arg_func, arg_list,
 	free_lbuf(atext);
 	free_lbuf(atextbuf);
 	free_sbuf(objs[1]);
-}
-
-FUNCTION(fun_filter)
-{
-	Delim isep, osep;
-	int isep_len, osep_len;
-
-	VaChk_Only_In_Out(4);
-	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
-		      isep, osep, isep_len, osep_len, 0);
-}
-
-FUNCTION(fun_filterbool)
-{
-	Delim isep, osep;
-	int isep_len, osep_len;
-
-	VaChk_Only_In_Out(4);
-	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
-		      isep, osep, isep_len, osep_len, 1);
 }
 
 /* ---------------------------------------------------------------------------

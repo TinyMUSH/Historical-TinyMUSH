@@ -29,18 +29,13 @@ XFUNCTION(fun_sql);
 
 /* From funiter.c */
 
-XFUNCTION(fun_parse);
-XFUNCTION(fun_loop);
-XFUNCTION(fun_iter);
-XFUNCTION(fun_whenfalse);
-XFUNCTION(fun_whentrue);
-XFUNCTION(fun_list);
+XFUNCTION(perform_loop);
+XFUNCTION(perform_iter);
 XFUNCTION(fun_ilev);
 XFUNCTION(fun_itext);
 XFUNCTION(fun_inum);
 XFUNCTION(fun_fold);
-XFUNCTION(fun_filter);
-XFUNCTION(fun_filterbool);
+XFUNCTION(handle_filter);
 XFUNCTION(fun_map);
 XFUNCTION(fun_mix);
 XFUNCTION(fun_step);
@@ -450,8 +445,9 @@ FUN flist[] = {
 {"EVAL",        fun_eval,       0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"SUBEVAL",  	fun_subeval,	1,  0,		CA_PUBLIC,	NULL},
 {"FDIV",	fun_fdiv,	2,  0,		CA_PUBLIC,	NULL},
-{"FILTER",	fun_filter,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"FILTERBOOL",	fun_filterbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"FILTER",	handle_filter,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"FILTERBOOL",	handle_filter,	0,  FN_VARARGS|FILTER_BOOL,
+						CA_PUBLIC,	NULL},
 {"FINDABLE",	fun_findable,	2,  0,		CA_PUBLIC,	NULL},
 {"FIRST",	fun_first,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"FLAGS",	fun_flags,	1,  0,		CA_PUBLIC,	NULL},
@@ -494,7 +490,7 @@ FUN flist[] = {
 {"ISWORD",	fun_isword,	1,  0,		CA_PUBLIC,	NULL},
 {"ITEMIZE",	fun_itemize,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"ITEMS",	fun_items,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"ITER",	fun_iter,	0,  FN_VARARGS|FN_NO_EVAL,
+{"ITER",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|BOOL_COND_NONE,
 						CA_PUBLIC,	NULL},
 {"ITEXT",	fun_itext,	1,  0,		CA_PUBLIC,	NULL},
 {"LADD",	fun_ladd,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -515,7 +511,7 @@ FUN flist[] = {
 {"LET",		fun_let,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
 {"LEXITS",	fun_lexits,	1,  0,		CA_PUBLIC,	NULL},
-{"LIST",	fun_list,	0,  FN_VARARGS|FN_NO_EVAL,
+{"LIST",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|BOOL_COND_NONE|LOOP_NOTIFY,
 						CA_PUBLIC}, 
 {"LIT",		fun_lit,	-1, FN_NO_EVAL,	CA_PUBLIC,	NULL},
 {"LINK",	fun_link,	2,  0,		CA_PUBLIC,	NULL},
@@ -534,7 +530,7 @@ FUN flist[] = {
 {"LOCK",	fun_lock,	1,  0,		CA_PUBLIC,	NULL},
 {"LOG",		fun_log,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LPARENT",	fun_lparent,	1,  0,		CA_PUBLIC}, 
-{"LOOP",	fun_loop,	0,  FN_VARARGS|FN_NO_EVAL,
+{"LOOP",	perform_loop,	0,  FN_VARARGS|FN_NO_EVAL|LOOP_NOTIFY,
 						CA_PUBLIC,	NULL},
 {"LOR",		fun_lor,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LORBOOL",	fun_lorbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -585,7 +581,7 @@ FUN flist[] = {
 {"ORFLAGS",	fun_orflags,	2,  0,		CA_PUBLIC,	NULL},
 {"OWNER",	fun_owner,	1,  0,		CA_PUBLIC,	NULL},
 {"PARENT",	fun_parent,	1,  0,		CA_PUBLIC,	NULL},
-{"PARSE",	fun_parse,	0,  FN_VARARGS|FN_NO_EVAL,
+{"PARSE",	perform_loop,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
 {"PEEK",	fun_peek,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"PEMIT",	fun_pemit,	2,  0,		CA_PUBLIC,	NULL},
@@ -729,9 +725,9 @@ FUN flist[] = {
 {"VUNIT",	handle_vector,	0,  FN_VARARGS|VEC_UNIT,
 						CA_PUBLIC,	NULL},
 {"WAIT",	fun_wait,	2,  0,		CA_PUBLIC,	NULL},
-{"WHENFALSE",	fun_whenfalse,	0,  FN_VARARGS|FN_NO_EVAL,
+{"WHENFALSE",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|BOOL_COND_FALSE,
 						CA_PUBLIC,	NULL},
-{"WHENTRUE",	fun_whentrue,	0,  FN_VARARGS|FN_NO_EVAL,
+{"WHENTRUE",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|BOOL_COND_TRUE,
 						CA_PUBLIC,	NULL},
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC,	NULL},
 {"WHILE",	fun_while,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
