@@ -409,10 +409,10 @@ NAMETAB	trig_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB wall_sw[] = {
-{(char *)"emit",	1,	CA_ANNOUNCE,	SAY_WALLEMIT},
-{(char *)"no_prefix",	1,	CA_ANNOUNCE,	SAY_NOTAG|SW_MULTIPLE},
-{(char *)"pose",	1,	CA_ANNOUNCE,	SAY_WALLPOSE},
-{(char *)"wizard",	1,	CA_ANNOUNCE,	SAY_WIZSHOUT|SW_MULTIPLE},
+{(char *)"emit",	1,	CA_PUBLIC,	SAY_WALLEMIT},
+{(char *)"no_prefix",	1,	CA_PUBLIC,	SAY_NOTAG|SW_MULTIPLE},
+{(char *)"pose",	1,	CA_PUBLIC,	SAY_WALLPOSE},
+{(char *)"wizard",	1,	CA_PUBLIC,	SAY_WIZSHOUT|SW_MULTIPLE},
 {(char *)"admin",	1,	CA_ADMIN,	SAY_ADMINSHOUT},
 { NULL,			0,	0,		0}};
 
@@ -776,7 +776,7 @@ CMDENT command_table[] = {
 	0,		CS_TWO_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
 						
 	NULL,			NULL,		do_wait},
-{(char *)"@wall",		wall_sw,	CA_ANNOUNCE,
+{(char *)"@wall",		wall_sw,	CA_PUBLIC,
 	SAY_SHOUT,	CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_say},
 {(char *)"@wipe",		wall_sw,
@@ -1026,6 +1026,8 @@ int mask;
 
 	if (mask & CA_DISABLED)
 		return 0;
+	if (mask & CA_STATIC)
+		return 0;
 	if (God(player) || mudstate.initializing)
 		return 1;
 
@@ -1058,12 +1060,6 @@ int mask;
 	}
 	if ((succ == 0) && (mask & CA_HEAD)) {
 		if (Head(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_ANNOUNCE)) {
-		if (Announce(player))
 			succ++;
 		else
 			fail++;
@@ -2084,7 +2080,8 @@ NAMETAB access_nametab[] =
 	{(char *)"no_suspect", 5, CA_WIZARD, CA_NO_SUSPECT},
 	{(char *)"no_guest", 5, CA_WIZARD, CA_NO_GUEST},
 	{(char *)"sql", 2, CA_GOD, CA_SQL_OK},
-	{(char *)"staff", 2, CA_WIZARD, CA_STAFF},
+	{(char *)"staff", 3, CA_WIZARD, CA_STAFF},
+	{(char *)"static", 3, CA_GOD, CA_STATIC},
 	{(char *)"wizard", 3, CA_WIZARD, CA_WIZARD},
 	{NULL, 0, 0, 0}};
 

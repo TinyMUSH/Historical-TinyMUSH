@@ -85,6 +85,13 @@ char *message;
 	char *buf2, *bp;
 	int say_flags, depth;
 
+	/* Check for shouts. Need to have Announce power. */
+
+	if ((key & SAY_SHOUT) && !Announce(player)) {
+	    notify(player, NOPERM_MESSAGE);
+	    return;
+	}
+
 	/*
 	 * Convert prefix-coded messages into the normal type 
 	 */
