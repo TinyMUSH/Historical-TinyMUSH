@@ -365,6 +365,8 @@ case "$with_sql" in
       AC_MSG_ERROR(unable to build with mysql), ) ;;
 esac
 
+AC_HEADER_STDC
+
 LDFLAGS="-L/usr/ucblib $SAVELDFLAGS"
 AC_CHECK_LIB(ucb, getdtablesize,
   LIBS="-L/usr/ucblib -lucb $LIBS", , , )
@@ -379,7 +381,6 @@ AC_CHECK_LIB(dl, dlopen)
 
 dnl Header checks
 
-AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(unistd.h memory.h string.h errno.h malloc.h sys/select.h)
