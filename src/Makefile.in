@@ -46,8 +46,8 @@ D_OBJ	= create.o game.o help.o look.o match.o move.o player.o predicates.o \
           mguests.o powers.o newconc.o funceval.o regexp.o quota.o
 D_INC	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  command.h config.h db.h externs.h mudconf.h misc.h \
-	  vattr.h file_c.h fifo.h alloc.h attrs.h comsys.h macro.h \
-          mguests.h powers.h slave.h concentrator.h regexp.h
+	  vattr.h file_c.h alloc.h attrs.h comsys.h \
+          mguests.h powers.h slave.h regexp.h
 
 # Version number routine
 VER_SRC	= version.c

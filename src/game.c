@@ -1640,7 +1640,6 @@ char *argv[];
 	/* Reset all the hash stats */
 
 	hashreset(&mudstate.command_htab);
-	hashreset(&mudstate.macro_htab);
 	hashreset(&mudstate.channel_htab);
 	nhashreset(&mudstate.mail_htab);
 	hashreset(&mudstate.logout_cmd_htab);

@@ -34,7 +34,7 @@ struct confdata {
 	char	crashdb[PBUF_SIZE];	/* write database here on crash */
 	char	gdbm[PBUF_SIZE];	/* use this gdbm file if we need one */
 	char	mail_db[PBUF_SIZE];	/* name of the @mail database */
-	char	comsys_db[PBUF_SIZE];	/* name of the comsys and macros db */
+	char	comsys_db[PBUF_SIZE];	/* name of the comsys db */
 	int	compress_db;	/* should we use compress */
 	char	compress[PBUF_SIZE];	/* program to run to compress */
 	char	uncompress[PBUF_SIZE];/* program to run to uncompress */
@@ -324,7 +324,6 @@ struct statedata {
 	SITE	*access_list;	/* Access states for sites */
 	SITE	*suspect_list;	/* Sites that are suspect */
 	HASHTAB	command_htab;	/* Commands hashtable */
-	HASHTAB macro_htab;	/* Macro command hashtable */
 	HASHTAB channel_htab;	/* Channels hashtable */
 	NHSHTAB mail_htab;	/* Mail players hashtable */
 	HASHTAB	logout_cmd_htab;/* Logged-out commands hashtable (WHO, etc) */
