@@ -5,8 +5,6 @@
 #include "autoconf.h"
 #include "config.h"
 
-#ifdef HAVE_DLOPEN
-
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
@@ -72,6 +70,3 @@ void register_hashtables(htab, ntab)
 	}
     }
 }
-
-#endif /* HAVE_DLOPEN */
-

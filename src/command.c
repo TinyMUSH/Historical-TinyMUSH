@@ -1486,7 +1486,6 @@ dbref player;
 	else
 		notify(player, buf);
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    if ((modcmds = DLSYM_VAR(mp->handle, mp->modname, "cmdtable",
 				     CMDENT *)) != NULL) {
@@ -1503,7 +1502,6 @@ dbref player;
 		notify(player, buf);
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	free_lbuf(buf);
 }
@@ -1582,14 +1580,12 @@ dbref player;
 	buff = alloc_sbuf("list_cmdaccess");
 	helper_list_cmdaccess(player, command_table, buff);
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "cmdtable",
 				  CMDENT *)) != NULL) {
 		helper_list_cmdaccess(player, ctab, buff);
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	for (ap = attr; ap->name; ap++) {
 		p = buff;
@@ -1638,7 +1634,6 @@ dbref player;
 		}
 	}
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "cmdtable",
 				  CMDENT *)) != NULL) {
@@ -1655,7 +1650,6 @@ dbref player;
 		}
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	free_sbuf(buff);
 }
@@ -2272,7 +2266,6 @@ dbref player;
 	list_hashstat(player, "Instances", &mudstate.instance_htab);
 	list_hashstat(player, "Instance Data", &mudstate.instdata_htab);
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    m_htab = DLSYM_VAR(mp->handle, mp->modname,
 			       "hashtable", MODHASHES *);
@@ -2289,7 +2282,6 @@ dbref player;
 		}
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 }
 
 static void list_textfiles(player)

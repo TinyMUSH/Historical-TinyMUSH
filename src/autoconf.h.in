@@ -88,6 +88,70 @@
 /* Define if sys/rusage.h exists */
 #undef HAVE_SYS_RUSAGE_H
 
+/* XXX section added for ltdl */
+
+/* Define if you have the libdl library or equivalent.  */
+#undef HAVE_LIBDL
+
+/* Define if you have the GNU dld library.  */
+#undef HAVE_DLD
+
+/* Define if you have the shl_load function.  */
+#undef HAVE_SHL_LOAD
+
+/* Define if you have the dlerror function.  */
+#undef HAVE_DLERROR
+
+/* Define if you have the index function.  */
+#undef HAVE_INDEX
+
+/* Define if you have the rindex function.  */
+#undef HAVE_RINDEX
+
+/* Define if you have the strrchr function.  */
+#undef HAVE_STRRCHR
+
+/* Define if you have the <ctype.h> header file.  */
+#undef HAVE_CTYPE_H
+
+/* Define if you have the <dl.h> header file.  */
+#undef HAVE_DL_H
+
+/* Define if you have the <dld.h> header file.  */
+#undef HAVE_DLD_H
+
+/* Define if you have the <dlfcn.h> header file.  */
+#undef HAVE_DLFCN_H
+
+/* Define if you have the <stdio.h> header file.  */
+#undef HAVE_STDIO_H
+
+/* Define if you have the <stdlib.h> header file.  */
+#undef HAVE_STDLIB_H
+
+/* Define if you have the <string.h> header file.  */
+#undef HAVE_STRING_H
+
+/* Define if you have the <strings.h> header file.  */
+#undef HAVE_STRINGS_H
+
+/* Define to the extension used for shared libraries, say, .so.  */
+#undef LTDL_SHLIB_EXT
+
+/* Define to the name of the environment variable that determines the dynamic library search path.  */
+#undef LTDL_SHLIBPATH_VAR
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.  */
+#undef LTDL_OBJDIR
+
+/* Define if libtool can extract symbol lists from object files.  */
+#undef HAVE_PRELOADED_SYMBOLS
+
+/* Define if dlsym() requires a leading underscode in symbol names.  */
+#undef NEED_USCORE
+
+/* XXX end of section added for ltdl */
+
 /* Define to empty if the keyword does not work.  */
 #undef const
 /* Define if type char is unsigned and you are not using gcc.  */
@@ -118,8 +182,6 @@
 /* Define if the compiler pads small structs on the wrong end, breaking the
  * system library version of inet_ntoa() */
 #undef BROKEN_GCC_PADDING
-/* Define if dlsym can locate "_symbol" but not "symbol" */
-#undef DLSYM_NEEDS_UNDERSCORE
 
 /* Define vfork as fork if vfork does not work.  */
 #undef vfork

@@ -1,5 +1,5 @@
 /* api.h - must be included by all dynamically loaded modules */
-/* $Id */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"

@@ -573,32 +573,19 @@ extern int	FDECL(quick_wild, (char *, char *));
  * Module things.
  */
 
-#ifdef HAVE_DLOPEN
-
 #define WALK_ALL_MODULES(mp) \
 	for (mp = mudstate.modules_list; mp != NULL; mp = mp->next)
 
 /* Syntax: DLSYM(<handler>, <module name>, <function name>, <prototype>) */
 
-#ifdef DLSYM_NEEDS_UNDERSCORE
 #define DLSYM(h,m,x,p) \
-	(void (*)p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
+	(void (*)p)lt_dlsym((h), tprintf("mod_%s_%s", (m), (x)))
 #define DLSYM_INT(h,m,x,p) \
-	(int (*)p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
+	(int (*)p)lt_dlsym((h), tprintf("mod_%s_%s", (m), (x)))
 #define DLSYM_VAR(h,m,x,p) \
-	(p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
-#else
-#define DLSYM(h,m,x,p) \
-	(void (*)p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
-#define DLSYM_INT(h,m,x,p) \
-	(int (*)p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
-#define DLSYM_VAR(h,m,x,p) \
-	(p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
-#endif /* DLSYM_NEEDS_UNDERSCORE */
+	(p)lt_dlsym((h), tprintf("mod_%s_%s", (m), (x)))
 
-#endif /* HAVE_DLOPEN */
-
-#if defined(HAVE_DLOPEN) && !defined(STANDALONE)
+#ifndef STANDALONE
 
 /* Syntax: CALL_ALL_MODULES(<name of function>, (<args>))
  * Call all modules defined for this symbol.
@@ -641,13 +628,13 @@ extern int	FDECL(quick_wild, (char *, char *));
     } \
 }
 
-#else  /* ! HAVE_DLOPEN or STANDALONE */
+#else  /* STANDALONE */
 
 #define CALL_ALL_MODULES(xfn,args)
 #define CALL_ALL_MODULES_NOCACHE(xfn,proto,args) 
 #define CALL_SOME_MODULES(rv,xfn,args)
 
-#endif /* ! HAVE_DLOPEN or STANDALONE */
+#endif /* STANDALONE */
 
 /* --------------------------------------------------------------------------
  * String things.

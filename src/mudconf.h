@@ -7,6 +7,7 @@
 #define __MUDCONF_H
 
 #include <netinet/in.h>
+#include "ltdl.h"
 
 /* CONFDATA:	runtime configurable parameters */
 
@@ -22,7 +23,7 @@ struct key_linked_list {
 typedef struct module_linked_list MODULE;
 struct module_linked_list {
     char *modname;
-    void *handle;
+    lt_dlhandle handle;
     struct module_linked_list *next;
     int (*process_command)(dbref, dbref, int, char *, char *[], int);
     int (*process_no_match)(dbref, dbref, int, char *, char *, char *[], int);
@@ -89,9 +90,6 @@ struct confdata {
 	char	*gdbm;			/* use this gdbm file if we need one */
 	char	*status_file;		/* Where to write arg to @shutdown */
 	char	*mudlogname;		/* Name of the game log file */
-#ifdef HAVE_DLOPEN
-	char	*modhome;		/* Directory where the .so files are */
-#endif
 	int	have_pueblo;	/* Is Pueblo support compiled in? */
 	int	have_zones;	/* Should zones be active? */
 	int	port;		/* user port */
@@ -387,9 +385,7 @@ struct statedata {
 	HASHTAB cdefs_htab;	/* Components hashtable */
 	HASHTAB instance_htab;	/* Instances hashtable */
 	HASHTAB instdata_htab;	/* Structure data hashtable */
-#ifdef HAVE_DLOPEN
 	MODULE *modules_list;	/* Loadable modules hashtable */
-#endif
 	int	max_structs;
 	int	max_cdefs;
 	int	max_instance;

@@ -209,7 +209,6 @@ dbref player;
 	}
 	notify(player, buf);
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    if ((modfns = DLSYM_VAR(mp->handle, mp->modname, "functable",
 				    FUN *)) != NULL) {
@@ -225,7 +224,6 @@ dbref player;
 		notify(player, buf);
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	bp = buf;
 	safe_str((char *)"User-defined functions:", buf, &bp);
@@ -270,14 +268,12 @@ dbref player;
 	buff = alloc_sbuf("list_funcaccess");
 	helper_list_funcaccess(player, flist, buff);
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 		if ((ftab = DLSYM_VAR(mp->handle, mp->modname, "functable",
 				      FUN *)) != NULL) {
 			helper_list_funcaccess(player, ftab, buff);
 		}
 	}
-#endif /* HAVE_DLOPEN */
 
 	for (ufp = ufun_head; ufp; ufp = ufp->next) {
 		if (check_access(player, ufp->perms)) {

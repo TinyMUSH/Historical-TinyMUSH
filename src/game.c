@@ -126,7 +126,6 @@ void do_hashresize(player, cause, key)
     hashresize(&mudstate.vars_htab,
 	       (mudstate.max_vars < 16) ? 16 : mudstate.max_vars);
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    m_htab = DLSYM_VAR(mp->handle, mp->modname,
 			       "hashtable", MODHASHES *);
@@ -143,7 +142,6 @@ void do_hashresize(player, cause, key)
 		}
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
     if (!mudstate.restarting)
 	notify(player, "Resized.");
@@ -1642,6 +1640,8 @@ char *argv[];
 
 	logfile_init(opt_logfile);
 	tf_init();
+	LTDL_SET_PRELOADED_SYMBOLS();
+	lt_dlinit();
 #ifdef RADIX_COMPRESSION
 	init_string_compress();
 #endif /* RADIX_COMPRESSION */
@@ -1689,7 +1689,6 @@ char *argv[];
 	cf_read(opt_conf);
 	mudconf.func_cpu_lim = mudconf.func_cpu_lim_secs * CLOCKS_PER_SEC;
 
-#ifdef HAVE_DLOPEN
 	bp = mudstate.modloaded; 
 	WALK_ALL_MODULES(mp) {
 	    if (bp != mudstate.modloaded) {
@@ -1697,7 +1696,6 @@ char *argv[];
 	    }
 	    safe_mb_str(mp->modname, mudstate.modloaded, &bp);
 	}
-#endif /* HAVE_DLOPEN */
 
 	mudconf.exec_path = XSTRDUP(argv[0], "argv");
 	mudconf.mudlogname = XSTRDUP(opt_logfile, "argv");

@@ -18,10 +18,6 @@
 #include "attrs.h"	/* required by code */
 #include "match.h"	/* required by code */
 
-#ifdef HAVE_DLOPEN
-#include <dlfcn.h>
-#endif
-
 /* Some systems are lame, and inet_addr() claims to return -1 on failure,
  * despite the fact that it returns an unsigned long. (It's not really a -1,
  * obviously.) Better-behaved systems use INADDR_NONE.
@@ -66,10 +62,7 @@ void NDECL(cf_init)
 	mudconf.crashdb = XSTRDUP("", "cf_init");
 	mudconf.gdbm = XSTRDUP("", "cf_init");
 	mudconf.status_file = XSTRDUP("shutdown.status", "cf_init");
-#ifdef HAVE_DLOPEN
-	mudconf.modhome = XSTRDUP("modules", "cf_init");
 	mudstate.modules_list = NULL;
-#endif
 	mudstate.modloaded[0] = '\0';
 	mudconf.port = 6250;
 	mudconf.conc_port = 6251;
@@ -372,9 +365,6 @@ void NDECL(cf_init)
 	mudstate.poutnew = NULL;
 	mudstate.poutbufc = NULL;
 	mudstate.poutobj = -1;
-#ifdef HAVE_DLOPEN
-	mudstate.modules_list = NULL;
-#endif
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 	    mudstate.global_regs[i] = NULL;
 	    mudstate.glob_reg_len[i] = 0;
@@ -541,20 +531,18 @@ CF_HAND(cf_int)
  * startup.
  */
 
-#ifdef HAVE_DLOPEN
 CF_HAND(cf_module)
 {
-	void *handle;
+	lt_dlhandle handle;
 	void (*initptr)(void);
 	MODULE *mp;
 	
-	handle = dlopen(tprintf("%s/%s.so", mudconf.modhome, str),
-			RTLD_NOW|RTLD_GLOBAL);
+	handle = lt_dlopen(tprintf("%s.la", str));
 
 	if (!handle) {
 		STARTLOG(LOG_STARTUP, "CNF", "MOD")
 		    log_printf("Loading of %s module failed: %s",
-			       str, dlerror());
+			       str, lt_dlerror());
 		ENDLOG
 		return -1;
 	}
@@ -602,15 +590,6 @@ CF_HAND(cf_module)
 
 	return 0;
 }
-#else  /* ! HAVE_DLOPEN */
-CF_HAND(cf_module)
-{
-    STARTLOG(LOG_STARTUP, "CNF", "MOD")
-	log_printf("Loading of %s module failed: feature disabled", str);
-    ENDLOG
-    return -1;
-}
-#endif /* HAVE_DLOPEN */
 
 /* *INDENT-OFF* */
 
@@ -1121,7 +1100,6 @@ CF_HAND(cf_cf_access)
 	    }
 	}
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
 				  CONF *)) != NULL) {
@@ -1133,7 +1111,6 @@ CF_HAND(cf_cf_access)
 		}
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	cf_log_notfound(player, cmd, "Config directive", str);
 	return -1;
@@ -1460,10 +1437,7 @@ CONF conftable[] = {
 {(char *)"master_room",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.master_room,		0},
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
-#ifdef HAVE_DLOPEN
 {(char *)"module",			cf_module,	CA_STATIC,	CA_WIZARD,	NULL,				0},
-{(char *)"modules_home",		cf_string,	CA_STATIC, 	CA_GOD,		(int *)&mudconf.modhome,	MBUF_SIZE},
-#endif
 {(char *)"money_name_plural",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.many_coins,	SBUF_SIZE},
 {(char *)"money_name_singular",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.one_coin,	SBUF_SIZE},
 {(char *)"motd_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.motd_file,	MBUF_SIZE},
@@ -1635,7 +1609,6 @@ dbref player;
 		}
 	}
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
 				  CONF *)) != NULL) {
@@ -1645,7 +1618,6 @@ dbref player;
 		}
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	/*
 	 * Config directive not found.  Complain about it. 
@@ -1732,7 +1704,6 @@ dbref player;
 		}
 	}
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
 				  CONF *)) != NULL) {	
@@ -1745,7 +1716,6 @@ dbref player;
 		}
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	free_mbuf(buff);
 }
@@ -1767,7 +1737,6 @@ dbref player;
 		}
 	}
 
-#ifdef HAVE_DLOPEN
 	WALK_ALL_MODULES(mp) {
 	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
 				  CONF *)) != NULL) {	
@@ -1780,7 +1749,6 @@ dbref player;
 		}
 	    }
 	}
-#endif /* HAVE_DLOPEN */
 
 	free_mbuf(buff);
 }
@@ -1829,7 +1797,6 @@ void cf_display(player, param_name, buff, bufc)
 	}
     }
 
-#ifdef HAVE_DLOPEN
     WALK_ALL_MODULES(mp) {
 	if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
 			      CONF *)) != NULL) {	
@@ -1841,7 +1808,6 @@ void cf_display(player, param_name, buff, bufc)
 	    }
 	}
     }
-#endif /* HAVE_DLOPEN */
 
     safe_nomatch(buff, bufc);
 }
@@ -1864,7 +1830,6 @@ dbref player;
 	}
     }
 
-#ifdef HAVE_DLOPEN
     WALK_ALL_MODULES(mp) {
 	if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
 			      CONF *)) != NULL) {
@@ -1881,8 +1846,6 @@ dbref player;
 	    }
 	}
     }
-#endif /* HAVE_DLOPEN */
-
 }
 
 #endif /* STANDALONE */
