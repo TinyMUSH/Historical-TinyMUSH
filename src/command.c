@@ -2130,9 +2130,9 @@ static void list_params(player)
 	      mudconf.func_nest_lim, mudconf.func_invk_lim,
 	      mudconf.func_cpu_lim_secs));
     raw_notify(player,
-      tprintf("  Stacks...%d  Variables...%d  Structures...%d  Instances...%d",
-	      mudconf.stack_lim, mudconf.numvars_lim,
-	      mudconf.struct_lim, mudconf.instance_lim));
+      tprintf("  Aliases...%d  Stacks...%d  Variables...%d  Structures...%d  Instances...%d",
+	      mudconf.max_player_aliases, mudconf.stack_lim,
+	      mudconf.numvars_lim, mudconf.struct_lim, mudconf.instance_lim));
     raw_notify(player,
 	       tprintf("  Objects...%d  Allowance...%d  Trace levels...%d  Connect tries...%d",
 		       mudconf.building_limit, mudconf.paylimit,

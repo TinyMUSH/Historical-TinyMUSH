@@ -863,7 +863,7 @@ dbref victim;
 
 	delete_player_name(victim, Name(victim));
 	buf = atr_pget(victim, A_ALIAS, &aowner, &aflags, &alen);
-	delete_player_name(victim, buf);
+	Clear_Player_Aliases(victim, buf);
 	free_lbuf(buf);
 
 	move_via_generic(victim, NOTHING, player, 0);

@@ -217,6 +217,115 @@ char *newname;
  * * do_alias: Make an alias for a player or object.
  */
 
+static void set_player_aliases(player, target, oldalias, list, aflags)
+dbref player, target;
+char *oldalias, *list;
+int aflags;
+{
+    int i, j, n_aliases, retcode;
+    char *p, *tokp;
+    char alias_buf[LBUF_SIZE], tmp_buf[LBUF_SIZE], *alias_ptrs[LBUF_SIZE / 2];
+
+
+    /* Clear out the original alias, so we can rewrite a new alias
+     * that uses the same names, if necessary.
+     */
+
+    Clear_Player_Aliases(target, oldalias);
+
+    /* Don't nibble the original buffer. Copy it all into an array, because
+     * we have to eat leading and trailing spaces.
+     */
+
+    retcode = 1;
+    strcpy(tmp_buf, list);
+    for (n_aliases = 0, p = strtok_r(tmp_buf, ";", &tokp); p;
+	 n_aliases++, p = strtok_r(NULL, ";", &tokp)) {
+	alias_ptrs[n_aliases] = trim_spaces(p);
+    }
+
+    /* Enforce a maximum number of aliases. */
+
+    if (n_aliases > mudconf.max_player_aliases) {
+	notify_quiet(player,
+		     tprintf("You cannot have more than %d aliases.",
+			     mudconf.max_player_aliases));
+	retcode = 0;
+    }
+
+    /* Enforce player name regulations. */
+	
+    for (i = 0; retcode && (i < n_aliases); i++) {
+	if (lookup_player(NOTHING, alias_ptrs[i], 0) != NOTHING) {
+	    notify_quiet(player,
+			 tprintf("The name '%s' is already in use.",
+				 alias_ptrs[i]));
+	    retcode = 0;
+	} else if (!(badname_check(alias_ptrs[i]) &&
+		     ok_player_name(alias_ptrs[i]))) {
+	    notify_quiet(player,
+			 tprintf("You cannot use '%s' as an alias.",
+				 alias_ptrs[i]));
+	    retcode = 0;
+	} else {
+
+	    /* Make sure this alias doesn't duplicate another in the list. */
+
+	    for (j = i + 1; retcode && (j < n_aliases); j++) {
+		if (!strcasecmp(alias_ptrs[i], alias_ptrs[j])) {
+		    notify_quiet(player, 
+		      tprintf("You have duplicated '%s' in your alias list.",
+			      alias_ptrs[i]));
+		    retcode = 0;
+		}
+	    }
+	}
+    }
+
+    /* Construct a new alias list, with spaces removed. */
+
+    for (i = 0, p = alias_buf; retcode && (i < n_aliases); i++) {
+	if (add_player_name(target, alias_ptrs[i])) {
+	    if (p != alias_buf) {
+		safe_chr(';', alias_buf, &p);
+	    }
+	    safe_str(alias_ptrs[i], alias_buf, &p);
+	} else {
+	    
+	    retcode = 0;
+	    notify_quiet(player,
+	        tprintf("The alias '%s' is already in use or is illegal.",
+			alias_ptrs[i]));
+
+	    /* Ugh. Now we have to delete aliases we added up 'til now. */
+
+	    for (j = 0; j < i; j++)
+		delete_player_name(target, alias_ptrs[j]);
+	}
+    }
+
+    /* Free memory allocated by trim_spaces(). */
+
+    for (i = 0; i < n_aliases; i++) {
+	free_lbuf(alias_ptrs[i]);
+    }
+
+    /* Twiddle the alias attribute on the object. Note that we have to
+     * do this regardless of the outcome, since we wiped out the original
+     * aliases from the player name table earlier.
+     */
+
+    if (retcode) {
+	atr_add(target, A_ALIAS, alias_buf, Owner(player), aflags);
+	if (!Quiet(player)) {
+	    notify_quiet(player, "Alias set.");
+	}
+    } else {
+	atr_clr(target, A_ALIAS);
+	notify_quiet(player, "Alias cleared due to error.");
+    }
+}
+
 void do_alias(player, cause, key, name, alias)
 dbref player, cause;
 int key;
@@ -241,17 +350,16 @@ char *name, *alias;
 		 * Fetch the old alias 
 		 */
 
-		oldalias = atr_pget(thing, A_ALIAS, &aowner, &aflags, &alen);
+		oldalias = atr_get(thing, A_ALIAS, &aowner, &aflags, &alen);
 		trimalias = trim_spaces(alias);
 
 		if (!Controls(player, thing)) {
 
 			/*
-			 * Make sure we have rights to do it.  We can't do *
-			 * * * * the normal Set_attr check because ALIAS is * 
-			 * only * * * writable by GOD and we want to keep *
-			 * people * from * * doing &ALIAS and bypassing the * 
-			 * player * name checks. 
+			 * Make sure we have rights to do it.  We can't do
+			 * the normal Set_attr check because ALIAS is
+			 * set CONSTANT and we want to keep people from
+			 * doing &ALIAS and bypassing the player name checks.
 			 */
 
 			notify_quiet(player, NOPERM_MESSAGE);
@@ -261,37 +369,18 @@ char *name, *alias;
 			 * New alias is null, just clear it 
 			 */
 
-			delete_player_name(thing, oldalias);
+			Clear_Player_Aliases(thing, oldalias);
 			atr_clr(thing, A_ALIAS);
 			if (!Quiet(player))
 				notify_quiet(player, "Alias removed.");
-		} else if (lookup_player(NOTHING, trimalias, 0) != NOTHING) {
-
-			/*
-			 * Make sure new alias isn't already in use 
-			 */
-
-			notify_quiet(player, "That name is already in use.");
-		} else if (!(badname_check(trimalias) &&
-			     ok_player_name(trimalias))) {
-			notify_quiet(player, "That's a silly name for a player!");
 		} else {
 
 			/*
 			 * Remove the old name and add the new name 
 			 */
 
-			delete_player_name(thing, oldalias);
-			atr_add(thing, A_ALIAS, trimalias, Owner(player),
-				aflags);
-			if (add_player_name(thing, trimalias)) {
-				if (!Quiet(player))
-					notify_quiet(player, "Alias set.");
-			} else {
-				notify_quiet(player,
-					     "That name is already in use or is illegal, alias cleared.");
-				atr_clr(thing, A_ALIAS);
-			}
+			set_player_aliases(player, thing, oldalias,
+					   trimalias, aflags);
 		}
 		free_lbuf(trimalias);
 		free_lbuf(oldalias);

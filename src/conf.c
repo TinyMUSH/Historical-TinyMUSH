@@ -294,6 +294,7 @@ void NDECL(cf_init)
 	mudconf.stack_lim = 50;
 	mudconf.struct_lim = 100;
 	mudconf.instance_lim = 100;
+	mudconf.max_player_aliases = 10;
 	mudconf.cache_width = CACHE_WIDTH;
 	mudconf.cache_size = CACHE_SIZE;
 	mudconf.cache_names = 1;
@@ -1485,6 +1486,7 @@ CONF conftable[] = {
 {(char *)"pemit_far_players",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pemit_players,		(long)"@pemit targets can be players in other locations"},
 {(char *)"pemit_any_object",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pemit_any,		(long)"@pemit targets can be objects in other locations"},
 {(char *)"permit_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list,	0},
+{(char *)"player_aliases_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.max_player_aliases,	0},
 {(char *)"player_flags",		cf_set_flags,	CA_GOD,		CA_DISABLED,	(int *)&mudconf.player_flags,	0},
 {(char *)"player_listen",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.player_listen,		(long)"@listen and ^-monitors are checked on players"},
 {(char *)"player_match_own_commands",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine_pl,		(long)"Players can match $-commands on themselves"},

@@ -273,6 +273,7 @@ struct confdata {
 	int	stack_lim;	/* Max number of items on an object stack */
 	int	struct_lim;	/* Max number of defined structures for obj */
 	int	instance_lim;	/* Max number of struct insances for obj */
+	int	max_player_aliases; /* Max number of aliases for a player */
 #endif	/* STANDALONE */
 };
 

@@ -297,6 +297,16 @@ extern void	FDECL(destroy_exit, (dbref));
 
 #define	Dropper(thing)	(Connected(Owner(thing)) && Hearer(thing))
 
+/* Clear a player's aliases, given x (player dbref) and b (alias buffer). */
+#define Clear_Player_Aliases(x,b) \
+{ \
+    char *cpa__p, *cpa__tokp; \
+    for (cpa__p = strtok_r((b), ";", &cpa__tokp); cpa__p; \
+	 cpa__p = strtok_r(NULL, ";", &cpa__tokp)) { \
+	delete_player_name((x), cpa__p); \
+    } \
+}
+
 typedef struct logfiletable LOGFILETAB;
 struct logfiletable {
     int log_flag;

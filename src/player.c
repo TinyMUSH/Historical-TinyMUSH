@@ -507,7 +507,7 @@ void NDECL(load_player_names)
 {
 	dbref i, aowner;
 	int aflags, alen;
-	char *alias;
+	char *alias, *p, *tokp;
 
 	DO_WHOLE_DB(i) {
 		if (Typeof(i) == TYPE_PLAYER) {
@@ -517,10 +517,14 @@ void NDECL(load_player_names)
 	alias = alloc_lbuf("load_player_names");
 	DO_WHOLE_DB(i) {
 		if (Typeof(i) == TYPE_PLAYER) {
-			alias = atr_pget_str(alias, i, A_ALIAS,
+			alias = atr_get_str(alias, i, A_ALIAS,
 					     &aowner, &aflags, &alen);
-			if (*alias)
-				add_player_name(i, alias);
+			if (*alias) {
+			    for (p = strtok_r(alias, ";", &tokp); p;
+				 p = strtok_r(NULL, ";", &tokp)) {
+				add_player_name(i, p);
+			    }
+			}
 		}
 	}
 	free_lbuf(alias);

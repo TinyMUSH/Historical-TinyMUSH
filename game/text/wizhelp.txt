@@ -1491,10 +1491,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	lag_maximum			lock_recursion_limit		
 	max_players			notify_recursion_limit
 	number_guests			output_limit
-	player_queue_limit		retry_limit
-	stack_limit			structure_limit
-	trace_output_limit		variables_limit			
-	zone_recursion_limit
+	player_aliases_limit		player_queue_limit
+	retry_limit			stack_limit			
+	structure_limit			trace_output_limit		
+	variables_limit			zone_recursion_limit
 
 & PARAM MESSAGES
 	down_motd_message	dump_message		fixed_home_message
@@ -2771,13 +2771,19 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   directive.  The default is all sites permitted, none forbidden.
  
   See also: badsite_file, forbid_site, register_site, SITE LISTS.
-
-& player_attr_defaults
- Config parameter: player_attr_defaults <dbref>.  Default: Nothing
  
- If this parameter is set, every object of type PLAYER will use the
- attributes on the specified object as "attribute defaults".
- See 'wizhelp attribute defaults' for additional information.
+& player_aliases_limit
+  Config parameter: player_aliases_limit <number>.  Default: 10
+ 
+  This config parameter limits the maximum number of aliases that
+  a player can set on himself, via the @alias command.
+ 
+& player_attr_defaults
+  Config parameter: player_attr_defaults <dbref>.  Default: Nothing
+ 
+  If this parameter is set, every object of type PLAYER will use the
+  attributes on the specified object as "attribute defaults".
+  See 'wizhelp attribute defaults' for additional information.
  
 & player_flags
   Config parameter: player_flags <flags>.  Default: blank

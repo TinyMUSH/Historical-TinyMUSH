@@ -3276,18 +3276,19 @@ See also: JUMP_OK, FIXED, home, @lock
   See also: @aahear, @amhear, @listen.
 
 & @alias
-  Command: @alias <player> = <name>
+  Command: @alias <player> = <name>[;<alias 2>;<alias 3>;<alias N>]
   Attribute: Alias
  
-  Provides an alternate name by which the player is known.  The alternate
-  name is only used for players when referenced as '*<name>' or by commands
-  that only take playernames (such as page or @stats).  You may not set
-  an alias on any other object type.
+  Provides one or more alternate names by which the player is known. The
+  alternate name is only used for players when referenced as '*<name>' or
+  by commands that only take player names (such as page or @stats). This
+  attribute is not otherwise meaningful for non-players.
  
   When setting an alias, the alias is checked to see that it is both a legal
   player name and not already in use.  Only if both checks succeed is the
   alias set. To ensure that these checks are performed, this attribute can
-  be modified only through the @alias command.
+  be modified only through the @alias command (i.e., it cannot be changed
+  by @edit and similar commands).
  
 & @amhear
   Command: @amhear <object> = <command-list>
