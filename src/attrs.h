@@ -212,8 +212,10 @@
 	if (a & AF_REGEXP) *p++ = 'R'; \
 	if (a & AF_STRUCTURE) *p++ = 'S'; \
 	if (a & AF_VISUAL) *p++ = 'V'; \
+	if (a & AF_NOCLONE) *p++ = 'c'; \
 	if (a & AF_DARK) *p++ = 'd'; \
 	if (a & AF_GOD) *p++ = 'g'; \
+	if (a & AF_CONST) *p++ = 'k'; \
 	if (a & AF_MDARK) *p++ = 'm'; \
 	if (a & AF_WIZARD) *p++ = 'w'; \
 	*p = '\0';

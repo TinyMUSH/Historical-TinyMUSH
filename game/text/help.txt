@@ -356,10 +356,8 @@ The following are the possible attribute flags:
  
      locked     - Cannot be changed by anyone. Set via '@lock <obj>/<attr>'
                   and '@unlock <obj>/<attr>', not @set. Local only. (+)
+     const      - Cannot be changed by anyone. Global only.
  
-     structure	- Contains structure data set via write(). Cannot be read
-                  by other means. Local only. (S)
-  
 Continued in 'help Attribute Flags2'.
  
 & Attribute Flags2
@@ -391,6 +389,9 @@ Continued in 'help Attribute Flags3'.
                   attribute.  From their perspective the attribute does not
                   exist. (I)
  
+     no_clone   - Prevents attribute from being copied when an object is
+                  cloned. Global only. (c)
+ 
      default    - Checks the attr_defaults object of the appropriate type
                   for the attribute, whenever attr/oattr/aattr invocation
                   is done (including @verb). See 'wizhelp attribute defaults'
@@ -401,11 +402,25 @@ Continued in 'help Attribute Flags3'.
                   Local only. (H)
  
      no_name    - If used as an @o-attr (including with @verb), do not
-                  prepend the name of the actor.
+                  prepend the name of the actor. (N)
  
 Continued in 'help Attribute Flags4'.
  
 & Attribute Flags4
+ 
+     structure	- Contains structure data set via write(). Cannot be read
+                  by other means. Local only. (S)
+ 
+     internal   - Cannot be read or written to by any means. Used only
+                  for attributes that should be directly altered by the
+                  server itself. Global only.
+ 
+     ignore     - Prevents the automatic creation of an @-command for a
+                  built-in attribute. Global only.
+  
+Continued in 'help Attribute Flags5'.
+ 
+& Attribute Flags5
  
 The "global attribute" (the "definition" of all attributes on the MUSH
 with a given name) has a set of flags that applies to all attributes
