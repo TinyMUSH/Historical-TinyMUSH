@@ -189,6 +189,9 @@ NET_O	= bsd.o
 
 # Purify stuff.
 PUREDIR = /local/src/purify-4.0.1-sunos4
+PURIFYDIR = /local/rational/purify-4.2-sunos4
+PURECOVDIR = /local/rational/purecov-4.2-sunos4
+QUANTDIR = /local/rational/quantify-4.2-sunos4
 
 # Auxiliary source files: only used by offline utilities.
 AUX_SRC	= dbconvert.c mkindx.c unsplit.c
@@ -272,6 +275,28 @@ netmush-pure: $(OBJ) $(LIBOBJS) $(VER_OBJ)
 	-rm -f netmush-pure
 	$(PUREDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
+	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(VER_OBJ) \
+	$(LIBS) $(COMPRESS_LIB) $(MORELIBS)
+
+netmush-purecov: $(OBJ) $(LIBOBJS) $(VER_OBJ)
+	-rm -f netmush-purecov
+	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
+	-log-file=purify/netmush.plog \
+	$(CC) $(ALLCFLAGS) -o netmush-purecov $(OBJ) $(LIBOBJS) $(VER_OBJ) \
+	$(LIBS) $(COMPRESS_LIB) $(MORELIBS)
+
+netmush-realpure: $(OBJ) $(LIBOBJS) $(VER_OBJ)
+	-rm -f netmush-realpure
+	$(PURIFYDIR)/purify -view-file=purify/netmush.pv \
+	-log-file=purify/netmush.plog \
+	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
+	$(CC) $(ALLCFLAGS) -o netmush-realpure $(OBJ) $(LIBOBJS) $(VER_OBJ) \
+	$(LIBS) $(COMPRESS_LIB) $(MORELIBS)
+
+netmush-quant: $(OBJ) $(LIBOBJS) $(VER_OBJ)
+	-rm -f netmush-quant
+	$(QUANTDIR)/quantify -view-file=purify/quant.pv \
+	-log-file=purify/quant.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(VER_OBJ) \
 	$(LIBS) $(COMPRESS_LIB) $(MORELIBS)
 
