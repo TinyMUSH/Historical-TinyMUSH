@@ -830,9 +830,41 @@ dbref thing;
 	return k;
 }
 
+static int mem_usage_attr(player, str)
+    dbref player;
+    char *str;
+{
+    dbref thing, aowner;
+    int atr, aflags;
+    char *abuf;
+    ATTR *ap;
+    int bytes_atext = 0;
+
+    if (parse_attrib_wild(player, str, &thing, 0, 0, 1)) {
+	for (atr = olist_first(); atr != NOTHING; atr = olist_next()) {
+	    ap = atr_num(atr);
+	    if (!ap)
+		continue;
+	    abuf = atr_get(thing, atr, &aowner, &aflags);
+	    /* Player must be able to read attribute with 'examine' */
+	    if (Examinable(player, thing) &&
+		Read_attr(player, thing, ap, aowner, aflags))
+		bytes_atext += strlen(abuf);
+	    free_lbuf(abuf);
+	}
+    }
+
+    return bytes_atext;
+}
+
 FUNCTION(fun_objmem)
 {
 	dbref thing;
+
+	if (index(fargs[0], '/') != NULL) {
+	    safe_ltos(buff, bufc, mem_usage_attr(player, fargs[0]));
+	    return;
+	}
 
 	thing = match_thing(player, fargs[0]);
 	if (thing == NOTHING || !Examinable(player, thing)) {
