@@ -225,31 +225,76 @@ Using multiple guests is easy, and after you set it up, you'll never have to
 worry about it again. Here are the steps needed to implement multiple
 guests:
 
-1. @pcreate a prototype guest character. Name it whatever you want (altho
-you should use a descriptive name like 'Guest'), and use any password you
-want (it doesn't really matter, as the prototype guest can never connect).
-Set guest_char_num to the database number of the prototype guest character.
-Note that this is just the bare number of the object, not a dbref, i.e.,
-'guest_char_num 5' not 'guest_char_num #5'.
+1. @pcreate a prototype guest character. Name it whatever you want (although
+   you should use a descriptive name like 'Guest'), and use any password you
+   want (it doesn't really matter, as the prototype guest can never connect).
+   Set guest_char_num to the database number of the prototype guest character.
+   Note that this is just the bare number of the object, not a dbref, i.e.,
+   'guest_char_num 5' not 'guest_char_num #5'.
 
 2. You may want to set the following things on the prototype guest
-character, which are inherited by every guest character: the amount of
-money, the zone, the parent, the basic lock, the enter lock, and all
-attributes. (NOTE: Guests always start off in the room specified by the
-player_starting_room).
+   character, which are inherited by every guest character: the amount of
+   money, the zone, the parent, the basic lock, the enter lock, and all
+   attributes. (NOTE: Guests always start off in the room specified by the
+   guest_starting_room, or player_starting_room if that is not specified.)
 
-3. Set the config parameter 'guest_prefix' to whatever you want your guests
-to be named (this defaults to 'Guest'). MUSH keeps track of multiple guests
-by naming them using a numbering system: <prefix><number>. For example,
-Guest1, Guest2, Guest3, etc. People who wish to connect as a guest will have
-to use this prefix, for example, if 'guest_prefix' was set to 'Visitor', one
-would have to type 'connect visitor' to log in as a guest.
+3. Set 'number_guests' to the maximum number of guests you wish to support.
+   This number can be as small or as large as you wish.
 
-4. Set 'number_guests' to the maximum number of guests you wish to support.
-This number can be as small or as large as you wish.
+4. Optionally, set 'guest_nuker' to a wizard's database number, if you wish
+   to have a wizard other than #1 to nuke the guests.
 
-5. Optionally, set 'guest_nuker' to a wizard's database number, if you wish
-to have a wizard other than #1 to nuke the guests.
+5. Set 'guest_basename' to the name you want guests to use when they
+   connect. This defaults to 'Guest'. For instance, if you want guests
+   to type 'connect Visitor' instead of 'connect Guest' to connect,
+   you should do 'guest_basename Visitor'.
+
+6. Optionally, set 'guest_password' to the password you want guests to
+   have. This defaults to 'guest'. This can be used to reconnect to the
+   same Guest character. Otherwise, players will never see it (any
+   password is acceptable for connecting to a new guest).
+
+7. Now, you should decide how you want guests to be named. You can name
+   guests using a numbering scheme, i.e., 'Guest1', 'Guest2', 'Guest3'
+   or if you want to specify the list of possible guest names, i.e.,
+   'Werewolf', 'Vampire', 'Skeleton', or if you want guest names to be
+   generated as combinations of words, i.e., 'RedAlien', 'RedVisitor'
+   'BlueAlien', 'BlueVisitor', 'GreenAlien', 'GreenVisitor' (combinations
+   of 'Red', 'Blue', and 'Green', with 'Alien' and 'Visitor).
+
+   The guest_basename conf parameter is used for the guest numbering
+   scheme, so if you decide to just number your guests, they'll get
+   names of '<guest_basename><number>'. If you don't use the numbering
+   scheme, guests will receive @aliases of '<guest_basename><number>',
+   so they're still easy to find.
+
+   If you want to specify a list of guest names, set 'guest_prefixes'
+   to the list of names you want to use. Since the guest names are
+   separated by spaces, they can only be single-word names, i.e.,
+   'guest_prefixes Werewolf Vampire Skeleton'. If there are 
+
+   If you want guest names to be generated as combinations of words,
+   set 'guest_prefixes' to the list of the first parts of the name,
+   and 'guest_suffixes' to the list of the second parts of the name,
+   i.e. 'guest_prefixes Red Blue Green', 'guest_suffixes Alien Visitor'.
+
+   If there are more guests that try to connect (up to the number of
+   'number_guests') than there are available name combinations, extra
+   guests will be named '<guest_basename><number>'.
+
+   The 'guest_basename' parameter cannot be changed except in the conf
+   file. The 'guest_prefixes' and 'guest_suffixes' parameters can be
+   changed via @admin while the game is running, though. If you would
+   like to randomize the order in which guest names are picked, you
+   can do the following, using your God character:
+
+      &GUEST_CRON me = @admin guest_prefixes=shuffle(config(guest_prefixes));
+                       @admin guest_suffixes=shuffle(config(guest_suffixes))
+
+      @cron me/GUEST_CRON = 0 * * * *
+
+   This will randomize the lists once an hour; if you'd like to do it 
+   more frequently, change the @cron to something more frequent.
 
 
 The file specified by the config parameter 'guest_file' is shown to every
