@@ -1483,7 +1483,7 @@ static void NDECL(process_preload)
 	char *tstr;
 	FWDLIST *fp;
 
-	fp = (FWDLIST *) alloc_lbuf("process_preload.fwdlist");
+	fp = (FWDLIST *) XMALLOC(sizeof(FWDLIST), "process_preload.fwdlist");
 	tstr = alloc_lbuf("process_preload.string");
 	i = 0;
 	DO_WHOLE_DB(thing) {
@@ -1502,11 +1502,16 @@ static void NDECL(process_preload)
 			(void)atr_get_str(tstr, thing, A_FORWARDLIST,
 					  &aowner, &aflags);
 			if (*tstr) {
-				fwdlist_load(fp, GOD, tstr);
-				if (fp->count > 0)
-					fwdlist_set(thing, fp);
+			    fp->data = NULL;
+			    fwdlist_load(fp, GOD, tstr);
+			    if (fp->count > 0)
+				fwdlist_set(thing, fp);
+			    if (fp->data) {
+				XFREE(fp->data,
+				      "process_preload.fwdlist_data");
+			    }
 #ifndef MEMORY_BASED
-				cache_reset(0);
+			    cache_reset(0);
 #endif /* MEMORY_BASED */
 			}
 		}
@@ -1532,7 +1537,7 @@ static void NDECL(process_preload)
 		}
 
 	}
-	free_lbuf(fp);
+	XFREE(fp, "process_preload.fwdlist");
 	free_lbuf(tstr);
 }
 

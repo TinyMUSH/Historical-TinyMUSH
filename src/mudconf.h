@@ -284,7 +284,7 @@ struct badname_struc {
 typedef struct forward_list FWDLIST;
 struct forward_list {
 	int	count;
-	int	data[1000];
+	int	*data;
 };
 
 typedef struct statedata STATEDATA;
