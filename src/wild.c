@@ -45,6 +45,19 @@ static int check_literals(tstr, dstr)
     char pattern[LBUF_SIZE], data[LBUF_SIZE], *p, *dp, *ep;
     int len;
 
+    /* Fast match the beginning of the string. */
+
+    while ((*tstr != '*') && (*tstr != '?')) {
+	if (*tstr == '\\')
+	    tstr++;
+	if (NOTEQUAL(*dstr, *tstr))
+	    return 0;
+	if (!*dstr)
+	    return 1;
+	tstr++;
+	dstr++;
+    }
+
     /* Make a lower-case copy of the data. */
 
     ep = data;
