@@ -248,13 +248,6 @@ D_INC	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  vattr.h file_c.h alloc.h attrs.h mguests.h powers.h slave.h \
 	  regexp.h bitstring.h db_sql.h
 
-# Version number routine
-VER_SRC	= version.c
-VER_OBJ	= version.o
-VER_INC	= patchlevel.h
-VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
-	  -DMUSH_BUILD_NUM="\"`sh ./buildnum.sh`\""
-
 # Purify stuff.
 PUREDIR = /local/src/purify-4.0.1-sunos4
 PURIFYDIR = /local/rational/purify-4.2-sunos4
@@ -267,6 +260,15 @@ LIB_SRC =
 LIB_INC = 
 DEBUG	= $(OPTIM)
 ALLCFLAGS = $(CFLAGS) $(SQL_INC) $(DEBUG) $(DEFS) $(MISC_DEFS) $(COMPRESS_DEFS) $(BASED) $(MALLOC_DEFS) $(CONC_DEFS) $(VSIZE_F)
+
+# Version number routine
+VER_SRC	= version.c
+VER_OBJ	= version.o
+VER_INC	= patchlevel.h
+VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
+	  -DMUSH_BUILD_NUM="\"`sh ./buildnum.sh`\"" \
+	  -DMUSH_BUILD_COMPILER="\"$(CC)\"" \
+	  -DMUSH_BUILD_CFLAGS="\"$(ALLCFLAGS)\""
 
 #Auxiliary files
 A_INST	= CREDITS CHANGES CHANGES.TINY20 CHANGES.TINY22 CHANGES.MUX \

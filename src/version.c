@@ -1,9 +1,5 @@
-/*
- * version.c - version information 
- */
-/*
- * $Id$ 
- */
+/* version.c - version information */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -44,8 +40,8 @@
  */
 
 /*
- * TinyCWRU version.c file.  Add a comment here any time you've made a
- * * big enough revision to increment the TinyCWRU version #.
+ * TinyMUSH version.c file.  Add a comment here any time you've made a
+ * * big enough revision to increment the TinyMUSH version #.
  */
 
 void do_version(player, cause, extra)
@@ -55,10 +51,14 @@ int extra;
 	char *buff;
 
 	notify(player, mudstate.version);
-	buff = alloc_mbuf("do_version");
+	buff = alloc_lbuf("do_version");
 	sprintf(buff, "Build date: %s", MUSH_BUILD_DATE);
 	notify(player, buff);
-	free_mbuf(buff);
+	if (Wizard(player)) {
+	    sprintf(buff, "Build info: %s", mudstate.buildinfo);
+	    notify(player, buff);
+	}
+	free_lbuf(buff);
 }
 
 void NDECL(init_version)
@@ -98,10 +98,14 @@ void NDECL(init_version)
         */
 	STARTLOG(LOG_ALWAYS, "INI", "START")
 		log_text((char *)"Starting: ");
-	log_text(mudstate.version);
+		log_text(mudstate.version);
 	ENDLOG
-		STARTLOG(LOG_ALWAYS, "INI", "START")
+	STARTLOG(LOG_ALWAYS, "INI", "START")
 		log_text((char *)"Build date: ");
-	log_text((char *)MUSH_BUILD_DATE);
+		log_text((char *)MUSH_BUILD_DATE);
+	ENDLOG
+	STARTLOG(LOG_ALWAYS, "INI", "START")
+		log_text((char *)"Build info: ");
+		log_text(mudstate.buildinfo);
 	ENDLOG
 }
