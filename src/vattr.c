@@ -18,6 +18,7 @@
 
 static void FDECL(fixcase, (char *));
 static char FDECL(*store_string, (char *));
+extern int anum_alc_top;
 
 /*
  * Allocate space for strings in lumps this big. 
@@ -114,6 +115,7 @@ int key;
     int ca;
     char *as, *str;
     int *used_table;
+    ATTR **new_table;
 
     raw_broadcast(0,
 	      "GAME: Cleaning database. Game may freeze for a few minutes.");
@@ -208,6 +210,31 @@ int key;
 	;
     mudstate.attr_next = end;
 
+    /* We might be able to shrink the size of the attribute table.
+     * If the current size of the table is less than the initial
+     * size, shrink it back down to the initial size.
+     * Otherwise, shrink it down so it's the current top plus the
+     * initial size, as if we'd just called anum_extend() for it.
+     */
+
+    if (anum_alc_top > mudconf.init_size + A_USER_START) {
+	if (mudstate.attr_next < mudconf.init_size + A_USER_START) {
+	    end = mudconf.init_size + A_USER_START;
+	} else {
+	    end = mudstate.attr_next + mudconf.init_size;
+	}
+	if (end < anum_alc_top) {
+	    new_table = (ATTR **) XCALLOC(end + 1, sizeof(ATTR *),
+					  "dbclean.new_table");
+	    for (i = 0; i < mudstate.attr_next; i++)
+		new_table[i] = anum_table[i];
+	    XFREE(anum_table, "dbclean.anum_table");
+	    anum_table = new_table;
+	    anum_alc_top = end;
+	}
+    }
+
+    /* Clean up. */
 
     XFREE(used_table, "dbclean.used_table");
 
