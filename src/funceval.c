@@ -3419,6 +3419,7 @@ FUNCTION(fun_lparent)
 	dbref it;
 	dbref par;
 	char tbuf1[20];
+	int i;
 
 	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it)) {
@@ -3432,11 +3433,14 @@ FUNCTION(fun_lparent)
 	safe_str(tbuf1, buff, bufc);
 	par = Parent(it);
 
-	while (Good_obj(par) && Examinable(player, it)) {
-		sprintf(tbuf1, " #%d", par);
-		safe_str(tbuf1, buff, bufc);
-		it = par;
-		par = Parent(par);
+	i = 1;
+	while (Good_obj(par) && Examinable(player, it) &&
+	    (i < mudconf.parent_nest_lim)) {
+	    sprintf(tbuf1, " #%d", par);
+	    safe_str(tbuf1, buff, bufc);
+	    it = par;
+	    par = Parent(par);
+	    i++;
 	}
 }
 
