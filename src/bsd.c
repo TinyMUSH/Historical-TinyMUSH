@@ -1107,12 +1107,9 @@ void NDECL(set_signals)
 	signal(SIGXCPU, sighandler);
 #endif
 
-	signal(SIGILL, sighandler);
-#ifdef __linux__
 	signal(SIGFPE, SIG_IGN);
-#else
-	signal(SIGFPE, sighandler);
-#endif
+
+	signal(SIGILL, sighandler);
 	signal(SIGSEGV, sighandler);
 	signal(SIGABRT, sighandler);
 #ifdef SIGFSZ

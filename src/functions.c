@@ -403,11 +403,72 @@ dbref player, thing;
  */
 
 #ifdef FLOATING_POINTS
+#define FP_SIZE (1 + (sizeof(double) / sizeof(unsigned int)))
+#define FP_EXP_MATCH	0x1
+#define FP_EXP_ZERO	0x2
+#define FP_EXP_MISMATCH	0x4
+
+static int fp_check_weird(buff, bufc, result)
+char *buff, **bufc;
+double result;
+{
+	static unsigned int fp_sign_mask[FP_SIZE];
+	static unsigned int fp_exp_mask[FP_SIZE];
+	static unsigned int fp_val[FP_SIZE];
+	static int fp_initted = 0;
+	int i;
+	unsigned int fp_sign, fp_exp, fp_mant;
+	
+	if (!fp_initted) {
+		bzero(fp_sign_mask, sizeof(fp_sign_mask));
+		bzero(fp_exp_mask, sizeof(fp_exp_mask));
+		bzero(fp_val, sizeof(fp_val));
+		*((double *)fp_exp_mask) = (double) 1.0 / 0.0;
+		*((double *)fp_sign_mask) =
+		  	(double) -1.0 / *((double *)fp_exp_mask);
+		fp_initted = 1;
+	}
+
+	*((double *)fp_val) = result;
+
+	fp_sign = fp_exp = fp_mant = 0;
+	for (i = 0; (i < FP_SIZE) && !(fp_exp & FP_EXP_MISMATCH); i++) {
+		fp_sign |= (fp_sign_mask[i] & fp_val[i]);
+		fp_exp |= (fp_exp_mask[i] ?
+			   (((fp_exp_mask[i] & fp_val[i]) == fp_exp_mask[i]) ?
+			    FP_EXP_MATCH :
+			    (((fp_exp_mask[i] & fp_val[i]) == 0) ?
+			     FP_EXP_ZERO : FP_EXP_MISMATCH)) : 0);
+		fp_mant |= ((~(fp_sign_mask[i] | fp_exp_mask[i])) & fp_val[i]);
+	}
+	if (fp_exp == FP_EXP_ZERO) {
+		return 0;
+	}
+	if (fp_exp == FP_EXP_MATCH) {
+		if (fp_sign) {
+			safe_chr('-', buff, bufc);
+		}
+		if (fp_mant) {
+			safe_known_str("NaN", 3, buff, bufc);
+	  	} else {
+			safe_known_str("Inf", 3, buff, bufc);
+		}
+		return -1;
+	}
+	return 1;
+}
+
 static void fval(buff, bufc, result)
 char *buff, **bufc;
 double result;
 {
 	char *p, *buf1;
+
+	switch (fp_check_weird(buff, bufc, result)) {
+	case -1: return;
+	case 0:  result = 0.0;
+	default: break;
+	}
 
 	buf1 = *bufc;
 	safe_tprintf_str(buff, bufc, "%.6f", result);	/* get double val
@@ -428,6 +489,12 @@ double result;
 	if ((p != NULL) && (*(p + 1) == '\0')) {
 			*p = '\0';
 		*bufc = p;
+	}
+	/* Handle bogus result of "-0" from sprintf.  Yay, cclib. */
+
+	if (!strcmp(buf1, "-0")) {
+		*buf1 = '0';
+		*bufc = buf1 + 1;
 	}
 }
 #else
@@ -632,20 +699,16 @@ FUNCTION(fun_rand)
 
 FUNCTION(fun_abs)
 {
-#ifdef FLOATING_POINTS
-	double num;
+	NVAL num;
 
-	num = atof(fargs[0]);
-	if (num == 0.0) {
+	num = aton(fargs[0]);
+	if (num == 0) {
 		safe_chr('0', buff, bufc);
-	} else if (num < 0.0) {
+	} else if (num < 0) {
 		fval(buff, bufc, -num);
 	} else {
 		fval(buff, bufc, num);
 	}
-#else
-	ltos(buff, abs(atoi(fargs[0])));
-#endif
 }
 
 /* ---------------------------------------------------------------------------
@@ -2408,15 +2471,15 @@ FUNCTION(fun_t)
 
 FUNCTION(fun_sqrt)
 {
-	double val;
+	NVAL val;
 
-	val = atof(fargs[0]);
+	val = aton(fargs[0]);
 	if (val < 0) {
 		safe_str("#-1 SQUARE ROOT OF NEGATIVE", buff, bufc);
 	} else if (val == 0) {
 		safe_chr('0', buff, bufc);
 	} else {
-		fval(buff, bufc, sqrt(val));
+		fval(buff, bufc, sqrt((double)val));
 	}
 }
 
@@ -2461,17 +2524,59 @@ FUNCTION(fun_mul)
 
 FUNCTION(fun_floor)
 {
-	safe_tprintf_str(buff, bufc, "%.0f", floor(atof(fargs[0])));
+#ifdef FLOATING_POINTS
+	char *oldp;
+	NVAL x;
+
+	oldp = *bufc;
+	x = floor(aton(fargs[0]));
+	switch (fp_check_weird(buff, bufc, x)) {
+	case -1: return;
+	case 0:  x = 0.0;
+	default: break;
+	}
+	safe_tprintf_str(buff, bufc, "%.0f", x);
+	/* Handle bogus result of "-0" from sprintf.  Yay, cclib. */
+
+	if (!strcmp(oldp, "-0")) {
+		*oldp = '0';
+		*bufc = oldp + 1;
+	}
+#else
+	fval(buff, bufc, aton(fargs[0]));
+#endif
 }
 FUNCTION(fun_ceil)
 {
-	safe_tprintf_str(buff, bufc, "%.0f", ceil(atof(fargs[0])));
+#ifdef FLOATING_POINTS
+	char *oldp;
+	NVAL x;
+
+	oldp = *bufc;
+	x = ceil(aton(fargs[0]));
+	switch (fp_check_weird(buff, bufc, x)) {
+	case -1: return;
+	case 0:  x = 0.0;
+	default: break;
+	}
+	safe_tprintf_str(buff, bufc, "%.0f", x);
+	/* Handle bogus result of "-0" from sprintf.  Yay, cclib. */
+
+	if (!strcmp(oldp, "-0")) {
+		*oldp = '0';
+		*bufc = oldp + 1;
+	}
+#else
+	fval(buff, bufc, aton(fargs[0]));
+#endif
 }
 FUNCTION(fun_round)
 {
+#ifdef FLOATING_POINTS
 	const char *fstr;
 	char *oldp;
-	
+	NVAL x;
+
 	oldp = *bufc;
 	
 	switch (atoi(fargs[1])) {
@@ -2497,7 +2602,13 @@ FUNCTION(fun_round)
 		fstr = "%.0f";
 		break;
 	}
-	safe_tprintf_str(buff, bufc, (char *)fstr, atof(fargs[0]));
+	x = aton(fargs[0]);
+	switch (fp_check_weird(buff, bufc, x)) {
+	case -1: return;
+	case 0:  x = 0.0;
+	default: break;
+	}
+	safe_tprintf_str(buff, bufc, (char *)fstr, x);
 
 	/* Handle bogus result of "-0" from sprintf.  Yay, cclib. */
 
@@ -2505,11 +2616,27 @@ FUNCTION(fun_round)
 		*oldp = '0';
 		*bufc = oldp + 1;
 	}
+#else
+	fval(buff, bufc, aton(fargs[0]));
+#endif
 }
 
 FUNCTION(fun_trunc)
 {
-    safe_ltos(buff, bufc, atoi(fargs[0]));
+#ifdef FLOATING_POINTS
+	NVAL x;
+
+	x = aton(fargs[0]);
+	x = (x >= 0) ? floor(x) : ceil(x);
+	switch (fp_check_weird(buff, bufc, x)) {
+	case -1: return;
+	case 0:  x = 0.0;
+	default: break;
+	}
+	fval(buff, bufc, x);
+#else
+	fval(buff, bufc, aton(fargs[0]));
+#endif
 }
 
 FUNCTION(fun_div)
@@ -2526,13 +2653,13 @@ FUNCTION(fun_div)
 
 FUNCTION(fun_fdiv)
 {
-	double bot;
+	NVAL bot;
 
-	bot = atof(fargs[1]);
+	bot = aton(fargs[1]);
 	if (bot == 0) {
 		safe_str("#-1 DIVIDE BY ZERO", buff, bufc);
 	} else {
-		fval(buff, bufc, (atof(fargs[0]) / bot));
+		fval(buff, bufc, (aton(fargs[0]) / bot));
 	}
 }
 
@@ -2557,28 +2684,28 @@ FUNCTION(fun_e)
 
 FUNCTION(fun_sin)
 {
-	fval(buff, bufc, sin(atof(fargs[0])));
+	fval(buff, bufc, sin(aton(fargs[0])));
 }
 FUNCTION(fun_cos)
 {
-	fval(buff, bufc, cos(atof(fargs[0])));
+	fval(buff, bufc, cos(aton(fargs[0])));
 }
 FUNCTION(fun_tan)
 {
-	fval(buff, bufc, tan(atof(fargs[0])));
+	fval(buff, bufc, tan(aton(fargs[0])));
 }
 
 FUNCTION(fun_exp)
 {
-	fval(buff, bufc, exp(atof(fargs[0])));
+	fval(buff, bufc, exp(aton(fargs[0])));
 }
 
 FUNCTION(fun_power)
 {
-	double val1, val2;
+	NVAL val1, val2;
 
-	val1 = atof(fargs[0]);
-	val2 = atof(fargs[1]);
+	val1 = aton(fargs[0]);
+	val2 = aton(fargs[1]);
 	if (val1 < 0) {
 		safe_str("#-1 POWER OF NEGATIVE", buff, bufc);
 	} else {
@@ -2588,9 +2715,9 @@ FUNCTION(fun_power)
 
 FUNCTION(fun_ln)
 {
-	double val;
+	NVAL val;
 
-	val = atof(fargs[0]);
+	val = aton(fargs[0]);
 	if (val > 0)
 		fval(buff, bufc, log(val));
 	else
@@ -2599,15 +2726,15 @@ FUNCTION(fun_ln)
 
 FUNCTION(fun_log)
 {
-	double val, base;
+	NVAL val, base;
 
 	if (!fn_range_check("LOG", nfargs, 1, 2, buff, bufc))
 	    return;
 
-	val = atof(fargs[0]);
+	val = aton(fargs[0]);
 
 	if (nfargs == 2)
-	    base = atof(fargs[1]);
+	    base = aton(fargs[1]);
 	else
 	    base = 10;
 
@@ -2622,9 +2749,9 @@ FUNCTION(fun_log)
 
 FUNCTION(fun_asin)
 {
-	double val;
+	NVAL val;
 
-	val = atof(fargs[0]);
+	val = aton(fargs[0]);
 	if ((val < -1) || (val > 1)) {
 		safe_str("#-1 ASIN ARGUMENT OUT OF RANGE", buff, bufc);
 	} else {
@@ -2634,9 +2761,9 @@ FUNCTION(fun_asin)
 
 FUNCTION(fun_acos)
 {
-	double val;
+	NVAL val;
 
-	val = atof(fargs[0]);
+	val = aton(fargs[0]);
 	if ((val < -1) || (val > 1)) {
 		safe_str("#-1 ACOS ARGUMENT OUT OF RANGE", buff, bufc);
 	} else {
@@ -2646,7 +2773,7 @@ FUNCTION(fun_acos)
 
 FUNCTION(fun_atan)
 {
-	fval(buff, bufc, atan(atof(fargs[0])));
+	fval(buff, bufc, atan(aton(fargs[0])));
 }
 
 FUNCTION(fun_dist2d)
@@ -2698,7 +2825,7 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
     int flag;
 {
     char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
-    double scalar;
+    NVAL scalar;
     int n, m, i;
 
     /*
@@ -2721,18 +2848,18 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
 
     switch (flag) {
 	case VADD_F:
-	    fval(buff, bufc, atof(v1[0]) + atof(v2[0]));
+	    fval(buff, bufc, aton(v1[0]) + aton(v2[0]));
 	    for (i = 1; i < n; i++) {
 		print_sep(osep, buff, bufc);
-		fval(buff, bufc, atof(v1[i]) + atof(v2[i]));
+		fval(buff, bufc, aton(v1[i]) + aton(v2[i]));
 	    }
 	    return;
 	    /* NOTREACHED */
 	case VSUB_F:
-	    fval(buff, bufc, atof(v1[0]) - atof(v2[0]));
+	    fval(buff, bufc, aton(v1[0]) - aton(v2[0]));
 	    for (i = 1; i < n; i++) {
 		print_sep(osep, buff, bufc);
-		fval(buff, bufc, atof(v1[i]) - atof(v2[i]));
+		fval(buff, bufc, aton(v1[i]) - aton(v2[i]));
 	    }
 	    return;
 	    /* NOTREACHED */
@@ -2741,18 +2868,18 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
 	     * otherwise, multiply elementwise.
 	     */
 	    if (n == 1) {
-		scalar = atof(v1[0]);
-		fval(buff, bufc, atof(v2[0]) * scalar);
+		scalar = aton(v1[0]);
+		fval(buff, bufc, aton(v2[0]) * scalar);
 		for (i = 1; i < m; i++) {
 		    print_sep(osep, buff, bufc);
-		    fval(buff, bufc, atof(v2[i]) * scalar);
+		    fval(buff, bufc, aton(v2[i]) * scalar);
 		}
 	    } else if (m == 1) {
-		scalar = atof(v2[0]);
-		fval(buff, bufc, atof(v1[0]) * scalar);
+		scalar = aton(v2[0]);
+		fval(buff, bufc, aton(v1[0]) * scalar);
 		for (i = 1; i < n; i++) {
 		    print_sep(osep, buff, bufc);
-		    fval(buff, bufc, atof(v1[i]) * scalar);
+		    fval(buff, bufc, aton(v1[i]) * scalar);
 		}
 	    } else {
 		/* vector elementwise product.
@@ -2762,10 +2889,10 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
 		 * claims it's a dot product, but the actual behavior
 		 * isn't. We implement dot product separately!
 		 */
-		fval(buff, bufc, atof(v1[0]) * atof(v2[0]));
+		fval(buff, bufc, aton(v1[0]) * aton(v2[0]));
 		for (i = 1; i < n; i++) {
 		    print_sep(osep, buff, bufc);
-		    fval(buff, bufc, atof(v1[i]) * atof(v2[i]));
+		    fval(buff, bufc, aton(v1[i]) * aton(v2[i]));
 		}
 	    }
 	    return;
@@ -2773,7 +2900,7 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
 	case VDOT_F:
 	    scalar = 0;
 	    for (i = 0; i < n; i++) {
-		scalar += atof(v1[i]) * atof(v2[i]);
+		scalar += aton(v1[i]) * aton(v2[i]);
 	    }
 	    fval(buff, bufc, scalar);
 	    return;
@@ -2826,7 +2953,7 @@ FUNCTION(fun_vmag)
 {
     char *v1[LBUF_SIZE];
     int n, i;
-    double tmp, res = 0;
+    NVAL tmp, res = 0;
     char sep;
 
     varargs_preamble("VMAG", 2);
@@ -2843,7 +2970,7 @@ FUNCTION(fun_vmag)
      * calculate the magnitude 
      */
     for (i = 0; i < n; i++) {
-	tmp = atof(v1[i]);
+	tmp = aton(v1[i]);
 	res += tmp * tmp;
     }
 
@@ -2858,7 +2985,7 @@ FUNCTION(fun_vunit)
 {
     char *v1[LBUF_SIZE];
     int n, i;
-    double tmp, res = 0;
+    NVAL tmp, res = 0;
     char sep, osep;
 
     svarargs_preamble("VUNIT", 3);
@@ -2875,7 +3002,7 @@ FUNCTION(fun_vunit)
      * calculate the magnitude 
      */
     for (i = 0; i < n; i++) {
-	tmp = atof(v1[i]);
+	tmp = aton(v1[i]);
 	res += tmp * tmp;
     }
 
@@ -2885,10 +3012,10 @@ FUNCTION(fun_vunit)
 	return;
     }
     res = sqrt(res);
-    fval(buff, bufc, atof(v1[0]) / res);
+    fval(buff, bufc, aton(v1[0]) / res);
     for (i = 1; i < n; i++) {
 	print_sep(osep, buff, bufc);
-	fval(buff, bufc, atof(v1[i]) / res);
+	fval(buff, bufc, aton(v1[i]) / res);
     }
 }
 
@@ -2928,10 +3055,10 @@ FUNCTION(fun_comp)
 
 FUNCTION(fun_ncomp)
 {
-    int x, y;
+    NVAL x, y;
 
-    x = atoi(fargs[0]);
-    y = atoi(fargs[1]);
+    x = aton(fargs[0]);
+    y = aton(fargs[1]);
 
     if (x == y) {
 	safe_chr('0', buff, bufc);
@@ -5311,7 +5438,7 @@ int n, sort_type;
 		fp = (f_rec *) XMALLOC(n * sizeof(f_rec), "do_asort.3");
 		for (i = 0; i < n; i++) {
 			fp[i].str = s[i];
-			fp[i].data = atof(s[i]);
+			fp[i].data = aton(s[i]);
 		}
 		qsort((void *)fp, n, sizeof(f_rec), f_comp);
 		for (i = 0; i < n; i++) {
