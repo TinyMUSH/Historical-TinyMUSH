@@ -1346,7 +1346,7 @@ char *src, **dst, *from, *to;
 		    p = src;
 		    COPY_ANSI_STR;
 		    if (!have_normal)
-			safe_str(ANSI_NORMAL, *dst, &cp);
+			safe_ansi_normal(*dst, &cp);
 		}
 		*cp = '\0';
 	} else if (!strcmp(from, "$")) {
@@ -1372,7 +1372,7 @@ char *src, **dst, *from, *to;
 		    p = to;
 		    COPY_ANSI_STR;
 		    if (!have_normal)
-			safe_str(ANSI_NORMAL, *dst, &cp);
+			safe_ansi_normal(*dst, &cp);
 		}
 		*cp = '\0';
 	} else {
