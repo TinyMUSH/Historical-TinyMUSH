@@ -135,6 +135,7 @@ void NDECL(cf_init)
        	mudconf.name_spaces = 1;
 	mudconf.fork_dump = 0;
 	mudconf.fork_vfork = 0;
+	mudconf.dbopt_interval = 0;
 	mudconf.have_comsys = 1;
 	mudconf.have_mailer = 1;
 	mudconf.have_zones = 1;
@@ -1413,6 +1414,8 @@ CONF conftable[] = {
 	cf_int,         CA_GOD,         &mudconf.ntfy_nest_lim,		0},
 {(char *)"open_cost",
 	cf_int,		CA_GOD,		&mudconf.opencost,		0},
+{(char *)"opt_frequency",
+	cf_int,		CA_GOD,		&mudconf.dbopt_interval,	0},
 {(char *)"output_database",
 	cf_string,	CA_STATIC,	(int *)mudconf.outdb,		PBUF_SIZE},
 {(char *)"output_limit",

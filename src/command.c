@@ -2824,17 +2824,17 @@ static void list_params(player)
 	raw_notify(player, tprintf("  Logins...%d", mudconf.max_players));
 
     raw_notify(player,
-	tprintf("Nesting: Locks...%d  Parents...%d  Messages...%d  Zones...%d",
+       tprintf("Nesting:  Locks...%d  Parents...%d  Messages...%d  Zones...%d",
 		mudconf.lock_nest_lim, mudconf.parent_nest_lim,
 		mudconf.ntfy_nest_lim, mudconf.zone_nest_lim));
 
     raw_notify(player, 
-       tprintf("Timeouts: Idle...%d  Connect...%d  Tries...%d  Lag...%d",
+       tprintf("Timeouts:  Idle...%d  Connect...%d  Tries...%d  Lag...%d",
 	       mudconf.idle_timeout, mudconf.conn_timeout,
 	       mudconf.retry_limit, mudconf.max_cmdsecs));
 
     raw_notify(player,
-	   tprintf("Money: Start...%d  Daily...%d  Singular: %s  Plural: %s",
+	   tprintf("Money:  Start...%d  Daily...%d  Singular: %s  Plural: %s",
 		   mudconf.paystart, mudconf.paycheck,
 		   mudconf.one_coin, mudconf.many_coins));
     if (mudconf.payfind > 0)
@@ -2860,27 +2860,27 @@ static void list_params(player)
 			   mudconf.guest_char, mudstate.freelist));
 
 	raw_notify(player,
-	      tprintf("Queue run sizes: No net activity... %d  Activity... %d",
+	     tprintf("Queue run sizes:  No net activity... %d  Activity... %d",
 		      mudconf.queue_chunk, mudconf.active_q_chunk));
 
 	raw_notify(player,
-	       tprintf("Intervals: Dump...%d  Clean...%d  Idlecheck...%d",
+    tprintf("Intervals:  Dump...%d  Clean...%d  Idlecheck...%d  Optimize...%d",
 		       mudconf.dump_interval, mudconf.check_interval,
-		       mudconf.idle_interval));
+		       mudconf.idle_interval, mudconf.dbopt_interval));
 
 	raw_notify(player,
-	       tprintf("Timers: Dump...%d  Clean...%d  Idlecheck...%d",
+	       tprintf("Timers:  Dump...%d  Clean...%d  Idlecheck...%d",
 		       (int) (mudstate.dump_counter - now),
 		       (int) (mudstate.check_counter - now),
 		       (int) (mudstate.idle_counter - now)));
 
 	raw_notify(player,
-	  tprintf("Scheduling: Timeslice...%d  Max_Quota...%d  Increment...%d",
+	 tprintf("Scheduling:  Timeslice...%d  Max_Quota...%d  Increment...%d",
 		  mudconf.timeslice, mudconf.cmd_quota_max,
 		  mudconf.cmd_quota_incr));
 
 	raw_notify(player,
-		   tprintf("Size of %s cache: Width...%d  Depth...%d",
+		   tprintf("Size of %s cache:  Width...%d  Depth...%d",
 			   CACHING, mudconf.cache_width, mudconf.cache_depth));
     }
 }

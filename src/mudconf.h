@@ -27,6 +27,29 @@ struct confdata {
 	int	cache_depth;	/* Number of entries in each cache cell */
 	int	cache_width;	/* Number of cache cells */
 	int	cache_names;	/* Should object names be cached separately */
+	int	paylimit;	/* getting money gets hard over this much */
+	int	digcost;	/* cost of @dig command */
+	int	linkcost;	/* cost of @link command */
+	int	opencost;	/* cost of @open command */
+	int	robotcost;	/* cost of @robot command */
+	int	createmin;	/* default (and minimum) cost of @create cmd */
+	int	createmax;	/* max cost of @create command */
+	int	quotas;		/* TRUE = have building quotas */
+	int	room_quota;	/* quota needed to make a room */
+	int	exit_quota;	/* quota needed to make an exit */
+	int	thing_quota;	/* quota needed to make a thing */
+	int	player_quota;	/* quota needed to make a robot player */
+	int	sacfactor;	/* sacrifice earns (obj_cost/sfactor) + sadj */
+	int	sacadjust;	/* ... */
+	dbref	start_room;	/* initial location and home for players */
+	dbref	start_home;	/* initial HOME for players */
+	dbref	default_home;	/* HOME when home is inaccessable */
+	int	vattr_flags;	/* Attr flags for all user-defined attrs */
+	int	log_options;	/* What gets logged */
+	int	log_info;	/* Info that goes into log entries */
+	Uchar	markdata[8];	/* Masks for marking/unmarking */
+	int	ntfy_nest_lim;	/* Max nesting of notifys */
+	int	dbopt_interval; /* Optimize db every N dumps */
 #ifndef STANDALONE
 	char	indb[PBUF_SIZE];	/* database file name */
 	char	outdb[PBUF_SIZE];	/* checkpoint the database to here */
@@ -106,22 +129,15 @@ struct confdata {
 	int	output_limit;	/* Max # chars queued for output */
 	int	paycheck;	/* players earn this much each day connected */
 	int	paystart;	/* new players start with this much money */
-	int	paylimit;	/* getting money gets hard over this much */
 	int	start_quota;	/* Quota for new players */
 	int	start_room_quota;     /* Room quota for new players */
 	int	start_exit_quota;     /* Exit quota for new players */
 	int	start_thing_quota;    /* Thing quota for new players */
 	int	start_player_quota;   /* Player quota for new players */
 	int	payfind;	/* chance to find a penny with wandering */
-	int	digcost;	/* cost of @dig command */
-	int	linkcost;	/* cost of @link command */
-	int	opencost;	/* cost of @open command */
-	int	createmin;	/* default (and minimum) cost of @create cmd */
-	int	createmax;	/* max cost of @create command */
 	int	killmin;	/* default (and minimum) cost of kill cmd */
 	int	killmax;	/* max cost of kill command */
 	int	killguarantee;	/* cost of kill cmd that guarantees success */
-	int	robotcost;	/* cost of @robot command */
 	int	pagecost;	/* cost of @page command */
 	int	searchcost;	/* cost of commands that search the whole DB */
 	int	waitcost;	/* cost of @wait (refunded when finishes) */
@@ -131,15 +147,8 @@ struct confdata {
 	int	queue_chunk;	/* # cmds to run from queue when idle */
 	int	active_q_chunk;	/* # cmds to run from queue when active */
 	int	machinecost;	/* One in mc+1 cmds costs 1 penny (POW2-1) */
-	int	room_quota;	/* quota needed to make a room */
-	int	exit_quota;	/* quota needed to make an exit */
-	int	thing_quota;	/* quota needed to make a thing */
-	int	player_quota;	/* quota needed to make a robot player */
-	int	sacfactor;	/* sacrifice earns (obj_cost/sfactor) + sadj */
-	int	sacadjust;	/* ... */
 	int	clone_copy_cost;/* Does @clone copy value? */
 	int	use_hostname;	/* TRUE = use machine NAME rather than quad */
-	int	quotas;		/* TRUE = have building quotas */
 	int	typed_quotas;	/* TRUE = use quotas by type */
 	int	ex_flags;	/* TRUE = show flags on examine */
 	int	robot_speak;	/* TRUE = allow robots to speak in public */
@@ -194,9 +203,6 @@ struct confdata {
 				  * main command parser (local, global, zone;
 				  * pick random on ambiguous).
 				  */
-	dbref	start_room;	/* initial location and home for players */
-	dbref	start_home;	/* initial HOME for players */
-	dbref	default_home;	/* HOME when home is inaccessable */
 	dbref	master_room;	/* Room containing default cmds/exits/etc */
 	dbref	player_parent;	/* Parent that players start with */
 	dbref	room_parent;	/* Parent that rooms start with */
@@ -208,7 +214,6 @@ struct confdata {
 	FLAGSET	thing_flags;	/* Flags things start with */
 	FLAGSET	robot_flags;	/* Flags robots start with */
 	FLAGSET stripped_flags; /* Flags stripped by @clone and @chown */
-	int	vattr_flags;	/* Attr flags for all user-defined attrs */
 	int	abort_on_bug;	/* Dump core after logging a bug  DBG ONLY */
       	char	mud_name[SBUF_SIZE];	/* Name of the mud */
 	char	one_coin[SBUF_SIZE];	/* name of one coin (ie. "penny") */
@@ -218,12 +223,8 @@ struct confdata {
 	int	cmd_quota_incr;	/* Bump #cmds allowed by this each timeslice */
 	int	max_cmdsecs;	/* Threshhold for real time taken by command */
 	int	control_flags;	/* Global runtime control flags */
-	int	log_options;	/* What gets logged */
-	int	log_info;	/* Info that goes into log entries */
-	Uchar	markdata[8];	/* Masks for marking/unmarking */
 	int	func_nest_lim;	/* Max nesting of functions */
 	int	func_invk_lim;	/* Max funcs invoked by a command */
-	int	ntfy_nest_lim;	/* Max nesting of notifys */
 	int	lock_nest_lim;	/* Max nesting of lock evals */
 	int	parent_nest_lim;/* Max levels of parents */
 	int	zone_nest_lim;	/* Max nesting of zones */
@@ -231,28 +232,6 @@ struct confdata {
 	int	stack_lim;	/* Max number of items on an object stack */
 	int	struct_lim;	/* Max number of defined structures for obj */
 	int	instance_lim;	/* Max number of struct insances for obj */
-#else
-	int	paylimit;	/* getting money gets hard over this much */
-	int	digcost;	/* cost of @dig command */
-	int	opencost;	/* cost of @open command */
-	int	robotcost;	/* cost of @robot command */
-	int	createmin;	/* default (and minimum) cost of @create cmd */
-	int	createmax;	/* max cost of @create command */
-	int	sacfactor;	/* sacrifice earns (obj_cost/sfactor) + sadj */
-	int	sacadjust;	/* ... */
-	int	room_quota;	/* quota needed to make a room */
-	int	exit_quota;	/* quota needed to make an exit */
-	int	thing_quota;	/* quota needed to make a thing */
-	int	player_quota;	/* quota needed to make a robot player */
-	int	quotas;		/* TRUE = have building quotas */
-	int	start_room;	/* initial location and home for players */
-	int	start_home;	/* initial HOME for players */
-	int	default_home;	/* HOME when home is inaccessable */
-	int	vattr_flags;	/* Attr flags for all user-defined attrs */
-	int	log_options;	/* What gets logged */
-	int	log_info;	/* Info that goes into log entries */
-	Uchar	markdata[8];	/* Masks for marking/unmarking */
-	int	ntfy_nest_lim;	/* Max nesting of notifys */
 #endif	/* STANDALONE */
 };
 
