@@ -1617,14 +1617,14 @@ char *command, *args[];
 		    if (goto_cmdp->pre_hook != NULL) {
 			process_hook(goto_cmdp->pre_hook,
 				     goto_cmdp->callseq & CS_PRESERVE,
-				     player, cause, cargs, ncargs);
+				     player, cause, args, nargs);
 		    }
 		    move_exit(player, exit, 0, "You can't go that way.", 0);
 		    /* Execute the post-hook for the goto command */
 		    if (goto_cmdp->post_hook != NULL) {
 			process_hook(goto_cmdp->post_hook,
 				     goto_cmdp->callseq & CS_PRESERVE,
-				     player, cause, cargs, ncargs);
+				     player, cause, args, nargs);
 		    }
 		    mudstate.debug_cmd = cmdsave;
 		    return preserve_cmd;
@@ -1640,14 +1640,14 @@ char *command, *args[];
 		    if (goto_cmdp->pre_hook != NULL) {
 			process_hook(goto_cmdp->pre_hook,
 				     goto_cmdp->callseq & CS_PRESERVE,
-				     player, cause, cargs, ncargs);
+				     player, cause, args, nargs);
 		    }
 		    move_exit(player, exit, 1, NULL, 0);
 		    /* Execute the post-hook for the goto command */
 		    if (goto_cmdp->post_hook != NULL) {
 			process_hook(goto_cmdp->post_hook,
 				     goto_cmdp->callseq & CS_PRESERVE,
-				     player, cause, cargs, ncargs);
+				     player, cause, args, nargs);
 		    }
 		    mudstate.debug_cmd = cmdsave;
 		    return preserve_cmd;
