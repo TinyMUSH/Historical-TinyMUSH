@@ -2447,7 +2447,7 @@ FUNCTION(fun_round)
 
 FUNCTION(fun_trunc)
 {
-	safe_tprintf_str(buff, bufc, "%.0f", atof(fargs[0]));
+    safe_ltos(buff, bufc, atoi(fargs[0]));
 }
 
 FUNCTION(fun_div)
