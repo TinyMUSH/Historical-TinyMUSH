@@ -63,12 +63,14 @@ char ansi_lettab[I_ANSI_NUM] =
  * Trim off leading and trailing spaces if the separator char is a space
  */
 
-char *trim_space_sep(str, sep)
-char *str, sep;
+char *trim_space_sep(str, sep, sep_len)
+char *str;
+Delim sep;
+int sep_len;
 {
 	char *p;
 
-	if (sep != ' ' || !*str)
+	if ((sep_len > 1) || (sep.c != ' ') || !*str)
 		return str;
 	while (*str == ' ')
 		str++;
@@ -86,41 +88,62 @@ char *str, sep;
  *              destructively modified.
  */
 
-char *next_token(str, sep)
-char *str, sep;
+char *next_token(str, sep, sep_len)
+char *str;
+Delim sep;
+int sep_len;
 {
-	while (*str && (*str != sep))
+    char *p;
+
+    if (sep_len == 1) {
+	while (*str && (*str != sep.c))
 		str++;
 	if (!*str)
 		return NULL;
 	str++;
-	if (sep == ' ') {
-		while (*str == sep)
+	if (sep.c == ' ') {
+		while (*str == sep.c)
 			str++;
 	}
-	return str;
+    } else {
+	if ((p = strstr(str, sep.str)) == NULL)
+	    return NULL;
+	str = (char *)(p + sep_len);
+    }
+    return str;
 }
 
-char *split_token(sp, sep)
-char **sp, sep;
+char *split_token(sp, sep, sep_len)
+char **sp;
+Delim sep;
+int sep_len;
 {
-	char *str, *save;
+	char *str, *save, *p;
 
 	save = str = *sp;
 	if (!str) {
 		*sp = NULL;
 		return NULL;
 	}
-	while (*str && (*str != sep))
+	if (sep_len == 1) {
+	    while (*str && (*str != sep.c))
 		str++;
-	if (*str) {
+	    if (*str) {
 		*str++ = '\0';
-		if (sep == ' ') {
-			while (*str == sep)
+		if (sep.c == ' ') {
+			while (*str == sep.c)
 				str++;
 		}
-	} else {
+	    } else {
 		str = NULL;
+	    }
+	} else {
+	    if ((p = strstr(str, sep.str)) != NULL) {
+		*p = '\0';
+		str = (char *)(p + sep_len);
+	    } else {
+		str = NULL;
+	    }
 	}
 	*sp = str;
 	return save;
@@ -130,15 +153,17 @@ char **sp, sep;
  * Count the words in a delimiter-separated list.
  */
 
-int countwords(str, sep)
-char *str, sep;
+int countwords(str, sep, sep_len)
+char *str;
+Delim sep;
+int sep_len;
 {
 	int n;
 
-	str = trim_space_sep(str, sep);
+	str = trim_space_sep(str, sep, sep_len);
 	if (!*str)
 		return 0;
-	for (n = 0; str; str = next_token(str, sep), n++) ;
+	for (n = 0; str; str = next_token(str, sep, sep_len), n++) ;
 	return n;
 }
 
@@ -146,16 +171,18 @@ char *str, sep;
  * list2arr, arr2list: Convert lists to arrays and vice versa.
  */
 
-int list2arr(arr, maxlen, list, sep)
-char *arr[], *list, sep;
-int maxlen;
+int list2arr(arr, maxlen, list, sep, sep_len)
+char *arr[], *list;
+Delim sep;
+int maxlen, sep_len;
 {
 	char *p;
 	int i;
 
-	list = trim_space_sep(list, sep);
-	p = split_token(&list, sep);
-	for (i = 0; p && i < maxlen; i++, p = split_token(&list, sep)) {
+	list = trim_space_sep(list, sep, sep_len);
+	p = split_token(&list, sep, sep_len);
+	for (i = 0; p && i < maxlen;
+	     i++, p = split_token(&list, sep, sep_len)) {
 		arr[i] = p;
 	}
 	return i;
@@ -243,7 +270,8 @@ char **sp, sep, *ansi_state, **asp;
 }
 
 int list2ansi(arr, prior_state, maxlen, list, sep)
-    char *arr[], *prior_state, *list, sep;
+    char *arr[], *prior_state, *list;
+    Delim sep;
     int maxlen;
 {
     int i;
@@ -257,10 +285,10 @@ int list2ansi(arr, prior_state, maxlen, list, sep)
 	ansi_status[0] = '\0';
 	asp = ansi_status;
     }
-    list = trim_space_sep(list, sep);
-    p = split_ansi_state(&list, sep, ansi_status, &asp);
+    list = trim_space_sep(list, sep, 1);
+    p = split_ansi_state(&list, sep.c, ansi_status, &asp);
     for (i = 0; p && (i < maxlen);
-	 i++, p = split_ansi_state(&list, sep, ansi_status, &asp)) {
+	 i++, p = split_ansi_state(&list, sep.c, ansi_status, &asp)) {
 	arr[i] = XSTRDUP(ansi_status, "list2ansi");
     }
     return i;
@@ -393,8 +421,13 @@ dbref player, caller, cause;
 		   !strcmp(tstr, (char *) "\r\n")) {
 	    (*sep).c = '\r';
 	} else if (dflags & DELIM_STRING) {
-	    strcpy((*sep).str, tstr);
-	    retcode = tlen;
+	    if (tlen > MAX_DELIM_LEN) {
+		safe_str("#-1 SEPARATOR TOO LONG", buff, bufc);
+		retcode = 0;
+	    } else {
+		strcpy((*sep).str, tstr);
+		retcode = tlen;
+	    }
 	} else {
 	    safe_str("#-1 SEPARATOR MUST BE ONE CHARACTER",
 		     buff, bufc);
@@ -441,7 +474,7 @@ char *arg;
 			     (arg[2] == ' '));
 		}
 	}
-	temp2 = trim_space_sep(arg, ' ');
+	temp2 = Eat_Spaces(arg);
 	if (!*temp2)
 		return 0;
 	if (is_integer(temp2))

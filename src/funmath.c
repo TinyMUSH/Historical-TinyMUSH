@@ -246,13 +246,14 @@ FUNCTION(fun_ladd)
     NVAL sum;
     char *cp, *curr;
     Delim isep;
+    int isep_len;
 
     VaChk_Only_In("LADD", 2);
 
     sum = 0;
-    cp = trim_space_sep(fargs[0], isep.c);
+    cp = trim_space_sep(fargs[0], isep, isep_len);
     while (cp) {
-	curr = split_token(&cp, isep.c);
+	curr = split_token(&cp, isep, isep_len);
 	sum += aton(curr);
     }
     fval(buff, bufc, sum);
@@ -260,16 +261,16 @@ FUNCTION(fun_ladd)
 
 FUNCTION(fun_lor)
 {
-    int i;
+    int i, isep_len;
     char *cp, *curr;
     Delim isep;
 
     VaChk_Only_In("LOR", 2);
 
     i = 0;
-    cp = trim_space_sep(fargs[0], isep.c);
+    cp = trim_space_sep(fargs[0], isep, isep_len);
     while (cp && !i) {
-	curr = split_token(&cp, isep.c);
+	curr = split_token(&cp, isep, isep_len);
 	i = atoi(curr);
     }
     safe_bool(buff, bufc, (i != 0));
@@ -277,16 +278,16 @@ FUNCTION(fun_lor)
 
 FUNCTION(fun_land)
 {
-    int i;
+    int i, isep_len;
     char *cp, *curr;
     Delim isep;
 
     VaChk_Only_In("LAND", 2);
 
     i = 1;
-    cp = trim_space_sep(fargs[0], isep.c);
+    cp = trim_space_sep(fargs[0], isep, isep_len);
     while (cp && i) {
-	curr = split_token(&cp, isep.c);
+	curr = split_token(&cp, isep, isep_len);
 	i = atoi(curr);
     }
     safe_bool(buff, bufc, (i != 0));
@@ -294,16 +295,16 @@ FUNCTION(fun_land)
 
 FUNCTION(fun_lorbool)
 {
-    int i;
+    int i, isep_len;
     char *cp, *curr;
     Delim isep;
 
     VaChk_Only_In("LORBOOL", 2);
 
     i = 0;
-    cp = trim_space_sep(fargs[0], isep.c);
+    cp = trim_space_sep(fargs[0], isep, isep_len);
     while (cp && !i) {
-	curr = split_token(&cp, isep.c);
+	curr = split_token(&cp, isep, isep_len);
 	i = xlate(curr);
     }
     safe_bool(buff, bufc, (i != 0));
@@ -311,16 +312,16 @@ FUNCTION(fun_lorbool)
 
 FUNCTION(fun_landbool)
 {
-    int i;
+    int i, isep_len;
     char *cp, *curr;
     Delim isep;
 
     VaChk_Only_In("LANDBOOL", 2);
 
     i = 1;
-    cp = trim_space_sep(fargs[0], isep.c);
+    cp = trim_space_sep(fargs[0], isep, isep_len);
     while (cp && i) {
-	curr = split_token(&cp, isep.c);
+	curr = split_token(&cp, isep, isep_len);
 	i = xlate(curr);
     }
     safe_bool(buff, bufc, (i != 0));
@@ -331,15 +332,16 @@ FUNCTION(fun_lmax)
     NVAL max, val;
     char *cp, *curr;
     Delim isep;
+    int isep_len;
 
     VaChk_Only_In("LMAX", 2);
 
-    cp = trim_space_sep(fargs[0], isep.c);
+    cp = trim_space_sep(fargs[0], isep, isep_len);
     if (cp) {
-	curr = split_token(&cp, isep.c);
+	curr = split_token(&cp, isep, isep_len);
 	max = aton(curr);
 	while (cp) {
-	    curr = split_token(&cp, isep.c);
+	    curr = split_token(&cp, isep, isep_len);
 	    val = aton(curr);
 	    if (max < val)
 		max = val;
@@ -353,15 +355,16 @@ FUNCTION(fun_lmin)
     NVAL min, val;
     char *cp, *curr;
     Delim isep;
+    int isep_len;
 
     VaChk_Only_In("LMIN", 2);
 
-    cp = trim_space_sep(fargs[0], isep.c);
+    cp = trim_space_sep(fargs[0], isep, isep_len);
     if (cp) {
-	curr = split_token(&cp, isep.c);
+	curr = split_token(&cp, isep, isep_len);
 	min = aton(curr);
 	while (cp) {
-	    curr = split_token(&cp, isep.c);
+	    curr = split_token(&cp, isep, isep_len);
 	    val = aton(curr);
 	    if (min > val)
 		min = val;
@@ -937,14 +940,13 @@ FUNCTION(fun_dist3d)
 #define VCROSS_F 4
 
 static void handle_vectors(vecarg1, vecarg2, buff, bufc,
-			   sep, osep, osep_len, flag)
+			   isep, osep, isep_len, osep_len, flag)
     char *vecarg1;
     char *vecarg2;
     char *buff;
     char **bufc;
-    char sep;
-    Delim osep;
-    int osep_len, flag;
+    Delim isep, osep;
+    int isep_len, osep_len, flag;
 {
     char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
     NVAL scalar;
@@ -956,8 +958,8 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc,
     if (!vecarg1 || !*vecarg1 || !vecarg2 || !*vecarg2) {
 	return;
     }
-    n = list2arr(v1, LBUF_SIZE, vecarg1, sep);
-    m = list2arr(v2, LBUF_SIZE, vecarg2, sep);
+    n = list2arr(v1, LBUF_SIZE, vecarg1, isep, isep_len);
+    m = list2arr(v2, LBUF_SIZE, vecarg2, isep, isep_len);
 
     /* It's okay to have vmul() be passed a scalar first or second arg,
      * but everything else has to be same-dimensional.
@@ -1036,31 +1038,31 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc,
 FUNCTION(fun_vadd)
 {
     Delim isep, osep;
-    int osep_len;
+    int isep_len, osep_len;
 
     VaChk_Only_In_Out("VADD", 4);
     handle_vectors(fargs[0], fargs[1], buff, bufc,
-		   isep.c, osep, osep_len, VADD_F);
+		   isep, osep, isep_len, osep_len, VADD_F);
 }
 
 FUNCTION(fun_vsub)
 {
     Delim isep, osep;
-    int osep_len;
+    int isep_len, osep_len;
 
     VaChk_Only_In_Out("VSUB", 4);
     handle_vectors(fargs[0], fargs[1], buff, bufc,
-		   isep.c, osep, osep_len, VSUB_F);
+		   isep, osep, isep_len, osep_len, VSUB_F);
 }
 
 FUNCTION(fun_vmul)
 {
     Delim isep, osep;
-    int osep_len;
+    int isep_len, osep_len;
 
     VaChk_Only_In_Out("VMUL", 4);
     handle_vectors(fargs[0], fargs[1], buff, bufc,
-		   isep.c, osep, osep_len, VMUL_F);
+		   isep, osep, isep_len, osep_len, VMUL_F);
 }
 
 FUNCTION(fun_vdot)
@@ -1072,17 +1074,17 @@ FUNCTION(fun_vdot)
      */
 
     Delim isep, osep;
-    int osep_len;
+    int isep_len, osep_len;
 
     VaChk_Only_In_Out("VDOT", 4);
     handle_vectors(fargs[0], fargs[1], buff, bufc,
-		   isep.c, osep, osep_len, VDOT_F);
+		   isep, osep, isep_len, osep_len, VDOT_F);
 }
 
 FUNCTION(fun_vmag)
 {
     char *v1[LBUF_SIZE];
-    int n, i;
+    int n, i, isep_len;
     NVAL tmp, res = 0;
     Delim isep;
 
@@ -1094,7 +1096,7 @@ FUNCTION(fun_vmag)
     if (!fargs[0] || !*fargs[0]) {
 	return;
     }
-    n = list2arr(v1, LBUF_SIZE, fargs[0], isep.c);
+    n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
 
     /*
      * calculate the magnitude 
@@ -1114,7 +1116,7 @@ FUNCTION(fun_vmag)
 FUNCTION(fun_vunit)
 {
     char *v1[LBUF_SIZE];
-    int n, i, osep_len;
+    int n, i, isep_len, osep_len;
     NVAL tmp, res = 0;
     Delim isep, osep;
 
@@ -1126,7 +1128,7 @@ FUNCTION(fun_vunit)
     if (!fargs[0] || !*fargs[0]) {
 	return;
     }
-    n = list2arr(v1, LBUF_SIZE, fargs[0], isep.c);
+    n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
 
     /*
      * calculate the magnitude 
@@ -1152,12 +1154,13 @@ FUNCTION(fun_vunit)
 FUNCTION(fun_vdim)
 {
     Delim isep;
+    int isep_len;
 
     if (nfargs == 0) {
 	safe_chr('0', buff, bufc);
     } else {
 	VaChk_Only_In("VDIM", 2);
-	safe_ltos(buff, bufc, countwords(fargs[0], isep.c));
+	safe_ltos(buff, bufc, countwords(fargs[0], isep, isep_len));
     }
 }
 

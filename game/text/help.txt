@@ -5484,10 +5484,10 @@ delimiter is not, the output delimiter will default to the input
 delimiter, rather than defaulting to a space, EXCEPT for iter()
 and related functions, where the output delimiter defaults to space.
  
-Input delimiters are single characters. Output delimiters can usually
-also be @@ (null delimiter: just string all the output together, with
-no separator between each item), as well as multi-character strings,
-including '%r'.
+Input delimiters are single characters or (usually) multi-character
+strings. Output delimiters can usually also be @@ (null delimiter:
+just string all the output together, with no separator between each
+item), as well as multi-character strings, including '%r'.
  
 See examples:  iter(), map(), filter()
  

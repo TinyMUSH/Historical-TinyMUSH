@@ -23,6 +23,10 @@
 #define MAX_GLOBAL_REGS		36	/* r() registers: must be 10 or 36 */ 
 #endif
 
+#ifndef MAX_DELIM_LEN
+#define MAX_DELIM_LEN		128	/* Maximum length of a delimiter. */
+#endif
+
 #define MARK_FLAG_SEP		'_'	/* sep. of dbref from marker flags */
 
 #define HASH_FACTOR		2	/* How much hashing you want. */

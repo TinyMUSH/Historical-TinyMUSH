@@ -95,7 +95,7 @@ FUNCTION(fun_squish)
 	return;
     }
 
-    VaChk_Only_In("SQUISH", 2);
+    VaChk_Only_InPure("SQUISH", 2);
 
     bp = tp = fargs[0];
 
@@ -143,7 +143,7 @@ FUNCTION(fun_trim)
 	if (nfargs == 0) {
 		return;
 	}
-	VaChk_In("TRIM", 1, 3);
+	VaChk_InPure("TRIM", 1, 3);
 	if (nfargs >= 2) {
 		switch (tolower(*fargs[1])) {
 		case 'l':
@@ -208,7 +208,7 @@ FUNCTION(fun_after)
 		mp = (char *)" ";
 	mlen = strlen(mp);
 	if ((mlen == 1) && (*mp == ' '))
-		bp = trim_space_sep(bp, ' ');
+		bp = Eat_Spaces(bp);
 
 	/* Look for the target string */
 
@@ -267,7 +267,7 @@ FUNCTION(fun_before)
 		mp = (char *)" ";
 	mlen = strlen(mp);
 	if ((mlen == 1) && (*mp == ' '))
-		bp = trim_space_sep(bp, ' ');
+		bp = Eat_Spaces(bp);
 	ip = bp;
 
 	/* Look for the target string */
@@ -1266,7 +1266,7 @@ FUNCTION(fun_lpos)
 
 FUNCTION(fun_wordpos)
 {
-	int charpos, i;
+	int charpos, i, isep_len;
 	char *cp, *tp, *xp;
 	Delim isep;
 
@@ -1276,12 +1276,12 @@ FUNCTION(fun_wordpos)
 	cp = fargs[0];
 	if ((charpos > 0) && (charpos <= (int)strlen(cp))) {
 		tp = &(cp[charpos - 1]);
-		cp = trim_space_sep(cp, isep.c);
-		xp = split_token(&cp, isep.c);
+		cp = trim_space_sep(cp, isep, isep_len);
+		xp = split_token(&cp, isep, isep_len);
 		for (i = 1; xp; i++) {
 			if (tp < (xp + strlen(xp)))
 				break;
-			xp = split_token(&cp, isep.c);
+			xp = split_token(&cp, isep, isep_len);
 		}
 		safe_ltos(buff, bufc, i);
 		return;
@@ -1343,8 +1343,8 @@ static void border_helper(player, str, last_state,
     /* Carve up the list and find the ANSI state at the end of each word. */
 
     strcpy(tbuf, str);
-    nstates = list2ansi(states, last_state, LBUF_SIZE / 2, tbuf, ' ');
-    nwords = list2arr(words, LBUF_SIZE / 2, str, ' ');
+    nstates = list2ansi(states, last_state, LBUF_SIZE / 2, tbuf, SPACE_DELIM);
+    nwords = list2arr(words, LBUF_SIZE / 2, str, SPACE_DELIM, 1);
     if (nstates != nwords) {
 	for (i = 0; i < nstates; i++) {
 	    XFREE(states[i], "list2ansi");

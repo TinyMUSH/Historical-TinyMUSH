@@ -126,7 +126,7 @@ FUNCTION(fun_wildmatch)
      * to be -1. Fill them in.
      */
 
-    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
+    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i])
 	    curq = qidx_chartab[(unsigned char) *qregs[i]];
@@ -405,14 +405,14 @@ FUNCTION(fun_xvars)
     char *xvar_names[LBUF_SIZE / 2], *elems[LBUF_SIZE / 2];
     int n_xvars, n_elems;
     char *varlist, *elemlist;
-    int i;
+    int i, isep_len;
     Delim isep;
 
     VaChk_Only_In("XVARS", 3);
    
     varlist = alloc_lbuf("fun_xvars.vars");
     strcpy(varlist, fargs[0]);
-    n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, ' ');
+    n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, SPACE_DELIM, 1);
 
     if (n_xvars == 0) {
 	free_lbuf(varlist);
@@ -428,7 +428,7 @@ FUNCTION(fun_xvars)
 
     elemlist = alloc_lbuf("fun_xvars.elems");
     strcpy(elemlist, fargs[1]);
-    n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, isep.c);
+    n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, isep, isep_len);
 
     if (n_elems != n_xvars) {
 	safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
@@ -455,7 +455,7 @@ FUNCTION(fun_let)
     char *str, *bp, *p;
     char pre[SBUF_SIZE], tbuf[SBUF_SIZE], *tp;
     VARENT *xvar;
-    int i;
+    int i, isep_len;
     Delim isep;
 
     VaChk_Only_In("LET", 4);
@@ -468,7 +468,7 @@ FUNCTION(fun_let)
     exec(varlist, &bp, player, caller, cause,
 	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
     *bp = '\0';
-    n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, ' ');
+    n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, SPACE_DELIM, 1);
 
     if (n_xvars == 0) {
 	free_lbuf(varlist);
@@ -520,7 +520,7 @@ FUNCTION(fun_let)
 	exec(elemlist, &bp, player, caller, cause,
 	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
-	n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, isep.c);
+	n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, isep, isep_len);
 
 	if (n_elems != n_xvars) {
 	    safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
@@ -667,7 +667,7 @@ FUNCTION(fun_structure)
     char *type_array[LBUF_SIZE / 2];
     char *def_array[LBUF_SIZE / 2];
     int n_comps, n_types, n_defs;
-    int i, osep_len;
+    int i, isep_len, osep_len;
     STRUCTDEF *this_struct;
     COMPONENT *this_comp;
     int check_type = 0;
@@ -731,7 +731,7 @@ FUNCTION(fun_structure)
 
 
     comp_names = XSTRDUP(fargs[1], "struct.comps");
-    n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, ' ');
+    n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, SPACE_DELIM, 1);
 
     if (n_comps < 1) {
 	notify_quiet(player, "There must be at least one component.");
@@ -755,7 +755,7 @@ FUNCTION(fun_structure)
 
     type_names = alloc_lbuf("struct.types");
     strcpy(type_names, fargs[2]);
-    n_types = list2arr(type_array, LBUF_SIZE / 2, type_names, ' ');
+    n_types = list2arr(type_array, LBUF_SIZE / 2, type_names, SPACE_DELIM, 1);
 
     /* Make sure all types are valid. We look only at the first char, so
      * typos will not be caught.
@@ -782,7 +782,8 @@ FUNCTION(fun_structure)
 
     if (fargs[3] && *fargs[3]) {
 	default_vals = XSTRDUP(fargs[3], "struct.defaults");
-	n_defs = list2arr(def_array, LBUF_SIZE / 2, default_vals, isep.c);
+	n_defs = list2arr(def_array, LBUF_SIZE / 2, default_vals,
+			  isep, isep_len);
     } else {
 	default_vals = NULL;
 	n_defs = 0;
@@ -888,7 +889,7 @@ FUNCTION(fun_construct)
     char *comp_names, *init_vals;
     char *comp_array[LBUF_SIZE / 2], *vals_array[LBUF_SIZE / 2];
     int n_comps, n_vals;
-    int i;
+    int i, isep_len;
     COMPONENT *c_ptr;
     INSTANCE *inst_ptr;
     STRUCTDATA *d_ptr;
@@ -964,10 +965,12 @@ FUNCTION(fun_construct)
 
 	comp_names = alloc_lbuf("construct.comps");
 	strcpy(comp_names, fargs[2]);
-	n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, ' ');
+	n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names,
+			   SPACE_DELIM, 1);
 	init_vals = alloc_lbuf("construct.vals");
 	strcpy(init_vals, fargs[3]);
-	n_vals = list2arr(vals_array, LBUF_SIZE / 2, init_vals, isep.c);
+	n_vals = list2arr(vals_array, LBUF_SIZE / 2, init_vals,
+			  isep, isep_len);
 	if (n_comps != n_vals) {
 	    notify_quiet(player, "List sizes must be identical.");
 	    safe_chr('0', buff, bufc);
@@ -1088,6 +1091,7 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
     INSTANCE *inst_ptr;
     STRUCTDATA *d_ptr;
     int i;
+    Delim isep;
 
     /* Enforce limits. */
 
@@ -1141,11 +1145,13 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
     /* Chop up the raw stuff according to the delimiter. */
 
     if (use_def_delim)
-	sep = this_struct->delim;
+	isep.c = this_struct->delim;
+    else
+	isep.c = sep;
 
     val_list = alloc_lbuf("load.val_list");
     strcpy(val_list, raw_text);
-    n_vals = list2arr(val_array, LBUF_SIZE / 2, val_list, sep);
+    n_vals = list2arr(val_array, LBUF_SIZE / 2, val_list, isep, 1);
     if (n_vals != this_struct->c_count) {
 	notify_quiet(player, "Incorrect number of components.");
 	safe_chr('0', buff, bufc);
@@ -1201,7 +1207,7 @@ FUNCTION(fun_load)
 {
     Delim isep;
 
-    VaChk_Only_In("LOAD", 4);
+    VaChk_Only_InPure("LOAD", 4);
 
     load_structure(player, buff, bufc,
 		   fargs[0], fargs[1], fargs[2],
@@ -1243,7 +1249,7 @@ FUNCTION(fun_delimit)
      * by arbitrary strings.)
      */
 
-    VaChk_Only_In("DELIMIT", 3);
+    VaChk_Only_InPure("DELIMIT", 3);
     if (nfargs != 3)
 	isep.c = GENERIC_STRUCT_DELIM;
 
@@ -1253,7 +1259,7 @@ FUNCTION(fun_delimit)
     }
 
     atext = atr_pget(it, atr, &aowner, &aflags, &alen);
-    nitems = list2arr(ptrs, LBUF_SIZE / 2, atext, isep.c);
+    nitems = list2arr(ptrs, LBUF_SIZE / 2, atext, isep, 1);
     if (nitems) {
 	over = safe_str(ptrs[0], buff, bufc);
     }
@@ -1300,7 +1306,7 @@ FUNCTION(fun_modify)
     COMPONENT *c_ptr;
     STRUCTDATA *s_ptr;
     char *words[LBUF_SIZE / 2], *vals[LBUF_SIZE / 2];
-    int retval, nwords, nvals, i, n_mod;
+    int retval, nwords, nvals, i, n_mod, isep_len;
     Delim isep;
 
     VaChk_Only_In("MODIFY", 4);
@@ -1325,8 +1331,8 @@ FUNCTION(fun_modify)
 
     /* Process for each component in the list. */
 
-    nwords = list2arr(words, LBUF_SIZE / 2, fargs[1], ' ');
-    nvals = list2arr(vals, LBUF_SIZE / 2, fargs[2], isep.c);
+    nwords = list2arr(words, LBUF_SIZE / 2, fargs[1], SPACE_DELIM, 1);
+    nvals = list2arr(vals, LBUF_SIZE / 2, fargs[2], isep, isep_len);
 
     n_mod = 0;
     for (i = 0; i < nwords; i++) {
@@ -1447,7 +1453,7 @@ FUNCTION(fun_unload)
 {
     Delim isep;
 
-    VaChk_Only_In("UNLOAD", 2);
+    VaChk_Only_InPure("UNLOAD", 2);
     unload_structure(player, buff, bufc, fargs[0], isep.c,
 		     (nfargs != 2) ? 1 : 0);
 }
@@ -2044,12 +2050,12 @@ FUNCTION(fun_toss)
 FUNCTION(fun_popn)
 {
     dbref it;
-    int pos, nitems, i, count = 0, over = 0, first = 0;
+    int pos, nitems, i, osep_len, count = 0, over = 0, first = 0;
     STACK *sp, *tp, *xp;
     STACK *prev = NULL;
-    Delim isep;
+    Delim osep;
 
-    VaChk_Only_In("POPN", 4);
+    VaChk_Only_Out("POPN", 4);
 
     stack_object(player, it);
     pos = atoi(fargs[1]);
@@ -2078,7 +2084,7 @@ FUNCTION(fun_popn)
 	     * some copying if so.
 	     */
 	    if (!first) {
-		safe_chr(isep.c, buff, bufc);
+		print_sep(osep, osep_len, buff, bufc);
 		first = 1;
 	    }
 	    over = safe_str(tp->data, buff, bufc);
@@ -2136,13 +2142,13 @@ FUNCTION(fun_peek)
 
 FUNCTION(fun_lstack)
 {
-    Delim isep;
+    Delim osep;
     dbref it;
     STACK *sp;
     char *bp;
-    int over = 0, first = 1;
+    int osep_len, over = 0, first = 1;
 
-    VaChk_In("LSTACK", 0, 2);
+    VaChk_Out("LSTACK", 0, 2);
 
     if (!fargs[0]) {
 	it = player;
@@ -2153,7 +2159,7 @@ FUNCTION(fun_lstack)
     bp = buff;
     for (sp = stack_get(it); (sp != NULL) && !over; sp = sp->next) {
 	if (!first) {
-	    safe_chr(isep.c, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	} else {
 	    first = 0;
 	}
@@ -2309,7 +2315,7 @@ FUNCTION(fun_wildparse)
     if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS))
 	return;
 
-    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
+    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i])
 	    set_xvar(player, qregs[i], t_args[i]);
@@ -2360,7 +2366,7 @@ static void perform_regparse(buff, bufc, player, fargs, nfargs, case_option)
     subpatterns = pcre_exec(re, NULL, fargs[0], strlen(fargs[0]),
 			    0, 0, offsets, PCRE_MAX_OFFSETS);
 
-    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
+    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i]) {
 	    if (subpatterns < 0) {
@@ -2391,13 +2397,12 @@ FUNCTION(fun_regparsei)
  *             Derived from PennMUSH.
  */
 
-static void perform_regrab(buff, bufc, sep, osep, osep_len,
+static void perform_regrab(buff, bufc, isep, osep, isep_len, osep_len,
 			   player, fargs, nfargs,  
 			   case_option, all_option)
     char *buff, **bufc;
-    char sep;
-    Delim osep;
-    int osep_len;
+    Delim isep, osep;
+    int isep_len, osep_len;
     dbref player;
     char *fargs[];
     int nfargs, case_option, all_option;
@@ -2413,7 +2418,7 @@ static void perform_regrab(buff, bufc, sep, osep, osep_len,
 	pcre_maketables();
     }
 
-    s = trim_space_sep(fargs[0], sep);
+    s = trim_space_sep(fargs[0], isep, isep_len);
     bb_p = *bufc;
 
     if ((re = pcre_compile(fargs[1], case_option, &errptr, &erroffset,
@@ -2435,7 +2440,7 @@ static void perform_regrab(buff, bufc, sep, osep, osep_len,
     }
 
     do {
-	r = split_token(&s, sep);
+	r = split_token(&s, isep, isep_len);
 	if (pcre_exec(re, study, r, strlen(r), 0, 0,
 		      offsets, PCRE_MAX_OFFSETS) >= 0) {
 	    if (*bufc != bb_p) { /* if true, all_option also true */
@@ -2456,37 +2461,40 @@ static void perform_regrab(buff, bufc, sep, osep, osep_len,
 FUNCTION(fun_regrab)
 {
     Delim isep;
+    int isep_len;
 
     VaChk_Only_In("REGRAB", 3);
-    perform_regrab(buff, bufc, isep.c, ' ', 1, player, fargs, nfargs, 0, 0);
+    perform_regrab(buff, bufc, isep, ' ', isep_len, 1,
+		   player, fargs, nfargs, 0, 0);
 }
 
 FUNCTION(fun_regrabi)
 {
     Delim isep;
+    int isep_len;
 
     VaChk_Only_In("REGRABI", 3);
-    perform_regrab(buff, bufc, isep.c, ' ', 1, player, fargs, nfargs,
+    perform_regrab(buff, bufc, isep, ' ', isep_len, 1, player, fargs, nfargs,
 		   PCRE_CASELESS, 0);
 }
 
 FUNCTION(fun_regraball)
 {
     Delim isep, osep;
-    int osep_len;
+    int isep_len, osep_len;
 
     VaChk_Only_In_Out("REGRABALL", 4);
-    perform_regrab(buff, bufc, isep.c, osep, osep_len,
+    perform_regrab(buff, bufc, isep, osep, isep_len, osep_len,
 		   player, fargs, nfargs, 0, 1);
 }
 
 FUNCTION(fun_regraballi)
 {
     Delim isep, osep;
-    int osep_len;
+    int isep_len, osep_len;
 
     VaChk_Only_In_Out("REGRABALLI", 4);
-    perform_regrab(buff, bufc, isep.c, osep, osep_len,
+    perform_regrab(buff, bufc, isep, osep, isep_len, osep_len,
 		   player, fargs, nfargs, PCRE_CASELESS, 1);
 }
 
@@ -2561,7 +2569,7 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
     if (subpatterns == 0)
 	subpatterns = PCRE_MAX_OFFSETS / 3;
 
-    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
+    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i])
 	    curq = qidx_chartab[(unsigned char) *qregs[i]];
@@ -2606,7 +2614,7 @@ FUNCTION(fun_regmatchi)
 FUNCTION(fun_until)
 {
     Delim isep, osep;
-    int osep_len;
+    int isep_len, osep_len;
     dbref aowner1, thing1, aowner2, thing2;
     int aflags1, aflags2, anum1, anum2, alen1, alen2;
     ATTR *ap, *ap2;
@@ -2692,11 +2700,11 @@ FUNCTION(fun_until)
 
     for (i = 0; i < NUM_ENV_VARS; i++)
 	cp[i] = NULL;
-    cp[2] = trim_space_sep(fargs[2], isep.c);
-    nwords = count[2] = countwords(cp[2], isep.c);
+    cp[2] = trim_space_sep(fargs[2], isep, isep_len);
+    nwords = count[2] = countwords(cp[2], isep, isep_len);
     for (i = 3; i <= lastn; i++) {
-	cp[i] = trim_space_sep(fargs[i], isep.c);
-	count[i] = countwords(cp[i], isep.c);
+	cp[i] = trim_space_sep(fargs[i], isep, isep_len);
+	count[i] = countwords(cp[i], isep, isep_len);
 	if (count[i] > nwords)
 	    nwords = count[i];
     }
@@ -2708,7 +2716,7 @@ FUNCTION(fun_until)
 	 wc++) {
 	for (i = 2; i <= lastn; i++) {
 	    if (count[i]) {
-		os[i - 2] = split_token(&cp[i], isep.c);
+		os[i - 2] = split_token(&cp[i], isep, isep_len);
 	    } else {
 		tmpbuf[0] = '\0';
 		os[i - 2] = tmpbuf;

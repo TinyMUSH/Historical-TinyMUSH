@@ -24,6 +24,8 @@ extern NAMETAB access_nametab[];
 
 UFUN *ufun_head;
 
+Delim SPACE_DELIM;
+
 void NDECL(init_functab)
 {
 	FUN *fp;
@@ -36,6 +38,8 @@ void NDECL(init_functab)
 	}
 	ufun_head = NULL;
 	hashinit(&mudstate.ufunc_htab, 15 * HASH_FACTOR);
+
+	SPACE_DELIM.c = ' ';
 }
 
 void do_function(player, cause, key, fname, target)

@@ -125,13 +125,14 @@ char *dbr;
 FUNCTION(fun_words)
 {
 	Delim isep;
+	int isep_len;
 
 	if (nfargs == 0) {
 		safe_chr('0', buff, bufc);
 		return;
 	}
 	VaChk_Only_In("WORDS", 2);
-	safe_ltos(buff, bufc, countwords(fargs[0], isep.c));
+	safe_ltos(buff, bufc, countwords(fargs[0], isep, isep_len));
 }
 
 /* ---------------------------------------------------------------------------
@@ -142,6 +143,7 @@ FUNCTION(fun_first)
 {
 	char *s, *first;
 	Delim isep;
+	int isep_len;
 
 	/* If we are passed an empty arglist return a null string */
 
@@ -149,8 +151,8 @@ FUNCTION(fun_first)
 		return;
 	}
 	VaChk_Only_In("FIRST", 2);
-	s = trim_space_sep(fargs[0], isep.c);	/* leading spaces ... */
-	first = split_token(&s, isep.c);
+	s = trim_space_sep(fargs[0], isep, isep_len);	/* leading spaces */
+	first = split_token(&s, isep, isep_len);
 	if (first) {
 		safe_str(first, buff, bufc);
 	}
@@ -164,6 +166,7 @@ FUNCTION(fun_rest)
 {
 	char *s, *first;
 	Delim isep; 
+	int isep_len;
 
 	/* If we are passed an empty arglist return a null string */
 
@@ -171,8 +174,8 @@ FUNCTION(fun_rest)
 		return;
 	}
 	VaChk_Only_In("REST", 2);
-	s = trim_space_sep(fargs[0], isep.c);	/* leading spaces ... */
-	first = split_token(&s, isep.c);
+	s = trim_space_sep(fargs[0], isep, isep_len);	/* leading spaces */
+	first = split_token(&s, isep, isep_len);
 	if (s) {
 		safe_str(s, buff, bufc);
 	}
@@ -186,7 +189,7 @@ FUNCTION(fun_last)
 {
 	char *s, *last;
 	Delim isep;
-	int len, i;
+	int len, i, isep_len;
 
 	/* If we are passed an empty arglist return a null string */
 
@@ -194,21 +197,48 @@ FUNCTION(fun_last)
 		return;
 	}
 	VaChk_Only_In("LAST", 2);
-	s = trim_space_sep(fargs[0], isep.c);	/* trim leading spaces */
+	s = trim_space_sep(fargs[0], isep, isep_len);	/* leading spaces */
 
-	/* If we're dealing with spaces, trim off the trailing stuff */
+	if (isep_len == 1) {
 
-	if (isep.c == ' ') {
+	    /* If we're dealing with spaces, trim off the trailing stuff */
+
+	    if (isep.c == ' ') {
 		len = strlen(s);
 		for (i = len - 1; s[i] == ' '; i--) ;
 		if (i + 1 <= len)
 			s[i + 1] = '\0';
-	}
-	last = strrchr(s, isep.c);
-	if (last)
+	    }
+	    last = strrchr(s, isep.c);
+	    if (last)
 		safe_str(++last, buff, bufc);
-	else
+	    else
 		safe_str(s, buff, bufc);
+	    return;
+
+	} else {
+
+	    /* Walk backwards through the string to find the separator.
+	     * Find the last character, and compare the previous characters,
+	     * to find the separator. If we can't find the last character
+	     * or we know we're going to fall off the string, return
+	     * the original string.
+	     */
+
+	    if ((last = strrchr(s, (isep.str)[isep_len - 1])) == NULL) {
+		safe_str(s, buff, bufc);
+		return;
+	    }
+	    while (last >= s + isep_len - 1) {
+		if ((*last == (isep.str)[isep_len - 1]) &&
+		    !strncmp(isep.str, last - isep_len + 1, isep_len)) {
+		    safe_str(++last, buff, bufc);
+		    return;
+		}
+		last--;
+	    }
+	    safe_str(s, buff, bufc);
+	}
 }
 
 /* ---------------------------------------------------------------------------
@@ -218,7 +248,7 @@ FUNCTION(fun_last)
 
 FUNCTION(fun_match)
 {
-	int wcount;
+	int wcount, isep_len;
 	char *r, *s;
 	Delim isep;
 
@@ -229,9 +259,9 @@ FUNCTION(fun_match)
 	 */
 
 	wcount = 1;
-	s = trim_space_sep(fargs[0], isep.c);
+	s = trim_space_sep(fargs[0], isep, isep_len);
 	do {
-		r = split_token(&s, isep.c);
+		r = split_token(&s, isep, isep_len);
 		if (quick_wild(fargs[1], r)) {
 			safe_ltos(buff, bufc, wcount);
 			return;
@@ -243,7 +273,7 @@ FUNCTION(fun_match)
 
 FUNCTION(fun_matchall)
 {
-	int wcount, osep_len;
+	int wcount, isep_len, osep_len;
 	char *r, *s, *old;
 	Delim isep, osep;
 
@@ -264,9 +294,9 @@ FUNCTION(fun_matchall)
 	 */
 
 	wcount = 1;
-	s = trim_space_sep(fargs[0], isep.c);
+	s = trim_space_sep(fargs[0], isep, isep_len);
 	do {
-		r = split_token(&s, isep.c);
+		r = split_token(&s, isep, isep_len);
 		if (quick_wild(fargs[1], r)) {
 			if (old != *bufc) {
 			    print_sep(osep, osep_len, buff, bufc);
@@ -288,7 +318,7 @@ FUNCTION(fun_matchall)
 
 FUNCTION(fun_extract)
 {
-	int start, len;
+	int start, len, isep_len;
 	char *r, *s, *t;
 	Delim isep;
 
@@ -304,9 +334,9 @@ FUNCTION(fun_extract)
 	/* Skip to the start of the string to save */
 
 	start--;
-	s = trim_space_sep(s, isep.c);
+	s = trim_space_sep(s, isep, isep_len);
 	while (start && s) {
-		s = next_token(s, isep.c);
+		s = next_token(s, isep, isep_len);
 		start--;
 	}
 
@@ -320,14 +350,14 @@ FUNCTION(fun_extract)
 	r = s;
 	len--;
 	while (len && s) {
-		s = next_token(s, isep.c);
+		s = next_token(s, isep, isep_len);
 		len--;
 	}
 
 	/* Chop off the rest of the string, if needed */
 
 	if (s && *s)
-		t = split_token(&s, isep.c);
+		t = split_token(&s, isep, isep_len);
 	safe_str(r, buff, bufc);
 }
 
@@ -406,10 +436,10 @@ FUNCTION(fun_index)
 #define	IF_REPLACE	1
 #define	IF_INSERT	2
 
-static void do_itemfuns(buff, bufc, str, el, word, isep, flag)
+static void do_itemfuns(buff, bufc, str, el, word, isep, isep_len, flag)
 char *buff, **bufc, *str, *word;
 Delim isep;
-int el, flag;
+int el, isep_len, flag;
 {
 	int ct, overrun;
 	char *sptr, *iptr, *eptr;
@@ -441,19 +471,19 @@ int el, flag;
 			eptr = NULL;
 			iptr = NULL;
 		} else {
-			eptr = trim_space_sep(str, isep.c);
-			iptr = split_token(&eptr, isep.c);
+			eptr = trim_space_sep(str, isep, isep_len);
+			iptr = split_token(&eptr, isep, isep_len);
 		}
 	} else {
 		/* Break off 'before' portion */
 
-		sptr = eptr = trim_space_sep(str, isep.c);
+		sptr = eptr = trim_space_sep(str, isep, isep_len);
 		overrun = 1;
 		for (ct = el; ct > 2 && eptr;
-		     eptr = next_token(eptr, isep.c), ct--) ;
+		     eptr = next_token(eptr, isep, isep_len), ct--) ;
 		if (eptr) {
 			overrun = 0;
-			iptr = split_token(&eptr, isep.c);
+			iptr = split_token(&eptr, isep, isep_len);
 		}
 		/* If we didn't make it to the target element, just return
 		 * the string.  Insert is allowed to continue if we are 
@@ -468,7 +498,7 @@ int el, flag;
 		/* Split the 'target' word from the 'after' portion. */
 
 		if (eptr)
-			iptr = split_token(&eptr, isep.c);
+			iptr = split_token(&eptr, isep, isep_len);
 		else
 			iptr = NULL;
 	}
@@ -477,8 +507,9 @@ int el, flag;
 	case IF_DELETE:	/* deletion */
 		if (sptr) {
 			safe_str(sptr, buff, bufc);
-			if (eptr)
-				safe_chr(isep.c, buff, bufc);
+			if (eptr) {
+			    print_sep(isep, isep_len, buff, bufc);
+			}
 		}
 		if (eptr) {
 			safe_str(eptr, buff, bufc);
@@ -487,26 +518,26 @@ int el, flag;
 	case IF_REPLACE:	/* replacing */
 		if (sptr) {
 			safe_str(sptr, buff, bufc);
-			safe_chr(isep.c, buff, bufc);
+			print_sep(isep, isep_len, buff, bufc);
 		}
 		safe_str(word, buff, bufc);
 		if (eptr) {
-			safe_chr(isep.c, buff, bufc);
+			print_sep(isep, isep_len, buff, bufc);
 			safe_str(eptr, buff, bufc);
 		}
 		break;
 	case IF_INSERT:	/* insertion */
 		if (sptr) {
 			safe_str(sptr, buff, bufc);
-			safe_chr(isep.c, buff, bufc);
+			print_sep(isep, isep_len, buff, bufc);
 		}
 		safe_str(word, buff, bufc);
 		if (iptr) {
-			safe_chr(isep.c, buff, bufc);
+			print_sep(isep, isep_len, buff, bufc);
 			safe_str(iptr, buff, bufc);
 		}
 		if (eptr) {
-			safe_chr(isep.c, buff, bufc);
+			print_sep(isep, isep_len, buff, bufc);
 			safe_str(eptr, buff, bufc);
 		}
 		break;
@@ -516,25 +547,31 @@ int el, flag;
 FUNCTION(fun_ldelete)
 {				/* delete a word at position X of a list */
 	Delim isep;
+	int isep_len;
 
 	VaChk_Only_In("LDELETE", 3);
-	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), NULL, isep, IF_DELETE);
+	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), NULL,
+		    isep, isep_len, IF_DELETE);
 }
 
 FUNCTION(fun_replace)
 {				/* replace a word at position X of a list */
 	Delim isep;
+	int isep_len;
 
 	VaChk_Only_In("REPLACE", 4);
-	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), fargs[2], isep, IF_REPLACE);
+	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), fargs[2],
+		    isep, isep_len, IF_REPLACE);
 }
 
 FUNCTION(fun_insert)
 {				/* insert a word at position X of a list */
 	Delim isep;
+	int isep_len;
 
 	VaChk_Only_In("INSERT", 4);
-	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), fargs[2], isep, IF_INSERT);
+	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), fargs[2],
+		    isep, isep_len, IF_INSERT);
 }
 
 /* ---------------------------------------------------------------------------
@@ -543,12 +580,13 @@ FUNCTION(fun_insert)
 
 FUNCTION(fun_remove)
 {
-	char *s, *sp, *word;
+	char *s, *sp, *word, *bb_p;
 	Delim isep;
-	int first, found;
+	int found, isep_len;
 
 	VaChk_Only_In("REMOVE", 3);
-	if (strchr(fargs[1], isep.c)) {
+	if (((isep_len == 1) && strchr(fargs[1], isep.c)) ||
+	    ((isep_len > 1) && strstr(fargs[1], isep.str))) {
 		safe_str("#-1 CAN ONLY DELETE ONE ELEMENT", buff, bufc);
 		return;
 	}
@@ -561,14 +599,14 @@ FUNCTION(fun_remove)
 
 	sp = s;
 	found = 0;
-	first = 1;
+	bb_p = *bufc;
 	while (s) {
-		sp = split_token(&s, isep.c);
+		sp = split_token(&s, isep, isep_len);
 		if (found || strcmp(sp, word)) {
-			if (!first)
-				safe_chr(isep.c, buff, bufc);
+			if (*bufc != bb_p) {
+				print_sep(isep, isep_len, buff, bufc);
+			}
 			safe_str(sp, buff, bufc);
-			first = 0;
 		} else {
 			found = 1;
 		}
@@ -581,15 +619,15 @@ FUNCTION(fun_remove)
 
 FUNCTION(fun_member)
 {
-	int wcount;
+	int wcount, isep_len;
 	char *r, *s;
 	Delim isep;
 
 	VaChk_Only_In("MEMBER", 3);
 	wcount = 1;
-	s = trim_space_sep(fargs[0], isep.c);
+	s = trim_space_sep(fargs[0], isep, isep_len);
 	do {
-		r = split_token(&s, isep.c);
+		r = split_token(&s, isep, isep_len);
 		if (!strcmp(fargs[1], r)) {
 			safe_ltos(buff, bufc, wcount);
 			return;
@@ -605,9 +643,9 @@ FUNCTION(fun_member)
 
 FUNCTION(fun_revwords)
 {
-	char *temp, *tp, *t1;
+	char *bb_p, *elems[LBUF_SIZE / 2];
 	Delim isep;
-	int first;
+	int isep_len, n_elems, i;
 
 	/* If we are passed an empty arglist return a null string */
 
@@ -615,7 +653,6 @@ FUNCTION(fun_revwords)
 		return;
 	}
 	VaChk_Only_In("REVWORDS", 2);
-	temp = alloc_lbuf("fun_revwords");
 
 	/* Nasty bounds checking */
 
@@ -623,26 +660,16 @@ FUNCTION(fun_revwords)
 		*(fargs[0] + (LBUF_SIZE - (*bufc - buff) - 1)) = '\0';
 	}
 
-	/* Reverse the whole string */
+	/* Chop it up into an array of words and reverse them. */
 
-	do_reverse(fargs[0], temp);
-
-	/* Now individually reverse each word in the string.  This will
-	 * undo the reversing of the words (so the words themselves are
-	 * forwards again. 
-	 */
-
-	tp = temp;
-	first = 1;
-	while (tp) {
-		if (!first)
-			safe_chr(isep.c, buff, bufc);
-		t1 = split_token(&tp, isep.c);
-		do_reverse(t1, *bufc);
-		*bufc += strlen(t1);
-		first = 0;
+	n_elems = list2arr(elems, LBUF_SIZE / 2, fargs[0], isep, isep_len);
+	bb_p = *bufc;
+	for (i = n_elems - 1; i >= 0; i--) {
+	    if (*bufc != bb_p) {
+		print_sep(isep, isep_len, buff, bufc);
+	    }
+	    safe_str(elems[i], buff, bufc);
 	}
-	free_lbuf(temp);
 }
 
 /* ---------------------------------------------------------------------------
@@ -656,18 +683,18 @@ FUNCTION(fun_splice)
 {
 	char *p1, *p2, *q1, *q2, *bb_p;
 	Delim isep, osep;
-	int words, i, osep_len;
+	int words, i, isep_len, osep_len;
 
 	VaChk_Only_In_Out("SPLICE", 5);
 
 	/* length checks */
 
-	if (countwords(fargs[2], isep.c) > 1) {
+	if (countwords(fargs[2], isep, isep_len) > 1) {
 		safe_str("#-1 TOO MANY WORDS", buff, bufc);
 		return;
 	}
-	words = countwords(fargs[0], isep.c);
-	if (words != countwords(fargs[1], isep.c)) {
+	words = countwords(fargs[0], isep, isep_len);
+	if (words != countwords(fargs[1], isep, isep_len)) {
 		safe_str("#-1 NUMBER OF WORDS MUST BE EQUAL", buff, bufc);
 		return;
 	}
@@ -677,8 +704,8 @@ FUNCTION(fun_splice)
 	q1 = fargs[1];
 	bb_p = *bufc;
 	for (i = 0; i < words; i++) {
-		p2 = split_token(&p1, isep.c);
-		q2 = split_token(&q1, isep.c);
+		p2 = split_token(&p1, isep, isep_len);
+		q2 = split_token(&q1, isep, isep_len);
 		if (*bufc != bb_p) {
 		    print_sep(osep, osep_len, buff, bufc);
 		}
@@ -799,7 +826,7 @@ int n, sort_type;
 
 FUNCTION(fun_sort)
 {
-	int nitems, sort_type, osep_len;
+	int nitems, sort_type, isep_len, osep_len;
 	char *list;
 	Delim isep, osep;
 	char *ptrs[LBUF_SIZE / 2];
@@ -816,7 +843,7 @@ FUNCTION(fun_sort)
 
 	list = alloc_lbuf("fun_sort");
 	strcpy(list, fargs[0]);
-	nitems = list2arr(ptrs, LBUF_SIZE / 2, list, isep.c);
+	nitems = list2arr(ptrs, LBUF_SIZE / 2, list, isep, isep_len);
 	sort_type = get_list_type(fargs, nfargs, 2, ptrs, nitems);
 	do_asort(ptrs, nitems, sort_type);
 	arr2list(ptrs, nitems, buff, bufc, osep, osep_len);
@@ -933,7 +960,7 @@ FUNCTION(fun_sortby)
 {
 	char *atext, *list, *ptrs[LBUF_SIZE / 2];
 	Delim isep, osep;
-	int nptrs, aflags, alen, anum, osep_len;
+	int nptrs, aflags, alen, anum, isep_len, osep_len;
 	dbref thing, aowner;
 	ATTR *ap;
 
@@ -952,7 +979,7 @@ FUNCTION(fun_sortby)
 
 	list = alloc_lbuf("fun_sortby");
 	strcpy(list, fargs[1]);
-	nptrs = list2arr(ptrs, LBUF_SIZE / 2, list, isep.c);
+	nptrs = list2arr(ptrs, LBUF_SIZE / 2, list, isep, isep_len);
 
 	if (nptrs > 1)		/* pointless to sort less than 2 elements */
 		sane_qsort((void **)ptrs, 0, nptrs - 1, u_comp);
@@ -985,7 +1012,7 @@ FUNCTION(fun_sortby)
   ((s == FLOAT_LIST) ? NUMCMP(fp1[x1],fp2[x2]) : NUMCMP(ip1[x1],ip2[x2]))))
 
 static void handle_sets(fargs, nfargs, buff, bufc, oper, isep, osep,
-			osep_len, type_pos)
+			isep_len, osep_len, type_pos)
 char *fargs[], *buff, **bufc;
 Delim isep, osep;
 int nfargs, oper, osep_len, type_pos;
@@ -998,7 +1025,7 @@ int nfargs, oper, osep_len, type_pos;
 
 	list1 = alloc_lbuf("fun_setunion.1");
 	strcpy(list1, fargs[0]);
-	n1 = list2arr(ptrs1, LBUF_SIZE, list1, isep.c);
+	n1 = list2arr(ptrs1, LBUF_SIZE, list1, isep, isep_len);
 	if (type_pos == -1)
 	    sort_type = ALPHANUM_LIST;
 	else
@@ -1007,7 +1034,7 @@ int nfargs, oper, osep_len, type_pos;
 
 	list2 = alloc_lbuf("fun_setunion.2");
 	strcpy(list2, fargs[1]);
-	n2 = list2arr(ptrs2, LBUF_SIZE, list2, isep.c);
+	n2 = list2arr(ptrs2, LBUF_SIZE, list2, isep, isep_len);
 	do_asort(ptrs2, n2, sort_type);
 
 	/* This conversion is inefficient, since it's already happened
@@ -1198,66 +1225,66 @@ int nfargs, oper, osep_len, type_pos;
 FUNCTION(fun_setunion)
 {
 	Delim isep, osep;
-	int osep_len;
+	int isep_len, osep_len;
 
 	VaChk_Only_In_Out("SETUNION", 4);
 	handle_sets(fargs, nfargs, buff, bufc, SET_UNION,
-		    isep, osep, osep_len, -1);
+		    isep, osep, isep_len, osep_len, -1);
 	return;
 }
 
 FUNCTION(fun_setdiff)
 {
 	Delim isep, osep;
-	int osep_len;
+	int isep_len, osep_len;
 
 	VaChk_Only_In_Out("SETDIFF", 4);
 	handle_sets(fargs, nfargs, buff, bufc, SET_DIFF,
-		    isep, osep, osep_len, -1);
+		    isep, osep, isep_len, osep_len, -1);
 	return;
 }
 
 FUNCTION(fun_setinter)
 {
 	Delim isep, osep;
-	int osep_len;
+	int isep_len, osep_len;
 
 	VaChk_Only_In_Out("SETINTER", 4);
 	handle_sets(fargs, nfargs, buff, bufc, SET_INTERSECT,
-		    isep, osep, osep_len, -1);
+		    isep, osep, isep_len, osep_len, -1);
 	return;
 }
 
 FUNCTION(fun_lunion)
 {
 	Delim isep, osep;
-	int osep_len;
+	int isep_len, osep_len;
 
 	VaChk_In_Out("LUNION", 2, 5);
 	handle_sets(fargs, nfargs, buff, bufc, SET_UNION,
-		    isep, osep, osep_len, 3);
+		    isep, osep, isep_len, osep_len, 3);
 	return;
 }
 
 FUNCTION(fun_ldiff)
 {
 	Delim isep, osep;
-	int osep_len;
+	int isep_len, osep_len;
 
 	VaChk_In_Out("LDIFF", 2, 5);
 	handle_sets(fargs, nfargs, buff, bufc, SET_DIFF,
-		    isep, osep, osep_len, 3);
+		    isep, osep, isep_len, osep_len, 3);
 	return;
 }
 
 FUNCTION(fun_linter)
 {
 	Delim isep, osep;
-	int osep_len;
+	int isep_len, osep_len;
 
 	VaChk_In_Out("LINTER", 2, 5);
 	handle_sets(fargs, nfargs, buff, bufc, SET_INTERSECT,
-		    isep, osep, osep_len, 3);
+		    isep, osep, isep_len, osep_len, 3);
 	return;
 }
 
@@ -1272,6 +1299,7 @@ FUNCTION(fun_columns)
 	int isansi = 0, rturn = 1, cr = 0;
 	char *p, *q, *buf, *curr, *objstring, *bp, *cp, *str;
 	Delim isep;
+	int isep_len;
 
 	VaChk_Range("COLUMNS", 2, 4);
 	VaChk_InSep(3, DELIM_EVAL);
@@ -1298,7 +1326,7 @@ FUNCTION(fun_columns)
 	exec(curr, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
-	cp = trim_space_sep(cp, isep.c);
+	cp = trim_space_sep(cp, isep, isep_len);
 	if (!*cp) {
 		free_lbuf(curr);
 		return;
@@ -1310,7 +1338,7 @@ FUNCTION(fun_columns)
 	buf = alloc_lbuf("fun_columns");
 	
 	while (cp) {
-		objstring = split_token(&cp, isep.c);
+		objstring = split_token(&cp, isep, isep_len);
 		ansinumber = number;
 		striplen = strlen((char *) strip_ansi(objstring));
 		if (ansinumber > striplen)
@@ -1404,8 +1432,9 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 			  buff, bufc, key)
     char *list, *last_state;
     int n_cols, col_widths[];
-    char *lead_str, *trail_str, list_sep, *field_sep, pad_char;
-    char *buff, **bufc;
+    char *lead_str, *trail_str;
+    Delim list_sep;
+    char *field_sep, pad_char, *buff, **bufc;
     int key;
 {
     int i, nwords, nstates, cpos, wcount, over, have_normal;
@@ -1420,7 +1449,7 @@ static void tables_helper(list, last_state, n_cols, col_widths,
      */
     strcpy(tbuf, list);
     nstates = list2ansi(states, last_state, LBUF_SIZE / 2, tbuf, list_sep);
-    nwords = list2arr(words, LBUF_SIZE / 2, list, list_sep);
+    nwords = list2arr(words, LBUF_SIZE / 2, list, list_sep, 1);
     if (nstates != nwords) {
 	for (i = 0; i < nstates; i++) {
 	    XFREE(states[i], "list2ansi");
@@ -1548,8 +1577,9 @@ static void perform_tables(player, list, n_cols, col_widths,
     dbref player;
     char *list;
     int n_cols, col_widths[];
-    char *lead_str, *trail_str, list_sep, *field_sep, pad_char;
-    char *buff, **bufc;
+    char *lead_str, *trail_str;
+    Delim list_sep;
+    char *field_sep, pad_char, *buff, **bufc;
     int key;
 {
     char *p, *savep, *bb_p, last_state[LBUF_SIZE];
@@ -1557,8 +1587,8 @@ static void perform_tables(player, list, n_cols, col_widths,
     if (!list || !*list)
 	return;
 
-    if ((list_sep == ESC_CHAR) || (list_sep == ANSI_END)) {
-	notify_quiet(player, "#-1 ILLEGAL LIST SEPARATOR");
+    if ((list_sep.c == ESC_CHAR) || (list_sep.c == ANSI_END)) {
+	safe_str("#-1 ILLEGAL LIST SEPARATOR", buff, bufc);
 	return;
     }
 
@@ -1594,12 +1624,8 @@ static void process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
     char fs_buf[2], *widths[LBUF_SIZE / 2];  
     char **fseps = NULL;
 
-    if (!delim_check(fargs, nfargs, 5, &list_sep, buff, bufc,
-		     player, caller, cause, cargs, ncargs, 0))
-	return;
-    if (!delim_check(fargs, nfargs, 7, &pad_char, buff, bufc,
-		     player, caller, cause, cargs, ncargs, 0))
-	return;
+    VaChk_Sep(&list_sep, num, 5, 0);
+    VaChk_Sep(&pad_char, num, 7, 0);
 
     /* Handle the field separator. */
 
@@ -1608,7 +1634,10 @@ static void process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
 	fs_buf[1] = '\0';
     }
 
-    n_columns = list2arr(widths, LBUF_SIZE / 2, fargs[1], ' ');
+    n_columns = list2arr(widths, LBUF_SIZE / 2, fargs[1], SPACE_DELIM, 1);
+    if (n_columns < 1)
+	return;
+
     col_widths = (int *) XCALLOC(n_columns, sizeof(int), "fun_table.widths");
     for (i = 0; i < n_columns; i++) {
 	num = atoi(widths[i]);
@@ -1618,7 +1647,7 @@ static void process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
     perform_tables(player, fargs[0], n_columns, col_widths,
 		   ((nfargs > 2) && *fargs[2]) ? fargs[2] : NULL,
 		   ((nfargs > 3) && *fargs[3]) ? fargs[3] : NULL, 
-		   list_sep.c,
+		   list_sep,
 		   ((nfargs > 5) && *fargs[5]) ? fargs[5] : fs_buf,
 		   pad_char.c, buff, bufc, key);
 
@@ -1655,15 +1684,9 @@ FUNCTION(fun_table)
     char fs_buf[2];
 
     VaChk_Range("TABLE", 1, 6);
-    if (!delim_check(fargs, nfargs, 4, &list_sep, buff, bufc,
-		     player, caller, cause, cargs, ncargs, 0))
-	return;
-    if (!delim_check(fargs, nfargs, 5, &field_sep, buff, bufc,
-		     player, caller, cause, cargs, ncargs, 0))
-	return;
-    if (!delim_check(fargs, nfargs, 6, &pad_char, buff, bufc,
-		     player, caller, cause, cargs, ncargs, 0))
-	return;
+    VaChk_Sep(&list_sep, i, 4, 0);
+    VaChk_Sep(&field_sep, i, 5, 0);
+    VaChk_Sep(&pad_char, i, 6, 0);
 
     /* Get line length and column width. All columns are the same width.
      * Calculate what we need to.
@@ -1694,7 +1717,7 @@ FUNCTION(fun_table)
     fs_buf[0] = field_sep.c;
     fs_buf[1] = '\0'; 
     perform_tables(player, fargs[0], n_columns, col_widths, NULL, NULL,
-		   list_sep.c, fs_buf, pad_char.c, buff, bufc, TABLES_LJUST);
+		   list_sep, fs_buf, pad_char.c, buff, bufc, TABLES_LJUST);
 
     XFREE(col_widths, "fun_table.widths");
 }
@@ -1709,7 +1732,7 @@ FUNCTION(fun_table)
 /* Borrowed from PennMUSH 1.50 */
 FUNCTION(fun_elements)
 {
-	int nwords, cur, osep_len;
+	int nwords, cur, isep_len, osep_len;
 	char *ptrs[LBUF_SIZE / 2];
 	char *wordlist, *s, *r, *oldp;
 	Delim isep, osep;
@@ -1721,16 +1744,16 @@ FUNCTION(fun_elements)
 
 	wordlist = alloc_lbuf("fun_elements.wordlist");
 	strcpy(wordlist, fargs[0]);
-	nwords = list2arr(ptrs, LBUF_SIZE / 2, wordlist, isep.c);
+	nwords = list2arr(ptrs, LBUF_SIZE / 2, wordlist, isep, isep_len);
 
-	s = trim_space_sep(fargs[1], ' ');
+	s = Eat_Spaces(fargs[1]);
 
 	/* Go through the second list, grabbing the numbers and finding the
 	 * corresponding elements. 
 	 */
 
 	do {
-		r = split_token(&s, ' ');
+		r = split_token(&s, SPACE_DELIM, 1);
 		cur = atoi(r) - 1;
 		if ((cur >= 0) && (cur < nwords) && ptrs[cur]) {
 		    if (oldp != *bufc) {
@@ -1758,14 +1781,15 @@ FUNCTION(fun_grab)
 {
 	char *r, *s;
 	Delim isep;
+	int isep_len;
 
 	VaChk_Only_In("GRAB", 3);
 
 	/* Walk the wordstring, until we find the word we want. */
 
-	s = trim_space_sep(fargs[0], isep.c);
+	s = trim_space_sep(fargs[0], isep, isep_len);
 	do {
-		r = split_token(&s, isep.c);
+		r = split_token(&s, isep, isep_len);
 		if (quick_wild(fargs[1], r)) {
 			safe_str(r, buff, bufc);
 			return;
@@ -1777,14 +1801,14 @@ FUNCTION(fun_graball)
 {
     char *r, *s, *bb_p;
     Delim isep, osep;
-    int osep_len;
+    int isep_len, osep_len;
 
     VaChk_Only_In_Out("GRABALL", 4);
 
-    s = trim_space_sep(fargs[0], isep.c);
+    s = trim_space_sep(fargs[0], isep, isep_len);
     bb_p = *bufc;
     do {
-	r = split_token(&s, isep.c);
+	r = split_token(&s, isep, isep_len);
 	if (quick_wild(fargs[1], r)) {
 	    if (*bufc != bb_p) {
 		print_sep(osep, osep_len, buff, bufc);
@@ -1815,7 +1839,7 @@ char **q;
 FUNCTION(fun_shuffle)
 {
 	char *words[LBUF_SIZE];
-	int n, i, j, osep_len;
+	int n, i, j, isep_len, osep_len;
 	Delim isep, osep;
 
 	if (!nfargs || !fargs[0] || !*fargs[0]) {
@@ -1823,7 +1847,7 @@ FUNCTION(fun_shuffle)
 	}
 	VaChk_Only_In_Out("SHUFFLE", 3);
 
-	n = list2arr(words, LBUF_SIZE, fargs[0], isep.c);
+	n = list2arr(words, LBUF_SIZE, fargs[0], isep, isep_len);
 
 	for (i = 0; i < n; i++) {
 		j = (random() % (n - i)) + i;
@@ -1843,7 +1867,7 @@ FUNCTION(fun_ledit)
 {
     Delim isep, osep;
     char *old_list, *new_list;
-    int nptrs_old, nptrs_new, osep_len;
+    int nptrs_old, nptrs_new, isep_len, osep_len;
     char *ptrs_old[LBUF_SIZE / 2], *ptrs_new[LBUF_SIZE / 2];
     char *r, *s, *bb_p;
     int i;
@@ -1855,18 +1879,18 @@ FUNCTION(fun_ledit)
     new_list = alloc_lbuf("fun_ledit.new");
     strcpy(old_list, fargs[1]);
     strcpy(new_list, fargs[2]);
-    nptrs_old = list2arr(ptrs_old, LBUF_SIZE / 2, old_list, isep.c);
-    nptrs_new = list2arr(ptrs_new, LBUF_SIZE / 2, new_list, isep.c);
+    nptrs_old = list2arr(ptrs_old, LBUF_SIZE / 2, old_list, isep, isep_len);
+    nptrs_new = list2arr(ptrs_new, LBUF_SIZE / 2, new_list, isep, isep_len);
 
     /* Iterate through the words. */
 
     bb_p = *bufc;
-    s = trim_space_sep(fargs[0], isep.c);
+    s = trim_space_sep(fargs[0], isep, isep_len);
     do {
 	if (*bufc != bb_p) {
 	    print_sep(osep, osep_len, buff, bufc);
 	}
-	r = split_token(&s, isep.c);
+	r = split_token(&s, isep, isep_len);
 	for (i = 0, got_it = 0; i < nptrs_old; i++) {
 	    if (!strcmp(r, ptrs_old[i])) {
 		got_it = 1;

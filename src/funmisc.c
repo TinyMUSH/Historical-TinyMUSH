@@ -307,9 +307,7 @@ FUNCTION(fun_lrand)
 
     /* Special: the delim is really an output delim. */
 
-    if (!fn_range_check("LRAND", nfargs, 3, 4, buff, bufc))
-	return;
-    VaChk_OutSep(4, 0);
+    VaChk_Only_Out("LRAND", 4);
 
     /* If we're generating no numbers, since this is a list function,
      * we return empty, rather than returning 0.
@@ -383,8 +381,7 @@ FUNCTION(fun_lnum)
     /* lnum() is special, since its single delimiter is really an output
      * delimiter.
      */
-    VaChk_Range("LNUM", 1, 3);
-    VaChk_OutSep(3, 0);
+    VaChk_Out("LNUM", 1, 3);
 
     if (nfargs >= 2) {
 	bot = atoi(fargs[0]);
@@ -963,7 +960,7 @@ FUNCTION(fun_create)
 	char *name;
 	Delim isep;
 
-	VaChk_Only_In("CREATE", 3);
+	VaChk_Only_InPure("CREATE", 3);
 	name = fargs[0];
 
 	if (!name || !*name) {

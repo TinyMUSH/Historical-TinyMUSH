@@ -2161,9 +2161,10 @@ FUNCTION(fun_comlist)
 {
     CHANNEL *chp;
     char *bb_p;
-    Delim isep;
+    Delim osep;
+    int osep_len;
 
-    VaChk_Only_In("COMLIST", 1);
+    VaChk_Only_Out("COMLIST", 1);
 
     bb_p = *bufc;
     for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
@@ -2172,7 +2173,7 @@ FUNCTION(fun_comlist)
 	if ((chp->flags & CHAN_FLAG_PUBLIC) ||
 	    Comm_All(player) || (chp->owner == player)) {
 	    if (*bufc != bb_p)
-		safe_chr(isep.c, buff, bufc);
+		print_sep(osep, osep_len, buff, bufc);
 	    safe_str(chp->name, buff, bufc);
 	}
     }
