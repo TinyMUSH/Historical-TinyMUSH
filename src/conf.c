@@ -118,7 +118,7 @@ void NDECL(cf_init)
 #endif
 	mudconf.indent_desc = 0;
        	mudconf.name_spaces = 1;
-	mudconf.fork_dump = 1;
+	mudconf.fork_dump = 0;
 	mudconf.fork_vfork = 0;
 	mudconf.have_comsys = 1;
 	mudconf.have_mailer = 1;
