@@ -208,7 +208,7 @@ void NDECL(init_powertab)
 	nbuf = alloc_sbuf("init_powertab");
 	for (fp = gen_powers; fp->powername; fp++) {
 		for (np = nbuf, bp = (char *)fp->powername; *bp; np++, bp++)
-			*np = ToLower(*bp);
+			*np = tolower(*bp);
 		*np = '\0';
 		hashadd(nbuf, (int *)fp, &mudstate.powers_htab);
 	}
@@ -252,7 +252,7 @@ char *powername;
 	 */
 
 	for (cp = powername; *cp; cp++)
-		*cp = ToLower(*cp);
+		*cp = tolower(*cp);
 	return (POWERENT *) hashfind(powername, &mudstate.powers_htab);
 }
 

@@ -197,7 +197,7 @@ char *s;
 	char *p;
 
 	for (p = s; p && *p; p++)
-		*p = ToUpper(*p);
+		*p = toupper(*p);
 	return s;
 }
 
@@ -304,17 +304,17 @@ const char *s1, *s2;
 {
 #ifndef STANDALONE
 	if (!mudconf.space_compress) {
-		while (*s1 && *s2 && ToLower(*s1) == ToLower(*s2))
+		while (*s1 && *s2 && tolower(*s1) == tolower(*s2))
 			s1++, s2++;
 
-		return (ToLower(*s1) - ToLower(*s2));
+		return (tolower(*s1) - tolower(*s2));
 	} else {
 #endif
 		while (isspace(*s1))
 			s1++;
 		while (isspace(*s2))
 			s2++;
-		while (*s1 && *s2 && ((ToLower(*s1) == ToLower(*s2)) ||
+		while (*s1 && *s2 && ((tolower(*s1) == tolower(*s2)) ||
 				      (isspace(*s1) && isspace(*s2)))) {
 			if (isspace(*s1) && isspace(*s2)) {	/* skip all 
 								 * other spaces 
@@ -353,7 +353,7 @@ const char *string, *prefix;
 {
 	int count = 0;
 
-	while (*string && *prefix && ToLower(*string) == ToLower(*prefix))
+	while (*string && *prefix && tolower(*string) == tolower(*prefix))
 		string++, prefix++, count++;
 	if (*prefix == '\0')	/* Matched all of prefix */
 		return (count);
@@ -516,7 +516,7 @@ int minmatch(str, target, min)
 char *str, *target;
 int min;
 {
-	while (*str && *target && (ToLower(*str) == ToLower(*target))) {
+	while (*str && *target && (tolower(*str) == tolower(*target))) {
 		str++;
 		target++;
 		min--;
@@ -681,7 +681,7 @@ char *str, *pattern;
 
 	while (*pattern) {
 		for (s = str;	/* check out this one */
-		     (*s && (ToLower(*s) == ToLower(*pattern)) &&
+		     (*s && (tolower(*s) == tolower(*pattern)) &&
 		      *pattern && (*pattern != EXIT_DELIMITER));
 		     s++, pattern++) ;
 

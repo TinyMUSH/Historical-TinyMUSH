@@ -1427,7 +1427,7 @@ void do_logwrite(player, cause, key, msgtype, message)
 	if (strlen(msgtype) > 5)
 	    msgtype[5] = '\0';
 	for (p = msgtype; *p; p++)
-	    *p = ToUpper(*p);
+	    *p = toupper(*p);
 	mt = (const char *) msgtype;
 	msg = message;
     }

@@ -734,7 +734,7 @@ void do_hook(player, cause, key, cmdname, target)
     int atr, aflags;
 
     for (p = cmdname; p && *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     if (!cmdname ||
 	((cmdp = (CMDENT *) hashfind(cmdname,
 				     &mudstate.command_htab)) == NULL) ||

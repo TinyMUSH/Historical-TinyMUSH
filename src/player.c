@@ -419,7 +419,7 @@ char *name;
 	tp = temp = alloc_lbuf("add_player_name");
 	safe_str(name, temp, &tp);
 	for (tp = temp; *tp; tp++)
-		*tp = ToLower(*tp);
+		*tp = tolower(*tp);
 
 	p = (int *)hashfind(temp, &mudstate.player_htab);
 	if (p) {
@@ -470,7 +470,7 @@ char *name;
 	tp = temp = alloc_lbuf("delete_player_name");
 	safe_str(name, temp, &tp);
 	for (tp = temp; *tp; tp++)
-		*tp = ToLower(*tp);
+		*tp = tolower(*tp);
 	p = (int *)hashfind(temp, &mudstate.player_htab);
 	if (!p || (*p == NOTHING) || ((player != NOTHING) && (*p != player))) {
 		free_lbuf(temp);
@@ -507,7 +507,7 @@ int check_who;
 	tp = temp = alloc_lbuf("lookup_player");
 	safe_str(name, temp, &tp);
 	for (tp = temp; *tp; tp++)
-		*tp = ToLower(*tp);
+		*tp = tolower(*tp);
 	p = (int *)hashfind(temp, &mudstate.player_htab);
 	free_lbuf(temp);
 	if (!p) {

@@ -90,7 +90,7 @@ char *fargs[], *ptrs[];
 int nfargs, nitems, type_pos;
 {
 	if (nfargs >= type_pos) {
-		switch (ToLower(*fargs[type_pos - 1])) {
+		switch (tolower(*fargs[type_pos - 1])) {
 		case 'd':
 			return DBREF_LIST;
 		case 'n':

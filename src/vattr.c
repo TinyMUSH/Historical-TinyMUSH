@@ -225,7 +225,7 @@ char *name;
 	char *cp = name;
 
 	while (*cp) {
-		*cp = ToUpper(*cp);
+		*cp = toupper(*cp);
 		cp++;
 	}
 

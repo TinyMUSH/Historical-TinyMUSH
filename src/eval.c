@@ -724,7 +724,7 @@ char *cargs[];
 			        (*dstr)++;
 				/* Check for %_<varname> */
 				if (**dstr != '<') {
-				    ch = ToLower(**dstr);
+				    ch = tolower(**dstr);
 				    if (!**dstr)
 					(*dstr)--;
 				    if (!isalnum(ch))
@@ -745,7 +745,7 @@ char *cargs[];
 				    safe_chr('.', xtbuf, &xtp);
 				    while (**dstr && (**dstr != '>')) {
 					/* Copy. No interpretation. */
-					ch = ToLower(**dstr);
+					ch = tolower(**dstr);
 					safe_sb_chr(ch, xtbuf, &xtp);
 					(*dstr)++;
 				    }
@@ -767,7 +767,7 @@ char *cargs[];
 			case 'V':	/* Variable attribute */
 			case 'v':
 				(*dstr)++;
-				ch = ToUpper(**dstr);
+				ch = toupper(**dstr);
 				if (!**dstr)
 					(*dstr)--;
 				if ((ch < 'A') || (ch > 'Z'))
@@ -862,7 +862,7 @@ char *cargs[];
 				safe_chr(**dstr, buff, bufc);
 			}
 			if (isupper(savec))
-				*savepos = ToUpper(*savepos);
+				*savepos = toupper(*savepos);
 			break;
 		case '(':
 			/* Arglist start.  See if what precedes is a
@@ -889,7 +889,7 @@ char *cargs[];
 				*xtp = '\0';
 			}
 			for (xtp = xtbuf; *xtp; xtp++)
-				*xtp = ToLower(*xtp);
+				*xtp = tolower(*xtp);
 			fp = (FUN *) hashfind(xtbuf, &mudstate.func_htab);
 
 			/* If not a builtin func, check for global func */

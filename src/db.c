@@ -833,7 +833,7 @@ char *aname, *value;
 	for (p = buff, q = aname;
 	     *q && ((p - buff) < (VNAME_SIZE - 1));
 	     p++, q++)
-		*p = ToUpper(*q);
+		*p = toupper(*q);
 	*p = '\0';
 
 	va = (VATTR *) vattr_find(buff);
@@ -848,7 +848,7 @@ char *aname, *value;
 		/* Modify access to user-named attribute */
 
 		for (sp = value; *sp; sp++)
-			*sp = ToUpper(*sp);
+			*sp = toupper(*sp);
 		sp = strtok_r(value, " ", &tokst);
 		success = 0;
 		while (sp != NULL) {
@@ -1042,7 +1042,7 @@ void NDECL(init_attrtab)
 		anum_extend(a->number);
 		anum_set(a->number, a);
 		for (p = buff, q = (char *)a->name; *q; p++, q++)
-			*p = ToUpper(*q);
+			*p = toupper(*q);
 		*p = '\0';
 		hashadd(buff, (int *)a, &mudstate.attr_name_htab);
 	}
@@ -1065,7 +1065,7 @@ char *s;
 
 	buff = alloc_sbuf("atr_str");
 	for (p = buff, q = s; *q && ((p - buff) < (VNAME_SIZE - 1)); p++, q++)
-		*p = ToUpper(*q);
+		*p = toupper(*q);
 	*p = '\0';
 
 	/* Look for a predefined attribute */
@@ -1112,7 +1112,7 @@ char *s;
 	
 	buff = alloc_sbuf("atr_str");
 	for (p = buff, q = s; *q && ((p - buff) < (SBUF_SIZE - 1)); p++, q++)
-		*p = ToUpper(*q);
+		*p = toupper(*q);
 	*p = '\0';
 
 	/* Check for an exact match on a predefined attribute */

@@ -105,7 +105,7 @@ void NDECL(init_cmdtab)
 			p = cbuff;
 			*p++ = '@';
 			for (q = (char *)ap->name; *q; p++, q++)
-				*p = ToLower(*q);
+				*p = tolower(*q);
 			*p = '\0';
 			cp = (CMDENT *) XMALLOC(sizeof(CMDENT), "init_cmdtab");
 			cp->cmdname = XSTRDUP(cbuff, "init_cmdtab.cmdname");
@@ -1011,7 +1011,7 @@ char *command, *args[];
 
 	lcbuf = alloc_lbuf("process_commands.LCbuf");
 	for (p = command, q = lcbuf; *p && !isspace(*p); p++, q++)
-		*q = ToLower(*p);	/* Make lowercase command */
+		*q = tolower(*p);	/* Make lowercase command */
 	*q++ = '\0';		/* Terminate command */
 	while (*p && isspace(*p))
 		p++;		/* Skip spaces before arg */
@@ -1545,7 +1545,7 @@ dbref player;
 		p = buff;
 		*p++ = '@';
 		for (q = (char *)ap->name; *q; p++, q++)
-			*p = ToLower(*q);
+			*p = tolower(*q);
 		if (ap->flags & AF_NOCMD)
 			continue;
 		*p = '\0';
@@ -1664,7 +1664,7 @@ CF_HAND(cf_acmd_access)
 		p = buff;
 		*p++ = '@';
 		for (q = (char *)ap->name; *q; p++, q++)
-			*p = ToLower(*q);
+			*p = tolower(*q);
 		*p = '\0';
 		cmdp = (CMDENT *) hashfind(buff, &mudstate.command_htab);
 		if (cmdp != NULL) {

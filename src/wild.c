@@ -26,7 +26,7 @@
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
 
-#define FIXCASE(a) (ToLower(a))
+#define FIXCASE(a) (tolower(a))
 #define EQUAL(a,b) ((a == b) || (FIXCASE(a) == FIXCASE(b)))
 #define NOTEQUAL(a,b) ((a != b) && (FIXCASE(a) != FIXCASE(b)))
 

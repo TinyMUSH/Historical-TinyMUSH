@@ -443,7 +443,7 @@ void NDECL(init_flagtab)
 	nbuf = alloc_sbuf("init_flagtab");
 	for (fp = gen_flags; fp->flagname; fp++) {
 		for (np = nbuf, bp = (char *)fp->flagname; *bp; np++, bp++)
-			*np = ToLower(*bp);
+			*np = tolower(*bp);
 		*np = '\0';
 		hashadd(nbuf, (int *)fp, &mudstate.flags_htab);
 	}
@@ -487,7 +487,7 @@ char *flagname;
 	/* Make sure the flag name is valid */
 
 	for (cp = flagname; *cp; cp++)
-		*cp = ToLower(*cp);
+		*cp = tolower(*cp);
 	return (FLAGENT *) hashfind(flagname, &mudstate.flags_htab);
 }
 
@@ -885,7 +885,7 @@ CF_HAND(cf_flag_name)
 	    XFREE(flagstr, "cf_flag_name");
 	    return -1;
 	}
-	*cp = ToLower(*cp);
+	*cp = tolower(*cp);
     }
 
     if (hashfind(flagstr, &mudstate.flags_htab)) {
@@ -896,7 +896,7 @@ CF_HAND(cf_flag_name)
     hashadd(flagstr, (int *) fp, &mudstate.flags_htab);
 
     for (cp = flagstr; cp && *cp; cp++)
-	*cp = ToUpper(*cp);
+	*cp = toupper(*cp);
 
     fp->flagname = (const char *) flagstr;
     return 0;

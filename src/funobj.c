@@ -1664,7 +1664,7 @@ FUNCTION(fun_pmatch)
     tp = temp = alloc_lbuf("fun_pmatch");
     safe_str(name, temp, &tp);
     for (tp = temp; *tp; tp++)
-	*tp = ToLower(*tp);
+	*tp = tolower(*tp);
     p_ptr = (int *) hashfind(temp, &mudstate.player_htab);
     free_lbuf(temp);
 

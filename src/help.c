@@ -58,7 +58,7 @@ char *filename;
 		 * Substrings already added will be rejected by hashadd. 
 		 */
 		for (p = entry.topic; *p; p++)
-			*p = ToLower(*p);
+			*p = tolower(*p);
 
 		htab_entry = (struct help_entry *)XMALLOC(sizeof(struct help_entry),
 							  "helpindex_read.hent1");
@@ -147,7 +147,7 @@ int eval;
 		topic = (char *)"help";
 	else
 		for (p = topic; *p; p++)
-			*p = ToLower(*p);
+			*p = tolower(*p);
 	htab_entry = (struct help_entry *)hashfind(topic, htab);
 	if (htab_entry) {
 		offset = htab_entry->pos;

@@ -641,12 +641,12 @@ CF_HAND(cf_alias)
 	if (orig) {
 		upcase = 0;
 		for (p = orig; *p; p++)
-			*p = ToLower(*p);
+			*p = tolower(*p);
 		cp = hashfind(orig, (HASHTAB *) vp);
 		if (cp == NULL) {
 			upcase++;
 			for (p = orig; *p; p++)
-				*p = ToUpper(*p);
+				*p = toupper(*p);
 			cp = hashfind(orig, (HASHTAB *) vp);
 			if (cp == NULL) {
 				cf_log_notfound(player, cmd, extra, orig);
@@ -655,10 +655,10 @@ CF_HAND(cf_alias)
 		}
 		if (upcase) {
 			for (p = alias; *p; p++)
-				*p = ToUpper(*p);
+				*p = toupper(*p);
 		} else {
 			for (p = alias; *p; p++)
-				*p = ToLower(*p);
+				*p = tolower(*p);
 		}
 		return hashadd(alias, cp, (HASHTAB *) vp);
 	} else {

@@ -37,7 +37,7 @@ void NDECL(init_functab)
 		cp = (char *)fp->name;
 		dp = buff;
 		while (*cp) {
-			*dp = ToLower(*cp);
+			*dp = tolower(*cp);
 			cp++;
 			dp++;
 		}
@@ -69,7 +69,7 @@ char *fname, *target;
 		/* Make it case-insensitive, and look it up. */
 
 		for (bp = fname; *bp; bp++) {
-		    *bp = ToLower(*bp);
+		    *bp = tolower(*bp);
 		}
 
 		ufp = (UFUN *) hashfind(fname, &mudstate.ufunc_htab);
@@ -107,7 +107,7 @@ char *fname, *target;
 	safe_sb_str(fname, np, &bp);
 	*bp = '\0';
 	for (bp = np; *bp; bp++)
-		*bp = ToLower(*bp);
+		*bp = tolower(*bp);
 
 	/* Verify that the function doesn't exist in the builtin table */
 
@@ -160,7 +160,7 @@ char *fname, *target;
 		ufp = (UFUN *) XMALLOC(sizeof(UFUN), "do_function");
 		ufp->name = XSTRDUP(np, "do_function.name");
 		for (bp = (char *)ufp->name; *bp; bp++)
-			*bp = ToUpper(*bp);
+			*bp = toupper(*bp);
 		ufp->obj = obj;
 		ufp->atr = atr;
 		ufp->perms = CA_PUBLIC;

@@ -201,7 +201,7 @@ static void set_xvar(obj, name, data)
     safe_ltos(tbuf, &tp, obj);
     safe_sb_chr('.', tbuf, &tp);
     for (p = name; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(name, tbuf, &tp);
     *tp = '\0';
 
@@ -274,7 +274,7 @@ static void clear_xvars(obj, xvar_names, n_xvars)
     for (i = 0; i < n_xvars; i++) {
 
 	for (p = xvar_names[i]; *p; p++)
-	    *p = ToLower(*p);
+	    *p = tolower(*p);
 	tp = tbuf;
 	safe_sb_str(pre, tbuf, &tp);
 	safe_sb_str(xvar_names[i], tbuf, &tp);
@@ -348,7 +348,7 @@ FUNCTION(fun_x)
     safe_ltos(tbuf, &tp, player);
     safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], tbuf, &tp);
     *tp = '\0';
 
@@ -446,7 +446,7 @@ FUNCTION(fun_let)
     /* Lowercase our variable names. */
 
     for (i = 0, p = xvar_names[i]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
 
     /* Save our original values. Copying this stuff into an array is
      * unnecessarily expensive because we allocate and free memory 
@@ -685,7 +685,7 @@ FUNCTION(fun_structure)
     safe_ltos(tbuf, &tp, player);
     safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], tbuf, &tp);
     *tp = '\0';
 
@@ -804,7 +804,7 @@ FUNCTION(fun_structure)
 	cp = cbuf;
 	safe_sb_str(tbuf, cbuf, &cp);
 	for (p = comp_array[i]; *p; p++)
-	    *p = ToLower(*p);
+	    *p = tolower(*p);
 	safe_sb_str(comp_array[i], cbuf, &cp);
 	*cp = '\0';
 
@@ -898,7 +898,7 @@ FUNCTION(fun_construct)
     safe_ltos(ibuf, &ip, player);
     safe_sb_chr('.', ibuf, &ip);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], ibuf, &ip);
     *ip = '\0';
 
@@ -914,7 +914,7 @@ FUNCTION(fun_construct)
     safe_ltos(tbuf, &tp, player);
     safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[1]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[1], tbuf, &tp);
     *tp = '\0';
 
@@ -953,7 +953,7 @@ FUNCTION(fun_construct)
 	    cp = cbuf;
 	    safe_sb_str(tbuf, cbuf, &cp);
 	    for (p = comp_array[i]; *p; p++)
-		*p = ToLower(*p);
+		*p = tolower(*p);
 	    safe_sb_str(comp_array[i], cbuf, &cp);
 	    c_ptr = (COMPONENT *) hashfind(cbuf, &mudstate.cdefs_htab);
 	    if (!c_ptr) {
@@ -1081,7 +1081,7 @@ FUNCTION(fun_load)
     safe_ltos(ibuf, &ip, player);
     safe_sb_chr('.', ibuf, &ip);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], ibuf, &ip);
     *ip = '\0';
 
@@ -1097,7 +1097,7 @@ FUNCTION(fun_load)
     safe_ltos(tbuf, &tp, player);
     safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[1]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[1], tbuf, &tp);
     *tp = '\0';
 
@@ -1178,11 +1178,11 @@ FUNCTION(fun_z)
     safe_ltos(tbuf, &tp, player);
     safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], tbuf, &tp);
     safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[1]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[1], tbuf, &tp);
     *tp = '\0';
 
@@ -1213,7 +1213,7 @@ FUNCTION(fun_modify)
     safe_ltos(tbuf, &tp, player);
     safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], tbuf, &tp);
     *tp = '\0';
     endp = tp;			/* save where we are */
@@ -1243,7 +1243,7 @@ FUNCTION(fun_modify)
 	    safe_sb_str(inst_ptr->datatype->s_name, cbuf, &cp);
 	    safe_sb_chr('.', cbuf, &cp);
 	    for (p = words[i]; *p; p++)
-		*p = ToLower(*p);
+		*p = tolower(*p);
 	    safe_sb_str(words[i], cbuf, &cp);
 	    *cp = '\0';
 
@@ -1307,7 +1307,7 @@ FUNCTION(fun_unload)
     safe_ltos(ibuf, &ip, player);
     safe_sb_chr('.', ibuf, &ip);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], ibuf, &ip);
     *ip = '\0';
 
@@ -1360,7 +1360,7 @@ FUNCTION(fun_destruct)
     safe_ltos(ibuf, &ip, player);
     safe_sb_chr('.', ibuf, &ip);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], ibuf, &ip);
     *ip = '\0';
 
@@ -1417,7 +1417,7 @@ FUNCTION(fun_unstructure)
     safe_ltos(tbuf, &tp, player);
     safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
+	*p = tolower(*p);
     safe_sb_str(fargs[0], tbuf, &tp);
     *tp = '\0';
 

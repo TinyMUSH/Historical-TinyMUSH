@@ -8,8 +8,6 @@
 
 #define INLINE inline
 
-#define ToUpper(C)	(((C) >= 'a' && (C) <= 'z')? (C) - 'a' + 'A': (C))
-#define ToLower(C)	(((C) >= 'A' && (C) <= 'Z')? (C) - 'A' + 'a': (C))
 #define safe_atoi(s)	((s == NULL) ? 0 : atoi(s))
 
 /* From conf.c */

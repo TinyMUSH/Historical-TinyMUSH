@@ -144,7 +144,7 @@ FUNCTION(fun_trim)
 	}
 	mvarargs_preamble("TRIM", 1, 3);
 	if (nfargs >= 2) {
-		switch (ToLower(*fargs[1])) {
+		switch (tolower(*fargs[1])) {
 		case 'l':
 			trim = 1;
 			break;
@@ -316,7 +316,7 @@ FUNCTION(fun_lcstr)
 
 	ap = fargs[0];
 	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
-		**bufc = ToLower(*ap);
+		**bufc = tolower(*ap);
 		ap++;
 		(*bufc)++;
 	}
@@ -328,7 +328,7 @@ FUNCTION(fun_ucstr)
 
 	ap = fargs[0];
 	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
-		**bufc = ToUpper(*ap);
+		**bufc = toupper(*ap);
 		ap++;
 		(*bufc)++;
 	}
@@ -341,7 +341,7 @@ FUNCTION(fun_capstr)
 	s = *bufc;
 
 	safe_str(fargs[0], buff, bufc);
-	*s = ToUpper(*s);
+	*s = toupper(*s);
 }
 
 /* ---------------------------------------------------------------------------

@@ -309,13 +309,6 @@ extern time_t	FDECL(timelocal, (struct tm *));
 
 #endif /* HAVE_TIMELOCAL */
 
-#ifndef tolower
-extern int	FDECL(tolower, (int));
-#endif
-#ifndef toupper
-extern int	FDECL(toupper, (int));
-#endif
-
 #ifdef HAVE_VFORK_H
 #include <vfork.h>
 #endif
