@@ -77,6 +77,10 @@ extern INLINE void FDECL(do_reverse, (char *, char *));
  * Call svarargs_preamble("FUNCTION", max_args) if the second to last and
  * last arguments are delimiters.
  *
+ * Call msvarargs_preamble("FUNCTION", min_args, max_args) if there are more
+ * variable arguments than just delimiters, but the second to last and last
+ * arguments are delimiters.
+ *
  * Call xvarargs_preamble("FUNCTION", min_args, max_args) if this is varargs
  * but does not involve a delimiter.
  */
@@ -111,6 +115,18 @@ return;
 
 #define svarargs_preamble(xname,xnargs)                         \
 if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
+    player, caller, cause, cargs, ncargs, 0))                         \
+return;							        \
+if (nfargs < xnargs)				                \
+    osep = sep;				                        \
+else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
+    player, caller, cause, cargs, ncargs, 1))                         \
+return;
+
+#define msvarargs_preamble(xname,xminargs,xnargs)                       \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
     player, caller, cause, cargs, ncargs, 0))                         \

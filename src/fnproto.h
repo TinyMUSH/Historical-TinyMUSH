@@ -70,6 +70,9 @@ XFUNCTION(fun_sortby);
 XFUNCTION(fun_setunion);
 XFUNCTION(fun_setdiff);
 XFUNCTION(fun_setinter);
+XFUNCTION(fun_lunion);
+XFUNCTION(fun_ldiff);
+XFUNCTION(fun_linter);
 XFUNCTION(fun_columns);
 XFUNCTION(fun_elements);
 XFUNCTION(fun_grab);
@@ -483,6 +486,7 @@ FUN flist[] = {
 {"LCON",	fun_lcon,	1,  0,		CA_PUBLIC},
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC},
 {"LDELETE",	fun_ldelete,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LDIFF",	fun_ldiff,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LEDIT",	fun_ledit,	0,  FN_VARARGS, CA_PUBLIC},
 {"LEFT",	fun_left,	2,  0,		CA_PUBLIC},
 {"LET",		fun_let,	0,  FN_VARARGS|FN_NO_EVAL,
@@ -494,6 +498,7 @@ FUN flist[] = {
 {"LJUST",	fun_ljust,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LINK",	fun_link,	2,  0,		CA_PUBLIC},
 {"LINSTANCES",	fun_linstances,	0,  0,		CA_PUBLIC},
+{"LINTER",	fun_linter,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LMAX",	fun_lmax,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LMIN",	fun_lmin,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LN",		fun_ln,		1,  0,		CA_PUBLIC},
@@ -515,6 +520,7 @@ FUN flist[] = {
 {"LSTRUCTURES",	fun_lstructures, 0, 0,		CA_PUBLIC},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC},
 {"LTE",		fun_lte,	2,  0,		CA_PUBLIC},
+{"LUNION",	fun_lunion,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LVARS",	fun_lvars,	0,  0,		CA_PUBLIC},
 {"LWHO",	fun_lwho,	0,  0,		CA_PUBLIC},
 {"MAP",		fun_map,	0,  FN_VARARGS,	CA_PUBLIC},

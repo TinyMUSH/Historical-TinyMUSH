@@ -4899,15 +4899,16 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	columns()	elements()	extract()	filter()	
 	filterbool()	first()		fold()		grab()		
 	graball()	index()		insert()	iter()		
-	last()		ldelete()	ledit()		list()		
-	lnum()		loop()		lpos()		lrand()		
-	map()		match()		matchall()	member()	
-	mix()		munge()		remove()	replace()	
-	regrab()	regraball()	regraballi()	regrabi()
-	rest()		revwords()	setdiff()	setinter()	
-	setunion()	shuffle()	sortby()	sort()		
-	splice()	step()		until()		whenfalse()	
-	whentrue()	while()		words()
+	last()		ldelete()	ldiff()		ledit()
+	linter()	list()		lnum()		loop()
+	lpos()		lrand()		lunion()	map()
+	match()		matchall()	member()	mix()
+	munge()		remove()	replace()	regrab()
+	regraball()	regraballi()	regrabi()	rest()
+	revwords()	setdiff()	setinter()	setunion()
+	shuffle()	sortby()	sort()		splice()
+	step()		until()		whenfalse()	whentrue()
+	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -8505,12 +8506,20 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "a B c D e"
  
 & SETDIFF()
+& LDIFF()
   Function: setdiff(<list1>, <list2>[, <delim>][, <output delim>])
+  Function: ldiff(<list1>, <list2>[,<sort type>][,<delim>][,<output delim>])
  
   This function returns the difference of two sets -- i.e., the elements in
   <list1> that aren't in <list2>. The list that is returned is sorted.
  
   If delimiters are specified, they are used to separate the lists.
+ 
+  For ldiff(), an optional sort type, like the sort() function takes, can
+  be provided. Note that if you specify a sort type of 'i', 'f', or 'd',
+  and your lists have non-appropriate items in them, the result will be
+  garbage, with missing or duplicate items. If no sort type is specified,
+  an appropriate one will be deduced.
  
   Example:
     > say setdiff(foo baz gleep bar, bar moof gleep)
@@ -8521,12 +8530,20 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See also: setinter(), setunion(), sort().
 
 & SETINTER()
+& LINTER()
   Function: setinter(<list1>, <list2>[, <delim>][, <output delim>])
+  Function: linter(<list1>, <list2>[,<sort type>][,<delim>][,<output delim>])
  
   This function returns the intersection of two sets -- i.e., the elements
   that are in both <list1> and <list2>. The list that is returned is sorted.
  
   If delimiters are specified, they are used to separate the lists.
+ 
+  For linter(), an optional sort type, like the sort() function takes, can
+  be provided. Note that if you specify a sort type of 'i', 'f', or 'd',
+  and your lists have non-appropriate items in them, the result will be
+  garbage, with missing or duplicate items. If no sort type is specified,
+  an appropriate one will be deduced.
  
   Example:
     > say setinter(foo baz gleep bar, bar moof gleep)
@@ -8537,11 +8554,19 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See also: setdiff(), setunion(), sort().
 
 & SETUNION()
+& LUNION()
   Function: setunion(<list1>, <list2>[, <delim>][, <output delim>])
+  Function: lunion(<list1>, <list2>[,<sort type>][,<delim>][,<output delim>]) 
  
   This function returns the union of two sets -- i.e., all the elements of
   both <list1> and <list2>, minus any duplicate elements. Think of it as
   CAT() without duplicated words.  The list returned is sorted.
+ 
+  For lunion(), an optional sort type, like the sort() function takes, can
+  be provided. Note that if you specify a sort type of 'i', 'f', or 'd',
+  and your lists have non-appropriate items in them, the result will be
+  garbage, with missing or duplicate items. If no sort type is specified,
+  an appropriate one will be deduced.
  
   If delimiters are specified, they are used to separate the lists.
   

@@ -731,8 +731,8 @@ char *s[];
 int n, sort_type;
 {
 	int i;
-	f_rec *fp;
-	i_rec *ip;
+	f_rec *fp = NULL;
+	i_rec *ip = NULL;
 
 	switch (sort_type) {
 	case ALPHANUM_LIST:
@@ -792,17 +792,7 @@ FUNCTION(fun_sort)
 		return;
 	}
 
-	if (!fn_range_check("SORT", nfargs, 1, 4, buff, bufc))
-		return;
-	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
-	     player, caller, cause, cargs, ncargs, 0))
-		return;
-	if (nfargs < 4)
-		osep = sep;
-	else if (!delim_check(fargs, nfargs, 4, &osep, buff, bufc, 0,
-	         player, caller, cause, cargs, ncargs, 1))
-		return;
-
+	msvarargs_preamble("SORT", 1, 4);
 
 	/* Convert the list to an array */
 
@@ -955,29 +945,75 @@ FUNCTION(fun_sortby)
 
 /* ---------------------------------------------------------------------------
  * fun_setunion, fun_setdiff, fun_setinter: Set management.
+ * Also fun_lunion, fun_ldiff, fun_linter: Same thing, but takes
+ * a sort type like sort() does. There's an unavoidable PennMUSH conflict,
+ * as setunion() and friends have a 4th-arg output delimiter in TM3, but
+ * the 4th arg is used for the sort type in PennMUSH. Also, adding the
+ * sort type as a fifth arg for setunion(), etc. would be confusing, since
+ * the last two args are, by convention, delimiters. So we add new funcs.
  */
 
 #define	SET_UNION	1
 #define	SET_INTERSECT	2
 #define	SET_DIFF	3
 
-static void handle_sets(fargs, buff, bufc, oper, sep, osep)
+#define NUMCMP(f1,f2) \
+	((f1 > f2) ? 1 : ((f1 < f2) ? -1 : 0))
+
+#define GENCMP(x1,x2,s) \
+((s == ALPHANUM_LIST) ? strcmp(ptrs1[x1],ptrs2[x2]) : \
+ ((s == NOCASE_LIST) ? strcasecmp(ptrs1[x1],ptrs2[x2]) : \
+  ((s == FLOAT_LIST) ? NUMCMP(fp1[x1],fp2[x2]) : NUMCMP(ip1[x1],ip2[x2]))))
+
+static void handle_sets(fargs, nfargs, buff, bufc, oper, sep, osep, type_pos)
 char *fargs[], *buff, **bufc, sep, osep;
-int oper;
+int nfargs, oper, type_pos;
 {
 	char *list1, *list2, *oldp, *bb_p;
 	char *ptrs1[LBUF_SIZE], *ptrs2[LBUF_SIZE];
-	int i1, i2, n1, n2, val;
+	int i1, i2, n1, n2, val, sort_type;
+	int *ip1, *ip2;
+	double *fp1, *fp2;
 
 	list1 = alloc_lbuf("fun_setunion.1");
 	strcpy(list1, fargs[0]);
 	n1 = list2arr(ptrs1, LBUF_SIZE, list1, sep);
-	do_asort(ptrs1, n1, ALPHANUM_LIST);
+	if (type_pos == -1)
+	    sort_type = ALPHANUM_LIST;
+	else
+	    sort_type = get_list_type(fargs, nfargs, 3, ptrs1, n1);
+	do_asort(ptrs1, n1, sort_type);
 
 	list2 = alloc_lbuf("fun_setunion.2");
 	strcpy(list2, fargs[1]);
 	n2 = list2arr(ptrs2, LBUF_SIZE, list2, sep);
-	do_asort(ptrs2, n2, ALPHANUM_LIST);
+	do_asort(ptrs2, n2, sort_type);
+
+	/* This conversion is inefficient, since it's already happened
+	 * once in do_asort().
+	 */
+	if (sort_type == NUMERIC_LIST) {
+	    ip1 = (int *) XMALLOC(n1 * sizeof(int), "handle_sets.n1");
+	    ip2 = (int *) XMALLOC(n2 * sizeof(int), "handle_sets.n2");
+	    for (val = 0; val < n1; val++)
+		ip1[val] = atoi(ptrs1[val]);
+	    for (val = 0; val < n2; val++)
+		ip2[val] = atoi(ptrs2[val]);
+	} else if (sort_type == DBREF_LIST) {
+	    ip1 = (int *) XMALLOC(n1 * sizeof(int), "handle_sets.n1");
+	    ip2 = (int *) XMALLOC(n2 * sizeof(int), "handle_sets.n2");
+	    for (val = 0; val < n1; val++)
+		ip1[val] = dbnum(ptrs1[val]);
+	    for (val = 0; val < n2; val++)
+		ip2[val] = dbnum(ptrs2[val]);
+	} else if (sort_type == FLOAT_LIST) {
+	    fp1 = (double *) XMALLOC(n1 * sizeof(double), "handle_sets.n1");
+	    fp2 = (double *) XMALLOC(n2 * sizeof(double), "handle_sets.n2");
+	    for (val = 0; val < n1; val++)
+		fp1[val] = aton(ptrs1[val]);
+	    for (val = 0; val < n2; val++)
+		fp2[val] = aton(ptrs2[val]);
+	}
 
 	i1 = i2 = 0;
 	bb_p = oldp = *bufc;
@@ -1014,7 +1050,7 @@ int oper;
 				        print_sep(osep, buff, bufc);
 				}
 				oldp = *bufc;
-				if (strcmp(ptrs1[i1], ptrs2[i2]) < 0) {
+				if (GENCMP(i1, i2, sort_type) < 0) {
 					safe_str(ptrs1[i1], buff, bufc);
 					i1++;
 				} else {
@@ -1051,7 +1087,7 @@ int oper;
 	case SET_INTERSECT:	/* Copy elements not in both lists */
 
 		while ((i1 < n1) && (i2 < n2)) {
-			val = strcmp(ptrs1[i1], ptrs2[i2]);
+			val = GENCMP(i1, i2, sort_type);
 			if (!val) {
 
 				/* Got a match, copy it */
@@ -1077,7 +1113,7 @@ int oper;
 	case SET_DIFF:		/* Copy elements unique to list1 */
 
 		while ((i1 < n1) && (i2 < n2)) {
-			val = strcmp(ptrs1[i1], ptrs2[i2]);
+			val = GENCMP(i1, i2, sort_type);
 			if (!val) {
 
 				/* Got a match, increment pointers */
@@ -1125,7 +1161,13 @@ int oper;
 	}
 	free_lbuf(list1);
 	free_lbuf(list2);
-	return;
+	if ((sort_type == NUMERIC_LIST) || (sort_type == DBREF_LIST)) {
+	    XFREE(ip1, "handle_sets.n1");
+	    XFREE(ip2, "handle_sets.n2");
+	} else if (sort_type == FLOAT_LIST) {
+	    XFREE(fp1, "handle_sets.n1");
+	    XFREE(fp2, "handle_sets.n2");
+	}
 }
 
 FUNCTION(fun_setunion)
@@ -1133,7 +1175,7 @@ FUNCTION(fun_setunion)
 	char sep, osep;
 
 	svarargs_preamble("SETUNION", 4);
-	handle_sets(fargs, buff, bufc, SET_UNION, sep, osep);
+	handle_sets(fargs, nfargs, buff, bufc, SET_UNION, sep, osep, -1);
 	return;
 }
 
@@ -1142,7 +1184,7 @@ FUNCTION(fun_setdiff)
 	char sep, osep;
 
 	svarargs_preamble("SETDIFF", 4);
-	handle_sets(fargs, buff, bufc, SET_DIFF, sep, osep);
+	handle_sets(fargs, nfargs, buff, bufc, SET_DIFF, sep, osep, -1);
 	return;
 }
 
@@ -1151,7 +1193,34 @@ FUNCTION(fun_setinter)
 	char sep, osep;
 
 	svarargs_preamble("SETINTER", 4);
-	handle_sets(fargs, buff, bufc, SET_INTERSECT, sep, osep);
+	handle_sets(fargs, nfargs, buff, bufc, SET_INTERSECT, sep, osep, -1);
+	return;
+}
+
+FUNCTION(fun_lunion)
+{
+	char sep, osep;
+
+	msvarargs_preamble("LUNION", 2, 5);
+	handle_sets(fargs, nfargs, buff, bufc, SET_UNION, sep, osep, 3);
+	return;
+}
+
+FUNCTION(fun_ldiff)
+{
+	char sep, osep;
+
+	msvarargs_preamble("LDIFF", 2, 5);
+	handle_sets(fargs, nfargs, buff, bufc, SET_DIFF, sep, osep, 3);
+	return;
+}
+
+FUNCTION(fun_linter)
+{
+	char sep, osep;
+
+	msvarargs_preamble("LINTER", 2, 5);
+	handle_sets(fargs, nfargs, buff, bufc, SET_INTERSECT, sep, osep, 3);
 	return;
 }
 
