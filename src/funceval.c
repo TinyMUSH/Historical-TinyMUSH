@@ -2823,13 +2823,17 @@ FUNCTION(fun_swap)
     stack_set(it, tp);
 }
 
-FUNCTION(fun_pop)
+static void handle_pop(player, cause, buff, bufc, fargs, flag)
+    dbref player, cause;
+    char *buff;
+    char **bufc;
+    char *fargs[];
+    int flag;			/* if flag, don't copy */
 {
     dbref it;
     int pos, count = 0;
-    STACK *sp, *prev;
-
-    xvarargs_preamble("POP", 0, 2);
+    STACK *sp;
+    STACK *prev = NULL;
 
     if (!fargs[0]) {
 	it = player;
@@ -2856,7 +2860,9 @@ FUNCTION(fun_pop)
     if (!sp)
 	return;
 
-    safe_str(sp->data, buff, bufc);
+    if (!flag) {
+	safe_str(sp->data, buff, bufc);
+    }
     if (count == 0) {
 	stack_set(it, sp->next);
     } else {
@@ -2864,6 +2870,18 @@ FUNCTION(fun_pop)
     }
     XFREE(sp->data, "stack_pop_data");
     XFREE(sp, "stack_pop");
+}
+
+FUNCTION(fun_pop)
+{
+    xvarargs_preamble("POP", 0, 2);
+    handle_pop(player, cause, buff, bufc, fargs, 0);
+}
+
+FUNCTION(fun_toss)
+{
+    xvarargs_preamble("TOSS", 0, 2);
+    handle_pop(player, cause, buff, bufc, fargs, 1);
 }
 
 FUNCTION(fun_popn)

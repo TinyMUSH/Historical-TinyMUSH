@@ -119,6 +119,7 @@ XFUNCTION(fun_empty);
 XFUNCTION(fun_push);
 XFUNCTION(fun_peek);
 XFUNCTION(fun_pop);
+XFUNCTION(fun_toss);
 XFUNCTION(fun_items);
 XFUNCTION(fun_lstack);
 XFUNCTION(fun_dup);
@@ -5057,6 +5058,7 @@ FUN flist[] = {
 #endif /* TCL_INTERP_SUPPORT */
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC},
+{"TOSS",	fun_toss,	0,  FN_VARARGS, CA_PUBLIC},
 {"TRANSLATE",	fun_translate,	2,  0,		CA_PUBLIC},
 {"TRIM",	fun_trim,	0,  FN_VARARGS,	CA_PUBLIC},
 {"TRUNC",	fun_trunc,	1,  0,		CA_PUBLIC},
