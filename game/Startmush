@@ -9,12 +9,12 @@ PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
 #	Make sure there isn't aready a MUSH running.
 #
 # BSD ps
-nmush=`ps ux | egrep netmush | wc -l`
+nmush=`ps ux | egrep netmush | egrep -v egrep | wc -l`
 #
 # SysV ps - comment out the above and uncomment this, if necessary
-# nmush=`ps -ef | egrep netmush | wc -l`
+# nmush=`ps -ef | egrep netmush | egrep -v egrep | wc -l`
 #
-if [ $nmush -gt 1 ]; then
+if [ $nmush -gt 0 ]; then
 	echo "MUSH already running."
 	exit 0
 fi
