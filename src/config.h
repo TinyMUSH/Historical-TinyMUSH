@@ -93,6 +93,10 @@
 
 #define SWITCH_VAR	"#$"
 
+/* This token is used to denote a null output delimiter. */
+
+#define NULL_DELIM_VAR	"@@"
+
 /* This is used to indent output from pretty-printing. */
 
 #define INDENT_STR	"  "

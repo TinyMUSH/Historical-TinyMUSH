@@ -366,7 +366,8 @@ int alen;
 
 	for (i = 0; i < alen; i++) {
 		safe_str(arr[i], list, bufc);
-		safe_chr(sep, list, bufc);
+		if (sep)
+		    safe_chr(sep, list, bufc);
 	}
 	if (*bufc != list)
 		(*bufc)--;
@@ -525,9 +526,9 @@ int nfargs, minargs, maxargs;
  */
 
 int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc, eval, player, cause,
-		cargs, ncargs)
+		cargs, ncargs, allow_null)
 char *fargs[], *cargs[], *sep, *buff, **bufc;
-int nfargs, ncargs, sep_arg, eval;
+int nfargs, ncargs, sep_arg, eval, allow_null;
 dbref player, cause;
 {
 	char *tstr, *bp, *str;
@@ -543,14 +544,25 @@ dbref player, cause;
 			exec(tstr, &bp, 0, player, cause, EV_EVAL | EV_FCHECK,
 			     &str, cargs, ncargs);
 			*bp = '\0';
-			tlen = strlen(tstr);
-			*sep = *tstr;
+			if (allow_null &&
+			    !strcmp(tstr, (char *) NULL_DELIM_VAR)) {
+			    *sep = '\0';
+			    tlen = 1;
+			} else {
+			    tlen = strlen(tstr);
+			    *sep = *tstr;
+			}
 			free_lbuf(tstr);
 		}
 		if (tlen == 0) {
 			*sep = ' ';
+		} else if (allow_null && !eval && (tlen == 2) &&
+			   !strcmp(fargs[sep_arg - 1],
+				   (char *) NULL_DELIM_VAR)) {
+		        *sep = '\0';
 		} else if (tlen != 1) {
-			safe_str("#-1 SEPARATOR MUST BE ONE CHARACTER", buff, bufc);
+			safe_str("#-1 SEPARATOR MUST BE ONE CHARACTER",
+				 buff, bufc);
 			return 0;
 		} else if (!eval) {
 			*sep = *fargs[sep_arg - 1];
@@ -1295,8 +1307,9 @@ FUNCTION(fun_parse)
 	}
 	first = 1;
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-		if (!first)
-			safe_chr(osep, buff, bufc);
+	        if (!first && osep) {
+		    safe_chr(osep, buff, bufc);
+		}
 		first = 0;
 		number++;
 		objstring = split_token(&cp, sep);
@@ -4220,8 +4233,9 @@ FUNCTION(fun_splice)
 	for (i = 0; i < words; i++) {
 		p2 = split_token(&p1, sep);
 		q2 = split_token(&q1, sep);
-		if (!first)
-			safe_chr(osep, buff, bufc);
+		if (!first && osep) {
+		    safe_chr(osep, buff, bufc);
+		}
 		if (!strcmp(p2, fargs[2]))
 			safe_str(q2, buff, bufc);	/* replace */
 		else
@@ -4289,8 +4303,9 @@ FUNCTION(fun_iter)
 	}
 	first = 1;
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-		if (!first)
-			safe_chr(osep, buff, bufc);
+	        if (!first && osep) {
+		    safe_chr(osep, buff, bufc);
+		}
 		first = 0;
 		number++;
 		objstring = split_token(&cp, sep);
@@ -4510,7 +4525,7 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 		*bp = '\0';
 		if ((!flag && (*result == '1')) || (flag && xlate(result))) {
-		        if (!first) {
+		        if (!first && osep) {
 			        safe_chr(osep, buff, bufc);
 			} else {
 			    first = 0;
@@ -4596,8 +4611,9 @@ FUNCTION(fun_map)
 	atextbuf = alloc_lbuf("fun_map");
 	first = 1;
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-		if (!first)
-			safe_chr(osep, buff, bufc);
+	        if (!first && osep) {
+		    safe_chr(osep, buff, bufc);
+		}
 		first = 0;
 		objstring = split_token(&cp, sep);
 		strcpy(atextbuf, atext);
@@ -4700,7 +4716,7 @@ FUNCTION(fun_while)
 	condbuf = alloc_lbuf("fun_while.cond");
     first = 1;
     while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-	if (!first) {
+	if (!first && osep) {
 	    safe_chr(osep, buff, bufc);
 	} else {
 	    first = 0;
@@ -5170,12 +5186,12 @@ FUNCTION(fun_sort)
 	if (!fn_range_check("SORT", nfargs, 1, 4, buff, bufc))
 		return;
 	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
-	     player, cause, cargs, ncargs))
+	     player, cause, cargs, ncargs, 0))
 		return;
 	if (nfargs < 4)
 		osep = sep;
 	else if (!delim_check(fargs, nfargs, 4, &osep, buff, bufc, 0,
-	         player, cause, cargs, ncargs))
+	         player, cause, cargs, ncargs, 1))
 		return;
 
 
@@ -5247,7 +5263,7 @@ int oper;
 			/* Compare and copy */
 
 			if ((i1 < n1) && (i2 < n2)) {
-			        if (*bufc != bb_p)
+			        if ((*bufc != bb_p) && osep)
 					safe_chr(osep, buff, bufc);
 				oldp = *bufc;
 				if (strcmp(ptrs1[i1], ptrs2[i2]) < 0) {
@@ -5265,7 +5281,7 @@ int oper;
 
 		for (; i1 < n1; i1++) {
 			if (strcmp(oldp, ptrs1[i1])) {
-				if (*bufc != bb_p)
+				if ((*bufc != bb_p) && osep)
 					safe_chr(osep, buff, bufc);
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
@@ -5274,7 +5290,7 @@ int oper;
 		}
 		for (; i2 < n2; i2++) {
 			if (strcmp(oldp, ptrs2[i2])) {
-				if (*bufc != bb_p)
+				if ((*bufc != bb_p) && osep)
 					safe_chr(osep, buff, bufc);
 				oldp = *bufc;
 				safe_str(ptrs2[i2], buff, bufc);
@@ -5290,7 +5306,7 @@ int oper;
 
 				/* Got a match, copy it */
 
-				if (*bufc != bb_p)
+				if ((*bufc != bb_p) && osep)
 					safe_chr(osep, buff, bufc);
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
@@ -5324,7 +5340,7 @@ int oper;
 
 				/* Item in list1 not in list2, copy */
 
-				if (*bufc != bb_p)
+				if ((*bufc != bb_p) && osep)
 					safe_chr(osep, buff, bufc);
 				safe_str(ptrs1[i1], buff, bufc);
 				oldp = ptrs1[i1];
@@ -5345,7 +5361,7 @@ int oper;
 		/* Copy remainder of list1 */
 
 		while (i1 < n1) {
-			if (*bufc != bb_p)
+			if ((*bufc != bb_p) && osep)
 				safe_chr(osep, buff, bufc);
 			safe_str(ptrs1[i1], buff, bufc);
 			oldp = ptrs1[i1];

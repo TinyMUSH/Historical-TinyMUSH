@@ -37,7 +37,7 @@ extern INLINE char *FDECL(get_mail_message, (int));
 extern void FDECL(count_mail, (dbref, int, int *, int *, int *));
 extern double NDECL(makerandom);
 extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
-extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, dbref, dbref, char **, int));
+extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, dbref, dbref, char **, int, int));
 
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 extern char *FDECL(upcasestr, (char *));
@@ -391,6 +391,14 @@ FUNCTION(fun_structure)
     int check_type = 0;
 
     svarargs_preamble("STRUCTURE", 6);
+
+    /* Prevent null delimiters. */
+
+    if (!osep) {
+	notify_quiet(player, "You cannot use a null output delimiter.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
 
     /* Enforce limits. */
 
@@ -1774,7 +1782,7 @@ FUNCTION(fun_columns)
         if (!fn_range_check("COLUMNS", nfargs, 2, 4, buff, bufc))
 		return;
 	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 1,                
-	    player, cause, cargs, ncargs))
+	    player, cause, cargs, ncargs, 0))
 		return;
 		
 	number = (unsigned int) safe_atoi(fargs[1]);
@@ -2629,7 +2637,7 @@ FUNCTION(fun_elements)
 		r = split_token(&s, ' ');
 		cur = atoi(r) - 1;
 		if ((cur >= 0) && (cur < nwords) && ptrs[cur]) {
-			if (oldp != *bufc)
+			if ((oldp != *bufc) && osep)
 				safe_chr(osep, buff, bufc);
 			safe_str(ptrs[cur], buff, bufc);
 		}
@@ -2871,7 +2879,7 @@ FUNCTION(fun_sortby)
 	if (nptrs > 1)		/* pointless to sort less than 2 elements */
 		sane_qsort((void **)ptrs, 0, nptrs - 1, u_comp);
 
-	arr2list(ptrs, nptrs, buff, bufc, sep);
+	arr2list(ptrs, nptrs, buff, bufc, osep);
 	free_lbuf(list);
 	free_lbuf(atext);
 }
@@ -2933,7 +2941,7 @@ FUNCTION(fun_matchall)
 		r = split_token(&s, sep);
 		if (quick_wild(fargs[1], r)) {
 			ltos(tbuf, wcount);
-			if (old != *bufc)
+			if ((old != *bufc) && osep)
 				safe_chr(osep, buff, bufc);
 			safe_str(tbuf, buff, bufc);
 		}
@@ -2987,7 +2995,7 @@ FUNCTION(fun_mix)
 	sep = ' ';
 	lastn = nfargs - 1;
     } else if (!delim_check(fargs, nfargs, nfargs, &sep, buff, bufc, 0,
-			    player, cause, cargs, ncargs)) {
+			    player, cause, cargs, ncargs, 0)) {
 	return;
     } else {
 	lastn = nfargs - 2;
@@ -3227,7 +3235,7 @@ FUNCTION(fun_munge)
 	for (i = 0; i < nresults; i++) {
 		for (j = 0; j < nptrs1; j++) {
 			if (!strcmp(results[i], ptrs1[j])) {
-				if (*bufc != oldp)
+				if ((*bufc != oldp) && osep)
 					safe_chr(osep, buff, bufc);
 				safe_str(ptrs2[j], buff, bufc);
 				ptrs1[j][0] = '\0';

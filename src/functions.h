@@ -59,36 +59,36 @@ return;
 if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
-    player, cause, cargs, ncargs))                              \
+    player, cause, cargs, ncargs, 0))                              \
 return;
 
 #define mvarargs_preamble(xname,xminargs,xnargs)	        \
 if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,          \
-    player, cause, cargs, ncargs))                              \
+    player, cause, cargs, ncargs, 0))                              \
 return;
 
 #define evarargs_preamble(xname, xminargs, xnargs)              \
 if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs - 1, &sep, buff, bufc, 1,      \
-    player, cause, cargs, ncargs))                              \
+    player, cause, cargs, ncargs, 0))                              \
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 1,         \
-    player, cause, cargs, ncargs))                              \
+    player, cause, cargs, ncargs, 1))                              \
 return;
 
 #define svarargs_preamble(xname,xnargs)                         \
 if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
 return;							        \
 if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
-    player, cause, cargs, ncargs))                              \
+    player, cause, cargs, ncargs, 0))                              \
 return;							        \
 if (nfargs < xnargs)				                \
     osep = sep;				                        \
 else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
-    player, cause, cargs, ncargs))                              \
+    player, cause, cargs, ncargs, 1))                              \
 return;
 
 extern void	NDECL(init_functab);
