@@ -87,7 +87,7 @@ int type;
 	for (j = old; *j != '\0'; j++) {
 	    switch (*j) {
 		case ESC_CHAR:
-		    c = (char *) index(j, ANSI_END);
+		    c = strchr(j, ANSI_END);
 		    if (c) {
 			if (!type) {
 			    j = c;
@@ -103,7 +103,7 @@ int type;
 			*/
 
 			do {
-			    p = (char *) index(j, ';');
+			    p = strchr(j, ';');
 			    if (p)
 				*p++ = '\0';
 			    i = atoi(j);
@@ -447,7 +447,7 @@ char *replace_string_ansi(old, new, string)
     /* Scan the contents of the string. Figure out whether we have any
      * embedded ANSI codes.
      */
-    new_ansi = (((char *) index(new, ESC_CHAR)) == NULL) ? 0 : 1;
+    new_ansi = strchr(new, ESC_CHAR) ? 1 : 0;
 
     have_normal = 1;
     while (*s) {

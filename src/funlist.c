@@ -61,7 +61,7 @@ int nitems;
 				} else {
 					return ALPHANUM_LIST;
 				}
-			} else if (index(ptrs[i], '.')) {
+			} else if (strchr(ptrs[i], '.')) {
 				sort_type = FLOAT_LIST;
 			}
 			break;
@@ -199,7 +199,7 @@ FUNCTION(fun_last)
 		if (i + 1 <= len)
 			s[i + 1] = '\0';
 	}
-	last = (char *)rindex(s, sep);
+	last = strrchr(s, sep);
 	if (last)
 		safe_str(++last, buff, bufc);
 	else
@@ -347,7 +347,7 @@ FUNCTION(fun_index)
 
 	start--;
 	while (start && s && *s) {
-		if ((s = (char *)index(s, c)) != NULL)
+		if ((s = strchr(s, c)) != NULL)
 			s++;
 		start--;
 	}
@@ -363,7 +363,7 @@ FUNCTION(fun_index)
 
 	p = s;
 	while (end && p && *p) {
-		if ((p = (char *)index(p, c)) != NULL) {
+		if ((p = strchr(p, c)) != NULL) {
 			if (--end == 0) {
 				do {
 					p--;
@@ -537,7 +537,7 @@ FUNCTION(fun_remove)
 	int first, found;
 
 	varargs_preamble("REMOVE", 3);
-	if (index(fargs[1], sep)) {
+	if (strchr(fargs[1], sep)) {
 		safe_str("#-1 CAN ONLY DELETE ONE ELEMENT", buff, bufc);
 		return;
 	}

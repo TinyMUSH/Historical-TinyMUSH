@@ -2317,20 +2317,20 @@ else
   cat conftest.$ac_ext >&5
 fi
 rm -f conftest*
-echo "checking for extended string dcls" 1>&6
-echo "configure:2322: checking for extended string dcls" >&5
+echo "checking for BSD string dcls" 1>&6
+echo "configure:2322: checking for BSD string dcls" >&5
 cat > conftest.$ac_ext <<EOF
 #line 2324 "configure"
 #include "confdefs.h"
 #include <string.h>
 EOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  egrep "rindex" >/dev/null 2>&1; then
+  egrep "bcopy" >/dev/null 2>&1; then
   :
 else
   rm -rf conftest*
   cat >> confdefs.h <<\EOF
-#define NEED_INDEX_DCL 1
+#define NEED_BCOPY_DCL 1
 EOF
 
 fi

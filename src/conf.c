@@ -906,7 +906,7 @@ static unsigned long sane_inet_addr(str)
     char *p;
 
     p = str;
-    for (i = 1; (p = (char *) index(p, '.')) != NULL; i++, p++)
+    for (i = 1; (p = strchr(p, '.')) != NULL; i++, p++)
 	;
     if (i < 4)
 	return INADDR_NONE;
@@ -927,7 +927,7 @@ CF_AHAND(cf_site)
     struct in_addr addr_num, mask_num;
     int mask_bits;
 
-    if ((mask_txt = (char *) index(str, '/')) == NULL) {
+    if ((mask_txt = strchr(str, '/')) == NULL) {
 
 	/* Standard IP range and netmask notation. */
 

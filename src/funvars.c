@@ -158,7 +158,7 @@ static void print_htab_matches(obj, htab, buff, bufc)
 	    if (!strncmp(tbuf, hptr->target, len)) {
 		if (*bufc != bb_p)
 		    safe_chr(' ', buff, bufc);
-		safe_str((char *) (index(hptr->target, '.') + 1), buff, bufc);
+		safe_str(strchr(hptr->target, '.') + 1, buff, bufc);
 	    }
 	}
     }
@@ -673,7 +673,7 @@ FUNCTION(fun_structure)
 
     /* No periods in structure names */
 
-    if (((char *) index(fargs[0], '.')) != NULL) {
+    if (strchr(fargs[0], '.')) {
 	notify_quiet(player, "Structure names cannot contain periods.");
 	safe_chr('0', buff, bufc);
 	return;

@@ -114,7 +114,7 @@ double result;
 							 * into buffer 
 							 */
 	**bufc = '\0';
-	p = (char *)rindex(buf1, '0');
+	p = strrchr(buf1, '0');
 	if (p == NULL) {	/* remove useless trailing 0's */
 		return;
 	} else if (*(p + 1) == '\0') {
@@ -123,7 +123,7 @@ double result;
 		}
 		*bufc = p + 1;
 	}
-	p = (char *)rindex(buf1, '.');	/* take care of dangling '.' */
+	p = strrchr(buf1, '.');	/* take care of dangling '.' */
 
 	if ((p != NULL) && (*(p + 1) == '\0')) {
 			*p = '\0';

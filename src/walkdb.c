@@ -422,7 +422,7 @@ SEARCH *parm;
 		}
 
 	if (searchfor && *searchfor) {
-		searchtype = (char *)rindex(pname, ' ');
+		searchtype = strrchr(pname, ' ');
 		if (searchtype) {
 			*searchtype++ = '\0';
 		} else {

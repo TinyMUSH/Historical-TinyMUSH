@@ -476,7 +476,7 @@ static const char daystab[] =
  */
 
 #define	get_substr(buf, p) { \
-	p = (char *)index(buf, ' '); \
+	p = strchr(buf, ' '); \
 	if (p) { \
 		*p++ = '\0'; \
 		while (*p == ' ') p++; \
@@ -524,7 +524,7 @@ struct tm *ttm;
 		free_sbuf(buf);
 		return 0;
 	}
-	p = (char *)index(q, ':');	/* hours */
+	p = strchr(q, ':');	/* hours */
 	if (!p) {
 		free_sbuf(buf);
 		return 0;
@@ -542,7 +542,7 @@ struct tm *ttm;
 			return 0;
 		}
 	}
-	q = (char *)index(p, ':');	/* minutes */
+	q = strchr(p, ':');	/* minutes */
 	if (!q) {
 		free_sbuf(buf);
 		return 0;

@@ -35,8 +35,8 @@ AC_HEADER_SYS_WAIT
 AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
 AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],AC_DEFINE(HAVE_UNION_WAIT))
-AC_CHECKING(for extended string dcls)
-AC_EGREP_HEADER(rindex,string.h, ,AC_DEFINE(NEED_INDEX_DCL))
+AC_CHECKING(for BSD string dcls)
+AC_EGREP_HEADER(bcopy,string.h, ,AC_DEFINE(NEED_BCOPY_DCL))
 AC_CHECKING(for malloc dcl)
 AC_EGREP_HEADER(realloc,stdlib.h, ,AC_DEFINE(NEED_MALLOC_DCL))
 AC_CHECKING(for vsprintf dcl)

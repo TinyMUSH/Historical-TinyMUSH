@@ -1698,7 +1698,7 @@ char *arg2;
 		/*
 		 * Must be reading or listing mail - no arg2 
 		 */
-		if (isdigit(*arg1) && !index(arg1, '-'))
+		if (isdigit(*arg1) && !strchr(arg1, '-'))
 			do_mail_read(player, arg1);
 		else
 			do_mail_list(player, arg1, 1);

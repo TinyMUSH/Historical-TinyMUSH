@@ -274,7 +274,7 @@ static int ok_exit_name(name)
     /* walk down the string, checking lengths. skip leading spaces. */
 
     for (p = buff, lastp = buff;
-	 (p = (char *) index(lastp, ';')) != NULL;
+	 (p = strchr(lastp, ';')) != NULL;
 	 lastp = p) {
 	*p++ = '\0';
 	s = lastp;

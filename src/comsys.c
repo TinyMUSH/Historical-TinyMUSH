@@ -225,7 +225,7 @@ INLINE static char *munge_comtitle(title)
 
     tp = tbuf;
 
-    if (index(title, ESC_CHAR)) {
+    if (strchr(title, ESC_CHAR)) {
 	safe_copy_str(title, tbuf, &tp, MBUF_SIZE - 5);
 	safe_mb_str(ANSI_NORMAL, tbuf, &tp);
     } else {

@@ -1969,7 +1969,7 @@ FUNCTION(fun_objmem)
 {
 	dbref thing;
 
-	if (index(fargs[0], '/') != NULL) {
+	if (strchr(fargs[0], '/')) {
 	    safe_ltos(buff, bufc, mem_usage_attr(player, fargs[0]));
 	    return;
 	}

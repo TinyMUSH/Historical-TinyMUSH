@@ -322,7 +322,7 @@ FUNCTION(fun_url_escape)
     char tbuf[10];
 
     for (msg_orig = fargs[0]; msg_orig && *msg_orig && !ret; msg_orig++) {
-	if (index(escaped_chars, *msg_orig)) {
+	if (strchr(escaped_chars, *msg_orig)) {
 	    sprintf(tbuf, "%%%2x", *msg_orig);
 	    ret = safe_str(tbuf, buff, bufc);
 	} else if (*msg_orig == ' ') {

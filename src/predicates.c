@@ -490,9 +490,9 @@ const char *name;
 		*name != LOOKUP_TOKEN &&
 		*name != NUMBER_TOKEN &&
 		*name != NOT_TOKEN &&
-		!index(name, ARG_DELIMITER) &&
-		!index(name, AND_TOKEN) &&
-		!index(name, OR_TOKEN) &&
+		!strchr(name, ARG_DELIMITER) &&
+		!strchr(name, AND_TOKEN) &&
+		!strchr(name, OR_TOKEN) &&
 		string_compare(name, "me") &&
 		string_compare(name, "home") &&
 		string_compare(name, "here"));
@@ -526,7 +526,7 @@ const char *name;
 	for (cp = name; cp && *cp; cp++) {
 		if (isalnum(*cp))
 			continue;
-		if ((!index(good_chars, *cp)) || (*cp == ESC_CHAR))
+		if ((!strchr(good_chars, *cp)) || (*cp == ESC_CHAR))
 			return 0;
 	}
 	return 1;
@@ -542,7 +542,7 @@ const char *attrname;
 	for (scan = attrname; *scan; scan++) {
 		if (isalnum(*scan))
 			continue;
-		if (!(index("'?!`/-_.@#$^&~=+<>()%", *scan)))
+		if (!strchr("'?!`/-_.@#$^&~=+<>()%", *scan))
 			return 0;
 	}
 	return 1;
@@ -1463,7 +1463,7 @@ int check_enter;
 		/* Fail if no ' characters */
 
 		place = target;
-		target = (char *)index(place, '\'');
+		target = strchr(place, '\'');
 		if ((target == NULL) || !*target)
 			return dflt;
 

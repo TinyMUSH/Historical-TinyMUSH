@@ -217,7 +217,7 @@ FUNCTION(fun_after)
 
 		/* Search for the first character in the target string */
 	
-		cp = (char *)index(bp, *mp);
+		cp = strchr(bp, *mp);
 		if (cp == NULL) {
 
 			/* Not found, return empty string */
@@ -277,7 +277,7 @@ FUNCTION(fun_before)
 
 		/* Search for the first character in the target string */
 
-		cp = (char *)index(bp, *mp);
+		cp = strchr(bp, *mp);
 		if (cp == NULL) {
 
 			/* Not found, return entire string */

@@ -377,7 +377,7 @@ const char *s;
 	    if (!mudconf.ansi_colors) {
 		queue_write(d, s, strlen(s));
 	    } else {
-		if (!Ansi(d->player) && index(s, ESC_CHAR))
+		if (!Ansi(d->player) && strchr(s, ESC_CHAR))
 		    new = strip_ansi(s);
 		else if (NoBleed(d->player))
 		    new = normal_to_white(s);
@@ -1281,7 +1281,7 @@ static int sane_doing(arg, buff)
 	    *p = ' ';
 
     bp = buff;
-    if (!mudconf.ansi_colors || !index(arg, ESC_CHAR)) {
+    if (!mudconf.ansi_colors || !strchr(arg, ESC_CHAR)) {
 	over = safe_copy_str(arg, buff, &bp, DOING_LEN - 1);
     } else {
 	over = safe_copy_str(arg, buff, &bp, DOING_LEN - 5);

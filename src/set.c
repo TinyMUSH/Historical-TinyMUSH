@@ -1321,7 +1321,7 @@ char *src, **dst, *from, *to;
 		 * trailing ANSI_NORMAL.
 		 */
 
-		if (((char *) index(to, ESC_CHAR)) == NULL) {
+		if (!strchr(to, ESC_CHAR)) {
 		    safe_str(to, *dst, &cp);
 		    safe_str(src, *dst, &cp);
 		} else {
@@ -1347,7 +1347,7 @@ char *src, **dst, *from, *to;
 		 * trailing ANSI_NORMAL.
 		 */
 
-		if (((char *) index(to, ESC_CHAR)) == NULL) {
+		if (!strchr(to, ESC_CHAR)) {
 		    safe_str(src, *dst, &cp);
 		    safe_str(to, *dst, &cp);
 		} else {

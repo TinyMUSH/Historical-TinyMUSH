@@ -480,7 +480,7 @@ int interactive, ncargs;
 
 	if (switchp && cmdp->switches) {
 		do {
-			buf1 = (char *)index(switchp, '/');
+			buf1 = strchr(switchp, '/');
 			if (buf1)
 				*buf1++ = '\0';
 			xkey = search_nametab(player, cmdp->switches,
@@ -1019,7 +1019,7 @@ char *command, *args[];
 
 	/* Strip off any command switches and save them */
 
-	slashp = (char *)index(lcbuf, '/');
+	slashp = strchr(lcbuf, '/');
 	if (slashp)
 		*slashp++ = '\0';
 
