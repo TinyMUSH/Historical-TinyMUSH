@@ -2519,6 +2519,18 @@ void list_memory(player)
 	raw_notify(player,
 		   tprintf("Cache + overhead : %12.2fk", each / 1024));
 	total += each;
+
+	/* Calculate size of object pipelines */
+	
+	each = 0;
+	for (i = 0; i < NUM_OBJPIPES; i++) {
+		if (mudstate.objpipes[i])
+			each += obj_siz(mudstate.objpipes[i]);
+	}
+
+	raw_notify(player,
+		   tprintf("Object pipelines : %12.2fk", each / 1024));
+	total += each;
 	
 	/* Calculate size of name caches */
 	
