@@ -283,25 +283,28 @@ dbconvert: dbconvert.o $(SA_OBJ) $(SA_UDB_O) $(ALLOC_O) $(LIBOBJS)
 $(VER_OBJ):
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $(VER_SRC)
 
-netmush: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
+update_buildnum:
+	-rm -f $(VER_OBJ)
+
+netmush: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-mv -f netmush netmush~
 	$(CC) $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) $(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
-netmush-pure: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
+netmush-pure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-pure
 	$(PUREDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
 	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
-netmush-purecov: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
+netmush-purecov: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-purecov
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	-log-file=purify/netmush.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-purecov $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
 	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
-netmush-realpure: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
+netmush-realpure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-realpure
 	$(PURIFYDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
@@ -309,7 +312,7 @@ netmush-realpure: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	$(CC) $(ALLCFLAGS) -o netmush-realpure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
 	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
-netmush-quant: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
+netmush-quant: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-quant
 	$(QUANTDIR)/quantify -view-file=purify/quant.pv \
 	-log-file=purify/quant.plog \
