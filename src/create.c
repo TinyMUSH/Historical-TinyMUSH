@@ -502,7 +502,7 @@ char *name, *arg2;
 	new_owner = (key & CLONE_PRESERVE) ? Owner(thing) : Owner(player);
 	if ((new_owner != Owner(player)) && !Controls(player, new_owner)) {
 	    notify_quiet(player,
-			 tprintf("You don't control the owner of %s, ignoring /reserve.",
+			 tprintf("You don't control the owner of %s, ignoring /preserve.",
 				 Name(thing)));
 	    new_owner = Owner(player);
 	}
