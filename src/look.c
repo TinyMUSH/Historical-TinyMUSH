@@ -77,16 +77,31 @@ const char *exit_name;
 	e1 = buff1 = alloc_lbuf("look_exits2");
 	ITER_PARENTS(loc, parent, lev) {
 		if (Transparent(loc)) {
-			DOLIST(thing, Exits(parent)) {
-				if ((Light(thing) && !Dark(thing)) ||
-				   (!Dark(thing) && !isdark)) {
-					strcpy(buff, Name(thing));
-					for (e = buff; *e && (*e != ';'); e++) ;
-					*e = '\0';
-					notify(player, tprintf("%s leads to %s.",
-					      buff, Name(Location(thing))));
-				}
+		    DOLIST(thing, Exits(parent)) {
+			if ((Light(thing) && !Dark(thing)) ||
+			    (!Dark(thing) && !isdark)) {
+			    strcpy(buff, Name(thing));
+			    for (e = buff; *e && (*e != ';'); e++) ;
+			    *e = '\0';
+			    if (Location(thing) == NOTHING) {
+				notify(player,
+				       tprintf("%s leads nowhere.", buff));
+			    } else if (Location(thing) == AMBIGUOUS) {
+				notify(player,
+				       tprintf("%s leads somewhere.", buff));
+			    } else if (Location(thing) == HOME) {
+				notify(player,
+				       tprintf("%s leads home.", buff));
+			    } else if (Good_obj(Location(thing))) {
+				notify(player, tprintf("%s leads to %s.",
+						       buff,
+						       Name(Location(thing))));
+			    } else {
+				notify(player, tprintf("%s leads elsewhere.",
+						       buff));
+			    }
 			}
+		    }
 		} else {
 			DOLIST(thing, Exits(parent)) {
 				if ((Light(thing) && !Dark(thing)) ||
