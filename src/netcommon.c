@@ -352,6 +352,14 @@ const char *s;
 	queue_write(d, new, strlen(new));
 }
 
+INLINE void queue_rawstring(d, s)
+DESC *d;
+const char *s;
+{
+    if (s)
+	queue_write(d, s, strlen(s));
+}
+
 void freeqs(d)
 DESC *d;
 {
@@ -1195,6 +1203,33 @@ int key;
 	free_mbuf(buf);
 }
 
+static void dump_info(call_by)
+    DESC *call_by;
+{
+    DESC *d;
+    char *temp;
+    int count = 0;
+
+    queue_rawstring(call_by, "### Begin INFO 1\r\n");
+
+    queue_rawstring(call_by, tprintf("Name: %s\r\n", mudconf.mud_name));
+
+    temp = (char *) ctime(&mudstate.start_time);
+    temp[strlen(temp) - 1] = '\0';
+    queue_rawstring(call_by, tprintf("Uptime: %s\r\n", temp));
+
+    DESC_ITER_CONN(d) {
+	if (!Hidden(d->player) ||
+	    ((call_by->flags & DS_CONNECTED) && Wizard(call_by->player)))
+	    count++;
+    }
+    queue_rawstring(call_by, tprintf("Connected: %d\r\n", count));
+
+    queue_rawstring(call_by, tprintf("Size: %d\r\n", mudstate.db_top));
+    queue_rawstring(call_by, tprintf("Version: %s\r\n", mudstate.short_ver));
+    queue_rawstring(call_by, "### End INFO\r\n");
+}
+
 /* ---------------------------------------------------------------------------
  * do_doing: Set the doing string that appears in the WHO report.
  * Idea from R'nice@TinyTIM.
@@ -1269,6 +1304,7 @@ NAMETAB logout_cmdtable[] = {
 {(char *)"SESSION",	7,	CA_PUBLIC,	CMD_SESSION},
 {(char *)"WHO",		3,	CA_PUBLIC,	CMD_WHO},
 {(char *)"PUEBLOCLIENT", 12,	CA_PUBLIC,      CMD_PUEBLOCLIENT},
+{(char *)"INFO",	4,	CA_PUBLIC,	CMD_INFO},
 {NULL,			0,	0,		0}};
 
 /* *INDENT-ON* */
@@ -1730,6 +1766,9 @@ int first;
 			break;
 		case CMD_SUFFIX:
 			set_userstring(&d->output_suffix, arg);
+			break;
+		case CMD_INFO:
+			dump_info(d);
 			break;
 		case CMD_PUEBLOCLIENT:
 #ifdef PUEBLO_CLIENT

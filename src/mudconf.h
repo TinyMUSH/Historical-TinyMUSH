@@ -310,6 +310,7 @@ struct statedata {
 	int	events_flag;	/* Flags for check_events */
 	int	shutdown_flag;	/* Should interface be shut down? */
 	char	version[PBUF_SIZE];	/* MUX version string */
+	char	short_ver[64];  /* Short version number (for INFO) */
 	time_t	start_time;	/* When was MUX started */
 	time_t	restart_time;	/* When did we last restart? */
 	int	reboot_nums;	/* How many times have we restarted? */

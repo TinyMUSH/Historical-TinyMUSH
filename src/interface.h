@@ -49,6 +49,7 @@ extern int shutdown_flag; /* if non-zero, interface should shut down */
 #define CMD_LOGOUT	7
 #define CMD_SESSION	8
 #define CMD_PUEBLOCLIENT 9
+#define CMD_INFO	10
 
 #define CMD_MASK	0xff
 #define CMD_NOxFIX	0x100
