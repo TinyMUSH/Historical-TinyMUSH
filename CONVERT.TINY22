@@ -82,6 +82,10 @@ called it).
 - I don't want to allow powers to be set on objects.
   Put 'access @power disabled' in your conf file.
 
+- I don't want to allow @conformat and/or @exitformat to be used.
+  Put 'attr_access ConFormat disabled' and/or 'attr_access ExitFormat disabled'
+  in your conf file.
+
 - I don't want side-effect functions.
   Put the following in your conf file:
 	function_access command disabled
