@@ -110,11 +110,6 @@
 #define WRITE write
 #endif
 
-#ifdef BRAIN_DAMAGE		/* a kludge to get it to work on a mutant
-				 * DENIX system */
-#undef toupper
-#endif
-
 #ifdef TEST_MALLOC
 extern int malloc_count;
 #define XMALLOC(x,y) (fprintf(stderr,"Malloc: %s\n", (y)), malloc_count++, \
