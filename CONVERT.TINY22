@@ -158,6 +158,9 @@ For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
 
 - @edit hilites the changed text.
 
+- examine/brief now shows everything but the attributes on the object.
+  To get the old behavior (just showing the owner), use examine/owner.
+
 - '@function/preserve' preserves registers across user-defined functions.
 
 - '@list process' shows the number of descriptors available.
