@@ -1376,7 +1376,8 @@ dbref db_write()
 			 * the attribute numbers in this block */
 			
 			for (j = 0; (j < blksize) &&
-			    ((ENTRY_BLOCK_STARTS(i, blksize) + j) < mudstate.attr_next);
+			    ((ENTRY_BLOCK_STARTS(i, blksize) + j) < mudstate.attr_next) &&
+			    ((ENTRY_BLOCK_STARTS(i, blksize) + j) >= A_USER_START);
 			    j++) {
 				/* j is an offset of attribute
 				 * numbers into the current block */
