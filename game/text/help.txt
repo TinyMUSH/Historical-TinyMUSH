@@ -5228,7 +5228,7 @@ See also: @link, @open.
 	pmatch()	ports()		programmer()	rloc()		
 	room()		search()	sees()		session()	
 	stats()		type()		visible()	where()		
-	xcon()		zone()		zwho()
+	writable()	xcon()		zone()		zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -9391,6 +9391,19 @@ performed and the walk down the list stops.
   If an object-attribute pair is provided, 1 is returned if <object>
   can see <attr> on <victim>. If <attr> is not present on <victim>,
   1 is returned if <object> can examine <victim>.
+ 
+& writable()
+  Function:  writable(<object>,<victim>/<attr>)
+ 
+  Returns 1 if <object> can set <victim>'s <attr>, or 0 otherwise. If
+  <object> or <victim> do not exist, 0 is returned.
+ 
+  If an attribute by the name of <attr> has never been defined on the
+  MUSH before, writable() always returns 0. To prevent this in a situation
+  where you know that <attr> might not exist, you can do the following: 
+      [set(<trash>,<attr>:)][writable(<object>,<victim>/<attr>)]
+  <trash> should be some object that you control, which can have its
+  attributes trashed to no ill-effect.
  
 & controls()
   Function: controls(<object>,<victim>)

@@ -669,6 +669,30 @@ FUNCTION(fun_visible)
 }
 
 /* ------------------------------------------------------------------------
+ * fun_writable: Returns 1 if player could set <obj>/<attr>.
+ */
+
+FUNCTION(fun_writable)
+{
+	dbref it, thing, aowner;
+	int aflags, atr;
+	ATTR *ap;
+
+	if ((it = match_thing(player, fargs[0])) == NOTHING) {
+		safe_chr('0', buff, bufc);
+		return;
+	}
+	if (parse_attrib(player, fargs[1], &thing, &atr, 1) &&
+	    (atr != NOTHING)) {
+		ap = atr_num(atr);
+		atr_pget_info(thing, atr, &aowner, &aflags);
+		safe_bool(buff, bufc, Set_attr(it, thing, ap, aflags));
+		return;
+	}
+	safe_chr('0', buff, bufc);
+}
+
+/* ------------------------------------------------------------------------
  * fun_flags: Returns the flags on an object.
  * Because @switch is case-insensitive, not quite as useful as it could be.
  */

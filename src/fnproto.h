@@ -218,6 +218,7 @@ XFUNCTION(fun_home);
 XFUNCTION(fun_money);
 XFUNCTION(fun_findable);
 XFUNCTION(fun_visible);
+XFUNCTION(fun_writable);
 XFUNCTION(fun_flags);
 XFUNCTION(fun_orflags);
 XFUNCTION(fun_andflags);
@@ -717,6 +718,7 @@ FUN flist[] = {
 {"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC},
 {"WORDPOS",     fun_wordpos,    0,  FN_VARARGS,	CA_PUBLIC},
 {"WORDS",	fun_words,	0,  FN_VARARGS,	CA_PUBLIC},
+{"WRITABLE",	fun_writable,	2,  0,		CA_PUBLIC},
 {"WRITE",	fun_write,	2,  0,		CA_PUBLIC},
 {"X",		fun_x,		1,  0,		CA_PUBLIC},
 {"XCON",	fun_xcon,	3,  0,		CA_PUBLIC},
