@@ -53,6 +53,26 @@ const char *name;
 	}
 }
 
+dbref match_affected(player, name)
+dbref player;
+const char *name;
+{
+	dbref mat;
+
+	/* We allow control, as well as having the same owner. */ 
+
+	init_match(player, name, NOTYPE);
+	match_everything(MAT_EXIT_PARENTS);
+	mat = noisy_match_result();
+	if (Good_obj(mat) && (Owner(player) != Owner(mat)) &&
+	    !Controls(player, mat)) {
+		notify_quiet(player, NOPERM_MESSAGE);
+		return NOTHING;
+	} else {
+		return (mat);
+	}
+}
+
 void do_chzone(player, cause, key, name, newobj)
 dbref player, cause;
 int key;

@@ -870,7 +870,7 @@ char *recipient, *message;
 	case PEMIT_FPOSE:
 	case PEMIT_FPOSE_NS:
 	case PEMIT_FEMIT:
-		target = match_controlled(player, recipient);
+		target = match_affected(player, recipient);
 		if (target == NOTHING)
 			return;
 		ok_to_do = 1;

@@ -205,6 +205,7 @@ extern int	FDECL(parse_attrib_wild, (dbref, char *, dbref *, int,
 			int, int, int));
 extern void	FDECL(edit_string, (char *, char **, char *, char *));
 extern dbref	FDECL(match_controlled, (dbref, const char *));
+extern dbref	FDECL(match_affected, (dbref, const char *));
 
 /* From stringutil.c */
 extern char *	FDECL(upcasestr, (char *)); 
