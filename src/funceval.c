@@ -2182,13 +2182,20 @@ FUNCTION(fun_die)
 	int n, die, count;
 	int total = 0;
 
-	if (!fargs[0] || !fargs[1])
-		return;
+	if (!fargs[0] || !fargs[1]) {
+	    safe_str("0", buff, bufc);
+	    return;
+	}
 
 	n = atoi(fargs[0]);
 	die = atoi(fargs[1]);
 
-	if ((n < 1) || (n > 20)) {
+	if ((n == 0) || (die <= 0)) {
+	    safe_str("0", buff, bufc);
+	    return;
+	}
+
+	if ((n < 1) || (n > 100)) {
 		safe_str("#-1 NUMBER OUT OF RANGE", buff, bufc);
 		return;
 	}
