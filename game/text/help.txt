@@ -1161,20 +1161,21 @@
   Command: @list [<option>]
   Lists information from internal databases.  Information is available
   about the following options:
-    attributes      - Valid object attributes.
-    commands        - Commands that you may use (excluding the 
-                      attribute-setting commands as well as any exits, and
-                      $-commands available).
-    costs           - Lists the costs associated with many commands and
-                      actions.
-    default_flags   - Lists the flags that new objects receive by default
-                      when created.
-    flags           - Lists the name and letter of all the flags.
-    functions       - Lists all the available functions.
-    options         - Lists several global options and limits.
-    powers          - List all the available powers.
-    switches        - Lists what commands support switches and the switches
-                      that they do support.
+    attributes        - Valid object attributes.
+    commands          - Commands that you may use (excluding the 
+                        attribute-setting commands as well as any exits, and
+                        $-commands available).
+    config_read_perms - Config parameter read permissions (most will be blank,
+                        meaning that anyone can read those parameters).
+    costs             - The costs associated with many commands and actions.
+    default_flags     - The flags that new objects receive by default
+                        when created.
+    flags             - The names and letters of all the flags.
+    functions         - All the available functions.
+    options           - Several global yes/no options.
+    params	      - Several global options and limits.
+    switches          - What commands support switches and the switches
+                        that they do support.
   The information provided by the @list command is definitive, as it reads
   the internal tables to produce the information it displays.  Specifying
   @list with no argument lists the options you may use.
@@ -7725,11 +7726,10 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & CONFIG()
   Function:  config(<parameter name>)
  
-  This function, which is restricted to Wizards, returns the value of
-  the named configuration parameter. Not all configuration options can
-  be obtained this way; some are protected for security reasons, while
-  others don't have a single simple value (access directives, for
-  instance).
+  This function returns the value of the named configuration parameter.
+  Not all configuration options can be obtained this way; some are protected
+  for security reasons, while others don't have a single simple value
+  (access directives, for instance).
  
 & SHUFFLE()
   Function:  shuffle(<word1> <word2> <...<wordN>[,<delim>][,<output delim>])

@@ -21,6 +21,7 @@
 #include "db_sql.h"
 
 extern void FDECL(list_cf_access, (dbref));
+extern void FDECL(list_cf_read_access, (dbref));
 extern void FDECL(list_siteinfo, (dbref));
 extern void FDECL(logged_out, (dbref, dbref, int, char *));
 extern void NDECL(boot_slave);
@@ -2653,140 +2654,7 @@ dbref player;
  * list_config: List non-boolean game options.
  */
 
-#define Opt(s,x) raw_notify(player, tprintf("%c   %s?", ((x) ? 'Y' : 'N'), (s)))
-
-static void list_options(player)
-dbref player;
-{
-    Opt("ANSI color codes enabled", mudconf.ansi_colors);
-    Opt("New objects are initially zoned to their creator's zone",
-	mudconf.autozone);
-    Opt("Dbrefs #0 and #-1 are boolean false, all other dbrefs are boolean true", mudconf.bools_oldstyle);
-    Opt("@clone copies object cost", mudconf.clone_copy_cost);
-    Opt("Dark objects still trigger @a-actions when moving",
-	mudconf.dark_actions);
-    Opt("Disconnected players are not shown in room contents",
-	mudconf.dark_sleepers);
-    Opt("examine shows names of flags", mudconf.ex_flags);
-    Opt("examine shows public attributes", mudconf.exam_public);
-    Opt("Using an exit calls the move command", mudconf.exit_calls_move);
-    Opt("@teleport from location restricted to control or Jump_OK",
-	mudconf.fascist_tport);
-    Opt("@conformat is obeyed when displaying contents", mudconf.fmt_contents);
-    Opt("@exitformat is obeyed when displaying exit lists", mudconf.fmt_exits);
-    Opt("Uselocks checked on global @aconnect and @adisconnect", 
-	mudconf.global_aconn_uselocks);
-
-#ifdef USE_COMSYS
-    Opt("Built-in comsys enabled", mudconf.have_comsys);
-#else
-    Opt("Built-in comsys enabled", 0);
-#endif
-
-#ifdef USE_MAIL
-    Opt("Built-in @mail system enabled", mudconf.have_mailer);
-#else
-    Opt("Built-in @mail system enabled", 0);
-#endif
-
-    Opt("Multiple control via ControlLocks is permitted", mudconf.have_zones);
-    Opt("Wizards who idle are set Dark", mudconf.idle_wiz_dark);
-    Opt("Descriptions are indented", mudconf.indent_desc);
-    Opt("@destroy instantly recycles objects set Destroy_OK",
-	mudconf.instant_recycle);
-    Opt("lattr() failed matches return blank, not #-1 NO MATCH",
-	mudconf.lattr_oldstyle);
-    Opt("Objects set Zone are treated like local master rooms",
-	mudconf.local_masters);
-    Opt("look obeys the Terse flag", mudconf.terse_look);
-    Opt("Objects other than players can match $-commands on themselves", mudconf.match_mine);
-    Opt("Move command looks for global and zone exits, and resolves ambiguity",
-	mudconf.move_match_more);
-    Opt("Ambiguous matches always resolve to the last match",
-	mudconf.no_ambiguous_match);
-    Opt("@pemit targets can be players in other locations",
-	mudconf.pemit_players);
-    Opt("@pemit targets can be objects in other locations",
-	mudconf.pemit_any);
-    Opt("@listen and ^-monitors are checked on players",
-	mudconf.player_listen);
-    Opt("Players can match $-commands on themselves", mudconf.match_mine_pl);
-    Opt("Player names can contain spaces", mudconf.name_spaces);
-    Opt("Flag information is public", mudconf.pub_flags);
-    Opt("look shows public attributes in addition to @desc",
-	mudconf.quiet_look);
-    Opt("whisper is quiet", mudconf.quiet_whisper);
-    Opt("Quotas are enforced", mudconf.quotas);
-    Opt("@desc is public, even to players in other locations",
-	mudconf.read_rem_desc);
-    Opt("Names are public, even to players in other locations",
-	mudconf.read_rem_name);
-    Opt("Only objects set Commands are checked for $-commands",
-	mudconf.req_cmds_flag);
-    Opt("Robots can speak in locations their owners do not control",
-	mudconf.robot_speak);
-    Opt("Passwords must conform to minimum security standards",
-	mudconf.safer_passwords);
-    Opt("look shows Dark objects owned by you", mudconf.see_own_dark);
-    Opt("Multiple spaces are compressed to a single space",
-	mudconf.space_compress);
-    Opt("@sweep works on Dark locations", mudconf.sweep_dark);
-    Opt("@switch default is /all, not /first", mudconf.switch_df_all);
-    Opt("Terse suppresses the contents list of a location",
-	mudconf.terse_contents);
-    Opt("Terse suppresses the exit list of a location", mudconf.terse_exits);
-    Opt("Terse suppresses movement messages", mudconf.terse_movemsg);
-    Opt("Trace output is top-down", mudconf.trace_topdown);
-    Opt("Quotas are enforced per object type", mudconf.typed_quotas);
-    Opt("Objects not owned by you are automatically considered Safe",
-	mudconf.safe_unowned);
-    Opt("Global @aconnect and @adisconnect checks are enabled",
-	mudconf.use_global_aconn);
-    Opt("LinkLocks are checked, even if a player can link to anything",
-	mudconf.wiz_obey_linklock);
-
-#ifdef PUEBLO_SUPPORT
-    Opt("Pueblo client extensions are supported", 1);
-#else
-    Opt("Pueblo client extensions are supported", 0);
-#endif
-    
-    if (Wizard(player)) {
-	Opt("Dump core after logging a bug", mudconf.abort_on_bug);
-	Opt("@addcommands do not display an error if no match is found",
-	    mudconf.addcmd_match_blindly);
-	Opt("@addcommands obey STOP", mudconf.addcmd_obey_stop);
-	Opt("@addcommands obey uselocks", mudconf.addcmd_obey_uselocks);
-	Opt("Names are cached separately", mudconf.cache_names);
-	Opt("Cache trimmed periodically", mudconf.cache_trim);
-	Opt("Dumps are performed using a forked process", mudconf.fork_dump);
-	Opt("Forks are done using vfork()", mudconf.fork_vfork);
-	Opt("DNS lookups are done on hostnames", mudconf.use_hostname);
-	Opt("Buffer pools checked for consistency with each alloc and free",
-	    mudconf.paranoid_alloc);
-	Opt("Database files are compressed", mudconf.compress_db);
-
-#ifdef NO_LAG_CHECK
-	Opt("CPU usage warnings are enabled", 0);
-#else
-	Opt("CPU usage warnings are enabled", 1);
-#endif
-
-	/* Only display SQL db status if we seem to be configured for one.
-	 * Do NOT display where the database is. Wizards don't need to know,
-	 * and it can never change dynamically, only in the conf file.
-	 */
-	if (mudconf.sql_host && *mudconf.sql_host) {
-	    Opt("Connection currently open to an external SQL database",
-		(mudstate.sql_socket != -1));
-	    Opt("SQL queries re-initiate dropped connections",
-		mudconf.sql_reconnect);
-	}
-
-    }
-}
-
-#undef Opt
+extern void FDECL(list_options, (dbref));
 
 static void list_params(player)
     dbref player;
@@ -3161,6 +3029,7 @@ dbref player;
 #define LIST_CACHEOBJS	23
 #define LIST_TEXTFILES  24
 #define LIST_PARAMS	25
+#define LIST_CF_RPERMS	26
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
@@ -3171,7 +3040,8 @@ NAMETAB list_names[] = {
 {(char *)"buffers",		2,	CA_WIZARD,	LIST_BUFTRACE},
 {(char *)"cache",		2,	CA_WIZARD,	LIST_CACHEOBJS},
 {(char *)"commands",		3,	CA_PUBLIC,	LIST_COMMANDS},
-{(char *)"config_permissions",	3,	CA_GOD,		LIST_CONF_PERMS},
+{(char *)"config_permissions",	8,	CA_GOD,		LIST_CONF_PERMS},
+{(char *)"config_read_perms",	4,	CA_PUBLIC,	LIST_CF_RPERMS},
 {(char *)"costs",		3,	CA_PUBLIC,	LIST_COSTS},
 {(char *)"db_stats",		2,	CA_WIZARD,	LIST_DB_STATS},
 {(char *)"default_flags",	1,	CA_PUBLIC,	LIST_DF_FLAGS},
@@ -3252,6 +3122,9 @@ char *arg;
 		break;
 	case LIST_CONF_PERMS:
 		list_cf_access(player);
+		break;
+	case LIST_CF_RPERMS:
+		list_cf_read_access(player);
 		break;
 	case LIST_POWERS:
 		display_powertab(player);

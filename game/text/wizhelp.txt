@@ -568,13 +568,13 @@
  
 	allocations		attr_permissions	attributes	
 	bad_names		buffers			cache
-	commands		config_permissions	costs
-	db_stats		default_flags		flags
-	functions		globals			hashstats
-	logging			options			params
-	permissions		powers			process
-	site_information	switches		textfiles
-	user_attributes
+	commands		config_permissions	config_read_perms
+	costs			db_stats		default_flags
+	flags			functions		globals
+	hashstats		logging			options
+	params			permissions		powers
+	process			site_information	switches
+	textfiles		user_attributes
  
   Type wizhelp @list <option> for help with a particular option.
 
@@ -651,9 +651,18 @@
 & @list config_permissions
   Command: @list config_permissions
  
-  Lists all available config options, and the permissions for them.
+  Lists all available config options, and the permissions necessary for
+  modifying them.
  
-  See also: config_access
+  See also: config_access, @list config_read_perms
+ 
+& @list config_read_perms
+  Command: @list config_read_perms
+ 
+  Lists all available config options, and the permissions necessary to
+  read them (with e.g. @list options or the config() function).
+ 
+  See also: config_read_access, @list config_permissions
  
 & @list costs
   Command: @list costs
@@ -1361,9 +1370,9 @@
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
-	bad_name		config_access		flag_access
-	function_access		good_name		list_access
-	logout_cmd_access	power_access
+	bad_name		config_access		config_read_access
+	flag_access		function_access		good_name
+	list_access		logout_cmd_access	power_access
 
 & PARAM SITES
 	forbid_site		guest_site		permit_site
@@ -1587,7 +1596,18 @@ use_global_aconn	wizard_obeys_linklock
   Setting privileges to anything other than static, disabled, or god is
   meaningless unless the restriction on the @admin command is weakened.
  
-  See also: @admin, @list config_permissions, PERMISSIONS.
+  See also: @admin, @list config_permissions, config_read_access, PERMISSIONS.
+ 
+& config_read_access
+  Config parameter: config_read_access <param> [!]<priv> [[!]<priv>]...
+ 
+  Changes the privileges needed to read the specified configuration
+  parameter.
+ 
+  A value of 'disabled' or 'static' means that no one may read the parameter,
+  usually because it is not feasible to return a value in config(). 
+ 
+  See also: @admin, @list config_permissions, config_access, PERMISSIONS.
  
 & conn_timeout
   Config parameter: conn_timeout <num>.  Default: 60
@@ -2033,7 +2053,8 @@ use_global_aconn	wizard_obeys_linklock
   Config parameter: have_comsys <yes/no>. Default: Yes
  
   Specifies whether or not the server's native comsystem should be
-  active.
+  active. This parameter will be set to No and remain unmodifiable
+  if the server was compiled without USE_COMSYS.
  
   See also: comsys_database
  
@@ -2041,8 +2062,19 @@ use_global_aconn	wizard_obeys_linklock
   Config parameter: have_mailer <yes/no>. Default: Yes
  
   Specifies whether or not the server's native mailer should be active.
+  This parameter will be set to No and remain unmodifiable if the server
+  was compiled without USE_MAIL.
  
   See also: mail_database
+ 
+& have_pueblo
+  Config parameter: have_pueblo <yes/no>. Default: Yes
+ 
+  Specifies whether or not the server uses Pueblo enhancements. This
+  parameter is not modifiable, and will be set to No if the server
+  was compiled without PUEBLO_SUPPORT.
+ 
+  See also: html_connect_file, pueblo_message
  
 & have_zones
   Config parameter: have_zones <yes/no>.  Default: Yes
@@ -2166,8 +2198,18 @@ use_global_aconn	wizard_obeys_linklock
   See also: kill, kill_guarantee_cost, kill_max_cost, HAVEN, IMMORTAL,
             KILLING.
 
+& lag_check
+  Config parameter: lag_check <yes/no>.  Default: Yes
+  
+  Specifies whether the server measures the time used by each command and
+  logs warnings. This parameter is not modifiable and will be set to No
+  if the server was compiled with NO_LAG_CHECK.
+  
+  See also: lag_maximum
+  
 & lag_maximum
   Config parameter: lag_maximum <number of seconds>.  Default: 120
+  
   If the amount of real time used by a command exceeds the given number
   of seconds, a warning message will be printed to the log file.
 
