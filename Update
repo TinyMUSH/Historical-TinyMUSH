@@ -1,0 +1,281 @@
+: # use perl -*- Perl -*-
+        eval 'exec perl -S $0 ${1+"$@"}'
+                if $runnning_under_some_shell;
+# clever way of calling perl on this script : stolen from weblint
+##!/usr/local/bin/perl # you could try this also!
+
+# Get all patches, apply them, and build a new version of the server.
+# If -v option, do this verbosely.
+
+use Socket;
+
+$uncompress_program = "gzip -d -c";
+$patch_program = "patch -p1";
+
+$patch_url = "http://www.godlike.com/tm3/patches";
+$patchlevel_file = "src/.patchlevel";
+
+if ($ARGV[0] eq "-v") {
+    $verbose = 1;
+} else {
+    $verbose = 0;
+}
+
+# --------------------------------------------------------------------------
+# Subroutine: Web_Get(<URL>)
+
+sub Web_Get {
+
+    my $url = shift;
+    my (
+	$them, $doc, $port, $sockaddr, $hostname, $proto, $thisaddr, $this,
+	$thataddr, $that, $WAS, $strptr, $basefile
+    );
+    undef @remote_output;
+
+    ($them, $doc) = ($url =~ /^http:\/\/([^\/]+)\/(.*)$/);
+    ($them, $port) = split(/:/,$them);
+    $port = 80 unless $port;
+
+    $strptr = rindex($doc, '/');
+    $basefile = substr($doc, $strptr + 1);
+
+    if ($verbose) {
+	print "    Retrieving: $doc\n";
+    }
+
+    # Connection set-up.
+
+    $sockaddr = 'S n a4 x8';
+    chop($hostname = `hostname`);
+    $proto = (getprotobyname('tcp'))[2];
+    $thisaddr = (gethostbyname($hostname))[4];
+    $this = pack($sockaddr, &AF_INET, 0, $thisaddr);
+
+    if (! ($thataddr = gethostbyname($them)) ) {
+	print "Error getting $basefile: gethostbyname ($them): $!\n";
+	return -1;
+    }
+    $that = sockaddr_in($port, $thataddr);
+
+    if (! socket(S, &AF_INET, &SOCK_STREAM, $proto) ) {
+	print "Error geting $basefile: socket: $!\n";
+	return -1;
+    }
+    if (! bind(S, $this)) {
+	print "Error getting $basefile: bind: $!\n";
+	close(S);
+	return -1;
+    }
+    if (! connect(S, $that)) {
+	print "Error getting $basefile: connect: $!\n";
+	close(S);
+	return -1;
+    }
+
+    # Turn off line buffering.
+
+    $WAS=select(S);
+    $|=1;
+    select($WAS);
+
+    # Go get it.
+
+    print S "GET /$doc HTTP/1.0\r\n\r\n";
+    while (<S>) {
+	last if /^\r?\n?$/;
+    }
+    while (<S>) {
+	if (/404 Not Found/) {
+	    return 0;
+	}
+	push(@remote_output,$_);
+    }
+    close(S);
+
+    # @remote_output now contains the returned document
+    # Write it. Do not terminate with newline.
+
+    if (! open(PATCHFILE, ">$patch_dir/$basefile")) {
+	print "Error opening output file $patch_dir/$basefile: $!\n";
+	return 0;
+    }
+    print PATCHFILE @remote_output;
+    close(PATCHFILE);
+    return 1;
+}
+
+# --------------------------------------------------------------------------
+# Main program.
+
+# Get our current version.
+# Format: 'The current version is: TinyMUSH <version> <beta|patchlevel> <num>
+
+if (! open(PLFILE, "<$patchlevel_file")) {
+    print "Could not open patchlevel file $patchlevel_file: $!\n";
+    exit(1);
+}
+while (<PLFILE>) {
+    chomp;
+    if (/^The current version is: TinyMUSH 3\.(\d+) ([a-z]+) (\d+)$/) {
+	$major_v = $1;
+	$minor_v = $3;
+	if ($2 eq "beta") {
+	    $status_v = "b";
+	} elsif ($2 eq "patchlevel") {
+	    $status_v = "p";
+	} else {
+	    print "Could not deduce current version. Sorry.\n";
+	    exit(1);
+	}
+	print "You have: TinyMUSH 3.", $major_v, $status_v, $minor_v, "\n";
+    }
+}
+close(PLFILE);
+
+# Create a temporary directory to hold the patches.
+
+$patch_dir = "patches.$$";
+mkdir($patch_dir, 0755);
+
+# If we are now at a beta version, go look for patches of sequentially
+# higher number, until we get back a return value of 0 from web_get,
+# indicating that the file does not exist. That last one indicates
+# the last beta; check for a gamma version.
+
+$beta_minor_v = -1;
+
+if ($status_v eq "b") {
+    $beta_minor_v = $minor_v;
+    $max_v = $minor_v;
+    while (1) {
+	$tmp_url = sprintf("%s/3.%d-beta/patch-3%d%s%d-3%d%s%d.gz",
+			   $patch_url, $major_v,
+			   $major_v, $status_v, $max_v,
+			   $major_v, $status_v, $max_v + 1);
+	$retcode = Web_Get($tmp_url);
+	if ($retcode == -1) {
+	    print "Retrieval error. Please try again later.\n";
+	    exit(1);
+	} elsif ($retcode == 0) {
+	    if ($minor_v != $max_v) {
+		print "Patches retrieved up to 3.$major_v beta $max_v.\n";
+	    }
+	    $beta_max_v = $max_v;
+	    $tmp_url = sprintf("%s/3.%d-beta/patch-3%d%s%d-3%dgamma.gz",
+			       $patch_url, $major_v,
+			       $major_v, $status_v, $max_v,
+			       $major_v);
+	    $retcode = Web_Get($tmp_url);
+	    if ($retcode == 1) {
+		print "Patch retrieved for 3.$major_v final (gamma) release.\n";
+		$minor_v = 0;
+		$status_v = "p";
+	    }
+	    last;
+	}
+	$max_v++;
+    }
+}
+
+# Now we retrieve up to the current patchlevel, if it exists.
+
+if ($status_v eq "p") {
+    $max_v = $minor_v;
+    while (1) {
+	$tmp_url = sprintf("%s/3.%d/patch-3%d%s%d-3%d%s%d.gz",
+			   $patch_url, $major_v,
+			   $major_v, $status_v, $max_v,
+			   $major_v, $status_v, $max_v + 1);
+	$retcode = Web_Get($tmp_url);
+	if ($retcode == -1) {
+	    print "Retrieval error. Please try again later.\n";
+	    exit(1);
+	} elsif ($retcode == 0) {
+	    print "Patches retrieved up to 3.$major_v patchlevel $max_v.\n";
+	    last;
+	}
+	$max_v++;
+    }
+}
+
+# Patch all beta versions first, then do patchlevel updates.
+# Delete patches as we go.
+
+$applied = 0;
+
+if ($beta_minor_v > -1) {
+    if ($beta_minor_v == $beta_max_v) {
+	print "No beta patches to apply.\n";
+    } else {
+	for ($i = $beta_minor_v; $i < $beta_max_v; $i++) {
+	    $pfile = sprintf("%s/patch-3%db%d-3%db%d.gz",
+			     $patch_dir,
+			     $major_v, $i,
+			     $major_v, $i + 1);
+	    if ($verbose) {
+		print "    Applying: $pfile\n";
+	    }
+	    $pstatus = `$uncompress_program $pfile | $patch_program`;
+	    unlink($pfile);
+	    $applied++;
+	}
+	if ($status_v eq "p") {
+	    $pfile = sprintf("%s/patch-3%db%d-3%dgamma.gz",
+			       $patch_dir,
+			       $major_v, $beta_max_v, $major_v);
+	    if ($verbose) {
+		print "    Applying: $pfile\n";
+	    }
+	    $pstatus = `$uncompress_program $pfile | $patch_program`;
+	    unlink($pfile);
+	    $applied++;
+	}
+    }
+}
+
+if ($status_v eq "p") {
+    if ($minor_v == $max_v) {
+	print "No new patchlevels to apply.\n";
+    } else {
+	for ($i = $minor_v; $i < $max_v; $i++) {
+	    $pfile = sprintf("%s/patch-3%dp%d-3%dp%d.gz",
+			     $patch_dir,
+			     $major_v, $i,
+			     $major_v, $i + 1);
+	    if ($verbose) {
+		print "    Applying: $pfile\n";
+	    }
+	    $pstatus = `$uncompress_program $pfile | $patch_program`;
+	    unlink($pfile);
+	    $applied++;
+	}
+    }
+}
+
+rmdir($patch_dir);
+
+# Go do a build.
+
+if (! $applied) {
+    print "No patches applied. You do not need to do anything.\n";
+    exit(0);
+}
+
+if ($status_v eq "b") {
+    $st_str = "beta";
+} else {
+    $st_str = "patchlevel";
+}
+printf("Applied $applied patches. New version will be 3.%d %s %d.\n",
+       $major_v, $st_str, $max_v);
+
+print "Please type:\n";
+
+if (-e "src/Makefile") {
+    print "\tcd src\n";
+    print "\tmake clean\n";
+    print "\tcd ..\n";
+}
+print "\t./Build\n";
+exit(0);

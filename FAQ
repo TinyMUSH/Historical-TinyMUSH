@@ -138,7 +138,14 @@ saved copies of comsys.db and mail.db back to the game directory.
 
 How do I apply a patch upgrade or bugfix?
 
-To patch the server:
+The easiest way to ptach the server, if you have perl installed on
+your system,  is to type './Update' -- this will automatically download
+patches, apply them, and clean up. You will then be given instructions
+as to what to do to build the new version of the server, which you should
+follow unless some other instructions were specifically given with the
+changes (check BETA, CHANGES, and INSTALL, for instance).
+
+To patch the server manually:
 
 - Download the patch from the archive, via FTP or the Web. Save the file
   in your code directory, which is probably called something like
