@@ -19,8 +19,11 @@ The installation process is as follows:
   is normally located).
 
 - Go into the directory for GNU dbm; 'cd src/gdbm-1.8.0' should take
-  you there. Type './configure', then type 'make'. This will compile the
-  GNU dbm library, which is required by TinyMUSH 3.0.
+  you there.
+
+- Type './configure --enable-shared=no --enable-static=yes', then type
+  'make' . This will compile the GNU dbm library, which is required by
+  TinyMUSH 3.0.
 
   Please Note: TinyMUSH 3.0 requires gdbm-1.8.0! If gdbm is already
   installed on your system, chances are that it's version 1.7.3 or
