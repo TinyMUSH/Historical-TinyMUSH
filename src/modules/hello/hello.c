@@ -6,6 +6,8 @@
 #include "../command.h"
 #include "../mail.h"
 #include "../mudconf.h"
+#include "../db.h"
+#include "../externs.h"
 
 void hello_do_cmd(player, cause, key)
 dbref player, cause;
