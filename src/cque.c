@@ -746,7 +746,10 @@ int ncmds;
 	if (!test_top()) {
 	    mudstate.debug_cmd = cmdsave;
 	    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		*mudstate.global_regs[i] = '\0';
+	        if (mudstate.global_regs[i]) {
+	        	free_lbuf(mudstate.global_regs[i]);
+	        }
+		mudstate.global_regs[i] = NULL;
 		mudstate.glob_reg_len[i] = 0;
 	    }
 	    return count;
@@ -763,14 +766,21 @@ int ncmds;
 		/* Load scratch args */
 		
 		for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		    if (mudstate.qfirst->scr[i]) {
+		    if (mudstate.qfirst->scr[i] &&
+		    	  (*mudstate.qfirst->scr[i] != '\0')) {
 			len = strlen(mudstate.qfirst->scr[i]);
+			if (!mudstate.global_regs[i]) {
+				mudstate.global_regs[i] = 
+					alloc_lbuf("do_top.global_regs");
+			}
 			memcpy(mudstate.global_regs[i],
 			       mudstate.qfirst->scr[i],
 			       len + 1);
 			mudstate.glob_reg_len[i] = len;
 		    } else {
-			*mudstate.global_regs[i] = '\0';
+		    	if (mudstate.global_regs[i])
+		    		free_lbuf(mudstate.global_regs[i]);
+			mudstate.global_regs[i] = NULL;
 			mudstate.glob_reg_len[i] = 0;
 		    }
 		}
@@ -796,7 +806,9 @@ int ncmds;
     }
 
     for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	*mudstate.global_regs[i] = '\0';
+	if (mudstate.global_regs[i])
+		free_lbuf(mudstate.global_regs[i]);
+	mudstate.global_regs[i] = NULL;
 	mudstate.glob_reg_len[i] = 0;
     }
     mudstate.debug_cmd = cmdsave;

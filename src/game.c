@@ -1705,7 +1705,7 @@ char *argv[];
 #endif /* HAVE_DLOPEN */
 
 	for (mindb = 0; mindb < MAX_GLOBAL_REGS; mindb++) {
-	    mudstate.global_regs[mindb] = alloc_lbuf("main.global_reg");
+	    mudstate.global_regs[mindb] = NULL;
 	    mudstate.glob_reg_len[mindb] = 0;
 	}
 	mudstate.now = time(NULL);

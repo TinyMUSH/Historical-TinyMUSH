@@ -3,6 +3,8 @@
 
 #include "copyright.h"
 
+/* Make sure that all of your command and switch names are lowercase! */
+
 /* *INDENT-OFF* */
 
 /* ---------------------------------------------------------------------------

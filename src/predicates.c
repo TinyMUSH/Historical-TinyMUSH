@@ -1163,7 +1163,9 @@ char *message;
 	all = (DESC *)nhashfind(d->player, &mudstate.desc_htab) ;
 
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		free_lbuf(all->program_data->wait_regs[i]);
+		if (all->program_data->wait_regs[i]) {
+			free_lbuf(all->program_data->wait_regs[i]);
+		}
 	}
 	XFREE(all->program_data, "program_data");
 
@@ -1228,7 +1230,8 @@ char *name;
 	d = (DESC *)nhashfind(doer, &mudstate.desc_htab) ;
 
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		free_lbuf(d->program_data->wait_regs[i]);
+		if (d->program_data->wait_regs[i])
+			free_lbuf(d->program_data->wait_regs[i]);
 	}
 	XFREE(d->program_data, "program_data");
 
@@ -1319,8 +1322,12 @@ char *name, *command;
 	program = (PROG *) XMALLOC(sizeof(PROG), "do_prog");
 	program->wait_cause = player;
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		program->wait_regs[i] = alloc_lbuf("prog_regs");
-		strcpy(program->wait_regs[i], mudstate.global_regs[i]);
+		if (mudstate.global_regs[i]) {
+			program->wait_regs[i] = alloc_lbuf("prog_regs");
+			strcpy(program->wait_regs[i], mudstate.global_regs[i]);
+		} else {
+			program->wait_regs[i] = NULL;
+		}
 	}
 
 	/* Now, start waiting. */

@@ -27,22 +27,13 @@ UFUN *ufun_head;
 void NDECL(init_functab)
 {
 	FUN *fp;
-	char *buff, *cp, *dp;
 
-	buff = alloc_sbuf("init_functab");
 	hashinit(&mudstate.func_htab, 250 * HASH_FACTOR);
+	mudstate.func_htab.nostrdup = 1;
+	
 	for (fp = flist; fp->name; fp++) {
-		cp = (char *)fp->name;
-		dp = buff;
-		while (*cp) {
-			*dp = tolower(*cp);
-			cp++;
-			dp++;
-		}
-		*dp = '\0';
-		hashadd(buff, (int *)fp, &mudstate.func_htab);
+		hashadd(fp->name, (int *)fp, &mudstate.func_htab);
 	}
-	free_sbuf(buff);
 	ufun_head = NULL;
 	hashinit(&mudstate.ufunc_htab, 15 * HASH_FACTOR);
 }

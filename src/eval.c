@@ -894,7 +894,7 @@ char *cargs[];
 				*xtp = '\0';
 			}
 			for (xtp = xtbuf; *xtp; xtp++)
-				*xtp = tolower(*xtp);
+				*xtp = toupper(*xtp);
 			fp = (FUN *) hashfind(xtbuf, &mudstate.func_htab);
 
 			/* If not a builtin func, check for global func */
@@ -1180,7 +1180,7 @@ void save_global_regs(funcname, preserve, preserve_len)
     int i;
 
     for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	if (!mudstate.global_regs[i]) {
+	if (!mudstate.global_regs[i] || (*mudstate.global_regs[i] == '\0')) {
 	    preserve[i] = NULL;
 	    preserve_len[i] = 0;
 	} else {

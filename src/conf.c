@@ -766,6 +766,10 @@ CF_HAND(cf_alias)
 			for (p = alias; *p; p++)
 				*p = tolower(*p);
 		}
+		if (((HASHTAB *)vp)->nostrdup) {
+			p = alias;
+			alias = XSTRDUP(p, "cf_alias");
+		}
 		return hashadd(alias, cp, (HASHTAB *) vp);
 	} else {
 		cf_log_syntax(player, cmd, "Invalid original for alias %s",

@@ -100,7 +100,8 @@ void NDECL(init_cmdtab)
 	char *cbuff;
 
 	hashinit(&mudstate.command_htab, 250 * HASH_FACTOR);
-
+	mudstate.command_htab.nostrdup = 1;
+	
 	/* Load attribute-setting commands */
 
 	cbuff = alloc_sbuf("init_cmdtab");
@@ -1866,7 +1867,7 @@ CF_HAND(cf_attr_type)
 
 CF_HAND(cf_cmd_alias)
 {
-	char *alias, *orig, *ap, *tokst;
+	char *alias, *orig, *ap, *tokst, *name;
 	CMDENT *cmdp, *cmd2;
 	NAMETAB *nt;
 	int *hp;
@@ -1940,7 +1941,8 @@ CF_HAND(cf_cmd_alias)
 			cf_log_notfound(player, cmd, "Entry", orig);
 			return -1;
 		}
-		hashadd(alias, hp, (HASHTAB *) vp);
+		name = XSTRDUP(alias, "cf_cmd_alias");
+		hashadd(name, hp, (HASHTAB *) vp);
 	}
 	return 0;
 }
@@ -2545,10 +2547,11 @@ void list_memory(player)
 			each += strlen(mudstate.command_htab.entry[i]->target) + 1;
 			each += sizeof(CMDENT);
 			
-			/* Add up all the little bits in the CMDENT */
+			/* Add up all the little bits in the CMDENT. We
+			 * don't count cmd->cmdname here we already got
+			 * it by counting htab->target */
 			
 			cmd = (CMDENT *)mudstate.command_htab.entry[i]->data;
-			each += strlen(cmd->cmdname) + 1;
 			if ((name = cmd->switches) != NULL) {
 				for(j = 0; name[j].name != NULL; j++) {
 					each += sizeof(NAMETAB);
@@ -2600,7 +2603,9 @@ void list_memory(player)
 			each += strlen(mudstate.func_htab.entry[i]->target) + 1;
 			func = (FUN *)mudstate.func_htab.entry[i]->data;
 			each += sizeof(FUN);
-			each += strlen(func->name) + 1;
+			
+			/* We don't count func->name because we already got
+			 * it with htab->target */
 			htab = htab->next;
 		}
 	}
