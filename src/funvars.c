@@ -343,7 +343,7 @@ void xvars_clr(player)
     htab = &mudstate.vars_htab;
     for (i = 0; i < htab->hashsize; i++) {
 	last = NULL;
-	for (hptr = htab->entry->element[i]; hptr != NULL; last = hptr) {
+	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = next) {
 	    next = hptr->next;
 	    if (!strncmp(tbuf, hptr->target, len)) {
 		if (last == NULL)
@@ -359,8 +359,9 @@ void xvars_clr(player)
 		htab->entries--;
 		if (htab->entry->element[i] == NULL)
 		    htab->nulls++;
+	    } else {
+		last = hptr;
 	    }
-	    hptr = next;
 	}
     }
 
