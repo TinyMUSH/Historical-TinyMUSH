@@ -7,7 +7,7 @@ For changes between beta versions, consult the BETA document.
 			TinyMUSH 3.1 Changes
 =============================================================================
 
-TinyMUSH 3.0 beta 1 was released on ?????.
+TinyMUSH 3.1 beta 1 was released on ?????.
 
 -----------------------------------------------------------------------------
 
@@ -448,6 +448,10 @@ OTHER CHANGES
 
 - Other cleanup in many parts of the code, including performance
   enhancements and significant reductions in memory used.
+
+- Fatal signals now produce cleaner coredumps, but two signals are
+  required to generate a core file. Based on a patch from Amos
+  Wetherbee.
 
 - Many portability improvements, including support of UWIN, so TinyMUSH 3
   can be run under Windows.

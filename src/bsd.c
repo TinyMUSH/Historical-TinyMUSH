@@ -1150,8 +1150,6 @@ static void unset_signals()
 
 	for (i = 0; i < NSIG; i++)
 		signal(i, SIG_DFL);
-	fprintf(mainlog_fp, "ABORT! bsd.c, called unset_signals().\n");
-	abort();
 }
 
 static void check_panicking(sig)
@@ -1203,6 +1201,7 @@ int sig;
 #endif	/* HAVE_SYS_SIGNAME */
 
 	char buff[32];
+	int i;
 
 #if defined(HAVE_UNION_WAIT) && defined(NEED_WAIT3_DCL)
 	union wait stat;
@@ -1302,13 +1301,26 @@ int sig;
 			close(slave_socket);
 			kill(slave_pid, SIGKILL);
 
-			/* Try our best to dump a core first */
+			/* Try our best to dump a usable core by generating
+			 * a second signal with the SIG_DFL action.
+			 */
 			
-			if (!fork()) {
+			if (fork() > 0) {
 				unset_signals();
-				exit(1);
+
+				/* In the parent process (easier to follow
+				 * with gdb), we're about to return from
+				 * this signal handler and hope that a
+				 * second signal is delivered. Meanwhile
+				 * let's close all our files to avoid
+				 * corrupting the child process.
+				 */
+				for (i = 0; i < maxd; i++)
+					close(i);
+
+				return;
 			}
-			
+
 			alarm(0);
 			dump_restart_db();
 			execl(mudconf.exec_path, mudconf.exec_path,
@@ -1318,8 +1330,8 @@ int sig;
 			break;
 		} else {
 			unset_signals();
-			signal(sig, SIG_DFL);
-			exit(1);
+			fprintf(mainlog_fp, "ABORT! bsd.c, SA_EXIT requested.\n");
+			abort();
 		}
 	case SIGABRT:		/* Coredump. */
 		check_panicking(sig);
@@ -1327,9 +1339,8 @@ int sig;
 		report();
 
 		unset_signals();
-		signal(sig, SIG_DFL);
-		exit(1);
-
+		fprintf(mainlog_fp, "ABORT! bsd.c, SIGABRT received.\n");
+		abort();
 	}
 	signal(sig, sighandler);
 	mudstate.panicking = 0;
