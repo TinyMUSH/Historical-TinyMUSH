@@ -2143,6 +2143,9 @@ int atr;
 	int attr, found = 0;
 	char *as;
 	
+	if (Typeof(thing) == TYPE_GARBAGE)
+		return NULL;
+	
 	if (atr != A_LIST) {
 		atr_push();
 		for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
