@@ -35,11 +35,65 @@ static char **arglist;		/* argument return space */
 static int numargs;		/* argument return size */
 
 /* ---------------------------------------------------------------------------
+ * check_literals: All literals in a wildcard pattern must appear in the
+ *                 data string, or no match is possible.
+ */
+
+static int check_literals(tstr, dstr)
+    char *tstr, *dstr;
+{
+    char pattern[LBUF_SIZE], data[LBUF_SIZE], *p, *dp, *ep;
+    int len;
+
+    /* Make a lower-case copy of the data. */
+
+    ep = data;
+    while (*dstr) {
+	*ep = FIXCASE(*dstr);
+	ep++;
+	dstr++;
+    }
+    *ep = '\0';
+
+    /* Walk the pattern string. Use the wildcard characters as delimiters,
+     * to extract the literal strings that we need to match sequentially.
+     */
+
+    dp = data;
+    while (*tstr) {
+	while ((*tstr == '*') || (*tstr == '?'))
+	    tstr++;
+	if (!*tstr)
+	    return 1;
+	p = pattern;
+	len = 0;
+	while (*tstr && (*tstr != '*') && (*tstr != '?')) {
+	    if (*tstr == '\\')
+		tstr++;
+	    *p = FIXCASE(*tstr);
+	    p++;
+	    tstr++;
+	    len++;
+	}
+	*p = '\0';
+	if (len) {
+	    if ((dp = strstr(dp, pattern)) == NULL)
+		return 0;
+	    dp += len;
+	}
+	if (dp >= ep)
+	    return 1;
+    }
+    return 1;
+}
+
+/* ---------------------------------------------------------------------------
  * quick_wild: do a wildcard match, without remembering the wild data.
  *
  * This routine will cause crashes if fed NULLs instead of strings.
  */
-int quick_wild(tstr, dstr)
+
+static int real_quick_wild(tstr, dstr)
 char *tstr, *dstr;
 {
 	while (*tstr != '*') {
@@ -113,6 +167,15 @@ char *tstr, *dstr;
 	return 0;
 }
 
+int quick_wild(tstr, dstr)
+    char *tstr, *dstr;
+{
+    if (!check_literals(tstr, dstr))
+	return 0;
+
+    return (real_quick_wild(tstr, dstr));
+}
+
 /* ---------------------------------------------------------------------------
  * wild1: INTERNAL: do a wildcard match, remembering the wild data.
  *
@@ -122,7 +185,8 @@ char *tstr, *dstr;
  * Side Effect: this routine modifies the 'arglist' static global
  * variable.
  */
-int wild1(tstr, dstr, arg)
+
+static int real_wild1(tstr, dstr, arg)
 char *tstr, *dstr;
 int arg;
 {
@@ -283,6 +347,16 @@ int arg;
 		}
 	}
 }
+
+int wild1(tstr, dstr, arg)
+    char *tstr, *dstr;
+    int arg;
+{
+    if (!check_literals(tstr, dstr))
+	return 0;
+
+    return (real_wild1(tstr, dstr, arg));
+} 
 
 /* ---------------------------------------------------------------------------
  * wild: do a wildcard match, remembering the wild data.
