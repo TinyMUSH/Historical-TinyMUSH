@@ -137,6 +137,7 @@ XFUNCTION(fun_popn);
 XFUNCTION(fun_swap);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
+XFUNCTION(fun_setxr);
 XFUNCTION(fun_xvars);
 XFUNCTION(fun_let);
 XFUNCTION(fun_lvars);
@@ -6185,6 +6186,7 @@ FUN flist[] = {
 {"SETQ",	fun_setq,	2,  0,		CA_PUBLIC},
 {"SETR",	fun_setr,	2,  0,		CA_PUBLIC},
 {"SETX",	fun_setx,	2,  0,		CA_PUBLIC},
+{"SETXR",	fun_setxr,	2,  0,		CA_PUBLIC},
 {"SETUNION",	fun_setunion,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SHL",		fun_shl,	2,  0,		CA_PUBLIC},
 {"SHR",		fun_shr,	2,  0,		CA_PUBLIC},

@@ -4194,7 +4194,7 @@ FUNCTION(fun_lstack)
 
 /* ---------------------------------------------------------------------------
  * fun_x: Returns a variable. x(<variable name>)
- * fun_setx: Sets a variable. xset(<variable name>,<value>)
+ * fun_setx: Sets a variable. setx(<variable name>,<value>)
  * fun_xvars: Takes a list, parses it, sets it into variables.
  *            xvars(<space-separated variable list>,<list>,<delimiter>)
  * fun_let: Takes a list of variables and their values, sets them, executes
@@ -4389,6 +4389,11 @@ FUNCTION(fun_setx)
     set_xvar(player, fargs[0], fargs[1]);
 }
 
+FUNCTION(fun_setxr)
+{
+    set_xvar(player, fargs[0], fargs[1]);
+    safe_str(fargs[1], buff, bufc);
+}
 
 FUNCTION(fun_xvars)
 {
