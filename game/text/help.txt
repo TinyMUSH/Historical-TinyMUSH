@@ -63,15 +63,15 @@
   @apay        @arfail      @asuccess    @atfail      @atofail     @atport
   @aufail      @ause        @away        @charges     @conformat   @cost
   @describe    @dfail       @drop        @ealias      @efail       @enter
-  @exitformat  @fail        @filter      @forwardlist @gfail       @idesc
-  @idle        @infilter    @inprefix    @kill        @lalias      @leave
-  @lfail       @listen      @move        @odescribe   @odfail      @odrop
-  @oefail      @oenter      @ofail       @ogfail      @okill       @oleave
-  @olfail      @omove       @opay        @orfail      @osuccess    @otfail
-  @otofail     @otport      @oufail      @ouse        @oxenter     @oxleave
-  @oxtport     @pay         @prefix      @reject      @rfail       @runout
-  @sex         @startup     @success     @tfail       @tofail      @tport
-  @ufail       @use
+  @exitformat  @exitto      @fail        @filter      @forwardlist @gfail
+  @idesc       @idle        @infilter    @inprefix    @kill        @lalias
+  @leave       @lfail       @listen      @move        @odescribe   @odfail
+  @odrop       @oefail      @oenter      @ofail       @ogfail      @okill
+  @oleave      @olfail      @omove       @opay        @orfail      @osuccess
+  @otfail      @otofail     @otport      @oufail      @ouse        @oxenter
+  @oxleave     @oxtport     @pay         @prefix      @reject      @rfail
+  @runout      @sex         @startup     @success     @tfail       @tofail
+  @tport       @ufail       @use
  
 & topics
  
@@ -891,7 +891,7 @@
   You can only display information about yourself.
 
 & @link
-  Command: @link <object>=#<number>/here/home
+  Command: @link <object>[=<dbref> | here | home | variable]
  
   When used on a player or a thing, this command sets the object's home
   to the indicated location.  The destination must be owned by you or be an
@@ -905,14 +905,24 @@
   unlinked, and you control the destination or it is set LINK_OK. You can
   @link an unlinked exit regardless of who owns it or the lock set on it;
   you are made the owner if you successfully link to the destination. 
+ 
+  Exits can also be linked to the special keyword "variable". The exit's
+  destination is determined by evaluating the ExitTo attribute on the exit,
+  when a player attempts to move through the exit. Only Wizards and those
+  with the link_variable power may link exits in this way, since it allows
+  the exit to essentially be linked to any destination.
+ 
+{ 'help @link2' for more }
+& @link2
+ 
   Linking an exit costs 1 coin, and if the exit was owned by someone else,
   you also reimburse the the former owner 1 coin (making the total cost to
   you 2 coins).
  
-{ 'help @link2' for more }
-& @link2
-  If you are not a Wizard, in order to link to a destination, you must
-  pass its LinkLock (even if you are the owner of that destination).
+  If you are not a Wizard and do not have the link_to_anything power, in
+  order to link to a destination, you must pass its LinkLock (even if you
+  are the owner of that destination). Depending on the server configuration,
+  even Wizards might not be able to ignore LinkLocks.
  
   Note that in all the above cases that it is the player performing the @link
   command that must pass the LinkLock, not the object being linked.
@@ -920,7 +930,7 @@
   specific players from linking to your LINK_OK locations, as simply locking
   against '*<playername>' does not lock out their puppets.
  
-  See also: @dig, @open, @unlink, DROP-TOS, HOMES, LINKING.
+  See also: @dig, @open, @unlink, @exitto, DROP-TOS, HOMES, LINKING.
 
 & @list
   Command: @list [<option>]
@@ -3064,6 +3074,23 @@
  
   See also: @conformat
 
+& @exitto
+  Command: @exitto <object> = <function text>
+  Attribute: ExitTo
+  
+  When an exit is variably linked, when a player attempts to move through
+  the exit, the @exitto attribute is evaluated. If the evaluation (with
+  the player considered as the enactor) results in a valid dbref for the
+  destination, the player is moved to that destination, just as if the
+  exit had been normally linked to that destination. Otherwise, the exit
+  is treated as unlinked.
+ 
+  For example, '@exitto random = [switch(rand(3),0,#0,1,#10,2,#50)]' would,
+  when a player attempted to go through it, randomly send the player to
+  either room #0, room #10, or room #50.
+ 
+  See also: @link
+ 
 & MARKER
   Flag: Marker0 (0), Marker1 (1) ... through Marker9 (9)
  
@@ -8409,6 +8436,8 @@
   halt			Can @halt anything, and @halt/all.
   hide			Can set themselves DARK.
   idle			No idle timeout.
+  link_variable		Can @link an exit to "variable".
+  link_to_anything	Can @link to any (non-variable) destination.
   long_fingers		Can get, look, whisper, etc from a distance.
  
 { 'help powers list2' for more }
