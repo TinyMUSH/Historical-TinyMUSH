@@ -1894,7 +1894,9 @@ const char *def, *odef;
 
 	/* Check for global attribute format override. If it exists,
 	 * use that. The actual attribute text we were provided
-	 * will be passed to that as %0.
+	 * will be passed to that as %0. (Note that if a global
+	 * override exists, we never use a supplied server default.)
+	 *
 	 * Otherwise, we just go evaluate what we've got, and
 	 * if that's nothing, we go do the default.
 	 */
@@ -1928,10 +1930,6 @@ const char *def, *odef;
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, &tbuf, 1);
 		    free_lbuf(tbuf);
-		} else if (def) {
-		    exec(buff, &bp, thing, player, player,
-			 EV_EVAL | EV_FIGNORE | EV_TOP,
-			 &str, (char **) &def, 1);
 		} else {
 		    exec(buff, &bp, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
