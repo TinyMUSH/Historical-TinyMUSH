@@ -39,6 +39,9 @@ Release history:
   a child process exits, making sure it was really a forked dump
   process and that it really ended. [MUX; Brazil]
 
+- Fix: Large TRACE output no longer involves the use of freed
+  memory. [MUX; Brazil]
+
 - Misc: If ladd() is given a blank list, it returns 0 instead of
   complaining about the number of arguments.
 

@@ -1205,14 +1205,6 @@ char *cargs[];
 
 	**bufc = '\0';
 
-	if (realbuff) {
-		*bufc = realbp;
-		safe_str(buff, realbuff, bufc);
-		**bufc = '\0';
-		XFREE(buff, "exec.buff_extend");
-		buff = realbuff;
-	}
-	
 	/* Report trace information */
 
 	if (is_trace) {
@@ -1228,6 +1220,14 @@ char *cargs[];
 			notify(player, tbuf);
 			free_mbuf(tbuf);
 		}
+	}
+
+	if (realbuff) {
+		*bufc = realbp;
+		safe_str(buff, realbuff, bufc);
+		**bufc = '\0';
+		XFREE(buff, "exec.buff_extend");
+		buff = realbuff;
 	}
 }
 
