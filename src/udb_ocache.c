@@ -52,22 +52,29 @@ extern void FDECL(raw_notify, (dbref, const char *));
 			e->nxt = (Cache *)0;
 
 #define F_DEQUEUE(q, e)	if(e->nxtfree == (Cache *)0) { \
-				if (prvfree != (Cache *)0) { \
-					prvfree->nxtfree = (Cache *)0; \
+				if (e->prvfree != (Cache *)0) { \
+					e->prvfree->nxtfree = (Cache *)0; \
 				} \
-				q->tail = prvfree; \
+				q->tail = e->prvfree; \
 			} \
-			if(prvfree == (Cache *)0) { \
+			if(e->prvfree == (Cache *)0) { \
 				q->head = e->nxtfree; \
-			} else \
-				prvfree->nxtfree = e->nxtfree;
+				if (e->nxtfree) \
+					e->nxtfree->prvfree = (Cache *) 0; \
+			} else { \
+				e->prvfree->nxtfree = e->nxtfree; \
+				if (e->nxtfree) \
+					e->nxtfree->prvfree = e->prvfree; \
+			}
 
 #define F_INSHEAD(q, e)	if (q->head == (Cache *)0) { \
 				q->tail = e; \
 				e->nxtfree = (Cache *)0; \
 			} else { \
 				e->nxtfree = q->head; \
+				e->nxtfree->prvfree = e; \
 			} \
+			e->prvfree = (Cache *)0; \
 			q->head = e;
 
 #define F_INSTAIL(q, e)	if (q->head == (Cache *)0) { \
@@ -75,6 +82,7 @@ extern void FDECL(raw_notify, (dbref, const char *));
 			} else { \
 				q->tail->nxtfree = e; \
 			} \
+			e->prvfree = q->tail; \
 			q->tail = e; \
 			e->nxtfree = (Cache *)0;
 
@@ -245,7 +253,7 @@ void cache_reset()
 				}
 			}
 
-			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
+			cache_repl(cp, NULL, 0, DBTYPE_EMPTY, 0);
 			RAW_FREE(cp->keydata, "cache_get");
 			RAW_FREE(cp, "get_free_entry");
 		}
@@ -332,8 +340,8 @@ void list_cached_objs(player)
         for (cp = sp->head; cp != NULL; cp = cp->nxt) {
             if (cp->data && (cp->type == DBTYPE_ATTRIBUTE) &&
                 (cp->flags & CACHE_DIRTY)) {
-                aco++;
-                asize += cp->datalen;
+                maco++;
+                msize += cp->datalen;
 		count_array[((Aname *)cp->keydata)->object] += 1;
 		size_array[((Aname *)cp->keydata)->object] += cp->datalen;
             }
@@ -396,8 +404,8 @@ void list_cached_attrs(player)
         for (cp = sp->head; cp != NULL; cp = cp->nxt) {
             if (cp->data && (cp->type == DBTYPE_ATTRIBUTE) &&
                 (cp->flags & CACHE_DIRTY)) {
-                aco++;
-                asize += cp->datalen;
+                maco++;
+                msize += cp->datalen;
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
 		raw_notify(player, 
 			tprintf("%-23.23s %-31.31s #%-6d %6d", PureName(((Aname *)cp->keydata)->object),
@@ -421,7 +429,7 @@ DBData cache_get(key, type)
 DBData key;
 unsigned int type;
 {
-	Cache *cp, *prvfree;
+	Cache *cp;
 	Chain *sp;
 	int hv = 0;
 	DBData data;
@@ -454,7 +462,6 @@ unsigned int type;
 	hv = cachehash(key.dptr, key.dsize, type);
 	sp = &sys_c[hv];
 
-	prvfree = NULL;
 	for (cp = sp->head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			if (!mudstate.standalone && !mudstate.dumping) {
@@ -470,7 +477,6 @@ unsigned int type;
 
 			return data;
 		}
-		prvfree = cp;
 	}
 
 #ifdef MEMORY_BASED
@@ -594,7 +600,7 @@ DBData key;
 DBData data;
 unsigned int type;
 {
-	Cache *cp, *prv, *prvfree;
+	Cache *cp;
 	Chain *sp;
 	int hv = 0;
 #ifdef MEMORY_BASED
@@ -663,7 +669,6 @@ unsigned int type;
 
 	/* step one, search chain, and if we find the obj, dirty it */
 
-	prvfree = prv = NULL;
 	for (cp = sp->head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			if (!mudstate.dumping) {
@@ -678,7 +683,6 @@ unsigned int type;
 
 			return (0);
 		}
-		prvfree = prv = cp;
 	}
 	
 	/* Add a new entry to the cache */
@@ -713,10 +717,8 @@ int atrsize;
 {
 	DBData key, data;
 	Chain *sp;
-	Chain *chp;
-	Cache *cp = NULL, *p, *prv;
-	unsigned int score = 0, curscore = 0;
-	int modified = 0, size = 0, cursize = 0, x;
+	Cache *cp, *p, *prv;
+	int hv;
 	
 	/* Flush entries from the cache until there's enough room for
 	 * this one. The max size can be dynamically changed-- if it is too
@@ -726,9 +728,13 @@ int atrsize;
 	
 	while ((cs_size + atrsize) > 
 		(mudconf.cache_size ? mudconf.cache_size : CACHE_SIZE)) {
+
 		cp = freelist->head;
 
-		if (cp->flags & CACHE_DIRTY) {
+		if (cp)
+			freelist->head = cp->nxt;
+
+		if (cp && (cp->flags & CACHE_DIRTY)) {
 			/* Flush the modified attributes to disk */
 		
 			if (cp->data == NULL) {
@@ -769,12 +775,23 @@ int atrsize;
 		   attribute's memory */
 		
 		if (cp) {
+			/* Find the cache entry inside the real cache */
+			hv = cachehash(cp->keydata, cp->keylen, cp->type);
+			sp = &sys_c[hv];
+                	
+                	prv = NULL;
+                	for (p = sp->head; p != NULL; p = p->nxt) {
+                		if (cp = p)
+                			p = NULL;
+                		prv = p;
+                	}
+
+			/* Remove the cache entry */
+			
+			DEQUEUE(sp, cp);
+			                	
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY, 0);
-			/* Since this is always the head of a chain, prv will
-			 * always be NULL */
-			 
-			prv = NULL;
-			DEQUEUE(chp, cp);
+			
 			RAW_FREE(cp->keydata, "cache_reset.actkey");
 			RAW_FREE(cp, "get_free_entry");
 		}
@@ -831,6 +848,7 @@ Cache *cp;
 			}
 			cs_dbwrites++;
 		}
+		cp->flags = 0;
 		cp = cp->nxt;
 	}
 	
@@ -885,7 +903,7 @@ void cache_del(key, type)
 DBData key;
 unsigned int type;
 {
-	Cache *cp, *prvfree;
+	Cache *cp;
 	Chain *sp;
 	int hv = 0;
 	
@@ -913,15 +931,13 @@ unsigned int type;
 
 	/* mark dead in cache */
 	
-	prvfree = NULL;
 	for (cp = sp->head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			F_DEQUEUE(freelist, cp);
 			F_INSHEAD(freelist, cp);
-			cache_repl(cp, NULL, 0, type, 0);
+			cache_repl(cp, NULL, 0, type, CACHE_DIRTY);
 			return;
 		}
-		prvfree = cp;
 	}
 	
 	if ((cp = get_free_entry(0)) == NULL)
