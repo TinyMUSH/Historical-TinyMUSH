@@ -117,13 +117,6 @@ HASHTAB *htab;
 				htab->max_scan = numchecks;
 			htab->checks += numchecks;
 			
-			/* Move a successful check to the head of the chain */
-			 
-			if (hptr != prev) {
-				prev->next = hptr->next;
-				hptr->next = htab->entry[hval];
-				htab->entry[hval] = hptr;
-			}
 			return hptr->data;
 		}
 		prev = hptr;
@@ -463,11 +456,6 @@ NHSHTAB *htab;
 			if (numchecks > htab->max_scan)
 				htab->max_scan = numchecks;
 			htab->checks += numchecks;
-			if (hptr != prev) {
-				prev->next = hptr->next;
-				hptr->next = htab->entry[hval];
-				htab->entry[hval] = hptr;
-			}
 			return hptr->data;
 		}
 		prev = hptr;

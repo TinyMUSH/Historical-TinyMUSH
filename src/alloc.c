@@ -140,9 +140,6 @@ const char *tag;
 			*p = POOL_MAGICNUM;
 			pools[poolnum].chain_head = ph;
 			pools[poolnum].max_alloc++;
-			if (pools[poolnum].max_alloc && (poolnum == 2) &&
-			    (pools[poolnum].max_alloc % 5) == 0) {
-				fprintf(stderr, "Maxalloc: %d/%s\n", pools[poolnum].max_alloc, tag);
 			}
 		} else {
 			ph = (POOLHDR *) (pools[poolnum].free_head);
