@@ -2791,6 +2791,7 @@ void load_restart_db()
 		}
 #ifdef CONCENTRATE
 		if (d->cstatus & C_REMOTE) {
+			DESC *k;
 			DESC_ITER_ALL(k) {
 				if (k->descriptor = d->descriptor)
 					d->parent = k;
