@@ -1835,9 +1835,10 @@ char *argv[];
 		dbconvert(argc, argv);
 	}
 
+#if !defined(TEST_MALLOC) && defined(RAW_MEMTRACKING)
 	/* Do this first, before anything gets a chance to allocate memory. */
-
 	mudstate.raw_allocs = NULL;
+#endif
 
 	/* Parse options */
 
