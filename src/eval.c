@@ -739,6 +739,7 @@ char *cargs[];
 			if (mudconf.space_compress) {
 				while ((--tbufc >= tbuf) && isspace(*tbufc)) ;
 				tbufc++;
+				*tbufc = '\0';
 			}
 			for (tbufc = tbuf; *tbufc; tbufc++)
 				*tbufc = ToLower(*tbufc);
