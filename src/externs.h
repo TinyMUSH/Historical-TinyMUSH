@@ -227,7 +227,6 @@ extern char *	FDECL(replace_string_ansi, (const char *, const char *,
 extern char *	FDECL(skip_space, (const char *));
 extern char *	FDECL(seek_char, (const char *, char));
 extern int	FDECL(minmatch, (char *, char *, int));
-extern char *	FDECL(strsave, (const char *));
 extern int	FDECL(safe_copy_str, (char *, char *, char **, int));
 extern int	FDECL(safe_copy_long_str, (char *, char *, char **, int));
 extern int	FDECL(matches_exit_from_list, (char *, char *));

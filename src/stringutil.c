@@ -578,17 +578,6 @@ int min;
 	return ((min <= 0) ? 1 : 0);
 }
 
-INLINE char *strsave(s)
-const char *s;
-{
-	char *p;
-	p = (char *)XMALLOC(sizeof(char) * (strlen(s) + 1), "strsave");
-
-	if (p)
-		strcpy(p, s);
-	return p;
-}
-
 /* ---------------------------------------------------------------------------
  * safe_copy_str, safe_copy_long_str, safe_chr_real_fn - Copy buffers, 
  * watching for overflows.
