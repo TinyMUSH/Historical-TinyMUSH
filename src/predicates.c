@@ -39,7 +39,7 @@ static int FDECL(type_quota, (int));
 static int FDECL(pay_quota, (dbref, int, int));
 #endif
 
-extern void FDECL(queue_rawstring, (DESC *, const char *));
+extern INLINE void FDECL(queue_rawstring, (DESC *, const char *));
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
 char *tprintf(const char *format,...)
