@@ -2011,8 +2011,8 @@ FUNCTION(fun_pmatch)
 
     /* If we have a valid dbref, it's okay if it's a player. */
 
-    if (*fargs[0] == NUMBER_TOKEN) {
-	thing = parse_dbref(fargs[0]);
+    if ((*fargs[0] == NUMBER_TOKEN) && fargs[0][1]) {
+	thing = parse_dbref(fargs[0] + 1);
 	if (Good_obj(thing) && isPlayer(thing)) {
 	    safe_tprintf_str(buff, bufc, "#%d", thing);
 	} else {
