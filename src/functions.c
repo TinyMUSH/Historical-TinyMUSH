@@ -1260,7 +1260,6 @@ FUNCTION(fun_mid)
 	}
 	if (l < strlen(strip_ansi(fargs[0])))
 		safe_str(strip_ansi(fargs[0]) + l, buff, bufc);
-	oldp[len] = 0;
 	if ((oldp + len) < *bufc) {
 		*bufc = oldp + len;
 	}
@@ -1444,8 +1443,8 @@ FUNCTION(fun_exit)
 			key |= VE_LOC_DARK;
 		DOLIST(exit, Exits(it)) {
 			if (exit_visible(exit, player, key)) {
-				*bufc = '#';
-				bufc++;
+				**bufc = '#';
+				(*bufc)++;
 				safe_ltos(buff, bufc, exit);
 				return;
 			}

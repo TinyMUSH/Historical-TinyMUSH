@@ -551,7 +551,7 @@ char *event, *cmd, *cargs[];
 			ap = atr_str(event);
 			if (!ap) {
 				attr = mkattr(event);
-				if (!attr) {
+				if (attr <= 0) {
 					notify_quiet(player, "Invalid attribute.");
 					return;
 				}

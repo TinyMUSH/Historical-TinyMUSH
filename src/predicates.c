@@ -1449,35 +1449,51 @@ int exam_here;
 /* ---------------------------------------------------------------------------
  * did_it: Have player do something to/with thing
  */
-/* foobar */
+
 void did_it(player, thing, what, def, owhat, odef, awhat, args, nargs)
 dbref player, thing;
 int what, owhat, awhat, nargs;
 char *args[];
 const char *def, *odef;
 {
-	char *d, *buff, *act, *charges, *bp, *str;
+	char *d, *buff, *act, *charges, *bp, *str, *preserve[MAX_GLOBAL_REGS];
 	dbref loc, aowner;
-	int num, aflags;
+	int num, aflags, need_pres;
 
-	/*
-	 * message to player 
+	/* If we need to call exec() from within this function, we first save
+	 * the state of the global registers, in order to avoid munging them
+	 * inappropriately. Do note that the restoration to their original
+	 * values occurs BEFORE the execution of the @a-attribute. Therefore,
+	 * any changing of setq() values done in the @-attribute and @o-attribute
+	 * will NOT be passed on. This prevents odd behaviors that result from
+	 * odd @verbs and so forth (the idea is to preserve the caller's control
+	 * of the global register values).
 	 */
+
+	need_pres = 0;
+
+	/* message to player */
 
 	if (what > 0) {
 		d = atr_pget(thing, what, &aowner, &aflags);
 		if (*d) {
+			need_pres = 1;
+			save_global_regs("did_it_save", preserve);
 			buff = bp = alloc_lbuf("did_it.1");
 			str = d;
 			exec(buff, &bp, 0, thing, player, EV_EVAL | EV_FIGNORE | EV_TOP,
 			     &str, args, nargs);
 			*bp = '\0';
-			if (what == A_HTDESC) {
-				safe_str("\r\n", buff, &bp);
-				*bp = '\0';
+#ifdef PUEBLO_SUPPOR
+			if ((aflags & AF_HTML) && Html(player)) {
+				char *buff_cp = buff + strlen(buff);
+				safe_str("\r\n", buff, &buff_cp);
 				notify_html(player, buff);
 			} else
 				notify(player, buff);
+#else
+			notify(player, buff);
+#endif /* PUEBLO_SUPPORT */
 			free_lbuf(buff);
 		} else if (def) {
 			notify(player, def);
@@ -1486,14 +1502,16 @@ const char *def, *odef;
 	} else if ((what < 0) && def) {
 		notify(player, def);
 	}
-	/*
-	 * message to neighbors 
-	 */
+	/* message to neighbors */
 
 	if ((owhat > 0) && Has_location(player) &&
 	    Good_obj(loc = Location(player))) {
 		d = atr_pget(thing, owhat, &aowner, &aflags);
 		if (*d) {
+			if (!need_pres) {
+				need_pres = 1;
+				save_global_regs("did_it_save", preserve);
+			}
 			buff = bp = alloc_lbuf("did_it.2");
 			str = d;
 			exec(buff, &bp, 0, thing, player, EV_EVAL | EV_FIGNORE | EV_TOP,
@@ -1512,9 +1530,13 @@ const char *def, *odef;
 		notify_except2(loc, player, player, thing,
 			       tprintf("%s %s", Name(player), odef));
 	}
-	/*
-	 * do the action attribute 
-	 */
+
+	/* If we preserved the state of the global registers, restore them. */
+
+	if (need_pres)
+		restore_global_regs("did_it_restore", preserve);
+		
+	/* do the action attribute */
 
 	if (awhat > 0) {
 		if (*(act = atr_pget(thing, awhat, &aowner, &aflags))) {
@@ -1543,7 +1565,7 @@ const char *def, *odef;
 		free_lbuf(act);
 	}
 }
-
+/*foobar*/
 /*
  * ---------------------------------------------------------------------------
  * * do_verb: Command interface to did_it.

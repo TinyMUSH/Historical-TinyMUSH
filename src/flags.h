@@ -19,7 +19,7 @@
 #define	TYPE_THING 	0x1
 #define	TYPE_EXIT 	0x2
 #define	TYPE_PLAYER 	0x3
-/* Empty */
+#define TYPE_ZONE       0x4
 #define	TYPE_GARBAGE	0x5
 #define	NOTYPE		0x7
 #define	TYPE_MASK 	0x7

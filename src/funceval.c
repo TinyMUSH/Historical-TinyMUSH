@@ -718,7 +718,7 @@ FUNCTION(fun_zfun)
 FUNCTION(fun_columns)
 {
 	int spaces, number, ansinumber, count, i, indent = 0;
-	int isansi = 0, rturn = 1;
+	int isansi = 0, rturn = 1, cr = 0;
 	char *p, *q, *buf, *curr, *objstring, *bp, *cp, sep, *str;
 
         if (!fn_range_check("COLUMNS", nfargs, 2, 4, buff, bufc))
@@ -797,12 +797,20 @@ FUNCTION(fun_columns)
 
 		if (!(rturn % (int)((78 - indent) / number))) {
 			safe_str((char *)"\r\n", buff, bufc);
+			cr = 1;
 			for (i = 0; i < indent; i++)
 				safe_chr(' ', buff, bufc);
+		} else {
+			cr = 0;
 		}
 
 		rturn++;
 	}
+	
+	if (!cr) {
+		safe_str((char *)"\r\n", buff, bufc);
+	}
+	
 	free_lbuf(buf);
 	free_lbuf(curr);
 }
