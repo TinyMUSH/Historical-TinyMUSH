@@ -578,7 +578,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
  */
 
 #define	Write_attr(p,x,a,f) \
-			(!((a)->flags & AF_INTERNAL) && \
+			(!((a)->flags & (AF_INTERNAL|AF_NOCLONE)) && \
 			 (God(p) || \
 			  (!God(x) && !(f & AF_LOCK) && \
 			   ((Controls(p,x) && \

@@ -23,6 +23,7 @@
 #define AF_HTML         0x2000  /* Don't HTML escape this in did_it() */
 #define AF_NOPARSE      0x4000  /* Don't evaluate when checking for $-cmds */
 #define AF_REGEXP	0x8000  /* Do a regexp rather than wildcard match */
+#define AF_NOCLONE	0x10000	/* Don't copy this attr when cloning. */
 
 #define A_NULL		0	/* Nothing */
 #define	A_OSUCC		1	/* Others success message */
