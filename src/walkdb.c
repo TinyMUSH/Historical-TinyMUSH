@@ -247,10 +247,11 @@ char *name;
 	if (!get_stats(player, owner, &statinfo))
 		return;
 	notify(player,
-	       tprintf("%d objects = %d rooms, %d exits, %d things, %d players.\n\t(%d going, %d garbage, %d unknown)",
+	       tprintf("%d objects = %d rooms, %d exits, %d things, %d players. (%d unknown, %d going, %d garbage)",
 		       statinfo.s_total, statinfo.s_rooms, statinfo.s_exits,
-		       statinfo.s_things, statinfo.s_players, statinfo.s_going,
-		       statinfo.s_garbage, statinfo.s_unknown));
+		       statinfo.s_things, statinfo.s_players,
+		       statinfo.s_unknown, statinfo.s_going,
+		       statinfo.s_garbage));
 
 #ifdef TEST_MALLOC
 	if (Wizard(player))
