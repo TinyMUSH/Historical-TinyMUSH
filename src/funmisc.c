@@ -235,6 +235,8 @@ FUNCTION(fun_nonzero)
 	
 	char *str, *mbuff, *bp;
 	
+	VaChk_Range("NONZERO", 2, 3);
+
 	mbuff = bp = alloc_lbuf("fun_nonzero");
 	str = fargs[0];
 	exec(mbuff, &bp, player, caller, cause,
@@ -242,6 +244,10 @@ FUNCTION(fun_nonzero)
 	*bp = '\0';
 	
 	if (!mbuff || !*mbuff || ((atoi(mbuff) == 0) && is_number(mbuff))) {
+		if (nfargs != 3) {
+			free_lbuf(mbuff);
+			return;
+		}
 		str = fargs[2];
 		exec(buff, bufc, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);

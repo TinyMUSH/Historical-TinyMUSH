@@ -8833,20 +8833,21 @@ performed and the walk down the list stops.
   See also: @switch, switch(), match().
   
 & NONZERO()
-  Function: nonzero(<condition>,<string if non-zero>,<string if zero>)
+  Function: nonzero(<condition>,<string if non-zero>[,<string if zero>])
  
   If <condition> is non-zero (defined as a non-null string that is
   not the number zero, '0'), then the <string if non-zero> is returned.
   Otherwise the <string if zero> is returned. Those two strings are not
   evaluated until appropriate (i.e., if the string is non-zero, the
-  string-if-zero will not be evaluated, and vice versa).
+  string-if-zero will not be evaluated, and vice versa). <string if
+  zero> may be omitted, in which case it is treated as an empty string.
  
   Examples:
     > say [nonzero(0,not zero,zero)] - [nonzero(1,not zero,zero)]
     You say "zero - not zero"
-    > say [nonzero(,null,not null)] - [nonzero(foo,null,not null)]
+    > say [nonzero(,not null,null)] - [nonzero(foo,not null,null)]
     You say "null - not null"
-   
+ 
   See also: ifelse(), switch(), case().
  
 & IFELSE()
