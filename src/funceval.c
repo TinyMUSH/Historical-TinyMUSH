@@ -2114,6 +2114,7 @@ static int mem_usage_attr(player, str)
     ATTR *ap;
     int bytes_atext = 0;
 
+    olist_push();
     if (parse_attrib_wild(player, str, &thing, 0, 0, 1)) {
 	for (atr = olist_first(); atr != NOTHING; atr = olist_next()) {
 	    ap = atr_num(atr);
@@ -2128,6 +2129,7 @@ static int mem_usage_attr(player, str)
 	}
     }
 
+    olist_pop();
     return bytes_atext;
 }
 
@@ -3602,6 +3604,7 @@ int insensitive;
 	bp = tbuf1 = alloc_lbuf("grep_util");
 	bufc = buf = alloc_lbuf("grep_util.parse_attrib");
 	safe_tprintf_str(buf, &bufc, "#%d/%s", thing, pattern);
+	olist_push();
 	if (parse_attrib_wild(player, buf, &thing, 0, 0, 1)) {
 		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 			attrib = atr_get(thing, ca, &aowner, &aflags);
@@ -3626,6 +3629,7 @@ int insensitive;
 	}
 	free_lbuf(buf);
 	*bp = '\0';
+	olist_pop();
 	return tbuf1;
 }
 

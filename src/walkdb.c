@@ -664,7 +664,6 @@ SEARCH *parm;
 	int save_invk_ctr;
 
 	buff = alloc_sbuf("search_perform.num");
-	olist_init();
 	save_invk_ctr = mudstate.func_invk_ctr;
 
 	for (thing = parm->low_bound; thing <= parm->high_bound; thing++) {
@@ -836,6 +835,7 @@ char *arg;
 	}
 	if (!search_setup(player, arg, &searchparm))
 		return;
+	olist_push();
 	search_perform(player, cause, &searchparm);
 	destitute = 1;
 
@@ -845,6 +845,7 @@ char *arg;
 
 	if (key != SRCH_SEARCH) {
 		search_mark(player, key);
+		olist_pop();
 		return;
 	}
 	outbuf = alloc_lbuf("do_search.outbuf");
@@ -1016,7 +1017,7 @@ char *arg;
 		notify(player, outbuf);
 	}
 	free_lbuf(outbuf);
-	olist_init();
+	olist_pop();
 }
 
 /*
@@ -1076,27 +1077,46 @@ char *command, *cargs[];
 
 /*
  * ---------------------------------------------------------------------------
- * * olist_init, olist_add, olist_first, olist_next: Object list management
- * * routines.
+ * * Object list management routines:
+ * * olist_push, olist_pop, olist_add, olist_first, olist_next
  */
 
 /*
- * olist_init: Clear and initialize the object list 
+ * olist_push: Create a new object list at the top of the object list stack
  */
 
-void NDECL(olist_init)
+void NDECL(olist_push)
 {
+	OLSTK *ol;
+
+	ol = (OLSTK *)XMALLOC(sizeof(OLSTK), "olist_push");
+	ol->next = mudstate.olist;
+	mudstate.olist = ol;
+	
+	ol->head = NULL;
+	ol->tail = NULL;
+	ol->cblock = NULL;
+	ol->count = 0;
+	ol->citm = 0;
+}
+
+/*
+ * olist_pop: Pop one entire list off the object list stack
+ */
+
+void NDECL(olist_pop)
+{
+	OLSTK *ol;
 	OBLOCK *op, *onext;
 
-	for (op = mudstate.olist_head; op != NULL; op = onext) {
+	ol = mudstate.olist->next;
+
+	for (op = mudstate.olist->head; op != NULL; op = onext) {
 		onext = op->next;
 		free_lbuf(op);
 	}
-	mudstate.olist_head = NULL;
-	mudstate.olist_tail = NULL;
-	mudstate.olist_cblock = NULL;
-	mudstate.olist_count = 0;
-	mudstate.olist_citm = 0;
+	XFREE(mudstate.olist, "olist_pop");
+	mudstate.olist = ol;
 }
 
 /*
@@ -1108,21 +1128,21 @@ dbref item;
 {
 	OBLOCK *op;
 
-	if (!mudstate.olist_head) {
+	if (!mudstate.olist->head) {
 		op = (OBLOCK *) alloc_lbuf("olist_add.first");
-		mudstate.olist_head = mudstate.olist_tail = op;
-		mudstate.olist_count = 0;
+		mudstate.olist->head = mudstate.olist->tail = op;
+		mudstate.olist->count = 0;
 		op->next = NULL;
-	} else if (mudstate.olist_count >= OBLOCK_SIZE) {
+	} else if (mudstate.olist->count >= OBLOCK_SIZE) {
 		op = (OBLOCK *) alloc_lbuf("olist_add.next");
-		mudstate.olist_tail->next = op;
-		mudstate.olist_tail = op;
-		mudstate.olist_count = 0;
+		mudstate.olist->tail->next = op;
+		mudstate.olist->tail = op;
+		mudstate.olist->count = 0;
 		op->next = NULL;
 	} else {
-		op = mudstate.olist_tail;
+		op = mudstate.olist->tail;
 	}
-	op->data[mudstate.olist_count++] = item;
+	op->data[mudstate.olist->count++] = item;
 }
 
 /*
@@ -1131,29 +1151,29 @@ dbref item;
 
 dbref NDECL(olist_first)
 {
-	if (!mudstate.olist_head)
+	if (!mudstate.olist->head)
 		return NOTHING;
-	if ((mudstate.olist_head == mudstate.olist_tail) &&
-	    (mudstate.olist_count == 0))
+	if ((mudstate.olist->head == mudstate.olist->tail) &&
+	    (mudstate.olist->count == 0))
 		return NOTHING;
-	mudstate.olist_cblock = mudstate.olist_head;
-	mudstate.olist_citm = 0;
-	return mudstate.olist_cblock->data[mudstate.olist_citm++];
+	mudstate.olist->cblock = mudstate.olist->head;
+	mudstate.olist->citm = 0;
+	return mudstate.olist->cblock->data[mudstate.olist->citm++];
 }
 
 dbref NDECL(olist_next)
 {
 	dbref thing;
 
-	if (!mudstate.olist_cblock)
+	if (!mudstate.olist->cblock)
 		return NOTHING;
-	if ((mudstate.olist_cblock == mudstate.olist_tail) &&
-	    (mudstate.olist_citm >= mudstate.olist_count))
+	if ((mudstate.olist->cblock == mudstate.olist->tail) &&
+	    (mudstate.olist->citm >= mudstate.olist->count))
 		return NOTHING;
-	thing = mudstate.olist_cblock->data[mudstate.olist_citm++];
-	if (mudstate.olist_citm >= OBLOCK_SIZE) {
-		mudstate.olist_cblock = mudstate.olist_cblock->next;
-		mudstate.olist_citm = 0;
+	thing = mudstate.olist->cblock->data[mudstate.olist->citm++];
+	if (mudstate.olist->citm >= OBLOCK_SIZE) {
+		mudstate.olist->cblock = mudstate.olist->cblock->next;
+		mudstate.olist->citm = 0;
 	}
 	return thing;
 }

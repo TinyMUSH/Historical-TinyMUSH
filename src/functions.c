@@ -3936,6 +3936,7 @@ FUNCTION(fun_lattr)
 	 */
 
 	first = 1;
+	olist_push();
 	if (parse_attrib_wild(player, fargs[0], &thing, 0, 0, 1)) {
 		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 			attr = atr_num(ca);
@@ -3950,6 +3951,7 @@ FUNCTION(fun_lattr)
 	        if (! mudconf.lattr_oldstyle)
 		        safe_str("#-1 NO MATCH", buff, bufc);
 	}
+	olist_pop();
 	return;
 }
 
@@ -4207,6 +4209,7 @@ FUNCTION(fun_search)
 	}
 	/* Do the search and report the results */
 
+	olist_push();
 	search_perform(player, cause, &searchparm);
 	bp = *bufc;
 	nbuf = alloc_sbuf("fun_search");
@@ -4218,7 +4221,7 @@ FUNCTION(fun_search)
 		safe_str(nbuf, buff, bufc);
 	}
 	free_sbuf(nbuf);
-	olist_init();
+	olist_pop();
 }
 
 /* ---------------------------------------------------------------------------

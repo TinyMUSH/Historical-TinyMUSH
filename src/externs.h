@@ -250,7 +250,8 @@ extern char *	FDECL(unparse_boolexp_function, (dbref, BOOLEXP *));
 
 /* From walkdb.c */
 extern int	FDECL(chown_all, (dbref, dbref, dbref, int));
-extern void	NDECL(olist_init);
+extern void	NDECL(olist_push);
+extern void	NDECL(olist_pop);
 extern void	FDECL(olist_add, (dbref));
 extern dbref	NDECL(olist_first);
 extern dbref	NDECL(olist_next);

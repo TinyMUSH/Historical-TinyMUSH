@@ -1196,7 +1196,6 @@ int check_parents, get_locks, df_star;
 	dbref parent;
 	int check_exclude, hash_insert, lev;
 
-	olist_init();
 	if (!str)
 		return 0;
 
@@ -1418,8 +1417,10 @@ char *it, *args[];
 	 * Look for the object and get the attribute (possibly wildcarded) 
 	 */
 
+	olist_push();
 	if (!it || !*it || !parse_attrib_wild(player, it, &thing, 0, 0, 0)) {
 		notify_quiet(player, "No match.");
+		olist_pop();
 		return;
 	}
 	/*
@@ -1484,7 +1485,7 @@ char *it, *args[];
 	 */
 
 	free_lbuf(atext);
-	olist_init();
+	olist_pop();
 
 	if (!got_one) {
 		notify_quiet(player, "No matching attributes.");
@@ -1504,8 +1505,10 @@ char *it;
 	ATTR *ap;
 	char *atext;
 
+	olist_push();
 	if (!it || !*it || !parse_attrib_wild(player, it, &thing, 0, 0, 1)) {
 		notify_quiet(player, "No match.");
+		olist_pop();
 		return;
 	}
 	/*
@@ -1537,7 +1540,7 @@ char *it;
 	 */
 
 	free_lbuf(atext);
-	olist_init();
+	olist_pop();
 
 	if (!got_one) {
 		notify_quiet(player, "No matching attributes.");

@@ -343,11 +343,7 @@ void NDECL(cf_init)
 	mudstate.mod_alist = NULL;
 	mudstate.mod_size = 0;
 	mudstate.mod_al_id = NOTHING;
-	mudstate.olist_head = NULL;
-	mudstate.olist_tail = NULL;
-	mudstate.olist_cblock = NULL;
-	mudstate.olist_count = 0;
-	mudstate.olist_citm = 0;
+	mudstate.olist = NULL;
 	mudstate.min_size = 0;
 	mudstate.db_top = 0;
 	mudstate.db_size = 0;

@@ -1170,7 +1170,6 @@ int do_parent, is_special;
 		}
 		free_lbuf(buf);
 	}
-	olist_init();
 	if (!got_any)
 		notify_quiet(player, "No matching attributes found.");
 
@@ -1206,10 +1205,13 @@ char *name;
 	} else {
 		/* Check for obj/attr first. */
 
+		olist_push();
 		if (parse_attrib_wild(player, name, &thing, do_parent, 1, 0)) {
 			exam_wildattrs(player, thing, do_parent, is_special);
+			olist_pop();
 			return;
 		}
+		olist_pop();
 		/* Look it up */
 
 		init_match(player, name, NOTYPE);
@@ -1815,6 +1817,7 @@ char *name, *qual;
 
 	/* Check for obj/attr first */
 	
+	olist_push();
 	if (parse_attrib_wild(player, name, &thing, 0, 1, 0)) {
 		wild_decomp = 1;
 	} else {
@@ -1825,12 +1828,15 @@ char *name, *qual;
 	}
 
 	/* get result */
-	if (thing == NOTHING)
+	if (thing == NOTHING) {
+		olist_pop();
 		return;
+	}
 
 	if (!Examinable(player, thing)) {
 		notify_quiet(player,
 			  "You can only decompile things you can examine.");
+		olist_pop();
 		return;
 	}
 	thingname = atr_get(thing, A_LOCK, &aowner, &aflags);
@@ -1972,6 +1978,7 @@ char *name, *qual;
 		       tprintf("@chzone %s=#%d", strip_ansi(thingname), Zone(thing)));
 
 	free_lbuf(thingname);
+	olist_pop();
 }
 
 #ifdef PUEBLO_SUPPORT

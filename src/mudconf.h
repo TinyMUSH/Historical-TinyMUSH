@@ -274,6 +274,16 @@ struct objlist_block {
 
 #define OBLOCK_SIZE ((LBUF_SIZE - sizeof(OBLOCK *)) / sizeof(dbref))
 
+typedef struct objlist_stack OLSTK;
+struct objlist_stack {
+	struct objlist_stack *next;	/* Next object list in stack */
+	OBLOCK	*head;		/* Head of object list */
+	OBLOCK	*tail;		/* Tail of object list */
+	OBLOCK	*cblock;	/* Current block for scan */
+	int	count;		/* Number of objs in last obj list block */
+	int	citm;		/* Current item for scan */
+};
+
 typedef struct markbuf MARKBUF;
 struct markbuf {
 	char	chunk[5000];
@@ -385,11 +395,7 @@ struct statedata {
 	char	*mod_alist;	/* Attribute list for modifying */
 	int	mod_size;	/* Length of modified buffer */
 	dbref	mod_al_id;	/* Where did mod_alist come from? */
-	OBLOCK	*olist_head;	/* Head of object list */
-	OBLOCK	*olist_tail;	/* Tail of object list */
-	OBLOCK	*olist_cblock;	/* Current block for scan */
-	int	olist_count;	/* Number of objs in last obj list block */
-	int	olist_citm;	/* Current item for scan */
+	OLSTK	*olist;		/* Stack of object lists for nested searches */
 	dbref	freelist;	/* Head of object freelist */
 	int	min_size;	/* Minimum db size (from file header) */
 	int	db_top;		/* Number of items in the db */
