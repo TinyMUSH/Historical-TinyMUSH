@@ -1448,9 +1448,9 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	down_file		full_file		gdbm_database
 	guest_file		helpfile		html_connect_file
 	include			input_database		mail_database
-	motd_file		newuser_file		output_database
-	quit_file		raw_helpfile		register_create_file
-	wizard_motd_file
+	module			modules_home		motd_file
+	newuser_file		output_database		quit_file
+	raw_helpfile		register_create_file	wizard_motd_file
 
 & PARAM LIMITS
 	building_limit			command_invocation_limit
@@ -2526,6 +2526,29 @@ use_global_aconn	wizard_obeys_linklock
   receive the contents of the file named by the full_file directive, and the
   full_motd_message (also settable via @motd/full), and are disconnected.
   See also: @motd, full_file, full_motd_message.
+
+& module
+  Config directive: module <name>
+ 
+  Dynamically loads a specified module from the directory specified by
+  modules_home. This requires <modules_home>/<name>.so to be a valid shared
+  binary object. This may only be used from the config file. You will need
+  to @restart if you modify a module. This feature is not available on all
+  platforms.
+ 
+  Example: module hello
+    (causes game/modules/hello.so to be loaded)
+ 
+  Refer to the MODULES file for more information.
+  See also: modules_home.
+
+& modules_home
+  Config parameter: modules_home <path>.  Default: modules
+  Specifies the directory to look in for dynamically-loadable modules.
+  If you use a relative path here, it will be searched relative to the
+  game dir, so the default location is game/modules. This feature is not
+  available on all platforms.
+  See also: module.
 
 & money_name_plural
   Config parameter: money_name_plural <string>.  Default: pennies

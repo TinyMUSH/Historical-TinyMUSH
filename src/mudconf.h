@@ -60,6 +60,9 @@ struct confdata {
 	char	comsys_db[PBUF_SIZE];	/* name of the comsys db */
 	char	status_file[PBUF_SIZE]; /* Where to write arg to @shutdown */
 	char	mudlogname[PBUF_SIZE];	/* Name of the game log file */
+#ifdef HAVE_DLOPEN
+	char	modhome[MBUF_SIZE];	/* Directory where the .so files are */
+#endif
         int	have_comsys;	/* Should the comsystem be active? */
         int	have_mailer;	/* Should @mail be active? */
 	int	have_pueblo;	/* Is Pueblo support compiled in? */
@@ -306,7 +309,7 @@ struct statedata {
 	int	record_players; /* The maximum # of player logged on */
 #ifndef STANDALONE
 	char	version[PBUF_SIZE];	/* MUSH version string */
-	char	short_ver[64];  /* Short version number (for INFO) */
+	char	short_ver[SBUF_SIZE];	/* Short version number (for INFO) */
 	char	buildinfo[LBUF_SIZE];	/* Compile info */
 	char	modloaded[MBUF_SIZE];	/* Modules loaded */
 	int	initializing;	/* are we reading config file at startup? */

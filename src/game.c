@@ -1996,6 +1996,11 @@ static void NDECL(init_modules)
 		initptr = (void (*)(void))dlsym(handle,
 						tprintf("mod_%s_init",
 							modulename));
+		/* Symbols are prepended with underscores in BSD a.out libs */
+		if (!initptr)
+			initptr = (void (*)(void))dlsym(handle,
+							tprintf("_mod_%s_init",
+								modulename));
 		if (initptr)
 			(*initptr)();
 	}

@@ -83,6 +83,9 @@ void NDECL(cf_init)
 	StringCopy(mudconf.mail_db, "mail.db");
 	StringCopy(mudconf.comsys_db, "comsys.db");
 	StringCopy(mudconf.status_file, "shutdown.status");
+#ifdef HAVE_DLOPEN
+	StringCopy(mudconf.modhome, "modules");
+#endif
 	mudconf.port = 6250;
 	mudconf.conc_port = 6251;
 	mudconf.init_size = 1000;
@@ -574,12 +577,13 @@ CF_HAND(cf_module)
 {
 	void *handle;
 	
-	handle = dlopen(tprintf("%s.so", str), RTLD_NOW|RTLD_GLOBAL);	
+	handle = dlopen(tprintf("%s/%s.so", mudconf.modhome, str),
+			RTLD_NOW|RTLD_GLOBAL);
 
 	if (!handle) {
 		STARTLOG(LOG_STARTUP, "CNF", "MOD")
 		    log_printf("Loading of %s module failed: %s",
-		    	str, dlerror());
+			       str, dlerror());
 		ENDLOG
 		return -1;
 	}
@@ -1441,6 +1445,9 @@ CONF conftable[] = {
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
 {(char *)"module",			cf_module,	CA_STATIC,	CA_WIZARD,	NULL,				0},
+#ifdef HAVE_DLOPEN
+{(char *)"modules_home",		cf_string,	CA_STATIC, 	CA_GOD,		(int *)mudconf.modhome,		MBUF_SIZE},
+#endif
 {(char *)"money_name_plural",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)mudconf.many_coins,	SBUF_SIZE},
 {(char *)"money_name_singular",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)mudconf.one_coin,	SBUF_SIZE},
 {(char *)"motd_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.motd_file,	SBUF_SIZE},
