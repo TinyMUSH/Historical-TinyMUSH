@@ -95,7 +95,7 @@ char *arg1, *arg2;
 			     "I don't know which destination you mean!");
 		return;
 	default:
-		if (victim == destination) {
+		if ((victim == destination) || Going(destination)) {
 			notify_quiet(player, "Bad destination.");
 			return;
 		}
