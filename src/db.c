@@ -2140,8 +2140,6 @@ dbref newtop;
 	    abort();
 	}
 
-	memset((char *)newnames, 0, (newsize + SIZE_HACK) * sizeof(NAME));
-
 	if (names) {
 		/* An old name cache exists.  Copy it. */
 
