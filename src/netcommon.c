@@ -806,8 +806,7 @@ const char *reason;
 					    A_ADISCONNECT, &aowner, &aflags);
 			if (atr_temp && *atr_temp)
 				wait_que(mudconf.master_room, player, 0,
-					 NOTHING, 0, atr_temp, (char **)NULL,
-					 0, NULL);
+					 NOTHING, 0, atr_temp, argv, 1, NULL);
 			free_lbuf(atr_temp);
 			DOLIST(obj, Contents(mudconf.master_room)) {
 			        if (!mudconf.global_aconn_uselocks ||
@@ -817,8 +816,7 @@ const char *reason;
 					if (atr_temp && *atr_temp) {
 					        wait_que(obj, player, 0,
 							 NOTHING, 0, atr_temp,
-							 (char **)NULL, 0,
-							 NULL);
+							 argv, 1, NULL);
 					}
 					free_lbuf(atr_temp);
 				}
