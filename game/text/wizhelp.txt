@@ -326,6 +326,8 @@
      optimize   - Rewrites the gdbm hash table out to disk, compressing
                   unused space. Should be used sparingly, and only when
                   there has been a lot of shuffling in the database.
+     flatfile   - Dumps a flatfile to <gamename>.db.FLAT. Can be duplicated
+                  by sending a SIGUSR2 to the MUSH process.
  
   Note that the structure and text options will cause your database and
   certain caches to be out of sync. They should NOT be used in the course
@@ -840,6 +842,8 @@
   place the new binary in its place, for reasons beyond the scope of this
   document. This warning does not apply if you remake the binary in your
   game's source directory.
+ 
+  Sending the MUSH process a SIGUSR1 will duplicate an @restart.
  
 & @shutdown
   Command: @shutdown <text>
