@@ -264,50 +264,11 @@ FUNCTION(fun_zone)
 	safe_tprintf_str(buff, bufc, "#%d", Zone(it));
 }
 
-#ifdef SIDE_EFFECT_FUNCTIONS
-
-FUNCTION(fun_link)
-{
-	do_link(player, cause, 0, fargs[0], fargs[1]);
-}
-
-FUNCTION(fun_tel)
-{
-	do_teleport(player, cause, 0, fargs[0], fargs[1]);
-}
-
-FUNCTION(fun_wipe)
-{
-	do_wipe(player, cause, 0, fargs[0]);
-}
-
-FUNCTION(fun_pemit)
-{
-	do_pemit_list(player, fargs[0], fargs[1], 0);
-}
-
-FUNCTION(fun_remit)
-{
-    	do_pemit_list(player, fargs[0], fargs[1], 1);
-}
-
-FUNCTION(fun_force)
-{
-	do_force(player, cause, 0, fargs[0], fargs[1], cargs, ncargs);
-}
-
-FUNCTION(fun_trigger)
-{
-	if (nfargs < 1) {
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-		return;
-	}
-	do_trigger(player, cause, 0, fargs[0], &(fargs[1]), nfargs - 1);
-}
-
 /*------------------------------------------------------------------------
- * fun_create: Creates a room, thing or exit
+ * Side-effect functions.
  */
+
+#ifdef SIDE_EFFECT_FUNCTIONS
 
 static int check_command(player, name, buff, bufc)
 dbref player;
@@ -322,6 +283,63 @@ char *name, *buff, **bufc;
 		}
 	return (0);
 }
+
+FUNCTION(fun_link)
+{
+    if (check_command(player, "@link", buff, bufc))
+	return;
+    do_link(player, cause, 0, fargs[0], fargs[1]);
+}
+
+FUNCTION(fun_tel)
+{
+    if (check_command(player, "@teleport", buff, bufc))
+	return;
+    do_teleport(player, cause, 0, fargs[0], fargs[1]);
+}
+
+FUNCTION(fun_wipe)
+{
+    if (check_command(player, "@wipe", buff, bufc))
+	return;
+    do_wipe(player, cause, 0, fargs[0]);
+}
+
+FUNCTION(fun_pemit)
+{
+    if (check_command(player, "@pemit", buff, bufc))
+	return;
+    do_pemit_list(player, fargs[0], fargs[1], 0);
+}
+
+FUNCTION(fun_remit)
+{
+    if (check_command(player, "@pemit", buff, bufc))
+	return;
+    do_pemit_list(player, fargs[0], fargs[1], 1);
+}
+
+FUNCTION(fun_force)
+{
+    if (check_command(player, "@force", buff, bufc))
+	return;
+    do_force(player, cause, 0, fargs[0], fargs[1], cargs, ncargs);
+}
+
+FUNCTION(fun_trigger)
+{
+	if (nfargs < 1) {
+		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		return;
+	}
+	if (check_command(player, "@trigger", buff, bufc))
+	    return;
+	do_trigger(player, cause, 0, fargs[0], &(fargs[1]), nfargs - 1);
+}
+
+/*------------------------------------------------------------------------
+ * fun_create: Creates a room, thing or exit
+ */
 
 FUNCTION(fun_create)
 {
@@ -425,6 +443,9 @@ FUNCTION(fun_set)
 	ATTR *attr, *attr2;
 
 	/* obj/attr form? */
+
+	if (check_command(player, "@set", buff, bufc))
+	    return;
 
 	if (parse_attrib(player, fargs[0], &thing, &atr)) {
 		if (atr != NOTHING) {
@@ -532,7 +553,10 @@ FUNCTION(fun_set)
 	/* set/clear a flag */
 	flag_set(thing, player, fargs[1], 0);
 }
-#endif
+#endif /* SIDE_EFFECTS */
+
+/*---------------------------------------------------------------------------
+ */
 
 /* Borrowed from DarkZone */
 FUNCTION(fun_zwho)
