@@ -152,7 +152,7 @@ saved copies of comsys.db and mail.db back to the game directory.
 
 How do I apply a patch upgrade or bugfix?
 
-The easiest way to ptach the server, if you have perl installed on
+The easiest way to patch the server, if you have perl installed on
 your system,  is to type './Update' -- this will automatically download
 patches, apply them, and clean up. You will then be given instructions
 as to what to do to build the new version of the server, which you should
@@ -368,161 +368,52 @@ above about future conflicts with built-ins should be kept in mind, though.
 
 How do I tune the database cache?
 
-Hi. Andrew Molitor here. I am not exactly an expert on cache tuning, but
-then, nobody is. It's something of a black art. The basic tradeoff here is
-this: If you make your cache larger, it will consume more memory, but you
-will have to make disk accesses less often to get data. This sounds great,
-until you remember that if you consume *enough* memory, the operating system
-will begin to page random bits of your game on and off of disk -- you are
-better off staying small enough to not have that happen, and do your own
-getting data on and off disk.
+Cache tuning is something of a black art. The basic tradeoff is this:
+If you make your cache larger, it will consume more memory, but you
+will (hopefully) need fewer disk accesses to get needed data, which
+will therefore be faster. However, if you consume too much memory, the
+operating system will begin to page random bits of your MUSH on and
+off of disk -- you are better off staying small enough to not have
+that happen, and do your own getting data on and off disk.
 
-So, you want your cache as large as possible until it gets Too Large, which
-is usually when you begin to page too much (more hard page faults in the
-output on @list process than I/O in the read column on @list db_stats is a
-reasonable guideline. Ideally many fewer page faults), or when your sysadmin
-comes pounding on your door wondering what that ENORMOUS process is you have.
+TinyMUSH 3.1 allows you to limit the total amount of cache memory the
+server consumes. This defaults to 1,000,000 bytes, or just under 1 MB
+of RAM. The size of the cache can be changed with the cache_size
+parameter in your conf file. We recommend that you don't set this
+value any lower. Otherwise, take a look at the size of your netmush.gdbm
+file via ls -l netmush.gdbm -- the file's size in bytes should be next
+to its last-modified date. (If your GDBM file is not called netmush.gdbm,
+use whatever filename it's called.)
 
-What about depth and width? Well, the wider it is, the faster you'll look
-things up in it, but the shallower it is, the more it will tend to 'stretch'
-outside the specified size. As a guideline, a depth of 9 or 10 seems to be
-minimal, and for a few hundred wide, make it at least 15 deep. That's for
-object level caching (recommended). For attribute level cacheing, make it,
-oh, 50 percent deeper?
+The development team has not seen enough "field evidence" to provide
+strong tuning guidelines at this point. Some recommendations for
+starters:  
 
-There are some statistics you should be aware of:
+- If your GDBM file is smaller than 4 MB, chances are that you don't need
+  a cache bigger than the default.
 
-   - paging -- the hard page faults field of @list process cache hit
-     ratio. The percentage of total reads (ignore writes, they rarely
-     amount to anything) which require I/O. See @list db_stats for these
-     numbers, the 2nd column is where to look. Total calls and I/O are the
-     numbers to be looking at.
+- If your GDBM file is larger than 4 MB, set cache_size to approximately
+  one-half the size of your GDBM file, or to (1000000 + (50000 * PLAYERS))
+  where PLAYERS is the maximum number of players you typically have on
+  during your peak hour, whichever is SMALLER. (And remember that cache_size
+  is calculated in BYTES, not kilobytes or megabytes!)
 
-   - cache size -- this is right at the bottom of the output from @list
-     db_stats.
-
-If your cache size is, after running a bit, larger than the original depth X
-original width, your cache is 'stretching', and is probably too shallow, and
-possibly too small.
-
-If you are making a lot of page faults, your process size is too large, try
-shrinking the cache, or filtering out unused attributes, or both, to shrink
-process size.
-
-If your cache hit ratio is under about 95-97 percent, your cache is probably
-too small, and it should grow. Either wider or deeper, wider is preferable
-unless your cache tends to stretch, see above.
-
-It's a careful dance you need to do, so watch the statistics, and don't be
-afraid to try tinkering with the cache size this way and that. Note that
-under SunOS (and SysV?) doing I/O will tend to generate page faults as well,
-so shrinking your cache may force the database to do more reading and writing
-of the disk, and actually increase the number of page faults! So don't just
-twiddle a parameter and call it done, watch those numbers!
-
-Good luck ;)
+- Let your game run for a couple of hours. Check '@list db_stats' and look
+  at the Cache Size reported, and the Hit Ratio for Reads. You want the
+  latter to be in the 95-97% range. If your actual reported cache size
+  is much lower than your configured cache_size and your hit ratio is
+  still in that range, then you should be able to safely lower cache_size
+  in the future. If your hit ratio is low, try increasing the cache size
+  (though eventually there will be a trade-off in paging behavior if
+  the process becomes too large).
 
 ------------------------------------------------------------------------------
 
 How do I use the in-memory database?
 
-If you're starting your MUSH from scratch, all you need to do is specify in
-the Makefile whether you want to be disk based or memory based, and compile,
-following the instructions for creating a database. Converting from disk
-based to memory based, and vice versa, is a bit more difficult.
-
-Converting from memory based to disk based:
-------------------------------------------
-
-It is simple to convert your database to a disk based format, as
-follows: recompile with the the disk based options set in the Makefile.
-start up the game, log in as a wizard, and shut it down.
-
-Converting from disk based to memory based:
-------------------------------------------
-
-You need to use db_unload to convert your gdbm database to a flatfile, as
-follows:
-
-	db_unload <gamename>.gdbm <gamename>.db.new <gamename>.db.FLAT
-
-You then need to remove <gamename>.db.new, <gamename>.db,
-<gamename>.gdbm.db, and <gamename>.gdbm. When that is done, rename
-<gamename>.db.FLAT to <gamename>.db.new. Start up the game.
-
-
-A comparison of disk based and memory based database storage methods.
---------------------------------------------------------------------
-
-1. Memory based:
-
-- Advantages:
- 	- Eliminates the overhead of caching, and accessing the disk to
-	  read and write data.
-	- Total database usage on disk is usually smaller that a disk-based
-	  setup.
-	- A memory based setup dumps and loads using a flatfile, which is
-	  easier to manage and easily compressible when dumped by the MUSH.
-- Disadvantages:
-	- Memory usage grows as the size of the database grows.
-
-2. Disk based:
-
-- Advantages:
-	- Uses a fixed amount of memory independent of database size.
-	- Faster database saves.
-- Disadvantages:
-	- Slower performance due to the overhead of caching, and getting
-	  bits of data to/from disk.
-	- Uses 3 files for the database, and usually takes up more disk
-	  space than a memory based system, and the main text database is
-	  not compressible at dump time.
-
-Memory based usage is preferred _if_ you have enough memory to support a
-growing database, however, when memory is at a premium and memory usage is
-the key point of whether you remain on your site or not, disk based usage is
-the way to go.
-
-Saving disk space:
------------------
-
-- If you are using a disk based setup, consider converting to a memory based
-  setup, which is much more efficient with disk space.
-- Enabling the config parameter 'compression', and specifying a
-  'compress_program' and 'uncompress_program' will save disk space under
-  memory based usage and disk based usage, but it makes much more of a
-  difference with memory based because it compresses the entire database.
-
-Saving memory:
--------------
-
-- If you are using a memory based setup, consider converting to disk based.
-- On a disk based setup, reduce the size of the cache, preferrably making it
-  narrower (see README for tips on the cache)
-- Adjust HASH_FACTOR in config.h: 2 is recommended, altho 1 is usable and
-  results in less memory usage.
-- Adjust OUTPUT_BLOCK_SIZE in config.h: this should be a power of 2,
-  preferably in the ranger of 4096 to 16384. Any value over the config
-  parameter 'output_limit' is wasted.
-
-
-You should juggle these options until you find a setup that works, and gives
-you the best performance. There is no 'right' way to set up a MUSH, it always
-depends on the capabilities of the system you are running on, and how much
-of those capabilities you can use.
-
-Memory debugging:
-----------------
-
-If you turn on malloc debugging in the Makefile (-DMCHECK) you have a wide
-range of information to use in hunting down memory leaks or corruption.
-@stats/all displays statistics on memory usage. This is useful to check
-before and after executing a command to see if it leaks memory (altho you
-need to do it multiple times to make sure it's really leaking).
-
-It also enables memory tracing, where all allocation information is written
-to a file called mtrace.out in the game directory. The awk script mtrace.awk
-is included and analyzes mtrace.out for potential problems.
+This option has been removed in TinyMUSH 3.1. If you want to run your
+entire game in-memory, set the cache size to the size of your GDBM
+database.
 
 ------------------------------------------------------------------------------
 
