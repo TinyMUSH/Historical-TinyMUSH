@@ -324,9 +324,11 @@ if ((l) > 0) { \
 #define	SET_DIFF	3
 
 /* from process_tables (tables, rtables, ctables): */
-#define TABLES_LJUST	0x01 
-#define TABLES_RJUST	0x02
-#define TABLES_CENTER	0x04
+/* from perform_border (border, rborder, cborder): */
+#define JUST_TYPE	0x0f	/* mask to select justification bits */
+#define JUST_LEFT	0
+#define JUST_RIGHT	1
+#define JUST_CENTER	2
 
 /* from handle_clogic (cand, cor, candbool, corbool): */
 #define CLOGIC_OR	0x1

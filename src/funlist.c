@@ -1378,13 +1378,13 @@ FUNCTION(fun_columns)
 
 static void tables_helper(list, last_state, n_cols, col_widths,
 			  lead_str, trail_str, list_sep, field_sep, pad_char,
-			  buff, bufc, key)
+			  buff, bufc, just)
     char *list, *last_state;
     int n_cols, col_widths[];
     char *lead_str, *trail_str;
     Delim list_sep;
     char *field_sep, pad_char, *buff, **bufc;
-    int key;
+    int just;
 {
     int i, nwords, nstates, cpos, wcount, over, have_normal, packed_state;
     int max, nleft, lead_chrs, lens[LBUF_SIZE / 2];
@@ -1427,10 +1427,10 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 
 	    /* Write leading padding if we need it. */
 
-	    if (key & TABLES_RJUST) {
+	    if (just == JUST_RIGHT) {
 		nleft = col_widths[cpos] - lens[wcount];
 		print_padding(nleft, max, pad_char);
-	    } else if (key & TABLES_CENTER) {
+	    } else if (just == JUST_CENTER) {
 		lead_chrs = (int)((col_widths[cpos] / 2) -
 				  (lens[wcount] / 2) + .5);
 		print_padding(lead_chrs, max, pad_char);
@@ -1474,10 +1474,10 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 
 	    /* Writing trailing padding if we need it. */
 	    
-	    if (key & TABLES_LJUST) {
+	    if (just == JUST_LEFT) {
 		nleft = col_widths[cpos] - lens[wcount];
 		print_padding(nleft, max, pad_char);
-	    } else if (key & TABLES_CENTER) {
+	    } else if (just == JUST_CENTER) {
 		nleft = col_widths[cpos] - lead_chrs - lens[wcount];
 		print_padding(nleft, max, pad_char);
 	    }
@@ -1522,14 +1522,14 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 
 static void perform_tables(player, list, n_cols, col_widths,
 			   lead_str, trail_str, list_sep, field_sep, pad_char,
-			   buff, bufc, key)
+			   buff, bufc, just)
     dbref player;
     char *list;
     int n_cols, col_widths[];
     char *lead_str, *trail_str;
     Delim list_sep;
     char *field_sep, pad_char, *buff, **bufc;
-    int key;
+    int just;
 {
     char *p, *savep, *bb_p, last_state[LBUF_SIZE];
 
@@ -1551,24 +1551,24 @@ static void perform_tables(player, list, n_cols, col_widths,
 	    safe_crlf(buff, bufc);
 	tables_helper(savep, last_state, n_cols, col_widths,
 		      lead_str, trail_str, list_sep, field_sep, pad_char,
-		      buff, bufc, key);
+		      buff, bufc, just);
 	savep = p + 2;	/* must skip '\n' too */
 	p = strchr(savep, '\r'); 
     }
     if (*bufc != bb_p)
 	safe_crlf(buff, bufc);
     tables_helper(savep, last_state, n_cols, col_widths, lead_str, trail_str,
-		  list_sep, field_sep, pad_char, buff, bufc, key);
+		  list_sep, field_sep, pad_char, buff, bufc, just);
 }
 
 FUNCTION(process_tables)
 {
-    int key;
+    int just;
     int i, num, n_columns, *col_widths;
     Delim list_sep, pad_char;
     char fs_buf[2], *widths[LBUF_SIZE / 2];  
 
-    key = ((FUN *)fargs[-1])->flags;
+    just = ((FUN *)fargs[-1])->flags & JUST_TYPE;
 
     VaChk_Range(2, 7);
     VaChk_Sep(&list_sep, num, 5, 0);
@@ -1596,7 +1596,7 @@ FUNCTION(process_tables)
 		   ((nfargs > 3) && *fargs[3]) ? fargs[3] : NULL, 
 		   list_sep,
 		   ((nfargs > 5) && *fargs[5]) ? fargs[5] : fs_buf,
-		   pad_char.c, buff, bufc, key);
+		   pad_char.c, buff, bufc, just);
 
     XFREE(col_widths, "fun_table.widths");
 }
@@ -1641,9 +1641,9 @@ FUNCTION(fun_table)
 	col_widths[i] = field_width;
 
     fs_buf[0] = field_sep.c;
-    fs_buf[1] = '\0'; 
+    fs_buf[1] = '\0';
     perform_tables(player, fargs[0], n_columns, col_widths, NULL, NULL,
-		   list_sep, fs_buf, pad_char.c, buff, bufc, TABLES_LJUST);
+		   list_sep, fs_buf, pad_char.c, buff, bufc, JUST_LEFT);
 
     XFREE(col_widths, "fun_table.widths");
 }

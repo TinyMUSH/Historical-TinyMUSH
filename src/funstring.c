@@ -1306,21 +1306,18 @@ FUNCTION(fun_repeat)
  * border(<words>,<width without margins>[,<L margin fill>[,<R margin fill>]])
  */
 
-#define BORDER_LJUST	0
-#define BORDER_RJUST	1
-#define BORDER_CENTER	2
-
-static void perform_border(player, buff, bufc, fargs, nfargs, key)
-    dbref player;
-    char *buff, **bufc, *fargs[];
-    int nfargs, key;
+FUNCTION(perform_border)
 {
-    int width;
+    int width, just;
     char *l_fill, *r_fill, *bb_p;
     char *sl, *el, *sw, *ew;
     int sl_ansi_state, el_ansi_state, sw_ansi_state, ew_ansi_state;
     int sl_pos, el_pos, sw_pos, ew_pos;
     int nleft, max, lead_chrs;
+
+    just = ((FUN *)fargs[-1])->flags & JUST_TYPE;
+
+    VaChk_Range(2, 4);
 
     if (!fargs[0] || !*fargs[0])
 	return;
@@ -1449,10 +1446,10 @@ static void perform_border(player, buff, bufc, fargs, nfargs, key)
       safe_str(l_fill, buff, bufc);
 
       /* Left space padding if needed */
-      if (key == BORDER_RJUST) {
+      if (just == JUST_RIGHT) {
 	nleft = width - el_pos + sl_pos;
 	print_padding(nleft, max, ' ');
-      } else if (key == BORDER_CENTER) {
+      } else if (just == JUST_CENTER) {
 	lead_chrs = (int)((width / 2) - ((el_pos - sl_pos) / 2) + .5);
 	print_padding(lead_chrs, max, ' ');
       }
@@ -1469,10 +1466,10 @@ static void perform_border(player, buff, bufc, fargs, nfargs, key)
 	       buff, bufc);
 
       /* Right space padding if needed */
-      if (key == BORDER_LJUST) {
+      if (just == JUST_LEFT) {
 	nleft = width - el_pos + sl_pos;
 	print_padding(nleft, max, ' ');
-      } else if (key == BORDER_CENTER) {
+      } else if (just == JUST_CENTER) {
 	nleft = width - lead_chrs - el_pos + sl_pos;
 	print_padding(nleft, max, ' ');
       }
@@ -1501,24 +1498,6 @@ static void perform_border(player, buff, bufc, fargs, nfargs, key)
 	el_pos = ew_pos;
       }
     }
-}
-
-FUNCTION(fun_border)
-{
-    VaChk_Range(2, 4);
-    perform_border(player, buff, bufc, fargs, nfargs, BORDER_LJUST);
-}
-
-FUNCTION(fun_rborder)
-{
-    VaChk_Range(2, 4);
-    perform_border(player, buff, bufc, fargs, nfargs, BORDER_RJUST);
-}
-
-FUNCTION(fun_cborder)
-{
-    VaChk_Range(2, 4);
-    perform_border(player, buff, bufc, fargs, nfargs, BORDER_CENTER);
 }
 
 /* ---------------------------------------------------------------------------

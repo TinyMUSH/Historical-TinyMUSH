@@ -293,9 +293,7 @@ XFUNCTION(fun_lpos);
 XFUNCTION(fun_wordpos);
 XFUNCTION(fun_ansipos);
 XFUNCTION(fun_repeat);
-XFUNCTION(fun_border);
-XFUNCTION(fun_rborder);
-XFUNCTION(fun_cborder);
+XFUNCTION(perform_border);
 XFUNCTION(fun_cat);
 XFUNCTION(fun_strcat);
 XFUNCTION(fun_strlen);
@@ -390,7 +388,8 @@ FUN flist[] = {
 {"BEFORE",	fun_before,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC,	NULL},
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC,	NULL},
-{"BORDER",	fun_border,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"BORDER",	perform_border,	0,  FN_VARARGS|JUST_LEFT,
+						CA_PUBLIC,	NULL},
 {"CANDBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|CLOGIC_BOOL,
      						CA_PUBLIC,	NULL},
 {"CAND",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL,
@@ -399,7 +398,8 @@ FUN flist[] = {
 {"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
 {"CAT",		fun_cat,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"CBORDER",	fun_cborder,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"CBORDER",	perform_border,	0,  FN_VARARGS|JUST_CENTER,
+						CA_PUBLIC,	NULL},
 {"CEIL",	fun_ceil,	1,  0,		CA_PUBLIC,	NULL},
 {"CENTER",	fun_center,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"CHILDREN",    fun_children,   1,  0,          CA_PUBLIC,	NULL},
@@ -421,7 +421,7 @@ FUN flist[] = {
      						CA_PUBLIC,	NULL},
 {"COS",		fun_cos,	1,  0,		CA_PUBLIC,	NULL},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"CTABLES",	process_tables,	0,  FN_VARARGS|TABLES_CENTER,
+{"CTABLES",	process_tables,	0,  FN_VARARGS|JUST_CENTER,
 						CA_PUBLIC,	NULL},
 {"DEC",         fun_dec,        1,  0,          CA_PUBLIC,	NULL},
 {"DECRYPT",	fun_decrypt,	2,  0,		CA_PUBLIC,	NULL},
@@ -603,7 +603,8 @@ FUN flist[] = {
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"R",		fun_r,		1,  0,		CA_PUBLIC,	NULL},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC,	NULL},
-{"RBORDER",	fun_rborder,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"RBORDER",	perform_border,	0,  FN_VARARGS|JUST_RIGHT,
+						CA_PUBLIC,	NULL},
 {"READ",	fun_read,	3,  0,		CA_PUBLIC,	NULL},
 {"REGEDIT",	fun_regedit,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"REGEDITALL",	fun_regeditall,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -635,7 +636,7 @@ FUN flist[] = {
 {"RLOC",	fun_rloc,	2,  0,		CA_PUBLIC,	NULL},
 {"ROOM",	fun_room,	1,  0,		CA_PUBLIC,	NULL},
 {"ROUND",	fun_round,	2,  0,		CA_PUBLIC,	NULL},
-{"RTABLES",	process_tables,	0,  FN_VARARGS|TABLES_RJUST,
+{"RTABLES",	process_tables,	0,  FN_VARARGS|JUST_RIGHT,
 						CA_PUBLIC,	NULL},
 {"S",		fun_s,		-1, 0,		CA_PUBLIC,	NULL},
 {"SCRAMBLE",	fun_scramble,	1,  0,		CA_PUBLIC,	NULL},
@@ -686,7 +687,7 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"T",		fun_t,		1,  0,		CA_PUBLIC,	NULL},
 {"TABLE",	fun_table,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"TABLES",	process_tables,	0,  FN_VARARGS|TABLES_LJUST,
+{"TABLES",	process_tables,	0,  FN_VARARGS|JUST_LEFT,
 						CA_PUBLIC,	NULL},
 {"TAN",		fun_tan,	1,  0,		CA_PUBLIC,	NULL},
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC,	NULL},
