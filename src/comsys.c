@@ -27,6 +27,25 @@
 extern dbref FDECL(match_thing, (dbref, char *));
 int FDECL(do_test_access, (dbref, long, struct channel *));
 
+static int ok_channel_string(str)
+    char *str;
+{
+    char *p;
+
+
+    if (!str || !*str)
+	return 0;
+
+    /* No spaces, tabs, returns, or ANSI sequences. */
+
+    for (p = str; *p; p++) {
+	if ((*p == ' ') || (*p == '\t') || (*p == '\r') || (*p == ESC_CHAR))
+	    return 0;
+    }
+
+    return 1;
+}
+
 void load_comsys(filename)
 char *filename;
 {
@@ -685,17 +704,20 @@ struct channel *ch;
 
 	user = select_user(ch, player);
 
-	raw_notify(player, tprintf("You have left channel %s.", ch->name));
-	
-	if ((user->on) && (!Hidden(player)))
-	{ 
+	if (user->on) {
+	    raw_notify(player, tprintf("You have left channel %s.", ch->name));
+	    if (!Hidden(player)) {
 		bp = temp;
 		safe_tprintf_str(temp, &bp,
 				 "[%s] %s has left this channel.",
 				 ch->name, Name(player));
 		do_comsend(ch, temp);
+	    }
+	    user->on = 0;
+	} else {
+	    raw_notify(player, tprintf("You have already left channel %s.",
+				       ch->name));
 	}
-	user->on = 0;
 }
 
 void do_comwho(player, ch)
@@ -808,6 +830,10 @@ char *arg2;
 	}
 	if (!*arg1) {
 		raw_notify(player, "You need to specify an alias.");
+		return;
+	}
+	if (!ok_channel_string(arg1)) {
+	        raw_notify(player, "That is not a valid channel alias.");
 		return;
 	}
 	s = arg2;
@@ -1028,6 +1054,11 @@ char *channel;
 		raw_notify(player, "You do not have permission to do that.");
 		return;
 	}
+	if (!ok_channel_string(channel)) {
+	    raw_notify(player, "That is not a valid channel name.");
+	    return;
+	}
+
 	newchannel = (struct channel *)malloc(sizeof(struct channel));
 
 	StringCopyTrunc(newchannel->name, channel, CHAN_NAME_LEN - 1);
