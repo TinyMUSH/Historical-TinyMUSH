@@ -9165,7 +9165,7 @@ performed and the walk down the list stops.
  
   This function returns the value of the named configuration parameter,
   whether this is a parameter built into the core MUSH server, or a
-  parameter from module.
+  parameter from a module.
  
   Not all configuration options can be obtained this way; some are protected
   for security reasons, while others don't have a single simple value
@@ -10601,7 +10601,7 @@ performed and the walk down the list stops.
                     [,<list delim>[,<field sep string>[,<fill>]]]]])
  
   This function is identical to tables(), except that the elements of
-  <word list> are right-jusified within each column.
+  <word list> are right-justified within each column.
  
 & CTABLES()
   Function: ctables(<word list>,<field widths>[,<lead string>[,<trail string>
