@@ -14363,8 +14363,11 @@ Continued in 'help 3.1 commands5'.
 - @pemit/list now obeys the same permission checks as @pemit, including
   obeying pemit_any as well as restricting use of the /contents switch.
  
-- The @emit, @femit, @fpose, @fsay, page, pose, and say commands now take a
-  /noeval switch. (Analogous to the /noeval switch for @pemit.)
+- The @emit, @oemit, @femit, @fpose, @fsay, page, pose, and say commands
+  now take a /noeval switch. (Analogous to the /noeval switch for @pemit.)
+ 
+- The @pemit and @oemit commands now take a /speech switch, which makes
+  the message subject to Presence checks.
  
 - The new @redirect command can be used to redirect Trace, Puppet, and
   Verbose output from an object, to a player other than the object's
@@ -14373,15 +14376,15 @@ Continued in 'help 3.1 commands5'.
   participate in mutual debugging sessions. Based on an idea from
   AlloyMUSH.
  
-- The new conf parameter say_uses_comma, if enabled, will insert the
-  grammatically-correct comma into say and @fsay.
-
-- The new conf parameter say_uses_you, if enabled, will always show the
-  speaker '<name> says' rather than 'You say'.
- 
 Continued in 'help 3.1 commands6'.
  
 & 3.1 commands6
+ 
+- The new conf parameter say_uses_comma, if enabled, will insert the
+  grammatically-correct comma into say and @fsay.
+ 
+- The new conf parameter say_uses_you, if enabled, will always show the
+  speaker '<name> says' rather than 'You say'.
  
 - A @dbck is automatically done before a @restart or normal @shutdown,
   so recycling cleanup is done first, thus avoiding inconsistencies
@@ -14478,19 +14481,22 @@ Continued in 'help 3.1 functions4'.
 - Added hasflags(), which can operate on multiple lists of flags and
   types, returning true if all elements in any of the lists are true.
  
+- Added hears(), moves(), and knows() functions for checking Presence
+  permissions.
+ 
 - helptext() retrieves an entry from an indexed textfile (help, news, etc.).
  
 - The third argument to ifelse() -- the 'false' result -- is now optional.
  
 - Added istrue() and isfalse() -- iter()-style filterbool() and its reverse.
  
-- Added ilev(), itext(), and inum() functions, for retrieving data
-  from multiple levels of nested iter()-type functions. Based on
-  an idea from PennMUSH.
- 
 Continued in 'help 3.1 functions5'.
  
 & 3.1 functions5
+ 
+- Added ilev(), itext(), and inum() functions, for retrieving data
+  from multiple levels of nested iter()-type functions. Based on
+  an idea from PennMUSH.
  
 - Added itemize() function, which formats a list of items. Typically used
   to turn a list of words into something like "a, b, and c". Based on an
@@ -14509,12 +14515,12 @@ Continued in 'help 3.1 functions5'.
   etc., but an attempt is made to autodetect the list type and sort
   accordingly, or you can specify a sort type, as you can with sort().
  
-- The modify() function now takes lists, enabling multiple variables
-  to be modified at once.
- 
 Continued in 'help 3.1 functions6'.
  
 & 3.1 functions6
+ 
+- The modify() function now takes lists, enabling multiple variables
+  to be modified at once.
  
 - The behavior of remainders in division with negative numbers is
   now consistent (rather than being compiler-dependent), including
@@ -14532,12 +14538,12 @@ Continued in 'help 3.1 functions6'.
   sees() now uses the object doing the looking, not the player invoking
   the function.
  
-- Added session(), which returns command count, bytes of input, and
-  bytes of output associated with a port.
- 
 Continued in 'help 3.1 functions7'.
  
 & 3.1 functions7
+ 
+- Added session(), which returns command count, bytes of input, and
+  bytes of output associated with a port.
  
 - Added speak(), which formats, parses, and transforms speech strings.
  
@@ -14555,13 +14561,13 @@ Continued in 'help 3.1 functions7'.
   a table of variably-wide columns (left/right/center-justified), with
   left and right-margin borders.
  
-- Added timefmt() function. This is essentially an interface to the C
-  library function strftime(), allowing the time to be formatted in
-  psuedo-arbitrary ways. Based on an idea from PennMUSH.
- 
 Continued in 'help 3.1 functions8'.
  
 & 3.1 functions8
+ 
+- Added timefmt() function. This is essentially an interface to the C
+  library function strftime(), allowing the time to be formatted in
+  psuedo-arbitrary ways. Based on an idea from PennMUSH.
  
 - translate() now handles tabs.
  
@@ -14579,13 +14585,13 @@ Continued in 'help 3.1 functions8'.
 - Added whentrue() and whenfalse() functions, which go through a list
   iter()-style until a terminating boolean condition is reached.
  
-- Added wildgrep(), wildmatch(), and wildparse(), which are similar to
-  regrep(), regmatch() and regparse(), but work against wildcard patterns
-  rather than regexps.
- 
 Continued in 'help 3.1 functions9'.
  
 & 3.1 functions9
+ 
+- Added wildgrep(), wildmatch(), and wildparse(), which are similar to
+  regrep(), regmatch() and regparse(), but work against wildcard patterns
+  rather than regexps.
  
 - Added writable() function, which returns 1 if object X can set an
   attribute A on object Y.
