@@ -24,17 +24,16 @@
 #include "ansi.h"	/* required by code */
 #include "db_sql.h"	/* required by code */
 
-extern dbref FDECL(match_thing, (dbref, char *));
 extern int FDECL(do_command, (DESC *, char *, int));
 extern void NDECL(dump_database);
-extern void NDECL(dump_restart_db);
-extern void FDECL(dump_database_internal, (int));
 extern LOGFILETAB logfds_table[];
 extern int slave_pid;
 extern int slave_socket;
 extern CMDENT *prefix_cmds[256];
 extern void FDECL(load_quota, (int *, dbref, int));
 extern void FDECL(save_quota, (int *, dbref, int));
+extern int FDECL(get_gender, (dbref));
+extern int	FDECL(eval_boolexp_atr, (dbref, dbref, dbref, char *));
 
 #ifndef STANDALONE
 static int FDECL(type_quota, (int));
@@ -42,11 +41,6 @@ static int FDECL(pay_quota, (dbref, int, int));
 #endif
 
 extern INLINE void FDECL(queue_rawstring, (DESC *, const char *));
-
-#ifdef NEED_VSPRINTF_DCL
-extern char *FDECL(vsprintf, (char *, const char *, va_list));
-
-#endif
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
 char *tprintf(const char *format,...)

@@ -8,90 +8,116 @@
 
 #define INLINE inline
 
-#define safe_atoi(s)	((s == NULL) ? 0 : atoi(s))
+/* --------------------------------------------------------------------------
+ * External function declarations.
+ */
+
+/* From external sources */
+extern char *	FDECL(crypt, (const char *, const char *)); 
+#ifdef NEED_VSPRINTF_DCL
+extern char *	FDECL(vsprintf, (char *, char *, va_list));
+#endif
+
+/* From boolexp.c */
+extern int	FDECL(eval_boolexp, (dbref, dbref, dbref, BOOLEXP *));
+extern BOOLEXP *FDECL(parse_boolexp, (dbref,const char *, int));
+
+/* From bsd.c */
+extern void	NDECL(boot_slave);
+
+/* From command.c */
+extern int	FDECL(check_access, (dbref, int));
+extern void	NDECL(set_prefix_cmds);
+extern void	FDECL(process_cmdline, (dbref, dbref, char *, char *[], int));
 
 /* From conf.c */
+extern void	FDECL(cf_log_syntax, (dbref, char *, const char *, char *));
+extern void	FDECL(cf_log_notfound, (dbref, char *, const char *, char *));
 extern int	FDECL(cf_modify_bits, (int *, char *, long, dbref, char *));
-
-/* From mail.c*/
-extern int	FDECL(load_mail, (FILE *));
-extern int	FDECL(dump_mail, (FILE *));
-extern void	NDECL(mail_init);
-extern struct mail *	FDECL(mail_fetch, (dbref, int));
-
-/* From udb_achunk.c */
-extern int	NDECL(dddb_close);
-extern int	FDECL(dddb_setfile, (char *));
-extern int	NDECL(dddb_init);
-
-/* From netcommon.c */
-extern void	VDECL(raw_broadcast, (int, char *, ...));
 
 /* From cque.c */
 extern int	FDECL(nfy_que, (dbref, dbref, int, int, int));
 extern int	FDECL(halt_que, (dbref, dbref));
-extern void	FDECL(wait_que, (dbref, dbref, int, dbref, int, char *, char *[],
-			int, char *[]));
+extern void	FDECL(wait_que, (dbref, dbref, int, dbref, int, char *,
+			char *[], int, char *[]));
 extern int	NDECL(que_next);
 extern int	FDECL(do_top, (int ncmds));
-extern void	NDECL(recover_queue_deposits);
+extern void	NDECL(do_second);
+
+/* From db.c */
+extern const char *FDECL(getstring_noalloc, (FILE *, int));
+extern void	FDECL(putstring, (FILE *, const char *));
+extern void	NDECL(dump_restart_db);
+extern int	FDECL(Commer, (dbref));
+extern void	FDECL(s_Pass, (dbref, const char *));
+extern INLINE void	FDECL(s_Name, (dbref, char *));
+extern INLINE char *	FDECL(Name, (dbref));
+extern INLINE char *	FDECL(PureName, (dbref));
+extern INLINE void	FDECL(safe_name, (dbref, char *, char **));
+extern INLINE void	FDECL(s_Atrlist, (dbref, char *));
+extern int	FDECL(fwdlist_load, (FWDLIST *, dbref, char *));
+extern void	FDECL(fwdlist_set, (dbref, FWDLIST *));
+extern void	FDECL(fwdlist_clr, (dbref));
+extern int	FDECL(fwdlist_rewrite, (FWDLIST *, char *));
+#ifdef STANDALONE
+extern FWDLIST *FDECL(fwdlist_get, (dbref));
+#else
+#define fwdlist_get(x) ((FWDLIST *) nhashfind((x), &mudstate.fwdlist_htab))
+#endif
+extern void	NDECL(atr_push);
+extern void	NDECL(atr_pop);
+extern int	FDECL(atr_head, (dbref, char **));
+extern int	FDECL(atr_next, (char **));
+extern int	FDECL(init_gdbm_db, (char *));
+extern void	FDECL(atr_cpy, (dbref, dbref, dbref));
+extern void	FDECL(atr_chown, (dbref));
+extern void	FDECL(atr_clr, (dbref, int));
+extern void	FDECL(atr_add_raw, (dbref, int, char *));
+extern void	FDECL(atr_add, (dbref, int, char *, dbref, int));
+extern void	FDECL(atr_set_owner, (dbref, int, dbref));
+extern void	FDECL(atr_set_flags, (dbref, int, int));
+extern char *	FDECL(atr_get_raw, (dbref, int));
+extern char *	FDECL(atr_get, (dbref, int, dbref *, int *, int *));
+extern char *	FDECL(atr_pget, (dbref, int, dbref *, int *, int *));
+extern char *	FDECL(atr_get_str, (char *, dbref, int, dbref *, int *,
+				    int *));
+extern char *	FDECL(atr_pget_str, (char *, dbref, int, dbref *, int *,
+				     int *));
+extern int	FDECL(atr_get_info, (dbref, int, dbref *, int *));
+extern int	FDECL(atr_pget_info, (dbref, int, dbref *, int *));
+extern void	FDECL(atr_free, (dbref));
+extern int	FDECL(check_zone, (dbref, dbref));
+extern int	FDECL(check_zone_for_player, (dbref, dbref));
+extern void	FDECL(toast_player, (dbref));
 
 /* From eval.c */
-extern void	NDECL(tcache_init);
 extern char *	FDECL(parse_to, (char **, char, int));
 extern char *	FDECL(parse_arglist, (dbref, dbref, char *, char, int,
 			char *[], int, char*[], int));
-extern int	FDECL(get_gender, (dbref));
 extern void	FDECL(exec, (char *, char **, int, dbref, dbref, int, char **,
 			char *[], int));
 extern void	FDECL(save_global_regs, (const char *, char *[], int []));
 extern void	FDECL(restore_global_regs, (const char *, char *[], int []));
 
+/* From fnhelper.c */
+extern dbref	FDECL(match_thing, (dbref, char *));
+extern int	FDECL(xlate, (char *));
+
 /* From game.c */
-#define	notify(p,m)			notify_check(p,p,m, \
-						MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN)
-#define notify_html(p,m)                notify_check(p,p,m, \
-                                              MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN|MSG_HTML)
-#define	notify_quiet(p,m)		notify_check(p,p,m, \
-						MSG_PUP_ALWAYS|MSG_ME)
-#define	notify_with_cause(p,c,m)	notify_check(p,c,m, \
-						MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN)
-#define notify_with_cause_html(p,c,m)   notify_check(p,c,m, \
-                                              MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN|MSG_HTML)
-#define	notify_quiet_with_cause(p,c,m)	notify_check(p,c,m, \
-						MSG_PUP_ALWAYS|MSG_ME)
-#define	notify_puppet(p,c,m)		notify_check(p,c,m, \
-						MSG_ME_ALL|MSG_F_DOWN)
-#define	notify_quiet_puppet(p,c,m)	notify_check(p,c,m, \
-						MSG_ME)
-#define	notify_all(p,c,m)		notify_check(p,c,m, \
-						MSG_ME_ALL|MSG_NBR_EXITS|MSG_F_UP|MSG_F_CONTENTS)
-#define	notify_all_from_inside(p,c,m)	notify_check(p,c,m, \
-						MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE)
-#define notify_all_from_inside_html(p,c,m)      notify_check(p,c,m, \
-                                              MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE|MSG_HTML) 
-#define	notify_all_from_outside(p,c,m)	notify_check(p,c,m, \
-						MSG_ME_ALL|MSG_NBR_EXITS|MSG_F_UP|MSG_F_CONTENTS|MSG_S_OUTSIDE)
 extern void	FDECL(notify_except, (dbref, dbref, dbref,
 			const char *));
 extern void	FDECL(notify_except2, (dbref, dbref, dbref, dbref,
 			 const char *));
-extern int	FDECL(check_filter, (dbref, dbref, int,
-			const char *));
 extern void	FDECL(notify_check, (dbref, dbref, const char *, int));
 extern int	FDECL(Hearer, (dbref));
-extern void	NDECL(report);
-extern int	FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
-extern int	FDECL(list_check, (dbref, dbref, char, char *, char *, int, int *));
-extern void	FDECL(html_escape, (const char *src, char *dest, char **destp));
-	
-/* From help.c */
-extern int	FDECL(helpindex_read, (HASHTAB *, char *));
-extern void	FDECL(helpindex_load, (dbref));
-extern void	NDECL(helpindex_init);
+extern void	FDECL(html_escape, (const char *, char *, char **));
+#ifndef STANDALONE
+extern void	FDECL(dump_database_internal, (int)); 
+extern void	FDECL(fork_and_dump, (int));
+#endif
 
 /* From htab.c */
-extern int	FDECL(cf_ntab_access, (int *, char *, long, dbref, char *));
+extern		CF_HDCL(cf_ntab_access);
 
 /* From log.c */
 extern FILE *	mainlog_fp;
@@ -104,12 +130,26 @@ extern void	FDECL(log_perror, (const char *, const char *,const char *,
 extern void	VDECL(log_printf, (const char *, ...));
 extern void	FDECL(log_name, (dbref));
 extern void	FDECL(log_name_and_loc, (dbref));
-extern char *	FDECL(OBJTYP, (dbref));
 extern void	FDECL(log_type_and_name, (dbref));
 
 /* From look.c */
 extern void	FDECL(look_in, (dbref,dbref, int));
 extern void	FDECL(show_vrml_url, (dbref, dbref));
+
+/* From object.c */
+extern dbref	FDECL(new_home, (dbref));
+extern void	FDECL(divest_object, (dbref));
+extern dbref	FDECL(create_obj, (dbref, int, char *, int));
+extern void	FDECL(destroy_obj, (dbref, dbref));
+extern void	FDECL(empty_obj, (dbref));
+
+/* From netcommon.c */
+extern void	VDECL(raw_broadcast, (int, char *, ...));
+
+/* From mail.c */
+#ifdef USE_MAIL
+extern void	FDECL(do_mail_purge, (dbref)); 
+#endif
 
 /* From move.c */
 extern void	FDECL(move_object, (dbref, dbref));
@@ -117,24 +157,11 @@ extern void	FDECL(move_via_generic, (dbref, dbref, dbref, int));
 extern void	FDECL(move_via_exit, (dbref, dbref, dbref, dbref, int));
 extern int	FDECL(move_via_teleport, (dbref, dbref, dbref, int));
 extern void	FDECL(move_exit, (dbref, dbref, int, const char *, int));
-extern void	FDECL(do_enter_internal, (dbref, dbref, int));
 
 /* From object.c */
-extern dbref	NDECL(start_home);
-extern dbref	NDECL(default_home);
-extern int	FDECL(can_set_home, (dbref, dbref, dbref));
-extern dbref	FDECL(new_home, (dbref));
-extern dbref	FDECL(clone_home, (dbref, dbref));
-extern void	FDECL(divest_object, (dbref));
-extern dbref	FDECL(create_obj, (dbref, int, char *, int));
-extern void	FDECL(destroy_obj, (dbref, dbref));
-extern void	FDECL(empty_obj, (dbref));
+extern void	FDECL(destroy_player, (dbref)); 
 
 /* From player.c */
-extern void	FDECL(record_login, (dbref, int, char *, char *, char *));
-extern int	FDECL(check_pass, (dbref, const char *));
-extern dbref	FDECL(connect_player, (char *, char *, char *, char *,
-				       char *));
 extern dbref	FDECL(create_player, (char *, char *, dbref, int, int));
 extern int	FDECL(add_player_name, (dbref, char *));
 extern int	FDECL(delete_player_name, (dbref, char *));
@@ -178,8 +205,6 @@ extern int	FDECL(nearby, (dbref, dbref));
 extern int	FDECL(exit_visible, (dbref, dbref, int));
 extern void	FDECL(did_it, (dbref, dbref, int, const char *, int,
 			const char *, int, int, char *[], int));
-extern void	FDECL(list_bufstats, (dbref));
-extern void	FDECL(list_buftrace, (dbref));
 
 /* From set.c */
 extern int	FDECL(parse_attrib, (dbref, char *, dbref *, int *));
@@ -189,13 +214,13 @@ extern void	FDECL(edit_string, (char *, char **, char *, char *));
 extern dbref	FDECL(match_controlled, (dbref, const char *));
 
 /* From stringutil.c */
+extern char *	FDECL(upcasestr, (char *)); 
 extern char *	FDECL(munge_space, (char *));
 extern char *	FDECL(trim_spaces, (char *));
 extern char *	FDECL(grabto, (char **, char));
 extern int	FDECL(string_compare, (const char *, const char *));
 extern int	FDECL(string_prefix, (const char *, const char *));
 extern const char *	FDECL(string_match, (const char * ,const char *));
-extern char *	FDECL(dollar_to_space, (const char *));
 extern char *	FDECL(replace_string, (const char *, const char *,
 			const char *));
 extern char *	FDECL(replace_string_ansi, (const char *, const char *,
@@ -210,13 +235,17 @@ extern int	FDECL(matches_exit_from_list, (char *, char *));
 extern char *	FDECL(translate_string, (char *, int));
 extern int	FDECL(ltos, (char *, long));
 extern INLINE void FDECL(safe_ltos, (char *, char **, long));
-/* From boolexp.c */
-extern int	FDECL(eval_boolexp, (dbref, dbref, dbref, BOOLEXP *));
-extern BOOLEXP *FDECL(parse_boolexp, (dbref,const char *, int));
-extern int	FDECL(eval_boolexp_atr, (dbref, dbref, dbref, char *));
 
-/* From functions.c */
-extern int	FDECL(xlate, (char *));
+/* From timer.c */
+#ifndef STANDALONE
+extern int	FDECL(call_cron, (dbref, dbref, int, char *));
+extern int	FDECL(cron_clr, (dbref, int));
+#endif
+
+/* From udb_achunk.c */
+extern int	NDECL(dddb_close);
+extern int	FDECL(dddb_setfile, (char *));
+extern int	NDECL(dddb_init);
 
 /* From unparse.c */
 extern char *	FDECL(unparse_boolexp, (dbref, BOOLEXP *));
@@ -237,66 +266,9 @@ extern int	FDECL(wild, (char *, char *, char *[], int));
 extern int	FDECL(wild_match, (char *, char *));
 extern int	FDECL(quick_wild, (char *, char *));
 
-/* From compress.c */
-extern const char *	FDECL(uncompress, (const char *, int));
-extern const char *	FDECL(compress, (const char *, int));
-extern char *	FDECL(uncompress_str, (char *, const char *, int));
-
-/* From command.c */
-extern int	FDECL(check_access, (dbref, int));
-extern void	NDECL(set_prefix_cmds);
-extern void	FDECL(process_cmdline, (dbref, dbref, char *, char *[], int));
-
-#define	Protect(f) (cmdp->perms & f)
-
-#define Invalid_Objtype(x) \
-((Protect(CA_LOCATION) && !Has_location(x)) || \
- (Protect(CA_CONTENTS) && !Has_contents(x)) || \
- (Protect(CA_PLAYER) && (Typeof(x) != TYPE_PLAYER)))
-
-/* from db.c */
-extern int	FDECL(Commer, (dbref));
-extern void	FDECL(s_Pass, (dbref, const char *));
-extern INLINE void	FDECL(s_Name, (dbref, char *));
-extern INLINE char *	FDECL(Name, (dbref));
-extern INLINE char *	FDECL(PureName, (dbref));
-extern INLINE void	FDECL(safe_name, (dbref, char *, char **));
-extern INLINE void	FDECL(s_Atrlist, (dbref, char *));
-extern int	FDECL(fwdlist_load, (FWDLIST *, dbref, char *));
-extern void	FDECL(fwdlist_set, (dbref, FWDLIST *));
-extern void	FDECL(fwdlist_clr, (dbref));
-extern int	FDECL(fwdlist_rewrite, (FWDLIST *, char *));
-#ifdef STANDALONE
-extern FWDLIST *FDECL(fwdlist_get, (dbref));
-#else
-#define fwdlist_get(x) ((FWDLIST *) nhashfind((x), &mudstate.fwdlist_htab))
-#endif
-extern void	NDECL(init_min_db);
-extern void	NDECL(atr_push);
-extern void	NDECL(atr_pop);
-extern int	FDECL(atr_head, (dbref, char **));
-extern int	FDECL(atr_next, (char **));
-extern int	FDECL(init_gdbm_db, (char *));
-extern void	FDECL(atr_cpy, (dbref, dbref, dbref));
-extern void	FDECL(atr_chown, (dbref));
-extern void	FDECL(atr_clr, (dbref, int));
-extern void	FDECL(atr_add_raw, (dbref, int, char *));
-extern void	FDECL(atr_add, (dbref, int, char *, dbref, int));
-extern void	FDECL(atr_set_owner, (dbref, int, dbref));
-extern void	FDECL(atr_set_flags, (dbref, int, int));
-extern char *	FDECL(atr_get_raw, (dbref, int));
-extern char *	FDECL(atr_get, (dbref, int, dbref *, int *, int *));
-extern char *	FDECL(atr_pget, (dbref, int, dbref *, int *, int *));
-extern char *	FDECL(atr_get_str, (char *, dbref, int, dbref *, int *,
-				    int *));
-extern char *	FDECL(atr_pget_str, (char *, dbref, int, dbref *, int *,
-				     int *));
-extern int	FDECL(atr_get_info, (dbref, int, dbref *, int *));
-extern int	FDECL(atr_pget_info, (dbref, int, dbref *, int *));
-extern void	FDECL(atr_free, (dbref));
-extern int	FDECL(check_zone, (dbref, dbref));
-extern int	FDECL(check_zone_for_player, (dbref, dbref));
-extern void	FDECL(toast_player, (dbref));
+/* --------------------------------------------------------------------------
+ * Constants.
+ */
 
 /* Command handler keys */
 
@@ -603,6 +575,48 @@ extern void	FDECL(toast_player, (dbref));
 #define	SA_EXIT		1	/* Exit, and dump core */
 #define	SA_DFLT		2	/* Try to restart on a fatal error */
 
+/* --------------------------------------------------------------------------
+ * A zillion ways to notify things.
+ */
+
+#define	notify(p,m)			notify_check(p,p,m, \
+						MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN)
+#define notify_html(p,m)                notify_check(p,p,m, \
+                                              MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN|MSG_HTML)
+#define	notify_quiet(p,m)		notify_check(p,p,m, \
+						MSG_PUP_ALWAYS|MSG_ME)
+#define	notify_with_cause(p,c,m)	notify_check(p,c,m, \
+						MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN)
+#define notify_with_cause_html(p,c,m)   notify_check(p,c,m, \
+                                              MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN|MSG_HTML)
+#define	notify_quiet_with_cause(p,c,m)	notify_check(p,c,m, \
+						MSG_PUP_ALWAYS|MSG_ME)
+#define	notify_puppet(p,c,m)		notify_check(p,c,m, \
+						MSG_ME_ALL|MSG_F_DOWN)
+#define	notify_quiet_puppet(p,c,m)	notify_check(p,c,m, \
+						MSG_ME)
+#define	notify_all(p,c,m)		notify_check(p,c,m, \
+						MSG_ME_ALL|MSG_NBR_EXITS|MSG_F_UP|MSG_F_CONTENTS)
+#define	notify_all_from_inside(p,c,m)	notify_check(p,c,m, \
+						MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE)
+#define notify_all_from_inside_html(p,c,m)      notify_check(p,c,m, \
+                                              MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE|MSG_HTML) 
+#define	notify_all_from_outside(p,c,m)	notify_check(p,c,m, \
+						MSG_ME_ALL|MSG_NBR_EXITS|MSG_F_UP|MSG_F_CONTENTS|MSG_S_OUTSIDE)
+
+/* --------------------------------------------------------------------------
+ * General macros.
+ */
+
+#define	Protect(f) (cmdp->perms & f)
+
+#define Invalid_Objtype(x) \
+((Protect(CA_LOCATION) && !Has_location(x)) || \
+ (Protect(CA_CONTENTS) && !Has_contents(x)) || \
+ (Protect(CA_PLAYER) && (Typeof(x) != TYPE_PLAYER)))
+
+#define safe_atoi(s)	((s == NULL) ? 0 : atoi(s))
+
 #define	STARTLOG(key,p,s) \
 	if ((((key) & mudconf.log_options) != 0) && start_log(p, s, key)) {
 #define	ENDLOG \
@@ -614,6 +628,10 @@ extern void	FDECL(toast_player, (dbref));
 
 #define	test_top()		((mudstate.qfirst != NULL) ? 1 : 0)
 #define	controls(p,x)		Controls(p,x)
+
+/* --------------------------------------------------------------------------
+ * String things.
+ */
 
 /* Copies a string, and sets its length, not including the terminating null
  * character, in another variable. Note that it is assumed that the source

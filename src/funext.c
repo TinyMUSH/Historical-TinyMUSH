@@ -31,6 +31,7 @@ extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 #ifdef USE_MAIL
 extern INLINE char *FDECL(get_mail_message, (int));
 extern void FDECL(count_mail, (dbref, int, int *, int *, int *));
+extern struct mail *FDECL(mail_fetch, (dbref, int));
 #endif
 
 /* ---------------------------------------------------------------------------

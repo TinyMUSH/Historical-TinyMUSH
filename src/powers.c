@@ -20,8 +20,6 @@
 
 #ifndef STANDALONE
 
-extern void FDECL(cf_log_notfound, (dbref, char *, const char *, char *));
-
 /*
  * ---------------------------------------------------------------------------
  * * ph_any: set or clear indicated bit, no security checking

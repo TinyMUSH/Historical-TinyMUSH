@@ -31,7 +31,6 @@ extern int FDECL(boot_off, (dbref, char *));
 
 #ifdef USE_MAIL
 extern void FDECL(do_mail_clear, (dbref, char *));
-extern void FDECL(do_mail_purge, (dbref));
 #endif
 
 #ifdef USE_COMSYS
@@ -42,7 +41,6 @@ extern void FDECL(comsys_chown, (dbref, dbref));
 extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
 extern void FDECL(xvars_clr, (dbref));
-extern int FDECL(cron_clr, (dbref, dbref));
 extern int FDECL(structure_clr, (dbref));
 #ifdef USE_COMSYS
 extern int FDECL(channel_clr, (dbref));

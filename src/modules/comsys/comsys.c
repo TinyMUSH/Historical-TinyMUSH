@@ -23,10 +23,7 @@
 #include "ansi.h"	/* required by code */
 #include "functions.h"	/* required by code */
 
-extern dbref FDECL(match_thing, (dbref, char *));
-extern const char *FDECL(getstring_noalloc, (FILE *, int));
 extern BOOLEXP *FDECL(getboolexp1, (FILE *));
-extern void FDECL(putstring, (FILE *, const char *));
 extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
 
 /* --------------------------------------------------------------------------

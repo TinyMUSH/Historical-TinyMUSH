@@ -23,11 +23,6 @@
 #include "match.h"	/* required by code */
 #include "powers.h"	/* required by code */
 
-#ifndef STANDALONE
-extern int FDECL(call_cron, (dbref, dbref, int, char *));
-extern int FDECL(cron_clr, (dbref, int));
-#endif
-
 #ifndef O_ACCMODE
 #define O_ACCMODE	(O_RDONLY|O_WRONLY|O_RDWR)
 #endif

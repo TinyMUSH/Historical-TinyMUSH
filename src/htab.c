@@ -824,8 +824,6 @@ char *prefix;
  * cf_ntab_access: Change the access on a nametab entry.
  */
 
-extern void FDECL(cf_log_notfound, (dbref, char *, const char *, char *));
-
 CF_HAND(cf_ntab_access)
 {
 	NAMETAB *np;

@@ -21,10 +21,6 @@
 #include "gdbm.h"	/* required by code */
 #include "udb.h"	/* required by code */
 
-#ifndef STANDALONE
-extern void FDECL(dump_database_internal, (int));
-#endif
-
 #define DEFAULT_DBMCHUNKFILE "mudDB"
 
 static char *dbfile = DEFAULT_DBMCHUNKFILE;

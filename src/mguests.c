@@ -19,7 +19,6 @@
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
 
-extern void FDECL(destroy_player, (dbref));
 extern void FDECL(do_lock, (dbref, dbref, int, char *, char *));
 typedef int object_flag_type;
 

@@ -34,17 +34,13 @@ extern void FDECL(close_sockets, (int emergency, char *message));
 extern void NDECL(init_version);
 extern void NDECL(init_logout_cmdtab);
 extern void NDECL(init_timer);
-extern void FDECL(raw_notify, (dbref, char *));
 extern void FDECL(raw_notify_html, (dbref, char *));
-extern void NDECL(do_second);
 extern void FDECL(do_dbck, (dbref, dbref, int));
-extern void NDECL(boot_slave);
 extern void FDECL(logfile_init, (char *));
 
 void FDECL(fork_and_dump, (int));
 void NDECL(dump_database);
 void NDECL(pcache_sync);
-void FDECL(dump_database_internal, (int));
 static void NDECL(init_rlimit);
 extern int FDECL(add_helpfile, (dbref, char *, int));
 extern void NDECL(vattr_init);
@@ -54,17 +50,22 @@ extern void FDECL(nhashresize, (NHSHTAB *, int));
 extern void NDECL(load_restart_db);
 extern int NDECL(sql_init);
 extern void NDECL(sql_shutdown);
+extern void NDECL(tcache_init);
+extern void FDECL(helpindex_load, (dbref));
+extern void NDECL(helpindex_init);
+
 
 #ifndef MEMORY_BASED
 extern int NDECL(dddb_optimize);
 #endif
 
 #ifndef STANDALONE
-extern int FDECL(call_cron, (dbref, dbref, int, char *));
 extern LOGFILETAB logfds_table[];
 #endif
 
 #ifdef USE_MAIL
+extern int FDECL(load_mail, (FILE *));
+extern int FDECL(dump_mail, (FILE *));
 extern void NDECL(check_mail_expiration);
 #endif
 
@@ -107,26 +108,6 @@ int key;
 	
 	notify(player, "Dumping...");
 	fork_and_dump(key);
-}
-
-/* print out stuff into error file */
-
-void NDECL(report)
-{
-	STARTLOG(LOG_BUGS, "BUG", "INFO")
-		log_printf("Command: '%s'", mudstate.debug_cmd);
-	ENDLOG
-		if (Good_obj(mudstate.curr_player)) {
-		STARTLOG(LOG_BUGS, "BUG", "INFO")
-			log_printf("Player: ");
-		log_name_and_loc(mudstate.curr_player);
-		if ((mudstate.curr_enactor != mudstate.curr_player) &&
-		    Good_obj(mudstate.curr_enactor)) {
-			log_printf(" Enactor: ");
-			log_name_and_loc(mudstate.curr_enactor);
-		}
-		ENDLOG
-	}
 }
 
 /* ----------------------------------------------------------------------

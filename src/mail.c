@@ -23,7 +23,7 @@
 
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
-
+#include "match.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 
@@ -35,12 +35,7 @@ char msgbuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
 char subbuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
 char timebuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
 
-extern char *FDECL(getstring_noalloc, (FILE *, int));
-extern void FDECL(putstring, (FILE *, const char *));
 extern int FDECL(do_convtime, (char *, struct tm *));
-extern void FDECL(init_match, (dbref, const char *, int));
-extern void NDECL(match_absolute);
-extern dbref NDECL(match_result);
 
 static int FDECL(sign, (int));
 static void FDECL(do_mail_flags, (dbref, char *, mail_flag, int));
@@ -64,6 +59,7 @@ static void FDECL(do_edit_msg, (dbref, char *, char *));
 static void FDECL(do_mail_proof, (dbref));
 void FDECL(do_mail_cc, (dbref, char *));
 void FDECL(do_expmail_abort, (dbref));
+struct mail *FDECL(mail_fetch, (dbref, int));
 
 #define MALIAS_LEN 100
 

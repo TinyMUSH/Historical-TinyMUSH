@@ -455,7 +455,7 @@ extern STATEDATA mudstate;
 			long	extra; \
 			dbref	player;
 			
-#define CF_HDCL(proc)	int FDECL(proc, (long *, char *, long, dbref, char *))
+#define CF_HDCL(proc)	int FDECL(proc, (int *, char *, long, dbref, char *))
 
 /* Global flags */
 

@@ -30,17 +30,14 @@
 
 extern int FDECL(process_output, (DESC * d));
 extern void FDECL(handle_prog, (DESC *, char *));
+extern void FDECL(record_login, (dbref, int, char *, char *, char *));
+extern dbref FDECL(connect_player, (char *, char *, char *, char *, char *));
 
 #ifdef CONCENTRATE
 extern void FDECL(do_becomeconc, (DESC *, char *));
 extern void FDECL(do_makeid, (DESC *));
 extern void FDECL(do_connectid, (DESC *, long int, char *));
 extern void FDECL(do_killid, (DESC *, long int));
-
-#endif
-
-#ifdef USE_MAIL
-extern void FDECL(do_mail_purge, (dbref));
 #endif
 
 #ifdef USE_COMSYS
@@ -190,11 +187,6 @@ dbref player;
 /* ---------------------------------------------------------------------------
  * raw_broadcast: Send message to players who have indicated flags
  */
-
-#ifdef NEED_VSPRINTF_DCL
-extern char *FDECL(vsprintf, (char *, char *, va_list));
-
-#endif
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
 void raw_broadcast(int inflags, char *template,...)

@@ -42,6 +42,7 @@ extern void	NDECL(match_exit_with_parents);
 extern void	NDECL(match_carried_exit);
 extern void	NDECL(match_carried_exit_with_parents);
 extern void	NDECL(match_master_exit);
+extern void	NDECL(match_zone_exit);
 extern void	FDECL(match_everything, (int));
 extern dbref	NDECL(match_result);
 extern dbref	NDECL(last_match_result);

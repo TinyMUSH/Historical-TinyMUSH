@@ -18,9 +18,6 @@
 #include "powers.h"	/* required by code */
 #include "match.h"	/* required by code */
 
-extern void FDECL(cf_log_syntax, (dbref, char *, const char *, char *));
-extern void FDECL(cf_log_notfound, (dbref, char *, const char *, char *));
-
 #ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------

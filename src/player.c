@@ -37,9 +37,9 @@ struct logindata {
 	int new_bad;
 };
 
-extern char *FDECL(crypt, (const char *, const char *));
-
-extern time_t FDECL(time, (time_t *));
+extern dbref NDECL(start_home);
+extern int FDECL(can_set_home, (dbref, dbref, dbref));
+extern dbref FDECL(clone_home, (dbref, dbref));
 
 #ifdef USE_MAIL
 extern void FDECL(check_mail, (dbref, int, int));

@@ -21,11 +21,8 @@
 #include "bitstring.h"	/* required by code */
 
 extern void NDECL(pool_reset);
-extern void NDECL(do_second);
-extern void FDECL(fork_and_dump, (int key));
 extern unsigned int FDECL(alarm, (unsigned int seconds));
 extern void NDECL(pcache_trim);
-extern dbref FDECL(match_thing, (dbref, char *));
 
 /* ---------------------------------------------------------------------------
  * Cron-related things. This implementation is somewhat derivative of

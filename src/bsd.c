@@ -37,9 +37,6 @@ extern long NDECL(make_concid);
 #endif
 
 extern void NDECL(dispatch);
-extern void NDECL(dump_restart_db);
-extern void FDECL(dump_database_internal, (int));
-extern void FDECL(fork_and_dump, (int));
 int sock;
 int ndescriptors = 0;
 int maxd = 0;
@@ -1033,9 +1030,29 @@ void NDECL(emergency_shutdown)
 	close_sockets(1, (char *)"Going down - Bye");
 }
 
+/* ---------------------------------------------------------------------------
+ * Print out stuff into error file.
+ */
 
-/*
- * ---------------------------------------------------------------------------
+void NDECL(report)
+{
+	STARTLOG(LOG_BUGS, "BUG", "INFO")
+		log_printf("Command: '%s'", mudstate.debug_cmd);
+	ENDLOG
+		if (Good_obj(mudstate.curr_player)) {
+		STARTLOG(LOG_BUGS, "BUG", "INFO")
+			log_printf("Player: ");
+		log_name_and_loc(mudstate.curr_player);
+		if ((mudstate.curr_enactor != mudstate.curr_player) &&
+		    Good_obj(mudstate.curr_enactor)) {
+			log_printf(" Enactor: ");
+			log_name_and_loc(mudstate.curr_enactor);
+		}
+		ENDLOG
+	}
+}
+
+/* ---------------------------------------------------------------------------
  * * Signal handling routines.
  */
 

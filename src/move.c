@@ -18,8 +18,6 @@
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
 
-extern void NDECL(match_zone_exit);
-
 /* ---------------------------------------------------------------------------
  * process_leave_loc: Generate messages and actions resulting from leaving
  * a place.

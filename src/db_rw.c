@@ -21,8 +21,6 @@
 #include "powers.h"	/* required by code */
 #endif
 
-extern const char *FDECL(getstring_noalloc, (FILE *, int));
-extern void FDECL(putstring, (FILE *, const char *));
 extern void FDECL(db_grow, (dbref));
 extern void FDECL(putlong, (FILE *, long));
 extern long FDECL(getlong, (FILE *));

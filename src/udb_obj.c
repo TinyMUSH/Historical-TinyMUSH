@@ -22,10 +22,6 @@
 
 #include "udb.h"	/* required by code */
 
-#ifndef STANDALONE
-extern void	FDECL(dump_database_internal, (int));
-#endif
-
 Attr *attrfromFILE(buff)
 char *buff;
 {

@@ -20,7 +20,6 @@
 #include "powers.h"	/* required by code */
 
 extern dbref FDECL(match_controlled_quiet, (dbref, const char *));
-extern void FDECL(destroy_player, (dbref));
 
 /* ---------------------------------------------------------------------------
  * parse_linkable_room: Get a location to link to.

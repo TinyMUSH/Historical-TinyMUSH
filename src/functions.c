@@ -23,9 +23,6 @@
 
 UFUN *ufun_head;
 
-extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
-				    const char *thingname, char *thing));
-
 void NDECL(init_functab)
 {
 	FUN *fp;
