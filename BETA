@@ -679,7 +679,7 @@ The initial beta release was on 9/27/99.
 
 -----------------------------------------------------------------------------
 
-5/13/2000: Beta 20
+5/23/2000: Beta 20
 
 - Feature: A new script, ReportCrash, analyzes a core file and automatically
   emails the results to the bug-report address.
@@ -739,6 +739,10 @@ The initial beta release was on 9/27/99.
   rather than 100, 101, etc. [2.0]
 
 - Fix: rawdump now works again (modified to work with new gdbm version). [3.0]
+
+- Misc: Newly-created Guest characters now have the same flags as the
+  Guest-prototype object; the same flags stripped by @clone are also
+  stripped here.
 
 - Misc: Only God can @program himself. (This is a better fusion of the
   2.2 and MUX permission models.)
