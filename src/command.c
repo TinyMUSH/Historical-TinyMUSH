@@ -831,12 +831,14 @@ char *command, *args[];
 	    ENDLOG
        }
 
-	/* Reset recursion limits */
+	/* Reset recursion limits. Baseline the CPU counter. */
 
 	mudstate.func_nest_lev = 0;
 	mudstate.func_invk_ctr = 0;
 	mudstate.ntfy_nest_lev = 0;
 	mudstate.lock_nest_lev = 0;
+	if (mudconf.func_cpu_lim > 0)
+	    mudstate.cputime_base = clock();
 
 	if (Verbose(player)) {
 	    if (H_Redirect(player)) {
@@ -1973,9 +1975,10 @@ static void list_params(player)
 
     raw_notify(player, "Limits:");
     raw_notify(player,
-      tprintf("  Output...%d  Queue...%d  Recursion...%d  Invocation...%d",
+      tprintf("  Output...%d  Queue...%d  Recursion...%d  Invocation...%d  CPU...%d",
 	      mudconf.output_limit, mudconf.queuemax,
-	      mudconf.func_nest_lim, mudconf.func_invk_lim));
+	      mudconf.func_nest_lim, mudconf.func_invk_lim,
+	      mudconf.func_cpu_lim_secs));
     raw_notify(player,
       tprintf("  Stacks...%d  Variables...%d  Structures...%d  Instances...%d",
 	      mudconf.stack_lim, mudconf.numvars_lim,

@@ -309,6 +309,8 @@ void NDECL(cf_init)
 	mudconf.cmd_invk_lim = 2500;
 	mudconf.func_nest_lim = 50;
 	mudconf.func_invk_lim = 2500;
+	mudconf.func_cpu_lim_secs = 60;
+	mudconf.func_cpu_lim = 60 * CLOCKS_PER_SEC;
 	mudconf.ntfy_nest_lim = 20;
 	mudconf.lock_nest_lim = 20;
 	mudconf.parent_nest_lim = 10;
@@ -381,6 +383,7 @@ void NDECL(cf_init)
 	mudstate.cmd_invk_ctr = 0;
 	mudstate.func_nest_lev = 0;
 	mudstate.func_invk_ctr = 0;
+	mudstate.cputime_base = clock();
 	mudstate.ntfy_nest_lev = 0;
 	mudstate.lock_nest_lev = 0;
 	mudstate.zone_nest_num = 0;
@@ -1325,6 +1328,7 @@ CONF conftable[] = {
 {(char *)"function_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.func_htab,	(long)"Function"},
 {(char *)"function_invocation_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_invk_lim,		0},
 {(char *)"function_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_nest_lim,		0},
+{(char *)"function_cpu_limit",		cf_int,		CA_STATIC,	CA_PUBLIC,	&mudconf.func_cpu_lim_secs,	0},
 {(char *)"gdbm_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.gdbm,		PBUF_SIZE},
 {(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @aconnect and @adisconnect"},
 {(char *)"good_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				1},

@@ -1858,6 +1858,8 @@ char *argv[];
 
 	sql_init();		/* Make a connection to external SQL db */
 
+	mudconf.func_cpu_lim = mudconf.func_cpu_lim_secs * CLOCKS_PER_SEC;
+
 	/* You must do your startups AFTER you load your restart database,
 	 * or softcode that depends on knowing who is connected and so forth
 	 * will be hosed.

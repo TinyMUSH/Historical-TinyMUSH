@@ -229,6 +229,8 @@ struct confdata {
 	int	cmd_invk_lim;	/* Max commands in one queue entry */
 	int	func_nest_lim;	/* Max nesting of functions */
 	int	func_invk_lim;	/* Max funcs invoked by a command */
+	int	func_cpu_lim_secs; /* Max secs of func CPU time by a cmd */
+	clock_t	func_cpu_lim;	/* Max clock ticks of func CPU time by a cmd */
 	int	lock_nest_lim;	/* Max nesting of lock evals */
 	int	parent_nest_lim;/* Max levels of parents */
 	int	zone_nest_lim;	/* Max nesting of zones */
@@ -412,7 +414,8 @@ struct statedata {
 	char	*poutbufc; 	/* Buffer position for poutnew */
 	dbref	poutobj;	/* Object doing the piping */
 	int	sql_socket;	/* Socket fd for SQL database connection */
-#else
+	clock_t	cputime_base;	/* CPU baselined at beginning of command */
+#else  /* STANDALONE */
 	int	logging;	/* Are we in the middle of logging? */
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
 	ALIST	iter_alist;	/* Attribute list for iterations */
