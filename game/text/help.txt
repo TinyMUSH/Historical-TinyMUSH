@@ -3898,7 +3898,12 @@
 & CONTROL_OK
   Flag: CONTROL_OK (z)
  
-  This flag doesn't do anything yet.
+  If an object is set CONTROL_OK, and the object is @zone'd to a valid
+  zone master object (ZMO), then anything that can pass the ControlLock
+  of the object's ZMO can control the object.
+ 
+  See also: ZONE OBJECTS
+ 
 & ANSI
   Flag: ANSI (X)
  
