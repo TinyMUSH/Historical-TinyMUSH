@@ -923,9 +923,15 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   Lists the amount of memory used by various internal MUSH constructs such
   as hashtables, the attribute cache, and object names. The total returned
   by this command will not equal the total size of the MUSH process.  It
-  does not take into account binary code which is loaded, the process stack,
-  pre-initialized and static variables, released memory which has not been
-  reclaimed by the OS, and other bits and pieces.
+  does not take into account the following:
+ 
+  * The text, data, and bss sections of a binary
+  * The heap and stack
+  * Shared library text, data, and bss sections
+  * Kernel space
+  * Some miscellaneous bits and pieces
+ 
+  This command is meant to be used for debugging and optimization.
  
 & @list options
   Command: @list options
