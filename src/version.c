@@ -65,50 +65,30 @@ int extra;
 
 void NDECL(init_version)
 {
-#ifdef BETA
+
 #if PATCHLEVEL > 0
-	mudstate.version =
-		XSTRDUP(tprintf("TinyMUSH Beta version %s patchlevel %d #%s",
-				MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM),
-			"init_version");
-	mudstate.short_ver =
-		XSTRDUP(tprintf("TinyMUSH Beta %s.p%d",
-				MUSH_VERSION, PATCHLEVEL), "init_version");
+    mudstate.version =
+	XSTRDUP(tprintf("TinyMUSH version %s %s %d #%s [%s]",
+			MUSH_VERSION,
+			((MUSH_RELEASE_STATUS == 0) ? "patchlevel" :
+			 ((MUSH_RELEASE_STATUS == 1) ? "beta" : "alpha")),
+			PATCHLEVEL, MUSH_BUILD_NUM, MUSH_RELEASE_DATE),
+		"init_version");
+    mudstate.short_ver =
+	XSTRDUP(tprintf("TinyMUSH %s.%c%d",
+			MUSH_VERSION,
+			((MUSH_RELEASE_STATUS == 0) ? 'p' :
+			 ((MUSH_RELEASE_STATUS == 1) ? 'b' : 'a')),
+			PATCHLEVEL), "init_version");
 #else
-	mudstate.version =
-		XSTRDUP(tprintf("TinyMUSH Beta version %s #%s",
-				MUSH_VERSION, MUSH_BUILD_NUM), "init_version");
-	mudstate.short_ver =
-		XSTRDUP(tprintf("TinyMUSH Beta %s",
-				MUSH_VERSION), "init_version");
-#endif /*
-        * PATCHLEVEL 
-        */
-#else /*
-       * not BETA 
-       */
-#if PATCHLEVEL > 0
-	mudstate.version =
-		XSTRDUP(tprintf("TinyMUSH version %s patchlevel %d #%s [%s]",
-				MUSH_VERSION, PATCHLEVEL, MUSH_BUILD_NUM,
-				MUSH_RELEASE_DATE), "init_version");
-	mudstate.short_ver =
-		XSTRDUP(tprintf("TinyMUSH %s.p%d",
-				MUSH_VERSION, PATCHLEVEL), "init_version");
-#else
-	mudstate.version =
-		XSTRDUP(tprintf("TinyMUSH version %s #%s [%s]",
-				MUSH_VERSION, MUSH_BUILD_NUM,
-				MUSH_RELEASE_DATE), "init_version");
-	mudstate.short_ver =
-		XSTRDUP(tprintf("TinyMUSH %s",
-				MUSH_VERSION), "init_version");
-#endif /*
-        * PATCHLEVEL 
-        */
-#endif /*
-        * BETA 
-        */
+    mudstate.version =
+	XSTRDUP(tprintf("TinyMUSH version %s #%s [%s]",
+			MUSH_VERSION, MUSH_BUILD_NUM, MUSH_RELEASE_DATE),
+		"init_version");
+    mudstate.short_ver =
+	XSTRDUP(tprintf("TinyMUSH %s", MUSH_VERSION), "init_version");
+#endif /* PATCHLEVEL > 0 */
+
 	mudstate.buildinfo =
 		XSTRDUP(tprintf("%s\n            %s %s",
 				MUSH_CONFIGURE_CMD,
