@@ -712,6 +712,9 @@ CMDENT command_table[] = {
 {(char *)":",			NULL,
 	CA_LOCATION|CF_DARK|CA_NO_SLAVE,
 	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,	do_say},
+{(char *)";",			NULL,
+	CA_LOCATION|CF_DARK|CA_NO_SLAVE,
+	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,	do_say},
 {(char *)"\"",			NULL,
 	CA_LOCATION|CF_DARK|CA_NO_SLAVE,
 	SAY_PREFIX,	CS_ONE_ARG|CS_INTERP|CS_LEADIN,	do_say},
@@ -797,7 +800,7 @@ int i;
 					       &mudstate.command_htab);
 	prefix_cmds[':'] = (CMDENT *) hashfind((char *)":",
 					       &mudstate.command_htab);
-	prefix_cmds[';'] = (CMDENT *) hashfind((char *)":",
+	prefix_cmds[';'] = (CMDENT *) hashfind((char *)";",
 					       &mudstate.command_htab);
 	prefix_cmds['\\'] = (CMDENT *) hashfind((char *)"\\",
 						&mudstate.command_htab);
@@ -1041,7 +1044,8 @@ int interactive, ncargs;
 				for (add = (ADDENT *)cmdp->handler; add != NULL; add = add->next) {
 					buff = atr_get(add->thing,
 						add->atr, &aowner, &aflags);
-					for (s = buff + 1; *s && (*s != ':'); s++) ;
+					/* Skip the '$' character, and the next */
+					for (s = buff + 2; *s && (*s != ':'); s++) ;
 					if (!*s)
 						break;
 					*s++ = '\0';
