@@ -444,7 +444,7 @@ FUNCTION(fun_elockstr)
     locked_obj = match_thing(player, fargs[0]);
     actor_obj = match_thing(player, fargs[1]);
 
-    if (!Good_obj(actor_obj)) {
+    if (!Good_obj(locked_obj) || !Good_obj(actor_obj)) {
 	safe_nomatch(buff, bufc);
     } else if (!nearby_or_control(player, actor_obj) &&
 	       !nearby_or_control(player, locked_obj)) {
