@@ -258,7 +258,7 @@ char *toad, *newowner;
 		if (key & TOAD_NO_CHOWN) {
 		count = -1;
 	} else {
-		count = chown_all(victim, recipient);
+		count = chown_all(victim, recipient, player, 0);
 		s_Owner(victim, recipient);	/*
 						 * you get it 
 						 */

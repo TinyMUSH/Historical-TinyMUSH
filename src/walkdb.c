@@ -273,15 +273,33 @@ char *name;
         */
 }
 
-int chown_all(from_player, to_player)
-dbref from_player, to_player;
+int chown_all(from_player, to_player, acting_player, key)
+    dbref from_player, to_player, acting_player;
+    int key;
 {
 	register int i, count = 0, q_t = 0, q_p = 0, q_r = 0, q_e = 0;
+	int fword1, fword2, fword3, strip_powers;
 
 	if (!isPlayer(from_player))
 		from_player = Owner(from_player);
 	if (!isPlayer(to_player))
 		to_player = Owner(to_player);
+
+	strip_powers = 1;
+	if (key & CHOWN_NOSTRIP) {
+	    if (God(acting_player)) {
+		fword1 = CHOWN_OK;
+		strip_powers = 0;
+	    } else {
+		fword1 = CHOWN_OK | WIZARD;
+	    }
+	    fword2 = 0;
+	    fword3 = 0;
+	} else {
+	    fword1 = CHOWN_OK | mudconf.stripped_flags.word1;
+	    fword2 = mudconf.stripped_flags.word2;
+	    fword3 = mudconf.stripped_flags.word3;
+	}
 
 	DO_WHOLE_DB(i) {
 		if ((Owner(i) == from_player) && (Owner(i) != i)) {
@@ -307,7 +325,13 @@ dbref from_player, to_player;
 			default:
 				s_Owner(i, to_player);
 			}
-			s_Flags(i, (Flags(i) & ~(CHOWN_OK | INHERIT)) | HALT);
+			s_Flags(i, (Flags(i) & ~fword1) | HALT);
+			s_Flags2(i, Flags2(i) & ~fword2);
+			s_Flags3(i, Flags3(i) & ~fword3);
+			if (strip_powers) {
+			    s_Powers(i, 0);
+			    s_Powers2(i, 0);
+			}
 			count++;
 		}
 	}
@@ -348,7 +372,7 @@ char *from, *to;
 		recipient = player;
 	}
 
-	count = chown_all(victim, recipient);
+	count = chown_all(victim, recipient, player, key);
 	if (!Quiet(player)) {
 		notify(player, tprintf("%d objects @chowned.", count));
 	}

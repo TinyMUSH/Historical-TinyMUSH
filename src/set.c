@@ -659,15 +659,33 @@ char *name, *newown;
 		s_Owner(thing, Owner(owner));
 	    }
 	    atr_chown(thing);
-	    s_Flags(thing,
-		    (Flags(thing) &
-		     ~(CHOWN_OK | mudconf.stripped_flags.word1)) | HALT);
-	    s_Flags2(thing,
-		     (Flags2(thing) & ~(mudconf.stripped_flags.word2)));
-	    s_Flags3(thing,
-		     (Flags3(thing) & ~(mudconf.stripped_flags.word3)));
-	    s_Powers(thing, 0);
-	    s_Powers2(thing, 0);
+
+	    /* If we're not stripping flags, and we're God, don't strip the
+	     * WIZARD flag. Otherwise, do that, at least.
+	     */
+	    if (key & CHOWN_NOSTRIP) {
+		if (God(player))
+		    s_Flags(thing, (Flags(thing) & ~CHOWN_OK) | HALT);
+		else
+		    s_Flags(thing,
+			    (Flags(thing) & ~(CHOWN_OK | WIZARD)) | HALT);
+	    } else {
+		s_Flags(thing,
+			(Flags(thing) &
+			 ~(CHOWN_OK | mudconf.stripped_flags.word1)) | HALT);
+		s_Flags2(thing,
+			 (Flags2(thing) & ~(mudconf.stripped_flags.word2)));
+		s_Flags3(thing,
+			 (Flags3(thing) & ~(mudconf.stripped_flags.word3)));
+	    }
+
+	    /* Powers are only preserved by God with nostrip */
+
+	    if (!(key & CHOWN_NOSTRIP) || !God(player)) { 
+		s_Powers(thing, 0);
+		s_Powers2(thing, 0);
+	    }
+
 	    halt_que(NOTHING, thing);
 	    if (!Quiet(player))
 		notify_quiet(player, "Owner changed.");

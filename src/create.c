@@ -484,6 +484,7 @@ char *name, *arg2;
 		notify_quiet(player, "You cannot clone players!");
 		return;
 	}
+
 	/* You can only make a parent link to what you control */
 
 	if (!Controls(player, thing) && !Parent_ok(thing) &&
@@ -493,13 +494,42 @@ char *name, *arg2;
 				  Name(thing)));
 		key &= ~CLONE_PARENT;
 	}
-	/* Determine the cost of cloning */
+
+	/* You can only preserve the owner on the clone of an object owned
+	 * by another player, if you control that player.
+	 */
 
 	new_owner = (key & CLONE_PRESERVE) ? Owner(thing) : Owner(player);
+	if ((new_owner != Owner(player)) && !Controls(player, new_owner)) {
+	    notify_quiet(player,
+			 tprintf("You don't control the owner of %s, ignoring /reserve.",
+				 Name(thing)));
+	    new_owner = Owner(player);
+	}
+
+	/* Determine the cost of cloning.
+	 * We have to do limits enforcement here, because we're going
+	 * to wipe out the attribute for money set by create_obj()
+	 * and need to set this ourselves. Note that you can't change
+	 * the cost of objects other than things.
+	 */
+
+	if (key & CLONE_SET_COST) {
+	    cost = atoi(arg2);
+	    arg2 = NULL;
+	}
+
 	switch (Typeof(thing)) {
 		case TYPE_THING:
-			cost = OBJECT_DEPOSIT((mudconf.clone_copy_cost) ?
-					      Pennies(thing) : 1);
+		        if (key & CLONE_SET_COST) {
+			    if (cost < mudconf.createmin)
+				cost = mudconf.createmin;
+			    if (cost > mudconf.createmax)
+				cost = mudconf.createmax;
+			} else {
+			    cost = OBJECT_DEPOSIT((mudconf.clone_copy_cost) ?
+						  Pennies(thing) : 1);
+			}
 			break;
 		case TYPE_ROOM:
 			cost = mudconf.digcost;
@@ -512,21 +542,13 @@ char *name, *arg2;
 			cost = mudconf.digcost;
 			break;
 	}
-	if (key & CLONE_SET_COST) {
-		cost = atoi(arg2);
-		if (cost < mudconf.createmin)
-			cost = mudconf.createmin;
-		if (cost > mudconf.createmax)
-			cost = mudconf.createmax;
-		arg2 = NULL;
-	}
 
 	/* Go make the clone object */
 
 	if ((arg2 && *arg2) && ok_name(arg2))
-		clone = create_obj(new_owner, Typeof(thing), arg2, cost);
+	    clone = create_obj(new_owner, Typeof(thing), arg2, cost);
 	else
-		clone = create_obj(new_owner, Typeof(thing), Name(thing), cost);
+	    clone = create_obj(new_owner, Typeof(thing), Name(thing), cost);
 	if (clone == NOTHING)
 		return;
 
@@ -538,9 +560,7 @@ char *name, *arg2;
 	else
 		atr_cpy(player, clone, thing);
 
-	/*
-	 * Reset the name, since we cleared the attributes 
-	 */
+	/* Reset the name, since we cleared the attributes. */
 
 	if ((arg2 && *arg2) && ok_name(arg2))
 	    	clone_name = arg2;
@@ -549,16 +569,36 @@ char *name, *arg2;
 
 	s_Name(clone, (char *)clone_name);
 
-	/* Clear out problem flags from the original. Don't strip
-	 * the INHERIT bit if we got the Inherit switch.
+	/* Reset the cost, since this also got wiped when we cleared
+	 * attributes. Note that only things have a value, though you
+	 * pay a cost for creating everything.
 	 */
 
-	rmv_flags = mudconf.stripped_flags.word1;
-	if ((key & CLONE_INHERIT) && Inherits(player))
-	    rmv_flags &= ~INHERIT;
-	s_Flags(clone, Flags(thing) & ~rmv_flags);
-	s_Flags2(clone, Flags2(thing) & ~mudconf.stripped_flags.word2);
-	s_Flags3(clone, Flags3(thing) & ~mudconf.stripped_flags.word3);
+	if (Typeof(clone) == TYPE_THING)
+	    s_Pennies(clone, OBJECT_ENDOWMENT(cost));
+
+	/* Clear out problem flags from the original. Don't strip
+	 * the INHERIT bit if we got the Inherit switch. Don't
+	 * strip other flags if we got the NoStrip switch EXCEPT
+	 * for the Wizard flag, unless we're God. (Powers are not
+	 * cloned, ever.)
+	 */
+
+	if (key & CLONE_NOSTRIP) {
+	    if (God(player))
+		s_Flags(clone, Flags(thing));
+	    else
+		s_Flags(clone, Flags(thing) & ~WIZARD);
+	    s_Flags2(clone, Flags2(thing));
+	    s_Flags3(clone, Flags3(thing));
+	} else {
+	    rmv_flags = mudconf.stripped_flags.word1;
+	    if ((key & CLONE_INHERIT) && Inherits(player))
+		rmv_flags &= ~INHERIT;
+	    s_Flags(clone, Flags(thing) & ~rmv_flags);
+	    s_Flags2(clone, Flags2(thing) & ~mudconf.stripped_flags.word2);
+	    s_Flags3(clone, Flags3(thing) & ~mudconf.stripped_flags.word3);
+	}
 
 	/* Tell creator about it */
 

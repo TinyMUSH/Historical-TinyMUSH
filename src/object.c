@@ -826,7 +826,7 @@ dbref victim;
 
 	boot_off(victim, (char *)"You have been destroyed!");
 	halt_que(victim, NOTHING);
-	count = chown_all(victim, player);
+	count = chown_all(victim, player, player, 0);
 
 	/* Remove the name from the name hash table */
 

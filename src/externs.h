@@ -247,7 +247,7 @@ extern char *	FDECL(unparse_boolexp_decompile, (dbref, BOOLEXP *));
 extern char *	FDECL(unparse_boolexp_function, (dbref, BOOLEXP *));
 
 /* From walkdb.c */
-extern int	FDECL(chown_all, (dbref, dbref));
+extern int	FDECL(chown_all, (dbref, dbref, dbref, int));
 extern void	NDECL(olist_init);
 extern void	FDECL(olist_add, (dbref));
 extern dbref	NDECL(olist_first);
@@ -321,6 +321,7 @@ extern void	FDECL(toast_player, (dbref));
 #define CEMIT_NOHEADER  1	/* Channel emit without header */
 #define	CHOWN_ONE	1	/* item = new_owner */
 #define	CHOWN_ALL	2	/* old_owner = new_owner */
+#define CHOWN_NOSTRIP	4	/* Don't strip (most) flags from object */
 #define CLIST_FULL	1	/* Full listing of channels */
 #define	CLONE_LOCATION	0	/* Create cloned object in my location */
 #define	CLONE_INHERIT	1	/* Keep INHERIT bit if set */
@@ -328,6 +329,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	CLONE_INVENTORY	4	/* Create cloned object in my inventory */
 #define	CLONE_SET_COST	8	/* ARG2 is cost of cloned object */
 #define	CLONE_PARENT	16	/* Set parent on obj instd of cloning attrs */
+#define CLONE_NOSTRIP	32	/* Don't strip (most) flags from clone */
 #define CSET_PUBLIC	0	/* Sets a channel public */
 #define CSET_PRIVATE	1	/* Sets a channel private (default) */
 #define CSET_LOUD	2	/* Channel shows connects and disconnects */
