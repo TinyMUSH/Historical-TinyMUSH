@@ -1467,7 +1467,7 @@ void do_clist(player, cause, key, chan_name)
     }
 
     if (key & CLIST_FULL) {
-	notify(player, "Channel              Flags     Locks  Charge  Balance  Users  Messages  Owner");
+	notify(player, "Channel              Flags      Locks  Charge  Balance  Users  Messages  Owner");
     } else {
 	notify(player, "Channel              Owner              Description");
     }
