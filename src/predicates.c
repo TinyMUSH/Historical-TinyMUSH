@@ -545,13 +545,17 @@ dbref player;
 	int num_lower = 0;
 
 	if (*password == '\0') {
+#ifndef STANDALONE
 	    notify_quiet(player, "Null passwords are not allowed.");
+#endif
 	    return 0;
 	}
 
 	for (scan = password; *scan; scan++) {
 		if (!(isprint(*scan) && !isspace(*scan))) {
+#ifndef STANDALONE
 		    notify_quiet(player, "Illegal character in password.");
+#endif
 		    return 0;
 		}
 		if (isupper(*scan))
@@ -566,7 +570,9 @@ dbref player;
 	if ((strlen(password) == 13) &&
 	    (password[0] == 'X') &&
 	    (password[1] == 'X')) {
+#ifndef STANDALONE
 	    notify_quiet(player, "Please choose another password.");
+#endif
 	    return 0;
 	}
 
