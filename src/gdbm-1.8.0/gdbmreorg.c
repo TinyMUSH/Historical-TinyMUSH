@@ -1,5 +1,16 @@
 /* gdbmreorg.c - Reorganize the database file. */
 
+/*
+ * This file was modified for TinyMUSH:
+ *
+ * $Log$
+ * Revision 1.2  2003/08/08 00:54:18  rmg
+ * fix from gdbm-1.8.3: gdbmreorg leaks malloced filename
+ *
+ * Revision 1.1  1999/06/21 18:39:42  dpassmor
+ * added gdbm-1.8.0
+ */
+
 /*  This file is part of GDBM, the GNU data base manager, by Philip A. Nelson.
     Copyright (C) 1990, 1991, 1993  Free Software Foundation, Inc.
 

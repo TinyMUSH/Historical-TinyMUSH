@@ -1,5 +1,26 @@
 /* gdbmsetopt.c - set options pertaining to a GDBM descriptor. */
 
+/*
+ * This file was modified for TinyMUSH:
+ *
+ * $Log$
+ * Revision 1.4  2001/02/01 07:41:59  dpassmor
+ * CENTFREE AND COALESCEBLKS GDBM options now properly set (thanks Robby)
+ *
+ * Revision 1.3  2000/02/27 06:22:03  cvs
+ * Okay, it turns out gdbm really needs at least 10 buckets to write
+ * efficiently, so I'm turning the clock back to the old behavior... one day
+ * we'll have to fix this.
+ *
+ * Revision 1.2  2000/02/27 04:26:28  cvs
+ * If the GDBM cachesize was set to less than 10 (it is set to 1 in the MUSH
+ * source) then GDBM automatically raised it to 10. Now it will accept whatever
+ * cache size it is given.
+ *
+ * Revision 1.1  1999/06/21 18:39:42  dpassmor
+ * added gdbm-1.8.0
+ */
+
 /*  This file is part of GDBM, the GNU data base manager, by Philip A. Nelson.
     Copyright (C) 1993, 1994  Free Software Foundation, Inc.
 

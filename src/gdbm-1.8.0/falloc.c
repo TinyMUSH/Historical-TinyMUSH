@@ -1,5 +1,20 @@
 /* falloc.c - The file space management routines for dbm. */
 
+/*
+ * This file was modified for TinyMUSH:
+ *
+ * $Log$
+ * Revision 1.2  2003/08/08 01:07:51  rmg
+ * fix from gdbm-1.8.3: too many free blocks would cause an overflow when
+ *   maintaining a central freelist (GDBM_CENTFREE option).
+ * counter-fix from me: only coalesce free blocks if the option to do so
+ *   is set (not that tinymush wants to avoid coalescing free blocks, but
+ *   it's a bug nonetheless).
+ *
+ * Revision 1.1  1999/06/21 18:39:33  dpassmor
+ * added gdbm-1.8.0
+ */
+
 /*  This file is part of GDBM, the GNU data base manager, by Philip A. Nelson.
     Copyright (C) 1990, 1991, 1993, 1994  Free Software Foundation, Inc.
 

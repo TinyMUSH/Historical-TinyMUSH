@@ -1,5 +1,23 @@
 /* gdbmconst.h - The constants defined for use in gdbm. */
 
+/*
+ * This file was modified for TinyMUSH:
+ *
+ * $Log$
+ * Revision 1.3  2000/02/27 08:15:35  cvs
+ * Changed the default cache size to 10 (it seems to use this regardless of
+ * what you pass gdbm_open, which is why we didn't see much of a memory savings
+ * with the gdbm_open command line fix.
+ *
+ * Revision 1.2  2000/02/27 04:26:28  cvs
+ * If the GDBM cachesize was set to less than 10 (it is set to 1 in the MUSH
+ * source) then GDBM automatically raised it to 10. Now it will accept whatever
+ * cache size it is given.
+ *
+ * Revision 1.1  1999/06/21 18:39:37  dpassmor
+ * added gdbm-1.8.0
+ */
+
 /*  This file is part of GDBM, the GNU data base manager, by Philip A. Nelson.
     Copyright (C) 1990, 1991, 1993  Free Software Foundation, Inc.
 

@@ -1,5 +1,28 @@
 /* gdbmdefs.h - The include file for dbm.  Defines structure and constants. */
 
+/*
+ * This file was modified for TinyMUSH:
+ *
+ * $Log$
+ * Revision 1.5  2001/01/14 20:45:04  dpassmor
+ * Ignore this. I'm just screwing up left and right here.
+ *
+ * Revision 1.4  2001/01/14 20:44:12  dpassmor
+ * Oops, accidentally removed part of the structure.
+ *
+ * Revision 1.3  2001/01/14 20:22:48  dpassmor
+ * Moved start_tag to beginning of bucket element structure so that we can just
+ * read the structure from the gdbm file and (hopefully) avoid alignment
+ * problems.
+ *
+ * Revision 1.2  2001/01/14 10:48:12  dpassmor
+ * Added metadata to allow easier recovery of trashed GDBM databases-- minimal
+ * size overhead
+ *
+ * Revision 1.1  1999/06/21 18:39:38  dpassmor
+ * added gdbm-1.8.0
+ */
+
 /*  This file is part of GDBM, the GNU data base manager, by Philip A. Nelson.
     Copyright (C) 1990, 1991, 1993  Free Software Foundation, Inc.
 

@@ -1,5 +1,31 @@
 /* gdbmstore.c - Add a new key/data pair to the database. */
 
+/*
+ * This file was modified for TinyMUSH:
+ *
+ * $Log$
+ * Revision 1.5  2001/02/01 18:59:00  dpassmor
+ * Reversed changes for coalesced GDBM writes. We'll be writing our stuff in
+ * block sized chunks anyway.
+ *
+ * Revision 1.4  2001/02/01 10:48:47  rmg
+ * be sure to flush coalesced writes before gdbm_fetch or gdbm_delete
+ * only do flush if there is data to flush
+ * use off_t for coalesced output block offset in file
+ *
+ * Revision 1.3  2001/01/30 21:08:26  dpassmor
+ * Moved mudstate.db_block_size calculation from load_game to init_gdbm_db so
+ * it would work in dbconvert. GDBM now does coalescing of sequential writes
+ * (this isn't a big gain, but it helps a little)
+ *
+ * Revision 1.2  2001/01/14 10:48:13  dpassmor
+ * Added metadata to allow easier recovery of trashed GDBM databases-- minimal
+ * size overhead
+ *
+ * Revision 1.1  1999/06/21 18:39:43  dpassmor
+ * added gdbm-1.8.0
+ */
+
 /*  This file is part of GDBM, the GNU data base manager, by Philip A. Nelson.
     Copyright (C) 1990, 1991, 1993  Free Software Foundation, Inc.
 

@@ -1,5 +1,15 @@
 #! /bin/sh
 # Configuration validation subroutine script, version 1.1.
+#
+# This file was modified for TinyMUSH:
+#
+# $Log$
+# Revision 1.2  2001/01/11 06:32:04  dpassmor
+# Update gdbm's config.guess and config.sub to know UWIN system type
+#
+# Revision 1.1  1999/06/21 18:39:23  dpassmor
+# added gdbm-1.8.0
+#
 #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000
 #   Free Software Foundation, Inc.
 #
