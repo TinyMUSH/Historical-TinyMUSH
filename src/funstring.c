@@ -1104,7 +1104,7 @@ FUNCTION(fun_mid)
 	track_esccode(s, ansi_state);
     }
 
-    for (count = 0; (count < start) && *s; count++) {
+    for (count = 0; (count < start) && *s; ++count) {
 	++s;
 
 	while (*s == ESC_CHAR) {
@@ -1117,7 +1117,7 @@ FUNCTION(fun_mid)
     }
 
     savep = s;
-    for (count = 0; (count < nchars) && *s; count++) {
+    for (count = 0; (count < nchars) && *s; ++count) {
 	while (*s == ESC_CHAR) {
 	    track_esccode(s, ansi_state);
 	}
@@ -1127,7 +1127,7 @@ FUNCTION(fun_mid)
 	}
     }
 
-    safe_copy_known_str(savep, s - savep, buff, bufc, (LBUF_SIZE - 1));
+    safe_known_str(savep, s - savep, buff, bufc);
 
     safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL), buff, bufc);
 }
@@ -1557,35 +1557,53 @@ FUNCTION(fun_strlen)
 FUNCTION(fun_delete)
 {
     char *s, *savep;
-    int count, start, nchars, len, have_normal;
+    int count, start, nchars;
+    int ansi_state_l = ANST_NORMAL;
+    int ansi_state_r = ANST_NORMAL;
 
     s = fargs[0];
     start = atoi(fargs[1]);
     nchars = atoi(fargs[2]);
-    len = strip_ansi_len(s);
 
-    if ((start >= len) || (nchars <= 0)) {
+    if ((nchars <= 0) || (start + nchars <= 0)) {
 	safe_str(s, buff, bufc);
 	return;
     }
 
-    have_normal = 1;
-    for (count = 0; *s && (count < len); ) {
-	if (*s == ESC_CHAR) {
-	    Skip_Ansi_Code(s, buff, bufc);
-	} else {
-	    if ((count >= start) && (count < start + nchars)) {
-		s++;
-	    } else {
-		safe_chr(*s, buff, bufc);
-		s++;
-	    }
-	    count++;
+    savep = s;
+    for (count = 0; (count < start) && *s; ++count) {
+	while (*s == ESC_CHAR) {
+	    track_esccode(s, ansi_state_l);
+	}
+
+	if (*s) {
+	    ++s;
 	}
     }
 
-    if (!have_normal)
-	safe_ansi_normal(buff, bufc);
+    safe_known_str(savep, s - savep, buff, bufc);
+    ansi_state_r = ansi_state_l;
+
+    while (*s == ESC_CHAR) {
+	track_esccode(s, ansi_state_r);
+    }
+
+    for ( ; (count < start + nchars) && *s; ++count) {
+	++s;
+
+	while (*s == ESC_CHAR) {
+	    track_esccode(s, ansi_state_r);
+	}
+    }
+
+    if (*s) {
+	safe_str(ansi_transition_esccode(ansi_state_l, ansi_state_r),
+		 buff, bufc);
+	safe_str(s, buff, bufc);
+    } else {
+	safe_str(ansi_transition_esccode(ansi_state_l, ANST_NORMAL),
+		 buff, bufc);
+    }
 }
 
 /* ---------------------------------------------------------------------------
