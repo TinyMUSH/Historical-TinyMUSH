@@ -1031,9 +1031,9 @@ static void fix_mux_zones()
     zmarks = (int *) calloc(mudstate.db_top, sizeof(int));
 
     DO_WHOLE_DB(i) {
-	if (Zone(thing) != NOTHING) {
+	if (Zone(i) != NOTHING) {
 	    s_Flags2(i, Flags2(i) | CONTROL_OK);
-	    zmarks[Zone(thing)] = 1;
+	    zmarks[Zone(i)] = 1;
 	}
     }
 
