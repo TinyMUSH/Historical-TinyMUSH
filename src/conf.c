@@ -492,6 +492,31 @@ CF_HAND(cf_int)
 }
 
 /* ---------------------------------------------------------------------------
+ * cf_int_factor: Set integer parameter that will be used as a factor
+ *                (ie. cannot be set to 0)
+ */
+
+CF_HAND(cf_int_factor)
+{
+	int num;
+
+	/* Copy the numeric value to the parameter */
+
+	num = atoi(str);
+
+	if ((extra > 0) && (num > extra)) {
+	    cf_log_syntax(player, cmd, "Value exceeds limit of %d", extra);
+	    return -1;
+	}
+	if (num == 0) {
+	    cf_log_syntax(player, cmd, "Value cannot be 0.  You may want a value of 1.");
+	    return -1;
+	}
+	sscanf(str, "%d", vp);
+	return 0;
+}
+
+/* ---------------------------------------------------------------------------
  * cf_dbref: Set dbref parameter.
  */
 
@@ -1642,7 +1667,7 @@ CONF conftable[] = {
 {(char *)"initial_size",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.init_size,		0},
 {(char *)"instance_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.instance_lim,		0},
 {(char *)"instant_recycle",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.instant_recycle,	(long)"@destroy instantly recycles objects set DESTROY_OK"},
-{(char *)"kill_guarantee_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.killguarantee,		0},
+{(char *)"kill_guarantee_cost",		cf_int_factor,		CA_GOD,		CA_PUBLIC,	&mudconf.killguarantee,		0},
 {(char *)"kill_max_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.killmax,		0},
 {(char *)"kill_min_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.killmin,		0},
 {(char *)"lag_check",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.lag_check,		(long)"CPU usage warnings are enabled"},
@@ -1657,7 +1682,7 @@ CONF conftable[] = {
 {(char *)"logout_cmd_access",		cf_ntab_access,	CA_GOD,		CA_DISABLED,	(int *)logout_cmdtable,		(long)access_nametab},
 {(char *)"logout_cmd_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.logout_cmd_htab,(long)"Logged-out command"},
 {(char *)"look_obey_terse",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_look,		(long)"look obeys the TERSE flag"},
-{(char *)"machine_command_cost",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.machinecost,		0},
+{(char *)"machine_command_cost",	cf_int_factor,		CA_GOD,		CA_PUBLIC,	&mudconf.machinecost,		0},
 {(char *)"master_room",			cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.master_room,		NOTHING},
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
@@ -1722,7 +1747,7 @@ CONF conftable[] = {
 {(char *)"room_attr_defaults",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.room_defobj,		NOTHING},
 {(char *)"room_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.room_quota,		0},
 {(char *)"sacrifice_adjust",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacadjust,		0},
-{(char *)"sacrifice_factor",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.sacfactor,		0},
+{(char *)"sacrifice_factor",		cf_int_factor,		CA_GOD,		CA_PUBLIC,	&mudconf.sacfactor,		0},
 {(char *)"safer_passwords",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.safer_passwords,	(long)"Passwords must satisfy minimum security standards"},
 {(char *)"say_uses_comma",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.comma_say,		(long)"Say uses a grammatically-correct comma"},
 {(char *)"say_uses_you",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.you_say,		(long)"Say uses You rather than the player name"},
@@ -1758,7 +1783,7 @@ CONF conftable[] = {
 {(char *)"thing_proto",			cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.thing_proto,		NOTHING},
 {(char *)"thing_attr_defaults",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.thing_defobj,		NOTHING},
 {(char *)"thing_quota",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.thing_quota,		0},
-{(char *)"timeslice",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.timeslice,		0},
+{(char *)"timeslice",			cf_int_factor,		CA_GOD,		CA_PUBLIC,	&mudconf.timeslice,		0},
 {(char *)"trace_output_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.trace_limit,		0},
 {(char *)"trace_topdown",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.trace_topdown,		(long)"Trace output is top-down"},
 {(char *)"trust_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.suspect_list,	0},
