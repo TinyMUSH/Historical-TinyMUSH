@@ -91,6 +91,7 @@ int set_register(funcname, name, data)
 		free_lbuf(mudstate.rdata->q_regs[regnum]);
 		mudstate.rdata->q_regs[regnum] = NULL;
 		mudstate.rdata->q_lens[regnum] = 0; 
+		mudstate.rdata->dirty++;
 	    }
 	    return 0;
 	}
