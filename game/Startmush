@@ -36,27 +36,81 @@ if [ -r restart.db ]; then
 fi
 
 #
-#	Refuse to start if CORRUPT or KILLED databases are present.
-#
-if [ -r $DATA/$INPUT_DB.KILLED -o -r $DATA/$INPUT_DB.CORRUPT ]; then
-	echo "There is a CORRUPT or KILLED database present." 
-	echo "You should salvage what you can before continuing."
-	exit 1
+#	Handle a KILLED database. If it's complete, we have a flatfile
+#	that we can Restore from. Otherwise we should rename it as
+#	corrupt and move on.
+#	
+if [ -r $DATA/$INPUT_DB.KILLED ]; then
+	echo
+	DBDATE=`date +%m%d-%H%M`
+	end="`tail -1 $DATA/$INPUT_DB.KILLED`"
+	if [ "$end" = "***END OF DUMP***" ]; then
+		if [ -d $BACKUP_DIR ]; then
+			NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE
+		else
+			NEWFILE=$GAMENAME.$DBDATE
+		fi
+		mv $DATA/$INPUT_DB.KILLED $NEWFILE
+		echo "A non-corrupt $INPUT_DB.KILLED file was present."
+		echo "This means that a flatfile was successfully saved after the reception"
+		echo "of a SIGTERM, possibly due to a machine reboot."
+		echo "This file has been renamed to $NEWFILE"
+		echo "Please type:  ./Restore $NEWFILE"
+		echo "If this restoration is successful, you can then type ./Startmush again."
+		exit 1
+	else
+		if [ -d $BACKUP_DIR ]; then
+			NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE.CORRUPT
+		else
+			NEWFILE=$GAMENAME.$DBDATE.CORRUPT
+		fi
+		mv $DATA/$INPUT_DB.KILLED $NEWFILE
+		echo "A corrupt $INPUT_DB.KILLED file was present."
+		echo "This means that there was an unsuccessful attempt to save a flatfile"
+		echo "after the reception of a SIGTERM, likely due to a machine reboot."
+		echo "This file has been renamed to $NEWFILE"
+		echo "You may wish to check for potential problems, and run ./Backup"
+		echo "before continuing and typing ./Startmush again."
+		exit 1
+	fi
 fi
 
 #
-#	Check for a panic dump.  If there is one and it is good, copy
-#	it on top of the last checkpoint DB written by mush.  If it is bad,
-#	just delete it.
+#	Handle a CRASH database. This is a flatfile created when we 
+#	encounter something fatal and attempt to automatically restart.
+#	The file might not be current, though, even if it's non-corrupt.
+#	If it is corrupt, we've got to cope with that, too.
 #
 if [ -r $DATA/$CRASH_DB ]; then
+	echo
 	end="`tail -1 $DATA/$CRASH_DB`"
 	if [ "$end" = "***END OF DUMP***" ]; then
-		mv $DATA/$CRASH_DB $DATA/$NEW_DB
+		echo "A non-corrupt $CRASH_DB file is present."
+		echo "This indicates a flatfile was successfully saved during a panic-restart."
+		echo "This file might not be newer your current database."
+		echo "Please check the file modification times:  ls -l $DATA"
+		echo "If your current database is newer than the crash file, you should:"
+		echo "  * Remove the crash file:  rm -f $DATA/$CRASH_DB"
+		echo "  * Backup your data:  ./Backup"
+		echo "If the crash file is newer, you should:"
+		echo "  * Rename the crash file:  mv -f $DATA/$CRASH_DB ./$GAMENAME.flat"
+		echo "  * Restore from backup:  ./Restore ./$GAMENAME.flat"
+		echo "If this is successful, you can then type ./Startmush again."
+		exit 1
 	else
-		rm $DATA/$CRASH_DB
-		echo "Warning: PANIC dump corrupt using older db."
-		echo "Warning: PANIC dump failed on "`date` | mail $OWNER
+		DBDATE=`date +%m%d-%H%M`
+		if [ -d $BACKUP_DIR ]; then
+			NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE.CORRUPT
+		else
+			NEWFILE=$GAMENAME.$DBDATE.CORRUPT
+		fi
+		mv -f $DATA/$CRASH_DB $NEWFILE 
+		echo "A corrupt $CRASH_DB file is present."
+		echo "This indicates an unsuccessful flatfile save during a panic-restart."
+		echo "This file has been renamed to $NEWFILE"
+		echo "You may wish to check for potential problems, and run ./Backup"
+		echo "before continuing and typing ./Startmush again."
+		exit 1
 	fi
 fi
 
@@ -85,6 +139,13 @@ else
 	echo "No previous mail database."
 fi
 
+#
+#	Handle Linux sh brokenness; this isn't supposed to be an environment
+#	variable, but somehow it stays set.
+#
+make_db=""
+
+#
 #	If we have a good checkpoint database, make it the input database.
 #	If not, use the backup of the input database.
 #
@@ -98,12 +159,6 @@ else
 		echo "No recent db. Will initialize new database."
 		make_db="-s"
 	fi
-fi
-#
-#	Remove the start db if there is one.
-#
-if [ -r restart.db ]; then
-	rm -f restart.db
 fi
 #
 #	Cleanup the old logfiles.
