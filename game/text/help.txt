@@ -7837,7 +7837,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & SETX()
   Function:  setx(<variable name>,<value>)
  
-  This function sets the valuable of a variable associated with the
+  This function sets the value of a variable associated with the
   calling object. Using an empty <value> will unset the variable. For
   reasons of memory consumption, variables should ALWAYS be explicitly
   unset when they are not immediately needed. This function does not
