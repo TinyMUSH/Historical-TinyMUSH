@@ -10,6 +10,7 @@ Frequently-Asked Questions
 - How do I use radix compression?
 - How do I use an in-memory database?
 - Help! I'm having database problems.
+- How do I set up a link to an external SQL database?
 
 ------------------------------------------------------------------------------
 
@@ -392,3 +393,54 @@ However, your best bet in this scenario is to restore your database
 from backup. This means it's very important to keep backups; we strongly
 recommend that you back up once a week at minimum, if not nightly.
 
+------------------------------------------------------------------------------
+
+How do I set up a link to an external SQL database?
+
+There is built-in support in TinyMUSH 3.0 for connecting to an external
+mSQL database. If you want to do this, you'll need to compile in the
+appropriate file (see the Makefile for how to do this).
+
+You can also look at db_sql.h and db_msql.c for examples of how to
+write your own method of connecting to another type of external SQL
+database. If you do this, please let us know, and provide us with a
+copy of the code, so it can be included with the next TinyMUSH relese.
+
+You'll need to have an mSQL 2.x database set up. mSQL can be obtained
+from http://www.hughes.com.au/ together with the appropriate documentation.
+We do not support the mSQL package itself; if you need help with mSQL
+installation, configuration, and maintenance, please refer to the
+mSQL pages for assistance.
+
+If the mSQL database is on the same machine as your MUSH, the sql_host
+parameter in your netmush.conf file (or equivalent) should be set to
+"localhost", so the local Unix domain socket is used; if the database
+is not on the same machine as your MUSH, the sql_host parameter should
+be whatever the remote server's hostname is.
+
+You then need to create a database in mSQL for the MUSH to use (or
+you can, of course, use an existing database). You can do this with:
+
+msqladmin create MUSH_DB
+
+... which creates a database called MUSH_DB. You can then add the
+parameer 'sql_database MUSH_DB' to your netmush.conf file.
+
+Make sure that you set up your mSQL installation's msql.acl file
+correctly and with the appropriate level of security. See mSQL's
+own documentation for assistance with this.
+
+The database link should come up automatically when the game is
+first started. You should see logfile messages that look something
+like this, after the 'Load complete.' note in the log:
+
+990831.115339 TinyMUSH SQL/CONN : Connected to SQL server.
+990831.115339 TinyMUSH SQL/CONN : SQL database selected.
+
+You should then be able to use the SQL() function from within the MUSH
+to make queries against this database. Note that users of this function
+need to have the use_sql power.
+
+------------------------------------------------------------------------------
+    If you have suggestions for more FAQs, please email us and let us know.
+------------------------------------------------------------------------------
