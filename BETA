@@ -21,12 +21,16 @@ Release history:
     TinyMUSH 3.0 beta 1: Initial beta release, 1999/09/27.
     TinyMUSH 3.0 gamma:  Standard "stable" release, 2000/12/01.
     TinyMUSH 3.1 beta 1: Initial beta release, 2002/05/08.
+    TinyMUSH 3.1 gamma:  Standard "stable" release, 2004/06/21.
 
 =============================================================================
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-??/??/2004: Beta 12
+06/21/2004: TinyMUSH 3.1 gamma release
+
+- Feature: @pemit/@oemit can take a /move switch, per suggestion by
+  Mike Whitaker.
 
 - Fix: Fatal bug in structure() fixed; default values should be
   optional. [3.0; Traest]
@@ -40,14 +44,22 @@ Release history:
 - Fix: Better error handling around regular expression matches, fixing
   at least one bug where regedit() could use an uninitialized buffer. [Penn]
 
+- Fix: @list memory was counting vattr names twice. [3.1]
+
+- Fix: Fixed a cache memory leak when in standalone mode. [3.1]
+
+- Misc: Added support for Perl-style curly braces in the regedit()
+  replacement string, i.e. ${1} is the same as $1. The curly braces may
+  need to be escaped in order to work.
+
 - Misc: Compatibility update for x86_64 cpu types (e.g. opteron).
 
 - Misc: Code cleanup around parser calls, after making sure the parser
   always nul-terminates its own output.
 
-- Misc: Added support for Perl-style curly braces in the regedit()
-  replacement string, i.e. ${1} is the same as $1. The curly braces may
-  need to be escaped in order to work.
+- Misc: Miscellaneous minor code cleanup.
+
+-----------------------------------------------------------------------------
 
 08/13/2003: Beta 11
 
