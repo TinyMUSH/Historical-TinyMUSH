@@ -2060,6 +2060,7 @@ static void helper_cf_display(player, buff, bufc, tp)
     }
     if ((tp->interpreter == cf_bool) ||
 	(tp->interpreter == cf_int) ||
+	(tp->interpreter == cf_int_factor) ||
 	(tp->interpreter == cf_const)) {
 	safe_ltos(buff, bufc, *(tp->loc));
 	return;
