@@ -35,6 +35,7 @@ extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
 extern void FDECL(xvars_clr, (dbref));
 extern int FDECL(cron_clr, (dbref, dbref));
+extern int FDECL(structure_clr, (dbref));
 #endif
 
 #ifdef STANDALONE
@@ -557,11 +558,12 @@ dbref player, obj;
 	nfy_que(obj, 0, NFY_DRAIN, 0);
 	cron_clr(obj, NOTHING);
 	
-	/* Remove forwardlists and stacks from the hash tables. */
+	/* Remove forwardlists, stacks, etc. from the hash tables. */
 	
 	fwdlist_clr(obj);
 	stack_clr(obj);
 	xvars_clr(obj);
+	structure_clr(obj);
 #endif
 
 	/* Compensate the owner for the object */

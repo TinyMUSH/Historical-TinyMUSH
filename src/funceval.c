@@ -1210,6 +1210,161 @@ FUNCTION(fun_linstances)
     print_htab_matches(player, &mudstate.instance_htab, buff, bufc);
 }
 
+void structure_clr(thing)
+    dbref thing;
+{
+    /* Wipe out all structure information associated with an object.
+     * Find all the object's instances. Destroy them.
+     * Then, find all the object's defined structures, and destroy those.
+     */
+
+    HASHTAB *htab;
+    HASHENT *hptr;
+    char tbuf[SBUF_SIZE], ibuf[SBUF_SIZE], cbuf[SBUF_SIZE], *tp, *ip, *cp;
+    int i, j, len, count;
+    INSTANCE **inst_array;
+    char **name_array;
+    STRUCTDEF *this_struct;
+    STRUCTDATA *d_ptr;
+    STRUCTDEF **struct_array;
+
+    /* The instance table is indexed as <dbref number>.<instance name> */
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, thing);
+    safe_sb_chr('.', tbuf, &tp);
+    *tp = '\0';
+    len = strlen(tbuf);
+
+    /* Because of the hashtable rechaining that's done, we cannot simply
+     * walk the hashtable and delete entries as we go. Instead, we've
+     * got to keep track of all of our pointers, and go back and do
+     * them one by one.
+     */
+
+    inst_array = (INSTANCE **) calloc(mudconf.instance_lim + 1,
+				      sizeof(INSTANCE *));
+    name_array = (char **) calloc(mudconf.instance_lim + 1, sizeof(char *));
+    
+    htab = &mudstate.instance_htab;
+    count = 0;
+    for (i = 0; i < htab->hashsize; i++) {
+	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	    if (!strncmp(tbuf, hptr->target, len)) {
+		name_array[count] = (char *) hptr->target;
+		inst_array[count] = (INSTANCE *) hptr->data;
+		count++;
+	    }
+	}
+    }
+
+    /* Now that we have the pointers to the instances, we can get the
+     * structure definitions, and use that to hunt down and wipe the
+     * components. 
+     */
+
+    if (count > 0) {
+	for (i = 0; i < count; i++) {
+	    this_struct = inst_array[i]->datatype;
+	    XFREE(inst_array[i], "constructor.inst");
+	    hashdelete(name_array[i], &mudstate.instance_htab);
+	    ip = ibuf;
+	    safe_sb_str(name_array[i], ibuf, &ip);
+	    safe_sb_chr('.', ibuf, &ip);
+	    *ip = '\0';
+	    for (j = 0; j < this_struct->c_count; j++) {
+		cp = cbuf;
+		safe_sb_str(ibuf, cbuf, &cp);
+		safe_sb_str(this_struct->c_names[j], cbuf, &cp);
+		*cp = '\0';
+		d_ptr = (STRUCTDATA *) hashfind(cbuf, &mudstate.instdata_htab);
+		if (d_ptr) {
+		    if (d_ptr->text)
+			free(d_ptr->text);
+		    XFREE(d_ptr, "constructor.data");
+		    hashdelete(cbuf, &mudstate.instdata_htab);
+		}
+	    }
+	    this_struct->n_instances -= 1;
+	}
+    }
+
+    free(inst_array);
+    free(name_array);
+
+    /* The structure table is indexed as <dbref number>.<struct name> */
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, thing);
+    safe_sb_chr('.', tbuf, &tp);
+    *tp = '\0';
+    len = strlen(tbuf);
+
+    /* Again, we have the hashtable rechaining problem. */
+
+    struct_array = (STRUCTDEF **) calloc(mudconf.struct_lim + 1,
+					 sizeof(STRUCTDEF *));
+    name_array = (char **) calloc(mudconf.struct_lim + 1, sizeof(char *));
+
+    htab = &mudstate.structs_htab;
+    count = 0;
+    for (i = 0; i < htab->hashsize; i++) {
+	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	    if (!strncmp(tbuf, hptr->target, len)) {
+		name_array[count] = (char *) hptr->target;
+		struct_array[count] = (STRUCTDEF *) hptr->data;
+		count++;
+	    }
+	}
+    }
+
+    /* We have the pointers to the structures. Flag a big error if they're
+     * still in use, wipe them from the hashtable, then wipe out every
+     * component definition. Free up the memory.
+     */
+
+    if (count > 0) {
+	for (i = 0; i < count; i++) {
+	    if (struct_array[i]->n_instances > 0) {
+		STARTLOG(LOG_ALWAYS, "BUG", "STRUCT")
+		    log_name(thing);
+		    log_text((char *) " structure ");
+		    log_text((char *) name_array[i]);
+		    log_text((char *) " has ");
+		    log_number(struct_array[i]->n_instances);
+		    log_text((char *) " allocated instances uncleared.");
+		ENDLOG
+	    }
+	    hashdelete(name_array[i], &mudstate.structs_htab);
+	    ip = ibuf;
+	    safe_sb_str(name_array[i], ibuf, &ip);
+	    safe_sb_chr('.', ibuf, &ip);
+	    *ip = '\0';
+	    for (j = 0; j < struct_array[i]->c_count; j++) {
+		cp = cbuf;
+		safe_sb_str(ibuf, cbuf, &cp);
+		safe_sb_str(struct_array[i]->c_names[j], cbuf, &cp);
+		*cp = '\0';
+		if (struct_array[i]->c_array[j]) {
+		    XFREE(struct_array[i]->c_array[j], "comp_alloc");
+		}
+		hashdelete(cbuf, &mudstate.cdefs_htab);
+	    }
+	    free(struct_array[i]->s_name);
+	    if (struct_array[i]->names_base)
+		free(struct_array[i]->names_base);
+	    if (struct_array[i]->defs_base)
+		free(struct_array[i]->defs_base);
+	    free(struct_array[i]->c_names);
+	    XFREE(struct_array[i], "struct_alloc");
+	}
+    }
+
+    free(struct_array);
+    free(name_array);
+}
+
+
 /*------------------------------------------------------------------------
  * Side-effect functions.
  */
