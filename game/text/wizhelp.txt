@@ -1320,13 +1320,12 @@
 	postdump_message	pueblo_message		wizard_motd_message
 
 & PARAM MISCELLANEOUS
-	flag_name		guest_prefix		guests_channel
-	indent_desc		log			log_options
-	money_name_plural	money_name_singular	mud_name
-	port			public_channel		queue_active_chunk
-	queue_idle_chunk	rwho_data_port		rwho_host
-	rwho_info_port		rwho_password		sql_database
-	sql_host		sql_reconnect
+	flag_name		guest_prefix		guests_calias
+	guests_channel		indent_desc		log
+	log_options		money_name_plural	money_name_singular
+	mud_name		port			public_calias
+	public_channel		queue_active_chunk	queue_idle_chunk
+	sql_database		sql_host		sql_reconnect
 
 & PARAM OBJECTS
 	default_home		exit_flags		exit_parent
@@ -1358,10 +1357,10 @@ dark_sleepers		events_daily_hour	examine_flags
 examine_public_attrs	fascist_teleport	format_contents
 format_exits		global_aconn_uselocks	have_comsys
 have_mailer		have_zones		hostnames
-idle_wiz_dark		local_master_rooms	look_obey_terse		
-mail_database		match_own_commands	paranoid_allocate
-pemit_any_object	pemit_far_players	player_listen
-player_match_own_commands
+idle_wiz_dark		lattr_default_oldstyle	local_master_rooms
+look_obey_terse		mail_database		match_own_commands	
+paranoid_allocate	pemit_any_object	pemit_far_players
+player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -1904,6 +1903,15 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: guest_char_num, guest_nuker, guest_prefix, number_guests.
  
+& guests_calias
+  Config parameter: guests_calias <channel alias>. Default: g
+ 
+  Specifies the name of the channel alias that is used to talk on the
+  Guests channel. When Guests connect, if the guest channel has been
+  created, Guests join that channel with this alias.
+ 
+  See also: have_comsys, guests_channel, public_calias, public_channel.
+ 
 & guests_channel
   Config parameter: guests_channel <name>. Default: Guests
  
@@ -1911,9 +1919,7 @@ use_global_aconn	wizard_obeys_linklock
   must have created the channel already. To disable this feature, simply set
   this parameter to nothing.
  
-  The default channel alias for this channel is 'g'.
- 
-  See also: have_comsys, public_channel.
+  See also: have_comsys, guests_calias, public_calias, public_channel.
  
 & guest_prefix
   Config parameter: guest_prefix <name>. Default: Guest
@@ -2076,6 +2082,15 @@ use_global_aconn	wizard_obeys_linklock
   If the amount of real time used by a command exceeds the given number
   of seconds, a warning message will be printed to the log file.
 
+& lattr_default_oldstyle
+  Config parameter: lattr_default_oldstyle <yes/no>.  Default: No
+ 
+  If this config parameter is turned on, if lattr() is performed on a
+  non-existent object, an empty string is returned.
+ 
+  If this config parameter is turned off, if lattr() is performed on a
+  non-existent object, the string "#-1 NO MATCH" is returned.
+ 
 & list_access
   Config parameter: list_access <param> [!]<privilege> [[!]<privilege>]...
   Changes the access needed to the <param> option of the @list command.
@@ -2395,7 +2410,16 @@ use_global_aconn	wizard_obeys_linklock
   Config parameter: power_access <power> [!]<privilege> [[!]<privilege>]...
   Changes the access rights to the named power.
   See also: @list powers, PERMISSIONS.
-
+ 
+& public_calias
+  Config parameter: public_calias <channel alias>. Default: pub
+ 
+  Specifies the default alias for the public channel. When new players
+  join that channel, this is the default command for talking on that
+  channel. The channel must have been previously created.
+ 
+  See also: have_comsys, guests_calias, guests_channel, public_channel.
+ 
 & public_channel
   Config parameter: public_channel <name>. Default: Public
  
@@ -2403,9 +2427,7 @@ use_global_aconn	wizard_obeys_linklock
   created. You must have previously created the channel. To disable this
   feature, simply set this parameter to nothing.
  
-  The default alias for this channel is 'pub'.
- 
-  See also: have_comsys, guests_channel.
+  See also: have_comsys, guests_calias, guests_channel, public_calias.
  
 & public_flags
   Config parameter: public_flags <yes/no>.  Default: Yes
