@@ -971,8 +971,8 @@ int db_format, db_version;
 		    newf2 &= ~GAGGED;
 		    newf2 |= ANSI;
 		}
-		if (newf2 & PLACEHOLDER) {
-		    newf2 &= ~PLACEHOLDER;
+		if (newf2 & WATCHER) {
+		    newf2 &= ~WATCHER;
 		    s_Powers(thing, Powers(thing) | POW_BUILDER);
 		}
 	} else if (db_format == F_MUX) {
@@ -993,11 +993,11 @@ int db_format, db_version;
 		newf2 |= HAS_COMMANDS;
 	    }
 
-	    if (newf2 & PLACEHOLDER) {
+	    if (newf2 & WATCHER) {
 		/* This used to be the COMPRESS flag, which didn't do
-		 * anything, and still doesn't do anything.
+		 * anything.
 		 */
-		newf2 &= ~PLACEHOLDER;
+		newf2 &= ~WATCHER;
 	    }
 
 	} else if (db_format == F_TINYMUSH) {

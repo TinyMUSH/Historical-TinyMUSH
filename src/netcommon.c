@@ -207,6 +207,7 @@ va_dcl
 {
 	char buff[20000];
 	DESC *d;
+	int test_flag, which_flag, p_flag;
 	va_list ap;
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
@@ -225,12 +226,31 @@ va_dcl
 
 	vsprintf(buff, template, ap);
 
+	/* Note that this use of the flagwords precludes testing for
+	 * type in this function. (Not that this matters, since we
+	 * look at connected descriptors, which must be players.)
+	 */
+
+	test_flag = inflags & ~(FLAG_WORD2 | FLAG_WORD3);
+	if (inflags & FLAG_WORD2)
+	    which_flag = 2;
+	else if (inflags & FLAG_WORD3)
+	    which_flag = 3;
+	else
+	    which_flag = 1; 
+
 	DESC_ITER_CONN(d) {
-		if ((Flags(d->player) & inflags) == inflags) {
-			queue_string(d, buff);
-			queue_write(d, "\r\n", 2);
-			process_output(d);
-		}
+	    switch (which_flag) {
+		case 1:	    p_flag = Flags(d->player); break;
+		case 2:	    p_flag = Flags2(d->player); break;
+		case 3:	    p_flag = Flags3(d->player); break;
+		default:    p_flag = Flags(d->player);
+	    }
+	    if (p_flag & test_flag) {
+		queue_string(d, buff);
+		queue_write(d, "\r\n", 2);
+		process_output(d);
+	    }
 	}
 	va_end(ap);
 }
@@ -661,17 +681,17 @@ DESC *d;
 		sprintf(buf, "%s has connected.", Name(player));
 
 		if (Hidden(player)) {
-			raw_broadcast(MONITOR,
+			raw_broadcast(WATCHER | FLAG_WORD2,
 				      (char *)"GAME: %s has DARK-connected.",
 				      Name(player));
 		} else {
-			raw_broadcast(MONITOR,
+			raw_broadcast(WATCHER | FLAG_WORD2,
 				      (char *)"GAME: %s has connected.",
 				      Name(player));
 		}
 	} else {
 	        sprintf(buf, "%s has reconnected.", Name(player));
-		raw_broadcast(MONITOR,
+		raw_broadcast(WATCHER | FLAG_WORD2,
 			      (char *)"GAME: %s has reconnected.",
 			      Name(player));
 	}
@@ -811,7 +831,8 @@ const char *reason;
 			do_mail_purge(player);
 #endif
 
-		raw_broadcast(MONITOR, (char *)"GAME: %s has disconnected.",
+		raw_broadcast(WATCHER | FLAG_WORD2,
+			      (char *)"GAME: %s has disconnected.",
 			      Name(player));
 
 		/* Must reset flags before we do comsys stuff. */
@@ -903,7 +924,7 @@ const char *reason;
 		if ((loc != NOTHING) && !(Hidden(player) && Can_Hide(player)))
 			key |= (MSG_NBR | MSG_NBR_EXITS | MSG_LOC | MSG_FWDLIST);
 		notify_check(player, player, buf, key);
-		raw_broadcast(MONITOR,
+		raw_broadcast(WATCHER | FLAG_WORD2,
 			      (char *)"GAME: %s has partially disconnected.",
 			      Name(player));
 		free_mbuf(buf);

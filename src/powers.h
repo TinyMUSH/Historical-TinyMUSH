@@ -31,7 +31,7 @@
 #define	POW_COMM_ALL	0x00080000	/* Channel wiz */
 #define	POW_SEE_QUEUE	0x00100000	/* Player can see the entire queue */
 #define	POW_SEE_HIDDEN	0x00200000	/* Player can see hidden players on WHO list */
-#define	POW_MONITOR	0x00400000	/* Player can set or clear MONITOR */
+#define	POW_WATCH	0x00400000	/* Player can set or clear WATCHER */
 #define	POW_POLL	0x00800000	/* Player can set the doing poll */
 #define	POW_NO_DESTROY	0x01000000	/* Cannot be destroyed */
 #define POW_GUEST	0x02000000	/* Player is a guest */
@@ -94,7 +94,7 @@ extern void	FDECL(decompile_powers, (dbref, dbref, char *));
 #define s_Comm_All(c)		s_Powers((c), Powers(c) | POW_COMM_ALL)
 #define s_See_Queue(c)		s_Powers((c), Powers(c) | POW_SEE_QUEUE)
 #define s_See_Hidden(c)		s_Powers((c), Powers(c) | POW_SEE_HIDDEN)
-#define s_Can_Monitor(c)	s_Powers((c), Powers(c) | POW_MONITOR)
+#define s_Can_Watch(c)		s_Powers((c), Powers(c) | POW_WATCH)
 #define s_Can_Poll(c)		s_Powers((c), Powers(c) | POW_POLL)
 #define s_No_Destroy(c)		s_Powers((c), Powers(c) | POW_NO_DESTROY)
 #define s_Guest(c)		s_Powers((c), Powers(c) | POW_GUEST)
@@ -124,7 +124,7 @@ extern void	FDECL(decompile_powers, (dbref, dbref, char *));
 #define Comm_All(c)		(((Powers(c) & POW_COMM_ALL) != 0) || Wizard(c))
 #define See_Queue(c)		(((Powers(c) & POW_SEE_QUEUE) != 0) || WizRoy(c))
 #define See_Hidden(c)		(((Powers(c) & POW_SEE_HIDDEN) != 0) || WizRoy(c))
-#define Can_Monitor(c)		(((Powers(c) & POW_MONITOR) != 0) || Wizard(c))
+#define Can_Watch(c)		(((Powers(c) & POW_WATCH) != 0) || Wizard(c))
 #define Can_Poll(c)		(((Powers(c) & POW_POLL) != 0) || Wizard(c))
 #define No_Destroy(c)		(((Powers(c) & POW_NO_DESTROY) != 0) || Wizard(c))
 #define Guest(c)		((Powers(c) & POW_GUEST) != 0)
