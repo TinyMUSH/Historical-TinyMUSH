@@ -1324,7 +1324,7 @@ int *db_format, *db_version, *db_flags;
 	char peek;
 #endif
 	int read_powers, read_powers_player, read_powers_any;
-	int has_typed_quotas;
+	int has_typed_quotas, has_visual_attrs, tmp_junk;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
 	int aflags, f1, f2, f3;
 	BOOLEXP *tempbool;
@@ -1348,6 +1348,7 @@ int *db_format, *db_version, *db_flags;
 	read_extflags = 0;
 	read_3flags = 0;
 	has_typed_quotas = 0;
+	has_visual_attrs = 0;
 	read_timestamps = 0;
 	read_new_strings = 0;
 	read_powers = 0;
@@ -1485,6 +1486,8 @@ int *db_format, *db_version, *db_flags;
 			 read_money = !(g_version & V_ATRMONEY);
 			 read_extflags = (g_version & V_XFLAGS);
 			 has_typed_quotas = (g_version & V_TQUOTAS);
+			 read_timestamps = (g_version & V_TIMESTAMPS);
+			 has_visual_attrs = (g_version & V_VISUALATTRS);
 			 g_flags = g_version & ~V_MASK;
 
 			 deduce_name = 0;
@@ -1578,6 +1581,22 @@ int *db_format, *db_version, *db_flags;
 						aflags = (aflags * 10) +
 							(*tstr++ - '0');
 					tstr++;		/* skip ':' */
+					if (has_visual_attrs) {
+					    /* Revert from TM 3.1.
+					     * AF_VISUAL was not used in the
+					     * past on global attrs.
+					     * If we get that flag, we strip
+					     * it; AF_ODARK has already been
+					     * stripped and so the permissions
+					     * will be correct.
+					     * If not AF_VISUAL, then we need
+					     * to make it AF_ODARK.
+					     */
+					    if (aflags & AF_VISUAL)
+						aflags &= ~AF_VISUAL;
+					    else
+						aflags |= AF_ODARK;
+					}
 				} else {
 					aflags = mudconf.vattr_flags;
 				}
@@ -1947,6 +1966,14 @@ int *db_format, *db_version, *db_flags;
 					f2 = getref(f);
 					s_Powers(i, f1);
 					s_Powers2(i, f2);
+				}
+
+				if (read_timestamps) {
+				    /* Reversion from TM 3.1 format.
+				     * Read and discard.
+				     */
+				    tmp_junk = getref(f); /* access time */
+				    tmp_junk = getref(f); /* modify time */
 				}
 				
 				/* ATTRIBUTES */

@@ -116,6 +116,8 @@ struct boolexp {
 #define V_3FLAGS	0x00040000	/* Adding a 3rd flag word */
 #define V_QUOTED	0x00080000	/* Quoted strings, ala PennMUSH */
 #define V_TQUOTAS       0x00100000      /* Typed quotas */
+#define V_TIMESTAMPS	0x00200000	/* 3.1: Timestamps */
+#define V_VISUALATTRS	0x00400000	/* 3.1: ODark-to-Visual attr flags */
 
 /* Some defines for DarkZone's flavor of PennMUSH */
 #define DB_CHANNELS    0x2    /*  Channel system */
