@@ -1049,9 +1049,9 @@ void do_channel(player, cause, key, chan_name, arg)
 		    free_boolexp(chp->recv_lock);
 		chp->recv_lock = boolp;
 	    } else if (key & CHANNEL_TRANS) {
-		if (chp->join_lock)
-		    free_boolexp(chp->join_lock);
-		chp->join_lock = boolp;
+		if (chp->trans_lock)
+		    free_boolexp(chp->trans_lock);
+		chp->trans_lock = boolp;
 	    } else {
 		notify(player, "You must specify a valid lock type.");
 		free_boolexp(boolp);
