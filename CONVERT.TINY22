@@ -79,7 +79,11 @@ called it).
 	function_access set disabled
 	function_access tel disabled
 	function_access trigger disabled
+	function_access wait disabled
 	function_access wipe disabled
+  If you want to be really draconian, also add to the conf file:
+	function_access pemit disabled
+	function_access remit disabled
 
 -----------------------------------------------------------------------------
 
