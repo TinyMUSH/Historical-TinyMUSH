@@ -3210,8 +3210,7 @@ dbref player;
 {
 	do_clearcom(player);
 	do_channelnuke(player);
-	del_commac(player);
-	do_clear_macro(player, NULL);
+	del_comsys(player);
 }
 
 #else

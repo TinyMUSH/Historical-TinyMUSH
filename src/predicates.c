@@ -660,28 +660,51 @@ ADDENT *add, *nextp;
 
 dbref thing;
 int atr;
+char *s;
 
+	if (!*name) {
+		notify(player, "Sorry.");
+		return;
+	}
+	
 	if (!parse_attrib(player, command, &thing, &atr) || (atr == NOTHING)) {
 		notify(player, "No such attribute.");
 		return;
 	}
 	
+	/* Let's make this case insensitive... */
+	
+	for (s = name; *s; s++) {
+		*s = tolower(*s);
+	}
+	 
 	old = (CMDENT *)hashfind(name, &mudstate.command_htab);
 	
 	if (old && (old->callseq & CS_ADDED)) {
+		
+		/* If it's already found in the hash table, and it's being
+		   added using the same object and attribute... */
+		   
 		for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
 			if ((nextp->thing == thing) && (nextp->atr == atr)) {
 				notify(player, tprintf("%s already added.", name));
 				return;
 			}
 		}
+		
+		/* else tack it on to the existing entry... */
+		
 		add = (ADDENT *)malloc(sizeof(ADDENT));
 		add->thing = thing;
 		add->atr = atr;
+		add->name = (char *)strdup(name);
 		add->next = (ADDENT *)old->handler;
 		old->handler = (void *)add;
 	} else {
+		/* Delete the old built-in and rename it __name */
+		
 		hashdelete(name, &mudstate.command_htab);
+		
 		cmd = (CMDENT *) malloc(sizeof(CMDENT));
 		
 		cmd->cmdname = (char *)strdup(name);
@@ -692,6 +715,7 @@ int atr;
 		add = (ADDENT *)malloc(sizeof(ADDENT));
 		add->thing = thing;
 		add->atr = atr;
+		add->name = (char *)strdup(name);
 		add->next = NULL;
 		cmd->handler = (void *)add;
 	
@@ -700,8 +724,145 @@ int atr;
 		/* Fix any aliases of this command. */
 		
 		hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
+		hashadd(tprintf("__%s", name), (int *)old, &mudstate.command_htab);
 	}
 	notify(player, tprintf("%s added.", name));
+}
+
+void do_listcommands(player, cause, key, name)
+dbref player, cause;
+int key;
+char *name;
+{
+CMDENT *old;
+ADDENT *add, *nextp;
+int didit = 0;
+
+char *s, *keyname;
+
+	/* Let's make this case insensitive... */
+	
+	for (s = name; *s; s++) {
+		*s = tolower(*s);
+	}
+	 
+	if (*name) {
+		old = (CMDENT *)hashfind(name, &mudstate.command_htab);
+		
+		if (old && (old->callseq & CS_ADDED)) {
+			
+			/* If it's already found in the hash table, and it's being
+			   added using the same object and attribute... */
+			   
+			for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
+				notify(player, tprintf("%s: #%d/%s", nextp->name, nextp->thing, ((ATTR *)atr_num(nextp->atr))->name));
+			}
+		} else {
+			notify(player, tprintf("%s not found in command table.",name));
+		}
+		return;
+	} else {
+		for (keyname = hash_firstkey(&mudstate.command_htab); keyname != NULL;
+		     keyname = hash_nextkey(&mudstate.command_htab)) {
+
+			old = (CMDENT *)hashfind(keyname, &mudstate.command_htab);
+		
+			if (old && (old->callseq & CS_ADDED)) {
+				
+				for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
+					if (strcmp(keyname, nextp->name))
+						continue;
+					notify(player, tprintf("%s: #%d/%s", nextp->name, nextp->thing, ((ATTR *)atr_num(nextp->atr))->name));
+					didit = 1;
+				}
+			}
+		}
+	}
+	if (!didit)
+		notify(player, "No added commands found in command table.");
+}
+
+void do_delcommand(player, cause, key, name, command)
+dbref player, cause;
+int key;
+char *name, *command;
+{
+CMDENT *old, *cmd;
+ADDENT *prev = NULL, *nextp;
+
+dbref thing;
+int atr;
+char *s;
+
+	if (!*name) {
+		notify(player, "Sorry.");
+		return;
+	}
+	
+	if (*command) {
+		if (!parse_attrib(player, command, &thing, &atr) || (atr == NOTHING)) {
+			notify(player, "No such attribute.");
+			return;
+		}
+	}
+	
+	/* Let's make this case insensitive... */
+	
+	for (s = name; *s; s++) {
+		*s = tolower(*s);
+	}
+	 
+	old = (CMDENT *)hashfind(name, &mudstate.command_htab);
+	
+	if (old && (old->callseq & CS_ADDED)) {
+		if (!*command) {
+			for (prev = (ADDENT *)old->handler; prev != NULL; prev = nextp) {
+				nextp = prev->next;
+				/* Delete it! */
+				free(prev->name);
+				free(prev);
+			}
+			if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
+				hashdelete(tprintf("__%s", name), &mudstate.command_htab);
+				hashadd(name, (int *)cmd, &mudstate.command_htab);
+				hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
+			}
+			free(old);
+			hashdelete(name, &mudstate.command_htab);
+			notify(player, "Done.");
+			return;
+		} else {
+			for (nextp = (ADDENT *)old->handler; nextp != NULL; nextp = nextp->next) {
+				if ((nextp->thing == thing) && (nextp->atr == atr)) {
+					/* Delete it! */
+					free(nextp->name);
+					if (!prev) {
+						if (!nextp->next) {
+							if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
+								hashdelete(tprintf("__%s", name), &mudstate.command_htab);
+								hashadd(name, (int *)cmd, &mudstate.command_htab);
+								hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
+							}
+							free(old);
+							hashdelete(name, &mudstate.command_htab);
+						} else {
+							old->handler = (void *)nextp->next;
+							free(nextp);
+						}
+					} else {
+						prev->next = nextp->next;
+						free(nextp);
+					}
+					notify(player, "Done.");
+					return;
+				}
+				prev = nextp;
+			}
+			notify(player, "Command not found in command table.");
+		}
+	} else {
+		notify(player, "Command not found in command table.");
+	}
 }
 
 /*
@@ -730,7 +891,7 @@ char *message;
 		/*
 		 * Use telnet protocol's GOAHEAD command to show prompt 
 		 */
-		queue_string(d, tprintf("%s>%s\377\371", ANSI_HILITE, ANSI_NORMAL));
+		queue_string(d, tprintf("%s>%s \377\371", ANSI_HILITE, ANSI_NORMAL));
 		return;
 	}
 	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags);
@@ -771,7 +932,7 @@ char *name;
 		doer = player;
 	}
 
-	if (!Prog(player) && (player != doer)) {
+	if (!(Prog(player) || Prog(Owner(player))) && (player != doer)) {
 		notify(player, "Permission denied.");
 		return;
 	}
@@ -829,7 +990,7 @@ char *name, *command;
 	}
 	doer = match_thing(player, name);
 
-	if (!Prog(player) && (player != doer)) {
+	if (!(Prog(player) || Prog(Owner(player))) && (player != doer)) {
 		notify(player, "Permission denied.");
 		return;
 	}
@@ -892,7 +1053,7 @@ char *name, *command;
 		/*
 		 * Use telnet protocol's GOAHEAD command to show prompt 
 		 */
-		queue_string(d, ">\377\371");
+		queue_string(d, tprintf("%s>%s \377\371", ANSI_HILITE, ANSI_NORMAL));
 	}
 
 }
@@ -913,7 +1074,6 @@ void do_restart(player, cause, key)
 		return;
 	}
 	
-	do_top(20);
 	raw_broadcast(0, "Game: Restart by %s, please wait.", Name(Owner(player)));
 	STARTLOG(LOG_ALWAYS, "WIZ", "RSTRT")
 		log_text((char *)"Restart by ");

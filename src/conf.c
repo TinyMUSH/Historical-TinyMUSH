@@ -78,7 +78,7 @@ void NDECL(cf_init)
 	StringCopy(mudconf.crashdb, "");
 	StringCopy(mudconf.gdbm, "");
 	StringCopy(mudconf.mail_db, "mail.db");
-	StringCopy(mudconf.commac_db, "commac.db");
+	StringCopy(mudconf.comsys_db, "comsys.db");
 	mudconf.compress_db = 0;
 	StringCopy(mudconf.compress, "gzip");
 	StringCopy(mudconf.uncompress, "gzip -d");
@@ -122,11 +122,11 @@ void NDECL(cf_init)
 	StringCopy(mudconf.public_channel, "Public");
 	StringCopy(mudconf.guests_channel, "Guests");
 	StringCopy(mudconf.pueblo_msg, "</xch_mudtext><img xch_mode=html>");
+	mudconf.indent_desc = 0;
        	mudconf.name_spaces = 1;
 	mudconf.fork_dump = 1;
 	mudconf.fork_vfork = 0;
 	mudconf.have_comsys = 1;
-	mudconf.have_macros = 1;
 	mudconf.have_mailer = 1;
 	mudconf.have_zones = 1;
 	mudconf.paranoid_alloc = 0;
@@ -1035,8 +1035,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.check_offset,		0},
 {(char *)"clone_copies_cost",
 	cf_bool,	CA_GOD,		&mudconf.clone_copy_cost,	0},
-{(char *)"commac_database",
-	cf_string,	CA_GOD,		(int *)mudconf.commac_db,	128},
+{(char *)"comsys_database",
+	cf_string,	CA_GOD,		(int *)mudconf.comsys_db,	128},
 {(char *)"command_quota_increment",
 	cf_int,		CA_GOD,		&mudconf.cmd_quota_incr,	0},
 {(char *)"command_quota_max",
@@ -1142,8 +1142,6 @@ CONF conftable[] = {
 	cf_string,	CA_DISABLED,	(int *)mudconf.guests_channel,	32},
 {(char *)"have_comsys",
 	cf_bool,	CA_DISABLED,	&mudconf.have_comsys,		0},
-{(char *)"have_macros",
-	cf_bool,	CA_DISABLED,	&mudconf.have_macros,		0},
 {(char *)"have_mailer",
 	cf_bool,	CA_DISABLED,	&mudconf.have_mailer,		0},
 {(char *)"have_zones",
@@ -1164,6 +1162,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.idle_timeout,		0},
 {(char *)"include",
 	cf_include,	CA_DISABLED,	NULL,				0},
+{(char *)"indent_desc",
+	cf_bool,	CA_GOD,		&mudconf.indent_desc,		0},
 {(char *)"initial_size",
 	cf_int,		CA_DISABLED,	&mudconf.init_size,		0},
 {(char *)"input_database",

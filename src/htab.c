@@ -362,6 +362,49 @@ HASHTAB *htab;
 	return NULL;
 }
 
+char *hash_firstkey(htab)
+HASHTAB *htab;
+{
+	int hval;
+
+	for (hval = 0; hval < htab->hashsize; hval++)
+		if (htab->entry->element[hval] != NULL) {
+			htab->last_hval = hval;
+			htab->last_entry = htab->entry->element[hval];
+			return htab->entry->element[hval]->target;
+		}
+	return NULL;
+}
+
+char *hash_nextkey(htab)
+HASHTAB *htab;
+{
+	int hval;
+	HASHENT *hptr;
+
+	hval = htab->last_hval;
+	hptr = htab->last_entry;
+	if (hptr->next != NULL) {	/*
+					 * We can stay in the same chain 
+					 */
+		htab->last_entry = hptr->next;
+		return hptr->next->target;
+	}
+	/*
+	 * We were at the end of the previous chain, go to the next one 
+	 */
+	hval++;
+	while (hval < htab->hashsize) {
+		if (htab->entry->element[hval] != NULL) {
+			htab->last_hval = hval;
+			htab->last_entry = htab->entry->element[hval];
+			return htab->entry->element[hval]->target;
+		}
+		hval++;
+	}
+	return NULL;
+}
+
 #ifndef STANDALONE
 
 int *nhash_firstentry(htab)

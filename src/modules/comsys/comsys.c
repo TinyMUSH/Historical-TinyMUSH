@@ -22,6 +22,332 @@
 
 #include "comsys.h"
 
+char *load_comsys(filename)
+char *filename;
+{
+	FILE *fp;
+	int i;
+	char buffer[200];
+
+	for (i = 0; i < NUM_COMSYS; i++)
+		comsys_table[i] = NULL;
+
+	if (!(fp = fopen(filename, "r"))) {
+		fprintf(stderr, "Error: Couldn't find %s.\n", filename);
+	} else {
+		fprintf(stderr, "LOADING: %s\n", filename);
+		if (fscanf(fp, "*** Begin %s ***\n", buffer) == 1 &&
+		    !strcmp(buffer, "COMMAC")) {
+			load_old_channels(fp);
+		} else if (!strcmp(buffer, "CHANNELS")) {
+			load_channels(fp);
+		} else {
+			fprintf(stderr, "Error: Couldn't find Begin CHANNELS in %s.", filename);
+			return;
+		}
+
+		if (fscanf(fp, "*** Begin %s ***\n", buffer) == 1 &&
+		    !strcmp(buffer, "COMSYS")) {
+			load_comsystem(fp);
+		} else {
+			fprintf(stderr, "Error: Couldn't find Begin COMSYS in %s.", filename);
+			return;
+		}
+
+		fclose(fp);
+		fprintf(stderr, "LOADING: %s (done)\n", filename);
+	}
+}
+
+char *save_comsys(filename)
+char *filename;
+{
+	FILE *fp;
+	char buffer[500];
+
+	sprintf(buffer, "%s.#", filename);
+	if (!(fp = fopen(buffer, "w"))) {
+		fprintf(stderr, "Unable to open %s for writing.\n", buffer);
+		return;
+	}
+	fprintf(fp, "*** Begin CHANNELS ***\n");
+	save_channels(fp);
+
+	fprintf(fp, "*** Begin COMSYS ***\n");
+	save_comsystem(fp);
+
+	fclose(fp);
+	rename(buffer, filename);
+}
+
+char *load_channels(fp)
+FILE *fp;
+{
+	int i, j;
+	char buffer[100];
+	int np;
+	struct comsys *c;
+	char *t;
+	char in;
+
+	fscanf(fp, "%d\n", &np);
+	for (i = 0; i < np; i++) {
+		c = create_new_comsys();
+		fscanf(fp, "%d %d\n",
+		       &(c->who), &(c->numchannels));
+		c->maxchannels = c->numchannels;
+		if (c->maxchannels > 0) {
+			c->alias = (char *)malloc(c->maxchannels * 6);
+			c->channels = (char **)malloc(sizeof(char *) * c->maxchannels);
+
+			for (j = 0; j < c->numchannels; j++) {
+				t = c->alias + j * 6;
+				while ((in = fgetc(fp)) != ' ')
+					*t++ = in;
+				*t = 0;
+
+				fscanf(fp, "%[^\n]\n", buffer);
+
+				c->channels[j] = (char *)malloc(strlen(buffer) + 1);
+				StringCopy(c->channels[j], buffer);
+			}
+			sort_com_aliases(c);
+		} else {
+			c->alias = NULL;
+			c->channels = NULL;
+		}
+		if ((Typeof(c->who) == TYPE_PLAYER) || (!God(Owner(c->who))) ||
+		    ((!Going(c->who))))
+			add_comsys(c);
+		purge_comsystem();
+	}
+}
+
+char *load_old_channels(fp)
+FILE *fp;
+{
+	int i, j, k;
+	char buffer[100];
+	int np;
+	struct comsys *c;
+	char *t;
+	char in;
+
+	fscanf(fp, "%d\n", &np);
+	for (i = 0; i < np; i++) {
+		c = create_new_comsys();
+		/* Trash the old values! */
+		fscanf(fp, "%d %d %d %d %d %d %d %d\n",
+		       &(c->who), &(c->numchannels), &k, &k, &k, &k, &k, &k);
+		c->maxchannels = c->numchannels;
+		if (c->maxchannels > 0) {
+			c->alias = (char *)malloc(c->maxchannels * 6);
+			c->channels = (char **)malloc(sizeof(char *) * c->maxchannels);
+
+			for (j = 0; j < c->numchannels; j++) {
+				t = c->alias + j * 6;
+				while ((in = fgetc(fp)) != ' ')
+					*t++ = in;
+				*t = 0;
+
+				fscanf(fp, "%[^\n]\n", buffer);
+
+				c->channels[j] = (char *)malloc(strlen(buffer) + 1);
+				StringCopy(c->channels[j], buffer);
+			}
+			sort_com_aliases(c);
+		} else {
+			c->alias = NULL;
+			c->channels = NULL;
+		}
+		if ((Typeof(c->who) == TYPE_PLAYER) || (!God(Owner(c->who))) ||
+		    ((!Going(c->who))))
+			add_comsys(c);
+		purge_comsystem();
+	}
+}
+
+char *purge_comsystem()
+{
+	struct comsys *c;
+	struct comsys *d;
+	int i;
+
+#ifdef ABORT_PURGE_COMSYS
+	return;
+#endif /*
+        * * ABORT_PURGE_COMSYS  
+        */
+
+	for (i = 0; i < NUM_COMSYS; i++) {
+		c = comsys_table[i];
+		while (c) {
+			d = c;
+			c = c->next;
+			if (d->numchannels == 0) {
+				del_comsys(d->who);
+				continue;
+			}
+/*
+ * if ((Typeof(d->who) != TYPE_PLAYER) && (God(Owner(d->who))) &&
+ * * (Going(d->who))) 
+ */
+			if (Typeof(d->who) == TYPE_PLAYER)
+				continue;
+			if (God(Owner(d->who)) && Going(d->who)) {
+				del_comsys(d->who);
+				continue;
+			}
+		}
+	}
+}
+
+char *save_channels(fp)
+FILE *fp;
+{
+	int np;
+	struct comsys *c;
+	int i, j;
+
+	purge_comsystem();
+	np = 0;
+	for (i = 0; i < NUM_COMSYS; i++) {
+		c = comsys_table[i];
+		while (c) {
+			np++;
+			c = c->next;
+		}
+	}
+
+	fprintf(fp, "%d\n", np);
+	for (i = 0; i < NUM_COMSYS; i++) {
+		c = comsys_table[i];
+		while (c) {
+			fprintf(fp, "%d %d\n", c->who, c->numchannels);
+			for (j = 0; j < c->numchannels; j++) {
+				fprintf(fp, "%s %s\n", c->alias + j * 6, c->channels[j]);
+			}
+			c = c->next;
+		}
+	}
+}
+
+struct comsys *create_new_comsys()
+{
+	struct comsys *c;
+	int i;
+
+	c = (struct comsys *)malloc(sizeof(struct comsys));
+
+	c->who = -1;
+	c->numchannels = 0;
+	c->maxchannels = 0;
+	c->alias = NULL;
+	c->channels = NULL;
+
+	c->next = NULL;
+	return c;
+}
+
+struct comsys *get_comsys(which)
+dbref which;
+{
+	struct comsys *c;
+
+	if (which < 0)
+		return NULL;
+
+	c = comsys_table[which % NUM_COMSYS];
+
+	while (c && (c->who != which))
+		c = c->next;
+
+	if (!c) {
+		c = create_new_comsys();
+		c->who = which;
+		add_comsys(c);
+	}
+	return c;
+}
+
+char *add_comsys(c)
+struct comsys *c;
+{
+	if (c->who < 0)
+		return;
+
+	c->next = comsys_table[c->who % NUM_COMSYS];
+	comsys_table[c->who % NUM_COMSYS] = c;
+}
+
+char *del_comsys(who)
+dbref who;
+{
+	struct comsys *c;
+	struct comsys *last;
+
+	if (who < 0)
+		return;
+
+	c = comsys_table[who % NUM_COMSYS];
+
+	if (c == NULL)
+		return;
+
+	if (c->who == who) {
+		comsys_table[who % NUM_COMSYS] = c->next;
+		destroy_comsys(c);
+		return;
+	}
+	last = c;
+	c = c->next;
+	while (c) {
+		if (c->who == who) {
+			last->next = c->next;
+			destroy_comsys(c);
+			return;
+		}
+		last = c;
+		c = c->next;
+	}
+}
+
+char *destroy_comsys(c)
+struct comsys *c;
+{
+	int i;
+
+	free(c->alias);
+	for (i = 0; i < c->numchannels; i++)
+		free(c->channels[i]);
+	free(c->channels);
+	free(c);
+}
+
+char *sort_com_aliases(c)
+struct comsys *c;
+{
+	int i;
+	int cont;
+	char buffer[10];
+	char *s;
+
+	cont = 1;
+	while (cont) {
+		cont = 0;
+		for (i = 0; i < c->numchannels - 1; i++)
+			if (strcasecmp(c->alias + i * 6, c->alias + (i + 1) * 6) > 0) {
+				StringCopy(buffer, c->alias + i * 6);
+				StringCopy(c->alias + i * 6, c->alias + (i + 1) * 6);
+				StringCopy(c->alias + (i + 1) * 6, buffer);
+				s = c->channels[i];
+				c->channels[i] = c->channels[i + 1];
+				c->channels[i + 1] = s;
+				cont = 1;
+			}
+	}
+}
+
 /*
  * This is the hash table for channel names 
  */
@@ -35,11 +361,11 @@ char *get_channel_from_alias(player, alias)
 dbref player;
 char *alias;
 {
-	struct commac *c;
+	struct comsys *c;
 	int first, last, current;
 	int dir;
 
-	c = get_commac(player);
+	c = get_comsys(player);
 
 	first = 0;
 	last = c->numchannels - 1;
@@ -437,7 +763,7 @@ char *arg2;
 	struct channel *ch;
 	char *s, *t;
 	int i, j, where;
-	struct commac *c;
+	struct comsys *c;
 	char *na;
 	char **nc;
 
@@ -484,7 +810,7 @@ char *arg2;
 	if (select_user(ch, player)) {
 		raw_notify(player, tprintf("Warning: You are already on that channel."));
 	}
-	c = get_commac(player);
+	c = get_comsys(player);
 	for (j = 0; j < c->numchannels && (strcmp(arg1, c->alias + j * 6) > 0); j++) ;
 	if (j < c->numchannels && !strcmp(arg1, c->alias + j * 6)) {
 		sprintf(buffer, "That alias is already in use for channel %s.",
@@ -558,7 +884,7 @@ int key;
 char *arg1;
 {
 	int i;
-	struct commac *c;
+	struct comsys *c;
 
 	if (!mudconf.have_comsys) {
 		raw_notify(player, "Comsys disabled.");
@@ -568,7 +894,7 @@ char *arg1;
 		raw_notify(player, "Need an alias to delete.");
 		return;
 	}
-	c = get_commac(player);
+	c = get_comsys(player);
 
 	for (i = 0; i < c->numchannels; i++) {
 		if (!strcmp(arg1, c->alias + i * 6)) {
@@ -777,7 +1103,7 @@ dbref player, cause;
 int key;
 {
 	struct comuser *user;
-	struct commac *c;
+	struct comsys *c;
 	int i;
 	char temp[200];
 
@@ -785,7 +1111,7 @@ int key;
 		raw_notify(player, "Comsys disabled.");
 		return;
 	}
-	c = get_commac(player);
+	c = get_comsys(player);
 
 	raw_notify(player,
 		   "Alias     Channel             Title                                   Status");
@@ -829,13 +1155,13 @@ dbref player, cause;
 int key;
 {
 	int i;
-	struct commac *c;
+	struct comsys *c;
 
 	if (!mudconf.have_comsys) {
 		raw_notify(player, "Comsys disabled.");
 		return;
 	}
-	c = get_commac(player);
+	c = get_comsys(player);
 
 	for (i = (c->numchannels) - 1; i > -1; --i) {
 		do_delcom(player, player, 0, c->alias + i * 6);
@@ -848,14 +1174,14 @@ int key;
 char *arg1;
 {
 	int i;
-	struct commac *c;
+	struct comsys *c;
 	char temparg[50];;
 
 	if (!mudconf.have_comsys) {
 		raw_notify(player, "Comsys disabled.");
 		return;
 	}
-	c = get_commac(player);
+	c = get_comsys(player);
 
 	if ((strcmp(arg1, "who") != 0) &&
 	    (strcmp(arg1, "on") != 0) &&
@@ -1022,9 +1348,9 @@ char *do_comdisconnect(player)
 dbref player;
 {
 	int i;
-	struct commac *c;
+	struct comsys *c;
 
-	c = get_commac(player);
+	c = get_comsys(player);
 
 	for (i = 0; i < c->numchannels; i++) {
 		do_comdisconnectchannel(player, c->channels[i]);
@@ -1037,10 +1363,10 @@ dbref player;
 char *do_comconnect(player)
 dbref player;
 {
-	struct commac *c;
+	struct comsys *c;
 	int i;
 
-	c = get_commac(player);
+	c = get_comsys(player);
 
 	for (i = 0; i < c->numchannels; i++) {
 		do_comconnectchannel(player, c->channels[i], c->alias, i);

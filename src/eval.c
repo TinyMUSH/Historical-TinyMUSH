@@ -459,6 +459,11 @@ char *cargs[];
 
 			at_space = 0;
 			tstr = (*dstr)++;
+			if (eval & EV_NOFCHECK) {
+				safe_chr('[', buff, bufc);
+				*dstr = tstr;
+				break;
+			}
 			tbuf = parse_to(dstr, ']', 0);
 			if (*dstr == NULL) {
 				safe_chr('[', buff, bufc);
@@ -690,7 +695,6 @@ char *cargs[];
 				safe_str(atr_gotten, buff, bufc);
 				free_lbuf(atr_gotten);
 				break;
-#ifndef NO_ENH
 			case 'Q':
 			case 'q':
 				(*dstr)++;
@@ -703,7 +707,6 @@ char *cargs[];
 				if (!**dstr)
 					(*dstr)--;
 				break;
-#endif
 			case 'O':	/*
 					 * Objective pronoun 
 					 */
@@ -916,6 +919,7 @@ char *cargs[];
 				mudstate.func_nest_lev++;
 				if (!check_access(player, ufp->perms)) {
 					safe_str("#-1 PERMISSION DENIED", buff, &oldp);
+					*bufc = oldp;
 				} else {
 					tstr = atr_get(ufp->obj, ufp->atr,
 						       &aowner, &aflags);
@@ -1001,6 +1005,7 @@ char *cargs[];
 					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, bufc);
 				} else if (!check_access(player, fp->perms)) {
 					safe_str("#-1 PERMISSION DENIED", buff, &oldp);
+					*bufc = oldp;
 				} else if (mudstate.func_invk_ctr <
 					   mudconf.func_invk_lim) {
 					fp->fun(buff, &oldp, player, cause,

@@ -115,6 +115,8 @@ extern void	FDECL(interp_nametab, (dbref, NAMETAB *, int, char *, char *,
 extern void	FDECL(listset_nametab, (dbref, NAMETAB *, int, char *, int));
 extern int	FDECL(*hash_nextentry, (HASHTAB *htab));
 extern int	FDECL(*hash_firstentry, (HASHTAB *htab));
+extern char	FDECL(*hash_firstkey, (HASHTAB *htab));
+extern char	FDECL(*hash_nextkey, (HASHTAB *htab));
 extern int	FDECL(*nhash_nextentry, (NHSHTAB *htab));
 extern int	FDECL(*nhash_firstentry, (NHSHTAB *htab));
 

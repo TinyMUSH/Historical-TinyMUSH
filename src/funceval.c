@@ -724,7 +724,7 @@ FUNCTION(fun_objeval)
 	obj = match_thing(player, name);
 
 	if ((obj == NOTHING) ||
-	    ((Owner(obj) != player) && (!(WizRoy(player)))))
+	    ((Owner(obj) != player) && (!(WizRoy(player)))) || (obj == GOD))
 		obj = player;
 
 	str = fargs[1];
@@ -1101,17 +1101,27 @@ FUNCTION(fun_strtrunc)
 
 FUNCTION(fun_ifelse)
 {
-	if (!is_number(fargs[0]) || !*fargs[0]) {
-		if (!*fargs[0])
-			safe_str(fargs[2], buff, bufc);
-		else
-			safe_str(fargs[1], buff, bufc);
+	/* This function now assumes that its arguments have not been
+	   evaluated. */
+	
+	char *str, *mbuff, *bp;
+	
+	mbuff = bp = alloc_lbuf("fun_ifelse");
+	str = fargs[0];
+	exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		&str, cargs, ncargs);
+	*bp = '\0';
+	
+	if (!*mbuff || !mbuff || ((atoi(mbuff) == 0) & is_number(mbuff))) {
+		str = fargs[2];
+		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+			&str, cargs, ncargs);
 	} else {
-		if (atoi(fargs[0]) == 0)
-			safe_str(fargs[2], buff, bufc);
-		else
-			safe_str(fargs[1], buff, bufc);
+		str = fargs[1];
+		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+			&str, cargs, ncargs);
 	}
+	free_lbuf(mbuff);
 }
 
 FUNCTION(fun_inc)
@@ -1295,7 +1305,7 @@ FUNCTION(fun_hasattr)
 	thing = match_thing(player, fargs[0]);
 	if (thing == NOTHING) {
 		safe_str("#-1 NO MATCH", buff, bufc);
-		return;
+   		return;
 	} else if (!Examinable(player, thing)) {
 		safe_str("#-1 PERMISSION DENIED", buff, bufc);
 		return;
@@ -2049,7 +2059,7 @@ FUNCTION(fun_mix)
 	dbref aowner, thing;
 	int aflags, anum;
 	ATTR *ap;
-	char *atext, *result, *os[2], *oldp, *bp, *str, *cp1, *cp2, *atextbuf,
+	char *atext, *os[2], *oldp, *bp, *str, *cp1, *cp2, *atextbuf,
 	 sep;
 
 	varargs_preamble("MIX", 4);
@@ -2094,18 +2104,14 @@ FUNCTION(fun_mix)
 	atextbuf = alloc_lbuf("fun_mix");
 
 	while (cp1 && cp2) {
+		if (*bufc != oldp)
+			safe_chr(sep, buff, bufc);
 		os[0] = split_token(&cp1, sep);
 		os[1] = split_token(&cp2, sep);
 		StringCopy(atextbuf, atext);
 		str = atextbuf;
-		bp = result = alloc_lbuf("fun_mix");
-		exec(result, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, &(os[0]), 2);
-		*bp = '\0';
-		if (*bufc != oldp)
-			safe_chr(sep, buff, bufc);
-		safe_str(result, buff, bufc);
-		free_lbuf(result);
 	}
 	free_lbuf(atext);
 	free_lbuf(atextbuf);
@@ -2124,9 +2130,15 @@ FUNCTION(fun_mix)
 FUNCTION(fun_foreach)
 {
 	dbref aowner, thing;
-	int aflags, anum;
+	int aflags, anum, flag = 0;
 	ATTR *ap;
-	char *atext, *atextbuf, *result, *bp, *str, *cp, *cbuf;
+	char *atext, *atextbuf, *str, *cp, *bp;
+	char cbuf[2], prev = '\0';
+
+	if ((nfargs != 2) && (nfargs != 4)) {
+		safe_str("#-1 FUNCTION (FOREACH) EXPECTS 2 or 4 ARGUMENTS", buff, bufc);
+		return;
+	}
 
 	if (parse_attrib(player, fargs[0], &thing, &anum)) {
 		if ((anum == NOTHING) || !Good_obj(thing))
@@ -2149,24 +2161,50 @@ FUNCTION(fun_foreach)
 		return;
 	}
 	atextbuf = alloc_lbuf("fun_foreach");
-	cbuf = alloc_lbuf("fun_foreach.cbuf");
 	cp = trim_space_sep(fargs[1], ' ');
 
-	while (cp && *cp) {
-		cbuf[0] = *cp++;
-		cbuf[1] = '\0';
-		StringCopy(atextbuf, atext);
-		bp = result = alloc_lbuf("fun_foreach");
-		str = atextbuf;
-		exec(result, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		     &str, &cbuf, 1);
-		*bp = '\0';
-		safe_str(result, buff, bufc);
-		free_lbuf(result);
+	bp = cbuf;
+	
+	cbuf[1] = '\0';
+	
+	if (nfargs == 4) {
+		while (cp && *cp) {
+			cbuf[0] = *cp++;
+			
+			if (flag) {
+				if ((cbuf[0] == *fargs[3]) && (prev != '\\') && (prev != '%')) {
+					flag = 0;
+					continue;
+				}
+			} else {
+				if ((cbuf[0] == *fargs[2]) && (prev != '\\') && (prev != '%')) {
+					flag = 1;
+					continue;
+				} else {
+					safe_chr(cbuf[0], buff, bufc);
+					continue;
+				}
+			}
+
+			StringCopy(atextbuf, atext);
+			str = atextbuf;
+			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+			     &str, &bp, 1);
+			prev = cbuf[0];
+		}
+	} else {
+		while (cp && *cp) {
+			cbuf[0] = *cp++;
+	
+			StringCopy(atextbuf, atext);
+			str = atextbuf;
+			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+			     &str, &bp, 1);
+		}
 	}
+
 	free_lbuf(atextbuf);
 	free_lbuf(atext);
-	free_lbuf(cbuf);
 }
 
 /*
@@ -2589,8 +2627,12 @@ FUNCTION(fun_vdim)
 
 FUNCTION(fun_strcat)
 {
+	int i;
+	
 	safe_str(fargs[0], buff, bufc);
-	safe_str(fargs[1], buff, bufc);
+	for (i = 1; i < nfargs; i++) {
+		safe_str(fargs[i], buff, bufc);
+	}
 }
 
 /*

@@ -431,6 +431,8 @@ CMDENT command_table[] = {
 	0,		CS_NO_ARGS,			do_dbclean},
 {(char *)"@decompile",		decomp_sw,		0,
 	0,		CS_TWO_ARG|CS_INTERP,		do_decomp},
+{(char *)"@delcommand",		NULL,		CA_GOD,
+	0,		CS_TWO_ARG,			do_delcommand},
 {(char *)"@destroy",		destroy_sw,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	DEST_ONE,	CS_ONE_ARG|CS_INTERP,		do_destroy},
@@ -490,11 +492,13 @@ CMDENT command_table[] = {
 	0,		CS_TWO_ARG|CS_INTERP,		do_link},
 {(char *)"@list",		NULL,		0,
 	0,		CS_ONE_ARG|CS_INTERP,		do_list},
+{(char *)"@listcommands",		NULL,		CA_GOD,
+	0,		CS_ONE_ARG,			do_listcommands},
 {(char *)"@list_file",		NULL,		CA_WIZARD,
 	0,		CS_ONE_ARG|CS_INTERP,		do_list_file},
 {(char *)"@listmotd",		listmotd_sw,	0,
 	MOTD_LIST,	CS_ONE_ARG,			do_motd},
-{(char *)"@lock",		lock_sw,	CA_NO_SLAVE|CA_GBL_BUILD,
+{(char *)"@lock",		lock_sw,	CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_INTERP,		do_lock},
 {(char *)"@mail",               mail_sw,           CA_NO_SLAVE|CA_NO_GUEST,
         0,              CS_TWO_ARG|CS_INTERP,          do_mail},
@@ -539,7 +543,7 @@ CMDENT command_table[] = {
 {(char *)"@power",		NULL,		0,
 	0,		CS_TWO_ARG,			do_power},
 {(char *)"@program",		NULL,		CA_PUBLIC,
-	0,		CS_TWO_ARG,			do_prog},
+	0,		CS_TWO_ARG|CS_INTERP,			do_prog},
 {(char *)"@ps",			ps_sw,		0,
 	0,		CS_ONE_ARG|CS_INTERP,		do_ps},
 {(char *)"@quota",		quota_sw,	0,
@@ -555,15 +559,9 @@ CMDENT command_table[] = {
 	PCRE_ROBOT,	CS_TWO_ARG,			do_pcreate},
 {(char *)"@search",		NULL,		0,
 	SRCH_SEARCH,	CS_ONE_ARG|CS_NOINTERP,		do_search},
-#ifndef NO_ENH
 {(char *)"@set",		set_sw,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST,
 	0,		CS_TWO_ARG,			do_set},
-#else
-{(char *)"@set",		NULL,
-	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST,
-	0,		CS_TWO_ARG,			do_set},
-#endif
 {(char *)"@shutdown",		NULL,		CA_WIZARD,
 	0,		CS_ONE_ARG,			do_shutdown},
 {(char *)"@stats",		stats_sw,	0,
@@ -581,16 +579,11 @@ CMDENT command_table[] = {
 	0,		CS_ONE_ARG|CS_INTERP,		do_timewarp},
 {(char *)"@toad",		toad_sw,	CA_WIZARD,
 	0,		CS_TWO_ARG|CS_INTERP,		do_toad},
-#ifndef NO_ENH
 {(char *)"@trigger",		trig_sw,	CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_ARGV,		do_trigger},
-#else
-{(char *)"@trigger",		NULL,		CA_GBL_INTERP,
-	0,		CS_TWO_ARG|CS_ARGV,		do_trigger},
-#endif
 {(char *)"@unlink",		NULL,		CA_NO_SLAVE|CA_GBL_BUILD,
 	0,		CS_ONE_ARG|CS_INTERP,		do_unlink},
-{(char *)"@unlock",		lock_sw,	CA_NO_SLAVE|CA_GBL_BUILD,
+{(char *)"@unlock",		lock_sw,	CA_NO_SLAVE,
 	0,		CS_ONE_ARG|CS_INTERP,		do_unlock},
 {(char *)"@verb",		NULL,		CA_GBL_INTERP|CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_ARGV|CS_INTERP|CS_STRIP_AROUND,
@@ -1201,8 +1194,6 @@ char *command, *args[];
 	int succ, aflags, i;
 	dbref exit, aowner;
 	CMDENT *cmdp;
-	char *macroout;
-	int macerr;
 
 #ifndef MEMORY_BASED
 	cache_reset(0);
@@ -1312,15 +1303,7 @@ char *command, *args[];
 		mudstate.debug_cmd = cmdsave;
 		return;
 	}
-	if (mudconf.have_macros && (command[0] == '.')) {
-		macerr = do_macro(player, command, &macroout);
-		if (!macerr) {
-			return;
-		} else if (macerr == 1) {
-			StringCopy(command, macroout);
-			free_lbuf(macroout);
-		}
-	}
+
 	if (mudconf.have_comsys && !(Slave(player)))
 		if (!do_comsystem(player, command))
 			return;
@@ -1547,8 +1530,8 @@ char *command, *args[];
 				 * * * * * location  
 				 */
 	/*
-	 * * if nothing matched with parent room/zone object, try * matching
-	 * * * * * * * zone commands on the player's personal zone  
+	 * if nothing matched with parent room/zone object, try matching
+	 * zone commands on the player's personal zone  
 	 */
 	if ((!succ) && mudconf.have_zones && (Zone(player) != NOTHING) &&
 	    (!(No_Command(Zone(player)))) &&
@@ -2399,7 +2382,6 @@ dbref player;
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
 	list_nhashstat(player, "Mail messages", &mudstate.mail_htab);
 	list_hashstat(player, "Channel names", &mudstate.channel_htab);
-	list_hashstat(player, "Macro cmds", &mudstate.macro_htab);
 	list_hashstat(player, "News topics", &mudstate.news_htab);
 	list_hashstat(player, "Help topics", &mudstate.help_htab);
 	list_hashstat(player, "Wizhelp topics", &mudstate.wizhelp_htab);

@@ -142,6 +142,8 @@ CMD_TWO_ARG_CMDARG(do_wait);		/* Perform command after a wait */
 CMD_ONE_ARG(do_wipe);			/* Mass-remove attrs from obj */
 CMD_NO_ARG(do_dbclean);			/* Remove stale vattr entries */
 CMD_TWO_ARG(do_addcommand);		/* Add or replace a global command */
+CMD_TWO_ARG(do_delcommand);		/* Delete an added global command */
+CMD_ONE_ARG(do_listcommands);		/* List added global commands */
 
 typedef struct cmdentry CMDENT;
 struct cmdentry {
@@ -157,6 +159,7 @@ typedef struct addedentry ADDENT;
 struct addedentry {
 	dbref	thing;
 	int	atr;
+	char	*name;
 	struct addedentry *next;
 };
 

@@ -1,9 +1,13 @@
 /* comsys.h */
 /* $Id$ */
 
-#include "commac.h"
 #ifndef __COMSYS_H__
 #define __COMSYS_H__
+
+#define NUM_COMSYS 500
+
+struct comsys *comsys_table[NUM_COMSYS];
+
 
 typedef struct chanentry CHANENT;
 struct chanentry {
@@ -36,6 +40,47 @@ struct channel
     struct comuser *on_users;   /* Linked list of who is on */
     int num_messages;
 };
+
+struct comsys
+{
+    dbref who;
+
+    int numchannels;
+    int maxchannels;
+    char *alias;
+    char **channels;
+
+    struct comsys *next;
+};
+
+#define NUM_COMSYS 500
+
+struct comsys *comsys_table[NUM_COMSYS];
+
+char *load_comsystem ();
+char *save_comsystem ();
+char *purge_comsystem();
+
+char *sort_com_aliases();
+struct comsys *get_comsys ();
+struct comsys *create_new_comsys ();
+char *destroy_comsys ();
+char *add_comsys ();
+char *del_comsys ();
+char *save_comsys ();
+char *load_comsys ();
+char *purge_comsys();
+char *sort_com_aliases();
+struct comsys *get_comsys ();
+struct comsys *create_new_comsys ();
+char *destroy_comsys ();
+char *add_comsys ();
+char *del_comsys ();
+char *save_comsys ();
+char *load_comsys ();
+char *save_channels ();
+char *load_channels ();
+char *load_old_channels ();
 
 int num_channels;
 int max_channels;
