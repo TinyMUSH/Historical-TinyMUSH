@@ -460,13 +460,17 @@ successfully, you'll need to revert to a backup.
 How do I set up a link to an external SQL database?
 
 There is built-in support in TinyMUSH 3 for connecting to an external
-mSQL database. If you want to do this, you'll need to compile in the
-appropriate file (see the Makefile for how to do this).
+mSQL or MySQL database. If you want to do this, you'll need to compile
+in the appropriate file (see ./configure --help for how to do this).
 
-You can also look at db_sql.h and db_msql.c for examples of how to
-write your own method of connecting to another type of external SQL
-database. If you do this, please let us know, and provide us with a
-copy of the code, so it can be included with the next TinyMUSH relese.
+You can also look at db_sql.h, db_msql.c, and db_mysql.c for examples
+of how to write your own method of connecting to another type of
+external SQL database. If you do this, please let us know, and provide
+us with a copy of the code, so it can be included with the next
+TinyMUSH release.
+
+The rest of this answer uses mSQL as a specific example; MySQL and other
+database systems have similar requirements.
 
 You'll need to have an mSQL 2.x database set up. mSQL can be obtained
 from http://www.hughes.com.au/ together with the appropriate documentation.
@@ -486,7 +490,7 @@ you can, of course, use an existing database). You can do this with:
 msqladmin create MUSH_DB
 
 ... which creates a database called MUSH_DB. You can then add the
-parameer 'sql_database MUSH_DB' to your netmush.conf file.
+parameter 'sql_database MUSH_DB' to your netmush.conf file.
 
 Make sure that you set up your mSQL installation's msql.acl file
 correctly and with the appropriate level of security. See mSQL's
