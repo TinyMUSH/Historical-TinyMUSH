@@ -3484,7 +3484,7 @@ char *person;
 		}
 	}
 
-	if (i >= MALIAS_LEN) {
+	if (i >= (MALIAS_LEN - 1)) {
 		notify(player, "MAIL: The list is full.");
 		return;
 	}
