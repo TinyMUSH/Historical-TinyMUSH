@@ -2145,11 +2145,13 @@ int atr;
 	char *as;
 	
 	if (atr != A_LIST) {
+		atr_push();
 		for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
 			if (attr == atr) {
 				found = 1;
 			}
 		}
+		atr_pop();
 	}
 	
 	if (!found && (atr != A_LIST)) {
