@@ -455,9 +455,9 @@ Coming soon.
   $commands.
  
   Depending on your MUSH configuration, this flag might or might not
-  be necessary for Arbitrary Commands to be checked.
+  be necessary for User Commands to be checked.
  
-  See 'help Arbitrary Commands' for more details.
+  See 'help User Commands' for more details.
  
 & Command List
  

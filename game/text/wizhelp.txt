@@ -1551,8 +1551,8 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 & PARAM TIMERS
 	check_interval		check_offset		command_quota_increment
 	command_quota_max	dump_interval		dump_offset
-	events_daily_hour	idle_interval		opt_frequency
-	timeslice
+	events_daily_hour	idle_interval		mail_expiration
+	opt_frequency		timeslice
  
 & PARAM OPTIONS
 addcommands_match_blindly			addcommands_obey_stop
@@ -1560,12 +1560,12 @@ addcommands_obey_uselocks			ansi_colors
 autozone		booleans_oldstyle	clone_copies_cost
 dark_actions		dark_sleepers		examine_flags
 examine_public_attrs	exit_calls_move		fascist_teleport
-global_aconn_uselocks	have_comsys		have_mailer		
-have_zones		hostnames		idle_wiz_dark		
-lattr_default_oldstyle	local_master_rooms	look_obey_terse		
-match_own_commands	move_match_more		no_ambiguous_match
-page_requires_equals	paranoid_allocate	pemit_any_object
-pemit_far_players	player_listen		player_match_own_commands
+global_aconn_uselocks	have_zones		hostnames		
+idle_wiz_dark		lattr_default_oldstyle	local_master_rooms	
+look_obey_terse		match_own_commands	move_match_more		
+no_ambiguous_match	page_requires_equals	paranoid_allocate	
+pemit_any_object	pemit_far_players	player_listen		
+player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -2312,24 +2312,6 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
  
   See also: SITE LISTS.
 
-& have_comsys
-  Config parameter: have_comsys <yes/no>. Default: Yes
- 
-  Specifies whether or not the server's native comsystem should be
-  active. This parameter will be set to No and remain unmodifiable
-  if the server was compiled without USE_COMSYS.
- 
-  See also: comsys_database
- 
-& have_mailer
-  Config parameter: have_mailer <yes/no>. Default: Yes
- 
-  Specifies whether or not the server's native mailer should be active.
-  This parameter will be set to No and remain unmodifiable if the server
-  was compiled without USE_MAIL.
- 
-  See also: mail_database
- 
 & have_pueblo
   Config parameter: have_pueblo <yes/no>. Default: Yes
  
@@ -2565,10 +2547,15 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
 & mail_database
   Config parameter: mail_database <filename>.  Default: mail.db
  
-  Sets the file that @mail information is to be stored in. The database
-  is only loaded or saved if have_mailer is set to yes.
+  Sets the file that @mail information is to be stored in, for the
+  mail module.
  
-  See also: have_mailer.
+& mail_expiration
+  Config parameter: mail_expiration <number of days>.  Default: 14
+ 
+  Sets the number of days that a @mail message should be kept before it is
+  automatically deleted by the system. If this parameter is set to a
+  negative number, mail expiration will be disabled. 
  
 & match_own_commands
   Config parameter: match_own_commands <yes/no>.  Default: No
