@@ -1005,7 +1005,7 @@ char *tolist;
 	struct mail *mp;
 	int num, mail_ok;
 
-        if (Flags2(player) & PLAYER_MAILS) {
+        if (Sending_Mail(player)) {
                 notify(player, "MAIL: Mail message already in progress.");
                 return;
         }
@@ -1055,7 +1055,7 @@ int all, key;
 	int num, mail_ok;
 	char *tolist, *bp, *p, *names, *oldlist, *tokst;
 
-        if (Flags2(player) & PLAYER_MAILS) {
+        if (Sending_Mail(player)) {
                 notify(player, "MAIL: Mail message already in progress.");
                 return;
         }
@@ -3108,7 +3108,7 @@ char *arg, *subject;
 		notify(player, "MAIL: No subject.");
 		return 0;
 	}
-	if (Flags2(player) & PLAYER_MAILS) {
+	if (Sending_Mail(player)) {
 		notify(player, "MAIL: Mail message already in progress.");
 		return 0;
 	}
@@ -3134,7 +3134,7 @@ char *arg;
 	char *tolist, *fulllist, *bp;
 	char *names;
 
-	if (!(Flags2(player) & PLAYER_MAILS)) {
+	if (!Sending_Mail(player)) {
 		notify(player, "MAIL: No mail message in progress.");
 		return;
 	}
@@ -3295,7 +3295,7 @@ char *arg1, *arg2;
 		notify(player, "MAIL: No message.");
 		return;
 	}
-	if (Flags2(player) & PLAYER_MAILS) {
+	if (Sending_Mail(player)) {
 		notify(player, "MAIL: Mail message already in progress.");
 		return;
 	}
@@ -3398,7 +3398,7 @@ int flags;
 	mailsub = atr_get(player, A_MAILSUB, &aowner, &aflags, &alen);
 	mailflags = atr_get(player, A_MAILFLAGS, &aowner, &aflags, &alen);
 
-	if (!*tolist || !*mailmsg || !(Flags2(player) & PLAYER_MAILS)) {
+	if (!*tolist || !*mailmsg || !Sending_Mail(player)) {
 		notify(player, "MAIL: No such message to send.");
 		free_lbuf(tolist);
 	} else {
@@ -3426,7 +3426,7 @@ char *text;
 	dbref aowner;
 	int aflags, alen;
 
-	if (Flags2(player) & PLAYER_MAILS) {
+	if (Sending_Mail(player)) {
 		oldmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		if (*oldmsg) {
 			bp = newmsg = alloc_lbuf("do_prepend");
@@ -3462,7 +3462,7 @@ char *text;
 		do_expmail_stop(player, 0);
 		return;
 	}
-	if (Flags2(player) & PLAYER_MAILS) {
+	if (Sending_Mail(player)) {
 		oldmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		if (*oldmsg) {
 			bp = newmsg = alloc_lbuf("do_postpend");
@@ -3493,7 +3493,7 @@ char *to;
 	dbref aowner;
 	int aflags, alen;
 
-	if (Flags2(player) & PLAYER_MAILS) {
+	if (Sending_Mail(player)) {
 		msg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		result = replace_string(from, to, msg);
 		atr_add(player, A_MAILMSG, result, aowner, aflags);
@@ -3528,7 +3528,7 @@ dbref player;
 		free_lbuf(mailmsg);
 	}
 
-	if (Flags2(player) & PLAYER_MAILS) {
+	if (Sending_Mail(player)) {
 		names = make_namelist(player, mailto);
 		notify(player, DASH_LINE);
 		notify(player, tprintf("From:  %-*s  Subject: %-35s\nTo: %s",

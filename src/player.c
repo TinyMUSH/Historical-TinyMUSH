@@ -165,10 +165,16 @@ char *ldate, *lhost, *lusername;
 				       login_info.good[0].host,
 				       login_info.good[0].dtm));
 		}
+
 #ifdef USE_MAIL
-		if (mudconf.have_mailer)
+		if (mudconf.have_mailer) {
 			check_mail(player, 0, 0);
-#endif
+			if (Sending_Mail(player)) {
+			    notify(player, "MAIL: You have a mail message in progress.");
+			}
+		}
+#endif /* USE_MAIL */
+
 		for (i = NUM_GOOD - 1; i > 0; i--) {
 			login_info.good[i].dtm = login_info.good[i - 1].dtm;
 			login_info.good[i].host = login_info.good[i - 1].host;

@@ -77,7 +77,7 @@
 #define CONTROL_OK	0x00400000	/* ControlLk specifies who ctrls me */
 #define CONSTANT_ATTRS	0x00800000	/* Can't set attrs on this object */
 #define VACATION	0x01000000
-#define PLAYER_MAILS    0x02000000
+#define PLAYER_MAILS    0x02000000	/* Mail message in progress */
 #define HTML		0x04000000      /* Player supports HTML */
 #define BLIND		0x08000000	/* Suppress has arrived / left msgs */
 #define	SUSPECT		0x10000000	/* Report some activities to wizards */
@@ -277,6 +277,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 
 #define Gagged(x)	((Flags2(x) & GAGGED) != 0)
 #define Vacation(x)	((Flags2(x) & VACATION) != 0)
+#define Sending_Mail(x)	((Flags2(x) & PLAYER_MAILS) != 0)
 #define	Key(x)		((Flags2(x) & KEY) != 0)
 #define	Abode(x)	(((Flags2(x) & ABODE) != 0) && Home_ok(x))
 #define Auditorium(x)	((Flags2(x) & AUDITORIUM) != 0)
