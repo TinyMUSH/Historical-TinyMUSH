@@ -4235,6 +4235,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Side-Effect Functions: side-effect functions.
   Stack Functions: manipulation of object stacks.
   String Functions: manipulation of strings.
+  Structure Functions: manipulation of data structures.
   Variable Functions: manipulation of object-associated variables.
    
   See 'help <function name>' for more information about a specific function.
@@ -4350,6 +4351,28 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	squish()	strcat()	streq()		stripansi()
 	strlen()	strmatch()	strtrunc()	translate()
 	trim()		ucstr()		valid()		wordpos()
+ 
+& STRUCTURE FUNCTIONS
+  Topic: Structure functions
+ 
+  Every object can be associated with a number of data structures. A
+  data structure consists of an arbitrary number of components (elements);
+  each component has a data type. An object can have multiple instances
+  of each data structure that has been defined for it; each instance is
+  associated with data. These data structures provide the ability to
+  abstract, to some extent, the manipulation of data.
+ 
+  The structure functions are:
+ 
+	construct()	destruct()	load()		modify()
+	structure()	unload()	unstructure()	z()
+ 
+  All of these functions operate on the calling object; to manipulate
+  structures on other objects, wrap the function calls in an objeval().
+ 
+  There is a configurable maximum number of structure definitions per
+  object, typically 100. There is also a configurable maximum number of
+  instances per object, typically 100. Always destruct() unneeded instances!
  
 & VARIABLE FUNCTIONS
   Topic: Variable functions
@@ -9354,6 +9377,124 @@ Continued in 'help @malias2'.
  
   Returns the dbref # of the player who sent you <msg #>. Wizards may
   specify mailfrom(<player>,<msg #>).
+ 
+& STRUCTURE()
+  Function:  structure(<struct>,<names>,<types>,<defaults>[,<sep>[,<delim>]])
+ 
+  This function creates a structure definition called <structure>. <names>
+  is a space-separated list of component names. <types> is a space-separated
+  list of data types. <defaults> is a <sep>-separated list of the default
+  values for each of the components. <delim> is the default delimiter
+  used by load() and unload().
+ 
+  The valid data types are 'a' ("any", untyped), 'c' (single character),
+  'd' (dbref), 'i' (integer), 'f' (floating-point number), and 's' (string
+  without any whitespace in it).
+ 
+  The function returns 0 on failure and 1 on success. You cannot re-define
+  an already-defined structure; you must unstructure() it first. Typically,
+  you will want to put your structure definitions in a @startup, rather than
+  declaring them each time they are needed within a code block.
+ 
+  Example: 'structure(grid,xcoord ycoord,i i,0 0)' defines a structure named
+  "grid" with two integer components, xcoord and ycoord, which both have a
+  default value of 0.
+ 
+& UNSTRUCTURE()
+  Function:  unstructure(<struct>)
+ 
+  This function removes the structure definition <struct>, and returns
+  1 on success and 0 on failure. There cannot be any instances of
+  <struct> currently in existence.
+ 
+& CONSTRUCT()
+  Function:  construct(<instance>,<struct>[,<names>,<values>[,<delim>]])
+ 
+  This function creates an instance of <struct> named <instance>. If
+  <names> and <values> are specified, they are used instead of the
+  default values for the named components; any components not specified
+  in <names> are initialized to their default values. <names> is a
+  space-separated list. <values> is a <delim>-separated list (or
+  space-separated, if <delim> is not specified).
+ 
+  The function returns 1 on success and 0 on failure. You cannot re-create
+  an instance that already exists; you must destruct() it first. Make sure
+  to always destruct() instances as soon as they're not needed!
+ 
+  Example:
+    > @eval [structure(grid,xcoord ycoord zcoord,i i i,0 0 0)]
+    > @eval [construct(blank,grid)]
+    > say [unload(blank)]
+    You say "0 0 0"
+    > @eval [construct(space,grid,xcoord ycoord,2|5,|)]
+    > say [unload(space)]
+    You say "2 5 0"
+ 
+& DESTRUCT()
+  Function:  destruct(<instance>)
+ 
+  Removes the named <instance> of a structure. You should always clean up
+  unneeded instances in this way, as soon as they are no longer needed
+  (i.e., after the code block that uses them). 
+ 
+  This function returns 1 on success and 0 on failure.
+ 
+& LOAD()
+  Function:  load(<instance>,<struct>,<raw text>[,<delim>])
+ 
+  This function creates a new instance of <struct> named <instance>.
+  It loads <raw text> into the components of the structure, where
+  <raw text> is a <delim>-separated list; if <delim> is not specified,
+  the default delimiter for that structure will be used. The function
+  returns 1 on success and 0 on failure. As with construct(), you cannot
+  re-create an instance that already exists; you must destruct() it first.
+ 
+  Example:
+    > @eval [structure(grid,xcoord ycoord zcoord,i i i,0 0 0)]
+    > @eval [load(space,grid,3 4 5)]
+    > say [z(space,ycoord)]
+    You say "4"
+ 
+& UNLOAD()
+  Function:  unload(<instance>[,<delim>])
+ 
+  This function prints the values of the components in <instance>; the
+  list will be <delim>-separated if <delim> is specified, or separated
+  by the default delimiter for that structure. If <instance> does not
+  exist, an empty string will be returned.
+ 
+  Example:
+    > @eval [structure(grid,xcoord ycoord zcoord,i i i,0 0 0)]
+    > @eval [load(space,grid,3 4 5)]
+    > say [unload(space,|)]
+    You say "3|4|5"
+ 
+& Z()
+  Function:  z(<instance>,<component>)
+ 
+  This function retrieves the value of <component> in <instance>. If
+  <instance> or <component> do not exist, this function returns nothing.
+ 
+  Example:
+    > @eval [structure(grid,xcoord ycoord,i i,2 3)]
+    > @eval [construct(space,grid)]
+    > say [z(space,ycoord)]
+    You say "3"
+ 
+& MODIFY()
+  Function:  modify(<instance>,<component>,<new value>)
+ 
+  This function changes the value of <component> in <instance> to
+  <new value>. Type-checking is performed; if the type-check fails,
+  the value is unchanged. The function returns 1 on success and 0 on
+  failure.
+ 
+  Example:
+    > @eval [structure(grid,xcoord ycoord,i i,0 0)]
+    > @eval [construct(space,grid)]
+    > @eval [modify(space,xcoord,5)]
+    > say [z(space,xcoord)]
+    You say "5"
  
 & TCL
 

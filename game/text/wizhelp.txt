@@ -1220,11 +1220,12 @@
 	building_limit			earn_limit
 	function_invocation_limit	function_recursion_limit
 	conn_timeout			idle_timeout
-	lag_maximum			lock_recursion_limit
-	max_players			notify_recursion_limit
-	number_guests			output_limit
-	player_queue_limit		retry_limit
-	stack_limit			trace_output_limit
+	instance_limit			lag_maximum
+	lock_recursion_limit		max_players			
+	notify_recursion_limit		number_guests			
+	output_limit			player_queue_limit		
+	retry_limit			stack_limit			
+	structure_limit			trace_output_limit
 	variables_limit			zone_recursion_limit
 
 & PARAM MESSAGES
@@ -2969,6 +2970,18 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: @admin, @list site_information, forbid_site, permit_site,
             register_site, suspect_site, trust_site.
+ 
+& instance_limit
+  Config directive: instance_limit <count>.  Default: 100
+ 
+  Specifies the maximum number of structure instances that a single
+  object can have created via construct() and load().
+ 
+& structure_limit
+  Config directive: structure_limit <count>.  Default: 100
+ 
+  Specifies the maximum number of structure definitions that a single
+  object can have declared via structure().
  
 & stack_limit
   Config directive: stack_limit <count>.  Default: 50
