@@ -202,7 +202,8 @@ gdbm_reorganize (dbf)
   dbf->directory_changed = new_dbf->directory_changed;
   dbf->bucket_changed    = new_dbf->bucket_changed;
   dbf->second_changed    = new_dbf->second_changed;
-      
+
+  free (new_dbf->name);
   free (new_dbf);
   free (new_name);
 
