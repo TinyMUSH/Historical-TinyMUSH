@@ -1816,6 +1816,7 @@ const char *def, *odef;
     dbref loc, aowner;
     int t, num, aflags, alen, need_pres, preserve_len[MAX_GLOBAL_REGS];
     dbref master;
+    ATTR *ap;
     int retval = 0;
 
     /* If we need to call exec() from within this function, we first save
@@ -1874,7 +1875,12 @@ const char *def, *odef;
 	 */
 
 	d = atr_pget(thing, what, &aowner, &aflags, &alen);
-	t = ((what < A_USER_START) && Good_obj(master)) ? 1 : 0;
+	if (Good_obj(master)) {
+	    ap = atr_num(what);
+	    t = (ap && (ap->flags & AF_DEFAULT)) ? 1 : 0;
+	} else {
+	    t = 0;
+	}
 
 	if (t) {
 	    m = atr_pget(master, what, &aowner, &aflags, &alen);
@@ -1944,7 +1950,12 @@ const char *def, *odef;
 	Good_obj(loc = Location(player))) {
 
 	d = atr_pget(thing, owhat, &aowner, &aflags, &alen);
-	t = ((owhat < A_USER_START) && Good_obj(master)) ? 1 : 0;
+	if (Good_obj(master)) {
+	    ap = atr_num(owhat);
+	    t = (ap && (ap->flags & AF_DEFAULT)) ? 1 : 0;
+	} else {
+	    t = 0;
+	}
 
 	if (t) {
 	    m = atr_pget(master, owhat, &aowner, &aflags, &alen);

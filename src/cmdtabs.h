@@ -835,7 +835,8 @@ NAMETAB access_nametab[] =
 NAMETAB attraccess_nametab[] = {
 {(char *)"const",		2,	CA_PUBLIC,	AF_CONST},
 {(char *)"dark",		2,	CA_WIZARD,	AF_DARK},
-{(char *)"deleted",		2,	CA_WIZARD,	AF_DELETED},
+{(char *)"default",		3,	CA_WIZARD,	AF_DEFAULT},
+{(char *)"deleted",		3,	CA_WIZARD,	AF_DELETED},
 {(char *)"god",			1,	CA_PUBLIC,	AF_GOD},
 {(char *)"hidden",		1,	CA_WIZARD,	AF_MDARK},
 {(char *)"ignore",		2,	CA_WIZARD,	AF_NOCMD},

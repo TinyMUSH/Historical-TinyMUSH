@@ -338,27 +338,39 @@ Continued in 'help Attribute Flags2'.
  
      no_command - Prevent $-commands and ^-patterns defined in the attribute
                   from being performed. ($)
+ 
      no_parse   - When $-commands/^-listens are matched, the unparsed
                   (non-evaluated) string is used. Useful for MUSH editors.
                   Local only. (P)
+ 
      case	- Treat regular expression patterns as case-sensitive.
                   Affects $-commands, ^-listens, @filter, @infilter, and
                   @listen. Local only. (C)
+ 
      regexp     - Treat patterns as regular expressions rather than
                   wildcard glob patterns. Affects $-commands, ^-listens,
                   @filter, @infilter, and @listen. Local only. (R)
  
+Continued in 'help Attribute Flags3'.
+ 
+& Attribute Flags3
+  
      no_inherit - Prevents children of the object from obtaining the 
                   attribute.  From their perspective the attribute does not
                   exist. (I)
+ 
+     default    - Checks the attr_defaults object of the appropriate type
+                  for the attribute, whenever attr/oattr/aattr invocation
+                  is done (including @verb). See 'wizhelp attribute defaults'
+                  for more information. Global only. (D)
  
      html       - When used as part of an Attr/OAttr/AAtr trio (as in @verb,
                   @enter, etc.), the Attr is not HTML-escaped (see Pueblo).
                   Local only. (H)
  
-Continued in 'help Attribute Flags3'.
+Continued in 'help Attribute Flags4'.
  
-& Attribute Flags3
+& Attribute Flags4
  
 The "global attribute" (the "definition" of all attributes on the MUSH
 with a given name) has a set of flags that applies to all attributes

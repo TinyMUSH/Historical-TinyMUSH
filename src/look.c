@@ -37,6 +37,7 @@ static int did_attr(player, thing, what)
     char *preserve[MAX_GLOBAL_REGS];
     int t, aflags, alen, preserve_len[MAX_GLOBAL_REGS];
     dbref aowner, master;
+    ATTR *ap;
 
     switch (Typeof(thing)) {
 	case TYPE_ROOM:
@@ -59,7 +60,12 @@ static int did_attr(player, thing, what)
 
     m = NULL;
     d = atr_pget(thing, what, &aowner, &aflags, &alen);
-    t = ((what < A_USER_START) && Good_obj(master)) ? 1 : 0;
+    if (Good_obj(master)) {
+	ap = atr_num(what);
+	t = (ap && (ap->flags & AF_DEFAULT)) ? 1 : 0;
+    } else {
+	t = 0;
+    }
     if (t) {
 	m = atr_pget(master, what, &aowner, &aflags, &alen);
     }

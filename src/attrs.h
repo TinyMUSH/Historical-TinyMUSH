@@ -28,6 +28,7 @@
 #define AF_CASE		0x00040000	/* Regexp matches are case-sensitive */
 #define AF_STRUCTURE	0x00080000	/* Attribute contains a structure */
 #define AF_DIRTY	0x00100000	/* Attribute number has been modified */
+#define AF_DEFAULT	0x00200000	/* did_it() checks attr_defaults obj */
 
 #define A_NULL		0	/* Nothing */
 #define	A_OSUCC		1	/* Others success message */
@@ -188,6 +189,7 @@
 	if (a & AF_LOCK) *p++ = '+'; \
 	if (a & AF_NOPROG) *p++ = '$'; \
 	if (a & AF_CASE) *p++ = 'C'; \
+	if (a & AF_DEFAULT) *p++ = 'D'; \
 	if (a & AF_HTML) *p++ = 'H'; \
 	if (a & AF_PRIVATE) *p++ = 'I'; \
 	if (a & AF_NOPARSE) *p++ = 'P'; \

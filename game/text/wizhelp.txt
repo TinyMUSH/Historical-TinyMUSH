@@ -248,20 +248,20 @@
  
 & attribute permissions
 
-  Possible values are: const  dark  deleted  god  hidden  ignore  is_lock
-  locked  no_command  no_inherit  visual  wizard.
+  See 'help attribute flags'.
 
 & attribute defaults
  
 Topic: ATTRIBUTE DEFAULTS
   
-"Attribute defaults" apply to the built-in attributes of the format
-attr/oattr (such as @desc, @odesc, @succ, and @osucc) as well
-as @conformat and @exitformat. The attribute, if set on the
+"Attribute defaults" apply to attributes with the global attribute flag
+"default". This includes built-in attributes of the format attr/oattr
+(such as @desc, @odesc, @succ, and @osucc). The attribute, if set on the
 "attribute default object", is used as a "template" for formatting
 the attribute when it is used "normally" (i.e., from a 'look',
 movement, or other command that invokes it, not from a function
-call such as get() or other such uses).
+call such as get() or other such uses). It also applies to @conformat,
+@exitformat, and @nameformat, when invoked on a "look".
   
 The attribute on the default object is evaluated, just as if it
 were set on the calling object, with %0 as the normally-evaluated
@@ -284,7 +284,7 @@ Examples:
   Limbo(#0R)
   Test
  
-  > @admin room_proto=2
+  > @admin room_attr_defaults=2
   > @desc #2 = --%r%0%r--
   > look
   Limbo(#0R)
