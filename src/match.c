@@ -35,8 +35,8 @@ int confidence;
 		MSTATE save_md;
 
 		save_match_state(&save_md);
-		if (Good_obj(what) && could_doit(md.player, what, A_LOCK)) ;
-		confidence |= CON_LOCK;
+		if (Good_obj(what) && could_doit(md.player, what, A_LOCK))
+		    confidence |= CON_LOCK;
 		restore_match_state(&save_md);
 	}
 	/* If nothing matched, take it */
