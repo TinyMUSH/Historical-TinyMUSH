@@ -213,6 +213,9 @@ The initial beta release was on 9/27/99.
 
   - Feature: An ANSI underline code, %xu, has been added.
 
+  - Feature: A paren-matching function, pairs(), has been added.
+    (This was parenmatch() in ChaoticMUX.)
+
   - Feature: log() can take an optional second argument, the base.
 
   - Fix: elock() obeys the pass_locks power. [MUX]

@@ -189,9 +189,12 @@ the other have been listed in the conversion notes for both servers.
   non-zero result. (This provides MUX-style ifelse() behavior. ifelse()
   follows the TinyMUSH 2.2 behavior of conditioning on a boolean.)
 
-- objmem(<thing>) does a MUX-style object-structure count; 
+- The objmem(<thing>) function does a MUX-style object-structure count; 
   objmem(<thing>/<wild>) does a 2.2-style attribute-text count. (Fuses
   the two models.)
+
+- Added pairs() function, which matches parentheses, brackets, and
+  braces(), displaying them in ANSI colors.
 
 - The pfind() function returns a dbref, or looks up a player. (This
   provides MUX-style pmatch() behavior. pmatch() now behaves like the
