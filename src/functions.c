@@ -3581,7 +3581,7 @@ FUNCTION(fun_repeat)
 	int times, i;
 
 	times = atoi(fargs[1]);
-	if (times < 1) {
+	if ((times < 1) || (fargs[0] == NULL) || (!*fargs[0])) {
 		return;
 	} else if (times == 1) {
 		safe_str(fargs[0], buff, bufc);
