@@ -1209,7 +1209,8 @@
 	max_players			notify_recursion_limit
 	number_guests			output_limit
 	player_queue_limit		retry_limit
-	trace_output_limit
+	stack_limit			trace_output_limit
+	variables_limit			zone_recursion_limit
 
 & PARAM MESSAGES
 	down_motd_message	dump_message		fixed_home_message
@@ -3009,3 +3010,21 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: @admin, @list site_information, forbid_site, permit_site,
             register_site, suspect_site, trust_site.
+ 
+& stack_limit
+  Config directive: stack_limit <count>.  Default: 50
+ 
+  Specifies the maximum number of data items on an object stack. Attempts
+  to push more items than this will fail silently.
+ 
+& variables_limit
+  Config directive: variables_limit <count>.  Default: 50
+ 
+  Specifies the maximum number of variables that may be associated with
+  a given object. Attempts to set more than this will fail silently.
+  
+& zone_recursion_limit
+  Config directive: zone_recursion_limit <count>.  Default: 20
+ 
+  Sets the maximum of ZMOs in a zone chain to check for zone functionality.
+ 
