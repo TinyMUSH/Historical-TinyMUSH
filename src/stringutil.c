@@ -808,16 +808,12 @@ INLINE void safe_copy_known_str(src, known, buff, bufp, max)
     }
 
     maxtp = buff + max;
+    if (tp + known < maxtp)
+	maxtp = tp + known;
     while (*src && (tp < maxtp))
 	*(tp)++ = *src++;
 
-    if (!*src) {
-	if (tp < maxtp)
-	    *tp = '\0';
-	else
-	    *maxtp = '\0';
-    }
-
+    *tp = '\0';
     *bufp = tp;
 }
 

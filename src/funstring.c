@@ -701,42 +701,29 @@ FUNCTION(fun_right)
 
 FUNCTION(fun_strtrunc)
 {
-	int number, count = 0;
-	char *p = (char *)fargs[0];
-	char *q, *buf;
-	int isansi = 0;
+    char *s, *savep;
+    int count, nchars;
+    int ansi_state = ANST_NORMAL;
 
-	q = buf = alloc_lbuf("fun_strtrunc");
-	number = atoi(fargs[1]);
-	if (number > (int)strlen((char *)strip_ansi(fargs[0])))
-		number = strlen((char *)strip_ansi(fargs[0]));
+    s = fargs[0];
+    nchars = atoi(fargs[1]);
 
-	if (number < 0) {
-		safe_str("#-1 OUT OF RANGE", buff, bufc);
-		free_lbuf(buf);
-		return;
+    if (nchars <= 0)
+	return;
+
+    for (count = 0; (count < nchars) && *s; count++) {
+	while (*s == ESC_CHAR) {
+	    track_esccode(s, ansi_state);
 	}
-	while (p && *p) {
-		if (count == number) {
-			break;
-		}
-		if (*p == ESC_CHAR) {
-			/* Start of ANSI code. Skip to end. */
-			isansi = 1;
-			while (*p && !isalpha(*p))
-				*q++ = *p++;
-			if (*p)
-				*q++ = *p++;
-		} else {
-			*q++ = *p++;
-			count++;
-		}
+
+	if (*s) {
+	    ++s;
 	}
-	if (isansi)
-	    safe_ansi_normal(buf, &q);
-	*q = '\0';
-	safe_str(buf, buff, bufc);
-	free_lbuf(buf);
+    }
+
+    safe_copy_known_str(fargs[0], s - fargs[0], buff, bufc, (LBUF_SIZE - 1));
+
+    safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL), buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
