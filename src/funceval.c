@@ -3513,7 +3513,9 @@ FUNCTION(fun_die)
 FUNCTION(fun_lrand)
 {
     char sep;
-    int n_times, r_bot, r_top, n_range, tmp, i;
+    int n_times, r_bot, r_top, i;
+    double n_range;
+    unsigned int tmp;
     char *bb_p;
 
     /* Special: the delim is really an output delim. */
@@ -3531,6 +3533,9 @@ FUNCTION(fun_lrand)
     n_times = atoi(fargs[2]);
     if (n_times < 1) {
 	return;
+    }
+    if (n_times > LBUF_SIZE) {
+	n_times = LBUF_SIZE;
     }
     r_bot = atoi(fargs[0]);
     r_top = atoi(fargs[1]);
@@ -3558,22 +3563,15 @@ FUNCTION(fun_lrand)
 	return;
     }
 
-    /* We've hit this point, we have a range. Generate a list. Make
-     * sure we don't get a weird overflow in the subtraction to get
-     * the range of numbers.
-     */
+    /* We've hit this point, we have a range. Generate a list. */
 
-    n_range = r_top - r_bot + 1;
-    if (n_range < 1) {
-	return;
-    }
-
+    n_range = (double) r_top - r_bot + 1;
     bb_p = *bufc;
     for (i = 0; i < n_times; i++) {
 	if (*bufc != bb_p) {
 	    print_sep(sep, buff, bufc);
 	}
-	tmp = (int) (makerandom() * n_range);
+	tmp = (unsigned int) (makerandom() * n_range);
 	safe_ltos(buff, bufc, r_bot + tmp);
     }
 }

@@ -765,17 +765,30 @@ long num;
 		anum /= 10;
 	}
 
-	/* put in the sign if needed */
-	if (num < 0)
-		*tp++ = '-';
+	if (tp > s + LBUF_SIZE - 21) {
+		endp = s + LBUF_SIZE - 1;
+		/* put in the sign if needed */
+		if (num < 0 && (tp < endp))
+			*tp++ = '-';
 
-	/* put in the last digit, this makes very fast single digits numbers */
-	*tp++ = '0' + anum;
+		/* put in the last digit, this makes very fast single 
+		 * digits numbers
+		 */
+		if (tp < endp)
+			*tp++ = '0' + anum;
 
-	/* reverse the rest of the digits (if any) into the provided buf */
-	endp = s + LBUF_SIZE - 1;
-	while ((p-- > buf) && (tp < endp))
-		*tp++ = *p;
+		/* reverse the rest of the digits (if any) into the
+		 * provided buf
+		 */
+		while ((p-- > buf) && (tp < endp))
+			*tp++ = *p;
+	} else {
+		if (num < 0)
+			*tp++ = '-';
+		*tp++ = '0' + anum;
+		while (p-- > buf)
+			*tp++ = *p;
+	}
 
 	/* terminate the resulting string */
 	*tp = '\0';
