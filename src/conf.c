@@ -579,7 +579,7 @@ CF_HAND(cf_module)
 
 	if (!handle) {
 		STARTLOG(LOG_STARTUP, "CNF", "MOD")
-		    log_printf("Loading of %s module failed:",
+		    log_printf("Loading of %s module failed: %s",
 		    	str, dlerror());
 		ENDLOG
 		return -1;
