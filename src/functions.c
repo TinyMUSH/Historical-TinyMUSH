@@ -108,6 +108,7 @@ XFUNCTION(fun_mail);
 XFUNCTION(fun_mailfrom);
 #endif
 XFUNCTION(fun_die);
+XFUNCTION(fun_lrand);
 XFUNCTION(fun_lit);
 XFUNCTION(fun_shl);
 XFUNCTION(fun_shr);
@@ -5980,6 +5981,7 @@ FUN flist[] = {
 {"LOR",		fun_lor,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LORBOOL",	fun_lorbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LPOS",	fun_lpos,	2,  0,		CA_PUBLIC},
+{"LRAND",	fun_lrand,	0,  FN_VARARGS, CA_PUBLIC},
 {"LSTACK",	fun_lstack,	0,  FN_VARARGS, CA_PUBLIC},
 {"LSTRUCTURES",	fun_lstructures, 0, 0,		CA_PUBLIC},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC},

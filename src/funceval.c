@@ -3476,6 +3476,11 @@ FUNCTION(fun_munge)
 	free_lbuf(rlist);
 }
 
+/* ---------------------------------------------------------------------------
+ * die(<number of dice>,<sides>): Roll XdY dice.
+ * lrand(<times>,<range bottom>,<range top>[,<delim>]): Generate random list.
+ */
+
 FUNCTION(fun_die)
 {
 	int n, die, count;
@@ -3503,6 +3508,80 @@ FUNCTION(fun_die)
 
 	safe_ltos(buff, bufc, total);
 }
+
+
+FUNCTION(fun_lrand)
+{
+    char sep;
+    int n_times, r_bot, r_top, n_range, tmp, i;
+    char *bb_p;
+
+    /* Special: the delim is really an output delim. */
+
+    if (!fn_range_check("LRAND", nfargs, 3, 4, buff, bufc))
+	return;
+    if (!delim_check(fargs, nfargs, 4, &sep, buff, bufc, 0,
+		     player, cause, cargs, ncargs, 1))
+	return;
+
+    /* If we're generating no numbers, since this is a list function,
+     * we return empty, rather than returning 0.
+     */
+
+    n_times = atoi(fargs[0]);
+    if (n_times < 1) {
+	return;
+    }
+    r_bot = atoi(fargs[1]);
+    r_top = atoi(fargs[2]);
+
+    if (r_top < r_bot) {
+
+	/* This is an error condition. Just return an empty list. We
+	 * obviously can't return a random number between X and Y if
+	 * Y is less than X.
+	 */
+
+	return;
+
+    } else if (r_bot == r_top) {
+
+	/* Just generate a list of n repetitions. */
+
+	bb_p = *bufc;
+	for (i = 0; i < n_times; i++) {
+	    if (*bufc != bb_p) {
+		print_sep(sep, buff, bufc);
+	    }
+	    safe_ltos(buff, bufc, r_bot);
+	}
+	return;
+    }
+
+    /* We've hit this point, we have a range. Generate a list. Make
+     * sure we don't get a weird overflow in the subtraction to get
+     * the range of numbers.
+     */
+
+    n_range = r_top - r_bot + 1;
+    if (n_range < 1) {
+	return;
+    }
+
+    bb_p = *bufc;
+    for (i = 0; i < n_times; i++) {
+	if (*bufc != bb_p) {
+	    print_sep(sep, buff, bufc);
+	}
+	tmp = (int) (makerandom() * n_range);
+	safe_ltos(buff, bufc, r_bot + tmp);
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Miscellaneous binary operations.
+ */
 
 /* Borrowed from PennMUSH 1.50 */
 FUNCTION(fun_lit)
