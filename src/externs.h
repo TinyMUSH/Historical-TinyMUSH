@@ -186,7 +186,7 @@ extern int	FDECL(payfees, (dbref, int, int, int));
 extern void	FDECL(giveto, (dbref,int));
 extern int	FDECL(payfor, (dbref,int));
 extern int	FDECL(ok_name, (const char *));
-extern int	FDECL(ok_player_name, (const char *));
+extern int	FDECL(ok_player_name, (const char *, dbref));
 extern int	FDECL(ok_attr_name, (const char *));
 extern int	FDECL(ok_password, (const char *));
 extern void	FDECL(handle_ears, (dbref, int, int));

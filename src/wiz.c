@@ -315,13 +315,11 @@ char *name, *password;
 		notify_quiet(player, "No such player.");
 		return;
 	}
-	if (*password != '\0' && !ok_password(password)) {
-
-		/*
-		 * Can set null passwords, but not bad passwords 
-		 */
-		notify_quiet(player, "Bad password");
-		return;
+	if (*password != '\0' && !ok_password(password, player)) {
+	    /* Can set null passwords, but not bad passwords.
+	     * Notification of reason done by ok_password().
+	     */
+	    return;
 	}
 	if (God(victim)) {
 		notify_quiet(player, "You cannot change that player's password.");

@@ -281,7 +281,7 @@ int isrobot, isguest;
 	/* Make sure the password is OK.  Name is checked in create_obj */
 
 	pbuf = trim_spaces(password);
-	if (!ok_password(pbuf)) {
+	if (!ok_password(pbuf, creator)) {
 		free_lbuf(pbuf);
 		return NOTHING;
 	}
@@ -323,8 +323,8 @@ char *oldpass, *newpass;
 	target = atr_get(player, A_PASS, &aowner, &aflags);
 	if (!*target || !check_pass(player, oldpass)) {
 		notify(player, "Sorry.");
-	} else if (!ok_password(newpass)) {
-		notify(player, "Bad new password.");
+	} else if (!ok_password(newpass, player)) {
+	    /* Do nothing, notification is handled by ok_password() */
 	} else {
 		atr_add_raw(player, A_PASS, crypt(newpass, "XX"));
 		notify(player, "Password changed.");

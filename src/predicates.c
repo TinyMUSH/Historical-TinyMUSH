@@ -535,20 +535,24 @@ const char *attrname;
 	return 1;
 }
 
-int ok_password(password)
+int ok_password(password, player)
 const char *password;
+dbref player;
 {
 	const char *scan;
 	int num_upper = 0;
 	int num_special = 0;
 	int num_lower = 0;
 
-	if (*password == '\0')
-		return 0;
+	if (*password == '\0') {
+	    notify_quiet(player, "Null passwords are not allowed.");
+	    return 0;
+	}
 
 	for (scan = password; *scan; scan++) {
 		if (!(isprint(*scan) && !isspace(*scan))) {
-			return 0;
+		    notify_quiet(player, "Illegal character in password.");
+		    return 0;
 		}
 		if (isupper(*scan))
 		    num_upper++;
@@ -561,8 +565,10 @@ const char *password;
 	/* Needed.  Change it if you like, but be sure yours is the same. */
 	if ((strlen(password) == 13) &&
 	    (password[0] == 'X') &&
-	    (password[1] == 'X'))
-		return 0;
+	    (password[1] == 'X')) {
+	    notify_quiet(player, "Please choose another password.");
+	    return 0;
+	}
 
 	if (mudconf.safer_passwords) {
 	    if (num_upper < 1) {
