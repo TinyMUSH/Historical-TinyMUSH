@@ -1685,6 +1685,13 @@ use_global_aconn	wizard_obeys_linklock
   Config parameter: dig_cost <amount>.  Default: 1
   Specifies how much the @dig command costs.
 
+& divert_log
+  Config parameter: divert_log <logoption> <filename>
+ 
+  Sends events of type <logoption> (see 'wizhelp log' for possibilities)
+  to <filename> rather than to the main logfile. This parameter cannot be
+  changed while the MUSH is running.
+ 
 & down_file
   Config parameter: down_file <pathname>.  Default: text/down.txt
   Specifies the name of the file that is displayed when players attempt to
