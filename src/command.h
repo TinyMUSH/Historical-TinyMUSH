@@ -189,11 +189,15 @@ struct cmdentry {
 #define CA_SQL_OK	0x00000040	/* Must have SQL_OK power */
 #define CA_ADMIN	0x00000080	/* Wizard or royal */
 
+#define CA_ISPRIV_MASK  (CA_GOD|CA_WIZARD|CA_BUILDER|CA_IMMORTAL|CA_STAFF|CA_HEAD|CA_ADMIN|CA_SQL_OK)
+
 #define CA_NO_HAVEN	0x00000100	/* Not by HAVEN players */
 #define CA_NO_ROBOT	0x00000200	/* Not by ROBOT players */
 #define CA_NO_SLAVE	0x00000400	/* Not by SLAVE players */
 #define CA_NO_SUSPECT	0x00000800	/* Not by SUSPECT players */
 #define CA_NO_GUEST	0x00001000	/* Not by GUEST players */
+
+#define CA_ISNOT_MASK   (CA_NO_HAVEN|CA_NO_ROBOT|CA_NO_SLAVE|CA_NO_SUSPECT|CA_NO_GUEST)
 
 #define CA_MARKER0	0x00002000
 #define CA_MARKER1	0x00004000
@@ -205,6 +209,8 @@ struct cmdentry {
 #define CA_MARKER7	0x00100000
 #define CA_MARKER8	0x00200000
 #define CA_MARKER9	0x00400000
+
+#define CA_MARKER_MASK  (CA_MARKER0|CA_MARKER1|CA_MARKER2|CA_MARKER3|CA_MARKER4|CA_MARKER5|CA_MARKER6|CA_MARKER7|CA_MARKER8|CA_MARKER9)
 
 #define CA_GBL_BUILD	0x00800000	/* Requires the global BUILDING flag */
 #define CA_GBL_INTERP	0x01000000	/* Requires the global INTERP flag */

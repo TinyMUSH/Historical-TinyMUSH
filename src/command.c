@@ -176,140 +176,83 @@ int check_access(player, mask)
 dbref player;
 int mask;
 {
-	int succ, fail;
+	int mval, nval;
 
 	/* Check if we have permission to execute */
 
-	if (mask & CA_DISABLED)
-	    return 0;
-	if (mask & CA_STATIC)
+	if (mask & (CA_DISABLED | CA_STATIC))
 	    return 0;
 	if (God(player) || mudstate.initializing)
 	    return 1;
 
-	succ = fail = 0;
-	if (mask & CA_GOD)
-		fail++;
-	if (mask & CA_WIZARD) {
-		if (Wizard(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_ADMIN)) {
-		if (WizRoy(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_BUILDER)) {
-		if (Builder(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_STAFF)) {
-		if (Staff(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_HEAD)) {
-		if (Head(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_IMMORTAL)) {
-		if (Immortal(player))
-			succ++;
-		else
-			fail++;
-	}
-	if (mask & CA_SQL_OK) {
-	    if (Can_Use_SQL(player))
-		succ++;
-	    else
-		fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER0)) {
-		if (H_Marker0(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER1)) {
-		if (H_Marker1(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER2)) {
-		if (H_Marker2(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER3)) {
-		if (H_Marker3(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER4)) {
-		if (H_Marker4(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER5)) {
-		if (H_Marker5(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER6)) {
-		if (H_Marker6(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER7)) {
-		if (H_Marker7(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER8)) {
-		if (H_Marker8(player))
-			succ++;
-		else
-			fail++;
-	}
-	if ((succ == 0) && (mask & CA_MARKER9)) {
-		if (H_Marker9(player))
-			succ++;
-		else
-			fail++;
-	}
-	if (succ > 0)
-		fail = 0;
-	if (fail > 0)
-		return 0;
+	/* Check for bits that we have to have. Since we know that
+	 * we're not God at this point, if it is God-only, it fails.
+	 * (God in combination with other stuff is implicitly checked,
+	 * since we return false if we don't find the other bits.)
+	 */
 
-	/* Check for forbidden flags. */
+	if ((mval = mask & (CA_ISPRIV_MASK | CA_MARKER_MASK)) == CA_GOD)
+	    return 0;
+	if (mval) {
+	    mval = mask & CA_ISPRIV_MASK;
+	    nval = mask & CA_MARKER_MASK;
+	    if (mval && !nval) {
+		if (!(((mask & CA_WIZARD) && Wizard(player)) ||
+		      ((mask & CA_ADMIN) && WizRoy(player)) ||
+		      ((mask & CA_BUILDER) && Builder(player)) ||
+		      ((mask & CA_STAFF) && Staff(player)) ||
+		      ((mask & CA_HEAD) && Head(player)) ||
+		      ((mask & CA_IMMORTAL) && Immortal(player)) ||
+		      ((mask & CA_SQL_OK) && Can_Use_SQL(player))))
+		    return 0;
+	    } else if (!mval && nval) {
+		if (!(((mask & CA_MARKER0) && H_Marker0(player)) ||
+		      ((mask & CA_MARKER1) && H_Marker1(player)) ||
+		      ((mask & CA_MARKER2) && H_Marker2(player)) ||
+		      ((mask & CA_MARKER3) && H_Marker3(player)) ||
+		      ((mask & CA_MARKER4) && H_Marker4(player)) ||
+		      ((mask & CA_MARKER5) && H_Marker5(player)) ||
+		      ((mask & CA_MARKER6) && H_Marker6(player)) ||
+		      ((mask & CA_MARKER7) && H_Marker7(player)) ||
+		      ((mask & CA_MARKER8) && H_Marker8(player)) ||
+		      ((mask & CA_MARKER9) && H_Marker9(player))))
+		    return 0;
+	    } else {
+		if (!(((mask & CA_WIZARD) && Wizard(player)) ||
+		      ((mask & CA_ADMIN) && WizRoy(player)) ||
+		      ((mask & CA_BUILDER) && Builder(player)) ||
+		      ((mask & CA_STAFF) && Staff(player)) ||
+		      ((mask & CA_HEAD) && Head(player)) ||
+		      ((mask & CA_IMMORTAL) && Immortal(player)) ||
+		      ((mask & CA_SQL_OK) && Can_Use_SQL(player)) ||
+		      ((mask & CA_MARKER0) && H_Marker0(player)) ||
+		      ((mask & CA_MARKER1) && H_Marker1(player)) ||
+		      ((mask & CA_MARKER2) && H_Marker2(player)) ||
+		      ((mask & CA_MARKER3) && H_Marker3(player)) ||
+		      ((mask & CA_MARKER4) && H_Marker4(player)) ||
+		      ((mask & CA_MARKER5) && H_Marker5(player)) ||
+		      ((mask & CA_MARKER6) && H_Marker6(player)) ||
+		      ((mask & CA_MARKER7) && H_Marker7(player)) ||
+		      ((mask & CA_MARKER8) && H_Marker8(player)) ||
+		      ((mask & CA_MARKER9) && H_Marker9(player))))
+		    return 0;
+	    }
+	}
 
-	if (!Wizard(player) &&
+	/* Check the things that we can't be. */
+
+	if (((mask & CA_ISNOT_MASK) && !Wizard(player)) &&
 	    (((mask & CA_NO_HAVEN) && Player_haven(player)) ||
 	     ((mask & CA_NO_ROBOT) && Robot(player)) ||
 	     ((mask & CA_NO_SLAVE) && Slave(player)) ||
 	     ((mask & CA_NO_SUSPECT) && Suspect(player)) ||
 	     ((mask & CA_NO_GUEST) && Guest(player)))) {
-		return 0;
+	    return 0;
 	}
 
 	return 1;
 }
+
 
 /* ---------------------------------------------------------------------------
  * check_mod_access: Go through sequence of module call-outs, treating
