@@ -529,8 +529,9 @@ skipcacheget:
 		return data;
 	}
 
-	if ((cp = get_free_entry(data.dsize)) == NULL)
-		return;
+	if ((cp = get_free_entry(data.dsize)) == NULL) {
+		return data;
+	}
 
 	cp->keydata = (void *)RAW_MALLOC(key.dsize, "cache_get");
 	memcpy(cp->keydata, key.dptr, key.dsize);

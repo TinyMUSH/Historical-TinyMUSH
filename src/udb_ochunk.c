@@ -172,7 +172,7 @@ unsigned int type;
 	if (!db_initted) {
 		gamedata.dptr = NULL;
 		gamedata.dsize = 0;
-		return;
+		return gamedata;
 	}
 	
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
