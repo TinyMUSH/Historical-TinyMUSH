@@ -1116,9 +1116,8 @@ int key;
     }
     count = 0;
     DESC_ITER_CONN(d) {
-	if (!Hidden(d->player) ||
-	    ((e->flags & DS_CONNECTED) &&
-	     ((Wizard_Who(e->player) || See_Hidden(e->player))))) {
+	if (!Hidden(d->player) || 
+	    ((e->flags & DS_CONNECTED) && See_Hidden(e->player))) {
 	    count++;
 	    if (match && !(string_prefix(Name(d->player), match)))
 		continue;

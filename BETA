@@ -42,6 +42,16 @@ Release history:
 
 - Feature: Added connrecord(), connected player record (as in WHO).
 
+- Misc: The expanded_who power no longer grants the ability to see
+  Dark players in WHO. (Previously those with the power could, but
+  weren't able to get that info via functions.)
+
+- Misc: pos() strips ANSI out of the string to search for, in addition
+  to the string to search within.
+
+- Misc: Connected flags are not dumped to the database, in case of
+  unclean shutdown.
+
 -----------------------------------------------------------------------------
 
 06/07/2002: Beta 3

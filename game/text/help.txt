@@ -11486,7 +11486,7 @@ performed and the walk down the list stops.
   cloak			Can be DARK and unseen, even if a listening object.
   comm_all		Like a wizard with respect to channels.
   control_all		Can modify any object in the database. (God-set only.)
-  expanded_who		Sees the wizard WHO, and SESSION commands.
+  expanded_who		Sees the wizard-formatted WHO, and SESSION commands.
   find_unfindable	Can locate unfindable people.
   free_money		Unlimited money.
   free_quota		Unlimited quota.
