@@ -708,7 +708,7 @@ int ncmds;
 {
     BQUE *tmp;
     dbref player;
-    int count, i, numpipes;
+    int count, i, numpipes, len;
     char *command, *cp, *cmdsave, *logbuf, *log_cmdbuf;
     struct timeval begin_time, end_time, obj_time;
     int used_time;
@@ -726,8 +726,10 @@ int ncmds;
     for (count = 0; count < ncmds; count++) {
 	if (!test_top()) {
 	    mudstate.debug_cmd = cmdsave;
-	    for (i = 0; i < MAX_GLOBAL_REGS; i++)
+	    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 		*mudstate.global_regs[i] = '\0';
+		mudstate.glob_reg_len[i] = 0;
+	    }
 	    return count;
 	}
 	player = mudstate.qfirst->player;
@@ -743,10 +745,14 @@ int ncmds;
 		
 		for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 		    if (mudstate.qfirst->scr[i]) {
-			strcpy(mudstate.global_regs[i],
-			       mudstate.qfirst->scr[i]);
+			len = strlen(mudstate.qfirst->scr[i]);
+			bcopy(mudstate.qfirst->scr[i],
+			      mudstate.global_regs[i],
+			      len + 1);
+			mudstate.glob_reg_len[i] = len;
 		    } else {
 			*mudstate.global_regs[i] = '\0';
+			mudstate.glob_reg_len[i] = 0;
 		    }
 		}
 
@@ -872,8 +878,10 @@ int ncmds;
 	    mudstate.qlast = NULL;
     }
 
-    for (i = 0; i < MAX_GLOBAL_REGS; i++)
+    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 	*mudstate.global_regs[i] = '\0';
+	mudstate.glob_reg_len[i] = 0;
+    }
     mudstate.debug_cmd = cmdsave;
     return count;
 }
