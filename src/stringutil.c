@@ -121,7 +121,7 @@ int type;
 			break;
 		case '\\':
 			if (type)
-				safe_str("\\", new, &bp);
+				safe_str("%\\", new, &bp);
 			else
 				safe_chr('\\', new, &bp);
 			break;
