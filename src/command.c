@@ -1574,7 +1574,8 @@ char *command, *args[];
 	if (!succ && mudconf.local_masters) {
 		parent = Parent(player);
 		if ((parent != Location(player)) &&
-		   (parent != Parent(Location(player)))) {
+		    (!Good_obj(Location(player)) ||
+		     (parent != Parent(Location(player))))) {
 			while (!succ && !got_stop &&
 			       Good_obj(parent) && ParentZone(parent)) {
 				if (Has_contents(parent)) {
