@@ -72,7 +72,7 @@ const char *newobj;
 	if ((thing = noisy_match_result()) == NOTHING)
 		return;
 
-	if (!strcasecmp(newobj, "none"))
+	if (!newobj || !*newobj || !strcasecmp(newobj, "none"))
 		zone = NOTHING;
 	else {
 		init_match(player, newobj, NOTYPE);
