@@ -2861,17 +2861,18 @@ char *gdbmfile;
 int check_zone(player, thing)
 dbref player, thing;
 {
+	if (!mudconf.have_zones || (Zone(thing) == NOTHING) ||
+	    isPlayer(thing) ||
+	    (mudstate.zone_nest_num + 1 == mudconf.zone_nest_lim)) {
+		mudstate.zone_nest_num = 0;
+		return 0;
+	}
+
 	if (!Control_ok(Zone(thing))) {
 		return 0;
 	}
 	
 	mudstate.zone_nest_num++;
-
-	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
-	    (mudstate.zone_nest_num == mudconf.zone_nest_lim) || (isPlayer(thing))) {
-		mudstate.zone_nest_num = 0;
-		return 0;
-	}
 
 	/* If the zone doesn't have an enterlock, DON'T allow control. */
 
