@@ -14391,6 +14391,9 @@ Continued in 'help 3.1 base3'.
   details. (The guest_prefix parameter is now obsolete, and has been
   removed.)
  
+- The new conf parameter huh_message lets you change the Huh? message
+  that is displayed when a command cannot be matched.
+ 
 - The new conf parameter power_alias allows you to set aliases for powers.
  
 - The new conf parameter visible_wizards (disabled by default) results

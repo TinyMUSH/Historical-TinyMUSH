@@ -625,7 +625,7 @@ int interactive, ncargs;
 			     * We DO NOT go back into trying to match
 			     * other stuff -- this is a 'Huh?' situation.
 			     */
-			    notify(player, "Huh?  (Type \"help\" for help.)");
+			    notify(player, mudconf.huh_msg);
 			    STARTLOG(LOG_BADCOMMANDS, "CMD", "BAD")
 				log_name_and_loc(player);
 			        log_printf(" entered: %s", new);
@@ -1267,7 +1267,7 @@ char *command, *args[];
 	/* If we still didn't find anything, tell how to get help. */
 
 	if (!succ) {
-		notify(player, "Huh?  (Type \"help\" for help.)");
+		notify(player, mudconf.huh_msg);
 		STARTLOG(LOG_BADCOMMANDS, "CMD", "BAD")
 			log_name_and_loc(player);
 			log_printf(" entered: %s", command);

@@ -92,6 +92,7 @@ void NDECL(cf_init)
 	mudconf.postdump_msg = XSTRDUP("", "cf_string");
 	mudconf.fixed_home_msg = XSTRDUP("", "cf_string");
 	mudconf.fixed_tel_msg = XSTRDUP("", "cf_string");
+	mudconf.huh_msg = XSTRDUP("Huh?  (Type \"help\" for help.)", "cf_string");
 #ifdef PUEBLO_SUPPORT
 	mudconf.pueblo_msg = XSTRDUP("</xch_mudtext><img xch_mode=html><tt>", "cf_string");
 #endif
@@ -1633,6 +1634,7 @@ CONF conftable[] = {
 {(char *)"pueblo_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.pueblo_msg,	GBUF_SIZE},
 #endif
 
+{(char *)"huh_message",			cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.huh_msg,	MBUF_SIZE},
 {(char *)"idle_wiz_dark",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.idle_wiz_dark,		(long)"Wizards who idle are set DARK"},
 {(char *)"idle_interval",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.idle_interval,		0},
 {(char *)"idle_timeout",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.idle_timeout,		0},

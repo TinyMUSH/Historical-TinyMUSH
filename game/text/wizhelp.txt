@@ -1379,8 +1379,9 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 
 & PARAM MESSAGES
 	down_motd_message	dump_message		fixed_home_message
-	fixed_tel_message	full_motd_message	motd_message
-	postdump_message	pueblo_message		wizard_motd_message
+	fixed_tel_message	full_motd_message	huh_message
+	motd_message		postdump_message	pueblo_message
+	wizard_motd_message
 
 & PARAM MISCELLANEOUS
 	flag_name		guest_basename		guest_password
@@ -2237,7 +2238,14 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Config parameter: hostnames <yes/no>.  Default: Yes
   Indicates whether or not IP addresses should be replaced with host names
   where possible in the log file and wizard WHO report.
-
+ 
+& huh_message
+  Config parameter: huh_message <message>.
+  Default: Huh?  (Type "help" for help.)
+ 
+  This is the message that is displayed when user input does not match
+  any valid command.
+ 
 & idle_interval
   Config parameter: idle_interval <secs>.  Default: 60
   Sets the interval between checks for idle users. 

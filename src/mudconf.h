@@ -189,6 +189,7 @@ struct confdata {
 	char	*postdump_msg;  /* Message displayed after @dump-ing */
 	char	*fixed_home_msg; /* Message displayed when going home and FIXED */
 	char	*fixed_tel_msg; /* Message displayed when teleporting and FIXED */
+	char	*huh_msg;	/* Message displayed when a Huh? is gotten */
 #ifdef PUEBLO_SUPPORT
 	char    *pueblo_msg;	/* Message displayed to Pueblo clients */
 	char	*htmlconn_file;	/* display on PUEBLOCLIENT message */

@@ -33,6 +33,9 @@ Release history:
   via the @speechformat attribute and SPEECHMOD flag on the speaker, or the
   speaker's location.
 
+- Feature: New conf parameter huh_message lets you change the Huh? message
+  when a command cannot be matched.
+
 - Misc: check_access() is more efficient. Based on MUX2 algorithm.
 
 - Fix: A memory leak related to global registers has been fixed. [3.1b6]
