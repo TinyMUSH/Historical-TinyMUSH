@@ -1099,7 +1099,7 @@ char *cargs[];
 				 */
 				safe_ltos(buff, bufc,
 					  ((mudstate.in_loop) ?
-					   mudstate.in_loop :
+					   (mudstate.in_loop - 1):
 					   mudstate.in_switch));
 			    } else {
 				(*dstr)--;
