@@ -1,6 +1,14 @@
 & help
-This is the indexed +help file, like help and news. This is the ONLY text
-file that may include the ansi color substitutions, like \%ch and \%cn.
-It handles these on a line by line basis.
-
-
+ 
+This is an example of how to write an arbitrary indexed 'help'-like file.
+If you wanted to have your '+help' command look at this file, you would
+add the following line to your netmush.conf file (or equivalent):
+ 
+helpfile +help text/plushelp.txt
+ 
+See 'wizhelp helpfile' for more details.
+ 
+& +help
+ 
+This is a sample +help entry for '+help +help'.
+ 

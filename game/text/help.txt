@@ -1,4 +1,5 @@
 & help
+ 
   This is the TinyMUSH 3.0 online help facility.
  
   Notes on help descriptions: 
@@ -4029,12 +4030,12 @@
   Many, many people have contributed to TinyMUSH; our list of "thanks" is
   by no means complete.
  
-  See 'help credits2' for the list of names.
+  See 'help Credits2' for the list of names.
  
 & CREDITS2
  
 Significant code, ideas, bugfixes, and support have been contributed
-over the years by many people, including:
+over the years by many people, including, in alphabetical order:
  
 Dean Gaudet		Robby Griffin		Stephen J. Kiernan
 Andrew Molitor		T. Alexander Popiel	Marcus Ranum
@@ -9928,30 +9929,37 @@ traced from the caller's scope.
  
 & About TinyMUSH
  
-  TinyMUSH 3.0 is a fusion of TinyMUSH 2.2 and TinyMUX. It was designed
-  to be a stable, efficient, feature-rich code version, offering users
-  a full array of 2.2 and MUX features, to be configured in whatever
-  way the administrators choose. It is intended to be the standard
-  supported version of TinyMUSH for the forseeable future.
+  TinyMUSH 3.0 is the result of converging the development paths of
+  TinyMUSH 2.2 and TinyMUX. It was designed to be a stable, efficient,
+  highly-configurable, feature-rich code version, offering users a full
+  array of 2.2 and MUX features, as well as substantial enhancements to
+  functionality and performance.
  
-  Announcements can be found at http://www.godlike.com/tinymush-3.0/
-  The MUSH manual can be found at http://www.godlike.com/mushman/
-  Softcode is available from ftp.chaco.com, in /pub/mud/tinymush.
+  TinyMUSH 3.0 is under active development, and is the standard supported
+  version of TinyMUSH for the forseeable future. Lydia Leong ("Amberyl")
+  and David Passmore ("Lauren") are the primary developers of the codebase.
  
   See 'help Patchlevel' for notes on TinyMUSH 3.0 changes.
   See 'help Writing News' for an explanation of how to write news files.
-  See 'help Support' for more information about mailing lists, utilities,
-  and so forth.
+  See 'help Support' for URLs to TinyMUSH 3.0 announcements and resources.
+  See 'help Mailing Lists' for a list of TinyMUSH-related mailing lists.
   
-& Support
+& Mailing Lists
  
   Support for TinyMUSH 3.0 is done via 'tinymush-support@godlike.com',
   a mailing list. Send email to 'listproc@godlike.com' with a blank 
   subject line and the message body 'subscribe tinymush-support Your Name'
   to subscribe.
  
-  There is a MUSH programmer's list, 'tinymush-programmers@clock.org'.
-  Send email to 'tinymush-programmers-request@clock.org' to subscribe.
+  Announcements of new server versions, new games, and other information
+  of interest to the general MUSH community, is available through
+  mush-announce@godlike.com, a moderated mailing list with low traffic.
+  We highly encourage all users to subscribe to it; send email to
+  'listproc@godlike.com' with a blank subject line and the message body
+  'subscribe mush-announce Your Name' to subscribe.
+ 
+  There is an unofficial MUSH programmer's list, 'softcode@legendary.org'.
+  Go to http://www.legendary.org/mailman/listinfo.cgi/softcode to subscribe.
  
   There is a mailing list for MUSH administrators, 'gods@godlike.com'.
   Send email to 'listproc@godlike.com' with a blank subject line and
@@ -9959,12 +9967,21 @@ traced from the caller's scope.
   informal meeting grounds for MUSH administrators, called The
   Godlike Edge, is located at edge.godlike.com 6250. 
  
+& Support
+ 
+  TinyMUSH 3.0 announcements and related support information can be found
+  at the official TinyMUSH 3.0 home, http://www.godlike.com/tinymush-3.0/
+ 
+  The MUSH Manual can be found at http://www.godlike.com/mushman/
+ 
   General information about MUDs and a MUSH list can be found on the
   MUD Resource Collection, at http://www.godlike.com/muds/
+ 
   Users may also be interested in the TinyFugue client, available from
-  laurel.actlab.utexas.edu, in /pub/tinyfugue.  Also useful is the
-  LogEdit program, available from pennmush.tinymush.org, in
-  /pub/DuneMUSH/Accessories. 
+  laurel.actlab.utexas.edu, in /pub/tinyfugue.
+ 
+  Also useful is the LogEdit program, a tool for quickly editing logs,
+  available from pennmush.tinymush.org, in /pub/DuneMUSH/Accessories. 
  
 & Writing News
  
@@ -9981,10 +9998,14 @@ file, enter a line with a single space on it. You may want to avoid
 by them. You will probably want to make individual news topics no more
 than 23 lines long, in order to accomodate screen sizes.
  
+Percent-substitutions are evaluated inside news files, so you can use
+ANSI color codes in them. Be aware that this means you will need to
+escape certain special characters, such as the backslash and percent.
+ 
 You must use the 'mkindx' program to re-index the news file when it
 is changed. If you change any text files while the game is running,
 a Wizard must do a @readcache from within the game.
-  
+ 
 & Patchlevel
  
 TinyMUSH 3.0 starts out from a fusion of the TinyMUSH 2.2.5 and TinyMUX 1.6
