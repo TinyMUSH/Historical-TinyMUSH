@@ -248,8 +248,8 @@ D_OBJ	= create.o game.o help.o look.o match.o move.o player.o predicates.o \
 	  funobj.o funstring.o funvars.o \
           mguests.o powers.o newconc.o pcre.o quota.o
 D_INC	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
-	  fnproto.h command.h config.h db.h externs.h mudconf.h misc.h \
-	  vattr.h file_c.h alloc.h attrs.h mguests.h powers.h slave.h \
+	  fnproto.h cmdtabs.h command.h config.h db.h externs.h mudconf.h \
+	  misc.h vattr.h file_c.h alloc.h attrs.h mguests.h powers.h slave.h \
 	  pcre.h bitstring.h db_sql.h
 
 # Version number routine
