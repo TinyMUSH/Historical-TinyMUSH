@@ -215,15 +215,15 @@ slave: slave.o
 	$(CC) $(ALLCFLAGS) $(LIBS) -o slave slave.o
 
 comsys: comsys.lo
+	-mv -f comsys.so comsys.so~
 	$(LIBTOOL) $(CC) -module -o comsys.la comsys.lo -rpath `pwd` -disable-static
-	-rm -rf comsys.so
-	echo 'ln -s .libs/$${dlname} comsys.so' >> comsys.la
+	echo 'cp .libs/$${dlname} comsys.so' >> comsys.la
 	. comsys.la
 
 mail: mail.lo
+	-mv -f mail.so mail.so~
 	$(LIBTOOL) $(CC) -module -o mail.la mail.lo -rpath `pwd` -disable-static
-	-rm -rf mail.so
-	echo 'ln -s .libs/$${dlname} mail.so' >> mail.la
+	echo 'cp .libs/$${dlname} mail.so' >> mail.la
 	. mail.la
 
 mkindx: mkindx.o
@@ -298,13 +298,15 @@ verify:
 	runtest --tool mush --src ./testsuite
 
 clean:
-	-rm -f *.o a.out core gmon.out mush.*log mush.*sum Compile.log .libs/*
+	-rm -f *.o *.lo a.out core gmon.out mush.*log mush.*sum Compile.log
+	-rm -rf .libs
 
 realclean: clean
-	-rm -f $(OUT) netmush~ slave conc unsplit comsys.so comsys.so~ mail.so mail.so~
+	-rm -f $(OUT) netmush~ slave conc unsplit *.so *.so~ *.la
 
 distclean: realclean cvs
-	-rm -f config.log config.cache config.status autoconf.h .depend 
+	-rm -f libtool config.log config.cache config.status autoconf.h
+	-rm -f .depend 
 	touch .depend
 	-rm -f Makefile
 
