@@ -5528,9 +5528,9 @@ See also: @link, @open.
 & COMSYS FUNCTIONS
   Topic: Comsys Functions
  
-	comalias()	comdesc()	comheader()	cominfo()
-	comlist()	comowner()	comtitle()	cwho()
-	cwhoall()
+	cemit()		comalias()	comdesc()	comheader()	
+	cominfo()	comlist()	comowner()	comtitle()	
+	cwho()		cwhoall()
  
   These functions are only enabled if the comsys module is enabled.
  
@@ -10588,6 +10588,14 @@ performed and the walk down the list stops.
   'create(<object>,<cost>,e)' is equivalent to '@open <object>'.
  
   See also: @create, @dig, @open
+ 
+& CEMIT()
+  Function:  cemit(<channel>, <message>)
+ 
+  Equivalent to '@cemit/noheader <channel> = <message>'. This sends
+  <message> to the named <channel>, if you own the channel, or have the
+  Comm_All power or are a Wizard. The channel header is not prepended
+  to the message.
  
 & COMALIAS()
   Function:  comalias(<player>)

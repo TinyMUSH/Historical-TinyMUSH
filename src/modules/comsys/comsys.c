@@ -2280,7 +2280,16 @@ FUNCTION(fun_comtitle)
 	safe_str(cap->title, buff, bufc);
 }
 
+FUNCTION(fun_cemit)
+{
+    CHANNEL *chp;
+
+    Grab_Channel(player);
+    com_message(chp, fargs[1], player);
+}
+
 FUN mod_comsys_functable[] = {
+{"CEMIT",	fun_cemit,	2,  0,		CA_PUBLIC,	NULL},
 {"COMALIAS",	fun_comalias,	1,  0,		CA_PUBLIC,	NULL},
 {"COMDESC",	fun_comdesc,	1,  0,		CA_PUBLIC,	NULL},
 {"COMHEADER",	fun_comheader,	1,  0,		CA_PUBLIC,	NULL},
