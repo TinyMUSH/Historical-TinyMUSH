@@ -564,10 +564,11 @@ char *name, *arg2;
 	/* Wipe out any old attributes and copy in the new data */
 
 	atr_free(clone);
-	if (key & CLONE_PARENT)
+	if (key & CLONE_PARENT) {
 		s_Parent(clone, thing);
-	else
+	} else {
 		atr_cpy(player, clone, thing);
+	}
 
 	/* Reset the name, since we cleared the attributes. */
 
@@ -594,10 +595,11 @@ char *name, *arg2;
 	 */
 
 	if (key & CLONE_NOSTRIP) {
-	    if (God(player))
+	    if (God(player)) {
 		s_Flags(clone, Flags(thing));
-	    else
+	    } else {
 		s_Flags(clone, Flags(thing) & ~WIZARD);
+	    }
 	    s_Flags2(clone, Flags2(thing));
 	    s_Flags3(clone, Flags3(thing));
 	} else {

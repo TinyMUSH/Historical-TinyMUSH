@@ -479,10 +479,11 @@ char *name;
 	    (objtype != TYPE_PLAYER)) {
 	    s_Zone(obj, Zone(player));
 	} else {
-	    if (proto != NOTHING)
+	    if (proto != NOTHING) {
 		s_Zone(obj, Zone(proto));
-	    else
+	    } else {
 		s_Zone(obj, NOTHING);
+	    }
 	}
 
 	if (proto != NOTHING) {

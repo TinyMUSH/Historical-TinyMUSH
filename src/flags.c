@@ -39,20 +39,23 @@ int fflags, reset;
 	/* Otherwise we can go do it. */
 
 	if (fflags & FLAG_WORD3) {
-		if (reset)
+		if (reset) {
 			s_Flags3(target, Flags3(target) & ~flag);
-		else
+		} else {
 			s_Flags3(target, Flags3(target) | flag);
+		}
 	} else if (fflags & FLAG_WORD2) {
-		if (reset)
+		if (reset) {
 			s_Flags2(target, Flags2(target) & ~flag);
-		else
+		} else {
 			s_Flags2(target, Flags2(target) | flag);
+		}
 	} else {
-		if (reset)
+		if (reset) {
 			s_Flags(target, Flags(target) & ~flag);
-		else
+		} else {
 			s_Flags(target, Flags(target) | flag);
+		}
 	}
 	return 1;
 }

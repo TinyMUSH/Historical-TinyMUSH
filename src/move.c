@@ -165,10 +165,11 @@ dbref thing, dest;
 
 	/* Add to destination location */
 
-	if (dest != NOTHING)
+	if (dest != NOTHING) {
 		s_Contents(dest, insert_first(Contents(dest), thing));
-	else
+	} else {
 		s_Next(thing, NOTHING);
+	}
 	s_Location(thing, dest);
 
 	/* Look around and do the penny check */

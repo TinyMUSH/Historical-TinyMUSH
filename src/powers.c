@@ -30,15 +30,17 @@ POWER power;
 int fpowers, reset;
 {
 	if (fpowers & POWER_EXT) {
-		if (reset)
+		if (reset) {
 			s_Powers2(target, Powers2(target) & ~power);
-		else
+		} else {
 			s_Powers2(target, Powers2(target) | power);
+		}
 	} else {
-		if (reset)
+		if (reset) {
 			s_Powers(target, Powers(target) & ~power);
-		else
+		} else {
 			s_Powers(target, Powers(target) | power);
+		}
 	}
 	return 1;
 }
