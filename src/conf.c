@@ -578,8 +578,10 @@ CF_HAND(cf_module)
 	handle = dlopen(tprintf("%s.so", str), RTLD_NOW|RTLD_GLOBAL);	
 
 	if (!handle) {
-		cf_log_syntax(player, cmd, "Loading of module %s failed",
-			str);
+		STARTLOG(LOG_STARTUP, "CNF", "MOD")
+		    log_printf("Loading of %s module failed:",
+		    	str, dlerror());
+		ENDLOG
 		return -1;
 	}
 	
