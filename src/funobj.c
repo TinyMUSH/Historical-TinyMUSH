@@ -450,7 +450,7 @@ FUNCTION(fun_elock)
 		safe_str("#-1 TOO FAR AWAY", buff, bufc);
 	} else {
 		tbuf = atr_get(it, attr->number, &aowner, &aflags, &alen);
-		if ((aflags & AF_IS_LOCK) || 
+		if ((attr->flags & AF_IS_LOCK) || 
 		    Read_attr(player, it, attr, aowner, aflags)) {
 		    if (Pass_Locks(victim)) {
 			safe_chr('1', buff, bufc);
