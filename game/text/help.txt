@@ -817,18 +817,20 @@
   Rooms, exits, and objects may be destroyed. The actual destruction is
   delayed for up to ten minutes (or more, depending on the MUSH's specific
   configuration); the GOING flag is set on these objects. Clearing the
-  GOING flag on the object spares it from destruction. The exception is
-  DESTROY_OK objects, which are immediately destroyed.
+  GOING flag on the object spares it from destruction. Depending on the
+  configuration of the MUSH, DESTROY_OK objects may be an exception,
+  and would get immediately destroyed.
  
   The @destroy command will not destroy objects with the SAFE flag set unless
   the /override switch is specified.  The DESTROY_OK flag overrides the
   protection given by the SAFE flag.
  
   The following switches are available:
+    /instant   - Immediately destroy the object.
     /override  - Negate protection offered by the SAFE flag.
  
   See also: DESTROY_OK, SAFE.
-
+ 
 & @dig
   Command: @dig[/<switches>] <name> [= <exitlist> [, <exitlist>] ]
   Creates a new room with the specified name and displays its number. This 
@@ -9171,6 +9173,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & powers list2
  
   monitor		Can set or reset monitor flag.
+  no_destroy		Cannot be @toad'ed.
   open_anywhere		Can @open an exit from any location.
   poll			Can set the @poll.
   prog			Can use @program on players other than themself.
@@ -9440,12 +9443,6 @@ See 'help comsys commands' for a list of commands.
   The transmit lock for a channel is a use @lock on the channel object.
   The receive lock for a channel is an enter @lock on the channel object.
   The description of a channel is the @desc of the channel object.
- 
-& cwho()
-  Function: cwho(<channel>)
- 
-  Returns a list of dbrefs who are connected, and on that channel. 
-  This is limited to wizards and channel owners.
  
 & @malias
  

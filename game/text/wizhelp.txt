@@ -543,12 +543,15 @@
   Lists information from internal databases.  Information is available
   about the following options:
  
-	allocations	attr_permissions	attributes	bad_names
-	buffers		cache			commands	costs
-	db_stats	default_flags		flags		functions
-	globals		hashstats		logging		options
-	permissions	powers			process		site_info
-	switches	textfiles		user_attributes
+	allocations		attr_permissions	attributes	
+	bad_names		buffers			cache
+	commands		config_permissions	costs
+	db_stats		default_flags		flags
+	functions		globals			hashstats
+	logging			options			params
+	permissions		powers			process
+	site_information	switches		textfiles
+	user_attributes
  
   Type wizhelp @list <option> for help with a particular option.
 
@@ -622,6 +625,13 @@
   and does not list exits in your current room or $-commands on objects.
   See also: @list attr_access, @list attributes, @list permissions.
 
+& @list config_permissions
+  Command: @list config_permissions
+ 
+  Lists all available config options, and the permissions for them.
+ 
+  See also: config_access
+ 
 & @list costs
   Command: @list costs
   Lists the costs that are associated with some commands, particularly those
@@ -755,9 +765,20 @@
 
 & @list options
   Command: @list options
-  Lists the value of many of the configuration parameters.
-  See also: @admin.
-
+ 
+  Lists the value of the configuration parameters that can be set to
+  'yes' or 'no'.
+ 
+  See also: CONFIG PARAMETERS, @admin, @list params
+ 
+& @list params
+  Command: @list options
+ 
+  Lists the value of many of configuration options that are non-boolean,
+  such as limits and dbrefs.
+ 
+  See also: CONFIG PARAMETERS, @admin, @list options
+ 
 & @list permissions
   Command: @list permissions
   For each command that you are allowed to use, lists the permissions that are
@@ -1268,9 +1289,9 @@
 	starting_player_quota	thing_quota		wait_cost
 
 & PARAM DATABASE
-	cache_depth		cache_steal_dirty	cache_width
-	fork_dump		fork_vfork		garbage_chunk
-	gdbm_cache_size		initial_size
+	cache_depth		cache_width		fork_dump
+	fork_vfork		garbage_chunk		gdbm_cache_size
+	initial_size
 
 & PARAM FILES
 	badsite_file		connect_file		connect_reg_file

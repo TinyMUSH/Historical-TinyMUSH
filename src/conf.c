@@ -168,7 +168,6 @@ void NDECL(cf_init)
 	mudconf.room_quota = 1;
 	mudconf.thing_quota = 1;
 	mudconf.mail_expiration = 14;
-	mudconf.use_http = 0;
 	mudconf.queuemax = 100;
 	mudconf.queue_chunk = 10;
 	mudconf.active_q_chunk = 10;
@@ -207,7 +206,6 @@ void NDECL(cf_init)
 	mudconf.terse_movemsg = 1;
 	mudconf.trace_topdown = 1;
 	mudconf.trace_limit = 200;
-	mudconf.safe_unowned = 0;
 	mudconf.wiz_obey_linklock = 0;
 	mudconf.local_masters = 1;
 	mudconf.req_cmds_flag = 1;
@@ -1172,8 +1170,6 @@ CONF conftable[] = {
 	cf_int,		CA_STATIC,	&mudconf.cache_depth,		0},
 {(char *)"cache_names",
 	cf_bool,	CA_STATIC,	&mudconf.cache_names,		0},
-{(char *)"cache_steal_dirty",
-	cf_bool,	CA_GOD,		&mudconf.cache_steal_dirty,	0},
 {(char *)"cache_trim",
 	cf_bool,	CA_GOD,		&mudconf.cache_trim,		0},
 {(char *)"cache_width",
@@ -1274,6 +1270,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.fork_vfork,		0},
 {(char *)"format_contents",
 	cf_bool,	CA_GOD,		&mudconf.fmt_contents,		0},
+{(char *)"format_exits",
+	cf_bool,	CA_GOD,		&mudconf.fmt_exits,		0},
 {(char *)"full_file",
 	cf_string,	CA_STATIC,	(int *)mudconf.full_file,	SBUF_SIZE},
 {(char *)"full_motd_message",
@@ -1320,8 +1318,6 @@ CONF conftable[] = {
 	cf_bool,	CA_STATIC,	&mudconf.have_zones,		0},
 {(char *)"hostnames",
 	cf_bool,	CA_GOD,		&mudconf.use_hostname,		0},
-{(char *)"use_http",
-	cf_bool,	CA_STATIC,	&mudconf.use_http,		0},
 {(char *)"idle_wiz_dark",
 	cf_bool,	CA_GOD,		&mudconf.idle_wiz_dark,		0},
 {(char *)"idle_interval",
@@ -1557,8 +1553,6 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.typed_quotas,		0},
 {(char *)"uncompress_program",
 	cf_string,	CA_STATIC,	(int *)mudconf.uncompress,	PBUF_SIZE},
-{(char *)"unowned_safe",
-	cf_bool,	CA_GOD,		&mudconf.safe_unowned,		0},
 {(char *)"user_attr_access",
 	cf_modify_bits,	CA_GOD,		&mudconf.vattr_flags,
 	(long)attraccess_nametab},

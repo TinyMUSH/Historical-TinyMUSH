@@ -24,7 +24,6 @@ typedef unsigned char Uchar;
 typedef struct confdata CONFDATA;
 struct confdata {
 	int	cache_trim;	/* Should cache be shrunk to original size */
-	int	cache_steal_dirty; /* Should cache code write dirty attrs */
 	int	cache_depth;	/* Number of entries in each cache cell */
 	int	cache_width;	/* Number of cache cells */
 	int	cache_names;	/* Should object names be cached separately */
@@ -126,7 +125,6 @@ struct confdata {
 	int	waitcost;	/* cost of @wait (refunded when finishes) */
 	int	building_limit;	/* max number of objects in the db */
 	int	mail_expiration; /* Number of days to wait to delete mail */
-	int	use_http;	/* Should we allow http access? */
 	int	queuemax;	/* max commands a player may have in queue */
 	int	queue_chunk;	/* # cmds to run from queue when idle */
 	int	active_q_chunk;	/* # cmds to run from queue when active */
@@ -142,7 +140,7 @@ struct confdata {
 	int	quotas;		/* TRUE = have building quotas */
 	int	typed_quotas;	/* TRUE = use quotas by type */
 	int	ex_flags;	/* TRUE = show flags on examine */
-	int	robot_speak;	/* TRUE = allow robots to speak */
+	int	robot_speak;	/* TRUE = allow robots to speak in public */
 	int	pub_flags;	/* TRUE = flags() works on anything */
 	int	quiet_look;	/* TRUE = don't see attribs when looking */
 	int	exam_public;	/* Does EXAM show public attrs by default? */
@@ -175,7 +173,6 @@ struct confdata {
 	int	terse_movemsg;	/* Show move msgs (SUCC/LEAVE/etc) if TERSE? */
 	int	trace_topdown;	/* Is TRACE output top-down or bottom-up? */
 	int	trace_limit;	/* Max lines of trace output if top-down */
-	int	safe_unowned;	/* Are objects not owned by you safe? */
 	int	wiz_obey_linklock;	/* Do wizards obey linklocks? */
 	int	local_masters;	/* Do we check Zone rooms as local masters? */
 	int	req_cmds_flag;	/* COMMANDS flag required to check $-cmds? */
