@@ -29,6 +29,10 @@
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+/* Define the number of objects we may be reading/writing to at one time */
+
+#define NUM_OBJPIPES	4
+
 /* For MUSH, an int works great as an object ID
  * And attributes are zero terminated strings, so we heave the size out.
  * We hand around attribute identifiers in the last things.
@@ -57,6 +61,7 @@ typedef struct Attrib {
 
 typedef struct Obj {
 	Objname	name;
+	time_t	counter;
 	int	dirty;
 	int	at_count;
 	Attrib	*atrs;
@@ -66,7 +71,7 @@ typedef struct cache {
 	void *keydata;
 	int keylen;
 	void *data;
-	time_t lastreferenced;
+	time_t counter;
 	short datalen;
 	short type;
 	struct cache *nxt;

@@ -354,63 +354,98 @@ Obj *obj;
  * the object which is being read or written to changes, we have to
  * dump the current object, and bring in the new one. */
 
+/* get_free_objpipe: return an object pipeline */
+
+Obj *get_free_objpipe(obj)
+int obj;
+{
+	char *data;
+	int i, j = 0;
+	
+	/* Try to see if it's already in a pipeline first */
+	
+	for (i = 0; i < NUM_OBJPIPES; i++) {
+		if (mudstate.objpipes[i] && 
+		    mudstate.objpipes[i]->name == obj) {
+		    	mudstate.objpipes[i]->counter = mudstate.objc;
+		    	mudstate.objc++;
+		    	return mudstate.objpipes[i];
+		}
+	}
+	
+	/* Look for an empty pipeline */
+	
+	for (i = 0; i < NUM_OBJPIPES; i++) {
+		if (!mudstate.objpipes[i]) {
+			/* If there's no object there, read one in */
+		
+			ATTRS_FETCH(obj, &data);
+			if (data) {
+				mudstate.objpipes[i] = unroll_obj(data);
+				XFREE(data, "get_free_objpipe");
+			} else {
+				/* New object */
+				if ((mudstate.objpipes[i] = (Obj *) XMALLOC(sizeof(Obj), 
+				                         "unroll_obj.o")) == NULL)
+					return (NULL);
+				mudstate.objpipes[i]->name = obj;
+				mudstate.objpipes[i]->at_count = 0;
+				mudstate.objpipes[i]->dirty = 0;
+				mudstate.objpipes[i]->atrs = NULL;
+			}
+					
+		    	mudstate.objpipes[i]->counter = mudstate.objc;
+		    	mudstate.objc++;
+			return mudstate.objpipes[i];
+		}
+		if (mudstate.objpipes[i]->counter <
+		    mudstate.objpipes[j]->counter) {
+			j = i;
+		}
+			
+	}
+
+	/* We got here, so we have to push the oldest object out. If it's
+	 * dirty, write it first */
+
+	if (mudstate.objpipes[j]->dirty) {
+		rollup_obj(mudstate.objpipes[j], &data);
+		ATTRS_STORE(mudstate.objpipes[j]->name, data,
+			obj_siz(mudstate.objpipes[j]));
+		XFREE(data, "get_free_objpipe.2");
+	}
+	objfree(mudstate.objpipes[j]);
+
+	/* Bring in the object from disk if it exists there */
+
+	ATTRS_FETCH(obj, &data);
+	if (data) {
+		mudstate.objpipes[j] = unroll_obj(data);
+		XFREE(data, "get_free_objpipe.3");
+	} else {
+		/* New object */
+		if ((mudstate.objpipes[j] = (Obj *) XMALLOC(sizeof(Obj), 
+		                         "unroll_obj.o")) == NULL)
+			return (NULL);
+		mudstate.objpipes[j]->name = obj;
+		mudstate.objpipes[j]->at_count = 0;
+		mudstate.objpipes[j]->dirty = 0;
+		mudstate.objpipes[j]->atrs = NULL;
+	}
+
+	mudstate.objpipes[j]->counter = mudstate.objc;
+	mudstate.objc++;
+	return mudstate.objpipes[j];
+}
+	
+	
 char *fetch_attrib(anum, obj)
 int anum;
 int obj;
 {
-	char *data;
 	Obj *object;
 		
-	if (mudstate.read_object && mudstate.read_object->name == obj) {
-		object = mudstate.read_object;
-	} else if (mudstate.write_object && mudstate.write_object->name == obj) {
-		object = mudstate.write_object;
-	} else if (!mudstate.read_object) {
-		/* If there's no object there, read one in */
-		
-		ATTRS_FETCH(obj, &data);
-		if (data) {
-			mudstate.read_object = unroll_obj(data);
-			object = mudstate.read_object;
-			XFREE(data, "fetch_attrib.1");
-		} else {
-			/* New object */
-			if ((mudstate.read_object = (Obj *) XMALLOC(sizeof(Obj), 
-			                         "unroll_obj.o")) == NULL)
-				return (NULL);
-			object = mudstate.read_object;
-			object->name = obj;
-			object->at_count = 0;
-			object->dirty = 0;
-			object->atrs = NULL;
-		}
-	} else {
-		/* If it's dirty, write it first */
-	
-		if (mudstate.read_object->dirty) {
-			rollup_obj(mudstate.read_object, &data);
-			ATTRS_STORE(mudstate.read_object->name, data,
-				obj_siz(mudstate.read_object));
-			XFREE(data, "fetch_attrib.3");
-		}
-		objfree(mudstate.read_object);
-		ATTRS_FETCH(obj, &data);
-		if (data) {
-			mudstate.read_object = unroll_obj(data);
-			object = mudstate.read_object;
-			XFREE(data, "fetch_attrib.2");
-		} else {
-			/* New object */
-			if ((mudstate.read_object = (Obj *) XMALLOC(sizeof(Obj), 
-	                        "unroll_obj.o")) == NULL)
-				return (NULL);
-			object = mudstate.read_object;
-			object->name = obj;
-			object->at_count = 0;
-			object->dirty = 0;
-			object->atrs = NULL;
-		}
-	}
+	object = get_free_objpipe(obj);
 	return get_attrib(anum, object);
 }
 
@@ -419,62 +454,11 @@ int anum;
 int obj;
 char *value;
 {
-	char *data;
 	Obj *object;
 	
-	if (mudstate.write_object && mudstate.write_object->name == obj) {
-		object = mudstate.write_object;
-	} else if (mudstate.read_object && mudstate.read_object->name == obj) {
-		object = mudstate.read_object;
-	} else if (!mudstate.write_object) {
-		/* If there's no object there, read one in */
-		
-		ATTRS_FETCH(obj, &data);
-		if (data) {
-			mudstate.write_object = unroll_obj(data);
-			object = mudstate.write_object;
-			XFREE(data, "fetch_attrib.1");
-		} else {
-			/* New object */
-			if ((mudstate.write_object = (Obj *) XMALLOC(sizeof(Obj), 
-			                         "unroll_obj.o")) == NULL)
-				return;
-			object = mudstate.write_object;
-			object->name = obj;
-			object->at_count = 0;
-			object->dirty = 0;
-			object->atrs = NULL;
-		}
-	} else {
-		/* If it's dirty, write it first */
-	
-		if (mudstate.write_object->dirty) {
-			rollup_obj(mudstate.write_object, &data);
-			ATTRS_STORE(mudstate.write_object->name, data,
-				obj_siz(mudstate.write_object));
-			XFREE(data, "fetch_attrib.3");
-		}
-		objfree(mudstate.write_object);
-		ATTRS_FETCH(obj, &data);
-		if (data) {
-			mudstate.write_object = unroll_obj(data);
-			object = mudstate.write_object;
-			XFREE(data, "fetch_attrib.2");
-		} else {
-			/* New object */
-			if ((mudstate.write_object = (Obj *) XMALLOC(sizeof(Obj), 
-	                        "unroll_obj.o")) == NULL)
-				return;
-			object = mudstate.write_object;
-			object->name = obj;
-			object->at_count = 0;
-			object->dirty = 0;
-			object->atrs = NULL;
-		}
-	}
-
 	/* Write the damn thing */
 	
+	object = get_free_objpipe(obj);
 	object->dirty = 1;
 	set_attrib(anum, object, value);
 	return;
@@ -484,62 +468,11 @@ void delete_attrib(anum, obj)
 int anum;
 int obj;
 {
-	char *data;
 	Obj *object;
-	
-	if (mudstate.write_object && mudstate.write_object->name == obj) {
-		object = mudstate.write_object;
-	} else if (mudstate.read_object && mudstate.read_object->name == obj) {
-		object = mudstate.read_object;
-	} else if (!mudstate.write_object) {
-		/* If there's no object there, read one in */
-		
-		ATTRS_FETCH(obj, &data);
-		if (data) {
-			mudstate.write_object = unroll_obj(data);
-			object = mudstate.write_object;
-			XFREE(data, "fetch_attrib.1");
-		} else {
-			/* New object */
-			if ((mudstate.write_object = (Obj *) XMALLOC(sizeof(Obj), 
-			                         "unroll_obj.o")) == NULL)
-				return;
-			object = mudstate.write_object;
-			object->name = obj;
-			object->at_count = 0;
-			object->dirty = 0;
-			object->atrs = NULL;
-		}
-	} else {
-		/* If it's dirty, write it first */
-	
-		if (mudstate.write_object->dirty) {
-			rollup_obj(mudstate.write_object, &data);
-			ATTRS_STORE(mudstate.write_object->name, data,
-				obj_siz(mudstate.write_object));
-			XFREE(data, "fetch_attrib.3");
-		}
-		objfree(mudstate.write_object);
-		ATTRS_FETCH(obj, &data);
-		if (data) {
-			mudstate.write_object = unroll_obj(data);
-			object = mudstate.write_object;
-			XFREE(data, "fetch_attrib.2");
-		} else {
-			/* New object */
-			if ((mudstate.write_object = (Obj *) XMALLOC(sizeof(Obj), 
-	                        "unroll_obj.o")) == NULL)
-				return;
-			object = mudstate.write_object;
-			object->name = obj;
-			object->at_count = 0;
-			object->dirty = 0;
-			object->atrs = NULL;
-		}
-	}
 	
 	/* Write the damn thing */
 
+	object = get_free_objpipe(obj);
 	object->dirty = 1;
 	del_attrib(anum, object);
 	return;
@@ -549,20 +482,16 @@ int obj;
 void attrib_sync()
 {
 	char *data;
+	int i;
 
 	/* Make sure dirty objects are written to disk */
 	
-	if (mudstate.write_object && mudstate.write_object->dirty) {
-		rollup_obj(mudstate.write_object, &data);
-		ATTRS_STORE(mudstate.write_object->name, data,
-			obj_siz(mudstate.write_object));
-		XFREE(data, "attrib_sync.1");
-	}
-
-	if (mudstate.read_object && mudstate.read_object->dirty) {
-		rollup_obj(mudstate.read_object, &data);
-		ATTRS_STORE(mudstate.read_object->name, data,
-			obj_siz(mudstate.read_object));
-		XFREE(data, "attrib_sync.2");
+	for (i = 0; i < NUM_OBJPIPES; i++) {
+		if (mudstate.objpipes[i]->dirty) {
+			rollup_obj(mudstate.objpipes[i], &data);
+			ATTRS_STORE(mudstate.objpipes[i]->name, data,
+				obj_siz(mudstate.objpipes[i]));
+			XFREE(data, "attrib_sync.1");
+		}
 	}
 }

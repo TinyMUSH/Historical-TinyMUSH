@@ -59,27 +59,13 @@ extern void FDECL(raw_notify, (dbref, const char *));
 			q.tail = e; \
 			e->nxt = (Cache *)0;
 
-#ifndef STANDALONE
-			/* If the object has been referenced within the last
-			 * queue cycle, ignore it-- else increment the counter
-			 */
-#define REFTIME(cp)	if (mudstate.now != cp->lastreferenced) { \
-				cp->lastreferenced = mudstate.now; \
-			}
-#else /* STANDALONE */
-			/* If the object has been referenced within the last
-			 * two seconds, ignore it-- else increment the counter
-			 */
-#define REFTIME(cp)	if ((time(NULL) - cp->lastreferenced) > 2) { \
-				cp->lastreferenced = time(NULL); \
-			}
-#endif /* STANDALONE */
+#define INCCOUNTER(cp)	cp->counter = mudstate.attrc; \
+			mudstate.attrc++;
 
-/* Set last referenced time to zero. This means that we're willing to throw
- * this cache entry away anytime
- */
+/* Set counter to zero. This means that we're willing to throw this cache
+ * entry away anytime */
 
-#define CLRREFTIME(cp)	cp->lastreferenced = 0;
+#define CLRCOUNTER(cp)	cp->counter = 0;
 
 static Cache *get_free_entry();
 static int cache_write();
@@ -153,10 +139,8 @@ int width;
 	if (cache_initted || sys_c != (CacheLst *) 0)
 		return (0);
 
-	/*
-	 * If width is specified as non-zero, change it to that,
-	 * otherwise use default. 
-	 */
+	/* If width is specified as non-zero, change it to that,
+	 * otherwise use default. */
 
 	if (width)
 		cwidth = width;
@@ -176,6 +160,17 @@ int width;
 		sp->mactive.tail = (Cache *) 0;
 	}
 
+	/* Initialize the object pipelines */
+	
+	for (x = 0; x < NUM_OBJPIPES; x++) {
+		mudstate.objpipes[x] = NULL;
+	}
+	
+	/* Initialize the object and attribute access counters */
+	
+	mudstate.objc = 0;
+	mudstate.attrc = 0;
+	
 	/* mark caching system live */
 	cache_initted++;
 
@@ -355,7 +350,7 @@ void list_cached_attrs(player)
     aco = maco = asize = msize = 0;
 
     raw_notify(player, "Active Cache:");
-    raw_notify(player, "Name                    Attribute                       Dbref       Age   Size");
+    raw_notify(player, "Name                    Attribute                       Dbref   Counter   Size");
     raw_notify(player, "==============================================================================");
 
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
@@ -366,14 +361,14 @@ void list_cached_attrs(player)
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
 		raw_notify(player, 
 			tprintf("%-23.23s %-31.31s #%-6d %7d %6d", PureName(((Aname *)cp->keydata)->object),
-			(atr ? atr->name : "(Unknown)"), ((Aname *)cp->keydata)->object, (int) (mudstate.now - cp->lastreferenced), 
+			(atr ? atr->name : "(Unknown)"), ((Aname *)cp->keydata)->object, cp->counter, 
 			cp->datalen));
             }
         }
     }
 
     raw_notify(player, "\nModified Active Cache:");
-    raw_notify(player, "Name                    Attribute                       Dbref       Age   Size");
+    raw_notify(player, "Name                    Attribute                       Dbref   Counter   Size");
     raw_notify(player, "==============================================================================");
 
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
@@ -384,7 +379,7 @@ void list_cached_attrs(player)
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
 		raw_notify(player, 
 			tprintf("%-23.23s %-31.31s #%-6d %7d %6d", PureName(((Aname *)cp->keydata)->object),
-			(atr ? atr->name : "(Unknown)"), ((Aname *)cp->keydata)->object, (int) (mudstate.now - cp->lastreferenced), 
+			(atr ? atr->name : "(Unknown)"), ((Aname *)cp->keydata)->object, cp->counter, 
 			cp->datalen));
             }
         }
@@ -445,7 +440,7 @@ int type;
 			DEQUEUE(sp->active, cp);
 			INSHEAD(sp->active, cp);
 
-			REFTIME(cp);
+			INCCOUNTER(cp);
 
 			if (dataptr)
 				*dataptr = cp->data;
@@ -470,7 +465,7 @@ int type;
 			DEQUEUE(sp->mactive, cp);
 			INSHEAD(sp->mactive, cp);
 
-			REFTIME(cp);
+			INCCOUNTER(cp);
 
 			if (dataptr)
 				*dataptr = cp->data;
@@ -544,12 +539,12 @@ int type;
 	if (mudstate.dumping) {
 		/* Link at tail of active chain */
 		INSTAIL(sp->active, cp);
-		CLRREFTIME(cp);
+		CLRCOUNTER(cp);
 	} else {
 #endif
 		/* Link at head of active chain */
 		INSHEAD(sp->active, cp);
-		REFTIME(cp);
+		INCCOUNTER(cp);
 #ifndef STANDALONE
 	}
 #endif
@@ -614,7 +609,7 @@ int type;
 			DEQUEUE(sp->active, cp);
 			INSHEAD(sp->mactive, cp);
 
-			REFTIME(cp);
+			INCCOUNTER(cp);
 
 			return (0);
 		}
@@ -635,7 +630,7 @@ int type;
 			DEQUEUE(sp->mactive, cp);
 			INSHEAD(sp->mactive, cp);
 
-			REFTIME(cp);
+			INCCOUNTER(cp);
 
 			return (0);
 		}
@@ -659,7 +654,7 @@ int type;
 	/* link at head of modified active chain */
 	
 	INSHEAD(sp->mactive, cp);
-	REFTIME(cp);
+	INCCOUNTER(cp);
 	return (0);
 #else
 	/* Bypass the cache when standalone for writes */
@@ -693,7 +688,7 @@ int atrsize;
 	CacheLst *sp;
 	Chain *chp;
 	Cache *cp = NULL, *p;
-	int score = 0, curscore = 0;
+	unsigned int score = 0, curscore = 0;
 	int modified = 0, size = 0, cursize = 0, x;
 	
 	/* Flush entries from the cache until there's enough room for
@@ -718,24 +713,20 @@ int atrsize;
 
 			if (p) {
 				/* Automatically toss this bucket if it is
-				   empty or lastreferenced is zero (which
+				   empty or counter is zero (which
 				   means we don't want to keep it) */
 				   
-				if (!p->datalen || !p->lastreferenced) {
+				if (!p->datalen || !p->counter) {
 					cp = p;
 					chp = &(sp->active);
 					modified = 0;
 					goto replace;
 				} else {
-#ifndef STANDALONE
-					score = mudstate.now - p->lastreferenced;
-#else
-					score = time(NULL) - p->lastreferenced;
-#endif
+					score = p->counter;
 					size = p->datalen;
 				}
 				
-				if ((score > curscore) || ((score == curscore) && 
+				if ((score < curscore) || ((score == curscore) && 
 				    (size > cursize)) || !cp) {
 					curscore = score;
 					cursize = size;
@@ -751,10 +742,10 @@ int atrsize;
 			
 			if (p) {
 				/* Automatically toss this bucket if it is
-				   empty or lastreferenced is zero (which
+				   empty or counter is zero (which
 				   means we don't want to keep it) */
 
-				if (!p->datalen || !p->lastreferenced) {
+				if (!p->datalen || !p->counter) {
 					cp = p;
 					chp = &(sp->mactive);
 					modified = 1;
@@ -762,21 +753,17 @@ int atrsize;
 				} else {
 					/* We don't want to prematurely toss
 					 * modified entries, so give them an
-					 * advantage by lowering their score
+					 * advantage by raising their score
 					 */
 	
-#ifndef STANDALONE 
-					score = (int) ((mudstate.now - p->lastreferenced) * .8);
-#else
-					score = (int) ((time(NULL) - p->lastreferenced) * .8);
-#endif
+					score = (unsigned int) (p->counter * 1.2);
 					size = p->datalen;
 				}
 						
 				/* If we haven't found one by now, the tail
 				/* of the modified chain is it */
 
-				if ((score > curscore) || ((score == curscore) && 
+				if ((score < curscore) || ((score == curscore) && 
 				    (size > cursize)) ||
 				    ((p == sp->mactive.tail) && !cp)) {
 					curscore = score;
@@ -838,11 +825,8 @@ replace:
 	cp->data = NULL;
 	cp->datalen = 0;
 	cp->type = DBTYPE_EMPTY;
-#ifndef STANDALONE
-	cp->lastreferenced = mudstate.now;
-#else
-	cp->lastreferenced = time(NULL);
-#endif
+	cp->counter = mudstate.attrc;
+	mudstate.attrc++;
 	return (cp);
 }
 
@@ -963,7 +947,7 @@ int type;
 			DEQUEUE(sp->active, cp);
 			INSTAIL(sp->mactive, cp);
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
-			REFTIME(cp);
+			INCCOUNTER(cp);
 			return;
 		}
 	}
@@ -972,7 +956,7 @@ int type;
 			DEQUEUE(sp->mactive, cp);
 			INSTAIL(sp->mactive, cp);
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
-			REFTIME(cp);
+			INCCOUNTER(cp);
 			return;
 		}
 	}
@@ -984,7 +968,7 @@ int type;
 	memcpy(cp->keydata, keydata, keylen);
 	cp->keylen = keylen;
 
-	REFTIME(cp);
+	INCCOUNTER(cp);
 	INSTAIL(sp->mactive, cp);
 	return;
 }
