@@ -271,6 +271,8 @@ extern void	FDECL(destroy_exit, (dbref));
 	     (thing)=(next), (next)=Next(next))
 #define	DO_WHOLE_DB(thing) \
 	for ((thing)=0; (thing)<mudstate.db_top; (thing)++)
+#define	DO_WHOLE_DB_BACKWARDS(thing) \
+	for ((thing)=mudstate.db_top-1; (thing)>=0; (thing)--)
 
 #define	Dropper(thing)	(Connected(Owner(thing)) && Hearer(thing))
 
