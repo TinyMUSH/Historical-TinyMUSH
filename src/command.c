@@ -2716,6 +2716,7 @@ dbref player;
 #define	LIST_DB_STATS	20	/* GAC 4/6/92 */
 #define	LIST_PROCESS	21
 #define	LIST_BADNAMES	22
+#define LIST_CACHEOBJS	23
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
@@ -2724,6 +2725,7 @@ NAMETAB list_names[] = {
 {(char *)"attributes",		2,	CA_PUBLIC,	LIST_ATTRIBUTES},
 {(char *)"bad_names",		2,	CA_WIZARD,	LIST_BADNAMES},
 {(char *)"buffers",		2,	CA_WIZARD,	LIST_BUFTRACE},
+{(char *)"cache",		2,	CA_WIZARD,	LIST_CACHEOBJS},
 {(char *)"commands",		3,	CA_PUBLIC,	LIST_COMMANDS},
 {(char *)"config_permissions",	3,	CA_GOD,		LIST_CONF_PERMS},
 {(char *)"costs",		3,	CA_PUBLIC,	LIST_COSTS},
@@ -2830,6 +2832,9 @@ char *arg;
 		break;
 	case LIST_BADNAMES:
 		badname_list(player, "Disallowed names:");
+		break;
+	case LIST_CACHEOBJS:
+		list_cached_objs(player);
 		break;
 	default:
 		display_nametab(player, list_names,
