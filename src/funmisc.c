@@ -309,7 +309,7 @@ FUNCTION(fun_lrand)
 
     if (!fn_range_check("LRAND", nfargs, 3, 4, buff, bufc))
 	return;
-    VaChkHelp_OutSep(4, 0);
+    VaChk_OutSep(4, 0);
 
     /* If we're generating no numbers, since this is a list function,
      * we return empty, rather than returning 0.
@@ -384,7 +384,7 @@ FUNCTION(fun_lnum)
      * delimiter.
      */
     VaChk_Range("LNUM", 1, 3);
-    VaChkHelp_OutSep(3, 0);
+    VaChk_OutSep(3, 0);
 
     if (nfargs >= 2) {
 	bot = atoi(fargs[0]);

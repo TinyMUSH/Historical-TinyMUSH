@@ -91,30 +91,25 @@ extern char *ansi_nchartab[];	/* from fnhelper.c */
  * Delimiter macros for functions that take an optional delimiter character.
  */
 
-/* Helper macros:
- *   VaChkHelp_Args(min_args, max_args): Check number of args.
- *   VaChkHelp_InSep(arg_number, flags): Use arg_number as input sep.
- *   VaChkHelp_OutDef(arg_number): If nfargs less than arg_number,
+/* Separator checking "helper" macros.
+ *   VaChk_InSep(arg_number, flags): Use arg_number as input sep.
+ *   VaChk_DefaultOut(arg_number): If nfargs less than arg_number,
  *     use the input separator. DO NOT PUT A SEMI-COLON AFTER THIS MACRO.
- *   VaChkHelp_OutSep(arg_number, flags): Use arg_number as output sep.
+ *   VaChk_OutSep(arg_number, flags): Use arg_number as output sep.
  */
 
-#define VaChkHelp_Args(xname, xmin, xmax) \
-if (!fn_range_check(xname, nfargs, xmin, xmax, buff, bufc)) \
-    return;
-
-#define VaChkHelp_InSep(xargnum, xflags) \
+#define VaChk_InSep(xargnum, xflags) \
 if (!delim_check(fargs, nfargs, xargnum, &isep, buff, bufc, \
     player, caller, cause, cargs, ncargs, xflags)) \
     return;
 
-#define VaChkHelp_OutDef(xargnum) \
+#define VaChk_DefaultOut(xargnum) \
 if (nfargs < xargnum) { \
     osep.c = isep.c; \
     osep_len = 1; \
 } else
 
-#define VaChkHelp_OutSep(xargnum, xflags) \
+#define VaChk_OutSep(xargnum, xflags) \
 if (!(osep_len = delim_check(fargs, nfargs, xargnum, &osep, \
            buff, bufc, player, caller, cause, cargs, ncargs, \
            (xflags)|DELIM_NULL|DELIM_CRLF|DELIM_STRING))) \
@@ -145,32 +140,33 @@ if (!(osep_len = delim_check(fargs, nfargs, xargnum, &osep, \
  */
 
 #define VaChk_Range(xname,xminargs,xnargs) \
-  VaChkHelp_Args(xname, xminargs, xnargs);
+  if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
+      return;
 
 #define VaChk_Only_In(xname,xnargs) \
-  VaChkHelp_Args(xname, xnargs-1, xnargs); \
-  VaChkHelp_InSep(xnargs, 0);
+  VaChk_Range(xname, xnargs-1, xnargs); \
+  VaChk_InSep(xnargs, 0);
 
 #define VaChk_In(xname,xminargs,xnargs) \
-  VaChkHelp_Args(xname, xminargs, xnargs); \
-  VaChkHelp_InSep(xnargs, 0);
+  VaChk_Range(xname, xminargs, xnargs); \
+  VaChk_InSep(xnargs, 0);
 
 #define VaChk_Only_In_Out(xname,xnargs) \
-  VaChkHelp_Args(xname, xnargs-2, xnargs); \
-  VaChkHelp_InSep(xnargs-1, 0); \
-  VaChkHelp_OutDef(xnargs) \
-    VaChkHelp_OutSep(xnargs, 0);
+  VaChk_Range(xname, xnargs-2, xnargs); \
+  VaChk_InSep(xnargs-1, 0); \
+  VaChk_DefaultOut(xnargs) \
+    VaChk_OutSep(xnargs, 0);
 
 #define VaChk_In_Out(xname,xminargs,xnargs) \
-  VaChkHelp_Args(xname, xminargs, xnargs); \
-  VaChkHelp_InSep(xnargs-1, 0); \
-  VaChkHelp_OutDef(xnargs) \
-    VaChkHelp_OutSep(xnargs, 0);
+  VaChk_Range(xname, xminargs, xnargs); \
+  VaChk_InSep(xnargs-1, 0); \
+  VaChk_DefaultOut(xnargs) \
+    VaChk_OutSep(xnargs, 0);
 
 #define VaChk_InEval_OutEval(xname, xminargs, xnargs) \
-  VaChkHelp_Args(xname, xminargs, xnargs); \
-  VaChkHelp_InSep(xnargs-1, DELIM_EVAL); \
-  VaChkHelp_OutSep(xnargs, DELIM_EVAL);
+  VaChk_Range(xname, xminargs, xnargs); \
+  VaChk_InSep(xnargs-1, DELIM_EVAL); \
+  VaChk_OutSep(xnargs, DELIM_EVAL);
 
 /* ---------------------------------------------------------------------------
  * Miscellaneous macros.

@@ -1274,7 +1274,7 @@ FUNCTION(fun_columns)
 	Delim isep;
 
 	VaChk_Range("COLUMNS", 2, 4);
-	VaChkHelp_InSep(3, DELIM_EVAL);
+	VaChk_InSep(3, DELIM_EVAL);
 		
 	number = (unsigned int) safe_atoi(fargs[1]);
 	indent = (unsigned int) safe_atoi(fargs[3]);

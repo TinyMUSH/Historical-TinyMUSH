@@ -2625,8 +2625,8 @@ FUNCTION(fun_until)
     /* We need at least 6 arguments. The last 2 args must be delimiters. */
 
     VaChk_Range("UNTIL", 6, 12);
-    VaChkHelp_InSep(nfargs - 1, 0);
-    VaChkHelp_OutSep(nfargs, 0);
+    VaChk_InSep(nfargs - 1, 0);
+    VaChk_OutSep(nfargs, 0);
 
     lastn = nfargs - 4; 
 
