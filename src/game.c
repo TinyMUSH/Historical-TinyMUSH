@@ -1104,7 +1104,7 @@ int dump_type;
 		unlink(tmpfile);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
-			db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			db_write_out(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening crash file",
@@ -1112,7 +1112,7 @@ int dump_type;
 		}
 		break;
 	case DUMP_DB_RESTART:
-		db_write(NULL, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
+		db_write();
 		break;
 	case DUMP_DB_FLATFILE:
 		strcpy(prevfile, mudconf.gdbm);
@@ -1121,7 +1121,7 @@ int dump_type;
 		sprintf(tmpfile, "%s/%s.FLAT", mudconf.dbhome, prevfile);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
-			db_write(f, F_TINYMUSH,
+			db_write_out(f, F_TINYMUSH,
 				 UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
@@ -1137,7 +1137,7 @@ int dump_type;
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
 			/* Write a flatfile */
-			db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			db_write_out(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening killed file",
@@ -1145,7 +1145,7 @@ int dump_type;
 		}
 		break;
 	default:	
-		db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
+		db_write();
 	}
 	
 #ifndef STANDALONE

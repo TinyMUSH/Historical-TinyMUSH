@@ -1017,7 +1017,7 @@ int *db_format, *db_version, *db_flags;
 
 int db_read()
 {
-	int *data, *dptr, len, vattr_flags, i;
+	int *data, *dptr, vattr_flags, i;
 
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;
@@ -1025,12 +1025,14 @@ int db_read()
 
 	/* Fetch the database info */
 	
-	dddb_get((void *)"TM3", 4, (void **)&data, &len, DBTYPE_DBINFO);
+	DBINFO_FETCH("TM3", &data);
 	
 	if (!data) {
 		fprintf(mainlog_fp, "\nCould not open main record");
 		return -1;
 	}
+	
+	/* Unroll the data returned */
 	
 	dptr = data;
 	memcpy((void *)&mudstate.min_size, (void *)dptr, sizeof(int));
@@ -1038,32 +1040,34 @@ int db_read()
 	memcpy((void *)&mudstate.attr_next, (void *)dptr, sizeof(int));
 	dptr++;
 	memcpy((void *)&mudstate.record_players, (void *)dptr, sizeof(int));
-	XFREE(data, "dddb_get");
+	XFREE(data, "db_read.dbinfo");
 	
 	/* Load the attribute numbers */
 	
 	for (i = A_USER_START; i < mudstate.attr_next; i++) {
-		dddb_get((void *)&i, sizeof(int), (void **)&data, &len,
-			DBTYPE_ATRNUM);
+		ATRNUM_FETCH(i, &data);
 		if (data) {
+			/* Unroll the data into flags and name */
+			
 			dptr = data;	
 			memcpy((void *)&vattr_flags, (void *)dptr, sizeof(int));
 			dptr++;
 			
-			/* dptr now points to the beginning of the atr name */
 			vattr_define((char *)dptr, i, vattr_flags);
-			XFREE(data, "dddb_get");
+			XFREE(data, "db_read.atrnum");
 		}
 	}
 	
 	/* Load the object structures */
 	
 	for (i = 0; i < mudstate.min_size; i++) {
-		dddb_get((void *)&i, sizeof(int), (void **)&data, &len,
-			DBTYPE_OBJECT);
+		OBJECT_FETCH(i, &data);
 		if (data) {
 			db_grow(i + 1);
 
+			/* We read the entire object structure in and copy
+			 * it into place */
+			
 			memcpy((void *)&(db[i]), (void *)data, sizeof(DUMPOBJ));
 #ifndef NO_TIMECHECKING
 			obj_time.tv_sec = obj_time.tv_usec = 0;
@@ -1080,7 +1084,7 @@ int db_read()
 				c_Connected(i);
 			}
 			
-			XFREE(data, "dddb_get");
+			XFREE(data, "db_read.obj");
 			s_Clean(i);
 		}
 	}	
@@ -1091,7 +1095,7 @@ int db_read()
 	return (0);
 }			
 
-static int db_write_object(f, i, db_format, flags)
+static int db_write_object_out(f, i, db_format, flags)
 FILE *f;
 dbref i;
 int db_format, flags;
@@ -1106,111 +1110,114 @@ int db_format, flags;
 	BOOLEXP *tempbool;
 
 	if (Going(i)) {
-		if (flags & V_GDBM) {
-			dddb_del(&i, sizeof(int), DBTYPE_OBJECT);
+		return (0);
+	}
+	
+	fprintf(f, "!%d\n", i);
+	if (!(flags & V_ATRNAME))
+		putstring(f, Name(i));
+	putref(f, Location(i));
+	if (flags & V_ZONE)
+		putref(f, Zone(i));
+	putref(f, Contents(i));
+	putref(f, Exits(i));
+	if (flags & V_LINK)
+		putref(f, Link(i));
+	putref(f, Next(i));
+	if (!(flags & V_ATRKEY)) {
+		got = atr_get(i, A_LOCK, &aowner, &aflags, &alen);
+		tempbool = parse_boolexp(GOD, got, 1);
+		free_lbuf(got);
+		putboolexp(f, tempbool);
+		if (tempbool)
+			free_boolexp(tempbool);
+	}
+	putref(f, Owner(i));
+	if (flags & V_PARENT)
+		putref(f, Parent(i));
+	if (!(flags & V_ATRMONEY))
+		putref(f, Pennies(i));
+	putref(f, Flags(i));
+	if (flags & V_XFLAGS)
+		putref(f, Flags2(i));
+	if (flags & V_3FLAGS)
+		putref(f, Flags3(i));
+	if (flags & V_POWERS) {
+		putref(f, Powers(i));
+		putref(f, Powers2(i));
+	}
+	if (flags & V_TIMESTAMPS) {
+		putlong(f, AccessTime(i));
+		putlong(f, ModTime(i));
+	}
+
+	/* write the attribute list */
+
+	for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
+		save = 0;
+#ifndef STANDALONE
+		a = atr_num(ca);
+		if (a)
+			j = a->number;
+		else
+			j = -1;
+#else
+		j = ca;
+#endif
+
+		if (j > 0) {
+			switch (j) {
+			case A_NAME:
+				if (flags & V_ATRNAME)
+					save = 1;
+				break;
+			case A_LOCK:
+				if (flags & V_ATRKEY)
+					save = 1;
+				break;
+			case A_LIST:
+			case A_MONEY:
+				break;
+			default:
+				save = 1;
+			}
 		}
+		if (save) {
+			got = atr_get_raw(i, j);
+			fprintf(f, ">%d\n", j);
+			putstring(f, got);
+		}
+	}
+	fprintf(f, "<\n");
+	return 0;
+}
+
+static int db_write_object(i)
+dbref i;
+{
+	/* We assume you always do a dbck before dump, and Going objects
+	 * are really destroyed! */
+	 
+	if (Going(i)) {
+		OBJECT_DEL(i);
 		return (0);
 	}
 	
 #ifndef STANDALONE
-	if ((!(flags & V_GDBM)) || (mudstate.panicking == 1)) {
-#else
-	if ((!(flags & V_GDBM))) {
-#endif
-		fprintf(f, "!%d\n", i);
-		if (!(flags & V_ATRNAME))
-			putstring(f, Name(i));
-		putref(f, Location(i));
-		if (flags & V_ZONE)
-			putref(f, Zone(i));
-		putref(f, Contents(i));
-		putref(f, Exits(i));
-		if (flags & V_LINK)
-			putref(f, Link(i));
-		putref(f, Next(i));
-		if (!(flags & V_ATRKEY)) {
-			got = atr_get(i, A_LOCK, &aowner, &aflags, &alen);
-			tempbool = parse_boolexp(GOD, got, 1);
-			free_lbuf(got);
-			putboolexp(f, tempbool);
-			if (tempbool)
-				free_boolexp(tempbool);
-		}
-		putref(f, Owner(i));
-		if (flags & V_PARENT)
-			putref(f, Parent(i));
-		if (!(flags & V_ATRMONEY))
-			putref(f, Pennies(i));
-		putref(f, Flags(i));
-		if (flags & V_XFLAGS)
-			putref(f, Flags2(i));
-		if (flags & V_3FLAGS)
-			putref(f, Flags3(i));
-		if (flags & V_POWERS) {
-			putref(f, Powers(i));
-			putref(f, Powers2(i));
-		}
-		if (flags & V_TIMESTAMPS) {
-			putlong(f, AccessTime(i));
-			putlong(f, ModTime(i));
-		}
-
-		/* write the attribute list */
-
-		for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
-			save = 0;
-#ifndef STANDALONE
-			a = atr_num(ca);
-			if (a)
-				j = a->number;
-			else
-				j = -1;
-#else
-			j = ca;
-#endif
-
-			if (j > 0) {
-				switch (j) {
-				case A_NAME:
-					if (flags & V_ATRNAME)
-						save = 1;
-					break;
-				case A_LOCK:
-					if (flags & V_ATRKEY)
-						save = 1;
-					break;
-				case A_LIST:
-				case A_MONEY:
-					break;
-				default:
-					save = 1;
-				}
-			}
-			if (save) {
-				got = atr_get_raw(i, j);
-				fprintf(f, ">%d\n", j);
-				putstring(f, got);
-			}
-		}
-		fprintf(f, "<\n");
-#ifdef STANDALONE
-	} else {
-#else
-	} else if (Flags3(i) & DIRTY) {
+	if (Flags3(i) & DIRTY) {
 		/* Write the object only if it's dirty, and clear the
 		 * dirty flag */
 		
 		s_Clean(i);
 #endif		
-		/* DBREF is our key */
-		
-		dddb_put((void *)&i, sizeof(int), (void *)&(db[i]),
-			sizeof(DUMPOBJ), DBTYPE_OBJECT);
+		OBJECT_STORE(i);
+#ifndef STANDALONE
 	}
+#endif
 	return 0;
 }
 
-dbref db_write(f, format, version)
+dbref db_write_out(f, format, version)
 FILE *f;
 int format, version;
 {
@@ -1218,9 +1225,6 @@ int format, version;
 	int flags;
 	VATTR *vp;
 	int *data, *dptr, len;
-
-	/* If you're dumping to DBM then 'f' should be NULL since we don't
-	 * use it */
 
 #ifndef MEMORY_BASED
 	al_store();
@@ -1242,30 +1246,73 @@ int format, version;
 
 	i = mudstate.attr_next;
 
-#ifndef STANDALONE
-	if ((!(flags & V_GDBM)) || (mudstate.panicking == 1)) {
-#else
-	if ((!(flags & V_GDBM))) {
-#endif
-		/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
-		fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
-		fprintf(f, "-R%d\n", mudstate.record_players);
-	} else {
-		/* This should be the only data record of its type */
-		
-		dptr = data = (int *)XMALLOC(3 * sizeof(int), "db_write");
-		memcpy((void *)dptr, (void *)&mudstate.db_top, sizeof(int));
-		dptr++;
-		memcpy((void *)dptr, (void *)&i, sizeof(int));
-		dptr++;
-		memcpy((void *)dptr, (void *)&mudstate.record_players, sizeof(int));
-		
-		/* "TM3" is our unique key */
-		
-		dddb_put((void *)"TM3", 4, (void *)data, (3 * sizeof(int)),
-			DBTYPE_DBINFO);
-		XFREE(data, "db_write");
+	/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
+	fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
+	fprintf(f, "-R%d\n", mudstate.record_players);
+
+	/* Dump user-named attribute info */
+
+	vp = vattr_first();
+	while (vp != NULL) {
+		if (!(vp->flags & AF_DELETED)) {
+			fprintf(f, "+A%d\n\"%d:%s\"\n",
+				vp->number, vp->flags, vp->name);
+		}
+		vp = vattr_next(vp);
 	}
+
+	DO_WHOLE_DB(i) {
+
+#ifdef STANDALONE
+		if (!(i % 100)) {
+			fputc('.', mainlog_fp);
+		}
+#endif
+
+		db_write_object_out(f, i, format, flags);
+	}
+
+	fputs("***END OF DUMP***\n", f);
+	fflush(f);
+	
+#ifdef STANDALONE
+	fprintf(mainlog_fp, "\n");
+#endif
+	return (mudstate.db_top);
+}
+
+dbref db_write()
+{
+	dbref i;
+	VATTR *vp;
+	int *data, *dptr, len;
+
+#ifndef MEMORY_BASED
+	al_store();
+#endif /* MEMORY_BASED */
+
+#ifdef STANDALONE
+	fprintf(mainlog_fp, "Writing ");
+#endif
+
+	/* Write database information */
+
+	i = mudstate.attr_next;
+
+	/* Roll up various paramaters needed for startup into one record.
+	 * This should be the only data record of its type */
+		
+	dptr = data = (int *)XMALLOC(3 * sizeof(int), "db_write");
+	memcpy((void *)dptr, (void *)&mudstate.db_top, sizeof(int));
+	dptr++;
+	memcpy((void *)dptr, (void *)&i, sizeof(int));
+	dptr++;
+	memcpy((void *)dptr, (void *)&mudstate.record_players, sizeof(int));
+		
+	/* "TM3" is our unique key */
+		
+	DBINFO_STORE("TM3", data, 3 * sizeof(int));
+	XFREE(data, "db_write");
 		
 
 	/* Dump user-named attribute info */
@@ -1274,16 +1321,7 @@ int format, version;
 	while (vp != NULL) {
 		if (!(vp->flags & AF_DELETED)) {
 #ifndef STANDALONE
-			if ((!(flags & V_GDBM)) || (mudstate.panicking == 1)) {
-#else
-			if ((!(flags & V_GDBM))) {
-#endif
-				fprintf(f, "+A%d\n\"%d:%s\"\n",
-					vp->number, vp->flags, vp->name);
-#ifdef STANDALONE
-			} else {
-#else
-			} else if (vp->flags & AF_DIRTY) {
+			if (vp->flags & AF_DIRTY) {
 				/* Only write the dirty attribute numbers
 				 * and clear the flag */
 				 
@@ -1297,20 +1335,14 @@ int format, version;
 				
 				/* Attribute number is our key */
 				
-				dddb_put((void *)&vp->number, sizeof(int),
-					data, sizeof(int) + len, DBTYPE_ATRNUM);
+				ATRNUM_STORE(vp->number, data, len);
 				XFREE(data, "db_write");
-			}
-		} else {
 #ifndef STANDALONE
-			if ((!(flags & V_GDBM)) || (mudstate.panicking == 1)) {
-#else
-			if ((!(flags & V_GDBM))) {
-#endif
-				/* Delete the attribute number entry */
-				dddb_del((void *)vp->number, sizeof(int),
-					DBTYPE_ATRNUM);
 			}
+#endif
+		} else {
+			/* Delete the attribute number entry */
+			ATRNUM_DEL(vp->number);
 		}
 		vp = vattr_next(vp);
 	}
@@ -1323,18 +1355,9 @@ int format, version;
 		}
 #endif
 
-		db_write_object(f, i, format, flags);
+		db_write_object(i);
 	}
 
-#ifndef STANDALONE
-	if ((!(flags & V_GDBM)) || (mudstate.panicking == 1)) {
-#else
-	if ((!(flags & V_GDBM))) {
-#endif
-		fputs("***END OF DUMP***\n", f);
-		fflush(f);
-	}
-	
 #ifdef STANDALONE
 	fprintf(mainlog_fp, "\n");
 #endif

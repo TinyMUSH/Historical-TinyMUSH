@@ -27,6 +27,31 @@
 #define OPTIMIZE
 #endif
 
+#define DBINFO_FETCH(key, data)	dddb_get((void *)key, strlen(key) + 1, \
+					(void **)data, NULL, \
+					DBTYPE_DBINFO);
+#define DBINFO_STORE(key, data, len) \
+				dddb_put((void *)key, strlen(key) + 1, \
+					(void *)data, len, \
+					DBTYPE_DBINFO);
+#define ATRNUM_FETCH(key, data)	dddb_get((void *)&key, sizeof(int), \
+					(void **)data, NULL, \
+					DBTYPE_ATRNUM);
+#define ATRNUM_STORE(key, data, len) \
+				dddb_put((void *)&key, sizeof(int), \
+					(void *)data, sizeof(int) + len, \
+					DBTYPE_ATRNUM);
+#define ATRNUM_DEL(key)		dddb_del((void *)&key, sizeof(int), \
+					DBTYPE_ATRNUM);
+#define OBJECT_FETCH(key, data)	dddb_get((void *)&key, sizeof(int), \
+					(void **)data, NULL, \
+					DBTYPE_OBJECT);
+#define OBJECT_STORE(key)	dddb_put((void *)&key, sizeof(int), \
+					(void *)&(db[key]), sizeof(DUMPOBJ), \
+					DBTYPE_OBJECT);
+#define OBJECT_DEL(key)		dddb_del((void *)&key, sizeof(int), \
+					DBTYPE_OBJECT);
+
 #include "udb.h"
 #include "udb_defs.h"
 
@@ -338,7 +363,8 @@ extern void	NDECL(db_free);
 extern void	NDECL(db_make_minimal);
 extern dbref	FDECL(db_convert, (FILE *, int *, int *, int *));
 extern dbref	NDECL(db_read);
-extern dbref	FDECL(db_write, (FILE *, int, int));
+extern dbref	FDECL(db_write_out, (FILE *, int, int));
+extern dbref	NDECL(db_write);
 extern void	FDECL(destroy_thing, (dbref));
 extern void	FDECL(destroy_exit, (dbref));
 

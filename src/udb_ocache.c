@@ -63,7 +63,6 @@ extern void FDECL(raw_notify, (dbref, const char *));
 			 * queue cycle, ignore it-- else increment the counter
 			 */
 #define REFTIME(cp)	if (mudstate.now != cp->lastreferenced) { \
-				cp->referenced++; \
 				cp->lastreferenced = mudstate.now; \
 			}
 #else /* STANDALONE */
@@ -71,7 +70,6 @@ extern void FDECL(raw_notify, (dbref, const char *));
 			 * two seconds, ignore it-- else increment the counter
 			 */
 #define REFTIME(cp)	if ((time(NULL) - cp->lastreferenced) > 2) { \
-				cp->referenced++; \
 				cp->lastreferenced = time(NULL); \
 			}
 #endif /* STANDALONE */
@@ -272,9 +270,9 @@ void list_cached_objs(player)
 
     raw_notify(player, "Active Cache:");
     raw_notify(player, 
-       "Name                    Attribute               Dbref   Age    Refs   Size");
+       "Name                    Attribute               Dbref   Age    Size");
     raw_notify(player,
-       "==========================================================================");
+       "===================================================================");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
             if (cp->data && (cp->type == DBTYPE_ATTRIBUTE)) {
@@ -282,18 +280,18 @@ void list_cached_objs(player)
                 asize += cp->datalen;
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
 		raw_notify(player, 
-			tprintf("%-23.23s %-23.23s #%-6d %-6d %-6d %-6d", PureName(((Aname *)cp->keydata)->object),
+			tprintf("%-23.23s %-23.23s #%-6d %-6d %-6d", PureName(((Aname *)cp->keydata)->object),
 			(atr ? atr->name : "(Unknown)"), ((Aname *)cp->keydata)->object, (int) (mudstate.now - cp->lastreferenced), 
-			cp->referenced, cp->datalen));
+			cp->datalen));
             }
         }
     }
 
     raw_notify(player, "\nModified Active Cache:");
     raw_notify(player, 
-       "Name                    Attribute               Dbref   Age    Refs   Size");
+       "Name                    Attribute               Dbref   Age    Size");
     raw_notify(player,
-       "==========================================================================");
+       "===================================================================");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
             if (cp->data && (cp->type == DBTYPE_ATTRIBUTE)) {
@@ -301,9 +299,9 @@ void list_cached_objs(player)
                 asize += cp->datalen;
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
 		raw_notify(player, 
-			tprintf("%-23.23s %-23.23s #%-6d %-6d %-6d %-6d", PureName(((Aname *)cp->keydata)->object),
+			tprintf("%-23.23s %-23.23s #%-6d %-6d %-6d", PureName(((Aname *)cp->keydata)->object),
 			(atr ? atr->name : "(Unknown)"), ((Aname *)cp->keydata)->object, (int) (mudstate.now - cp->lastreferenced), 
-			cp->referenced, cp->datalen));
+			cp->datalen));
             }
         }
     }
@@ -732,7 +730,6 @@ replace:
 	cp->data = NULL;
 	cp->datalen = 0;
 	cp->type = DBTYPE_EMPTY;
-	cp->referenced = 1;
 #ifndef STANDALONE
 	cp->lastreferenced = mudstate.now;
 #else

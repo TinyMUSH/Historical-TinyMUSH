@@ -252,7 +252,11 @@ char *argv[];
 			db_ver = 3;
 		fprintf(mainlog_fp, "Output: ");
 		info(F_TINYMUSH, db_flags, db_ver);
-		db_write(stdout, F_TINYMUSH, db_ver | db_flags);
+		if (db_flags & V_GDBM) {
+			db_write();
+		} else {
+			db_write_out(stdout, F_TINYMUSH, db_ver | db_flags);
+		}
 	}
 	CLOSE;
 	exit(0);
