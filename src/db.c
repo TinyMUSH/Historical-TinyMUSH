@@ -770,38 +770,24 @@ char *s;
 }
 
 void safe_exit_name(it, buff, bufc)
-    dbref it;
-    char *buff, **bufc;
+dbref it;
+char *buff, **bufc;
 {
-    char *startp, *savep, *bp;
-    int have_normal, is_ansi = 0;
+	char *s = *bufc;
+	int ansi_state = ANST_NORMAL;
 
-    bp = *bufc;
-    startp = bp;
-    safe_name(it, buff, &bp);
+	safe_name(it, buff, bufc);
 
-    bp = startp;
-    while (*bp && (*bp != EXIT_DELIMITER)) {
-	if (*bp == ESC_CHAR) {
-	    is_ansi = 1;
-	    savep = bp;
-	    while (*bp && (*bp != ANSI_END))
-		bp++;
-	    if (*bp)
-		bp++;
-	    if (!strncmp(savep, ANSI_NORMAL, 4))
-		have_normal = 1;
-	    else
-		have_normal = 0;
-	} else {
-	    bp++;
+	while (*s && (*s != EXIT_DELIMITER)) {
+		if (*s == ESC_CHAR) {
+			track_esccode(s, ansi_state);
+		} else {
+			++s;
+		}
 	}
-    }
 
-    if (is_ansi && !have_normal)
-	safe_ansi_normal(buff, &bp);
-    *bp = '\0';
-    *bufc = bp;
+	*bufc = s;
+	safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL), buff, bufc);
 }
 
 void s_Pass(thing, s)
