@@ -1889,7 +1889,7 @@ char *argv[];
 	
 	db_unlock();
 	
-	CLOSE;
+	DBCLOSE;
 	exit(0);
 }
 
