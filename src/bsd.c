@@ -1013,6 +1013,8 @@ DESC *d;
 				lost++;
 		}
 	}
+	if (in < 0)		/* backspace and delete by themselves */
+	    in = 0;
 	if (p > d->raw_input->cmd) {
 		d->raw_input_at = p;
 	} else {
