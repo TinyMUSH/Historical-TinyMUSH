@@ -170,6 +170,7 @@ XFUNCTION(fun_time);
 XFUNCTION(fun_secs);
 XFUNCTION(fun_convsecs);
 XFUNCTION(fun_convtime);
+XFUNCTION(fun_timefmt);
 XFUNCTION(fun_starttime);
 XFUNCTION(fun_restarts);
 XFUNCTION(fun_restarttime);
@@ -673,6 +674,7 @@ FUN flist[] = {
 {"TAN",		fun_tan,	1,  0,		CA_PUBLIC},
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC},
+{"TIMEFMT",	fun_timefmt,	0,  FN_VARARGS, CA_PUBLIC},
 {"TOSS",	fun_toss,	0,  FN_VARARGS, CA_PUBLIC},
 {"TRANSLATE",	fun_translate,	2,  0,		CA_PUBLIC},
 {"TRIGGER",	fun_trigger,	0,  FN_VARARGS, CA_PUBLIC},

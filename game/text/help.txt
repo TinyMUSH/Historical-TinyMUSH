@@ -5302,7 +5302,7 @@ See also: @link, @open.
 	remit()		restarts()	restarttime()	s()		
 	secs()		setq()		setr()		sql()		
 	starttime()	subeval()	switch()	switchall()
-	time()		version()
+	time()		timefmt()	version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -6291,7 +6291,67 @@ performed and the walk down the list stops.
     > say time()
     You say "Thu Dec 19 09:48:06 1991"
   See also: convsecs(), convtime(), secs().
-
+ 
+& TIMEFMT()
+  Function: timefmt(<format>[, <time in seconds>])
+ 
+  This function returns a formatted time. If <time in seconds> is not
+  specified, the current time is used. This is based on the local time
+  zone of the MUSH's host machine.
+ 
+  The supported time format codes are listed below. Depending on the host
+  machine's operating system, not all of the codes below might be supported;
+  see the host system's documentation for strftime(3C). The less-common
+  codes are marked with a '*', below.
+ 
+  Example:
+    > say timefmt(Today is $A. The year is $Y. It is $B $d.)
+    You say "Today is Sunday. The year is 2001. It is January 14."
+ 
+  Day of week codes:
+    $a - Abbreviated, Sun-Sat           $A - Full, Sunday-Saturday
+    $w - Numeric, 0-6, Sunday is 0
+ 
+  Continued in 'help timefmt2'.
+ 
+& timefmt2
+ 
+  Day of month codes:
+    $d - 01-31                          $e - 1-31, field width of 2 (*)
+ 
+  Month codes:
+    $b - Abbreviated, Jan-Dec           $B - Full, January-December 
+    $m - Numeric, 01-12
+ 
+  Year codes:
+    $y - Two-digit year, 00-99          $Y - Four-digit year
+    $C - Century number
+ 
+  Time codes:
+    $H - Hour of 24-hour day, 00-23     $I - Hour of 12-hour day, 01-12
+    $M - Minutes, 00-59                 $S - Seconds, 00-60
+    $p - AM/PM (*)                      $P - am/pm (AM/PM on some systems)
+    $z - GMT offset, i.e. -0800 (*)     $Z - Time zone name, i.e. PST
+ 
+  Continued in 'help timefmt3'.
+ 
+& timefmt3
+ 
+  Year-related time codes:
+    $j - Day number of year, 001-366
+    $U - Week of the year, 00-53, Sunday is the first day of week 1
+    $W - Week of the year, 00-53, Monday is the first day of week 1
+ 
+  Pre-formatted strings:
+    $c - Date and time, comparable to results of convtime()
+    $D - Date equivalent to $m/$d/$y (*)
+    $r - Twelve-hour time representation, probably $I:$M:$S $p (*)
+    $R - Time format equivalent to $H:$M (*)
+    $x - Date, in format appropriate to local timezone
+    $X - Time, in format appropriate to local timezone
+ 
+  $$ - Literal '$' character
+ 
 & RAND()
   Function: rand(<num>)
  

@@ -664,6 +664,71 @@ FUNCTION(fun_convtime)
 		safe_known_str("-1", 2, buff, bufc);
 }
 
+/* ---------------------------------------------------------------------------
+ * fun_timefmt: Interface to strftime().
+ */
+
+FUNCTION(fun_timefmt)
+{
+    time_t tt;
+    struct tm *ttm;
+    char str[LBUF_SIZE], tbuf[LBUF_SIZE], *tp, *p;
+    int len;
+
+    /* Check number of arguments. */
+
+    if ((nfargs < 1) || !fargs[0] || !*fargs[0])
+	return;
+    if (nfargs == 1) {
+	tt = mudstate.now;
+    } else if (nfargs == 2) {
+	tt = (time_t) atol(fargs[1]);
+	if (tt < 0) {
+	    safe_str("#-1 INVALID TIME", buff, bufc);
+	    return;
+	}
+    } else {
+	safe_str("#-1 FUNCTION (TIMEFMT) EXPECTS 1 OR 2 ARGUMENTS",
+		 buff, bufc);
+	return;
+    }
+
+    /* Construct the format string. We need to convert instances of '$'
+     * into percent signs for strftime(), unless we get a '$$', which
+     * we treat as a literal '$'. Step on '$n' as invalid (output literal
+     * '%n'), because some strftime()s use it to insert a newline.
+     */
+
+    for (tp = tbuf, p = fargs[0], len = 0;
+	 *p && (len < LBUF_SIZE - 2);
+	 tp++, p++) {
+	if (*p == '%') {
+	    *tp++ = '%';
+	    *tp = '%';
+	} else if (*p == '$') {
+	    if (*(p+1) == '$') {
+		*tp = '$';
+		p++;
+	    } else if (*(p+1) == 'n') {
+		*tp++ = '%';
+		*tp++ = '%';
+		*tp = 'n';
+		p++;
+	    } else {
+		*tp = '%';
+	    }
+	} else {
+	    *tp = *p;
+	}
+    }
+    *tp = '\0';
+
+    /* Get the time and format it. We do this using the local timezone. */
+
+    ttm = localtime(&tt);
+    strftime(str, LBUF_SIZE - 1, tbuf, ttm);
+    safe_str(str, buff, bufc);
+}
 
 /* ---------------------------------------------------------------------------
  * fun_starttime: What time did this system last reboot?
