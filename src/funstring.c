@@ -1560,6 +1560,18 @@ FUNCTION(fun_border)
     perform_border(player, buff, bufc, fargs, nfargs, BORDER_LJUST);
 }
 
+FUNCTION(fun_rborder)
+{
+    xvarargs_preamble("RBORDER", 2, 4);
+    perform_border(player, buff, bufc, fargs, nfargs, BORDER_RJUST);
+}
+
+FUNCTION(fun_cborder)
+{
+    xvarargs_preamble("CBORDER", 2, 4);
+    perform_border(player, buff, bufc, fargs, nfargs, BORDER_CENTER);
+}
+
 /* ---------------------------------------------------------------------------
  * Misc functions.
  */

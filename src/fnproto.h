@@ -302,6 +302,8 @@ XFUNCTION(fun_lpos);
 XFUNCTION(fun_wordpos);
 XFUNCTION(fun_repeat);
 XFUNCTION(fun_border);
+XFUNCTION(fun_rborder);
+XFUNCTION(fun_cborder);
 XFUNCTION(fun_cat);
 XFUNCTION(fun_strcat);
 XFUNCTION(fun_strlen);
@@ -404,6 +406,7 @@ FUN flist[] = {
 {"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
 {"CAT",		fun_cat,	0,  FN_VARARGS,	CA_PUBLIC},
+{"CBORDER",	fun_cborder,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CEIL",	fun_ceil,	1,  0,		CA_PUBLIC},
 {"CENTER",	fun_center,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CHILDREN",    fun_children,   1,  0,          CA_PUBLIC},
@@ -598,6 +601,7 @@ FUN flist[] = {
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC},
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
+{"RBORDER",	fun_rborder,	0,  FN_VARARGS,	CA_PUBLIC},
 {"READ",	fun_read,	3,  0,		CA_PUBLIC},
 {"REGEDIT",	fun_regedit,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGEDITALL",	fun_regeditall,	0,  FN_VARARGS, CA_PUBLIC},
