@@ -583,10 +583,20 @@ char *flag;
 		notify_quiet(player, "I don't know about that flag.");
 	} else if (key == GLOB_ENABLE) {
 		mudconf.control_flags |= flagvalue;
+		STARTLOG(LOG_CONFIGMODS, "CFG", "GLOBAL")
+		    log_name(player);
+		    log_text((char *) " enabled: ");
+		    log_text(flag);
+		ENDLOG
 		if (!Quiet(player))
 			notify_quiet(player, "Enabled.");
 	} else if (key == GLOB_DISABLE) {
 		mudconf.control_flags &= ~flagvalue;
+		STARTLOG(LOG_CONFIGMODS, "CFG", "GLOBAL")
+		    log_name(player);
+		    log_text((char *) " disabled: ");
+		    log_text(flag);
+		ENDLOG
 		if (!Quiet(player))
 			notify_quiet(player, "Disabled.");
 	} else {
