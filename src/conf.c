@@ -942,7 +942,7 @@ int add_helpfile(player, str)
 	/* We need to allocate a new command structure. */
 
 	cmdp = (CMDENT *) malloc(sizeof(CMDENT));
-	cmdp->cmdname = (char *) strdup(filecmd);
+	cmdp->cmdname = (char *) strdup(fcmd);
 	cmdp->switches = NULL;
 	cmdp->perms = 0;
 	cmdp->extra = mudstate.helpfiles;
@@ -951,7 +951,7 @@ int add_helpfile(player, str)
 	cmdp->callseq = CS_ONE_ARG;
 	cmdp->info.handler = do_help;
 
-	hashadd(filecmd, (int *) cmdp, &mudstate.command_htab);
+	hashadd(fcmd, (int *) cmdp, &mudstate.command_htab);
 
     } else {
 
