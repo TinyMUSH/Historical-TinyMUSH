@@ -466,6 +466,8 @@ extern STATEDATA mudstate;
 #define LOG_WIZARD	0x00002000	/* Log dangerous things */
 #define LOG_ALLOCATE	0x00004000	/* Log alloc/free from buffer pools */
 #define LOG_PROBLEMS	0x00008000	/* Log runtime problems */
+#define LOG_KBCOMMANDS	0x00010000	/* Log keyboard commands */
+#define LOG_SUSPECTCMDS	0x00020000	/* Log SUSPECT player keyboard cmds */
 #define LOG_ALWAYS	0x80000000	/* Always log it */
 
 #define LOGOPT_FLAGS		0x01	/* Report flags on object */

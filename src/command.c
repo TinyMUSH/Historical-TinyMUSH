@@ -1273,13 +1273,20 @@ char *command, *args[];
 		mudstate.debug_cmd = cmdsave;
 		return command;
 	}
-	STARTLOG(LOG_ALLCOMMANDS, "CMD", "ALL")
+
+	if (Suspect(player)) {
+	    STARTLOG(LOG_SUSPECTCMDS, "CMD", "SUSP")
 		log_name_and_loc(player);
-	bp = lcbuf = alloc_lbuf("process_command.LOG.allcmds");
-	safe_tprintf_str(lcbuf, &bp, " entered: '%s'", command);
-	log_text(lcbuf);
-	free_lbuf(lcbuf);
-	ENDLOG
+	        log_text(" entered: ");
+		log_text(command);
+	    ENDLOG
+	} else {
+	    STARTLOG(LOG_ALLCOMMANDS, "CMD", "ALL")
+		log_name_and_loc(player);
+	        log_text(" entered: ");
+		log_text(command);
+  	   ENDLOG
+       }
 
 	/* Reset recursion limits */
 

@@ -34,6 +34,7 @@ NAMETAB logoptions_nametab[] = {
 {(char *)"checkpoints",		2,	0,	LOG_DBSAVES},
 {(char *)"config_changes",	2,	0,	LOG_CONFIGMODS},
 {(char *)"create",		2,	0,	LOG_PCREATES},
+{(char *)"keyboard_commands",	2,	0,	LOG_KBCOMMANDS},
 {(char *)"killing",		1,	0,	LOG_KILLS},
 {(char *)"logins",		1,	0,	LOG_LOGIN},
 {(char *)"network",		1,	0,	LOG_NET},
@@ -41,6 +42,7 @@ NAMETAB logoptions_nametab[] = {
 {(char *)"security",		2,	0,	LOG_SECURITY},
 {(char *)"shouts",		2,	0,	LOG_SHOUTS},
 {(char *)"startup",		2,	0,	LOG_STARTUP},
+{(char *)"suspect_commands",	2,	0,	LOG_SUSPECTCMDS},
 {(char *)"wizard",		1,	0,	LOG_WIZARD},
 { NULL,				0,	0,	0}};
 

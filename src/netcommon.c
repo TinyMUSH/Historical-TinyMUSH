@@ -1896,7 +1896,7 @@ void NDECL(process_commands)
 	int nprocessed;
 	DESC *d, *dnext;
 	CBLK *t;
-	char *cmdsave;
+	char *cmdsave, *logbuf;
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"process_commands";
@@ -1911,6 +1911,14 @@ void NDECL(process_commands)
 				if (!d->input_head)
 					d->input_tail = NULL;
 				d->input_size -= (strlen(t->cmd) + 1);
+				STARTLOG(LOG_KBCOMMANDS, "CMD", "KBRD")
+				    logbuf = alloc_mbuf("proc_cmds.LOG");
+				    sprintf(logbuf, "[%d/%s] Cmd: ",
+					    d->descriptor, d->addr);
+				    log_text(logbuf);
+				    free_mbuf(logbuf);
+				    log_text(t->cmd);
+				ENDLOG
 				if (d->program_data != NULL)
 					handle_prog(d, t->cmd);
 				else
