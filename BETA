@@ -60,6 +60,9 @@ Release history:
 - Fix: Restore script determines database name from archive name by
   removing .tar.gz, not truncating at second dot. [3.1a9; Scott Schappell]
 
+- Fix: Backup/Restore scripts use tar -P to preserve the leading slash in
+  absolute pathnames. [3.1a9; Scott Schappell]
+
 - Misc: The expanded_who power no longer grants the ability to see
   Dark players in WHO. (Previously those with the power could, but
   weren't able to get that info via functions.)
