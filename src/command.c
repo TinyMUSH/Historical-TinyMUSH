@@ -1212,7 +1212,7 @@ int interactive, ncargs;
 	 * leave this to the hook-adder to prevent.
 	 */
 
-	if (cmdp->pre_hook != NULL) {
+	if ((cmdp->pre_hook != NULL) && !(cmdp->callseq & CS_ADDED)) {
 	    process_hook(cmdp->pre_hook, cmdp->callseq & CS_PRESERVE,
 			 player, cause, cargs, ncargs);
 	}
@@ -1452,7 +1452,7 @@ int interactive, ncargs;
 
 	/* And now we go do the posthook, if we have one. */
 
-	if (cmdp->post_hook != NULL) {
+	if ((cmdp->post_hook != NULL) && !(cmdp->callseq & CS_ADDED)) {
 	    process_hook(cmdp->post_hook, cmdp->callseq & CS_PRESERVE,
 			 player, cause, cargs, ncargs);
 	}
@@ -1616,14 +1616,16 @@ char *command, *args[];
 		exit = last_match_result();
 		if (exit != NOTHING) {
 		    /* Execute the pre-hook for the goto command */
-		    if (goto_cmdp->pre_hook != NULL) {
+		    if ((goto_cmdp->pre_hook != NULL) &&
+			!(goto_cmdp->callseq & CS_ADDED)) {
 			process_hook(goto_cmdp->pre_hook,
 				     goto_cmdp->callseq & CS_PRESERVE,
 				     player, cause, args, nargs);
 		    }
 		    move_exit(player, exit, 0, "You can't go that way.", 0);
 		    /* Execute the post-hook for the goto command */
-		    if (goto_cmdp->post_hook != NULL) {
+		    if ((goto_cmdp->post_hook != NULL) &&
+			!(goto_cmdp->callseq & CS_ADDED)) {
 			process_hook(goto_cmdp->post_hook,
 				     goto_cmdp->callseq & CS_PRESERVE,
 				     player, cause, args, nargs);
@@ -1639,14 +1641,16 @@ char *command, *args[];
 		exit = last_match_result();
 		if (exit != NOTHING) {
 		    /* Execute the pre-hook for the goto command */
-		    if (goto_cmdp->pre_hook != NULL) {
+		    if ((goto_cmdp->pre_hook != NULL) &&
+			!(goto_cmdp->callseq & CS_ADDED)) {
 			process_hook(goto_cmdp->pre_hook,
 				     goto_cmdp->callseq & CS_PRESERVE,
 				     player, cause, args, nargs);
 		    }
 		    move_exit(player, exit, 1, NULL, 0);
 		    /* Execute the post-hook for the goto command */
-		    if (goto_cmdp->post_hook != NULL) {
+		    if ((goto_cmdp->post_hook != NULL) &&
+			!(goto_cmdp->callseq & CS_ADDED)) {
 			process_hook(goto_cmdp->post_hook,
 				     goto_cmdp->callseq & CS_PRESERVE,
 				     player, cause, args, nargs);

@@ -905,6 +905,8 @@ char *s;
 		cmd->switches = NULL;
 		cmd->perms = 0;
 		cmd->extra = 0;
+		cmd->pre_hook = NULL;
+		cmd->post_hook = NULL;
 		if (old && (old->callseq & CS_LEADIN)) {
 			cmd->callseq = CS_ADDED|CS_ONE_ARG|CS_LEADIN;
 		} else {
