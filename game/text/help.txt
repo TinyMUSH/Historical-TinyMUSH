@@ -11137,15 +11137,19 @@ traced from the caller's scope.
   at the official TinyMUSH 3.0 home, http://www.godlike.com/tinymush-3.0/
  
   The MUSH Manual can be found at http://www.godlike.com/mushman/
+  It might also be accessible by typing 'man' within this MUSH.
  
   General information about MUDs and a MUSH list can be found on the
   MUD Resource Collection, at http://www.godlike.com/muds/
  
+  The MUD Connector is an excellent general MUD list. It can be found
+  at http://www.mudconnect.com/
+ 
   Users may also be interested in the TinyFugue client, available from
-  laurel.actlab.utexas.edu, in /pub/tinyfugue.
+  http://www.muq.org/~hawkeye/tf/
  
   Also useful is the LogEdit program, a tool for quickly editing logs,
-  available from pennmush.tinymush.org, in /pub/DuneMUSH/Accessories. 
+  available from ftp.pennmush.org, in /pub/PennMUSH/Accessories. 
  
 & Writing News
  
@@ -11162,9 +11166,10 @@ file, enter a line with a single space on it. You may want to avoid
 by them. You will probably want to make individual news topics no more
 than 23 lines long, in order to accomodate screen sizes.
  
-Percent-substitutions are evaluated inside news files, so you can use
-ANSI color codes in them. Be aware that this means you will need to
-escape certain special characters, such as the backslash and percent.
+Percent-substitutions are evaluated inside files added with the
+'helpfile' config directive, so you can use ANSI color codes in
+them. Be aware that this means you will need to escape certain special
+characters, such as the backslash and percent.
  
 You must use the 'mkindx' program to re-index the news file when it
 is changed. If you change any text files while the game is running,
@@ -11172,7 +11177,767 @@ a Wizard must do a @readcache from within the game.
  
 & Patchlevel
  
-TinyMUSH 3.0 starts out from a fusion of the TinyMUSH 2.2.5 and TinyMUX 1.6
-code bases. In the future, this entry will contain TinyMUSH 3.0 ongoing
-changes.
+TinyMUSH 3.0 began with the fusion of the TinyMUSH 2.2.5 and TinyMUX 1.6
+code bases.
+ 
+The user-visible changes to TinyMUSH 3.0 can be found in the following
+help entries:
+ 
+'help 3.0 base'		New/enhanced base server and configuration directives.
+'help 3.0 flags'	New/enhanced flags and powers.
+'help 3.0 commands'	New/enhanced commands.
+'help 3.0 functions'	New/enhanced functions.
+'help upgrade mush'	What's different from TinyMUSH 2.2.
+'help upgrade mux'	What's different from TinyMUX 1.6.
+ 
+& 3.0 base
+ 
+- GNU dbm 1.8.0 is required. Database code has been rewritten to take
+  advantage of its features. Dumps are now automatically optimized (though
+  you can turn this off using the new conf parameter opt_frequency), and
+  you may safely back up the MUSH while it is running, either internally
+  (through @dump/flatfile) or externally (through the Backup script).
+ 
+- An interface to an external SQL database is now supported, through
+  the SQL() function and supporting administrative commands. Currently,
+  modules for mSQL and MySQL are available.
+ 
+- There is now a generic indexed-textfile facility, allowing 'news'-like
+  commands and their associated files to be specified via the 'helpfile'
+  and 'raw_helpfile' parameters in the conf file.
+ 
+- The readability of a configuration parameter can be set via the
+  config_read_access param, and can be listed with @list config_read_perms.
+  A config() function allows players to obtain the value of a configuration
+  parameter that they have permission to read.
+ 
+Continued in 'help 3.0 base2'.
+ 
+& 3.0 base2
+ 
+- The new game_log and divert_log parameters allow the logs for different
+  types of events to be sent to different files. The new @logrotate
+  command allows these logfiles to be rotated while the game is running.
+  Logfiles are also rotated when a @restart is done. Old log are marked
+  with a timestamp in seconds. The new Logclean script simplifies 
+  cleanup of old logfiles.
+ 
+- Command-table additions (@addcommand and family) are supported (a
+  cleaned-up version of the MUX implementation). Three new conf parameters:
+    - addcommands_match_blindly (defaults to 'yes', controls whether or not
+      a 'Huh?' is produced when a match on an @addcommand'd command doesn't
+      actually match a $command)
+    - addcommands_obey_stop (defaults to 'no') controls whether or not an
+      object with the Stop flag actually enforces a stop of match attempts
+      when a match is found on an @addcomand for that object.
+    - addcommands_obey_uselocks (defaults to 'no') controls whether or not
+      the uselock is checked when an added command is matched.
+  (The defaults are MUX behavior; we suggest that the reverse of the
+  defaults is more desirable, though.)
+ 
+Continued in 'help 3.0 base3'.
+ 
+& 3.0 base3
+ 
+- There are now command "hooks", implemented via the @hook command. Hooks
+  are functions which execute before and/or after a built-in command;
+  using side-effect functions, it is thus possible to customize a
+  command without needing to write a full-blown @addcommand for it,
+  or to execute things before/after every move through an exit.
+ 
+- The term "zone" is now used for two things: MUX-style control-oriented
+  zones, and 2.2-style local-master-rooms. Both types of zones default
+  to on (local_master_rooms and have_zones conf parameters). MUX-style
+  zones now use ControlLock rather than EnterLock, and only objects
+  set CONTROL_OK may be controlled by a ZMO; this provides slightly
+  better security. A new config parameter, 'autozone', controls
+  whether or not objects are automatically zoned to their creator's
+  ZMO at the time of their creation.
+ 
+- The comsystem has been rewritten, resulting in a variety of minor
+  syntax changes and alterations and enhancements to functionality.
+  Default channel aliases can now be set with the public_calias and
+  guests_calias config parameters.
+ 
+Continued in 'help 3.0 base4'.
+ 
+& 3.0 base4
+ 
+- Variable destination exits are implemented, via the "variable" keyword
+  and the ExitTo attribute; the destination of the exit is determined when
+  it is used. The link_variable power has been added in support of this.
+  (This works in a way similar to PennMUSH's variable destination exits,
+  but ExitTo was used instead of Destination, to reduce likelihood of
+  previous attribute conflicts.)
+ 
+- Optional uselock checking for global aconnects has been implemented.
+  (2.2 had this by default; MUX did not have this.)
+ 
+- The disconnect reason is passed for master-room disconnects, too.
+ 
+- When the new conf parameter dark_actions is enabled, objects set Dark
+  still trigger @a-actions when moving, unless the /quiet switch is
+  specified.
+ 
+Continued in 'help 3.0 base5'.
+ 
+& 3.0 base5
+ 
+- When the new conf parameter exit_calls_move is enabled, trying to go
+  through an exit by just typing its name is equivalent to typing
+  'move <exit name>', allowing this to be intercepted by a move
+  @addcommand.
+ 
+- When the new conf parameter move_match_more is enabled, the move
+  command matches exits like the main command parser does, i.e., it
+  also checks global and zone exits, and in the case of multiple 
+  matches, picks a random match.
+ 
+- When the new conf parameter no_ambiguous_match is enabled, ambiguous
+  matches always result in a random selection amongst the matches (i.e.,
+  you will never get a "I don't know which one you mean!" message).
+ 
+- The new conf parameter guest_starting_room allows Guest characters to
+  start in a different default room than other characters.
+ 
+- The MUSH manual is included in the distribution in helpfile format.
+  (Thanks to Alierak and sTiLe.)  It should be accessible on most MUSHes
+  with the 'man' command.
+ 
+& 3.0 flags
+ 
+- There are now ten user-defined flags, MARKER0 through MARKER9. The flag
+  names can be set through the flag_name option. Commands, functions, and
+  other things with configurable permissions can also be tied to these
+  flags (for instance, 'function_access lwho marker0').
+ 
+- The access permissions of flags, including user-defined flags, can be
+  set via the flag_access config directive. In addition to permissions
+  for wizards, wizards/royalty, and god, there is a restrict_player
+  option (only settable by Wizards on players, but settable by mortals
+  on other types of things), and a privileged option (only settable by
+  God on players, but settable by non-robot players on other types of
+  things, if they themselves have the flag).
+ 
+- The access permissions of powers can be set via the power_access config
+  directive. The permission types available are the same as for flags.
+ 
+- Command permissions can also be linked to the STAFF and HEAD flags.
+  The "robot" permission has been removed, since nobody was using it.
+  (The "no_robot" permission still exists, though.)
+ 
+Continued in 'help 3.0 flags2'.
+ 
+& 3.0 flags2
+ 
+- A new flag, BLIND, suppresses has arrived / has left messages.
+ 
+- A new flag, CONSTANT, prevents attributes from being set or altered
+  on an object by anyone other than God.
+ 
+- The FLOATING flag, if set on a player, now suppresses floating-room
+  messages sent to that player.
+ 
+- There is now a link_to_anything power, and an open_anywhere power, doing
+  the obvious; these are handy for building-staff players.
+ 
+- The see_hidden power now works. DARK is really two concepts, not showing
+  up in the WHO list and not showing up in the contents list / moving
+  silently. see_hidden allows seeing the former but does not affect the
+  latter. These two concepts are now handled in a consistent manner
+  within the server.
+ 
+& 3.0 commands
+ 
+- New /info switch to @attribute shows global attribute flags for a single
+  attribute (similar to what '@list user_attributes' produces for all
+  user-defined attributes).
+ 
+- @chown now checks a ChownLock on CHOWN_OK objects.
+ 
+- @chown, @chownall, @chzone, and @clone now strip flags in a consistent
+  manner, as defined by the conf option stripped_flags. The /nostrip
+  switch negates this stripping. For consistency, @clone/inherit no
+  longer preserves IMMORTAL (but it still preserves INHERIT).
+ 
+- @clone/preserve can be used by anyone, but you must control the original
+  object's owner.
+ 
+- A @cron facility allows tasks to be scheduled at specific times,
+  in much the same way that Unix cron does.
+ 
+Continued in 'help 3.0 commands2'.
+ 
+& 3.0 commands2
+  
+- New /instant switch to @destroy causes objects to be instantly destroyed
+  (rather than being queued for destruction at the next purge). Also, a
+  new conf option, instant_recycle, controls whether or not Destroy_OK
+  objects are instantly recycled (rather than being queued for destruction).
+ 
+- New /pretty switch to examine and @decompile "pretty-prints" (with
+  indentation) attributes. Based on Andrew Molitor's +pex-equivalent code.
+ 
+- New /pairs switch to examine matches parentheses, brackets, and braces(),
+  displaying them in ANSI colors. Based on Robby Griffin's ChaoticMUX code.
+ 
+- New @freelist command moves an object to the head of the freelist,
+  until the next dbck.
+ 
+- New /noeval switch to @function defines a user-defined function whose
+  arguments are not pre-evaluated.
+ 
+- When you try to 'give' someone money, their ReceiveLock, rather than
+  their UseLock, is checked.
+ 
+Continued in 'help 3.0 commands3'.
+ 
+& 3.0 commands3
+ 
+- New @hashresize command dynamically resizes the hash tables. This is
+  also automatically done at startup time.
+ 
+- The @list options command has been reformatted and reorganized. A
+  new command, @list params, lists additional configuration parameters.
+ 
+- New /reply and /replyall switches to @mail allow replying to a mail
+  message, including quoting it via the additional /quote switch.
+ 
+- An object can @program another object if the first object or its owner
+  has the Program power, or the first object controls the second. (This
+  fuses the 2.2 and MUX models.)
+ 
+- @program now reads attributes on the object's parent chain as well,
+  not just the object itself (thus behaving like @trigger and friends).
+ 
+- @ps now shows the attribute being waited upon, for non-Semaphore
+  semaphore waits.
+ 
+- @stats() and stats() now count the number of Going objects, as well
+  as the number of objects of unknown (corrupted) type.
+ 
+& 3.0 functions
+  
+- Functions for generic named variables, preserved in a manner similar to
+  the stack (i.e., associated with a specific object, persistent until a
+  restart is done), have been added. setx() sets a named variable,
+  xvars() parses a list of strings into a list of variables, regparse()
+  parses a regular expression into a list of variables, x() accesses
+  a named variable (as does %_<var>), lvars() lists named variables,
+  clearvars() mass-unsets named variables, and let() does a Scheme-style
+  code block (with localized variables).
+ 
+- Functions for generic named data structures (data types), preserved in
+  a manner similar to the stack, in a LISP-like style. structure()
+  defines a structure, unstructure() undefines one, construct() and
+  load() create instances of structures, destruct() removes an instance
+  of a structure, unload() dumps the components of an instance, z()
+  gets the component of an instance, modify() modifies a component
+  of an instance, and lstructures() and linstances() list the names
+  of structures and instances, respectively.
+ 
+- The equivalent of v(ATTRIBUTE) can now be accessed as '%=<ATTRIBUTE>',
+  where the angle-brackets are literal.
+ 
+Continued in 'help 3.0 functions2'.
+ 
+& 3.0 functions2
+ 
+- Functions that take output delimiters can take null output delimiters
+  (symbolized by the token '@@') and newline ('%r') output delimiters.
+ 
+- Booleans, as represented by functions such as t(), andbool(), and
+  ifelse(), are now handled in a more sensible manner. All dbrefs
+  (#0 and higher) are now considered true; #-1 and below are considered
+  false. The string '#-1 <string>' (such as '#-1 NO MATCH') is considered
+  false. All other strings beginning with '#' are treated like arbitrary
+  strings, so, for instance, lists of dbrefs ('#0 #3 #5') are considered
+  true. The old behavior can be obtained by enabling the booleans_oldstyle
+  config parameter.
+ 
+- The ansi() function compacts multiple ANSI attributes into a single
+  ANSI code.
+ 
+- String-manipulation functions, such as edit() and mid(), no longer
+  strip ANSI characters, and @edit is better able to handle ANSI
+  characters.
+ 
+- An ANSI underline code, %xu, has been added.
+ 
+Continued in 'help 3.0 functions3'.
+ 
+& 3.0 functions3
+ 
+- Added chomp() function -- akin to perl chomp(), it chomps off a
+  trailing carriage-return newline from a string, if there is one.
+  (Useful for dealing with pipe output.)
+ 
+- Added command() function, which allows the execution of a variety of
+  built-in commands in function form, such as @parent and @name.
+ 
+- Added doing() function, to get @doing text.
+ 
+- Added force(), trigger(), and wait() functions. Evil, but useful.
+ 
+- iter() and list() can now be nested, and the nesting level can be
+  obtained with '#!'. This changes the way parsing is done on both
+  functions, and may affect the manner in which arguments to these
+  functions should be escaped. For backwards compatibility, parse()
+  works like the old iter() (unchanged behavior), and the new loop()
+  function works like list() used to.
+ 
+Continued in 'help 3.0 functions4'.
+  
+& 3.0 functions4
+ 
+- The ladd(), lmin(), lmax(), lor(), land(), lorbool() and landbool()
+  functions operate on lists, eliminating the necessity to fold() elements
+  through their non-list counterparts.
+ 
+- Conf parameter lattr_default_oldstyle controls what lattr() returns when
+  it fails to match: if 'yes', this is empty (2.0.10p5 and before, 2.2.1
+  and later), if 'no', this is #-1 NO MATCH (2.0.10p6, 2.2.0, MUX).
+  Defaults to 'no'.
+ 
+- Added localize() function, keeping changes to r-registers within the
+  "local" scope of that evaluation.
+ 
+- Added lrand() function, generating a delimiter-separated list of
+  N random numbers between X and Y.
+ 
+- The log() function can now taken an optional second argument, the base.
+ 
+- The mix() function can now take an unequal number of elements in each
+  list. (The lists are considered to be padded out with nulls.)
+ 
+Continued in 'help 3.0 functions5'.
+ 
+& 3.0 functions5
+ 
+- If the new conf parameter, objeval_requires_control, is enabled (it
+  is disabled by default), the objeval() function requires that you
+  control the evaluator, not just have the same owner as it.
+ 
+- Added ncomp() function for comparing numbers comp() style (very
+  useful for sortby() afficianados).
+ 
+- Added null() function, which just eats output. (Useful for doing things
+  like iter() with side-effect functions, and getting rid of the resulting
+  garbage spaces.)
+ 
+- The nonzero() function outputs the result of an if/else condition on a
+  non-zero result. (This provides MUX-style ifelse() behavior. ifelse()
+  follows the TinyMUSH 2.2 behavior of conditioning on a boolean.)
+ 
+- The objmem(<thing>) function does a MUX-style object-structure count; 
+  objmem(<thing>/<wild>) does a 2.2-style attribute-text count. (Fuses
+  the two models.)
+ 
+Continued in 'help 3.0 functions6'.
+ 
+& 3.0 functions6
+ 
+- The pfind() function returns a dbref, or looks up a player. (This
+  provides MUX-style pmatch() behavior. pmatch() now behaves like the
+  MUX documentation said it should, which is identical to its PennMUSH
+  predecessor.)
+ 
+- step() does the equivalent of map() over multiple elements of a single
+  list, with N elements at a time passed as %0, %1, etc.
+ 
+- streq() does a case-insensitive comparison of two strings, returning 0 or 1.
+ 
+- switchall() returns the string results from all cases that match.
+ 
+- switch() and switchall() can nest the '#$' token, and the nesting
+  level is available with '#!'.
+ 
+- Vector functions no longer have a maximum dimension.
+ 
+- vunit() can take an output delimiter.
+ 
+- Added while() function. Evaluates elements of a list, until a
+  termination condition is reached or the end of the list is reached.
+ 
+& 3.0 upgrade mush
+ 
+The following are important changes in behavior between TinyMUSH 2.2 and 3.0:
+ 
+- objmem() behaves differently, taking into account the object structure
+  as well as attribute text. To get the equivalent behavior to 2.2's
+  objmem(<obj>), use objmem(<obj>/*)
+ 
+- hasattr() no longer checks for the presence of the attribute on the
+  object's parent chain. To get the equivalent of the 2.2 behavior,
+  use hasattrp() instead. Databases upgraded from 2.2 to 3.0 should
+  have automatically been modified to use hasattrp().
+ 
+- Two additional categories have been added to the stats() function. If
+  you have softcode that extracts the number of garbage objects in the
+  database from stats(), it will be fine if you used last(stats()) to
+  get the data; if you used extract() or another function that depended
+  upon list position, you will need to modify your code.
+ 
+Continued in 'help 3.0 upgrade mush2'.
+ 
+& 3.0 upgrade mush2
+ 
+The following is a list of features/functions that were in TinyMUX 1.6,
+but were not in TinyMUSH 2.2.5, and which have become part of 3.0.
+ 
+- The TinyMUX powers system has been added.
+ 
+- Added the MUX mailer. (Config option, on by default.)
+ 
+- Added the MUX com system. (Config option, on by default.)
+ 
+- The Guest system has been replaced by the MUX Guest system.
+ 
+- DNS lookups are now done by a slave process (automatically started at
+  startup, or through @startslave); the server will no longer block for
+  them.
+ 
+- Support for identd.
+ 
+- Max login record kept and displayed in WHO.
+ 
+Continued in 'help 3.0 upgrade mush3'.
+ 
+& 3.0 upgrade mush3
+ 
+- Added indent_desc config parameter.
+ 
+- Buffer size is now 8000 characters (doubled).
+ 
+- Output block size is now a compile-time parameter.
+ 
+- Auto-restart on crash controlled by signal_action conf parameter.
+ 
+- Attribute caching has been eliminated.
+ 
+- Memory-based databases supported.
+ 
+- Wizards can connect dark via the 'cd' command.
+ 
+- Added '@cpattr' command.
+ 
+- @daily implemented; enabled by 'eventchecking' global parameter, time
+  set by events_daily_hour.
+ 
+Continued in 'help 3.0 upgrade mush4'.
+ 
+& 3.0 upgrade mush4
+ 
+- Added @dbclean command, which removes stale attribute names from the
+  database.
+ 
+- Destruction of all objects is delayed until a dbck is done, as was
+  previously true just for rooms. (Exception: DESTROY_OK objects.)
+ 
+- @edit hilites the changed text.
+ 
+- examine/brief now shows everything but the attributes on the object.
+  To get the old behavior (just showing the owner), use examine/owner.
+ 
+- '@function/preserve' preserves registers across user-defined functions.
+ 
+- '@list process' shows the number of descriptors available.
+ 
+- Multi-page and last-paged are now supported.
+ 
+- @search supports a GARBAGE class.
+ 
+Continued in 'help 3.0 upgrade mush5'.
+ 
+& 3.0 upgrade mush5
+ 
+- Added 'think' command.
+ 
+- Semaphore @wait can now block on a user-specified attribute.
+ 
+- Added @tofail/@otofail/@atofail (messages for failing to teleport out).
+ 
+- Added the ROYALTY flag.
+ 
+- Added SpeechLock/AUDITORIUM support.
+ 
+- Added FIXED flag (prevents teleporting or going home), with conf 
+  parameters fixed_home_message and fixed_tel_message.
+ 
+- The GAGGED flag is back.
+ 
+- Added marker flags: HEAD, STAFF, UNINSPECTED.
+ 
+- TRANSPARENT flag on room shows exits in "long" style.
+ 
+Continued in 'help 3.0 upgrade mush6'.
+ 
+& 3.0 upgrade mush6
+ 
+- Added VACATION flag, which auto-resets when a player connects.
+ 
+- Added WATCHER flag, and Watch_Logins power, which is equivalent to the
+  connection monitoring functionality of MUX's MONITOR flag. 
+ 
+- hasattr() no longer finds attributes on parents; use the new hasattrp()
+  function for the old hasattr() behavior.
+ 
+- Added alphamax(), alphamin() functions.
+ 
+- Added art() function.
+ 
+- Added beep() function.
+ 
+- Added case() function.
+ 
+- Added children(), lparent() functions.
+ 
+- Added columns() function.
+ 
+Continued in 'help 3.0 upgrade mush7'.
+ 
+& 3.0 upgrade mush7
+ 
+- Added encrypt(), decrypt() functions.
+ 
+- Added grep(), grepi() functions.
+ 
+- Added hastype() function.
+ 
+- Added playmem() function.
+ 
+- Added pmatch() function.
+ 
+- Added strcat() function.
+ 
+- Added strtrunc() function.
+ 
+- Note that side-effect functions that fail now generally return #-1
+  NOT a null string (MUX behavior). If you want to guarantee a null
+  return, wrap the call in a null().
+ 
+& 3.0 upgrade mux
+ 
+The following are important changes in behavior between TinyMUX 1.6
+and TinyMUSH 3.0:
+ 
+- MUX used '%c' for ANSI color. 3.0 uses '%x' for ANSI color ('%c' is
+  the last-command substitution, as it is in PennMUSH and TinyMUSH 2.2.)
+  Databases imported from MUX have had this conversion done automatically.
+ 
+- MUX ifelse() conditioned on a non-zero result. 3.0 ifelse() conditions
+  on a boolean-true result. To get the old behavior, use nonzero().
+  Databases imported from MUX have had this conversion done automatically.
+ 
+- pmatch() now works as documented (i.e., identical to its PennMUSH
+  predecessor). To get the old behavior, use pfind().
+  Databases imported from MUX have had this conversion done automatically.
+ 
+- Objects are now checked for commands if they are set COMMANDS (instead
+  of not being checked for commands if they are set NO_COMMAND).
+  Databases imported from MUX have had this conversion done automatically.
+ 
+Continued in 'help 3.0 upgrade mux2'.
+ 
+& 3.0 upgrade mux2
+ 
+- ZMOs are now controlled by their ControlLock, not their EnterLock.
+  Only objects that are set CONTROL_OK may be controlled according to
+  their zone's ControlLock.
+  Databases imported from MUX have had this conversion done automatically.
+ 
+- The COMPRESS flag has been eliminated. It was unused in MUX, though
+  you could manually set it on objects.
+  Databases imported from MUX have had this conversion done automatically.
+ 
+- The WATCHER flag is now used to watch logins, rather than MONITOR.
+  The power to do this is now called Watch_Logsin, and it allows
+  you to set WATCHER on objects that you own (rather than on objects
+  that you control).
+  Databases imported from MUX have had this conversion done automatically.
+ 
+- There is no longer a /dbref switch for @decompile; just use
+  '@decompile <object>=<dbref of object>' to get the same effect.
+ 
+Continued in 'help 3.0 upgrade mux3'. 
+ 
+& 3.0 upgrade mux3
+  
+- The channel administration commands have been consolidated to a
+  single command, @channel, which takes a variety of switches. Channel
+  objects are no longer necessary.
+  Comsys databases imported from MUX have had channel object data
+  imported into the main comsystem configuration done automatically.
+ 
+- Multiple aliases for a single channel work in a much saner manner.
+  Each alias can be associated with a different comtitle.
+ 
+- Two additional categories have been added to the stats() function. If
+  you have softcode that extracts the number of garbage objects in the
+  database from stats(), it will be fine if you used last(stats()) to
+  get the data; if you used extract() or another function that depended
+  upon list position, you will need to modify your code.
+ 
+- Though MUX's help files documented the behavior of teleport locks, the
+  implementation didn't reflect the help. The implementation now works
+  the way help says it does.
+ 
+Continued in 'help 3.0 upgrade mux4'.
+ 
+& 3.0 upgrade mux4
+ 
+The following is a list of features/functions that were in TinyMUSH 2.2.5,
+but were not in TinyMUX 1.6, and which have become part of 3.0.
+ 
+- Quotas by object type supported.
+ 
+- Added building_limit conf parameter.
+ 
+- Added player_parent, room_parent, exit_parent, thing_parent conf
+  parameters for default parent objects.
+ 
+- Added log options keyboard_commands and suspect_commands.
+ 
+- Decent password choices are enforced via safer_passwords.
+ 
+- Guest can be locked out from sites via the guest_site parameter.
+ 
+- SIGUSR1 is logged, and the game restarts as GOD, not #1.
+ 
+- Note is written to log after @startup queue is run.
+ 
+Continued in 'help 3.0 upgrade mux5'.
+ 
+& 3.0 upgrade mux5
+ 
+- Disconnect log includes command count, bytes input, and bytes output.
+ 
+- New COMMANDS flag, the reverse of the NO_COMMAND flag, which has been
+  eliminated.
+ 
+- New STOP flag, halts matching if a command is matched on a STOP object.
+  (Wizard-only.)
+ 
+- NOSPOOF is only wiz-visible.
+ 
+- The color substitution is now '%x' rather than '%c'.
+ 
+- The '%c' substitution returns the last command.
+ 
+- Added "lag checking".
+ 
+- Added timechecking.
+ 
+- @daily is now implemented using the @cron facility.
+ 
+Continued in 'help 3.0 upgrade mux6'.
+ 
+& 3.0 upgrade mux7
+ 
+- @dump/optimize no longer exists, since the database is optimized after
+  every dump.
+ 
+- @doing truncates the minimum possible (i.e., don't truncate for the ANSI
+  character unless necessary).
+ 
+- Added @dolist/notify.
+ 
+- @enable/@disable now appear in the logfile, like config updates do.
+ 
+- Added @eval command.
+ 
+- examine/brief now shows everything but the attributes on the object.
+ 
+- INFO command implemented.
+ 
+- Added '@list cache'.
+ 
+- Hash statistics listing shows stats for @function hash table.
+ 
+Continued in 'help 3.0 upgrade mux8'.
+ 
+& 3.0 upgrade mux8
+ 
+- @mvattr no longer clears the original attribute unless it was able
+  to copy it at least once.
+ 
+- @pemit/noeval permits unparsed output.
+ 
+- @pemit/list now obeys the /contents switch.
+ 
+- There is a space after the @program prompt (2.2 behavior).
+ 
+- Added object count to @search.
+ 
+- @stats shows the next dbref to be created.
+ 
+- The #$ @switch/switch() token has been added.
+ 
+- Added @conformat and @exitformat contents and exits formatting.
+ 
+- Command matches can be done unparsed through no_eval attribute flag.
+ 
+Continued in 'help 3.0 upgrade mux9'.
+ 
+& 3.0 upgrade mux9
+ 
+- New BOUNCE flag acts like equivalent of @listen of '*' without @ahear.
+ 
+- Added bor(), band(), bnand() functions.
+ 
+- die() checks its arguments 2.2-style (so 0-100 is valid).
+ 
+- Added filterbool() function.
+ 
+- ifelse() now conditions on a boolean, rather than on a non-zero number.
+ 
+- Added nonzero() function, which behaves like ifelse() used to.
+ 
+- lastcreate() and the NewObjs attribute keep track of last-created
+  objects for a given thing.
+ 
+- Added lpos() function.
+ 
+- matchall() returns a null string, not 0, on no match.
+ 
+Continued in 'help 3.0 upgrade mux10'.
+ 
+& 3.0 upgrade mux10
+ 
+- mix() can take up to ten arguments total.
+ 
+- objeval() now preserves the cause (enactor) in the evaluation, and
+  allows the calling object to succeed if its owner is the same as
+  the evaluator's owner, instead of needing to _be_ the evaluator's
+  owner (2.2 behavior).
+ 
+- Added programmer() function.
+ 
+- Added remit() function, like pemit() but does contents.
+ 
+- restarts() and restarttime() added.
+ 
+- Added sees() function.
+ 
+- shl(), shr(), inc(), dec() no longer require inputs to be numbers
+  (2.2 behavior).
+ 
+- Added t() function.
+ 
+Continued in 'help 3.0 upgrade mux11'.
+ 
+& 3.0 upgrade mux11
+ 
+- Added toss() function.
+ 
+- Vector functions replaced by 2.2 ones, including addition of vdot().
+  This means that vector multiplication now works, but it breaks the
+  old MUX behavior of vmul().
+ 
+- Added wipe() function.
+ 
+- Added xcon() function.
+ 
+- elements(), filter(), map(), munge(), setunion(), setinter(), setdiff(),
+  shuffle(), sort(), sortby(), splice() take output delimiters.
  

@@ -14,7 +14,9 @@ developers. ("RMG" refers to Robby Griffin, aka Alierak; he joined
 the development team on beta 18 and is not individually credited
 after that point.)
 
-The initial beta release was on 9/27/99.
+Release history:
+    TinyMUSH 3.0 beta 1: Initial beta release, 9/27/99.
+    TinyMUSH 3.0 gamma:  Standard "stable" release, 12/1/00.
 
 -----------------------------------------------------------------------------
 
@@ -995,3 +997,42 @@ The initial beta release was on 9/27/99.
 - Misc: Some minor code cleanup in string functions.
 
 - Misc: Scott Dorr (Myrddin) has joined the 3.0 development team.
+
+-----------------------------------------------------------------------------
+
+12/01/2000: TinyMUSH 3.0 gamma release
+
+- Feature: A new conf parameter, page_requires_equals, has been added
+  (defaults to no). It requires that the page command always contain an
+  equals sign; i.e., 'page =<message>' to page the last person you paged,
+  rather than 'page <message>'. This prevents embarassing accidental
+  mispages caused by, for instance, typo'ing a - rather than a =.
+
+- Fix: exit() works properly again. [3.0b15; S'ryon]
+
+- Fix: The \t, \r, \n, and \x characters are disallowed in locks. [2.0]
+
+- Fix: Don't close gdbm before a panic dump. [MUX]
+
+- Misc: 'news' is no longer helpfile'd by default. You should add this in
+  your conf file instead: 'helpfile news text/news' for evaluation of
+  percent-subs (historical MUX behavior), or 'raw_helpfile news text/news'
+  for no evaluation of percent-subs (historical TinyMUSH 2.2 behavior).
+  This avoids compatibility conflicts, having to escape out a ton of
+  percent signs in news files with ASCII graphics, etc.
+
+- Misc: On login, don't print MOTD and WIZMOTD on login if they're not set,
+  and avoid extra line feeds from mail check.
+
+- Misc: 'version' for wizards reports build information.
+
+- Misc: ReportCrash reports more information.
+
+- Misc: Archive script dumps file with a .tar.gz extension, for clear
+  user identification of file type.
+
+- Misc: 'help patchlevel' returns changes and conversion notes for 3.0.
+
+- Misc: Some minor cleanup.
+
+=============================================================================
