@@ -19,6 +19,7 @@
 #include "powers.h"
 #include "misc.h"
 #include "alloc.h"
+#include "attrs.h"
 
 #ifdef MCHECK
 #include "malloc.h"
@@ -61,7 +62,7 @@ dbref player, cause;
 int key, ncargs;
 char *list, *command, *cargs[];
 {
-	char *curr, *objstring, delimiter = ' ';
+	char *tbuf, *curr, *objstring, delimiter = ' ';
 	int number = 0;
 
 	if (!list || *list == '\0') {
@@ -89,6 +90,13 @@ char *list, *command, *cargs[];
 			bind_and_queue(player, cause, command, objstring,
 				       cargs, ncargs, number);
 		}
+	}
+	if (key & DOLIST_NOTIFY) {
+		tbuf = alloc_lbuf("dolist.notify_cmd");
+		strcpy(tbuf, (char *) "@notify me");
+		wait_que(player, cause, 0, NOTHING, A_SEMAPHORE, tbuf, cargs, ncargs,
+			 mudstate.global_regs);
+	free_lbuf(tbuf);
 	}
 }
 

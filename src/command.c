@@ -31,20 +31,29 @@ extern void NDECL(vattr_clean_db);
 
 #define CACHING "object"
 
-/*
- * ---------------------------------------------------------------------------
- * * Switch tables for the various commands.
+/* Take care of all the assorted problems associated with getrusage(). */
+
+#ifdef hpux
+#define HAVE_GETRUSAGE 1
+#include <sys/syscall.h>
+#define getrusage(x,p)   syscall(SYS_GETRUSAGE,x,p)
+#endif
+
+#ifdef _SEQUENT_
+#define HAVE_GET_PROCESS_STATS 1
+#include <sys/procstats.h>
+#endif
+
+/* ---------------------------------------------------------------------------
+ * Switch tables for the various commands.
  */
 
-#define	SW_MULTIPLE	0x80000000	/*
-					 * * This sw may be spec'd w/others  
+#define	SW_MULTIPLE	0x80000000	/* This sw may be spec'd w/others */
+#define	SW_GOT_UNIQUE	0x40000000	/* Already have a unique option */
+#define SW_NOEVAL       0x20000000      /* Don't parse args before calling
+					 * handler
 					 */
-#define	SW_GOT_UNIQUE	0x40000000	/*
-					 * * Already have a unique option  
-					 */
-					/*
-					 * (typically via a switch alias) 
-					 */
+					/* (typically via a switch alias) */
 /* *INDENT-OFF* */
 
 NAMETAB attrib_sw[] = {
@@ -58,9 +67,11 @@ NAMETAB boot_sw[] = {
 {(char *)"quiet",	1,	CA_WIZARD,	BOOT_QUIET|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
+#ifdef USE_COMSYS
 NAMETAB cemit_sw[] = {
 {(char *)"noheader",	1,	CA_PUBLIC,	CEMIT_NOHEADER},
 { NULL,			0,	0,		0}};
+#endif
 
 NAMETAB clone_sw[] = {
 {(char *)"cost",	1,	CA_PUBLIC,	CLONE_SET_COST},
@@ -71,6 +82,7 @@ NAMETAB clone_sw[] = {
 {(char *)"preserve",	2,	CA_WIZARD,	CLONE_PRESERVE|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
+#ifdef USE_COMSYS
 NAMETAB clist_sw[] = {
 {(char *)"full",        0,      CA_PUBLIC,      CLIST_FULL},
 { NULL,                 0,      0,              0}};
@@ -84,6 +96,7 @@ NAMETAB cset_sw[] = {
 {(char *)"list",        2,      CA_PUBLIC,      CSET_LIST},
 {(char *)"object",      2,      CA_PUBLIC,      CSET_OBJECT},
 { NULL,                 0,      0,              0}}; 
+#endif
 
 NAMETAB decomp_sw[] = {
 {(char *)"dbref",	1,	CA_PUBLIC,	DECOMP_DBREF},
@@ -106,6 +119,7 @@ NAMETAB doing_sw[] = {
 NAMETAB dolist_sw[] = {
 {(char *)"delimit",     1,      CA_PUBLIC,      DOLIST_DELIMIT},
 {(char *)"space",       1,      CA_PUBLIC,      DOLIST_SPACE},
+{(char *)"notify",	1,	CA_PUBLIC,	DOLIST_NOTIFY | SW_MULTIPLE },
 { NULL,                 0,      0,              0,}};
 
 NAMETAB	drop_sw[] = {
@@ -121,7 +135,9 @@ NAMETAB dump_sw[] = {
 NAMETAB emit_sw[] = {
 {(char *)"here",	1,	CA_PUBLIC,	SAY_HERE|SW_MULTIPLE},
 {(char *)"room",	1,	CA_PUBLIC,	SAY_ROOM|SW_MULTIPLE},
+#ifdef PUEBLO_SUPPORT
 {(char *)"html",	1,      CA_PUBLIC,      SAY_HTML|SW_MULTIPLE},
+#endif
 { NULL,			0,	0,		0}};
 
 NAMETAB	enter_sw[] = {
@@ -207,6 +223,7 @@ NAMETAB look_sw[] = {
 {(char *)"outside",     1,      CA_PUBLIC,      LOOK_OUTSIDE},
 { NULL,                 0,      0,              0}};
 
+#ifdef USE_MAIL
 NAMETAB mail_sw[] = {
 {(char *)"stats",       1,      CA_PUBLIC,      MAIL_STATS},
 {(char *)"dstats",      1,      CA_PUBLIC,      MAIL_DSTATS},
@@ -246,6 +263,7 @@ NAMETAB malias_sw[] = {
 {(char *)"rename",      1,      CA_PUBLIC,      MALIAS_RENAME},
 {(char *)"list",        1,      CA_PUBLIC,      MALIAS_LIST},
 {(char *)"status",      1,      CA_PUBLIC,      MALIAS_STATUS}};
+#endif
 
 NAMETAB mark_sw[] = {
 {(char *)"set",		1,	CA_PUBLIC,	MARK_SET},
@@ -281,7 +299,10 @@ NAMETAB pemit_sw[] = {
 {(char *)"object",	1,	CA_PUBLIC,	0},
 {(char *)"silent",	1,	CA_PUBLIC,	0},
 {(char *)"list",        1,      CA_PUBLIC,      PEMIT_LIST|SW_MULTIPLE},
+{(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
+#ifdef PUEBLO_SUPPORT
 {(char *)"html",	1,      CA_PUBLIC,      PEMIT_HTML|SW_MULTIPLE},
+#endif
 { NULL,			0,	0,		0}};
 
 NAMETAB pose_sw[] = {
@@ -302,10 +323,20 @@ NAMETAB quota_sw[] = {
 {(char *)"remaining",	1,	CA_WIZARD,	QUOTA_REM|SW_MULTIPLE},
 {(char *)"set",		1,	CA_WIZARD,	QUOTA_SET},
 {(char *)"total",	1,	CA_WIZARD,	QUOTA_TOT|SW_MULTIPLE},
+#ifdef SPLIT_QUOTAS
+{(char *)"room",	1,	CA_WIZARD,	QUOTA_ROOM | SW_MULTIPLE},
+{(char *)"exit",	1,	CA_WIZARD,	QUOTA_EXIT | SW_MULTIPLE},
+{(char *)"thing",	1,	CA_WIZARD,	QUOTA_THING | SW_MULTIPLE},
+{(char *)"player",	1,	CA_WIZARD,	QUOTA_PLAYER | SW_MULTIPLE},
+#endif
 { NULL,			0,	0,		0}};
 
 NAMETAB	set_sw[] = {
 {(char *)"quiet",	1,	CA_PUBLIC,	SET_QUIET},
+{ NULL,			0,	0,		0}};
+
+NAMETAB shutdown_sw[] = {
+{(char *)"abort",	1,	CA_WIZARD,	SHUTDN_COREDUMP},
 { NULL,			0,	0,		0}};
 
 NAMETAB stats_sw[] = {
@@ -443,7 +474,7 @@ CMDENT command_table[] = {
 	0,		CS_TWO_ARG|CS_ARGV|CS_INTERP,	do_dig},
 {(char *)"@disable",		NULL,		CA_WIZARD,
 	GLOB_DISABLE,	CS_ONE_ARG,			do_global},
-{(char *)"@doing",		doing_sw,	CA_PLAYER,
+{(char *)"@doing",		doing_sw,	CA_PUBLIC,
 	0,		CS_ONE_ARG,			do_doing},
 {(char *)"@dolist",		dolist_sw,		CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
@@ -699,13 +730,6 @@ CMDENT command_table[] = {
 
 /* *INDENT-ON* */
 
-
-
-
-
-
-
-
 CMDENT *prefix_cmds[256];
 
 CMDENT *goto_cmdp;
@@ -720,9 +744,7 @@ void NDECL(init_cmdtab)
 
 	hashinit(&mudstate.command_htab, 250 * HASH_FACTOR);
 
-	/*
-	 * Load attribute-setting commands 
-	 */
+	/* Load attribute-setting commands */
 
 	cbuff = alloc_sbuf("init_cmdtab");
 	for (ap = attr; ap->name; ap++) {
@@ -732,7 +754,7 @@ void NDECL(init_cmdtab)
 			for (q = (char *)ap->name; *q; p++, q++)
 				*p = ToLower(*q);
 			*p = '\0';
-			cp = (CMDENT *) malloc(sizeof(CMDENT));
+			cp = (CMDENT *) XMALLOC(sizeof(CMDENT), "init_cmdtab");
 			cp->cmdname = (char *)strsave(cbuff);
 			cp->perms = CA_NO_GUEST | CA_NO_SLAVE;
 			cp->switches = NULL;
@@ -742,26 +764,26 @@ void NDECL(init_cmdtab)
 			cp->extra = ap->number;
 			cp->callseq = CS_TWO_ARG;
 			cp->handler = do_setattr;
-			hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab);
+			if (hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab)) {
+				XFREE(cp->cmdname, "init_cmdtab.2");
+				XFREE(cp, "init_cmdtab.3");
+			}
 		}
 	}
 	free_sbuf(cbuff);
 
-	/*
-	 * Load the builtin commands 
-	 */
+	/* Load the builtin commands */	
 
 	for (cp = command_table; cp->cmdname; cp++)
 		hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab);
 
-	/*
-	 * Load the command prefix table.  Note - these commands can never *
-	 * * * * * * be typed in by a user because commands are lowercased *
-	 * before  * * * * the  * hash table is checked. The names are *
-	 * abbreviated to * * * minimise * * name checking time. 
+	/* Load the command prefix table.  Note - these commands can never
+	 * be typed in by a user because commands are lowercased
+	 * before the hash table is checked. The names are
+	 * abbreviated to minimise name checking time. 
 	 */
 
-	for (anum = 0; anum < 256; anum++)
+	for (anum = 0; anum < A_USER_START; anum++)
 		prefix_cmds[anum] = NULL;
 	prefix_cmds['"'] = (CMDENT *) hashfind((char *)"\"",
 					       &mudstate.command_htab);
@@ -775,16 +797,17 @@ void NDECL(init_cmdtab)
 					       &mudstate.command_htab);
 	prefix_cmds['&'] = (CMDENT *) hashfind((char *)"&",
 					       &mudstate.command_htab);
+#ifdef USE_MAIL
 	prefix_cmds['-'] = (CMDENT *) hashfind((char *)"-",
 					       &mudstate.command_htab);
 	prefix_cmds['~'] = (CMDENT *) hashfind((char *)"~",
 					       &mudstate.command_htab);
+#endif
 	goto_cmdp = (CMDENT *) hashfind("goto", &mudstate.command_htab);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * check_access: Check if player has access to function.  
+/* ---------------------------------------------------------------------------
+ * check_access: Check if player has access to function.  
  */
 
 int check_access(player, mask)
@@ -842,9 +865,7 @@ int mask;
 	if (fail > 0)
 		return 0;
 
-	/*
-	 * Check for forbidden flags. 
-	 */
+	/* Check for forbidden flags. */
 
 	if (!Wizard(player) &&
 	    (((mask & CA_NO_HAVEN) && Player_haven(player)) ||
@@ -857,9 +878,8 @@ int mask;
 	return 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * process_cmdent: Perform indicated command with passed args.
+/* ---------------------------------------------------------------------------
+ * process_cmdent: Perform indicated command with passed args.
  */
 
 void process_cmdent(cmdp, switchp, player, cause, interactive, arg,
@@ -879,9 +899,7 @@ int interactive, ncargs;
 	
 #define	Protect(x) (cmdp->perms & x)
 
-	/*
-	 * Perform object type checks. 
-	 */
+	/* Perform object type checks. */
 
 	fail = 0;
 	if (Protect(CA_LOCATION) && !Has_location(player))
@@ -894,9 +912,14 @@ int interactive, ncargs;
 		notify(player, "Command incompatible with invoker type.");
 		return;
 	}
-	/*
-	 * Check global flags 
-	 */
+	/* Check if we have permission to execute the command */
+    
+	if (!check_access(player, cmdp->perms)) {
+		notify(player, "Permission denied.");
+		return;
+	}
+
+	/* Check global flags */
 
 	if ((!Builder(player)) && Protect(CA_GBL_BUILD) && !(mudconf.control_flags & CF_BUILD)) {
 		notify(player, "Sorry, building is not allowed now.");
@@ -915,12 +938,9 @@ int interactive, ncargs;
 		i = 0;
 	}
 
-	/*
-	 * Check command switches.  Note that there may be more than one, * * 
-	 * 
-	 * *  * *  * *  * * and that we OR all of them together along with
-	 * the * extra * value * * * from * the command table to produce the
-	 * key * value in * the handler * *  * call. 
+	/* Check command switches.  Note that there may be more than one, 
+	 * and that we OR all of them together along with the extra value
+	 * from the command table to produce the key value in the handler call. 
 	 */
 
 	if (switchp && cmdp->switches) {
@@ -958,22 +978,21 @@ int interactive, ncargs;
 			       cmdp->cmdname));
 		return;
 	}
-	/*
-	 * Check if we have permission to execute the command 
-	 */
 
-	if (!hasswitch)
-		if (!check_access(player, cmdp->perms)) {
-			notify(player, "Permission denied.");
-			return;
-		}
-	/*
-	 * We are allowed to run the command.  Now, call the handler using
-	 * the appropriate calling sequence and arguments. 
+	/* If the command normally has interpreted args, but the user
+	 * specified, /noeval, just do EV_STRIP.
+	 *
+	 * If the command is interpreted, or we're interactive (and
+	 * the command isn't specified CS_NOINTERP), eval the args.
+	 * 
+	 * The others are obvious.
 	 */
-
-	if ((cmdp->callseq & CS_INTERP) ||
-	    !(interactive || (cmdp->callseq & CS_NOINTERP)))
+	if ((cmdp->callseq & CS_INTERP) && (key & SW_NOEVAL)) {
+		interp = EV_STRIP;
+		key &= ~SW_NOEVAL;	/* Remove SW_NOEVAL from 'key' */
+	}
+	else if ((cmdp->callseq & CS_INTERP) ||
+		!(interactive || (cmdp->callseq & CS_NOINTERP)))
 		interp = EV_EVAL | EV_STRIP;
 	else if (cmdp->callseq & CS_STRIP)
 		interp = EV_STRIP;
@@ -983,26 +1002,18 @@ int interactive, ncargs;
 		interp = 0;
 
 	switch (cmdp->callseq & CS_NARG_MASK) {
-	case CS_NO_ARGS:	/*
-				 * <cmd>   (no args) 
-				 */
+	case CS_NO_ARGS:	/* <cmd>   (no args) */
 		(*(cmdp->handler)) (player, cause, key);
 		break;
-	case CS_ONE_ARG:	/*
-				 * <cmd> <arg> 
-				 */
+	case CS_ONE_ARG:	/* <cmd> <arg> */
 
-		/*
-		 * If an unparsed command, just give it to the handler 
-		 */
+		/* If an unparsed command, just give it to the handler */
 
 		if (cmdp->callseq & CS_UNPARSE) {
 			(*(cmdp->handler)) (player, unp_command);
 			break;
 		}
-		/*
-		 * Interpret if necessary 
-		 */
+		/* Interpret if necessary */
 
 		if (interp & EV_EVAL) {
 			buf1 = bp = alloc_lbuf("process_cmdent");
@@ -1013,9 +1024,7 @@ int interactive, ncargs;
 		} else
 			buf1 = parse_to(&arg, '\0', interp | EV_TOP);
 
-		/*
-		 * Call the correct handler 
-		 */
+		/* Call the correct handler */
 
 		if (cmdp->callseq & CS_CMDARG) {
 			(*(cmdp->handler)) (player, cause, key, buf1,
@@ -1065,27 +1074,19 @@ int interactive, ncargs;
 				(*(cmdp->handler)) (player, cause, key, buf1);
 		}
 
-		/*
-		 * Free the buffer if one was allocated 
-		 */
+		/* Free the buffer if one was allocated */
 
 		if (interp & EV_EVAL)
 			free_lbuf(buf1);
 
 		break;
-	case CS_TWO_ARG:	/*
-				 * <cmd> <arg1> = <arg2> 
-				 */
+	case CS_TWO_ARG:	/* <cmd> <arg1> = <arg2> */
 
-		/*
-		 * Interpret ARG1 
-		 */
+		/* Interpret ARG1 */
 
 		buf2 = parse_to(&arg, '=', EV_STRIP_TS);
 
-		/*
-		 * Handle when no '=' was specified 
-		 */
+		/* Handle when no '=' was specified */
 
 		if (!arg || (arg && !*arg)) {
 			arg = &tchar;
@@ -1099,18 +1100,14 @@ int interactive, ncargs;
 
 		if (cmdp->callseq & CS_ARGV) {
 
-			/*
-			 * Arg2 is ARGV style.  Go get the args 
-			 */
+			/* Arg2 is ARGV style.  Go get the args */
 
 			parse_arglist(player, cause, arg, '\0',
 				      interp | EV_STRIP_LS | EV_STRIP_TS,
 				      args, MAX_ARG, cargs, ncargs);
 			for (nargs = 0; (nargs < MAX_ARG) && args[nargs]; nargs++) ;
 
-			/*
-			 * Call the correct command handler 
-			 */
+			/* Call the correct command handler */
 
 			if (cmdp->callseq & CS_CMDARG) {
 				(*(cmdp->handler)) (player, cause, key,
@@ -1120,9 +1117,7 @@ int interactive, ncargs;
 						    buf1, args, nargs);
 			}
 
-			/*
-			 * Free the argument buffers 
-			 */
+			/* Free the argument buffers */
 
 			for (i = 0; i <= nargs; i++)
 				if (args[i])
@@ -1130,9 +1125,7 @@ int interactive, ncargs;
 
 		} else {
 
-			/*
-			 * Arg2 is normal style.  Interpret if needed 
-			 */
+			/* Arg2 is normal style.  Interpret if needed */
 
 
 			if (interp & EV_EVAL) {
@@ -1150,9 +1143,7 @@ int interactive, ncargs;
 				interp | EV_STRIP_LS | EV_STRIP_TS | EV_TOP);
 			}
 
-			/*
-			 * Call the correct command handler 
-			 */
+			/* Call the correct command handler */
 
 			if (cmdp->callseq & CS_CMDARG) {
 				(*(cmdp->handler)) (player, cause, key,
@@ -1162,17 +1153,13 @@ int interactive, ncargs;
 						    buf1, buf2);
 			}
 
-			/*
-			 * Free the buffer, if needed 
-			 */
+			/* Free the buffer, if needed */
 
 			if (interp & EV_EVAL)
 				free_lbuf(buf2);
 		}
 
-		/*
-		 * Free the buffer obtained by evaluating Arg1 
-		 */
+		/* Free the buffer obtained by evaluating Arg1 */
 
 		free_lbuf(buf1);
 		break;
@@ -1180,8 +1167,7 @@ int interactive, ncargs;
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  * process_command: Execute a command.
  */
 
@@ -1190,6 +1176,7 @@ dbref player, cause;
 int interactive, nargs;
 char *command, *args[];
 {
+	static char preserve_cmd[LBUF_SIZE];
 	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str;
 	int succ, aflags, i;
 	dbref exit, aowner;
@@ -1197,13 +1184,9 @@ char *command, *args[];
 
 #ifndef MEMORY_BASED
 	cache_reset(0);
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 
-	/*
-	 * Robustify player 
-	 */
+	/* Robustify player */
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< process_command >";
@@ -1222,9 +1205,7 @@ char *command, *args[];
 			mudstate.debug_cmd = cmdsave;
 		goto endcmd;
 	}
-	/*
-	 * Make sure player isn't going or halted 
-	 */
+	/* Make sure player isn't going or halted */
 
 	if (Going(player) ||
 	    (Halted(player) &&
@@ -1256,17 +1237,17 @@ char *command, *args[];
 		notify(Owner(player), tprintf("%s] %s", Name(player),
 					      command));
 
-	/*
-	 * Eat leading whitespace, and space-compress if configured 
-	 */
+	/* Eat leading whitespace, and space-compress if configured */
 
 	while (*command && isspace(*command))
 		command++;
-	mudstate.debug_cmd = command;
 
-	/*
-	 * Can we fix the @npemit thing? 
-	 */
+	strcpy(preserve_cmd, command);
+	mudstate.debug_cmd = command;
+	mudstate.curr_cmd = preserve_cmd;
+        	
+
+	/* Can we fix the @npemit thing? */
 	if (mudconf.space_compress && strncmp(command, "@npemit", 7)) {
 		p = q = command;
 		while (*p) {
@@ -1280,17 +1261,12 @@ char *command, *args[];
 		*q = '\0';
 	}
 #ifndef MEMORY_BASED
-	/*
-	 * Reset the cache so that unreferenced attributes may be flushed 
-	 */
+	/* Reset the cache so that unreferenced attributes may be flushed */
 
 	cache_reset();
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 
-	/*
-	 * Now comes the fun stuff.  First check for single-letter leadins.
+	/* Now comes the fun stuff.  First check for single-letter leadins.
 	 * We check these before checking HOME because
 	 * they are among the most frequently executed commands, 
 	 * and they can never be the HOME command. 
@@ -1304,33 +1280,30 @@ char *command, *args[];
 		goto endcmd;
 	}
 
+#ifdef USE_COMSYS
 	if (mudconf.have_comsys && !(Slave(player)))
 		if (!do_comsystem(player, command))
 			goto endcmd;
+#endif
 
-	/*
-	 * Check for the HOME command 
-	 */
+	/* Check for the HOME command */
 
 	if (string_compare(command, "home") == 0) {
 		if (((Fixed(player)) || (Fixed(Owner(player)))) &&
 		    !(WizRoy(player))) {
 			notify(player, mudconf.fixed_home_msg);
+			mudstate.debug_cmd = cmdsave;
 			goto endcmd;
 		}
 		do_move(player, cause, 0, "home");
 		mudstate.debug_cmd = cmdsave;
 		goto endcmd;
 	}
-	/*
-	 * Only check for exits if we may use the goto command 
-	 */
+	/* Only check for exits if we may use the goto command */
 
 	if (check_access(player, goto_cmdp->perms)) {
 
-		/*
-		 * Check for an exit name 
-		 */
+		/* Check for an exit name */
 
 		init_match_check_keys(player, command, TYPE_EXIT);
 		match_exit_with_parents();
@@ -1340,9 +1313,8 @@ char *command, *args[];
 			mudstate.debug_cmd = cmdsave;
 			goto endcmd;
 		}
-		/*
-		 * Check for an exit in the master room 
-		 */
+		
+		/* Check for an exit in the master room */
 
 		init_match_check_keys(player, command, TYPE_EXIT);
 		match_master_exit();
@@ -1353,45 +1325,31 @@ char *command, *args[];
 			goto endcmd;
 		}
 	}
-	/*
-	 * Set up a lowercase command and an arg pointer for the hashed
+	/* Set up a lowercase command and an arg pointer for the hashed
 	 * command check.  Since some types of argument
 	 * processing destroy the arguments, make a copy so that
 	 * we keep the original command line intact.  Store the
 	 * edible copy in lcbuf after the lowercased command. 
 	 */
-	/*
-	 * Removed copy of the rest of the command, since it's ok do allow
+	/* Removed copy of the rest of the command, since it's ok to allow
 	 * it to be trashed.  -dcm 
 	 */
 
 	lcbuf = alloc_lbuf("process_commands.LCbuf");
 	for (p = command, q = lcbuf; *p && !isspace(*p); p++, q++)
-		*q = ToLower(*p);	/*
-					 * Make lowercase command 
-					 */
-	*q++ = '\0';		/*
-				 * Terminate command 
-				 */
+		*q = ToLower(*p);	/* Make lowercase command */
+	*q++ = '\0';		/* Terminate command */
 	while (*p && isspace(*p))
-		p++;		/*
-				 * Skip spaces before arg 
-				 */
-	arg = p;		/*
-				 * Remember where arg starts 
-				 */
+		p++;		/* Skip spaces before arg */
+	arg = p;		/* Remember where arg starts */
 
-	/*
-	 * Strip off any command switches and save them 
-	 */
+	/* Strip off any command switches and save them */
 
 	slashp = (char *)index(lcbuf, '/');
 	if (slashp)
 		*slashp++ = '\0';
 
-	/*
-	 * Check for a builtin command (or an alias of a builtin command) 
-	 */
+	/* Check for a builtin command (or an alias of a builtin command) */
 
 	cmdp = (CMDENT *) hashfind(lcbuf, &mudstate.command_htab);
 	if (cmdp != NULL) {
@@ -1401,12 +1359,11 @@ char *command, *args[];
 		mudstate.debug_cmd = cmdsave;
 		goto endcmd;
 	}
-	/*
-	 * Check for enter and leave aliases, user-defined commands on the *
-	 * * * * * * player, other objects where the player is, on objects in
-	 * * the  * *  * *  * player's inventory, and on the room that holds * 
-	 * the * player. * We * *  * evaluate the command line here to allow * 
-	 * chains  * of * $-commands to * * * work. 
+	/* Check for enter and leave aliases, user-defined commands on the
+	 * player, other objects where the player is, on objects in
+	 * the  player's inventory, and on the room that holds 
+	 * the player. We evaluate the command line here to allow
+	 * chains of $-commands to work. 
 	 */
 
 	bp = lcbuf;
@@ -1416,15 +1373,11 @@ char *command, *args[];
 	*bp = '\0';
 	succ = 0;
 
-	/*
-	 * Idea for enter/leave aliases from R'nice@TinyTIM 
-	 */
+	/* Idea for enter/leave aliases from R'nice@TinyTIM */
 
 	if (Has_location(player) && Good_obj(Location(player))) {
 
-		/*
-		 * Check for a leave alias 
-		 */
+		/* Check for a leave alias */
 
 		p = atr_pget(Location(player), A_LALIAS, &aowner, &aflags);
 		if (p && *p) {
@@ -1437,9 +1390,7 @@ char *command, *args[];
 		}
 		free_lbuf(p);
 
-		/*
-		 * Check for enter aliases 
-		 */
+		/* Check for enter aliases */
 
 		DOLIST(exit, Contents(Location(player))) {
 			p = atr_pget(exit, A_EALIAS, &aowner, &aflags);
@@ -1454,55 +1405,43 @@ char *command, *args[];
 			free_lbuf(p);
 		}
 	}
-	/*
-	 * Check for $-command matches on me 
-	 */
+	/* Check for $-command matches on me */
 
 	if (mudconf.match_mine && (!(No_Command(player)))) {
 		if (((Typeof(player) != TYPE_PLAYER) ||
 		     mudconf.match_mine_pl) &&
-		    (atr_match(player, player, AMATCH_CMD, lcbuf, 1) > 0)) {
+		    (atr_match(player, player, AMATCH_CMD, lcbuf, preserve_cmd, 1) > 0)) {
 			succ++;
 		}
 	}
-	/*
-	 * Check for $-command matches on nearby things and on my room 
-	 */
+	/* Check for $-command matches on nearby things and on my room */
 
 	if (Has_location(player)) {
 		succ += list_check(Contents(Location(player)), player,
-				   AMATCH_CMD, lcbuf, 1);
+				   AMATCH_CMD, lcbuf, preserve_cmd, 1);
 
 		if (!(No_Command(Location(player))))
 			if (atr_match(Location(player), player,
-				      AMATCH_CMD, lcbuf, 1) > 0) {
+				      AMATCH_CMD, lcbuf, preserve_cmd, 1) > 0) {
 				succ++;
 			}
 	}
-	/*
-	 * Check for $-command matches in my inventory 
-	 */
+	/* Check for $-command matches in my inventory */
 
 	if (Has_contents(player))
 		succ += list_check(Contents(player), player,
-				   AMATCH_CMD, lcbuf, 1);
+				   AMATCH_CMD, lcbuf, preserve_cmd, 1);
 
-	/*
-	 * now do check on zones 
-	 */
+	/* now do check on zones */
 
 	if ((!succ) && mudconf.have_zones &&
 	    (Zone(Location(player)) != NOTHING)) {
 		if (Typeof(Zone(Location(player))) == TYPE_ROOM) {
 
-			/*
-			 * zone of player's location is a parent room 
-			 */
+			/* zone of player's location is a parent room */
 			if (Location(player) != Zone(player)) {
 
-				/*
-				 * check parent room exits 
-				 */
+				/* check parent room exits */
 				init_match_check_keys(player, command, TYPE_EXIT);
 				match_zone_exit();
 				exit = last_match_result();
@@ -1512,53 +1451,43 @@ char *command, *args[];
 					goto endcmd;
 				}
 				succ += list_check(Contents(Zone(Location(player))), player,
-						   AMATCH_CMD, lcbuf, 1);
-			}	/*
-				 * * end of parent room checks  
-				 */
+						   AMATCH_CMD, lcbuf, preserve_cmd, 1);
+			}	/* end of parent room checks */
 		} else
-			/*
-			 * try matching commands on area zone object 
-			 */
+			/* try matching commands on area zone object */
 
 			if ((!succ) && mudconf.have_zones && (Zone(Location(player)) != NOTHING) &&
 			    (!(No_Command(Zone(Location(player))))))
 			succ += atr_match(Zone(Location(player)), player, AMATCH_CMD,
-					  lcbuf, 1);
-	}			/*
-				 * * end of matching on zone of player's * *
-				 * * * * * location  
-				 */
-	/*
-	 * if nothing matched with parent room/zone object, try matching
+					  lcbuf, preserve_cmd, 1);
+	}			/* end of matching on zone of player's location */
+	/* if nothing matched with parent room/zone object, try matching
 	 * zone commands on the player's personal zone  
 	 */
 	if ((!succ) && mudconf.have_zones && (Zone(player) != NOTHING) &&
 	    (!(No_Command(Zone(player)))) &&
 	    (Zone(Location(player)) != Zone(player))) {
-		succ += atr_match(Zone(player), player, AMATCH_CMD, lcbuf, 1);
+		succ += atr_match(Zone(player), player, AMATCH_CMD, lcbuf, 
+			preserve_cmd, 1);
 	}
-	/*
-	 * If we didn't find anything, try in the master room 
-	 */
+	/* If we didn't find anything, try in the master room */
 
 	if (!succ) {
 		if (Good_obj(mudconf.master_room) &&
 		    Has_contents(mudconf.master_room)) {
 			succ += list_check(Contents(mudconf.master_room),
-					   player, AMATCH_CMD, lcbuf, 0);
+					   player, AMATCH_CMD, lcbuf,
+					   preserve_cmd, 0);
 			if (!(No_Command(mudconf.master_room)))
 				if (atr_match(mudconf.master_room,
-					player, AMATCH_CMD, lcbuf, 0) > 0) {
+					player, AMATCH_CMD, lcbuf, preserve_cmd, 0) > 0) {
 					succ++;
 				}
 		}
 	}
 	free_lbuf(lcbuf);
 
-	/*
-	 * If we still didn't find anything, tell how to get help. 
-	 */
+	/* If we still didn't find anything, tell how to get help. */
 
 	if (!succ) {
 		notify(player, "Huh?  (Type \"help\" for help.)");
@@ -1573,12 +1502,11 @@ char *command, *args[];
 	mudstate.debug_cmd = cmdsave;
 
 endcmd:
-	return;
+	return preserve_cmd;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_cmdtable: List internal commands.
+/* ---------------------------------------------------------------------------
+ * list_cmdtable: List internal commands.
  */
 
 static void list_cmdtable(player)
@@ -1602,9 +1530,7 @@ dbref player;
 	}
 	*bp = '\0';
 
-	/*
-	 * Players get the list of logged-out cmds too 
-	 */
+	/* Players get the list of logged-out cmds too */
 
 	if (Typeof(player) == TYPE_PLAYER)
 		display_nametab(player, logout_cmdtable, buf, 1);
@@ -1613,9 +1539,8 @@ dbref player;
 	free_lbuf(buf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_attrtable: List available attributes.
+/* ---------------------------------------------------------------------------
+ * list_attrtable: List available attributes.
  */
 
 static void list_attrtable(player)
@@ -1640,9 +1565,8 @@ dbref player;
 	free_lbuf(buf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_ntab_flags: List flags field of an ntab.
+/* ---------------------------------------------------------------------------
+ * list_ntab_flags: List flags field of an ntab.
  */
 
 static void list_ntab_flags(player, ntab, flaglist)
@@ -1663,9 +1587,8 @@ NAMETAB *ntab, *flaglist;
 	free_sbuf(buff);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_cmdaccess: List access commands.
+/* ---------------------------------------------------------------------------
+ * list_cmdaccess: List access commands.
  */
 
 NAMETAB access_nametab[] =
@@ -1728,9 +1651,8 @@ dbref player;
 	free_sbuf(buff);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_cmdswitches: List switches for commands.
+/* ---------------------------------------------------------------------------
+ * list_cmdswitches: List switches for commands.
  */
 
 static void list_cmdswitches(player)
@@ -1764,12 +1686,14 @@ NAMETAB attraccess_nametab[] = {
 {(char *)"deleted",		2,	CA_WIZARD,	AF_DELETED},
 {(char *)"god",			1,	CA_PUBLIC,	AF_GOD},
 {(char *)"hidden",		1,	CA_WIZARD,	AF_MDARK},
+{(char *)"html",		2,	CA_PUBLIC,	AF_HTML},
 {(char *)"ignore",		2,	CA_WIZARD,	AF_NOCMD},
 {(char *)"internal",		2,	CA_WIZARD,	AF_INTERNAL},
 {(char *)"is_lock",		4,	CA_PUBLIC,	AF_IS_LOCK},
 {(char *)"locked",		1,	CA_PUBLIC,	AF_LOCK},
 {(char *)"no_command",		4,	CA_PUBLIC,	AF_NOPROG},
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
+{(char *)"no_parse",		4,	CA_PUBLIC,	AF_NOPARSE},
 {(char *)"private",		1,	CA_PUBLIC,	AF_ODARK},
 {(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
 {(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
@@ -1781,8 +1705,10 @@ NAMETAB indiv_attraccess_nametab[] = {
 {(char *)"wizard",		1,	CA_WIZARD,	AF_WIZARD},
 {(char *)"no_command",		4,	CA_PUBLIC,	AF_NOPROG},
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
+{(char *)"no_parse",		4,	CA_PUBLIC,	AF_NOPARSE},
 {(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
 {(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
+{(char *)"html",		2,	CA_PUBLIC,	AF_HTML},
 { NULL,				0,	0,		0}};
 
 /* *INDENT-ON* */
@@ -1804,9 +1730,8 @@ dbref player;
 	free_sbuf(buff);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_access: Change command or switch permissions.
+/* ---------------------------------------------------------------------------
+ * cf_access: Change command or switch permissions.
  */
 
 extern void FDECL(cf_log_notfound, (dbref, char *, const char *, char *));
@@ -1843,9 +1768,8 @@ CF_HAND(cf_access)
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_acmd_access: Chante command permissions for all attr-setting cmds.
+/* ---------------------------------------------------------------------------
+ * cf_acmd_access: Chante command permissions for all attr-setting cmds.
  */
 
 CF_HAND(cf_acmd_access)
@@ -1878,9 +1802,8 @@ CF_HAND(cf_acmd_access)
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_attr_access: Change access on an attribute.
+/* ---------------------------------------------------------------------------
+ * cf_attr_access: Change access on an attribute.
  */
 
 CF_HAND(cf_attr_access)
@@ -1903,9 +1826,8 @@ CF_HAND(cf_attr_access)
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_cmd_alias: Add a command alias.
+/* ---------------------------------------------------------------------------
+ * cf_cmd_alias: Add a command alias.
  */
 
 CF_HAND(cf_cmd_alias)
@@ -1918,34 +1840,26 @@ CF_HAND(cf_cmd_alias)
 	alias = strtok(str, " \t=,");
 	orig = strtok(NULL, " \t=,");
 
-	if (!orig)		/*
-				 * * we only got one argument to @alias.
-				 * Bad.  
-				 */
+	if (!orig)		/* we only got one argument to @alias. Bad. */
 		return -1;
 
 	for (ap = orig; *ap && (*ap != '/'); ap++) ;
 	if (*ap == '/') {
 
-		/*
-		 * Switch form of command aliasing: create an alias for a  *
-		 * * * * * * command + a switch 
+		/* Switch form of command aliasing: create an alias for a
+		 * command + a switch 
 		 */
 
 		*ap++ = '\0';
 
-		/*
-		 * Look up the command 
-		 */
+		/* Look up the command */
 
 		cmdp = (CMDENT *) hashfind(orig, (HASHTAB *) vp);
 		if (cmdp == NULL) {
 			cf_log_notfound(player, cmd, "Command", orig);
 			return -1;
 		}
-		/*
-		 * Look up the switch 
-		 */
+		/* Look up the switch */
 
 		nt = find_nametab_ent(player, (NAMETAB *) cmdp->switches, ap);
 		if (!nt) {
@@ -1956,7 +1870,7 @@ CF_HAND(cf_cmd_alias)
 		 * Got it, create the new command table entry 
 		 */
 
-		cmd2 = (CMDENT *) malloc(sizeof(CMDENT));
+		cmd2 = (CMDENT *) XMALLOC(sizeof(CMDENT), "cf_cmd_alias");
 		cmd2->cmdname = strsave(alias);
 		cmd2->switches = cmdp->switches;
 		cmd2->perms = cmdp->perms | nt->perm;
@@ -1966,14 +1880,12 @@ CF_HAND(cf_cmd_alias)
 		cmd2->callseq = cmdp->callseq;
 		cmd2->handler = cmdp->handler;
 		if (hashadd(cmd2->cmdname, (int *)cmd2, (HASHTAB *) vp)) {
-			free(cmd2->cmdname);
-			free(cmd2);
+			XFREE(cmd2->cmdname, "cf_cmd_alias.2");
+			XFREE(cmd2, "cf_cmd_alias.3");
 		}
 	} else {
 
-		/*
-		 * A normal (non-switch) alias 
-		 */
+		/* A normal (non-switch) alias */
 
 		hp = hashfind(orig, (HASHTAB *) vp);
 		if (hp == NULL) {
@@ -1985,9 +1897,8 @@ CF_HAND(cf_cmd_alias)
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_df_flags: List default flags at create time.
+/* ---------------------------------------------------------------------------
+ * list_df_flags: List default flags at create time.
  */
 
 static void list_df_flags(player)
@@ -2028,9 +1939,8 @@ dbref player;
 	free_sbuf(robotb);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_costs: List the costs of things.
+/* ---------------------------------------------------------------------------
+ * list_costs: List the costs of things.
  */
 
 #define coin_name(s)	(((s)==1) ? mudconf.one_coin : mudconf.many_coins)
@@ -2133,9 +2043,8 @@ dbref player;
 	free_mbuf(buff);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_options: List more game options from mudconf.
+/* ---------------------------------------------------------------------------
+ * list_options: List more game options from mudconf.
  */
 
 static const char *switchd[] =
@@ -2265,6 +2174,18 @@ dbref player;
 		raw_notify(player,
 			   tprintf("Players have a 1 in %d chance of finding a %s each time they move.",
 				   mudconf.payfind, mudconf.one_coin));
+#ifdef PUEBLO_SUPPORT
+	raw_notify(player, "Pueblo client extensions are supported.");
+#endif
+#ifdef SPLIT_QUOTAS
+	raw_notify(player, "The split quota system is supported.");
+#endif
+#ifdef USE_MAIL
+	raw_notify(player, "The built in @mail systems is supported.");
+#endif
+#ifdef USE_COMSYS
+	raw_notify(player, "The built in comsystem is supported.");
+#endif
 	raw_notify(player,
 		   tprintf("The head of the object freelist is #%d.",
 			   mudstate.freelist));
@@ -2306,9 +2227,8 @@ dbref player;
 	free_mbuf(buff);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_vattrs: List user-defined attributes
+/* ---------------------------------------------------------------------------
+ * list_vattrs: List user-defined attributes
  */
 
 static void list_vattrs(player)
@@ -2333,9 +2253,8 @@ dbref player;
 	free_lbuf(buff);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_hashstats: List information from hash tables
+/* ---------------------------------------------------------------------------
+ * list_hashstats: List information from hash tables
  */
 
 static void list_hashstat(player, tab_name, htab)
@@ -2377,8 +2296,12 @@ dbref player;
 	list_nhashstat(player, "Net Descriptors", &mudstate.desc_htab);
 	list_nhashstat(player, "Forwardlists", &mudstate.fwdlist_htab);
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
+#ifdef USE_MAIL
 	list_nhashstat(player, "Mail messages", &mudstate.mail_htab);
+#endif
+#ifdef USE_COMSYS
 	list_hashstat(player, "Channel names", &mudstate.channel_htab);
+#endif
 	list_hashstat(player, "News topics", &mudstate.news_htab);
 	list_hashstat(player, "Help topics", &mudstate.help_htab);
 	list_hashstat(player, "Wizhelp topics", &mudstate.wizhelp_htab);
@@ -2387,110 +2310,36 @@ dbref player;
 }
 
 #ifndef MEMORY_BASED
-/*
- * These are from 'udb_cache.c'. 
- */
+/* These are from 'udb_cache.c'. */
 extern time_t cs_ltime;
-extern int cs_writes;		/*
+extern int cs_writes;		/* total writes */
+extern int cs_reads;		/* total reads */
+extern int cs_dbreads;		/* total read-throughs */
+extern int cs_dbwrites;		/* total write-throughs */
+extern int cs_dels;		/* total deletes */
+extern int cs_checks;		/* total checks */
+extern int cs_rhits;		/* total reads filled from cache */
+extern int cs_ahits;		/* total reads filled active cache */
+extern int cs_whits;		/* total writes to dirty cache */
+extern int cs_fails;		/* attempts to grab nonexistent */
+extern int cs_resets;		/* total cache resets */
+extern int cs_syncs;		/* total cache syncs */
+extern int cs_objects;		/* total cache size */
 
-				 * 
-				 * * total writes  
-				 */
-extern int cs_reads;		/*
-
-				 * 
-				 * * total reads  
-				 */
-extern int cs_dbreads;		/*
-
-				 * 
-				 * * total read-throughs  
-				 */
-extern int cs_dbwrites;		/*
-
-				 * 
-				 * * total write-throughs  
-				 */
-extern int cs_dels;		/*
-
-				 * 
-				 * * total deletes  
-				 */
-extern int cs_checks;		/*
-
-				 * 
-				 * * total checks  
-				 */
-extern int cs_rhits;		/*
-
-				 * 
-				 * * total reads filled from cache  
-				 */
-extern int cs_ahits;		/*
-
-				 * 
-				 * * total reads filled active cache  
-				 */
-extern int cs_whits;		/*
-
-				 * 
-				 * * total writes to dirty cache  
-				 */
-extern int cs_fails;		/*
-
-				 * 
-				 * * attempts to grab nonexistent  
-				 */
-extern int cs_resets;		/*
-
-				 * 
-				 * * total cache resets  
-				 */
-extern int cs_syncs;		/*
-
-				 * 
-				 * * total cache syncs  
-				 */
-extern int cs_objects;		/*
-
-				 * 
-				 * * total cache size  
-				 */
-
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED  */
 
 #ifdef RADIX_COMPRESSION
-extern int strings_compressed;	/*
-
-				 * 
-				 * * Total number of compressed strings  
-				 */
-extern int strings_decompressed;	/*
-
-					 * 
-					 * * Total number of decompressed * 
-					 * * *  * *  * *  * *  * * strings  
+extern int strings_compressed;	/* Total number of compressed strings */
+extern int strings_decompressed;	/* Total number of decompressed
+					 * strings 
 					 */
-extern int chars_in;		/*
+extern int chars_in;		/* Total characters compressed */
+extern int symbols_out;		/* Total symbols emitted */
 
-				 * 
-				 * * Total characters compressed  
-				 */
-extern int symbols_out;		/*
+#endif /* RADIX_COMPRESSION */
 
-				 * 
-				 * * Total symbols emitted  
-				 */
-
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
-
-/*
- * ---------------------------------------------------------------------------
- * * list_db_stats: Get useful info from the DB layer about hash stats, etc.
+/* ---------------------------------------------------------------------------
+ * list_db_stats: Get useful info from the DB layer about hash stats, etc.
  */
 
 static void list_db_stats(player)
@@ -2512,25 +2361,20 @@ dbref player;
 	raw_notify(player, tprintf("Resets     %12d", cs_resets));
 	raw_notify(player, tprintf("Syncs      %12d", cs_syncs));
 	raw_notify(player, tprintf("Cache Size %12d", cs_objects));
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 #ifdef RADIX_COMPRESSION
 	raw_notify(player, "Compression statistics:");
 	raw_notify(player, tprintf("Strings compressed %d", strings_compressed));
 	raw_notify(player, tprintf("Strings decompressed %d", strings_decompressed));
 	raw_notify(player, tprintf("Compression ratio %d:%d", chars_in,
 				   symbols_out + (symbols_out >> 1)));
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_process: List local resource usage stats of the mush process.
- * * Adapted from code by Claudius@PythonMUCK,
- * *     posted to the net by Howard/Dark_Lord.
+/* ---------------------------------------------------------------------------
+ * list_process: List local resource usage stats of the mush process.
+ * Adapted from code by Claudius@PythonMUCK,
+ *     posted to the net by Howard/Dark_Lord.
  */
 
 static void list_process(player)
@@ -2612,9 +2456,8 @@ dbref player;
 		   tprintf("Descs avail: %10d", maxfds));
 #endif
 }
-/*
- * ---------------------------------------------------------------------------
- * * do_list: List information stored in internal structures.
+/* ---------------------------------------------------------------------------
+ * do_list: List information stored in internal structures.
  */
 
 #define	LIST_ATTRIBUTES	1
@@ -2636,9 +2479,7 @@ dbref player;
 #define	LIST_POWERS	17
 #define	LIST_SWITCHES	18
 #define	LIST_VATTRS	19
-#define	LIST_DB_STATS	20	/*
-				 * * GAC 4/6/92  
-				 */
+#define	LIST_DB_STATS	20	/* GAC 4/6/92 */
 #define	LIST_PROCESS	21
 #define	LIST_BADNAMES	22
 /* *INDENT-OFF* */
@@ -2669,14 +2510,6 @@ NAMETAB list_names[] = {
 { NULL,				0,	0,		0}};
 
 /* *INDENT-ON* */
-
-
-
-
-
-
-
-
 
 extern NAMETAB enable_names[];
 extern NAMETAB logoptions_nametab[];

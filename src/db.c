@@ -38,10 +38,6 @@ OBJ *db = NULL;
 NAME *names = NULL;
 NAME *purenames = NULL;
 
-#ifdef MEMORY_BASED
-int corrupt;
-#endif
-
 extern int sock;
 extern int ndescriptors;
 extern int maxd;
@@ -141,9 +137,7 @@ int mode;
 	return fd;
 }
 
-/*
- * #define t_xopen(f,m) t_fiddle(open(f, m, 0600)) 
- */
+/* #define t_xopen(f,m) t_fiddle(open(f, m, 0600)) */
 
 static const char *mode_txt(mode)
 int mode;
@@ -231,16 +225,10 @@ int mode;
 	return t_fd;
 }
 
-/*
- * #define GNU_MALLOC_TEST 1 
- */
+/* #define GNU_MALLOC_TEST 1 */
 
 #ifdef GNU_MALLOC_TEST
-extern unsigned int malloc_sbrk_used;	/*
-
-					 * 
-					 * * amount of data space used now  
-					 */
+extern unsigned int malloc_sbrk_used;	/* amount of data space used now */
 
 #endif
 
@@ -252,13 +240,9 @@ extern int FDECL(fwdlist_ck, (int, dbref, dbref, int, char *));
 extern void FDECL(pcache_reload, (dbref));
 extern void FDECL(desc_reload, (dbref));
 
-/*
- * *INDENT-OFF* 
- */
+/* *INDENT-OFF* */
 
-/*
- * list of attributes 
- */
+/* list of attributes */
 ATTR attr[] =
 {
 	{"Aahear", A_AAHEAR, AF_ODARK, NULL},
@@ -292,7 +276,8 @@ ATTR attr[] =
 	{"Away", A_AWAY, AF_ODARK | AF_NOPROG, NULL},
 	{"Charges", A_CHARGES, AF_ODARK | AF_NOPROG, NULL},
 	{"Comment", A_COMMENT, AF_MDARK | AF_WIZARD, NULL},
-	{"Cost", A_COST, AF_ODARK, NULL},
+	{"ConFormat", A_LCON_FMT, AF_ODARK | AF_NOPROG, NULL},
+    	{"Cost", A_COST, AF_ODARK, NULL},
 	{"Daily", A_DAILY, AF_ODARK, NULL},
 	{"Desc", A_DESC, AF_NOPROG, NULL},
 	{"DefaultLock", A_LOCK, AF_ODARK | AF_NOPROG | AF_NOCMD | AF_IS_LOCK,
@@ -346,7 +331,8 @@ ATTR attr[] =
 	{"Move", A_MOVE, AF_ODARK, NULL},
 	{"Name", A_NAME, AF_DARK | AF_NOPROG | AF_NOCMD | AF_INTERNAL,
 	 NULL},
-	{"Odesc", A_ODESC, AF_ODARK | AF_NOPROG, NULL},
+	{"NewObjs", A_NEWOBJS, AF_MDARK | AF_NOPROG | AF_GOD | AF_NOCMD, NULL},
+    	{"Odesc", A_ODESC, AF_ODARK | AF_NOPROG, NULL},
 	{"Odfail", A_ODFAIL, AF_ODARK | AF_NOPROG, NULL},
 	{"Odrop", A_ODROP, AF_ODARK | AF_NOPROG, NULL},
 	{"Oefail", A_OEFAIL, AF_ODARK | AF_NOPROG, NULL},
@@ -442,13 +428,10 @@ ATTR attr[] =
 	{NULL, 0, 0, NULL}};
 
 #ifndef STANDALONE
-/*
- * *INDENT-ON* 
- */
+/* *INDENT-ON* */
 
-/*
- * ---------------------------------------------------------------------------
- * * fwdlist_set, fwdlist_clr: Manage cached forwarding lists
+/* ---------------------------------------------------------------------------
+ * fwdlist_set, fwdlist_clr: Manage cached forwarding lists
  */
 
 void fwdlist_set(thing, ifp)
@@ -456,19 +439,15 @@ dbref thing;
 FWDLIST *ifp;
 {
 	FWDLIST *fp, *xfp;
-	int i;
+	int i, stat = 0;
 
-	/*
-	 * If fwdlist is null, clear 
-	 */
+	/* If fwdlist is null, clear */
 
 	if (!ifp || (ifp->count <= 0)) {
 		fwdlist_clr(thing);
 		return;
 	}
-	/*
-	 * Copy input forwardlist to a correctly-sized buffer 
-	 */
+	/* Copy input forwardlist to a correctly-sized buffer */
 
 	fp = (FWDLIST *) XMALLOC(sizeof(int) * ((ifp->count) + 1), "fwdlist_set");
 
@@ -484,10 +463,12 @@ FWDLIST *ifp;
 	xfp = fwdlist_get(thing);
 	if (xfp) {
 		XFREE(xfp, "fwdlist_set");
-		nhashrepl(thing, (int *)fp, &mudstate.fwdlist_htab);
+		stat = nhashrepl(thing, (int *)fp, &mudstate.fwdlist_htab);
 	} else {
-		nhashadd(thing, (int *)fp, &mudstate.fwdlist_htab);
+		stat = nhashadd(thing, (int *)fp, &mudstate.fwdlist_htab);
 	}
+	if (stat < 0)               /* the add or replace failed */
+		XFREE(fp, "fwdlist_set");
 }
 
 void fwdlist_clr(thing)
@@ -495,9 +476,7 @@ dbref thing;
 {
 	FWDLIST *xfp;
 
-	/*
-	 * If a forwardlist exists, delete it 
-	 */
+	/* If a forwardlist exists, delete it */
 
 	xfp = fwdlist_get(thing);
 	if (xfp) {
@@ -508,9 +487,8 @@ dbref thing;
 
 #endif
 
-/*
- * ---------------------------------------------------------------------------
- * * fwdlist_load: Load text into a forwardlist.
+/* ---------------------------------------------------------------------------
+ * fwdlist_load: Load text into a forwardlist.
  */
 
 int fwdlist_load(fp, player, atext)
@@ -525,22 +503,14 @@ char *atext;
 	count = 0;
 	errors = 0;
 	bp = tp = alloc_lbuf("fwdlist_load.str");
-	StringCopy(tp, atext);
+	strcpy(tp, atext);
 	do {
-		for (; *bp && isspace(*bp); bp++) ;	/*
-							 * skip spaces 
-							 */
-		for (dp = bp; *bp && !isspace(*bp); bp++) ;	/*
-								 * remember * 
-								 * 
-								 * *  * *  *
-								 * *  * * * * 
+		for (; *bp && isspace(*bp); bp++) ;	/* skip spaces */
+		for (dp = bp; *bp && !isspace(*bp); bp++) ;	/* remember
 								 * string  
 								 */
 		if (*bp)
-			*bp++ = '\0';	/*
-					 * terminate string 
-					 */
+			*bp++ = '\0';	/* terminate string */
 		if ((*dp++ == '#') && isdigit(*dp)) {
 			target = atoi(dp);
 #ifndef STANDALONE
@@ -571,7 +541,7 @@ char *atext;
 
 /*
  * ---------------------------------------------------------------------------
- * * fwdlist_rewrite: Generate a text string from a FWDLIST buffer.
+ * fwdlist_rewrite: Generate a text string from a FWDLIST buffer.
  */
 
 int fwdlist_rewrite(fp, atext)
@@ -602,9 +572,8 @@ char *atext;
 	return count;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fwdlist_ck:  Check a list of dbref numbers to forward to for AUDIBLE
+/* ---------------------------------------------------------------------------
+ * fwdlist_ck:  Check a list of dbref numbers to forward to for AUDIBLE
  */
 
 int fwdlist_ck(key, player, thing, anum, atext)
@@ -626,9 +595,7 @@ char *atext;
 		fp = NULL;
 	}
 
-	/*
-	 * Set the cached forwardlist 
-	 */
+	/* Set the cached forwardlist */
 
 	fwdlist_set(thing, fp);
 	count = fwdlist_rewrite(fp, atext);
@@ -667,31 +634,21 @@ dbref thing;
 static char *set_string(ptr, new)
 char **ptr, *new;
 {
-	/*
-	 * if pointer not null unalloc it 
-	 */
+	/* if pointer not null unalloc it */
 
 	if (*ptr)
 		XFREE(*ptr, "set_string");
 
-	/*
-	 * if new string is not null allocate space for it and copy it 
-	 */
+	/* if new string is not null allocate space for it and copy it */
 
-	if (!new)		/*
-				 * * || !*new  
-				 */
-		return (*ptr = NULL);	/*
-					 * Check with GAC about this 
-					 */
-	*ptr = (char *)XMALLOC(strlen(new) + 1, "set_string");
-	StringCopy(*ptr, new);
+	if (!new)		/* || !*new */
+		return (*ptr = NULL);	/* Check with GAC about this */
+	*ptr = strsave(new);
 	return (*ptr);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * Name, s_Name: Get or set an object's name.
+/* ---------------------------------------------------------------------------
+ * Name, s_Name: Get or set an object's name.
  */
 
 INLINE char *Name(thing)
@@ -774,9 +731,8 @@ const char *s;
 
 #ifndef STANDALONE
 
-/*
- * ---------------------------------------------------------------------------
- * * do_attrib: Manage user-named attributes.
+/* ---------------------------------------------------------------------------
+ * do_attrib: Manage user-named attributes.
  */
 
 extern NAMETAB attraccess_nametab[];
@@ -791,12 +747,10 @@ char *aname, *value;
 	VATTR *va;
 	ATTR *va2;
 
-	/*
-	 * Look up the user-named attribute we want to play with 
-	 */
+	/* Look up the user-named attribute we want to play with */
 
 	buff = alloc_sbuf("do_attribute");
-	for (p = buff, q = aname; *q; p++, q++)
+	for (p = buff, q = aname; *q && ((p - buff) < (SBUF_SIZE - 1)); p++, q++)
 		*p = ToUpper(*q);
 	*p = '\0';
 
@@ -809,9 +763,7 @@ char *aname, *value;
 	switch (key) {
 	case ATTRIB_ACCESS:
 
-		/*
-		 * Modify access to user-named attribute 
-		 */
+		/* Modify access to user-named attribute */
 
 		for (sp = value; *sp; sp++)
 			*sp = ToUpper(*sp);
@@ -819,18 +771,14 @@ char *aname, *value;
 		success = 0;
 		while (sp != NULL) {
 
-			/*
-			 * Check for negation 
-			 */
+			/* Check for negation */
 
 			negate = 0;
 			if (*sp == '!') {
 				negate = 1;
 				sp++;
 			}
-			/*
-			 * Set or clear the appropriate bit 
-			 */
+			/* Set or clear the appropriate bit */
 
 			f = search_nametab(player, attraccess_nametab, sp);
 			if (f > 0) {
@@ -844,9 +792,7 @@ char *aname, *value;
 				    tprintf("Unknown permission: %s.", sp));
 			}
 
-			/*
-			 * Get the next token 
-			 */
+			/* Get the next token */
 
 			sp = strtok(NULL, " ");
 		}
@@ -856,9 +802,7 @@ char *aname, *value;
 
 	case ATTRIB_RENAME:
 
-		/*
-		 * Make sure the new name doesn't already exist 
-		 */
+		/* Make sure the new name doesn't already exist */
 
 		va2 = atr_str(value);
 		if (va2) {
@@ -875,9 +819,7 @@ char *aname, *value;
 
 	case ATTRIB_DELETE:
 
-		/*
-		 * Remove the attribute 
-		 */
+		/* Remove the attribute */
 
 		vattr_delete(buff);
 		notify(player, "Attribute deleted.");
@@ -887,9 +829,8 @@ char *aname, *value;
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_fixdb: Directly edit database fields
+/* ---------------------------------------------------------------------------
+ * do_fixdb: Directly edit database fields
  */
 
 void do_fixdb(player, cause, key, arg1, arg2)
@@ -990,9 +931,8 @@ char *arg1, *arg2;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * init_attrtab: Initialize the attribute hash tables.
+/* ---------------------------------------------------------------------------
+ * init_attrtab: Initialize the attribute hash tables.
  */
 
 void NDECL(init_attrtab)
@@ -1013,9 +953,8 @@ void NDECL(init_attrtab)
 	free_sbuf(buff);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_str: Look up an attribute by name.
+/* ---------------------------------------------------------------------------
+ * atr_str: Look up an attribute by name.
  */
 
 ATTR *atr_str(s)
@@ -1026,34 +965,26 @@ char *s;
 	VATTR *va;
 	static ATTR tattr;
 
-	/*
-	 * Convert the buffer name to lowercase 
-	 */
+	/* Convert the buffer name to uppercase */
 
 	buff = alloc_sbuf("atr_str");
-	for (p = buff, q = s; *q; p++, q++)
+	for (p = buff, q = s; *q && ((p - buff) < (SBUF_SIZE - 1)); p++, q++)
 		*p = ToUpper(*q);
 	*p = '\0';
 
-	/*
-	 * Look for a predefined attribute 
-	 */
+	/* Look for a predefined attribute */
 
 	a = (ATTR *) hashfind(buff, &mudstate.attr_name_htab);
 	if (a != NULL) {
 		free_sbuf(buff);
 		return a;
 	}
-	/*
-	 * Nope, look for a user attribute 
-	 */
+	/* Nope, look for a user attribute */
 
 	va = (VATTR *) vattr_find(buff);
 	free_sbuf(buff);
 
-	/*
-	 * If we got one, load tattr and return a pointer to it. 
-	 */
+	/* If we got one, load tattr and return a pointer to it. */
 
 	if (va != NULL) {
 		tattr.name = va->name;
@@ -1062,24 +993,17 @@ char *s;
 		tattr.check = NULL;
 		return &tattr;
 	}
-	/*
-	 * All failed, return NULL 
-	 */
+	/* All failed, return NULL */
 
 	return NULL;
 }
 
-#else /*
-       * * STANDALONE  
-       */
+#else /* STANDALONE */
 
-/*
- * We don't have the hash tables, do it by hand 
- */
+/* We don't have the hash tables, do it by hand */
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_str: Look up an attribute by name.
+/* ---------------------------------------------------------------------------
+ * atr_str: Look up an attribute by name.
  */
 
 ATTR *atr_str(s)
@@ -1091,37 +1015,24 @@ char *s;
 	char *buff, *p, *q;
 	
 	buff = alloc_sbuf("atr_str");
-	for (p = buff, q = s; *q; p++, q++)
+	for (p = buff, q = s; *q && ((p - buff) < (SBUF_SIZE - 1)); p++, q++)
 		*p = ToUpper(*q);
 	*p = '\0';
 
-	/*
-	 * Check for an exact match on a predefined attribute 
-	 */
+	/* Check for an exact match on a predefined attribute */
 
 	for (ap = attr; ap->name; ap++) {
 		if (!string_compare(ap->name, s))
 			return ap;
 	}
 
-	/*
-	 * Check for an exact match on a user-named attribute 
-	 */
-
-	buff = alloc_sbuf("atr_str");
-	for (p = buff, q = s; *q; p++, q++)
-		*p = ToUpper(*q);
-	*p = '\0';
+	/* Check for an exact match on a user-named attribute */
 
 	va = (VATTR *) vattr_find(buff);
-
 	free_sbuf(buff);
-	
 	if (va != NULL) {
 
-		/*
-		 * Got it 
-		 */
+		/* Got it */
 
 		tattr.name = va->name;
 		tattr.number = va->number;
@@ -1130,8 +1041,8 @@ char *s;
 		return &tattr;
 	}
 	/*
-	 * No exact match, try for a prefix match on predefined attribs. * *
-	 * * * * * Check for both longer versions and shorter versions. 
+	 * No exact match, try for a prefix match on predefined attribs.
+	 * Check for both longer versions and shorter versions. 
 	 */
 
 	for (ap = attr; ap->name; ap++) {
@@ -1144,13 +1055,10 @@ char *s;
 	return NULL;
 }
 
-#endif /*
-        * * STANDALONE  
-        */
+#endif /* STANDALONE */
 
-/*
- * ---------------------------------------------------------------------------
- * * anum_extend: Grow the attr num lookup table.
+/* ---------------------------------------------------------------------------
+ * anum_extend: Grow the attr num lookup table.
  */
 
 ATTR **anum_table = NULL;
@@ -1172,24 +1080,25 @@ int newtop;
 	if (newtop < anum_alc_top + delta)
 		newtop = anum_alc_top + delta;
 	if (anum_table == NULL) {
-		anum_table = (ATTR **) malloc((newtop + 1) * sizeof(ATTR *));
+		anum_table = (ATTR **) XMALLOC((newtop + 1) * sizeof(ATTR *),
+					"anum_extend.1");
 		for (i = 0; i <= newtop; i++)
 			anum_table[i] = NULL;
 	} else {
-		anum_table2 = (ATTR **) malloc((newtop + 1) * sizeof(ATTR *));
+		anum_table2 = (ATTR **) XMALLOC((newtop + 1) * sizeof(ATTR *),
+					"anum_extend.2");
 		for (i = 0; i <= anum_alc_top; i++)
 			anum_table2[i] = anum_table[i];
 		for (i = anum_alc_top + 1; i <= newtop; i++)
 			anum_table2[i] = NULL;
-		free((char *)anum_table);
+		XFREE((char *)anum_table, "anum_extend.3");
 		anum_table = anum_table2;
 	}
 	anum_alc_top = newtop;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_num: Look up an attribute by number.
+/* ---------------------------------------------------------------------------
+ * atr_num: Look up an attribute by number.
  */
 
 ATTR *atr_num(anum)
@@ -1198,9 +1107,7 @@ int anum;
 	VATTR *va;
 	static ATTR tattr;
 
-	/*
-	 * Look for a predefined attribute 
-	 */
+	/* Look for a predefined attribute */
 
 	if (anum < A_USER_START)
 		return anum_get(anum);
@@ -1208,9 +1115,7 @@ int anum;
 	if (anum >= anum_alc_top)
 		return NULL;
 
-	/*
-	 * It's a user-defined attribute, we need to copy data 
-	 */
+	/* It's a user-defined attribute, we need to copy data */
 
 	va = (VATTR *) anum_get(anum);
 	if (va != NULL) {
@@ -1220,16 +1125,13 @@ int anum;
 		tattr.check = NULL;
 		return &tattr;
 	}
-	/*
-	 * All failed, return NULL 
-	 */
+	/* All failed, return NULL */
 
 	return NULL;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * mkattr: Lookup attribute by name, creating if needed.
+/* ---------------------------------------------------------------------------
+ * mkattr: Lookup attribute by name, creating if needed.
  */
 
 int mkattr(buff)
@@ -1240,9 +1142,7 @@ char *buff;
 
 	if (!(ap = atr_str(buff))) {
 
-		/*
-		 * Unknown attr, create a new one 
-		 */
+		/* Unknown attr, create a new one */
 
 		va = vattr_alloc(buff, mudconf.vattr_flags);
 		if (!va || !(va->number))
@@ -1254,9 +1154,8 @@ char *buff;
 	return ap->number;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * al_decode: Fetch an attribute number from an alist.
+/* ---------------------------------------------------------------------------
+ * al_decode: Fetch an attribute number from an alist.
  */
 
 static int al_decode(app)
@@ -1279,14 +1178,11 @@ char **app;
 		}
 		atrshft += 7;
 	}
-	/*
-	 * NOTREACHED 
-	 */
+	/* NOTREACHED */
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * al_code: Store an attribute number in an alist.
+/* ---------------------------------------------------------------------------
+ * al_code: Store an attribute number in an alist.
  */
 
 static void al_code(app, atrnum)
@@ -1308,9 +1204,8 @@ int atrnum;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * Commer: check if an object has any $-commands in its attributes.
+/* ---------------------------------------------------------------------------
+ * Commer: check if an object has any $-commands in its attributes.
  */
 
 int Commer(thing)
@@ -1339,19 +1234,14 @@ dbref thing;
 	return 0;
 }
 
-/*
- * routines to handle object attribute lists 
- */
+/* routines to handle object attribute lists */
 
 #ifndef MEMORY_BASED
-/*
- * ---------------------------------------------------------------------------
- * * al_size, al_fetch, al_store, al_add, al_delete: Manipulate attribute lists
+/* ---------------------------------------------------------------------------
+ * al_size, al_fetch, al_store, al_add, al_delete: Manipulate attribute lists
  */
 
-/*
- * al_extend: Get more space for attributes, if needed 
- */
+/* al_extend: Get more space for attributes, if needed */
 
 void al_extend(buffer, bufsiz, len, copy)
 char **buffer;
@@ -1371,9 +1261,7 @@ int *bufsiz, len, copy;
 	}
 }
 
-/*
- * al_size: Return length of attribute list in chars 
- */
+/* al_size: Return length of attribute list in chars */
 
 int al_size(astr)
 char *astr;
@@ -1383,9 +1271,7 @@ char *astr;
 	return (strlen(astr) + 1);
 }
 
-/*
- * al_store: Write modified attribute list 
- */
+/* al_store: Write modified attribute list */
 
 void NDECL(al_store)
 {
@@ -1400,9 +1286,7 @@ void NDECL(al_store)
 	mudstate.mod_al_id = NOTHING;
 }
 
-/*
- * al_fetch: Load attribute list 
- */
+/* al_fetch: Load attribute list */
 
 char *al_fetch(thing)
 dbref thing;
@@ -1410,16 +1294,12 @@ dbref thing;
 	char *astr;
 	int len;
 
-	/*
-	 * We only need fetch if we change things 
-	 */
+	/* We only need fetch if we change things */
 
 	if (mudstate.mod_al_id == thing)
 		return mudstate.mod_alist;
 
-	/*
-	 * Save old list, then fetch and set up the attribute list 
-	 */
+	/* Save old list, then fetch and set up the attribute list */
 
 	al_store();
 	astr = atr_get_raw(thing, A_LIST);
@@ -1435,9 +1315,7 @@ dbref thing;
 	return mudstate.mod_alist;
 }
 
-/*
- * al_add: Add an attribute to an attribute list 
- */
+/* al_add: Add an attribute to an attribute list */
 
 void al_add(thing, attrnum)
 dbref thing;
@@ -1446,19 +1324,15 @@ int attrnum;
 	char *abuf, *cp;
 	int anum;
 
-	/*
-	 * If trying to modify List attrib, return.  Otherwise, get the * * * 
-	 * 
-	 * *  * *  * * attribute list. 
+	/* If trying to modify List attrib, return.  Otherwise, get the
+	 * attribute list. 
 	 */
 
 	if (attrnum == A_LIST)
 		return;
 	abuf = al_fetch(thing);
 
-	/*
-	 * See if attr is in the list.  If so, exit (need not do anything) 
-	 */
+	/* See if attr is in the list.  If so, exit (need not do anything) */
 
 	cp = abuf;
 	while (*cp) {
@@ -1467,33 +1341,25 @@ int attrnum;
 			return;
 	}
 
-	/*
-	 * Nope, extend it 
-	 */
+	/* Nope, extend it */
 
 	al_extend(&mudstate.mod_alist, &mudstate.mod_size,
 		  (cp - abuf + ATR_BUF_INCR), 1);
 	if (mudstate.mod_alist != abuf) {
 
-		/*
-		 * extend returned different buffer, re-find the end 
-		 */
+		/* extend returned different buffer, re-find the end */
 
 		abuf = mudstate.mod_alist;
 		for (cp = abuf; *cp; anum = al_decode(&cp)) ;
 	}
-	/*
-	 * Add the new attribute on to the end 
-	 */
+	/* Add the new attribute on to the end */
 
 	al_code(&cp, attrnum);
 	*cp = '\0';
 	return;
 }
 
-/*
- * al_delete: Remove an attribute from an attribute list 
- */
+/* al_delete: Remove an attribute from an attribute list */
 
 void al_delete(thing, attrnum)
 dbref thing;
@@ -1502,10 +1368,8 @@ int attrnum;
 	int anum;
 	char *abuf, *cp, *dp;
 
-	/*
-	 * If trying to modify List attrib, return.  Otherwise, get the * * * 
-	 * 
-	 * *  * *  * * attribute list. 
+	/* If trying to modify List attrib, return.  Otherwise, get the
+	 * attribute list. 
 	 */
 
 	if (attrnum == A_LIST)
@@ -1540,28 +1404,22 @@ Aname *abuff;
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * al_destroy: wipe out an object's attribute list.
+/* ---------------------------------------------------------------------------
+ * al_destroy: wipe out an object's attribute list.
  */
 
 void al_destroy(thing)
 dbref thing;
 {
 	if (mudstate.mod_al_id == thing)
-		al_store();	/*
-				 * remove from cache 
-				 */
+		al_store();	/* remove from cache */
 	atr_clr(thing, A_LIST);
 }
 
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_encode: Encode an attribute string.
+/* ---------------------------------------------------------------------------
+ * atr_encode: Encode an attribute string.
  */
 
 static char *atr_encode(iattr, thing, owner, flags, atr)
@@ -1570,17 +1428,14 @@ dbref thing, owner;
 int flags, atr;
 {
 
-	/*
-	 * If using the default owner and flags (almost all attributes will),
-	 * * * * * * * just store the string. 
+	/* If using the default owner and flags (almost all attributes will),
+	 * just store the string. 
 	 */
 
 	if (((owner == Owner(thing)) || (owner == NOTHING)) && !flags)
 		return iattr;
 
-	/*
-	 * Encode owner and flags into the attribute text 
-	 */
+	/* Encode owner and flags into the attribute text */
 
 	if (owner == NOTHING)
 		owner = Owner(thing);
@@ -1589,12 +1444,11 @@ int flags, atr;
 
 #ifdef RADIX_COMPRESSION
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_get_raw_decode: Get an attribute string out of the DB, decompress and
- * * decode it in one shot. Since the decompression involves a copy, and we
- * * normally do decode/copy immediately after fetching the attribute, this is
- * * used to roll the two operations together.
+/* ---------------------------------------------------------------------------
+ * atr_get_raw_decode: Get an attribute string out of the DB, decompress and
+ * decode it in one shot. Since the decompression involves a copy, and we
+ * normally do decode/copy immediately after fetching the attribute, this is
+ * used to roll the two operations together.
  */
 
 static int atr_get_raw_decode(thing, oattr, owner, flags, atr)
@@ -1619,16 +1473,12 @@ int *flags, atr;
 	if (!Good_obj(thing))
 		return 0;
 
-	if (atr == A_LIST) {	/*
-				 * This is not supposed to be compressed! 
-				 */
+	if (atr == A_LIST) {	/* This is not supposed to be compressed! */
 		abort();
 	}
 	makekey(thing, atr, &okey);
 	a = FETCH(&okey);
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 
 	if (!a) {
 		*owner = Owner(thing);
@@ -1639,10 +1489,7 @@ int *flags, atr;
 		return 0;
 	}
 #ifndef MEMORY_BASED
-	/*
-	 * We now have a compressed attribute, decompress it into oattr 
-	 */
-	/*
+	/* We now have a compressed attribute, decompress it into oattr 
 	 * and decode it. 
 	 */
 
@@ -1654,9 +1501,7 @@ int *flags, atr;
 		cp = oattr;
 	}
 #else
-	/*
-	 * Already uncompressed 
-	 */
+	/* Already uncompressed */
 
 	if (oattr == NULL) {
 		len = strlen(a) + 1;
@@ -1667,19 +1512,13 @@ int *flags, atr;
 		StringCopy(oattr, a);
 		cp = oattr;
 	}
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED  */
 
 	if (*cp == ATR_INFO_CHAR) {
 
-		/*
-		 * Get the attribute owner 
-		 */
+		/* Get the attribute owner */
 
-		cp++;		/*
-				 * Skip magic character 
-				 */
+		cp++;		/* Skip magic character */
 		*owner = 0;
 		neg = 0;
 		if (*cp == '-') {
@@ -1692,36 +1531,28 @@ int *flags, atr;
 		if (neg)
 			*owner = 0 - *owner;
 
-		/*
-		 * If delimiter is not ':', just return attribute 
-		 */
+		/* If delimiter is not ':', just return attribute */
 
 		if (*cp++ != ':') {
 			*owner = Owner(thing);
 			*flags = 0;
 			return 1;
 		}
-		/*
-		 * Get the attribute flags 
-		 */
+		/* Get the attribute flags */
 
 		*flags = 0;
 		while (isdigit(*cp)) {
 			*flags = (*flags * 10) + (*cp++ - '0');
 		}
 
-		/*
-		 * If delimiter is not ':', just return attribute 
-		 */
+		/* If delimiter is not ':', just return attribute */
 
 		if (*cp++ != ':') {
 			*owner = Owner(thing);
 			*flags = 0;
 			return 1;
 		}
-		/*
-		 * Get the attribute text 
-		 */
+		/* Get the attribute text */
 
 		if (oattr != NULL)
 			bcopy(cp, oattr, len - (cp - oattr));
@@ -1731,9 +1562,7 @@ int *flags, atr;
 
 	} else {
 
-		/*
-		 * Not the special character, return normal info 
-		 */
+		/* Not the special character, return normal info */
 
 		*owner = Owner(thing);
 		*flags = 0;
@@ -1741,13 +1570,10 @@ int *flags, atr;
 
 	return 1;
 }
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION  */
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_decode: Decode an attribute string.
+/* ---------------------------------------------------------------------------
+ * atr_decode: Decode an attribute string.
  */
 
 static void atr_decode(iattr, oattr, thing, owner, flags, atr)
@@ -1758,21 +1584,15 @@ int *flags, atr;
 	char *cp;
 	int neg;
 
-	/*
-	 * See if the first char of the attribute is the special character 
-	 */
+	/* See if the first char of the attribute is the special character */
 
 	if (*iattr == ATR_INFO_CHAR) {
 
-		/*
-		 * It is, crack the attr apart 
-		 */
+		/* It is, crack the attr apart */
 
 		cp = &iattr[1];
 
-		/*
-		 * Get the attribute owner 
-		 */
+		/* Get the attribute owner */
 
 		*owner = 0;
 		neg = 0;
@@ -1786,64 +1606,53 @@ int *flags, atr;
 		if (neg)
 			*owner = 0 - *owner;
 
-		/*
-		 * If delimiter is not ':', just return attribute 
-		 */
+		/* If delimiter is not ':', just return attribute */
 
 		if (*cp++ != ':') {
 			*owner = Owner(thing);
 			*flags = 0;
 			if (oattr) {
-				StringCopy(oattr, iattr);
+				strcpy(oattr, iattr);
 			}
 			return;
 		}
-		/*
-		 * Get the attribute flags 
-		 */
+		/* Get the attribute flags */
 
 		*flags = 0;
 		while (isdigit(*cp)) {
 			*flags = (*flags * 10) + (*cp++ - '0');
 		}
 
-		/*
-		 * If delimiter is not ':', just return attribute 
-		 */
+		/* If delimiter is not ':', just return attribute */
 
 		if (*cp++ != ':') {
 			*owner = Owner(thing);
 			*flags = 0;
 			if (oattr) {
-				StringCopy(oattr, iattr);
+				strcpy(oattr, iattr);
 			}
 		}
-		/*
-		 * Get the attribute text 
-		 */
+		/* Get the attribute text */
 
 		if (oattr) {
-			StringCopy(oattr, cp);
+			strcpy(oattr, cp);
 		}
 		if (*owner == NOTHING)
 			*owner = Owner(thing);
 	} else {
 
-		/*
-		 * Not the special character, return normal info 
-		 */
+		/* Not the special character, return normal info */
 
 		*owner = Owner(thing);
 		*flags = 0;
 		if (oattr) {
-			StringCopy(oattr, iattr);
+			strcpy(oattr, iattr);
 		}
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_clr: clear an attribute in the list.
+/* ---------------------------------------------------------------------------
+ * atr_clr: clear an attribute in the list.
  */
 
 void atr_clr(thing, atr)
@@ -1860,9 +1669,7 @@ int atr;
 	if (db[thing].at_count < 0)
 		abort();
 
-	/*
-	 * Binary search for the attribute. 
-	 */
+	/* Binary search for the attribute. */
 	lo = 0;
 	hi = db[thing].at_count - 1;
 	list = db[thing].ahead;
@@ -1887,9 +1694,7 @@ int atr;
 	makekey(thing, atr, &okey);
 	DELETE(&okey);
 	al_delete(thing, atr);
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 	switch (atr) {
 	case A_STARTUP:
 		s_Flags(thing, Flags(thing) & ~HAS_STARTUP);
@@ -1914,9 +1719,8 @@ int atr;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_add_raw, atr_add: add attribute of type atr to list
+/* ---------------------------------------------------------------------------
+ * atr_add_raw, atr_add: add attribute of type atr to list
  */
 
 void atr_add_raw(thing, atr, buff)
@@ -1933,9 +1737,7 @@ char *buff;
 #ifdef RADIX_COMPRESSION
 	int len;
 
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 
 	if (!buff || !*buff) {
 		atr_clr(thing, atr);
@@ -1946,20 +1748,20 @@ char *buff;
 	}
 #ifdef RADIX_COMPRESSION
 	len = string_compress(buff, compress_buff);
-	if ((text = (char *)malloc(len)) == NULL) {
+	if ((text = (char *)XMALLOC(len, "atr_add_raw")) == NULL) {
 		return;
 	}
 	bcopy(compress_buff, text, len);
 #else
-	if ((text = (char *)malloc(strlen(buff) + 1)) == NULL) {
+	if ((text = (char *)XMALLOC(strlen(buff) + 1, "atr_add_raw.1")) == NULL) {
 		return;
 	}
-	StringCopy(text, buff);
+	strcpy(text, buff);
 #endif
 
 	if (!db[thing].ahead) {
-		if ((list = (ATRLIST *) malloc(sizeof(ATRLIST))) == NULL) {
-			free(text);
+		if ((list = (ATRLIST *) XMALLOC(sizeof(ATRLIST), "atr_add_raw.2")) == NULL) {
+			XFREE(text);
 			return;
 		}
 		db[thing].ahead = list;
@@ -1970,15 +1772,11 @@ char *buff;
 		list[0].size = len;
 #else
 		list[0].size = strlen(text) + 1;
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 		found = 1;
 	} else {
 
-		/*
-		 * Binary search for the attribute 
-		 */
+		/* Binary search for the attribute */
 		lo = 0;
 		hi = db[thing].at_count - 1;
 
@@ -1992,9 +1790,7 @@ char *buff;
 				list[mid].size = len;
 #else
 				list[mid].size = strlen(text) + 1;
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 				found = 1;
 				break;
 			} else if (list[mid].number > atr) {
@@ -2006,8 +1802,7 @@ char *buff;
 
 
 		if (!found) {
-			/*
-			 * If we got here, we didn't find it, so lo = hi + 1, 
+			/* If we got here, we didn't find it, so lo = hi + 1, 
 			 * and the attribute should be inserted between them. 
 			 */
 
@@ -2016,9 +1811,7 @@ char *buff;
 			if (!list)
 				return;
 
-			/*
-			 * Move the stuff upwards one slot 
-			 */
+			/* Move the stuff upwards one slot */
 			if (lo < db[thing].at_count)
 				bcopy((char *)(list + lo), (char *)(list + lo + 1),
 				(db[thing].at_count - lo) * sizeof(ATRLIST));
@@ -2052,9 +1845,7 @@ char *buff;
 		return;
 	}
 #ifdef RADIX_COMPRESSION
-	/*
-	 * A_LIST is never compressed 
-	 */
+	/* A_LIST is never compressed */
 
 	if (atr == A_LIST) {
 		if (!(a = (Attr *) XMALLOC(strlen(buff) + 1, "atr_add_raw"))) {
@@ -2064,37 +1855,29 @@ char *buff;
 		len = strlen(a) + 1;
 	} else {
 
-		/*
-		 * It's not an A_LIST, so compress it into a buffer and store 
-		 * 
-		 * *  * *  * *  * *  * * that 
+		/* It's not an A_LIST, so compress it into a buffer and store 
+		 * that 
 		 */
 
 		len = string_compress(buff, compress_buff);
-		if (!(a = (Attr *) XMALLOC(len, "atr_add_raw"))) {
+		if (!(a = (Attr *) XMALLOC(len, "atr_add_raw.1"))) {
 			return;
 		}
 		bcopy(compress_buff, a, len);
 		al_add(thing, atr);
 	}
 	STORE(&okey, a, len);
-#else /*
-       * * Not RADIX_COMPRESSION  
-       */
-	if ((a = (Attr *) malloc(strlen(buff) + 1)) == (char *)0) {
+#else /* Not RADIX_COMPRESSION */
+	if ((a = (Attr *) XMALLOC(strlen(buff) + 1, "atr_add_raw.2")) == (char *)0) {
 		return;
 	}
-	StringCopy(a, buff);
+	strcpy(a, buff);
 
 	STORE(&okey, a);
 	al_add(thing, atr);
 
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* RADIX_COMPRESSION */
+#endif /* MEMORY_BASED */
 	switch (atr) {
 	case A_STARTUP:
 		s_Flags(thing, Flags(thing) | HAS_STARTUP);
@@ -2160,12 +1943,11 @@ int atr;
 	free_lbuf(buff);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * get_atr,atr_get_raw, atr_get_str, atr_get: Get an attribute from the database.
+/* ---------------------------------------------------------------------------
+ * get_atr,atr_get_raw, atr_get_str, atr_get: Get an attribute from the database.
  */
 
-int get_atr(name)
+INLINE int get_atr(name)
 char *name;
 {
 	ATTR *ap;
@@ -2189,9 +1971,7 @@ int atr;
 	if (thing < 0)
 		return NULL;
 
-	/*
-	 * Binary search for the attribute 
-	 */
+	/* Binary search for the attribute */
 	lo = 0;
 	hi = db[thing].at_count - 1;
 	list = db[thing].ahead;
@@ -2207,9 +1987,7 @@ int atr;
 			return decomp_buff;
 #else
 			return list[mid].data;
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 		} else if (list[mid].number > atr) {
 			hi = mid - 1;
 		} else {
@@ -2236,13 +2014,9 @@ int atr;
 	return decomp_buff;
 #else
 	return a;
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 }
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 
 char *atr_get_str(s, thing, atr, owner, flags)
 char *s;
@@ -2262,9 +2036,7 @@ int atr, *flags;
 	} else {
 		atr_decode(buff, s, thing, owner, flags, atr);
 	}
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 	return s;
 }
 
@@ -2298,9 +2070,7 @@ int atr, *flags;
 	}
 	atr_decode(buff, NULL, thing, owner, flags, atr);
 	return 1;
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 }
 
 #ifndef STANDALONE
@@ -2317,9 +2087,7 @@ int atr, *flags;
 #ifdef RADIX_COMPRESSION
 	int retval;
 
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 	ATTR *ap;
 
 	ITER_PARENTS(thing, parent, lev) {
@@ -2335,9 +2103,7 @@ int atr, *flags;
 			if ((lev == 0) || !(*flags & AF_PRIVATE))
 				return s;
 		}
-#endif /*
-        * * RADIX_COMPRESSION  
-        */
+#endif /* RADIX_COMPRESSION */
 		if ((lev == 0) && Good_obj(Parent(parent))) {
 			ap = atr_num(atr);
 			if (!ap || ap->flags & AF_PRIVATE)
@@ -2387,13 +2153,10 @@ int atr, *flags;
 	return 0;
 }
 
-#endif /*
-        * * STANDALONE  
-        */
+#endif /* STANDALONE */
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_free: Return all attributes of an object.
+/* ---------------------------------------------------------------------------
+ * atr_free: Return all attributes of an object.
  */
 
 void atr_free(thing)
@@ -2408,34 +2171,25 @@ dbref thing;
 		atr_clr(thing, attr);
 	}
 	atr_pop();
-	al_destroy(thing);	/*
-				 * Just to be on the safe side 
-				 */
+	al_destroy(thing);	/* Just to be on the safe side */
 #else
 	free(db[thing].ahead);
 	db[thing].ahead = NULL;
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 }
 
-/*
- * garbage collect an attribute list 
- */
+/* garbage collect an attribute list */
 
 void atr_collect(thing)
 dbref thing;
 {
-	/*
-	 * Nada.  gdbm takes care of us.  I hope ;-) 
-	 */
+	/* Nada.  dbm takes care of us.  I hope ;-) */
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_cpy: Copy all attributes from one object to another.  Takes the
- * * player argument to ensure that only attributes that COULD be set by
- * * the player are copied.
+/* ---------------------------------------------------------------------------
+ * atr_cpy: Copy all attributes from one object to another.  Takes the
+ * player argument to ensure that only attributes that COULD be set by
+ * the player are copied.
  */
 
 void atr_cpy(player, dest, source)
@@ -2451,15 +2205,11 @@ dbref player, dest, source;
 	for (attr = atr_head(source, &as); attr; attr = atr_next(&as)) {
 		buf = atr_get(source, attr, &aowner, &aflags);
 		if (!(aflags & AF_LOCK))
-			aowner = owner;		/*
-						 * chg owner 
-						 */
+			aowner = owner;		/* chg owner */
 		at = atr_num(attr);
 		if (attr && at) {
 			if (Write_attr(owner, dest, at, aflags))
-				/*
-				 * Only set attrs that owner has perm to set 
-				 */
+				/* Only set attrs that owner has perm to set */
 				atr_add(dest, attr, buf, aowner, aflags);
 		}
 		free_lbuf(buf);
@@ -2467,10 +2217,9 @@ dbref player, dest, source;
 	atr_pop();
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_chown: Change the ownership of the attributes of an object to the
- * * current owner if they are not locked.
+/* ---------------------------------------------------------------------------
+ * atr_chown: Change the ownership of the attributes of an object to the
+ * current owner if they are not locked.
  */
 
 void atr_chown(obj)
@@ -2491,9 +2240,8 @@ dbref obj;
 	atr_pop();
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_next: Return next attribute in attribute list.
+/* ---------------------------------------------------------------------------
+ * atr_next: Return next attribute in attribute list.
  */
 
 int atr_next(attrp)
@@ -2521,14 +2269,11 @@ char **attrp;
 	} else {
 		return al_decode(attrp);
 	}
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_push, atr_pop: Push and pop attr lists.
+/* ---------------------------------------------------------------------------
+ * atr_push, atr_pop: Push and pop attr lists.
  */
 
 void NDECL(atr_push)
@@ -2545,9 +2290,7 @@ void NDECL(atr_push)
 	mudstate.iter_alist.len = 0;
 	mudstate.iter_alist.next = new_alist;
 	return;
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 }
 
 void NDECL(atr_pop)
@@ -2573,14 +2316,11 @@ void NDECL(atr_pop)
 		mudstate.iter_alist.next = NULL;
 	}
 	return;
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * atr_head: Returns the head of the attr list for object 'thing'
+/* ---------------------------------------------------------------------------
+ * atr_head: Returns the head of the attr list for object 'thing'
  */
 
 int atr_head(thing, attrp)
@@ -2591,7 +2331,7 @@ char **attrp;
 	ATRCOUNT *atr;
 
 	if (db[thing].at_count) {
-		atr = (ATRCOUNT *) malloc(sizeof(ATRCOUNT));
+		atr = (ATRCOUNT *) XMALLOC(sizeof(ATRCOUNT), "atr_head");
 		atr->thing = thing;
 		atr->count = 2;
 		*attrp = (char *)atr;
@@ -2602,9 +2342,7 @@ char **attrp;
 	char *astr;
 	int alen;
 
-	/*
-	 * Get attribute list.  Save a read if it is in the modify atr list 
-	 */
+	/* Get attribute list.  Save a read if it is in the modify atr list */
 
 	if (thing == mudstate.mod_al_id) {
 		astr = mudstate.mod_alist;
@@ -2613,36 +2351,27 @@ char **attrp;
 	}
 	alen = al_size(astr);
 
-	/*
-	 * If no list, return nothing 
-	 */
+	/* If no list, return nothing */
 
 	if (!alen)
 		return 0;
 
-	/*
-	 * Set up the list and return the first entry 
-	 */
+	/* Set up the list and return the first entry */
 
 	al_extend(&mudstate.iter_alist.data, &mudstate.iter_alist.len,
 		  alen, 0);
 	bcopy((char *)astr, (char *)mudstate.iter_alist.data, alen);
 	*attrp = mudstate.iter_alist.data;
 	return atr_next(attrp);
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 }
 
 
-/*
- * ---------------------------------------------------------------------------
- * * db_grow: Extend the struct database.
+/* ---------------------------------------------------------------------------
+ * db_grow: Extend the struct database.
  */
 
-#define	SIZE_HACK	1	/*
-				 * * So mistaken refs to #-1 won't die.  
-				 */
+#define	SIZE_HACK	1	/* So mistaken refs to #-1 won't die. */
 
 void initialize_objects(first, last)
 dbref first, last;
@@ -2665,9 +2394,7 @@ dbref first, last;
 #ifdef MEMORY_BASED
 		db[thing].ahead = NULL;
 		db[thing].at_count = 0;
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 	}
 }
 
@@ -2686,25 +2413,19 @@ dbref newtop;
 	delta = 1000;
 #endif
 
-	/*
-	 * Determine what to do based on requested size, current top and  * * 
-	 * 
-	 * *  * *  * *  * * size.  Make sure we grow in reasonable-sized
-	 * chunks to * * prevent *  * *  * frequent reallocations of the db
-	 * array. 
+	/* Determine what to do based on requested size, current top and
+	 * size.  Make sure we grow in reasonable-size chunks to prevent 
+	 * frequent reallocations of the db array. 
 	 */
 
-	/*
-	 * If requested size is smaller than the current db size, ignore it 
-	 */
+	/* If requested size is smaller than the current db size, ignore it */
 
 	if (newtop <= mudstate.db_top) {
 		return;
 	}
-	/*
-	 * If requested size is greater than the current db size but smaller
-	 * * * * * * * than the amount of space we have allocated, raise the
-	 * db  * *  * size * * and * initialize the new area. 
+	/* If requested size is greater than the current db size but smaller
+	 * than the amount of space we have allocated, raise the db size 
+	 * and initialize the new area. 
 	 */
 
 	if (newtop <= mudstate.db_size) {
@@ -2719,9 +2440,7 @@ dbref newtop;
 		mudstate.db_top = newtop;
 		return;
 	}
-	/*
-	 * Grow by a minimum of delta objects 
-	 */
+	/* Grow by a minimum of delta objects */
 
 	if (newtop <= mudstate.db_size + delta) {
 		newsize = mudstate.db_size + delta;
@@ -2729,16 +2448,12 @@ dbref newtop;
 		newsize = newtop;
 	}
 
-	/*
-	 * Enforce minimumdatabase size 
-	 */
+	/* Enforce minimumdatabase size */
 
 	if (newsize < mudstate.min_size)
 		newsize = mudstate.min_size + delta;;
 
-	/*
-	 * Grow the name tables 
-	 */
+	/* Grow the name tables */
 
 #ifndef MEMORY_BASED
 	newnames = (NAME *) XMALLOC((newsize + SIZE_HACK) * sizeof(NAME),
@@ -2753,9 +2468,7 @@ dbref newtop;
 	bzero((char *)newnames, (newsize + SIZE_HACK) * sizeof(NAME));
 
 	if (names) {
-		/*
-		 * An old name cache exists.  Copy it. 
-		 */
+		/* An old name cache exists.  Copy it. */
 
 		names -= SIZE_HACK;
 		bcopy((char *)names, (char *)newnames,
@@ -2764,8 +2477,7 @@ dbref newtop;
 		XFREE(cp, "db_grow.name");
 	} else {
 
-		/*
-		 * Creating a brand new struct database.  Fill in the
+		/* Creating a brand new struct database.  Fill in the
 		 * 'reserved' area in case it gets referenced.  
 		 */
 
@@ -2792,9 +2504,7 @@ dbref newtop;
 
 		if (purenames) {
 
-			/*
-			 * An old name cache exists.  Copy it. 
-			 */
+			/* An old name cache exists.  Copy it. */
 
 			purenames -= SIZE_HACK;
 			bcopy((char *)purenames, (char *)newpurenames,
@@ -2803,8 +2513,7 @@ dbref newtop;
 			XFREE(cp, "db_grow.purename");
 		} else {
 
-			/*
-			 * Creating a brand new struct database.  Fill in the
+			/* Creating a brand new struct database.  Fill in the
 			 * 'reserved' area in case it gets referenced.  
 			 */
 
@@ -2816,9 +2525,7 @@ dbref newtop;
 		purenames = newpurenames + SIZE_HACK;
 		newpurenames = NULL;
 	}
-	/*
-	 * Grow the db array 
-	 */
+	/* Grow the db array */
 
 	newdb = (OBJ *)
 		XMALLOC((newsize + SIZE_HACK) * sizeof(OBJ), "db_grow.db");
@@ -2831,9 +2538,7 @@ dbref newtop;
 	}
 	if (db) {
 
-		/*
-		 * An old struct database exists.  Copy it to the new buffer 
-		 */
+		/* An old struct database exists.  Copy it to the new buffer */
 
 		db -= SIZE_HACK;
 		bcopy((char *)db, (char *)newdb,
@@ -2842,16 +2547,16 @@ dbref newtop;
 		XFREE(cp, "db_grow.db");
 	} else {
 
-		/*
-		 * Creating a brand new struct database.  Fill in the * * * * 
-		 * 
-		 * *  * * 'reserved' area in case it gets referenced. 
+		/* Creating a brand new struct database.  Fill in the
+		 * 'reserved' area in case it gets referenced. 
 		 */
 
 		db = newdb;
 		for (i = 0; i < SIZE_HACK; i++) {
 			s_Owner(i, GOD);
 			s_Flags(i, (TYPE_GARBAGE | GOING));
+			s_Flags2(i, 0);
+			s_Flags3(i, 0);
 			s_Powers(i, 0);
 			s_Powers2(i, 0);
 			s_Location(i, NOTHING);
@@ -2885,9 +2590,7 @@ dbref newtop;
 	mudstate.db_top = newtop;
 	mudstate.db_size = newsize;
 
-	/*
-	 * Grow the db mark buffer 
-	 */
+	/* Grow the db mark buffer */
 
 	marksize = (newsize + 7) >> 3;
 	newmarkbuf = (MARKBUF *) XMALLOC(marksize, "db_grow");
@@ -2925,6 +2628,8 @@ void NDECL(db_make_minimal)
 	db_grow(1);
 	s_Name(0, "Limbo");
 	s_Flags(0, TYPE_ROOM);
+	s_Flags2(0, 0);
+	s_Flags3(0, 0);
 	s_Powers(0, 0);
 	s_Powers2(0, 0);
 	s_Location(0, NOTHING);
@@ -2934,23 +2639,24 @@ void NDECL(db_make_minimal)
 	s_Zone(0, NOTHING);
 	s_Pennies(0, 1);
 	s_Owner(0, 1);
+	s_Stack(0, NULL);
 #ifdef MEMORY_BASED
 	db[0].ahead = NULL;
 	db[0].at_count = 0;
 #endif 
-	/*
-	 * should be #1 
-	 */
+	/* should be #1 */
 	load_player_names();
 	obj = create_player((char *)"Wizard", (char *)"potrzebie", NOTHING, 0, 0);
 	s_Flags(obj, Flags(obj) | WIZARD);
+	s_Flags2(obj, 0);
+	s_Flags3(obj, 0);
 	s_Powers(obj, 0);
 	s_Powers2(obj, 0);
 	s_Pennies(obj, 1000);
+	s_Stack(obj, NULL);
 
-	/*
-	 * Manually link to Limbo, just in case 
-	 */
+	/* Manually link to Limbo, just in case */
+
 	s_Location(obj, 0);
 	s_Next(obj, NOTHING);
 	s_Contents(0, obj);
@@ -2965,9 +2671,7 @@ const char *s;
 	const char *p;
 	int x;
 
-	/*
-	 * Enforce completely numeric dbrefs 
-	 */
+	/* Enforce completely numeric dbrefs */
 
 	for (p = s; *p; p++) {
 		if (!isdigit(*p))
@@ -3022,17 +2726,14 @@ int new_strings;
 			lastc = c;
 			c = fgetc(f);
 
-			/*
-			 * If EOF or null, return 
-			 */
+			/* If EOF or null, return */
 
 			if (!c || (c == EOF)) {
 				*p = '\0';
 				return buf;
 			}
-			/*
-			 * If a newline, return if prior char is not a cr. *
-			 * * * Otherwise * keep on truckin' 
+			/* If a newline, return if prior char is not a cr.
+			 * Otherwise keep on truckin' 
 			 */
 
 			if ((c == '\n') && (lastc != '\r')) {
@@ -3162,33 +2863,28 @@ char *gdbmfile;
 		db_free();
 	return (0);
 }
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 
 #ifndef STANDALONE
-/*
- * check_zone - checks back through a zone tree for control 
- */
+/* check_zone - checks back through a zone tree for control */
 
 int check_zone(player, thing)
 dbref player, thing;
 {
+	mudstate.zone_nest_num++;
+
 	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
 	    (mudstate.zone_nest_num == mudconf.zone_nest_lim) || (isPlayer(thing))) {
 		mudstate.zone_nest_num = 0;
 		return 0;
 	}
 
-	/*
-	 * If the zone doesn't have an enterlock, DON'T allow control. 
-	 */
+	/* If the zone doesn't have an enterlock, DON'T allow control. */
 
 	if (atr_get_raw(Zone(thing), A_LENTER) && could_doit(player, Zone(thing), A_LENTER)) {
 		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {
-		mudstate.zone_nest_num++;
 		return check_zone(player, Zone(thing));
 	}
 
@@ -3197,6 +2893,8 @@ dbref player, thing;
 int check_zone_for_player(player, thing)
 dbref player, thing;
 {
+	mudstate.zone_nest_num++;
+
 	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
 	    (mudstate.zone_nest_num == mudconf.zone_nest_lim) || !(isPlayer(thing))) {
 	    	mudstate.zone_nest_num = 0;
@@ -3207,7 +2905,6 @@ dbref player, thing;
 		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {
-		mudstate.zone_nest_num++;
 		return check_zone(player, Zone(thing));
 	}
 
@@ -3229,14 +2926,11 @@ dbref player, thing;
 	return 0;
 }
 
-#endif /*
-        * * STANDALONE  
-        */
+#endif /* STANDALONE */
 
 #ifndef STANDALONE
-/*
- * ---------------------------------------------------------------------------
- * * dump_restart_db: Writes out socket information.
+/* ---------------------------------------------------------------------------
+ * dump_restart_db: Writes out socket information.
  */
 
 void dump_restart_db()
@@ -3246,8 +2940,9 @@ void dump_restart_db()
 	int version = 0;
 
 	/* We maintain a version number for the restart database,
-	   so we can restart even if the format of the restart db
-	   has been changed in the new executable. */
+	 * so we can restart even if the format of the restart db
+	 * has been changed in the new executable. 
+	 */
 	   
 #ifdef CONCENTRATE
 	version |= RS_CONCENTRATE;
@@ -3426,6 +3121,4 @@ void load_restart_db()
 	remove("restart.db");
 	raw_broadcast(0, "Game: Restart finished.");
 }
-#endif /*
-        * * STANDALONE  
-        */
+#endif /* STANDALONE */

@@ -36,6 +36,10 @@
 /* Do NOT define these.	*/
 /* #define DSPACE */			/* Lauren's hardcoded DSPACE */
 
+#define PUEBLO_SUPPORT
+#undef SPLIT_QUOTAS
+#define USE_MAIL
+#define USE_COMSYS
 
 /* ---------------------------------------------------------------------------
  * Database R/W flags.

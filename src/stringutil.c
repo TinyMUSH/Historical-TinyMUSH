@@ -254,9 +254,8 @@ char *string;
 			*q++ = ' ';
 	}
 	*q = '\0';		/*
-				 * remove terminal spaces and terminate * * * 
-				 * 
-				 * * string 
+				 * remove terminal spaces and terminate
+				 * string 
 				 */
 	return (buffer);
 }
@@ -274,34 +273,24 @@ char *string;
 	buffer = alloc_lbuf("trim_spaces");
 	p = string;
 	q = buffer;
-	while (p && *p && isspace(*p))	/*
-					 * remove inital spaces 
-					 */
+	while (p && *p && isspace(*p))	/* remove inital spaces */
 		p++;
 	while (p && *p) {
-		while (*p && !isspace(*p))	/*
-						 * copy nonspace chars 
-						 */
+		while (*p && !isspace(*p))	/* copy nonspace chars */
 			*q++ = *p++;
-		while (*p && isspace(*p))	/*
-						 * compress spaces 
-						 */
+		while (*p && isspace(*p))	/* compress spaces */
 			p++;
 		if (*p)
-			*q++ = ' ';	/*
-					 * leave one space 
-					 */
+			*q++ = ' ';	/* leave one space */ 
 	}
-	*q = '\0';		/*
-				 * terminate string 
-				 */
+	*q = '\0';		/* terminate string */
 	return (buffer);
 }
 
 /*
  * ---------------------------------------------------------------------------
- * * grabto: Return portion of a string up to the indicated character.  Also
- * * returns a modified pointer to the string ready for another call.
+ * grabto: Return portion of a string up to the indicated character.  Also
+ * returns a modified pointer to the string ready for another call.
  */
 
 char *grabto(str, targ)
@@ -338,12 +327,8 @@ const char *s1, *s2;
 			s2++;
 		while (*s1 && *s2 && ((ToLower(*s1) == ToLower(*s2)) ||
 				      (isspace(*s1) && isspace(*s2)))) {
-			if (isspace(*s1) && isspace(*s2)) {	/*
-								 * skip all * 
-								 * 
-								 * *  * *
-								 * other * *
-								 * * spaces 
+			if (isspace(*s1) && isspace(*s2)) {	/* skip all 
+								 * other spaces 
 								 */
 				while (isspace(*s1))
 					s1++;
@@ -381,9 +366,7 @@ const char *string, *prefix;
 
 	while (*string && *prefix && ToLower(*string) == ToLower(*prefix))
 		string++, prefix++, count++;
-	if (*prefix == '\0')	/*
-				 * Matched all of prefix 
-				 */
+	if (*prefix == '\0')	/* Matched all of prefix */
 		return (count);
 	else
 		return (0);
@@ -396,13 +379,11 @@ const char *string, *prefix;
 const char *string_match(src, sub)
 const char *src, *sub;
 {
-	if ((*sub != '\0') && (src)) {
+	if ((*sub != '\0') && (src)) { 
 		while (*src) {
 			if (string_prefix(src, sub))
 				return src;
-			/*
-			 * else scan to beginning of next word 
-			 */
+			/* else scan to beginning of next word */
 			while (*src && isalnum(*src))
 				src++;
 			while (*src && !isalnum(*src))
@@ -475,7 +456,7 @@ char *string;
 	char *s;
 
 	s = replace_string(old, new, string);
-	StringCopy(string, s);
+	strcpy(string, s);
 	free_lbuf(s);
 	return string;
 }
@@ -498,6 +479,46 @@ const char *str, c;
 }
 
 /*
+ * Returns an allocated, null-terminated array of strings, broken on SEP. The
+ * array returned points into the original, >> modified << string. - mnp 7
+ * feb 91
+ */
+
+char **
+string2list(str, sep)
+    char *str;
+    const char sep;
+{
+    int count = 0;
+    char **out = NULL;
+    char *end, *beg = str;
+
+    if (str) {
+	if (!(out = (char **) XMALLOC(sizeof(char *) * strlen(str), "string2list"))) {
+	    log_perror("ALC", "FAIL", NULL, "NO MEM in string2list()");
+	    return NULL;
+	}
+	for (;;) {
+	    while (*beg == sep)
+		beg++;
+	    if (*beg == '\0')
+		break;
+	    out[count++] = beg;
+	    for (end = beg; *end != '\0' && *end != sep; end++);
+	    if (*end == '\0')
+		break;
+	    *end++ = '\0';
+	    beg = end;
+	}
+	out[count] = NULL;
+    }
+    if (out)
+	out = (char **) realloc((char *) out, sizeof(char *) * count + 1);
+
+    return out;
+}
+
+/*
  * returns the number of identical characters in the two strings 
  */
 int prefix_match(s1, s2)
@@ -507,9 +528,7 @@ const char *s1, *s2;
 
 	while (*s1 && *s2 && (ToLower(*s1) == ToLower(*s2)))
 		s1++, s2++, count++;
-	/*
-	 * If the whole string matched, count the null.  (Yes really.) 
-	 */
+	/* If the whole string matched, count the null.  (Yes really.) */
 	if (!*s1 && !*s2)
 		count++;
 	return count;
@@ -531,53 +550,116 @@ int min;
 	return ((min <= 0) ? 1 : 0);
 }
 
-char *strsave(s)
+INLINE char *strsave(s)
 const char *s;
 {
 	char *p;
 	p = (char *)XMALLOC(sizeof(char) * (strlen(s) + 1), "strsave");
 
 	if (p)
-		StringCopy(p, s);
+		strcpy(p, s);
 	return p;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * safe_copy_str, safe_copy_chr - Copy buffers, watching for overflows.
+/* ---------------------------------------------------------------------------
+ * safe_copy_str, safe_copy_long_str, safe_chr_real_fn - Copy buffers, 
+ * watching for overflows.
  */
 
-int safe_copy_str(src, buff, bufp, max)
-char *src, *buff, **bufp;
-int max;
+int 
+safe_copy_str(src, buff, bufp, max)
+    char *src, *buff, **bufp;
+    int max;
 {
-	char *tp;
+    char *tp, *maxtp, *longtp;
+    int n, len;
 
-	tp = *bufp;
-	if (src == NULL)
-		return 0;
-	while (*src && ((tp - buff) < max))
-		*tp++ = *src++;
+    tp = *bufp;
+    if (src == NULL) {
+	*tp = '\0';
+	return 0;
+    }
+    maxtp = buff + max;
+    longtp = tp + 7;
+    maxtp = (maxtp < longtp) ? maxtp : longtp;
+
+    while (*src && (tp < maxtp))
+	*tp++ = *src++;
+
+    if (*src == '\0') {
 	*bufp = tp;
-	return strlen(src);
+	if ((tp - buff) < max)
+	    *tp = '\0';
+	else
+	    buff[max] = '\0';
+	return 0;
+    }
+
+    len = strlen(src);
+    n = max - (tp - buff);
+    if (n <= 0) {
+	*tp = '\0';
+	return (len);
+    }
+    n = ((len < n) ? len : n);
+    bcopy(src, tp, n);
+    tp += n;
+    *tp = '\0';
+    *bufp = tp;
+
+    return (len - n);
 }
 
-int safe_copy_chr(src, buff, bufp, max)
-char src, *buff, **bufp;
-int max;
+int 
+safe_copy_long_str(src, buff, bufp, max)
+    char *src, *buff, **bufp;
+    int max;
 {
-	char *tp;
-	int retval;
+    int len, n;
+    char *tp;
 
-	tp = *bufp;
-	retval = 0;
-	if ((tp - buff) < max) {
-		*tp++ = src;
-	} else {
-		retval = 1;
-	}
+    tp = *bufp;
+    if (src == NULL) {
+	*tp = '\0';
+	return 0;
+    }
+
+    len = strlen(src);
+    n = max - (tp - buff);
+    if (n < 0)
+	 n = 0;
+
+    strncpy (tp, src, n);
+    buff[max] = '\0';
+
+    if (len <= n) {
+	*bufp = tp + len;
+	return (0);
+    } else {
+	*bufp = tp + n;
+	return (len-n);
+    }
+}
+
+INLINE int 
+safe_chr_real_fn(src, buff, bufp, max)
+    char src, *buff, **bufp;
+    int max;
+{
+    char *tp;
+    int retval = 0;
+
+    tp = *bufp;
+    if ((tp - buff) < max) {
+	*tp++ = src;
 	*bufp = tp;
-	return retval;
+	*tp = '\0';
+    } else {
+	buff[max] = '\0';
+	retval = 1;
+    }
+
+    return retval;
 }
 
 int matches_exit_from_list(str, pattern)
@@ -586,36 +668,26 @@ char *str, *pattern;
 	char *s;
 
 	while (*pattern) {
-		for (s = str;	/*
-				 * check out this one 
-				 */
+		for (s = str;	/* check out this one */
 		     (*s && (ToLower(*s) == ToLower(*pattern)) &&
 		      *pattern && (*pattern != EXIT_DELIMITER));
 		     s++, pattern++) ;
 
-		/*
-		 * Did we match it all? 
-		 */
+		/* Did we match it all? */
 
 		if (*s == '\0') {
 
-			/*
-			 * Make sure nothing afterwards 
-			 */
+			/* Make sure nothing afterwards */
 
 			while (*pattern && isspace(*pattern))
 				pattern++;
 
-			/*
-			 * Did we get it? 
-			 */
+			/* Did we get it? */
 
 			if (!*pattern || (*pattern == EXIT_DELIMITER))
 				return 1;
 		}
-		/*
-		 * We didn't get it, find next string to test 
-		 */
+		/* We didn't get it, find next string to test */
 
 		while (*pattern && *pattern++ != EXIT_DELIMITER) ;
 		while (isspace(*pattern))
@@ -628,9 +700,9 @@ int ltos(s, num)
 char *s;
 long num;
 {
-/* Mark Vasoll's long int to string converter. */
-char buf[20], *p;
-long anum;
+	/* Mark Vasoll's long int to string converter. */
+	char buf[20], *p;
+	long anum;
 
 	p = buf;
 

@@ -210,10 +210,10 @@ int i, len;
  * * atr_match: Check attribute list for wild card matches and queue them.
  */
 
-static int atr_match1(thing, parent, player, type, str, check_exclude,
+static int atr_match1(thing, parent, player, type, str, raw_str, check_exclude,
 		      hash_insert)
 dbref thing, parent, player;
-char type, *str;
+char type, *str, *raw_str;
 int check_exclude, hash_insert;
 {
 	dbref aowner;
@@ -222,9 +222,7 @@ int check_exclude, hash_insert;
 	char *args[10];
 	ATTR *ap;
 
-	/*
-	 * See if we can do it.  Silently fail if we can't. 
-	 */
+	/* See if we can do it.  Silently fail if we can't. */
 
 	if (!could_doit(player, parent, A_LUSE))
 		return -1;
@@ -234,17 +232,13 @@ int check_exclude, hash_insert;
 	for (attr = atr_head(parent, &as); attr; attr = atr_next(&as)) {
 		ap = atr_num(attr);
 
-		/*
-		 * Never check NOPROG attributes. 
-		 */
+		/* Never check NOPROG attributes. */
 
 		if (!ap || (ap->flags & AF_NOPROG))
 			continue;
 
-		/*
-		 * If we aren't the bottom level check if we saw this attr *
-		 * * * * before.  Also exclude it if the attribute type is *
-		 * * PRIVATE. 
+		/* If we aren't the bottom level check if we saw this attr
+		 * before.  Also exclude it if the attribute type is PRIVATE. 
 		 */
 
 		if (check_exclude &&
@@ -254,42 +248,40 @@ int check_exclude, hash_insert;
 		}
 		atr_get_str(buff, parent, attr, &aowner, &aflags);
 
-		/*
-		 * Skip if private and on a parent 
-		 */
+		/* Skip if private and on a parent */
 
 		if (check_exclude && (aflags & AF_PRIVATE)) {
 			continue;
 		}
-		/*
-		 * If we aren't the top level remember this attr so we * * *
-		 * exclude * it from now on. 
+		/* If we aren't the top level remember this attr so we
+		 * exclude it from now on. 
 		 */
 
 		if (hash_insert)
 			nhashadd(ap->number, (int *)&attr,
 				 &mudstate.parent_htab);
 
-		/*
-		 * Check for the leadin character after excluding the attrib
-		 * * * * * This lets non-command attribs on the child block * 
-		 * *  * commands * on the parent. 
+		/* Check for the leadin character after excluding the attrib
+		 * This lets non-command attribs on the child block
+		 * commands on the parent. 
 		 */
 
 		if ((buff[0] != type) || (aflags & AF_NOPROG))
 			continue;
 
-		/*
-		 * decode it: search for first un escaped : 
-		 */
+		/* decode it: search for first un escaped : */
 
 		for (s = buff + 1; *s && (*s != ':'); s++) ;
 		if (!*s)
 			continue;
 		*s++ = 0;
 		if (((aflags & AF_REGEXP) &&
-		     regexp_match(buff + 1, str, args, 10)) ||
-		     wild(buff + 1, str, args, 10)) {
+		     regexp_match(buff + 1, 
+		     		((aflags & AF_NOPARSE) ? raw_str : str), 
+		     		args, 10)) ||
+		     wild(buff + 1, 
+		     		((aflags & AF_NOPARSE) ? raw_str: str), 
+		     		args, 10)) {
 			match = 1;
 			wait_que(thing, player, 0, NOTHING, 0, s, args, 10,
 				 mudstate.global_regs);
@@ -303,32 +295,26 @@ int check_exclude, hash_insert;
 	return (match);
 }
 
-int atr_match(thing, player, type, str, check_parents)
+int atr_match(thing, player, type, str, raw_str, check_parents)
 dbref thing, player;
-char type, *str;
+char type, *str, *raw_str;
 int check_parents;
 {
 	int match, lev, result, exclude, insert;
 	dbref parent;
 
-	/*
-	 * If thing is halted, don't check anything 
-	 */
+	/* If thing is halted, don't check anything */
 
 	if (Halted(thing))
 		return 0;
 
-	/*
-	 * If not checking parents, just check the thing 
-	 */
+	/* If not checking parents, just check the thing */
 
 	match = 0;
 	if (!check_parents)
-		return atr_match1(thing, thing, player, type, str, 0, 0);
+		return atr_match1(thing, thing, player, type, str, raw_str, 0, 0);
 
-	/*
-	 * Check parents, ignoring halted objects 
-	 */
+	/* Check parents, ignoring halted objects */
 
 	exclude = 0;
 	insert = 1;
@@ -336,7 +322,7 @@ int check_parents;
 	ITER_PARENTS(thing, parent, lev) {
 		if (!Good_obj(Parent(parent)))
 			insert = 0;
-		result = atr_match1(thing, parent, player, type, str,
+		result = atr_match1(thing, parent, player, type, str, raw_str,
 				    exclude, insert);
 		if (result > 0) {
 			match = 1;
@@ -473,7 +459,7 @@ int ret = 0;
 			ret = safe_str("&quot;", dest, destp);
 			break;
 		default:
-			ret = safe_chr(*msg_orig, dest, destp);
+			ret = safe_chr_fn(*msg_orig, dest, destp);
 			break;
 		}
 	}
@@ -547,8 +533,7 @@ const char *msg;
 			safe_str((char *)"] ", msg_ns, &mp);
 			free_sbuf(tbuff);
 		}
-		safe_str((char *)msg, msg_ns, &mp);
-		*mp = '\0';
+		safe_long_str((char *)msg, msg_ns, &mp);
 	} else {
 		msg_ns = NULL;
 	}
@@ -669,7 +654,7 @@ const char *msg;
 		if ((key & MSG_ME) && pass_uselock && (sender != target) &&
 		    Monitor(target)) {
 			(void)atr_match(target, sender,
-					AMATCH_LISTEN, (char *)msg, 0);
+					AMATCH_LISTEN, (char *)msg, (char *)msg, 0);
 		}
 		/*
 		 * Deliver message to forwardlist members 
@@ -1249,9 +1234,9 @@ static int NDECL(load_game)
  * match a list of things, using the no_command flag 
  */
 
-int list_check(thing, player, type, str, check_parent)
+int list_check(thing, player, type, str, raw_str, check_parent)
 dbref thing, player;
-char type, *str;
+char type, *str, *raw_str;
 int check_parent;
 {
 	int match, limit;
@@ -1260,7 +1245,7 @@ int check_parent;
 	limit = mudstate.db_top;
 	while (thing != NOTHING) {
 		if ((thing != player) && (!(No_Command(thing)))) {
-			if (atr_match(thing, player, type, str, check_parent) > 0)
+			if (atr_match(thing, player, type, str, raw_str, check_parent) > 0)
 				match = 1;
 		}
 		thing = Next(thing);

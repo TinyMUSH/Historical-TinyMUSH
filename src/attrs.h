@@ -20,6 +20,8 @@
 #define	AF_IS_LOCK	0x0400	/* Attribute is a lock */
 #define	AF_VISUAL	0x0800	/* Anyone can see */
 #define	AF_PRIVATE	0x1000	/* Not inherited by children */
+#define AF_HTML         0x2000  /* Don't HTML escape this in did_it() */
+#define AF_NOPARSE      0x4000  /* Don't evaluate when checking for $-cmds */
 #define AF_REGEXP	0x8000  /* Do a regexp rather than wildcard match */
 
 #define	A_OSUCC		1	/* Others success message */
@@ -151,6 +153,11 @@
 #define A_PROGCMD	210	/* Command for exectution by @prog */
 #define A_MAILFLAGS	211	/* Flags for extended mail */
 #define A_DESTROYER	212	/* Who is destroying this object? */
+
+#define A_NEWOBJS       213     /* New object array */
+#define A_LCON_FMT      214     /* Player-specified contents format */
+#define A_LEXITS_FMT    215     /* Player-specified exits format */
+
 #define A_VRML_URL	220     /* URL of the VRML scene for this object */
 #define A_HTDESC	221     /* HTML @desc */
 

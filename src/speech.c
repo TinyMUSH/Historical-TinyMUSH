@@ -191,9 +191,8 @@ char *message;
 			buf2 = alloc_lbuf("do_say.shout");
 			bp = buf2;
 			safe_str((char *)" shouts \"", buf2, &bp);
-			safe_str(message, buf2, &bp);
+			safe_long_str(message, buf2, &bp);
 			safe_chr('"', buf2, &bp);
-			*bp = '\0';
 			say_shout(0, announce_msg, say_flags, player, buf2);
 			free_lbuf(buf2);
 		}
@@ -223,9 +222,8 @@ char *message;
 			buf2 = alloc_lbuf("do_say.wizshout");
 			bp = buf2;
 			safe_str((char *)" says \"", buf2, &bp);
-			safe_str(message, buf2, &bp);
+			safe_long_str(message, buf2, &bp);
 			safe_chr('"', buf2, &bp);
-			*bp = '\0';
 			say_shout(WIZARD, broadcast_msg, say_flags, player,
 				  buf2);
 			free_lbuf(buf2);

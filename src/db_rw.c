@@ -29,9 +29,8 @@ static int g_version;
 static int g_format;
 static int g_flags;
 
-/*
- * ---------------------------------------------------------------------------
- * * getboolexp1: Get boolean subexpression from file.
+/* ---------------------------------------------------------------------------
+ * getboolexp1: Get boolean subexpression from file.
  */
 
 static BOOLEXP *getboolexp1(f)
@@ -46,13 +45,9 @@ FILE *f;
 	case '\n':
 		ungetc(c, f);
 		return TRUE_BOOLEXP;
-		/*
-		 * break; 
-		 */
+		/* break; */
 	case EOF:
-		abort();	/*
-				 * unexpected EOF in boolexp 
-				 */
+		abort();	/* unexpected EOF in boolexp */
 		break;
 	case '(':
 		b = alloc_bool("getboolexp1.openparen");
@@ -119,14 +114,10 @@ FILE *f;
 				goto error;
 			return b;
 		}
-	case '-':		/*
-				 * obsolete NOTHING key, eat it 
-				 */
+	case '-':		/* obsolete NOTHING key, eat it */
 		while ((c = getc(f)) != '\n')
 			if (c == EOF)
-				abort();	/*
-						 * unexp EOF 
-						 */
+				abort();	/* unexp EOF */
 		ungetc(c, f);
 		return TRUE_BOOLEXP;
 		break;
@@ -150,8 +141,7 @@ FILE *f;
 		free_lbuf(buff);
 		b->thing = anum;
 
-		/*
-		 * if last character is : then this is an attribute lock. A 
+		/* if last character is : then this is an attribute lock. A 
 		 * last character of / means an eval lock 
 		 */
 
@@ -166,19 +156,15 @@ FILE *f;
 			free_lbuf(buff);
 		}
 		return b;
-	default:		/*
-				 * dbref or attribute 
-				 */
+	default:		/* dbref or attribute */
 		ungetc(c, f);
 		b = alloc_bool("getboolexp1.default");
 		b->type = BOOLEXP_CONST;
 		b->thing = 0;
 
-		/*
-		 * This is either an attribute, eval, or constant lock.
-		 * Constant locks are of the form <num>, while
-		 * attribute * and * * * * eval locks are of the form
-		 * <anam-or-anum>:<string> or
+		/* This is either an attribute, eval, or constant lock.
+		 * Constant locks are of the form <num>, while attribute and 
+		 * eval locks are of the form <anam-or-anum>:<string> or
 		 * <aname-or-anum>/<string> respectively. The
 		 * characters <nl>, |, and & terminate the string. 
 		 */
@@ -200,8 +186,7 @@ FILE *f;
 			}
 			*s = '\0';
 
-			/*
-			 * Look the name up as an attribute.  If not found,
+			/* Look the name up as an attribute.  If not found,
 			 * create a new attribute. 
 			 */
 
@@ -218,8 +203,7 @@ FILE *f;
 			goto error;
 		}
 
-		/*
-		 * if last character is : then this is an attribute lock. A 
+		/* if last character is : then this is an attribute lock. A 
 		 * last character of / means an eval lock 
 		 */
 
@@ -244,15 +228,12 @@ FILE *f;
 	}
 
       error:
-	abort();		/*
-				 * bomb out 
-				 */
+	abort();		/* bomb out */
 	return TRUE_BOOLEXP;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * getboolexp: Read a boolean expression from the flat file.
+/* ---------------------------------------------------------------------------
+ * getboolexp: Read a boolean expression from the flat file.
  */
 
 static BOOLEXP *getboolexp(f)
@@ -263,13 +244,10 @@ FILE *f;
 
 	b = getboolexp1(f);
 	if (getc(f) != '\n')
-		abort();	/*
-				 * parse error, we lose 
-				 */
+		abort();	/* parse error, we lose */
 
-	/*
-	 * MUSH (except for PernMUSH) and MUSE can have an extra CR, * MUD *
-	 * * * * * does not. 
+	/* MUSH (except for PernMUSH) and MUSE can have an extra CR, MUD
+	 * does not. 
 	 */
 
 	if (((g_format == F_MUSH) && (g_version != 2)) ||
@@ -281,9 +259,8 @@ FILE *f;
 }
 
 #ifdef STANDALONE
-/*
- * ---------------------------------------------------------------------------
- * * unscramble_attrnum: Fix up attribute numbers from foreign muds
+/* ---------------------------------------------------------------------------
+ * unscramble_attrnum: Fix up attribute numbers from foreign muds
  */
 
 static int unscramble_attrnum(attrnum)
@@ -299,9 +276,7 @@ int attrnum;
 		case 40:
 			return A_AWAY;
 		case 41:
-			return 0;	/*
-					 * mailk 
-					 */
+			return 0;	/* mailk */
 		case 42:
 			return A_ALIAS;
 		case 43:
@@ -311,9 +286,7 @@ int attrnum;
 		case 45:
 			return A_AEFAIL;
 		case 46:
-			return 0;	/*
-					 * it 
-					 */
+			return 0;	/* it */
 		case 47:
 			return A_LEAVE;
 		case 48:
@@ -321,29 +294,19 @@ int attrnum;
 		case 49:
 			return A_ALEAVE;
 		case 50:
-			return 0;	/*
-					 * channel 
-					 */
+			return 0;	/* channel */
 		case 51:
 			return A_QUOTA;
 		case 52:
-			return A_TEMP;	/*
-					 * temp for pennies 
-					 */
+			return A_TEMP;	/* temp for pennies */
 		case 53:
-			return 0;	/*
-					 * huhto 
-					 */
+			return 0;	/* huhto */
 		case 54:
-			return 0;	/*
-					 * haven 
-					 */
+			return 0;	/* haven */
 		case 57:
 			return mkattr((char *)"TZ");
 		case 58:
-			return 0;	/*
-					 * doomsday 
-					 */
+			return 0;	/* doomsday */
 		case 59:
 			return mkattr((char *)"Email");
 		case 98:
@@ -355,9 +318,7 @@ int attrnum;
 		}
 	case F_MUSH:
 
-		/*
-		 * Only need to muck with Pern variants 
-		 */
+		/* Only need to muck with Pern variants */
 
 		if (g_version != 2)
 			return attrnum;
@@ -395,9 +356,8 @@ int attrnum;
 }
 #endif
 
-/*
- * ---------------------------------------------------------------------------
- * * get_list: Read attribute list from flat file.
+/* ---------------------------------------------------------------------------
+ * get_list: Read attribute list from flat file.
  */
 
 static int get_list(f, i, new_strings)
@@ -412,38 +372,28 @@ int new_strings;
 	buff = alloc_lbuf("get_list");
 	while (1) {
 		switch (c = getc(f)) {
-		case '>':	/*
-				 * read # then string 
-				 */
+		case '>':	/* read # then string */
 #ifdef STANDALONE
 			atr = unscramble_attrnum(getref(f));
 #else
 			atr = getref(f);
 #endif
 			if (atr > 0) {
-				/*
-				 * Store the attr 
-				 */
+				/* Store the attr */
 
 				atr_add_raw(i, atr,
 					 (char *)getstring_noalloc(f, new_strings));
 			} else {
-				/*
-				 * Silently discard 
-				 */
+				/* Silently discard */
 
 				getstring_noalloc(f, new_strings);
 			}
 			break;
 #ifdef STANDALONE
-		case ']':	/*
-				 * Pern 1.13 style text attribute 
-				 */
-			StringCopy(buff, (char *)getstring_noalloc(f, new_strings));
+		case ']':	/* Pern 1.13 style text attribute */
+			strcpy(buff, (char *)getstring_noalloc(f, new_strings));
 
-			/*
-			 * Get owner number 
-			 */
+			/* Get owner number */
 
 			ownp = (char *)index(buff, '^');
 			if (!ownp) {
@@ -455,9 +405,7 @@ int new_strings;
 			}
 			*ownp++ = '\0';
 
-			/*
-			 * Get attribute flags 
-			 */
+			/* Get attribute flags */
 
 			flagp = (char *)index(ownp, '^');
 			if (!flagp) {
@@ -469,9 +417,7 @@ int new_strings;
 			}
 			*flagp++ = '\0';
 
-			/*
-			 * Convert Pern-style owner and flags to 2.0 format 
-			 */
+			/* Convert Pern-style owner and flags to 2.0 format */
 
 			aowner = atoi(ownp);
 			xflags = atoi(flagp);
@@ -487,13 +433,12 @@ int new_strings;
 			if (!strcmp(buff, "XYXXY"))
 				s_Pass(i, (char *)getstring_noalloc(f, new_strings));
 			else {
-				/*
-				 * Look up the attribute name in the
-				 * attribute table. * If the name isn't
-				 * found, create a new  * attribute. If the
-				 * create fails, try prefixing * the attr
-				 * name with ATR_ (Pern allows   * attributes 
-				 * to start with a * non-alphabetic
+				/* Look up the attribute name in the
+				 * attribute table. If the name isn't
+				 * found, create a new attribute. If the
+				 * create fails, try prefixing the attr
+				 * name with ATR_ (Pern allows attributes 
+				 * to start with a non-alphabetic
 				 * character. 
 				 */
 
@@ -527,13 +472,9 @@ int new_strings;
 			}
 			break;
 #endif
-		case '\n':	/*
-				 * ignore newlines. They're due to v(r). 
-				 */
+		case '\n':	/* ignore newlines. They're due to v(r). */
 			break;
-		case '<':	/*
-				 * end of list 
-				 */
+		case '<':	/* end of list */
 			free_lbuf(buff);
 			c = getc(f);
 			if (c != '\n') {
@@ -547,19 +488,17 @@ int new_strings;
 			fprintf(stderr,
 				"Bad character '%c' when getting attributes on object %d\n",
 				c, i);
-			/*
-			 * We've found a bad spot.  I hope things aren't * *
-			 * * * * * too bad. 
+			/* We've found a bad spot.  I hope things aren't
+			 * too bad. 
 			 */
 
 			(void)getstring_noalloc(f, new_strings);
 		}
 	}
 }
-
-/*
- * ---------------------------------------------------------------------------
- * * putbool_subexp: Write a boolean sub-expression to the flat file.
+foobae
+/* ---------------------------------------------------------------------------
+ * putbool_subexp: Write a boolean sub-expression to the flat file.
  */
 static void putbool_subexp(f, b)
 FILE *f;

@@ -13,51 +13,25 @@
 #include "externs.h"
 
 typedef struct pool_header {
-	int magicnum;		/*
-				 * For consistency check 
-				 */
-	int pool_size;		/*
-				 * For consistency check 
-				 */
-	struct pool_header *next;	/*
-					 * Next pool header in chain 
-					 */
-	struct pool_header *nxtfree;	/*
-					 * Next pool header in freelist 
-					 */
-	char *buf_tag;		/*
-				 * Debugging/trace tag 
-				 */
+	int magicnum;		/* For consistency check */
+	int pool_size;		/* For consistency check */
+	struct pool_header *next;	/* Next pool header in chain */
+	struct pool_header *nxtfree;	/* Next pool header in freelist */
+	char *buf_tag;		/* Debugging/trace tag */
 } POOLHDR;
 
 typedef struct pool_footer {
-	int magicnum;		/*
-				 * For consistency check 
-				 */
+	int magicnum;		/* For consistency check */
 } POOLFTR;
 
 typedef struct pooldata {
-	int pool_size;		/*
-				 * Size in bytes of a buffer 
-				 */
-	POOLHDR *free_head;	/*
-				 * Buffer freelist head 
-				 */
-	POOLHDR *chain_head;	/*
-				 * Buffer chain head 
-				 */
-	int tot_alloc;		/*
-				 * Total buffers allocated 
-				 */
-	int num_alloc;		/*
-				 * Number of buffers currently allocated 
-				 */
-	int max_alloc;		/*
-				 * Max # buffers allocated at one time 
-				 */
-	int num_lost;		/*
-				 * Buffers lost due to corruption 
-				 */
+	int pool_size;		/* Size in bytes of a buffer */
+	POOLHDR *free_head;	/* Buffer freelist head */
+	POOLHDR *chain_head;	/* Buffer chain head */
+	int tot_alloc;		/* Total buffers allocated */
+	int num_alloc;		/* Number of buffers currently allocated */
+	int max_alloc;		/* Max # buffers allocated at one time */
+	int num_lost;		/* Buffers lost due to corruption */
 } POOL;
 
 POOL pools[NUM_POOLS];
@@ -123,20 +97,17 @@ const char *tag;
 			  "Verify", "header corrupted (clearing freelist)");
 
 			/*
-			 * Break the header chain at this point so we don't * 
-			 * 
-			 * *  * * generate an error for EVERY alloc and free, 
-			 * * * also  * we can't continue the scan because the
-			 * * next * * pointer might be trash too. 
+			 * Break the header chain at this point so we don't
+			 * generate an error for EVERY alloc and free, 
+			 * also we can't continue the scan because the
+			 * next pointer might be trash too. 
 			 */
 
 			if (lastph)
 				lastph->next = NULL;
 			else
 				pools[poolnum].chain_head = NULL;
-			return;	/*
-				 * not safe to continue 
-				 */
+			return;	/* not safe to continue */
 		}
 		if (pf->magicnum != POOL_MAGICNUM) {
 			pool_err("BUG", LOG_ALWAYS, poolnum, tag, ph,
@@ -200,18 +171,15 @@ const char *tag;
 			pf = (POOLFTR *) h;
 			pools[poolnum].free_head = ph->nxtfree;
 
-			/*
-			 * If corrupted header we need to throw away the * *
-			 * * freelist as the freelist pointer may be corrupt. 
+			/* If corrupted header we need to throw away the
+			 * freelist as the freelist pointer may be corrupt. 
 			 */
 
 			if (ph->magicnum != POOL_MAGICNUM) {
 				pool_err("BUG", LOG_ALWAYS, poolnum, tag, ph,
 					 "Alloc", "corrupted buffer header");
 
-				/*
-				 * Start a new free list and record stats 
-				 */
+				/* Start a new free list and record stats */
 
 				p = NULL;
 				pools[poolnum].free_head = NULL;
@@ -221,9 +189,8 @@ const char *tag;
 				pools[poolnum].tot_alloc =
 					pools[poolnum].num_alloc;
 			}
-			/*
-			 * Check for corrupted footer, just report and * fix
-			 * * * it 
+			/* Check for corrupted footer, just report and fix
+			 * it 
 			 */
 
 			if (pf->magicnum != POOL_MAGICNUM) {
@@ -240,9 +207,7 @@ const char *tag;
 
 	pool_err("DBG", LOG_ALLOCATE, poolnum, tag, ph, "Alloc", "buffer");
 
-	/*
-	 * If the buffer was modified after it was last freed, log it. 
-	 */
+	/* If the buffer was modified after it was last freed, log it. */
 
 	if ((*p != POOL_MAGICNUM) && (!mudstate.logging)) {
 		pool_err("BUG", LOG_PROBLEMS, poolnum, tag, ph, "Alloc",
@@ -271,10 +236,8 @@ char **buf;
 	if (mudconf.paranoid_alloc)
 		pool_check(ph->buf_tag);
 
-	/*
-	 * Make sure the buffer header is good.  If it isn't, log the error * 
-	 * 
-	 * * and * throw away the buffer. 
+	/* Make sure the buffer header is good.  If it isn't, log the error
+	 * and throw away the buffer. 
 	 */
 
 	if (ph->magicnum != POOL_MAGICNUM) {
@@ -285,18 +248,14 @@ char **buf;
 		pools[poolnum].tot_alloc--;
 		return;
 	}
-	/*
-	 * Verify the buffer footer.  Don't unlink if damaged, just repair 
-	 */
+	/* Verify the buffer footer.  Don't unlink if damaged, just repair */
 
 	if (pf->magicnum != POOL_MAGICNUM) {
 		pool_err("BUG", LOG_ALWAYS, poolnum, ph->buf_tag, ph, "Free",
 			 "corrupted buffer footer");
 		pf->magicnum = POOL_MAGICNUM;
 	}
-	/*
-	 * Verify that we are not trying to free someone else's buffer 
-	 */
+	/* Verify that we are not trying to free someone else's buffer */
 
 	if (ph->pool_size != pools[poolnum].pool_size) {
 		pool_err("BUG", LOG_ALWAYS, poolnum, ph->buf_tag, ph, "Free",
@@ -306,9 +265,8 @@ char **buf;
 	pool_err("DBG", LOG_ALLOCATE, poolnum, ph->buf_tag, ph, "Free",
 		 "buffer");
 
-	/*
-	 * Make sure we aren't freeing an already free buffer.  If we are, *
-	 * * * log an error, otherwise update the pool header and stats  
+	/* Make sure we aren't freeing an already free buffer.  If we are,
+	 * log an error, otherwise update the pool header and stats  
 	 */
 
 	if (*ibuf == POOL_MAGICNUM) {

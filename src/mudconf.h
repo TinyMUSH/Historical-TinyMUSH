@@ -268,7 +268,8 @@ struct statedata {
 	int	generation;	/* DB global generation number */
 	dbref	curr_enactor;	/* Who initiated the current command */
 	dbref	curr_player;	/* Who is running the current command */
-	int	alarm_triggered;/* Has periodic alarm signal occurred? */
+	char	*curr_cmd;	/* The current command */
+      	int	alarm_triggered;/* Has periodic alarm signal occurred? */
 	time_t	now;		/* What time is it now? */
 	time_t	dump_counter;	/* Countdown to next db dump */
 	time_t	check_counter;	/* Countdown to next db check */

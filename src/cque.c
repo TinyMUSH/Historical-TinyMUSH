@@ -27,9 +27,8 @@ extern int FDECL(a_Queue, (dbref, int));
 extern void FDECL(s_Queue, (dbref, int));
 extern int FDECL(QueueMax, (dbref));
 
-/*
- * ---------------------------------------------------------------------------
- * * add_to: Adjust an object's queue or semaphore count.
+/* ---------------------------------------------------------------------------
+ * add_to: Adjust an object's queue or semaphore count.
  */
 
 static int add_to(player, am, attrnum)
@@ -45,16 +44,15 @@ int am, attrnum;
 	free_lbuf(atr_gotten);
 	num += am;
 	if (num)
-		sprintf(buff, "%d", num);
+		ltos(buff, num);
 	else
 		*buff = '\0';
 	atr_add_raw(player, attrnum, buff);
 	return (num);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * give_que: Thread a queue block onto the high or low priority queue
+/* ---------------------------------------------------------------------------
+ * give_que: Thread a queue block onto the high or low priority queue
  */
 
 static void give_que(tmp)
@@ -63,9 +61,7 @@ BQUE *tmp;
 	tmp->next = NULL;
 	tmp->waittime = 0;
 
-	/*
-	 * Thread the command into the correct queue 
-	 */
+	/* Thread the command into the correct queue */
 
 	if (Typeof(tmp->cause) == TYPE_PLAYER) {
 		if (mudstate.qlast != NULL) {
@@ -82,9 +78,8 @@ BQUE *tmp;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * que_want: Do we want this queue entry?
+/* ---------------------------------------------------------------------------
+ * que_want: Do we want this queue entry?
  */
 
 static int que_want(entry, ptarg, otarg)
@@ -98,9 +93,8 @@ dbref ptarg, otarg;
 	return 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * halt_que: Remove all queued commands from a certain player
+/* ---------------------------------------------------------------------------
+ * halt_que: Remove all queued commands from a certain player
  */
 
 int halt_que(player, object)
@@ -111,9 +105,7 @@ dbref player, object;
 
 	numhalted = 0;
 
-	/*
-	 * Player queue 
-	 */
+	/* Player queue */
 
 	for (point = mudstate.qfirst, trail = NULL; point; point = next)
 		if (que_want(point, player, object)) {
@@ -128,9 +120,7 @@ dbref player, object;
 			next = (trail = point)->next;
 	mudstate.qlast = NULL;
 
-	/*
-	 * Object queue 
-	 */
+	/* Object queue */
 
 	for (point = mudstate.qlfirst, trail = NULL; point; point = next)
 		if (que_want(point, player, object)) {
@@ -145,9 +135,7 @@ dbref player, object;
 			next = (trail = point)->next;
 	mudstate.qllast = NULL;
 
-	/*
-	 * Wait queue 
-	 */
+	/* Wait queue */
 
 	for (point = mudstate.qwait, trail = NULL; point; point = next)
 		if (que_want(point, player, object)) {
@@ -161,9 +149,7 @@ dbref player, object;
 		} else
 			next = (trail = point)->next;
 
-	/*
-	 * Semaphore queue 
-	 */
+	/* Semaphore queue */
 
 	for (point = mudstate.qsemfirst, trail = NULL; point; point = next)
 		if (que_want(point, player, object)) {
@@ -190,9 +176,8 @@ dbref player, object;
 	return numhalted;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_halt: Command interface to halt_que.
+/* ---------------------------------------------------------------------------
+ * do_halt: Command interface to halt_que.
  */
 
 void do_halt(player, cause, key, target)
@@ -207,9 +192,7 @@ char *target;
 		notify(player, "Permission denied.");
 		return;
 	}
-	/*
-	 * Figure out what to halt 
-	 */
+	/* Figure out what to halt */
 
 	if (!target || !*target) {
 		obj_targ = NOTHING;
@@ -250,9 +233,8 @@ char *target;
 		       tprintf("%d queue entries removed.", numhalted));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * nfy_que: Notify commands from the queue and perform or discard them.
+/* ---------------------------------------------------------------------------
+ * nfy_que: Notify commands from the queue and perform or discard them.
  */
 
 int nfy_que(sem, attr, key, count)
@@ -285,9 +267,7 @@ int attr, key, count;
 				if (point == mudstate.qsemlast)
 					mudstate.qsemlast = trail;
 
-				/*
-				 * Either run or discard the command 
-				 */
+				/* Either run or discard the command */
 
 				if (key != NFY_DRAIN) {
 					give_que(point);
@@ -302,9 +282,7 @@ int attr, key, count;
 				next = (trail = point)->next;
 			}
 
-			/*
-			 * If we've notified enough, exit 
-			 */
+			/* If we've notified enough, exit */
 
 			if ((key == NFY_NFY) && (num >= count))
 				next = NULL;
@@ -313,23 +291,19 @@ int attr, key, count;
 		num = 0;
 	}
 
-	/*
-	 * Update the sem waiters count 
-	 */
+	/* Update the sem waiters count */
 
 	if (key == NFY_NFY)
-		add_to(sem, -count, attr);
+		add_to(sem, -count, (attr ? attr : A_SEMAPHORE));
 	else
-		atr_clr(sem, attr);
+		atr_clr(sem, (attr ? attr: A_SEMAPHORE));
 
 	return num;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_notify: Command interface to nfy_que
+/* ---------------------------------------------------------------------------
+ * do_notify: Command interface to nfy_que
  */
-
 
 void do_notify(player, cause, key, what, count)
 dbref player, cause;
@@ -385,9 +359,8 @@ char *what, *count;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * setup_que: Set up a queue entry.
+/* ---------------------------------------------------------------------------
+ * setup_que: Set up a queue entry.
  */
 
 static BQUE *setup_que(player, cause, command, args, nargs, sargs)
@@ -399,27 +372,22 @@ int nargs;
 	BQUE *tmp;
 	char *tptr;
 
-	/*
-	 * Can we run commands at all? 
-	 */
+	/* Can we run commands at all? */
 
 	if (Halted(player))
 		return NULL;
 
-	/*
-	 * make sure player can afford to do it 
-	 */
+	/* make sure player can afford to do it */
 
 	a = mudconf.waitcost;
-	if ((random() % mudconf.machinecost) == 0)
+	if (a && mudconf.machinecost && (random() % mudconf.machinecost) == 0)
 		a++;
 	if (!payfor(player, a)) {
 		notify(Owner(player), "Not enough money to queue command.");
 		return NULL;
 	}
-	/*
-	 * Wizards and their objs may queue up to db_top+1 cmds. Players are
-	 * * * * * * * limited to QUEUE_QUOTA. -mnp 
+	/* Wizards and their objs may queue up to db_top+1 cmds. Players are
+	 * limited to QUEUE_QUOTA. -mnp 
 	 */
 
 	a = QueueMax(Owner(player));
@@ -428,19 +396,13 @@ int nargs;
 		    "Run away objects: too many commands queued.  Halted.");
 		halt_que(Owner(player), NOTHING);
 
-		/*
-		 * halt also means no command execution allowed 
-		 */
+		/* halt also means no command execution allowed */
 		s_Halted(player);
 		return NULL;
 	}
-	/*
-	 * We passed all the tests 
-	 */
+	/* We passed all the tests */
 
-	/*
-	 * Calculate the length of the save string 
-	 */
+	/* Calculate the length of the save string */
 
 	tlen = 0;
 	if (command)
@@ -457,9 +419,7 @@ int nargs;
 				tlen += (strlen(sargs[a]) + 1);
 		}
 	}
-	/*
-	 * Create the qeue entry and load the save string 
-	 */
+	/* Create the queue entry and load the save string */
 
 	tmp = alloc_qentry("setup_que.qblock");
 	tmp->comm = NULL;
@@ -470,15 +430,18 @@ int nargs;
 		tmp->scr[a] = NULL;
 	}
 
-	tptr = tmp->text = (char *)malloc(tlen);
+	if (!(tptr = tmp->text = (char *) XMALLOC(tlen, "setup_que"))) {
+		free_qentry(tmp);
+		return (BQUE *) NULL;
+	}
 	if (command) {
-		StringCopy(tptr, command);
+		strcpy(tptr, command);
 		tmp->comm = tptr;
 		tptr += (strlen(command) + 1);
 	}
 	for (a = 0; a < nargs; a++) {
 		if (args[a]) {
-			StringCopy(tptr, args[a]);
+			strcpy(tptr, args[a]);
 			tmp->env[a] = tptr;
 			tptr += (strlen(args[a]) + 1);
 		}
@@ -486,15 +449,13 @@ int nargs;
 	if (sargs) {
 		for (a = 0; a < MAX_GLOBAL_REGS; a++) {
 			if (sargs[a]) {
-				StringCopy(tptr, sargs[a]);
+				strcpy(tptr, sargs[a]);
 				tmp->scr[a] = tptr;
 				tptr += (strlen(sargs[a]) + 1);
 			}
 		}
 	}
-	/*
-	 * Load the rest of the queue block 
-	 */
+	/* Load the rest of the queue block */
 
 	tmp->player = player;
 	tmp->waittime = 0;
@@ -506,9 +467,8 @@ int nargs;
 	return tmp;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * wait_que: Add commands to the wait or semaphore queues.
+/* ---------------------------------------------------------------------------
+ * wait_que: Add commands to the wait or semaphore queues.
  */
 
 void wait_que(player, cause, wait, sem, attr, command, args, nargs, sargs)
@@ -531,8 +491,7 @@ char *command, *args[], *sargs[];
 	tmp->attr = attr;
 	if (sem == NOTHING) {
 
-		/*
-		 * No semaphore, put on wait queue if wait value specified.
+		/* No semaphore, put on wait queue if wait value specified.
 		 * Otherwise put on the normal queue. 
 		 */
 
@@ -560,9 +519,8 @@ char *command, *args[], *sargs[];
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_wait: Command interface to wait_que
+/* ---------------------------------------------------------------------------
+ * do_wait: Command interface to wait_que
  */
 
 void do_wait(player, cause, key, event, cmd, cargs, ncargs)
@@ -576,9 +534,7 @@ char *event, *cmd, *cargs[];
 	ATTR *ap;
 	
 
-	/*
-	 * If arg1 is all numeric, do simple (non-sem) timed wait. 
-	 */
+	/* If arg1 is all numeric, do simple (non-sem) timed wait. */
 
 	if (is_number(event)) {
 		howlong = atoi(event);
@@ -586,9 +542,7 @@ char *event, *cmd, *cargs[];
 			 cargs, ncargs, mudstate.global_regs);
 		return;
 	}
-	/*
-	 * Semaphore wait with optional timeout 
-	 */
+	/* Semaphore wait with optional timeout */
 
 	what = parse_to(&event, '/', 0);
 	init_match(player, what, NOTYPE);
@@ -601,9 +555,7 @@ char *event, *cmd, *cargs[];
 		notify(player, "Permission denied.");
 	} else {
 
-		/*
-		 * Get timeout, default 0 
-		 */
+		/* Get timeout, default 0 */
 
 		if (event && *event && is_number(event)) {
 			attr = A_SEMAPHORE;
@@ -617,6 +569,10 @@ char *event, *cmd, *cargs[];
 			ap = atr_str(event);
 			if (!ap) {
 				attr = mkattr(event);
+				if (!attr) {
+					notify_quiet(player, "Invalid attribute.");
+					return;
+				}
 				ap = atr_num(attr);
 			}
 			atr_pget_info(thing, ap->number, &aowner, &aflags);
@@ -632,10 +588,7 @@ char *event, *cmd, *cargs[];
 		num = add_to(thing, 1, attr);
 		if (num <= 0) {
 
-			/*
-			 * thing over-notified, run the command immediately 
-			 */
-
+			/* thing over-notified, run the command immediately */
 			thing = NOTHING;
 			howlong = 0;
 		}
@@ -644,10 +597,9 @@ char *event, *cmd, *cargs[];
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * que_next: Return the time in seconds until the next command should be
- * * run from the queue.
+/* ---------------------------------------------------------------------------
+ * que_next: Return the time in seconds until the next command should be
+ * run from the queue.
  */
 
 int NDECL(que_next)
@@ -655,24 +607,21 @@ int NDECL(que_next)
 	int min, this;
 	BQUE *point;
 
-	/*
-	 * If there are commands in the player queue, we want to run them
+	/* If there are commands in the player queue, we want to run them
 	 * immediately. 
 	 */
 
 	if (test_top())
 		return 0;
 
-	/*
-	 * If there are commands in the object queue, we want to run them
+	/* If there are commands in the object queue, we want to run them
 	 * after a one-second pause. 
 	 */
 
 	if (mudstate.qlfirst != NULL)
 		return 1;
 
-	/*
-	 * Walk the wait and semaphore queues, looking for the smallest
+	/* Walk the wait and semaphore queues, looking for the smallest
 	 * wait value.  Return the smallest value - 1, because
 	 * the command gets moved to the player queue when it has 
 	 * 1 second to go.  
@@ -688,9 +637,7 @@ int NDECL(que_next)
 	}
 
 	for (point = mudstate.qsemfirst; point; point = point->next) {
-		if (point->waittime == 0)	/*
-						 * * Skip if no timeout  
-						 */
+		if (point->waittime == 0)	/* Skip if no timeout */
 			continue;
 		this = point->waittime - mudstate.now;
 		if (this <= 2)
@@ -701,9 +648,8 @@ int NDECL(que_next)
 	return min - 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_second: Check the wait and semaphore queues for commands to remove.
+/* ---------------------------------------------------------------------------
+ * do_second: Check the wait and semaphore queues for commands to remove.
  */
 
 void NDECL(do_second)
@@ -711,8 +657,7 @@ void NDECL(do_second)
 	BQUE *trail, *point, *next;
 	char *cmdsave;
 
-	/*
-	 * move contents of low priority queue onto end of normal one this
+	/* move contents of low priority queue onto end of normal one this
 	 * helps to keep objects from getting out of control since
 	 * its affects on other objects happen only after one
 	 * second  this should allow @halt to be type before
@@ -733,15 +678,12 @@ void NDECL(do_second)
 		mudstate.qlast = mudstate.qllast;
 		mudstate.qllast = mudstate.qlfirst = NULL;
 	}
-	/*
-	 * Note: the point->waittime test would be 0 except the command is
+	/* Note: the point->waittime test would be 0 except the command is
 	 * being put in the low priority queue to be done in one
 	 * second anyways 
 	 */
 
-	/*
-	 * Do the wait queue 
-	 */
+	/* Do the wait queue */
 
 	for (point = mudstate.qwait; point && point->waittime <= mudstate.now;
 	     point = point->next) {
@@ -749,16 +691,12 @@ void NDECL(do_second)
 		give_que(point);
 	}
 
-	/*
-	 * Check the semaphore queue for expired timed-waits 
-	 */
+	/* Check the semaphore queue for expired timed-waits */
 
 	for (point = mudstate.qsemfirst, trail = NULL; point; point = next) {
 		if (point->waittime == 0) {
 			next = (trail = point)->next;
-			continue;	/*
-					 * Skip if not timed-wait 
-					 */
+			continue;	/* Skip if not timed-wait */
 		}
 		if (point->waittime <= mudstate.now) {
 			if (trail != NULL)
@@ -767,7 +705,7 @@ void NDECL(do_second)
 				mudstate.qsemfirst = next = point->next;
 			if (point == mudstate.qsemlast)
 				mudstate.qsemlast = trail;
-			add_to(point->sem, -1, point->attr);
+			add_to(point->sem, -1, (point->attr ? point->attr : A_SEMAPHORE));
 			point->sem = NOTHING;
 			give_que(point);
 		} else
@@ -777,9 +715,8 @@ void NDECL(do_second)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_top: Execute the command at the top of the queue
+/* ---------------------------------------------------------------------------
+ * do_top: Execute the command at the top of the queue
  */
 
 int do_top(ncmds)
@@ -812,13 +749,11 @@ int ncmds;
 			mudstate.qfirst->player = 0;
 			if (!Halted(player)) {
 
-				/*
-				 * Load scratch args 
-				 */
+				/* Load scratch args */
 
 				for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 					if (mudstate.qfirst->scr[i]) {
-						StringCopy(mudstate.global_regs[i],
+						strcpy(mudstate.global_regs[i],
 						   mudstate.qfirst->scr[i]);
 					} else {
 						*mudstate.global_regs[i] = '\0';
@@ -884,9 +819,8 @@ int ncmds;
 	return count;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_ps: tell player what commands they have pending in the queue
+/* ---------------------------------------------------------------------------
+ * do_ps: tell player what commands they have pending in the queue
  */
 
 static void show_que(player, key, queue, qtot, qent, qdel,
@@ -971,9 +905,7 @@ char *target;
 	int pqent, pqtot, pqdel, oqent, oqtot, oqdel, wqent, wqtot, sqent,
 	 sqtot, i;
 
-	/*
-	 * Figure out what to list the queue for 
-	 */
+	/* Figure out what to list the queue for */
 
 	if ((key & PS_ALL) && !(See_Queue(player))) {
 		notify(player, "Permission denied.");
@@ -1014,9 +946,7 @@ char *target;
 		return;
 	}
 
-	/*
-	 * Go do it 
-	 */
+	/* Go do it */
 
 	show_que(player, key, mudstate.qfirst, &pqtot, &pqent, &pqdel,
 		 player_targ, obj_targ, "Player");
@@ -1027,9 +957,7 @@ char *target;
 	show_que(player, key, mudstate.qsemfirst, &sqtot, &sqent, &i,
 		 player_targ, obj_targ, "Semaphore");
 
-	/*
-	 * Display stats 
-	 */
+	/* Display stats */
 
 	bufp = alloc_mbuf("do_ps");
 	if (See_Queue(player))
@@ -1043,9 +971,8 @@ char *target;
 	free_mbuf(bufp);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_queue: Queue management
+/* ---------------------------------------------------------------------------
+ * do_queue: Queue management
  */
 
 void do_queue(player, cause, key, arg)
@@ -1077,17 +1004,13 @@ char *arg;
 			mudconf.control_flags |= CF_DEQUEUE;
 			notify(player, "Warning: automatic dequeueing is disabled.");
 		}
-		/*
-		 * Handle the wait queue 
-		 */
+		/* Handle the wait queue */
 
 		for (point = mudstate.qwait; point; point = point->next) {
 			point->waittime = -i;
 		}
 
-		/*
-		 * Handle the semaphore queue 
-		 */
+		/* Handle the semaphore queue */
 
 		for (point = mudstate.qsemfirst; point; point = point->next) {
 			if (point->waittime > 0) {

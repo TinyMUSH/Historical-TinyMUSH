@@ -104,8 +104,8 @@ extern int	FDECL(check_filter, (dbref, dbref, int,
 extern void	FDECL(notify_check, (dbref, dbref, const char *, int));
 extern int	FDECL(Hearer, (dbref));
 extern void	NDECL(report);
-extern int	FDECL(atr_match, (dbref, dbref, char, char *, int));
-extern int	FDECL(list_check, (dbref, dbref, char, char *, int));
+extern int	FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
+extern int	FDECL(list_check, (dbref, dbref, char, char *, char *, int));
 extern int	FDECL(html_escape, (const char *src, char *dest, char **destp));
 	
 /* From help.c */
@@ -231,7 +231,6 @@ extern int	FDECL(prefix_match, (const char *, const char *));
 extern int	FDECL(minmatch, (char *, char *, int));
 extern char *	FDECL(strsave, (const char *));
 extern int	FDECL(safe_copy_str, (char *, char *, char **, int));
-extern int	FDECL(safe_copy_chr, (char, char *, char **, int));
 extern int	FDECL(matches_exit_from_list, (char *, char *));
 extern char *	FDECL(translate_string, (const char *, int));
 extern int	FDECL(ltos, (char *, long));
@@ -355,6 +354,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	DIG_TELEPORT	1	/* teleport to room after @digging */
 #define DOLIST_SPACE    0       /* expect spaces as delimiter */
 #define DOLIST_DELIMIT  1       /* expect custom delimiter */
+#define DOLIST_NOTIFY   2     /* queue a '@notify me' at the end */
 #define	DOING_MESSAGE	0	/* Set my DOING message */
 #define	DOING_HEADER	1	/* Set the DOING header */
 #define	DOING_POLL	2	/* List DOING header */
@@ -479,6 +479,10 @@ extern void	FDECL(toast_player, (dbref));
 #define	QUOTA_TOT	4	/* Operate on total quota */
 #define	QUOTA_REM	8	/* Operate on remaining quota */
 #define	QUOTA_ALL	16	/* Operate on all players */
+#define QUOTA_ROOM      32      /* Room quota set */
+#define QUOTA_EXIT      64      /* Exit quota set */
+#define QUOTA_THING     128     /* Thing quota set */
+#define QUOTA_PLAYER    256     /* Player quota set */
 #define	SAY_SAY		1	/* say in current room */
 #define	SAY_NOSPACE	1	/* OR with xx_EMIT to get nospace form */
 #define	SAY_POSE	2	/* pose in current room */

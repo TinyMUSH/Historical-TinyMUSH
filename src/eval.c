@@ -446,7 +446,7 @@ char *cargs[];
 			at_space = 0;
 			(*dstr)++;
 			if (**dstr)
-				safe_chr(**dstr, buff, bufc);
+				safe_chr_fn(**dstr, buff, bufc);
 			else
 				(*dstr)--;
 			break;
@@ -697,7 +697,7 @@ char *cargs[];
 				i = 100 + ch - 'A';
 				atr_gotten = atr_pget(player, i, &aowner,
 						      &aflags);
-				safe_str(atr_gotten, buff, bufc);
+				safe_long_str(atr_gotten, buff, bufc);
 				free_lbuf(atr_gotten);
 				break;
 			case 'Q':
@@ -1105,4 +1105,44 @@ char *cargs[];
 			free_mbuf(tbuf);
 		}
 	}
+}
+
+/* ---------------------------------------------------------------------------
+ * save_global_regs, restore_global_regs:  Save and restore the global
+ * registers to protect them from various sorts of munging.
+ */
+
+void save_global_regs(funcname, preserve)
+     const char *funcname;
+     char *preserve[];
+{
+    int i;
+
+    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+	if (!mudstate.global_regs[i])
+	    preserve[i] = NULL;
+	else {
+	    preserve[i] = alloc_lbuf(funcname);
+	    strcpy(preserve[i], mudstate.global_regs[i]);
+	}
+    }
+}
+
+void restore_global_regs(funcname, preserve)
+     const char *funcname;
+     char *preserve[];
+{
+    int i;
+
+    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+	if (preserve[i]) {
+	    if (!mudstate.global_regs[i])
+		mudstate.global_regs[i] = alloc_lbuf(funcname);
+	    strcpy(mudstate.global_regs[i], preserve[i]);
+	    free_lbuf(preserve[i]);
+	} else {
+	    if (mudstate.global_regs[i])
+		*(mudstate.global_regs[i]) = '\0';
+	}
+    }
 }

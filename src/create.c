@@ -19,9 +19,8 @@
 #include "attrs.h"
 #include "powers.h"
 
-/*
- * ---------------------------------------------------------------------------
- * * parse_linkable_room: Get a location to link to.
+/* ---------------------------------------------------------------------------
+ * parse_linkable_room: Get a location to link to.
  */
 
 static dbref parse_linkable_room(player, room_name)
@@ -34,16 +33,12 @@ char *room_name;
 	match_everything(MAT_NO_EXITS | MAT_NUMERIC | MAT_HOME);
 	room = match_result();
 
-	/*
-	 * HOME is always linkable 
-	 */
+	/* HOME is always linkable */
 
 	if (room == HOME)
 		return HOME;
 
-	/*
-	 * Make sure we can link to it 
-	 */
+	/* Make sure we can link to it */
 
 	if (!Good_obj(room)) {
 		notify_quiet(player, "That's not a valid object.");
@@ -56,9 +51,8 @@ char *room_name;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * open_exit, do_open: Open a new exit and optionally link it somewhere.
+/* ---------------------------------------------------------------------------
+ * open_exit, do_open: Open a new exit and optionally link it somewhere.
  */
 
 static void open_exit(player, loc, direction, linkto)
@@ -81,23 +75,17 @@ char *direction, *linkto;
 	if (exit == NOTHING)
 		return;
 
-	/*
-	 * Initialize everything and link it in. 
-	 */
+	/* Initialize everything and link it in. */
 
 	s_Exits(exit, loc);
 	s_Next(exit, Exits(loc));
 	s_Exits(loc, exit);
 
-	/*
-	 * and we're done 
-	 */
+	/* and we're done */
 
 	notify_quiet(player, "Opened.");
 
-	/*
-	 * See if we should do a link 
-	 */
+	/* See if we should do a link */
 
 	if (!linkto || !*linkto)
 		return;
@@ -105,9 +93,7 @@ char *direction, *linkto;
 	loc = parse_linkable_room(player, linkto);
 	if (loc != NOTHING) {
 
-		/*
-		 * Make sure the player passes the link lock 
-		 */
+		/* Make sure the player passes the link lock */
 
 		if (!could_doit(player, loc, A_LLINK)) {
 			notify_quiet(player, "You can't link to there.");
@@ -136,9 +122,7 @@ char *direction, *links[];
 	dbref loc, destnum;
 	char *dest;
 
-	/*
-	 * Create the exit and link to the destination, if there is one 
-	 */
+	/* Create the exit and link to the destination, if there is one */
 
 	if (nlinks >= 1)
 		dest = links[0];
@@ -152,9 +136,7 @@ char *direction, *links[];
 
 	open_exit(player, loc, direction, dest);
 
-	/*
-	 * Open the back link if we can 
-	 */
+	/* Open the back link if we can */
 
 	if (nlinks >= 2) {
 		destnum = parse_linkable_room(player, dest);
@@ -165,10 +147,9 @@ char *direction, *links[];
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * link_exit, do_link: Set destination(exits), dropto(rooms) or
- * * home(player,thing)
+/* ---------------------------------------------------------------------------
+ * link_exit, do_link: Set destination(exits), dropto(rooms) or
+ * home(player,thing)
  */
 
 static void link_exit(player, exit, dest)
@@ -176,9 +157,7 @@ dbref player, exit, dest;
 {
 	int cost, quot;
 
-	/*
-	 * Make sure we can link there 
-	 */
+	/* Make sure we can link there */
 
 	if ((dest != HOME) &&
 	    ((!controls(player, dest) && !Link_ok(dest)) ||
@@ -186,17 +165,13 @@ dbref player, exit, dest;
 		notify_quiet(player, "Permission denied.");
 		return;
 	}
-	/*
-	 * Exit must be unlinked or controlled by you 
-	 */
+	/* Exit must be unlinked or controlled by you */
 
 	if ((Location(exit) != NOTHING) && !controls(player, exit)) {
 		notify_quiet(player, "Permission denied.");
 		return;
 	}
-	/*
-	 * handle costs 
-	 */
+	/* handle costs */
 
 	cost = mudconf.linkcost;
 	quot = 0;
@@ -217,9 +192,7 @@ dbref player, exit, dest;
 		s_Owner(exit, Owner(player));
 		s_Flags(exit, (Flags(exit) & ~(INHERIT | WIZARD)) | HALT);
 	}
-	/*
-	 * link has been validated and paid for, do it and tell the player 
-	 */
+	/* link has been validated and paid for, do it and tell the player */
 
 	s_Location(exit, dest);
 	if (!Quiet(player))
@@ -234,9 +207,7 @@ char *what, *where;
 	dbref thing, room;
 	char *buff;
 
-	/*
-	 * Find the thing to link 
-	 */
+	/* Find the thing to link */
 
 	init_match(player, what, TYPE_EXIT);
 	match_everything(0);
@@ -244,9 +215,7 @@ char *what, *where;
 	if (thing == NOTHING)
 		return;
 
-	/*
-	 * Allow unlink if where is not specified 
-	 */
+	/* Allow unlink if where is not specified */
 
 	if (!where || !*where) {
 		do_unlink(player, cause, key, what);
@@ -255,9 +224,7 @@ char *what, *where;
 	switch (Typeof(thing)) {
 	case TYPE_EXIT:
 
-		/*
-		 * Set destination 
-		 */
+		/* Set destination */
 
 		room = parse_linkable_room(player, where);
 		if (room != NOTHING)
@@ -266,9 +233,7 @@ char *what, *where;
 	case TYPE_PLAYER:
 	case TYPE_THING:
 
-		/*
-		 * Set home 
-		 */
+		/* Set home */
 
 		if (!Controls(player, thing)) {
 			notify_quiet(player, "Permission denied.");
@@ -296,9 +261,7 @@ char *what, *where;
 		break;
 	case TYPE_ROOM:
 
-		/*
-		 * Set dropto 
-		 */
+		/* Set dropto */
 
 		if (!Controls(player, thing)) {
 			notify_quiet(player, "Permission denied.");
@@ -334,9 +297,8 @@ char *what, *where;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_parent: Set an object's parent field.
+/* ---------------------------------------------------------------------------
+ * do_parent: Set an object's parent field.
  */
 
 void do_parent(player, cause, key, tname, pname)
@@ -347,9 +309,7 @@ char *tname, *pname;
 	dbref thing, parent, curr;
 	int lev;
 
-	/*
-	 * get victim 
-	 */
+	/* get victim  */
 
 	init_match(player, tname, NOTYPE);
 	match_everything(0);
@@ -357,17 +317,13 @@ char *tname, *pname;
 	if (thing == NOTHING)
 		return;
 
-	/*
-	 * Make sure we can do it 
-	 */
+	/* Make sure we can do it */
 
 	if (!Controls(player, thing)) {
 		notify_quiet(player, "Permission denied.");
 		return;
 	}
-	/*
-	 * Find out what the new parent is 
-	 */
+	/* Find out what the new parent is */
 
 	if (*pname) {
 		init_match(player, pname, Typeof(thing));
@@ -376,17 +332,13 @@ char *tname, *pname;
 		if (parent == NOTHING)
 			return;
 
-		/*
-		 * Make sure we have rights to set parent 
-		 */
+		/* Make sure we have rights to set parent */
 
 		if (!Parentable(player, parent)) {
 			notify_quiet(player, "Permission denied.");
 			return;
 		}
-		/*
-		 * Verify no recursive reference 
-		 */
+		/* Verify no recursive reference */
 
 		ITER_PARENTS(parent, curr, lev) {
 			if (curr == thing) {
@@ -408,9 +360,8 @@ char *tname, *pname;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_dig: Create a new room.
+/* ---------------------------------------------------------------------------
+ * do_dig: Create a new room.
  */
 
 void do_dig(player, cause, key, name, args, nargs)
@@ -421,9 +372,7 @@ char *name, *args[];
 	dbref room;
 	char *buff;
 
-	/*
-	 * we don't need to know player's location!  hooray! 
-	 */
+	/* we don't need to know player's location!  hooray! */
 
 	if (!name || !*name) {
 		notify_quiet(player, "Dig what?");
@@ -450,9 +399,8 @@ char *name, *args[];
 		(void)move_via_teleport(player, room, cause, 0);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_create: Make a new object.
+/* ---------------------------------------------------------------------------
+ * do_create: Make a new object.
  */
 
 void do_create(player, cause, key, name, coststr)
@@ -486,9 +434,8 @@ char *name, *coststr;
 }
 
 
-/*
- * ---------------------------------------------------------------------------
- * * do_clone: Create a copy of an object.
+/* ---------------------------------------------------------------------------
+ * do_clone: Create a copy of an object.
  */
 
 void do_clone(player, cause, key, name, arg2)
@@ -514,8 +461,7 @@ char *name, *arg2;
 	if ((thing == NOTHING) || (thing == AMBIGUOUS))
 		return;
 
-	/*
-	 * Let players clone things set VISUAL.  It's easier than retyping in
+	/* Let players clone things set VISUAL.  It's easier than retyping in
 	 * all that data 
 	 */
 
@@ -527,9 +473,7 @@ char *name, *arg2;
 		notify_quiet(player, "You cannot clone players!");
 		return;
 	}
-	/*
-	 * You can only make a parent link to what you control 
-	 */
+	/* You can only make a parent link to what you control */
 
 	if (!Controls(player, thing) && !Parent_ok(thing) &&
 	    (key & CLONE_PARENT)) {
@@ -538,9 +482,7 @@ char *name, *arg2;
 				  Name(thing)));
 		key &= ~CLONE_PARENT;
 	}
-	/*
-	 * Determine the cost of cloning 
-	 */
+	/* Determine the cost of cloning */
 
 	new_owner = (key & CLONE_PRESERVE) ? Owner(thing) : Owner(player);
 	if (key & CLONE_SET_COST) {
@@ -570,9 +512,7 @@ char *name, *arg2;
 		}
 	}
 
-	/*
-	 * Go make the clone object 
-	 */
+	/* Go make the clone object */
 
 	if ((arg2 && *arg2) && ok_name(arg2))
 		clone = create_obj(new_owner, Typeof(thing), arg2, cost);
@@ -581,9 +521,7 @@ char *name, *arg2;
 	if (clone == NOTHING)
 		return;
 
-	/*
-	 * Wipe out any old attributes and copy in the new data 
-	 */
+	/* Wipe out any old attributes and copy in the new data */
 
 	atr_free(clone);
 	if (key & CLONE_PARENT)
@@ -600,18 +538,15 @@ char *name, *arg2;
 	else
 		s_Name(clone, Name(thing));
 
-	/*
-	 * Clear out problem flags from the original 
-	 */
+	/* Clear out problem flags from the original */
 
 	rmv_flags = WIZARD;
 	if (!(key & CLONE_INHERIT) || (!Inherits(player)))
 		rmv_flags |= INHERIT | IMMORTAL;
 	s_Flags(clone, Flags(thing) & ~rmv_flags);
+	rmv_flags = SUSPECT | CONNECTED |  SLAVE;
 
-	/*
-	 * Tell creator about it 
-	 */
+	/* Tell creator about it */
 
 	if (!Quiet(player)) {
 		if (arg2 && *arg2)
@@ -623,9 +558,8 @@ char *name, *arg2;
 			       tprintf("%s cloned, new copy is object #%d.",
 				       Name(thing), clone));
 	}
-	/*
-	 * Put the new thing in its new home.  Break any dropto or link, then
-	 * * * * * * * try to re-establish it. 
+	/* Put the new thing in its new home.  Break any dropto or link, then
+	 * try to re-establish it. 
 	 */
 
 	switch (Typeof(thing)) {
@@ -647,9 +581,8 @@ char *name, *arg2;
 		break;
 	}
 
-	/*
-	 * If same owner run ACLONE, else halt it.  Also copy parent * if we
-	 * * * * * * can 
+	/* If same owner run ACLONE, else halt it.  Also copy parent if we
+	 * can 
 	 */
 
 	if (new_owner == Owner(thing)) {
@@ -665,9 +598,8 @@ char *name, *arg2;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_pcreate: Create new players and robots.
+/* ---------------------------------------------------------------------------
+ * do_pcreate: Create new players and robots.
  */
 
 void do_pcreate(player, cause, key, name, pass)
@@ -708,10 +640,9 @@ char *name, *pass;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * can_destroy_exit, can_destroy_player, do_destroy:
- * * Destroy things.
+/* ---------------------------------------------------------------------------
+ * can_destroy_exit, can_destroy_player, do_destroy:
+ * Destroy things.
  */
 
 static int can_destroy_exit(player, exit)
@@ -784,9 +715,7 @@ char *what;
 		match_exit();
 		thing = last_match_result();
 	}
-	/*
-	 * You may destroy DESTROY_OK things in your inventory 
-	 */
+	/* You may destroy DESTROY_OK things in your inventory */
 
 	if (thing == NOTHING) {
 		init_match(player, what, TYPE_THING);
@@ -796,16 +725,12 @@ char *what;
 			thing = NOPERM;
 		}
 	}
-	/*
-	 * Return an error if we didn't find anything to destroy 
-	 */
+	/* Return an error if we didn't find anything to destroy */
 
 	if (match_status(player, thing) == NOTHING) {
 		return;
 	}
-	/*
-	 * Check SAFE and DESTROY_OK flags 
-	 */
+	/* Check SAFE and DESTROY_OK flags */
 
 	if (Safe(thing, player) && !(key & DEST_OVERRIDE) &&
 	    !(isThing(thing) && Destroy_ok(thing))) {
@@ -813,17 +738,13 @@ char *what;
 			     "Sorry, that object is protected.  Use @destroy/override to destroy it.");
 		return;
 	}
-	/*
-	 * Make sure we're not trying to destroy a special object 
-	 */
+	/* Make sure we're not trying to destroy a special object */
 
 	if (!destroyable(thing)) {
 		notify_quiet(player, "You can't destroy that!");
 		return;
 	}
-	/*
-	 * Go do it 
-	 */
+	/* Go do it */
 
 	switch (Typeof(thing)) {
 	case TYPE_EXIT:
