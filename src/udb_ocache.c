@@ -294,56 +294,43 @@ void list_cached_objs(player)
     Cache *cp;
     int x;
     int aco, maco, asize, msize;
-    char *bp, nbuf[16], buff[LBUF_SIZE];
-
+    char *temp;
+    
     aco = maco = asize = msize = 0;
 
     raw_notify(player, "Active Cache:");
-
-    bp = buff;
+    raw_notify(player, 
+       "Name                           Dbref   Time                      Size");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
             if (cp->op) {
                 aco++;
                 asize += cp->op->size;
-                if (bp != buff) {
-                    safe_chr(' ', buff, &bp);
-                }
-                safe_chr('#', buff, &bp);
-                safe_ltos(buff, &bp, (int) cp->op->name);
-	        safe_chr('(', buff, &bp);
-	        safe_ltos(buff, &bp, (int) cp->referenced);
-	        safe_chr(')', buff, &bp);        
+		temp = (char *)ctime(&(cp->lastreferenced));
+		temp[strlen(temp) - 1] = '\0';
+		raw_notify(player, 
+			tprintf("%30s #%6d %25s %6d", Name(cp->op->name),
+			cp->op->name, temp, cp->op->size));
             }
         }
     }
-    *bp = '\0';
-    if (bp != buff) {
-        raw_notify(player, buff);
-    }
 
     raw_notify(player, "Modified Active Cache:");
+    raw_notify(player, 
+       "Name                           Dbref   Time                      Size");
 
-    bp = buff;
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
             if (cp->op) {
                 maco++;
                 msize += cp->op->size;
-                if (bp != buff) {
-                    safe_chr(' ', buff, &bp);
-                }
-                safe_chr('#', buff, &bp);
-                safe_ltos(buff, &bp, (int) cp->op->name);
-	        safe_chr('(', buff, &bp);
-	        safe_ltos(buff, &bp, (int) cp->referenced);
-	        safe_chr(')', buff, &bp);        
+		temp = (char *)ctime(&(cp->lastreferenced));
+		temp[strlen(temp) - 1] = '\0';
+		raw_notify(player, 
+			tprintf("%30s #%6d %25s %6d", Name(cp->op->name),
+			cp->op->name, temp, cp->op->size));
             }
         }
-    }
-    *bp = '\0';
-    if (bp != buff) {
-        raw_notify(player, buff);
     }
 
     raw_notify(player,
