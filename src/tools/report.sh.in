@@ -3,7 +3,7 @@
 # Generates a raw report of the database and generate some reports from it.
 #
 
-AWK=@PATH_AWK@
+AWK=@AWK@
 RAWREPORT=raw.report.$$
 if [ $# != 1 ]; then
 	echo "Usage: $0 <tinymush database name>"

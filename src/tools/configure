@@ -749,25 +749,31 @@ do
 set dummy $ac_prog; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
 echo "configure:752: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_prog_AWK'+set}'`\" = set"; then
+if eval "test \"`echo '$''{'ac_cv_path_AWK'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
-  if test -n "$AWK"; then
-  ac_cv_prog_AWK="$AWK" # Let the user override the test.
-else
+  case "$AWK" in
+  /*)
+  ac_cv_path_AWK="$AWK" # Let the user override the test with a path.
+  ;;
+  ?:/*)			 
+  ac_cv_path_AWK="$AWK" # Let the user override the test with a dos path.
+  ;;
+  *)
   IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
   ac_dummy="$PATH"
-  for ac_dir in $ac_dummy; do
+  for ac_dir in $ac_dummy; do 
     test -z "$ac_dir" && ac_dir=.
     if test -f $ac_dir/$ac_word; then
-      ac_cv_prog_AWK="$ac_prog"
+      ac_cv_path_AWK="$ac_dir/$ac_word"
       break
     fi
   done
   IFS="$ac_save_ifs"
+  ;;
+esac
 fi
-fi
-AWK="$ac_cv_prog_AWK"
+AWK="$ac_cv_path_AWK"
 if test -n "$AWK"; then
   echo "$ac_t""$AWK" 1>&6
 else
@@ -778,28 +784,8 @@ test -n "$AWK" && break
 done
 
 if test $AWK = ""; then
-	{ echo "configure: error: You do not have an awk interpreter installed. Sorry." 1>&2; exit 1; }
+    { echo "configure: error: You do not have an awk interpreter installed. Sorry." 1>&2; exit 1; }
 fi
-if test -x $AWK; then
-	PATH_AWK="$AWK"
-else
-        # go back and figure out where AC_PROG_AWK found it
-	for ac_prog in "$AWK"; do
-		set dummy $ac_prog; ac_word=$2
-
-		IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-		ac_dummy="$PATH"
-		for ac_dir in $ac_dummy; do
-			test -z "$ac_dir" && ac_dir=.
-			if test -f $ac_dir/$ac_word; then
-				PATH_AWK="$ac_dir/$ac_prog"
-				break
-			fi
-  		done
-		IFS="$ac_save_ifs"
-	done
-fi
-
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
@@ -946,7 +932,6 @@ s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@CC@%$CC%g
 s%@AWK@%$AWK%g
-s%@PATH_AWK@%$PATH_AWK%g
 
 CEOF
 EOF
