@@ -956,16 +956,42 @@ The initial beta release was on 9/27/99.
 
 -----------------------------------------------------------------------------
 
-11/17/2000: Beta 23
+11/21/2000: Beta 23
 
-- Fix: @halt/all properly credits object owners. [2.0]
+- Feature: Going and Unknown categories have been adding to the @stats
+  display, and stats().
 
-- Fix: Recycling works properly once more. [3.0b22]
+- Fix: @halt/all properly credits object owners. [2.0; Ashen-Shugar]
+
+- Fix: children() permission was incorrectly restricted to Wizards. You
+  must now either control the object, or have See_All-equivalent
+  privileges. [MUX; MUX 2.0]
+
+- Fix: Corrupted mail db version numbers, or empty mail databases, no
+  longer cause a problem when trying to load mail. [MUX; MUX 2.0]
+
+- Fix: The '-' and '~' commands are no longer defined by default, if
+  have_mailer is set to 'no' in the conf file. [3.0]
+
+- Fix: If an $-command attribute is set REGEXP, if the regexp match fails,
+  a wild match should not be attempted. [2.2]
+
+- Fix: alphamax() and alphamin() can take the maximum number of function
+  arguments, not just 10. [MUX]
+
+- Fix: A fatal error that occurs when the Solaris SUNWspro C compiler
+  is used has been fixed. [3.0a13]
+
+- Fix: Recycling works properly once more. [3.0b22; Matt Totney-Roberts]
 
 - Misc: The freelist is now constructed in ascending order.
 
-- Misc: Going and Unknown categories have been adding to the @stats
-  display, and stats().
+- Misc: Garbage objects now have their names unparsed as *GARBAGE*
+  rather than *ILLEGAL*.
+
+- Misc: @search/search() is more logical about how it handles garbage,
+  and behavior is closer to how it was in 3.0b21 and previous.
 
 - Misc: Some minor code cleanup in string functions.
 
+- Misc: Scott Dorr (Myrddin) has joined the 3.0 development team.
