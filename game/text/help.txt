@@ -4057,13 +4057,13 @@ Example: @sex me = female
  
     @speechformat me = [switch(%1,",%N the Magnificent says\, "%0",
                                   :,%N the Magnificent %0,
-                                  ;,%N the Magnificent %0)]
+                                  ;,%N the Magnificent%0)]
  
   @speechformat on locations can be used in order to enhance atmosphere.
  
   Example, an underwater room where speech is affected:
     @speechformat here = [case(%1,",%N mouths the
-                                    [case(words(%0),1,word,words)]\, "%0")] 
+                                    [case(words(%0),1,word,words)]\, "%0", )] 
  
   Example, a net object which holds a player captive inside:
      @speechformat here = [case(%1,", ,%N struggles fruitlessly in the net.)]
