@@ -104,6 +104,9 @@ Release history:
 - Fix: Renamed "mstate" parameters to avoid conflict with the malloc
   facility in RedHat 8.0. [2.0; Pete C.]
 
+- Fix: Commands that begin with a single backslash are handled properly
+  as @emits. [2.0; sTiLe]
+
 - Misc: Unprivileged exits may destroy themselves, requested by
   drdubious.
 

@@ -2140,7 +2140,7 @@ Example:
 & @emit
  
 Command:  @emit[/<switches>] <message>
-          \\<message>
+          \<message>
  
 This command shows <message> to everyone in your current location.
  

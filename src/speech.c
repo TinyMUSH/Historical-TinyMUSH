@@ -195,24 +195,26 @@ char *message;
 	say_flags = key & (SAY_NOTAG | SAY_HERE | SAY_ROOM | SAY_HTML);
 	key &= ~(SAY_NOTAG | SAY_HERE | SAY_ROOM | SAY_HTML);
 
-	if (key == SAY_PREFIX) {
-		switch (*message++) {
-		case '"':
-			key = SAY_SAY;
-			break;
-		case ':':
+	if (key & SAY_PREFIX) {
+		key &= ~SAY_PREFIX;
+		switch (key) {
+		case SAY_POSE:
+			message++;
 			if (*message == ' ') {
 				message++;
 				key = SAY_POSE_NOSPC;
-			} else {
-				key = SAY_POSE;
 			}
 			break;
-		case ';':
-			key = SAY_POSE_NOSPC;
+		case SAY_SAY:
+		case SAY_POSE_NOSPC:
+			message++;
 			break;
-		case '\\':
-			key = SAY_EMIT;
+		case SAY_EMIT:
+			/* if they doubled the backslash, remove it. Otherwise
+			 * it's already been removed by evaluation.
+			 */
+			if (*message == '\\')
+				message++;
 			break;
 		default:
 			return;

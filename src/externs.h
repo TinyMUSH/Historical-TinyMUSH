@@ -391,7 +391,6 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	SAY_NOSPACE	1	/* OR with xx_EMIT to get nospace form */
 #define	SAY_POSE	2	/* pose in current room */
 #define	SAY_POSE_NOSPC	3	/* pose w/o space in current room */
-#define	SAY_PREFIX	4	/* first char indicates formatting */
 #define	SAY_EMIT	5	/* emit in current room */
 #define	SAY_SHOUT	8	/* shout to all logged-in players */
 #define	SAY_WALLPOSE	9	/* Pose to all logged-in players */
@@ -404,6 +403,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	SAY_HERE	64	/* Output to current location */
 #define	SAY_ROOM	128	/* Output to containing room */
 #define SAY_HTML	256     /* Don't output a newline */
+#define	SAY_PREFIX	512	/* first char indicates formatting */
 #define	SET_QUIET	1	/* Don't display 'Set.' message. */
 #define	SHUTDN_COREDUMP	1	/* Produce a coredump */
 #define	SRCH_SEARCH	1	/* Do a normal search */
