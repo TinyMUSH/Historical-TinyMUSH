@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-08/xx/200: Beta 7
+08/29/2002: Beta 7
 
 - Feature: @verb now takes a no_name switch, which prevents the actor's
   name from being prepended to the default o-message.
@@ -36,14 +36,16 @@ Release history:
 - Feature: New conf parameter huh_message lets you change the Huh? message
   when a command cannot be matched.
 
-- Misc: check_access() is more efficient. Based on MUX2 algorithm.
-
 - Fix: A memory leak related to global registers has been fixed. [3.1b6]
 
 - Fix: Wildcard and regexp pattern matching are better at handling worst-case
   scenarios. Added new conf parameter wildcard_match_limit. [2.0; Javelin]
 
 - Fix: @listmotd works properly for non-wizards again. [3.1a7; Jaye]
+
+- Misc: check_access() is more efficient. Based on MUX2 algorithm.
+
+- Misc: Assorted bits of code cleanup.
 
 -----------------------------------------------------------------------------
 
