@@ -661,7 +661,7 @@ dbref thing;
 	int aflags;
 	char *buff;
 #ifdef MEMORY_BASED
-	static char *tbuff[LBUF_SIZE];
+	static char tbuff[LBUF_SIZE];
 #endif
 	if (mudconf.cache_names) {
 		if (!purenames[thing]) {
@@ -679,8 +679,8 @@ dbref thing;
 	}
 	return names[thing];
 #else
-	atr_get_str((char *)tbuff, thing, A_NAME, &aowner, &aflags);
-	return ((char *)tbuff);
+	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags);
+	return ((char *) tbuff);
 #endif
 }
 
@@ -690,7 +690,7 @@ dbref thing;
 	dbref aowner;
 	int aflags;
 	char *buff;
-	static char *tbuff[LBUF_SIZE];
+	static char tbuff[LBUF_SIZE];
 
 #ifndef MEMORY_BASED
 	if (!names[thing]) {
@@ -709,8 +709,8 @@ dbref thing;
 		return purenames[thing];
 	}
 	
-	atr_get_str((char *)tbuff, thing, A_NAME, &aowner, &aflags);
-	return (strip_ansi((char *)tbuff));
+	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags);
+	return (strip_ansi((char *) tbuff));
 }
 
 INLINE void s_Name(thing, s)
