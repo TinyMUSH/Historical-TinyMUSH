@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-07/xx/2002: Beta 5
+07/26/2002: Beta 5
 
 - Feature: The new attribute flag 'now' causes a matched $/^-action to
   be executed immediately.
@@ -33,6 +33,7 @@ Release history:
   for a $/^-action to be set into x-variables as well as placed on the
   stack, i.e. '$hit *{victim} with *{weapon}' to retrieve the victim
   and weapon strings via %_<victim> and %_<weapon> is now possible.
+  Based on an idea from KiliaFae.
 
 - Feature: There are five new search classes -- ueval, uthing, uplayer,
   uroom, uexit. They call an obj/attr u-function for evaluation. This
