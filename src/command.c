@@ -490,6 +490,8 @@ CMDENT command_table[] = {
 	GLOB_ENABLE,	CS_ONE_ARG,			do_global},
 {(char *)"@entrances",		NULL,		CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,	do_entrances},
+{(char *)"@eval",		NULL,		CA_NO_SLAVE,
+	0, CS_ONE_ARG | CS_INTERP, do_eval},
 {(char *)"@femit",		femit_sw,
 	CA_LOCATION|CA_NO_GUEST|CA_NO_SLAVE,
 	PEMIT_FEMIT,	CS_TWO_ARG|CS_INTERP,		do_pemit},

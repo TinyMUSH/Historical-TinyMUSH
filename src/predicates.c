@@ -1103,6 +1103,7 @@ void do_restart(player, cause, key)
 
 /* ---------------------------------------------------------------------------
  * do_comment: Implement the @@ (comment) command. Very cpu-intensive :-)
+ * do_eval is similar, except it gets passed on arg.
  */
 
 void do_comment(player, cause, key)
@@ -1110,6 +1111,16 @@ dbref player, cause;
 int key;
 {
 }
+
+void do_eval(player, cause, key, str)
+dbref player, cause;
+int key;
+char *str;
+{
+}
+
+/* ---------------------------------------------------------------------------
+ */
 
 static dbref promote_dflt(old, new)
 dbref old, new;
