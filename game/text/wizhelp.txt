@@ -228,7 +228,7 @@
  
 & attribute permissions
 
-  Possible values are: dark  deleted  god  hidden  ignore  is_lock
+  Possible values are: const  dark  deleted  god  hidden  ignore  is_lock
   locked  no_command  no_inherit  private  visual  wizard.
 
 & attribute defaults

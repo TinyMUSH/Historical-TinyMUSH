@@ -554,7 +554,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
  */
 
 #define Set_attr(p,x,a,f) \
-(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
+(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK|AF_CONST)) && \
  (God(p) || \
   (!God(x) && !((f) & AF_LOCK) && !Constant_Attrs(x) && \
    ((Controls(p,x) && \
