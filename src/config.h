@@ -23,6 +23,8 @@
 #define MAX_ARG			100	/* max # args from command processor */
 #define MAX_GLOBAL_REGS		10	/* r() registers */
 
+#define MARK_FLAG_SEP		'_'	/* sep. of dbref from marker flags */
+
 #define HASH_FACTOR		2	/* How much hashing you want. */
 
 #define OUTPUT_BLOCK_SIZE	16384
