@@ -430,41 +430,42 @@ dbref player, thing;
 #define FP_EXP_WEIRD	0x1
 #define FP_EXP_ZERO	0x2
 
+typedef union {
+    double d;
+    unsigned int u[FP_SIZE];
+} fp_union_uint;
+
 static unsigned int fp_check_weird(buff, bufc, result)
 char *buff, **bufc;
 double result;
 {
-	static unsigned int fp_sign_mask[FP_SIZE];
-	static unsigned int fp_exp_mask[FP_SIZE];
-	static unsigned int fp_mant_mask[FP_SIZE];
-	static unsigned int fp_val[FP_SIZE];
+	static fp_union_uint fp_sign_mask, fp_exp_mask, fp_mant_mask, fp_val;
 	static const double d_zero = 0.0;
 	static int fp_initted = 0;
 	unsigned int fp_sign, fp_exp, fp_mant;
 	int i;
 
 	if (!fp_initted) {
-		bzero(fp_sign_mask, sizeof(fp_sign_mask));
-		bzero(fp_exp_mask, sizeof(fp_exp_mask));
-		bzero(fp_val, sizeof(fp_val));
-		*((double *)fp_exp_mask) = (double) 1.0 / d_zero;
-		*((double *)fp_sign_mask) = ((double) -1.0 /
-					     *((double *)fp_exp_mask));
+		bzero(fp_sign_mask.u, sizeof(fp_sign_mask));
+		bzero(fp_exp_mask.u, sizeof(fp_exp_mask));
+		bzero(fp_val.u, sizeof(fp_val));
+		fp_exp_mask.d = 1.0 / d_zero;
+		fp_sign_mask.d = -1.0 / fp_exp_mask.d;
 		for (i = 0; i < FP_SIZE; i++) {
-			fp_mant_mask[i] = ~(fp_exp_mask[i] | fp_sign_mask[i]);
+			fp_mant_mask.u[i] = ~(fp_exp_mask.u[i] | fp_sign_mask.u[i]);
 		}
 		fp_initted = 1;
 	}
 
-	*((double *)fp_val) = result;
+	fp_val.d = result;
 
 	fp_sign = fp_mant = 0;
 	fp_exp = FP_EXP_ZERO | FP_EXP_WEIRD;
 
 	for (i = 0; (i < FP_SIZE) && fp_exp; i++) {
-		if (fp_exp_mask[i]) {
-			unsigned int x = (fp_exp_mask[i] & fp_val[i]);
-			if (x == fp_exp_mask[i]) {
+		if (fp_exp_mask.u[i]) {
+			unsigned int x = (fp_exp_mask.u[i] & fp_val.u[i]);
+			if (x == fp_exp_mask.u[i]) {
 				/* these bits are all set. can't be zero
 				 * exponent, but could still be max (weird)
 				 * exponent.
@@ -483,8 +484,8 @@ double result;
 			}
 		}
 
-		fp_sign |= (fp_sign_mask[i] & fp_val[i]);
-		fp_mant |= (fp_mant_mask[i] & fp_val[i]);
+		fp_sign |= (fp_sign_mask.u[i] & fp_val.u[i]);
+		fp_mant |= (fp_mant_mask.u[i] & fp_val.u[i]);
 	}
 	if (fp_exp == FP_EXP_WEIRD) {
 		if (fp_sign) {
