@@ -359,6 +359,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	EXAM_DEBUG	4	/* Display more info for finding db problems */
 #define	EXAM_PARENT	8	/* Get attr from parent when exam obj/attr */
 #define EXAM_PRETTY	16	/* Pretty-format output */
+#define EXAM_PAIRS	32	/* Print paren matches in color */
 #define	FIXDB_OWNER	1	/* Fix OWNER field */
 #define	FIXDB_LOC	2	/* Fix LOCATION field */
 #define	FIXDB_CON	4	/* Fix CONTENTS field */

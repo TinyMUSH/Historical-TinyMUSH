@@ -255,6 +255,140 @@ int style;
 #endif
 }
 
+static void pairs_print(player, atext, buff, bufc)
+    dbref player;
+    char *atext, *buff;
+    char **bufc;
+{
+    int pos, depth;
+    char *str, *strbuf, *parenlist, *endp;
+
+    static char *colors[5] = {ANSI_MAGENTA, ANSI_GREEN, ANSI_YELLOW, 
+			      ANSI_CYAN, ANSI_BLUE};
+    static char *revcolors[5] = {"m53[\033", "m23[\033", "m33[\033", 
+				 "m63[\033", "m43[\033"};
+    static char *REVERSE_NORMAL = "m0[\033";
+    static char *REVERSE_HIRED = "m13[\033m1[\033";
+
+    str = strip_ansi(atext);
+    strbuf = alloc_lbuf("fun_parenmatch");
+    parenlist = alloc_lbuf("fun_parenmatch");
+    endp = strbuf;
+    parenlist[0] = 0;
+    depth = 0;
+    for (pos = 0; pos < strlen(str); pos++) {
+	switch (str[pos]) {
+	    case '(': case '{': case '[':
+		if (str[pos - 1] != '\\') {
+		    depth++;
+		    parenlist[depth] = str[pos];
+		    safe_str(colors[depth%5], strbuf, &endp);
+		    safe_chr(str[pos], strbuf, &endp);
+		    safe_str(ANSI_NORMAL, strbuf, &endp);
+		} else {
+		    safe_chr(str[pos], strbuf, &endp);
+		}
+		break;
+	    case ']': case '}': case ')':
+		/* 
+		 * ASCII hack to check for matching parens.
+		 * Since parenlist[0] is 0, this also catches 
+		 * the too many close parens bug.
+		 */
+		if (str[pos - 1] != '\\') {
+		    if ((parenlist[depth] & 96) == (str[pos] & 96)) {
+			safe_str(colors[depth%5], strbuf, &endp);
+			safe_chr(str[pos], strbuf, &endp);
+			safe_str(ANSI_NORMAL, strbuf, &endp);
+			depth--;
+		    } else {
+			safe_str(ANSI_HILITE, strbuf, &endp);
+			safe_str(ANSI_RED, strbuf, &endp);
+			safe_chr(str[pos], strbuf, &endp);
+			safe_str(ANSI_NORMAL, strbuf, &endp);
+			*endp = '\0';
+			safe_str(strbuf, buff, bufc);
+			safe_str(str + pos + 1, buff, bufc);
+			free_lbuf(strbuf);
+			free_lbuf(parenlist);
+			return;
+		    }
+		} else {
+		    safe_chr(str[pos], strbuf, &endp);
+		}
+		break;
+	    default:
+		safe_chr(str[pos], strbuf, &endp);
+		break;
+	}
+    }
+
+    if (depth == 0) {
+	*endp = '\0';
+	safe_str(strbuf, buff, bufc);
+	free_lbuf(strbuf);
+	free_lbuf(parenlist);
+	return;
+    } 
+	
+    /*
+     * If we reach this point there were too many left parens. 
+     * We've gotta go back.
+     */
+	
+    endp = strbuf;
+    parenlist[0] = 0;
+    depth = 0;
+    for (pos = strlen(str) - 1; pos >= 0; pos--) {
+	switch (str[pos]) {
+	    case ']': case '}': case ')':
+		depth++;
+		parenlist[depth] = str[pos];
+		safe_str(REVERSE_NORMAL, strbuf, &endp);
+		safe_chr(str[pos], strbuf, &endp);
+		safe_str(revcolors[depth%5], strbuf, &endp);
+		break;
+	    case '(': case '{': case '[':
+
+		/*
+		 * ASCII hack to check for matching parens.
+		 * Since parenlist[0] is 0, this also catches 
+		 * the too many close parens bug.
+		 */
+
+		if ((parenlist[depth] & 96) == (str[pos] & 96)) {
+		    safe_str(REVERSE_NORMAL, strbuf, &endp);
+		    safe_chr(str[pos], strbuf, &endp);
+		    safe_str(revcolors[depth%5], strbuf, &endp);
+		    depth--;
+		} else {
+		    safe_str(REVERSE_NORMAL, strbuf, &endp);
+		    safe_chr(str[pos], strbuf, &endp);
+		    safe_str(REVERSE_HIRED, strbuf, &endp);
+		    str[pos] = '\0';
+		    safe_str(str, buff, bufc);
+		    for (endp--; endp >= strbuf; endp--)
+			safe_chr(*endp, buff, bufc);
+		    **bufc = '\0';
+		    free_lbuf(strbuf);
+		    free_lbuf(parenlist);
+		    return;
+		}
+		break;
+	    default:
+		safe_chr(str[pos], strbuf, &endp);
+		break;
+	}
+    }
+
+    /* We won't get here, but what the hell. */
+
+    for (endp--; endp >= strbuf; endp--)
+	safe_chr(*endp, buff, bufc);
+    **bufc = '\0';
+    free_lbuf(strbuf);
+    free_lbuf(parenlist);
+}
 
 static void pretty_format(dest, cp, p)
     char *dest;
@@ -379,17 +513,20 @@ static void pretty_print(dest, name, text)
 	    /* Ordinary text */
 	    safe_str(p, dest, &cp);
     }
+    if ((cp - 1) && (*(cp -1) != '\n'))
+	safe_str("\r\n", dest, &cp);
     safe_chr('-', dest, &cp);
 }
 
 
-static void view_atr(player, thing, ap, text, aowner, aflags, skip_tag, pretty)
+static void view_atr(player, thing, ap, text, aowner, aflags,
+		     skip_tag, is_special)
 dbref player, thing, aowner;
-int aflags, skip_tag, pretty;
+int aflags, skip_tag, is_special;
 ATTR *ap;
 char *text;
 {
-	char *buf, *name_buf;
+	char *buf, *bp, *name_buf, *bb_p;
 	char xbuf[16];		/* must be larger than number of attr flags! */
 	char *xbufp;
 	BOOLEXP *bool;
@@ -408,16 +545,25 @@ char *text;
 		buf = text;
 		notify(player, buf);
 	    } else {
-		if (!pretty) {
+		if (is_special == 0) {
 		    buf = tprintf("%s%s:%s %s",
 				  ANSI_HILITE, ap->name, ANSI_NORMAL, text);
 		    notify(player, buf);
-		} else {
+		} else if (is_special == 1) {
 		    buf = alloc_lbuf("view_atr.pretty");
 		    pretty_print(buf,
 				 tprintf("%s%s:%s %s",
 					 ANSI_HILITE, ap->name, ANSI_NORMAL),
 				 text);
+		    notify(player, buf);
+		    free_lbuf(buf);
+		} else {
+		    buf = alloc_lbuf("view_atr.pairs");
+		    bp = buf;
+		    safe_tprintf_str(buf, &bp, "%s%s:%s ",
+				     ANSI_HILITE, ap->name, ANSI_NORMAL);
+		    pairs_print(player, text, buf, &bp);
+		    *bp = '\0';
 		    notify(player, buf);
 		    free_lbuf(buf);
 		}
@@ -452,7 +598,7 @@ char *text;
 		*xbufp++ = 'w';
 	*xbufp = '\0';
 
-	if (pretty) {
+	if (is_special == 1) {
 	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
 		name_buf = tprintf("%s%s [#%d%s]:%s",
 				   ANSI_HILITE, ap->name, aowner, xbuf,
@@ -469,6 +615,26 @@ char *text;
 	    }
 	    buf = alloc_lbuf("view_atr.pretty_print");
 	    pretty_print(buf, name_buf, text);
+	    notify(player, buf);
+	    free_lbuf(buf);
+	} else if (is_special == 2) {
+	    buf = alloc_lbuf("view_atr.pairs_print");
+	    bb_p = buf;
+	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
+		safe_tprintf_str(buf, &bb_p, "%s%s [#%d%s]:%s ",
+			      ANSI_HILITE, ap->name, aowner, xbuf,
+			      ANSI_NORMAL);
+	    } else if (*xbuf) {
+		safe_tprintf_str(buf, &bb_p, "%s%s [%s]:%s ",
+			      ANSI_HILITE, ap->name, xbuf, ANSI_NORMAL);
+	    } else if (!skip_tag || (ap->number != A_DESC)) {
+		safe_tprintf_str(buf, &bb_p, "%s%s:%s ",
+				 ANSI_HILITE, ap->name, ANSI_NORMAL);
+	    } else {
+		/* Just fine the way it is */
+	    }
+	    pairs_print(player, text, buf, &bb_p);
+	    *bb_p = '\0';
 	    notify(player, buf);
 	    free_lbuf(buf);
 	} else {
@@ -489,9 +655,10 @@ char *text;
 	}
 }
 
-static void look_atrs1(player, thing, othing, check_exclude, hash_insert, pretty)
+static void look_atrs1(player, thing, othing, check_exclude, hash_insert,
+		       is_special)
 dbref player, thing, othing;
-int check_exclude, hash_insert, pretty;
+int check_exclude, hash_insert, is_special;
 {
 	dbref aowner;
 	int ca, aflags;
@@ -536,7 +703,7 @@ int check_exclude, hash_insert, pretty;
 					nhashadd(ca, (int *)attr,
 						 &mudstate.parent_htab);
 				view_atr(player, thing, attr, buf,
-					 aowner, aflags, 0, pretty);
+					 aowner, aflags, 0, is_special);
 			}
 		}
 		free_lbuf(buf);
@@ -544,15 +711,15 @@ int check_exclude, hash_insert, pretty;
 	free(cattr);
 }
 
-static void look_atrs(player, thing, check_parents, pretty)
+static void look_atrs(player, thing, check_parents, is_special)
 dbref player, thing;
-int check_parents, pretty;
+int check_parents, is_special;
 {
 	dbref parent;
 	int lev, check_exclude, hash_insert;
 
 	if (!check_parents) {
-		look_atrs1(player, thing, thing, 0, 0, pretty);
+		look_atrs1(player, thing, thing, 0, 0, is_special);
 	} else {
 		hash_insert = 1;
 		check_exclude = 0;
@@ -561,7 +728,7 @@ int check_parents, pretty;
 			if (!Good_obj(Parent(parent)))
 				hash_insert = 0;
 			look_atrs1(player, parent, thing,
-				   check_exclude, hash_insert, pretty);
+				   check_exclude, hash_insert, is_special);
 			check_exclude = 1;
 		}
 	}
@@ -926,9 +1093,9 @@ dbref player, thing;
 	}
 }
 
-static void exam_wildattrs(player, thing, do_parent, pretty)
+static void exam_wildattrs(player, thing, do_parent, is_special)
 dbref player, thing;
-int do_parent, pretty;
+int do_parent, is_special;
 {
 	int atr, aflags, got_any;
 	char *buf;
@@ -961,20 +1128,20 @@ int do_parent, pretty;
 		    Read_attr(player, thing, ap, aowner, aflags)) {
 			got_any = 1;
 			view_atr(player, thing, ap, buf,
-				 aowner, aflags, 0, pretty);
+				 aowner, aflags, 0, is_special);
 		} else if ((Typeof(thing) == TYPE_PLAYER) &&
 			   Read_attr(player, thing, ap, aowner, aflags)) {
 			got_any = 1;
 			if (aowner == Owner(player)) {
 				view_atr(player, thing, ap, buf,
-					 aowner, aflags, 0, pretty);
+					 aowner, aflags, 0, is_special);
 			} else if ((atr == A_DESC) &&
 				   (mudconf.read_rem_desc ||
 				    nearby(player, thing))) {
 				show_desc(player, thing, 0);
 			} else if (atr != A_DESC) {
 				view_atr(player, thing, ap, buf,
-					 aowner, aflags, 0, pretty);
+					 aowner, aflags, 0, is_special);
 			} else {
 				notify(player,
 				       "<Too far away to get a good look>");
@@ -983,14 +1150,14 @@ int do_parent, pretty;
 			got_any = 1;
 			if (aowner == Owner(player)) {
 				view_atr(player, thing, ap, buf,
-					 aowner, aflags, 0, pretty);
+					 aowner, aflags, 0, is_special);
 			} else if ((atr == A_DESC) &&
 				   (mudconf.read_rem_desc ||
 				    nearby(player, thing))) {
 				show_desc(player, thing, 0);
 			} else if (nearby(player, thing)) {
 				view_atr(player, thing, ap, buf,
-					 aowner, aflags, 0, pretty);
+					 aowner, aflags, 0, is_special);
 			} else {
 				notify(player,
 				       "<Too far away to get a good look>");
@@ -1013,7 +1180,7 @@ char *name;
 	char savec;
 	char *temp, *buf, *buf2;
 	BOOLEXP *bool;
-	int control, aflags, do_parent;
+	int control, aflags, do_parent, is_special;
 
 	/* This command is pointless if the player can't hear. */
 
@@ -1021,6 +1188,12 @@ char *name;
 		return;
 
 	do_parent = key & EXAM_PARENT;
+	is_special = 0;
+	if (key & EXAM_PRETTY)
+	    is_special = 1;
+	if (key & EXAM_PAIRS)
+	    is_special = 2;
+
 	thing = NOTHING;
 	if (!name || !*name) {
 		if ((thing = Location(player)) == NOTHING)
@@ -1029,8 +1202,7 @@ char *name;
 		/* Check for obj/attr first. */
 
 		if (parse_attrib_wild(player, name, &thing, do_parent, 1, 0)) {
-			exam_wildattrs(player, thing, do_parent,
-				       (key & EXAM_PRETTY));
+			exam_wildattrs(player, thing, do_parent, is_special);
 			return;
 		}
 		/* Look it up */
@@ -1090,8 +1262,7 @@ char *name;
 			if (Examinable(player, thing) ||
 			    (aowner == Owner(player))) {
 				view_atr(player, thing, atr_num(A_DESC), temp,
-					 aowner, aflags, 1,
-					 (key & EXAM_PRETTY));
+					 aowner, aflags, 1, is_special);
 			} else {
 				show_desc(player, thing, 0);
 			}
@@ -1143,7 +1314,7 @@ char *name;
 	}
 
 	if (key != EXAM_BRIEF)
-		look_atrs(player, thing, do_parent, (key & EXAM_PRETTY));
+		look_atrs(player, thing, do_parent, is_special);
 
 	/* show him interesting stuff */
 
