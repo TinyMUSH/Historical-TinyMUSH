@@ -47,7 +47,6 @@ extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
  */
 
 struct mod_comsys_confstorage {
-	char	*comsys_db;		/* Name of the comsys db */
 	char	*public_channel;	/* Name of public channel */
 	char	*guests_channel;	/* Name of guests channel */
 	char	*public_calias;		/* Alias of public channel */
@@ -55,7 +54,6 @@ struct mod_comsys_confstorage {
 } mod_comsys_config;
 
 CONF mod_comsys_conftable[] = {
-{(char *)"comsys_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mod_comsys_config.comsys_db,		MBUF_SIZE},
 {(char *)"guests_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mod_comsys_config.guests_calias,	SBUF_SIZE},
 {(char *)"guests_channel",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mod_comsys_config.guests_channel,	SBUF_SIZE},
 {(char *)"public_calias",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mod_comsys_config.public_calias,	SBUF_SIZE},
@@ -1736,18 +1734,11 @@ CMDENT mod_comsys_cmdtable[] = {
  * Initialization, and other fun with files.
  */
 
-void mod_comsys_dump_database()
+void mod_comsys_dump_database(fp)
+FILE *fp;
 {
-    FILE *fp;
     CHANNEL *chp;
     COMALIAS *cap;
-    char buffer[2 * MBUF_SIZE + 8];	/* depends on max length of params */
-
-    sprintf(buffer, "%s/%s.#", mudconf.dbhome, mod_comsys_config.comsys_db);
-    if (!(fp = fopen(buffer, "w"))) {
-	log_perror("DMP", "COM", "Opening comsys db for writing", buffer);
-	return;
-    }
 
     fprintf(fp, "+V4\n");
 
@@ -1785,9 +1776,6 @@ void mod_comsys_dump_database()
     }
 
     fprintf(fp, "*** END OF DUMP ***\n");
-    fclose(fp);
-    rename(buffer, tprintf("%s/%s",
-			   mudconf.dbhome, mod_comsys_config.comsys_db));
 }
 
 static void comsys_flag_convert(chp)
@@ -2098,24 +2086,10 @@ void mod_comsys_make_minimal()
     }
 }
 
-void mod_comsys_load_database()
+void mod_comsys_load_database(fp)
+FILE *fp;
 {
-    /* We do this even if we don't have the comsys turned on. */
-
-    FILE *fp;
     char buffer[2 * MBUF_SIZE + 8];	/* depends on max length of params */
-
-    sprintf(buffer, "%s/%s", mudconf.dbhome, mod_comsys_config.comsys_db); 
-
-    STARTLOG(LOG_STARTUP, "INI", "COM")
-	log_printf("Loading comsys db: %s", buffer);
-    ENDLOG
-
-    if (!(fp = fopen(buffer, "r"))) {
-	log_perror("INI", "COM", "Opening comsys db for reading", buffer);
-	mod_comsys_make_minimal();
-	return;
-    }
 
     fgets(buffer, sizeof(buffer), fp);
     if (!strncmp(buffer, (char *) "+V", 2)) {
@@ -2127,8 +2101,6 @@ void mod_comsys_load_database()
 	ENDLOG
 	mod_comsys_make_minimal();
     }
-
-    fclose(fp);
 }
 
 /* --------------------------------------------------------------------------
@@ -2342,7 +2314,6 @@ void mod_comsys_destroy_player(player, victim)
 
 void mod_comsys_init()
 {
-    mod_comsys_config.comsys_db = XSTRDUP("comsys.db", "cf_string");
     mod_comsys_config.public_channel = XSTRDUP("Public", "cf_string");
     mod_comsys_config.guests_channel = XSTRDUP("Guests", "cf_string");
     mod_comsys_config.public_calias = XSTRDUP("pub", "cf_string");

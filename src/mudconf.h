@@ -60,8 +60,10 @@ struct module_linked_list {
     void (*announce_connect)(dbref, const char *, int);
     void (*announce_disconnect)(dbref, const char *, int);
     void (*examine)(dbref, dbref, dbref, int, int);
-    void (*dump_database)(void);
+    void (*dump_database)(FILE *);
+    void (*db_write)(void);
     void (*db_grow)(int, int);
+    void (*db_write_flatfile)(FILE *);
 };
 
 typedef struct api_function_data API_FUNCTION;

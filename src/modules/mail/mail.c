@@ -68,7 +68,6 @@ MODNHASHES mod_mail_nhashtable[] = {
 { NULL,			NULL,			0,	0}};
 
 struct mod_mail_confstorage {
-	char	*mail_db;	/* name of the @mail database */
 	int	mail_expiration; /* Number of days to wait to delete mail */
 	int	mail_freelist;  /* The next free mail number */
 	MENT	*mail_list;     /* The mail database */
@@ -77,7 +76,6 @@ struct mod_mail_confstorage {
 } mod_mail_config;
 
 CONF mod_mail_conftable[] = {
-{(char *)"mail_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mod_mail_config.mail_db,	MBUF_SIZE},
 {(char *)"mail_expiration",		cf_int,		CA_GOD,		CA_PUBLIC,	&mod_mail_config.mail_expiration,	0},
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
@@ -130,7 +128,7 @@ struct malias **malias;
 
 /*
  * mail_db_grow - We keep a database of mail text, so if we send a message to
- * * more than one player, we won't have to duplicate the text.
+ * more than one player, we won't have to duplicate the text.
  */
 
 static void mail_db_grow(newtop)
@@ -1636,19 +1634,12 @@ char *arg2;
 	}
 }
 
-void mod_mail_dump_database()
+void mod_mail_dump_database(fp)
+FILE *fp;
 {
-	FILE *fp;
-	char tmpfile[2 * MBUF_SIZE + 8]; /* depends on max size of params */
 	struct mail *mp, *mptr;
 	dbref thing;
 	int count = 0, i;
-
-	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mod_mail_config.mail_db);
-	if ((fp = fopen(tmpfile, "w")) == NULL) {
-	    log_perror("DMP", "FAIL", "Opening mail file", tmpfile);
-	    return;
-	}
 
 	/*
 	 * Write out version number 
@@ -1687,13 +1678,11 @@ void mod_mail_dump_database()
 
 	save_malias(fp);
 	fflush(fp);
-	fclose(fp);
 }
 
-void mod_mail_load_database()
+void mod_mail_load_database(fp)
+FILE *fp;
 {
-	FILE *fp;
-	char tmpfile[2 * MBUF_SIZE + 8]; /* depends on max length of params */
 	char nbuf1[8];
 	int mail_top = 0;
 	int new = 0;
@@ -1703,10 +1692,6 @@ void mod_mail_load_database()
 	int read_new_strings = 0;
 	int number = 0;
 	struct mail *mp, *mptr;
-
-	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mod_mail_config.mail_db);
-	if ((fp = fopen(tmpfile, "r")) == NULL)
-	    return;
 
 	/*
 	 * Read the version number 
@@ -1809,7 +1794,6 @@ void mod_mail_load_database()
 		}
 	}
 	load_malias(fp);
-	fclose(fp);
 }
 
 static int get_folder_number(player, name)
@@ -3818,7 +3802,6 @@ void mod_mail_cleanup_startup()
 
 void mod_mail_init()
 {
-    mod_mail_config.mail_db = XSTRDUP("mail.db", "mod_mail_init");
     mod_mail_config.mail_expiration = 14;
     mod_mail_config.mail_db_top = 0;
     mod_mail_config.mail_db_size = 0;

@@ -1230,7 +1230,7 @@ int db_format, flags;
 	return 0;
 }
 
-dbref db_write_out(f, format, version)
+dbref db_write_flatfile(f, format, version)
 FILE *f;
 int format, version;
 {
@@ -1271,6 +1271,8 @@ int format, version;
 		}
 		vp = vattr_next(vp);
 	}
+
+	/* Dump object and attribute info */
 
 	DO_WHOLE_DB(i) {
 
@@ -1496,4 +1498,31 @@ dbref db_write()
 	fprintf(mainlog_fp, "\n");
 #endif
 	return (mudstate.db_top);
+}
+
+/* Open a file pointer for a module to use when writing a flatfile */
+
+FILE *db_module_flatfile(modname, wrflag)
+char *modname;
+int wrflag;
+{
+	char filename[256];
+	FILE *f = NULL;
+	
+	sprintf(filename, "%s/mod_%s.db", mudconf.dbhome, modname);
+	
+	if (wrflag) { 
+		f = tf_fopen(filename, O_WRONLY | O_CREAT | O_TRUNC);
+		log_printf("Writing db: %s", filename);
+	} else {
+		f = tf_fopen(filename, O_RDONLY);
+		log_printf("Loading db: %s", filename);
+	}
+	
+	if (f != NULL) {
+		return f;
+	} else {
+		log_perror("DMP", "FAIL", "Opening flatfile", filename);
+		return NULL;
+	}
 }

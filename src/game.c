@@ -1085,14 +1085,15 @@ int dump_type;
 {
 	char tmpfile[256], prevfile[256], *c;
 	FILE *f = NULL;
-
+	MODULE *mp;
+	
 	switch(dump_type) {
 	case DUMP_DB_CRASH:
 		sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.crashdb);
 		unlink(tmpfile);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
-			db_write_out(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			db_write_flatfile(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening crash file",
@@ -1109,7 +1110,7 @@ int dump_type;
 		sprintf(tmpfile, "%s/%s.FLAT", mudconf.dbhome, prevfile);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
-			db_write_out(f, F_TINYMUSH,
+			db_write_flatfile(f, F_TINYMUSH,
 				 UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
@@ -1125,7 +1126,7 @@ int dump_type;
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
 			/* Write a flatfile */
-			db_write_out(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			db_write_flatfile(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening killed file",
@@ -1135,9 +1136,23 @@ int dump_type;
 	default:	
 		db_write();
 	}
+
+	/* Call modules to write to DBM */
+	
+	CALL_ALL_MODULES(db_write, ());	
 	
 #ifndef STANDALONE
-	CALL_ALL_MODULES(dump_database, ());
+	/* Call modules to write to their flat-text database */
+
+	WALK_ALL_MODULES(mp) {
+		if (mp->dump_database) {
+			f = db_module_flatfile(mp->modname, 1);
+			if (f) {
+				(*(mp->dump_database))(f);
+				tf_fclose(f);
+			}
+		}
+	}
 #endif /* ! STANDALONE */
 }
 
@@ -1224,6 +1239,10 @@ int key;
 
 static int NDECL(load_game)
 {
+	FILE *f;
+	MODULE *mp;
+	void (*modfunc)(FILE *);
+	
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 		log_printf("Loading object structures.");
 	ENDLOG
@@ -1235,7 +1254,21 @@ static int NDECL(load_game)
 			return -1;
 	}
 
-	CALL_ALL_MODULES_NOCACHE("load_database", (void), ());
+	/* Call modules to load data from DBM */
+	
+	CALL_ALL_MODULES_NOCACHE("db_read", (void ), ());
+	
+	/* Call modules to load data from their flat-text database */
+	
+	WALK_ALL_MODULES(mp) {
+		if ((modfunc = DLSYM(mp->handle, mp->modname, "load_database", (FILE *))) != NULL) {
+			f = db_module_flatfile(mp->modname, 0);
+			if (f) {
+				(*modfunc)(f);
+				tf_fclose(f);
+			}
+		}
+	}
 
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 		log_printf("Load complete.");

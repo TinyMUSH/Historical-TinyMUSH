@@ -131,7 +131,10 @@ char *argv[];
 	int c, errflg = 0;
 	char *fp;
 	char *opt_conf = (char *) CONF_FILE;
-		
+	FILE *f;
+	MODULE *mp;
+	void (*modfunc)(FILE *);
+				
 	logfile_init(NULL);
 
 	/* Decide what conversions to do and how to format the output file */
@@ -237,11 +240,28 @@ char *argv[];
 
 	if (!(setflags & V_GDBM)) {
 		db_read();
+		
+		/* Call all modules to read from GDBM */
+		
+		CALL_ALL_MODULES_NOCACHE("db_read", (void), ());
+
 		db_format = F_TINYMUSH;
 		db_ver = OUTPUT_VERSION;
 		db_flags = OUTPUT_FLAGS;
-	}else {
+	} else {
 		db_convert(stdin, &db_format, &db_ver, &db_flags);
+
+		/* Call modules to load their flatfiles */
+
+		WALK_ALL_MODULES(mp) {
+			if ((modfunc = DLSYM(mp->handle, mp->modname, "db_convert", (FILE *))) != NULL) {
+				f = db_module_flatfile(mp->modname, 0);
+				if (f) {
+					(*modfunc)(f);
+					tf_fclose(f);
+				}
+			}
+		}
 	}
 	
 	fprintf(mainlog_fp, "Input: ");
@@ -260,8 +280,24 @@ char *argv[];
 		info(F_TINYMUSH, db_flags, db_ver);
 		if (db_flags & V_GDBM) {
 			db_write();
+			
+			/* Call all modules to write to GDBM */
+			
+			CALL_ALL_MODULES(db_write, ());
 		} else {
-			db_write_out(stdout, F_TINYMUSH, db_ver | db_flags);
+			db_write_flatfile(stdout, F_TINYMUSH, db_ver | db_flags);
+			
+			/* Call all modules to write to flatfile */
+			
+			WALK_ALL_MODULES(mp) {
+				if (mp->db_write_flatfile) {
+					f = db_module_flatfile(mp->modname, 1);
+					if (f) {
+						(*(mp->db_write_flatfile))(f);
+						tf_fclose(f);
+					}
+				}
+			}
 		}
 	}
 	CLOSE;

@@ -184,15 +184,6 @@ install: build
 $(VER_O): $(VER_S) $(MUSH_S) $(ALL_I)
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $<
 
-$(MOD_LA):
-	for module in $(subdirs); do \
-		curdir=`pwd` ;\
-		rm -f $$module/.depend ;\
-		touch $$module/.depend ;\
-		cd $$module && $(MAKE) ;\
-		cd $$curdir ;\
-	done
-
 conc: portconc.o
 	$(CC) $(ALLCFLAGS) $(LIBS) -o conc portconc.o
 	cd ../game/bin ; rm -f conc ; ln -s ../../src/conc conc

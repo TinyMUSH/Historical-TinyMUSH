@@ -705,6 +705,7 @@ AC_CHECK_LIB(socket, main)
 AC_CHECK_LIB(nsl, main)
 AC_CHECK_LIB(inet, gethostbyaddr)
 AC_CHECK_LIB(m, main)
+AC_CHECK_LIB(dl, dlopen)
 
 dnl Header checks
 

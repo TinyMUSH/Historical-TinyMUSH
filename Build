@@ -17,6 +17,17 @@ echo "***** Configuring the server..."
 cd ..
 ./configure
 echo
+echo "***** Building modules..."
+echo
+moduledirs1=`find modules -name configure.in -print | sed 's/\/configure.in//g'`
+moduledirs=`echo $moduledirs1`
+for dir in $moduledirs; do
+	cd $dir && make 2>&1 | tee Compile.log
+	if [ $? -ne 0 ]; then
+		exit
+	fi
+	cd ../..
+done
 echo "***** Building server using default config..."
 echo
 rm -f .depend

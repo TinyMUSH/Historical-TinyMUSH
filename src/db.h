@@ -366,8 +366,9 @@ extern void	NDECL(db_free);
 extern void	NDECL(db_make_minimal);
 extern dbref	FDECL(db_convert, (FILE *, int *, int *, int *));
 extern dbref	NDECL(db_read);
-extern dbref	FDECL(db_write_out, (FILE *, int, int));
+extern dbref	FDECL(db_write_flatfile, (FILE *, int, int));
 extern dbref	NDECL(db_write);
+extern FILE    *FDECL(db_module_flatfile, (char *, int));
 extern void	FDECL(destroy_thing, (dbref));
 extern void	FDECL(destroy_exit, (dbref));
 

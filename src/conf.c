@@ -657,8 +657,10 @@ CF_HAND(cf_module)
 					(dbref, const char *, int));
 	mp->examine = DLSYM(handle, str, "examine",
 			    (dbref, dbref, dbref, int, int));
-	mp->dump_database = DLSYM(handle, str, "dump_database", (void));
+	mp->dump_database = DLSYM(handle, str, "dump_database", (FILE *));
 	mp->db_grow = DLSYM(handle, str, "db_grow", (int, int));
+	mp->db_write = DLSYM(handle, str, "db_write", (void));
+	mp->db_write_flatfile = DLSYM(handle, str, "db_write_flatfile", (FILE *));
 
 	if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)
 	    (*initptr)();
