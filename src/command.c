@@ -76,6 +76,7 @@ if (((x)->post_hook != NULL) && !((x)->callseq & CS_ADDED)) { \
 NAMETAB attrib_sw[] = {
 {(char *)"access",	1,	CA_GOD,		ATTRIB_ACCESS},
 {(char *)"delete",	1,	CA_GOD,		ATTRIB_DELETE},
+{(char *)"info",	1,	CA_WIZARD,	ATTRIB_INFO},
 {(char *)"rename",	1,	CA_GOD,		ATTRIB_RENAME},
 { NULL,			0,	0,		0}};
 
@@ -446,7 +447,7 @@ CMDENT command_table[] = {
 {(char *)"@apply_marked",	NULL,		CA_WIZARD|CA_GBL_INTERP,
 	0,		CS_ONE_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
 	NULL,			NULL,		do_apply_marked},
-{(char *)"@attribute",		attrib_sw,	CA_GOD,
+{(char *)"@attribute",		attrib_sw,	CA_WIZARD,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_attribute},
 {(char *)"@boot",		boot_sw,	CA_NO_GUEST|CA_NO_SLAVE,

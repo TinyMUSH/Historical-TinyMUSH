@@ -307,6 +307,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	ATTRIB_ACCESS	1	/* Change access to attribute */
 #define	ATTRIB_RENAME	2	/* Rename attribute */
 #define	ATTRIB_DELETE	4	/* Delete attribute */
+#define ATTRIB_INFO	8	/* Info (number, flags) about attribute */
 #define	BOOT_QUIET	1	/* Inhibit boot message to victim */
 #define	BOOT_PORT	2	/* Boot by port number */
 #define CEMIT_NOHEADER  1	/* Channel emit without header */

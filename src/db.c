@@ -745,7 +745,7 @@ int key;
 char *aname, *value;
 {
 	int success, negate, f;
-	char *buff, *sp, *p, *q;
+	char *buff, *sp, *p, *q, *tbuf;
 	VATTR *va;
 	ATTR *va2;
 
@@ -825,6 +825,21 @@ char *aname, *value;
 
 		vattr_delete(buff);
 		notify(player, "Attribute deleted.");
+		break;
+
+	case ATTRIB_INFO:
+
+		/* Print info, like @list user_attr does */
+
+	        if (!(va->flags & AF_DELETED)) {
+		    tbuf = alloc_lbuf("attribute_info");
+		    sprintf(tbuf, "%s(%d):", va->name, va->number);
+		    listset_nametab(player, attraccess_nametab, va->flags,
+				    tbuf, 1);
+		    free_lbuf(tbuf);
+		} else {
+		    notify(player, "That attribute has been deleted.");
+		}
 		break;
 	}
 	free_sbuf(buff);
