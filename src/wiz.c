@@ -120,12 +120,14 @@ char *arg1, *arg2;
 
 		/*
 		 * You must control the destination, or it must be a JUMP_OK
-		 * * * * * room where you pass its TELEPORT lock. 
+		 * room where the victim passes its TELEPORT lock, or you
+		 * must be Tel_Anywhere.
 		 */
 
-		if (((!Controls(player, destination) &&
-		      !Jump_ok(destination)) && !Tel_Anywhere(player)) ||
-		    !could_doit(player, destination, A_LTPORT)) {
+		if (!(Controls(player, destination) ||
+		      (Jump_ok(destination) &&
+		       could_doit(victim, destination, A_LTPORT)) ||
+		      Tel_Anywhere(player))) {
 
 			/*
 			 * Nope, report failure 
