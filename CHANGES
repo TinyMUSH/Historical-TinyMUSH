@@ -100,7 +100,8 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   objects of that type (the local value of the attribute is passed
   to it as %0, for evaluation). This allows the global definition
   of formats for those attributes, without requiring a global
-  parenting scheme or an unusual attribute naming scheme.
+  parenting scheme or an unusual attribute naming scheme. Objects
+  with the FREE flag ignore attribute defaults.
 
 - The new conf parameter forwardlist_limit allows you to set a limit
   for the number of objects that can be listed in a single @forwardlist.
