@@ -488,7 +488,7 @@ char *cargs[];
 		    nchar++;
 		} while (!special_chartab[*(++mundane)]);
 		p = *bufc;
-		navail = p - buff + LBUF_SIZE;
+		navail = LBUF_SIZE - 1 - (p - buff);
 		nchar = (nchar > navail) ? navail : nchar;
 		bcopy(*dstr, p, nchar);
 		*bufc = p + nchar;
