@@ -87,7 +87,16 @@ int dddb_init()
 	}
 	
 
-#ifndef STANDALONE
+#ifdef STANDALONE
+	/* Set the cache size to be 400 hash buckets for GDBM. */
+	 
+	i = 400;
+	if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
+		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
+		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		return (1);
+	}
+#else
 	/* Set the cache size to be two hash buckets for GDBM. */
 	 
 	i = 2;
@@ -96,6 +105,7 @@ int dddb_init()
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
+
 
 	/* Set GDBM to manage a global free space table. */
 	 
