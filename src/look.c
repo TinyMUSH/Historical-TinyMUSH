@@ -127,12 +127,12 @@ const char *exit_name;
     /* make sure there is at least one visible exit */
 
     foundany = 0;
-    isdark = Dark(loc);
+    isdark = Darkened(player, loc);
     ITER_PARENTS(loc, parent, lev) {
 	if (!Has_exits(parent))
 	    continue;
 	DOLIST(thing, Exits(parent)) {
-	    if (Can_See_Exit(thing, isdark)) {
+	    if (Can_See_Exit(player, thing, isdark)) {
 		foundany = 1;
 		break;
 	    }
@@ -152,7 +152,7 @@ const char *exit_name;
     ITER_PARENTS(loc, parent, lev) {
 	if (Transparent(loc)) {
 	    DOLIST(thing, Exits(parent)) {
-		if (Can_See_Exit(thing, isdark)) {
+		if (Can_See_Exit(player, thing, isdark)) {
 		    strcpy(buff, Name(thing));
 		    for (e = buff; *e && (*e != ';'); e++) ;
 		    safe_ansi_normal(buff, &e);
@@ -176,7 +176,7 @@ const char *exit_name;
 	    }
 	} else {
 	    DOLIST(thing, Exits(parent)) {
-		if (Can_See_Exit(thing, isdark)) {
+		if (Can_See_Exit(player, thing, isdark)) {
 		    e1 = buff1;
 		    /* chop off first exit alias to display */
 		    if (buff != e)

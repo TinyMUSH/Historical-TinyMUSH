@@ -383,6 +383,8 @@ FLAGENT gen_flags[] = {
 	FLAG_WORD3,	0,			fh_any},
 {"HAS_REDIRECT",	HAS_REDIRECT,	'<',
 	FLAG_WORD3,	CA_GOD|CA_NO_DECOMP,	fh_god},
+{"HAS_DARKLOCK",	HAS_DARKLOCK,	'.',
+	FLAG_WORD3,	CA_GOD|CA_NO_DECOMP,	fh_god},
 {"MARKER0",		MARK_0,		'0',
 	FLAG_WORD3,	0,			fh_god},
 {"MARKER1",		MARK_1,		'1',

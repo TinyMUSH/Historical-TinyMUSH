@@ -1289,15 +1289,20 @@
      ControlLock:  All:            controls which objects can Control this
                                    object (only checked if CONTROL_OK flag
                                    is set).
+     DarkLock:     All:            controls who is affected by the DARK
+                                   flag set on the object. If the object
+                                   is set DARK and you pass the DarkLock
+                                   (or if the object does not have a
+                                   DarkLock), it is Dark to you.
+ 
+{ 'help @lock locks2' for more }
+& @lock locks2
+ 
      DropLock:     Players/Things: controls who may DROP the object.
      EnterLock:    Players/Things: controls who may ENTER the object if the
                                    object is ENTER_OK.
      GiveLock:     Players/Things: controls who may give the object.
      LeaveLock:    Players/Things: controls who may LEAVE the object.
-  
-{ 'help @lock locks2' for more }
-& @lock locks2
- 
      LinkLock:     All but Exits:  controls who may link to the location if the
                                    location is LINK_OK (for linking exits or
                                    setting drop-tos) or ABODE (for setting
@@ -1309,15 +1314,15 @@
      SpeechLock:   All but Exits:  controls who may speak in this location
                                    (only checked if the AUDITORIUM flag is
                                    set on that location)
-     TeloutLock:   All but Exits:  controls who may teleport out of the
-                                   location.
-     TportLock:    Rooms/Things:   controls who may teleport there if the
-                                   location is JUMP_OK.
  
 { 'help @lock locks3' for more }
  
 & @lock locks3
  
+     TeloutLock:   All but Exits:  controls who may teleport out of the
+                                   location.
+     TportLock:    Rooms/Things:   controls who may teleport there if the
+                                   location is JUMP_OK.
      UseLock:      All but Exits:  controls who may USE the object, GIVE the
                                    object money and have the PAY attributes
                                    run, have their messages heard and possibly
@@ -8983,12 +8988,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   <victim> are the same this function returns 0.
  
   This function checks a lot of things: whether or not the object is a
-  disconnected player, the status of the Light and Dark flags, whether
-  or not <object> controls <victim>'s location, and more.
+  disconnected player, the status of the Light and Dark flags (including
+  the status of any DarkLocks), whether or not <object> can examine
+  <victim>'s location, and more.
  
   If either <object> or <victim> are not valid objects, this function
   returns 0.
-
+ 
 & findable()
   Function:  findable(<object>,<victim>)
  

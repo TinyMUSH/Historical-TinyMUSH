@@ -403,6 +403,8 @@ char *name, *keytext;
 		if (!key)
 			key = A_LOCK;
 		atr_add_raw(thing, key, unparse_boolexp_quiet(player, okey));
+		if (key == A_LDARK)
+			s_Has_Darklock(thing);
 		if (!Quiet(player) && !Quiet(thing))
 			notify_quiet(player, "Locked.");
 	}
@@ -461,6 +463,8 @@ char *name;
 		key = A_LOCK;
 	if ((thing = match_controlled(player, name)) != NOTHING) {
 		atr_clr(thing, key);
+		if (key == A_LDARK)
+			c_Has_Darklock(thing);
 		if (!Quiet(player) && !Quiet(thing))
 			notify_quiet(player, "Unlocked.");
 	}

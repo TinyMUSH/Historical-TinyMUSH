@@ -271,8 +271,8 @@ FUNCTION(fun_sees)
 
     safe_bool(buff, bufc,
 	      (isExit(thing) ?
-	       Can_See_Exit(thing, Dark(Location(thing))) :
-	       Can_See(it, thing, Sees_Always(player, Location(thing)))));
+	       Can_See_Exit(it, thing, Darkened(it, Location(thing))) :
+	       Can_See(it, thing, Sees_Always(it, Location(thing)))));
 }
 
 /* ---------------------------------------------------------------------------

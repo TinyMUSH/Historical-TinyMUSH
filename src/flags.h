@@ -196,8 +196,9 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Examinable(P,X)	- Can P look at attribs of X */
 /* MyopicExam(P,X)	- Can P look at attribs of X (obeys MYOPIC) */
 /* Controls(P,X)	- Can P force X to do something */
+/* Darkened(P,X)	- Is X dark, and does P pass its DarkLock? */
 /* Can_See(P,X,L)	- Can P see thing X, depending on location dark (L)? */
-/* Can_See_Exit(X,L)	- Can exit X be seen, depending on loc dark (L)? */
+/* Can_See_Exit(P,X,L)	- Can P see exit X, depending on loc dark (L)? */
 /* Abode(X)		- Is X an ABODE room */
 /* Link_exit(P,X)	- Can P link from exit X */
 /* Linkable(P,X)	- Can P link to X */
@@ -324,6 +325,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	s_Going(x)	s_Flags((x), Flags(x) | GOING)
 #define	s_Connected(x)	s_Flags2((x), Flags2(x) | CONNECTED)
 #define	c_Connected(x)	s_Flags2((x), Flags2(x) & ~CONNECTED)
+#define s_Has_Darklock(x)	s_Flags3((x), Flags3(x) | HAS_DARKLOCK)
+#define c_Has_Darklock(x)	s_Flags3((x), Flags3(x) & ~HAS_DARKLOCK)
 
 #define Html(x) ((Flags2(x) & HTML) != 0)
 #define s_Html(x) s_Flags2((x), Flags2(x) | HTML)
@@ -372,6 +375,19 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			 (Owner(p) == Owner(x)) || \
   	                 OnControlLock(p,x))))
 
+/* An object is considered Darkened if:
+ *    It is set Dark.
+ *    It does not have a DarkLock set (no HAS_DARKLOCK flag on the object;
+ *       an empty lock means the player would pass the DarkLock), OR
+ *       the player passes the DarkLock.
+ * DarkLocks only apply when we are checking if we can see something on
+ * a 'look'. They are not checked when matching, when looking at lexits(),
+ * when determining whether a move is seen, on @sweep, etc.
+ */
+
+#define Darkened(p,x)	(Dark(x) && \
+			 (!H_Darklock(x) || could_doit(p,x,A_LDARK)))
+
 /* For an object in a room, don't show if all of the following apply:
  * 	Sleeping players should not be seen.
  *	The thing is a disconnected player.
@@ -384,12 +400,12 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
  */ 
 
 #define Sees(p,x) \
-	(!Dark(x) || (mudconf.see_own_dark && MyopicExam(p,x)))
+	(!Darkened(p,x) || (mudconf.see_own_dark && MyopicExam(p,x)))
 
 #define Sees_Always(p,x) \
-	(!Dark(x) || (mudconf.see_own_dark && Examinable(p,x)))
+	(!Darkened(p,x) || (mudconf.see_own_dark && Examinable(p,x)))
 
-#define Sees_In_Dark(p,x)	((Light(x) && !Dark(x)) || \
+#define Sees_In_Dark(p,x)	((Light(x) && !Darkened(p,x)) || \
 				 (mudconf.see_own_dark && MyopicExam(p,x)))
 
 #define Can_See(p,x,l)	(!(((p) == (x)) || isExit(x) || \
@@ -397,7 +413,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			    !Connected(x) && !Puppet(x))) && \
 			 ((l) ? Sees(p,x) : Sees_In_Dark(p,x)))
 
-#define Can_See_Exit(x,l)	(!Dark(x) && (!(l) || Light(x)))
+#define Can_See_Exit(p,x,l)	(!Darkened(p,x) && (!(l) || Light(x)))
 
 /* For exits visible (for lexits(), etc.), this is true if we can examine
  * the exit's location, examine the exit, or the exit is LIGHT. It is also
