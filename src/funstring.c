@@ -656,7 +656,7 @@ FUNCTION(fun_center)
 /* ---------------------------------------------------------------------------
  * fun_left: Returns first n characters in a string
  * fun_right: Returns last n characters in a string
- * fun_strtrunc: Truncates string to n characters
+ * strtrunc: now an alias for left
  */
 
 FUNCTION(fun_left)
@@ -681,8 +681,7 @@ FUNCTION(fun_left)
 	}
     }
 
-    safe_copy_known_str(fargs[0], s - fargs[0], buff, bufc, (LBUF_SIZE - 1));
-
+    safe_known_str(fargs[0], s - fargs[0], buff, bufc);
     safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL), buff, bufc);
 }
 

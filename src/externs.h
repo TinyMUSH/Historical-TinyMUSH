@@ -213,8 +213,7 @@ extern char *	FDECL(skip_space, (const char *));
 extern int	FDECL(minmatch, (char *, char *, int));
 extern INLINE int FDECL(safe_copy_str, (char *, char *, char **, int));
 extern int	FDECL(safe_copy_long_str, (char *, char *, char **, int));
-extern INLINE void FDECL(safe_copy_known_str, (char *, int, char *, char **,
-					       int));
+extern INLINE void FDECL(safe_known_str, (char *, int, char *, char **));
 extern int	FDECL(matches_exit_from_list, (char *, char *));
 extern char *	FDECL(translate_string, (char *, int));
 extern int	FDECL(ltos, (char *, long));
@@ -641,11 +640,11 @@ scl__dest[scl__len] = '\0';
 
 /* Various macros for writing common string sequences. */
 
-#define safe_crlf(b,p)		safe_copy_known_str("\r\n",2,(b),(p),(LBUF_SIZE-1))
-#define safe_ansi_normal(b,p)	safe_copy_known_str(ANSI_NORMAL,4,(b),(p),(LBUF_SIZE-1))
-#define safe_nothing(b,p)	safe_copy_known_str("#-1",3,(b),(p),(LBUF_SIZE-1))
-#define safe_noperm(b,p)	safe_copy_known_str("#-1 PERMISSION DENIED",21,(b),(p),(LBUF_SIZE-1))
-#define safe_nomatch(b,p)	safe_copy_known_str("#-1 NO MATCH",12,(b),(p),(LBUF_SIZE-1))
+#define safe_crlf(b,p)		safe_known_str("\r\n",2,(b),(p))
+#define safe_ansi_normal(b,p)	safe_known_str(ANSI_NORMAL,4,(b),(p))
+#define safe_nothing(b,p)	safe_known_str("#-1",3,(b),(p))
+#define safe_noperm(b,p)	safe_known_str("#-1 PERMISSION DENIED",21,(b),(p))
+#define safe_nomatch(b,p)	safe_known_str("#-1 NO MATCH",12,(b),(p))
 #define safe_bool(b,p,n)	safe_chr(((n) ? '1' : '0'),(b),(p))
 
 #define safe_dbref(b,p,n) \

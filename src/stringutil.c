@@ -880,9 +880,9 @@ safe_copy_long_str(src, buff, bufp, max)
 }
 
 
-INLINE void safe_copy_known_str(src, known, buff, bufp, max)
+INLINE void safe_known_str(src, known, buff, bufp)
     char *src, *buff, **bufp;
-    int known, max;
+    int known;
 {
     int n;
     char *tp, *maxtp;
@@ -894,8 +894,10 @@ INLINE void safe_copy_known_str(src, known, buff, bufp, max)
 	return;
     }
 
+    maxtp = buff + LBUF_SIZE - 1;
+
     if (known > 7) {
-	n = max - (tp - buff);
+	n = maxtp - tp;
 	if (n <= 0) {
 	    *tp = '\0';
 	    return;
@@ -908,7 +910,6 @@ INLINE void safe_copy_known_str(src, known, buff, bufp, max)
 	return;
     }
 
-    maxtp = buff + max;
     if (tp + known < maxtp)
 	maxtp = tp + known;
     while (*src && (tp < maxtp))
