@@ -8092,10 +8092,9 @@ performed and the walk down the list stops.
   left-justified, word-wrapped paragraph of width <width>. Each line is
   preceded by <left margin fill>, and ended with <right margin fill>
   (if specified). If the line is shorter than <width>, it is padded out
-  with spaces. Note that spaces are compressed, due to the word-wrapping;
-  multiple spaces will become one space. Carriage returns are supported
-  ('%r'), and ANSI substitutions are preserved correctly. Words whose
-  length exceeds <width> are not truncated (and thus will disrupt alignment).
+  with spaces. Newlines are supported ('%r'), and ANSI substitutions are
+  preserved correctly, but tabs are converted to a single space. Words whose
+  length exceeds <width> are broken into multiple pieces.
  
   Example:
     > @va me=++[repeat(-,20)]++%r[border(%0,18,**%b,%b||)]%r++[repeat(-,20)]++
@@ -8114,10 +8113,9 @@ performed and the walk down the list stops.
   right-justified, word-wrapped paragraph of width <width>. Each line is
   preceded by <left margin fill>, and ended with <right margin fill>
   (if specified). If the line is shorter than <width>, it is padded out
-  with spaces. Note that spaces are compressed, due to the word-wrapping;
-  multiple spaces will become one space. Carriage returns are supported
-  ('%r'), and ANSI substitutions are preserved correctly. Words whose
-  length exceeds <width> are not truncated (and thus will disrupt alignment).
+  with spaces. Newlines are supported ('%r'), and ANSI substitutions are
+  preserved correctly, but tabs are converted to a single space. Words whose
+  length exceeds <width> are broken into multiple pieces.
  
   Example:
     > @va me=++[repeat(-,20)]++%r[rborder(%0,18,**%b,%b||)]%r++[repeat(-,20)]++
@@ -8136,10 +8134,9 @@ performed and the walk down the list stops.
   centered, word-wrapped paragraph of width <width>. Each line is
   preceded by <left margin fill>, and ended with <right margin fill>
   (if specified). If the line is shorter than <width>, it is padded out
-  with spaces. Note that spaces are compressed, due to the word-wrapping;
-  multiple spaces will become one space. Carriage returns are supported
-  ('%r'), and ANSI substitutions are preserved correctly. Words whose
-  length exceeds <width> are not truncated (and thus will disrupt alignment).
+  with spaces. Newlines are supported ('%r'), and ANSI substitutions are
+  preserved correctly, but tabs are converted to a single space. Words whose
+  length exceeds <width> are broken into multiple pieces.
  
   Example:
     > @va me=++[repeat(-,20)]++%r[cborder(%0,18,**%b,%b||)]%r++[repeat(-,20)]++

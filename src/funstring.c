@@ -1313,205 +1313,197 @@ FUNCTION(fun_repeat)
 #define BORDER_RJUST	1
 #define BORDER_CENTER	2
 
-static void border_helper(player, str, last_state,
-			  tlen, l_fill, r_fill, buff, bufc, key)
-    dbref player;
-    char *str, *last_state;
-    int tlen;
-    char *l_fill, *r_fill, *buff, **bufc;
-    int key;
-{
-    int i, nwords, nstates, over, copied, nleft, max, lens[LBUF_SIZE / 2];
-    int start, end, out, lead_chrs, packed_state;
-    char *words[LBUF_SIZE / 2], *states[LBUF_SIZE / 2], tbuf[LBUF_SIZE];
-    char *p;
-
-    /* Carve up the list and find the ANSI state at the end of each word. */
-
-    strcpy(tbuf, str);
-    nstates = list2ansi(states, last_state, LBUF_SIZE / 2, tbuf, SPACE_DELIM);
-    nwords = list2arr(words, LBUF_SIZE / 2, str, SPACE_DELIM, 1);
-    if (nstates != nwords) {
-	for (i = 0; i < nstates; i++) {
-	    XFREE(states[i], "list2ansi");
-	}
-	notify_quiet(player, "Strange ANSI parsing error.");
-	return;
-    }
-    for (i = 0; i < nwords; i++)
-	lens[i] = strip_ansi_len(words[i]);
-
-    /* For every line, figure out how many words we can copy, then
-     * do the borders appropriately. We do it this way in order to
-     * avoid repeating a lot of code for left vs. right vs. center
-     * justification.
-     */
-
-    end = over = 0;
-    while (!over && (end < nwords)) {
-
-	/* We're at the beginning of a line. */
-
-	out = copied = 0;
-	start = end; 
-
-	/* If this isn't the first thing we're writing, insert a newline.
-	 * (We do this here rather than when we write the right margin,
-	 * to avoid an extra carriage return at the very end.)
-	 */
-
-	if (start != 0) 
-	    safe_crlf(buff, bufc);
-
-	/* Figure out how many words we can get on this line.
-	 * We are always guaranteed the first one, even if it's wider
-	 * than our buffer. If this word exceeds the buffer, don't 
-	 * increment the end counter. Note that words after the first
-	 * are an extra 1 character long, to account for the leading
-	 * space. Multiple spaces have gotten eaten by the list-chomper.
-	 */
-
-	while (!out && (end < nwords)) {
-	    if (copied == 0) {
-		copied += lens[end];
-		end++;
-	    } else {
-		nleft = tlen - copied;
-		if (lens[end] + 1 > nleft) {
-		    out = 1;
-		} else {
-		    copied += lens[end] + 1;
-		    end++;
-		}
-	    }
-	}
-
-	/* Write the left margin. */
-
-	over = safe_str(l_fill, buff, bufc);
-
-	if (!over) {
-
-	    /* Write spaces if we need them. */
-
-	    if (key == BORDER_RJUST) {
-		nleft = tlen - copied;
-		print_padding(nleft, max, ' ');
-	    } else if (key == BORDER_CENTER) {
-		lead_chrs = (int)((tlen / 2) - (copied / 2) + .5);
-		print_padding(lead_chrs, max, ' ');
-	    }
-
-	    /* Write the first word. If we have a non-null ANSI state from
-	     * the previous position, we have to restore that, too.
-	     * We must also check the ending last state.
-	     */
-	    if ((start > 0) && *states[start - 1]) {
-		print_ansi_state(p, states[start - 1]);
-	    } else if ((start == 0) && *last_state) {
-		print_ansi_state(p, last_state);
-	    }
-	    over = safe_str(words[start], buff, bufc);
-	}
-
-	/* Write the rest of the words, including a leading space. */
-
-	for (i = start + 1; (i < end) && !over; i++) {
-	    safe_chr(' ', buff, bufc);
-	    over = safe_str(words[i], buff, bufc);
-	}
-
-	if (!over) {
-
-	    /* Insert an ANSI normal if we need to. */
-
-	    if (*states[end - 1]) {
-		safe_ansi_normal(buff, bufc);
-	    }
-
-	    /* Write right-padding spaces if we need them. */
-
-	    if (key == BORDER_LJUST) {
-		nleft = tlen - copied;
-		print_padding(nleft, max, ' ');
-	    } else if (key == BORDER_CENTER) {
-		nleft = tlen - lead_chrs - copied;
-		print_padding(nleft, max, ' ');
-	    }
-
-	    /* Write the right margin. */
-
-	    if (!over)
-		over = safe_str(r_fill, buff, bufc);
-	}
-    }
-
-    /* Save the ANSI state of the last word. */
-
-    strcpy(last_state, states[nstates - 1]);
-
-    /* Clean up. */
-
-    for (i = 0; i < nstates; i++) {
-	XFREE(states[i], "list2ansi");
-    }
-}
-
 static void perform_border(player, buff, bufc, fargs, nfargs, key)
     dbref player;
     char *buff, **bufc, *fargs[];
     int nfargs, key;
 {
-    int width, l_width, r_width;
-    char *l_fill, *r_fill, *savep, *p, *bb_p;
-    char last_state[LBUF_SIZE];
+    int width;
+    char *l_fill, *r_fill, *bb_p;
+    char *sl, *el, *sw, *ew;
+    int sl_ansi_state, el_ansi_state, sw_ansi_state, ew_ansi_state;
+    int sl_pos, el_pos, sw_pos, ew_pos;
+    int nleft, max, lead_chrs;
 
     if (!fargs[0] || !*fargs[0])
 	return;
 
     width = atoi(fargs[1]);
-    if (nfargs > 2) {
-	l_fill = fargs[2];
-	l_width = strip_ansi_len(l_fill);
-    } else {
-	l_fill = NULL;
-	l_width = 0;
-    }
-    if (nfargs > 3) {
-	r_fill = fargs[3];
-	r_width = strip_ansi_len(r_fill);
-    } else {
-	r_fill = NULL;
-	r_width = 0;
-    }
-
-    /* The width must be at least one character. */
-
     if (width < 1)
 	width = 1;
 
-    /* Now we have to go do this by line breaks. Life is made more
-     * difficult by the fact we have to preserve the ANSI state across
-     * line breaks.
-     */
+    if (nfargs > 2) {
+	l_fill = fargs[2];
+    } else {
+	l_fill = NULL;
+    }
+    if (nfargs > 3) {
+	r_fill = fargs[3];
+    } else {
+	r_fill = NULL;
+    }
 
     bb_p = *bufc;
-    savep = fargs[0];
-    last_state[0] = '\0';
-    p = strchr(fargs[0], '\r');
-    while (p) {
-	*p = '\0';
-	if (*bufc != bb_p)
-	    safe_crlf(buff, bufc);
-	border_helper(player, savep, last_state,
-		      width, l_fill, r_fill, buff, bufc, key);
-	savep = p + 2;	/* must skip '\n' too */
-	p = strchr(savep, '\r'); 
-    }
-    if (*bufc != bb_p)
+
+    sl = el = sw = NULL;
+    ew = fargs[0];
+    sl_ansi_state = el_ansi_state = ANST_NORMAL;
+    sw_ansi_state = ew_ansi_state = ANST_NORMAL;
+    sl_pos = el_pos = sw_pos = ew_pos = 0;
+
+    while (1) {
+      /* Locate the next start-of-word (SW) */
+      for (sw = ew, sw_ansi_state = ew_ansi_state, sw_pos = ew_pos;
+	   *sw; ++sw) {
+	switch(*sw) {
+	case ESC_CHAR:
+	  track_esccode(sw, sw_ansi_state);
+	  --sw;
+	  continue;
+	case '\t':
+	case '\r':
+	  *sw = ' ';
+	  /* FALLTHRU */
+	case ' ':
+	  ++sw_pos;
+	  continue;
+	case BEEP_CHAR:
+	  continue;
+	default:
+	  break;
+	}
+	break;
+      }
+
+      /* Three ways out of that loop: end-of-string (ES), end-of-line (EL),
+       * and start-of-word (SW)
+       */
+      if (!*sw && sl == NULL) /* ES, and nothing left to output */
+	break;
+
+      /* SW is also SL for the first word on the line */
+      if (sl == NULL) {
+	sl = sw;
+	sl_ansi_state = sw_ansi_state;
+	sl_pos = sw_pos;
+      }
+
+      if (*sw == '\n') { /* EL, so we have to output */
+	ew = sw;
+	ew_ansi_state = sw_ansi_state;
+	ew_pos = sw_pos;
+	if (el == NULL) {
+	  el = ew;
+	  el_ansi_state = ew_ansi_state;
+	  el_pos = ew_pos;
+	}
+      } else {
+	/* Locate the next end-of-word (EW) */
+	for (ew = sw, ew_ansi_state = sw_ansi_state, ew_pos = sw_pos;
+	     *ew; ++ew) {
+	  switch(*ew) {
+	  case ESC_CHAR:
+	    track_esccode(ew, ew_ansi_state);
+	    --ew;
+	    continue;
+	  case '\r':
+	  case '\t':
+	    *ew = ' ';
+	    /* FALLTHRU */
+	  case ' ':
+	  case '\n':
+	    break;
+	  case BEEP_CHAR:
+	    continue;
+	  default:
+	    /* Break up long words */
+	    if (ew_pos - sw_pos == width)
+	      break;
+	    ++ew_pos;
+	    continue;
+	  }
+	  break;
+	}
+
+	/* Three ways out of that loop: ES, EL, EW */
+
+	/* If it fits on the line, add it */
+	if (ew_pos - sl_pos <= width) {
+	  el = ew;
+	  el_ansi_state = ew_ansi_state;
+	  el_pos = ew_pos;
+	}
+
+	/* If it's just EW, not ES or EL, and the line isn't too long,
+	 * keep adding words to the line
+	 */
+	if (*ew && *ew != '\n' && (ew_pos - sl_pos <= width))
+	  continue;
+
+	/* So now we definitely need to output a line */
+      }
+
+      /* Newline if this isn't the first line */
+      if (*bufc != bb_p) {
 	safe_crlf(buff, bufc);
-    border_helper(player, savep, last_state,
-		  width, l_fill, r_fill, buff, bufc, key);
+      }
+
+      /* Left border text */
+      safe_str(l_fill, buff, bufc);
+
+      /* Left space padding if needed */
+      if (key == BORDER_RJUST) {
+	nleft = width - el_pos + sl_pos;
+	print_padding(nleft, max, ' ');
+      } else if (key == BORDER_CENTER) {
+	lead_chrs = (int)((width / 2) - ((el_pos - sl_pos) / 2) + .5);
+	print_padding(lead_chrs, max, ' ');
+      }
+
+      /* Restore previous ansi state */
+      safe_str(ansi_transition_esccode(ANST_NORMAL, sl_ansi_state),
+	       buff, bufc);
+
+      /* Print the words */
+      safe_known_str(sl, el - sl, buff, bufc);
+
+      /* Back to ansi normal */
+      safe_str(ansi_transition_esccode(el_ansi_state, ANST_NORMAL),
+	       buff, bufc);
+
+      /* Right space padding if needed */
+      if (key == BORDER_LJUST) {
+	nleft = width - el_pos + sl_pos;
+	print_padding(nleft, max, ' ');
+      } else if (key == BORDER_CENTER) {
+	nleft = width - lead_chrs - el_pos + sl_pos;
+	print_padding(nleft, max, ' ');
+      }
+
+      /* Right border text */
+      safe_str(r_fill, buff, bufc);
+
+      /* Update pointers for the next line */
+      if (!*el) {
+	/* ES, and nothing left to output */
+	break;
+      } else if (*ew == '\n' && sw == ew) {
+	/* EL already handled on this line, and no new word yet */
+	++ew;
+	sl = el = NULL;
+      } else if (sl == sw) {
+	/* No new word yet */
+	sl = el = NULL;
+      } else {
+	/* ES with more to output, EL for next line, or just a full line */
+	sl = sw;
+	sl_ansi_state = sw_ansi_state;
+	sl_pos = sw_pos;
+	el = ew;
+	el_ansi_state = ew_ansi_state;
+	el_pos = ew_pos;
+      }
+    }
 }
 
 FUNCTION(fun_border)
