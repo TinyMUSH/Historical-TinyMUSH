@@ -31,30 +31,42 @@ char *filename;
 	for (i = 0; i < NUM_COMSYS; i++)
 		comsys_table[i] = NULL;
 
+	STARTLOG(LOG_STARTUP, "INI", "COMSYS")
+	    log_text((char *) "Loading comsys db: ");
+	    log_text(filename);
+	ENDLOG
+
 	if (!(fp = fopen(filename, "r"))) {
-		fprintf(stderr, "Error: Couldn't find %s.\n", filename);
+	    STARTLOG(LOG_STARTUP, "INI", "COMSYS")
+	    	log_text((char *) "File not found.");
+	    ENDLOG
 	} else {
-		fprintf(stderr, "LOADING: %s\n", filename);
 		if (fscanf(fp, "*** Begin %s ***\n", buffer) == 1 &&
 		    !strcmp(buffer, "COMMAC")) {
 			load_old_channels(fp);
 		} else if (!strcmp(buffer, "CHANNELS")) {
 			load_channels(fp);
 		} else {
-			fprintf(stderr, "Error: Couldn't find Begin CHANNELS in %s.", filename);
-			return;
+		    STARTLOG(LOG_STARTUP, "INI", "COMSYS")
+		        log_text((char *) "Could not find Begin CHANNELS");
+		    ENDLOG
+		    return;
 		}
 
 		if (fscanf(fp, "*** Begin %s ***\n", buffer) == 1 &&
 		    !strcmp(buffer, "COMSYS")) {
 			load_comsystem(fp);
 		} else {
-			fprintf(stderr, "Error: Couldn't find Begin COMSYS in %s.", filename);
-			return;
+		    STARTLOG(LOG_STARTUP, "INI", "COMSYS")
+		        log_text((char *) "Could not find Begin COMSYS");
+		    ENDLOG
+		    return;
 		}
 
 		fclose(fp);
-		fprintf(stderr, "LOADING: %s (done)\n", filename);
+		STARTLOG(LOG_STARTUP, "INI", "COMSYS")
+		    log_text((char *) "Comsys load complete.");
+		ENDLOG
 	}
 }
 
@@ -66,8 +78,11 @@ char *filename;
 
 	sprintf(buffer, "%s.#", filename);
 	if (!(fp = fopen(buffer, "w"))) {
-		fprintf(stderr, "Unable to open %s for writing.\n", buffer);
-		return;
+	    STARTLOG(LOG_ALWAYS, "DMP", "COMSYS")
+		log_text((char *) "Unable to open for writing: ");
+	        log_text(buffer);
+	    ENDLOG
+	    return;
 	}
 	fprintf(fp, "*** Begin CHANNELS ***\n");
 	save_channels(fp);
