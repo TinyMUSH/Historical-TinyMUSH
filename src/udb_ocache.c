@@ -1047,6 +1047,7 @@ unsigned int type;
 	cp->keydata = (void *)RAW_MALLOC(key.dsize, "cache_del");
 	memcpy(cp->keydata, key.dptr, key.dsize);
 	cp->keylen = key.dsize;
+	cp->type = type;
 
 	INCCOUNTER(cp);
 	INSHEAD(sp->mactive, cp);
