@@ -21,7 +21,7 @@ XFUNCTION(fun_config);
 XFUNCTION(fun_lwho);
 XFUNCTION(fun_ports);
 XFUNCTION(fun_doing);
-XFUNCTION(fun_idle);
+XFUNCTION(handle_conninfo);
 XFUNCTION(fun_conn);
 XFUNCTION(fun_session);
 XFUNCTION(fun_programmer);
@@ -179,10 +179,7 @@ XFUNCTION(fun_controls);
 XFUNCTION(fun_sees);
 XFUNCTION(fun_nearby);
 XFUNCTION(handle_name);
-XFUNCTION(fun_obj);
-XFUNCTION(fun_poss);
-XFUNCTION(fun_subj);
-XFUNCTION(fun_aposs);
+XFUNCTION(handle_pronoun);
 XFUNCTION(fun_lock);
 XFUNCTION(fun_elock);
 XFUNCTION(fun_xcon);
@@ -199,8 +196,7 @@ XFUNCTION(handle_flaglists);
 XFUNCTION(fun_hasflag);
 XFUNCTION(fun_haspower);
 XFUNCTION(fun_hasflags);
-XFUNCTION(fun_lastaccess);
-XFUNCTION(fun_lastmod);
+XFUNCTION(handle_timestamp);
 XFUNCTION(fun_parent);
 XFUNCTION(fun_lparent);
 XFUNCTION(fun_children);
@@ -350,7 +346,7 @@ FUN flist[] = {
 {"ANDFLAGS",	handle_flaglists, 2, 0,		CA_PUBLIC,	NULL},
 {"ANSI",        fun_ansi,       2,  0,          CA_PUBLIC,	NULL},
 {"ANSIPOS",     fun_ansipos,    0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"APOSS",	fun_aposs,	1,  0,		CA_PUBLIC,	NULL},
+{"APOSS",	handle_pronoun,	1,  PRONOUN_APOSS, CA_PUBLIC,	NULL},
 {"ART",		fun_art,	1,  0,		CA_PUBLIC,	NULL},
 {"ASIN",	handle_trig,	1,  TRIG_ARC,	CA_PUBLIC,	NULL},
 {"ASIND",	handle_trig,	1,  TRIG_ARC|TRIG_DEG,
@@ -387,7 +383,7 @@ FUN flist[] = {
 {"COMP",	fun_comp,	2,  0,		CA_PUBLIC,	NULL},
 {"CON",		fun_con,	1,  0,		CA_PUBLIC,	NULL},
 {"CONFIG",	fun_config,	1,  0,		CA_PUBLIC,	NULL},
-{"CONN",	fun_conn,	1,  0,		CA_PUBLIC,	NULL},
+{"CONN",	handle_conninfo, 1, 0,		CA_PUBLIC,	NULL},
 {"CONNRECORD",	fun_connrecord,	0,  0,		CA_PUBLIC,	NULL},
 {"CONSTRUCT",	fun_construct,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC,	NULL},
@@ -470,7 +466,7 @@ FUN flist[] = {
 {"HTML_ESCAPE",	fun_html_escape,-1, 0,		CA_PUBLIC,	NULL},
 {"HTML_UNESCAPE",fun_html_unescape,-1,0,	CA_PUBLIC,	NULL},
 #endif /* PUEBLO_SUPPORT */
-{"IDLE",	fun_idle,	1,  0,		CA_PUBLIC,	NULL},
+{"IDLE",	handle_conninfo, 1, CONNINFO_IDLE, CA_PUBLIC,	NULL},
 {"IFELSE",      fun_ifelse,     0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
 {"ILEV",	fun_ilev,	0,  0,		CA_PUBLIC,	NULL},
@@ -499,9 +495,9 @@ FUN flist[] = {
 {"LANDBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_AND|LOGIC_BOOL,
 						CA_PUBLIC,	NULL},
 {"LAST",	fun_last,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"LASTACCESS",	fun_lastaccess,	1,  0,		CA_PUBLIC,	NULL},
+{"LASTACCESS",	handle_timestamp, 1, 0,		CA_PUBLIC,	NULL},
 {"LASTCREATE",	fun_lastcreate,	2,  0,		CA_PUBLIC,	NULL},
-{"LASTMOD",	fun_lastmod,	1,  0,		CA_PUBLIC,	NULL},
+{"LASTMOD",	handle_timestamp, 1, TIMESTAMP_MOD, CA_PUBLIC,	NULL},
 {"LATTR",	handle_lattr,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LCON",	fun_lcon,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC,	NULL},
@@ -580,7 +576,7 @@ FUN flist[] = {
 {"NSECURE",	fun_secure,	-1, FN_NO_EVAL,	CA_PUBLIC,	NULL},
 {"NULL",	fun_null,	1,  0,		CA_PUBLIC,	NULL},
 {"NUM",		fun_num,	1,  0,		CA_PUBLIC,	NULL},
-{"OBJ",		fun_obj,	1,  0,		CA_PUBLIC,	NULL},
+{"OBJ",		handle_pronoun,	1,  PRONOUN_OBJ, CA_PUBLIC,	NULL},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC,	NULL},
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC,	NULL},
 {"OEMIT",	fun_oemit,	2,  0,		CA_PUBLIC,	NULL},
@@ -604,7 +600,7 @@ FUN flist[] = {
 {"POPN",	fun_popn,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"PORTS",	fun_ports,	1,  0,		CA_PUBLIC,	NULL},
 {"POS",		fun_pos,	2,  0,		CA_PUBLIC,	NULL},
-{"POSS",	fun_poss,	1,  0,		CA_PUBLIC,	NULL},
+{"POSS",	handle_pronoun,	1,  PRONOUN_POSS, CA_PUBLIC,	NULL},
 {"POWER",	fun_power,	2,  0,		CA_PUBLIC,	NULL},
 {"PROGRAMMER",	fun_programmer,	1,  0,		CA_PUBLIC,	NULL},
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -698,7 +694,7 @@ FUN flist[] = {
 {"STRTRUNC",    fun_left,	2,  0,          CA_PUBLIC,	NULL},
 {"STRUCTURE",	fun_structure,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"SUB",		fun_sub,	2,  0,		CA_PUBLIC,	NULL},
-{"SUBJ",	fun_subj,	1,  0,		CA_PUBLIC,	NULL},
+{"SUBJ",	handle_pronoun,	1,  PRONOUN_SUBJ, CA_PUBLIC,	NULL},
 {"SWAP",	fun_swap,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"SWITCH",	fun_switch,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},

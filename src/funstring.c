@@ -1368,7 +1368,7 @@ FUNCTION(perform_border)
     int sl_pos, el_pos, sw_pos, ew_pos;
     int nleft, max, lead_chrs;
 
-    just = ((FUN *)fargs[-1])->flags & JUST_TYPE;
+    just = Func_Mask(JUST_TYPE);
 
     VaChk_Range(2, 4);
 

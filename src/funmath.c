@@ -352,7 +352,7 @@ FUNCTION(handle_trig)
 		asin, acos, atan, NULL
 	};
 
-	flag = ((FUN *)fargs[-1])->flags;
+	flag = Func_Flags(fargs);
 	oper = flag & TRIG_OPER;
 
 	val = aton(fargs[0]);
@@ -808,7 +808,7 @@ FUNCTION(handle_vector)
     NVAL tmp, res = 0;
     Delim isep, osep;
 
-    oper = ((FUN *)fargs[-1])->flags & VEC_OPER;
+    oper = Func_Mask(VEC_OPER);
 
     if (oper == VEC_UNIT) {
 	VaChk_Only_In_Out(3);
@@ -866,7 +866,7 @@ FUNCTION(handle_vectors)
     NVAL scalar;
     int n, m, i;
 
-    oper = ((FUN *)fargs[-1])->flags & VEC_OPER;
+    oper = Func_Mask(VEC_OPER);
 
     if (oper != VEC_DOT) {
 	VaChk_Only_In_Out(4);
@@ -995,7 +995,7 @@ FUNCTION(handle_logic)
 	char *str, *tbuf, *bp;
 	int (*cvtfun)(char *);
 
-	flag = ((FUN *)fargs[-1])->flags;
+	flag = Func_Flags(fargs);
 	cvtfun = (flag & LOGIC_BOOL) ? xlate : (int (*)(char *))atoi;
 	oper = (flag & LOGIC_OPER);
 

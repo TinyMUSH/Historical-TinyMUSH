@@ -2253,8 +2253,8 @@ FUNCTION(handle_pop)
 	OBJSTACK *sp;
 	OBJSTACK *prev = NULL;
 
-	peek_flag = ((FUN *)fargs[-1])->flags & POP_PEEK;
-	toss_flag = ((FUN *)fargs[-1])->flags & POP_TOSS;
+	peek_flag = Is_Func(POP_PEEK);
+	toss_flag = Is_Func(POP_TOSS);
 
 	VaChk_Range(0, 2);
 
@@ -2402,8 +2402,8 @@ FUNCTION(perform_regedit)
     char tmp;
     int match_offset = 0;
 
-    case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
-    all_option = ((FUN *)fargs[-1])->flags & REG_MATCH_ALL;
+    case_option = Func_Mask(REG_CASELESS);
+    all_option = Func_Mask(REG_MATCH_ALL);
 
     if ((re = pcre_compile(fargs[1], case_option,
 			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
@@ -2539,7 +2539,7 @@ FUNCTION(perform_regparse)
     int offsets[PCRE_MAX_OFFSETS];
     int subpatterns;
 
-    case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
+    case_option = Func_Mask(REG_CASELESS);
 
     if ((re = pcre_compile(fargs[1], case_option,
 			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
@@ -2585,8 +2585,8 @@ FUNCTION(perform_regrab)
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
 
-    case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
-    all_option = ((FUN *)fargs[-1])->flags & REG_MATCH_ALL;
+    case_option = Func_Mask(REG_CASELESS);
+    all_option = Func_Mask(REG_MATCH_ALL);
 
     if (all_option) {
 	VaChk_Only_In_Out(4);
@@ -2663,7 +2663,7 @@ FUNCTION(perform_regmatch)
     int subpatterns; 
     char tbuf[LBUF_SIZE], *p;
 
-    case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
+    case_option = Func_Mask(REG_CASELESS);
 
     VaChk_Range(2, 3);
 
@@ -2886,8 +2886,8 @@ FUNCTION(perform_grep)
 
     VaChk_Only_Out(4);
 
-    grep_type = ((FUN *)fargs[-1])->flags & REG_TYPE;
-    caseless = ((FUN *)fargs[-1])->flags & REG_CASELESS;
+    grep_type = Func_Mask(REG_TYPE);
+    caseless = Func_Mask(REG_CASELESS);
 
     it = match_thing(player, fargs[0]);
     if (it == NOTHING) {

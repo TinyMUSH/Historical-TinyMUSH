@@ -250,6 +250,14 @@ VaChk_OutSep(xnargs, DELIM_EVAL)
  * Miscellaneous macros.
  */
 
+/* Get function flags. Note that Is_Func() and Func_Mask() are identical;
+ * they are given specific names for code clarity.
+ */
+
+#define Func_Flags(x)  (((FUN *)(x)[-1])->flags)
+#define Is_Func(x)     (((FUN *)fargs[-1])->flags & (x))
+#define Func_Mask(x)   (((FUN *)fargs[-1])->flags & (x)) 
+
 /* Check access to built-in function. */
 
 #define Check_Func_Access(p,f) \
@@ -409,11 +417,19 @@ if ((l) > 0) { \
 /* #define TRIG_REC	0x08	-- reciprocal, like sec as opposed to sin */
 #define TRIG_DEG	0x10	/* angles are in degrees, not radians */
 
+/* from handle_pronoun (obj, poss, subj, aposs): */
+#define PRONOUN_OBJ	0
+#define PRONOUN_POSS	1
+#define PRONOUN_SUBJ	2
+#define PRONOUN_APOSS	3
+
 /* Miscellaneous */
 #define LATTR_COUNT	0x01	/* nattr: just return attribute count */
-#define LOCFN_WHERE	0x01 	/* where: return absolute location */
-#define NAMEFN_FULLNAME 0x01	/* fullname: return full name */
+#define LOCFN_WHERE	0x01 	/* loc: where() vs. loc() */
+#define NAMEFN_FULLNAME 0x01	/* name: fullname() vs. name() */
 #define CHECK_PARENTS	0x01	/* hasattrp: recurse up the parent chain */
 #define U_LOCAL		0x01	/* ulocal: preserve global registers */
+#define TIMESTAMP_MOD	0x01	/* timestamp: lastmod() vs. lastaccess() */
+#define CONNINFO_IDLE	0x01	/* conninfo: idle() vs. conn() */
 
 #endif /* __FUNCTIONS_H */

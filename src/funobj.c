@@ -131,8 +131,7 @@ FUNCTION(handle_loc)
 	it = match_thing(player, fargs[0]);
 	if (locatable(player, it, cause)) {
 		safe_dbref(buff, bufc,
-			   (((FUN *)fargs[-1])->flags & LOCFN_WHERE) ?
-			   where_is(it) : Location(it));
+			   Is_Func(LOCFN_WHERE) ? where_is(it) : Location(it));
 	} else {
 		safe_nothing(buff, bufc);
 	}
@@ -306,7 +305,7 @@ FUNCTION(handle_okpres)
 	return;
     }
 
-    oper = ((FUN *)fargs[-1])->flags & PRESFN_OPER;
+    oper = Func_Mask(PRESFN_OPER);
 
     if (oper == PRESFN_HEARS) {
 	safe_bool(buff, bufc,
@@ -346,77 +345,31 @@ FUNCTION(handle_name)
 			return;
 		}
 	}
-	if (!(((FUN *)fargs[-1])->flags & NAMEFN_FULLNAME) && isExit(it))
+	if (!Is_Func(NAMEFN_FULLNAME) && isExit(it))
 		safe_exit_name(it, buff, bufc);
 	else
 		safe_name(it, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
- * fun_name: Return the name of an object
+ * handle_pronoun: perform pronoun sub for object (OBJ, POSS, SUBJ, APOSS).
  */
 
-FUNCTION(fun_name)
-{
-	dbref it;
-	char *s, *temp;
-
-	it = match_thing(player, fargs[0]);
-	if (it == NOTHING) {
-		return;
-	}
-	if (!mudconf.read_rem_name) {
-		if (!nearby_or_control(player, it) && !isPlayer(it) && !Long_Fingers(player)) {
-			safe_str("#-1 TOO FAR AWAY TO SEE", buff, bufc);
-			return;
-		}
-	}
-	if (isExit(it))
-	    safe_exit_name(it, buff, bufc);
-	else
-	    safe_name(it, buff, bufc);
-}
-
-/* ---------------------------------------------------------------------------
- * fun_obj, fun_poss, and fun_subj: perform pronoun sub for object.
- */
-
-static void process_sex(player, what, token, buff, bufc)
-dbref player;
-char *what, *buff, **bufc;
-const char *token;
+FUNCTION(handle_pronoun)
 {
 	dbref it;
 	char *str;
 
-	it = match_thing(player, what);
+	char *pronouns[4] = { "%o", "%p", "%s", "%a" };
+
+	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it) ||
 	    (!isPlayer(it) && !nearby_or_control(player, it))) {
 		safe_nomatch(buff, bufc);
 	} else {
-		str = (char *)token;
+		str = pronouns[Func_Flags(fargs)];
 		exec(buff, bufc, it, it, it, 0, &str, (char **)NULL, 0);
 	}
-}
-
-FUNCTION(fun_obj)
-{
-	process_sex(player, fargs[0], "%o", buff, bufc);
-}
-
-FUNCTION(fun_poss)
-{
-	process_sex(player, fargs[0], "%p", buff, bufc);
-}
-
-FUNCTION(fun_subj)
-{
-	process_sex(player, fargs[0], "%s", buff, bufc);
-}
-
-FUNCTION(fun_aposs)
-{
-	process_sex(player, fargs[0], "%a", buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -899,7 +852,7 @@ FUNCTION(handle_flaglists)
 	int negate, temp, type;
 	dbref it = match_thing(player, fargs[0]);
 
-	type = ((FUN *)fargs[-1])->flags & LOGIC_OR;
+	type = Is_Func(LOGIC_OR);
 
 	negate = temp = 0;
 
@@ -1098,28 +1051,18 @@ FUNCTION(fun_hasflags)
 }
 
 /* ---------------------------------------------------------------------------
- * Timestamps.
+ * handle_timestamp: Get timestamps (LASTACCESS, LASTMOD).
  */
 
-FUNCTION(fun_lastaccess)
+FUNCTION(handle_timestamp)
 {
     dbref it = match_thing(player, fargs[0]);
 
     if (!Good_obj(it) || !Examinable(player, it)) {
 	safe_known_str("-1", 2, buff, bufc);
     } else {
-	safe_ltos(buff, bufc, AccessTime(it));
-    }
-}
-
-FUNCTION(fun_lastmod)
-{
-    dbref it = match_thing(player, fargs[0]);
-
-    if (!Good_obj(it) || !Examinable(player, it)) {
-	safe_known_str("-1", 2, buff, bufc);
-    } else {
-	safe_ltos(buff, bufc, ModTime(it));
+	safe_ltos(buff, bufc,
+		  Is_Func(TIMESTAMP_MOD) ? ModTime(it) : AccessTime(it));
     }
 }
 
@@ -1221,7 +1164,7 @@ FUNCTION(scan_zone)
 	int type;
 	char *bb_p;
 
-	type = ((FUN *)fargs[-1])->flags & TYPE_MASK;
+	type = Func_Mask(TYPE_MASK);
 	
 	if (!mudconf.have_zones || (!Controls(player, it) && !WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
@@ -1292,7 +1235,7 @@ FUNCTION(fun_hasattr)
 	ATTR *attr;
 	char *tbuf;
 
-	check_parents = ((FUN *)fargs[-1])->flags & CHECK_PARENTS;
+	check_parents = Is_Func(CHECK_PARENTS);
 
 	thing = match_thing(player, fargs[0]);
 	if (thing == NOTHING) {
@@ -1385,9 +1328,9 @@ FUNCTION(perform_get)
 	char *atr_gotten, *str;
 	struct boolexp *bool;
 
-	eval_it = ((FUN *)fargs[-1])->flags & GET_EVAL;
+	eval_it = Is_Func(GET_EVAL);
 
-	if (((FUN *)fargs[-1])->flags & GET_XARGS) {
+	if (Is_Func(GET_XARGS)) {
 		if (!*fargs[0] || !*fargs[1])
 			return;
 		str = tprintf("%s/%s", fargs[0], fargs[1]);
@@ -1465,7 +1408,7 @@ FUNCTION(do_ufun)
 	char *atext, *str;
 	GDATA *preserve;
 
-	is_local = ((FUN *)fargs[-1])->flags & U_LOCAL;
+	is_local = Is_Func(U_LOCAL);
 
 	/* We need at least one argument */
 
@@ -1927,7 +1870,7 @@ FUNCTION(handle_lattr)
 	int ca, total = 0, count_only, osep_len;
 	Delim osep;
 
-	count_only = ((FUN *)fargs[-1])->flags & LATTR_COUNT;
+	count_only = Is_Func(LATTR_COUNT);
 
 	if (!count_only) {
 	    VaChk_Only_Out(2);

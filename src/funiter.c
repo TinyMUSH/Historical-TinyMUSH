@@ -31,7 +31,7 @@ FUNCTION(perform_loop)
     char tbuf[8];
     int number = 0;
 
-    flag = ((FUN *)fargs[-1])->flags & LOOP_NOTIFY;
+    flag = Func_Mask(LOOP_NOTIFY);
     
     if (flag) {
 	VaChk_Only_In(3);
@@ -112,9 +112,9 @@ FUNCTION(perform_iter)
     char *savep, *dp, *result;
     int is_true, cur_lev, elen;
 
-    flag = ((FUN *)fargs[-1])->flags & LOOP_NOTIFY;
-    bool_flag = ((FUN *)fargs[-1])->flags & BOOL_COND_TYPE;
-    filt_flag = ((FUN *)fargs[-1])->flags & FILT_COND_TYPE;
+    flag = Func_Mask(LOOP_NOTIFY);
+    bool_flag = Func_Mask(BOOL_COND_TYPE);
+    filt_flag = Func_Mask(FILT_COND_TYPE);
 
     need_result = (flag || (filt_flag != FILT_COND_NONE)) ? 1 : 0;
     need_bool = ((bool_flag != BOOL_COND_NONE) ||
@@ -352,7 +352,7 @@ FUNCTION(handle_filter)
 	char *atext, *result, *curr, *objs[2], *bp, *str, *cp, *op, *atextbuf;
 	char *bb_p;
 
-	flag = ((FUN *)fargs[-1])->flags & LOGIC_BOOL;
+	flag = Func_Mask(LOGIC_BOOL);
 
 	VaChk_Only_In_Out(4);
 

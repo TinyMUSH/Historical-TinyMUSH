@@ -98,10 +98,10 @@ FUNCTION(fun_doing)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_idle, fun_conn: return seconds idle or connected.
+ * handle_conninfo: return seconds idle or connected (IDLE, CONN).
  */
 
-FUNCTION(fun_idle)
+FUNCTION(handle_conninfo)
 {
 	dbref target;
 	int port;
@@ -111,21 +111,8 @@ FUNCTION(fun_idle)
 	    safe_known_str((char *) "-1", 2, buff, bufc);
 	    return;
 	}
-
-	safe_ltos(buff, bufc, fetch_idle(target, port));
-}
-
-FUNCTION(fun_conn)
-{
-	dbref target;
-	int port;
-	
-	Find_Connection(player, fargs[0], target, port); 
-	if ((port < 0) && (target == NOTHING)) {
-	    safe_known_str((char *) "-1", 2, buff, bufc);
-	    return;
-	}
-	safe_ltos(buff, bufc, fetch_connect(target, port));
+	safe_ltos(buff, bufc, Is_Func(CONNINFO_IDLE) ?
+		  fetch_idle(target, port) : fetch_connect(target, port));
 }
 
 /* ---------------------------------------------------------------------------

@@ -1034,8 +1034,8 @@ FUNCTION(handle_sets)
 	int *ip1, *ip2;
 	double *fp1, *fp2;
 
-	oper = ((FUN *)fargs[-1])->flags & SET_OPER;
-	type_arg = ((FUN *)fargs[-1])->flags & SET_TYPE;
+	oper = Func_Mask(SET_OPER);
+	type_arg = Func_Mask(SET_TYPE);
 
 	if (type_arg) {
 		VaChk_In_Out(2, 5);
@@ -1574,7 +1574,7 @@ FUNCTION(process_tables)
     Delim list_sep, pad_char;
     char fs_buf[2], **widths;
 
-    just = ((FUN *)fargs[-1])->flags & JUST_TYPE;
+    just = Func_Mask(JUST_TYPE);
 
     VaChk_Range(2, 7);
     VaChk_Sep(&list_sep, num, 5, 0);
