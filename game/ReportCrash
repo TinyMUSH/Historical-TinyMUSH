@@ -9,7 +9,7 @@ bug_address="tinymush-bugs@godlike.com"
 # Check to make sure we have a core file.
 
 if [ ! -s core ]; then
-    echo "No non-zero-size core file found."
+    echo "Error. No non-zero-size core file found."
     exit 1
 fi
 
@@ -17,7 +17,7 @@ fi
 
 gdb_path=`which gdb`
 if [ ! -x "$gdb_path" ]; then
-    echo "gdb does not appear to be in your path. Is it installed?"
+    echo "Error. gdb does not appear to be in your path. Is it installed?"
     exit 1
 fi
 
@@ -27,7 +27,7 @@ mailer=`which Mail`
 if [ ! -x "$mailer" ]; then
     mailer=`which mail`
     if [ ! -x "$mailer" ]; then
-	echo "Cannot find mail or Mail program."
+	echo "Error. Cannot find mail or Mail program."
         exit 1
    fi
 fi
@@ -40,11 +40,6 @@ echo "where" > gdb_script.$$
 echo "quit" >> gdb_script.$$
 num_frames=`$gdb_path --nx --command=gdb_script.$$ $BIN/netmush core | \
     tail -1 | cut -f1 -d" " | cut -f2 -d"#"`
-
-if [ "$num_frames" = "0" ]; then
-    echo "No frames in the stack trace. Sorry."
-    exit 1
-fi
 
 # Frames are numbered 0 through N - 1.
 
