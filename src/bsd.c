@@ -251,12 +251,6 @@ int port;
 	return s;
 }
 
-#ifndef HAVE_GETTIMEOFDAY
-#define get_tod(x)	{ (x)->tv_sec = time(NULL); (x)->tv_usec = 0; }
-#else
-#define get_tod(x)	gettimeofday(x, (struct timezone *)0)
-#endif
-
 void shovechars(port)
 int port;
 {

@@ -491,6 +491,9 @@ extern void	FDECL(toast_player, (dbref));
 #define	SWEEP_VERBOSE	256	/* Display what pattern matches */
 #define TELEPORT_DEFAULT 1	/* Emit all messages */
 #define TELEPORT_QUIET   2	/* Teleport in quietly */
+#define TIMECHK_RESET	1	/* Reset all counters to zero */
+#define TIMECHK_SCREEN	2	/* Write info to screen */
+#define TIMECHK_LOG	4	/* Write info to log */
 #define	TOAD_NO_CHOWN	1	/* Don't change ownership */
 #define	TRIG_QUIET	1	/* Don't display 'Triggered.' message. */
 #define	TWARP_QUEUE	1	/* Warp the wait and sem queues */

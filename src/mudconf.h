@@ -314,6 +314,7 @@ struct statedata {
 	time_t	start_time;	/* When was MUX started */
 	time_t	restart_time;	/* When did we last restart? */
 	int	reboot_nums;	/* How many times have we restarted? */
+    	time_t	cpu_count_from; /* When did we last reset CPU counters? */
 	char	buffer[256];	/* A buffer for holding temp stuff */
 	char	*debug_cmd;	/* The command we are executing (if any) */
 	char	doing_hdr[41];	/* Doing column header in the WHO display */
@@ -468,6 +469,7 @@ extern STATEDATA mudstate;
 #define LOG_PROBLEMS	0x00008000	/* Log runtime problems */
 #define LOG_KBCOMMANDS	0x00010000	/* Log keyboard commands */
 #define LOG_SUSPECTCMDS	0x00020000	/* Log SUSPECT player keyboard cmds */
+#define LOG_TIMEUSE	0x00040000	/* Log CPU time usage */
 #define LOG_ALWAYS	0x80000000	/* Always log it */
 
 #define LOGOPT_FLAGS		0x01	/* Report flags on object */

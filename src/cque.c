@@ -704,127 +704,155 @@ void NDECL(do_second)
 int do_top(ncmds)
 int ncmds;
 {
-	BQUE *tmp;
-	dbref player;
-	int count, i;
-	char *command, *cp, *cmdsave, *logbuf, *log_cmdbuf;
-	long begin_time, used_time;
+    BQUE *tmp;
+    dbref player;
+    int count, i, numpipes;
+    char *command, *cp, *cmdsave, *logbuf, *log_cmdbuf;
+    struct timeval begin_time, end_time, obj_time;
+    int used_time;
 
-	if ((mudconf.control_flags & CF_DEQUEUE) == 0)
-		return 0;
+    if ((mudconf.control_flags & CF_DEQUEUE) == 0)
+	return 0;
 
-	cmdsave = mudstate.debug_cmd;
-	mudstate.debug_cmd = (char *)"< do_top >";
+    cmdsave = mudstate.debug_cmd;
+    mudstate.debug_cmd = (char *)"< do_top >";
 
-	for (count = 0; count < ncmds; count++) {
-		if (!test_top()) {
-			mudstate.debug_cmd = cmdsave;
-			for (i = 0; i < MAX_GLOBAL_REGS; i++)
-				*mudstate.global_regs[i] = '\0';
-			return count;
+    for (count = 0; count < ncmds; count++) {
+	if (!test_top()) {
+	    mudstate.debug_cmd = cmdsave;
+	    for (i = 0; i < MAX_GLOBAL_REGS; i++)
+		*mudstate.global_regs[i] = '\0';
+	    return count;
+	}
+	player = mudstate.qfirst->player;
+	if ((player >= 0) && !Going(player)) {
+	    giveto(player, mudconf.waitcost);
+	    mudstate.curr_enactor = mudstate.qfirst->cause;
+	    mudstate.curr_player = player;
+	    a_Queue(Owner(player), -1);
+	    mudstate.qfirst->player = NOTHING;
+	    if (!Halted(player)) {
+
+		/* Load scratch args */
+		
+		for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+		    if (mudstate.qfirst->scr[i]) {
+			strcpy(mudstate.global_regs[i],
+			       mudstate.qfirst->scr[i]);
+		    } else {
+			*mudstate.global_regs[i] = '\0';
+		    }
 		}
-		player = mudstate.qfirst->player;
-		if ((player >= 0) && !Going(player)) {
-			giveto(player, mudconf.waitcost);
-			mudstate.curr_enactor = mudstate.qfirst->cause;
-			mudstate.curr_player = player;
-			a_Queue(Owner(player), -1);
-			mudstate.qfirst->player = NOTHING;
-			if (!Halted(player)) {
 
-				/* Load scratch args */
-
-				for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-					if (mudstate.qfirst->scr[i]) {
-						strcpy(mudstate.global_regs[i],
-						   mudstate.qfirst->scr[i]);
-					} else {
-						*mudstate.global_regs[i] = '\0';
-					}
-				}
-
-				command = mudstate.qfirst->comm;
-				while (command) {
-					cp = parse_to(&command, ';', 0);
-					if (cp && *cp) {
-						while (command && (*command == '|')) {
-							command++;
-							mudstate.inpipe = 1;
-							mudstate.poutnew = alloc_lbuf("process_command.pipe");
-							mudstate.poutbufc = mudstate.poutnew;
-							mudstate.poutobj = player;
-#ifndef NO_LAG_CHECK
-							begin_time = time(NULL);
-#endif /* NO_LAG_CHECK */
-							log_cmdbuf = process_command(player,
-							     mudstate.qfirst->cause,
-									0, cp,
-							       mudstate.qfirst->env,
-						   	 mudstate.qfirst->nargs);
-#ifndef NO_LAG_CHECK
-							used_time = time(NULL) - begin_time;
-							if (used_time >= mudconf.max_cmdsecs) {
-								STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
-									log_name_and_loc(player);
-									logbuf = alloc_lbuf("do_top.LOG.cpu");
-									sprintf(logbuf, " queued command taking %d secs (enactor #%d): ", used_time, mudstate.qfirst->cause);
-									log_text(logbuf);
-									free_lbuf(logbuf);
-									log_text(log_cmdbuf);
-								ENDLOG
-							}
-#endif /* NO_LAG_CHECK */
-							if (mudstate.pout) {
-								free_lbuf(mudstate.pout);
-								mudstate.pout = NULL;
-							}
-						
-							*mudstate.poutbufc = '\0';
-							mudstate.pout = mudstate.poutnew;
-							cp = parse_to(&command, ';', 0);
-						} 
-						mudstate.inpipe = 0;
-#ifndef NO_LAG_CHECK
-						begin_time = time(NULL);
-#endif /* NO_LAG_CHECK */
-						log_cmdbuf = process_command(player,
-						     mudstate.qfirst->cause,
-								0, cp,
-						       mudstate.qfirst->env,
-					   	 mudstate.qfirst->nargs);
-#ifndef NO_LAG_CHECK
-						used_time = time(NULL) - begin_time;
-						if (used_time >= mudconf.max_cmdsecs) {
-							STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
-								log_name_and_loc(player);
-								logbuf = alloc_lbuf("do_top.LOG.cpu");
-								sprintf(logbuf, " queued command taking %d secs (enactor #%d): ", used_time, mudstate.qfirst->cause);
-								log_text(logbuf);
-								free_lbuf(logbuf);
-									log_text(log_cmdbuf);
-							ENDLOG
-						}
-#endif /* NO_LAG_CHECK */
-						if (mudstate.pout) {
-							free_lbuf(mudstate.pout);
-							mudstate.pout = NULL;
-						}
-					}
-				}
-			}
-		}
+		command = mudstate.qfirst->comm;
 		tmp = mudstate.qfirst;
-		mudstate.qfirst = mudstate.qfirst->next;
-		if (!mudstate.qfirst)
-			mudstate.qlast = NULL;
-		free(tmp->text);
-		free_qentry(tmp);
+		while (command && (mudstate.qfirst == tmp)) {
+		    cp = parse_to(&command, ';', 0);
+		    if (cp && *cp) {
+			numpipes = 0;
+			while (command && (*command == '|') &&
+			       (mudstate.qfirst == tmp) &&
+			       (numpipes < mudconf.ntfy_nest_lim)) {
+			    command++;
+			    numpipes++;
+			    mudstate.inpipe = 1;
+			    mudstate.poutnew = alloc_lbuf("process_command.pipe");
+			    mudstate.poutbufc = mudstate.poutnew;
+			    mudstate.poutobj = player;
+
+			    /* No lag check on piped commands */
+			    process_command(player,
+					    mudstate.qfirst->cause,
+					    0, cp,
+					    mudstate.qfirst->env,
+					    mudstate.qfirst->nargs);
+
+			    if (mudstate.pout) {
+				free_lbuf(mudstate.pout);
+				mudstate.pout = NULL;
+			    }
+
+			    *mudstate.poutbufc = '\0';
+			    mudstate.pout = mudstate.poutnew;
+			    cp = parse_to(&command, ';', 0);
+			} 
+			mudstate.inpipe = 0;
+
+			/* Is the queue still linked like we think it is? */
+			if (mudstate.qfirst != tmp) {
+			    if (mudstate.pout) {
+				free_lbuf(mudstate.pout);
+				mudstate.pout = NULL;
+			    }
+			    break;
+			}
+
+#ifndef NO_LAG_CHECK
+			get_tod(&begin_time);
+#endif /* ! NO_LAG_CHECK */
+
+			log_cmdbuf = process_command(player,
+						     mudstate.qfirst->cause,
+						     0, cp,
+						     mudstate.qfirst->env,
+						     mudstate.qfirst->nargs);
+
+			if (mudstate.pout) {
+			    free_lbuf(mudstate.pout);
+			    mudstate.pout = NULL;
+			}
+
+#ifndef NO_LAG_CHECK
+			get_tod(&end_time);
+			used_time = msec_diff(end_time, begin_time);
+			if ((used_time / 1000) >= mudconf.max_cmdsecs) {
+			    STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
+  			    log_name_and_loc(player);
+			    logbuf = alloc_lbuf("do_top.LOG.cpu");
+			    sprintf(logbuf, " queued command taking %.2f secs (enactor #%d): ", (double) (used_time / 1000), mudstate.qfirst->cause);
+			    log_text(logbuf);
+			    free_lbuf(logbuf);
+			    log_text(log_cmdbuf);
+			    ENDLOG
+			}
+
+#ifndef NO_TIMECHECKING
+			/* Don't use msec_add(), this is more accurate */
+
+			obj_time = Time_Used(player);
+			obj_time.tv_usec += end_time.tv_usec -
+			    begin_time.tv_usec;
+                        obj_time.tv_sec += end_time.tv_sec -
+                            begin_time.tv_sec;
+                        if (obj_time.tv_usec < 0) {
+                            obj_time.tv_usec += 1000000;
+                            obj_time.tv_sec--;
+                        } else if (obj_time.tv_usec >= 1000000) {
+                            obj_time.tv_sec += obj_time.tv_usec / 1000000;
+                            obj_time.tv_usec = obj_time.tv_usec % 1000000;
+                        }
+                        s_Time_Used(player, obj_time);
+#endif /* ! NO_TIMECHECKING */
+#endif /* ! NO_LAG_CHECK */
+		    }
+		}
+	    }
 	}
 
-	for (i = 0; i < MAX_GLOBAL_REGS; i++)
-		*mudstate.global_regs[i] = '\0';
-	mudstate.debug_cmd = cmdsave;
-	return count;
+	if (mudstate.qfirst) {
+	    tmp = mudstate.qfirst;
+	    mudstate.qfirst = mudstate.qfirst->next;
+	    free(tmp->text);
+	    free_qentry(tmp);
+	}
+	if (!mudstate.qfirst)	/* gotta check this, as the value's changed */
+	    mudstate.qlast = NULL;
+    }
+
+    for (i = 0; i < MAX_GLOBAL_REGS; i++)
+	*mudstate.global_regs[i] = '\0';
+    mudstate.debug_cmd = cmdsave;
+    return count;
 }
 
 /* ---------------------------------------------------------------------------

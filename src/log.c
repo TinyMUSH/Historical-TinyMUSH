@@ -43,6 +43,7 @@ NAMETAB logoptions_nametab[] = {
 {(char *)"shouts",		2,	0,	LOG_SHOUTS},
 {(char *)"startup",		2,	0,	LOG_STARTUP},
 {(char *)"suspect_commands",	2,	0,	LOG_SUSPECTCMDS},
+{(char *)"time_usage",		1,	0,	LOG_TIMEUSE},
 {(char *)"wizard",		1,	0,	LOG_WIZARD},
 { NULL,				0,	0,	0}};
 

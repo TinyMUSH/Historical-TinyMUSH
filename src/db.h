@@ -159,6 +159,10 @@ struct object {
 	
 	POWER 	powers;		/* ALL: Powers on object */
 	POWER	powers2;	/* ALL: even more powers */
+
+#ifndef NO_TIMECHECKING
+	struct timeval cpu_time_used;	/* ALL: CPU time eaten */
+#endif
 	
 #ifdef MEMORY_BASED
 	ATRLIST	*ahead;		/* The head of the attribute list. */
@@ -188,6 +192,12 @@ extern NAME *names;
 #define Powers2(t)		db[t].powers2
 #define	Home(t)			Link(t)
 #define	Dropto(t)		Location(t)
+
+#ifndef NO_TIMECHECKING
+#define Time_Used(t)		db[t].cpu_time_used
+#define s_Time_Used(t,n)	db[t].cpu_time_used.tv_sec = n.tv_sec; \
+				db[t].cpu_time_used.tv_usec = n.tv_usec
+#endif
 
 #define	s_Location(t,n)		db[t].location = (n)
 
