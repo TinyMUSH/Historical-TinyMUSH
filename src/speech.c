@@ -16,7 +16,6 @@
 #include "match.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "attrs.h"	/* required by code */
-#include "functions.h"	/* required by code */
 
 int sp_ok(player)
 dbref player;
@@ -443,25 +442,35 @@ void do_page(player, cause, key, tname, message)
 
 	/* How many words in the list of targets? */
 
-	for (n_dbrefs = 0, str = dbref_list;
-	     str;
-	     str = (char *) next_token(str, ' '), n_dbrefs++)
-	    ;
-	dbrefs_array = (int *) XCALLOC(n_dbrefs, sizeof(int), "do_page.dbrefs");
+	if (!*dbref_list) {
+	    count = 0; 
+	} else {
 
-	/* Convert the list into an array of targets. Validate. */
-
-	for (ddp = strtok_r(dbref_list, " ", &tokst);
-	     ddp;
-	     ddp = strtok_r(NULL, " ", &tokst)) {
-	    target = atoi(ddp);
-	    if (!Good_obj(target) || !isPlayer(target)) {
-		notify(player, tprintf("I don't recognize #%d.", target));
-		continue;
+	    for (n_dbrefs = 1, str = dbref_list; ; n_dbrefs++) {
+		if ((str = strchr(str, ' ')) != NULL)
+		    str++;
+		else
+		    break;
 	    }
-	    dbrefs_array[count] = target;
-	    count++;
+
+	    dbrefs_array = (int *) XCALLOC(n_dbrefs, sizeof(int),
+					   "do_page.dbrefs");
+
+	    /* Convert the list into an array of targets. Validate. */
+
+	    for (ddp = strtok_r(dbref_list, " ", &tokst);
+		 ddp;
+		 ddp = strtok_r(NULL, " ", &tokst)) {
+		target = atoi(ddp);
+		if (!Good_obj(target) || !isPlayer(target)) {
+		    notify(player, tprintf("I don't recognize #%d.", target));
+		    continue;
+		}
+		dbrefs_array[count] = target;
+		count++;
+	    }
 	}
+
 	free_lbuf(dbref_list);
 
     } else {			/* normal page; build new recipient list */
