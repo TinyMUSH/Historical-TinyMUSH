@@ -1450,15 +1450,23 @@ int interactive, ncargs;
 			     add != NULL; add = add->next) {
 			    buff = atr_get(add->thing,
 					   add->atr, &aowner, &aflags, &alen);
-			    /* Skip the '$' character, and the next */
-			    for (s = buff + 2; *s && (*s != ':'); s++) ;
+			    /* Skip the '$' character, and
+			     * search for first un escaped :
+			     */
+			    for (s = buff + 2;
+				 *s && ((*s != ':') || (*(s - 1) == '\\'));
+				 s++)
+				;
 			    if (!*s) {
 				free_lbuf(buff);
 				break;
 			    }
 			    *s++ = '\0';
 			    
-			    if (wild(buff + 1, new, aargs, 10)) {
+			    if ((!(aflags & AF_REGEXP) &&
+				 wild(buff + 1, new, aargs, 10)) ||
+				((aflags & AF_REGEXP) &&
+				 regexp_match(buff + 1, new, aargs, 10))) {
 				if (!mudconf.addcmd_obey_uselocks ||
 				    could_doit(player, add->thing, A_LUSE)) {
 				    wait_que(add->thing, player,
@@ -1471,6 +1479,7 @@ int interactive, ncargs;
 				    cmd_matches++;
 				}
 			    }
+
 			    free_lbuf(buff);
 			    if (cmd_matches && mudconf.addcmd_obey_stop &&
 				Stop_Match(add->thing)) {
