@@ -21,6 +21,9 @@ the other have been listed in the conversion notes for both servers.
 - Index script detects help-style files (help, news, etc.) and indexes
   them. This is now called by Startmush.
 
+- Bug reporting is easier, via the ReportCrash script, which analyzes
+  core files and emails the results to the bug reporting address.
+
 - GNU dbm 1.8.0 is required. Database code has been rewritten to take
   advantage of its features. Dumps are now automatically optimized (though
   you can turn this off using the new conf parameter opt_frequency), and
