@@ -1481,7 +1481,7 @@ char *msg;
 			free_mbuf(buff);
 			ENDLOG
 				d->flags |= DS_CONNECTED;
-			d->connected_at = time(0);
+			d->connected_at = time(NULL);
 			d->player = player;
 
 			/* Check to see if the player is currently running
@@ -1588,7 +1588,7 @@ char *msg;
 				ENDLOG
 					move_object(player, mudconf.start_room);
 				d->flags |= DS_CONNECTED;
-				d->connected_at = time(0);
+				d->connected_at = time(NULL);
 				d->player = player;
 				fcache_dump(d, FC_CREA_NEW);
 				announce_connect(player, d);
