@@ -76,7 +76,7 @@ FUNCTION(fun_r)
 
 /* --------------------------------------------------------------------------
  * wildmatch: Set the results of a wildcard match into the global registers.
- *            wildmatch(<string>,<wildcard pattern>[,<register list>])
+ *            wildmatch(<string>,<wildcard pattern>,<register list>)
  */
 
 FUNCTION(fun_wildmatch)
@@ -167,6 +167,7 @@ static void print_htab_matches(obj, htab, buff, bufc)
 /* ---------------------------------------------------------------------------
  * fun_x: Returns a variable. x(<variable name>)
  * fun_setx: Sets a variable. setx(<variable name>,<value>)
+ * fun_store: Sets and returns a variable. store(<variable name>,<value>)
  * fun_xvars: Takes a list, parses it, sets it into variables.
  *            xvars(<space-separated variable list>,<list>,<delimiter>)
  * fun_let: Takes a list of variables and their values, sets them, executes
@@ -361,7 +362,7 @@ FUNCTION(fun_setx)
     set_xvar(player, fargs[0], fargs[1]);
 }
 
-FUNCTION(fun_setxr)
+FUNCTION(fun_store)
 {
     set_xvar(player, fargs[0], fargs[1]);
     safe_str(fargs[1], buff, bufc);
@@ -2007,6 +2008,33 @@ FUNCTION(fun_lstack)
 	    first = 0;
 	}
 	over = safe_str(sp->data, buff, bufc);
+    }
+}
+
+/* --------------------------------------------------------------------------
+ * wildparse: Set the results of a wildcard match into named variables.
+ *            wildparse(<string>,<pattern>,<list of variable names>)
+ */
+
+FUNCTION(fun_wildparse)
+{
+    int i, nqregs, curq;
+    char *t_args[NUM_ENV_VARS], *qregs[NUM_ENV_VARS];
+
+    if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS))
+	return;
+
+    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
+    for (i = 0; i < nqregs; i++) {
+	if (qregs[i] && *qregs[i])
+	    set_xvar(player, qregs[i], t_args[i]);
+    }
+
+    /* Need to free up allocated memory from the match. */
+
+    for (i = 0; i < NUM_ENV_VARS; i++) {
+	if (t_args[i])
+	    free_lbuf(t_args[i]);
     }
 }
 

@@ -4794,7 +4794,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   The variable functions are:
  
 	clearvars()	let()		lvars()		regparse()
-	regparsei()	setx()		x()		xvars()
+	regparsei()	setx()		store()		wildparse()
+	x()		xvars()
   
   There is a configurable maximum number of variables per object,
   typically 50. If an attempt is made to set more than 50 variables,
@@ -6437,7 +6438,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   will become '30'. If <register list> was '-1 5', then the 'cookies' 
   substring would simply be discarded, thogh %q5 would still be '30'.
  
-  See also: strmatch(), regmatch(), regmatchi().
+  See also: strmatch(), regmatch(), regmatchi(), wildparse().
  
 & REGMATCH()
   Function:  regmatch(<string>,<regexp>[,<register list>])
@@ -6469,6 +6470,21 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   matching is not case-sensitive, i.e., 'A' and 'a' are automatically
   equivalent to 'A|a'.
  
+& WILDPARSE()
+  Function:  wildparse(<string>,<pattern>,<list of variable names>)
+ 
+  This side-effect function matches the wildcard pattern <pattern>
+  against the entirety of <string>; if there's a match, it places
+  the wildcard-matched substrings into the corresponding named
+  variables. <list of variable names> can be up to ten strings.
+ 
+  For example, if <string> is 'cookies=30', and <pattern> is '*=*',
+  then the first substring is 'cookies' and the second substring is '30'.
+  If <list> is 'a b', then the variable 'a' will become 'cookies' and
+  the variable 'b' will become '30'.
+ 
+  See also: setx(), x(), strmatch(), wildmatch(), regparse(), regparsei().
+ 
 & REGPARSE()
   Function:  regparse(<string>,<regexp>,<list of variable names>)
  
@@ -6485,12 +6501,16 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   See 'help regexp syntax' for an explanation of regular expressions.
  
+  See also: regparsei(), wildparse().
+ 
 & REGPARSEI()
   Function:  regparsei(<string>,<regexp>,<list of variable names>)
  
   This function works identically to regparse(), except that the
   matching is not case-sensitive, i.e., 'A' and 'a' are automatically
   equivalent to 'A|a'.
+ 
+  See also: regparse(), wildparse().
  
 & STREQ()
   streq(<string 1>,<string 2>)
@@ -8736,7 +8756,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   This is equivalent to the substitution %q<number>; i.e., "r(0)" == "%q0".
  
-  See also: setq(), setx(), x().
+  See also: setq(), setx(), store(), x().
 
 & SETQ()
   Function: setq(<number>,<string>)
@@ -8759,7 +8779,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say [setq(0,u(TEST))]'[r(0)]' has length [strlen(r(0))].
     You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
-  See also: setr(), r(), setx(), x().
+  See also: setr(), r(), setx(), store(), x().
  
 & SETR()
   Function: setr(<number>,<string>)
@@ -8772,7 +8792,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say '[setr(0,u(TEST))]' has length [strlen(%q0)].
     You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
-  See also: setq(), r(), setx(), x().
+  See also: setq(), r(), setx(), store(), x().
  
 & SETX()
   Function:  setx(<variable name>,<value>)
@@ -8787,8 +8807,23 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say Testing [setx(temp,abc)][x(temp)] - [strlen(x(temp))].
     You say "Testing abc - 3."
  
-  See also: x(), lvars(), clearvars(), xvars(), let(), regparse().
+  See also: store(), x(), VARIABLE FUNCTIONS.
  
+& STORE()
+  Function:  store(<variable name>,<value>)
+ 
+  This function sets the value of a variable associated with the
+  calling object. Using an empty <value> will unset the variable. For
+  reasons of memory consumption, variables should ALWAYS be explicitly
+  unset when they are not immediately needed.
+ 
+  This function returns <value> -- i.e., it behaves just like setx(),
+  except that it returns <value> rather than returning nothing, making
+  the setx() : store() relationship equivalent to the setq() : setr()
+  relationship.
+ 
+  See also: setx(), x(), VARIABLE FUNCTIONS.
+  
 & X()
   Function:  x(<variable name>)
  
@@ -8803,7 +8838,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   brackets -- x(foo) is equivalent to %_<foo>, x(test) is equivalent
   to %_<test>, etc.
  
-  See also: setx(), lvars(), setq(), setr(), r().
+  See also: setx(), store(), lvars(), setq(), setr(), r().
  
 & XVARS()
   Function:  xvars(<list of variables>,<list of strings>[,<delim>])
@@ -8820,7 +8855,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say [xvars(foo bar baz,apple|peach|cherry,|)][x(bar)]
     You say "peach"
  
-  See also: x(), setx(), let(), lvars(), clearvars(), regparse().
+  See also: x(), setx(), store(), let(), lvars(), clearvars(), regparse().
  
 & LET()
   Function:  let(<list of variables>,<list of strings>,<expression>[,<delim>])
@@ -8853,7 +8888,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say [setx(a,old)]%_a - [let(a b c,1|2|3,%_a+%_b+%_c,|)] - %_a
     You say "old - 1+2+3 - old"
  
-  See also: x(), setx(), regparse().
+  See also: x(), setx(), store(), regparse().
  
 & LVARS()
   Function:  lvars()
@@ -8862,7 +8897,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   the calling object. This is potentially computationally expensive and
   should be avoided if possible.
  
-  See also: x(), setx(), lvars(), clearvars().
+  See also: x(), setx(), store(), lvars(), clearvars().
  
 & CLEARVARS()
   Function:  clearvars()
@@ -8871,7 +8906,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   potentially computationally expensive, and should be avoided if
   possible.
  
-  See also: x(), setx(), lvars().
+  See also: x(), setx(), store(), lvars().
  
 & PEMIT()
   Function:  pemit(<list of dbrefs>,<string>)
