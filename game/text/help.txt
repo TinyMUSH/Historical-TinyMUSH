@@ -6584,8 +6584,8 @@ performed and the walk down the list stops.
   Function: elockstr(<locked object>, <actor>, <lock string>)
  
   Checks if <actor> would pass a lock on <locked object> with syntax
-  <lock string>. You must be nearby, or control, at least one of the
-  objects. Returns 0 or 1, or #-1 with an error string.
+  <lock string>. You must be nearby, or control, <actor>. You must
+  control <locked object>. Returns 0 or 1, or #-1 with an error string.
  
   Example:
      > say elockstr(me, #4, #4|#5)

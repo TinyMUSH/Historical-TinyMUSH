@@ -446,9 +446,10 @@ FUNCTION(fun_elockstr)
 
     if (!Good_obj(locked_obj) || !Good_obj(actor_obj)) {
 	safe_nomatch(buff, bufc);
-    } else if (!nearby_or_control(player, actor_obj) &&
-	       !nearby_or_control(player, locked_obj)) {
+    } else if (!nearby_or_control(player, actor_obj)) {
 	safe_str("#-1 TOO FAR AWAY", buff, bufc);
+    } else if (!Controls(player, locked_obj)) {
+	safe_noperm(buff, bufc);
     } else {
 	okey = parse_boolexp(player, fargs[2], 0);
 	if (okey == TRUE_BOOLEXP) {
