@@ -418,8 +418,13 @@ char *who, *amnt;
 		return;
 	}
 
+	if (isExit(recipient)) {
+	    notify(player, "You can't give anything to an exit.");
+	    return;
+	}
+
 	if (Guest(recipient)) {
-		notify(player, "Guest really doesn't need money or anything.");
+		notify(player, "You can't give anything to a Guest.");
 		return;
 	}
 	if (is_number(amnt)) {
