@@ -2064,7 +2064,7 @@ FUNCTION(fun_lstack)
  *          Derived from the PennMUSH code. 
  */
 
-void perform_regedit(buff, bufc, player, fargs, nfargs,
+static void perform_regedit(buff, bufc, player, fargs, nfargs,
 		     case_option, all_option)
     char *buff, **bufc;
     dbref player;
@@ -2288,7 +2288,7 @@ FUNCTION(fun_regparsei)
  *             Derived from PennMUSH.
  */
 
-void perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs,  
+static void perform_regrab(buff, bufc, sep, osep, player, fargs, nfargs,  
 		    case_option, all_option)
     char *buff, **bufc;
     char sep, osep;
@@ -2644,4 +2644,138 @@ FUNCTION(fun_until)
     free_lbuf(atextbuf);
     if (!is_same)
 	free_lbuf(condbuf);
+}
+
+
+/* ---------------------------------------------------------------------------
+ * fun_grep and friends: grep (exact match), wildgrep (wildcard match),
+ * regrep (regexp match), and case-insensitive versions. (There is no
+ * case-insensitive wildgrep, since all wildcard matches are caseless.)
+ */
+
+#define GREP_EXACT	0
+#define GREP_WILD	1
+#define GREP_REGEXP	2
+
+static void perform_grep(buff, bufc, player, fargs, nfargs,
+			 grep_type, caseless)
+    char *buff, **bufc;
+    dbref player;
+    char *fargs[];
+    int nfargs, grep_type, caseless;
+{
+    pcre *re = NULL;
+    pcre_extra *study = NULL;
+    const char *errptr;
+    int erroffset, subpatterns;
+    int offsets[PCRE_MAX_OFFSETS];
+    char *patbuf, *patc, *attrib, *p, *bb_p;
+    int ca, aflags, alen;
+    dbref thing, aowner;
+    dbref it = match_thing(player, fargs[0]);
+
+    if (it == NOTHING) {
+	safe_nomatch(buff, bufc);
+	return;
+    } else if (!(Examinable(player, it))) {
+	safe_noperm(buff, bufc);
+	return;
+    }
+
+    /* Make sure there's an attribute and a pattern */
+
+    if (!fargs[1] || !*fargs[1]) {
+	safe_str("#-1 NO SUCH ATTRIBUTE", buff, bufc);
+	return;
+    }
+    if (!fargs[2] || !*fargs[2]) {
+	safe_str("#-1 INVALID GREP PATTERN", buff, bufc);
+	return;
+    }
+
+    switch (grep_type) {
+	case GREP_EXACT:
+	    if (caseless) {
+		for (p = fargs[2]; *p; p++)
+		    *p = tolower(*p);
+	    }
+	    break;
+	case GREP_REGEXP:
+	    if (!tables) {
+		tables = pcre_maketables();
+	    }
+	    if ((re = pcre_compile(fargs[2], caseless, &errptr, &erroffset,
+				   tables)) == NULL) {
+		notify_quiet(player, errptr);
+		return;
+	    }
+	    study = pcre_study(re, 0, &errptr);
+	    if (errptr != NULL) {
+		XFREE(re, "perform_grep.re");
+		notify_quiet(player, errptr);
+		return;
+	    }
+	    break;
+	default:
+	    /* No special set-up steps. */
+    }
+
+    bb_p = *bufc;
+    patc = patbuf = alloc_lbuf("perform_grep.parse_attrib");
+    safe_tprintf_str(patbuf, &patc, "#%d/%s", it, fargs[1]);
+    olist_push();
+    if (parse_attrib_wild(player, patbuf, &thing, 0, 0, 1)) {
+	for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
+	    attrib = atr_get(thing, ca, &aowner, &aflags, &alen);
+	    if ((grep_type == GREP_EXACT) && caseless) {
+		for (p = attrib; *p; p++) 
+		    *p = tolower(*p);
+	    }
+	    if (((grep_type == GREP_EXACT) && strstr(attrib, fargs[2])) ||
+		((grep_type == GREP_WILD) && quick_wild(fargs[2], attrib)) ||
+		((grep_type == GREP_REGEXP) &&
+		 (pcre_exec(re, study, attrib, alen, 0, 0,
+			    offsets, PCRE_MAX_OFFSETS) >= 0))) {
+		if (*bufc != bb_p)
+		    safe_chr(' ', buff, bufc);
+		safe_str((char *)(atr_num(ca))->name, buff, bufc);
+	    }
+	    free_lbuf(attrib);
+	}
+    }
+
+    free_lbuf(patbuf);
+    olist_pop();
+    if (re) {
+	XFREE(re, "perform_grep.re");
+    }
+    if (study) {
+	XFREE(study, "perform_grep.study");
+    }
+}
+
+FUNCTION(fun_grep)
+{
+    perform_grep(buff, bufc, player, fargs, nfargs, GREP_EXACT, 0);
+}
+
+FUNCTION(fun_grepi)
+{
+    perform_grep(buff, bufc, player, fargs, nfargs, GREP_EXACT, 1);
+}
+
+FUNCTION(fun_wildgrep)
+{
+    perform_grep(buff, bufc, player, fargs, nfargs, GREP_WILD, 0);
+}
+
+FUNCTION(fun_regrep)
+{
+    perform_grep(buff, bufc, player, fargs, nfargs, GREP_REGEXP, 0);
+}
+
+FUNCTION(fun_regrepi)
+{
+    perform_grep(buff, bufc, player, fargs, nfargs, GREP_REGEXP,
+		 PCRE_CASELESS);
 }

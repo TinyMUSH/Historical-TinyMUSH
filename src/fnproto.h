@@ -306,8 +306,6 @@ XFUNCTION(fun_alphamax);
 XFUNCTION(fun_alphamin);
 XFUNCTION(fun_valid);
 XFUNCTION(fun_beep);
-XFUNCTION(fun_grep);
-XFUNCTION(fun_grepi);
 
 /* From funvars.c */
 
@@ -356,6 +354,11 @@ XFUNCTION(fun_regrabi);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_regmatchi);
 XFUNCTION(fun_until);
+XFUNCTION(fun_grep);
+XFUNCTION(fun_grepi);
+XFUNCTION(fun_regrep);
+XFUNCTION(fun_regrepi);
+XFUNCTION(fun_wildgrep);
 
 /* From comsys.c */
 
@@ -605,6 +608,8 @@ FUN flist[] = {
 {"REGRABALL",	fun_regraball,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGRABALLI",	fun_regraballi, 0,  FN_VARARGS, CA_PUBLIC},
 {"REGRABI",	fun_regrabi,	0,  FN_VARARGS, CA_PUBLIC},
+{"REGREP",	fun_regrep,	3,  0,		CA_PUBLIC},
+{"REGREPI",	fun_regrepi,	3,  0,		CA_PUBLIC},
 {"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC},
@@ -709,6 +714,7 @@ FUN flist[] = {
 						CA_PUBLIC},
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC},
 {"WHILE",	fun_while,	0,  FN_VARARGS,	CA_PUBLIC},
+{"WILDGREP",	fun_wildgrep,	3,  0,		CA_PUBLIC},
 {"WILDMATCH",	fun_wildmatch,	3,  0,		CA_PUBLIC},
 {"WILDPARSE",	fun_wildparse,	3,  0,		CA_PUBLIC},
 {"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC},
