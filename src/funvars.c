@@ -2440,6 +2440,12 @@ FUNCTION(perform_regedit)
     }
 
     do {
+	/* If we had too many subpatterns for the offsets vector, set the
+	 * number to 1/3rd of the size of the offsets vector.
+	 */
+	if (subpatterns == 0)
+	    subpatterns = PCRE_MAX_OFFSETS / 3;
+
 	/* Copy up to the start of the matched area. */
 
 	tmp = fargs[0][offsets[0]];
@@ -2466,12 +2472,11 @@ FUNCTION(perform_regedit)
 		continue;
 	    }
 	    r = endsub - 1;
-	    if (offset > subpatterns)
-		continue;
 
-	    pcre_copy_substring(fargs[0], offsets, subpatterns, offset,
-				tbuf, LBUF_SIZE);
-	    safe_str(tbuf, buff, bufc);
+	    if (pcre_copy_substring(fargs[0], offsets, subpatterns, offset,
+				    tbuf, LBUF_SIZE) >= 0) {
+	        safe_str(tbuf, buff, bufc);
+	    }
 	}
 
 	start = fargs[0] + offsets[1];
@@ -2564,14 +2569,19 @@ FUNCTION(perform_regparse)
     subpatterns = pcre_exec(re, NULL, fargs[0], strlen(fargs[0]),
 			    0, 0, offsets, PCRE_MAX_OFFSETS);
 
+    /* If we had too many subpatterns for the offsets vector, set the
+     * number to 1/3rd of the size of the offsets vector.
+     */
+    if (subpatterns == 0)
+	subpatterns = PCRE_MAX_OFFSETS / 3;
+
     nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], &SPACE_DELIM);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i]) {
-	    if (subpatterns < 0) {
+	    if (pcre_copy_substring(fargs[0], offsets, subpatterns, i,
+				    matchbuf, LBUF_SIZE) < 0) {
 		set_xvar(player, qregs[i], NULL);
 	    } else {
-		pcre_copy_substring(fargs[0], offsets, subpatterns, i,
-				    matchbuf, LBUF_SIZE);
 		set_xvar(player, qregs[i], matchbuf);
 	    }
 	}
@@ -2695,6 +2705,12 @@ FUNCTION(perform_regmatch)
 			    0, 0, offsets, PCRE_MAX_OFFSETS);
     safe_bool(buff, bufc, (subpatterns >= 0));
 
+    /* If we had too many subpatterns for the offsets vector, set the
+     * number to 1/3rd of the size of the offsets vector.
+     */
+    if (subpatterns == 0)
+	subpatterns = PCRE_MAX_OFFSETS / 3;
+
     /* If we don't have a third argument, we're done. */
     if (nfargs != 3) {
 	XFREE(re, "perform_regmatch.re");
@@ -2707,18 +2723,13 @@ FUNCTION(perform_regmatch)
      * with the subexpression.
      */
 
-    if (subpatterns == 0)
-	subpatterns = PCRE_MAX_OFFSETS / 3;
-
     nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], &SPACE_DELIM);
     for (i = 0; i < nqregs; i++) {
-	if (subpatterns < 0) {
+	if (pcre_copy_substring(fargs[0], offsets, subpatterns, i,
+				tbuf, LBUF_SIZE) < 0) {
 	    set_register("perform_regmatch", qregs[i], NULL);
 	} else {
-	    p = tbuf;
-	    pcre_copy_substring(fargs[0], offsets, subpatterns, i,
-				p, LBUF_SIZE);
-	    set_register("perform_regmatch", qregs[i], p);
+	    set_register("perform_regmatch", qregs[i], tbuf);
 	}
     }
 

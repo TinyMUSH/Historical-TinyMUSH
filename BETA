@@ -35,6 +35,9 @@ Release history:
   could corrupt the buffer it evaluated in, causing inconsistent
   behavior. [3.0; Draci]
 
+- Fix: Better error handling around regular expression matches, fixing
+  at least one bug where regedit() could use an uninitialized buffer. [3.0]
+
 - Misc: Compatibility update for x86_64 cpu types (e.g. opteron).
 
 - Misc: Code cleanup around parser calls, after making sure the parser

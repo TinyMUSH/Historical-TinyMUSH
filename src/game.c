@@ -205,8 +205,8 @@ int nargs;
 
     for (i = 0; i < nargs; i++) {
 	args[i] = alloc_lbuf("regexp_match");
-	pcre_copy_substring(str, offsets, subpatterns, i, args[i], LBUF_SIZE);
-	if (!*args[i]) {
+	if (pcre_copy_substring(str, offsets, subpatterns, i,
+				args[i], LBUF_SIZE) < 0) {
 	    /* Match behavior of wild(): clear out null values. */
 	    free_lbuf(args[i]);
 	    args[i] = NULL;
