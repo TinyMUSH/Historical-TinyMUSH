@@ -33,7 +33,9 @@ struct stats_type {
 	int	s_exits;
 	int	s_things;
 	int	s_players;
+	int	s_going;
 	int	s_garbage;
+	int	s_unknown;
 };
 
 extern int	FDECL(search_setup, (dbref, char *, SEARCH *));
