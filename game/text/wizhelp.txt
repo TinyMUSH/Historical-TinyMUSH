@@ -498,19 +498,38 @@
   '@hook/after <command>=<object>/<attribute>' specifies a hook to be
   executed after the given command.
  
-  '@hook/before <command>' and '@hook/after <command>' delete hooks.
- 
   Continued in 'wizhelp @hook2'.
  
 & @hook2
  
+  '@hook/permit <command>=<object><attribute>' specifies that this
+  command has user-defined permissions. This means that this hook
+  is evaluated prior to running the command. If it returns a boolean
+  true result, the user (considered the enactor) has permission to
+  run the command, and the command is executed (together with the
+  'before' and 'after' hooks, if appropriate). If it returns a
+  boolean false result, the user receives a 'Permission denied.'
+  message. Note that the command can still have additional regular
+  permissions; for instance, a command may be defined as 'no_slave'
+  (via the 'access' configuration parameter) and still have
+  additional conditions placed upon it via a permission hook.
+  The user must pass BOTH checks in order to run the command.
+ 
+  '@hook/before <command>', '@hook/after <command>', and
+  '@hook/permit <command>' delete those respective hooks.
+ 
+  Continued in 'wizhelp @hook3'.
+ 
+& @hook3
+ 
   '@hook/nopreserve <command>' makes it so that the global registers
-  (r-registers) will not be preserved when hooks for that command are
-  executed. This is the default state.
+  (r-registers) will not be preserved when 'before' and 'after' hooks
+  for that command are executed. This is the default state.
  
   '@hook/preserve <command>' makes it so that the global registers
-  will be preserved when hooks for that command are executed. While
-  this is more convenient for code, it is also less efficient.
+  will be preserved when 'before' and 'after' hooks for that command
+  are executed. While this is more convenient for code, it is also
+  less efficient. 'permit' hooks always preserve global registers.
  
   If you want hooks to be executed before and/or after players move
   through all exits (both local and master room exits), set the hooks
@@ -520,9 +539,9 @@
   first things in the @startup on the God character, assuming you
   want them to take effect immediately when the server is started.
  
-  Continued in 'wizhelp @hook3'.
+  Continued in 'wizhelp @hook4'.
  
-& @hook3
+& @hook4
  
   Example:
  
@@ -535,9 +554,9 @@
     foo created as object #51
     After
  
-  Continued in 'wizhelp @hook4'.
+  Continued in 'wizhelp @hook5'.
  
-& @hook4
+& @hook5
  
   Example:
  
@@ -554,6 +573,23 @@
     Before - Set
     Test -  - Reset
     After - Reset
+ 
+  Continued in 'wizhelp @hook6'.
+ 
+& @hook6
+ 
+  Example:
+ 
+    > &PERMIT_HOOK #10=[eq(strlen(%N),6)]
+    > @hook/permit @pemit=#10/PERMIT_HOOK
+ 
+    > @name me=Zod
+    > @pemit me=Test
+    Permission denied.
+ 
+    > @name me=Wizard
+    > @pemit me=Test
+    Test
  
 & @kick
   Command: @kick <count>
@@ -812,10 +848,20 @@
  
 & @list permissions
   Command: @list permissions
+ 
   For each command that you are allowed to use, lists the permissions that are
   needed to execute it.
-  See also: access, attr_cmd_access.
-
+ 
+  For commands with user-defined permissions set with @hook/permit,
+  the object/attribute pair that is used to evaluate those permissions
+  is also shown here, as 'user(dbref/attribute)'. 
+ 
+  Note that user-defined permissions are not taken into account when
+  showing the commands that a player can use, in '@list commands' or
+  in '@list permissions'.
+ 
+  See also: access, attr_cmd_access, @list commands.
+ 
 & @list powers
   Command: @list powers
   Lists the various powers.
