@@ -33,13 +33,23 @@ Release history:
   textfile (i.e., help, news, or anything else added via the helpfile or
   raw_helpfile conf directives).
 
+- Feature: trim() can now take a trim string of arbitrary length.
+
 - Feature: Added cache_put_notify and cache_del_notify modules API hooks.
   These hooks are called when data is added, changed, or deleted from the
   MUSH cache.
 
+- Fix: Crash bug with entrances() fixed. [Neva; 3.1b1]
+
 - Fix: Update should now work on systems with broken local domain resolution.
 
 - Fix: Clearing an attribute updates an object's Last Modified timestamp.
+  [3.1a6]
+
+- Fix: clock() checking for function CPU time should now work on NetBSD.
+  [3.1a6]
+
+- Fix: Corrected typo in flag_alias for COMMANDS. [2.2]
 
 - Misc: More comma-in-shout stuff.
 

@@ -443,6 +443,8 @@ CHANGES TO FUNCTIONS
 
 - translate() now handles tabs.
 
+- trim() now handles multi-character trim strings.
+
 - Added sind(), cosd(), tand(), asind(), acosd(), atand() degree-based
   trigonometry functions.
 

@@ -10352,7 +10352,7 @@ performed and the walk down the list stops.
   See also:  trim()
 
 & TRIM()
-  Function: trim(<string> [,<trim style> [,<trim character>]])
+  Function: trim(<string> [,<trim style> [,<trim string>]])
  
   This function will trim trailing and/or lead characters on the string
   that you specify.  <trim character> specifies the character to trim (default
@@ -10370,8 +10370,9 @@ performed and the walk down the list stops.
     You say "Wacka"
     > say trim(%b%b%b Polly Parrot %b%b%b%b,r)
     You say "    Polly Parrot"
-    > say trim(---Trim Rules!---,l,-)
-    You say "Trim Rules!---"
+    > say trim(-*-Trim Rules!-*-,l,-*-)
+    You say "Trim Rules!-*-"
+ 
   See also: center(), ljust(), rjust().
 
 & CENTER()
@@ -14368,15 +14369,17 @@ Continued in 'help 3.1 functions7'.
  
 - translate() now handles tabs.
  
+- trim() now handles multi-character trim strings.
+ 
 - Added sind(), cosd(), tand(), asind(), acosd(), atand() degree-based
   trigonometry functions.
- 
-- Added until() function, which is similar to while(), except it operates
-  on multiple lists and terminates on a regular expression condition.
  
 Continued in 'help 3.1 functions8'.
  
 & 3.1 functions8
+ 
+- Added until() function, which is similar to while(), except it operates
+  on multiple lists and terminates on a regular expression condition.
  
 - valid() can now detect valid attribute names and player names, for
   PennMUSH compatibility.
