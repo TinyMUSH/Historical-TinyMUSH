@@ -164,7 +164,8 @@ void do_hashresize(player, cause, key)
     hashresize(&mudstate.vars_htab,
 	       (mudstate.max_vars < 16) ? 16 : mudstate.max_vars);
 
-    notify(player, "Resized.");
+    if (!mudstate.restarting)
+	notify(player, "Resized.");
 }
 
 /* ----------------------------------------------------------------------
