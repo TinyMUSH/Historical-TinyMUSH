@@ -76,11 +76,13 @@ NET_O	= bsd.o
 # General parameters.
 SHELL=/bin/sh
 srcdir = @srcdir@
+top_builddir = @srcdir@
 VPATH = @srcdir@
 BIN = ../game/bin
-CC = @CC@ @LINKOPTS@
+CC = @CC@
 # CPP = @CPP@	# This is broken in autoconf.  Sigh.
 CPP = $(CC) -E
+LIBTOOL = @LIBTOOL@
 LIBS = @LIBS@
 LIBOBJS = @LIBOBJS@
 
@@ -180,11 +182,18 @@ DIST	= $(ALLSRC) $(ALLINC) $(AUXIL)
 
 OUT	= netmush mkindx dbconvert
 
+# paths is likely to remain broken
+all: $(OUT) slave comsys mail links 
+
 .c.o:
 	$(CC) $(ALLCFLAGS) -c $<
 
-# paths is likely to remain broken
-all: $(OUT) slave comsys mail links 
+comsys.o mail.o:
+	$(LIBTOOL) $(CC) $(ALLCFLAGS) -c $<
+
+comsys.lo: comsys.o
+
+mail.lo: mail.o
 
 TAGS: *.c *.h
 	etags *.c *.h
@@ -205,13 +214,13 @@ conc: portconc.o
 slave: slave.o
 	$(CC) $(ALLCFLAGS) $(LIBS) -o slave slave.o
 
-comsys: comsys.o
-	-mv -f comsys.so comsys.so~
-	$(LD) -shared -o comsys.so comsys.o
+comsys: comsys.lo
+	$(LIBTOOL) $(CC) -module -o comsys.la comsys.lo -rpath `pwd` -disable-static
+	ln -s .libs/libcomsys.so.0.0 comsys.so
 
-mail: mail.o
-	-mv -f mail.so mail.so~
-	$(LD) -shared -o mail.so mail.o
+mail: mail.lo
+	$(LIBTOOL) $(CC) -module -o mail.la mail.lo -rpath `pwd` -disable-static
+	ln -s .libs/libmail.so.0.0 mail.so
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
@@ -230,20 +239,20 @@ update_buildnum:
 
 netmush: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-mv -f netmush netmush~
-	$(CC) $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) $(LIBS)
+	$(LIBTOOL) $(CC) -export-dynamic $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) $(LIBS)
 
 netmush-pure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-pure
 	$(PUREDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
-	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
+	$(LIBTOOL) $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
 	$(LIBS)
 
 netmush-purecov: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-purecov
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	-log-file=purify/netmush.plog \
-	$(CC) $(ALLCFLAGS) -o netmush-purecov $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
+	$(LIBTOOL) $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-purecov $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
 	$(LIBS)
 
 netmush-realpure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
@@ -251,14 +260,14 @@ netmush-realpure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	$(PURIFYDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
-	$(CC) $(ALLCFLAGS) -o netmush-realpure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
+	$(LIBTOOL) $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-realpure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
 	$(LIBS)
 
 netmush-quant: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-quant
 	$(QUANTDIR)/quantify -view-file=purify/quant.pv \
 	-log-file=purify/quant.plog \
-	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
+	$(LIBTOOL) $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
 	$(LIBS)
 
 cvs:

@@ -325,10 +325,8 @@ AC_PROG_CPP
 
 dnl Make sure we're properly linked dynamically
 
-if test "$GCC" = yes; then
-LINKOPTS="-rdynamic"
-AC_SUBST(LINKOPTS)
-fi
+AC_LIBTOOL_DLOPEN
+AM_PROG_LIBTOOL
 
 dnl Platform checks
 
