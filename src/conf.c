@@ -563,38 +563,38 @@ CF_HAND(cf_module)
 	mp->next = mudstate.modules_list;
 	mudstate.modules_list = mp;
 
-	if (!mudstate.standalone) {
-		/* Look up our symbols now, and cache the pointers. They're
-		 * not going to change from here on out.
-		 */
+	/* Look up our symbols now, and cache the pointers. They're
+	 * not going to change from here on out.
+	 */
 
-		mp->process_command = DLSYM_INT(handle, str, "process_command",
-						(dbref, dbref, int, char *,
-						 char *[], int));
-		mp->process_no_match = DLSYM_INT(handle, str, "process_no_match",
-						(dbref, dbref, int, char *, char *,
-						 char *[], int));
-		mp->did_it = DLSYM_INT(handle, str, "did_it",
-				       (dbref, dbref, dbref,
-					int, const char *, int, const char *, int,
-					int, char *[], int));
-		mp->create_obj = DLSYM(handle, str, "create_obj", (dbref, dbref));
-		mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
-		mp->create_player = DLSYM(handle, str, "create_player",
-					  (dbref, dbref, int, int));
-		mp->destroy_player = DLSYM(handle, str, "destroy_player",
-					   (dbref, dbref));
-		mp->announce_connect = DLSYM(handle, str, "announce_connect",
-					     (dbref, const char *, int));
-		mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
-						(dbref, const char *, int));
-		mp->examine = DLSYM(handle, str, "examine",
-				    (dbref, dbref, dbref, int, int));
-		mp->dump_database = DLSYM(handle, str, "dump_database", (FILE *));
-		mp->db_grow = DLSYM(handle, str, "db_grow", (int, int));
-		mp->db_write = DLSYM(handle, str, "db_write", (void));
-		mp->db_write_flatfile = DLSYM(handle, str, "db_write_flatfile", (FILE *));
-	
+	mp->process_command = DLSYM_INT(handle, str, "process_command",
+					(dbref, dbref, int, char *,
+					 char *[], int));
+	mp->process_no_match = DLSYM_INT(handle, str, "process_no_match",
+					(dbref, dbref, int, char *, char *,
+					 char *[], int));
+	mp->did_it = DLSYM_INT(handle, str, "did_it",
+			       (dbref, dbref, dbref,
+				int, const char *, int, const char *, int,
+				int, char *[], int));
+	mp->create_obj = DLSYM(handle, str, "create_obj", (dbref, dbref));
+	mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
+	mp->create_player = DLSYM(handle, str, "create_player",
+				  (dbref, dbref, int, int));
+	mp->destroy_player = DLSYM(handle, str, "destroy_player",
+				   (dbref, dbref));
+	mp->announce_connect = DLSYM(handle, str, "announce_connect",
+				     (dbref, const char *, int));
+	mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
+					(dbref, const char *, int));
+	mp->examine = DLSYM(handle, str, "examine",
+			    (dbref, dbref, dbref, int, int));
+	mp->dump_database = DLSYM(handle, str, "dump_database", (FILE *));
+	mp->db_grow = DLSYM(handle, str, "db_grow", (int, int));
+	mp->db_write = DLSYM(handle, str, "db_write", (void));
+	mp->db_write_flatfile = DLSYM(handle, str, "db_write_flatfile", (FILE *));
+
+	if (!mudstate.standalone) {
 		if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)
 		    (*initptr)();
 	}
