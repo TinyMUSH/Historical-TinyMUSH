@@ -67,10 +67,10 @@ int confidence;
 	}
 	/* Equal confidence, pick randomly */
 
-	if (random() % 2) {
+	md.count++;
+	if (random() % md.count == 0) {
 		md.match = what;
 	}
-	md.count++;
 	return;
 }
 /* ---------------------------------------------------------------------------
