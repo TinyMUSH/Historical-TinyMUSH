@@ -796,16 +796,17 @@ long num;
 	return 0;
 }
 
-int safe_ltos(s, bufc, num)
+INLINE void safe_ltos(s, bufc, num)
 char *s;
 char **bufc;
 long num;
 {
 	/* Mark Vasoll's long int to string converter. */
-	char buf[20], *p;
+	char buf[20], *p, *tp, *endp;
 	long anum;
 
 	p = buf;
+	tp = *bufc;
 
 	/* absolute value */
 	anum = (num < 0) ? -num : num;
@@ -818,16 +819,17 @@ long num;
 
 	/* put in the sign if needed */
 	if (num < 0)
-		*(*bufc)++ = '-';
+		*tp++ = '-';
 
 	/* put in the last digit, this makes very fast single digits numbers */
-	*(*bufc)++ = '0' + anum;
+	*tp++ = '0' + anum;
 
 	/* reverse the rest of the digits (if any) into the provided buf */
-	while ((p-- > buf) && ((*bufc - s) < LBUF_SIZE))
-		*(*bufc)++ = *p;
+	endp = s + LBUF_SIZE - 1;
+	while ((p-- > buf) && (tp < endp))
+		*tp++ = *p;
 
 	/* terminate the resulting string */
-	**bufc = '\0';
-	return 0;
+	*tp = '\0';
+	*bufc = tp;
 }
