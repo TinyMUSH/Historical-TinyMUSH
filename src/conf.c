@@ -420,10 +420,10 @@ va_dcl
 	if (mudstate.initializing) {
 		STARTLOG(LOG_STARTUP, "CNF", "SYNTX")
 		    log_printf("%s: ", cmd);
-		    log_printf(template, ap);
+		    log_vprintf(template, ap);
 		ENDLOG
 	} else {
-		notify(player, tprintf(template, ap));
+		notify(player, tvprintf(template, ap));
 	}
 
 	va_end(ap);

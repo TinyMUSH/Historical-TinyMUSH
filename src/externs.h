@@ -119,6 +119,7 @@ extern void	NDECL(end_log);
 extern void	FDECL(log_perror, (const char *, const char *,const char *,
 				   const char *));
 extern void	VDECL(log_printf, (const char *, ...));
+extern void	FDECL(log_vprintf, (const char *, va_list));
 extern void	FDECL(log_name, (dbref));
 extern void	FDECL(log_name_and_loc, (dbref));
 extern void	FDECL(log_type_and_name, (dbref));
@@ -160,6 +161,7 @@ extern void	FDECL(badname_list, (dbref, const char *));
 
 /* From predicates.c */
 extern char *	VDECL(tprintf, (const char *, ...));
+extern char *	FDECL(tvprintf, (const char *, va_list));
 extern void	VDECL(safe_tprintf_str, (char *, char **, const char *, ...));
 extern dbref	FDECL(insert_first, (dbref, dbref));
 extern dbref	FDECL(remove_first, (dbref, dbref));

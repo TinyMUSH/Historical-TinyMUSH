@@ -37,6 +37,12 @@ static int FDECL(pay_quota, (dbref, int, int));
 
 extern INLINE void FDECL(queue_rawstring, (DESC *, const char *));
 
+#ifdef HAVE_VSNPRINTF
+static char tprintf_buff[LBUF_SIZE];
+#else
+static char tprintf_buff[20000];
+#endif
+
 #if defined(__STDC__) && defined(STDC_HEADERS)
 char *tprintf(const char *format,...)
 #else
@@ -46,11 +52,6 @@ va_dcl
 #endif
 
 {
-#ifdef HAVE_VSNPRINTF
-	static char buff[LBUF_SIZE];
-#else
-	static char buff[20000];
-#endif
 	va_list ap;
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
@@ -64,14 +65,29 @@ va_dcl
 #endif
 
 #ifdef HAVE_VSNPRINTF
-	vsnprintf(buff, LBUF_SIZE, format, ap);
+	vsnprintf(tprintf_buff, LBUF_SIZE, format, ap);
 #else
-	vsprintf(buff, format, ap);
+	vsprintf(tprintf_buff, format, ap);
 #endif
 	va_end(ap);
-	buff[LBUF_SIZE - 1] = '\0';
-	return buff;
+	tprintf_buff[LBUF_SIZE - 1] = '\0';
+	return tprintf_buff;
 }
+
+
+char *tvprintf(format, ap)
+const char *format;
+va_list ap;
+{
+#ifdef HAVE_VSNPRINTF
+	vsnprintf(tprintf_buff, LBUF_SIZE, format, ap);
+#else
+	vsprintf(tprintf_buff, format, ap);
+#endif
+	tprintf_buff[LBUF_SIZE - 1] = '\0';
+	return tprintf_buff;
+}
+
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
 void safe_tprintf_str(char *str, char **bp, const char *format,...)

@@ -232,6 +232,13 @@ va_dcl
 	va_end(ap);
 }
 
+void log_vprintf(format, ap)
+const char *format;
+va_list ap;
+{
+	vfprintf(log_fp, format, ap);
+}
+
 /* ---------------------------------------------------------------------------
  * log_name: write the name, db number, and flags of an object to the log.
  * If the object does not own itself, append the name, db number, and flags
