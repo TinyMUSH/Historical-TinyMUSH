@@ -759,23 +759,19 @@ int check_exclude, hash_insert, is_special;
 		 */
 
 		if (check_exclude &&
-		    ((attr->flags & AF_PRIVATE) ||
-		     (attr->flags & AF_IS_LOCK) ||
+		    ((cattr->flags & AF_PRIVATE) ||
+		     (cattr->flags & AF_IS_LOCK) ||
 		     nhashfind(ca, &mudstate.parent_htab)))
 			continue;
 
 		buf = atr_get(thing, ca, &aowner, &aflags, &alen);
-		if (Read_attr(player, othing, attr, aowner, aflags)) {
-			/* check_zone/atr_num overwrites attr!! */
-			
-			if (attr->number != cattr->number)
-				bcopy((char *)cattr, (char *)attr, sizeof(ATTR));
+		if (Read_attr(player, othing, cattr, aowner, aflags)) {
 
 			if (!(check_exclude && (aflags & AF_PRIVATE))) {
 				if (hash_insert)
-					nhashadd(ca, (int *)attr,
+					nhashadd(ca, (int *)cattr,
 						 &mudstate.parent_htab);
-				view_atr(player, thing, attr, buf,
+				view_atr(player, thing, cattr, buf,
 					 aowner, aflags, 0, is_special);
 			}
 		}
