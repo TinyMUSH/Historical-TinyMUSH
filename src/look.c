@@ -33,10 +33,10 @@ static int did_attr(player, thing, what)
      * what is assumed to be more than 0.
      */
 
-    char *d, *m, *buff, *bp, *str, *tbuf, *tp, *sp;
+    char *d, *m, *buff, *bp, *str, *tbuf, *tp, *sp, *list, *bb_p, *lp;
     char *preserve[MAX_GLOBAL_REGS];
-    int t, aflags, alen, preserve_len[MAX_GLOBAL_REGS];
-    dbref aowner, master;
+    int t, aflags, alen, is_ok, lev, preserve_len[MAX_GLOBAL_REGS];
+    dbref aowner, master, parent, obj;
     ATTR *ap;
 
     if (NoDefault(thing)) {
@@ -82,6 +82,53 @@ static int did_attr(player, thing, what)
 	return 0;
     }
 
+    /* Construct any arguments that we're going to pass along on the
+     * stack.
+     */
+
+    switch (what) {
+	case A_LEXITS_FMT:
+	    list = alloc_lbuf("did_attr.list");
+	    bb_p = lp = list;
+	    is_ok = Darkened(player, thing);
+	    ITER_PARENTS(thing, parent, lev) {
+		if (!Has_exits(parent))
+		    continue;
+		DOLIST(obj, Exits(parent)) {
+		    if (Can_See_Exit(player, obj, is_ok)) {
+			if (lp != bb_p) {
+			    safe_chr(' ', list, &lp);
+			}
+			safe_dbref(list, &lp, obj);
+		    }
+		}
+	    }
+	    *lp = '\0';
+	    is_ok = 1;
+	    break;
+	case A_LCON_FMT:
+	    list = alloc_lbuf("did_attr.list");
+	    bb_p = lp = list;
+	    is_ok = Sees_Always(player, thing);
+	    DOLIST(obj, Contents(thing)) {
+		if (Can_See(player, obj, is_ok)) {
+		    if (lp != bb_p) {
+			safe_chr(' ', list, &lp);
+		    }
+		    safe_dbref(list, &lp, obj);
+		}
+	    }
+	    *lp = '\0';
+	    is_ok = 1;
+	    break;
+	default:
+	    list = NULL;
+	    is_ok = 0;
+	    break;
+    }
+
+    /* Go do it. */ 
+
     save_global_regs("did_attr_save", preserve, preserve_len);
     buff = bp = alloc_lbuf("did_attr.1");
     if (t && *m) {
@@ -91,7 +138,7 @@ static int did_attr(player, thing, what)
 	    tbuf = tp = alloc_lbuf("did_it.deval");
 	    exec(tbuf, &tp, thing, player, player,
 		 EV_EVAL | EV_FIGNORE | EV_TOP,
-		 &sp, (char **) NULL, 0);
+		 &sp, ((list == NULL) ? (char **) NULL : &list), is_ok);
 	    *tp = '\0';
 	    exec(buff, &bp, thing, player, player,
 		 EV_EVAL | EV_FIGNORE | EV_TOP,
@@ -100,13 +147,13 @@ static int did_attr(player, thing, what)
 	} else {
 	    exec(buff, &bp, thing, player, player,
 		 EV_EVAL | EV_FIGNORE | EV_TOP,
-		 &str, (char **) NULL, 0);
+		 &str, ((list == NULL) ? (char **) NULL : &list), is_ok);
 	}
     } else if (*d) {
 	str = d;
 	exec(buff, &bp, thing, player, player,
 	     EV_EVAL | EV_FIGNORE | EV_TOP,
-	     &str, (char **) NULL, 0);
+	     &str, ((list == NULL) ? (char **) NULL : &list), is_ok);
     }
     *bp = '\0';
     notify(player, buff);
@@ -114,6 +161,9 @@ static int did_attr(player, thing, what)
     free_lbuf(d);
     if (m) {
 	free_lbuf(m);
+    }
+    if (list) {
+	free_lbuf(list);
     }
     restore_global_regs("did_attr_restore", preserve, preserve_len);
     return 1;

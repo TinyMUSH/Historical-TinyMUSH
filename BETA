@@ -42,12 +42,17 @@ Release history:
 
 - Feature: Added connrecord(), connected player record (as in WHO).
 
+- Feature: @conformat and @exitformat get their visible contents/exits
+  lists passed as %0.
+
 - Misc: The expanded_who power no longer grants the ability to see
   Dark players in WHO. (Previously those with the power could, but
   weren't able to get that info via functions.)
 
 - Misc: pos() strips ANSI out of the string to search for, in addition
   to the string to search within.
+
+- Misc: @addcommand sanity-checks command names.
 
 - Misc: Connected flags are not dumped to the database, in case of
   unclean shutdown.

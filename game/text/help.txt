@@ -679,6 +679,7 @@ in the object that you just entered.
 & examine
  
   Command: examine[/<switches>] <object>[/<wild-attrib>]
+ 
   Displays all available information about <object>.  <object> may be an
   object, 'me' or 'here'. You must control the object to examine it, or it
   must be set VISUAL.  If you do not own the object, you will just see the
@@ -4028,12 +4029,11 @@ Example: @sex me = female
   Replaces the usual "Contents:" or "Carrying:" format when an object
   is looked at, by a player-specified contents format. This is evaluated
   as if it were a description or other similar message on the room, and
-  is passed no special parameters. The list of room contents can be
-  obtained through 'lcon(me)', though note that this does no checking
-  for what the viewing player should and shouldn't see.
+  is passed no special parameters. The list of room contents that can
+  be seen by the viewing player is passed as %0.
  
   One could change the format to 'Contents: Object1 Object2 Object3'
-  through '@conformat here = Contents: [iter(lcon(me),name(##))]',
+  through '@conformat here = Contents: [iter(%0, name(##))]',
   for example. More complex things are, obviously, possible.
  
   See also: @exitformat, @nameformat
@@ -4045,18 +4045,14 @@ Example: @sex me = female
   Replaces the usual "Obvious Exits:" format when an object is looked
   at, by a player-specified exits format. This is evaluated as if it
   were a description or similar message on the room, and is passed no
-  special parameters. The list of exits can be obtained through 
-  'lexits(me)', though note that this does no checking for what the
-  viewing player should and shouldn't see.
+  special parameters. The list of exits that can be seen by the viewing
+  player is passed as %0.
  
   One could change the format to 'Exits: Exit1 Exit2 Exit3' through
-  '@exitformat here = Exits: [iter(lexits(me),name(##))]', for example.
- 
-  Or, to imitate a PennMUSH-style room-TRANSPARENT "long exits" format:
-  'Obvious Exits:[iter(lexits(me),%r [name(##)] leads to [name(loc(##))])].'
+  '@exitformat here = Exits: [iter(%0, name(##))]', for example.
  
   See also: @conformat, @nameformat
-
+ 
 & @nameformat
   Command: @nameformat <object> = <name format>
   Attribute: NameFormat
