@@ -109,6 +109,7 @@ NAMETAB femit_sw[] = {
 {(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
 {(char *)"here",	1,	CA_PUBLIC,	PEMIT_HERE|SW_MULTIPLE},
 {(char *)"room",	1,	CA_PUBLIC,	PEMIT_ROOM|SW_MULTIPLE},
+{(char *)"spoof",	1,	CA_PUBLIC,	PEMIT_SPOOF|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
 NAMETAB fixdb_sw[] = {
@@ -135,6 +136,12 @@ NAMETAB fpose_sw[] = {
 {(char *)"default",	1,	CA_PUBLIC,	0},
 {(char *)"noeval",	3,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
 {(char *)"nospace",	1,	CA_PUBLIC,	SAY_NOSPACE},
+{(char *)"spoof",	1,	CA_PUBLIC,	PEMIT_SPOOF | SW_MULTIPLE},
+{ NULL,			0,	0,		0}};
+
+NAMETAB fsay_sw[] = {
+{(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
+{(char *)"spoof",	1,	CA_PUBLIC,	PEMIT_SPOOF | SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
 NAMETAB	function_sw[] = {
@@ -501,7 +508,7 @@ CMDENT command_table[] = {
 {(char *)"@fpose",		fpose_sw,	CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_FPOSE,	CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		{do_pemit}},
-{(char *)"@fsay",		noeval_sw,	CA_LOCATION|CA_NO_SLAVE,
+{(char *)"@fsay",		fsay_sw,	CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_FSAY,	CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		{do_pemit}},
 {(char *)"@freelist",		NULL,		CA_WIZARD,

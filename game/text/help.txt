@@ -2201,6 +2201,7 @@ Available switches:
   /room   - Sends the message to everyone in <obj>'s absolute location.
             (See 'help Location' for details.) 
   /noeval - Don't evaluate <message>.
+  /spoof  - Make <obj> the enactor.
  
 See also: @emit, @fpose, @fsay, @force
  
@@ -2219,19 +2220,24 @@ Available switches:
              the message (i.e., send '<name> <message>').
   /nospace - Don't put a space between the name of the object and the
              message (i.e., send '<name><message>').
-  /noeval   - Don't evaluate <message>.
- 
+  /noeval  - Don't evaluate <message>.
+  /spoof   - Make <obj> the enactor.
+  
 See also: @femit, @fsay, pose, @force
  
 & @fsay
  
-Command:  @fsay[/noeval] <obj> = <message>
+Command:  @fsay[/<switch>] <obj> = <message>
  
 Forces <obj> to say <message>. This command is similar to the command
 '@force <obj> = "<message>', except that it will work so long as you
 own the object, whereas @force may fail if the object has its INHERIT
-flag set and the object performing the @force does not. If the /noeval
-switch is specified, the message is not evaluated.
+flag set and the object performing the @force does not.
+ 
+Available switches:
+ 
+  /noeval - Don't evaluate <message>.
+  /spoof  - Make <obj> the enactor.
  
 See also: @femit, @fsay, say, @force
  

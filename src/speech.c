@@ -860,8 +860,8 @@ char *recipient, *message;
 		return;
 	}
 
-	pemit_flags = key & (PEMIT_HERE | PEMIT_ROOM | PEMIT_SPEECH | PEMIT_MOVE | PEMIT_HTML);
-	key &= ~(PEMIT_HERE | PEMIT_ROOM | PEMIT_SPEECH | PEMIT_MOVE | PEMIT_HTML);
+	pemit_flags = key & (PEMIT_HERE | PEMIT_ROOM | PEMIT_SPEECH | PEMIT_MOVE | PEMIT_HTML | PEMIT_SPOOF);
+	key &= ~(PEMIT_HERE | PEMIT_ROOM | PEMIT_SPEECH | PEMIT_MOVE | PEMIT_HTML | PEMIT_SPOOF);
 	ok_to_do = 0;
 
 
@@ -999,19 +999,25 @@ char *recipient, *message;
 			}
 			break;
 		case PEMIT_FSAY:
-			format_speech(player, target, loc, message, SAY_SAY);
+			format_speech(((pemit_flags & PEMIT_SPOOF) ?
+				       target : player),
+				      target, loc, message, SAY_SAY);
 			break;
 		case PEMIT_FPOSE:
-			format_speech(player, target, loc, message, SAY_POSE);
+			format_speech(((pemit_flags & PEMIT_SPOOF) ?
+				       target : player),
+				      target, loc, message, SAY_POSE);
 			break;
 		case PEMIT_FPOSE_NS:
-			format_speech(player, target, loc, message,
-				      SAY_POSE_NOSPC);
+			format_speech(((pemit_flags & PEMIT_SPOOF) ?
+				       target : player),
+				      target, loc, message, SAY_POSE_NOSPC);
 			break;
 		case PEMIT_FEMIT:
 			if ((pemit_flags & PEMIT_HERE) || !pemit_flags)
-				notify_all_from_inside_speech(loc, player,
-							      message);
+				notify_all_from_inside_speech(loc,
+					((pemit_flags & PEMIT_SPOOF) ?
+					 target : player), message);
 			if (pemit_flags & PEMIT_ROOM) {
 				if ((Typeof(loc) == TYPE_ROOM) &&
 				    (pemit_flags & PEMIT_HERE)) {
@@ -1027,8 +1033,8 @@ char *recipient, *message;
 				}
 				if (Typeof(loc) == TYPE_ROOM) {
 					notify_all_from_inside_speech(loc,
-								      player,
-								      message);
+					        ((pemit_flags & PEMIT_SPOOF) ?
+						 target : player), message);
 				}
 			}
 			break;

@@ -374,6 +374,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define PEMIT_SPEECH	128	/* Explicitly tag this as speech */
 #define PEMIT_HTML	256     /* HTML escape, and no newline */
 #define PEMIT_MOVE	512	/* Explicitly tag this as a movement message */
+#define PEMIT_SPOOF	1024	/* change enactor to target object */
 #define	PS_BRIEF	0	/* Short PS report */
 #define	PS_LONG		1	/* Long PS report */
 #define	PS_SUMM		2	/* Queue counts only */
