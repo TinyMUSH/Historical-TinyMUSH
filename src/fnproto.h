@@ -12,10 +12,6 @@
 
 /* From funext.c */
 
-#ifdef USE_COMSYS
-XFUNCTION(fun_cwho);
-#endif
-
 #ifdef USE_MAIL
 XFUNCTION(fun_mail);
 XFUNCTION(fun_mailfrom);
@@ -348,5 +344,18 @@ XFUNCTION(fun_regparsei);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_regmatchi);
 XFUNCTION(fun_until);
+
+/* From comsys.c */
+
+#ifdef USE_COMSYS
+XFUNCTION(fun_cwho);
+XFUNCTION(fun_cwhoall);
+XFUNCTION(fun_comlist);
+XFUNCTION(fun_comowner);
+XFUNCTION(fun_comdesc);
+XFUNCTION(fun_comalias);
+XFUNCTION(fun_cominfo);
+XFUNCTION(fun_comtitle);
+#endif /* USE_COMSYS */
 
 #endif /* __FNPROTO_H */

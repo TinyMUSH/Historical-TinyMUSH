@@ -27,10 +27,6 @@ extern dbref FDECL(get_programmer, (dbref));
 extern void FDECL(cf_display, (dbref, char *, char *, char **));
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 
-#ifdef USE_COMSYS
-extern void FDECL(make_cwho, (dbref, char *, char *, char **));
-#endif
-
 #ifdef USE_MAIL
 extern INLINE char *FDECL(get_mail_message, (int));
 extern void FDECL(count_mail, (dbref, int, int *, int *, int *));
@@ -373,14 +369,3 @@ FUNCTION(fun_url_unescape)
     return;
 }
 #endif /* PUEBLO_SUPPORT */
-
-/*---------------------------------------------------------------------------
- * Other functions.
- */
-
-#ifdef USE_COMSYS
-FUNCTION(fun_cwho)
-{
-    make_cwho(player, fargs[0], buff, bufc);
-}
-#endif

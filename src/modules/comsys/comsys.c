@@ -21,6 +21,7 @@
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
+#include "functions.h"	/* required by code */
 
 extern dbref FDECL(match_thing, (dbref, char *));
 extern const char *FDECL(getstring_noalloc, (FILE *, int));
@@ -800,40 +801,6 @@ void comsys_disconnect(player)
 					 chp->name, Name(player)));
 	    }
 	    update_comwho(chp);
-	}
-    }
-}
-
-void make_cwho(player, chan_name, buff, bufc)
-    dbref player;
-    char *chan_name, *buff;
-    char **bufc;
-{
-    CHANNEL *chp;
-    char *bb_p;
-    int i;
-
-    chp = lookup_channel(chan_name);
-    if (!chp) {
-	safe_str((char *) "#-1 CHANNEL NOT FOUND", buff, bufc);
-	return;
-    }
-
-    if (!mudconf.have_comsys ||
-	(!Comm_All(player) && (player != chp->owner))) {
-	safe_str((char *) "#-1 NO PERMISSION TO USE", buff, bufc);
-	return;
-    }
-
-    bb_p = *bufc;
-
-    for (i = 0; i < chp->num_connected; i++) {
-	if (!isPlayer(chp->connect_who[i]->player) ||
-	    (Connected(chp->connect_who[i]->player) &&
-	     (!Hidden(chp->connect_who[i]->player) || See_Hidden(player)))) {
-	    if (*bufc != bb_p)
-		safe_chr(' ', buff, bufc);
-	    safe_tprintf_str(buff, bufc, "#%d", chp->connect_who[i]->player);
 	}
     }
 }
@@ -1951,6 +1918,154 @@ void load_comsys(filename)
     }
 
     fclose(fp);
+}
+
+/* --------------------------------------------------------------------------
+ * User functions.
+ */
+
+#define Grab_Channel(p) \
+    chp = lookup_channel(fargs[0]); \
+    if (!chp) { \
+	safe_str((char *) "#-1 CHANNEL NOT FOUND", buff, bufc); \
+	return; \
+    } \
+    if (!mudconf.have_comsys || \
+	(!Comm_All(p) && ((p) != chp->owner))) { \
+	safe_str((char *) "#-1 NO PERMISSION TO USE", buff, bufc); \
+	return; \
+    }
+
+#define Comsys_User(p,t) \
+    t = lookup_player(p, fargs[0], 1); \
+    if (!mudconf.have_comsys || !Good_obj(t) || \
+	(!Controls(p,t) && !Comm_All(p))) { \
+	safe_str((char *) "#-1 NO PERMISSION TO USE", buff, bufc); \
+	return; \
+    }
+
+#define Grab_Alias(p,n) \
+    cap = lookup_calias(p,n); \
+    if (!cap) { \
+        safe_str((char *) "#-1 NO SUCH ALIAS", buff, bufc); \
+        return; \
+    }
+
+FUNCTION(fun_comlist)
+{
+    CHANNEL *chp;
+    char *bb_p;
+    char sep;
+
+    if (!mudconf.have_comsys) {
+	safe_str((char *) "#-1 NO PERMISSION TO USE", buff, bufc);
+	return;
+    }
+
+    varargs_preamble("COMLIST", 1);
+
+    bb_p = *bufc;
+    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+	 chp != NULL;
+	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	if ((chp->flags & CHAN_FLAG_PUBLIC) ||
+	    Comm_All(player) || (chp->owner == player)) {
+	    if (*bufc != bb_p)
+		safe_chr(sep, buff, bufc);
+	    safe_str(chp->name, buff, bufc);
+	}
+    }
+}
+
+FUNCTION(fun_cwho)
+{
+    CHANNEL *chp;
+    char *bb_p;
+    int i;
+
+    Grab_Channel(player);
+    bb_p = *bufc;
+    for (i = 0; i < chp->num_connected; i++) {
+	if (!isPlayer(chp->connect_who[i]->player) ||
+	    (Connected(chp->connect_who[i]->player) &&
+	     (!Hidden(chp->connect_who[i]->player) || See_Hidden(player)))) {
+	    if (*bufc != bb_p)
+		safe_chr(' ', buff, bufc);
+	    safe_tprintf_str(buff, bufc, "#%d", chp->connect_who[i]->player);
+	}
+    }
+}
+
+FUNCTION(fun_cwhoall)
+{
+    CHANNEL *chp;
+    CHANWHO *wp;
+    char *bb_p;
+
+    Grab_Channel(player);
+    bb_p = *bufc;
+    for (wp = chp->who; wp != NULL; wp = wp->next) {
+	if (*bufc != bb_p)
+	    safe_chr(' ', buff, bufc);
+	safe_tprintf_str(buff, bufc, "#%d", wp->player);
+    }
+}
+
+FUNCTION(fun_comowner)
+{
+    CHANNEL *chp;
+
+    Grab_Channel(player);
+    safe_tprintf_str(buff, bufc, "#%d", chp->owner);
+}
+
+FUNCTION(fun_comdesc)
+{
+    CHANNEL *chp;
+
+    Grab_Channel(player);
+    if (chp->descrip)
+	safe_str(chp->descrip, buff, bufc);
+}
+
+FUNCTION(fun_comalias)
+{
+    dbref target;
+    COMLIST *clist, *cl_ptr;
+    char *bb_p;
+
+    Comsys_User(player, target);
+
+    clist = lookup_clist(target);
+    if (!clist)
+	return;
+    bb_p = *bufc;
+    for (cl_ptr = clist; cl_ptr != NULL; cl_ptr = cl_ptr->next) {
+	if (*bufc != bb_p)
+	    safe_chr(' ', buff, bufc);
+	safe_str(cl_ptr->alias_ptr->alias, buff, bufc);
+    }
+}
+
+FUNCTION(fun_cominfo)
+{
+    dbref target;
+    COMALIAS *cap;
+
+    Comsys_User(player, target);
+    Grab_Alias(target, fargs[1]);
+    safe_str(cap->channel->name, buff, bufc);
+}
+
+FUNCTION(fun_comtitle)
+{
+    dbref target;
+    COMALIAS *cap;
+
+    Comsys_User(player, target);
+    Grab_Alias(target, fargs[1]);
+    if (cap->title)
+	safe_str(cap->title, buff, bufc);
 }
 
 #endif /* USE_COMSYS */

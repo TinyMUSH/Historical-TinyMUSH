@@ -66,6 +66,14 @@ FUN flist[] = {
 {"COLUMNS",	fun_columns,	0,  FN_VARARGS, CA_PUBLIC},
 {"COMMAND",	fun_command,	0,  FN_VARARGS, CA_PUBLIC},
 {"COMP",	fun_comp,	2,  0,		CA_PUBLIC},
+#ifdef USE_COMSYS
+{"COMALIAS",	fun_comalias,	1,  0,		CA_PUBLIC},
+{"COMDESC",	fun_comdesc,	1,  0,		CA_PUBLIC},
+{"COMINFO",	fun_cominfo,	2,  0,		CA_PUBLIC},
+{"COMLIST",	fun_comlist,	0,  FN_VARARGS, CA_PUBLIC},
+{"COMOWNER",	fun_comowner,	1,  0,		CA_PUBLIC},
+{"COMTITLE",	fun_comtitle,	2,  0,		CA_PUBLIC},
+#endif /* USE_COMSYS */
 {"CON",		fun_con,	1,  0,		CA_PUBLIC},
 {"CONFIG",	fun_config,	1,  0,		CA_PUBLIC},
 {"CONN",	fun_conn,	1,  0,		CA_PUBLIC},
@@ -77,6 +85,7 @@ FUN flist[] = {
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC},
 #ifdef USE_COMSYS
 {"CWHO",        fun_cwho,       1,  0,          CA_PUBLIC},
+{"CWHOALL",     fun_cwhoall,    1,  0,          CA_PUBLIC},
 #endif
 {"DEC",         fun_dec,        1,  0,          CA_PUBLIC},
 {"DECRYPT",	fun_decrypt,	2,  0,		CA_PUBLIC},
