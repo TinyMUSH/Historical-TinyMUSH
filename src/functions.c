@@ -596,7 +596,7 @@ FUNCTION(fun_words)
 	char sep;
 
 	if (nfargs == 0) {
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 		return;
 	}
 	varargs_preamble("WORDS", 2);
@@ -633,9 +633,9 @@ FUNCTION(fun_rand)
 	int num;
 
 	num = atoi(fargs[0]);
-	if (num < 1)
-		safe_str("0", buff, bufc);
-	else
+	if (num < 1) {
+		safe_chr('0', buff, bufc);
+	} else
 		safe_tprintf_str(buff, bufc, "%ld",
 				 (long) (makerandom() * num));
 }
@@ -1873,17 +1873,18 @@ FUNCTION(fun_match)
 		}
 		wcount++;
 	} while (s);
-	safe_str("0", buff, bufc);
+	safe_chr('0', buff, bufc);
 }
 
 FUNCTION(fun_strmatch)
 {
 	/* Check if we match the whole string.  If so, return 1 */
 
-	if (quick_wild(fargs[1], fargs[0]))
-		safe_str("1", buff, bufc);
-	else
-		safe_str("0", buff, bufc);
+	if (quick_wild(fargs[1], fargs[0])) {
+		safe_chr('1', buff, bufc);
+	} else {
+		safe_chr('0', buff, bufc);
+	}
 	return;
 }
 
@@ -1893,10 +1894,11 @@ FUNCTION(fun_strmatch)
 
 FUNCTION(fun_streq)
 {
-    if (!string_compare(fargs[0], fargs[1]))
-	safe_str("1", buff, bufc);
-    else
-	safe_str("0", buff, bufc);
+    if (!string_compare(fargs[0], fargs[1])) {
+	safe_chr('1', buff, bufc);
+    } else {
+	safe_chr('0', buff, bufc);
+    }
     return;
 }
 
@@ -2853,10 +2855,11 @@ FUNCTION(fun_vmag)
 	res += tmp * tmp;
     }
 
-    if (res > 0)
+    if (res > 0) {
 	fval(buff, bufc, sqrt(res));
-    else
-	safe_str("0", buff, bufc);
+    } else {
+	safe_chr('0', buff, bufc);
+    }
 }
 
 FUNCTION(fun_vunit)
@@ -2906,9 +2909,9 @@ FUNCTION(fun_vdim)
 {
     char sep;
 
-    if (fargs == 0)
-	safe_str("0", buff, bufc);
-    else {
+    if (fargs == 0) {
+	safe_chr('0', buff, bufc);
+    } else {
 	varargs_preamble("VDIM", 2);
 	safe_ltos(buff, bufc, countwords(fargs[0], sep));
     }
@@ -2923,12 +2926,13 @@ FUNCTION(fun_comp)
 	int x;
 
 	x = strcmp(fargs[0], fargs[1]);
-	if (x > 0)
-		safe_str("1", buff, bufc);
-	else if (x < 0)
+	if (x > 0) {
+		safe_chr('1', buff, bufc);
+	} else if (x < 0) {
 		safe_str("-1", buff, bufc);
-	else
-		safe_str("0", buff, bufc);
+	} else {
+		safe_chr('0', buff, bufc);
+	}
 }
 
 /* ---------------------------------------------------------------------------
@@ -3765,12 +3769,13 @@ FUNCTION(fun_nearby)
 	obj1 = match_thing(player, fargs[0]);
 	obj2 = match_thing(player, fargs[1]);
 	if (!(nearby_or_control(player, obj1) ||
-	      nearby_or_control(player, obj2)))
-		safe_str("0", buff, bufc);
-	else if (nearby(obj1, obj2))
-		safe_str("1", buff, bufc);
-	else
-		safe_str("0", buff, bufc);
+	      nearby_or_control(player, obj2))) {
+		safe_chr('0', buff, bufc);
+	} else if (nearby(obj1, obj2)) {
+		safe_chr('1', buff, bufc);
+	} else {
+		safe_chr('0', buff, bufc);
+	}
 }
 
 /* ---------------------------------------------------------------------------

@@ -3516,7 +3516,7 @@ FUNCTION(fun_die)
 	int total = 0;
 
 	if (!fargs[0] || !fargs[1]) {
-	    safe_str("0", buff, bufc);
+	    safe_chr('0', buff, bufc);
 	    return;
 	}
 
@@ -3524,7 +3524,7 @@ FUNCTION(fun_die)
 	die = atoi(fargs[1]);
 
 	if ((n == 0) || (die <= 0)) {
-	    safe_str("0", buff, bufc);
+	    safe_chr('0', buff, bufc);
 	    return;
 	}
 
