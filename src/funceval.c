@@ -1791,7 +1791,7 @@ FUNCTION(fun_columns)
 	number = (unsigned int) safe_atoi(fargs[1]);
 	indent = (unsigned int) safe_atoi(fargs[3]);
 
-	if ((indent < 0) || (indent > 77)) {
+	if (indent > 77) {	/* unsigned int, always a positive number */
 		indent = 1;
 	}
 	
