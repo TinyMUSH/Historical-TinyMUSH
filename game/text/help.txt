@@ -4163,22 +4163,26 @@
 & BOOLEAN VALUES
   Topic: BOOLEAN VALUES
  
-  Boolean values are internally considered to be either 1, generally
-  interpreted as being true, and 0, which is generally interpreted as being
-  false. Now, any string is interpreted as true(1), except for the null
-  string (whose length is 0), which is false(0).  A #-1 is interpreted as
-  false(0), and any other #<dbref> is interpreted as true(1).  Any number
-  except 0 is interpreted as true(1), except 0 which is false(0). (Yes, even
-  negative numbers are true(1))
+  Boolean values are considered to be true (1) or false (0), as follows:
  
-  Examples:
-  not(foo) = 0             not(<null string>) = 1   not(-66) = 0
-  not(0) = 1               not(#-1) = 1             not(#12) = 0
-  And so on...
+    - All numbers are true, except for zero, i.e.:
+      t(0) => 0		t(1) => 1	t(532) => 1	t(-1987) => 1
+  
+    - All dbrefs (#0 and higher) are true. #-1 and below are false.
+      Note that, for example, #1000 is true even if there aren't that
+      many objects in the database. Use isdbref() to check is a dbref
+      is actually valid, i.e.:
+      t(#0) => 1	t(#1) => 1	t(#-1) => 0	t(#-5) => 0
  
-  Note: These rules only apply when a function expects a Boolean 
-  value, not for strings that expect other values.
-
+      UNLESS the booleans_oldstyle configuration parameter is enabled,
+      in which case all dbrefs except #0 and #-1 are true, i.e.:
+      t(#0) => 0	t(#1) => 1	t(#-1) => 0	t(#-5) => 1
+  
+    - All non-empty strings are true. The null string is false. i.e.:
+      t(foo) => 1	t() = 0
+ 
+  Functions such as andbool() and ifelsebool() use boolean values.
+ 
 & CONTROL
   Topic: CONTROL      
  

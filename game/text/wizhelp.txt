@@ -1317,13 +1317,13 @@
 	initial_size
 
 & PARAM FILES
-	badsite_file		connect_file		connect_reg_file
-	crash_database		down_file		full_file
-	game_log		gdbm_database		guest_file
-	helpfile		html_connect_file	include
-	input_database		motd_file		newuser_file	
-	output_database		quit_file		raw_helpfile
-	register_create_file	wizard_motd_file
+	badsite_file		connect_file		comsys_database
+	connect_reg_file	crash_database		down_file
+	full_file		game_log		gdbm_database
+	guest_file		helpfile		html_connect_file
+	include			input_database		motd_file
+	newuser_file		output_database		quit_file
+	raw_helpfile		register_create_file	wizard_motd_file
 
 & PARAM LIMITS
 	building_limit			earn_limit
@@ -1372,11 +1372,11 @@
 	check_interval		check_offset		command_quota_increment
 	command_quota_max	dump_interval		dump_offset
 	idle_interval		opt_frequency		timeslice
-
+ 
 & PARAM OPTIONS
 abort_on_bug		addcommands_match_blindly
 addcommands_obey_stop	addcommands_obey_uselocks
-ansi_colors		clone_copies_cost	comsys_database
+ansi_colors		booleans_oldstyle	clone_copies_cost
 dark_actions		dark_sleepers		events_daily_hour
 examine_flags		examine_public_attrs	exit_calls_move
 fascist_teleport	format_contents		format_exits		
@@ -1483,6 +1483,13 @@ use_global_aconn	wizard_obeys_linklock
   is closed immediately after the file is sent.
   See also: forbid_site, permit_site.
 
+& booleans_oldstyle
+  Config parameter: booleans_oldstyle <yes/no>.  Default: No
+ 
+  If this config parameter is turned on, boolean evaluation on dbrefs
+  is done TinyMUSH 2.x/TinyMUX style, where #0 and #-1 are false, but
+  all other dbrefs are true. See 'help Boolean Values' for details.
+ 
 & building_limit
   Config parameter: building_limit <number>.  Default: 50000.
  
