@@ -316,6 +316,8 @@ CHANGES TO FUNCTIONS
 
 - Brackets are no longer required around eval-locks, hooks, or @exitto code.
 
+- The *<player> syntax is supported in many more places.
+
 - Extended regular expression syntax from Perl 5 is now supported.
   This is based on the PCRE library, as modified by the PennMUSH team.
 

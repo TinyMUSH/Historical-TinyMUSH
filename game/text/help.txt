@@ -10850,12 +10850,11 @@ performed and the walk down the list stops.
   If <object> is a dbref, if the dbref is valid, that dbref will be returned.
   If the dbref is not valid, #-1 will be returned.
  
-  If given the name of a player (NOT preceeded by a '*'), the player name
-  will be looked up. This includes checking the connected players that 
-  the caller can see on the WHO list, for partial matches to the name. If
-  the entire player name is found, or a unique partial match is found, the
-  dbref of that player will be returned. Otherwise, #-1 NO MATCH will be
-  returned.
+  If given the name of a player, the player name will be looked up. This
+  includes checking the connected players that the caller can see on the
+  WHO list, for partial matches to the name. If the entire player name
+  is found, or a unique partial match is found, the dbref of that player
+  will be returned. Otherwise, #-1 NO MATCH will be returned.
  
 & STRCAT()
   Function: strcat(<string1>, <string2>, ..., <stringN>)
@@ -11565,7 +11564,7 @@ See the individual help entries for comsys commands for details.
  
   Information about a player's comsys options is generally only available
   if you control the player, or have the Comm_All power. For comsys
-  functions, players should be referred to by name (not *name) or
+  functions, players should be referred to by name (or *name) or
   by dbref. The partial name of a connected player can be matched.
  
 & @malias
@@ -14031,6 +14030,8 @@ Continued in 'help 3.1 commands6'.
   %c is the usual substitution).
  
 - Brackets are no longer required around eval-locks, hooks, or @exitto code.
+ 
+- The *<player> syntax is supported in many more places.
  
 Continued in 'help 3.1 functions2'.
  

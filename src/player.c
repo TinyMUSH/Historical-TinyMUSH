@@ -482,6 +482,12 @@ int check_who;
 			thing = NOTHING;
 		return thing;
 	}
+
+	if (*name == LOOKUP_TOKEN) {
+		do {
+			name++;
+		} while (isspace(*name));
+	}
 	tp = temp = alloc_lbuf("lookup_player");
 	safe_str(name, temp, &tp);
 	for (tp = temp; *tp; tp++)

@@ -104,7 +104,6 @@ char *name;
 void NDECL(match_player)
 {
 	dbref match;
-	char *p;
 
 	if (md.confidence >= CON_DBREF) {
 		return;
@@ -114,8 +113,7 @@ void NDECL(match_player)
 		return;
 	}
 	if (*md.string == LOOKUP_TOKEN) {
-		for (p = md.string + 1; isspace(*p); p++) ;
-		match = lookup_player(NOTHING, p, 1);
+		match = lookup_player(NOTHING, md.string, 1);
 		if (Good_obj(match)) {
 			promote_match(match, CON_TOKEN);
 		}

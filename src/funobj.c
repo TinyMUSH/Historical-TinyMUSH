@@ -1665,7 +1665,9 @@ FUNCTION(fun_pmatch)
 
     name = fargs[0];
     if (*fargs[0] == LOOKUP_TOKEN) {
-	name++;
+	do {
+	    name++;
+	while (isspace(*name));
     }
 
     /* Look up the full name */
