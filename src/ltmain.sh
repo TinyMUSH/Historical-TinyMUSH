@@ -1,4 +1,11 @@
 # ltmain.sh - Provide generalized library-building support services.
+# $Id$
+#
+# This copy of ltmain.sh has been modified for TinyMUSH 3.1, to force
+# creation of $objdir even when we are working in a subdirectory, since
+# the archive_cmds and such for various architectures in ltconfig have
+# bugs that cause them to reference $objdir directly.
+#
 # NOTE: Changing this file will not affect anything until you rerun ltconfig.
 #
 # Copyright (C) 1996-1999 Free Software Foundation, Inc.
@@ -454,6 +461,14 @@ compiler."
 	  $run $mkdir $dir
 	  status=$?
 	  if test $status -ne 0 && test ! -d $dir; then
+	    exit $status
+	  fi
+	fi
+	if test "X$dir" != "X$objdir" && test ! -d $objdir; then
+	  $show "XXX TM3-hack: $mkdir $objdir"
+	  $run $mkdir $objdir
+	  status=$?
+	  if test $status -ne 0 && test ! -d $objdir; then
 	    exit $status
 	  fi
 	fi
