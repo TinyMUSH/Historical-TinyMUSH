@@ -1687,6 +1687,11 @@ FUNCTION(fun_valid)
 		safe_chr('0', buff, bufc);
 	} else if (!strcasecmp(fargs[0], "name")) {
 		safe_bool(buff, bufc, ok_name(fargs[1]));
+	} else if (!strcasecmp(fargs[0], "attrname")) {
+		safe_bool(buff, bufc, ok_attr_name(fargs[1]));
+	} else if (!strcasecmp(fargs[0], "playername")) {
+		safe_bool(buff, bufc, (ok_player_name(fargs[1]) &&
+				       badname_check(fargs[1])));
 	} else {
 		safe_nothing(buff, bufc);
 	}

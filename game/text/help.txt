@@ -10699,17 +10699,26 @@ performed and the walk down the list stops.
   See also: mid(), delete(), left(), right()
  
 & VALID()
-  Function: valid(<option>, <string>)
+  Function: valid(<category>,<string>)
  
-  This function returns 1 if <string> is valid for <option>, and 0
-  if it is not.
+  This function is provided for PennMUSH compatibility, along with the
+  PennMUSH help entry:
  
-  Currently, the only valid <option> is "name"; if <string> is a valid
-  object name, this function will return 1, and 0 if it is not.
+  The valid() function checks to see if <string> is a valid member of
+  <category>, and returns 1 if it is, 0 if not, and #-1 if an
+  invalid category is used.
+  
+  The categories are:
+    name        Test for a valid object name.
+    attrname    Test for a valid attribute name.
+    playername  Test for a valid player name that can be set with
+                  @name or @alias.
  
-  If a valid option is not specified, this function returns #-1.
- 
-  This function is provided for PennMUSH compatibility.
+  Examples:
+    > think valid(name,Foobar)
+    1 
+    > think valid(attrname,Foo bar)
+    0
  
 & XGET()
   Function: xget(<object>, <attribute>)
