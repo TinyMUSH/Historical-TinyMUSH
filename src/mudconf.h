@@ -41,8 +41,9 @@ struct external_funcs {
 
 typedef struct global_register_data GDATA;
 struct global_register_data {
-    char *q_regs[MAX_GLOBAL_REGS];
-    int q_lens[MAX_GLOBAL_REGS];
+    int q_alloc;
+    char **q_regs;
+    int *q_lens;
     int xr_alloc;
     char **x_names;
     char **x_regs;

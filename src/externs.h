@@ -585,6 +585,33 @@ extern int	FDECL(xvar_match, (char *, char *, char *[], int, dbref));
 #define	controls(p,x)		Controls(p,x)
 
 /* --------------------------------------------------------------------------
+ * Global data things.
+ */
+
+#define Free_QData(q) \
+if (q) { \
+    XFREE((q)->text, "que.text"); \
+    if ((q)->gdata) { \
+	if ((q)->gdata->q_regs) { \
+	    XFREE((q)->gdata->q_regs, "que.q_regs"); \
+	} \
+	if ((q)->gdata->q_lens) { \
+	    XFREE((q)->gdata->q_lens, "que.q_lens"); \
+	} \
+	if ((q)->gdata->x_names) { \
+	    XFREE((q)->gdata->x_names, "que.x_names"); \
+	} \
+	if ((q)->gdata->x_regs) { \
+	    XFREE((q)->gdata->x_regs, "que.x_regs"); \
+	} \
+	if ((q)->gdata->x_lens) { \
+	    XFREE((q)->gdata->x_lens, "que.x_lens"); \
+	} \
+	XFREE((q)->gdata, "que.gdata"); \
+    } \
+}
+
+/* --------------------------------------------------------------------------
  * Module things.
  */
 
