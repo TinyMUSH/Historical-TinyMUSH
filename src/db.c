@@ -2741,7 +2741,7 @@ void NDECL(db_make_minimal)
 
 	/* should be #1 */
 	load_player_names();
-	obj = create_player((char *)"Wizard", (char *)"potrzebie", NOTHING, 0, 1);
+	obj = create_player((char *)"Wizard", (char *)"potrzebie", NOTHING, 0, 0);
 	s_Flags(obj, Flags(obj) | WIZARD);
 	s_Flags2(obj, 0);
 	s_Flags3(obj, 0);
@@ -2937,7 +2937,7 @@ char *gdbmfile;
 #ifdef STANDALONE
 	fprintf(stderr, "Opening %s\n", gdbmfile);
 #endif
-	cache_init(mudconf.cache_width, mudconf.cache_size);
+	cache_init(mudconf.cache_width, mudconf.cache_depth);
 	dddb_setfile(gdbmfile);
 	dddb_init();
 #ifdef STANDALONE

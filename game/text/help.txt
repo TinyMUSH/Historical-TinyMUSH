@@ -44,16 +44,16 @@
   take         throw        use          version      whisper      WHO
   "            :            ;            &            #            \\
  
-  @@           @chown       @clone       @create      @cron        @crondel
-  @crontab     @decompile   @destroy     @dig         @doing       @dolist
-  @drain       @edit        @emit        @entrances   @eval        @femit
-  @find        @force       @fpose       @fsay        @halt        @last
-  @link        @list        @listmotd    @lock        @mvattr      @mail
-  @malias      @name        @notify      @npemit      @oemit       @open
-  @parent      @password    @pemit       @program     @ps          @quitprog
-  @quota       @robot       @search      @set         @sql         @stats
-  @sweep       @switch      @teleport    @trigger     @unlink      @unlock
-  @verb        @wait        @wipe
+  @@           @chown       @clone       @cpattr      @create      @cron
+  @crondel     @crontab     @decompile   @destroy     @dig         @doing
+  @dolist      @drain       @edit        @emit        @entrances   @eval
+  @femit       @find        @force       @fpose       @fsay        @halt
+  @last        @link        @list        @listmotd    @lock        @mvattr
+  @mail        @malias      @name        @notify      @npemit      @oemit
+  @open        @parent      @password    @pemit       @program     @ps
+  @quitprog    @quota       @robot       @search      @set         @sql
+  @stats       @sweep       @switch      @teleport    @trigger     @unlink
+  @unlock      @verb        @wait        @wipe
  
 { 'help commands2' for more }
 & commands2
@@ -746,6 +746,28 @@
  
   See also: @create, @decompile, @destroy, VISUAL.
  
+& @cpattr
+
+  @cpattr <obj>/<attr> = <obj1>/<attr1> [,<obj2>/<attr2>,<obj3>/<attr3>,...]
+  @cpattr <obj>/<attr> = <obj1> [,<obj2>,<obj3>,...]
+  @cpattr <attr> = <obj1>/<attr1> [,<obj2>/<attr2>,<obj3>/<attr3>,...]
+  @cpattr <attr> = <obj1> [,<obj2>,<obj3>,...]
+ 
+  The first form of this command is used to copy <attr> on <obj> to the
+  object-attribute pairs in a comma-separated list. For example:
+ 
+  @cpattr test/va = test/vb, cube/va, tribble/foo
+ 
+  would copy the VA attribute from object "test" to VB on "test",
+  VA on "cube", and FOO on "tribble".  <objN> is matched as if
+  you were performing a @set on it.
+ 
+  The second form copies <attr> to the list of objects, with the name
+  <attr>. The third form copies <attr> from the object that executes the
+  @cpattr, to the object-attribute pairs in the list. Finally, the third
+  form copies <attr> from the object that executes the @cpattr to the
+  objects in the list, with the name <attr>.
+ 
 & @create
   Command: @create <name> [=<cost>]
   Creates a thing with the specified name.  Creation costs either <cost>
@@ -1139,20 +1161,21 @@
   Command: @list [<option>]
   Lists information from internal databases.  Information is available
   about the following options:
-    attributes      - Valid object attributes.
-    commands        - Commands that you may use (excluding the 
-                      attribute-setting commands as well as any exits, and
-                      $-commands available).
-    costs           - Lists the costs associated with many commands and
-                      actions.
-    default_flags   - Lists the flags that new objects receive by default
-                      when created.
-    flags           - Lists the name and letter of all the flags.
-    functions       - Lists all the available functions.
-    options         - Lists several global options and limits.
-    powers          - List all the available powers.
-    switches        - Lists what commands support switches and the switches
-                      that they do support.
+    attributes        - Valid object attributes.
+    commands          - Commands that you may use (excluding the 
+                        attribute-setting commands as well as any exits, and
+                        $-commands available).
+    config_read_perms - Config parameter read permissions (most will be blank,
+                        meaning that anyone can read those parameters).
+    costs             - The costs associated with many commands and actions.
+    default_flags     - The flags that new objects receive by default
+                        when created.
+    flags             - The names and letters of all the flags.
+    functions         - All the available functions.
+    options           - Several global yes/no options.
+    params	      - Several global options and limits.
+    switches          - What commands support switches and the switches
+                        that they do support.
   The information provided by the @list command is definitive, as it reads
   the internal tables to produce the information it displays.  Specifying
   @list with no argument lists the options you may use.
@@ -4764,7 +4787,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   attribute controls how gender-specific pronoun substitutions are evaluated
   for the player.  If the player's Sex attribute starts with an 'M' or an 'm'
   then the player is assumed to be male,  'F', 'f', 'W', and 'w' indicate
-  female, and anything else indicates neuter.
+  female, 'P' or 'p' indicate plural, and anything else indicates neuter.
   See also: SUBSTITUTIONS.  
 
 & GOALS
@@ -4861,7 +4884,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
      '@desc me = <description>', then look at yourself with 'look me'.
  
   2) Set your gender, if you wish it known, with
-     '@sex me=male' or '@sex me=female'  (or '@sex me=neuter' to be an 'it').
+     '@sex me=male' or '@sex me=female'  (or '@sex me=neuter' to be an 'it',
+     or '@sex me=plural' to be a 'they').
  
   3) Prevent other people from picking you up, with '@lock me=me'
  
@@ -7703,11 +7727,10 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & CONFIG()
   Function:  config(<parameter name>)
  
-  This function, which is restricted to Wizards, returns the value of
-  the named configuration parameter. Not all configuration options can
-  be obtained this way; some are protected for security reasons, while
-  others don't have a single simple value (access directives, for
-  instance).
+  This function returns the value of the named configuration parameter.
+  Not all configuration options can be obtained this way; some are protected
+  for security reasons, while others don't have a single simple value
+  (access directives, for instance).
  
 & SHUFFLE()
   Function:  shuffle(<word1> <word2> <...<wordN>[,<delim>][,<output delim>])
