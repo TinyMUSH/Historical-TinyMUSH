@@ -179,6 +179,10 @@ CHANGES TO FLAGS AND POWERS
 
 CHANGES TO COMMANDS
 
+- @aconnect and @adisconnect attributes are triggered consistently on all
+  connections and disconnections, with a reason in %0 and the player's
+  resulting number of active connections in %1.
+
 - Players can now specify multiple aliases for themselves (up to
   the conf parameter player_aliases_limit), via @alias, separating
   aliases with ';'. Players no longer inherit @alias from their
