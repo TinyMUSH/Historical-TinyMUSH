@@ -12,7 +12,8 @@ use Socket;
 $uncompress_program = "gzip -d -c";
 $patch_program = "patch -p1";
 
-$patch_url = "http://tinymush.sourceforge.net/patches";
+# $patch_url = "http://tinymush.sourceforge.net/patches";
+$patch_url = "http://www.godlike.com/tm3/patches";
 $patchlevel_file = "src/.patchlevel";
 
 if ($ARGV[0] eq "-v") {
@@ -196,6 +197,12 @@ if ($status_v eq "p") {
 
 $applied = 0;
 
+print "Status_V: $status_v\n";
+print "Beta_Minor_V: $beta_minor_v\n";
+print "Beta_Max_V: $beta_max_v\n";
+print "Minor_V: $minor_v\n";
+print "Major_V: $major_v\n";
+
 if ($beta_minor_v > -1) {
     if ($beta_minor_v == $beta_max_v) {
 	print "No beta patches to apply.\n";
@@ -212,17 +219,17 @@ if ($beta_minor_v > -1) {
 	    unlink($pfile);
 	    $applied++;
 	}
-	if ($status_v eq "p") {
-	    $pfile = sprintf("%s/patch-3%db%d-3%dgamma.gz",
-			       $patch_dir,
-			       $major_v, $beta_max_v, $major_v);
-	    if ($verbose) {
-		print "    Applying: $pfile\n";
-	    }
-	    $pstatus = `$uncompress_program $pfile | $patch_program`;
-	    unlink($pfile);
-	    $applied++;
+    }
+    if ($status_v eq "p") {
+	$pfile = sprintf("%s/patch-3%db%d-3%dgamma.gz",
+			 $patch_dir,
+			 $major_v, $beta_max_v, $major_v);
+	if ($verbose) {
+	    print "    Applying: $pfile\n";
 	}
+	$pstatus = `$uncompress_program $pfile | $patch_program`;
+	unlink($pfile);
+	$applied++;
     }
 }
 
