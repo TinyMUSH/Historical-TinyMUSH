@@ -295,10 +295,12 @@ int isrobot, isguest;
 	/* initialize everything */
 	if (isguest) {
 		if (*mudconf.guests_channel)
-			do_addcom(player, player, 0, "g", mudconf.guests_channel);
+			do_addcom(player, player, 0, mudconf.guests_calias,
+				  mudconf.guests_channel);
 	} else {
 		if (*mudconf.public_channel)
-			do_addcom(player, player, 0, "pub", mudconf.public_channel);
+			do_addcom(player, player, 0, mudconf.public_calias,
+				  mudconf.public_channel);
 	}
 
 	s_Pass(player, crypt(pbuf, "XX"));

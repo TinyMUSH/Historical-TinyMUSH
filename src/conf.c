@@ -121,6 +121,8 @@ void NDECL(cf_init)
 	StringCopy(mudconf.fixed_tel_msg, "");
 	StringCopy(mudconf.public_channel, "Public");
 	StringCopy(mudconf.guests_channel, "Guests");
+	StringCopy(mudconf.public_calias, "pub");
+	StringCopy(mudconf.guests_calias, "g");
 #ifdef PUEBLO_SUPPORT
 	StringCopy(mudconf.pueblo_msg, "</xch_mudtext><img xch_mode=html><tt>");
 #endif
@@ -1120,6 +1122,8 @@ CONF conftable[] = {
         cf_int,         CA_DISABLED,    &mudconf.number_guests,         0},
 {(char *)"guest_file",
 	cf_string,	CA_DISABLED,	(int *)mudconf.guest_file,	SBUF_SIZE},
+{(char *)"guests_calias",
+	cf_string,	CA_DISABLED,	(int *)mudconf.guests_calias,	SBUF_SIZE},
 {(char *)"guests_channel",
 	cf_string,	CA_DISABLED,	(int *)mudconf.guests_channel,	SBUF_SIZE},
 {(char *)"guest_site",
@@ -1259,6 +1263,8 @@ CONF conftable[] = {
 	cf_string,	CA_DISABLED,	(int *)mudconf.plushelp_file,	SBUF_SIZE},
 {(char *)"plushelp_index",
 	cf_string,	CA_DISABLED,	(int *)mudconf.plushelp_indx,	SBUF_SIZE},
+{(char *)"public_calias",
+	cf_string,	CA_DISABLED,	(int *)mudconf.public_calias,	SBUF_SIZE},
 {(char *)"public_channel",
 	cf_string,	CA_DISABLED,	(int *)mudconf.public_channel,	SBUF_SIZE},
 {(char *)"wiznews_file",

@@ -84,6 +84,8 @@ struct confdata {
 	char	fixed_tel_msg[PBUF_SIZE]; /* Message displayed when teleporting and FIXED */
 	char	public_channel[SBUF_SIZE]; /* Name of public channel */
 	char	guests_channel[SBUF_SIZE]; /* Name of guests channel */
+	char	public_calias[SBUF_SIZE];  /* Alias of public channel */
+	char	guests_calias[SBUF_SIZE];  /* Alias of guests channel */
 #ifdef PUEBLO_SUPPORT
 	char    pueblo_msg[GBUF_SIZE];	/* Message displayed to Pueblo clients */
 	char	htmlconn_file[SBUF_SIZE];	/* display on PUEBLOCLIENT message */
