@@ -160,7 +160,7 @@ char *tstr, *dstr;
 
 	while (*dstr) {
 		if (EQUAL(*dstr, *tstr) &&
-		    quick_wild(tstr + 1, dstr + 1))
+		    real_quick_wild(tstr + 1, dstr + 1))
 			return 1;
 		dstr++;
 	}
@@ -208,7 +208,7 @@ int arg;
 			/* Jump to the fast routine if we can. */
 
 			if (arg >= numargs)
-				return quick_wild(tstr + 1, dstr + 1);
+				return real_quick_wild(tstr + 1, dstr + 1);
 			break;
 		case '\\':
 			/* Escape character.  Move up, and force literal
@@ -256,7 +256,7 @@ int arg;
 			/* Jump to the fast routine if we can. */
 
 			if (argpos >= numargs)
-				return quick_wild(tstr, dstr);
+				return real_quick_wild(tstr, dstr);
 
 			/* Fill in any intervening '?'s */
 
@@ -269,7 +269,7 @@ int arg;
 				/* Jump to the fast routine if we can. */
 
 				if (argpos >= numargs)
-					return quick_wild(tstr, dstr);
+					return real_quick_wild(tstr, dstr);
 			}
 		}
 		/* Skip over the '*' for now... */
@@ -315,8 +315,8 @@ int arg;
 		 * does, using the fastest method, as usual. 
 		 */
 		if (!*dstr ||
-		    ((arg < numargs) ? wild1(tstr + 1, dstr + 1, arg)
-		     : quick_wild(tstr + 1, dstr + 1))) {
+		    ((arg < numargs) ? real_wild1(tstr + 1, dstr + 1, arg)
+		     : real_quick_wild(tstr + 1, dstr + 1))) {
 
 			/* Found a match!  Fill in all remaining arguments.
 			 * First do the '*'... 
