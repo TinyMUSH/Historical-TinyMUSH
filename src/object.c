@@ -28,55 +28,11 @@ static int check_type;
 
 extern int FDECL(boot_off, (dbref, char *));
 
-#ifndef STANDALONE
 extern void NDECL(cf_verify);
 extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
 extern void FDECL(xvars_clr, (dbref));
 extern int FDECL(structure_clr, (dbref));
-#endif /* ! STANDALONE */
-
-#ifdef STANDALONE
-
-/* Functions needed in standalone mode */
-
-/* move_object: taken from move.c with look and penny check extracted */
-
-void move_object(thing, dest)
-dbref thing, dest;
-{
-	dbref src;
-
-	/* Remove from the source location */
-
-	src = Location(thing);
-	if (src != NOTHING)
-		s_Contents(src, remove_first(Contents(src), thing));
-
-	/* Special check for HOME */
-
-	if (dest == HOME)
-		dest = Home(thing);
-
-	/* Special check for AMBIGUOUS - We should be okay if we make
-	 * this equivalent to NOTHING, I hope...
-	 */
-	if (dest == AMBIGUOUS)
-	    dest = NOTHING;
-
-	/* Add to destination location */
-
-	if (dest != NOTHING) {
-		s_Contents(dest, insert_first(Contents(dest), thing));
-	} else {
-		s_Next(thing, NOTHING);
-	}
-	s_Location(thing, dest);
-}
-
-#define move_via_generic(obj,where,extra,hush) move_object(obj,where)
-
-#endif
 
 /* ---------------------------------------------------------------------------
  * Log_pointer_err, Log_header_err, Log_simple_damage: Write errors to the
@@ -197,8 +153,6 @@ dbref player, thing;
 		return loc;
 	return new_home(player);
 }
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * update_newobjs: Update a player's most-recently-created objects.
@@ -547,8 +501,6 @@ char *name;
 	return obj;
 }
 
-#endif
-
 /* ---------------------------------------------------------------------------
  * destroy_obj: Destroy an object.  Assumes it has already been removed from
  * all lists and has no contents or exits.
@@ -559,10 +511,7 @@ dbref player, obj;
 {
 	dbref owner;
 	int good_owner, val, quota;
-
-#ifndef STANDALONE
 	char *tname;
-#endif
 
 	if (!Good_obj(obj))
 		return;
@@ -574,7 +523,6 @@ dbref player, obj;
 
 	/* Halt any pending commands (waiting or semaphore) */
 
-#ifndef STANDALONE
 	if (halt_que(NOTHING, obj) > 0) {
 		if (good_owner && !Quiet(obj) && !Quiet(owner)) {
 			notify(owner, "Halted.");
@@ -590,7 +538,6 @@ dbref player, obj;
 	xvars_clr(obj);
 	structure_clr(obj);
 	CALL_ALL_MODULES(destroy_obj, (player, obj));
-#endif /* ! STANDALONE */
 
 	/* Compensate the owner for the object */
 
@@ -618,14 +565,11 @@ dbref player, obj;
 			quota = mudconf.player_quota;
 		}
 		payfees(owner, -val, -quota, Typeof(obj));
-#ifndef STANDALONE
 		if (!Quiet(owner) && !Quiet(obj))
 			notify(owner,
 			       tprintf("You get back your %d %s deposit for %s(#%d).",
 				    val, mudconf.one_coin, Name(obj), obj));
-#endif
 	}
-#ifndef STANDALONE
 	if ((player != NOTHING) && !Quiet(player)) {
 		if (good_owner && Owner(player) != owner) {
 			if (owner == obj) {
@@ -644,7 +588,6 @@ dbref player, obj;
 			notify(player, "Destroyed.");
 		}
 	}
-#endif
 
 	atr_free(obj);
 	s_Name(obj, NULL);
@@ -663,8 +606,6 @@ dbref player, obj;
 	s_Parent(obj, NOTHING);
 	s_Zone(obj, NOTHING);
 }
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * do_freelist: Grab a garbage object, and move it to the top of the freelist.
@@ -728,8 +669,6 @@ void do_freelist(player, cause, key, str)
 	notify(player, "That object is not clean garbage.");
     }
 }
-
-#endif
 
 /* ---------------------------------------------------------------------------
  * make_freelist: Build a freelist
@@ -850,7 +789,6 @@ dbref thing;
 void destroy_player(victim)
 dbref victim;
 {
-#ifndef STANDALONE
 	dbref aowner, player;
 	int count, aflags, alen;
 	char *buf;
@@ -873,7 +811,6 @@ dbref victim;
 	CALL_ALL_MODULES(destroy_player, (player, victim));
 	destroy_obj(NOTHING, victim);
 	notify_quiet(player, tprintf("(%d objects @chowned to you)", count));
-#endif /* ! STANDALONE */
 }
 
 static void NDECL(purge_going)
@@ -958,18 +895,18 @@ static NDECL(void check_dead_refs)
 		if (Good_obj(targ)) {
 			if (Going(targ)) {
 				s_Parent(i, NOTHING);
-#ifndef STANDALONE
-				owner = Owner(i);
-				if (Good_owner(owner) &&
-				    !Quiet(i) && !Quiet(owner)) {
-					notify(owner,
-					tprintf("Parent cleared on %s(#%d)",
-						Name(i), i));
+				if (!mudstate.standalone) {
+					owner = Owner(i);
+					if (Good_owner(owner) &&
+					    !Quiet(i) && !Quiet(owner)) {
+						notify(owner,
+						tprintf("Parent cleared on %s(#%d)",
+							Name(i), i));
+					}
+				} else {
+					Log_header_err(i, Location(i), targ, 1,
+						 "Parent", "is invalid.  Cleared.");
 				}
-#else
-				Log_header_err(i, Location(i), targ, 1,
-					 "Parent", "is invalid.  Cleared.");
-#endif
 			}
 		} else if (targ != NOTHING) {
 			Log_header_err(i, Location(i), targ, 1,
@@ -982,18 +919,18 @@ static NDECL(void check_dead_refs)
 		if (Good_obj(targ)) {
 			if (Going(targ)) {
 				s_Zone(i, NOTHING);
-#ifndef STANDALONE
-				owner = Owner(i);
-				if (Good_owner(owner) &&
-				    !Quiet(i) && !Quiet(owner)) {
-					notify(owner,
-					  tprintf("Zone cleared on %s(#%d)",
-						  Name(i), i));
+				if (!mudstate.standalone) {
+					owner = Owner(i);
+					if (Good_owner(owner) &&
+					    !Quiet(i) && !Quiet(owner)) {
+						notify(owner,
+						  tprintf("Zone cleared on %s(#%d)",
+							  Name(i), i));
+					}
+				} else {
+					Log_header_err(i, Location(i), targ, 1,
+						    "Zone", "is invalid. Cleared.");
 				}
-#else
-				Log_header_err(i, Location(i), targ, 1,
-					    "Zone", "is invalid. Cleared.");
-#endif
 			}
 		} else if (targ != NOTHING) {
 			Log_header_err(i, Location(i), targ, 1,
@@ -1013,19 +950,19 @@ static NDECL(void check_dead_refs)
 			if (Good_obj(targ)) {
 				if (Going(targ)) {
 					s_Home(i, new_home(i));
-#ifndef STANDALONE
-					owner = Owner(i);
-					if (Good_owner(owner) &&
-					    !Quiet(i) && !Quiet(owner)) {
-						notify(owner,
-						       tprintf("Home reset on %s(#%d)",
-							       Name(i), i));
+					if (!mudstate.standalone) {
+						owner = Owner(i);
+						if (Good_owner(owner) &&
+						    !Quiet(i) && !Quiet(owner)) {
+							notify(owner,
+							       tprintf("Home reset on %s(#%d)",
+								       Name(i), i));
+						}
+					} else {
+						Log_header_err(i, Location(i), targ, 1,
+							       "Home",
+							     "is invalid.  Reset.");
 					}
-#else
-					Log_header_err(i, Location(i), targ, 1,
-						       "Home",
-						     "is invalid.  Reset.");
-#endif
 				}
 			} else if (targ != NOTHING) {
 				Log_header_err(i, Location(i), targ, 1,
@@ -1072,19 +1009,19 @@ static NDECL(void check_dead_refs)
 			if (Good_obj(targ)) {
 				if (Going(targ)) {
 					s_Dropto(i, NOTHING);
-#ifndef STANDALONE
-					owner = Owner(i);
-					if (Good_owner(owner) &&
-					    !Quiet(i) && !Quiet(owner)) {
-						notify(owner,
-						       tprintf("Dropto removed from %s(#%d)",
-							       Name(i), i));
+					if (!mudstate.standalone) {
+						owner = Owner(i);
+						if (Good_owner(owner) &&
+						    !Quiet(i) && !Quiet(owner)) {
+							notify(owner,
+							       tprintf("Dropto removed from %s(#%d)",
+								       Name(i), i));
+						}
+					} else {
+						Log_header_err(i, NOTHING, targ, 1,
+							       "Dropto",
+							   "is invalid.  Removed.");
 					}
-#else
-					Log_header_err(i, NOTHING, targ, 1,
-						       "Dropto",
-						   "is invalid.  Removed.");
-#endif
 				}
 			} else if ((targ != NOTHING) && (targ != HOME)) {
 				Log_header_err(i, NOTHING, targ, 1,
@@ -1212,18 +1149,16 @@ static NDECL(void check_dead_refs)
 				       "Owner", "is invalid.  Set to GOD.");
 			owner = GOD;
 			s_Owner(i, owner);
-#ifndef STANDALONE
-			halt_que(NOTHING, i);
-#endif
+			if (!mudstate.standalone)
+				halt_que(NOTHING, i);
 			s_Halted(i);
 		} else if (check_type & DBCK_FULL) {
 			if (Going(owner)) {
 				Log_header_err(i, NOTHING, owner, 1,
 				     "Owner", "is set GOING.  Set to GOD.");
 				s_Owner(i, owner);
-#ifndef STANDALONE
-				halt_que(NOTHING, i);
-#endif
+				if (!mudstate.standalone)
+					halt_que(NOTHING, i);
 				s_Halted(i);
 			} else if (!OwnsOthers(owner)) {
 				Log_header_err(i, NOTHING, owner, 1,
@@ -1627,18 +1562,15 @@ int key;
 {
 	check_type = key;
 	make_freelist();
-#ifndef STANDALONE
-	cf_verify();
-#endif
+	if (!mudstate.standalone)
+		cf_verify();
 	check_dead_refs();
 	check_exit_chains();
 	check_contents_chains();
 	purge_going();
-#ifndef STANDALONE
-	if (player != NOTHING) {
+	if (!mudstate.standalone && (player != NOTHING)) {
 		alarm(1);
 		if (!Quiet(player))
 			notify(player, "Done.");
 	}
-#endif
 }

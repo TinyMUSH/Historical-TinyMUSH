@@ -110,8 +110,6 @@ void do_dbclean(player, cause, key)
 dbref player, cause;
 int key;
 {
-#ifndef STANDALONE
-
     VATTR *vp, *vpx;
     dbref i, end;
     int ca, n_oldtotal, n_oldtop, n_deleted, n_renumbered, n_objt, n_atrt, got;
@@ -341,7 +339,6 @@ int key;
 
     raw_broadcast(0, "GAME: Database cleaning complete.");
 
-#endif /* STANDALONE */
 }
 		
 void vattr_delete(name)

@@ -18,7 +18,6 @@
 FILE *mainlog_fp;
 static FILE *log_fp = NULL;
 
-#ifndef STANDALONE
 
 /* *INDENT-OFF* */
 
@@ -77,8 +76,6 @@ LOGFILETAB logfds_table[] = {
 
 /* *INDENT-ON* */
 
-#endif
-
 /* ---------------------------------------------------------------------------
  * logfile_init: Initialize the main logfile.
  */
@@ -112,57 +109,63 @@ int start_log(primary, secondary, key)
 const char *primary, *secondary;
 int key;
 {
-#ifndef STANDALONE
 	struct tm *tp;
 	time_t now;
 	LOGFILETAB *lp;
 	static int last_key = 0;
 
-	if (mudconf.log_diversion & key) {
-	    if (key != last_key) { /* Try to save ourselves some lookups */
-		last_key = key;
-		for (lp = logfds_table; lp->log_flag; lp++) {
-		    /* Though keys can be OR'd, use the first one matched */
-		    if (lp->log_flag & key) {
-			log_fp = lp->fileptr;
-			break;
+	if (!mudstate.standalone) {
+		if (mudconf.log_diversion & key) {
+		    if (key != last_key) { 
+		    	/* Try to save ourselves some lookups */
+			last_key = key;
+			for (lp = logfds_table; lp->log_flag; lp++) {
+			    /* Though keys can be OR'd, use the first one
+			    /* matched */
+			   
+			    if (lp->log_flag & key) {
+				log_fp = lp->fileptr;
+				break;
+			    }
+			}
+			if (!log_fp)
+			    log_fp = mainlog_fp;
 		    }
-		}
-		if (!log_fp)
+		} else {
+		    last_key = key;
 		    log_fp = mainlog_fp;
-	    }
+		}
 	} else {
-	    last_key = key;
-	    log_fp = mainlog_fp;
+		log_fp = mainlog_fp;
 	}
-#endif /* ! STANDALONE */
-
+	
 	mudstate.logging++;
 	switch (mudstate.logging) {
 	case 1:
 	case 2:
 
-#ifndef STANDALONE
-		/* Format the timestamp */
+		if (!mudstate.standalone) {
+			/* Format the timestamp */
 
-		if ((mudconf.log_info & LOGOPT_TIMESTAMP) != 0) {
-			time((time_t *) (&now));
-			tp = localtime((time_t *) (&now));
-			fprintf(log_fp, "%02d%02d%02d.%02d%02d%02d ",
-				(tp->tm_year % 100), tp->tm_mon + 1,
-				tp->tm_mday, tp->tm_hour,
-				tp->tm_min, tp->tm_sec);
+			if ((mudconf.log_info & LOGOPT_TIMESTAMP) != 0) {
+				time((time_t *) (&now));
+				tp = localtime((time_t *) (&now));
+				fprintf(log_fp, "%02d%02d%02d.%02d%02d%02d ",
+					(tp->tm_year % 100), tp->tm_mon + 1,
+					tp->tm_mday, tp->tm_hour,
+					tp->tm_min, tp->tm_sec);
+			}
+
+			/* Write the header to the log */
+
+			if (secondary && *secondary)
+				fprintf(log_fp, "%s %3s/%-5s: ",
+					mudconf.mud_name, primary, secondary);
+			else
+				fprintf(log_fp, "%s %-9s: ",
+					mudconf.mud_name, primary);
 		}
-
-		/* Write the header to the log */
-
-		if (secondary && *secondary)
-			fprintf(log_fp, "%s %3s/%-5s: ",
-				mudconf.mud_name, primary, secondary);
-		else
-			fprintf(log_fp, "%s %-9s: ",
-				mudconf.mud_name, primary);
-#endif
+		
 		/* If a recursive call, log it and return indicating no log */
 
 		if (mudstate.logging == 1)
@@ -237,9 +240,13 @@ va_dcl
 void log_name(target)
 dbref target;
 {
-#ifndef STANDALONE
 	char *tp;
 
+	if (mudstate.standalone) {
+		fprintf(stderr, "%s(#%d)", Name(target), target);
+		return;
+	}
+	
 	if ((mudconf.log_info & LOGOPT_FLAGS) != 0)
 		tp = unparse_object((dbref) GOD, target, 0);
 	else
@@ -255,9 +262,6 @@ dbref target;
 		fprintf(log_fp, "[%s]", strip_ansi(tp));
 		free_lbuf(tp);
 	}
-#else
-	fprintf(stderr, "%s(#%d)", Name(target), target);
-#endif
 	return;
 }
 

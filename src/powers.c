@@ -18,8 +18,6 @@
 #include "match.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
-#ifndef STANDALONE
-
 /*
  * ---------------------------------------------------------------------------
  * * ph_any: set or clear indicated bit, no security checking
@@ -192,13 +190,10 @@ POWERENT gen_powers[] =
 {(char *)"use_sql",		POW_USE_SQL,	POWER_EXT, 0,	ph_god},
 {NULL,				0,		POWER_EXT, 0,	0}};
 
-#endif /* STANDALONE */
 /* *INDENT-ON* */
 
 
 
-
-#ifndef STANDALONE
 
 /*
  * ---------------------------------------------------------------------------
@@ -529,6 +524,3 @@ CF_HAND(cf_power_access)
     }
     return 0;
 }
-
-
-#endif /* STANDALONE */

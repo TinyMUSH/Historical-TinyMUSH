@@ -58,11 +58,7 @@ extern int	FDECL(fwdlist_load, (FWDLIST *, dbref, char *));
 extern void	FDECL(fwdlist_set, (dbref, FWDLIST *));
 extern void	FDECL(fwdlist_clr, (dbref));
 extern int	FDECL(fwdlist_rewrite, (FWDLIST *, char *));
-#ifdef STANDALONE
 extern FWDLIST *FDECL(fwdlist_get, (dbref));
-#else
-#define fwdlist_get(x) ((FWDLIST *) nhashfind((x), &mudstate.fwdlist_htab))
-#endif
 extern void	NDECL(atr_push);
 extern void	NDECL(atr_pop);
 extern int	FDECL(atr_head, (dbref, char **));

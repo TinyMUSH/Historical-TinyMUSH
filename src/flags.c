@@ -18,8 +18,6 @@
 #include "match.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
-#ifndef STANDALONE
-
 /* ---------------------------------------------------------------------------
  * fh_any: set or clear indicated bit, no security checking
  */
@@ -412,8 +410,6 @@ FLAGENT gen_flags[] = {
 { NULL,			0,		' ',
 	0,		0,			NULL}};
 
-#endif	/* STANDALONE */
-
 OBJENT object_types[8] = {
 {"ROOM",	'R', CA_PUBLIC,	OF_CONTENTS|OF_EXITS|OF_DROPTO|OF_HOME},
 {"THING",	' ', CA_PUBLIC,
@@ -431,8 +427,6 @@ OBJENT object_types[8] = {
 
 
 
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * init_flagtab: initialize flag hash tables.
@@ -1036,4 +1030,3 @@ char *thingname;
 	}
 }
 
-#endif /* STANDALONE */

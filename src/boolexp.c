@@ -18,8 +18,6 @@
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
-#ifndef STANDALONE
-
 int FDECL(eval_boolexp_atr, (dbref, dbref, dbref, char *));
 
 static int parsing_internal = 0;
@@ -86,29 +84,21 @@ BOOLEXP *b;
 
 		mudstate.lock_nest_lev++;
 		if (mudstate.lock_nest_lev >= mudconf.lock_nest_lim) {
-#ifndef STANDALONE
 			STARTLOG(LOG_BUGS, "BUG", "LOCK")
 				log_name_and_loc(player);
 			log_printf(": Lock exceeded recursion limit.");
 			ENDLOG
 				notify(player, "Sorry, broken lock!");
-#else
-			fprintf(mainlog_fp, "Lock exceeded recursion limit.\n");
-#endif
 			mudstate.lock_nest_lev--;
 			return (0);
 		}
 		if ((b->sub1->type != BOOLEXP_CONST) || (b->sub1->thing < 0)) {
-#ifndef STANDALONE
 			STARTLOG(LOG_BUGS, "BUG", "LOCK")
 				log_name_and_loc(player);
 			log_printf(": Lock had bad indirection (%c, type %d)",
 				   INDIR_TOKEN, b->sub1->type);
 			ENDLOG
 				notify(player, "Sorry, broken lock!");
-#else
-			fprintf(mainlog_fp, "Broken lock.\n");
-#endif
 			mudstate.lock_nest_lev--;
 			return (0);
 		}
@@ -239,8 +229,6 @@ char *key;
 	return (ret_value);
 }
 
-#endif
-
 /* If the parser returns TRUE_BOOLEXP, you lose TRUE_BOOLEXP cannot be typed
  * in by the user; use @unlock instead
  */
@@ -322,11 +310,8 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 {
 	BOOLEXP *b;
 	char *p, *buf;
-
-#ifndef STANDALONE
 	MSTATE mstate;
 
-#endif
 
 	buf = NULL;
 	skip_whitespace();
@@ -368,68 +353,62 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 		b = alloc_bool("parse_boolexp_L");
 		b->type = BOOLEXP_CONST;
 
-		/*
-		 * do the match 
-		 */
-
-#ifndef STANDALONE
-
-		/*
+		/* Do the match.
 		 * If we are parsing a boolexp that was a stored lock then
 		 * we know that object refs are all dbrefs, so we skip the
 		 * expensive match code.
 		 */
 
-		if (parsing_internal) {
+
+		if (!mudstate.standalone) {
+			if (parsing_internal) {
+				if (buf[0] != '#') {
+					free_lbuf(buf);
+					free_bool(b);
+					return TRUE_BOOLEXP;
+				}
+				b->thing = atoi(&buf[1]);
+				if (!Good_obj(b->thing)) {
+					free_lbuf(buf);
+					free_bool(b);
+					return TRUE_BOOLEXP;
+				}
+			} else {
+				save_match_state(&mstate);
+				init_match(parse_player, buf, TYPE_THING);
+				match_everything(MAT_EXIT_PARENTS);
+				b->thing = match_result();
+				restore_match_state(&mstate);
+			}
+
+			if (b->thing == NOTHING) {
+				notify(parse_player,
+				       tprintf("I don't see %s here.", buf));
+				free_lbuf(buf);
+				free_bool(b);
+				return TRUE_BOOLEXP;
+			}
+			if (b->thing == AMBIGUOUS) {
+				notify(parse_player,
+				       tprintf("I don't know which %s you mean!",
+					       buf));
+				free_lbuf(buf);
+				free_bool(b);
+				return TRUE_BOOLEXP;
+			}
+		} else {
 			if (buf[0] != '#') {
 				free_lbuf(buf);
 				free_bool(b);
 				return TRUE_BOOLEXP;
 			}
 			b->thing = atoi(&buf[1]);
-			if (!Good_obj(b->thing)) {
+			if (b->thing < 0) {
 				free_lbuf(buf);
 				free_bool(b);
 				return TRUE_BOOLEXP;
 			}
-		} else {
-			save_match_state(&mstate);
-			init_match(parse_player, buf, TYPE_THING);
-			match_everything(MAT_EXIT_PARENTS);
-			b->thing = match_result();
-			restore_match_state(&mstate);
 		}
-
-		if (b->thing == NOTHING) {
-			notify(parse_player,
-			       tprintf("I don't see %s here.", buf));
-			free_lbuf(buf);
-			free_bool(b);
-			return TRUE_BOOLEXP;
-		}
-		if (b->thing == AMBIGUOUS) {
-			notify(parse_player,
-			       tprintf("I don't know which %s you mean!",
-				       buf));
-			free_lbuf(buf);
-			free_bool(b);
-			return TRUE_BOOLEXP;
-		}
-#else /*
-       * * STANDALONE ... had better be #<num> or we're hosed  
-       */
-		if (buf[0] != '#') {
-			free_lbuf(buf);
-			free_bool(b);
-			return TRUE_BOOLEXP;
-		}
-		b->thing = atoi(&buf[1]);
-		if (b->thing < 0) {
-			free_lbuf(buf);
-			free_bool(b);
-			return TRUE_BOOLEXP;
-		}
-#endif
 		free_lbuf(buf);
 	}
 	return b;
@@ -606,9 +585,8 @@ int internal;
 	parsestore = parsebuf = alloc_lbuf("parse_boolexp");
 	StringCopy(parsebuf, buf);
 	parse_player = player;
-#ifndef STANDALONE
-	parsing_internal = internal;
-#endif
+	if (!mudstate.standalone)
+		parsing_internal = internal;
 	ret = parse_boolexp_E();
 	free_lbuf(parsestore);
 	return ret;

@@ -72,8 +72,6 @@ CRONTAB *cron_head = NULL;
 #define set_cronbits(b,l,h,n) \
         if (((n) >= (l)) && ((n) <= (h))) bit_set((b), (n) - (l));
 
-#ifndef STANDALONE
-
 static void NDECL(check_cron)
 {
     struct tm *ltime;
@@ -426,8 +424,6 @@ void do_crontab(player, cause, key, objstr)
     notify(player, tprintf("Matched %d cron %s.",
 			   count, (count == 1) ? "entry" : "entries"));
 }
-
-#endif /* STANDALONE */
 
 /* ---------------------------------------------------------------------------
  * General timer things.

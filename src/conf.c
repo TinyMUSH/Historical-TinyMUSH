@@ -35,7 +35,6 @@
 CONFDATA mudconf;
 STATEDATA mudstate;
 
-#ifndef STANDALONE
 extern NAMETAB logdata_nametab[];
 extern NAMETAB logoptions_nametab[];
 extern NAMETAB access_nametab[];
@@ -45,16 +44,12 @@ extern NAMETAB sigactions_nametab[];
 extern CONF conftable[];
 extern LOGFILETAB logfds_table[];
 
-#endif
-
-/*
- * ---------------------------------------------------------------------------
- * * cf_init: Initialize mudconf to default values.
+/* ---------------------------------------------------------------------------
+ * cf_init: Initialize mudconf to default values.
  */
 
 void NDECL(cf_init)
 {
-#ifndef STANDALONE
 	int i;
 
 	mudconf.dbhome = XSTRDUP(".", "cf_string");
@@ -303,6 +298,7 @@ void NDECL(cf_init)
 	mudstate.initializing = 0;
 	mudstate.loading_db = 0;
 	mudstate.panicking = 0;
+	mudstate.standalone = 0;
 	mudstate.dumping = 0;
 	mudstate.logging = 0;
 	mudstate.epoch = 0;
@@ -375,60 +371,7 @@ void NDECL(cf_init)
 	    mudstate.global_regs[i] = NULL;
 	    mudstate.glob_reg_len[i] = 0;
 	}
-#else
-	mudconf.dbhome = XSTRDUP(".", "cf_string");
-	mudconf.crashdb = XSTRDUP("", "cf_string");
-	mudconf.gdbm = XSTRDUP("", "cf_string");
-	mudstate.initializing = 0;
-	mudconf.paylimit = 10000;
-	mudconf.digcost = 10;
-	mudconf.opencost = 1;
-	mudconf.robotcost = 1000;
-	mudconf.createmin = 5;
-	mudconf.createmax = 505;
-	mudconf.sacfactor = 5;
-	mudconf.sacadjust = -1;
-	mudconf.room_quota = 1;
-	mudconf.exit_quota = 1;
-	mudconf.thing_quota = 1;
-	mudconf.player_quota = 1;
-	mudconf.quotas = 0;
-	mudconf.start_room = 0;
-	mudconf.start_home = -1;
-	mudconf.default_home = -1;
-	mudconf.vattr_flags = 0;
-	mudconf.log_options = 0xffffffff;
-	mudconf.log_info = 0;
-	mudconf.markdata[0] = 0x01;
-	mudconf.markdata[1] = 0x02;
-	mudconf.markdata[2] = 0x04;
-	mudconf.markdata[3] = 0x08;
-	mudconf.markdata[4] = 0x10;
-	mudconf.markdata[5] = 0x20;
-	mudconf.markdata[6] = 0x40;
-	mudconf.markdata[7] = 0x80;
-	mudconf.ntfy_nest_lim = 20;
-	mudconf.fwdlist_lim = 100;
-
-	mudstate.logging = 0;
-	mudstate.attr_next = A_USER_START;
-	mudstate.iter_alist.data = NULL;
-	mudstate.iter_alist.len = 0;
-	mudstate.iter_alist.next = NULL;
-	mudstate.mod_alist = NULL;
-	mudstate.mod_size = 0;
-	mudstate.mod_al_id = NOTHING;
-	mudstate.min_size = 0;
-	mudstate.db_top = 0;
-	mudstate.db_size = 0;
-	mudstate.moduletype_top = DBTYPE_RESERVED;
-	mudstate.modules_list = NULL;
-	mudstate.freelist = NOTHING;
-	mudstate.markbits = NULL;
-#endif /* STANDALONE */
 }
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * cf_log_notfound: Log a 'parameter not found' error.
@@ -448,9 +391,8 @@ const char *thingname;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_log_syntax: Log a syntax error.
+/* ---------------------------------------------------------------------------
+ * cf_log_syntax: Log a syntax error.
  */
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
@@ -485,9 +427,8 @@ va_dcl
 	va_end(ap);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_status_from_succfail: Return command status from succ and fail info
+/* ---------------------------------------------------------------------------
+ * cf_status_from_succfail: Return command status from succ and fail info
  */
 
 int cf_status_from_succfail(player, cmd, success, failure)
@@ -520,30 +461,24 @@ int success, failure;
 	return -1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_const: Read-only integer or boolean parameter.
+/* ---------------------------------------------------------------------------
+ * cf_const: Read-only integer or boolean parameter.
  */
 
 CF_HAND(cf_const)
 {
-	/*
-	 * Fail on any attempt to change the value
-	 */
+	/* Fail on any attempt to change the value */
 
 	return -1;
 }
 
-/*
- * ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  * cf_int: Set integer parameter.
  */
 
 CF_HAND(cf_int)
 {
-	/*
-	 * Copy the numeric value to the parameter 
-	 */
+	/* Copy the numeric value to the parameter */
 
 	if ((extra > 0) && (atoi(str) > extra)) {
 	    cf_log_syntax(player, cmd, "Value exceeds limit of %d", extra);
@@ -599,8 +534,6 @@ CF_HAND(cf_dbref)
     return -1;
 }
 
-#endif /* STANDALONE */
-
 /* ---------------------------------------------------------------------------
  * cf_module: Open a loadable module. Modules are initialized later in the
  * startup.
@@ -615,12 +548,10 @@ CF_HAND(cf_module)
 	handle = lt_dlopen(tprintf("%s.la", str));
 
 	if (!handle) {
-#ifndef STANDALONE
 		STARTLOG(LOG_STARTUP, "CNF", "MOD")
 		    log_printf("Loading of %s module failed: %s",
 			       str, lt_dlerror());
 		ENDLOG
-#endif
 		return -1;
 	}
 
@@ -630,49 +561,48 @@ CF_HAND(cf_module)
 	mp->next = mudstate.modules_list;
 	mudstate.modules_list = mp;
 
-#ifndef STANDALONE
-	/* Look up our symbols now, and cache the pointers. They're
-	 * not going to change from here on out.
-	 */
+	if (!mudstate.standalone) {
+		/* Look up our symbols now, and cache the pointers. They're
+		 * not going to change from here on out.
+		 */
 
-	mp->process_command = DLSYM_INT(handle, str, "process_command",
-					(dbref, dbref, int, char *,
-					 char *[], int));
-	mp->process_no_match = DLSYM_INT(handle, str, "process_no_match",
-					(dbref, dbref, int, char *, char *,
-					 char *[], int));
-	mp->did_it = DLSYM_INT(handle, str, "did_it",
-			       (dbref, dbref, dbref,
-				int, const char *, int, const char *, int,
-				int, char *[], int));
-	mp->create_obj = DLSYM(handle, str, "create_obj", (dbref, dbref));
-	mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
-	mp->create_player = DLSYM(handle, str, "create_player",
-				  (dbref, dbref, int, int));
-	mp->destroy_player = DLSYM(handle, str, "destroy_player",
-				   (dbref, dbref));
-	mp->announce_connect = DLSYM(handle, str, "announce_connect",
-				     (dbref, const char *, int));
-	mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
-					(dbref, const char *, int));
-	mp->examine = DLSYM(handle, str, "examine",
-			    (dbref, dbref, dbref, int, int));
-	mp->dump_database = DLSYM(handle, str, "dump_database", (FILE *));
-	mp->db_grow = DLSYM(handle, str, "db_grow", (int, int));
-	mp->db_write = DLSYM(handle, str, "db_write", (void));
-	mp->db_write_flatfile = DLSYM(handle, str, "db_write_flatfile", (FILE *));
-
-	if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)
-	    (*initptr)();
-
+		mp->process_command = DLSYM_INT(handle, str, "process_command",
+						(dbref, dbref, int, char *,
+						 char *[], int));
+		mp->process_no_match = DLSYM_INT(handle, str, "process_no_match",
+						(dbref, dbref, int, char *, char *,
+						 char *[], int));
+		mp->did_it = DLSYM_INT(handle, str, "did_it",
+				       (dbref, dbref, dbref,
+					int, const char *, int, const char *, int,
+					int, char *[], int));
+		mp->create_obj = DLSYM(handle, str, "create_obj", (dbref, dbref));
+		mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
+		mp->create_player = DLSYM(handle, str, "create_player",
+					  (dbref, dbref, int, int));
+		mp->destroy_player = DLSYM(handle, str, "destroy_player",
+					   (dbref, dbref));
+		mp->announce_connect = DLSYM(handle, str, "announce_connect",
+					     (dbref, const char *, int));
+		mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
+						(dbref, const char *, int));
+		mp->examine = DLSYM(handle, str, "examine",
+				    (dbref, dbref, dbref, int, int));
+		mp->dump_database = DLSYM(handle, str, "dump_database", (FILE *));
+		mp->db_grow = DLSYM(handle, str, "db_grow", (int, int));
+		mp->db_write = DLSYM(handle, str, "db_write", (void));
+		mp->db_write_flatfile = DLSYM(handle, str, "db_write_flatfile", (FILE *));
+	
+		if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)
+		    (*initptr)();
+	}
+	
 	STARTLOG(LOG_STARTUP, "CNF", "MOD")
 		log_printf("Loaded module: %s", str);
 	ENDLOG
-#endif /* STANDALONE */
+
 	return 0;
 }
-
-#ifndef STANDALONE
 
 /* *INDENT-OFF* */
 
@@ -893,6 +823,7 @@ CF_HAND(cf_divert_log)
 /* ---------------------------------------------------------------------------
  * cf_modify_bits: set or clear bits in a flag word from a namelist.
  */
+
 CF_HAND(cf_modify_bits)
 {
 	char *sp, *tokst;
@@ -906,18 +837,15 @@ CF_HAND(cf_modify_bits)
 	sp = strtok_r(str, " \t", &tokst);
 	while (sp != NULL) {
 
-		/*
-		 * Check for negation 
-		 */
+		/* Check for negation */
 
 		negate = 0;
 		if (*sp == '!') {
 			negate = 1;
 			sp++;
 		}
-		/*
-		 * Set or clear the appropriate bit 
-		 */
+
+		/* Set or clear the appropriate bit */
 
 		f = search_nametab(GOD, (NAMETAB *) extra, sp);
 		if (f > 0) {
@@ -931,9 +859,7 @@ CF_HAND(cf_modify_bits)
 			failure++;
 		}
 
-		/*
-		 * Get the next token 
-		 */
+		/* Get the next token */
 
 		sp = strtok_r(NULL, " \t", &tokst);
 	}
@@ -1503,8 +1429,6 @@ CF_HAND(cf_raw_helpfile)
     return add_helpfile(player, str, 1);
 }
 
-#endif /* STANDALONE */
-
 /* ---------------------------------------------------------------------------
  * cf_include: Read another config file.  Only valid during startup.
  */
@@ -1522,9 +1446,7 @@ CF_HAND(cf_include)
 
 	fp = fopen(str, "r");
 	if (fp == NULL) {
-#ifndef STANDALONE
 		cf_log_notfound(player, cmd, "Config file", str);
-#endif
 		return -1;
 	}
 	buf = alloc_lbuf("cf_include");
@@ -1599,7 +1521,6 @@ extern CF_HDCL(cf_power_access);
  */
 
 CONF conftable[] = {
-#ifndef STANDALONE
 {(char *)"abort_on_bug",		cf_bool,	CA_STATIC,	CA_GOD,		(int *)&mudconf.abort_on_bug,	(long)"Dump core after logging a bug"},
 {(char *)"access",			cf_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
 {(char *)"addcommands_match_blindly",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.addcmd_match_blindly,	(long)"@addcommands don't error if no match is found"},
@@ -1725,9 +1646,7 @@ CONF conftable[] = {
 {(char *)"master_room",			cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.master_room,		NOTHING},
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
-#endif /* STANDALONE */
 {(char *)"module",			cf_module,	CA_STATIC,	CA_WIZARD,	NULL,				0},
-#ifndef STANDALONE
 {(char *)"money_name_plural",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.many_coins,	SBUF_SIZE},
 {(char *)"money_name_singular",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.one_coin,	SBUF_SIZE},
 {(char *)"motd_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.motd_file,	MBUF_SIZE},
@@ -1836,7 +1755,6 @@ CONF conftable[] = {
 {(char *)"wizard_motd_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.wizmotd_file,	MBUF_SIZE},
 {(char *)"wizard_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.wizmotd_msg,	GBUF_SIZE},
 {(char *)"zone_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.zone_nest_lim,		0},
-#endif /* STANDALONE */
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
 /* *INDENT-ON* */
@@ -1853,12 +1771,11 @@ static int helper_cf_set(cp, ap, player, tp)
     int i;
     char *buff;
 
-#ifndef STANDALONE
-    if (!mudstate.initializing && !check_access(player, tp->flags)) {
+    if (!mudstate.standalone && !mudstate.initializing && !check_access(player, tp->flags)) {
 	notify(player, NOPERM_MESSAGE);
 	return (-1);
     }
-#endif
+
     if (!mudstate.initializing) {
 	buff = alloc_lbuf("cf_set");
 	StringCopy(buff, ap);
@@ -1899,6 +1816,10 @@ dbref player;
 	 * call the handler to parse the argument. 
 	 */
 
+	if (mudstate.standalone && strcmp(cp, "module")) {
+		return 0;
+	}
+
 	for (tp = conftable; tp->pname; tp++) {
 		if (!strcmp(tp->pname, cp)) {
 		    return (helper_cf_set(cp, ap, player, tp));
@@ -1915,15 +1836,13 @@ dbref player;
 	    }
 	}
 
-#ifndef STANDALONE
 	/* Config directive not found.  Complain about it. */
 
-	cf_log_notfound(player, (char *)"Set", "Config directive", cp);
-#endif
+	if (!mudstate.standalone)
+		cf_log_notfound(player, (char *)"Set", "Config directive", cp);
+
 	return (-1);
 }
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * do_admin: Command handler to set config params at runtime 
@@ -1941,8 +1860,6 @@ char *kw, *value;
 		notify(player, "Set.");
 	return;
 }
-
-#endif
 
 /* ---------------------------------------------------------------------------
  * cf_read: Read in config parameters from named file
@@ -1972,8 +1889,6 @@ char *fn;
 	}
 	return retval;
 }
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * list_cf_access, list_cf_read_access: List write or read access to
@@ -2175,5 +2090,3 @@ dbref player;
 	}
     }
 }
-
-#endif /* STANDALONE */

@@ -246,7 +246,6 @@ void cache_reset()
 }
 
 
-#ifndef STANDALONE
 /* list dbrefs of objects in the cache. */
 
 void list_cached_objs(player)
@@ -380,7 +379,6 @@ void list_cached_attrs(player)
     raw_notify(player,
                tprintf("Size: active %d bytes, modified active %d bytes", asize, msize));
 }
-#endif /* STANDALONE */
 
 /* Search the cache for an entry of a specific type, if found, copy the data
  * and length into pointers provided by the caller, if not, fetch from DB */
@@ -412,8 +410,8 @@ unsigned int type;
 	 * resulting from a dump does not push out entries that are already
 	 * in the cache */
 
-#if !defined(STANDALONE) && !defined(MEMORY_BASED)
-	if (!mudstate.dumping)
+#ifndef MEMORY_BASED
+	if (!mudstate.standalone && !mudstate.dumping)
 		cs_reads++;
 #endif
 
@@ -431,12 +429,10 @@ unsigned int type;
 	prv = NULL;
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
-#ifndef STANDALONE
-			if (!mudstate.dumping) {
+			if (!mudstate.standalone && !mudstate.dumping) {
 				cs_rhits++;
 				cs_ahits++;
 			}
-#endif
 			DEQUEUE(sp->active, cp);
 			INSTAIL(sp->active, cp);
 
@@ -458,12 +454,10 @@ unsigned int type;
 	prv = NULL;
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
-#ifndef STANDALONE
-			if (!mudstate.dumping) {
+			if (!mudstate.standalone && !mudstate.dumping) {
 				cs_rhits++;
 				cs_ahits++;
 			}
-#endif
 			DEQUEUE(sp->mactive, cp);
 			INSTAIL(sp->mactive, cp);
 
@@ -510,10 +504,8 @@ skipcacheget:
 		}
 
 #ifdef MEMORY_BASED
-#ifndef STANDALONE
-		if (!mudstate.dumping)
+		if (!mudstate.standalone && !mudstate.dumping)
 			cs_dbreads++;
-#endif
 		if (newdata) {
 			newdatalen = strlen(newdata) + 1;
 			cdata = XMALLOC(newdatalen, "cache_get.membased");
@@ -540,10 +532,8 @@ skipcacheget:
 		dddb_get(keydata, keylen, &newdata, &newdatalen, type);
 	}
 
-#ifndef STANDALONE
-	if (!mudstate.dumping)
+	if (!mudstate.standalone && !mudstate.dumping)
 		cs_dbreads++;
-#endif
 	
 	if (newdata == NULL) {
 		if (dataptr) 
@@ -577,19 +567,15 @@ skipcacheget:
 	if (datalenptr)
 		*datalenptr = cp->datalen;
 
-#ifndef STANDALONE
 	if (mudstate.dumping) {
 		/* Link at head of active chain */
 		INSHEAD(sp->active, cp);
 		CLRCOUNTER(cp);
 	} else {
-#endif
 		/* Link at tail of active chain */
 		INSTAIL(sp->active, cp);
 		INCCOUNTER(cp);
-#ifndef STANDALONE
 	}
-#endif
 }
 
 /*
@@ -621,11 +607,9 @@ void *data;
 int datalen;
 unsigned int type;
 {
-#ifndef STANDALONE
 	Cache *cp, *prv;
 	CacheLst *sp;
 	int hv = 0;
-#endif
 #ifdef MEMORY_BASED
 	char *cdata;
 #endif
@@ -633,7 +617,48 @@ unsigned int type;
 	if (!keydata || !data || !cache_initted) {
 		return (1);
 	}
-#if !defined(STANDALONE) && !defined(MEMORY_BASED)
+
+#ifndef MEMORY_BASED
+	if (mudstate.standalone) {
+#endif
+		/* Bypass the cache when standalone or memory based for writes */
+		if (data == NULL) {
+			switch(type) {
+			case DBTYPE_ATTRIBUTE:
+				pipe_del_attrib(((Aname *)keydata)->attrnum, 
+					      ((Aname *)keydata)->object);
+#ifdef MEMORY_BASED
+				obj_del_attrib(((Aname *)keydata)->attrnum,
+					   &(db[((Aname *)keydata)->object].attrtext));
+#endif
+				break;
+			default:
+				dddb_del(keydata, keylen, type);
+			}
+		} else {
+			switch(type) {
+			case DBTYPE_ATTRIBUTE:
+				pipe_set_attrib(((Aname *)keydata)->attrnum, 
+					   ((Aname *)keydata)->object,
+					   (char *)data);
+#ifdef MEMORY_BASED
+				cdata = XMALLOC(datalen, "cache_get.membased");
+				memcpy((void *)cdata, (void *)data, datalen);
+			
+				obj_set_attrib(((Aname *)keydata)->attrnum,
+					&(db[((Aname *)keydata)->object].attrtext),
+					cdata);
+#endif
+				break;
+			default:
+				dddb_put(keydata, keylen, data, datalen, type);
+			}
+		}
+		return(0);
+#ifndef MEMORY_BASED
+	}
+#endif
+
 	cs_writes++;
 
 	/* generate hash */
@@ -707,42 +732,7 @@ unsigned int type;
 	INSHEAD(sp->mactive, cp);
 	INCCOUNTER(cp);
 	return (0);
-#else
-	/* Bypass the cache when standalone or memory based for writes */
-	if (data == NULL) {
-		switch(type) {
-		case DBTYPE_ATTRIBUTE:
-			pipe_del_attrib(((Aname *)keydata)->attrnum, 
-				      ((Aname *)keydata)->object);
-#ifdef MEMORY_BASED
-			obj_del_attrib(((Aname *)keydata)->attrnum,
-				   &(db[((Aname *)keydata)->object].attrtext));
-#endif
-			break;
-		default:
-			dddb_del(keydata, keylen, type);
-		}
-	} else {
-		switch(type) {
-		case DBTYPE_ATTRIBUTE:
-			pipe_set_attrib(((Aname *)keydata)->attrnum, 
-				   ((Aname *)keydata)->object,
-				   (char *)data);
-#ifdef MEMORY_BASED
-			cdata = XMALLOC(datalen, "cache_get.membased");
-			memcpy((void *)cdata, (void *)data, datalen);
-			
-			obj_set_attrib(((Aname *)keydata)->attrnum,
-				&(db[((Aname *)keydata)->object].attrtext),
-				cdata);
-#endif
-			break;
-		default:
-			dddb_put(keydata, keylen, data, datalen, type);
-		}
-	}
-	return(0);
-#endif
+
 }
 
 static Cache *get_free_entry(atrsize)
@@ -962,14 +952,12 @@ int NDECL(cache_sync)
 	if (cache_frozen)
 		return (0);
 
-#ifndef STANDALONE
-	if (mudstate.restarting) {
-		/* If we're restarting, having DBM wait for each write is a
-		 * performance no-no; run asynchronously */
+	if (mudstate.standalone || mudstate.restarting) {
+		/* If we're restarting or standalone, having DBM wait for
+		 * each write is a performance no-no; run asynchronously */
 
 		dddb_setsync(0);
 	}
-#endif
 
 	for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
 		if (cache_write(sp->mactive.head))
@@ -981,11 +969,9 @@ int NDECL(cache_sync)
 	
 	attrib_sync();
 
-#ifndef STANDALONE
-	if (mudstate.restarting) {
+	if (mudstate.standalone || mudstate.restarting) {
 		dddb_setsync(1);
 	}
-#endif
 	
 	return (0);
 }

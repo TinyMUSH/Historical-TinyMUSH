@@ -385,9 +385,10 @@ struct statedata {
 	char	*short_ver;	/* Short version number (for INFO) */
 	char	*buildinfo;	/* Compile info */
 	char	modloaded[MBUF_SIZE];	/* Modules loaded */
-	int	initializing;	/* are we reading config file at startup? */
-	int	loading_db;	/* are we loading the db? */
-	int	panicking;	/* are we in the middle of dying horribly? */
+	int	initializing;	/* Are we reading config file at startup? */
+	int	loading_db;	/* Are we loading the db? */
+	int	standalone;	/* Are we converting the database? */
+	int	panicking;	/* Are we in the middle of dying horribly? */
 	int	restarting;	/* Are we restarting? */
 	int	dumping;	/* Are we dumping? */
 	int	logging;	/* Are we in the middle of logging? */

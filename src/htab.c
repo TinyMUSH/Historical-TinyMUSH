@@ -466,8 +466,6 @@ void hashresize(htab, min_size)
     /* nostrdup status doesn't change */
 }
 
-#ifndef STANDALONE
-
 /* ---------------------------------------------------------------------------
  * nhashfind: Look up an entry in a numeric hash table and return a pointer
  * to its hash data.
@@ -854,4 +852,3 @@ CF_HAND(cf_ntab_access)
 	return -1;
 }
 
-#endif

@@ -33,11 +33,8 @@ extern void FDECL(load_quota, (int *, dbref, int));
 extern void FDECL(save_quota, (int *, dbref, int));
 extern int FDECL(get_gender, (dbref));
 extern int	FDECL(eval_boolexp_atr, (dbref, dbref, dbref, char *));
-
-#ifndef STANDALONE
 static int FDECL(type_quota, (int));
 static int FDECL(pay_quota, (dbref, int, int));
-#endif
 
 extern INLINE void FDECL(queue_rawstring, (DESC *, const char *));
 
@@ -241,8 +238,6 @@ char *str;
 	return ((*str || !got_one) ? 0 : 1);
 }
 
-#ifndef STANDALONE
-
 int could_doit(player, thing, locknum)
 dbref player, thing;
 int locknum;
@@ -277,7 +272,6 @@ int cost, objtype;
 	if (cost <= 0)
 		return 1;
 
-#ifndef STANDALONE
 	/* determine basic quota */
 
 	load_quota(q_list, Owner(who), A_RQUOTA);
@@ -295,7 +289,6 @@ int cost, objtype;
 		    !Free_Quota(player) && !Free_Quota(Owner(player)))
 			return 0;
 	}
-#endif /* ! STANDALONE */
 
 	return 1;
 }
@@ -390,9 +383,6 @@ int cost;
 	return 0;
 }
 
-#endif /* STANDALONE */
-
-#ifndef STANDALONE
 int payfees(who, pennies, quota, objtype)
 dbref who;
 int pennies, quota, objtype;
@@ -403,20 +393,11 @@ int pennies, quota, objtype;
 		pay_quota(who, quota, objtype);
 	return payfor(who, pennies);
 }
-#else
-int payfees(who, pennies, quota, objtype)
-dbref who;
-int pennies, quota, objtype;
-{
-return 0;
-}
-#endif
 
 void add_quota(who, payment, type)
 dbref who;
 int payment, type;
 {
-#ifndef STANDALONE
 	int q_list[5];
 	
 	load_quota(q_list, Owner(who), A_RQUOTA);
@@ -426,7 +407,6 @@ int payment, type;
 		q_list[type] += payment;
 	
 	save_quota(q_list, Owner(who), A_RQUOTA);
-#endif
 }
 
 void giveto(who, pennies)
@@ -499,14 +479,11 @@ const char *name;
 	if (!ok_name(name) || (strlen(name) >= PLAYER_NAME_LIMIT))
 		return 0;
 
-#ifndef STANDALONE
-	if (mudconf.name_spaces)
+	if (mudconf.name_spaces || mudstate.standalone)
 		good_chars = " `$_-.,'";
 	else
 		good_chars = "`$_-.,'";
-#else
-	good_chars = " `$_-.,'";
-#endif
+
 	/* Make sure name only contains legal characters */
 
 	for (cp = name; cp && *cp; cp++) {
@@ -544,17 +521,15 @@ dbref player;
 	int num_lower = 0;
 
 	if (*password == '\0') {
-#ifndef STANDALONE
-	    notify_quiet(player, "Null passwords are not allowed.");
-#endif
+	    if (!mudstate.standalone)
+		    notify_quiet(player, "Null passwords are not allowed.");
 	    return 0;
 	}
 
 	for (scan = password; *scan; scan++) {
 		if (!(isprint(*scan) && !isspace(*scan))) {
-#ifndef STANDALONE
-		    notify_quiet(player, "Illegal character in password.");
-#endif
+		    if (!mudstate.standalone)
+			    notify_quiet(player, "Illegal character in password.");
 		    return 0;
 		}
 		if (isupper(*scan))
@@ -569,14 +544,12 @@ dbref player;
 	if ((strlen(password) == 13) &&
 	    (password[0] == 'X') &&
 	    (password[1] == 'X')) {
-#ifndef STANDALONE
-	    notify_quiet(player, "Please choose another password.");
-#endif
+	    if (!mudstate.standalone)
+		    notify_quiet(player, "Please choose another password.");
 	    return 0;
 	}
 
-#ifndef STANDALONE
-	if (mudconf.safer_passwords) {
+	if (!mudstate.standalone && mudconf.safer_passwords) {
 	    if (num_upper < 1) {
 		notify_quiet(player,
 		     "The password must contain at least one capital letter.");
@@ -593,12 +566,9 @@ dbref player;
 		return 0;
 	    }
 	}
-#endif /* STANDALONE */
 
 	return 1;
 }
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * handle_ears: Generate the 'grows ears' and 'loses ears' messages.
@@ -1685,8 +1655,6 @@ ATTR **attr;
 	return 1;
 }
 
-#endif /* STANDALONE */
-
 /* ---------------------------------------------------------------------------
  * where_is: Returns place where obj is linked into a list.
  * ie. location for players/things, source for exits, NOTHING for rooms.
@@ -1804,8 +1772,6 @@ dbref player, thing;
 		return 1;
 	return 0;
 }
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * did_it: Have player do something to/with thing
@@ -2531,6 +2497,3 @@ void do_sql(player, cause, key, name)
     sql_query(player, name, NULL, NULL, ' ', ' ');
 }
 
-#endif /*
-        * STANDALONE 
-        */

@@ -363,7 +363,6 @@ void pool_reset()
  * Track allocations that don't use the memory pools.
  */
 
-#ifndef STANDALONE
 #ifdef RAW_MEMTRACKING
 
 static int sort_memtable(p1, p2)
@@ -549,4 +548,3 @@ void list_rawmemory(player)
 
 #endif /* RAW_MEMTRACKING */
 
-#endif /* ! STANDALONE */

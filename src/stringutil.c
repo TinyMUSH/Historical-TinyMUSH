@@ -580,14 +580,7 @@ char **str, targ;
 int string_compare(s1, s2)
 const char *s1, *s2;
 {
-#ifndef STANDALONE
-	if (!mudconf.space_compress) {
-		while (*s1 && *s2 && tolower(*s1) == tolower(*s2))
-			s1++, s2++;
-
-		return (tolower(*s1) - tolower(*s2));
-	} else {
-#endif
+	if (mudstate.standalone || mudconf.space_compress) {
 		while (isspace(*s1))
 			s1++;
 		while (isspace(*s2))
@@ -621,9 +614,12 @@ const char *s1, *s2;
 		if ((*s1) || (*s2))
 			return (1);
 		return (0);
-#ifndef STANDALONE
+	} else {
+		while (*s1 && *s2 && tolower(*s1) == tolower(*s2))
+			s1++, s2++;
+
+		return (tolower(*s1) - tolower(*s2));
 	}
-#endif
 }
 
 int string_prefix(string, prefix)

@@ -27,20 +27,20 @@ void log_db_err(obj, attr, txt)
 int obj, attr;
 const char *txt;
 {
-#ifndef STANDALONE
-	STARTLOG(LOG_ALWAYS, "DBM", "ERROR")
-	log_printf("Could not %s object #%d", txt, obj);
-	if (attr != NOTHING) {
-		log_printf(" attr #%d", attr);
+	if (!mudstate.standalone) {
+		STARTLOG(LOG_ALWAYS, "DBM", "ERROR")
+		log_printf("Could not %s object #%d", txt, obj);
+		if (attr != NOTHING) {
+			log_printf(" attr #%d", attr);
+		}
+		ENDLOG
+	} else {
+		fprintf(mainlog_fp, "Could not %s object #%d", txt, obj);
+		if (attr != NOTHING) {
+			fprintf(mainlog_fp, " attr #%d", attr);
+		}
+		fprintf(mainlog_fp, "\n");
 	}
-	ENDLOG
-#else
-	fprintf(mainlog_fp, "Could not %s object #%d", txt, obj);
-	if (attr != NOTHING) {
-		fprintf(mainlog_fp, " attr #%d", attr);
-	}
-	fprintf(mainlog_fp, "\n");
-#endif
 }
 
 /*

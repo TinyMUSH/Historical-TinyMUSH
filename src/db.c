@@ -154,8 +154,6 @@ int mode;
 	return tf_xopen(fname, mode);
 }
 
-#ifndef STANDALONE
-
 #ifdef TLI
 int tf_topen(fam, mode)
 int fam, mode;
@@ -164,7 +162,6 @@ int fam, mode;
 	return tf_fiddle(t_open(fam, mode, NULL));
 }
 
-#endif
 #endif
 
 void tf_close(fdes)
@@ -411,7 +408,7 @@ ATTR attr[] =
 {"*Invalid",	A_TEMP,		AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
 								NULL},
 {NULL,		0,		0,				NULL}};
-#ifndef STANDALONE
+
 /* *INDENT-ON* */
 
 /* ---------------------------------------------------------------------------
@@ -477,8 +474,6 @@ dbref thing;
 	}
 }
 
-#endif
-
 /* ---------------------------------------------------------------------------
  * fwdlist_load: Load text into a forwardlist.
  */
@@ -507,21 +502,22 @@ char *atext;
 	    *bp++ = '\0';	/* terminate string */
 	if ((*dp++ == '#') && isdigit(*dp)) {
 	    target = atoi(dp);
-#ifndef STANDALONE
-	    fail = (!Good_obj(target) ||
-		    (!God(player) &&
-		     !controls(player, target) &&
-		     (!Link_ok(target) ||
-		      !could_doit(player, target, A_LLINK))));
-#else
-	    fail = !Good_obj(target);
-#endif
+
+	    if (!mudstate.standalone) {
+		    fail = (!Good_obj(target) ||
+			    (!God(player) &&
+			     !controls(player, target) &&
+			     (!Link_ok(target) ||
+			      !could_doit(player, target, A_LLINK))));
+	    } else {
+		    fail = !Good_obj(target);
+	    }
+	    
 	    if (fail) {
-#ifndef STANDALONE
-		notify(player,
-		       tprintf("Cannot forward to #%d: Permission denied.",
-			       target));
-#endif
+		if (!mudstate.standalone)
+			notify(player,
+			       tprintf("Cannot forward to #%d: Permission denied.",
+				       target));
 		errors++;
 	    } else if (count < mudconf.fwdlist_lim) {
 		if (fp->data)
@@ -529,11 +525,10 @@ char *atext;
 		else 
 		    tmp_array[count++] = target;
 	    } else {
-#ifndef STANDALONE
-		notify(player,
-		       tprintf("Cannot forward to #%d: Forwardlist limit exceeded.",
-			       target));
-#endif
+		if (!mudstate.standalone)
+			notify(player,
+			       tprintf("Cannot forward to #%d: Forwardlist limit exceeded.",
+				       target));
 		errors++;
 	    }
 	}
@@ -594,10 +589,11 @@ int key, anum;
 dbref player, thing;
 char *atext;
 {
-#ifndef STANDALONE
-
 	FWDLIST *fp;
 	int count;
+
+	if (mudstate.standalone) 
+		return 1;
 
 	count = 0;
 
@@ -619,21 +615,19 @@ char *atext;
 	    XFREE(fp, "fwdlist_ck.fp");
 	}
 	return ((count > 0) || !atext || !*atext);
-#else
-	return 1;
-#endif
 }
 
-#ifdef STANDALONE		/* This is a macro if ! STANDALONE */
 FWDLIST *fwdlist_get(thing)
 dbref thing;
 {
 	dbref aowner;
 	int aflags, alen, errors;
 	char *tp;
-
 	static FWDLIST *fp = NULL;
 
+	if (mudstate.standalone)
+		return (FWDLIST *)nhashfind((thing), &mudstate.fwdlist_htab);
+		
 	if (!fp) {
 	    fp = (FWDLIST *) XMALLOC(sizeof(FWDLIST), "fwdlist_get");
 	    fp->data = NULL;
@@ -643,7 +637,6 @@ dbref thing;
 	free_lbuf(tp);
 	return fp;
 }
-#endif
 
 static char *set_string(ptr, new)
 char **ptr, *new;
@@ -776,8 +769,6 @@ const char *s;
 {
 	atr_add_raw(thing, A_PASS, (char *)s);
 }
-
-#ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
  * do_attrib: Manage user-named attributes.
@@ -1043,11 +1034,19 @@ char *s;
 
 	/* Look for a predefined attribute */
 
-	a = (ATTR *) hashfind(buff, &mudstate.attr_name_htab);
-	if (a != NULL) {
-		free_sbuf(buff);
-		return a;
+	if (!mudstate.standalone) {
+		a = (ATTR *) hashfind(buff, &mudstate.attr_name_htab);
+		if (a != NULL) {
+			free_sbuf(buff);
+			return a;
+		}
+	} else {
+		for (a = attr; a->name; a++) {
+			if (!string_compare(a->name, s))
+				return a;
+		}
 	}
+	
 	/* Nope, look for a user attribute */
 
 	va = (VATTR *) vattr_find(buff);
@@ -1062,69 +1061,25 @@ char *s;
 		tattr.check = NULL;
 		return &tattr;
 	}
+
+	if (mudstate.standalone) {
+		/*
+		 * No exact match, try for a prefix match on predefined attribs.
+		 * Check for both longer versions and shorter versions. 
+		 */
+
+		for (a = attr; a->name; a++) {
+			if (string_prefix(s, a->name))
+				return a;
+			if (string_prefix(a->name, s))
+				return a;
+		}
+	}
+
 	/* All failed, return NULL */
 
 	return NULL;
 }
-
-#else /* STANDALONE */
-
-/* We don't have the hash tables, do it by hand */
-
-/* ---------------------------------------------------------------------------
- * atr_str: Look up an attribute by name.
- */
-
-ATTR *atr_str(s)
-char *s;
-{
-	ATTR *ap;
-	VATTR *va;
-	static ATTR tattr;
-	char *buff, *p, *q;
-	
-	buff = alloc_sbuf("atr_str");
-	for (p = buff, q = s; *q && ((p - buff) < (SBUF_SIZE - 1)); p++, q++)
-		*p = toupper(*q);
-	*p = '\0';
-
-	/* Check for an exact match on a predefined attribute */
-
-	for (ap = attr; ap->name; ap++) {
-		if (!string_compare(ap->name, s))
-			return ap;
-	}
-
-	/* Check for an exact match on a user-named attribute */
-
-	va = (VATTR *) vattr_find(buff);
-	free_sbuf(buff);
-	if (va != NULL) {
-
-		/* Got it */
-
-		tattr.name = va->name;
-		tattr.number = va->number;
-		tattr.flags = va->flags;
-		tattr.check = NULL;
-		return &tattr;
-	}
-	/*
-	 * No exact match, try for a prefix match on predefined attribs.
-	 * Check for both longer versions and shorter versions. 
-	 */
-
-	for (ap = attr; ap->name; ap++) {
-		if (string_prefix(s, ap->name))
-			return ap;
-		if (string_prefix(ap->name, s))
-			return ap;
-	}
-
-	return NULL;
-}
-
-#endif /* STANDALONE */
 
 /* ---------------------------------------------------------------------------
  * anum_extend: Grow the attr num lookup table.
@@ -1139,11 +1094,11 @@ int newtop;
 	ATTR **anum_table2;
 	int delta, i;
 
-#ifndef STANDALONE
-	delta = mudconf.init_size;
-#else
-	delta = 1000;
-#endif
+	if (!mudstate.standalone)
+		delta = mudconf.init_size;
+	else
+		delta = 1000;
+
 	if (newtop <= anum_alc_top)
 		return;
 	if (newtop < anum_alc_top + delta)
@@ -1204,10 +1159,8 @@ char *buff;
 {
 	ATTR *ap;
 	VATTR *va;
-#ifndef STANDALONE
 	int vflags;
 	KEYLIST *kp;
-#endif /* STANDALONE */
 
 	if (!(ap = atr_str(buff))) {
 
@@ -1217,19 +1170,19 @@ char *buff;
 		 * Otherwise, use the default vattr flags.
 		 */
 
-#ifndef STANDALONE
-		vflags = mudconf.vattr_flags;
-		for (kp = mudconf.vattr_flag_list; kp != NULL; kp = kp->next) {
-		    if (quick_wild(kp->name, buff)) {
-			vflags = kp->data;
-			break;
-		    }
+		if (!mudstate.standalone) {
+			vflags = mudconf.vattr_flags;
+			for (kp = mudconf.vattr_flag_list; kp != NULL; kp = kp->next) {
+			    if (quick_wild(kp->name, buff)) {
+				vflags = kp->data;
+				break;
+			    }
+			}
+			va = vattr_alloc(buff, vflags);
+		} else {
+			va = vattr_alloc(buff, mudconf.vattr_flags);
 		}
-		va = vattr_alloc(buff, vflags);
-#else
-		va = vattr_alloc(buff, mudconf.vattr_flags);
-#endif /* STANDALONE */
-
+	
 		if (!va || !(va->number))
 			return -1;
 		return va->number;
@@ -1626,9 +1579,8 @@ int atr;
 		break;
 	case A_DAILY:
 		s_Flags2(thing, Flags2(thing) & ~HAS_DAILY);
-#ifndef STANDALONE
-		(void) cron_clr(thing, A_DAILY);
-#endif /* STANDALONE */
+		if (!mudstate.standalone)
+			(void) cron_clr(thing, A_DAILY);
 		break;
 	case A_FORWARDLIST:
 		s_Flags2(thing, Flags2(thing) & ~HAS_FWDLIST);
@@ -1636,14 +1588,14 @@ int atr;
 	case A_LISTEN:
 		s_Flags2(thing, Flags2(thing) & ~HAS_LISTEN);
 		break;
-#ifndef STANDALONE
 	case A_TIMEOUT:
-		desc_reload(thing);
+		if (!mudstate.standalone)
+			desc_reload(thing);
 		break;
 	case A_QUEUEMAX:
-		pcache_reload(thing);
+		if (!mudstate.standalone)
+			pcache_reload(thing);
 		break;
-#endif
 	}
 }
 
@@ -1675,10 +1627,8 @@ char *buff;
 	STORE(&okey, a);
 	al_add(thing, atr);
 
-#ifndef STANDALONE
-	if (!mudstate.loading_db)
+	if (!mudstate.standalone && !mudstate.loading_db)
 	    s_Modified(thing);
-#endif
 
 	switch (atr) {
 	case A_STARTUP:
@@ -1686,14 +1636,12 @@ char *buff;
 		break;
 	case A_DAILY:
 		s_Flags2(thing, Flags2(thing) | HAS_DAILY);
-#ifndef STANDALONE
-		if (!mudstate.loading_db) {
+		if (!mudstate.standalone && !mudstate.loading_db) {
 		    char tbuf[SBUF_SIZE];
 		    (void) cron_clr(thing, A_DAILY);
 		    sprintf(tbuf, "0 %d * * *", mudconf.events_daily_hour);
 		    call_cron(thing, thing, A_DAILY, tbuf);
 		}
-#endif
 		break;
 	case A_FORWARDLIST:
 		s_Flags2(thing, Flags2(thing) | HAS_FWDLIST);
@@ -1701,14 +1649,14 @@ char *buff;
 	case A_LISTEN:
 		s_Flags2(thing, Flags2(thing) | HAS_LISTEN);
 		break;
-#ifndef STANDALONE
 	case A_TIMEOUT:
-		desc_reload(thing);
+		if (!mudstate.standalone)
+			desc_reload(thing);
 		break;
 	case A_QUEUEMAX:
-		pcache_reload(thing);
+		if (!mudstate.standalone)
+			pcache_reload(thing);
 		break;
-#endif
 	}
 }
 
@@ -1769,9 +1717,8 @@ int atr;
 	if (Typeof(thing) == TYPE_GARBAGE)
 		return NULL;
 
-#ifndef STANDALONE
-	s_Accessed(thing);
-#endif
+	if (!mudstate.standalone)
+		s_Accessed(thing);
 	
 	if (atr != A_LIST) {
 		atr_push();
@@ -1837,8 +1784,6 @@ int atr, *flags;
 	atr_decode(buff, NULL, thing, owner, flags, atr, &alen);
 	return 1;
 }
-
-#ifndef STANDALONE
 
 char *atr_pget_str(s, thing, atr, owner, flags, alen)
 char *s;
@@ -1908,7 +1853,6 @@ int atr, *flags;
 	return 0;
 }
 
-#endif /* STANDALONE */
 
 /* ---------------------------------------------------------------------------
  * atr_free: Return all attributes of an object.
@@ -2112,11 +2056,10 @@ dbref newtop;
 	NAME *newnames, *newpurenames;
 	char *cp;
 
-#ifndef STANDALONE
-	delta = mudconf.init_size;
-#else
-	delta = 1000;
-#endif
+	if (!mudstate.standalone)
+		delta = mudconf.init_size;
+	else
+		delta = 1000;
 
 	/* Determine what to do based on requested size, current top and
 	 * size.  Make sure we grow in reasonable-size chunks to prevent 
@@ -2310,7 +2253,6 @@ void NDECL(db_free)
 	mudstate.freelist = NOTHING;
 }
 
-#ifndef STANDALONE
 void NDECL(db_make_minimal)
 {
 	dbref obj;
@@ -2349,8 +2291,6 @@ void NDECL(db_make_minimal)
 	s_Contents(0, obj);
 	s_Link(obj, 0);
 }
-
-#endif
 
 dbref parse_dbref(s)
 const char *s;
@@ -2532,29 +2472,24 @@ char *gdbmfile;
 	for (mudstate.db_block_size = 1; mudstate.db_block_size < (LBUF_SIZE * 4);
 		mudstate.db_block_size = mudstate.db_block_size << 1) ;
 
-#ifdef STANDALONE
-	fprintf(mainlog_fp, "Opening %s\n", gdbmfile);
-#endif
 	cache_init(mudconf.cache_width);
 	dddb_setfile(gdbmfile);
 	dddb_init();
-#ifdef STANDALONE
-	fprintf(mainlog_fp, "Done opening %s.\n", gdbmfile);
-#else
 	STARTLOG(LOG_ALWAYS, "INI", "LOAD")
 		log_printf("Using gdbm file: %s", gdbmfile);
 	ENDLOG
-#endif
-		db_free();
+	db_free();
 	return (0);
 }
 
-#ifndef STANDALONE
 /* check_zone - checks back through a zone tree for control */
 
 int check_zone(player, thing)
 dbref player, thing;
 {
+	if (mudstate.standalone)
+		return 0;
+
 	if (!mudconf.have_zones || (Zone(thing) == NOTHING) ||
 	    isPlayer(thing) ||
 	    (mudstate.zone_nest_num + 1 == mudconf.zone_nest_lim)) {
@@ -2608,17 +2543,6 @@ dbref player, thing;
 
 }
 
-#else
-
-int check_zone(player, thing)
-dbref player, thing;
-{
-	return 0;
-}
-
-#endif /* STANDALONE */
-
-#ifndef STANDALONE
 /* ---------------------------------------------------------------------------
  * dump_restart_db: Writes out socket information.
  */
@@ -2831,4 +2755,3 @@ void load_restart_db()
 	fclose(f);
 	remove("restart.db");
 }
-#endif /* STANDALONE */

@@ -48,13 +48,9 @@ int flag;
 static void dbm_error(msg)
 char *msg;
 {
-#ifndef STANDALONE
 	STARTLOG(LOG_ALWAYS, "DB", "ERROR")
 		log_printf("Database error: %s\n", msg);
 	ENDLOG
-#else
-	fprintf(mainlog_fp, "Database error: %s\n", msg);
-#endif
 }
 
 /* gdbm_reorganize compresses unused space in the db */
@@ -74,11 +70,10 @@ int dddb_init()
 	char *gdbm_error;
 	int i;
 	
-#ifndef STANDALONE
-	sprintf(tmpfile, "%s/%s", mudconf.dbhome, dbfile);
-#else
-	strcpy(tmpfile, dbfile);
-#endif
+	if (!mudstate.standalone)
+		sprintf(tmpfile, "%s/%s", mudconf.dbhome, dbfile);
+	else
+		strcpy(tmpfile, dbfile);
  
 	if ((dbp = gdbm_open(tmpfile, mudstate.db_block_size, GDBM_WRCREAT|GDBM_SYNC|GDBM_NOLOCK, 0600, dbm_error)) == (GDBM_FILE) 0) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
@@ -87,26 +82,26 @@ int dddb_init()
 	}
 	
 
-#ifdef STANDALONE
-	/* Set the cache size to be 400 hash buckets for GDBM. */
-	 
-	i = 400;
-	if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
-		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
-		return (1);
-	}
-#else
-	/* Set the cache size to be two hash buckets for GDBM. */
-	 
-	i = 2;
-	if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
-		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
-		return (1);
-	}
+	if (mudstate.standalone) {
+		/* Set the cache size to be 400 hash buckets for GDBM. */
 
-
+		i = 400;
+		if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
+			gdbm_error = (char *)gdbm_strerror(gdbm_errno);
+			logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+			return (1);
+		}
+	} else {
+		/* Set the cache size to be two hash buckets for GDBM. */
+	 
+		i = 2;
+		if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
+			gdbm_error = (char *)gdbm_strerror(gdbm_errno);
+			logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+			return (1);
+		}
+	}
+	
 	/* Set GDBM to manage a global free space table. */
 	 
 	i = 1;
@@ -124,13 +119,12 @@ int dddb_init()
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
-#endif
-#ifdef STANDALONE
+
 	/* If we're standalone, having GDBM wait for each write is a
 	 * performance no-no; run non-synchronous */
 	
-	dddb_setsync(0);
-#endif
+	if (mudstate.standalone)
+		dddb_setsync(0);
 
 	db_initted = 1;
 	return (0);

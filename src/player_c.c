@@ -15,8 +15,6 @@
 
 #include "attrs.h"	/* required by code */
 
-#ifndef STANDALONE
-
 typedef struct player_cache {
 	dbref player;
 	int money;
@@ -204,22 +202,20 @@ dbref player;
 	return m;
 }
 
-#endif
-
 int Pennies(obj)
 dbref obj;
 {
 	char *cp;
-
-#ifndef STANDALONE
 	PCACHE *pp;
 
-	if (OwnsOthers(obj)) {
-		pp = pcache_find(obj);
-		if (pp)
-			return pp->money;
+	if (!mudstate.standalone) {
+		if (OwnsOthers(obj)) {
+			pp = pcache_find(obj);
+			if (pp)
+				return pp->money;
+		}
 	}
-#endif
+	
 	cp = atr_get_raw(obj, A_MONEY);
 	return (safe_atoi(cp));
 }
@@ -230,17 +226,15 @@ int howfew;
 {
 	IBUF tbuf;
 
-#ifndef STANDALONE
 	PCACHE *pp;
 
-	if (OwnsOthers(obj)) {
+	if (!mudstate.standalone && OwnsOthers(obj)) {
 		pp = pcache_find(obj);
 		if (pp) {
 			pp->money = howfew;
 			pp->cflags |= PF_MONEY_CH;
 		}
 	}
-#endif
 	ltos(tbuf, howfew);
 	atr_add_raw(obj, A_MONEY, tbuf);
 }

@@ -17,19 +17,15 @@
 #include "vattr.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 
-#ifdef STANDALONE
 #include "powers.h"	/* required by code */
-#endif
 
 extern void FDECL(db_grow, (dbref));
 
 extern struct object *db;
 
-#ifdef STANDALONE
 static int g_version;
 static int g_format;
 static int g_flags;
-#endif /* STANDALONE */
 
 /* ---------------------------------------------------------------------------
  * getboolexp1: Get boolean subexpression from file.
@@ -236,7 +232,6 @@ FILE *f;
 	return TRUE_BOOLEXP;	/* NOTREACHED */
 }
 
-#ifdef STANDALONE
 /* ---------------------------------------------------------------------------
  * getboolexp: Read a boolean expression from the flat file.
  */
@@ -308,11 +303,10 @@ int new_strings;
 	while (1) {
 		switch (c = getc(f)) {
 		case '>':	/* read # then string */
-#ifdef STANDALONE
-			atr = unscramble_attrnum(getref(f));
-#else
-			atr = getref(f);
-#endif
+			if (mudstate.standalone) 
+				atr = unscramble_attrnum(getref(f));
+			else
+				atr = getref(f);
 			if (atr > 0) {
 				/* Store the attr */
 
@@ -349,7 +343,6 @@ int new_strings;
 	}
 	return 1;		/* NOTREACHED */
 }
-#endif /* STANDALONE */
 
 /* ---------------------------------------------------------------------------
  * putbool_subexp: Write a boolean sub-expression to the flat file.
@@ -444,7 +437,6 @@ BOOLEXP *b;
 	putc('\n', f);
 }
 
-#ifdef STANDALONE
 /* ---------------------------------------------------------------------------
  * upgrade_flags: Convert foreign flags to MUSH format.
  */
@@ -556,7 +548,6 @@ int db_format, db_version;
 	*flags3 = newf3;
 	return;
 }
-#endif
 
 /* ---------------------------------------------------------------------------
  * efo_convert: Fix things up for Exits-From-Objects
@@ -586,7 +577,6 @@ void NDECL(efo_convert)
  * fix_mux_zones: Convert MUX-style zones to 3.0-style zones.
  */
 
-#ifdef STANDALONE
 static void fix_mux_zones()
 {
     /* For all objects in the database where Zone(thing) != NOTHING,
@@ -621,13 +611,11 @@ static void fix_mux_zones()
 
     XFREE(zmarks, "fix_mux_zones");
 }
-#endif /* STANDALONE */
 
 /* ---------------------------------------------------------------------------
  * fix_typed_quotas: Explode standard quotas into typed quotas
  */
 
-#ifdef STANDALONE
 static void fix_typed_quotas()
 {
 	/* If we have a pre-2.2 or MUX database, only the QUOTA and RQUOTA
@@ -1016,7 +1004,6 @@ int *db_format, *db_version, *db_flags;
 
 	}
 }
-#endif /* STANDALONE */
 
 int db_read()
 {
@@ -1082,6 +1069,9 @@ int db_read()
 	}
 	
 	/* Load the object structures */
+
+	if (mudstate.standalone) 
+		fprintf(mainlog_fp, "Reading ");
 	
 	blksize = OBJECT_BLOCK_SIZE;
 	
@@ -1097,6 +1087,10 @@ int db_read()
 				cdptr += sizeof(int);
 				db_grow(num + 1);
 
+				if (mudstate.standalone && !(num % 100)) {
+					fputc('.', mainlog_fp);
+				}
+				
 				/* We read the entire object structure in
 				 * and copy it into place */
 			
@@ -1127,9 +1121,12 @@ int db_read()
 		}
 	}	
 
-#ifndef STANDALONE
-	load_player_names();
-#endif
+	if (!mudstate.standalone)
+		load_player_names();
+
+	if (mudstate.standalone)
+		fprintf(mainlog_fp, "\n");
+
 	return (0);
 }			
 
@@ -1138,10 +1135,8 @@ FILE *f;
 dbref i;
 int db_format, flags;
 {
-#ifndef STANDALONE
 	ATTR *a;
 
-#endif
 	char *got, *as;
 	dbref aowner;
 	int ca, aflags, alen, save, j;
@@ -1193,15 +1188,15 @@ int db_format, flags;
 
 	for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
 		save = 0;
-#ifndef STANDALONE
-		a = atr_num(ca);
-		if (a)
-			j = a->number;
-		else
-			j = -1;
-#else
-		j = ca;
-#endif
+		if (!mudstate.standalone) {
+			a = atr_num(ca);
+			if (a)
+				j = a->number;
+			else
+				j = -1;
+		} else {
+			j = ca;
+		}
 
 		if (j > 0) {
 			switch (j) {
@@ -1248,9 +1243,8 @@ int format, version;
 		fprintf(mainlog_fp, "Can only write TinyMUSH 3 format.\n");
 		return -1;
 	}
-#ifdef STANDALONE
-	fprintf(mainlog_fp, "Writing ");
-#endif
+	if (mudstate.standalone)
+		fprintf(mainlog_fp, "Writing ");
 
 	/* Write database information */
 
@@ -1276,11 +1270,9 @@ int format, version;
 
 	DO_WHOLE_DB(i) {
 
-#ifdef STANDALONE
-		if (!(i % 100)) {
+		if (mudstate.standalone && !(i % 100)) {
 			fputc('.', mainlog_fp);
 		}
-#endif
 
 		db_write_object_out(f, i, format, flags);
 	}
@@ -1288,9 +1280,8 @@ int format, version;
 	fputs("***END OF DUMP***\n", f);
 	fflush(f);
 	
-#ifdef STANDALONE
-	fprintf(mainlog_fp, "\n");
-#endif
+	if (mudstate.standalone)
+		fprintf(mainlog_fp, "\n");
 	return (mudstate.db_top);
 }
 
@@ -1302,9 +1293,8 @@ dbref db_write()
 
 	al_store();
 
-#ifdef STANDALONE
-	fprintf(mainlog_fp, "Writing ");
-#endif
+	if (mudstate.standalone)
+		fprintf(mainlog_fp, "Writing ");
 
 	/* Write database information */
 
@@ -1358,19 +1348,19 @@ dbref db_write()
 			vp = (VATTR *)anum_table[j];
 
 			if (vp && !(vp->flags & AF_DELETED)) {
-#ifndef STANDALONE
-				if (vp->flags & AF_DIRTY) {
-					/* Only write the dirty attribute numbers
-					 * and clear the flag */
-				 
-					vp->flags &= ~AF_DIRTY;
-
-#endif					
+				if (!mudstate.standalone) {
+					if (vp->flags & AF_DIRTY) {
+						/* Only write the dirty
+						 * attribute numbers and
+						 * clear the flag */
+					 
+						vp->flags &= ~AF_DIRTY;
+						dirty = 1;
+					}
+				} else {
 					dirty = 1;
-					
-#ifndef STANDALONE
 				}
-#endif
+				
 				num++;
 			}
 		}
@@ -1435,27 +1425,26 @@ dbref db_write()
 		     (j < mudstate.attr_next);
 		     j++) {
 
-#ifdef STANDALONE
-			if (!(j % 100)) {
+			if (mudstate.standalone && !(j % 100)) {
 				fputc('.', mainlog_fp);
 			}
-#endif
 
 			/* We assume you always do a dbck before dump, and
 			 * Going objects are really destroyed! */
 	 
 			if (!Going(j)) {
-#ifndef STANDALONE
-				if (Flags3(j) & DIRTY) {
-					/* Only write the dirty objects and
-					 * clear the flag */
+				if (!mudstate.standalone) {
+					if (Flags3(j) & DIRTY) {
+						/* Only write the dirty
+						 * objects and clear the
+						 * flag */
 					
-					s_Clean(j);
-#endif
+						s_Clean(j);
+						dirty = 1;
+					}
+				} else {
 					dirty = 1;
-#ifndef STANDALONE
 				}
-#endif
 				num++;
 			}
 		}	
@@ -1494,9 +1483,8 @@ dbref db_write()
 		
 	XFREE(cdata, "db_write.cdata");
 
-#ifdef STANDALONE
-	fprintf(mainlog_fp, "\n");
-#endif
+	if (mudstate.standalone)
+		fprintf(mainlog_fp, "\n");
 	return (mudstate.db_top);
 }
 
@@ -1513,10 +1501,14 @@ int wrflag;
 	
 	if (wrflag) { 
 		f = tf_fopen(filename, O_WRONLY | O_CREAT | O_TRUNC);
-		log_printf("Writing db: %s", filename);
+		STARTLOG(LOG_ALWAYS, "DMP", "DUMP")
+			log_printf("Writing db: %s", filename);
+		ENDLOG
 	} else {
 		f = tf_fopen(filename, O_RDONLY);
-		log_printf("Loading db: %s", filename);
+		STARTLOG(LOG_ALWAYS, "INI", "LOAD")
+			log_printf("Loading db: %s", filename);
+		ENDLOG
 	}
 	
 	if (f != NULL) {
