@@ -9012,6 +9012,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   prog			Can use @program on players other than themself.
   search		Can @search anyone.
   see_all		Can examine and see attributes like a wizard.
+  see_hidden		Can see hidden (DARK) players on WHO, etc.
   see_queue		Can @ps/all or @ps any player.
   stat_any		Can @stat any player.
   steal_money		Can give negative money.
