@@ -223,8 +223,10 @@ char *name;
 	case STAT_PLAYER:
 		if (!(name && *name)) {
 			notify(player,
-			       tprintf("The universe contains %d objects.",
-				       mudstate.db_top));
+			       tprintf("The universe contains %d objects (next free is #%d).",
+				       mudstate.db_top,
+				       ((mudstate.freelist == NOTHING) ?
+					mudstate.db_top : mudstate.freelist)));
 			return;
 		}
 		owner = lookup_player(player, name, 1);
