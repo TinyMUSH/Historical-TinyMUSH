@@ -33,7 +33,7 @@ static int did_attr(player, thing, what)
 
     char *buff;
 
-    buff = master_attr(player, thing, what, NULL, 0);
+    buff = master_attr(player, thing, what, NULL, 0, NULL);
     if (buff) {
 	notify(player, buff);
 	free_lbuf(buff);

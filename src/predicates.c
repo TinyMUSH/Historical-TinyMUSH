@@ -1819,11 +1819,12 @@ dbref player, thing;
  *              the caller.
  */
 
-char *master_attr(player, thing, what, sargs, nsargs)
+char *master_attr(player, thing, what, sargs, nsargs, f_ptr)
     dbref player, thing;
     int what;
     char **sargs;
     int nsargs;
+    int *f_ptr;
 {
     /* If the attribute exists, evaluate it and return pointer to lbuf.
      * If not, return NULL.
@@ -1872,6 +1873,8 @@ char *master_attr(player, thing, what, sargs, nsargs)
     if (t) {
 	m = atr_pget(master, what, &aowner, &aflags, &alen);
     }
+    if (f_ptr)
+	*f_ptr = aflags;
 
     if (!(*d || (t && *m))) {
 	free_lbuf(d);

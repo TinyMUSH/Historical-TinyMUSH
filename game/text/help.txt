@@ -401,8 +401,8 @@ Continued in 'help Attribute Flags3'.
                   @enter, etc.), the Attr is not HTML-escaped (see Pueblo).
                   Local only. (H)
  
-     no_name    - If used as an @o-attr (including with @verb), do not
-                  prepend the name of the actor. (N)
+     no_name    - If used as an @o-attr (including with @verb), don't prepend
+                  the name of the actor. Also affects @speechformat. (N)
  
 Continued in 'help Attribute Flags4'.
  
@@ -4043,11 +4043,12 @@ Example: @sex me = female
 & @speechformat2
  
   If the evaluated string returned by @speechformat is empty, this is
-  treated as if the object did not have a @speechformat attribute at all.
-  (If the object is the speaker, then the location is checked for 
-  @speechformat; if there still isn't a non-empty string, the normal
-  default speech formats are used.)  Note that this means that
-  @speechformat cannot be used to entirely suppress speech.
+  treated as if the object did not have a @speechformat attribute at all,
+  unless the @speechformat attribute has the no_name attribute flag (thus
+  allowing @speechformat to entirely suppress speech if so desired).
+  In the event that the speaker does not have a @speechformat, its location
+  is checked for @speechformat; if there still isn't a non-empty string,
+  the normal default speech formats are used.
  
   @speechformat obeys attribute defaults.
  

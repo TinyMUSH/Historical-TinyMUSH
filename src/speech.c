@@ -82,6 +82,7 @@ static int check_speechformat(player, speaker, loc, thing, message, key)
     int key;
 {
     char *sargs[2], tokbuf[2], *buff, msgbuf[LBUF_SIZE];
+    int aflags;
 
     /* We have to make a copy of our arguments, because the exec() we
      * pass it through later can nibble those arguments, and we may
@@ -109,14 +110,17 @@ static int check_speechformat(player, speaker, loc, thing, message, key)
     sargs[1] = tokbuf;
 
     /* Go get it. An empty evaluation is considered equivalent to no
-     * attribute.
+     * attribute, unless the attribute has a no_name flag.
      */
 
-    buff = master_attr(speaker, thing, A_SPEECHFMT, sargs, 2);
+    buff = master_attr(speaker, thing, A_SPEECHFMT, sargs, 2, &aflags);
 			   
     if (buff) {
 	if (*buff) {
 	    notify_all_from_inside_speech(loc, player, buff);
+	    free_lbuf(buff);
+	    return 1;
+	} else if (aflags & AF_NONAME) {
 	    free_lbuf(buff);
 	    return 1;
 	}

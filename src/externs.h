@@ -191,7 +191,7 @@ extern dbref	FDECL(where_is, (dbref));
 extern dbref	FDECL(where_room, (dbref));
 extern int	FDECL(locatable, (dbref, dbref, dbref));
 extern int	FDECL(nearby, (dbref, dbref));
-extern char *	FDECL(master_attr, (dbref, dbref, int, char **, int));
+extern char *	FDECL(master_attr, (dbref, dbref, int, char **, int, int *));
 extern void	FDECL(did_it, (dbref, dbref, int, const char *, int,
 			const char *, int, int, char *[], int, int));
 
