@@ -186,8 +186,12 @@ void child_signal()
 	/*
 	 * collect any children 
 	 */
-	/* while (waitpid(0, NULL, WNOHANG) > 0) ; */
+
+#ifdef NEXT
 	while (wait3(NULL, WNOHANG, NULL) > 0);
+#else
+	while (waitpid(0, NULL, WNOHANG) > 0) ;
+#endif
 	signal(SIGCHLD, child_signal);
 }
 
@@ -271,8 +275,11 @@ char **argv;
 		/*
 		 * collect any children 
 		 */
-	/* 	while (waitpid(0, NULL, WNOHANG) > 0) ;*/
+#ifdef NEXT
 		while (wait3(NULL, WNOHANG, NULL) > 0) ;
+#else
+	 	while (waitpid(0, NULL, WNOHANG) > 0) ;
+#endif
 	}
 	exit(0);
 }

@@ -9,7 +9,7 @@ and bug fixes.
 TinyMUX is currently being developed under Digital UNIX 3.2 on a DEC Alpha.
 
 The latest version of this code can generally be found running at:
-Children of the Atom: cota.telmaron.com 2099
+Children of the Atom: cota.sneakers.org 2099
 
 Conversions from Other Database Formats:
 ---------------------------------------
@@ -267,7 +267,7 @@ What to do if you find a bug:
   (If it crashes the mux, it's a bug)  If you can't tell, consider it a bug.
 - Try to come up with an easily-reproducible sequence of events that will
   demonstrate the bug.
-- Send us mail about it at: lauren@ranger.range.orst.edu
+- Send us mail about it at: lauren@sneakers.org
   If the bug crashes the mush, try to include the following information 
   from running dbx (or gdb) on the resulting core file:
      - Output of the 'where' command.

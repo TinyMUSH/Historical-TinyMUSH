@@ -2619,7 +2619,7 @@ int insensitive;
 	sprintf(buf, "#%d/%s", thing, pattern);
 	if (parse_attrib_wild(player, buf, &thing, 0, 0, 1)) {
 		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
-			attrib = atr_get(player, ca, &aowner, &aflags);
+			attrib = atr_get(thing, ca, &aowner, &aflags);
 			text = attrib;
 			found = 0;
 			while (*text && !found) {

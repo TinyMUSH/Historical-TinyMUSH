@@ -147,7 +147,7 @@
   For example:
 
   > &LOOK me=$look:say I looked here!
-  > &LOOK_WITH_ARG me=$look:say I looked at %0!
+  > &LOOK_WITH_ARG me=$look *:say I looked at %0!
   > @addcommand look=me/look
   > @addcommand look=me/look_with_arg
  
