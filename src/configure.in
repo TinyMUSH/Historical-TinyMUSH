@@ -511,6 +511,8 @@ AC_CHECK_FUNCS(getpagesize strchr memset dlopen)
 dnl Declaration checks
 
 AC_DECL_SYS_SIGLIST
+AC_MSG_CHECKING(for sys_signame decl)
+AC_EGREP_HEADER(sys_signame,signal.h,AC_DEFINE(HAVE_SYS_SIGNAME) AC_MSG_RESULT(yes),AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for sys_errlist decl)
 if test $ac_cv_header_errno_h = no; then
 	AC_MSG_RESULT(no)

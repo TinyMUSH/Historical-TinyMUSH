@@ -1155,6 +1155,9 @@ const char *signame;
 static RETSIGTYPE sighandler(sig)
 int sig;
 {
+#ifdef HAVE_SYS_SIGNAME
+#define signames sys_signame
+#else
 #ifdef SYS_SIGLIST_DECLARED
 #define signames sys_siglist
 #else
@@ -1169,7 +1172,8 @@ int sig;
 		"SIGXCPU", "SIGXFSZ", "SIGVTALRM", "SIGPROF",
 		"SIGWINCH", "SIGLOST", "SIGUSR1", "SIGUSR2"};
 
-#endif
+#endif	/* SYS_SIGLIST_DECLARED */
+#endif	/* HAVE_SYS_SIGNAME */
 
 	char buff[32];
 

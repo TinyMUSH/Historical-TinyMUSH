@@ -160,6 +160,8 @@
 
 /* Define if sys_siglist[] exists */
 #undef SYS_SIGLIST_DECLARED
+/* Define if sys_signame[] exists */
+#undef HAVE_SYS_SIGNAME
 /* Define if we need to declare malloc et al */
 #undef NEED_MALLOC_DCL
 /* Define if you need to declare vsprintf yourself */
