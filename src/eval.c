@@ -632,7 +632,7 @@ char *cargs[];
 				    safe_chr(**dstr, buff, bufc);
 				} else {
 				    safe_str(ansi_chartab[**dstr], buff, bufc);
-				    ansi = (**dstr == 'n') ? 1 : 0;
+				    ansi = (**dstr == 'n') ? 0 : 1;
 				}
 				break;
 			case 'r':	/* Carriage return */
