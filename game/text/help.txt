@@ -13627,15 +13627,15 @@ traced from the caller's scope.
   
 & Mailing Lists
  
-  Support for TinyMUSH 3 is done via 'tinymush-support@godlike.com',
+  Support for TinyMUSH 3 is done via 'tinymush-support@lists.sourceforge.net',
   a mailing list. The list's home page, subscription tool, and archives
-  are at http://www.godlike.com/mailman/listinfo.cgi/tinymush-support
+  are at http://lists.sourceforge.net/mailman/listinfo/tinymush-support
  
   Announcements of new server versions, new games, and other information
   of interest to the general MUSH community, is available through
-  mush-announce@godlike.com, a moderated mailing list with low traffic.
-  We highly encourage all users to subscribe to it through its home page
-  at http://www.godlike.com/mailman/listinfo.cgi/mush-announce
+  tinymush-announce@lists.sourceforge.net, a moderated mailing list with
+  low traffic. We highly encourage all users to subscribe to it through
+  http://lists.sourceforge.net/mailman/listinfo/tinymush-announce
   Archives are also available through that page.
  
   There is an unofficial MUSH programmer's list, 'softcode@legendary.org'.
@@ -13651,7 +13651,7 @@ traced from the caller's scope.
 & Support
  
   TinyMUSH 3 announcements and related support information can be found
-  at the official TinyMUSH 3 home, http://www.godlike.com/tm3/
+  at the official TinyMUSH 3 home, http://tinymush.sourceforge.net/
  
   The MUSH Manual can be found at http://www.godlike.com/mushman/
   It might also be accessible by typing 'man' within this MUSH.

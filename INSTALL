@@ -330,11 +330,11 @@ installation) produces a file in the src directory called Compile.log;
 if the compile fails, the developers would like to know what it failed
 on so it can be fixed in future releases (and so they can assist you
 in getting the server to work on your system), so please mail
-tinymush-bugs@godlike.com with that file included or attached, as well
-as the output of the command 'uname -a' and any other relevant details
-about your machine's specific configuration. If you figured out what
-you needed to change in order to make the build successful, please
-include those instructions in your email, as well.
+tinymush-bugs@lists.sourceforge.net with that file included or attached,
+as well as the output of the command 'uname -a' and any other relevant
+details about your machine's specific configuration. If you figured
+out what you needed to change in order to make the build successful,
+please include those instructions in your email, as well.
 
 ----------------------------------------------------------------------------
 

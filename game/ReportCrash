@@ -10,7 +10,7 @@
 
 # This is where we send bugs.
 
-bug_address="tinymush-bugs@godlike.com"
+bug_address="tinymush-bugs@lists.sourceforge.net"
 
 # Check to make sure we have a core file.
 
