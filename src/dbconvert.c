@@ -94,6 +94,8 @@ int fmt, flags, ver;
 		fprintf(mainlog_fp, " TypedQuotas");
 	if (flags & V_TIMESTAMPS)
 		fprintf(mainlog_fp, " Timestamps");
+	if (flags & V_VISUALATTRS)
+		fprintf(mainlog_fp, " VisualAttrs");
 	fprintf(mainlog_fp, "\n");
 }
 

@@ -2268,7 +2268,7 @@ int fnum;
 	else {			/*
 				 * Shouldn't happen, but... 
 				 */
-		atr_add(player, A_MAILCURF, tbuf1, GOD, AF_ODARK | AF_WIZARD | AF_NOPROG | AF_LOCK);
+		atr_add(player, A_MAILCURF, tbuf1, GOD, AF_WIZARD | AF_NOPROG | AF_LOCK);
 	}
 	free_lbuf(tbuf1);
 }

@@ -649,12 +649,6 @@ char *text;
 	Print_Attr_Flags(aflags, xbuf, xbufp);
 	Print_Attr_Flags(ap->flags, gbuf, gbufp);
 
-	if (!(ap->flags & AF_ODARK)) {
-	    /* Hack to indicate this reverse-visible status */
-	    *gbufp++ = 'V';
-	    *gbufp = '\0';
-	}
-
 	fbp = xbuf;
 	if (*xbuf && *gbuf) {
 	    sprintf(flag_buf, "%s(%s)", xbuf, gbuf);

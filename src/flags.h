@@ -390,23 +390,14 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Visible_desc(p,x,a) \
 (((a)->number != A_DESC) || mudconf.read_rem_desc || nearby(p,x))
 
-#ifdef WHEN_WE_FIX_THE_STUPID_ODARK_STUFF
 #define Invisible_attr(p,x,a,o,f) \
 ((!Examinable(p,x) && (Owner(p) != o)) || \
    ((AttrFlags(a,f) & AF_MDARK) && !WizRoy(p)) || \
    ((AttrFlags(a,f) & AF_DARK) && !God(p)))
+
 #define Visible_attr(p,x,a,o,f) \
 (((AttrFlags(a,f) & AF_VISUAL) && Visible_desc(p,x,a)) || \
  !Invisible_attr(p,x,a,o,f))
-#else
-#define Invisible_attr(p,x,a,o,f) \
-((!Examinable(p,x) && (Owner(p) != o) && ((a)->flags & AF_ODARK)) || \
-   ((AttrFlags(a,f) & AF_MDARK) && !WizRoy(p)) || \
-   ((AttrFlags(a,f) & AF_DARK) && !God(p)))
-#define Visible_attr(p,x,a,o,f) \
-(((AttrFlags(a,f) & AF_VISUAL) || !Invisible_attr(p,x,a,o,f)) && \
- Visible_desc(p,x,a))
-#endif
 
 #define See_attr(p,x,a,o,f) \
 (!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && Visible_attr(p,x,a,o,f))

@@ -253,7 +253,7 @@ void NDECL(cf_init)
 	mudconf.stripped_flags.word2 = BLIND | CONNECTED | GAGGED |
 	    HEAD_FLAG | SLAVE | STAFF | STOP_MATCH | SUSPECT | UNINSPECTED;
 	mudconf.stripped_flags.word3 = 0;
-	mudconf.vattr_flags = AF_ODARK;
+	mudconf.vattr_flags = 0;
 	mudconf.vattr_flag_list = NULL;
 	mudconf.mud_name = XSTRDUP("TinyMUSH", "cf_init");
 	mudconf.one_coin = XSTRDUP("penny", "cf_init");
@@ -396,7 +396,7 @@ void NDECL(cf_init)
 	mudconf.start_room = 0;
 	mudconf.start_home = -1;
 	mudconf.default_home = -1;
-	mudconf.vattr_flags = AF_ODARK;
+	mudconf.vattr_flags = 0;
 	mudconf.log_options = 0xffffffff;
 	mudconf.log_info = 0;
 	mudconf.markdata[0] = 0x01;

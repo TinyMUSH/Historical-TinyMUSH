@@ -834,7 +834,6 @@ NAMETAB attraccess_nametab[] = {
 {(char *)"no_command",		5,	CA_PUBLIC,	AF_NOPROG},
 {(char *)"no_inherit",		4,	CA_PUBLIC,	AF_PRIVATE},
 {(char *)"no_parse",		4,	CA_PUBLIC,	AF_NOPARSE},
-{(char *)"private",		1,	CA_PUBLIC,	AF_ODARK},
 {(char *)"regexp", 		1,	CA_PUBLIC,	AF_REGEXP},
 {(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
 {(char *)"wizard",		1,	CA_PUBLIC,	AF_WIZARD},

@@ -679,7 +679,7 @@ int *db_format, *db_version, *db_flags;
 	char peek;
 #endif
 	int read_powers, read_powers_player, read_powers_any;
-	int has_typed_quotas;
+	int has_typed_quotas, has_visual_attrs;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
 	int aflags, f1, f2, f3;
 	BOOLEXP *tempbool;
@@ -704,6 +704,7 @@ int *db_format, *db_version, *db_flags;
 	read_extflags = 0;
 	read_3flags = 0;
 	has_typed_quotas = 0;
+	has_visual_attrs = 0;
 	read_timestamps = 0;
 	read_new_strings = 0;
 	read_powers = 0;
@@ -770,6 +771,7 @@ int *db_format, *db_version, *db_flags;
 			 read_extflags = (g_version & V_XFLAGS);
 			 has_typed_quotas = (g_version & V_TQUOTAS);
 			 read_timestamps = (g_version & V_TIMESTAMPS);
+			 has_visual_attrs = (g_version & V_VISUALATTRS);
 			 g_flags = g_version & ~V_MASK;
 
 			 deduce_name = 0;
@@ -823,6 +825,15 @@ int *db_format, *db_version, *db_flags;
 						aflags = (aflags * 10) +
 							(*tstr++ - '0');
 					tstr++;		/* skip ':' */
+					if (!has_visual_attrs) {
+					    /* If not AF_ODARK, is AF_VISUAL.
+					     * Strip AF_ODARK.
+					     */
+					    if (aflags & AF_ODARK)
+						aflags &= ~AF_ODARK;
+					    else
+						aflags |= AF_VISUAL;
+					}
 				} else {
 					aflags = mudconf.vattr_flags;
 				}
