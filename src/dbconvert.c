@@ -219,13 +219,13 @@ char *argv[];
 
 	if (do_write) {
 		db_flags = (db_flags & ~clrflags) | setflags;
-		if (db_format != F_MUX)
-			db_ver = 3;
 		if (ver != 0)
 			db_ver = ver;
+		else
+			db_ver = 3;
 		fprintf(stderr, "Output: ");
-		info(F_MUX, db_flags, db_ver);
-		db_write(stdout, F_MUX, db_ver | db_flags);
+		info(F_TINYMUSH, db_flags, db_ver);
+		db_write(stdout, F_TINYMUSH, db_ver | db_flags);
 	}
 	CLOSE;
 }

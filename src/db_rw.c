@@ -246,7 +246,8 @@ FILE *f;
 	 */
 
 	if (((g_format == F_MUSH) && (g_version != 2)) ||
-	    (g_format == F_MUSE) || (g_format == F_MUX)) {
+	    (g_format == F_MUSE) || (g_format == F_MUX) ||
+	    (g_format == F_TINYMUSH)) {
 		if ((c = getc(f)) != '\n')
 			ungetc(c, f);
 	}
@@ -313,10 +314,31 @@ int attrnum;
 		}
 	case F_MUSH:
 
-		/* Only need to muck with Pern variants */
+	    if (g_version != 2) {
 
-		if (g_version != 2)
+		/* TinyMUSH 2.2:  Deal with different attribute numbers. */
+
+		switch (attrnum) {
+		    case 208:
+			return A_NEWOBJS;
+			break;
+		    case 209:
+			return A_LCON_FMT;
+			break;
+		    case 210:
+			return A_LEXITS_FMT;
+			break;
+		    case 211:
+			return A_PROGCMD;
+			break;
+		    default:
 			return attrnum;
+		}
+
+	    } else {
+
+		/* Penn variant */
+
 		switch (attrnum) {
 		case 34:
 			return A_OENTER;
@@ -345,6 +367,7 @@ int attrnum;
 			}
 			return attrnum;
 		}
+	    }
 	default:
 		return attrnum;
 	}
@@ -821,6 +844,7 @@ int db_format, db_version;
 	} else if ((db_format == F_MUSH) && (db_version >= 3)) {
 		newf1 = f1;
 		newf2 = f2;
+		newf3 = 0;
 		switch (db_version) {
 		case 3:
 			(newf1 &= ~V2_ACCESSED);	/* Clear ACCESSED */
@@ -896,7 +920,60 @@ int db_format, db_version;
 			}
 			break;
 		}
+
+		/* Then we have to do the 2.2 to 3.0 flag conversion */
+
+		if (newf2 & HAS_COMMANDS) {
+		    newf2 &= ~HAS_COMMANDS;
+		    newf2 |= NOBLEED;
+		}
+		if (newf2 & AUDITORIUM) {
+		    newf2 &= ~AUDITORIUM;
+		    newf2 |= ZONE_PARENT;
+		}
+		if (newf2 & ANSI) {
+		    newf2 &= ~ANSI;
+		    newf2 |= STOP_MATCH;
+		}
+		if (newf2 & HEAD_FLAG) {
+		    newf2 &= ~HEAD_FLAG;
+		    newf2 |= HAS_COMMANDS;
+		}
+		if (newf2 & FIXED) {
+		    newf2 &= ~FIXED;
+		    newf2 |= BOUNCE;
+		}
+		if (newf2 & STAFF) {
+		    newf2 &= STAFF;
+		    newf2 |= HTML;
+		}
+		if (newf2 & HAS_DAILY) {
+		    newf2 &= ~HAS_DAILY;
+		    /* This is the unimplemented TICKLER flag. */
+		}
+		if (newf2 & GAGGED) {
+		    newf2 &= ~GAGGED;
+		    newf2 |= ANSI;
+		}
+		if (newf2 & COMPRESS) {
+		    newf2 &= ~COMPRESS;
+		    /* Builder flag now becomes a power. */
+		}
 	} else if (db_format == F_MUX) {
+
+	    /* TinyMUX to 3.0 flag conversion */
+
+	    if (newf2 & ZONE_PARENT) {
+		/* This used to be an object set NO_COMMAND. We unset the
+		 * flag.
+		 */
+		newf2 &= ~ZONE_PARENT;
+	    } else {
+		/* And if it wasn't NO_COMMAND, then it should be COMMANDS. */
+		newf2 |= HAS_COMMANDS;
+	    }
+
+	} else if (db_format == F_TINYMUSH) {
 		newf1 = f1;
 		newf2 = f2;
 		newf3 = f3;
@@ -1338,82 +1415,70 @@ int *db_format, *db_version, *db_flags;
 			break;
 #endif
 		case '+':	/* MUX and MUSH header */
-			switch (ch = getc(f)) {		/* 2nd char selects 
-							 * type 
-							 */
+
+		    ch = getc(f); /* 2nd char selects type */
+
+		    if ((ch == 'V') || (ch == 'X') || (ch == 'T')) {
+
+			/* The following things are common across 2.x, MUX,
+			 * and 3.0.
+			 */
+		        
+			 if (header_gotten) {
+			     fprintf(stderr,
+				     "\nDuplicate MUSH version header entry at object %d, ignored.\n",
+				     i);
+			     tstr = getstring_noalloc(f, 0);
+			     break;
+			 }
+			 header_gotten = 1;
+			 deduce_version = 0;
+			 g_version = getref(f);
+			 
+			 /* Otherwise extract feature flags */
+
+			 if (g_version & V_GDBM) {
+			     read_attribs = 0;
+			     read_name = !(g_version & V_ATRNAME);
+			 }
+			 read_zone = (g_version & V_ZONE);
+			 read_link = (g_version & V_LINK);
+			 read_key = !(g_version & V_ATRKEY);
+			 read_parent = (g_version & V_PARENT);
+			 read_money = !(g_version & V_ATRMONEY);
+			 read_extflags = (g_version & V_XFLAGS);
+			 has_typed_quotas = (g_version & V_TQUOTAS);
+			 g_flags = g_version & ~V_MASK;
+
+			 g_version &= V_MASK;
+			 deduce_name = 0;
+			 deduce_version = 0;
+			 deduce_zone = 0;
+		    }
+
+		    /* More generic switch. */
+
+		    switch (ch) {
+			case 'T':	/* 3.0 VERSION */
+			    g_format = F_TINYMUSH;
+			    read_3flags = (g_version & V_3FLAGS);
+			    read_powers = (g_version & V_POWERS);
+			    read_new_strings = (g_version & V_QUOTED);
+			    break;
+
 #ifdef STANDALONE
-			case 'V':	/* MUSH VERSION */
-				if (header_gotten) {
-					fprintf(stderr,
-						"\nDuplicate MUSH version header entry at object %d, ignored.\n",
-						i);
-					tstr = getstring_noalloc(f, 0);
-					break;
-				}
-				header_gotten = 1;
-				deduce_version = 0;
-				g_format = F_MUSH;
-				g_version = getref(f);
-				penn_version = g_version;
+			case 'V':	/* 2.0 VERSION */
+			    g_format = F_MUSH;
+			    penn_version = g_version;
+			    break;
 
-				/* Otherwise extract feature flags */
+			case 'X':	/* MUX VERSION */
+			    g_format = F_MUX;
+			    read_3flags = (g_version & V_3FLAGS);
+			    read_powers = (g_version & V_POWERS);
+			    read_new_strings = (g_version & V_QUOTED);
+			    break;
 
-				if (g_version & V_GDBM) {
-					read_attribs = 0;
-					read_name = !(g_version & V_ATRNAME);
-				}
-				read_zone = (g_version & V_ZONE);
-				read_link = (g_version & V_LINK);
-				read_key = !(g_version & V_ATRKEY);
-				read_parent = (g_version & V_PARENT);
-				read_money = !(g_version & V_ATRMONEY);
-				read_extflags = (g_version & V_XFLAGS);
-				has_typed_quotas = (g_version & V_TQUOTAS);
-				g_flags = g_version & ~V_MASK;
-
-				g_version &= V_MASK;
-				deduce_name = 0;
-				deduce_version = 0;
-				deduce_zone = 0;
-				break;
-#endif
-			case 'X':	/* MUSH VERSION */
-				if (header_gotten) {
-					fprintf(stderr,
-						"\nDuplicate MUSH version header entry at object %d, ignored.\n",
-						i);
-					tstr = getstring_noalloc(f, 0);
-					break;
-				}
-				header_gotten = 1;
-				deduce_version = 0;
-				g_format = F_MUX;
-				g_version = getref(f);
-
-				/* Otherwise extract feature flags */
-
-				if (g_version & V_GDBM) {
-					read_attribs = 0;
-					read_name = !(g_version & V_ATRNAME);
-				}
-				read_zone = (g_version & V_ZONE);
-				read_link = (g_version & V_LINK);
-				read_key = !(g_version & V_ATRKEY);
-				read_parent = (g_version & V_PARENT);
-				read_money = !(g_version & V_ATRMONEY);
-				read_extflags = (g_version & V_XFLAGS);
-				read_3flags = (g_version & V_3FLAGS);
-				read_powers = (g_version & V_POWERS);
-				read_new_strings = (g_version & V_QUOTED);
-				has_typed_quotas = (g_version & V_TQUOTAS);
-				g_flags = g_version & ~V_MASK;
-
-				g_version &= V_MASK;
-				deduce_name = 0;
-				deduce_version = 0;
-				deduce_zone = 0;
-				break;
-#ifdef STANDALONE
 			case 'K':	/* Kalkin's DarkZone dist */
 				/* Him and his #defines... */
 				if (header_gotten) {
@@ -1453,7 +1518,7 @@ int *db_format, *db_version, *db_flags;
 					read_dark_threepow = 1;
 				g_version = 2;
 				break;
-#endif
+#endif /* STANDALONE */
 			case 'S':	/* SIZE */
 				if (size_gotten) {
 					fprintf(stderr,
@@ -1601,7 +1666,7 @@ int *db_format, *db_version, *db_flags;
 #endif
 		case '!':	/* MUX entry/MUSH entry/MUSE non-zoned entry */
 			if (deduce_version) {
-				g_format = F_MUX;
+				g_format = F_TINYMUSH;
 				g_version = 1;
 				deduce_name = 0;
 				deduce_zone = 0;
@@ -2011,11 +2076,11 @@ int format, version;
 #endif /* MEMORY_BASED */
 
 	switch (format) {
-	case F_MUX:
+	case F_TINYMUSH:
 		flags = version;
 		break;
 	default:
-		fprintf(stderr, "Can only write MUSH format.\n");
+		fprintf(stderr, "Can only write TinyMUSH 3 format.\n");
 		return -1;
 	}
 #ifdef STANDALONE
@@ -2023,7 +2088,8 @@ int format, version;
 	fflush(stderr);
 #endif
 	i = mudstate.attr_next;
-	fprintf(f, "+X%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
+	/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
+	fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
 	fprintf(f, "-R%d\n", mudstate.record_players);
 	
 	/* Dump user-named attribute info */

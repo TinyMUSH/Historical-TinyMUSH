@@ -1042,7 +1042,7 @@ int dump_type;
 		unlink(mudconf.crashdb);
 		f = tf_fopen(mudconf.crashdb, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
-			db_write(f, F_MUX, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening crash file",
@@ -1070,7 +1070,7 @@ int dump_type;
 
 		if (f != NULL) {
 			/* Write a flatfile */
-			db_write(f, F_MUX, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening flatfile",
@@ -1093,7 +1093,7 @@ int dump_type;
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
 			/* Write a flatfile */
-			db_write(f, F_MUX, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening killed file",
@@ -1129,7 +1129,7 @@ int dump_type;
 		strcat(outfn, ".gz");
 		f = tf_popen(tprintf("%s > %s", mudconf.compress, tmpfile), O_WRONLY);
 		if (f) {
-			db_write(f, F_MUX, OUTPUT_VERSION | OUTPUT_FLAGS);
+			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
 			tf_pclose(f);
 			rename(mudconf.outdb, prevfile);
 			if (rename(tmpfile, outfn) < 0)
@@ -1143,7 +1143,7 @@ int dump_type;
 #endif /* VMS */
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f) {
-			db_write(f, F_MUX, OUTPUT_VERSION | OUTPUT_FLAGS);
+			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
 			tf_fclose(f);
 			rename(mudconf.outdb, prevfile);
 			if (rename(tmpfile, mudconf.outdb) < 0)
