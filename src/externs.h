@@ -372,6 +372,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define PEMIT_LIST      64      /* Send to a list */
 #define PEMIT_SPEECH	128	/* Explicitly tag this as speech */
 #define PEMIT_HTML	256     /* HTML escape, and no newline */
+#define PEMIT_MOVE	512	/* Explicitly tag this as a movement message */
 #define	PS_BRIEF	0	/* Short PS report */
 #define	PS_LONG		1	/* Long PS report */
 #define	PS_SUMM		2	/* Queue counts only */
@@ -556,6 +557,8 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 						MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE)
 #define	notify_all_from_inside_speech(p,c,m)	notify_check(p,c,m, \
 						MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE|MSG_SPEECH)
+#define	notify_all_from_inside_move(p,c,m)	notify_check(p,c,m, \
+						MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE|MSG_MOVE)
 #define notify_all_from_inside_html(p,c,m)      notify_check(p,c,m, \
                                               MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE|MSG_HTML) 
 #define notify_all_from_inside_html_speech(p,c,m)      notify_check(p,c,m, \

@@ -2742,6 +2742,8 @@ Available switches:
   /noeval - Send the message unparsed.
   /speech - Explicitly mark the message as speech, causing PRESENCE
             permissions to be checked.
+  /move   - Explicitly mark the message as a movement message, causing
+            PRESENCE permissions to be checked.
  
 See also:  @emit, @pemit
  
@@ -2776,6 +2778,8 @@ Available switches:
   /noeval   - Send the message unparsed.
   /speech   - Explicitly mark the message as speech, causing PRESENCE
               permissions to be checked.
+  /move     - Explicitly mark the message as a movement message, causing
+              PRESENCE permissions to be checked.
   /html     - (Pueblo only) Send the message in HTML format.
   /silent   - (Provided for PennMUSH compatibility) No effect. 
  

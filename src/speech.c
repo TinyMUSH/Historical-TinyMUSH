@@ -862,8 +862,8 @@ char *recipient, *message;
 		return;
 	}
 
-	pemit_flags = key & (PEMIT_HERE | PEMIT_ROOM | PEMIT_SPEECH | PEMIT_HTML);
-	key &= ~(PEMIT_HERE | PEMIT_ROOM | PEMIT_SPEECH | PEMIT_HTML);
+	pemit_flags = key & (PEMIT_HERE | PEMIT_ROOM | PEMIT_SPEECH | PEMIT_MOVE | PEMIT_HTML);
+	key &= ~(PEMIT_HERE | PEMIT_ROOM | PEMIT_SPEECH | PEMIT_MOVE | PEMIT_HTML);
 	ok_to_do = 0;
 
 
@@ -937,6 +937,9 @@ char *recipient, *message;
 				    if (pemit_flags & PEMIT_SPEECH) {
 					notify_all_from_inside_speech(target,
 							      player, message);
+				    } else if (pemit_flags & PEMIT_MOVE) {
+					notify_all_from_inside_move(target,
+							      player, message);
 				    } else {
 					notify_all_from_inside(target, player,
 							       message);
@@ -950,7 +953,10 @@ char *recipient, *message;
 			}
 			break;
 		case PEMIT_OEMIT:
-			notify_except(Location(target), player, target, message, (pemit_flags & PEMIT_SPEECH) ? MSG_SPEECH : 0); 
+		        notify_except(Location(target), player, target,
+			    message,
+			    ((pemit_flags & PEMIT_SPEECH) ? MSG_SPEECH : 0) |
+			    ((pemit_flags & PEMIT_MOVE) ? MSG_MOVE : 0));
 			break;
 		case PEMIT_WHISPER:
 		        if ((Unreal(player) && !Check_Heard(target, player)) ||
