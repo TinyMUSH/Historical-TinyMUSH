@@ -1441,11 +1441,13 @@ void do_logrotate(player, cause, key)
 	/* Ugh. We're in trouble here. Let's try to print to stderr
 	 * anyway.
 	 */
+	notify(player, "Log rotation failed.");
 	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
 	    log_name(player);
 	    log_text((char *) " attempted failed log rotation\n");
 	ENDLOG
     } else {
+	notify(player, "Log rotated.");
 	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
 	    log_name(player);
 	    log_text((char *) " rotated logfile to ");
