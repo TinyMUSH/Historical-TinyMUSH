@@ -2083,7 +2083,7 @@ void stack_clr(thing)
     }
 }
 
-static void stack_set(thing, sp)
+static int stack_set(thing, sp)
     dbref thing;
     OBJSTACK *sp;
 {
@@ -2093,13 +2093,7 @@ static void stack_set(thing, sp)
     if (!sp) {
 	nhashdelete(thing, &mudstate.objstack_htab);
 	s_StackCount(thing, StackCount(thing) - 1);
-	return;
-    }
-
-    if (StackCount(thing) + 1 > mudconf.stack_lim) {
-	XFREE(sp->data, "stack_max_data");
-	XFREE(sp, "stack_max");
-	return;
+	return 0;
     }
 
     xsp = stack_get(thing);
@@ -2107,7 +2101,6 @@ static void stack_set(thing, sp)
 	stat = nhashrepl(thing, (int *) sp, &mudstate.objstack_htab);
     } else {
 	stat = nhashadd(thing, (int *) sp, &mudstate.objstack_htab);
-	s_StackCount(thing, StackCount(thing) + 1);
 	Set_Max(mudstate.max_stacks, mudstate.objstack_htab.entries);
     }
     if (stat < 0) {		/* failure for some reason */
@@ -2115,7 +2108,9 @@ static void stack_set(thing, sp)
 	    log_name(thing);
 	ENDLOG
 	stack_clr(thing);
+	return 0;
     }
+    return 1;
 }
 
 FUNCTION(fun_empty)
@@ -2167,6 +2162,9 @@ FUNCTION(fun_push)
 	data = fargs[1];
     }
 
+    if (StackCount(it) + 1 > mudconf.stack_lim)
+	return;
+
     sp = (OBJSTACK *) XMALLOC(sizeof(OBJSTACK), "stack_push");
     if (!sp)			/* out of memory, ouch */
 	return;
@@ -2176,7 +2174,8 @@ FUNCTION(fun_push)
     if (! sp->data)
 	return;
     strcpy(sp->data, data);
-    stack_set(it, sp);
+    if (stack_set(it, sp))
+	s_StackCount(it, StackCount(it) + 1);
 }
 
 FUNCTION(fun_dup)
@@ -2194,6 +2193,9 @@ FUNCTION(fun_dup)
     } else {
 	stack_object(player, it);
     }
+
+    if (StackCount(it) + 1 > mudconf.stack_lim)
+	return;
 
     if (!fargs[1] || !*fargs[1]) {
 	pos = 0;
@@ -2218,7 +2220,8 @@ FUNCTION(fun_dup)
     if (!sp->data)
 	return;
     strcpy(sp->data, tp->data);
-    stack_set(it, sp);
+    if (stack_set(it, sp))
+	s_StackCount(it, StackCount(it) + 1);
 }
 
 FUNCTION(fun_swap)
