@@ -260,3 +260,16 @@ The initial beta release was on 9/27/99.
   - Fix: format_exits conf parameter is recognized again. [3.0]
 
   - Misc: Unused conf parameters eliminated.
+
+-----------------------------------------------------------------------------
+
+10/8/99: Beta 10
+
+  - Feature: edit() can now edit ANSI strings. @edit also handles ANSI
+    in a better manner.
+
+  - Fix: Conf parameter unowned_safe is back. (Oops.) [3.0b9]
+
+  - Misc: sql_init()'s shutdown of a SQL socket calls sql_shutdown()
+    instead of doing just doing it.
+

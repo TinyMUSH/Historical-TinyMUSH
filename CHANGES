@@ -164,6 +164,15 @@ the other have been listed in the conversion notes for both servers.
 - Functions that take output delimiters can take a null output delimiter,
   symbolized by the token '@@'.
 
+- The ansi() function compacts multiple ANSI attributes into a single
+  ANSI code.
+
+- String-manipulation functions, such as edit() and mid(), no longer
+  strip ANSI characters, and @edit is better able to handle ANSI
+  characters.
+
+- An ANSI underline code, %xu, has been added.
+
 - Added chomp() function -- akin to perl chomp(), it chomps off a
   trailing carriage-return newline from a string, if there is one.
   (Useful for dealing with pipe output.)
@@ -215,11 +224,6 @@ the other have been listed in the conversion notes for both servers.
 
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.
-
-- The delete(), mid(), left(), and right() functions no longer strip
-  ANSI characters.
-
-- An ANSI underline code, %xu, has been added.
 
 - The MUSH manual is included in the distribution in helpfile format.
   (Thanks to Alierak and sTiLe.)
