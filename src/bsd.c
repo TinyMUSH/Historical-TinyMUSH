@@ -1226,28 +1226,22 @@ int sig;
 
 #if defined(HAVE_UNION_WAIT) && defined(NEED_WAIT3_DCL)
 	union wait stat;
-
 #else
 	int stat;
-
 #endif
 
 	switch (sig) {
-	case SIGUSR1:
+	case SIGUSR1:		/* Normal restart now */
 	        log_signal(signames[sig]);
 		do_restart(GOD, GOD, 0);
 		break;
-	case SIGUSR2:
+	case SIGUSR2:		/* Dump a flatfile soon */
 		mudstate.flatfile_flag = 1;
 		break;
-	case SIGALRM:		/*
-				 * Timer 
-				 */
+	case SIGALRM:		/* Timer */
 		mudstate.alarm_triggered = 1;
 		break;
-	case SIGCHLD:		/*
-				 * Change in child status 
-				 */
+	case SIGCHLD:		/* Change in child status */
 #ifndef SIGNAL_SIGCHLD_BRAINDAMAGE
 		signal(SIGCHLD, sighandler);
 #endif
@@ -1263,21 +1257,17 @@ int sig;
 				
 		mudstate.dumping = 0;
 		break;
-	case SIGHUP:		/*
-				 * Perform a database dump 
-				 */
+	case SIGHUP:		/* Dump database soon */
 		log_signal(signames[sig]);
 		mudstate.dump_counter = 0;
 		break;
-	case SIGINT:		/*
-				 * Log + ignore 
-				 */
+	case SIGINT:		/* Log + ignore */
 		log_signal(signames[sig]);
 		break;
-	case SIGQUIT:		/*
-				 * Normal shutdown 
-				 */
-	case SIGTERM:
+	case SIGQUIT:		/* Normal shutdown soon */
+		mudstate.shutdown_flag = 1;
+		break;
+	case SIGTERM:		/* Killed shutdown now */
 #ifdef SIGXCPU
 	case SIGXCPU:
 #endif
@@ -1289,9 +1279,7 @@ int sig;
 		dump_database_internal(DUMP_DB_KILLED);
 		exit(0);
 		break;
-	case SIGILL:		/*
-				 * Panic save + restart 
-				 */
+	case SIGILL:		/* Panic save + restart now, or coredump now */
 	case SIGFPE:
 	case SIGSEGV:
 	case SIGTRAP:
@@ -1355,7 +1343,7 @@ int sig;
 			fprintf(mainlog_fp, "ABORT! bsd.c, SA_EXIT requested.\n");
 			abort();
 		}
-	case SIGABRT:		/* Coredump. */
+	case SIGABRT:		/* Coredump now */
 		check_panicking(sig);
 		log_signal(signames[sig]);
 		report();
