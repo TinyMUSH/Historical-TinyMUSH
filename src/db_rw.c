@@ -24,6 +24,8 @@
 extern const char *FDECL(getstring_noalloc, (FILE *, int));
 extern void FDECL(putstring, (FILE *, const char *));
 extern void FDECL(db_grow, (dbref));
+extern void FDECL(putlong, (FILE *, long));
+extern long FDECL(getlong, (FILE *));
 
 extern struct object *db;
 
@@ -686,6 +688,7 @@ int *db_format, *db_version, *db_flags;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
 	int aflags, f1, f2, f3;
 	BOOLEXP *tempbool;
+	time_t tmptime;
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;
 #endif
@@ -771,6 +774,7 @@ int *db_format, *db_version, *db_flags;
 			 read_money = !(g_version & V_ATRMONEY);
 			 read_extflags = (g_version & V_XFLAGS);
 			 has_typed_quotas = (g_version & V_TQUOTAS);
+			 read_timestamps = (g_version & V_TIMESTAMPS);
 			 g_flags = g_version & ~V_MASK;
 
 			 deduce_name = 0;
@@ -966,8 +970,14 @@ int *db_format, *db_version, *db_flags;
 				s_Powers2(i, f2);
 			}
 
-			db[i].last_access = time(NULL);
-			db[i].last_mod = time(NULL);
+			if (read_timestamps) {
+			    tmptime = (time_t) getlong(f);
+			    s_AccessTime(i, tmptime);
+			    tmptime = (time_t) getlong(f);
+			    s_ModTime(i, tmptime);
+			} else {
+			    AccessTime(i) = ModTime(i) = time(NULL);
+			}
 				
 			/* ATTRIBUTES */
 
@@ -1067,8 +1077,12 @@ int db_format, flags;
 		putref(f, Powers(i));
 		putref(f, Powers2(i));
 	}
-	/* write the attribute list */
+	if (flags & V_TIMESTAMPS) {
+		putlong(f, AccessTime(i));
+		putlong(f, ModTime(i));
+	}
 
+	/* write the attribute list */
 
 #ifndef STANDALONE
 	if ((!(flags & V_GDBM)) || (mudstate.panicking == 1)) {

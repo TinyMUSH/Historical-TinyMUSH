@@ -2859,6 +2859,13 @@ dbref ref;
 	fprintf(f, "%d\n", ref);
 }
 
+void putlong(f, i)
+FILE *f;
+long i;
+{
+	fprintf(f, "%ld\n", i);
+}
+
 void putstring(f, s)
 FILE *f;
 const char *s;
@@ -2938,6 +2945,14 @@ FILE *f;
 	static char buf[SBUF_SIZE];
 	fgets(buf, sizeof(buf), f);
 	return (atoi(buf));
+}
+
+long getlong(f)
+FILE *f;
+{
+	static char buf[SBUF_SIZE];
+	fgets(buf, sizeof(buf), f);
+	return (atol(buf));
 }
 
 void free_boolexp(b)

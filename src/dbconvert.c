@@ -93,6 +93,8 @@ int fmt, flags, ver;
 		fprintf(mainlog_fp, " QuotedStr");
 	if (flags & V_TQUOTAS)
 		fprintf(mainlog_fp, " TypedQuotas");
+	if (flags & V_TIMESTAMPS)
+		fprintf(mainlog_fp, " Timestamps");
 	fprintf(mainlog_fp, "\n");
 }
 
