@@ -100,7 +100,8 @@ char *direction, *linkto;
 
 		/* Make sure the player passes the link lock */
 
-		if (!Passes_Linklock(player, loc)) {
+		if (loc != HOME && (!Good_obj(loc) ||
+				    !Passes_Linklock(player, loc))) {
 			notify_quiet(player, "You can't link to there.");
 			return;
 		}
