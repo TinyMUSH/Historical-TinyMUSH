@@ -12,7 +12,7 @@ use Socket;
 $uncompress_program = "gzip -d -c";
 $patch_program = "patch -p1";
 
-$patch_url = "http://www.godlike.com/tm3/patches";
+$patch_url = "http://tinymush.sourceforge.net/patches";
 $patchlevel_file = "src/.patchlevel";
 
 if ($ARGV[0] eq "-v") {
