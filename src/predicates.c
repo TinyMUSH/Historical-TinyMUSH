@@ -1324,6 +1324,10 @@ void do_restart(player, cause, key)
 	log_name(player);
 	ENDLOG
 	
+	/* Do a dbck first so we don't end up with an inconsistent state. */
+
+	do_dbck(NOTHING, NOTHING, 0);
+
 	dump_database_internal(2);
 	
 	SYNC;
