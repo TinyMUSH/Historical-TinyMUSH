@@ -48,6 +48,9 @@ static int did_attr(player, thing, what)
 	case TYPE_PLAYER:
 	    master = mudconf.player_defobj;
 	    break;
+	case TYPE_GARBAGE:
+	    return 0;
+	    break;		/* NOTREACHED */
 	default:
 	    master = mudconf.thing_defobj;
     }
@@ -932,21 +935,26 @@ int key;
 		show_vrml_url(player, loc);
 #endif
 
-	/* tell him the name, and the number if he can link to it */
+	/* If we can't format it in a player-specified way, then show
+	 * the name (and unparse info, if relevant). We only invoke
+	 * the Pueblo formatting if we weren't given a @nameformat.
+	 */
 
-	buff = unparse_object(player, loc, 1);
+	if (!did_attr(player, loc, A_NAME_FMT)) {
+	    buff = unparse_object(player, loc, 1);
 #ifdef PUEBLO_SUPPORT
-	if (Html(player)) {
+	    if (Html(player)) {
 		notify_html(player, "<center><h3>");
 		notify(player, buff);
 		notify_html(player, "</h3></center>");
-	} else {
+	    } else {
 		notify(player, buff);
-	}
+	    }
 #else
-	notify(player, buff);
+	    notify(player, buff);
 #endif
-	free_lbuf(buff);
+	    free_lbuf(buff);
+	}
 
 	if (!Good_obj(loc))
 		return;		/* If we went to NOTHING et al, skip the

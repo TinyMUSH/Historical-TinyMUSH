@@ -172,6 +172,8 @@
 #define A_VRML_URL	220     /* URL of the VRML scene for this object */
 #define A_HTDESC	221     /* HTML @desc */
 
+#define A_NAME_FMT	222	/* Player-specified name format */
+
 #define	A_VLIST		252
 #define	A_LIST		253
 #define	A_STRUCT	254

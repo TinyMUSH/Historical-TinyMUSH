@@ -214,8 +214,8 @@ Moving:		@move set
 Individual attribute entries:
  
 @allowance	@comment	@conformat	@daily		@exitformat
-@exitto		@newobjs	@sex		@startup	@timeout
-@va
+@exitto		@nameformat	@newobjs	@sex		@startup
+@timeout	@va
  
 All available attributes can be listed with '@list attributes'.
  
@@ -3916,7 +3916,7 @@ Example: @sex me = female
   through '@conformat here = Contents: [iter(lcon(me),name(##))]',
   for example. More complex things are, obviously, possible.
  
-  See also: @exitformat
+  See also: @exitformat, @nameformat
 
 & @exitformat
   Command: @exitformat <object> = <list of exits format>
@@ -3935,8 +3935,31 @@ Example: @sex me = female
   Or, to imitate a PennMUSH-style room-TRANSPARENT "long exits" format:
   'Obvious Exits:[iter(lexits(me),%r [name(##)] leads to [name(loc(##))].'
  
-  See also: @conformat
+  See also: @conformat, @nameformat
 
+& @nameformat
+  Command: @nameformat <object> = <name format>
+  Attribute: NameFormat
+ 
+  Replaces the usual name (or name, number, and flags) when a location
+  is looked at, by a player-specified name format. This is evaluated
+  as if it were a description or other similar message on the room, and
+  is passed no special parameters.
+ 
+  Example:
+    > @desc here=| There is nothing of interest here. |%r+[repeat(-,36)]+
+    > look
+    Limbo(#0R)
+    | There is nothing of interest here. |
+    +------------------------------------+
+    > @nameformat here=+---[ljust(< [name(me)] >,30,-)]---+
+    > look
+    +---< Limbo >------------------------+
+    | There is nothing of interest here. |
+    +------------------------------------+
+ 
+  See also: @conformat, @exitformat
+ 
 & @exitto
   Command: @exitto <object> = <function text>
   Attribute: ExitTo
