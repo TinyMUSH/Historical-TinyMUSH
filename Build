@@ -3,18 +3,18 @@
 echo "Building TinyMUSH 3.0..."
 
 echo
-echo "***** Configuring gdbm..."
+echo "***** Configuring Sleepycat DBM..."
 echo
-cd src/gdbm-1.8.0
-./configure --enable-shared=no --enable-static=yes
+cd src/db-3.1.17/build_unix
+../dist/configure
 echo
-echo "***** Building gdbm..."
+echo "***** Building Sleepycat DBM..."
 echo
 make
 
 echo
 echo "***** Configuring the server..."
-cd ..
+cd ../..
 ./configure
 echo
 echo "***** Making dependencies..."
