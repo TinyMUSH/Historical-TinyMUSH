@@ -317,7 +317,7 @@ if ((l) > 0) { \
 #define Too_Much_CPU(x) \
 ((mudconf.func_cpu_lim > (x)) && \
  (mudstate.cputime_base > 0) && \
- (clock() - mudstate.cputime_base > mudconf.func_cpu_lim))
+ (clock() > mudstate.cputime_base + mudconf.func_cpu_lim))
 
 /* Function-specific flags used in the function table. */
 
