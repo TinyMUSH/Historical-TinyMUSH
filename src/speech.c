@@ -461,7 +461,8 @@ char *tname, *message;
 	int ismessage = 0;
 	int count = 0;
 	int n = 0;
-	int aflags, alen;
+	int aflags = 0;
+	int alen;
 
 	buf1 = alloc_lbuf("page_return_list");
 	bp = buf1;
