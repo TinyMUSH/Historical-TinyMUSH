@@ -620,7 +620,7 @@ FUNCTION(fun_entrances)
 	if (!find_ex && !find_th && !find_pl && !find_rm) {
 		find_ex = find_th = find_pl = find_rm = 1;
 	}
-	if (!*fargs[0]) {
+	if (!fargs[0] || !*fargs[0]) {
 		if (Has_location(player))
 			thing = Location(player);
 		else
