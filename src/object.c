@@ -1159,8 +1159,7 @@ static NDECL(void check_dead_refs)
 		/* Check forwardlist */
 
 		dirty = 0;
-		fp = fwdlist_get(i);
-		if (fp) {
+		if (H_Fwdlist(i) && ((fp = fwdlist_get(i)) != NULL)) {
 			for (j = 0; j < fp->count; j++) {
 				targ = fp->data[j];
 				if (Good_obj(targ) && Going(targ)) {

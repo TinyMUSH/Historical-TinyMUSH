@@ -705,7 +705,8 @@ const char *msg;
 		}
 		/* Deliver message to forwardlist members */
 
-		if ((key & MSG_FWDLIST) && Audible(target) &&
+		if ((key & MSG_FWDLIST) &&
+		    Audible(target) && H_Fwdlist(target) &&
 		    check_filter(target, sender, A_FILTER, msg)) {
 			tbuff = dflt_from_msg(sender, target);
 			buff = add_prefix(target, sender, A_PREFIX,
