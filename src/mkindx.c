@@ -128,6 +128,7 @@ int dump_entries(FILE *wfp, long pos, help_indx_list *entries)
 {
 	int	truepos;
 	int	truelen;
+	int	depth;
 	help_indx_list	*prev_ep, *ep;
 
 	/*
@@ -138,6 +139,7 @@ int dump_entries(FILE *wfp, long pos, help_indx_list *entries)
 	truelen = (int)(pos - entries->entry.pos);
 
 	prev_ep = 0;
+	depth = 0;
 
 	for (ep = entries; ep; ep = ep->next) {
 		ep->entry.pos = (long)truepos;
@@ -147,7 +149,9 @@ int dump_entries(FILE *wfp, long pos, help_indx_list *entries)
 
 	   if (prev_ep)
 		   free(prev_ep);
-	   prev_ep = ep;
+
+		if (depth++)	/* don't want to try to free the top of the chain */
+	      prev_ep = ep;
 	}
 	/*
 	*  no attempt is made to free the last remaining struct as its actually the
