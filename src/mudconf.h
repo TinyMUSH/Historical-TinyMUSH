@@ -171,6 +171,7 @@ struct confdata {
 	int	match_mine;	/* Should you check yourself for $-commands? */
 	int	match_mine_pl;	/* Should players check selves for $-cmds? */
 	int	switch_df_all;	/* Should @switch match all by default? */
+	int	fascist_objeval; /* Does objeval() require victim control? */
 	int	fascist_tport;	/* Src of teleport must be owned/JUMP_OK */
 	int	terse_look;	/* Does manual look obey TERSE */
 	int	terse_contents;	/* Does TERSE look show exits */
