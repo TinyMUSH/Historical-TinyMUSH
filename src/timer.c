@@ -1,9 +1,5 @@
-/*
- * timer.c -- Subroutines for (system-) timed events 
- */
-/*
- * $Id$ 
- */
+/* timer.c - Subroutines for (system-) timed events */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -133,10 +129,14 @@ static char *parse_cronlist(player, bits, low, high, bufp)
 
     if (!bufp || !*bufp)
 	return NULL;
-    while (isspace(*bufp))
-	bufp++;
     if (!*bufp)
 	return NULL;
+
+    /* We assume we're at the beginning of what we needed to parse.
+     * All leading whitespace-skipping should have been taken care of
+     * either before this function was called, or at the end of this
+     * function.
+     */
 
     while (*bufp && !isspace(*bufp)) {
 	if (*bufp == '*') {
@@ -194,7 +194,11 @@ static char *parse_cronlist(player, bits, low, high, bufp)
 
     /* Initially, bufp pointed to the beginning of what we parsed. We have
      * to return it so we know where to start the next bit of parsing.
+     * Skip spaces as well.
      */
+
+    while (isspace(*bufp))
+	bufp++;
 
     return bufp;
 }
@@ -229,6 +233,8 @@ int call_cron(player, thing, attrib, timestr)
 
     errcode = 0;
     bufp = timestr;
+    while (isspace(*bufp))
+	bufp++;
     bufp = parse_cronlist(player, crp->minute,
 			  FIRST_MINUTE, LAST_MINUTE, bufp);
     if (!bufp || !*bufp) {
