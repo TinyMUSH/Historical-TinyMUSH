@@ -43,6 +43,13 @@ Makefile.in appropriately. More advanced module code might make use
 of a customized configure script and Makefile, but that is beyond the
 scope of this document.
 
+NOTE: You must change the AC_INIT macro at the top of your module's
+configure.in to reference one of your C source files (it doesn't matter
+which one as long as it exists) and then regenerate the configure script
+using the GNU autoconf utility. Please see:
+
+http://www.gnu.org/software/autoconf/autoconf.html
+
 Getting the server to load a module is simple. For each module, add
 the following line to your netmush.conf file:
 module <name>
