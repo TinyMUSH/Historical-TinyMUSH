@@ -781,8 +781,10 @@ char *cargs[];
 			case 'Q':	/* Local registers */
 			case 'q':
 				(*dstr)++;
-				if (!**dstr)
+				if (!**dstr) {
 					(*dstr)--;
+					break;
+				}
 				i = qidx_chartab[(unsigned char) **dstr];
 				if ((i < 0) || (i >= MAX_GLOBAL_REGS))
 					break;
