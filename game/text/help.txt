@@ -4807,8 +4807,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	objmem()	orflags()	owner()		parent()
 	pfind()		playmem()	pmatch()	ports()
 	programmer()	rloc()		room()		search()
-	sees()		stats()		type()		visible()
-	where()		xcon()		zone()		zwho()
+	sees()		session()	stats()		type()
+	visible()	where()		xcon()		zone()
+	zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -9446,6 +9447,23 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   returned in order of most recent connection to least recent connection.
   These ports correspond to those given by the SESSION command.
   
+& SESSION()
+  session(<port number>)
+ 
+  This function returns a list of three numbers associated with a port:
+  the number of commands entered this session, the bytes of input entered
+  this session, and the bytes of output received this session.
+ 
+  You must have the Expanded_Who power, be a Wizard or Royalty, or control
+  the player whose port that is, in order to obtain this information.
+ 
+  Port numbers can be obtained via the ports() function. To get the
+  session info associated with a player's most recent connection, use
+  'session(first(ports(<player>)))'. To get the session info associated
+  with a player's oldest connection, use 'session(last(ports(<player>)))'.
+ 
+  See also: ports(), SESSION, WHO
+ 
 & HASATTR()
   hasattr(<object>,<attribute>)
  
