@@ -86,15 +86,9 @@ char *orig_arg;
 		return (-1);
 	}
 	hp = gethostbyaddr((char *)&addr, sizeof(addr), AF_INET);
-	if (hp && !isdigit(*(hp->h_name))) {
-		p = stpcpy(buf, ip);
-		*p++ = ' ';
-		p = stpcpy(p, hp->h_name);
-		*p++ = '\n';
-		*p++ = '\0';
-	} else {
-		sprintf(buf, "%s %s\n", ip, ip);
-	}
+	sprintf(buf, "%s %s\n",
+		ip, ((hp && strlen(hp->h_name) < MAX_STRING / 2) ?
+		     hp->h_name : ip));
 	arg_for_errors = orig_arg;
 	strcpy(arg, orig_arg);
 	comma = (char *)strrchr(arg, ',');
