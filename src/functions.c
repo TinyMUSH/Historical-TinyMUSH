@@ -41,6 +41,7 @@ extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
 				    const char *thingname, char *thing));
 
 extern dbref FDECL(get_programmer, (dbref));
+extern char * FDECL(get_doing, (dbref));
 
 /* Function definitions from funceval.c */
 
@@ -3421,6 +3422,23 @@ FUNCTION(fun_programmer)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_doing: Returns a user's doing.
+ */
+
+FUNCTION(fun_doing)
+{
+    dbref target;
+    char *str;
+
+    target = lookup_player(player, fargs[0], 1);
+    if (!Good_obj(target) || !Connected(target))
+	return;
+
+    if ((str = get_doing(target)) != NULL)
+	safe_str(get_doing(target), buff, bufc);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_nearby: Return whether or not obj1 is near obj2.
  */
 
@@ -5343,6 +5361,7 @@ FUN flist[] = {
 {"DIST2D",	fun_dist2d,	4,  0,		CA_PUBLIC},
 {"DIST3D",	fun_dist3d,	6,  0,		CA_PUBLIC},
 {"DIV",		fun_div,	2,  0,		CA_PUBLIC},
+{"DOING",	fun_doing,	1,  0,		CA_PUBLIC},
 {"DUP",		fun_dup,	0,  FN_VARARGS,	CA_PUBLIC},
 {"E",		fun_e,		0,  0,		CA_PUBLIC},
 {"EDEFAULT",	fun_edefault,	2,  FN_NO_EVAL, CA_PUBLIC},

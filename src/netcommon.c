@@ -2107,6 +2107,24 @@ char *buff, **bufc;
 }
 
 /* ---------------------------------------------------------------------------
+ * get_doing: Return the DOING string of a player.
+ */
+
+char *get_doing(target)
+    dbref target;
+{
+    DESC *d;
+
+    DESC_ITER_CONN(d) {
+	if (d->player == target) {
+	    return d->doing;
+	}
+    }
+
+    return NULL;
+}
+
+/* ---------------------------------------------------------------------------
  * get_programmer: Get the dbref of the controlling programmer, if any.
  */
 
