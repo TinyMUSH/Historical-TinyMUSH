@@ -143,13 +143,14 @@
  
 & @addcommand
   Command: @addcommand <name>=<thing>/<attribute>
-  This command has the capability of adding a softcoded command to the game's
-  built-in command table. If <name> already exists as a built-in command,
-  such as 'look' or 'WHO', it will actually replace the functionality of
-  that command, and all aliases that currently point to it. As in look's
-  case, the aliases 'l', 'lo', and 'loo', and the main command 'look' will
-  all point to these softcoded commands. The syntax of <thing>/<attribute> is
-  like any normal $command. 
+  This command has the capability of adding a softcoded command to the
+  game's built-in command table. If <name> already exists as a built-in
+  command, such as 'look' or 'WHO', it will actually replace the
+  functionality of that command, and all aliases that currently point to it.
+  As in look's case, the aliases 'l', 'lo', and 'loo', and the main command
+  'look' will all point to these softcoded commands. The original command
+  will be accessible via '__<command>', in this case '__look'. The syntax of
+  <thing>/<attribute> is like any normal $command.
  
   For example:
 
