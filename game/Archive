@@ -18,6 +18,12 @@ ZIP=gzip
 DBDATE=`date +%m%d-%H%M`
 FLATFILE=$GAMENAME.flat.$DBDATE
 #
+if [ -d $BACKUP_DIR ]; then
+    OUTFILE=$BACKUP_DIR/$GAMENAME-archive.$DBDATE.tar.gz
+else
+    OUTFILE=$GAMENAME-archive.$DBDATE.tar.gz
+fi
+#
 #	Make a flatfile.
 #
 if [ -r $DATA/$NEW_DB ]; then
@@ -43,6 +49,6 @@ TXTFILES=`ls $TEXT/*.txt | egrep -v '(help|wizhelp|mushman).txt'`
 ALLFILES="$FLATFILE $DATA/comsys.db $DATA/mail.db mush.config $GAMENAME.conf $TXTFILES"
 #
 echo "Archiving..."
-tar -chvf - $ALLFILES | $ZIP -c > $GAMENAME-archive.$DBDATE.tar.gz
+tar -chvf - $ALLFILES | $ZIP -c > $OUTFILE
 rm $FLATFILE
-echo "Done."
+echo "Done: $OUTFILE archive saved."

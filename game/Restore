@@ -14,8 +14,16 @@ if [ ! "$FLATFILE" ]; then
 fi
 #
 if [ ! -r $FLATFILE ]; then
-    echo "Not a valid flatfile: $FLATFILE"
-    exit 1
+    if [ -d $BACKUP_DIR ]; then
+	FLATFILE=$BACKUP_DIR/$1
+	if [ ! -r $FLATFILE ]; then
+	    echo "Error: $1 and $FLATFILE are not valid."
+	    exit 1
+	fi
+    else
+	echo "Error: $FLATFILE is not valid."
+	exit 1
+    fi
 fi
 #
 #
