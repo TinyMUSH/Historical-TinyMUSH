@@ -6,11 +6,13 @@
 #define __COPYRIGHT_H
 
 /*
- * TinyMUSH 3.0 Source Code
+ * TinyMUSH 3 Source Code
+ * Copyright (c) 2001 by Lydia Leong, David Passmore, Robby Griffin,
+ *                    and Scott Dorr.
  * Copyright (c) 2000 by Lydia Leong, David Passmore, and Robby Griffin.
  * Copyright (c) 1999 by Lydia Leong and David Passmore.
  * All rights reserved.
- * See http://www.godlike.com/3.0/ for more information.
+ * See http://www.godlike.com/tm3/ for more information.
  *
  * TinyMUX Source Code
  * Copyright (c) 1995, 1996, 1997, 1998, 1999, David Passmore.
@@ -30,12 +32,12 @@
  *
  * ---
  *
- * TinyMUSH 3.0 is a derivation of TinyMUSH 2.2 and TinyMUX, both of which
+ * TinyMUSH 3 is a derivation of TinyMUSH 2.2 and TinyMUX, both of which
  * are derivations of TinyMUSH 2.0, which in turn is based upon TinyMUD.
  * There are also portions of source code derived from PennMUSH 1.50.
  *
  * This copyright notice is based upon the latest TinyMUD and TinyMUSH 2.0
- * copyright, with additional specific copyright information for TinyMUSH 3.0.
+ * copyright, with additional specific copyright information for TinyMUSH 3.
  *
  * ---
  *
@@ -56,7 +58,7 @@
  *
  * ---
  *
- * TinyMUSH 3.0 Copyright
+ * TinyMUSH 3 Copyright
  *
  * Users of this software incur the obligation to make their best efforts
  * to inform the authors of noteworthy uses of this software.
@@ -65,11 +67,11 @@
  * shall duly acknowledge such use, in accordance with the usual standards
  * of acknowledging credit in academic research.
  *
- * TinyMUSH 3.0 may be used for commercial, for-profit applications, subject
+ * TinyMUSH 3 may be used for commercial, for-profit applications, subject
  * to the following conditions: You must acknowledge the origin of the 
  * software, retaining this copyright notice in some prominent place.
  * You may charge only for access to the service you provide, not for
- * the TinyMUSH 3.0 software itself. You must inform the authors of
+ * the TinyMUSH 3 software itself. You must inform the authors of
  * any commercial use of this software.
  *
  * The authors have made no warranty or representation that the operation
@@ -103,9 +105,9 @@
  *
  * ---
  *
- * TinyMUSH 3.0 Credits:
+ * TinyMUSH 3 Credits:
  *
- * Many people contributed to the end result which is TinyMUSH 3.0. They
+ * Many people contributed to the end result which is TinyMUSH 3. They
  * include:
  *
  *	- Fred "Iago" Hicks, for the logo
