@@ -800,5 +800,9 @@ The initial beta release was on 9/27/99.
 
 - Misc: A_USER_START is no longer used in defining the size of the
   command table.
- 
+
 - Misc: More floating-point cleanup.
+
+- Misc: Startmush script now looks for 'Cleanup completed' rather than
+  'Startup processing complete', since cleanup is now the last stage
+  in initialization (since 3.0b16).
