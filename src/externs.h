@@ -11,15 +11,7 @@
 #include "mudconf.h"
 #include "regexp.h"
 
-#ifndef _DB_C
-#define INLINE
-#else /* _DB_C */
-  #ifdef __GNUC__
-  #define INLINE inline
-  #else /* __GNUC__ */
-  #define INLINE
-  #endif /* __GNUC__ */
-#endif /* _DB_C */
+#define INLINE inline
 
 #define ToUpper(C)	(((C) >= 'a' && (C) <= 'z')? (C) - 'a' + 'A': (C))
 #define ToLower(C)	(((C) >= 'A' && (C) <= 'Z')? (C) - 'A' + 'a': (C))
@@ -281,9 +273,9 @@ extern void	NDECL(set_prefix_cmds);
 /* from db.c */
 extern int	FDECL(Commer, (dbref));
 extern void	FDECL(s_Pass, (dbref, const char *));
-extern void	FDECL(s_Name, (dbref, char *));
-extern char *	FDECL(Name, (dbref));
-extern char *	FDECL(PureName, (dbref));
+extern INLINE void	FDECL(s_Name, (dbref, char *));
+extern INLINE char *	FDECL(Name, (dbref));
+extern INLINE char *	FDECL(PureName, (dbref));
 extern INLINE void	FDECL(safe_name, (dbref, char *, char **));
 extern int	FDECL(fwdlist_load, (FWDLIST *, dbref, char *));
 extern void	FDECL(fwdlist_set, (dbref, FWDLIST *));

@@ -2056,20 +2056,8 @@ int atr;
 }
 
 /* ---------------------------------------------------------------------------
- * get_atr,atr_get_raw, atr_get_str, atr_get: Get an attribute from the database.
+ * atr_get_raw, atr_get_str, atr_get: Get an attribute from the database.
  */
-
-INLINE int get_atr(name)
-char *name;
-{
-	ATTR *ap;
-
-	if (!(ap = atr_str(name)))
-		return 0;
-	if (!(ap->number))
-		return -1;
-	return ap->number;
-}
 
 #ifdef MEMORY_BASED
 char *atr_get_raw(thing, atr)

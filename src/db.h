@@ -39,7 +39,6 @@
 				     (p)=Parent(p), (l)++)
 
 #define Hasprivs(x)      (Royalty(x) || Wizard(x))
-int get_atr();
 
 typedef struct attr ATTR;
 struct attr {

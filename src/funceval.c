@@ -1863,7 +1863,7 @@ FUNCTION(fun_zfun)
 {
 	dbref aowner;
 	int aflags, alen;
-	int attrib;
+	ATTR *ap;
 	char *tbuf1, *str;
 
 	dbref zone = Zone(player);
@@ -1880,13 +1880,13 @@ FUNCTION(fun_zfun)
 		return;
 
 	/* find the user function attribute */
-	attrib = get_atr(upcasestr(fargs[0]));
-	if (!attrib) {
+	ap = atr_str(upcasestr(fargs[0]));
+	if (!ap) {
 		safe_str("#-1 NO SUCH USER FUNCTION", buff, bufc);
 		return;
 	}
-	tbuf1 = atr_pget(zone, attrib, &aowner, &aflags, &alen);
-	if (!See_attr(player, zone, (ATTR *) atr_num(attrib), aowner, aflags)) {
+	tbuf1 = atr_pget(zone, ap->number, &aowner, &aflags, &alen);
+	if (!See_attr(player, zone, ap, aowner, aflags)) {
 		safe_str("#-1 NO PERMISSION TO GET ATTRIBUTE", buff, bufc);
 		free_lbuf(tbuf1);
 		return;

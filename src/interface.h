@@ -161,7 +161,7 @@ extern void	FDECL(raw_notify, (dbref, char *));
 extern void	FDECL(raw_notify_newline, (dbref));
 extern void	FDECL(clearstrings, (DESC *));
 extern void	FDECL(queue_write, (DESC *, const char *, int));
-extern void	FDECL(queue_string, (DESC *, const char *));
+extern INLINE void	FDECL(queue_string, (DESC *, const char *));
 extern void	FDECL(freeqs, (DESC *));
 extern void	FDECL(welcome_user, (DESC *));
 extern void	FDECL(save_command, (DESC *, CBLK *));
