@@ -805,7 +805,7 @@ char *arg2;
 		return;
 	}
 	t = channel;
-	while (*s && (*s != ',') && ((t - channel) < MBUF_SIZE)) {
+	while (*s && (*s != ',') && ((t - channel) < MBUF_SIZE - 1)) {
 		if (*s != ' ')
 			*t++ = *s++;
 		else
@@ -819,7 +819,7 @@ char *arg2;
 				 * Read title 
 				 */
 		s++;
-		while (*s && ((t - title) < MBUF_SIZE))
+		while (*s && ((t - title) < MBUF_SIZE - 1))
 			*t++ = *s++;
 		*t = '\0';
 	}
