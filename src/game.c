@@ -1937,7 +1937,6 @@ char *argv[];
 	/* Parse options */
 
 	while ((c = getopt(argc, argv, "c:l:p:b:t:d:g:k:s")) != -1) {
-	fprintf(stderr, "-%c : %s\n", c, optarg);
 		switch (c) {
 		case 'c':
 			opt_conf = optarg;
