@@ -1,17 +1,26 @@
 TinyMUSH 3.0 Baseline Release
 =============================
 
-	Beta 1: September 27th, 1999
-
-The bugfixes and general code reworking done in the course of merging
-TinyMUSH 2.2 and TinyMUX line-by-line, as well as throughout an
-extensive cleanup, bugfix, and performance-enhancement effort, is too
-extensive and complex to readily be listed here. Therefore, only
-user-visible or otherwise highly significant changes are noted here.
+This document details user-visible or otherwise highly significant
+changes in TinyMUSH 3.0. The bugfixes and general code reworking done
+in the course of merging TinyMUSH 2.2 and TinyMUX line-by-line, as
+well as throughout an extensive cleanup, bugfix, and
+performance-enhancement effort, is too extensive and complex to
+readily be listed here.
 
 Note that these are only changes that are completely new to both
 TinyMUSH 2.2 and TinyMUX; enhancements that were in one server but not
 the other have been listed in the conversion notes for both servers.
+
+Future versions of this document will include changes between each
+release of TinyMUSH 3.
+
+TinyMUSH 3.0 beta 1 was released on September 27th, 1999.
+This "full", gamma release of TinyMUSH 3.0 is dated December 1st, 2000.
+
+-----------------------------------------------------------------------------
+
+CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 
 - Build script allows "single-step" configuration, build, and installation.
 
@@ -38,21 +47,17 @@ the other have been listed in the conversion notes for both servers.
   commands and their associated files to be specified via the 'helpfile'
   and 'raw_helpfile' parameters in the conf file.
 
-- There are now ten user-defined flags, MARKER0 through MARKER9. The flag
-  names can be set through the flag_name option. Commands, functions, and
-  other things with configurable permissions can also be tied to these
-  flags (for instance, 'function_access lwho marker0').
+- The readability of a configuration parameter can be set via the
+  config_read_access param, and can be listed with @list config_read_perms.
+  A config() function allows players to obtain the value of a configuration
+  parameter that they have permission to read.
 
-- The access permissions of flags, including user-defined flags, can be
-  set via the flag_access config directive. In addition to permissions
-  for wizards, wizards/royalty, and god, there is a restrict_player
-  option (only settable by Wizards on players, but settable by mortals
-  on other types of things), and a privileged option (only settable by
-  God on players, but settable by non-robot players on other types of
-  things, if they themselves have the flag).
-
-- The access permissions of powers can be set via the power_access config
-  directive. The permission types available are the same as for flags.
+- The new game_log and divert_log parameters allow the logs for different
+  types of events to be sent to different files. The new @logrotate
+  command allows these logfiles to be rotated while the game is running.
+  Logfiles are also rotated when a @restart is done. Old log are marked
+  with a timestamp in seconds. The new Logclean script simplifies 
+  cleanup of old logfiles.
 
 - Command-table additions (@addcommand and family) are supported (a
   cleaned-up version of the MUX implementation). Three new conf parameters:
@@ -87,36 +92,12 @@ the other have been listed in the conversion notes for both servers.
   Default channel aliases can now be set with the public_calias and
   guests_calias config parameters.
 
-- A @cron facility allows tasks to be scheduled at specific times,
-  in much the same way that Unix cron does.
-
-- A new flag, BLIND, suppresses has arrived / has left messages.
-
-- A new flag, CONSTANT, prevents attributes from being set or altered
-  on an object by anyone other than God.
-
-- The FLOATING flag, if set on a player, now suppresses floating-room
-  messages sent to that player.
-
 - Variable destination exits are implemented, via the "variable" keyword
   and the ExitTo attribute; the destination of the exit is determined when
   it is used. The link_variable power has been added in support of this.
   (This works in a way similar to PennMUSH's variable destination exits,
   but ExitTo was used instead of Destination, to reduce likelihood of
   previous attribute conflicts.)
-
-- Command permissions can also be linked to the STAFF and HEAD flags.
-  The "robot" permission has been removed, since nobody was using it.
-  (The "no_robot" permission still exists, though.)
-
-- There is now a link_to_anything power, and an open_anywhere power, doing
-  the obvious; these are handy for building-staff players.
-
-- The see_hidden power now works. DARK is really two concepts, not showing
-  up in the WHO list and not showing up in the contents list / moving
-  silently. see_hidden allows seeing the former but does not affect the
-  latter. These two concepts are now handled in a consistent manner
-  within the server.
 
 - Optional uselock checking for global aconnects has been implemented.
   (2.2 had this by default; MUX did not have this.)
@@ -144,6 +125,54 @@ the other have been listed in the conversion notes for both servers.
 - The new conf parameter guest_starting_room allows Guest characters to
   start in a different default room than other characters.
 
+- The MUSH manual is included in the distribution in helpfile format.
+  (Thanks to Alierak and sTiLe.)
+
+-----------------------------------------------------------------------------
+
+CHANGES TO FLAGS AND POWERS
+
+- There are now ten user-defined flags, MARKER0 through MARKER9. The flag
+  names can be set through the flag_name option. Commands, functions, and
+  other things with configurable permissions can also be tied to these
+  flags (for instance, 'function_access lwho marker0').
+
+- The access permissions of flags, including user-defined flags, can be
+  set via the flag_access config directive. In addition to permissions
+  for wizards, wizards/royalty, and god, there is a restrict_player
+  option (only settable by Wizards on players, but settable by mortals
+  on other types of things), and a privileged option (only settable by
+  God on players, but settable by non-robot players on other types of
+  things, if they themselves have the flag).
+
+- The access permissions of powers can be set via the power_access config
+  directive. The permission types available are the same as for flags.
+
+- Command permissions can also be linked to the STAFF and HEAD flags.
+  The "robot" permission has been removed, since nobody was using it.
+  (The "no_robot" permission still exists, though.)
+
+- A new flag, BLIND, suppresses has arrived / has left messages.
+
+- A new flag, CONSTANT, prevents attributes from being set or altered
+  on an object by anyone other than God.
+
+- The FLOATING flag, if set on a player, now suppresses floating-room
+  messages sent to that player.
+
+- There is now a link_to_anything power, and an open_anywhere power, doing
+  the obvious; these are handy for building-staff players.
+
+- The see_hidden power now works. DARK is really two concepts, not showing
+  up in the WHO list and not showing up in the contents list / moving
+  silently. see_hidden allows seeing the former but does not affect the
+  latter. These two concepts are now handled in a consistent manner
+  within the server.
+
+-----------------------------------------------------------------------------
+
+CHANGES TO COMMANDS
+
 - New /info switch to @attribute shows global attribute flags for a single
   attribute (similar to what '@list user_attributes' produces for all
   user-defined attributes).
@@ -157,6 +186,9 @@ the other have been listed in the conversion notes for both servers.
 
 - @clone/preserve can be used by anyone, but you must control the original
   object's owner.
+
+- A @cron facility allows tasks to be scheduled at specific times,
+  in much the same way that Unix cron does.
 
 - New /instant switch to @destroy causes objects to be instantly destroyed
   (rather than being queued for destruction at the next purge). Also, a
@@ -184,18 +216,6 @@ the other have been listed in the conversion notes for both servers.
 - The @list options command has been reformatted and reorganized. A
   new command, @list params, lists additional configuration parameters.
 
-- The readability of a configuration parameter can be set via the
-  config_read_access param, and can be listed with @list config_read_perms.
-  A config() function allows players to obtain the value of a configuration
-  parameter that they have permission to read.
-
-- The new game_log and divert_log parameters allow the logs for different
-  types of events to be sent to different files. The new @logrotate
-  command allows these logfiles to be rotated while the game is running.
-  Logfiles are also rotated when a @restart is done. Old log are marked
-  with a timestamp in seconds. The new Logclean script simplifies 
-  cleanup of old logfiles.
-
 - New /reply and /replyall switches to @mail allow replying to a mail
   message, including quoting it via the additional /quote switch.
 
@@ -208,6 +228,13 @@ the other have been listed in the conversion notes for both servers.
 
 - @ps now shows the attribute being waited upon, for non-Semaphore
   semaphore waits.
+
+- @stats() and stats() now count the number of Going objects, as well
+  as the number of objects of unknown (corrupted) type.
+
+-----------------------------------------------------------------------------
+
+CHANGES TO FUNCTIONS
 
 - Functions for generic named variables, preserved in a manner similar to
   the stack (i.e., associated with a specific object, persistent until a
@@ -330,5 +357,4 @@ the other have been listed in the conversion notes for both servers.
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.
 
-- The MUSH manual is included in the distribution in helpfile format.
-  (Thanks to Alierak and sTiLe.)
+=============================================================================
