@@ -18,9 +18,9 @@ PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
 #
 #	Check if the MUSH is running.
 #
-if [ -r mush.pid ]; then
-	oldpid=`cat mush.pid`
-	if [ $oldpid -gt 1 ]; then
+if [ -r "$PIDFILE" ]; then
+	oldpid=`cat $PIDFILE`
+	if [ "$oldpid" -gt 1 ]; then
 		nmush=`ps | grep $oldpid | grep netmush | wc -l`
 	else
 		nmush=0

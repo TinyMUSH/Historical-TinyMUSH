@@ -1422,6 +1422,7 @@ void do_restart(player, cause, key)
 	execl(mudconf.exec_path, mudconf.exec_path,
 	      (char *) "-c", mudconf.config_file,
 	      (char *) "-l", mudconf.mudlogname,
+	      (char *) "-p", mudconf.pid_file,
 	      NULL);
 }
 

@@ -1024,6 +1024,18 @@ void do_timecheck(player, cause, key)
  * Miscellaneous startup/stop routines.
  */
 
+void write_pidfile(fn)
+char *fn;
+{
+	FILE *f;
+
+	mudconf.pid_file = XSTRDUP(fn, "write_pidfile");
+	if ((f = fopen(fn, "w")) != NULL) {
+		fprintf(f, "%d\n", getpid());
+		fclose(f);
+	}
+}
+
 void do_shutdown(player, cause, key, message)
 dbref player, cause;
 int key;
@@ -1814,6 +1826,7 @@ char *argv[];
 	int errflg = 0;
 	char *opt_logfile = (char *) LOG_FILE;
 	char *opt_conf = (char *) CONF_FILE;
+	char *opt_pidfile = (char *) PID_FILE;
 	char *s;
 	extern char *optarg;
 	extern int optind;
@@ -1841,26 +1854,32 @@ char *argv[];
 
 	/* Parse options */
 
-	while ((c = getopt(argc, argv, "c:l:s")) != -1) {
-	    switch (c) {
+	while ((c = getopt(argc, argv, "c:l:p:s")) != -1) {
+		switch (c) {
 		case 'c':
-		    opt_conf = optarg;
-		    break;
+			opt_conf = optarg;
+			break;
 		case 'l':
-		    opt_logfile = optarg;
-		    break;
+			opt_logfile = optarg;
+			break;
+		case 'p':
+			opt_pidfile = optarg;
+			break;
 		case 's':
-		    mindb = 1;
-		    break;
+			mindb = 1;
+			break;
 		default:
-		    errflg++;
-	    }
+			errflg++;
+			break;
+		}
 	}
 	if (errflg) {
-	    fprintf(stderr, "Usage: %s [-s] [-c conf_file] [-l log_file]\n",
+	    fprintf(stderr, "Usage: %s [-s] [-c conf_file] [-l log_file] [-p pid_file]\n",
 		    argv[0]);
 	    exit(1);
 	}
+
+	write_pidfile(opt_pidfile);
 
 	/* Abort if someone tried to set the number of global registers
 	 * to something stupid. Also adjust the character table if we

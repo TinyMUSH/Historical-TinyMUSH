@@ -124,6 +124,7 @@ struct confdata {
 	char	*gdbm;			/* use this gdbm file if we need one */
 	char	*status_file;		/* Where to write arg to @shutdown */
 	char	*mudlogname;		/* Name of the game log file */
+	char	*pid_file;		/* Name of the game pid file */
 	int	have_pueblo;	/* Is Pueblo support compiled in? */
 	int	have_zones;	/* Should zones be active? */
 	int	port;		/* user port */

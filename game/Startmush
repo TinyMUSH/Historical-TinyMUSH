@@ -12,11 +12,11 @@ LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules
 #
 #	Make sure there isn't already a MUSH running.
 #
-if [ -r mush.pid ]; then
-	oldpid=`cat mush.pid`
-	if [ $oldpid -gt 1 ]; then
+if [ -r "$PIDFILE" ]; then
+	oldpid=`cat $PIDFILE`
+	if [ "$oldpid" -gt 1 ]; then
 		nmush=`ps | grep $oldpid | grep netmush | wc -l`
-		if [ $nmush -gt 0 ]; then
+		if [ "$nmush" -gt 0 ]; then
 			echo "The MUSH already seems to be running."
 			exit 0
 		fi
@@ -130,6 +130,7 @@ fi
 #	Kick off MUSH
 #
 touch $LOGNAME
-(nohup $BIN/netmush $make_db -c $GAMENAME.conf -l $LOGNAME >>$LOGNAME 2>&1 & echo $! >mush.pid)
-echo "Process `cat mush.pid`"
+(nohup $BIN/netmush $make_db -c $GAMENAME.conf -l $LOGNAME -p $PIDFILE >>$LOGNAME 2>&1 &)
+sleep 1
+echo "Process `cat $PIDFILE`"
 tail -f $LOGNAME | awk '{ print $0 }; /Cleanup completed/ { exit };'
