@@ -206,7 +206,7 @@ dbref player;
 char *message;
 {
 	int number;
-	char *atrstr, *execstr, *msg, *bp, *str;
+	char *atrstr, *execstr, *bp, *str;
 	int aflags, alen;
 	dbref aowner;
 
@@ -227,16 +227,10 @@ char *message;
 	exec(execstr, &bp, player, player, player,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, (char **)NULL, 0);
 	*bp = '\0';
-	msg = bp = alloc_lbuf("add_mail_message.2");
-	str = message;
-	exec(msg, &bp, player, player, player,
-	     EV_EVAL | EV_FCHECK | EV_NO_COMPRESS, &str, (char **)NULL, 0);
-	*bp = '\0';
 
-	mod_mail_config.mail_list[number].message = XSTRDUP(tprintf("%s %s", msg, execstr), "add_mail_message");
+	mod_mail_config.mail_list[number].message = XSTRDUP(tprintf("%s %s", message, execstr), "add_mail_message");
 	free_lbuf(atrstr);
 	free_lbuf(execstr);
-	free_lbuf(msg);
 	make_mail_freelist();
 	return number;
 }
@@ -681,8 +675,7 @@ char *msglist;
 	struct mail_selector ms;
 	int i = 0, j = 0;
 	dbref target;
-	char *tbuf1, *msg, *status, *bp, *str, *strp;
-
+	char *status;
 
 	target = lookup_player(player, name, 1);
 	if (target == NOTHING) {
@@ -712,10 +705,7 @@ char *msglist;
 		}
 		notify(player, DASH_LINE);
 	} else {
-		tbuf1 = alloc_lbuf("do_mail_read");
-
 		if (!parse_msglist(msglist, &ms, target)) {
-			free_lbuf(tbuf1);
 			return;
 		}
 		for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab);
@@ -728,13 +718,6 @@ char *msglist;
 					 */
 					j++;
 					status = status_string(mp);
-					str = strp = strdup(get_mail_message(mp->number));
-					msg = bp = alloc_lbuf("do_mail_review");
-					exec(msg, &bp, player, player, player,
-					  EV_EVAL | EV_FCHECK | EV_NO_COMPRESS,
-					     &strp, (char **)NULL, 0);
-					*bp = '\0';
-					free(str);
 					notify(player, DASH_LINE);
 					notify(player, tprintf("%-3d         From:  %-*s  At: %-25s  %s\r\nFldr   : %-2d Status: %s\r\nSubject: %-65s",
 							       i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
@@ -745,22 +728,19 @@ char *msglist;
 						      status, mp->subject));
 					free_lbuf(status);
 					notify(player, DASH_LINE);
-					StringCopy(tbuf1, msg);
-					notify(player, tbuf1);
+					notify(player, get_mail_message(mp->number));
 					notify(player, DASH_LINE);
-					free_lbuf(msg);
 				}
 			}
 		}
 
 		if (!j) {
 			/*
-			 * ran off the end of the list without finding * * *
+			 * ran off the end of the list without finding
 			 * anything 
 			 */
 			notify(player, "MAIL: You don't have that many matching messages!");
 		}
-		free_lbuf(tbuf1);
 	}
 }
 
@@ -3290,41 +3270,31 @@ char *to;
 static void do_mail_proof(player)
 dbref player;
 {
-	char *mailto, *names;
-	char *mailmsg, *msg, *bp, *str;
+	char *mailto, *names, *message;
 	dbref aowner;
 	int aflags, alen;
 
-	mailto = atr_get(player, A_MAILTO, &aowner, &aflags, &alen);
-
-	if (!atr_get_raw(player, A_MAILMSG)) {
-		notify(player, "MAIL: No text.");
-		free_lbuf(mailto);
-		return;
-	} else {
-		str = mailmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
-		bp = msg = alloc_lbuf("do_mail_proof");
-		exec(msg, &bp, player, player, player, EV_EVAL | EV_FCHECK,
-		     &str, (char **)NULL, 0);
-		*bp = '\0';
-		free_lbuf(mailmsg);
-	}
-
 	if (Sending_Mail(player)) {
+		mailto = atr_get(player, A_MAILTO, &aowner, &aflags, &alen);
 		names = make_namelist(player, mailto);
+		free_lbuf(mailto);
+
 		notify(player, DASH_LINE);
 		notify(player, tprintf("From:  %-*s  Subject: %-35s\nTo: %s",
 				       PLAYER_NAME_LIMIT - 6, Name(player),
 				    atr_get_raw(player, A_MAILSUB), names));
 		notify(player, DASH_LINE);
-		notify(player, msg);
+
+		if (!(message = atr_get_raw(player, A_MAILMSG))) {
+			notify(player, "MAIL: No text.");
+			return;
+		}
+
+		notify(player, message);
 		notify(player, DASH_LINE);
-		free_lbuf(names);
 	} else {
 		notify(player, "MAIL: No message in progress.");
 	}
-	free_lbuf(mailto);
-	free_lbuf(msg);
 }
 
 void do_malias_desc(player, alias, desc)
@@ -3752,11 +3722,11 @@ CMDENT mod_mail_cmdtable[] = {
 	NULL,		NULL,	NULL,		{do_malias}},
 {(char *)"-",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
-	0,		CS_ONE_ARG|CS_LEADIN,	
+	0,		CS_ONE_ARG|CS_INTERP|CS_LEADIN,	
 	NULL,		NULL,	NULL,		{do_postpend}},
 {(char *)"~",			NULL,
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
-	0,		CS_ONE_ARG|CS_LEADIN,	
+	0,		CS_ONE_ARG|CS_INTERP|CS_LEADIN,	
 	NULL,		NULL,	NULL,		{do_prepend}},
 {(char *)NULL,			NULL,		0,
 	0,		0,				
