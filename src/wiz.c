@@ -99,8 +99,7 @@ char *arg1, *arg2;
 
 	/*
 	 * If fascist teleport is on, you must control the victim's ultimate
-	 * * * * * location (after LEAVEing any objects) or it must be
-	 * JUMP_OK.  
+	 * location (after LEAVEing any objects) or it must be JUMP_OK.  
 	 */
 
 	if (mudconf.fascist_tport) {
@@ -161,7 +160,7 @@ char *arg1, *arg2;
 
 /*
  * ---------------------------------------------------------------------------
- * * do_force_prefixed: Interlude to do_force for the # command
+ * do_force_prefixed: Interlude to do_force for the # command
  */
 
 void do_force_prefixed(player, cause, key, command, args, nargs)
@@ -182,7 +181,7 @@ char *command, *args[];
 
 /*
  * ---------------------------------------------------------------------------
- * * do_force: Force an object to do something.
+ * do_force: Force an object to do something.
  */
 
 void do_force(player, cause, key, what, command, args, nargs)
@@ -208,7 +207,7 @@ char *what, *command, *args[];
 
 /*
  * ---------------------------------------------------------------------------
- * * do_toad: Turn a player into an object.
+ * do_toad: Turn a player into an object.
  */
 
 void do_toad(player, cause, key, toad, newowner)
@@ -416,7 +415,7 @@ char *name;
 
 /*
  * ---------------------------------------------------------------------------
- * * do_poor: Reduce the wealth of anyone over a specified amount.
+  do_poor: Reduce the wealth of anyone over a specified amount.
  */
 
 void do_poor(player, cause, key, arg1)
@@ -441,7 +440,7 @@ char *arg1;
 
 /*
  * ---------------------------------------------------------------------------
- * * do_cut: Chop off a contents or exits chain after the named item.
+ * do_cut: Chop off a contents or exits chain after the named item.
  */
 
 void do_cut(player, cause, key, thing)
