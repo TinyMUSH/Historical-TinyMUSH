@@ -1331,8 +1331,8 @@ FUNCTION(fun_parse)
 
 FUNCTION(fun_mid)
 {
-    char *s;
-    int count, start, nchars, len;
+    char *s, *savep;
+    int count, start, nchars, len, have_normal;
 
     s = fargs[0];
     start = atoi(fargs[1]);
@@ -1351,9 +1351,11 @@ FUNCTION(fun_mid)
     if (start + nchars > len)
 	nchars = len - start;
 
+    have_normal = 1;
     for (count = 0; *s && (count < start + nchars); ) {
 	if (*s == ESC_CHAR) {
 	    /* Start of an ANSI code. Skip to the end. */
+	    savep = s;
 	    while (*s && (*s != ANSI_END)) {
 		safe_chr(*s, buff, bufc);
 		s++;
@@ -1362,6 +1364,10 @@ FUNCTION(fun_mid)
 		safe_chr(*s, buff, bufc);
 		s++;
 	    }
+	    if (!strncmp(savep, ANSI_NORMAL, 4))
+		have_normal = 1;
+	    else
+		have_normal = 0;
 	} else {
 	    if (count >= start)
 		safe_chr(*s, buff, bufc);
@@ -1369,6 +1375,9 @@ FUNCTION(fun_mid)
 	    count++;
 	}
     }
+
+    if (!have_normal)
+	safe_str(ANSI_NORMAL, buff, bufc);
 }
 
 
@@ -3575,8 +3584,8 @@ FUNCTION(fun_haspower)
 
 FUNCTION(fun_delete)
 {
-    char *s;
-    int count, start, nchars, len;
+    char *s, *savep;
+    int count, start, nchars, len, have_normal;
 
     s = fargs[0];
     start = atoi(fargs[1]);
@@ -3588,9 +3597,11 @@ FUNCTION(fun_delete)
 	return;
     }
 
+    have_normal = 1;
     for (count = 0; count < len; ) {
 	if (*s == ESC_CHAR) {
 	    /* Start of an ANSI code. Skip to the end. */
+	    savep = s;
 	    while (*s && (*s != ANSI_END)) {
 		safe_chr(*s, buff, bufc);
 		s++;
@@ -3599,6 +3610,10 @@ FUNCTION(fun_delete)
 		safe_chr(*s, buff, bufc);
 		s++;
 	    }
+	    if (!strncmp(savep, ANSI_NORMAL, 4))
+		have_normal = 1;
+	    else
+		have_normal = 0;
 	} else {
 	    if ((count >= start) && (count < start + nchars)) {
 		s++;
@@ -3609,6 +3624,9 @@ FUNCTION(fun_delete)
 	    count++;
 	}
     }
+
+    if (!have_normal)
+	safe_str(ANSI_NORMAL, buff, bufc);
 }
 
 FUNCTION(fun_lock)
