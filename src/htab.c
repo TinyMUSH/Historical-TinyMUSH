@@ -385,6 +385,53 @@ HASHTAB *htab;
 	return NULL;
 }
 
+/* ---------------------------------------------------------------------------
+ * hashresize: Resize a hash table, to double the number of keys in it.
+ */
+
+void hashresize(htab)
+    HASHTAB *htab;
+{
+    int size, i;
+    HASHTAB new_htab;
+    HASHENT *hent, *thent;
+
+    size = (htab->entries) * HASH_FACTOR;
+    size = (size < 16) ? 16 : size;
+    if (size == htab->hashsize) {
+	/* We're already at the correct size. Don't do anything. */
+	return;
+    }
+
+    hashinit(&new_htab, size);
+
+    for (i = 0; i < htab->hashsize; i++) {
+	hent = htab->entry->element[i];
+	while (hent != NULL) {
+	    thent = hent;
+	    hent = hent->next;
+	    hashadd(thent->target, thent->data, &new_htab);
+	    free(thent->target);
+	    free(thent);
+	}
+	htab->entry->element[i] = NULL;
+    }
+    free(htab->entry);
+
+    htab->hashsize = new_htab.hashsize;
+    htab->mask = new_htab.mask;
+    htab->checks = new_htab.checks;
+    htab->scans = new_htab.scans;
+    htab->max_scan = new_htab.max_scan;
+    htab->hits = new_htab.hits;
+    htab->entries = new_htab.entries;
+    htab->deletes = new_htab.deletes;
+    htab->nulls = new_htab.nulls;
+    htab->entry = new_htab.entry;
+    htab->last_hval = new_htab.last_hval;
+    htab->last_entry = new_htab.last_entry;
+}
+
 #ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
@@ -547,6 +594,52 @@ NHSHTAB *htab;
 		}
 	}
 	return 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * nhashresize: Resize a numeric hash table (double number of keys in it).
+ */
+
+void nhashresize(htab)
+    NHSHTAB *htab;
+{
+    int size, i;
+    NHSHTAB new_htab;
+    NHSHENT *hent, *thent;
+
+    size = (htab->entries) * HASH_FACTOR;
+    size = (size < 16) ? 16 : size;
+    if (size == htab->hashsize) {
+	/* We're already at the correct size. Don't do anything. */
+	return;
+    }
+
+    nhashinit(&new_htab, size);
+
+    for (i = 0; i < htab->hashsize; i++) {
+	hent = htab->entry->element[i];
+	while (hent != NULL) {
+	    thent = hent;
+	    hent = hent->next;
+	    nhashadd(thent->target, thent->data, &new_htab);
+	    free(thent);
+	}
+	htab->entry->element[i] = NULL;
+    }
+    free(htab->entry);
+
+    htab->hashsize = new_htab.hashsize;
+    htab->mask = new_htab.mask;
+    htab->checks = new_htab.checks;
+    htab->scans = new_htab.scans;
+    htab->max_scan = new_htab.max_scan;
+    htab->hits = new_htab.hits;
+    htab->entries = new_htab.entries;
+    htab->deletes = new_htab.deletes;
+    htab->nulls = new_htab.nulls;
+    htab->entry = new_htab.entry;
+    htab->last_hval = new_htab.last_hval;
+    htab->last_entry = new_htab.last_entry;
 }
 
 /* ---------------------------------------------------------------------------

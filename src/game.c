@@ -50,6 +50,8 @@ void FDECL(dump_database_internal, (int));
 static void NDECL(init_rlimit);
 extern int FDECL(add_helpfile, (dbref, char *, int));
 extern void NDECL(vattr_init);
+extern void FDECL(hashresize, (HASHTAB *));
+extern void FDECL(nhashresize, (NHSHTAB *));
 extern void NDECL(load_restart_db);
 extern int NDECL(sql_init);
 extern void NDECL(sql_shutdown);
@@ -1695,6 +1697,22 @@ char *argv[];
 
 	do_dbck(NOTHING, NOTHING, 0);
 
+	/* We may not need hash tables as large as we thought, based on the
+	 * actual database that we loaded.
+	 */
+
+	hashresize(&mudstate.player_htab);
+	hashresize(&mudstate.vattr_name_htab);
+	nhashresize(&mudstate.fwdlist_htab);
+#ifdef USE_COMSYS
+	hashresize(&mudstate.comsys_htab);
+	hashresize(&mudstate.calias_htab);
+	nhashresize(&mudstate.comlist_htab);
+#endif
+#ifdef USE_MAIL
+	nhashresize(&mudstate.mail_htab);
+#endif
+
 	/* Reset all the hash stats */
 
 	hashreset(&mudstate.command_htab);
@@ -1766,6 +1784,11 @@ char *argv[];
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 	    log_text((char *) "Startup processing complete.");
 	ENDLOG
+
+	/* We should resize the user function table here, as these will
+	 * typically get defined in the @startup, and at no other time.
+	 */
+	hashresize(&mudstate.ufunc_htab);
 
 	boot_slave();
 
