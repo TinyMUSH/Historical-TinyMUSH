@@ -496,7 +496,7 @@ int new_strings;
 		}
 	}
 }
-/* foobar */
+
 /* ---------------------------------------------------------------------------
  * putbool_subexp: Write a boolean sub-expression to the flat file.
  */
@@ -576,9 +576,8 @@ BOOLEXP *b;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * putboolexp: Write boolean expression to the flat file.
+/* ---------------------------------------------------------------------------
+ * putboolexp: Write boolean expression to the flat file.
  */
 
 static void putboolexp(f, b)
@@ -592,9 +591,8 @@ BOOLEXP *b;
 }
 
 #ifdef STANDALONE
-/*
- * ---------------------------------------------------------------------------
- * * upgrade_flags: Convert foreign flags to MUSH format.
+/* ---------------------------------------------------------------------------
+ * upgrade_flags: Convert foreign flags to MUSH format.
  */
 
 static void upgrade_flags(flags1, flags2, flags3, thing, db_format, db_version)
@@ -612,9 +610,7 @@ int db_format, db_version;
 	newf3 = 0;
 	if (db_format == F_MUD) {
 
-		/*
-		 * Old TinyMUD format 
-		 */
+		/* Old TinyMUD format */
 
 		newf1 = f1 & (TYPE_MASK | WIZARD | LINK_OK | DARK | STICKY | HAVEN);
 		if (f1 & MUD_ABODE)
@@ -628,74 +624,42 @@ int db_format, db_version;
 		if (db_version == 1)
 			return;
 
-		/*
-		 * Convert level-based players to normal 
-		 */
+		/* Convert level-based players to normal */
 
 		switch (f1 & 0xf) {
-		case 0:	/*
-				 * * room  
-				 */
-		case 1:	/*
-				 * * thing  
-				 */
-		case 2:	/*
-				 * * exit  
-				 */
+		case 0:	/* room */
+		case 1:	/* thing */
+		case 2:	/* exit  */
 			newf1 = f1 & 0x3;
 			break;
-		case 8:	/*
-				 * * guest  
-				 */
-		case 9:	/*
-				 * * trial player  
-				 */
-		case 10:	/*
-				 * member 
-				 */
-		case 11:	/*
-				 * junior official 
-				 */
-		case 12:	/*
-				 * official 
-				 */
+		case 8:	/* guest */
+		case 9:	/* trial player */
+		case 10:	/* member */
+		case 11:	/* junior official */
+		case 12:	/* official */
 			newf1 = TYPE_PLAYER;
 			break;
-		case 13:	/*
-				 * honorary wizard 
-				 */
-		case 14:	/*
-				 * administrator 
-				 */
-		case 15:	/*
-				 * director 
-				 */
+		case 13:	/* honorary wizard */
+		case 14:	/* administrator */
+		case 15:	/* director */
 			newf1 = TYPE_PLAYER | WIZARD;
 			break;
-		default:	/*
-				 * A bad type, mark going 
-				 */
+		default:	/* A bad type, mark going */
 			fprintf(stderr, "Funny object type for #%d\n", thing);
 			*flags1 = GOING;
 			return;
 		}
 
-		/*
-		 * Player #1 is always a wizard 
-		 */
+		/* Player #1 is always a wizard */
 
 		if (thing == (dbref) 1)
 			newf1 |= WIZARD;
 
-		/*
-		 * Set type-specific flags 
-		 */
+		/* Set type-specific flags */
 
 		switch (newf1 & TYPE_MASK) {
-		case TYPE_PLAYER:	/*
-					 * Lose CONNECT TERSE QUITE NOWALLS * 
-					 * 
-					 * *  * *  * *  * * WARPTEXT 
+		case TYPE_PLAYER:	/* Lose CONNECT TERSE QUITE NOWALLS
+					 * WARPTEXT 
 					 */
 			if (f1 & MUSE_BUILD)
 				s_Powers(thing, Powers(thing) | POW_BUILDER);
@@ -704,9 +668,7 @@ int db_format, db_version;
 			if (f1 & MUSE_UNFIND)
 				newf2 |= UNFINDABLE;
 			break;
-		case TYPE_THING:	/*
-					 * lose LIGHT SACR_OK 
-					 */
+		case TYPE_THING:	/* lose LIGHT SACR_OK */
 			if (f1 & MUSE_KEY)
 				newf2 |= KEY;
 			if (f1 & MUSE_DEST_OK)
@@ -723,12 +685,8 @@ int db_format, db_version;
 			break;
 		}
 
-		/*
-		 * Convert common flags 
-		 */
-		/*
-		 * Lose: MORTAL ACCESSED MARKED SEE_OK UNIVERSAL 
-		 */
+		/* Convert common flags */
+		/* Lose: MORTAL ACCESSED MARKED SEE_OK UNIVERSAL */
 
 		if (f1 & MUSE_CHOWN_OK)
 			newf1 |= CHOWN_OK;
@@ -757,9 +715,7 @@ int db_format, db_version;
 
 	} else if ((db_format == F_MUSH) && (db_version == 2)) {
 
-		/*
-		 * Pern variants 
-		 */
+		/* Pern variants */
 
 		newf1 = (f1 & TYPE_MASK);
 		newf2 = 0;
@@ -851,9 +807,7 @@ int db_format, db_version;
 #ifdef DSPACE
 			if (f2 & PENN_EXIT_DSPACE)
 				newf2 |= DYNAMIC;
-#endif /*
-        * * DSPACE  
-        */
+#endif /* DSPACE */
 			break;
 		case TYPE_THING:
 			if (f2 & PENN_THING_DEST_OK)
@@ -877,26 +831,18 @@ int db_format, db_version;
 #ifdef DSPACE
 			if (f2 & PENN_ROOM_DSPACE)
 				newf2 |= DYNAMIC;
-#endif /*
-        * * DSPACE  
-        */
+#endif /* DSPACE */
 		}
 	} else if ((db_format == F_MUSH) && (db_version >= 3)) {
 		newf1 = f1;
 		newf2 = f2;
 		switch (db_version) {
 		case 3:
-			(newf1 &= ~V2_ACCESSED);	/*
-							 * Clear ACCESSED 
-							 */
+			(newf1 &= ~V2_ACCESSED);	/* Clear ACCESSED */
 		case 4:
-			(newf1 &= ~V3_MARKED);	/*
-						 * Clear MARKED 
-						 */
+			(newf1 &= ~V3_MARKED);	/* Clear MARKED */
 		case 5:
-			/*
-			 * Merge GAGGED into SLAVE, move SUSPECT 
-			 */
+			/* Merge GAGGED into SLAVE, move SUSPECT */
 
 			if ((newf1 & TYPE_MASK) == TYPE_PLAYER) {
 				if (newf1 & V4_GAGGED) {
@@ -961,9 +907,7 @@ int db_format, db_version;
 			}
 		case 7:
 			if (newf1 & ROYALTY) {
-				newf1 &= ~ROYALTY;	/*
-							 * CONTROL_OK 
-							 */
+				newf1 &= ~ROYALTY;	/* CONTROL_OK */
 			}
 			break;
 		}
@@ -979,9 +923,8 @@ int db_format, db_version;
 }
 
 
-/*
- * ---------------------------------------------------------------------------
- * * efo_convert: Fix things up for Exits-From-Objects
+/* ---------------------------------------------------------------------------
+ * efo_convert: Fix things up for Exits-From-Objects
  */
 
 void NDECL(efo_convert)
@@ -994,9 +937,7 @@ void NDECL(efo_convert)
 		case TYPE_PLAYER:
 		case TYPE_THING:
 
-			/*
-			 * swap Exits and Link 
-			 */
+			/* swap Exits and Link */
 
 			link = Link(i);
 			s_Link(i, Exits(i));
@@ -1005,9 +946,8 @@ void NDECL(efo_convert)
 		}
 	}
 }
-/*
- * ---------------------------------------------------------------------------
- * * unscraw_foreign: Fix up strange object linking conventions for other formats
+/* ---------------------------------------------------------------------------
+ * unscraw_foreign: Fix up strange object linking conventions for other formats
  */
 
 void unscraw_foreign(db_format, db_version, db_flags)
@@ -1022,9 +962,7 @@ int db_format, db_version, db_flags;
 		DO_WHOLE_DB(i) {
 			if (Typeof(i) == TYPE_EXIT) {
 
-				/*
-				 * MUSE exits are bass-ackwards 
-				 */
+				/* MUSE exits are bass-ackwards */
 
 				tmp = Exits(i);
 				s_Exits(i, Location(i));
@@ -1032,8 +970,7 @@ int db_format, db_version, db_flags;
 			}
 			if (db_version > 3) {
 
-				/*
-				 * MUSEs with pennies in an attribute have 
+				/* MUSEs with pennies in an attribute have 
 				 * it stored in attr 255 (see 
 				 * unscramble_attrnum) 
 				 */
@@ -1051,9 +988,7 @@ int db_format, db_version, db_flags;
 	case F_MUSH:
 		if ((db_version <= 5) && (db_flags & V_GDBM)) {
 
-			/*
-			 * Check for FORWARDLIST attribute 
-			 */
+			/* Check for FORWARDLIST attribute */
 
 			DO_WHOLE_DB(i) {
 				if (atr_get_raw(i, A_FORWARDLIST))
@@ -1061,42 +996,32 @@ int db_format, db_version, db_flags;
 			}
 		}
 		if (db_version <= 6) {
-
 			DO_WHOLE_DB(i) {
 
-				/*
-				 * Make sure A_QUEUEMAX is empty 
-				 */
+				/* Make sure A_QUEUEMAX is empty */
 
 				atr_clr(i, A_QUEUEMAX);
 
 				if (db_flags & V_GDBM) {
 
-					/*
-					 * HAS_LISTEN now tracks LISTEN attr 
-					 */
+					/* HAS_LISTEN now tracks LISTEN attr */
 
 					if (atr_get_raw(i, A_LISTEN))
 						s_Flags2(i, Flags2(i) | HAS_LISTEN);
 
-					/*
-					 * Undo V6 overloading of HAS_STARTUP
-					 * * * * * * * with HAS_FWDLIST 
+					/* Undo V6 overloading of HAS_STARTUP
+					 * with HAS_FWDLIST 
 					 */
 
 					if ((db_version == 6) &&
 					    (Flags2(i) & HAS_STARTUP) &&
 					    atr_get_raw(i, A_FORWARDLIST)) {
 
-						/*
-						 * We have FORWARDLIST 
-						 */
+						/* We have FORWARDLIST */
 
 						s_Flags2(i, Flags2(i) | HAS_FWDLIST);
 
-						/*
-						 * Maybe no STARTUP 
-						 */
+						/* Maybe no STARTUP */
 
 						if (!atr_get_raw(i, A_STARTUP))
 							s_Flags2(i, Flags2(i) & ~HAS_STARTUP);
@@ -1110,10 +1035,9 @@ int db_format, db_version, db_flags;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * getlist_discard, get_atrdefs_discard: Throw away data from MUSE that we
- * * don't use.
+/* ---------------------------------------------------------------------------
+ * getlist_discard, get_atrdefs_discard: Throw away data from MUSE that we
+ * don't use.
  */
 
 static void getlist_discard(f, i, set)
@@ -1138,17 +1062,11 @@ FILE *f;
 	const char *sp;
 
 	for (;;) {
-		sp = getstring_noalloc(f, 0);	/*
-						 * flags or endmarker 
-						 */
+		sp = getstring_noalloc(f, 0);	/* flags or endmarker */
 		if (*sp == '\\')
 			return;
-		sp = getstring_noalloc(f, 0);	/*
-						 * object 
-						 */
-		sp = getstring_noalloc(f, 0);	/*
-						 * name 
-						 */
+		sp = getstring_noalloc(f, 0);	/* object */
+		sp = getstring_noalloc(f, 0);	/* name */
 	}
 }
 
@@ -1159,10 +1077,7 @@ dbref i;
 	dbref aowner;
 	int aflags, total = 0;
 
-	/*
-	 * For 2.2's 'typed quotas'... 
-	 */
-	/*
+	/* For 2.2's 'typed quotas'... 
 	 * I guess we have to add them up... 
 	 */
 
@@ -1323,9 +1238,7 @@ int *db_format, *db_version, *db_flags;
 		if (!(i % 25)) {
 			cache_reset(0);
 		}
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 #ifdef STANDALONE
 		if (!(i % 100)) {
 			fputc('.', stderr);
@@ -1344,22 +1257,17 @@ int *db_format, *db_version, *db_flags;
 			}
 			break;
 #ifdef STANDALONE
-		case '~':	/*
-				 * Database size tag 
-				 */
+		case '~':	/* Database size tag */
 			is_penn = 1;
 			if (!is_dark && penn_version) {
 				g_format = F_MUSH;
 				g_version = (((penn_version - 2) / 256) - 5);
-				/*
-				 * Okay, let's try and unscraw version
+				/* Okay, let's try and unscraw version
 				 * encoding method they use in later Penn 
 				 * 1.50. 
 				 */
 
-				/*
-				 * Handle Pern veriants specially 
-				 */
+				/* Handle Pern veriants specially */
 
 				if (g_version & 0x20)
 					read_new_strings = 1;
@@ -1385,26 +1293,19 @@ int *db_format, *db_version, *db_flags;
 				fprintf(stderr,
 					"\nDuplicate size entry at object %d, ignored.\n",
 					i);
-				tstr = getstring_noalloc(f, 0);	/*
-								 * junk 
-								 */
+				tstr = getstring_noalloc(f, 0);	/* junk */
 				break;
 			}
 			mudstate.min_size = getref(f);
 			size_gotten = 1;
 			break;
 #endif
-		case '+':	/*
-				 * MUX and MUSH header 
-				 */
-			switch (ch = getc(f)) {		/*
-							 * 2nd char selects 
+		case '+':	/* MUX and MUSH header */
+			switch (ch = getc(f)) {		/* 2nd char selects 
 							 * type 
 							 */
 #ifdef STANDALONE
-			case 'V':	/*
-					 * MUSH VERSION 
-					 */
+			case 'V':	/* MUSH VERSION */
 				if (header_gotten) {
 					fprintf(stderr,
 						"\nDuplicate MUSH version header entry at object %d, ignored.\n",
@@ -1418,9 +1319,7 @@ int *db_format, *db_version, *db_flags;
 				g_version = getref(f);
 				penn_version = g_version;
 
-				/*
-				 * Otherwise extract feature flags 
-				 */
+				/* Otherwise extract feature flags */
 
 				if (g_version & V_GDBM) {
 					read_attribs = 0;
@@ -1440,9 +1339,7 @@ int *db_format, *db_version, *db_flags;
 				deduce_zone = 0;
 				break;
 #endif
-			case 'X':	/*
-					 * MUX VERSION 
-					 */
+			case 'X':	/* MUX VERSION */
 				if (header_gotten) {
 					fprintf(stderr,
 						"\nDuplicate MUX version header entry at object %d, ignored.\n",
@@ -1455,9 +1352,7 @@ int *db_format, *db_version, *db_flags;
 				g_format = F_MUX;
 				g_version = getref(f);
 
-				/*
-				 * Otherwise extract feature flags 
-				 */
+				/* Otherwise extract feature flags */
 
 				if (g_version & V_GDBM) {
 					read_attribs = 0;
@@ -1480,12 +1375,8 @@ int *db_format, *db_version, *db_flags;
 				deduce_zone = 0;
 				break;
 #ifdef STANDALONE
-			case 'K':	/*
-					 * Kalkin's DarkZone dist 
-					 */
-				/*
-				 * Him and his #defines... 
-				 */
+			case 'K':	/* Kalkin's DarkZone dist */
+				/* Him and his #defines... */
 				if (header_gotten) {
 					fprintf(stderr,
 						"\nDuplicate MUSH version header entry at object %d, ignored.\n",
@@ -1524,9 +1415,7 @@ int *db_format, *db_version, *db_flags;
 				g_version = 2;
 				break;
 #endif
-			case 'S':	/*
-					 * SIZE 
-					 */
+			case 'S':	/* SIZE */
 				if (size_gotten) {
 					fprintf(stderr,
 						"\nDuplicate size entry at object %d, ignored.\n",
@@ -1537,9 +1426,7 @@ int *db_format, *db_version, *db_flags;
 				}
 				size_gotten = 1;
 				break;
-			case 'A':	/*
-					 * USER-NAMED ATTRIBUTE 
-					 */
+			case 'A':	/* USER-NAMED ATTRIBUTE */
 				anum = getref(f);
 				tstr = getstring_noalloc(f, read_new_strings);
 				if (isdigit(*tstr)) {
@@ -1547,21 +1434,16 @@ int *db_format, *db_version, *db_flags;
 					while (isdigit(*tstr))
 						aflags = (aflags * 10) +
 							(*tstr++ - '0');
-					tstr++;		/*
-							 * skip ':' 
-							 */
+					tstr++;		/* skip ':' */
 				} else {
 					aflags = mudconf.vattr_flags;
 				}
 				vattr_define((char *)tstr, anum, aflags);
 				break;
-			case 'F':	/*
-					 * OPEN USER ATTRIBUTE SLOT 
-					 */
+			case 'F':	/* OPEN USER ATTRIBUTE SLOT */
 				anum = getref(f);
 				break;
-			case 'N':	/*
-					 * NEXT ATTR TO ALLOC WHEN NO
+			case 'N':	/* NEXT ATTR TO ALLOC WHEN NO
 					 * FREELIST 
 					 */
 				if (nextattr_gotten) {
@@ -1582,9 +1464,7 @@ int *db_format, *db_version, *db_flags;
 			}
 			break;
 #ifdef STANDALONE
-		case '@':	/*
-				 * MUSE header 
-				 */
+		case '@':	/* MUSE header */
 			if (header_gotten) {
 				fprintf(stderr,
 					"\nDuplicate MUSE header entry at object #%d.\n",
@@ -1631,9 +1511,7 @@ int *db_format, *db_version, *db_flags;
 			s_Exits(i, getref(f));
 			s_Link(i, NOTHING);
 			s_Next(i, getref(f));
-/*
- * s_Zone(i, NOTHING); 
- */
+/* s_Zone(i, NOTHING); */
 			tempbool = getboolexp(f);
 			atr_add_raw(i, A_LOCK,
 				    unparse_boolexp_quiet(1, tempbool));
@@ -1662,20 +1540,12 @@ int *db_format, *db_version, *db_flags;
 				ungetc(peek, f);
 			}
 			if (read_timestamps) {
-				aflags = getref(f);	/*
-							 * created 
-							 */
-				aflags = getref(f);	/*
-							 * lastused 
-							 */
-				aflags = getref(f);	/*
-							 * usecount 
-							 */
+				aflags = getref(f);	/* created */
+				aflags = getref(f);	/* lastused */
+				aflags = getref(f);	/* usecount */
 			}
 			break;
-		case '&':	/*
-				 * MUSH 2.0a stub entry/MUSE zoned entry 
-				 */
+		case '&':	/* MUSH 2.0a stub entry/MUSE zoned entry */
 			if (deduce_version) {
 				deduce_version = 0;
 				g_format = F_MUSH;
@@ -1690,9 +1560,7 @@ int *db_format, *db_version, *db_flags;
 				g_flags |= V_ZONE;
 			}
 #endif
-		case '!':	/*
-				 * MUX entry/MUSH entry/MUSE non-zoned entry 
-				 */
+		case '!':	/* MUX entry/MUSH entry/MUSE non-zoned entry */
 			if (deduce_version) {
 				g_format = F_MUX;
 				g_version = 1;
@@ -1714,20 +1582,15 @@ int *db_format, *db_version, *db_flags;
 				s_Contents(i, getref(f));
 				s_Exits(i, getref(f));
 				s_Next(i, getref(f));
-				/*
-				 * have no equivalent to multi-parents yet,
+				/* have no equivalent to multi-parents yet,
 				 * so we have to throw
 				 * them away... 
 				 */
 
 				if (read_dark_mpar) {
-					/*
-					 * Parents 
-					 */
+					/* Parents */
 					getlist_discard(f, i, 1);
-					/*
-					 * Children 
-					 */
+					/* Children */
 					getlist_discard(f, i, 0);
 				} else {
 					s_Parent(i, getref(f));
@@ -1779,23 +1642,17 @@ int *db_format, *db_version, *db_flags;
 				if (read_pern_powers)
 					(void)getref(f);
 
-				/*
-				 * Kalkin's extra two powers words... 
-				 */
+				/* Kalkin's extra two powers words... */
 				if (read_dark_threepow) {
 					(void)getref(f);
 					(void)getref(f);
 				}
-				/*
-				 * Kalkin's @class 
-				 */
+				/* Kalkin's @class */
 				if (read_dark_class)
 					(void)getref(f);
 
-				/*
-				 * Kalkin put his creation times BEFORE * * * 
-				 * 
-				 * *  * * channels * unlike standard Penn... 
+				/* Kalkin put his creation times BEFORE
+				 * channels unlike standard Penn... 
 				 */
 
 				if (read_dark_mc) {
@@ -1812,9 +1669,7 @@ int *db_format, *db_version, *db_flags;
 					(void)getref(f);
 					(void)getref(f);
 				}
-				/*
-				 * In Penn, clear the player's parent. 
-				 */
+				/* In Penn, clear the player's parent. */
 				if (isPlayer(i)) {
 					s_Parent(i, NOTHING);
 				}
@@ -1845,42 +1700,29 @@ int *db_format, *db_version, *db_flags;
 					s_Location(i, getref(f));
 				}
 
-				/*
-				 * ZONE on MUSE databases and some others 
-				 */
+				/* ZONE on MUSE databases and some others */
 
 				if (read_zone)
 					s_Zone(i, getref(f));
-/*
- * else
- * * s_Zone(i, NOTHING); 
- */
+/* else s_Zone(i, NOTHING); */
 
-				/*
-				 * CONTENTS and EXITS 
-				 */
+				/* CONTENTS and EXITS */
 
 				s_Contents(i, getref(f));
 				s_Exits(i, getref(f));
 
-				/*
-				 * LINK 
-				 */
+				/* LINK */
 
 				if (read_link)
 					s_Link(i, getref(f));
 				else
 					s_Link(i, NOTHING);
 
-				/*
-				 * NEXT 
-				 */
+				/* NEXT */
 
 				s_Next(i, getref(f));
 
-				/*
-				 * LOCK
-				 */
+				/* LOCK */
 
 				if (read_key) {
 					tempbool = getboolexp(f);
@@ -1888,14 +1730,11 @@ int *db_format, *db_version, *db_flags;
 					unparse_boolexp_quiet(1, tempbool));
 					free_boolexp(tempbool);
 				}
-				/*
-				 * OWNER 
-				 */
+				/* OWNER */
 
 				s_Owner(i, getref(f));
 
-				/*
-				 * PARENT: PennMUSH uses this field for ZONE
+				/* PARENT: PennMUSH uses this field for ZONE
 				 * (which we  use as PARENT if we
 				 * didn't already read in a  
 				 * non-NOTHING parent. 
@@ -1907,19 +1746,14 @@ int *db_format, *db_version, *db_flags;
 					s_Parent(i, NOTHING);
 				}
 
-				/*
-				 * PENNIES 
-				 */
+				/* PENNIES */
 
-				if (read_money)		/*
-							 *  if not fix in
+				if (read_money)		/* if not fix in
 							 * unscraw_foreign  
 							 */
 					s_Pennies(i, getref(f));
 
-				/*
-				 * FLAGS 
-				 */
+				/* FLAGS */
 
 				f1 = getref(f);
 				if (read_extflags)
@@ -1941,9 +1775,7 @@ int *db_format, *db_version, *db_flags;
 
 
 #ifdef STANDALONE
-				/*
-				 * POWERS from MUSE.  Discard. 
-				 */
+				/* POWERS from MUSE.  Discard. */
 
 				if (read_powers_any ||
 				    ((Typeof(i) == TYPE_PLAYER) && read_powers_player))
@@ -1957,9 +1789,7 @@ int *db_format, *db_version, *db_flags;
 					s_Powers2(i, f2);
 				}
 				
-				/*
-				 * ATTRIBUTES 
-				 */
+				/* ATTRIBUTES */
 
 				if (read_attribs) {
 					if (!get_list(f, i, read_new_strings)) {
@@ -1971,32 +1801,27 @@ int *db_format, *db_version, *db_flags;
 				}
 
 #ifdef STANDALONE
-				/*
-				 * PARENTS from MUSE.  Ewwww. 
-				 */
+				/* PARENTS from MUSE.  Ewwww. */
 
 				if (read_muse_parents) {
 					getlist_discard(f, i, 1);
 					getlist_discard(f, i, 0);
 				}
-				/*
-				 * ATTRIBUTE DEFINITIONS from MUSE.  Ewwww. * 
+				/* ATTRIBUTE DEFINITIONS from MUSE.  Ewwww.
 				 * Ewwww. 
 				 */
 
 				if (read_muse_atrdefs) {
 					get_atrdefs_discard(f);
 				}
-				/*
-				 * Fix up MUSH 2.2's weird quota system 
-				 */
+
+				/* Fix up MUSH 2.2's weird quota system */
+	
 				if ((g_format == F_MUSH) && (g_version == 8))
 					fix_typed_quotas(i);
 
 #endif
-				/*
-				 * check to see if it's a player 
-				 */
+				/* check to see if it's a player */
 
 				if (Typeof(i) == TYPE_PLAYER) {
 					c_Connected(i);
@@ -2005,9 +1830,7 @@ int *db_format, *db_version, *db_flags;
 			}
 #endif
 			break;
-		case '*':	/*
-				 * EOF marker 
-				 */
+		case '*':	/* EOF marker */
 			tstr = getstring_noalloc(f, 0);
 			if (strcmp(tstr, "**END OF DUMP***")) {
 				fprintf(stderr,
@@ -2019,9 +1842,7 @@ int *db_format, *db_version, *db_flags;
 				fprintf(stderr, "\n");
 				fflush(stderr);
 #endif
-				/*
-				 * Fix up bizarro foreign DBs 
-				 */
+				/* Fix up bizarro foreign DBs */
 
 #ifdef STANDALONE
 				unscraw_foreign(g_format, g_version, g_flags);
@@ -2091,9 +1912,7 @@ int db_format, flags;
 		putref(f, Powers(i));
 		putref(f, Powers2(i));
 	}
-	/*
-	 * write the attribute list 
-	 */
+	/* write the attribute list */
 
 
 #ifndef STANDALONE
@@ -2151,9 +1970,7 @@ int format, version;
 
 #ifndef MEMORY_BASED
 	al_store();
-#endif /*
-        * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 
 	switch (format) {
 	case F_MUX:
@@ -2171,9 +1988,7 @@ int format, version;
 	fprintf(f, "+X%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
 	fprintf(f, "-R%d\n", mudstate.record_players);
 	
-	/*
-	 * Dump user-named attribute info 
-	 */
+	/* Dump user-named attribute info */
 
 	vp = vattr_first();
 	while (vp != NULL) {
@@ -2188,9 +2003,7 @@ int format, version;
 		if (!(i % 25)) {
 			cache_reset(0);
 		}
-#endif /*
-        * * MEMORY_BASED  
-        */
+#endif /* MEMORY_BASED */
 
 #ifdef STANDALONE
 		if (!(i % 100)) {

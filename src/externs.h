@@ -69,6 +69,8 @@ extern char *	FDECL(parse_arglist, (dbref, dbref, char *, char, int,
 extern int	FDECL(get_gender, (dbref));
 extern void	FDECL(exec, (char *, char **, int, dbref, dbref, int, char **,
 			char *[], int));
+extern void	FDECL(save_global_regs, (const char *, char *[]));
+extern void	FDECL(restore_global_regs, (const char *, char *[]));
 
 /* From game.c */
 #define	notify(p,m)			notify_check(p,p,m, \
@@ -234,7 +236,7 @@ extern int	FDECL(safe_copy_str, (char *, char *, char **, int));
 extern int	FDECL(matches_exit_from_list, (char *, char *));
 extern char *	FDECL(translate_string, (const char *, int));
 extern int	FDECL(ltos, (char *, long));
-
+extern int	FDECL(safe_ltos, (char *, char *, long));
 /* From boolexp.c */
 extern int	FDECL(eval_boolexp, (dbref, dbref, dbref, BOOLEXP *));
 extern BOOLEXP *FDECL(parse_boolexp, (dbref,const char *, int));

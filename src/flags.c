@@ -18,9 +18,8 @@
 
 #ifndef STANDALONE
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_any: set or clear indicated bit, no security checking
+/* ---------------------------------------------------------------------------
+ * fh_any: set or clear indicated bit, no security checking
  */
 
 int fh_any(target, player, flag, fflags, reset)
@@ -47,9 +46,8 @@ int fflags, reset;
 	return 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_god: only GOD may set or clear the bit
+/* ---------------------------------------------------------------------------
+ * fh_god: only GOD may set or clear the bit
  */
 
 int fh_god(target, player, flag, fflags, reset)
@@ -62,9 +60,8 @@ int fflags, reset;
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_wiz: only WIZARDS (or GOD) may set or clear the bit
+/* ---------------------------------------------------------------------------
+ * fh_wiz: only WIZARDS (or GOD) may set or clear the bit
  */
 
 int fh_wiz(target, player, flag, fflags, reset)
@@ -77,9 +74,8 @@ int fflags, reset;
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_fixed: Settable only on players by WIZARDS
+/* ---------------------------------------------------------------------------
+ * fh_fixed: Settable only on players by WIZARDS
  */
 
 int fh_fixed(target, player, flag, fflags, reset)
@@ -93,9 +89,8 @@ int fflags, reset;
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_wizroy: only WIZARDS, ROYALTY, (or GOD) may set or clear the bit
+/* ---------------------------------------------------------------------------
+ * fh_wizroy: only WIZARDS, ROYALTY, (or GOD) may set or clear the bit
  */
 
 int fh_wizroy(target, player, flag, fflags, reset)
@@ -108,9 +103,8 @@ int fflags, reset;
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_inherit: only players may set or clear this bit.
+/* ---------------------------------------------------------------------------
+ * fh_inherit: only players may set or clear this bit.
  */
 
 int fh_inherit(target, player, flag, fflags, reset)
@@ -123,9 +117,8 @@ int fflags, reset;
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_wiz_bit: Only GOD may set/clear this bit on others.
+/* ---------------------------------------------------------------------------
+ * fh_wiz_bit: Only GOD may set/clear this bit on others.
  */
 
 int fh_wiz_bit(target, player, flag, fflags, reset)
@@ -142,9 +135,8 @@ int fflags, reset;
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_dark_bit: manipulate the dark bit. Nonwizards may not set on players.
+/* ---------------------------------------------------------------------------
+ * fh_dark_bit: manipulate the dark bit. Nonwizards may not set on players.
  */
 
 int fh_dark_bit(target, player, flag, fflags, reset)
@@ -159,9 +151,8 @@ int fflags, reset;
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_going_bit: manipulate the going bit.  Non-gods may only clear on rooms.
+/* ---------------------------------------------------------------------------
+ * fh_going_bit: manipulate the going bit.  Non-gods may only clear on rooms.
  */
 
 int fh_going_bit(target, player, flag, fflags, reset)
@@ -178,9 +169,8 @@ int fflags, reset;
 	return (fh_any(target, player, flag, fflags, reset));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fh_hear_bit: set or clear bits that affect hearing.
+/* ---------------------------------------------------------------------------
+ * fh_hear_bit: set or clear bits that affect hearing.
  */
 
 int fh_hear_bit(target, player, flag, fflags, reset)
@@ -203,9 +193,8 @@ int fflags, reset;
 }
 
 #ifdef DSPACE
-/*
- * ---------------------------------------------------------------------------
- * * fh_dynamic_bit: only settable on rooms or exits.
+/* ---------------------------------------------------------------------------
+ * fh_dynamic_bit: only settable on rooms or exits.
  */
 
 int fh_dynamic_bit(target, player, flag, fflags, reset)
@@ -361,9 +350,8 @@ OBJENT object_types[8] = {
 
 #ifndef STANDALONE
 
-/*
- * ---------------------------------------------------------------------------
- * * init_flagtab: initialize flag hash tables.
+/* ---------------------------------------------------------------------------
+ * init_flagtab: initialize flag hash tables.
  */
 
 void NDECL(init_flagtab)
@@ -382,9 +370,8 @@ void NDECL(init_flagtab)
 	free_sbuf(nbuf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * display_flags: display available flags.
+/* ---------------------------------------------------------------------------
+ * display_flags: display available flags.
  */
 
 void display_flagtab(player)
@@ -417,18 +404,15 @@ char *flagname;
 {
 	char *cp;
 
-	/*
-	 * Make sure the flag name is valid 
-	 */
+	/* Make sure the flag name is valid */
 
 	for (cp = flagname; *cp; cp++)
 		*cp = ToLower(*cp);
 	return (FLAGENT *) hashfind(flagname, &mudstate.flags_htab);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * flag_set: Set or clear a specified flag on an object. 
+/* ---------------------------------------------------------------------------
+ * flag_set: Set or clear a specified flag on an object. 
  */
 
 void flag_set(target, player, flag, key)
@@ -439,9 +423,7 @@ int key;
 	FLAGENT *fp;
 	int negate, result;
 
-	/*
-	 * Trim spaces, and handle the negation character 
-	 */
+	/* Trim spaces, and handle the negation character */
 
 	negate = 0;
 	while (*flag && isspace(*flag))
@@ -453,9 +435,7 @@ int key;
 	while (*flag && isspace(*flag))
 		flag++;
 
-	/*
-	 * Make sure a flag name was specified 
-	 */
+	/* Make sure a flag name was specified */
 
 	if (*flag == '\0') {
 		if (negate)
@@ -469,9 +449,7 @@ int key;
 		notify(player, "I don't understand that flag.");
 		return;
 	}
-	/*
-	 * Invoke the flag handler, and print feedback 
-	 */
+	/* Invoke the flag handler, and print feedback */
 
 	result = fp->handler(target, player, fp->flagvalue,
 			     fp->flagflag, negate);
@@ -482,9 +460,8 @@ int key;
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * decode_flags: converts a flags word into corresponding letters.
+/* ---------------------------------------------------------------------------
+ * decode_flags: converts a flags word into corresponding letters.
  */
 
 char *decode_flags(player, flagword, flag2word, flag3word)
@@ -500,7 +477,7 @@ FLAG flagword, flag2word, flag3word;
 	*bp = '\0';
 
 	if (!Good_obj(player)) {
-		StringCopy(buf, "#-2 ERROR");
+		strcpy(buf, "#-2 ERROR");
 		return buf;
 	}
 	flagtype = (flagword & TYPE_MASK);
@@ -519,9 +496,7 @@ FLAG flagword, flag2word, flag3word;
 				continue;
 			if ((fp->listperm & CA_GOD) && !God(player))
 				continue;
-			/*
-			 * don't show CONNECT on dark wizards to mortals 
-			 */
+			/* don't show CONNECT on dark wizards to mortals */
 			if ((flagtype == TYPE_PLAYER) &&
 			    (fp->flagvalue == CONNECTED) &&
 			((flagword & (WIZARD | DARK)) == (WIZARD | DARK)) &&
@@ -535,9 +510,8 @@ FLAG flagword, flag2word, flag3word;
 	return buf;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * has_flag: does object have flag visible to player?
+/* ---------------------------------------------------------------------------
+ * has_flag: does object have flag visible to player?
  */
 
 int has_flag(player, it, flagname)
@@ -563,9 +537,7 @@ char *flagname;
 			return 0;
 		if ((fp->listperm & CA_GOD) && !God(player))
 			return 0;
-		/*
-		 * don't show CONNECT on dark wizards to mortals 
-		 */
+		/* don't show CONNECT on dark wizards to mortals */
 		if (isPlayer(it) &&
 		    (fp->flagvalue == CONNECTED) &&
 		    ((Flags(it) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
@@ -576,9 +548,8 @@ char *flagname;
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * flag_description: Return an mbuf containing the type and flags on thing.
+/* ---------------------------------------------------------------------------
+ * flag_description: Return an mbuf containing the type and flags on thing.
  */
 
 char *flag_description(player, target)
@@ -589,16 +560,12 @@ dbref player, target;
 	int otype;
 	FLAG fv;
 
-	/*
-	 * Allocate the return buffer 
-	 */
+	/* Allocate the return buffer */
 
 	otype = Typeof(target);
 	bp = buff = alloc_mbuf("flag_description");
 
-	/*
-	 * Store the header strings and object type 
-	 */
+	/* Store the header strings and object type */
 
 	safe_mb_str((char *)"Type: ", buff, &bp);
 	safe_mb_str((char *)object_types[otype].name, buff, &bp);
@@ -607,9 +574,7 @@ dbref player, target;
 		*bp = '\0';
 		return buff;
 	}
-	/*
-	 * Store the type-invariant flags 
-	 */
+	/* Store the type-invariant flags */
 
 	for (fp = gen_flags; fp->flagname; fp++) {
 		if (fp->flagflag & FLAG_WORD3)
@@ -623,9 +588,7 @@ dbref player, target;
 				continue;
 			if ((fp->listperm & CA_GOD) && !God(player))
 				continue;
-			/*
-			 * don't show CONNECT on dark wizards to mortals 
-			 */
+			/* don't show CONNECT on dark wizards to mortals */
 			if (isPlayer(target) &&
 			    (fp->flagvalue == CONNECTED) &&
 			    ((Flags(target) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
@@ -636,9 +599,7 @@ dbref player, target;
 		}
 	}
 
-	/*
-	 * Terminate the string, and return the buffer to the caller 
-	 */
+	/* Terminate the string, and return the buffer to the caller */
 
 	*bp = '\0';
 	return buff;
@@ -656,9 +617,9 @@ dbref target;
 
 	buf = alloc_lbuf("unparse_object_numonly");
 	if (target == NOTHING) {
-		StringCopy(buf, "*NOTHING*");
+		strcpy(buf, "*NOTHING*");
 	} else if (target == HOME) {
-		StringCopy(buf, "*HOME*");
+		strcpy(buf, "*HOME*");
 	} else if (!Good_obj(target)) {
 		sprintf(buf, "*ILLEGAL*(#%d)", target);
 	} else {
@@ -667,9 +628,8 @@ dbref target;
 	return buf;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * Return an lbuf pointing to the object name and possibly the db# and flags
+/* ---------------------------------------------------------------------------
+ * Return an lbuf pointing to the object name and possibly the db# and flags
  */
 
 char *unparse_object(player, target, obey_myopic)
@@ -681,9 +641,9 @@ int obey_myopic;
 
 	buf = alloc_lbuf("unparse_object");
 	if (target == NOTHING) {
-		StringCopy(buf, "*NOTHING*");
+		strcpy(buf, "*NOTHING*");
 	} else if (target == HOME) {
-		StringCopy(buf, "*HOME*");
+		strcpy(buf, "*HOME*");
 	} else if (!Good_obj(target)) {
 		sprintf(buf, "*ILLEGAL*(#%d)", target);
 	} else {
@@ -695,26 +655,21 @@ int obey_myopic;
 		    (Flags(target) & (CHOWN_OK | JUMP_OK | LINK_OK | DESTROY_OK)) ||
 		    (Flags2(target) & ABODE)) {
 
-			/*
-			 * show everything 
-			 */
+			/* show everything */
 			fp = unparse_flags(player, target);
 			sprintf(buf, "%s(#%d%s)", Name(target), target, fp);
 			free_sbuf(fp);
 		} else {
-			/*
-			 * show only the name. 
-			 */
-			StringCopy(buf, Name(target));
+			/* show only the name. */
+			strcpy(buf, Name(target));
 		}
 	}
 	return buf;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * convert_flags: convert a list of flag letters into its bit pattern.
- * * Also set the type qualifier if specified and not already set.
+/* ---------------------------------------------------------------------------
+ * convert_flags: convert a list of flag letters into its bit pattern.
+ * Also set the type qualifier if specified and not already set.
  */
 
 int convert_flags(player, flaglist, fset, p_type)
@@ -734,9 +689,7 @@ FLAG *p_type;
 	for (s = flaglist; *s; s++) {
 		handled = 0;
 
-		/*
-		 * Check for object type 
-		 */
+		/* Check for object type */
 
 		for (i = 0; (i <= 7) && !handled; i++) {
 			if ((object_types[i].lett == *s) &&
@@ -755,9 +708,7 @@ FLAG *p_type;
 			}
 		}
 
-		/*
-		 * Check generic flags 
-		 */
+		/* Check generic flags */
 
 		if (handled)
 			continue;
@@ -785,9 +736,7 @@ FLAG *p_type;
 		}
 	}
 
-	/*
-	 * return flags to search for and type 
-	 */
+	/* return flags to search for and type */
 
 	(*fset).word1 = flag1mask;
 	(*fset).word2 = flag2mask;
@@ -796,9 +745,8 @@ FLAG *p_type;
 	return 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * decompile_flags: Produce commands to set flags on target.
+/* ---------------------------------------------------------------------------
+ * decompile_flags: Produce commands to set flags on target.
  */
 
 void decompile_flags(player, thing, thingname)
@@ -808,9 +756,7 @@ char *thingname;
 	FLAG f1, f2, f3;
 	FLAGENT *fp;
 
-	/*
-	 * Report generic flags 
-	 */
+	/* Report generic flags */
 
 	f1 = Flags(thing);
 	f2 = Flags2(thing);
@@ -818,16 +764,12 @@ char *thingname;
 	
 	for (fp = gen_flags; fp->flagname; fp++) {
 
-		/*
-		 * Skip if we shouldn't decompile this flag 
-		 */
+		/* Skip if we shouldn't decompile this flag */
 
 		if (fp->listperm & CA_NO_DECOMP)
 			continue;
 
-		/*
-		 * Skip if this flag is not set 
-		 */
+		/* Skip if this flag is not set */
 
 		if (fp->flagflag & FLAG_WORD3) {
 			if (!(f3 & fp->flagvalue))
@@ -840,21 +782,15 @@ char *thingname;
 				continue;
 		}
 
-		/*
-		 * Skip if we can't see this flag 
-		 */
+		/* Skip if we can't see this flag */
 
 		if (!check_access(player, fp->listperm))
 			continue;
 
-		/*
-		 * We made it this far, report this flag 
-		 */
+		/* We made it this far, report this flag */
 
 		notify(player, tprintf("@set %s=%s", strip_ansi(thingname), fp->flagname));
 	}
 }
 
-#endif /*
-        * STANDALONE 
-        */
+#endif /* STANDALONE */

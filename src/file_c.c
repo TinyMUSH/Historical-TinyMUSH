@@ -48,7 +48,10 @@ FCACHE fcache[] = {
 	{ mudconf.motd_file,	NULL,	"Motd" },
 	{ mudconf.wizmotd_file,	NULL,	"Wizmotd" },
 	{ mudconf.quit_file,	NULL,	"Quit" },
-	{ NULL,			NULL,	NULL }};
+#ifdef PUEBLO_SUPPORT
+	{mudconf.htmlconn_file,	NULL,	"Conn/Html"},
+#endif
+    	{ NULL,			NULL,	NULL }};
 
 NAMETAB list_files[] = {
 {(char *)"badsite_connect",	1,	CA_WIZARD,	FC_CONN_SITE},
@@ -57,6 +60,9 @@ NAMETAB list_files[] = {
 {(char *)"down",		1,	CA_WIZARD,	FC_CONN_DOWN},
 {(char *)"full",		1,	CA_WIZARD,	FC_CONN_FULL},
 {(char *)"guest_motd",		1,	CA_WIZARD,	FC_CONN_GUEST},
+#ifdef PUEBLO_SUPPORT
+{(char *)"html_connect",	1,	CA_WIZARD,	FC_CONN_HTML},
+#endif
 {(char *)"motd",		1,	CA_WIZARD,	FC_MOTD},
 {(char *)"newuser",		1,	CA_WIZARD,	FC_CREA_NEW},
 {(char *)"quit",		1,	CA_WIZARD,	FC_QUIT},
@@ -65,10 +71,6 @@ NAMETAB list_files[] = {
 { NULL,				0,	0,		0}};
 
 /* *INDENT-ON* */
-
-
-
-
 
 void do_list_file(player, cause, extra, arg)
 dbref player, cause;
@@ -94,9 +96,7 @@ char ch;
 
 	if (fp->hdr.nchars >= (MBUF_SIZE - sizeof(FBLKHDR))) {
 
-		/*
-		 * We filled the current buffer.  Go get a new one. 
-		 */
+		/* We filled the current buffer.  Go get a new one. */
 
 		tfp = fp;
 		fp = (FBLOCK *) alloc_mbuf("fcache_fill");
@@ -116,9 +116,7 @@ char *filename;
 	char *buff;
 	FBLOCK *fp, *tfp;
 
-	/*
-	 * Free a prior buffer chain 
-	 */
+	/* Free a prior buffer chain */
 
 	fp = *cp;
 	while (fp != NULL) {
@@ -128,15 +126,11 @@ char *filename;
 	}
 	*cp = NULL;
 
-	/*
-	 * Read the text file into a new chain 
-	 */
+	/* Read the text file into a new chain */
 
 	if ((fd = tf_open(filename, O_RDONLY)) == -1) {
 
-		/*
-		 * Failure: log the event 
-		 */
+		/* Failure: log the event */
 
 		STARTLOG(LOG_PROBLEMS, "FIL", "OPEN")
 			buff = alloc_mbuf("fcache_read.LOG");
@@ -149,9 +143,7 @@ char *filename;
 	}
 	buff = alloc_lbuf("fcache_read.temp");
 
-	/*
-	 * Set up the initial cache buffer to make things easier 
-	 */
+	/* Set up the initial cache buffer to make things easier */
 
 	fp = (FBLOCK *) alloc_mbuf("fcache_read.first");
 	fp->hdr.nxt = NULL;
@@ -159,9 +151,7 @@ char *filename;
 	*cp = fp;
 	tchars = 0;
 
-	/*
-	 * Process the file, one lbuf at a time 
-	 */
+	/* Process the file, one lbuf at a time */
 
 	nmax = read(fd, buff, LBUF_SIZE);
 	while (nmax > 0) {
@@ -185,9 +175,7 @@ char *filename;
 	free_lbuf(buff);
 	tf_close(fd);
 
-	/*
-	 * If we didn't read anything in, toss the initial buffer 
-	 */
+	/* If we didn't read anything in, toss the initial buffer */
 
 	if (fp->hdr.nchars == 0) {
 		*cp = NULL;

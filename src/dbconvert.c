@@ -16,9 +16,8 @@
 extern void NDECL(cf_init);
 extern void FDECL(do_dbck, (dbref, dbref, int));
 extern void NDECL(vattr_init);
-/*
- * ---------------------------------------------------------------------------
- * * info: display info about the file being read or written.
+/* ---------------------------------------------------------------------------
+ * info: display info about the file being read or written.
  */
 
 void info(fmt, flags, ver)
@@ -106,9 +105,7 @@ char *argv[];
 #ifdef RADIX_COMPRESSION
 	init_string_compress();
 #endif
-	/*
-	 * Decide what conversions to do and how to format the output file 
-	 */
+	/* Decide what conversions to do and how to format the output file */
 
 	setflags = clrflags = ver = do_check = 0;
 	do_write = 1;
@@ -190,18 +187,14 @@ char *argv[];
 			}
 		}
 	}
-	/*
-	 * Open the gdbm file 
-	 */
+	/* Open the gdbm file */
 
 	vattr_init();
 	if (init_gdbm_db(argv[1]) < 0) {
 		fprintf(stderr, "Can't open GDBM file\n");
 		exit(1);
 	}
-	/*
-	 * Go do it 
-	 */
+	/* Go do it */
 
 	db_read(stdin, &db_format, &db_ver, &db_flags);
 	fprintf(stderr, "Input: ");

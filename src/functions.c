@@ -33,9 +33,7 @@ extern NAMETAB indiv_attraccess_nametab[];
 extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
 				    const char *thingname, char *thing));
 
-/*
- * Function definitions from funceval.c 
- */
+/* Function definitions from funceval.c */
 
 #define	XFUNCTION(x)	\
 	extern void x();
@@ -118,9 +116,7 @@ XFUNCTION(fun_lstack);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_translate);
 
-/*
- * This is the prototype for functions 
- */
+/* This is the prototype for functions */
 
 #define	FUNCTION(x)	\
 	static void x(buff, bufc, player, cause, fargs, nfargs, cargs, ncargs) \
@@ -129,34 +125,58 @@ XFUNCTION(fun_translate);
 	char *fargs[], *cargs[]; \
 	int nfargs, ncargs;
 
-/*
- * This is for functions that take an optional delimiter character 
+/* This is for functions that take an optional delimiter character.
+ *
+ * Call varargs_preamble("FUNCTION", max_args) for functions which
+ * take either max_args - 1 args, or, with a delimiter, max_args args.
+ *
+ * Call mvarargs_preamble("FUNCTION", min_args, max_args) if there can
+ * be more variable arguments than just the delimiter.
+ *
+ * Call evarargs_preamble("FUNCTION", min_args, max_args) if the delimiters
+ * need to be evaluated.
+ *
+ * Call svarargs_preamble("FUNCTION", max_args) if the second to last and
+ * last arguments are delimiters.
  */
 
-#define varargs_preamble(xname,xnargs)					\
-	if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
-		return;							\
-	if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,	\
-		player, cause, cargs, ncargs))				\
-		return;
+#define varargs_preamble(xname,xnargs)	                        \
+if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
+    player, cause, cargs, ncargs))                              \
+return;
 
-#define evarargs_preamble(xname,xnargs)					\
-	if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
-		return;							\
-	if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 1,	\
-	    player, cause, cargs, ncargs))				\
-		return;
+#define mvarargs_preamble(xname,xminargs,xnargs)	        \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,          \
+    player, cause, cargs, ncargs))                              \
+return;
 
-#define mvarargs_preamble(xname,xminargs,xnargs)			\
-	if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-		return;							\
-	if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
-	    player, cause, cargs, ncargs))				\
-		return;
+#define evarargs_preamble(xname, xminargs, xnargs)              \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs - 1, &sep, buff, bufc, 1,      \
+    player, cause, cargs, ncargs))                              \
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 1,         \
+    player, cause, cargs, ncargs))                              \
+return;
 
-/*
- * Trim off leading and trailing spaces if the separator char is a space 
- */
+#define svarargs_preamble(xname,xnargs)                         \
+if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
+    player, cause, cargs, ncargs))                              \
+return;							        \
+if (nfargs < xnargs)				                \
+    osep = sep;				                        \
+else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
+    player, cause, cargs, ncargs))                              \
+return;
+
+/* Trim off leading and trailing spaces if the separator char is a space */
 
 char *trim_space_sep(str, sep)
 char *str, sep;
@@ -174,9 +194,7 @@ char *str, sep;
 	return str;
 }
 
-/*
- * next_token: Point at start of next token in string 
- */
+/* next_token: Point at start of next token in string */
 
 char *next_token(str, sep)
 char *str, sep;
@@ -193,9 +211,8 @@ char *str, sep;
 	return str;
 }
 
-/*
- * split_token: Get next token from string as null-term string.  String is
- * * destructively modified.
+/* split_token: Get next token from string as null-term string.  String is
+ * destructively modified.
  */
 
 char *split_token(sp, sep)
@@ -232,9 +249,8 @@ char *name;
 	return (noisy_match_result());
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * List management utilities.
+/* ---------------------------------------------------------------------------
+ * List management utilities.
  */
 
 #define	ALPHANUM_LIST	1
@@ -255,16 +271,12 @@ int nitems;
 		case NUMERIC_LIST:
 			if (!is_number(ptrs[i])) {
 
-				/*
-				 * If non-numeric, switch to alphanum sort. * 
-				 * 
-				 * *  * *  * * Exception: if this is the
-				 * first * element * * and * it is a good
-				 * dbref, * switch to a * * dbref sort. *
-				 * We're a * little looser than *  * the
-				 * normal * 'good  * dbref' rules, any * *
-				 * number following # * the #-sign is
-				 * accepted.  
+				/* If non-numeric, switch to alphanum sort.
+				 * Exception: if this is the first element 
+				 * and it is a good dbref, switch to a dbref
+				 * sort. We're a little looser than the
+				 * normal 'good dbref' rules, any number
+				 * following the #-sign is  accepted.  
 				 */
 
 				if (i == 0) {
@@ -356,15 +368,14 @@ int alen;
 static int dbnum(dbr)
 char *dbr;
 {
-	if ((strlen(dbr) < 2) && (*dbr != '#'))
+	if ((*dbr != '#') || (strlen(dbr) < 2))
 		return 0;
 	else
 		return atoi(dbr + 1);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * nearby_or_control: Check if player is near or controls thing
+/* ---------------------------------------------------------------------------
+ * nearby_or_control: Check if player is near or controls thing
  */
 
 int nearby_or_control(player, thing)
@@ -378,9 +389,8 @@ dbref player, thing;
 		return 0;
 	return 1;
 }
-/*
- * ---------------------------------------------------------------------------
- * * fval: copy the floating point value into a buffer and make it presentable
+/* ---------------------------------------------------------------------------
+ * fval: copy the floating point value into a buffer and make it presentable
  */
 
 static void fval(buff, bufc, result)
@@ -390,15 +400,12 @@ double result;
 	char *p, *buf1;
 
 	buf1 = *bufc;
-	safe_tprintf_str(buff, bufc, "%.6f", result);	/*
-							 * get double val * * 
+	safe_tprintf_str(buff, bufc, "%.6f", result);	/* get double val
 							 * into buffer 
 							 */
 	**bufc = '\0';
 	p = (char *)rindex(buf1, '0');
-	if (p == NULL) {	/*
-				 * remove useless trailing 0's 
-				 */
+	if (p == NULL) {	/* remove useless trailing 0's */
 		return;
 	} else if (*(p + 1) == '\0') {
 		while (*p == '0') {
@@ -406,19 +413,16 @@ double result;
 		}
 		*bufc = p + 1;
 	}
-	p = (char *)rindex(buf1, '.');	/*
-					 * take care of dangling '.' 
-					 */
+	p = (char *)rindex(buf1, '.');	/* take care of dangling '.' */
 	if (*(p + 1) == '\0') {
 		*p = '\0';
 		*bufc = p;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fn_range_check: Check # of args to a function with an optional argument
- * * for validity.
+/* ---------------------------------------------------------------------------
+ * fn_range_check: Check # of args to a function with an optional argument
+ * for validity.
  */
 
 int fn_range_check(fname, nfargs, minargs, maxargs, result, bufc)
@@ -438,9 +442,8 @@ int nfargs, minargs, maxargs;
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * delim_check: obtain delimiter
+/* ---------------------------------------------------------------------------
+ * delim_check: obtain delimiter
  */
 
 int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc, eval, player, cause,
@@ -480,10 +483,9 @@ dbref player, cause;
 	return 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_words: Returns number of words in a string.
- * * Added 1/28/91 Philip D. Wasson
+/* ---------------------------------------------------------------------------
+ * fun_words: Returns number of words in a string.
+ * Added 1/28/91 Philip D. Wasson
  */
 
 int countwords(str, sep)
@@ -510,7 +512,7 @@ FUNCTION(fun_words)
 	safe_tprintf_str(buff, bufc, "%d", countwords(fargs[0], sep));
 }
 
-/*
+/* ------------------------------------------------------------------------
  * fun_flags: Returns the flags on an object.
  * Because @switch is case-insensitive, not quite as useful as it could be.
  */
@@ -531,9 +533,8 @@ FUNCTION(fun_flags)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_rand: Return a random number from 0 to arg1-1
+/* ---------------------------------------------------------------------------
+ * fun_rand: Return a random number from 0 to arg1-1
  */
 
 FUNCTION(fun_rand)
@@ -547,9 +548,8 @@ FUNCTION(fun_rand)
 		safe_tprintf_str(buff, bufc, "%ld", (random() % num));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_abs: Returns the absolute value of its argument.
+/* ---------------------------------------------------------------------------
+ * fun_abs: Returns the absolute value of its argument.
  */
 
 FUNCTION(fun_abs)
@@ -566,9 +566,8 @@ FUNCTION(fun_abs)
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_sign: Returns -1, 0, or 1 based on the the sign of its argument.
+/* ---------------------------------------------------------------------------
+ * fun_sign: Returns -1, 0, or 1 based on the the sign of its argument.
  */
 
 FUNCTION(fun_sign)
@@ -584,9 +583,8 @@ FUNCTION(fun_sign)
 		safe_str("0", buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_time: Returns nicely-formatted time.
+/* ---------------------------------------------------------------------------
+ * fun_time: Returns nicely-formatted time.
  */
 
 FUNCTION(fun_time)
@@ -598,19 +596,17 @@ FUNCTION(fun_time)
 	safe_str(temp, buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_time: Seconds since 0:00 1/1/70
+/* ---------------------------------------------------------------------------
+ * fun_time: Seconds since 0:00 1/1/70
  */
 
 FUNCTION(fun_secs)
 {
-	safe_tprintf_str(buff, bufc, "%d", mudstate.now);
+	safe_ltos(buff, bufc, mudstate.now);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_convsecs: converts seconds to time string, based off 0:00 1/1/70
+/* ---------------------------------------------------------------------------
+ * fun_convsecs: converts seconds to time string, based off 0:00 1/1/70
  */
 
 FUNCTION(fun_convsecs)
@@ -624,11 +620,10 @@ FUNCTION(fun_convsecs)
 	safe_str(temp, buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_convtime: converts time string to seconds, based off 0:00 1/1/70
- * *    additional auxiliary function and table used to parse time string,
- * *    since no ANSI standard function are available to do this.
+/* ---------------------------------------------------------------------------
+ * fun_convtime: converts time string to seconds, based off 0:00 1/1/70
+ *    additional auxiliary function and table used to parse time string,
+ *    since no ANSI standard function are available to do this.
  */
 
 static const char *monthtab[] =
@@ -639,10 +634,9 @@ static const char daystab[] =
 {31, 29, 31, 30, 31, 30,
  31, 31, 30, 31, 30, 31};
 
-/*
- * converts time string to a struct tm. Returns 1 on success, 0 on fail.
- * * Time string format is always 24 characters long, in format
- * * Ddd Mmm DD HH:MM:SS YYYY
+/* converts time string to a struct tm. Returns 1 on success, 0 on fail.
+ * Time string format is always 24 characters long, in format
+ * Ddd Mmm DD HH:MM:SS YYYY
  */
 
 #define	get_substr(buf, p) { \
@@ -664,24 +658,18 @@ struct tm *ttm;
 		return 0;
 	while (*str == ' ')
 		str++;
-	buf = p = alloc_sbuf("do_convtime");	/*
-						 * make a temp copy of arg 
-						 */
+	buf = p = alloc_sbuf("do_convtime");	/* make a temp copy of arg */
 	safe_sb_str(str, buf, &p);
 	*p = '\0';
 
-	get_substr(buf, p);	/*
-				 * day-of-week or month 
-				 */
+	get_substr(buf, p);	/* day-of-week or month */
 	if (!p || strlen(buf) != 3) {
 		free_sbuf(buf);
 		return 0;
 	}
 	for (i = 0; (i < 12) && string_compare(monthtab[i], p); i++) ;
 	if (i == 12) {
-		get_substr(p, q);	/*
-					 * month 
-					 */
+		get_substr(p, q);	/* month */
 		if (!q || strlen(p) != 3) {
 			free_sbuf(buf);
 			return 0;
@@ -695,16 +683,12 @@ struct tm *ttm;
 	}
 	ttm->tm_mon = i;
 
-	get_substr(p, q);	/*
-				 * day of month 
-				 */
+	get_substr(p, q);	/* day of month */
 	if (!q || (ttm->tm_mday = atoi(p)) < 1 || ttm->tm_mday > daystab[i]) {
 		free_sbuf(buf);
 		return 0;
 	}
-	p = (char *)index(q, ':');	/*
-					 * hours 
-					 */
+	p = (char *)index(q, ':');	/* hours */
 	if (!p) {
 		free_sbuf(buf);
 		return 0;
@@ -722,9 +706,7 @@ struct tm *ttm;
 			return 0;
 		}
 	}
-	q = (char *)index(p, ':');	/*
-					 * minutes 
-					 */
+	q = (char *)index(p, ':');	/* minutes */
 	if (!q) {
 		free_sbuf(buf);
 		return 0;
@@ -742,9 +724,7 @@ struct tm *ttm;
 			return 0;
 		}
 	}
-	get_substr(q, p);	/*
-				 * seconds 
-				 */
+	get_substr(q, p);	/* seconds */
 	if (!p || (ttm->tm_sec = atoi(q)) > 59 || ttm->tm_sec < 0) {
 		free_sbuf(buf);
 		return 0;
@@ -757,9 +737,7 @@ struct tm *ttm;
 			return 0;
 		}
 	}
-	get_substr(p, q);	/*
-				 * year 
-				 */
+	get_substr(p, q);	/* year */
 	if ((ttm->tm_year = atoi(p)) == 0) {
 		while (isspace(*p))
 			p++;
@@ -774,6 +752,10 @@ struct tm *ttm;
 	if (ttm->tm_year < 0) {
 		return 0;
 	}
+
+	/* We don't whether or not it's daylight savings time. */
+	ttm->tm_isdst = -1;
+        
 #define LEAPYEAR_1900(yr) ((yr)%400==100||((yr)%100!=0&&(yr)%4==0))
 	return (ttm->tm_mday != 29 || i != 1 || LEAPYEAR_1900(ttm->tm_year));
 #undef LEAPYEAR_1900
@@ -785,15 +767,14 @@ FUNCTION(fun_convtime)
 
 	ttm = localtime(&mudstate.now);
 	if (do_convtime(fargs[0], ttm))
-		safe_tprintf_str(buff, bufc, "%d", timelocal(ttm));
+		safe_ltos(buff, bufc, timelocal(ttm));
 	else
 		safe_str("-1", buff, bufc);
 }
 
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_starttime: What time did this system last reboot?
+/* ---------------------------------------------------------------------------
+ * fun_starttime: What time did this system last reboot?
  */
 
 FUNCTION(fun_starttime)
@@ -805,9 +786,8 @@ FUNCTION(fun_starttime)
 	safe_str(temp, buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_get, fun_get_eval: Get attribute from object.
+/* ---------------------------------------------------------------------------
+ * fun_get, fun_get_eval: Get attribute from object.
  */
 
 int check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)
@@ -818,27 +798,21 @@ char *buff, **bufc;
 {
 	int see_it;
 
-	/*
-	 * If we have explicit read permission to the attr, return it 
-	 */
+	/* If we have explicit read permission to the attr, return it */
 
 	if (See_attr_explicit(player, thing, attr, aowner, aflags))
 		return 1;
 
-	/*
-	 * If we are nearby or have examine privs to the attr and it is * * * 
-	 * 
-	 * * visible to us, return it. 
+	/* If we are nearby or have examine privs to the attr and it is 
+	 * visible to us, return it. 
 	 */
 
 	see_it = See_attr(player, thing, attr, aowner, aflags);
 	if ((Examinable(player, thing) || nearby(player, thing) || See_All(player)) && see_it)
 		return 1;
 
-	/*
-	 * For any object, we can read its visible attributes, EXCEPT * for * 
-	 * 
-	 * *  * * descs, which are only visible if read_rem_desc is on. 
+	/* For any object, we can read its visible attributes, EXCEPT for
+	 * descs, which are only visible if read_rem_desc is on. 
 	 */
 
 	if (see_it) {
@@ -869,9 +843,7 @@ FUNCTION(fun_get)
 		return;
 	}
 	free_buffer = 1;
-	attr = atr_num(attrib);	/*
-				 * We need the attr's flags for this: 
-				 */
+	attr = atr_num(attrib);	/* We need the attr's flags for this: */
 	if (!attr) {
 		return;
 	}
@@ -891,10 +863,8 @@ FUNCTION(fun_get)
 		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags);
 	}
 
-	/*
-	 * Perform access checks.  c_r_p fills buff with an error message * * 
-	 * 
-	 * *  * * if needed. 
+	/* Perform access checks.  c_r_p fills buff with an error message
+	 * if needed. 
 	 */
 
 	if (check_read_perms(player, thing, attr, aowner, aflags, buff, bufc))
@@ -924,9 +894,7 @@ FUNCTION(fun_xget)
 		return;
 	}
 	free_buffer = 1;
-	attr = atr_num(attrib);	/*
-				 * We need the attr's flags for this: 
-				 */
+	attr = atr_num(attrib);	/* We need the attr's flags for this: */
 	if (!attr) {
 		return;
 	}
@@ -946,10 +914,8 @@ FUNCTION(fun_xget)
 		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags);
 	}
 
-	/*
-	 * Perform access checks.  c_r_p fills buff with an error message * * 
-	 * 
-	 * *  * * if needed. 
+	/* Perform access checks.  c_r_p fills buff with an error message  
+	 * if needed. 
 	 */
 
 	if (check_read_perms(player, thing, attr, aowner, aflags, buff, bufc))
@@ -976,9 +942,7 @@ FUNCTION(fun_get_eval)
 	}
 	free_buffer = 1;
 	eval_it = 1;
-	attr = atr_num(attrib);	/*
-				 * We need the attr's flags for this: 
-				 */
+	attr = atr_num(attrib);	/* We need the attr's flags for this: */
 	if (!attr) {
 		return;
 	}
@@ -1097,9 +1061,8 @@ FUNCTION(fun_eval)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_u and fun_ulocal:  Call a user-defined function.
+/* ---------------------------------------------------------------------------
+ * fun_u and fun_ulocal:  Call a user-defined function.
  */
 
 static void do_ufun(buff, bufc, player, cause,
@@ -1115,18 +1078,14 @@ int nfargs, ncargs, is_local;
 	int aflags, anum, i;
 	ATTR *ap;
 	char *atext, *result, *preserve[MAX_GLOBAL_REGS], *bp, *str;
-
-	/*
-	 * We need at least one argument 
-	 */
+	
+	/* We need at least one argument */
 
 	if (nfargs < 1) {
 		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
 		return;
 	}
-	/*
-	 * Two possibilities for the first arg: <obj>/<attr> and <attr>. 
-	 */
+	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
 	if (parse_attrib(player, fargs[0], &thing, &anum)) {
 		if ((anum == NOTHING) || (!Good_obj(thing)))
@@ -1138,16 +1097,12 @@ int nfargs, ncargs, is_local;
 		ap = atr_str(fargs[0]);
 	}
 
-	/*
-	 * Make sure we got a good attribute 
-	 */
+	/* Make sure we got a good attribute */
 
 	if (!ap) {
 		return;
 	}
-	/*
-	 * Use it if we can access it, otherwise return an error. 
-	 */
+	/* Use it if we can access it, otherwise return an error. */
 
 	atext = atr_pget(thing, ap->number, &aowner, &aflags);
 	if (!atext) {
@@ -1162,23 +1117,12 @@ int nfargs, ncargs, is_local;
 		free_lbuf(atext);
 		return;
 	}
-	/*
-	 * If we're evaluating locally, preserve the global registers. 
-	 */
+	/* If we're evaluating locally, preserve the global registers. */
 
 	if (is_local) {
-		for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-			if (!mudstate.global_regs[i])
-				preserve[i] = NULL;
-			else {
-				preserve[i] = alloc_lbuf("u_regs");
-				StringCopy(preserve[i], mudstate.global_regs[i]);
-			}
-		}
-	}
-	/*
-	 * Evaluate it using the rest of the passed function args 
-	 */
+		save_global_regs("fun_ulocal_save", preserve);
+
+	/* Evaluate it using the rest of the passed function args */
 
 	str = atext;
 	exec(buff, bufc, 0, thing, cause, EV_FCHECK | EV_EVAL, &str,
@@ -1190,18 +1134,7 @@ int nfargs, ncargs, is_local;
 	 */
 
 	if (is_local) {
-		for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-			if (preserve[i]) {
-				if (!mudstate.global_regs[i])
-					mudstate.global_regs[i] = alloc_lbuf("u_reg");
-				StringCopy(mudstate.global_regs[i], preserve[i]);
-				free_lbuf(preserve[i]);
-			} else {
-				if (mudstate.global_regs[i])
-					*(mudstate.global_regs[i]) = '\0';
-			}
-		}
-	}
+		restore_global_regs("fun_ulocal_restore", preserve);
 }
 
 FUNCTION(fun_u)
@@ -1214,9 +1147,8 @@ FUNCTION(fun_ulocal)
 	do_ufun(buff, bufc, player, cause, fargs, nfargs, cargs, ncargs, 1);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_parent: Get parent of object.
+/* ---------------------------------------------------------------------------
+ * fun_parent: Get parent of object.
  */
 
 FUNCTION(fun_parent)
@@ -1232,20 +1164,19 @@ FUNCTION(fun_parent)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_parse: Make list from evaluating arg3 with each member of arg2.
- * * arg1 specifies a delimiter character to use in the parsing of arg2.
- * * NOTE: This function expects that its arguments have not been evaluated.
+/* ---------------------------------------------------------------------------
+ * fun_parse: Make list from evaluating arg3 with each member of arg2.
+ * arg1 specifies a delimiter character to use in the parsing of arg2.
+ * NOTE: This function expects that its arguments have not been evaluated.
  */
 
 FUNCTION(fun_parse)
 {
-	char *curr, *objstring, *buff2, *buff3, *bp, *cp, sep;
+	char *curr, *objstring, *buff2, *buff3, *bp, *cp, sep, osep;
 	char *dp, *str;
 	int first, number = 0;
 
-	evarargs_preamble("PARSE", 3);
+	evarargs_preamble("PARSE", 2, 4);
 	cp = curr = dp = alloc_lbuf("fun_parse");
 	str = fargs[0];
 	exec(curr, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
@@ -1259,7 +1190,7 @@ FUNCTION(fun_parse)
 	first = 1;
 	while (cp) {
 		if (!first)
-			safe_chr(' ', buff, bufc);
+			safe_chr(osep, buff, bufc);
 		first = 0;
 		number++;
 		objstring = split_token(&cp, sep);
@@ -1275,9 +1206,8 @@ FUNCTION(fun_parse)
 	free_lbuf(curr);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_mid: mid(foobar,2,3) returns oba
+/* ---------------------------------------------------------------------------
+ * fun_mid: mid(foobar,2,3) returns oba
  */
 
 FUNCTION(fun_mid)
@@ -1300,35 +1230,29 @@ FUNCTION(fun_mid)
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_first: Returns first word in a string
+/* ---------------------------------------------------------------------------
+ * fun_first: Returns first word in a string
  */
 
 FUNCTION(fun_first)
 {
 	char *s, *first, sep;
 
-	/*
-	 * If we are passed an empty arglist return a null string 
-	 */
+	/* If we are passed an empty arglist return a null string */
 
 	if (nfargs == 0) {
 		return;
 	}
 	varargs_preamble("FIRST", 2);
-	s = trim_space_sep(fargs[0], sep);	/*
-						 * leading spaces ... 
-						 */
+	s = trim_space_sep(fargs[0], sep);	/* leading spaces ... */
 	first = split_token(&s, sep);
 	if (first) {
 		safe_str(first, buff, bufc);
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_rest: Returns all but the first word in a string 
+/* ---------------------------------------------------------------------------
+ * fun_rest: Returns all but the first word in a string 
  */
 
 
@@ -1336,26 +1260,57 @@ FUNCTION(fun_rest)
 {
 	char *s, *first, sep;
 
-	/*
-	 * If we are passed an empty arglist return a null string 
-	 */
+	/* If we are passed an empty arglist return a null string */
 
 	if (nfargs == 0) {
 		return;
 	}
 	varargs_preamble("REST", 2);
-	s = trim_space_sep(fargs[0], sep);	/*
-						 * leading spaces ... 
-						 */
+	s = trim_space_sep(fargs[0], sep);	/* leading spaces ... */
 	first = split_token(&s, sep);
 	if (s) {
 		safe_str(s, buff, bufc);
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_v: Function form of %-substitution
+/* ---------------------------------------------------------------------------
+ * fun_left: Returns first n characters in a string
+ */
+
+FUNCTION(fun_left)
+{
+    int len = atoi(fargs[1]);
+
+    if (len < 1) {
+	*buff = '\0';
+    } else { 
+	strcpy(buff, fargs[0]);
+	if (len < LBUF_SIZE)
+	    buff[len] = '\0';
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_right: Returns last n characters in a string
+ */
+
+FUNCTION(fun_right)
+{
+    int len = atoi(fargs[1]);
+
+    if (len < 1) {
+	*buff = '\0';
+    } else {
+	len = strlen(fargs[0]) - len;
+	if (len < 1)
+	    strcpy(buff, fargs[0]);
+	else
+	    strcpy(buff, fargs[0] + len);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_v: Function form of %-substitution
  */
 
 FUNCTION(fun_v)
@@ -1368,19 +1323,16 @@ FUNCTION(fun_v)
 	tbuf = fargs[0];
 	if (isalpha(tbuf[0]) && tbuf[1]) {
 
-		/*
-		 * Fetch an attribute from me.  First see if it exists, * * * 
-		 * 
-		 * * returning a null string if it does not. 
+		/* Fetch an attribute from me.  First see if it exists, 
+		 * returning a null string if it does not. 
 		 */
 
 		ap = atr_str(fargs[0]);
 		if (!ap) {
 			return;
 		}
-		/*
-		 * If we can access it, return it, otherwise return a * null
-		 * * * * string 
+		/* If we can access it, return it, otherwise return a null
+		 * string 
 		 */
 
 		atr_pget_info(player, ap->number, &aowner, &aflags);
@@ -1391,9 +1343,7 @@ FUNCTION(fun_v)
 		}
 		return;
 	}
-	/*
-	 * Not an attribute, process as %<arg> 
-	 */
+	/* Not an attribute, process as %<arg> */
 
 	sbuf = alloc_sbuf("fun_v");
 	sbufc = sbuf;
@@ -1405,9 +1355,8 @@ FUNCTION(fun_v)
 	free_sbuf(sbuf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_s: Force substitution to occur.
+/* ---------------------------------------------------------------------------
+ * fun_s: Force substitution to occur.
  */
 
 FUNCTION(fun_s)
@@ -1419,9 +1368,8 @@ FUNCTION(fun_s)
 	     cargs, ncargs);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_con: Returns first item in contents list of object/room
+/* ---------------------------------------------------------------------------
+ * fun_con: Returns first item in contents list of object/room
  */
 
 FUNCTION(fun_con)
@@ -1442,9 +1390,8 @@ FUNCTION(fun_con)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_exit: Returns first exit in exits list of room.
+/* ---------------------------------------------------------------------------
+ * fun_exit: Returns first exit in exits list of room.
  */
 
 FUNCTION(fun_exit)
@@ -1470,9 +1417,8 @@ FUNCTION(fun_exit)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_next: return next thing in contents or exits chain
+/* ---------------------------------------------------------------------------
+ * fun_next: return next thing in contents or exits chain
  */
 
 FUNCTION(fun_next)
@@ -1508,9 +1454,8 @@ FUNCTION(fun_next)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_loc: Returns the location of something
+/* ---------------------------------------------------------------------------
+ * fun_loc: Returns the location of something
  */
 
 FUNCTION(fun_loc)
@@ -1525,9 +1470,8 @@ FUNCTION(fun_loc)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_where: Returns the "true" location of something
+/* ---------------------------------------------------------------------------
+ * fun_where: Returns the "true" location of something
  */
 
 FUNCTION(fun_where)
@@ -1542,9 +1486,8 @@ FUNCTION(fun_where)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_rloc: Returns the recursed location of something (specifying #levels)
+/* ---------------------------------------------------------------------------
+ * fun_rloc: Returns the recursed location of something (specifying #levels)
  */
 
 FUNCTION(fun_rloc)
@@ -1569,9 +1512,8 @@ FUNCTION(fun_rloc)
 	safe_str("#-1", buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_room: Find the room an object is ultimately in.
+/* ---------------------------------------------------------------------------
+ * fun_room: Find the room an object is ultimately in.
  */
 
 FUNCTION(fun_room)
@@ -1599,9 +1541,8 @@ FUNCTION(fun_room)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_owner: Return the owner of an object.
+/* ---------------------------------------------------------------------------
+ * fun_owner: Return the owner of an object.
  */
 
 FUNCTION(fun_owner)
@@ -1624,9 +1565,8 @@ FUNCTION(fun_owner)
 	safe_tprintf_str(buff, bufc, "#%d", it);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_controls: Does x control y?
+/* ---------------------------------------------------------------------------
+ * fun_controls: Does x control y?
  */
 
 FUNCTION(fun_controls)
@@ -1643,12 +1583,38 @@ FUNCTION(fun_controls)
 		safe_tprintf_str(buff, bufc, "%s", "#-1 ARG2 NOT FOUND");
 		return;
 	}
-	safe_tprintf_str(buff, bufc, "%d", Controls(x, y));
+	safe_ltos(buff, bufc, Controls(x, y));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_fullname: Return the fullname of an object (good for exits)
+/* ---------------------------------------------------------------------------
+ * fun_sees: Can X see Y in the normal Contents list of the room. If X
+ *           or Y do not exist, 0 is returned.
+ */
+
+FUNCTION(fun_sees)
+{
+    dbref it, thing;
+    int can_see_loc;
+
+    if ((it = match_thing(player, fargs[0])) == NOTHING) {
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    thing = match_thing(player, fargs[1]);
+    if (!Good_obj(thing)) {
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    can_see_loc = (!Dark(Location(thing)) ||
+		   (mudconf.see_own_dark &&
+		    Examinable(player, Location(thing))));
+    safe_ltos(buff, bufc, can_see(it, thing, can_see_loc));
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_fullname: Return the fullname of an object (good for exits)
  */
 
 FUNCTION(fun_fullname)
@@ -1669,9 +1635,8 @@ FUNCTION(fun_fullname)
 	safe_str(Name(it), buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_name: Return the name of an object
+/* ---------------------------------------------------------------------------
+ * fun_name: Return the name of an object
  */
 
 FUNCTION(fun_name)
@@ -1698,10 +1663,9 @@ FUNCTION(fun_name)
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_match, fun_strmatch: Match arg2 against each word of arg1 returning
- * * index of first match, or against the whole string.
+/* ---------------------------------------------------------------------------
+ * fun_match, fun_strmatch: Match arg2 against each word of arg1 returning
+ * index of first match, or against the whole string.
  */
 
 FUNCTION(fun_match)
@@ -1711,10 +1675,8 @@ FUNCTION(fun_match)
 
 	varargs_preamble("MATCH", 3);
 
-	/*
-	 * Check each word individually, returning the word number of the * * 
-	 * 
-	 * *  * * first one that matches.  If none match, return 0. 
+	/* Check each word individually, returning the word number of the 
+	 * first one that matches.  If none match, return 0. 
 	 */
 
 	wcount = 1;
@@ -1722,7 +1684,7 @@ FUNCTION(fun_match)
 	do {
 		r = split_token(&s, sep);
 		if (quick_wild(fargs[1], r)) {
-			safe_tprintf_str(buff, bufc, "%d", wcount);
+			safe_ltos(buff, bufc, wcount);
 			return;
 		}
 		wcount++;
@@ -1732,9 +1694,7 @@ FUNCTION(fun_match)
 
 FUNCTION(fun_strmatch)
 {
-	/*
-	 * Check if we match the whole string.  If so, return 1 
-	 */
+	/* Check if we match the whole string.  If so, return 1 */
 
 	if (quick_wild(fargs[1], fargs[0]))
 		safe_str("1", buff, bufc);
@@ -1743,14 +1703,13 @@ FUNCTION(fun_strmatch)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_extract: extract words from string:
- * * extract(foo bar baz,1,2) returns 'foo bar'
- * * extract(foo bar baz,2,1) returns 'bar'
- * * extract(foo bar baz,2,2) returns 'bar baz'
- * * 
- * * Now takes optional separator extract(foo-bar-baz,1,2,-) returns 'foo-bar'
+/* ---------------------------------------------------------------------------
+ * fun_extract: extract words from string:
+ * extract(foo bar baz,1,2) returns 'foo bar'
+ * extract(foo bar baz,2,1) returns 'bar'
+ * extract(foo bar baz,2,2) returns 'bar baz'
+ * 
+ * Now takes optional separator extract(foo-bar-baz,1,2,-) returns 'foo-bar'
  */
 
 FUNCTION(fun_extract)
@@ -1767,9 +1726,7 @@ FUNCTION(fun_extract)
 	if ((start < 1) || (len < 1)) {
 		return;
 	}
-	/*
-	 * Skip to the start of the string to save 
-	 */
+	/* Skip to the start of the string to save */
 
 	start--;
 	s = trim_space_sep(s, sep);
@@ -1778,16 +1735,12 @@ FUNCTION(fun_extract)
 		start--;
 	}
 
-	/*
-	 * If we ran of the end of the string, return nothing 
-	 */
+	/* If we ran of the end of the string, return nothing */
 
 	if (!s || !*s) {
 		return;
 	}
-	/*
-	 * Count off the words in the string to save 
-	 */
+	/* Count off the words in the string to save */
 
 	r = s;
 	len--;
@@ -1796,9 +1749,7 @@ FUNCTION(fun_extract)
 		len--;
 	}
 
-	/*
-	 * Chop off the rest of the string, if needed 
-	 */
+	/* Chop off the rest of the string, if needed */
 
 	if (s && *s)
 		t = split_token(&s, sep);
@@ -1829,11 +1780,10 @@ char *arg;
 	return 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_index:  like extract(), but it works with an arbitrary separator.
- * * index(a b | c d e | f gh | ij k, |, 2, 1) => c d e
- * * index(a b | c d e | f gh | ij k, |, 2, 2) => c d e | f g h
+/* ---------------------------------------------------------------------------
+ * fun_index:  like extract(), but it works with an arbitrary separator.
+ * index(a b | c d e | f gh | ij k, |, 2, 1) => c d e
+ * index(a b | c d e | f gh | ij k, |, 2, 2) => c d e | f g h
  */
 
 FUNCTION(fun_index)
@@ -1851,9 +1801,7 @@ FUNCTION(fun_index)
 	if (c == '\0')
 		c = ' ';
 
-	/*
-	 * move s to point to the start of the item we want 
-	 */
+	/* move s to point to the start of the item we want */
 
 	start--;
 	while (start && s && *s) {
@@ -1862,18 +1810,14 @@ FUNCTION(fun_index)
 		start--;
 	}
 
-	/*
-	 * skip over just spaces 
-	 */
+	/* skip over just spaces */
 
 	while (s && (*s == ' '))
 		s++;
 	if (!s || !*s)
 		return;
 
-	/*
-	 * figure out where to end the string 
-	 */
+	/* figure out where to end the string */
 
 	p = s;
 	while (end && p && *p) {
@@ -1891,9 +1835,7 @@ FUNCTION(fun_index)
 		}
 	}
 
-	/*
-	 * if we've gotten this far, we've run off the end of the string 
-	 */
+	/* if we've gotten this far, we've run off the end of the string */
 
 	safe_str(s, buff, bufc);
 }
@@ -1916,7 +1858,7 @@ FUNCTION(fun_version)
 }
 FUNCTION(fun_strlen)
 {
-	safe_tprintf_str(buff, bufc, "%d", (int)strlen((char *)strip_ansi(fargs[0])));
+	safe_ltos(buff, bufc, (int)strlen((char *)strip_ansi(fargs[0])));
 }
 
 FUNCTION(fun_num)
@@ -1943,27 +1885,27 @@ FUNCTION(fun_pmatch)
 
 FUNCTION(fun_gt)
 {
-	safe_tprintf_str(buff, bufc, "%d", (atof(fargs[0]) > atof(fargs[1])));
+	safe_ltos(buff, bufc, (atof(fargs[0]) > atof(fargs[1])));
 }
 FUNCTION(fun_gte)
 {
-	safe_tprintf_str(buff, bufc, "%d", (atof(fargs[0]) >= atof(fargs[1])));
+	safe_ltos(buff, bufc, (atof(fargs[0]) >= atof(fargs[1])));
 }
 FUNCTION(fun_lt)
 {
-	safe_tprintf_str(buff, bufc, "%d", (atof(fargs[0]) < atof(fargs[1])));
+	safe_ltos(buff, bufc, (atof(fargs[0]) < atof(fargs[1])));
 }
 FUNCTION(fun_lte)
 {
-	safe_tprintf_str(buff, bufc, "%d", (atof(fargs[0]) <= atof(fargs[1])));
+	safe_ltos(buff, bufc, (atof(fargs[0]) <= atof(fargs[1])));
 }
 FUNCTION(fun_eq)
 {
-	safe_tprintf_str(buff, bufc, "%d", (atof(fargs[0]) == atof(fargs[1])));
+	safe_ltos(buff, bufc, (atof(fargs[0]) == atof(fargs[1])));
 }
 FUNCTION(fun_neq)
 {
-	safe_tprintf_str(buff, bufc, "%d", (atof(fargs[0]) != atof(fargs[1])));
+	safe_ltos(buff, bufc, (atof(fargs[0]) != atof(fargs[1])));
 }
 
 FUNCTION(fun_and)
@@ -2045,14 +1987,72 @@ FUNCTION(fun_xor)
 	if (!got_one)
 		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
 	else
-		safe_tprintf_str(buff, bufc, "%d", val);
+		safe_ltos(buff, bufc, val);
 	return;
 }
 
 FUNCTION(fun_not)
 {
-	safe_tprintf_str(buff, bufc, "%d", !xlate(fargs[0]));
+	safe_ltos(buff, bufc, !xlate(fargs[0]));
 }
+
+/*-------------------------------------------------------------------------
+ *  True boolean functions.
+ */
+
+FUNCTION(fun_andbool)
+{
+    int i;
+
+    if (nfargs < 2) {
+	safe_str(buff, bufc, "#-1 TOO FEW ARGUMENTS");
+    } else {
+	for (i = 0; (i < nfargs) && xlate(fargs[i]); i++)
+	    ;
+	safe_ltos(buff, bufc, i == nfargs);
+    }
+    return;
+}
+
+FUNCTION(fun_orbool)
+{
+    int i;
+
+    if (nfargs < 2) {
+	safe_str(buff, bufc, "#-1 TOO FEW ARGUMENTS");
+    } else {
+	for (i = 0; (i < nfargs) && !xlate(fargs[i]); i++)
+	    ;
+	safe_ltos(buff, bufc, i != nfargs);
+    }
+    return;
+}
+
+FUNCTION(fun_xorbool)
+{
+    int i, val;
+
+    if (nfargs < 2) {
+	safe_str(buff, bufc, "#-1 TOO FEW ARGUMENTS");
+    } else {
+	val = xlate(fargs[0]);
+	for (i = 1; i < nfargs; i++) {
+	    if (val) {
+		val = !xlate(fargs[i]);
+	    } else {
+		val = xlate(fargs[i]);
+	    }
+	}
+	safe_ltos(buff, bufc, val ? 1 : 0);
+    }
+    return;
+}
+
+FUNCTION(fun_notbool)
+{
+    safe_ltos(buff, bufc, !xlate(fargs[0]));
+}
+
 
 FUNCTION(fun_sqrt)
 {
@@ -2062,7 +2062,7 @@ FUNCTION(fun_sqrt)
 	if (val < 0) {
 		safe_str("#-1 SQUARE ROOT OF NEGATIVE", buff, bufc);
 	} else if (val == 0) {
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 	} else {
 		fval(buff, bufc, sqrt(val));
 	}
@@ -2146,12 +2146,10 @@ FUNCTION(fun_round)
 	}
 	safe_tprintf_str(buff, bufc, (char *)fstr, atof(fargs[0]));
 
-	/*
-	 * Handle bogus result of "-0" from sprintf.  Yay, cclib. 
-	 */
+	/* Handle bogus result of "-0" from sprintf.  Yay, cclib. */
 
 	if (!strcmp(buff, "-0")) {
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 	}
 }
 
@@ -2160,7 +2158,7 @@ FUNCTION(fun_trunc)
 	int num;
 
 	num = atoi(fargs[0]);
-	safe_tprintf_str(buff, bufc, "%d", num);
+	safe_ltos(buff, bufc, num);
 }
 
 FUNCTION(fun_div)
@@ -2171,7 +2169,7 @@ FUNCTION(fun_div)
 	if (bot == 0) {
 		safe_str("#-1 DIVIDE BY ZERO", buff, bufc);
 	} else {
-		safe_tprintf_str(buff, bufc, "%d", (atoi(fargs[0]) / bot));
+		safe_ltos(buff, bufc, (atoi(fargs[0]) / bot));
 	}
 }
 
@@ -2299,7 +2297,7 @@ FUNCTION(fun_dist2d)
 	d = atoi(fargs[1]) - atoi(fargs[3]);
 	r += (double)(d * d);
 	d = (int)(sqrt(r) + 0.5);
-	safe_tprintf_str(buff, bufc, "%d", d);
+	safe_ltos(buff, bufc, d);
 }
 
 FUNCTION(fun_dist3d)
@@ -2314,14 +2312,13 @@ FUNCTION(fun_dist3d)
 	d = atoi(fargs[2]) - atoi(fargs[5]);
 	r += (double)(d * d);
 	d = (int)(sqrt(r) + 0.5);
-	safe_tprintf_str(buff, bufc, "%d", d);
+	safe_ltos(buff, bufc, d);
 }
 
 
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_comp: string compare.
+/* ---------------------------------------------------------------------------
+ * fun_comp: string compare.
  */
 
 FUNCTION(fun_comp)
@@ -2337,9 +2334,58 @@ FUNCTION(fun_comp)
 		safe_str("0", buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_lcon: Return a list of contents.
+/* ---------------------------------------------------------------------------
+ * fun_xcon: Return a partial list of contents of an object, starting from
+ *           a specified element in the list and copying a specified number
+ *           of elements.
+ */
+
+FUNCTION(fun_xcon)
+{
+    dbref thing, it;
+    char *tbuf;
+    int i, first, last;
+
+    it = match_thing(player, fargs[0]);
+
+    if ((it != NOTHING) && (Has_contents(it)) &&
+	(Examinable(player, it) || (Location(player) == it) ||
+	 (it == cause))) {
+	first = atoi(fargs[1]);
+	last = atoi(fargs[2]);
+	if ((first > 0) && (last > 0)) {
+
+	    tbuf = alloc_sbuf("fun_xcon");
+
+	    /* Move to the first object that we want */
+	    for (thing = Contents(it), i = 1;
+		 (i < first) && (thing != NOTHING) && (Next(thing) != thing);
+		 thing = Next(thing), i++)
+		;
+
+	    /* Grab objects until we reach the last one we want */
+	    for (i = 0;
+		 (i < last) && (thing != NOTHING) && (Next(thing) != thing);
+		 thing = Next(thing), i++) {
+		if (*buff) {
+		    tbuf[0] = ' ';
+		    tbuf[1] = '#';
+		    ltos(&tbuf[2], thing);
+		} else {
+		    *tbuf = '#';
+		    ltos(&tbuf[1], thing);
+		}
+		safe_str(tbuf, buff, bufc);
+	    }
+
+	    free_sbuf(tbuf);
+	}
+    } else
+	safe_str(buff, bufc, "#-1");
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_lcon: Return a list of contents.
  */
 
 FUNCTION(fun_lcon)
@@ -2369,9 +2415,8 @@ FUNCTION(fun_lcon)
 		safe_str("#-1", buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_lexits: Return a list of exits.
+/* ---------------------------------------------------------------------------
+ * fun_lexits: Return a list of exits.
  */
 
 FUNCTION(fun_lexits)
@@ -2393,15 +2438,11 @@ FUNCTION(fun_lexits)
 	}
 	tbuf = alloc_sbuf("fun_lexits");
 
-	/*
-	 * Return info for all parent levels 
-	 */
+	/* Return info for all parent levels */
 
 	ITER_PARENTS(it, parent, lev) {
 
-		/*
-		 * Look for exits at each level 
-		 */
+		/* Look for exits at each level */
 
 		if (!Has_exits(parent))
 			continue;
@@ -2426,9 +2467,8 @@ FUNCTION(fun_lexits)
 	return;
 }
 
-/*
- * --------------------------------------------------------------------------
- * * fun_home: Return an object's home 
+/* --------------------------------------------------------------------------
+ * fun_home: Return an object's home 
  */
 
 FUNCTION(fun_home)
@@ -2449,9 +2489,8 @@ FUNCTION(fun_home)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_money: Return an object's value
+/* ---------------------------------------------------------------------------
+ * fun_money: Return an object's value
  */
 
 FUNCTION(fun_money)
@@ -2462,12 +2501,11 @@ FUNCTION(fun_money)
 	if ((it == NOTHING) || !Examinable(player, it))
 		safe_str("#-1", buff, bufc);
 	else
-		safe_tprintf_str(buff, bufc, "%d", Pennies(it));
+		safe_ltos(buff, bufc, Pennies(it));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_pos: Find a word in a string 
+/* ---------------------------------------------------------------------------
+ * fun_pos: Find a word in a string 
  */
 
 FUNCTION(fun_pos)
@@ -2483,7 +2521,7 @@ FUNCTION(fun_pos)
 		while (*t && *t == *u)
 			++t, ++u;
 		if (*t == '\0') {
-			safe_tprintf_str(buff, bufc, "%d", i);
+			safe_ltos(buff, bufc, i);
 			return;
 		}
 		++i, ++s;
@@ -2492,16 +2530,46 @@ FUNCTION(fun_pos)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * ldelete: Remove a word from a string by place
- * *  ldelete(<list>,<position>[,<separator>])
- * *
- * * insert: insert a word into a string by place
- * *  insert(<list>,<position>,<new item> [,<separator>])
- * *
- * * replace: replace a word into a string by place
- * *  replace(<list>,<position>,<new item>[,<separator>])
+/* ---------------------------------------------------------------------------
+ * fun_lpos: Find all occurrences of a character in a string, and return
+ * a space-separated list of the positions, starting at 0. i.e.,
+ * lpos(a-bc-def-g,-) ==> 1 4 8
+ */
+
+FUNCTION(fun_lpos)
+{
+    char *s;
+    char c, tbuf[8];
+    int i;
+
+    if (!fargs[0] || !*fargs[0])
+	return;
+
+    c = (char) *(fargs[1]);
+    if (!c)
+	c = ' ';
+
+    for (i = 0, s = fargs[0], bp = buff; *s; i++, s++) {
+	if (*s == c) {
+	    if (bp != buff) {
+		safe_chr(' ', buff, bufc);
+	    }
+	    ltos(tbuf, i);
+	    safe_str(tbuf, buff, bufc);
+	}
+    }
+
+}
+
+/* ---------------------------------------------------------------------------
+ * ldelete: Remove a word from a string by place
+ *  ldelete(<list>,<position>[,<separator>])
+ *
+ * insert: insert a word into a string by place
+ *  insert(<list>,<position>,<new item> [,<separator>])
+ *
+ * replace: replace a word into a string by place
+ *  replace(<list>,<position>,<new item>[,<separator>])
  */
 
 #define	IF_DELETE	0
@@ -2516,33 +2584,26 @@ int el, flag;
 	char *sptr, *iptr, *eptr;
 	char nullb;
 
-	/*
-	 * If passed a null string return an empty string, except that we * * 
-	 * 
-	 * *  * * are allowed to append to a null string. 
+	/* If passed a null string return an empty string, except that we
+	 * are allowed to append to a null string. 
 	 */
 
 	if ((!str || !*str) && ((flag != IF_INSERT) || (el != 1))) {
 		return;
 	}
-	/*
-	 * we can't fiddle with anything before the first position 
-	 */
+	/* we can't fiddle with anything before the first position */
 
 	if (el < 1) {
 		safe_str(str, buff, bufc);
 		return;
 	}
-	/*
-	 * Split the list up into 'before', 'target', and 'after' chunks * *
-	 * * * pointed to by sptr, iptr, and eptr respectively. 
+	/* Split the list up into 'before', 'target', and 'after' chunks
+	 * pointed to by sptr, iptr, and eptr respectively. 
 	 */
 
 	nullb = '\0';
 	if (el == 1) {
-		/*
-		 * No 'before' portion, just split off element 1 
-		 */
+		/* No 'before' portion, just split off element 1 */
 
 		sptr = NULL;
 		if (!str || !*str) {
@@ -2553,9 +2614,7 @@ int el, flag;
 			iptr = split_token(&eptr, sep);
 		}
 	} else {
-		/*
-		 * Break off 'before' portion 
-		 */
+		/* Break off 'before' portion */
 
 		sptr = eptr = trim_space_sep(str, sep);
 		overrun = 1;
@@ -2564,20 +2623,17 @@ int el, flag;
 			overrun = 0;
 			iptr = split_token(&eptr, sep);
 		}
-		/*
-		 * If we didn't make it to the target element, just return *
-		 * * * * the string.  Insert is allowed to continue if we are 
-		 * *  * *  * exactly at the end of the string, but replace
-		 * and * delete *  *  * * are not. 
+		/* If we didn't make it to the target element, just return
+		 * the string.  Insert is allowed to continue if we are 
+		 * exactly at the end of the string, but replace
+		 * and delete are not. 
 		 */
 
 		if (!(eptr || ((flag == IF_INSERT) && !overrun))) {
 			safe_str(str, buff, bufc);
 			return;
 		}
-		/*
-		 * Split the 'target' word from the 'after' portion. 
-		 */
+		/* Split the 'target' word from the 'after' portion. */
 
 		if (eptr)
 			iptr = split_token(&eptr, sep);
@@ -2586,9 +2642,7 @@ int el, flag;
 	}
 
 	switch (flag) {
-	case IF_DELETE:	/*
-				 * deletion 
-				 */
+	case IF_DELETE:	/* deletion */
 		if (sptr) {
 			safe_str(sptr, buff, bufc);
 			if (eptr)
@@ -2598,9 +2652,7 @@ int el, flag;
 			safe_str(eptr, buff, bufc);
 		}
 		break;
-	case IF_REPLACE:	/*
-				 * replacing 
-				 */
+	case IF_REPLACE:	/* replacing */
 		if (sptr) {
 			safe_str(sptr, buff, bufc);
 			safe_chr(sep, buff, bufc);
@@ -2611,9 +2663,7 @@ int el, flag;
 			safe_str(eptr, buff, bufc);
 		}
 		break;
-	case IF_INSERT:	/*
-				 * insertion 
-				 */
+	case IF_INSERT:	/* insertion */
 		if (sptr) {
 			safe_str(sptr, buff, bufc);
 			safe_chr(sep, buff, bufc);
@@ -2631,11 +2681,8 @@ int el, flag;
 	}
 }
 
-
 FUNCTION(fun_ldelete)
-{				/*
-				 * delete a word at position X of a list 
-				 */
+{				/* delete a word at position X of a list */
 	char sep;
 
 	varargs_preamble("LDELETE", 3);
@@ -2643,9 +2690,7 @@ FUNCTION(fun_ldelete)
 }
 
 FUNCTION(fun_replace)
-{				/*
-				 * replace a word at position X of a list 
-				 */
+{				/* replace a word at position X of a list */
 	char sep;
 
 	varargs_preamble("REPLACE", 4);
@@ -2653,18 +2698,15 @@ FUNCTION(fun_replace)
 }
 
 FUNCTION(fun_insert)
-{				/*
-				 * insert a word at position X of a list 
-				 */
+{				/* insert a word at position X of a list */
 	char sep;
 
 	varargs_preamble("INSERT", 4);
 	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), fargs[2], sep, IF_INSERT);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_remove: Remove a word from a string
+/* ---------------------------------------------------------------------------
+ * fun_remove: Remove a word from a string
  */
 
 FUNCTION(fun_remove)
@@ -2681,9 +2723,8 @@ FUNCTION(fun_remove)
 	s = fargs[0];
 	word = fargs[1];
 
-	/*
-	 * Walk through the string copying words until (if ever) we get to *
-	 * * * * one that matches the target word. 
+	/* Walk through the string copying words until (if ever) we get to
+	 * one that matches the target word. 
 	 */
 
 	sp = s;
@@ -2702,9 +2743,8 @@ FUNCTION(fun_remove)
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_member: Is a word in a string
+/* ---------------------------------------------------------------------------
+ * fun_member: Is a word in a string
  */
 
 FUNCTION(fun_member)
@@ -2718,17 +2758,16 @@ FUNCTION(fun_member)
 	do {
 		r = split_token(&s, sep);
 		if (!strcmp(fargs[1], r)) {
-			safe_tprintf_str(buff, bufc, "%d", wcount);
+			safe_ltos(buff, bufc, wcount);
 			return;
 		}
 		wcount++;
 	} while (s);
-	safe_str("0", buff, bufc);
+	safe_chr('0', buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_secure, fun_escape: escape [, ], %, \, and the beginning of the string.
+/* ---------------------------------------------------------------------------
+ * fun_secure, fun_escape: escape [, ], %, \, and the beginning of the string.
  */
 
 FUNCTION(fun_secure)
@@ -2783,9 +2822,8 @@ FUNCTION(fun_escape)
 	}
 }
 
-/*
- * Take a character position and return which word that char is in.
- * * wordpos(<string>, <charpos>)
+/* Take a character position and return which word that char is in.
+ * wordpos(<string>, <charpos>)
  */
 FUNCTION(fun_wordpos)
 {
@@ -2805,7 +2843,7 @@ FUNCTION(fun_wordpos)
 				break;
 			xp = split_token(&cp, sep);
 		}
-		safe_tprintf_str(buff, bufc, "%d", i);
+		safe_ltos(buff, bufc, i);
 		return;
 	}
 	safe_str("#-1", buff, bufc);
@@ -2840,23 +2878,80 @@ FUNCTION(fun_type)
 	return;
 }
 
+/*---------------------------------------------------------------------------
+ * fun_hasflag:  plus auxiliary function atr_has_flag.
+ */
+
+static int 
+atr_has_flag(player, thing, attr, aowner, aflags, flagname)
+    dbref player, thing;
+    ATTR *attr;
+    int aowner, aflags;
+    char *flagname;
+{
+    if (!See_attr(player, thing, attr, aowner, aflags))
+	return 0;
+    else {
+	if (string_prefix("dark", flagname))
+	    return (aflags & AF_DARK);
+	else if (string_prefix("wizard", flagname))
+	    return (aflags & AF_WIZARD);
+	else if (string_prefix("hidden", flagname))
+	    return (aflags & AF_MDARK);
+	else if (string_prefix("html", flagname))
+	    return (aflags & AF_HTML);
+	else if (string_prefix("locked", flagname))
+	    return (aflags & AF_LOCK);
+	else if (string_prefix("no_command", flagname))
+	    return (aflags & AF_NOPROG);
+	else if (string_prefix("no_parse", flagname))
+	    return (aflags & AF_NOPARSE);
+	else if (string_prefix("regexp", flagname))
+	    return (aflags & AF_REGEXP);
+	else if (string_prefix("god", flagname))
+	    return (aflags & AF_GOD);
+	else if (string_prefix("visual", flagname))
+	    return (aflags & AF_VISUAL);
+	else if (string_prefix("no_inherit", flagname))
+	    return (aflags & AF_PRIVATE);
+	else
+	    return 0;
+    }
+}
+
 FUNCTION(fun_hasflag)
 {
-	dbref it;
+    dbref it, aowner;
+    int atr, aflags;
+    ATTR *ap;
 
+    if (parse_attrib(player, fargs[0], &it, &atr)) {
+	if (atr == NOTHING) {
+	    safe_str("#-1 NOT FOUND", buff, bufc);
+	} else {
+	    ap = atr_num(atr);
+	    atr_pget_info(it, atr, &aowner, &aflags);
+	    if (atr_has_flag(player, it, ap, aowner, aflags,
+			     fargs[1]))
+		safe_chr('1', buff, bufc);
+	    else
+		safe_chr('0', buff, bufc);
+	}
+    } else {
 	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it)) {
-		safe_str("#-1 NOT FOUND", buff, bufc);
-		return;
+	    safe_str("#-1 NOT FOUND", buff, bufc);
+	    return;
 	}
 	if (mudconf.pub_flags || Examinable(player, it) || (it == cause)) {
-		if (has_flag(player, it, fargs[1]))
-			safe_str("1", buff, bufc);
-		else
-			safe_str("0", buff, bufc);
+	    if (has_flag(player, it, fargs[1]))
+		safe_chr('1', buff, bufc);
+	    else
+		safe_chr('0', buff, bufc);
 	} else {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+	    safe_str("#-1 PERMISSION DENIED", buff, bufc);
 	}
+    }
 }
 
 FUNCTION(fun_haspower)
@@ -2870,9 +2965,9 @@ FUNCTION(fun_haspower)
 	}
 	if (mudconf.pub_flags || Examinable(player, it) || (it == cause)) {
 		if (has_power(player, it, fargs[1]))
-			safe_str("1", buff, bufc);
+			safe_chr('1', buff, bufc);
 		else
-			safe_str("0", buff, bufc);
+			safe_chr('0', buff, bufc);
 	} else {
 		safe_str("#-1 PERMISSION DENIED", buff, bufc);
 	}
@@ -2910,16 +3005,12 @@ FUNCTION(fun_lock)
 	ATTR *attr;
 	struct boolexp *bool;
 
-	/*
-	 * Parse the argument into obj + lock 
-	 */
+	/* Parse the argument into obj + lock */
 
 	if (!get_obj_and_lock(player, fargs[0], &it, &attr, buff, bufc))
 		return;
 
-	/*
-	 * Get the attribute and decode it if we can read it 
-	 */
+	/* Get the attribute and decode it if we can read it */
 
 	tbuf = atr_get(it, attr->number, &aowner, &aflags);
 	if (Read_attr(player, it, attr, aowner, aflags)) {
@@ -2940,16 +3031,12 @@ FUNCTION(fun_elock)
 	ATTR *attr;
 	struct boolexp *bool;
 
-	/*
-	 * Parse lock supplier into obj + lock 
-	 */
+	/* Parse lock supplier into obj + lock */
 
 	if (!get_obj_and_lock(player, fargs[0], &it, &attr, buff, bufc))
 		return;
 
-	/*
-	 * Get the victim and ensure we can do it 
-	 */
+	/* Get the victim and ensure we can do it */
 
 	victim = match_thing(player, fargs[1]);
 	if (!Good_obj(victim)) {
@@ -2962,19 +3049,18 @@ FUNCTION(fun_elock)
 		if ((attr->number == A_LOCK) ||
 		    Read_attr(player, it, attr, aowner, aflags)) {
 			bool = parse_boolexp(player, tbuf, 1);
-			safe_tprintf_str(buff, bufc, "%d", eval_boolexp(victim, it, it,
+			safe_ltos(buff, bufc, eval_boolexp(victim, it, it,
 								     bool));
 			free_boolexp(bool);
 		} else {
-			safe_str("0", buff, bufc);
+			safe_chr('0', buff, bufc);
 		}
 		free_lbuf(tbuf);
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_lwho: Return list of connected users.
+/* ---------------------------------------------------------------------------
+ * fun_lwho: Return list of connected users.
  */
 
 FUNCTION(fun_lwho)
@@ -2982,9 +3068,8 @@ FUNCTION(fun_lwho)
 	make_ulist(player, buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_nearby: Return whether or not obj1 is near obj2.
+/* ---------------------------------------------------------------------------
+ * fun_nearby: Return whether or not obj1 is near obj2.
  */
 
 FUNCTION(fun_nearby)
@@ -3002,9 +3087,8 @@ FUNCTION(fun_nearby)
 		safe_str("0", buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_obj, fun_poss, and fun_subj: perform pronoun sub for object.
+/* ---------------------------------------------------------------------------
+ * fun_obj, fun_poss, and fun_subj: perform pronoun sub for object.
  */
 
 static void process_sex(player, what, token, buff, bufc)
@@ -3045,9 +3129,8 @@ FUNCTION(fun_aposs)
 	process_sex(player, fargs[0], "%a", buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_mudname: Return the name of the mud.
+/* ---------------------------------------------------------------------------
+ * fun_mudname: Return the name of the mud.
  */
 
 FUNCTION(fun_mudname)
@@ -3055,9 +3138,8 @@ FUNCTION(fun_mudname)
 	safe_str(mudconf.mud_name, buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_lcstr, fun_ucstr, fun_capstr: Lowercase, uppercase, or capitalize str.
+/* ---------------------------------------------------------------------------
+ * fun_lcstr, fun_ucstr, fun_capstr: Lowercase, uppercase, or capitalize str.
  */
 
 FUNCTION(fun_lcstr)
@@ -3094,30 +3176,57 @@ FUNCTION(fun_capstr)
 	*s = ToUpper(*s);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_lnum: Return a list of numbers.
+/* ---------------------------------------------------------------------------
+ * fun_lnum: Return a list of numbers.
  */
 
 FUNCTION(fun_lnum)
 {
-	char tbuff[10];
-	int ctr, limit, over;
+    char tbuf[10], sep;
+    int bot, top, over, i;
 
-	over = 0;
-	limit = atoi(fargs[0]);
-	if (limit > 0) {
-		safe_chr('0', buff, bufc);
-		for (ctr = 1; ctr < limit && !over; ctr++) {
-			sprintf(tbuff, " %d", ctr);
-			over = safe_str(tbuff, buff, bufc);
-		}
+    if (nfargs == 0) {
+	return;
+    }
+
+    mvarargs_preamble("LNUM", 1, 3);
+
+    if (nfargs >= 2) {
+	bot = atoi(fargs[0]);
+	top = atoi(fargs[1]);
+    } else {
+	bot = 0;
+	top = atoi(fargs[0]);
+	if (top-- < 1)		/* still want to generate if arg is 1 */
+	    return;
+    }
+
+    over = 0;
+
+    if (top == bot) {
+	safe_ltos(buff, bufc, bot);
+	return;
+    } else if (top > bot) {
+	for (i = bot; (i <= top) && !over; i++) {
+	    if (bp != buff) {
+		safe_chr(sep, buff, bufc);
+	    }
+	    ltos(tbuf, i);
+	    over = safe_str(tbuf, buff, bufc);
 	}
+    } else {
+	for (i = bot; (i >= top) && !over; i--) {
+	    if (bp != buff) {
+		safe_chr(sep, buff, bufc);
+	    }
+	    ltos(tbuf, i);
+	    over = safe_str(tbuf, buff, bufc);
+	}
+    }
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_lattr: Return list of attributes I can see on the object.
+/* ---------------------------------------------------------------------------
+ * fun_lattr: Return list of attributes I can see on the object.
  */
 
 FUNCTION(fun_lattr)
@@ -3126,10 +3235,9 @@ FUNCTION(fun_lattr)
 	int ca, first;
 	ATTR *attr;
 
-	/*
-	 * Check for wildcard matching.  parse_attrib_wild checks for read *
-	 * * * * permission, so we don't have to.  Have p_a_w assume the * *
-	 * slash-star * * if it is missing. 
+	/* Check for wildcard matching.  parse_attrib_wild checks for read
+	 * permission, so we don't have to.  Have p_a_w assume the
+	 * slash-star if it is missing. 
 	 */
 
 	first = 1;
@@ -3149,9 +3257,8 @@ FUNCTION(fun_lattr)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_reverse, fun_reverse, fun_revwords: Reverse things.
+/* ---------------------------------------------------------------------------
+ * do_reverse, fun_reverse, fun_revwords: Reverse things.
  */
 
 static void do_reverse(from, to)
@@ -3177,9 +3284,7 @@ FUNCTION(fun_revwords)
 	char *temp, *tp, *t1, sep;
 	int first;
 
-	/*
-	 * If we are passed an empty arglist return a null string 
-	 */
+	/* If we are passed an empty arglist return a null string */
 
 	if (nfargs == 0) {
 		return;
@@ -3187,14 +3292,11 @@ FUNCTION(fun_revwords)
 	varargs_preamble("REVWORDS", 2);
 	temp = alloc_lbuf("fun_revwords");
 
-	/*
-	 * Reverse the whole string 
-	 */
+	/* Reverse the whole string */
 
 	do_reverse(fargs[0], temp);
 
-	/*
-	 * Now individually reverse each word in the string.  This will
+	/* Now individually reverse each word in the string.  This will
 	 * undo the reversing of the words (so the words themselves are
 	 * forwards again. 
 	 */
@@ -3212,9 +3314,8 @@ FUNCTION(fun_revwords)
 	free_lbuf(temp);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_after, fun_before: Return substring after or before a specified string.
+/* ---------------------------------------------------------------------------
+ * fun_after, fun_before: Return substring after or before a specified string.
  */
 
 FUNCTION(fun_after)
@@ -3230,9 +3331,7 @@ FUNCTION(fun_after)
 	bp = fargs[0];
 	mp = fargs[1];
 
-	/*
-	 * Sanity-check arg1 and arg2 
-	 */
+	/* Sanity-check arg1 and arg2 */
 
 	if (bp == NULL)
 		bp = "";
@@ -3244,49 +3343,35 @@ FUNCTION(fun_after)
 	if ((mlen == 1) && (*mp == ' '))
 		bp = trim_space_sep(bp, ' ');
 
-	/*
-	 * Look for the target string 
-	 */
+	/* Look for the target string */
 
 	while (*bp) {
 
-		/*
-		 * Search for the first character in the target string 
-		 */
-
+		/* Search for the first character in the target string */
+	
 		cp = (char *)index(bp, *mp);
 		if (cp == NULL) {
 
-			/*
-			 * Not found, return empty string 
-			 */
+			/* Not found, return empty string */
 
 			return;
 		}
-		/*
-		 * See if what follows is what we are looking for 
-		 */
+		/* See if what follows is what we are looking for */
 
 		if (!strncmp(cp, mp, mlen)) {
 
-			/*
-			 * Yup, return what follows 
-			 */
+			/* Yup, return what follows */
 
 			bp = cp + mlen;
 			safe_str(bp, buff, bufc);
 			return;
 		}
-		/*
-		 * Continue search after found first character 
-		 */
+		/* Continue search after found first character */
 
 		bp = cp + 1;
 	}
 
-	/*
-	 * Ran off the end without finding it 
-	 */
+	/* Ran off the end without finding it */
 
 	return;
 }
@@ -3305,9 +3390,7 @@ FUNCTION(fun_before)
 	bp = fargs[0];
 	mp = fargs[1];
 
-	/*
-	 * Sanity-check arg1 and arg2 
-	 */
+	/* Sanity-check arg1 and arg2 */
 
 	if (bp == NULL)
 		bp = "";
@@ -3320,29 +3403,21 @@ FUNCTION(fun_before)
 		bp = trim_space_sep(bp, ' ');
 	ip = bp;
 
-	/*
-	 * Look for the target string 
-	 */
+	/* Look for the target string */
 
 	while (*bp) {
 
-		/*
-		 * Search for the first character in the target string 
-		 */
+		/* Search for the first character in the target string */
 
 		cp = (char *)index(bp, *mp);
 		if (cp == NULL) {
 
-			/*
-			 * Not found, return entire string 
-			 */
+			/* Not found, return entire string */
 
 			safe_str(ip, buff, bufc);
 			return;
 		}
-		/*
-		 * See if what follows is what we are looking for 
-		 */
+		/* See if what follows is what we are looking for */
 
 		if (!strncmp(cp, mp, mlen)) {
 
@@ -3354,76 +3429,61 @@ FUNCTION(fun_before)
 			safe_str(ip, buff, bufc);
 			return;
 		}
-		/*
-		 * Continue search after found first character 
-		 */
+		/* Continue search after found first character */
 
 		bp = cp + 1;
 	}
 
-	/*
-	 * Ran off the end without finding it 
-	 */
+	/* Ran off the end without finding it */
 
 	safe_str(ip, buff, bufc);
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_max, fun_min: Return maximum (minimum) value.
+/* ---------------------------------------------------------------------------
+ * fun_max, fun_min: Return maximum (minimum) value.
  */
 
 FUNCTION(fun_max)
 {
-	int i, j, got_one;
-	double max;
+    int i;
+    NVAL max, val;
 
-	max = 0;
-	for (i = 0, got_one = 0; i < nfargs; i++) {
-		if (fargs[i]) {
-			j = atof(fargs[i]);
-			if (!got_one || (j > max)) {
-				got_one = 1;
-				max = j;
-			}
-		}
+    if (nfargs < 1) {
+	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+    } else {
+	max = atof(fargs[0]);
+	for (i = 0; i < nfargs; i++) {
+	    val = atof(fargs[i]);
+	    if (max < val)
+		max = val;
 	}
-
-	if (!got_one)
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-	else
-		fval(buff, bufc, max);
-	return;
+	fval(buff, bufc, max);
+    }
+    return;
 }
 
 FUNCTION(fun_min)
 {
-	int i, j, got_one;
-	double min;
+    int i;
+    NVAL min, val;
 
-	min = 0;
-	for (i = 0, got_one = 0; i < nfargs; i++) {
-		if (fargs[i]) {
-			j = atof(fargs[i]);
-			if (!got_one || (j < min)) {
-				got_one = 1;
-				min = j;
-			}
-		}
+    if (nfargs < 1) {
+	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+    } else {
+	min = aton(fargs[0]);
+	for (i = 0; i < nfargs; i++) {
+	    val = atof(fargs[i]);
+	    if (min > val)
+		min = val;
 	}
-
-	if (!got_one) {
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-	} else {
-		fval(buff, bufc, min);
-	}
-	return;
+	fval(buff, bufc, min);
+    }
+    return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_search: Search the db for things, returning a list of what matches
+/* ---------------------------------------------------------------------------
+ * fun_search: Search the db for things, returning a list of what matches
  */
 
 FUNCTION(fun_search)
@@ -3432,17 +3492,13 @@ FUNCTION(fun_search)
 	char *bp, *nbuf;
 	SEARCH searchparm;
 
-	/*
-	 * Set up for the search.  If any errors, abort. 
-	 */
+	/* Set up for the search.  If any errors, abort. */
 
 	if (!search_setup(player, fargs[0], &searchparm)) {
 		safe_str("#-1 ERROR DURING SEARCH", buff, bufc);
 		return;
 	}
-	/*
-	 * Do the search and report the results 
-	 */
+	/* Do the search and report the results */
 
 	search_perform(player, cause, &searchparm);
 	bp = *bufc;
@@ -3458,9 +3514,8 @@ FUNCTION(fun_search)
 	olist_init();
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_stats: Get database size statistics.
+/* ---------------------------------------------------------------------------
+ * fun_stats: Get database size statistics.
  */
 
 FUNCTION(fun_stats)
@@ -3486,12 +3541,11 @@ FUNCTION(fun_stats)
 			 statinfo.s_garbage);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_merge:  given two strings and a character, merge the two strings
- * *   by replacing characters in string1 that are the same as the given 
- * *   character by the corresponding character in string2 (by position).
- * *   The strings must be of the same length.
+/* ---------------------------------------------------------------------------
+ * fun_merge:  given two strings and a character, merge the two strings
+ *   by replacing characters in string1 that are the same as the given 
+ *   character by the corresponding character in string2 (by position).
+ *   The strings must be of the same length.
  */
 
 FUNCTION(fun_merge)
@@ -3499,9 +3553,7 @@ FUNCTION(fun_merge)
 	char *str, *rep;
 	char c;
 
-	/*
-	 * do length checks first 
-	 */
+	/* do length checks first */
 
 	if (strlen(fargs[0]) != strlen(fargs[1])) {
 		safe_str("#-1 STRING LENGTHS MUST BE EQUAL", buff, bufc);
@@ -3511,10 +3563,8 @@ FUNCTION(fun_merge)
 		safe_str("#-1 TOO MANY CHARACTERS", buff, bufc);
 		return;
 	}
-	/*
-	 * find the character to look for. null character is considered * a * 
-	 * 
-	 * *  * * space 
+	/* find the character to look for. null character is considered a
+	 * space 
 	 */
 
 	if (!*fargs[2])
@@ -3522,9 +3572,7 @@ FUNCTION(fun_merge)
 	else
 		c = *fargs[2];
 
-	/*
-	 * walk strings, copy from the appropriate string 
-	 */
+	/* walk strings, copy from the appropriate string */
 
 	for (str = fargs[0], rep = fargs[1];
 	     *str && *rep;
@@ -3535,30 +3583,26 @@ FUNCTION(fun_merge)
 			**bufc = *str;
 	}
 
-	/*
-	 * There is no need to check for overflowing the buffer since * both
-	 * * * * strings are LBUF_SIZE or less and the new string cannot be *
-	 * * any * * longer. 
+	/* There is no need to check for overflowing the buffer since both
+	 * strings are LBUF_SIZE or less and the new string cannot be
+	 * any longer. 
 	 */
 
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_splice: similar to MERGE(), eplaces by word instead of by character.
+/* ---------------------------------------------------------------------------
+ * fun_splice: similar to MERGE(), eplaces by word instead of by character.
  */
 
 FUNCTION(fun_splice)
 {
-	char *p1, *p2, *q1, *q2, sep;
+	char *p1, *p2, *q1, *q2, sep, osep;
 	int words, i, first;
 
-	varargs_preamble("SPLICE", 4);
+	svarargs_preamble("SPLICE", 5);
 
-	/*
-	 * length checks 
-	 */
+	/* length checks */
 
 	if (countwords(fargs[2], sep) > 1) {
 		safe_str("#-1 TOO MANY WORDS", buff, bufc);
@@ -3569,9 +3613,7 @@ FUNCTION(fun_splice)
 		safe_str("#-1 NUMBER OF WORDS MUST BE EQUAL", buff, bufc);
 		return;
 	}
-	/*
-	 * loop through the two lists 
-	 */
+	/* loop through the two lists */
 
 	p1 = fargs[0];
 	q1 = fargs[1];
@@ -3580,22 +3622,17 @@ FUNCTION(fun_splice)
 		p2 = split_token(&p1, sep);
 		q2 = split_token(&q1, sep);
 		if (!first)
-			safe_chr(sep, buff, bufc);
+			safe_chr(osep, buff, bufc);
 		if (!strcmp(p2, fargs[2]))
-			safe_str(q2, buff, bufc);	/*
-							 * replace 
-							 */
+			safe_str(q2, buff, bufc);	/* replace */
 		else
-			safe_str(p2, buff, bufc);	/*
-							 * copy 
-							 */
+			safe_str(p2, buff, bufc);	/* copy */
 		first = 0;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_repeat: repeats a string
+/* ---------------------------------------------------------------------------
+ * fun_repeat: repeats a string
  */
 
 FUNCTION(fun_repeat)
@@ -3615,25 +3652,17 @@ FUNCTION(fun_repeat)
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_iter: Make list from evaluating arg2 with each member of arg1.
- * * NOTE: This function expects that its arguments have not been evaluated.
+/* ---------------------------------------------------------------------------
+ * fun_iter: Make list from evaluating arg2 with each member of arg1.
+ * NOTE: This function expects that its arguments have not been evaluated.
  */
 
 FUNCTION(fun_iter)
 {
-	char *curr, *objstring, *buff2, *buff3, *cp, *dp, sep, sep2, *str;
+	char *curr, *objstring, *buff2, *buff3, *cp, *dp, sep, osep, *str;
 	int first, number = 0;
 
-	if (!fn_range_check("ITER", nfargs, 2, 4, buff, bufc))
-		return;
-	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
-	     player, cause, cargs, ncargs))
-		return;
-	if (!delim_check(fargs, nfargs, 4, &sep2, buff, bufc, 0,
-	     player, cause, cargs, ncargs))
-		return;
+	evarargs_preamble("ITER", 2, 4);
 	
 	dp = cp = curr = alloc_lbuf("fun_iter");
 	str = fargs[0];
@@ -3646,9 +3675,9 @@ FUNCTION(fun_iter)
 		return;
 	}
 	first = 1;
-	while (cp) {
+	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
 		if (!first)
-			safe_chr(sep2, buff, bufc);
+			safe_chr(osep, buff, bufc);
 		first = 0;
 		number++;
 		objstring = split_token(&cp, sep);
@@ -3667,10 +3696,10 @@ FUNCTION(fun_iter)
 FUNCTION(fun_list)
 {
 	char *curr, *objstring, *buff2, *buff3, *result, *cp, *dp, *str,
-	 sep;
+	 sep, osep;
 	int number = 0;
 
-	evarargs_preamble("LIST", 3);
+	varargs_preamble("LIST", 3);
 	cp = curr = dp = alloc_lbuf("fun_list");
 	str = fargs[0];
 	exec(curr, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
@@ -3699,20 +3728,19 @@ FUNCTION(fun_list)
 	free_lbuf(curr);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_fold: iteratively eval an attrib with a list of arguments
- * *        and an optional base case.  With no base case, the first list element
- * *    is passed as %0 and the second is %1.  The attrib is then evaluated
- * *    with these args, the result is then used as %0 and the next arg is
- * *    %1 and so it goes as there are elements left in the list.  The
- * *    optinal base case gives the user a nice starting point.
- * *
- * *    > &REP_NUM object=[%0][repeat(%1,%1)]
- * *    > say fold(OBJECT/REP_NUM,1 2 3 4 5,->)
- * *    You say "->122333444455555"
- * *
- * *      NOTE: To use added list separator, you must use base case!
+/* ---------------------------------------------------------------------------
+ * fun_fold: iteratively eval an attrib with a list of arguments
+ *        and an optional base case.  With no base case, the first list element
+ *    is passed as %0 and the second is %1.  The attrib is then evaluated
+ *    with these args, the result is then used as %0 and the next arg is
+ *    %1 and so it goes as there are elements left in the list.  The
+ *    optinal base case gives the user a nice starting point.
+ *
+ *    > &REP_NUM object=[%0][repeat(%1,%1)]
+ *    > say fold(OBJECT/REP_NUM,1 2 3 4 5,->)
+ *    You say "->122333444455555"
+ *
+ *      NOTE: To use added list separator, you must use base case!
  */
 
 FUNCTION(fun_fold)
@@ -3723,15 +3751,11 @@ FUNCTION(fun_fold)
 	char *atext, *result, *curr, *bp, *str, *cp, *atextbuf, *clist[2],
 	*rstore, sep;
 
-	/*
-	 * We need two to four arguements only 
-	 */
+	/* We need two to four arguements only */
 
 	mvarargs_preamble("FOLD", 2, 4);
 
-	/*
-	 * Two possibilities for the first arg: <obj>/<attr> and <attr>. 
-	 */
+	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
 	if (parse_attrib(player, fargs[0], &thing, &anum)) {
 		if ((anum == NOTHING) || (!Good_obj(thing)))
@@ -3743,16 +3767,12 @@ FUNCTION(fun_fold)
 		ap = atr_str(fargs[0]);
 	}
 
-	/*
-	 * Make sure we got a good attribute 
-	 */
+	/* Make sure we got a good attribute */
 
 	if (!ap) {
 		return;
 	}
-	/*
-	 * Use it if we can access it, otherwise return an error. 
-	 */
+	/* Use it if we can access it, otherwise return an error. */
 
 	atext = atr_pget(thing, ap->number, &aowner, &aflags);
 	if (!atext) {
@@ -3761,17 +3781,13 @@ FUNCTION(fun_fold)
 		free_lbuf(atext);
 		return;
 	}
-	/*
-	 * Evaluate it using the rest of the passed function args 
-	 */
+	/* Evaluate it using the rest of the passed function args */
 
 	cp = curr = fargs[1];
 	atextbuf = alloc_lbuf("fun_fold");
-	StringCopy(atextbuf, atext);
+	strcpy(atextbuf, atext);
 
-	/*
-	 * may as well handle first case now 
-	 */
+	/* may as well handle first case now */
 
 	if ((nfargs >= 3) && (fargs[2])) {
 		clist[0] = fargs[2];
@@ -3794,16 +3810,16 @@ FUNCTION(fun_fold)
 	rstore = result;
 	result = NULL;
 
-	while (cp) {
+	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
 		clist[0] = rstore;
 		clist[1] = split_token(&cp, sep);
-		StringCopy(atextbuf, atext);
+		strcpy(atextbuf, atext);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
 		exec(result, &bp, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 2);
 		*bp = '\0';
-		StringCopy(rstore, result);
+		strcpy(rstore, result);
 		free_lbuf(result);
 	}
 	safe_str(rstore, buff, bufc);
@@ -3812,19 +3828,18 @@ FUNCTION(fun_fold)
 	free_lbuf(atextbuf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_filter: iteratively perform a function with a list of arguments
- * *              and return the arg, if the function evaluates to TRUE using the 
- * *      arg.
- * *
- * *      > &IS_ODD object=mod(%0,2)
- * *      > say filter(object/is_odd,1 2 3 4 5)
- * *      You say "1 3 5"
- * *      > say filter(object/is_odd,1-2-3-4-5,-)
- * *      You say "1-3-5"
- * *
- * *  NOTE:  If you specify a separator it is used to delimit returned list
+/* ---------------------------------------------------------------------------
+ * fun_filter: iteratively perform a function with a list of arguments
+ *              and return the arg, if the function evaluates to TRUE using the 
+ *      arg.
+ *
+ *      > &IS_ODD object=mod(%0,2)
+ *      > say filter(object/is_odd,1 2 3 4 5)
+ *      You say "1 3 5"
+ *      > say filter(object/is_odd,1-2-3-4-5,-)
+ *      You say "1-3-5"
+ *
+ *  NOTE:  If you specify a separator it is used to delimit returned list
  */
 
 FUNCTION(fun_filter)
@@ -3833,13 +3848,11 @@ FUNCTION(fun_filter)
 	int aflags, anum, first;
 	ATTR *ap;
 	char *atext, *result, *curr, *objstring, *bp, *str, *cp, *atextbuf,
-	 sep;
+	 sep, osep;
 
-	varargs_preamble("FILTER", 3);
+	svarargs_preamble("FILTER", 4);
 
-	/*
-	 * Two possibilities for the first arg: <obj>/<attr> and <attr>. 
-	 */
+	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
 	if (parse_attrib(player, fargs[0], &thing, &anum)) {
 		if ((anum == NOTHING) || (!Good_obj(thing)))
@@ -3851,9 +3864,7 @@ FUNCTION(fun_filter)
 		ap = atr_str(fargs[0]);
 	}
 
-	/*
-	 * Make sure we got a good attribute 
-	 */
+	/* Make sure we got a good attribute */
 
 	if (!ap) {
 		return;
@@ -3869,23 +3880,21 @@ FUNCTION(fun_filter)
 		free_lbuf(atext);
 		return;
 	}
-	/*
-	 * Now iteratively eval the attrib with the argument list 
-	 */
+	/* Now iteratively eval the attrib with the argument list */
 
 	cp = curr = trim_space_sep(fargs[1], sep);
 	atextbuf = alloc_lbuf("fun_filter");
 	first = 1;
 	while (cp) {
 		objstring = split_token(&cp, sep);
-		StringCopy(atextbuf, atext);
+		strcpy(atextbuf, atext);
 		result = bp = alloc_lbuf("fun_filter");
 		str = atextbuf;
 		exec(result, &bp, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 		*bp = '\0';
 		if (!first && *result == '1')
-			safe_chr(sep, buff, bufc);
+			safe_chr(osep, buff, bufc);
 		if (*result == '1') {
 			safe_str(objstring, buff, bufc);
 			first = 0;
@@ -3896,16 +3905,14 @@ FUNCTION(fun_filter)
 	free_lbuf(atextbuf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_map: iteratively evaluate an attribute with a list of arguments.
- * *
- * *  > &DIV_TWO object=fdiv(%0,2)
- * *  > say map(1 2 3 4 5,object/div_two)
- * *  You say "0.5 1 1.5 2 2.5"
- * *  > say map(object/div_two,1-2-3-4-5,-)
- * *  You say "0.5-1-1.5-2-2.5"
- * *
+/* ---------------------------------------------------------------------------
+ * fun_map: iteratively evaluate an attribute with a list of arguments.
+ *  > &DIV_TWO object=fdiv(%0,2)
+ *  > say map(1 2 3 4 5,object/div_two)
+ *  You say "0.5 1 1.5 2 2.5"
+ *  > say map(object/div_two,1-2-3-4-5,-)
+ *  You say "0.5-1-1.5-2-2.5"
+ *
  */
 
 FUNCTION(fun_map)
@@ -3913,13 +3920,11 @@ FUNCTION(fun_map)
 	dbref aowner, thing;
 	int aflags, anum, first;
 	ATTR *ap;
-	char *atext, *objstring, *bp, *str, *cp, *atextbuf, sep;
+	char *atext, *objstring, *bp, *str, *cp, *atextbuf, sep, osep;
 
-	varargs_preamble("MAP", 3);
+	svarargs_preamble("MAP", 3);
 
-	/*
-	 * Two possibilities for the second arg: <obj>/<attr> and <attr>. 
-	 */
+	/* Two possibilities for the second arg: <obj>/<attr> and <attr>. */
 
 	if (parse_attrib(player, fargs[0], &thing, &anum)) {
 		if ((anum == NOTHING) || (!Good_obj(thing)))
@@ -3931,16 +3936,12 @@ FUNCTION(fun_map)
 		ap = atr_str(fargs[0]);
 	}
 
-	/*
-	 * Make sure we got a good attribute 
-	 */
+	/* Make sure we got a good attribute */
 
 	if (!ap) {
 		return;
 	}
-	/*
-	 * Use it if we can access it, otherwise return an error. 
-	 */
+	/* Use it if we can access it, otherwise return an error. */
 
 	atext = atr_pget(thing, ap->number, &aowner, &aflags);
 	if (!atext) {
@@ -3949,19 +3950,17 @@ FUNCTION(fun_map)
 		free_lbuf(atext);
 		return;
 	}
-	/*
-	 * now process the list one element at a time 
-	 */
+	/* now process the list one element at a time */
 
 	cp = trim_space_sep(fargs[1], sep);
 	atextbuf = alloc_lbuf("fun_map");
 	first = 1;
-	while (cp) {
+	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
 		if (!first)
 			safe_chr(sep, buff, bufc);
 		first = 0;
 		objstring = split_token(&cp, sep);
-		StringCopy(atextbuf, atext);
+		strcpy(atextbuf, atext);
 		str = atextbuf;
 		exec(buff, bufc, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
@@ -3970,9 +3969,8 @@ FUNCTION(fun_map)
 	free_lbuf(atextbuf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_edit: Edit text.
+/* ---------------------------------------------------------------------------
+ * fun_edit: Edit text.
  */
 
 FUNCTION(fun_edit)
@@ -3984,9 +3982,8 @@ FUNCTION(fun_edit)
 	free_lbuf(tstr);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_locate: Search for things with the perspective of another obj.
+/* ---------------------------------------------------------------------------
+ * fun_locate: Search for things with the perspective of another obj.
  */
 
 FUNCTION(fun_locate)
@@ -3998,9 +3995,7 @@ FUNCTION(fun_locate)
 	pref_type = NOTYPE;
 	check_locks = verbose = multiple = 0;
 
-	/*
-	 * Find the thing to do the looking, make sure we control it. 
-	 */
+	/* Find the thing to do the looking, make sure we control it. */
 
 	if (See_All(player))
 		thing = match_thing(player, fargs[0]);
@@ -4010,9 +4005,7 @@ FUNCTION(fun_locate)
 		safe_str("#-1 PERMISSION DENIED", buff, bufc);
 		return;
 	}
-	/*
-	 * Get pre- and post-conditions and modifiers 
-	 */
+	/* Get pre- and post-conditions and modifiers */
 
 	for (cp = fargs[2]; *cp; cp++) {
 		switch (*cp) {
@@ -4040,18 +4033,14 @@ FUNCTION(fun_locate)
 		}
 	}
 
-	/*
-	 * Set up for the search 
-	 */
+	/* Set up for the search */
 
 	if (check_locks)
 		init_match_check_keys(thing, fargs[1], pref_type);
 	else
 		init_match(thing, fargs[1], pref_type);
 
-	/*
-	 * Search for each requested thing 
-	 */
+	/* Search for each requested thing */
 
 	for (cp = fargs[2]; *cp; cp++) {
 		switch (*cp) {
@@ -4085,9 +4074,7 @@ FUNCTION(fun_locate)
 		}
 	}
 
-	/*
-	 * Get the result and return it to the caller 
-	 */
+	/* Get the result and return it to the caller */
 
 	if (multiple)
 		what = last_match_result();
@@ -4100,10 +4087,9 @@ FUNCTION(fun_locate)
 	safe_tprintf_str(buff, bufc, "#%d", what);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_switch: Return value based on pattern matching (ala @switch)
- * * NOTE: This function expects that its arguments have not been evaluated.
+/* ---------------------------------------------------------------------------
+ * fun_switch: Return value based on pattern matching (ala @switch)
+ * NOTE: This function expects that its arguments have not been evaluated.
  */
 
 FUNCTION(fun_switch)
@@ -4111,16 +4097,12 @@ FUNCTION(fun_switch)
 	int i;
 	char *mbuff, *tbuff, *bp, *str;
 
-	/*
-	 * If we don't have at least 2 args, return nothing 
-	 */
+	/* If we don't have at least 2 args, return nothing */
 
 	if (nfargs < 2) {
 		return;
 	}
-	/*
-	 * Evaluate the target in fargs[0] 
-	 */
+	/* Evaluate the target in fargs[0] */
 
 	mbuff = bp = alloc_lbuf("fun_switch");
 	str = fargs[0];
@@ -4128,9 +4110,7 @@ FUNCTION(fun_switch)
 	     &str, cargs, ncargs);
 	*bp = '\0';
 
-	/*
-	 * Loop through the patterns looking for a match 
-	 */
+	/* Loop through the patterns looking for a match */
 
 	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
 		tbuff = bp = alloc_lbuf("fun_switch.2");
@@ -4150,9 +4130,7 @@ FUNCTION(fun_switch)
 	}
 	free_lbuf(mbuff);
 
-	/*
-	 * Nope, return the default if there is one 
-	 */
+	/* Nope, return the default if there is one */
 
 	if ((i < nfargs) && fargs[i]) {
 		str = fargs[i];
@@ -4167,16 +4145,12 @@ FUNCTION(fun_case)
 	int i;
 	char *mbuff, *bp, *str;
 
-	/*
-	 * If we don't have at least 2 args, return nothing 
-	 */
+	/* If we don't have at least 2 args, return nothing */
 
 	if (nfargs < 2) {
 		return;
 	}
-	/*
-	 * Evaluate the target in fargs[0] 
-	 */
+	/* Evaluate the target in fargs[0] */
 
 	mbuff = bp = alloc_lbuf("fun_switch");
 	str = fargs[0];
@@ -4184,9 +4158,7 @@ FUNCTION(fun_case)
 	     &str, cargs, ncargs);
 	*bp = '\0';
 
-	/*
-	 * Loop through the patterns looking for a match 
-	 */
+	/* Loop through the patterns looking for a match */
 
 	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
 		if (*fargs[i] == *mbuff) {
@@ -4199,9 +4171,7 @@ FUNCTION(fun_case)
 	}
 	free_lbuf(mbuff);
 
-	/*
-	 * Nope, return the default if there is one 
-	 */
+	/* Nope, return the default if there is one */
 
 	if ((i < nfargs) && fargs[i]) {
 		str = fargs[i];
@@ -4211,9 +4181,8 @@ FUNCTION(fun_case)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_space: Make spaces.
+/* ---------------------------------------------------------------------------
+ * fun_space: Make spaces.
  */
 
 FUNCTION(fun_space)
@@ -4228,11 +4197,9 @@ FUNCTION(fun_space)
 	}
 
 	if (num < 1) {
-
-		/*
-		 * If negative or zero spaces return a single space,  * * * * 
-		 * -except- allow 'space(0)' to return "" for calculated * *
-		 * * * padding 
+		/* If negative or zero spaces return a single space,
+		 * -except- allow 'space(0)' to return "" for calculated
+		 * padding 
 		 */
 
 		if (!is_integer(fargs[0]) || (num != 0)) {
@@ -4247,9 +4214,8 @@ FUNCTION(fun_space)
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_idle, fun_conn: return seconds idle or connected.
+/* ---------------------------------------------------------------------------
+ * fun_idle, fun_conn: return seconds idle or connected.
  */
 
 FUNCTION(fun_idle)
@@ -4259,7 +4225,7 @@ FUNCTION(fun_idle)
 	target = lookup_player(player, fargs[0], 1);
 	if (Good_obj(target) && Dark(target) && !Wizard(player))
 		target = NOTHING;
-	safe_tprintf_str(buff, bufc, "%d", fetch_idle(target));
+	safe_ltos(buff, bufc, fetch_idle(target));
 }
 
 FUNCTION(fun_conn)
@@ -4269,12 +4235,11 @@ FUNCTION(fun_conn)
 	target = lookup_player(player, fargs[0], 1);
 	if (Good_obj(target) && Dark(target) && !Wizard(player))
 		target = NOTHING;
-	safe_tprintf_str(buff, bufc, "%d", fetch_connect(target));
+	safe_ltos(buff, bufc, fetch_connect(target));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_sort: Sort lists.
+/* ---------------------------------------------------------------------------
+ * fun_sort: Sort lists.
  */
 
 typedef struct f_record f_rec;
@@ -4371,42 +4336,48 @@ int n, sort_type;
 FUNCTION(fun_sort)
 {
 	int nitems, sort_type;
-	char *list, sep;
+	char *list, sep, osep;
 	char *ptrs[LBUF_SIZE / 2];
 
-	/*
-	 * If we are passed an empty arglist return a null string 
-	 */
+	/* If we are passed an empty arglist return a null string */
 
 	if (nfargs == 0) {
 		return;
 	}
-	mvarargs_preamble("SORT", 1, 3);
 
-	/*
-	 * Convert the list to an array 
-	 */
+	if (!fn_range_check("SORT", nfargs, 1, 4, buff))
+		return;
+	if (!delim_check(fargs, nfargs, 3, &sep, buff, 0,
+	     player, cause, cargs, ncargs))
+		return;
+	if (nfargs < 4)
+		osep = sep;
+	else if (!delim_check(fargs, nfargs, 4, &osep, buff, 0,
+	         player, cause, cargs, ncargs))
+		return;
+
+
+	/* Convert the list to an array */
 
 	list = alloc_lbuf("fun_sort");
-	StringCopy(list, fargs[0]);
+	strcpy(list, fargs[0]);
 	nitems = list2arr(ptrs, LBUF_SIZE / 2, list, sep);
 	sort_type = get_list_type(fargs, nfargs, 2, ptrs, nitems);
 	do_asort(ptrs, nitems, sort_type);
-	arr2list(ptrs, nitems, buff, bufc, sep);
+	arr2list(ptrs, nitems, buff, bufc, osep);
 	free_lbuf(list);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fun_setunion, fun_setdiff, fun_setinter: Set management.
+/* ---------------------------------------------------------------------------
+ * fun_setunion, fun_setdiff, fun_setinter: Set management.
  */
 
 #define	SET_UNION	1
 #define	SET_INTERSECT	2
 #define	SET_DIFF	3
 
-static void handle_sets(fargs, buff, bufc, oper, sep)
-char *fargs[], *buff, **bufc, sep;
+static void handle_sets(fargs, buff, bufc, oper, sep, osep)
+char *fargs[], *buff, **bufc, sep, osep;
 int oper;
 {
 	char *list1, *list2, *oldp;
@@ -4414,12 +4385,12 @@ int oper;
 	int i1, i2, n1, n2, val, first;
 
 	list1 = alloc_lbuf("fun_setunion.1");
-	StringCopy(list1, fargs[0]);
+	strcpy(list1, fargs[0]);
 	n1 = list2arr(ptrs1, LBUF_SIZE, list1, sep);
 	do_asort(ptrs1, n1, ALPHANUM_LIST);
 
 	list2 = alloc_lbuf("fun_setunion.2");
-	StringCopy(list2, fargs[1]);
+	strcpy(list2, fargs[1]);
 	n2 = list2arr(ptrs2, LBUF_SIZE, list2, sep);
 	do_asort(ptrs2, n2, ALPHANUM_LIST);
 
@@ -4429,28 +4400,20 @@ int oper;
 	**bufc = '\0';
 
 	switch (oper) {
-	case SET_UNION:	/*
-				 * Copy elements common to both lists 
-				 */
+	case SET_UNION:	/* Copy elements common to both lists */
 
-		/*
-		 * Handle case of two identical single-element lists 
-		 */
+		/* Handle case of two identical single-element lists */
 
 		if ((n1 == 1) && (n2 == 1) &&
 		    (!strcmp(ptrs1[0], ptrs2[0]))) {
 			safe_str(ptrs1[0], buff, bufc);
 			break;
 		}
-		/*
-		 * Process until one list is empty 
-		 */
+		/* Process until one list is empty */
 
 		while ((i1 < n1) && (i2 < n2)) {
 
-			/*
-			 * Skip over duplicates 
-			 */
+			/* Skip over duplicates */
 
 			if ((i1 > 0) || (i2 > 0)) {
 				while ((i1 < n1) && !strcmp(ptrs1[i1],
@@ -4460,13 +4423,11 @@ int oper;
 							    oldp))
 					i2++;
 			}
-			/*
-			 * Compare and copy 
-			 */
+			/* Compare and copy */
 
 			if ((i1 < n1) && (i2 < n2)) {
 				if (!first)
-					safe_chr(sep, buff, bufc);
+					safe_chr(osep, buff, bufc);
 				first = 0;
 				oldp = *bufc;
 				if (strcmp(ptrs1[i1], ptrs2[i2]) < 0) {
@@ -4480,14 +4441,12 @@ int oper;
 			}
 		}
 
-		/*
-		 * Copy rest of remaining list, stripping duplicates 
-		 */
+		/* Copy rest of remaining list, stripping duplicates */
 
 		for (; i1 < n1; i1++) {
 			if (strcmp(oldp, ptrs1[i1])) {
 				if (!first)
-					safe_chr(sep, buff, bufc);
+					safe_chr(osep, buff, bufc);
 				first = 0;
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
@@ -4497,7 +4456,7 @@ int oper;
 		for (; i2 < n2; i2++) {
 			if (strcmp(oldp, ptrs2[i2])) {
 				if (!first)
-					safe_chr(sep, buff, bufc);
+					safe_chr(osep, buff, bufc);
 				first = 0;
 				oldp = *bufc;
 				safe_str(ptrs2[i2], buff, bufc);
@@ -4505,20 +4464,16 @@ int oper;
 			}
 		}
 		break;
-	case SET_INTERSECT:	/*
-				 * Copy elements not in both lists 
-				 */
+	case SET_INTERSECT:	/* Copy elements not in both lists */
 
 		while ((i1 < n1) && (i2 < n2)) {
 			val = strcmp(ptrs1[i1], ptrs2[i2]);
 			if (!val) {
 
-				/*
-				 * Got a match, copy it 
-				 */
+				/* Got a match, copy it */
 
 				if (!first)
-					safe_chr(sep, buff, bufc);
+					safe_chr(osep, buff, bufc);
 				first = 0;
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
@@ -4535,17 +4490,13 @@ int oper;
 			}
 		}
 		break;
-	case SET_DIFF:		/*
-				 * Copy elements unique to list1 
-				 */
+	case SET_DIFF:		/* Copy elements unique to list1 */
 
 		while ((i1 < n1) && (i2 < n2)) {
 			val = strcmp(ptrs1[i1], ptrs2[i2]);
 			if (!val) {
 
-				/*
-				 * Got a match, increment pointers 
-				 */
+				/* Got a match, increment pointers */
 
 				oldp = ptrs1[i1];
 				while ((i1 < n1) && !strcmp(ptrs1[i1], oldp))
@@ -4554,12 +4505,10 @@ int oper;
 					i2++;
 			} else if (val < 0) {
 
-				/*
-				 * Item in list1 not in list2, copy 
-				 */
+				/* Item in list1 not in list2, copy */
 
 				if (!first)
-					safe_chr(sep, buff, bufc);
+					safe_chr(osep, buff, bufc);
 				first = 0;
 				safe_str(ptrs1[i1], buff, bufc);
 				oldp = ptrs1[i1];
@@ -4568,9 +4517,7 @@ int oper;
 					i1++;
 			} else {
 
-				/*
-				 * Item in list2 but not in list1, discard 
-				 */
+				/* Item in list2 but not in list1, discard */
 
 				oldp = ptrs2[i2];
 				i2++;
@@ -4579,13 +4526,11 @@ int oper;
 			}
 		}
 
-		/*
-		 * Copy remainder of list1 
-		 */
+		/* Copy remainder of list1 */
 
 		while (i1 < n1) {
 			if (!first)
-				safe_chr(sep, buff, bufc);
+				safe_chr(osep, buff, bufc);
 			first = 0;
 			safe_str(ptrs1[i1], buff, bufc);
 			oldp = ptrs1[i1];
@@ -4601,34 +4546,33 @@ int oper;
 
 FUNCTION(fun_setunion)
 {
-	char sep;
+	char sep, osep;
 
-	varargs_preamble("SETUNION", 3);
-	handle_sets(fargs, buff, bufc, SET_UNION, sep);
+	svarargs_preamble("SETUNION", 4);
+	handle_sets(fargs, buff, bufc, SET_UNION, sep, osep);
 	return;
 }
 
 FUNCTION(fun_setdiff)
 {
-	char sep;
+	char sep, osep;
 
-	varargs_preamble("SETDIFF", 3);
-	handle_sets(fargs, buff, bufc, SET_DIFF, sep);
+	svarargs_preamble("SETDIFF", 4);
+	handle_sets(fargs, buff, bufc, SET_DIFF, sep, osep);
 	return;
 }
 
 FUNCTION(fun_setinter)
 {
-	char sep;
+	char sep, osep;
 
-	varargs_preamble("SETINTER", 3);
-	handle_sets(fargs, buff, bufc, SET_INTERSECT, sep);
+	svarargs_preamble("SETINTER", 4);
+	handle_sets(fargs, buff, bufc, SET_INTERSECT, sep, osep);
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * rjust, ljust, center: Justify or center text, specifying fill character
+/* ---------------------------------------------------------------------------
+ * rjust, ljust, center: Justify or center text, specifying fill character
  */
 
 FUNCTION(fun_ljust)
@@ -4639,14 +4583,10 @@ FUNCTION(fun_ljust)
 	varargs_preamble("LJUST", 3);
 	spaces = atoi(fargs[1]) - strlen((char *)strip_ansi(fargs[0]));
 
-	/*
-	 * Sanitize number of spaces 
-	 */
+	/* Sanitize number of spaces */
 
 	if (spaces <= 0) {
-		/*
-		 * no padding needed, just return string 
-		 */
+		/* no padding needed, just return string */
 		safe_str(fargs[0], buff, bufc);
 		return;
 	} else if (spaces > LBUF_SIZE) {
@@ -4711,9 +4651,8 @@ FUNCTION(fun_center)
 		safe_chr(sep, buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * setq, setr, r: set and read global registers.
+/* ---------------------------------------------------------------------------
+ * setq, setr, r: set and read global registers.
  */
 
 FUNCTION(fun_setq)
@@ -4727,7 +4666,7 @@ FUNCTION(fun_setq)
 		if (!mudstate.global_regs[regnum])
 			mudstate.global_regs[regnum] =
 				alloc_lbuf("fun_setq");
-		StringCopy(mudstate.global_regs[regnum], fargs[1]);
+		strcpy(mudstate.global_regs[regnum], fargs[1]);
 	}
 }
 
@@ -4743,7 +4682,7 @@ FUNCTION(fun_setr)
 		if (!mudstate.global_regs[regnum])
 			mudstate.global_regs[regnum] =
 				alloc_lbuf("fun_setq");
-		StringCopy(mudstate.global_regs[regnum], fargs[1]);
+		strcpy(mudstate.global_regs[regnum], fargs[1]);
 	}
 	safe_str(fargs[1], buff, bufc);
 }
@@ -4760,19 +4699,35 @@ FUNCTION(fun_r)
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * isnum: is the argument a number?
+/* ---------------------------------------------------------------------------
+ * isword: is every character in the argument a letter?
+ */
+  
+FUNCTION(fun_isword)
+{
+char *p;
+      
+	for (p = fargs[0]; *p; p++) {
+		if (!isalpha(*p)) {
+			safe_chr('0', buff, bufc);
+			return;
+		}
+	}
+	safe_chr('1', buff, bufc);
+}
+                                                          
+
+/* ---------------------------------------------------------------------------
+ * isnum: is the argument a number?
  */
 
 FUNCTION(fun_isnum)
 {
-	safe_str((is_number(fargs[0]) ? "1" : "0"), buff, bufc);
+	safe_chr((is_number(fargs[0]) ? '1' : '0'), buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * isdbref: is the argument a valid dbref?
+/* ---------------------------------------------------------------------------
+ * isdbref: is the argument a valid dbref?
  */
 
 FUNCTION(fun_isdbref)
@@ -4784,16 +4739,15 @@ FUNCTION(fun_isdbref)
 	if (*p++ == NUMBER_TOKEN) {
 		dbitem = parse_dbref(p);
 		if (Good_obj(dbitem)) {
-			safe_str("1", buff, bufc);
+			safe_chr('1', buff, bufc);
 			return;
 		}
 	}
-	safe_str("0", buff, bufc);
+	safe_chr('0', buff, bufc);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * trim: trim off unwanted white space.
+/* ---------------------------------------------------------------------------
+ * trim: trim off unwanted white space.
  */
 
 FUNCTION(fun_trim)
@@ -4855,6 +4809,7 @@ FUN flist[] = {
 {"ALPHAMAX",	fun_alphamax,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ALPHAMIN",	fun_alphamin,   0,  FN_VARARGS, CA_PUBLIC},
 {"AND",		fun_and,	0,  FN_VARARGS,	CA_PUBLIC},
+{"ANDBOOL",	fun_andbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ANDFLAGS",	fun_andflags,	2,  0,		CA_PUBLIC},
 {"ANSI",        fun_ansi,       2,  0,          CA_PUBLIC},
 {"APOSS",	fun_aposs,	1,  0,		CA_PUBLIC},
@@ -4938,6 +4893,7 @@ FUN flist[] = {
 {"LCON",	fun_lcon,	1,  0,		CA_PUBLIC},
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC},
 {"LDELETE",	fun_ldelete,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LEFT",	fun_left,	2,  0,		CA_PUBLIC},
 {"LEXITS",	fun_lexits,	1,  0,		CA_PUBLIC},
 {"LPARENT",	fun_lparent,	1,  0,		CA_PUBLIC}, 
 {"LIST",	fun_list,	0,  FN_VARARGS|FN_NO_EVAL,
@@ -4951,6 +4907,7 @@ FUN flist[] = {
 {"LOCATE",	fun_locate,	3,  0,		CA_PUBLIC},
 {"LOCK",	fun_lock,	1,  0,		CA_PUBLIC},
 {"LOG",		fun_log,	1,  0,		CA_PUBLIC},
+{"LPOS",	fun_lpos,	2,  0,		CA_PUBLIC},
 {"LSTACK",	fun_lstack,	0,  FN_VARARGS, CA_PUBLIC},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC},
 {"LTE",		fun_lte,	2,  0,		CA_PUBLIC},
@@ -4976,12 +4933,14 @@ FUN flist[] = {
 {"NEQ",		fun_neq,	2,  0,		CA_PUBLIC},
 {"NEXT",	fun_next,	1,  0,		CA_PUBLIC},
 {"NOT",		fun_not,	1,  0,		CA_PUBLIC},
+{"NOTBOOL",	fun_notbool,	1,  0,		CA_PUBLIC},
 {"NUM",		fun_num,	1,  0,		CA_PUBLIC},
 {"ITEMS",	fun_items,	0,  FN_VARARGS, CA_PUBLIC},
 {"OBJ",		fun_obj,	1,  0,		CA_PUBLIC},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC},
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC},
 {"OR",		fun_or,		0,  FN_VARARGS,	CA_PUBLIC},
+{"ORBOOL",	fun_orbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ORFLAGS",	fun_orflags,	2,  0,		CA_PUBLIC},
 {"OWNER",	fun_owner,	1,  0,		CA_PUBLIC},
 {"PARENT",	fun_parent,	1,  0,		CA_PUBLIC},
@@ -5009,6 +4968,7 @@ FUN flist[] = {
 {"REST",	fun_rest,	0,  FN_VARARGS,	CA_PUBLIC},
 {"REVERSE",	fun_reverse,	-1, 0,		CA_PUBLIC},
 {"REVWORDS",	fun_revwords,	0,  FN_VARARGS,	CA_PUBLIC},
+{"RIGHT",	fun_right,	2,  0,		CA_PUBLIC},
 {"RJUST",	fun_rjust,	0,  FN_VARARGS,	CA_PUBLIC},
 {"RLOC",	fun_rloc,	2,  0,		CA_PUBLIC},
 {"ROOM",	fun_room,	1,  0,		CA_PUBLIC},
@@ -5018,6 +4978,7 @@ FUN flist[] = {
 {"SEARCH",	fun_search,	-1, 0,		CA_PUBLIC},
 {"SECS",	fun_secs,	0,  0,		CA_PUBLIC},
 {"SECURE",	fun_secure,	-1, 0,		CA_PUBLIC},
+{"SEES",	fun_sees,	2,  0,		CA_PUBLIC},
 {"SET",		fun_set,	2,  0,		CA_PUBLIC},
 {"SETDIFF",	fun_setdiff,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SETINTER",	fun_setinter,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -5034,7 +4995,7 @@ FUN flist[] = {
 {"SPACE",	fun_space,	1,  0,		CA_PUBLIC},
 {"SPLICE",	fun_splice,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SQRT",	fun_sqrt,	1,  0,		CA_PUBLIC},
-{"SQUISH",	fun_squish,	1,  0,		CA_PUBLIC},
+{"SQUISH",	fun_squish,	0,  FN_VARARGS,	CA_PUBLIC},
 {"STARTTIME",	fun_starttime,	0,  0,		CA_PUBLIC},
 {"STATS",	fun_stats,	1,  0,		CA_PUBLIC},
 {"STRCAT",	fun_strcat,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -5071,18 +5032,16 @@ FUN flist[] = {
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC},
 {"WORDPOS",     fun_wordpos,    0,  FN_VARARGS,	CA_PUBLIC},
 {"WORDS",	fun_words,	0,  FN_VARARGS,	CA_PUBLIC},
+{"XCON",	fun_xcon,	3,  0,		CA_PUBLIC},
 {"XGET",	fun_xget,	2,  0,		CA_PUBLIC},
 {"XOR",		fun_xor,	0,  FN_VARARGS,	CA_PUBLIC},
+{"XORBOOL",	fun_xorbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ZFUN",	fun_zfun,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ZONE",        fun_zone,       1,  0,          CA_PUBLIC},
 {"ZWHO",        fun_zwho,       1,  0,          CA_PUBLIC},
 {NULL,		NULL,		0,  0,		0}};
 
 /* *INDENT-ON* */
-
-
-
-
 
 void NDECL(init_functab)
 {
@@ -5118,9 +5077,7 @@ char *fname, *target;
 	int atr, aflags;
 	dbref obj, aowner;
 
-	/*
-	 * Make a local uppercase copy of the function name 
-	 */
+	/* Make a local uppercase copy of the function name */
 
 	bp = np = alloc_sbuf("add_user_func");
 	safe_sb_str(fname, np, &bp);
@@ -5128,9 +5085,7 @@ char *fname, *target;
 	for (bp = np; *bp; bp++)
 		*bp = ToLower(*bp);
 
-	/*
-	 * Verify that the function doesn't exist in the builtin table 
-	 */
+	/* Verify that the function doesn't exist in the builtin table */
 
 	if (hashfind(np, &mudstate.func_htab) != NULL) {
 		notify_quiet(player,
@@ -5138,27 +5093,21 @@ char *fname, *target;
 		free_sbuf(np);
 		return;
 	}
-	/*
-	 * Make sure the target object exists 
-	 */
+	/* Make sure the target object exists */
 
 	if (!parse_attrib(player, target, &obj, &atr)) {
 		notify_quiet(player, "I don't see that here.");
 		free_sbuf(np);
 		return;
 	}
-	/*
-	 * Make sure the attribute exists 
-	 */
+	/* Make sure the attribute exists */
 
 	if (atr == NOTHING) {
 		notify_quiet(player, "No such attribute.");
 		free_sbuf(np);
 		return;
 	}
-	/*
-	 * Make sure attribute is readably by me 
-	 */
+	/* Make sure attribute is readably by me */
 
 	ap = atr_num(atr);
 	if (!ap) {
@@ -5172,23 +5121,19 @@ char *fname, *target;
 		free_sbuf(np);
 		return;
 	}
-	/*
-	 * Privileged functions require you control the obj.  
-	 */
+	/* Privileged functions require you control the obj.  */
 
 	if ((key & FN_PRIV) && !Controls(player, obj)) {
 		notify_quiet(player, "Permission denied.");
 		free_sbuf(np);
 		return;
 	}
-	/*
-	 * See if function already exists.  If so, redefine it 
-	 */
+	/* See if function already exists.  If so, redefine it */
 
 	ufp = (UFUN *) hashfind(np, &mudstate.ufunc_htab);
 
 	if (!ufp) {
-		ufp = (UFUN *) malloc(sizeof(UFUN));
+		ufp = (UFUN *) XMALLOC(sizeof(UFUN), "do_function");
 		ufp->name = strsave(np);
 		for (bp = (char *)ufp->name; *bp; bp++)
 			*bp = ToUpper(*bp);
@@ -5202,8 +5147,14 @@ char *fname, *target;
 			for (ufp2 = ufun_head; ufp2->next; ufp2 = ufp2->next) ;
 			ufp2->next = ufp;
 		}
-		hashadd(np, (int *)ufp, &mudstate.ufunc_htab);
-	}
+		if (hashadd(np, (int *) ufp, &mudstate.ufunc_htab)) {
+			notify_quiet(player, tprintf("Function %s not defined.", fname));
+			XFREE((char *) ufp->name, "do_function");
+			XFREE(ufp, "do_function.2");
+			free_sbuf(np);
+			return;
+		}
+        }
 	ufp->obj = obj;
 	ufp->atr = atr;
 	ufp->flags = key;
@@ -5212,9 +5163,8 @@ char *fname, *target;
 		notify_quiet(player, tprintf("Function %s defined.", fname));
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_functable: List available functions.
+/* ---------------------------------------------------------------------------
+ * list_functable: List available functions.
  */
 
 void list_functable(player)
@@ -5247,9 +5197,8 @@ dbref player;
 	free_lbuf(buf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_func_access: set access on functions
+/* ---------------------------------------------------------------------------
+ * cf_func_access: set access on functions
  */
 
 CF_HAND(cf_func_access)

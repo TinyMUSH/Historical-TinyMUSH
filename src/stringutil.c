@@ -730,3 +730,39 @@ long num;
 	*s = '\0';
 	return 0;
 }
+
+int safe_ltos(s, bufc, num)
+char *s;
+char **bufc;
+long num;
+{
+	/* Mark Vasoll's long int to string converter. */
+	char buf[20], *p;
+	long anum;
+
+	p = buf;
+
+	/* absolute value */
+	anum = (num < 0) ? -num : num;
+
+	/* build up the digits backwards by successive division */
+	while (anum > 9) {
+		*p++ = '0' + (anum % 10);
+		anum /= 10;
+	}
+
+	/* put in the sign if needed */
+	if (num < 0)
+		*(*bufc)++ = '-';
+
+	/* put in the last digit, this makes very fast single digits numbers */
+	*(*bufc)++ = '0' + anum;
+
+	/* reverse the rest of the digits (if any) into the provided buf */
+	while ((p-- > buf) && ((*bufc - s) < LBUF_SIZE))
+		*(*bufc)++ = *p;
+
+	/* terminate the resulting string */
+	**bufc = '\0';
+	return 0;
+}
