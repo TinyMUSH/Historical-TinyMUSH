@@ -72,6 +72,8 @@
 #undef HAVE_SYS_SELECT_H
 /* Define if sys/rusage.h exists */
 #undef HAVE_SYS_RUSAGE_H
+/* Define if we have features.h supplied by the GNU C library */
+#undef HAVE_FEATURES_H
 /* Define if const is broken */
 #undef const
 /* Define if char type is unsigned */
@@ -393,14 +395,25 @@ extern int	FDECL(socket, (int, int, int));
 extern int	FDECL(select, (int, fd_set *, fd_set *, fd_set *, struct timeval *));
 #endif
 
+#ifdef __linux__
+#ifndef __GLIBC__
+
 /* In theory, under Linux, we want to use the optimized string functions.
  * However, they make Redhat Linux 6, at least, spew, because GNU libc
  * already uses its own set of optimized string functions with gcc -O.
  */
 
-#ifdef __linux__
-#ifndef __GLIBC__
 #include <asm/string.h>
+
+#else
+
+/* GNU libc is also broken in the fact that it declares BSD datatypes
+ * along with SYSV, POSIX, etc which breaks autoconf. So we have to 
+ * manually fix those inconsistencies.
+ */
+
+#define GLIBC_BRAINDAMAGE
+
 #endif
 #endif
 
