@@ -20,6 +20,7 @@
 # *** Begin COMSYS ***
 # +V<number>  (if this is missing, we have an unrecognized format)
 # <number of channels>
+# <channel name>
 # <channel type> <dummy num> <dummy num> <charge> <owner>  [cont]
 #   <charges total> <num sent> <channel obj>
 # <number of users>
@@ -30,6 +31,19 @@
 # <channel type N> <etc.>
 #
 # There is no end marker. It just ends.
+#
+# Differences in ChaoticMUX comsys formats:
+#
+#   If it's +V2 or +V3, each channel in the COMSYS section has an
+#   extra line containing the channel header, e.g. [Public], following
+#   the <channel name> line.
+#
+#   Unfortunately the comsys headers will be dropped by this script,
+#   even though you can set comsys headers in TinyMUSH 3.1, because
+#   we'd need to get information from the channel object in order to
+#   output a +V4 TinyMUSH comsys db.
+#
+#   If it's +V3, the two "dummy nums" have been removed.
 #
 # This is a relatively blind conversion. Caveat emptor.
 
@@ -63,8 +77,16 @@ if ($line ne "*** Begin COMSYS ***") {
 
 $line = <>;
 chomp $line;
-if (! ($line =~ /^\+V\d+/)) {
+if (! ($line =~ /^\+V(\d+)/)) {
     die "Cannot convert this format: no version line.\n";
+}
+$version = $1;
+if ($version < 1 || $version > 3) {
+    die "Cannot convert this format: unrecognized version.\n";
+}
+if ($version == 2 || $version == 3) {
+    warn "Customized comsys headers can't be converted by this script.\n";
+    warn "You can use the \@channel/header command to reset them.\n";
 }
 
 $num_channels = <>;
@@ -73,10 +95,18 @@ chomp $num_channels;
 for ($i = 0; $i < $num_channels; $i++) {
     $chname = <>;
     chomp $chname;
+    if ($version == 2 || $version == 3) {
+	$chheader = <>;
+    }
     $line = <>;
     chomp $line;
-    ($chtype, $charge, $owner, $total, $sent, $obj) =
-      ($line =~ /^(\d+) \d+ \d+ (\d+) (\d+) (\S+) (\S+) (\S+)$/);
+    if ($version != 3) {
+	($chtype, $charge, $owner, $total, $sent, $obj) =
+	    ($line =~ /^(\d+) \d+ \d+ (\d+) (\d+) (\S+) (\S+) (\S+)$/);
+    } else {
+	($chtype, $charge, $owner, $total, $sent, $obj) =
+	    ($line =~ /^(\d+) (\d+) (\d+) (\S+) (\S+) (\S+)$/);
+    }
     $CH_TYPE{$chname} = $chtype;
     $CH_CHARGE{$chname} = $charge;
     $CH_OWNER{$chname} = $owner;
