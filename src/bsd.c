@@ -1287,8 +1287,8 @@ int sig;
 			
 			/* Don't sync first. Using older db. */
 			
-			CLOSE;
 			dump_database_internal(1);
+			CLOSE;
 			shutdown(slave_socket, 2);
 			close(slave_socket);
 			kill(slave_pid, SIGKILL);
