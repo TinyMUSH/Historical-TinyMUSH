@@ -218,7 +218,7 @@ ALLCFLAGS = $(CFLAGS) $(SQL_INC) $(DEBUG) $(DEFS) $(COMPRESS_DEFS) $(BASED) $(MA
 
 #Auxiliary files
 A_INST	= CREDITS CHANGES CHANGES.TINY20 CHANGES.TINY22 CHANGES.MUX \
-	  CONVERT.TINY22 CONVERT.MUX FAQ INSTALL README README.TOOLS
+	  CONVERT.TINY22 CONVERT.MUX FAQ INSTALL README README.TOOLS BETA
 A_TXT	= badsite.txt connect.txt create_reg.txt down.txt guest.txt help.txt \
 	  htmlconn.txt motd.txt news.txt newuser.txt quit.txt register.txt \
 	  wizhelp.txt wizmotd.txt full.txt mushman.txt plushelp.txt wiznews.txt
