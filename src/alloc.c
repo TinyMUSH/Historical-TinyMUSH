@@ -140,7 +140,6 @@ const char *tag;
 			*p = POOL_MAGICNUM;
 			pools[poolnum].chain_head = ph;
 			pools[poolnum].max_alloc++;
-			}
 		} else {
 			ph = (POOLHDR *) (pools[poolnum].free_head);
 			h = (char *)ph;
