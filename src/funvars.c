@@ -2092,22 +2092,21 @@ FUNCTION(fun_lstack)
  *          Derived from the PennMUSH code. 
  */
 
-static void perform_regedit(buff, bufc, player, fargs, nfargs,
-		     case_option, all_option)
-    char *buff, **bufc;
-    dbref player;
-    char *fargs[];
-    int nfargs, case_option, all_option;
+FUNCTION(perform_regedit)
 {
     pcre *re;
     pcre_extra *study = NULL;
     const char *errptr;
+    int case_option, all_option;
     int erroffset, subpatterns, len;
     int offsets[PCRE_MAX_OFFSETS];
     char *r, *start;
     char tbuf[LBUF_SIZE];
     char tmp;
     int match_offset = 0;
+
+    case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
+    all_option = ((FUN *)fargs[-1])->flags & REG_MATCH_ALL;
 
     if ((re = pcre_compile(fargs[1], case_option,
 			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
@@ -2197,26 +2196,6 @@ static void perform_regedit(buff, bufc, player, fargs, nfargs,
     }
 }
 
-FUNCTION(fun_regedit)
-{
-    perform_regedit(buff, bufc, player, fargs, nfargs, 0, 0);
-}
-
-FUNCTION(fun_regeditall)
-{
-    perform_regedit(buff, bufc, player, fargs, nfargs, 0, 1);
-}
-
-FUNCTION(fun_regediti)
-{
-    perform_regedit(buff, bufc, player, fargs, nfargs, PCRE_CASELESS, 0);
-}
-
-FUNCTION(fun_regeditalli)
-{
-    perform_regedit(buff, bufc, player, fargs, nfargs, PCRE_CASELESS, 1);
-}
-
 /* --------------------------------------------------------------------------
  * wildparse: Set the results of a wildcard match into named variables.
  *            wildparse(<string>,<pattern>,<list of variable names>)
@@ -2250,14 +2229,10 @@ FUNCTION(fun_wildparse)
  *               regparse(string, pattern, named vars)
  */
 
-static void perform_regparse(buff, bufc, player, fargs, nfargs, case_option)
-    char *buff, **bufc;
-    dbref player;
-    char *fargs[];
-    int nfargs;
-    int case_option;
+FUNCTION(perform_regparse)
 {
     int i, nqregs;
+    int case_option;
     char *qregs[NUM_ENV_VARS];
     char matchbuf[LBUF_SIZE];
     pcre *re;
@@ -2265,6 +2240,8 @@ static void perform_regparse(buff, bufc, player, fargs, nfargs, case_option)
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
     int subpatterns;
+
+    case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
 
     if ((re = pcre_compile(fargs[1], case_option,
 			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
@@ -2292,37 +2269,31 @@ static void perform_regparse(buff, bufc, player, fargs, nfargs, case_option)
     XFREE(re, "perform_regparse.re");
 }
 
-FUNCTION(fun_regparse)
-{
-    perform_regparse(buff, bufc, player, fargs, nfargs, 0);
-}
-
-FUNCTION(fun_regparsei)
-{
-    perform_regparse(buff, bufc, player, fargs, nfargs, PCRE_CASELESS);
-}
-
 /* ---------------------------------------------------------------------------
  * fun_regrab: Like grab() and graball(), but with a regexp pattern.
  *             Derived from PennMUSH.
  */
 
-static void perform_regrab(buff, bufc, isep, osep, isep_len, osep_len,
-			   player, fargs, nfargs,  
-			   case_option, all_option)
-    char *buff, **bufc;
+FUNCTION(perform_regrab)
+{
     Delim isep, osep;
     int isep_len, osep_len;
-    dbref player;
-    char *fargs[];
-    int nfargs, case_option, all_option;
-{
+    int case_option, all_option;
     char *r, *s, *bb_p;
     pcre *re;
     pcre_extra *study;
     const char *errptr;
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
+
+    case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
+    all_option = ((FUN *)fargs[-1])->flags & REG_MATCH_ALL;
+
+    if (all_option) {
+	VaChk_Only_In_Out(4);
+    } else {
+	VaChk_Only_In(3);
+    }
 
     s = trim_space_sep(fargs[0], isep, isep_len);
     bb_p = *bufc;
@@ -2364,46 +2335,6 @@ static void perform_regrab(buff, bufc, isep, osep, isep_len, osep_len,
     }
 }
 
-FUNCTION(fun_regrab)
-{
-    Delim isep;
-    int isep_len;
-
-    VaChk_Only_In(3);
-    perform_regrab(buff, bufc, isep, SPACE_DELIM, isep_len, 1,
-		   player, fargs, nfargs, 0, 0);
-}
-
-FUNCTION(fun_regrabi)
-{
-    Delim isep;
-    int isep_len;
-
-    VaChk_Only_In(3);
-    perform_regrab(buff, bufc, isep, SPACE_DELIM, isep_len, 1,
-		   player, fargs, nfargs, PCRE_CASELESS, 0);
-}
-
-FUNCTION(fun_regraball)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_Only_In_Out(4);
-    perform_regrab(buff, bufc, isep, osep, isep_len, osep_len,
-		   player, fargs, nfargs, 0, 1);
-}
-
-FUNCTION(fun_regraballi)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_Only_In_Out(4);
-    perform_regrab(buff, bufc, isep, osep, isep_len, osep_len,
-		   player, fargs, nfargs, PCRE_CASELESS, 1);
-}
-
 /* ---------------------------------------------------------------------------
  * fun_regmatch: Return 0 or 1 depending on whether or not a regular
  * expression matches a string. If a third argument is specified, dump
@@ -2420,13 +2351,9 @@ FUNCTION(fun_regraballi)
  *
  */
 
-static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
-    char *buff, **bufc;
-    dbref player;
-    char *fargs[];
-    int nfargs;
-    int case_option;
+FUNCTION(perform_regmatch)
 {
+    int case_option;
     int i, nqregs, curq;
     char *qregs[NUM_ENV_VARS];
     pcre *re;
@@ -2434,6 +2361,8 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
     int subpatterns; 
+
+    case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
 
     VaChk_Range(2, 3);
 
@@ -2490,16 +2419,6 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
     }
 
     XFREE(re, "perform_regmatch.re");
-}
-
-FUNCTION(fun_regmatch)
-{
-    perform_regmatch(buff, bufc, player, fargs, nfargs, 0);
-}
-
-FUNCTION(fun_regmatchi)
-{
-    perform_regmatch(buff, bufc, player, fargs, nfargs, PCRE_CASELESS);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2660,17 +2579,9 @@ FUNCTION(fun_until)
  * case-insensitive wildgrep, since all wildcard matches are caseless.)
  */
 
-#define GREP_EXACT	0
-#define GREP_WILD	1
-#define GREP_REGEXP	2
-
-static void perform_grep(buff, bufc, player, fargs, nfargs,
-			 grep_type, caseless)
-    char *buff, **bufc;
-    dbref player;
-    char *fargs[];
-    int nfargs, grep_type, caseless;
+FUNCTION(perform_grep)
 {
+    int grep_type, caseless;
     pcre *re = NULL;
     pcre_extra *study = NULL;
     const char *errptr;
@@ -2680,6 +2591,9 @@ static void perform_grep(buff, bufc, player, fargs, nfargs,
     int ca, aflags, alen;
     dbref thing, aowner;
     dbref it = match_thing(player, fargs[0]);
+
+    grep_type = ((FUN *)fargs[-1])->flags & REG_TYPE;
+    caseless = ((FUN *)fargs[-1])->flags & REG_CASELESS;
 
     if (it == NOTHING) {
 	safe_nomatch(buff, bufc);
@@ -2757,30 +2671,4 @@ static void perform_grep(buff, bufc, player, fargs, nfargs,
     if (study) {
 	XFREE(study, "perform_grep.study");
     }
-}
-
-FUNCTION(fun_grep)
-{
-    perform_grep(buff, bufc, player, fargs, nfargs, GREP_EXACT, 0);
-}
-
-FUNCTION(fun_grepi)
-{
-    perform_grep(buff, bufc, player, fargs, nfargs, GREP_EXACT, 1);
-}
-
-FUNCTION(fun_wildgrep)
-{
-    perform_grep(buff, bufc, player, fargs, nfargs, GREP_WILD, 0);
-}
-
-FUNCTION(fun_regrep)
-{
-    perform_grep(buff, bufc, player, fargs, nfargs, GREP_REGEXP, 0);
-}
-
-FUNCTION(fun_regrepi)
-{
-    perform_grep(buff, bufc, player, fargs, nfargs, GREP_REGEXP,
-		 PCRE_CASELESS);
 }

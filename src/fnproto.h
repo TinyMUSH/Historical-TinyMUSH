@@ -327,25 +327,13 @@ XFUNCTION(fun_swap);
 XFUNCTION(handle_pop);
 XFUNCTION(fun_popn);
 XFUNCTION(fun_lstack);
-XFUNCTION(fun_regedit);
-XFUNCTION(fun_regeditall);
-XFUNCTION(fun_regeditalli);
-XFUNCTION(fun_regediti);
+XFUNCTION(perform_regedit);
 XFUNCTION(fun_wildparse);
-XFUNCTION(fun_regparse);
-XFUNCTION(fun_regparsei);
-XFUNCTION(fun_regrab);
-XFUNCTION(fun_regraball);
-XFUNCTION(fun_regraballi);
-XFUNCTION(fun_regrabi);
-XFUNCTION(fun_regmatch);
-XFUNCTION(fun_regmatchi);
+XFUNCTION(perform_regparse);
+XFUNCTION(perform_regrab);
+XFUNCTION(perform_regmatch);
 XFUNCTION(fun_until);
-XFUNCTION(fun_grep);
-XFUNCTION(fun_grepi);
-XFUNCTION(fun_regrep);
-XFUNCTION(fun_regrepi);
-XFUNCTION(fun_wildgrep);
+XFUNCTION(perform_grep);
 
 /* *INDENT-OFF* */
 
@@ -453,8 +441,9 @@ FUN flist[] = {
 {"GET_EVAL",	perform_get,	1,  GET_EVAL,	CA_PUBLIC,	NULL},
 {"GRAB",	fun_grab,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"GRABALL",	fun_graball,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"GREP",	fun_grep,	3,  0,		CA_PUBLIC,	NULL},
-{"GREPI",	fun_grepi,	3,  0,		CA_PUBLIC,	NULL},
+{"GREP",	perform_grep,	3,  GREP_EXACT,	CA_PUBLIC,	NULL},
+{"GREPI",	perform_grep,	3,  GREP_EXACT|REG_CASELESS,
+						CA_PUBLIC,	NULL},
 {"GT",		fun_gt,		2,  0,		CA_PUBLIC,	NULL},
 {"GTE",		fun_gte,	2,  0,		CA_PUBLIC,	NULL},
 {"HASATTR",	fun_hasattr,	2,  0,		CA_PUBLIC,	NULL},
@@ -597,21 +586,31 @@ FUN flist[] = {
 {"RBORDER",	perform_border,	0,  FN_VARARGS|JUST_RIGHT,
 						CA_PUBLIC,	NULL},
 {"READ",	fun_read,	3,  0,		CA_PUBLIC,	NULL},
-{"REGEDIT",	fun_regedit,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGEDITALL",	fun_regeditall,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGEDITALLI",	fun_regeditalli, 0, FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGEDITI",	fun_regediti,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGRAB",	fun_regrab,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGRABALL",	fun_regraball,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGRABALLI",	fun_regraballi, 0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGRABI",	fun_regrabi,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGREP",	fun_regrep,	3,  0,		CA_PUBLIC,	NULL},
-{"REGREPI",	fun_regrepi,	3,  0,		CA_PUBLIC,	NULL},
-{"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"REGPARSE",	fun_regparse,	3,  0,		CA_PUBLIC,	NULL},
-{"REGPARSEI",	fun_regparsei,	3,  0,		CA_PUBLIC,	NULL},
+{"REGEDIT",	perform_regedit, 0, FN_VARARGS, CA_PUBLIC,	NULL},
+{"REGEDITALL",	perform_regedit, 0, FN_VARARGS|REG_MATCH_ALL,
+						CA_PUBLIC,	NULL},
+{"REGEDITALLI",	perform_regedit, 0, FN_VARARGS|REG_MATCH_ALL|REG_CASELESS,
+						CA_PUBLIC,	NULL},
+{"REGEDITI",	perform_regedit, 0, FN_VARARGS|REG_CASELESS,
+						CA_PUBLIC,	NULL},
+{"REGRAB",	perform_regrab,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"REGRABALL",	perform_regrab,	0,  FN_VARARGS|REG_MATCH_ALL,
+						CA_PUBLIC,	NULL},
+{"REGRABALLI",	perform_regrab, 0,  FN_VARARGS|REG_MATCH_ALL|REG_CASELESS,
+						CA_PUBLIC,	NULL},
+{"REGRABI",	perform_regrab,	0,  FN_VARARGS|REG_CASELESS,
+						CA_PUBLIC,	NULL},
+{"REGREP",	perform_grep,	3,  GREP_REGEXP,
+						CA_PUBLIC,	NULL},
+{"REGREPI",	perform_grep,	3,  GREP_REGEXP|REG_CASELESS,
+						CA_PUBLIC,	NULL},
+{"REGMATCH",	perform_regmatch, 0, FN_VARARGS,
+						CA_PUBLIC,	NULL},
+{"REGMATCHI",	perform_regmatch, 0, FN_VARARGS|REG_CASELESS,
+						CA_PUBLIC,	NULL},
+{"REGPARSE",	perform_regparse, 3, 0,		CA_PUBLIC,	NULL},
+{"REGPARSEI",	perform_regparse, 3, REG_CASELESS,
+						CA_PUBLIC,	NULL},
 {"REMAINDER",	fun_remainder,	2,  0,		CA_PUBLIC,	NULL},
 {"REMIT",	fun_remit,	2,  0,		CA_PUBLIC,	NULL},
 {"REMOVE",	fun_remove,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -728,7 +727,7 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC,	NULL},
 {"WHILE",	fun_while,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"WILDGREP",	fun_wildgrep,	3,  0,		CA_PUBLIC,	NULL},
+{"WILDGREP",	perform_grep,	3,  GREP_WILD,	CA_PUBLIC,	NULL},
 {"WILDMATCH",	fun_wildmatch,	3,  0,		CA_PUBLIC,	NULL},
 {"WILDPARSE",	fun_wildparse,	3,  0,		CA_PUBLIC,	NULL},
 {"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC,	NULL},

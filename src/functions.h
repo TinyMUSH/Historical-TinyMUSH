@@ -373,4 +373,16 @@ if ((l) > 0) { \
 #define POP_PEEK	0x1	/* don't remove item from stack */
 #define POP_TOSS	0x2	/* don't display item from stack */
 
+/* from perform_regedit (regedit, regediti, regeditall, regeditalli): */
+/* from perform_regparse (regparse, regparsei): */
+/* from perform_regrab (regrab, regrabi, regraball, regraballi): */
+/* from perform_regmatch (regmatch, regmatchi): */
+/* from perform_grep (grep, grepi, wildgrep, regrep, regrepi): */
+#define REG_CASELESS	0x1	/* XXX must equal PCRE_CASELESS */
+#define REG_MATCH_ALL	0x2
+#define REG_TYPE	0xc
+#define GREP_EXACT	0
+#define GREP_WILD	4
+#define GREP_REGEXP	8
+
 #endif /* __FUNCTIONS_H */
