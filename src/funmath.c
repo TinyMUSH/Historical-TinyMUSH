@@ -739,6 +739,11 @@ FUNCTION(fun_ladd)
     Delim isep;
     int isep_len;
 
+    if (nfargs == 0) {
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
     VaChk_Only_In(2);
 
     sum = 0;
