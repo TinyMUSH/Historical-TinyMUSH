@@ -847,7 +847,8 @@ CF_AHAND(cf_site)
 			  mask_bits);
 	    return -1;
 	} else {
-	    mask_num.s_addr = htonl(pow(2, 32) - pow(2, 32 - mask_bits));
+	    mask_num.s_addr = htonl(((unsigned int) pow(2, 32)) -
+				    ((unsigned int) pow(2, 32 - mask_bits)));
 	}
 
 	if ((addr_num.s_addr = sane_inet_addr(addr_txt)) == -1) {
