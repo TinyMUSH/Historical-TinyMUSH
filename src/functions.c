@@ -3811,7 +3811,7 @@ FUNCTION(fun_elock)
 		tbuf = atr_get(it, attr->number, &aowner, &aflags, &alen);
 		if ((aflags & AF_IS_LOCK) || 
 		    Read_attr(player, it, attr, aowner, aflags)) {
-		    if (Pass_Locks(player)) {
+		    if (Pass_Locks(victim)) {
 			safe_chr('1', buff, bufc);
 		    } else {
 			bool = parse_boolexp(player, tbuf, 1);
