@@ -640,68 +640,7 @@ FUNCTION(fun_center)
 
 FUNCTION(fun_left)
 {
-    char *s, *savep;
-    int nchars, len, count, have_normal;
-
-    s = fargs[0];
-    nchars = atoi(fargs[1]);
-    len = strip_ansi_len(s);
-
-    if ((len < 1) || (nchars < 1))
-	return;
-
-    have_normal = 1;
-    for (count = 0; *s && (count < nchars); ) {
-	if (*s == ESC_CHAR) {
-	    Skip_Ansi_Code(s, buff, bufc);
-	} else {
-	    safe_chr(*s, buff, bufc);
-	    s++;
-	    count++;
-	}
-    }
-
-    if (!have_normal)
-	safe_ansi_normal(buff, bufc);
-}
-
-FUNCTION(fun_right)
-{
-    char *s, *savep;
-    int nchars, start, len, count, have_normal;
-
-    s = fargs[0];
-    nchars = atoi(fargs[1]);
-    len = strip_ansi_len(s);
-    start = len - nchars;
-
-    if ((len < 1) || (nchars < 1))
-	return;
-
-    if (nchars > len)
-	start = 0;
-    else
-	start = len - nchars;
-
-    have_normal = 1;
-    for (count = 0; *s && (count < start + nchars); ) {
-	if (*s == ESC_CHAR) {
-	    Skip_Ansi_Code(s, buff, bufc);
-	} else {
-	    if (count >= start)
-		safe_chr(*s, buff, bufc);
-	    s++;
-	    count++;
-	}
-    }
-
-    if (!have_normal)
-	safe_ansi_normal(buff, bufc);
-}
-
-FUNCTION(fun_strtrunc)
-{
-    char *s, *savep;
+    char *s;
     int count, nchars;
     int ansi_state = ANST_NORMAL;
 
@@ -724,6 +663,45 @@ FUNCTION(fun_strtrunc)
     safe_copy_known_str(fargs[0], s - fargs[0], buff, bufc, (LBUF_SIZE - 1));
 
     safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL), buff, bufc);
+}
+
+FUNCTION(fun_right)
+{
+    char *s;
+    int count, start, nchars;
+    int ansi_state = ANST_NORMAL;
+
+    s = fargs[0];
+    nchars = atoi(fargs[1]);
+    start = strip_ansi_len(s) - nchars;
+
+    if (nchars <= 0)
+	return;
+
+    if (start < 0) {
+	nchars += start;
+	if (nchars <= 0)
+	    return;
+	start = 0;
+    }
+
+    while (*s == ESC_CHAR) {
+	track_esccode(s, ansi_state);
+    }
+
+    for (count = 0; (count < start) && *s; count++) {
+	++s;
+
+	while (*s == ESC_CHAR) {
+	    track_esccode(s, ansi_state);
+	}
+    }
+
+    if (*s) {
+	safe_str(ansi_transition_esccode(ANST_NORMAL, ansi_state), buff, bufc);
+    }
+
+    safe_str(s, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

@@ -676,7 +676,7 @@ FUN flist[] = {
 {"STRIPANSI",	fun_stripansi,	1,  0,		CA_PUBLIC},
 {"STRLEN",	fun_strlen,	-1, 0,		CA_PUBLIC},
 {"STRMATCH",	fun_strmatch,	2,  0,		CA_PUBLIC},
-{"STRTRUNC",    fun_strtrunc,   2,  0,          CA_PUBLIC},
+{"STRTRUNC",    fun_left,	2,  0,          CA_PUBLIC},
 {"STRUCTURE",	fun_structure,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SUB",		fun_sub,	2,  0,		CA_PUBLIC},
 {"SUBJ",	fun_subj,	1,  0,		CA_PUBLIC},
