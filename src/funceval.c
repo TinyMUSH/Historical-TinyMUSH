@@ -1099,26 +1099,12 @@ FUNCTION(fun_ifelse)
 
 FUNCTION(fun_inc)
 {
-	int number;
-
-	if (!is_number(fargs[0])) {
-		safe_str("#-1 ARGUMENT MUST BE A NUMBER", buff, bufc);
-		return;
-	}
-	number = atoi(fargs[0]);
-	safe_ltos(buff, bufc, (++number));
+	safe_ltos(buff, bufc, atoi(fargs[0]) + 1);
 }
 
 FUNCTION(fun_dec)
 {
-	int number;
-
-	if (!is_number(fargs[0])) {
-		safe_str("#-1 ARGUMENT MUST BE A NUMBER", buff, bufc);
-		return;
-	}
-	number = atoi(fargs[0]);
-	safe_ltos(buff, bufc, (--number));
+	safe_ltos(buff, bufc, atoi(fargs[0]) - 1);
 }
 
 #ifdef USE_MAIL
@@ -2256,231 +2242,31 @@ FUNCTION(fun_lit)
 /* shl() and shr() borrowed from PennMUSH 1.50 */
 FUNCTION(fun_shl)
 {
-	if (is_number(fargs[0]) && is_number(fargs[1]))
-		safe_ltos(buff, bufc, atoi(fargs[0]) << atoi(fargs[1]));
-	else
-		safe_str("#-1 ARGUMENTS MUST BE NUMBERS", buff, bufc);
+    safe_ltos(buff, bufc, atoi(fargs[0]) << atoi(fargs[1]));
 }
 
 FUNCTION(fun_shr)
 {
-	if (is_number(fargs[0]) && is_number(fargs[1]))
-		safe_ltos(buff, bufc, atoi(fargs[0]) >> atoi(fargs[1]));
-	else
-		safe_str("#-1 ARGUMENTS MUST BE NUMBERS", buff, bufc);
+    safe_ltos(buff, bufc, atoi(fargs[0]) >> atoi(fargs[1]));
+}
+
+FUNCTION(fun_band)
+{
+    safe_ltos(buff, bufc, atoi(fargs[0]) & atoi(fargs[1]));
+}
+
+FUNCTION(fun_bor)
+{
+    safe_ltos(buff, bufc, atoi(fargs[0]) | atoi(fargs[1]));
+}
+
+FUNCTION(fun_bnand)
+{
+    safe_ltos(buff, bufc, atoi(fargs[0]) & ~(atoi(fargs[1])));
 }
 
 /* ------------------------------------------------------------------------
- * Vector functions: VADD, VSUB, VMUL, VCROSS, VMAG, VUNIT, VDIM
- * Vectors are space-separated numbers.
  */
-
-/* Vector functions borrowed from PennMUSH 1.50 */
-#define MAXDIM	20
-
-FUNCTION(fun_vadd)
-{
-	char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
-	char vres[MAXDIM][LBUF_SIZE];
-	int n, m, i;
-	char sep;
-
-	varargs_preamble("VADD", 3);
-
-	/* split the list up, or return if the list is empty */
-	if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1]) {
-		return;
-	}
-	n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
-	m = list2arr(v2, LBUF_SIZE, fargs[1], sep);
-
-	if (n != m) {
-		safe_str("#-1 VECTORS MUST BE SAME DIMENSIONS", buff, bufc);
-		return;
-	}
-	if (n > MAXDIM) {
-		safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
-		return;
-	}
-	/* add it */
-	for (i = 0; i < n; i++) {
-		sprintf(vres[i], "%f", atof(v1[i]) + atof(v2[i]));
-		v1[i] = (char *)vres[i];
-	}
-
-	arr2list(v1, n, buff, bufc, sep);
-}
-
-FUNCTION(fun_vsub)
-{
-	char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
-	char vres[MAXDIM][LBUF_SIZE];
-	int n, m, i;
-	char sep;
-
-	varargs_preamble("VSUB", 3);
-
-	/* split the list up, or return if the list is empty */
-	if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1]) {
-		return;
-	}
-	n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
-	m = list2arr(v2, LBUF_SIZE, fargs[1], sep);
-
-	if (n != m) {
-		safe_str("#-1 VECTORS MUST BE SAME DIMENSIONS", buff, bufc);
-		return;
-	}
-	if (n > MAXDIM) {
-		safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
-		return;
-	}
-	/* sub it */
-	for (i = 0; i < n; i++) {
-		sprintf(vres[i], "%f", atof(v1[i]) - atof(v2[i]));
-		v1[i] = (char *)vres[i];
-	}
-
-	arr2list(v1, n, buff, bufc, sep);
-}
-
-FUNCTION(fun_vmul)
-{
-	char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
-	char vres[MAXDIM][LBUF_SIZE];
-	int n, m, i;
-	float scalar;
-	char sep;
-
-	varargs_preamble("VMUL", 3);
-
-	/* split the list up, or return if the list is empty */
-	if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1]) {
-		return;
-	}
-	n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
-	m = list2arr(v2, LBUF_SIZE, fargs[1], sep);
-
-	if ((n != 1) && (m != 1) && (n != m)) {
-		safe_str("#-1 VECTORS MUST BE SAME DIMENSIONS", buff, bufc);
-		return;
-	}
-	if (n > MAXDIM) {
-		safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
-		return;
-	}
-	/* multiply it - if n or m is 1, it's scalar multiplication by a
-	 * vector, otherwise it's a dot-product 
-	 */
-
-	if (n == 1) {
-		scalar = atof(v1[0]);
-		for (i = 0; i < m; i++) {
-			sprintf(vres[i], "%f", atof(v2[i]) * scalar);
-			v1[i] = (char *)vres[i];
-		}
-		n = m;
-	} else if (m == 1) {
-		scalar = atof(v2[0]);
-		for (i = 0; i < n; i++) {
-			sprintf(vres[i], "%f", atof(v1[i]) * scalar);
-			v1[i] = (char *)vres[i];
-		}
-	} else {
-		/* dot product */
-		scalar = 0;
-		for (i = 0; i < n; i++) {
-			scalar += atof(v1[i]) * atof(v2[i]);
-			v1[i] = (char *)vres[i];
-		}
-
-		safe_tprintf_str(buff, bufc, "%f", scalar);
-		return;
-	}
-
-	arr2list(v1, n, buff, bufc, sep);
-}
-
-FUNCTION(fun_vmag)
-{
-	char *v1[LBUF_SIZE];
-	int n, i;
-	float tmp, res = 0;
-	char sep;
-
-	varargs_preamble("VMAG", 2);
-
-	/* split the list up, or return if the list is empty */
-	if (!fargs[0] || !*fargs[0]) {
-		return;
-	}
-	n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
-
-	if (n > MAXDIM) {
-		safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
-		return;
-	}
-	/* calculate the magnitude */
-	for (i = 0; i < n; i++) {
-		tmp = atof(v1[i]);
-		res += tmp * tmp;
-	}
-
-	if (res > 0)
-		safe_tprintf_str(buff, bufc, "%f", sqrt(res));
-	else
-		safe_chr('0', buff, bufc);
-}
-
-FUNCTION(fun_vunit)
-{
-	char *v1[LBUF_SIZE];
-	char vres[MAXDIM][LBUF_SIZE];
-	int n, i;
-	float tmp, res = 0;
-	char sep;
-
-	varargs_preamble("VUNIT", 2);
-
-	/* split the list up, or return if the list is empty */
-	if (!fargs[0] || !*fargs[0]) {
-		return;
-	}
-	n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
-
-	if (n > MAXDIM) {
-		safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
-		return;
-	}
-	/* calculate the magnitude */
-	for (i = 0; i < n; i++) {
-		tmp = atof(v1[i]);
-		res += tmp * tmp;
-	}
-
-	if (res <= 0) {
-		safe_str("#-1 CAN'T MAKE UNIT VECTOR FROM ZERO-LENGTH VECTOR", buff, bufc);
-		return;
-	}
-	for (i = 0; i < n; i++) {
-		sprintf(vres[i], "%f", atof(v1[i]) / sqrt(res));
-		v1[i] = (char *)vres[i];
-	}
-
-	arr2list(v1, n, buff, bufc, sep);
-}
-
-FUNCTION(fun_vdim)
-{
-	char sep;
-
-	if (fargs == 0) {
-		safe_chr('0', buff, bufc);
-	} else {
-		varargs_preamble("VDIM", 2);
-		safe_ltos(buff, bufc, countwords(fargs[0], sep));
-	}
-}
 
 FUNCTION(fun_strcat)
 {

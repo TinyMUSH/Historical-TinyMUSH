@@ -104,12 +104,9 @@ XFUNCTION(fun_die);
 XFUNCTION(fun_lit);
 XFUNCTION(fun_shl);
 XFUNCTION(fun_shr);
-XFUNCTION(fun_vadd);
-XFUNCTION(fun_vsub);
-XFUNCTION(fun_vmul);
-XFUNCTION(fun_vmag);
-XFUNCTION(fun_vunit);
-XFUNCTION(fun_vdim);
+XFUNCTION(fun_band);
+XFUNCTION(fun_bor);
+XFUNCTION(fun_bnand);
 XFUNCTION(fun_strcat);
 XFUNCTION(fun_grep);
 XFUNCTION(fun_grepi);
@@ -454,8 +451,29 @@ double result;
 	}
 }
 #else
-#define fval(b,n)  ltos(b, n)
+#define fval(b,p,n)  safe_ltos(b,p,n)
 #endif
+
+static void fval_buf(buff, result)
+    char *buff;
+    double result;
+{
+    char *p;
+
+    sprintf(buff, "%.6f", result);      /* get double val into buffer */
+
+    /* remove useless trailing 0's */
+    if ((p = (char *) rindex(buff, '0')) == NULL)
+        return;
+    else if (*(p + 1) == '\0') {
+        while (*p == '0')
+            *p-- = '\0';
+    }
+
+    p = (char *) rindex(buff, '.');     /* take care of dangling '.' */
+    if (*(p + 1) == '\0')
+        *p = '\0';
+}
 
 /* ---------------------------------------------------------------------------
  * fn_range_check: Check # of args to a function with an optional argument
@@ -2361,7 +2379,246 @@ FUNCTION(fun_dist3d)
 	safe_ltos(buff, bufc, d);
 }
 
+/* ------------------------------------------------------------------------
+ * Vector functions: VADD, VSUB, VMUL, VCROSS, VMAG, VUNIT, VDIM
+ * Vectors are space-separated numbers.
+ */
 
+#define MAXDIM 20
+#define VADD_F 0
+#define VSUB_F 1
+#define VMUL_F 2
+#define VDOT_F 3
+#define VCROSS_F 4
+
+static void handle_vectors(vecarg1, vecarg2, buff, bufc, sep, osep, flag)
+    char *vecarg1;
+    char *vecarg2;
+    char *buff;
+    char **bufc;
+    char sep;
+    char osep;
+    int flag;
+{
+    char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
+    char vres[MAXDIM][LBUF_SIZE];
+    double scalar;
+    int n, m, i;
+
+    /*
+     * split the list up, or return if the list is empty 
+     */
+    if (!vecarg1 || !*vecarg1 || !vecarg2 || !*vecarg2) {
+	return;
+    }
+    n = list2arr(v1, LBUF_SIZE, vecarg1, sep);
+    m = list2arr(v2, LBUF_SIZE, vecarg2, sep);
+
+    /* It's okay to have vmul() be passed a scalar first or second arg,
+     * but everything else has to be same-dimensional.
+     */
+    if ((n != m) &&
+	!((flag == VMUL_F) && ((n == 1) || (m == 1)))) {
+	safe_str("#-1 VECTORS MUST BE SAME DIMENSIONS", buff, bufc);
+	return;
+    }
+    if (n > MAXDIM) {
+	safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
+	return;
+    }
+
+    switch (flag) {
+	case VADD_F:
+	    for (i = 0; i < n; i++) {
+		fval_buf(vres[i], atof(v1[i]) + atof(v2[i]));
+		v1[i] = (char *) vres[i];
+	    }
+	    arr2list(v1, n, buff, bufc, osep);
+	    return;
+	    /* NOTREACHED */
+	case VSUB_F:
+	    for (i = 0; i < n; i++) {
+		fval_buf(vres[i], atof(v1[i]) - atof(v2[i]));
+		v1[i] = (char *) vres[i];
+	    }
+	    arr2list(v1, n, buff, bufc, osep);
+	    return;
+	    /* NOTREACHED */
+	case VMUL_F:
+	    /* if n or m is 1, this is scalar multiplication.
+	     * otherwise, multiply elementwise.
+	     */
+	    if (n == 1) {
+		scalar = atof(v1[0]);
+		for (i = 0; i < m; i++) {
+		    fval_buf(vres[i], atof(v2[i]) * scalar);
+		    v1[i] = (char *) vres[i];
+		}
+		n = m;
+	    } else if (m == 1) {
+		scalar = atof(v2[0]);
+		for (i = 0; i < n; i++) {
+		    fval_buf(vres[i], atof(v1[i]) * scalar);
+		    v1[i] = (char *) vres[i];
+		}
+	    } else {
+		/* vector elementwise product.
+		 *
+		 * Note this is a departure from TinyMUX, but an imitation
+		 * of the PennMUSH behavior: the documentation in Penn
+		 * claims it's a dot product, but the actual behavior
+		 * isn't. We implement dot product separately!
+		 */
+		for (i = 0; i < n; i++) {
+		    fval_buf(vres[i], atof(v1[i]) * atof(v2[i]));
+		    v1[i] = (char *) vres[i];
+		}
+	    }
+	    arr2list(v1, n, buff, bufc, osep);
+	    return;
+	    /* NOTREACHED */
+	case VDOT_F:
+	    scalar = 0;
+	    for (i = 0; i < n; i++) {
+		scalar += atof(v1[i]) * atof(v2[i]);
+		v1[i] = (char *) vres[i];
+	    }
+	    fval(buff, bufc, scalar);
+	    return;
+	    /* NOTREACHED */
+	default:
+	    /* If we reached this, we're in trouble. */
+	    safe_str("#-1 UNIMPLEMENTED", buff, bufc);
+    }
+}
+
+FUNCTION(fun_vadd)
+{
+    char sep, osep;
+
+    svarargs_preamble("VADD", 4);
+    handle_vectors(fargs[0], fargs[1], buff, bufc, sep, osep, VADD_F);
+}
+
+FUNCTION(fun_vsub)
+{
+    char sep, osep;
+
+    svarargs_preamble("VSUB", 4);
+    handle_vectors(fargs[0], fargs[1], buff, bufc, sep, osep, VSUB_F);
+}
+
+FUNCTION(fun_vmul)
+{
+    char sep, osep;
+
+    svarargs_preamble("VMUL", 4);
+    handle_vectors(fargs[0], fargs[1], buff, bufc, sep, osep, VMUL_F);
+}
+
+FUNCTION(fun_vdot)
+{
+    /* dot product: (a,b,c) . (d,e,f) = ad + be + cf
+     * 
+     * no cross product implementation yet: it would be
+     * (a,b,c) x (d,e,f) = (bf - ce, cd - af, ae - bd)
+     */
+
+    char sep, osep;
+
+    svarargs_preamble("VDOT", 4);
+    handle_vectors(fargs[0], fargs[1], buff, bufc, sep, osep, VDOT_F);
+}
+
+FUNCTION(fun_vmag)
+{
+    char *v1[LBUF_SIZE];
+    int n, i;
+    double tmp, res = 0;
+    char sep;
+
+    varargs_preamble("VMAG", 2);
+
+    /*
+     * split the list up, or return if the list is empty 
+     */
+    if (!fargs[0] || !*fargs[0]) {
+	return;
+    }
+    n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
+
+    if (n > MAXDIM) {
+	safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
+	return;
+    }
+    /*
+     * calculate the magnitude 
+     */
+    for (i = 0; i < n; i++) {
+	tmp = atof(v1[i]);
+	res += tmp * tmp;
+    }
+
+    if (res > 0)
+	fval(buff, bufc, sqrt(res));
+    else
+	safe_str("0", buff, bufc);
+}
+
+FUNCTION(fun_vunit)
+{
+    char *v1[LBUF_SIZE];
+    char vres[MAXDIM][LBUF_SIZE];
+    int n, i;
+    double tmp, res = 0;
+    char sep;
+
+    varargs_preamble("VUNIT", 2);
+
+    /*
+     * split the list up, or return if the list is empty 
+     */
+    if (!fargs[0] || !*fargs[0]) {
+	return;
+    }
+    n = list2arr(v1, LBUF_SIZE, fargs[0], sep);
+
+    if (n > MAXDIM) {
+	safe_str("#-1 TOO MANY DIMENSIONS ON VECTORS", buff, bufc);
+	return;
+    }
+    /*
+     * calculate the magnitude 
+     */
+    for (i = 0; i < n; i++) {
+	tmp = atof(v1[i]);
+	res += tmp * tmp;
+    }
+
+    if (res <= 0) {
+	safe_str("#-1 CAN'T MAKE UNIT VECTOR FROM ZERO-LENGTH VECTOR",
+		 buff, bufc);
+	return;
+    }
+    for (i = 0; i < n; i++) {
+	fval_buf(vres[i], atof(v1[i]) / sqrt(res));
+	v1[i] = (char *) vres[i];
+    }
+
+    arr2list(v1, n, buff, bufc, sep);
+}
+
+FUNCTION(fun_vdim)
+{
+    char sep;
+
+    if (fargs == 0)
+	safe_str("0", buff, bufc);
+    else {
+	varargs_preamble("VDIM", 2);
+	safe_ltos(buff, bufc, countwords(fargs[0], sep));
+    }
+}
 
 /* ---------------------------------------------------------------------------
  * fun_comp: string compare.
@@ -4897,8 +5154,11 @@ FUN flist[] = {
 {"ART",		fun_art,	1,  0,		CA_PUBLIC},
 {"ASIN",	fun_asin,	1,  0,		CA_PUBLIC},
 {"ATAN",	fun_atan,	1,  0,		CA_PUBLIC},
+{"BAND",	fun_band,	2,  0,		CA_PUBLIC},
 {"BEEP",        fun_beep,       0,  0,          CA_WIZARD},
 {"BEFORE",	fun_before,	0,  FN_VARARGS,	CA_PUBLIC},
+{"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC},
+{"BOR",		fun_bor,	2,  0,		CA_PUBLIC},
 {"CAPSTR",	fun_capstr,	-1, 0,		CA_PUBLIC},
 {"CAT",		fun_cat,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CEIL",	fun_ceil,	1,  0,		CA_PUBLIC},
@@ -5135,6 +5395,7 @@ FUN flist[] = {
 {"VADD",	fun_vadd,	0,  FN_VARARGS,	CA_PUBLIC},
 {"VALID",	fun_valid,	2,  FN_VARARGS, CA_PUBLIC},
 {"VDIM",	fun_vdim,	0,  FN_VARARGS,	CA_PUBLIC},
+{"VDOT",	fun_vdot,	0,  FN_VARARGS,	CA_PUBLIC},
 {"VERSION",	fun_version,	0,  0,		CA_PUBLIC},
 {"VISIBLE",	fun_visible,	2,  0,		CA_PUBLIC},
 {"VMAG",	fun_vmag,	0,  FN_VARARGS,	CA_PUBLIC},
