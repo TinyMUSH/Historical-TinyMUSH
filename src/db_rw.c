@@ -383,9 +383,14 @@ FILE *f;
 dbref i;
 int new_strings;
 {
-	dbref atr, aowner;
-	int c, aflags, xflags, anum;
-	char *buff, *buf2, *buf2p, *ownp, *flagp;
+	dbref atr;
+	int c;
+	char *buff;
+#ifdef STANDALONE
+	int aflags, xflags, anum;
+	char *buf2, *buf2p, *ownp, *flagp;
+	dbref aowner;
+#endif
 
 	buff = alloc_lbuf("get_list");
 	while (1) {
@@ -619,7 +624,7 @@ FLAG *flags1, *flags2, *flags3;
 dbref thing;
 int db_format, db_version;
 {
-	FLAG f1, f2, f3, newf1, newf2, newf3, temp;
+	FLAG f1, f2, f3, newf1, newf2, newf3;
 
 	f1 = *flags1;
 	f2 = *flags2;
@@ -1062,17 +1067,18 @@ static void fix_mux_zones()
 #ifdef STANDALONE
 static void fix_typed_quotas()
 {
-	/* If we have a pre-2.2 database, only the QUOTA and RQUOTA
+	/* If we have a pre-2.2 or MUX database, only the QUOTA and RQUOTA
 	 * attributes  exist. For simplicity's sake, we assume that players
 	 * will have the  same quotas for all types, equal to the current
 	 * value. This is  going to produce incorrect values for RQUOTA;
 	 * this is easily fixed  by a @quota/fix done from within-game. 
-
-	 *    If we have a early beta 2.2 release, we have quotas which are
+	 *
+	 * If we have a early beta 2.2 release, we have quotas which are
 	 * spread out over ten attributes. We're going to have to grab
-	 * those, make the new quotas, and then delete the old attributes. */
+	 * those, make the new quotas, and then delete the old attributes.
+	 */
 
-	int i, quota, rquota, tq, trq;
+	int i;
 	char *qbuf, *rqbuf;
 
 #ifdef BETA_QUOTAS
@@ -1318,7 +1324,7 @@ FILE *f;
 int *db_format, *db_version, *db_flags;
 {
 	dbref i, anum;
-	char ch, peek;
+	char ch;
 	const char *tstr;
 	int header_gotten, size_gotten, nextattr_gotten;
 	int read_attribs, read_name, read_zone, read_link, read_key, read_parent;
@@ -1332,6 +1338,7 @@ int *db_format, *db_version, *db_flags;
 	int read_dark_givelock, read_dark_getlock;
 	int read_dark_threepow, penn_version;
 	int read_muse_parents, read_muse_atrdefs;
+	char peek;
 #endif
 	int read_powers, read_powers_player, read_powers_any;
 	int has_typed_quotas;

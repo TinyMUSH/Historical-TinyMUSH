@@ -31,8 +31,12 @@
 #include	<sys/types.h>
 #endif
 
-extern struct Obj *dddb_get();
-extern void logf();
+extern struct Obj * FDECL(dddb_get, (Objname *));
+extern void VDECL(logf, (char *, ...));
+extern int FDECL(dddb_del, (Objname *));
+extern int FDECL(dddb_put, (Obj *, Objname *));
+extern void VDECL(fatal, (char *, ...));
+extern void FDECL(log_db_err, (int, int, const char *));
 
 extern void FDECL(raw_notify, (dbref, const char *));
 

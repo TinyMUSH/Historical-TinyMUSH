@@ -22,6 +22,7 @@
 extern int FDECL(a_Queue, (dbref, int));
 extern void FDECL(s_Queue, (dbref, int));
 extern int FDECL(QueueMax, (dbref));
+extern dbref FDECL(match_thing, (dbref, char *));
 
 /* ---------------------------------------------------------------------------
  * add_to: Adjust an object's queue or semaphore count.

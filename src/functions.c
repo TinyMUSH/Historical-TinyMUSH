@@ -44,6 +44,8 @@ extern dbref FDECL(get_programmer, (dbref));
 extern char * FDECL(get_doing, (dbref));
 extern dbref FDECL(find_connected_ambiguous, (dbref, char *));
 
+extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
+
 /* Function definitions from funceval.c */
 
 #define	XFUNCTION(x)	\
@@ -2238,7 +2240,6 @@ FUNCTION(fun_landbool)
 
 FUNCTION(fun_lmax)
 {
-    int i;
     NVAL max, val;
     char *cp, *curr, sep;
 
@@ -2260,7 +2261,6 @@ FUNCTION(fun_lmax)
 
 FUNCTION(fun_lmin)
 {
-    int i;
     NVAL min, val;
     char *cp, *curr, sep;
 

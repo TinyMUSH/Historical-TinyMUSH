@@ -21,6 +21,9 @@
 
 #include "comsys.h"
 
+extern dbref FDECL(match_thing, (dbref, char *));
+int FDECL(do_test_access, (dbref, long, struct channel *));
+
 void load_comsys(filename)
 char *filename;
 {
@@ -387,6 +390,7 @@ char *alias;
 	first = 0;
 	last = c->numchannels - 1;
 	dir = 1;
+	current = 0;
 
 	while (dir && (first <= last)) {
 		current = (first + last) / 2;
@@ -700,27 +704,31 @@ struct channel *ch;
 
 	raw_notify(player, "-- Players --");
 	for (user = ch->on_users; user; user = user->on_next) {
-		if (Typeof(user->who) == TYPE_PLAYER)
-			if (Connected(user->who) && (!Hidden(user->who) || See_Hidden(player))) {
-				if (user->on) {
-					buff = unparse_object(player, user->who, 0);
-					raw_notify(player, tprintf("%s", buff));
-					free_lbuf(buff);
-				}
-			} else if (!Hidden(user->who))
-				do_comdisconnectchannel(user->who, ch->name);
+	    if (Typeof(user->who) == TYPE_PLAYER) {
+		if (Connected(user->who) &&
+		    (!Hidden(user->who) || See_Hidden(player))) {
+		    if (user->on) {
+			buff = unparse_object(player, user->who, 0);
+			raw_notify(player, tprintf("%s", buff));
+			free_lbuf(buff);
+		    }
+		} else if (!Hidden(user->who)) {
+		    do_comdisconnectchannel(user->who, ch->name);
+		}
+	    }
 	}
 	raw_notify(player, "-- Objects --");
 	for (user = ch->on_users; user; user = user->on_next) {
-		if (Typeof(user->who) != TYPE_PLAYER)
-			if ((Going(user->who)) &&
-			    (God(Owner(user->who))))
-				do_comdisconnectchannel(user->who, ch->name);
-			else if (user->on) {
-				buff = unparse_object(player, user->who, 0);
-				raw_notify(player, tprintf("%s", buff));
-				free_lbuf(buff);
-			}
+	    if (Typeof(user->who) != TYPE_PLAYER) {
+		if ((Going(user->who)) &&
+		    (God(Owner(user->who))))
+		    do_comdisconnectchannel(user->who, ch->name);
+		else if (user->on) {
+		    buff = unparse_object(player, user->who, 0);
+		    raw_notify(player, tprintf("%s", buff));
+		    free_lbuf(buff);
+		}
+	    }
 	}
 	raw_notify(player, tprintf("-- %s --", ch->name));
 }
@@ -1371,14 +1379,16 @@ int i;
 		     user && user->who != player;
 		     user = user->on_next) ;
 
-		if (!user)
-			if ((user = select_user(ch, player))) {
-				user->on_next = ch->on_users;
-				ch->on_users = user;
-			} else
-				raw_notify(player,
-					   tprintf("Bad Comsys Alias: %s for Channel: %s",
-						   alias + i * 6, channel));
+		if (!user) {
+		    if ((user = select_user(ch, player))) {
+			user->on_next = ch->on_users;
+			ch->on_users = user;
+		    } else {
+			raw_notify(player,
+				   tprintf("Bad Comsys Alias: %s for Channel: %s",
+					   alias + i * 6, channel));
+		    }
+		}
 	} else
 		raw_notify(player, tprintf("Bad Comsys Alias: %s for Channel: %s",
 					   alias + i * 6, channel));

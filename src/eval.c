@@ -86,12 +86,14 @@ int eval;
 		switch (*cstr) {
 		case '\\':	/* general escape */
 		case '%':	/* also escapes chars */
-			if ((*cstr == '\\') && (eval & EV_STRIP_ESC))
+		        if ((*cstr == '\\') && (eval & EV_STRIP_ESC)) {
 				cstr++;
-			else
+			} else {
 				NEXTCHAR;
-			if (*cstr)
+			}
+			if (*cstr) {
 				NEXTCHAR;
+			}
 			first = 0;
 			break;
 		case ']':

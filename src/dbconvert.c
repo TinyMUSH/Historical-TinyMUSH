@@ -236,4 +236,5 @@ char *argv[];
 		db_write(stdout, F_TINYMUSH, db_ver | db_flags);
 	}
 	CLOSE;
+	exit(0);
 }

@@ -17,6 +17,9 @@
 #include "powers.h"
 #include "match.h"
 
+extern void FDECL(cf_log_syntax, (dbref, char *, const char *, char *));
+extern void FDECL(cf_log_notfound, (dbref, char *, const char *, char *));
+
 #ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
@@ -181,11 +184,12 @@ int fflags, reset;
 {
 	int could_hear;
 
-	if (isPlayer(target) && (flag & MONITOR))
+	if (isPlayer(target) && (flag & MONITOR)) {
 		if (Can_Monitor(player))
 			fh_any(target, player, flag, fflags, reset);
 		else
 			return 0;
+	}
 
 	could_hear = Hearer(target);
 	fh_any(target, player, flag, fflags, reset);
@@ -715,7 +719,6 @@ CF_HAND(cf_flag_access)
 {
     char *fstr, *permstr;
     FLAGENT *fp;
-    int flagnum = -1;
 
     fstr = strtok(str, " \t=,");
     permstr = strtok(NULL, " \t=,");

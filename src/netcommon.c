@@ -10,6 +10,8 @@
 #include "autoconf.h"
 
 #include <time.h>
+#include <math.h>
+
 #include "db.h"
 #include "mudconf.h"
 #include "file_c.h"
@@ -35,6 +37,15 @@ extern void FDECL(do_makeid, (DESC *));
 extern void FDECL(do_connectid, (DESC *, long int, char *));
 extern void FDECL(do_killid, (DESC *, long int));
 
+#endif
+
+#ifdef USE_COMSYS
+extern void FDECL(do_comconnect, (dbref));
+extern void FDECL(do_comdisconnect, (dbref));
+#endif
+
+#ifdef USE_MAIL
+extern void FDECL(do_mail_purge, (dbref));
 #endif
 
 /* ---------------------------------------------------------------------------
@@ -654,8 +665,10 @@ DESC *d;
 	if (num < 2) {
 		sprintf(buf, "%s has connected.", Name(player));
 
+#ifdef USE_COMSYS
 		if (mudconf.have_comsys)
 			do_comconnect(player);
+#endif
 
 		if (Hidden(player)) {
 			raw_broadcast(MONITOR,
@@ -795,11 +808,15 @@ const char *reason;
 		notify_check(player, player, buf, key);
 		free_mbuf(buf);
 
+#ifdef USE_COMSYS
 		if (mudconf.have_comsys)
 			do_comdisconnect(player);
+#endif
 
+#ifdef USE_MAIL
 		if (mudconf.have_mailer)
 			do_mail_purge(player);
+#endif
 
 		raw_broadcast(MONITOR, (char *)"GAME: %s has disconnected.", Name(player), 0, 0, 0, 0, 0);
 

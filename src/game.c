@@ -39,6 +39,7 @@ extern void NDECL(init_version);
 extern void NDECL(init_logout_cmdtab);
 extern void NDECL(init_timer);
 extern void FDECL(raw_notify, (dbref, char *));
+extern void FDECL(raw_notify_html, (dbref, char *));
 extern void NDECL(do_second);
 extern void FDECL(do_dbck, (dbref, dbref, int));
 extern void NDECL(boot_slave);
@@ -48,6 +49,24 @@ void NDECL(dump_database);
 void NDECL(pcache_sync);
 void FDECL(dump_database_internal, (int));
 static void NDECL(init_rlimit);
+extern int FDECL(add_helpfile, (dbref, char *));
+extern void NDECL(vattr_init);
+extern void NDECL(load_restart_db);
+extern int NDECL(sql_init);
+extern void NDECL(sql_shutdown);
+
+#ifndef MEMORY_BASED
+extern int NDECL(dddb_optimize);
+#endif
+
+#ifdef USE_MAIL
+extern void NDECL(check_mail_expiration);
+#endif
+
+#ifdef USE_COMSYS
+extern void FDECL(load_comsys, (char *));
+extern void FDECL(save_comsys, (char *));
+#endif
 
 #ifdef CONCENTRATE
 int conc_pid = 0;
@@ -908,6 +927,7 @@ void do_timecheck(player, cause, key)
 {
     int yes_screen, yes_log, yes_clear;
 
+    yes_screen = yes_log = yes_clear = 0;
 
     if (key == 0) {
         /* No switches, default to printing to screen and clearing counters */
@@ -1022,9 +1042,12 @@ int dump_type;
 				   mudconf.crashdb);
 		}
 #ifdef USE_MAIL
-		if (f = fopen(mudconf.mail_db, "w")) {
-			dump_mail(f);
-			fclose(f);
+		if ((f = fopen(mudconf.mail_db, "w")) != NULL) {
+		    dump_mail(f);
+		    fclose(f);
+		} else {
+		    log_perror("DMP", "FAIL", "Opening mail file",
+			       mudconf.mail_db);
 		}
 #endif
 #ifdef USE_COMSYS
@@ -1050,9 +1073,12 @@ int dump_type;
 				   mudconf.indb);
 		}
 #ifdef USE_MAIL
-		if (f = fopen(mudconf.mail_db, "w")) {
-			dump_mail(f);
-			fclose(f);
+		if ((f = fopen(mudconf.mail_db, "w")) != NULL) {
+		    dump_mail(f);
+		    fclose(f);
+		} else {
+		    log_perror("DMP", "FAIL", "Opening mail file",
+			       mudconf.mail_db);
 		}
 #endif
 #ifdef USE_COMSYS
@@ -1073,9 +1099,12 @@ int dump_type;
 				   mudconf.indb);
 		}
 #ifdef USE_MAIL
-		if (f = fopen(mudconf.mail_db, "w")) {
-			dump_mail(f);
-			fclose(f);
+		if ((f = fopen(mudconf.mail_db, "w")) != NULL) {
+		    dump_mail(f);
+		    fclose(f);
+		} else {
+		    log_perror("DMP", "FAIL", "Opening mail file",
+			       mudconf.mail_db);
 		}
 #endif
 #ifdef USE_COMSYS
@@ -1131,9 +1160,11 @@ int dump_type;
 
 #ifndef STANDALONE
 #ifdef USE_MAIL
-	if (f = fopen(mudconf.mail_db, "w")) {
-		dump_mail(f);
-		fclose(f);
+	if ((f = fopen(mudconf.mail_db, "w")) != NULL) {
+	    dump_mail(f);
+	    fclose(f);
+	} else {
+	    log_perror("SAV", "FAIL", "Opening", mudconf.mail_db);
 	}
 #endif
 #ifdef USE_COMSYS
@@ -1177,7 +1208,9 @@ int key;
 
 	if (*mudconf.dump_msg)
 		raw_broadcast(0, "%s", mudconf.dump_msg);
+#ifdef USE_MAIL
 	check_mail_expiration();
+#endif
 	mudstate.epoch++;
 	mudstate.dumping = 1;
 	buff = alloc_mbuf("fork_and_dump");

@@ -30,6 +30,12 @@ char subbuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
 char timebuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
 
 extern char *FDECL(getstring_noalloc, (FILE *, int));
+extern void FDECL(putstring, (FILE *, const char *));
+extern int FDECL(do_convtime, (char *, struct tm *));
+extern void FDECL(init_match, (dbref, const char *, int));
+extern void NDECL(match_absolute);
+extern dbref NDECL(match_result);
+
 static int FDECL(sign, (int));
 static void FDECL(do_mail_flags, (dbref, char *, mail_flag, int));
 static void FDECL(send_mail, (dbref, dbref, const char *, const char *, \
@@ -164,7 +170,10 @@ static int add_mail_message(player, message)
 dbref player;
 char *message;
 {
-	int number, len;
+	int number;
+#ifdef RADIX_COMPRESSION
+	int len;
+#endif
 	char *atrstr, *execstr, *msg, *bp, *str;
 	int aflags;
 	dbref aowner;
@@ -219,7 +228,10 @@ char *message;
 static int add_mail_message_nosig(message)
 char *message;
 {
-	int number, len;
+	int number;
+#ifdef RADIX_COMPRESSION
+	int len;
+#endif
 
 	number = mudstate.mail_freelist;
 	if (!mudstate.mail_list) {
@@ -1101,7 +1113,9 @@ int silent;
 	struct mail *mp;
 	time_t tt;
 	char tbuf1[30];
+#ifdef RADIX_COMPRESSION
 	int len;
+#endif
 
 	if (Typeof(target) != TYPE_PLAYER) {
 		notify(player, "MAIL: You cannot send mail to non-existent people.");
@@ -1283,9 +1297,12 @@ char *name;
 int full;
 {
 	dbref target, thing;
-	int fc, fr, fu, tc, tr, tu, fchars, tchars, cchars, count, len;
+	int fc, fr, fu, tc, tr, tu, fchars, tchars, cchars, count;
 	char last[50];
 	struct mail *mp;
+#ifdef RADIX_COMPRESSION
+	int len;
+#endif
 
 	fc = fr = fu = tc = tr = tu = cchars = fchars = tchars = count = 0;
 
@@ -1719,8 +1736,10 @@ FILE *fp;
 	int read_newdb = 0;
 	int read_new_strings = 0;
 	int number = 0;
-	int len;
 	struct mail *mp, *mptr;
+#ifdef RADIX_COMPRESSION
+	int len;
+#endif
 
 	/*
 	 * Read the version number 
@@ -2380,7 +2399,7 @@ void check_mail_expiration()
 		string_decompress(mp->time, timebuff);
 		if (do_convtime(timebuff, &then_tm))
 #else
-		if (do_convtime(mp->time, &then_tm))
+		if (do_convtime((char *) mp->time, &then_tm))
 #endif
 		{
 			then = timelocal(&then_tm);

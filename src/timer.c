@@ -23,6 +23,7 @@ extern void NDECL(do_second);
 extern void FDECL(fork_and_dump, (int key));
 extern unsigned int FDECL(alarm, (unsigned int seconds));
 extern void NDECL(pcache_trim);
+extern void NDECL(check_events);
 
 void NDECL(init_timer)
 {

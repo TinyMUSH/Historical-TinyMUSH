@@ -4,6 +4,8 @@
 #include "copyright.h"
 #include "autoconf.h"
 
+#include <math.h>
+
 #include "mudconf.h"
 #include "db.h"
 #include "externs.h"
@@ -810,7 +812,7 @@ CF_AHAND(cf_site)
     SITE *site, *last, *head;
     char *addr_txt, *mask_txt;
     struct in_addr addr_num, mask_num;
-    int i, mask_bits;
+    int mask_bits;
 
     if ((mask_txt = (char *) index(str, '/')) == NULL) {
 

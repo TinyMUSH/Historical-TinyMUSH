@@ -19,6 +19,7 @@
 #include "powers.h"
 
 extern void FDECL(destroy_player, (dbref));
+extern void FDECL(do_lock, (dbref, dbref, int, char *, char *));
 typedef int object_flag_type;
 
 dbref create_guest(name, password)

@@ -31,10 +31,17 @@ extern dbref FDECL(match_thing, (dbref, char *));
 extern int FDECL(countwords, (char *, char));
 extern int FDECL(check_read_perms, (dbref, dbref, ATTR *, int, int, char *, char **));
 extern void FDECL(arr2list, (char **, int, char *, char **, char));
+extern int FDECL(list2arr, (char **, int, char *, char));
 extern void FDECL(make_portlist, (dbref, dbref, char *, char **));
 extern INLINE char *FDECL(get_mail_message, (int));
+extern void FDECL(count_mail, (dbref, int, int *, int *, int *));
 extern double NDECL(makerandom);
+extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
+extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, dbref, dbref, char **, int));
 
+extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
+extern char *FDECL(upcasestr, (char *));
+extern void FDECL(do_pemit_list, (dbref, char *, const char *, int));
 
 /* This is the prototype for functions */
 
@@ -1235,14 +1242,14 @@ FUNCTION(fun_create)
 		if (check_command(player, "@create", buff, bufc)) {
 			return;
 		}
-		if (fargs[1] && *fargs[1])
-			cost = atoi(fargs[1]);
-
-		if (cost < mudconf.createmin || cost > mudconf.createmax) {
+		if (fargs[1] && *fargs[1]) {
+		    cost = atoi(fargs[1]);
+		    if (cost < mudconf.createmin || cost > mudconf.createmax) {
 			safe_str("#-1 COST OUT OF RANGE", buff, bufc);
 			return;
+		    }
 		} else {
-			cost = mudconf.createmin;
+		    cost = mudconf.createmin;
 		}
 		thing = create_obj(player, TYPE_THING, name, cost);
 		if (thing != NOTHING) {
@@ -1420,25 +1427,27 @@ FUNCTION(fun_zwho)
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
-	for (i = 0; i < mudstate.db_top; i++)
-		if (Typeof(i) == TYPE_PLAYER)
-			if (Zone(i) == it)
-				if (len) {
-					smbuf = alloc_sbuf("fun_zwho");
-
-					sprintf(smbuf, " #%d", i);
-					if ((strlen(smbuf) + len) > 990) {
-						safe_str(" #-1", buff, bufc);
-						free_sbuf(smbuf);
-						return;
-					}
-					safe_str(smbuf, buff, bufc);
-					len += strlen(smbuf);
-					free_sbuf(smbuf);
-				} else {
-					safe_tprintf_str(buff, bufc, "#%d", i);
-					len = strlen(buff);
-				}
+	for (i = 0; i < mudstate.db_top; i++) {
+	    if (Typeof(i) == TYPE_PLAYER) {
+		if (Zone(i) == it) {
+		    if (len) {
+			smbuf = alloc_sbuf("fun_zwho");
+			sprintf(smbuf, " #%d", i);
+			if ((strlen(smbuf) + len) > 990) {
+			    safe_str(" #-1", buff, bufc);
+			    free_sbuf(smbuf);
+			    return;
+			}
+			safe_str(smbuf, buff, bufc);
+			len += strlen(smbuf);
+			free_sbuf(smbuf);
+		    } else {
+			safe_tprintf_str(buff, bufc, "#%d", i);
+			len = strlen(buff);
+		    }
+		}
+	    }
+	}
 }
 
 /* Borrowed from DarkZone */
@@ -1452,25 +1461,27 @@ FUNCTION(fun_inzone)
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
-	for (i = 0; i < mudstate.db_top; i++)
-		if (Typeof(i) == TYPE_ROOM)
-			if (db[i].zone == it)
-				if (len) {
-					smbuf = alloc_sbuf("fun_inzone");;
-
-					sprintf(smbuf, " #%d", i);
-					if ((strlen(smbuf) + len) > 990) {
-						safe_str(" #-1", buff, bufc);
-						free_sbuf(smbuf);
-						return;
-					}
-					safe_str(smbuf, buff, bufc);
-					len += strlen(smbuf);
-					free_sbuf(smbuf);
-				} else {
-					safe_tprintf_str(buff, bufc, "#%d", i);
-					len = strlen(buff);
-				}
+	for (i = 0; i < mudstate.db_top; i++) {
+	    if (Typeof(i) == TYPE_ROOM) {
+		if (db[i].zone == it) {
+		    if (len) {
+			smbuf = alloc_sbuf("fun_inzone");;
+			sprintf(smbuf, " #%d", i);
+			if ((strlen(smbuf) + len) > 990) {
+			    safe_str(" #-1", buff, bufc);
+			    free_sbuf(smbuf);
+			    return;
+			}
+			safe_str(smbuf, buff, bufc);
+			len += strlen(smbuf);
+			free_sbuf(smbuf);
+		    } else {
+			safe_tprintf_str(buff, bufc, "#%d", i);
+			len = strlen(buff);
+		    }
+		}
+	    }
+	}
 }
 
 /* Borrowed from DarkZone */
@@ -1484,24 +1495,25 @@ FUNCTION(fun_children)
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
-	for (i = 0; i < mudstate.db_top; i++)
-		if (Parent(i) == it)
-			if (len) {
-				smbuf = alloc_sbuf("fun_children");
-
-				sprintf(smbuf, " #%d", i);
-				if ((strlen(smbuf) + len) > 990) {
-					safe_str(" #-1", buff, bufc);
-					free_sbuf(smbuf);
-					return;
-				}
-				safe_str(smbuf, buff, bufc);
-				len += strlen(smbuf);
-				free_sbuf(smbuf);
-			} else {
-				safe_tprintf_str(buff, bufc, "#%d", i);
-				len = strlen(buff);
-			}
+	for (i = 0; i < mudstate.db_top; i++) {
+	    if (Parent(i) == it) {
+		if (len) {
+		    smbuf = alloc_sbuf("fun_children");
+		    sprintf(smbuf, " #%d", i);
+		    if ((strlen(smbuf) + len) > 990) {
+			safe_str(" #-1", buff, bufc);
+			free_sbuf(smbuf);
+			return;
+		    }
+		    safe_str(smbuf, buff, bufc);
+		    len += strlen(smbuf);
+		    free_sbuf(smbuf);
+		} else {
+		    safe_tprintf_str(buff, bufc, "#%d", i);
+		    len = strlen(buff);
+		}
+	    }
+	}
 }
 
 FUNCTION(fun_objeval)

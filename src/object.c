@@ -23,6 +23,13 @@
 
 static int check_type;
 
+extern int FDECL(boot_off, (dbref, char *));
+
+#ifdef USE_MAIL
+extern void FDECL(do_mail_clear, (dbref, char *));
+extern void FDECL(do_mail_purge, (dbref));
+#endif
+
 #ifndef STANDALONE
 extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
@@ -201,6 +208,8 @@ dbref player, thing;
 	return new_home(player);
 }
 
+#ifndef STANDALONE
+
 /* ---------------------------------------------------------------------------
  * update_newobjs: Update a player's most-recently-created objects.
  */
@@ -289,8 +298,6 @@ static int ok_exit_name(name)
  * create_obj: Create an object of the indicated type IF the player can
  * afford it.
  */
-
-#ifndef STANDALONE
 
 dbref create_obj(player, objtype, name, cost)
 dbref player;
@@ -829,8 +836,10 @@ dbref victim;
 	free_lbuf(buf);
 
 	move_via_generic(victim, NOTHING, player, 0);
+#ifdef USE_MAIL
 	do_mail_clear(victim, NULL);
 	do_mail_purge(victim);
+#endif
 	destroy_obj(NOTHING, victim);
 	notify_quiet(player, tprintf("(%d objects @chowned to you)", count));
 #endif

@@ -1230,7 +1230,7 @@ char *name;
 	}
 	free_lbuf(temp);
 
-	if (!control)
+	if (!control) {
 		if (mudconf.read_rem_name) {
 			buf2 = alloc_lbuf("do_examine.pub_name");
 			strcpy(buf2, Name(thing));
@@ -1243,6 +1243,7 @@ char *name;
 			       tprintf("Owned by %s",
 				       Name(Owner(thing))));
 		}
+	}
 }
 
 void do_score(player, cause, key)

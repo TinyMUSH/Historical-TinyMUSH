@@ -25,6 +25,8 @@
 #include "malloc.h"
 #endif
 
+extern int FDECL(decode_power, (dbref, char *, POWERSET *));
+
 /*
  * Bind occurances of the universal var in ACTION to ARG, then run ACTION.
  * * Cmds run in low-prio Q after a 1 sec delay for the first one. 

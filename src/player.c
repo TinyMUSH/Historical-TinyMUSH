@@ -47,6 +47,14 @@ char *crypt(const char *inptr, const char *inkey)
 
 extern time_t FDECL(time, (time_t *));
 
+#ifdef USE_MAIL
+extern void FDECL(check_mail, (dbref, int, int));
+#endif
+
+#ifdef USE_COMSYS
+extern void FDECL(do_addcom, (dbref, dbref, int, char *, char *));
+#endif
+
 /* ---------------------------------------------------------------------------
  * decrypt_logindata, encrypt_logindata: Decode and encode login info.
  */
@@ -163,8 +171,10 @@ char *ldate, *lhost, *lusername;
 				       login_info.good[0].host,
 				       login_info.good[0].dtm));
 		}
+#ifdef USE_MAIL
 		if (mudconf.have_mailer)
 			check_mail(player, 0, 0);
+#endif
 		for (i = NUM_GOOD - 1; i > 0; i--) {
 			login_info.good[i].dtm = login_info.good[i - 1].dtm;
 			login_info.good[i].host = login_info.good[i - 1].host;
@@ -293,15 +303,20 @@ int isrobot, isguest;
 		return NOTHING;
 	}
 	/* initialize everything */
-	if (isguest) {
+
+#ifdef USE_COMSYS
+	if (mudconf.have_comsys) {
+	    if (isguest) {
 		if (*mudconf.guests_channel)
 			do_addcom(player, player, 0, mudconf.guests_calias,
 				  mudconf.guests_channel);
-	} else {
+	    } else {
 		if (*mudconf.public_channel)
 			do_addcom(player, player, 0, mudconf.public_calias,
 				  mudconf.public_channel);
+	    }
 	}
+#endif
 
 	s_Pass(player, crypt(pbuf, "XX"));
 	s_Home(player, start_home());

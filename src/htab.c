@@ -5,10 +5,16 @@
 #include "autoconf.h"
 
 #ifndef STANDALONE
+
 #include "db.h"
 #include "externs.h"
 #include "htab.h"
 #include "alloc.h"
+
+#else
+
+extern char * FDECL(strsave, (const char *));
+
 #endif /* STANDALONE */
 
 #include "mudconf.h"

@@ -20,6 +20,12 @@
 #include "interface.h"
 #include "flags.h"
 
+#ifdef USE_COMSYS
+extern void FDECL(do_clearcom, (dbref, dbref, int));
+extern void FDECL(do_channelnuke, (dbref));
+extern void FDECL(del_comsys, (dbref));
+#endif
+
 #ifndef O_ACCMODE
 #define O_ACCMODE	(O_RDONLY|O_WRONLY|O_RDWR)
 #endif
@@ -2929,9 +2935,11 @@ dbref player, thing;
 void toast_player(player)
 dbref player;
 {
-	do_clearcom(player);
+#ifdef USE_COMSYS
+	do_clearcom(player, GOD, 0);
 	do_channelnuke(player);
 	del_comsys(player);
+#endif
 }
 
 #else

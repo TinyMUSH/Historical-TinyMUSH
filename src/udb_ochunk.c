@@ -48,7 +48,13 @@ static GDBM_FILE dbp = (GDBM_FILE) 0;
 
 static datum dat;
 static datum key;
-static datum nextkey;
+
+int FDECL(dddb_del, (Objname *));
+int FDECL(dddb_put, (Obj *, Objname *));
+extern int FDECL(obj_siz, (Obj *));
+extern void VDECL(fatal, (char *, ...));
+extern void VDECL(logf, (char *, ...));
+extern void FDECL(log_db_err, (int, int, const char *));
 
 /* gdbm_reorganize compresses unused space in the db */
 
@@ -66,10 +72,8 @@ char *mesg;
 int dddb_init()
 {
 	static char *copen = "db_init cannot open ";
-	char fnam[MAXPATHLEN];
 	char *gdbm_error;
-	struct stat sbuf;
-	int fxp, block_size;
+	int block_size;
 
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
 
@@ -83,7 +87,7 @@ int dddb_init()
 	return (0);
 }
 
-dddb_setfile(fil)
+int dddb_setfile(fil)
 char *fil;
 {
 	char *xp;
@@ -114,8 +118,6 @@ Obj *dddb_get(nam)
 Objname *nam;
 {
 	Obj *ret;
-	char *bp;
-	int i;
 	
 	if (!db_initted)
 		return ((Obj *) 0);

@@ -48,6 +48,7 @@ extern long NDECL(make_concid);
 extern void NDECL(dispatch);
 extern void NDECL(dump_restart_db);
 extern void FDECL(dump_database_internal, (int));
+extern void FDECL(fork_and_dump, (int));
 int sock;
 int ndescriptors = 0;
 int maxd = 0;

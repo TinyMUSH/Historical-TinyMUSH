@@ -4,6 +4,9 @@
 #include "autoconf.h"
 
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include "mudconf.h"
 #include "config.h"
 #include "db.h"
@@ -23,13 +26,17 @@ extern dbref FDECL(match_thing, (dbref, char *));
 extern int FDECL(do_command, (DESC *, char *, int));
 extern void NDECL(dump_database);
 extern void NDECL(dump_restart_db);
+extern void FDECL(dump_database_internal, (int));
 extern int slave_pid;
 extern int slave_socket;
 extern CMDENT *prefix_cmds[256];
 extern void FDECL(load_quota, (int *, dbref, int));
 extern void FDECL(save_quota, (int *, dbref, int));
+
+#ifndef STANDALONE
 static int FDECL(type_quota, (int));
 static int FDECL(pay_quota, (dbref, int, int));
+#endif
 
 #ifdef NEED_VSPRINTF_DCL
 extern char *FDECL(vsprintf, (char *, char *, va_list));
@@ -1327,7 +1334,7 @@ void do_restart(player, cause, key)
 	 */
 	shutdown(slave_socket, 2);
 	kill(slave_pid, SIGKILL);
-	waitpid(slave_pid, NULL, NULL);
+	waitpid(slave_pid, (int *) NULL, (int) NULL);
 
 	alarm(0);
 	dump_restart_db();

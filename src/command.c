@@ -25,6 +25,15 @@ extern void FDECL(list_siteinfo, (dbref));
 extern void FDECL(logged_out, (dbref, dbref, int, char *));
 extern void NDECL(boot_slave);
 extern void NDECL(vattr_clean_db);
+extern void NDECL(match_zone_exit);
+
+#ifndef MEMORY_BASED
+extern void FDECL(list_cached_objs, (dbref));
+#endif
+
+#ifdef USE_COMSYS
+extern int FDECL(do_comsystem, (dbref, char *));
+#endif
 
 #define CACHING "object"
 
@@ -436,7 +445,7 @@ NAMETAB warp_sw[] = {
  */
 
 CMDENT command_table[] = {
-{(char *)"@@",			NULL,		0,
+{(char *)"@@",			NULL,		CA_PUBLIC,
 	0,		CS_NO_ARGS,		
 	NULL,			NULL,		do_comment},
 {(char *)"@addcommand",		NULL,		CA_GOD,
@@ -522,7 +531,7 @@ CMDENT command_table[] = {
 {(char *)"@dbclean",		NULL,		CA_GOD,
 	0,		CS_NO_ARGS,		
 	NULL,			NULL,		do_dbclean},
-{(char *)"@decompile",		decomp_sw,		0,
+{(char *)"@decompile",		decomp_sw,		CA_PUBLIC,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_decomp},
 {(char *)"@delcommand",		NULL,		CA_GOD,
@@ -577,7 +586,7 @@ CMDENT command_table[] = {
 	CA_LOCATION|CA_NO_GUEST|CA_NO_SLAVE,
 	PEMIT_FEMIT,	CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_pemit},
-{(char *)"@find",		NULL,		0,
+{(char *)"@find",		NULL,		CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_find},
 {(char *)"@fixdb",		fixdb_sw,	CA_GOD,
@@ -615,7 +624,7 @@ CMDENT command_table[] = {
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_link},
-{(char *)"@list",		NULL,		0,
+{(char *)"@list",		NULL,		CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_list},
 {(char *)"@listcommands",		NULL,		CA_GOD,
@@ -624,7 +633,7 @@ CMDENT command_table[] = {
 {(char *)"@list_file",		NULL,		CA_WIZARD,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_list_file},
-{(char *)"@listmotd",		listmotd_sw,	0,
+{(char *)"@listmotd",		listmotd_sw,	CA_PUBLIC,
 	MOTD_LIST,	CS_ONE_ARG,		
 	NULL,			NULL,		do_motd},
 {(char *)"@lock",		lock_sw,	CA_NO_SLAVE,
@@ -692,16 +701,16 @@ CMDENT command_table[] = {
 {(char *)"@poor",		NULL,		CA_GOD,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_poor},
-{(char *)"@power",		NULL,		0,
+{(char *)"@power",		NULL,		CA_PUBLIC,
 	0,		CS_TWO_ARG,		
 	NULL,			NULL,		do_power},
 {(char *)"@program",		NULL,		CA_PUBLIC,
 	0,		CS_TWO_ARG|CS_INTERP,		
 	NULL,			NULL,		do_prog},
-{(char *)"@ps",			ps_sw,		0,
+{(char *)"@ps",			ps_sw,		CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_ps},
-{(char *)"@quota",		quota_sw,	0,
+{(char *)"@quota",		quota_sw,	CA_PUBLIC,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_quota},
 {(char *)"@quitprogram",	NULL,		CA_PUBLIC,
@@ -717,7 +726,7 @@ CMDENT command_table[] = {
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_NO_GUEST|CA_PLAYER,
 	PCRE_ROBOT,	CS_TWO_ARG,		
 	NULL,			NULL,		do_pcreate},
-{(char *)"@search",		NULL,		0,
+{(char *)"@search",		NULL,		CA_PUBLIC,
 	SRCH_SEARCH,	CS_ONE_ARG|CS_NOINTERP,	
 	NULL,			NULL,		do_search},
 {(char *)"@set",		set_sw,
@@ -736,13 +745,13 @@ CMDENT command_table[] = {
 {(char *)"@sqldisconnect",	NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,
 	NULL,			NULL,		sql_shutdown},
-{(char *)"@stats",		stats_sw,	0,
+{(char *)"@stats",		stats_sw,	CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_stats},
 {(char *)"@startslave",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,			
 	NULL,			NULL,		boot_slave},
-{(char *)"@sweep",		sweep_sw,	0,
+{(char *)"@sweep",		sweep_sw,	CA_PUBLIC,
 	0,		CS_ONE_ARG,		
 	NULL,			NULL,		do_sweep},
 {(char *)"@switch",		switch_sw,	CA_GBL_INTERP,
@@ -810,7 +819,7 @@ CMDENT command_table[] = {
 {(char *)"enter",		enter_sw,	CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_enter},
-{(char *)"examine",		examine_sw,	0,
+{(char *)"examine",		examine_sw,	CA_PUBLIC,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_examine},
 {(char *)"get",			get_sw,		CA_LOCATION|CA_NO_GUEST,
@@ -822,7 +831,7 @@ CMDENT command_table[] = {
 {(char *)"goto",		goto_sw,	CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_move},
-{(char *)"inventory",		NULL,		0,
+{(char *)"inventory",		NULL,		CA_PUBLIC,
 	LOOK_INVENTORY,	CS_NO_ARGS,		
 	NULL,			NULL,		do_inventory},
 {(char *)"kill",		NULL,		CA_NO_GUEST|CA_NO_SLAVE,
@@ -843,7 +852,7 @@ CMDENT command_table[] = {
 {(char *)"say",			NULL,		CA_LOCATION|CA_NO_SLAVE,
 	SAY_SAY,	CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_say},
-{(char *)"score",		NULL,		0,
+{(char *)"score",		NULL,		CA_PUBLIC,
 	LOOK_SCORE,	CS_NO_ARGS,		
 	NULL,			NULL,		do_score},
 {(char *)"slay",		NULL,		CA_WIZARD,
@@ -855,7 +864,7 @@ CMDENT command_table[] = {
 {(char *)"use",			NULL,		CA_NO_SLAVE|CA_GBL_INTERP,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_use},
-{(char *)"version",		NULL,		0,
+{(char *)"version",		NULL,		CA_PUBLIC,
 	0,		CS_NO_ARGS,		
 	NULL,			NULL,		do_version},
 {(char *)"whisper",		NULL,		CA_LOCATION|CA_NO_SLAVE,
