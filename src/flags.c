@@ -738,7 +738,7 @@ CF_HAND(cf_flag_name)
     char *numstr, *namestr;
     FLAGENT *fp;
     int flagnum = -1;
-    char *flagstr;
+    char *flagstr, *cp;
 
     numstr = strtok(str, " \t=,");
     namestr = strtok(NULL, " \t=,");
@@ -765,12 +765,19 @@ CF_HAND(cf_flag_name)
      * the time.
      */
 
-    flagstr = (char *) strdup(tprintf("_%s", namestr));
+    flagstr = (char *) strsave(tprintf("_%s", namestr));
+    for (cp = flagstr; cp && *cp; cp++)
+	*cp = ToLower(*cp);
+
     if (hashfind(flagstr, &mudstate.flags_htab)) {
 	free(flagstr);
 	cf_log_syntax(player, cmd, "Marker flag name in use: %s", namestr);
 	return -1;
     }
+    hashadd(flagstr, (int *) fp, &mudstate.flags_htab);
+
+    for (cp = flagstr; cp && *cp; cp++)
+	*cp = ToUpper(*cp);
 
     fp->flagname = (const char *) flagstr;
     return 0;
