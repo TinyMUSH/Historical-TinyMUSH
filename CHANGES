@@ -181,6 +181,13 @@ the other have been listed in the conversion notes for both servers.
 
 - Added force(), trigger(), and wait() functions. Evil, but useful.
 
+- iter() and list() can now be nested, and the nesting level can be
+  obtained with '#!'. This changes the way parsing is done on both
+  functions, and may affect the manner in which arguments to these
+  functions should be escaped. For backwards compatibility, parse()
+  works like the old iter() (unchanged behavior), and the new loop()
+  function works like list() used to.
+
 - The ladd(), lmin(), lmax(), lor(), land(), lorbool() and landbool()
   functions operate on lists, eliminating the necessity to fold() elements
   through their non-list counterparts.
@@ -221,6 +228,9 @@ the other have been listed in the conversion notes for both servers.
 - streq() does a case-insensitive comparison of two strings, returning 0 or 1.
 
 - switchall() returns the string results from all cases that match.
+
+- switch() and switchall() can nest the '#$' token, and the nesting
+  level is available with '#!'.
 
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.
