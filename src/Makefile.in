@@ -88,6 +88,7 @@ VPATH = @srcdir@
 BIN = ../game/bin
 CC = @CC@
 CPP = @CPP@
+CPP_DEP = @CPP_DEP@
 LIBTOOL = @LIBTOOL@
 LIBS = @LIBS@
 LIBADD_DL = @LIBADD_DL@
@@ -136,9 +137,9 @@ VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
 
 # Compilation source files
 ALL_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S) \
-	  $(AUX_S) $(MOD_S)
+	  $(AUX_S)
 
-ALL_I	= $(D_I) $(UDB_I) $(VER_I) $(MOD_I)
+ALL_I	= $(D_I) $(UDB_I) $(VER_I)
 
 MUSH_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S)
 MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
@@ -147,8 +148,7 @@ MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
 OUT	= netmush mkindx slave recover
 
 depend: $(ALL_S) unsplit Makefile
-	for i in $(ALL_S); do $(CPP) $(ALLCFLAGS) @CPP_DEP@ $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
-
+	for i in $(ALL_S); do $(CPP) $(ALLCFLAGS) $(CPP_DEP) $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
 	mv .depend~ .depend
 	touch depend
 
@@ -171,7 +171,7 @@ install-modules:
 .c.o:
 	$(CC) $(ALLCFLAGS) -c $<
 
-$(VER_O): $(VER_S) $(MUSH_S) $(ALL_I)
+$(VER_O): $(VER_S) $(MUSH_S) $(ALL_I) $(MOD_S) $(MOD_I)
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $<
 
 conc: portconc.o

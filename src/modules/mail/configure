@@ -521,6 +521,8 @@ else
 fi
 
 
+MODNAME=mail
+
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
@@ -665,6 +667,7 @@ s%@includedir@%$includedir%g
 s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
+s%@MODNAME@%$MODNAME%g
 
 CEOF
 EOF

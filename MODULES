@@ -35,18 +35,18 @@ The directory must use the same name as the shared object files your
 code produces. The shared objects for modules go in the game/modules
 directory. 
 
-In your module's source directory you should have at least 4 files:
-configure.in, configure, Makefile.inc.in, and a C source file. Your
-best bet to get started is to make a copy of the 'hello' module
-source, substitute your own code for hello.c, and modify
+In your module's source directory you should have at least 5 files:
+configure.in, configure, Makefile.inc.in, .depend, and a C source
+file. Your best bet to get started is to make a copy of the 'hello'
+module source, substitute your own code for hello.c, and modify
 Makefile.inc.in appropriately. More advanced module code might make
 use of a customized configure script and Makefile, but that is beyond
 the scope of this document.
 
 NOTE: You must change the AC_INIT macro at the top of your module's
-configure.in to reference one of your C source files (it doesn't matter
-which one as long as it exists) and then regenerate the configure script
-using the GNU autoconf utility. Please see:
+configure.in to reference one of your C source files (it doesn't
+matter which one as long as it exists) and then regenerate the
+configure script using the GNU autoconf utility. Please see:
 
 http://www.gnu.org/software/autoconf/autoconf.html
 
