@@ -423,10 +423,12 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			   (mudconf.dark_sleepers && isPlayer(x) && \
 			    !Connected(x) && !Puppet(x))) && \
 			 ((l) ? Sees(p,x) : Sees_In_Dark(p,x)) && \
-			 (Are_Real(p,x) || Will_See(p,x)))
+			 ((!Unreal(p) || Check_Known(x,p)) && \
+			  (!Unreal(x) || Check_Knows(p,x))))
 
 #define Can_See_Exit(p,x,l)	(!Darkened(p,x) && (!(l) || Light(x)) && \
-				 (Are_Real(p,x) || Will_See(p,x)))
+				 ((!Unreal(p) || Check_Known(x,p)) && \
+				  (!Unreal(x) || Check_Knows(x,p))))
 				 
 
 /* For exits visible (for lexits(), etc.), this is true if we can examine
@@ -544,8 +546,11 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Visibility abstractions */
 
 #define Are_Real(p,t)		(!(Unreal(p) || Unreal(t)))
-#define Will_Hear(t,p)		(could_doit((t),(p),A_LHEARD))
-#define Will_Notice(t,p)	(could_doit((t),(p),A_LMOTION))
-#define Will_See(t,p)		(could_doit((t),(p),A_LKNOWN))
+#define Check_Heard(t,p)	(could_doit((t),(p),A_LHEARD))
+#define Check_Noticed(t,p)	(could_doit((t),(p),A_LMOTION))
+#define Check_Known(t,p)	(could_doit((t),(p),A_LKNOWN))
+#define Check_Hears(p,t)	(could_doit((p),(t),A_LHEARS))
+#define Check_Notices(p,t)	(could_doit((p),(t),A_LGOES))
+#define Check_Knows(p,t)	(could_doit((p),(t),A_LKNOWS))
 
 #endif /* __FLAGS_H */
