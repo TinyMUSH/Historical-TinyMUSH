@@ -183,6 +183,7 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     qres = mysql_store_result(mysql);
     got_rows = mysql_num_rows(qres);
     if (got_rows == 0) {
+	mysql_free_result(qres);
 	return 0;
     }
 
