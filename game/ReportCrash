@@ -54,29 +54,37 @@ total_frames=`expr $num_frames + 1`
 echo
 echo "Generating debugger script..."
 
-echo 'echo \\n########## Stack trace\\n' > gdb_script.$$
+echo 'echo ~########## Stack trace~' > gdb_script.$$
 echo "where" >> gdb_script.$$
-echo 'echo \\n########## Current frame\\n' >> gdb_script.$$
+echo 'echo ~########## Current frame~' >> gdb_script.$$
 echo "info frame" >> gdb_script.$$
-echo 'echo \\n### Arguments\\n' >> gdb_script.$$
+echo 'echo ~### Arguments~' >> gdb_script.$$
 echo "info args" >> gdb_script.$$
-echo 'echo \\n### Locals\\n' >> gdb_script.$$
+echo 'echo ~### Locals~' >> gdb_script.$$
 echo "info locals" >> gdb_script.$$
 
 i=1
 while [ $i -lt $total_frames ]; do
-    echo 'echo \\n########## Next Frame Up\\n' >> gdb_script.$$
+    echo 'echo ~########## Next Frame Up~' >> gdb_script.$$
     echo "up" >> gdb_script.$$
-    echo 'echo \\n### Arguments\\n' >> gdb_script.$$
+    echo 'echo ~### Arguments~' >> gdb_script.$$
     echo "info args" >> gdb_script.$$
-    echo 'echo \\n### Locals\\n' >> gdb_script.$$
+    echo 'echo ~### Locals~' >> gdb_script.$$
     echo "info locals" >> gdb_script.$$
     i=`expr $i + 1`
 done
 
-echo 'echo \\n########## End of backtrace\n' >> gdb_script.$$
+echo 'echo ~########## End of backtrace~' >> gdb_script.$$
 
 echo "quit" >> gdb_script.$$
+
+# Some operating systems eat echo backslashes. This ensures consistency.
+
+nl_sub='\\n'
+sed "s/~/$nl_sub/g" < gdb_script.$$ > gdb_mod.$$
+mv -f gdb_mod.$$ gdb_script.$$
+
+# Go do it.
 
 echo
 echo "Dumping the contents of $total_frames stack frames..."
