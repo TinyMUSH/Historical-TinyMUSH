@@ -300,6 +300,7 @@ extern NAME *names;
 				db[t].flags3 |= DIRTY
 #define s_Modified(t)		db[t].last_mod = mudstate.now; \
 				db[t].flags3 |= DIRTY
+#define s_Clean(t)		db[t].flags3 = db[t].flags3 & ~DIRTY
 #define s_NameLen(t,n)		db[t].name_length = (n)
 #define	s_Home(t,n)		s_Link(t,n)
 #define	s_Dropto(t,n)		s_Location(t,n)

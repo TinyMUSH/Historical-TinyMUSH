@@ -1081,6 +1081,7 @@ int db_read()
 			}
 			
 			XFREE(data, "dddb_get");
+			s_Clean(i);
 		}
 	}	
 
@@ -1199,7 +1200,7 @@ int db_format, flags;
 		/* Write the object only if it's dirty, and clear the
 		 * dirty flag */
 		
-		s_Flags3(i, Flags3(i) & ~DIRTY);
+		s_Clean(i);
 #endif		
 		/* DBREF is our key */
 		
