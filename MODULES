@@ -608,7 +608,7 @@ void mod_<name>_db_write_flatfile(FILE *f)
 	Dump flat text database specific to module, called during the backup
 	db conversion process (the 'Backup' script). This is identical to
 	the 'dump_database' hook except it is ONLY called during database
-	conversion.
+	conversion and flatfile generation (IE, @dump/flatfile).
 
 It is important to note that register_dbtype() must be called at the
 beginning of each of these four functions since module initialization DOES
