@@ -29,7 +29,6 @@
 
 extern void NDECL(init_attrtab);
 extern void NDECL(init_cmdtab);
-extern void NDECL(init_chantab);
 extern void NDECL(cf_init);
 extern void NDECL(pcache_init);
 extern int FDECL(cf_read, (char *fn));
@@ -64,6 +63,7 @@ extern void NDECL(check_mail_expiration);
 #endif
 
 #ifdef USE_COMSYS
+extern void NDECL(init_chantab);
 extern void FDECL(load_comsys, (char *));
 extern void FDECL(save_comsys, (char *));
 #endif
@@ -1594,7 +1594,9 @@ char *argv[];
 	cf_init();
 	init_rlimit();
 	init_cmdtab();
+#ifdef USE_COMSYS
 	init_chantab();
+#endif
 	init_logout_cmdtab();
 	init_flagtab();
 	init_powertab();

@@ -24,6 +24,9 @@
     extern void FDECL(name, (dbref, dbref, int, char *, char *[], int, char*[], int))
 
 /* Command function handlers */
+
+#ifdef USE_COMSYS
+
 /* from comsys.c */
 
 CMD_TWO_ARG(do_cemit);			/* channel emit */
@@ -42,7 +45,8 @@ CMD_NO_ARG(do_comlist);                 /* channel who by alias */
 CMD_TWO_ARG(do_comtitle);               /* sets a title on a channel */
 CMD_NO_ARG(do_clearcom);                /* clears all comaliases */
 CMD_ONE_ARG(do_delcom);                 /* deletes a comalias */
-CMD_TWO_ARG(do_tapcom);                 /* taps a channel */
+
+#endif
 
 /* from mail.c */
 

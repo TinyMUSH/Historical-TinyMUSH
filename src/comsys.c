@@ -19,6 +19,8 @@
 #include "flags.h"
 #include "powers.h"
 
+#ifdef USE_COMSYS
+
 #include "comsys.h"
 
 extern dbref FDECL(match_thing, (dbref, char *));
@@ -1895,3 +1897,5 @@ int key;
 	free_mbuf(buf);
 	raw_notify(player, "-- End of list of Channels --");
 }
+
+#endif /* USE_COMSYS */

@@ -466,6 +466,7 @@ CMDENT command_table[] = {
 {(char *)"@boot",		boot_sw,	CA_NO_GUEST|CA_NO_SLAVE,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_boot},
+#ifdef USE_COMSYS
 {(char *)"@cboot",              NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_TWO_ARG,          
 	NULL,			NULL,		do_chboot},
@@ -481,9 +482,10 @@ CMDENT command_table[] = {
 {(char *)"@cdestroy",           NULL,           CA_NO_SLAVE|CA_NO_GUEST,
         0,               CS_ONE_ARG,          
 	NULL,			NULL,		do_destroychannel},
-{(char *)"@cemit",		cemit_sw,		CA_NO_SLAVE|CA_NO_GUEST,
+{(char *)"@cemit",		cemit_sw,	CA_NO_SLAVE|CA_NO_GUEST,
 	0,		 CS_TWO_ARG,		
 	NULL,			NULL,		do_cemit},
+#endif /* USE_COMSYS */
 {(char *)"@chown",		NULL,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	CHOWN_ONE,	CS_TWO_ARG|CS_INTERP,	
@@ -499,32 +501,40 @@ CMDENT command_table[] = {
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_CONTENTS|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_clone},
+#ifdef USE_COMSYS
 {(char *)"@clist",              clist_sw,       CA_NO_SLAVE,
         0,              CS_NO_ARGS,           
 	NULL,			NULL,		do_chanlist},
 {(char *)"@coflags",            NULL,           CA_NO_SLAVE,
         4,              CS_TWO_ARG,           
 	NULL,			NULL,		do_editchannel},
+#endif
 {(char *)"@cpattr",             NULL,           
          CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
          0,             CS_TWO_ARG|CS_ARGV,   
 	NULL,			NULL,		do_cpattr},
+#ifdef USE_COMSYS
 {(char *)"@cpflags",            NULL,           CA_NO_SLAVE,
         3,              CS_TWO_ARG,           
 	NULL,			NULL,		do_editchannel},
+#endif
 {(char *)"@create",		NULL,
 	CA_NO_SLAVE|CA_GBL_BUILD|CA_CONTENTS|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_create},
+#ifdef USE_COMSYS
 {(char *)"@cset",               cset_sw,        CA_NO_SLAVE,
         0,              CS_TWO_ARG|CS_INTERP, 
 	NULL,			NULL,		do_chopen},
+#endif
 {(char *)"@cut",		NULL,		CA_WIZARD|CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_cut},
+#ifdef USE_COMSYS
 {(char *)"@cwho",               NULL,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
 	NULL,			NULL,		do_channelwho},
+#endif
 {(char *)"@dbck",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
 	NULL,			NULL,		do_dbck},
@@ -794,6 +804,7 @@ CMDENT command_table[] = {
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_wipe},
+#ifdef USE_COMSYS
 {(char *)"addcom",              NULL,           CA_NO_SLAVE,
         0,              CS_TWO_ARG,           
 	NULL,			NULL,		do_addcom},
@@ -812,6 +823,7 @@ CMDENT command_table[] = {
 {(char *)"delcom",              NULL,           CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
 	NULL,			NULL,		do_delcom},
+#endif
 {(char *)"drop",		drop_sw,
 	CA_NO_SLAVE|CA_CONTENTS|CA_LOCATION|CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,	
