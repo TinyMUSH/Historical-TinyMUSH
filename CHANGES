@@ -5,6 +5,10 @@ TinyMUSH 2.2 and TinyMUX line-by-line, is too extensive and complex to
 readily be listed here. Therefore, only user-visible or otherwise
 highly significant changes are noted here.
 
+Note that these are only changes that are completely new to both
+TinyMUSH 2.2 and TinyMUX; enhancements that were in one server but not
+the other have been listed in the conversion notes for both servers.
+
 
 - Build script allows "single-step" configuration, build, and installation.
 
@@ -16,6 +20,9 @@ highly significant changes are noted here.
 - GNU dbm 1.8.0 is required. Database code has been rewritten to take
   advantage of its features. Dumps are now automatically optimized, and
   you may safely back up the MUSH while it is running.
+
+- An interface to an external mSQL database is now supported, through
+  the SQL() function and supporting administrative commands.
 
 - There is now a generic indexed-textfile facility, allowing 'news'-like
   commands and their associated files to be specified via the 'helpfile'
