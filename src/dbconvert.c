@@ -230,6 +230,9 @@ char *argv[];
 
 	if (!(setflags & V_GDBM)) {
 		db_read();
+		db_format = F_TINYMUSH;
+		db_ver = OUTPUT_VERSION;
+		db_flags = OUTPUT_FLAGS;
 	}else {
 		db_convert(stdin, &db_format, &db_ver, &db_flags);
 	}
