@@ -2,11 +2,12 @@
 #
 #	Archive - Build a tarfile of things we'd want to back up.
 #		  Includes mush.config, the main conf file, a flatfile,
-#		  the comsys and mail databases, and text files with a
+#		  the various module databases, and text files with a
 #		  .txt extension that are not help, wizhelp, or mushman.txt
 #		  Symbolic links are copied, not followed. 
 #
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
+LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH
 #
 . mush.config
 #
@@ -27,7 +28,7 @@ fi
 #	Make a flatfile.
 #
 if [ -r $DATA/$GDBM_DB ]; then
-    $BIN/dbconvert $DATA/$GDBM_DB x > $FLATFILE
+    $BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB > $FLATFILE
 else
     echo "No db. Backup attempt failed."
     exit 1
@@ -36,7 +37,7 @@ fi
 #	Gather and archive.
 #
 TXTFILES=`ls $TEXT/*.txt | egrep -v '(help|wizhelp|mushman).txt'`
-ALLFILES="$FLATFILE $DATA/comsys.db $DATA/mail.db mush.config $GAMENAME.conf $TXTFILES"
+ALLFILES="$FLATFILE $DATA/mod_*.db mush.config $GAMENAME.conf $TXTFILES"
 #
 echo "Archiving..."
 tar -chvf - $ALLFILES | $ZIP -c > $OUTFILE
