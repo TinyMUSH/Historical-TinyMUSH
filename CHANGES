@@ -27,6 +27,8 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   USE_MAIL #ifdef's and the have_comsys and have_mailer conf directives
   are no longer needed.
 
+- @list memory gives a breakdown of the memory used by various constructs.
+
 - Many changes and improvements to caching.
 
   - Instead of starting the cache at some fixed width and depth, and
@@ -144,7 +146,7 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   be set globally via @attribute and the like, thus reducing confusion.
 
 - Named references ("nrefs"), which behave like aliases for dbrefs, 
-  in the form of '#_<name>' are now supported.
+  in the form of '#_<name>' are now supported. Nrefs are globally unique.
 
 -----------------------------------------------------------------------------
 
