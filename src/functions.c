@@ -1,4 +1,4 @@
-/* functions.c - MUX function handlers */
+/* functions.c - MUSH function handlers */
 /* $Id$ */
 
 #include "copyright.h"
