@@ -360,11 +360,10 @@ CHANGES TO FUNCTIONS
 - Multi-character input and output delimiters are now supported for
   most functions.
 
-- The number of global registers is now configurable, from 10 to 36.
-  Beyond %q0-%q9 are %qa-%qz. Based on an idea from PennMUSH.
-
-- Additional, arbitrarily-named global registers can be defined on the
-  fly (up to the conf parameter register_limit, per action list).
+- There are additional global registers, %qa-%qz (based on an idea from
+  PennMUSH). Furthermore, arbitrarily-named global registers can be defined
+  on the fly (up to the conf parameter register_limit, per action list).
+  setq() can now take multiple name-value pairs.
 
 - The caller of a function can now be tracked via %@; it's normally equal
   to the enactor, except where u()-type functions, including objeval()

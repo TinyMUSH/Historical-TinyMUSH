@@ -450,8 +450,7 @@ int eval, ncargs;
 char **dstr;
 char *cargs[];
 {
-#define	NFARGS	30
-	char *real_fargs[NFARGS + 1];
+	char *real_fargs[MAX_NFARGS + 1];
 	char **fargs = real_fargs + 1;
 	char *tstr, *tbuf, *savepos, *atr_gotten, *start, *oldp;
 	char savec, ch, *savestr, *str, *xptr, *mundane, *p;
@@ -987,11 +986,11 @@ char *cargs[];
 			 */
 
 			if (ufp)
-				nfargs = NFARGS;
+				nfargs = MAX_NFARGS;
 			else if (fp->nargs < 0)
 				nfargs = -fp->nargs;
 			else
-				nfargs = NFARGS;
+				nfargs = MAX_NFARGS;
 			tstr = *dstr;
 			if ((fp && (fp->flags & FN_NO_EVAL)) ||
 			    (ufp && (ufp->flags & FN_NO_EVAL)))

@@ -10,6 +10,8 @@
  * Type definitions.
  */
 
+#define MAX_NFARGS 30
+
 typedef struct fun {
 	const char	*name;		/* Function name */
 	void		(*fun)();	/* Handler */

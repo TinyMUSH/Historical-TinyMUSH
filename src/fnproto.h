@@ -670,7 +670,7 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"SETINTER",	handle_sets,	0,  FN_VARARGS|SET_INTERSECT,
 						CA_PUBLIC,	NULL},
-{"SETQ",	fun_setq,	2,  0,		CA_PUBLIC,	NULL},
+{"SETQ",	fun_setq,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"SETR",	fun_setr,	2,  0,		CA_PUBLIC,	NULL},
 {"SETX",	fun_setx,	2,  0,		CA_PUBLIC,	NULL},
 {"SETUNION",	handle_sets,	0,  FN_VARARGS|SET_UNION,

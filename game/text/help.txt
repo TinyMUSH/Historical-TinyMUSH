@@ -10349,15 +10349,19 @@ performed and the walk down the list stops.
   See also: LOCAL REGISTERS, setq(), setx(), store(), x().
  
 & SETQ()
-  Function: setq(<number, letter, or name>,<string>)
+  Function: setq(<number, letter, or name>,<string>[,...,<varN>,<stringN>])
  
   The setq() function is used to copy strings into local registers.
   It returns a null string; it is a purely "side effect" function.
+ 
+  setq() can take multiple variable name - value pairs.
  
   Example:
     > &TEST me=Test on [mudname()] at [time()].
     > say [setq(0,u(TEST))]'[r(0)]' has length [strlen(r(0))].
     You say, "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
+    > say Test.[setq(a,Test,tmp,on,9,TestMUSH)] %qa %q<tmp> %q9.
+    You say, "Test. Test on TestMUSH."
  
   See also: LOCAL REGISTERS, setr(), r(), setx(), store(), x().
  
@@ -14554,11 +14558,10 @@ Continued in 'help 3.1 commands6'.
 - Multi-character input and output delimiters are now supported for
   most functions.
  
-- The number of global registers is now configurable, from 10 to 36.
-  Beyond %q0-%q9 are %qa-%qz. Based on an idea from PennMUSH.
- 
-- Additional, arbitrarily-named global registers can be defined on the
-  fly (up to the conf parameter register_limit, per action list).
+- There are additional global registers, %qa-%qz (based on an idea from
+  PennMUSH). Furthermore, arbitrarily-named global registers can be defined
+  on the fly (up to the conf parameter register_limit, per action list).
+  setq() can now take multiple name-value pairs.
  
 - The caller of a function can now be tracked via %@; it's normally equal
   to the enactor, except where u()-type functions, including objeval()

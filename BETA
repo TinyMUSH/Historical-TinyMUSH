@@ -28,7 +28,7 @@ Release history:
 
 - Feature: Global registers can now be named arbitrary things, with the
   number permitted by an action list limited to the conf parameter
-  register_limit.
+  register_limit. setq() can now take multiple name-value pairs.
 
 - Misc: The 'xmatch' attribute flag (added in beta 5) is now called
   'rmatch'. Rather than setting the results of the match into x-variables,

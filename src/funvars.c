@@ -279,16 +279,50 @@ int set_register(funcname, name, data)
     return len;
 }
 
-
 FUNCTION(fun_setq)
 {
-    int result;
+    int result, count, i;
 
-    result = set_register("fun_setq", fargs[0], fargs[1]);
-    if (result == -1)
-	safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
-    else if (result == -2)
-	safe_str("#-1 REGISTER LIMIT EXCEEDED", buff, bufc);
+    if (nfargs < 2) {
+	safe_tprintf_str(buff, bufc,
+		 "#-1 FUNCTION (SETQ) EXPECTS AT LEAST 2 ARGUMENTS BUT GOT %d",
+			 nfargs);
+	return;
+    }
+    if (nfargs % 2 != 0) {
+	safe_tprintf_str(buff, bufc,
+	  "#-1 FUNCTION (SETQ) EXPECTS AN EVEN NUMBER OF ARGUMENTS BUT GOT %d",
+			 nfargs);
+	return;
+    }
+    if (nfargs > MAX_NFARGS - 2) {
+	/* Prevent people from doing something dumb by providing this
+	 * too many arguments and thus having the fifteenth register
+	 * contain the remaining args. Cut them off at the fourteenth.
+	 */
+	safe_tprintf_str(buff, bufc,
+	  "#-1 FUNCTION (SETQ) EXPECTS NO MORE THAN %d ARGUMENTS BUT GOT %d",
+			 MAX_NFARGS - 2, nfargs);
+	return;
+    }
+
+    if (nfargs == 2) {
+	result = set_register("fun_setq", fargs[0], fargs[1]);
+	if (result == -1)
+	    safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
+	else if (result == -2)
+	    safe_str("#-1 REGISTER LIMIT EXCEEDED", buff, bufc);
+	return;
+    }
+
+    count = 0;
+    for (i = 0; i < nfargs; i += 2) {
+	result = set_register("fun_setq", fargs[i], fargs[i + 1]);
+	if (result < 0)
+	    count++;
+    }
+    if (count > 0)
+	safe_tprintf_str(buff, bufc, "#-1 ENCOUNTERED %d ERRORS", count);
 }
 
 FUNCTION(fun_setr)
