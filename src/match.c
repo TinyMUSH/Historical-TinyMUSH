@@ -132,9 +132,11 @@ int need_pound;
 			mname++;
 		}
 	}
-	match = parse_dbref(mname);
-	if (Good_obj(match)) {
-		return match;
+	if (*mname) {
+		match = parse_dbref(mname);
+		if (Good_obj(match)) {
+			return match;
+		}
 	}
 	return NOTHING;
 }
