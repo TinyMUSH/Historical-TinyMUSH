@@ -188,12 +188,21 @@ to reclaim disk space, if you'd like. The current logfile will always
 have the "standard" name as specified by the game_log and/or divert_log
 parameters, though.
 
-When you start the game from the command line, any existing GAMENAME.log
-file will be moved to GAMENAME.log.old -- but logs from any divert_log
-directives will not be renamed in this way.
+When you start the game using the Startmush script, any existing
+GAMENAME.log files, or log files named by the game_log and divert_log
+conf parameters, will be renamed to LOGNAME.old (whatever the name
+of the log happens to be). Any previous logs by those names (with
+a .TIMESTAMP extension) will be deleted.
 
-Thus, it's a good idea to go through your game directory on a periodic
-basis, cleaning out old logs.
+When the MUSH is running, you can use, from the game directory,
+'./Logclean' to remove logs with a .TIMESTAMP extension, and
+'./Logclean -o' to remove logs with a .TIMESTAMP or .old
+extension.
+
+When the MUSH is not running, './Logclean -a' can be used to
+get rid of all logfiles -- GAMENAME.log, anything named by the
+game_log and divert_log conf parameters, and their old versions
+with .TIMESTAMP and .old extensions.
 
 ------------------------------------------------------------------------------
 
