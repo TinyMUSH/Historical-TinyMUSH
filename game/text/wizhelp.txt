@@ -643,21 +643,22 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 
 & @list
   Command: @list [<option>]
+ 
   Lists information from internal databases.  Information is available
   about the following options:
  
-	allocations		attr_permissions	attributes	
-	bad_names		buffers			cache
-	commands		config_permissions	config_read_perms
-	costs			db_stats		default_flags
-	flags			functions		globals
-	hashstats		logging			options
-	params			permissions		powers
-	process			site_information	switches
-	textfiles		user_attributes
+	allocations		attr_permissions	attributes
+	attr_types		bad_names		buffers	
+	cache			commands		config_permissions
+	config_read_perms	costs			db_stats
+	default_flags		flags			functions
+	globals			hashstats		logging
+	options			params			permissions
+	powers			process			site_information
+	switches		textfiles		user_attributes
  
-  Type wizhelp @list <option> for help with a particular option.
-
+  Type 'wizhelp @list <option>' for help with a particular option.
+ 
 & @list allocations
   Command: @list allocations
   This command lists the usage statistics for the internal buffer pools.
@@ -692,6 +693,21 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   to use the @<attr-name> shorthand command to set it, just the @set command.
   See also: @list permissions, attr_access.
 
+& @list attr_types
+  Command: @list attr_types
+ 
+  Lists the wildcard patterns that have been defined via the 'attr_type'
+  config directive, and the associated default attribute flags for 
+  user-defined attributes that match those particular wildcard patterns.
+  Patterns at the top of the list take precedence over the patterns below
+  them.
+ 
+  In other words, if '@list attr_types' shows:
+      _RPG_*: private wizard
+       _*: private no_clone
+  then attributes that match the wildcard pattern _RPG_* will get the
+  private and wizard flags; they will not get the no_clone flag.
+ 
 & @list attributes
   Command: @list attributes
   Lists the attributes that are visible or settable by you.
@@ -1475,9 +1491,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
-	bad_name		config_access		config_read_access
-	flag_access		function_access		good_name
-	list_access		logout_cmd_access	power_access
+	attr_type		bad_name		config_access
+	config_read_access	flag_access		function_access
+	good_name		list_access		logout_cmd_access
+	power_access		user_attr_access
 
 & PARAM SITES
 	forbid_site		guest_site		permit_site
@@ -1583,6 +1600,25 @@ use_global_aconn	wizard_obeys_linklock
   to properly set access to restricted attributes.
   See also: access, PERMISSIONS.
 
+& attr_type
+  Config parameter: attr_type <pattern> [!]<privilege> [[!]<privilege>]...
+ 
+  All user-named attributes whose names match the wildcard pattern <pattern>
+  will receive the default attribute flags specified by the privilege list,
+  rather than the default attribute flags specified for user attributes
+  by the user_attr_access conf directive (defaults to just "private").
+ 
+  Directives given later take precedence over earlier ones. For example,
+  if you want all attributes on your game that start with '_' to be 
+  set only by Wizards, except for attributes that start with '_RPG',
+  which should be set only by Wizards and also not copyable by @clone,
+  you should do:
+ 
+	attr_type	_*	private wizard
+	attr_type	_RPG_*	private wizard no_clone
+ 
+  See also: @list attr_types, attr_access, user_attr_access
+ 
 & autozone
   Config parameter: autozone <yes/no>.  Default: Yes
  
