@@ -382,6 +382,9 @@ Patchlevel 3:
     output. [???; Ed Thomas]
 
   - Removed buggy code that complained when sending mail with only
-    the word "clear". [Sally MacKay]
+    the word "clear". [MUX; Sally MacKay]
+
+  - Uppercase flag names will now work with player_flags, etc.
+    [2.0; Robert M. Zigweid]
 
 =============================================================================
