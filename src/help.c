@@ -176,7 +176,9 @@ int eval;
 		return;
 	}
 	line = alloc_lbuf("help_write");
-	result = alloc_lbuf("help_write.2");
+	if (eval) {
+		result = alloc_lbuf("help_write.2");
+	}
 	for (;;) {
 		if (fgets(line, LBUF_SIZE - 1, fp) == NULL)
 			break;
@@ -198,7 +200,9 @@ int eval;
 	}
 	tf_fclose(fp);
 	free_lbuf(line);
-	free_lbuf(result);
+	if (eval) {
+		free_lbuf(result);
+	}
 }
 
 /* ---------------------------------------------------------------------------
