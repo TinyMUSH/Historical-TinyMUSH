@@ -292,7 +292,7 @@ HASHTAB *htab;
 	char *buff;
 
 	buff = alloc_mbuf("hashinfo");
-	sprintf(buff, "%-15s %4d%8d%8d%8d%8d%8d%8d%8d",
+	sprintf(buff, "%-15s %5d%8d%8d%8d%8d%8d%8d%8d",
 		tab_name, htab->hashsize, htab->entries, htab->deletes,
 		htab->nulls, htab->scans, htab->hits, htab->checks,
 		htab->max_scan);

@@ -2791,7 +2791,7 @@ const char *tab_name;
 static void list_hashstats(player)
 dbref player;
 {
-	raw_notify(player, "Hash Stats      Size Entries Deleted   Empty Lookups    Hits  Checks Longest");
+	raw_notify(player, "Hash Stats       Size Entries Deleted   Empty Lookups    Hits  Checks Longest");
 	list_hashstat(player, "Commands", &mudstate.command_htab);
 	list_hashstat(player, "Logged-out Cmds", &mudstate.logout_cmd_htab);
 	list_hashstat(player, "Functions", &mudstate.func_htab);
