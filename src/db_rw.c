@@ -1736,6 +1736,15 @@ int *db_format, *db_version, *db_flags;
 			i = getref(f);
 			db_grow(i + 1);
 
+#ifndef NO_TIMECHECKING
+			obj_time.tv_sec = obj_time.tv_usec = 0;
+			s_Time_Used(i, obj_time);
+#endif
+			s_StackCount(i, 0);
+			s_VarsCount(i, 0);
+			s_StructCount(i, 0);
+			s_InstanceCount(i, 0);
+
 #ifdef STANDALONE
 			if (is_penn) {
 				tstr = getstring_noalloc(f, read_new_strings);
