@@ -133,12 +133,12 @@ The initial beta release was on 9/27/99.
 
 - Fix: Another pow()/htonl() fix. [3.0a5; Markus Stenberg]
 
-- Fix: Various compile-time option #ifdef's cleaned up.
+- Fix: Various compile-time option #ifdef's cleaned up. [3.0]
 
 - Fix: Removed spurious spaces in columns() when a string is truncated.
   [3.0b2; Keran]
 
-- Fix: Cosmetic change to @list textfiles.
+- Fix: Cosmetic change to @list textfiles. [3.0a5]
 
 - Misc: chown_anything also lets you @chown to anyone.
 
@@ -239,7 +239,7 @@ The initial beta release was on 9/27/99.
 
   - Fix: Missed some places where see_hidden should apply. [3.0a14]
 
-  - OUTPUTSUFFIX without OUTPUTPREFIX works. [2.0]
+  - Fix: OUTPUTSUFFIX without OUTPUTPREFIX works. [2.0]
 
   - Misc: All calls to abort() log a message.
 
