@@ -10,7 +10,6 @@ Frequently-Asked Questions
 - How do I use multiple guests?
 - How do I create my own flags? (How do I configure marker flags?)
 - How do I tune the database cache?
-- How do I use radix compression?
 - How do I use an in-memory database?
 - Help! I'm having database problems.
 - How do I set up a link to an external SQL database?
@@ -425,61 +424,6 @@ Good luck ;)
 
 ------------------------------------------------------------------------------
 
-How do I use radix compression?
-
-(Contributed by Andrew Molitor.)
-
-NOTE:   You should not use radix compression unless you have a relatively
-        large database, consisting of a few hundred objects. Those starting
-        from scratch should NOT use compression.
-
-	Using compression is something you don't want to take lightly.
-It's useful if you're short on disk space in disk based mode, and it will
-help slightly on memory usage as well, but it will cost a little performance.
-Not a lot, there is some question about whether the users can feel it at all
-on the dinky little Sun 3/60 I run my MUSH on, so it's likely that nobody
-will even notice on a normal machine. Benchmarks indicate about a 5%
-performance hit. The larger issue is that it's a bit of a hassle to set up.
-
-
-1. You need to produce a compression table. The radix tree compression
-library works by converting common substrings into 12 bit code, so it needs
-to know what your common substrings are. You'll need a flat dump of your
-database, or at least the ability to produce one. In the radixlib directory,
-do a 'configure' then a 'make a' which builds the binary part of the tools
-used to analyse your flat dump. Then you run your database through the
-analyse.sh shell script, like this:
-
-cat my_db.flat | analyse.sh
-
-	or possibly these variations:
-
-db_unload my_game.gdbm | analyse.sh
-zcat my_db.flat.Z | analyse.sh
-
-	This will a) take a while and b) produce a file called compresstab.h.
-You can look at it if you like, it's just a big C structure with 4000ish
-of the most common strings in your database. If you have access to a big
-machine for one-off jobs, I highly recommend using this machine to build
-your compression table. Ignore any messages about broken pipes if
-compresstab.h exists.
-
-2. Build the compression library. Just do a 'make libcompress.a' in
-the radixlib subdirectory.
-
-3. Rebuild your server. Edit the Makefile section called 'Radix
-Compression', uncommenting the necessary defines, and rebuild netMUSH
-from scratch. Make damn sure have a copy of dbconvert that does not use
-compression. Use it to get a flat dump of your uncompressed DB before moving
-on.
-
-4. Reload your database compressed. Use the rebuilt dbconvert, it will
-now load/unload into/out of a compressed gdbm database. Its flat dump format
-is still uncompressed, however. db_load or whatever your poison is to load
-up the gdbm database from the flat dump. You're ready to roll!
-
-------------------------------------------------------------------------------
-
 How do I use the in-memory database?
 
 If you're starting your MUSH from scratch, all you need to do is specify in
@@ -548,9 +492,6 @@ Saving disk space:
   'compress_program' and 'uncompress_program' will save disk space under
   memory based usage and disk based usage, but it makes much more of a
   difference with memory based because it compresses the entire database.
-- Enabling radix compression (see README.COMPRESSION) will reduce the size
-  of a disk based database AND its memory usage. On a memory based setup, it
-  will only reduce memory usage.
 
 Saving memory:
 -------------
@@ -558,8 +499,6 @@ Saving memory:
 - If you are using a memory based setup, consider converting to disk based.
 - On a disk based setup, reduce the size of the cache, preferrably making it
   narrower (see README for tips on the cache)
-- On both disk and memory based setups, enable radix compression (see
-  README.COMPRESSION)
 - Adjust HASH_FACTOR in config.h: 2 is recommended, altho 1 is usable and
   results in less memory usage.
 - Adjust OUTPUT_BLOCK_SIZE in config.h: this should be a power of 2,

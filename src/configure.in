@@ -675,15 +675,6 @@ dnl Library checks
 
 SAVELDFLAGS="$LDFLAGS"
 
-case "$enable_radix_compression" in
-  yes)
-    LDFLAGS="-L./radixlib $SAVELDFLAGS"
-    AC_CHECK_LIB(compress, main,
-      LIBS="-L./radixlib -lcompress $LIBS",
-      AC_MSG_ERROR(Using radix compression requires the compress library (src/radixlib) to be built first), )
-    ;;
-esac
-
 LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
 AC_CHECK_LIB(gdbm, main,
   LIBS="-L./gdbm-1.8.0/.libs -lgdbm $LIBS",
