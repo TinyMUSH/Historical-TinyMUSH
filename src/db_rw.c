@@ -1341,10 +1341,13 @@ dbref db_write()
 				
 		for (j = ENTRY_BLOCK_STARTS(i, blksize);
 		     (j <= ENTRY_BLOCK_ENDS(i, blksize)) &&
-		     (j < mudstate.attr_next) &&
-		     (j >= A_USER_START);
+		     (j < mudstate.attr_next);
 		     j++) {
 
+			if (j < A_USER_START) {
+				continue;
+			}
+			
 			vp = (VATTR *)anum_table[j];
 
 			if (vp && !(vp->flags & AF_DELETED)) {
@@ -1376,12 +1379,15 @@ dbref db_write()
 			 * the attribute numbers in this block */
 			
 			for (j = 0; (j < blksize) &&
-			    ((ENTRY_BLOCK_STARTS(i, blksize) + j) < mudstate.attr_next) &&
-			    ((ENTRY_BLOCK_STARTS(i, blksize) + j) >= A_USER_START);
+			    ((ENTRY_BLOCK_STARTS(i, blksize) + j) < mudstate.attr_next);
 			    j++) {
 				/* j is an offset of attribute
 				 * numbers into the current block */
 					
+				if ((ENTRY_BLOCK_STARTS(i, blksize) + j) < A_USER_START) {
+					continue;
+				}
+
 				vp = (VATTR *)anum_table[ENTRY_BLOCK_STARTS(i, blksize) + j];
 				
 				if (vp && !(vp->flags & AF_DELETED)) {
