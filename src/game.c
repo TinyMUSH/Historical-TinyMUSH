@@ -11,7 +11,6 @@
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
 #include "mudconf.h"	/* required by code */
 
 #include "db.h"		/* required by externs */
@@ -60,12 +59,6 @@ extern int NDECL(dddb_optimize);
 
 #ifndef STANDALONE
 extern LOGFILETAB logfds_table[];
-#endif
-
-#ifdef USE_MAIL
-extern int FDECL(load_mail, (FILE *));
-extern int FDECL(dump_mail, (FILE *));
-extern void NDECL(check_mail_expiration);
 #endif
 
 #ifdef CONCENTRATE
@@ -120,11 +113,6 @@ void do_hashresize(player, cause, key)
     nhashresize(&mudstate.fwdlist_htab, 8);
     nhashresize(&mudstate.redir_htab, 8);
     hashresize(&mudstate.ufunc_htab, 8);
-
-#ifdef USE_MAIL
-    nhashresize(&mudstate.mail_htab, 8);
-#endif
-
     hashresize(&mudstate.structs_htab,
 	       (mudstate.max_structs < 16) ? 16 : mudstate.max_structs);
     hashresize(&mudstate.cdefs_htab,
@@ -1221,16 +1209,6 @@ int dump_type;
 	
 #ifndef STANDALONE
 	CALL_ALL_MODULES(dump_database, ());
-#ifdef USE_MAIL
-	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.mail_db);
-	if ((f = fopen(tmpfile, "w")) != NULL) {
-	    dump_mail(f);
-	    fclose(f);
-	} else {
-	    log_perror("DMP", "FAIL", "Opening mail file",
-		       tmpfile);
-	}
-#endif /* USE_MAIL */
 #endif /* ! STANDALONE */
 }
 
@@ -1259,9 +1237,7 @@ int key;
 
 	if (*mudconf.dump_msg)
 		raw_broadcast(0, "%s", mudconf.dump_msg);
-#ifdef USE_MAIL
-	check_mail_expiration();
-#endif
+
 	mudstate.epoch++;
 	mudstate.dumping = 1;
 	STARTLOG(LOG_DBSAVES, "DMP", "CHKPT")
@@ -1349,13 +1325,6 @@ static int NDECL(load_game)
 
 	CALL_ALL_MODULES_NOCACHE("load_database", (void), ());
 
-#ifdef USE_MAIL
-	sprintf(infile, "%s/%s", mudconf.dbhome, mudconf.mail_db);
-	if ((f = fopen(infile, "r")) != NULL) {
-		load_mail(f);
-		fclose(f);
-	}
-#endif
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 		log_printf("Load complete.");
 	ENDLOG
@@ -1701,9 +1670,7 @@ char *argv[];
 	hashinit(&mudstate.cdefs_htab, 15 * HASH_FACTOR);
 	hashinit(&mudstate.instance_htab, 15 * HASH_FACTOR);
 	hashinit(&mudstate.instdata_htab, 25 * HASH_FACTOR);
-#ifdef USE_MAIL
-	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
-#endif
+
 	add_helpfile(GOD, (char *) "help text/help", 1);
 	add_helpfile(GOD, (char *) "wizhelp text/wizhelp", 1);
 	cmdp = (CMDENT *) hashfind((char *) "wizhelp", &mudstate.command_htab);
@@ -1724,21 +1691,6 @@ char *argv[];
 	    safe_mb_str(mp->modname, mudstate.modloaded, &bp);
 	}
 #endif /* HAVE_DLOPEN */
-
-#ifdef USE_MAIL
-	/* We initialized our command table before we read the conf file.
-	 * The mailer might have gotten turned off in the meantime. Delete
-	 * the - and ~ single-character commands, so we don't break softcode
-	 * +mail. The @mail and @malias commands, and any aliases, should
-	 * be @addcommand'd by the user, if they want to override them.
-	 */
-	if (!mudconf.have_mailer) {
-	    hashdelete("-", &mudstate.command_htab);
-	    hashdelete("~", &mudstate.command_htab);
-	    prefix_cmds['-'] = NULL;
-	    prefix_cmds['~'] = NULL;
-	}
-#endif /* USE_MAIL */
 
 	strncpy(mudconf.exec_path, argv[0], PBUF_SIZE - 1);
 	mudconf.exec_path[PBUF_SIZE - 1] = '\0';
@@ -1806,9 +1758,6 @@ char *argv[];
 	hashreset(&mudstate.cdefs_htab);
 	hashreset(&mudstate.instance_htab);
 	hashreset(&mudstate.instdata_htab);
-#ifdef USE_MAIL
-	nhashreset(&mudstate.mail_htab);
-#endif
 
 	for (i = 0; i < mudstate.helpfiles; i++)
 	    hashreset(&mudstate.hfile_hashes[i]);

@@ -189,53 +189,6 @@ NAMETAB look_sw[] = {
 {(char *)"outside",     1,      CA_PUBLIC,      LOOK_OUTSIDE},
 { NULL,                 0,      0,              0}};
 
-#ifdef USE_MAIL
-NAMETAB mail_sw[] = {
-{(char *)"abort",	1,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ABORT},
-{(char *)"alias",       4,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ALIAS},
-{(char *)"alist",       2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ALIST},
-{(char *)"cc",		2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_CC},
-{(char *)"clear",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_CLEAR},
-{(char *)"debug",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_DEBUG},
-{(char *)"dstats",      2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_DSTATS},
-{(char *)"edit",        2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_EDIT},
-{(char *)"file",        2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FILE},
-{(char *)"folder",      3,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FOLDER},
-{(char *)"forward",     2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FORWARD},
-{(char *)"fstats",      2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FSTATS},
-{(char *)"fwd",         2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FORWARD},
-{(char *)"list",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_LIST},
-{(char *)"nuke",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_NUKE},
-{(char *)"proof",       2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_PROOF},
-{(char *)"purge",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_PURGE},
-{(char *)"quick",	1,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_QUICK},
-{(char *)"quote",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_QUOTE|SW_MULTIPLE},
-{(char *)"read",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_READ},
-{(char *)"reply",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REPLY},
-{(char *)"replyall",	6,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REPLYALL},
-{(char *)"retract",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_RETRACT},
-{(char *)"review",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REVIEW},
-{(char *)"safe",	2,	CA_NO_SLAVE|CA_NO_GUEST,	MAIL_SAFE},
-{(char *)"send",        0,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_SEND},
-{(char *)"stats",       2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_STATS},
-{(char *)"tag",         1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_TAG},
-{(char *)"unclear",     1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_UNCLEAR},
-{(char *)"untag",       3,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_UNTAG},
-{(char *)"urgent",      2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_URGENT},
-{ NULL,                 0,      0,              0}};
-
-NAMETAB malias_sw[] = {
-{(char *)"desc",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_DESC},
-{(char *)"chown",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_CHOWN},
-{(char *)"add",         1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_ADD},
-{(char *)"remove",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_REMOVE},
-{(char *)"delete",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_DELETE},
-{(char *)"rename",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_RENAME},
-{(char *)"list",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_LIST},
-{(char *)"status",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_STATUS},
-{ NULL,                 0,      0,              0}};
-#endif
-
 NAMETAB mark_sw[] = {
 {(char *)"set",		1,	CA_PUBLIC,	MARK_SET},
 {(char *)"clear",	1,	CA_PUBLIC,	MARK_CLEAR},
@@ -558,14 +511,6 @@ CMDENT command_table[] = {
 {(char *)"@logrotate",		NULL,		CA_GOD,
 	0,		CS_NO_ARGS,
 	NULL,		NULL,	NULL,		do_logrotate},
-#ifdef USE_MAIL
-{(char *)"@mail",               mail_sw,           CA_NO_SLAVE|CA_NO_GUEST,
-        0,              CS_TWO_ARG|CS_INTERP,
-	NULL,		NULL,	NULL,		do_mail},
-{(char *)"@malias",             malias_sw,         CA_NO_SLAVE|CA_NO_GUEST,
-        0,              CS_TWO_ARG|CS_INTERP,
-	NULL,		NULL,	NULL,		do_malias},
-#endif
 {(char *)"@mark",		mark_sw,	CA_WIZARD,
 	SRCH_MARK,	CS_ONE_ARG|CS_NOINTERP,	
 	NULL,		NULL,	NULL,		do_search},
@@ -819,16 +764,6 @@ CMDENT command_table[] = {
 	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
 	0,		CS_TWO_ARG|CS_LEADIN,	
 	NULL,		NULL,	NULL,		do_setvattr},
-#ifdef USE_MAIL
-{(char *)"-",			NULL,
-	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
-	0,		CS_ONE_ARG|CS_LEADIN,	
-	NULL,		NULL,	NULL,		do_postpend},
-{(char *)"~",			NULL,
-	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
-	0,		CS_ONE_ARG|CS_LEADIN,	
-	NULL,		NULL,	NULL,		do_prepend},
-#endif
 {(char *)NULL,			NULL,		0,
 	0,		0,				
 	NULL,		NULL,	NULL,		NULL}};

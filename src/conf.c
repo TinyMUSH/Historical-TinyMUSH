@@ -8,7 +8,6 @@
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
 #include "mudconf.h"	/* required by code */
 
 #include "db.h"		/* required by externs */
@@ -66,7 +65,6 @@ void NDECL(cf_init)
 	StringCopy(mudconf.outdb, "");
 	StringCopy(mudconf.crashdb, "");
 	StringCopy(mudconf.gdbm, "");
-	StringCopy(mudconf.mail_db, "mail.db");
 	StringCopy(mudconf.status_file, "shutdown.status");
 #ifdef HAVE_DLOPEN
 	StringCopy(mudconf.modhome, "modules");
@@ -117,11 +115,6 @@ void NDECL(cf_init)
 	mudconf.fork_dump = 0;
 	mudconf.fork_vfork = 0;
 	mudconf.dbopt_interval = 0;
-#ifdef USE_MAIL
-	mudconf.have_mailer = 1;
-#else
-	mudconf.have_mailer = 0;
-#endif
 #ifdef PUEBLO_SUPPORT
 	mudconf.have_pueblo = 1;
 #else
@@ -167,7 +160,6 @@ void NDECL(cf_init)
 	mudconf.player_quota = 1;
 	mudconf.room_quota = 1;
 	mudconf.thing_quota = 1;
-	mudconf.mail_expiration = 14;
 	mudconf.queuemax = 100;
 	mudconf.queue_chunk = 10;
 	mudconf.active_q_chunk = 10;
@@ -359,9 +351,6 @@ void NDECL(cf_init)
 	mudstate.min_size = 0;
 	mudstate.db_top = 0;
 	mudstate.db_size = 0;
-	mudstate.mail_db_top = 0;
-	mudstate.mail_db_size = 0;
-	mudstate.mail_freelist = 0;
 	mudstate.freelist = NOTHING;
 	mudstate.markbits = NULL;
 	mudstate.sql_socket = -1;
@@ -1427,12 +1416,6 @@ CONF conftable[] = {
 {(char *)"guest_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list, 	H_GUEST},
 {(char *)"guest_starting_room",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.guest_start_room,	0},
 
-#ifdef USE_MAIL
-{(char *)"have_mailer",			cf_bool,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_mailer,		(long)"Built-in @mail system enabled"},
-#else
-{(char *)"have_mailer",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_mailer,		(long)"Built-in @mail system enabled"},
-#endif
-
 {(char *)"have_pueblo",			cf_const,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_pueblo,		(long)"Pueblo client extensions are supported"},
 {(char *)"have_zones",			cf_bool,	CA_STATIC,	CA_PUBLIC,	&mudconf.have_zones,		(long)"Multiple control via ControlLocks is permitted"},
 {(char *)"helpfile",			cf_helpfile,	CA_STATIC,	CA_DISABLED,	NULL,				0},
@@ -1468,8 +1451,6 @@ CONF conftable[] = {
 {(char *)"logout_cmd_alias",		cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.logout_cmd_htab,(long)"Logged-out command"},
 {(char *)"look_obey_terse",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.terse_look,		(long)"look obeys the TERSE flag"},
 {(char *)"machine_command_cost",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.machinecost,		0},
-{(char *)"mail_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.mail_db,		PBUF_SIZE},
-{(char *)"mail_expiration",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.mail_expiration,	0},
 {(char *)"master_room",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.master_room,		0},
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},

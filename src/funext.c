@@ -8,7 +8,6 @@
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
 #include "mudconf.h"	/* required by code */
 
 #include "db.h"		/* required by externs */
@@ -27,12 +26,6 @@ extern void FDECL(make_sessioninfo, (dbref, int, char *, char **));
 extern dbref FDECL(get_programmer, (dbref));
 extern void FDECL(cf_display, (dbref, char *, char *, char **));
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
-
-#ifdef USE_MAIL
-extern INLINE char *FDECL(get_mail_message, (int));
-extern void FDECL(count_mail, (dbref, int, int *, int *, int *));
-extern struct mail *FDECL(mail_fetch, (dbref, int));
-#endif
 
 /* ---------------------------------------------------------------------------
  * config: Display a MUSH config parameter.
@@ -136,129 +129,6 @@ FUNCTION(fun_programmer)
     }
     safe_dbref(buff, bufc, get_programmer(target));
 }
-
-/*---------------------------------------------------------------------------
- * Mail functions borrowed from DarkZone
- */
-
-#ifdef USE_MAIL
-
-FUNCTION(fun_mail)
-{
-	/* This function can take one of three formats: 1.  mail(num)  -->
-	 * returns message <num> for privs. 2.  mail(player)  -->
-	 * returns number of messages for <player>. 3.
-	 * mail(player, num)  -->  returns message <num> for
-	 * <player>. 
-	 *
-	 * It can now take one more format: 4.  mail() --> returns number of
-	 * messages for executor 
-	 */
-
-	struct mail *mp;
-	dbref playerask;
-	int num, rc, uc, cc;
-#ifdef RADIX_COMPRESSION
-	char *msgbuff;
-#endif
-
-	if (!fn_range_check("MAIL", nfargs, 0, 2, buff, bufc))
-		return;
-	if ((nfargs == 0) || !fargs[0] || !fargs[0][0]) {
-		count_mail(player, 0, &rc, &uc, &cc);
-		safe_ltos(buff, bufc, rc + uc);
-		return;
-	}
-	if (nfargs == 1) {
-		if (!is_number(fargs[0])) {
-			/* handle the case of wanting to count the number of
-			 * messages 
-			 */
-			if ((playerask = lookup_player(player, fargs[0], 1)) == NOTHING) {
-				safe_str("#-1 NO SUCH PLAYER", buff, bufc);
-				return;
-			} else if ((player != playerask) && !Wizard(player)) {
-				safe_noperm(buff, bufc);
-				return;
-			} else {
-				count_mail(playerask, 0, &rc, &uc, &cc);
-				safe_tprintf_str(buff, bufc, "%d %d %d", rc, uc, cc);
-				return;
-			}
-		} else {
-			playerask = player;
-			num = atoi(fargs[0]);
-		}
-	} else {
-		if ((playerask = lookup_player(player, fargs[0], 1)) == NOTHING) {
-			safe_str("#-1 NO SUCH PLAYER", buff, bufc);
-			return;
-		} else if ((player != playerask) && !God(player)) {
-			safe_noperm(buff, bufc);
-			return;
-		}
-		num = atoi(fargs[1]);
-	}
-
-	if ((num < 1) || (Typeof(playerask) != TYPE_PLAYER)) {
-		safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
-		return;
-	}
-	mp = mail_fetch(playerask, num);
-	if (mp != NULL) {
-#ifdef RADIX_COMPRESSION
-		msgbuff = alloc_lbuf("fun_mail");
-		string_decompress(get_mail_message(mp->number), msgbuff);
-		safe_str(msgbuff, buff, bufc);
-		free_lbuf(msgbuff);
-#else
-		safe_str(get_mail_message(mp->number), buff, bufc);
-#endif
-		return;
-	}
-	/* ran off the end of the list without finding anything */
-	safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
-}
-
-FUNCTION(fun_mailfrom)
-{
-	/* This function can take these formats: 1) mailfrom(<num>) 2)
-	 * mailfrom(<player>,<num>) It returns the dbref of the player the
-	 * mail is from 
-	 */
-	struct mail *mp;
-	dbref playerask;
-	int num;
-
-	if (!fn_range_check("MAILFROM", nfargs, 1, 2, buff, bufc))
-		return;
-	if (nfargs == 1) {
-		playerask = player;
-		num = atoi(fargs[0]);
-	} else {
-		if ((playerask = lookup_player(player, fargs[0], 1)) == NOTHING) {
-			safe_str("#-1 NO SUCH PLAYER", buff, bufc);
-			return;
-		} else if ((player != playerask) && !Wizard(player)) {
-			safe_noperm(buff, bufc);
-			return;
-		}
-		num = atoi(fargs[1]);
-	}
-
-	if ((num < 1) || (Typeof(playerask) != TYPE_PLAYER)) {
-		safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
-		return;
-	}
-	mp = mail_fetch(playerask, num);
-	if (mp != NULL) {
-		safe_dbref(buff, bufc, mp->from);
-		return;
-	}
-	/* ran off the end of the list without finding anything */
-	safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
-}
-#endif /* USE_MAIL */
 
 /*---------------------------------------------------------------------------
  * SQL stuff.

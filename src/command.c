@@ -8,7 +8,6 @@
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
 #include "mudconf.h"	/* required by code */
 
 #include "db.h"		/* required by externs */
@@ -165,18 +164,6 @@ int i;
 					       &mudstate.command_htab);
 	prefix_cmds['&'] = (CMDENT *) hashfind((char *)"&",
 					       &mudstate.command_htab);
-#ifdef USE_MAIL
-	/* Note that doing it this way means that you'll later run into
-	 * problems if you enable the mailer without a @restart. However,
-	 * not doing it this way breaks all the softcoded mailers.
-	 */
-	if (mudconf.have_mailer) {
-	    prefix_cmds['-'] = (CMDENT *) hashfind((char *)"-",
-						   &mudstate.command_htab);
-	    prefix_cmds['~'] = (CMDENT *) hashfind((char *)"~",
-						   &mudstate.command_htab);
-	}
-#endif
 }
 
 /* ---------------------------------------------------------------------------
@@ -2301,11 +2288,6 @@ dbref player;
 	    }
 	}
 #endif /* HAVE_DLOPEN */
-
-#ifdef USE_MAIL
-	if (mudconf.have_mailer)
-	    list_nhashstat(player, "Mail messages", &mudstate.mail_htab);
-#endif
 }
 
 static void list_textfiles(player)

@@ -10,13 +10,6 @@
 	extern void FDECL(x, (char *, char **, dbref, dbref, \
 			      char *[], int, char *[], int))
 
-/* From funext.c */
-
-#ifdef USE_MAIL
-XFUNCTION(fun_mail);
-XFUNCTION(fun_mailfrom);
-#endif
-
 #ifdef PUEBLO_SUPPORT
 XFUNCTION(fun_html_escape);
 XFUNCTION(fun_html_unescape);
@@ -524,10 +517,6 @@ FUN flist[] = {
 {"LTE",		fun_lte,	2,  0,		CA_PUBLIC},
 {"LVARS",	fun_lvars,	0,  0,		CA_PUBLIC},
 {"LWHO",	fun_lwho,	0,  0,		CA_PUBLIC},
-#ifdef USE_MAIL
-{"MAIL",        fun_mail,       0,  FN_VARARGS, CA_PUBLIC},
-{"MAILFROM",    fun_mailfrom,   0,  FN_VARARGS, CA_PUBLIC},
-#endif
 {"MAP",		fun_map,	0,  FN_VARARGS,	CA_PUBLIC},
 {"MATCH",	fun_match,	0,  FN_VARARGS,	CA_PUBLIC},
 {"MATCHALL",	fun_matchall,	0,  FN_VARARGS,	CA_PUBLIC},

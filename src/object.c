@@ -8,7 +8,6 @@
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
 #include "mudconf.h"	/* required by code */
 
 #include "db.h"		/* required by externs */
@@ -28,10 +27,6 @@
 static int check_type;
 
 extern int FDECL(boot_off, (dbref, char *));
-
-#ifdef USE_MAIL
-extern void FDECL(do_mail_clear, (dbref, char *));
-#endif
 
 #ifndef STANDALONE
 extern void FDECL(fwdlist_clr, (dbref));
@@ -872,14 +867,10 @@ dbref victim;
 	free_lbuf(buf);
 
 	move_via_generic(victim, NOTHING, player, 0);
-#ifdef USE_MAIL
-	do_mail_clear(victim, NULL);
-	do_mail_purge(victim);
-#endif
 	CALL_ALL_MODULES(destroy_player, (player, victim));
 	destroy_obj(NOTHING, victim);
 	notify_quiet(player, tprintf("(%d objects @chowned to you)", count));
-#endif
+#endif /* ! STANDALONE */
 }
 
 static void NDECL(purge_going)

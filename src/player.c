@@ -8,7 +8,6 @@
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
 #include "mudconf.h"	/* required by code */
 
 #include "db.h"		/* required by externs */
@@ -40,10 +39,6 @@ struct logindata {
 extern dbref NDECL(start_home);
 extern int FDECL(can_set_home, (dbref, dbref, dbref));
 extern dbref FDECL(clone_home, (dbref, dbref));
-
-#ifdef USE_MAIL
-extern void FDECL(check_mail, (dbref, int, int));
-#endif
 
 /* ---------------------------------------------------------------------------
  * decrypt_logindata, encrypt_logindata: Decode and encode login info.
@@ -161,15 +156,6 @@ char *ldate, *lhost, *lusername;
 				       login_info.good[0].host,
 				       login_info.good[0].dtm));
 		}
-
-#ifdef USE_MAIL
-		if (mudconf.have_mailer) {
-			check_mail(player, 0, 0);
-			if (Sending_Mail(player)) {
-			    notify(player, "MAIL: You have a mail message in progress.");
-			}
-		}
-#endif /* USE_MAIL */
 
 		for (i = NUM_GOOD - 1; i > 0; i--) {
 			login_info.good[i].dtm = login_info.good[i - 1].dtm;

@@ -23,17 +23,6 @@
 
 /* Command function handlers */
 
-#ifdef USE_MAIL
-
-/* from mail.c */
-
-CMD_TWO_ARG(do_mail);                   /* mail command */
-CMD_TWO_ARG(do_malias);                 /* mail alias command */
-CMD_ONE_ARG(do_prepend);
-CMD_ONE_ARG(do_postpend);
-
-#endif
-
 CMD_ONE_ARG_CMDARG(do_apply_marked);	/* Apply command to marked objects */
 CMD_TWO_ARG(do_admin);			/* Change config parameters */
 CMD_TWO_ARG(do_alias);			/* Change the alias of something */

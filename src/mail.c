@@ -1,4 +1,4 @@
-/* mail.c - penn-based mailer system */
+/* mail.c - module for penn-based mailer system */
 /* $Id$ */
 
 /*
@@ -9,23 +9,77 @@
  * -------------------------------------------------------------------
  */
 
-#include "copyright.h"
-#include "autoconf.h"
-#include "config.h"
+#include "api.h"
+#include "mail.h"
 
-#ifdef USE_MAIL
+/* --------------------------------------------------------------------------
+ * Configuration.
+ */
 
-#include "alloc.h"	/* required by mudconf */
-#include "flags.h"	/* required by mudconf */
-#include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
-#include "mudconf.h"	/* required by code */
+#define MAIL_STATS	1	/* Mail stats */
+#define MAIL_DSTATS	2	/* More mail stats */
+#define MAIL_FSTATS	3	/* Even more mail stats */
+#define MAIL_DEBUG	4	/* Various debugging options */
+#define MAIL_NUKE	5	/* Nuke the post office */
+#define MAIL_FOLDER	6	/* Do folder stuff */
+#define MAIL_LIST	7	/* List @mail by time */
+#define MAIL_READ	8	/* Read @mail message */
+#define MAIL_CLEAR	9	/* Clear @mail message */
+#define MAIL_UNCLEAR	10	/* Unclear @mail message */
+#define MAIL_PURGE	11	/* Purge cleared @mail messages */
+#define MAIL_FILE	12	/* File @mail in folders */
+#define MAIL_TAG	13	/* Tag @mail messages */
+#define MAIL_UNTAG	14	/* Untag @mail messages */
+#define MAIL_FORWARD	15	/* Forward @mail messages */
+#define MAIL_SEND	16	/* Send @mail messages in progress */
+#define MAIL_EDIT	17	/* Edit @mail messages in progress */
+#define MAIL_URGENT	18	/* Sends a @mail message as URGENT */
+#define MAIL_ALIAS	19	/* Creates an @mail alias */
+#define MAIL_ALIST	20	/* Lists @mail aliases */
+#define MAIL_PROOF	21	/* Proofs @mail messages in progress */
+#define MAIL_ABORT	22	/* Aborts @mail messages in progress */
+#define MAIL_QUICK	23	/* Sends a quick @mail message */
+#define MAIL_REVIEW	24	/* Reviews @mail sent to a player */
+#define MAIL_RETRACT	25	/* Retracts @mail sent to a player */
+#define MAIL_CC		26	/* Carbon copy */
+#define MAIL_SAFE	27	/* Defines a piece of mail as safe. */
+#define MAIL_REPLY	28	/* Replies to a message. */
+#define MAIL_REPLYALL	29	/* Replies to all recipients of msg */
+#define MAIL_QUOTE	0x100	/* Quote back original in the reply? */
 
-#include "db.h"		/* required by externs */
-#include "externs.h"	/* required by code */
-#include "match.h"	/* required by code */
-#include "powers.h"	/* required by code */
-#include "attrs.h"	/* required by code */
+/* Note that we don't use all hex for mail flags, because the upper 3 bits
+ * of the switch word gets occupied by SW_<foo>.
+ */
+
+#define MALIAS_DESC	1	/* Describes a mail alias */
+#define MALIAS_CHOWN	2	/* Changes a mail alias's owner */
+#define MALIAS_ADD	3	/* Adds a player to an alias */
+#define MALIAS_REMOVE	4	/* Removes a player from an alias */
+#define MALIAS_DELETE	5	/* Deletes a mail alias */
+#define MALIAS_RENAME	6	/* Renames a mail alias */
+#define MALIAS_LIST	8	/* Lists mail aliases */
+#define MALIAS_STATUS	9	/* Status of mail aliases */
+
+
+NHSHTAB mod_mail_msg_htab;
+
+MODNHASHES mod_mail_nhashtable[] = {
+{ "Mail messages",	&mod_mail_msg_htab,	50,	8},
+{ NULL,			NULL,			0,	0}};
+
+struct mod_mail_confstorage {
+	char	mail_db[PBUF_SIZE];	/* name of the @mail database */
+	int	mail_expiration; /* Number of days to wait to delete mail */
+	int	mail_freelist;  /* The next free mail number */
+	MENT	*mail_list;     /* The mail database */
+	int	mail_db_top;    /* Like db_top */
+	int	mail_db_size;	/* Like db_size */
+} mod_mail_config;
+
+CONF mod_mail_conftable[] = {
+{(char *)"mail_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mod_mail_config.mail_db,		PBUF_SIZE},
+{(char *)"mail_expiration",		cf_int,		CA_GOD,		CA_PUBLIC,	&mod_mail_config.mail_expiration,	0},
+{ NULL,					NULL,		0,		0,		NULL,				0}};
 
 /*
  * Buffers used for RADIX_COMPRESSION 
@@ -34,6 +88,8 @@
 char msgbuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
 char subbuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
 char timebuff[LBUF_SIZE + (LBUF_SIZE >> 1) + 1];
+
+extern CMDENT *prefix_cmds[256];
 
 extern int FDECL(do_convtime, (char *, struct tm *));
 
@@ -105,19 +161,19 @@ int newtop;
 	int newsize, i;
 	MENT *newdb;
 
-	if (newtop <= mudstate.mail_db_top) {
+	if (newtop <= mod_mail_config.mail_db_top) {
 		return;
 	}
-	if (newtop <= mudstate.mail_db_size) {
-		for (i = mudstate.mail_db_top; i < newtop; i++) {
-			mudstate.mail_list[i].count = 0;
-			mudstate.mail_list[i].message = NULL;
+	if (newtop <= mod_mail_config.mail_db_size) {
+		for (i = mod_mail_config.mail_db_top; i < newtop; i++) {
+			mod_mail_config.mail_list[i].count = 0;
+			mod_mail_config.mail_list[i].message = NULL;
 		}
-		mudstate.mail_db_top = newtop;
+		mod_mail_config.mail_db_top = newtop;
 		return;
 	}
-	if (newtop <= mudstate.mail_db_size + 100) {
-		newsize = mudstate.mail_db_size + 100;
+	if (newtop <= mod_mail_config.mail_db_size + 100) {
+		newsize = mod_mail_config.mail_db_size + 100;
 	} else {
 		newsize = newtop;
 	}
@@ -129,21 +185,21 @@ int newtop;
 	    abort();
 	}
 
-	if (mudstate.mail_list) {
-		mudstate.mail_list -= 1;
-		memcpy((char *)newdb, (char *)mudstate.mail_list,
-		       (mudstate.mail_db_top + 1) * sizeof(MENT));
-		XFREE(mudstate.mail_list, "mail_list");
+	if (mod_mail_config.mail_list) {
+		mod_mail_config.mail_list -= 1;
+		memcpy((char *)newdb, (char *)mod_mail_config.mail_list,
+		       (mod_mail_config.mail_db_top + 1) * sizeof(MENT));
+		XFREE(mod_mail_config.mail_list, "mail_list");
 	}
-	mudstate.mail_list = newdb + 1;
+	mod_mail_config.mail_list = newdb + 1;
 	newdb = NULL;
 
-	for (i = mudstate.mail_db_top; i < newtop; i++) {
-		mudstate.mail_list[i].count = 0;
-		mudstate.mail_list[i].message = NULL;
+	for (i = mod_mail_config.mail_db_top; i < newtop; i++) {
+		mod_mail_config.mail_list[i].count = 0;
+		mod_mail_config.mail_list[i].message = NULL;
 	}
-	mudstate.mail_db_top = newtop;
-	mudstate.mail_db_size = newsize;
+	mod_mail_config.mail_db_top = newtop;
+	mod_mail_config.mail_db_size = newsize;
 }
 
 /*
@@ -155,15 +211,15 @@ static void make_mail_freelist()
 {
 	int i;
 
-	for (i = 0; i < mudstate.mail_db_top; i++) {
-		if (mudstate.mail_list[i].message == NULL) {
-			mudstate.mail_freelist = i;
+	for (i = 0; i < mod_mail_config.mail_db_top; i++) {
+		if (mod_mail_config.mail_list[i].message == NULL) {
+			mod_mail_config.mail_freelist = i;
 			return;
 		}
 	}
 
 	mail_db_grow(i + 1);
-	mudstate.mail_freelist = i;
+	mod_mail_config.mail_freelist = i;
 }
 
 /*
@@ -187,16 +243,16 @@ char *message;
 		notify(player, "MAIL: You probably don't wanna send mail saying 'clear'.");
 		return -1;
 	}
-	if (!mudstate.mail_list) {
+	if (!mod_mail_config.mail_list) {
 		mail_db_grow(1);
 	}
 	/*
 	 * Add an extra bit of protection here 
 	 */
-	while (mudstate.mail_list[mudstate.mail_freelist].message != NULL) {
+	while (mod_mail_config.mail_list[mod_mail_config.mail_freelist].message != NULL) {
 		make_mail_freelist();
 	}
-	number = mudstate.mail_freelist;
+	number = mod_mail_config.mail_freelist;
 
 	atrstr = atr_get(player, A_SIGNATURE, &aowner, &aflags, &alen);
 	execstr = bp = alloc_lbuf("add_mail_message");
@@ -212,9 +268,9 @@ char *message;
 
 #ifdef RADIX_COMPRESSION
 	len = string_compress(tprintf("%s %s", msg, execstr), msgbuff);
-	mudstate.mail_list[number].message = XSTRNDUP(msgbuff, len, "add_mail_message");
+	mod_mail_config.mail_list[number].message = XSTRNDUP(msgbuff, len, "add_mail_message");
 #else
-	mudstate.mail_list[number].message = XSTRDUP(tprintf("%s %s", msg, execstr), "add_mail_message");
+	mod_mail_config.mail_list[number].message = XSTRDUP(tprintf("%s %s", msg, execstr), "add_mail_message");
 #endif /*
         * RADIX_COMPRESSION 
         */
@@ -237,15 +293,15 @@ char *message;
 	int len;
 #endif
 
-	number = mudstate.mail_freelist;
-	if (!mudstate.mail_list) {
+	number = mod_mail_config.mail_freelist;
+	if (!mod_mail_config.mail_list) {
 		mail_db_grow(1);
 	}
 #ifdef RADIX_COMPRESSION
 	len = string_compress(message, msgbuff);
-	mudstate.mail_list[number].message = XSTRNDUP(msgbuff, len, "add_mail_message_nosig");
+	mod_mail_config.mail_list[number].message = XSTRNDUP(msgbuff, len, "add_mail_message_nosig");
 #else
-	mudstate.mail_list[number].message = XSTRDUP(message, "add_mail_message_nosig");
+	mod_mail_config.mail_list[number].message = XSTRDUP(message, "add_mail_message_nosig");
 #endif /*
         * RADIX_COMPRESSION 
         */
@@ -270,9 +326,9 @@ int number;
 #endif
 {
 #ifdef RADIX_COMPRESSION
-	mudstate.mail_list[number].message = XSTRNDUP(message, len, "new_mail_message");
+	mod_mail_config.mail_list[number].message = XSTRNDUP(message, len, "new_mail_message");
 #else
-	mudstate.mail_list[number].message = XSTRDUP(message, "new_mail_message");
+	mod_mail_config.mail_list[number].message = XSTRDUP(message, "new_mail_message");
 #endif
 }
 
@@ -283,7 +339,7 @@ int number;
 static INLINE void add_count(number)
 int number;
 {
-	mudstate.mail_list[number].count++;
+	mod_mail_config.mail_list[number].count++;
 }
 
 /*
@@ -294,12 +350,12 @@ int number;
 static void delete_mail_message(number)
 int number;
 {
-	mudstate.mail_list[number].count--;
+	mod_mail_config.mail_list[number].count--;
 
-	if (mudstate.mail_list[number].count < 1) {
-		XFREE(mudstate.mail_list[number].message, "delete_mail");
-		mudstate.mail_list[number].message = NULL;
-		mudstate.mail_list[number].count = 0;
+	if (mod_mail_config.mail_list[number].count < 1) {
+		XFREE(mod_mail_config.mail_list[number].message, "delete_mail");
+		mod_mail_config.mail_list[number].message = NULL;
+		mod_mail_config.mail_list[number].count = 0;
 	}
 }
 
@@ -313,8 +369,8 @@ int number;
 {
 	static char buff[LBUF_SIZE];
 
-	if (mudstate.mail_list[number].message != NULL) {
-		return mudstate.mail_list[number].message;
+	if (mod_mail_config.mail_list[number].message != NULL) {
+		return mod_mail_config.mail_list[number].message;
 	} else {
 		delete_mail_message(number);
 #ifdef RADIX_COMPRESSION
@@ -457,7 +513,7 @@ int negate;			/*
 		return;
 	}
 	folder = player_folder(player);
-	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)player, &mod_mail_msg_htab);
 	     mp; mp = mp->next) {
 		if (All(ms) || (Folder(mp) == folder)) {
 			i++;
@@ -521,7 +577,7 @@ char *folder;
 		return;
 	}
 	origfold = player_folder(player);
-	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)player, &mod_mail_msg_htab);
 	     mp; mp = mp->next) {
 		if (All(ms) || (Folder(mp) == origfold)) {
 			i++;
@@ -564,7 +620,7 @@ char *msglist;
 		return;
 	}
 	folder = player_folder(player);
-	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)player, &mod_mail_msg_htab);
 	     mp; mp = mp->next) {
 		if (Folder(mp) == folder) {
 			i++;
@@ -654,7 +710,7 @@ char *name, *msglist;
 	if (!parse_msglist(msglist, &ms, target)) {
 		return;
 	}
-	for (mp = (struct mail *)nhashfind((int)target, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab);
 	     mp; mp = nextp) {
 		if (mp->from == player) {
 			i++;
@@ -664,7 +720,7 @@ char *name, *msglist;
 					if (mp->prev == NULL)
 						nhashrepl((int)target,
 							  (int *)mp->next,
-						       &mudstate.mail_htab);
+						       &mod_mail_msg_htab);
 					else if (mp->next == NULL)
 						mp->prev->next = NULL;
 
@@ -729,7 +785,7 @@ char *msglist;
 				       Name(target),
 				       (64 - strlen(Name(target))) >> 1,
 				       "--------------------------------"));
-		for (mp = (struct mail *)nhashfind((int)target, &mudstate.mail_htab);
+		for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab);
 		     mp; mp = mp->next) {
 			if (mp->from == player) {
 				i++;
@@ -764,7 +820,7 @@ char *msglist;
 			free_lbuf(tbuf1);
 			return;
 		}
-		for (mp = (struct mail *)nhashfind((int)target, &mudstate.mail_htab);
+		for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab);
 		     mp; mp = mp->next) {
 			if (mp->from == player) {
 				i++;
@@ -850,7 +906,7 @@ int sub;
 	       tprintf("--------------------------%s   MAIL: Folder %d   ----------------------------",
 		       ((folder > 9) ? "" : "-"), folder));
 
-	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)player, &mod_mail_msg_htab);
 	     mp; mp = mp->next) {
 		if (Folder(mp) == folder) {
 			i++;
@@ -952,7 +1008,7 @@ dbref player;
 	/*
 	 * Go through player's mail, and remove anything marked cleared 
 	 */
-	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)player, &mod_mail_msg_htab);
 	     mp; mp = nextp) {
 		if (Cleared(mp)) {
 			/*
@@ -963,9 +1019,9 @@ dbref player;
 			 */
 			if (mp->prev == NULL) {
 				if (mp->next == NULL)
-					nhashdelete((int)player, &mudstate.mail_htab);
+					nhashdelete((int)player, &mod_mail_msg_htab);
 				else
-					nhashrepl((int)player, (int *)mp->next, &mudstate.mail_htab);
+					nhashrepl((int)player, (int *)mp->next, &mod_mail_msg_htab);
 			} else if (mp->next == NULL)
 				mp->prev->next = NULL;
 
@@ -1165,7 +1221,7 @@ int num;
 	struct mail *mp;
 	int i = 0;
 
-	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)player, &mod_mail_msg_htab);
 	     mp; mp = mp->next) {
 		if (Folder(mp) == player_folder(player)) {
 			i++;
@@ -1192,7 +1248,7 @@ int *ccount;
 	int rc, uc, cc;
 
 	cc = rc = uc = 0;
-	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)player, &mod_mail_msg_htab);
 	     mp; mp = mp->next) {
 		if (Folder(mp) == folder) {
 			if (Read(mp))
@@ -1219,7 +1275,7 @@ int *ucount;
 
 	uc = 0;
 
-	for (mp = (struct mail *)nhashfind((int)player, &mudstate.mail_htab);
+	for (mp = (struct mail *)nhashfind((int)player, &mod_mail_msg_htab);
 	     mp; mp = mp->next) {
 		if (Folder(mp) == folder) {
 			if (!(Read(mp)) && (Urgent(mp)))
@@ -1287,12 +1343,12 @@ int silent;
 	/*
 	 * if this is the first message, it is the head and the tail 
 	 */
-	if (!nhashfind((int)target, &mudstate.mail_htab)) {
-		nhashadd((int)target, (int *)newp, &mudstate.mail_htab);
+	if (!nhashfind((int)target, &mod_mail_msg_htab)) {
+		nhashadd((int)target, (int *)newp, &mod_mail_msg_htab);
 		newp->next = NULL;
 		newp->prev = NULL;
 	} else {
-		for (mp = (struct mail *)nhashfind((int)target, &mudstate.mail_htab);
+		for (mp = (struct mail *)nhashfind((int)target, &mod_mail_msg_htab);
 		     mp->next; mp = mp->next) ;
 
 		mp->next = newp;
@@ -1328,7 +1384,7 @@ dbref player;
 	 */
 	DO_WHOLE_DB(thing) {
 		for (mp = (struct mail *)nhashfind((int)thing,
-						   &mudstate.mail_htab);
+						   &mod_mail_msg_htab);
 		     mp != NULL; mp = nextp) {
 			nextp = mp->next;
 			delete_mail_message(mp->number);
@@ -1337,7 +1393,7 @@ dbref player;
 			XFREE(mp->time, "mail_nuke.time");
 			XFREE(mp, "mail_nuke");
 		}
-		nhashdelete((int)thing, &mudstate.mail_htab);
+		nhashdelete((int)thing, &mod_mail_msg_htab);
 	}
 
 	STARTLOG(LOG_ALWAYS, "WIZ", "MNUKE")
@@ -1396,9 +1452,9 @@ char *victim;
 				 */
 				if (mp->prev == NULL) {
 					if (mp->next == NULL)
-						nhashdelete((int)thing, &mudstate.mail_htab);
+						nhashdelete((int)thing, &mod_mail_msg_htab);
 					else
-						nhashrepl((int)thing, (int *)mp->next, &mudstate.mail_htab);
+						nhashrepl((int)thing, (int *)mp->next, &mod_mail_msg_htab);
 				} else if (mp->next == NULL)
 					mp->prev->next = NULL;
 				/*
@@ -1711,10 +1767,6 @@ int key;
 char *arg1;
 char *arg2;
 {
-	if (!mudconf.have_mailer) {
-		notify(player, "Mailer is disabled.");
-		return;
-	}
 	switch (key & ~MAIL_QUOTE) {
 	case 0:
 		do_mail_stub(player, arg1, arg2);
@@ -1809,21 +1861,28 @@ char *arg2;
 	}
 }
 
-int dump_mail(fp)
-FILE *fp;
+void mod_mail_dump_database()
 {
+	FILE *fp;
+	char tmpfile[256];
 	struct mail *mp, *mptr;
 	dbref thing;
 	int count = 0, i;
+
+	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mod_mail_config.mail_db);
+	if ((fp = fopen(tmpfile, "w")) == NULL) {
+	    log_perror("DMP", "FAIL", "Opening mail file", tmpfile);
+	    return;
+	}
 
 	/*
 	 * Write out version number 
 	 */
 	fprintf(fp, "+V5\n");
-	putref(fp, mudstate.mail_db_top);
+	putref(fp, mod_mail_config.mail_db_top);
 	DO_WHOLE_DB(thing) {
 		if (isPlayer(thing)) {
-			mptr = (struct mail *)nhashfind((int)thing, &mudstate.mail_htab);
+			mptr = (struct mail *)nhashfind((int)thing, &mod_mail_msg_htab);
 			if (mptr != NULL)
 				for (mp = mptr; mp; mp = mp->next) {
 					putref(fp, mp->to);
@@ -1852,8 +1911,8 @@ FILE *fp;
 	/*
 	 * Add the db of mail messages 
 	 */
-	for (i = 0; i < mudstate.mail_db_top; i++) {
-		if (mudstate.mail_list[i].count > 0) {
+	for (i = 0; i < mod_mail_config.mail_db_top; i++) {
+		if (mod_mail_config.mail_list[i].count > 0) {
 			putref(fp, i);
 #ifdef RADIX_COMPRESSION
 			string_decompress(get_mail_message(i),msgbuff);
@@ -1867,14 +1926,13 @@ FILE *fp;
 
 	save_malias(fp);
 	fflush(fp);
-
-	return (count);
+	fclose(fp);
 }
 
-int load_mail(fp)
-FILE *fp;
+void mod_mail_load_database()
 {
-	char nbuf1[8];
+	FILE *fp;
+	char tmpfile[256], nbuf1[8];
 	int mail_top = 0;
 	int new = 0;
 	int pennsub = 0;
@@ -1886,6 +1944,10 @@ FILE *fp;
 #ifdef RADIX_COMPRESSION
 	int len;
 #endif
+
+	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mod_mail_config.mail_db);
+	if ((fp = fopen(tmpfile, "r")) == NULL)
+	    return;
 
 	/*
 	 * Read the version number 
@@ -1912,7 +1974,8 @@ FILE *fp;
 		pennsub = 1;
 	} else {
 		/* Version number mangled */
-		return (0);
+	        fclose(fp);
+		return;
 	}
 	
 	if (pennsub)
@@ -1935,12 +1998,12 @@ FILE *fp;
 
 		mp->to = atoi(nbuf1);
 
-		if (!nhashfind((int)mp->to, &mudstate.mail_htab)) {
-			nhashadd((int)mp->to, (int *)mp, &mudstate.mail_htab);
+		if (!nhashfind((int)mp->to, &mod_mail_msg_htab)) {
+			nhashadd((int)mp->to, (int *)mp, &mod_mail_msg_htab);
 			mp->prev = NULL;
 			mp->next = NULL;
 		} else {
-			for (mptr = (struct mail *)nhashfind((int)mp->to, &mudstate.mail_htab);
+			for (mptr = (struct mail *)nhashfind((int)mp->to, &mod_mail_msg_htab);
 			     mptr->next != NULL; mptr = mptr->next) ;
 			mptr->next = mp;
 			mp->prev = mptr;
@@ -2019,7 +2082,7 @@ FILE *fp;
 		}
 	}
 	load_malias(fp);
-	return (1);
+	fclose(fp);
 }
 
 static int get_folder_number(player, name)
@@ -2525,13 +2588,13 @@ void check_mail_expiration()
 	struct mail *mp, *nextp;
 	struct tm then_tm;
 	time_t then, now = time(0);
-	time_t expire_secs = mudconf.mail_expiration * 86400;
+	time_t expire_secs = mod_mail_config.mail_expiration * 86400;
 	dbref thing;
 
 	/*
 	 * negative values for expirations never expire 
 	 */
-	if (0 > mudconf.mail_expiration)
+	if (0 > mod_mail_config.mail_expiration)
 		return;
 
 	MAIL_ITER_SAFE(mp, thing, nextp) {
@@ -2552,9 +2615,9 @@ void check_mail_expiration()
 				 */
 				if (mp->prev == NULL) {
 					if (mp->next == NULL)
-						nhashdelete((int)mp->to, &mudstate.mail_htab);
+						nhashdelete((int)mp->to, &mod_mail_msg_htab);
 					else
-						nhashrepl((int)mp->to, (int *)mp->next, &mudstate.mail_htab);
+						nhashrepl((int)mp->to, (int *)mp->next, &mod_mail_msg_htab);
 				} else if (mp->next == NULL)
 					mp->prev->next = NULL;
 				/*
@@ -2717,10 +2780,6 @@ int key;
 char *arg1;
 char *arg2;
 {
-	if (!mudconf.have_mailer) {
-		notify(player, "Mailer is disabled.");
-		return;
-	}
 	switch (key) {
 	case 0:
 		do_malias_switch(player, arg1, arg2);
@@ -3797,4 +3856,245 @@ dbref player;
 	}
 }
 
-#endif /* USE_MAIL */
+/* --------------------------------------------------------------------------
+ * Functions.
+ */
+
+FUNCTION(fun_mail)
+{
+	/* This function can take one of three formats: 1.  mail(num)  -->
+	 * returns message <num> for privs. 2.  mail(player)  -->
+	 * returns number of messages for <player>. 3.
+	 * mail(player, num)  -->  returns message <num> for
+	 * <player>. 
+	 *
+	 * It can now take one more format: 4.  mail() --> returns number of
+	 * messages for executor 
+	 */
+
+	struct mail *mp;
+	dbref playerask;
+	int num, rc, uc, cc;
+#ifdef RADIX_COMPRESSION
+	char *msgbuff;
+#endif
+
+	if (!fn_range_check("MAIL", nfargs, 0, 2, buff, bufc))
+		return;
+	if ((nfargs == 0) || !fargs[0] || !fargs[0][0]) {
+		count_mail(player, 0, &rc, &uc, &cc);
+		safe_ltos(buff, bufc, rc + uc);
+		return;
+	}
+	if (nfargs == 1) {
+		if (!is_number(fargs[0])) {
+			/* handle the case of wanting to count the number of
+			 * messages 
+			 */
+			if ((playerask = lookup_player(player, fargs[0], 1)) == NOTHING) {
+				safe_str("#-1 NO SUCH PLAYER", buff, bufc);
+				return;
+			} else if ((player != playerask) && !Wizard(player)) {
+				safe_noperm(buff, bufc);
+				return;
+			} else {
+				count_mail(playerask, 0, &rc, &uc, &cc);
+				safe_tprintf_str(buff, bufc, "%d %d %d", rc, uc, cc);
+				return;
+			}
+		} else {
+			playerask = player;
+			num = atoi(fargs[0]);
+		}
+	} else {
+		if ((playerask = lookup_player(player, fargs[0], 1)) == NOTHING) {
+			safe_str("#-1 NO SUCH PLAYER", buff, bufc);
+			return;
+		} else if ((player != playerask) && !God(player)) {
+			safe_noperm(buff, bufc);
+			return;
+		}
+		num = atoi(fargs[1]);
+	}
+
+	if ((num < 1) || (Typeof(playerask) != TYPE_PLAYER)) {
+		safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
+		return;
+	}
+	mp = mail_fetch(playerask, num);
+	if (mp != NULL) {
+#ifdef RADIX_COMPRESSION
+		msgbuff = alloc_lbuf("fun_mail");
+		string_decompress(get_mail_message(mp->number), msgbuff);
+		safe_str(msgbuff, buff, bufc);
+		free_lbuf(msgbuff);
+#else
+		safe_str(get_mail_message(mp->number), buff, bufc);
+#endif
+		return;
+	}
+	/* ran off the end of the list without finding anything */
+	safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
+}
+
+FUNCTION(fun_mailfrom)
+{
+	/* This function can take these formats: 1) mailfrom(<num>) 2)
+	 * mailfrom(<player>,<num>) It returns the dbref of the player the
+	 * mail is from 
+	 */
+	struct mail *mp;
+	dbref playerask;
+	int num;
+
+	if (!fn_range_check("MAILFROM", nfargs, 1, 2, buff, bufc))
+		return;
+	if (nfargs == 1) {
+		playerask = player;
+		num = atoi(fargs[0]);
+	} else {
+		if ((playerask = lookup_player(player, fargs[0], 1)) == NOTHING) {
+			safe_str("#-1 NO SUCH PLAYER", buff, bufc);
+			return;
+		} else if ((player != playerask) && !Wizard(player)) {
+			safe_noperm(buff, bufc);
+			return;
+		}
+		num = atoi(fargs[1]);
+	}
+
+	if ((num < 1) || (Typeof(playerask) != TYPE_PLAYER)) {
+		safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
+		return;
+	}
+	mp = mail_fetch(playerask, num);
+	if (mp != NULL) {
+		safe_dbref(buff, bufc, mp->from);
+		return;
+	}
+	/* ran off the end of the list without finding anything */
+	safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
+}
+
+FUN mod_mail_functable[] = {
+{"MAIL",        fun_mail,       0,  FN_VARARGS, CA_PUBLIC},
+{"MAILFROM",    fun_mailfrom,   0,  FN_VARARGS, CA_PUBLIC},
+{NULL,		NULL,		0,  0,		0}};
+
+/* --------------------------------------------------------------------------
+ * Command tables.
+ */
+
+NAMETAB mail_sw[] = {
+{(char *)"abort",	1,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ABORT},
+{(char *)"alias",       4,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ALIAS},
+{(char *)"alist",       2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_ALIST},
+{(char *)"cc",		2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_CC},
+{(char *)"clear",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_CLEAR},
+{(char *)"debug",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_DEBUG},
+{(char *)"dstats",      2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_DSTATS},
+{(char *)"edit",        2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_EDIT},
+{(char *)"file",        2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FILE},
+{(char *)"folder",      3,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FOLDER},
+{(char *)"forward",     2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FORWARD},
+{(char *)"fstats",      2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FSTATS},
+{(char *)"fwd",         2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_FORWARD},
+{(char *)"list",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_LIST},
+{(char *)"nuke",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_NUKE},
+{(char *)"proof",       2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_PROOF},
+{(char *)"purge",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_PURGE},
+{(char *)"quick",	1,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_QUICK},
+{(char *)"quote",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_QUOTE|SW_MULTIPLE},
+{(char *)"read",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_READ},
+{(char *)"reply",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REPLY},
+{(char *)"replyall",	6,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REPLYALL},
+{(char *)"retract",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_RETRACT},
+{(char *)"review",	3,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REVIEW},
+{(char *)"safe",	2,	CA_NO_SLAVE|CA_NO_GUEST,	MAIL_SAFE},
+{(char *)"send",        0,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_SEND},
+{(char *)"stats",       2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_STATS},
+{(char *)"tag",         1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_TAG},
+{(char *)"unclear",     1,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_UNCLEAR},
+{(char *)"untag",       3,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_UNTAG},
+{(char *)"urgent",      2,      CA_NO_SLAVE|CA_NO_GUEST,      MAIL_URGENT},
+{ NULL,                 0,      0,              0}};
+
+NAMETAB malias_sw[] = {
+{(char *)"desc",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_DESC},
+{(char *)"chown",       1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_CHOWN},
+{(char *)"add",         1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_ADD},
+{(char *)"remove",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_REMOVE},
+{(char *)"delete",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_DELETE},
+{(char *)"rename",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_RENAME},
+{(char *)"list",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_LIST},
+{(char *)"status",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_STATUS},
+{ NULL,                 0,      0,              0}};
+
+CMDENT mod_mail_cmdtable[] = {
+{(char *)"@mail",               mail_sw,           CA_NO_SLAVE|CA_NO_GUEST,
+        0,              CS_TWO_ARG|CS_INTERP,
+	NULL,		NULL,	NULL,		do_mail},
+{(char *)"@malias",             malias_sw,         CA_NO_SLAVE|CA_NO_GUEST,
+        0,              CS_TWO_ARG|CS_INTERP,
+	NULL,		NULL,	NULL,		do_malias},
+{(char *)"-",			NULL,
+	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
+	0,		CS_ONE_ARG|CS_LEADIN,	
+	NULL,		NULL,	NULL,		do_postpend},
+{(char *)"~",			NULL,
+	CA_NO_GUEST|CA_NO_SLAVE|CF_DARK,
+	0,		CS_ONE_ARG|CS_LEADIN,	
+	NULL,		NULL,	NULL,		do_prepend},
+{(char *)NULL,			NULL,		0,
+	0,		0,				
+	NULL,		NULL,	NULL,		NULL}};
+
+/* --------------------------------------------------------------------------
+ * Handlers.
+ */
+
+void mod_mail_announce_connect(player)
+    dbref player;
+{
+    check_mail(player, 0, 0);
+    if (Sending_Mail(player)) {
+	notify(player, "MAIL: You have a mail message in progress.");
+    }
+}
+
+void mod_mail_announce_disconnect(player, reason)
+    dbref player;
+    const char *reason;
+{
+    do_mail_purge(player);
+}
+
+void mod_mail_destroy_player(player, victim)
+    dbref player, victim;
+{
+    do_mail_clear(victim, NULL);
+    do_mail_purge(victim);
+}
+
+void mod_mail_cleanup_startup()
+{
+    check_mail_expiration();
+}
+
+void mod_mail_init()
+{
+    StringCopy(mod_mail_config.mail_db, "mail.db");
+    mod_mail_config.mail_expiration = 14;
+    mod_mail_config.mail_db_top = 0;
+    mod_mail_config.mail_db_size = 0;
+    mod_mail_config.mail_freelist = 0;
+
+    register_commands(mod_mail_cmdtable);
+    register_functions(mod_mail_functable);
+    register_hashtables(NULL, mod_mail_nhashtable);
+
+    prefix_cmds['-'] = (CMDENT *) hashfind((char *)"-",
+					   &mudstate.command_htab);
+    prefix_cmds['~'] = (CMDENT *) hashfind((char *)"~",
+					   &mudstate.command_htab);
+}

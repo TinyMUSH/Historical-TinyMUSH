@@ -13,7 +13,6 @@
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
-#include "mail.h"	/* required by mudconf */
 #include "mudconf.h"	/* required by code */
 
 #include "db.h"		/* required by externs */
@@ -811,11 +810,6 @@ const char *reason;
 			key |= (MSG_NBR | MSG_NBR_EXITS | MSG_LOC | MSG_FWDLIST);
 		notify_check(player, player, buf, key);
 		free_mbuf(buf);
-
-#ifdef USE_MAIL
-		if (mudconf.have_mailer)
-			do_mail_purge(player);
-#endif
 
 		raw_broadcast(WATCHER | FLAG_WORD2,
 			      (char *)"GAME: %s has disconnected.",

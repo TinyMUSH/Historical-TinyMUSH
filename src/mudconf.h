@@ -83,13 +83,11 @@ struct confdata {
 	char	outdb[PBUF_SIZE];	/* checkpoint the database to here */
 	char	crashdb[PBUF_SIZE];	/* write database here on crash */
 	char	gdbm[PBUF_SIZE];	/* use this gdbm file if we need one */
-	char	mail_db[PBUF_SIZE];	/* name of the @mail database */
 	char	status_file[PBUF_SIZE]; /* Where to write arg to @shutdown */
 	char	mudlogname[PBUF_SIZE];	/* Name of the game log file */
 #ifdef HAVE_DLOPEN
 	char	modhome[MBUF_SIZE];	/* Directory where the .so files are */
 #endif
-        int	have_mailer;	/* Should @mail be active? */
 	int	have_pueblo;	/* Is Pueblo support compiled in? */
 	int	have_zones;	/* Should zones be active? */
 	int	port;		/* user port */
@@ -165,7 +163,6 @@ struct confdata {
 	int	searchcost;	/* cost of commands that search the whole DB */
 	int	waitcost;	/* cost of @wait (refunded when finishes) */
 	int	building_limit;	/* max number of objects in the db */
-	int	mail_expiration; /* Number of days to wait to delete mail */
 	int	queuemax;	/* max commands a player may have in queue */
 	int	queue_chunk;	/* # cmds to run from queue when idle */
 	int	active_q_chunk;	/* # cmds to run from queue when active */
@@ -385,9 +382,6 @@ struct statedata {
 	HASHTAB cdefs_htab;	/* Components hashtable */
 	HASHTAB instance_htab;	/* Instances hashtable */
 	HASHTAB instdata_htab;	/* Structure data hashtable */
-#ifdef USE_MAIL
-	NHSHTAB mail_htab;	/* Mail players hashtable */
-#endif
 #ifdef HAVE_DLOPEN
 	MODULE *modules_list;	/* Loadable modules hashtable */
 #endif
@@ -420,10 +414,6 @@ struct statedata {
 	int	min_size;	/* Minimum db size (from file header) */
 	int	db_top;		/* Number of items in the db */
 	int	db_size;	/* Allocated size of db structure */
-	int	mail_freelist;  /* The next free mail number */
-	int	mail_db_top;    /* Like db_top */
-	int	mail_db_size;	/* Like db_size */
-	MENT	*mail_list;     /* The mail database */
 	int	*guest_free;	/* Table to keep track of free guests */
 	MARKBUF	*markbits;	/* temp storage for marking/unmarking */
 	int	in_loop;	/* In a loop() statement? */
