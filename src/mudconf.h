@@ -24,7 +24,7 @@ typedef unsigned char Uchar;
 typedef struct confdata CONFDATA;
 struct confdata {
 	int	cache_trim;	/* Should cache be shrunk to original size */
-	int	cache_depth;	/* Number of entries in each cache cell */
+	int	cache_size;	/* Maximum size of cache */
 	int	cache_width;	/* Number of cache cells */
 	int	cache_names;	/* Should object names be cached separately */
 	int	paylimit;	/* getting money gets hard over this much */

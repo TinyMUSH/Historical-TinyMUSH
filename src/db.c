@@ -2937,7 +2937,7 @@ char *gdbmfile;
 #ifdef STANDALONE
 	fprintf(stderr, "Opening %s\n", gdbmfile);
 #endif
-	cache_init(mudconf.cache_width, mudconf.cache_depth);
+	cache_init(mudconf.cache_width, mudconf.cache_size);
 	dddb_setfile(gdbmfile);
 	dddb_init();
 #ifdef STANDALONE

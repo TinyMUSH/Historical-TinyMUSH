@@ -122,12 +122,6 @@ char *name;
 	}
 	parse_range(&name, &low_bound, &high_bound);
 	for (i = low_bound; i <= high_bound; i++) {
-#ifndef MEMORY_BASED
-		if ((i % 100) == 0)
-			cache_reset(0);
-#endif /*
-        * MEMORY_BASED 
-        */
 		if ((Typeof(i) != TYPE_EXIT) &&
 		    controls(player, i) &&
 		    (!*name || string_match(PureName(i), name))) {
@@ -667,15 +661,6 @@ SEARCH *parm;
 	save_invk_ctr = mudstate.func_invk_ctr;
 
 	for (thing = parm->low_bound; thing <= parm->high_bound; thing++) {
-
-#ifndef MEMORY_BASED
-		if ((thing % 100) == 0) {
-			cache_reset(0);
-		}
-#endif /*
-        * MEMORY_BASED 
-        */
-
 		mudstate.func_invk_ctr = save_invk_ctr;
 
 		/*

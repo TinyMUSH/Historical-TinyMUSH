@@ -19,7 +19,7 @@ typedef	char	*mall_t;
 
 /* default (runtime-resettable) cache parameters */
 
-#define	CACHE_DEPTH	10
+#define	CACHE_SIZE	2000000		/* 2 million bytes */
 #define	CACHE_WIDTH	20
 
 /* Macros for calling the DB layer */

@@ -1592,10 +1592,7 @@ static void NDECL(process_preload)
 				XFREE(fp->data,
 				      "process_preload.fwdlist_data");
 			    }
-#ifndef MEMORY_BASED
-			    cache_reset(0);
-#endif /* MEMORY_BASED */
-			}
+                        }
 		}
 
 		do_top(10);
@@ -1611,9 +1608,6 @@ static void NDECL(process_preload)
 
 				do_second();
 				do_top(10);
-#ifndef MEMORY_BASED
-				cache_reset(0);
-#endif /* MEMORY_BASED */
 				break;
 			}
 		}
@@ -1839,6 +1833,14 @@ char *argv[];
 	    log_text((char *) "Startup processing complete.");
 	ENDLOG
 
+	/* Clear all reference flags in the cache-- what happens when the game
+	 * loads is NOT representative of normal cache behavior :)
+	 */
+	
+	cache_reset(1);
+	
+	/* Start the DNS and identd lookup slave process */
+	
 	boot_slave();
 
 	/* This must happen after startups are run, in order to get a

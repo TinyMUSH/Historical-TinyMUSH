@@ -300,8 +300,8 @@ void NDECL(cf_init)
 	mudconf.struct_lim = 100;
 	mudconf.instance_lim = 100;
 	mudconf.cache_trim = 0;
-	mudconf.cache_depth = CACHE_DEPTH;
 	mudconf.cache_width = CACHE_WIDTH;
+	mudconf.cache_size = CACHE_SIZE;
 	mudconf.cache_names = 1;
 
 	mudstate.events_flag = 0;
@@ -1286,8 +1286,8 @@ CONF conftable[] = {
      	cf_bool,	CA_GOD,		&mudconf.bools_oldstyle,	0},
 {(char *)"building_limit",
 	cf_int,		CA_GOD,		(int *)&mudconf.building_limit,	0},
-{(char *)"cache_depth",
-	cf_int,		CA_STATIC,	&mudconf.cache_depth,		0},
+{(char *)"cache_size",
+	cf_int,		CA_STATIC,	&mudconf.cache_size,		0},
 {(char *)"cache_names",
 	cf_bool,	CA_STATIC,	&mudconf.cache_names,		0},
 {(char *)"cache_trim",

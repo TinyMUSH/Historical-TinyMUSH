@@ -55,6 +55,7 @@ typedef struct Obj {
 	Objname	name;
 	int	at_count;
 	Attrib	*atrs;
+	int size;
 } Obj;
 
 #define	ONULL	((Obj *)0)

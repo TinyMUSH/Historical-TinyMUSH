@@ -1412,11 +1412,6 @@ int *db_format, *db_version, *db_flags;
 	db_free();
 	for (i = 0;; i++) {
 
-#ifndef MEMORY_BASED
-		if (!(i % 25)) {
-			cache_reset(0);
-		}
-#endif /* MEMORY_BASED */
 #ifdef STANDALONE
 		if (!(i % 100)) {
 			fputc('.', stderr);
@@ -2188,11 +2183,6 @@ int format, version;
 	}
 
 	DO_WHOLE_DB(i) {
-#ifndef MEMORY_BASED
-		if (!(i % 25)) {
-			cache_reset(0);
-		}
-#endif /* MEMORY_BASED */
 
 #ifdef STANDALONE
 		if (!(i % 100)) {
