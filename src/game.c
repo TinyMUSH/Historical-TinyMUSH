@@ -1079,6 +1079,10 @@ char *message;
 		return;
 	}
 
+	if (!(key & SHUTDN_PANIC)) {
+		do_dbck(NOTHING, NOTHING, 0);	/* dump consistent state */
+	}
+
 	if (player != NOTHING) {
 		raw_broadcast(0, "GAME: Shutdown by %s", Name(Owner(player)));
 		STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
@@ -1120,7 +1124,7 @@ char *message;
 		STARTLOG(LOG_ALWAYS, "DMP", "PANIC")
 			log_printf("Panic dump: %s", mudconf.crashdb);
 		ENDLOG
-			dump_database_internal(1);
+			dump_database_internal(DUMP_DB_CRASH);
 		STARTLOG(LOG_ALWAYS, "DMP", "DONE")
 			log_printf("Panic dump complete: %s", mudconf.crashdb);
 		ENDLOG
@@ -1139,7 +1143,7 @@ int dump_type;
 	FILE *f;
 
 	switch(dump_type) {
-	case 1:
+	case DUMP_DB_CRASH:
 		sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.crashdb);
 		unlink(tmpfile);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
@@ -1151,30 +1155,30 @@ int dump_type;
 				   tmpfile);
 		}
 		break;
-	case 2:
-	case 3:
-		if (dump_type == 2) {
-			sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.indb);
-			f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
-		} else {
-			sprintf(tmpfile, "%s/%s.FLAT", mudconf.dbhome, mudconf.outdb);
-			f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
-		}
-
+	case DUMP_DB_RESTART:
+		sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.indb);
+		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
-			if (dump_type == 2) {
-				db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
-			} else {
-				/* Write a flatfile */
-				db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
-			}
+			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
+			tf_fclose(f);
+		} else {
+			log_perror("DMP", "FAIL", "Opening restart flatfile",
+				   tmpfile);
+		}
+		break;
+	case DUMP_DB_FLATFILE:
+		sprintf(tmpfile, "%s/%s.FLAT", mudconf.dbhome, mudconf.outdb);
+		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
+		if (f != NULL) {
+			db_write(f, F_TINYMUSH,
+				 UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening flatfile",
 				   tmpfile);
 		}
 		break;
-	case 4:	
+	case DUMP_DB_KILLED:	
 		sprintf(tmpfile, "%s/%s.KILLED", mudconf.dbhome, mudconf.indb);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
@@ -1221,7 +1225,7 @@ void NDECL(dump_database)
 	ENDLOG
 	pcache_sync();
 	SYNC;
-	dump_database_internal(0);
+	dump_database_internal(DUMP_DB_NORMAL);
 	STARTLOG(LOG_DBSAVES, "DMP", "DONE")
 		log_printf("Dump complete: %s.#%d#",
 			   mudconf.outdb, mudstate.epoch);
@@ -1276,9 +1280,9 @@ int key;
 		}
 		if (child == 0) {
 			if (key & DUMP_FLATFILE) {
-				dump_database_internal(3);
+				dump_database_internal(DUMP_DB_FLATFILE);
 			} else {
-				dump_database_internal(0);
+				dump_database_internal(DUMP_DB_NORMAL);
 			}
 			if (mudconf.fork_dump)
 				_exit(0);

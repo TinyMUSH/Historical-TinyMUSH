@@ -1241,7 +1241,7 @@ int sig;
 		sprintf(buff, "GAME: Caught signal %s, exiting.",
 			signames[sig]);
 		raw_broadcast(0, buff);
-		dump_database_internal(4);
+		dump_database_internal(DUMP_DB_KILLED);
 		exit(0);
 		break;
 	case SIGILL:		/*
@@ -1273,7 +1273,7 @@ int sig;
 			
 			/* Don't sync first. Using older db. */
 			
-			dump_database_internal(1);
+			dump_database_internal(DUMP_DB_CRASH);
 			CLOSE;
 			shutdown(slave_socket, 2);
 			close(slave_socket);

@@ -1342,7 +1342,7 @@ void do_restart(player, cause, key)
 
 	/* Dump databases, etc. */
 
-	dump_database_internal(2);
+	dump_database_internal(DUMP_DB_RESTART);
 	
 	SYNC;
 	CLOSE;

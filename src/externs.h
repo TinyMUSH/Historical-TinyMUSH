@@ -508,6 +508,14 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	SA_EXIT		1	/* Exit, and dump core */
 #define	SA_DFLT		2	/* Try to restart on a fatal error */
 
+/* Database dumping directives for dump_database_internal() */
+
+#define DUMP_DB_NORMAL		0
+#define DUMP_DB_CRASH		1
+#define DUMP_DB_RESTART		2
+#define DUMP_DB_FLATFILE	3
+#define DUMP_DB_KILLED		4
+
 /* --------------------------------------------------------------------------
  * A zillion ways to notify things.
  */
