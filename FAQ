@@ -285,7 +285,7 @@ guests:
    If you want to specify a list of guest names, set 'guest_prefixes'
    to the list of names you want to use. Since the guest names are
    separated by spaces, they can only be single-word names, i.e.,
-   'guest_prefixes Werewolf Vampire Skeleton'. If there are 
+   'guest_prefixes Werewolf Vampire Skeleton'.
 
    If you want guest names to be generated as combinations of words,
    set 'guest_prefixes' to the list of the first parts of the name,
