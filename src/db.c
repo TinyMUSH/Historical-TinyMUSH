@@ -637,11 +637,10 @@ char *atext;
 #endif
 }
 
+#ifdef STANDALONE		/* This is a macro if ! STANDALONE */
 FWDLIST *fwdlist_get(thing)
 dbref thing;
 {
-#ifdef STANDALONE
-
 	dbref aowner;
 	int aflags, alen, errors;
 	char *tp;
@@ -655,13 +654,9 @@ dbref thing;
 	tp = atr_get(thing, A_FORWARDLIST, &aowner, &aflags, &alen);
 	errors = fwdlist_load(fp, GOD, tp);
 	free_lbuf(tp);
-#else
-	FWDLIST *fp;
-
-	fp = ((FWDLIST *) nhashfind(thing, &mudstate.fwdlist_htab));
-#endif
 	return fp;
 }
+#endif
 
 static char *set_string(ptr, new)
 char **ptr, *new;
