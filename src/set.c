@@ -939,7 +939,7 @@ char *what, *args[];
 {
 	dbref thing, aowner, axowner;
 	ATTR *in_attr, *out_attr;
-	int i, anum, in_anum, aflags, axflags, no_delete;
+	int i, anum, in_anum, aflags, axflags, no_delete, num_copied;
 	char *astr;
 
 	/*
@@ -982,6 +982,7 @@ char *what, *args[];
 	 */
 
 	no_delete = 0;
+	num_copied = 0;
 	for (i = 1; i < nargs; i++) {
 		anum = mkattr(args[i]);
 		if (anum <= 0) {
@@ -1006,6 +1007,7 @@ char *what, *args[];
 			} else {
 				atr_add(thing, out_attr->number, astr,
 					Owner(player), aflags);
+				num_copied++;
 				if (!Quiet(player))
 					notify_quiet(player,
 						     tprintf("%s: Set.",
@@ -1018,7 +1020,15 @@ char *what, *args[];
 	 * Remove the source attribute if we can. 
 	 */
 
-	if ((in_anum > 0) && !no_delete) {
+	if (num_copied < 1) {
+	    if (in_attr) {
+		notify_quiet(player,
+			     tprintf("%s: Not copied anywhere. Not cleared.",
+				     in_attr->name));
+	    } else {
+		notify_quiet(player, "Not copied anywhere. Non-existent attribute.");
+	    }
+	} else if ((in_anum > 0) && !no_delete) {
 		in_attr = atr_num(in_anum);
 		if (in_attr && Set_attr(player, thing, in_attr, aflags)) {
 			atr_clr(thing, in_attr->number);
@@ -1027,10 +1037,13 @@ char *what, *args[];
 					     tprintf("%s: Cleared.",
 						     in_attr->name));
 		} else {
-			if (in_attr)
-				notify_quiet(player,
-					     tprintf("%s: Could not remove old attribute.  Permission denied.",
-						     in_attr->name));
+		    if (in_attr) {
+			notify_quiet(player,
+				     tprintf("%s: Could not remove old attribute.  Permission denied.",
+					     in_attr->name));
+		    } else {
+			notify_quiet(player, "Could not remove old attribute. Non-existent attribute.");
+		    }
 		}
 	}
 	free_lbuf(astr);
