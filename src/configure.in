@@ -490,12 +490,12 @@ char **argv;
 
   if ((handle = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL)) != NULL)
     if (dlsym(handle, "_dlopen") && !dlsym(handle, "dlopen"))
-      return 1;
+      return 0;
 
-  return 0;
-}],AC_MSG_RESULT(no),
-  AC_DEFINE(DLSYM_NEEDS_UNDERSCORE)
-    AC_MSG_RESULT(yes),
+  return 1;
+}],AC_DEFINE(DLSYM_NEEDS_UNDERSCORE)
+     AC_MSG_RESULT(yes),
+  AC_MSG_RESULT(no),
   AC_MSG_RESULT(unable to test... assuming no))
 
 dnl Function checks
