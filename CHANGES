@@ -51,7 +51,10 @@ highly significant changes are noted here.
 - Optional uselock checking for global aconnects has been implemented.
   (2.2 had this by default; MUX did not have this.)
 
-- Disconnect reason is passed for master-room disconnects, too.
+- The disconnect reason is passed for master-room disconnects, too.
+
+- Default channel aliases can now be set with the public_calias and
+  guests_calias config parameters.
 
 - @chown now checks a ChownLock on CHOWN_OK objects.
 
@@ -80,6 +83,9 @@ highly significant changes are noted here.
   fails to match: if 'yes', this is empty (2.0.10p5 and before, 2.2.1
   and later), if 'no', this is #-1 NO MATCH (2.0.10p6, 2.2.0, MUX).
   Defaults to 'no'.
+
+- Added localize() function, keeping changes to r-registers within the
+  "local" scope of that evaluation.
 
 - Added ncomp() function for comparing numbers comp() style (very
   useful for sortby() afficianados).
