@@ -310,7 +310,7 @@ int isrobot, isguest;
 		if (*mudconf.guests_channel)
 		    join_channel(player, mudconf.guests_channel,
 				 mudconf.guests_calias, NULL);
-	    } else {
+	    } else if (player != 1) { /* avoid problems with minimal db */
 		if (*mudconf.public_channel)
 		    join_channel(player, mudconf.public_channel,
 				 mudconf.public_calias, NULL);

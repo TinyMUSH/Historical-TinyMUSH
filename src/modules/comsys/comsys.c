@@ -1758,7 +1758,7 @@ static void read_comsys(fp, com_ver)
     }
 }
 
-static void make_vanilla_comsys()
+void make_vanilla_comsys()
 {
     CHANNEL *chp;
 

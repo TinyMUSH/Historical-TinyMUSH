@@ -69,6 +69,7 @@ extern void NDECL(check_mail_expiration);
 #ifdef USE_COMSYS
 extern void FDECL(load_comsys, (char *));
 extern void FDECL(save_comsys, (char *));
+extern void NDECL(make_vanilla_comsys);
 extern void NDECL(update_comwho_all);
 #endif
 
@@ -1669,9 +1670,12 @@ char *argv[];
 	mudstate.record_players = 0;
 	
 	mudstate.loading_db = 1;
-	if (mindb)
+	if (mindb) {
 		db_make_minimal();
-	else if (load_game() < 0) {
+#ifdef USE_COMSYS
+		make_vanilla_comsys();
+#endif
+	} else if (load_game() < 0) {
 		STARTLOG(LOG_ALWAYS, "INI", "LOAD")
 			log_text((char *)"Couldn't load: ");
 		log_text(mudconf.indb);
