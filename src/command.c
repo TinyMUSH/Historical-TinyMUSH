@@ -2461,6 +2461,7 @@ dbref player;
 extern CacheLst *sys_c;
 extern NAME *names, *purenames;
 extern POOL pools[NUM_POOLS];
+extern int anum_alc_top;
 
 void list_memory(player)
 {
@@ -2759,6 +2760,13 @@ void list_memory(player)
 		   tprintf("Attr name htab   : %12.2fk", each / 1024));
 	total += each;
 
+	/* Calculate the size of anum_table */
+	
+	each = sizeof(ATTR *) * anum_alc_top;
+	raw_notify(player,
+		   tprintf("Attr num table   : %12.2fk", each / 1024));
+	total += each;
+	
 	/* Calculate size of buffers */
 	
 	each = sizeof(POOL) * NUM_POOLS;
