@@ -22,16 +22,6 @@ struct num_hashentry {
 	struct num_hashentry	*next;
 };
 
-typedef struct hasharray HASHARR;
-struct hasharray {
-	HASHENT		*element[800];
-};
-
-typedef struct num_hasharray NHSHARR;
-struct num_hasharray {
-	NHSHENT		*element[800];
-};
-
 typedef struct hashtable HASHTAB;
 struct hashtable {
 	int		hashsize;
@@ -44,7 +34,7 @@ struct hashtable {
 	int		deletes;
 	int		nulls;
 	int		nostrdup;	/* don't strdup target, copy pointer */
-	HASHARR		*entry;
+	HASHENT		**entry;
 	int		last_hval;	/* Used for hashfirst & hashnext. */
 	HASHENT		*last_entry;	/* like last_hval */	
 };
@@ -61,7 +51,7 @@ struct num_hashtable {
 	int		deletes;
 	int		nulls;
 	int		nostrdup;	/* dummy, so nhash* macros work */
-	NHSHARR		*entry;
+	NHSHENT		**entry;
 	int		last_hval;
 	NHSHENT		*last_entry;
 };

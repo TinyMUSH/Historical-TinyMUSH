@@ -1006,7 +1006,7 @@ void do_cdestroy(player, cause, key, name)
 				   "cdestroy.name_array");
     count = 0;
     for (i = 0; i < htab->hashsize; i++) {
-	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
 	    cap = (COMALIAS *) hptr->data;
 	    if (cap->channel == chp) {
 		name_array[count] = hptr->target;
@@ -2014,7 +2014,7 @@ static void sanitize_comsys()
     ptab = (int *) XCALLOC(htab->entries, sizeof(int), "sanitize_comsys");
 
     for (i = 0; i < htab->hashsize; i++) {
-	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
 	    if (!Good_obj(hptr->target)) {
 		ptab[count] = hptr->target;
 		count++;

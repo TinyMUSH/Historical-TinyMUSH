@@ -75,11 +75,11 @@ int size;
 	htab->deletes = 0;
 	htab->nulls = size;
 	htab->nostrdup = 0;
-	htab->entry = (HASHARR *) XMALLOC(size * sizeof(struct hashentry *),
-					  "hashinit");
+	htab->entry = (HASHENT **) XCALLOC(size, sizeof(HASHENT *),
+					   "hashinit");
 
 	for (i = 0; i < size; i++)
-		htab->entry->element[i] = NULL;
+		htab->entry[i] = NULL;
 }
 
 /* ---------------------------------------------------------------------------
@@ -109,7 +109,7 @@ HASHTAB *htab;
 	numchecks = 0;
 	htab->scans++;
 	hval = hashval(str, htab->mask);
-	for (prev = hptr = htab->entry->element[hval]; hptr != NULL; hptr = hptr->next) {
+	for (prev = hptr = htab->entry[hval]; hptr != NULL; hptr = hptr->next) {
 		numchecks++;
 		if (strcmp(str, hptr->target) == 0) {
 			htab->hits++;
@@ -125,8 +125,8 @@ HASHTAB *htab;
 			 
 			if ((hptr->checks > 20) && (hptr != prev)) {
 				prev->next = hptr->next;
-				hptr->next = htab->entry->element[hval];
-				htab->entry->element[hval] = hptr;
+				hptr->next = htab->entry[hval];
+				htab->entry[hval] = hptr;
 				hptr->checks = 0;
 			}
 			return hptr->data;
@@ -161,7 +161,7 @@ HASHTAB *htab;
 		return (-1);
 	hval = hashval(str, htab->mask);
 	htab->entries++;
-	if (htab->entry->element[hval] == NULL)
+	if (htab->entry[hval] == NULL)
 		htab->nulls--;
 	hptr = (HASHENT *) XMALLOC(sizeof(HASHENT), "hashadd");
 	if (htab->nostrdup) {
@@ -171,8 +171,8 @@ HASHTAB *htab;
 	}
 	hptr->data = hashdata;
 	hptr->checks = 0;
-	hptr->next = htab->entry->element[hval];
-	htab->entry->element[hval] = hptr;
+	hptr->next = htab->entry[hval];
+	htab->entry[hval] = hptr;
 	return (0);
 }
 
@@ -189,12 +189,12 @@ HASHTAB *htab;
 
 	hval = hashval(str, htab->mask);
 	last = NULL;
-	for (hptr = htab->entry->element[hval];
+	for (hptr = htab->entry[hval];
 	     hptr != NULL;
 	     last = hptr, hptr = hptr->next) {
 		if (strcmp(str, hptr->target) == 0) {
 			if (last == NULL)
-				htab->entry->element[hval] = hptr->next;
+				htab->entry[hval] = hptr->next;
 			else
 				last->next = hptr->next;
 			if (!htab->nostrdup) {
@@ -203,7 +203,7 @@ HASHTAB *htab;
 			XFREE(hptr, "hashdelete.hptr");
  			htab->deletes++;
 			htab->entries--;
-			if (htab->entry->element[hval] == NULL)
+			if (htab->entry[hval] == NULL)
 				htab->nulls++;
 			return;
 		}
@@ -222,7 +222,7 @@ int size;
 	int i;
 
 	for (i = 0; i < htab->hashsize; i++) {
-		hent = htab->entry->element[i];
+		hent = htab->entry[i];
 		while (hent != NULL) {
 			thent = hent;
 			hent = hent->next;
@@ -231,7 +231,7 @@ int size;
 			}
 			XFREE(thent, "hashflush.hent");
 		}
-		htab->entry->element[i] = NULL;
+		htab->entry[i] = NULL;
 	}
 
 	/* Resize if needed.  Otherwise, just zero all the stats */
@@ -265,7 +265,7 @@ HASHTAB *htab;
 	int hval;
 
 	hval = hashval(str, htab->mask);
-	for (hptr = htab->entry->element[hval];
+	for (hptr = htab->entry[hval];
 	     hptr != NULL;
 	     hptr = hptr->next) {
 		if (strcmp(str, hptr->target) == 0) {
@@ -284,7 +284,7 @@ HASHTAB *htab;
 	HASHENT *hptr;
 
 	for (hval = 0; hval < htab->hashsize; hval++)
-		for (hptr = htab->entry->element[hval]; hptr != NULL; hptr = hptr->next) {
+		for (hptr = htab->entry[hval]; hptr != NULL; hptr = hptr->next) {
 			if (hptr->data == old)
 				hptr->data = new;
 		}
@@ -317,10 +317,10 @@ HASHTAB *htab;
 	int hval;
 
 	for (hval = 0; hval < htab->hashsize; hval++)
-		if (htab->entry->element[hval] != NULL) {
+		if (htab->entry[hval] != NULL) {
 			htab->last_hval = hval;
-			htab->last_entry = htab->entry->element[hval];
-			return htab->entry->element[hval]->data;
+			htab->last_entry = htab->entry[hval];
+			return htab->entry[hval]->data;
 		}
 	return NULL;
 }
@@ -340,10 +340,10 @@ HASHTAB *htab;
 	/* We were at the end of the previous chain, go to the next one */
 	hval++;
 	while (hval < htab->hashsize) {
-		if (htab->entry->element[hval] != NULL) {
+		if (htab->entry[hval] != NULL) {
 			htab->last_hval = hval;
-			htab->last_entry = htab->entry->element[hval];
-			return htab->entry->element[hval]->data;
+			htab->last_entry = htab->entry[hval];
+			return htab->entry[hval]->data;
 		}
 		hval++;
 	}
@@ -356,10 +356,10 @@ HASHTAB *htab;
 	int hval;
 
 	for (hval = 0; hval < htab->hashsize; hval++)
-		if (htab->entry->element[hval] != NULL) {
+		if (htab->entry[hval] != NULL) {
 			htab->last_hval = hval;
-			htab->last_entry = htab->entry->element[hval];
-			return htab->entry->element[hval]->target;
+			htab->last_entry = htab->entry[hval];
+			return htab->entry[hval]->target;
 		}
 	return NULL;
 }
@@ -379,10 +379,10 @@ HASHTAB *htab;
 	/* We were at the end of the previous chain, go to the next one */
 	hval++;
 	while (hval < htab->hashsize) {
-		if (htab->entry->element[hval] != NULL) {
+		if (htab->entry[hval] != NULL) {
 			htab->last_hval = hval;
-			htab->last_entry = htab->entry->element[hval];
-			return htab->entry->element[hval]->target;
+			htab->last_entry = htab->entry[hval];
+			return htab->entry[hval]->target;
 		}
 		hval++;
 	}
@@ -415,18 +415,18 @@ void hashresize(htab, min_size)
     hashinit(&new_htab, size);
 
     for (i = 0; i < htab->hashsize; i++) {
-	hent = htab->entry->element[i];
+	hent = htab->entry[i];
 	while (hent != NULL) {
 	    thent = hent;
 	    hent = hent->next;
 
 	    /* don't free and reallocate entries, just copy the pointers */
 	    hval = hashval(thent->target, new_htab.mask);
-	    if (new_htab.entry->element[hval] == NULL)
+	    if (new_htab.entry[hval] == NULL)
 		new_htab.nulls--;
 	    thent->checks = 0;
-	    thent->next = new_htab.entry->element[hval];
-	    new_htab.entry->element[hval] = thent;
+	    thent->next = new_htab.entry[hval];
+	    new_htab.entry[hval] = thent;
 	}
     }
     XFREE(htab->entry, "hashresize.table");
@@ -463,7 +463,7 @@ NHSHTAB *htab;
 	numchecks = 0;
 	htab->scans++;
 	hval = (val & htab->mask);
-	for (prev = hptr = htab->entry->element[hval]; hptr != NULL; hptr = hptr->next) {
+	for (prev = hptr = htab->entry[hval]; hptr != NULL; hptr = hptr->next) {
 		numchecks++;
 		if (val == hptr->target) {
 			htab->hits++;
@@ -473,8 +473,8 @@ NHSHTAB *htab;
 			hptr->checks++;
 			if ((hptr->checks > 20) && (hptr != prev)) {
 				prev->next = hptr->next;
-				hptr->next = htab->entry->element[hval];
-				htab->entry->element[hval] = hptr;
+				hptr->next = htab->entry[hval];
+				htab->entry[hval] = hptr;
 				hptr->checks = 0;
 			}
 			return hptr->data;
@@ -508,14 +508,14 @@ NHSHTAB *htab;
 		return (-1);
 	hval = (val & htab->mask);
 	htab->entries++;
-	if (htab->entry->element[hval] == NULL)
+	if (htab->entry[hval] == NULL)
 		htab->nulls--;
 	hptr = (NHSHENT *) XMALLOC(sizeof(NHSHENT), "nhashadd");
 	hptr->target = val;
 	hptr->data = hashdata;
 	hptr->checks = 0;
-	hptr->next = htab->entry->element[hval];
-	htab->entry->element[hval] = hptr;
+	hptr->next = htab->entry[hval];
+	htab->entry[hval] = hptr;
 	return (0);
 }
 
@@ -532,18 +532,18 @@ NHSHTAB *htab;
 
 	hval = (val & htab->mask);
 	last = NULL;
-	for (hptr = htab->entry->element[hval];
+	for (hptr = htab->entry[hval];
 	     hptr != NULL;
 	     last = hptr, hptr = hptr->next) {
 		if (val == hptr->target) {
 			if (last == NULL)
-				htab->entry->element[hval] = hptr->next;
+				htab->entry[hval] = hptr->next;
 			else
 				last->next = hptr->next;
 			XFREE(hptr, "nhashdelete.hptr");
 			htab->deletes++;
 			htab->entries--;
-			if (htab->entry->element[hval] == NULL)
+			if (htab->entry[hval] == NULL)
 				htab->nulls++;
 			return;
 		}
@@ -562,13 +562,13 @@ int size;
 	int i;
 
 	for (i = 0; i < htab->hashsize; i++) {
-		hent = htab->entry->element[i];
+		hent = htab->entry[i];
 		while (hent != NULL) {
 			thent = hent;
 			hent = hent->next;
 			XFREE(thent, "nhashflush.hent");
 		}
-		htab->entry->element[i] = NULL;
+		htab->entry[i] = NULL;
 	}
 
 	/* Resize if needed.  Otherwise, just zero all the stats */
@@ -599,7 +599,7 @@ NHSHTAB *htab;
 	int hval;
 
 	hval = (val & htab->mask);
-	for (hptr = htab->entry->element[hval];
+	for (hptr = htab->entry[hval];
 	     hptr != NULL;
 	     hptr = hptr->next) {
 		if (hptr->target == val) {
@@ -636,18 +636,18 @@ void nhashresize(htab, min_size)
     nhashinit(&new_htab, size);
 
     for (i = 0; i < htab->hashsize; i++) {
-	hent = htab->entry->element[i];
+	hent = htab->entry[i];
 	while (hent != NULL) {
 	    thent = hent;
 	    hent = hent->next;
 
 	    /* don't free and reallocate entries, just copy the pointers */
 	    hval = thent->target & new_htab.mask;
-	    if (new_htab.entry->element[hval] == NULL)
+	    if (new_htab.entry[hval] == NULL)
 		new_htab.nulls--;
 	    thent->checks = 0;
-	    thent->next = new_htab.entry->element[hval];
-	    new_htab.entry->element[hval] = thent;
+	    thent->next = new_htab.entry[hval];
+	    new_htab.entry[hval] = thent;
 	}
     }
     XFREE(htab->entry, "nhashresize.table");

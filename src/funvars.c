@@ -185,7 +185,7 @@ static void print_htab_matches(obj, htab, buff, bufc)
     bb_p = *bufc;
 
     for (i = 0; i < htab->hashsize; i++) {
-	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
 	    if (!strncmp(tbuf, hptr->target, len)) {
 		if (*bufc != bb_p)
 		    safe_chr(' ', buff, bufc);
@@ -343,11 +343,11 @@ void xvars_clr(player)
     htab = &mudstate.vars_htab;
     for (i = 0; i < htab->hashsize; i++) {
 	last = NULL;
-	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = next) {
+	for (hptr = htab->entry[i]; hptr != NULL; hptr = next) {
 	    next = hptr->next;
 	    if (!strncmp(tbuf, hptr->target, len)) {
 		if (last == NULL)
-		    htab->entry->element[i] = next;
+		    htab->entry[i] = next;
 		else
 		    last->next = next;
 		xvar = (VARENT *) hptr->data;
@@ -357,7 +357,7 @@ void xvars_clr(player)
 		XFREE(hptr, "xvar_hptr");
 		htab->deletes++;
 		htab->entries--;
-		if (htab->entry->element[i] == NULL)
+		if (htab->entry[i] == NULL)
 		    htab->nulls++;
 	    } else {
 		last = hptr;
@@ -1555,7 +1555,7 @@ void structure_clr(thing)
     htab = &mudstate.instance_htab;
     count = 0;
     for (i = 0; i < htab->hashsize; i++) {
-	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
 	    if (!strncmp(tbuf, hptr->target, len)) {
 		name_array[count] = (char *) hptr->target;
 		inst_array[count] = (INSTANCE *) hptr->data;
@@ -1617,7 +1617,7 @@ void structure_clr(thing)
     htab = &mudstate.structs_htab;
     count = 0;
     for (i = 0; i < htab->hashsize; i++) {
-	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
 	    if (!strncmp(tbuf, hptr->target, len)) {
 		name_array[count] = (char *) hptr->target;
 		struct_array[count] = (STRUCTDEF *) hptr->data;
