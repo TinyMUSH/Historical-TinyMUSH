@@ -490,25 +490,29 @@ char *message;
 	}
 	switch (key) {
 	case MOTD_ALL:
-		StringCopy(mudconf.motd_msg, message);
-		if (!Quiet(player))
-			notify_quiet(player, "Set: MOTD.");
-		break;
+	    strncpy(mudconf.motd_msg, message, GBUF_SIZE - 1);
+	    mudconf.motd_msg[GBUF_SIZE - 1] = '\0';
+	    if (!Quiet(player))
+		notify_quiet(player, "Set: MOTD.");
+	    break;
 	case MOTD_WIZ:
-		StringCopy(mudconf.wizmotd_msg, message);
-		if (!Quiet(player))
-			notify_quiet(player, "Set: Wizard MOTD.");
-		break;
+	    strncpy(mudconf.wizmotd_msg, message, GBUF_SIZE - 1);
+	    mudconf.wizmotd_msg[GBUF_SIZE - 1] = '\0';
+	    if (!Quiet(player))
+		notify_quiet(player, "Set: Wizard MOTD.");
+	    break;
 	case MOTD_DOWN:
-		StringCopy(mudconf.downmotd_msg, message);
-		if (!Quiet(player))
-			notify_quiet(player, "Set: Down MOTD.");
-		break;
+	    strncpy(mudconf.downmotd_msg, message, GBUF_SIZE - 1);
+	    mudconf.downmotd_msg[GBUF_SIZE - 1] = '\0';
+	    if (!Quiet(player))
+		notify_quiet(player, "Set: Down MOTD.");
+	    break;
 	case MOTD_FULL:
-		StringCopy(mudconf.fullmotd_msg, message);
-		if (!Quiet(player))
-			notify_quiet(player, "Set: Full MOTD.");
-		break;
+	    strncpy(mudconf.fullmotd_msg, message, GBUF_SIZE - 1);
+	    mudconf.fullmotd_msg[GBUF_SIZE - 1] = '\0';
+	    if (!Quiet(player))
+		notify_quiet(player, "Set: Full MOTD.");
+	    break;
 	case MOTD_LIST:
 		if (Wizard(player)) {
 			if (!is_brief) {

@@ -39,7 +39,7 @@ const char *exit_name;
 
 	if (mudconf.fmt_exits) {
 		atr_buf = atr_pget(loc, A_LEXITS_FMT, &aowner, &aflags);
-		if (*atr_buf) {
+		if (atr_buf && *atr_buf) {
 			did_it(player, loc, A_LEXITS_FMT, NULL, A_NULL, NULL,
 			       A_NULL, (char **) NULL, 0);
 			free_lbuf(atr_buf);
@@ -176,7 +176,7 @@ int style;
 
 	if (mudconf.fmt_contents) {
 		atr_buf = atr_pget(loc, A_LCON_FMT, &aowner, &aflags);
-		if (*atr_buf) {
+		if (atr_buf && *atr_buf) {
 			did_it(player, loc, A_LCON_FMT, NULL, A_NULL, NULL,
 			       A_NULL, (char **) NULL, 0);
 			free_lbuf(atr_buf);

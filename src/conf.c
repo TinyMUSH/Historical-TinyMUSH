@@ -1671,7 +1671,8 @@ char *fn;
 {
 	int retval;
 
-	StringCopy(mudconf.config_file, fn);
+	strncpy(mudconf.config_file, fn, PBUF_SIZE - 1);
+	mudconf.config_file[PBUF_SIZE - 1] = '\0';
 	mudstate.initializing = 1;
 	retval = cf_include(NULL, fn, 0, 0, (char *)"init");
 	mudstate.initializing = 0;

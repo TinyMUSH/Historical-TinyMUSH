@@ -472,7 +472,7 @@ void welcome_user(d)
 DESC *d;
 {
 #ifdef PUEBLO_SUPPORT
-	queue_string(d, PUEBLO_SUPPORT_MSG);
+	queue_rawstring(d, PUEBLO_SUPPORT_MSG);
 #endif
 	if (d->host_info & H_REGISTRATION)
 		fcache_dump(d, FC_CONN_REG);
@@ -924,8 +924,8 @@ char *message;
 	count = 0;
 	DESC_SAFEITER_PLAYER(player, d, dnext) {
 		if (message && *message) {
-			queue_string(d, message);
-			queue_string(d, "\r\n");
+			queue_rawstring(d, message);
+			queue_write(d, "\r\n", 2);
 		}
 		shutdownsock(d, R_BOOT);
 		count++;
@@ -944,8 +944,8 @@ char *message;
 	DESC_SAFEITER_ALL(d, dnext) {
 		if ((d->descriptor == port) && (!no_god || !God(d->player))) {
 			if (message && *message) {
-				queue_string(d, message);
-				queue_string(d, "\r\n");
+				queue_rawstring(d, message);
+				queue_write(d, "\r\n", 2);
 			}
 			shutdownsock(d, R_BOOT);
 			count++;
@@ -1022,7 +1022,7 @@ void NDECL(check_idle)
 			idletime = mudstate.now - d->last_time;
 			if ((idletime > d->timeout) &&
 			    !Can_Idle(d->player)) {
-				queue_string(d,
+				queue_rawstring(d,
 					  "*** Inactivity Timeout ***\r\n");
 				shutdownsock(d, R_TIMEOUT);
 			} else if (mudconf.idle_wiz_dark &&
@@ -1038,7 +1038,7 @@ void NDECL(check_idle)
 #else
 			if (idletime > mudconf.conn_timeout) {
 #endif /* CONCENTRATE */
-				queue_string(d,
+				queue_rawstring(d,
 					     "*** Login Timeout ***\r\n");
 				shutdownsock(d, R_TIMEOUT);
 			}
@@ -1090,15 +1090,17 @@ int key;
 
     buf = alloc_mbuf("dump_users");
     if (key == CMD_SESSION) {
-	queue_string(e, "                               ");
-	queue_string(e, "     Characters Input----  Characters Output---\r\n");
+	queue_rawstring(e, "                               ");
+	queue_rawstring(e,
+			"     Characters Input----  Characters Output---\r\n");
     }
-    queue_string(e, "Player Name        On For Idle ");
+    queue_rawstring(e, "Player Name        On For Idle ");
     if (key == CMD_SESSION) {
-	queue_string(e, "Port Pend  Lost     Total  Pend  Lost     Total\r\n");
+	queue_rawstring(e,
+			"Port Pend  Lost     Total  Pend  Lost     Total\r\n");
     } else if ((e->flags & DS_CONNECTED) && (Wizard_Who(e->player)) &&
 	       (key == CMD_WHO)) {
-	queue_string(e, "  Room    Cmds   Host\r\n");
+	queue_rawstring(e, "  Room    Cmds   Host\r\n");
     } else {
 	if (Wizard_Who(e->player) || See_Hidden(e->player))
 	    queue_string(e, "  ");
@@ -1207,7 +1209,7 @@ int key;
 	    (count == 1) ? " " : "s ", mudstate.record_players,
 	    (mudconf.max_players == -1) ?
 	    "no" : tprintf("%d", mudconf.max_players));
-    queue_string(e, buf);
+    queue_rawstring(e, buf);
 	
 #ifdef PUEBLO_SUPPORT
     if ((e->flags & DS_PUEBLOCLIENT) && (Html(e->player)))
@@ -1438,7 +1440,7 @@ char *msg;
 
 			/* Not a player, or wrong password */
 
-			queue_string(d, connect_fail);
+			queue_rawstring(d, connect_fail);
 			STARTLOG(LOG_LOGIN | LOG_SECURITY, "CON", "BAD")
 				buff = alloc_lbuf("check_conn.LOG.bad");
 			user[3800] = '\0';
@@ -1521,7 +1523,7 @@ char *msg;
 			/* If stuck in an @prog, show the prompt */
 			
 			if (d->program_data != NULL)
-				queue_string(d, "> \377\371");
+				queue_rawstring(d, "> \377\371");
 				
 		} else if (!(mudconf.control_flags & CF_LOGIN)) {
 			failconn("CON", "Connect", "Logins Disabled", d,
@@ -1571,7 +1573,7 @@ char *msg;
 		} else {
 			player = create_player(user, password, NOTHING, 0, 0);
 			if (player == NOTHING) {
-				queue_string(d, create_fail);
+				queue_rawstring(d, create_fail);
 				STARTLOG(LOG_SECURITY | LOG_PCREATES, "CON", "BAD")
 					buff = alloc_mbuf("check_conn.LOG.badcrea");
 				sprintf(buff,
@@ -1761,7 +1763,7 @@ int first;
 	}
 	if ((!check_access(d->player, cp->perm)) ||
 	    ((cp->perm & CA_PLAYER) && !(d->flags & DS_CONNECTED))) {
-		queue_string(d, "Permission denied.\r\n");
+		queue_rawstring(d, "Permission denied.\r\n");
 	} else {
 		mudstate.debug_cmd = cp->name;
 		switch (cp->flag & CMD_MASK) {
@@ -1798,8 +1800,8 @@ int first;
 			if (d->player) {
 				s_Html(d->player);
 			}
-			queue_string(d, mudconf.pueblo_msg);
-			queue_string(d, "\r\n");
+			queue_rawstring(d, mudconf.pueblo_msg);
+			queue_write(d, "\r\n", 2);
 			fcache_dump(d, FC_CONN_HTML);
 			STARTLOG(LOG_LOGIN, "CON", "HTML")
 				arg = alloc_mbuf("do_command.LOG.con_html");
@@ -1808,7 +1810,7 @@ int first;
 				free_mbuf(arg);
 			ENDLOG
 #else
-			queue_string(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
+			queue_rawstring(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
 #endif
 			break;
 		default:
@@ -1901,7 +1903,7 @@ char *arg;
 				s_Html(d->player);
 			}
 			queue_string(d, mudconf.pueblo_msg);
-			queue_string(d, "\r\n");
+			queue_write(d, "\r\n", 2);
 			fcache_dump(d, FC_CONN_HTML);
 			STARTLOG(LOG_LOGIN, "CON", "HTML")
 				arg = alloc_mbuf("do_command.LOG.con_html");

@@ -38,6 +38,8 @@ static int FDECL(type_quota, (int));
 static int FDECL(pay_quota, (dbref, int, int));
 #endif
 
+extern INLINE void FDECL(queue_rawstring, (DESC *, const char *));
+
 #ifdef NEED_VSPRINTF_DCL
 extern char *FDECL(vsprintf, (char *, char *, va_list));
 
@@ -1115,13 +1117,7 @@ char *message;
 		   sure that we haven't been issues an @quitprogram */
 		
 		if (d->program_data != NULL) {
-		    if (mudconf.ansi_colors) {
-			queue_string(d,
-				     tprintf("%s>%s \377\371",
-					     ANSI_HILITE, ANSI_NORMAL));
-		    } else {
-			queue_string(d, (char *) "> \377\371");
-		    }
+		    queue_rawstring(d, (char *) "> \377\371");
 		}
 		return;
 	    }
@@ -1299,7 +1295,7 @@ char *name, *command;
 		d->program_data = program;
 
 		/* Use telnet protocol's GOAHEAD command to show prompt */
-		queue_string(d, tprintf("%s>%s \377\371", ANSI_HILITE, ANSI_NORMAL));
+		queue_rawstring(d, (char *) "> \377\371");
 	}
 
 }

@@ -186,7 +186,7 @@ int i, len;
 		len = re->endp[i] - re->startp[i];
 		args[i] = alloc_lbuf("regexp_match");
 		strncpy(args[i], re->startp[i], len);
-		args[i][len] = '\0';		/* strncpy() does not null-terminate */
+		args[i][len] = '\0';	/* strncpy() does not null-terminate */
 	}
 	
 	free(re);
@@ -1645,7 +1645,8 @@ char *argv[];
 		cf_read((char *)CONF_FILE);
 	}
 
-	strncpy(mudconf.exec_path, argv[0], MBUF_SIZE - 1);
+	strncpy(mudconf.exec_path, argv[0], PBUF_SIZE - 1);
+	mudconf.exec_path[PBUF_SIZE - 1] = '\0';
 	
 	fcache_init();
 	helpindex_init();
