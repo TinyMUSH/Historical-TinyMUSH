@@ -73,7 +73,7 @@ typedef struct cache {
 	void *data;
 	time_t counter;
 	int datalen;
-	int type;
+	unsigned int type;
 	struct cache *nxt;
 } Cache;
 
@@ -87,15 +87,15 @@ typedef struct {
 	Chain mactive;
 } CacheLst;
 
-extern void	FDECL(cache_get, (void *, int, void **, int *, int));
-extern int 	FDECL(cache_put, (void *, int, void *, int, int));
+extern void	FDECL(cache_get, (void *, int, void **, int *, unsigned int));
+extern int 	FDECL(cache_put, (void *, int, void *, int, unsigned int));
 extern int 	FDECL(cache_init, (int));
 extern void 	NDECL(cache_reset);
 extern int 	NDECL(cache_sync);
-extern void 	FDECL(cache_del, (void *, int, int));
-extern void	FDECL(dddb_get, (void *, int, void **, int *, int));
-extern int	FDECL(dddb_put, (void *, int, void *, int, int));
-extern int	FDECL(dddb_del, (void *, int, int));
+extern void 	FDECL(cache_del, (void *, int, unsigned int));
+extern void	FDECL(dddb_get, (void *, int, void **, int *, unsigned int));
+extern int	FDECL(dddb_put, (void *, int, void *, int, unsigned int));
+extern int	FDECL(dddb_del, (void *, int, unsigned int));
 extern void	NDECL(attrib_sync);
 extern char	*FDECL(pipe_get_attrib, (int, int));
 extern void	FDECL(pipe_set_attrib, (int, int, char *));

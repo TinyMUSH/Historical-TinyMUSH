@@ -8,6 +8,7 @@
 #undef MEMORY_BASED
 
 #include <sys/stat.h>
+#include "autoconf.h"	/* required by code */
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
@@ -104,19 +105,19 @@ int fmt, flags, ver;
 void usage(prog)
 char *prog;
 {
-	fprintf(mainlog_fp, "Usage: %s gdbm-file [flags] [<in-file] [>out-file]\n", prog);
+	fprintf(mainlog_fp, "Usage: %s gdbm-file [options] [<in-file] [>out-file]\n", prog);
 	fprintf(mainlog_fp, "   Available flags are:\n");
-	fprintf(mainlog_fp, "      C - Perform consistency check\n");
-	fprintf(mainlog_fp, "      G - Write in gdbm format        g - Write in flat file format\n");
-	fprintf(mainlog_fp, "      K - Store key as an attribute   k - Store key in the header\n");
-	fprintf(mainlog_fp, "      L - Include link information    l - Don't include link information\n");
-	fprintf(mainlog_fp, "      M - Store attr map if GDBM      m - Don't store attr map if GDBM\n");
-	fprintf(mainlog_fp, "      N - Store name as an attribute  n - Store name in the header\n");
-	fprintf(mainlog_fp, "      P - Include parent information  p - Don't include parent information\n");
-	fprintf(mainlog_fp, "      W - Write the output file  b    w - Don't write the output file.\n");
-	fprintf(mainlog_fp, "      X - Create a default GDBM db    x - Create a default flat file db\n");
-	fprintf(mainlog_fp, "      Z - Include zone information    z - Don't include zone information\n");
-	fprintf(mainlog_fp, "      <number> - Set output version number\n");
+	fprintf(mainlog_fp, "      -c <filename> - Config file     -C - Perform consistency check\n");
+	fprintf(mainlog_fp, "      -G - Write in gdbm format       -g - Write in flat file format\n");
+	fprintf(mainlog_fp, "      -K - Store key as an attribute  -k - Store key in the header\n");
+	fprintf(mainlog_fp, "      -L - Include link information   -l - Don't include link information\n");
+	fprintf(mainlog_fp, "      -M - Store attr map if GDBM     -m - Don't store attr map if GDBM\n");
+	fprintf(mainlog_fp, "      -N - Store name as an attribute -n - Store name in the header\n");
+	fprintf(mainlog_fp, "      -P - Include parent information -p - Don't include parent information\n");
+	fprintf(mainlog_fp, "      -W - Write the output file  b   -w - Don't write the output file.\n");
+	fprintf(mainlog_fp, "      -X - Create a default GDBM db   -x - Create a default flat file db\n");
+	fprintf(mainlog_fp, "      -Z - Include zone information   -z - Don't include zone information\n");
+	fprintf(mainlog_fp, "      -<number> - Set output version number\n");
 }
 
 int main(argc, argv)
@@ -125,23 +126,24 @@ char *argv[];
 {
 	int setflags, clrflags, ver;
 	int db_ver, db_format, db_flags, do_check, do_write;
+	extern char *optarg;
+	extern int optind;
+	int c, errflg = 0;
 	char *fp;
-	
+	char *opt_conf = (char *) CONF_FILE;
+		
 	logfile_init(NULL);
 
-	if ((argc < 2) || (argc > 3)) {
-		usage(argv[0]);
-		exit(1);
-	}
-	cf_init();
 	/* Decide what conversions to do and how to format the output file */
 
 	setflags = clrflags = ver = do_check = 0;
 	do_write = 1;
 
-	if (argc == 3) {
-		for (fp = argv[2]; *fp; fp++) {
-			switch (*fp) {
+	while ((c = getopt(argc, argv, "c:CGgZzLlNnKkPpWwXx0123456789")) != -1) {
+		switch (c) {
+			case 'c':
+				opt_conf = optarg;
+				break;
 			case 'C':
 				do_check = 1;
 				break;
@@ -210,16 +212,24 @@ char *argv[];
 				ver = ver * 10 + (*fp - '0');
 				break;
 			default:
-				fprintf(mainlog_fp, "Unknown flag: '%c'\n", *fp);
-				usage(argv[0]);
-				exit(1);
-			}
+				errflg++;
 		}
 	}
+
+	if (errflg) {
+		usage(argv[0]);
+		exit(1);
+	}
+	
+	LTDL_SET_PRELOADED_SYMBOLS();
+	lt_dlinit();
+	cf_init();
+	cf_read(opt_conf);
+	
 	/* Open the gdbm file */
 
 	vattr_init();
-	if (init_gdbm_db(argv[1]) < 0) {
+	if (init_gdbm_db(argv[optind]) < 0) {
 		fprintf(mainlog_fp, "Can't open GDBM file\n");
 		exit(1);
 	}

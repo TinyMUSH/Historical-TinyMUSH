@@ -93,7 +93,7 @@ int cs_size = 0;		/* total cache size */
 int cachehash(keydata, keylen, type)
 void *keydata;
 int keylen;
-int type;
+unsigned int type;
 {
 	unsigned int hash = 0;
 	char *sp;
@@ -109,7 +109,7 @@ void cache_repl(cp, new, len, type)
 Cache *cp;
 void *new;
 int len;
-int type;
+unsigned int type;
 {
 	cs_size -= cp->datalen;
 	if (cp->data != NULL) 
@@ -390,7 +390,7 @@ void *keydata;
 int keylen;
 void **dataptr;
 int *datalenptr;
-int type;
+unsigned int type;
 {
 	Cache *cp, *prv;
 	CacheLst *sp;
@@ -619,7 +619,7 @@ void *keydata;
 int keylen;
 void *data;
 int datalen;
-int type;
+unsigned int type;
 {
 #ifndef STANDALONE
 	Cache *cp, *prv;
@@ -993,7 +993,7 @@ int NDECL(cache_sync)
 void cache_del(keydata, keylen, type)
 void *keydata;
 int keylen;
-int type;
+unsigned int type;
 {
 	Cache *cp, *prv;
 	CacheLst *sp;

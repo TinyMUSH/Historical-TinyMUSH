@@ -83,9 +83,10 @@ struct confdata {
 	int	ntfy_nest_lim;	/* Max nesting of notifys */
 	int	dbopt_interval; /* Optimize db every N dumps */
 	char	*dbhome;	/* Database home directory */
-#ifndef STANDALONE
+	char	*config_file;	/* name of config file, used by @restart */
 	char	*crashdb;		/* write database here on crash */
 	char	*gdbm;			/* use this gdbm file if we need one */
+#ifndef STANDALONE
 	char	*status_file;		/* Where to write arg to @shutdown */
 	char	*mudlogname;		/* Name of the game log file */
 	int	have_pueblo;	/* Is Pueblo support compiled in? */
@@ -126,7 +127,6 @@ struct confdata {
 	char    *pueblo_msg;	/* Message displayed to Pueblo clients */
 	char	*htmlconn_file;	/* display on PUEBLOCLIENT message */
 #endif
-	char	*config_file;	/* name of config file, used by @restart */
 	char	*exec_path;	/* argv[0] */
 	char	*sql_host;	/* IP address of SQL database */
 	char	*sql_db;	/* Database to use */
@@ -423,6 +423,7 @@ struct statedata {
 	int	min_size;	/* Minimum db size (from file header) */
 	int	db_top;		/* Number of items in the db */
 	int	db_size;	/* Allocated size of db structure */
+	unsigned int moduletype_top;	/* Highest module DBTYPE */
 	int	*guest_free;	/* Table to keep track of free guests */
 	MARKBUF	*markbits;	/* temp storage for marking/unmarking */
 	int	in_loop;	/* In a loop() statement? */
@@ -449,6 +450,7 @@ struct statedata {
 	MEMTRACK *raw_allocs;	/* Tracking of raw memory allocations */
 	const unsigned char *retabs; /* PCRE regexp tables */
 #else  /* STANDALONE */
+	int	initializing;	/* are we reading config file at startup? */
 	int	logging;	/* Are we in the middle of logging? */
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
 	ALIST	iter_alist;	/* Attribute list for iterations */
@@ -458,6 +460,8 @@ struct statedata {
 	int	min_size;	/* Minimum db size (from file header) */
 	int	db_top;		/* Number of items in the db */
 	int	db_size;	/* Allocated size of db structure */
+	MODULE *modules_list;	/* Loadable modules hashtable */
+	unsigned int moduletype_top;	/* Highest module DBTYPE */
 	dbref	freelist;	/* Head of object freelist */
 	MARKBUF	*markbits;	/* temp storage for marking/unmarking */
 	HASHTAB vattr_name_htab;/* User attribute names hashtable */

@@ -171,7 +171,7 @@ void *keydata;
 int keylen;
 void **dataptr;
 int *datalenptr;
-int type;
+unsigned int type;
 {
 	char *s;
 #ifdef TEST_MALLOC
@@ -189,7 +189,7 @@ int type;
 	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_get");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
-	memcpy((void *)s, (void *)&type, sizeof(int));
+	memcpy((void *)s, (void *)&type, sizeof(unsigned int));
 	key.dsize = sizeof(int) + keylen;
 
 	dat = gdbm_fetch(dbp, key);
@@ -220,6 +220,7 @@ void *keydata;
 int keylen;
 void *data;
 int len;
+unsigned int type;
 {
 	char *s;
 	
@@ -231,7 +232,7 @@ int len;
 	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_put");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
-	memcpy((void *)s, (void *)&type, sizeof(int));
+	memcpy((void *)s, (void *)&type, sizeof(unsigned int));
 	key.dsize = sizeof(int) + keylen;
 	
 	/* make table entry */
@@ -258,7 +259,7 @@ int len;
 int dddb_del(keydata, keylen, type)
 void *keydata;
 int keylen;
-int type;
+unsigned int type;
 {
 	char *s;
 	
@@ -271,7 +272,7 @@ int type;
 	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_del");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
-	memcpy((void *)s, (void *)&type, sizeof(int));
+	memcpy((void *)s, (void *)&type, sizeof(unsigned int));
 	key.dsize = sizeof(int) + keylen;
 
 	dat = gdbm_fetch(dbp, key); 

@@ -348,6 +348,7 @@ void NDECL(cf_init)
 	mudstate.min_size = 0;
 	mudstate.db_top = 0;
 	mudstate.db_size = 0;
+	mudstate.moduletype_top = DBTYPE_RESERVED;
 	mudstate.freelist = NOTHING;
 	mudstate.markbits = NULL;
 	mudstate.sql_socket = -1;
@@ -374,6 +375,10 @@ void NDECL(cf_init)
 	    mudstate.glob_reg_len[i] = 0;
 	}
 #else
+	mudconf.dbhome = XSTRDUP(".", "cf_string");
+	mudconf.crashdb = XSTRDUP("", "cf_string");
+	mudconf.gdbm = XSTRDUP("", "cf_string");
+	mudstate.initializing = 0;
 	mudconf.paylimit = 10000;
 	mudconf.digcost = 10;
 	mudconf.opencost = 1;
@@ -414,6 +419,8 @@ void NDECL(cf_init)
 	mudstate.min_size = 0;
 	mudstate.db_top = 0;
 	mudstate.db_size = 0;
+	mudstate.moduletype_top = DBTYPE_RESERVED;
+	mudstate.modules_list = NULL;
 	mudstate.freelist = NOTHING;
 	mudstate.markbits = NULL;
 #endif /* STANDALONE */
@@ -421,9 +428,8 @@ void NDECL(cf_init)
 
 #ifndef STANDALONE
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_log_notfound: Log a 'parameter not found' error.
+/* ---------------------------------------------------------------------------
+ * cf_log_notfound: Log a 'parameter not found' error.
  */
 
 void cf_log_notfound(player, cmd, thingname, thing)
@@ -591,8 +597,9 @@ CF_HAND(cf_dbref)
     return -1;
 }
 
-/*
- * ---------------------------------------------------------------------------
+#endif /* STANDALONE */
+
+/* ---------------------------------------------------------------------------
  * cf_module: Open a loadable module. Modules are initialized later in the
  * startup.
  */
@@ -606,10 +613,12 @@ CF_HAND(cf_module)
 	handle = lt_dlopen(tprintf("%s.la", str));
 
 	if (!handle) {
+#ifndef STANDALONE
 		STARTLOG(LOG_STARTUP, "CNF", "MOD")
 		    log_printf("Loading of %s module failed: %s",
 			       str, lt_dlerror());
 		ENDLOG
+#endif
 		return -1;
 	}
 
@@ -619,6 +628,7 @@ CF_HAND(cf_module)
 	mp->next = mudstate.modules_list;
 	mudstate.modules_list = mp;
 
+#ifndef STANDALONE
 	/* Look up our symbols now, and cache the pointers. They're
 	 * not going to change from here on out.
 	 */
@@ -653,9 +663,11 @@ CF_HAND(cf_module)
 	STARTLOG(LOG_STARTUP, "CNF", "MOD")
 		log_printf("Loaded module: %s", str);
 	ENDLOG
-
+#endif /* STANDALONE */
 	return 0;
 }
+
+#ifndef STANDALONE
 
 /* *INDENT-OFF* */
 
@@ -683,9 +695,8 @@ CF_HAND(cf_bool)
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_option: Select one option from many choices.
+/* ---------------------------------------------------------------------------
+ * cf_option: Select one option from many choices.
  */
 
 CF_HAND(cf_option)
@@ -701,9 +712,8 @@ CF_HAND(cf_option)
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_string: Set string parameter.
+/* ---------------------------------------------------------------------------
+ * cf_string: Set string parameter.
  */
 
 CF_HAND(cf_string)
@@ -731,9 +741,8 @@ CF_HAND(cf_string)
 	return retval;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_alias: define a generic hash table alias.
+/* ---------------------------------------------------------------------------
+ * cf_alias: define a generic hash table alias.
  */
 
 CF_HAND(cf_alias)
@@ -991,9 +1000,8 @@ CF_HAND(cf_set_flags)
 	return -1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_badname: Disallow use of player name/alias.
+/* ---------------------------------------------------------------------------
+ * cf_badname: Disallow use of player name/alias.
  */
 
 CF_HAND(cf_badname)
@@ -1028,9 +1036,8 @@ static unsigned long sane_inet_addr(str)
 }
 
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_site: Update site information
+/* ---------------------------------------------------------------------------
+ * cf_site: Update site information
  */
 
 CF_AHAND(cf_site)
@@ -1123,9 +1130,8 @@ CF_AHAND(cf_site)
     return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_cf_access: Set write or read access on config directives
+/* ---------------------------------------------------------------------------
+ * cf_cf_access: Set write or read access on config directives
  * kludge: this cf handler uses vp as an extra extra field since the
  * first extra field is taken up with the access nametab.
  */
@@ -1296,9 +1302,10 @@ CF_HAND(cf_raw_helpfile)
     return add_helpfile(player, str, 1);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_include: Read another config file.  Only valid during startup.
+#endif /* STANDALONE */
+
+/* ---------------------------------------------------------------------------
+ * cf_include: Read another config file.  Only valid during startup.
  */
 
 CF_HAND(cf_include)
@@ -1314,7 +1321,9 @@ CF_HAND(cf_include)
 
 	fp = fopen(str, "r");
 	if (fp == NULL) {
+#ifndef STANDALONE
 		cf_log_notfound(player, cmd, "Config file", str);
+#endif
 		return -1;
 	}
 	buf = alloc_lbuf("cf_include");
@@ -1381,6 +1390,7 @@ extern CF_HDCL(cf_func_access);
 extern CF_HDCL(cf_flag_access);
 extern CF_HDCL(cf_flag_name);
 extern CF_HDCL(cf_power_access);
+
 /* *INDENT-OFF* */
 
 /* ---------------------------------------------------------------------------
@@ -1388,6 +1398,7 @@ extern CF_HDCL(cf_power_access);
  */
 
 CONF conftable[] = {
+#ifndef STANDALONE
 {(char *)"abort_on_bug",		cf_bool,	CA_STATIC,	CA_GOD,		(int *)&mudconf.abort_on_bug,	(long)"Dump core after logging a bug"},
 {(char *)"access",			cf_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
 {(char *)"addcommands_match_blindly",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.addcmd_match_blindly,	(long)"@addcommands don't error if no match is found"},
@@ -1512,7 +1523,9 @@ CONF conftable[] = {
 {(char *)"master_room",			cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.master_room,		NOTHING},
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
+#endif /* STANDALONE */
 {(char *)"module",			cf_module,	CA_STATIC,	CA_WIZARD,	NULL,				0},
+#ifndef STANDALONE
 {(char *)"money_name_plural",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.many_coins,	SBUF_SIZE},
 {(char *)"money_name_singular",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.one_coin,	SBUF_SIZE},
 {(char *)"motd_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.motd_file,	MBUF_SIZE},
@@ -1621,6 +1634,7 @@ CONF conftable[] = {
 {(char *)"wizard_motd_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.wizmotd_file,	MBUF_SIZE},
 {(char *)"wizard_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.wizmotd_msg,	GBUF_SIZE},
 {(char *)"zone_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.zone_nest_lim,		0},
+#endif /* STANDALONE */
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
 /* *INDENT-ON* */
@@ -1637,10 +1651,12 @@ static int helper_cf_set(cp, ap, player, tp)
     int i;
     char *buff;
 
+#ifndef STANDALONE
     if (!mudstate.initializing && !check_access(player, tp->flags)) {
 	notify(player, NOPERM_MESSAGE);
 	return (-1);
     }
+#endif
     if (!mudstate.initializing) {
 	buff = alloc_lbuf("cf_set");
 	StringCopy(buff, ap);
@@ -1697,17 +1713,18 @@ dbref player;
 	    }
 	}
 
-	/*
-	 * Config directive not found.  Complain about it. 
-	 */
+#ifndef STANDALONE
+	/* Config directive not found.  Complain about it. */
 
 	cf_log_notfound(player, (char *)"Set", "Config directive", cp);
+#endif
 	return (-1);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_admin: Command handler to set config params at runtime 
+#ifndef STANDALONE
+
+/* ---------------------------------------------------------------------------
+ * do_admin: Command handler to set config params at runtime 
  */
 
 void do_admin(player, cause, extra, kw, value)
@@ -1723,9 +1740,10 @@ char *kw, *value;
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_read: Read in config parameters from named file
+#endif
+
+/* ---------------------------------------------------------------------------
+ * cf_read: Read in config parameters from named file
  */
 
 int cf_read(fn)
@@ -1753,8 +1771,9 @@ char *fn;
 	return retval;
 }
 
-/*
- * ---------------------------------------------------------------------------
+#ifndef STANDALONE
+
+/* ---------------------------------------------------------------------------
  * list_cf_access, list_cf_read_access: List write or read access to
  * config directives.
  */

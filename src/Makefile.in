@@ -107,10 +107,10 @@ SA_UDB_O = sa-udb_ocache.o sa-udb_ochunk.o sa-udb_obj.o sa-udb_misc.o
 # Everything needed to use the database in standalone mode.
 SA_S	= sa-db.c sa-db_rw.c sa-boolexp.c sa-unparse.c \
 	  sa-pred.c sa-stringu.c sa-conf.c sa-log.c sa-object.c \
-	  sa-vattr.c sa-htab.c sa-player_c.c sa-flags.c
+	  sa-vattr.c sa-htab.c sa-player_c.c sa-flags.c sa-ltdl.c
 SA_O	= sa-db.o sa-db_rw.o sa-boolexp.o sa-unparse.o \
 	  sa-pred.o sa-stringu.o sa-conf.o sa-log.o sa-object.o \
-	  sa-vattr.o sa-htab.o sa-player_c.o sa-flags.o
+	  sa-vattr.o sa-htab.o sa-player_c.o sa-flags.o sa-ltdl.o
 
 # Distribution source files
 D_S	= alloc.c api.c boolexp.c command.c compat.c conf.c cque.c create.c \
@@ -210,7 +210,7 @@ unsplit: unsplit.o
 	$(CC) $(ALLCFLAGS) -o unsplit unsplit.o
 
 dbconvert: dbconvert.o $(SA_O) $(SA_UDB_O) $(MALLOC_O) $(LIBOBJS)
-	$(CC) $(ALLCFLAGS) -o dbconvert dbconvert.o $(SA_O) $(SA_UDB_O) $(MALLOC_O) $(LIBS) $(LIBOBJS)
+	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o dbconvert dbconvert.o $(SA_O) $(SA_UDB_O) $(MALLOC_O) $(MOD_DL) $(LIBS) $(LIBOBJS)
 
 netmush: $(MUSH_O) $(MOD_LA)
 	-mv -f netmush netmush~

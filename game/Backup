@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
+LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs; export LTDL_LIBRARY_PATH
 #
 . mush.config
 #
@@ -19,7 +20,7 @@ fi
 #
 if [ -r $DATA/$GDBM_DB ]; then
     echo "Backing up to $OUTFILE"
-    $BIN/dbconvert $DATA/$GDBM_DB x | $ZIP -c > $OUTFILE
+    $BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB | $ZIP -c > $OUTFILE
 else
     echo "No dbs. Backup attempt failed."
 fi

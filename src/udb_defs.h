@@ -27,8 +27,9 @@ typedef	char	*mall_t;
 #define DBTYPE_DBINFO		2	/* Various DB paramaters */
 #define DBTYPE_OBJECT		3	/* Object structure */
 #define DBTYPE_ATRNUM		4	/* Attribute number to name map */
-#define DBTYPE_RESERVED		9999	/* Numbers higher are free for use
-					 * by user code (modules) */
-#define DBTYPE_END		65535	/* Highest type */
+#define DBTYPE_MODULETYPE	5	/* DBTYPE to module name map */
+#define DBTYPE_RESERVED		0x0000FFFF	/* Numbers >= are free for
+					 	 * use by user code (modules) */
+#define DBTYPE_END		0xFFFFFFFF	/* Highest type */
 
 #endif /* __UDB_DEFS_H */
