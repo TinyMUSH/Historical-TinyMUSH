@@ -9762,14 +9762,17 @@ Continued in 'help @malias2'.
         '-' in the status field in that position.
  
 & mail-sending
-
+ 
+  @mail/quick <player-list>/<subject> = <message>
+	Sends <message> to the list of players.
+ 
   @mail[/switch] <player-list> = <subject>
 	This begins a message to all players in <player-list>.
 	-<text> adds text to the message in progress, for example
 		-This is a test
 	would add the text 'This is a test' to the end of your @mail
 	message, likewise, ~<text> prepends the text.
-	
+ 
   @mail/send
 	This sends the message that is currently in progress.
 	-- is the equivalent of @mail/send. @mail/urgent sends
@@ -9779,7 +9782,7 @@ Continued in 'help @malias2'.
         This replaces the currect player list with a new one for carbon
         copying. It does _not_ add onto the existing list.
  
-  See mail-sending2.
+  Continued in 'help mail-sending2'.
  
 & mail-sending2
  
@@ -9802,9 +9805,23 @@ Continued in 'help @malias2'.
         edit it with @mail/edit, add text with '-', or prepend text with
         '~'. You have to use '--' or @mail/send to send the message.
  
-  @mail/quick <player-list>/<subject> = <message>
-	Sends <message> to the list of players.
-  
+  Continued in 'help mail-sending3'.
+ 
+& mail-sending3
+ 
+  @mail/reply[/quote] <msg>
+	This sends a reply to the person who sent you <msg>. The
+	subject line will be 'Re: <original subject line>'. If you
+	specify the /quote switch, the original message will be quoted
+	back at the beginning of your mail message.
+ 
+  @mail/replyall[/quote] <msg>
+	This sends a reply to the person who sent you <msg>, as well
+	as all other recipients of <msg>. The subject line will be
+	'Re: <original subject line>'. If you specify the /quote switch,
+	the original message will be quoted back at the beginning of
+	your mail message.
+ 
 & mail-other
 
   @mail/clear [<msg-list | all>]
