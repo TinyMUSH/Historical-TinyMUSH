@@ -1796,6 +1796,11 @@ static void read_comsys(fp, com_ver)
 	    else
 		chp->descrip = NULL;
 
+	    if (com_ver > 3) {
+		/* Revert from TM 3.1 format: discard comsys header. */
+		getstring_noalloc(fp, 1);
+	    }
+
 	    if (com_ver == 2) {
 		/* Inherently broken behavior. Can't deal with eval locks,
 		 * among other things.
