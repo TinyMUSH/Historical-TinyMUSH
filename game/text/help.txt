@@ -1590,13 +1590,28 @@ See also: @pemit, @eval
   'drop' is the same as 'throw'.
   See also: get, @adrop, @drop, @odrop, DROP-TO, STICKY.  
 
+& @ause
+& @ouse
+& @use
 & use
-  Command: use <object>
-  Uses <object>.  Some objects will do interesting, useful, or dangerous
-  things when used, for instance, using a camera should result in a 
-  picture being taken.
-  See also: @ause, @ouse, @use.
-
+Command: use <object>
+ 
+Uses <object>. Some objects will do interesting, useful, or dangerous
+things when used; for instance, using a camera might result in a 
+picture being taken. Use of this mechanism has largely been superseded
+by use of $-commands on objects.
+ 
+Using an object runs its @use verb set: the player using the object
+sees its @use message, the others in the player's location sees the
+object's @ouse message with the player's name prepended, and the object
+triggers its @ause action set.
+ 
+Example of a @use verb set:
+ 
+  @use toy duck = You squeeze the rubber ducky. SQUEAK! It is now squished.
+  @ouse toy duck = squeezes the rubber ducky. SQUEAK!
+  @ause toy duck = @name me = Squished Rubber Ducky
+ 
 & version
   Command: version
  
@@ -1748,6 +1763,7 @@ Example:
  
   See also: ZONE OBJECTS
   
+& @aclone
 & @clone
   Command: @clone[/<switches>] <object>[=<newname/cost>]
  
@@ -1783,8 +1799,9 @@ Example:
   If you clone a room with a drop-to, an attempt is made to link the drop-to
   to the same location.
  
-  If the original object was owned by you, then the ACLONE attribute is run
-  in the new attribute. Otherwise, the new object is set HALT.
+  If the owner of the new object is the same as the owner of the original
+  object, the new object will run its @aclone attribute. Otherwise, the
+  new object is set HALT.
  
   The exits and contents of cloned objects are not cloned (i.e., cloning
   is never recursive).
@@ -1806,6 +1823,16 @@ Example:
                    don't copy the attributes.
      /preserve   - Keep the clone's owner the same as the original object's
                    owner. You must control the original object's owner.
+ 
+  Continued in 'help @clone4'.
+ 
+& @clone4
+ 
+  Example @aclone:
+ 
+    @aclone Time Bomb = @wait 600=@trig me/va; @wait 10=@trig me/vb
+    @va Time Bomb = :EXPLODES with a thundering roar.; @destroy/instant me
+    @vb Time Bomb = :ticks.; @wait 10=@trig me/vb
  
   See also: @create, @decompile, @destroy, VISUAL.
  
@@ -3205,22 +3232,6 @@ See also: JUMP_OK, FIXED, home, @lock
  
   Example: @aahear listener = "I heard someone (maybe me?) say the word!
   See also: @ahear, @amhear, @listen.
-
-& @aclone
-  Command: @aclone <object> = <command-list>
-  Attribute: Aclone
- 
-  Sets the actions to be taken by a new object that has just been created
-  as the result of a @clone command.  The contents of the Aclone attribute
-  are run by the new object and not by the old object.
- 
-  This attribute is only meaningful for things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @aclone Time bomb = @wait 600=@trig me/va;@wait 10=@trig me/vb
-           @va time bomb = :EXPLODES with a thundering roar;@destroy me
-           @vb time bomb = :ticks.; @wait 10=@trig me/vb
-  See also: @clone.
 
 & @aconnect
   Command: @aconnect <object> = <command-list>
