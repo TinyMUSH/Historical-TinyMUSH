@@ -316,12 +316,14 @@ FUNCTION(fun_lcstr)
 	ap = fargs[0];
 	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
 	    if (*ap == ESC_CHAR) {
-		while (*ap && (*ap != ANSI_END)) {
+		while (*ap && (*ap != ANSI_END) &&
+		       ((*bufc - buff) < LBUF_SIZE - 1)) {
 		    **bufc = *ap;
 		    ap++;
 		    (*bufc)++;
 		}
-		if (*ap == ANSI_END) {
+		if ((*ap == ANSI_END) &&
+		    ((*bufc - buff) < LBUF_SIZE - 1)) {
 		    **bufc = *ap;
 		    ap++;
 		    (*bufc)++;
@@ -341,12 +343,14 @@ FUNCTION(fun_ucstr)
 	ap = fargs[0];
 	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
 	    if (*ap == ESC_CHAR) {
-		while (*ap && (*ap != ANSI_END)) {
+		while (*ap && (*ap != ANSI_END) &&
+		       ((*bufc - buff) < LBUF_SIZE - 1)) {
 		    **bufc = *ap;
 		    ap++;
 		    (*bufc)++;
 		}
-		if (*ap == ANSI_END) {
+		if ((*ap == ANSI_END) &&
+		    ((*bufc - buff) < LBUF_SIZE - 1)) {
 		    **bufc = *ap;
 		    ap++;
 		    (*bufc)++;
