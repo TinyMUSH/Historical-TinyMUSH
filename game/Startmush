@@ -26,6 +26,15 @@ fi
 echo "Checking for database files and creating backups of old files."
 
 #
+#	Refuse to start if a restart.db is present.
+#
+if [ -r restart.db ]; then
+    echo "There is a restart database, restart.db, present."
+    echo "Please delete it before attempting to start the MUSH."
+    exit 1
+fi
+
+#
 #	Refuse to start if CORRUPT or KILLED databases are present.
 #
 if [ -r $DATA/$INPUT_DB.KILLED -o -r $DATA/$INPUT_DB.CORRUPT ]; then
