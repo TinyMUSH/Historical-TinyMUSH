@@ -257,12 +257,12 @@ char **argv;
 			exit(1);
 
 		case 0:	/*
-				 * child 
-				 */
+			 * child
+			 */
 			{
 				/*
 				 * we don't want to try this for more than 5
-				 * * * * * minutes 
+				 * minutes 
 				 */
 				struct itimerval itime;
 				struct timeval interval;

@@ -187,11 +187,9 @@ void boot_slave()
 		return;
 
 	case 0:		/*
-				 * * child  
-				 */
+			 * child
+			 */
 		close(sv[0]);
-		close(0);
-		close(1);
 		if (dup2(sv[1], 0) == -1) {
 			_exit(1);
 		}
@@ -214,7 +212,7 @@ void boot_slave()
 	STARTLOG(LOG_ALWAYS, "NET", "SLAVE")
 	    log_text((char *) "DNS lookup slave started on fd ");
 	    log_number(slave_socket);
-       ENDLOG
+	ENDLOG
 }
 
 int make_socket(port)
