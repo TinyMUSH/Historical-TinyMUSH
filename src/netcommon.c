@@ -1590,12 +1590,12 @@ char *msg;
 			if (player == NOTHING) {
 				queue_rawstring(d, create_fail);
 				STARTLOG(LOG_SECURITY | LOG_PCREATES, "CON", "BAD")
-					buff = alloc_mbuf("check_conn.LOG.badcrea");
+					buff = alloc_lbuf("check_conn.LOG.badcrea");
 				sprintf(buff,
 					"[%d/%s] Create of '%s' failed",
 					d->descriptor, d->addr, user);
 				log_text(buff);
-				free_mbuf(buff);
+				free_lbuf(buff);
 				ENDLOG
 			} else {
 				STARTLOG(LOG_LOGIN | LOG_PCREATES, "CON", "CREA")
