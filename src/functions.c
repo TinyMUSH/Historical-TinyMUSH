@@ -3737,7 +3737,7 @@ FUNCTION(fun_lcstr)
 	char *ap;
 
 	ap = fargs[0];
-	while (*ap && ((*bufc - buff) < LBUF_SIZE)) {
+	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
 		**bufc = ToLower(*ap);
 		ap++;
 		(*bufc)++;
@@ -3749,7 +3749,7 @@ FUNCTION(fun_ucstr)
 	char *ap;
 
 	ap = fargs[0];
-	while (*ap && ((*bufc - buff) < LBUF_SIZE)) {
+	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
 		**bufc = ToUpper(*ap);
 		ap++;
 		(*bufc)++;
