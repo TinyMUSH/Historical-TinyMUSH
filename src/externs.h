@@ -334,6 +334,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	CHOWN_ONE	1	/* item = new_owner */
 #define	CHOWN_ALL	2	/* old_owner = new_owner */
 #define CHOWN_NOSTRIP	4	/* Don't strip (most) flags from object */
+#define CHZONE_NOSTRIP	1	/* Don't strip (most) flags from object */
 #define CLIST_FULL	1	/* Full listing of channels */
 #define	CLONE_LOCATION	0	/* Create cloned object in my location */
 #define	CLONE_INHERIT	1	/* Keep INHERIT bit if set */
