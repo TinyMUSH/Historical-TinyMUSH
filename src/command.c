@@ -2882,6 +2882,7 @@ void list_memory(player)
 #define LIST_ATTRTYPES	27
 #define LIST_FUNCPERMS	28
 #define LIST_MEMORY	29
+#define LIST_CACHEATTRS 30
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
@@ -2892,6 +2893,7 @@ NAMETAB list_names[] = {
 {(char *)"bad_names",		2,	CA_WIZARD,	LIST_BADNAMES},
 {(char *)"buffers",		2,	CA_WIZARD,	LIST_BUFTRACE},
 {(char *)"cache",		2,	CA_WIZARD,	LIST_CACHEOBJS},
+{(char *)"cache_attrs",		6,	CA_WIZARD,	LIST_CACHEATTRS},
 {(char *)"commands",		3,	CA_PUBLIC,	LIST_COMMANDS},
 {(char *)"config_permissions",	8,	CA_GOD,		LIST_CONF_PERMS},
 {(char *)"config_read_perms",	4,	CA_PUBLIC,	LIST_CF_RPERMS},
@@ -3028,6 +3030,13 @@ char *arg;
 		break;
 	case LIST_MEMORY:
 		list_memory(player);
+		break;
+	case LIST_CACHEATTRS:
+#ifndef MEMORY_BASED
+		list_cached_attrs(player);
+#else
+		raw_notify(player, "No cached objects.");
+#endif /* MEMORY_BASED */
 		break;
 	default:
 		display_nametab(player, list_names,

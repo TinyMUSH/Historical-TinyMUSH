@@ -263,16 +263,95 @@ void list_cached_objs(player)
     CacheLst *sp;
     Cache *cp;
     int x;
+    int aco, maco, asize, msize, oco, moco;
+    int *count_array, *size_array;
+    ATTR *atr;
+    
+    aco = maco = asize = msize = oco = moco = 0;
+
+    count_array = (int *) XCALLOC(mudstate.db_top, sizeof(int),
+				  "list_cached_objs.count");
+    size_array = (int *) XCALLOC(mudstate.db_top, sizeof(int),
+				 "list_cached_objs.size");
+
+    for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
+        for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
+            if (cp->data && (cp->type == DBTYPE_ATTRIBUTE)) {
+                aco++;
+                asize += cp->datalen;
+		count_array[((Aname *)cp->keydata)->object] += 1;
+		size_array[((Aname *)cp->keydata)->object] += cp->datalen;
+            }
+        }
+    }
+
+    raw_notify(player, "Active Cache:");
+    raw_notify(player,
+	       "Name                            Dbref    Attrs      Size");
+    raw_notify(player,
+	       "========================================================");
+
+    for (x = 0; x < mudstate.db_top; x++) {
+	if (count_array[x] > 0) {
+	    raw_notify(player,
+		       tprintf("%-30.30s  #%-6d  %5d  %8d",
+			       Name(x), x, count_array[x], size_array[x]));
+	    oco++;
+	    count_array[x] = 0;
+	    size_array[x] = 0;
+	}
+    }
+
+    raw_notify(player, "\nModified Active Cache:");
+    raw_notify(player,
+	       "Name                            Dbref    Attrs      Size");
+    raw_notify(player,
+	       "========================================================");
+
+    for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
+        for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
+            if (cp->data && (cp->type == DBTYPE_ATTRIBUTE)) {
+                aco++;
+                asize += cp->datalen;
+		count_array[((Aname *)cp->keydata)->object] += 1;
+		size_array[((Aname *)cp->keydata)->object] += cp->datalen;
+            }
+        }
+    }
+
+    for (x = 0; x < mudstate.db_top; x++) {
+	if (count_array[x] > 0) {
+	    raw_notify(player,
+		       tprintf("%-30.30s  #%-6d  %5d  %8d",
+			       Name(x), x, count_array[x], size_array[x]));
+	    moco++;
+	}
+    }
+
+    raw_notify(player,
+               tprintf("\nTotals: active %d (%d attrs), modified active %d (%d attrs), total attrs %d", oco, aco, moco, maco, aco + maco));
+    raw_notify(player,
+               tprintf("Size: active %d bytes, modified active %d bytes", asize, msize));
+
+    XFREE(count_array, "list_cached_objs.count");
+    XFREE(size_array, "list_cached_objs.size");
+}
+
+void list_cached_attrs(player)
+    dbref player;
+{
+    CacheLst *sp;
+    Cache *cp;
+    int x;
     int aco, maco, asize, msize;
     ATTR *atr;
     
     aco = maco = asize = msize = 0;
 
     raw_notify(player, "Active Cache:");
-    raw_notify(player, 
-       "Name                    Attribute               Dbref   Age    Size");
-    raw_notify(player,
-       "===================================================================");
+    raw_notify(player, "Name                    Attribute                       Dbref       Age   Size");
+    raw_notify(player, "==============================================================================");
+
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
             if (cp->data && (cp->type == DBTYPE_ATTRIBUTE)) {
@@ -280,7 +359,7 @@ void list_cached_objs(player)
                 asize += cp->datalen;
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
 		raw_notify(player, 
-			tprintf("%-23.23s %-23.23s #%-6d %-6d %-6d", PureName(((Aname *)cp->keydata)->object),
+			tprintf("%-23.23s %-31.31s #%-6d %7d %6d", PureName(((Aname *)cp->keydata)->object),
 			(atr ? atr->name : "(Unknown)"), ((Aname *)cp->keydata)->object, (int) (mudstate.now - cp->lastreferenced), 
 			cp->datalen));
             }
@@ -288,10 +367,9 @@ void list_cached_objs(player)
     }
 
     raw_notify(player, "\nModified Active Cache:");
-    raw_notify(player, 
-       "Name                    Attribute               Dbref   Age    Size");
-    raw_notify(player,
-       "===================================================================");
+    raw_notify(player, "Name                    Attribute                       Dbref       Age   Size");
+    raw_notify(player, "==============================================================================");
+
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
             if (cp->data && (cp->type == DBTYPE_ATTRIBUTE)) {
@@ -299,7 +377,7 @@ void list_cached_objs(player)
                 asize += cp->datalen;
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
 		raw_notify(player, 
-			tprintf("%-23.23s %-23.23s #%-6d %-6d %-6d", PureName(((Aname *)cp->keydata)->object),
+			tprintf("%-23.23s %-31.31s #%-6d %7d %6d", PureName(((Aname *)cp->keydata)->object),
 			(atr ? atr->name : "(Unknown)"), ((Aname *)cp->keydata)->object, (int) (mudstate.now - cp->lastreferenced), 
 			cp->datalen));
             }
