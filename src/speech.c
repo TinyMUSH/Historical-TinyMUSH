@@ -638,10 +638,11 @@ char *message;
 	free_lbuf(buff);
 }
 
-void do_pemit_list(player, list, message)
+void do_pemit_list(player, list, message, do_contents)
 dbref player;
 char *list;
 const char *message;
+int do_contents;
 {
 	/*
 	 * Send a message to a list of dbrefs. To avoid repeated generation * 
@@ -689,8 +690,12 @@ const char *message;
 				notify(player, "You cannot do that.");
 				break;
 			}
-			if (Good_obj(who))
+			if (Good_obj(who)) {
+			    if (do_contents && Has_contents(who))
+				notify_all_from_inside(who, player, message);
+			    else 
 				notify_with_cause(who, player, message);
+			}
 		}
 	}
 }
@@ -705,16 +710,17 @@ char *recipient, *message;
 	char *buf2, *bp;
 	int do_contents, ok_to_do, depth, pemit_flags;
 
-	if (key & PEMIT_LIST) {
-		do_pemit_list(player, recipient, message);
-		return;
-	}
 	if (key & PEMIT_CONTENTS) {
 		do_contents = 1;
 		key &= ~PEMIT_CONTENTS;
 	} else {
 		do_contents = 0;
 	}
+	if (key & PEMIT_LIST) {
+		do_pemit_list(player, recipient, message, do_contents);
+		return;
+	}
+
 	pemit_flags = key & (PEMIT_HERE | PEMIT_ROOM | PEMIT_HTML);
 	key &= ~(PEMIT_HERE | PEMIT_ROOM | PEMIT_HTML);
 	ok_to_do = 0;
