@@ -1872,63 +1872,66 @@ void mod_mail_dump_database()
 	struct mail *mp, *mptr;
 	dbref thing;
 	int count = 0, i;
+	char *str;
+	char *bp;
 
 	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mod_mail_config.mail_db);
 	if ((fp = fopen(tmpfile, "w")) == NULL) {
 	    log_perror("DMP", "FAIL", "Opening mail file", tmpfile);
 	    return;
 	}
-
-	/*
-	 * Write out version number 
-	 */
-	fprintf(fp, "+V5\n");
-	putref(fp, mod_mail_config.mail_db_top);
+	bp = str = start_buffer();
+	
+	/* Write out version number */
+	
+	put_printf(fp, str, &bp, "+V5\n");
+	putref(fp, str, &bp, mod_mail_config.mail_db_top);
 	DO_WHOLE_DB(thing) {
 		if (isPlayer(thing)) {
 			mptr = (struct mail *)nhashfind((int)thing, &mod_mail_msg_htab);
 			if (mptr != NULL)
 				for (mp = mptr; mp; mp = mp->next) {
-					putref(fp, mp->to);
-					putref(fp, mp->from);
-					putref(fp, mp->number);
-					putstring(fp, mp->tolist);
+					putref(fp, str, &bp, mp->to);
+					putref(fp, str, &bp, mp->from);
+					putref(fp, str, &bp, mp->number);
+					putstring(fp, str, &bp, mp->tolist);
 #ifdef RADIX_COMPRESSION
 					string_decompress(mp->time, timebuff);
 					string_decompress(mp->subject, subbuff);
-					putstring(fp, timebuff);
-					putstring(fp, subbuff);
+					putstring(fp, str, &bp, timebuff);
+					putstring(fp, str, &bp, subbuff);
 #else
-					putstring(fp, mp->time);
-					putstring(fp, mp->subject);
+					putstring(fp, str, &bp, mp->time);
+					putstring(fp, str, &bp, mp->subject);
 #endif /*
         * RADIX_COMPRESSION 
         */
-					putref(fp, mp->read);
+					putref(fp, str, &bp, mp->read);
 					count++;
 				}
 		}
 	}
 
-	fprintf(fp, "*** END OF DUMP ***\n");
+	put_printf(fp, str, &bp, "*** END OF DUMP ***\n");
 
 	/*
 	 * Add the db of mail messages 
 	 */
 	for (i = 0; i < mod_mail_config.mail_db_top; i++) {
 		if (mod_mail_config.mail_list[i].count > 0) {
-			putref(fp, i);
+			putref(fp, str, &bp, i);
 #ifdef RADIX_COMPRESSION
 			string_decompress(get_mail_message(i),msgbuff);
-			putstring(fp, msgbuff);
+			putstring(fp, str, &bp, msgbuff);
 #else
-			putstring(fp, get_mail_message(i));
+			putstring(fp, str, &bp, get_mail_message(i));
 #endif
 		}
 	}
-	fprintf(fp, "+++ END OF DUMP +++\n");
+	put_printf(fp, str, &bp, "+++ END OF DUMP +++\n");
 
-	save_malias(fp);
+	save_malias(fp, str, &bp);
+	flush_buffer(fp, str, &bp);
 	fflush(fp);
 	fclose(fp);
 }
@@ -3088,12 +3091,14 @@ FILE *fp;
 	}
 }
 
-void save_malias(fp)
+void save_malias(fp, str, bp)
 FILE *fp;
+char *str;
+char **bp;
 {
 
-	fprintf(fp, "*** Begin MALIAS ***\n");
-	malias_write(fp);
+	put_printf(fp, str, bp, "*** Begin MALIAS ***\n");
+	malias_write(fp, str, bp);
 }
 
 void malias_read(fp)
@@ -3140,21 +3145,23 @@ FILE *fp;
 	}
 }
 
-void malias_write(fp)
+void malias_write(fp, str, bp)
 FILE *fp;
+char *str;
+char **bp;
 {
 	int i, j;
 	struct malias *m;
 
-	fprintf(fp, "%d\n", ma_top);
+	put_printf(fp, str, bp, "%d\n", ma_top);
 
 	for (i = 0; i < ma_top; i++) {
 		m = malias[i];
-		fprintf(fp, "%d %d\n", m->owner, m->numrecep);
-		fprintf(fp, "N:%s\n", m->name);
-		fprintf(fp, "D:%s\n", m->desc);
+		put_printf(fp, str, bp, "%d %d\n", m->owner, m->numrecep);
+		put_printf(fp, str, bp, "N:%s\n", m->name);
+		put_printf(fp, str, bp, "D:%s\n", m->desc);
 		for (j = 0; j < m->numrecep; j++)
-			fprintf(fp, "%d\n", m->list[j]);
+			put_printf(fp, str, bp, "%d\n", m->list[j]);
 	}
 }
 

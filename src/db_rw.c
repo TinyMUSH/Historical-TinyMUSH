@@ -358,74 +358,76 @@ int new_strings;
 /* ---------------------------------------------------------------------------
  * putbool_subexp: Write a boolean sub-expression to the flat file.
  */
-static void putbool_subexp(f, b)
+static void putbool_subexp(f, str, bp, b)
 FILE *f;
+char *str;
+char **bp;
 BOOLEXP *b;
 {
 	ATTR *va;
 
 	switch (b->type) {
 	case BOOLEXP_IS:
-		putc('(', f);
-		putc(IS_TOKEN, f);
-		putbool_subexp(f, b->sub1);
-		putc(')', f);
+		put_char(f, str, bp, '(');
+		put_char(f, str, bp, IS_TOKEN);
+		putbool_subexp(f, str, bp, b->sub1);
+		put_char(f, str, bp, ')');
 		break;
 	case BOOLEXP_CARRY:
-		putc('(', f);
-		putc(CARRY_TOKEN, f);
-		putbool_subexp(f, b->sub1);
-		putc(')', f);
+		put_char(f, str, bp, '(');
+		put_char(f, str, bp, CARRY_TOKEN);
+		putbool_subexp(f, str, bp, b->sub1);
+		put_char(f, str, bp, ')');
 		break;
 	case BOOLEXP_INDIR:
-		putc('(', f);
-		putc(INDIR_TOKEN, f);
-		putbool_subexp(f, b->sub1);
-		putc(')', f);
+		put_char(f, str, bp, '(');
+		put_char(f, str, bp, INDIR_TOKEN);
+		putbool_subexp(f, str, bp, b->sub1);
+		put_char(f, str, bp, ')');
 		break;
 	case BOOLEXP_OWNER:
-		putc('(', f);
-		putc(OWNER_TOKEN, f);
-		putbool_subexp(f, b->sub1);
-		putc(')', f);
+		put_char(f, str, bp, '(');
+		put_char(f, str, bp, OWNER_TOKEN);
+		putbool_subexp(f, str, bp, b->sub1);
+		put_char(f, str, bp, ')');
 		break;
 	case BOOLEXP_AND:
-		putc('(', f);
-		putbool_subexp(f, b->sub1);
-		putc(AND_TOKEN, f);
-		putbool_subexp(f, b->sub2);
-		putc(')', f);
+		put_char(f, str, bp, '(');
+		putbool_subexp(f, str, bp, b->sub1);
+		put_char(f, str, bp, AND_TOKEN);
+		putbool_subexp(f, str, bp, b->sub2);
+		put_char(f, str, bp, ')');
 		break;
 	case BOOLEXP_OR:
-		putc('(', f);
-		putbool_subexp(f, b->sub1);
-		putc(OR_TOKEN, f);
-		putbool_subexp(f, b->sub2);
-		putc(')', f);
+		put_char(f, str, bp, '(');
+		putbool_subexp(f, str, bp, b->sub1);
+		put_char(f, str, bp, OR_TOKEN);
+		putbool_subexp(f, str, bp, b->sub2);
+		put_char(f, str, bp, ')');
 		break;
 	case BOOLEXP_NOT:
-		putc('(', f);
-		putc(NOT_TOKEN, f);
-		putbool_subexp(f, b->sub1);
-		putc(')', f);
+		put_char(f, str, bp, '(');
+		put_char(f, str, bp, NOT_TOKEN);
+		putbool_subexp(f, str, bp, b->sub1);
+		put_char(f, str, bp, ')');
 		break;
 	case BOOLEXP_CONST:
-		fprintf(f, "%d", b->thing);
+		put_printf(f, str, bp, "%d", b->thing);
 		break;
 	case BOOLEXP_ATR:
 		va = atr_num(b->thing);
 		if (va) {
-			fprintf(f, "%s:%s", va->name, (char *)b->sub1);
+			put_printf(f, str, bp, "%s:%s", va->name, (char *)b->sub1);
 		} else {
-			fprintf(f, "%d:%s\n", b->thing, (char *)b->sub1);
+			put_printf(f, str, bp, "%d:%s\n", b->thing, (char *)b->sub1);
 		}
 		break;
 	case BOOLEXP_EVAL:
 		va = atr_num(b->thing);
 		if (va) {
-			fprintf(f, "%s/%s\n", va->name, (char *)b->sub1);
+			put_printf(f, str, bp, "%s/%s\n", va->name, (char *)b->sub1);
 		} else {
-			fprintf(f, "%d/%s\n", b->thing, (char *)b->sub1);
+			put_printf(f, str, bp, "%d/%s\n", b->thing, (char *)b->sub1);
 		}
 		break;
 	default:
@@ -438,14 +440,16 @@ BOOLEXP *b;
  * putboolexp: Write boolean expression to the flat file.
  */
 
-void putboolexp(f, b)
+void putboolexp(f, str, bp, b)
 FILE *f;
+char *str;
+char **bp;
 BOOLEXP *b;
 {
 	if (b != TRUE_BOOLEXP) {
-		putbool_subexp(f, b);
+		putbool_subexp(f, str, bp, b);
 	}
-	putc('\n', f);
+	put_char(f, str, bp, '\n');
 }
 
 #ifdef STANDALONE
@@ -1026,8 +1030,10 @@ int *db_format, *db_version, *db_flags;
 	}
 }
 
-static int db_write_object(f, i, db_format, flags)
+static int db_write_object(f, str, bp, i, db_format, flags)
 FILE *f;
+char *str;
+char **bp;
 dbref i;
 int db_format, flags;
 {
@@ -1041,40 +1047,40 @@ int db_format, flags;
 	BOOLEXP *tempbool;
 
 	if (!(flags & V_ATRNAME))
-		putstring(f, Name(i));
-	putref(f, Location(i));
+		putstring(f, str, bp, Name(i));
+	putref(f, str, bp, Location(i));
 	if (flags & V_ZONE)
-		putref(f, Zone(i));
-	putref(f, Contents(i));
-	putref(f, Exits(i));
+		putref(f, str, bp, Zone(i));
+	putref(f, str, bp, Contents(i));
+	putref(f, str, bp, Exits(i));
 	if (flags & V_LINK)
-		putref(f, Link(i));
-	putref(f, Next(i));
+		putref(f, str, bp, Link(i));
+	putref(f, str, bp, Next(i));
 	if (!(flags & V_ATRKEY)) {
 		got = atr_get(i, A_LOCK, &aowner, &aflags, &alen);
 		tempbool = parse_boolexp(GOD, got, 1);
 		free_lbuf(got);
-		putboolexp(f, tempbool);
+		putboolexp(f, str, bp, tempbool);
 		if (tempbool)
 			free_boolexp(tempbool);
 	}
-	putref(f, Owner(i));
+	putref(f, str, bp, Owner(i));
 	if (flags & V_PARENT)
-		putref(f, Parent(i));
+		putref(f, str, bp, Parent(i));
 	if (!(flags & V_ATRMONEY))
-		putref(f, Pennies(i));
-	putref(f, Flags(i));
+		putref(f, str, bp, Pennies(i));
+	putref(f, str, bp, Flags(i));
 	if (flags & V_XFLAGS)
-		putref(f, Flags2(i));
+		putref(f, str, bp, Flags2(i));
 	if (flags & V_3FLAGS)
-		putref(f, Flags3(i));
+		putref(f, str, bp, Flags3(i));
 	if (flags & V_POWERS) {
-		putref(f, Powers(i));
-		putref(f, Powers2(i));
+		putref(f, str, bp, Powers(i));
+		putref(f, str, bp, Powers2(i));
 	}
 	if (flags & V_TIMESTAMPS) {
-		putlong(f, AccessTime(i));
-		putlong(f, ModTime(i));
+		putlong(f, str, bp, AccessTime(i));
+		putlong(f, str, bp, ModTime(i));
 	}
 
 	/* write the attribute list */
@@ -1115,11 +1121,11 @@ int db_format, flags;
 			}
 			if (save) {
 				got = atr_get_raw(i, j);
-				fprintf(f, ">%d\n", j);
-				putstring(f, got);
+				put_printf(f, str, bp, ">%d\n", j);
+				putstring(f, str, bp, got);
 			}
 		}
-		fprintf(f, "<\n");
+		put_printf(f, str, bp, "<\n");
 	}
 	return 0;
 }
@@ -1131,10 +1137,14 @@ int format, version;
 	dbref i;
 	int flags;
 	VATTR *vp;
-
+	char *str;
+	char *bp;
+	
 #ifndef MEMORY_BASED
 	al_store();
 #endif /* MEMORY_BASED */
+
+	bp = str = start_buffer();
 
 	switch (format) {
 	case F_TINYMUSH:
@@ -1149,15 +1159,15 @@ int format, version;
 #endif
 	i = mudstate.attr_next;
 	/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
-	fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
-	fprintf(f, "-R%d\n", mudstate.record_players);
+	put_printf(f, str, &bp, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
+	put_printf(f, str, &bp, "-R%d\n", mudstate.record_players);
 	
 	/* Dump user-named attribute info */
 
 	vp = vattr_first();
 	while (vp != NULL) {
 		if (!(vp->flags & AF_DELETED))
-			fprintf(f, "+A%d\n\"%d:%s\"\n",
+			put_printf(f, str, &bp, "+A%d\n\"%d:%s\"\n",
 				vp->number, vp->flags, vp->name);
 		vp = vattr_next(vp);
 	}
@@ -1171,11 +1181,12 @@ int format, version;
 #endif
 
 		if (!(Going(i))) {
-			fprintf(f, "!%d\n", i);
-			db_write_object(f, i, format, flags);
+			put_printf(f, str, &bp, "!%d\n", i);
+			db_write_object(f, str, &bp, i, format, flags);
 		}
 	}
-	fputs("***END OF DUMP***\n", f);
+	put_printf(f, str, &bp, "***END OF DUMP***\n");
+	flush_buffer(f, str, &bp);
 	fflush(f);
 #ifdef STANDALONE
 	fprintf(mainlog_fp, "\n");
