@@ -146,7 +146,7 @@ int type;
 
         if (keydata == NULL)
                 return 0;
-        for (sp = (char *)keydata; ((void *)sp - keydata) < keylen; sp++)
+        for (sp = (char *)keydata; (sp - (char *)keydata) < keylen; sp++)
                 hash = (hash << 5) + hash + *sp;
         return ((hash + type) % cwidth);
 }
