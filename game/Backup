@@ -17,22 +17,9 @@ else
     OUTFILE=$GAMENAME.$DBDATE.gz
 fi
 #
-if [ -r $DATA/$NEW_DB ]; then
+if [ -r $DATA/$GDBM_DB ]; then
     echo "Backing up to $OUTFILE"
-    $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$NEW_DB | $ZIP -c > $OUTFILE
+    $BIN/dbconvert $DATA/$GDBM_DB x | $ZIP -c > $OUTFILE
 else
-    if [ -r $DATA/$INPUT_DB ]; then
-        echo "No recent checkpoint db. Using older db."
-	echo "Backing up to $OUTFILE"
-        $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$INPUT_DB | $ZIP -c > $OUTFILE
-    else
-        if [ -r $DATA/$SAVE_DB ]; then
-            echo "No input db. Using backup db."
-	    echo "Backing up to $OUTFILE"
-            $BIN/dbconvert $DATA/$GDBM_DB x < $DATA/$SAVE_DB | $ZIP -c > $OUTFILE
-        else
-            echo "No dbs. Backup attempt failed."
-        fi
-    fi
+    echo "No dbs. Backup attempt failed."
 fi
-

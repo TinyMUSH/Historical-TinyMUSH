@@ -115,15 +115,6 @@ if [ -r $DATA/$CRASH_DB ]; then
 	fi
 fi
 
-#
-#	Save a copy of the previous input databases.
-#
-if [ -r $DATA/$INPUT_DB ]; then
-	mv -f $DATA/$INPUT_DB $DATA/$SAVE_DB
-else
-	echo "No previous input database."
-fi
-
 if [ -r "comsys.db" ]; then
 	cp -f comsys.db comsys.db.old
 elif [ -r "$DATA/comsys.db" ]; then
@@ -147,16 +138,9 @@ make_db=""
 #	If we have a good checkpoint database, make it the input database.
 #	If not, use the backup of the input database.
 #
-if [ -r $DATA/$NEW_DB ]; then
-	mv $DATA/$NEW_DB $DATA/$INPUT_DB
-else
-	if [ -r $DATA/$SAVE_DB ]; then
-		echo "No recent checkpoint db. Using older db."
-		cp $DATA/$SAVE_DB $DATA/$INPUT_DB
-	else
-		echo "No recent db. Will initialize new database."
-		make_db="-s"
-	fi
+if [ ! -r $DATA/$GDBM_DB ]; then
+	echo "No recent db. Will initialize new database."
+	make_db="-s"
 fi
 #
 #	Remove the start db if there is one.
