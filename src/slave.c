@@ -31,9 +31,9 @@ char *arg_for_errors;
 
 char *format_inet_addr(dest, addr)
 char *dest;
-long addr;
+unsigned int addr;
 {
-	sprintf(dest, "%ld.%ld.%ld.%ld",
+	sprintf(dest, "%lu.%lu.%lu.%lu",
 		(addr & 0xFF000000) >> 24,
 		(addr & 0x00FF0000) >> 16,
 		(addr & 0x0000FF00) >> 8,
@@ -78,7 +78,7 @@ char *orig_arg;
 	char arg[MAX_STRING];
 	size_t len;
 	char *p;
-	unsigned long addr;
+	unsigned int addr;
 
 
 	addr = inet_addr(ip);
@@ -116,7 +116,7 @@ char *orig_arg;
 		static char *alist[1];
 		static char namebuf[128];
 
-		defaddr.s_addr = inet_addr(arg);
+		defaddr.s_addr = (unsigned int) inet_addr(arg);
 		if (defaddr.s_addr == INADDR_NONE) {
 			return (-1);
 		}
