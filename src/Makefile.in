@@ -160,13 +160,19 @@ CONC_DEFS =
 #CONC_S = newconc.o
 #CONC_DEFS = -DCONCENTRATE
 
-# Malloc debugging options. The first set is with debugging off.
-# If you wish to use malloc debugging, comment the first set and uncomment
-# the second set. This should only be turned on if you're looking for memory
-# leaks or corruption, as it slows down the MUSH considerably.
-MALLOC_S = malloc.c
-MALLOC_O = malloc.o
-MALLOC_DEFS =
+# Malloc options.
+# If your system malloc library is broken for some reason, uncomment the
+# first set of options.
+# If you wish to use malloc debugging, uncomment the second set of options.
+# You should not use malloc debugging unless you are looking for memory
+# leaks or corruption, as it drastically impacts server performance.
+# If you are trying to hunt down memory issues, though, and you have
+# access to Purify (a commercial package), it is recommended that you
+# use that instead (make netmush-pure).
+
+#MALLOC_S = malloc.c
+#MALLOC_O = malloc.o
+#MALLOC_DEFS =
 
 #MALLOC_S = malloc.c mcheck.c mstats.c mtrace.c
 #MALLOC_O = malloc.o mcheck.o mstats.o mtrace.o
