@@ -74,7 +74,7 @@ char *list, *command, *cargs[];
 	}
 	curr = list;
 
-	if (key == DOLIST_DELIMIT) {
+	if (key & DOLIST_DELIMIT) {
 		char *tempstr;
 
 		if (strlen((tempstr = parse_to(&curr, ' ', EV_STRIP))) > 1) {
