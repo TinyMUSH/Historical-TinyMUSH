@@ -1593,12 +1593,17 @@ static void NDECL(process_preload)
 #endif /* MEMORY_BASED */
 				break;
 			}
+		}
+
+		ITER_PARENTS(thing, parent, lev) {
 			if (Flags2(thing) & HAS_DAILY) {
 			    sprintf(tbuf, "0 %d * * *",
 				    mudconf.events_daily_hour);
 			    call_cron(thing, thing, A_DAILY, tbuf);
+			    break;
 			}
 		}
+
 	}
 	XFREE(fp, "process_preload.fwdlist");
 	free_lbuf(tstr);
