@@ -2981,7 +2981,7 @@ FUNCTION(fun_lstack)
     dbref it;
     STACK *sp;
     char *bp;
-    int over = 0, first = 0;
+    int over = 0, first = 1;
 
     mvarargs_preamble("LSTACK", 0, 2);
 
@@ -2995,7 +2995,8 @@ FUNCTION(fun_lstack)
     for (sp = stack_get(it); (sp != NULL) && !over; sp = sp->next) {
 	if (!first) {
 	    safe_chr(sep, buff, bufc);
-	    first = 1;
+	} else {
+	    first = 0;
 	}
 	over = safe_str(sp->data, buff, bufc);
     }
