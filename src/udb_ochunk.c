@@ -308,7 +308,6 @@ void db_lock()
 		log_perror("DMP", "LOCK", NULL, "fcntl()");
 		return;
 	}
-	fprintf(mainlog_fp, "we got here with fd %d\n", mudstate.dbm_fd);
 }
 
 void db_unlock()
