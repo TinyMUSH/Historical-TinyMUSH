@@ -1019,7 +1019,7 @@ int all, key;
 {
 	struct mail *mp;
 	int num, mail_ok;
-	char *tolist, *ccnames, *bp, *p, *names, *oldlist, *tokst;
+	char *tolist, *ccnames, *bp, *p, *oldlist, *tokst;
 
         if (Sending_Mail(player)) {
                 notify(player, "MAIL: Mail message already in progress.");
@@ -1043,7 +1043,7 @@ int all, key;
 	ccnames = NULL;
 	if (all) {
         	bp = oldlist = alloc_lbuf("do_mail_reply.oldlist");
-		safe_str(mp->tolist, oldlist, &bp);
+		safe_str((char *)mp->tolist, oldlist, &bp);
 		if (*mp->cclist)
 			safe_tprintf_str(oldlist, &bp, " %s", mp->cclist);
 
@@ -1067,9 +1067,9 @@ int all, key;
 	tolist = msg;
 
 	if (strncmp(mp->subject, "Re:", 3)) {
-		mail_ok = do_expmail_start(player, tolist, cclist, tprintf("Re: %s", mp->subject));
+		mail_ok = do_expmail_start(player, tolist, ccnames, tprintf("Re: %s", mp->subject));
 	} else {
-		mail_ok = do_expmail_start(player, tolist, cclist, tprintf("%s", mp->subject));
+		mail_ok = do_expmail_start(player, tolist, ccnames, tprintf("%s", mp->subject));
 	}
 	if (mail_ok) {
 	    if (key & MAIL_QUOTE) {
