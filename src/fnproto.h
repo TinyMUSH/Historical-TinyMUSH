@@ -131,13 +131,8 @@ XFUNCTION(fun_acos);
 XFUNCTION(fun_atan);
 XFUNCTION(fun_dist2d);
 XFUNCTION(fun_dist3d);
-XFUNCTION(fun_vadd);
-XFUNCTION(fun_vsub);
-XFUNCTION(fun_vmul);
-XFUNCTION(fun_vdot);
-XFUNCTION(fun_vmag);
-XFUNCTION(fun_vunit);
-XFUNCTION(fun_vdim);
+XFUNCTION(handle_vectors);
+XFUNCTION(handle_vector);
 XFUNCTION(fun_abs);
 XFUNCTION(fun_sign);
 XFUNCTION(fun_shl);
@@ -716,16 +711,22 @@ FUN flist[] = {
 {"URL_UNESCAPE",fun_url_unescape,-1,0,		CA_PUBLIC,	NULL},
 #endif /* PUEBLO_SUPPORT */
 {"V",		fun_v,		1,  0,		CA_PUBLIC,	NULL},
-{"VADD",	fun_vadd,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"VADD",	handle_vectors,	0,  FN_VARARGS|VEC_ADD,
+						CA_PUBLIC,	NULL},
 {"VALID",	fun_valid,	2,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"VDIM",	fun_vdim,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"VDOT",	fun_vdot,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"VDIM",	fun_words,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"VDOT",	handle_vectors,	0,  FN_VARARGS|VEC_DOT,
+						CA_PUBLIC,	NULL},
 {"VERSION",	fun_version,	0,  0,		CA_PUBLIC,	NULL},
 {"VISIBLE",	fun_visible,	2,  0,		CA_PUBLIC,	NULL},
-{"VMAG",	fun_vmag,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"VMUL",	fun_vmul,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"VSUB",	fun_vsub,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"VUNIT",	fun_vunit,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"VMAG",	handle_vector,	0,  FN_VARARGS|VEC_MAG,
+						CA_PUBLIC,	NULL},
+{"VMUL",	handle_vectors,	0,  FN_VARARGS|VEC_MUL,
+						CA_PUBLIC,	NULL},
+{"VSUB",	handle_vectors,	0,  FN_VARARGS|VEC_SUB,
+						CA_PUBLIC,	NULL},
+{"VUNIT",	handle_vector,	0,  FN_VARARGS|VEC_UNIT,
+						CA_PUBLIC,	NULL},
 {"WAIT",	fun_wait,	2,  0,		CA_PUBLIC,	NULL},
 {"WHENFALSE",	fun_whenfalse,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},

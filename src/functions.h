@@ -332,4 +332,16 @@ if ((l) > 0) { \
 #define CLOGIC_OR	0x1
 #define CLOGIC_BOOL	0x2
 
+/* from handle_vectors (vadd, vsub, vmul, vdot): */
+#define VEC_OPER	0x0f	/* mask to select vector operation bits */
+#define VEC_ADD		0
+#define VEC_SUB		1
+#define VEC_MUL		2
+#define VEC_DOT		3
+/* #define VEC_CROSS	4  -- not implemented */
+
+/* from handle_vector (vmag, vunit): */
+#define VEC_MAG		5
+#define VEC_UNIT	6
+
 #endif /* __FUNCTIONS_H */

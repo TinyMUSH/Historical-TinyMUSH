@@ -899,65 +899,60 @@ FUNCTION(fun_dist3d)
 }
 
 /* ------------------------------------------------------------------------
- * Vector functions: VADD, VSUB, VMUL, VCROSS, VMAG, VUNIT, VDIM
- * Vectors are space-separated numbers.
+ * Vector functions: VADD, VSUB, VMUL, VDOT, VMAG, VUNIT, VDIM
+ * Vectors are delimited lists of numbers.
  */
 
-#define VADD_F 0
-#define VSUB_F 1
-#define VMUL_F 2
-#define VDOT_F 3
-#define VCROSS_F 4
-
-static void handle_vectors(vecarg1, vecarg2, buff, bufc,
-			   isep, osep, isep_len, osep_len, flag)
-    char *vecarg1;
-    char *vecarg2;
-    char *buff;
-    char **bufc;
-    Delim isep, osep;
-    int isep_len, osep_len, flag;
+FUNCTION(handle_vectors)
 {
+    Delim isep, osep;
+    int isep_len, osep_len, oper;
     char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
     NVAL scalar;
     int n, m, i;
 
+    oper = ((FUN *)fargs[-1])->flags & VEC_OPER;
+
+    if (oper != VEC_DOT) {
+	VaChk_Only_In_Out(4);
+    } else {
+	VaChk_Only_In(3);
+    }
+
     /*
      * split the list up, or return if the list is empty 
      */
-    if (!vecarg1 || !*vecarg1 || !vecarg2 || !*vecarg2) {
+    if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1]) {
 	return;
     }
-    n = list2arr(v1, LBUF_SIZE, vecarg1, isep, isep_len);
-    m = list2arr(v2, LBUF_SIZE, vecarg2, isep, isep_len);
+    n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
+    m = list2arr(v2, LBUF_SIZE, fargs[1], isep, isep_len);
 
     /* It's okay to have vmul() be passed a scalar first or second arg,
      * but everything else has to be same-dimensional.
      */
     if ((n != m) &&
-	!((flag == VMUL_F) && ((n == 1) || (m == 1)))) {
+	!((oper == VEC_MUL) && ((n == 1) || (m == 1)))) {
 	safe_str("#-1 VECTORS MUST BE SAME DIMENSIONS", buff, bufc);
 	return;
     }
 
-    switch (flag) {
-	case VADD_F:
+    switch (oper) {
+	case VEC_ADD:
 	    fval(buff, bufc, aton(v1[0]) + aton(v2[0]));
 	    for (i = 1; i < n; i++) {
 		print_sep(osep, osep_len, buff, bufc);
 		fval(buff, bufc, aton(v1[i]) + aton(v2[i]));
 	    }
-	    return;
-	    /* NOTREACHED */
-	case VSUB_F:
+	    break;
+	case VEC_SUB:
 	    fval(buff, bufc, aton(v1[0]) - aton(v2[0]));
 	    for (i = 1; i < n; i++) {
 		print_sep(osep, osep_len, buff, bufc);
 		fval(buff, bufc, aton(v1[i]) - aton(v2[i]));
 	    }
-	    return;
-	    /* NOTREACHED */
-	case VMUL_F:
+	    break;
+	case VEC_MUL:
 	    /* if n or m is 1, this is scalar multiplication.
 	     * otherwise, multiply elementwise.
 	     */
@@ -989,123 +984,61 @@ static void handle_vectors(vecarg1, vecarg2, buff, bufc,
 		    fval(buff, bufc, aton(v1[i]) * aton(v2[i]));
 		}
 	    }
-	    return;
-	    /* NOTREACHED */
-	case VDOT_F:
+	    break;
+	case VEC_DOT:
+	    /* dot product: (a,b,c) . (d,e,f) = ad + be + cf
+	     * 
+	     * no cross product implementation yet: it would be
+	     * (a,b,c) x (d,e,f) = (bf - ce, cd - af, ae - bd)
+	     */
 	    scalar = 0;
 	    for (i = 0; i < n; i++) {
 		scalar += aton(v1[i]) * aton(v2[i]);
 	    }
 	    fval(buff, bufc, scalar);
-	    return;
-	    /* NOTREACHED */
+	    break;
 	default:
 	    /* If we reached this, we're in trouble. */
 	    safe_str("#-1 UNIMPLEMENTED", buff, bufc);
+	    break;
     }
 }
 
-FUNCTION(fun_vadd)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_Only_In_Out(4);
-    handle_vectors(fargs[0], fargs[1], buff, bufc,
-		   isep, osep, isep_len, osep_len, VADD_F);
-}
-
-FUNCTION(fun_vsub)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_Only_In_Out(4);
-    handle_vectors(fargs[0], fargs[1], buff, bufc,
-		   isep, osep, isep_len, osep_len, VSUB_F);
-}
-
-FUNCTION(fun_vmul)
-{
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_Only_In_Out(4);
-    handle_vectors(fargs[0], fargs[1], buff, bufc,
-		   isep, osep, isep_len, osep_len, VMUL_F);
-}
-
-FUNCTION(fun_vdot)
-{
-    /* dot product: (a,b,c) . (d,e,f) = ad + be + cf
-     * 
-     * no cross product implementation yet: it would be
-     * (a,b,c) x (d,e,f) = (bf - ce, cd - af, ae - bd)
-     */
-
-    Delim isep, osep;
-    int isep_len, osep_len;
-
-    VaChk_Only_In_Out(4);
-    handle_vectors(fargs[0], fargs[1], buff, bufc,
-		   isep, osep, isep_len, osep_len, VDOT_F);
-}
-
-FUNCTION(fun_vmag)
+FUNCTION(handle_vector)
 {
     char *v1[LBUF_SIZE];
-    int n, i, isep_len;
+    int n, i, isep_len, osep_len, oper;
     NVAL tmp, res = 0;
-    Delim isep;
+    Delim isep, osep;
 
-    VaChk_Only_In(2);
+    oper = ((FUN *)fargs[-1])->flags & VEC_OPER;
 
-    /*
-     * split the list up, or return if the list is empty 
-     */
-    if (!fargs[0] || !*fargs[0]) {
-	return;
-    }
-    n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
-
-    /*
-     * calculate the magnitude 
-     */
-    for (i = 0; i < n; i++) {
-	tmp = aton(v1[i]);
-	res += tmp * tmp;
-    }
-
-    if (res > 0) {
-	fval(buff, bufc, sqrt(res));
+    if (oper == VEC_UNIT) {
+	VaChk_Only_In_Out(3);
     } else {
-	safe_chr('0', buff, bufc);
+	VaChk_Only_In(2);
     }
-}
 
-FUNCTION(fun_vunit)
-{
-    char *v1[LBUF_SIZE];
-    int n, i, isep_len, osep_len;
-    NVAL tmp, res = 0;
-    Delim isep, osep;
-
-    VaChk_Only_In_Out(3);
-
-    /*
-     * split the list up, or return if the list is empty 
-     */
+    /* split the list up, or return if the list is empty */
     if (!fargs[0] || !*fargs[0]) {
 	return;
     }
     n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
 
-    /*
-     * calculate the magnitude 
-     */
+    /* calculate the magnitude */
     for (i = 0; i < n; i++) {
 	tmp = aton(v1[i]);
 	res += tmp * tmp;
+    }
+
+    /* if we're just calculating the magnitude, return it */
+    if (oper == VEC_MAG) {
+	if (res > 0) {
+	    fval(buff, bufc, sqrt(res));
+	} else {
+	    safe_chr('0', buff, bufc);
+	}
+	return;
     }
 
     if (res <= 0) {
@@ -1118,19 +1051,6 @@ FUNCTION(fun_vunit)
     for (i = 1; i < n; i++) {
 	print_sep(osep, osep_len, buff, bufc);
 	fval(buff, bufc, aton(v1[i]) / res);
-    }
-}
-
-FUNCTION(fun_vdim)
-{
-    Delim isep;
-    int isep_len;
-
-    if (nfargs == 0) {
-	safe_chr('0', buff, bufc);
-    } else {
-	VaChk_Only_In(2);
-	safe_ltos(buff, bufc, countwords(fargs[0], isep, isep_len));
     }
 }
 

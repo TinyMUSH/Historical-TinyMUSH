@@ -118,7 +118,7 @@ char *dbr;
 }
 
 /* ---------------------------------------------------------------------------
- * fun_words: Returns number of words in a string.
+ * fun_words: Returns number of words in a string. Aka fun_vdim.
  * Added 1/28/91 Philip D. Wasson
  */
 
