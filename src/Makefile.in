@@ -38,7 +38,7 @@ D_SRC	= create.c game.c help.c look.c match.c move.c player.c predicates.c \
 	  db.c db_rw.c stringutil.c object.c conf.c flags.c htab.c \
 	  compat.c file_c.c player_c.c bsd.c alloc.c comsys.c mail.c \
           mguests.c powers.c newconc.c funceval.c regexp.c quota.c \
-	  db_empty.c db_msql.c
+	  db_empty.c db_msql.c db_mysql.c
 D_OBJ	= create.o game.o help.o look.o match.o move.o player.o predicates.o \
 	  rob.o set.o speech.o wiz.o walkdb.o timer.o boolexp.o log.o cque.o \
 	  unparse.o eval.o command.o wild.o netcommon.o functions.o vattr.o \
@@ -108,20 +108,28 @@ MORELIBS	= -lm
 #MORELIBS	= -lm -lnsl -lsocket -L/usr/ucblib -lucb	# Mips
 #MORELIBS	= -lm -L/usr/ucblib -lucb			# old Solaris
 
-# TinyMUSH can read and write directly from an external mSQL database (and
-# possibly other databases in the future). If you want to use this
-# functionality, comment out the first set of definitions and uncomment
-# the second set.
-# You will need to change the pathname to mSQL, if your mSQL installation
-# is not in /usr/local/Hughes
+# ----- TinyMUSH can read and write directly from external databases.
+#        If you wish to use this functionality, comment out all definition
+#        sets other than the one you wish to use.
 #
+# No external database.
 SQL_INC =
 SQL_LIB =
 SQL_OBJ = db_empty.o
 #
+# mSQL database. You must have mSQL already installed. You will need
+# to change the pathname, if your mSQL installation is not in the
+# normal default location of /usr/local/Hughes
 #SQL_INC = -I/usr/local/Hughes/include
 #SQL_LIB = -L/usr/local/Hughes/lib -lmsql
 #SQL_OBJ = db_msql.o
+#
+# mySQL database. You must have mySQL already installed. You will need
+# to change the pathnames below, if your mySQL installation is not in the
+# normal default location of /usr/local
+#SQL_INC = -I/usr/local/include/mysql
+#SQL_LIB = -L/usr/local/lib/mysql -lmysqlclient
+#SQL_OBJ = db_mysql.o
 
 # This set of definitions is for disk-based caching. If you wish to be
 # memory based, comment the first set and uncomment the second set. Being

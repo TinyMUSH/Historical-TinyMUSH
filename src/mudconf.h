@@ -83,6 +83,8 @@ struct confdata {
 	char	exec_path[MBUF_SIZE];	/* argv[0] */
 	char	sql_host[MBUF_SIZE];	/* IP address of SQL database */
 	char	sql_db[MBUF_SIZE];	/* Database to use */
+	char	sql_username[MBUF_SIZE]; /* Username for database */
+	char	sql_password[MBUF_SIZE]; /* Password for database */
 	int	sql_reconnect;	/* Auto-reconnect if connection dropped? */
 	int	indent_desc;	/* Newlines before and after descs? */
 	int	name_spaces;	/* allow player names to have spaces */

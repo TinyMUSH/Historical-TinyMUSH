@@ -128,6 +128,8 @@ void NDECL(cf_init)
 #endif
 	StringCopy(mudconf.sql_host, "127.0.0.1");
 	StringCopy(mudconf.sql_db, "");
+	StringCopy(mudconf.sql_username, "");
+	StringCopy(mudconf.sql_password, "");
 	mudconf.sql_reconnect = 0;
 	mudconf.indent_desc = 0;
        	mudconf.name_spaces = 1;
@@ -1521,6 +1523,10 @@ CONF conftable[] = {
 	cf_string,	CA_STATIC,	(int *)mudconf.sql_db,		MBUF_SIZE},
 {(char *)"sql_host",
 	cf_string,	CA_STATIC,	(int *)mudconf.sql_host,	MBUF_SIZE},
+{(char *)"sql_username",
+	cf_string,	CA_STATIC,	(int *)mudconf.sql_username,	MBUF_SIZE},
+{(char *)"sql_password",
+	cf_string,	CA_STATIC,	(int *)mudconf.sql_password,	MBUF_SIZE},
 {(char *)"sql_reconnect",
  	cf_bool,	CA_GOD,		&mudconf.sql_reconnect,		0},
 {(char *)"stack_limit",
