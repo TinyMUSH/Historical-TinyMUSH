@@ -20,6 +20,24 @@ steps. You will need to do the following:
   edit your GAMENAME.conf file (substitute whatever you set GAMENAME to
   for GAMENAME). 
 
+- Compare your GAMENAME.conf file to the default netmush.conf file.
+  You'll note that there are some new parameters and some changes to
+  old defaults. Update your conf file to reflect these changes. The
+  important ones are:
+
+	raw_helpfile news text/news
+	raw_helpfile man text/mushman
+	mail_database data/mail.db
+	comsys_database data/comsys.db
+
+  Also be sure to update the paths for input_database, output_database,
+  gdbm_database, and crash_database, to reflect the fact that these files
+  are now in the data directory. (i.e., use 'input_database data/netmush.db'
+  rather than 'input_database netmush.db').
+
+  You should also look at the "Compatibility Notes" section below, for
+  any other configuration parameters you'll need to add or change.
+
 - Assuming that your flatfile is in the 'game' directory, go into the
   'game' directory ('cd game').
 
@@ -121,6 +139,12 @@ The following are important changes in behavior between 2.2 and 3.0:
   object's parent chain. To get the equivalent of the 2.2 behavior,
   use hasattrp() instead. Your existing database was automatically
   converted to take this difference into account.
+
+- Two additional categories have been added to the stats() function. If
+  you have softcode that extracts the number of garbage objects in the
+  database from stats(), it will be fine if you used last(stats()) to
+  get the data; if you used extract() or another function that depended
+  upon list position, you will need to modify your code.
 
 -----------------------------------------------------------------------------
 

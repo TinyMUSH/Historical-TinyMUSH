@@ -13,7 +13,18 @@ steps. You will need to do the following:
 
 - If the GAMENAME parameter in your mush.config file is not 'netmush',
   edit your GAMENAME.conf file (substitute whatever you set GAMENAME to
-  for GAMENAME). 
+  for GAMENAME).
+
+- Compare your GAMENAME.conf file to the default netmush.conf file.
+  You'll note that there are some new parameters and some changes to
+  old defaults. Update your conf file to reflect these changes. Two
+  things that you'll definitely want to add are:
+
+	helpfile news text/news
+	raw_helpfile man text/mushman
+
+  You should also look at the "Compatibility Notes" section below, for
+  any other configuration parameters you'll need to add or change.
 
 - Assuming that your flatfile is in the 'game' directory, go into the
   'game' directory ('cd game').
@@ -71,6 +82,11 @@ TinyMUX compatibility:
 	helpfile +help text/plushelp
 	helpfile wiznews text/wiznews
 	access wiznews wizard
+
+Also, the default netmush.conf file has 'raw_helpfile news text/news' in
+it. If you want the old MUX behavior of 'news', where percent-substitutions
+and ANSI are evaluated in the news file, you will need to change that
+line to 'helpfile news text/news' instead.
 
 Note that unless you explicitly need the legacy behavior of @addcommand'd
 commands (you want no Huh? message generated if an @addcommand is missed,
