@@ -801,6 +801,26 @@ struct sockaddr_in *a;
 {
 	DESC *d;
 
+	if (s == slave_socket) {
+	    /* Whoa. We shouldn't be allocating this. If we got this
+	     * descriptor, our connection with the slave must have
+	     * died somehow. We make sure to take note appropriately.
+	     */
+	    STARTLOG(LOG_ALWAYS, "ERR", "SOCK")
+		log_text((char *) "Player descriptor clashes with slave fd ");
+	        log_number(slave_socket);
+	    ENDLOG
+	    slave_socket = -1;
+	}
+	if (s == mudstate.sql_socket) {
+	    /* We shouldn't be allocating this either, for the same reason. */
+	    STARTLOG(LOG_ALWAYS, "ERR", "SOCK")
+		log_text((char *) "Player descriptor clashes with SQL server fd ");
+	        log_number(slave_socket);
+	    ENDLOG
+	    mudstate.sql_socket = -1;
+	}
+
 	ndescriptors++;
 	d = alloc_desc("init_sock");
 	d->descriptor = s;
