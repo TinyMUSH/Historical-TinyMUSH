@@ -223,7 +223,7 @@ int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc, eval,
 		player, caller, cause, cargs, ncargs, allow_special)
 char *fargs[], *cargs[], *sep, *buff, **bufc;
 int nfargs, ncargs, sep_arg, eval, allow_special;
-dbref player, cause;
+dbref player, caller, cause;
 {
 	char *tstr, *bp, *str;
 	int tlen;

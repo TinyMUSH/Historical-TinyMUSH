@@ -31,7 +31,7 @@ extern void	NDECL(set_prefix_cmds);
 extern void	FDECL(process_cmdline, (dbref, dbref, char *, char *[], int));
 
 /* From conf.c */
-extern void	FDECL(cf_log_syntax, (dbref, char *, const char *, char *));
+extern void	VDECL(cf_log_syntax, (dbref, char *, const char *, ...));
 extern void	FDECL(cf_log_notfound, (dbref, char *, const char *, char *));
 extern int	FDECL(cf_modify_bits, (int *, char *, long, dbref, char *));
 

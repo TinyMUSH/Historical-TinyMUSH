@@ -3128,7 +3128,7 @@ void dump_restart_db()
 	f = fopen("restart.db", "w");
 	fprintf(f, "+V%d\n", version);
 	putref(f, sock);
-	putref(f, mudstate.start_time);
+	putlong(f, mudstate.start_time);
 	putref(f, mudstate.reboot_nums);
 	putstring(f, mudstate.doing_hdr);
 #ifdef CONCENTRATE
@@ -3187,7 +3187,7 @@ void load_restart_db()
 		new_strings = 1;
 		
 	maxd = sock + 1;
-	mudstate.start_time = getref(f);
+	mudstate.start_time = (time_t) getlong(f);
 
 	if (version & RS_COUNT_REBOOTS)
 	    mudstate.reboot_nums = getref(f) + 1;

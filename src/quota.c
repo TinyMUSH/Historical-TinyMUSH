@@ -175,9 +175,8 @@ int key, value;
 	}
 }
 
-static void print_objquota(player, victim, tstr)
+static void show_quota(player, victim)
 dbref player, victim;
-const char *tstr;
 {
 	int q_list[5], rq_list[5], dq_list[5], i;
 
@@ -213,12 +212,6 @@ const char *tstr;
 				tprintf("%-16s: %4d - %3d", Name(victim),
 				dq_list[QTYPE_ALL], q_list[QTYPE_ALL]));
 	}
-}
-
-static void show_quota(player, victim)
-dbref player, victim;
-{
-	print_objquota(player, victim, "Quota");
 }
 
 static void show_quota_header(player)

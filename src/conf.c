@@ -446,19 +446,36 @@ const char *thingname;
  * * cf_log_syntax: Log a syntax error.
  */
 
-void cf_log_syntax(player, cmd, template, arg)
-dbref player;
-char *cmd, *arg;
-const char *template;
+#if defined(__STDC__) && defined(STDC_HEADERS)
+void cf_log_syntax(dbref player, char *cmd, const char *template,...)
+#else
+void cf_log_syntax(va_alist)
+va_dcl
+#endif
 {
+	va_list ap;
+
+#if defined(__STDC__) && defined(STDC_HEADERS)
+	va_start(ap, template);
+#else
+	dbref player;
+	char *cmd, *template;
+
+	player = va_arg(ap, dbref);
+	cmd = va_arg(ap, char *);
+	template = va_arg(ap, char *);
+#endif
+
 	if (mudstate.initializing) {
 		STARTLOG(LOG_STARTUP, "CNF", "SYNTX")
 		    log_printf("%s: ", cmd);
-		    log_printf(template, arg);
+		    log_printf(template, ap);
 		ENDLOG
 	} else {
-		notify(player, tprintf(template, arg));
+		notify(player, tprintf(template, ap));
 	}
+
+	va_end(ap);
 }
 
 /*
@@ -692,7 +709,8 @@ CF_HAND(cf_alias)
 				*p = toupper(*p);
 			cp = hashfind(orig, (HASHTAB *) vp);
 			if (cp == NULL) {
-				cf_log_notfound(player, cmd, extra, orig);
+				cf_log_notfound(player, cmd,
+						(char *) extra, orig);
 				return -1;
 			}
 		}

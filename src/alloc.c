@@ -326,26 +326,20 @@ const char *text;
 	notify(player, tprintf("%d free %s", numfree, text));
 }
 
-static void list_bufstat(player, poolnum, pool_name)
-dbref player;
-int poolnum;
-const char *pool_name;
-{
-	char *buff;
-
-	buff = pool_stats(poolnum, poolnames[poolnum]);
-	notify(player, buff);
-	free_mbuf(buff);
-}
-
 void list_bufstats(player)
 dbref player;
 {
-	int i;
+    int i;
+    char *buff;
 
-	notify(player, "Buffer Stats     Size    InUse    Total   Allocs     Lost");
-	for (i = 0; i < NUM_POOLS; i++)
-		list_bufstat(player, i, poolnames[i]);
+    notify(player,
+	   "Buffer Stats     Size    InUse    Total   Allocs     Lost");
+
+    for (i = 0; i < NUM_POOLS; i++) {
+	buff = pool_stats(i, poolnames[i]);
+	notify(player, buff);
+	free_mbuf(buff);
+    }
 }
 
 void list_buftrace(player)

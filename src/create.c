@@ -524,6 +524,8 @@ char *name, *arg2;
 	if (key & CLONE_SET_COST) {
 	    cost = atoi(arg2);
 	    arg2 = NULL;
+	} else {
+	    cost = 0;
 	}
 
 	switch (Typeof(thing)) {
@@ -546,7 +548,7 @@ char *name, *arg2;
 				notify_quiet(player, NOPERM_MESSAGE);
 				return;
 			}
-			cost = mudconf.digcost;
+			cost = mudconf.opencost;
 			break;
 	}
 

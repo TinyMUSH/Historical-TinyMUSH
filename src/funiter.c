@@ -169,8 +169,8 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
 	work_buf = alloc_lbuf("perform_iter.eval");
 	StrCopyKnown(work_buf, exprstr, elen); /* we might nibble this */
 	str = work_buf;
+	savep = *bufc;
 	if (!flag) {
-	    savep = *bufc;
 	    exec(buff, bufc, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	} else {

@@ -2667,7 +2667,7 @@ static void perform_grep(buff, bufc, player, fargs, nfargs,
     pcre *re = NULL;
     pcre_extra *study = NULL;
     const char *errptr;
-    int erroffset, subpatterns;
+    int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
     char *patbuf, *patc, *attrib, *p, *bb_p;
     int ca, aflags, alen;

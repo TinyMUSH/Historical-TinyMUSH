@@ -991,6 +991,10 @@ int nfargs, oper, type_pos;
 	/* This conversion is inefficient, since it's already happened
 	 * once in do_asort().
 	 */
+
+	ip1 = ip2 = NULL;
+	fp1 = fp2 = NULL;
+
 	if (sort_type == NUMERIC_LIST) {
 	    ip1 = (int *) XCALLOC(n1, sizeof(int), "handle_sets.n1");
 	    ip2 = (int *) XCALLOC(n2, sizeof(int), "handle_sets.n2");

@@ -557,10 +557,6 @@ const char *msg;
 	int check_listens, pass_uselock, is_audible;
 	FWDLIST *fp;
 	NUMBERTAB *np;
-	pcre *re;
-	const char *errptr;
-	int erroffset, subpatterns, is_match;
-	int offsets[PCRE_MAX_OFFSETS];
 
 	/* If speaker is invalid or message is empty, just exit */
 
@@ -1301,7 +1297,7 @@ int key;
 static int NDECL(load_game)
 {
 	FILE *f;
-	int fd, compressed;
+	int fd;
 	char infile[256];
 	struct stat file_stat;
 	int db_format, db_version, db_flags;
@@ -1474,7 +1470,6 @@ void do_logrotate(player, cause, key)
     int key;
 {
     LOGFILETAB *lp;
-    int oldfd, newfd;
 	
     mudstate.mudlognum++;
 

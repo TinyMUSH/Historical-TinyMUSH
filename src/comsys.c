@@ -218,7 +218,7 @@ INLINE static int is_listening_disconn(player, chp)
 static int ok_channel_string(str, maxlen, ok_spaces, ok_ansi)
     char *str;
     int maxlen;
-    int ok_spaces;
+    int ok_spaces, ok_ansi;
 {
     char *p;
 
