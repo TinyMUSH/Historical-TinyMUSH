@@ -5489,7 +5489,7 @@ See also: @link, @open.
 	squish()	strcat()	streq()		stripansi()
 	strlen()	strmatch()	strtrunc()	translate()
 	trim()		ucstr()		valid()		wildmatch()
-	wordpos()
+	wordpos()	@@()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -11217,9 +11217,20 @@ performed and the walk down the list stops.
   Function: null(<string>)
  
   This function returns an empty string, effectively "eating" <string>.
-  This is useful if you're doing something involving side-effects and
-  want to obliterate that output.
+  <string> is still evaluated, though. This is useful if you're doing
+  something involving side-effects and want to obliterate that output.
  
+  See also: @@()
+ 
+& @@()
+  Function: @@(<string>)
+ 
+  This function returns an empty string, effectively "eating" <string>.
+  <string> is not evaluated. This is useful for embedding comments
+  in code.
+ 
+  See also: null()
+  
 & TRIGGER()
   Function: trigger(<object>/<attribute>,<arg 0>,<arg 1>,...,<arg N>)
  
