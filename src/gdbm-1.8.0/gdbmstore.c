@@ -147,6 +147,7 @@ gdbm_store (dbf, key, content, flags)
 
 
   /* Update current bucket data pointer and sizes. */
+  bcopy ((void *)"TM3S", dbf->bucket->h_table[elem_loc].start_tag, 4);
   dbf->bucket->h_table[elem_loc].data_pointer = file_adr;
   dbf->bucket->h_table[elem_loc].key_size = key.dsize;
   dbf->bucket->h_table[elem_loc].data_size = content.dsize;

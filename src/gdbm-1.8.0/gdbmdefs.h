@@ -86,6 +86,7 @@ typedef struct {
 typedef struct {
 	int   hash_value;	/* The complete 31 bit value. */
 	char  key_start[SMALL];	/* Up to the first SMALL bytes of the key.  */
+	char  start_tag[4];
 	off_t data_pointer;	/* The file address of the key record. The
 				   data record directly follows the key.  */
 	int   key_size;		/* Size of key data in the file. */
