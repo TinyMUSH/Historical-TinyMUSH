@@ -749,7 +749,7 @@ FUNCTION(fun_force)
 {
     if (check_command(player, "@force", buff, bufc, cargs, ncargs))
 	return;
-    do_force(player, cause, 0, fargs[0], fargs[1], cargs, ncargs);
+    do_force(player, cause, FRC_NOW, fargs[0], fargs[1], cargs, ncargs);
 }
 
 FUNCTION(fun_trigger)
@@ -760,7 +760,7 @@ FUNCTION(fun_trigger)
 	}
 	if (check_command(player, "@trigger", buff, bufc, cargs, ncargs))
 	    return;
-	do_trigger(player, cause, 0, fargs[0], &(fargs[1]), nfargs - 1);
+	do_trigger(player, cause, TRIG_NOW, fargs[0], &(fargs[1]), nfargs - 1);
 }
 
 FUNCTION(fun_wait)
