@@ -692,7 +692,6 @@ There are three functions available for reading, writing, and deleting data
 in the database:
 
 DBData db_get(DBData key, unsigned int dbtype)
-
 	Retrieves data from GDBM. 
 	 
 	'key' is a DBData structure that contains a search key of
@@ -706,7 +705,6 @@ DBData db_get(DBData key, unsigned int dbtype)
 	as the length of that data.
 
 int db_put(DBData key, DBData data, unsigned int dbtype)
-
 	Stores or replaces data in GDBM.
 
 	'key' is a DBData structure that contains a search key of
@@ -721,7 +719,6 @@ int db_put(DBData key, DBData data, unsigned int dbtype)
 	db_put returns 0 on success and 1 on failure.
 	
 int db_del(DBData key, unsigned int dbtype)
-
 	Deletes data from GDBM.
 	
 	'key' is a DBData structure that contains a search key of
@@ -803,3 +800,20 @@ db_rw.c that writes attribute names for an example of how to do this. If
 your module writes entries to GDBM and never deletes them, they will clog
 the database until it is converted to flatfile and back, dropping the unused
 entries in the process.
+
+-----------------------------------------------------------------------------
+
+GETTING NOTIFIED WHEN DATA CHANGES
+
+You can have your module notified when a key is stored or deleted in the
+cache using the following API hooks:
+
+int cache_put_notify(DBData key, unsigned int dbtype)
+	This hook is called when a piece of data is added to or changed in
+	the MUSH cache. Your module should check for an applicable data type
+	before using the key.
+
+int cache_put_notify(DBData key, unsigned int dbtype)
+	This hook is called when a piece of data is deleted from the MUSH
+	cache. Your module should check for an applicable data type before
+	using the key.
