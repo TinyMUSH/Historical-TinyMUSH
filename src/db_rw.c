@@ -797,10 +797,6 @@ int db_format, db_version;
 		case TYPE_EXIT:
 			if (f2 & PENN_EXIT_LIGHT)
 				newf2 |= LIGHT;
-#ifdef DSPACE
-			if (f2 & PENN_EXIT_DSPACE)
-				newf2 |= DYNAMIC;
-#endif /* DSPACE */
 			break;
 		case TYPE_THING:
 			if (f2 & PENN_THING_DEST_OK)
@@ -821,10 +817,6 @@ int db_format, db_version;
 				newf1 |= MONITOR;
 			if (f2 & PENN_ROOM_UNINSPECT)
 				newf2 |= UNINSPECTED;
-#ifdef DSPACE
-			if (f2 & PENN_ROOM_DSPACE)
-				newf2 |= DYNAMIC;
-#endif /* DSPACE */
 		}
 	} else if ((db_format == F_MUSH) && (db_version >= 3)) {
 		newf1 = f1;

@@ -187,11 +187,9 @@
 #define PENN_ROOM_ZEROG     0x200            /* ZeroG room flag */
 #define PENN_ROOM_SLOCK     0x400            /* Auditorium, speech locks */
 #define PENN_ROOM_UNINSPECT 0x1000           /* Not inspected */
-#define PENN_ROOM_DSPACE	0x2000		/* Dynamic Flag */
 #define PENN_EXIT_LIGHT 0x10			/* If a room is dark, and an exit
 					 * has this flag, then it shows 
 					 * up. */
-#define PENN_EXIT_DSPACE	0x20		/* Dynamic Exit */
 
 /* From old PernMUSH */
 #define	PERN_SLAVE	0x00000080

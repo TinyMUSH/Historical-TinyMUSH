@@ -193,24 +193,6 @@ int fflags, reset;
 	return 1;
 }
 
-#ifdef DSPACE
-/* ---------------------------------------------------------------------------
- * fh_dynamic_bit: only settable on rooms or exits.
- */
-
-int fh_dynamic_bit(target, player, flag, fflags, reset)
-dbref target, player;
-FLAG flag;
-int fflags, reset;
-{
-
-	if (isPlayer(target) || isThing(target))
-		return 0;
-
-	return (fh_any(target, player, flag, fflags, reset));
-}
-
-#endif
 /* *INDENT-OFF* */
 
 FLAGENT gen_flags[] = { 

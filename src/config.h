@@ -30,9 +30,6 @@
 #define PLUSHELP_COMMAND	"+help" /* What you type to see the +help file */					 
 #define OUTPUT_BLOCK_SIZE	16384
 
-/* Do NOT define these.	*/
-/* #define DSPACE */			/* Lauren's hardcoded DSPACE */
-
 #define PUEBLO_SUPPORT
 #undef SPLIT_QUOTAS
 #define USE_MAIL
