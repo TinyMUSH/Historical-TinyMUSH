@@ -877,21 +877,25 @@ char *name, *command;
 	int atr;
 	char *s;
 
+	/* Sanity-check the command name and make it case-insensitive. */
+
 	if (!*name || (name[0] == '_' && name[1] == '_')) {
-		notify(player, "Sorry.");
+		notify(player, "That is not a valid command name.");
 		return;
+	}
+
+	for (s = name; *s; s++) {
+		if (isspace(*s) || (*s == ESC_CHAR)) {
+		    notify(player, "That is not a valid command name.");
+		    return;
+		}
+		*s = tolower(*s);
 	}
 
 	if (!parse_attrib(player, command, &thing, &atr, 0) ||
 	    (atr == NOTHING)) {
 		notify(player, "No such attribute.");
 		return;
-	}
-
-	/* Let's make this case insensitive... */
-
-	for (s = name; *s; s++) {
-		*s = tolower(*s);
 	}
 
 	old = (CMDENT *)hashfind(name, &mudstate.command_htab);
