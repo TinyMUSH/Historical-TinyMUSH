@@ -3,11 +3,13 @@ Changelog for the Beta Releases
 
 Where possible, notes in [brackets] indicate when the error was
 introduced. Non-specific version numbers indicate the following:
-	- 2.0 (Introduced in TinyMUSH 2.0.10p6 or earlier.)
-	- 2.2 (Introduced in TinyMUSH 2.2.5 or earlier.)
-	- MUX (Introduced in TinyMUX 1.6 or earlier.)
-	- 3.0 (Introduced in TinyMUSH 3.0 at some point in time.)
-	- 3.1 (Introduced in TinyMUSH 3.1 at some point in time.)
+	- Penn (Present in PennMUSH and introduced by porting.)
+	- 2.0  (Introduced in TinyMUSH 2.0.10p6 or earlier.)
+	- 2.2  (Introduced in TinyMUSH 2.2.5 or earlier.)
+	- MUX  (Introduced in TinyMUX 1.6 or earlier.)
+	- MUX2 (Present in MUX 2.0 or later and introduced by porting.)
+	- 3.0  (Introduced in TinyMUSH 3.0 at some point in time.)
+	- 3.1  (Introduced in TinyMUSH 3.1 at some point in time.)
 
 Names after the bug origin version are the first sources for the bug
 reports. Where no name is given, the bug was discovered by the
@@ -36,12 +38,16 @@ Release history:
   behavior. [3.0; Draci]
 
 - Fix: Better error handling around regular expression matches, fixing
-  at least one bug where regedit() could use an uninitialized buffer. [3.0]
+  at least one bug where regedit() could use an uninitialized buffer. [Penn]
 
 - Misc: Compatibility update for x86_64 cpu types (e.g. opteron).
 
 - Misc: Code cleanup around parser calls, after making sure the parser
   always nul-terminates its own output.
+
+- Misc: Added support for Perl-style curly braces in the regedit()
+  replacement string, i.e. ${1} is the same as $1. The curly braces may
+  need to be escaped in order to work.
 
 08/13/2003: Beta 11
 

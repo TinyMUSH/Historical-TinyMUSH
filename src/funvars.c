@@ -2456,7 +2456,7 @@ FUNCTION(perform_regedit)
 	/* Copy in the replacement, putting in captured sub-expressions. */
 
 	for (r = fargs[2]; *r; r++) {
-	    int offset;
+	    int offset, have_brace = 0;
 	    char *endsub;
 
 	    if (*r != '$') {
@@ -2464,14 +2464,22 @@ FUNCTION(perform_regedit)
 		continue;
 	    }
 	    r++;
+	    if (*r == '{') {
+		have_brace = 1;
+		r++;
+	    }
 	    offset = strtoul(r, &endsub, 10);
-	    if (r == endsub) {
+	    if (r == endsub || (have_brace && *endsub != '}')) {
 		/* Not a valid number. */
 		safe_chr('$', buff, bufc);
+		if (have_brace)
+		    safe_chr('{', buff, bufc);
 		r--;
 		continue;
 	    }
 	    r = endsub - 1;
+	    if (have_brace)
+		r++;
 
 	    if (pcre_copy_substring(fargs[0], offsets, subpatterns, offset,
 				    tbuf, LBUF_SIZE) >= 0) {

@@ -9302,12 +9302,21 @@ performed and the walk down the list stops.
   regedit() replaces just the first match; regeditall() replaces all
   matches. The versions ending in 'i' are case-insensitive.
  
-  Example:
+  If you need to place numerals in the replacement string immediately
+  following a sub-expression result, use curly braces, e.g., ${1}0 is
+  the first sub-match followed by a 0, but $10 is the tenth sub-match.
+ 
+  See "help regedit2" for examples.
+ 
+& REGEDIT2
+  Examples:
     > @va me = (.)est
     > say regedit(this test is the best string,%va,$1rash)
     You say, "this trash is the best string"
     > say regeditall(this test is the best string,%va,$1rash)
     You say, "this trash is the brash string"
+    > say regedit(this needs 2 tons of escaping, %(%\d+%), $%{1%}0)
+    You say, "this needs 20 tons of escaping"
  
 & OBJEVAL()
   Function:  objeval(<object>,<expression>)
