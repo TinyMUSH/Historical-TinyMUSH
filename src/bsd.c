@@ -566,8 +566,10 @@ int reason;
 				d->descriptor, d->addr);
 			log_text(buff);
 			log_name(d->player);
-			sprintf(buff, " <Reason: %s>",
-				disc_reasons[reason]);
+			sprintf(buff, " <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
+				disc_reasons[reason], d->command_count,
+				d->input_tot, d->output_tot,
+				time(NULL) - d->connected_at);
 			log_text(buff);
 			free_mbuf(buff);
 			ENDLOG
@@ -578,8 +580,10 @@ int reason;
 				d->descriptor, d->addr);
 			log_text(buff);
 			log_name(d->player);
-			sprintf(buff, " <Reason: %s>",
-				disc_reasons[reason]);
+			sprintf(buff, " <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
+				disc_reasons[reason], d->command_count,
+				d->input_tot, d->output_tot,
+				time(NULL) - d->connected_at);
 			log_text(buff);
 			free_mbuf(buff);
 			ENDLOG
