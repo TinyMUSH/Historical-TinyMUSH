@@ -178,8 +178,16 @@ the other have been listed in the conversion notes for both servers.
 - The @list options command has been reformatted and reorganized. A
   new command, @list params, lists additional configuration parameters.
 
+- The readability of a configuration parameter can be set via the
+  config_read_access param, and can be listed with @list config_read_perms.
+  A config() function allows players to obtain the value of a configuration
+  parameter that they have permission to read.
+
 - New @logrotate command and game_log conf parameter allow the log to
   be rotated while the game is running.
+
+- New divert_log conf parameter allows the logs for different types of
+  events to be sent to different files.
 
 - New /reply and /replyall switches to @mail allow replying to a mail
   message, including quoting it via the additional /quote switch.
@@ -242,9 +250,6 @@ the other have been listed in the conversion notes for both servers.
 
 - Added command() function, which allows the execution of a variety of
   built-in commands in function form, such as @parent and @name.
-
-- Added config() function, which allows wizards to obtain the value of
-  most configuration parameters.
 
 - Added doing() function, to get @doing text.
 
