@@ -1030,7 +1030,8 @@ void NDECL(check_idle)
 				shutdownsock(d, R_TIMEOUT);
 			} else if (mudconf.idle_wiz_dark &&
 				   (idletime > mudconf.idle_timeout) &&
-				   Can_Idle(d->player) && !Hidden(d->player)) {
+				   Can_Idle(d->player) &&
+				   Can_Hide(d->player) && !Hidden(d->player)) {
 				raw_notify(d->player,
 						"*** Inactivity AutoDark ***");
 				s_Flags(d->player, Flags(d->player) | DARK);
