@@ -34,10 +34,16 @@ fi
 #
 case $ARCHIVE in
 	*.gz) UNZIP="gzip -dc"
+		ZEXT="gz"
 		echo "Will use $UNZIP to uncompress gzipped archive." ;;
 	*.Z) UNZIP="compress -dc"
+		ZEXT="Z"
 		echo "Will use $UNZIP to uncompress compressed archive." ;;
-	*) UNZIP=cat 
+	*.bz2) UNZIP="bzip2 -dc"
+		ZEXT="bz2"
+		echo "Will use $UNZIP to uncompress bzip2 archive." ;; 
+	*) UNZIP="cat"
+		ZEXT=""
 		echo "This archive appears to be uncompressed... okay." ;;
 esac
 #
@@ -58,14 +64,14 @@ case $ARCHIVE in
 	mv -f $TXTFILES db-$DBDATE/$TEXT
 	echo "Restoring archive."
 	$UNZIP $ARCHIVE | tar -xvf -
-	INFILE=`basename $ARCHIVE | sed -e "s/\\.tar\\.gz\$//" | sed -e "s/\\-archive/\\.flat/"`
+	INFILE=`basename $ARCHIVE | sed -e "s/\\.tar\\.$ZEXT\$//" | sed -e "s/\\-archive/\\.flat/"`
 	. mush.config
 	. check_paths
 	echo "Restoring flatfile $INFILE ..."
 	$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
 	rm $INFILE ;;
     *.tar.*) echo "Restoring module databases and flatfile."
-	INFILE=`echo $ARCHIVE | sed -e "s/\\.tar\\.gz\$//"`
+	INFILE=`echo $ARCHIVE | sed -e "s/\\.tar\\.$ZEXT\$//"`
 	$UNZIP $ARCHIVE | tar -xvf -
 	$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
 	rm $INFILE ;;
