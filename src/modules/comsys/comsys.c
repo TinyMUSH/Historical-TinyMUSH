@@ -2163,7 +2163,7 @@ FUNCTION(fun_comlist)
     char *bb_p;
     Delim isep;
 
-    varargs_preamble("COMLIST", 1);
+    VaChk_Only_In("COMLIST", 1);
 
     bb_p = *bufc;
     for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);

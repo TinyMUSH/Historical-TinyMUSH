@@ -89,81 +89,88 @@ extern char *ansi_nchartab[];	/* from fnhelper.c */
 
 /* ---------------------------------------------------------------------------
  * Delimiter macros for functions that take an optional delimiter character.
- *
- * Call varargs_preamble("FUNCTION", max_args) for functions which
- * take either max_args - 1 args, or, with a delimiter, max_args args.
- *
- * Call mvarargs_preamble("FUNCTION", min_args, max_args) if there can
- * be more variable arguments than just the delimiter.
- *
- * Call evarargs_preamble("FUNCTION", min_args, max_args) if the delimiters
- * need to be evaluated.
- *
- * Call svarargs_preamble("FUNCTION", max_args) if the second to last and
- * last arguments are delimiters.
- *
- * Call msvarargs_preamble("FUNCTION", min_args, max_args) if there are more
- * variable arguments than just delimiters, but the second to last and last
- * arguments are delimiters.
- *
- * Call xvarargs_preamble("FUNCTION", min_args, max_args) if this is varargs
- * but does not involve a delimiter.
  */
 
-#define xvarargs_preamble(xname,xminargs,xnargs) \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
+/* Helper macros:
+ *   VaChkHelp_Args(min_args, max_args): Check number of args.
+ *   VaChkHelp_InSep(arg_number, flags): Use arg_number as input sep.
+ *   VaChkHelp_OutDef(arg_number): If nfargs less than arg_number,
+ *     use the input separator. DO NOT PUT A SEMI-COLON AFTER THIS MACRO.
+ *   VaChkHelp_OutSep(arg_number, flags): Use arg_number as output sep.
+ */
+
+#define VaChkHelp_Args(xname, xmin, xmax) \
+if (!fn_range_check(xname, nfargs, xmin, xmax, buff, bufc)) \
     return;
 
-#define varargs_preamble(xname,xnargs) \
-if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc)) \
-    return; \
-if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, 0)) \
+#define VaChkHelp_InSep(xargnum, xflags) \
+if (!delim_check(fargs, nfargs, xargnum, &isep, buff, bufc, \
+    player, caller, cause, cargs, ncargs, xflags)) \
     return;
 
-#define mvarargs_preamble(xname,xminargs,xnargs) \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
-    return; \
-if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, 0)) \
-    return;
-
-#define evarargs_preamble(xname, xminargs, xnargs) \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
-    return; \
-if (!delim_check(fargs, nfargs, xnargs - 1, &isep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, DELIM_EVAL)) \
-    return; \
-if (!(osep_len = delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, DELIM_EVAL|DELIM_NULL|DELIM_CRLF))) \
-    return;
-
-#define svarargs_preamble(xname,xnargs) \
-if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc)) \
-    return; \
-if (!delim_check(fargs, nfargs, xnargs-1, &isep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, 0)) \
-    return; \
-if (nfargs < xnargs) { \
+#define VaChkHelp_OutDef(xargnum) \
+if (nfargs < xargnum) { \
     osep.c = isep.c; \
     osep_len = 1; \
-} else if (!(osep_len = delim_check(fargs, nfargs, xnargs, &osep, \
+} else
+
+#define VaChkHelp_OutSep(xargnum, xflags) \
+if (!(osep_len = delim_check(fargs, nfargs, xargnum, &osep, \
            buff, bufc, player, caller, cause, cargs, ncargs, \
-           DELIM_NULL|DELIM_CRLF))) \
+           (xflags)|DELIM_NULL|DELIM_CRLF))) \
     return;
 
-#define msvarargs_preamble(xname,xminargs,xnargs) \
-if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
-    return; \
-if (!delim_check(fargs, nfargs, xnargs-1, &isep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, 0)) \
-    return; \
-if (nfargs < xnargs) { \
-    osep.c = isep.c; \
-    osep_len = 1; \
-} else if (!(osep_len = delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, DELIM_NULL|DELIM_CRLF))) \
-    return;
+/*
+ * VaChk_Range("FUNCTION", min_args, max_args): Functions which take
+ *   between min_args and max_args. Don't check for delimiters.
+ * 
+ * VaChk_Only_In("FUNCTION", max_args): Functions which take max_args - 1 args
+ *   or, with a delimiter, max_args args.
+ *
+ * VaChk_In("FUNCTION", min_args, max_args): Functions which take
+ *   between min_args and max_args, with max_args as a delimiter.
+ *
+ * VaChk_Only_In_Out("FUNCTION", max_args): Functions which take at least
+ *   max_args - 2, with max_args - 1 as an input delimiter, and max_args as
+ *   an output delimiter.
+ *
+ * VaChk_In_Out("FUNCTION", min_args, max_args): Functions which take at
+ *   least min_args, with max_args - 1 as an input delimiter, and max_args
+ *   as an output delimiter.
+ *
+ * VaChk_InEval_OutEval("FUNCTION", min_args, max_args): Functions which
+ *   take at least min_args, with max_args - 1 as an input delimiter that
+ *   must be evaluated, and max_args as an output delimiter which must
+ *   be evaluated.
+ */
+
+#define VaChk_Range(xname,xminargs,xnargs) \
+  VaChkHelp_Args(xname, xminargs, xnargs);
+
+#define VaChk_Only_In(xname,xnargs) \
+  VaChkHelp_Args(xname, xnargs-1, xnargs); \
+  VaChkHelp_InSep(xnargs, 0);
+
+#define VaChk_In(xname,xminargs,xnargs) \
+  VaChkHelp_Args(xname, xminargs, xnargs); \
+  VaChkHelp_InSep(xnargs, 0);
+
+#define VaChk_Only_In_Out(xname,xnargs) \
+  VaChkHelp_Args(xname, xnargs-2, xnargs); \
+  VaChkHelp_InSep(xnargs-1, 0); \
+  VaChkHelp_OutDef(xnargs) \
+    VaChkHelp_OutSep(xnargs, 0);
+
+#define VaChk_In_Out(xname,xminargs,xnargs) \
+  VaChkHelp_Args(xname, xminargs, xnargs); \
+  VaChkHelp_InSep(xnargs-1, 0); \
+  VaChkHelp_OutDef(xnargs) \
+    VaChkHelp_OutSep(xnargs, 0);
+
+#define VaChk_InEval_OutEval(xname, xminargs, xnargs) \
+  VaChkHelp_Args(xname, xminargs, xnargs); \
+  VaChkHelp_InSep(xnargs-1, DELIM_EVAL); \
+  VaChkHelp_OutSep(xnargs, DELIM_EVAL);
 
 /* ---------------------------------------------------------------------------
  * Miscellaneous macros.

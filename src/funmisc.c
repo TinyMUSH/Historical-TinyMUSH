@@ -969,7 +969,7 @@ FUNCTION(fun_create)
 	char *name;
 	Delim isep;
 
-	varargs_preamble("CREATE", 3);
+	VaChk_Only_In("CREATE", 3);
 	name = fargs[0];
 
 	if (!name || !*name) {

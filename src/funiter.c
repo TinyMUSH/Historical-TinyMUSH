@@ -85,7 +85,7 @@ FUNCTION(fun_parse)
     Delim isep, osep;
     int osep_len;
 
-    evarargs_preamble("PARSE", 2, 4);
+    VaChk_InEval_OutEval("PARSE", 2, 4);
     perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep.c, osep, osep_len, 0);
 }
@@ -94,7 +94,7 @@ FUNCTION(fun_loop)
 {
     Delim isep;
 
-    varargs_preamble("LOOP", 3);
+    VaChk_Only_In("LOOP", 3);
     perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep.c, ' ', 1, 1);
 }
@@ -205,7 +205,7 @@ FUNCTION(fun_iter)
     Delim isep, osep;
     int osep_len;
 
-    evarargs_preamble("ITER", 2, 4);
+    VaChk_InEval_OutEval("ITER", 2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep.c, osep, osep_len, 0, BOOL_COND_NONE);
 }
@@ -215,7 +215,7 @@ FUNCTION(fun_whenfalse)
     Delim isep, osep;
     int osep_len;
 
-    evarargs_preamble("WHENFALSE", 2, 4);
+    VaChk_InEval_OutEval("WHENFALSE", 2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep.c, osep, osep_len, 0, BOOL_COND_FALSE);
 }
@@ -225,7 +225,7 @@ FUNCTION(fun_whentrue)
     Delim isep, osep;
     int osep_len;
 
-    evarargs_preamble("WHENTRUE", 2, 4);
+    VaChk_InEval_OutEval("WHENTRUE", 2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep.c, osep, osep_len, 0, BOOL_COND_TRUE);
 }
@@ -234,7 +234,7 @@ FUNCTION(fun_list)
 {
     Delim isep;
 
-    varargs_preamble("LIST", 3);
+    VaChk_Only_In("LIST", 3);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep.c, ' ', 1, 1, BOOL_COND_NONE);
 }
@@ -298,7 +298,7 @@ FUNCTION(fun_fold)
 
 	/* We need two to four arguements only */
 
-	mvarargs_preamble("FOLD", 2, 4);
+	VaChk_In("FOLD", 2, 4);
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
@@ -437,7 +437,7 @@ FUNCTION(fun_filter)
 	Delim isep, osep;
 	int osep_len;
 
-	svarargs_preamble("FILTER", 4);
+	VaChk_Only_In_Out("FILTER", 4);
 	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
 		      isep.c, osep, osep_len, 0);
 }
@@ -447,7 +447,7 @@ FUNCTION(fun_filterbool)
 	Delim isep, osep;
 	int osep_len;
 
-	svarargs_preamble("FILTERBOOL", 4);
+	VaChk_Only_In_Out("FILTERBOOL", 4);
 	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
 		      isep.c, osep, osep_len, 1);
 }
@@ -471,7 +471,7 @@ FUNCTION(fun_map)
 	Delim isep, osep;
 	int i;
 
-	svarargs_preamble("MAP", 4);
+	VaChk_Only_In_Out("MAP", 4);
 
 	/* If we don't have anything for a second arg, don't bother. */
 	if (!fargs[1] || !*fargs[1])
@@ -608,7 +608,7 @@ FUNCTION(fun_step)
     Delim isep, osep;
     int step_size, i, osep_len;
 
-    svarargs_preamble("STEP", 5);
+    VaChk_Only_In_Out("STEP", 5);
 
     step_size = atoi(fargs[2]);
     if ((step_size < 1) || (step_size > NUM_ENV_VARS)) {
@@ -746,7 +746,7 @@ FUNCTION(fun_munge)
 	if ((nfargs == 0) || !fargs[0] || !*fargs[0]) {
 		return;
 	}
-	svarargs_preamble("MUNGE", 5);
+	VaChk_Only_In_Out("MUNGE", 5);
 
 	/* Find our object and attribute */
 
@@ -820,7 +820,7 @@ FUNCTION(fun_while)
     char *atext1, *atext2, *atextbuf, *condbuf;
     char *objs[2], *cp, *str, *dp, *savep, *bb_p, *op;
 
-    svarargs_preamble("WHILE", 6);
+    VaChk_Only_In_Out("WHILE", 6);
 
     /* If our third arg is null (empty list), don't bother. */
 

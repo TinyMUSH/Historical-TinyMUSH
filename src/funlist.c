@@ -130,7 +130,7 @@ FUNCTION(fun_words)
 		safe_chr('0', buff, bufc);
 		return;
 	}
-	varargs_preamble("WORDS", 2);
+	VaChk_Only_In("WORDS", 2);
 	safe_ltos(buff, bufc, countwords(fargs[0], isep.c));
 }
 
@@ -148,7 +148,7 @@ FUNCTION(fun_first)
 	if (nfargs == 0) {
 		return;
 	}
-	varargs_preamble("FIRST", 2);
+	VaChk_Only_In("FIRST", 2);
 	s = trim_space_sep(fargs[0], isep.c);	/* leading spaces ... */
 	first = split_token(&s, isep.c);
 	if (first) {
@@ -170,7 +170,7 @@ FUNCTION(fun_rest)
 	if (nfargs == 0) {
 		return;
 	}
-	varargs_preamble("REST", 2);
+	VaChk_Only_In("REST", 2);
 	s = trim_space_sep(fargs[0], isep.c);	/* leading spaces ... */
 	first = split_token(&s, isep.c);
 	if (s) {
@@ -193,7 +193,7 @@ FUNCTION(fun_last)
 	if (nfargs == 0) {
 		return;
 	}
-	varargs_preamble("LAST", 2);
+	VaChk_Only_In("LAST", 2);
 	s = trim_space_sep(fargs[0], isep.c);	/* trim leading spaces */
 
 	/* If we're dealing with spaces, trim off the trailing stuff */
@@ -222,7 +222,7 @@ FUNCTION(fun_match)
 	char *r, *s;
 	Delim isep;
 
-	varargs_preamble("MATCH", 3);
+	VaChk_Only_In("MATCH", 3);
 
 	/* Check each word individually, returning the word number of the 
 	 * first one that matches.  If none match, return 0. 
@@ -247,7 +247,7 @@ FUNCTION(fun_matchall)
 	char *r, *s, *old;
 	Delim isep, osep;
 
-	svarargs_preamble("MATCHALL", 4);
+	VaChk_Only_In_Out("MATCHALL", 4);
 
 	/* SPECIAL CASE: If there's no output delimiter specified, we use
 	 * a space, NOT the delimiter given for the list!
@@ -292,7 +292,7 @@ FUNCTION(fun_extract)
 	char *r, *s, *t;
 	Delim isep;
 
-	varargs_preamble("EXTRACT", 4);
+	VaChk_Only_In("EXTRACT", 4);
 
 	s = fargs[0];
 	start = atoi(fargs[1]);
@@ -517,7 +517,7 @@ FUNCTION(fun_ldelete)
 {				/* delete a word at position X of a list */
 	Delim isep;
 
-	varargs_preamble("LDELETE", 3);
+	VaChk_Only_In("LDELETE", 3);
 	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), NULL, isep, IF_DELETE);
 }
 
@@ -525,7 +525,7 @@ FUNCTION(fun_replace)
 {				/* replace a word at position X of a list */
 	Delim isep;
 
-	varargs_preamble("REPLACE", 4);
+	VaChk_Only_In("REPLACE", 4);
 	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), fargs[2], isep, IF_REPLACE);
 }
 
@@ -533,7 +533,7 @@ FUNCTION(fun_insert)
 {				/* insert a word at position X of a list */
 	Delim isep;
 
-	varargs_preamble("INSERT", 4);
+	VaChk_Only_In("INSERT", 4);
 	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), fargs[2], isep, IF_INSERT);
 }
 
@@ -547,7 +547,7 @@ FUNCTION(fun_remove)
 	Delim isep;
 	int first, found;
 
-	varargs_preamble("REMOVE", 3);
+	VaChk_Only_In("REMOVE", 3);
 	if (strchr(fargs[1], isep.c)) {
 		safe_str("#-1 CAN ONLY DELETE ONE ELEMENT", buff, bufc);
 		return;
@@ -585,7 +585,7 @@ FUNCTION(fun_member)
 	char *r, *s;
 	Delim isep;
 
-	varargs_preamble("MEMBER", 3);
+	VaChk_Only_In("MEMBER", 3);
 	wcount = 1;
 	s = trim_space_sep(fargs[0], isep.c);
 	do {
@@ -614,7 +614,7 @@ FUNCTION(fun_revwords)
 	if (nfargs == 0) {
 		return;
 	}
-	varargs_preamble("REVWORDS", 2);
+	VaChk_Only_In("REVWORDS", 2);
 	temp = alloc_lbuf("fun_revwords");
 
 	/* Nasty bounds checking */
@@ -658,7 +658,7 @@ FUNCTION(fun_splice)
 	Delim isep, osep;
 	int words, i, osep_len;
 
-	svarargs_preamble("SPLICE", 5);
+	VaChk_Only_In_Out("SPLICE", 5);
 
 	/* length checks */
 
@@ -810,7 +810,7 @@ FUNCTION(fun_sort)
 		return;
 	}
 
-	msvarargs_preamble("SORT", 1, 4);
+	VaChk_In_Out("SORT", 1, 4);
 
 	/* Convert the list to an array */
 
@@ -940,7 +940,7 @@ FUNCTION(fun_sortby)
 	if ((nfargs == 0) || !fargs[0] || !*fargs[0]) {
 		return;
 	}
-	svarargs_preamble("SORTBY", 4);
+	VaChk_Only_In_Out("SORTBY", 4);
 
 	Parse_Uattr(player, fargs[0], thing, anum, ap);
 	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
@@ -1200,7 +1200,7 @@ FUNCTION(fun_setunion)
 	Delim isep, osep;
 	int osep_len;
 
-	svarargs_preamble("SETUNION", 4);
+	VaChk_Only_In_Out("SETUNION", 4);
 	handle_sets(fargs, nfargs, buff, bufc, SET_UNION,
 		    isep, osep, osep_len, -1);
 	return;
@@ -1211,7 +1211,7 @@ FUNCTION(fun_setdiff)
 	Delim isep, osep;
 	int osep_len;
 
-	svarargs_preamble("SETDIFF", 4);
+	VaChk_Only_In_Out("SETDIFF", 4);
 	handle_sets(fargs, nfargs, buff, bufc, SET_DIFF,
 		    isep, osep, osep_len, -1);
 	return;
@@ -1222,7 +1222,7 @@ FUNCTION(fun_setinter)
 	Delim isep, osep;
 	int osep_len;
 
-	svarargs_preamble("SETINTER", 4);
+	VaChk_Only_In_Out("SETINTER", 4);
 	handle_sets(fargs, nfargs, buff, bufc, SET_INTERSECT,
 		    isep, osep, osep_len, -1);
 	return;
@@ -1233,7 +1233,7 @@ FUNCTION(fun_lunion)
 	Delim isep, osep;
 	int osep_len;
 
-	msvarargs_preamble("LUNION", 2, 5);
+	VaChk_In_Out("LUNION", 2, 5);
 	handle_sets(fargs, nfargs, buff, bufc, SET_UNION,
 		    isep, osep, osep_len, 3);
 	return;
@@ -1244,7 +1244,7 @@ FUNCTION(fun_ldiff)
 	Delim isep, osep;
 	int osep_len;
 
-	msvarargs_preamble("LDIFF", 2, 5);
+	VaChk_In_Out("LDIFF", 2, 5);
 	handle_sets(fargs, nfargs, buff, bufc, SET_DIFF,
 		    isep, osep, osep_len, 3);
 	return;
@@ -1255,7 +1255,7 @@ FUNCTION(fun_linter)
 	Delim isep, osep;
 	int osep_len;
 
-	msvarargs_preamble("LINTER", 2, 5);
+	VaChk_In_Out("LINTER", 2, 5);
 	handle_sets(fargs, nfargs, buff, bufc, SET_INTERSECT,
 		    isep, osep, osep_len, 3);
 	return;
@@ -1630,21 +1630,21 @@ static void process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
 
 FUNCTION(fun_tables)
 {
-    xvarargs_preamble("TABLES", 2, 7);
+    VaChk_Range("TABLES", 2, 7);
     process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
 		   cargs, ncargs, TABLES_LJUST);
 }
 
 FUNCTION(fun_rtables)
 {
-    xvarargs_preamble("RTABLES", 2, 7);
+    VaChk_Range("RTABLES", 2, 7);
     process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
 		   cargs, ncargs, TABLES_RJUST);
 }
 
 FUNCTION(fun_ctables)
 {
-    xvarargs_preamble("CTABLES", 2, 7);
+    VaChk_Range("CTABLES", 2, 7);
     process_tables(buff, bufc, player, caller, cause, fargs, nfargs,
 		   cargs, ncargs, TABLES_CENTER);
 }
@@ -1657,7 +1657,7 @@ FUNCTION(fun_table)
     Delim list_sep, field_sep, pad_char;
     char fs_buf[2];
 
-    xvarargs_preamble("TABLE", 1, 6);
+    VaChk_Range("TABLE", 1, 6);
     if (!delim_check(fargs, nfargs, 4, &list_sep, buff, bufc,
 		     player, caller, cause, cargs, ncargs, 0))
 	return;
@@ -1717,7 +1717,7 @@ FUNCTION(fun_elements)
 	char *wordlist, *s, *r, *oldp;
 	Delim isep, osep;
 
-	svarargs_preamble("ELEMENTS", 4);
+	VaChk_Only_In_Out("ELEMENTS", 4);
 	oldp = *bufc;
 
 	/* Turn the first list into an array. */
@@ -1762,7 +1762,7 @@ FUNCTION(fun_grab)
 	char *r, *s;
 	Delim isep;
 
-	varargs_preamble("GRAB", 3);
+	VaChk_Only_In("GRAB", 3);
 
 	/* Walk the wordstring, until we find the word we want. */
 
@@ -1782,7 +1782,7 @@ FUNCTION(fun_graball)
     Delim isep, osep;
     int osep_len;
 
-    svarargs_preamble("GRABALL", 4);
+    VaChk_Only_In_Out("GRABALL", 4);
 
     s = trim_space_sep(fargs[0], isep.c);
     bb_p = *bufc;
@@ -1824,7 +1824,7 @@ FUNCTION(fun_shuffle)
 	if (!nfargs || !fargs[0] || !*fargs[0]) {
 		return;
 	}
-	svarargs_preamble("SHUFFLE", 3);
+	VaChk_Only_In_Out("SHUFFLE", 3);
 
 	n = list2arr(words, LBUF_SIZE, fargs[0], isep.c);
 
@@ -1852,7 +1852,7 @@ FUNCTION(fun_ledit)
     int i;
     int got_it;
 
-    svarargs_preamble("LEDIT", 5);
+    VaChk_Only_In_Out("LEDIT", 5);
 
     old_list = alloc_lbuf("fun_ledit.old");
     new_list = alloc_lbuf("fun_ledit.new");

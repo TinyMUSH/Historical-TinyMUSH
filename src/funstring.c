@@ -95,7 +95,7 @@ FUNCTION(fun_squish)
 	return;
     }
 
-    varargs_preamble("SQUISH", 2);
+    VaChk_Only_In("SQUISH", 2);
 
     bp = tp = fargs[0];
 
@@ -143,7 +143,7 @@ FUNCTION(fun_trim)
 	if (nfargs == 0) {
 		return;
 	}
-	mvarargs_preamble("TRIM", 1, 3);
+	VaChk_In("TRIM", 1, 3);
 	if (nfargs >= 2) {
 		switch (tolower(*fargs[1])) {
 		case 'l':
@@ -428,7 +428,7 @@ FUNCTION(fun_ljust)
 	int spaces, max, i, slen;
 	char *tp, *fillchars;
 
-	xvarargs_preamble("LJUST", 2, 3);
+	VaChk_Range("LJUST", 2, 3);
 	spaces = atoi(fargs[1]) - strlen((char *)strip_ansi(fargs[0]));
 
 	safe_str(fargs[0], buff, bufc);
@@ -483,7 +483,7 @@ FUNCTION(fun_rjust)
 	int spaces, max, i, slen;
 	char *tp, *fillchars;
 
-	xvarargs_preamble("RJUST", 2, 3);
+	VaChk_Range("RJUST", 2, 3);
 	spaces = atoi(fargs[1]) - strlen((char *)strip_ansi(fargs[0]));
 
 	/* Sanitize number of spaces */
@@ -540,7 +540,7 @@ FUNCTION(fun_center)
 	char *tp, *fillchars;
 	int len, lead_chrs, trail_chrs, width, max, i, slen;
 
-	xvarargs_preamble("CENTER", 2, 3);
+	VaChk_Range("CENTER", 2, 3);
 
 	width = atoi(fargs[1]);
 	len = strlen((char *)strip_ansi(fargs[0]));
@@ -1270,7 +1270,7 @@ FUNCTION(fun_wordpos)
 	char *cp, *tp, *xp;
 	Delim isep;
 
-	varargs_preamble("WORDPOS", 3);
+	VaChk_Only_In("WORDPOS", 3);
 
 	charpos = atoi(fargs[1]);
 	cp = fargs[0];
@@ -1530,19 +1530,19 @@ static void perform_border(player, buff, bufc, fargs, nfargs, key)
 
 FUNCTION(fun_border)
 {
-    xvarargs_preamble("BORDER", 2, 4);
+    VaChk_Range("BORDER", 2, 4);
     perform_border(player, buff, bufc, fargs, nfargs, BORDER_LJUST);
 }
 
 FUNCTION(fun_rborder)
 {
-    xvarargs_preamble("RBORDER", 2, 4);
+    VaChk_Range("RBORDER", 2, 4);
     perform_border(player, buff, bufc, fargs, nfargs, BORDER_RJUST);
 }
 
 FUNCTION(fun_cborder)
 {
-    xvarargs_preamble("CBORDER", 2, 4);
+    VaChk_Range("CBORDER", 2, 4);
     perform_border(player, buff, bufc, fargs, nfargs, BORDER_CENTER);
 }
 

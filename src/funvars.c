@@ -408,7 +408,7 @@ FUNCTION(fun_xvars)
     int i;
     Delim isep;
 
-    varargs_preamble("XVARS", 3);
+    VaChk_Only_In("XVARS", 3);
    
     varlist = alloc_lbuf("fun_xvars.vars");
     strcpy(varlist, fargs[0]);
@@ -458,7 +458,7 @@ FUNCTION(fun_let)
     int i;
     Delim isep;
 
-    varargs_preamble("LET", 4);
+    VaChk_Only_In("LET", 4);
 
     if (!fargs[0] || !*fargs[0])
 	return;
@@ -672,7 +672,7 @@ FUNCTION(fun_structure)
     COMPONENT *this_comp;
     int check_type = 0;
 
-    svarargs_preamble("STRUCTURE", 6);
+    VaChk_Only_In_Out("STRUCTURE", 6);
 
     /* Prevent null delimiters and line delimiters. */
 
@@ -896,7 +896,7 @@ FUNCTION(fun_construct)
 
     /* This one is complicated: We need two, four, or five args. */
 
-    mvarargs_preamble("CONSTRUCT", 2, 5);
+    VaChk_In("CONSTRUCT", 2, 5);
     if (nfargs == 3) {
 	safe_str("#-1 FUNCTION (CONSTRUCT) EXPECTS 2 OR 4 OR 5 ARGUMENTS",
 		 buff, bufc);
@@ -1201,7 +1201,7 @@ FUNCTION(fun_load)
 {
     Delim isep;
 
-    varargs_preamble("LOAD", 4);
+    VaChk_Only_In("LOAD", 4);
 
     load_structure(player, buff, bufc,
 		   fargs[0], fargs[1], fargs[2],
@@ -1243,7 +1243,7 @@ FUNCTION(fun_delimit)
      * by arbitrary strings.)
      */
 
-    varargs_preamble("DELIMIT", 3);
+    VaChk_Only_In("DELIMIT", 3);
     if (nfargs != 3)
 	isep.c = GENERIC_STRUCT_DELIM;
 
@@ -1303,7 +1303,7 @@ FUNCTION(fun_modify)
     int retval, nwords, nvals, i, n_mod;
     Delim isep;
 
-    varargs_preamble("MODIFY", 4);
+    VaChk_Only_In("MODIFY", 4);
 
     /* Find the instance first, since this is how we get our typechecker. */
 
@@ -1447,7 +1447,7 @@ FUNCTION(fun_unload)
 {
     Delim isep;
 
-    varargs_preamble("UNLOAD", 2);
+    VaChk_Only_In("UNLOAD", 2);
     unload_structure(player, buff, bufc, fargs[0], isep.c,
 		     (nfargs != 2) ? 1 : 0);
 }
@@ -1855,7 +1855,7 @@ FUNCTION(fun_empty)
 {
     dbref it;
 
-    xvarargs_preamble("EMPTY", 0, 1);
+    VaChk_Range("EMPTY", 0, 1);
 
     if (!fargs[0]) {
 	it = player;
@@ -1890,7 +1890,7 @@ FUNCTION(fun_push)
     char *data;
     STACK *sp;
 
-    xvarargs_preamble("PUSH", 1, 2);
+    VaChk_Range("PUSH", 1, 2);
 
     if (!fargs[1]) {
 	it = player;
@@ -1920,7 +1920,7 @@ FUNCTION(fun_dup)
     STACK *sp;			/* new stack element */
     int pos, count = 0;
 
-    xvarargs_preamble("DUP", 0, 2);
+    VaChk_Range("DUP", 0, 2);
 
     if (!fargs[0]) {
 	it = player;
@@ -1959,7 +1959,7 @@ FUNCTION(fun_swap)
     dbref it;
     STACK *sp, *tp;
 
-    xvarargs_preamble("SWAP", 0, 1);
+    VaChk_Range("SWAP", 0, 1);
 
     if (!fargs[0]) {
 	it = player;
@@ -2031,13 +2031,13 @@ static void handle_pop(player, cause, buff, bufc, fargs, flag)
 
 FUNCTION(fun_pop)
 {
-    xvarargs_preamble("POP", 0, 2);
+    VaChk_Range("POP", 0, 2);
     handle_pop(player, cause, buff, bufc, fargs, 0);
 }
 
 FUNCTION(fun_toss)
 {
-    xvarargs_preamble("TOSS", 0, 2);
+    VaChk_Range("TOSS", 0, 2);
     handle_pop(player, cause, buff, bufc, fargs, 1);
 }
 
@@ -2049,7 +2049,7 @@ FUNCTION(fun_popn)
     STACK *prev = NULL;
     Delim isep;
 
-    varargs_preamble("POPN", 4);
+    VaChk_Only_In("POPN", 4);
 
     stack_object(player, it);
     pos = atoi(fargs[1]);
@@ -2105,7 +2105,7 @@ FUNCTION(fun_peek)
     int pos, count = 0;
     STACK *sp;
 
-    xvarargs_preamble("POP", 0, 2);
+    VaChk_Range("POP", 0, 2);
 
     if (!fargs[0]) {
 	it = player;
@@ -2142,7 +2142,7 @@ FUNCTION(fun_lstack)
     char *bp;
     int over = 0, first = 1;
 
-    mvarargs_preamble("LSTACK", 0, 2);
+    VaChk_In("LSTACK", 0, 2);
 
     if (!fargs[0]) {
 	it = player;
@@ -2457,7 +2457,7 @@ FUNCTION(fun_regrab)
 {
     Delim isep;
 
-    varargs_preamble("REGRAB", 3);
+    VaChk_Only_In("REGRAB", 3);
     perform_regrab(buff, bufc, isep.c, ' ', 1, player, fargs, nfargs, 0, 0);
 }
 
@@ -2465,7 +2465,7 @@ FUNCTION(fun_regrabi)
 {
     Delim isep;
 
-    varargs_preamble("REGRABI", 3);
+    VaChk_Only_In("REGRABI", 3);
     perform_regrab(buff, bufc, isep.c, ' ', 1, player, fargs, nfargs,
 		   PCRE_CASELESS, 0);
 }
@@ -2475,7 +2475,7 @@ FUNCTION(fun_regraball)
     Delim isep, osep;
     int osep_len;
 
-    svarargs_preamble("REGRABALL", 4);
+    VaChk_Only_In_Out("REGRABALL", 4);
     perform_regrab(buff, bufc, isep.c, osep, osep_len,
 		   player, fargs, nfargs, 0, 1);
 }
@@ -2485,7 +2485,7 @@ FUNCTION(fun_regraballi)
     Delim isep, osep;
     int osep_len;
 
-    svarargs_preamble("REGRABALLI", 4);
+    VaChk_Only_In_Out("REGRABALLI", 4);
     perform_regrab(buff, bufc, isep.c, osep, osep_len,
 		   player, fargs, nfargs, PCRE_CASELESS, 1);
 }

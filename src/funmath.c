@@ -247,7 +247,7 @@ FUNCTION(fun_ladd)
     char *cp, *curr;
     Delim isep;
 
-    varargs_preamble("LADD", 2);
+    VaChk_Only_In("LADD", 2);
 
     sum = 0;
     cp = trim_space_sep(fargs[0], isep.c);
@@ -264,7 +264,7 @@ FUNCTION(fun_lor)
     char *cp, *curr;
     Delim isep;
 
-    varargs_preamble("LOR", 2);
+    VaChk_Only_In("LOR", 2);
 
     i = 0;
     cp = trim_space_sep(fargs[0], isep.c);
@@ -281,7 +281,7 @@ FUNCTION(fun_land)
     char *cp, *curr;
     Delim isep;
 
-    varargs_preamble("LAND", 2);
+    VaChk_Only_In("LAND", 2);
 
     i = 1;
     cp = trim_space_sep(fargs[0], isep.c);
@@ -298,7 +298,7 @@ FUNCTION(fun_lorbool)
     char *cp, *curr;
     Delim isep;
 
-    varargs_preamble("LORBOOL", 2);
+    VaChk_Only_In("LORBOOL", 2);
 
     i = 0;
     cp = trim_space_sep(fargs[0], isep.c);
@@ -315,7 +315,7 @@ FUNCTION(fun_landbool)
     char *cp, *curr;
     Delim isep;
 
-    varargs_preamble("LANDBOOL", 2);
+    VaChk_Only_In("LANDBOOL", 2);
 
     i = 1;
     cp = trim_space_sep(fargs[0], isep.c);
@@ -332,7 +332,7 @@ FUNCTION(fun_lmax)
     char *cp, *curr;
     Delim isep;
 
-    varargs_preamble("LMAX", 2);
+    VaChk_Only_In("LMAX", 2);
 
     cp = trim_space_sep(fargs[0], isep.c);
     if (cp) {
@@ -354,7 +354,7 @@ FUNCTION(fun_lmin)
     char *cp, *curr;
     Delim isep;
 
-    varargs_preamble("LMIN", 2);
+    VaChk_Only_In("LMIN", 2);
 
     cp = trim_space_sep(fargs[0], isep.c);
     if (cp) {
@@ -1038,7 +1038,7 @@ FUNCTION(fun_vadd)
     Delim isep, osep;
     int osep_len;
 
-    svarargs_preamble("VADD", 4);
+    VaChk_Only_In_Out("VADD", 4);
     handle_vectors(fargs[0], fargs[1], buff, bufc,
 		   isep.c, osep, osep_len, VADD_F);
 }
@@ -1048,7 +1048,7 @@ FUNCTION(fun_vsub)
     Delim isep, osep;
     int osep_len;
 
-    svarargs_preamble("VSUB", 4);
+    VaChk_Only_In_Out("VSUB", 4);
     handle_vectors(fargs[0], fargs[1], buff, bufc,
 		   isep.c, osep, osep_len, VSUB_F);
 }
@@ -1058,7 +1058,7 @@ FUNCTION(fun_vmul)
     Delim isep, osep;
     int osep_len;
 
-    svarargs_preamble("VMUL", 4);
+    VaChk_Only_In_Out("VMUL", 4);
     handle_vectors(fargs[0], fargs[1], buff, bufc,
 		   isep.c, osep, osep_len, VMUL_F);
 }
@@ -1074,7 +1074,7 @@ FUNCTION(fun_vdot)
     Delim isep, osep;
     int osep_len;
 
-    svarargs_preamble("VDOT", 4);
+    VaChk_Only_In_Out("VDOT", 4);
     handle_vectors(fargs[0], fargs[1], buff, bufc,
 		   isep.c, osep, osep_len, VDOT_F);
 }
@@ -1086,7 +1086,7 @@ FUNCTION(fun_vmag)
     NVAL tmp, res = 0;
     Delim isep;
 
-    varargs_preamble("VMAG", 2);
+    VaChk_Only_In("VMAG", 2);
 
     /*
      * split the list up, or return if the list is empty 
@@ -1118,7 +1118,7 @@ FUNCTION(fun_vunit)
     NVAL tmp, res = 0;
     Delim isep, osep;
 
-    svarargs_preamble("VUNIT", 3);
+    VaChk_Only_In_Out("VUNIT", 3);
 
     /*
      * split the list up, or return if the list is empty 
@@ -1156,7 +1156,7 @@ FUNCTION(fun_vdim)
     if (nfargs == 0) {
 	safe_chr('0', buff, bufc);
     } else {
-	varargs_preamble("VDIM", 2);
+	VaChk_Only_In("VDIM", 2);
 	safe_ltos(buff, bufc, countwords(fargs[0], isep.c));
     }
 }
