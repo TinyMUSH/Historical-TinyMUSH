@@ -943,6 +943,8 @@ void NDECL(init_cmdtab)
 			}
 			cp->extra = ap->number;
 			cp->callseq = CS_TWO_ARG;
+			cp->pre_hook = NULL;
+			cp->post_hook = NULL;
 			cp->info.handler = do_setattr;
 			if (hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab)) {
 				XFREE(cp->cmdname, "init_cmdtab.2");
@@ -2253,6 +2255,19 @@ CF_HAND(cf_cmd_alias)
 		if (!(nt->flag & SW_MULTIPLE))
 			cmd2->extra |= SW_GOT_UNIQUE;
 		cmd2->callseq = cmdp->callseq;
+
+		/*
+		 * KNOWN PROBLEM:
+		 * We are not inheriting the hook that the 'original' command
+		 * had -- we will have to add it manually (whereas an alias
+		 * of a non-switched command is just another hashtable entry
+		 * for the same command pointer and therefore gets the hook).
+		 * This is preferable to having to search the hashtable for
+		 * hooks when a hook is deleted, though.
+		 */
+		cmd2->pre_hook = NULL;
+		cmd2->post_hook = NULL;
+
 		cmd2->info.handler = cmdp->info.handler;
 		if (hashadd(cmd2->cmdname, (int *)cmd2, (HASHTAB *) vp)) {
 			XFREE(cmd2->cmdname, "cf_cmd_alias.2");
