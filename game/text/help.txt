@@ -4461,8 +4461,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
  
-	create()	force()		link()		set()
-	tel()		trigger()	wait()		wipe()
+	command()	create()	force()		link()		
+	set()		tel()		trigger()	wait()		
+	wipe()
  
 & LIST FUNCTIONS
   Topic: List Functions
@@ -8846,6 +8847,19 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   If <delim> is specified, it will be as an input delimiter only; i.e.,
   the delimiter will be used to separate the elements of the list, but
   will not appear in the output.
+ 
+& COMMAND()
+  Function: command(<command>[,<arg 1>[,<arg 2>]])
+ 
+  This function executes <command> with the given arguments. <command>
+  is presently limited to @chown, @clone, @destroy, @link, @lock, @name,
+  @parent, @teleport, @unlink, @unlock, and @wipe.
+ 
+  For example, to get the equivalent of '@name object = new', you
+  would use '@eval command(@name,object,new)'.
+ 
+  If you have overridden any of these commands via @addcommand, you
+  will not be able to access that command via this function.
  
 & CREATE()
   Function: create(<object name>, <cost>[, <type>])
