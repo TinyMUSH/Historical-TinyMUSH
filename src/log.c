@@ -15,11 +15,7 @@
 #include "htab.h"
 #include "ansi.h"
 
-#ifdef STANDALONE
-static FILE *log_fp;
-#else
-static FILE *log_fp = stderr;
-#endif
+static FILE *log_fp = NULL;
 
 #ifndef STANDALONE
 
