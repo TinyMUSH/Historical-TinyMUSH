@@ -28,25 +28,36 @@ int type;
 {
 	char old[LBUF_SIZE];
 	static char new[LBUF_SIZE];
-	char *j, *c, *bp;
+	char *j, *c, *bp, *p;
 	int i;
 
 	bp = new;
 	StringCopy(old, str);
 		
 	for (j = old; *j != '\0'; j++) {
-		switch (*j) {
+	    switch (*j) {
 		case ESC_CHAR:
-			c = strchr(j, 'm');
-			if (c) {
-				if (!type) {
-					j = c;
-					break;
-				}
-				
-				*c = '\0';
-				i = atoi(j + 2);
-				switch (i) {
+		    c = (char *) index(j, 'm');
+		    if (c) {
+			if (!type) {
+			    j = c;
+			    break;
+			}
+			*c = '\0';
+			j += 2;
+			
+                       /* j points to the beginning of the string.
+			* c points to the end of the string. Between
+			* them is a set of numbers separated by
+			* semicolons.
+			*/
+
+			do {
+			    p = (char *) index(j, ';');
+			    if (p)
+				*p++ = '\0';
+			    i = atoi(j);
+			    switch (i) {
 				case 0:
 					safe_str("%xn", new, &bp);
 					break;
@@ -107,76 +118,78 @@ int type;
 				case 47:
 					safe_str("%xW", new, &bp);
 					break;
-				}
-				j = c;
-			} else {
-				safe_chr(*j, new, &bp);
-			}
-			break;
-		case ' ':
-			if ((*(j+1) == ' ') && type)
-				safe_str("%b", new, &bp);
-			else 
-				safe_chr(' ', new, &bp);
-			break;
-		case '\\':
-			if (type)
-				safe_str("%\\", new, &bp);
-			else
-				safe_chr('\\', new, &bp);
-			break;
-		case '%':
-			if (type)
-				safe_str("%%", new, &bp);
-			else
-				safe_chr('%', new, &bp);
-			break;
-		case '[':
-			if (type)
-				safe_str("%[", new, &bp);
-			else
-				safe_chr('[', new, &bp);
-			break;
-		case ']':
-			if (type)
-				safe_str("%]", new, &bp);
-			else
-				safe_chr(']', new, &bp);
-			break;
-		case '{':
-			if (type)
-				safe_str("%{", new, &bp);
-			else
-				safe_chr('{', new, &bp);
-			break;
-		case '}':
-			if (type)
-				safe_str("%}", new, &bp);
-			else
-				safe_chr('}', new, &bp);
-			break;
-		case '(':
-			if (type)
-				safe_str("%(", new, &bp);
-			else
-				safe_chr('(', new, &bp);
-			break;
-		case ')':
-			if (type)
-				safe_str("%)", new, &bp);
-			else
-				safe_chr(')', new, &bp);
-			break;
-		case '\r':
-			break;
-		case '\n':
-			if (type)
-				safe_str("%r", new, &bp);
-			else
-				safe_chr(' ', new, &bp);
-			break;
-		default:
+			    }
+			    j = p;
+			} while (p && *p);
+			j = c;
+		    } else {
 			safe_chr(*j, new, &bp);
+		    }
+		    break;
+		case ' ':
+		    if ((*(j+1) == ' ') && type)
+			safe_str("%b", new, &bp);
+		    else 
+			safe_chr(' ', new, &bp);
+		    break;
+		case '\\':
+		    if (type)
+			safe_str("%\\", new, &bp);
+		    else
+			safe_chr('\\', new, &bp);
+		    break;
+		case '%':
+		    if (type)
+			safe_str("%%", new, &bp);
+		    else
+			safe_chr('%', new, &bp);
+		    break;
+		case '[':
+		    if (type)
+			safe_str("%[", new, &bp);
+		    else
+			safe_chr('[', new, &bp);
+		    break;
+		case ']':
+		    if (type)
+			safe_str("%]", new, &bp);
+		    else
+			safe_chr(']', new, &bp);
+		    break;
+		case '{':
+		    if (type)
+			safe_str("%{", new, &bp);
+		    else
+			safe_chr('{', new, &bp);
+		    break;
+		case '}':
+		    if (type)
+			safe_str("%}", new, &bp);
+		    else
+			safe_chr('}', new, &bp);
+		    break;
+		case '(':
+		    if (type)
+			safe_str("%(", new, &bp);
+		    else
+			safe_chr('(', new, &bp);
+		    break;
+		case ')':
+		    if (type)
+			safe_str("%)", new, &bp);
+		    else
+			safe_chr(')', new, &bp);
+		    break;
+		case '\r':
+		    break;
+		case '\n':
+		    if (type)
+			safe_str("%r", new, &bp);
+		    else
+			safe_chr(' ', new, &bp);
+		    break;
+		default:
+		    safe_chr(*j, new, &bp);
 		}
 	}
 	*bp = '\0';
