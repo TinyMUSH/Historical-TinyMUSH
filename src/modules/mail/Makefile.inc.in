@@ -12,7 +12,7 @@ MOD_DL += -dlopen ../game/modules/@MODNAME@.la
 
 depend: depend-@MODNAME@
 
-depend-@MODNAME@: unsplit $(@MODNAME@_S) modules/@MODNAME@/Makefile.inc
+depend-@MODNAME@: unsplit $(@MODNAME@_S) $(@MODNAME@_I) modules/@MODNAME@/Makefile.inc
 	for i in $(@MODNAME@_S); do \
 		$(CPP) $(ALLCFLAGS) $(CPP_DEP) $$i || :; \
 	done | sed -e 's:/usr[^ ]* *::g' \

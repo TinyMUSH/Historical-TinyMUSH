@@ -147,7 +147,7 @@ MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
 
 OUT	= netmush mkindx slave recover
 
-depend: $(ALL_S) unsplit Makefile
+depend: $(ALL_S) $(ALL_I) unsplit Makefile
 	for i in $(ALL_S); do $(CPP) $(ALLCFLAGS) $(CPP_DEP) $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
 	mv .depend~ .depend
 	touch depend
