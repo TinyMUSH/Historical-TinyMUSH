@@ -1564,7 +1564,7 @@ int interactive, nargs;
 char *command, *args[];
 {
 	static char preserve_cmd[LBUF_SIZE];
-	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str;
+	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str, *evcmd;
 	int succ, aflags, i, got_stop;
 	dbref exit, aowner, parent;
 	CMDENT *cmdp;
@@ -1783,11 +1783,13 @@ char *command, *args[];
 	 * chains of $-commands to work. 
 	 */
 
+	str = evcmd = alloc_lbuf("process_command.evcmd");
+	StringCopy(evcmd, command);
 	bp = lcbuf;
-	str = command;
 	exec(lcbuf, &bp, 0, player, cause,
 	     EV_EVAL | EV_FCHECK | EV_STRIP | EV_TOP, &str, args, nargs);
 	*bp = '\0';
+	free_lbuf(evcmd);
 	succ = 0;
 
 	/* Idea for enter/leave aliases from R'nice@TinyTIM */
