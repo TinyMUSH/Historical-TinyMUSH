@@ -5,18 +5,18 @@ Type 'help' if you'd like the detailed help entries instead.
  
 The available topics and commands in QuickHelp:
  
-Building
-Comsys
-Exits
-Objects
-Permissions
-Rooms
-Talking
-Vehicles
-@dig
-@link
-@lock
-@open
+  Building
+  Comsys
+  Exits
+  Objects
+  Permissions
+  Rooms
+  Talking
+  Vehicles
+  @dig
+  @link
+  @lock
+  @open
  
 Type 'qhelp <topic or command>' for QuickHelp on something.
 For example, 'qhelp @dig' will show the QuickHelp on the @dig command.
