@@ -1791,6 +1791,9 @@
   The second and third forms let you remove any object from locations you
   control by sending them through an exit or to their home.
  
+  The following switch is available:
+      /quiet - Suppresses @succ/@osucc/@fail/@ofail/etc. messages.
+ 
   See also: JUMP_OK, @lock (tport and telout), @tfail, @otfail, @atfail,
             @tofail, @otofail, @atofail
 
