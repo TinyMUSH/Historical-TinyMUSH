@@ -2973,10 +2973,10 @@ static void set_xvar(obj, name, data)
 
     tp = tbuf;
     safe_ltos(tbuf, &tp, obj);
-    safe_chr('.', tbuf, &tp);
+    safe_sb_chr('.', tbuf, &tp);
     for (p = name; *p; p++)
 	*p = ToLower(*p);
-    safe_str(name, tbuf, &tp);
+    safe_sb_str(name, tbuf, &tp);
     *tp = '\0';
 
     /* Search for it. If it exists, replace it. If we get a blank string,
@@ -3039,7 +3039,7 @@ static void clear_xvars(obj, xvar_names, n_xvars)
 
     tp = pre;
     safe_ltos(pre, &tp, obj);
-    safe_chr('.', pre, &tp);
+    safe_sb_chr('.', pre, &tp);
     *tp = '\0';
 
     /* Go clear stuff. */
@@ -3049,8 +3049,8 @@ static void clear_xvars(obj, xvar_names, n_xvars)
 	for (p = xvar_names[i]; *p; p++)
 	    *p = ToLower(*p);
 	tp = tbuf;
-	safe_str(pre, tbuf, &tp);
-	safe_str(xvar_names[i], tbuf, &tp);
+	safe_sb_str(pre, tbuf, &tp);
+	safe_sb_str(xvar_names[i], tbuf, &tp);
 	*tp = '\0';
 
 	if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab))) {
@@ -3078,7 +3078,7 @@ void xvars_clr(player)
 
     tp = tbuf;
     safe_ltos(tbuf, &tp, player);
-    safe_chr('.', tbuf, &tp);
+    safe_sb_chr('.', tbuf, &tp);
     *tp = '\0';
     len = strlen(tbuf);
 
@@ -3119,10 +3119,10 @@ FUNCTION(fun_x)
 
     tp = tbuf;
     safe_ltos(tbuf, &tp, player);
-    safe_chr('.', tbuf, &tp);
+    safe_sb_chr('.', tbuf, &tp);
     for (p = fargs[0]; *p; p++)
 	*p = ToLower(*p);
-    safe_str(fargs[0], tbuf, &tp);
+    safe_sb_str(fargs[0], tbuf, &tp);
     *tp = '\0';
 
     if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab)))
@@ -3219,14 +3219,14 @@ FUNCTION(fun_let)
 
     tp = pre;
     safe_ltos(pre, &tp, player);
-    safe_chr('.', pre, &tp);
+    safe_sb_chr('.', pre, &tp);
     *tp = '\0';
 
     for (i = 0; i < n_xvars; i++) {
 
 	tp = tbuf;
-	safe_str(pre, tbuf, &tp);
-	safe_str(xvar_names[i], tbuf, &tp);
+	safe_sb_str(pre, tbuf, &tp);
+	safe_sb_str(xvar_names[i], tbuf, &tp);
 	*tp = '\0';
 
 	if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab))) {
@@ -3297,7 +3297,7 @@ FUNCTION(fun_lvars)
 
     tp = tbuf;
     safe_ltos(tbuf, &tp, player);
-    safe_chr('.', tbuf, &tp);
+    safe_sb_chr('.', tbuf, &tp);
     *tp = '\0';
     len = strlen(tbuf);
 
