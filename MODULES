@@ -366,13 +366,17 @@ void mod_<name>_destroy_player(dbref player, dbref victim)
 	Run after the player basics have been cleared out, but before
 	destroy_obj() has been run.
 
-void mod_<name>_announce_connect(dbref player)
+void mod_<name>_announce_connect(dbref player, const char *reason, int num)
 	Run when a player connects, before the player looks at his current
 	location, but after all other connect stuff has been executed.
+	'reason' is the type of connection - guest, create, connect, or cd.
+	'num' is the player's resulting number of open connections.
 
-void mod_<name>_announce_disconnect(dbref player, const char *reason)
+void mod_<name>_announce_disconnect(dbref player, const char *reason, int num)
 	Run when a player disconnects, after all other disconnect stuff
 	has been executed, but before the descriptor has been deleted.
+	'reason' describes the disconnection (see 'help Conn Reasons').
+	'num' is the player's resulting number of open connections.
 
 void mod_<name>_examine(dbref player, dbref cause, dbref thing, 
 			int control, int key)

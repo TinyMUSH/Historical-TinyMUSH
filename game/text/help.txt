@@ -3313,7 +3313,7 @@ See also: JUMP_OK, FIXED, home, @lock
   'timeout' (idled out), 'boot' (@boot'd, @toad'd, or @destroy'd),
   'shutdown' (game shutdown), 'nologins' (game full), or 'unknown'.
  
-  In both cases, the player's resulting number of active connections
+  In both cases, the player's resulting number of open connections
   is available as '%1'. That would be 1 on the player's first connection,
   2 or more during a reconnect, 1 or more during a partial disconnect,
   and 0 when the player has fully disconnected.
