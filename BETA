@@ -61,6 +61,8 @@ Release history:
 - Fix: If a non-null attribute default is available, the server-supplied
   default string should never be used. [3.1a2]
 
+- Fix: log_perror() cleared errno before trying to log the error. [2.0]
+
 - Misc: Avoid scanning the entire help table when asked for a
   nonexistent, non-wildcard entry. [2.0]
 

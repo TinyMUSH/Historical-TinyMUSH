@@ -196,11 +196,13 @@ void NDECL(end_log)
 void log_perror(primary, secondary, extra, failing_object)
 const char *primary, *secondary, *extra, *failing_object;
 {
+	int my_errno = errno;
+
 	start_log(primary, secondary, LOG_ALWAYS);
 	if (extra && *extra) {
 		log_printf("(%s) ", extra);
 	}
-	log_printf("%s: %s", failing_object, strerror(errno));
+	log_printf("%s: %s", failing_object, strerror(my_errno));
 	end_log();
 }
 
