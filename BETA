@@ -45,6 +45,9 @@ Release history:
 - Feature: @conformat and @exitformat get their visible contents/exits
   lists passed as %0.
 
+- Fix: Minor parts of structure db were not properly cleared at startup:
+  connected flag, internal 'dirty' flag, and cpu time used.
+
 - Misc: The expanded_who power no longer grants the ability to see
   Dark players in WHO. (Previously those with the power could, but
   weren't able to get that info via functions.)
@@ -54,8 +57,7 @@ Release history:
 
 - Misc: @addcommand sanity-checks command names.
 
-- Misc: Connected flags are not dumped to the database, in case of
-  unclean shutdown.
+- Misc: Connected flags are not stored in a flatfile dump.
 
 -----------------------------------------------------------------------------
 
