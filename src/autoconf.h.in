@@ -386,12 +386,12 @@ extern int	FDECL(select, (int, fd_set *, fd_set *, fd_set *, struct timeval *));
 #endif
 
 /* In theory, under Linux, we want to use the optimized string functions.
- * However, they make Redhat Linux 6, at least, spew. If you have Linux and
- * you want to try it, remove the outer #ifdef-#endif pair.
+ * However, they make Redhat Linux 6, at least, spew, because GNU libc
+ * already uses its own set of optimized string functions with gcc -O.
  */
 
-#ifdef NEVER
 #ifdef __linux__
+#ifndef __GLIBC__
 extern char *___strtok;
 #include <asm/string.h>
 #endif
