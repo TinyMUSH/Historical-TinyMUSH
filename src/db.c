@@ -22,6 +22,7 @@
 
 #ifndef STANDALONE
 extern int FDECL(call_cron, (dbref, dbref, int, char *));
+extern int FDECL(cron_clr, (dbref, int));
 #endif
 
 #ifndef O_ACCMODE
@@ -1814,6 +1815,9 @@ int atr;
 		break;
 	case A_DAILY:
 		s_Flags2(thing, Flags2(thing) & ~HAS_DAILY);
+#ifndef STANDALONE
+		(void) cron_clr(thing, A_DAILY);
+#endif /* STANDALONE */
 		break;
 	case A_FORWARDLIST:
 		s_Flags2(thing, Flags2(thing) & ~HAS_FWDLIST);
@@ -2000,6 +2004,7 @@ char *buff;
 #ifndef STANDALONE
 		if (!mudstate.loading_db) {
 		    char tbuf[SBUF_SIZE];
+		    (void) cron_clr(thing, A_DAILY);
 		    sprintf(tbuf, "0 %d * * *", mudconf.events_daily_hour);
 		    call_cron(thing, thing, A_DAILY, tbuf);
 		}
