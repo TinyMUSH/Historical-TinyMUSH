@@ -1967,22 +1967,22 @@ static int mem_usage_attr(player, str)
     ATTR *ap;
     int bytes_atext = 0;
 
+    abuf = alloc_lbuf("mem_usage_attr");
     olist_push();
     if (parse_attrib_wild(player, str, &thing, 0, 0, 1, 1)) {
 	for (atr = olist_first(); atr != NOTHING; atr = olist_next()) {
 	    ap = atr_num(atr);
 	    if (!ap)
 		continue;
-	    abuf = atr_get(thing, atr, &aowner, &aflags, &alen);
+	    abuf = atr_get_str(abuf, thing, atr, &aowner, &aflags, &alen);
 	    /* Player must be able to read attribute with 'examine' */
 	    if (Examinable(player, thing) &&
 		Read_attr(player, thing, ap, aowner, aflags))
-		bytes_atext += strlen(abuf);
-	    free_lbuf(abuf);
+		bytes_atext += alen;
 	}
     }
-
     olist_pop();
+    free_lbuf(abuf);
     return bytes_atext;
 }
 
