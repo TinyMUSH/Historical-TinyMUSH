@@ -1883,7 +1883,9 @@ char *argv[];
 
 #ifdef HAVE_DLOPEN
 	init_modules();
-#endif
+#else
+	mudstate.modloaded[0] = '\0';
+#endif /* HAVE_DLOPEN */
 
 #ifdef CONCENTRATE
 	if (!mudstate.restarting) {
@@ -1970,12 +1972,21 @@ static void NDECL(init_modules)
 {
     void *handle;
     void (*initptr)(void);
-    char *modulename;
+    char *modulename, *bp;
 
     if (mudstate.modules_htab.entries > 0) {
+
+	bp = mudstate.modloaded;
+
 	for (modulename = hash_firstkey(&mudstate.modules_htab);
 	     modulename != NULL;
 	     modulename = hash_nextkey(&mudstate.modules_htab)) {
+
+		if (bp != mudstate.modloaded) {
+			safe_mb_chr(' ', mudstate.modloaded, &bp);
+		}
+		safe_mb_str(modulename, mudstate.modloaded, &bp);
+
 		handle = (void *)hashfind(modulename, &mudstate.modules_htab);
 
 		/* Find the address of the function mod_<module>_init, and
@@ -1988,6 +1999,9 @@ static void NDECL(init_modules)
 		if (initptr)
 			(*initptr)();
 	}
+
+    } else {
+	mudstate.modloaded[0] = '\0';
     }
 }
 

@@ -59,6 +59,9 @@ int extra;
 	if (Wizard(player)) {
 		notify(player, tprintf("Build info: %s", mudstate.buildinfo));
 	}
+	if (mudstate.modloaded[0]) {
+	    notify(player, tprintf("Modules loaded: %s", mudstate.modloaded));
+	}
 }
 
 void NDECL(init_version)

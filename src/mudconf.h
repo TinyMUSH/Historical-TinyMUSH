@@ -308,6 +308,7 @@ struct statedata {
 	char	version[PBUF_SIZE];	/* MUSH version string */
 	char	short_ver[64];  /* Short version number (for INFO) */
 	char	buildinfo[LBUF_SIZE];	/* Compile info */
+	char	modloaded[MBUF_SIZE];	/* Modules loaded */
 	int	initializing;	/* are we reading config file at startup? */
 	int	loading_db;	/* are we loading the db? */
 	int	panicking;	/* are we in the middle of dying horribly? */
