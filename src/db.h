@@ -189,13 +189,6 @@ extern NAME *names;
 #define	Home(t)			Link(t)
 #define	Dropto(t)		Location(t)
 
-#ifndef MEMORY_BASED
-#define	i_Name(t)		names[t] = NULL;	\
-				if (mudconf.cache_names) purenames[t] = NULL;
-#else
-#define	i_Name(t)		if (mudconf.cache_names) purenames[t] = NULL;
-#endif
-				
 #define	s_Location(t,n)		db[t].location = (n)
 
 #define	s_Zone(t,n)		db[t].zone = (n)

@@ -15,7 +15,6 @@
 /* Compile time options */
 
 #define CONF_FILE "netmux.conf"	/* Default config file */
-#define FILEDIR "files/"		/* Source for @cat */
 
 /* #define TEST_MALLOC */		/* Keep track of block allocs */
 #define SIDE_EFFECT_FUNCTIONS		/* Those neat funcs that should be
@@ -84,7 +83,6 @@
 /* delimiters for various things */
 #define EXIT_DELIMITER	';'
 #define ARG_DELIMITER	'='
-#define ARG_LIST_DELIM	','
 
 /* These chars get replaced by the current item from a list in commands and
  * functions that do iterative replacement, such as @apply_marked, dolist,

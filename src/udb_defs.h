@@ -7,16 +7,6 @@
 	$Id$
 */
 
-
-/*
-some machines stdio use different parameters to tell fopen to open
-a file for creation and binary read/write. that is why they call it
-the "standard" I/O library, I guess. for HP/UX, you need to have
-this "rb+", and make sure the file already exists before use. bleah
-*/
-#define	FOPEN_BINARY_RW	"a+"
-
-
 #ifdef VMS
 #define MAXPATHLEN	256
 #define	NOSYSTYPES_H
@@ -34,14 +24,6 @@ typedef	char	*mall_t;
 
 /* Macros for calling the DB layer */
 
-#define	DB_INIT()	dddb_init()
-#define	DB_CLOSE()	dddb_close()
-#define	DB_SYNC()	dddb_sync()
 #define	DB_GET(n)	dddb_get(n)
 #define	DB_PUT(o,n)	dddb_put(o,n)
-#define	DB_CHECK(s)	dddb_check(s)
-
 #define	DB_DEL(n,f)	dddb_del(n)
-
-#define	CMD__DBCONFIG	cmd__dddbconfig
-

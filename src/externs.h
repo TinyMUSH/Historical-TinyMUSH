@@ -318,31 +318,14 @@ extern void	FDECL(toast_player, (dbref));
 #define	CLONE_PRESERVE	2	/* Preserve the owner of the object */
 #define	CLONE_INVENTORY	4	/* Create cloned object in my inventory */
 #define	CLONE_SET_COST	8	/* ARG2 is cost of cloned object */
-#define	CLONE_SET_LOC	16	/* ARG2 is location of cloned object */
-#define	CLONE_SET_NAME	32	/* ARG2 is alternate name of cloned object */
-#define	CLONE_PARENT	64	/* Set parent on obj instd of cloning attrs */
-#define	CRE_INVENTORY	0	/* Create object in my inventory */
-#define	CRE_LOCATION	1	/* Create object in my location */
-#define	CRE_SET_LOC	2	/* ARG2 is location of new object */
+#define	CLONE_PARENT	16	/* Set parent on obj instd of cloning attrs */
 #define CSET_PUBLIC	0	/* Sets a channel public */
 #define CSET_PRIVATE	1	/* Sets a channel private (default) */
 #define CSET_LOUD	2	/* Channel shows connects and disconnects */
 #define CSET_QUIET	3	/* Channel doesn't show connects/disconnects */
 #define CSET_LIST	4	/* Lists channels */
 #define CSET_OBJECT	5	/* Sets the channel object for the channel */
-#define	DBCK_DEFAULT	1	/* Get default tests too */
-#define	DBCK_REPORT	2	/* Report info to invoker */
-#define	DBCK_FULL	4	/* Do all tests */
-#define	DBCK_FLOATING	8	/* Look for floating rooms */
-#define	DBCK_PURGE	16	/* Purge the db of refs to going objects */
-#define	DBCK_LINKS	32	/* Validate exit and object chains */
-#define	DBCK_WEALTH	64	/* Validate object value/wealth */
-#define	DBCK_OWNER	128	/* Do more extensive owner checking */
-#define	DBCK_OWN_EXIT	256	/* Check exit owner owns src or dest */
-#define	DBCK_WIZARD	512	/* Check for wizards/wiz objects */
-#define	DBCK_TYPES	1024	/* Check for valid & appropriate types */
-#define	DBCK_SPARE	2048	/* Make sure spare header fields are NOTHING */
-#define	DBCK_HOMES	4096	/* Make sure homes and droptos are valid */
+#define	DBCK_FULL	1	/* Do all tests */
 #define DECOMP_DBREF    1	/* decompile by dbref */
 #define	DEST_ONE	1	/* object */
 #define	DEST_ALL	2	/* owner */
@@ -370,21 +353,12 @@ extern void	FDECL(toast_player, (dbref));
 #define	FIXDB_EXITS	8	/* Fix EXITS field */
 #define	FIXDB_NEXT	16	/* Fix NEXT field */
 #define	FIXDB_PENNIES	32	/* Fix PENNIES field */
-#define	FIXDB_ZONE	64	/* Fix ZONE field */
-#define	FIXDB_LINK	128	/* Fix LINK field */
-#define	FIXDB_PARENT	256	/* Fix PARENT field */
-#define	FIXDB_DEL_PN	512	/* Remove player name from player name index */
-#define	FIXDB_ADD_PN	1024	/* Add player name to player name index */
-#define	FIXDB_NAME	2048	/* Set NAME attribute */
-#define	FRC_PREFIX	0	/* #num command */
+#define	FIXDB_NAME	64	/* Set NAME attribute */
 #define	FRC_COMMAND	1	/* what=command */
 #define	GET_QUIET	1	/* Don't do osucc/asucc if control */
-#define	GIVE_MONEY	1	/* Give money */
-#define	GIVE_QUOTA	2	/* Give quota */
-#define	GIVE_QUIET	64	/* Inhibit give messages */
+#define	GIVE_QUIET	1	/* Inhibit give messages */
 #define	GLOB_ENABLE	1	/* key to enable */
 #define	GLOB_DISABLE	2	/* key to disable */
-#define	GLOB_LIST	3	/* key to list */
 #define	HALT_ALL	1	/* halt everything */
 #define	HELP_HELP	1	/* get data from help file */
 #define	HELP_NEWS	2	/* get data from news file */
@@ -394,10 +368,8 @@ extern void	FDECL(toast_player, (dbref));
 #define	KILL_KILL	1	/* gives victim insurance */
 #define	KILL_SLAY	2	/* no insurance */
 #define	LOOK_LOOK	1	/* list desc (and succ/fail if room) */
-#define	LOOK_EXAM	2	/* full listing of object */
-#define	LOOK_DEXAM	3	/* debug listing of object */
-#define	LOOK_INVENTORY	4	/* list inventory of object */
-#define	LOOK_SCORE	5	/* list score (# coins) */
+#define	LOOK_INVENTORY	2	/* list inventory of object */
+#define	LOOK_SCORE	4	/* list score (# coins) */
 #define	LOOK_OUTSIDE    8       /* look for object in container of player */
 #define MAIL_STATS	1	/* Mail stats */
 #define MAIL_DSTATS	2	/* More mail stats */
@@ -493,17 +465,13 @@ extern void	FDECL(toast_player, (dbref));
 #define	SAY_WIZPOSE	13	/* Pose to all logged-in wizards */
 #define	SAY_WIZEMIT	14	/* Emit to all logged-in wizards */
 #define SAY_ADMINSHOUT	15	/* Emit to all wizards or royalty */ 
-#define	SAY_GRIPE	16	/* Complain to management */
-#define	SAY_NOTE	17	/* Comment to log for wizards */
 #define	SAY_NOTAG	32	/* Don't put Broadcast: in front (additive) */
 #define	SAY_HERE	64	/* Output to current location */
 #define	SAY_ROOM	128	/* Output to containing room */
 #define SAY_HTML	256     /* Don't output a newline */
 #define	SET_QUIET	1	/* Don't display 'Set.' message. */
-#define	SHUTDN_NORMAL	0	/* Normal shutdown */
 #define	SHUTDN_PANIC	1	/* Write a panic dump file */
-#define	SHUTDN_EXIT	2	/* Exit from shutdown code */
-#define	SHUTDN_COREDUMP	4	/* Produce a coredump */
+#define	SHUTDN_COREDUMP	2	/* Produce a coredump */
 #define	SRCH_SEARCH	1	/* Do a normal search */
 #define	SRCH_MARK	2	/* Set mark bit for matches */
 #define	SRCH_UNMARK	3	/* Clear mark bit for matches */
@@ -520,7 +488,6 @@ extern void	FDECL(toast_player, (dbref));
 #define	SWEEP_PLAYER	16	/* Check for players and puppets */
 #define	SWEEP_CONNECT	32	/* Search for connected players/puppets */
 #define	SWEEP_EXITS	64	/* Search the exits for audible flags */
-#define	SWEEP_SCAN	128	/* Scan for pattern matching */
 #define	SWEEP_VERBOSE	256	/* Display what pattern matches */
 #define TELEPORT_DEFAULT 1	/* Emit all messages */
 #define TELEPORT_QUIET   2	/* Teleport in quietly */
@@ -541,7 +508,6 @@ extern void	FDECL(toast_player, (dbref));
 
 /* Evaluation directives */
 
-#define	EV_FMASK	0x00000300	/* Mask for function type check */
 #define	EV_FIGNORE	0x00000000	/* Don't look for func if () found */
 #define	EV_FMAND	0x00000100	/* Text before () must be func name */
 #define	EV_FCHECK	0x00000200	/* Check text before () for function */
@@ -557,17 +523,6 @@ extern void	FDECL(toast_player, (dbref));
 #define EV_NO_LOCATION	0x00080000	/* Supresses %l */
 #define EV_NOFCHECK	0x00100000	/* Do not evaluate functions! */
 
-/* Termination directives */
-
-#define PT_NOTHING	0x00000000
-#define PT_BRACE	0x00000001
-#define PT_BRACKET	0x00000002
-#define PT_PAREN	0x00000004
-#define PT_COMMA	0x00000008
-#define PT_SEMI		0x00000010
-#define PT_EQUALS	0x00000020
-#define PT_SPACE	0x00000040
-  
 /* Message forwarding directives */
 
 #define	MSG_PUP_ALWAYS	1	/* Always forward msg to puppet own */
@@ -609,10 +564,7 @@ extern void	FDECL(toast_player, (dbref));
 
 #define	VE_LOC_XAM	0x01	/* Location is examinable */
 #define	VE_LOC_DARK	0x02	/* Location is dark */
-#define	VE_LOC_LIGHT	0x04	/* Location is light */
-#define	VE_BASE_XAM	0x08	/* Base location (pre-parent) is examinable */
-#define	VE_BASE_DARK	0x10	/* Base location (pre-parent) is dark */
-#define	VE_BASE_LIGHT	0x20	/* Base location (pre-parent) is light */
+#define	VE_BASE_DARK	0x04	/* Base location (pre-parent) is dark */
 
 /* Signal handling directives */
 

@@ -375,7 +375,6 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 
 #define Royalty(x)      ((Flags(x) & ROYALTY) != 0)
 #define WizRoy(x)       (Royalty(x) || Wizard(x))
-#define Dynamic(x)      ((Flags2(x) & DYNAMIC) !=0)
 #define Fixed(x)        ((Flags2(x) & FIXED) != 0)
 #define Uninspected(x)  ((Flags2(x) & UNINSPECTED) != 0)
 #define Ansi(x)         ((Flags2(x) & ANSI) != 0)

@@ -3,17 +3,6 @@
 #ifndef AUTOCONF_H
 #define AUTOCONF_H
 
-/* kludge for RCSid variables */
-#ifdef _SEQUENT_
-#define USE(var) ;
-#elif __bsdi__
-#define USE(var)
-#elif __STDC__
-#define USE(var) static void * use_##var = (&use_##var, (void *) &var)
-#else
-#define USE(var)
-#endif
-
 #include "copyright.h"
 
 /* ---------------------------------------------------------------------------
