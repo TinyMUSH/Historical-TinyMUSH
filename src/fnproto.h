@@ -341,6 +341,10 @@ XFUNCTION(fun_toss);
 XFUNCTION(fun_popn);
 XFUNCTION(fun_peek);
 XFUNCTION(fun_lstack);
+XFUNCTION(fun_regedit);
+XFUNCTION(fun_regeditall);
+XFUNCTION(fun_regeditalli);
+XFUNCTION(fun_regediti);
 XFUNCTION(fun_wildparse);
 XFUNCTION(fun_regparse);
 XFUNCTION(fun_regparsei);
@@ -588,6 +592,11 @@ FUN flist[] = {
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC},
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
+{"REGEDIT",	fun_regedit,	3,  FN_VARARGS, CA_PUBLIC},
+{"REGEDITALL",	fun_regeditall,	3,  FN_VARARGS, CA_PUBLIC},
+{"REGEDITALLI",	fun_regeditalli, 3, FN_VARARGS, CA_PUBLIC},
+{"REGEDITI",	fun_regediti,	3,  FN_VARARGS, CA_PUBLIC},
+{"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGPARSE",	fun_regparse,	3,  0,		CA_PUBLIC},

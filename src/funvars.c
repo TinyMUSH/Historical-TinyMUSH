@@ -2027,6 +2027,141 @@ FUNCTION(fun_lstack)
 }
 
 /* --------------------------------------------------------------------------
+ * regedit: Edit a string for sed/perl-like s//
+ *          regedit(<string>,<regexp>,<replacement>
+ *          Derived from the PennMUSH code. 
+ */
+
+void perform_regedit(buff, bufc, player, fargs, nfargs,
+		     case_option, all_option)
+    char *buff, **bufc;
+    dbref player;
+    char *fargs[];
+    int nfargs, case_option, all_option;
+{
+    pcre *re;
+    pcre_extra *study = NULL;
+    const char *errptr;
+    int erroffset, subpatterns, len;
+    int offsets[PCRE_MAX_OFFSETS];
+    char *r, *start;
+    char tbuf[LBUF_SIZE];
+    char tmp;
+    int match_offset = 0;
+
+    if (!tables) {
+	tables = pcre_maketables();
+    }
+
+    if ((re = pcre_compile(fargs[1], case_option,
+			   &errptr, &erroffset, tables)) == NULL) {
+	/* Matching error. Note that this returns a null string rather
+	 * than '#-1 REGEXP ERROR: <error>', as PennMUSH does, in order
+	 * to remain consistent with our other regexp functions.
+	 */
+	notify_quiet(player, errptr);
+	return;
+    }
+
+    /* Study the pattern for optimization, if we're going to try multiple
+     * matches.
+     */
+    if (all_option) {
+	study = pcre_study(re, 0, &errptr);
+	if (errptr != NULL) {
+	    XFREE(re, "perform_regedit.re");
+	    notify_quiet(player, errptr);
+	    return;
+	}
+    }
+
+    len = strlen(fargs[0]);
+    start = fargs[0];
+    subpatterns = pcre_exec(re, study, fargs[0], len, 0, 0, offsets,
+			    PCRE_MAX_OFFSETS);
+
+    /* If there's no match, just return the original. */
+
+    if (subpatterns < 0) {
+	XFREE(re, "perform_regedit.re");
+	if (study) {
+	    XFREE(study, "perform_regedit.study");
+	}
+	safe_str(fargs[0], buff, bufc);
+	return;
+    }
+
+    do {
+	/* Copy up to the start of the matched area. */
+
+	tmp = fargs[0][offsets[0]];
+	fargs[0][offsets[0]] = '\0';
+	safe_str(start, buff, bufc);
+	fargs[0][offsets[0]] = tmp;
+
+	/* Copy in the replacement, putting in captured sub-expressions. */
+
+	for (r = fargs[2]; *r; r++) {
+	    int offset;
+	    char *endsub;
+
+	    if (*r != '$') {
+		safe_chr(*r, buff, bufc);
+		continue;
+	    }
+	    r++;
+	    offset = strtoul(r, &endsub, 10);
+	    if (r == endsub) {
+		/* Not a valid number. */
+		safe_chr('$', buff, bufc);
+		r--;
+		continue;
+	    }
+	    r = endsub - 1;
+	    if (offset > subpatterns)
+		continue;
+
+	    pcre_copy_substring(fargs[0], offsets, subpatterns, offset,
+				tbuf, LBUF_SIZE);
+	    safe_str(tbuf, buff, bufc);
+	}
+	start = fargs[0] + offsets[1];
+	match_offset = offsets[1];
+
+    } while (all_option &&
+	     ((subpatterns = pcre_exec(re, study, fargs[0], len, match_offset,
+				       0, offsets, PCRE_MAX_OFFSETS)) >= 0));
+
+    /* Copy everything after the matched bit. */
+
+    safe_str(start, buff, bufc);
+    XFREE(re, "perform_regedit.re");
+    if (study) {
+	XFREE(study, "perform_regedit.study");
+    }
+}
+
+FUNCTION(fun_regedit)
+{
+    perform_regedit(buff, bufc, player, fargs, nfargs, 0, 0);
+}
+
+FUNCTION(fun_regeditall)
+{
+    perform_regedit(buff, bufc, player, fargs, nfargs, 0, 1);
+}
+
+FUNCTION(fun_regediti)
+{
+    perform_regedit(buff, bufc, player, fargs, nfargs, PCRE_CASELESS, 0);
+}
+
+FUNCTION(fun_regeditalli)
+{
+    perform_regedit(buff, bufc, player, fargs, nfargs, PCRE_CASELESS, 1);
+}
+
+/* --------------------------------------------------------------------------
  * wildparse: Set the results of a wildcard match into named variables.
  *            wildparse(<string>,<pattern>,<list of variable names>)
  */
