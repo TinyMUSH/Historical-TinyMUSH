@@ -30,6 +30,10 @@ extern void FDECL(do_mail_clear, (dbref, char *));
 extern void FDECL(do_mail_purge, (dbref));
 #endif
 
+#ifdef USE_COMSYS
+extern void FDECL(comsys_chown, (dbref, dbref));
+#endif
+
 #ifndef STANDALONE
 extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
@@ -840,6 +844,9 @@ dbref victim;
 #ifdef USE_MAIL
 	do_mail_clear(victim, NULL);
 	do_mail_purge(victim);
+#endif
+#ifdef USE_COMSYS
+	comsys_chown(victim, Owner(player));
 #endif
 	destroy_obj(NOTHING, victim);
 	notify_quiet(player, tprintf("(%d objects @chowned to you)", count));

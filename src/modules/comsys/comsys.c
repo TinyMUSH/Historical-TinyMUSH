@@ -828,6 +828,19 @@ void update_comwho_all()
     }
 }
 
+void comsys_chown(from_player, to_player)
+    dbref from_player, to_player;
+{
+    CHANNEL *chp;
+
+    for (chp = (CHANNEL *) hash_firstentry(&mudstate.comsys_htab);
+	 chp != NULL;
+	 chp = (CHANNEL *) hash_nextentry(&mudstate.comsys_htab)) {
+	if (chp->owner == from_player)
+	    chp->owner = to_player;
+    }
+
+
 /* --------------------------------------------------------------------------
  * Comsys commands: channel administration.
  */
@@ -863,7 +876,7 @@ void do_ccreate(player, cause, key, name)
     }
 
     chp->name = (char *) strdup(name);
-    chp->owner = player;
+    chp->owner = Owner(player);
     chp->flags = CHAN_FLAG_P_JOIN | CHAN_FLAG_P_TRANS | CHAN_FLAG_P_RECV |
 	CHAN_FLAG_O_JOIN | CHAN_FLAG_O_TRANS | CHAN_FLAG_O_RECV;
     chp->who = NULL;
@@ -1056,7 +1069,7 @@ void do_channel(player, cause, key, chan_name, arg)
 
 	new_owner = lookup_player(player, arg, 1);
 	if (Good_obj(new_owner)) {
-	    chp->owner = new_owner;
+	    chp->owner = Owner(new_owner); /* no robots */
 	    notify(player, "Owner set.");
 	} else {
 	    notify(player, "No such player.");
