@@ -546,6 +546,10 @@ CF_HAND(cf_int)
 	 * Copy the numeric value to the parameter 
 	 */
 
+	if ((extra > 0) && (atoi(str) > extra)) {
+	    cf_log_syntax(player, cmd, "Value exceeds limit of %d", extra);
+	    return -1;
+	}
 	sscanf(str, "%d", vp);
 	return 0;
 }
@@ -1449,7 +1453,7 @@ CONF conftable[] = {
 {(char *)"search_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.searchcost,		0},
 {(char *)"see_owned_dark",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.see_own_dark,		(long)"look shows DARK objects owned by you"},
 {(char *)"signal_action",		cf_option,	CA_STATIC,	CA_GOD,		&mudconf.sig_action,		(long)sigactions_nametab},
-{(char *)"site_chars",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.site_chars,		0},
+{(char *)"site_chars",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.site_chars,		MBUF_SIZE - 2},
 {(char *)"space_compress",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.space_compress,	(long)"Multiple spaces are compressed to a single space"},
 {(char *)"sql_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.sql_db,		MBUF_SIZE},
 {(char *)"sql_host",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.sql_host,	MBUF_SIZE},
