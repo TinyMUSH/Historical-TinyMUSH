@@ -1232,7 +1232,7 @@ FUNCTION(fun_pos)
 
 FUNCTION(fun_lpos)
 {
-    char *s, *bb_p, c;
+    char *s, *bb_p, *scratch_chartab;
     int i, osep_len;
     Delim osep; 
 
@@ -1241,14 +1241,19 @@ FUNCTION(fun_lpos)
 
     VaChk_Only_Out(3);
 
-    c = (char) *(fargs[1]);
-    if (!c)
-	c = ' ';
+    scratch_chartab = (char *) XCALLOC(256, sizeof(char), "lpos.chartab");
+
+    if (!fargs[1] || !*fargs[1]) {
+	scratch_chartab[(unsigned char) ' '] = 1;
+    } else {
+	for (s = fargs[1]; *s; s++)
+	    scratch_chartab[(unsigned char) *s] = 1;
+    }
 
     bb_p = *bufc;
 
     for (i = 0, s = strip_ansi(fargs[0]); *s; i++, s++) {
-	if (*s == c) {
+	if (scratch_chartab[(unsigned char) *s]) {
 	    if (*bufc != bb_p) {
 		print_sep(osep, osep_len, buff, bufc);
 	    }
@@ -1256,6 +1261,7 @@ FUNCTION(fun_lpos)
 	}
     }
 
+    XFREE(scratch_chartab, "lpos.chartab");
 }
 
 /* ---------------------------------------------------------------------------

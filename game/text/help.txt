@@ -7426,18 +7426,20 @@ performed and the walk down the list stops.
   See also: left(), mid()
 
 & LPOS()
-  Function: lpos(<string>, <character>[, <odelim>])
+  Function: lpos(<string>, <characters>[, <odelim>])
  
-  This function returns a list of the positions that <character> occupies
-  in <string>, with the first character of the string being 0. (Note that
-  this differs from the pos() function, but it consistent with functions
-  such as mid().)
+  This function returns a list of the positions that one or more <characters>
+  occupy in <string>, with the first character of the string being 0.
+  (Note that this differs from the pos() function, but it consistent with
+  functions such as mid().)
  
-  If <character> is null, a space is assumed.
+  If <characters> is null, a space is assumed.
  
   Example:
     > say lpos(a-bc-def-g,-)
     You say, "1 4 8"
+    > say lpos(a_b*cde,*_)
+    You say, "1 3"
  
 & POS()
   Function:  pos(<string to search for>, <string to search within>)
