@@ -163,6 +163,7 @@ struct confdata {
         int	addcmd_obey_stop;	/* Does @addcommand still multiple
 					 * match on STOP objs?
 					 */
+	int	addcmd_obey_uselocks;	/* Does @addcommand obey uselocks? */
     	int	lattr_oldstyle; /* Bad lattr() return empty or #-1 NO MATCH? */
 	int	match_mine;	/* Should you check yourself for $-commands? */
 	int	match_mine_pl;	/* Should players check selves for $-cmds? */

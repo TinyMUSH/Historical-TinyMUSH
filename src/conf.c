@@ -193,6 +193,7 @@ void NDECL(cf_init)
 	mudconf.pemit_any = 0;
 	mudconf.addcmd_match_blindly = 1;
 	mudconf.addcmd_obey_stop = 0;
+	mudconf.addcmd_obey_uselocks = 0;
 	mudconf.lattr_oldstyle = 0;
 	mudconf.match_mine = 0;
 	mudconf.match_mine_pl = 0;
@@ -1118,6 +1119,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.addcmd_match_blindly,	0},
 {(char *)"addcommands_obey_stop",
 	cf_bool,	CA_GOD,		&mudconf.addcmd_obey_stop,	0},
+{(char *)"addcommands_obey_uselocks",
+	cf_bool,	CA_GOD,		&mudconf.addcmd_obey_uselocks,	0},
 {(char *)"alias",
 	cf_cmd_alias,	CA_GOD,		(int *)&mudstate.command_htab,	0},
 {(char *)"ansi_colors",

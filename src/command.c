@@ -1350,14 +1350,17 @@ int interactive, ncargs;
 			    *s++ = '\0';
 			    
 			    if (wild(buff + 1, new, aargs, 10)) {
-				wait_que(add->thing, player,
-					 0, NOTHING, 0, s, aargs, 10,
-					 mudstate.global_regs);
-				for (i = 0; i < 10; i++) {
-				    if (aargs[i])
-					free_lbuf(aargs[i]);
+				if (!mudconf.addcmd_obey_uselocks ||
+				    could_doit(player, add->thing, A_LUSE)) {
+				    wait_que(add->thing, player,
+					     0, NOTHING, 0, s, aargs, 10,
+					     mudstate.global_regs);
+				    for (i = 0; i < 10; i++) {
+					if (aargs[i])
+					    free_lbuf(aargs[i]);
+				    }
+				    cmd_matches++;
 				}
-				cmd_matches++;
 			    }
 			    free_lbuf(buff);
 			    if (cmd_matches && mudconf.addcmd_obey_stop &&
@@ -2683,6 +2686,12 @@ dbref player;
 	}
 	if (mudconf.have_zones) {
 		raw_notify(player, "ControlLock zones are enabled.");
+	}
+
+	if (mudconf.addcmd_obey_uselocks) {
+	    raw_notify(player, "Matches on added commands obey uselocks.");
+	} else {
+	    raw_notify(player, "Matches on added commands do not obey uselocks.");
 	}
 
 	if (mudconf.addcmd_match_blindly) {

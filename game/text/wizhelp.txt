@@ -1299,7 +1299,8 @@
 
 & PARAM OPTIONS
 abort_on_bug		addcommands_match_blindly
-addcommands_obey_stop	ansi_colors		clone_copies_cost
+addcommands_obey_stop	addcommands_obey_uselocks
+ansi_colors		clone_copies_cost
 comsys_database		dark_sleepers		examine_flags
 examine_public_attrs	fascist_teleport	format_contents
 format_exits		global_aconn_uselocks	have_comsys
@@ -1345,6 +1346,16 @@ use_global_aconn	wizard_obeys_linklock
   parameter is YES, no further matching attempts will be made. Otherwise,
   the server will continue to try to match additional $-command patterns
   associated with that @addcommand.
+ 
+& addcommands_obey_uselocks
+  Config parameter: addcommands_obey_uselocks <yes/no>.  Default: No
+ 
+  If an @addcommand is matched on an object, if this parameter is YES,
+  then the object's uselock is checked, and the command is only
+  considered matched and executed if the player passes the uselock
+  on the object (just as if the player were matching a command residing
+  on an object in the master room). If this parameter is NO, then 
+  uselocks are not checked with added commands are matched.
  
 & alias
   Config parameter: alias <new> <old>.
