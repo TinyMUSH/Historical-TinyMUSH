@@ -3,9 +3,9 @@
 
 #include "copyright.h"
 
-#define	MUSH_VERSION		"3.0a8"		/* Base version number */
+#define	MUSH_VERSION		"3.0a10"	/* Base version number */
 #define PATCHLEVEL		0		/* Patch sequence number */
-#define	MUSH_RELEASE_DATE	"07/10/99"	/* Source release date */
+#define	MUSH_RELEASE_DATE	"07/20/99"	/* Source release date */
 
 #define BETA			1		/* Define if a BETA release */
 
