@@ -943,7 +943,7 @@ int add_helpfile(player, str)
 
 	/* We need to allocate a new command structure. */
 
-	cmdp = (CMDENT *) malloc(sizeof(CMDENT));
+	cmdp = (CMDENT *) XMALLOC(sizeof(CMDENT), "add_helpfile");
 	cmdp->cmdname = (char *) strdup(fcmd);
 	cmdp->switches = NULL;
 	cmdp->perms = 0;

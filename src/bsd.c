@@ -648,7 +648,7 @@ int reason;
 			for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 			    free_lbuf(d->program_data->wait_regs[i]);
 			}
-			free(d->program_data);
+			XFREE(d->program_data, "do_prog");
 			d->program_data = NULL;
 			atr_clr(d->player, A_PROGCMD);
 		    }
@@ -707,7 +707,7 @@ int reason;
 				for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 					free_lbuf(d->program_data->wait_regs[i]);
 				}
-				free(d->program_data);
+				XFREE(d->program_data, "do_prog");
 				d->program_data = NULL;
 				atr_clr(d->player, A_PROGCMD);
 			}

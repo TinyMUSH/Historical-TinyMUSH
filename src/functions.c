@@ -4804,7 +4804,7 @@ int n, sort_type;
 
 		break;
 	case NUMERIC_LIST:
-		ip = (i_rec *) malloc(n * sizeof(i_rec));
+		ip = (i_rec *) XMALLOC(n * sizeof(i_rec), "do_asort");
 		for (i = 0; i < n; i++) {
 			ip[i].str = s[i];
 			ip[i].data = atoi(s[i]);
@@ -4816,7 +4816,7 @@ int n, sort_type;
 		free(ip);
 		break;
 	case DBREF_LIST:
-		ip = (i_rec *) malloc(n * sizeof(i_rec));
+		ip = (i_rec *) XMALLOC(n * sizeof(i_rec), "do_asort.2");
 		for (i = 0; i < n; i++) {
 			ip[i].str = s[i];
 			ip[i].data = dbnum(s[i]);
@@ -4828,7 +4828,7 @@ int n, sort_type;
 		free(ip);
 		break;
 	case FLOAT_LIST:
-		fp = (f_rec *) malloc(n * sizeof(f_rec));
+		fp = (f_rec *) XMALLOC(n * sizeof(f_rec), "do_asort.3");
 		for (i = 0; i < n; i++) {
 			fp[i].str = s[i];
 			fp[i].data = atof(s[i]);

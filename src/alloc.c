@@ -145,8 +145,9 @@ const char *tag;
 		pool_check(tag);
 	do {
 		if (pools[poolnum].free_head == NULL) {
-			h = (char *)malloc(pools[poolnum].pool_size +
-					 sizeof(POOLHDR) + sizeof(POOLFTR));
+			h = (char *)XMALLOC(pools[poolnum].pool_size +
+					    sizeof(POOLHDR) + sizeof(POOLFTR),
+					    "pool_alloc");
 			if (h == NULL)
 				abort();
 			ph = (POOLHDR *) h;

@@ -393,7 +393,7 @@ char *cargs[];
 	if (((*bufc) - buff) > (LBUF_SIZE - SBUF_SIZE)) {
 		realbuff = buff;
 		realbp = *bufc;
-		buff = (char *)malloc(LBUF_SIZE);
+		buff = (char *)XMALLOC(LBUF_SIZE, "buff_extend");
 		*bufc = buff;
 	}
 

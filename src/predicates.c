@@ -887,7 +887,7 @@ char *s;
 		
 		/* else tack it on to the existing entry... */
 		
-		add = (ADDENT *)malloc(sizeof(ADDENT));
+		add = (ADDENT *)XMALLOC(sizeof(ADDENT), "addcommand.add");
 		add->thing = thing;
 		add->atr = atr;
 		add->name = (char *)strdup(name);
@@ -899,7 +899,7 @@ char *s;
 			hashdelete(name, &mudstate.command_htab);
 		}
 		
-		cmd = (CMDENT *) malloc(sizeof(CMDENT));
+		cmd = (CMDENT *) XMALLOC(sizeof(CMDENT), "addcommand.cmd");
 		
 		cmd->cmdname = (char *)strdup(name);
 		cmd->switches = NULL;
@@ -912,7 +912,7 @@ char *s;
 		} else {
 			cmd->callseq = CS_ADDED|CS_ONE_ARG;
 		}
-		add = (ADDENT *)malloc(sizeof(ADDENT));
+		add = (ADDENT *)XMALLOC(sizeof(ADDENT), "addcommand.add");
 		add->thing = thing;
 		add->atr = atr;
 		add->name = (char *)strdup(name);

@@ -51,19 +51,19 @@ extern void	FDECL(list_buftrace, (dbref));
 
 #else
 
-#define	alloc_lbuf(s)	(char *)malloc(LBUF_SIZE)
-#define	free_lbuf(b)	if (b) free(b)
-#define	alloc_mbuf(s)	(char *)malloc(MBUF_SIZE)
-#define	free_mbuf(b)	if (b) free(b)
-#define	alloc_sbuf(s)	(char *)malloc(SBUF_SIZE)
-#define	free_sbuf(b)	if (b) free(b)
+#define	alloc_lbuf(s)	(char *)XMALLOC(LBUF_SIZE, "alloc_lbuf")
+#define	free_lbuf(b)	if (b) XFREE(b, "alloc_lbuf")
+#define	alloc_mbuf(s)	(char *)XMALLOC(MBUF_SIZE, "alloc_mbuf")
+#define	free_mbuf(b)	if (b) XFREE(b, "alloc_mbuf")
+#define	alloc_sbuf(s)	(char *)XMALLOC(SBUF_SIZE, "alloc_sbuf")
+#define	free_sbuf(b)	if (b) XFREE(b, "alloc_sbuf")
 #define	alloc_bool(s)	(struct boolexp *)XMALLOC(sizeof(struct boolexp), \
 						"alloc_bool")
-#define	free_bool(b)	if (b) free(b)
-#define	alloc_qentry(s)	(BQUE *)malloc(sizeof(BQUE))
-#define	free_qentry(b)	if (b) free(b)
-#define	alloc_pcache(s)	(PCACHE *)malloc(sizeof(PCACHE)
-#define free_pcache(b)	if (b) free(b)
+#define	free_bool(b)	if (b) XFREE(b, "alloc_bool")
+#define	alloc_qentry(s)	(BQUE *)XMALLOC(sizeof(BQUE), "alloc_qentry")
+#define	free_qentry(b)	if (b) XFREE(b, "alloc_qentry")
+#define	alloc_pcache(s)	(PCACHE *)XMALLOC(sizeof(PCACHE), "alloc_pcache")
+#define free_pcache(b)	if (b) XFREE(b, "alloc_pcache")
 #endif
 
 #define safe_copy_chr(scc__src,scc__buff,scc__bufp,scc__max) {\
