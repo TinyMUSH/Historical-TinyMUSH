@@ -405,6 +405,12 @@ the future. If your hit ratio is low, try increasing the cache size (though
 eventually there will be a trade-off in paging behavior if the process
 becomes too large).
 
+You can also tune the cache width; this is the number of 'buckets' that
+cache entries are spread out over. For the vast majority of games the
+default if okay. If you want to tune this, take a look at the number of
+attributes being cached in '@list cache', divide this number by 50, and use
+that as your cache width.
+
 ------------------------------------------------------------------------------
 
 How do I use the in-memory database?
