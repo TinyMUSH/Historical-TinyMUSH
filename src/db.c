@@ -710,7 +710,7 @@ dbref thing;
 
 INLINE void s_Name(thing, s)
 dbref thing;
-const char *s;
+char *s;
 {
 	/* Truncate the name if we have to */
 	

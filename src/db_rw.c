@@ -1498,7 +1498,7 @@ int *db_format, *db_version, *db_flags;
 				return -1;
 			}
 			db_grow(i + 1);
-			s_Name(i, getstring_noalloc(f, 0));
+			s_Name(i, (char *)getstring_noalloc(f, 0));
 			atr_add_raw(i, A_DESC, (char *)getstring_noalloc(f, 0));
 			s_Location(i, getref(f));
 			s_Contents(i, getref(f));
@@ -1571,7 +1571,7 @@ int *db_format, *db_version, *db_flags;
 #ifdef STANDALONE
 			if (is_penn) {
 				tstr = getstring_noalloc(f, read_new_strings);
-				s_Name(i, tstr);
+				s_Name(i, (char *)tstr);
 				s_Location(i, getref(f));
 				s_Contents(i, getref(f));
 				s_Exits(i, getref(f));
@@ -1682,12 +1682,12 @@ int *db_format, *db_version, *db_flags;
 							read_name = 0;
 							s_Location(i, atoi(tstr));
 						} else {
-							s_Name(i, tstr);
+							s_Name(i, (char *)tstr);
 							s_Location(i, getref(f));
 						}
 						deduce_name = 0;
 					} else {
-						s_Name(i, tstr);
+						s_Name(i, (char *)tstr);
 						s_Location(i, getref(f));
 					}
 				} else {

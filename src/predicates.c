@@ -25,6 +25,10 @@ extern void NDECL(dump_restart_db);
 extern int slave_pid;
 extern int slave_socket;
 extern CMDENT *prefix_cmds[256];
+extern void FDECL(load_quota, (int *, dbref, int));
+extern void FDECL(save_quota, (int *, dbref, int));
+static int FDECL(type_quota, (int));
+static int FDECL(pay_quota, (dbref, int, int));
 
 #ifdef NEED_VSPRINTF_DCL
 extern char *FDECL(vsprintf, (char *, char *, va_list));
@@ -261,9 +265,47 @@ int can_see_loc;
 	}
 }
 
-static int pay_quota(who, cost)
+static int canpayquota(player, who, cost, objtype)
+dbref player, who;
+int cost, objtype;
+{
+	dbref aowner;
+	char *quota_str;
+	int aflags;
+	register int quota, qtype;
+	int q_list[5];
+
+	/* If no cost, succeed */
+
+	if (cost <= 0)
+		return 1;
+
+#ifndef STANDALONE
+	/* determine basic quota */
+
+	load_quota(q_list, Owner(who), A_RQUOTA);
+	quota = q_list[QTYPE_ALL];
+
+	/* enough to build?  Wizards always have enough. */
+
+	quota -= cost;
+	if ((quota < 0) && !Wizard(who) && !Wizard(Owner(who)))
+		return 0;
+
+	if (mudconf.typed_quotas) {
+		quota = q_list[type_quota(objtype)];
+		if ((quota <= 0) && !Wizard(player) && !Wizard(Owner(player)))
+			return 0;
+	}
+#endif /* ! STANDALONE */
+
+	return 1;
+}
+
+
+static int pay_quota(who, cost, objtype)
 dbref who;
-int cost;
+int cost, objtype;
 {
 	/* If no cost, succeed.  Negative costs /must/ be managed, however */
 	
@@ -275,9 +317,9 @@ int cost;
 	return 1;
 }
 
-int canpayfees(player, who, pennies, quota)
+int canpayfees(player, who, pennies, quota, objtype)
 dbref player, who;
-int pennies, quota;
+int pennies, quota, objtype;
 {
 	if (!Wizard(who) && !Wizard(Owner(who)) &&
 	    !Free_Money(who) && !Free_Money(Owner(who)) &&
@@ -294,7 +336,7 @@ int pennies, quota;
 		return 0;
 	}
 	if (mudconf.quotas) {
-		if (!pay_quota(who, quota)) {
+		if (!canpayquota(player, who, quota, objtype)) {
 			if (player == who) {
 				notify(player,
 				       "Sorry, your building contract has run out.");
@@ -307,6 +349,29 @@ int pennies, quota;
 	}
 	payfor(who, pennies);
 	return 1;
+}
+
+static int type_quota(objtype)
+int objtype;
+{
+	int qtype;
+
+	/* determine typed quota */
+
+	switch (objtype) {
+	case TYPE_ROOM:
+		qtype = QTYPE_ROOM;
+		break;
+	case TYPE_EXIT:
+		qtype = QTYPE_EXIT;
+		break;
+	case TYPE_PLAYER:
+		qtype = QTYPE_PLAYER;
+		break;
+	default:
+		qtype = QTYPE_THING;
+	}
+	return (qtype);
 }
 
 int payfor(who, cost)
@@ -349,18 +414,21 @@ int pennies, quota, objtype;
 }
 #endif
 
-void add_quota(who, payment)
+void add_quota(who, payment, type)
 dbref who;
-int payment;
+int payment, type;
 {
-	dbref aowner;
-	int aflags;
-	char buf[20], *quota;
-
-	quota = atr_get(who, A_RQUOTA, &aowner, &aflags);
-	ltos(buf, atoi(quota) + payment);
-	free_lbuf(quota);
-	atr_add_raw(who, A_RQUOTA, buf);
+#ifndef STANDALONE
+	int q_list[5];
+	
+	load_quota(q_list, Owner(who), A_RQUOTA);
+	q_list[QTYPE_ALL] += payment;
+	
+	if (mudconf.typed_quotas)
+		q_list[type] += payment;
+	
+	save_quota(q_list, Owner(who), A_RQUOTA);
+#endif
 }
 
 void giveto(who, pennies)

@@ -272,36 +272,33 @@ char *name;
 int chown_all(from_player, to_player)
 dbref from_player, to_player;
 {
-	int i, count, quota_out, quota_in;
+	register int i, count = 0, q_t = 0, q_p = 0, q_r = 0, q_e = 0;
 
-	if (Typeof(from_player) != TYPE_PLAYER)
+	if (!isPlayer(from_player))
 		from_player = Owner(from_player);
-	if (Typeof(to_player) != TYPE_PLAYER)
+	if (!isPlayer(to_player))
 		to_player = Owner(to_player);
-	count = 0;
-	quota_out = 0;
-	quota_in = 0;
+
 	DO_WHOLE_DB(i) {
 		if ((Owner(i) == from_player) && (Owner(i) != i)) {
 			switch (Typeof(i)) {
 			case TYPE_PLAYER:
 				s_Owner(i, i);
-				quota_out += mudconf.player_quota;
+				q_p += mudconf.player_quota;
 				break;
 			case TYPE_THING:
+				if (Going(i))
+					break;
 				s_Owner(i, to_player);
-				quota_out += mudconf.thing_quota;
-				quota_in -= mudconf.thing_quota;
+				q_t += mudconf.thing_quota;
 				break;
 			case TYPE_ROOM:
 				s_Owner(i, to_player);
-				quota_out += mudconf.room_quota;
-				quota_in -= mudconf.room_quota;
+				q_r += mudconf.room_quota;
 				break;
 			case TYPE_EXIT:
 				s_Owner(i, to_player);
-				quota_out += mudconf.exit_quota;
-				quota_in -= mudconf.exit_quota;
+				q_e += mudconf.exit_quota;
 				break;
 			default:
 				s_Owner(i, to_player);
@@ -310,8 +307,14 @@ dbref from_player, to_player;
 			count++;
 		}
 	}
-	add_quota(from_player, quota_out);
-	add_quota(to_player, quota_in);
+	payfees(to_player, 0, q_p, TYPE_PLAYER);
+	payfees(from_player, 0, -q_p, TYPE_PLAYER);
+	payfees(to_player, 0, q_r, TYPE_ROOM);
+	payfees(from_player, 0, -q_r, TYPE_ROOM);
+	payfees(to_player, 0, q_e, TYPE_EXIT);
+	payfees(from_player, 0, -q_e, TYPE_EXIT);
+	payfees(to_player, 0, q_t, TYPE_THING);
+	payfees(from_player, 0, -q_t, TYPE_THING);
 	return count;
 }
 

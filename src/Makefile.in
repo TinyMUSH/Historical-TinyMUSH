@@ -92,13 +92,13 @@ D_SRC	= create.c game.c help.c look.c match.c move.c player.c predicates.c \
 	  unparse.c eval.c command.c wild.c netcommon.c functions.c vattr.c \
 	  db.c db_rw.c stringutil.c object.c conf.c flags.c htab.c \
 	  compat.c file_c.c player_c.c bsd.c alloc.c comsys.c mail.c \
-          mguests.c powers.c newconc.c funceval.c regexp.c
+          mguests.c powers.c newconc.c funceval.c regexp.c quota.c
 D_OBJ	= create.o game.o help.o look.o match.o move.o player.o predicates.o \
 	  rob.o set.o speech.o wiz.o walkdb.o timer.o boolexp.o log.o cque.o \
 	  unparse.o eval.o command.o wild.o netcommon.o functions.o vattr.o \
 	  db.o db_rw.o stringutil.o object.o conf.o flags.o htab.o \
           compat.o file_c.o player_c.o bsd.o alloc.o comsys.o mail.o \
-          mguests.o powers.o newconc.o funceval.o regexp.o
+          mguests.o powers.o newconc.o funceval.o regexp.o quota.o
 D_INC	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  command.h config.h db.h externs.h mudconf.h misc.h \
 	  vattr.h file_c.h fifo.h alloc.h attrs.h comsys.h macro.h \

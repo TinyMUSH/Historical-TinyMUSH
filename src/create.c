@@ -175,16 +175,15 @@ dbref player, exit, dest;
 		cost += mudconf.opencost;
 		quot += mudconf.exit_quota;
 	}
-	if (!canpayfees(player, player, cost, quot))
+	if (!canpayfees(player, player, cost, quot, TYPE_EXIT))
 		return;
-
-	/*
-	 * Pay the owner for his loss 
-	 */
+	else
+		payfees(player, cost, quot, TYPE_EXIT);
+		
+	/* Pay the owner for his loss */
 
 	if (Owner(exit) != Owner(player)) {
-		giveto(Owner(exit), mudconf.opencost);
-		add_quota(Owner(exit), quot);
+		payfees(Owner(exit), -mudconf.opencost, -quot, TYPE_EXIT);
 		s_Owner(exit, Owner(player));
 		s_Flags(exit, (Flags(exit) & ~(INHERIT | WIZARD)) | HALT);
 	}

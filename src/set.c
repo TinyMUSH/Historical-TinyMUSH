@@ -681,10 +681,10 @@ char *name, *newown;
 					   (Location(thing) != player) &&
 		       !Chown_Any(player))) || (!controls(player, owner))) {
 		notify_quiet(player, "Permission denied.");
-	} else if (canpayfees(player, owner, cost, quota)) {
-		giveto(Owner(thing), cost);
-		if (mudconf.quotas)
-			add_quota(Owner(thing), quota);
+	} else if (canpayfees(player, owner, cost, quota, Typeof(thing))) {
+		payfees(owner, cost, quota, Typeof(thing));
+		payfees(Owner(thing), -cost, -quota, Typeof(thing));
+		
 		if (God(player)) {
 			s_Owner(thing, owner);
 		} else {

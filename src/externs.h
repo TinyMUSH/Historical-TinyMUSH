@@ -181,8 +181,8 @@ extern int	FDECL(is_integer, (char *));
 extern int	FDECL(is_number, (char *));
 extern int	FDECL(could_doit, (dbref, dbref, int));
 extern int	FDECL(can_see, (dbref, dbref, int));
-extern void	FDECL(add_quota, (dbref, int));
-extern int	FDECL(canpayfees, (dbref, dbref, int, int));
+extern void	FDECL(add_quota, (dbref, int, int));
+extern int	FDECL(canpayfees, (dbref, dbref, int, int, int));
 extern int	FDECL(payfees, (dbref, int, int, int));
 extern void	FDECL(giveto, (dbref,int));
 extern int	FDECL(payfor, (dbref,int));
@@ -276,7 +276,7 @@ extern void	NDECL(set_prefix_cmds);
 /* from db.c */
 extern int	FDECL(Commer, (dbref));
 extern void	FDECL(s_Pass, (dbref, const char *));
-extern void	FDECL(s_Name, (dbref, const char *));
+extern void	FDECL(s_Name, (dbref, char *));
 extern char *	FDECL(Name, (dbref));
 extern char *	FDECL(PureName, (dbref));
 extern int	FDECL(fwdlist_load, (FWDLIST *, dbref, char *));
@@ -604,6 +604,13 @@ extern void	FDECL(toast_player, (dbref));
 #define	LK_SHOWATTR	0x0004
 #define	LK_SHOWEXIT	0x0008
 #define LK_SHOWVRML	0x0010
+
+/* Quota types */
+#define QTYPE_ALL 0
+#define QTYPE_ROOM 1
+#define QTYPE_EXIT 2
+#define QTYPE_THING 3
+#define QTYPE_PLAYER 4
 
 /* Exit visibility precalculation codes */
 

@@ -415,7 +415,8 @@ char *name;
 	}
 	/* Make sure the creator can pay for the object. */
 
-	if ((player != NOTHING) && !canpayfees(player, player, cost, quota))
+	if ((player != NOTHING) &&
+	    !canpayfees(player, player, cost, quota, objtype))
 		return NOTHING;
 	else if (player != NOTHING)
 		payfees(player, cost, quota, objtype);
