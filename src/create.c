@@ -762,6 +762,7 @@ char *what;
     dbref thing;
     int can_doit;
     const char *typename;
+    char *t, *tbuf;
 
     /* You can destroy anything you control. */
 
@@ -899,8 +900,11 @@ char *what;
     }
 
     if ((Owner(thing) != player) && !Quiet(player)) {
+	t = tbuf = alloc_sbuf("do_destroy.owner");
+	safe_sb_str(Name(Owner(thing)), tbuf, &t);
 	notify_quiet(player, tprintf("Destroyed. %s's %s(#%d)",
-				     Name(Owner(thing)), Name(thing), thing));
+				     tbuf, Name(thing), thing));
+	free_sbuf(tbuf);
     }
 
     if (isPlayer(thing))
