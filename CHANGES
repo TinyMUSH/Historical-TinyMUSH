@@ -21,6 +21,8 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 
 - The Startmush script handles KILLED and CRASH databases more elegantly.
 
+- The Restore script can handle the archives produced by Archive.
+
 - Dynamically loadable modules. There is now an interface for writing your
   own hardcode extensions to the server, and loading them at runtime.
   The comsys and mailer are now loadable modules; the USE_COMSYS and 

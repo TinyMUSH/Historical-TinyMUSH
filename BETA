@@ -49,19 +49,18 @@ Release history:
   lists passed as %0.
 
 - Feature: Flatfiling now automatically cleans the attribute table.
-  Removed @dbclean, since this is now unnecessary.
+  (Use -q to turn this off.) Removed @dbclean, since this is now unnecessary.
+
+- Feature: Restore script can now handle archives produced by Archive.
 
 - Fix: Minor parts of structure db were not properly cleared at startup:
   connected flag, internal 'dirty' flag, and cpu time used. [3.1a8]
 
 - Fix: Prevent infinite loop in cache when cache fills with nothing but
-  modified attributes (extremely rare, but impossible). [3.1]
+  modified attributes (extremely rare, but not impossible). [3.1]
 
 - Fix: Restore script determines database name from archive name by
   removing .tar.gz, not truncating at second dot. [3.1a9; Scott Schappell]
-
-- Fix: Backup/Restore scripts use tar -P to preserve the leading slash in
-  absolute pathnames. [3.1a9; Scott Schappell]
 
 - Misc: The expanded_who power no longer grants the ability to see
   Dark players in WHO. (Previously those with the power could, but
