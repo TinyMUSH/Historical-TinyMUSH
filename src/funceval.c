@@ -2885,9 +2885,10 @@ FUNCTION(fun_lstack)
 FUNCTION(fun_regmatch)
 {
 int i, nqregs, got_match, curq, len;
-char *qregs[10];
+char *qregs[NSUBEXP];
 int qnums[10];
 regexp *re;
+int matched;
 
 	if (!fn_range_check("REGMATCH", nfargs, 2, 3, buff, bufc))
 		return;
@@ -2899,7 +2900,8 @@ regexp *re;
 		return;
 	}
 
-	safe_ltos(buff, bufc, (int) regexec(re, fargs[0]));
+	matched = (int) regexec(re, fargs[0]);
+	safe_ltos(buff, bufc, matched);
 
 	/* If we don't have a third argument, we're done. */
 	if (nfargs != 3) {
@@ -2907,30 +2909,33 @@ regexp *re;
 		return;
 	}
 
-	/* We need to parse the list of registers. Anything that we don't get is
-	 * assumed to be -1.
+	/* We need to parse the list of registers. Anything that we don't get
+	 * is assumed to be -1. If we didn't match, or the match went wonky,
+	 * then set the register to empty. Otherwise, fill the register
+	 * with the subexpression.
 	 */
-	nqregs = list2arr(qregs, 10, fargs[2], ' ');
-	for (i = 0; i < 10; i++) {
-		if ((i < nqregs) && qregs[i] && *qregs[i])
-			qnums[i] = atoi(qregs[i]);
-		else
-			qnums[i] = -1;
-	}
-
-	/* Now we run a copy. */
-	for (i = 0;
-		 (i < NSUBEXP) && (re->startp[i]) && (re->endp[i]);
-		 i++) {
-		curq = qnums[i];
-		if ((curq >= 0) && (curq < MAX_GLOBAL_REGS)) {
-			if (!mudstate.global_regs[curq]) {
-				mudstate.global_regs[curq] = alloc_lbuf("fun_regmatch");
-			}
-			len = re->endp[i] - re->startp[i];
-			strncpy(mudstate.global_regs[curq], re->startp[i], len);
-			mudstate.global_regs[curq][len] = '\0'; /* must null-terminate */
-		}
+	nqregs = list2arr(qregs, NSUBEXP, fargs[2], ' ');
+	for (i = 0; i < nqregs; i++) {
+	    if (qregs[i] && *qregs[i] && is_integer(qregs[i]))
+		curq = atoi(qregs[i]);
+	    else
+		curq = -1;
+	    if ((curq < 0) || (curq > 9))
+		continue;
+	    if (!mudstate.global_regs[curq]) {
+		mudstate.global_regs[curq] = alloc_lbuf("fun_regmatch");
+	    }
+	    if (!matched || !re->startp[i] || !re->endp[i]) {
+		mudstate.global_regs[curq][0] = '\0'; /* empty string */
+	    } else {
+		len = re->endp[i] - re->startp[i];
+		if (len > LBUF_SIZE - 1)
+		    len = LBUF_SIZE - 1;
+		else if (len < 0)
+		    len = 0;
+		strncpy(mudstate.global_regs[curq], re->startp[i], len);
+		mudstate.global_regs[curq][len] = '\0';	/* must null-terminate */
+	    }
 	}
 
 	free(re);
