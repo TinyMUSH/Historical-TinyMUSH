@@ -16,6 +16,7 @@ typedef struct fun {
 	int	nargs;		/* Number of args needed or expected */
 	int	flags;		/* Function flags */
 	int	perms;		/* Access to function */
+	EXTFUNCS *xperms;	/* Extended access to function */
 } FUN;
 
 typedef struct ufun {
@@ -245,6 +246,14 @@ VaChk_Sep(&osep, osep_len, xargnum, \
 /* ---------------------------------------------------------------------------
  * Miscellaneous macros.
  */
+
+/* Check access to built-in function. */
+
+#define Check_Func_Access(p,f) \
+(check_access(p,(f)->perms) && \
+ (!((f)->xperms) || check_mod_access(p,(f)->xperms)))
+
+/* Trim spaces. */
 
 #define Eat_Spaces(x)	trim_space_sep((x), SPACE_DELIM, 1)
 

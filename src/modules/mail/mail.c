@@ -3709,9 +3709,9 @@ FUNCTION(fun_mailfrom)
 }
 
 FUN mod_mail_functable[] = {
-{"MAIL",        fun_mail,       0,  FN_VARARGS, CA_PUBLIC},
-{"MAILFROM",    fun_mailfrom,   0,  FN_VARARGS, CA_PUBLIC},
-{NULL,		NULL,		0,  0,		0}};
+{"MAIL",        fun_mail,       0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"MAILFROM",    fun_mailfrom,   0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{NULL,		NULL,		0,  0,		0,		NULL}};
 
 /* --------------------------------------------------------------------------
  * Command tables.

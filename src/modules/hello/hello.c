@@ -238,8 +238,8 @@ FUNCTION(mod_hello_fun_hello)
 }
 
 FUN mod_hello_functable[] = {
-{"HELLO",	mod_hello_fun_hello,	0,	0,	CA_PUBLIC},
-{NULL,		NULL,			0,	0,	0}};
+{"HELLO",	mod_hello_fun_hello,	0,	0,	CA_PUBLIC,	NULL},
+{NULL,		NULL,			0,	0,	0,		NULL}};
 
 /* --------------------------------------------------------------------------
  * Hash tables.

@@ -10,7 +10,7 @@
 #include "ltdl.h"
 #include "udb.h"
 
-/* CONFDATA:	runtime configurable parameters */
+/* Type definitions */
 
 typedef unsigned char Uchar;
 
@@ -20,16 +20,23 @@ struct hookentry {
 	int atr;
 };
 
-typedef union external_perms {
-	HOOKENT *hook;
-	int (*handler)();
-} Extperms;
-
 typedef struct key_linked_list KEYLIST;
 struct key_linked_list {
 	char *name;
 	int data;
 	struct key_linked_list *next;
+};
+
+typedef struct named_function NAMEDFUNC;
+struct named_function {
+	char *fn_name;
+	int (*handler)(dbref);
+};
+
+typedef struct external_funcs EXTFUNCS;
+struct external_funcs {
+	int num_funcs;
+	NAMEDFUNC **ext_funcs;
 };
 
 typedef struct module_linked_list MODULE;
@@ -52,6 +59,8 @@ struct module_linked_list {
     void (*dump_database)(void);
     void (*db_grow)(int, int);
 };
+
+/* CONFDATA:	runtime configurable parameters */
 
 typedef struct confparm CONF;
 struct confparm {

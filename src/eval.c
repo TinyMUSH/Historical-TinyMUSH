@@ -1062,7 +1062,7 @@ char *cargs[];
 					 * with a command()/@destroy combo...
 					 */
 					safe_str("#-1 BAD INVOKER", buff, bufc);
-				} else if (!check_access(player, fp->perms)) {
+				} else if (!Check_Func_Access(player, fp)) {
 					safe_noperm(buff, bufc);
 				} else {
 					fp->fun(buff, bufc, player, caller,

@@ -316,6 +316,26 @@ int mask;
 }
 
 /* ---------------------------------------------------------------------------
+ * check_mod_access: Go through sequence of module call-outs, treating
+ * all of them like permission checks.
+ */
+
+int check_mod_access(player, xperms)
+    dbref player;
+    EXTFUNCS *xperms;
+{
+    int i;
+
+    for (i = 0; i < xperms->num_funcs; i++) {
+	if (!xperms->ext_funcs[i])
+	    continue;
+	if (!((xperms->ext_funcs[i]->handler)(player)))
+	    return 0;
+    }
+    return 1;
+}
+
+/* ---------------------------------------------------------------------------
  * check_userdef_access: Check if user has access to command with user-def'd
  * permissions. 
  */

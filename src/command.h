@@ -228,7 +228,7 @@ struct cmdentry {
 /*
 #define Check_Cmd_Access(p,c,a,n) \
 (check_access(p,(c)->perms) && \
- (((c)->modperms.handler) && (c)->modperms.handler(p)) && \
+ (!((c)->xperms) || check_mod_access(p,(c)->xperms)) && \
  (!((c)->userperms) || check_userdef_access(p,(c)->userperms,a,n) || God(p)))
  */
 
@@ -236,7 +236,6 @@ struct cmdentry {
 (check_access(p,(c)->perms) && \
  (!((c)->userperms) || check_userdef_access(p,(c)->userperms,a,n) || God(p)))
 
-extern int	FDECL(check_access, (dbref, int));
 extern int	FDECL(check_userdef_access, (dbref, HOOKENT *, char *[], int));
 extern char *	FDECL(process_command, (dbref, dbref, int, char *, char *[], int));
 

@@ -936,6 +936,202 @@ CF_HAND(cf_modify_bits)
 }
 
 /* ---------------------------------------------------------------------------
+ * modify_xfuncs: Helper function to change xfuncs.
+ */
+
+static NAMEDFUNC **all_named_funcs = NULL;
+static int num_named_funcs = 0;
+
+static int modify_xfuncs(fn_name, fn_ptr, xfuncs, negate)
+    char *fn_name;
+    int (*fn_ptr)(dbref);
+    EXTFUNCS **xfuncs;
+    int negate;		/* 0 - normal, 1 - remove */
+{
+    EXTFUNCS *xfp;
+    NAMEDFUNC *np, **tp;
+    int i;
+
+    xfp = *xfuncs;
+
+    /* If we're negating, just remove it from the list of functions. */
+
+    if (negate) {
+	if (!xfp)
+	    return 0;
+	for (i = 0; i < xfp->num_funcs; i++) {
+	    if (!strcmp(xfp->ext_funcs[i]->fn_name, fn_name)) {
+		xfp->ext_funcs[i] = NULL;
+		return 1;
+	    }
+	}
+	return 0;
+    }
+
+    /* Have we encountered this function before? */
+
+    np = NULL;
+    for (i = 0; i < num_named_funcs; i++) {
+	if (!strcmp(all_named_funcs[i]->fn_name, fn_name)) {
+	    np = all_named_funcs[i];
+	    break;
+	}
+    }
+
+    /* If not, we need to allocate it. */
+
+    if (!np) {
+	np = (NAMEDFUNC *) XMALLOC(sizeof(NAMEDFUNC), "nfunc");
+	np->fn_name = (char *) strdup(fn_name);
+	np->handler = fn_ptr;
+    }
+
+    /* Add it to the ones we know about. */
+
+    if (num_named_funcs == 0) {
+	all_named_funcs = (NAMEDFUNC **) XMALLOC(sizeof(NAMEDFUNC *),
+						 "all_named_funcs");
+	num_named_funcs = 1;
+	all_named_funcs[0] = np;
+    } else {
+	tp = (NAMEDFUNC **) XREALLOC(all_named_funcs,
+				(num_named_funcs + 1) * sizeof(NAMEDFUNC *),
+				"all_named_funcs");
+	tp[num_named_funcs] = np;
+	all_named_funcs = tp;
+	num_named_funcs++;
+    }
+
+    /* Do we have an existing list of functions? If not, this is easy. */
+
+    if (!xfp) {
+	xfp = (EXTFUNCS *) XMALLOC(sizeof(EXTFUNCS), "xfunc");
+	xfp->num_funcs = 1;
+	xfp->ext_funcs = (NAMEDFUNC **) XMALLOC(sizeof(NAMEDFUNC *), "nfuncs");
+	xfp->ext_funcs[0] = np;
+	*xfuncs = xfp;
+	return 1;
+    }
+
+    /* See if we have an empty slot to insert into. */
+
+    for (i = 0; i < xfp->num_funcs; i++) {
+	if (!xfp->ext_funcs[i]) {
+	    xfp->ext_funcs[i] = np;
+	    return 1;
+	}
+    }
+
+    /* Guess not. Tack it onto the end. */
+
+    tp = (NAMEDFUNC **) XREALLOC(xfp->ext_funcs,
+				 (xfp->num_funcs + 1) * sizeof(NAMEDFUNC *),
+				 "nfuncs");
+    tp[xfp->num_funcs] = np;
+    xfp->ext_funcs = tp;
+    xfp->num_funcs++;
+    return 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * parse_ext_access: Parse an extended access list with module callouts.
+ */
+
+int parse_ext_access(perms, xperms, str, ntab, player, cmd)
+    int *perms;
+    EXTFUNCS **xperms;
+    char *str;
+    NAMETAB *ntab;
+    dbref player;
+    char *cmd;
+{
+    char *sp, *tokst, *cp, *ostr;
+    int f, negate, success, failure, got_one;
+    MODULE *mp;
+    int (*hp)(dbref);
+
+    /* Walk through the tokens */
+
+    success = failure = 0;
+    sp = strtok_r(str, " \t", &tokst);
+    while (sp != NULL) {
+
+	/* Check for negation  */
+
+	negate = 0;
+	if (*sp == '!') {
+	    negate = 1;
+	    sp++;
+	}
+
+	/* Set or clear the appropriate bit */
+
+	f = search_nametab(GOD, ntab, sp);
+	if (f > 0) {
+	    if (negate)
+		*perms &= ~f;
+	    else
+		*perms |= f;
+	    success++;
+	} else {
+
+	    /* Is this a module callout? */
+
+	    got_one = 0;
+
+	    if (!strncmp(sp, "mod_", 4)) {
+
+		/* Split it apart, see if we have anything. */
+
+		ostr = (char *) strdup(sp); 
+		if (*(sp + 4) != '\0') {
+		    cp = strchr(sp + 4, '_');
+		    if (cp) {
+			*cp++ = '\0';
+			WALK_ALL_MODULES(mp) {
+			    got_one = 1;
+			    if (!strcmp(sp + 4, mp->modname)) {
+				hp = DLSYM_INT(mp->handle, mp->modname, cp,
+					       (dbref));
+				if (!hp) {
+				    cf_log_notfound(player, cmd,
+						   "Module function", ostr);
+				    failure++;
+				} else {
+				    if (modify_xfuncs(ostr, hp, xperms,
+						      negate))
+					success++;
+				    else
+					failure++;
+				}
+				break;
+			    }
+			}
+			if (!got_one) {
+			    cf_log_notfound(player, cmd, "Loaded module",
+					    sp + 4);
+			    got_one = 1;
+			}
+		    }
+		}
+		free(ostr);
+	    }
+
+	    if (!got_one) {
+		cf_log_notfound(player, cmd, "Entry", sp);
+		failure++;
+	    }
+	}
+
+	/* Get the next token */
+
+	sp = strtok_r(NULL, " \t", &tokst);
+    }
+
+    return cf_status_from_succfail(player, cmd, success, failure);
+}
+
+/* ---------------------------------------------------------------------------
  * cf_set_flags: Clear flag word and then set from a flags htab.
  */
 

@@ -2281,16 +2281,16 @@ FUNCTION(fun_comtitle)
 }
 
 FUN mod_comsys_functable[] = {
-{"COMALIAS",	fun_comalias,	1,  0,		CA_PUBLIC},
-{"COMDESC",	fun_comdesc,	1,  0,		CA_PUBLIC},
-{"COMHEADER",	fun_comheader,	1,  0,		CA_PUBLIC},
-{"COMINFO",	fun_cominfo,	2,  0,		CA_PUBLIC},
-{"COMLIST",	fun_comlist,	0,  FN_VARARGS, CA_PUBLIC},
-{"COMOWNER",	fun_comowner,	1,  0,		CA_PUBLIC},
-{"COMTITLE",	fun_comtitle,	2,  0,		CA_PUBLIC},
-{"CWHO",        fun_cwho,       1,  0,          CA_PUBLIC},
-{"CWHOALL",     fun_cwhoall,    1,  0,          CA_PUBLIC},
-{NULL,		NULL,		0,  0,		0}};
+{"COMALIAS",	fun_comalias,	1,  0,		CA_PUBLIC,	NULL},
+{"COMDESC",	fun_comdesc,	1,  0,		CA_PUBLIC,	NULL},
+{"COMHEADER",	fun_comheader,	1,  0,		CA_PUBLIC,	NULL},
+{"COMINFO",	fun_cominfo,	2,  0,		CA_PUBLIC,	NULL},
+{"COMLIST",	fun_comlist,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"COMOWNER",	fun_comowner,	1,  0,		CA_PUBLIC,	NULL},
+{"COMTITLE",	fun_comtitle,	2,  0,		CA_PUBLIC,	NULL},
+{"CWHO",        fun_cwho,       1,  0,          CA_PUBLIC,	NULL},
+{"CWHOALL",     fun_cwhoall,    1,  0,          CA_PUBLIC,	NULL},
+{NULL,		NULL,		0,  0,		0,		NULL}};
 
 /* --------------------------------------------------------------------------
  * Initialization.

@@ -25,6 +25,7 @@ extern void	NDECL(boot_slave);
 
 /* From command.c */
 extern int	FDECL(check_access, (dbref, int));
+extern int	FDECL(check_mod_access, (dbref, EXTFUNCS *));
 extern void	NDECL(set_prefix_cmds);
 extern void	FDECL(process_cmdline, (dbref, dbref, char *, char *[], int));
 

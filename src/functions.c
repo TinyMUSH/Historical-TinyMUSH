@@ -197,7 +197,7 @@ dbref player;
 	bp = buf;
 	safe_str((char *)"Built-in functions:", buf, &bp);
 	for (fp = flist; fp->name; fp++) {
-		if (check_access(player, fp->perms)) {
+		if (Check_Func_Access(player, fp)) {
 		    safe_chr(' ', buf, &bp);
 		    safe_str((char *) fp->name, buf, &bp);
 		}
@@ -211,7 +211,7 @@ dbref player;
 		safe_tprintf_str(buf, &bp, "Module %s functions:",
 				 mp->modname);
 		for (fp = modfns; fp->name; fp++) {
-		    if (check_access(player, fp->perms)) {
+		    if (Check_Func_Access(player, fp)) {
 			safe_chr(' ', buf, &bp);
 			safe_str((char *) fp->name, buf, &bp);
 		    }
@@ -242,11 +242,27 @@ dbref player;
 FUN *fp;
 char *buff;
 {
+	char *bp;
+	int i;
+
 	while (fp->name) {
-		if (check_access(player, fp->perms)) {
+		if (Check_Func_Access(player, fp)) {
+		    if (!fp->xperms) {
 			sprintf(buff, "%s:", fp->name);
-			listset_nametab(player, access_nametab,
-					fp->perms, buff, 1);
+		    } else {
+			bp = buff;
+			safe_str((char *) fp->name, buff, &bp);
+			safe_chr(':', buff, &bp);
+			for (i = 0; i < fp->xperms->num_funcs; i++) {
+			    if (fp->xperms->ext_funcs[i]) {
+				safe_chr(' ', buff, &bp);
+				safe_str(fp->xperms->ext_funcs[i]->fn_name,
+					 buff, &bp);
+			    }
+			}
+		    }
+		    listset_nametab(player, access_nametab,
+				    fp->perms, buff, 1);
 		}
 		fp++;
 	}
@@ -298,8 +314,9 @@ CF_HAND(cf_func_access)
 
 	for (fp = flist; fp->name; fp++) {
 		if (!string_compare(fp->name, str)) {
-			return (cf_modify_bits(&fp->perms, ap, extra,
-					       player, cmd));
+			return (parse_ext_access(&fp->perms, &fp->xperms,
+						 ap, (NAMETAB *) extra,
+						 player, cmd));
 		}
 	}
 	for (ufp = ufun_head; ufp; ufp = ufp->next) {
