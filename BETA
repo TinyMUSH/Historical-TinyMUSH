@@ -44,6 +44,9 @@ Release history:
 
 - Fix: Exits and rooms may not use the "home" command. [2.0]
 
+- Fix: If the Dropto of a room is set to home, it's not really
+  invalid. [3.1b8]
+
 - Misc: @pemit and related commands/functions avoid duplicate
   recipients.
 

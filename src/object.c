@@ -970,8 +970,9 @@ static NDECL(void check_dead_refs)
 			/* Check the dropto */
 
 			targ = Dropto(i);
-			check_ref_targ("Dropto", s_Dropto, NOTHING);
-
+			if (targ != HOME) {
+				check_ref_targ("Dropto", s_Dropto, NOTHING);
+			}
 			if (check_type & DBCK_FULL) {
 
 				/* NEXT should be null */
