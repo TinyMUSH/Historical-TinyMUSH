@@ -20,7 +20,7 @@
 
 #ifndef STANDALONE
 
-int FDECL(eval_boolexp_atr, (player, thing, from, key));
+int FDECL(eval_boolexp_atr, (dbref, dbref, dbref, char *));
 
 static int parsing_internal = 0;
 
