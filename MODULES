@@ -1,0 +1,89 @@
+Every module has a one-word name, such as "hello", or "space3d",
+referred to generically as '<name>' in the rest of this document. 
+This is the name of the .c file in the modules directory.
+
+The source for modules should be placed in the src/modules directory.
+The shared objects for modules go in the game/modules directory.
+
+Modules are made as follows, in a Makefile (assuming that CC is set
+to some compiler, LD is set to some loader, and OPTIM is set to the
+optimization flags):
+
+mod_<name>: <name>.c
+	$(CC) $(OPTIM) -c <name>.c
+	$(LD) -shared -o <name>.so <name>.o
+	cp <name>.so ../../game/modules
+
+Note that you should be very careful about doing a @restart when changing
+a dynamically-loaded module.
+
+
+Every public symbol within the module, such as function names, should
+begin with 'mod_<name>_', in order to avoid potential namespace conflicts.
+
+All modules should begin with the following line:
+#include "../api.h"
+
+The handlers for various commands should then be defined. See the
+macros in api.h for the macros used to declare command handlers.
+
+
+The command handlers then need to be put in a command table, as follows:
+
+CMDENT mod_<name>_cmdtable[] = {
+{(char *)"<command1>",		<switches>,	<permissions>,
+	0,		CS_<handler type>,
+	NULL,		NULL,	NULL,		<handler function>},
+{(char *)"<command2>",		<switches>,	<permissions>,
+	0,		CS_<handler type>,
+	NULL,		NULL,	NULL,		<handler function>},
+{(char *)NULL,			NULL,		0,
+	0,		0,
+	NULL,		NULL,	NULL,		NULL}};
+
+You can put as many commands into this table as you'd like. Make
+sure it ends with the "null" entry, though.
+
+<switches> is the name of a switch table, described below.
+
+<permissions> consist of an OR'd ('|') list of permissions, such as
+CA_PUBLIC, CA_WIZARD, and CA_GOD.
+
+<handler type> is the same as the <handler function> type. For
+example, if you have DO_CMD_NO_ARG(mod_hello_do_heythere), then you
+will have CS_CMD_NO_ARG for <handler type>. Your <handler function>
+will be mod_hello_do_heythere.
+
+
+A switch table takes the following form:
+
+NAMETAB mod_<name>_<command>_sw[] = {
+{(char *)"switch1",	<letters>,	<permissions>,	<key>},
+{(char *)"switch2",	<letters>,	<permissions>,	<key>},
+{ NULL,			0,		0,		0}};
+
+A command can take an arbitrary number of switches, so each of these
+switch tables can be as large as you like. Make sure the switch table
+ends with the "null" entry, though.
+
+<letters> is the number of unique letters of the switch that someone
+has to type. For example, if your switch name is "foobar", and
+<letters> is 3, then '/foo' is sufficient.
+
+<permissions> consist of an OR'd ('|') list of permissions, such as
+CA_PUBLIC, CA_WIZARD, and CA_GOD, just like in the main command table.
+
+<key> is a bit key; handler functions check 'key & <key>' to modify
+their behavior based on any switches the user passed. If you want
+a command to be able to take multiple switches as the same time, you
+should add '|SW_MULTIPLE' to <key>.
+
+
+The last thing in your module file should be the following:
+
+void mod_<name>_init()
+{
+	register_commands(mod_<name>_cmdtable);
+
+	/* Any other initialization you need to do. */
+}

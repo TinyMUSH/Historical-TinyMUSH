@@ -108,7 +108,7 @@ D_SRC	= create.c game.c help.c look.c match.c move.c player.c predicates.c \
 	  unparse.c eval.c command.c wild.c netcommon.c functions.c vattr.c \
 	  db.c db_rw.c stringutil.c object.c conf.c flags.c htab.c \
 	  compat.c file_c.c player_c.c bsd.c alloc.c comsys.c mail.c \
-          mguests.c powers.c newconc.c pcre.c quota.c \
+          mguests.c powers.c newconc.c pcre.c quota.c api.c \
 	  fnhelper.c funext.c funiter.c funlist.c funmath.c funmisc.c \
 	  funobj.c funstring.c funvars.c \
 	  db_empty.c db_msql.c db_mysql.c
@@ -119,11 +119,11 @@ D_OBJ	= create.o game.o help.o look.o match.o move.o player.o predicates.o \
           compat.o file_c.o player_c.o bsd.o alloc.o comsys.o mail.o \
 	  fnhelper.o funext.o funiter.o funlist.o funmath.o funmisc.o \
 	  funobj.o funstring.o funvars.o \
-          mguests.o powers.o newconc.o pcre.o quota.o
+          mguests.o powers.o newconc.o pcre.o quota.o api.o
 D_INC	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  fnproto.h cmdtabs.h command.h config.h db.h externs.h mudconf.h \
 	  misc.h vattr.h file_c.h alloc.h attrs.h mguests.h powers.h slave.h \
-	  pcre.h bitstring.h db_sql.h
+	  api.h pcre.h bitstring.h db_sql.h
 
 # Purify stuff.
 PUREDIR = /local/src/purify-4.0.1-sunos4
