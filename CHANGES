@@ -1,9 +1,9 @@
-These are the changes to TinyMUX version 1.0 since TinyMUSH 2.0.10
-patchlevel 6 (which is documented in the file NOTES).  Refer to the online
-help for more information about new features or commands.
+These are the changes to TinyMUX since TinyMUSH 2.0.10 patchlevel 6 (which
+is documented in the file NOTES).  Refer to the online help for more
+information about new features or commands.
 
 Bugs and patches should be sent to:
-	lauren@cota.telmaron.com
+	lauren@sneakers.org
 The latest version of this code is normally running at:
 	Children of the Atom, cota.telmaron.com 2099.
 
@@ -449,3 +449,18 @@ TinyMUX 1.4 patchlevel 3:
 - All semaphores are now cleared on objects when they are destroyed.
 - @clone now creates object with the correct cost.
 - Fixed problem with @oemit that crept in 1.4p0.
+
+TinyMUX 1.4 patchlevel 4:
+- Fixed problems with makefile
+
+TinyMUX 1.5 patchlevel 0:
+- New functions:
+  regmatch() translate()
+- Regular expressions may now be used in command patterns and listen patterns
+  with the addition of a 'regexp' attribute flag. See 'help REGEXPS'.
+  (Written by Lydia Leong for use in TinyMUSH 2.2.3 along with regmatch(),
+  with permission to be used in TinyMUX)
+- Piping of command output has been implemented. See 'help piping'.
+- Performance improvements made to switch() and case().
+- and() and or() no longer evaluate all of their arguments.
+

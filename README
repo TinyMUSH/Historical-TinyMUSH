@@ -1,4 +1,4 @@
-This is the README file for TinyMUX 1.4.
+This is the README file for TinyMUX.
 
 *** When you unload the database to flat file format it is important to use
     your original db_unload/dbconvert.
@@ -13,6 +13,9 @@ TinyMUX is currently being developed under SunOS 4.1.4 and IRIX 6.3.
 
 The latest version of this code can generally be found running at:
 Children of the Atom: cota.sneakers.org 2099
+
+TinyMUX may be found at:
+ftp://ftp.digex.net/pub/access/dpassmor/cota/source
 
 Conversions from Other Database Formats:
 ---------------------------------------

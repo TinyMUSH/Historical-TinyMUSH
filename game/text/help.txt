@@ -6592,7 +6592,8 @@ We would like to thank the following people:
   Function: and(<boolean1>,<boolean2>[,<booleanN>]...)
  
   Takes two or more booleans, and returns 1 if they are all each equivalent
-  to true(1).
+  to true(1). Only evaluates those arguments needed to establish the boolean
+  result.
  
   See also: BOOLEAN VALUES, or(), not(), xor().
 
@@ -6601,7 +6602,8 @@ We would like to thank the following people:
   Function: or(<boolean1>,<boolean2>[,<booleanN>]...)
  
   Takes two or more booleans, and returns 1 if at least one is equivalent
-  to true(1).
+  to true(1). Only evaluates those arguments needed to establish the boolean
+  result.
  
   See also: BOOLEAN VALUES, and(), not(), xor().
 
