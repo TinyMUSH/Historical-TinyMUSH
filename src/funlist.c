@@ -27,6 +27,7 @@
 #define	NUMERIC_LIST	2
 #define	DBREF_LIST	3
 #define	FLOAT_LIST	4
+#define NOCASE_LIST	5
 
 static int autodetect_list(ptrs, nitems)
 char *ptrs[];
@@ -97,6 +98,8 @@ int nfargs, nitems, type_pos;
 			return NUMERIC_LIST;
 		case 'f':
 			return FLOAT_LIST;
+		case 'i':
+			return NOCASE_LIST;
 		case '\0':
 			return autodetect_list(ptrs, nitems);
 		default:
@@ -698,6 +701,12 @@ const void *s1, *s2;
 	return strcmp(*(char **)s1, *(char **)s2);
 }
 
+static int c_comp(s1, s2)
+const void *s1, *s2;
+{
+	return strcasecmp(*(char **)s1, *(char **)s2);
+}
+
 static int f_comp(s1, s2)
 const void *s1, *s2;
 {
@@ -729,7 +738,9 @@ int n, sort_type;
 	switch (sort_type) {
 	case ALPHANUM_LIST:
 		qsort((void *)s, n, sizeof(char *), a_comp);
-
+		break;
+	case NOCASE_LIST:
+		qsort((void *)s, n, sizeof(char *), c_comp);
 		break;
 	case NUMERIC_LIST:
 		ip = (i_rec *) XMALLOC(n * sizeof(i_rec), "do_asort");
