@@ -624,6 +624,19 @@ FUNCTION(fun_objeval)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_null: Just eat the contents of the string. Handy for those times
+ *           when you've output a bunch of junk in a function call and
+ *           just want to dispose of the output (like if you've done an
+ *           iter() that just did a bunch of side-effects, and now you have
+ *           bunches of spaces you need to get rid of.
+ */
+
+FUNCTION(fun_null)
+{
+    return;
+}
+
+/* ---------------------------------------------------------------------------
  * fun_squish: Squash occurrences of a given character down to 1.
  *             We do this both on leading and trailing chars, as well as
  *             internal ones; if the player wants to trim off the leading

@@ -80,6 +80,7 @@ XFUNCTION(fun_zwho);
 XFUNCTION(fun_inzone);
 XFUNCTION(fun_children);
 XFUNCTION(fun_objeval);
+XFUNCTION(fun_null);
 XFUNCTION(fun_squish);
 XFUNCTION(fun_stripansi);
 XFUNCTION(fun_zfun);
@@ -5007,6 +5008,7 @@ FUN flist[] = {
 {"NEXT",	fun_next,	1,  0,		CA_PUBLIC},
 {"NOT",		fun_not,	1,  0,		CA_PUBLIC},
 {"NOTBOOL",	fun_notbool,	1,  0,		CA_PUBLIC},
+{"NULL",	fun_null,	1,  0,		CA_PUBLIC},
 {"NUM",		fun_num,	1,  0,		CA_PUBLIC},
 {"OBJ",		fun_obj,	1,  0,		CA_PUBLIC},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC},
