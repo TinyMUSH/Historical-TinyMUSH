@@ -1128,8 +1128,12 @@ int dump_type;
 		}
 
 		if (f != NULL) {
-			/* Write a flatfile */
-			db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			if (dump_type == 2) {
+				db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
+			} else {
+				/* Write a flatfile */
+				db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
+			}
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening flatfile",

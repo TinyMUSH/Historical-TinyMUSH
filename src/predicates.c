@@ -1322,7 +1322,7 @@ void do_restart(player, cause, key)
 	log_name(player);
 	ENDLOG
 	
-	dump_database_internal(0);
+	dump_database_internal(2);
 	
 	SYNC;
 	CLOSE;
