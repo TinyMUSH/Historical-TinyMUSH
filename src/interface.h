@@ -17,9 +17,6 @@
 #include <sys/select.h>
 #endif
 
-/* these symbols must be defined by the interface */
-extern int shutdown_flag; /* if non-zero, interface should shut down */
-
 /* (Dis)connection reason codes */
 
 #define	R_GUEST		1	/* Guest connection */
