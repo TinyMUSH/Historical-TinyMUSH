@@ -1250,7 +1250,7 @@ int sig, code;
 #endif
 		check_panicking(sig);
 		log_signal(signames[sig]);
-		sprintf(buff, "Game: Caught signal %s, exiting.",
+		sprintf(buff, "GAME: Caught signal %s, exiting.",
 			signames[sig]);
 		raw_broadcast(0, buff);
 		dump_database_internal(4);
@@ -1281,7 +1281,7 @@ int sig, code;
 			char outdb[128];
 			char indb[128];
 
-			raw_broadcast(0, "Game: Fatal signal %s caught, restarting with previous database.", signames[sig]);
+			raw_broadcast(0, "GAME: Fatal signal %s caught, restarting with previous database.", signames[sig]);
 			
 			/* Don't sync first. Using older db. */
 			

@@ -116,7 +116,7 @@ int key;
     int *used_table;
 
     raw_broadcast(0,
-	      "Game: Cleaning database. Game may freeze for a few minutes.");
+	      "GAME: Cleaning database. Game may freeze for a few minutes.");
 
     used_table = (int *) calloc(mudstate.attr_next, sizeof(int));
 
@@ -144,7 +144,7 @@ int key;
 
     free(used_table);
 
-    notify(player, "Database cleared of stale attribute entries.");
+    raw_broadcast(0, "GAME: Database cleaning complete.");
 
 #endif /* STANDALONE */
 }

@@ -1313,7 +1313,7 @@ void do_restart(player, cause, key)
 		return;
 	}
 	
-	raw_broadcast(0, "Game: Restart by %s, please wait.", Name(Owner(player)));
+	raw_broadcast(0, "GAME: Restart by %s, please wait.", Name(Owner(player)));
 	STARTLOG(LOG_ALWAYS, "WIZ", "RSTRT")
 		log_text((char *)"Restart by ");
 	log_name(player);

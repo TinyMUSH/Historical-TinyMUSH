@@ -1010,7 +1010,7 @@ char *message;
 
 	if (key & SHUTDN_COREDUMP) {
 		if (player != NOTHING) {
-			raw_broadcast(0, "Game: Aborted by %s", Name(Owner(player)));
+			raw_broadcast(0, "GAME: Aborted by %s", Name(Owner(player)));
 			STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
 				log_text((char *) "Abort and coredump by ");
 				log_name(player);
@@ -1027,13 +1027,13 @@ char *message;
 	}
 
 	if (player != NOTHING) {
-		raw_broadcast(0, "Game: Shutdown by %s", Name(Owner(player)));
+		raw_broadcast(0, "GAME: Shutdown by %s", Name(Owner(player)));
 		STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
 			log_text((char *)"Shutdown by ");
 		log_name(player);
 		ENDLOG
 	} else {
-		raw_broadcast(0, "Game: Fatal Error: %s", message);
+		raw_broadcast(0, "GAME: Fatal Error: %s", message);
 		STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
 			log_text((char *)"Fatal error: ");
 		log_text(message);
@@ -1825,7 +1825,7 @@ char *argv[];
 	ENDLOG
 
 	if (mudstate.restarting) {
-	    raw_broadcast(0, "Game: Restart finished.");
+	    raw_broadcast(0, "GAME: Restart finished.");
 	}
 
 #ifdef CONCENTRATE

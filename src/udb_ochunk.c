@@ -152,7 +152,7 @@ Objname *nam;
 		STARTLOG(LOG_ALWAYS, "BUG", "CRUPT")
 			log_text((char *)tprintf("Database is corrupt, object %d. Exiting.", (int)ret->name));
 		ENDLOG
-		raw_broadcast(0, "Game: Database corruption detected, exiting.");
+		raw_broadcast(0, "GAME: Database corruption detected, exiting.");
 		exit(8);
 	}
 #endif
