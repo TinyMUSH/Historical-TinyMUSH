@@ -1058,8 +1058,8 @@ int db_read()
 			memcpy((void *)&vattr_flags, (void *)dptr, sizeof(int));
 			dptr++;
 			
-			/* Make sure they're not marked dirty */
-			vattr_flags &= ~AF_DIRTY;
+			/* Make sure they're marked dirty */
+			vattr_flags |= AF_DIRTY;
 
 			/* dptr now points to the beginning of the atr name */
 			vattr_define((char *)dptr, i, vattr_flags);
@@ -1085,9 +1085,9 @@ int db_read()
 			s_StructCount(i, 0);
 			s_InstanceCount(i, 0);
 			
-			/* Clear the dirty flag */
+			/* Set the dirty flag */
 			
-			s_Flags3(i, Flags3(i) & ~DIRTY);
+			s_Flags3(i, Flags3(i) | DIRTY);
 
 			/* Check to see if it's a player */
 
