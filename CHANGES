@@ -7,7 +7,7 @@ For changes between beta versions, consult the BETA document.
 			TinyMUSH 3.1 Changes
 =============================================================================
 
-TinyMUSH 3.1 beta 1 was released on ?????.
+TinyMUSH 3.1 beta 1 was released on May 8th, 2002.
 
 -----------------------------------------------------------------------------
 
@@ -61,8 +61,15 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   - GDBM's native free space management has been enabled. Optimized dumps
     have been disabled by default.
 
+  - File locking has been added for some circumstances, so dbconvert waits
+    for netmush to finish writing, before it starts reading, ensuring
+    consistency when backing up a running MUSH.
+
 - dbconvert is now just a symlink to netmush; its functionality has been
   merged into the main program.
+
+- Clean flatfiles are now produced by SIGUSR2. SIGQUIT causes a graceful
+  shutdown.
 
 - Extensive work on improving autoconf and libtool use (thus improving
   portability). Compile-time options are now specified as switches to
@@ -330,6 +337,8 @@ CHANGES TO FUNCTIONS
   comdesc(), comheader(), cominfo(), comlist(), comowner(), comtitle(),
   cwhoall().
 
+- cwho() now only returns what's listening.
+
 - The filter(), filterbool(), map(), and while() functions pass the
   position of the element in the list as %1. fold() passes the position
   of the element in the list as %2. foreach() passes the position of
@@ -459,6 +468,8 @@ OTHER CHANGES
   of similar functions does not imply code bloat. Several groups of
   functions (trigonometry, logic, etc.) have been condensed into common
   handlers.
+
+- Better handling of the slave for DNS and identd lookups.
 
 - Other cleanup in many parts of the code, including performance
   enhancements and significant reductions in memory used.
