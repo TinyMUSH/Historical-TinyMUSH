@@ -1173,8 +1173,6 @@ FUNCTION(fun_linstances)
  * Side-effect functions.
  */
 
-#ifdef SIDE_EFFECT_FUNCTIONS
-
 static int check_command(player, name, buff, bufc)
 dbref player;
 char *name, *buff, **bufc;
@@ -1474,7 +1472,6 @@ FUNCTION(fun_set)
 	/* set/clear a flag */
 	flag_set(thing, player, fargs[1], 0);
 }
-#endif /* SIDE_EFFECTS */
 
 /*---------------------------------------------------------------------------
  */

@@ -57,18 +57,6 @@ XFUNCTION(fun_cwho);
 XFUNCTION(fun_beep);
 XFUNCTION(fun_ansi);
 XFUNCTION(fun_zone);
-#ifdef SIDE_EFFECT_FUNCTIONS
-XFUNCTION(fun_link);
-XFUNCTION(fun_tel);
-XFUNCTION(fun_pemit);
-XFUNCTION(fun_remit);
-XFUNCTION(fun_force);
-XFUNCTION(fun_trigger);
-XFUNCTION(fun_wait);
-XFUNCTION(fun_create);
-XFUNCTION(fun_set);
-XFUNCTION(fun_wipe);
-#endif
 XFUNCTION(fun_last);
 XFUNCTION(fun_matchall);
 XFUNCTION(fun_ports);

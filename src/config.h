@@ -17,8 +17,6 @@
 #define CONF_FILE "netmush.conf"	/* Default config file */
 
 /* #define TEST_MALLOC */		/* Keep track of block allocs */
-#define SIDE_EFFECT_FUNCTIONS		/* Those neat funcs that should be
-					 * commands */
 				 
 #define PLAYER_NAME_LIMIT	22	/* Max length for player names */
 #define NUM_ENV_VARS		10	/* Number of env vars (%0 et al) */
