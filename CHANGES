@@ -399,4 +399,9 @@ Patchlevel 3:
     location before zone-checking the location, and avoid command
     matching oddities due to checking the zone of a room's Dropto. [MUX]
 
+Patchlevel 4:
+
+  - Fixed a problem with skipped or doubled cron jobs.
+    [3.0b8; Adam Dray]
+
 =============================================================================
