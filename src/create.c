@@ -443,6 +443,7 @@ char *name, *arg2;
 	dbref clone, thing, new_owner, loc;
 	FLAG rmv_flags;
 	int cost;
+	const char *clone_name;
 
 	if ((key & CLONE_INVENTORY) || !Has_location(player))
 		loc = player;
@@ -531,9 +532,11 @@ char *name, *arg2;
 	 */
 
 	if ((arg2 && *arg2) && ok_name(arg2))
-		s_Name(clone, arg2);
+	    	clone_name = arg2;
 	else
-		s_Name(clone, Name(thing));
+		clone_name = Name(thing);
+
+	s_Name(clone, clone_name);
 
 	/* Clear out problem flags from the original */
 
@@ -549,7 +552,7 @@ char *name, *arg2;
 		if (arg2 && *arg2)
 			notify(player,
 			 tprintf("%s cloned as %s, new copy is object #%d.",
-				 Name(thing), arg2, clone));
+				 Name(thing), clone_name, clone));
 		else
 			notify(player,
 			       tprintf("%s cloned, new copy is object #%d.",
