@@ -4641,12 +4641,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	columns()	elements()	extract()	filter()	
 	filterbool()	first()		fold()		grab()		
 	index()		insert()	iter()		last()		
-	ldelete()	list()		lnum()		loop()
-	lpos()		lrand()		map()		match()
-	matchall()	member()	mix()		munge()		
-	remove()	replace()	rest()		revwords()	
-	setdiff()	setinter()	setunion()	shuffle()	
-	sortby()	sort()		splice()	step()	
+	ldelete()	ledit()		list()		lnum()		
+	loop()		lpos()		lrand()		map()		
+	match()		matchall()	member()	mix()
+	munge()		remove()	replace()	rest()		
+	revwords()	setdiff()	setinter()	setunion()	
+	shuffle()	sortby()	sort()		splice()	
+	step()		until()		whenfalse()	whentrue()
 	while()		words()
  
 & MATH FUNCTIONS
@@ -4707,11 +4708,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	foreach()	isdbref()	isnum()		isword()	
 	lcstr()		left()		lit()		ljust()
 	merge()		mid()		null()		pos()
-	regmatch()	repeat()	reverse()	right()
-	rjust()		secure()	scramble()	space()
-	squish()	strcat()	streq()		stripansi()
-	strlen()	strmatch()	strtrunc()	translate()
-	trim()		ucstr()		valid()		wordpos()
+	regmatch()	regmatchi()	repeat()	reverse()	
+	right()		rjust()		secure()	scramble()	
+	space()		squish()	strcat()	streq()		
+	stripansi()	strlen()	strmatch()	strtrunc()	
+	translate()	trim()		ucstr()		valid()		
+	wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -4750,7 +4752,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   The variable functions are:
  
 	clearvars()	let()		lvars()		regparse()
-	setx()		x()		xvars()
+	regparsei()	setx()		x()		xvars()
   
   There is a configurable maximum number of variables per object,
   typically 50. If an attempt is made to set more than 50 variables,
@@ -6297,10 +6299,10 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say strmatch(This is a test,*is*is*)
     You say "1"
  
-  See also: match(), member(), regmatch().
+  See also: match(), member(), regmatch(), regmatchi().
 
 & REGMATCH()
-  regmatch(<string>,<regexp>[,<register list>])
+  Function:  regmatch(<string>,<regexp>[,<register list>])
  
   This function matches the regular expression <regexp> against the
   entirety of <string>, returning 1 if it matches and 0 if it does not.
@@ -6322,8 +6324,15 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   See 'help regexp syntax' for an explanation of regular expressions.
  
+& REGMATCHI()
+  Function:  regmatchi(<string>,<regexp>[,<register list>])
+ 
+  This function works identically to regmatch(), except that the
+  matching is not case-sensitive, i.e., 'A' and 'a' are automatically
+  equivalent to 'A|a'.
+ 
 & REGPARSE()
-  regparse(<string>,<regexp>,<list of variable names>)
+  Function:  regparse(<string>,<regexp>,<list of variable names>)
  
   This side-effect function matches the regular expression <regexp>
   against the entirety of <string>; if there's a match, it places
@@ -6337,6 +6346,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   'cookies' (set into 'y'), and the 2nd substring is '30' (set into 'z').
  
   See 'help regexp syntax' for an explanation of regular expressions.
+ 
+& REGPARSEI()
+  Function:  regparsei(<string>,<regexp>,<list of variable names>)
+ 
+  This function works identically to regparse(), except that the
+  matching is not case-sensitive, i.e., 'A' and 'a' are automatically
+  equivalent to 'A|a'.
  
 & STREQ()
   streq(<string 1>,<string 2>)
@@ -7339,7 +7355,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See also: @stats.
 
 & ITER()
-  Function: iter(<list>, <eval>[, <delim>][, <output delim>])
+  Function: iter(<list>, <eval>[, <delim>[, <output delim>]])
  
   <list> is a <delimiter>-separated list of arbitrary strings. <eval> is a
   string that is to be evaluated once for each item in <list>, replacing
@@ -7377,7 +7393,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     4
     5"
  
-  See also: @dolist, parse(), list(), loop(), map(), DELIMITERS.
+  See also: @dolist, parse(), list(), whentrue(), whenfalse(),
+            loop(), map(), DELIMITERS.
  
 & LIST()
   Function: list(<list>, <eval>[, <delim>])
@@ -7419,6 +7436,42 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   This function is provided for backwards compatibility.
  
   See also: iter(), parse(), list(), map().
+ 
+& WHENTRUE()
+  Function: whentrue(<list>, <eval>[, <delim>[, <output delim>]])
+ 
+  This function is basically 'iter() as long as the results are
+  boolean true'. <list> is processed element by element, and <eval>
+  is evaluated with the element substituted for the '##' token. Each
+  result of an evaluation is appended to the output list. Processing
+  on the list stops when all the elements have been processed, or
+  the result of an evaluation is no longer boolean-true. (However,
+  note that the result is appended to the output BEFORE the boolean
+  check is done.)
+ 
+  Example:
+    > say [whentrue(1 2 0 2 1,##)]
+    You say "1 2 0"
+ 
+  See also: iter(), BOOLEAN VALUES.
+ 
+& WHENFALSE()
+  Function: whenfalse(<list>, <eval>[, <delim>[, <output delim>]])
+ 
+  This function is basically 'iter() as long as the results are
+  boolean false'. <list> is processed element by element, and <eval>
+  is evaluated with the element substituted for the '##' token. Each
+  result of an evaluation is appended to the output list. Processing
+  on the list stops when all the elements have been processed, or
+  the result of an evaluation is no longer boolean-false. (However,
+  note that the result is appended to the output BEFORE the boolean
+  check is done.)
+ 
+  Example:
+    > say [whenfalse(0 #-1 1 2,##)]
+    You say "0 #-1 1"
+ 
+  See also: iter(), BOOLEAN VALUES.
  
 & LOCATE()
   Function: locate(<looker>,<string>,<where>)
@@ -7505,6 +7558,30 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "FOO-%xyBAR%xn-BAZ"
  
   See also: @edit.
+ 
+& LEDIT()
+  Function:  ledit(<original>, <find>, <replace>[, <delim>[, <output delim>]])
+ 
+  This function is a mass find-and-replace on a list, and can often take
+  the place of multiple nested calls to edit(). <original>, <find>,
+  and <replace> are lists of words separated by <delim> (defaults to
+  a space).
+ 
+  The function iterates through each word of <original>. If the word
+  is in <find> (an exact match -- case-sensitive, no wildcards), it
+  is replaced by the word in the corresponding position of <replace>
+  (and if <replace> has fewer words than <find>, and thus there is
+  no word in the corresponding position, that word will be null).
+  If the word is not in <find>, then the original word is simply kept.
+  The output list is separated by <output delim>.
+ 
+  Examples:
+    > say [ledit(apple banana lime plum,banana plum,yellow purple)]
+    You say "apple yellow lime purple"
+    > say [ledit(apple|banana|lime|plum,banana|lime,yellow,|,+)]
+    You say "apple+yellow++plum"
+ 
+  See also: edit(), replace()
  
 & OBJEVAL()
   Function:  objeval(<object>,<expression>)
@@ -9337,7 +9414,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   same list elements are passed to that function as %0. However, the
   result of this evaluation is not kept; instead, it is compared to
   <str>, and if it matches exactly (case-sensitive, no wildcards),
-  the no further elements of the list are processed.
+  then no further elements of the list are processed.
  
   Continued in 'help while2'.
  
@@ -9357,6 +9434,49 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "oof rab peem"
     > SAY [while(EVAL_FN,COND_FN,foo|bar|meep|flibble|baz,4,|,-)]
     You say "oof-rab-peem"
+ 
+& UNTIL()
+  Function:  until([<uobj>/]<uattr>, [<cobj>/]<cattr>,
+                   <list 1>[, <list 2>[, <list N>]],
+                   <regexp>, <delim>, <output delim>)
+ 
+  This function evaluates the elements of one or more lists, until the
+  result of an evaluation matches a regular expression, or the end of
+  the longest list is reached (shorter lists are padded out with nulls).
+  It is similar to while(), except that it can take more than one list,
+  the terminating condition is a regular expression rather than a 
+  case-insensitive string comparison, and the delimiter and output
+  delimiter are mandatory.
+ 
+  [<uobj>/]<uattr> is an attribute or object/attribute pair. The lists
+  are passed element-by-element (based on the input <delim> delimiter)
+  as %0, %1, %2, etc., just as if mix() were being called, and the
+  output is returned delimited by <output delim>.
+ 
+  Continued in 'help until2'.
+ 
+& UNTIL2
+ 
+  For each element, after that evaluation is done, a second evaluation
+  is done, to check a "termination value". [<cobj>/]<cattr> is an
+  attribute or object/attribute pair, again like mix(), and the
+  same list elements are passed to that function as %0, %1, %2, etc.
+  However, the result of this evaluation is not kept; instead, it is
+  compared to the regular expression <regexp>, and if true, then
+  no further elements of the list are processed.
+ 
+  If the contents of [<uobj>/]<uattr> and [<cobj>/]<cattr> are the
+  same, the element is not evaluated twice; the result of the first
+  evaluation is directly matched against <regexp>. (Note that the
+  two object/attributes don't have to be the same -- just their
+  contents need to be the same, since this function treats the
+  pair like map(), not like u().)
+ 
+  Example:
+    > &EVAL_FN me = [add(%0,%1)]
+    > &COND_FN me = [sub(%1,%0)]
+    > say [until(EVAL_FN,COND_FN,0 1 2 3,4 2 1 0,-,,|)]
+    You say "4|3|3"
  
 & PUSH()
   Function: push([<object>,]<data>)
