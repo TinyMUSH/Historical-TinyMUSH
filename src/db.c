@@ -2679,6 +2679,12 @@ void NDECL(db_make_minimal)
 
 	db_free();
 	db_grow(1);
+
+#ifdef MEMORY_BASED
+	db[0].ahead = NULL;
+	db[0].at_count = 0;
+#endif 
+
 	s_Name(0, "Limbo");
 	s_Flags(0, TYPE_ROOM);
 	s_Flags2(0, 0);
@@ -2692,10 +2698,7 @@ void NDECL(db_make_minimal)
 	s_Zone(0, NOTHING);
 	s_Pennies(0, 1);
 	s_Owner(0, 1);
-#ifdef MEMORY_BASED
-	db[0].ahead = NULL;
-	db[0].at_count = 0;
-#endif 
+
 	/* should be #1 */
 	load_player_names();
 	obj = create_player((char *)"Wizard", (char *)"potrzebie", NOTHING, 0, 0);
