@@ -131,13 +131,10 @@ static int check_literals(tstr, dstr)
 static int real_quick_wild(tstr, dstr)
 char *tstr, *dstr;
 {
-	if (mudstate.wild_times_lev > mudconf.wild_times_lim) {
-	    STARTLOG(LOG_PROBLEMS, "WILD", "QUICK")
-		log_printf("Pattern '%s', string '%s', command '%s', current player ", tstr, dstr, mudstate.curr_cmd);
-		log_name(mudstate.curr_player);
-            ENDLOG
-	    return 0;
-	}
+	int st;
+
+	if (mudstate.wild_times_lev > mudconf.wild_times_lim)
+		return -1;
 	mudstate.wild_times_lev++;
 
 	while (*tstr != '*') {
@@ -203,10 +200,11 @@ char *tstr, *dstr;
 	/* Scan for possible matches. */
 
 	while (*dstr) {
-		if (EQUAL(*dstr, *tstr) &&
-		    real_quick_wild(tstr + 1, dstr + 1))
-			return 1;
-		dstr++;
+	    if (EQUAL(*dstr, *tstr)) {
+		if ((st = real_quick_wild(tstr + 1, dstr + 1)) != 0)
+		    return st;
+	    }
+	    dstr++;
 	}
 	return 0;
 }
@@ -214,12 +212,22 @@ char *tstr, *dstr;
 int quick_wild(tstr, dstr)
     char *tstr, *dstr;
 {
+    int st;
+
     if (!check_literals(tstr, dstr))
 	return 0;
 
     mudstate.wild_times_lev = 0;
 
-    return (real_quick_wild(tstr, dstr));
+    st = real_quick_wild(tstr, dstr);
+    if ((st < 0) && (mudstate.wild_times_lev > mudconf.wild_times_lim)) {
+	STARTLOG(LOG_PROBLEMS, "WILD", "QUICK")
+	    log_printf("Bad pattern '%s', string '%s', command '%s', current player ", tstr, dstr, mudstate.curr_cmd);
+	    log_name(mudstate.curr_player);
+        ENDLOG
+	return 0;
+    }
+    return st;
 }
 
 /* ---------------------------------------------------------------------------
@@ -237,15 +245,10 @@ char *tstr, *dstr;
 int arg;
 {
 	char *datapos;
-	int argpos, numextra;
+	int argpos, numextra, st;
 
-	if (mudstate.wild_times_lev > mudconf.wild_times_lim) {
-	    STARTLOG(LOG_PROBLEMS, "WILD", "MATCH")
-		log_printf("Pattern '%s', string '%s', command '%s', player ", tstr, dstr, mudstate.curr_cmd);
-		log_name(mudstate.curr_player);
-            ENDLOG
-	    return 0;
-	}
+	if (mudstate.wild_times_lev > mudconf.wild_times_lim)
+	    return -1;
 	mudstate.wild_times_lev++;
 
 	while (*tstr != '*') {
@@ -369,9 +372,17 @@ int arg;
 		/* The first character matches, now.  Check if the rest 
 		 * does, using the fastest method, as usual. 
 		 */
-		if (!*dstr ||
-		    ((arg < numargs) ? real_wild1(tstr + 1, dstr + 1, arg)
-		     : real_quick_wild(tstr + 1, dstr + 1))) {
+
+		if (*dstr) {
+		    st = (arg < numargs) ?
+			real_wild1(tstr + 1, dstr + 1, arg) :
+			real_quick_wild(tstr + 1, dstr + 1);
+		    if (st < 0)
+			return st;
+		} else {
+		    st = 0;
+		}
+		if (!*dstr || st) {
 
 			/* Found a match!  Fill in all remaining arguments.
 			 * First do the '*'... 
@@ -407,12 +418,22 @@ int wild1(tstr, dstr, arg)
     char *tstr, *dstr;
     int arg;
 {
+    int st;
+
     if (!check_literals(tstr, dstr))
 	return 0;
 
     mudstate.wild_times_lev = 0;
 
-    return (real_wild1(tstr, dstr, arg));
+    st = real_wild1(tstr, dstr, arg);
+    if ((st < 0) && (mudstate.wild_times_lev > mudconf.wild_times_lim)) {
+	STARTLOG(LOG_PROBLEMS, "WILD", "MATCH")
+	    log_printf("Bad pattern '%s', string '%s', command '%s', player ", tstr, dstr, mudstate.curr_cmd);
+	    log_name(mudstate.curr_player);
+        ENDLOG
+	return 0;
+    }
+    return st;
 } 
 
 /* ---------------------------------------------------------------------------
