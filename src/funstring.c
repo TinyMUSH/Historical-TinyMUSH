@@ -741,24 +741,14 @@ FUNCTION(fun_comp)
 
 FUNCTION(fun_streq)
 {
-    if (!string_compare(fargs[0], fargs[1])) {
-	safe_chr('1', buff, bufc);
-    } else {
-	safe_chr('0', buff, bufc);
-    }
-    return;
+    safe_bool(buff, bufc, !string_compare(fargs[0], fargs[1]));
 }
 
 FUNCTION(fun_strmatch)
 {
 	/* Check if we match the whole string.  If so, return 1 */
 
-	if (quick_wild(fargs[1], fargs[0])) {
-		safe_chr('1', buff, bufc);
-	} else {
-		safe_chr('0', buff, bufc);
-	}
-	return;
+	safe_bool(buff, bufc, quick_wild(fargs[1], fargs[0]));
 }
 
 /* ---------------------------------------------------------------------------

@@ -291,10 +291,8 @@ FUNCTION(fun_nearby)
 	if (!(nearby_or_control(player, obj1) ||
 	      nearby_or_control(player, obj2))) {
 		safe_chr('0', buff, bufc);
-	} else if (nearby(obj1, obj2)) {
-		safe_chr('1', buff, bufc);
 	} else {
-		safe_chr('0', buff, bufc);
+	    safe_bool(buff, bufc, nearby(obj1, obj2));
 	}
 }
 
@@ -870,11 +868,8 @@ FUNCTION(fun_hasflag)
 	} else {
 	    ap = atr_num(atr);
 	    atr_pget_info(it, atr, &aowner, &aflags);
-	    if (atr_has_flag(player, it, ap, aowner, aflags, fargs[1])) {
-		safe_chr('1', buff, bufc);
-	    } else {
-		safe_chr('0', buff, bufc);
-	    }
+	    safe_bool(buff, bufc, 
+		      atr_has_flag(player, it, ap, aowner, aflags, fargs[1]));
 	}
     } else {
 	it = match_thing(player, fargs[0]);
@@ -883,11 +878,7 @@ FUNCTION(fun_hasflag)
 	    return;
 	}
 	if (mudconf.pub_flags || Examinable(player, it) || (it == cause)) {
-	    if (has_flag(player, it, fargs[1])) {
-		safe_chr('1', buff, bufc);
-	    } else {
-		safe_chr('0', buff, bufc);
-            }
+	    safe_bool(buff, bufc, has_flag(player, it, fargs[1]));
 	} else {
 	    safe_noperm(buff, bufc);
 	}
@@ -904,11 +895,7 @@ FUNCTION(fun_haspower)
 		return;
 	}
 	if (mudconf.pub_flags || Examinable(player, it) || (it == cause)) {
-		if (has_power(player, it, fargs[1])) {
-			safe_chr('1', buff, bufc);
-		} else {
-			safe_chr('0', buff, bufc);
-		}
+		safe_bool(buff, bufc, has_power(player, it, fargs[1]));
 	} else {
 		safe_noperm(buff, bufc);
 	}
