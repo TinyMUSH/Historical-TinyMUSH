@@ -9,7 +9,7 @@
  *      Bits of code are adapted from the Berkeley telnetd sources
  */
 
-#define PORT    4201
+#define PORT    6250
 
 #include <sys/param.h>
 #include <sys/socket.h>
