@@ -450,7 +450,7 @@
   executed after the given command.
  
   '@hook/before <command>' and '@hook/after <command>' delete hooks.
-
+ 
   Continued in 'help @hook2'.
  
 & @hook2
