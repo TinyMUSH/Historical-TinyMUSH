@@ -34,6 +34,11 @@ Release history:
   stack, i.e. '$hit *{victim} with *{weapon}' to retrieve the victim
   and weapon strings via %_<victim> and %_<weapon> is now possible.
 
+- Feature: There are five new search classes -- ueval, uthing, uplayer,
+  uroom, uexit. They call an obj/attr u-function for evaluation. This
+  makes it unnecessary to deal with the brackets-escaping issues that
+  plagued use of search() in conjunction with the eval classes.
+
 - Feature: "Altered reality" realm states like invisibility are supported
   through the use of the PRESENCE flag and six new locks (HeardLock,
   HearsLock, KnownLock, KnowsLock, MovedLock, and MovesLock). The
@@ -63,6 +68,9 @@ Release history:
 
 - Misc: The check_paths script (used by other scripts) clarifies which
   things are errors and which are warnings.
+
+- Fix: An off-by-one error which could cause crashes and corruption
+  when saving the database has been fixed. [3.1; Ashen-Shugar]
 
 - Fix: The game/backups directory is now correctly included with the
   distribution.

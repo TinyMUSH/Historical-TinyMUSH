@@ -176,6 +176,10 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   several objects), the match is now truly chosen randomly; in the past,
   the last match was heavily favored.
 
+- New search classes -- ueval, uthing, uplayer, uroom, uexit -- have
+  been added, allowing a u-function to be called for evaluation. This
+  makes it unnecessary to deal with brackets-escaping issues.
+
 - A rewrite has begun on the help files.
 
 -----------------------------------------------------------------------------

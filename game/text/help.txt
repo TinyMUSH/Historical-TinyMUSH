@@ -3013,7 +3013,7 @@ Example:
   <player> restricts the search to the named player, while <class>
   and <restriction> control the objects listed.  Type 'help search classes'
   for a list of the classes you may use.
-
+ 
   Except when getting lists of players ('@search type=player' or
   '@search flags=P'), you may only search for objects that you own.
   You may limit the range of the search with <low> and <high>, which specify
@@ -3027,7 +3027,8 @@ Example:
     @search type=room,100,300      <-- Rooms between #100 and #300, inclusive
     @search object=Test,5000       <-- Things starting with Test from object
                                        #5000 to the end of the database.
-  See also: @find, search().
+ 
+  See also: @find, search(), SEARCH CLASSES.
 & @set
   Command: @set <object>=[!]<flag>
            @set <object>=<attribute>:<value>
@@ -5939,7 +5940,7 @@ The list of loaded modules can be obtained via the 'version' command.
   Topic: SEARCH CLASSES
  
   You may use the following classes in @search commands and search()
-  function calls:
+  function calls. Note that classes cannot be combined.
   
   TYPE      - Restricts to objects of the indicated type (OBJECTS, ROOMS,
               EXITS, PLAYERS, GARBAGE). THINGS may be used as an alias
@@ -5951,16 +5952,33 @@ The list of loaded modules can be obtained via the 'version' command.
   EXITS     - A combination of TYPE=EXIT and NAME=<restriction>.
   PLAYERS   - A combination of TYPE=PLAYER and NAME=<restriction>.
   FLAGS     - Restricts to objects which have the flags listed in
-              <restriction> set..
+              <restriction> set. Flags should be abbreviated by their
+              single-letter designations (see 'help Flag List').
+ 
+  Continued in 'help Search Classes2'.
+ 
+& Search Classes2
+ 
   EVAL      - Evaluates the restriction for each object, replacing ##
               with the object's database number.  Evaluations that return
-              TRUE (ie, not 0 or #-1) are selected.
+              TRUE (ie, not 0 or #-1) are selected. If you use this within
+              a search(), you must escape out brackets and the like.
   EOBJECT   - A combination of TYPE=OBJECT and EVAL=<restriction>.
-  ETHING    - An alias for OBJECTS.
+  ETHING    - An alias for OBJECT.
   EROOM     - A combination of TYPE=ROOM and EVAL=<restriction>.
   EEXIT     - A combination of TYPE=EXIT and EVAL=<restriction>.
   EPLAYER   - A combination of TYPE=PLAYER and EVAL=<restriction>.
-
+ 
+  UEVAL     - Evaluates the restriction for each object, for the u-function
+              specified by an object/attribute pair, i.e., 'ueval=me/TEST',
+              passing the object's dbref as %0. Evaluations that return
+              boolean-true are selected.
+  UOBJECT   - A combination of TYPE=OBJECT and UEVAL=<restriction>.
+  UTHING    - An alias for OBJECT.
+  UROOM     - A combination of TYPE=ROOM and UEVAL=<restriction>.
+  UEXIT     - A combination of TYPE=EXIT and UEVAL=<restriction>.
+  UPLAYER   - A combination of TYPE=PLAYER and UEVAL=<restriction>.
+ 
 & SEMAPHORES
   Topic: SEMAPHORES
  
@@ -8711,20 +8729,21 @@ performed and the walk down the list stops.
   costs as much as the @search command, so repeated use is expensive.
  
   Caution: if you use the [ and ] characters in an Eval selection you will
-  need to escape them.
+  need to escape them. Consider using Ueval instead.
  
   Examples:
     > say search()
     You say, "#226 #289 #325 #364 #368 #369"
-    > @stats me
-    6 objects = 0 rooms, 0 exits, 5 things, 1 players.
-            (0 going, 0 garbage, 0 unknown)
     > say search(eval=\[eq(money(##),1)\])
+    You say, "#289 #325 #364 #368 #369"
+    > &TEST me = eq(money(%0),1)
+    > say search(ueval=me/TEST)
     You say, "#289 #325 #364 #368 #369"
     > say search(player=wizard)
     You say, "#1"
+ 
   See also: @search, SEARCH CLASSES.
-
+ 
 & STATS()
   Function: stats([<player>])
  
@@ -14316,6 +14335,10 @@ Continued in 'help 3.1 base5'.
 - When an object name is ambiguously matched (i.e., potentially matches
   several objects), the match is now truly chosen randomly; in the past,
   the last match was heavily favored.
+ 
+- New search classes -- ueval, uthing, uplayer, uroom, uexit -- have
+  been added, allowing a u-function to be called for evaluation. This
+  makes it unnecessary to deal with brackets-escaping issues.
  
 & 3.1 flags
  

@@ -409,6 +409,9 @@ SEARCH *parm;
 {
 	char *pname, *searchtype, *t;
 	int err;
+	dbref thing, aowner;
+	int attrib, aflags, alen;
+	ATTR *attr;
 
 	/*
 	 * Crack arg into <pname> <type>=<targ>,<low>,<high> 
@@ -485,6 +488,7 @@ SEARCH *parm;
 	err = 0;
 	parm->s_rst_name = NULL;
 	parm->s_rst_eval = NULL;
+	parm->s_rst_ufuntxt = NULL;
 	parm->s_rst_type = NOTYPE;
 	parm->s_parent = NOTHING;
 	parm->s_zone = NOTHING;
@@ -613,6 +617,48 @@ SEARCH *parm;
 			err = 1;
 		}
 		break;
+	case 'u':
+		t = NULL;
+		if (string_prefix("ueval", searchtype)) {
+		    t = searchfor;
+		} else if (string_prefix("uplayer", searchtype)) {
+		    parm->s_rst_type = TYPE_PLAYER;
+		    t = searchfor;
+		} else if (string_prefix("uroom", searchtype)) {
+		    parm->s_rst_type = TYPE_ROOM;
+		    t = searchfor;
+		} else if (string_prefix("uobject", searchtype)) {
+		    parm->s_rst_type = TYPE_THING;
+		    t = searchfor;
+		} else if (string_prefix("uthing", searchtype)) {
+		    parm->s_rst_type = TYPE_THING;
+		    t = searchfor;
+		} else if (string_prefix("uexit", searchtype)) {
+		    parm->s_rst_type = TYPE_EXIT;
+		    t = searchfor;
+		} else {
+		    err = 1;
+		}
+		if (t) {
+		    if (!parse_attrib(player, t, &thing, &attrib, 0) ||
+			(attrib == NOTHING)) {
+			notify(player, "No match for u-function.");
+			return 0;
+		    }
+		    attr = atr_num(attrib);
+		    if (!attr) {
+			notify(player, "No match for u-function.");
+			return 0;
+		    }
+		    t = atr_pget(thing, attrib, &aowner, &aflags, &alen);
+		    if (!*t) {
+			free_lbuf(t);
+			notify(player, "No match for u-function.");
+			return 0;
+		    }
+		    parm->s_rst_ufuntxt = t;
+		}
+		break;
 	case 'z':
 		if (string_prefix("zone", searchtype)) {
 			parm->s_zone = match_controlled(player, searchfor);
@@ -664,11 +710,16 @@ SEARCH *parm;
 	FLAG thing1flags, thing2flags, thing3flags;
 	POWER thing1powers, thing2powers;
 	dbref thing;
-	char *buff, *buff2, *result, *bp, *str;
+	char *buff, *buff2, *atext, *result, *bp, *str;
 	int save_invk_ctr;
 
 	buff = alloc_sbuf("search_perform.num");
 	save_invk_ctr = mudstate.func_invk_ctr;
+
+	if (parm->s_rst_ufuntxt)
+	    atext = alloc_lbuf("search_perform.atext");
+	else
+	    atext = NULL;
 
 	for (thing = parm->low_bound; thing <= parm->high_bound; thing++) {
 		mudstate.func_invk_ctr = save_invk_ctr;
@@ -762,6 +813,25 @@ SEARCH *parm;
 			}
 			free_lbuf(result);
 		}
+
+		if (parm->s_rst_ufuntxt != NULL) {
+		    if (isGarbage(thing))
+			continue;
+		    sprintf(buff, "#%d", thing);
+		    result = bp = alloc_lbuf("search_perform.result");
+		    strcpy(atext, parm->s_rst_ufuntxt);
+		    str = atext;
+		    exec(result, &bp, player, cause, cause,
+			 EV_FCHECK | EV_EVAL | EV_NOTRACE, &str,
+			 &buff, 1);
+		    *bp = '\0';
+		    if (!*result || !xlate(result)) {
+			free_lbuf(result);
+			continue;
+		    }
+		    free_lbuf(result);
+		}
+
 		/*
 		 * It passed everything.  Amazing. 
 		 */
@@ -769,6 +839,10 @@ SEARCH *parm;
 		olist_add(thing);
 	}
 	free_sbuf(buff);
+	if (atext)
+	    free_lbuf(atext);
+	if (parm->s_rst_ufuntxt)
+	    free_lbuf(parm->s_rst_ufuntxt);
 	mudstate.func_invk_ctr = save_invk_ctr;
 }
 

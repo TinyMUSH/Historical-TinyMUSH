@@ -20,6 +20,7 @@ struct search_type {
 	dbref   s_zone;
 	char	*s_rst_name;
 	char	*s_rst_eval;
+	char	*s_rst_ufuntxt;
 	int	low_bound;
 	int	high_bound;
 };
