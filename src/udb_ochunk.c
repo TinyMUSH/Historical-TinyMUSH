@@ -87,7 +87,7 @@ int dddb_init()
 	}
 	
 
-#ifdef STANDALONE
+#ifndef STANDALONE
 	/* Set the cache size to be two hash buckets for GDBM. */
 	 
 	i = 2;
@@ -114,7 +114,8 @@ int dddb_init()
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
-
+#endif
+#ifdef STANDALONE
 	/* If we're standalone, having GDBM wait for each write is a
 	 * performance no-no; run non-synchronous */
 	
