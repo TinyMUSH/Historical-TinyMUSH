@@ -566,6 +566,10 @@ const char *msg;
 	int check_listens, pass_uselock, is_audible;
 	FWDLIST *fp;
 	NUMBERTAB *np;
+	pcre *re;
+	const char *errptr;
+	int erroffset, subpatterns, is_match;
+	int offsets[PCRE_MAX_OFFSETS];
 
 	/* If speaker is invalid or message is empty, just exit */
 
@@ -704,15 +708,23 @@ const char *msg;
 		nargs = 0;
 		if (check_listens && (key & (MSG_ME | MSG_INV_L)) &&
 		    H_Listen(target)) {
-			tp = atr_get(target, A_LISTEN, &aowner, &aflags, &alen);
-			if (*tp && wild(tp, (char *)msg, args, 10)) {
-				for (nargs = 10;
-				     nargs &&
-				  (!args[nargs - 1] || !(*args[nargs - 1]));
-				     nargs--) ;
-				pass_listen = 1;
-			}
-			free_lbuf(tp);
+		    tp = atr_get(target, A_LISTEN, &aowner, &aflags, &alen);
+		    if (*tp &&
+			((!(aflags & AF_REGEXP) &&
+			 wild(tp, (char *) msg, args, 10)) ||
+			 ((aflags & AF_REGEXP) &&
+			  regexp_match(tp, (char *) msg, 
+				       ((aflags & AF_CASE) ?
+					0 : PCRE_CASELESS),
+				       args, 10)))) {
+			for (nargs = 10;
+			     nargs &&
+				 (!args[nargs - 1] ||
+				  !(*args[nargs - 1]));
+			     nargs--) ;
+			pass_listen = 1;
+		    }
+		    free_lbuf(tp);
 		}
 		/* If we matched the @listen or are monitoring, check the * * 
 		 * USE lock 
