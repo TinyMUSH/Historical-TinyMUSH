@@ -1822,7 +1822,7 @@ FUNCTION(fun_strmatch)
 
 FUNCTION(fun_streq)
 {
-    if (!strcasecmp(fargs[0], fargs[1]))
+    if (!string_compare(fargs[0], fargs[1]))
 	safe_str("1", buff, bufc);
     else
 	safe_str("0", buff, bufc);
