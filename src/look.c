@@ -17,7 +17,7 @@
 #include "alloc.h"
 #include "ansi.h"
 
-static void show_a_desc();
+static void FDECL(show_a_desc, (dbref, dbref, const char *));
 extern void FDECL(ufun, (char *, char *, int, int, int, dbref, dbref));
 
 static void look_exits(player, loc, exit_name)
@@ -775,8 +775,9 @@ int obey_terse;
 }
 
 #ifdef PUEBLO_SUPPORT
-static void show_a_desc(player, loc)
+static void show_a_desc(player, loc, msg)
 dbref player, loc;
+const char *msg;
 {
 	char *got2;
 	dbref aowner;
@@ -787,12 +788,12 @@ dbref player, loc;
 	if (Html(player)) {
 		got2 = atr_pget(loc, A_HTDESC, &aowner, &aflags, &alen);
 		if (*got2)
-			did_it(player, loc, A_HTDESC, NULL, A_ODESC, NULL,
+			did_it(player, loc, A_HTDESC, msg, A_ODESC, NULL,
 			       A_ADESC, (char **) NULL, 0);
 		else {
 		    	if (indent)
 		    		raw_notify_newline(player); 
-		    	did_it(player, loc, A_DESC, NULL, A_ODESC, NULL,
+		    	did_it(player, loc, A_DESC, msg, A_ODESC, NULL,
 			       A_ADESC, (char **) NULL, 0);
 			if (indent)
 				raw_notify_newline(player);
@@ -802,7 +803,7 @@ dbref player, loc;
 	else {
 		if (indent)
 			raw_notify_newline(player);
-		did_it(player, loc, A_DESC, NULL, A_ODESC, NULL,
+		did_it(player, loc, A_DESC, msg, A_ODESC, NULL,
 		       A_ADESC, (char **) NULL, 0);
 		if (indent)
 			raw_notify_newline(player);
@@ -829,7 +830,7 @@ int key;
 			       A_ADESC, (char **)NULL, 0);
 		else {
 #ifdef PUEBLO_SUPPORT
-			show_a_desc(player, loc);
+			show_a_desc(player, loc, NULL);
 #else
 			if (indent)
 				raw_notify_newline(player);
@@ -842,7 +843,7 @@ int key;
 		free_lbuf(got);
 	} else {
 #ifdef PUEBLO_SUPPORT
-		show_a_desc(player, loc);
+		show_a_desc(player, loc, NULL);
 #else
 		if (indent)
 			raw_notify_newline(player);
