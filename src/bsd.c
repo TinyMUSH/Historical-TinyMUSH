@@ -608,13 +608,18 @@ int reason;
 	if (d->flags & DS_CONNECTED) {
 
 		/*
-		 * Do the disconnect stuff if we aren't doing a LOGOUT * * *
-		 * * * * (which keeps the connection open so the player can *
-		 * * connect * * * * to a different character). 
+		 * Do the disconnect stuff if we aren't doing a LOGOUT
+		 * (which keeps the connection open so the player can
+		 * connect to a different character). 
 		 */
 
 		if (reason != R_LOGOUT) {
-			fcache_dump(d, FC_QUIT);
+		        if (reason != R_SOCKDIED) {
+			    /* If the socket died, there's no reason to
+			     * display the quit file.
+			     */
+			    fcache_dump(d, FC_QUIT);
+			}
 			STARTLOG(LOG_NET | LOG_LOGIN, "NET", "DISC")
 				buff = alloc_mbuf("shutdownsock.LOG.disconn");
 			sprintf(buff, "[%d/%s] Logout by ",

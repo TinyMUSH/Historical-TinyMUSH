@@ -5,6 +5,7 @@
 #include "autoconf.h"
 
 #include <sys/file.h>
+#include <sys/stat.h>
 
 #define __DB_C
 #include "mudconf.h"
@@ -3008,6 +3009,7 @@ void load_restart_db()
 
 	int val, version, new_strings = 0;
 	char *temp, buf[8];
+	struct stat fstatbuf;
 
 	f = fopen("restart.db", "r");
 	if (!f) {
@@ -3052,6 +3054,7 @@ void load_restart_db()
 		d->descriptor = val;
 		d->flags = getref(f);
 		d->connected_at = getref(f);
+		d->retries_left = mudconf.retry_limit;
 		d->command_count = getref(f);
 		d->timeout = getref(f);
 		d->host_info = getref(f);
@@ -3100,6 +3103,9 @@ void load_restart_db()
 		d->quota = mudconf.cmd_quota_max;
 		d->program_data = NULL;
 		d->hashnext = NULL;
+		/* Note that d->address is NOT INITIALIZED, and it DOES
+		 * get used later, particularly when checking logout.
+		 */
 
 		if (descriptor_list) {
 			for (p = descriptor_list; p->next; p = p->next) ;
@@ -3120,6 +3126,18 @@ void load_restart_db()
 #endif
 			if (isPlayer(d->player))
 				s_Flags2(d->player, Flags2(d->player) | CONNECTED);
+	}
+
+	/* In case we've had anything bizarre happen... */
+
+	DESC_ITER_ALL(d) {
+	    if (fstat(d->descriptor, &fstatbuf) < 0) {
+		STARTLOG(LOG_PROBLEMS, "ERR", "RESTART")
+		    log_text((char *) "Bad descriptor ");
+		    log_number(d->descriptor);
+		ENDLOG
+		shutdownsock(d, R_SOCKDIED);
+	    }
 	}
 
 	DESC_ITER_CONN(d) {
