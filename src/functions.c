@@ -4973,31 +4973,31 @@ FUNCTION(fun_case)
 	}
 	/* Evaluate the target in fargs[0] */
 
-	mbuff = bp = alloc_lbuf("fun_switch");
+	mbuff = bp = alloc_lbuf("fun_case");
 	str = fargs[0];
 	exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	     &str, cargs, ncargs);
 	*bp = '\0';
 
-	/* Loop through the patterns looking for a match */
+	/* Loop through the patterns looking for a case-insensitive match */
 
 	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
-		if (*fargs[i] == *mbuff) {
-			str = fargs[i + 1];
-			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-			     &str, cargs, ncargs);
-			free_lbuf(mbuff);
-			return;
-		}
+	    if (!string_compare(fargs[i], mbuff)) {
+		str = fargs[i + 1];
+		exec(buff, bufc, 0, player, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
+		free_lbuf(mbuff);
+		return;
+	    }
 	}
 	free_lbuf(mbuff);
 
 	/* Nope, return the default if there is one */
 
 	if ((i < nfargs) && fargs[i]) {
-		str = fargs[i];
-		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		     &str, cargs, ncargs);
+	    str = fargs[i];
+	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		 &str, cargs, ncargs);
 	}
 	return;
 }
