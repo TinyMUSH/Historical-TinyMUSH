@@ -365,11 +365,15 @@ FUNCTION(fun_lrand)
  * fun_lnum: Return a list of numbers.
  */
 
+#define Lnum_Place(x)	(((x) < 10) ? (2*(x)) : ((3*(x))-10))
+
 FUNCTION(fun_lnum)
 {
     char tbuf[12], sep;
     int bot, top, over, i;
-    char *bb_p;
+    char *bb_p, *startp, *endp;
+    static int lnum_init = 0;
+    static char lnum_buff[290];
 
     if (nfargs == 0) {
 	return;
@@ -394,14 +398,37 @@ FUNCTION(fun_lnum)
 	    return;
     }
 
-    over = 0;
-    bb_p = *bufc;
+    /* We keep 0-100 pre-generated so we can do quick copies. */
 
+    if (!lnum_init) {
+	strcpy(lnum_buff,
+	       (char *) "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99");
+	lnum_init = 1; 
+    }
+
+    /* Copy as much out of the pre-gen as we can. */
+    
+    bb_p = *bufc;
+    if ((bot < 100) && (top > bot)) {
+	startp = lnum_buff + Lnum_Place(bot);
+	if (top >= 99) {
+	    safe_str(startp, buff, bufc);
+	} else {
+	    endp = lnum_buff + Lnum_Place(top+1) - 1;
+	    *endp = '\0';
+	    safe_str(startp, buff, bufc);
+	    *endp = ' ';
+	}
+    }
+ 
+    /* Print a new list. */
+
+    over = 0;
     if (top == bot) {
 	safe_ltos(buff, bufc, bot);
 	return;
     } else if (top > bot) {
-	for (i = bot; (i <= top) && !over; i++) {
+	for (i = 100; (i <= top) && !over; i++) {
 	    if (*bufc != bb_p) {
 		print_sep(sep, buff, bufc);
 	    }
