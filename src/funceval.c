@@ -4566,7 +4566,12 @@ FUNCTION(fun_clearvars)
  *               regparse(string, pattern, named vars)
  */
 
-FUNCTION(fun_regparse)
+static void perform_regparse(buff, bufc, player, fargs, nfargs, case_option)
+    char *buff, **bufc;
+    dbref player;
+    char *fargs[];
+    int nfargs;
+    int case_option;
 {
     int i, nqregs;
     char *qregs[NUM_ENV_VARS];
@@ -4582,7 +4587,7 @@ FUNCTION(fun_regparse)
 	tables = pcre_maketables();
     }
 
-    if ((re = pcre_compile(fargs[1], 0,
+    if ((re = pcre_compile(fargs[1], case_option,
 			   &errptr, &erroffset, tables)) == NULL) {
 	/* Matching error. */
 	notify_quiet(player, errptr);
@@ -4608,6 +4613,16 @@ FUNCTION(fun_regparse)
     free(re);
 }
 
+FUNCTION(fun_regparse)
+{
+    perform_regparse(buff, bufc, player, fargs, nfargs, 0);
+}
+
+FUNCTION(fun_regparsei)
+{
+    perform_regparse(buff, bufc, player, fargs, nfargs, PCRE_CASELESS);
+}
+
 /* ---------------------------------------------------------------------------
  * fun_regmatch: Return 0 or 1 depending on whether or not a regular
  * expression matches a string. If a third argument is specified, dump
@@ -4624,7 +4639,12 @@ FUNCTION(fun_regparse)
  *
  */
 
-FUNCTION(fun_regmatch)
+static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
+    char *buff, **bufc;
+    dbref player;
+    char *fargs[];
+    int nfargs;
+    int case_option;
 {
     int i, nqregs, curq;
     char *qregs[NUM_ENV_VARS];
@@ -4642,7 +4662,7 @@ FUNCTION(fun_regmatch)
 	tables = pcre_maketables();
     }
 
-    if ((re = pcre_compile(fargs[1], 0,
+    if ((re = pcre_compile(fargs[1], case_option,
 			   &errptr, &erroffset, tables)) == NULL) {
 	/* Matching error.
 	 * Note difference from PennMUSH behavior:
@@ -4695,6 +4715,16 @@ FUNCTION(fun_regmatch)
     }
 
     free(re);
+}
+
+FUNCTION(fun_regmatch)
+{
+    perform_regmatch(buff, bufc, player, fargs, nfargs, 0);
+}
+
+FUNCTION(fun_regmatchi)
+{
+    perform_regmatch(buff, bufc, player, fargs, nfargs, PCRE_CASELESS);
 }
 
 /* ---------------------------------------------------------------------------

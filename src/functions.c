@@ -142,7 +142,9 @@ XFUNCTION(fun_let);
 XFUNCTION(fun_lvars);
 XFUNCTION(fun_clearvars);
 XFUNCTION(fun_regparse);
+XFUNCTION(fun_regparsei);
 XFUNCTION(fun_regmatch);
+XFUNCTION(fun_regmatchi);
 XFUNCTION(fun_translate);
 XFUNCTION(fun_lastcreate);
 XFUNCTION(fun_structure);
@@ -6154,7 +6156,9 @@ FUN flist[] = {
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
 {"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC},
+{"REGMATCHI",	fun_regmatchi,	0,  FN_VARARGS, CA_PUBLIC},
 {"REGPARSE",	fun_regparse,	3,  0,		CA_PUBLIC},
+{"REGPARSEI",	fun_regparsei,	3,  0,		CA_PUBLIC},
 {"REMIT",	fun_remit,	2,  0,		CA_PUBLIC},
 {"REMOVE",	fun_remove,	0,  FN_VARARGS,	CA_PUBLIC},
 {"REPEAT",	fun_repeat,	2,  0,		CA_PUBLIC},
