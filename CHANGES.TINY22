@@ -1,0 +1,780 @@
+ChangeLog, TinyMUSH 2.2
+
+===========================================================================
+
+04/28/99:   TinyMUSH 2.2.5
+
+--- New Features ---
+
+- New @eval command is like the @@ comment, but evaluates its argument.
+  (command.c, command.h, predicates.c)
+
+- New @list type, 'cache', shows cache object chains. (command.c,
+  udb_ocache.c)
+
+- New @timecheck command views "timechecking" -- a counter on how much
+  clock time is being used by objects. NO_TIMECHECKING compile-time define
+  turns this off. This is also a log option. (Makefile.in, bsd.c, command.c,
+  command.h, conf.c, cque.c, externs.h, log.c, game.c, interface.h,
+  mudconf.h, mushdb.h, object.c)
+
+- '@list hash' now shows stats for @function hash table. (command.c)
+
+--- New Functions ---
+
+- New filterbool() function does a boolean truth-check rather than 
+  looking for "1". (functions.c)
+
+- New inc() and dec() functions increment/decrement a number by 1.
+  (functions.c)
+
+- New link() function acts like @link. (functions.c)
+
+- matchall() now takes an output delimiter. (functions.c)
+
+- New pemit() and remit() side-effect functions, equivalent to @pemit
+  and @pemit/contents (@remit). (functions.c, speech.c, externs.h)
+
+- New t() function returns 0 or 1 depending on boolean truth. (functions.c)
+
+- New tel() function acts like @teleport. (functions.c)
+
+- New toss() function pops item off stack and discards it. (functions.c)
+
+- New wipe() side-effect function, equivalent to @wipe. (functions.c)
+
+--- Function Bugfixes ---
+
+- Fixed crash problem on bor(); it takes 2 args, not varargs. (functions.c)
+
+- die() with a die of <=0 no longer causes crash [2.2.4 patch]. (functions.c)
+
+- elock() now checks AF_IS_LOCK, not AF_LOCK. (functions.c)
+
+- isdbref(#) returns 0, not 1. (functions.c)
+
+- regmatch() coredump problem on writing to r()-registers on a failed
+  match fixed. Per Talek's PennMUSH patch. [2.2.4 patch] (functions.c)
+
+- Null pointer dereference on empty stack with swap() fixed. [2.2.4 patch]
+  (functions.c)
+
+--- Other Bugfixes ---
+
+- @mvattr null pointer dereference fixed [2.2.4 patch]. (set.c)
+
+- Parent chain check on objects with invalid locations no longer causes
+  crash [2.2.4 patch]. (command.c)
+
+- Infinite loop problem in list_check() where Next(thing) == thing, fixed.
+  Per HavenMUSH. (game.c)
+
+- Fixed null pointer dereference when setting attribute with number but
+  no name. Per Malcolm Campbell. (db.c)
+
+- You can no longer @clone/cost exits in locations you do not control.
+  (create.c)
+
+- @decompile prints attribute flags before locking the attribute, so
+  that the flags get set when the object is uploaded. (look.c)
+
+- @edit and @wipe now respect the handling of listen attrs, calling
+  handle_ears(). (set.c)
+
+- Call check_filter() for @infilter if MSG_INV_L (aka MSG_F_DOWN) is set
+  and listens are being passed; previously it was also called when MSG_INV
+  was set (which was most of the time). This caused '@infilter here=*',
+  even in a room without a @listen, to gag non-'say' output. (game.c)
+
+- 'look' checks Has_exits(parent) when displaying Obvious Exits, avoiding
+  exit-list screwups when parent was an exit. (look.c)
+
+- Fixed coredump problem when looking at a Transparent exit to a bad
+  destination. (look.c)
+
+- Fixed parser issue with advancing pointer past end of buffer (thus
+  spewing garbage) when ansi_colors was off. [2.2.4 patch] (eval.c)  
+
+- SIGUSR1 calls do_restart(); the old way didn't use the currently-running
+  database. This is still not an ideal solution. [2.2.4 patch] (bsd.c)
+
+--- General Cleanup ---
+
+- Purify is supported in the Makefile. (Makefile.in)
+
+- Added -ldl for Linux with Tcl, per Rick White. (Makefile.in)
+
+- Conf: SVR4 has PAGESIZE, needed for getpagesize(). (autoconf.h.in)
+
+- Conf: Linux wants getpagesize() to return size_t or int, depending on
+  version. Check for it being declared in unistd.h, and don't redeclare
+  it. (autoconf.h.in, configure.in)
+
+- Conf: Linux has declaration conflicts with srandom(). Check for it in
+  stdlib.h and math.h, rather than checking on #ifdef __i386__.
+  (autoconf.h.in, configure.in)
+
+- Conf: Check for random() declare in stdlib.h before declaring it.
+  (autoconf.h.in, configure.in)
+
+- Fixed some odd dnl things, which were causing some messages not to
+  appear. (configure.in)
+
+- Regenerated configure script using autoconf 2.12. (This plus the conf
+  changes above were released as a 2.2.4 patch.)
+
+- Include autoconf.h and don't declare malloc() in regexp package. [U1]
+  (regexp.c)
+
+- did_it() attrs are specified as 0 rather than NOTHING, for @conformat
+  and @exitformat. (look.c)
+
+- Now testing for atr_buf as well as *atr_buf in @conformat/@exitformat-ing.
+  (look.c)
+
+- Queue-halted entries are NOTHING rather than 0. (cque.c)
+
+- Print of flag letters uses safe_sb_chr() rather than safe_chr(). [U1]
+  (flags.c)
+
+- PUEBLO_SUPPORT placed correctly. [U1] (look.c)
+
+- ansi_msg() now returns NULL if passed a null string. [U1] (netcommon.c)
+
+- A_NULL is now used for the null (0) attribute. [U1] (attrs.h, create.c,
+  game.c, look.c, move.c, set.c)
+
+- General lint of code:
+  Typecasts fixed. (db.c, db_rw.c, externs.h, functions.c, game.c, netcommon.c)
+  Unused variables removed. (create.c, db.c, db_rw.c, functions.c, game.c,
+  netcommon.c, predicates.c, quota.c)
+  Proper initialization of variables. (functions.c, regexp.c)
+
+--- Documentation Changes ---
+
+- 'help @adisconnect' now notes that %0 gives the disconnect reason.
+
+- 'help Credits' now cites Throck for an extensive bugreporting effort,
+  and David Passmore (Lauren) for code from TinyMUX.
+
+- Help for @switch/switch() now notes existing of #$ token.
+
+- Removed semicolons at end of switch statements in 'help Tcl Control2',
+  when placing Tcl code in an attribute.
+
+- Added back in the notice about no maintenance obligations on the parts
+  of the authors. (copyright.h)
+
+===========================================================================
+
+11/21/97:   TinyMUSH 2.2.4
+
+--- New Features ---
+
+- Added the ability to match regular expressions in $-commands, ^-listens,
+  and through the regmatch() function. (Makefile.in, attrs.h, externs.h,
+  regexp.h, regexp.c, commands.c, functions.c, game.c, look.c)
+
+- Added the @program construct, based on the TinyMUX 1.4p4 implementation.
+  (attrs.h, bsd.c, command.c, command.h, db.c, interface.h, netcommon.c,
+  predicates.c)
+
+- Added the programmer() function, to get the dbref of the calling object
+  in a @program. (externs.h, functions.c, netcommon.c)
+
+- Added the @restart command, to restart the game without dropping 
+  connections. Based on the TinyMUX 1.4p4 implementation. (bsd.c,
+  command.c, command.h, db.c, interface.h, netcommon.c, predicates.c)
+
+- Added restarts() function, which counts the number of times the game
+  has been restarted. (conf.c, db.c, functions.c, mudconf.h)
+
+- Added restarttime() function, which gives the time of the last
+  restart. (conf.c, functions.c, game.c, mudconf.h)
+
+- Added command piping, allowing output from one command to be passed
+  via the ;| semi-colon-like construct to another command as %|.
+  Fixed a small potential coredump bug in the process. Based on the
+  TinyMUX 1.5p1 implementation. (conf.c, cque.c, eval.c, game.c,
+  mudconf.h, netcommon.c)
+
+- @conformat and @exitformat, with format_contents and format_exits conf
+  options, allow arbitrary formatting of Contents and Obvious Exits
+  lists. (attrs.h, command.c, conf.c, db.c, look.c, mudconf.h)
+
+- Added optional ANSI sequences, based on TinyMUX/PennMUSH implementation.
+  Added ANSI and NOBLEED flags, ansi(), stripansi(), and translate()
+  functions, %x substitution, conf parameter ansi_colors (defaults to No).
+  (bsd.c, command.c, conf.c, db.c, eval.c, externs.h, flags.c, flags.h,
+  functions.c, interface.h, log.c, mudconf.h, netcommon.c, predicates.c,
+  stringutil.c, ansi.h, Makefile.in)
+
+- Added experimental functionality for an embedded Tcl 7.6 or 8.0
+  interpreter, and the TICKLER flag, compile-time selection of
+  TCL_INTERP_SUPPORT. (command.c, command.h, flags.c, flags.h,
+  functions.c, mod_tcl.c, config.h, Makefile.in)
+
+- iter() and @dolist replace the #@ token with the word position in the
+  list, ala TinyMUX/PennMUSH. (config.h, functions.c, walkdb.c)
+
+- switch() and @switch replace the #$ token with the switch expression,
+  ala PennMUSH. (config.h, functions.c, predicates.c)
+
+- @stats (with no args or switches) now shows the next object dbref to be
+  created. (walkdb.c)
+
+- INFO command condenses MUSH vital statistics for MUDlist purposes, as
+  per functionality agreed to with Alan Schwartz, 7/6/95. (netcommon.c)
+
+--- New Options ---
+
+- Added safer_passwords configuration option, enforcing less-guessable
+  passwords. Modification of Moonchilde-provided code. Default #1 password
+  has been changed to p0trzebie. (externs.h, mudconf.h, conf.c, db.c,
+  netcommon.c, player.c, predicates.c, wiz.c)
+
+- Site lists can now be specified in CIDR IP prefix notation.
+  @list site_information now lists things in this notation. (conf.c)
+
+- Default parents can be specified by the conf parameters player_parent,
+  room_parent, exit_parent, and thing_parent. (mudconf.h, conf.c, object.c)
+
+- New log parameter keyboard_commands will log "interactive" commands
+  (direct input). (log.c, netcommon.c, mudconf.h)
+
+- New log parameter suspect_commands will log anything executed by a
+  Suspect player. (mudconf.h, command.c, log.c)
+
+- Various modifications to make the new config parameters show up in
+  @list options. (command.c)
+
+--- New Functions ---
+
+- New functions dup(), empty(), items(), lstack(), peek(), pop(),
+  popn(), push(), and swap() implement object stacks, based on the 
+  TinyMUX concept. (command.c, functions.c, game.c, mudconf.h)
+
+- New andbool(), orbool(), notbool(), xorbool() functions do real
+  boolean truth checks. (functions.c)
+
+- New band(), bnand(), bor(), shl(), shr() functions for manipulating
+  bitfields. (functions.c)
+
+- New die() function "rolls dice", ala PennMUSH, but can take a zero 
+  first arg. (functions.c)
+
+- New ifelse() function does true/false boolean cases, ala TinyMUX
+  (note boolean casing, not empty-or-zero, though). (functions.c)
+
+- New list() function dumps output of an iter()-style function directly
+  to the enactor, ala TinyMUX. (functions.c)
+
+- New lit() function returns the literal value of a string. (functions.c)
+
+- New sees() function checks to see if X would normally see Y in the
+  Contents list of Y's room. (functions.c)
+
+- New side-effect set() function acts like @set, ala PennMUSH. (functions.c)
+
+- New setr() function acts like setq() but returns the value of the
+  string set, ala PennMUSH. (functions.c)
+
+- New vadd(), vsub(), vmul(), vdot(), vdim(), vmag(), vunit() vector
+  functions, based on TinyMUX/PennMUSH. (functions.c)
+
+--- Changes to Functions ---
+
+- Added output delimiter for elements(), filter(), iter(), map(), munge(),
+  setunion(), setinter(), setdiff(), shuffle(), sort(), sortby(), splice().
+  (functions.c)
+
+- elock() now allows the checking of things other than DefaultLock
+  by non-privileged users. (functions.c)
+
+- Added start and end token parsing in foreach(). Idea (but not
+  implementation) from TinyMUX. (functions.c)
+
+- mix() can now take up to ten arguments total. (functions.c)
+
+- parse() is now just an alias for iter(). (functions.c)
+
+--- Function Bugfixes ---
+
+- Removed unnecessary 'first' variable from filter(), iter(), mix(),
+  remove(), revwords(), splice(), setunion(), setinter(),  setdiff().
+  (functions.c)
+
+- ljust(), rjust(), center(), and repeat() now check for overflows and
+  null-terminate their buffers. (functions.c)
+
+- andflags()/orflags() now prevent mortals from getting the Connected
+  flag on Dark wizards. (functions.c)
+
+- Per Malcolm Campbell, set tm_isdst to -1 to indicate unknown status
+  of Daylight Savings Time for auxiliary to convtime(). (functions.c)
+
+- delete() now acts sanely when passed a weird number of characters to
+  delete. (functions.c)
+
+- Spurious extra leading space in filter() removed. (functions.c)
+
+- Fixed a potential coredump bug in fun_lastcreate(), when encountering
+  unknown object type. (functions.c)
+
+- Redundant clause in matchall() removed. (functions.c)
+
+- repeat() now acts sanely when passed a zero-length string. (functions.c)
+
+--- Other Bugfixes ---
+
+- Fixed a memory leak in look_exits2() when Pueblo support was enabled.
+  Reported by Joel Baker. (look.c)
+
+- Removed spurious spaces around exit names in Pueblo display. (look.c)
+
+- Added period to "You see nothing special" in Pueblo display. (look.c)
+
+- Per Moonchilde, do not raw_notify_html() non-HTML players. (netcommon.c)
+
+- 'look here' (and other specific looks that check your current location)
+  now correctly returns the @idesc when appropriate. Reported by Throck.
+  (look.c)
+
+- examine/parent no longer returns the locks of the parent, since they're
+  not inherited by the child. Reported by Throck. (look.c)
+
+- @clone now explicitly states when a clone name has been rejected as
+  illegal. Reported by Throck. (create.c)
+
+- Blank components are no longer allowed in exit names. Reported by
+  Throck. (object.c)
+
+- @mvattr no longer clears the original attribute if no copies were
+  successfully made. A null-attribute coredump bug has also been
+  fixed. Reported by Throck. (set.c)
+
+- @verb can no longer read attributes the player doesn't have permission
+  to see. Reported by Throck. (predicates.c)
+
+- The @sweep command now shows BOUNCE objects (as "messages", just as
+  they would appear if they had a @listen set). The command also now
+  checks for the HAS_LISTEN invisible flag rather than scanning objects
+  for the @listen attribute. (look.c)
+
+- The bug with attribute names of exactly 32 letters is now fixed for
+  real. (vattr.c)
+
+- Fixed small bug confusing Audible and Connected in the has_flag()
+  utility function. (flags.c)
+
+- When an object is destroyed, if it has a cached forwardlist in the
+  hashtable, that entry is cleared. (externs.h, db.c, object.c)
+
+- start_room, start_home, default_home, and master_room are typed as
+  dbrefs, not ints. Made NOTHING rather than -1, in some cases.
+  (mudconf.h, conf.c)
+
+- queue_string() is now declared as INLINE. (externs.h, netcommon.c)
+
+- For conf stuff, 32, 128, and 1024 are now defined constants. (alloc.h,
+  mudconf.h, conf.c, wiz.c)
+
+- All strings are properly null-terminated when strncpy() reaches the
+  buffer limit. (bsd.c, conf.c, game.c, wiz.c)
+
+- Fixed potential buffer overflow problem with logging commands and
+  removed unnecessary allocation of an mbuf. (command.c)
+
+- Variable 'restrict' in do_verb() is now 'should_restrict', to get
+  around Linux 2.0.30 defining 'restrict' as a keyword. (predicates.c)
+
+- Fixed FPE coredump on kill_guarantee_cost being set to zero. (rob.c)
+
+--- Documentation Changes ---
+
+- @pemit now has aliases in alias.conf
+
+- The help text for functions has been reorganized into categories.
+
+- The wizhelp text for config parameters has been reorganized into 
+  categories.
+
+- Redundant info in 'wizhelp log' and 'wizhelp @list log' removed.
+
+- The use of LINK_OK for @forwardlist/@drain/@notify is now documented.
+
+- The player_name_spaces conf option is now documented.
+
+- The help text for trim() has been fixed to show the correct parameter
+  order.
+
+- Moved the material from the news.txt file into the help.txt file and
+  updated some of the pointers.
+
+===========================================================================
+
+11/17/96:  TinyMUSH 2.2.3
+
+- A DB RELOAD IS REQUIRED BY THIS CODE RELEASE. Updated the db version 
+  stuff to version 10. (config.h, dbconvert.c, db_rw.c, mushdb.h)
+
+- Folded in Andrew Molitor's patch to alphabetize and binary-search
+  on attributes at the cache level, fix the chunkfile growth, support
+  IN_MEM_COMPRESSION compile-time option for radix compression, and
+  write out names instead of numbers in attrib locks. (command.c, db.c,
+  db_rw.c, dbconvert.c, game.c, mushdb.h, udb_ocache.c, udb_ochunk.c,
+  autoconf.h.in)
+
+- Folded in Cookie's improved, much faster string-handling routines. 
+  (alloc.c, alloc.h, command.c, cque.c, create.c, db.c, eval.c,
+  externs.h, file_c.c, flags.c, functions.c, game.c, log.c, look.c,
+  netcommon.c, player_c.c, speech.c, stringutil.c, unparse.c, walkdb.c)
+
+- "Lag checking", logging a warning if the real time (not CPU time)
+  for execution of a command exceeds the config parameter lag_maximum.
+  Can be turned off by the compile-time NO_LAG_CHECK option. (command.c,
+  conf.c, config.h, cque.c, mudconf.h, netcommon.c)
+
+- You can now lock out Guests from certain sites, via the guest_site
+  configuration directive. (conf.c, mudconf.h, netcommon.c)
+
+- The BOUNCE flag acts like the equivalent of a @listen of '*' with no
+  @ahear. Useful for letting players be transparent to noise without
+  needing to enable player_listen. (flags.c, flags.h, game.c)
+
+- PARANOID_EMIT compile-time option prevents @pemit and @emit from being
+  used on non-Affected targets. This has been previously impossible to
+  prevent using the conf options. (config.h, speech.c)
+
+- The new function lastcreate() and the NewObjs attribute keep track of
+  last-created objects for a given thing. (attrs.h, db.c, functions.c,
+  object.c)
+
+- Command matches on objects can now be done unparsed, through the use
+  of the AF_NOEVAL attribute flag. This allows editors that don't strip
+  percent-signs, etc. (attrs.h, command.c, command.h, cque.c, externs.h,
+  functions.c, game.c, look.c, netcommon.c)
+
+- The /noeval switch to @pemit permits unparsed output.
+
+- Pueblo patch integration; PUEBLO_SUPPORT compile-time option. This is
+  a multimedia MUD client; see http://www.chaco.com/pueblo for details.
+  (Makefile.in, attrs.h, command.c, conf.c, config.h, db.c, externs.h, 
+  file_c.c, file_c.h, flags.c, flags.h, functions.c, game.c, interface.h,
+  look.c, move.c, mudconf.h, netcommon.c, predicates.c, speech.c,
+  stringutil.c)
+
+- COMMA_IN_SAY compile-time attribute controls whether or not a comma is
+  inserted or not, i.e., 'You say, "Hi."' vs. 'You say "Hi."'  (config.h,
+  speech.c)
+
+- Resetting of buffer pools is done at checkpoint time. Extra consistency
+  checking and pool_reset code borrowed from MUX. (alloc.c, timer.c)
+
+- NOSPOOF is now only wiz-visible, though anyone can set it; this
+  attempts to prevent twits from excluding NOSPOOF people in mass-@pemit
+  spams. STOP is now visible to everyone, but only wizards can set it.
+  (flags.c)
+
+- Function invocation limits are checked directly by the list-based 
+  functions and foreach(), saving unnecssary extra passes through
+  exec() in the parser, on overlofws. (functions.c)
+
+- Seconds connected now noted in log of disconnect. (bsd.c)
+
+- Default vattr hashtable size is now 16,384. @list hash also shows the
+  size of the table. (vattr.c, vattr.h, Makefile.in)
+
+- Changed default object cache size to 60x10 from 85x15. (udb_defs.h)
+
+- Changed order of defines for configuration. (config.h)
+
+- mix() no longer eats the beginning of its output, if that output is 
+  NULL; its behavior is now consistent with map(). (functions.c)
+
+- Fixed TLI socket close problems. (bsd.c)
+
+- Properly null-terminated @ps/long output. (cque.c)
+
+- A machinecost of 0 no longer crashes the MUSH. (cque.c)
+
+- The ROBOT flag cannot be reset on players. (flags.c)
+
+- Fixed memory leak in sortby(). (functions.c)
+
+- list_check returns number of matches correctly. (game.c)
+
+- Fixed buffer-overrun problem in queue_write(). (netcommon.c)
+
+- Players over their paylimit don't get a paycheck. (player.c)
+
+- Fixed '@set foo=bar:_baz/boom' bug (it was stuffing the contents of
+  baz's BOOM into foo's BOOM, completely ignoring BAR).  (set.c)
+
+- Fixed problem with attribute names of extactly 32 characters. Patch
+  based on MUX. (vattr.c)
+
+- Miscellaneous cleanup to remove compile-time warnings and small bugs
+  done by Moonchilde.  (command.c, cque.c, db_rw.c, functions.c, look.c,
+  netcommon.c, udb_achunk.c, udb_ochunk.c)
+
+- Fixed some OS-specific problems:
+    * Sys V variants: Andrew Molitor's filters now work.
+    * HP-UX: char promoting to int in formal prototypes fixed. (externs.h)
+    * Linux: myndbm now compiles properly. (myndbm.h)
+    * Linux: MAXINT in delete() no longer causes a crash. (functions.c)
+
+- Copyright notice updated to new TinyMUD copyright. (copyright.h)
+
+===========================================================================
+
+2/14/96:   TinyMUSH 2.2.2
+
+- Implemented the wiz-settable STOP flag. Halts further $command
+  searching if one is matched on an object set STOP. Order something
+  like a master room's contents by priority to get maximum use out of
+  this. (command.c, externs.h, flags.c, flags.h, game.c)
+
+- Implemented the COMMANDS flag and require_cmds_flag conf parameter
+  (defaults to yes). If on, only COMMANDS-set objects will be searched 
+  for $commands. Some automatic db conversion is provided (to DB 
+  version 9), but it doesn't handle parents cleverly. (config.h, 
+  db_rw.c, dbconvert.c, flags.c, flags.h, game.c, mushdb.h, command.c,
+  conf.c, mudconf.h)
+
+- Implemented @parent/zone, a secondary local master room check. 
+  Controlled by conf parameter parent_zones (defaults to yes).
+  (command.c, conf.c, create.c, externs.h, look.c, mudconf.h, mushdb.h)
+
+- New functions: andflags(), orflags(), left(), right(), lpos(), objmem(),
+  xcon(). (functions.c)
+
+- @enable/@disable now logged as CFG/GLOBAL. (wiz.c)
+
+- god_monitoring global parameter enables dumping commands to the
+  screen (basically LOG_ALL_COMMANDS without spamming the disk).
+
+- Memory leak fixed in foreach(). (functions.c)
+
+- lattr() is back to its more logical 2.0.10p5 behavior. Functions which
+  return lists should return empty lists on errors, rather than spewing
+  goop into the list buffer. (functions.c)
+
+- map() without a list returns an empty string, rather than trying to
+  call the mapping function with nothing. (functions.c)
+
+- udefault() didn't evaluate the arguments passed to it before calling
+  the U-function. This has been fixed. (functions.c)
+
+- Checks to make sure atol() does not gag on atr_get_raw() passing back
+  a null pointer. From Ambar. (player_c.c)
+
+- Updated alias.conf with new flag aliases and some new bad_names.
+
+- Patchlevel information moved from 'news' to 'help', so that it gets
+  installed automatically when people update their server help.
+- 'help commands' is now 'help command list' (to avoid conflicting
+  with help for the COMMANDS flag). 'help help' fixed to reflect this.
+- 'help command evaluation2' lists the exact order of matching.
+- 'help secure()' notes that the function stomps on commas.
+- 'help @tel' now accurately reflects what Tport locks actually do.
+
+- Portability modifications for BSD/386 and Linux. In particular, it
+  should now compile cleanly on both; the Linux SIGFPE problem is
+  also fixed, as is the BSD/386 db-eating problem.
+
+- Platforms tested (clean compile, start, shutdown, restart):
+  Irix 5.3, SunOS 4.1.3_U1, Solaris 5.4, BSD/386 1.1, Linux 1.2.11
+
+===========================================================================
+
+6/4/95:  TinyMUSH 2.2.1
+
+- Implemented local master rooms, the ZONE flag, and the local_master_rooms
+  config parameter. (command.c, conf.c, flags.c, flags.h, mudconf.h, mushdb.h)
+
+- Implemented @dolist/notify. (command.c, walkdb.c, externs.h)
+
+- Implemented building_limit conf parameter, to limit total number of
+  objects in the database. (object.c, conf.c, mudconf.h)
+
+- @list options lists output_limit, local_master_rooms and building_limit
+  status. (command.c)
+
+- matchall() with no match returns the empty string, rather than a 0. 
+  In general, list-based functions should return empty strings rather
+  than garbage values, when errors are encountered. This was a programming
+  oversight. (functions.c)
+
+- shuffle() and squish() now properly return a null string when called
+  with no args (rather than a number-of-args error). (functions.c)
+
+- sortby()'s generic u_comp() function checks to make sure function
+  limits have not been exceeded (preventing unnecessary extremely
+  expensive calls to exec(), and long freezes). (functions.c)
+
+- min() and max() no longer chop off fractional parts of numbers.
+  Talek's patch for this modified to retain permissibility of passing
+  the function only one arg. (functions.c)
+
+- add(), mul(), and(), or(), xor(), min(), max() no longer keep the got_one
+  temporary variable around. From Talek. (functions.c)
+
+- not() now uses atoi() rather than xlate(), for behavior consistent with
+  the other boolean functions. Note that this means it no longer regards
+  dbrefs as "true". (functions.c)
+
+- Fixed braino of && to || in dbnum(). From Talek. (functions.c)
+
+- Mortals can now @destroy exits they're carrying. (create.c)
+
+- Put in the mushhacks patch for fixing the site reg crash problem on the
+  Alpha. This is an unverified patch. (conf.c, externs.h, mudconf.h)
+
+- Wrote two utility functions, save_global_regs() and restore_global_regs(),
+  whose purpose in life is to protect global registers from munging.
+  (externs.h, eval.c)
+- ulocal() now uses the utility functions. (functions.c)
+- did_it() now restores the original value of the global registers after
+  the @-attribute and @o-attribute have been evaluated (i.e., before 
+  the action @a-attribute is done). (predicates.c)
+- The state of the global registers is preserved for @filter, @prefix,
+  and related attributes. (game.c)
+- eval_boolexp()'s eval-lock evaluation preserves the state of the global
+  registers. (boolexp.c)
+
+- Modified the Startmush script to give more information as the pre-game
+  file-shuffling is done. Added Talek's patch to automatically start a
+  new db with -s if there are no existing old db files, and to do a bit
+  of magic to grab the PID and tail -f the log until startup processing
+  is complete.
+
+- Fixed and updated the helptext for 'help me'.
+- Updated the helptext on @aconnect/@adisconnect for global conns.
+- Updated "help credits".
+
+- Verified various fixes that were made in 2.0.10p6:
+    * get(), etc. can retrieve all public attributes except for @desc,
+      regardless of the status of read_remote_desc.
+    * home() returns origin of exits.
+    * @list options correctly reports configuration of matching commands.
+    * @trigger takes a /quiet switch.
+    * Rejected 2.0.10p6 "fix" to lattr() which returns #-1 NO MATCH instead
+      of an empty string. (NOTE: This is untrue. It slipped in somehow.
+      Error corrected in 2.2.2 release. -Amberyl, 2/14/96)
+
+===========================================================================
+
+4/1/95:  TinyMUSH 2.2 Initial Public Release
+
+- Began with TinyMUSH 2.0.10p5 as baseline code.
+
+- Fixed all known bugs/problems in the baseline code, including:
+    * Memory leaks. Also, it is no longer assumed that malloc() never
+      returns NULL.
+    * Matching is done consistently and intelligently (more or less).
+    * '#' no longer matches '#0'.
+    * @destroy matching bug fixed, and permissions checked properly.
+    * @destroy cannot blast #0; it is always treated as a special object.
+    * Set action of SIGFPE to SIG_IGN for linux, which spuriously generates
+      the signal without an option to turn it off.
+    * @forwardlists are loaded at startup.
+    * cache_reset() is called for every item, during startup.
+    * cache_reset() is called periodically, when loading player names.
+    * cache_trim config parameter removed. 
+    * Wildcards can no longer be used to overflow buffers.
+    * @alias makes sure that player name is valid.
+    * @clone names cannot be non-NULL and the name must be valid.
+    * elock() requires nearby or control of just one object, not two.
+    * insert() can append to a list.
+    * @function does not crash game when attr is nonexistent.
+    * A /switch on an @attr command (@fail, etc.) does not crash game.
+    * STICKY droptos properly check connected players.
+    * Overflowing connect buffer does not cause game to crash.
+    * Fixed typo of 0 to o in See_attr() macro.
+    * Fixed lack of terminating null on make_ulist() (used by lwho()).
+    * Fixed a @sweep bug which was causing Audible exits and parent objects
+      not to show on the @sweep.
+    * @doing cannot contain tabs or CRs -- converted to spaces. Also fixed
+      an off-by-one counting error on characters dropped.
+    * Removed obsolete memory-statistics stuff.
+    * Fixed timer alarm()s to generate appropriate behavior on all operating
+      systems (previous correct behavior was due to an ancient bug in the code 
+      which caused things to always default to an error condition that 
+      generated guaranteed-good behavior).
+    * Two small syntax things corrected (=- to -=).
+    * Fixed helptext error involving checking of $commands on parent objects.
+    * Noted in help.txt that KEY affects all locks, not just the default one.
+    * MYOPIC now works properly for wizards.
+
+- Many things were fixed in configure; some compatibility changes were made.
+    * db.h is now mushdb.h, in order to appease FreeBSD.
+    * Support for setdtablesize() and get_process_stats() on Sequent.
+    * Support for the rusage syscall() braindamage on HP-UX.
+
+- New features were added, and some other things twiddled.
+    * Quotas can be managed by object type.
+    * There is support for multiple guest characters.
+    * There is support for global aconnects and adisconnects.
+    * Added logging of command count, bytes input, and bytes output, when
+      player disconnects.
+    * Note is written to log after startup processing is completed (since 
+      there is often a substantial delay between the db load completing and 
+      the game actually being "up").
+    * @shutdown/abort causes game to coredump via abort().
+    * @dbck can fix damage of the 'Next(<obj>) == <obj>' type.
+    * @search reports a count of the objects found, broken down by type.
+    * @pemit to disconnected/pagelocked players now does not return an error
+      message.
+    * @pemit/list and @pemit/list/contents sends a message to a list.
+    * @decompile takes wildcards.
+    * 'examine' shows more attribute flags. More individual attribute flags
+      are now settable.
+    * Added "audible" notation to @sweep command.
+    * Idle/Reject/Away messages now take the paging player as the enactor,
+      rather than the target player. This enables personalized messages for
+      each player.
+    * Fixed @list options to reorganize some of the parameters and remove
+      redundant or obsolete stuff. Also added some previously unlisted stuff,
+      like typed quotas and function limits.
+    * Reorganized @list process, and removed bits of obsolete code.
+
+- Functions were modified.
+    * and() and or() stop evaluating when a conclusion is reached (this
+      isn't user-visible, unless there are inline side-effect functions
+      like setq(), and is done merely for internal speed).
+    * hasflag() can now check attribute flags.
+    * iter() and parse() evaluate their delimiter args.
+    * lnum() can now take a range argument, and a separator.
+    * locate() can now taken an 'X' parameter (to force an ambiguous match).
+
+- Functions were added.
+    * %q-substitution for r()
+    * %c/v(c) substitution for 'last command'.
+    * default(), edefault(), udefault()
+    * findable(), hasattr(), isword(), visible()
+    * elements(), grab(), matchall()
+    * last(), mix(), munge(), scramble(), shuffle(), sortby()
+    * objeval(), ports(), ulocal()
+    * foreach(), squish()
+
+- Configuration options were added and modified, and other cleanup was done.
+    * Made wizard_obeys_linklock a config option (default is "no").
+    * Default queue idle and queue active chunks changed to 10/10 (from 3/0).
+    * Default object cache size changed to 85x15 (from 129x10).
+    * New config parameters starting_room_quota, starting_exit_quota,
+      starting_thing_quota, starting_player_quota, typed_quotas (defaults
+      to "no") added to support Typed Quotas.
+    * New config parameter use_global_aconn (default is "yes").
+    * Config parameter 'guest_char_num' replaced by 'guests'.
+    * Floating-point arithmetic is now an #ifdef FLOATING_POINTS in config.h
+    * Hashtable sizes were upped to 512 for players, 256 for functions, and
+      512 for commands.
+    * The code was split up into multiple directories.
+    * One consistent indentation style is in place (see misc/indent.pro)
+    * New news.txt file, which says some general things about 2.2 and MUSH,
+      adds a user-visible changes section, and adds a long-needed "how to
+      write a news file" entry. Also modified motd.txt for the 
+      "### end of messages ###"  client-stop-gagging-welcome-screen mark.
+
+===========================================================================
