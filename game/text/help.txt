@@ -4787,7 +4787,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   attribute controls how gender-specific pronoun substitutions are evaluated
   for the player.  If the player's Sex attribute starts with an 'M' or an 'm'
   then the player is assumed to be male,  'F', 'f', 'W', and 'w' indicate
-  female, and anything else indicates neuter.
+  female, 'P' or 'p' indicate plural, and anything else indicates neuter.
   See also: SUBSTITUTIONS.  
 
 & GOALS
@@ -4884,7 +4884,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
      '@desc me = <description>', then look at yourself with 'look me'.
  
   2) Set your gender, if you wish it known, with
-     '@sex me=male' or '@sex me=female'  (or '@sex me=neuter' to be an 'it').
+     '@sex me=male' or '@sex me=female'  (or '@sex me=neuter' to be an 'it',
+     or '@sex me=plural' to be a 'they').
  
   3) Prevent other people from picking you up, with '@lock me=me'
  
