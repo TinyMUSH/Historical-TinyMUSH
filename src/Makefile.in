@@ -37,7 +37,8 @@ D_SRC	= create.c game.c help.c look.c match.c move.c player.c predicates.c \
 	  unparse.c eval.c command.c wild.c netcommon.c functions.c vattr.c \
 	  db.c db_rw.c stringutil.c object.c conf.c flags.c htab.c \
 	  compat.c file_c.c player_c.c bsd.c alloc.c comsys.c mail.c \
-          mguests.c powers.c newconc.c funceval.c regexp.c quota.c
+          mguests.c powers.c newconc.c funceval.c regexp.c quota.c \
+	  db_empty.c db_msql.c
 D_OBJ	= create.o game.o help.o look.o match.o move.o player.o predicates.o \
 	  rob.o set.o speech.o wiz.o walkdb.o timer.o boolexp.o log.o cque.o \
 	  unparse.o eval.o command.o wild.o netcommon.o functions.o vattr.o \
@@ -47,7 +48,7 @@ D_OBJ	= create.o game.o help.o look.o match.o move.o player.o predicates.o \
 D_INC	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  command.h config.h db.h externs.h mudconf.h misc.h \
 	  vattr.h file_c.h alloc.h attrs.h comsys.h \
-          mguests.h powers.h slave.h regexp.h
+          mguests.h powers.h slave.h regexp.h db_sql.h
 
 # Version number routine
 VER_SRC	= version.c
@@ -103,7 +104,22 @@ MORELIBS	= -lm
 #MORELIBS	= -lm -lnsl -lsocket -L/usr/ucblib -lucb	# Mips
 #MORELIBS	= -lm -L/usr/ucblib -lucb			# old Solaris
 
-# The first set of definitions is for disk-based caching. If you wish to be
+# TinyMUSH can read and write directly from an external mSQL database (and
+# possibly other databases in the future). If you want to use this
+# functionality, comment out the first set of definitions and uncomment
+# the second set.
+# You will need to change the pathname to mSQL, if your mSQL installation
+# is not in /usr/local/Hughes
+#
+SQL_INC =
+SQL_LIB =
+SQL_OBJ = db_empty.o
+#
+#SQL_INC = -I/usr/local/Hughes/include
+#SQL_LIB = -L/usr/local/Hughes/lib -lmsql
+#SQL_OBJ = db_msql.o
+
+# This set of definitions is for disk-based caching. If you wish to be
 # memory based, comment the first set and uncomment the second set. Being
 # disk-based usually uses less memory, but more disk-space. Being memory
 # entails using more memory, less disk-space, and some gain in performance.
@@ -198,7 +214,7 @@ AUX_SRC	= dbconvert.c mkindx.c unsplit.c
 LIB_SRC = 
 LIB_INC = 
 DEBUG	= $(OPTIM)
-ALLCFLAGS = $(CFLAGS) $(DEBUG) $(DEFS) $(COMPRESS_DEFS) $(BASED) $(MALLOC_DEFS) $(CONC_DEFS) $(VSIZE_F)
+ALLCFLAGS = $(CFLAGS) $(SQL_INC) $(DEBUG) $(DEFS) $(COMPRESS_DEFS) $(BASED) $(MALLOC_DEFS) $(CONC_DEFS) $(VSIZE_F)
 
 #Auxiliary files
 A_INST	= CREDITS CHANGES CHANGES.TINY20 CHANGES.TINY22 CHANGES.MUX \
@@ -267,38 +283,38 @@ dbconvert: dbconvert.o $(SA_OBJ) $(SA_UDB_O) $(ALLOC_O) $(LIBOBJS)
 $(VER_OBJ):
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $(VER_SRC)
 
-netmush: $(OBJ) $(LIBOBJS) $(VER_OBJ)
+netmush: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-mv -f netmush netmush~
-	$(CC) $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(VER_OBJ) $(LIBS) $(COMPRESS_LIB) $(MORELIBS)
+	$(CC) $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) $(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
-netmush-pure: $(OBJ) $(LIBOBJS) $(VER_OBJ)
+netmush-pure: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-pure
 	$(PUREDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
-	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(MORELIBS)
+	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
+	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
-netmush-purecov: $(OBJ) $(LIBOBJS) $(VER_OBJ)
+netmush-purecov: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-purecov
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	-log-file=purify/netmush.plog \
-	$(CC) $(ALLCFLAGS) -o netmush-purecov $(OBJ) $(LIBOBJS) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(MORELIBS)
+	$(CC) $(ALLCFLAGS) -o netmush-purecov $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
+	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
-netmush-realpure: $(OBJ) $(LIBOBJS) $(VER_OBJ)
+netmush-realpure: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-realpure
 	$(PURIFYDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
-	$(CC) $(ALLCFLAGS) -o netmush-realpure $(OBJ) $(LIBOBJS) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(MORELIBS)
+	$(CC) $(ALLCFLAGS) -o netmush-realpure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
+	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
-netmush-quant: $(OBJ) $(LIBOBJS) $(VER_OBJ)
+netmush-quant: $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-quant
 	$(QUANTDIR)/quantify -view-file=purify/quant.pv \
 	-log-file=purify/quant.plog \
-	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(MORELIBS)
+	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
+	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
 
 cvs:
 	rm -f buildnum.data
