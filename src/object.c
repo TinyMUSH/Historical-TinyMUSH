@@ -596,7 +596,7 @@ dbref player, obj;
 			notify(owner, "Halted.");
 		}
 	}
-	nfy_que(obj, 0, NFY_DRAIN, 0);
+	nfy_que(GOD, obj, 0, NFY_DRAIN, 0);
 	cron_clr(obj, NOTHING);
 	
 	/* Remove forwardlists, stacks, etc. from the hash tables. */
