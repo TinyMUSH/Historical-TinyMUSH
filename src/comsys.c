@@ -311,6 +311,11 @@ static void com_message(chp, msg, cause)
     int i;
     CHANWHO *wp;
     char *mp, msg_ns[LBUF_SIZE];
+#ifdef PUEBLO_SUPPORT
+    char *mh, *mh_ns;
+
+    mh = mh_ns = NULL;
+#endif
 
     chp->num_sent++;
     mp = NULL;
@@ -346,15 +351,45 @@ static void com_message(chp, msg, cause)
 			safe_known_str((char *) "] ", 2, msg_ns, &mp);
 			safe_str(msg, msg_ns, &mp);
 		    }
+#ifndef PUEBLO_SUPPORT
 		    raw_notify(wp->player, msg_ns);
+#else
+		    if (Html(wp->player)) {
+			if (!mh_ns) {
+			    mh_ns = alloc_lbuf("com_message.html.nospoof");
+ 			    html_escape(msg_ns, mh_ns, 0);
+			}
+			raw_notify(wp->player, mh_ns);
+		    } else {
+			raw_notify(wp->player, msg_ns);
+		    }
+#endif
 		} else {
+#ifndef PUEBLO_SUPPORT
 		    raw_notify(wp->player, msg);
+#else
+		    if (Html(wp->player)) {
+			if (!mh) {
+			    mh = alloc_lbuf("com_message.html");
+ 			    html_escape(msg, mh, 0);
+			}
+			raw_notify(wp->player, mh);
+		    } else {
+			raw_notify(wp->player, msg);
+		    }
+#endif
 		}
 	    } else {
 		notify_with_cause(wp->player, cause, msg);
 	    }
 	}
     }
+#ifdef PUEBLO_SUPPORT
+    if (mh)
+	free_lbuf(mh);
+    if (mh_ns)
+	free_lbuf(mh_ns);
+#endif
 }
 
 static void remove_from_channel(player, chp, is_quiet)
