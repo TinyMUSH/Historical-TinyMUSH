@@ -1037,7 +1037,7 @@ int i;
 	 * abbreviated to minimise name checking time. 
 	 */
 
-	for (i = 0; i < A_USER_START; i++)
+	for (i = 0; i < 256; i++)
 		prefix_cmds[i] = NULL;
 	prefix_cmds['"'] = (CMDENT *) hashfind((char *)"\"",
 					       &mudstate.command_htab);
