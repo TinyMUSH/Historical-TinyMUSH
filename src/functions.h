@@ -352,7 +352,7 @@ if ((l) > 0) { \
  * L = mudstate.cputime_base + mudconf.func_cpu_lim
  * N = mudstate.cputime_now
  *
- * Assuming B != -1 and L != -1 to catch errors on BSD, the possible
+ * Assuming B != -1 and N != -1 to catch errors on BSD, the possible
  * combinations of these values are as follows (note >> means "much
  * greater than", not right shift):
  *
