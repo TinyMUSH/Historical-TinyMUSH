@@ -184,6 +184,7 @@ POWERENT gen_powers[] =
 {(char *)"unkillable",		POW_UNKILLABLE, 0, 0,	ph_wiz},
 {(char *)"pass_locks",		POW_PASS_LOCKS, 0, 0,   ph_wiz},
 {(char *)"builder",		POW_BUILDER,	POWER_EXT, 0,	ph_wiz},
+{(char *)"link_any_home",	POW_LINKHOME,	POWER_EXT, 0,	ph_wiz},
 {(char *)"link_variable",	POW_LINKVAR,	POWER_EXT, 0,	ph_wiz},
 {(char *)"link_to_anything",	POW_LINKTOANY,	POWER_EXT, 0,	ph_wiz},
 {(char *)"open_anywhere",	POW_OPENANYLOC,	POWER_EXT, 0,	ph_wiz},

@@ -2205,7 +2205,7 @@ See also: @femit, @fsay, say, @force
  
   When used on a player or a thing, this command sets the object's home
   to the indicated location.  The destination must be owned by you or be an
-  ABODE room.
+  ABODE room, or you must have the link_any_home power.
  
   When used on a room, this command sets the room's drop-to, where objects
   dropped in the room go.  The destination must be a room that is either owned
@@ -10993,14 +10993,15 @@ performed and the walk down the list stops.
   halt			Can @halt anything, and @halt/all.
   hide			Can set themselves DARK.
   idle			No idle timeout.
-  link_variable		Can @link an exit to "variable".
+  link_any_home		Can @link an object to any home.
   link_to_anything	Can @link an exit to any (non-variable) destination.
-  long_fingers		Can get, look, whisper, etc from a distance.
+  link_variable		Can @link an exit to "variable".
  
 { 'help powers list2' for more }
  
 & powers list2
  
+  long_fingers		Can get, look, whisper, etc from a distance.
   no_destroy		Cannot be @toad'ed.
   open_anywhere		Can @open an exit from any location.
   poll			Can set the @poll.

@@ -166,7 +166,8 @@ dbref player, thing, home;
 	case TYPE_THING:
 		if (Going(home))
 			return 0;
-		if (Controls(player, home) || Abode(home))
+		if (Controls(player, home) || Abode(home) ||
+		    LinkAnyHome(player))
 			return 1;
 	}
 	return 0;
