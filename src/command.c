@@ -2174,6 +2174,7 @@ dbref player;
 
 NAMETAB access_nametab[] =
 {
+	{(char *)"admin", 2, CA_WIZARD, CA_ADMIN},
 	{(char *)"builder", 6, CA_WIZARD, CA_BUILDER},
 	{(char *)"dark", 4, CA_GOD, CF_DARK},
 	{(char *)"disabled", 4, CA_GOD, CA_DISABLED},
