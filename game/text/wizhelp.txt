@@ -1482,13 +1482,20 @@ use_global_aconn	wizard_obeys_linklock
  
 & config_access
   Config parameter: config_access <param> [!]<privilege> [[!]<privilege>]...
+ 
   Changes the privileges needed to change the specified configuration
-  parameter.  The value 'disabled' indicates that the parameter may only
-  be specified in the configuration file at startup.  Setting privileges
-  to anything other than disabled or god is meaningless unless the 
-  restriction on the @admin command is weakened.
+  parameter.
+ 
+  The value 'disabled' indicates that the parameter may only be specified
+  in the configuration file at startup. The value 'static' indicates that
+  the parameter may only be specified in the configuration file at startup,
+  and the permissions for setting that parameter may never be changed.
+ 
+  Setting privileges to anything other than static, disabled, or god is
+  meaningless unless the restriction on the @admin command is weakened.
+ 
   See also: @admin, @list config_permissions, PERMISSIONS.
-
+ 
 & conn_timeout
   Config parameter: conn_timeout <num>.  Default: 60
   Specifies how many seconds a new network connection may remain open before
