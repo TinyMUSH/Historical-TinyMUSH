@@ -111,7 +111,7 @@ FUNCTION(fun_r)
 FUNCTION(fun_wildmatch)
 {
     int i, nqregs, curq;
-    char *t_args[NUM_ENV_VARS], *qregs[NUM_ENV_VARS]; /* %0-%9 is limiting */
+    char *t_args[NUM_ENV_VARS], **qregs; /* %0-%9 is limiting */
 
     if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS)) {
 	safe_chr('0', buff, bufc);
@@ -124,9 +124,9 @@ FUNCTION(fun_wildmatch)
      * to be -1. Fill them in.
      */
 
-    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
+    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
-	if (qregs[i] && *qregs[i])
+	if (*qregs[i])
 	    curq = qidx_chartab[(unsigned char) *qregs[i]];
 	else
 	    curq = -1;
@@ -151,6 +151,7 @@ FUNCTION(fun_wildmatch)
 	if (t_args[i])
 	    free_lbuf(t_args[i]);
     }
+    XFREE(qregs, "fun_wildmatch.qregs");
 }
 
 /* --------------------------------------------------------------------------
@@ -400,7 +401,7 @@ FUNCTION(fun_store)
 
 FUNCTION(fun_xvars)
 {
-    char *xvar_names[LBUF_SIZE / 2], *elems[LBUF_SIZE / 2];
+    char **xvar_names, **elems;
     int n_xvars, n_elems;
     char *varlist, *elemlist;
     int i, isep_len;
@@ -410,10 +411,11 @@ FUNCTION(fun_xvars)
    
     varlist = alloc_lbuf("fun_xvars.vars");
     strcpy(varlist, fargs[0]);
-    n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, SPACE_DELIM, 1);
+    n_xvars = list2arr(&xvar_names, LBUF_SIZE / 2, varlist, SPACE_DELIM, 1);
 
     if (n_xvars == 0) {
 	free_lbuf(varlist);
+	XFREE(xvar_names, "fun_xvars.xvar_names");
 	return;
     }
 
@@ -421,17 +423,20 @@ FUNCTION(fun_xvars)
 	/* Empty list, clear out the data. */
 	clear_xvars(player, xvar_names, n_xvars);
 	free_lbuf(varlist);
+	XFREE(xvar_names, "fun_xvars.xvar_names");
 	return;
     }
 
     elemlist = alloc_lbuf("fun_xvars.elems");
     strcpy(elemlist, fargs[1]);
-    n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, isep, isep_len);
+    n_elems = list2arr(&elems, LBUF_SIZE / 2, elemlist, isep, isep_len);
 
     if (n_elems != n_xvars) {
 	safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
 	free_lbuf(varlist);
 	free_lbuf(elemlist);
+	XFREE(xvar_names, "fun_xvars.xvar_names");
+	XFREE(elems, "fun_xvars.elems");
 	return;
     }
 
@@ -441,12 +446,14 @@ FUNCTION(fun_xvars)
 
     free_lbuf(varlist);
     free_lbuf(elemlist);
+    XFREE(xvar_names, "fun_xvars.xvar_names");
+    XFREE(elems, "fun_xvars.elems");
 }
 
 
 FUNCTION(fun_let)
 {
-    char *xvar_names[LBUF_SIZE / 2], *elems[LBUF_SIZE / 2];
+    char **xvar_names, **elems;
     char *old_xvars[LBUF_SIZE / 2];
     int n_xvars, n_elems;
     char *varlist, *elemlist;
@@ -466,10 +473,11 @@ FUNCTION(fun_let)
     exec(varlist, &bp, player, caller, cause,
 	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
     *bp = '\0';
-    n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, SPACE_DELIM, 1);
+    n_xvars = list2arr(&xvar_names, LBUF_SIZE / 2, varlist, SPACE_DELIM, 1);
 
     if (n_xvars == 0) {
 	free_lbuf(varlist);
+	XFREE(xvar_names, "fun_let.xvar_names");
 	return;
     }
 
@@ -513,12 +521,12 @@ FUNCTION(fun_let)
 	 * we just leave the values alone (we don't clear them out).
 	 */
 
-	elemlist = bp = alloc_lbuf("fun_let.elems");
+	elemlist = bp = alloc_lbuf("fun_let.elemlist");
 	str = fargs[1];
 	exec(elemlist, &bp, player, caller, cause,
 	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
-	n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, isep, isep_len);
+	n_elems = list2arr(&elems, LBUF_SIZE / 2, elemlist, isep, isep_len);
 
 	if (n_elems != n_xvars) {
 	    safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
@@ -528,6 +536,8 @@ FUNCTION(fun_let)
 		if (old_xvars[i])
 		    XFREE(old_xvars[i], "fun_let");
 	    }
+	    XFREE(xvar_names, "fun_let.xvar_names");
+	    XFREE(elems, "fun_let.elems");
 	    return;
 	}
 
@@ -554,6 +564,8 @@ FUNCTION(fun_let)
     }
 
     free_lbuf(varlist);
+    XFREE(xvar_names, "fun_let.xvar_names");
+    XFREE(elems, "fun_let.elems");
 }
 
 
@@ -632,9 +644,7 @@ FUNCTION(fun_structure)
     char cbuf[SBUF_SIZE], *cp;
     char *p;
     char *comp_names, *type_names, *default_vals;
-    char *comp_array[LBUF_SIZE / 2];
-    char *type_array[LBUF_SIZE / 2];
-    char *def_array[LBUF_SIZE / 2];
+    char **comp_array, **type_array, **def_array;
     int n_comps, n_types, n_defs;
     int i, isep_len, osep_len;
     STRUCTDEF *this_struct;
@@ -699,12 +709,13 @@ FUNCTION(fun_structure)
      */
 
     comp_names = XSTRDUP(fargs[1], "struct.comps");
-    n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, SPACE_DELIM, 1);
+    n_comps = list2arr(&comp_array, LBUF_SIZE / 2, comp_names, SPACE_DELIM, 1);
 
     if (n_comps < 1) {
 	notify_quiet(player, "There must be at least one component.");
 	safe_chr('0', buff, bufc);
 	XFREE(comp_names, "struct.comps");
+	XFREE(comp_array, "fun_structure.comp_array");
 	return;
     }
 
@@ -717,13 +728,14 @@ FUNCTION(fun_structure)
 	    notify_quiet(player, "Component name is too long.");
 	    safe_chr('0', buff, bufc);
 	    XFREE(comp_names, "struct.comps");
+	    XFREE(comp_array, "fun_structure.comp_array");
 	    return;
 	}
     }
 
     type_names = alloc_lbuf("struct.types");
     strcpy(type_names, fargs[2]);
-    n_types = list2arr(type_array, LBUF_SIZE / 2, type_names, SPACE_DELIM, 1);
+    n_types = list2arr(&type_array, LBUF_SIZE / 2, type_names, SPACE_DELIM, 1);
 
     /* Make sure all types are valid. We look only at the first char, so
      * typos will not be caught.
@@ -743,14 +755,16 @@ FUNCTION(fun_structure)
 		notify_quiet(player, "Invalid data type specified.");
 		safe_chr('0', buff, bufc);
 		XFREE(comp_names, "struct.comps");
+		XFREE(comp_array, "fun_structure.comp_array");
 		free_lbuf(type_names);
+		XFREE(type_array, "fun_structure.type_array");
 		return;
 	}
     }
 
     if (fargs[3] && *fargs[3]) {
 	default_vals = XSTRDUP(fargs[3], "struct.defaults");
-	n_defs = list2arr(def_array, LBUF_SIZE / 2, default_vals,
+	n_defs = list2arr(&def_array, LBUF_SIZE / 2, default_vals,
 			  isep, isep_len);
     } else {
 	default_vals = NULL;
@@ -761,22 +775,22 @@ FUNCTION(fun_structure)
 	notify_quiet(player, "List sizes must be identical.");
 	safe_chr('0', buff, bufc);
 	XFREE(comp_names, "struct.comps");
+	XFREE(comp_array, "fun_structure.comp_array");
 	free_lbuf(type_names);
+	XFREE(type_array, "fun_structure.type_array");
 	if (default_vals)
 	    XFREE(default_vals, "struct.defaults");
+	XFREE(def_array, "fun_structure.def_array");
 	return;
     }
 
     /* Allocate the structure and stuff it in the hashtable. Note that
-     * we must duplicate our name structure since the pointers to the
-     * strings have been allocated on the stack!
+     * we retain one of the string arrays allocated by list2arr!
      */
 
     this_struct = (STRUCTDEF *) XMALLOC(sizeof(STRUCTDEF), "struct_alloc");
     this_struct->s_name = XSTRDUP(fargs[0], "struct.s_name");
-    this_struct->c_names = (char **) XCALLOC(n_comps, sizeof(char *), "struct.c_names");
-    for (i = 0; i < n_comps; i++)
-	this_struct->c_names[i] = comp_array[i];
+    this_struct->c_names = comp_array;
     this_struct->c_array = (COMPONENT **) XCALLOC(n_comps, sizeof(COMPONENT *), "struct.n_comps");
     this_struct->c_count = n_comps;
     this_struct->delim = osep.c;
@@ -841,6 +855,9 @@ FUNCTION(fun_structure)
     }
 
     free_lbuf(type_names);
+    XFREE(type_array, "fun_structure.type_array");
+    XFREE(def_array, "fun_structure.def_array");
+
     s_StructCount(player, StructCount(player) + 1);
     safe_chr('1', buff, bufc);
 }
@@ -855,7 +872,7 @@ FUNCTION(fun_construct)
     char *p;
     STRUCTDEF *this_struct;
     char *comp_names, *init_vals;
-    char *comp_array[LBUF_SIZE / 2], *vals_array[LBUF_SIZE / 2];
+    char **comp_array, **vals_array;
     int n_comps, n_vals;
     int i, isep_len;
     COMPONENT *c_ptr;
@@ -933,17 +950,19 @@ FUNCTION(fun_construct)
 
 	comp_names = alloc_lbuf("construct.comps");
 	strcpy(comp_names, fargs[2]);
-	n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names,
+	n_comps = list2arr(&comp_array, LBUF_SIZE / 2, comp_names,
 			   SPACE_DELIM, 1);
 	init_vals = alloc_lbuf("construct.vals");
 	strcpy(init_vals, fargs[3]);
-	n_vals = list2arr(vals_array, LBUF_SIZE / 2, init_vals,
+	n_vals = list2arr(&vals_array, LBUF_SIZE / 2, init_vals,
 			  isep, isep_len);
 	if (n_comps != n_vals) {
 	    notify_quiet(player, "List sizes must be identical.");
 	    safe_chr('0', buff, bufc);
 	    free_lbuf(comp_names);
 	    free_lbuf(init_vals);
+	    XFREE(comp_array, "fun_construct.comp_array");
+	    XFREE(vals_array, "fun_construct.vals_array");
 	    return;
 	}
 
@@ -959,6 +978,8 @@ FUNCTION(fun_construct)
 		safe_chr('0', buff, bufc);
 		free_lbuf(comp_names);
 		free_lbuf(init_vals);
+		XFREE(comp_array, "fun_construct.comp_array");
+		XFREE(vals_array, "fun_construct.vals_array");
 		return;
 	    }
 	    if (c_ptr->typer_func) {
@@ -968,6 +989,8 @@ FUNCTION(fun_construct)
 		    safe_chr('0', buff, bufc);
 		    free_lbuf(comp_names);
 		    free_lbuf(init_vals);
+		    XFREE(comp_array, "fun_construct.comp_array");
+		    XFREE(vals_array, "fun_construct.vals_array");
 		    return;
 		}
 	    }
@@ -976,6 +999,7 @@ FUNCTION(fun_construct)
     } else if ((!fargs[2] || !*fargs[2]) && (!fargs[3] || !*fargs[3])) {
 	/* Blank initializers. This is just fine. */
 	comp_names = init_vals = NULL;
+	comp_array = vals_array = NULL;
 	n_comps = n_vals = 0;
     } else {
 	notify_quiet(player, "List sizes must be identical.");
@@ -1031,10 +1055,14 @@ FUNCTION(fun_construct)
 	}
     }
 
-    if (comp_names)
+    if (comp_names) {
 	free_lbuf(comp_names);
-    if (init_vals)
+	XFREE(comp_array, "fun_construct.comp_array");
+    }
+    if (init_vals) {
 	free_lbuf(init_vals);
+	XFREE(vals_array, "fun_construct.vals_array");
+    }
     this_struct->n_instances += 1;
     s_InstanceCount(player, InstanceCount(player) + 1);
     safe_chr('1', buff, bufc);
@@ -1054,7 +1082,7 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
     char *p;
     STRUCTDEF *this_struct;
     char *val_list;
-    char *val_array[LBUF_SIZE / 2];
+    char **val_array;
     int n_vals;
     INSTANCE *inst_ptr;
     STRUCTDATA *d_ptr;
@@ -1119,11 +1147,12 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
 
     val_list = alloc_lbuf("load.val_list");
     strcpy(val_list, raw_text);
-    n_vals = list2arr(val_array, LBUF_SIZE / 2, val_list, isep, 1);
+    n_vals = list2arr(&val_array, LBUF_SIZE / 2, val_list, isep, 1);
     if (n_vals != this_struct->c_count) {
 	notify_quiet(player, "Incorrect number of components.");
 	safe_chr('0', buff, bufc);
 	free_lbuf(val_list);
+	XFREE(val_array, "load_structure.val_array");
 	return;
     }
 
@@ -1135,6 +1164,7 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
 	    notify_quiet(player, "Value is of invalid type.");
 	    safe_chr('0', buff, bufc);
 	    free_lbuf(val_list);
+	    XFREE(val_array, "load_structure.val_array");
 	    return;
 	}
     }
@@ -1166,6 +1196,7 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
     }
 
     free_lbuf(val_list);
+    XFREE(val_array, "load_structure.val_array");
     this_struct->n_instances += 1;
     s_InstanceCount(player, InstanceCount(player) + 1);
     safe_chr('1', buff, bufc);
@@ -1204,7 +1235,7 @@ FUNCTION(fun_delimit)
 {
     dbref it, aowner;
     int atr, aflags, alen, nitems, i, over = 0;
-    char *atext, *ptrs[LBUF_SIZE / 2];
+    char *atext, **ptrs;
     Delim isep;
 
     /* This function is unusual in that the second argument is a delimiter
@@ -1227,7 +1258,7 @@ FUNCTION(fun_delimit)
     }
 
     atext = atr_pget(it, atr, &aowner, &aflags, &alen);
-    nitems = list2arr(ptrs, LBUF_SIZE / 2, atext, isep, 1);
+    nitems = list2arr(&ptrs, LBUF_SIZE / 2, atext, isep, 1);
     if (nitems) {
 	over = safe_str(ptrs[0], buff, bufc);
     }
@@ -1237,6 +1268,7 @@ FUNCTION(fun_delimit)
 	    over = safe_str(ptrs[i], buff, bufc);
     }
     free_lbuf(atext);
+    XFREE(ptrs, "fun_delimit.ptrs");
 }
 
 
@@ -1273,7 +1305,7 @@ FUNCTION(fun_modify)
     INSTANCE *inst_ptr;
     COMPONENT *c_ptr;
     STRUCTDATA *s_ptr;
-    char *words[LBUF_SIZE / 2], *vals[LBUF_SIZE / 2];
+    char **words, **vals;
     int retval, nwords, nvals, i, n_mod, isep_len;
     Delim isep;
 
@@ -1299,8 +1331,8 @@ FUNCTION(fun_modify)
 
     /* Process for each component in the list. */
 
-    nwords = list2arr(words, LBUF_SIZE / 2, fargs[1], SPACE_DELIM, 1);
-    nvals = list2arr(vals, LBUF_SIZE / 2, fargs[2], isep, isep_len);
+    nwords = list2arr(&words, LBUF_SIZE / 2, fargs[1], SPACE_DELIM, 1);
+    nvals = list2arr(&vals, LBUF_SIZE / 2, fargs[2], isep, isep_len);
 
     n_mod = 0;
     for (i = 0; i < nwords; i++) {
@@ -1356,6 +1388,8 @@ FUNCTION(fun_modify)
 	n_mod++;
     }
 
+    XFREE(words, "fun_modify.words");
+    XFREE(vals, "fun_modify.vals");
     safe_ltos(buff, bufc, n_mod);
 }
 
@@ -2208,12 +2242,12 @@ FUNCTION(perform_regedit)
 FUNCTION(fun_wildparse)
 {
     int i, nqregs;
-    char *t_args[NUM_ENV_VARS], *qregs[NUM_ENV_VARS];
+    char *t_args[NUM_ENV_VARS], **qregs;
 
     if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS))
 	return;
 
-    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
+    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i])
 	    set_xvar(player, qregs[i], t_args[i]);
@@ -2225,6 +2259,7 @@ FUNCTION(fun_wildparse)
 	if (t_args[i])
 	    free_lbuf(t_args[i]);
     }
+    XFREE(qregs, "wildparse.qregs");
 }
 
 /* ---------------------------------------------------------------------------
@@ -2237,7 +2272,7 @@ FUNCTION(perform_regparse)
 {
     int i, nqregs;
     int case_option;
-    char *qregs[NUM_ENV_VARS];
+    char **qregs;
     char matchbuf[LBUF_SIZE];
     pcre *re;
     const char *errptr;
@@ -2257,7 +2292,7 @@ FUNCTION(perform_regparse)
     subpatterns = pcre_exec(re, NULL, fargs[0], strlen(fargs[0]),
 			    0, 0, offsets, PCRE_MAX_OFFSETS);
 
-    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
+    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i]) {
 	    if (subpatterns < 0) {
@@ -2271,6 +2306,7 @@ FUNCTION(perform_regparse)
     }
 
     XFREE(re, "perform_regparse.re");
+    XFREE(qregs, "perform_regparse.qregs");
 }
 
 /* ---------------------------------------------------------------------------
@@ -2359,7 +2395,7 @@ FUNCTION(perform_regmatch)
 {
     int case_option;
     int i, nqregs, curq;
-    char *qregs[NUM_ENV_VARS];
+    char **qregs;
     pcre *re;
     const char *errptr;
     int erroffset;
@@ -2401,7 +2437,7 @@ FUNCTION(perform_regmatch)
     if (subpatterns == 0)
 	subpatterns = PCRE_MAX_OFFSETS / 3;
 
-    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
+    nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i])
 	    curq = qidx_chartab[(unsigned char) *qregs[i]];
@@ -2423,6 +2459,7 @@ FUNCTION(perform_regmatch)
     }
 
     XFREE(re, "perform_regmatch.re");
+    XFREE(qregs, "perform_regmatch.qregs");
 }
 
 /* ---------------------------------------------------------------------------

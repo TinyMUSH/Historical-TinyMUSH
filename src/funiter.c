@@ -679,8 +679,7 @@ FUNCTION(fun_munge)
 	int isep_len, osep_len;
 	ATTR *ap;
 	char *list1, *list2, *rlist;
-	char *ptrs1[LBUF_SIZE / 2], *ptrs2[LBUF_SIZE / 2];
-	char *results[LBUF_SIZE / 2];
+	char **ptrs1, **ptrs2, **results;
 	char *atext, *bp, *str, *oldp;
 	Delim isep, osep;
 
@@ -701,14 +700,16 @@ FUNCTION(fun_munge)
 	list2 = alloc_lbuf("fun_munge.list2");
 	strcpy(list1, fargs[1]);
 	strcpy(list2, fargs[2]);
-	nptrs1 = list2arr(ptrs1, LBUF_SIZE / 2, list1, isep, isep_len);
-	nptrs2 = list2arr(ptrs2, LBUF_SIZE / 2, list2, isep, isep_len);
+	nptrs1 = list2arr(&ptrs1, LBUF_SIZE / 2, list1, isep, isep_len);
+	nptrs2 = list2arr(&ptrs2, LBUF_SIZE / 2, list2, isep, isep_len);
 
 	if (nptrs1 != nptrs2) {
 		safe_str("#-1 LISTS MUST BE OF EQUAL SIZE", buff, bufc);
 		free_lbuf(atext);
 		free_lbuf(list1);
 		free_lbuf(list2);
+		XFREE(ptrs1, "fun_munge.ptrs1");
+		XFREE(ptrs2, "fun_munge.ptrs2");
 		return;
 	}
 	/* Call the u-function with the first list as %0. */
@@ -724,7 +725,7 @@ FUNCTION(fun_munge)
 	 * copy the corresponding element from list2. 
 	 */
 
-	nresults = list2arr(results, LBUF_SIZE / 2, rlist, isep, isep_len);
+	nresults = list2arr(&results, LBUF_SIZE / 2, rlist, isep, isep_len);
 
 	for (i = 0; i < nresults; i++) {
 		for (j = 0; j < nptrs1; j++) {
@@ -742,6 +743,9 @@ FUNCTION(fun_munge)
 	free_lbuf(list1);
 	free_lbuf(list2);
 	free_lbuf(rlist);
+	XFREE(ptrs1, "fun_munge.ptrs1");
+	XFREE(ptrs2, "fun_munge.ptrs2");
+	XFREE(results, "fun_munge.results");
 }
 
 /* ---------------------------------------------------------------------------

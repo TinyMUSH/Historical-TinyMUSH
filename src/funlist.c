@@ -658,7 +658,7 @@ FUNCTION(fun_member)
 
 FUNCTION(fun_revwords)
 {
-	char *bb_p, *elems[LBUF_SIZE / 2];
+	char *bb_p, **elems;
 	Delim isep;
 	int isep_len, n_elems, i;
 
@@ -677,7 +677,7 @@ FUNCTION(fun_revwords)
 
 	/* Chop it up into an array of words and reverse them. */
 
-	n_elems = list2arr(elems, LBUF_SIZE / 2, fargs[0], isep, isep_len);
+	n_elems = list2arr(&elems, LBUF_SIZE / 2, fargs[0], isep, isep_len);
 	bb_p = *bufc;
 	for (i = n_elems - 1; i >= 0; i--) {
 	    if (*bufc != bb_p) {
@@ -685,6 +685,7 @@ FUNCTION(fun_revwords)
 	    }
 	    safe_str(elems[i], buff, bufc);
 	}
+	XFREE(elems, "fun_revwords.elems");
 }
 
 /* ---------------------------------------------------------------------------
@@ -842,9 +843,8 @@ int n, sort_type;
 FUNCTION(fun_sort)
 {
 	int nitems, sort_type, isep_len, osep_len;
-	char *list;
+	char *list, **ptrs;
 	Delim isep, osep;
-	char *ptrs[LBUF_SIZE / 2];
 
 	/* If we are passed an empty arglist return a null string */
 
@@ -858,11 +858,12 @@ FUNCTION(fun_sort)
 
 	list = alloc_lbuf("fun_sort");
 	strcpy(list, fargs[0]);
-	nitems = list2arr(ptrs, LBUF_SIZE / 2, list, isep, isep_len);
+	nitems = list2arr(&ptrs, LBUF_SIZE / 2, list, isep, isep_len);
 	sort_type = get_list_type(fargs, nfargs, 2, ptrs, nitems);
 	do_asort(ptrs, nitems, sort_type);
 	arr2list(ptrs, nitems, buff, bufc, osep, osep_len);
 	free_lbuf(list);
+	XFREE(ptrs, "fun_sort.ptrs");
 }
 
 /* ---------------------------------------------------------------------------
@@ -973,7 +974,7 @@ int (*compare) ();
 
 FUNCTION(fun_sortby)
 {
-	char *atext, *list, *ptrs[LBUF_SIZE / 2];
+	char *atext, *list, **ptrs;
 	Delim isep, osep;
 	int nptrs, aflags, alen, anum, isep_len, osep_len;
 	dbref thing, aowner;
@@ -994,7 +995,7 @@ FUNCTION(fun_sortby)
 
 	list = alloc_lbuf("fun_sortby");
 	strcpy(list, fargs[1]);
-	nptrs = list2arr(ptrs, LBUF_SIZE / 2, list, isep, isep_len);
+	nptrs = list2arr(&ptrs, LBUF_SIZE / 2, list, isep, isep_len);
 
 	if (nptrs > 1)		/* pointless to sort less than 2 elements */
 		sane_qsort((void **)ptrs, 0, nptrs - 1, u_comp);
@@ -1002,6 +1003,7 @@ FUNCTION(fun_sortby)
 	arr2list(ptrs, nptrs, buff, bufc, osep, osep_len);
 	free_lbuf(list);
 	free_lbuf(atext);
+	XFREE(ptrs, "fun_sortby.ptrs");
 }
 
 /* ---------------------------------------------------------------------------
@@ -1027,7 +1029,7 @@ FUNCTION(handle_sets)
 	Delim isep, osep;
 	int isep_len, osep_len, oper, type_arg;
 	char *list1, *list2, *oldp, *bb_p;
-	char *ptrs1[LBUF_SIZE], *ptrs2[LBUF_SIZE];
+	char **ptrs1, **ptrs2;
 	int i1, i2, n1, n2, val, sort_type;
 	int *ip1, *ip2;
 	double *fp1, *fp2;
@@ -1043,7 +1045,7 @@ FUNCTION(handle_sets)
 
 	list1 = alloc_lbuf("fun_setunion.1");
 	strcpy(list1, fargs[0]);
-	n1 = list2arr(ptrs1, LBUF_SIZE, list1, isep, isep_len);
+	n1 = list2arr(&ptrs1, LBUF_SIZE, list1, isep, isep_len);
 	if (type_arg)
 	    sort_type = get_list_type(fargs, nfargs, 3, ptrs1, n1);
 	else
@@ -1053,7 +1055,7 @@ FUNCTION(handle_sets)
 
 	list2 = alloc_lbuf("fun_setunion.2");
 	strcpy(list2, fargs[1]);
-	n2 = list2arr(ptrs2, LBUF_SIZE, list2, isep, isep_len);
+	n2 = list2arr(&ptrs2, LBUF_SIZE, list2, isep, isep_len);
 	do_asort(ptrs2, n2, sort_type);
 
 	/* This conversion is inefficient, since it's already happened
@@ -1239,6 +1241,8 @@ FUNCTION(handle_sets)
 	    XFREE(fp1, "handle_sets.n1");
 	    XFREE(fp2, "handle_sets.n2");
 	}
+	XFREE(ptrs1, "handle_sets.ptrs1");
+	XFREE(ptrs2, "handle_sets.ptrs2");
 }
 
 /*---------------------------------------------------------------------------
@@ -1389,7 +1393,7 @@ static void tables_helper(list, last_state, n_cols, col_widths,
     int i, nwords, nstates, cpos, wcount, over, have_normal, packed_state;
     int max, nleft, lead_chrs, lens[LBUF_SIZE / 2];
     char *s, *savep, *p, tbuf[LBUF_SIZE];
-    char *words[LBUF_SIZE / 2], *states[LBUF_SIZE / 2];
+    char **words, *states[LBUF_SIZE / 2];
 
     /* Split apart the list. We need to find the length of each de-ansified
      * word, as well as keep track of the state of each word.
@@ -1398,11 +1402,12 @@ static void tables_helper(list, last_state, n_cols, col_widths,
      */
     strcpy(tbuf, list);
     nstates = list2ansi(states, last_state, LBUF_SIZE / 2, tbuf, list_sep);
-    nwords = list2arr(words, LBUF_SIZE / 2, list, list_sep, 1);
+    nwords = list2arr(&words, LBUF_SIZE / 2, list, list_sep, 1);
     if (nstates != nwords) {
 	for (i = 0; i < nstates; i++) {
 	    XFREE(states[i], "list2ansi");
 	}
+	XFREE(words, "tables_helper.words");
 	return;
     }
     for (i = 0; i < nwords; i++)
@@ -1518,6 +1523,7 @@ static void tables_helper(list, last_state, n_cols, col_widths,
     for (i = 0; i < nstates; i++) {
 	XFREE(states[i], "list2ansi");
     }
+    XFREE(words, "tables_helper.words");
 }
 
 static void perform_tables(player, list, n_cols, col_widths,
@@ -1566,7 +1572,7 @@ FUNCTION(process_tables)
     int just;
     int i, num, n_columns, *col_widths;
     Delim list_sep, pad_char;
-    char fs_buf[2], *widths[LBUF_SIZE / 2];  
+    char fs_buf[2], **widths;
 
     just = ((FUN *)fargs[-1])->flags & JUST_TYPE;
 
@@ -1581,11 +1587,13 @@ FUNCTION(process_tables)
 	fs_buf[1] = '\0';
     }
 
-    n_columns = list2arr(widths, LBUF_SIZE / 2, fargs[1], SPACE_DELIM, 1);
-    if (n_columns < 1)
+    n_columns = list2arr(&widths, LBUF_SIZE / 2, fargs[1], SPACE_DELIM, 1);
+    if (n_columns < 1) {
+	XFREE(widths, "process_tables.widths");
 	return;
+    }
 
-    col_widths = (int *) XCALLOC(n_columns, sizeof(int), "fun_table.widths");
+    col_widths = (int *) XCALLOC(n_columns, sizeof(int), "process_tables.col_widths");
     for (i = 0; i < n_columns; i++) {
 	num = atoi(widths[i]);
 	col_widths[i] = (num < 1) ? 1 : num;
@@ -1598,7 +1606,8 @@ FUNCTION(process_tables)
 		   ((nfargs > 5) && *fargs[5]) ? fargs[5] : fs_buf,
 		   pad_char.c, buff, bufc, just);
 
-    XFREE(col_widths, "fun_table.widths");
+    XFREE(col_widths, "process_tables.col_widths");
+    XFREE(widths, "process_tables.widths");
 }
 
 FUNCTION(fun_table)
@@ -1659,7 +1668,7 @@ FUNCTION(fun_table)
 FUNCTION(fun_elements)
 {
 	int nwords, cur, isep_len, osep_len;
-	char *ptrs[LBUF_SIZE / 2];
+	char **ptrs;
 	char *wordlist, *s, *r, *oldp;
 	Delim isep, osep;
 
@@ -1670,7 +1679,7 @@ FUNCTION(fun_elements)
 
 	wordlist = alloc_lbuf("fun_elements.wordlist");
 	strcpy(wordlist, fargs[0]);
-	nwords = list2arr(ptrs, LBUF_SIZE / 2, wordlist, isep, isep_len);
+	nwords = list2arr(&ptrs, LBUF_SIZE / 2, wordlist, isep, isep_len);
 
 	s = Eat_Spaces(fargs[1]);
 
@@ -1689,6 +1698,7 @@ FUNCTION(fun_elements)
 		}
 	} while (s);
 	free_lbuf(wordlist);
+	XFREE(ptrs, "fun_elements.ptrs");
 }
 
 /* ---------------------------------------------------------------------------
@@ -1764,7 +1774,7 @@ char **q;
 
 FUNCTION(fun_shuffle)
 {
-	char *words[LBUF_SIZE];
+	char **words;
 	int n, i, j, isep_len, osep_len;
 	Delim isep, osep;
 
@@ -1773,13 +1783,14 @@ FUNCTION(fun_shuffle)
 	}
 	VaChk_Only_In_Out(3);
 
-	n = list2arr(words, LBUF_SIZE, fargs[0], isep, isep_len);
+	n = list2arr(&words, LBUF_SIZE, fargs[0], isep, isep_len);
 
 	for (i = 0; i < n; i++) {
 		j = (random() % (n - i)) + i;
 		swap(&words[i], &words[j]);
 	}
 	arr2list(words, n, buff, bufc, osep, osep_len);
+	XFREE(words, "fun_shuffle.words");
 }
 
 /* ---------------------------------------------------------------------------
@@ -1794,7 +1805,7 @@ FUNCTION(fun_ledit)
     Delim isep, osep;
     char *old_list, *new_list;
     int nptrs_old, nptrs_new, isep_len, osep_len;
-    char *ptrs_old[LBUF_SIZE / 2], *ptrs_new[LBUF_SIZE / 2];
+    char **ptrs_old, **ptrs_new;
     char *r, *s, *bb_p;
     int i;
     int got_it;
@@ -1805,8 +1816,8 @@ FUNCTION(fun_ledit)
     new_list = alloc_lbuf("fun_ledit.new");
     strcpy(old_list, fargs[1]);
     strcpy(new_list, fargs[2]);
-    nptrs_old = list2arr(ptrs_old, LBUF_SIZE / 2, old_list, isep, isep_len);
-    nptrs_new = list2arr(ptrs_new, LBUF_SIZE / 2, new_list, isep, isep_len);
+    nptrs_old = list2arr(&ptrs_old, LBUF_SIZE / 2, old_list, isep, isep_len);
+    nptrs_new = list2arr(&ptrs_new, LBUF_SIZE / 2, new_list, isep, isep_len);
 
     /* Iterate through the words. */
 
@@ -1836,6 +1847,8 @@ FUNCTION(fun_ledit)
 
     free_lbuf(old_list);
     free_lbuf(new_list);
+    XFREE(ptrs_old, "fun_ledit.ptrs_old");
+    XFREE(ptrs_new, "fun_ledit.ptrs_new");
 }
 
 /* ---------------------------------------------------------------------------
@@ -1846,7 +1859,7 @@ FUNCTION(fun_itemize)
 {
     Delim isep, osep;
     int isep_len, osep_len, n_elems, i;
-    char *conj_str, *elems[LBUF_SIZE / 2];
+    char *conj_str, **elems;
 
     VaChk_Range(1, 4);
     if (!fargs[0] || !*fargs[0])
@@ -1864,7 +1877,7 @@ FUNCTION(fun_itemize)
 	VaChk_OutSep(4, 0);
     }
 
-    n_elems = list2arr(elems, LBUF_SIZE / 2, fargs[0], isep, isep_len);
+    n_elems = list2arr(&elems, LBUF_SIZE / 2, fargs[0], isep, isep_len);
     if (n_elems == 1) {
 	safe_str(elems[0], buff, bufc);
     } else if (n_elems == 2) {
@@ -1887,4 +1900,5 @@ FUNCTION(fun_itemize)
 	}
 	safe_str(elems[i], buff, bufc);
     }
+    XFREE(elems, "fun_itemize.elems");
 }

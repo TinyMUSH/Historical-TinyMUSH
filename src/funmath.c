@@ -803,7 +803,7 @@ FUNCTION(fun_lmin)
 
 FUNCTION(handle_vector)
 {
-    char *v1[LBUF_SIZE];
+    char **v1;
     int n, i, isep_len, osep_len, oper;
     NVAL tmp, res = 0;
     Delim isep, osep;
@@ -820,7 +820,7 @@ FUNCTION(handle_vector)
     if (!fargs[0] || !*fargs[0]) {
 	return;
     }
-    n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
+    n = list2arr(&v1, LBUF_SIZE, fargs[0], isep, isep_len);
 
     /* calculate the magnitude */
     for (i = 0; i < n; i++) {
@@ -835,12 +835,14 @@ FUNCTION(handle_vector)
 	} else {
 	    safe_chr('0', buff, bufc);
 	}
+	XFREE(v1, "handle_vector.v1");
 	return;
     }
 
     if (res <= 0) {
 	safe_str("#-1 CAN'T MAKE UNIT VECTOR FROM ZERO-LENGTH VECTOR",
 		 buff, bufc);
+	XFREE(v1, "handle_vector.v1");
 	return;
     }
     res = sqrt(res);
@@ -849,6 +851,7 @@ FUNCTION(handle_vector)
 	print_sep(osep, osep_len, buff, bufc);
 	fval(buff, bufc, aton(v1[i]) / res);
     }
+    XFREE(v1, "handle_vector.v1");
 }
 
 /* ---------------------------------------------------------------------------
@@ -859,7 +862,7 @@ FUNCTION(handle_vectors)
 {
     Delim isep, osep;
     int isep_len, osep_len, oper;
-    char *v1[LBUF_SIZE], *v2[LBUF_SIZE];
+    char **v1, **v2;
     NVAL scalar;
     int n, m, i;
 
@@ -878,8 +881,8 @@ FUNCTION(handle_vectors)
     if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1]) {
 	return;
     }
-    n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
-    m = list2arr(v2, LBUF_SIZE, fargs[1], isep, isep_len);
+    n = list2arr(&v1, LBUF_SIZE, fargs[0], isep, isep_len);
+    m = list2arr(&v2, LBUF_SIZE, fargs[1], isep, isep_len);
 
     /* It's okay to have vmul() be passed a scalar first or second arg,
      * but everything else has to be same-dimensional.
@@ -887,6 +890,8 @@ FUNCTION(handle_vectors)
     if ((n != m) &&
 	!((oper == VEC_MUL) && ((n == 1) || (m == 1)))) {
 	safe_str("#-1 VECTORS MUST BE SAME DIMENSIONS", buff, bufc);
+	XFREE(v1, "handle_vectors.v1");
+	XFREE(v2, "handle_vectors.v2");
 	return;
     }
 
@@ -955,6 +960,8 @@ FUNCTION(handle_vectors)
 	    safe_str("#-1 UNIMPLEMENTED", buff, bufc);
 	    break;
     }
+    XFREE(v1, "handle_vectors.v1");
+    XFREE(v2, "handle_vectors.v2");
 }
 
 /* ---------------------------------------------------------------------------

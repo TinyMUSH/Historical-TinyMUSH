@@ -184,25 +184,69 @@ int sep_len;
  * list2arr, arr2list: Convert lists to arrays and vice versa.
  */
 
-int list2arr(arr, maxlen, list, sep, sep_len)
-char *arr[], *list;
+int list2arr(arr, maxtok, list, sep, sep_len)
+char ***arr, *list;
 Delim sep;
-int maxlen, sep_len;
+int maxtok, sep_len;
 {
-	char *p;
-	int i;
+	static unsigned char tok_starts[(LBUF_SIZE >> 3) + 1];
+	static int initted = 0;
+	char *tok, *liststart;
+	int ntok, tokpos, i, bits;
 
-	list = trim_space_sep(list, sep, sep_len);
-	p = split_token(&list, sep, sep_len);
-	for (i = 0; p && i < maxlen;
-	     i++, p = split_token(&list, sep, sep_len)) {
-		arr[i] = p;
+	/* Mark token starting points in a static 1k bitstring,
+	 * then go back and collect them into an array of just
+	 * the right number of pointers.
+	 */
+
+	if (!initted) {
+		memset(tok_starts, 0, sizeof(tok_starts));
+		initted = 1;
 	}
-	return i;
+
+	liststart = list = trim_space_sep(list, sep, sep_len);
+	tok = split_token(&list, sep, sep_len);
+	for (ntok = 0, tokpos = 0; tok && ntok < maxtok;
+	     ++ntok, tok = split_token(&list, sep, sep_len)) {
+		tokpos = tok - liststart;
+		tok_starts[tokpos >> 3] |= (1 << (tokpos & 0x7));
+	}
+	if (ntok == 0) {
+		/* So we don't try to malloc(0). */
+		++ntok;
+	}
+
+	/* Caller must free this array of pointers later. Validity of
+	 * the pointers is dependent upon the original list string
+	 * having not been freed yet.
+	 */
+	*arr = (char **)XCALLOC(ntok, sizeof(char *), "list2arr");
+
+	tokpos >>= 3;
+	ntok = 0;
+	for (i = 0; i <= tokpos; ++i) {
+		if (tok_starts[i]) {
+			/* There's at least one token starting in this byte
+			 * of the bitstring, so we scan the bits.
+			 */
+			bits = tok_starts[i];
+			tok_starts[i] = 0;
+			tok = liststart + (i << 3);
+			do {
+				if (bits & 0x1) {
+					(*arr)[ntok] = tok;
+					++ntok;
+				}
+				bits >>= 1;
+				++tok;
+			} while (bits);
+		}
+	}
+	return ntok;
 }
 
 void arr2list(arr, alen, list, bufc, sep, sep_len)
-char *arr[], **bufc, *list;
+char **arr, **bufc, *list;
 Delim sep;
 int alen, sep_len;
 {

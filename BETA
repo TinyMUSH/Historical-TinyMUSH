@@ -61,6 +61,9 @@ Release history:
 - Misc: Avoid scanning the entire help table when asked for a
   nonexistent, non-wildcard entry. [2.0]
 
+- Misc: Reduced stack memory usage of functions such as shuffle(),
+  with a rewrite of helper function list2arr().
+
 - Cosmetic: Shout messages include the grammatically correct comma after
   "says". [2.0; Neva]
 
