@@ -65,6 +65,8 @@ the other have been listed in the conversion notes for both servers.
   set CONTROL_OK may be controlled by a ZMO; this provides slightly
   better security.
 
+- A new flag, BLIND, suppresses has arrived / has left messages.
+
 - Variable destination exits are implemented, via the "variable" keyword
   and the ExitTo attribute; the destination of the exit is determined when
   it is used. The link_variable power has been added in support of this.
