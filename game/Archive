@@ -3,7 +3,7 @@
 #	Archive - Build a tarfile of things we'd want to back up.
 #		  Includes mush.config, the main conf file, a flatfile,
 #		  the various module databases, and text files with a
-#		  .txt extension that are not help, wizhelp, or mushman.txt
+#		  .txt extension that are not help, wizhelp, qhelp, or mushman.
 #		  Symbolic links are copied, not followed. 
 #
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
@@ -36,7 +36,7 @@ fi
 #
 #	Gather and archive.
 #
-TXTFILES=`ls $TEXT/*.txt | egrep -v '(help|wizhelp|mushman).txt'`
+TXTFILES=`ls $TEXT/*.txt | egrep -v '(help|wizhelp|qhelp|mushman).txt'`
 ALLFILES="$FLATFILE $DATA/mod_*.db mush.config $GAMENAME.conf $TXTFILES"
 #
 echo "Archiving..."
