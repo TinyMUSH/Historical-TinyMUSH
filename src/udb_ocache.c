@@ -505,7 +505,7 @@ skipcacheget:
 			cs_dbreads++;
 		if (data.dptr) {
 			data.dsize = strlen(data.dptr) + 1;
-			cdata = XMALLOC(data,dsize, "cache_get.membased");
+			cdata = XMALLOC(data.dsize, "cache_get.membased");
 			memcpy((void *)cdata, (void *)data.dptr, data.dsize);
 			
 			obj_set_attrib(((Aname *)key.dptr)->attrnum,
