@@ -1887,6 +1887,12 @@ char *arg;
 				return;
 			}
 			break;
+		case CMD_INFO:
+			if (idletime == 0) {
+				dump_info(d);
+				return;
+			}
+			break;
 		case CMD_PUEBLOCLIENT:
 #ifdef PUEBLO_CLIENT
 			/* Set the descriptor's flag */
