@@ -4591,6 +4591,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See the following help topics for the relevant function lists:
  
   Attribute Functions: retrievel of attribute-related information.
+  Comsys Functions: available only when the comsys is enabled.
   List Functions: manipulation of lists.
   Math Functions: math and logic.
   Misc Functions: miscellaneous utilities.
@@ -4622,19 +4623,18 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Topic: Object Functions
  
 	andflags()	children()	con()		conn()
-	controls()	cwho()		doing()		elock()
-	exit()		flags()		findable()	fullname()	
-	hasflag()	haspower()	hastype()	home()		
-	idle()		inzone()	lastcreate()	lcon()		
-	lexits()	lparent()	loc()		locate()	
-	lock()		lwho()		mail()		mailfrom()	
-	money()		name()		nearby()	next()		
-	num()		objmem()	orflags()	owner()		
-	parent()	pfind()		playmem()	pmatch()	
-	ports()		programmer()	rloc()		room()		
-	search()	sees()		stats()		type()		
-	visible()	where()		xcon()		zone()		
-	zwho()
+	controls()	doing()		elock()		exit()
+	flags()		findable()	fullname()	hasflag()
+	haspower()	hastype()	home()		idle()
+	inzone()	lastcreate()	lcon()		lexits()
+	lparent()	loc()		locate()	lock()
+	lwho()		mail()		mailfrom()	money()
+	name()		nearby()	next()		num()
+	objmem()	orflags()	owner()		parent()
+	pfind()		playmem()	pmatch()	ports()
+	programmer()	rloc()		room()		search()
+	sees()		stats()		type()		visible()
+	where()		xcon()		zone()		zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -4809,6 +4809,23 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   item down is item 1, and so forth. A stack with N items is therefore
   numbered 0 to N-1.
 
+& COMSYS FUNCTIONS
+  Topic: Comsys Functions
+ 
+	comalias()	comdesc()	cominfo()	comlist()
+	comowner()	comtitle()	cwho()		cwhoall()
+ 
+  These functions are only enabled if the comsys is enabled.
+ 
+  Information about a channel is generally only available to those with
+  the Comm_All power, Wizards, or the owner of the channel. Channel names
+  must be typed in full, and are case-sensitive.
+ 
+  Information about a player's comsys options is generally only available
+  if you control the player, or have the Comm_All power. For comsys
+  functions, players should be referred to by name (not *name) or
+  by dbref. The partial name of a connected player can be matched.
+ 
 & PUEBLO FUNCTIONS
   Topic: Pueblo Functions
  
@@ -9280,14 +9297,49 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   See also: @create, @dig, @open
  
-& CWHO()
-  Function: cwho(<channel>)
+& COMALIAS()
+  Function:  comalias(<player>)
  
-  If the comsys is enabled, this function returns a list of dbrefs
-  of players who are connected, and on that channel. <channel> is
-  the full name of the channel, and is case-sensitive. This function
-  is limited to Wizards and channel owners.
-
+  Returns a list of a player's comsys aliases.
+ 
+& COMDESC()
+  Function:  comdesc(<channel>)
+ 
+  Returns the description of that channel.
+ 
+& COMINFO()
+  Function:  cominfo(<player>, <alias>)
+ 
+  Returns the name of the channel that <player> has aliased as <alias>.
+ 
+& COMLIST()
+  Function:  comlist([<output delimiter>])
+ 
+  Returns an <output delimiter>-separated list of the names of all channels
+  in the comsystem. If no delimiter is specified, a space will be used.
+ 
+& COMOWNER()
+  Function:  comowner(<channel>)
+ 
+  Returns the dbref of the owner of the channel.
+ 
+& COMTITLE()
+  Function:  comtitle(<player>, <alias>)
+ 
+  Returns the title that <player> has set in association with that
+  comsys <alias>.
+ 
+& CWHO()
+  Function:  cwho(<channel>)
+ 
+  Returns a list of dbrefs, of the players who are connected, and are
+  on that channel.
+ 
+& CWHOALL()
+  Function:  cwhoall(<channel>)
+ 
+  Returns a list of dbrefs of everything that is on that channel.
+ 
 & DECRYPT()
   Function: decrypt(<text>,<key>)
  
