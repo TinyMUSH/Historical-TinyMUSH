@@ -5331,20 +5331,20 @@ See also: @link, @open.
   Topic: String Functions
  
 	after()		alphamax()	alphamin()	ansi()
-	art()		beep()		before()	capstr()	
-	cat()		center()	chomp()		comp()		
-	decrypt()	delete()	edit()		encrypt()	
-	escape()	foreach()	isdbref()	isnum()		
-	isword()	lcstr()		left()		lit()	
-	ljust()		merge()		mid()		nescape()
-	nsecure()	null()		pos()		regedit()
-	regediti()	regeditall()	regeditalli()	regmatch()
-	regmatchi()	repeat()	reverse()	right()	
-	rjust()		secure()	scramble()	space()
-	squish()	strcat()	streq()		stripansi()
-	strlen()	strmatch()	strtrunc()	translate()	
-	trim()		ucstr()		valid()		wildmatch()
-	wordpos()
+	art()		beep()		before()	border()
+	capstr()	cat()		center()	chomp()		
+	comp()		decrypt()	delete()	edit()		
+	encrypt()	escape()	foreach()	isdbref()	
+	isnum()		isword()	lcstr()		left()		
+	lit()		ljust()		merge()		mid()		
+	nescape()	nsecure()	null()		pos()		
+	regedit()	regediti()	regeditall()	regeditalli()	
+	regmatch()	regmatchi()	repeat()	reverse()	
+	right()		rjust()		secure()	scramble()	
+	space()		squish()	strcat()	streq()		
+	stripansi()	strlen()	strmatch()	strtrunc()	
+	translate()	trim()		ucstr()		valid()		
+	wildmatch()	wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -8048,6 +8048,28 @@ performed and the walk down the list stops.
   Strips the ANSI control sequences from a string.
  
   See also: ANSI, NOBLEED, ansi().
+ 
+& BORDER()
+  Function: border(<words>,<width>[,<left margin fill>[,<right margin fill>]])
+ 
+  This function takes a list of <words>, and arranges the words in 
+  word-wrapped paragraph of width <width>. Each line is preceded by
+  <left margin fill>, and ended with <right margin fill> (if specified).
+  If the line is shorter than <width>, it is padded out with spaces. Note
+  that spaces are compressed, due to the word-wrapping; multiple spaces
+  will become one space. Carriage returns are supported ('%r'), and ANSI
+  substitutions are preserved correctly. Words whose length exceeds
+  <width> are not truncated (and thus will disrupt alignment).
+ 
+  Example:
+    > @va me=++[repeat(-,20)]++%r[border(%0,18,**%b,%b||)]%r++[repeat(-,20)]++
+    > think u(va,apple orange kiwi grape%rbanana strawberry plum pear)
+    ++--------------------++
+    ** apple orange kiwi  ||
+    ** grape              ||
+    ** banana strawberry  ||
+    ** plum pear          ||
+    ++--------------------++
  
 & MUDNAME()
   Function: mudname()

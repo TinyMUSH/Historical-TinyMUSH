@@ -17,6 +17,47 @@
 #include "match.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
+#include "ansi.h"	/* required by code */
+
+/* ---------------------------------------------------------------------------
+ * ANSI character-to-number translation table.
+ */
+
+char *ansi_nchartab[256] =
+{
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,               0,               N_ANSI_BBLUE,    N_ANSI_BCYAN,
+    0,               0,               0,               N_ANSI_BGREEN,
+    0,               0,               0,               0,
+    0,               N_ANSI_BMAGENTA, 0,               0,
+    0,               0,               N_ANSI_BRED,     0,
+    0,               0,               0,               N_ANSI_BWHITE,
+    N_ANSI_BBLACK,   N_ANSI_BYELLOW,  0,               0,
+    0,               0,               0,               0,
+    0,               0,               N_ANSI_BLUE,     N_ANSI_CYAN,
+    0,               0,               N_ANSI_BLINK,    N_ANSI_GREEN,
+    N_ANSI_HILITE,   N_ANSI_INVERSE,  0,               0,
+    0,               N_ANSI_MAGENTA,  N_ANSI_NORMAL,   0,
+    0,               0,               N_ANSI_RED,      0,
+    0,               N_ANSI_UNDER,    0,               N_ANSI_WHITE,
+    N_ANSI_BLACK,    N_ANSI_YELLOW,   0,               0,
+    0,               0,               0,               0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
+};
+
+char ansi_lettab[I_ANSI_NUM] =
+{
+	'\0',	'h',	'\0',	'\0',	'u',	'f',	'\0',	'i',
+	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',
+	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',
+	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'x',	'r',
+	'g',	'y',	'b',	'm',	'c',	'w',	'\0',	'\0',
+	'X',	'R',	'G',	'Y',	'B',	'M',	'C',	'W'
+};
 
 /* ---------------------------------------------------------------------------
  * Trim off leading and trailing spaces if the separator char is a space
@@ -133,6 +174,90 @@ int alen;
 	    print_sep(sep, list, bufc);
 	    safe_str(arr[i], list, bufc);
 	}
+}
+
+/* ---------------------------------------------------------------------------
+ * Find the ANSI states at the end of each word of a list.
+ * Note that list2ansi() function malloc()s memory which must be freed.
+ */
+
+static char *split_ansi_state(sp, sep, ansi_state, asp)
+char **sp, sep, *ansi_state, **asp;
+{
+	char *str, *save, *endp, *p;
+	int i;
+
+	/* Note: Anything that calls this function MUST check for
+	 * sep being ESC_CHAR or ANSI_END, which should be illegal
+	 * separators here.
+	 */
+
+	save = str = *sp;
+	if (!str) {
+		*sp = NULL;
+		return NULL;
+	}
+
+	while (*str && (*str != sep)) {
+	    if (*str == ESC_CHAR) {
+		endp = strchr(str, ANSI_END);
+		if (endp) {
+		    /* Between p and endp is a set of numbers separated by
+		     * semicolons.
+		     */
+		    *endp = '\0';
+		    str += 2;
+		    do {
+			p = strchr(str, ';');
+			if (p)
+			    *p++ = '\0';
+			i = atoi(str);
+			if (i == 0) {
+			    *asp = ansi_state;
+			    **asp = '\0';
+			} else if ((i < I_ANSI_NUM) && ansi_lettab[i]) {
+			    **asp = ansi_lettab[i];
+			    (*asp)++;
+			}
+			str = p;
+		    } while (p && *p);
+		    **asp = '\0';
+		    str = endp;
+		}
+	    }
+	    str++;
+	}
+
+	if (*str) {
+		*str++ = '\0';
+		if (sep == ' ') {
+			while (*str == sep)
+				str++;
+		}
+	} else {
+		str = NULL;
+	}
+	*sp = str;
+	return save;
+}
+
+int list2ansi(arr, maxlen, list, sep)
+    char *arr[], *list, sep;
+    int maxlen;
+{
+    int i;
+    char *p, *asp;
+    static char ansi_status[LBUF_SIZE / 2];
+
+    asp = ansi_status; 
+    ansi_status[0] = '\0';
+    list = trim_space_sep(list, sep);
+    p = split_ansi_state(&list, sep, ansi_status, &asp);
+    for (i = 0; p && (i < maxlen);
+	 i++, p = split_ansi_state(&list, sep, ansi_status, &asp)) {
+	arr[i] = XSTRDUP(ansi_status, "list2ansi");
+    }
+    return i;
 }
 
 /* ---------------------------------------------------------------------------

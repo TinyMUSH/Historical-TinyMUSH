@@ -301,6 +301,7 @@ XFUNCTION(fun_pos);
 XFUNCTION(fun_lpos);
 XFUNCTION(fun_wordpos);
 XFUNCTION(fun_repeat);
+XFUNCTION(fun_border);
 XFUNCTION(fun_cat);
 XFUNCTION(fun_strcat);
 XFUNCTION(fun_strlen);
@@ -394,6 +395,7 @@ FUN flist[] = {
 {"BEFORE",	fun_before,	0,  FN_VARARGS,	CA_PUBLIC},
 {"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC},
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC},
+{"BORDER",	fun_border,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CANDBOOL",	fun_candbool,	0,  FN_VARARGS|FN_NO_EVAL,
      						CA_PUBLIC},
 {"CAND",	fun_cand,	0,  FN_VARARGS|FN_NO_EVAL,

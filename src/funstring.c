@@ -17,6 +17,8 @@
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
+extern char *ansi_nchartab[];	/* from fnhelper.c */
+
 /* ---------------------------------------------------------------------------
  * isword: is every character in the argument a letter?
  */
@@ -933,32 +935,6 @@ FUNCTION(fun_escape)
  * ANSI handlers.
  */
 
-char *ansi_nchartab[256] =
-{
-    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-    0,               0,               N_ANSI_BBLUE,    N_ANSI_BCYAN,
-    0,               0,               0,               N_ANSI_BGREEN,
-    0,               0,               0,               0,
-    0,               N_ANSI_BMAGENTA, 0,               0,
-    0,               0,               N_ANSI_BRED,     0,
-    0,               0,               0,               N_ANSI_BWHITE,
-    N_ANSI_BBLACK,   N_ANSI_BYELLOW,  0,               0,
-    0,               0,               0,               0,
-    0,               0,               N_ANSI_BLUE,     N_ANSI_CYAN,
-    0,               0,               N_ANSI_BLINK,    N_ANSI_GREEN,
-    N_ANSI_HILITE,   N_ANSI_INVERSE,  0,               0,
-    0,               N_ANSI_MAGENTA,  N_ANSI_NORMAL,   0,
-    0,               0,               N_ANSI_RED,      0,
-    0,               N_ANSI_UNDER,    0,               N_ANSI_WHITE,
-    N_ANSI_BLACK,    N_ANSI_YELLOW,   0,               0,
-    0,               0,               0,               0,
-    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
-};
-
 FUNCTION(fun_ansi)
 {
 	char *s, *bb_p;
@@ -1339,6 +1315,170 @@ FUNCTION(fun_repeat)
 		safe_known_str(fargs[0], len, buff, bufc);
 	}
     }
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_border: Turn a string of words into a bordered paragraph.
+ * border(<words>,<width without margins>[,<L margin fill>[,<R margin fill>]])
+ */
+
+static void border_helper(player, str, tlen, l_fill, r_fill, buff, bufc)
+    dbref player;
+    char *str;
+    int tlen;
+    char *l_fill, *r_fill, *buff, **bufc;
+{
+    int i, nwords, nstates, over, copied, nleft, max, lens[LBUF_SIZE / 2];
+    char *words[LBUF_SIZE / 2], *states[LBUF_SIZE / 2], tbuf[LBUF_SIZE];
+    char *p;
+
+    /* Carve up the list and find the ANSI state at the end of each word. */
+
+    strcpy(tbuf, str);
+    nstates = list2ansi(states, LBUF_SIZE / 2, tbuf, ' ');
+    nwords = list2arr(words, LBUF_SIZE / 2, str, ' ');
+    if (nstates != nwords) {
+	for (i = 0; i < nstates; i++) {
+	    XFREE(states[i], "list2ansi");
+	}
+	notify_quiet(player, "Strange ANSI parsing error.");
+	return;
+    }
+    for (i = 0; i < nwords; i++)
+	lens[i] = strlen(strip_ansi(words[i]));
+
+    i = over = copied = 0; 
+    while (!over && (i < nwords)) {
+	if (copied == 0) {
+	    /* Beginning of line. Write left margin, plus first word,
+	     * which we are always guaranteed to get, even if we end up
+	     * exceeding the available width.
+	     * If we have a non-null ANSI state from the previous position,
+	     * we have to restore that, too.
+	     */
+	    over = safe_str(l_fill, buff, bufc);
+	    if (!over && (i > 0) && *states[i-1]) {
+		safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 1);
+		for (p = states[i-1]; *p; p++) { 
+		    if (p != states[i-1]) {
+			safe_chr(';', buff, bufc);
+		    }
+		    safe_str(ansi_nchartab[(unsigned char) *p], buff, bufc);
+		}
+		safe_chr(ANSI_END, buff, bufc);
+	    }
+	    if (!over) {
+		over = safe_str(words[i], buff, bufc);
+		copied += lens[i];
+	    }
+	    i++;
+	} else {
+	    /* Is there enough room left over on this line for this
+	     * word (including a preceding space)?
+	     * If not, fill in enough spaces to get to the width,
+	     * then add the right margin, an ANSI normal if necessary,
+	     * and a newline. Do NOT increment the word counter if we
+	     * have to do this, but reset the position counter.
+	     */
+	    nleft = tlen - copied;
+	    if (lens[i] + 1 > nleft) {
+		if ((i > 0) && *states[i-1])
+		    safe_ansi_normal(buff, bufc);
+		if (nleft > 0) {
+		    max = LBUF_SIZE - 1 - (*bufc - buff);
+		    nleft = (nleft > max) ? max : nleft;
+		    memset(*bufc, ' ', nleft);
+		    *bufc += nleft;
+		    **bufc = '\0';
+		}
+		over = safe_str(r_fill, buff, bufc);
+		safe_crlf(buff, bufc);
+		copied = 0;
+	    } else {
+		/* We've got room to add in this word. Restore a blank
+		 * space (note that multiple spaces have already been
+		 * eaten by the list-chopping-up functions) and write
+		 * the word. Increment the word counter.
+		 */
+		safe_chr(' ', buff, bufc);
+		over = safe_str(words[i], buff, bufc);
+		copied += lens[i] + 1;
+		i++;
+	    }
+	}
+    }
+
+    /* Now we have to write our final right margin, mucking with a fill
+     * and normalifying ANSI if appropriate.
+     */
+    if (!over) {
+	if (*states[i-1])
+	    safe_ansi_normal(buff, bufc);
+	nleft = tlen - copied;
+	if (nleft > 0) {
+	    max = LBUF_SIZE - 1 - (*bufc - buff);
+	    nleft = (nleft > max) ? max : nleft;
+	    memset(*bufc, ' ', nleft);
+	    *bufc += nleft;
+	    **bufc = '\0';
+	}
+	safe_str(r_fill, buff, bufc);
+    }
+
+    /* Clean up. */
+
+    for (i = 0; i < nstates; i++) {
+	XFREE(states[i], "list2ansi");
+    }
+}
+
+FUNCTION(fun_border)
+{
+    int width, l_width, r_width;
+    char *l_fill, *r_fill, *savep, *p, *bb_p;
+
+    xvarargs_preamble("BORDER", 2, 4);
+
+    if (!fargs[0] || !*fargs[0])
+	return;
+
+    width = atoi(fargs[1]);
+    if (nfargs > 2) {
+	l_fill = fargs[2];
+	l_width = strlen(strip_ansi(l_fill));
+    } else {
+	l_fill = NULL;
+	l_width = 0;
+    }
+    if (nfargs > 3) {
+	r_fill = fargs[3];
+	r_width = strlen(strip_ansi(r_fill));
+    } else {
+	r_fill = NULL;
+	r_width = 0;
+    }
+
+    /* The width must be at least one character. */
+
+    if (width < 1)
+	width = 1;
+
+    /* Now we have to go do this by line breaks. */
+
+    bb_p = *bufc;
+    savep = fargs[0];
+    p = strchr(fargs[0], '\r');
+    while (p) {
+	*p = '\0';
+	if (*bufc != bb_p)
+	    safe_crlf(buff, bufc);
+	border_helper(player, savep, width, l_fill, r_fill, buff, bufc);
+	savep = p + 2;	/* must skip '\n' too */
+	p = strchr(savep, '\r'); 
+    }
+    if (*bufc != bb_p)
+	safe_crlf(buff, bufc);
+    border_helper(player, savep, width, l_fill, r_fill, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

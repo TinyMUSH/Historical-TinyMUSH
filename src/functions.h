@@ -47,6 +47,7 @@ extern char *FDECL(split_token, (char **, char));
 extern int FDECL(countwords, (char *, char));
 extern int FDECL(list2arr, (char **, int, char *, char));
 extern void FDECL(arr2list, (char **, int, char *, char **, char));
+extern int FDECL(list2ansi, (char **, int, char *, char));
 extern double NDECL(makerandom);
 extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
 extern int FDECL(delim_check, (char **, int, int, char *, char *, char **,
