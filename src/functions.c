@@ -3855,27 +3855,26 @@ FUNCTION(fun_lattr)
  */
 
 static void do_reverse(from, to)
-char *from, *to;
+    char *from, *to;
 {
-	char *tp;
+    char *tp;
 
-	tp = to + strlen(from);
-	*tp-- = '\0';
-	while (*from) {
-		*tp-- = *from++;
-	}
+    tp = to + strlen(from);
+    *tp-- = '\0';
+    while (*from) {
+	*tp-- = *from++;
+    }
 }
 
 FUNCTION(fun_reverse)
 {
-	/* Nasty bounds checking */
+    /* Nasty bounds checking */
 
-	if (strlen(fargs[0] >= LBUF_SIZE - (*bufc - buff)) {
-		*(fargs[0] + (LBUF_SIZE - (*bufc - buff)) = '\0';
-	}
-	
-	do_reverse(fargs[0], *bufc);
-	*bufc += strlen(fargs[0]);
+    if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff)) {
+	*(fargs[0] + (LBUF_SIZE - (*bufc - buff))) = '\0';
+    }
+    do_reverse(fargs[0], *bufc);
+    *bufc += strlen(fargs[0]);
 }
 
 FUNCTION(fun_revwords)
@@ -3893,8 +3892,8 @@ FUNCTION(fun_revwords)
 
 	/* Nasty bounds checking */
 
-	if (strlen(fargs[0] >= LBUF_SIZE - (*bufc - buff)) {
-		*(fargs[0] + (LBUF_SIZE - (*bufc - buff)) = '\0';
+	if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff)) {
+		*(fargs[0] + (LBUF_SIZE - (*bufc - buff))) = '\0';
 	}
 
 	/* Reverse the whole string */
@@ -4237,20 +4236,33 @@ FUNCTION(fun_splice)
 
 FUNCTION(fun_repeat)
 {
-	unsigned int times
-	int i, over;
+    int times, len, i, over;
 
-	times = atoi(fargs[1]);
-	if ((times < 1) || (fargs[0] == NULL) || (!*fargs[0])) {
-		return;
-	} else if (times == 1) {
-		safe_str(fargs[0], buff, bufc);
-	} else if (strlen(fargs[0]) * times >= (LBUF_SIZE - 1)) {
-		safe_str("#-1 STRING TOO LONG", buff, bufc);
+    times = atoi(fargs[1]);
+    if ((times < 1) || (fargs[0] == NULL) || (!*fargs[0])) {
+	return;
+    } else if (times == 1) {
+	safe_str(fargs[0], buff, bufc);
+    } else {
+
+	/* We must check all of these things rather than just
+	 * multiplying length by times, because of the possibility
+	 * of an integer overflow.
+	 */
+
+	len = strlen(fargs[0]);
+
+	if ((len >= LBUF_SIZE - 1) ||
+	    (times >= LBUF_SIZE - 1) ||
+	    (len * times >= LBUF_SIZE - 1)) {
+
+	    safe_str("#-1 STRING TOO LONG", buff, bufc);
+	    
 	} else {
-		for (i = 0, over = 0; (i < times) && !over; i++)
-			over = safe_str(fargs[0], buff, bufc);
+	    for (i = 0, over = 0; (i < times) && !over; i++)
+		over = safe_str(fargs[0], buff, bufc);
 	}
+    }
 }
 
 /* ---------------------------------------------------------------------------

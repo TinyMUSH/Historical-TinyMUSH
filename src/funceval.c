@@ -1635,7 +1635,7 @@ FUNCTION(fun_zfun)
 
 FUNCTION(fun_columns)
 {
-	int spaces, number, ansinumber, count, i, indent = 0;
+	unsigned int spaces, number, ansinumber, count, i, indent = 0;
 	int isansi = 0, rturn = 1, cr = 0;
 	char *p, *q, *buf, *curr, *objstring, *bp, *cp, sep, *str;
 
@@ -1645,14 +1645,14 @@ FUNCTION(fun_columns)
 	    player, cause, cargs, ncargs))
 		return;
 		
-	number = safe_atoi(fargs[1]);
-	indent = safe_atoi(fargs[3]);
+	number = (unsigned int) safe_atoi(fargs[1]);
+	indent = (unsigned int) safe_atoi(fargs[3]);
 
 	if ((indent < 0) || (indent > 77)) {
 		indent = 1;
 	}
 	
-	if ((number < 1) || ((number + indent) > 78)) {
+	if ((number < 1) || ((unsigned int) (number + indent) > 78)) {
 		safe_str("#-1 OUT OF RANGE", buff, bufc);
 		return;
 	}
@@ -2533,23 +2533,21 @@ FUNCTION(fun_grab)
 FUNCTION(fun_scramble)
 {
 	int n, i, j;
-	char c, *old;
+	char c;
 
 	if (!fargs[0] || !*fargs[0]) {
-		return;
+	    return;
 	}
-	old = *bufc;
+
+	n = strlen(fargs[0]);
+	for (i = 0; i < n; i++) {
+	    j = (random() % (n - i)) + i;
+	    c = fargs[0][i];
+	    fargs[0][i] = fargs[0][j];
+	    fargs[0][j] = c;
+	}
 
 	safe_str(fargs[0], buff, bufc);
-
-	n = strlen(old);
-
-	for (i = 0; i < n; i++) {
-		j = (random() % (n - i)) + i;
-		c = old[i];
-		old[i] = old[j];
-		old[j] = c;
-	}
 }
 
 /* ---------------------------------------------------------------------------
