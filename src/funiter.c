@@ -454,9 +454,8 @@ FUNCTION(fun_mix)
 	isep.c = ' ';
 	isep_len = 1;
 	lastn = nfargs - 1;
-    } else if (!(isep_len = delim_check(fargs, nfargs, nfargs, &isep,
-					buff, bufc, player, caller, cause,
-					cargs, ncargs, DELIM_STRING))) {
+    } else if (!(isep_len = delim_check( FUNCTION_ARGLIST, nfargs, &isep,
+					DELIM_STRING))) {
 	return;
     } else {
 	lastn = nfargs - 2;

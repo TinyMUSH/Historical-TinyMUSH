@@ -108,17 +108,18 @@ extern int FDECL(list2arr, (char **, int, char *, Delim, int));
 extern void FDECL(arr2list, (char **, int, char *, char **, Delim, int));
 extern int FDECL(list2ansi, (char **, char *, int, char *, Delim));
 extern double NDECL(makerandom);
-extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
-extern int FDECL(delim_check, (char **, int, int, Delim *, char *, char **,
-			       dbref, dbref, dbref, char **, int, int));
 extern INLINE void FDECL(do_reverse, (char *, char *));
+extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
+extern int FDECL(delim_check, ( char *, char **, dbref, dbref, dbref, char **, int, char **, int, int, Delim *, int ));
 
 /* ---------------------------------------------------------------------------
  * Function prototype macro.
  */
 
+#define FUNCTION_ARGLIST buff, bufc, player, caller, cause, fargs, nfargs, cargs, ncargs
+
 #define	FUNCTION(x)	\
-    void x(buff, bufc, player, caller, cause, fargs, nfargs, cargs, ncargs) \
+    void x( FUNCTION_ARGLIST ) \
 	char *buff, **bufc; \
 	dbref player, caller, cause; \
 	char *fargs[], *cargs[]; \
@@ -137,8 +138,7 @@ extern INLINE void FDECL(do_reverse, (char *, char *));
  */
 
 #define VaChk_Sep(xsep, xlen, xargnum, xflags) \
-if (!(xlen = delim_check(fargs, nfargs, xargnum, xsep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, xflags))) \
+if (!(xlen = delim_check( FUNCTION_ARGLIST, xargnum, xsep, xflags))) \
 	return
 
 #define VaChk_InSep(xargnum, xflags) \
@@ -202,8 +202,7 @@ if (!fn_range_check(((FUN *)fargs[-1])->name, nfargs, xminargs, xnargs, \
 
 #define VaChk_Only_InPure(xnargs) \
 VaChk_Range(xnargs-1, xnargs); \
-if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, 0)) \
+if (!delim_check( FUNCTION_ARGLIST, xnargs, &isep, 0)) \
 	return
 
 #define VaChk_Only_In(xnargs) \
@@ -216,8 +215,7 @@ VaChk_OutSep(xnargs, 0)
 
 #define VaChk_InPure(xminargs, xnargs) \
 VaChk_Range(xminargs, xnargs); \
-if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
-    player, caller, cause, cargs, ncargs, 0)) \
+if (!delim_check( FUNCTION_ARGLIST, xnargs, &isep, 0)) \
 	return
 
 #define VaChk_In(xminargs, xnargs) \
@@ -379,8 +377,8 @@ if ((l) > 0) { \
 /* from perform_regmatch (regmatch, regmatchi): */
 /* from perform_grep (grep, grepi, wildgrep, regrep, regrepi): */
 #define REG_CASELESS	0x1	/* XXX must equal PCRE_CASELESS */
-#define REG_MATCH_ALL	0x2
-#define REG_TYPE	0xc
+#define REG_MATCH_ALL	0x2	/* operate on all matches in a list */
+#define REG_TYPE	0xc	/* mask to select grep type bits */
 #define GREP_EXACT	0
 #define GREP_WILD	4
 #define GREP_REGEXP	8

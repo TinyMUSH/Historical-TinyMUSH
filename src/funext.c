@@ -171,14 +171,12 @@ FUNCTION(fun_sql)
 
     VaChk_Range(1, 3);
 
-    if (!delim_check(fargs, nfargs, 2, &row_delim, buff, bufc,
-		     player, caller, cause, cargs, ncargs,
+    if (!delim_check( FUNCTION_ARGLIST, 2, &row_delim,
 		     DELIM_NULL|DELIM_CRLF))
 	return;
     if (nfargs < 3)
 	field_delim = row_delim;
-    else if (!delim_check(fargs, nfargs, 3, &field_delim, buff, bufc,
-			  player, caller, cause, cargs, ncargs,
+    else if (!delim_check( FUNCTION_ARGLIST, 3, &field_delim,
 			  DELIM_NULL|DELIM_CRLF))
 	return;
 

@@ -391,8 +391,7 @@ int nfargs, minargs, maxargs;
  * delim_check: obtain delimiter
  */
 
-int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc,
-		player, caller, cause, cargs, ncargs, dflags)
+int delim_check( FUNCTION_ARGLIST, sep_arg, sep, dflags)
 char *fargs[], *cargs[], *buff, **bufc;
 Delim *sep;
 int nfargs, ncargs, sep_arg, dflags;

@@ -1238,7 +1238,7 @@ FUNCTION(fun_eval)
 		return;
 	}
 
-	perform_get(buff, bufc, player, caller, cause, fargs, nfargs, cargs, ncargs);
+	perform_get( FUNCTION_ARGLIST );
 }
 
 /* ---------------------------------------------------------------------------
