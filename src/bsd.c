@@ -556,7 +556,8 @@ int reason;
 {
 	char *buff, *buff2;
 	time_t now;
-	int i, num;
+	int i, num, ncon;
+	dbref dtemp;
 	DESC *dtemp;
 
 	if ((reason == R_LOGOUT) &&
@@ -638,6 +639,20 @@ int reason;
 	process_output(d);
 	clearstrings(d);
 	if (reason == R_LOGOUT) {
+	        /* If this was our only connection, get out of interactive
+		 * mode.
+		 */
+		if (d->program_data) {
+		    ncon = 0;
+		    DESC_ITER_PLAYER(d->player, dtemp) ncon++;
+		    if (ncon == 0) {
+			for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+			    free_lbuf(d->program_data->wait_regs[i]);
+			}
+			free(d->program_data);
+			atr_clr(d->player, A_PROGCMD);
+		    }
+		}
 		d->flags &= ~DS_CONNECTED;
 		d->connected_at = mudstate.now;
 		d->retries_left = mudconf.retry_limit;
@@ -693,6 +708,7 @@ int reason;
 					free_lbuf(d->program_data->wait_regs[i]);
 				}
 				free(d->program_data);
+				atr_clr(d->player, A_PROGCMD);
 			}
 		}
 			
