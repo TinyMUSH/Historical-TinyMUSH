@@ -666,7 +666,11 @@ DESC *d;
 
 	buf = atr_get(player, A_LPAGE, &aowner, &aflags, &alen);
 	if (*buf) {
-		raw_notify(player, "Your PAGE LOCK is set.  You may be unable to receive some pages.");
+		raw_notify(player,
+"REMINDER: Your PAGE LOCK is set. You may be unable to receive some pages.");
+	}
+	if (Dark(player)) {
+		raw_notify(player, "REMINDER: You are set DARK.");
 	}
 	num = 0;
 	DESC_ITER_PLAYER(player, dtemp) num++;
@@ -1056,6 +1060,8 @@ void NDECL(check_idle)
 			} else if (mudconf.idle_wiz_dark &&
 				   (idletime > mudconf.idle_timeout) &&
 				   Can_Idle(d->player) && !Hidden(d->player)) {
+				raw_notify(d->player,
+						"*** Inactivity AutoDark ***");
 				s_Flags(d->player, Flags(d->player) | DARK);
 				d->flags |= DS_AUTODARK;
 			}
