@@ -300,14 +300,15 @@ void list_cached_objs(player)
     raw_notify(player, "Active Cache:");
     raw_notify(player, 
        "Name                                       Dbref   Last Accessed  Size");
-
+    raw_notify(player,
+       "======================================================================");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
             if (cp->op) {
                 aco++;
                 asize += cp->op->size;
 		raw_notify(player, 
-			tprintf("%-42.42s #%-6d %-12d %-6d", Name(cp->op->name),
+			tprintf("%-42.42s #%-6d %-14d %-6d", Name(cp->op->name),
 			cp->op->name, time(NULL) - cp->lastreferenced, cp->op->size));
             }
         }
@@ -316,6 +317,8 @@ void list_cached_objs(player)
     raw_notify(player, "\nModified Active Cache:");
     raw_notify(player, 
        "Name                                       Dbref   Last Accessed  Size");
+    raw_notify(player,
+       "======================================================================");
 
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
@@ -323,7 +326,7 @@ void list_cached_objs(player)
                 maco++;
                 msize += cp->op->size;
 		raw_notify(player, 
-			tprintf("%-42.42s #%-6d %-12d %-6d", Name(cp->op->name),
+			tprintf("%-42.42s #%-6d %-14d %-6d", Name(cp->op->name),
 			cp->op->name, time(NULL) - cp->lastreferenced, cp->op->size));
             }
         }
