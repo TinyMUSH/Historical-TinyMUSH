@@ -1455,30 +1455,36 @@ void do_logrotate(player, cause, key)
      */
 
     LOGFILETAB *lp;
-
+    int oldfd, newfd;
+	
     mudstate.mudlognum++;
 
-    /* Main logfile */
+    /* We don't use freopen() here because on some systems it is not
+     * guaranteed to reuse the same file descriptor, and we must ensure
+     * that the stderr stream always points to the same FD.
+     */
 
-    if (!freopen((const char *) ".netmush_tmp_log", "w", stderr)) {
-	/* Ugh. We're in trouble here. Let's try to print to stderr
-	 * anyway.
-	 */
-	notify(player, "Log rotation failed.");
-	STARTLOG(LOG_ALWAYS, "WIZ", "LOGRT")
-	    log_name(player);
-	    log_printf(" attempted failed log rotation");
-	ENDLOG
-    } else {
-	rename(mudconf.mudlogname,
-	       tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
-	freopen((const char *) mudconf.mudlogname, "w", stderr);
-	notify(player, "Logs rotated.");
-	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
-	    log_name(player);
-	    log_printf(": logfile rotation %d", mudstate.mudlognum);
-        ENDLOG
+    oldfd = fileno(stderr);
+    fclose(stderr);
+    rename(mudconf.mudlogname,
+	tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
+    newfd = open(mudconf.mudlogname, O_WRONLY|O_APPEND|O_CREAT, 0600);
+
+    if (newfd != oldfd) {
+	dup2(newfd, oldfd);
+	close(newfd);
     }
+    stderr = fdopen(oldfd, "a");
+	
+    /* Turn off output buffering */
+	
+    setbuf(stderr, NULL);
+
+    notify(player, "Logs rotated.");
+    STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
+	log_name(player);
+	log_printf(": logfile rotation %d", mudstate.mudlognum);
+    ENDLOG
 
     /* Any additional special ones */
 

@@ -1352,6 +1352,7 @@ void do_restart(player, cause, key)
     int key;
 {
 	LOGFILETAB *lp;
+	int oldfd, newfd;
 	
 	if (mudstate.dumping) {
 		notify(player, "Dumping. Please try again later.");
@@ -1384,13 +1385,27 @@ void do_restart(player, cause, key)
 	 * But we can't do a re-open on logfile if it is already called
 	 * just <game_log>. So we are forced to cheat with a temporary
 	 * file.
+	 *
+	 * We don't use freopen() here because on some systems it is not
+	 * guaranteed to reuse the same file descriptor, and we must ensure
+	 * that the stderr stream always points to the same FD.
 	 */
 
-	freopen((const char *) ".netmush_tmp_log", "w", stderr);
+	oldfd = fileno(stderr);
+	fclose(stderr);
 	rename(mudconf.mudlogname,
 	       tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
-	freopen((const char *) mudconf.mudlogname, "w", stderr);
-	unlink((const char *) ".netmush_tmp_log");
+	newfd = open(mudconf.mudlogname, O_WRONLY|O_APPEND|O_CREAT, 0600);
+
+	if (newfd != oldfd) {
+		dup2(newfd, oldfd);
+		close(newfd);
+	}
+	stderr = fdopen(oldfd, "a");
+	
+	/* Turn off output buffering */
+	
+	setbuf(stderr, NULL);
 
 	/* Need to close these logs. Note that they'll end up getting
 	 * overwritten on restart, so we rename them.
