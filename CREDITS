@@ -1,3 +1,34 @@
+TinyMUSH 3.0 Credits
+====================
+
+TinyMUSH 3.0 is a derivation/merger of TinyMUSH 2.2.5 and TinyMUX 1.6,
+with some additional extensive code revisions, bugfixing, and feature
+enhancements. It is the joint work of Lydia Leong ("Amberyl") and
+David Passmore ("Lauren"), and will be jointly maintainted in the future.
+This is the official end of the TinyMUSH 2.2 vs. TinyMUX religious war. :)
+
+In addition to the lots of people we've already thanked from earlier
+work on the servers, we'd like to make special note of:
+
+- Fred Hicks ("Iago"), who designed the TinyMUSH 3.0 logo
+
+- Deborah Wilson-Hooker ("Ysabel"), who prodded us in the direction of
+  doing a lot of neat things that we eventually didn't incorporate, in
+  the interests of a faster time-to-release, but which we're nonetheless
+  grateful for.
+
+- The members of the TinyMUX, Hogs, and Tinymush-Unoff lists, for 
+  ongoing support and patience.
+
+- The Godlike customers who volunteered for the alpha test, and the
+  players of our initial alpha test games (From the Ashes, Blood of Amber,
+  and Babylon 5: The Last Best Hope).
+
+-----------------------------------------------------------------------------
+
+TinyMUX Credits
+===============
+
 TinyMUX 1.0 is derived from TinyMUSH 2.0.10 patchlevel 6. It is maintained
 by David Passmore (Lauren@From the Ashes) and would not exist without
 the generous contributions of many individuals. Ideas for features (and
@@ -54,8 +85,34 @@ We would like to thank the following people:
 - Many other people who may go unnamed. Dozens of people have contributed to
   development of the TinyMU* family of servers, and we would like to thank
   them for their hard work.
+
+-----------------------------------------------------------------------------
+
+TinyMUSH 2.2 Credits
+====================
+
+
+TinyMUSH 2.2 is a continuation of development work done on TinyMUSH 2.0.
+TinyMUSH 2.0 is derived from Larry Foard's TinyMUSH (which was itself 
+derived from TinyMUD, written by Jim Aspnes). TinyMUSH 2.0, written by
+JT Traub (Moonchilde@PernMUSH) and Glenn Crocker (Wizard@TinyCWRU),
+was a consolidation of features found in other servers, including
+TinyMUSH, PernMUSH, TinyTIM, and, later, PennMUSH.
  
-Following is the original credits for TinyMUSH 2.0:
+TinyMUSH 2.2 is primarily the work of Jean Marie Diaz (Ambar@PernMUSH),
+Deborah Wilson-Hooker (Tyleet@TwoMoons), and Lydia Leong (Amberyl@PernMUSH).
+ 
+Many, many people have contributed to TinyMUSH; our list of "thanks" is
+by no means complete.
+
+In addition to the folks thanked in the 2.0 credits, we'd like to
+also thank Javelin and Talek, from the PennMUSH crew, for continuing
+contributions to the MUSH community and this codebase in particular.
+
+-----------------------------------------------------------------------------
+
+TinyMUSH 2.0 Credits
+====================
  
 TinyMUSH 2.0 is derived from Larry Foard's TinyMUSH (which was itself derived
 from TinyMUD, written by Jim Aspnes).  Ideas for features (and occasionally
