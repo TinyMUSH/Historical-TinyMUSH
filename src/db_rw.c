@@ -940,6 +940,85 @@ void NDECL(efo_convert)
 		}
 	}
 }
+
+/* ---------------------------------------------------------------------------
+ * fix_typed_quotas: Explode standard quotas into typed quotas
+ */
+
+#ifdef STANDALONE
+static void fix_typed_quotas()
+{
+	/* If we have a pre-2.2 database, only the QUOTA and RQUOTA
+	 * attributes  exist. For simplicity's sake, we assume that players
+	 * will have the  same quotas for all types, equal to the current
+	 * value. This is  going to produce incorrect values for RQUOTA;
+	 * this is easily fixed  by a @quota/fix done from within-game. 
+
+	 *    If we have a early beta 2.2 release, we have quotas which are
+	 * spread out over ten attributes. We're going to have to grab
+	 * those, make the new quotas, and then delete the old attributes. */
+
+	int i, quota, rquota, tq, trq;
+	char *qbuf, *rqbuf;
+
+#ifdef BETA_QUOTAS
+	char *roombuf, *r_roombuf, *exitbuf, *r_exitbuf, *tbuf, *r_tbuf,
+	*pbuf, *r_pbuf;
+
+#endif
+
+	DO_WHOLE_DB(i) {
+		if (isPlayer(i)) {
+			qbuf = atr_get_raw(i, A_QUOTA);
+			rqbuf = atr_get_raw(i, A_RQUOTA);
+			if (!qbuf || !*qbuf)
+				qbuf = (char *)"1";
+			if (!rqbuf || !*rqbuf)
+				rqbuf = (char *)"0";
+#ifdef BETA_QUOTAS
+			roombuf = atr_get_raw(i, A_QUOTAROOM);
+			r_roombuf = atr_get_raw(i, A_RQUOTAROOM);
+			exitbuf = atr_get_raw(i, A_QUOTAEXIT);
+			r_exitbuf = atr_get_raw(i, A_RQUOTAEXIT);
+			tbuf = atr_get_raw(i, A_QUOTATHING);
+			r_tbuf = atr_get_raw(i, A_RQUOTATHING);
+			pbuf = atr_get_raw(i, A_QUOTAPLAYER);
+			r_pbuf = atr_get_raw(i, A_RQUOTAPLAYER);
+			atr_add_raw(i, A_QUOTA,
+				    tprintf("%s %s %s %s %s", qbuf,
+				     (roombuf && *roombuf) ? roombuf : qbuf,
+				     (exitbuf && *exitbuf) ? exitbuf : qbuf,
+					    (tbuf && *tbuf) ? tbuf : qbuf,
+					    (pbuf && *pbuf) ? pbuf : qbuf));
+			atr_add_raw(i, A_RQUOTA,
+				    tprintf("%s %s %s %s %s", rqbuf,
+			      (r_roombuf && *r_roombuf) ? r_roombuf : rqbuf,
+			      (r_exitbuf && *r_exitbuf) ? r_exitbuf : rqbuf,
+				       (r_tbuf && *r_tbuf) ? r_tbuf : rqbuf,
+				     (r_pbuf && *r_pbuf) ? r_pbuf : rqbuf));
+			atr_add_raw(i, A_QUOTAROOM, NULL);
+			atr_add_raw(i, A_RQUOTAROOM, NULL);
+			atr_add_raw(i, A_QUOTAEXIT, NULL);
+			atr_add_raw(i, A_RQUOTAEXIT, NULL);
+			atr_add_raw(i, A_QUOTATHING, NULL);
+			atr_add_raw(i, A_RQUOTATHING, NULL);
+			atr_add_raw(i, A_QUOTAPLAYER, NULL);
+			atr_add_raw(i, A_RQUOTAPLAYER, NULL);
+#else /* else if no BETA_QUOTAS */
+			atr_add_raw(i, A_QUOTA,
+				    tprintf("%s %s %s %s %s",
+					    qbuf, qbuf, qbuf, qbuf, qbuf));
+			atr_add_raw(i, A_RQUOTA,
+				    tprintf("%s %s %s %s %s",
+					rqbuf, rqbuf, rqbuf, rqbuf, rqbuf));
+#endif /* BETA_QUOTAS */
+		}
+	}
+}
+
+#endif /* STANDALONE */
+
+
 /* ---------------------------------------------------------------------------
  * unscraw_foreign: Fix up strange object linking conventions for other formats
  */
@@ -1064,36 +1143,6 @@ FILE *f;
 	}
 }
 
-static void fix_typed_quotas(i)
-dbref i;
-{
-	char *buff, *bp;
-	dbref aowner;
-	int aflags, total = 0;
-
-	/* For 2.2's 'typed quotas'... 
-	 * I guess we have to add them up... 
-	 */
-
-	if (!(isPlayer(i)))
-		return;
-
-	buff = atr_get(i, A_QUOTA, &aowner, &aflags);
-	for (bp = strtok(buff, " "); bp; bp = strtok(NULL, " ")) {
-		total += atoi(bp);
-	}
-
-	atr_add_raw(i, A_QUOTA, tprintf("%d", total));
-	free_lbuf(buff);
-
-	buff = atr_get(i, A_RQUOTA, &aowner, &aflags);
-	for (bp = strtok(buff, " "); bp; bp = strtok(NULL, " ")) {
-		total += atoi(bp);
-	}
-	free_lbuf(buff);
-	atr_add_raw(i, A_RQUOTA, tprintf("%d", total));
-}
-
 static void getpenn_new_locks(f, i)
 FILE *f;
 {
@@ -1170,6 +1219,7 @@ int *db_format, *db_version, *db_flags;
 	int read_muse_parents, read_muse_atrdefs;
 #endif
 	int read_powers, read_powers_player, read_powers_any;
+	int has_typed_quotas;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
 	int aflags, f1, f2, f3;
 	BOOLEXP *tempbool;
@@ -1189,6 +1239,7 @@ int *db_format, *db_version, *db_flags;
 	read_money = 1;
 	read_extflags = 0;
 	read_3flags = 0;
+	has_typed_quotas = 0;
 	read_timestamps = 0;
 	read_new_strings = 0;
 	read_powers = 0;
@@ -1325,6 +1376,7 @@ int *db_format, *db_version, *db_flags;
 				read_parent = (g_version & V_PARENT);
 				read_money = !(g_version & V_ATRMONEY);
 				read_extflags = (g_version & V_XFLAGS);
+				has_typed_quotas = (g_version & V_TQUOTAS);
 				g_flags = g_version & ~V_MASK;
 
 				g_version &= V_MASK;
@@ -1361,6 +1413,7 @@ int *db_format, *db_version, *db_flags;
 				read_3flags = (g_version & V_3FLAGS);
 				read_powers = (g_version & V_POWERS);
 				read_new_strings = (g_version & V_QUOTED);
+				has_typed_quotas = (g_version & V_TQUOTAS);
 				g_flags = g_version & ~V_MASK;
 
 				g_version &= V_MASK;
@@ -1809,11 +1862,6 @@ int *db_format, *db_version, *db_flags;
 					get_atrdefs_discard(f);
 				}
 
-				/* Fix up MUSH 2.2's weird quota system */
-	
-				if ((g_format == F_MUSH) && (g_version == 8))
-					fix_typed_quotas(i);
-
 #endif
 				/* check to see if it's a player */
 
@@ -1846,6 +1894,10 @@ int *db_format, *db_version, *db_flags;
 				*db_flags = g_flags;
 #ifndef STANDALONE
 				load_player_names();
+#endif
+#ifdef STANDALONE				
+				if (!has_typed_quotas)
+					fix_typed_quotas();
 #endif
 				return mudstate.db_top;
 			}

@@ -173,6 +173,7 @@ void NDECL(cf_init)
 	mudconf.sacadjust = -1;
 	mudconf.use_hostname = 1;
 	mudconf.quotas = 0;
+	mudconf.typed_quotas = 0;
 	mudconf.ex_flags = 1;
 	mudconf.robot_speak = 1;
 	mudconf.clone_copy_cost = 0;

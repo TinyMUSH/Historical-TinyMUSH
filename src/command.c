@@ -2150,6 +2150,8 @@ dbref player;
 	now = time(NULL);
 	if (mudconf.quotas)
 		raw_notify(player, "Building quotas are enforced.");
+	if (mudconf.typed_quotas)
+		raw_notify(player, "Quotas are managed by object type.");
 	if (mudconf.name_spaces)
 		raw_notify(player, "Player names may contain spaces.");
 	else

@@ -113,6 +113,7 @@ struct boolexp {
 #define V_POWERS        0x00020000      /* Powers? */
 #define V_3FLAGS	0x00040000	/* Adding a 3rd flag word */
 #define V_QUOTED	0x00080000	/* Quoted strings, ala PennMUSH */
+#define V_TQUOTAS       0x00100000      /* Typed quotas */
 
 /* Some defines for DarkZone's flavor of PennMUSH */
 #define DB_CHANNELS    0x2    /*  Channel system */

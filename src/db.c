@@ -714,7 +714,7 @@ char *s;
 {
 	/* Truncate the name if we have to */
 	
-	if (strlen(s) > MBUF_SIZE)
+	if (s && (strlen(s) > MBUF_SIZE))
 		s[MBUF_SIZE] = '\0';
 	
 	atr_add_raw(thing, A_NAME, (char *)s);
