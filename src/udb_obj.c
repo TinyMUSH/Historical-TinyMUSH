@@ -444,9 +444,16 @@ int anum;
 int obj;
 {
 	Obj *object;
-		
+	char *value, *tmp;
+			
 	object = get_free_objpipe(obj);
-	return get_attrib(anum, object);
+	value = get_attrib(anum, object);
+	if (value) {
+		tmp = XSTRDUP(value, "fetch_attrib");
+		return tmp;
+	} else {
+		return NULL;
+	}
 }
 
 void put_attrib(anum, obj, value)

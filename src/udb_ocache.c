@@ -405,7 +405,7 @@ int type;
 	Cache *cp;
 	CacheLst *sp;
 	int hv = 0;
-	void *newdata, *tmpdata;
+	void *newdata;
 	int newdatalen;
 
 	if (!keydata || !cache_initted) {
@@ -484,14 +484,12 @@ int type;
 	switch(type) {
 	case DBTYPE_ATTRIBUTE:
 	
-		tmpdata = (void *)fetch_attrib(((Aname *)keydata)->attrnum,
+		newdata = (void *)fetch_attrib(((Aname *)keydata)->attrnum,
 			((Aname *)keydata)->object); 
-		if (tmpdata == NULL) {
-			newdata = NULL;
+		if (newdata == NULL) {
 			newdatalen = 0;
 		} else {
-			newdata = XSTRDUP(tmpdata, "cache_get.data");
-			newdatalen = strlen(tmpdata) + 1;
+			newdatalen = strlen(newdata) + 1;
 		}
 		break;
 	default:
