@@ -68,7 +68,7 @@ The following are important changes in behavior between MUX and 3.0:
 - Objects are now checked for commands if they are set COMMANDS (instead
   of not being checked for commands if they are set NO_COMMAND).
 
-- ZMOs are now controlled by their EnterLock, not their ControlLock.
+- ZMOs are now controlled by their ControlLock, not their EnterLock.
   Only objects that are set CONTROL_OK may be controlled according to
   their zone's ControlLock.
 
