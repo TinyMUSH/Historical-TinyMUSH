@@ -941,7 +941,7 @@ char *s;
 	/* We reset the one letter commands here so you can overload them */
 	
 	set_prefix_cmds();
-	notify(player, tprintf("%s added.", name));
+	notify(player, tprintf("Command %s added.", name));
 }
 
 void do_listcommands(player, cause, key, name)
