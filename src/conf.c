@@ -1523,7 +1523,6 @@ extern CF_HDCL(cf_power_access);
  */
 
 CONF conftable[] = {
-{(char *)"abort_on_bug",		cf_bool,	CA_STATIC,	CA_GOD,		(int *)&mudconf.abort_on_bug,	(long)"Dump core after logging a bug"},
 {(char *)"access",			cf_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
 {(char *)"addcommands_match_blindly",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.addcmd_match_blindly,	(long)"@addcommands don't error if no match is found"},
 {(char *)"addcommands_obey_stop",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.addcmd_obey_stop,	(long)"@addcommands obey STOP"},

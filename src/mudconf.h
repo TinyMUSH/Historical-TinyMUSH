@@ -283,7 +283,6 @@ struct confdata {
 	FLAGSET	thing_flags;	/* Flags things start with */
 	FLAGSET	robot_flags;	/* Flags robots start with */
 	FLAGSET stripped_flags; /* Flags stripped by @clone and @chown */
-	int	abort_on_bug;	/* Dump core after logging a bug  DBG ONLY */
       	char	*mud_name;	/* Name of the mud */
 	char	*one_coin;	/* name of one coin (ie. "penny") */
 	char	*many_coins;	/* name of many coins (ie. "pennies") */
