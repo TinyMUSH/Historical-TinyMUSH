@@ -12623,7 +12623,7 @@ Continued in 'help @malias2'.
   specify mailfrom(<player>,<msg #>).
  
 & STRUCTURE()
-  Function:  structure(<struct>,<names>,<types>,<defaults>[,<sep>[,<delim>]])
+  Function:  structure(<struct>,<names>,<types>[,<defaults>[,<sep>[,<delim>]]])
  
   This function creates a structure definition called <structure>. <names>
   is a space-separated list of component names. <types> is a space-separated

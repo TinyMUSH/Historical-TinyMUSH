@@ -1035,9 +1035,10 @@ FUNCTION(fun_structure)
 	XFREE(comp_array, "fun_structure.comp_array");
 	free_lbuf(type_names);
 	XFREE(type_array, "fun_structure.type_array");
-	if (default_vals)
+	if (default_vals) {
 	    XFREE(default_vals, "struct.defaults");
-	XFREE(def_array, "fun_structure.def_array");
+	    XFREE(def_array, "fun_structure.def_array");
+	}
 	return;
     }
 
@@ -1076,7 +1077,7 @@ FUNCTION(fun_structure)
 	*cp = '\0';
 
 	this_comp = (COMPONENT *) XMALLOC(sizeof(COMPONENT), "comp_alloc");
-	this_comp->def_val = def_array[i];
+	this_comp->def_val = (default_vals ? def_array[i] : NULL);
 	switch (*(type_array[i])) {
 	    case 'a': case 'A':
 		this_comp->typer_func = NULL;
@@ -1113,7 +1114,9 @@ FUNCTION(fun_structure)
 
     free_lbuf(type_names);
     XFREE(type_array, "fun_structure.type_array");
-    XFREE(def_array, "fun_structure.def_array");
+    if (default_vals) {
+	XFREE(def_array, "fun_structure.def_array");
+    }
 
     s_StructCount(player, StructCount(player) + 1);
     safe_chr('1', buff, bufc);
