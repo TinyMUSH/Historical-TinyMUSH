@@ -2590,6 +2590,7 @@ void stack_clr(thing)
 	    XFREE(xp, "stack_clr");
 	}
 	nhashdelete(thing, &mudstate.objstack_htab);
+	s_StackCount(thing, 0);
     }
 }
 
@@ -2602,6 +2603,13 @@ static void stack_set(thing, sp)
 
     if (!sp) {
 	nhashdelete(thing, &mudstate.objstack_htab);
+	s_StackCount(thing, StackCount(thing) - 1);
+	return;
+    }
+
+    if (StackCount(thing) + 1 > mudconf.stack_lim) {
+	XFREE(sp->data, "stack_max_data");
+	XFREE(sp, "stack_max");
 	return;
     }
 
@@ -2610,6 +2618,7 @@ static void stack_set(thing, sp)
 	stat = nhashrepl(thing, (int *) sp, &mudstate.objstack_htab);
     } else {
 	stat = nhashadd(thing, (int *) sp, &mudstate.objstack_htab);
+	s_StackCount(thing, StackCount(thing) + 1);
     }
     if (stat < 0) {		/* failure for some reason */
 	STARTLOG(LOG_BUGS, "STK", "SET")
@@ -2794,6 +2803,7 @@ static void handle_pop(player, cause, buff, bufc, fargs, flag)
     }
     XFREE(sp->data, "stack_pop_data");
     XFREE(sp, "stack_pop");
+    s_StackCount(it, StackCount(it) - 1);
 }
 
 FUNCTION(fun_pop)
@@ -2854,6 +2864,7 @@ FUNCTION(fun_popn)
 	tp = tp->next;
 	XFREE(xp->data, "stack_popn_data");
 	XFREE(xp, "stack_popn");
+	s_StackCount(it, StackCount(it) - 1);
     }
 
     /* Relink the chain. */
@@ -2985,10 +2996,16 @@ static void set_xvar(obj, name, data)
 	    xvar->text = NULL;
 	    XFREE(xvar, "xvar_struct");
 	    hashdelete(tbuf, &mudstate.vars_htab);
+	    s_VarsCount(obj, VarsCount(obj) - 1);
 	}
     } else {
 
-	/* We haven't found it. If it's non-empty, set it. */
+	/* We haven't found it. If it's non-empty, set it, provided we're
+	 * not running into a limit on the number of vars per object.
+	 */
+
+	if (VarsCount(obj) + 1 > mudconf.numvars_lim)
+	    return;
 
 	if (data && *data) {
 	    xvar = (VARENT *) XMALLOC(sizeof(VARENT), "xvar_struct");
@@ -3000,6 +3017,7 @@ static void set_xvar(obj, name, data)
 		return;		/* out of memory */
 	    strcpy(xvar->text, data);
 	    hashadd(tbuf, (int *) xvar, &mudstate.vars_htab);
+	    s_VarsCount(obj, VarsCount(obj) + 1);
 	}
     }
 }

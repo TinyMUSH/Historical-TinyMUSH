@@ -223,6 +223,8 @@ struct confdata {
 	int	lock_nest_lim;	/* Max nesting of lock evals */
 	int	parent_nest_lim;/* Max levels of parents */
 	int	zone_nest_lim;	/* Max nesting of zones */
+	int	numvars_lim;	/* Max number of variables per object */
+	int	stack_lim;	/* Max number of items on an object stack */
 #else
 	int	paylimit;	/* getting money gets hard over this much */
 	int	digcost;	/* cost of @dig command */

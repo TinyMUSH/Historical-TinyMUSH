@@ -2740,9 +2740,10 @@ dbref player;
 	sprintf(buff, "Misc: GuestChar...#%d", mudconf.guest_char);
 	raw_notify(player, buff);
 
-	sprintf(buff, "Limits: Output...%d  Recursion...%d  Invocation...%d  Parents...%d",
+	sprintf(buff, "Limits: Output...%d  Recursion...%d  Invocation...%d  Parents...%d  Stacks...%d  Variables...%d",
 		mudconf.output_limit, mudconf.func_nest_lim,
-		mudconf.func_invk_lim, mudconf.parent_nest_lim);
+		mudconf.func_invk_lim, mudconf.parent_nest_lim,
+		mudconf.stack_lim, mudconf.numvars_lim);
 	raw_notify(player, buff);
 
 	free_mbuf(buff);

@@ -161,6 +161,9 @@ struct object {
 	POWER 	powers;		/* ALL: Powers on object */
 	POWER	powers2;	/* ALL: even more powers */
 
+	int	stack_count;	/* ALL: number of things on the stack */
+	int	vars_count;	/* ALL: number of variables */
+
 #ifndef NO_TIMECHECKING
 	struct timeval cpu_time_used;	/* ALL: CPU time eaten */
 #endif
@@ -193,6 +196,11 @@ extern NAME *names;
 #define Powers2(t)		db[t].powers2
 #define	Home(t)			Link(t)
 #define	Dropto(t)		Location(t)
+
+#define VarsCount(t)		db[t].vars_count
+#define StackCount(t)		db[t].stack_count
+#define s_VarsCount(t,n)	db[t].vars_count = n;
+#define s_StackCount(t,n)	db[t].stack_count = n;
 
 #ifndef NO_TIMECHECKING
 #define Time_Used(t)		db[t].cpu_time_used

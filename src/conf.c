@@ -275,6 +275,8 @@ void NDECL(cf_init)
 	mudconf.lock_nest_lim = 20;
 	mudconf.parent_nest_lim = 10;
 	mudconf.zone_nest_lim = 20;
+	mudconf.numvars_lim = 50;
+	mudconf.stack_lim = 50;
 	mudconf.cache_trim = 0;
 	mudconf.cache_depth = CACHE_DEPTH;
 	mudconf.cache_width = CACHE_WIDTH;
@@ -1329,6 +1331,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.site_chars,		0},
 {(char *)"space_compress",
 	cf_bool,	CA_GOD,		&mudconf.space_compress,	0},
+{(char *)"stack_limit",
+	cf_int,		CA_GOD,		&mudconf.stack_lim,		0},
 {(char *)"starting_money",
 	cf_int,		CA_GOD,		&mudconf.paystart,		0},
 {(char *)"starting_quota",
@@ -1381,6 +1385,8 @@ CONF conftable[] = {
 	(long)attraccess_nametab},
 {(char *)"use_global_aconn",
 	cf_bool,	CA_GOD,		&mudconf.use_global_aconn,	0},
+{(char *)"variables_limit",
+	cf_int,		CA_GOD,		&mudconf.numvars_lim,		0},
 {(char *)"wait_cost",
 	cf_int,		CA_GOD,		&mudconf.waitcost,		0},
 {(char *)"wizard_obeys_linklock",
