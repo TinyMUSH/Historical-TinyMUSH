@@ -142,7 +142,7 @@ char *arg1, *arg2;
 		 * We're OK, do the teleport 
 		 */
 
-		if (key == TELEPORT_QUIET)
+		if (key & TELEPORT_QUIET)
 			hush = HUSH_ENTER | HUSH_LEAVE;
 
 		if (move_via_teleport(victim, destination, cause, hush)) {
