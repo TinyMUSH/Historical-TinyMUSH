@@ -1,10 +1,16 @@
+------------------------------------------------------------------------------
+HOW TO INSTALL
 
 	To generate the tools in the src/tools directory, change to that
 directory, and do a 'configure', and then a 'make'. Some of the tools here
-require awk. You can ftp GNU awk from ftp.gnu.ai.mit.edu. The tools
-currently only support a disk-based database.
---------------------------------------------------------------------------
-	There's a binary here, in rawreport.c which walks your gdbm
+require awk. You can ftp GNU awk from ftp.gnu.ai.mit.edu. The database tools
+currently only support a disk-based database (but have not been updated to
+work with TinyMUSH 3.1).
+
+------------------------------------------------------------------------------
+DATABASE TOOLS
+
+	There's a binary here, in rawdump which walks your gdbm
 database and runs out a raw report of the form:
 
 Object 214 resides at offset 31488 and takes 312 bytes
@@ -20,10 +26,38 @@ foo.gdbm
 
 	then your database is named 'foo.gdbm'. Then you can 'report.sh
 foo.gdbm' to get pretty pictures of stuff. Since the shell script wants to
-find both the raw reporter 'rawreport' and the awk script 'histogrammer' in
+find both the raw reporter 'rawdump' and the awk script 'histogrammer' in
 the path, it's probably best to run this in the tools subdirectory, and point
 it at the database file with an explicit path. For example:
 
 report.sh ../../game/data/tinymush.gdbm
 
 	or something.
+
+------------------------------------------------------------------------------
+PORT ANNOUNCER
+
+	The other tool is a binary called announce. This is a program that
+listens on a port (default 6250) and responds to connections by printing
+a message. You can use this to tell people what's going on while your MUSH
+is down or after you've moved it to another host / port.
+
+	To use the announcer, first write your message in a text file, say
+announce.txt. Then start the announcer (specify the port number if you need
+to, 4201 in this example):
+
+announce 4201 < announce.txt > announce.log 2>&1 &	(sh-like shell)
+announce 4201 < announce.txt >& announce.log &		(csh-like shell)
+
+	To stop the announcer when you need to change the message or quit
+announcing altogether, you will need to kill the process. Use one of these
+to find the process:
+
+ps uxw | grep announce		(BSD systems)
+ps -ef | grep announce		(SYSV systems)
+
+	The PID should be the number in the second column; use 'kill pid'
+to end the process. Note that the port may stay in use for a minute or so
+after the announcer has exited; you may have trouble starting up the MUSH
+right after the announcer has exited, or vice versa. You can probably use
+netstat to see when the port becomes available.
