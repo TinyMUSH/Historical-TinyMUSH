@@ -4792,9 +4792,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	aposs()		default()	edefault()	eval()
 	get()		get_eval()	grep()		grepi()
 	hasattr()	hasattrp()	lattr()		obj()
-	objeval()	poss()		subj()		u()
-	udefault()	ulocal()	v()		xget()
-	zfun()
+	objeval()	poss()		regrep()	regrepi()
+	subj()		u()		udefault()	ulocal()
+	v()		wildgrep()	xget()		zfun()
  
 & OBJECT FUNCTIONS
   Topic: Object Functions
@@ -9731,23 +9731,48 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   The second form of this function simply evaluates <string>.
  
 & GREP()
+& GREPI()
   Function: grep(<object>, <attrs>, <string>)
+  Function: grepi(<object>, <attrs>, <string>)
  
-  This function returns a list of attributes on <object>, which
-  contain <string>. <attrs> is a wildcard attribute pattern; to
-  search all attributes on the object, use '*'.
+  This function returns a list of attributes on <object>, where the
+  contents of the attribute contain <string>. <attrs> is a wildcard
+  attribute pattern; to search all attributes on the object, use '*'.
  
   Please note that this function does parse its arguments; thus,
   any 'special' characters in <string> need to be escaped out.
  
-  <string> is case-sensitive; for a case-insensitive search, use
-  grepi() instead.
+  grep() does a case-sensitive search. grepi() is not case-sensitive.
  
-& GREPI()
-  Function: grepi(<object>, <attrs>, <string>)
+& REGREP()
+& REGREPI()
+  Function: regrep(<object>, <attrs>, <regexp>)
+  Function: regrepi(<object>, <attrs>, <regexp>)
  
-  This function is identical to grep(), but <string> is searched for
-  in a case-insensitive manner.
+  This function returns a list of attributes on <object>, where
+  the contents of the attribute match the regular expression
+  pattern <regexp>. <attrs> is a wildcard attribute pattern; to
+  search all attributes on the object, use '*'.
+  
+  Please note that this function does parse its arguments; thus,
+  any 'special' characters in <string> need to be escaped out.
+ 
+  regrep() does a case-sensitive search. regrepi() is not
+  case-sensitive.
+ 
+& WILDGREP()
+  Function: wildgrep(<object>, <attrs>, <pattern>)
+ 
+  This function returns a list of attributes on <object>, where
+  the contents of the attribute match the wildcard pattern <pattern>.
+  If you are searching for <pattern> in the middle of the contents,
+  remember to use '*<pattern>*'; i.e., to search for all attributes
+  containing the wildcard pattern 'test?_fn', you should specify
+  '*test?_fn*' as <pattern>. <attrs> is a wildcard attribute pattern;
+  to search all attributes on the object, use '*'.
+  
+  Please note that this function does parse its arguments; thus,
+  any 'special' characters in <string> need to be escaped out.
  
 & HASATTRP()
   Function: hasattrp(<object>, <attribute>)
