@@ -85,6 +85,8 @@ XFUNCTION(fun_hasattrp);
 XFUNCTION(fun_zwho);
 XFUNCTION(fun_inzone);
 XFUNCTION(fun_children);
+XFUNCTION(fun_encrypt);
+XFUNCTION(fun_decrypt);
 XFUNCTION(fun_objeval);
 XFUNCTION(fun_localize);
 XFUNCTION(fun_null);
@@ -5908,6 +5910,7 @@ FUN flist[] = {
 {"CWHO",        fun_cwho,       1,  0,          CA_PUBLIC},
 #endif
 {"DEC",         fun_dec,        1,  0,          CA_PUBLIC},
+{"DECRYPT",	fun_decrypt,	2,  0,		CA_PUBLIC},
 {"DEFAULT",	fun_default,	2,  FN_NO_EVAL, CA_PUBLIC},
 {"DELETE",	fun_delete,	3,  0,		CA_PUBLIC},
 {"DESTRUCT",	fun_destruct,	1,  0,		CA_PUBLIC},
@@ -5923,6 +5926,7 @@ FUN flist[] = {
 {"ELEMENTS",	fun_elements,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ELOCK",	fun_elock,	2,  0,		CA_PUBLIC},
 {"EMPTY",	fun_empty,	0,  FN_VARARGS, CA_PUBLIC},
+{"ENCRYPT",	fun_encrypt,	2,  0,		CA_PUBLIC},
 {"EQ",		fun_eq,		2,  0,		CA_PUBLIC},
 {"ESCAPE",	fun_escape,	-1, 0,		CA_PUBLIC},
 {"EXIT",	fun_exit,	1,  0,		CA_PUBLIC},

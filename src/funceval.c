@@ -4763,6 +4763,87 @@ FUNCTION(fun_lastcreate)
 }
 
 /*---------------------------------------------------------------------------
+ * encrypt() and decrypt(): From DarkZone.
+ */
+
+/*
+ * Copy over only alphanumeric chars 
+ */
+static char *crunch_code(code)
+char *code;
+{
+	char *in;
+	char *out;
+	static char output[LBUF_SIZE];
+
+	out = output;
+	in = code;
+	while (*in) {
+		if ((*in >= 32) || (*in <= 126)) {
+			printf("%c", *in);
+			*out++ = *in;
+		}
+		in++;
+	}
+	*out = '\0';
+	return (output);
+}
+
+static char *crypt_code(code, text, type)
+char *code;
+char *text;
+int type;
+{
+	static char textbuff[LBUF_SIZE];
+	char codebuff[LBUF_SIZE];
+	int start = 32;
+	int end = 126;
+	int mod = end - start + 1;
+	char *p, *q, *r;
+
+	if (!text && !*text)
+		return ((char *)"");
+	StringCopy(codebuff, crunch_code(code));
+	if (!code || !*code || !codebuff || !*codebuff)
+		return (text);
+	StringCopy(textbuff, "");
+
+	p = text;
+	q = codebuff;
+	r = textbuff;
+
+	/*
+	 * Encryption: Simply go through each character of the text, get its
+	 * ascii value, subtract start, add the ascii value (less
+	 * start) of the code, mod the result, add start. Continue
+	 */
+	while (*p) {
+		if ((*p < start) || (*p > end)) {
+			p++;
+			continue;
+		}
+		if (type)
+			*r++ = (((*p++ - start) + (*q++ - start)) % mod) + start;
+		else
+			*r++ = (((*p++ - *q++) + 2 * mod) % mod) + start;
+		if (!*q)
+			q = codebuff;
+	}
+	*r = '\0';
+	return (textbuff);
+}
+
+FUNCTION(fun_encrypt)
+{
+	safe_str(crypt_code(fargs[1], fargs[0], 1), buff, bufc);
+}
+
+FUNCTION(fun_decrypt)
+{
+	safe_str(crypt_code(fargs[1], fargs[0], 0), buff, bufc);
+}
+
+/*---------------------------------------------------------------------------
  * SQL stuff.
  */
 
