@@ -1618,13 +1618,25 @@ FUNCTION(fun_lit)
 
 FUNCTION(fun_art)
 {
-/* checks a word and returns the appropriate article, "a" or "an" */
-	char c = tolower(*fargs[0]);
+	/* checks a word and returns the appropriate article, "a" or "an" */
+	char *s = fargs[0];
+	char c;
 
-	if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
+	while (isspace(*s) || iscntrl(*s)) {
+		if (*s == ESC_CHAR) {
+			skip_esccode(s);
+		} else {
+			++s;
+		}
+	}
+
+	c = tolower(*s);
+
+	if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
 		safe_known_str("an", 2, buff, bufc);
-	else
+	} else {
 		safe_chr('a', buff, bufc);
+	}
 }
 
 FUNCTION(fun_alphamax)
