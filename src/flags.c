@@ -766,11 +766,23 @@ CF_HAND(cf_flag_name)
      */
 
     flagstr = (char *) strsave(tprintf("_%s", namestr));
-    for (cp = flagstr; cp && *cp; cp++)
+    if (strlen(flagstr) > 31) {
+	cf_log_syntax(player, cmd, "Marker flag name too long: %s", namestr);
+	XFREE(flagstr, "strsave");
+    }
+
+    for (cp = flagstr; cp && *cp; cp++) {
+	if (!isalnum(*cp) && (*cp != '_')) {
+	    cf_log_syntax(player, cmd, "Illegal marker flag name: %s",
+			  namestr);
+	    XFREE(flagstr, "strsave");
+	    return -1;
+	}
 	*cp = ToLower(*cp);
+    }
 
     if (hashfind(flagstr, &mudstate.flags_htab)) {
-	free(flagstr);
+	XFREE(flagstr, "strsave");
 	cf_log_syntax(player, cmd, "Marker flag name in use: %s", namestr);
 	return -1;
     }
