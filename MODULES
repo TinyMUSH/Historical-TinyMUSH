@@ -325,6 +325,11 @@ void mod_<name>_db_grow(newsize)
 	DB_GROW_MODULE(mod_<name>_db, newsize, newtop, MOD_<name>_OBJ);
 }
 
+The above will automatically take care of extending and initializing
+your private module database as needed. Initialization of newly-created
+objects should be taken care of by creating a handler for create_obj()
+(see below).
+
 -----------------------------------------------------------------------------
 
 MODULE API FUNCTIONS
@@ -359,6 +364,13 @@ void mod_<name>_announce_connect(dbref player)
 void mod_<name>_announce_disconnect(dbref player, const char *reason)
 	Run when a player disconnects, after all other disconnect stuff
 	has been executed, but before the descriptor has been deleted.
+
+void mod_<name>_examine(dbref player, dbref cause, dbref thing, 
+			int control, int key)
+	Run when an object is examined, after the basic object information
+	is displayed but before attributes are displayed. 'control' is
+	1 if the player can examine thing, and 0 if not. 'key' is the
+	key originally passed to the examine command.
 
 void mod_<name>_make_minimal(void)
 	Run if making a minimal database is specified.

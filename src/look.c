@@ -1401,6 +1401,8 @@ char *name;
 
 	}
 
+	CALL_ALL_MODULES(examine, (player, cause, thing, control, key));
+
 	if (!((key & EXAM_OWNER) || (key & EXAM_BRIEF)))
 		look_atrs(player, thing, do_parent, is_special);
 

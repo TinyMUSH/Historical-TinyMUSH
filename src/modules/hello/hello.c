@@ -162,6 +162,18 @@ void mod_hello_announce_disconnect(player, reason)
 				Name(player), player));
 }
 
+void mod_hello_examine(player, cause, thing, control, key)
+    dbref player, cause, thing;
+    int control, key;
+{
+    if (control) {
+	notify(player,
+	       tprintf("Greeted: %d  Foofed: %d",
+		       mod_hello_db[thing].greeted,
+		       mod_hello_db[thing].foofed));
+    }
+}
+
 /* --------------------------------------------------------------------------
  * Commands.
  */

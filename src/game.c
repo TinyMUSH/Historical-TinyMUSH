@@ -1806,7 +1806,7 @@ char *argv[];
 	/* We have to do an update, even though we're starting up, because
 	 * there may be players connected from a restart, as well as objects.
 	 */
-	CALL_ALL_MODULES(cleanup_startup, ());
+	CALL_ALL_MODULES_NOCACHE("cleanup_startup", (void), ());
 
 	sql_init();		/* Make a connection to external SQL db */
 

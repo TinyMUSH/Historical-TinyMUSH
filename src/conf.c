@@ -589,7 +589,8 @@ CF_HAND(cf_module)
 	mp->announce_connect = DLSYM(handle, str, "announce_connect", (dbref));
 	mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
 					(dbref, const char *));
-	mp->cleanup_startup = DLSYM(handle, str, "cleanup_startup", ());
+	mp->examine = DLSYM(handle, str, "examine",
+			    (dbref, dbref, dbref, int, int));
 	mp->dump_database = DLSYM(handle, str, "dump_database", ());
 	mp->db_grow = DLSYM(handle, str, "db_grow", (int, int));
 
