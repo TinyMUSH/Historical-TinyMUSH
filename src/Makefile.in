@@ -357,10 +357,10 @@ verify:
 	runtest --tool mush --src ./testsuite
 
 realclean:
-	-rm -f *.o a.out core gmon.out mush.*log mush.*sum $(OUT) netmush~
+	-rm -f *.o a.out core gmon.out mush.*log mush.*sum $(OUT) netmush~ slave conc
 
 clean:
-	-rm -f *.o a.out core gmon.out mush.*log mush.*sum slave conc $(OUT)
+	-rm -f *.o a.out core gmon.out mush.*log mush.*sum
 
 indent:
 	indent -bad -bap -ncdb -nsob -fca -sc -br -ce -ss -npcs -nbc -lp -i8 -ip0 -cp5 -ncs -npsl -di1 *.c radixlib/*.c tools/*.c web/*.c
