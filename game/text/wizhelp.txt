@@ -1661,9 +1661,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Config parameter: comsys_database <filename>.  Default: comsys.db
  
   Specifies the file that comsystem information is stored in.
-  This database is loaded at startup if have_comsys is Yes.
- 
-  See also: have_comsys
+  This database is loaded at startup if the comsys module is installed.
  
 & config_access
   Config parameter: config_access <param> [!]<privilege> [[!]<privilege>]...
@@ -2128,7 +2126,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Guests channel. When Guests connect, if the guest channel has been
   created, Guests join that channel with this alias.
  
-  See also: have_comsys, guests_channel, public_calias, public_channel.
+  See also: guests_channel, public_calias, public_channel.
  
 & guests_channel
   Config parameter: guests_channel <name>. Default: Guests
@@ -2137,7 +2135,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   must have created the channel already. To disable this feature, simply set
   this parameter to nothing.
  
-  See also: have_comsys, guests_calias, public_calias, public_channel.
+  See also: guests_calias, public_calias, public_channel.
  
 & guest_prefixes
 & guest_suffixes
@@ -2765,7 +2763,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   join that channel, this is the default command for talking on that
   channel. The channel must have been previously created.
  
-  See also: have_comsys, guests_calias, guests_channel, public_channel.
+  See also: guests_calias, guests_channel, public_channel.
  
 & public_channel
   Config parameter: public_channel <name>. Default: Public
@@ -2774,7 +2772,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   created. You must have previously created the channel. To disable this
   feature, simply set this parameter to nothing.
  
-  See also: have_comsys, guests_calias, guests_channel, public_calias.
+  See also: guests_calias, guests_channel, public_calias.
  
 & public_flags
   Config parameter: public_flags <yes/no>.  Default: Yes
