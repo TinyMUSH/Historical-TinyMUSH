@@ -1,0 +1,29 @@
+#!/bin/sh
+
+echo "Building TinyMUSH 3.0..."
+
+echo
+echo "***** Configuring gdbm..."
+echo
+cd src/gdbm-1.8.0
+./configure --enable-shared=no --enable-static=yes
+echo
+echo "***** Building gdbm..."
+echo
+make
+
+echo
+echo "***** Configuring the server..."
+cd ..
+./configure
+echo
+echo "***** Making dependencies..."
+echo
+make depend
+echo
+echo "***** Building server using default config..."
+make
+cd ..
+
+echo
+echo "Done."
