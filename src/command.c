@@ -505,8 +505,6 @@ CMDENT command_table[] = {
 	0,		CS_ONE_ARG|CS_INTERP,		do_find},
 {(char *)"@fixdb",		fixdb_sw,	CA_GOD,
 	0,		CS_TWO_ARG|CS_INTERP,		do_fixdb},
-/*{(char *)"@fnd",		NULL,		0,
-	0,		CS_ONE_ARG|CS_UNPARSE,		do_fnd}, */
 {(char *)"@force",		NULL,
 	CA_NO_SLAVE|CA_GBL_INTERP|CA_NO_GUEST,
 	FRC_COMMAND,	CS_TWO_ARG|CS_INTERP|CS_CMDARG,	do_force},
@@ -514,6 +512,8 @@ CMDENT command_table[] = {
 	PEMIT_FPOSE,	CS_TWO_ARG|CS_INTERP,		do_pemit},
 {(char *)"@fsay",		NULL,		CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_FSAY,	CS_TWO_ARG|CS_INTERP,		do_pemit},
+{(char *)"@freelist",		NULL,		CA_WIZARD,
+	0,		CS_ONE_ARG|CS_INTERP,		do_freelist},
 {(char *)"@function",		function_sw,	CA_GOD,
 	0,		CS_TWO_ARG|CS_INTERP,		do_function},
 {(char *)"@halt",		halt_sw,	CA_NO_SLAVE,
