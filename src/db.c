@@ -844,6 +844,9 @@ char *aname, *value;
 					va->flags &= ~f;
 				else
 					va->flags |= f;
+					
+				/* Set the dirty bit */
+				va->flags |= AF_DIRTY;
 			} else {
 				notify(player,
 				    tprintf("Unknown permission: %s.", sp));

@@ -18,8 +18,6 @@
 #ifndef STANDALONE
 #undef MEMORY_BASED
 #endif
-/* Define if we're using radix string compression */
-#undef RADIX_COMPRESSION
 /* Define if we're using the port concentrator */
 #undef CONCENTRATE
 /* Define if we're using a tracing version of malloc */

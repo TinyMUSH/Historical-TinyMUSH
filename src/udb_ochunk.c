@@ -137,6 +137,10 @@ int dddb_close()
 	return (0);
 }
 
+/* Pass dddb_get a key and its length, and it returns data through
+ * dataptr and length through datalenptr. Type is used as part of the GDBM
+ * key to guard against namespace conflicts in different MUSH subsystems */
+
 void dddb_get(keydata, keylen, dataptr, datalenptr, type)
 void *keydata;
 int keylen;
@@ -171,6 +175,9 @@ int type;
 
 	free(key.dptr);
 }
+
+/* Pass dddb_put a key and its length, data and its length, and the type
+ * of entry you are storing */
 
 int dddb_put(keydata, keylen, data, len, type)
 void *keydata;
@@ -208,6 +215,9 @@ int len;
 
 	return (0);
 }
+
+/* Pass dddb_del a key and its length, and the type of entry you are
+ * deleting */
 
 int dddb_del(keydata, keylen, type)
 void *keydata;
