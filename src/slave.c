@@ -56,7 +56,8 @@ const char *src;
 	return (dest);
 }
 
-void child_timeout_signal()
+void child_timeout_signal(sig)
+int sig;
 {
 	exit(1);
 }
@@ -186,7 +187,8 @@ char *orig_arg;
 	return (0);
 }
 
-void child_signal()
+void child_signal(sig)
+int sig;
 {
 	/*
 	 * collect any children 
@@ -200,7 +202,8 @@ void child_signal()
 	signal(SIGCHLD, child_signal);
 }
 
-void alarm_signal()
+void alarm_signal(sig)
+int sig;
 {
 	struct itimerval itime;
 	struct timeval interval;
@@ -231,7 +234,7 @@ char **argv;
 	if (parent_pid == 1) {
 		exit(1);
 	}
-	alarm_signal();
+	alarm_signal(SIGALRM);
 	signal(SIGCHLD, child_signal);
 	signal(SIGPIPE, SIG_DFL);
 

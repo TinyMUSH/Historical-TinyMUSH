@@ -439,6 +439,7 @@ const char *failmsg;
 		break;
 	    default:
 		/* EMPTY */
+		break;
 	}
 
 	if (Good_obj(loc) && could_doit(player, exit, A_LOCK)) {

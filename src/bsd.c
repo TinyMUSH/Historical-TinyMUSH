@@ -1066,7 +1066,11 @@ void NDECL(emergency_shutdown)
 #define SIGCHLD SIGCLD
 #endif
 
-static RETSIGTYPE sighandler();
+#ifdef HAVE_STRUCT_SIGCONTEXT
+static RETSIGTYPE FDECL(sighandler, (int, int, struct sigcontext *));
+#else
+static RETSIGTYPE FDECL(sighandler, (int));
+#endif
 /* *INDENT-OFF* */
 
 NAMETAB sigactions_nametab[] = {
@@ -1168,8 +1172,8 @@ int sig, code;
 struct sigcontext *scp;
 
 #else
-static RETSIGTYPE sighandler(sig, code)
-int sig, code;
+static RETSIGTYPE sighandler(sig)
+int sig;
 
 #endif
 {

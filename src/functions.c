@@ -44,7 +44,8 @@ extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 /* Function definitions from funceval.c */
 
 #define	XFUNCTION(x)	\
-	extern void x();
+	extern void FDECL(x, (char *, char **, dbref, dbref, \
+			      char *[], int, char *[], int))
 
 #ifdef USE_COMSYS
 XFUNCTION(fun_cwho);
@@ -102,7 +103,7 @@ XFUNCTION(fun_strtrunc);
 XFUNCTION(fun_ifelse);
 XFUNCTION(fun_nonzero);
 XFUNCTION(fun_inc);
-XFUNCTION(fun_dec)
+XFUNCTION(fun_dec);
 #ifdef USE_MAIL
 XFUNCTION(fun_mail);
 XFUNCTION(fun_mailfrom);
