@@ -4334,8 +4334,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	ifelse()	localize()	mudname()	nonzero()
 	pemit()		r()		rand()		remit()		
 	restarts()	restarttime()	s()		secs()		
-	setq()		setr()		switch()	starttime()
-	time()		version()
+	setq()		setr()		starttime()	switch()
+	switchall	time()		version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -7097,8 +7097,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & SWITCH()
   Function: switch(<str>[,<pat1>,<res1>]...[,<dflt>])
  
-  The switch function compares <str> against <pat1>, <pat2>, etc (allowing *
-  to match any number of characters and ? to match any 1 character), and
+  The switch() function compares <str> against <pat1>, <pat2>, etc (allowing
+  * to match any number of characters and ? to match any 1 character), and
   returns the corresponding <resN> parameter for the first <patN> pattern
   that matches.  If none match, then the default result <dflt> is returned.
   The evaluated value of <str> can be obtained as '#$'.
@@ -7115,8 +7115,28 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say switch(words(foo bar baz),0,No words,1,1 word,#$ words)
     You say "3 words"
  
-  See also: @switch, match().
-
+  See also: @switch, switchall(), match().
+ 
+& SWITCHALL()
+  Function: switch(<str>[,<pat1>,<res1>]...[,<dflt>])
+ 
+  The switchall() function compares <str> against <pat1>, <pat2>, etc.
+  (allowing * to match any number of characters and ? to match any 1
+  character), and returns the corresponding <resN> parameters (without
+  any delimiters) for all <patN> patterns that match.  If none match,
+  then the default result <dflt> is returned. The evaluated value of
+  <str> can be obtained as '#$'.
+ 
+  Example:
+    > say switchall(c,*a*,A,*b*,B,*c*,C,*d*,D,E)
+    You say "C"
+    > say switchall(dab,*a*,A,*b*,B,*c*,C,*d*,D,E)
+    You say "ABD"
+    > say switchall(f,*a*,A,*b*,B,*c*,C,*d*,D,E)  
+    You say "E"
+ 
+  See also: @switch, switch(), match().
+  
 & NONZERO()
   Function: nonzero(<condition>,<string if non-zero>,<string if zero>)
  
