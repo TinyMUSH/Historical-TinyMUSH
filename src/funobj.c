@@ -762,7 +762,6 @@ FUNCTION(fun_writable)
 	dbref it, thing, aowner;
 	int aflags, atr, retval;
 	ATTR *ap;
-	char *s;
 
 	if ((it = match_thing(player, fargs[0])) == NOTHING) {
 		safe_chr('0', buff, bufc);

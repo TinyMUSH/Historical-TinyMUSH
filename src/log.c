@@ -121,7 +121,8 @@ int key;
 			last_key = key;
 			for (lp = logfds_table; lp->log_flag; lp++) {
 			    /* Though keys can be OR'd, use the first one
-			    /* matched */
+			     * matched
+			     */
 			   
 			    if (lp->log_flag & key) {
 				log_fp = lp->fileptr;

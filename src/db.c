@@ -1736,8 +1736,6 @@ int atr;
 {
 	DBData key, data;
 	Aname okey;
-	int attr;
-	char *as;
 	
 	if (Typeof(thing) == TYPE_GARBAGE)
 		return NULL;

@@ -1623,7 +1623,6 @@ char *argv[];
 	extern char *optarg;
 	extern int optind;
 	int c, errflg = 0;
-	char *fp;
 	char *opt_conf = (char *) CONF_FILE;
 	FILE *f;
 	MODULE *mp;
@@ -1706,7 +1705,7 @@ char *argv[];
 			case '7':
 			case '8':
 			case '9':
-				ver = ver * 10 + (*fp - '0');
+				ver = ver * 10 + (c - '0');
 				break;
 			default:
 				errflg++;

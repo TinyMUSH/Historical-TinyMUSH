@@ -20,6 +20,7 @@
 #include "functions.h"	/* required by code */
 #include "fnproto.h"	/* required by code */
 
+extern int FDECL(parse_ext_access, (int *, EXTFUNCS **, char *, NAMETAB *, dbref, char *));
 extern NAMETAB access_nametab[];
 
 UFUN *ufun_head;
