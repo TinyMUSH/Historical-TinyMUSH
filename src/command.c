@@ -1657,7 +1657,7 @@ char *command, *args[];
 #ifndef MEMORY_BASED
 	/* Reset the cache so that unreferenced attributes may be flushed */
 
-	cache_reset();
+	cache_reset(0);
 #endif /* MEMORY_BASED */
 
 	/* Now comes the fun stuff.  First check for single-letter leadins.
@@ -3262,7 +3262,11 @@ char *arg;
 		badname_list(player, "Disallowed names:");
 		break;
 	case LIST_CACHEOBJS:
+#ifndef MEMORY_BASED
 		list_cached_objs(player);
+#else
+		raw_notify(player, "No cached objects.");
+#endif /* MEMORY_BASED */
 		break;
 	case LIST_TEXTFILES:
 		list_textfiles(player);
