@@ -1611,7 +1611,7 @@ char *chan, *text;
 		return;
 	}
 	if ((player != ch->charge_who) && (!Comm_All(player))) {
-		raw_notify(player, "Permission denied.");
+		raw_notify(player, NOPERM_MESSAGE);
 		return;
 	}
 	if (key == CEMIT_NOHEADER)
@@ -1775,7 +1775,7 @@ char *object;
 		return;
 	}
 	if (!(ch->charge_who == player) && !Comm_All(player)) {
-		raw_notify(player, "Permission denied.");
+		raw_notify(player, NOPERM_MESSAGE);
 		return;
 	}
 	if (thing == NOTHING) {

@@ -49,8 +49,6 @@ extern dbref	NDECL(match_result);
 extern dbref	NDECL(last_match_result);
 extern dbref	FDECL(match_status, (dbref, dbref));
 extern dbref	NDECL(noisy_match_result);
-extern dbref	FDECL(dispatched_match_result, (dbref));
-extern int	NDECL(matched_locally);
 extern void	FDECL(save_match_state, (MSTATE *));
 extern void	FDECL(restore_match_state, (MSTATE *));
 

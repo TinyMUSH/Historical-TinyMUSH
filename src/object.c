@@ -12,6 +12,7 @@
 #include "powers.h"
 #include "attrs.h"
 #include "alloc.h"
+#include "match.h"
 
 #define IS_CLEAN(i)	(IS(i, TYPE_GARBAGE, GOING) && \
 			 (Location(i) == NOTHING) && \
@@ -341,7 +342,7 @@ char *name;
 		f1 = mudconf.exit_flags.word1;
 		f2 = mudconf.exit_flags.word2;
 		f3 = mudconf.exit_flags.word3;
-		okname = ok_name(name);
+		okname = ok_name(name) && ok_exit_name(name);
 		tname = "an exit";
 		break;
 	case TYPE_PLAYER:
@@ -409,7 +410,7 @@ char *name;
 
 	if (require_inherit) {
 		if (!Inherits(player)) {
-			notify(player, "Permission denied.");
+			notify(player, NOPERM_MESSAGE);
 			return NOTHING;
 		}
 	}

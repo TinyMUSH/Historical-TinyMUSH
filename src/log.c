@@ -277,16 +277,3 @@ dbref thing;
 	log_text((char *)")");
 	return;
 }
-
-void log_type_and_num(thing)
-dbref thing;
-{
-	char nbuf[16];
-
-	log_text(OBJTYP(thing));
-	*nbuf = ' ';
-	nbuf[1] = '#';
-	ltos(&nbuf[2], thing);
-	log_text(nbuf);
-	return;
-}

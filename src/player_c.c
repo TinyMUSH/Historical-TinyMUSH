@@ -150,18 +150,6 @@ void NDECL(pcache_sync)
 	}
 }
 
-void pcache_purge(player)
-dbref player;
-{
-	PCACHE *pp;
-
-	pp = (PCACHE *) nhashfind(player, &pcache_htab);
-	if (!pp)
-		return;
-	pp->cflags = PF_DEAD;
-	nhashdelete(pp->player, &pcache_htab);
-}
-
 int a_Queue(player, adj)
 dbref player;
 int adj;

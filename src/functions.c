@@ -5017,6 +5017,7 @@ FUN flist[] = {
 {"SWAP",	fun_swap,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SWITCH",	fun_switch,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
+{"T",		fun_t,		1,  0,		CA_PUBLIC},
 {"TAN",		fun_tan,	1,  0,		CA_PUBLIC},
 #ifdef TCL_INTERP_SUPPORT
 {"TCLCLEAR",	fun_tclclear,	0,  0,		CA_WIZARD},
@@ -5117,7 +5118,7 @@ char *fname, *target;
 	/* Make sure the target object exists */
 
 	if (!parse_attrib(player, target, &obj, &atr)) {
-		notify_quiet(player, "I don't see that here.");
+		notify_quiet(player, NOMATCH_MESSAGE);
 		free_sbuf(np);
 		return;
 	}
@@ -5138,14 +5139,14 @@ char *fname, *target;
 	}
 	atr_get_info(obj, atr, &aowner, &aflags);
 	if (!See_attr(player, obj, ap, aowner, aflags)) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		free_sbuf(np);
 		return;
 	}
 	/* Privileged functions require you control the obj.  */
 
 	if ((key & FN_PRIV) && !Controls(player, obj)) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		free_sbuf(np);
 		return;
 	}

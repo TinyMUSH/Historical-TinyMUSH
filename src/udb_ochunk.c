@@ -83,11 +83,6 @@ int dddb_init()
 	return (0);
 }
 
-dddb_initted()
-{
-	return (db_initted);
-}
-
 dddb_setfile(fil)
 char *fil;
 {
@@ -188,23 +183,6 @@ Objname *nam;
 
 	free(dat.dptr);
 	return (0);
-}
-
-int dddb_check(nam)
-char *nam;
-{
-	if (!db_initted)
-		return (0);
-
-	key.dptr = nam;
-	key.dsize = strlen(nam) + 1;
-
-	dat = gdbm_fetch(dbp, key);
-
-	if (dat.dptr == (char *)0)
-		return (0);
-	free(dat.dptr);
-	return (1);
 }
 
 int dddb_del(nam)

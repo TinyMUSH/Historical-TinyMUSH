@@ -15,6 +15,7 @@
 #include "flags.h"
 #include "alloc.h"
 #include "powers.h"
+#include "match.h"
 
 #ifndef STANDALONE
 
@@ -460,7 +461,7 @@ int key;
 	result = fp->handler(target, player, fp->flagvalue,
 			     fp->flagflag, negate);
 	if (!result)
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 	else if (!(key & SET_QUIET) && !Quiet(player))
 		notify(player, (negate ? "Cleared." : "Set."));
 	return;

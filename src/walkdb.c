@@ -160,7 +160,7 @@ STATS *info;
 	 */
 
 	if (Good_obj(who) && !Controls(player, who) && !Stat_Any(player)) {
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 		return 0;
 	}
 	/*

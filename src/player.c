@@ -12,6 +12,7 @@
 #include "alloc.h"
 #include "attrs.h"
 #include "powers.h"
+#include "match.h"
 
 #define	NUM_GOOD	4	/* # of successful logins to save data for */
 #define NUM_BAD		3	/* # of failed logins to save data for */
@@ -366,7 +367,7 @@ char *who;
 	if (target == NOTHING) {
 		notify(player, "I couldn't find that player.");
 	} else if (!Controls(player, target)) {
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 	} else {
 		atrbuf = atr_get(target, A_LOGINDATA, &aowner, &aflags);
 		decrypt_logindata(atrbuf, &login_info);

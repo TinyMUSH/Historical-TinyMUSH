@@ -496,7 +496,7 @@ char *what;
 
 	if (!isRoom(playerloc) && !Enter_ok(playerloc) &&
 	    !controls(player, playerloc)) {
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 		return;
 	}
 	/* Look for the thing locally */
@@ -570,7 +570,7 @@ char *what;
 
 		playerloc = Location(player);
 		if (!Controls(player, thing) && !Controls(player, playerloc)) {
-			notify(player, "Permission denied.");
+			notify(player, NOPERM_MESSAGE);
 			break;
 		}
 		/* Do it */
@@ -658,7 +658,7 @@ char *name;
 			return;
 		}
 		if (!Controls(player, loc)) {
-			notify(player, "Permission denied.");
+			notify(player, NOPERM_MESSAGE);
 			return;
 		}
 		/* Do it */
@@ -691,7 +691,7 @@ int quiet;
 	if (!Enter_ok(thing) && !controls(player, thing)) {
 		oattr = quiet ? 0 : A_OEFAIL;
 		aattr = quiet ? 0 : A_AEFAIL;
-		did_it(player, thing, A_EFAIL, "Permission denied.",
+		did_it(player, thing, A_EFAIL, NOPERM_MESSAGE,
 		       oattr, NULL, aattr, (char **)NULL, 0);
 	} else if (player == thing) {
 		notify(player, "You can't enter yourself!");
@@ -734,7 +734,7 @@ char *what;
 		do_enter_internal(player, thing, quiet);
 		break;
 	default:
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 	}
 	return;
 }

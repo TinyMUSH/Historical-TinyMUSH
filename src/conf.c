@@ -15,6 +15,7 @@
 #include "flags.h"
 #include "powers.h"
 #include "udb_defs.h"
+#include "match.h"
 
 /* ---------------------------------------------------------------------------
  * CONFPARM: Data used to find fields in CONFDATA.
@@ -624,49 +625,8 @@ CF_HAND(cf_flagalias)
 	return ((success > 0) ? 0 : -1);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_or_in_bits: OR in bits from namelist to a word.
- */
-
-CF_HAND(cf_or_in_bits)
-{
-	char *sp;
-	int f, success, failure;
-
-	/*
-	 * Walk through the tokens 
-	 */
-
-	success = failure = 0;
-	sp = strtok(str, " \t");
-	while (sp != NULL) {
-
-		/*
-		 * Set the appropriate bit 
-		 */
-
-		f = search_nametab(GOD, (NAMETAB *) extra, sp);
-		if (f > 0) {
-			*vp |= f;
-			success++;
-		} else {
-			cf_log_notfound(player, cmd, "Entry", sp);
-			failure++;
-		}
-
-		/*
-		 * Get the next token 
-		 */
-
-		sp = strtok(NULL, " \t");
-	}
-	return cf_status_from_succfail(player, cmd, success, failure);
-}
-
-/*
- * ---------------------------------------------------------------------------
- * * cf_modify_bits: set or clear bits in a flag word from a namelist.
+/* ---------------------------------------------------------------------------
+ * cf_modify_bits: set or clear bits in a flag word from a namelist.
  */
 CF_HAND(cf_modify_bits)
 {
@@ -715,50 +675,8 @@ CF_HAND(cf_modify_bits)
 	return cf_status_from_succfail(player, cmd, success, failure);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * cf_set_bits: Clear flag word and then set specified bits from namelist.
- */
-
-CF_HAND(cf_set_bits)
-{
-	char *sp;
-	int f, success, failure;
-
-	/*
-	 * Walk through the tokens 
-	 */
-
-	success = failure = 0;
-	*vp = 0;
-	sp = strtok(str, " \t");
-	while (sp != NULL) {
-
-		/*
-		 * Set the appropriate bit 
-		 */
-
-		f = search_nametab(GOD, (NAMETAB *) extra, sp);
-		if (f > 0) {
-			*vp |= f;
-			success++;
-		} else {
-			cf_log_notfound(player, cmd, "Entry", sp);
-			failure++;
-		}
-
-		/*
-		 * Get the next token 
-		 */
-
-		sp = strtok(NULL, " \t");
-	}
-	return cf_status_from_succfail(player, cmd, success, failure);
-}
-
-/*
- * ---------------------------------------------------------------------------
- * * cf_set_flags: Clear flag word and then set from a flags htab.
+/* ---------------------------------------------------------------------------
+ * cf_set_flags: Clear flag word and then set from a flags htab.
  */
 
 CF_HAND(cf_set_flags)
@@ -1447,8 +1365,7 @@ dbref player;
 		if (!strcmp(tp->pname, cp)) {
 			if (!mudstate.initializing &&
 			    !check_access(player, tp->flags)) {
-				notify(player,
-				       "Permission denied.");
+				notify(player, NOPERM_MESSAGE);
 				return (-1);
 			}
 			if (!mudstate.initializing) {

@@ -430,17 +430,6 @@ dbref NDECL(noisy_match_result)
 	return match_status(md.player, match_result());
 }
 
-dbref dispatched_match_result(player)
-dbref player;
-{
-	return match_status(player, match_result());
-}
-
-int NDECL(matched_locally)
-{
-	return (md.confidence & CON_LOCAL);
-}
-
 void save_match_state(mstate)
 MSTATE *mstate;
 {

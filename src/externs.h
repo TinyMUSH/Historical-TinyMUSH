@@ -131,7 +131,6 @@ extern void	FDECL(log_name, (dbref));
 extern void	FDECL(log_name_and_loc, (dbref));
 extern char *	FDECL(OBJTYP, (dbref));
 extern void	FDECL(log_type_and_name, (dbref));
-extern void	FDECL(log_type_and_num, (dbref));
 
 /* From look.c */
 extern void	FDECL(look_in, (dbref,dbref, int));
@@ -201,7 +200,6 @@ extern dbref	FDECL(where_room, (dbref));
 extern int	FDECL(locatable, (dbref, dbref, dbref));
 extern int	FDECL(nearby, (dbref, dbref));
 extern int	FDECL(exit_visible, (dbref, dbref, int));
-extern int	FDECL(exit_displayable, (dbref, dbref, int));
 extern void	FDECL(did_it, (dbref, dbref, int, const char *, int,
 			const char *, int, char *[], int));
 extern void	FDECL(list_bufstats, (dbref));
@@ -213,8 +211,6 @@ extern int	FDECL(parse_attrib_wild, (dbref, char *, dbref *, int,
 			int, int));
 extern void	FDECL(edit_string, (char *, char **, char *, char *));
 extern dbref	FDECL(match_controlled, (dbref, const char *));
-extern dbref	FDECL(match_affected, (dbref, const char *));
-extern dbref	FDECL(match_examinable, (dbref, const char *));
 
 /* From stringutil.c */
 extern char *	FDECL(munge_space, (char *));
@@ -226,11 +222,8 @@ extern const char *	FDECL(string_match, (const char * ,const char *));
 extern char *	FDECL(dollar_to_space, (const char *));
 extern char *	FDECL(replace_string, (const char *, const char *,
 			const char *));
-extern char *	FDECL(replace_string_inplace, (const char *,  const char *,
-			char *));
 extern char *	FDECL(skip_space, (const char *));
 extern char *	FDECL(seek_char, (const char *, char));
-extern int	FDECL(prefix_match, (const char *, const char *));
 extern int	FDECL(minmatch, (char *, char *, int));
 extern char *	FDECL(strsave, (const char *));
 extern int	FDECL(safe_copy_str, (char *, char *, char **, int));
@@ -284,7 +277,6 @@ extern void	FDECL(fwdlist_set, (dbref, FWDLIST *));
 extern void	FDECL(fwdlist_clr, (dbref));
 extern int	FDECL(fwdlist_rewrite, (FWDLIST *, char *));
 extern FWDLIST *FDECL(fwdlist_get, (dbref));
-extern void	FDECL(clone_object, (dbref, dbref));
 extern void	NDECL(init_min_db);
 extern void	NDECL(atr_push);
 extern void	NDECL(atr_pop);

@@ -118,7 +118,7 @@ typedef struct object_stack STACK;
 	    return;					\
 	}						\
 	if (!Controls(p, x)) {				\
-            notify_quiet(p, "Permission denied.");	\
+            notify_quiet(p, NOPERM_MESSAGE);		\
 	    return;					\
 	}
 	
@@ -596,18 +596,6 @@ FUNCTION(fun_children)
 				safe_tprintf_str(buff, bufc, "#%d", i);
 				len = strlen(buff);
 			}
-}
-
-static void noquotes(clean, dirty)
-char *clean;
-char *dirty;
-{
-	while (*dirty != '\0') {
-		if (*dirty == '"')
-			*clean++ = '\\';
-		*clean++ = *dirty++;
-	}
-	*clean = '\0';
 }
 
 FUNCTION(fun_objeval)

@@ -926,7 +926,7 @@ static int ok_program(player, doer)
     dbref doer;
 {
     if (! Controls(player, doer)) {
-        notify(player, "Permission denied.");
+        notify(player, NOPERM_MESSAGE);
         return 0;
     }
     if (!isPlayer(doer) || !Good_obj(doer)) {
@@ -1024,7 +1024,7 @@ char *name, *command;
 			   (Wizard(player) || (aowner == Owner(player))))) {
 			atr_add_raw(doer, A_PROGCMD, atr_get_raw(thing, atr));
 		} else {
-			notify(player, "Permission denied.");
+			notify(player, NOPERM_MESSAGE);
 			return;
 		}
 	} else {
@@ -1461,7 +1461,7 @@ dbref player, thing;
 }
 
 /* ---------------------------------------------------------------------------
- * exit_visible, exit_displayable: Is exit visible?
+ * exit_visible: Is exit visible?
  */
 
 int exit_visible(exit, player, key)	/* exit visible to lexits() */
@@ -1479,39 +1479,6 @@ int key;
 	if (Dark(exit))
 		return 0;	/* Dark exit */
 	return 1;		/* Default */
-}
-
-int exit_displayable(exit, player, key)		/* exit visible to look */
-dbref exit, player;
-int key;
-{
-	if (Dark(exit))
-		return 0;	/* Dark exit */
-	if (Light(exit))
-		return 1;	/* Light exit */
-	if (key & (VE_LOC_DARK | VE_BASE_DARK))
-		return 0;	/* Dark Loc or base */
-	return 1;		/* Default */
-}
-
-/* ---------------------------------------------------------------------------
- * next_exit: return next exit that is ok to see.
- */
-
-dbref next_exit(player, this, exam_here)
-dbref player, this;
-int exam_here;
-{
-	if (isRoom(this))
-		return NOTHING;
-	if (isExit(this) && exam_here)
-		return this;
-
-	while ((this != NOTHING) && Dark(this) && !Light(this) &&
-	       !Examinable(player, this))
-		this = Next(this);
-
-	return this;
 }
 
 #ifndef STANDALONE
@@ -1694,7 +1661,7 @@ char *victim_str, *args[];
 	 */
 
 	if (!controls(player, actor)) {
-		notify_quiet(player, "Permission denied,");
+		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
 	restriction = !controls(player, victim);

@@ -924,7 +924,7 @@ int interactive, ncargs;
 	/* Check if we have permission to execute the command */
     
 	if (!check_access(player, cmdp->perms)) {
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 		return;
 	}
 
@@ -965,7 +965,7 @@ int interactive, ncargs;
 					       switchp, cmdp->cmdname));
 				return;
 			} else if (xkey == -2) {
-				notify(player, "Permission denied.");
+				notify(player, NOPERM_MESSAGE);
 				return;
 			} else if (!(xkey & SW_MULTIPLE)) {
 				if (i == 1) {
@@ -1647,28 +1647,6 @@ dbref player;
 	*bp = '\0';
 	raw_notify(player, buf);
 	free_lbuf(buf);
-}
-
-/* ---------------------------------------------------------------------------
- * list_ntab_flags: List flags field of an ntab.
- */
-
-static void list_ntab_flags(player, ntab, flaglist)
-dbref player;
-NAMETAB *ntab, *flaglist;
-{
-	char *buff;
-	NAMETAB *np;
-
-	buff = alloc_sbuf("list_attraccess");
-	for (np = ntab; np->name; np++) {
-		if (check_access(player, np->perm)) {
-			sprintf(buff, "%s:", np->name);
-			listset_nametab(player, flaglist,
-					np->flag, buff, 1);
-		}
-	}
-	free_sbuf(buff);
 }
 
 /* ---------------------------------------------------------------------------

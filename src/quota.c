@@ -318,11 +318,11 @@ char *arg1, *arg2;
 
 	if (!Wizard(player)) {
 		if (arg2 && *arg2) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 			return;
 		}
 		if (Owner(player) != who) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 			return;
 		}
 	}

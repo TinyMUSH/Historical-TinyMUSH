@@ -64,7 +64,7 @@ char *direction, *linkto;
 		notify_quiet(player, "Open where?");
 		return;
 	} else if (!controls(player, loc)) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
 	exit = create_obj(player, TYPE_EXIT, direction, 0);
@@ -158,13 +158,13 @@ dbref player, exit, dest;
 	    ((!controls(player, dest) && !Link_ok(dest)) ||
 	     (!could_doit(player, dest, A_LLINK) &&
 	      (!Wizard(player) || mudconf.wiz_obey_linklock)))) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
 	/* Exit must be unlinked or controlled by you */
 
 	if ((Location(exit) != NOTHING) && !controls(player, exit)) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
 	/* handle costs */
@@ -231,7 +231,7 @@ char *what, *where;
 		/* Set home */
 
 		if (!Controls(player, thing)) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 			break;
 		}
 		init_match(player, where, NOTYPE);
@@ -246,7 +246,7 @@ char *what, *where;
 		if (!can_set_home(player, thing, room) ||
 		    (!could_doit(player, room, A_LLINK) &&
 		     (!Wizard(player) || mudconf.wiz_obey_linklock))) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 		} else if (room == HOME) {
 			notify_quiet(player, "Can't set home to home.");
 		} else {
@@ -260,7 +260,7 @@ char *what, *where;
 		/* Set dropto */
 
 		if (!Controls(player, thing)) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 			break;
 		}
 		room = parse_linkable_room(player, where);
@@ -273,7 +273,7 @@ char *what, *where;
 			   ((!controls(player, room) && !Link_ok(room)) ||
 			    (!could_doit(player, room, A_LLINK) &&
 			     (!Wizard(player) || mudconf.wiz_obey_linklock)))) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 		} else {
 			s_Dropto(thing, room);
 			if (!Quiet(player))
@@ -281,7 +281,7 @@ char *what, *where;
 		}
 		break;
 	case TYPE_GARBAGE:
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		break;
 	default:
 		STARTLOG(LOG_BUGS, "BUG", "OTYPE")
@@ -317,7 +317,7 @@ char *tname, *pname;
 	/* Make sure we can do it */
 
 	if (!Controls(player, thing)) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
 	/* Find out what the new parent is */
@@ -332,7 +332,7 @@ char *tname, *pname;
 		/* Make sure we have rights to set parent */
 
 		if (!Parentable(player, parent)) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 			return;
 		}
 		/* Verify no recursive reference */
@@ -463,7 +463,7 @@ char *name, *arg2;
 	 */
 
 	if (!Examinable(player, thing)) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
 	if (isPlayer(thing)) {
@@ -501,7 +501,7 @@ char *name, *arg2;
 			break;
 		case TYPE_EXIT:
 			if (!Controls(player, loc)) {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 				return;
 			}
 			cost = mudconf.digcost;

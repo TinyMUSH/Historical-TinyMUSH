@@ -198,21 +198,6 @@ char *s;
 }
 
 /*
- * returns a pointer to the non-space character in s, or a NULL if s == NULL
- * or *s == NULL or s has only spaces.
- */
-char *skip_space(s)
-const char *s;
-{
-	char *cp;
-
-	cp = (char *)s;
-	while (cp && *cp && isspace(*cp))
-		cp++;
-	return (cp);
-}
-
-/*
  * returns a pointer to the next character in s matching c, or a pointer to
  * the \0 at the end of s.  Yes, this is a lot like index, but not exactly.
  */
@@ -441,95 +426,6 @@ const char *old, *new, *string;
 	}
 	*r = '\0';
 	return result;
-}
-
-/*
- * Returns string STRING with all occurances * of OLD replaced by NEW. OLD
- * and NEW may be different lengths. Modifies string, so: Note - STRING must
- * already be allocated large enough to handle the new size. (mitch 1 feb 91)
- */
-
-char *replace_string_inplace(old, new, string)
-const char *old, *new;
-char *string;
-{
-	char *s;
-
-	s = replace_string(old, new, string);
-	strcpy(string, s);
-	free_lbuf(s);
-	return string;
-}
-
-/* Counts occurances of C in STR. - mnp 7 feb 91 */
-
-int count_chars(str, c)
-const char *str, c;
-{
-	register int out = 0;
-	register const char *p = str;
-
-	if (p)
-		while (*p != '\0')
-			if (*p++ == c)
-				out++;
-	return out;
-}
-
-/*
- * Returns an allocated, null-terminated array of strings, broken on SEP. The
- * array returned points into the original, >> modified << string. - mnp 7
- * feb 91
- */
-
-char **
-string2list(str, sep)
-    char *str;
-    const char sep;
-{
-    int count = 0;
-    char **out = NULL;
-    char *end, *beg = str;
-
-    if (str) {
-	if (!(out = (char **) XMALLOC(sizeof(char *) * strlen(str), "string2list"))) {
-	    log_perror("ALC", "FAIL", NULL, "NO MEM in string2list()");
-	    return NULL;
-	}
-	for (;;) {
-	    while (*beg == sep)
-		beg++;
-	    if (*beg == '\0')
-		break;
-	    out[count++] = beg;
-	    for (end = beg; *end != '\0' && *end != sep; end++);
-	    if (*end == '\0')
-		break;
-	    *end++ = '\0';
-	    beg = end;
-	}
-	out[count] = NULL;
-    }
-    if (out)
-	out = (char **) realloc((char *) out, sizeof(char *) * count + 1);
-
-    return out;
-}
-
-/*
- * returns the number of identical characters in the two strings 
- */
-int prefix_match(s1, s2)
-const char *s1, *s2;
-{
-	int count = 0;
-
-	while (*s1 && *s2 && (ToLower(*s1) == ToLower(*s2)))
-		s1++, s2++, count++;
-	/* If the whole string matched, count the null.  (Yes really.) */
-	if (!*s1 && !*s2)
-		count++;
-	return count;
 }
 
 int minmatch(str, target, min)

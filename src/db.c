@@ -2183,14 +2183,6 @@ dbref thing;
 #endif /* MEMORY_BASED */
 }
 
-/* garbage collect an attribute list */
-
-void atr_collect(thing)
-dbref thing;
-{
-	/* Nada.  dbm takes care of us.  I hope ;-) */
-}
-
 /* ---------------------------------------------------------------------------
  * atr_cpy: Copy all attributes from one object to another.  Takes the
  * player argument to ensure that only attributes that COULD be set by
@@ -2835,12 +2827,6 @@ BOOLEXP *b;
 		return (TRUE_BOOLEXP);
 	}
 	return (r);
-}
-
-void clone_object(a, b)
-dbref a, b;
-{
-	bcopy((char *)&db[b], (char *)&db[a], sizeof(struct object));
 }
 
 #ifndef MEMORY_BASED

@@ -24,6 +24,7 @@
 #include "powers.h"
 #include "alloc.h"
 #include "config.h"
+#include "match.h"
 
 extern int FDECL(process_output, (DESC * d));
 extern void FDECL(handle_prog, (DESC *, char *));
@@ -1224,7 +1225,7 @@ char *arg;
 		}
 	} else if (key == DOING_HEADER) {
 		if (!(Can_Poll(player))) {
-			notify(player, "Permission denied.");
+			notify(player, NOPERM_MESSAGE);
 			return;
 		}
 		if (!arg || !*arg) {

@@ -216,7 +216,7 @@ char *what;
 	if (((Typeof(thing) != TYPE_THING) &&
 	     (Typeof(thing) != TYPE_PLAYER)) ||
 	    !(Enter_ok(recipient) || controls(giver, recipient))) {
-		notify(giver, "Permission denied.");
+		notify(giver, NOPERM_MESSAGE);
 		return;
 	}
 	if (!could_doit(giver, thing, A_LGIVE)) {

@@ -32,7 +32,7 @@ const char *name;
 	match_everything(MAT_EXIT_PARENTS);
 	mat = noisy_match_result();
 	if (Good_obj(mat) && !Controls(player, mat)) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		return NOTHING;
 	} else {
 		return (mat);
@@ -54,41 +54,6 @@ const char *name;
 		return (mat);
 	}
 }
-
-dbref match_affected(player, name)
-dbref player;
-const char *name;
-{
-	dbref mat;
-
-	init_match(player, name, NOTYPE);
-	match_everything(MAT_EXIT_PARENTS);
-	mat = noisy_match_result();
-	if (mat != NOTHING && !Affects(player, mat)) {
-		notify_quiet(player, "Permission denied.");
-		return NOTHING;
-	} else {
-		return (mat);
-	}
-}
-
-dbref match_examinable(player, name)
-dbref player;
-const char *name;
-{
-	dbref mat;
-
-	init_match(player, name, NOTYPE);
-	match_everything(MAT_EXIT_PARENTS);
-	mat = noisy_match_result();
-	if (mat != NOTHING && !Examinable(player, mat)) {
-		notify_quiet(player, "Permission denied.");
-		return NOTHING;
-	} else {
-		return (mat);
-	}
-}
-
 
 void do_chzone(player, cause, key, name, newobj)
 dbref player, cause;
@@ -285,7 +250,7 @@ char *name, *alias;
 			 * player * name checks. 
 			 */
 
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 		} else if (!*trimalias) {
 
 			/*
@@ -334,7 +299,7 @@ char *name, *alias;
 		 */
 
 		if (!Set_attr(player, thing, ap, aflags)) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 		} else {
 			atr_add(thing, A_ALIAS, alias, Owner(player), aflags);
 			if (!Quiet(player))
@@ -386,7 +351,7 @@ char *name, *keytext;
 					notify_quiet(player,
 						     "Attribute locked.");
 			} else {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 			}
 			return;
 		}
@@ -471,7 +436,7 @@ char *name;
 						notify_quiet(player,
 						     "Attribute unlocked.");
 			} else {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 			}
 			return;
 		}
@@ -506,11 +471,11 @@ char *name;
 		notify_quiet(player, "Unlink what?");
 		break;
 	case AMBIGUOUS:
-		notify_quiet(player, "I don't know which one you mean!");
+		notify_quiet(player, AMBIGUOUS_MESSAGE);
 		break;
 	default:
 		if (!controls(player, exit)) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 		} else {
 			switch (Typeof(exit)) {
 			case TYPE_EXIT:
@@ -576,7 +541,7 @@ char *name, *newown;
 				notify_quiet(player,
 					     "I couldn't find that player.");
 			} else if (God(thing) && !God(player)) {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 			} else if (Wizard(player)) {
 				do_it = 1;
 			} else if (owner == Owner(player)) {
@@ -590,7 +555,7 @@ char *name, *newown;
 				if (!Controls(player, thing) ||
 				    (aflags & AF_LOCK)) {
 					notify_quiet(player,
-						     "Permission denied.");
+						     NOPERM_MESSAGE);
 				} else {
 					do_it = 1;
 				}
@@ -605,12 +570,12 @@ char *name, *newown;
 				if ((Owner(player) != aowner) ||
 				    (aflags & AF_LOCK)) {
 					notify_quiet(player,
-						     "Permission denied.");
+						     NOPERM_MESSAGE);
 				} else {
 					do_it = 1;
 				}
 			} else {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 			}
 
 			if (!do_it)
@@ -618,7 +583,7 @@ char *name, *newown;
 
 			ap = atr_num(atr);
 			if (!ap || !Set_attr(player, player, ap, aflags)) {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 				return;
 			}
 			atr_set_owner(thing, atr, owner);
@@ -680,7 +645,7 @@ char *name, *newown;
 		     !Chown_ok(thing)) || (isThing(thing) &&
 					   (Location(thing) != player) &&
 		       !Chown_Any(player))) || (!controls(player, owner))) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 	} else if (canpayfees(player, owner, cost, quota, Typeof(thing))) {
 		payfees(owner, cost, quota, Typeof(thing));
 		payfees(Owner(thing), -cost, -quota, Typeof(thing));
@@ -726,7 +691,7 @@ char *attrtext;
 		if (!(key & SET_QUIET) && !Quiet(player) && !Quiet(thing))
 			notify_quiet(player, "Set.");
 	} else {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 	}
 }
 
@@ -791,7 +756,7 @@ char *name, *flag;
 
 			attr = atr_num(atr);
 			if (!attr || !Set_attr(player, thing, attr, aflags)) {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 				return;
 			}
 			/*
@@ -841,12 +806,12 @@ char *name, *flag;
 		}
 		attr = atr_num(atr);
 		if (!attr) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 			return;
 		}
 		atr_get_info(thing, atr, &aowner, &aflags);
 		if (!Set_attr(player, thing, attr, aflags)) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 			return;
 		}
 		buff = alloc_lbuf("do_set");
@@ -868,7 +833,7 @@ char *name, *flag;
 
 			if (!attr2 ||
 			 !See_attr(player, thing2, attr2, aowner, aflags)) {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 				free_lbuf(buff);
 				return;
 			}
@@ -1528,7 +1493,7 @@ char *object, *argv[];
 		return;
 	}
 	if (!controls(player, thing)) {
-		notify_quiet(player, "Permission denied.");
+		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
 	did_it(player, thing, 0, NULL, 0, NULL, attrib, argv, nargs);

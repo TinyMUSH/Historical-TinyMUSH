@@ -779,7 +779,7 @@ char *recipient, *message;
 		}
 		if (do_contents && !Controls(player, target) &&
 		    !mudconf.pemit_any) {
-			notify(player, "Permission denied.");
+			notify(player, NOPERM_MESSAGE);
 			return;
 		}
 		loc = where_is(target);

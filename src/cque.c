@@ -171,7 +171,7 @@ char *target;
 	int numhalted;
 
 	if ((key & HALT_ALL) && !(Can_Halt(player))) {
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 		return;
 	}
 	/* Figure out what to halt */
@@ -304,7 +304,7 @@ char *what, *count;
 	if ((thing = noisy_match_result()) < 0) {
 		notify(player, "No match.");
 	} else if (!controls(player, thing) && !Link_ok(thing)) {
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 	} else {
 		if (!what || !*what) {
 			ap = NULL;
@@ -320,7 +320,7 @@ char *what, *count;
 			if (Set_attr(player, thing, ap, aflags)) {
 				attr = ap->number;
 			} else {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 				return;
 			}
 		}
@@ -534,7 +534,7 @@ char *event, *cmd, *cargs[];
 	if (!Good_obj(thing)) {
 		notify(player, "No match.");
 	} else if (!controls(player, thing) && !Link_ok(thing)) {
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 	} else {
 
 		/* Get timeout, default 0 */
@@ -562,7 +562,7 @@ char *event, *cmd, *cargs[];
 				attr = ap->number;
 				howlong = 0;
 			} else {
-				notify_quiet(player, "Permission denied.");
+				notify_quiet(player, NOPERM_MESSAGE);
 				return;
 			}
 		}
@@ -916,7 +916,7 @@ char *target;
 	/* Figure out what to list the queue for */
 
 	if ((key & PS_ALL) && !(See_Queue(player))) {
-		notify(player, "Permission denied.");
+		notify(player, NOPERM_MESSAGE);
 		return;
 	}
 	if (!target || !*target) {

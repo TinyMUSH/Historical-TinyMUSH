@@ -855,7 +855,7 @@ char *name;
 
 	if (key == EXAM_DEBUG) {
 		if (!Examinable(player, thing)) {
-			notify_quiet(player, "Permission denied.");
+			notify_quiet(player, NOPERM_MESSAGE);
 		} else {
 			debug_examine(player, thing);
 		}
