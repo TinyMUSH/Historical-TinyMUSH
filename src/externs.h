@@ -315,6 +315,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	FIXDB_NEXT	16	/* Fix NEXT field */
 #define	FIXDB_PENNIES	32	/* Fix PENNIES field */
 #define	FIXDB_NAME	64	/* Set NAME attribute */
+#define	FLOATERS_ALL	1	/* Display all floating rooms in db */ 
 #define	FRC_COMMAND	1	/* what=command */
 #define FRC_NOW		2	/* run command immediately, no queueing */
 #define	GET_QUIET	1	/* Don't do osucc/asucc if control */

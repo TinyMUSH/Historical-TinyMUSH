@@ -1615,58 +1615,6 @@ static void NDECL(check_contents_chains)
 }
 
 /* ---------------------------------------------------------------------------
- * mark_place, check_floating: Look for floating rooms not set FLOATING.
- */
-
-static void mark_place(loc)
-dbref loc;
-{
-	dbref exit;
-
-	/* If already marked, exit.  Otherwise set marked. */
-
-	if (!Good_obj(loc))
-		return;
-	if (Marked(loc))
-		return;
-	Mark(loc);
-
-	/* Visit all places you can get to via exits from here. */
-
-	for (exit = Exits(loc); exit != NOTHING; exit = Next(exit)) {
-		if (Good_obj(Location(exit)))
-			mark_place(Location(exit));
-	}
-}
-
-static NDECL(void check_floating)
-{
-	dbref owner, i;
-
-	/* Mark everyplace you can get to via exits from the starting room */
-
-	Unmark_all(i);
-	mark_place(mudconf.start_room);
-
-	/* Look for rooms not marked and not set FLOATING */
-
-	DO_WHOLE_DB(i) {
-		if (isRoom(i) && !Floating(i) && !Going(i) && !Marked(i)) {
-			owner = Owner(i);
-#ifndef STANDALONE
-			if (Good_owner(owner) && !Floating(owner)) {
-				notify(owner, tprintf(
-					 "You own a floating room: %s(#%d)",
-							     Name(i), i));
-			}
-#else
-			Log_simple_err(i, NOTHING, "Disconnected room.");
-#endif
-		}
-	}
-}
-
-/* ---------------------------------------------------------------------------
  * do_dbck: Perform a database consistency check and clean up damage.
  */
 
@@ -1679,7 +1627,6 @@ int key;
 	check_dead_refs();
 	check_exit_chains();
 	check_contents_chains();
-	check_floating();
 	purge_going();
 #ifndef STANDALONE
 	if (player != NOTHING) {

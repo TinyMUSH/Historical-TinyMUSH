@@ -54,6 +54,7 @@ CMD_ONE_ARG(do_eval);			/* Like @@ comment, but takes an arg */
 CMD_ONE_ARG(do_examine);		/* Examine an object */
 CMD_ONE_ARG(do_find);			/* Search for name in database */
 CMD_TWO_ARG(do_fixdb);			/* Database repair functions */
+CMD_ONE_ARG(do_floaters);		/* Display floating rooms */
 CMD_TWO_ARG_CMDARG(do_force);		/* Force someone to do something */
 CMD_ONE_ARG_CMDARG(do_force_prefixed);	/* #<num> <cmd> variant of FORCE */
 CMD_ONE_ARG(do_freelist);		/* Move obj to head of freelist */

@@ -54,7 +54,7 @@
 /* Second word of flags */
 #define	KEY		0x00000001	/* No puppets */
 #define	ABODE		0x00000002	/* May @set home here */
-#define	FLOATING	0x00000004	/* Inhibit Floating room.. msgs */
+#define	FLOATING	0x00000004	/* -- Legacy -- */
 #define	UNFINDABLE	0x00000008	/* Cant loc() from afar */
 #define	PARENT_OK	0x00000010	/* Others may @parent to me */
 #define	LIGHT		0x00000020	/* Visible in dark places */
@@ -166,7 +166,6 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Alive(X)		- Is X a player or a puppet */
 /* Dark(X)		- Is X dark */
 /* WHODark(X)		- Should X be hidden from the WHO report */
-/* Floating(X)		- Prevent 'disconnected room' msgs for room X */
 /* Quiet(X)		- Should 'Set.' messages et al from X be disabled */
 /* Verbose(X)		- Should owner receive all commands executed? */
 /* Trace(X)		- Should owner receive eval trace output? */
@@ -286,7 +285,6 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Key(x)		((Flags2(x) & KEY) != 0)
 #define	Abode(x)	(((Flags2(x) & ABODE) != 0) && Home_ok(x))
 #define Auditorium(x)	((Flags2(x) & AUDITORIUM) != 0)
-#define	Floating(x)	((Flags2(x) & FLOATING) != 0)
 #define	Findable(x)	((Flags2(x) & UNFINDABLE) == 0)
 #define	Hideout(x)	((Flags2(x) & UNFINDABLE) != 0)
 #define	Parent_ok(x)	((Flags2(x) & PARENT_OK) != 0)

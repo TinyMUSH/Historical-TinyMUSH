@@ -1008,6 +1008,94 @@ char *arg;
 	olist_pop();
 }
 
+/* ---------------------------------------------------------------------------
+ * do_floaters: Report floating rooms.
+ */
+
+static void mark_place(loc)
+dbref loc;
+{
+	dbref exit;
+
+	/* If already marked, exit.  Otherwise set marked. */
+
+	if (!Good_obj(loc))
+		return;
+	if (Marked(loc))
+		return;
+	Mark(loc);
+
+	/* Visit all places you can get to via exits from here. */
+
+	for (exit = Exits(loc); exit != NOTHING; exit = Next(exit)) {
+		if (Good_obj(Location(exit)))
+			mark_place(Location(exit));
+	}
+}
+
+void do_floaters(player, cause, key, name)
+dbref player, cause;
+int key;
+char *name;
+{
+    dbref owner, i, total;
+    char *buff;
+
+    /* Figure out who we're going to search. */
+
+    if (key & FLOATERS_ALL) {
+	if (!Search(player)) {
+	    notify(player, NOPERM_MESSAGE);
+	    return;
+	}
+	owner = NOTHING;
+    } else {
+	if (!name || !*name) {
+	    owner = Owner(player);
+	} else {
+	    owner = lookup_player(player, name, 1);
+	    if (!Good_obj(owner)) {
+		notify(player, "Not found.");
+		return;
+	    }
+	    if (!Controls(player, owner) && !Search(player)) {
+		notify(player, NOPERM_MESSAGE);
+		return;
+	    }
+	}
+    }
+
+    /* We're walking the db, so this costs as much as a search. */
+
+    if (!payfor(player, mudconf.searchcost)) {
+	notify(player, tprintf("You don't have enough %s.",
+			       mudconf.many_coins));
+	return;
+    }
+
+    /* Mark everyplace you can get to via exits from the starting room */
+
+    Unmark_all(i);
+    mark_place(mudconf.start_room);
+
+    /* Report rooms that aren't marked */
+
+    total = 0;
+    DO_WHOLE_DB(i) {
+	if (isRoom(i) && !Going(i) && !Marked(i)) {
+	    if ((owner == NOTHING) || (Owner(i) == owner)) {
+		total++;
+		buff = unparse_object(player, i, 0);
+		notify(player, buff);
+		free_lbuf(buff);
+	    }
+	}
+    }
+
+    notify(player, tprintf("%d floating %s found.",
+			   total, (total == 1) ? "room" : "rooms"));
+}
+
 /*
  * ---------------------------------------------------------------------------
  * * do_markall: set or clear the mark bits of all objects in the db.

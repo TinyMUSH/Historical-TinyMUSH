@@ -47,13 +47,13 @@
   @@           @chown       @clone       @cpattr      @create      @cron
   @crondel     @crontab     @decompile   @destroy     @dig         @doing
   @dolist      @drain       @edit        @emit        @entrances   @eval
-  @femit       @find        @force       @fpose       @fsay        @halt
-  @last        @link        @list        @listmotd    @lock        @mvattr
-  @mail        @malias      @name        @notify      @npemit      @oemit
-  @open        @parent      @password    @pemit       @program     @ps
-  @quitprog    @quota       @redirect    @robot       @search      @set
-  @sql         @stats       @sweep       @switch      @teleport    @trigger
-  @unlink      @unlock      @verb        @wait        @wipe
+  @femit       @find        @floaters    @force       @fpose       @fsay
+  @halt        @last        @link        @list        @listmotd    @lock
+  @mvattr      @mail        @malias      @name        @notify      @npemit
+  @oemit       @open        @parent      @password    @pemit       @program
+  @ps          @quitprog    @quota       @redirect    @robot       @search
+  @set         @sql         @stats       @sweep       @switch      @teleport
+  @trigger     @unlink      @unlock      @verb        @wait        @wipe
  
 { 'help commands2' for more }
 & commands2
@@ -1113,6 +1113,23 @@
     > @find Secret Device,12000,14000
   See also: @search.
 
+& @floaters
+  Command: @floaters[/all] [<player>]
+ 
+  Displays the name, dbref, and flags of "floating rooms", rooms that are
+  not connected via any exit paths to the starting room. Because this
+  command is computationally expensive, it costs what a @search costs.
+  
+  If you do not specify the /all switch, or the name of a player, this
+  searches only for floating rooms owned by you.
+ 
+  If you specify the name of a player, this searches for floating rooms
+  owned by that player. You must control the player, or have permissions
+  to search anyone.
+ 
+  If you have permissions to search anyone, you can specify the /all
+  switch, which searches for all floating rooms in the database.
+ 
 & @force
   Command: @force[/<switch>] <player/object>=<command>
   
@@ -3761,11 +3778,6 @@
   If a room is set UNFINDABLE, players in that room (or inside objects
   in the room) cannot be found by loc()/room().
 
-& FLOATING
-  Flag: FLOATING (F)
- 
-  If a room is set floating, you will not be notified every 10 
-  minutes or so that you have a disconnected room.
 & OPAQUE
   Flag: OPAQUE (O)
  
@@ -4812,20 +4824,20 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Topic: FLAG LIST
  
 	A - Abode	B - Blind	C - Chown_OK	D - Dark	
-	E - Exit	F - Floating	G - Going	H - Haven	
-	I - Inherit	J - Jump_OK	K - Key		L - Link_OK	
-	M - Monitor	N - Nospoof	O - Opaque	P - Player	
-	Q - Quiet	R - Room	S - Sticky	T - Trace	
-	U - Unfindable	V - Visual	W - Wizard	X - Ansi	
-	Y - Parent_OK	Z - Royalty	a - Audible	b - Bounce	
-	c - Connected	d - Destroy_OK	e - Enter_OK	f - Fixed	
-	g - Uninspected	h - Halted	i - Immortal	j - Gagged	
-	k - Constant	l - Light	m - Myopic	n - Auditorium	
-	o - Zone	p - Puppet	q - Terse	r - Robot	
-	s - Safe	t - Transparent	u - Suspect	v - Verbose	
-	w - Staff	x - Slave	z - Control_OK	! - Stop	
-	$ - Commands	- - NoBleed	~ - HTML	> - Redir_OK
-	? - Head	| - Vacation	+ - Watcher
+	E - Exit	G - Going	H - Haven	I - Inherit
+	J - Jump_OK	K - Key		L - Link_OK	M - Monitor
+	N - Nospoof	O - Opaque	P - Player	Q - Quiet
+	R - Room	S - Sticky	T - Trace	U - Unfindable
+	V - Visual	W - Wizard	X - Ansi	Y - Parent_OK
+	Z - Royalty	a - Audible	b - Bounce	c - Connected
+	d - Destroy_OK	e - Enter_OK	f - Fixed	g - Uninspected
+	h - Halted	i - Immortal	j - Gagged	k - Constant
+	l - Light	m - Myopic	n - Auditorium	o - Zone	
+	p - Puppet	q - Terse	r - Robot	s - Safe
+	t - Transparent	u - Suspect	v - Verbose	w - Staff
+	x - Slave	z - Control_OK	! - Stop	$ - Commands
+	- - NoBleed	~ - HTML	> - Redir_OK	? - Head
+	| - Vacation	+ - Watcher
   
   See 'help Marker' for help on user-defined flags (0 through 9).
  

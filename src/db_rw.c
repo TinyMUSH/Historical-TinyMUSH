@@ -552,6 +552,9 @@ int db_format, db_version;
 		newf2 = f2;
 		newf3 = f3 & ~HAS_REDIRECT;
 	}
+
+	newf2 = newf2 & ~FLOATING; /* this flag is now obsolete */
+
 	*flags1 = newf1;
 	*flags2 = newf2;
 	*flags3 = newf3;

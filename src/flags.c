@@ -263,8 +263,6 @@ FLAGENT gen_flags[] = {
 	0,		0,			fh_any},
 {"DARK",		DARK,		'D',
 	0,		0,			fh_dark_bit},
-{"FLOATING",		FLOATING,	'F',
-	FLAG_WORD2,	0,			fh_any},
 {"GOING",		GOING,		'G',
 	0,		CA_NO_DECOMP,		fh_going_bit},
 {"HAVEN",		HAVEN,		'H',

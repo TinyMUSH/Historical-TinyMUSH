@@ -116,6 +116,10 @@ NAMETAB fixdb_sw[] = {
 /* {(char *)"rm_pname",	1,	CA_GOD,		FIXDB_DEL_PN}, */
 { NULL,			0,	0,		0}};
 
+NAMETAB floaters_sw[] = {
+{(char *)"all",		1,	CA_PUBLIC,	FLOATERS_ALL},
+{ NULL,			0,	0,		0}};
+
 NAMETAB force_sw[] = {
 {(char *)"now",		1,	CA_PUBLIC,	FRC_NOW|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
@@ -463,6 +467,9 @@ CMDENT command_table[] = {
 {(char *)"@fixdb",		fixdb_sw,	CA_GOD,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_fixdb},
+{(char *)"@floaters",		floaters_sw,	CA_PUBLIC,
+	0,		CS_ONE_ARG|CS_INTERP,	
+	NULL,		NULL,	NULL,		do_floaters},
 {(char *)"@force",		force_sw,
 	CA_NO_SLAVE|CA_GBL_INTERP|CA_NO_GUEST,
 	FRC_COMMAND,	CS_TWO_ARG|CS_INTERP|CS_CMDARG,
