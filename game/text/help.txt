@@ -48,10 +48,10 @@
   @entrances   @eval        @femit       @find        @force       @fpose    
   @fsay        @halt        @last        @link        @list        @listmotd
   @lock        @mvattr      @mail        @malias      @name        @notify
-  @oemit       @open        @parent      @password    @pemit       @program
-  @ps          @quitprog    @quota       @robot       @search      @set
-  @stats       @sweep       @switch      @teleport    @trigger     @unlink
-  @unlock      @verb        @wait        @wipe
+  @npemit      @oemit       @open        @parent      @password    @pemit
+  @program     @ps          @quitprog    @quota       @robot       @search
+  @set         @stats       @sweep       @switch      @teleport    @trigger
+  @unlink      @unlock      @verb        @wait        @wipe
  
 { 'help commands2' for more }
 & commands2
@@ -1263,6 +1263,15 @@
  
   See also: @drain, @ps, @wait, SEMAPHORES
 
+& @npemit
+  Command: @npemit <object>=<message>
+ 
+  Sends the unparsed contents of <message> to <object>, in a fashion akin
+  to @pemit. This differs from @pemit/noeval in that <message> is completely
+  untouched -- no space compression is done.
+ 
+  See also: @pemit
+ 
 & @oemit
   Command: @oemit <player>=<message>
   Emits <message> to everyone in your current location except for <player>.
