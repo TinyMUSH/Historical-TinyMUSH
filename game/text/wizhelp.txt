@@ -231,6 +231,50 @@
   Possible values are: dark  deleted  god  hidden  ignore  is_lock
   locked  no_command  no_inherit  private  visual  wizard.
 
+& attribute defaults
+ 
+Topic: ATTRIBUTE DEFAULTS
+  
+"Attribute defaults" apply to the built-in attributes of the format
+attr/oattr (such as @desc, @odesc, @succ, and @osucc) as well
+as @conformat and @exitformat. The attribute, if set on the
+"attribute default object", is used as a "template" for formatting
+the attribute when it is used "normally" (i.e., from a 'look',
+movement, or other command that invokes it, not from a function
+call such as get() or other such uses).
+  
+The attribute on the default object is evaluated, just as if it
+were set on the calling object, with %0 as the normally-evaluated
+attribute on the calling object (or as null, if the attribute does
+not exist on the calling object).
+ 
+This behavior can be used to enforce "standards" for attributes
+such as @desc and @conformat across an entire MUSH, without
+requiring universal parenting of objects and forcing builders
+to follow unusual attribute naming schemes.
+ 
+Continued in 'wizhelp attribute defaults2'.
+ 
+& attribute defaults2
+ 
+Examples:
+ 
+  > @desc here=Test
+  > look
+  Limbo(#0R)
+  Test
+ 
+  > @admin room_proto=2
+  > @desc #2 = --%r%0%r--
+  > look
+  Limbo(#0R)
+  --
+  Test
+  --
+ 
+See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
+          thing_attr_defaults
+ 
 & @boot
   Command: @boot[/<switches>] <player>
   Severs the named player's connection to the game.  The player is given a
@@ -1416,20 +1460,21 @@
 
 & PARAM MISCELLANEOUS
 	flag_name		guest_prefix		guests_calias
-	guests_channel		indent_desc		log
-	log_options		money_name_plural	money_name_singular
-	mud_name		port			public_calias
-	public_channel		queue_active_chunk	queue_idle_chunk
-	sql_database		sql_host		sql_reconnect
+	guests_channel		log			log_options
+	money_name_plural	money_name_singular	mud_name
+	port			public_calias		public_channel
+	queue_active_chunk	queue_idle_chunk	sql_database
+	sql_host		sql_reconnect
 
 & PARAM OBJECTS
-	default_home		exit_flags		exit_parent
-	exit_proto		guest_char_num		guest_nuker
-	guest_starting_room	player_flags		player_parent
-	player_proto		player_starting_home	player_starting_room
-	robot_flags		room_flags		room_parent
-	room_proto		stripped_flags		thing_flags
-	thing_parent		thing_proto
+	default_home		exit_attr_defaults	exit_flags
+	exit_parent		exit_proto		guest_char_num
+	guest_nuker		guest_starting_room	player_attr_defaults
+	player_flags		player_parent		player_proto
+	player_starting_home	player_starting_room	robot_flags
+	room_attr_defaults	room_flags		room_parent
+	room_proto		stripped_flags		thing_attr_defaults
+	thing_flags		thing_parent		thing_proto
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
@@ -1448,12 +1493,11 @@
 	timeslice
  
 & PARAM OPTIONS
-abort_on_bug		addcommands_match_blindly
-addcommands_obey_stop	addcommands_obey_uselocks
-ansi_colors		autozone		booleans_oldstyle	
-clone_copies_cost	dark_actions		dark_sleepers
-examine_flags		examine_public_attrs	exit_calls_move
-fascist_teleport	format_contents		format_exits		
+addcommands_match_blindly			addcommands_obey_stop
+addcommands_obey_uselocks			ansi_colors
+autozone		booleans_oldstyle	clone_copies_cost
+dark_actions		dark_sleepers		examine_flags
+examine_public_attrs	exit_calls_move		fascist_teleport
 global_aconn_uselocks	have_comsys		have_mailer		
 have_zones		hostnames		idle_wiz_dark		
 lattr_default_oldstyle	local_master_rooms	look_obey_terse		
@@ -1469,11 +1513,6 @@ sweep_dark		switch_default_all	terse_shows_contents
 terse_shows_exits	terse_shows_move_messages
 trace_topdown		typed_quotas		unowned_safe
 use_global_aconn	wizard_obeys_linklock
-
-& abort_on_bug
-  Config parameter: abort_on_bug <yes/no>.  Default: No
-  Indicates whether or not the server is to abort when it logs a bug.
-  See also: log.
 
 & access
   Config parameter: access <command> <permlist>
@@ -1831,6 +1870,13 @@ use_global_aconn	wizard_obeys_linklock
   Yes as well, if you use this, or you will not be able to use
   global and zone exits.
  
+& exit_attr_defaults
+ Config parameter: exit_attr_defaults <dbref>.  Default: Nothing
+ 
+ If this parameter is set, every object of type EXIT will use the
+ attributes on the specified object as "attribute defaults".
+ See 'wizhelp attribute defaults' for additional information.
+ 
 & exit_flags
   Config parameter: exit_flags <flags>.  Default: blank
   Modifies the set of flags that an exit receives when it is created via the
@@ -1960,20 +2006,6 @@ use_global_aconn	wizard_obeys_linklock
   fork() when a database dump is to be performed.  This parameter is only
   checked if the fork_dump parameter is set to yes.
   See also: fork_dump.
-
-& format_contents
-  Config parameter: format_contents <yes/no>. Default: Yes
- 
-  Indicates whether or not the @conformat attribute is honored.
-  
-  See also: format_exits
-
-& format_exits
-  Config parameter: format_exits <yes/no>. Default: Yes
-  
-  Indicates whether or not the @exitformat attribute is honored.
- 
-  See also: format_contents
 
 & full_file
   Config parameter: down_file <pathname>.  Default: text/full.txt
@@ -2229,12 +2261,6 @@ use_global_aconn	wizard_obeys_linklock
   type in their next command.  Wizards already set DARK are not automatically
   unDARKed.
 
-& indent_desc
-  Config parameter: indent_desc <yes/no>. Default: No
- 
-  Places a blank line before and after every room, object, and exit
-  description when looked at.
- 
 & include
   Config parameter: include <path>.  Default: None
   Reads and processes configuration directives from the named file.
@@ -2597,6 +2623,13 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: badsite_file, forbid_site, register_site, SITE LISTS.
 
+& player_attr_defaults
+ Config parameter: player_attr_defaults <dbref>.  Default: Nothing
+ 
+ If this parameter is set, every object of type PLAYER will use the
+ attributes on the specified object as "attribute defaults".
+ See 'wizhelp attribute defaults' for additional information.
+ 
 & player_flags
   Config parameter: player_flags <flags>.  Default: blank
   Modifies the set of flags that a player receives when it is created via the
@@ -2848,6 +2881,13 @@ use_global_aconn	wizard_obeys_linklock
   pose, and emit commands in areas not controlled by their owner.
   See also: @robot, ROBOT.
 
+& room_attr_defaults
+ Config parameter: room_attr_defaults <dbref>.  Default: Nothing
+ 
+ If this parameter is set, every object of type ROOM will use the
+ attributes on the specified object as "attribute defaults".
+ See 'wizhelp attribute defaults' for additional information.
+ 
 & room_flags
   Config parameter: room_flags <flags>.  Default: blank
   Modifies the set of flags that a room receives when it is @dug.
@@ -3140,6 +3180,13 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: look_obey_terse, terse_shows_contents, terse_shows_exits.
 
+& thing_attr_defaults
+ Config parameter: thing_attr_defaults <dbref>.  Default: Nothing
+ 
+ If this parameter is set, every object of type THING will use the
+ attributes on the specified object as "attribute defaults".
+ See 'wizhelp attribute defaults' for additional information.
+ 
 & thing_flags
   Config parameter: thing_flags <flags>.  Default: blank
   Modifies the set of flags that a thing receives when it is @created.
