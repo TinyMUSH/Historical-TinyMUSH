@@ -953,3 +953,19 @@ The initial beta release was on 9/27/99.
 - Misc: Global register preservation uses bcopy() rather than strcpy().
 
 - Misc: A variety of unused code has been removed.
+
+-----------------------------------------------------------------------------
+
+11/17/2000: Beta 23
+
+- Fix: @halt/all properly credits object owners. [2.0]
+
+- Fix: Recycling works properly once more. [3.0b22]
+
+- Misc: The freelist is now constructed in ascending order.
+
+- Misc: Going and Unknown categories have been adding to the @stats
+  display, and stats().
+
+- Misc: Some minor code cleanup in string functions.
+
