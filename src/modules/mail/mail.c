@@ -1896,7 +1896,9 @@ FILE *fp;
 	 */
 	fgets(nbuf1, sizeof(nbuf1), fp);
 
-	if (!strncmp(nbuf1, "+V2", 3)) {
+	if (!strncmp(nbuf1, "+V1", 3)) {
+		new = 0;
+	} else if (!strncmp(nbuf1, "+V2", 3)) {
 		new = 1;
 	} else if (!strncmp(nbuf1, "+V3", 3)) {
 		new = 1;
@@ -1912,7 +1914,11 @@ FILE *fp;
 		read_new_strings = 1;
 	} else if (!strncmp(nbuf1, "+1", 2)) {
 		pennsub = 1;
+	} else {
+		/* Version number mangled */
+		return;
 	}
+	
 	if (pennsub)
 		fgets(nbuf1, sizeof(nbuf1), fp);	/*
 							 * Toss away the * *
