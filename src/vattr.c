@@ -109,7 +109,7 @@ int key;
 {
 #ifndef STANDALONE
 
-    VATTR *vp;
+    VATTR *vp, *vpx;
     dbref i;
     int ca;
     char *as;
@@ -134,11 +134,14 @@ int key;
 
     /* Walk the vattr table. If a number isn't in use, zorch it. */
 
-    for (vp = vattr_first(); vp; vp = vattr_next(vp)) {
-	if (used_table[vp->number] == 0) {
-	    anum_set(vp->number, NULL);
-	    hashdelete(vp->name, &mudstate.vattr_name_htab);
-	    free((VATTR *) vp);
+    vp = vattr_first();
+    while (vp) {
+	vpx = vp;
+	vp = vattr_next(vp);
+	if (used_table[vpx->number] == 0) {
+	    anum_set(vpx->number, NULL);
+	    hashdelete(vpx->name, &mudstate.vattr_name_htab);
+	    free((VATTR *) vpx);
 	}
     }
 
