@@ -869,13 +869,6 @@ dnl Declaration checks
 AC_DECL_SYS_SIGLIST
 AC_MSG_CHECKING(for sys_signame decl)
 AC_EGREP_HEADER(sys_signame,signal.h,AC_DEFINE(HAVE_SYS_SIGNAME) AC_MSG_RESULT(yes),AC_MSG_RESULT(no))
-AC_MSG_CHECKING(for sys_errlist decl)
-if test $ac_cv_header_errno_h = no; then
-	AC_MSG_RESULT(no)
-	AC_DEFINE(NEED_SYS_ERRLIST_DCL)
-else
-	AC_EGREP_HEADER(sys_errlist,errno.h,AC_MSG_RESULT(yes),AC_EGREP_HEADER(sys_errlist,stdio.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SYS_ERRLIST_DCL) AC_MSG_RESULT(no)))
-fi
 AC_MSG_CHECKING(for getpagesize dcl)
 AC_EGREP_HEADER(getpagesize,unistd.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETPAGESIZE_DCL) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for malloc dcl)

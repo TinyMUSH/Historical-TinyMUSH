@@ -5116,52 +5116,10 @@ else
 fi
 rm -f conftest*
 
-echo $ac_n "checking for sys_errlist decl""... $ac_c" 1>&6
-echo "configure:5121: checking for sys_errlist decl" >&5
-if test $ac_cv_header_errno_h = no; then
-	echo "$ac_t""no" 1>&6
-	cat >> confdefs.h <<\EOF
-#define NEED_SYS_ERRLIST_DCL 1
-EOF
-
-else
-	cat > conftest.$ac_ext <<EOF
-#line 5130 "configure"
-#include "confdefs.h"
-#include <errno.h>
-EOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  egrep "sys_errlist" >/dev/null 2>&1; then
-  rm -rf conftest*
-  echo "$ac_t""yes" 1>&6
-else
-  rm -rf conftest*
-  cat > conftest.$ac_ext <<EOF
-#line 5141 "configure"
-#include "confdefs.h"
-#include <stdio.h>
-EOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  egrep "sys_errlist" >/dev/null 2>&1; then
-  rm -rf conftest*
-  echo "$ac_t""yes" 1>&6
-else
-  rm -rf conftest*
-  cat >> confdefs.h <<\EOF
-#define NEED_SYS_ERRLIST_DCL 1
-EOF
- echo "$ac_t""no" 1>&6
-fi
-rm -f conftest*
-
-fi
-rm -f conftest*
-
-fi
 echo $ac_n "checking for getpagesize dcl""... $ac_c" 1>&6
-echo "configure:5163: checking for getpagesize dcl" >&5
+echo "configure:5121: checking for getpagesize dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5165 "configure"
+#line 5123 "configure"
 #include "confdefs.h"
 #include <unistd.h>
 EOF
@@ -5179,9 +5137,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for malloc dcl""... $ac_c" 1>&6
-echo "configure:5183: checking for malloc dcl" >&5
+echo "configure:5141: checking for malloc dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5185 "configure"
+#line 5143 "configure"
 #include "confdefs.h"
 #include <stdlib.h>
 EOF
@@ -5199,9 +5157,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for vsprintf dcl""... $ac_c" 1>&6
-echo "configure:5203: checking for vsprintf dcl" >&5
+echo "configure:5161: checking for vsprintf dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5205 "configure"
+#line 5163 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 EOF
@@ -5219,9 +5177,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for sprintf dcl""... $ac_c" 1>&6
-echo "configure:5223: checking for sprintf dcl" >&5
+echo "configure:5181: checking for sprintf dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5225 "configure"
+#line 5183 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 EOF
@@ -5239,9 +5197,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for extended stdio dcls""... $ac_c" 1>&6
-echo "configure:5243: checking for extended stdio dcls" >&5
+echo "configure:5201: checking for extended stdio dcls" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5245 "configure"
+#line 5203 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 EOF
@@ -5259,9 +5217,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for extended socket dcls""... $ac_c" 1>&6
-echo "configure:5263: checking for extended socket dcls" >&5
+echo "configure:5221: checking for extended socket dcls" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5265 "configure"
+#line 5223 "configure"
 #include "confdefs.h"
 #include <sys/socket.h>
 EOF
@@ -5279,10 +5237,10 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for gettimeofday dcl""... $ac_c" 1>&6
-echo "configure:5283: checking for gettimeofday dcl" >&5
+echo "configure:5241: checking for gettimeofday dcl" >&5
 if test $ac_cv_header_time = yes && test $ac_cv_header_sys_time_h = yes ; then
 cat > conftest.$ac_ext <<EOF
-#line 5286 "configure"
+#line 5244 "configure"
 #include "confdefs.h"
 #include <time.h>
 #include <sys/time.h>
@@ -5302,7 +5260,7 @@ rm -f conftest*
 
 elif test $ac_cv_header_sys_time_h = yes ; then
 cat > conftest.$ac_ext <<EOF
-#line 5306 "configure"
+#line 5264 "configure"
 #include "confdefs.h"
 #include <sys/time.h>
 EOF
@@ -5321,7 +5279,7 @@ rm -f conftest*
 
 else
 cat > conftest.$ac_ext <<EOF
-#line 5325 "configure"
+#line 5283 "configure"
 #include "confdefs.h"
 #include <time.h>
 EOF
@@ -5341,9 +5299,9 @@ rm -f conftest*
 fi
 if test $ac_cv_header_sys_wait_h = yes ; then
 echo $ac_n "checking for wait3 dcl""... $ac_c" 1>&6
-echo "configure:5345: checking for wait3 dcl" >&5
+echo "configure:5303: checking for wait3 dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5347 "configure"
+#line 5305 "configure"
 #include "confdefs.h"
 #include <sys/wait.h>
 EOF
@@ -5362,9 +5320,9 @@ rm -f conftest*
 
 fi
 echo $ac_n "checking for srandom dcl""... $ac_c" 1>&6
-echo "configure:5366: checking for srandom dcl" >&5
+echo "configure:5324: checking for srandom dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5368 "configure"
+#line 5326 "configure"
 #include "confdefs.h"
 #include <math.h>
 EOF
@@ -5375,7 +5333,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   rm -rf conftest*
   cat > conftest.$ac_ext <<EOF
-#line 5379 "configure"
+#line 5337 "configure"
 #include "confdefs.h"
 #include <stdlib.h>
 EOF
@@ -5396,9 +5354,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for random dcl""... $ac_c" 1>&6
-echo "configure:5400: checking for random dcl" >&5
+echo "configure:5358: checking for random dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5402 "configure"
+#line 5360 "configure"
 #include "confdefs.h"
 #include <stdlib.h>
 EOF
@@ -5416,9 +5374,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for perror dcl""... $ac_c" 1>&6
-echo "configure:5420: checking for perror dcl" >&5
+echo "configure:5378: checking for perror dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5422 "configure"
+#line 5380 "configure"
 #include "confdefs.h"
 #include <errno.h>
 EOF
@@ -5436,9 +5394,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for getrusage dcl""... $ac_c" 1>&6
-echo "configure:5440: checking for getrusage dcl" >&5
+echo "configure:5398: checking for getrusage dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5442 "configure"
+#line 5400 "configure"
 #include "confdefs.h"
 #include <sys/resource.h>
 EOF
@@ -5456,9 +5414,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for getrlimit dcl""... $ac_c" 1>&6
-echo "configure:5460: checking for getrlimit dcl" >&5
+echo "configure:5418: checking for getrlimit dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5462 "configure"
+#line 5420 "configure"
 #include "confdefs.h"
 #include <sys/resource.h>
 EOF
@@ -5476,9 +5434,9 @@ fi
 rm -f conftest*
 
 echo $ac_n "checking for strtok_r dcl""... $ac_c" 1>&6
-echo "configure:5480: checking for strtok_r dcl" >&5
+echo "configure:5438: checking for strtok_r dcl" >&5
 cat > conftest.$ac_ext <<EOF
-#line 5482 "configure"
+#line 5440 "configure"
 #include "confdefs.h"
 #include <string.h>
 EOF
