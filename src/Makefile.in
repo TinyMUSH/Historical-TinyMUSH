@@ -69,11 +69,15 @@ DEFS =
 #-----GCC if the libraries were built for a pcc-derived cc compiler
 #     (most systems)
 #
-#DEFS = -fpcc-struct-return -Wall
+#DEFS = -fpcc-struct-return -Wall -Wno-char-subscripts
 #
 #-----GCC with GCC-compatible libraries if you want verbose error messages
 #
-#DEFS = -Wall
+#DEFS = -Wall -Wno-char-subscripts
+#
+#-----GCC, GCC-compatible libs, very verbose (often useless) warning messages
+#
+#DEFS = -Wall -W -Wno-char-subscripts -Winline
 #
 #-----CC on a NeXT system, really weird derivative of GCC
 #
