@@ -44,7 +44,7 @@ FCACHE fcache[] = {
 	{ mudconf.guest_file,	NULL,	"Conn/Guest" },
 	{ mudconf.creg_file,	NULL,	"Conn/Reg" },
 	{ mudconf.crea_file,	NULL,	"Crea/Newuser" },
-	{ mudconf.regf_file,	NULL,	"Crea/RegFaill" },
+	{ mudconf.regf_file,	NULL,	"Crea/RegFail" },
 	{ mudconf.motd_file,	NULL,	"Motd" },
 	{ mudconf.wizmotd_file,	NULL,	"Wizmotd" },
 	{ mudconf.quit_file,	NULL,	"Quit" },
