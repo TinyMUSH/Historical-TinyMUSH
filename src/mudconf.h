@@ -40,7 +40,6 @@ struct confdata {
 	char	uncompress[PBUF_SIZE];/* program to run to uncompress */
 	char	status_file[PBUF_SIZE]; /* Where to write arg to @shutdown */
         int	have_comsys;	/* Should the comsystem be active? */
-        int	have_macros;	/* Should the macro system be active? */
         int	have_mailer;	/* Should @mail be active? */
 	int	have_zones;	/* Should zones be active? */
 	int	port;		/* user port */
