@@ -116,6 +116,9 @@ the other have been listed in the conversion notes for both servers.
 - New /pretty switch to examine and @decompile "pretty-prints" (with
   indentation) attributes. Based on Andrew Molitor's +pex-equivalent code.
 
+- New /pairs switch to examine matches parentheses, brackets, and braces(),
+  displaying them in ANSI colors.
+
 - New @freelist command moves an object to the head of the freelist,
   until the next dbck.
 
@@ -192,9 +195,6 @@ the other have been listed in the conversion notes for both servers.
 - The objmem(<thing>) function does a MUX-style object-structure count; 
   objmem(<thing>/<wild>) does a 2.2-style attribute-text count. (Fuses
   the two models.)
-
-- Added pairs() function, which matches parentheses, brackets, and
-  braces(), displaying them in ANSI colors.
 
 - The pfind() function returns a dbref, or looks up a player. (This
   provides MUX-style pmatch() behavior. pmatch() now behaves like the

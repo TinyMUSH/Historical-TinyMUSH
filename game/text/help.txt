@@ -160,8 +160,17 @@
                attributes set on the object in addition to the owner's name.
      /parent - Includes attributes that are not present on the object itself
                but which are inherited from the object's parent.
+     /pretty - Pretty-print, in a format suitable for a MUSH unformatter.
+     /pairs  - Shows matches in parentheses, brackets, and braces.
+               Each level ("nesting") of these is highlighted in a different
+               ANSI color (in order, green, yellow, cyan, blue, and magenta).
+               If an error is encountered, where the pairs don't match, the
+               offending character is highlighted in red. The rest of the
+               string is then printed out; no further pair-matching will
+               occur. Escaped-out characters are not highlighted or counted.
+ 
   See also: look, @decompile, VISUAL, ATTRIBUTE OWNERSHIP.
-
+ 
 & get
   Command: get[/<switch>] <object>
            get[/<switch>] <exit>
@@ -4506,13 +4515,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	delete()	edit()		encrypt()	escape()
 	foreach()	isdbref()	isnum()		isword()	
 	lcstr()		left()		lit()		ljust()
-	merge()		mid()		null()		pairs()
-	pos()		regmatch()	repeat()	reverse()	
-	right()		rjust()		secure()	scramble()	
-	space()		squish()	strcat()	streq()		
-	stripansi()	strlen()	strmatch()	strtrunc()	
-	translate()	trim()		ucstr()		valid()		
-	wordpos()
+	merge()		mid()		null()		pos()
+	regmatch()	repeat()	reverse()	right()
+	rjust()		secure()	scramble()	space()
+	squish()	strcat()	streq()		stripansi()
+	strlen()	strmatch()	strtrunc()	translate()
+	trim()		ucstr()		valid()		wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -5971,19 +5979,6 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Example:
     > say lpos(a-bc-def-g,-)
     You say "1 4 8"
- 
-& PAIRS()
-  pairs([<object>/]<attribute>)
- 
-  This function returns the contents of the calling object's <attribute> 
-  (or <object>'s <attribute>), showing matches in parentheses, brackets,
-  and braces. 
- 
-  Each level ("nesting") of these is highlighted in a different ANSI
-  color (in order, green, yellow, cyan, blue, and magenta). If an error
-  is encountered, where the pairs don't match, the offending character
-  is highlighted in red. The rest of the string is then printed out;
-  no further pair-matching will occur.
  
 & POS()
   pos(<string1>,<string2>)

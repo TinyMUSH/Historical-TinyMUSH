@@ -175,6 +175,10 @@ The initial beta release was on 9/27/99.
 - Feature: Functions that take output delimiters can now take a null
   output delimiter, signified by the token '@@'.
 
+- Feature: The examine command has a new switch, /pairs. This shows
+  paren/bracket/braces-matching in ANSI color. (Based on the engine
+  from ChaoticMUX's parenmatch() function.)
+
 - Feature: New conf directive raw_helpfile allows the addition of
   non-evaluated helpfiles.
 
@@ -212,9 +216,6 @@ The initial beta release was on 9/27/99.
     arguments are not pre-evaluated.
 
   - Feature: An ANSI underline code, %xu, has been added.
-
-  - Feature: A paren-matching function, pairs(), has been added.
-    (This was parenmatch() in ChaoticMUX.)
 
   - Feature: log() can take an optional second argument, the base.
 
