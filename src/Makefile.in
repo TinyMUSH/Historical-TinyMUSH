@@ -222,10 +222,6 @@ netmush-quant: $(MUSH_O) install-modules
 verify:
 	runtest --tool mush --src ./testsuite
 
-cvs:
-	rm -f buildnum.data
-	echo "0" > buildnum.data
-
 clean:
 	-rm -f *.o *.lo a.out core gmon.out mush.*log mush.*sum Compile.log
 	-rm -rf .libs
