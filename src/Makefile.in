@@ -221,7 +221,7 @@ A_INST	= CREDITS CHANGES CHANGES.TINY20 CHANGES.TINY22 CHANGES.MUX \
 	  CONVERT.TINY22 CONVERT.MUX FAQ INSTALL README README.TOOLS
 A_TXT	= badsite.txt connect.txt create_reg.txt down.txt guest.txt help.txt \
 	  htmlconn.txt motd.txt news.txt newuser.txt quit.txt register.txt \
-	  wizhelp.txt wizmotd.txt full.txt plushelp.txt wiznews.txt
+	  wizhelp.txt wizmotd.txt full.txt mushman.txt plushelp.txt wiznews.txt
 A_SH	= db_load db_unload db_check buildnum.sh
 A_RT	= Startmush mush.config
 A_CONF	= netmush.conf alias.conf compat.conf
@@ -339,7 +339,7 @@ depend: $(ALLSRC) unsplit
 	for i in $(D_SRC) $(COM_SRC) $(SA_SRC) $(UDBA_SRC) $(UDBO_SRC) $(AUX_SRC) $(LIB_SRC) $(MALLOC_S) $(CONC_S) slave.c portconc.c ; do $(CPP) $(ALLCFLAGS) -M $$i; done | sed -e 's:/usr[^ ]* ::g' | ./unsplit > .depend~
 	mv .depend~ .depend
 
-index: help.indx news.indx wizhelp.indx plushelp.indx wiznews.indx
+index: help.indx news.indx wizhelp.indx mushman.indx plushelp.indx wiznews.indx
 
 help.indx: help.txt
 	./mkindx help.txt help.indx
@@ -349,6 +349,9 @@ news.indx: news.txt
 
 wizhelp.indx: wizhelp.txt
 	./mkindx wizhelp.txt wizhelp.indx
+
+mushman.indx: mushman.txt
+	./mkindx mushman.txt mushman.indx
 
 plushelp.indx: plushelp.txt
 	./mkindx plushelp.txt plushelp.indx
