@@ -10,6 +10,9 @@ highly significant changes are noted here.
 
 - Backup and Restore scripts simplify backup maintenance.
 
+- Index script detects help-style files (help, news, etc.) and indexes
+  them. This is now called by Startmush.
+
 - GNU dbm 1.8.0 is required. Database code has been rewritten to take
   advantage of its features. Dumps are now automatically optimized, and
   you may safely back up the MUSH while it is running.
