@@ -674,14 +674,14 @@ char *raw_text;
 
 	if (is_special == 1) {
 	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
-		name_buf = tprintf("%s%s [#%d%s]:%s",
+		name_buf = tprintf("%s%s [#%d%s]:%s ",
 				   ANSI_HILITE, ap->name, aowner, fbp,
 				   ANSI_NORMAL);
 	    } else if (*fbp) {
-		name_buf = tprintf("%s%s [%s]:%s",
+		name_buf = tprintf("%s%s [%s]:%s ",
 				   ANSI_HILITE, ap->name, fbp, ANSI_NORMAL);
 	    } else if (!skip_tag || (ap->number != A_DESC)) {
-		name_buf = tprintf("%s%s:%s", ANSI_HILITE, ap->name,
+		name_buf = tprintf("%s%s:%s ", ANSI_HILITE, ap->name,
 				   ANSI_NORMAL);
 	    } else {
 		name_buf = (char *) "";
