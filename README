@@ -30,11 +30,13 @@ gone through in the process of creating TinyMUSH 3.0. A large number
 of bugs have been fixed, portions have been rewritten to be cleaner
 and more efficient, and a slew of new features have been added.
 
-TinyMUSH 3.0 was jointly developed and will be jointly maintained by
-David Passmore and Lydia Leong; though we will continue to welcome
-contributions from the MUSH community, we expect to remain the primary
-developers. We believe that this will be the clear platform of choice
-for MUSH users in the future, and we highly encourage existing
+The initial TinyMUSH 3.0 release was jointly developed by David
+Passmore and Lydia Leong; Robby Griffin joined the team with the
+release of 3.0 beta 18, and the team expects to continue to maintain
+TinyMUSH 3.0 into the forseeable future. Though we will continue to
+welcome contributions from the MUSH community, we expect to remain the
+primary developers. We believe that this will be the clear platform of
+choice for MUSH users in the future, and we highly encourage existing
 TinyMUSH 2.2 and TinyMUX users to upgrade.
 
 We expect that server stability during the beta period to be, on the

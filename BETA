@@ -626,3 +626,17 @@ The initial beta release was on 9/27/99.
 - Misc: The resize factor used by @hashresize is now dependent upon the
   hash factor itself. The command table is now also resized. God is not
   notified of resizes, when the game is restarting.
+
+-----------------------------------------------------------------------------
+
+11/20/99: Beta 18
+
+- Fix: Null store results (from CREATE and DROP) no longer cause
+  segvs for MySQL users. [3.0b15; Dan Evans]
+
+- Fix: arr2list() no longer zaps the last character of the list being
+  output, if a null delimiter is specified. [3.0b8]
+
+- Fix: encrypt() and decrypt() exist again. [3.0; Chimera]
+
+- Misc: Robby Griffin has joined the 3.0 development team.

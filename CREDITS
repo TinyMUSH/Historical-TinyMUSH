@@ -5,7 +5,7 @@ TinyMUSH 3.0 is a derivation/merger of TinyMUSH 2.2.5 and TinyMUX 1.6,
 with some additional extensive code revisions, bugfixing, and feature
 enhancements. It is the joint work of Lydia Leong ("Amberyl") and
 David Passmore ("Lauren"), and will be jointly maintainted in the future.
-This is the official end of the TinyMUSH 2.2 vs. TinyMUX religious war. :)
+Robby Griffin ("Alierak") joined the development team as of 3.0 beta 18. 
 
 In addition to the lots of people we've already thanked from earlier
 work on the servers, we'd like to make special note of:
@@ -17,8 +17,8 @@ work on the servers, we'd like to make special note of:
 
 - The members of the Gods, Softcode, TinyMUX, Hogs, and Tinymush-Unoff
   lists, for ongoing support and patience, as well as bug reports and
-  new feature requests. Adam Dray, Brazil, Robby Griffin, Soruk, and
-  Talek deserve special thanks here, also.
+  new feature requests. Adam Dray, Brazil, Soruk, and Talek deserve
+  special thanks here, also.
 
 - The various people who helped us in the initial phases of the alpha
   test, loaned us hardware to do compiles on, and otherwise donated us
