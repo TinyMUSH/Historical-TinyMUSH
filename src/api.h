@@ -62,4 +62,18 @@ extern void FDECL(register_commands, (CMDENT *));
 extern void FDECL(register_functions, (FUN *));
 extern void FDECL(register_hashtables, (MODHASHES *, MODNHASHES *));
 
+/* ------------------------------------------------------------------------
+ * External necessities.
+ */
+
+extern CF_HDCL(cf_alias);
+extern CF_HDCL(cf_bool);
+extern CF_HDCL(cf_const);
+extern CF_HDCL(cf_int);
+extern CF_HDCL(cf_modify_bits);
+extern CF_HDCL(cf_ntab_access);
+extern CF_HDCL(cf_option);
+extern CF_HDCL(cf_set_flags);
+extern CF_HDCL(cf_string);
+
 #endif /* __API_H */

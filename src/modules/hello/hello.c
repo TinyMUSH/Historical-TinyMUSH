@@ -6,6 +6,22 @@
 #define MOD_HELLO_HELLO_INFORMAL	1
 
 /* --------------------------------------------------------------------------
+ * Conf table.
+ */
+
+struct mod_hello_confstorage {
+	int show_name;
+	char hello_string[MBUF_SIZE];
+	int hello_times;
+} mod_hello_config;
+
+CONF mod_hello_conftable[] = {
+{(char *)"hello_shows_name",		cf_bool,	CA_GOD,		CA_PUBLIC,	(int *)&mod_hello_config.show_name,	(long)"Greet players by name"},
+{(char *)"hello_string",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mod_hello_config.hello_string,	MBUF_SIZE},
+{(char *)"hello_times",			cf_int,		CA_GOD,		CA_PUBLIC,	(int *)&mod_hello_config.hello_times,	5},
+{ NULL,					NULL,		0,		0,		NULL,				0}};
+
+/* --------------------------------------------------------------------------
  * Handlers.
  */
 
@@ -69,10 +85,16 @@ void mod_hello_announce_disconnect(player, reason)
 
 DO_CMD_NO_ARG(mod_hello_do_hello)
 {
+    int i;
+
     if (key & MOD_HELLO_HELLO_INFORMAL) {
-	notify(player, "Hi there!");
+	for (i = 0; i < mod_hello_config.hello_times; i++) 
+	    notify(player, "Hi there!");
     } else {
-	notify(player, "Hello world!");
+	if (mod_hello_config.show_name)
+	    notify(player, tprintf("Hello, %s!", Name(player)));
+	else
+	    notify(player, mod_hello_config.hello_string);
     }
 }
 
@@ -133,6 +155,10 @@ MODNHASHES mod_hello_nhashtable[] = {
 	
 void mod_hello_init()
 {
+    mod_hello_config.show_name = 0;
+    StringCopy(mod_hello_config.hello_string, "Hello, world!");
+    mod_hello_config.hello_times = 1;;
+
     register_hashtables(mod_hello_hashtable, mod_hello_nhashtable); 
     register_commands(mod_hello_cmdtable);
     register_functions(mod_hello_functable);

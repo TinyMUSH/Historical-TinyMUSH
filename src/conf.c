@@ -601,7 +601,7 @@ CF_HAND(cf_module)
 	mp->destroy_obj = DLSYM(handle, str, "destroy_obj", (dbref, dbref));
 	mp->announce_connect = DLSYM(handle, str, "announce_connect", (dbref));
 	mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
-					(dbref));
+					(dbref, const char *));
 	mp->make_minimal = DLSYM(handle, str, "make_minimal", ());
 	mp->cleanup_startup = DLSYM(handle, str, "cleanup_startup", ());
 
@@ -1088,39 +1088,64 @@ CF_AHAND(cf_site)
  * first extra field is taken up with the access nametab.
  */
 
+static int helper_cf_cf_access(tp, player, vp, ap, cmd, extra)
+    CONF *tp;
+    dbref player;
+    int *vp;
+    char *ap, *cmd;
+    long extra;
+{
+    /* Cannot modify parameters set STATIC */
+
+    if (tp->flags & CA_STATIC) {
+	notify(player, NOPERM_MESSAGE);
+	STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
+	    log_name(player);
+	    log_printf(" tried to change %s access to static param: %s",
+		       (((long)vp) ? "read" : "write"),
+		       tp->pname);
+	ENDLOG
+	return -1;
+    }
+    if ((long)vp) {
+	return (cf_modify_bits(&tp->rperms, ap, extra,
+			       player, cmd));
+    } else {
+	return (cf_modify_bits(&tp->flags, ap, extra,
+			       player, cmd));
+    }
+}
+
 CF_HAND(cf_cf_access)
 {
-	CONF *tp;
+	CONF *tp, *ctab;
 	char *ap;
+	MODULE *mp;
 
 	for (ap = str; *ap && !isspace(*ap); ap++) ;
 	if (*ap)
 		*ap++ = '\0';
 
 	for (tp = conftable; tp->pname; tp++) {
-		if (!strcmp(tp->pname, str)) {
+	    if (!strcmp(tp->pname, str)) {
+		return (helper_cf_cf_access(tp, player, vp, ap, cmd, extra)); 
+	    }
+	}
 
-		    /* Cannot modify parameters set STATIC */
-
-		    if (tp->flags & CA_STATIC) {
-			notify(player, NOPERM_MESSAGE);
-			STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
-			    log_name(player);
-			    log_printf(" tried to change %s access to static param: %s",
-				       (((long)vp) ? "read" : "write"),
-				       tp->pname);
-			ENDLOG
-			return -1;
-		    }
-		    if ((long)vp) {
-			return (cf_modify_bits(&tp->rperms, ap, extra,
-					       player, cmd));
-		    } else {
-			return (cf_modify_bits(&tp->flags, ap, extra,
-					       player, cmd));
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
+				  CONF *)) != NULL) {
+		for (tp = ctab; tp->pname; tp++) {
+		    if (!strcmp(tp->pname, str)) {
+			return (helper_cf_cf_access(tp, player, vp, ap,
+						    cmd, extra));
 		    }
 		}
+	    }
 	}
+#endif /* HAVE_DLOPEN */
+
 	cf_log_notfound(player, cmd, "Config directive", str);
 	return -1;
 }
@@ -1582,13 +1607,52 @@ CONF conftable[] = {
  * cf_set: Set config parameter.
  */
 
+static int helper_cf_set(cp, ap, player, tp)
+    char *cp, *ap;
+    dbref player;
+    CONF *tp;
+{
+    int i;
+    char *buff;
+
+    if (!mudstate.initializing && !check_access(player, tp->flags)) {
+	notify(player, NOPERM_MESSAGE);
+	return (-1);
+    }
+    if (!mudstate.initializing) {
+	buff = alloc_lbuf("cf_set");
+	StringCopy(buff, ap);
+    }
+    i = tp->interpreter(tp->loc, ap, tp->extra, player, cp);
+    if (!mudstate.initializing) {
+	STARTLOG(LOG_CONFIGMODS, "CFG", "UPDAT")
+	    log_name(player);
+	    log_printf(" entered config directive: %s with args '%s'. Status: ", cp, strip_ansi(buff));
+	    switch (i) {
+		case 0:
+		    log_printf("Success.");
+		    break;
+		case 1:
+		    log_printf("Partial success.");
+		    break;
+		case -1:
+		    log_printf("Failure.");
+		    break;
+		default:
+		    log_printf("Strange.");
+	    }
+	ENDLOG
+	free_lbuf(buff);
+    }
+    return i;
+}
+
 int cf_set(cp, ap, player)
 char *cp, *ap;
 dbref player;
 {
-	CONF *tp;
-	int i;
-	char *buff;
+	CONF *tp, *ctab;
+	MODULE *mp;
 
 	/*
 	 * Search the config parameter table for the command. If we find it,
@@ -1597,39 +1661,21 @@ dbref player;
 
 	for (tp = conftable; tp->pname; tp++) {
 		if (!strcmp(tp->pname, cp)) {
-			if (!mudstate.initializing &&
-			    !check_access(player, tp->flags)) {
-				notify(player, NOPERM_MESSAGE);
-				return (-1);
-			}
-			if (!mudstate.initializing) {
-				buff = alloc_lbuf("cf_set");
-				StringCopy(buff, ap);
-			}
-			i = tp->interpreter(tp->loc, ap, tp->extra, player, cp);
-			if (!mudstate.initializing) {
-				STARTLOG(LOG_CONFIGMODS, "CFG", "UPDAT")
-					log_name(player);
-				log_printf(" entered config directive: %s with args '%s'. Status: ", cp, strip_ansi(buff));
-				switch (i) {
-				case 0:
-					log_printf("Success.");
-					break;
-				case 1:
-					log_printf("Partial success.");
-					break;
-				case -1:
-					log_printf("Failure.");
-					break;
-				default:
-					log_printf("Strange.");
-				}
-				ENDLOG
-				free_lbuf(buff);
-			}
-			return i;
+		    return (helper_cf_set(cp, ap, player, tp));
 		}
 	}
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
+				  CONF *)) != NULL) {
+		for (tp = ctab; tp->pname; tp++) {
+		    if (!strcmp(tp->pname, cp))
+			return (helper_cf_set(cp, ap, player, tp));
+		}
+	    }
+	}
+#endif /* HAVE_DLOPEN */
 
 	/*
 	 * Config directive not found.  Complain about it. 
@@ -1699,10 +1745,12 @@ char *fn;
 void list_cf_access(player)
 dbref player;
 {
-	CONF *tp;
+	CONF *tp, *ctab;
 	char *buff;
+	MODULE *mp;
 
 	buff = alloc_mbuf("list_cf_access");
+
 	for (tp = conftable; tp->pname; tp++) {
 		if (God(player) || check_access(player, tp->flags)) {
 			sprintf(buff, "%s:", tp->pname);
@@ -1710,16 +1758,34 @@ dbref player;
 					buff, 1);
 		}
 	}
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
+				  CONF *)) != NULL) {	
+		for (tp = ctab; tp->pname; tp++) {
+		    if (God(player) || check_access(player, tp->flags)) {
+			sprintf(buff, "%s:", tp->pname);
+			listset_nametab(player, access_nametab, tp->flags,
+					buff, 1);
+		    }
+		}
+	    }
+	}
+#endif /* HAVE_DLOPEN */
+
 	free_mbuf(buff);
 }
 
 void list_cf_read_access(player)
 dbref player;
 {
-	CONF *tp;
+	CONF *tp, *ctab;
 	char *buff;
+	MODULE *mp;
 
 	buff = alloc_mbuf("list_cf_read_access");
+
 	for (tp = conftable; tp->pname; tp++) {
 		if (God(player) || check_access(player, tp->rperms)) {
 			sprintf(buff, "%s:", tp->pname);
@@ -1727,6 +1793,22 @@ dbref player;
 					buff, 1);
 		}
 	}
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
+				  CONF *)) != NULL) {	
+		for (tp = ctab; tp->pname; tp++) {
+		    if (God(player) || check_access(player, tp->rperms)) {
+			sprintf(buff, "%s:", tp->pname);
+			listset_nametab(player, access_nametab, tp->rperms,
+					buff, 1);
+		    }
+		}
+	    }
+	}
+#endif /* HAVE_DLOPEN */
+
 	free_mbuf(buff);
 }
 
@@ -1735,34 +1817,58 @@ dbref player;
  * sane fashion.
  */
 
+static void helper_cf_display(player, buff, bufc, tp)
+    dbref player;
+    char *buff, **bufc;
+    CONF *tp;
+{
+    if (!check_access(player, tp->rperms)) {
+	safe_noperm(buff, bufc);
+	return;
+    }
+    if ((tp->interpreter == cf_bool) ||
+	(tp->interpreter == cf_int) ||
+	(tp->interpreter == cf_const)) {
+	safe_ltos(buff, bufc, *(tp->loc));
+	return;
+    }
+    if ((tp->interpreter == cf_string)) {
+	safe_str((char *) tp->loc, buff, bufc);
+	return;
+    }
+    safe_noperm(buff, bufc);
+    return;
+}
+
 void cf_display(player, param_name, buff, bufc)
     dbref player;
     char *param_name;
     char *buff;
     char **bufc;
 {
-    CONF *tp;
+    CONF *tp, *ctab;
+    MODULE *mp;
 
     for (tp = conftable; tp->pname; tp++) {
 	if (!strcasecmp(tp->pname, param_name)) {
-	    if (!check_access(player, tp->rperms)) {
-		safe_noperm(buff, bufc);
-		return;
-	    }
-	    if ((tp->interpreter == cf_bool) ||
-		(tp->interpreter == cf_int) ||
-		(tp->interpreter == cf_const)) {
-		safe_ltos(buff, bufc, *(tp->loc));
-		return;
-	    }
-	    if ((tp->interpreter == cf_string)) {
-		safe_str((char *) tp->loc, buff, bufc);
-		return;
-	    }
-	    safe_noperm(buff, bufc);
+	    helper_cf_display(player, buff, bufc, tp);
 	    return;
 	}
     }
+
+#ifdef HAVE_DLOPEN
+    WALK_ALL_MODULES(mp) {
+	if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
+			      CONF *)) != NULL) {	
+	    for (tp = ctab; tp->pname; tp++) {
+		if (!strcasecmp(tp->pname, param_name)) {
+		    helper_cf_display(player, buff, bufc, tp);
+		    return;
+		}
+	    }
+	}
+    }
+#endif /* HAVE_DLOPEN */
 
     safe_nomatch(buff, bufc);
 }
@@ -1770,7 +1876,8 @@ void cf_display(player, param_name, buff, bufc)
 void list_options(player)
 dbref player;
 {
-    CONF *tp;
+    CONF *tp, *ctab;
+    MODULE *mp;
 
     for (tp = conftable; tp->pname; tp++) {
 	if (((tp->interpreter == cf_const) ||
@@ -1783,6 +1890,26 @@ dbref player;
 				       (tp->extra ? (char *)tp->extra : "")));
 	}
     }
+
+#ifdef HAVE_DLOPEN
+    WALK_ALL_MODULES(mp) {
+	if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
+			      CONF *)) != NULL) {
+	    for (tp = ctab; tp->pname; tp++) {
+		if (((tp->interpreter == cf_const) ||
+		     (tp->interpreter == cf_bool)) &&
+		    (check_access(player, tp->rperms))) {
+
+		    raw_notify(player, tprintf("%-25s %c %s?",
+					       tp->pname,
+					       (*(tp->loc) ? 'Y' : 'N'),
+				       (tp->extra ? (char *)tp->extra : "")));
+		}
+	    }
+	}
+    }
+#endif /* HAVE_DLOPEN */
+
 }
 
 #endif /*
