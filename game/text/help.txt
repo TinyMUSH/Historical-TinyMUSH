@@ -4161,18 +4161,18 @@
   Topic: Object Functions
  
 	andflags()	children()	con()		conn()
-	controls()	cwho()		elock()		exit()
-	flags()		findable()	fullname()	hasflag()
-	haspower()	hastype()	home()		idle()
-	inzone()	lastcreate()	lcon()		lexits()
-	lparent()	loc()		locate()	lock()
-	lwho()		mail()		mailfrom()	money()
-	name()		nearby()	next()		num()
-	objmem()	orflags()	owner()		parent()
-	playmem()	pmatch()	ports()		programmer()
-	rloc()		room()		search()	sees()
-	stats()		type()		visible()	where()
-	xcon()		zone()		zwho()
+	controls()	cwho()		doing()		elock()
+	exit()		flags()		findable()	fullname()	
+	hasflag()	haspower()	hastype()	home()		
+	idle()		inzone()	lastcreate()	lcon()		
+	lexits()	lparent()	loc()		locate()	
+	lock()		lwho()		mail()		mailfrom()	
+	money()		name()		nearby()	next()		
+	num()		objmem()	orflags()	owner()		
+	parent()	playmem()	pmatch()	ports()		
+	programmer()	rloc()		room()		search()	
+	sees()		stats()		type()		visible()	
+	where()		xcon()		zone()		zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -7834,6 +7834,13 @@
   > say [mix(add_nums,1 2,3 4,5 6,7 8,9 10,)]
   You say "25 30"
 
+& DOING()
+  doing(<player name>)
+ 
+  This function returns the @doing string of a connected player. If the
+  player does not exist, or is not connected, this function returns an
+  empty string.
+ 
 & PROGRAMMER()
   programmer(<player name>)
  
