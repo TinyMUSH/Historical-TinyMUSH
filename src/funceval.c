@@ -2952,13 +2952,15 @@ FUNCTION(fun_lstack)
 FUNCTION(fun_x)
 {
     VARENT *xvar;
-    char tbuf[SBUF_SIZE], *tp;
+    char tbuf[SBUF_SIZE], *tp, *p;
 
     /* Variable string is '<dbref number minus #>.<variable name>' */
 
     tp = tbuf;
     safe_ltos(tbuf, &tp, player);
     safe_chr('.', tbuf, &tp);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
     safe_str(fargs[0], tbuf, &tp);
     *tp = '\0';
 
@@ -2972,18 +2974,22 @@ static void set_xvar(obj, name, data)
     char *data;
 {
     VARENT *xvar;
-    char tbuf[SBUF_SIZE], *tp;
+    char tbuf[SBUF_SIZE], *tp, *p;
 
     /* If we don't have at least one character in the name, toss it. */
 
     if (!name || !*name)
 	return;
 
-    /* Variable string is '<dbref number minus #>.<variable name>' */
+    /* Variable string is '<dbref number minus #>.<variable name>'. We
+     * lowercase all names.
+     */
 
     tp = tbuf;
     safe_ltos(tbuf, &tp, obj);
     safe_chr('.', tbuf, &tp);
+    for (p = name; *p; p++)
+	*p = ToLower(*p);
     safe_str(name, tbuf, &tp);
     *tp = '\0';
 
