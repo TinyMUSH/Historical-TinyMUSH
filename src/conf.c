@@ -1210,10 +1210,10 @@ int add_helpfile(player, str, is_raw)
 	hashes = (HASHTAB *) XREALLOC(mudstate.hfile_hashes,
 				      (mudstate.hfiletab_size + 4) *
 				      sizeof(HASHTAB), "helpfile.hashes");
+	ftab[mudstate.hfiletab_size] = NULL;
 	ftab[mudstate.hfiletab_size + 1] = NULL;
 	ftab[mudstate.hfiletab_size + 2] = NULL;
 	ftab[mudstate.hfiletab_size + 3] = NULL;
-	ftab[mudstate.hfiletab_size + 4] = NULL;
 	mudstate.hfiletab_size += 4;
 	mudstate.hfiletab = ftab;
 	mudstate.hfile_hashes = hashes;
