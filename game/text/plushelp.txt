@@ -6,7 +6,13 @@ add the following line to your netmush.conf file (or equivalent):
  
 helpfile +help text/plushelp.txt
  
-See 'wizhelp helpfile' for more details.
+The text within the helpfile will be evaluated, i.e., you can use
+ANSI substitutions like \%xh and \%xn. If you don't want the text
+evaluated, in this example, you would change your conf directive to:
+ 
+raw_helpfile +help text/plushelp.txt
+ 
+See 'wizhelp helpfile' and 'wizhelp raw_helpfile' for more details.
  
 & +help
  
