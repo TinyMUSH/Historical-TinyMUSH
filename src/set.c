@@ -646,7 +646,8 @@ char *name, *newown;
 		     !(Chown_ok(thing) &&
 		       could_doit(player, thing, A_LCHOWN))) ||
 		    (isThing(thing) && (Location(thing) != player) &&
-		     !Chown_Any(player))) || (!controls(player, owner))) {
+		     !Chown_Any(player))) ||
+		   (!controls(player, owner) && !Chown_Any(player))) {
 		notify_quiet(player, NOPERM_MESSAGE);
 	} else if (canpayfees(player, owner, cost, quota, Typeof(thing))) {
 		payfees(owner, cost, quota, Typeof(thing));
