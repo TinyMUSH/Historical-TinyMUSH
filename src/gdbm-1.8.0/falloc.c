@@ -180,6 +180,13 @@ pop_avail_block (dbf)
   avail_block *new_blk;
   int index;
 
+  if (dbf->header->avail.count == dbf->header->avail.size)
+    {
+      /* We're kind of stuck here, so we re-split the header in order to
+         avoid crashing.  Sigh. */
+      push_avail_block(dbf);
+    }
+
   /* Set up variables. */
   new_el.av_adr = dbf->header->avail.next_block;
   new_el.av_size = ( ( (dbf->header->avail.size * sizeof (avail_elem)) >> 1)
@@ -196,12 +203,24 @@ pop_avail_block (dbf)
   if (num_bytes != new_el.av_size) _gdbm_fatal (dbf, "read error");
 
   /* Add the elements from the new block to the header. */
-  for (index = 0; index < new_blk->count; index++)
+  index = 0;
+  while (index < new_blk->count)
     {
-      /* With luck, this will merge a lot of blocks! */
-      _gdbm_put_av_elem(new_blk->av_table[index],
-			dbf->header->avail.av_table,
-			&dbf->header->avail.count, dbf->coalesce_blocks);
+      while(index < new_blk->count
+            && dbf->header->avail.count < dbf->header->avail.size)
+	{
+	   /* With luck, this will merge a lot of blocks! */
+	   _gdbm_put_av_elem(new_blk->av_table[index],
+			     dbf->header->avail.av_table,
+			     &dbf->header->avail.count, dbf->coalesce_blocks);
+	   index++;
+	}
+      if (dbf->header->avail.count == dbf->header->avail.size)
+        {
+          /* We're kind of stuck here, so we re-split the header in order to
+             avoid crashing.  Sigh. */
+          push_avail_block(dbf);
+	}
     }
 
   /* Fix next_block, as well. */
@@ -210,7 +229,15 @@ pop_avail_block (dbf)
   /* We changed the header. */
   dbf->header_changed = TRUE;
 
-  /* Free the previous avail block. */
+  /* Free the previous avail block.   It is possible that the header table
+     is now FULL, which will cause us to overflow it! */
+  if (dbf->header->avail.count == dbf->header->avail.size)
+    {
+      /* We're kind of stuck here, so we re-split the header in order to
+         avoid crashing.  Sigh. */
+      push_avail_block(dbf);
+    }
+
   _gdbm_put_av_elem (new_el, dbf->header->avail.av_table,
 		     &dbf->header->avail.count, dbf->coalesce_blocks);
   free (new_blk);
