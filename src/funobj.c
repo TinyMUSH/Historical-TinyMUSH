@@ -1446,10 +1446,8 @@ FUNCTION(fun_default)
 	 */
 
 	if (objname != NULL) {
-	        if (parse_attrib(player, objname, &thing, &attrib, 0)) {
-		    if (attrib == NOTHING) {
-			safe_noperm(buff, bufc);
-		    } else {
+	        if (parse_attrib(player, objname, &thing, &attrib, 0) &&
+		    (attrib != NOTHING)) {
 			attr = atr_num(attrib);
 			if (attr && !(attr->flags & AF_IS_LOCK)) {
 				atr_gotten = atr_pget(thing, attrib,
@@ -1463,7 +1461,6 @@ FUNCTION(fun_default)
 				}
 				free_lbuf(atr_gotten);
 			}
-		    }
 		}
 		free_lbuf(objname);
 	}
@@ -1494,10 +1491,8 @@ FUNCTION(fun_edefault)
 	 */
 
 	if (objname != NULL) {
-		if (parse_attrib(player, objname, &thing, &attrib, 0)) {
-		    if (attrib == NOTHING) {
-			safe_noperm(buff, bufc);
-		    } else {
+		if (parse_attrib(player, objname, &thing, &attrib, 0) &&
+		    (attrib != NOTHING)) {
 			attr = atr_num(attrib);
 			if (attr && !(attr->flags & AF_IS_LOCK)) {
 				atr_gotten = atr_pget(thing, attrib,
@@ -1513,7 +1508,6 @@ FUNCTION(fun_edefault)
 				}
 				free_lbuf(atr_gotten);
 			}
-		    }
 		}
 		free_lbuf(objname);
 	}
