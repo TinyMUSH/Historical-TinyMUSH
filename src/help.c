@@ -72,6 +72,12 @@ char *filename;
 					}
 				}
 			}
+		} else {
+			STARTLOG(LOG_ALWAYS, "HLP", "RINDX")
+			log_printf("Topic already exists: %s",
+				   entry.topic);
+			ENDLOG
+			XFREE(htab_entry, "helpindex_read.hent1");
 		}
 	}
 	tf_fclose(fp);
