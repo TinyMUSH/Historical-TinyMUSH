@@ -399,9 +399,26 @@ int cost;
 	return 0;
 }
 
-#endif /*
-        * STANDALONE 
-        */
+#endif /* STANDALONE */
+
+#ifndef STANDALONE
+int payfees(who, pennies, quota, objtype)
+dbref who;
+int pennies, quota, objtype;
+{
+	/* You /must/ have called canpayfees() first.  If not, your
+	 * database will be eaten by rabid squirrels. */
+	if (mudconf.quotas)
+		pay_quota(who, quota, objtype);
+	return payfor(who, pennies);
+}
+#else
+int payfees(who, pennies, quota, objtype)
+dbref who;
+int pennies, quota, objtype;
+{
+}
+#endif
 
 void add_quota(who, payment)
 dbref who;

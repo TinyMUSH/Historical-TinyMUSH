@@ -1,9 +1,5 @@
-/*
- * log.c - logging routines 
- */
-/*
- * $Id$ 
- */
+/* log.c - logging routines */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -50,10 +46,6 @@ NAMETAB logoptions_nametab[] = {
 
 /* *INDENT-ON* */
 
-
-
-
-
 #endif
 
 char *strip_ansi(raw)
@@ -89,18 +81,10 @@ const char *raw;
 
 	while (p && *p) {
 		if (*p == ESC_CHAR) {
-			/*
-			 * Start of ANSI code. 
-			 */
-			*q++ = *p++;	/*
-					 * ESC CHAR 
-					 */
-			*q++ = *p++;	/*
-					 * [ character. 
-					 */
-			if (*p == '0') {	/*
-						 * ANSI_NORMAL 
-						 */
+			/* Start of ANSI code. */
+			*q++ = *p++;	/* ESC CHAR */
+			*q++ = *p++;	/* [ character. */
+			if (*p == '0') {	/* ANSI_NORMAL */
 				safe_str("0m", buf, &q);
 				safe_chr(ESC_CHAR, buf, &q);
 				safe_str("[37m", buf, &q);
@@ -113,10 +97,9 @@ const char *raw;
 	return buf;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * start_log: see if it is OK to log something, and if so, start writing the
- * * log entry.
+/* ---------------------------------------------------------------------------
+ * start_log: see if it is OK to log something, and if so, start writing the
+ * log entry.
  */
 
 int start_log(primary, secondary)
@@ -130,9 +113,7 @@ const char *primary, *secondary;
 	case 1:
 	case 2:
 
-		/*
-		 * Format the timestamp 
-		 */
+		/* Format the timestamp */
 
 		if ((mudconf.log_info & LOGOPT_TIMESTAMP) != 0) {
 			time((time_t *) (&now));
@@ -148,9 +129,7 @@ const char *primary, *secondary;
 			mudstate.buffer[0] = '\0';
 		}
 #ifndef STANDALONE
-		/*
-		 * Write the header to the log 
-		 */
+		/* Write the header to the log */
 
 		if (secondary && *secondary)
 			fprintf(stderr, "%s%s %3s/%-5s: ", mudstate.buffer,
@@ -159,9 +138,7 @@ const char *primary, *secondary;
 			fprintf(stderr, "%s%s %-9s: ", mudstate.buffer,
 				mudconf.mud_name, primary);
 #endif
-		/*
-		 * If a recursive call, log it and return indicating no log 
-		 */
+		/* If a recursive call, log it and return indicating no log */
 
 		if (mudstate.logging == 1)
 			return 1;
@@ -172,9 +149,8 @@ const char *primary, *secondary;
 	return 0;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * end_log: Finish up writing a log entry
+/* ---------------------------------------------------------------------------
+ * end_log: Finish up writing a log entry
  */
 
 void NDECL(end_log)
@@ -184,9 +160,8 @@ void NDECL(end_log)
 	mudstate.logging--;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * log_perror: Write perror message to the log
+/* ---------------------------------------------------------------------------
+ * log_perror: Write perror message to the log
  */
 
 void log_perror(primary, secondary, extra, failing_object)
@@ -203,9 +178,8 @@ const char *primary, *secondary, *extra, *failing_object;
 	mudstate.logging--;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * log_text, log_number: Write text or number to the log file.
+/* ---------------------------------------------------------------------------
+ * log_text, log_number: Write text or number to the log file.
  */
 
 void log_text(text)
@@ -220,11 +194,10 @@ int num;
 	fprintf(stderr, "%d", num);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * log_name: write the name, db number, and flags of an object to the log.
- * * If the object does not own itself, append the name, db number, and flags
- * * of the owner.
+/* ---------------------------------------------------------------------------
+ * log_name: write the name, db number, and flags of an object to the log.
+ * If the object does not own itself, append the name, db number, and flags
+ * of the owner.
  */
 
 void log_name(target)
@@ -254,9 +227,8 @@ dbref target;
 	return;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * log_name_and_loc: Log both the name and location of an object
+/* ---------------------------------------------------------------------------
+ * log_name_and_loc: Log both the name and location of an object
  */
 
 void log_name_and_loc(player)
@@ -312,7 +284,9 @@ dbref thing;
 	char nbuf[16];
 
 	log_text(OBJTYP(thing));
-	sprintf(nbuf, " #%d", thing);
+	*nbuf = ' ';
+	nbuf[1] = '#';
+	ltos(&nbuf[2], thing);
 	log_text(nbuf);
 	return;
 }

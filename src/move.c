@@ -1,9 +1,5 @@
-/*
- * move.c -- Routines for moving about 
- */
-/*
- * $Id$ 
- */
+/* move.c -- Routines for moving about */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -17,10 +13,9 @@
 #include "externs.h"
 #include "powers.h"
 
-/*
- * ---------------------------------------------------------------------------
- * * process_leave_loc: Generate messages and actions resulting from leaving
- * * a place.
+/* ---------------------------------------------------------------------------
+ * process_leave_loc: Generate messages and actions resulting from leaving
+ * a place.
  */
 
 static void process_leave_loc(thing, dest, cause, canhear, hush)
@@ -38,17 +33,18 @@ int canhear, hush;
 	if (dest == HOME)
 		dest = Home(thing);
 
+#ifdef PUEBLO_SUPPORT
 	if (Html(thing)) {
 		notify_html(thing, "<xch_page clear=links>");
 	}
+#endif
 
-	/*
-	 * Run the LEAVE attributes in the current room if we meet any of * * 
-	 * 
-	 * *  * * following criteria: * - The current room has wizard privs.
-	 * * - * * * Neither the current room nor the moving object are dark. 
-	 * * - The * *  * moving object can hear and does not hav wizard
-	 * privs. * EXCEPT  * if * * we were called with the HUSH_LEAVE key. 
+	/* Run the LEAVE attributes in the current room if we meet any of 
+	 * following criteria: 
+	 * - The current room has wizard privs.
+	 * - Neither the current room nor the moving object are dark. 
+	 * - The moving object can hear and does not hav wizard
+	 *   privs. EXCEPT if we were called with the HUSH_LEAVE key. 
 	 */
 
 	quiet = (!(Wizard(loc) ||
@@ -61,20 +57,16 @@ int canhear, hush;
 	did_it(thing, loc, pattr, NULL, oattr, NULL, aattr,
 	       (char **)NULL, 0);
 
-	/*
-	 * Do OXENTER for receiving room 
-	 */
+	/* Do OXENTER for receiving room */
 
 	if ((dest != NOTHING) && !quiet)
 		did_it(thing, dest, 0, NULL, A_OXENTER, NULL, 0,
 		       (char **)NULL, 0);
 
-	/*
-	 * Display the 'has left' message if we meet any of the following * * 
-	 * 
-	 * *  * * criteria: * - Neither the current room nor the moving
-	 * object are  * *  * dark. * - The object can hear and is not a dark 
-	 * wizard. 
+	/* Display the 'has left' message if we meet any of the following
+	 * criteria: 
+	 * - Neither the current room nor the moving object are dark. 
+	 * - The object can hear and is not a dark wizard. 
 	 */
 
 	if (!quiet)
@@ -85,10 +77,9 @@ int canhear, hush;
 		}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * process_enter_loc: Generate messages and actions resulting from entering
- * * a place.
+/* ---------------------------------------------------------------------------
+ * process_enter_loc: Generate messages and actions resulting from entering
+ * a place.
  */
 
 static void process_enter_loc(thing, src, cause, canhear, hush)
@@ -102,20 +93,16 @@ int canhear, hush;
 	if ((loc == NOTHING) || (loc == src))
 		return;
 
-#ifdef DSPACE
-	if (Dynamic(src))
-		leaveroom(thing, src);
-#endif
-
+#ifdef PUEBLO_SUPPORT
 	show_vrml_url(thing, loc);
+#endif
 	
-	/*
-	 * Run the ENTER attributes in the current room if we meet any of * * 
-	 * 
-	 * *  * * following criteria: * - The current room has wizard privs.
-	 * * - * * * Neither the current room nor the moving object are dark. 
-	 * * - The * *  * moving object can hear and does not hav wizard
-	 * privs. * EXCEPT  * if * * we were called with the HUSH_ENTER key. 
+	/* Run the ENTER attributes in the current room if we meet any of 
+	 * following criteria: 
+	 * - The current room has wizard privs.
+	 * - Neither the current room nor the moving object are dark. 
+	 * - The moving object can hear and does not hav wizard
+	 *   privs. EXCEPT if we were called with the HUSH_ENTER key. 
 	 */
 
 	quiet = (!(Wizard(loc) ||
@@ -128,18 +115,16 @@ int canhear, hush;
 	did_it(thing, loc, pattr, NULL, oattr, NULL, aattr,
 	       (char **)NULL, 0);
 
-	/*
-	 * Do OXLEAVE for sending room 
-	 */
+	/* Do OXLEAVE for sending room */
 
 	if ((src != NOTHING) && !quiet)
 		did_it(thing, src, 0, NULL, A_OXLEAVE, NULL, 0,
 		       (char **)NULL, 0);
 
-	/*
-	 * Display the 'has arrived' message if we meet all of the following
-	 * * * * * criteria: * - The moving object can hear. * - The object
-	 * is * * not * a dark wizard. 
+	/* Display the 'has arrived' message if we meet all of the following
+	 * criteria: 
+	 * - The moving object can hear. 
+	 * - The object is not a dark wizard. 
 	 */
 
 	if (!quiet && canhear && !(Dark(thing) && Wizard(thing))) {
@@ -148,10 +133,9 @@ int canhear, hush;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * move_object: Physically move an object from one place to another.
- * * Does not generate any messages or actions.
+/* ---------------------------------------------------------------------------
+ * move_object: Physically move an object from one place to another.
+ * Does not generate any messages or actions.
  */
 
 void move_object(thing, dest)
@@ -159,24 +143,18 @@ dbref thing, dest;
 {
 	dbref src;
 
-	/*
-	 * Remove from the source location 
-	 */
+	/* Remove from the source location */
 
 	src = Location(thing);
 	if (src != NOTHING)
 		s_Contents(src, remove_first(Contents(src), thing));
 
-	/*
-	 * Special check for HOME 
-	 */
+	/* Special check for HOME */
 
 	if (dest == HOME)
 		dest = Home(thing);
 
-	/*
-	 * Add to destination location 
-	 */
+	/* Add to destination location */
 
 	if (dest != NOTHING)
 		s_Contents(dest, insert_first(Contents(dest), thing));
@@ -184,9 +162,7 @@ dbref thing, dest;
 		s_Next(thing, NOTHING);
 	s_Location(thing, dest);
 
-	/*
-	 * Look around and do the penny check 
-	 */
+	/* Look around and do the penny check */
 
 	look_in(thing, dest, (LK_SHOWEXIT | LK_OBEYTERSE));
 	if (isPlayer(thing) &&
@@ -199,15 +175,12 @@ dbref thing, dest;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * send_dropto, process_sticky_dropto, process_dropped_dropto,
- * * process_sacrifice_dropto: Check for and process droptos.
+/* ---------------------------------------------------------------------------
+ * send_dropto, process_sticky_dropto, process_dropped_dropto,
+ * process_sacrifice_dropto: Check for and process droptos.
  */
 
-/*
- * send_dropto: Send an object through the dropto of a room 
- */
+/* send_dropto: Send an object through the dropto of a room */
 
 static void send_dropto(thing, player)
 dbref thing, player;
@@ -220,9 +193,8 @@ dbref thing, player;
 
 }
 
-/*
- * process_sticky_dropto: Call when an object leaves the room to see if
- * * we should empty the room
+/* process_sticky_dropto: Call when an object leaves the room to see if
+ * we should empty the room
  */
 
 static void process_sticky_dropto(loc, player)
@@ -230,33 +202,25 @@ dbref loc, player;
 {
 	dbref dropto, thing, next;
 
-	/*
-	 * Do nothing if checking anything but a sticky room 
-	 */
+	/* Do nothing if checking anything but a sticky room */
 
 	if (!Good_obj(loc) || !Has_dropto(loc) || !Sticky(loc))
 		return;
 
-	/*
-	 * Make sure dropto loc is valid 
-	 */
+	/* Make sure dropto loc is valid */
 
 	dropto = Dropto(loc);
 	if ((dropto == NOTHING) || (dropto == loc))
 		return;
 
-	/*
-	 * Make sure no players hanging out 
-	 */
+	/* Make sure no players hanging out */
 
 	DOLIST(thing, Contents(loc)) {
 		if (Dropper(thing))
 			return;
 	}
 
-	/*
-	 * Send everything through the dropto 
-	 */
+	/* Send everything through the dropto */
 
 	s_Contents(loc, reverse_list(Contents(loc)));
 	SAFE_DOLIST(thing, next, Contents(loc)) {
@@ -264,37 +228,30 @@ dbref loc, player;
 	}
 }
 
-/*
- * process_dropped_dropto: Check what to do when someone drops an object. 
- */
+/* process_dropped_dropto: Check what to do when someone drops an object. */
 
 static void process_dropped_dropto(thing, player)
 dbref thing, player;
 {
 	dbref loc;
 
-	/*
-	 * If STICKY, send home 
-	 */
+	/* If STICKY, send home */
 
 	if (Sticky(thing)) {
 		move_via_generic(thing, HOME, player, 0);
 		divest_object(thing);
 		return;
 	}
-	/*
-	 * Process the dropto if location is a room and is not STICKY 
-	 */
+	/* Process the dropto if location is a room and is not STICKY */
 
 	loc = Location(thing);
 	if (Has_dropto(loc) && (Dropto(loc) != NOTHING) && !Sticky(loc))
 		send_dropto(thing, player);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * move_via_generic: Generic move routine, generates standard messages and
- * * actions.
+/* ---------------------------------------------------------------------------
+ * move_via_generic: Generic move routine, generates standard messages and
+ * actions.
  */
 
 void move_via_generic(thing, dest, cause, hush)
@@ -315,9 +272,8 @@ int hush;
 	process_enter_loc(thing, src, cause, canhear, hush);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * move_via_exit: Exit move routine, generic + exit messages + dropto check.
+/* ---------------------------------------------------------------------------
+ * move_via_exit: Exit move routine, generic + exit messages + dropto check.
  */
 
 void move_via_exit(thing, dest, cause, exit, hush)
@@ -332,9 +288,7 @@ int hush;
 	src = Location(thing);
 	canhear = Hearer(thing);
 
-	/*
-	 * Dark wizards don't trigger OSUCC/ASUCC 
-	 */
+	/* Dark wizards don't trigger OSUCC/ASUCC */
 
 	darkwiz = (Wizard(thing) && Dark(thing));
 	quiet = darkwiz || (hush & HUSH_EXIT);
@@ -347,9 +301,7 @@ int hush;
 	process_leave_loc(thing, dest, cause, canhear, hush);
 	move_object(thing, dest);
 
-	/*
-	 * Dark wizards don't trigger ODROP/ADROP 
-	 */
+	/* Dark wizards don't trigger ODROP/ADROP */
 
 	oattr = quiet ? 0 : A_ODROP;
 	aattr = quiet ? 0 : A_ADROP;
@@ -363,10 +315,9 @@ int hush;
 	process_sticky_dropto(src, thing);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * move_via_teleport: Teleport move routine, generic + teleport messages +
- * * divestiture + dropto check.
+/* ---------------------------------------------------------------------------
+ * move_via_teleport: Teleport move routine, generic + teleport messages +
+ * divestiture + dropto check.
  */
 
 int move_via_teleport(thing, dest, cause, hush)
@@ -419,9 +370,8 @@ int hush;
 	return 1;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * move_exit: Try to move a player through an exit.
+/* ---------------------------------------------------------------------------
+ * move_exit: Try to move a player through an exit.
  */
 
 void move_exit(player, exit, divest, failmsg, hush)
@@ -435,11 +385,6 @@ const char *failmsg;
 	loc = Location(exit);
 	if (loc == HOME)
 		loc = Home(player);
-#ifdef DSPACE
-	if (Dynamic(exit)) {
-		move_dynamic_exit(player, exit, Location(player));
-	} else
-#endif
 	if (Good_obj(loc) && could_doit(player, exit, A_LOCK)) {
 		switch (Typeof(loc)) {
 		case TYPE_ROOM:
@@ -474,9 +419,8 @@ const char *failmsg;
 }
 
 
-/*
- * ---------------------------------------------------------------------------
- * * do_move: Move from one place to another via exits or 'home'.
+/* ---------------------------------------------------------------------------
+ * do_move: Move from one place to another via exits or 'home'.
  */
 
 void do_move(player, cause, key, direction)
@@ -487,9 +431,7 @@ char *direction;
 	dbref exit, loc;
 	int i, quiet;
 
-	if (!string_compare(direction, "home")) {	/*
-							 * go home w/o stuff 
-							 */
+	if (!string_compare(direction, "home")) {	/* go home w/o stuff */
 		if (((Fixed(player)) || (Fixed(Owner(player)))) &&
 		    !(WizRoy(player))) {
 		    	notify(player, mudconf.fixed_home_msg);
@@ -499,16 +441,12 @@ char *direction;
 		if ((loc = Location(player)) != NOTHING &&
 		    !Dark(player) && !Dark(loc)) {
 
-			/*
-			 * tell all 
-			 */
+			/* tell all */
 
 			notify_except(loc, player, player,
 				    tprintf("%s goes home.", Name(player)));
 		}
-		/*
-		 * give the player the messages 
-		 */
+		/* give the player the messages */
 
 		for (i = 0; i < 3; i++)
 			notify(player, "There's no place like home...");
@@ -517,17 +455,13 @@ char *direction;
 		process_sticky_dropto(loc, player);
 		return;
 	}
-	/*
-	 * find the exit 
-	 */
+	/* find the exit */
 
 	init_match_check_keys(player, direction, TYPE_EXIT);
 	match_exit();
 	exit = match_result();
 	switch (exit) {
-	case NOTHING:		/*
-				 * try to force the object 
-				 */
+	case NOTHING:		/* try to force the object */
 		notify(player, "You can't go that way.");
 		break;
 	case AMBIGUOUS:
@@ -541,9 +475,8 @@ char *direction;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_get: Get an object.
+/* ---------------------------------------------------------------------------
+ * do_get: Get an object.
  */
 
 void do_get(player, cause, key, what)
@@ -559,31 +492,23 @@ char *what;
 	if (!Good_obj(playerloc))
 		return;
 
-	/*
-	 * You can only pick up things in rooms and ENTER_OK objects/players 
-	 */
+	/* You can only pick up things in rooms and ENTER_OK objects/players */
 
 	if (!isRoom(playerloc) && !Enter_ok(playerloc) &&
 	    !controls(player, playerloc)) {
 		notify(player, "Permission denied.");
 		return;
 	}
-	/*
-	 * Look for the thing locally 
-	 */
+	/* Look for the thing locally */
 
 	init_match_check_keys(player, what, TYPE_THING);
 	match_neighbor();
 	match_exit();
 	if (Long_Fingers(player))
-		match_absolute();	/*
-					 * long fingers 
-					 */
+		match_absolute();	/* long fingers */
 	thing = match_result();
 
-	/*
-	 * Look for the thing in other people's inventories 
-	 */
+	/* Look for the thing in other people's inventories */
 
 	if (!Good_obj(thing))
 		thing = match_status(player,
@@ -591,17 +516,13 @@ char *what;
 	if (!Good_obj(thing))
 		return;
 
-	/*
-	 * If we found it, get it 
-	 */
+	/* If we found it, get it */
 
 	quiet = 0;
 	switch (Typeof(thing)) {
 	case TYPE_PLAYER:
 	case TYPE_THING:
-		/*
-		 * You can't take what you already have 
-		 */
+		/* You can't take what you already have */
 
 		thingloc = Location(thing);
 		if (thingloc == player) {
@@ -638,27 +559,21 @@ char *what;
 		}
 		break;
 	case TYPE_EXIT:
-		/*
-		 * You can't take what you already have 
-		 */
+		/* You can't take what you already have */
 
 		thingloc = Exits(thing);
 		if (thingloc == player) {
 			notify(player, "You already have that!");
 			break;
 		}
-		/*
-		 * You must control either the exit or the location 
-		 */
+		/* You must control either the exit or the location */
 
 		playerloc = Location(player);
 		if (!Controls(player, thing) && !Controls(player, playerloc)) {
 			notify(player, "Permission denied.");
 			break;
 		}
-		/*
-		 * Do it 
-		 */
+		/* Do it */
 
 		s_Exits(thingloc, remove_first(Exits(thingloc), thing));
 		s_Exits(player, insert_first(Exits(player), thing));
@@ -672,9 +587,8 @@ char *what;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_drop: Drop an object.
+/* ---------------------------------------------------------------------------
+ * do_drop: Drop an object.
  */
 
 void do_drop(player, cause, key, name)
@@ -707,9 +621,7 @@ char *name;
 	case TYPE_THING:
 	case TYPE_PLAYER:
 
-		/*
-		 * You have to be carrying it 
-		 */
+		/* You have to be carrying it */
 
 		if (((Location(thing) != player) && !Wizard(player)) ||
 		    (!could_doit(player, thing, A_LDROP))) {
@@ -717,9 +629,7 @@ char *name;
 			       A_ODFAIL, NULL, A_ADFAIL, (char **)NULL, 0);
 			return;
 		}
-		/*
-		 * Move it 
-		 */
+		/* Move it */
 
 		move_via_generic(thing, Location(player), player, 0);
 		notify(thing, "Dropped.");
@@ -734,18 +644,14 @@ char *name;
 		       aattr, (char **)NULL, 0);
 		free_lbuf(buf);
 
-		/*
-		 * Process droptos 
-		 */
+		/* Process droptos */
 
 		process_dropped_dropto(thing, player);
 
 		break;
 	case TYPE_EXIT:
 
-		/*
-		 * You have to be carrying it 
-		 */
+		/* You have to be carrying it */
 
 		if ((Exits(thing) != player) && !Wizard(player)) {
 			notify(player, "You can't drop that.");
@@ -755,9 +661,7 @@ char *name;
 			notify(player, "Permission denied.");
 			return;
 		}
-		/*
-		 * Do it 
-		 */
+		/* Do it */
 
 		exitloc = Exits(thing);
 		s_Exits(exitloc, remove_first(Exits(exitloc), thing));
@@ -773,9 +677,8 @@ char *name;
 
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_enter, do_leave: The enter and leave commands.
+/* ---------------------------------------------------------------------------
+ * do_enter, do_leave: The enter and leave commands.
  */
 
 void do_enter_internal(player, thing, quiet)
@@ -817,9 +720,7 @@ char *what;
 	init_match(player, what, TYPE_THING);
 	match_neighbor();
 	if (Long_Fingers(player))
-		match_absolute();	/*
-					 * the wizard has long fingers 
-					 */
+		match_absolute();	/* the wizard has long fingers */
 
 	if ((thing = noisy_match_result()) == NOTHING)
 		return;

@@ -14,7 +14,9 @@
 
 #include <sys/types.h>
 #include <sys/time.h>
+#ifndef __bsdi__
 #include <netinet/in.h>
+#endif
 #include <arpa/inet.h>
 #include <netdb.h>
 #ifdef HAVE_SYS_SELECT_H

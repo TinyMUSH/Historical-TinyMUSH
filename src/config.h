@@ -42,6 +42,7 @@
 /* #define TCL_INTERP_SUPPORT */
 #define StringCopy strcpy
 #define StringCopyTrunc strncpy
+#define PUEBLO_SUPPORT_MSG "This world is Pueblo 1.0 enhanced\r\n\r\n"
 
 /* ---------------------------------------------------------------------------
  * Database R/W flags.

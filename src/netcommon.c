@@ -36,33 +36,8 @@ extern void FDECL(do_killid, (DESC *, long int));
 
 #endif
 
-/*
- * ---------------------------------------------------------------------------
- * * make_portlist: Make a list of ports for PORTS().
- */
-
-void make_portlist(player, target, buff, bufc)
-dbref player;
-dbref target;
-char *buff, **bufc;
-{
-	DESC *d;
-	int i = 0;
-	
-	DESC_ITER_CONN(d) {
-		if (d->player == target) {
-			safe_str(tprintf("%d ", d->descriptor), buff, bufc);
-			i = 1;
-		}
-	}
-	if (i)
-		(*bufc)--;
-	**bufc = '\0';
-}
-
-/*
- * ---------------------------------------------------------------------------
- * * timeval_sub: return difference between two times as a timeval
+/* ---------------------------------------------------------------------------
+ * timeval_sub: return difference between two times as a timeval
  */
 
 struct timeval timeval_sub(now, then)
@@ -78,9 +53,8 @@ struct timeval now, then;
 	return now;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * msec_diff: return difference between two times in msec
+/* ---------------------------------------------------------------------------
+ * msec_diff: return difference between two times in msec
  */
 
 int msec_diff(now, then)
@@ -90,9 +64,8 @@ struct timeval now, then;
 		(now.tv_usec - then.tv_usec) / 1000);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * msec_add: add milliseconds to a timeval
+/* ---------------------------------------------------------------------------
+ * msec_add: add milliseconds to a timeval
  */
 
 struct timeval msec_add(t, x)
@@ -108,9 +81,8 @@ int x;
 	return t;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * update_quotas: Update timeslice quotas
+/* ---------------------------------------------------------------------------
+ * update_quotas: Update timeslice quotas
  */
 
 struct timeval update_quotas(last, current)
@@ -131,6 +103,7 @@ struct timeval last, current;
 	return msec_add(last, nslices * mudconf.timeslice);
 }
 
+#ifdef PUEBLO_SUPPORT
 /* raw_notify_html() -- raw_notify() without the newline */
 void raw_notify_html(player, msg)
 dbref player;
@@ -151,10 +124,10 @@ DESC *d;
 		queue_string(d, msg);
 	}
 }
+#endif
 
-/*
- * ---------------------------------------------------------------------------
- * * raw_notify: write a message to a player
+/* ---------------------------------------------------------------------------
+ * raw_notify: write a message to a player
  */
 
 void raw_notify(player, msg)
@@ -198,9 +171,8 @@ dbref player;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * raw_broadcast: Send message to players who have indicated flags
+/* ---------------------------------------------------------------------------
+ * raw_broadcast: Send message to players who have indicated flags
  */
 
 #ifdef NEED_VSPRINTF_DCL
@@ -208,7 +180,7 @@ extern char *FDECL(vsprintf, (char *, char *, va_list));
 
 #endif
 
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 void raw_broadcast(int inflags, char *template,...)
 #else
 void raw_broadcast(va_alist)
@@ -221,7 +193,7 @@ va_dcl
 	DESC *d;
 	va_list ap;
 
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 	va_start(ap, template);
 #else
 	int inflags;
@@ -249,9 +221,8 @@ va_dcl
 	va_end(ap);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * clearstrings: clear out prefix and suffix strings
+/* ---------------------------------------------------------------------------
+ * clearstrings: clear out prefix and suffix strings
  */
 
 void clearstrings(d)
@@ -267,9 +238,8 @@ DESC *d;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * queue_write: Add text to the output queue for the indicated descriptor.
+/* ---------------------------------------------------------------------------
+ * queue_write: Add text to the output queue for the indicated descriptor.
  */
 
 void queue_write(d, b, n)
@@ -312,12 +282,10 @@ int n;
 			free(tp);
 		}
 	}
-	/*
-	 * Allocate an output buffer if needed 
-	 */
+	/* Allocate an output buffer if needed */
 
 	if (d->output_head == NULL) {
-		tp = (TBLOCK *) malloc(OUTPUT_BLOCK_SIZE);
+		tp = (TBLOCK *) XMALLOC(OUTPUT_BLOCK_SIZE, "queue_write");
 		tp->hdr.nxt = NULL;
 		tp->hdr.start = tp->data;
 		tp->hdr.end = tp->data;
@@ -328,40 +296,36 @@ int n;
 		tp = d->output_tail;
 	}
 
-	/*
-	 * Now tp points to the last buffer in the chain 
-	 */
+	/* Now tp points to the last buffer in the chain */
 
 	d->output_size += n;
 	d->output_tot += n;
 	do {
 
-		/*
-		 * See if there is enough space in the buffer to hold the
+		/* See if there is enough space in the buffer to hold the
 		 * string.  If so, copy it and update the pointers.. 
 		 */
 
 		left = OUTPUT_BLOCK_SIZE - (tp->hdr.end - (char *)tp + 1);
 		if (n <= left) {
-			StringCopyTrunc(tp->hdr.end, b, n);
+			strncpy(tp->hdr.end, b, n);
 			tp->hdr.end += n;
 			tp->hdr.nchars += n;
 			n = 0;
 		} else {
 
-			/*
-			 * It didn't fit.  Copy what will fit and then
+			/* It didn't fit.  Copy what will fit and then
 			 * allocate * another buffer and retry. 
 			 */
 
 			if (left > 0) {
-				StringCopyTrunc(tp->hdr.end, b, left);
+				strncpy(tp->hdr.end, b, left);
 				tp->hdr.end += left;
 				tp->hdr.nchars += left;
 				b += left;
 				n -= left;
 			}
-			tp = (TBLOCK *) malloc(OUTPUT_BLOCK_SIZE);
+			tp = (TBLOCK *) XMALLOC(OUTPUT_BLOCK_SIZE, "queue_write.2");
 			tp->hdr.nxt = NULL;
 			tp->hdr.start = tp->data;
 			tp->hdr.end = tp->data;
@@ -372,7 +336,7 @@ int n;
 	} while (n > 0);
 }
 
-void queue_string(d, s)
+INLINE void queue_string(d, s)
 DESC *d;
 const char *s;
 {
@@ -418,9 +382,8 @@ DESC *d;
 	d->raw_input_at = NULL;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * desc_addhash: Add a net descriptor to its player hash list.
+/* ---------------------------------------------------------------------------
+ * desc_addhash: Add a net descriptor to its player hash list.
  */
 
 void desc_addhash(d)
@@ -440,9 +403,8 @@ DESC *d;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * desc_delhash: Remove a net descriptor from its player hash list.
+/* ---------------------------------------------------------------------------
+ * desc_delhash: Remove a net descriptor from its player hash list.
  */
 
 static void desc_delhash(d)
@@ -479,6 +441,9 @@ DESC *d;
 void welcome_user(d)
 DESC *d;
 {
+#ifdef PUEBLO_SUPPORT
+	queue_string(d, PUEBLO_SUPPORT_MSG);
+#endif
 	if (d->host_info & H_REGISTRATION)
 		fcache_dump(d, FC_CONN_REG);
 	else
@@ -513,7 +478,7 @@ const char *command;
 		if (*userstring == NULL) {
 			*userstring = alloc_lbuf("set_userstring");
 		}
-		StringCopy(*userstring, command);
+		strcpy(*userstring, command);
 	}
 }
 
@@ -611,7 +576,6 @@ DESC *d;
 {
 	dbref loc, aowner, temp;
 	dbref zone, obj;
-
 	int aflags, num, key, count;
 	char *buf, *time_str;
 	DESC *dtemp;
@@ -636,9 +600,11 @@ DESC *d;
 	loc = Location(player);
 	s_Connected(player);
 
+#ifdef PUEBLO_SUPPORT
 	if (d->flags & DS_PUEBLOCLIENT) {
 		s_Html(player);
 	}
+#endif
 
 	raw_notify(player, tprintf("\n%sMOTD:%s %s\n", ANSI_HILITE,
 				   ANSI_NORMAL, mudconf.motd_msg));
@@ -656,9 +622,7 @@ DESC *d;
 	num = 0;
 	DESC_ITER_PLAYER(player, dtemp) num++;
 
-	/*
-	 * Reset vacation flag 
-	 */
+	/* Reset vacation flag */
 	s_Flags2(player, Flags2(player) & ~VACATION);
 
 	if (num < 2) {
@@ -691,6 +655,7 @@ DESC *d;
 	mudstate.curr_enactor = player;
 	notify_check(player, player, buf, key);
 	free_lbuf(buf);
+
 	if (Suspect(player)) {
 		raw_broadcast(WIZARD, (char *)"[Suspect] %s has connected.",
 			      Name(player), 0, 0, 0, 0, 0);
@@ -701,47 +666,44 @@ DESC *d;
 			      d->addr, Name(player), 0, 0, 0, 0);
 	}
 	buf = atr_pget(player, A_ACONNECT, &aowner, &aflags);
-	if (buf)
+	if (buf && *buf)
 		wait_que(player, player, 0, NOTHING, 0, buf, (char **)NULL, 0,
 			 NULL);
 	free_lbuf(buf);
-	if (mudconf.master_room != NOTHING) {
+	if ((mudconf.master_room != NOTHING) && mudconf.use_global_aconn) {
 		buf = atr_pget(mudconf.master_room, A_ACONNECT, &aowner,
 			       &aflags);
-		if (buf)
+		if (buf && *buf)
 			wait_que(mudconf.master_room, player, 0, NOTHING, 0,
 				 buf, (char **)NULL, 0, NULL);
 		free_lbuf(buf);
 		DOLIST(obj, Contents(mudconf.master_room)) {
 			buf = atr_pget(obj, A_ACONNECT, &aowner, &aflags);
-			if (buf) {
+			if (buf && *buf) {
 				wait_que(obj, player, 0, NOTHING, 0, buf,
 					 (char **)NULL, 0, NULL);
 			}
 			free_lbuf(buf);
 		}
 	}
-	/*
-	 * do the zone of the player's location's possible aconnect 
-	 */
+	/* do the zone of the player's location's possible aconnect */
 	if (mudconf.have_zones && ((zone = Zone(loc)) != NOTHING)) {
 		switch (Typeof(zone)) {
 		case TYPE_THING:
 			buf = atr_pget(zone, A_ACONNECT, &aowner, &aflags);
-			if (buf) {
+			if (buf && *buf) {
 				wait_que(zone, player, 0, NOTHING, 0, buf,
 					 (char **)NULL, 0, NULL);
 			}
 			free_lbuf(buf);
 			break;
 		case TYPE_ROOM:
-			/*
-			 * check every object in the room for a connect * * * 
+			/* check every object in the room for a connect
 			 * action 
 			 */
 			DOLIST(obj, Contents(zone)) {
 				buf = atr_pget(obj, A_ACONNECT, &aowner, &aflags);
-				if (buf) {
+				if (buf && *buf) {
 					wait_que(obj, player, 0, NOTHING, 0, buf,
 						 (char **)NULL, 0, NULL);
 				}
@@ -756,7 +718,11 @@ DESC *d;
 	time_str = ctime(&mudstate.now);
 	time_str[strlen(time_str) - 1] = '\0';
 	record_login(player, 1, time_str, d->addr, d->username);
+#ifdef PUEBLO_SUPPORT
 	look_in(player, Location(player), (LK_SHOWEXIT | LK_OBEYTERSE | LK_SHOWVRML));
+#else
+	look_in(player, Location(player), (LK_SHOWEXIT | LK_OBEYTERSE));
+#endif
 	mudstate.curr_enactor = temp;
 }
 
@@ -812,37 +778,38 @@ const char *reason;
 
 		argv[0] = (char *)reason;
 		c_Connected(player);
-
+#ifdef PUEBLO_SUPPORT
+		c_Html(player);
+#endif
 		atr_temp = atr_pget(player, A_ADISCONNECT, &aowner, &aflags);
 		if (atr_temp && *atr_temp)
 			wait_que(player, player, 0, NOTHING, 0, atr_temp, argv, 1,
 				 NULL);
 		free_lbuf(atr_temp);
-		if (mudconf.master_room != NOTHING) {
+
+		if ((mudconf.master_room != NOTHING) && mudconf.use_global_aconn) {
 			atr_temp = atr_pget(mudconf.master_room, A_ADISCONNECT, &aowner,
 					    &aflags);
-			if (atr_temp)
+			if (atr_temp && *atr_temp)
 				wait_que(mudconf.master_room, player, 0, NOTHING, 0,
 					 atr_temp, (char **)NULL, 0, NULL);
 			free_lbuf(atr_temp);
 			DOLIST(obj, Contents(mudconf.master_room)) {
 				atr_temp = atr_pget(obj, A_ADISCONNECT, &aowner, &aflags);
-				if (atr_temp) {
+				if (atr_temp && *atr_temp) {
 					wait_que(obj, player, 0, NOTHING, 0, atr_temp,
 						 (char **)NULL, 0, NULL);
 				}
 				free_lbuf(atr_temp);
 			}
 		}
-		/*
-		 * do the zone of the player's location's possible * * *
-		 * adisconnect 
-		 */
+		/* do the zone of the player's location's possible adisconnect */
+
 		if (mudconf.have_zones && ((zone = Zone(loc)) != NOTHING)) {
 			switch (Typeof(zone)) {
 			case TYPE_THING:
 				atr_temp = atr_pget(zone, A_ADISCONNECT, &aowner, &aflags);
-				if (atr_temp) {
+				if (atr_temp && *atr_temp) {
 					wait_que(zone, player, 0, NOTHING, 0, atr_temp,
 						 (char **)NULL, 0, NULL);
 				}
@@ -855,7 +822,7 @@ const char *reason;
 				 */
 				DOLIST(obj, Contents(zone)) {
 					atr_temp = atr_pget(obj, A_ADISCONNECT, &aowner, &aflags);
-					if (atr_temp) {
+					if (atr_temp && *atr_temp) {
 						wait_que(obj, player, 0, NOTHING, 0, atr_temp,
 						    (char **)NULL, 0, NULL);
 					}
@@ -884,7 +851,6 @@ const char *reason;
 		raw_broadcast(MONITOR, (char *)"GAME: %s has partially disconnected.", Name(player), 0, 0, 0, 0, 0);
 		free_mbuf(buf);
 	}
-
 	mudstate.curr_enactor = temp;
 	desc_delhash(d);
 }
@@ -929,9 +895,8 @@ char *message;
 	return count;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * desc_reload: Reload parts of net descriptor that are based on db info.
+/* ---------------------------------------------------------------------------
+ * desc_reload: Reload parts of net descriptor that are based on db info.
  */
 
 void desc_reload(player)
@@ -953,10 +918,9 @@ dbref player;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * fetch_idle, fetch_connect: Return smallest idle time/largest connec time
- * * for a player (or -1 if not logged in)
+/* ---------------------------------------------------------------------------
+ * fetch_idle, fetch_connect: Return smallest idle time/largest connec time
+ * for a player (or -1 if not logged in)
  */
 
 int fetch_idle(target)
@@ -1014,9 +978,7 @@ void NDECL(check_idle)
 			if ((idletime > mudconf.conn_timeout) && !(d->cstatus & C_CCONTROL)) {
 #else
 			if (idletime > mudconf.conn_timeout) {
-#endif /*
-        * CONCENTRATE 
-        */
+#endif /* CONCENTRATE */
 				queue_string(d,
 					     "*** Login Timeout ***\r\n");
 				shutdownsock(d, R_TIMEOUT);
@@ -1050,9 +1012,7 @@ void NDECL(check_events)
 			}
 		}
 	}
-	if (ltime->tm_hour == 23) {	/*
-					 * Nightly resetting 
-					 */
+	if (ltime->tm_hour == 23) {	/* Nightly resetting */
 		mudstate.events_flag = 0;
 	}
 }
@@ -1063,7 +1023,7 @@ dbref player;
 
 	if (strlen(Name(player)) <= 16)
 		return Name(player);
-	StringCopyTrunc(cbuff, Name(player), 16);
+	strncpy(cbuff, Name(player), 16);
 	cbuff[16] = '\0';
 	return cbuff;
 }
@@ -1074,7 +1034,7 @@ char *name;
 
 	if ((strlen(name) <= mudconf.site_chars) || (mudconf.site_chars == 0))
 		return name;
-	StringCopyTrunc(buff, name, mudconf.site_chars);
+	strncpy(buff, name, mudconf.site_chars);
 	buff[mudconf.site_chars + 1] = '\0';
 	return buff;
 }
@@ -1093,8 +1053,10 @@ int key;
 	if (!match || !*match)
 		match = NULL;
 
+#ifdef PUEBLO_SUPPORT
 	if (e->flags & DS_PUEBLOCLIENT)
 		queue_string(e, "<pre>");
+#endif
 
 	buf = alloc_mbuf("dump_users");
 	if (key == CMD_SESSION) {
@@ -1127,9 +1089,7 @@ int key;
 			    (d->player != e->player))
 				continue;
 
-			/*
-			 * Get choice flags for wizards 
-			 */
+			/* Get choice flags for wizards */
 
 			fp = flist;
 			sp = slist;
@@ -1207,25 +1167,24 @@ int key;
 		}
 	}
 
-	/*
-	 * sometimes I like the ternary operator.... 
-	 */
+	/* sometimes I like the ternary operator.... */
 
 	sprintf(buf, "%d Player%slogged in, %d record, %s maximum.\r\n", count,
 		(count == 1) ? " " : "s ", mudstate.record_players,
 		(mudconf.max_players == -1) ? "no" : tprintf("%d", mudconf.max_players));
 	queue_string(e, buf);
 	
+#ifdef PUEBLO_SUPPORT
 	if (e->flags & DS_PUEBLOCLIENT)
 		queue_string(e, "</pre>");
-	
+#endif
+
 	free_mbuf(buf);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_doing: Set the doing string that appears in the WHO report.
- * * Idea from R'nice@TinyTIM.
+/* ---------------------------------------------------------------------------
+ * do_doing: Set the doing string that appears in the WHO report.
+ * Idea from R'nice@TinyTIM.
  */
 
 void do_doing(player, cause, key, arg)
@@ -1234,17 +1193,22 @@ int key;
 char *arg;
 {
 	DESC *d;
-	char *c;
+	char *c, *p;
 	int foundany, over;
 
 	if (key == DOING_MESSAGE) {
 		foundany = 0;
 		over = 0;
+
+		for (p = arg; *p; p++)
+			if ((*p == '\t') || (*p == '\r') || (*p == '\n'))
+				*p = ' ';
+				
 		DESC_ITER_PLAYER(player, d) {
 			c = d->doing;
 
 			over = safe_copy_str(arg, d->doing, &c, 36);
-			StringCopy(c, ANSI_NORMAL);
+			strcpy(c, ANSI_NORMAL);
 			foundany = 1;
 		}
 		if (foundany) {
@@ -1300,8 +1264,7 @@ void NDECL(init_logout_cmdtab)
 {
 	NAMETAB *cp;
 
-	/*
-	 * Make the htab bigger than the number of entries so that we find
+	/* Make the htab bigger than the number of entries so that we find
 	 * things on the first check.  Remember that the admin can add
 	 * aliases. 
 	 */
@@ -1366,15 +1329,11 @@ char *msg;
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< check_connect >";
 
-	/*
-	 * Hide the password length from SESSION 
-	 */
+	/* Hide the password length from SESSION */
 
 	d->input_tot -= (strlen(msg) + 1);
 
-	/*
-	 * Crack the command apart 
-	 */
+	/* Crack the command apart */
 
 	command = alloc_lbuf("check_conn.cmd");
 	user = alloc_lbuf("check_conn.user");
@@ -1392,9 +1351,7 @@ char *msg;
 			StringCopy(user, p);
 			StringCopy(password, mudconf.guest_prefix);
 		}
-		/*
-		 * See if this connection would exceed the max #players 
-		 */
+		/* See if this connection would exceed the max #players */
 
 		if (mudconf.max_players < 0) {
 			nplayers = mudconf.max_players - 1;
@@ -1407,9 +1364,7 @@ char *msg;
 		player = connect_player(user, password, d->addr, d->username);
 		if (player == NOTHING) {
 
-			/*
-			 * Not a player, or wrong password 
-			 */
+			/* Not a player, or wrong password */
 
 			queue_string(d, connect_fail);
 			STARTLOG(LOG_LOGIN | LOG_SECURITY, "CON", "BAD")
@@ -1472,11 +1427,9 @@ char *msg;
 				}
 			}
 			
-			/*
-			 * Give the player the MOTD file and the settable * * 
-			 * 
-			 * * MOTD * message(s). Use raw notifies so the
-			 * player * * * doesn't * try to match on the text. 
+			/* Give the player the MOTD file and the settable 
+			 * MOTD message(s). Use raw notifies so the
+			 * player doesn't try to match on the text. 
 			 */
 
 			if (Guest(player)) {
@@ -1513,9 +1466,7 @@ char *msg;
 		}
 	} else if (!strncmp(command, "cr", 2)) {
 
-		/*
-		 * Enforce game down 
-		 */
+		/* Enforce game down */
 
 		if (!(mudconf.control_flags & CF_LOGIN)) {
 			failconn("CRE", "Create", "Logins Disabled", d,
@@ -1524,9 +1475,7 @@ char *msg;
 				 cmdsave);
 			return 0;
 		}
-		/*
-		 * Enforce max #players 
-		 */
+		/* Enforce max #players */
 
 		if (mudconf.max_players < 0) {
 			nplayers = mudconf.max_players;
@@ -1537,9 +1486,7 @@ char *msg;
 		}
 		if (nplayers > mudconf.max_players) {
 
-			/*
-			 * Too many players on, reject the attempt 
-			 */
+			/* Too many players on, reject the attempt */
 
 			failconn("CRE", "Create", "Game Full", d,
 				 R_GAMEFULL, NOTHING, FC_CONN_FULL,
@@ -1610,9 +1557,7 @@ int first;
 	mudstate.debug_cmd = (char *)"< do_command >";
 	d->last_time = mudstate.now;
 
-	/*
-	 * Split off the command from the arguments 
-	 */
+	/* Split off the command from the arguments */
 
 	arg = command;
 	while (*arg && !isspace(*arg))
@@ -1620,8 +1565,7 @@ int first;
 	if (*arg)
 		*arg++ = '\0';
 
-	/*
-	 * Look up the command.  If we don't find it, turn it over to the 
+	/* Look up the command.  If we don't find it, turn it over to the 
 	 * normal logged-in command processor or to create/connect 
 	 */
 
@@ -1691,15 +1635,9 @@ int first;
 		arg++;
 
 #endif 
-	/*
-        * CONCENTRATE 
-        */
-
 	if (cp == NULL) {
 		if (*arg)
-			*--arg = ' ';	/*
-					 * restore nullified space 
-					 */
+			*--arg = ' ';	/* restore nullified space */
 		if (d->flags & DS_CONNECTED) {
 			d->command_count++;
 			if (d->output_prefix) {
@@ -1726,7 +1664,7 @@ int first;
 				ENDLOG
 			}
 #endif /* NO_LAG_CHECK */
-
+			mudstate.curr_cmd = (char *) "";
 			if (d->output_suffix) {
 				queue_string(d, d->output_suffix);
 				queue_write(d, "\r\n", 2);
@@ -1738,10 +1676,8 @@ int first;
 			return (check_connect(d, command));
 		}
 	}
-	/*
-	 * The command was in the logged-out command table.  Perform prefix * 
-	 * 
-	 * *  * *  * * and suffix processing, and invoke the command handler. 
+	/* The command was in the logged-out command table.  Perform prefix
+	 * and suffix processing, and invoke the command handler. 
 	 */
 
 	d->command_count++;
@@ -1780,6 +1716,7 @@ int first;
 			set_userstring(&d->output_suffix, arg);
 			break;
 		case CMD_PUEBLOCLIENT:
+#ifdef PUEBLO_CLIENT
 			/* Set the descriptor's flag */
 			d->flags |= DS_PUEBLOCLIENT;
 			/* If we're already connected, set the player's flag */
@@ -1788,6 +1725,16 @@ int first;
 			}
 			queue_string(d, mudconf.pueblo_msg);
 			queue_string(d, "\r\n");
+			fcache_dump(d, FC_CONN_HTML);
+			STARTLOG(LOG_LOGIN, "CON", "HTML")
+				arg = alloc_mbuf("do_command.LOG.con_html");
+				sprintf(arg, "[%d/%s] PuebloClient enabled.", d->descriptor, d->addr);
+				log_text(arg);
+				free_mbuf(arg);
+			ENDLOG
+#else
+			queue_string(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
+#endif
 			break;
 		default:
 			STARTLOG(LOG_BUGS, "BUG", "PARSE")
@@ -1865,6 +1812,7 @@ char *arg;
 			}
 			break;
 		case CMD_PUEBLOCLIENT:
+#ifdef PUEBLO_CLIENT
 			/* Set the descriptor's flag */
 			d->flags |= DS_PUEBLOCLIENT;
 			/* If we're already connected, set the player's flag */
@@ -1873,6 +1821,16 @@ char *arg;
 			}
 			queue_string(d, mudconf.pueblo_msg);
 			queue_string(d, "\r\n");
+			fcache_dump(d, FC_CONN_HTML);
+			STARTLOG(LOG_LOGIN, "CON", "HTML")
+				arg = alloc_mbuf("do_command.LOG.con_html");
+				sprintf(arg, "[%d/%s] PuebloClient enabled.", d->descriptor, d->addr);
+				log_text(arg);
+				free_mbuf(arg);
+			ENDLOG
+#else
+			queue_string(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
+#endif
 			break;
 		}
 	}
@@ -1909,9 +1867,8 @@ void NDECL(process_commands)
 	mudstate.debug_cmd = cmdsave;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * site_check: Check for site flags in a site list.
+/* ---------------------------------------------------------------------------
+ * site_check: Check for site flags in a site list.
  */
 
 int site_check(host, site_list)
@@ -1927,9 +1884,8 @@ SITE *site_list;
 	return 0;
 }
 
-/*
- * --------------------------------------------------------------------------
- * * list_sites: Display information in a site list
+/* --------------------------------------------------------------------------
+ * list_sites: Display information in a site list
  */
 
 #define	S_SUSPECT	1
@@ -1971,34 +1927,45 @@ int strtype, flag;
 	return str;
 }
 
+static int mask_to_prefix(mask_num)
+    unsigned long mask_num;
+{
+	/* The number of bits in the mask is equal to 32 minus the log base 2
+ 	* of 2^32 minus the number.
+ 	*/
+
+	if (mask_num == 0) {
+		return 0;
+	} else {
+		return (32 - ((int) (log((double) (pow(2,32) - mask_num)) / log((double) 2))));
+	}
+}
+
 static void list_sites(player, site_list, header_txt, stat_type)
 dbref player;
 SITE *site_list;
 const char *header_txt;
 int stat_type;
 {
-	char *buff, *buff1, *str;
+	char *buff, *str;
 	SITE *this;
 
 	buff = alloc_mbuf("list_sites.buff");
-	buff1 = alloc_sbuf("list_sites.addr");
 	sprintf(buff, "----- %s -----", header_txt);
 	notify(player, buff);
-	notify(player, "Address              Mask                 Status");
+	notify(player, "IP Prefix                Status");
 	for (this = site_list; this; this = this->next) {
-		str = (char *)stat_string(stat_type, this->flag);
-		StringCopy(buff1, inet_ntoa(this->mask));
-		sprintf(buff, "%-20s %-20s %s",
-			inet_ntoa(this->address), buff1, str);
+		str = (char *) stat_string(stat_type, this->flag);
+		sprintf(buff, "%-17s /%-5d %s", inet_ntoa(this->address),
+			mask_to_prefix(this->mask.s_addr), str);
 		notify(player, buff);
 	}
+
 	free_mbuf(buff);
-	free_sbuf(buff1);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * list_siteinfo: List information about specially-marked sites.
+/* ---------------------------------------------------------------------------
+ * list_siteinfo: List information about specially-marked sites.
  */
 
 void list_siteinfo(player)
@@ -2010,17 +1977,16 @@ dbref player;
 		   S_SUSPECT);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * make_ulist: Make a list of connected user numbers for the LWHO function.
+/* ---------------------------------------------------------------------------
+ * make_ulist: Make a list of connected user numbers for the LWHO function.
  */
 
 void make_ulist(player, buff, bufc)
 dbref player;
 char *buff, **bufc;
 {
+	char *cp, nbuf[20];
 	DESC *d;
-	char *cp;
 
 	cp = *bufc;
 	DESC_ITER_CONN(d) {
@@ -2029,15 +1995,37 @@ char *buff, **bufc;
 		if (cp != *bufc)
 			safe_chr(' ', buff, bufc);
 		safe_chr('#', buff, bufc);
-		safe_str(tprintf("%d", d->player), buff, bufc);
+		safe_ltos(buff, bufc, d->player);
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * find_connected_name: Resolve a playername from the list of connected
- * * players using prefix matching.  We only return a match if the prefix
- * * was unique.
+/* ---------------------------------------------------------------------------
+ * make_portlist: Make a list of ports for PORTS().
+ */
+
+void make_portlist(player, target, buff, bufc)
+dbref player;
+dbref target;
+char *buff, **bufc;
+{
+	DESC *d;
+	int i = 0;
+	
+	DESC_ITER_CONN(d) {
+		if (d->player == target) {
+			safe_str(tprintf("%d ", d->descriptor), buff, bufc);
+			i = 1;
+		}
+	}
+	if (i)
+		(*bufc)--;
+	**bufc = '\0';
+}
+
+/* ---------------------------------------------------------------------------
+ * find_connected_name: Resolve a playername from the list of connected
+ * players using prefix matching.  We only return a match if the prefix
+ * was unique.
  */
 
 dbref find_connected_name(player, name)

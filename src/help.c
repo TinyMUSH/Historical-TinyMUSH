@@ -66,29 +66,25 @@ char *filename;
 							  "helpindex_read.1");
 
 		htab_entry->pos = entry.pos;
-/*foobar*/		htab_entry->original = 1;	/* First is the longest */
-		htab_entry->key = (char *)malloc(strlen(entry.topic) + 1);
-		StringCopy(htab_entry->key, entry.topic);
+		htab_entry->original = 1;	/* First is the longest */
+		htab_entry->key = (char *) XMALLOC(strlen(entry.topic) + 1,
+						"helpindex_read.2");
+		strcpy(htab_entry->key, entry.topic);
 		while (p > entry.topic) {
 			p--;
-			if (!isspace(*p)) {
-				if ((hashadd(entry.topic, (int *)htab_entry, htab)) == 0)
+			if (!isspace(*p)
+				&& (hashadd(entry.topic, (int *)htab_entry, htab) == 0)) {
 					count++;
-				else {
+			} else {	/* It didn't make it into the hash table */
 					free(htab_entry->key);
 					free(htab_entry);
-				}
-			} else {
-				free(htab_entry->key);
-				free(htab_entry);
 			}
 			*p = '\0';
-			htab_entry = (struct help_entry *)malloc(sizeof(struct help_entry));
-
+			htab_entry = (struct help_entry *) XMALLOC(sizeof(struct help_entry),
+								"helpindex_read.3");
 			htab_entry->pos = entry.pos;
 			htab_entry->original = 0;
-			htab_entry->key = (char *)malloc(strlen(entry.topic) + 1);
-			StringCopy(htab_entry->key, entry.topic);
+			htab_entry->key = strsave(entry.topic);
 		}
 		free(htab_entry->key);
 		free(htab_entry);
@@ -145,9 +141,9 @@ int eval;
 		for (p = topic; *p; p++)
 			*p = ToLower(*p);
 	htab_entry = (struct help_entry *)hashfind(topic, htab);
-	if (htab_entry)
+	if (htab_entry) {
 		offset = htab_entry->pos;
-	else {
+	} else {
 		matched = 0;
 		for (htab_entry = (struct help_entry *)hash_firstentry(htab);
 		     htab_entry != NULL;
@@ -160,7 +156,8 @@ int eval;
 					buffp = topic_list;
 				}
 				safe_str(htab_entry->key, topic_list, &buffp);
-				safe_str((char *)"  ", topic_list, &buffp);
+				safe_chr(' ', topic_list, &buffp);
+				safe_chr(' ', topic_list, &buffp);
 			}
 		}
 		if (matched == 0)
@@ -222,9 +219,8 @@ int eval;
 	free_lbuf(result);
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_help: display information from new-format news and help files
+/* ---------------------------------------------------------------------------
+ * do_help: display information from new-format news and help files
  */
 
 void do_help(player, cause, key, message)

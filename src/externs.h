@@ -183,6 +183,7 @@ extern int	FDECL(could_doit, (dbref, dbref, int));
 extern int	FDECL(can_see, (dbref, dbref, int));
 extern void	FDECL(add_quota, (dbref, int));
 extern int	FDECL(canpayfees, (dbref, dbref, int, int));
+extern int	FDECL(payfees, (dbref, int, int, int));
 extern void	FDECL(giveto, (dbref,int));
 extern int	FDECL(payfor, (dbref,int));
 extern int	FDECL(ok_name, (const char *));

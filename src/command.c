@@ -1058,6 +1058,7 @@ int interactive, ncargs;
 							safe_chr('/', new, &bp);
 							safe_str(switchp, new, &bp);
 						}
+						*bp = '\0';
 					} else {
 						j++;
 						safe_str(cmdp->cmdname, new, &bp);

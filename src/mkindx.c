@@ -1,9 +1,5 @@
-/*
- * mkindx.c -- make help/news file indexes 
- */
-/*
- * $Id$ 
- */
+/* mkindx.c -- make help/news file indexes */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"

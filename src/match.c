@@ -1,9 +1,5 @@
-/*
- * match.c -- Routines for parsing arguments 
- */
-/*
- * $Id$ 
- */
+/* match.c -- Routines for parsing arguments */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -16,24 +12,12 @@
 #include "attrs.h"
 #include "powers.h"
 
-#define	CON_LOCAL		0x01	/*
-					 * Match is near me 
-					 */
-#define	CON_TYPE		0x02	/*
-					 * Match is of requested type 
-					 */
-#define	CON_LOCK		0x04	/*
-					 * I pass the lock on match 
-					 */
-#define	CON_COMPLETE		0x08	/*
-					 * Name given is the full name 
-					 */
-#define	CON_TOKEN		0x10	/*
-					 * Name is a special token 
-					 */
-#define	CON_DBREF		0x20	/*
-					 * Name is a dbref 
-					 */
+#define	CON_LOCAL		0x01	/* Match is near me */
+#define	CON_TYPE		0x02	/* Match is of requested type */
+#define	CON_LOCK		0x04	/* I pass the lock on match */
+#define	CON_COMPLETE		0x08	/* Name given is the full name */
+#define	CON_TOKEN		0x10	/* Name is a special token */
+#define	CON_DBREF		0x20	/* Name is a dbref */
 
 static MSTATE md;
 
@@ -41,9 +25,7 @@ static void promote_match(what, confidence)
 dbref what;
 int confidence;
 {
-	/*
-	 * Check for type and locks, if requested 
-	 */
+	/* Check for type and locks, if requested */
 
 	if (md.pref_type != NOTYPE) {
 		if (Good_obj(what) && (Typeof(what) == md.pref_type))
@@ -57,9 +39,7 @@ int confidence;
 		confidence |= CON_LOCK;
 		restore_match_state(&save_md);
 	}
-	/*
-	 * If nothing matched, take it 
-	 */
+	/* If nothing matched, take it */
 
 	if (md.count == 0) {
 		md.match = what;
@@ -67,16 +47,12 @@ int confidence;
 		md.count = 1;
 		return;
 	}
-	/*
-	 * If confidence is lower, ignore 
-	 */
+	/* If confidence is lower, ignore */
 
 	if (confidence < md.confidence) {
 		return;
 	}
-	/*
-	 * If confidence is higher, replace 
-	 */
+	/* If confidence is higher, replace */
 
 	if (confidence > md.confidence) {
 		md.match = what;
@@ -84,9 +60,7 @@ int confidence;
 		md.count = 1;
 		return;
 	}
-	/*
-	 * Equal confidence, pick randomly 
-	 */
+	/* Equal confidence, pick randomly */
 
 	if (random() % 2) {
 		md.match = what;
@@ -94,10 +68,9 @@ int confidence;
 	md.count++;
 	return;
 }
-/*
- * ---------------------------------------------------------------------------
- * * This function removes repeated spaces from the template to which object
- * * names are being matched.  It also removes inital and terminal spaces.
+/* ---------------------------------------------------------------------------
+ * This function removes repeated spaces from the template to which object
+ * names are being matched.  It also removes inital and terminal spaces.
  */
 
 static char *munge_space_for_match(name)
@@ -109,9 +82,7 @@ char *name;
 	p = name;
 	q = buffer;
 	while (isspace(*p))
-		p++;		/*
-				 * remove inital spaces 
-				 */
+		p++;		/* remove inital spaces */
 	while (*p) {
 		while (*p && !isspace(*p))
 			*q++ = *p++;
@@ -119,10 +90,8 @@ char *name;
 		if (*p)
 			*q++ = ' ';
 	}
-	*q = '\0';		/*
-				 * remove terminal spaces and terminate * * * 
-				 * 
-				 * * string 
+	*q = '\0';		/* remove terminal spaces and terminate 
+				 * string 
 				 */
 	return (buffer);
 }
@@ -147,9 +116,7 @@ void NDECL(match_player)
 		}
 	}
 }
-/*
- * returns nnn if name = #nnn, else NOTHING 
- */
+/* returns nnn if name = #nnn, else NOTHING */
 
 static dbref absolute_name(need_pound)
 int need_pound;
@@ -434,9 +401,7 @@ dbref NDECL(match_result)
 	}
 }
 
-/*
- * use this if you don't care about ambiguity 
- */
+/* use this if you don't care about ambiguity */
 
 dbref NDECL(last_match_result)
 {
