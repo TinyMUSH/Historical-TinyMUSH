@@ -100,7 +100,7 @@ The initial beta release was on 9/27/99.
 - Fix: Forwardlists are loaded before startups are run. [2.0]
 
 - Fix: @mail/fwd now explicitly checks to see if a mail message is in
-  progress. [MUX; Dan Ryan]
+  progress. [MUX; Morris]
 
 - Fix: INFO now works when used by logged-in players. [3.0a2; RMG]
 
@@ -484,3 +484,90 @@ The initial beta release was on 9/27/99.
 
 - Misc: The Startmush script also looks in the $DATA directory for
   the comsys and mail databases.
+
+-----------------------------------------------------------------------------
+
+10/25/99: Beta 15
+
+- Feature: @cron supports the /<step> syntax, ala Vixie cron.
+
+- Feature: New conf parameter exit_calls_move (defaults to No) makes an
+  attempt to go through an exit by typing its name, literally identical
+  to typing 'move <exit name>', allowing an @addcommand interception.
+
+- Feature: New conf parameter move_match_more (defaults to No) makes the
+  move command match exits like the main command parser does, i.e., it
+  also checks global and zone exits, and in the case of multiple matches,
+  picks a random match.
+
+- Feature: @mail/reply and @mail/replyall, based on a code contribution
+  by Morris. A /quote switch allows optional quoting of the message
+  being replied to.
+
+- Feature: MySQL is supported as an external database. Code contributed
+  by Dan Evans. (Untested by the 3.0 development team, as we don't have
+  a MySQL installation.)
+
+- Fix: Creating a minimal db, when the comsys is enabled, works again.
+  (This time for real.) [3.0b14; RMG]
+
+- Fix: The comsys conversion script now escapes out quotes, and ensures
+  that all aliases are for existing channels. [3.0b13; RMG]
+
+- Fix: Typo resulted in channels being chowned to God at load time.
+  [3.0b14; utoxin]
+
+- Fix: Evaluation and other unusual locks are handled properly by the
+  comsys load. Note that if you have eval locks in a 3.0b13 or 3.0b14
+  comsys, you will need to manually delete those locks (there's no
+  way to write an automated heuristic to cope with this). [3.0b13; RMG]
+
+- Fix: Connections/disconnections on loud channels are only reported when
+  the player is active on the channel. [3.0b13; Roloran]
+
+- Fix: Object list confounding has been fixed; among other things,
+  this makes an eval @search with lattr() work properly. Code
+  contributed by Robby Griffin. [2.0; RMG]
+
+- Fix: Tokens are once again correctly replaced when iter() and switch()
+  are nested. [3.0b11]
+
+- Fix: command() handles command switches properly. [3.0b14; RMG]
+
+- Fix: pos() and lpos() no longer count ANSI sequences as part of the
+  string characters. This enables them to interoperate properly with
+  delete() and other functions depending on string positioning, that
+  no longer strip ANSI characters. [3.0b8]
+
+- Fix: Flag unparsing looks at See_Hidden rather than Wizard for permission
+  to see Dark flag on connected players. [3.0a14; Keran]
+
+- Fix: You can no longer insert arbitrary characters via url_unescape().
+  [2.2/MUX; RMG]
+
+- Fix: Corrected a typo that could result in an infinite loop when
+  Radix compression is enabled. [MUX; RMG]
+
+- Fix: Prevented a memory leak when an @addcommand's attribute lacks
+  a command string. [MUX; RMG]
+
+- Fix: Typo in Startmush script was attempting to copy the mail db to
+  itself. [3.0b14; RMG]
+
+- Fix: The Quota, RQuota, and Semaphore attributes are visible on
+  objects again. [3.0a4; Adam]
+
+- Misc: Valid numbers and integers can have a leading + sign.
+
+- Misc: Use character table lookup in certain parts of the parser;
+  concept and some code derived from MUX 2.0.
+
+- Misc: Memory is not allocated for comsys connected lists unless there
+  are players connected on the channel.
+
+- Misc: Some safe_str() calls replaced with safe_chr() calls. Calls to
+  safe_long_str() are now simply calls to safe_str(), pending a better
+  future heuristic.
+
+- Misc: Strict ANSI compilers objected to use of typecasts within XFREE().
+
