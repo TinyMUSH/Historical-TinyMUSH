@@ -183,11 +183,11 @@ the other have been listed in the conversion notes for both servers.
   A config() function allows players to obtain the value of a configuration
   parameter that they have permission to read.
 
-- New @logrotate command and game_log conf parameter allow the log to
-  be rotated while the game is running.
-
-- New divert_log conf parameter allows the logs for different types of
-  events to be sent to different files.
+- The new game_log and divert_log parameters allow the logs for different
+  types of events to be sent to different files. The new @logrotate
+  command allows these logfiles to be rotated while the game is running.
+  Logfiles are also rotated when a @restart is done. Old log are marked
+  with a timestamp in seconds.
 
 - New /reply and /replyall switches to @mail allow replying to a mail
   message, including quoting it via the additional /quote switch.
