@@ -74,7 +74,7 @@ void save_comsys(filename)
 char *filename;
 {
 	FILE *fp;
-	char buffer[500];
+	char buffer[PBUF_SIZE + 8]; /* per comsys_db conf param */
 
 	sprintf(buffer, "%s.#", filename);
 	if (!(fp = fopen(buffer, "w"))) {
@@ -615,7 +615,7 @@ void do_joinchannel(player, ch)
 dbref player;
 struct channel *ch;
 {
-	char temp[1000], *bp;
+	char temp[LBUF_SIZE], *bp;
 	struct comuser *user;
 	struct comuser **cu;
 	int i;
@@ -674,7 +674,7 @@ dbref player;
 struct channel *ch;
 {
 	struct comuser *user;
-	char temp[1000], *bp;
+	char temp[LBUF_SIZE], *bp;
 
 	user = select_user(ch, player);
 
@@ -887,6 +887,7 @@ char *title;
 {
 	struct comuser *user;
 	char *new;
+	int title_len;
 	
 	user = select_user(ch, player);
 	
@@ -895,14 +896,23 @@ char *title;
 	new = replace_string("\r\n", "", title);
 
 	if (ch && user) {
+
 		if (user->title)
 			free(user->title);
-		if (strlen(new) > 0) {
-			user->title = (char *)malloc(strlen(new) + 1);
-			StringCopy(user->title, new);
+
+		/* Don't let users have more than an mbuf for channel title */
+
+		title_len = strlen(new);
+		if (title_len > MBUF_SIZE - 1) {
+		    user->title = (char *) malloc(MBUF_SIZE);
+		    StringCopyTrunc(user->title, new, MBUF_SIZE - 1);
+		    user->title[MBUF_SIZE] = '\0';
+		} else if (title_len > 0) {
+		    user->title = (char *)malloc(strlen(new) + 1);
+		    StringCopy(user->title, new);
 		} else {
-			user->title = (char *)malloc(1);
-			user->title[0] = 0;
+		    user->title = (char *)malloc(1);
+		    user->title[0] = 0;
 		}
 	}
 	free_lbuf(new);
@@ -949,7 +959,7 @@ char *channel;
 {
 	struct channel *ch;
 	struct comuser *user;
-	char temp[1000], *bp;
+	char temp[LBUF_SIZE], *bp;
 	int i;
 	int j;
 
@@ -1064,7 +1074,7 @@ void do_listchannels(player)
 dbref player;
 {
 	struct channel *ch;
-	char temp[1000];
+	char temp[GBUF_SIZE];	/* blind trust */
 	int perm;
 
 	if (!(perm = Comm_All(player))) {
@@ -1101,7 +1111,7 @@ char *arg1;
 char *arg2;
 {
 	struct channel *ch;
-	char channel[50];
+	char channel[CHAN_NAME_LEN];
 
 	if (!mudconf.have_comsys) {
 		raw_notify(player, "Comsys disabled.");
@@ -1134,7 +1144,7 @@ int key;
 	struct comuser *user;
 	struct comsys *c;
 	int i;
-	char temp[200];
+	char temp[LBUF_SIZE];
 
 	if (!mudconf.have_comsys) {
 		raw_notify(player, "Comsys disabled.");
@@ -1255,12 +1265,12 @@ char *arg1;
 {
 	struct channel *ch;
 	struct comuser *user;
-	char channel[100];
+	char channel[CHAN_NAME_LEN];
 	int flag;
 	char *s;
 	char *t;
 	char *buff;
-	char temp[100];
+	char temp[SBUF_SIZE];
 	int i;
 
 	if (!mudconf.have_comsys) {
