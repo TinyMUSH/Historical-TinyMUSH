@@ -9,6 +9,7 @@
 #include "match.h"
 #include "command.h"
 #include "attrs.h"
+#include "powers.h"
 
 
 /* ---------------------------------------------------------------------------
@@ -182,7 +183,7 @@ const char *tstr;
 	for (i = 0; i < 5; i++)
 		dq_list[i] = q_list[i] - rq_list[i];
 
-	if (Wizard(victim)) {
+	if (Free_Quota(victim)) {
 		if (mudconf.typed_quotas)
 			notify_quiet(player,
 				     tprintf("%-16s: %4d - N/A  %4d - N/A  %4d - N/A  %4d - N/A  %4d - N/A",

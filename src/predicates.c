@@ -288,12 +288,13 @@ int cost, objtype;
 	/* enough to build?  Wizards always have enough. */
 
 	quota -= cost;
-	if ((quota < 0) && !Wizard(who) && !Wizard(Owner(who)))
+	if ((quota < 0) && !Free_Quota(who) && !Free_Quota(Owner(who)))
 		return 0;
 
 	if (mudconf.typed_quotas) {
 		quota = q_list[type_quota(objtype)];
-		if ((quota <= 0) && !Wizard(player) && !Wizard(Owner(player)))
+		if ((quota <= 0) &&
+		    !Free_Quota(player) && !Free_Quota(Owner(player)))
 			return 0;
 	}
 #endif /* ! STANDALONE */
