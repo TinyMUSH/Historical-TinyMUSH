@@ -1640,7 +1640,7 @@ FUNCTION(fun_objeval)
 	 * from our own viewpoint. Also, you cannot evaluate things from
 	 * the point of view of God.
 	 */
-	if ((obj == NOTHING) || (obj == GOD) ||
+	if ((obj == NOTHING) || God(obj)) ||
 	    (mudconf.fascist_objeval ?
 	     !Controls(player, obj) :
 	     ((Owner(obj) != Owner(player)) && !Wizard(player)))) {

@@ -2818,7 +2818,7 @@ char *alias;
 
 		for (i = 0; i < ma_top; i++) {
 			m = malias[i];
-			if ((m->owner == player) || (m->owner == GOD)) {
+			if ((m->owner == player) || God(m->owner)) {
 				if (!strcmp(mal, m->name))	/*
 								 * Found it! 
 								 */
@@ -2992,7 +2992,7 @@ dbref player;
 
 	for (i = 0; i < ma_top; i++) {
 		m = malias[i];
-		if ((m->owner == GOD) || (m->owner == player) || God(player)) {
+		if (God(m->owner) || (m->owner == player) || God(player)) {
 			if (!notified) {
 				notify(player,
 				       "Name         Description                         Owner");
@@ -3627,7 +3627,7 @@ char *person;
 		return;
 	}
 	
-	if ((m->owner == GOD) && !ExpMail(player)) {
+	if (God(m->owner) && !ExpMail(player)) {
 		notify(player, "MAIL: Permission denied.");
 		return;
 	}
@@ -3663,7 +3663,7 @@ char *person;
 		notify(player, "MAIL: Alias not found.");
 		return;
 	}
-	if ((m->owner == GOD) && !ExpMail(player)) {
+	if (God(m->owner) && !ExpMail(player)) {
 		notify(player, "MAIL: Permission denied.");
 		return;
 	}
