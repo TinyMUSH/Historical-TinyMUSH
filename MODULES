@@ -1,3 +1,30 @@
+DYNAMICALLY LOADABLE MODULES
+
+TinyMUSH 3.0 provides an interface for dynamically loadable modules.
+This allows server administrators to write and install "hardcode"
+that extends the functionality of the server, without creating undue
+difficulties with future upgrades.
+
+If you are writing a module, or you are installing a module written by
+someone else, please be forewarned: Modules muck directly with the
+server's internals. Using a module is, for all practical purposes,
+exactly like directly hacking the server.  Thus, the safeguards that
+exist with softcode do not exist with modules; if modules contain
+bugs, they could cause severe issues with instability and database
+corruption.
+
+If you are writing a module, you should be fluent in reading and
+writing the C programming language. You should take the time to
+carefully study the existing server code. It's assumed you can
+read code to figure out things that aren't explicitly documented
+(which is just about everything not directly related to module
+interface). It's also assumed that you understand how dynamic
+loading works.
+
+-----------------------------------------------------------------------------
+
+HOW TO BUILD A MODULE
+
 Every module has a one-word name, such as "hello", or "space3d",
 referred to generically as '<name>' in the rest of this document. 
 This is the name of the .c file in the modules directory.
@@ -14,21 +41,94 @@ mod_<name>: <name>.c
 	$(LD) -shared -o <name>.so <name>.o
 	cp <name>.so ../../game/modules
 
-Note that you should be very careful about doing a @restart when changing
-a dynamically-loaded module.
+Getting the server to load a module is simple. For each module, add
+the following line to your netmush.conf file:
+module <name>
 
+Modules can only be loaded when the game is started.
 
-Every public symbol within the module, such as function names, should
-begin with 'mod_<name>_', in order to avoid potential namespace conflicts.
+CAUTION: If you are changing a dynamically-loaded module, do NOT just
+drop the new shared object into place and do a @restart. Do a @shutdown,
+put the new shared object into place, and then a Startmush. If you don't,
+there is a very high probability that the game will crash hard, and
+do horrible things to your database. Similarly, if you are adding or
+deleting a module, you should probably @shutdown and do a clean start.
+
+-----------------------------------------------------------------------------
+
+MODULE NAMES AND SYMBOLS
+
+Everything within a module should occupy a unique namespace. Functions
+names, non-static global variables, and other public entities should
+be named 'mod_<name>_<regular name>'. Macros and constants should be named
+MOD_<name>_<regular name>. This avoids potential namespace collisions.
 
 All modules should begin with the following line:
 #include "../api.h"
 
-The handlers for various commands should then be defined. See the
-macros in api.h for the macros used to declare command handlers.
+Including this file should get you access to the commonplace structures
+and functions in the MUSH server, as well as specific module API things.
+Please note that if you plan to use any symbol that's not defined within
+api.h or a file that is #include'd by api.h, you will either need to
+declare it extern within your module's .c file, or #include the 
+appropriate main server .h file, as appropriate. 
 
+CAUTION: Not all operating system's dlopen() calls properly check for
+unresolved references. On such a system, if you reference a symbol that
+your module cannot locate because it's not local and it wasn't declared
+as extern, the server will crash when it tries to resolve the symbol.
 
-The command handlers then need to be put in a command table, as follows:
+-----------------------------------------------------------------------------
+
+MODULE INITIALIZATION
+
+The module initialization function goes LAST in your module's .c file.
+It should read as follows:
+
+void mod_<name>_init()
+{
+	register_commands(mod_<name>_cmdtable);
+	register_functions(mod_<name>_functable);
+
+	/* Any other initialization you need to do. */
+}
+
+If you have no commands, you don't need to call register_commands().
+If you have no functions, you don't need to call register_functions().
+
+Note that there is no main() function in a module.
+
+-----------------------------------------------------------------------------
+
+DEFINING COMMANDS
+
+Commands fall into four categories of syntax:
+
+TYPE		SYNTAX PATTERN			EXAMPLE
+NO_ARG		<cmd>				@stats
+ONE_ARG		<cmd> <argument>		think <message>
+TWO_ARG		<cmd> <arg 1> = <arg 2>		@parent <object> = <parent>
+TWO_ARG_ARGV	<cmd> <arg 1> = <arg 2a>,<...>	@trig <obj>/<attr> = <p1>,<..>
+
+api.h defines a number of macros used to declare command handlers. 
+These should be largely self-explanatory. The syntax of a command
+handler is:
+
+DO_CMD_<type>(mod_<name>_do_<handler name>)
+{
+	/* code goes here */
+}
+
+To write a handler for "@hello", a command with one argument in a module
+called "hello", for example, you would write:
+
+DO_CMD_ONE_ARG(mod_hello_do_hello)
+{
+	/* code goes here */
+}
+
+Once you have declared all of your handlers, you must place the
+handlers in the command table, which takes the following format:
 
 CMDENT mod_<name>_cmdtable[] = {
 {(char *)"<command1>",		<switches>,	<permissions>,
@@ -54,7 +154,6 @@ example, if you have DO_CMD_NO_ARG(mod_hello_do_heythere), then you
 will have CS_CMD_NO_ARG for <handler type>. Your <handler function>
 will be mod_hello_do_heythere.
 
-
 A switch table takes the following form:
 
 NAMETAB mod_<name>_<command>_sw[] = {
@@ -78,15 +177,25 @@ their behavior based on any switches the user passed. If you want
 a command to be able to take multiple switches as the same time, you
 should add '|SW_MULTIPLE' to <key>.
 
+Switch tables should be placed BEFORE the command table, in your
+module's .c file.
 
-After this come your functions. You define a function with the following:
+-----------------------------------------------------------------------------
+
+DEFINING FUNCTIONS
+
+A function handler takes the following form:
 
 FUNCTION(mod_<name>_fun_<function name>)
 {
-	/* Code goes here. See functions.h for details. */
+	/* code goes here */
 }
 
-Then, you need to define a function table as follows:
+See functions.h for what this macro'd function prototype expands to.
+See the server's fun*.c files for some examples of how to write functions.
+
+Once you have declared all of your function handlers, you must place
+them in the function table, which takes the following format:
 
 FUN mod_<name>_functable[] = {
 {"FUNCTION1",	<handler>,	<args>, <flags>,	<permissions>},
@@ -110,22 +219,13 @@ flag.
 <permissions> consist of an OR'd ('|') list of permissions, such as
 CA_PUBLIC, CA_WIZARD, and CA_GOD, just like in the main command table.
 
+-----------------------------------------------------------------------------
 
-The last thing in your module file should be the following:
+MODULE API FUNCTIONS
 
-void mod_<name>_init()
-{
-	register_commands(mod_<name>_cmdtable);
-	register_functions(mod_<name>_functable);
-
-	/* Any other initialization you need to do. */
-}
-
-If you have no commands, you don't need to call register_commands().
-If you have no functions, you don't need to call register_functions().
-
-
-Other module functions:
+The following are "hooks" into the server. If you place these functions
+in your module's .c file, they will automatically be called at the
+appropriate time.
 
 void mod_<name>_create_obj(dbref player, dbref obj)
 	Run when an object is created, after other initialization is done.
