@@ -87,6 +87,7 @@ extern int slave_socket;
 extern int corrupt;
 #endif
 
+extern CMDENT *prefix_cmds[256];
 static const unsigned char *tables = NULL; /* for PCRE */
 
 /*
@@ -1710,6 +1711,21 @@ char *argv[];
 	vattr_init();
 
 	cf_read(opt_conf);
+
+#ifdef USE_MAIL
+	/* We initialized our command table before we read the conf file.
+	 * The mailer might have gotten turned off in the meantime. Delete
+	 * the - and ~ single-character commands, so we don't break softcode
+	 * +mail. The @mail and @malias commands, and any aliases, should
+	 * be @addcommand'd by the user, if they want to override them.
+	 */
+	if (!mudconf.have_mailer) {
+	    hashdelete("-", &mudstate.command_htab);
+	    hashdelete("~", &mudstate.command_htab);
+	    prefix_cmds['-'] = NULL;
+	    prefix_cmds['~'] = NULL;
+	}
+#endif /* USE_MAIL */
 
 	strncpy(mudconf.exec_path, argv[0], PBUF_SIZE - 1);
 	mudconf.exec_path[PBUF_SIZE - 1] = '\0';
