@@ -79,56 +79,6 @@ LOGFILETAB logfds_table[] = {
 
 #endif
 
-char *strip_ansi(raw)
-const char *raw;
-{
-	static char buf[LBUF_SIZE];
-	char *p = (char *)raw;
-	char *q = buf;
-
-	while (p && *p) {
-		if (*p == ESC_CHAR) {
-			/*
-			 * Start of ANSI code. Skip to end. 
-			 */
-			while (*p && !isalpha(*p))
-				p++;
-			if (*p)
-				p++;
-		} else
-			*q++ = *p++;
-	}
-	*q = '\0';
-	return buf;
-}
-
-char *normal_to_white(raw)
-const char *raw;
-{
-	static char buf[LBUF_SIZE];
-	char *p = (char *)raw;
-	char *q = buf;
-
-
-	while (p && *p) {
-		if (*p == ESC_CHAR) {
-			/* Start of ANSI code. */
-			*q++ = *p++;	/* ESC CHAR */
-			*q++ = *p++;	/* [ character. */
-			if (*p == '0') {	/* ANSI_NORMAL */
-				safe_known_str("0m", 2, buf, &q);
-				safe_chr(ESC_CHAR, buf, &q);
-				safe_known_str("[37m", 4, buf, &q);
-				p += 2;
-			}
-		} else
-			*q++ = *p++;
-	}
-	*q = '\0';
-	return buf;
-}
-
-
 /* ---------------------------------------------------------------------------
  * logfile_init: Initialize the main logfile.
  */

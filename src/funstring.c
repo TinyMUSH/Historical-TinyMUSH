@@ -645,7 +645,7 @@ FUNCTION(fun_left)
 
     s = fargs[0];
     nchars = atoi(fargs[1]);
-    len = strlen(strip_ansi(s));
+    len = strip_ansi_len(s);
 
     if ((len < 1) || (nchars < 1))
 	return;
@@ -653,7 +653,7 @@ FUNCTION(fun_left)
     have_normal = 1;
     for (count = 0; *s && (count < nchars); ) {
 	if (*s == ESC_CHAR) {
-	    Skip_Ansi_Code(s);
+	    Skip_Ansi_Code(s, buff, bufc);
 	} else {
 	    safe_chr(*s, buff, bufc);
 	    s++;
@@ -672,7 +672,7 @@ FUNCTION(fun_right)
 
     s = fargs[0];
     nchars = atoi(fargs[1]);
-    len = strlen(strip_ansi(s));
+    len = strip_ansi_len(s);
     start = len - nchars;
 
     if ((len < 1) || (nchars < 1))
@@ -686,7 +686,7 @@ FUNCTION(fun_right)
     have_normal = 1;
     for (count = 0; *s && (count < start + nchars); ) {
 	if (*s == ESC_CHAR) {
-	    Skip_Ansi_Code(s);
+	    Skip_Ansi_Code(s, buff, bufc);
 	} else {
 	    if (count >= start)
 		safe_chr(*s, buff, bufc);
@@ -1151,7 +1151,7 @@ FUNCTION(fun_mid)
     s = fargs[0];
     start = atoi(fargs[1]);
     nchars = atoi(fargs[2]);
-    len = strlen(strip_ansi(s));
+    len = strip_ansi_len(s);
 
     if ((start < 0) || (nchars < 0) || (start > LBUF_SIZE - 1) ||
 	(nchars > LBUF_SIZE - 1)) {
@@ -1168,7 +1168,7 @@ FUNCTION(fun_mid)
     have_normal = 1;
     for (count = 0; *s && (count < start + nchars); ) {
 	if (*s == ESC_CHAR) {
-	    Skip_Ansi_Code(s);
+	    Skip_Ansi_Code(s, buff, bufc);
 	} else {
 	    if (count >= start)
 		safe_chr(*s, buff, bufc);
@@ -1353,7 +1353,7 @@ static void border_helper(player, str, last_state,
 	return;
     }
     for (i = 0; i < nwords; i++)
-	lens[i] = strlen(strip_ansi(words[i]));
+	lens[i] = strip_ansi_len(words[i]);
 
     /* For every line, figure out how many words we can copy, then
      * do the borders appropriately. We do it this way in order to
@@ -1486,14 +1486,14 @@ static void perform_border(player, buff, bufc, fargs, nfargs, key)
     width = atoi(fargs[1]);
     if (nfargs > 2) {
 	l_fill = fargs[2];
-	l_width = strlen(strip_ansi(l_fill));
+	l_width = strip_ansi_len(l_fill);
     } else {
 	l_fill = NULL;
 	l_width = 0;
     }
     if (nfargs > 3) {
 	r_fill = fargs[3];
-	r_width = strlen(strip_ansi(r_fill));
+	r_width = strip_ansi_len(r_fill);
     } else {
 	r_fill = NULL;
 	r_width = 0;
@@ -1584,7 +1584,7 @@ FUNCTION(fun_delete)
     s = fargs[0];
     start = atoi(fargs[1]);
     nchars = atoi(fargs[2]);
-    len = strlen(strip_ansi(s));
+    len = strip_ansi_len(s);
 
     if ((start >= len) || (nchars <= 0)) {
 	safe_str(s, buff, bufc);
@@ -1594,7 +1594,7 @@ FUNCTION(fun_delete)
     have_normal = 1;
     for (count = 0; *s && (count < len); ) {
 	if (*s == ESC_CHAR) {
-	    Skip_Ansi_Code(s);
+	    Skip_Ansi_Code(s, buff, bufc);
 	} else {
 	    if ((count >= start) && (count < start + nchars)) {
 		s++;

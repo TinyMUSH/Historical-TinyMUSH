@@ -431,7 +431,7 @@ char *name, *coststr;
 	int cost;
 
 	cost = atoi(coststr);
-	if (!name || !*name || (strlen(strip_ansi(name)) == 0)) {
+	if (!name || !*name || (strip_ansi_len(name) == 0)) {
 		notify_quiet(player, "Create what?");
 		return;
 	} else if (cost < 0) {

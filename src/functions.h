@@ -289,25 +289,6 @@ if ((l) == 1) { \
 	return;							\
     }
 
-/* Macro for skipping to the end of an ANSI code, if we're at the
- * beginning of one. 
- */
-#define Skip_Ansi_Code(s) \
-	    savep = s;				\
-	    while (*s && (*s != ANSI_END)) {	\
-		safe_chr(*s, buff, bufc);	\
-		s++;				\
-	    }					\
-	    if (*s) {				\
-		safe_chr(*s, buff, bufc);	\
-		s++;				\
-	    }					\
-	    if (!strncmp(savep, ANSI_NORMAL, 4)) {	\
-		have_normal = 1;		\
-	    } else {				\
-		have_normal = 0;		\
-            }
-
 /* Macro for writing a certain amount of padding into a buffer.
  * l is the number of characters left to write.
  * m is a throwaway integer for holding the maximum.
@@ -321,19 +302,5 @@ if ((l) > 0) { \
     *bufc += (l); \
     **bufc = '\0'; \
 }
-
-/* Macro for turning an ANSI state back into ANSI codes.
- * x is a throwaway character pointer.
- * w is a pointer to the ANSI state of the previous word.
- */
-#define print_ansi_state(x,w) \
-safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 1); \
-for ((x) = (w); *(x); (x)++) { \
-    if ((x) != (w)) { \
-	safe_chr(';', buff, bufc); \
-    } \
-    safe_str(ansi_nchartab[(unsigned char) *(x)], buff, bufc); \
-} \
-safe_chr(ANSI_END, buff, bufc);
 
 #endif /* __FUNCTIONS_H */

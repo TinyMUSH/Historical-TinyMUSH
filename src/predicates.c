@@ -449,7 +449,7 @@ const char *name;
 
 	/* Disallow pure ANSI names */
 	
-	if (strlen(strip_ansi(name)) == 0)
+	if (strip_ansi_len(name) == 0)
 		return 0;
 		
 	/* Disallow leading spaces */

@@ -119,8 +119,6 @@ extern		CF_HDCL(cf_ntab_access);
 
 /* From log.c */
 extern FILE *	mainlog_fp;
-extern char *	FDECL(strip_ansi, (const char *));
-extern char *	FDECL(normal_to_white, (const char *));
 extern int	FDECL(start_log, (const char *, const char *, int));
 extern void	NDECL(end_log);
 extern void	FDECL(log_perror, (const char *, const char *,const char *,
@@ -205,6 +203,9 @@ extern void	FDECL(edit_string, (char *, char **, char *, char *));
 extern dbref	FDECL(match_controlled, (dbref, const char *));
 
 /* From stringutil.c */
+extern char *	FDECL(strip_ansi, (const char *));
+extern int	FDECL(strip_ansi_len, (const char *));
+extern char *	FDECL(normal_to_white, (const char *));
 extern char *	FDECL(upcasestr, (char *)); 
 extern char *	FDECL(munge_space, (char *));
 extern char *	FDECL(trim_spaces, (char *));

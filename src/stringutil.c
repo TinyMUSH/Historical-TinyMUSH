@@ -41,26 +41,52 @@ char **last;
 }
 #endif /* HAVE_STRTOK_R */
 
-#define Skip_Ansi_Code(x) \
-		savep = x;				\
-		while (*x && (*x != ANSI_END)) {	\
-		    safe_chr(*x, result, &r);		\
-		    x++;				\
-		}					\
-		if (*x) {				\
-		    safe_chr(*x, result, &r);		\
-		    x++;				\
-		}					\
-		if (!strncmp(savep, ANSI_NORMAL, 4)) {	\
-		    have_normal = 1;			\
-		} else {				\
-		    have_normal = 0;			\
-                }
+/* ---------------------------------------------------------------------------
+ * ANSI character-to-number translation table.
+ */
 
+char *ansi_nchartab[256] =
+{
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,               0,               N_ANSI_BBLUE,    N_ANSI_BCYAN,
+    0,               0,               0,               N_ANSI_BGREEN,
+    0,               0,               0,               0,
+    0,               N_ANSI_BMAGENTA, 0,               0,
+    0,               0,               N_ANSI_BRED,     0,
+    0,               0,               0,               N_ANSI_BWHITE,
+    N_ANSI_BBLACK,   N_ANSI_BYELLOW,  0,               0,
+    0,               0,               0,               0,
+    0,               0,               N_ANSI_BLUE,     N_ANSI_CYAN,
+    0,               0,               N_ANSI_BLINK,    N_ANSI_GREEN,
+    N_ANSI_HILITE,   N_ANSI_INVERSE,  0,               0,
+    0,               N_ANSI_MAGENTA,  N_ANSI_NORMAL,   0,
+    0,               0,               N_ANSI_RED,      0,
+    0,               N_ANSI_UNDER,    0,               N_ANSI_WHITE,
+    N_ANSI_BLACK,    N_ANSI_YELLOW,   0,               0,
+    0,               0,               0,               0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
+};
 
-/* translate_string -- Convert (type = 1) raw character sequences into
- * MUSH substitutions or strip them (type = 0). Note this is destructive
- * if the input contains ansi codes and type is 1.
+/* ---------------------------------------------------------------------------
+ * ANSI number-to-character translation table.
+ */
+
+char ansi_lettab[I_ANSI_NUM] =
+{
+	'\0',	'h',	'\0',	'\0',	'u',	'f',	'\0',	'i',
+	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',
+	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',
+	'\0',	'\0',	'\0',	'\0',	'\0',	'\0',	'x',	'r',
+	'g',	'y',	'b',	'm',	'c',	'w',	'\0',	'\0',
+	'X',	'R',	'G',	'Y',	'B',	'M',	'C',	'W'
+};
+
+/* ---------------------------------------------------------------------------
+ * ANSI number-to-percent-subst translation table.
  */
 
 char *ansi_numtab[I_ANSI_NUM] =
@@ -72,6 +98,113 @@ char *ansi_numtab[I_ANSI_NUM] =
     "%xg", "%xy", "%xb", "%xm", "%xc", "%xw", 0,     0,
     "%xX", "%xR", "%xG", "%xY", "%xB", "%xM", "%xC", "%xW"
 };
+
+/* ---------------------------------------------------------------------------
+ * ANSI packed state definitions -- number-to-bitmask translation table.
+ */
+
+int ansi_mask_bits[I_ANSI_LIM] = {
+	0xfff, 0x100, 0x100, 0,     0x200, 0x400, 0,     0x800, 0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0x100, 0x100, 0,     0x200, 0x400, 0,     0x800, 0,     0,
+	0x00f, 0x00f, 0x00f, 0x00f, 0x00f, 0x00f, 0x00f, 0x00f, 0,     0,
+	0x0f0, 0x0f0, 0x0f0, 0x0f0, 0x0f0, 0x0f0, 0x0f0, 0x0f0, 0,     0
+};
+
+/* ---------------------------------------------------------------------------
+ * ANSI packed state definitions -- number-to-bitvalue translation table.
+ */
+
+int ansi_bits[I_ANSI_LIM] = {
+	0x099, 0x100, 0x000, 0,     0x200, 0x400, 0,     0x800, 0,     0,
+	0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+	0,     0x000, 0x000, 0,     0x000, 0x000, 0,     0x000, 0,     0,
+	0x000, 0x001, 0x002, 0x003, 0x004, 0x005, 0x006, 0x007, 0,     0,
+	0x000, 0x010, 0x020, 0x030, 0x040, 0x050, 0x060, 0x070, 0,     0
+};
+
+/* ---------------------------------------------------------------------------
+ * strip_ansi -- return a new string with escape codes removed
+ */
+
+char *strip_ansi(s)
+const char *s;
+{
+	static char buf[LBUF_SIZE];
+	char *p = buf;
+
+	if (s) {
+	  while (*s == ESC_CHAR) {
+	    skip_esccode(s);
+	  }
+
+	  while (*s) {
+	    *p++ = *s++;
+	    while (*s == ESC_CHAR) {
+	      skip_esccode(s);
+	    }
+	  }
+	}
+
+	*p = '\0';
+	return buf;
+}
+
+/* ---------------------------------------------------------------------------
+ * strip_ansi_len -- count non-escape-code characters
+ */
+
+int strip_ansi_len(s)
+const char *s;
+{
+	int n = 0;
+
+	if (s) {
+		while (*s == ESC_CHAR) {
+			skip_esccode(s);
+		}
+
+		while (*s) {
+			++s, ++n;
+			while (*s == ESC_CHAR) {
+				skip_esccode(s);
+			}
+		}
+	}
+
+	return n;
+}
+
+char *normal_to_white(raw)
+const char *raw;
+{
+	static char buf[LBUF_SIZE];
+	char *p = (char *)raw;
+	char *q = buf;
+
+
+	while (p && *p) {
+		if (*p == ESC_CHAR) {
+			/* Start of ANSI code. */
+			*q++ = *p++;	/* ESC CHAR */
+			*q++ = *p++;	/* [ character. */
+			if (*p == '0') {	/* ANSI_NORMAL */
+				safe_known_str("0m", 2, buf, &q);
+				safe_chr(ESC_CHAR, buf, &q);
+				safe_known_str("[37m", 4, buf, &q);
+				p += 2;
+			}
+		} else
+			*q++ = *p++;
+	}
+	*q = '\0';
+	return buf;
+}
+
+/* translate_string -- Convert (type = 1) raw character sequences into
+ * MUSH substitutions or strip them (type = 0). Note this is destructive
+ * if the input contains ansi codes and type is 1.
+ */
 
 char *translate_string(str, type)
 char *str;
@@ -415,7 +548,7 @@ char *replace_string_ansi(old, new, string)
 
 	while (*s && (*s != *old)) {
 	    if (*s == ESC_CHAR) {
-		Skip_Ansi_Code(s);
+		Skip_Ansi_Code(s, result, &r);
 	    } else {
 		safe_chr(*s, result, &r);
 		s++;
@@ -440,7 +573,7 @@ char *replace_string_ansi(old, new, string)
 		    t = (char *) new;
 		    while (*t) {
 			if (*t == ESC_CHAR) {
-			    Skip_Ansi_Code(t);
+			    Skip_Ansi_Code(t, result, &r);
 			} else {
 			    safe_chr(*t, result, &r);
 			    t++;
@@ -455,7 +588,7 @@ char *replace_string_ansi(old, new, string)
 		 * we just copy the character.
 		 */
 		if (*old == ESC_CHAR) {
-		    Skip_Ansi_Code(s);
+		    Skip_Ansi_Code(s, result, &r);
 		} else {
 		    safe_chr(*s, result, &r);
 		    s++;

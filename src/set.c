@@ -152,7 +152,7 @@ char *newname;
 	/*
 	 * check for bad name 
 	 */
-	if ((*newname == '\0') || (strlen(strip_ansi(newname)) == 0)) {
+	if ((*newname == '\0') || (strip_ansi_len(newname) == 0)) {
 		notify_quiet(player, "Give it what new name?");
 		return;
 	}

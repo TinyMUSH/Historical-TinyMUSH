@@ -1457,7 +1457,7 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 	return;
     }
     for (i = 0; i < nwords; i++)
-	lens[i] = strlen(strip_ansi(words[i]));
+	lens[i] = strip_ansi_len(words[i]);
 
     over = wcount = 0;
     while ((wcount < nwords) && !over) {
@@ -1512,7 +1512,7 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 		for (s = words[wcount], i = 0;
 		     *s && (i < col_widths[cpos]); ) {
 		    if (*s == ESC_CHAR) {
-			Skip_Ansi_Code(s);
+			Skip_Ansi_Code(s, buff, bufc);
 		    } else {
 			safe_chr(*s, buff, bufc);
 			s++;

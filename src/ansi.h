@@ -103,5 +103,99 @@
 #define I_ANSI_BWHITE	47
 
 #define I_ANSI_NUM	48
+#define I_ANSI_LIM	50
+
+#define ANST_NORMAL	0x099
+
+extern char *ansi_nchartab[256];
+extern char  ansi_lettab[I_ANSI_NUM];
+extern char *ansi_numtab[I_ANSI_NUM];
+extern int   ansi_mask_bits[I_ANSI_LIM];
+extern int   ansi_bits[I_ANSI_LIM];
+
+#define skip_esccode(s) \
+	++(s);						\
+	if (*(s) == '[') {				\
+		do {					\
+			++(s);				\
+		} while ((*(s) & 0xf0) == 0x30);	\
+	}						\
+	while ((*(s) & 0xf0) == 0x20) {			\
+		++(s);					\
+	}						\
+	if (*(s)) {					\
+		++(s);					\
+	}
+
+#define track_esccode(s, ansi_state) \
+do {									\
+	int ansi_mask = 0;						\
+	int ansi_diff = 0;						\
+	unsigned int param_val = 0;					\
+									\
+	++(s);								\
+	if (*(s) == '[') {						\
+		while ((*(++(s)) & 0xf0) == 0x30) {			\
+			if (*(s) < 0x3a) {				\
+				param_val <<= 1;			\
+				param_val += (param_val << 2) + (*(s) & 0x0f); \
+			} else {					\
+				if (param_val < ANSI_LIM) {		\
+					ansi_mask |= ansi_mask_bits[param_val]; \
+					ansi_diff = ((ansi_diff & ~ansi_mask_bits[param_val]) | \
+						     ansi_bits[param_val]); \
+				}					\
+				param_val = 0;				\
+			}						\
+		}							\
+	}								\
+	while ((*(s) & 0xf0) == 0x20) {					\
+		++(s);							\
+	}								\
+	if (*(s) == 'm') {						\
+		if (param_val < ANSI_LIM) {				\
+			ansi_mask |= ansi_mask_bits[param_val];		\
+			ansi_diff = ((ansi_diff & ~ansi_mask_bits[param_val]) | \
+				     ansi_bits[param_val]);		\
+		}							\
+		ansi_state = (ansi_state & ~ansi_mask) | ansi_diff;	\
+		++(s);							\
+	} else if (*(s)) {						\
+		++(s);							\
+	}								\
+} while (0) 
+
+/* Macro for skipping to the end of an ANSI code, if we're at the
+ * beginning of one. 
+ */
+#define Skip_Ansi_Code(s, buff, bufc) \
+	savep = (s);				\
+	while (*(s) && (*(s) != ANSI_END)) {	\
+		safe_chr(*(s), (buff), (bufc));	\
+		++(s);				\
+	}					\
+	if (*(s)) {				\
+		safe_chr(*(s), (buff), (bufc));	\
+		++(s);				\
+	}					\
+	if (!strncmp(savep, ANSI_NORMAL, 4)) {	\
+		have_normal = 1;		\
+	} else {				\
+		have_normal = 0;		\
+	}
+
+/* Macro for turning an ANSI state back into ANSI codes.
+ * x is a throwaway character pointer.
+ * w is a pointer to the ANSI state of the previous word.
+ */
+#define print_ansi_state(x,w) \
+safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 1); \
+for ((x) = (w); *(x); (x)++) { \
+    if ((x) != (w)) { \
+	safe_chr(';', buff, bufc); \
+    } \
+    safe_str(ansi_nchartab[(unsigned char) *(x)], buff, bufc); \
+} \
+safe_chr(ANSI_END, buff, bufc)
 
 #endif /* __ANSI_H */
