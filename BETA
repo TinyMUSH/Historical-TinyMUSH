@@ -43,6 +43,9 @@ Release history:
 - Fix: Numeric hashtable entries could have different struct layout
   than string entries, causing hashtable functions not to work. [3.1]
 
+- Misc: Avoid scanning the entire help table when asked for a
+  nonexistent, non-wildcard entry. [2.0]
+
 =============================================================================
 			TinyMUSH 3.0 Beta History
 =============================================================================

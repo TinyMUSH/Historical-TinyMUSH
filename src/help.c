@@ -138,7 +138,7 @@ int eval;
 	if (htab_entry) {
 		entry_offset = htab_entry->pos;
 		entry_length = htab_entry->len;
-	} else {
+	} else if (strpbrk(topic, "*?\\")) {
 		matched = 0;
 		for (result = hash_firstkey(htab); result != NULL;
 		     result = hash_nextkey(htab)) {
@@ -162,6 +162,9 @@ int eval;
 			notify(player, topic_list);
 			free_lbuf(topic_list);
 		}
+		return;
+	} else {
+		notify(player, tprintf("No entry for '%s'.", topic));
 		return;
 	}
 	if ((fp = tf_fopen(filename, O_RDONLY)) == NULL) {
