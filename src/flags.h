@@ -88,6 +88,18 @@
 #define	CONNECTED	0x40000000	/* Player is connected */
 #define	SLAVE		0x80000000	/* Disallow most commands */
 
+/* Third word of flags */
+#define MARK_0		0x00400000	/* User-defined flags */
+#define MARK_1		0x00800000
+#define MARK_2		0x01000000
+#define MARK_3		0x02000000
+#define MARK_4		0x04000000
+#define MARK_5		0x08000000
+#define MARK_6		0x10000000
+#define MARK_7		0x20000000
+#define MARK_8		0x40000000
+#define MARK_9		0x80000000
+
 /* Flags from prior versions of MUSH */
 /* These are from Penn, and Kalkin's DarkZone version of Penn */
 #define PENN_COMBAT          0x8     /* SW custom code */

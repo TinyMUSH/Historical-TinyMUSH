@@ -946,6 +946,8 @@ extern CF_HDCL(cf_cmd_alias);
 extern CF_HDCL(cf_acmd_access);
 extern CF_HDCL(cf_attr_access);
 extern CF_HDCL(cf_func_access);
+extern CF_HDCL(cf_flag_access);
+extern CF_HDCL(cf_flag_name);
 /* *INDENT-OFF* */
 
 /* ---------------------------------------------------------------------------
@@ -1071,6 +1073,10 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.payfind, 		0},
 {(char *)"flag_alias",
 	cf_flagalias,	CA_GOD,		NULL,				0},
+{(char *)"flag_access",
+	cf_flag_access,	CA_GOD,		NULL,				0},
+{(char *)"flag_name",
+	cf_flag_name,	CA_GOD,		NULL,				0},
 {(char *)"forbid_site",
 	cf_site,	CA_GOD,		(int *)&mudstate.access_list,
 	H_FORBIDDEN},

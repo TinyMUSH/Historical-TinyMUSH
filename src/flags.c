@@ -314,6 +314,26 @@ FLAGENT gen_flags[] = {
 {"HTML", 		HTML,           '~',
 	FLAG_WORD2,     0,                      fh_any},
 #endif
+{"MARKER0",		MARK_0,		'0',
+	0,		0,			fh_god},
+{"MARKER1",		MARK_1,		'1',
+	0,		0,			fh_god},
+{"MARKER2",		MARK_2,		'2',
+	0,		0,			fh_god},
+{"MARKER3",		MARK_3,		'3',
+	0,		0,			fh_god},
+{"MARKER4",		MARK_4,		'4',
+	0,		0,			fh_god},
+{"MARKER5",		MARK_5,		'5',
+	0,		0,			fh_god},
+{"MARKER6",		MARK_6,		'6',
+	0,		0,			fh_god},
+{"MARKER7",		MARK_7,		'7',
+	0,		0,			fh_god},
+{"MARKER8",		MARK_8,		'8',
+	0,		0,			fh_god},
+{"MARKER9",		MARK_9,		'9',
+	0,		0,			fh_god},
 { NULL,			0,		' ',
 	0,		0,			NULL}};
 
@@ -650,6 +670,110 @@ int obey_myopic;
 		}
 	}
 	return buf;
+}
+
+/* ---------------------------------------------------------------------------
+ * letter_to_flag: Given a one-character flag abbrev, return the flag pointer.
+ */
+
+FLAGENT *letter_to_flag(this_letter)
+    char this_letter;
+{
+    FLAGENT *fp;
+
+    for (fp = gen_flags; fp->flagname; fp++) {
+	if (fp->flaglett == this_letter)
+	    return fp;
+    }
+    return NULL;
+}
+
+/* ---------------------------------------------------------------------------
+ * cf_flag_access: Modify who can set a user-defined flag.
+ */
+
+CF_HAND(cf_flag_access)
+{
+    char *numstr, *permstr;
+    FLAGENT *fp;
+    int flagnum = -1;
+
+    numstr = strtok(str, " \t=,");
+    permstr = strtok(NULL, " \t=,");
+
+    if (numstr && (strlen(numstr) == 1)) {
+	flagnum = atoi(numstr);
+    }
+    if ((flagnum < 0) || (flagnum > 9)) {
+	cf_log_notfound(player, cmd, "Not a marker flag", numstr);
+	return -1;
+    }
+
+    if ((fp = letter_to_flag(*numstr)) == NULL) {
+	cf_log_notfound(player, cmd, "Marker flag", numstr);
+	return -1;
+    }
+
+    if (!strcmp(permstr, (char *) "any")) {
+	fp->handler = fh_any;
+    } else if (!strcmp(permstr, (char *) "royalty")) {
+	fp->handler = fh_wizroy;
+    } else if (!strcmp(permstr, (char *) "wizard")) {
+	fp->handler = fh_wiz;
+    } else if (!strcmp(permstr, (char *) "god")) {
+	fp->handler = fh_god;
+    } else {
+	cf_log_notfound(player, cmd, "Flag access", permstr);
+	return -1;
+    }
+    return 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * cf_flag_name: Modify the name of a user-defined flag.
+ */
+
+CF_HAND(cf_flag_name)
+{
+    char *numstr, *namestr;
+    FLAGENT *fp;
+    int flagnum = -1;
+    char *flagstr;
+
+    numstr = strtok(str, " \t=,");
+    namestr = strtok(NULL, " \t=,");
+
+    if (numstr && (strlen(numstr) == 1)) {
+	flagnum = atoi(numstr);
+    }
+    if ((flagnum < 0) || (flagnum > 9)) {
+	cf_log_notfound(player, cmd, "Not a marker flag", numstr);
+	return -1;
+    }
+
+    if ((fp = letter_to_flag(*numstr)) == NULL) {
+	cf_log_notfound(player, cmd, "Marker flag", numstr);
+	return -1;
+    }
+
+    /* Our conditions: The flag name MUST start with an underscore.
+     * It must not conflict with the name of any existing flag.
+     * There is a KNOWN MEMORY LEAK here -- if you name the flag and
+     * rename it later, the old bit of memory for the name won't get
+     * freed. This should pretty much never happen, since you're not
+     * going to run around arbitrarily giving your flags new names all
+     * the time.
+     */
+
+    flagstr = (char *) strdup(tprintf("_%s", namestr));
+    if (hashfind(flagstr, &mudstate.flags_htab)) {
+	free(flagstr);
+	cf_log_syntax(player, cmd, "Marker flag name in use: %s", namestr);
+	return -1;
+    }
+
+    fp->flagname = (const char *) flagstr;
+    return 0;
 }
 
 /* ---------------------------------------------------------------------------
