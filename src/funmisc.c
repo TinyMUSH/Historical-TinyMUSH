@@ -398,23 +398,6 @@ FUNCTION(fun_lnum)
 	    return;
     }
 
-    /* If it's an ascending sequence crossing from negative numbers into
-     * positive, get the negative numbers out of the way first.
-     */
-
-    over = 0;
-    if (bot < 0 && top >= 0) {
-	while (bot < 0 && !over) {
-	    if (*bufc != bb_p) {
-		print_sep(sep, buff, bufc);
-	    }
-	    ltos(tbuf, bot);
-	    over = safe_str(tbuf, buff, bufc);
-	    bot++;
-	}
-	print_sep(sep, buff, bufc);
-    }
-
     /* We keep 0-100 pre-generated so we can do quick copies. */
 
     if (!lnum_init) {
@@ -423,10 +406,29 @@ FUNCTION(fun_lnum)
 	lnum_init = 1; 
     }
 
+    /* If it's an ascending sequence crossing from negative numbers into
+     * positive, get the negative numbers out of the way first.
+     */
+
+    bb_p = *bufc;
+    over = 0;
+    if ((bot < 0) && (top >= 0) && (sep == ' ')) {
+	while ((bot < 0) && !over) {
+	    if (*bufc != bb_p) {
+		print_sep(sep, buff, bufc);
+	    }
+	    ltos(tbuf, bot);
+	    over = safe_str(tbuf, buff, bufc);
+	    bot++;
+	}
+    }
+
     /* Copy as much out of the pre-gen as we can. */
     
-    bb_p = *bufc;
-    if ((bot < 100) && (top > bot) && (sep == ' ')) {
+    if ((bot >= 0) && (bot < 100) && (top > bot) && (sep == ' ')) {
+	if (*bufc != bb_p) {
+	    print_sep(sep, buff, bufc);
+	}
 	startp = lnum_buff + Lnum_Place(bot);
 	if (top >= 99) {
 	    safe_str(startp, buff, bufc);
@@ -436,15 +438,22 @@ FUNCTION(fun_lnum)
 	    safe_str(startp, buff, bufc);
 	    *endp = ' ';
 	}
+	if (top < 100)
+	    return;
+	else
+	    bot = 100;
     }
  
     /* Print a new list. */
 
     if (top == bot) {
+	if (*bufc != bb_p) {
+	    print_sep(sep, buff, bufc);
+	}
 	safe_ltos(buff, bufc, bot);
 	return;
     } else if (top > bot) {
-	for (i = 100; (i <= top) && !over; i++) {
+	for (i = bot; (i <= top) && !over; i++) {
 	    if (*bufc != bb_p) {
 		print_sep(sep, buff, bufc);
 	    }
