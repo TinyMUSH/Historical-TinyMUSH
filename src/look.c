@@ -117,9 +117,9 @@ const char *exit_name;
 			/* XXX The exit name needs to be HTML escaped. */
 			safe_str((char *) "<a xch_cmd=\"", buff, &e);
 			safe_str(buff1, buff, &e);
-			safe_str((char *) "\"> ", buff, &e);
+			safe_str((char *) "\">", buff, &e);
 			html_escape(buff1, buff, &e);
-			safe_str((char *) " </a>", buff, &e);
+			safe_str((char *) "</a>", buff, &e);
 		    } else {
 #endif
 			/* Append this exit to the list */
