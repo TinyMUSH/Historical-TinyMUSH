@@ -159,6 +159,7 @@ NAMETAB fpose_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB	function_sw[] = {
+{(char *)"list",	1,	CA_WIZARD,	FN_LIST},
 {(char *)"noeval",	1,	CA_WIZARD,	FN_NO_EVAL|SW_MULTIPLE},
 {(char *)"privileged",	3,	CA_WIZARD,	FN_PRIV|SW_MULTIPLE},
 {(char *)"preserve",	3,	CA_WIZARD,	FN_PRES|SW_MULTIPLE},

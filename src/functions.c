@@ -70,6 +70,47 @@ char *fname, *target;
 	int atr, aflags;
 	dbref obj, aowner;
 
+	/* Check for list first */
+
+	if (key & FN_LIST) {
+	    
+	    if (fname && *fname) {
+
+		/* Make it case-insensitive, and look it up. */
+
+		for (bp = fname; *bp; bp++) {
+		    *bp = ToUpper(*bp);
+		}
+
+		ufp = (UFUN *) hashfind(fname, &mudstate.ufunc_htab);
+
+		if (ufp) {
+		    notify(player,
+			   tprintf("%s: #%d/%s",
+				   ufp->name, ufp->obj, 
+				   ((ATTR *) atr_num(ufp->atr))->name));
+		} else {
+		    notify(player,
+			   tprintf("%s not found in user function table.",
+				   fname));
+		}
+		return;
+	    }
+
+	    /* No name given, list them all. */
+
+	    for (ufp = (UFUN *) hash_firstentry(&mudstate.ufunc_htab);
+		 ufp != NULL;
+		 ufp = (UFUN *) hash_nextentry(&mudstate.ufunc_htab)) {
+		notify(player,
+		       tprintf("%s: #%d/%s",
+			       ufp->name, ufp->obj, 
+			       ((ATTR *) atr_num(ufp->atr))->name));
+	    }
+	    return;
+	}
+
+
 	/* Make a local uppercase copy of the function name */
 
 	bp = np = alloc_sbuf("add_user_func");

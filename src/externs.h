@@ -554,6 +554,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	FN_NO_EVAL	2	/* Don't evaluate args to function */
 #define	FN_PRIV		4	/* Perform user-def function as holding obj */
 #define FN_PRES		8	/* Preseve r-regs before user-def functions */
+#define FN_LIST		16	/* List the user-defined functions */
 
 /* Message forwarding directives */
 
