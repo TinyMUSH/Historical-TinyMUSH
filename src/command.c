@@ -2421,9 +2421,10 @@ dbref player;
 		mudstate.idle_counter - now);
 	raw_notify(player, buff);
 
-	sprintf(buff, "Timeouts: Idle...%d  Connect...%d  Tries...%d",
+	sprintf(buff,
+		"Timeouts: Idle...%d  Connect...%d  Tries...%d  Lag...%d",
 		mudconf.idle_timeout, mudconf.conn_timeout,
-		mudconf.retry_limit);
+		mudconf.retry_limit, mudconf.max_cmdsecs);
 	raw_notify(player, buff);
 
 	sprintf(buff, "Scheduling: Timeslice...%d  Max_Quota...%d  Increment...%d",
