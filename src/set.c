@@ -1702,7 +1702,7 @@ char *object, *argv[];
 		return;
 	}
 	did_it(player, thing, A_NULL, NULL, A_NULL, NULL,
-	       attrib, key & TRIG_NOW, argv, nargs);
+	       attrib, key & TRIG_NOW, argv, nargs, 0);
 
 	/*
 	 * XXX be more descriptive as to what was triggered? 
@@ -1741,7 +1741,8 @@ char *object;
 	if (!could_doit(player, thing, A_LUSE)) {
 		did_it(player, thing, A_UFAIL,
 		       "You can't figure out how to use that.",
-		       A_OUFAIL, NULL, A_AUFAIL, 0, (char **)NULL, 0);
+		       A_OUFAIL, NULL, A_AUFAIL, 0, (char **)NULL, 0,
+		       MSG_PRESENCE);
 		return;
 	}
 	temp = alloc_lbuf("do_use");
@@ -1762,7 +1763,7 @@ char *object;
 		bp = df_ouse;
 		safe_tprintf_str(df_ouse, &bp, "uses %s", Name(thing));
 		did_it(player, thing, A_USE, df_use, A_OUSE, df_ouse, A_AUSE,
-		       1, (char **)NULL, 0);
+		       1, (char **)NULL, 0, MSG_PRESENCE);
 		free_lbuf(df_use);
 		free_lbuf(df_ouse);
 	} else {

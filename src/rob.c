@@ -146,7 +146,7 @@ char *what, *costchar;
 				if (!Quiet(victim))
 					notify(Owner(victim), "Halted.");
 		did_it(player, victim, A_KILL, buf1, A_OKILL, buf2, A_AKILL, 0,
-		       (char **)NULL, 0);
+		       (char **)NULL, 0, MSG_PRESENCE);
 
 		/*
 		 * notify victim 
@@ -233,7 +233,7 @@ char *what;
 		*sp = '\0';
 
 		did_it(giver, thing, A_GFAIL, str, A_OGFAIL, NULL,
-		       A_AGFAIL, 0, (char **)NULL, 0);
+		       A_AGFAIL, 0, (char **)NULL, 0, MSG_MOVE);
 		free_lbuf(str);
 		return;
 	}
@@ -246,7 +246,7 @@ char *what;
 		*sp = '\0';
 
 		did_it(giver, recipient, A_RFAIL, str, A_ORFAIL, NULL,
-		       A_ARFAIL, 0, (char **)NULL, 0);
+		       A_ARFAIL, 0, (char **)NULL, 0, MSG_MOVE);
 		free_lbuf(str);
 		return;
 	}
@@ -263,9 +263,9 @@ char *what;
 		free_lbuf(str);
 	}
 	did_it(giver, thing, A_DROP, NULL, A_ODROP, NULL, A_ADROP,
-	       0, (char **)NULL, 0);
+	       0, (char **)NULL, 0, MSG_MOVE);
 	did_it(recipient, thing, A_SUCC, NULL, A_OSUCC, NULL, A_ASUCC,
-	       0, (char **)NULL, 0);
+	       0, (char **)NULL, 0, MSG_MOVE);
 }
 
 static void give_money(giver, recipient, key, amount)
@@ -384,7 +384,7 @@ int amount;
 
 	giveto(recipient, cost);
 	did_it(giver, recipient, A_PAY, NULL, A_OPAY, NULL, A_APAY,
-	       0, (char **)NULL, 0);
+	       0, (char **)NULL, 0, MSG_PRESENCE);
 	return;
 }
 

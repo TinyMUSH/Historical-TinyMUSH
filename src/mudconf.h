@@ -52,7 +52,7 @@ struct module_linked_list {
     int (*process_no_match)(dbref, dbref, int, char *, char *, char *[], int);
     int (*did_it)(dbref, dbref, dbref,
 		  int, const char *, int, const char *, int,
-		  int, char *[], int);
+		  int, char *[], int, int);
     void (*create_obj)(dbref, dbref);
     void (*destroy_obj)(dbref, dbref);
     void (*create_player)(dbref, dbref, int, int); 

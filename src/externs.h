@@ -100,9 +100,9 @@ extern int	FDECL(xlate, (char *));
 
 /* From game.c */
 extern void	FDECL(notify_except, (dbref, dbref, dbref,
-			const char *));
+			const char *, int));
 extern void	FDECL(notify_except2, (dbref, dbref, dbref, dbref,
-			 const char *));
+			 const char *, int));
 extern void	FDECL(notify_check, (dbref, dbref, const char *, int));
 extern int	FDECL(Hearer, (dbref));
 extern void	FDECL(html_escape, (const char *, char *, char **));
@@ -190,7 +190,7 @@ extern dbref	FDECL(where_room, (dbref));
 extern int	FDECL(locatable, (dbref, dbref, dbref));
 extern int	FDECL(nearby, (dbref, dbref));
 extern void	FDECL(did_it, (dbref, dbref, int, const char *, int,
-			const char *, int, int, char *[], int));
+			const char *, int, int, char *[], int, int));
 
 /* From set.c */
 extern int	FDECL(parse_attrib, (dbref, char *, dbref *, int *, int));
@@ -429,6 +429,9 @@ extern int	FDECL(quick_wild, (char *, char *));
 /* twarp empty		16 */
 #define TWARP_EVENTS	32	/* Warp the events checking interval */
 #define VERB_NOW	1	/* Run @afoo immediately, no queueing */
+#define VERB_MOVE	2	/* Treat like movement message */
+#define VERB_SPEECH	4	/* Treat like speech message */
+#define VERB_PRESENT	8	/* Treat like presence message */
 
 /* Hush codes for movement messages */
 
@@ -463,21 +466,24 @@ extern int	FDECL(quick_wild, (char *, char *));
 
 /* Message forwarding directives */
 
-#define	MSG_PUP_ALWAYS	1	/* Always forward msg to puppet own */
-#define	MSG_INV		2	/* Forward msg to contents */
-#define	MSG_INV_L	4	/* ... only if msg passes my @listen */
-#define	MSG_INV_EXITS	8	/* Forward through my audible exits */
-#define	MSG_NBR		16	/* Forward msg to neighbors */
-#define	MSG_NBR_A	32	/* ... only if I am audible */
-#define	MSG_NBR_EXITS	64	/* Also forward to neighbor exits */
-#define	MSG_NBR_EXITS_A	128	/* ... only if I am audible */
-#define	MSG_LOC		256	/* Send to my location */
-#define	MSG_LOC_A	512	/* ... only if I am audible */
-#define	MSG_FWDLIST	1024	/* Forward to my fwdlist members if aud */
-#define	MSG_ME		2048	/* Send to me */
-#define	MSG_S_INSIDE	4096	/* Originator is inside target */
-#define	MSG_S_OUTSIDE	8192	/* Originator is outside target */
-#define MSG_HTML	16384   /* Don't send \r\n */
+#define	MSG_PUP_ALWAYS	0x00001	/* Always forward msg to puppet own */
+#define	MSG_INV		0x00002	/* Forward msg to contents */
+#define	MSG_INV_L	0x00004	/* ... only if msg passes my @listen */
+#define	MSG_INV_EXITS	0x00008	/* Forward through my audible exits */
+#define	MSG_NBR		0x00010	/* Forward msg to neighbors */
+#define	MSG_NBR_A	0x00020	/* ... only if I am audible */
+#define	MSG_NBR_EXITS	0x00040	/* Also forward to neighbor exits */
+#define	MSG_NBR_EXITS_A	0x00080	/* ... only if I am audible */
+#define	MSG_LOC		0x00100	/* Send to my location */
+#define	MSG_LOC_A	0x00200	/* ... only if I am audible */
+#define	MSG_FWDLIST	0x00400	/* Forward to my fwdlist members if aud */
+#define	MSG_ME		0x00800	/* Send to me */
+#define	MSG_S_INSIDE	0x01000	/* Originator is inside target */
+#define	MSG_S_OUTSIDE	0x02000	/* Originator is outside target */
+#define MSG_HTML	0x04000	/* Don't send \r\n */
+#define MSG_SPEECH	0x08000 /* This message is speech. */
+#define MSG_MOVE	0x10000	/* This message is movement. */
+#define MSG_PRESENCE	0x20000 /* This message is related to presence. */
 #define	MSG_ME_ALL	(MSG_ME|MSG_INV_EXITS|MSG_FWDLIST)
 #define	MSG_F_CONTENTS	(MSG_INV)
 #define	MSG_F_UP	(MSG_NBR_A|MSG_LOC_A)
@@ -535,10 +541,18 @@ extern int	FDECL(quick_wild, (char *, char *));
 						MSG_ME_ALL|MSG_NBR_EXITS|MSG_F_UP|MSG_F_CONTENTS)
 #define	notify_all_from_inside(p,c,m)	notify_check(p,c,m, \
 						MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE)
+#define	notify_all_from_inside_speech(p,c,m)	notify_check(p,c,m, \
+						MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE|MSG_SPEECH)
 #define notify_all_from_inside_html(p,c,m)      notify_check(p,c,m, \
                                               MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE|MSG_HTML) 
+#define notify_all_from_inside_html_speech(p,c,m)      notify_check(p,c,m, \
+                                              MSG_ME_ALL|MSG_NBR_EXITS_A|MSG_F_UP|MSG_F_CONTENTS|MSG_S_INSIDE|MSG_HTML|MSG_SPEECH) 
 #define	notify_all_from_outside(p,c,m)	notify_check(p,c,m, \
 						MSG_ME_ALL|MSG_NBR_EXITS|MSG_F_UP|MSG_F_CONTENTS|MSG_S_OUTSIDE)
+
+#define CANNOT_HEAR_MSG  "That target cannot hear you."
+#define CANNOT_SEE_MSG   "That target cannot see you."
+#define NOT_PRESENT_MSG  "That target is not present."
 
 /* --------------------------------------------------------------------------
  * General macros.

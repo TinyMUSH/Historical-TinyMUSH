@@ -92,6 +92,7 @@
 #define HAS_DARKLOCK	0x00000008	/* Has a DarkLock */
 #define DIRTY		0x00000010	/* Temporary flag: object is dirty */
 #define NODEFAULT	0x00000020	/* Not subject to attr defaults */
+#define PRESENCE	0x00000040	/* Check presence-related locks */
 /* FREE FREE FREE */
 #define MARK_0		0x00400000	/* User-defined flags */
 #define MARK_1		0x00800000
@@ -535,5 +536,11 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			     !((f) & (AF_WIZARD|AF_GOD))) || \
 			    (Sets_Wiz_Attrs(p) && \
 			     !((a)->flags & AF_GOD))))))
+
+/* Visibility abstractions */
+
+#define Will_Hear(p,t)      1
+#define Will_See(p,t)       1
+#define Is_Present(p,t)     1
 
 #endif /* __FLAGS_H */

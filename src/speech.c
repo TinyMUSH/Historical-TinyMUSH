@@ -149,29 +149,31 @@ char *message;
 			   tprintf("You %s \"%s\"", SAY_STRING, message));
 		    notify_except(loc, player, player,
 				  tprintf("%s %s \"%s\"", Name(player),
-					  SAYS_STRING, message));
+					  SAYS_STRING, message),
+				  MSG_SPEECH);
 		} else {
-		    notify_all_from_inside(loc, player,
+		    notify_all_from_inside_speech(loc, player,
 			   tprintf("%s %s \"%s\"",
 				   Name(player), SAYS_STRING, message));
 		}
 		break;
 	case SAY_POSE:
-		notify_all_from_inside(loc, player,
+		notify_all_from_inside_speech(loc, player,
 				   tprintf("%s %s", Name(player), message));
 		break;
 	case SAY_POSE_NOSPC:
-		notify_all_from_inside(loc, player,
+		notify_all_from_inside_speech(loc, player,
 				    tprintf("%s%s", Name(player), message));
 		break;
 	case SAY_EMIT:
 	        if (!say_flags || (say_flags & SAY_HERE) ||
 		    ((say_flags & SAY_HTML) && !(say_flags & SAY_ROOM))) {
 			if (say_flags & SAY_HTML) {
-				notify_all_from_inside_html(loc, player,
+				notify_all_from_inside_html_speech(loc, player,
 							    message);
 			} else {
-				notify_all_from_inside(loc, player, message);
+				notify_all_from_inside_speech(loc, player,
+							      message);
 			}
 		}
 		if (say_flags & SAY_ROOM) {
@@ -189,10 +191,11 @@ char *message;
 			}
 			if (Typeof(loc) == TYPE_ROOM) {
 			    if (say_flags & SAY_HTML) {
-				notify_all_from_inside_html(loc, player,
+				notify_all_from_inside_html_speech(loc, player,
 							    message);
 			    } else {
-				notify_all_from_inside(loc, player, message);
+				notify_all_from_inside_speech(loc, player,
+							      message);
 			    }
 			}
 		}
@@ -837,29 +840,32 @@ char *recipient, *message;
 			}
 			break;
 		case PEMIT_OEMIT:
-			notify_except(Location(target), player, target, message);
+			notify_except(Location(target), player, target, message, 0);
 			break;
 		case PEMIT_WHISPER:
-			switch (*message) {
-			case ':':
-				message[0] = ' ';
-				whisper_pose(player, target, message);
-				break;
-			case ';':
-				message++;
-				whisper_pose(player, target, message);
-				break;
-			case '"':
-				message++;
-			default:
-				notify(player,
-				       tprintf("You whisper \"%s\" to %s.",
-					       message, Name(target)));
-				notify_with_cause(target, player,
-					       tprintf("%s whispers \"%s\"",
-						    Name(player), message));
-			}
-			if ((!mudconf.quiet_whisper) && !Wizard(player)) {
+		        if (!Will_Hear(player, target)) {
+			    notify(player, CANNOT_HEAR_MSG);
+			} else {
+			    switch (*message) {
+				case ':':
+				    message[0] = ' ';
+				    whisper_pose(player, target, message);
+				    break;
+				case ';':
+				    message++;
+				    whisper_pose(player, target, message);
+				    break;
+				case '"':
+				    message++;
+				default:
+				    notify(player,
+					   tprintf("You whisper \"%s\" to %s.",
+						   message, Name(target)));
+				    notify_with_cause(target, player,
+						  tprintf("%s whispers \"%s\"",
+						  Name(player), message));
+			    }
+			    if ((!mudconf.quiet_whisper) && !Wizard(player)) {
 				loc = where_is(player);
 				if (loc != NOTHING) {
 					buf2 = alloc_lbuf("do_pemit.whisper.buzz");
@@ -870,9 +876,11 @@ char *recipient, *message;
 					safe_name(target, buf2, &bp);
 					*bp = '\0';
 					notify_except2(loc, player, player,
-						       target, buf2);
+						       target, buf2,
+						       MSG_SPEECH);
 					free_lbuf(buf2);
 				}
+			    }
 			}
 			break;
 		case PEMIT_FSAY:
@@ -883,26 +891,28 @@ char *recipient, *message;
 				notify_except(loc, player, target,
 					      tprintf("%s %s \"%s\"",
 						      Name(target),
-						      SAYS_STRING, message));
+						      SAYS_STRING, message),
+					      MSG_SPEECH);
 			    }
 			} else {
-			    notify_all_from_inside(loc, player,
+			    notify_all_from_inside_speech(loc, player,
 					   tprintf("%s %s \"%s\"",
 						   Name(target),
 						   SAYS_STRING, message));
 			}
 			break;
 		case PEMIT_FPOSE:
-			notify_all_from_inside(loc, player,
+			notify_all_from_inside_speech(loc, player,
 				   tprintf("%s %s", Name(target), message));
 			break;
 		case PEMIT_FPOSE_NS:
-			notify_all_from_inside(loc, player,
+			notify_all_from_inside_speech(loc, player,
 				    tprintf("%s%s", Name(target), message));
 			break;
 		case PEMIT_FEMIT:
 			if ((pemit_flags & PEMIT_HERE) || !pemit_flags)
-				notify_all_from_inside(loc, player, message);
+				notify_all_from_inside_speech(loc, player,
+							      message);
 			if (pemit_flags & PEMIT_ROOM) {
 				if ((Typeof(loc) == TYPE_ROOM) &&
 				    (pemit_flags & PEMIT_HERE)) {
@@ -917,8 +927,9 @@ char *recipient, *message;
 						return;
 				}
 				if (Typeof(loc) == TYPE_ROOM) {
-					notify_all_from_inside(loc, player,
-							       message);
+					notify_all_from_inside_speech(loc,
+								      player,
+								      message);
 				}
 			}
 			break;

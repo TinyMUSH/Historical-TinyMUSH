@@ -1830,9 +1830,9 @@ dbref player, thing;
  * did_it: Have player do something to/with thing
  */
 
-void did_it(player, thing, what, def, owhat, odef, awhat, now, args, nargs)
+void did_it(player, thing, what, def, owhat, odef, awhat, now, args, nargs, key)
 dbref player, thing;
-int what, owhat, awhat, now, nargs;
+int what, owhat, awhat, now, nargs, key;
 char *args[];
 const char *def, *odef;
 {
@@ -1886,7 +1886,7 @@ const char *def, *odef;
     CALL_SOME_MODULES(retval, did_it,
 		      (player, thing, master,
 		       what, def, owhat, def, awhat,
-		       now, args, nargs));
+		       now, args, nargs, key));
     if (retval > 0)
 	return;
 
@@ -2025,22 +2025,22 @@ const char *def, *odef;
 	    *bp = '\0';
 	    if (*buff) {
 		if (aflags & AF_NONAME) {
-		    notify_except2(loc, player, player, thing, buff);
+		    notify_except2(loc, player, player, thing, buff, key);
 		} else {
 		    notify_except2(loc, player, player, thing,
-				   tprintf("%s %s", Name(player), buff));
+				   tprintf("%s %s", Name(player), buff), key);
 		}
 	    }
 	    free_lbuf(buff);
 	} else if (odef) {
 	    notify_except2(loc, player, player, thing,
-			   tprintf("%s %s", Name(player), odef));
+			   tprintf("%s %s", Name(player), odef), key);
 	}
 	free_lbuf(d);
     } else if ((owhat < 0) && odef && Has_location(player) &&
 	       Good_obj(loc = Location(player))) {
 	notify_except2(loc, player, player, thing,
-		       tprintf("%s %s", Name(player), odef));
+		       tprintf("%s %s", Name(player), odef), key);
     }
 
     if (m) {
@@ -2266,7 +2266,10 @@ char *victim_str, *args[];
 	 */
 
 	did_it(actor, victim, what, whatd, owhat, owhatd, awhat,
-	       key & VERB_NOW, xargs, nxargs);
+	       key & VERB_NOW, xargs, nxargs,
+	       (((key & VERB_SPEECH) ? MSG_SPEECH : 0) |
+		((key & VERB_MOVE) ? MSG_MOVE : 0) |
+		((key & VERB_PRESENT) ? MSG_PRESENCE : 0)));
 
 	/*
 	 * Free user args 

@@ -164,7 +164,8 @@ char *arg1, *arg2;
 				notify_quiet(player, NOPERM_MESSAGE);
 			did_it(victim, destination,
 			       A_TFAIL, "You can't teleport there!",
-			       A_OTFAIL, NULL, A_ATFAIL, 0, (char **)NULL, 0);
+			       A_OTFAIL, NULL, A_ATFAIL, 0, (char **)NULL, 0,
+			       MSG_MOVE);
 			return;
 		}
 		/*
@@ -307,7 +308,7 @@ char *toad, *newowner;
 	loc = Location(victim);
 	buf = alloc_mbuf("do_toad");
 	sprintf(buf, "%s has been turned into a slimy toad!", Name(victim));
-	notify_except2(loc, player, victim, player, buf);
+	notify_except2(loc, player, victim, player, buf, 0);
 	sprintf(buf, "You toaded %s! (%d objects @chowned)", Name(victim),
 		count + 1);
 	notify_quiet(player, buf);

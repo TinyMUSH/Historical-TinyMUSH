@@ -60,13 +60,13 @@ int canhear, hush;
 	    A_ALEAVE : A_NULL;
 	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? A_NULL : A_LEAVE;
 	did_it(thing, loc, pattr, NULL, oattr, NULL, aattr, 0,
-	       (char **)NULL, 0);
+	       (char **)NULL, 0, MSG_MOVE);
 
 	/* Do OXENTER for receiving room */
 
 	if ((dest != NOTHING) && !quiet)
 		did_it(thing, dest, A_NULL, NULL, A_OXENTER, NULL, A_NULL, 0,
-		       (char **)NULL, 0);
+		       (char **)NULL, 0, MSG_MOVE);
 
 	/* Display the 'has left' message if we meet any of the following
 	 * criteria: 
@@ -78,7 +78,8 @@ int canhear, hush;
 		if ((!Dark(thing) && !Dark(loc)) ||
 		    (canhear && !DarkMover(thing))) {
 			notify_except2(loc, thing, thing, cause,
-				       tprintf("%s has left.", Name(thing)));
+				       tprintf("%s has left.", Name(thing)),
+				       MSG_MOVE);
 		}
 	}
 }
@@ -120,13 +121,13 @@ int canhear, hush;
 	    A_AENTER : A_NULL;
 	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? A_NULL : A_ENTER;
 	did_it(thing, loc, pattr, NULL, oattr, NULL, aattr, 0,
-	       (char **)NULL, 0);
+	       (char **)NULL, 0, MSG_MOVE);
 
 	/* Do OXLEAVE for sending room */
 
 	if ((src != NOTHING) && !quiet)
 		did_it(thing, src, A_NULL, NULL, A_OXLEAVE, NULL, A_NULL, 0,
-		       (char **)NULL, 0);
+		       (char **)NULL, 0, MSG_MOVE);
 
 	/* Display the 'has arrived' message if we meet all of the following
 	 * criteria: 
@@ -137,7 +138,8 @@ int canhear, hush;
 	if (!quiet && canhear &&
 	    !Blind(thing) && !Blind(loc) && !DarkMover(thing)) {
 		notify_except2(loc, thing, thing, cause,
-			       tprintf("%s has arrived.", Name(thing)));
+			       tprintf("%s has arrived.", Name(thing)),
+			       MSG_MOVE);
 	}
 }
 
@@ -277,7 +279,7 @@ int hush;
 	process_leave_loc(thing, dest, cause, canhear, hush);
 	move_object(thing, dest);
 	did_it(thing, thing, A_MOVE, NULL, A_OMOVE, NULL, A_AMOVE, 0,
-	       (char **)NULL, 0);
+	       (char **)NULL, 0, MSG_MOVE);
 	process_enter_loc(thing, src, cause, canhear, hush);
 }
 
@@ -307,7 +309,7 @@ int hush;
 	    A_ASUCC : A_NULL;
 	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? A_NULL : A_SUCC;
 	did_it(thing, exit, pattr, NULL, oattr, NULL, aattr, 0,
-	       (char **)NULL, 0);
+	       (char **)NULL, 0, MSG_MOVE);
 	process_leave_loc(thing, dest, cause, canhear, hush);
 	move_object(thing, dest);
 
@@ -318,10 +320,10 @@ int hush;
 	    A_ADROP : A_NULL;
 	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? A_NULL : A_DROP;
 	did_it(thing, exit, pattr, NULL, oattr, NULL, aattr, 0,
-	       (char **)NULL, 0);
+	       (char **)NULL, 0, MSG_MOVE);
 
 	did_it(thing, thing, A_MOVE, NULL, A_OMOVE, NULL, A_AMOVE, 0,
-	       (char **)NULL, 0);
+	       (char **)NULL, 0, MSG_MOVE);
 	process_enter_loc(thing, src, cause, canhear, hush);
 	process_sticky_dropto(src, thing);
 }
@@ -355,7 +357,8 @@ int hush;
 				}
 				did_it(thing, src,
 				       A_TOFAIL, failmsg, A_OTOFAIL, NULL,
-				       A_ATOFAIL, 0, (char **)NULL, 0);
+				       A_ATOFAIL, 0, (char **)NULL, 0,
+				       MSG_MOVE);
 				return 0;
 			}
 			if (isRoom(curr))
@@ -368,14 +371,14 @@ int hush;
 	canhear = Hearer(thing);
 	if (!(hush & HUSH_LEAVE))
 		did_it(thing, thing, A_NULL, NULL, A_OXTPORT, NULL,
-		       A_NULL, 0, (char **)NULL, 0);
+		       A_NULL, 0, (char **)NULL, 0, MSG_MOVE);
 	process_leave_loc(thing, dest, NOTHING, canhear, hush);
 	move_object(thing, dest);
 	if (!(hush & HUSH_ENTER))
 		did_it(thing, thing, A_TPORT, NULL, A_OTPORT, NULL,
-		       A_ATPORT, 0, (char **)NULL, 0);
+		       A_ATPORT, 0, (char **)NULL, 0, MSG_MOVE);
 	did_it(thing, thing, A_MOVE, NULL, A_OMOVE, NULL, A_AMOVE, 0,
-	       (char **)NULL, 0);
+	       (char **)NULL, 0, MSG_MOVE);
 	process_enter_loc(thing, src, NOTHING, canhear, hush);
 	divest_object(thing);
 	process_sticky_dropto(src, thing);
@@ -471,7 +474,7 @@ const char *failmsg;
 			 (Dark(player) && !mudconf.dark_actions)) ?
 		    A_NULL : A_AFAIL;
 		did_it(player, exit, A_FAIL, failmsg, oattr, NULL, aattr, 0,
-		       (char **)NULL, 0);
+		       (char **)NULL, 0, MSG_MOVE);
 	}
 }
 
@@ -501,7 +504,8 @@ char *direction;
 			/* tell all */
 
 			notify_except(loc, player, player,
-				    tprintf("%s goes home.", Name(player)));
+				      tprintf("%s goes home.", Name(player)),
+				      MSG_MOVE);
 		}
 		/* give the player the messages */
 
@@ -619,7 +623,7 @@ char *what;
 			oattr = quiet ? 0 : A_OSUCC;
 			aattr = quiet ? 0 : A_ASUCC;
 			did_it(player, thing, A_SUCC, "Taken.", oattr, NULL,
-			       aattr, 0, (char **)NULL, 0);
+			       aattr, 0, (char **)NULL, 0, MSG_MOVE);
 		} else {
 			oattr = quiet ? 0 : A_OFAIL;
 			aattr = quiet ? 0 : A_AFAIL;
@@ -629,7 +633,8 @@ char *what;
 				failmsg = (char *)"You can't pick that up.";
 			did_it(player, thing,
 			       A_FAIL, failmsg,
-			       oattr, NULL, aattr, 0, (char **)NULL, 0);
+			       oattr, NULL, aattr, 0, (char **)NULL, 0,
+			       MSG_MOVE);
 		}
 		break;
 	case TYPE_EXIT:
@@ -700,7 +705,8 @@ char *name;
 		if (((Location(thing) != player) && !Wizard(player)) ||
 		    (!could_doit(player, thing, A_LDROP))) {
 			did_it(player, thing, A_DFAIL, "You can't drop that.",
-			       A_ODFAIL, NULL, A_ADFAIL, 0, (char **)NULL, 0);
+			       A_ODFAIL, NULL, A_ADFAIL, 0, (char **)NULL, 0,
+			       MSG_MOVE);
 			return;
 		}
 		/* Move it */
@@ -715,7 +721,7 @@ char *name;
 		oattr = quiet ? 0 : A_ODROP;
 		aattr = quiet ? 0 : A_ADROP;
 		did_it(player, thing, A_DROP, "Dropped.", oattr, buf,
-		       aattr, 0, (char **)NULL, 0);
+		       aattr, 0, (char **)NULL, 0, MSG_MOVE);
 		free_lbuf(buf);
 
 		/* Process droptos */
@@ -766,7 +772,7 @@ int quiet;
 		oattr = quiet ? 0 : A_OEFAIL;
 		aattr = quiet ? 0 : A_AEFAIL;
 		did_it(player, thing, A_EFAIL, NOPERM_MESSAGE,
-		       oattr, NULL, aattr, 0, (char **)NULL, 0);
+		       oattr, NULL, aattr, 0, (char **)NULL, 0, MSG_MOVE);
 	} else if (player == thing) {
 		notify(player, "You can't enter yourself!");
 	} else if (could_doit(player, thing, A_LENTER)) {
@@ -779,7 +785,7 @@ int quiet;
 		oattr = quiet ? 0 : A_OEFAIL;
 		aattr = quiet ? 0 : A_AEFAIL;
 		did_it(player, thing, A_EFAIL, "You can't enter that.",
-		       oattr, NULL, aattr, 0, (char **)NULL, 0);
+		       oattr, NULL, aattr, 0, (char **)NULL, 0, MSG_MOVE);
 	}
 }
 
@@ -835,6 +841,6 @@ int key;
 		oattr = quiet ? 0 : A_OLFAIL;
 		aattr = quiet ? 0 : A_ALFAIL;
 		did_it(player, loc, A_LFAIL, "You can't leave.",
-		       oattr, NULL, aattr, 0, (char **)NULL, 0);
+		       oattr, NULL, aattr, 0, (char **)NULL, 0, MSG_MOVE);
 	}
 }

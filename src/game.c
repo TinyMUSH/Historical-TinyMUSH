@@ -523,6 +523,11 @@ void html_escape(src, dest, destp)
 
 #endif /* PUEBLO_SUPPORT */
 
+#define OK_To_Send(p,t)  (!herekey || \
+			  ((key & MSG_SPEECH) && Will_Hear((p),(t))) || \
+			  ((key & MSG_MOVE) && Will_See((p),(t))) || \
+			  ((key & MSG_PRESENCE) && Is_Present((p),(t))))
+
 void notify_check(target, sender, msg, key)
 dbref target, sender;
 int key;
@@ -531,8 +536,8 @@ const char *msg;
 	char *msg_ns, *mp, *tbuff, *tp, *buff;
 	char *args[NUM_ENV_VARS];
 	dbref aowner, targetloc, recip, obj;
-	int i, nargs, aflags, alen, has_neighbors, pass_listen;
-	int check_listens, pass_uselock, is_audible;
+	int i, nargs, aflags, alen, has_neighbors, pass_listen, herekey;
+	int check_listens, pass_uselock, is_audible, will_send;
 	FWDLIST *fp;
 	NUMBERTAB *np;
 
@@ -591,8 +596,12 @@ const char *msg;
 
 	s_Accessed(target);
 	check_listens = Halted(target) ? 0 : 1;
+	herekey = key & (MSG_SPEECH | MSG_MOVE | MSG_PRESENCE);
+	will_send = OK_To_Send(sender, target);
+
 	switch (Typeof(target)) {
 	case TYPE_PLAYER:
+	    if (will_send) {
 #ifndef PUEBLO_SUPPORT
 		if (key & MSG_ME)
 			raw_notify(target, msg_ns);
@@ -616,6 +625,7 @@ const char *msg;
 #endif /* ! PUEBLO_SUPPORT */
 		if (!mudconf.player_listen)
 			check_listens = 0;
+	    }
 	case TYPE_THING:
 	case TYPE_ROOM:
 
@@ -623,7 +633,7 @@ const char *msg;
 		 * if they're not a player (players were already notified
 		 * above). */
 		
-		if (mudstate.inpipe && !isPlayer(target)) {
+		if (mudstate.inpipe && !isPlayer(target) && will_send) {
 			raw_notify(target, msg_ns);
 		}
 		
@@ -633,7 +643,7 @@ const char *msg;
 		targetloc = where_is(target);
 		is_audible = Audible(target);
 
-		if ((key & MSG_ME) &&
+		if (will_send && (key & MSG_ME) &&
 		    Puppet(target) &&
 		    (target != Owner(target)) &&
 		    ((key & MSG_PUP_ALWAYS) ||
@@ -666,8 +676,8 @@ const char *msg;
 
 		pass_listen = 0;
 		nargs = 0;
-		if (check_listens && (key & (MSG_ME | MSG_INV_L)) &&
-		    H_Listen(target)) {
+		if (will_send && check_listens &&
+		    (key & (MSG_ME | MSG_INV_L)) && H_Listen(target)) {
 		    tp = atr_get(target, A_LISTEN, &aowner, &aflags, &alen);
 		    if (*tp &&
 			((!(aflags & AF_REGEXP) &&
@@ -691,23 +701,24 @@ const char *msg;
 		 */
 
 		pass_uselock = 0;
-		if ((key & MSG_ME) && check_listens &&
+		if (will_send && (key & MSG_ME) && check_listens &&
 		    (pass_listen || Monitor(target)))
 			pass_uselock = could_doit(sender, target, A_LUSE);
 
 		/* Process AxHEAR if we pass LISTEN, USElock and it's for me */
 
-		if ((key & MSG_ME) && pass_listen && pass_uselock) {
+		if (will_send && (key & MSG_ME) &&
+		    pass_listen && pass_uselock) {
 			if (sender != target)
 				did_it(sender, target,
 				       A_NULL, NULL, A_NULL, NULL,
-				       A_AHEAR, 0, args, nargs);
+				       A_AHEAR, 0, args, nargs, 0);
 			else
 				did_it(sender, target,
 				       A_NULL, NULL, A_NULL, NULL,
-				       A_AMHEAR, 0, args, nargs);
+				       A_AMHEAR, 0, args, nargs, 0);
 			did_it(sender, target, A_NULL, NULL, A_NULL, NULL,
-			       A_AAHEAR, 0, args, nargs);
+			       A_AAHEAR, 0, args, nargs, 0);
 		}
 		/* Get rid of match arguments. We don't need them anymore */
 
@@ -718,14 +729,18 @@ const char *msg;
 		}
 		/* Process ^-listens if for me, MONITOR, and we pass USElock */
 
-		if ((key & MSG_ME) && pass_uselock && (sender != target) &&
-		    Monitor(target)) {
+		if (will_send && (key & MSG_ME) && pass_uselock &&
+		    (sender != target) && Monitor(target)) {
 			(void)atr_match(target, sender,
 					AMATCH_LISTEN, (char *)msg, (char *)msg, 0);
 		}
-		/* Deliver message to forwardlist members */
 
-		if ((key & MSG_FWDLIST) &&
+		/* Deliver message to forwardlist members.
+		 * No presence control is done on forwarders; if the target
+		 * can get it, so can they.
+		 */
+
+		if (will_send && (key & MSG_FWDLIST) &&
 		    Audible(target) && H_Fwdlist(target) &&
 		    check_filter(target, sender, A_FILTER, msg)) {
 			tbuff = dflt_from_msg(sender, target);
@@ -746,9 +761,14 @@ const char *msg;
 			}
 			free_lbuf(buff);
 		}
-		/* Deliver message through audible exits */
 
-		if (key & MSG_INV_EXITS) {
+		/* Deliver message through audible exits. 
+		 * If the exit can get it, we don't do further checking
+		 * for whatever is beyond it. Otherwise we have to
+		 * continue checking.
+		 */
+
+		if (will_send && (key & MSG_INV_EXITS)) {
 			DOLIST(obj, Exits(target)) {
 				recip = Location(obj);
 				if (Audible(obj) && ((recip != target) &&
@@ -757,12 +777,19 @@ const char *msg;
 							  A_PREFIX, msg,
 							"From a distance,");
 					notify_check(recip, sender, buff,
-						     MSG_ME | MSG_F_UP | MSG_F_CONTENTS | MSG_S_INSIDE);
+						     MSG_ME | MSG_F_UP | MSG_F_CONTENTS | MSG_S_INSIDE | (OK_To_Send(sender, obj) ? 0 : herekey));
 					free_lbuf(buff);
 				}
 			}
 		}
-		/* Deliver message through neighboring audible exits */
+
+		/* Deliver message through neighboring audible exits.
+		 * Note that the target doesn't have to hear it in
+		 * order for us to do this check.
+		 * If the exit can get it, we don't do further checking
+		 * for whatever is beyond it. Otherwise we have to
+		 * continue checking.
+		 */
 
 		if (has_neighbors &&
 		    ((key & MSG_NBR_EXITS) ||
@@ -791,7 +818,7 @@ const char *msg;
 							   A_PREFIX, buff,
 							"From a distance,");
 					notify_check(recip, sender, tbuff,
-						     MSG_ME | MSG_F_UP | MSG_F_CONTENTS | MSG_S_INSIDE);
+						     MSG_ME | MSG_F_UP | MSG_F_CONTENTS | MSG_S_INSIDE | (OK_To_Send(sender, obj) ? 0 : herekey));
 					free_lbuf(tbuff);
 				}
 			}
@@ -803,11 +830,14 @@ const char *msg;
 		if (Bouncer(target))
 			pass_listen = 1;
 		
-		/* Deliver message to contents */
+		/* Deliver message to contents only if target passes check.
+		 * But things within it must still pass the check.
+		 */
 
-		if ((key & MSG_INV) ||
-		    ((key & MSG_INV_L) && pass_listen &&
-		     check_filter(target, sender, A_INFILTER, msg))) {
+		if (will_send &&
+		    ((key & MSG_INV) ||
+		     ((key & MSG_INV_L) && pass_listen &&
+		      check_filter(target, sender, A_INFILTER, msg)))) {
 
 			/* Don't prefix the message if we were given the 
 			 * MSG_NOPREFIX key. 
@@ -823,10 +853,10 @@ const char *msg;
 				if (obj != target) {
 #ifdef PUEBLO_SUPPORT
 					notify_check(obj, sender, buff,
-					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | (key & MSG_HTML));
+					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | (key & MSG_HTML) | herekey);
 #else
 					notify_check(obj, sender, buff,
-					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE);
+					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | herekey);
 #endif /* PUEBLO_SUPPORT */
 				}
 			}
@@ -848,7 +878,7 @@ const char *msg;
 			DOLIST(obj, Contents(targetloc)) {
 				if ((obj != target) && (obj != targetloc)) {
 					notify_check(obj, sender, buff,
-					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE);
+					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | herekey);
 				}
 			}
 			if (key & MSG_S_INSIDE) {
@@ -870,7 +900,7 @@ const char *msg;
 				buff = (char *)msg;
 			}
 			notify_check(targetloc, sender, buff,
-				     MSG_ME | MSG_F_UP | MSG_S_INSIDE);
+				     MSG_ME | MSG_F_UP | MSG_S_INSIDE | herekey);
 			if (key & MSG_S_INSIDE) {
 				free_lbuf(buff);
 			}
@@ -881,36 +911,38 @@ const char *msg;
 	mudstate.ntfy_nest_lev--;
 }
 
-void notify_except(loc, player, exception, msg)
+void notify_except(loc, player, exception, msg, flags)
 dbref loc, player, exception;
 const char *msg;
+int flags;
 {
-	dbref first;
+    dbref first;
 
-	if (loc != exception)
-		notify_check(loc, player, msg,
-		  (MSG_ME_ALL | MSG_F_UP | MSG_S_INSIDE | MSG_NBR_EXITS_A));
-	DOLIST(first, Contents(loc)) {
-		if (first != exception) {
-			notify_check(first, player, msg,
-				     (MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE));
-		}
+    if (loc != exception)
+	notify_check(loc, player, msg,
+	    (MSG_ME_ALL | MSG_F_UP | MSG_S_INSIDE | MSG_NBR_EXITS_A | flags));
+    DOLIST(first, Contents(loc)) {
+	if (first != exception) {
+	    notify_check(first, player, msg,
+			 (MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | flags));
 	}
+    }
 }
 
-void notify_except2(loc, player, exc1, exc2, msg)
+void notify_except2(loc, player, exc1, exc2, msg, flags)
 dbref loc, player, exc1, exc2;
 const char *msg;
+int flags;
 {
 	dbref first;
 
 	if ((loc != exc1) && (loc != exc2))
 		notify_check(loc, player, msg,
-		  (MSG_ME_ALL | MSG_F_UP | MSG_S_INSIDE | MSG_NBR_EXITS_A));
+		  (MSG_ME_ALL | MSG_F_UP | MSG_S_INSIDE | MSG_NBR_EXITS_A | flags));
 	DOLIST(first, Contents(loc)) {
 		if (first != exc1 && first != exc2) {
 			notify_check(first, player, msg,
-				     (MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE));
+				     (MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | flags));
 		}
 	}
 }
@@ -1531,7 +1563,7 @@ static void NDECL(process_preload)
 			if (Flags(thing) & HAS_STARTUP) {
 				did_it(Owner(thing), thing,
 				       A_NULL, NULL, A_NULL, NULL,
-				       A_STARTUP, 0, (char **)NULL, 0);
+				       A_STARTUP, 0, (char **)NULL, 0, 0);
 				/* Process queue entries as we add them */
 
 				do_second();

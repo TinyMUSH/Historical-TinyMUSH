@@ -657,7 +657,7 @@ char *name, *arg2;
 		if (!(key & CLONE_PARENT))
 			s_Parent(clone, Parent(thing));
 		did_it(player, clone, A_NULL, NULL, A_NULL, NULL, A_ACLONE, 0,
-		       (char **)NULL, 0);
+		       (char **)NULL, 0, MSG_MOVE);
 	} else {
 		if (!(key & CLONE_PARENT) &&
 		    (Controls(player, thing) || Parent_ok(thing)))
