@@ -1199,11 +1199,6 @@ int dump_type;
 	}
 	
 	sprintf(prevfile, "%s.prev", mudconf.outdb);
-#ifdef VMS
-	sprintf(tmpfile, "%s.-%d-", mudconf.outdb, mudstate.epoch - 1);
-	unlink(tmpfile);	/* nuke our predecessor */
-	sprintf(tmpfile, "%s.-%d-", mudconf.outdb, mudstate.epoch);
-#else
 	sprintf(tmpfile, "%s.#%d#", mudconf.outdb, mudstate.epoch - 1);
 	unlink(tmpfile);	/* nuke our predecessor */
 	sprintf(tmpfile, "%s.#%d#", mudconf.outdb, mudstate.epoch);
@@ -1227,7 +1222,6 @@ int dump_type;
 			log_perror("SAV", "FAIL", "Opening", tmpfile);
 		}
 	} else {
-#endif /* VMS */
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f) {
 			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
@@ -1239,9 +1233,7 @@ int dump_type;
 		} else {
 			log_perror("SAV", "FAIL", "Opening", tmpfile);
 		}
-#ifndef VMS
 	}
-#endif
 
 #ifndef STANDALONE
 #ifdef USE_MAIL
@@ -1265,11 +1257,7 @@ void NDECL(dump_database)
 	mudstate.epoch++;
 	mudstate.dumping = 1;
 	buff = alloc_mbuf("dump_database");
-#ifndef VMS
 	sprintf(buff, "%s.#%d#", mudconf.outdb, mudstate.epoch);
-#else
-	sprintf(buff, "%s.-%d-", mudconf.outdb, mudstate.epoch);
-#endif /* VMS */
 	STARTLOG(LOG_DBSAVES, "DMP", "DUMP")
 		log_text((char *)"Dumping: ");
 	log_text(buff);
@@ -1299,11 +1287,7 @@ int key;
 	mudstate.epoch++;
 	mudstate.dumping = 1;
 	buff = alloc_mbuf("fork_and_dump");
-#ifndef VMS
 	sprintf(buff, "%s.#%d#", mudconf.outdb, mudstate.epoch);
-#else
-	sprintf(buff, "%s.-%d-", mudconf.outdb, mudstate.epoch);
-#endif /* VMS */
 	STARTLOG(LOG_DBSAVES, "DMP", "CHKPT")
 		if (!key || (key & DUMP_TEXT)) {
 		log_text((char *)"SYNCing");
@@ -1331,7 +1315,6 @@ int key;
 	}
 	
 	if (!key || (key & DUMP_STRUCT) || (key & DUMP_FLATFILE)) {
-#ifndef VMS
 		if (mudconf.fork_dump) {
 			if (mudconf.fork_vfork) {
 				child = vfork();
@@ -1341,19 +1324,14 @@ int key;
 		} else {
 			child = 0;
 		}
-#else
-		child = 0;
-#endif /* VMS */
 		if (child == 0) {
 			if (key & DUMP_FLATFILE) {
 				dump_database_internal(3);
 			} else {
 				dump_database_internal(0);
 			}
-#ifndef VMS
 			if (mudconf.fork_dump)
 				_exit(0);
-#endif /* VMS */
 		} else if (child < 0) {
 			log_perror("DMP", "FORK", NULL, "fork()");
 		}
@@ -1376,7 +1354,6 @@ static int NDECL(load_game)
 
 	f = NULL;
 	compressed = 0;
-#ifndef VMS
 	if (mudconf.compress_db) {
 		strcpy(infile, mudconf.indb);
 		strcat(infile, ".gz");
@@ -1386,7 +1363,6 @@ static int NDECL(load_game)
 				compressed = 1;
 		}
 	}
-#endif /* VMS */
 	if (compressed == 0) {
 		StringCopy(infile, mudconf.indb);
 		if ((f = tf_fopen(mudconf.indb, O_RDONLY)) == NULL)
@@ -1419,14 +1395,10 @@ static int NDECL(load_game)
 	ENDLOG
 
 	/* everything ok */
-#ifndef VMS
-		if (compressed)
+	if (compressed)
 		tf_pclose(f);
 	else
 		tf_fclose(f);
-#else
-		tf_fclose(f);
-#endif /* VMS */
 
 	return (0);
 }
@@ -1690,10 +1662,7 @@ static void NDECL(process_preload)
 	free_lbuf(tstr);
 }
 
-#ifndef VMS
-int
-#endif				/* VMS */
- main(argc, argv)
+int main(argc, argv)
 int argc;
 char *argv[];
 {

@@ -11,12 +11,6 @@
 #ifndef __UDB_DEFS_H
 #define __UDB_DEFS_H
 
-#ifdef VMS
-#define MAXPATHLEN	256
-#define	NOSYSTYPES_H
-#define	NOSYSFILE_H
-#endif /* VMS */
-
 /* If your malloc() returns void or char pointers... */
 /* typedef	void	*mall_t; */
 typedef	char	*mall_t;

@@ -6,12 +6,7 @@
 #ifndef __MUDCONF_H
 #define __MUDCONF_H
 
-#ifdef VMS
-#include "multinet_root:[multinet.include.sys]types.h"
-#include "multinet_root:[multinet.include.netinet]in.h"
-#else
 #include <netinet/in.h>
-#endif
 
 /* CONFDATA:	runtime configurable parameters */
 

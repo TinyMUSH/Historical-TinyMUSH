@@ -1320,9 +1320,5 @@ int sig;
 	}
 	signal(sig, sighandler);
 	mudstate.panicking = 0;
-#ifdef VMS
-	return 1;
-#else
 	return;
-#endif
 }
