@@ -1475,11 +1475,6 @@ int attrnum;
 	al_code(&cp, attrnum);
 	*cp = '\0';
 
-#ifndef STANDALONE
-	if (!mudstate.loading_db)
-	    s_Modified(thing);
-#endif
-
 	return;
 }
 
@@ -1501,11 +1496,6 @@ int attrnum;
 	abuf = al_fetch(thing);
 	if (!abuf)
 		return;
-
-#ifndef STANDALONE
-	if (!mudstate.loading_db)
-	    s_Modified(thing);
-#endif
 
 	cp = abuf;
 	while (*cp) {
@@ -1602,10 +1592,6 @@ int *flags, atr, *alen;
 	if (!Good_obj(thing))
 		return 0;
 
-#ifndef STANDALONE
-	s_Accessed(thing);
-#endif
-
 	if (atr == A_LIST) {	/* This is not supposed to be compressed! */
 	    fprintf(mainlog_fp, "ABORT! db.c, list is compressed in atr_get_raw_decode().\n");
 	    abort();
@@ -1621,6 +1607,9 @@ int *flags, atr, *alen;
 		if (oattr) {
 			*oattr = '\0';
 		}
+#ifndef STANDALONE
+		s_Accessed(thing);
+#endif
 		return 0;
 	}
 #ifndef MEMORY_BASED
@@ -1676,6 +1665,9 @@ int *flags, atr, *alen;
 		if (*cp++ != ':') {
 			*owner = Owner(thing);
 			*flags = 0;
+#ifndef STANDALONE
+			s_Accessed(thing);
+#endif
 			return 1;
 		}
 		/* Get the attribute flags */
@@ -1690,6 +1682,9 @@ int *flags, atr, *alen;
 		if (*cp++ != ':') {
 			*owner = Owner(thing);
 			*flags = 0;
+#ifndef STANDALONE
+			s_Accessed(thing);
+#endif
 			return 1;
 		}
 		/* Get the attribute text */
@@ -1711,6 +1706,9 @@ int *flags, atr, *alen;
 		*flags = 0;
 	}
 
+#ifndef STANDALONE
+	s_Accessed(thing);
+#endif
 	return 1;
 }
 #endif /* RADIX_COMPRESSION  */
@@ -1814,6 +1812,11 @@ int atr;
 		    "ABORT! db.c, negative attr count in atr_clr().\n");
 	    abort();
 	}
+
+#ifndef STANDALONE
+	if (!mudstate.loading_db)
+	    s_Modified(thing);
+#endif
 
 	/* Binary search for the attribute. */
 	lo = 0;
@@ -2031,6 +2034,12 @@ char *buff;
 
 #endif /* RADIX_COMPRESSION */
 #endif /* MEMORY_BASED */
+
+#ifndef STANDALONE
+	if (!mudstate.loading_db)
+	    s_Modified(thing);
+#endif
+
 	switch (atr) {
 	case A_STARTUP:
 		s_Flags(thing, Flags(thing) | HAS_STARTUP);
