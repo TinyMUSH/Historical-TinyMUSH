@@ -107,21 +107,35 @@ command within the MUSH.
 How do I back up my database?
 
 Shut down your game. Go into the game directory, and type './Backup'
-You can safely back up your database while the game is running; if you
-do this, do a @dump, wait a minute until the database is done saving,
-and then run the backup.
-
 This will create a 'flatfile', and compress it with GNU zip; if there's
 no GNU zip on your system, you should edit the Backup script so it uses
 Unix compress instead.
+
+If you want to back up your database while the game is running, use
+@dump/flatfile; this is a strong candidate for a @daily on your God
+character.
+
+If for some reason, you can't run a backup from within the game
+(you've forgotten your passwords to the wizard characters, or
+something similarly problematic), and you can't or don't want to shut
+the game down, you can safely back up the database with Backup while
+the game is running, but you are not guaranteed 100% consistency
+within the flatfile. You can minimize consistency errors by doing a
+@dump, waiting a minute until the database is done saving, and then
+do the Backup; even if there are slight out-of-sync errors (due to
+changed attributes not yet being written to disk) they will
+not prevent the backup from being restorable. If the game is
+running, @dump/flatfile is strongly preferable, since the resulting
+flatfile will contain the most current, in-sync data.
 
 Do NOT simply naively copy around netmush.db, netmush.gdbm, etc., as
 they are not portable between platforms. Use the Backup script to
 create flatfiles.
 
-Note that this does NOT back up your comsys database or mail database.
-You can simply copy comsys.db and mail.db to a safe place, to back
-them up.
+Note that this does NOT back up your comsys database or mail database,
+or other relevant MUSH files. You can simply copy comsys.db and
+mail.db to a safe place, to back them up. Alternatively, you can
+run the Archive script to back up all the important files.
 
 ------------------------------------------------------------------------------
 
