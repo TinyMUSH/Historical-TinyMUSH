@@ -1613,9 +1613,21 @@ char *command, *args[];
 		match_exit_with_parents();
 		exit = last_match_result();
 		if (exit != NOTHING) {
-			move_exit(player, exit, 0, "You can't go that way.", 0);
-			mudstate.debug_cmd = cmdsave;
-			return preserve_cmd;
+		    /* Execute the pre-hook for the goto command */
+		    if (goto_cmdp->pre_hook != NULL) {
+			process_hook(goto_cmdp->pre_hook,
+				     goto_cmdp->callseq & CS_PRESERVE,
+				     player, cause, cargs, ncargs);
+		    }
+		    move_exit(player, exit, 0, "You can't go that way.", 0);
+		    /* Execute the post-hook for the goto command */
+		    if (goto_cmdp->post_hook != NULL) {
+			process_hook(goto_cmdp->post_hook,
+				     goto_cmdp->callseq & CS_PRESERVE,
+				     player, cause, cargs, ncargs);
+		    }
+		    mudstate.debug_cmd = cmdsave;
+		    return preserve_cmd;
 		}
 		
 		/* Check for an exit in the master room */
@@ -1624,9 +1636,21 @@ char *command, *args[];
 		match_master_exit();
 		exit = last_match_result();
 		if (exit != NOTHING) {
-			move_exit(player, exit, 1, NULL, 0);
-			mudstate.debug_cmd = cmdsave;
-			return preserve_cmd;
+		    /* Execute the pre-hook for the goto command */
+		    if (goto_cmdp->pre_hook != NULL) {
+			process_hook(goto_cmdp->pre_hook,
+				     goto_cmdp->callseq & CS_PRESERVE,
+				     player, cause, cargs, ncargs);
+		    }
+		    move_exit(player, exit, 1, NULL, 0);
+		    /* Execute the post-hook for the goto command */
+		    if (goto_cmdp->post_hook != NULL) {
+			process_hook(goto_cmdp->post_hook,
+				     goto_cmdp->callseq & CS_PRESERVE,
+				     player, cause, cargs, ncargs);
+		    }
+		    mudstate.debug_cmd = cmdsave;
+		    return preserve_cmd;
 		}
 	}
 	/* Set up a lowercase command and an arg pointer for the hashed
