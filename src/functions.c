@@ -134,7 +134,6 @@ XFUNCTION(fun_popn);
 XFUNCTION(fun_swap);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
-XFUNCTION(fun_unsetx);
 XFUNCTION(fun_xvars);
 XFUNCTION(fun_let);
 XFUNCTION(fun_lvars);
@@ -5567,7 +5566,6 @@ FUN flist[] = {
 						CA_PUBLIC},
 {"ULOCAL",	fun_ulocal,	0,  FN_VARARGS,	CA_PUBLIC},
 {"UNLOAD",	fun_unload,	0,  FN_VARARGS,	CA_PUBLIC},
-{"UNSETX",	fun_unsetx,	1,  0,		CA_PUBLIC},
 {"UNSTRUCTURE",	fun_unstructure,1,  0,		CA_PUBLIC},
 #ifdef PUEBLO_SUPPORT
 {"URL_ESCAPE",	fun_url_escape,	-1, 0,		CA_PUBLIC},

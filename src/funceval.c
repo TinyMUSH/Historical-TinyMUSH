@@ -3784,7 +3784,6 @@ FUNCTION(fun_lstack)
 /* ---------------------------------------------------------------------------
  * fun_x: Returns a variable. x(<variable name>)
  * fun_setx: Sets a variable. xset(<variable name>,<value>)
- * fun_unsetx: Unset a list of variables. unsetx(<variable name list>)
  * fun_xvars: Takes a list, parses it, sets it into variables.
  *            xvars(<space-separated variable list>,<list>,<delimiter>)
  * fun_let: Takes a list of variables and their values, sets them, executes
@@ -3975,46 +3974,6 @@ FUNCTION(fun_x)
 FUNCTION(fun_setx)
 {
     set_xvar(player, fargs[0], fargs[1]);
-}
-
-
-FUNCTION(fun_unsetx)
-{
-    VARENT *xvar;
-    char tbuf[SBUF_SIZE], *tp, *p;
-    char tmp_list[LBUF_SIZE];
-
-    if (!fargs[0] || !*fargs[0])
-	return;
-
-    /* Variables must be lower-cased. */
-
-    for (p = fargs[0], tp = tmp_list; *p; p++)
-	*tp++ = ToLower(*p);
-
-    /* Look up each variable and unset it if it exists. */
-
-    for (p = (char *) strtok(tmp_list, " ");
-	 p != NULL;
-	 p = (char *) strtok(NULL, " ")) {
-
-	tp = tbuf;
-	safe_ltos(tbuf, &tp, player);
-	safe_sb_chr('.', tbuf, &tp);
-	safe_sb_str(p, tbuf, &tp);
-	*tp = '\0';
-	
-	xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab);
-	if (xvar) {
-	    if (xvar->text) {
-		XFREE(xvar->text, "xvar_data");
-	    }
-	    xvar->text = NULL;
-	    XFREE(xvar, "xvar_struct");
-	    hashdelete(tbuf, &mudstate.vars_htab);
-	    s_VarsCount(player, VarsCount(player) - 1);
-	}
-    }
 }
 
 
