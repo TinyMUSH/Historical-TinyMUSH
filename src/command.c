@@ -2320,10 +2320,18 @@ dbref player;
 	if (mudconf.sweep_dark)
 		raw_notify(player, "Players may @sweep dark locations.");
 
+#ifdef USE_MAIL
 	if (mudconf.have_mailer)
-		raw_notify(player, "The built-in mailer is enabled.");
+		raw_notify(player, "The built-in @mail system is enabled.");
+	else
+		raw_notify(player, "The built-in @mail system is disabled.");
+#endif
+#ifdef USE_COMSYS
 	if (mudconf.have_comsys)
-		raw_notify(player, "The built-in comsys is enabled.");
+		raw_notify(player, "The built-in comsystem is enabled.");
+	else
+		raw_notify(player, "The built-in comsystem is disabled.");
+#endif
 
 #ifdef TCL_INTERP_SUPPORT
 	notify(player, "TCL interpreter support is enabled.");
@@ -2407,13 +2415,6 @@ dbref player;
 		raw_notify(player,
 			   tprintf("Players have a 1 in %d chance of finding a %s each time they move.",
 				   mudconf.payfind, mudconf.one_coin));
-
-#ifdef USE_MAIL
-	raw_notify(player, "The built in @mail systems is supported.");
-#endif
-#ifdef USE_COMSYS
-	raw_notify(player, "The built in comsystem is supported.");
-#endif
 
 	raw_notify(player,
 		   tprintf("The head of the object freelist is #%d.",
