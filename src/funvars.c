@@ -1786,12 +1786,6 @@ void structure_clr(thing)
  * Auxiliary functions for stacks.
  */
 
-typedef struct object_stack STACK;
-  struct object_stack {
-      char *data;
-      STACK *next;
-  };
-
 #define stack_get(x)   ((STACK *) nhashfind(x, &mudstate.objstack_htab))
 
 #define stack_object(p,x)				\

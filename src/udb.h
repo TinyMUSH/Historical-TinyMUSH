@@ -62,6 +62,28 @@ typedef struct Obj {
 	int size;
 } Obj;
 
+typedef struct cache {
+	void *keydata;
+	int keylen;
+	void *data;
+	int datalen;
+	int type;
+	int referenced;
+	time_t lastreferenced;
+	struct cache *nxt;
+	struct cache *prv;
+} Cache;
+
+typedef struct {
+	Cache *head;
+	Cache *tail;
+} Chain;
+
+typedef struct {
+	Chain active;
+	Chain mactive;
+} CacheLst;
+
 extern void	FDECL(cache_get, (void *, int, void **, int *, int));
 extern int 	FDECL(cache_put, (void *, int, void *, int, int));
 extern int 	FDECL(cache_init, (int));

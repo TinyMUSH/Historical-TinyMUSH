@@ -20,28 +20,6 @@ extern void FDECL(dddb_setsync, (int));
 
 extern void FDECL(raw_notify, (dbref, const char *));
 
-typedef struct cache {
-	void *keydata;
-	int keylen;
-	void *data;
-	int datalen;
-	int type;
-	int referenced;
-	time_t lastreferenced;
-	struct cache *nxt;
-	struct cache *prv;
-} Cache;
-
-typedef struct {
-	Cache *head;
-	Cache *tail;
-} Chain;
-
-typedef struct {
-	Chain active;
-	Chain mactive;
-} CacheLst;
-
 #define NAMECMP(a,b,c,d,e)	((d == e) && !memcmp(a,b,c))
 
 #define DEQUEUE(q, e)	if(e->nxt == (Cache *)0) { \
@@ -114,7 +92,7 @@ static int cwidth = CACHE_WIDTH;
 
 /* sys_c points to all cache lists, active and modified */
 
-static CacheLst *sys_c;
+CacheLst *sys_c;
 
 static int cache_initted = 0;
 static int cache_frozen = 0;

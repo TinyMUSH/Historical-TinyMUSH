@@ -2450,6 +2450,164 @@ dbref player;
 }
 
 /* ---------------------------------------------------------------------------
+ * list_memory: Breaks down memory usage of the process
+ */
+
+extern CacheLst *sys_c;
+extern NAME *names, *purenames;
+
+void list_memory(player)
+{
+	double total = 0, each = 0;
+	int i, j;
+	STACK *stack;
+	CMDENT *cmd;
+	ADDENT *add;
+	NAMETAB *name;
+	VATTR *vattr;
+	Cache *cp;
+	CacheLst *sp;
+	char *str;
+	HASHENT *htab;
+	
+	/* Calculate size of object structures */
+	
+	each = mudstate.db_top * sizeof(OBJ);
+	raw_notify(player,
+		   tprintf("Object structures: %12.2fk", each / 1024));
+	total += each;
+	
+	/* Calculate size of mudstate and mudconf structures */
+	
+	each = sizeof(CONFDATA) + sizeof(STATEDATA);
+	raw_notify(player,
+		   tprintf("mudconf/mudstate : %12.2fk", each / 1024));
+	total += each;
+	
+	/* Calculate size of object stacks */
+	
+	each = 0;
+	for (stack = (STACK *)hash_firstentry((HASHTAB *)&mudstate.objstack_htab);
+	     stack != NULL;
+	     stack = (STACK *)hash_nextentry((HASHTAB *)&mudstate.objstack_htab)) {
+		each += sizeof(STACK);
+		each += strlen(stack->data) + 1;
+	}
+	raw_notify(player,
+		   tprintf("Object stacks    : %12.2fk", each / 1024));
+	total += each;
+
+	/* Calculate size of cache */
+	
+	each = cs_size;
+	each += sizeof(CacheLst) * mudconf.cache_width;
+	for (i = 0; i < mudconf.cache_width; i++) {
+		sp = &sys_c[i];
+		for(cp = sp->active.head; cp != NULL; cp = cp->nxt) {
+			each += sizeof(Cache);
+			each += cp->keylen;
+		}
+		for(cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
+			each += sizeof(Cache);
+			each += cp->keylen;
+		}
+	}		
+	raw_notify(player,
+		   tprintf("Cache + overhead : %12.2fk", each / 1024));
+	total += each;
+	
+	/* Calculate size of name caches */
+	
+	if (mudconf.cache_names) {
+		each = sizeof(NAME *) * mudstate.db_top * 2;
+		for (i = 0; i < mudstate.db_top; i++) {
+			if (purenames[i])
+				each += strlen(purenames[i]) + 1;
+			if (names[i])
+				each += strlen(names[i]) + 1;
+		}
+	}
+	raw_notify(player,
+		   tprintf("Name caches      : %12.2fk", each / 1024));
+	total += each;
+	
+	/* Calculate size of command hashtable */
+	
+	each = 0;
+	each += sizeof(HASHENT *) * mudstate.command_htab.hashsize;
+	for(i = 0; i < mudstate.command_htab.hashsize; i++) {
+		htab = mudstate.command_htab.entry[i];
+		while (htab != NULL) {
+			each += strlen(mudstate.command_htab.entry[i]->target) + 1;
+			each += sizeof(CMDENT);
+			
+			/* Add up all the little bits in the CMDENT */
+			
+			cmd = (CMDENT *)mudstate.command_htab.entry[i]->data;
+			each += strlen(cmd->cmdname) + 1;
+			if ((name = cmd->switches) != NULL) {
+				for(j = 0; name[j].name != NULL; j++) {
+					each += sizeof(NAMETAB);
+					each += strlen(name[j].name) + 1;
+				}
+			}
+			if (cmd->callseq & CS_ADDED) {
+				add = cmd->info.added;
+				while (add != NULL) {
+					each += sizeof(ADDENT);
+					each += strlen(add->name) + 1;
+					add = add->next;
+				}
+			}
+			htab = htab->next;
+		}
+	}
+	raw_notify(player,
+		   tprintf("Command table    : %12.2fk", each / 1024));
+	total += each;
+	
+	/* Calculate size of logged-out commands hashtable */
+	
+	each = 0;
+	each += sizeof(HASHENT *) * mudstate.logout_cmd_htab.hashsize;
+	for(i = 0; i < mudstate.logout_cmd_htab.hashsize; i++) {
+		htab = mudstate.logout_cmd_htab.entry[i];
+		while (htab != NULL) {
+			each += strlen(mudstate.logout_cmd_htab.entry[i]->target) + 1;
+			name = (NAMETAB *)mudstate.logout_cmd_htab.entry[i]->data;
+			each += sizeof(NAMETAB);
+			each += strlen(name->name) + 1;
+			htab = htab->next;
+		}
+	}
+	raw_notify(player,
+		   tprintf("Logout cmd htab  : %12.2fk", each / 1024));
+	total += each;
+
+	/* Calculate size of vattr commands hashtable */
+	
+	each = 0;
+	each += sizeof(HASHENT *) * mudstate.vattr_name_htab.hashsize;
+	for(i = 0; i < mudstate.vattr_name_htab.hashsize; i++) {
+		htab = mudstate.vattr_name_htab.entry[i];
+		while (htab != NULL) {
+			each += strlen(mudstate.vattr_name_htab.entry[i]->target) + 1;
+			vattr = (VATTR *)mudstate.vattr_name_htab.entry[i]->data;
+			each += sizeof(VATTR);
+			each += strlen(vattr->name) + 1;
+			htab = htab->next;
+		}
+	}
+	raw_notify(player,
+		   tprintf("Vattr name htab  : %12.2fk", each / 1024));
+	total += each;
+
+	raw_notify(player,
+		   tprintf("\nTotal            : %12.2fk", total / 1024));
+	
+}
+
+/* ---------------------------------------------------------------------------
  * do_list: List information stored in internal structures.
  */
 
@@ -2481,6 +2639,7 @@ dbref player;
 #define LIST_CF_RPERMS	26
 #define LIST_ATTRTYPES	27
 #define LIST_FUNCPERMS	28
+#define LIST_MEMORY	29
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
@@ -2503,6 +2662,7 @@ NAMETAB list_names[] = {
 {(char *)"globals",		1,	CA_WIZARD,	LIST_GLOBALS},
 {(char *)"hashstats",		1,	CA_WIZARD,	LIST_HASHSTATS},
 {(char *)"logging",		1,	CA_GOD,		LIST_LOGGING},
+{(char *)"memory",		1,	CA_WIZARD,	LIST_MEMORY},
 {(char *)"options",		1,	CA_PUBLIC,	LIST_OPTIONS},
 {(char *)"params",		2,	CA_PUBLIC,	LIST_PARAMS},
 {(char *)"permissions",		2,	CA_WIZARD,	LIST_PERMS},
@@ -2623,6 +2783,9 @@ char *arg;
 		break;
 	case LIST_ATTRTYPES:
 		list_attrtypes(player);
+		break;
+	case LIST_MEMORY:
+		list_memory(player);
 		break;
 	default:
 		display_nametab(player, list_names,
