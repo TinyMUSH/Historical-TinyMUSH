@@ -93,6 +93,7 @@ for ($i = 0; $i < $num_channels; $i++) {
 	$line = <>;
 	chomp $line;
 	($foo, $title) = split(':', $line);
+	$title =~ s/\"/\\\"/g;
 	if ($title) {
 	    $TITLE{"$dbref $chname"} = $title;
 	}
@@ -142,16 +143,18 @@ print qq(+V1\n);
 
 foreach $alias (keys %ALIASES) {
     ($dbref, $chname) = split(' ', $alias);
-    print qq($dbref\n);
-    print qq("$chname"\n);
-    print qq("$ALIASES{$alias}"\n);
-    if ($TITLE{$alias}) {
-	print qq("$TITLE{$alias}"\n);
-    } else {
-	print qq(""\n);
+    if ($CH_TYPE{$chname}) {	# Make sure channel exists.
+	print qq($dbref\n);
+	print qq("$chname"\n);
+	print qq("$ALIASES{$alias}"\n);
+	if ($TITLE{$alias}) {
+	    print qq("$TITLE{$alias}"\n);
+	} else {
+	    print qq(""\n);
+	}
+	print qq($ISON{$alias}\n);
+	print qq(<\n);
     }
-    print qq($ISON{$alias}\n);
-    print qq(<\n);
 }
 
 print qq(*** END OF DUMP ***\n);
