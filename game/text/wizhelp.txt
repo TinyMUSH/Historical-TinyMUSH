@@ -3372,10 +3372,11 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
 & wildcard_match_limit
   Config parameter: wildcard_match_limit <number>.  Default: 25000
  
-  This sets the maximum number of times that the wildcard matching routines
-  recurse, before returning a failure to match the string. Essentially,
-  this prevents the server from hanging for long periods of time on
-  unusually bad combinations of wildcard-heavy patterns and strings.
+  This sets the maximum number of times that the wildcard and regular
+  expression matching routines recurse, before returning a failure to
+  match the string. Essentially, this prevents the server from hanging
+  for long periods of time on unusually bad combinations of
+  wildcard-heavy patterns and strings.
  
   This is a parameter that you are unlikely to need to change from
   the default.

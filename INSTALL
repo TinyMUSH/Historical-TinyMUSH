@@ -308,7 +308,8 @@ COMPATIBILITY
 
 TinyMUSH 3 is believed to be compatible with all major versions of
 Unix, including SunOS 4.1.x, Solaris, Irix, AIX, HP-UX, NetBSD, Linux,
-and MacOS X. There is no official Windows NT port, at present.
+and MacOS X. There is no official native Windows NT/2000 port, at present,
+but it will work with the Cygwin or UWIN libraries.
 
 TinyMUSH 3.1 utilizes dynamically loadable modules on many platforms,
 thanks to the GNU libtool project, and will be statically linked with
@@ -323,9 +324,6 @@ Linux. If you are on a Linux system, it is possible that you will
 need to make minor tweaks to the Makefile and/or autoconf.h,
 particularly if you are running a Linux release more recent than
 the release date of this server version.
-
-Irix may need HAVE_SRANDOM manually defined in autoconf.h --
-for some reason, autoconf doesn't detect this properly.
 
 The Build script (or the directions given above for step-by-step
 installation) produces a file in the src directory called Compile.log;

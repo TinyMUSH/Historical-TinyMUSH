@@ -1062,6 +1062,27 @@ location, and the destination is the object's home.
 - Mover contents set KEY are sent home.
 - The old room's drop-tos are activated.
  
+& info
+  Command: INFO
+ 
+  This command is intended for the use of external automated programs. It
+  displays commonly-requested pieces of information about the MUSH, in
+  an easy-to-parse format. That format is as follows:
+ 
+  ### Begin INFO <version>
+  Name: <MUSH name>
+  Uptime: <time started>
+  Connected: <number of players connected>
+  Size: <number of objects in the database>
+  Version: <server version>
+  ### End INFO  
+ 
+  <MUSH name> is whatever is returned by mudname(). (Conf param 'mud_name'.)
+  <time started> is whatever is returned by starttime().
+  <number of players connected> is equivalent to words(lwho()).
+  <size> is equivalent to first(stats()).
+  <server version> is a short version string.
+ 
 & inventory
   Command: inventory
   Lists what you are carrying and how much money you have.

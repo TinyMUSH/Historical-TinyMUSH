@@ -40,8 +40,10 @@ Release history:
 
 - Fix: A memory leak related to global registers has been fixed. [3.1b6]
 
-- Fix: Wildcard pattern matching is better at handling worst-case
+- Fix: Wildcard and regexp pattern matching are better at handling worst-case
   scenarios. Added new conf parameter wildcard_match_limit. [2.0; Javelin]
+
+- Fix: @listmotd works properly for non-wizards again. [3.1a7; Jaye]
 
 -----------------------------------------------------------------------------
 
