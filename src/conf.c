@@ -64,6 +64,7 @@ extern NAMETAB attraccess_nametab[];
 extern NAMETAB list_names[];
 extern NAMETAB sigactions_nametab[];
 extern CONF conftable[];
+extern LOGFILETAB logfds_table[];
 
 #endif
 
@@ -279,6 +280,7 @@ void NDECL(cf_init)
 		LOG_SHOUTS | LOG_STARTUP | LOG_WIZARD |
 		LOG_PROBLEMS | LOG_PCREATES | LOG_TIMEUSE;
 	mudconf.log_info = LOGOPT_TIMESTAMP | LOGOPT_LOC;
+	mudconf.log_diversion = 0;
 	mudconf.markdata[0] = 0x01;
 	mudconf.markdata[1] = 0x02;
 	mudconf.markdata[2] = 0x04;
@@ -670,6 +672,87 @@ CF_HAND(cf_flagalias)
 	if (!success)
 		cf_log_notfound(player, cmd, "Flag", orig);
 	return ((success > 0) ? 0 : -1);
+}
+
+/* ---------------------------------------------------------------------------
+ * cf_divert_log: Redirect a log type.
+ */
+
+CF_HAND(cf_divert_log)
+{
+    char *type_str, *file_str;
+    int f;
+    FILE *fptr;
+    LOGFILETAB *tp, *lp;
+
+    /* Two args, two args only */
+
+    type_str = (char *) strtok(str, " \t");
+    file_str = (char *) strtok(NULL, " \t");
+    if (!type_str || !file_str) {
+	cf_log_syntax(player, cmd, "Missing pathname to log to.", (char *) "");
+	return -1;
+    }
+
+    /* Find the log. */
+
+    f = search_nametab(GOD, (NAMETAB *) extra, type_str);
+    if (f <= 0) {
+	cf_log_notfound(player, cmd, "Log diversion", type_str);
+	return -1;
+    }
+
+    for (tp = logfds_table; tp->log_flag; tp++) {
+	if (tp->log_flag == f)
+	    break;
+    }
+    if (tp == NULL) {		/* This should never happen! */
+	cf_log_notfound(player, cmd, "Logfile table corruption", type_str);
+	return -1;
+    }
+
+    /* We shouldn't have a file open already. */
+
+    if (tp->filename != NULL) {
+	    STARTLOG(LOG_STARTUP, "CNF", "DIVT")
+		log_text((char *) "Log type ");
+	        log_text(type_str);
+		log_text((char *) " already diverted: ");
+	        log_text(tp->filename);
+	    ENDLOG
+	    return -1;
+    }
+
+    /* Check to make sure that we don't have this filename open already. */
+
+    fptr = NULL;
+    for (lp = logfds_table; lp->log_flag; lp++) {
+	if (lp->filename && !strcmp(file_str, lp->filename)) {
+	    fptr = lp->fileptr;
+	    break;
+	}
+    }
+
+    /* We don't have this filename yet. Open the logfile. */
+
+    if (!fptr) {
+	fptr = fopen(file_str, "w");
+	if (!fptr) {
+	    STARTLOG(LOG_STARTUP, "CNF", "DIVT")
+		log_text((char *) "Cannot open logfile: ");
+	        log_text(file_str);
+	    ENDLOG
+	    return -1;
+	}
+    }
+
+    /* Indicate that this is being diverted. */
+
+    tp->fileptr = fptr;
+    tp->filename = (char *) strdup(file_str);
+    *vp |= f;
+
+    return 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1235,6 +1318,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.default_home,		0},
 {(char *)"dig_cost",
 	cf_int,		CA_GOD,		&mudconf.digcost,		0},
+{(char *)"divert_log",
+	cf_divert_log,	CA_STATIC,	&mudconf.log_diversion,		(long) logoptions_nametab},
 {(char *)"down_file",
 	cf_string,	CA_STATIC,	(int *)mudconf.down_file,	SBUF_SIZE},
 {(char *)"down_motd_message",

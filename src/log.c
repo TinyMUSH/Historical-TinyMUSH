@@ -15,7 +15,14 @@
 #include "htab.h"
 #include "ansi.h"
 
+#ifdef STANDALONE
+static FILE *log_fp;
+#else
+static FILE *log_fp = stderr;
+#endif
+
 #ifndef STANDALONE
+
 /* *INDENT-OFF* */
 
 NAMETAB logdata_nametab[] = {
@@ -46,6 +53,29 @@ NAMETAB logoptions_nametab[] = {
 {(char *)"time_usage",		1,	0,	LOG_TIMEUSE},
 {(char *)"wizard",		1,	0,	LOG_WIZARD},
 { NULL,				0,	0,	0}};
+
+LOGFILETAB logfds_table[] = {
+{ LOG_ACCOUNTING,	NULL,		NULL},
+{ LOG_ACCOUNTING,	NULL,		NULL},
+{ LOG_ALLCOMMANDS,	NULL,		NULL},
+{ LOG_BADCOMMANDS,	NULL,		NULL},
+{ LOG_ALLOCATE,		NULL,		NULL},
+{ LOG_BUGS,		NULL,		NULL},
+{ LOG_DBSAVES,		NULL,		NULL},
+{ LOG_CONFIGMODS,	NULL,		NULL},
+{ LOG_PCREATES,		NULL,		NULL},
+{ LOG_KBCOMMANDS,	NULL,		NULL},
+{ LOG_KILLS,		NULL,		NULL},
+{ LOG_LOGIN,		NULL,		NULL},
+{ LOG_NET,		NULL,		NULL},
+{ LOG_PROBLEMS,		NULL,		NULL},
+{ LOG_SECURITY,		NULL,		NULL},
+{ LOG_SHOUTS,		NULL,		NULL},
+{ LOG_STARTUP,		NULL,		NULL},
+{ LOG_SUSPECTCMDS,	NULL,		NULL},
+{ LOG_TIMEUSE,		NULL,		NULL},
+{ LOG_WIZARD,		NULL,		NULL},
+{ NULL,			0,		NULL}};
 
 /* *INDENT-ON* */
 
@@ -105,11 +135,35 @@ const char *raw;
  * log entry.
  */
 
-int start_log(primary, secondary)
+int start_log(primary, secondary, key)
 const char *primary, *secondary;
+int key;
 {
 	struct tm *tp;
 	time_t now;
+	LOGFILETAB *lp;
+
+#ifndef STANDALONE
+	static int last_key = 0;
+
+	if (mudconf.log_diversion & key) {
+	    if (key != last_key) { /* Try to save ourselves some lookups */
+		last_key = key;
+		for (lp = logfds_table; lp->log_flag; lp++) {
+		    /* Though keys can be OR'd, use the first one matched */
+		    if (lp->log_flag & key) {
+			log_fp = lp->fileptr;
+			break;
+		    }
+		}
+		if (!log_fp)
+		    log_fp = stderr;
+	    }
+	} else {
+	    last_key = key;
+	    log_fp = stderr;
+	}
+#endif /* ! STANDALONE */
 
 	mudstate.logging++;
 	switch (mudstate.logging) {
@@ -135,10 +189,10 @@ const char *primary, *secondary;
 		/* Write the header to the log */
 
 		if (secondary && *secondary)
-			fprintf(stderr, "%s%s %3s/%-5s: ", mudstate.buffer,
+			fprintf(log_fp, "%s%s %3s/%-5s: ", mudstate.buffer,
 				mudconf.mud_name, primary, secondary);
 		else
-			fprintf(stderr, "%s%s %-9s: ", mudstate.buffer,
+			fprintf(log_fp, "%s%s %-9s: ", mudstate.buffer,
 				mudconf.mud_name, primary);
 #endif
 		/* If a recursive call, log it and return indicating no log */
@@ -158,8 +212,8 @@ const char *primary, *secondary;
 
 void NDECL(end_log)
 {
-	fprintf(stderr, "\n");
-	fflush(stderr);
+	fprintf(log_fp, "\n");
+	fflush(log_fp);
 	mudstate.logging--;
 }
 
@@ -170,7 +224,7 @@ void NDECL(end_log)
 void log_perror(primary, secondary, extra, failing_object)
 const char *primary, *secondary, *extra, *failing_object;
 {
-	start_log(primary, secondary);
+	start_log(primary, secondary, LOG_ALWAYS);
 	if (extra && *extra) {
 		log_text((char *)"(");
 		log_text((char *)extra);
@@ -188,13 +242,13 @@ const char *primary, *secondary, *extra, *failing_object;
 void log_text(text)
 char *text;
 {
-	fprintf(stderr, "%s", strip_ansi(text));
+	fprintf(log_fp, "%s", strip_ansi(text));
 }
 
 void log_number(num)
 int num;
 {
-	fprintf(stderr, "%d", num);
+	fprintf(log_fp, "%d", num);
 }
 
 /* ---------------------------------------------------------------------------
@@ -213,7 +267,7 @@ dbref target;
 		tp = unparse_object((dbref) GOD, target, 0);
 	else
 		tp = unparse_object_numonly(target);
-	fprintf(stderr, "%s", strip_ansi(tp));
+	fprintf(log_fp, "%s", strip_ansi(tp));
 	free_lbuf(tp);
 	if (((mudconf.log_info & LOGOPT_OWNER) != 0) &&
 	    (target != Owner(target))) {
@@ -221,7 +275,7 @@ dbref target;
 			tp = unparse_object((dbref) GOD, Owner(target), 0);
 		else
 			tp = unparse_object_numonly(Owner(target));
-		fprintf(stderr, "[%s]", strip_ansi(tp));
+		fprintf(log_fp, "[%s]", strip_ansi(tp));
 		free_lbuf(tp);
 	}
 #else

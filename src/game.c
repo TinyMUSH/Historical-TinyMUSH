@@ -919,7 +919,7 @@ static void report_timecheck(player, yes_screen, yes_log, yes_clear)
             log_text((char *) " seconds\n");
         ENDLOG
    } else {
-        start_log("OBJ", "CPU");
+        start_log("OBJ", "CPU", LOG_ALWAYS);
         log_name(player);
         log_text((char *) " checks object time use over ");
         log_number(time(NULL) - mudstate.cpu_count_from);

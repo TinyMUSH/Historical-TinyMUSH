@@ -48,6 +48,7 @@ struct confdata {
 	int	vattr_flags;	/* Attr flags for all user-defined attrs */
 	int	log_options;	/* What gets logged */
 	int	log_info;	/* Info that goes into log entries */
+	int	log_diversion;	/* What logs get diverted? */
 	Uchar	markdata[8];	/* Masks for marking/unmarking */
 	int	ntfy_nest_lim;	/* Max nesting of notifys */
 	int	dbopt_interval; /* Optimize db every N dumps */

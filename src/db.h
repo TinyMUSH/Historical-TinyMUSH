@@ -280,4 +280,11 @@ extern void	FDECL(destroy_exit, (dbref));
 
 #define	Dropper(thing)	(Connected(Owner(thing)) && Hearer(thing))
 
+typedef struct logfiletable LOGFILETAB;
+struct logfiletable {
+    int log_flag;
+    FILE *fileptr;
+    char *filename;
+};
+
 #endif				/* __DB_H */

@@ -121,7 +121,7 @@ extern int	FDECL(cf_ntab_access, (int *, char *, long, dbref, char *));
 /* From log.c */
 extern char *	FDECL(strip_ansi, (const char *));
 extern char *	FDECL(normal_to_white, (const char *));
-extern int	FDECL(start_log, (const char *, const char *));
+extern int	FDECL(start_log, (const char *, const char *, int));
 extern void	NDECL(end_log);
 extern void	FDECL(log_perror, (const char *, const char *,const char *,
 			const char *));
@@ -612,7 +612,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	SA_DFLT		2	/* Try to restart on a fatal error */
 
 #define	STARTLOG(key,p,s) \
-	if ((((key) & mudconf.log_options) != 0) && start_log(p, s)) {
+	if ((((key) & mudconf.log_options) != 0) && start_log(p, s, key)) {
 #define	ENDLOG \
 	end_log(); }
 #define	LOG_SIMPLE(key,p,s,m) \
