@@ -999,7 +999,7 @@ void NDECL(init_attrtab)
 	ATTR *a;
 	char *buff, *p, *q;
 
-	hashinit(&mudstate.attr_name_htab, 100 * HASH_FACTOR);
+	hashinit(&mudstate.attr_name_htab, 100 * HASH_FACTOR, HT_STR);
 	buff = alloc_sbuf("init_attrtab");
 	for (a = attr; a->number; a++) {
 		anum_extend(a->number);

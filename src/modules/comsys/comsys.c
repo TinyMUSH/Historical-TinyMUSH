@@ -1016,7 +1016,7 @@ void do_cdestroy(player, cause, key, name)
 	for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
 	    cap = (COMALIAS *) hptr->data;
 	    if (cap->channel == chp) {
-		name_array[count] = hptr->target;
+		name_array[count] = hptr->target.s;
 		alias_array[count] = cap;
 		count++;
 	    }
@@ -2052,8 +2052,8 @@ static void sanitize_comsys()
 
     for (i = 0; i < htab->hashsize; i++) {
 	for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
-	    if (!Good_obj(hptr->target)) {
-		ptab[count] = hptr->target;
+	    if (!Good_obj(hptr->target.i)) {
+		ptab[count] = hptr->target.i;
 		count++;
 	    }
 	}

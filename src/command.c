@@ -99,8 +99,8 @@ void NDECL(init_cmdtab)
 	char *cbuff;
 	int i;
 
-	hashinit(&mudstate.command_htab, 250 * HASH_FACTOR);
-	
+	hashinit(&mudstate.command_htab, 250 * HASH_FACTOR, HT_STR);
+
 	/* Load attribute-setting commands */
 
 	cbuff = alloc_sbuf("init_cmdtab");
@@ -2606,7 +2606,7 @@ void list_memory(player)
 		htab = mudstate.command_htab.entry[i];
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
-			each += strlen(mudstate.command_htab.entry[i]->target) + 1;
+			each += strlen(mudstate.command_htab.entry[i]->target.s) + 1;
 			
 			/* Add up all the little bits in the CMDENT. */
 			
@@ -2644,7 +2644,7 @@ void list_memory(player)
 		htab = mudstate.logout_cmd_htab.entry[i];
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
-			each += strlen(htab->target) + 1;
+			each += strlen(htab->target.s) + 1;
 			if (!(htab->flags & HASH_ALIAS)) {
 				name = (NAMETAB *)htab->data;
 				each += sizeof(NAMETAB);
@@ -2665,14 +2665,14 @@ void list_memory(player)
 		htab = mudstate.func_htab.entry[i];
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
-			each += strlen(htab->target) + 1;
+			each += strlen(htab->target.s) + 1;
 			if (!(htab->flags & HASH_ALIAS)) {
 				func = (FUN *)htab->data;
 				each += sizeof(FUN);
 			}
 			
 			/* We don't count func->name because we already got
-			 * it with htab->target */
+			 * it with htab->target.s */
 			htab = htab->next;
 		}
 	}
@@ -2688,7 +2688,7 @@ void list_memory(player)
 		htab = mudstate.ufunc_htab.entry[i];
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
-			each += strlen(htab->target) + 1;
+			each += strlen(htab->target.s) + 1;
 			if (!(htab->flags & HASH_ALIAS)) {
 				ufunc = (UFUN *)htab->data;
 				while (ufunc != NULL) {
@@ -2712,14 +2712,14 @@ void list_memory(player)
 		htab = mudstate.flags_htab.entry[i];
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
-			each += strlen(htab->target) + 1;
+			each += strlen(htab->target.s) + 1;
 			if (!(htab->flags & HASH_ALIAS)) {
 				flag = (FLAGENT *)htab->data;
 				each += sizeof(FLAGENT);
 			}
 					
 			/* We don't count flag->flagname because we already got
-			 * it with htab->target */
+			 * it with htab->target.s */
 			htab = htab->next;
 		}
 	}
@@ -2735,14 +2735,14 @@ void list_memory(player)
 		htab = mudstate.powers_htab.entry[i];
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
-			each += strlen(htab->target) + 1;
+			each += strlen(htab->target.s) + 1;
 			if (!(htab->flags & HASH_ALIAS)) {
 				power = (POWERENT *)htab->data;
 				each += sizeof(POWERENT);
 			}
 					
 			/* We don't count power->powername because we already got
-			 * it with htab->target */
+			 * it with htab->target.s */
 			htab = htab->next;
 		}
 	}
@@ -2760,7 +2760,7 @@ void list_memory(player)
 			htab = mudstate.hfile_hashes[j].entry[i];
 			while (htab != NULL) {
 				each += sizeof(HASHENT);
-				each += strlen(htab->target) + 1;
+				each += strlen(htab->target.s) + 1;
 				if (!(htab->flags & HASH_ALIAS)) {
 					each += sizeof(struct help_entry);
 					hlp = (struct help_entry *)htab->data;
@@ -2781,7 +2781,7 @@ void list_memory(player)
 		htab = mudstate.vattr_name_htab.entry[i];
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
-			each += strlen(htab->target) + 1;
+			each += strlen(htab->target.s) + 1;
 			if (!(htab->flags & HASH_ALIAS)) {
 				vattr = (VATTR *)htab->data;
 				each += sizeof(VATTR);
@@ -2802,7 +2802,7 @@ void list_memory(player)
 		htab = mudstate.attr_name_htab.entry[i];
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
-			each += strlen(htab->target) + 1;
+			each += strlen(htab->target.s) + 1;
 			if (!(htab->flags & HASH_ALIAS)) {
 				attr = (ATTR *)htab->data;
 				each += sizeof(ATTR);

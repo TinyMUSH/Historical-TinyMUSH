@@ -205,8 +205,7 @@ void NDECL(init_powertab)
 {
 	POWERENT *fp;
 
-	hashinit(&mudstate.powers_htab, 25 * HASH_FACTOR);
-	mudstate.powers_htab.nostrdup = 1;
+	hashinit(&mudstate.powers_htab, 25 * HASH_FACTOR, HT_STR|HT_KEYREF);
 	
 	for (fp = gen_powers; fp->powername; fp++) {
 		hashadd((char *)fp->powername, (int *)fp, &mudstate.powers_htab, 0);

@@ -2442,12 +2442,12 @@ void do_reference(player, cause, key, ref_name, obj_name)
 	total = 0;
 	for (i = 0; i < htab->hashsize; i++) {
 	    for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
-		if (!strncmp(tbuf, hptr->target, len)) {
+		if (!strncmp(tbuf, hptr->target.s, len)) {
 		    total++;
 		    bp = outbuf;
 		    safe_tprintf_str(outbuf, &bp, "%s:  ",
-				     ((is_global) ? hptr->target :
-				      strchr(hptr->target, '.') + 1));
+				     ((is_global) ? hptr->target.s :
+				      strchr(hptr->target.s, '.') + 1));
 		    buff = unparse_object(player, *(hptr->data), 0);
 		    safe_str(buff, outbuf, &bp);
 		    free_lbuf(buff);

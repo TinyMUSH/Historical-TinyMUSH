@@ -120,7 +120,7 @@ void register_hashtables(htab, ntab)
 
     if (htab) {
 	for (hp = htab; hp->tabname != NULL; hp++) {
-	    hashinit(hp->htab, hp->size_factor * HASH_FACTOR);
+	    hashinit(hp->htab, hp->size_factor * HASH_FACTOR, HT_STR);
 	}
     }
 

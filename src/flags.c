@@ -438,8 +438,7 @@ void NDECL(init_flagtab)
 {
 	FLAGENT *fp;
 
-	hashinit(&mudstate.flags_htab, 100 * HASH_FACTOR);
-	mudstate.flags_htab.nostrdup = 1;
+	hashinit(&mudstate.flags_htab, 100 * HASH_FACTOR, HT_STR|HT_KEYREF);
 	
 	for (fp = gen_flags; fp->flagname; fp++) {
 		hashadd((char *)fp->flagname, (int *)fp, &mudstate.flags_htab, 0);

@@ -40,6 +40,9 @@ Release history:
 - Fix: dbconvert should print usage message instead of crashing if
   invoked without a gdbm file. [3.1]
 
+- Fix: Numeric hashtable entries could have different struct layout
+  than string entries, causing hashtable functions not to work. [3.1]
+
 =============================================================================
 			TinyMUSH 3.0 Beta History
 =============================================================================

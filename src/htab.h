@@ -6,20 +6,19 @@
 #ifndef __HTAB_H
 #define __HTAB_H
 
+typedef union {
+	char *s;
+	int i;
+} HASHKEY;
+
 typedef struct hashentry HASHENT;
 struct hashentry {
-	char			*target;
+	HASHKEY			target;
 	int			*data;
 	int			flags;
 	struct hashentry	*next;
 };
-
-typedef struct num_hashentry NHSHENT;
-struct num_hashentry {
-	int			target;
-	int			*data;
-	struct num_hashentry	*next;
-};
+#define NHSHENT HASHENT
 
 typedef struct hashtable HASHTAB;
 struct hashtable {
@@ -32,28 +31,12 @@ struct hashtable {
 	int		entries;
 	int		deletes;
 	int		nulls;
-	int		nostrdup;	/* don't strdup target, copy pointer */
+	int		flags;
 	HASHENT		**entry;
 	int		last_hval;	/* Used for hashfirst & hashnext. */
 	HASHENT		*last_entry;	/* like last_hval */	
 };
-
-typedef struct num_hashtable NHSHTAB;
-struct num_hashtable {
-	int		hashsize;
-	int		mask;
-	int		checks;
-	int		scans;
-	int		max_scan;
-	int		hits;
-	int		entries;
-	int		deletes;
-	int		nulls;
-	int		nostrdup;	/* dummy, so nhash* macros work */
-	NHSHENT		**entry;
-	int		last_hval;
-	NHSHENT		*last_entry;
-};
+#define NHSHTAB HASHTAB
 
 typedef struct mod_hashes MODHASHES;
 struct mod_hashes {
@@ -62,14 +45,7 @@ struct mod_hashes {
     int size_factor;
     int min_size;
 };
-
-typedef struct mod_nhashes MODNHASHES;
-struct mod_nhashes {
-    char *tabname;
-    NHSHTAB *htab;
-    int size_factor;
-    int min_size;
-};
+#define MODNHASHES MODHASHES
 
 typedef struct name_table NAMETAB;
 struct name_table {
@@ -100,38 +76,55 @@ struct bque {
 
 #define	HASH_ALIAS	0x00000001	/* This entry is just a copy */
 
-extern void	FDECL(hashinit, (HASHTAB *, int));
+/* Hash table flags */
+
+#define HT_STR		0x00000000	/* String-keyed hashtable */
+#define HT_NUM		0x00000001	/* Numeric-keyed hashtable */
+#define HT_TYPEMASK	0x0000000f	/* Reserve up to 16 key types */
+#define HT_KEYREF	0x00000010	/* Store keys by reference not copy */
+
+extern void	FDECL(hashinit, (HASHTAB *, int, int));
+#define nhashinit(h,sz)		hashinit((h), (sz), HT_NUM)
 extern void	FDECL(hashreset, (HASHTAB *));
+#define nhashreset(h)		hashreset((h))
 extern int	FDECL(hashval, (char *, int));
 extern int	FDECL(get_hashmask, (int *));
-extern int	FDECL(*hashfind, (char *, HASHTAB *));
-extern int	FDECL(hashfindflags, (char *, HASHTAB *));
-extern int	FDECL(hashadd, (char *, int *, HASHTAB *, int));
-extern void	FDECL(hashdelete, (char *, HASHTAB *));
+extern int	FDECL(*hashfind_generic, (HASHKEY, HASHTAB *));
+#define hashfind(s,h)		hashfind_generic((HASHKEY) (s), (h))
+#define nhashfind(n,h)		hashfind_generic((HASHKEY) (n), (h))
+extern int	FDECL(hashfindflags_generic, (HASHKEY, HASHTAB *));
+#define hashfindflags(s,h)	hashfindflags_generic((HASHKEY) (s), (h))
+extern int	FDECL(hashadd_generic, (HASHKEY, int *, HASHTAB *, int));
+#define hashadd(s,d,h,f)	hashadd_generic((HASHKEY) (s), (d), (h), (f))
+#define nhashadd(n,d,h)		hashadd_generic((HASHKEY) (n), (d), (h), 0)
+extern void	FDECL(hashdelete_generic, (HASHKEY, HASHTAB *));
+#define hashdelete(s,h)		hashdelete_generic((HASHKEY) (s), (h))
+#define nhashdelete(n,h)	hashdelete_generic((HASHKEY) (n), (h))
 extern void	FDECL(hashdelall, (int *, HASHTAB *));
 extern void	FDECL(hashflush, (HASHTAB *, int));
-extern int	FDECL(hashrepl, (char *, int *, HASHTAB *));
+#define nhashflush(h,sz)	hashflush((h), (sz))
+extern int	FDECL(hashrepl_generic, (HASHKEY, int *, HASHTAB *));
+#define hashrepl(s,d,h)		hashrepl_generic((HASHKEY) (s), (d), (h))
+#define nhashrepl(n,d,h)	hashrepl_generic((HASHKEY) (n), (d), (h))
 extern void	FDECL(hashreplall, (int *, int *, HASHTAB *));
 extern char	FDECL(*hashinfo, (const char *, HASHTAB *));
-extern int	FDECL(*nhashfind, (int, NHSHTAB *));
-extern int	FDECL(nhashadd, (int, int *, NHSHTAB *));
-extern void	FDECL(nhashdelete, (int, NHSHTAB *));
-extern void	FDECL(nhashflush, (NHSHTAB *, int));
-extern int	FDECL(nhashrepl, (int, int *, NHSHTAB *));
+#define nhashinfo(t,h)		hashinfo((t), (h))
+extern int	FDECL(*hash_nextentry, (HASHTAB *htab));
+extern int	FDECL(*hash_firstentry, (HASHTAB *htab));
+extern HASHKEY	FDECL(hash_firstkey_generic, (HASHTAB *htab));
+#define hash_firstkey(h)	(hash_firstkey_generic((h)).s)
+extern HASHKEY	FDECL(hash_nextkey_generic, (HASHTAB *htab));
+#define hash_nextkey(h)		(hash_nextkey_generic((h)).s)
+extern void	FDECL(hashresize, (HASHTAB *, int));
+#define nhashresize(h,sz)	hashresize((h), (sz))
+
 extern int	FDECL(search_nametab, (dbref, NAMETAB *, char *));
 extern NAMETAB	FDECL(*find_nametab_ent, (dbref, NAMETAB *, char *));
 extern void	FDECL(display_nametab, (dbref, NAMETAB *, char *, int));
 extern void	FDECL(interp_nametab, (dbref, NAMETAB *, int, char *, char *,
 			char *));
 extern void	FDECL(listset_nametab, (dbref, NAMETAB *, int, char *, int));
-extern int	FDECL(*hash_nextentry, (HASHTAB *htab));
-extern int	FDECL(*hash_firstentry, (HASHTAB *htab));
-extern char	FDECL(*hash_firstkey, (HASHTAB *htab));
-extern char	FDECL(*hash_nextkey, (HASHTAB *htab));
 
 extern NAMETAB powers_nametab[];
-#define nhashinit(h,s) hashinit((HASHTAB *)h, s)
-#define nhashreset(h) hashreset((HASHTAB *)h)
-#define nhashinfo(t,h) hashinfo(t,(HASHTAB *)h)
 
 #endif /* __HTAB_H */

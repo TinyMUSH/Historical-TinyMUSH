@@ -59,9 +59,9 @@ int *size;
  * hashinit: Initialize a new hash table.
  */
 
-void hashinit(htab, size)
+void hashinit(htab, size, flags)
 HASHTAB *htab;
-int size;
+int size, flags;
 {
 	int i;
 
@@ -74,7 +74,11 @@ int size;
 	htab->entries = 0;
 	htab->deletes = 0;
 	htab->nulls = size;
-	htab->nostrdup = 0;
+	if ((flags & HT_TYPEMASK) == HT_NUM) {
+		/* Numeric hashtabs implicitly store keys by reference */
+		flags |= HT_KEYREF;
+	}
+	htab->flags = flags;
 	htab->entry = (HASHENT **) XCALLOC(size, sizeof(HASHENT *),
 					   "hashinit");
 
@@ -95,23 +99,29 @@ HASHTAB *htab;
 }
 
 /* ---------------------------------------------------------------------------
- * hashfind: Look up an entry in a hash table and return a pointer to its
- * hash data.
+ * hashfind_generic: Look up an entry in a hash table and return a pointer
+ * to its hash data. Works for both string and numeric hash tables.
  */
 
-int *hashfind(str, htab)
-char *str;
+int *hashfind_generic(key, htab)
+HASHKEY key;
 HASHTAB *htab;
 {
-	int hval, numchecks;
+	int htype, hval, numchecks;
 	HASHENT *hptr, *prev;
 
 	numchecks = 0;
 	htab->scans++;
-	hval = hashval(str, htab->mask);
+	htype = htab->flags & HT_TYPEMASK;
+	if (htype == HT_STR) {
+		hval = hashval(key.s, htab->mask);
+	} else {
+		hval = (key.i & htab->mask);
+	}
 	for (prev = hptr = htab->entry[hval]; hptr != NULL; hptr = hptr->next) {
 		numchecks++;
-		if (strcmp(str, hptr->target) == 0) {
+		if ((htype == HT_STR && strcmp(key.s, hptr->target.s) == 0) ||
+		    (htype == HT_NUM && key.i == hptr->target.i)) {
 			htab->hits++;
 			if (numchecks > htab->max_scan)
 				htab->max_scan = numchecks;
@@ -128,22 +138,29 @@ HASHTAB *htab;
 }
 
 /* ---------------------------------------------------------------------------
- * hashfindflags: Look up an entry in a hash table and return its flags
+ * hashfindflags_generic: Look up an entry in a hash table and return
+ * its flags. Works for both string and numeric hash tables.
  */
 
-int hashfindflags(str, htab)
-char *str;
+int hashfindflags_generic(key, htab)
+HASHKEY key;
 HASHTAB *htab;
 {
-	int hval, numchecks;
+	int htype, hval, numchecks;
 	HASHENT *hptr, *prev;
 
 	numchecks = 0;
 	htab->scans++;
-	hval = hashval(str, htab->mask);
+	htype = htab->flags & HT_TYPEMASK;
+	if (htype == HT_STR) {
+		hval = hashval(key.s, htab->mask);
+	} else {
+		hval = (key.i & htab->mask);
+	}
 	for (prev = hptr = htab->entry[hval]; hptr != NULL; hptr = hptr->next) {
 		numchecks++;
-		if (strcmp(str, hptr->target) == 0) {
+		if ((htype == HT_STR && strcmp(key.s, hptr->target.s) == 0) ||
+		    (htype == HT_NUM && key.i == hptr->target.i)) {
 			htab->hits++;
 			if (numchecks > htab->max_scan)
 				htab->max_scan = numchecks;
@@ -160,16 +177,17 @@ HASHTAB *htab;
 }
 
 /* ---------------------------------------------------------------------------
- * hashadd: Add a new entry to a hash table.
+ * hashadd_generic: Add a new entry to a hash table. Works for both string
+ * and numeric hashtables.
  */
 
-int hashadd(str, hashdata, htab, flags)
-char *str;
+int hashadd_generic(key, hashdata, htab, flags)
+HASHKEY key;
 int *hashdata;
 HASHTAB *htab;
 int flags;
 {
-	int hval;
+	int htype, hval;
 	HASHENT *hptr;
 
 	/*
@@ -178,17 +196,22 @@ int flags;
 	 * link it in at the head of its thread.
 	 */
 
-	if (hashfind(str, htab) != NULL)
+	if (hashfind_generic(key, htab) != NULL)
 		return (-1);
-	hval = hashval(str, htab->mask);
+	htype = htab->flags & HT_TYPEMASK;
+	if (htype == HT_STR) {
+		hval = hashval(key.s, htab->mask);
+	} else {
+		hval = (key.i & htab->mask);
+	}
 	htab->entries++;
 	if (htab->entry[hval] == NULL)
 		htab->nulls--;
 	hptr = (HASHENT *) XMALLOC(sizeof(HASHENT), "hashadd");
-	if (htab->nostrdup) {
-		hptr->target = str;
+	if (htab->flags & HT_KEYREF) {
+		hptr->target = key;
 	} else {
-		hptr->target = XSTRDUP(str, "hashadd.target");
+		hptr->target.s = XSTRDUP(key.s, "hashadd.target");
 	}
 	hptr->data = hashdata;
 	hptr->flags = flags;
@@ -198,28 +221,35 @@ int flags;
 }
 
 /* ---------------------------------------------------------------------------
- * hashdelete: Remove an entry from a hash table.
+ * hashdelete_generic: Remove an entry from a hash table. Works for both
+ * string and numeric hashtables.
  */
 
-void hashdelete(str, htab)
-char *str;
+void hashdelete_generic(key, htab)
+HASHKEY key;
 HASHTAB *htab;
 {
-	int hval;
+	int htype, hval;
 	HASHENT *hptr, *last;
 
-	hval = hashval(str, htab->mask);
+	htype = htab->flags & HT_TYPEMASK;
+	if (htype == HT_STR) {
+		hval = hashval(key.s, htab->mask);
+	} else {
+		hval = (key.i & htab->mask);
+	}
 	last = NULL;
 	for (hptr = htab->entry[hval];
 	     hptr != NULL;
 	     last = hptr, hptr = hptr->next) {
-		if (strcmp(str, hptr->target) == 0) {
+		if ((htype == HT_STR && strcmp(key.s, hptr->target.s) == 0) ||
+		    (htype == HT_NUM && key.i == hptr->target.i)) {
 			if (last == NULL)
 				htab->entry[hval] = hptr->next;
 			else
 				last->next = hptr->next;
-			if (!htab->nostrdup) {
-				XFREE(hptr->target, "hashdelete.target");
+			if (!(htab->flags & HT_KEYREF)) {
+				XFREE(hptr->target.s, "hashdelete.target");
 			}
 			XFREE(hptr, "hashdelete.hptr");
  			htab->deletes++;
@@ -249,8 +279,8 @@ HASHTAB *htab;
 					htab->entry[hval] = nextp;
 				else
 					prev->next = nextp;
-				if (!htab->nostrdup) {
-					XFREE(hptr->target, "hashdelall.target");
+				if (!(htab->flags & HT_KEYREF)) {
+					XFREE(hptr->target.s, "hashdelall.target");
 				}
 				XFREE(hptr, "hashdelall.hptr");
 				htab->deletes++;
@@ -280,8 +310,8 @@ int size;
 		while (hent != NULL) {
 			thent = hent;
 			hent = hent->next;
-			if (!htab->nostrdup) {
-				XFREE(thent->target, "hashflush.target");
+			if (!(htab->flags & HT_KEYREF)) {
+				XFREE(thent->target.s, "hashflush.target");
 			}
 			XFREE(thent, "hashflush.hent");
 		}
@@ -292,9 +322,7 @@ int size;
 
 	if ((size > 0) && (size != htab->hashsize)) {
 		XFREE(htab->entry, "hashflush.table");
-		i = htab->nostrdup;
-		hashinit(htab, size);
-		htab->nostrdup = i;
+		hashinit(htab, size, htab->flags);
 	} else {
 		htab->checks = 0;
 		htab->scans = 0;
@@ -307,22 +335,29 @@ int size;
 }
 
 /* ---------------------------------------------------------------------------
- * hashrepl: replace the data part of a hash entry.
+ * hashrepl_generic: replace the data part of a hash entry. Works for both
+ * string and numeric hashtables.
  */
 
-int hashrepl(str, hashdata, htab)
-char *str;
+int hashrepl_generic(key, hashdata, htab)
+HASHKEY key;
 int *hashdata;
 HASHTAB *htab;
 {
 	HASHENT *hptr;
-	int hval;
+	int htype, hval;
 
-	hval = hashval(str, htab->mask);
+	htype = htab->flags & HT_TYPEMASK;
+	if (htype == HT_STR) {
+		hval = hashval(key.s, htab->mask);
+	} else {
+		hval = (key.i & htab->mask);
+	}
 	for (hptr = htab->entry[hval];
 	     hptr != NULL;
 	     hptr = hptr->next) {
-		if (strcmp(str, hptr->target) == 0) {
+		if ((htype == HT_STR && strcmp(key.s, hptr->target.s) == 0) ||
+		    (htype == HT_NUM && key.i == hptr->target.i)) {
 			hptr->data = hashdata;
 			return 1;
 		}
@@ -362,7 +397,7 @@ HASHTAB *htab;
 	return buff;
 }
 
-/* Returns the key for the first hash entry in 'htab'. */
+/* Returns the data for the first hash entry in 'htab'. */
 
 int *hash_firstentry(htab)
 HASHTAB *htab;
@@ -403,7 +438,9 @@ HASHTAB *htab;
 	return NULL;
 }
 
-char *hash_firstkey(htab)
+/* Returns the key for the first hash entry in 'htab'. */
+
+HASHKEY hash_firstkey_generic(htab)
 HASHTAB *htab;
 {
 	int hval;
@@ -414,10 +451,15 @@ HASHTAB *htab;
 			htab->last_entry = htab->entry[hval];
 			return htab->entry[hval]->target;
 		}
-	return NULL;
+
+	if ((htab->flags & HT_TYPEMASK) == HT_STR) {
+		return (HASHKEY) ((char *) NULL);
+	} else {
+		return (HASHKEY) ((int) -1);
+	}
 }
 
-char *hash_nextkey(htab)
+HASHKEY hash_nextkey_generic(htab)
 HASHTAB *htab;
 {
 	int hval;
@@ -439,7 +481,12 @@ HASHTAB *htab;
 		}
 		hval++;
 	}
-	return NULL;
+
+	if ((htab->flags & HT_TYPEMASK) == HT_STR) {
+		return (HASHKEY) ((char *) NULL);
+	} else {
+		return (HASHKEY) ((int) -1);
+	}
 }
 
 /* ---------------------------------------------------------------------------
@@ -451,7 +498,7 @@ void hashresize(htab, min_size)
     HASHTAB *htab;
     int min_size;
 {
-    int size, i, hval;
+    int size, i, htype, hval;
     HASHTAB new_htab;
     HASHENT *hent, *thent;
 
@@ -465,7 +512,8 @@ void hashresize(htab, min_size)
 	return;
     }
 
-    hashinit(&new_htab, size);
+    hashinit(&new_htab, size, htab->flags);
+    htype = htab->flags & HT_TYPEMASK;
 
     for (i = 0; i < htab->hashsize; i++) {
 	hent = htab->entry[i];
@@ -474,7 +522,11 @@ void hashresize(htab, min_size)
 	    hent = hent->next;
 
 	    /* don't free and reallocate entries, just copy the pointers */
-	    hval = hashval(thent->target, new_htab.mask);
+	    if (htype == HT_STR) {
+		hval = hashval(thent->target.s, new_htab.mask);
+	    } else {
+		hval = (thent->target.i & new_htab.mask);
+	    }
 	    if (new_htab.entry[hval] == NULL)
 		new_htab.nulls--;
 	    thent->next = new_htab.entry[hval];
@@ -495,217 +547,7 @@ void hashresize(htab, min_size)
     htab->last_hval = new_htab.last_hval;
     htab->last_entry = new_htab.last_entry;
     /* number of entries doesn't change */
-    /* nostrdup status doesn't change */
-}
-
-/* ---------------------------------------------------------------------------
- * nhashfind: Look up an entry in a numeric hash table and return a pointer
- * to its hash data.
- */
-
-int *nhashfind(val, htab)
-int val;
-NHSHTAB *htab;
-{
-	int hval, numchecks;
-	NHSHENT *hptr, *prev;
-
-	numchecks = 0;
-	htab->scans++;
-	hval = (val & htab->mask);
-	for (prev = hptr = htab->entry[hval]; hptr != NULL; hptr = hptr->next) {
-		numchecks++;
-		if (val == hptr->target) {
-			htab->hits++;
-			if (numchecks > htab->max_scan)
-				htab->max_scan = numchecks;
-			htab->checks += numchecks;
-			return hptr->data;
-		}
-		prev = hptr;
-	}
-	if (numchecks > htab->max_scan)
-		htab->max_scan = numchecks;
-	htab->checks += numchecks;
-	return NULL;
-}
-
-/* ---------------------------------------------------------------------------
- * nhashadd: Add a new entry to a numeric hash table.
- */
-
-int nhashadd(val, hashdata, htab)
-int val, *hashdata;
-NHSHTAB *htab;
-{
-	int hval;
-	NHSHENT *hptr;
-
-	/*
-	 * Make sure that the entry isn't already in the hash table.  If it
-	 * is, exit with an error.  Otherwise, create a new hash block and
-	 * link it in at the head of its thread.
-	 */
-
-	if (nhashfind(val, htab) != NULL)
-		return (-1);
-	hval = (val & htab->mask);
-	htab->entries++;
-	if (htab->entry[hval] == NULL)
-		htab->nulls--;
-	hptr = (NHSHENT *) XMALLOC(sizeof(NHSHENT), "nhashadd");
-	hptr->target = val;
-	hptr->data = hashdata;
-	hptr->next = htab->entry[hval];
-	htab->entry[hval] = hptr;
-	return (0);
-}
-
-/* ---------------------------------------------------------------------------
- * nhashdelete: Remove an entry from a numeric hash table.
- */
-
-void nhashdelete(val, htab)
-int val;
-NHSHTAB *htab;
-{
-	int hval;
-	NHSHENT *hptr, *last;
-
-	hval = (val & htab->mask);
-	last = NULL;
-	for (hptr = htab->entry[hval];
-	     hptr != NULL;
-	     last = hptr, hptr = hptr->next) {
-		if (val == hptr->target) {
-			if (last == NULL)
-				htab->entry[hval] = hptr->next;
-			else
-				last->next = hptr->next;
-			XFREE(hptr, "nhashdelete.hptr");
-			htab->deletes++;
-			htab->entries--;
-			if (htab->entry[hval] == NULL)
-				htab->nulls++;
-			return;
-		}
-	}
-}
-
-/* ---------------------------------------------------------------------------
- * nhashflush: free all the entries in a hashtable.
- */
-
-void nhashflush(htab, size)
-NHSHTAB *htab;
-int size;
-{
-	NHSHENT *hent, *thent;
-	int i;
-
-	for (i = 0; i < htab->hashsize; i++) {
-		hent = htab->entry[i];
-		while (hent != NULL) {
-			thent = hent;
-			hent = hent->next;
-			XFREE(thent, "nhashadd");
-		}
-		htab->entry[i] = NULL;
-	}
-
-	/* Resize if needed.  Otherwise, just zero all the stats */
-
-	if ((size > 0) && (size != htab->hashsize)) {
-		XFREE(htab->entry, "nhashflush.table");
-		nhashinit(htab, size);
-	} else {
-		htab->checks = 0;
-		htab->scans = 0;
-		htab->max_scan = 0;
-		htab->hits = 0;
-		htab->entries = 0;
-		htab->deletes = 0;
-		htab->nulls = htab->hashsize;
-	}
-}
-
-/* ---------------------------------------------------------------------------
- * nhashrepl: replace the data part of a hash entry.
- */
-
-int nhashrepl(val, hashdata, htab)
-int val, *hashdata;
-NHSHTAB *htab;
-{
-	NHSHENT *hptr;
-	int hval;
-
-	hval = (val & htab->mask);
-	for (hptr = htab->entry[hval];
-	     hptr != NULL;
-	     hptr = hptr->next) {
-		if (hptr->target == val) {
-			hptr->data = hashdata;
-			return 1;
-		}
-	}
-	return 0;
-}
-
-/* ---------------------------------------------------------------------------
- * nhashresize: Resize a numeric hash table, to adjust the number of slots
- * to be a power of 2 appropriate to the number of entries in it.
- */
-
-void nhashresize(htab, min_size)
-    NHSHTAB *htab;
-    int min_size;
-{
-    int size, i, hval;
-    NHSHTAB new_htab;
-    NHSHENT *hent, *thent;
-
-    size = (htab->entries) * HASH_FACTOR;
-    size = (size < min_size) ? min_size : size;
-    get_hashmask(&size);
-    if ((size > 512) && (size > htab->entries * 1.33 * HASH_FACTOR))
-	size /= 2;
-    if (size == htab->hashsize) {
-	/* We're already at the correct size. Don't do anything. */
-	return;
-    }
-
-    nhashinit(&new_htab, size);
-
-    for (i = 0; i < htab->hashsize; i++) {
-	hent = htab->entry[i];
-	while (hent != NULL) {
-	    thent = hent;
-	    hent = hent->next;
-
-	    /* don't free and reallocate entries, just copy the pointers */
-	    hval = thent->target & new_htab.mask;
-	    if (new_htab.entry[hval] == NULL)
-		new_htab.nulls--;
-	    thent->next = new_htab.entry[hval];
-	    new_htab.entry[hval] = thent;
-	}
-    }
-    XFREE(htab->entry, "hashinit");
-
-    htab->hashsize = new_htab.hashsize;
-    htab->mask = new_htab.mask;
-    htab->checks = new_htab.checks;
-    htab->scans = new_htab.scans;
-    htab->max_scan = new_htab.max_scan;
-    htab->hits = new_htab.hits;
-    htab->deletes = new_htab.deletes;
-    htab->nulls = new_htab.nulls;
-    htab->entry = new_htab.entry;
-    htab->last_hval = new_htab.last_hval;
-    htab->last_entry = new_htab.last_entry;
-    /* number of entries doesn't change */
-    /* nostrdup status doesn't change */
+    /* flags don't change */
 }
 
 /* ---------------------------------------------------------------------------

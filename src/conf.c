@@ -712,7 +712,8 @@ CF_HAND(cf_alias)
 			for (p = alias; *p; p++)
 				*p = tolower(*p);
 		}
-		if (((HASHTAB *)vp)->nostrdup) {
+		if (((HASHTAB *)vp)->flags & HT_KEYREF) {
+			/* hashadd won't copy it, so we do that here */
 			p = alias;
 			alias = XSTRDUP(p, "cf_alias");
 		}
@@ -1416,7 +1417,8 @@ int add_helpfile(player, confcmd, str, is_raw)
 
     /* Initialize the associated hashtable. */
 
-    hashinit(&mudstate.hfile_hashes[mudstate.helpfiles], 30 * HASH_FACTOR);
+    hashinit(&mudstate.hfile_hashes[mudstate.helpfiles], 30 * HASH_FACTOR,
+	     HT_STR);
 
     mudstate.helpfiles++;
     free_mbuf(newstr);
