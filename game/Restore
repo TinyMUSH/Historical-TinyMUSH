@@ -68,13 +68,13 @@ case $ARCHIVE in
 	. mush.config
 	. check_paths
 	echo "Restoring flatfile $INFILE ..."
-	$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
+	$BIN/dbconvert -c $GAMENAME.conf -d $DATA -D $GDBM_DB -X $DATA/$GDBM_DB < $INFILE
 	rm $INFILE ;;
     *.tar.*) echo "Restoring module databases and flatfile."
 	INFILE=`echo $ARCHIVE | sed -e "s/\\.tar\\.$ZEXT\$//"`
 	$UNZIP $ARCHIVE | tar -xvf -
-	$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
+	$BIN/dbconvert -c $GAMENAME.conf -d $DATA -D $GDBM_DB -X $DATA/$GDBM_DB < $INFILE
 	rm $INFILE ;;
     *) echo "Restoring flatfile."	
-	$UNZIP $ARCHIVE | $BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB ;;
+	$UNZIP $ARCHIVE | $BIN/dbconvert -c $GAMENAME.conf -d $DATA -D $GDBM_DB -X $DATA/$GDBM_DB ;;
 esac

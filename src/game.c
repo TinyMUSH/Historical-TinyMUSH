@@ -1676,6 +1676,8 @@ char *prog;
 	fprintf(mainlog_fp, "Usage: %s [options] gdbm-file [< in-file] [> out-file]\n", prog);
 	fprintf(mainlog_fp, "   Available flags are:\n");
 	fprintf(mainlog_fp, "      -c <filename> - Config file     -C - Perform consistency check\n");
+	fprintf(mainlog_fp, "      -d <path> - Data directory      -D <filename> - gdbm database\n");
+        fprintf(mainlog_fp, "      -r <filename> - gdbm crash db\n");
 	fprintf(mainlog_fp, "      -G - Write in gdbm format       -g - Write in flat file format\n");
 	fprintf(mainlog_fp, "      -K - Store key as an attribute  -k - Store key in the header\n");
 	fprintf(mainlog_fp, "      -L - Include link information   -l - Don't include link information\n");
@@ -1695,7 +1697,12 @@ char *argv[];
 	int setflags, clrflags, ver;
 	int db_ver, db_format, db_flags, do_check, do_write;
 	int c, dbclean, errflg = 0;
-	char *opt_conf = (char *) CONF_FILE;
+
+	char *opt_conf      = (char *) CONF_FILE;
+	char *opt_datadir   = (char *) DATA_DIR;
+	char *opt_gdbmfile  = (char *) DB_FILE;
+	char *opt_crashfile = (char *) CRASH_FILE;
+	
 	FILE *f;
 	MODULE *mp;
 	void (*modfunc)(FILE *);
@@ -1708,10 +1715,19 @@ char *argv[];
 	do_write = 1;
 	dbclean = V_DBCLEAN;
 
-	while ((c = getopt(argc, argv, "c:CqGgZzLlNnKkPpWwXx0123456789")) != -1) {
+	while ((c = getopt(argc, argv, "c:d:D:CqGgZzLlNnKkPpWwXx0123456789")) != -1) {
 		switch (c) {
 			case 'c':
 				opt_conf = optarg;
+				break;
+			case 'd':
+				opt_datadir = optarg;
+				break;
+			case 'D':
+				opt_gdbmfile = optarg;
+				break;
+			case 'r':
+				opt_crashfile = optarg;
 				break;
 			case 'C':
 				do_check = 1;
@@ -1793,6 +1809,7 @@ char *argv[];
 		exit(1);
 	}
 	
+	
 	LTDL_SET_PRELOADED_SYMBOLS();
 	lt_dlinit();
 	pool_init(POOL_LBUF, LBUF_SIZE);
@@ -1800,6 +1817,10 @@ char *argv[];
 	pool_init(POOL_SBUF, SBUF_SIZE);
         pool_init(POOL_BOOL, sizeof(struct boolexp));
                         
+	mudconf.dbhome = XSTRDUP(opt_datadir, "argv");
+        mudconf.crashdb = XSTRDUP(opt_crashfile, "argv");
+        mudconf.gdbm = XSTRDUP(opt_gdbmfile, "argv");
+
 	cf_init();
 	mudstate.standalone = 1;
 	cf_read(opt_conf);
