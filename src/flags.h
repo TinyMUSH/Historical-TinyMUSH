@@ -487,7 +487,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
 			 (God(p) || \
 			  ((f) & AF_VISUAL) || \
-			  ((Examinable(p,x) || (Owner(p) == (o))) && \
+                         (((Owner(p) == (o)) || Examinable(p,x)) && \
 			   !((a)->flags & (AF_DARK|AF_MDARK)) && \
 			   !((f) & (AF_DARK|AF_MDARK))) || \
 			  ((Wizard(p) || Royalty(p)) && !((a)->flags & AF_DARK)) || \
@@ -510,7 +510,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			(!((a)->flags & AF_INTERNAL) && \
 			 (God(p) || \
 			  ((f) & AF_VISUAL) || \
-			  ((Examinable(p,x) || (Owner(p) == o)) && \
+                         (((Owner(p) == o) || Examinable(p,x)) && \
 			   !((a)->flags & (AF_DARK|AF_MDARK)) && \
 			   !((f) & (AF_DARK|AF_MDARK))) || \
 			  ((Wizard(p) || Royalty(p)) && !((a)->flags & AF_DARK)) || \

@@ -25,12 +25,13 @@
  
   @addcommand    @admin         @apply_marked  @attribute     @boot
   @chown         @chownall      @clone         @cut           @dbck
-  @dbclean       @destroy       @disable       @doing         @dump
-  @enable        @fixdb         @function      @halt          @kick
-  @list          @list_file     @listmotd      @lock          @mark
-  @mark_all      @motd          @newpassword   @pcreate       @poor
-  @ps            @quota         @readcache     @restart       @shutdown
-  @startslave    @timewarp      @toad          @wall
+  @dbclean       @delcommand    @destroy       @disable       @doing
+  @dump          @enable        @fixdb         @function      @halt
+  @kick          @list          @listcommands  @list_file     @listmotd
+  @lock          @mark          @mark_all      @motd          @newpassword
+  @pcreate       @poor          @ps            @quota         @readcache
+  @restart       @shutdown      @startslave    @timewarp      @toad
+  @wall
  
   @allowance     @comment       @timeout
 
@@ -168,8 +169,25 @@
   @addcommand to add it to the built-in list, and it will be looked up
   much faster.
  
-  There is currently no facility for listing or deleting added commands,
-  but there will be such in the future.
+  See also: @delcommand, @listcommands.
+ 
+& @delcommand
+  Command: @delcommand <name>[=<thing>/<attribute>]
+  Deletes a command added by @addcommand. With only <name> specified, deletes
+  all added commands under <name>. When you specify <thing> and <attribute>,
+  it only deletes that specific entry. If the command or commands you are
+  deleting had replaced a built-in command, the built-in command and all
+  aliases are restored to their normal names and actions.
+ 
+  See also: @addcommand, @listcommands.
+ 
+& @listcommands
+  Command: @listcommands [<name>]
+  Lists commands added by @addcommand. With <name> specified, lists all
+  commands added under that particular command name. Without it, lists all
+  added commands.
+ 
+  See also: @addcommand, @listcommands.
  
 & @admin
   Command: @admin <param>=<value>
@@ -989,7 +1007,7 @@
  
   access  alias  attr_access  attr_alias  attr_cmd_access
   bad_name  badsite_file  cache_depth  cache_trim  cache_width
-  check_interval  check_offset  clone_copies_cost  commac_database
+  check_interval  check_offset  clone_copies_cost  comsys_database
   command_quota_increment  command_quota_max  compress_program  compression
   concentrator_port  config_access  conn_timeout  connect_file
   connect_reg_file  crash_database  create_max_cost  create_min_cost
@@ -1002,8 +1020,8 @@
   function_recursion_limit  gdbm_database  good_name  guest_char_num
   guest_file  guest_nuker  guest_prefix  guests_channel  have_comsys
   have_macros  have_mailer  have_zones  help_file  help_index  hostnames
-  idle_interval  idle_timeout  idle_wiz_dark  include  initial_size
-  input_database  kill_guarantee_cost  kill_max_cost
+  idle_interval  idle_timeout  idle_wiz_dark  include  indent_desc
+  initial_size  input_database  kill_guarantee_cost  kill_max_cost
   kill_min_cost  list_access  link_cost  lock_recursion_limit  log
 { 'wizhelp config parameters2' for more }
 & CONFIG PARAMETERS2
@@ -1123,8 +1141,8 @@
   case.
   See also: @clone.
 
-& commac_database
-  Config parameter: commac_database <path>.  Default: commac.db
+& comsys_database
+  Config parameter: comsys_database <path>.  Default: comsys.db
   Specifies the file that comsystem and macro information is stored in.
   This database is loaded at startup if either have_comsys or have_macros
   are on.
@@ -1453,12 +1471,12 @@
 & have_comsys
   Config parameter: have_comsys <yes/no>.  Default: yes
   Specifies whether or not the comsystem should be active.
-  See also: commac_database, have_macros.
+  See also: comsys_database, have_macros.
  
 & have_macros
   Config parameter: have_macros <yes/no>.  Default: yes
   Specifies whether or not the macro system should b active.
-  See also: commac_database, have_comsys.
+  See also: comsys_database, have_comsys.
  
 & have_mailer
   Config parameter: have_mailer <yes/no>.  Default: yes
@@ -1560,6 +1578,11 @@
   structure has to be reallocated again. This is needed since MUX allocates
   space for the database in large chunks, the size of which depends on
   this parameter. 
+
+& indent_desc
+  Config parameter: indent_desc <yes/no>. Default: no
+  Places a blank row before and after every room, object, and exit
+  description when looked at.
 
 & input_database
   Config parameter: input_database.  Default: tinymux.db
@@ -1744,7 +1767,7 @@
 & news_file
   Config parameter: news_file <path>.  Default: text/news.txt
   Specifies the name of the file containing the text used by the news
-  command.
+  command. You may use ANSI color sequences in news.
   See also: news, news_index
 
 & news_index

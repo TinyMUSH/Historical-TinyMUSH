@@ -2460,6 +2460,7 @@ struct mail *mp;
 	StringCopy(res, "");
 	p = res;
 	*p++ = Read(mp) ? '-' : 'N';
+	*p++ = M_Safe(mp) ? 'S' : '-';
 	*p++ = Cleared(mp) ? 'C' : '-';
 	*p++ = Urgent(mp) ? 'U' : '-';
 	*p++ = Mass(mp) ? 'M' : '-';

@@ -37,7 +37,6 @@
 
 extern void NDECL(init_attrtab);
 extern void NDECL(init_cmdtab);
-extern void NDECL(init_mactab);
 extern void NDECL(init_chantab);
 extern void NDECL(cf_init);
 extern void NDECL(pcache_init);
@@ -883,7 +882,7 @@ int dump_type;
 				fclose(f);
 			}
 		if (mudconf.have_comsys || mudconf.have_macros)
-			save_comsys_and_macros(mudconf.commac_db);
+			save_comsys(mudconf.comsys_db);
 		return;
 	}
 	
@@ -903,7 +902,7 @@ int dump_type;
 				fclose(f);
 			}
 		if (mudconf.have_comsys || mudconf.have_macros)
-			save_comsys_and_macros(mudconf.commac_db);
+			save_comsys(mudconf.comsys_db);
 		return;
 	}
 	
@@ -924,7 +923,7 @@ int dump_type;
 				fclose(f);
 			}
 		if (mudconf.have_comsys || mudconf.have_macros)
-			save_comsys_and_macros(mudconf.commac_db);
+			save_comsys(mudconf.comsys_db);
 		return;
 	}
 	
@@ -986,7 +985,7 @@ int dump_type;
 			fclose(f);
 		}
 	if (mudconf.have_comsys || mudconf.have_macros)
-		save_comsys_and_macros(mudconf.commac_db);
+		save_comsys(mudconf.comsys_db);
 #endif
 }
 
@@ -1140,7 +1139,7 @@ static int NDECL(load_game)
 			return -1;
 	}
 	if (mudconf.have_comsys || mudconf.have_macros)
-		load_comsys_and_macros(mudconf.commac_db);
+		load_comsys(mudconf.comsys_db);
 
 	if (mudconf.have_mailer)
 		if (f = fopen(mudconf.mail_db, "r")) {
@@ -1376,7 +1375,6 @@ char *argv[];
 	cf_init();
 	init_rlimit();
 	init_cmdtab();
-	init_mactab();
 	init_chantab();
 	init_logout_cmdtab();
 	init_flagtab();

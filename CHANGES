@@ -370,3 +370,67 @@ TinyMUX 1.3 patchlevel 0:
   the object's name in the output.
 - You may now specify @pemit/list/contents, or @remit/list.
 - New command: @addcommand. See 'wizhelp @addcommand'. God only.
+
+TinyMUX 1.3 patchlevel 1:
+- Fixed wizhelp entry for @addcommand.
+- Fixed grep() and grepi() behavior.
+- Fixed slave.c for Solaris 2.5.
+- Makes @addcommand god only.
+
+TinyMUX 1.3 patchlevel 2:
+- Fixed a bug with zone checking involving using an evaluation lock in the
+  EnterLock for a zone.
+
+TinyMUX 1.3 patchlevel 3:
+- Fixed a bug where the MUX would not save the mail or comsystem
+  databases when restarting, or dumping a crash/killed database. It also
+  enables the use of command switches for commands added by @addcommand to the
+  global built-in table.
+
+TinyMUX 1.3 patchlevel 4:
+- New command: @mail/safe
+- DARK wizards are no longer visable on the @cwho
+- Permissions for @cboot work correctly
+- The boot message @cboot generates is now correct
+- @wait/<number> no longer crashes the game
+- columns() with a field argument >78 is no longer allowed
+- lcon() no longer has a leading space
+- before() now works properly
+- Some log errors recognize type GARBAGE now
+- 'go home' is now bound by the FIXED flag
+- Lookups on an incomplete player name when the player is DARK fails...
+  it was possible to use this to see if a DARK player was connected
+- You cannot restart while the game is dumping
+- configuration for the radix library no longer looks for gawk, which is
+  broken
+- A small memory leak in help fixed
+- Numerous memory leaks in the disk based database code fixed
+
+TinyMUX 1.4 patchlevel 0:
+- New commands:
+  @delcommand @listcommands
+- New config paramater 'indent_desc' will automatically put a space before
+  and after object, room, and exit descriptions when being looked at.
+- The built-in macro system has been removed. You MUST change your config
+  file parameter 'commac_database' to 'comsys_database'!
+- Fixed bugs causing problems with '#-1 PERMISSION DENIED' in function
+  return values.
+- @decompile now includes ansi codes when printing names which have ansi
+  color imbedded.
+- Fixed zone problem that would crash the MUX periodically when a object was
+  examined.
+- You can no longer use objeval on #1.
+- ifelse() only evaluates the necessary arguments.
+- foreach() now takes two additional arguments: one to begin parsing, and 
+  one to end parsing.
+- strcat() now takes 1 to n arguments.
+- Range checking in delete() fixed.
+- New function: case() is like switch(), but does no wildcard matching.
+- 'news' now understands ANSI substitutions much like '+help' does.
+- Sets guest characters DARK when they disconnect, so they'll not emit
+  messages when a new guest connects.
+- The new mail check now always occurs upon login.
+- @addcommand now renames replaces built-in commands to '__<command name>'.
+- @wait <n>=@restart will no longer crash the MUX.
+- @oemit now works as described in the help, no longer only in the executing 
+  player's location.

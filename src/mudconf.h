@@ -34,7 +34,7 @@ struct confdata {
 	char	crashdb[128];	/* write database here on crash */
 	char	gdbm[128];	/* use this gdbm file if we need one */
 	char	mail_db[128];	/* name of the @mail database */
-	char	commac_db[128];	/* name of the comsys and macros db */
+	char	comsys_db[128];	/* name of the comsys and macros db */
 	char	config_file[128]; /* name of config file, used by @restart */
 	int	compress_db;	/* should we use compress */
 	char	compress[128];	/* program to run to compress */
@@ -84,6 +84,7 @@ struct confdata {
 	char	public_channel[32]; /* Name of public channel */
 	char	guests_channel[32]; /* Name of guests channel */
 	char    pueblo_msg[1024];   /* Message displayed to Pueblo clients */
+	int	indent_desc;	/* Newlines before and after descs? */
 	int	name_spaces;	/* allow player names to have spaces */
 	int	site_chars;	/* where to truncate site name */
 	int	fork_dump;	/* perform dump in a forked process */

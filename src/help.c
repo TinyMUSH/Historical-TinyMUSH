@@ -256,7 +256,7 @@ char *message;
 		break;
 	case HELP_NEWS:
 		help_write(player, message, &mudstate.news_htab,
-			   mudconf.news_file, 0);
+			   mudconf.news_file, 1);
 		break;
 	case HELP_WIZHELP:
 		help_write(player, message, &mudstate.wizhelp_htab,

@@ -544,6 +544,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	EV_NOTRACE	0x00020000	/* Don't trace this call to eval */
 #define EV_NO_COMPRESS  0x00040000      /* Don't compress spaces. */
 #define EV_NO_LOCATION	0x00080000	/* Supresses %l */
+#define EV_NOFCHECK	0x00100000	/* Do not evaluate functions! */
 
 /* Termination directives */
 

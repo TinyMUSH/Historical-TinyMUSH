@@ -176,6 +176,19 @@ const char *msg;
 	}
 }
 
+void raw_notify_newline(player)
+dbref player;
+{
+	DESC *d;
+
+	if (!Connected(player))
+		return;
+
+	DESC_ITER_PLAYER(player, d) {
+		queue_write(d, "\r\n", 2);
+	}
+}
+
 /*
  * ---------------------------------------------------------------------------
  * * raw_broadcast: Send message to players who have indicated flags
@@ -849,6 +862,9 @@ const char *reason;
 			s_Flags(d->player, Flags(d->player) & ~DARK);
 			d->flags &= ~DS_AUTODARK;
 		}
+		
+		if (Guest(player))
+			s_Flags(player, Flags(player) | DARK);	
 	} else {
 		buf = alloc_mbuf("announce_disconnect.partial");
 		sprintf(buf, "%s has partially disconnected.", Name(player));

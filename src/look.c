@@ -402,21 +402,33 @@ dbref player, loc;
 {
 	char *got2;
 	dbref aowner;
-	int aflags;
+	int aflags, indent = 0;
+	
+	indent = (isRoom(loc) && mudconf.indent_desc && atr_get_raw(loc, A_DESC));
 	
 	if (Html(player)) {
 		got2 = atr_pget(loc, A_HTDESC, &aowner, &aflags);
 		if (*got2)
 			did_it(player, loc, A_HTDESC, NULL, A_ODESC, NULL,
 			       A_ADESC, (char **) NULL, 0);
-		else
+		else {
+		    	if (indent)
+		    		raw_notify_newline(player); 
 		    	did_it(player, loc, A_DESC, NULL, A_ODESC, NULL,
 			       A_ADESC, (char **) NULL, 0);
+			if (indent)
+				raw_notify_newline(player);
+		}
 		free_lbuf(got2);
 	}
-	else
+	else {
+		if (indent)
+			raw_notify_newline(player);
 		did_it(player, loc, A_DESC, NULL, A_ODESC, NULL,
 		       A_ADESC, (char **) NULL, 0);
+		if (indent)
+			raw_notify_newline(player);
+	}
 }
 
 static void show_desc(player, loc, key)
@@ -1410,6 +1422,99 @@ char *where;
 	notify(player, "Sweep complete.");
 }
 
+/* Convert raw ANSI sequences into MUX color codes... */
+
+char *fix_ansi(str)
+char *str;
+{
+	char old[LBUF_SIZE];
+	static char new[LBUF_SIZE];
+	char *j, *c, *bp;
+	int i;
+
+	bp = new;
+	StringCopy(old, str);
+		
+	for (j = old; *j != '\0'; j++) {
+		if (*j == ESC_CHAR) {
+			c = strchr(j, 'm');
+			if (c) {
+				*c = '\0';
+				i = atoi(j + 2);
+				switch (i) {
+				case 0:
+					safe_str("%cn", new, &bp);
+					break;
+				case 1:
+					safe_str("%ch", new, &bp);
+					break;
+				case 5:
+					safe_str("%cf", new, &bp);
+					break;
+				case 7:
+					safe_str("%ci", new, &bp);
+					break;
+				case 30:
+					safe_str("%cx", new, &bp);
+					break;
+				case 31:
+					safe_str("%cr", new, &bp);
+					break;
+				case 32:
+					safe_str("%cg", new, &bp);
+					break;
+				case 33:
+					safe_str("%cy", new, &bp);
+					break;
+				case 34:
+					safe_str("%cb", new, &bp);
+					break;
+				case 35:
+					safe_str("%cm", new, &bp);
+					break;
+				case 36:
+					safe_str("%cc", new, &bp);
+					break;
+				case 37:
+					safe_str("%cw", new, &bp);
+					break;
+				case 40:
+					safe_str("%cX", new, &bp);
+					break;
+				case 41:
+					safe_str("%cR", new, &bp);
+					break;
+				case 42:
+					safe_str("%cG", new, &bp);
+					break;
+				case 43:
+					safe_str("%cY", new, &bp);
+					break;
+				case 44:
+					safe_str("%cB", new, &bp);
+					break;
+				case 45:
+					safe_str("%cM", new, &bp);
+					break;
+				case 46:
+					safe_str("%cC", new, &bp);
+					break;
+				case 47:
+					safe_str("%cW", new, &bp);
+					break;
+				}
+				j = c;
+			} else {
+				safe_chr(*j, new, &bp);
+			}
+		} else {	
+			safe_chr(*j, new, &bp);
+		}
+	}
+	*bp = '\0';
+	return new;
+}
+			
 /*
  * Output the sequence of commands needed to duplicate the specified
  * * object.  If you're moving things to another system, your milage
@@ -1454,7 +1559,7 @@ char *name, *qual;
 					ltext = unparse_boolexp_decompile(player, bool);
 					free_boolexp(bool);
 					notify(player, tprintf("@lock/%s %s=%s",
-						  attr->name, thingname, ltext));
+						  attr->name, strip_ansi(thingname), ltext));
 				} else {
 					StringCopy(buff, attr->name);
 					for (s = thingname; *s; s++) {
@@ -1530,19 +1635,19 @@ char *name, *qual;
 			StringCopy(thingname, Name(thing));
 			val = OBJECT_DEPOSIT(Pennies(thing));
 			notify(player,
-			     tprintf("@create %s=%d", strip_ansi(thingname),
+			     tprintf("@create %s=%d", fix_ansi(thingname),
 				     val));
 			break;
 		case TYPE_ROOM:
 			StringCopy(thingname, "here");
 			notify(player,
 			       tprintf("@dig/teleport %s",
-				       PureName(thing)));
+				       fix_ansi(Name(thing))));
 			break;
 		case TYPE_EXIT:
 			StringCopy(thingname, Name(thing));
 			notify(player,
-			       tprintf("@open %s", PureName(thing)));
+			       tprintf("@open %s", fix_ansi(Name(thing))));
 			for (got = thingname; *got; got++) {
 				if (*got == EXIT_DELIMITER) {
 					*got = '\0';
@@ -1634,14 +1739,14 @@ char *name, *qual;
 
 	if (Parent(thing) != NOTHING)
 		notify(player,
-		       tprintf("@parent %s=%s", strip_ansi(thingname), Name(Parent(thing))));
+		       tprintf("@parent %s=#%d", strip_ansi(thingname), Parent(thing)));
 
 	/*
 	 * If the object has a zone, report it 
 	 */
 	if (Zone(thing) != NOTHING)
 		notify(player,
-		       tprintf("@chzone %s=%s", strip_ansi(thingname), Name(Zone(thing))));
+		       tprintf("@chzone %s=#%d", strip_ansi(thingname), Zone(thing)));
 
 	free_lbuf(thingname);
 }

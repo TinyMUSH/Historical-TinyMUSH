@@ -851,7 +851,7 @@ char *thingname;
 		 * We made it this far, report this flag 
 		 */
 
-		notify(player, tprintf("@set %s=%s", thingname, fp->flagname));
+		notify(player, tprintf("@set %s=%s", strip_ansi(thingname), fp->flagname));
 	}
 }
 

@@ -1,12 +1,15 @@
-This is the README file for TinyMUX 1.3.
+This is the README file for TinyMUX 1.4.
 
 *** When you unload the database to flat file format it is important to use
     your original db_unload/dbconvert.
+*** You MUST unload to flatfile if you are using a disk-based database when
+    you move to a new machine, no matter what platform; only the flatfile is
+    portable!
 
 Refer to the file CHANGES for information about new features, commands,
 and bug fixes.
 
-TinyMUX is currently being developed under Digital UNIX 3.2 on a DEC Alpha.
+TinyMUX is currently being developed under SunOS 4.1.4 and IRIX 6.3.
 
 The latest version of this code can generally be found running at:
 Children of the Atom: cota.sneakers.org 2099
@@ -14,7 +17,7 @@ Children of the Atom: cota.sneakers.org 2099
 Conversions from Other Database Formats:
 ---------------------------------------
 
-TinyMUX 1.2 has been proven to read the following database formats:
+TinyMUX 1.4 has been proven to read the following database formats:
    TinyMUSH 2.0 (all versions)
    TinyMUSH 2.2.0 or 2.2.1 release version (not beta)
    PennMUSH 1.50 patchlevel 8-15.
@@ -26,7 +29,6 @@ Instructions for Building:
 [NOTE: It is HIGHLY recommended that you preserve a previous setup if you
 had one while converting, and make sure the conversion process has completed
 successfully before you delete your old distribution.]
-
 
 1.  cd to the src/gdbm-1.7.3 directory. Run 'configure', then 'make'.
 
@@ -160,9 +162,9 @@ successfully before you delete your old distribution.]
             o db_load <mud-name>.gdbm <mud-name>.db.FULL <mud-name>.db.new
 
 6.  Edit the .txt files to your liking, in particular connect.txt and motd.txt.
-    This is not necessary if you are reinstalling TinyMUX 1.2.
+    This is not necessary if you are reinstalling TinyMUX 1.4.
 
-7.  Start up TinyMUX 1.2 by running Startmux.
+7.  Start up TinyMUX 1.4 by running Startmux.
 
 8.  @ccreate a channel named 'Public', and a channel named 'Guests' from
     within the MUX. Created players will automatically be joined to 'Public'
@@ -171,7 +173,7 @@ successfully before you delete your old distribution.]
 Making a New Configuration File:
 -------------------------------
 
-  TinyMUX 1.2 gets the information it needs to operate the game (aside from
+  TinyMUX 1.4 gets the information it needs to operate the game (aside from
   the database itself) from a configuration file that is read in at startup.
   The configuration file contains various parameters, such as where to find
   the database, what port to listen for connects, and many other things.
@@ -281,18 +283,19 @@ What to do if you find a bug:
 Environment:
 -----------
 
-TinyMUX 1.3 should run on must Unixes with BSD-style sockets and a C compiler
-that groks function prototypes.  It has been run successfully on the following
-platforms:
+TinyMUX 1.4 should run on must Unixes with BSD-style sockets and a C compiler
+that groks function prototypes. It is 64-bit 'clean' code.  It has been run
+successfully on the following platforms:
 
 SunOS 4.1.3, 4.1.4
-Linux kernels 1.2.3 - 1.3.5
-NeXTStep version 2.0
-FreeBSD 2.0.5R
-Solaris 5.4
+Linux kernels 1.2.3 - 2.1.x (Alpha, Intel, and Sparc)
+NeXTStep version 2.0, 3.3, OpenStep 4.0
+FreeBSD 2.0.5R, 2.1
+Solaris 2.4, 2.5, 2.5.1
 Ultrix 4.2
 AIX 4.0
-Digital UNIX 3.2 (Alpha)
+Digital UNIX 3.2, 4.0.
+IRIX 5.3, 6.2, 6.4
 
-If you get TinyMUX 1.3 working on another platform, please let us know
+If you get TinyMUX 1.4 working on another platform, please let us know
 about it!

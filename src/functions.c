@@ -1013,6 +1013,20 @@ FUNCTION(fun_get_eval)
 	return;
 }
 
+FUNCTION(fun_subeval)
+{
+	char *str;
+	
+	if (nfargs != 1) {
+		safe_str("#-1 FUNCTION (EVALNOCOMP) EXPECTS 1 OR 2 ARGUMENTS", buff, bufc);
+		return;
+	}
+	
+	str = fargs[0];
+	exec(buff, bufc, 0, player, cause, EV_NO_LOCATION|EV_NOFCHECK|EV_FIGNORE|EV_NO_COMPRESS,
+	     &str, (char **)NULL, 0);
+}	
+
 FUNCTION(fun_eval)
 {
 	dbref thing, aowner;
@@ -1225,7 +1239,7 @@ FUNCTION(fun_parent)
 
 FUNCTION(fun_parse)
 {
-	char *curr, *objstring, *buff2, *buff3, *result, *bp, *cp, sep;
+	char *curr, *objstring, *buff2, *buff3, *bp, *cp, sep;
 	char *dp, *str;
 	int first, number = 0;
 
@@ -1238,28 +1252,23 @@ FUNCTION(fun_parse)
 	cp = trim_space_sep(cp, sep);
 	if (!*cp) {
 		free_lbuf(curr);
-		*buff = '\0';
 		return;
 	}
 	first = 1;
 	while (cp) {
+		if (!first)
+			safe_chr(' ', buff, bufc);
+		first = 0;
 		number++;
 		objstring = split_token(&cp, sep);
 		buff2 = replace_string(BOUND_VAR, objstring, fargs[1]);
 		buff3 = replace_string(LISTPLACE_VAR, tprintf("%d", number),
 				       buff2);
-		result = dp = alloc_lbuf("fun_parse.2");
 		str = buff3;
-		exec(result, &dp, 0, player, cause,
+		exec(buff, bufc, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-		dp = '\0';
 		free_lbuf(buff2);
 		free_lbuf(buff3);
-		if (!first)
-			safe_chr(' ', buff, bufc);
-		first = 0;
-		safe_str(result, buff, bufc);
-		free_lbuf(result);
 	}
 	free_lbuf(curr);
 }
@@ -2863,7 +2872,7 @@ FUNCTION(fun_delete)
 	temp = *bufc;
 	for (i = 0; i < start; i++)
 		*temp++ = (*s++);
-	if ((i + nchars) < len) {
+	if ((i + nchars) < len && (i + nchars) > 0) {
 		s += nchars;
 		while ((*temp++ = *s++)) ;
 		*bufc = temp - 1;
@@ -3592,7 +3601,7 @@ FUNCTION(fun_repeat)
 
 FUNCTION(fun_iter)
 {
-	char *curr, *objstring, *buff2, *buff3, *result, *cp, *dp, sep,
+	char *curr, *objstring, *buff2, *buff3, *cp, *dp, sep,
 	*str;
 	int first, number = 0;
 
@@ -3609,23 +3618,19 @@ FUNCTION(fun_iter)
 	}
 	first = 1;
 	while (cp) {
+		if (!first)
+			safe_chr(' ', buff, bufc);
+		first = 0;
 		number++;
 		objstring = split_token(&cp, sep);
 		buff2 = replace_string(BOUND_VAR, objstring, fargs[1]);
 		buff3 = replace_string(LISTPLACE_VAR, tprintf("%d", number),
 				       buff2);
-		result = dp = alloc_lbuf("fun_iter.2");
 		str = buff3;
-		exec(result, &dp, 0, player, cause,
+		exec(buff, bufc, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-		*dp = '\0';
 		free_lbuf(buff2);
 		free_lbuf(buff3);
-		if (!first)
-			safe_chr(' ', buff, bufc);
-		first = 0;
-		safe_str(result, buff, bufc);
-		free_lbuf(result);
 	}
 	free_lbuf(curr);
 }
@@ -3879,7 +3884,7 @@ FUNCTION(fun_map)
 	dbref aowner, thing;
 	int aflags, anum, first;
 	ATTR *ap;
-	char *atext, *result, *objstring, *bp, *str, *cp, *atextbuf, sep;
+	char *atext, *objstring, *bp, *str, *cp, *atextbuf, sep;
 
 	varargs_preamble("MAP", 3);
 
@@ -3923,18 +3928,14 @@ FUNCTION(fun_map)
 	atextbuf = alloc_lbuf("fun_map");
 	first = 1;
 	while (cp) {
-		objstring = split_token(&cp, sep);
-		StringCopy(atextbuf, atext);
-		result = bp = alloc_lbuf("fun_map");
-		str = atextbuf;
-		exec(result, &bp, 0, player, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
-		*bp = '\0';
 		if (!first)
 			safe_chr(sep, buff, bufc);
 		first = 0;
-		safe_str(result, buff, bufc);
-		free_lbuf(result);
+		objstring = split_token(&cp, sep);
+		StringCopy(atextbuf, atext);
+		str = atextbuf;
+		exec(buff, bufc, 0, player, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 	}
 	free_lbuf(atext);
 	free_lbuf(atextbuf);
@@ -4004,11 +4005,9 @@ FUNCTION(fun_locate)
 		case 'V':
 			verbose = 1;
 			break;
-#ifndef NO_ENH
 		case 'X':
 			multiple = 1;
 			break;
-#endif
 		}
 	}
 
@@ -4122,6 +4121,61 @@ FUNCTION(fun_switch)
 			return;
 		}
 		free_lbuf(tbuff);
+	}
+	free_lbuf(mbuff);
+
+	/*
+	 * Nope, return the default if there is one 
+	 */
+
+	if ((i < nfargs) && fargs[i]) {
+		buf = alloc_lbuf("fun_switch");
+		StringCopy(buf, fargs[i]);
+		str = buf;
+		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		     &str, cargs, ncargs);
+		free_lbuf(buf);
+	}
+	return;
+}
+
+FUNCTION(fun_case)
+{
+	int i;
+	char *mbuff, *buf, *bp, *str;
+
+	/*
+	 * If we don't have at least 2 args, return nothing 
+	 */
+
+	if (nfargs < 2) {
+		return;
+	}
+	/*
+	 * Evaluate the target in fargs[0] 
+	 */
+
+	mbuff = bp = alloc_lbuf("fun_switch");
+	str = fargs[0];
+	exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	     &str, cargs, ncargs);
+	*bp = '\0';
+
+	/*
+	 * Loop through the patterns looking for a match 
+	 */
+
+	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
+		if (*fargs[i] == *mbuff) {
+			buf = alloc_lbuf("fun_switch");
+			StringCopy(buf, fargs[i + 1]);
+			str = buf;
+			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+			     &str, cargs, ncargs);
+			free_lbuf(buf);
+			free_lbuf(mbuff);
+			return;
+		}
 	}
 	free_lbuf(mbuff);
 
@@ -4823,6 +4877,7 @@ FUN flist[] = {
 {"EXP",		fun_exp,	1,  0,		CA_PUBLIC},
 {"EXTRACT",	fun_extract,	0,  FN_VARARGS,	CA_PUBLIC},
 {"EVAL",        fun_eval,       0,  FN_VARARGS, CA_PUBLIC},
+{"SUBEVAL",  	fun_subeval,	1,  0,		CA_PUBLIC},
 {"FDIV",	fun_fdiv,	2,  0,		CA_PUBLIC},
 {"FILTER",	fun_filter,	0,  FN_VARARGS,	CA_PUBLIC},
 {"FINDABLE",	fun_findable,	2,  0,		CA_PUBLIC},
@@ -4830,7 +4885,7 @@ FUN flist[] = {
 {"FLAGS",	fun_flags,	1,  0,		CA_PUBLIC},
 {"FLOOR",	fun_floor,	1,  0,		CA_PUBLIC},
 {"FOLD",	fun_fold,	0,  FN_VARARGS,	CA_PUBLIC},
-{"FOREACH",	fun_foreach,	2,  0,		CA_PUBLIC},
+{"FOREACH",	fun_foreach,	0,  FN_VARARGS,	CA_PUBLIC},
 {"FULLNAME",	fun_fullname,	1,  0,		CA_PUBLIC},
 {"GET",		fun_get,	1,  0,		CA_PUBLIC},
 {"GET_EVAL",	fun_get_eval,	1,  0,		CA_PUBLIC},
@@ -4846,7 +4901,7 @@ FUN flist[] = {
 {"HASTYPE",	fun_hastype,	2,  0,		CA_PUBLIC},
 {"HOME",	fun_home,	1,  0,		CA_PUBLIC},
 {"IDLE",	fun_idle,	1,  0,		CA_PUBLIC},
-{"IFELSE",      fun_ifelse,     3,  0,          CA_PUBLIC},
+{"IFELSE",      fun_ifelse,     3,  FN_NO_EVAL,          CA_PUBLIC},
 {"INC",         fun_inc,        1,  0,          CA_PUBLIC},
 {"INDEX",	fun_index,	4,  0,		CA_PUBLIC},
 {"INSERT",	fun_insert,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -4921,6 +4976,8 @@ FUN flist[] = {
 {"POSS",	fun_poss,	1,  0,		CA_PUBLIC},
 {"POWER",	fun_power,	2,  0,		CA_PUBLIC},
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC},
+{"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC},
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
 {"REMOVE",	fun_remove,	0,  FN_VARARGS,	CA_PUBLIC},
@@ -4957,7 +5014,7 @@ FUN flist[] = {
 {"SQUISH",	fun_squish,	1,  0,		CA_PUBLIC},
 {"STARTTIME",	fun_starttime,	0,  0,		CA_PUBLIC},
 {"STATS",	fun_stats,	1,  0,		CA_PUBLIC},
-{"STRCAT",	fun_strcat,	2,  0,		CA_PUBLIC},
+{"STRCAT",	fun_strcat,	0,  FN_VARARGS,	CA_PUBLIC},
 {"STRIPANSI",	fun_stripansi,	1,  0,		CA_PUBLIC},
 {"STRLEN",	fun_strlen,	-1, 0,		CA_PUBLIC},
 {"STRMATCH",	fun_strmatch,	2,  0,		CA_PUBLIC},

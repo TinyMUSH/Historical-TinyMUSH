@@ -77,12 +77,12 @@
   EXITS               FAILURE             FLAG LIST           FLAGS 
   FUNCTION LIST       FUNCTIONS           GENDER              GOALS 
   HERE                HOMES               LINKING             LISTENING
-  LISTS               LOOPING             MACRO               ME
-  MONEY               MOVING              OBJECT STACK        OBJECT TYPES
-  PARENT OBJECTS      PARENT ROOMS        POWERS LIST         PUEBLO
-  PUPPETS             ROBBERY             SEARCH CLASSES      SEMAPHORES
-  SPOOFING            STACK               SUBSTITUTIONS       SUCCESS
-  SWITCHES            VERBS               WIZARDS             ZONE OBJECTS
+  LISTS               LOOPING             ME                  MONEY
+  MOVING              OBJECT STACK        OBJECT TYPES        PARENT OBJECTS
+  PARENT ROOMS        POWERS LIST         PUEBLO              PUPPETS
+  ROBBERY             SEARCH CLASSES      SEMAPHORES          SPOOFING
+  STACK               SUBSTITUTIONS       SUCCESS             SWITCHES
+  VERBS               WIZARDS             ZONE OBJECTS
 
 & PUEBLO
  
@@ -431,131 +431,6 @@
   Returns a list of dbrefs who are connected, and on that channel. 
   This is limited to wizards and channel owners.
  
-& macros
- 
-  This is the help for the MUX macro system. Note that all macros must be
-  proceeded with '.'. If the macro is not found, it will be passed on like
-  a normal command. The purpose of macros is to make repeated sequences of
-  commands easier. This system should NOT be used if your telnet client
-  supports macros of it's own, like TinyFugue.
-  
-  These are the topics for the MUX macro system:
- 
-  .add         .chmod       .clear       .create      .del         
-  .chslot        .ex          .gex         .list        .name .glist      .undef 
-   
-  For general macro usage see 'help macro general'.
-  
-& .ex
- 
-  Command: .ex [slot]
- 
-  Lists the macros in your current slot. The optional parameter allows
-  for the examination of other slots.
- 
-& .gex
- 
-  Command: .gex <slot>
- 
-  Examines a set in the global macro list.
- 
-& .glist
- 
-  Command: .glist
- 
-  This command lists all macro sets from the global macro list.
- 
-& .list
- 
-  Command: .list
- 
-  This command lists all macro sets that you have in your private slots.
- 
-& .chmod
- 
-  Command: .chmod
- 
-  This command changes the permissions on the current slot. Legal
-  modes are L, R, and W. Use !mode to clear a permission. 
-  
-  L corresponds to Locked. A locked set cannot be modified in any way.
-  R corresponds to Read. A set marked read can be used by anyone.
-  W corresponds to Write. A set marked write can be modified by
-  anyone.
-  
-& .name
- 
-  Command: .name <name>
- 
-  Renames the current macro slot.
- 
-& .create
- 
-  Command: .create <name>
- 
-  Creates a macro set and adds it to first available slot.  You only
-  have 5 slots, however, and all macros you own use your slots.
- 
-& .add
- 
-  Command: .add <number>
- 
-  Adds an existing macro set from the global list to your first available
-  slot. To remove it, .del <slot>.
- 
-&.del 
- 
-  Command: .del <slot>
- 
-  Removes a macro set from slot <slot>.  You cannot remove macros
-  that you own, without erasing them. If you delete a slot that you added
-  with .add, it merely removes that entry from your private list.
- 
-& .clear
- 
-  Command: .clear
- 
-  Removes/deletes all macros in your slots.  It deletes them if you
-  own them. This command should be used with extreme caution. 
- 
-& .chslot
- 
-  Command: .chslot <slot>
- 
-  This command changes your current slot to <slot>. Note that this is with
-  your private list of slots, and commands like .ex and .del, when they take
-  no arguments, use your current slot. When you define a macro with .def, it
-  defines that macro in your current slot.  
- 
-& .def
- 
-  Command: .def <name>=<macro>
- 
-  Defines a macro in your current macro slot. You always invoke this macro
-  with .<name>.
- 
-& .undef
- 
-  Command: .undef <name>
- 
-  Deletes a macro in the current slot.
- 
-& macro general
-
-  The macro system serves the function of most macro systems, it allows
-  aliases for commands, or for a series of commands.  All MUX macros and
-  commands begin with '.'. In a macro, '*' is replaced by all the arguments
-  you send to it.  If you typed:
-	.create Test
-	.def t = say Howdy *!
-	.t Neighbor 
-
-   You would see:
-
-	Macro set created with description Test.
-	macro defined t:say Howdy *!
-	You say, "Howdy Neighbor!"
-
 & @malias
  
   Command: @malias
@@ -4491,7 +4366,8 @@
  
   If an exit is TRANSPARENT, then when you look at it you see the description
   of the room on the other side of the exit in addition to the description
-  of the exit.
+  of the exit. When a room is TRANSPARENT, you see a 'long' listing of
+  exits, including their destinations.
 
 & SLAVE
 
@@ -4940,23 +4816,23 @@ We would like to thank the following people:
   Help is available for the following functions:
     ABS()       ACOS()      ADD()       AFTER()     ALPHAMAX()  ALPHAMIN()
     AND()       ANDFLAGS()  ANSI()      APOSS()     ART()       ASIN()
-    ATAN()      BEEP()      BEFORE()    CAPSTR()    CAT()       CEIL()
-    CENTER()    CHILDREN()  COLUMNS()   COMP()      CON()       CONN()
-    CONTROLS()  CONVSECS()  CONVTIME()  COS()       CREATE()    CWHO()
-    DEC()       DECRYPT()   DEFAULT()   DELETE()    DIE()       DIST2D()
-    DIST3D()    DIV()       E()         EDEFAULT()  EDIT()      ELEMENTS()
-    ELOCK()     EMPTY()     ENCRYPT()   EQ()        ESCAPE()    EXIT()
-    EXP()       EXTRACT()   EVAL()      FDIV()      FILTER()    FINDABLE()
-    FIRST()     FLAGS()     FLOOR()     FOLD()      FOREACH()   FULLNAME()
-    GET()       GET_EVAL()  GRAB()      GREP()      GREPI()     GT()
-    GTE()       HASATTR()   HASATTRP()  HASFLAG()   HASPOWER()  HASTYPE()
-    HOME()      IDLE()      IFELSE()    INC()       INDEX()     INSERT()
-    INZONE()    ISDBREF()   ISNUM()     ISWORD()    ITER()      ITEMS()
-    LAST()      LATTR()     LCON()      LCSTR()     LDELETE()   LEXITS()
-    LIST()      LIT()       LJUST()     LN()        LNUM()      LPARENT()
-    LOC()       LOCATE()    LOCK()      LOG()       LSTACK()    LT()
-    LTE()       LWHO()      MAIL()      MAILFROM()  MAP()       MATCH()
-    MATCHALL()  MAX()       MEMBER()    MERGE()     MID()
+    ATAN()      BEEP()      BEFORE()    CAPSTR()    CASE()      CAT()
+    CEIL()      CENTER()    CHILDREN()  COLUMNS()   COMP()      CON()
+    CONN()      CONTROLS()  CONVSECS()  CONVTIME()  COS()       CREATE()
+    CWHO()      DEC()       DECRYPT()   DEFAULT()   DELETE()    DIE()
+    DIST2D()    DIST3D()    DIV()       E()         EDEFAULT()  EDIT()
+    ELEMENTS()  ELOCK()     EMPTY()     ENCRYPT()   EQ()        ESCAPE()
+    EXIT()      EXP()       EXTRACT()   EVAL()      FDIV()      FILTER()
+    FINDABLE()  FIRST()     FLAGS()     FLOOR()     FOLD()      FOREACH()
+    FULLNAME()  GET()       GET_EVAL()  GRAB()      GREP()      GREPI()
+    GT()        GTE()       HASATTR()   HASATTRP()  HASFLAG()   HASPOWER()
+    HASTYPE()   HOME()      IDLE()      IFELSE()    INC()       INDEX()
+    INSERT()    INZONE()    ISDBREF()   ISNUM()     ISWORD()    ITER()
+    ITEMS()     LAST()      LATTR()     LCON()      LCSTR()     LDELETE()
+    LEXITS()    LIST()      LIT()       LJUST()     LN()        LNUM()
+    LPARENT()   LOC()       LOCATE()    LOCK()      LOG()       LSTACK()
+    LT()        LTE()       LWHO()      MAIL()      MAILFROM()  MAP()
+    MATCH()     MATCHALL()  MAX()       MEMBER()    MERGE()     MID()
 
 ("help function list2" for more)
 
@@ -5383,7 +5259,7 @@ We would like to thank the following people:
     character command (", :, etc).  If so, %-substitution and function
     evaluation may be performed (depending on the command), and the command
     is executed.
-  - Macros are checked, and then the comsystem checks for an alias.
+  - The comsystem checks for a channel alias.
   - The command is checked to see if it is the 'home' command.  If so, the
     player or object performing the command goes home.
   - The command is checked against the exits in its current room.  If one
@@ -5667,11 +5543,11 @@ We would like to thank the following people:
   is not privileged to examine.
 
 & STRCAT()
-  strcat(<string1>, <string2>)
+  strcat(<string1>, <stringN>, ...)
  
-  Concatanates two strings together, with no space between them.
-  For example, strcat(foo bar,baz blech) will return the string
-  "foo barbaz blech".
+  Concatanates two or more strings together, with no space between them.
+  For example, strcat(foo,bar,baz,blech) will return the string
+  "foobarbazblech".
  
 & STRIPANSI()
   stripansi(<string>)
@@ -6266,13 +6142,16 @@ We would like to thank the following people:
  
 & FOREACH()
 
-  foreach([<object>/]<attribute>,<string>)
+  foreach([<object>/]<attribute>,<string>[,<begin>, <end>])
  
   Maps a function onto a string.
  
   Each character in <string> has the user-defined function of the first
   argument performed on it; the character is passed to the function as
-  %0. The results are concatenated.
+  %0. The results are concatenated. If <begin> and <end> are specified,
+  only the characters between <begin> and <end> are parsed, other characters
+  are concatenated as they are. This allows a rudimentary form of tokens and
+  speeds up the evaluation greatly if tokenizing is your purpose.
  
   Examples:
  
@@ -6280,9 +6159,9 @@ We would like to thank the following people:
     > say [foreach(add_one, 54321)]
     You say, "65432"
  
-    > &is_alphanum me=[or(isword(%0),isnum(%0))]%b
-    > say [foreach(is_alphanum,jt1o+)]
-    You say, "1 1 1 1 0 "
+    > &add_one me=[add(%0,1)]
+    > say [foreach(add_one, This adds #0# to numbers in this string,#,#)]
+    You say, "This adds 1 to numbers in this string."
  
 & MIX()
  
@@ -6333,8 +6212,9 @@ We would like to thank the following people:
   objeval(<object>,<expression>)
  
   Allows you to evaluate <expression> from the viewpoint of <object>.
-  You must be a wizard to use this function. If <object> does not exist or
-  you don't meet the criterion, the function evaluates with your privileges.
+  You must be a wizard or own <object> to use this function. If <object>
+  does not exist or you don't meet the criterion, the function evaluates
+  with your privileges. No one may use this function on #1.
  
   This function is useful for securing objects which need to evaluate
   attributes on things owned by others.
@@ -7305,7 +7185,16 @@ We would like to thank the following people:
     You say "A"
     > say switch(f,*a*,A,*b*,B,*c*,C,*d*,D)  
     You say ""
-  See also: @switch, match(), ifelse().
+  See also: @switch, match(), ifelse(), case().
+
+& CASE()
+
+  Function: case(<str>[,<pat1>,<res1>]...[,<dflt>])
+ 
+  case() is like switch() but does not do wildcard matching (i.e., using *).
+  In cases where wildcards are not needed, it performs marginally faster.
+ 
+  See also: @switch, match(), ifelse(), switch().
 
 & IFELSE()
 
