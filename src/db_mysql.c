@@ -182,6 +182,8 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 	notify(player, tprintf("SQL query touched %d %s.",
 			       num_rows, (num_rows == 1) ? "row" : "rows"));
 	return 0;
+    } else if (num_rows == 0) {
+	return 0;
     }
 
     /* Check to make sure we got rows back. */
