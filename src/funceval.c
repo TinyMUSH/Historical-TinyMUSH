@@ -1754,12 +1754,16 @@ FUNCTION(fun_objeval)
 	obj = match_thing(player, name);
 
 	/* In order to evaluate from something else's viewpoint, you must
-	 * have the same owner as it, or be a wizard. Otherwise, we default
-	 * to evaluating from our own viewpoint. Also, you cannot evaluate
-	 * things from the point of view of God.
+	 * have the same owner as it, or be a wizard (unless
+	 * objeval_requires_control is turned on, in which case you
+	 * must control it, period). Otherwise, we default to evaluating
+	 * from our own viewpoint. Also, you cannot evaluate things from
+	 * the point of view of God.
 	 */
 	if ((obj == NOTHING) || (obj == GOD) ||
-	    ((Owner(obj) != Owner(player)) && !Wizard(player))) {
+	    (mudconf.fascist_objeval ?
+	     !Controls(player, obj) :
+	     ((Owner(obj) != Owner(player)) && !Wizard(player)))) {
 		obj = player;
 	}
 

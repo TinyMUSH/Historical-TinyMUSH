@@ -216,6 +216,7 @@ void NDECL(cf_init)
 	mudconf.match_mine = 0;
 	mudconf.match_mine_pl = 0;
 	mudconf.switch_df_all = 1;
+	mudconf.fascist_objeval = 0;
 	mudconf.fascist_tport = 0;
 	mudconf.terse_look = 1;
 	mudconf.terse_contents = 1;
@@ -1434,6 +1435,7 @@ CONF conftable[] = {
 {(char *)"newuser_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.crea_file,	SBUF_SIZE},
 {(char *)"no_ambiguous_match",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.no_ambiguous_match,	(long)"Ambiguous matches resolve to the last match"},
 {(char *)"notify_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.ntfy_nest_lim,		0},
+{(char *)"objeval_requires_control",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fascist_objeval,	(long)"Control of victim required by objeval()"},
 {(char *)"open_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.opencost,		0},
 {(char *)"opt_frequency",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.dbopt_interval,	0},
 {(char *)"output_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.outdb,		PBUF_SIZE},
