@@ -204,6 +204,7 @@ struct confdata {
 				  * pick random on ambiguous).
 				  */
 	int	autozone;	/* New objs are zoned to creator's zone */
+	int	page_req_equals; /* page command must always contain '=' */
 	dbref	master_room;	/* Room containing default cmds/exits/etc */
 	dbref	player_parent;	/* Parent that players start with */
 	dbref	room_parent;	/* Parent that rooms start with */
