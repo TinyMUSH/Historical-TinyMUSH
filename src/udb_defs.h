@@ -22,12 +22,12 @@ typedef	char	*mall_t;
 
 /* Datatypes that we have in cache and on disk */
 
-#define TYPE_EMPTY	0		/* This entry is empty */
-#define TYPE_ATTRIBUTE	1		/* This is an attribute */
-#define TYPE_DBINFO	2		/* Various DB paramaters */
-#define TYPE_OBJECT	3		/* Object structure */
-#define TYPE_ATRNUM	4		/* Attribute number to name map */
-#define TYPE_RESERVED	65535		/* Numbers higher are free for use
+#define DBTYPE_EMPTY		0	/* This entry is empty */
+#define DBTYPE_ATTRIBUTE	1	/* This is an attribute */
+#define DBTYPE_DBINFO		2	/* Various DB paramaters */
+#define DBTYPE_OBJECT		3	/* Object structure */
+#define DBTYPE_ATRNUM		4	/* Attribute number to name map */
+#define DBTYPE_RESERVED		65535	/* Numbers higher are free for use
 					 * by user code (modules) */
 
 #endif /* __UDB_DEFS_H */

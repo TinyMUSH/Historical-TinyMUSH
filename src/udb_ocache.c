@@ -220,7 +220,7 @@ void cache_reset()
 		for (cp = sp->active.head; cp != NULL; cp = nxt) {
 			nxt = cp->nxt;
 			
-			cache_repl(cp, NULL, 0, TYPE_EMPTY);
+			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			XFREE(cp->keydata, "cache_reset.actkey");
 			XFREE(cp, "cache_reset.act");
 		}
@@ -232,7 +232,7 @@ void cache_reset()
 			if (cp->data == NULL) {
 				if (dddb_del(cp->keydata, cp->keylen,
 					     cp->type)) {
-					if (cp->type == TYPE_ATTRIBUTE)
+					if (cp->type == DBTYPE_ATTRIBUTE)
 						log_db_err(((Aname *)cp->keydata)->object,
 							   ((Aname *)cp->keydata)->attrnum, "delete");
 					return;
@@ -241,14 +241,14 @@ void cache_reset()
 			} else {
 				if (dddb_put(cp->keydata, cp->keylen,
 					     cp->data, cp->datalen, cp->type)) {
-					if (cp->type == TYPE_ATTRIBUTE)
+					if (cp->type == DBTYPE_ATTRIBUTE)
 						log_db_err(((Aname *)cp->keydata)->object,
 							   ((Aname *)cp->keydata)->attrnum, "write");
 					return;
 				}
 				cs_dbwrites++;
 			}
-			cache_repl(cp, NULL, 0, TYPE_EMPTY);
+			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			XFREE(cp->keydata, "cache_reset.actkey");
 			XFREE(cp, "cache_reset.mact");
 		}
@@ -297,7 +297,7 @@ void list_cached_objs(player)
        "==========================================================================");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
-            if (cp->data && (cp->type == TYPE_ATTRIBUTE)) {
+            if (cp->data && (cp->type == DBTYPE_ATTRIBUTE)) {
                 aco++;
                 asize += cp->datalen;
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
@@ -316,7 +316,7 @@ void list_cached_objs(player)
        "==========================================================================");
     for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
         for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
-            if (cp->data && (cp->type == TYPE_ATTRIBUTE)) {
+            if (cp->data && (cp->type == DBTYPE_ATTRIBUTE)) {
                 aco++;
                 asize += cp->datalen;
                 atr = atr_num(((Aname *)cp->keydata)->attrnum);
@@ -590,14 +590,14 @@ int type;
 	/* Bypass the cache when standalone for writes */
 	if (data == NULL) {
 		if (dddb_del(keydata, keylen, type)) {
-			if (type == TYPE_ATTRIBUTE)
+			if (type == DBTYPE_ATTRIBUTE)
 				log_db_err(((Aname *)keydata)->object,
 					   ((Aname *)keydata)->attrnum, "delete");
 			return (1);
 		}
 	} else {
 		if (dddb_put(keydata, keylen, data, datalen, type)) {
-			if (type == TYPE_ATTRIBUTE)
+			if (type == DBTYPE_ATTRIBUTE)
 				log_db_err(((Aname *)keydata)->object,
 					   ((Aname *)keydata)->attrnum, "write");
 			return (1);
@@ -713,7 +713,7 @@ replace:
 			if (cp->data == NULL) {
 				if (dddb_del(cp->keydata, cp->keylen,
 					     cp->type)) {
-					if (cp->type == TYPE_ATTRIBUTE)
+					if (cp->type == DBTYPE_ATTRIBUTE)
 						log_db_err(((Aname *)cp->keydata)->object,
 							   ((Aname *)cp->keydata)->attrnum, "delete");
 					return (NULL);
@@ -722,7 +722,7 @@ replace:
 			} else {
 				if (dddb_put(cp->keydata, cp->keylen,
 					     cp->data, cp->datalen, cp->type)) {
-					if (cp->type == TYPE_ATTRIBUTE)
+					if (cp->type == DBTYPE_ATTRIBUTE)
 						log_db_err(((Aname *)cp->keydata)->object,
 							   ((Aname *)cp->keydata)->attrnum, "write");
 					return (NULL);
@@ -735,7 +735,7 @@ replace:
 		   attribute's memory */
 		
 		if (cp) {
-			cache_repl(cp, NULL, 0, TYPE_EMPTY);
+			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			DEQUEUE((*chp), cp);
 			XFREE(cp->keydata, "cache_reset.actkey");
 			XFREE(cp, "get_free_entry");
@@ -752,7 +752,7 @@ replace:
 	cp->keylen = 0;
 	cp->data = NULL;
 	cp->datalen = 0;
-	cp->type = TYPE_EMPTY;
+	cp->type = DBTYPE_EMPTY;
 	cp->referenced = 1;
 #ifndef STANDALONE
 	cp->lastreferenced = mudstate.now;
@@ -771,7 +771,7 @@ Cache *cp;
 		if (cp->data == NULL) {
 			if (dddb_del(cp->keydata, cp->keylen,
 				     cp->type)) {
-				if (cp->type == TYPE_ATTRIBUTE)
+				if (cp->type == DBTYPE_ATTRIBUTE)
 					log_db_err(((Aname *)cp->keydata)->object,
 						   ((Aname *)cp->keydata)->attrnum, "delete");
 				return (1);
@@ -780,7 +780,7 @@ Cache *cp;
 		} else {
 			if (dddb_put(cp->keydata, cp->keylen,
 				     cp->data, cp->datalen, cp->type)) {
-				if (cp->type == TYPE_ATTRIBUTE)
+				if (cp->type == DBTYPE_ATTRIBUTE)
 					log_db_err(((Aname *)cp->keydata)->object,
 						   ((Aname *)cp->keydata)->attrnum, "write");
 				return (1);
@@ -870,7 +870,7 @@ int type;
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
 			DEQUEUE(sp->active, cp);
 			INSTAIL(sp->mactive, cp);
-			cache_repl(cp, NULL, 0, TYPE_EMPTY);
+			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			REFTIME(cp);
 			return;
 		}
@@ -879,7 +879,7 @@ int type;
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
 			DEQUEUE(sp->mactive, cp);
 			INSTAIL(sp->mactive, cp);
-			cache_repl(cp, NULL, 0, TYPE_EMPTY);
+			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			REFTIME(cp);
 			return;
 		}

@@ -9,12 +9,12 @@
 #ifndef MEMORY_BASED
 #define STORE(key, attr)	cache_put((void *)key, sizeof(Aname), \
 					  (void *)attr, strlen(attr) + 1, \
-					  TYPE_ATTRIBUTE)
+					  DBTYPE_ATTRIBUTE)
 #define DELETE(key)		cache_del((void *)key, sizeof(Aname), \
-					  TYPE_ATTRIBUTE)
+					  DBTYPE_ATTRIBUTE)
 #define FETCH(key, data)	cache_get((void *)key, sizeof(Aname), \
 					  (void **)data, NULL, \
-					  TYPE_ATTRIBUTE)
+					  DBTYPE_ATTRIBUTE)
 #define SYNC			cache_sync()
 #define CLOSE			{ cache_sync(); dddb_close(); }
 #define OPTIMIZE                (void) dddb_optimize()
@@ -161,10 +161,13 @@ struct object {
 	POWER 	powers;		/* ALL: Powers on object */
 	POWER	powers2;	/* ALL: even more powers */
 
-	int	name_length;	/* ALL: Length of name string */
-
 	time_t	last_access;	/* ALL: Time last accessed */
 	time_t	last_mod;	/* ALL: Time last modified */
+
+	/* Make sure everything you want to write to the DBM database
+	 * is in the first part of the structure and included in DUMPOBJ */
+
+	int	name_length;	/* ALL: Length of name string */
 
 	int	stack_count;	/* ALL: number of things on the stack */
 	int	vars_count;	/* ALL: number of variables */
@@ -179,6 +182,40 @@ struct object {
 	ATRLIST	*ahead;		/* The head of the attribute list. */
 	int	at_count;	/* How many attributes do we have? */
 #endif	
+};
+
+/* The DUMPOBJ structure exists for use during database writes. It is
+ * a duplicate of the OBJ structure except for items we don't need to write */
+
+typedef struct object DUMPOBJ;
+struct dump_object {
+	dbref	location;	/* PLAYER, THING: where it is */
+				/* ROOM: dropto: */
+				/* EXIT: where it goes to */
+	dbref	contents;	/* PLAYER, THING, ROOM: head of contentslist */
+				/* EXIT: unused */
+	dbref	exits;		/* PLAYER, THING, ROOM: head of exitslist */
+				/* EXIT: where it is */
+	dbref	next;		/* PLAYER, THING: next in contentslist */
+				/* EXIT: next in exitslist */
+				/* ROOM: unused */
+	dbref	link;		/* PLAYER, THING: home location */
+				/* ROOM, EXIT: unused */
+	dbref	parent;		/* ALL: defaults for attrs, exits, $cmds, */
+	dbref	owner;		/* PLAYER: domain number + class + moreflags */
+				/* THING, ROOM, EXIT: owning player number */
+
+	dbref   zone;           /* Whatever the object is zoned to.*/
+
+	FLAG	flags;		/* ALL: Flags set on the object */
+	FLAG	flags2;		/* ALL: even more flags */
+	FLAG	flags3;		/* ALL: yet _more_ flags */
+	
+	POWER 	powers;		/* ALL: Powers on object */
+	POWER	powers2;	/* ALL: even more powers */
+
+	time_t	last_access;	/* ALL: Time last accessed */
+	time_t	last_mod;	/* ALL: Time last modified */
 };
 
 typedef char *NAME;
@@ -274,7 +311,8 @@ extern void	NDECL(al_store);
 extern void	FDECL(db_grow, (dbref));
 extern void	NDECL(db_free);
 extern void	NDECL(db_make_minimal);
-extern dbref	FDECL(db_read, (FILE *, int *, int *, int *));
+extern dbref	FDECL(db_convert, (FILE *, int *, int *, int *));
+extern dbref	NDECL(db_read);
 extern dbref	FDECL(db_write, (FILE *, int, int));
 extern void	FDECL(destroy_thing, (dbref));
 extern void	FDECL(destroy_exit, (dbref));

@@ -1107,7 +1107,7 @@ void dump_database_internal(dump_type)
 int dump_type;
 {
 	char tmpfile[256], outfn[256], prevfile[256];
-	FILE *f;
+	FILE *f = NULL;
 
 	switch(dump_type) {
 	case DUMP_DB_CRASH:
@@ -1123,15 +1123,19 @@ int dump_type;
 		}
 		break;
 	case DUMP_DB_RESTART:
+#ifdef MEMORY_BASED
 		sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.indb);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
+#endif
 			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
+#ifdef MEMORY_BASED
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening restart flatfile",
 				   tmpfile);
 		}
+#endif
 		break;
 	case DUMP_DB_FLATFILE:
 		sprintf(tmpfile, "%s/%s.FLAT", mudconf.dbhome, mudconf.outdb);
@@ -1158,6 +1162,7 @@ int dump_type;
 		}
 		break;
 	default:	
+#ifdef MEMORY_BASED
 		sprintf(prevfile, "%s/%s.prev", mudconf.dbhome, mudconf.outdb);
 		sprintf(tmpfile, "%s/%s.#%d#", mudconf.dbhome, mudconf.outdb, mudstate.epoch - 1);
 		unlink(tmpfile);	/* nuke our predecessor */
@@ -1165,7 +1170,9 @@ int dump_type;
 	
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f) {
+#endif
 			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
+#ifdef MEMORY_BASED
 			tf_fclose(f);
 			sprintf(outfn, "%s/%s", mudconf.dbhome, mudconf.outdb);
 			rename(outfn, prevfile);
@@ -1175,6 +1182,7 @@ int dump_type;
 		} else {
 			log_perror("SAV", "FAIL", "Opening", tmpfile);
 		}
+#endif
 	}
 	
 #ifndef STANDALONE
@@ -1267,28 +1275,13 @@ int key;
 
 static int NDECL(load_game)
 {
-	FILE *f;
-	int fd;
-	char infile[256];
-	struct stat file_stat;
-	int db_format, db_version, db_flags;
-
-	f = NULL;
-	
-	/* Prepend the database home directory */
-	
-	sprintf(infile, "%s/%s", mudconf.dbhome, mudconf.indb);
-	if ((f = tf_fopen(infile, O_RDONLY)) == NULL)
-		return -1;
-
-	/* ok, read it in */
-
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
-		log_printf("Loading: %s", infile);
+		log_printf("Loading object structures.");
 	ENDLOG
-		if (db_read(f, &db_format, &db_version, &db_flags) < 0) {
+
+	if (db_read() < 0) {
 		STARTLOG(LOG_ALWAYS, "INI", "FATAL")
-			log_printf("Error loading %s", infile);
+			log_printf("Error loading object structures.");
 		ENDLOG
 			return -1;
 	}
@@ -1298,15 +1291,6 @@ static int NDECL(load_game)
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 		log_printf("Load complete.");
 	ENDLOG
-
-	/* Try to figure out the filesystem block size */
-	fd = fileno(f);
-	fstat(fd, &file_stat);
-	
-	mudstate.fs_block_size = STATBLKSIZE;
-
-	/* everything ok */
-	tf_fclose(f);
 
 	return (0);
 }

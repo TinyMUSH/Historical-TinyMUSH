@@ -228,7 +228,12 @@ char *argv[];
 	stat(argv[1], &file_stat);
 	mudstate.fs_block_size = STATBLKSIZE;
 
-	db_read(stdin, &db_format, &db_ver, &db_flags);
+	if (!(setflags & V_GDBM)) {
+		db_read();
+	}else {
+		db_convert(stdin, &db_format, &db_ver, &db_flags);
+	}
+	
 	fprintf(mainlog_fp, "Input: ");
 	info(db_format, db_flags, db_ver);
 
