@@ -428,11 +428,10 @@ case "$with_sql" in
 esac
 
 LDFLAGS="-L/usr/ucblib $SAVELDFLAGS"
-SAVELIBS="$LIBS"
 AC_CHECK_LIB(ucb, getdtablesize,
-  LIBS="-L/usr/ucblib -lucb $LIBS", , , )
+  LIBS="-L/usr/ucblib -lucb $LIBS", , )
 LDFLAGS="$SAVELDFLAGS"
-LIBS="$SAVELIBS"
+
 AC_CHECK_LIB(crypt, main)
 AC_CHECK_LIB(resolv, main)
 AC_CHECK_LIB(socket, main)
