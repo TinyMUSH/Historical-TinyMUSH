@@ -90,7 +90,7 @@ int set_register(funcname, name, data)
 
 	if (!data || !*data) {
 	    if (!mudstate.rdata || !mudstate.rdata->q_alloc ||
-		(regnum > mudstate.rdata->q_alloc))
+		(regnum >= mudstate.rdata->q_alloc))
 		return 0;
 	    if (mudstate.rdata->q_regs[regnum]) {
 		free_lbuf(mudstate.rdata->q_regs[regnum]);
@@ -114,16 +114,16 @@ int set_register(funcname, name, data)
 	    mudstate.rdata->q_regs = XCALLOC(a_size, sizeof(char *), "q_regs");
 	    mudstate.rdata->q_lens = XCALLOC(a_size, sizeof(int), "q_lens");
 	    mudstate.rdata->q_alloc = a_size;
-	} else if (regnum > mudstate.rdata->q_alloc) {
+	} else if (regnum >= mudstate.rdata->q_alloc) {
 	    a_size = MAX_GLOBAL_REGS;
 	    tmp_regs = XREALLOC(mudstate.rdata->q_regs,
 				a_size * sizeof(char *), "q_regs");
 	    tmp_lens = XREALLOC(mudstate.rdata->q_lens,
 				a_size * sizeof(int), "q_lens");
-	    for (i = mudstate.rdata->q_alloc; i < a_size; i++) {
-		tmp_regs[i] = NULL;
-		tmp_lens[i] = 0;
-	    }
+	    memset(&tmp_regs[mudstate.rdata->q_alloc], (int) NULL,
+		   (a_size - mudstate.rdata->q_alloc) * sizeof(char *));
+	    memset(&tmp_lens[mudstate.rdata->q_alloc], 0,
+		   (a_size - mudstate.rdata->q_alloc) * sizeof(int));
 	    mudstate.rdata->q_regs = tmp_regs;
 	    mudstate.rdata->q_lens = tmp_lens;
 	    mudstate.rdata->q_alloc = a_size;
@@ -258,11 +258,14 @@ int set_register(funcname, name, data)
     tmp_lens = (int *) XREALLOC(mudstate.rdata->x_lens,
 				a_size * sizeof(int), funcname);
     mudstate.rdata->x_lens = tmp_lens;
-    for (i = mudstate.rdata->xr_alloc; i < a_size; i++) {
-	mudstate.rdata->x_names[i] = NULL;
-	mudstate.rdata->x_regs[i] = NULL;
-	mudstate.rdata->x_lens[i] = 0;
-    }
+
+    memset(&mudstate.rdata->x_names[mudstate.rdata->xr_alloc], (int) NULL,
+	   (a_size - mudstate.rdata->xr_alloc) * sizeof(char *));
+    memset(&mudstate.rdata->x_regs[mudstate.rdata->xr_alloc], (int) NULL,
+	   (a_size - mudstate.rdata->xr_alloc) * sizeof(char *));
+    memset(&mudstate.rdata->x_lens[mudstate.rdata->xr_alloc], 0,
+	   (a_size - mudstate.rdata->xr_alloc) * sizeof(int));
+
     mudstate.rdata->xr_alloc = a_size;
 
     /* Now we know we can insert into the first empty. */
