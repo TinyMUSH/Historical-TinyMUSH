@@ -289,7 +289,7 @@ void NDECL(cf_init)
 	mudconf.log_options = LOG_ALWAYS | LOG_BUGS | LOG_SECURITY |
 		LOG_NET | LOG_LOGIN | LOG_DBSAVES | LOG_CONFIGMODS |
 		LOG_SHOUTS | LOG_STARTUP | LOG_WIZARD |
-		LOG_PROBLEMS | LOG_PCREATES | LOG_TIMEUSE;
+		LOG_PROBLEMS | LOG_PCREATES | LOG_TIMEUSE | LOG_LOCAL;
 	mudconf.log_info = LOGOPT_TIMESTAMP | LOGOPT_LOC;
 	mudconf.log_diversion = 0;
 	mudconf.markdata[0] = 0x01;

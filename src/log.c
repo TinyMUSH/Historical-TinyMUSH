@@ -39,7 +39,8 @@ NAMETAB logoptions_nametab[] = {
 {(char *)"create",		2,	0,	LOG_PCREATES},
 {(char *)"keyboard_commands",	2,	0,	LOG_KBCOMMANDS},
 {(char *)"killing",		1,	0,	LOG_KILLS},
-{(char *)"logins",		1,	0,	LOG_LOGIN},
+{(char *)"local",		3,	0,	LOG_LOCAL},
+{(char *)"logins",		3,	0,	LOG_LOGIN},
 {(char *)"network",		1,	0,	LOG_NET},
 {(char *)"problems",		1,	0,	LOG_PROBLEMS},
 {(char *)"security",		2,	0,	LOG_SECURITY},
@@ -52,7 +53,6 @@ NAMETAB logoptions_nametab[] = {
 
 LOGFILETAB logfds_table[] = {
 { LOG_ACCOUNTING,	NULL,		NULL},
-{ LOG_ACCOUNTING,	NULL,		NULL},
 { LOG_ALLCOMMANDS,	NULL,		NULL},
 { LOG_BADCOMMANDS,	NULL,		NULL},
 { LOG_ALLOCATE,		NULL,		NULL},
@@ -62,6 +62,7 @@ LOGFILETAB logfds_table[] = {
 { LOG_PCREATES,		NULL,		NULL},
 { LOG_KBCOMMANDS,	NULL,		NULL},
 { LOG_KILLS,		NULL,		NULL},
+{ LOG_LOCAL,		NULL,		NULL},
 { LOG_LOGIN,		NULL,		NULL},
 { LOG_NET,		NULL,		NULL},
 { LOG_PROBLEMS,		NULL,		NULL},
@@ -171,8 +172,10 @@ int key;
 		if ((mudconf.log_info & LOGOPT_TIMESTAMP) != 0) {
 			time((time_t *) (&now));
 			tp = localtime((time_t *) (&now));
-			sprintf(mudstate.buffer, "%d%d%d%d%d.%d%d%d%d%d%d ",
-				tp->tm_year, (((tp->tm_mon) + 1) / 10),
+			sprintf(mudstate.buffer, "%02d%d%d%d%d.%d%d%d%d%d%d ",
+				(tp->tm_year >= 100) ?
+				(tp->tm_year - 100) : (tp->tm_year),
+				(((tp->tm_mon) + 1) / 10),
 			      (((tp->tm_mon) + 1) % 10), (tp->tm_mday / 10),
 				(tp->tm_mday % 10),
 				(tp->tm_hour / 10), (tp->tm_hour % 10),

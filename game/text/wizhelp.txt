@@ -28,12 +28,11 @@
   @delcommand    @destroy       @disable       @doing         @dump          
   @enable        @fixdb         @freelist      @function      @halt
   @hashresize    @hook          @kick          @list          @listcommands
-  @list_file     @listmotd      @lock          @logrotate     @mark
-  @mark_all      @motd          @newpassword   @pcreate       @poor
-  @power         @ps            @purge         @quota         @readcache
-  @restart       @shutdown      @sqlconnect    @sqldisconnect @timecheck
-  @startslave    @timewarp      @toad          
-  @wall
+  @list_file     @listmotd      @lock          @log           @logrotate
+  @mark          @mark_all      @motd          @newpassword   @pcreate       
+  @poor          @power         @ps            @purge         @quota
+  @readcache     @restart       @shutdown      @sqlconnect    @sqldisconnect
+  @timecheck     @startslave    @timewarp      @toad          @wall
  
   @allowance     @comment       @timeout
  
@@ -944,6 +943,23 @@
   Note that if <attr-num> is not a valid attribute number, the lock will
   never succeed.
 
+& @log
+  Command: @log [<type>=]<message>
+ 
+  This command, which can only be used by Wizards, writes a message
+  to the logfile in the following format (standard for all log entries,
+  including the internal MUSH-generated ones):
+ 
+  YYMMDD.hhmmss MUSHName MSG/<type>: <object>: <message>
+ 
+  <type> will be uppercased and truncated to five characters long; if
+  it is not specified, it will be "LOCAL".
+ 
+  <object> is the identifying information for the object doing the
+  logging (name, dbref, etc.).
+ 
+  <message> is the specified message to log.
+ 
 & @logrotate
   Command: @logrotate
  

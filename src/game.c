@@ -1499,6 +1499,45 @@ dbref thing;
 }
 
 /* ----------------------------------------------------------------------
+ * Write message to logfile.
+ */
+
+void do_logwrite(player, cause, key, msgtype, message)
+    dbref player, cause;
+    int key;
+    char *msgtype, *message;
+{
+    const char *mt;
+    char *msg, *p;
+
+    /* If we don't have both a msgtype and a message, make msgtype LOCAL.
+     * Otherwise, truncate msgtype to five characters and capitalize.
+     */
+
+    if (!message || !*message) {
+	mt = (const char *) "LOCAL";
+	msg = msgtype;
+    } else {
+	if (strlen(msgtype) > 5)
+	    msgtype[5] = '\0';
+	for (p = msgtype; *p; p++)
+	    *p = ToUpper(*p);
+	mt = (const char *) msgtype;
+	msg = message;
+    }
+
+    /* Just dump it to the log. */
+
+    STARTLOG(LOG_LOCAL, "MSG", mt)
+	log_name(player);
+	log_text((char *) ": ");
+	log_text(msg);
+    ENDLOG
+
+    notify_quiet(player, "Logged.");
+}
+
+/* ----------------------------------------------------------------------
  * Log rotation.
  */
 

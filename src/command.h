@@ -157,6 +157,7 @@ CMD_NO_ARG(do_dbclean);			/* Remove stale vattr entries */
 CMD_TWO_ARG(do_addcommand);		/* Add or replace a global command */
 CMD_TWO_ARG(do_delcommand);		/* Delete an added global command */
 CMD_ONE_ARG(do_listcommands);		/* List added global commands */
+CMD_TWO_ARG(do_logwrite);		/* Write to the logfile */
 CMD_NO_ARG(do_logrotate);		/* Rotate the logfile */
 CMD_NO_ARG(do_sql_connect);		/* Create a SQL db connection */
 CMD_ONE_ARG(do_sql);			/* Execute a SQL command */

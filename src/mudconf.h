@@ -496,6 +496,7 @@ extern STATEDATA mudstate;
 #define LOG_KBCOMMANDS	0x00010000	/* Log keyboard commands */
 #define LOG_SUSPECTCMDS	0x00020000	/* Log SUSPECT player keyboard cmds */
 #define LOG_TIMEUSE	0x00040000	/* Log CPU time usage */
+#define LOG_LOCAL	0x00080000	/* Log user stuff via @log */
 #define LOG_ALWAYS	0x80000000	/* Always log it */
 
 #define LOGOPT_FLAGS		0x01	/* Report flags on object */
