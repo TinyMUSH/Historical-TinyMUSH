@@ -19,6 +19,8 @@ cd ../..
 echo
 echo "***** Making dependencies..."
 echo
+rm -f .depend
+touch .depend
 make depend
 echo
 echo "***** Building server using default config..."
