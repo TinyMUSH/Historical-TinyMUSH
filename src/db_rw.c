@@ -1181,7 +1181,7 @@ int db_format, flags;
 		putref(f, Pennies(i));
 	putref(f, Flags(i));
 	if (flags & V_XFLAGS)
-		putref(f, Flags2(i) & ~CONNECTED);
+		putref(f, Flags2(i));
 	if (flags & V_3FLAGS)
 		putref(f, Flags3(i));
 	if (flags & V_POWERS) {

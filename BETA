@@ -57,8 +57,6 @@ Release history:
 
 - Misc: @addcommand sanity-checks command names.
 
-- Misc: Connected flags are not stored in a flatfile dump.
-
 -----------------------------------------------------------------------------
 
 06/07/2002: Beta 3
