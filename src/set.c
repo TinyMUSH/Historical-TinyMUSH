@@ -327,6 +327,7 @@ char *name, *keytext;
 	int atr, aflags;
 	ATTR *ap;
 	struct boolexp *okey;
+	char *p;
 
 	if (parse_attrib(player, name, &thing, &atr)) {
 		if (atr != NOTHING) {
@@ -379,6 +380,16 @@ char *name, *keytext;
 			notify_quiet(player, "You can't lock that!");
 			return;
 		}
+	}
+
+	/* Don't allow funky characters in locks. */
+
+	for (p = keytext; *p; p++) {
+	    if ((*p == '\t') || (*p == '\r') || (*p == '\n') ||
+		(*p == ESC_CHAR)) {
+		notify_quiet(player, "That is not a valid lock.");
+		return;
+	    }
 	}
 
 	okey = parse_boolexp(player, keytext, 0);
