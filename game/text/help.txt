@@ -4314,8 +4314,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	ifelse()	localize()	mudname()	nonzero()
 	pemit()		r()		rand()		remit()		
 	restarts()	restarttime()	s()		secs()		
-	setq()		setr()		switch()	starttime()	
-	time()		version()
+	setq()		setr()		setx()		switch()
+	starttime()	time()		version()	x()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -7739,7 +7739,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   This is equivalent to the substitution %q<number>; i.e., "r(0)" == "%q0".
  
-  See also: setq().
+  See also: setq(), setx(), x().
 
 & SETQ()
   Function: setq(<number>,<string>)
@@ -7761,7 +7761,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > &TEST me=Test on [mudname()] at [time()].
     > say [setq(0,u(TEST))]'[r(0)]' has length [strlen(r(0))].
     You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
-  See also: setr, r().
+ 
+  See also: setr(), r(), setx(), x().
  
 & SETR()
   Function: setr(<number>,<string>)
@@ -7774,7 +7775,36 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say '[setr(0,u(TEST))]' has length [strlen(%q0)].
     You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
-  See also: setq(), r().
+  See also: setq(), r(), setx(), x().
+ 
+& SETX()
+  Function:  setx(<variable name>,<value>)
+ 
+  This side-effect function sets a temporary variable associated with
+  the object making the function call. The temporary variable has
+  limited persistence -- unlike an attribute, it is not saved over
+  restarts. Using an empty <value> will unset the variable. For
+  reasons of memory consumption, variables should ALWAYS be explicitly
+  unset when they are not immediately needed. This function does not
+  return anything.
+ 
+  If you need to set a variable for an object that you control, wrap
+  this function call in an objeval().
+ 
+  Example:
+    > say Testing [setx(temp,abc)][x(temp)] - [strlen(x(temp))].
+    You say "Testing abc - 3."
+ 
+  See also: x(), setq(), setr(), r().
+ 
+& X()
+  Function:  x(<variable name>)
+ 
+  This function retrieves a temporary variable associated with the object
+  making the function call. If you need to retrieve a variable associated
+  with another object you control, wrap this function call in an objeval().
+ 
+  See also: setx(), setq(), setr(), r().
  
 & PEMIT()
   Function:  pemit(<list of dbrefs>,<string>)
