@@ -301,7 +301,7 @@ HASHTAB mod_<name>_<htabnameN>;
 MODHASHES mod_<name>_hashtable[] = {
 { "htabname1",	&mod_<name>_<htabname1>,	<size factor>,	<minimum>},
 { "htabnameN",	&mod_<name>_<htabnameN>,	<size factor>,	<minimum>},
-{ NULL,		NULL,				0}};
+{ NULL,		NULL,				0,		0}};
 
 NHSHTAB mod_<name>_<nhtabname1>;
 NHSHTAB mod_<name>_<nhtabnameN>;
@@ -309,7 +309,7 @@ NHSHTAB mod_<name>_<nhtabnameN>;
 MODNHASHES mod_<name>_nhashtable[] = {
 { "nhtabname1",	&mod_<name>_<nhtabname1>,	<size factor>,	<minimum>},
 { "nhtabnameN",	&mod_<name>_<nhtabnameN>,	<size factor>,	<minimum>},
-{ NULL,		NULL,				0}};
+{ NULL,		NULL,				0,		0}};
 
 The initial size factor will be multiplied by the hash factor.
 The minimum is the absolute smallest size of the hash table, which
