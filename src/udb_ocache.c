@@ -678,7 +678,7 @@ int objsize;
 				
 				if ((score > curscore) || ((score == curscore) && 
 				    (size > cursize)) ||
-				    ((p == sp->active.head) && !score)) {
+				    ((p == sp->active.head) && !cp)) {
 					curscore = score;
 					cursize = size;
 					cp = p;
@@ -707,7 +707,7 @@ int objsize;
 				/* If we haven't found one by now, the head of the modified chain is it */
 				if ((score > curscore) || ((score == curscore) && 
 				    (size > cursize)) ||
-				    ((p == sp->mactive.head) && !cp && !score)) {
+				    ((p == sp->mactive.head) && !cp)) {
 					curscore = score;
 					cursize = size;
 					cp = p;
