@@ -1483,7 +1483,8 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	postdump_message	pueblo_message		wizard_motd_message
 
 & PARAM MISCELLANEOUS
-	flag_name		guest_prefix		guests_calias
+	flag_name		guest_basename		guest_password
+	guest_prefixes		guest_suffixes		guests_calias
 	guests_channel		log			log_options
 	money_name_plural	money_name_singular	mud_name
 	port			public_calias		public_channel
@@ -2185,7 +2186,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   All guests created will be clones of this template character, and will
   automatically join the Guests channel with a prefix of 'g'.
  
-  See also: guest_prefix, guest_nuker, number_guests, guests_channel, access.
+  See also: guest_basename, guest_nuker, number_guests, guests_channel, access.
  
 & guest_nuker
   Config parameter: guest_nuker <number>. Default: 1
@@ -2193,7 +2194,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Specifies who is to nuke guests when they log off. If it is not a good
   object or a wizard, it defaults to 1 (for #1, the typical God character).
  
-  See also: guest_char_num, guest_nuker, guest_prefix, number_guests.
+  See also: guest_char_num, guest_nuker, guest_basename, number_guests.
  
 & guest_starting_room
   Config parameter: guest_starting_room <number. Default: -1
@@ -2220,14 +2221,36 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
  
   See also: have_comsys, guests_calias, public_calias, public_channel.
  
-& guest_prefix
-  Config parameter: guest_prefix <name>. Default: Guest
+& guest_prefixes
+& guest_suffixes
+& guest_basename
+  Config parameter: guest_basename <basename>.  Default: Guest
+  Config parameter: guest_prefixes <list of name prefixes>. Default: (none)
+  Config parameter: guest_suffixes <list of name suffixes>. Default: (none)
  
-  All guests have numbered names, of the format <prefix><number>; for
-  example, if the guest_prefix is 'Guest', then the guests will be named
-  Guest1, Guest2, and so forth.
+  If neither the guest_prefixes nor guest_suffixes conf parameters are
+  specified, guests have numbered names, of the format <basename><number>;
+  for example, if the guest_basename is 'Guest', then the guests will
+  be named Guest1, Guest2, and so forth.
  
-  See also: guest_char_num, guest_nuker, guests_channel, number_guests.
+  If guest_prefixes and/or guest_suffixes are specified, they will be
+  combined sequentially to form guest names; if there are more guests than
+  there are combinations, guests will become numbered. For example, if
+  guest_prefixes is 'Red Blue' and guest_suffixes is 'Guest Visitor Friend',
+  then the guests will be named 'RedGuest', 'RedVisitor', 'RedFriend',
+  'BlueGuest', 'BlueVisitor', 'BlueFriend', 'Guest7', 'Guest8', etc.
+  These guest characters will be aliased to <basename><number>; i.e.,
+  'RedVisitor' will have an @alias of 'Guest2'.  (If only one of these
+  parameters is specified, it will be treated as a list of names to use).
+ 
+  See also: guest_char_num, guest_password, guest_nuker, number_guests.
+ 
+& guest_password
+  Config parameter: guest_password <password>.  Default: guest
+ 
+  This config parameter sets the default password for Guest characters.
+ 
+  See also: guest_basename, guest_char_num, guest_nuker, number_guests.
  
 & guest_file
   Config parameter: guest_file <path>.  Default: text/guest.txt.
@@ -2633,7 +2656,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   This is the maximum number of Guest characters that can connect at
   any given time.
  
-  See also: guest_char_num, guest_nuker, guests_channel, guest_prefix.
+  See also: guest_char_num, guest_nuker, guests_channel, guest_basename.
 
 & open_cost
   Config parameter: open_cost <amount>.  Default: 1

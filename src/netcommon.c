@@ -22,7 +22,6 @@
 #include "file_c.h"	/* required by code */
 #include "command.h"	/* required by code */
 #include "attrs.h"	/* required by code */
-#include "mguests.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "match.h"	/* required by code */
@@ -31,6 +30,7 @@ extern int FDECL(process_output, (DESC * d));
 extern void FDECL(handle_prog, (DESC *, char *));
 extern void FDECL(record_login, (dbref, int, char *, char *, char *));
 extern dbref FDECL(connect_player, (char *, char *, char *, char *, char *));
+extern char * FDECL(make_guest, (DESC *));
 
 #ifdef CONCENTRATE
 extern void FDECL(do_becomeconc, (DESC *, char *));
@@ -1444,7 +1444,7 @@ char *msg;
 	parse_connect(msg, command, user, password);
 
 	if (!strncmp(command, "co", 2) || !strncmp(command, "cd", 2)) {
-		if ((string_prefix(user, mudconf.guest_prefix)) &&
+		if ((string_prefix(user, mudconf.guest_basename)) &&
 		    (mudconf.guest_char != NOTHING) &&
 		    (mudconf.control_flags & CF_LOGIN)) {
 			if ((p = make_guest(d)) == NULL) {
@@ -1455,7 +1455,7 @@ char *msg;
 				return 0;
 			}
 			StringCopy(user, p);
-			StringCopy(password, mudconf.guest_prefix);
+			StringCopy(password, mudconf.guest_password);
 		}
 		/* See if this connection would exceed the max #players */
 

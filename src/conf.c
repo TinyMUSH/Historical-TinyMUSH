@@ -72,7 +72,10 @@ void NDECL(cf_init)
 	mudconf.guest_char = -1;
 	mudconf.guest_nuker = 1;
 	mudconf.number_guests = 30;
-	mudconf.guest_prefix = XSTRDUP("Guest", "cf_init");
+	mudconf.guest_basename = XSTRDUP("Guest", "cf_init");
+	mudconf.guest_password = XSTRDUP("guest", "cf_init");
+	mudconf.guest_prefixes = XSTRDUP("", "cf_init");
+	mudconf.guest_suffixes = XSTRDUP("", "cf_init");
 	mudconf.guest_file = XSTRDUP("text/guest.txt", "cf_init");
 	mudconf.conn_file = XSTRDUP("text/connect.txt", "cf_init");
 	mudconf.creg_file = XSTRDUP("text/register.txt", "cf_init");
@@ -1392,9 +1395,12 @@ CONF conftable[] = {
 {(char *)"gdbm_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.gdbm,		MBUF_SIZE},
 {(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @aconnect and @adisconnect"},
 {(char *)"good_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				1},
+{(char *)"guest_basename",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_basename,	PLAYER_NAME_LIMIT},
 {(char *)"guest_char_num",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.guest_char,		0},
 {(char *)"guest_nuker",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.guest_nuker,		0},
-{(char *)"guest_prefix",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_prefix,	SBUF_SIZE},
+{(char *)"guest_password",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_password,	SBUF_SIZE},
+{(char *)"guest_prefixes",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_prefixes,	LBUF_SIZE},
+{(char *)"guest_suffixes",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_suffixes,	LBUF_SIZE},
 {(char *)"number_guests",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.number_guests,		0},
 {(char *)"guest_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.guest_file,	MBUF_SIZE},
 {(char *)"guest_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list, 	H_GUEST},

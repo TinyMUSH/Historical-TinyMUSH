@@ -101,7 +101,10 @@ struct confdata {
 	int	guest_char;	/* player num of prototype GUEST character */
 	int     guest_nuker;    /* Wiz who nukes the GUEST characters. */
 	int     number_guests;  /* number of guest characters allowed */
-	char    *guest_prefix;	/* Prefix for the guest char's name */
+	char	*guest_basename; /* Base name or alias for guest char */
+	char    *guest_prefixes; /* Prefixes for the guest char's name */
+	char    *guest_suffixes; /* Suffixes for the guest char's name */
+    char	*guest_password; /* Default password for guests */
 	char	*guest_file;	/* display if guest connects */
 	char	*conn_file;	/* display on connect if no registration */
 	char	*creg_file;	/* display on connect if registration */
