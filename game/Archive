@@ -35,7 +35,7 @@ fi
 #
 #	Gather and archive.
 #
-TXTFILES=`ls $TEXT/*.txt | egrep -v '(help|wizhelp|qhelp|mushman).txt'`
+TXTFILES=`ls $TEXT/*.txt | egrep -v '^(help|wizhelp|qhelp|mushman).txt'`
 ALLFILES="$FLATFILE $DATA/mod_*.db mush.config $GAMENAME.conf $TXTFILES"
 #
 echo "Archiving..."
