@@ -3841,6 +3841,17 @@
   Parents of MONITOR objects are never checked for ^-patterns.
  
   See also: LISTENING.
+& WATCHER
+  Flag: WATCHER (+)
+ 
+  When a player is set WATCHER, he will be notified anytime someone
+  connects or disconnects. Please note that players with this flag
+  will also see the connects/disconnects of players who are set DARK.
+ 
+  WATCHER is a restricted flag. Wizards can set it on anyone. Players
+  with the Watch_Logins power can set WATCHER on themselves (or anything
+  that they own, though this flag is meaningless for non-players).
+ 
 & TRACE
   Flag: TRACE(T)
  
@@ -4664,7 +4675,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	s - Safe	t - Transparent	u - Suspect	v - Verbose	
 	w - Staff	x - Slave	z - Control_OK	! - Stop	
 	$ - Commands	- - NoBleed	~ - HTML	> - Redir_OK
-	? - Head	| - Vacation
+	? - Head	| - Vacation	+ - Watcher
   
   See 'help Marker' for help on user-defined flags (0 through 9).
  
@@ -9988,7 +9999,6 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
 & powers list2
  
-  monitor		Can set or reset monitor flag.
   no_destroy		Cannot be @toad'ed.
   open_anywhere		Can @open an exit from any location.
   poll			Can set the @poll.
@@ -10003,6 +10013,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   tel_anything		Can teleport anything (includes tel_anywhere)
   unkillable		Cannot be killed with the 'kill' command.
   use_sql		Can call the SQL() function. (God-set only.)
+  watch_logins		Can set or reset the WATCHER flag on themselves.
  
   See also: @power
  
