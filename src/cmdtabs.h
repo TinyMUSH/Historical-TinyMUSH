@@ -59,9 +59,10 @@ NAMETAB dig_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB doing_sw[] = {
-{(char *)"header",	1,	CA_PUBLIC,	DOING_HEADER},
-{(char *)"message",	1,	CA_PUBLIC,	DOING_MESSAGE},
+{(char *)"header",	1,	CA_PUBLIC,	DOING_HEADER|SW_MULTIPLE},
+{(char *)"message",	1,	CA_PUBLIC,	DOING_MESSAGE|SW_MULTIPLE},
 {(char *)"poll",	1,	CA_PUBLIC,	DOING_POLL},
+{(char *)"quiet",	1,	CA_PUBLIC,	DOING_QUIET|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
 NAMETAB dolist_sw[] = {

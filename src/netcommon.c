@@ -1286,24 +1286,7 @@ char *arg;
 	int foundany, over;
 
 	over = 0;
-	if (key == DOING_MESSAGE) {
-		foundany = 0;
-		DESC_ITER_PLAYER(player, d) {
-			over = sane_doing(arg, d->doing);
-			foundany = 1;
-		}
-		if (foundany) {
-			if (over) {
-				notify(player,
-				     tprintf("Warning: %d characters lost.",
-					     over));
-			}
-			if (!Quiet(player))
-				notify(player, "Set.");
-		} else {
-			notify(player, "Not connected.");
-		}
-	} else if (key == DOING_HEADER) {
+	if (key & DOING_HEADER) {
 		if (!(Can_Poll(player))) {
 			notify(player, NOPERM_MESSAGE);
 			return;
@@ -1318,10 +1301,27 @@ char *arg;
 			notify(player,
 			     tprintf("Warning: %d characters lost.", over));
 		}
-		if (!Quiet(player))
+		if (!Quiet(player) && !(key & DOING_QUIET))
 			notify(player, "Set.");
-	} else {
+	} else if (key & DOING_POLL) {
 		notify(player, tprintf("Poll: %s", mudstate.doing_hdr));
+	} else {
+		foundany = 0;
+		DESC_ITER_PLAYER(player, d) {
+			over = sane_doing(arg, d->doing);
+			foundany = 1;
+		}
+		if (foundany) {
+			if (over) {
+				notify(player,
+				     tprintf("Warning: %d characters lost.",
+					     over));
+			}
+			if (!Quiet(player) && !(key & DOING_QUIET) )
+				notify(player, "Set.");
+		} else {
+			notify(player, "Not connected.");
+		}
 	}
 }
 /* *INDENT-OFF* */

@@ -295,6 +295,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	DOING_MESSAGE	0	/* Set my DOING message */
 #define	DOING_HEADER	1	/* Set the DOING header */
 #define	DOING_POLL	2	/* List DOING header */
+#define DOING_QUIET	4	/* Inhibit 'Set.' message */
 #define	DROP_QUIET	1	/* Don't do Odrop/Adrop if control */
 #define	DUMP_STRUCT	1	/* Dump flat structure file */
 #define	DUMP_TEXT	2	/* Dump text (gdbm) file */
