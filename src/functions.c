@@ -1318,13 +1318,16 @@ FUNCTION(fun_rest)
 FUNCTION(fun_left)
 {
     int len = atoi(fargs[1]);
+    char *oldp;
 
     if (len < 1) {
-	*buff = '\0';
+	return;
     } else { 
-	strcpy(buff, fargs[0]);
-	if (len < LBUF_SIZE)
-	    buff[len] = '\0';
+	oldp = *bufc;
+	safe_str(strip_ansi(fargs[0]), buff, bufc);
+	if ((oldp + len) < *bufc) {
+	    *bufc = oldp + len;
+	}
     }
 }
 
@@ -1337,13 +1340,13 @@ FUNCTION(fun_right)
     int len = atoi(fargs[1]);
 
     if (len < 1) {
-	*buff = '\0';
+	return;
     } else {
 	len = strlen(fargs[0]) - len;
 	if (len < 1)
-	    strcpy(buff, fargs[0]);
+	    safe_str(fargs[0], buff, bufc);
 	else
-	    strcpy(buff, fargs[0] + len);
+	    safe_str(fargs[0] + len, buff, bufc);
     }
 }
 
