@@ -18,3 +18,9 @@ See 'wizhelp helpfile' and 'wizhelp raw_helpfile' for more details.
  
 This is a sample +help entry for '+help +help'.
  
+& aliased help entries
+& aliased entries
+ 
+This is a sample +help entry with two names: '+help aliased help entries'
+and '+help aliased entries'.
+ 
