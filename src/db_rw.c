@@ -1232,7 +1232,7 @@ int *n_atrt;
 		}
 		if (save) {
 			got = atr_get_raw(i, j);
-			if (mudstate.standalone) {
+			if (used_attrs_table != NULL) {
 			    fprintf(f, ">%d\n", used_attrs_table[j]);
 			    if (used_attrs_table[j] != j) {
 				changed = 1;
@@ -1256,11 +1256,14 @@ int format, version;
 	int flags;
 	VATTR *vp, *vpx;
 	int n, end, ca, n_oldtotal, n_oldtop, n_deleted, n_renumbered;
-	int n_objt, n_atrt, got, anxt;
+	int n_objt, n_atrt, got, anxt, dbclean;
 	int *old_attrs_table;
 	char *as;
 
 	al_store();
+
+	dbclean = (version & V_DBCLEAN) ? 1 : 0;
+	version &= ~V_DBCLEAN;
 
 	switch (format) {
 	case F_TINYMUSH:
@@ -1275,7 +1278,7 @@ int format, version;
 
 	/* Attribute cleaning, if standalone. */
 
-	if (mudstate.standalone) {
+	if (mudstate.standalone && dbclean) {
 
 	    used_attrs_table = (int *) XCALLOC(mudstate.attr_next,
 					       sizeof(int),
@@ -1350,7 +1353,8 @@ int format, version;
 		 anxt++)
 		;
 
-	} else {		/* ! standalone */
+	} else {
+	    used_attrs_table = NULL;
 	    anxt = mudstate.attr_next;
 	}
 
@@ -1362,7 +1366,7 @@ int format, version;
 
 	/* Dump user-named attribute info */
 
-	if (mudstate.standalone) {
+	if (mudstate.standalone && dbclean) {
 	    for (i = A_USER_START; i < anxt; i++) {
 		if (used_attrs_table[i] == 0)
 		    continue;
@@ -1403,16 +1407,18 @@ int format, version;
 	
 	if (mudstate.standalone) {
 		fprintf(mainlog_fp, "\n");
-		if (n_objt) {
-		    fprintf(mainlog_fp, "Cleaned %d attributes (now %d): %d deleted, %d renumbered (%d objects and %d individual attrs touched).\n",
-			    n_oldtotal, anxt, n_deleted, n_renumbered,
-			    n_objt, n_atrt);
-		} else if (n_deleted || n_renumbered) {
-		    fprintf(mainlog_fp, "Cleaned %d attributes (now %d): %d deleted, %d renumbered (no objects touched).\n",
-			    n_oldtotal, anxt, n_deleted, n_renumbered);
+		if (dbclean) {
+		    if (n_objt) {
+			fprintf(mainlog_fp, "Cleaned %d attributes (now %d): %d deleted, %d renumbered (%d objects and %d individual attrs touched).\n",
+				n_oldtotal, anxt, n_deleted, n_renumbered,
+				n_objt, n_atrt);
+		    } else if (n_deleted || n_renumbered) {
+			fprintf(mainlog_fp, "Cleaned %d attributes (now %d): %d deleted, %d renumbered (no objects touched).\n",
+				n_oldtotal, anxt, n_deleted, n_renumbered);
+		    }
+		    XFREE(used_attrs_table, "flatfile.used_attrs_table");
+		    XFREE(old_attrs_table, "flatfile.old_attrs_table");
 		}
-		XFREE(used_attrs_table, "flatfile.used_attrs_table");
-		XFREE(old_attrs_table, "flatfile.old_attrs_table");
 	}
 
 	return (mudstate.db_top);

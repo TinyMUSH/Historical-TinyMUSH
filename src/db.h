@@ -105,6 +105,7 @@ struct boolexp {
 #define V_TQUOTAS       0x00100000      /* Typed quotas */
 #define V_TIMESTAMPS	0x00200000	/* Timestamps */
 #define V_VISUALATTRS	0x00400000	/* ODark-to-Visual attr flags */
+#define V_DBCLEAN	0x80000000	/* Option to clean attr table */
 
 /* Some defines for DarkZone's flavor of PennMUSH */
 #define DB_CHANNELS    0x2    /*  Channel system */

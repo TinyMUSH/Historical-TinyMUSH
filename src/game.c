@@ -1648,7 +1648,7 @@ char *argv[];
 {
 	int setflags, clrflags, ver;
 	int db_ver, db_format, db_flags, do_check, do_write;
-	int c, errflg = 0;
+	int c, dbclean, errflg = 0;
 	char *opt_conf = (char *) CONF_FILE;
 	FILE *f;
 	MODULE *mp;
@@ -1660,14 +1660,18 @@ char *argv[];
 
 	setflags = clrflags = ver = do_check = 0;
 	do_write = 1;
+	dbclean = V_DBCLEAN;
 
-	while ((c = getopt(argc, argv, "c:CGgZzLlNnKkPpWwXx0123456789")) != -1) {
+	while ((c = getopt(argc, argv, "c:CqGgZzLlNnKkPpWwXx0123456789")) != -1) {
 		switch (c) {
 			case 'c':
 				opt_conf = optarg;
 				break;
 			case 'C':
 				do_check = 1;
+				break;
+			case 'q':
+				dbclean = 0;
 				break;
 			case 'G':
 				setflags |= V_GDBM;
@@ -1817,8 +1821,8 @@ char *argv[];
 			CALL_ALL_MODULES_NOCACHE("db_write", (void), ());
 			db_unlock();
 		} else {
-			db_write_flatfile(stdout, F_TINYMUSH, db_ver | db_flags);
-			
+			db_write_flatfile(stdout, F_TINYMUSH, db_ver | db_flags | dbclean);
+
 			/* Call all modules to write to flatfile */
 			
 			WALK_ALL_MODULES(mp) {
