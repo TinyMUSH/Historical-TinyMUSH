@@ -269,6 +269,11 @@ FUNCTION(fun_tel)
 	do_teleport(player, cause, 0, fargs[0], fargs[1]);
 }
 
+FUNCTION(fun_wipe)
+{
+	do_wipe(player, cause, 0, fargs[0]);
+}
+
 FUNCTION(fun_pemit)
 {
 	do_pemit_list(player, fargs[0], fargs[1], 0);
@@ -282,6 +287,15 @@ FUNCTION(fun_remit)
 FUNCTION(fun_force)
 {
 	do_force(player, cause, 0, fargs[0], fargs[1], cargs, ncargs);
+}
+
+FUNCTION(fun_trigger)
+{
+	if (nfargs < 1) {
+		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+		return;
+	}
+	do_trigger(player, cause, 0, fargs[0], &(fargs[1]), nfargs - 1);
 }
 
 /*------------------------------------------------------------------------

@@ -57,6 +57,7 @@ XFUNCTION(fun_tel);
 XFUNCTION(fun_pemit);
 XFUNCTION(fun_remit);
 XFUNCTION(fun_force);
+XFUNCTION(fun_trigger);
 XFUNCTION(fun_create);
 XFUNCTION(fun_set);
 #endif
@@ -5103,6 +5104,7 @@ FUN flist[] = {
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC},
 {"TOSS",	fun_toss,	0,  FN_VARARGS, CA_PUBLIC},
 {"TRANSLATE",	fun_translate,	2,  0,		CA_PUBLIC},
+{"TRIGGER",	fun_trigger,	0,  FN_VARARGS, CA_PUBLIC},
 {"TRIM",	fun_trim,	0,  FN_VARARGS,	CA_PUBLIC},
 {"TRUNC",	fun_trunc,	1,  0,		CA_PUBLIC},
 {"TYPE",	fun_type,	1,  0,		CA_PUBLIC},
