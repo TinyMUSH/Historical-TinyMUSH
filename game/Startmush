@@ -3,7 +3,7 @@
 #	Startmush - Kick off the netmush process.
 #
 PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
-LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs; export LTDL_LIBRARY_PATH
+LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH
 #
 . mush.config
 #
