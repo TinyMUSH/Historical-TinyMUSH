@@ -501,12 +501,30 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 				mudstate.markbits->chunk[i]=0xff
 #define	Unmark_all(i)	for ((i)=0; (i)<((mudstate.db_top+7)>>3); (i)++) \
 				mudstate.markbits->chunk[i]=0x0
+
+/* Can I link this exit to something else? */
 #define	Link_exit(p,x)	((Typeof(x) == TYPE_EXIT) && \
 			 ((Location(x) == NOTHING) || Controls(p,x)))
-#define	Linkable(p,x)	(Good_obj(x) && \
-			 (Has_contents(x)) && \
-			 (((Flags(x) & LINK_OK) != 0) || \
-			  Controls(p,x)))
+
+/* Is this something I can link to?
+ *    - It must be a valid object, and be able to have contents.
+ *    - I must control it, or have it be Link_ok, or I must the
+ *      link_to_any power and not have the destination be God.
+ */
+#define Linkable(p,x)   (Good_obj(x) && Has_contents(x) &&  \
+			 (Controls(p,x) || Link_ok(x) ||    \
+			  (LinkToAny(p) && !God(x))))
+
+/* Can I pass the linklock check on this?
+ *    - I must have link_to_any (or be a wizard) and wizards must
+ *      ignore linklocks,
+ *  OR
+ *    - I must be able to pass the linklock.
+ */
+#define Passes_Linklock(p,x)  \
+((LinkToAny(p) && !mudconf.wiz_obey_linklock) ||  \
+ could_doit(p,x,A_LLINK))
+    
 #define	See_attr(p,x,a,o,f) \
 			(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
 			 (God(p) || \

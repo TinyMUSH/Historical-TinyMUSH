@@ -39,7 +39,7 @@ char *room_name;
 	if (!Good_obj(room)) {
 		notify_quiet(player, "That's not a valid object.");
 		return NOTHING;
-	} else if (!Has_contents(room) || !Linkable(player, room)) {
+	} else if (!Linkable(player, room)) {
 		notify_quiet(player, "You can't link to that.");
 		return NOTHING;
 	} else {
@@ -92,8 +92,7 @@ char *direction, *linkto;
 
 		/* Make sure the player passes the link lock */
 
-		if (!could_doit(player, loc, A_LLINK) &&
-		    (!Wizard(player) || mudconf.wiz_obey_linklock)) {
+		if (!Passes_Linklock(player, loc)) {
 			notify_quiet(player, "You can't link to there.");
 			return;
 		}
@@ -165,11 +164,8 @@ dbref player, exit, dest;
 	 */
 
 	if (!((dest == HOME) ||
-	      ((controls(player, dest) || Link_ok(dest) ||
-		(LinkToAny(player) && !God(dest))) &&
-	       ((LinkToAny(player) && !mudconf.wiz_obey_linklock) ||
-		could_doit(player, dest, A_LLINK))) ||
-	      ((dest == AMBIGUOUS) && LinkVariable(player)))) {
+	      ((dest == AMBIGUOUS) && LinkVariable(player)) ||
+	      (Linkable(player, dest) && Passes_Linklock(player, dest)))) {
 	    notify_quiet(player, NOPERM_MESSAGE);
 	    return;
 	}
@@ -261,8 +257,7 @@ char *what, *where;
 			break;
 		}
 		if (!can_set_home(player, thing, room) ||
-		    (!could_doit(player, room, A_LLINK) &&
-		     (!Wizard(player) || mudconf.wiz_obey_linklock))) {
+		    !Passes_Linklock(player, room)) {
 			notify_quiet(player, NOPERM_MESSAGE);
 		} else if (room == HOME) {
 			notify_quiet(player, "Can't set home to home.");
@@ -286,10 +281,8 @@ char *what, *where;
 
 		if ((room != HOME) && !isRoom(room)) {
 			notify_quiet(player, "That is not a room!");
-		} else if ((room != HOME) &&
-			   ((!controls(player, room) && !Link_ok(room)) ||
-			    (!could_doit(player, room, A_LLINK) &&
-			     (!Wizard(player) || mudconf.wiz_obey_linklock)))) {
+		} else if ((room != HOME) && Linkable(player, room) &&
+			   Passes_Linklock(player, room)) {
 			notify_quiet(player, NOPERM_MESSAGE);
 		} else {
 			s_Dropto(thing, room);
