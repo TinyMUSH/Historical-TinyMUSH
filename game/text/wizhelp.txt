@@ -24,7 +24,7 @@
   slay           WHO            wizhelp
  
   @addcommand    @admin         @apply_marked  @attribute     @boot
-  @chown         @chownall      @clone         @cut           @dbck          
+  @chown         @chownall      @cut           @dbck          
   @delcommand    @destroy       @disable       @doing         @dump          
   @enable        @fixdb         @freelist      @function      @halt
   @hook          @kick          @list          @listcommands  @list_file     
@@ -246,26 +246,30 @@
   See also: @destroy, @toad, SESSION.
 
 & @chown
-  Command: @chown <object>=<player>
+  Command: @chown[/nostrip] <object>=<player>
  
   Wizards may @chown objects, rooms, and exits to other players.
-  @Chowned objects are set HALT.
- 
-  See also: @chownall.
-
-& @clone
-  Command: @clone[/<switches>] <object>
-  Wizards may also specify the /preserve switch, which preserves the original
-  owner of the object in the new copy, instead of creating the copy as being
-  owned by the wizard.
+  @Chowned objects are set HALT and have special flags and powers 
+  stripped from them. The /nostrip flag, when used by God, preserves
+  all special flags and powers; if used by anyone else, it preserves
+  everything except for the WIZARD flag, and powers.
+  
+  See also: @chownall, stripped_flags.
 
 & @chownall
-  Command: @chownall <victim>[=<recipient>]
+  Command: @chownall[/nostrip] <victim>[=<recipient>]
+ 
   Changes the ownership of all of the victim's objects, rooms, and exits to
   the indicated recipient (or to the wizard performing the @chownall if
-  no recipient is specified).  All objects, rooms, and exits are set HALTED.
-  See also: @chown.
-
+  no recipient is specified).
+ 
+  All objects, rooms, and exits are set HALT, and have special flags and
+  powers stripped from them. The /nostrip flag, when used by God,
+  preserves all special flags and powers; if used by anyone else, it
+  preserves everything except for the WIZARD flag, and powers.
+ 
+  See also: @chown, stripped_flags.
+ 
 & @cut
   Command: @cut <object/exit>
   Cuts off the object or exit list for the current location at the indicated

@@ -594,7 +594,7 @@
  
 & @chown
  
-  Command: @chown <object>[=<player>]
+  Command: @chown[/nostrip] <object>[=<player>]
            @chown <object>/<attr>[=<player>]
  
   The first form changes the ownership of <object> to <player> (default is
@@ -608,8 +608,11 @@
   object, and to @chown a room, you must '@chown here = me'. Players cannot
   be @chown'd; they always own themselves (unless they are robots).
  
-  @chown'ing an object automatically sets it HALT, and strips the INHERIT
-  flag and all powers from it.
+  @chown'ing an object automatically sets it HALT. It also strips special
+  flags (such as WIZARD, INHERIT, etc.) from the object, as well as all
+  powers, unless the /nostrip switch is specified. If /nostrip is specified
+  by God, special flags and powers are not stripped; if anyone else 
+  specifies /nostrip, only the WIZARD flag and powers will be stripped.
  
   Continued in 'help @chown2'.
  
@@ -653,9 +656,24 @@
   the /inventory switch.
  
   You may clone your own objects, plus VISUAL objects owned by others.
-  The INHERIT and WIZARD bits of the (new) object are cleared when the object
-  is cloned.  If <newname> is specified, it is used as the name instead of
-  the original name.
+  If <newname> is specified, it is used as the name instead of the
+  original name.
+ 
+  Object clones do not receive the powers of the original. Cloning does
+  duplicate flags, except for certain special flags (such as WIZARD,
+  INHERIT, and IMMORTAL). The INHERIT flag is not copied unless the
+  /inherit switch is specified. Other special flags are not copied to
+  the clone unless the /nostrip switch is specified (Wizards only).
+  Even if /nostrip is specified, the WIZARD flag is only copied if
+  you are God. 
+  
+  Continued in 'help @clone2'.
+ 
+& @clone2
+ 
+  You own the clone, unless you specified the /preserve switch; if you
+  did so, and you control the owner of the original object, then the
+  clone will have the same owner as the original object.
  
   If you clone a linked exit, an attempt is made to link the clone to the
   same location.  Except when using the /inventory switch, you can only clone
@@ -665,21 +683,31 @@
   to the same location.
  
   If the original object was owned by you, then the ACLONE attribute is run
-  in the new attribute, otherwise the new object is set HALTED.  Exits and
-  contents of cloned objects are not cloned.
-{ 'help @clone2' for more }
-& @clone2
+  in the new attribute. Otherwise, the new object is set HALT.
+ 
+  The exits and contents of cloned objects are not cloned (i.e., cloning
+  is never recursive).
+ 
+  Continued in 'help @clone3'.
+ 
+& @clone3
   The following switches are available:
+ 
      /cost       - Treat the argument after the = as the cost of the new
                    object, not the name.
      /inherit    - Don't reset the INHERIT bit on the new object.
      /inventory  - Create the new object in your inventory (or your exitlist,
                    in the case of cloning exits).
      /location   - Create the new object in your location (default).
+     /nostrip    - Don't strip special flags and powers from the clone.
+                   (Wizards only.)
      /parent     - Set the new object's parent to be the template object and
                    don't copy the attributes.
+     /preserve   - Keep the clone's owner the same as the original object's
+                   owner. You must control the original object's owner.
+ 
   See also: @create, @decompile, @destroy, VISUAL.
-
+ 
 & @create
   Command: @create <name> [=<cost>]
   Creates a thing with the specified name.  Creation costs either <cost>
