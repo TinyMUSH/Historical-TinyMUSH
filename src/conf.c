@@ -233,7 +233,9 @@ void NDECL(cf_init)
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
+
 	mudconf.start_room = 0;
+	mudconf.guest_start_room = NOTHING; /* default, use start_room */
 	mudconf.start_home = NOTHING;
 	mudconf.default_home = NOTHING;
 	mudconf.master_room = NOTHING;
@@ -1316,6 +1318,8 @@ CONF conftable[] = {
 {(char *)"guest_site",
 	cf_site,	CA_GOD,		(int *)&mudstate.access_list, 
 	H_GUEST},
+{(char *)"guest_starting_room",
+	cf_int,		CA_GOD,		&mudconf.guest_start_room,	0},
 {(char *)"have_comsys",
 	cf_bool,	CA_STATIC,	&mudconf.have_comsys,		0},
 {(char *)"have_mailer",

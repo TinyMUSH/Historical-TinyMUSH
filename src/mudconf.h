@@ -41,9 +41,10 @@ struct confdata {
 	int	player_quota;	/* quota needed to make a robot player */
 	int	sacfactor;	/* sacrifice earns (obj_cost/sfactor) + sadj */
 	int	sacadjust;	/* ... */
-	dbref	start_room;	/* initial location and home for players */
+	dbref	start_room;	/* initial location for non-Guest players */
 	dbref	start_home;	/* initial HOME for players */
 	dbref	default_home;	/* HOME when home is inaccessable */
+	dbref	guest_start_room; /* initial location for Guests */
 	int	vattr_flags;	/* Attr flags for all user-defined attrs */
 	int	log_options;	/* What gets logged */
 	int	log_info;	/* Info that goes into log entries */

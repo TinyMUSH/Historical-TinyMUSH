@@ -49,7 +49,10 @@ char *password;
 	 */
 
 	s_Guest(player);
-	move_object(player, mudconf.start_room);
+	if (Good_obj(mudconf.guest_start_room))
+	    move_object(player, mudconf.guest_start_room);
+	else
+	    move_object(player, mudconf.start_room);
 	s_Flags(player, Flags(player) & ~WIZARD);
 	s_Pennies(player, Pennies(mudconf.guest_char));
 	s_Zone(player, Zone(mudconf.guest_char));

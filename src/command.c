@@ -2854,8 +2854,9 @@ static void list_params(player)
     if (Wizard(player)) {
 
 	raw_notify(player,
-		   tprintf("  GuestChar...#%d  Freelist...#%d",
-			   mudconf.guest_char, mudstate.freelist));
+	   tprintf("  GuestChar...#%d  GuestStart...#%d  Freelist...#%d",
+		   mudconf.guest_char, mudconf.guest_start_room,
+		   mudstate.freelist));
 
 	raw_notify(player,
 	     tprintf("Queue run sizes:  No net activity... %d  Activity... %d",
