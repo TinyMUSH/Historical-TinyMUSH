@@ -90,7 +90,8 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   allow one object of each type to be defined as the repository for
   "attribute defaults" for many built-in attributes, such as
   attr/oattr pairs (@desc, @odesc, @succ, @osucc, etc.), @conformat,
-  and @exitformat. These defaults override the attributes set on
+  and @exitformat, as well as user attributes that have a global attribute
+  flag of 'default'. These defaults override the attributes set on
   objects of that type (the local value of the attribute is passed
   to it as %0, for evaluation). This allows the global definition
   of formats for those attributes, without requiring a global
@@ -209,9 +210,6 @@ CHANGES TO COMMANDS
 
 - @cpattr can copy multiple attributes at a time.
 
-- The @emit, @femit, @fpose, @fsay, page, pose, and say commands now take a
-  /noeval switch. (Analogous to the /noeval switch for @pemit.)
-
 - A new command, @floaters, shows floating rooms. Floating rooms are no
   longer reported by @dbck, and thus the FLOATING flag has been eliminated
   (since it's no longer needed to suppress @dbck spam).
@@ -243,6 +241,12 @@ CHANGES TO COMMANDS
 
 - The new attribute @nameformat controls the display of location's name
   when someone looks at the location.
+
+- @pemit/list now obeys the same permission checks as @pemit, including
+  obeying pemit_any as well as restricting use of the /contents switch.
+
+- The @emit, @femit, @fpose, @fsay, page, pose, and say commands now take a
+  /noeval switch. (Analogous to the /noeval switch for @pemit.)
 
 - The new @redirect command can be used to redirect Trace, Puppet, and
   Verbose output from an object, to a player other than the object's
@@ -318,6 +322,8 @@ CHANGES TO FUNCTIONS
 
 - Added graball(), which is to grab() what matchall() is to match().
 
+- The third argument to ifelse() -- the 'false' result -- is now optional.
+
 - Added ilev(), itext(), and inum() functions, for retrieving data
   from multiple levels of nested iter()-type functions. Based on
   an idea from PennMUSH.
@@ -378,6 +384,9 @@ CHANGES TO FUNCTIONS
 - Added until() function, which is similar to while(), except it operates
   on multiple lists and terminates on a regular expression condition.
 
+- valid() can now detect valid attribute names and player names, for
+  PennMUSH compatibility.
+
 - Added whentrue() and whenfalse() functions, which go through a list
   iter()-style until a terminating boolean condition is reached.
 
@@ -399,6 +408,9 @@ OTHER CHANGES
 - Break-out of functions into many files, sorted by function type.
   Break-out of the command tables into a separate file, for ease of
   maintenance.
+
+- ANSI, particularly in functions, is handled more consistently and more
+  sanely. Some string and list functions have also been optimized.
 
 - Other cleanup in many parts of the code, including performance
   enhancements and significant reductions in memory used.
