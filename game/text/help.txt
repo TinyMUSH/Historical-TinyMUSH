@@ -1190,9 +1190,9 @@
   you 2 coins).
  
   If you are not a Wizard and do not have the link_to_anything power, in
-  order to link to a destination, you must pass its LinkLock (even if you
-  are the owner of that destination). Depending on the server configuration,
-  even Wizards might not be able to ignore LinkLocks.
+  order to link to an exit to a destination, you must pass its LinkLock
+  (even if you are the owner of that destination). Depending on the server
+  configuration, even Wizards might not be able to ignore LinkLocks.
  
   Note that in all the above cases that it is the player performing the @link
   command that must pass the LinkLock, not the object being linked.
@@ -10250,7 +10250,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   hide			Can set themselves DARK.
   idle			No idle timeout.
   link_variable		Can @link an exit to "variable".
-  link_to_anything	Can @link to any (non-variable) destination.
+  link_to_anything	Can @link an exit to any (non-variable) destination.
   long_fingers		Can get, look, whisper, etc from a distance.
  
 { 'help powers list2' for more }
