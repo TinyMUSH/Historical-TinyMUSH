@@ -1,5 +1,5 @@
-If you are converting your game from TinyMUX, upgrading to TinyMUSH
-3.0 is just like doing a MUX version upgrade, with some additional
+If you are converting your game from TinyMUX 1.x, upgrading to TinyMUSH
+3.1 is just like doing a MUX version upgrade, with some additional
 steps. You will need to do the following:
 
 - Flatfile your database using the dbconvert utility from TinyMUX
@@ -23,6 +23,41 @@ steps. You will need to do the following:
 	helpfile news text/news
 	raw_helpfile man text/mushman
 
+  - If you have the following parameters set, simply remove them:
+    cache_depth
+    cache_width
+    input_database
+    output_database
+    mail_database
+    comsys_database
+    have_comsys
+    have_mailer
+    format_exits
+    format_contents
+
+  - If you were using the built-in comsys, add this line:
+    module comsys
+
+  - If you were using the built-in mailer, add this line:
+    module mail
+
+  - If you had your database files in the data directory, add this line:
+    database_home data
+    (If you have your database files in another directory, substitute that
+    in instead. Pathnames are relative to the ~/3.1/game directory.)
+
+  - If you have the gdbm_database parameter in your conf file, edit it
+    to take away any prepending path. For instance, if your conf file reads:
+    gdbm_database data/netmush.gdbm
+    change it to read:
+    gdbm_database netmush.gdbm
+
+  - If you have the crash_database parameter in your conf file, edit it
+    to take away any prepending path. For instance, if your conf file reads:
+    crash_database data/netmush.db.CRASH
+    change it to read:
+    crash_database netmush.db.CRASH
+
   You should also look at the "Compatibility Notes" section below, for
   any other configuration parameters you'll need to add or change.
 
@@ -42,10 +77,10 @@ steps. You will need to do the following:
   versions, and the '%c' substitution to the '%x' substitution.
 
 - From the game directory, type:  ./Restore NEW.flatfile
-  This will unflatfile (load) your database into TinyMUSH 3.0 format.
+  This will unflatfile (load) your database into TinyMUSH 3.1 format.
 
 - From the game directory, type:  ./Backup
-  This will back up your datbase in TinyMUSH 3.0 format.
+  This will back up your datbase in TinyMUSH 3.1 format.
   (This step is not necessary and can be skipped, but it's worthwhile
   doing anyway.)
 
@@ -53,7 +88,7 @@ steps. You will need to do the following:
   system. From the game directory, type:
 
       cp comsys.db comsys.db.save
-      ./convert_comsys.pl < comsys.db.save > comsys.db
+      ./convert_comsys.pl < comsys.db.save > mod_comsys.db
 
   Make sure to keep comsys.db.save someplace safe, in case something goes
   wrong in the conversion process.
@@ -63,6 +98,9 @@ steps. You will need to do the following:
   and the script, to a friend with perl on his system, and have him do
   it for you, though.)  If you can't find a way to convert your comsys
   database, type:  mv comsys.db comsys.db.save
+
+- Rename your mail database to the new 3.1 name:
+  mv mail.db mod_mail.db  
 
 - From the game directory, type:  ./Startmush
   This will start the game.

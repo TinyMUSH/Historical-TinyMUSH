@@ -1,5 +1,5 @@
 If you are converting your game from TinyMUSH 2.2, upgrading to TinyMUSH
-3.0 is similar to doing a normal upgrade, with a couple of additional
+3.1 is similar to doing a normal upgrade, with a couple of additional
 steps. You will need to do the following:
 
 - Flatfile your database using the dbconvert utility from TinyMUSH 2.2
@@ -27,13 +27,15 @@ steps. You will need to do the following:
 
 	raw_helpfile news text/news
 	raw_helpfile man text/mushman
-	mail_database data/mail.db
-	comsys_database data/comsys.db
+	database_home data
 
-  Also be sure to update the paths for input_database, output_database,
-  gdbm_database, and crash_database, to reflect the fact that these files
-  are now in the data directory. (i.e., use 'input_database data/netmush.db'
-  rather than 'input_database netmush.db').
+  If you have them set, delete the input_database and output_database
+  parameters.
+
+  If you would like to use in the built-in comsys and mailer, add:
+
+	module comsys
+	module mail
 
   You should also look at the "Compatibility Notes" section below, for
   any other configuration parameters you'll need to add or change.
@@ -54,10 +56,10 @@ steps. You will need to do the following:
   versions.
 
 - From the game directory, type:  ./Restore NEW.flatfile
-  This will unflatfile (load) your database into TinyMUSH 3.0 format.
+  This will unflatfile (load) your database into TinyMUSH 3.1 format.
 
 - From the game directory, type:  ./Backup
-  This will back up your datbase in TinyMUSH 3.0 format.
+  This will back up your datbase in TinyMUSH 3.1 format.
   (This step is not necessary and can be skipped, but it's worthwhile
   doing anyway.)
 
@@ -84,14 +86,10 @@ is some modifications to your conf file (netmush.conf, or whatever you
 called it).
 
 - I don't want to use the built-in mailer.
-  Put 'have_mailer no' in your conf file.
-  If you never ever want to use the mailer, you might also want to 
-  consider compiling with USE_MAIL undefined, in config.h
+  Just leave out the 'module mail' parameter from your conf file.
 
 - I don't want to use the built-in comsys (channel/chat system).
-  Put 'have_comsys no' in your conf file.
-  If you never ever want to use the comsys, you might also want to 
-  consider compiling with USE_COMSYS undefined, in config.h
+  Just leave out the 'module comsys' parameter from your conf file.
 
 - I don't want to allow zone control with ZMOs.
   Put 'have_zones no' in your conf file.
