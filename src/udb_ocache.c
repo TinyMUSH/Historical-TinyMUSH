@@ -317,7 +317,7 @@ void list_cached_objs(player)
 
     raw_notify(player, "\nModified Active Cache:");
     raw_notify(player, 
-       "Name                                       Dbref   Last Accessed  Size");
+       "Name                                       Dbref   Age    Refs    Size");
     raw_notify(player,
        "======================================================================");
 
@@ -327,8 +327,9 @@ void list_cached_objs(player)
                 maco++;
                 msize += cp->op->size;
 		raw_notify(player, 
-			tprintf("%-42.42s #%-6d %-14d %-6d", Name(cp->op->name),
-			cp->op->name, time(NULL) - cp->lastreferenced, cp->op->size));
+			tprintf("%-42.42s #%-6d %-6d %-7d %-6d", Name(cp->op->name),
+			cp->op->name, time(NULL) - cp->lastreferenced, 
+			cp->referenced, cp->op->size));
             }
         }
     }
