@@ -3466,9 +3466,19 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
 	    register_create_file, wizard_help_file, wizard_motd_file.
  
 & INHERITANCE
-  XXXX
+  Topic: INHERITANCE
+  
+  This topic hasn't been written yet.
+
 & LOGGING
-  XXXX
+  Topic: LOGGING
+ 
+  This topic hasn't been written yet.
+
+& REGISTRATION
+  Topic: REGISTRATION
+  This topic hasn't been written yet.
+
 & PERMISSIONS
   Topic: PERMISSIONS
  
