@@ -279,6 +279,11 @@ FUNCTION(fun_remit)
     	do_pemit_list(player, fargs[0], fargs[1], 1);
 }
 
+FUNCTION(fun_force)
+{
+	do_force(player, cause, 0, fargs[0], fargs[1], cargs, ncargs);
+}
+
 /*------------------------------------------------------------------------
  * fun_create: Creates a room, thing or exit
  */

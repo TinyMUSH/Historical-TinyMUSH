@@ -56,6 +56,7 @@ XFUNCTION(fun_link);
 XFUNCTION(fun_tel);
 XFUNCTION(fun_pemit);
 XFUNCTION(fun_remit);
+XFUNCTION(fun_force);
 XFUNCTION(fun_create);
 XFUNCTION(fun_set);
 #endif
@@ -4929,6 +4930,7 @@ FUN flist[] = {
 {"FLAGS",	fun_flags,	1,  0,		CA_PUBLIC},
 {"FLOOR",	fun_floor,	1,  0,		CA_PUBLIC},
 {"FOLD",	fun_fold,	0,  FN_VARARGS,	CA_PUBLIC},
+{"FORCE",	fun_force,	2,  0,		CA_PUBLIC},
 {"FOREACH",	fun_foreach,	0,  FN_VARARGS,	CA_PUBLIC},
 {"FULLNAME",	fun_fullname,	1,  0,		CA_PUBLIC},
 {"GET",		fun_get,	1,  0,		CA_PUBLIC},
