@@ -91,7 +91,7 @@ char *filename;
 			} else {
 				/* cut off the trailing space and try again */
 				htab_entry->original = 0;
-				htab_entry->key[strlen(htab_entry->key)] = '\0';
+				htab_entry->key[strlen(htab_entry->key) - 1] = '\0';
 			}
 		}
 		XFREE(htab_entry->key, "helpindex_read.topic");
