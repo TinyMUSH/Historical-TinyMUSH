@@ -27,7 +27,7 @@ pid_t parent_pid;
 #define MAX_STRING 1000
 #define MAX_CHILDREN 20
 
-volatile int children = 0;
+int children = 0;
 
 char *arg_for_errors;
 
@@ -185,13 +185,10 @@ char *orig_arg;
 void child_signal(sig)
 int sig;
 {
-	/*
-	 * collect any children, but don't block
+	/* don't collect children here, the main loop will do it,
+	 * but we want to catch this signal anyway to interrupt
+	 * the main loop's read & wait syscalls.
 	 */
-
-	while (WAITOPT(NULL, WNOHANG) > 0) {
-		children--;
-	}
 	signal(SIGCHLD, (void (*)(int))child_signal);
 }
 
