@@ -40,7 +40,7 @@ extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
 #define MAX_CHAN_NAME_LEN	20
 #define MAX_CHAN_ALIAS_LEN	10
 #define MAX_CHAN_DESC_LEN	256
-#define MAX_CHAN_HEAD_LEN	32
+#define MAX_CHAN_HEAD_LEN	64
 
 /* --------------------------------------------------------------------------
  * Configuration and hash tables.

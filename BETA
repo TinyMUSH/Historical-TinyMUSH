@@ -41,6 +41,9 @@ Release history:
 - Misc: Players with the See_Queue power can now @ps other players, not
   just @ps/all and themselves.
 
+- Misc: The maximum length of a comsys header is now 64 characters 
+  instead of 32.
+
 - Fix: dbconvert -C crash fixed. [2.0; Jake]
 
 - Fix: Fatal bug in children() fixed. [3.1b4; Pete C.]
