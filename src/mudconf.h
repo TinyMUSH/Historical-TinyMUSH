@@ -172,6 +172,7 @@ struct confdata {
 	int	terse_exits;	/* Does TERSE look show obvious exits */
 	int	terse_movemsg;	/* Show move msgs (SUCC/LEAVE/etc) if TERSE? */
 	int	trace_topdown;	/* Is TRACE output top-down or bottom-up? */
+	int	safe_unowned;	/* Are objects not owned by you safe? */
 	int	trace_limit;	/* Max lines of trace output if top-down */
 	int	wiz_obey_linklock;	/* Do wizards obey linklocks? */
 	int	local_masters;	/* Do we check Zone rooms as local masters? */

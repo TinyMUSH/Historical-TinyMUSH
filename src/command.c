@@ -2675,6 +2675,8 @@ dbref player;
     Opt("Terse suppresses movement messages", mudconf.terse_movemsg);
     Opt("Trace output is top-down", mudconf.trace_topdown);
     Opt("Quotas are enforced per object type", mudconf.typed_quotas);
+    Opt("Objects not owned by you are automatically considered Safe",
+	mudconf.safe_unowned);
     Opt("Global @aconnect and @adisconnect checks are enabled",
 	mudconf.use_global_aconn);
     Opt("LinkLocks are checked, even if a player can link to anything",

@@ -206,6 +206,7 @@ void NDECL(cf_init)
 	mudconf.terse_movemsg = 1;
 	mudconf.trace_topdown = 1;
 	mudconf.trace_limit = 200;
+	mudconf.safe_unowned = 0;
 	mudconf.wiz_obey_linklock = 0;
 	mudconf.local_masters = 1;
 	mudconf.req_cmds_flag = 1;
@@ -1553,6 +1554,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.typed_quotas,		0},
 {(char *)"uncompress_program",
 	cf_string,	CA_STATIC,	(int *)mudconf.uncompress,	PBUF_SIZE},
+{(char *)"unowned_safe",
+	cf_bool,	CA_GOD,		&mudconf.safe_unowned,		0},
 {(char *)"user_attr_access",
 	cf_modify_bits,	CA_GOD,		&mudconf.vattr_flags,
 	(long)attraccess_nametab},
