@@ -2647,12 +2647,12 @@ void dump_restart_db()
 	DESC_ITER_ALL(d) {
 		putref(f, d->descriptor);
 		putref(f, d->flags);
-		putref(f, d->connected_at);
+		putlong(f, d->connected_at);
 		putref(f, d->command_count);
 		putref(f, d->timeout);
 		putref(f, d->host_info);
 		putref(f, d->player);
-		putref(f, d->last_time);
+		putlong(f, d->last_time);
 		putstring(f, d->output_prefix);
 		putstring(f, d->output_suffix);
 		putstring(f, d->addr);
@@ -2720,13 +2720,13 @@ void load_restart_db()
 		d = alloc_desc("restart");
 		d->descriptor = val;
 		d->flags = getref(f);
-		d->connected_at = getref(f);
+		d->connected_at = (time_t) getlong(f);
 		d->retries_left = mudconf.retry_limit;
 		d->command_count = getref(f);
 		d->timeout = getref(f);
 		d->host_info = getref(f);
 		d->player = getref(f);
-		d->last_time = getref(f);
+		d->last_time = (time_t) getlong(f);
 		temp = (char *)getstring_noalloc(f, new_strings);
 		if (*temp) {
 			d->output_prefix = alloc_lbuf("set_userstring");
