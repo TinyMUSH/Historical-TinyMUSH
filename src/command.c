@@ -2410,7 +2410,7 @@ dbref player;
  * list_memory: Breaks down memory usage of the process
  */
 
-extern CacheLst *sys_c;
+extern Chain *sys_c;
 extern NAME *names, *purenames;
 extern POOL pools[NUM_POOLS];
 extern int anum_alc_top;
@@ -2427,7 +2427,7 @@ void list_memory(player)
 	FUN *func;
 	UFUN *ufunc;
 	Cache *cp;
-	CacheLst *sp;
+	Chain *sp;
 	HASHENT *htab;
 	struct help_entry *hlp;
 	FLAGENT *flag;
@@ -2472,14 +2472,10 @@ void list_memory(player)
 		   tprintf("Cache data       : %12.2fk", each / 1024));
 	total += each;
 		
-	each = sizeof(CacheLst) * mudconf.cache_width;
+	each = sizeof(Chain) * mudconf.cache_width;
 	for (i = 0; i < mudconf.cache_width; i++) {
 		sp = &sys_c[i];
-		for(cp = sp->active.head; cp != NULL; cp = cp->nxt) {
-			each += sizeof(Cache);
-			each2 += cp->keylen;
-		}
-		for(cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
+		for(cp = sp->head; cp != NULL; cp = cp->nxt) {
 			each += sizeof(Cache);
 			each2 += cp->keylen;
 		}

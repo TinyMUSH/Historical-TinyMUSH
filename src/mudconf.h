@@ -413,7 +413,6 @@ struct statedata {
 	Obj	*objpipes[NUM_OBJPIPES];
 				/* Number of object pipelines */
 	unsigned int objc;	/* Object reference counter */
-	unsigned int attrc;	/* Attribute reference counter */
 	char	*version;	/* MUSH version string */
 	char	*short_ver;	/* Short version number (for INFO) */
 	char	*buildinfo;	/* Compile info */

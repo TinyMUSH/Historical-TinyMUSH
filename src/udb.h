@@ -70,10 +70,11 @@ typedef struct cache {
 	void *keydata;
 	int keylen;
 	void *data;
-	time_t counter;
 	int datalen;
 	unsigned int type;
+	unsigned int flags;
 	struct cache *nxt;
+	struct cache *nxtfree;
 } Cache;
 
 typedef struct {
@@ -82,15 +83,13 @@ typedef struct {
 } Chain;
 
 typedef struct {
-	Chain active;
-	Chain mactive;
-} CacheLst;
-
-typedef struct {
 	void *dptr;
 	int dsize;
 } DBData;
-                      
+
+/* Cache flags */
+
+#define CACHE_DIRTY	0x00000001                      
 
 extern int 	FDECL(cache_init, (int));
 extern void 	NDECL(cache_reset);
