@@ -487,7 +487,10 @@ char *atext;
     dbref target;
     char *tp, *bp, *dp;
     int i, count, errors, fail;
-    static int tmp_array[LBUF_SIZE / 2];
+    int *tmp_array;
+    
+    tmp_array = (int *)XCALLOC((LBUF_SIZE / 2), sizeof(int), 
+    		"fwdlist_load.tmp");
 
     count = 0;
     errors = 0;
@@ -534,6 +537,7 @@ char *atext;
     }
 
     fp->count = count;
+    XFREE(tmp_array, "fwdlist_load.tmp");
     return errors;
 }
 
