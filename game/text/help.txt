@@ -2064,6 +2064,8 @@ Example:
      /header  - Wizards and those with the Poll power only. Sets the Doing
                 poll. If <message> is not specified, the header is reset
                 to Doing.
+     /quiet   - Suppress 'Set.' notification.  This switch can be used by
+                itself, or with either the /message or /header switches.
  
   See also: WHO.
 
