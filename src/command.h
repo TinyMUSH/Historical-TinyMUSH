@@ -259,7 +259,7 @@ struct cmdentry {
 
 #define Check_Cmd_Access(p,c,a,n) \
 (check_access(p,(c)->perms) && \
- (!(c)->userperms || check_userdef_access(p,c,a,n)))
+ (!(c)->userperms || check_userdef_access(p,c,a,n) || God(p)))
 
 extern int	FDECL(check_access, (dbref, int));
 extern int	FDECL(check_userdef_access, (dbref, CMDENT *, char *[], int));
