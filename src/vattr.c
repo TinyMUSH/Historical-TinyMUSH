@@ -161,9 +161,9 @@ int key;
 	}
     }
 
-    /* The user-defined function and added command structures embed
-     * attribute numbers. Clean out the ones we've deleted, resetting
-     * them to the *Invalid (A_TEMP) attr.
+    /* The user-defined function, added command, and hook structures embed
+     * attribute numbers. Clean out the ones we've deleted, resetting them
+     * to the *Invalid (A_TEMP) attr.
      */
 
     for (ufp = (UFUN *) hash_firstentry(&mudstate.ufunc_htab);
@@ -175,6 +175,14 @@ int key;
     for (cmdp = (CMDENT *) hash_firstentry(&mudstate.command_htab);
 	 cmdp != NULL;
 	 cmdp = (CMDENT *) hash_nextentry(&mudstate.command_htab)) {
+	if (cmdp->pre_hook) {
+	    if (used_table[cmdp->pre_hook->atr] == 0)
+		cmdp->pre_hook->atr = A_TEMP;
+	}
+	if (cmdp->post_hook) {
+	    if (used_table[cmdp->post_hook->atr] == 0)
+		cmdp->post_hook->atr = A_TEMP;
+	}
 	if (cmdp->callseq & CS_ADDED) {
 	    for (addp = (ADDENT *) cmdp->info.added;
 		 addp != NULL;
@@ -287,6 +295,14 @@ int key;
     for (cmdp = (CMDENT *) hash_firstentry(&mudstate.command_htab);
 	 cmdp != NULL;
 	 cmdp = (CMDENT *) hash_nextentry(&mudstate.command_htab)) {
+	if (cmdp->pre_hook) {
+	    if (used_table[cmdp->pre_hook->atr] != cmdp->pre_hook->atr)
+		cmdp->pre_hook->atr = used_table[cmdp->post_hook->atr];
+	}
+	if (cmdp->post_hook) {
+	    if (used_table[cmdp->post_hook->atr] != cmdp->post_hook->atr)
+		cmdp->post_hook->atr = used_table[cmdp->post_hook->atr];
+	}
 	if (cmdp->callseq & CS_ADDED) {
 	    for (addp = (ADDENT *) cmdp->info.added;
 		 addp != NULL;
