@@ -4671,12 +4671,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Miscellaneous:
 	add()		abs()		ceil()		dec()
 	dist2d()	dist3d()	div()		e()		
-	exp()		fdiv()		floor()		inc()
-	ladd()		land()		landbool()	lmax()
-	lmin()		ln()		log()		lor()
-	lorbool()	max()		min()		mod()
-	mul()		pi()		power()		round()
-	sign()		sqrt()		sub()		trunc()
+	exp()		fdiv()		floor()		floordiv()
+	inc()		ladd()		land()		landbool()
+	lmax()		lmin()		ln()		log()
+	lor()		lorbool()	max()		min()
+	modulo()	mul()		pi()		power()
+	remainder()	round()		sign()		sqrt()
+	sub()		trunc()
  
   Continued in 'help Advanced Math Functions'.
  
@@ -5778,13 +5779,14 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "15"
     > say mul(3,5,-2)
     You say "-30"
-  See also: add(), div(), fdiv(), mod() round(), sub(), trunc().
+  See also: add(), div(), fdiv(), mod(), round(), sub(), trunc().
 
 & DIV()
   Function: div(<number1>,<number2>)
  
-  Returns the integer quotient from dividing <number1> by <number2>.
-  <numberN> may be a floating point number, and an integer result is returned.
+  Returns the integer quotient from dividing <number1> by <number2>,
+  rounded towards zero. <numberN> may be a floating point number, and
+  an integer result is returned. 
  
   Example:
     > say div(15,3)
@@ -5798,8 +5800,31 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say div(-17,3)
     You say "-5"
   This function may also be called as idiv().
-  See also: add(), fdiv(), mod(), mul(), round(), sub(), trunc().
-
+  See also: floordiv(), remainder(), add(), fdiv(), mod(), mul(), round(),
+            sub(), trunc().
+ 
+& FLOORDIV()
+  Function: floordiv(<number1>,<number2>)
+ 
+  Returns the integer quotient from dividing <number1> by <number2>,
+  rounded down (towards zero if positive, away from zero if negative).
+  <numberN> may be a floating point number, and an integer result is
+  returned. 
+ 
+  Example:
+    > say floordiv(15,3)
+    You say "5"
+    > say floordiv(16,3)
+    You say "5"
+    > say floordiv(17,3)
+    You say "5"
+    > say floordiv(18,3)
+    You say "6"
+    > say floordiv(-17,3)
+    You say "-6"
+ 
+  See also: div(), modulo(), add(), fdiv(), mul(), round(), sub(), trunc().
+ 
 & FDIV()
   Function: fdiv(<number1>,<number2>)
  
@@ -5825,22 +5850,58 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & MOD()
   Function: mod(<integer1>,<integer2>)
  
-  Returns the integer remainder from dividing <integer1> by <integer2>.
+  This is an alias for the modulo() function.
+ 
+& MODULO()
+  Function: modulo(<integer1>,<integer2>)
+ 
+  Returns the smallest integer with the same sign as <integer2> such that
+  the difference between <integer1> and the result is divisible by <integer2>.
+  This is similar to remainder() except for the sign rule. Note that for
+  nearly all integers, x = y * floordiv(x,y) + modulo(x,y).
  
   Example:
-    > say mod(15,3)
+    > say modulo(15,3)
     You say "0"
-    > say mod(16,3)
+    > say modulo(16,3)
     You say "1"
-    > say mod(17,3)
+    > say modulo(17,3)
     You say "2"
-    > say mod(18,3)
+    > say modulo(18,3)
     You say "0"
-    > say mod(-17,3)
-    You say "-2"
+    > say modulo(-17,3)
+    You say "1"
+    > say modulo(17,-3)
+    You say "-1"
  
-  See also: add(), fdiv(),div(), mul(), round(), sub(), trunc().
-
+  See also: remainder(), div(), floordiv(), fdiv(), mul(), round(),
+            add(), sub(), trunc().
+ 
+& REMAINDER()
+  Function: remainder(<integer1>,<integer2>)
+ 
+  Returns the smallest integer with the same sign as <integer1> such that
+  the difference between <integer1> and the result is divisible by <integer2>.
+  This is similar to modulo() except for the sign rule. Note that for nearly
+  all integers, x = y * div(x,y) + remainder(x,y).
+ 
+  Example:
+    > say remainder(15,3)
+    You say "0"
+    > say remainder(16,3)
+    You say "1"
+    > say remainder(17,3)
+    You say "2"
+    > say remainder(18,3)
+    You say "0"
+    > say remainder(-17,3)
+    You say "-2"
+    > say remainder(17,-3)
+    You say "2"
+ 
+  See also: modulo(), div(), floordiv(), fdiv(), mul(), round(),
+            add(), sub(), trunc().
+ 
 & DIST2D()
   Function: dist2d(x1, y1, x2, y2)
  

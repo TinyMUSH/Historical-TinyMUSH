@@ -598,14 +598,66 @@ FUNCTION(fun_trunc)
 
 FUNCTION(fun_div)
 {
-	int bot;
+	int top, bot;
 
+	/* The C / operator is only fully specified for non-negative
+	 * operands, so we try not to give it negative operands here
+	 */
+
+	top = atoi(fargs[0]);
 	bot = atoi(fargs[1]);
 	if (bot == 0) {
 		safe_str("#-1 DIVIDE BY ZERO", buff, bufc);
-	} else {
-		safe_ltos(buff, bufc, (atoi(fargs[0]) / bot));
+		return;
 	}
+
+	if (top < 0) {
+		if (bot < 0)
+			top = (-top) / (-bot);
+		else
+			top = -((-top) / bot);
+	} else {
+		if (bot < 0)
+			top = -(top / (-bot));
+		else
+			top = top / bot;
+	}
+	safe_ltos(buff, bufc, top);
+}
+
+FUNCTION(fun_floordiv)
+{
+	int top, bot, res;
+
+	/* The C / operator is only fully specified for non-negative
+	 * operands, so we try not to give it negative operands here
+	 */
+
+	top = atoi(fargs[0]);
+	bot = atoi(fargs[1]);
+	if (bot == 0) {
+		safe_str("#-1 DIVIDE BY ZERO", buff, bufc);
+		return;
+	}
+
+	if (top < 0) {
+		if (bot < 0) {
+			res = (-top) / (-bot);
+		} else {
+			res = -((-top) / bot);
+			if (top % bot)
+				res--;
+		}
+	} else {
+		if (bot < 0) {
+			res = -(top / (-bot));
+			if (top % bot)
+				res--;
+		} else {
+			res = top / bot;
+		}
+	}
+	safe_ltos(buff, bufc, res);
 }
 
 FUNCTION(fun_fdiv)
@@ -620,14 +672,56 @@ FUNCTION(fun_fdiv)
 	}
 }
 
-FUNCTION(fun_mod)
+FUNCTION(fun_modulo)
 {
-	int bot;
+	int top, bot;
 
+	/* The C % operator is only fully specified for non-negative
+	 * operands, so we try not to give it negative operands here
+	 */
+
+	top = atoi(fargs[0]);
 	bot = atoi(fargs[1]);
 	if (bot == 0)
 		bot = 1;
-	safe_ltos(buff, bufc, atoi(fargs[0]) % bot);
+	if (top < 0) {
+		if (bot < 0)
+			top = -((-top) % (-bot));
+		else
+			top = (bot - ((-top) % bot)) % bot;
+	} else {
+		if (bot < 0)
+			top = -(((-bot) - (top % (-bot))) % (-bot));
+		else
+			top = top % bot;
+	}
+	safe_ltos(buff, bufc, top); 
+}
+
+FUNCTION(fun_remainder)
+{
+	int top, bot;
+
+	/* The C % operator is only fully specified for non-negative
+	 * operands, so we try not to give it negative operands here
+	 */
+
+	top = atoi(fargs[0]);
+	bot = atoi(fargs[1]);
+	if (bot == 0)
+		bot = 1;
+	if (top < 0) {
+		if (bot < 0)
+			top = -((-top) % (-bot));
+		else
+			top = -((-top) % bot);
+	} else {
+		if (bot < 0)
+			top = top % (-bot);
+		else
+			top = top % bot;
+	}
+	safe_ltos(buff, bufc, top); 
 }
 
 FUNCTION(fun_pi)
