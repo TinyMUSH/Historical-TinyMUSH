@@ -1368,10 +1368,8 @@ FUNCTION(fun_v)
 FUNCTION(perform_get)
 {
 	dbref thing, aowner;
-	int attrib, free_buffer, aflags, alen, eval_it;
-	ATTR *attr;
+	int attrib, aflags, alen, eval_it;
 	char *atr_gotten, *str;
-	struct boolexp *bool;
 
 	eval_it = Is_Func(GET_EVAL);
 
@@ -1390,39 +1388,19 @@ FUNCTION(perform_get)
 	if (attrib == NOTHING) {
 		return;
 	}
-	free_buffer = 1;
-
-	attr = atr_num(attrib);	/* We need the attr's flags for this: */
-	if (!attr) {
-		return;
-	}
-	if (attr->flags & AF_IS_LOCK) {
-		atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
-		if (Read_attr(player, thing, attr, aowner, aflags)) {
-			bool = parse_boolexp(player, atr_gotten, 1);
-			free_lbuf(atr_gotten);
-			atr_gotten = unparse_boolexp(player, bool);
-			free_boolexp(bool);
-		} else {
-			free_lbuf(atr_gotten);
-			atr_gotten = (char *)"#-1 PERMISSION DENIED";
-		}
-		free_buffer = 0;
-		eval_it = 0;
-	} else {
-		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
-	}
+	/* There used to be code here to handle AF_IS_LOCK attributes,
+	 * but parse_attrib can never return one of those. Use fun_lock
+	 * instead.
+	 */
+	atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
 	if (eval_it) {
 		str = atr_gotten;
 		exec(buff, bufc, thing, player, player,
 		     EV_FIGNORE | EV_EVAL, &str, (char **)NULL, 0);
-	} else if (free_buffer) {
-		safe_known_str(atr_gotten, alen, buff, bufc);
 	} else {
-		safe_str(atr_gotten, buff, bufc);
+		safe_known_str(atr_gotten, alen, buff, bufc);
 	}
-	if (free_buffer)
-		free_lbuf(atr_gotten);
+	free_lbuf(atr_gotten);
 }
 
 FUNCTION(fun_eval)
