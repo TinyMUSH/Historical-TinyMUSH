@@ -173,7 +173,7 @@ int key;
 			tp = localtime((time_t *) (&now));
 			sprintf(mudstate.buffer, "%02d%d%d%d%d.%d%d%d%d%d%d ",
 				(tp->tm_year >= 100) ?
-				(tp->tm_year - 100) : (tp->tm_year),
+				(tp->tm_year % 100) : (tp->tm_year),
 				(((tp->tm_mon) + 1) / 10),
 			      (((tp->tm_mon) + 1) % 10), (tp->tm_mday / 10),
 				(tp->tm_mday % 10),
