@@ -926,7 +926,11 @@ char *cargs[];
 
 			if (ufp) {
 				mudstate.func_nest_lev++;
-				if (!check_access(player, ufp->perms)) {
+				if (Going(player)) {
+				        safe_str("#-1 BAD INVOKER",
+						 buff, &oldp);
+					*bufc = oldp;
+				} else if (!check_access(player, ufp->perms)) {
 					safe_str("#-1 PERMISSION DENIED", buff, &oldp);
 					*bufc = oldp;
 				} else {
@@ -993,6 +997,15 @@ char *cargs[];
 				} else if (mudstate.func_invk_ctr >=
 					   mudconf.func_invk_lim) {
 					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, &oldp);
+					*bufc = oldp;
+				} else if (Going(player)) {
+					/* Deal with the peculiar case of the
+					 * calling object being destroyed
+					 * mid-function sequence, such as
+					 * with a command()/@destroy combo...
+					 */
+					safe_str("#-1 BAD INVOKER",
+						 buff, &oldp);
 					*bufc = oldp;
 				} else if (!check_access(player, fp->perms)) {
 					safe_str("#-1 PERMISSION DENIED", buff, &oldp);
