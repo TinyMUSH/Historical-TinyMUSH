@@ -107,37 +107,46 @@ void do_dbclean(player, cause, key)
 dbref player, cause;
 int key;
 {
-	VATTR *vp;
-	dbref i;
-	int notfree;
-	
-	DO_WHOLE_DB(i) {
-
-		notfree = 0;
-		
-
-		for (vp = (VATTR *)hash_firstentry(&mudstate.vattr_name_htab); vp != NULL;
-		     vp = (VATTR *)hash_nextentry(&mudstate.vattr_name_htab)) {
-			if (atr_get_raw(i, vp->number) != NULL) {
-				notfree = 1;
-			}
-			
-		
-			if (!notfree) {
-				anum_set(vp->number, NULL);
-				hashdelete(vp->name, &mudstate.vattr_name_htab);
-				free((char *)vp);
-			}
-		}
-		
-#ifndef MEMORY_BASED
-		if ((i % 100) == 0) 
-			cache_reset(0);
-#endif
-	}
 #ifndef STANDALONE
-	notify(player, "Database cleared of stale attribute entries.");
+
+    VATTR *vp;
+    dbref i;
+    int ca;
+    char *as;
+    int *used_table;
+
+    raw_broadcast(0,
+	      "Game: Cleaning database. Game may freeze for a few minutes.");
+
+    used_table = (int *) calloc(mudstate.attr_next, sizeof(int));
+
+    /* Walk the database. Mark all the attribute numbers in use. */
+
+    DO_WHOLE_DB(i) {
+	for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
+	    used_table[ca] = 1;
+	}
+#ifndef MEMORY_BASED
+	if ((i % 100) == 0) 
+	    cache_reset(0);
 #endif
+    }
+
+    /* Walk the vattr table. If a number isn't in use, zorch it. */
+
+    for (vp = vattr_first(); vp; vp = vattr_next(vp)) {
+	if (used_table[vp->number] == 0) {
+	    anum_set(vp->number, NULL);
+	    hashdelete(vp->name, &mudstate.vattr_name_htab);
+	    free((VATTR *) vp);
+	}
+    }
+
+    free(used_table);
+
+    notify(player, "Database cleared of stale attribute entries.");
+
+#endif /* STANDALONE */
 }
 		
 void vattr_delete(name)
