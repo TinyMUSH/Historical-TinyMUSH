@@ -1650,7 +1650,7 @@ FUNCTION(fun_shuffle)
 	if (!nfargs || !fargs[0] || !*fargs[0]) {
 		return;
 	}
-	svarargs_preamble("SHUFFLE", 2);
+	svarargs_preamble("SHUFFLE", 3);
 
 	n = list2arr(words, LBUF_SIZE, fargs[0], sep);
 
@@ -1658,7 +1658,7 @@ FUNCTION(fun_shuffle)
 		j = (random() % (n - i)) + i;
 		swap(&words[i], &words[j]);
 	}
-	arr2list(words, n, buff, bufc, sep);
+	arr2list(words, n, buff, bufc, osep);
 }
 
 static char ucomp_buff[LBUF_SIZE];
