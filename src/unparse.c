@@ -62,7 +62,7 @@ char outer_type;
 int format;
 {
 	ATTR *ap;
-	char *tbuf, sep_ch;
+	char sep_ch;
 	char *buff;
 
 	if ((b == TRUE_BOOLEXP)) {
@@ -153,10 +153,8 @@ int format;
 					safe_name(b->thing, boolexp_buf, &buftop);
 					break;
 				default:
-					buff = alloc_sbuf("unparse_boolexp1");
-					sprintf(buff, "#%d", b->thing);
-					safe_str(buff, boolexp_buf, &buftop);
-					free_sbuf(buff);
+					safe_dbref(boolexp_buf, &buftop, b->thing);
+					break;
 				}
 				break;
 			case F_FUNCTION:
@@ -172,10 +170,8 @@ int format;
 					safe_name(b->thing, boolexp_buf, &buftop);
 					break;
 				default:
-					buff = alloc_sbuf("unparse_boolexp1");
-					sprintf(buff, "#%d", b->thing);
-					safe_str(buff, boolexp_buf, &buftop);
-					free_sbuf(buff);
+					safe_dbref(boolexp_buf, &buftop, b->thing);
+					break;
 				}
 			}
 		} else {
@@ -192,20 +188,11 @@ int format;
 		ap = atr_num(b->thing);
 		if (ap && ap->number) {
 			safe_str((char *)ap->name, boolexp_buf, &buftop);
-			safe_chr(sep_ch, boolexp_buf, &buftop);
-			safe_str((char *)b->sub1, boolexp_buf, &buftop);
-		} else if (b->thing > 0) {
-			tbuf = alloc_sbuf("unparse_boolexp1.atr_num");
-			sprintf(tbuf, "%d", b->thing);
-			safe_str(tbuf, boolexp_buf, &buftop);
-			safe_chr(sep_ch, boolexp_buf, &buftop);
-			safe_str((char *)b->sub1, boolexp_buf, &buftop);
-			free_sbuf(tbuf);
 		} else {
-			safe_str((char *)b->sub2, boolexp_buf, &buftop);
-			safe_chr(sep_ch, boolexp_buf, &buftop);
-			safe_str((char *)b->sub1, boolexp_buf, &buftop);
+			safe_ltos(boolexp_buf, &buftop, b->thing);
 		}
+		safe_chr(sep_ch, boolexp_buf, &buftop);
+		safe_str((char *)b->sub1, boolexp_buf, &buftop);
 		break;
 	default:
 		fprintf(mainlog_fp, "ABORT! unparse.c, bad boolexp type in unparse_boolexp1().\n");
@@ -220,7 +207,7 @@ BOOLEXP *b;
 {
 	buftop = boolexp_buf;
 	unparse_boolexp1(player, b, BOOLEXP_CONST, F_QUIET);
-	*buftop++ = '\0';
+	*buftop = '\0';
 	return boolexp_buf;
 }
 
@@ -230,7 +217,7 @@ BOOLEXP *b;
 {
 	buftop = boolexp_buf;
 	unparse_boolexp1(player, b, BOOLEXP_CONST, F_EXAMINE);
-	*buftop++ = '\0';
+	*buftop = '\0';
 	return boolexp_buf;
 }
 
@@ -240,7 +227,7 @@ BOOLEXP *b;
 {
 	buftop = boolexp_buf;
 	unparse_boolexp1(player, b, BOOLEXP_CONST, F_DECOMPILE);
-	*buftop++ = '\0';
+	*buftop = '\0';
 	return boolexp_buf;
 }
 
@@ -250,6 +237,6 @@ BOOLEXP *b;
 {
 	buftop = boolexp_buf;
 	unparse_boolexp1(player, b, BOOLEXP_CONST, F_FUNCTION);
-	*buftop++ = '\0';
+	*buftop = '\0';
 	return boolexp_buf;
 }

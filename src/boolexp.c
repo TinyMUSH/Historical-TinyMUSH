@@ -290,6 +290,10 @@ char *s;
 			return ((BOOLEXP *) NULL);
 		}
 		anum = atoi(buff);
+		if (anum <= 0) {
+			free_lbuf(buff);
+			return ((BOOLEXP *) NULL);
+		}
 	} else {
 		anum = attrib->number;
 	}
