@@ -32,9 +32,9 @@ extern void FDECL(list_functable, (dbref));
 extern void FDECL(list_funcaccess, (dbref));
 extern void FDECL(list_bufstats, (dbref));
 extern void FDECL(list_buftrace, (dbref));
-
-
 extern void FDECL(list_cached_objs, (dbref));
+extern void FDECL(list_cached_attrs, (dbref));
+extern void FDECL(list_rawmemory, (dbref));
 
 extern int FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
 extern int FDECL(list_check, (dbref, dbref, char, char *, char *, int, int *));
