@@ -436,11 +436,12 @@ char **dstr;
 char *cargs[];
 {
 #define	NFARGS	30
-	char *fargs[NFARGS], *preserve[MAX_GLOBAL_REGS];
+	char xtbuf[SBUF_SIZE], *xtp;
+	char *real_fargs[NFARGS + 1] = {xtbuf}, *preserve[MAX_GLOBAL_REGS];
+	char **fargs = real_fargs + 1;
 	char *tstr, *tbuf, *savepos, *atr_gotten, *start, *oldp;
 	char savec, ch, *savestr, *str, *xptr, *mundane, *p;
 	char *realbuff = NULL, *realbp = NULL;
-	char xtbuf[SBUF_SIZE], *xtp;
 	dbref aowner;
 	int at_space, nfargs, gender, i, j, alldone, aflags, alen, feval;
 	int is_trace, is_top, save_count, preserve_len[MAX_GLOBAL_REGS];

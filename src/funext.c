@@ -169,8 +169,8 @@ FUNCTION(fun_sql)
 
     /* Special -- the last two arguments are output delimiters */
 
-    if (!fn_range_check("SQL", nfargs, 1, 3, buff, bufc))
-	return;
+    VaChk_Range(1, 3);
+
     if (!delim_check(fargs, nfargs, 2, &row_delim, buff, bufc,
 		     player, caller, cause, cargs, ncargs,
 		     DELIM_NULL|DELIM_CRLF))

@@ -84,7 +84,7 @@ FUNCTION(fun_parse)
     Delim isep, osep;
     int isep_len, osep_len;
 
-    VaChk_InEval_OutEval("PARSE", 2, 4);
+    VaChk_InEval_OutEval(2, 4);
     perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep, osep, isep_len, osep_len, 0);
 }
@@ -94,7 +94,7 @@ FUNCTION(fun_loop)
     Delim isep;
     int isep_len;
 
-    VaChk_Only_In("LOOP", 3);
+    VaChk_Only_In(3);
     perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep, SPACE_DELIM, isep_len, 1, 1);
 }
@@ -205,7 +205,7 @@ FUNCTION(fun_iter)
     Delim isep, osep;
     int isep_len, osep_len;
 
-    VaChk_InEval_OutEval("ITER", 2, 4);
+    VaChk_InEval_OutEval(2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep, osep, isep_len, osep_len,
 		 0, BOOL_COND_NONE);
@@ -216,7 +216,7 @@ FUNCTION(fun_whenfalse)
     Delim isep, osep;
     int isep_len, osep_len;
 
-    VaChk_InEval_OutEval("WHENFALSE", 2, 4);
+    VaChk_InEval_OutEval(2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep, osep, isep_len, osep_len,
 		 0, BOOL_COND_FALSE);
@@ -227,7 +227,7 @@ FUNCTION(fun_whentrue)
     Delim isep, osep;
     int isep_len, osep_len;
 
-    VaChk_InEval_OutEval("WHENTRUE", 2, 4);
+    VaChk_InEval_OutEval(2, 4);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep, osep, isep_len, osep_len,
 		 0, BOOL_COND_TRUE);
@@ -238,7 +238,7 @@ FUNCTION(fun_list)
     Delim isep;
     int isep_len;
 
-    VaChk_Only_In("LIST", 3);
+    VaChk_Only_In(3);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
 		 cargs, ncargs, isep, SPACE_DELIM, isep_len, 1,
 		 1, BOOL_COND_NONE);
@@ -303,7 +303,7 @@ FUNCTION(fun_fold)
 
 	/* We need two to four arguements only */
 
-	VaChk_In("FOLD", 2, 4);
+	VaChk_In(2, 4);
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
@@ -441,7 +441,7 @@ FUNCTION(fun_filter)
 	Delim isep, osep;
 	int isep_len, osep_len;
 
-	VaChk_Only_In_Out("FILTER", 4);
+	VaChk_Only_In_Out(4);
 	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
 		      isep, osep, isep_len, osep_len, 0);
 }
@@ -451,7 +451,7 @@ FUNCTION(fun_filterbool)
 	Delim isep, osep;
 	int isep_len, osep_len;
 
-	VaChk_Only_In_Out("FILTERBOOL", 4);
+	VaChk_Only_In_Out(4);
 	handle_filter(player, caller, cause, fargs[0], fargs[1], buff, bufc,
 		      isep, osep, isep_len, osep_len, 1);
 }
@@ -475,7 +475,7 @@ FUNCTION(fun_map)
 	Delim isep, osep;
 	int i;
 
-	VaChk_Only_In_Out("MAP", 4);
+	VaChk_Only_In_Out(4);
 
 	/* If we don't have anything for a second arg, don't bother. */
 	if (!fargs[1] || !*fargs[1])
@@ -534,7 +534,7 @@ FUNCTION(fun_mix)
      * ALWAYS assumed to be a delimiter.
      */
 
-    VaChk_Range("MIX", 3, 12);
+    VaChk_Range(3, 12);
     if (nfargs < 4) {
 	isep.c = ' ';
 	isep_len = 1;
@@ -613,7 +613,7 @@ FUNCTION(fun_step)
     Delim isep, osep;
     int step_size, i, isep_len, osep_len;
 
-    VaChk_Only_In_Out("STEP", 5);
+    VaChk_Only_In_Out(5);
 
     step_size = atoi(fargs[2]);
     if ((step_size < 1) || (step_size > NUM_ENV_VARS)) {
@@ -661,8 +661,7 @@ FUNCTION(fun_foreach)
     char start_token, end_token;
     int in_string = 1;
 
-    if (!fn_range_check("FOREACH", nfargs, 2, 4, buff, bufc))
-	return;
+    VaChk_Range(2, 4);
 
     Parse_Uattr(player, fargs[0], thing, anum, ap);
     Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
@@ -753,7 +752,7 @@ FUNCTION(fun_munge)
 	if ((nfargs == 0) || !fargs[0] || !*fargs[0]) {
 		return;
 	}
-	VaChk_Only_In_Out("MUNGE", 5);
+	VaChk_Only_In_Out(5);
 
 	/* Find our object and attribute */
 
@@ -827,7 +826,7 @@ FUNCTION(fun_while)
     char *atext1, *atext2, *atextbuf, *condbuf;
     char *objs[2], *cp, *str, *dp, *savep, *bb_p, *op;
 
-    VaChk_Only_In_Out("WHILE", 6);
+    VaChk_Only_In_Out(6);
 
     /* If our third arg is null (empty list), don't bother. */
 

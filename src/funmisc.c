@@ -203,7 +203,7 @@ FUNCTION(fun_ifelse)
 	
 	char *str, *mbuff, *bp;
 
-	VaChk_Range("IFELSE", 2, 3);
+	VaChk_Range(2, 3);
 	
 	mbuff = bp = alloc_lbuf("fun_ifelse");
 	str = fargs[0];
@@ -235,7 +235,7 @@ FUNCTION(fun_nonzero)
 	
 	char *str, *mbuff, *bp;
 	
-	VaChk_Range("NONZERO", 2, 3);
+	VaChk_Range(2, 3);
 
 	mbuff = bp = alloc_lbuf("fun_nonzero");
 	str = fargs[0];
@@ -319,7 +319,7 @@ FUNCTION(fun_lrand)
 
     /* Special: the delim is really an output delim. */
 
-    VaChk_Only_Out("LRAND", 4);
+    VaChk_Only_Out(4);
 
     /* If we're generating no numbers, since this is a list function,
      * we return empty, rather than returning 0.
@@ -393,7 +393,7 @@ FUNCTION(fun_lnum)
     /* lnum() is special, since its single delimiter is really an output
      * delimiter.
      */
-    VaChk_Out("LNUM", 1, 3);
+    VaChk_Out(1, 3);
 
     if (nfargs >= 2) {
 	bot = atoi(fargs[0]);
@@ -989,7 +989,7 @@ FUNCTION(fun_create)
 	char *name;
 	Delim isep;
 
-	VaChk_Only_InPure("CREATE", 3);
+	VaChk_Only_InPure(3);
 	name = fargs[0];
 
 	if (!name || !*name) {

@@ -2139,7 +2139,7 @@ FUNCTION(fun_comlist)
     Delim osep;
     int osep_len;
 
-    VaChk_Only_Out("COMLIST", 1);
+    VaChk_Only_Out(1);
 
     bb_p = *bufc;
     for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);

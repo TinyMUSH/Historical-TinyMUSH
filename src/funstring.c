@@ -95,7 +95,7 @@ FUNCTION(fun_squish)
 		return;
 	}
 
-	VaChk_Only_InPure("SQUISH", 2);
+	VaChk_Only_InPure(2);
 
 	bp = tp = fargs[0];
 
@@ -150,7 +150,7 @@ FUNCTION(fun_trim)
 	if (nfargs == 0) {
 		return;
 	}
-	VaChk_InPure("TRIM", 1, 3);
+	VaChk_InPure(1, 3);
 	if (nfargs >= 2) {
 		switch (tolower(*fargs[1])) {
 		case 'l':
@@ -200,8 +200,7 @@ FUNCTION(fun_after)
 	if (nfargs == 0) {
 		return;
 	}
-	if (!fn_range_check("AFTER", nfargs, 1, 2, buff, bufc))
-		return;
+	VaChk_Range(1, 2);
 	bp = fargs[0];	/* haystack */
 	mp = fargs[1];	/* needle */
 
@@ -283,10 +282,9 @@ FUNCTION(fun_before)
 	if (nfargs == 0) {
 		return;
 	}
-	if (!fn_range_check("BEFORE", nfargs, 1, 2, buff, bufc))
-		return;
+	VaChk_Range(1, 2);
 	haystack = fargs[0];	/* haystack */
-	mp = fargs[1];	/* needle */
+	mp = fargs[1];		/* needle */
 
 	/* Sanity-check arg1 and arg2 */
 
@@ -449,7 +447,7 @@ FUNCTION(fun_ljust)
 	int spaces, max, i, slen;
 	char *tp, *fillchars;
 
-	VaChk_Range("LJUST", 2, 3);
+	VaChk_Range(2, 3);
 	spaces = atoi(fargs[1]) - strip_ansi_len(fargs[0]);
 
 	safe_str(fargs[0], buff, bufc);
@@ -504,7 +502,7 @@ FUNCTION(fun_rjust)
 	int spaces, max, i, slen;
 	char *tp, *fillchars;
 
-	VaChk_Range("RJUST", 2, 3);
+	VaChk_Range(2, 3);
 	spaces = atoi(fargs[1]) - strip_ansi_len(fargs[0]);
 
 	/* Sanitize number of spaces */
@@ -561,7 +559,7 @@ FUNCTION(fun_center)
 	char *tp, *fillchars;
 	int len, lead_chrs, trail_chrs, width, max, i, slen;
 
-	VaChk_Range("CENTER", 2, 3);
+	VaChk_Range(2, 3);
 
 	width = atoi(fargs[1]);
 	len = strip_ansi_len(fargs[0]);
@@ -1139,7 +1137,7 @@ FUNCTION(fun_mid)
 
 FUNCTION(fun_translate)
 {
-	VaChk_Range("TRANSLATE", 1, 2);
+	VaChk_Range(1, 2);
 
 	/* Strictly speaking, we're just checking the first char */
 
@@ -1219,7 +1217,7 @@ FUNCTION(fun_wordpos)
 	char *cp, *tp, *xp;
 	Delim isep;
 
-	VaChk_Only_In("WORDPOS", 3);
+	VaChk_Only_In(3);
 
 	charpos = atoi(fargs[1]);
 	cp = strip_ansi(fargs[0]);
@@ -1249,7 +1247,7 @@ FUNCTION(fun_ansipos)
 	int charpos, i, ansi_state;
 	char *s;
 
-	VaChk_Range("ANSIPOS", 2, 3);
+	VaChk_Range(2, 3);
 
 	s = fargs[0];
 	charpos = atoi(fargs[1]);
@@ -1507,19 +1505,19 @@ static void perform_border(player, buff, bufc, fargs, nfargs, key)
 
 FUNCTION(fun_border)
 {
-    VaChk_Range("BORDER", 2, 4);
+    VaChk_Range(2, 4);
     perform_border(player, buff, bufc, fargs, nfargs, BORDER_LJUST);
 }
 
 FUNCTION(fun_rborder)
 {
-    VaChk_Range("RBORDER", 2, 4);
+    VaChk_Range(2, 4);
     perform_border(player, buff, bufc, fargs, nfargs, BORDER_RJUST);
 }
 
 FUNCTION(fun_cborder)
 {
-    VaChk_Range("CBORDER", 2, 4);
+    VaChk_Range(2, 4);
     perform_border(player, buff, bufc, fargs, nfargs, BORDER_CENTER);
 }
 

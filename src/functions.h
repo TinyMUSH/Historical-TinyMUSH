@@ -139,20 +139,20 @@ extern INLINE void FDECL(do_reverse, (char *, char *));
 #define VaChk_Sep(xsep, xlen, xargnum, xflags) \
 if (!(xlen = delim_check(fargs, nfargs, xargnum, xsep, buff, bufc, \
     player, caller, cause, cargs, ncargs, xflags))) \
-    return;
+	return
 
 #define VaChk_InSep(xargnum, xflags) \
 VaChk_Sep(&isep, isep_len, xargnum, (xflags)|DELIM_STRING)
 
 #define VaChk_DefaultOut(xargnum) \
 if (nfargs < xargnum) { \
-    if (isep_len == 1) { \
-        osep.c = isep.c; \
-        osep_len = 1; \
-    } else { \
-        strcpy(osep.str, isep.str); \
-        osep_len = isep_len; \
-    } \
+	if (isep_len == 1) { \
+		osep.c = isep.c; \
+		osep_len = 1; \
+	} else { \
+		strcpy(osep.str, isep.str); \
+		osep_len = isep_len; \
+	} \
 } else
 
 #define VaChk_OutSep(xargnum, xflags) \
@@ -160,89 +160,91 @@ VaChk_Sep(&osep, osep_len, xargnum, \
           (xflags)|DELIM_NULL|DELIM_CRLF|DELIM_STRING)
 
 /*
- * VaChk_Range("FUNCTION", min_args, max_args): Functions which take
+ * VaChk_Range(min_args, max_args): Functions which take
  *   between min_args and max_args. Don't check for delimiters.
  *
- * VaChk_Only_InPure("FUNCTION", max_args): Functions which take max_args - 1
+ * VaChk_Only_InPure(max_args): Functions which take max_args - 1
  *   args or, with a delimiter, max_args args. No special stuff.
  * 
- * VaChk_Only_In("FUNCTION", max_args): Functions which take max_args - 1 args
+ * VaChk_Only_In(max_args): Functions which take max_args - 1 args
  *   or, with a delimiter, max_args args.
  *
- * VaChk_Only_Out("FUNCTION", max_args): Functions which take max_args - 1 args
+ * VaChk_Only_Out(max_args): Functions which take max_args - 1 args
  *   or, with a delimiter, max_args args. The one delimiter is an output delim.
  *
- * VaChk_InPure("FUNCTION", max_args): Functions which take max_args - 1
+ * VaChk_InPure(max_args): Functions which take max_args - 1
  *   args or, with a delimiter, max_args args. No special stuff.
  *
- * VaChk_In("FUNCTION", min_args, max_args): Functions which take
+ * VaChk_In(min_args, max_args): Functions which take
  *   between min_args and max_args, with max_args as a delimiter.
  *
- * VaChk_Out("FUNCTION", min_args, max_args): Functions which take
+ * VaChk_Out(min_args, max_args): Functions which take
  *   between min_args and max_args, with max_args as an output delimiter.
  *
- * VaChk_Only_In_Out("FUNCTION", max_args): Functions which take at least
+ * VaChk_Only_In_Out(max_args): Functions which take at least
  *   max_args - 2, with max_args - 1 as an input delimiter, and max_args as
  *   an output delimiter.
  *
- * VaChk_In_Out("FUNCTION", min_args, max_args): Functions which take at
+ * VaChk_In_Out(min_args, max_args): Functions which take at
  *   least min_args, with max_args - 1 as an input delimiter, and max_args
  *   as an output delimiter.
  *
- * VaChk_InEval_OutEval("FUNCTION", min_args, max_args): Functions which
+ * VaChk_InEval_OutEval(min_args, max_args): Functions which
  *   take at least min_args, with max_args - 1 as an input delimiter that
  *   must be evaluated, and max_args as an output delimiter which must
  *   be evaluated.
  */
 
-#define VaChk_Range(xname,xminargs,xnargs) \
-  if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc)) \
-      return;
+#define VaChk_Range(xminargs,xnargs) \
+if (!fn_range_check(fargs[-1], nfargs, xminargs, xnargs, buff, bufc)) \
+	return
 
-#define VaChk_Only_InPure(xname,xnargs) \
-  VaChk_Range(xname, xnargs-1, xnargs) \
-  if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
+#define VaChk_Only_InPure(xnargs) \
+VaChk_Range(xnargs-1, xnargs); \
+if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
     player, caller, cause, cargs, ncargs, 0)) \
-    return;
+	return
 
-#define VaChk_Only_In(xname,xnargs) \
-  VaChk_Range(xname, xnargs-1, xnargs) \
-  VaChk_InSep(xnargs, 0)
+#define VaChk_Only_In(xnargs) \
+VaChk_Range(xnargs-1, xnargs); \
+VaChk_InSep(xnargs, 0)
 
-#define VaChk_Only_Out(xname,xnargs) \
-  VaChk_Range(xname, xnargs-1, xnargs); \
-  VaChk_OutSep(xnargs, 0)
+#define VaChk_Only_Out(xnargs) \
+VaChk_Range(xnargs-1, xnargs); \
+VaChk_OutSep(xnargs, 0)
 
-#define VaChk_InPure(xname,xminargs,xnargs) \
-  VaChk_Range(xname, xminargs, xnargs) \
-  if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
+#define VaChk_InPure(xminargs, xnargs) \
+VaChk_Range(xminargs, xnargs); \
+if (!delim_check(fargs, nfargs, xnargs, &isep, buff, bufc, \
     player, caller, cause, cargs, ncargs, 0)) \
-    return;
+	return
 
-#define VaChk_In(xname,xminargs,xnargs) \
-  VaChk_Range(xname, xminargs, xnargs) \
-  VaChk_InSep(xnargs, 0)
+#define VaChk_In(xminargs, xnargs) \
+VaChk_Range(xminargs, xnargs); \
+VaChk_InSep(xnargs, 0)
 
-#define VaChk_Out(xname,xminargs,xnargs) \
-  VaChk_Range(xname, xminargs, xnargs) \
-  VaChk_OutSep(xnargs, 0)
+#define VaChk_Out(xminargs, xnargs) \
+VaChk_Range(xminargs, xnargs); \
+VaChk_OutSep(xnargs, 0)
 
-#define VaChk_Only_In_Out(xname,xnargs) \
-  VaChk_Range(xname, xnargs-2, xnargs) \
-  VaChk_InSep(xnargs-1, 0) \
-  VaChk_DefaultOut(xnargs) \
-    VaChk_OutSep(xnargs, 0)
+#define VaChk_Only_In_Out(xnargs) \
+VaChk_Range(xnargs-2, xnargs); \
+VaChk_InSep(xnargs-1, 0); \
+VaChk_DefaultOut(xnargs) { \
+	VaChk_OutSep(xnargs, 0); \
+}
 
-#define VaChk_In_Out(xname,xminargs,xnargs) \
-  VaChk_Range(xname, xminargs, xnargs) \
-  VaChk_InSep(xnargs-1, 0) \
-  VaChk_DefaultOut(xnargs) \
-    VaChk_OutSep(xnargs, 0)
+#define VaChk_In_Out(xminargs, xnargs) \
+VaChk_Range(xminargs, xnargs); \
+VaChk_InSep(xnargs-1, 0); \
+VaChk_DefaultOut(xnargs) { \
+	VaChk_OutSep(xnargs, 0); \
+}
 
-#define VaChk_InEval_OutEval(xname, xminargs, xnargs) \
-  VaChk_Range(xname, xminargs, xnargs) \
-  VaChk_InSep(xnargs-1, DELIM_EVAL) \
-  VaChk_OutSep(xnargs, DELIM_EVAL)
+#define VaChk_InEval_OutEval(xminargs, xnargs) \
+VaChk_Range(xminargs, xnargs); \
+VaChk_InSep(xnargs-1, DELIM_EVAL); \
+VaChk_OutSep(xnargs, DELIM_EVAL)
 
 /* ---------------------------------------------------------------------------
  * Miscellaneous macros.

@@ -3602,8 +3602,8 @@ FUNCTION(fun_mail)
 	dbref playerask;
 	int num, rc, uc, cc;
 
-	if (!fn_range_check("MAIL", nfargs, 0, 2, buff, bufc))
-		return;
+	VaChk_Range(0, 2);
+
 	if ((nfargs == 0) || !fargs[0] || !fargs[0][0]) {
 		count_mail(player, 0, &rc, &uc, &cc);
 		safe_ltos(buff, bufc, rc + uc);
@@ -3663,8 +3663,8 @@ FUNCTION(fun_mailfrom)
 	dbref playerask;
 	int num;
 
-	if (!fn_range_check("MAILFROM", nfargs, 1, 2, buff, bufc))
-		return;
+	VaChk_Range(1, 2);
+
 	if (nfargs == 1) {
 		playerask = player;
 		num = atoi(fargs[0]);
