@@ -296,7 +296,7 @@ void list_cached_objs(player)
 	if (count_array[x] > 0) {
 	    raw_notify(player,
 		       tprintf("%-30.30s  #%-6d  %5d  %8d",
-			       Name(x), x, count_array[x], size_array[x]));
+			       strip_ansi(Name(x)), x, count_array[x], size_array[x]));
 	    oco++;
 	    count_array[x] = 0;
 	    size_array[x] = 0;
@@ -324,7 +324,7 @@ void list_cached_objs(player)
 	if (count_array[x] > 0) {
 	    raw_notify(player,
 		       tprintf("%-30.30s  #%-6d  %5d  %8d",
-			       Name(x), x, count_array[x], size_array[x]));
+			       strip_ansi(Name(x)), x, count_array[x], size_array[x]));
 	    moco++;
 	}
     }
