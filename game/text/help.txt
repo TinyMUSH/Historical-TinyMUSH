@@ -5099,10 +5099,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & COMSYS FUNCTIONS
   Topic: Comsys Functions
  
-	comalias()	comdesc()	cominfo()	comlist()
-	comowner()	comtitle()	cwho()		cwhoall()
+	comalias()	comdesc()	comheader()	cominfo()
+	comlist()	comowner()	comtitle()	cwho()
+	cwhoall()
  
-  These functions are only enabled if the comsys is enabled.
+  These functions are only enabled if the comsys module is enabled.
  
   Information about a channel is generally only available to those with
   the Comm_All power, Wizards, or the owner of the channel. Channel names
@@ -9876,6 +9877,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   Returns the description of that channel.
  
+& COMHEADER()
+  Function:  comheader(<channel>)
+ 
+  Returns the header of that channel.
+ 
 & COMINFO()
   Function:  cominfo(<player>, <alias>)
  
@@ -10636,7 +10642,7 @@ See the individual help entries for comsys commands for details.
  
 & @clist
  
-  Command: @clist[/full] [<channel name>]
+  Command: @clist[/<switch>] [<channel name>]
  
   When given an argument, if you are a Wizard, have the Comm_All power,
   or the owner of the channel, this will display the flag information,
@@ -10644,6 +10650,10 @@ See the individual help entries for comsys commands for details.
  
   Without any switches or arguments, this command will display the list of
   channels, together with the names of their owners, and their descriptions.
+
+  With the /header switch, this command will display the list of
+  channels, together with the names of their owners, and their headers.
+ 
   With the /full switch, this command will display the list of channels,
   together with some more detailed information about them. The channels
   displayed are limited to Public ones, unless you are a Wizard or have
@@ -10664,15 +10674,27 @@ See the individual help entries for comsys commands for details.
   See also: @clist.
  
 & @channel
+  @channel/header <channel>=<header>
+  @channel/desc <channel=<description>
   @channel/owner <channel>=<new owner>
   @channel/charge <channel>=<charge>
-  @channel/desc <channel=<description>
-  @channel/set <channel>=[!]<flag>
+  @channel/set <channel>=[!]<channel flag>
   @channel/lock/<join | transmit | receive> <channel>=<lock>
  
   This command allows a Wizard, someone with the Comm_All power, or
   the owner of the channel, to manipulate the channel settings.
   
+  The channel header is the prefix that is prepended to channel messages.
+  It defaults to '[<name of channel>]'. <header> can be any string of
+  text of reasonable length, and it can contain ANSI characters.
+ 
+  Similarly, <description> is any string of text; if none is specified,
+  the channel's description is cleared.
+  
+  Continued in 'help @channel2'.
+ 
+& @channel2
+ 
   Changing the channel owner is straightforward; <new owner> is specified
   as a dbref or player name.
  
@@ -10681,12 +10703,9 @@ See the individual help entries for comsys commands for details.
   someone sends a message on the channel, that person pays <charge>
   to the channel owner.
  
-  Similarly, <description> is any string of text; if none is specified,
-  the channel's description is cleared.
+  Continued in 'help @channel3'.
  
-  Continued in 'help @channel2'.
- 
-& @channel2
+& @channel3
  
   The channel flags available are:
  

@@ -32,8 +32,15 @@ extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
 #define CHANNEL_JOIN	32	/* Channel lock: join */
 #define CHANNEL_TRANS	64	/* Channel lock: transmit */
 #define CHANNEL_RECV	128	/* Channel lock: receive */
+#define CHANNEL_HEADER	256	/* Set channel header */
 #define CLIST_FULL	1	/* Full listing of channels */
+#define CLIST_HEADER	2	/* Header listing of channels */
 #define CWHO_ALL	1	/* Show disconnected players on channel */
+
+#define MAX_CHAN_NAME_LEN	20
+#define MAX_CHAN_ALIAS_LEN	10
+#define MAX_CHAN_DESC_LEN	256
+#define MAX_CHAN_HEAD_LEN	32
 
 /* --------------------------------------------------------------------------
  * Configuration and hash tables.
@@ -84,6 +91,7 @@ struct com_channel {
     char *name;
     dbref owner;
     unsigned int flags;
+    char *header;		/* channel header prefixing messages */
     int num_who;		/* number of people on the channel */
     CHANWHO *who;		/* linked list of players on channel */
     int num_connected;		/* number of connected players on channel */
@@ -207,7 +215,7 @@ INLINE static int is_listening_disconn(player, chp)
 }
 
 
-INLINE static int ok_channel_string(str, maxlen, ok_spaces)
+static int ok_channel_string(str, maxlen, ok_spaces, ok_ansi)
     char *str;
     int maxlen;
     int ok_spaces;
@@ -220,15 +228,10 @@ INLINE static int ok_channel_string(str, maxlen, ok_spaces)
     if (strlen(str) > maxlen - 1)
 	return 0;
 
-    if (!ok_spaces) {
-	for (p = str; *p; p++) {
-	    if (isspace(*p) || (*p == ESC_CHAR))
-		return 0;
-	}
-    } else {
-	for (p = str; *p; p++) {
-	    if (*p == ESC_CHAR)
-		return 0;
+    for (p = str; *p; p++) {
+	if ((!ok_spaces && isspace(*p)) ||
+	    (!ok_ansi && (*p == ESC_CHAR))) {
+	    return 0;
 	}
     }
 
@@ -469,8 +472,8 @@ static void remove_from_channel(player, chp, is_quiet)
 
     if (!is_quiet &&
 	(!isPlayer(player) || (Connected(player) && !Hidden(player)))) {
-	com_message(chp, tprintf("[%s] %s has left this channel.",
-				 chp->name, Name(player)),
+	com_message(chp, tprintf("%s %s has left this channel.",
+				 chp->header, Name(player)),
 		    player);
     }
 }
@@ -544,8 +547,8 @@ static void process_comsys(player, arg, cap)
 	 */
 	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
 	    com_message(cap->channel,
-			tprintf("[%s] %s has joined this channel.",
-				cap->channel->name, Name(player)),
+			tprintf("%s %s has joined this channel.",
+				cap->channel->header, Name(player)),
 			player);
 	}
 	return;
@@ -576,8 +579,8 @@ static void process_comsys(player, arg, cap)
 	 */
 	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
 	    com_message(cap->channel,
-			tprintf("[%s] %s has left this channel.",
-				cap->channel->name, Name(player)),
+			tprintf("%s %s has left this channel.",
+				cap->channel->header, Name(player)),
 			player);
 	}
 	return;
@@ -661,22 +664,22 @@ static void process_comsys(player, arg, cap)
 	}
 	if (*arg == ':') {
 	    com_message(cap->channel,
-			tprintf("[%s] %s %s",
-				cap->channel->name,
+			tprintf("%s %s %s",
+				cap->channel->header,
 				(name_buf) ? name_buf : Name(player),
 				arg + 1),
 			player);
 	} else if (*arg == ';') {
 	    com_message(cap->channel,
-			tprintf("[%s] %s%s",
-				cap->channel->name,
+			tprintf("%s %s%s",
+				cap->channel->header,
 				(name_buf) ? name_buf : Name(player),
 				arg + 1),
 			player);
 	} else {
 	    com_message(cap->channel,
-			tprintf("[%s] %s says, \"%s\"",
-				cap->channel->name,
+			tprintf("%s %s says, \"%s\"",
+				cap->channel->header,
 				(name_buf) ? name_buf : Name(player),
 				arg),
 			player);
@@ -700,7 +703,7 @@ void join_channel(player, chan_name, alias_str, title_str)
     COMLIST *clist;
     int has_joined;
 
-    if (!ok_channel_string(alias_str, 10, 0)) {
+    if (!ok_channel_string(alias_str, MAX_CHAN_ALIAS_LEN, 0, 0)) {
 	notify(player, "That is not a valid channel alias.");
 	return;
     }
@@ -766,8 +769,8 @@ void join_channel(player, chan_name, alias_str, title_str)
 	update_comwho(chp);
 	
 	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
-	    com_message(chp, tprintf("[%s] %s has joined this channel.",
-				     chp->name, Name(player)),
+	    com_message(chp, tprintf("%s %s has joined this channel.",
+				     chp->header, Name(player)),
 			player);
 	}
 
@@ -866,8 +869,8 @@ void mod_comsys_announce_connect(player)
 	    update_comwho(chp);
 	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player) &&
 		is_listenchannel(player, chp)) {
-		com_message(chp, tprintf("[%s] %s has connected.",
-					 chp->name, Name(player)),
+		com_message(chp, tprintf("%s %s has connected.",
+					 chp->header, Name(player)),
 			    player);
 	    }
 	}
@@ -886,8 +889,8 @@ void mod_comsys_announce_disconnect(player, reason)
 	if (is_onchannel(player, chp)) {
 	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player) &&
 		is_listenchannel(player, chp)) {
-		com_message(chp, tprintf("[%s] %s has disconnected.",
-					 chp->name, Name(player)),
+		com_message(chp, tprintf("%s %s has disconnected.",
+					 chp->header, Name(player)),
 			    player);
 	    }
 	    update_comwho(chp);
@@ -930,13 +933,14 @@ void do_ccreate(player, cause, key, name)
     char *name;
 {
     CHANNEL *chp;
+    char buf[LBUF_SIZE];
 
     if (!Comm_All(player)) {
 	notify(player, NOPERM_MESSAGE);
 	return;
     }
 
-    if (!ok_channel_string(name, 20, 1)) {
+    if (!ok_channel_string(name, MAX_CHAN_NAME_LEN, 1, 0)) {
 	notify(player, NO_CHAN_MSG);
 	return;
     }
@@ -965,6 +969,8 @@ void do_ccreate(player, cause, key, name)
     chp->num_sent = 0;
     chp->descrip = NULL;
     chp->join_lock = chp->trans_lock = chp->recv_lock = NULL;
+    sprintf(buf, "[%s]", chp->name);
+    chp->header = XSTRDUP(buf, "ccreate.header");
 
     hashadd(name, (int *) chp, &mod_comsys_comsys_htab);
 
@@ -1037,6 +1043,7 @@ void do_cdestroy(player, cause, key, name)
 	XFREE(chp->connect_who, "cdestroy.connect_who");
     if (chp->descrip)
 	XFREE(chp->descrip, "cdestroy.descrip");
+    XFREE(chp->header, "cdestroy.header");
     if (chp->join_lock)
 	free_boolexp(chp->join_lock);
     if (chp->trans_lock)
@@ -1167,10 +1174,29 @@ void do_channel(player, cause, key, chan_name, arg)
 
     } else if (key & CHANNEL_DESC) {
 
+	if (arg && *arg && !ok_channel_string(arg, MAX_CHAN_DESC_LEN, 1, 1)) {
+	    notify(player, "That is not a reasonable channel description.");
+	    return;
+	}
+
 	if (chp->descrip)
 	    XFREE(chp->descrip, "do_channel.desc");
 	if (arg && *arg)
 	    chp->descrip = XSTRDUP(arg, "do_channel.desc");
+	notify(player, "Set.");
+
+    } else if (key & CHANNEL_HEADER) {
+
+	if (arg && *arg && !ok_channel_string(arg, MAX_CHAN_HEAD_LEN, 1, 1)) {
+	    notify(player, "That is not a reasonable channel header.");
+	    return;
+	}
+
+	XFREE(chp->header, "do_channel.header");
+	if (!arg)
+	    chp->header = XSTRDUP("", "do_channel.header");
+	else
+	    chp->header = XSTRDUP(arg, "do_channel.header");
 	notify(player, "Set.");
 
     } else {
@@ -1238,8 +1264,8 @@ void do_cboot(player, cause, key, name, objstr)
 	remove_from_channel(thing, chp, 1);
 	t = tbuf;
 	safe_sb_str(Name(player), tbuf, &t);
-	com_message(chp, tprintf("[%s] %s boots %s off the channel.",
-				 chp->name, tbuf, Name(thing)),
+	com_message(chp, tprintf("%s %s boots %s off the channel.",
+				 chp->header, tbuf, Name(thing)),
 		    player);
     }
 }
@@ -1257,7 +1283,8 @@ void do_cemit(player, cause, key, chan_name, str)
     if (key & CEMIT_NOHEADER)
 	com_message(chp, str, player);
     else
-	com_message(chp, tprintf("[%s] %s", chp->name, str), player);
+	com_message(chp, tprintf("%s %s", chp->header, str),
+		    player);
 }
 
 void do_cwho(player, cause, key, chan_name)
@@ -1473,6 +1500,8 @@ void do_clist(player, cause, key, chan_name)
 
     if (key & CLIST_FULL) {
 	notify(player, "Channel              Flags      Locks  Charge  Balance  Users  Messages  Owner");
+    } else if (key & CLIST_HEADER) {
+	notify(player, "Channel              Owner              Header");
     } else {
 	notify(player, "Channel              Owner              Description");
     }
@@ -1508,7 +1537,8 @@ void do_clist(player, cause, key, chan_name)
 		notify(player,
 		       tprintf("%-20s %-18s %-38.38s",
 			       chp->name, Name(chp->owner),
-			       chp->descrip ? chp->descrip : " "));
+			       ((key & CLIST_HEADER) ? chp->header :
+				(chp->descrip ? chp->descrip : " "))));
 	    }
 	    count++;
 	}
@@ -1637,6 +1667,7 @@ NAMETAB cemit_sw[] = {
 NAMETAB channel_sw[] = {
 {(char *)"charge",	1,	CA_PUBLIC,	CHANNEL_CHARGE},
 {(char *)"desc",	1,	CA_PUBLIC,	CHANNEL_DESC},
+{(char *)"header",	1,	CA_PUBLIC,	CHANNEL_HEADER},
 {(char *)"lock",	1,	CA_PUBLIC,	CHANNEL_LOCK},
 {(char *)"owner",	1,	CA_PUBLIC,	CHANNEL_OWNER},
 {(char *)"set",		1,	CA_PUBLIC,	CHANNEL_SET},
@@ -1646,11 +1677,12 @@ NAMETAB channel_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB clist_sw[] = {
-{(char *)"full",        0,      CA_PUBLIC,      CLIST_FULL},
+{(char *)"full",        1,      CA_PUBLIC,      CLIST_FULL},
+{(char *)"header",	1,	CA_PUBLIC,	CLIST_HEADER},
 { NULL,                 0,      0,              0}};
 
 NAMETAB cwho_sw[] = {
-{(char *)"all",         0,      CA_PUBLIC,      CWHO_ALL},
+{(char *)"all",         1,      CA_PUBLIC,      CWHO_ALL},
 { NULL,                 0,      0,              0}};
 
 CMDENT mod_comsys_cmdtable[] = {
@@ -1667,7 +1699,7 @@ CMDENT mod_comsys_cmdtable[] = {
 	0,		 CS_TWO_ARG,		
 	NULL,		NULL,	NULL,		do_cemit},
 {(char *)"@channel",		channel_sw,	CA_NO_SLAVE|CA_NO_GUEST,
-	0,		 CS_TWO_ARG,		
+	0,		 CS_TWO_ARG|CS_INTERP,		
 	NULL,		NULL,	NULL,		do_channel},
 {(char *)"@clist",              clist_sw,       CA_NO_SLAVE,
         0,              CS_ONE_ARG,           
@@ -1714,7 +1746,7 @@ void mod_comsys_dump_database()
 	return;
     }
 
-    fprintf(fp, "+V3\n");
+    fprintf(fp, "+V4\n");
 
     for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
@@ -1726,6 +1758,7 @@ void mod_comsys_dump_database()
 	putref(fp, chp->charge_collected);
 	putref(fp, chp->num_sent);
 	putstring(fp, chp->descrip);
+	putstring(fp, chp->header);
 	putboolexp(fp, chp->join_lock);
 	fprintf(fp, "-\n");
 	putboolexp(fp, chp->trans_lock);
@@ -1822,7 +1855,7 @@ static void read_comsys(fp, com_ver)
     COMALIAS *cap;
     COMLIST *clist;
     CHANWHO *wp;
-    char c, *s;
+    char c, *s, buf[LBUF_SIZE];
     int done;
 
     done = 0;
@@ -1846,6 +1879,7 @@ static void read_comsys(fp, com_ver)
 	chp->charge = getref(fp);
 	chp->charge_collected = getref(fp);
 	chp->num_sent = getref(fp);
+	chp->header = NULL;
 	if (com_ver == 1) {
 	    comsys_data_update(chp, getref(fp));
 	} else {
@@ -1854,6 +1888,12 @@ static void read_comsys(fp, com_ver)
 		chp->descrip = XSTRDUP(s, "read_comsys.desc");
 	    else
 		chp->descrip = NULL;
+
+	    if (com_ver > 3) {
+		s = (char *) getstring_noalloc(fp, 1);
+		if (s && *s)
+		    chp->header = XSTRDUP(s, "read_comsys.header");
+	    }
 
 	    if (com_ver == 2) {
 		/* Inherently broken behavior. Can't deal with eval locks,
@@ -1923,6 +1963,12 @@ static void read_comsys(fp, com_ver)
 	    }
 		    
 	}
+
+	if (!chp->header) {
+	    sprintf(buf, "[%s]", chp->name);
+	    chp->header = XSTRDUP(buf, "read_comsys.header");
+	}
+
 	chp->who = NULL;
 	chp->num_who = 0;
 	chp->connect_who = NULL;
@@ -2146,7 +2192,7 @@ FUNCTION(fun_cwho)
 	     (!Hidden(chp->connect_who[i]->player) || See_Hidden(player)))) {
 	    if (*bufc != bb_p)
 		safe_chr(' ', buff, bufc);
-	    safe_tprintf_str(buff, bufc, "#%d", chp->connect_who[i]->player);
+	    safe_dbref(buff, bufc, chp->connect_who[i]->player);
 	}
     }
 }
@@ -2162,7 +2208,7 @@ FUNCTION(fun_cwhoall)
     for (wp = chp->who; wp != NULL; wp = wp->next) {
 	if (*bufc != bb_p)
 	    safe_chr(' ', buff, bufc);
-	safe_tprintf_str(buff, bufc, "#%d", wp->player);
+	safe_dbref(buff, bufc, wp->player);
     }
 }
 
@@ -2171,7 +2217,7 @@ FUNCTION(fun_comowner)
     CHANNEL *chp;
 
     Grab_Channel(player);
-    safe_tprintf_str(buff, bufc, "#%d", chp->owner);
+    safe_dbref(buff, bufc, chp->owner);
 }
 
 FUNCTION(fun_comdesc)
@@ -2181,6 +2227,15 @@ FUNCTION(fun_comdesc)
     Grab_Channel(player);
     if (chp->descrip)
 	safe_str(chp->descrip, buff, bufc);
+}
+
+FUNCTION(fun_comheader)
+{
+    CHANNEL *chp;
+
+    Grab_Channel(player);
+    if (chp->header)
+	safe_str(chp->header, buff, bufc);
 }
 
 FUNCTION(fun_comalias)
@@ -2226,6 +2281,7 @@ FUNCTION(fun_comtitle)
 FUN mod_comsys_functable[] = {
 {"COMALIAS",	fun_comalias,	1,  0,		CA_PUBLIC},
 {"COMDESC",	fun_comdesc,	1,  0,		CA_PUBLIC},
+{"COMHEADER",	fun_comheader,	1,  0,		CA_PUBLIC},
 {"COMINFO",	fun_cominfo,	2,  0,		CA_PUBLIC},
 {"COMLIST",	fun_comlist,	0,  FN_VARARGS, CA_PUBLIC},
 {"COMOWNER",	fun_comowner,	1,  0,		CA_PUBLIC},
