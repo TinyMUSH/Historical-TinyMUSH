@@ -1154,6 +1154,11 @@ FUNCTION(fun_trigger)
 	do_trigger(player, cause, 0, fargs[0], &(fargs[1]), nfargs - 1);
 }
 
+FUNCTION(fun_wait)
+{
+    do_wait(player, cause, 0, fargs[0], fargs[1], cargs, ncargs);
+}
+
 /*------------------------------------------------------------------------
  * fun_create: Creates a room, thing or exit
  */

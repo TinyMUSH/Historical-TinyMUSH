@@ -61,6 +61,7 @@ XFUNCTION(fun_pemit);
 XFUNCTION(fun_remit);
 XFUNCTION(fun_force);
 XFUNCTION(fun_trigger);
+XFUNCTION(fun_wait);
 XFUNCTION(fun_create);
 XFUNCTION(fun_set);
 XFUNCTION(fun_wipe);
@@ -5778,6 +5779,7 @@ FUN flist[] = {
 {"VMUL",	fun_vmul,	0,  FN_VARARGS,	CA_PUBLIC},
 {"VSUB",	fun_vsub,	0,  FN_VARARGS,	CA_PUBLIC},
 {"VUNIT",	fun_vunit,	0,  FN_VARARGS,	CA_PUBLIC},
+{"WAIT",	fun_wait,	2,  0,		CA_PUBLIC},
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC},
 {"WHILE",	fun_while,	0,  FN_VARARGS,	CA_PUBLIC},
 {"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC},
