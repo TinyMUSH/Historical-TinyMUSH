@@ -22,7 +22,7 @@ wild.o: wild.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h fla
 netcommon.o: netcommon.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h file_c.h interface.h externs.h regexp.h command.h attrs.h mguests.h ansi.h powers.h match.h
 functions.o: functions.c copyright.h autoconf.h externs.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h regexp.h misc.h powers.h attrs.h match.h command.h functions.h ansi.h
 vattr.o: vattr.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h vattr.h externs.h regexp.h
-db.o: db.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h attrs.h vattr.h match.h powers.h interface.h /usr/include/rpc/netdb.h
+db.o: db.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h attrs.h vattr.h match.h powers.h interface.h
 db_rw.o: db_rw.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h vattr.h attrs.h powers.h
 stringutil.o: stringutil.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h ansi.h
 object.o: object.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h command.h externs.h regexp.h powers.h attrs.h match.h
@@ -43,7 +43,7 @@ funceval.o: funceval.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb
 regexp.o: regexp.c autoconf.h copyright.h regexp.h
 quota.o: quota.c autoconf.h copyright.h interface.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h file_c.h match.h command.h attrs.h powers.h
 db_empty.o: db_empty.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h
-sa-db.o: sa-db.c db.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h attrs.h vattr.h match.h powers.h interface.h /usr/include/rpc/netdb.h
+sa-db.o: sa-db.c db.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h attrs.h vattr.h match.h powers.h interface.h
 sa-db_rw.o: sa-db_rw.c db_rw.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h vattr.h attrs.h powers.h
 sa-boolexp.o: sa-boolexp.c boolexp.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h match.h externs.h regexp.h interface.h attrs.h powers.h
 sa-unparse.o: sa-unparse.c unparse.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h interface.h powers.h
