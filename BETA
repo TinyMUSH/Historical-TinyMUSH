@@ -101,8 +101,8 @@ Release history:
 - Fix: config() can access dbref conf parameters [3.1a8; Eric Kidder],
   and dbref conf parameters can be registered by modules. [3.1a8; Tyr]
 
-- Misc: config() can access option conf parameters, of which the
-  only one is signal_action, readable by God.
+- Fix: Renamed "mstate" parameters to avoid conflict with the malloc
+  facility in RedHat 8.0. [2.0; Pete C.]
 
 - Misc: Unprivileged exits may destroy themselves, requested by
   drdubious.
@@ -113,6 +113,9 @@ Release history:
 
 - Misc: Improved protection against invalid dbrefs in dbref-type
   conf parameters.
+
+- Misc: config() can access option conf parameters, of which the
+  only one is signal_action, readable by God.
 
 - Misc: Logic for 64-bit alignment of the alloc pool_header struct was
   wrong, but worked anyway. [3.1a8]

@@ -485,32 +485,32 @@ dbref NDECL(noisy_match_result)
 	return match_status(md.player, match_result());
 }
 
-void save_match_state(mstate)
-MSTATE *mstate;
+void save_match_state(m_state)
+MSTATE *m_state;
 {
-	mstate->confidence = md.confidence;
-	mstate->count = md.count;
-	mstate->pref_type = md.pref_type;
-	mstate->check_keys = md.check_keys;
-	mstate->absolute_form = md.absolute_form;
-	mstate->match = md.match;
-	mstate->player = md.player;
-	mstate->string = alloc_lbuf("save_match_state");
-	StringCopy(mstate->string, md.string);
+	m_state->confidence = md.confidence;
+	m_state->count = md.count;
+	m_state->pref_type = md.pref_type;
+	m_state->check_keys = md.check_keys;
+	m_state->absolute_form = md.absolute_form;
+	m_state->match = md.match;
+	m_state->player = md.player;
+	m_state->string = alloc_lbuf("save_match_state");
+	StringCopy(m_state->string, md.string);
 }
 
-void restore_match_state(mstate)
-MSTATE *mstate;
+void restore_match_state(m_state)
+MSTATE *m_state;
 {
-	md.confidence = mstate->confidence;
-	md.count = mstate->count;
-	md.pref_type = mstate->pref_type;
-	md.check_keys = mstate->check_keys;
-	md.absolute_form = mstate->absolute_form;
-	md.match = mstate->match;
-	md.player = mstate->player;
-	StringCopy(md.string, mstate->string);
-	free_lbuf(mstate->string);
+	md.confidence = m_state->confidence;
+	md.count = m_state->count;
+	md.pref_type = m_state->pref_type;
+	md.check_keys = m_state->check_keys;
+	md.absolute_form = m_state->absolute_form;
+	md.match = m_state->match;
+	md.player = m_state->player;
+	StringCopy(md.string, m_state->string);
+	free_lbuf(m_state->string);
 }
 
 void init_match(player, name, type)
