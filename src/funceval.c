@@ -3478,7 +3478,7 @@ FUNCTION(fun_munge)
 
 /* ---------------------------------------------------------------------------
  * die(<number of dice>,<sides>): Roll XdY dice.
- * lrand(<times>,<range bottom>,<range top>[,<delim>]): Generate random list.
+ * lrand(<range bottom>,<range top>,<times>[,<delim>]): Generate random list.
  */
 
 FUNCTION(fun_die)
@@ -3528,12 +3528,12 @@ FUNCTION(fun_lrand)
      * we return empty, rather than returning 0.
      */
 
-    n_times = atoi(fargs[0]);
+    n_times = atoi(fargs[2]);
     if (n_times < 1) {
 	return;
     }
-    r_bot = atoi(fargs[1]);
-    r_top = atoi(fargs[2]);
+    r_bot = atoi(fargs[0]);
+    r_top = atoi(fargs[1]);
 
     if (r_top < r_bot) {
 
