@@ -1442,7 +1442,7 @@ dbref db_write()
 		
 		for (j = ENTRY_BLOCK_STARTS(i, blksize);
 		     (j <= ENTRY_BLOCK_ENDS(i, blksize)) &&
-		     (j < mudstate.attr_next);
+		     (j < mudstate.db_top);
 		     j++) {
 
 			if (mudstate.standalone && !(j % 100)) {
