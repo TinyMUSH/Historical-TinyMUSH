@@ -4350,8 +4350,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	ifelse()	localize()	mudname()	nonzero()
 	pemit()		r()		rand()		remit()		
 	restarts()	restarttime()	s()		secs()		
-	setq()		setr()		starttime()	switch()
-	switchall	time()		version()
+	setq()		setr()		sql()		starttime()
+	switch()	switchall	time()		version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -8108,6 +8108,68 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   as if the command '@pemit/list <list of dbrefs>=<string>' had been
   invoked.
  
+& SQL()
+  Function:  sql(<SQL statement>[, <delim>][, <field delim>])
+ 
+  This function sends a SQL statement to an external SQL database and
+  returns the results. The user must be God or have the use_sql power
+  (note that even having a Wizard flag is not sufficient). If there is
+  a problem with executing the SQL statement, the function returns #-1.
+ 
+  If multiple rows are returned, each row will be delimited by <delim>;
+  if <delim> is not specified, a space will be used. If multiple fields
+  are returned, each field will be delimited by <field delim> if specified,
+  or <delim> if not, or a space by default.
+ 
+  The nature of what constitutes a valid SQL statement will depend on
+  the type of back-end SQL database. Note, however, that MUSH treats
+  parentheses and commas as special characters within functions, so
+  something like: '@va me=<SQL statement>', '@eval [sql(%va)]' may be
+  necessary in order to avoid headaches with escaping special characters.
+ 
+  Continued in 'help SQL2'.
+ 
+& SQL2
+ 
+  Example:
+ 
+  > &CTABLE me = CREATE TABLE test( player_name char(16) not null,
+                 race char(8) not null, dbref_num int )
+  > &INS1 me = INSERT INTO test VALUES('Caine', 'Vampire', 4)
+  > &INS2 me = INSERT INTO test VALUES('Rufus', 'Werewolf', 672)
+  > &INS3 me = INSERT INTO test VALUES('Nos', 'Vampire', 389)
+  > @eval [sql(v(CTABLE))][sql(v(INS1))][sql(v(INS2))][sql(v(INS3))]
+  > &VAMPS me = SELECT player_name, dbref_num FROM test WHERE race='Vampire'
+  > say [sql(v(VAMPS))]
+  You say "Caine 4 Nos 389"
+  > say [sql(v(VAMPS),|)]
+  You say "Caine|4|Nos|389"
+  > say [sql(v(VAMPS),|,)]
+  You say "Caine 4|Nos 389"
+  > say [sql(v(VAMPS),|,/)]
+  You say "Caine/1|Nos/389"
+ 
+  Continued in 'help SQL3'.
+ 
+& SQL3
+ 
+  Because connectivity between the MUSH and the external SQL database is
+  not guaranteed (there could be network issues, issues with the database
+  server, etc., and no atomic way to test to ensure that connectivity is
+  up and functioning), one must be careful to check for the #-1 return
+  code (which indicates an error, including possibly the database 
+  connection being unavailable) when reading or writing data from the
+  external SQL database.
+ 
+  This functionality is most useful if you have a need to export MUSH
+  data to the outside world, or vice versa. You should NOT use the
+  external database as the preferred storage mechanism; for the vast
+  majority of MUSH applications, the game's own internal database
+  access is significantly faster. Indeed, because of this, if you have
+  data in the SQL database that you use very frequently within the
+  game, you should store that data within the game as well, and simply
+  mirror it to the SQL database as it changes.
+ 
 & REMIT()
   Function:  remit(<list of dbrefs>,<string>)
  
@@ -8892,13 +8954,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See also: powers list
   
 & powers list
-
+ 
   announce		Can use the @wall command.
   boot			Can use the @boot command.
   builder		Can build, if the builder power is enabled.
   chown_anything	Can @chown anything to anyone.
   comm_all		Like a wizard with respect to channels.
-  control_all		Can modify any object in the database.
+  control_all		Can modify any object in the database. (God-set only.)
   expanded_who		Sees the wizard WHO, and SESSION commands.
   find_unfindable	Can locate unfindable people.
   free_money		Unlimited money.
@@ -8914,7 +8976,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 { 'help powers list2' for more }
  
 & powers list2
+ 
   monitor		Can set or reset monitor flag.
+  open_anywhere		Can @open an exit from any location.
   poll			Can set the @poll.
   prog			Can use @program on players other than themself.
   search		Can @search anyone.
@@ -8925,6 +8989,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   tel_anywhere		Can teleport anywhere.
   tel_anything		Can teleport anything (includes tel_anywhere)
   unkillable		Cannot be killed with the 'kill' command.
+  use_sql		Can call the SQL() function. (God-set only.)
  
   See also: @power
  

@@ -31,24 +31,24 @@
   @listmotd      @lock          @logrotate     @mark          @mark_all
   @motd          @newpassword   @pcreate       @poor          @power         
   @ps            @purge         @quota         @readcache     @restart       
-  @rwho          @shutdown      @timecheck     @timewarp      @toad          
+  @rwho          @shutdown      @sqlconnect    @sqldisconnect @timecheck
+  @startslave    @timewarp      @toad          
   @wall
  
   @allowance     @comment       @timeout
-
+ 
 & topics
   Help available on the following Topics:
  
   CAUTIONS         CONFIG PARAMETERS  DEBUG FEATURES     FILES
   FLAGS            INHERITANCE        LOGGING            MASTER ROOM
   PERMISSIONS      SEARCH CRITERIA    SITE LISTS
-
+ 
 & flags
   Information is available on the following flags:
  
-  INHERIT(i)         MARKED(m)          STARTUP(z)         SUSPECT(u)
-  WIZARD(W)
-
+  INHERIT(I)        STARTUP(z)         SUSPECT(u)        WIZARD(W)
+ 
 & examine
   Command: examine[/<switches>] [<object>]
  
@@ -1021,6 +1021,30 @@
  
   See also: status_file
 
+& @startslave
+  Command: @startslave
+ 
+  Creates an external slave process that does DNS lookups. This only
+  needs to be used if the process (which is created automatically when
+  the game is first started) dies for some reason. The symptom of this
+  is normally that all IP address lookups are failing (IP addresses
+  rather than hostnames are appearing in the WHO), when hostname lookups
+  are turned on.
+ 
+  This command does not return any output.
+ 
+& @sqlconnect
+  Command: @sqlconnect
+ 
+  Establishes a connection to an external SQL database. If a connection
+  already exists, this closes that connection and opens a new one.
+ 
+& @sqldisconnect
+  Command: @sqldisconnect
+ 
+  Disconnects from an external SQL database. This command does not
+  return any output.
+ 
 & @timewarp
   Command: @timewarp[/<switches>] <secs>
   Subtracts (or adds if negative) <secs> to one or more internal timers,
@@ -1248,7 +1272,8 @@
 	money_name_plural	money_name_singular	mud_name
 	port			public_channel		queue_active_chunk
 	queue_idle_chunk	rwho_data_port		rwho_host
-	rwho_info_port		rwho_password
+	rwho_info_port		rwho_password		sql_database
+	sql_host
 
 & PARAM OBJECTS
 	default_home		exit_flags		exit_parent
@@ -2586,6 +2611,24 @@ use_global_aconn	wizard_obeys_linklock
   as it is processed.  If enabled, multiple spaces are compressed to a single
   space, and spaces at the ends of strings are removed.
 
+& sql_database
+  Config parameter: sql_database <database name>.  Default: <null>
+ 
+  Specifies the name of the SQL database that contains the tables 
+  relevant to the MUSH.
+ 
+& sql_host
+  Config parameter: sql_host <hostname>.  Default: 127.0.0.1
+ 
+  Specifies the hostname of the machine that the external SQL database
+  is located on.
+ 
+  "localhost" is used as a keyword; if this is specified, a connection
+  will be made to the SQL database on the local server (i.e., the same
+  machine that the MUSH is running on), via a Unix domain socket. To
+  connect to a database on the local host via a network socket, specify
+  127.0.0.1 (which is the IP address of localhost) instead.
+ 
 & starting_money
   Config parameter: starting_money <amount>.  Default: 0
   Sets the amount of money that new players start out with.
