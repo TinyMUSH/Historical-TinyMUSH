@@ -6,17 +6,12 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* TEST_MALLOC:	Defining this makes a malloc that keeps track of the number
- *		of blocks allocated.  Good for testing for Memory leaks.
- * ATR_NAME:	Define if you want name to be stored as an attribute on the
- *		object rather than in the object structure.
+/* Do not change anything unless you are certain you know what it does.
+ * General user-definable compile-time options can be found in the
+ * Makefile.
  */
 
-/* Compile time options */
-
 #define CONF_FILE "netmush.conf"	/* Default config file */
-
-/* #define TEST_MALLOC */		/* Keep track of block allocs */
 				 
 #define PLAYER_NAME_LIMIT	22	/* Max length for player names */
 #define NUM_ENV_VARS		10	/* Number of env vars (%0 et al) */
@@ -30,19 +25,9 @@
 
 #define OUTPUT_BLOCK_SIZE	16384
 
-/* length of the DOING field in WHO */
-#define DOING_LEN		41
+#define DOING_LEN		41	/* length of the DOING field in WHO */
 
-#define PUEBLO_SUPPORT
-#undef SPLIT_QUOTAS
-#define USE_MAIL
-#define USE_COMSYS
-#define FLOATING_POINTS
-/* #define TCL_INTERP_SUPPORT */
-#define StringCopy strcpy
-#define StringCopyTrunc strncpy
 #define PUEBLO_SUPPORT_MSG "This world is Pueblo 1.0 enhanced\r\n\r\n"
-/* #define NO_LAG_CHECK */
 
 /* ---------------------------------------------------------------------------
  * Database R/W flags.
@@ -111,6 +96,8 @@
 #define OBJECT_DEPOSIT(pennies) \
     (((pennies)-mudconf.sacadjust)*mudconf.sacfactor)
 
+#define StringCopy strcpy
+#define StringCopyTrunc strncpy
 
 #ifdef VMS
 #define unlink delete
