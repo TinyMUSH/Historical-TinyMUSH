@@ -78,7 +78,6 @@ extern POWERENT *FDECL(find_power, (dbref, char *));
 extern int	FDECL(has_power, (dbref, dbref, char *));
 extern void	FDECL(decompile_powers, (dbref, dbref, char *));
 
-
 #define s_Change_Quotas(c)	s_Powers((c), Powers(c) | POW_CHG_QUOTAS)
 #define s_Chown_Any(c)		s_Powers((c), Powers(c) | POW_CHOWN_ANY)
 #define s_Announce(c)		s_Powers((c), Powers(c) | POW_ANNOUNCE)
@@ -110,7 +109,7 @@ extern void	FDECL(decompile_powers, (dbref, dbref, char *));
 #define s_Unkillable(c)		s_Powers((c), Powers(c) | POW_UNKILLABLE)
 #define s_Builder(c)		s_Powers2((c), Powers2(c) | POW_BUILDER)
 
-#define Quota(c)		(((Powers(c) & POW_CHG_QUOTAS) != 0) || Wizard(c))
+#define Can_Set_Quota(c)	(((Powers(c) & POW_CHG_QUOTAS) != 0) || Wizard(c))
 #define Chown_Any(c)		(((Powers(c) & POW_CHOWN_ANY) != 0) || Wizard(c))
 #define Announce(c)		(((Powers(c) & POW_ANNOUNCE) != 0) || Wizard(c))
 #define Can_Boot(c)		(((Powers(c) & POW_BOOT) != 0) || Wizard(c))
