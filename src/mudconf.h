@@ -309,9 +309,9 @@ struct statedata {
 	time_t  events_counter; /* Countdown to next events check */
 	int	events_flag;	/* Flags for check_events */
 	int	shutdown_flag;	/* Should interface be shut down? */
-	char	version[PBUF_SIZE];	/* MUX version string */
+	char	version[PBUF_SIZE];	/* MUSH version string */
 	char	short_ver[64];  /* Short version number (for INFO) */
-	time_t	start_time;	/* When was MUX started */
+	time_t	start_time;	/* When was MUSH started */
 	time_t	restart_time;	/* When did we last restart? */
 	int	reboot_nums;	/* How many times have we restarted? */
     	time_t	cpu_count_from; /* When did we last reset CPU counters? */
@@ -427,7 +427,7 @@ extern STATEDATA mudstate;
 
 /* Game control flags in mudconf.control_flags */
 
-#define	CF_LOGIN	0x0001		/* Allow nonwiz logins to the mux */
+#define	CF_LOGIN	0x0001		/* Allow nonwiz logins to the MUSH */
 #define CF_BUILD	0x0002		/* Allow building commands */
 #define CF_INTERP	0x0004		/* Allow object triggering */
 #define CF_CHECKPOINT	0x0008		/* Perform auto-checkpointing */

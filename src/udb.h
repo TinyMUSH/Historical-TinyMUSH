@@ -25,7 +25,7 @@
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-/* For MUX, an int works great as an object ID
+/* For MUSH, an int works great as an object ID
  * And attributes are zero terminated strings, so we heave the size out.
  * We hand around attribute identifiers in the last things.
  */
@@ -43,7 +43,7 @@ typedef struct Aname {
 /* In general, we want binary attributes, so we do this. */
 
 typedef struct Attrib {
-	int	attrnum;	/* MUX specific identifier */
+	int	attrnum;	/* MUSH specific identifier */
 	int	size;
 	char	*data;
 } Attrib;

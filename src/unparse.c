@@ -151,7 +151,7 @@ int format;
 
 			/*
 			 * Decompile output - should be usable on other * * * 
-			 * MUXes. * *Name if player, Name if thing, else #Num 
+			 * MUSHes. * *Name if player, Name if thing, else #Num 
 			 * 
 			 * *  
 			 */

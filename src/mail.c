@@ -2,7 +2,7 @@
  * mail.c 
  * This code was taken from Kalkin's DarkZone code, which was
  * originally taken from PennMUSH 1.50 p10, and has been heavily modified
- * since being included in MUX.
+ * since being included in MUX (and then being imported wholesale into 3.0).
  * 
  * $Id$
  * -------------------------------------------------------------------

@@ -1,4 +1,4 @@
-/* funceval.c - MUX function handlers */
+/* funceval.c - More function handlers */
 /* $Id$ */
 
 #include "copyright.h"

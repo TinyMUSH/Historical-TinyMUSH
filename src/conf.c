@@ -243,7 +243,7 @@ void NDECL(cf_init)
 	mudconf.robot_flags.word2 = 0;
 	mudconf.robot_flags.word3 = 0;
 	mudconf.vattr_flags = AF_ODARK;
-	StringCopy(mudconf.mud_name, "TinyMUX");
+	StringCopy(mudconf.mud_name, "TinyMUSH");
 	StringCopy(mudconf.one_coin, "penny");
 	StringCopy(mudconf.many_coins, "pennies");
 	mudconf.timeslice = 1000;

@@ -448,7 +448,7 @@ int new_strings;
 					free_mbuf(buf2);
 				}
 				/*
-				 * MAILFOLDERS under MUX must be owned by the 
+				 * MAILFOLDERS under MUSH must be owned by the 
 				 * player, not GOD 
 				 */
 
@@ -1377,10 +1377,10 @@ int *db_format, *db_version, *db_flags;
 				deduce_zone = 0;
 				break;
 #endif
-			case 'X':	/* MUX VERSION */
+			case 'X':	/* MUSH VERSION */
 				if (header_gotten) {
 					fprintf(stderr,
-						"\nDuplicate MUX version header entry at object %d, ignored.\n",
+						"\nDuplicate MUSH version header entry at object %d, ignored.\n",
 						i);
 					tstr = getstring_noalloc(f, 0);
 					break;
@@ -1497,7 +1497,7 @@ int *db_format, *db_version, *db_flags;
 				break;
 			default:
 				fprintf(stderr,
-					"\nUnexpected character '%c' in MUX header near object #%d, ignored.\n",
+					"\nUnexpected character '%c' in MUSH header near object #%d, ignored.\n",
 					ch, i);
 				tstr = getstring_noalloc(f, 0);
 			}
@@ -2015,7 +2015,7 @@ int format, version;
 		flags = version;
 		break;
 	default:
-		fprintf(stderr, "Can only write MUX format.\n");
+		fprintf(stderr, "Can only write MUSH format.\n");
 		return -1;
 	}
 #ifdef STANDALONE

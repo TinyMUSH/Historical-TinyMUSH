@@ -140,7 +140,7 @@ CMD_TWO_ARG_ARGV(do_trigger);		/* Trigger an attribute */
 CMD_ONE_ARG(do_unlock);			/* Remove a lock from an object */
 CMD_ONE_ARG(do_unlink);			/* Unlink exit or remove dropto */
 CMD_ONE_ARG(do_use);			/* Use object */
-CMD_NO_ARG(do_version);			/* List MUX version number */
+CMD_NO_ARG(do_version);			/* List MUSH version number */
 CMD_TWO_ARG_ARGV(do_verb);		/* Execute a user-created verb */
 CMD_TWO_ARG_CMDARG(do_wait);		/* Perform command after a wait */
 CMD_ONE_ARG(do_wipe);			/* Mass-remove attrs from obj */

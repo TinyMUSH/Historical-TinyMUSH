@@ -98,6 +98,7 @@ struct boolexp {
 #define	F_MUD		3	/* Old TinyMUD format */
 #define	F_MUCK		4	/* TinyMUCK format */
 #define F_MUX		5	/* TinyMUX format */
+#define F_TINYMUSH	6	/* TinyMUSH 3.0 format */
 
 #define	V_MASK		0x000000ff	/* Database version */
 #define	V_ZONE		0x00000100	/* ZONE/DOMAIN field */

@@ -15,7 +15,7 @@
 #include "patchlevel.h"
 
 /*
- * 1.0.0 TinyMUX 
+ * TinyMUSH 3.0
  */
 
 /*

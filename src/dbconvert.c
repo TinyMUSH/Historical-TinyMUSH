@@ -1,5 +1,5 @@
 /*
- * dbconvert.c - Convert databases to various MUX formats 
+ * dbconvert.c - Convert databases to various TinyMUSH 3.0 formats 
  */
 /*
  * $Id$ 
@@ -37,8 +37,11 @@ int fmt, flags, ver;
 	const char *cp;
 
 	switch (fmt) {
+        case F_TINYMUSH:
+	        cp = "TinyMUSH-3";
+		break;
 	case F_MUX:
-		cp = "TinyMUX";
+	        cp = "TinyMUX";
 		break;
 	case F_MUSH:
 		cp = "TinyMUSH";

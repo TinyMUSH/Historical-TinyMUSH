@@ -14,7 +14,7 @@
 
 /* Compile time options */
 
-#define CONF_FILE "netmux.conf"	/* Default config file */
+#define CONF_FILE "netmush.conf"	/* Default config file */
 
 /* #define TEST_MALLOC */		/* Keep track of block allocs */
 #define SIDE_EFFECT_FUNCTIONS		/* Those neat funcs that should be

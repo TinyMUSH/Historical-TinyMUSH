@@ -1,5 +1,5 @@
 /*
-	Header file for the UnterMud DB layer, as applied to MUX 1.0
+	Header file for the UnterMud DB layer, as applied to TinyMUSH 3.0
 
 	Andrew Molitor, amolitor@eagle.wesleyan.edu
 	1991

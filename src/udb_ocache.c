@@ -62,7 +62,7 @@ typedef struct {
 } CacheLst;
 
 /*
- * This is a MUX specific definition, depending on Objname being an
+ * This is a MUSH specific definition, depending on Objname being an
  * * integer type of some sort. 
  */
 

@@ -19,7 +19,7 @@ char *___strtok;
 
 #endif
 
-/* Convert raw character sequences into MUX substitutions (type = 1)
+/* Convert raw character sequences into MUSH substitutions (type = 1)
  * or strips them (type = 0). */
 
 char *translate_string(str, type)
