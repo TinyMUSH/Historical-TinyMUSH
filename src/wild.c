@@ -1,17 +1,17 @@
 /*
  * wild.c - wildcard routines
- * *
- * * Written by T. Alexander Popiel, 24 June 1993
- * * Last modified by T. Alexander Popiel, 19 August 1993
- * *
- * * Thanks go to Andrew Molitor for debugging
- * * Thanks also go to Rich $alz for code to benchmark against
- * *
- * * Copyright (c) 1993 by T. Alexander Popiel
- * * This code is hereby placed under GNU copyleft,
- * * see copyright.h for details.
- * *
- * * $Id$
+ *
+ * Written by T. Alexander Popiel, 24 June 1993
+ * Last modified by T. Alexander Popiel, 19 August 1993
+ *
+ * Thanks go to Andrew Molitor for debugging
+ * Thanks also go to Rich $alz for code to benchmark against
+ *
+ * Copyright (c) 1993 by T. Alexander Popiel
+ * This code is hereby placed under GNU copyleft,
+ * see copyright.h for details.
+ *
+ * $Id$
  */
 #include "copyright.h"
 #include "autoconf.h"
