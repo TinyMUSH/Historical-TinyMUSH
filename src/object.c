@@ -782,10 +782,17 @@ dbref victim;
 {
 	dbref aowner, player;
 	int count, aflags, alen;
-	char *buf;
+	char *buf, a_dest;
 
 	/* Bye bye... */
-	player = (dbref) atoi(atr_get_raw(victim, A_DESTROYER));
+	a_dest = atr_get_raw(victim, A_DESTROYER);
+	if (a_dest) {
+		player = atoi(a_dest);
+		if (!Good_owner(player))
+			player = GOD;
+	} else {
+		player = GOD;
+	}
 
 	boot_off(victim, (char *)"You have been destroyed!");
 	halt_que(victim, NOTHING);
