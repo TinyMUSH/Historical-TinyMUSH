@@ -325,6 +325,64 @@ int ansi_before, ansi_after;
 	return buffer;
 }
 
+char *ansi_transition_letters(ansi_before, ansi_after)
+int ansi_before, ansi_after;
+{
+	int ansi_bits_set, ansi_bits_clr;
+	char *p;
+	static char ansi_mushcode_fg[9] = "xrgybmcw";
+	static char ansi_mushcode_bg[9] = "XRGYBMCW";
+	static char buffer[64];
+
+	if (ansi_before == ansi_after)
+		return "";
+
+	p = buffer;
+
+	/* If they turn off any highlight bits, or they change from some color
+	 * to default color, we need to use ansi normal first.
+	 */
+
+	ansi_bits_set = (~ansi_before) & ansi_after;
+	ansi_bits_clr = ansi_before & (~ansi_after);
+	if ((ansi_bits_clr & 0xf00) ||		/* highlights off */
+	    (ansi_bits_set & 0x088) ||		/* normal to color */
+	    (ansi_bits_clr == 0x1000)) {	/* explicit normal */
+		*p++ = 'n';
+		ansi_bits_set = (~ansi_bits[0]) & ansi_after;
+		ansi_bits_clr = ansi_bits[0] & (~ansi_after);
+	}
+
+	/* Next reproduce the highlight state */
+
+	if (ansi_bits_set & 0x100) {
+		*p++ = 'h';
+	}
+	if (ansi_bits_set & 0x200) {
+		*p++ = 'u';
+	}
+	if (ansi_bits_set & 0x400) {
+		*p++ = 'f';
+	}
+	if (ansi_bits_set & 0x800) {
+		*p++ = 'i';
+	}
+
+	/* Foreground color */
+	if ((ansi_bits_set | ansi_bits_clr) & 0x00f) {
+		*p++ = ansi_mushcode_fg[(ansi_after & 0x00f)];
+	}
+
+	/* Background color */
+	if ((ansi_bits_set | ansi_bits_clr) & 0x0f0) {
+		*p++ = ansi_mushcode_bg[(ansi_after & 0x0f0) >> 4];
+	}
+
+	/* Terminate */
+	*p = '\0';
+	return buffer;
+}
+
 /* ansi_map_states -- Identify ansi state of every character in a string */
 
 int ansi_map_states(s, m)

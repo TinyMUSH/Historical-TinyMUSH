@@ -1224,7 +1224,7 @@ FUNCTION(fun_wordpos)
 	VaChk_Only_In("WORDPOS", 3);
 
 	charpos = atoi(fargs[1]);
-	cp = fargs[0];
+	cp = strip_ansi(fargs[0]);
 	if ((charpos > 0) && (charpos <= (int)strlen(cp))) {
 		tp = &(cp[charpos - 1]);
 		cp = trim_space_sep(cp, isep, isep_len);
@@ -1239,6 +1239,32 @@ FUNCTION(fun_wordpos)
 	}
 	safe_nothing(buff, bufc);
 	return;
+}
+
+/* ---------------------------------------------------------------------------
+ * Take a character position and return what color that character would be.
+ * ansipos(<string>, <charpos>)
+ */
+
+FUNCTION(fun_ansipos)
+{
+	int charpos, i, ansi_state;
+	char *s;
+
+	s = fargs[0];
+	charpos = atoi(fargs[1]);
+	ansi_state = ANST_NORMAL;
+	i = 0;
+
+	while (*s && i < charpos) {
+		if (*s == ESC_CHAR) {
+			track_esccode(s, ansi_state);
+		} else {
+			++s, ++i;
+		}
+	}
+
+	safe_str(ansi_transition_letters(ANST_NORMAL, ansi_state), buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

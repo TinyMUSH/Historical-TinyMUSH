@@ -305,6 +305,7 @@ XFUNCTION(fun_translate);
 XFUNCTION(fun_pos);
 XFUNCTION(fun_lpos);
 XFUNCTION(fun_wordpos);
+XFUNCTION(fun_ansipos);
 XFUNCTION(fun_repeat);
 XFUNCTION(fun_border);
 XFUNCTION(fun_rborder);
@@ -393,6 +394,7 @@ FUN flist[] = {
 {"ANDBOOL",	fun_andbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ANDFLAGS",	fun_andflags,	2,  0,		CA_PUBLIC},
 {"ANSI",        fun_ansi,       2,  0,          CA_PUBLIC},
+{"ANSIPOS",     fun_ansipos,    2,  0,          CA_PUBLIC},
 {"APOSS",	fun_aposs,	1,  0,		CA_PUBLIC},
 {"ART",		fun_art,	1,  0,		CA_PUBLIC},
 {"ASIN",	fun_asin,	1,  0,		CA_PUBLIC},

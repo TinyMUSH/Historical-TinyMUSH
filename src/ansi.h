@@ -120,6 +120,7 @@ extern int	FDECL(strip_ansi_len, (const char *));
 extern char *	FDECL(normal_to_white, (const char *));
 extern char *	FDECL(ansi_transition_esccode, (int, int));
 extern char *	FDECL(ansi_transition_mushcode, (int, int));
+extern char *	FDECL(ansi_transition_letters, (int, int));
 extern int	FDECL(ansi_map_states, (const char *, int **));
 
 #define skip_esccode(s) \
