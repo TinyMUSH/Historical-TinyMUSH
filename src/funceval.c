@@ -4772,7 +4772,7 @@ char *code;
 	out = output;
 	in = code;
 	while (*in) {
-		if ((*in >= 32) || (*in <= 126)) {
+		if ((*in >= 32) && (*in <= 126)) {
 			*out++ = *in;
 		}
 		in++;
