@@ -781,3 +781,12 @@ fetch attributes from GDBM and write them to the flatfile one at a
 time. At no time does it have all attributes in memory, and it does
 not even use the cache during database conversion, instead using the
 direct to GDBM routines.
+
+IMPORTANT NOTE: If you use GDBM, it is your responsibility to clean up your
+entries if they are no longer used. Since GDBM is not a relational database
+(you cannot do a wildcard search, you *must* search for an exact key), you
+must keep track of every entry that you write to it. Look at the code in
+db_rw.c that writes attribute names for an example of how to do this. If
+your module writes entries to GDBM and never deletes them, they will clog
+the database until it is converted to flatfile and back, dropping the unused
+entries in the process.
