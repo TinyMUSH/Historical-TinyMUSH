@@ -81,6 +81,7 @@ CMD_ONE_ARG(do_find);			/* Search for name in database */
 CMD_TWO_ARG(do_fixdb);			/* Database repair functions */
 CMD_TWO_ARG_CMDARG(do_force);		/* Force someone to do something */
 CMD_ONE_ARG_CMDARG(do_force_prefixed);	/* #<num> <cmd> variant of FORCE */
+CMD_ONE_ARG(do_freelist);		/* Move obj to head of freelist */
 CMD_TWO_ARG(do_function);		/* Make iser-def global function */
 CMD_ONE_ARG(do_get);			/* Get an object */
 CMD_TWO_ARG(do_give);			/* Give something away */

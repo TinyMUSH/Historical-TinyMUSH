@@ -619,6 +619,69 @@ dbref player, obj;
 }
 
 /* ---------------------------------------------------------------------------
+ * do_freelist: Grab a garbage object, and move it to the top of the freelist.
+ */
+
+void do_freelist(player, cause, key, str)
+    dbref player, cause;
+    int key;
+    char *str;
+{
+    dbref i, thing;
+
+    /* We can only take a dbref; don't bother calling match_absolute() even,
+     * since we're dealing with the garbage pile anyway.
+     */
+    if (*str != '#') {
+	notify(player, NOMATCH_MESSAGE);
+	return;
+    }
+    str++;
+    if (!*str) {
+	notify(player, NOMATCH_MESSAGE);
+	return;
+    }
+    thing = atoi(str);
+    if (!Good_obj(thing)) {
+	notify(player, NOMATCH_MESSAGE);
+	return;
+    }
+
+    /* The freelist is a linked list going from the highest-numbered
+     * objects to the lowest-numbered objects. We need to make sure an
+     * object is clean before we muck with it.
+     */
+
+    if (IS_CLEAN(thing)) {
+	if (mudstate.freelist == thing) {
+	    notify(player, "That object is already at the head of the freelist.");
+	    return;
+	}
+	/* We've got to find this thing's predecessor so we avoid 
+	 * circular chaining.
+	 */
+	DO_WHOLE_DB(i) {
+	    if (Link(i) == thing) {
+		if (IS_CLEAN(i)) {
+		    s_Link(i, Link(thing));
+		    break;	/* shouldn't have more than one linkage */
+		} else {
+		    notify(player, "Unable to relink freelist at this time.");
+		    return;
+		}
+	    }
+	}
+
+	s_Link(thing, mudstate.freelist);
+	mudstate.freelist = thing;
+	notify(player, "Object placed at the head of the freelist.");
+
+    } else {
+	notify(player, "That object is not clean garbage.");
+    }
+}
+
+/* ---------------------------------------------------------------------------
  * make_freelist: Build a freelist
  */
 
