@@ -71,7 +71,7 @@ in the one-step install, the installation process is as follows:
 
 STARTING A NEW GAME
 
-- Go into the game directory ('cd ../game' should get you there).
+- Go into the game directory ('cd game' or 'cd ../game' should do it).
 
 - Edit mush.config, according to the directions in that file.
 
@@ -87,13 +87,18 @@ STARTING A NEW GAME
 - Connect to the game using telnet or a MUD client. Log in the "God"
   character with 'connect #1 potrzebie'.
 
+- Change the password of the God character; make sure you make it something
+  that you can remember, but which can't be guessed by someone else!
+  Type '@password potrzebie = YourNewPassword', where YourNewPassword
+  is the new password that you've chosen.
+
 - You are now ready to build your game. It is strongly recommended that
   the God character only be logged in when absolutely necessary; create
   another character for yourself and give it the Wizard flag, for day
   to day use.
 
 - You may want to make sure that you can back up and restore your database:
-  type '@shutdown', then from the game directory, type './Backup'. If the
+  Type '@shutdown'. Then, from the game directory, type './Backup'. If the
   backup finishes successfully, type './Restore'. If this finishes 
   successfully, then type './Startmush' to start the game again.
 
@@ -101,7 +106,8 @@ STARTING A NEW GAME
   problem. The most common is a problem with GNU dbm; this is likely
   the cause if you @shutdown, type './Startmush', and find that the
   attributes in your database are gone. If this happens to you, check
-  your configuration and rebuild the netmush and dbconvert binaries.
+  your configuration and rebuild the netmush and dbconvert binaries,
+  if necessary.
 
 ----------------------------------------------------------------------------
 
@@ -119,7 +125,7 @@ COMPATIBILITY
 
 TinyMUSH 3.0 is believed to be compatible with all major versions of
 Unix, including SunOS 4.1.x, Solaris, Irix, AIX, HP-UX, and Linux.
-There is no Windows NT port.
+There is no Windows NT port at present.
 
 The frequent releases of new Linux versions, the proliferation of
 multiple Linux development paths, and the incompatibility between
