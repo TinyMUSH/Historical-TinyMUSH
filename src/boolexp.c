@@ -16,6 +16,7 @@
 #include "match.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
+#include "ansi.h"	/* required by code */
 
 #ifndef STANDALONE
 
@@ -586,6 +587,32 @@ dbref player;
 const char *buf;
 int internal;
 {
+	char *p;
+	int num_opens = 0;
+
+	if (!internal) {
+	    /* Don't allow funky characters in locks.
+	     * Don't allow unbalanced parentheses.
+	     */
+	    for (p = (char *) buf; *p; p++) {
+		if ((*p == '\t') || (*p == '\r') || (*p == '\n') ||
+		    (*p == ESC_CHAR)) {
+		    return (TRUE_BOOLEXP);
+		}
+		if (*p == '(') {
+		    num_opens++;
+		} else if (*p == ')') {
+		    if (num_opens > 0) {
+			num_opens--;
+		    } else {
+			return (TRUE_BOOLEXP);
+		    }
+		}
+	    }
+	    if (num_opens != 0)
+		return (TRUE_BOOLEXP);
+	}
+
 	StringCopy(parsestore, buf);
 	parsebuf = parsestore;
 	parse_player = player;
