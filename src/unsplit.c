@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-void main(argc, argv)
+int main(argc, argv)
 int argc;
 char **argv;
 {
