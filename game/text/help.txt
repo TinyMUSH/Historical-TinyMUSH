@@ -3493,20 +3493,6 @@ See also: JUMP_OK, FIXED, home, @lock
  
   See also: @oufail, @ufail, @use.
 
-& @ause
-  Command: @ause <object> = <command-list>
-  Attribute: Ause
- 
-  Sets the actions to be taken when someone uses the object with the use
-  command.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @ause grenade = :EXPLODES with a thundering roar; kill %n=100;
-                           @destroy me
-  See also: use, @ouse, @use.
-
 & @away
   Command: @away <object> = <message>
   Attribute: Away
@@ -3894,19 +3880,6 @@ See also: JUMP_OK, FIXED, home, @lock
  
   See also: @aufail, @ufail, @use.
 
-& @ouse
-  Command: @ouse <object> = <message>
-  Attribute: Ouse
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the room when someone uses <object>.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @ouse camera = takes a picture with the camera.
-  See also: use, @ause, @use.
-
 & @pay
   Command: @pay <object> = <message>
   Attribute: Pay
@@ -4018,18 +3991,6 @@ Example: @sex me = female
   Example: @ufail robot = The robot pointedly ignores you.
  
   See also: @aufail, @oufail, @use.
-
-& @use
-  Command: @use <object> = <message>
-  Attribute: Use
- 
-  Sets the message that is shown to the player who uses <object>.
- 
-  This attribute is only meaningful for players and things, and will never
-  be automatically triggered on other object types.
- 
-  Example: @use camera = You take a picture with the camera.  Click.
-  See also: use, @ause, @ouse.
 
 & @vrml_url
   Command: @vrml_url <location> = <url>
@@ -4681,6 +4642,49 @@ Continued in 'help Control2'.
 8. If the 'have_zones' configuration parameter is enabled, zone control
    is also a possibility. See 'help Zone Control' for the details.
  
+& ZONE
+  Flag: ZONE (o)
+ 
+  When set on an object, it declares this object a "Zone". Anything
+  which is parented to an object set ZONE treats that parent object like
+  a local equivalent of the Master Room, provided that the configuration
+  option "local_master_rooms" is turned on. To be precise:
+ 
+  If a player types a command, and it is not an exit, built-in command,
+  or $command on an object nearby, if his current location is parented 
+  to something set ZONE, the contents of that parent object will be
+  checked for $commands, in the same way that Master Room objects are
+  (i.e. the parents of the objects in the ZONE room are not checked for
+  $commands). If the ZONE object also has a parent which is set ZONE, then 
+  the contents of that object will be checked, and so on. 
+ 
+  If nothing is matched in this way, then, if the player himself
+  is parented to a ZONE object, that object's contents are checked. 
+  "Secondary parents" are not checked for player zones. If still nothing 
+  matches, only then will the global Master Room be checked.
+ 
+  Continued in 'help Zone2'.
+ 
+& ZONE2
+ 
+  Most of the same caveats which apply to the global Master Room also apply
+  to ZONE objects (henceforth referred to as local master rooms). The number
+  of objects in the room should be kept to an absolute minimum. Objects
+  which do not have $commands on them should not be placed in the room.
+  Objects placed in a master room should only contain attributes with 
+  $commands and other essentials (@startup, @forwardlist, and so forth);
+  data attributes should be placed on another object (parenting the commands
+  object to a data object is helpful, since master room checks do not
+  look at the parent for $commands).
+ 
+  Commands on objects in a local master room are run with the permissions
+  of that object. This enables an area to utilize a set of $commands that
+  might run with the permissions of different builders; furthermore, ZONEs
+  enable a single command object to be set INHERIT, if that sort of 
+  permission is needed (since simply putting $commands directly on the
+  parent room causes those $commands to run with the permissions of the
+  child object).
+ 
 & Zone Control
  
 Topic:  Zone Control
@@ -4792,49 +4796,6 @@ you kept typing 'leave' until you couldn't go any farther.
   multiple matches on the same command are not used/desired, this
   flag can save the needless computational expense of extra matching.
  
-& ZONE
-  Flag: ZONE (o)
- 
-  When set on an object, it declares this object a "Zone". Anything
-  which is parented to an object set ZONE treats that parent object like
-  a local equivalent of the Master Room, provided that the configuration
-  option "local_master_rooms" is turned on. To be precise:
- 
-  If a player types a command, and it is not an exit, built-in command,
-  or $command on an object nearby, if his current location is parented 
-  to something set ZONE, the contents of that parent object will be
-  checked for $commands, in the same way that Master Room objects are
-  (i.e. the parents of the objects in the ZONE room are not checked for
-  $commands). If the ZONE object also has a parent which is set ZONE, then 
-  the contents of that object will be checked, and so on. 
- 
-  If nothing is matched in this way, then, if the player himself
-  is parented to a ZONE object, that object's contents are checked. 
-  "Secondary parents" are not checked for player zones. If still nothing 
-  matches, only then will the global Master Room be checked.
- 
-  Continued in 'help Zone2'.
- 
-& ZONE2
- 
-  Most of the same caveats which apply to the global Master Room also apply
-  to ZONE objects (henceforth referred to as local master rooms). The number
-  of objects in the room should be kept to an absolute minimum. Objects
-  which do not have $commands on them should not be placed in the room.
-  Objects placed in a master room should only contain attributes with 
-  $commands and other essentials (@startup, @forwardlist, and so forth);
-  data attributes should be placed on another object (parenting the commands
-  object to a data object is helpful, since master room checks do not
-  look at the parent for $commands).
- 
-  Commands on objects in a local master room are run with the permissions
-  of that object. This enables an area to utilize a set of $commands that
-  might run with the permissions of different builders; furthermore, ZONEs
-  enable a single command object to be set INHERIT, if that sort of 
-  permission is needed (since simply putting $commands directly on the
-  parent room causes those $commands to run with the permissions of the
-  child object).
-
 & User Commands
  
 Topic:  User Commands
@@ -5556,6 +5517,23 @@ See also: @link, @open.
   typically 50. If an attempt is made to set more than 50 variables,
   it will fail silently. See 'wizhelp variables_limit' for details.
  
+& STACK
+  Topic: STACK
+ 
+  Command lists that are run on objects can have up to 10 stack values
+  named %0 through %9 (or [v(0)] through [v(9)]).  Stack values can be set
+  by the @trigger command, or by matching wildcard characters in the Listen
+  attribute (in the case of the Ahear, Aahear, and Amhear attributes).
+ 
+  Example:
+    > @listen item = * foo *
+    Set.
+    > @ahear item = "-->[v(1)]<-- bar -->[v(0)]<--
+    Set.
+    > say Fee fie foo fum
+    You say "Fee fie foo fum"
+    item says "-->fum"<-- bar -->Wizard says "Fee fie<--"
+ 
 & STACK FUNCTIONS
   Topic: Stack functions
  
@@ -5917,23 +5895,6 @@ The list of loaded modules can be obtained via the 'version' command.
    Wizard gently shows you the door.
  
    *** Disconnected ***
-
-& STACK
-  Topic: STACK
- 
-  Command lists that are run on objects can have up to 10 stack values
-  named %0 through %9 (or [v(0)] through [v(9)]).  Stack values can be set
-  by the @trigger command, or by matching wildcard characters in the Listen
-  attribute (in the case of the Ahear, Aahear, and Amhear attributes).
- 
-  Example:
-    > @listen item = * foo *
-    Set.
-    > @ahear item = "-->[v(1)]<-- bar -->[v(0)]<--
-    Set.
-    > say Fee fie foo fum
-    You say "Fee fie foo fum"
-    item says "-->fum"<-- bar -->Wizard says "Fee fie<--"
 
 & SUBSTITUTIONS
   Topic: SUBSTITUTIONS
@@ -10706,6 +10667,16 @@ performed and the walk down the list stops.
  
   Returns the name of the channel that <player> has aliased as <alias>.
  
+& comlist
+ 
+  Command: comlist
+ 
+  Displays all of your comsystem aliases, the channels that they are
+  associated with, and whether or not you are 'on' (listening) to each
+  of them. It also shows the titles associated with each alias.
+  
+  See also: comtitle, addcom, comsys aliases, delcom.
+ 
 & COMLIST()
   Function:  comlist([<output delimiter>])
  
@@ -10716,6 +10687,26 @@ performed and the walk down the list stops.
   Function:  comowner(<channel>)
  
   Returns the dbref of the owner of the channel.
+ 
+& comtitle
+ 
+  Command: comtitle <alias>=<title>
+ 
+  This command allows you to prefix your name on a channel with a title,
+  or, if the channel if set Spoof, allows you to replace your name on
+  that channel with a title.
+  
+  Titles are associated with specific aliases, so if you have multiple
+  aliases associated with a single channel, you can have different titles
+  for each alias.
+ 
+  For example:
+  > comtitle pub=The Great and Powerful
+  Title set to 'The Great and Powerful' on channel Public.
+  > pub :waves to everyone.
+  [Public] The Great and Powerful Foobar waves to everyone.
+ 
+  See also: comlist, addcom, comsys aliases, delcom.
  
 & COMTITLE()
   Function:  comtitle(<player>, <alias>)
@@ -11402,36 +11393,6 @@ See the individual help entries for comsys commands for details.
   every channel you subscribe to. 
   
   See also: comsys aliases, comtitle, delcom, addcom.
- 
-& comlist
- 
-  Command: comlist
- 
-  Displays all of your comsystem aliases, the channels that they are
-  associated with, and whether or not you are 'on' (listening) to each
-  of them. It also shows the titles associated with each alias.
-  
-  See also: comtitle, addcom, comsys aliases, delcom.
- 
-& comtitle
- 
-  Command: comtitle <alias>=<title>
- 
-  This command allows you to prefix your name on a channel with a title,
-  or, if the channel if set Spoof, allows you to replace your name on
-  that channel with a title.
-  
-  Titles are associated with specific aliases, so if you have multiple
-  aliases associated with a single channel, you can have different titles
-  for each alias.
- 
-  For example:
-  > comtitle pub=The Great and Powerful
-  Title set to 'The Great and Powerful' on channel Public.
-  > pub :waves to everyone.
-  [Public] The Great and Powerful Foobar waves to everyone.
- 
-  See also: comlist, addcom, comsys aliases, delcom.
  
 & clearcom
  

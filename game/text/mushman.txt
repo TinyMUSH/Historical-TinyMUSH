@@ -61,6 +61,29 @@ contents can be viewed in the I, II, III, IV, and V sections.  There
 should be a man topic for each sub-number listed in the tables of
 contents. (e.g. 2.3)
  
+& I
+MUSH Manual Version 2.008:
+   Copyright 1993, 1994, 1995, Lydia Leong (lwl@godlike.com / Amberyl)
+   Last revised 5/22/95.
+ 
+Section I: Getting Started. Basic commands and objects.
+ 
+Table of Contents:
+ 
+Introduction: A brief history of MUSH. Configurations and server differences.
+ 
+1. The Basics
+ 1.1  Some information
+        Common terms used on MUSHes.
+        The format of this manual.
+ 1.2  Getting started
+        Looking around: look, examine, @decompile, TERSE, MYOPIC, @grep
+        Communications: ", :, @emits, page, whisper, basic flags and @set,
+           HAVEN, GAGGED, NOSPOOF
+        Going places: JUMP_OK, @tel, @whereis, UNFINDABLE
+ 
+(Continued in 'man I1'.)
+ 
 & introduction
 (To skip the TOC, type 'man intro8'.)
 MUSH Manual Version 2.008
@@ -369,29 +392,6 @@ profit from such publication), nor may it be hypertextified or
 otherwise changed in format, without the explicit permission of the
 author.
      --  Amberyl, May 22nd, 1995
- 
-& I
-MUSH Manual Version 2.008:
-   Copyright 1993, 1994, 1995, Lydia Leong (lwl@godlike.com / Amberyl)
-   Last revised 5/22/95.
- 
-Section I: Getting Started. Basic commands and objects.
- 
-Table of Contents:
- 
-Introduction: A brief history of MUSH. Configurations and server differences.
- 
-1. The Basics
- 1.1  Some information
-        Common terms used on MUSHes.
-        The format of this manual.
- 1.2  Getting started
-        Looking around: look, examine, @decompile, TERSE, MYOPIC, @grep
-        Communications: ", :, @emits, page, whisper, basic flags and @set,
-           HAVEN, GAGGED, NOSPOOF
-        Going places: JUMP_OK, @tel, @whereis, UNFINDABLE
- 
-(Continued in 'man intro I1'.)
  
 & I1
         Objects: get, drop, give, ENTER_OK, inventory
@@ -2350,9 +2350,9 @@ To get a count of how many objects you own, use "@stats". In 2.0,
 returns a breakdown of what you own. 2.0 @stats breakdowns cost the same
 as @find, so be careful with it.
  
-(Continued in 'man 2.8.11'.)
+(Continued in 'man 2.8.12'.)
  
-& 2.8.11
+& 2.8.12
 In 1.50, "@stats" returns a breakdown of types in the database.
 "@stats me" returns a breakdown of what you own. Wizards can use
 "@stats <player>" to get a breakdown of what any player owns.

@@ -3316,8 +3316,8 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
 
 & sweep_dark
   Config parameter: sweep_dark <yes/no>.  Default: No
-  Indicates whether or not players are allowed to @sweep dark places they do not
-  control.
+  Indicates whether or not players are allowed to @sweep dark places they
+  do not control.
   See also: @sweep.
 
 & switch_default_all
@@ -3334,16 +3334,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   look if look_obey_terse is turned on.
  
   See also: look_obey_terse, terse_shows_exits, terse_shows_move_messages.
-
-& terse_shows_contents
-  Config parameter: terse_shows_contents <yes/no>.  Default yes
  
-  Indicates whether or not to suppress the listing of a location's contents
-  when producing TERSE output (whether from an automatic look or a 'real'
-  look if look_obey_terse is turned on.
- 
-  See also: look_obey_terse, terse_shows_exits, terse_shows_move_messages.
-
 & terse_shows_exits
   Config parameter: terse_shows_exits <yes/no>.  Default yes
  
@@ -3352,7 +3343,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   'real' look if look_obey_terse is turned on.
  
   See also: look_obey_terse, terse_shows_contents, terse_shows_move_messages.
-
+ 
 & terse_shows_move_messages
   Config parameter: terse_shows_move_messages <yes/no>.  Default yes
  
@@ -3363,7 +3354,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   performed (Axxx attributes) are unaffected.
  
   See also: look_obey_terse, terse_shows_contents, terse_shows_exits.
-
+ 
 & thing_attr_defaults
  Config parameter: thing_attr_defaults <dbref>.  Default: Nothing
  
