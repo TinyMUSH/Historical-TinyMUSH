@@ -175,13 +175,6 @@ When you start your game from the command line, the startup information
 is logged to GAMENAME.log, where GAMENAME is what you specified it to
 be in your mush.config file.
 
-Subsequently, log information is written to whatever you set your
-game_log configuration parameter to be in your GAMENAME.conf file
-(whatever GAMENAME is); if you didn't specify that parameter,
-'netmush.log' will be used. In general, you will probably want to set
-it to GAMENAME.log, so startup information and regular log information
-are all written to the same file.
-
 You can separate log information of different types into multiple
 files, using the divert_log configuration parameter. See the wizhelp
 for details.
@@ -191,24 +184,21 @@ and renamed to LOGNAME.TIMESTAMP, where LOGNAME is the name of the log,
 and TIMESTAMP is the "epoch time" (equivalent to the number of seconds
 returned by the secs() MUSH function). You can delete those logfiles
 to reclaim disk space, if you'd like. The current logfile will always
-have the "standard" name as specified by the game_log and/or divert_log
+have the "standard" name as specified by GAMENAME.log and/or divert_log
 parameters, though.
 
 When you start the game using the Startmush script, any existing
-GAMENAME.log files, or log files named by the game_log and divert_log
-conf parameters, will be renamed to LOGNAME.old (whatever the name
-of the log happens to be). Any previous logs by those names (with
-a .TIMESTAMP extension) will be deleted.
+GAMENAME.log files, or log files named by divert_log conf parameters, will
+be renamed to LOGNAME.old (whatever the name of the log happens to be). Any
+previous logs by those names (with a .TIMESTAMP extension) will be deleted.
 
-When the MUSH is running, you can use, from the game directory,
-'./Logclean' to remove logs with a .TIMESTAMP extension, and
-'./Logclean -o' to remove logs with a .TIMESTAMP or .old
-extension.
+When the MUSH is running, you can use, from the game directory, './Logclean'
+to remove logs with a .TIMESTAMP extension, and './Logclean -o' to remove
+logs with a .TIMESTAMP or .old extension.
 
-When the MUSH is not running, './Logclean -a' can be used to
-get rid of all logfiles -- GAMENAME.log, anything named by the
-game_log and divert_log conf parameters, and their old versions
-with .TIMESTAMP and .old extensions.
+When the MUSH is not running, './Logclean -a' can be used to get rid of all
+logfiles -- GAMENAME.log, anything named by the divert_log conf parameters,
+and their old versions with .TIMESTAMP and .old extensions.
 
 ------------------------------------------------------------------------------
 
