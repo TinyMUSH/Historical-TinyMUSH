@@ -81,6 +81,12 @@ called it).
 - I don't want to allow powers to be set on objects.
   Put 'access @power disabled' in your conf file.
 
+- I don't like the last-paged feature.
+  Put 'page_requires_equals yes' in your conf file. This will enforce the
+  use of an equals sign to page someone again, i.e., 'page =<message>'
+  is needed, not just 'page <message>'. This should prevent virtually
+  all last-paged-related mishaps.
+
 - I don't want to allow @conformat and/or @exitformat to be used.
   Put 'attr_access ConFormat disabled' and/or 'attr_access ExitFormat disabled'
   in your conf file.
