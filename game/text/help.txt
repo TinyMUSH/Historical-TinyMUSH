@@ -2917,6 +2917,8 @@ See also: @emit, @oemit, @npemit, page
  
   See also: REDIR_OK.
  
+& nrefs
+& name references
 & @reference
 Command: @reference <reference name> = [<object>]
          @reference/list [<player>]
