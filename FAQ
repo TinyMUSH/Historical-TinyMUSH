@@ -443,16 +443,17 @@ Then, handle the locks:
   > @create Ghost Ears
   Ghost Ears created as object #22.
 
-  > &GCHECK Ghost Ears = or(hasflag(%#,Ghost),rand(2))
+  > &GCHECK Ghost Ears = or(hasflag(%#,_Ghost),rand(2))
   > @lock Ghost Ears = GCHECK/1
 
   > @create Ghost Haze
   Ghost Haze created as object #33.
 
-  > &HCHECK Ghost Haze = hasflag(%#,Ghost)
+  > &HCHECK Ghost Haze = hasflag(%#,_Ghost)
   > @lock Ghost Haze = HCHECK/1
 
   > @set *Caspar = PRESENCE
+  > @set *Caspar = _GHOST
   > @lock/hears *Caspar = @#22
   > @lock/heard *Caspar = @#33
   > @lock/known *Caspar = @#33
