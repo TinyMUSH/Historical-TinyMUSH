@@ -32,6 +32,8 @@ extern int FDECL(check_read_perms, (dbref, dbref, ATTR *, int, int, char *, char
 extern void FDECL(arr2list, (char **, int, char *, char **, char));
 extern void FDECL(make_portlist, (dbref, dbref, char *, char **));
 extern INLINE char *FDECL(get_mail_message, (int));
+extern double NDECL(makerandom);
+
 
 /* This is the prototype for functions */
 
@@ -3097,32 +3099,6 @@ FUNCTION(fun_munge)
 	free_lbuf(rlist);
 }
 
-/* die() code borrowed from PennMUSH 1.50 */
-int getrandom(x)
-int x;
-{
-	/* In order to be perfectly anal about not introducing any further
-	 * sources of statistical bias, we're going to call random()
-	 * until we get a number less than the greatest representable 
-	 * multiple of x. We'll then return n mod x. 
-	 */
-	long n;
-
-	if (x <= 0)
-		return -1;
-
-	do {
-		n = random();
-	} while (LONG_MAX - n < x);
-
-/* N.B. This loop happens in randomized constant time, and pretty damn
- * fast randomized constant time too, since P(LONG_MAX - n < x) < 0.5
- * for any x, so for any X, the average number of times we should
- * have to call random() is less than 2.
- */
-	return (n % x);
-}
-
 FUNCTION(fun_die)
 {
 	int n, die, count;
@@ -3146,7 +3122,7 @@ FUNCTION(fun_die)
 		return;
 	}
 	for (count = 0; count < n; count++)
-		total += getrandom(die) + 1;
+		total += (int) (makerandom() * die) + 1;
 
 	safe_ltos(buff, bufc, total);
 }

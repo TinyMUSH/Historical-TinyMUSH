@@ -450,6 +450,51 @@ static void fval_buf(buff, result)
 }
 
 /* ---------------------------------------------------------------------------
+ * Random number generator. This uses Whip's implementation of an algorithm
+ * in the _Communications of the ACM_, Volume 31, Number 10, from the article
+ * "Random Number Generators: Good Ones are Hard to Find" (S.K. Park,
+ * K.W. Miller).
+ */
+
+double makerandom()
+{
+    /* An int must be at least 32 bits. Don't change these constants. */
+
+    const unsigned int a = 16807;
+    const unsigned int m = 2147482647;
+    const unsigned int q = 127773; /* m div a */
+    const unsigned int r = 2836;   /* m mod a */
+
+    unsigned int lo, hi;
+    int test;
+    static unsigned int seed = 0;
+  
+    /* This isn't the best seed in the world, but it's portable. There's
+     * nothing truly random that's portable to get to, unfortunately. We're
+     * going to adjust with the PID because any normal user can get the time
+     * the MUSH started (or close to it) trivially, which would make the whole
+     * sequence predictable. Using PID isn't much better, but it's portable, 
+     * and means you at least have to have machine access to figure it out
+     * (or be a wizard).
+     */
+
+    if (!seed) seed = time(NULL) + (int) getpid();
+
+    hi = seed / q; 
+    lo = seed % q;
+  
+    test = (a * lo) - (r * hi);
+
+    if (test > 0) {
+	seed = test;
+    } else {
+	seed = test + m;
+    }
+
+    return ((double) seed / m);
+}
+
+/* ---------------------------------------------------------------------------
  * fn_range_check: Check # of args to a function with an optional argument
  * for validity.
  */
@@ -574,7 +619,8 @@ FUNCTION(fun_rand)
 	if (num < 1)
 		safe_str("0", buff, bufc);
 	else
-		safe_tprintf_str(buff, bufc, "%ld", (random() % num));
+		safe_tprintf_str(buff, bufc, "%ld",
+				 (long) (makerandom() * num));
 }
 
 /* ---------------------------------------------------------------------------
