@@ -1,0 +1,63 @@
+# Makefile for TinyMUSH ComSystem
+#
+DEFS =
+OPTIM = -g -O
+
+# ================== END OF CONFIGURATION SECTION =================
+
+# General parameters.
+SHELL=/bin/sh
+srcdir = @srcdir@
+top_builddir = @srcdir@
+VPATH = @srcdir@
+CC = @CC@
+# CPP = @CPP@	# This is broken in autoconf.  Sigh.
+CPP = $(CC) -E
+LIBTOOL = @LIBTOOL@
+LIBS = @LIBS@
+LIBOBJS = @LIBOBJS@
+DEBUG	= $(OPTIM)
+ALLCFLAGS = $(CFLAGS) $(DEBUG) $(DEFS)
+
+# Module source files
+MOD_S = comsys.c
+MOD_O = comsys.o
+MOD_LA = comsys.la
+
+# paths is likely to remain broken
+all: depend-update $(MOD_LA) install
+
+depend: $(MOD_S) Makefile
+	for i in $(MOD_S); do $(CPP) $(ALLCFLAGS) -MM $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ../../unsplit > .depend~
+	for i in $(MOD_LA); do echo $$i: $$i | sed -e 's/la$$/o/'; done >> .depend~
+	mv .depend~ .depend
+	touch depend
+
+depend-update: depend
+	touch depend-update
+	@echo Dependencies were updated, now run make
+	exit 1
+
+install:
+	cp -r $(MOD_LA) .libs ../../../game/modules
+
+.c.o:
+	$(CC) $(ALLCFLAGS) -c $<
+
+$(MOD_O):
+	$(LIBTOOL) --mode=compile $(CC) $(ALLCFLAGS) -c `echo $@ | sed -e 's/o$$/c/'`
+
+$(MOD_LA):
+	$(LIBTOOL) --mode=link $(CC) -module -o $@ `echo $@ | sed -e 's/a$$/o/'` -rpath `pwd`
+
+clean:
+	-rm -f *.o *.lo *.la a.out core gmon.out 
+	-rm -rf .libs
+
+TAGS: *.c *.h
+	etags *.c *.h
+
+indent:
+	indent -bad -bap -ncdb -nsob -fca -sc -br -ce -ss -npcs -nbc -lp -i8 -ip0 -cp5 -ncs -npsl -di1 *.c radixlib/*.c tools/*.c web/*.c
+
+include .depend

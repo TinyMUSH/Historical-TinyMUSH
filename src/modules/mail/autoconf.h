@@ -1,0 +1,1 @@
+/* autoconf.h.  Generated automatically by configure.  */
