@@ -683,7 +683,7 @@ char *msglist;
 	struct mail_selector ms;
 	int i = 0, j = 0;
 	dbref target;
-	char *tbuf1, *msg, *status, *bp, *str;
+	char *tbuf1, *msg, *status, *bp, *str, *strp;
 
 
 	target = lookup_player(player, name, 1);
@@ -730,11 +730,11 @@ char *msglist;
 					 */
 					j++;
 					status = status_string(mp);
-					str = strdup(get_mail_message(mp->number));
+					str = strp = strdup(get_mail_message(mp->number));
 					msg = bp = alloc_lbuf("do_mail_review");
 					exec(msg, &bp, player, player, player,
 					  EV_EVAL | EV_FCHECK | EV_NO_COMPRESS,
-					     &str, (char **)NULL, 0);
+					     &strp, (char **)NULL, 0);
 					*bp = '\0';
 					free(str);
 					notify(player, DASH_LINE);
