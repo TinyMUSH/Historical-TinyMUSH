@@ -570,6 +570,7 @@ dbref player;
 	    return 0;
 	}
 
+#ifndef STANDALONE
 	if (mudconf.safer_passwords) {
 	    if (num_upper < 1) {
 		notify_quiet(player,
@@ -587,6 +588,7 @@ dbref player;
 		return 0;
 	    }
 	}
+#endif /* STANDALONE */
 
 	return 1;
 }
