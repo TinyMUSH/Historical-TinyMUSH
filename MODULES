@@ -388,12 +388,6 @@ void mod_<name>_examine(dbref player, dbref cause, dbref thing,
 void mod_<name>_make_minimal(void)
 	Run if making a minimal database is specified.
 
-void mod_<name>_load_database(void)
-	Load database specific to module.
-
-void mod_<name>_dump_database(void)
-	Dump database specific to module.
-
 void mod_<name>_cleanup_startup(void)
 	Run after the restart database is read, but before @startups
 	on objects are done.
@@ -523,3 +517,233 @@ int mod_<name>_did_it(dbref player, dbref thing, dbref master,
 	move objects eventually call did_it() with <what> of A_MOVE.
 	If you want to intercept all movement, just check for 
 	'what == A_MOVE' and act accordingly in this function.
+
+-----------------------------------------------------------------------------
+
+STORING DATA IN FLATFILES
+
+There are three different methods available to a module for storing data.
+
+The first and easiest method is for the module to read its data from a flat
+text file on startup. Every time the server checkpoints, it will then call
+your module to dump its flatfile database. The following API hooks provide
+this functionality:
+
+void mod_<name>_load_database(FILE *f)
+	Load flat text database specific to module, called at startup. 
+	The file descriptor is read only.
+
+void mod_<name>_dump_database(FILE *f)
+	Dump flat text database specific to module, called during
+	checkpoint. The file descriptor is write only.
+
+These two functions are passed an open file descriptor for a file named
+'mod_<name>.db' in the MUSH data directory. Your module should store only
+printable ASCII data in this file, however the format and versioning is up
+to you. You should NEVER open this file directly.
+
+-----------------------------------------------------------------------------
+
+STORING DATA IN GDBM WITH NO CACHING
+
+The second method is to store data directly in the GDBM database. GDBM is a
+'random-access' database that allows your to store and fetch individual
+pieces of data at a time. This is identical to how the MUSH stores its
+structure data and requires your module to be able to dump or convert a
+printable ASCII flatfile when database conversion (backups and restores) is
+run.
+
+Since the MUSH stores many different types of data in GDBM, it has to have a
+way to keep these pieces of data seperate. It does so by allocating each
+subsystem a 'dbtype' number. A block of numbers is already reserved for
+internal MUSH data, and the rest are available for use by modules. Each
+subsystem specifies this number when it stores data. Before you may read or
+write to GDBM, your module must obtain a dbtype number with the
+register_dbtype function:
+
+unsigned int register_dbtype(char *modname) 
+	Assigns a new dbtype ID number for a certain module name. If a
+	dbtype ID has already been assigned for that module, it will be
+	returned.
+
+There are four API hooks provided for reading data needed at startup and
+checkpointing to GDBM as well as reading and writing flatfiles:
+
+void mod_<name>_db_read(void)
+	Load any module-specific data from GDBM at startup.  Called during
+	MUSH startup, and during the backup conversion process before
+	db_write_flatfile() is called.
+
+void mod_<name>_db_write(void)
+	Write any module-specific data to GDBM. Called during MUSH
+	checkpoints, at shutdown, and during the restoral conversion process
+	after db_read_flatfile() is called.
+
+void mod_<name>_db_read_flatfile(FILE *f) 
+
+	Load and convert flat text database specific to module, called
+	during the restoral db conversion process (the 'Restore' script).
+	This is identical to the 'load_database' hook except it is ONLY
+	called during database conversion.
+
+void mod_<name>_db_write_flatfile(FILE *f) 
+	Dump flat text database specific to module, called during the backup
+	db conversion process (the 'Backup' script). This is identical to
+	the 'dump_database' hook except it is ONLY called during database
+	conversion.
+
+It is important to note that register_dbtype() must be called at the
+beginning of each of these four functions since module initialization DOES
+NOT TAKE PLACE when your module is loaded during database conversion, and
+your module cannot know which of these functions will be called first.
+
+A typical MUSH server run will look like this:
+
+* MUSH startup
+* Module initialization:		mod_<name>_init()
+* Module executes db_read:		mod_<name>_db_read()
+					register_dbtype()
+* Module reads data from GDBM
+* MUSH runs...
+* MUSH and module dump/checkpoint:	mod_<name>_db_write()
+* MUSH runs...
+* MUSH and module dump/checkpoint:	mod_<name>_db_write()
+* MUSH runs...
+* MUSH shutdown:			mod_<name>_db_write()
+
+A backup database process will look like this:
+
+* Database conversion begins
+* Module executes db_read:		mod_<name>_db_read()
+					register_dbtype()
+* Module reads data from GDBM
+* Module writes flatfile:		mod_<name>_db_write_flatfile()
+* Database conversion ends
+
+A restoral process will look like this:
+
+* Database conversion begins
+* Module reads flatfile:		mod_<name>_db_read_flatfile()
+* Module executes db_write:		mod_<name>_db_write()
+					register_dbtype()
+* Module writes data to GDBM
+* Database conversion ends
+
+Reading and writing to GDBM only during db_read() and db_write() doesn't
+offer much advantage over just using flatfiles. However, the advantage of
+GDBM is that you may read or write any piece of data at any time instead of
+having to do it all at once. So while the MUSH is running, if your module's
+data is modified you may choose to write just that data immediately or wait
+until db_write() to write it. In any case, you must make sure that all of
+your module's data is stored when db_write() is finished to ensure
+consistency when the MUSH is shutdown.
+
+Note that during the database conversion process you may have your module
+read a piece of data from GDBM and write it immediately to a flatfile, or
+vice versa.
+
+So far we've told you when you can read and write, but not how. Another
+advantage of GDBM is that you are not limited to printable ASCII data, but
+that you can store binary data of arbitrary length. There are three
+functions available for this purpose:
+
+void dddb_get(void *keydata, int keylen, void **dataptr, int *datalenptr,
+	      unsigned int dbtype)
+
+	Retrieves data from GDBM. 
+
+	'keydata' is a pointer to a buffer containing a search key which is
+	binary data of length 'keylen'.
+	
+	'dataptr' is a pointer to void *. This is usually declared as 
+	'void *data' and passed as '&data'. When the function completes,
+	'data' points to the retrieved buffer and must be freed using 
+	'free(data)' when you are through with it.
+
+	'datalenptr is a pointer to int. This is usually declared as
+	'int datalen' and passed as '&datalen'. When the function completes,
+	'datalen' is the length of the retrieved buffer.
+	
+	'dbtype' should be the dbtype ID registered for your module by
+	register_dbtype().
+
+int dddb_put(void *keydata, int keylen, void *data, int datalen, 
+	     unsigned int dbtype)
+
+	Stores or replaces data in GDBM.
+
+	'keydata' is a pointer to a buffer containing a search key which is
+	binary data of length 'keylen'.
+
+	'data' is a void * which should point to the data you wish to store.
+	This may be any type of data and it does not need to be null
+	terminated.
+	
+	'datalen' is an integer which should contain the length of the data
+	you wish to store.
+
+	'dbtype' should be the dbtype ID registered for your module by
+	register_dbtype().
+	
+int dddb_del(void *keydata, int keylen, unsigned int dbtype)
+
+	Deletes data from GDBM.
+	
+	'keydata' is a pointer to a buffer containing a search key which is
+	binary data of length 'keylen'.
+
+	'dbtype' should be the dbtype ID registered for your module by
+	register_dbtype().
+
+Your search key may be a string, a number, or binary data of any length.
+For example, if you want your search key to be three integers, you will
+create a buffer of length 'sizeof(int)*3' and copy your three integers into
+it.
+
+-----------------------------------------------------------------------------
+
+STORING DATA IN GDBM WITH CACHING
+
+In MUSH the cache is essentially a front-end to GDBM, and interacting with
+it is identical. In fact, the function calls match almost exactly. Instead
+of dddb_get(), dddb_put(), and dddb_del(), you use cache_get(), cache_put(),
+and cache_del(). The parameters to the cache functions are the same ones you
+pass to their GDBM counterparts. The cache acts as a 'buffer', making sure
+the most often accessed data is already in memory, and making writes more
+efficient by buffering them until a number of entries may be written at
+once. You don't need to worry about how the cache operates, it will make
+sure everything gets read and written properly.
+
+-----------------------------------------------------------------------------
+
+WHICH METHOD OF STORING DATA TO USE
+
+If the amount of data your module works with is small and fits easily into
+memory, use simple flatfiles with load_database() and dump_database() hooks.
+You do not need to worry about database conversion since all of your data is
+always in a flatfile!
+
+If you need random access to your data consider using GDBM. The main server
+uses GDBM to store everything, from object structures to attribute names.
+Since it can write individual entries, it only has to write entries that
+have changed instead of writing them all, thus making the process more
+efficient. It also allows you to easily store binary data.
+
+If your module with large pieces of data that are needed infrequently,
+considering using the cache. MUSH attributes are stored using the cache, and
+data like mail messages or large pieces of text are perfect candidates for
+it.
+
+As an example, the main server does not cache object structures or attribute
+names. It reads these completely in at startup in its own db_read(), and
+writes all changes out during every db_write(). It does however cache
+attribute text, and may read or write attributes using the cache at any time
+while the MUSH process is running. A similar process takes place during
+database conversion. When it is creating a flatfile from GDBM, MUSH will
+first load all object structures and attribute names into memory during
+db_read(). When db_write_flatfile() executes, it will write a printable
+ASCII text representation of object structures and attribute names to the
+flatfile, and it will fetch attributes from GDBM and write them to the
+flatfile one at a time. At no time does it have all attributes in memory,
+and it does not even use the cache during database conversion, instead using
+the direct to GDBM routines.
