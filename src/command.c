@@ -1039,56 +1039,67 @@ int interactive, ncargs;
 			(*(cmdp->info.handler)) (player, cause, key, buf1,
 					    cargs, ncargs);
 		} else {
-			if (cmdp->callseq & CS_ADDED) {
-				for (add = (ADDENT *)cmdp->info.added; add != NULL; add = add->next) {
-					buff = atr_get(add->thing,
-						add->atr, &aowner, &aflags);
-					/* Skip the '$' character, and the next */
-					for (s = buff + 2; *s && (*s != ':'); s++) ;
-					if (!*s)
-						break;
-					*s++ = '\0';
-					for (j = unp_command; *j && (*j != ' '); j++) ;
-					new = alloc_lbuf("process_cmdent.soft");
-					bp = new;
-					if (!*j) {
-						/* No args */
-						if (!(cmdp->callseq & CS_LEADIN)) {
-							safe_str(cmdp->cmdname, new, &bp);
-						} else {
-							safe_str(unp_command, new, &bp);
-						}
-						if (switchp) {
-							safe_chr('/', new, &bp);
-							safe_str(switchp, new, &bp);
-						}
-						*bp = '\0';
-					} else {
-						j++;
-						safe_str(cmdp->cmdname, new, &bp);
-						if (switchp) {
-							safe_chr('/', new, &bp);
-							safe_str(switchp, new, &bp);
-						}
-						safe_chr(' ', new, &bp);
-						safe_str(j, new, &bp);
-						*bp = '\0';
-					} 
-				
-					if (wild(buff + 1, new, aargs, 10)) {
-						wait_que(add->thing, player,
-					        	0, NOTHING, 0, s, aargs, 10,
-							mudstate.global_regs);
-						for (i = 0; i < 10; i++) {
-							if (aargs[i])
-								free_lbuf(aargs[i]);
-						}
-					}
-					free_lbuf(new);
-					free_lbuf(buff);
+		    if (cmdp->callseq & CS_ADDED) {
+			for (add = (ADDENT *)cmdp->info.added;
+			     add != NULL; add = add->next) {
+			    buff = atr_get(add->thing,
+					   add->atr, &aowner, &aflags);
+			    /* Skip the '$' character, and the next */
+			    for (s = buff + 2; *s && (*s != ':'); s++) ;
+			    if (!*s)
+				break;
+			    *s++ = '\0';
+			    /* In the case of a single-letter prefix, we want
+			     * to just skip past that first letter. Otherwise
+			     * we want to go past the first word.
+			     */
+			    if (!(cmdp->callseq & CS_LEADIN)) {
+				for (j = unp_command; *j && (*j != ' '); j++) ;
+			    } else {
+				j = unp_command; j++;
+			    }
+			    new = alloc_lbuf("process_cmdent.soft");
+			    bp = new;
+			    if (!*j) {
+				/* No args */
+				if (!(cmdp->callseq & CS_LEADIN)) {
+				    safe_str(cmdp->cmdname, new, &bp);
+				} else {
+				    safe_str(unp_command, new, &bp);
 				}
-			} else 
-				(*(cmdp->info.handler)) (player, cause, key, buf1);
+				if (switchp) {
+				    safe_chr('/', new, &bp);
+				    safe_str(switchp, new, &bp);
+				}
+				*bp = '\0';
+			    } else {
+				if (!(cmdp->callseq & CS_LEADIN))
+				    j++;
+				safe_str(cmdp->cmdname, new, &bp);
+				if (switchp) {
+				    safe_chr('/', new, &bp);
+				    safe_str(switchp, new, &bp);
+				}
+				if (!(cmdp->callseq & CS_LEADIN))
+				    safe_chr(' ', new, &bp);
+				safe_str(j, new, &bp);
+				*bp = '\0';
+			    } 
+			    
+			    if (wild(buff + 1, new, aargs, 10)) {
+				wait_que(add->thing, player,
+					 0, NOTHING, 0, s, aargs, 10,
+					 mudstate.global_regs);
+				for (i = 0; i < 10; i++) {
+				    if (aargs[i])
+					free_lbuf(aargs[i]);
+				}
+			    }
+			    free_lbuf(new);
+			    free_lbuf(buff);
+			}
+		    } else 
+			(*(cmdp->info.handler)) (player, cause, key, buf1);
 		}
 
 		/* Free the buffer if one was allocated */
