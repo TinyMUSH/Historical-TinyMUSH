@@ -63,16 +63,16 @@
   @akill       @aleave      @alfail      @alias       @amhear      @amove
   @apay        @arfail      @asuccess    @atfail      @atofail     @atport
   @aufail      @ause        @away        @charges     @conformat   @cost
-  @describe    @dfail       @drop        @ealias      @efail       @enter
-  @exitformat  @exitto      @fail        @filter      @forwardlist @gfail
-  @idesc       @idle        @infilter    @inprefix    @kill        @lalias
-  @leave       @lfail       @listen      @move        @odescribe   @odfail
-  @odrop       @oefail      @oenter      @ofail       @ogfail      @okill
-  @oleave      @olfail      @omove       @opay        @orfail      @osuccess
-  @otfail      @otofail     @otport      @oufail      @ouse        @oxenter
-  @oxleave     @oxtport     @pay         @prefix      @reject      @rfail
-  @runout      @sex         @startup     @success     @tfail       @tofail
-  @tport       @ufail       @use
+  @daily       @describe    @dfail       @drop        @ealias      @efail
+  @enter       @exitformat  @exitto      @fail        @filter      
+  @forwardlist @gfail       @idesc       @idle        @infilter    @inprefix
+  @kill        @lalias      @leave       @lfail       @listen      @move
+  @odescribe   @odfail      @odrop       @oefail      @oenter      @ofail
+  @ogfail      @okill       @oleave      @olfail      @omove       @opay
+  @orfail      @osuccess    @otfail      @otofail     @otport      @oufail
+  @ouse        @oxenter     @oxleave     @oxtport     @pay         @prefix
+  @reject      @rfail       @runout      @sex         @startup     @success
+  @tfail       @tofail      @tport       @ufail       @use
  
 & topics
  
@@ -2182,6 +2182,13 @@
   Example: @cost Coke machine = 25
   See also: give, @apay, @opay, @pay.
 
+& @daily
+  Command: @daily <object> = <command list>
+  Attribute: Daily
+ 
+  This attribute is automatically triggered once per day. No guarantees
+  are made as to what time it will execute.
+ 
 & @describe
   Command: @describe <object> = <description>
   Attribute: Desc
