@@ -1146,39 +1146,53 @@ FUNCTION(fun_reverse)
 FUNCTION(fun_mid)
 {
     char *s, *savep;
-    int count, start, nchars, len, have_normal;
+    int count, start, nchars;
+    int ansi_state = ANST_NORMAL;
 
     s = fargs[0];
     start = atoi(fargs[1]);
     nchars = atoi(fargs[2]);
-    len = strip_ansi_len(s);
 
-    if ((start < 0) || (nchars < 0) || (start > LBUF_SIZE - 1) ||
-	(nchars > LBUF_SIZE - 1)) {
-	safe_str("#-1 OUT OF RANGE", buff, bufc);
+    if (nchars <= 0)
 	return;
+
+    if (start < 0) {
+	nchars += start;
+	if (nchars <= 0)
+	    return;
+	start = 0;
     }
 
-    if ((start >= len) || (nchars == 0))
-	return;
+    while (*s == ESC_CHAR) {
+	track_esccode(s, ansi_state);
+    }
 
-    if (start + nchars > len)
-	nchars = len - start;
+    for (count = 0; (count < start) && *s; count++) {
+	++s;
 
-    have_normal = 1;
-    for (count = 0; *s && (count < start + nchars); ) {
-	if (*s == ESC_CHAR) {
-	    Skip_Ansi_Code(s, buff, bufc);
-	} else {
-	    if (count >= start)
-		safe_chr(*s, buff, bufc);
-	    s++;
-	    count++;
+	while (*s == ESC_CHAR) {
+	    track_esccode(s, ansi_state);
 	}
     }
 
-    if (!have_normal)
-	safe_ansi_normal(buff, bufc);
+    if (*s) {
+	safe_str(ansi_transition_esccode(ANST_NORMAL, ansi_state), buff, bufc);
+    }
+
+    savep = s;
+    for (count = 0; (count < nchars) && *s; count++) {
+	while (*s == ESC_CHAR) {
+	    track_esccode(s, ansi_state);
+	}
+
+	if (*s) {
+	    ++s;
+	}
+    }
+
+    safe_copy_known_str(savep, s - savep, buff, bufc, (LBUF_SIZE - 1));
+
+    safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL), buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
