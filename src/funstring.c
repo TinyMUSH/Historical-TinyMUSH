@@ -1428,22 +1428,25 @@ FUNCTION(perform_border)
       if (!*sw && sl == NULL) /* ES, and nothing left to output */
 	break;
 
-      /* SW is also SL for the first word on the line */
+      /* Decide where start-of-line (SL) was */
       if (sl == NULL) {
-	sl = sw;
-	sl_ansi_state = sw_ansi_state;
-	sl_pos = sw_pos;
+	if (ew == fargs[0] || ew[-1] == '\n') {
+	  /* Preserve indentation at SS or after explicit EL */
+	  sl = ew;
+	  sl_ansi_state = ew_ansi_state;
+	  sl_pos = ew_pos;
+	} else {
+	  /* Discard whitespace if previous line wrapped */
+	  sl = sw;
+	  sl_ansi_state = sw_ansi_state;
+	  sl_pos = sw_pos;
+	}
       }
 
       if (*sw == '\n') { /* EL, so we have to output */
 	ew = sw;
 	ew_ansi_state = sw_ansi_state;
 	ew_pos = sw_pos;
-	if (el == NULL) {
-	  el = ew;
-	  el_ansi_state = ew_ansi_state;
-	  el_pos = ew_pos;
-	}
       } else {
 	/* Locate the next end-of-word (EW) */
 	for (ew = sw, ew_ansi_state = sw_ansi_state, ew_pos = sw_pos;
@@ -1488,6 +1491,13 @@ FUNCTION(perform_border)
 	  continue;
 
 	/* So now we definitely need to output a line */
+      }
+
+      /* Could be a blank line, no words fit */
+      if (el == NULL) {
+	el = sw;
+	el_ansi_state = sw_ansi_state;
+	el_pos = sw_pos;
       }
 
       /* Newline if this isn't the first line */
