@@ -27,7 +27,7 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   USE_MAIL #ifdef's and the have_comsys and have_mailer conf directives
   are no longer needed.
 
-- @list memory gives a breakdown of the memory used by various constructs.
+- '@list memory' gives a breakdown of the memory used by various constructs.
 
 - Many changes and improvements to caching.
 
@@ -248,8 +248,6 @@ CHANGES TO COMMANDS
 - Functions defined via @function can be listed via @function/list.
 
 - Function permissions can be listed via '@list func_permissions'.
-
-- A summary of memory utilization can be listed via '@list memory'.
 
 - Lock syntax is now always sanity-checked. Unbalanced parentheses within
   a lock are no longer permitted.
