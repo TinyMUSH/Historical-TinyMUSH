@@ -1301,7 +1301,7 @@ fi
 rm -f conftest*
 
 fi
-LIBS="-L./gdbm-1.8.0 -lgdbm"
+LIBS="-L./gdbm-1.8.0/.libs -lgdbm"
 echo $ac_n "checking for main in -lcrypt""... $ac_c" 1>&6
 echo "configure:1307: checking for main in -lcrypt" >&5
 ac_lib_var=`echo crypt'_'main | sed 'y%./+-%__p_%'`
