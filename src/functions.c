@@ -3982,7 +3982,11 @@ FUNCTION(fun_map)
 	ATTR *ap;
 	char *atext, *objstring, *bp, *str, *cp, *atextbuf, sep, osep;
 
-	varargs_preamble("MAP", 3);
+	svarargs_preamble("MAP", 4);
+
+	/* If we don't have anything for a second arg, don't bother. */
+	if (!fargs[1] || !*fargs[1])
+	        return;
 
 	/* Two possibilities for the second arg: <obj>/<attr> and <attr>. */
 
@@ -4017,7 +4021,7 @@ FUNCTION(fun_map)
 	first = 1;
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
 		if (!first)
-			safe_chr(sep, buff, bufc);
+			safe_chr(osep, buff, bufc);
 		first = 0;
 		objstring = split_token(&cp, sep);
 		strcpy(atextbuf, atext);
