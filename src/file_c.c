@@ -49,7 +49,7 @@ FCACHE fcache[] = {
 	{ mudconf.wizmotd_file,	NULL,	"Wizmotd" },
 	{ mudconf.quit_file,	NULL,	"Quit" },
 #ifdef PUEBLO_SUPPORT
-	{mudconf.htmlconn_file,	NULL,	"Conn/Html"},
+	{ mudconf.htmlconn_file,	NULL,	"Conn/Html"},
 #endif
     	{ NULL,			NULL,	NULL }};
 

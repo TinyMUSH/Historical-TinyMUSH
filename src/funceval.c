@@ -1334,7 +1334,7 @@ FUNCTION(fun_udefault)
 	dbref thing, aowner;
 	int aflags, anum, i, j;
 	ATTR *ap;
-	char *objname, *atext, *bp, *buf, *str, *xargs[NUM_ENV_VARS];
+	char *objname, *atext, *str, *bp, *xargs[NUM_ENV_VARS];
 
 
 	if (nfargs < 2)		/* must have at least two arguments */
@@ -1370,14 +1370,15 @@ FUNCTION(fun_udefault)
 					 * all of those arguments to the function. 
 					 */
 					 for (i = 2, j = 0; j < NUM_ENV_VARS; i++, j++) {
-					 	if ((i < NUM_ENV_VARS) && fargs[i])
-					 		 bp = buf = alloc_lbuf("fun_udefault_args");
+					 	if ((i < NUM_ENV_VARS) && fargs[i]) {
+					 		 bp = xargs[j] = alloc_lbuf("fun_udefault_args");
 					 		 str = fargs[i];
-					 		 xargs[j] = exec(buf, &bp, 0, player, cause,
+					 		 exec(xargs[j], &bp, 0, player, cause,
 					 		        EV_STRIP | EV_FCHECK | EV_EVAL,
 					 		        &str, cargs, ncargs);
-					 	else
-					 		xargs[j] = NULL; 
+					 	} else {
+					 		xargs[j] = NULL;
+					 	} 
 					 }
 					 
 					str = atext;
