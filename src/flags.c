@@ -193,6 +193,20 @@ int fflags, reset;
 	return 1;
 }
 
+/* ---------------------------------------------------------------------------
+ * fh_player_bit: Can set and reset this on everything but players.
+ */
+
+int fh_player_bit(target, player, flag, fflags, reset)
+    dbref target, player;
+    FLAG flag;
+    int fflags, reset;
+{
+    if (isPlayer(target))
+	return 0;
+    return (fh_any(target, player, flag, fflags, reset));
+}
+
 /* *INDENT-OFF* */
 
 FLAGENT gen_flags[] = { 
@@ -275,7 +289,7 @@ FLAGENT gen_flags[] = {
 {"TERSE",		TERSE,		'q',
 	0,		0,			fh_any},
 {"ROBOT",		ROBOT,		'r',
-	0,		0,			fh_any},
+	0,		0,			fh_player_bit},
 {"SAFE",		SAFE,		's',
 	0,		0,			fh_any},
 {"TRANSPARENT",		SEETHRU,	't',
