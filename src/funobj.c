@@ -153,9 +153,12 @@ FUNCTION(fun_rloc)
 	it = match_thing(player, fargs[0]);
 	if (locatable(player, it, cause)) {
 		for (i = 0; i < levels; i++) {
-			if (!Good_obj(it) || !Has_location(it))
+			if (Good_obj(it) &&
+			    (Has_location(it) || isExit(it))) {
+				it = Location(it);
+			} else {
 				break;
-			it = Location(it);
+			}
 		}
 		safe_dbref(buff, bufc, it);
 		return;
