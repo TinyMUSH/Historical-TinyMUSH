@@ -1178,7 +1178,7 @@ char *command, *args[];
 {
 	static char preserve_cmd[LBUF_SIZE];
 	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str;
-	int succ, aflags, i;
+	int succ, aflags, i, got_stop;
 	dbref exit, aowner;
 	CMDENT *cmdp;
 
@@ -1405,32 +1405,41 @@ char *command, *args[];
 			free_lbuf(p);
 		}
 	}
+	
+	/* At each of the following stages, we check to make sure that we
+	 * haven't hit a match on a STOP-set object.
+	 */
+	
+	got_stop = 0;
+	
 	/* Check for $-command matches on me */
 
-	if (mudconf.match_mine && (!(No_Command(player)))) {
+	if (mudconf.match_mine) {
 		if (((Typeof(player) != TYPE_PLAYER) ||
 		     mudconf.match_mine_pl) &&
 		    (atr_match(player, player, AMATCH_CMD, lcbuf, preserve_cmd, 1) > 0)) {
 			succ++;
+			got_stop = Stop_Match(player);
 		}
 	}
 	/* Check for $-command matches on nearby things and on my room */
 
-	if (Has_location(player)) {
+	if (!got_stop && Has_location(player)) {
 		succ += list_check(Contents(Location(player)), player,
-				   AMATCH_CMD, lcbuf, preserve_cmd, 1);
+				   AMATCH_CMD, lcbuf, preserve_cmd, 1, &got_stop);
 
-		if (!(No_Command(Location(player))))
-			if (atr_match(Location(player), player,
-				      AMATCH_CMD, lcbuf, preserve_cmd, 1) > 0) {
-				succ++;
-			}
+		if (!got_stop &&
+		    atr_match(Location(player), player, AMATCH_CMD, lcbuf,
+		              preserve_cmd, 1) > 0) {
+			succ++;
+			got_stop = Stop_Match(Location(player));
+		}
 	}
 	/* Check for $-command matches in my inventory */
 
-	if (Has_contents(player))
+	if (!got_stop && Has_contents(player))
 		succ += list_check(Contents(player), player,
-				   AMATCH_CMD, lcbuf, preserve_cmd, 1);
+				   AMATCH_CMD, lcbuf, preserve_cmd, 1, &got_stop);
 
 	/* now do check on zones */
 
@@ -1450,39 +1459,40 @@ char *command, *args[];
 					mudstate.debug_cmd = cmdsave;
 					goto endcmd;
 				}
-				succ += list_check(Contents(Zone(Location(player))), player,
-						   AMATCH_CMD, lcbuf, preserve_cmd, 1);
+				if (!got_stop) {
+					succ += list_check(Contents(Zone(Location(player))), player,
+						   AMATCH_CMD, lcbuf, preserve_cmd, 1, &got_stop);
+				}
 			}	/* end of parent room checks */
 		} else
 			/* try matching commands on area zone object */
 
-			if ((!succ) && mudconf.have_zones && (Zone(Location(player)) != NOTHING) &&
-			    (!(No_Command(Zone(Location(player))))))
-			succ += atr_match(Zone(Location(player)), player, AMATCH_CMD,
+			if (!got_stop && !succ && mudconf.have_zones 
+			     && (Zone(Location(player)) != NOTHING)) {
+				succ += atr_match(Zone(Location(player)), player, AMATCH_CMD,
 					  lcbuf, preserve_cmd, 1);
-	}			/* end of matching on zone of player's location */
+			}
+	}		/* end of matching on zone of player's location */
 	/* if nothing matched with parent room/zone object, try matching
 	 * zone commands on the player's personal zone  
 	 */
-	if ((!succ) && mudconf.have_zones && (Zone(player) != NOTHING) &&
-	    (!(No_Command(Zone(player)))) &&
+	if (!got_stop && !succ && mudconf.have_zones && (Zone(player) != NOTHING) &&
 	    (Zone(Location(player)) != Zone(player))) {
 		succ += atr_match(Zone(player), player, AMATCH_CMD, lcbuf, 
 			preserve_cmd, 1);
 	}
 	/* If we didn't find anything, try in the master room */
 
-	if (!succ) {
+	if (!got_stop && !succ) {
 		if (Good_obj(mudconf.master_room) &&
 		    Has_contents(mudconf.master_room)) {
 			succ += list_check(Contents(mudconf.master_room),
 					   player, AMATCH_CMD, lcbuf,
-					   preserve_cmd, 0);
-			if (!(No_Command(mudconf.master_room)))
-				if (atr_match(mudconf.master_room,
-					player, AMATCH_CMD, lcbuf, preserve_cmd, 0) > 0) {
-					succ++;
-				}
+					   preserve_cmd, 0, &got_stop);
+			if (!got_stop && atr_match(mudconf.master_room,
+			     player, AMATCH_CMD, lcbuf, preserve_cmd, 0) > 0) {
+				succ++;
+			}
 		}
 	}
 	free_lbuf(lcbuf);

@@ -82,7 +82,7 @@ int number, flags;
 	 * Be ruthless. 
 	 */
 
-	if (strlen(name) > VNAME_SIZE)
+	if (strlen(name) >= VNAME_SIZE)
 		name[VNAME_SIZE - 1] = '\0';
 
 	fixcase(name);
@@ -178,7 +178,7 @@ char *name, *newname;
 	 * Be ruthless. 
 	 */
 
-	if (strlen(newname) > VNAME_SIZE)
+	if (strlen(newname) >= VNAME_SIZE)
 		newname[VNAME_SIZE - 1] = '\0';
 
 	fixcase(newname);

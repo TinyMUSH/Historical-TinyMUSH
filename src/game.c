@@ -107,14 +107,10 @@ int key;
 		raw_notify(player, "Database optimization failed.");
 	else
 		raw_notify(player, "Database optmization completed.");
-#endif /*
-        * MEMORY_BASED 
-        */
+#endif /* MEMORY_BASED */
 }
 
-/*
- * print out stuff into error file 
- */
+/* print out stuff into error file */
 
 void NDECL(report)
 {
@@ -205,9 +201,8 @@ int i, len;
 	return 1;
 }
 
-/*
- * ----------------------------------------------------------------------
- * * atr_match: Check attribute list for wild card matches and queue them.
+/* ----------------------------------------------------------------------
+ * atr_match: Check attribute list for wild card matches and queue them.
  */
 
 static int atr_match1(thing, parent, player, type, str, raw_str, check_exclude,
@@ -218,7 +213,7 @@ int check_exclude, hash_insert;
 {
 	dbref aowner;
 	int match, attr, aflags, i;
-	char buff[LBUF_SIZE], *s, *as;
+	char *buff, *s, *as;
 	char *args[10];
 	ATTR *ap;
 
@@ -228,6 +223,7 @@ int check_exclude, hash_insert;
 		return -1;
 
 	match = 0;
+	buff = alloc_lbuf("atr_match1");
 	atr_push();
 	for (attr = atr_head(parent, &as); attr; attr = atr_next(&as)) {
 		ap = atr_num(attr);
@@ -335,10 +331,9 @@ int check_parents;
 	return match;
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * notify_check: notifies the object #target of the message msg, and
- * * optionally notify the contents, neighbors, and location also.
+/* ---------------------------------------------------------------------------
+ * notify_check: notifies the object #target of the message msg, and
+ * optionally notify the contents, neighbors, and location also.
  */
 
 int check_filter(object, player, filter, msg)
@@ -348,13 +343,14 @@ const char *msg;
 {
 	int aflags;
 	dbref aowner;
-	char *buf, *nbuf, *cp, *dp, *str;
+	char *buf, *nbuf, *cp, *dp, *str, *preserve[MAX_GLOBAL_REGS];
 
 	buf = atr_pget(object, filter, &aowner, &aflags);
 	if (!*buf) {
 		free_lbuf(buf);
 		return (1);
 	}
+	save_global_regs("check_filter_save", preserve);
 	nbuf = dp = alloc_lbuf("check_filter");
 	str = buf;
 	exec(nbuf, &dp, 0, object, player, EV_FIGNORE | EV_EVAL | EV_TOP, &str,
@@ -362,6 +358,8 @@ const char *msg;
 	*dp = '\0';
 	dp = nbuf;
 	free_lbuf(buf);
+	restore_global_regs("check_filter_restore", preserve);
+	
 	do {
 		cp = parse_to(&dp, ',', EV_STRIP);
 		if (quick_wild(cp, (char *)msg)) {
@@ -380,24 +378,28 @@ const char *msg, *dflt;
 {
 	int aflags;
 	dbref aowner;
-	char *buf, *nbuf, *cp, *bp, *str;
+	char *buf, *nbuf, *cp, *bp, *str, *preserve[MAX_GLOBAL_REGS];
 
 	buf = atr_pget(object, prefix, &aowner, &aflags);
 	if (!*buf) {
 		cp = buf;
 		safe_str((char *)dflt, buf, &cp);
 	} else {
+		save_global_regs("add_prefix_save", preserve);
 		nbuf = bp = alloc_lbuf("add_prefix");
 		str = buf;
 		exec(nbuf, &bp, 0, object, player, EV_FIGNORE | EV_EVAL | EV_TOP, &str,
 		     (char **)NULL, 0);
 		*bp = '\0';
 		free_lbuf(buf);
+		restore_global_regs("add_prefix_restore", preserve);
 		buf = nbuf;
 		cp = &buf[strlen(buf)];
 	}
-	if (cp != buf)
-		safe_str((char *)" ", buf, &cp);
+	if (cp != buf) {
+		safe_chr(' ', buf, &cp);
+	}
+/* foobar */
 	safe_str((char *)msg, buf, &cp);
 	*cp = '\0';
 	return (buf);
@@ -419,6 +421,8 @@ dbref sender, sendloc;
 	return tbuff;
 }
 
+#ifdef PUEBLO_SUPPORT
+
 /* Do HTML escaping, converting < to &lt;, etc.  'dest' needs to be
  * allocated & freed by the caller.
  *
@@ -429,43 +433,58 @@ dbref sender, sendloc;
  *
  * Returns 0 if the copy succeeded, 1 if it failed.
  */
+
 int html_escape(src, dest, destp)
-const char *src;
-char *dest;
-char **destp;
+     const char *src;
+     char *dest;
+     char **destp;
 {
-char *mp_escaped;
-const char *msg_orig;
-char *temp;
-int ret = 0;
+    static char new_buf[LBUF_SIZE * 5];
+    const char *msg_orig;
+    char *mp_escaped;
+    char *temp, *bufp;
 
-	if (destp == 0) {
-		temp = dest;
-		destp = &temp;
-	}
+    if (destp == 0) {
+	temp = dest;
+	destp = &temp;
+    }
 
-	for (msg_orig = src; msg_orig && *msg_orig && !ret; msg_orig++) {
-		switch (*msg_orig) {
-		case '<':
-			ret = safe_str("&lt;", dest, destp);
-			break;
-		case '>':
-			ret = safe_str("&gt;", dest, destp);
-			break;
-		case '&':
-			ret = safe_str("&amp;", dest, destp);
-			break;
-		case '\"':
-			ret = safe_str("&quot;", dest, destp);
-			break;
-		default:
-			ret = safe_chr_fn(*msg_orig, dest, destp);
-			break;
-		}
+    for (*new_buf = '\0', bufp = new_buf, msg_orig = src; 
+	 msg_orig && *msg_orig;
+	 msg_orig++) {
+	switch (*msg_orig) {
+	  case '<':
+	    *bufp = '\0';
+	    strcat(new_buf, (char *) "&lt;");
+	    bufp += 4;
+	    break;
+	  case '>':
+	    *bufp = '\0';
+	    strcat(new_buf, (char *) "&gt;"); 
+	    bufp += 4;
+	    break;
+	  case '&':
+	    *bufp = '\0';
+	    strcat(new_buf, (char *) "&amp;"); 
+	    bufp += 5;
+	    break;
+	  case '\"':
+	    *bufp = '\0';
+	    strcat(new_buf, (char *) "&quot;"); 
+	    bufp += 6;
+	    break;
+	  default:
+	    *bufp++ = *msg_orig;
+	    break;
 	}
-	**destp = 0;
-	return ret;
+    }
+    *bufp = '\0';
+    safe_str(new_buf, dest, destp);
+    **destp = '\0';
+    return;
 }
+
+#endif /* PUEBLO_SUPPORT */
 
 void notify_check(target, sender, msg, key)
 dbref target, sender;
@@ -479,24 +498,19 @@ const char *msg;
 	int check_listens, pass_uselock, is_audible;
 	FWDLIST *fp;
 
-	/*
-	 * If speaker is invalid or message is empty, just exit 
-	 */
+	/* If speaker is invalid or message is empty, just exit */
 
 	if (!Good_obj(target) || !msg || !*msg)
 		return;
 
-	/*
-	 * Enforce a recursion limit 
-	 */
+	/* Enforce a recursion limit */
 
 	mudstate.ntfy_nest_lev++;
 	if (mudstate.ntfy_nest_lev >= mudconf.ntfy_nest_lim) {
 		mudstate.ntfy_nest_lev--;
 		return;
 	}
-	/*
-	 * If we want NOSPOOF output, generate it.  It is only needed if 
+	/* If we want NOSPOOF output, generate it.  It is only needed if 
 	 * we are sending the message to the target object 
 	 */
 
@@ -507,8 +521,7 @@ const char *msg;
 		    (target != mudstate.curr_enactor) &&
 		    (target != mudstate.curr_player)) {
 
-			/*
-			 * I'd really like to use tprintf here but I can't 
+			/* I'd really like to use tprintf here but I can't 
 			 * because the caller may have.
 			 * notify(target, tprintf(...)) is quite common 
 			 * in the code. 
@@ -538,13 +551,15 @@ const char *msg;
 		msg_ns = NULL;
 	}
 
-	/*
-	 * msg contains the raw message, msg_ns contains the NOSPOOFed msg 
-	 */
+	/* msg contains the raw message, msg_ns contains the NOSPOOFed msg */
 
 	check_listens = Halted(target) ? 0 : 1;
 	switch (Typeof(target)) {
 	case TYPE_PLAYER:
+#ifndef PUEBLO_SUPPORT
+		if (key & MSG_ME)
+			raw_notify(target, msg_ns);
+#else
 		if (key & MSG_ME) {
 			if (key & MSG_HTML) {
 				raw_notify_html(target, msg_ns);
@@ -561,7 +576,7 @@ const char *msg;
 				}
 			}
 		}	
-
+#endif /* ! PUEBLO_SUPPORT */
 		if (!mudconf.player_listen)
 			check_listens = 0;
 	case TYPE_THING:
@@ -573,9 +588,7 @@ const char *msg;
 			raw_notify(target, msg_ns);
 		}
 		
-		/*
-		 * Forward puppet message if it is for me 
-		 */
+		/* Forward puppet message if it is for me */
 
 		has_neighbors = Has_location(target);
 		targetloc = where_is(target);
@@ -596,9 +609,7 @@ const char *msg;
 			raw_notify(Owner(target), tbuff);
 			free_lbuf(tbuff);
 		}
-		/*
-		 * Check for @Listen match if it will be useful 
-		 */
+		/* Check for @Listen match if it will be useful */
 
 		pass_listen = 0;
 		nargs = 0;
@@ -614,8 +625,7 @@ const char *msg;
 			}
 			free_lbuf(tp);
 		}
-		/*
-		 * If we matched the @listen or are monitoring, check the * * 
+		/* If we matched the @listen or are monitoring, check the * * 
 		 * USE lock 
 		 */
 
@@ -624,9 +634,7 @@ const char *msg;
 		    (pass_listen || Monitor(target)))
 			pass_uselock = could_doit(sender, target, A_LUSE);
 
-		/*
-		 * Process AxHEAR if we pass LISTEN, USElock and it's for me 
-		 */
+		/* Process AxHEAR if we pass LISTEN, USElock and it's for me */
 
 		if ((key & MSG_ME) && pass_listen && pass_uselock) {
 			if (sender != target)
@@ -638,27 +646,21 @@ const char *msg;
 			did_it(sender, target, 0, NULL, 0, NULL,
 			       A_AAHEAR, args, nargs);
 		}
-		/*
-		 * Get rid of match arguments. We don't need them anymore 
-		 */
+		/* Get rid of match arguments. We don't need them anymore */
 
 		if (pass_listen) {
 			for (i = 0; i < 10; i++)
 				if (args[i] != NULL)
 					free_lbuf(args[i]);
 		}
-		/*
-		 * Process ^-listens if for me, MONITOR, and we pass USElock 
-		 */
+		/* Process ^-listens if for me, MONITOR, and we pass USElock */
 
 		if ((key & MSG_ME) && pass_uselock && (sender != target) &&
 		    Monitor(target)) {
 			(void)atr_match(target, sender,
 					AMATCH_LISTEN, (char *)msg, (char *)msg, 0);
 		}
-		/*
-		 * Deliver message to forwardlist members 
-		 */
+		/* Deliver message to forwardlist members */
 
 		if ((key & MSG_FWDLIST) && Audible(target) &&
 		    check_filter(target, sender, A_FILTER, msg)) {
@@ -680,9 +682,7 @@ const char *msg;
 			}
 			free_lbuf(buff);
 		}
-		/*
-		 * Deliver message through audible exits 
-		 */
+		/* Deliver message through audible exits */
 
 		if (key & MSG_INV_EXITS) {
 			DOLIST(obj, Exits(target)) {
@@ -698,18 +698,14 @@ const char *msg;
 				}
 			}
 		}
-		/*
-		 * Deliver message through neighboring audible exits 
-		 */
+		/* Deliver message through neighboring audible exits */
 
 		if (has_neighbors &&
 		    ((key & MSG_NBR_EXITS) ||
 		     ((key & MSG_NBR_EXITS_A) && is_audible))) {
 
-			/*
-			 * If from inside, we have to add the prefix string * 
-			 * 
-			 * *  * * of * the container. 
+			/* If from inside, we have to add the prefix string
+			 * of the container. 
 			 */
 
 			if (key & MSG_S_INSIDE) {
@@ -739,16 +735,17 @@ const char *msg;
 				free_lbuf(buff);
 			}
 		}
-		/*
-		 * Deliver message to contents 
-		 */
+		
+		if (Bouncer(target))
+			pass_listen = 1;
+		
+		/* Deliver message to contents */
 
 		if (((key & MSG_INV) || ((key & MSG_INV_L) && pass_listen)) &&
 		    (check_filter(target, sender, A_INFILTER, msg))) {
 
-			/*
-			 * Don't prefix the message if we were given the * *
-			 * * * MSG_NOPREFIX key. 
+			/* Don't prefix the message if we were given the 
+			 * MSG_NOPREFIX key. 
 			 */
 
 			if (key & MSG_S_OUTSIDE) {
@@ -759,16 +756,19 @@ const char *msg;
 			}
 			DOLIST(obj, Contents(target)) {
 				if (obj != target) {
+#ifdef PUEBLO_SUPPORT
 					notify_check(obj, sender, buff,
 					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE | key & MSG_HTML);
+#else
+					notify_check(obj, sender, buff,
+					MSG_ME | MSG_F_DOWN | MSG_S_OUTSIDE);
+#endif /* PUEBLO_SUPPORT */
 				}
 			}
 			if (key & MSG_S_OUTSIDE)
 				free_lbuf(buff);
 		}
-		/*
-		 * Deliver message to neighbors 
-		 */
+		/* Deliver message to neighbors */
 
 		if (has_neighbors &&
 		    ((key & MSG_NBR) ||
@@ -792,9 +792,7 @@ const char *msg;
 				free_lbuf(buff);
 			}
 		}
-		/*
-		 * Deliver message to container 
-		 */
+		/* Deliver message to container */
 
 		if (has_neighbors &&
 		    ((key & MSG_LOC) ||
@@ -861,6 +859,18 @@ char *message;
 {
 	int fd;
 
+    if (key & SHUTDN_COREDUMP) {
+	if (player != NOTHING) {
+	    raw_broadcast(0, "Game: Aborted by %s", Name(Owner(player)));
+	    STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
+		log_text((char *) "Abort and coredump by ");
+	    log_name(player);
+	    ENDLOG
+	}
+	/* Don't bother to even shut down the network or dump. Die. Die now. */
+	abort();
+    }
+
 	if (player != NOTHING) {
 		raw_broadcast(0, "Game: Shutdown by %s", Name(Owner(player)));
 		STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
@@ -883,23 +893,18 @@ char *message;
 	(void)write(fd, (char *)"\n", 1);
 	tf_close(fd);
 
-	/*
-	 * Do we perform a normal or an emergency shutdown?  Normal shutdown
-	 * * * * * is handled by exiting the main loop in shovechars,
-	 * emergency  * * * * shutdown is done here. 
+	/* Do we perform a normal or an emergency shutdown?  Normal shutdown
+	 * is handled by exiting the main loop in shovechars,
+	 * emergency shutdown is done here. 
 	 */
 
 	if (key & SHUTDN_PANIC) {
 
-		/*
-		 * Close down the network interface 
-		 */
+		/* Close down the network interface */
 
 		emergency_shutdown();
 
-		/*
-		 * Close the attribute text db and dump the header db 
-		 */
+		/* Close the attribute text db and dump the header db */
 
 		pcache_sync();
 		SYNC;
@@ -914,9 +919,7 @@ char *message;
 		log_text(mudconf.crashdb);
 		ENDLOG
 	}
-	/*
-	 * Set up for normal shutdown 
-	 */
+	/* Set up for normal shutdown */
 
 	mudstate.shutdown_flag = 1;
 	return;
@@ -938,13 +941,15 @@ int dump_type;
 			log_perror("DMP", "FAIL", "Opening crash file",
 				   mudconf.crashdb);
 		}
-		if (mudconf.have_mailer)
-			if (f = fopen(mudconf.mail_db, "w")) {
-				dump_mail(f);
-				fclose(f);
-			}
-		if (mudconf.have_comsys || mudconf.have_macros)
-			save_comsys(mudconf.comsys_db);
+#ifdef USE_MAIL
+		if (f = fopen(mudconf.mail_db, "w")) {
+			dump_mail(f);
+			fclose(f);
+		}
+#endif
+#ifdef USE_COMSYS
+		save_comsys(mudconf.comsys_db);
+#endif
 		return;
 	}
 	
@@ -958,13 +963,15 @@ int dump_type;
 			log_perror("DMP", "FAIL", "Opening restart file",
 				   mudconf.indb);
 		}
-		if (mudconf.have_mailer)
-			if (f = fopen(mudconf.mail_db, "w")) {
-				dump_mail(f);
-				fclose(f);
-			}
-		if (mudconf.have_comsys || mudconf.have_macros)
-			save_comsys(mudconf.comsys_db);
+#ifdef USE_MAIL
+		if (f = fopen(mudconf.mail_db, "w")) {
+			dump_mail(f);
+			fclose(f);
+		}
+#endif
+#ifdef USE_COMSYS
+		save_comsys(mudconf.comsys_db);
+#endif
 		return;
 	}
 	
@@ -979,35 +986,33 @@ int dump_type;
 			log_perror("DMP", "FAIL", "Opening killed file",
 				   mudconf.indb);
 		}
-		if (mudconf.have_mailer)
-			if (f = fopen(mudconf.mail_db, "w")) {
-				dump_mail(f);
-				fclose(f);
-			}
-		if (mudconf.have_comsys || mudconf.have_macros)
-			save_comsys(mudconf.comsys_db);
+#ifdef USE_MAIL
+		if (f = fopen(mudconf.mail_db, "w")) {
+			dump_mail(f);
+			fclose(f);
+		}
+#endif
+#ifdef USE_COMSYS
+		save_comsys(mudconf.comsys_db);
+#endif
 		return;
 	}
 	
 	sprintf(prevfile, "%s.prev", mudconf.outdb);
 #ifdef VMS
 	sprintf(tmpfile, "%s.-%d-", mudconf.outdb, mudstate.epoch - 1);
-	unlink(tmpfile);	/*
-				 * nuke our predecessor 
-				 */
+	unlink(tmpfile);	/* nuke our predecessor */
 	sprintf(tmpfile, "%s.-%d-", mudconf.outdb, mudstate.epoch);
 #else
 	sprintf(tmpfile, "%s.#%d#", mudconf.outdb, mudstate.epoch - 1);
-	unlink(tmpfile);	/*
-				 * nuke our predecessor 
-				 */
+	unlink(tmpfile);	/* nuke our predecessor */
 	sprintf(tmpfile, "%s.#%d#", mudconf.outdb, mudstate.epoch);
 
 	if (mudconf.compress_db) {
 		sprintf(tmpfile, "%s.#%d#.gz", mudconf.outdb, mudstate.epoch - 1);
 		unlink(tmpfile);
 		sprintf(tmpfile, "%s.#%d#.gz", mudconf.outdb, mudstate.epoch);
-		StringCopy(outfn, mudconf.outdb);
+		strcpy(outfn, mudconf.outdb);
 		strcat(outfn, ".gz");
 		f = tf_popen(tprintf("%s > %s", mudconf.compress, tmpfile), O_WRONLY);
 		if (f) {
@@ -1022,9 +1027,7 @@ int dump_type;
 			log_perror("SAV", "FAIL", "Opening", tmpfile);
 		}
 	} else {
-#endif /*
-        * VMS 
-        */
+#endif /* VMS */
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f) {
 			db_write(f, F_MUX, OUTPUT_VERSION | OUTPUT_FLAGS);
@@ -1041,13 +1044,15 @@ int dump_type;
 #endif
 
 #ifndef STANDALONE
-	if (mudconf.have_mailer)
-		if (f = fopen(mudconf.mail_db, "w")) {
-			dump_mail(f);
-			fclose(f);
-		}
-	if (mudconf.have_comsys || mudconf.have_macros)
-		save_comsys(mudconf.comsys_db);
+#ifdef USE_MAIL
+	if (f = fopen(mudconf.mail_db, "w")) {
+		dump_mail(f);
+		fclose(f);
+	}
+#endif
+#ifdef USE_COMSYS
+	save_comsys(mudconf.comsys_db);
+#endif
 #endif
 }
 
@@ -1062,9 +1067,7 @@ void NDECL(dump_database)
 	sprintf(buff, "%s.#%d#", mudconf.outdb, mudstate.epoch);
 #else
 	sprintf(buff, "%s.-%d-", mudconf.outdb, mudstate.epoch);
-#endif /*
-        * VMS 
-        */
+#endif /* VMS */
 	STARTLOG(LOG_DBSAVES, "DMP", "DUMP")
 		log_text((char *)"Dumping: ");
 	log_text(buff);
@@ -1096,9 +1099,7 @@ int key;
 	sprintf(buff, "%s.#%d#", mudconf.outdb, mudstate.epoch);
 #else
 	sprintf(buff, "%s.-%d-", mudconf.outdb, mudstate.epoch);
-#endif /*
-        * VMS 
-        */
+#endif /* VMS */
 	STARTLOG(LOG_DBSAVES, "DMP", "CHKPT")
 		if (!key || (key & DUMP_TEXT)) {
 		log_text((char *)"SYNCing");
@@ -1112,12 +1113,8 @@ int key;
 	ENDLOG
 		free_mbuf(buff);
 #ifndef MEMORY_BASED
-	al_store();		/*
-				 * Save cached modified attribute list 
-				 */
-#endif /*
-        * MEMORY_BASED 
-        */
+	al_store();		/* Save cached modified attribute list */
+#endif /* MEMORY_BASED */
 	if (!key || (key & DUMP_TEXT))
 		pcache_sync();
 	SYNC;
@@ -1134,17 +1131,13 @@ int key;
 		}
 #else
 		child = 0;
-#endif /*
-        * VMS 
-        */
+#endif /* VMS */
 		if (child == 0) {
 			dump_database_internal(0);
 #ifndef VMS
 			if (mudconf.fork_dump)
 				_exit(0);
-#endif /*
-        * VMS 
-        */
+#endif /* VMS */
 		} else if (child < 0) {
 			log_perror("DMP", "FORK", NULL, "fork()");
 		}
@@ -1177,17 +1170,13 @@ static int NDECL(load_game)
 				compressed = 1;
 		}
 	}
-#endif /*
-        * VMS 
-        */
+#endif /* VMS */
 	if (compressed == 0) {
 		StringCopy(infile, mudconf.indb);
 		if ((f = tf_fopen(mudconf.indb, O_RDONLY)) == NULL)
 			return -1;
 	}
-	/*
-	 * ok, read it in 
-	 */
+	/* ok, read it in */
 
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 		log_text((char *)"Loading: ");
@@ -1200,21 +1189,20 @@ static int NDECL(load_game)
 		ENDLOG
 			return -1;
 	}
-	if (mudconf.have_comsys || mudconf.have_macros)
-		load_comsys(mudconf.comsys_db);
-
-	if (mudconf.have_mailer)
-		if (f = fopen(mudconf.mail_db, "r")) {
-			load_mail(f);
-			fclose(f);
-		}
+#ifdef USE_COMSYS
+	load_comsys(mudconf.comsys_db);
+#endif
+#ifdef USE_MAIL
+	if (f = fopen(mudconf.mail_db, "r")) {
+		load_mail(f);
+		fclose(f);
+	}
+#endif
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 		log_text((char *)"Load complete.");
 	ENDLOG
 
-	/*
-	 * everything ok 
-	 */
+	/* everything ok */
 #ifndef VMS
 		if (compressed)
 		tf_pclose(f);
@@ -1222,39 +1210,35 @@ static int NDECL(load_game)
 		tf_fclose(f);
 #else
 		tf_fclose(f);
-#endif /*
-        * VMS 
-        */
+#endif /* VMS */
 
 	return (0);
 }
 
+/* match a list of things, using the no_command flag */
 
-/*
- * match a list of things, using the no_command flag 
- */
-
-int list_check(thing, player, type, str, raw_str, check_parent)
+int list_check(thing, player, type, str, raw_str, check_parent, stop_status)
 dbref thing, player;
 char type, *str, *raw_str;
-int check_parent;
+int check_parent, *stop_status;
 {
 	int match, limit;
 
 	match = 0;
-	limit = mudstate.db_top;
 	while (thing != NOTHING) {
-		if ((thing != player) && (!(No_Command(thing)))) {
+		if (thing != player) {
 			if (atr_match(thing, player, type, str, raw_str, check_parent) > 0)
 				match = 1;
+				if (Stop_Match(thing)) {
+					*stop_status = 1;
+					return match;
+				}
 		}
 		thing = Next(thing);
-		if (--limit < 0)
-			return match;
 	}
 	return match;
 }
-
+/* foobar */
 int Hearer(thing)
 dbref thing;
 {
@@ -1390,9 +1374,7 @@ static void NDECL(process_preload)
 
 #ifndef VMS
 void
-#endif				/*
-				 * VMS 
-				 */
+#endif				/* VMS */
  main(argc, argv)
 int argc;
 char *argv[];
@@ -1408,9 +1390,7 @@ char *argv[];
 
 
 #if defined(HAVE_IEEEFP_H) && defined(HAVE_SYS_UCONTEXT_H)
-	/*
-	 * Inhibit IEEE fp exception on overflow 
-	 */
+	/* Inhibit IEEE fp exception on overflow */
 
 	fpsetmask(fpgetmask() & ~FP_X_OFL);
 #endif
@@ -1418,12 +1398,8 @@ char *argv[];
 	tf_init();
 #ifdef RADIX_COMPRESSION
 	init_string_compress();
-#endif /*
-        * RADIX_COMPRESSION 
-        */
-	mindb = 0;		/*
-				 * Are we creating a new db? 
-				 */
+#endif /* RADIX_COMPRESSION */
+	mindb = 0;		/* Are we creating a new db? */
 #ifdef MEMORY_BASED
 	corrupt = 0;		/* Database isn't corrupted. */
 #endif
@@ -1466,6 +1442,8 @@ char *argv[];
 		cf_read((char *)CONF_FILE);
 	}
 
+	strncpy(mudconf.exec_path, argv[0], MBUF_SIZE - 1);
+	
 	fcache_init();
 	helpindex_init();
 

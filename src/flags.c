@@ -217,7 +217,7 @@ FLAGENT gen_flags[] = {
 	FLAG_WORD2,	0,			fh_any},
 {"ANSI",                ANSI,           'X',   
         FLAG_WORD2,       0,                      fh_any},
-{"AUDITORIUM",		AUDITORIUM,	'b',
+{"AUDITORIUM",		AUDITORIUM,	'n',
 	FLAG_WORD2,	0,			fh_any},
 {"COMPRESS",		COMPRESS,	'.',
 	FLAG_WORD2, 	0,			fh_any},
@@ -277,14 +277,8 @@ FLAGENT gen_flags[] = {
         FLAG_WORD2,       0,                      fh_fixed}, 
 {"UNINSPECTED",         UNINSPECTED,     'g',
         FLAG_WORD2,       0,                      fh_wizroy},
-{"NO_COMMAND",          NO_COMMAND,      'n',
-        FLAG_WORD2,       0,                      fh_any},
 {"NOBLEED",             NOBLEED,         '-',
         FLAG_WORD2,       0,                      fh_any},
-#ifdef DSPACE
-{"DYNAMIC",             DYNAMIC,         '!',
-        FLAG_WORD2,       0,                      fh_dynamic_bit},
-#endif
 {"AUDIBLE",		HEARTHRU,	'a',
 	0,		0,			fh_hear_bit},
 {"CONNECTED",		CONNECTED,	'c',
@@ -315,16 +309,24 @@ FLAGENT gen_flags[] = {
 	FLAG_WORD2,	CA_WIZARD,		fh_wiz},
 {"VERBOSE",		VERBOSE,	'v',
 	0,		0,			fh_any},
-{"SLAVE",		SLAVE,		'x',
-	FLAG_WORD2,	CA_WIZARD,		fh_wiz},
+{"SLAVE",               SLAVE,          'x',
+        FLAG_WORD2,     CA_WIZARD,              fh_wiz},
 {"HAS_STARTUP",		HAS_STARTUP,	'+',
 	0,		CA_GOD|CA_NO_DECOMP,	fh_god},
 {"HAS_FORWARDLIST",	HAS_FWDLIST,	'&',
 	FLAG_WORD2,	CA_GOD|CA_NO_DECOMP,	fh_god},
 {"HAS_LISTEN",		HAS_LISTEN,	'@',
 	FLAG_WORD2,	CA_GOD|CA_NO_DECOMP,	fh_god},
-{"HTML", 		HTML,           '(',
-	FLAG_WORD2,       0,                      fh_any},
+#ifdef PUEBLO_SUPPORT
+{"HTML", 		HTML,           'w',
+	FLAG_WORD2,     0,                      fh_any},
+#endif
+{"STOP",		STOP_MATCH,	'!',
+	FLAG_WORD2,	0,			fh_wiz},
+{"BOUNCE",              BOUNCE,         'b',
+        FLAG_WORD2,       0,                      fh_any},
+{"COMMANDS",		HAS_COMMANDS,	'$',
+	FLAG_WORD2,	0,			fh_any},
 { NULL,			0,		' ',
 	0,		0,			NULL}};
 
@@ -539,7 +541,7 @@ char *flagname;
 			return 0;
 		/* don't show CONNECT on dark wizards to mortals */
 		if (isPlayer(it) &&
-		    (fp->flagvalue == CONNECTED) &&
+		    (fp->flagflag & FLAG_WORD2) && (fp->flagvalue == CONNECTED) &&
 		    ((Flags(it) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
 		    !Wizard(player))
 			return 0;
@@ -571,7 +573,6 @@ dbref player, target;
 	safe_mb_str((char *)object_types[otype].name, buff, &bp);
 	safe_mb_str((char *)" Flags:", buff, &bp);
 	if (object_types[otype].perm != CA_PUBLIC) {
-		*bp = '\0';
 		return buff;
 	}
 	/* Store the type-invariant flags */
@@ -590,7 +591,7 @@ dbref player, target;
 				continue;
 			/* don't show CONNECT on dark wizards to mortals */
 			if (isPlayer(target) &&
-			    (fp->flagvalue == CONNECTED) &&
+			    (fp->flagflag & FLAG_WORD2) && (fp->flagvalue == CONNECTED) &&
 			    ((Flags(target) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
 			    !Wizard(player))
 				continue;
@@ -599,9 +600,6 @@ dbref player, target;
 		}
 	}
 
-	/* Terminate the string, and return the buffer to the caller */
-
-	*bp = '\0';
 	return buff;
 }
 

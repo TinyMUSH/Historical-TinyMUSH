@@ -1504,9 +1504,7 @@ char *fn;
 	retval = cf_include(NULL, fn, 0, 0, (char *)"init");
 	mudstate.initializing = 0;
 
-	/*
-	 * Fill in missing DB file names 
-	 */
+	/* Fill in missing DB file names */
 
 	if (!*mudconf.outdb) {
 		StringCopy(mudconf.outdb, mudconf.indb);

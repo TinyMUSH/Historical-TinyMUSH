@@ -1058,15 +1058,14 @@ char *name, *command;
 
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_restart: Restarts the game.
+/* ---------------------------------------------------------------------------
+ * do_restart: Restarts the game.
  */
 
 void do_restart(player, cause, key)
 {
-	char outdb[128];
-	char indb[128];
+	char outdb[PBUF_SIZE];
+	char indb[PBUF_SIZE];
 	int stat;
 	
 	if (mudstate.dumping) {
@@ -1089,7 +1088,7 @@ void do_restart(player, cause, key)
 	kill(slave_pid, SIGKILL);
 	alarm(0);
 	dump_restart_db();
-	execl("bin/netmux", "netmux", mudconf.config_file, NULL);
+	execl(mudconf.exec_path, mudconf.exec_path, mudconf.config_file, NULL);
 }
 
 /*

@@ -767,8 +767,6 @@ int db_format, db_version;
 			newf1 |= SAFE;
 		if (f1 & PENN_STARTUP)
 			newf1 |= HAS_STARTUP;
-		if (f1 & PENN_NO_COMMAND)
-			newf2 |= NO_COMMAND;
 
 		switch (newf1 & TYPE_MASK) {
 		case TYPE_PLAYER:

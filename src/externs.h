@@ -107,7 +107,7 @@ extern void	FDECL(notify_check, (dbref, dbref, const char *, int));
 extern int	FDECL(Hearer, (dbref));
 extern void	NDECL(report);
 extern int	FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
-extern int	FDECL(list_check, (dbref, dbref, char, char *, char *, int));
+extern int	FDECL(list_check, (dbref, dbref, char, char *, char *, int, int *));
 extern int	FDECL(html_escape, (const char *src, char *dest, char **destp));
 	
 /* From help.c */

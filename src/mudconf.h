@@ -35,7 +35,6 @@ struct confdata {
 	char	gdbm[PBUF_SIZE];	/* use this gdbm file if we need one */
 	char	mail_db[PBUF_SIZE];	/* name of the @mail database */
 	char	comsys_db[PBUF_SIZE];	/* name of the comsys and macros db */
-	char	config_file[PBUF_SIZE]; /* name of config file, used by @restart */
 	int	compress_db;	/* should we use compress */
 	char	compress[PBUF_SIZE];	/* program to run to compress */
 	char	uncompress[PBUF_SIZE];/* program to run to uncompress */
@@ -87,6 +86,8 @@ struct confdata {
 	char    pueblo_msg[GBUF_SIZE];	/* Message displayed to Pueblo clients */
 	char	htmlconn_file[SBUF_SIZE];	/* display on PUEBLOCLIENT message */
 #endif
+	char	config_file[PBUF_SIZE]; /* name of config file, used by @restart */
+	char	exec_path[MBUF_SIZE];	/* argv[0] */
 	int	indent_desc;	/* Newlines before and after descs? */
 	int	name_spaces;	/* allow player names to have spaces */
 	int	site_chars;	/* where to truncate site name */

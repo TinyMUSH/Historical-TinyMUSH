@@ -69,13 +69,14 @@
 #define HEAD_FLAG       0x00000400
 #define FIXED           0x00000800
 #define UNINSPECTED     0x00001000
-#define NO_COMMAND      0x00002000
 #define DYNAMIC         0x00004000
 #define NOBLEED         0x00008000
 #define STAFF           0x00010000
 #define HAS_DAILY	0x00020000
 #define GAGGED		0x00040000
-
+#define HAS_COMMANDS	0x00080000	/* Check it for $commands */
+#define STOP_MATCH	0x00100000	/* Stop matching commands if found */
+#define BOUNCE		0x00200000	/* Forward messages to contents */
 #define VACATION	0x01000000
 #define PLAYER_MAILS    0x02000000
 #define HTML		0x04000000      /* Player supports HTML */
@@ -377,7 +378,6 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Fixed(x)        ((Flags2(x) & FIXED) != 0)
 #define Uninspected(x)  ((Flags2(x) & UNINSPECTED) != 0)
 #define Ansi(x)         ((Flags2(x) & ANSI) != 0)
-#define No_Command(x)   ((Flags2(x) & NO_COMMAND) != 0)
 #define NoBleed(x)      ((Flags2(x) & NOBLEED) != 0)
 #define Compress(x)	((Flags2(x) & COMPRESS) != 0)
 
@@ -430,6 +430,9 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Connected(x)	(((Flags2(x) & CONNECTED) != 0) && \
 			 (Typeof(x) == TYPE_PLAYER))
 #define	Slave(x)	((Flags2(Owner(x)) & SLAVE) != 0)
+#define Stop_Match(x)   ((Flags2(x) & STOP_MATCH) != 0)
+#define Has_Commands(x) ((Flags2(x) & HAS_COMMANDS) != 0)
+#define Bouncer(x)      ((Flags2(x) & BOUNCE) != 0)
 #define	Hidden(x)	((Flags(x) & DARK) != 0)
 
 #define	H_Startup(x)	((Flags(x) & HAS_STARTUP) != 0)
@@ -527,4 +530,5 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Has_power(p,x)	(check_access((p),powers_nametab[x].flag))
 #define Html(x) ((Flags2(x) & HTML) != 0)
 #define s_Html(x) s_Flags2((x), Flags2(x) | HTML)
+#define c_Html(x) s_Flags2((x), Flags2(x) & ~HTML)
 #endif
