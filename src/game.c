@@ -1,4 +1,4 @@
-/* game.c */
+/* game.c - main program and misc functions */
 /* $Id$ */
 
 #include "copyright.h"
@@ -1791,14 +1791,15 @@ char *argv[];
 	     * CAUTION:
 	     * We do this here rather than up at the top of this function
 	     * because we need to know if we're restarting. If we are,
-	     * our previous process closed stdin and stdout at inception,
+	     * our previous process closed stdout at inception,
 	     * and therefore we don't need to do so.
-	     * More importantly, on a restart, the file descriptors normally
-	     * allocated to stdin and stdout may have been used for player
-	     * socket descriptors. Thus, closing them like streams is
+	     * More importantly, on a restart, the file descriptor normally
+	     * allocated to stdout could have been used for a player
+	     * socket descriptor. Thus, closing it like a stream is
 	     * really, really bad.
+	     * Moreover, stdin gets closed and its descriptor reused in
+	     * tf_init. A double fclose of stdin would be a really bad idea.
 	     */
-	    fclose(stdin);
 	    fclose(stdout);
 	}
 
