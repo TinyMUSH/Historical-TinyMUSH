@@ -25,19 +25,40 @@ I found a bug! What do I do?
 
 - Send email to tinymush-bugs@godlike.com with the bug report.
 
-- If the bug crashes the server, try to include a stack trace from the
-  core file. You can obtain this by doing the following from the game
-  directory:
+- If the bug crashes the server, we really, really, want to hear about
+  it. We'd like as much information as possible.
+
+  We've included a script which automatically analyzes core files and
+  emails results to us. Go to your game directory, and type './ReportCrash'
+  You should eventually see a 'Done.' -- that means the analysis was
+  successful. If you get an error message and early end to the script,
+  you'll need to deal with it manually.
+
+  The following sequence of commands will generate a stack trace and
+  variable dumps from the core file. Cut-and-paste the output and
+  email it along with your bug report. You can obtain this by doing
+  the following from the game directory:
 
   gdb bin/netmush core
+	where
+	info frame
+	info args
+	info locals
+	up
+	info args
+	info locals
+	up	(Repeat until you're at the top procedure level.)
+	quit
+
+  If you don't have gdb, use dbx, as follows:
+
+  dbx bin/netmush core
 	where
 	dump
 	up
 	dump
 	up	(Repeat until you're at the top procedure level.)
 	quit
-
-  If you don't have gdb, use dbx.
 
 ------------------------------------------------------------------------------
 
