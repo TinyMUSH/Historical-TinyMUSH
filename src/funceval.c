@@ -4580,14 +4580,18 @@ FUNCTION(fun_regparse)
     nqregs = list2arr(qregs, NSUBEXP, fargs[2], ' ');
     for (i = 0; i < nqregs; i++) {
 	if (qregs[i] && *qregs[i]) {
-	    len = re->endp[i] - re->startp[i];
-	    if (len > LBUF_SIZE - 1)
-		len = LBUF_SIZE - 1;
-	    else if (len < 0)
-		len = 0;
-	    strncpy(matchbuf, re->startp[i], len);
-	    matchbuf[len] = '\0';
-	    set_xvar(player, qregs[i], matchbuf);
+	    if (!matched || !re->startp[i] || !re->endp[i]) {
+		set_xvar(player, qregs[i], NULL);
+	    } else {
+		len = re->endp[i] - re->startp[i];
+		if (len > LBUF_SIZE - 1)
+		    len = LBUF_SIZE - 1;
+		else if (len < 0)
+		    len = 0;
+		strncpy(matchbuf, re->startp[i], len);
+		matchbuf[len] = '\0';
+		set_xvar(player, qregs[i], matchbuf);
+	    }
 	}
     }
 
