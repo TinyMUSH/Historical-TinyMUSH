@@ -731,8 +731,9 @@ int atrsize;
 
 		cp = freelist->head;
 
-		if (cp)
-			freelist->head = cp->nxt;
+		if (cp) {
+			F_DEQUEUE(freelist, cp);
+		}
 
 		if (cp && (cp->flags & CACHE_DIRTY)) {
 			/* Flush the modified attributes to disk */
