@@ -235,6 +235,7 @@ void NDECL(cf_init)
 	mudconf.exit_calls_move = 0;
 	mudconf.move_match_more = 0;
 	mudconf.autozone = 1;
+	mudconf.page_req_equals = 0;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1404,6 +1405,7 @@ CONF conftable[] = {
 {(char *)"output_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.outdb,		PBUF_SIZE},
 {(char *)"output_limit",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.output_limit,		0},
 {(char *)"page_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.pagecost,		0},
+{(char *)"page_requires_equals",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.page_req_equals,	(long)"The page command always requires an equals sign"},
 {(char *)"paranoid_allocate",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.paranoid_alloc,	(long)"Buffer pools sanity-checked on alloc/free"},
 {(char *)"parent_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.parent_nest_lim,	0},
 {(char *)"paycheck",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.paycheck,		0},

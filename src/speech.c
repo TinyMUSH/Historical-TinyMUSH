@@ -417,9 +417,19 @@ void do_page(player, cause, key, tname, message)
     int *dbrefs_array = NULL;
     char *str, *tokst;
 
-    /* Handle repage with or without an '=', by swapping args. */
+    /* If we have to have an equals sign in the page command, if
+     * there's no message, it's an error (otherwise tname would
+     * be null and message would contain text).
+     * Otherwise we handle repage by swapping args.
+     * Unfortunately, we have no way of differentiating
+     * 'page foo=' from 'page foo' -- both result in a valid tname.
+     */
 
     if (!*message) {
+	if (mudconf.page_req_equals) {
+	    notify(player, "No one to page.");
+	    return;
+	}
 	tnp = message;
 	message = tname;
 	tname = tnp;
