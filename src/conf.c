@@ -1344,38 +1344,40 @@ int add_helpfile(player, str, is_raw)
 
     fcmd = strtok_r(newstr, " \t=,", &tokst);
     fpath = strtok_r(NULL, " \t=,", &tokst);
-
+    if (fpath == NULL) {
+	cf_log_syntax(player, cmd, "Missing path for helpfile %s", fcmd);
+	free_mbuf(newstr);
+	return -1;
+    }
+    if (fcmd[0] == '_' && fcmd[1] == '_') {
+	cf_log_syntax(player, cmd, "Helpfile %s would cause @addcommand conflict", fcmd);
+	free_mbuf(newstr);
+	return -1;
+    }
     if (strlen(fpath) > SBUF_SIZE) {
+	cf_log_syntax(player, cmd, "Helpfile %s filename too long", fcmd);
 	free_mbuf(newstr);
 	return -1;
     }
     
-    if ((cmdp = (CMDENT *) hashfind(fcmd, &mudstate.command_htab)) == NULL) {
+    cmdp = (CMDENT *) XMALLOC(sizeof(CMDENT), "add_helpfile.cmdp");
+    cmdp->cmdname = XSTRDUP(fcmd, "add_helpfile.cmd");
+    cmdp->switches = NULL;
+    cmdp->perms = 0;
+    cmdp->pre_hook = NULL;
+    cmdp->post_hook = NULL;
+    cmdp->userperms = NULL;
+    cmdp->callseq = CS_ONE_ARG;
+    cmdp->info.handler = do_help;
 
-	/* We need to allocate a new command structure. */
+    cmdp->extra = mudstate.helpfiles;
+    if (is_raw)
+	cmdp->extra |= HELP_RAWHELP;
 
-	cmdp = (CMDENT *) XMALLOC(sizeof(CMDENT), "add_helpfile.cmdp");
-	cmdp->cmdname = XSTRDUP(fcmd, "add_helpfile.cmd");
-	cmdp->switches = NULL;
-	cmdp->perms = 0;
-	cmdp->pre_hook = NULL;
-	cmdp->post_hook = NULL;
-	cmdp->userperms = NULL;
-	cmdp->callseq = CS_ONE_ARG;
-	cmdp->info.handler = do_help;
-
-	cmdp->extra = mudstate.helpfiles;
-	if (is_raw)
-	    cmdp->extra |= HELP_RAWHELP;
-
-	hashadd(cmdp->cmdname, (int *) cmdp, &mudstate.command_htab, 0);
-
-    } else {
-
-	/* Otherwise we just need to repoint things. */
-
-	cmdp->info.handler = do_help;
-    }
+    hashdelete(cmdp->cmdname, &mudstate.command_htab);
+    hashadd(cmdp->cmdname, (int *) cmdp, &mudstate.command_htab, 0);
+    hashdelete(tprintf("__%s", cmdp->cmdname), &mudstate.command_htab);
+    hashadd(tprintf("__%s", cmdp->cmdname), (int *) cmdp, &mudstate.command_htab, HASH_ALIAS);
 
     /* We may need to grow the helpfiles table, or create it. */
 
