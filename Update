@@ -12,8 +12,7 @@ use Socket;
 $uncompress_program = "gzip -d -c";
 $patch_program = "patch -p1";
 
-# $patch_url = "http://tinymush.sourceforge.net/patches";
-$patch_url = "http://www.godlike.com/tm3/patches";
+$patch_url = "http://tinymush.sourceforge.net/patches";
 $patchlevel_file = "src/.patchlevel";
 
 if ($ARGV[0] eq "-v") {
@@ -74,7 +73,7 @@ sub Web_Get {
 
     # Go get it.
 
-    print S "GET /$doc HTTP/1.0\r\n\r\n";
+    print S "GET /$doc HTTP/1.1\r\nhost:$them\r\n\r\n";
     while (<S>) {
 	last if /^\r?\n?$/;
     }
@@ -196,12 +195,6 @@ if ($status_v eq "p") {
 # Delete patches as we go.
 
 $applied = 0;
-
-print "Status_V: $status_v\n";
-print "Beta_Minor_V: $beta_minor_v\n";
-print "Beta_Max_V: $beta_max_v\n";
-print "Minor_V: $minor_v\n";
-print "Major_V: $major_v\n";
 
 if ($beta_minor_v > -1) {
     if ($beta_minor_v == $beta_max_v) {
