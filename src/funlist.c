@@ -1422,7 +1422,7 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 	    safe_crlf(buff, bufc);
 
 	if (lead_str)
-	    over = safe_str(lead_str, buff, bufc);
+	    over = safe_str_fn(lead_str, buff, bufc);
 
 	/* Do each column in the line. */
 
@@ -1451,7 +1451,7 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 	    /* Copy in the word. */
 	    
 	    if (lens[wcount] <= col_widths[cpos]) {
-		over = safe_str(words[wcount], buff, bufc);
+		over = safe_str_fn(words[wcount], buff, bufc);
 		if (*states[wcount]) {
 		    safe_ansi_normal(buff, bufc);
 		}
@@ -1502,14 +1502,14 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 	    if ((wcount == nwords) &&
 		((nleft = nwords % n_cols) > 0)) {
 		for (cpos = nleft; (cpos < n_cols) && !over; cpos++) {
-		    over = safe_str(field_sep, buff, bufc);
+		    over = safe_str_fn(field_sep, buff, bufc);
 		    print_padding(col_widths[cpos], max, pad_char);
 		}
 	    }
 
 	    /* Write the right margin. */
 
-	    over = safe_str(trail_str, buff, bufc);
+	    over = safe_str_fn(trail_str, buff, bufc);
 	}
     }
 

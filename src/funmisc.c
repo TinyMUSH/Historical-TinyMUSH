@@ -426,7 +426,7 @@ FUNCTION(fun_lnum)
 		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    ltos(tbuf, bot);
-	    over = safe_str(tbuf, buff, bufc);
+	    over = safe_str_fn(tbuf, buff, bufc);
 	    bot++;
 	}
 	if (over)
@@ -469,7 +469,7 @@ FUNCTION(fun_lnum)
 		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    ltos(tbuf, i);
-	    over = safe_str(tbuf, buff, bufc);
+	    over = safe_str_fn(tbuf, buff, bufc);
 	}
     } else {
 	for (i = bot; (i >= top) && !over; i--) {
@@ -477,7 +477,7 @@ FUNCTION(fun_lnum)
 		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    ltos(tbuf, i);
-	    over = safe_str(tbuf, buff, bufc);
+	    over = safe_str_fn(tbuf, buff, bufc);
 	}
     }
 }

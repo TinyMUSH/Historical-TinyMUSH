@@ -165,6 +165,7 @@ extern void	FDECL(list_buftrace, (dbref));
 }
 
 #define	safe_str(s,b,p)		safe_copy_str((s),(b),(p),(LBUF_SIZE-1))
+#define	safe_str_fn(s,b,p)	safe_copy_str_fn((s),(b),(p),(LBUF_SIZE-1))
 #define	safe_chr(c,b,p)		safe_copy_chr((c),(b),(p),(LBUF_SIZE-1))
 #define safe_long_str(s,b,p)    safe_copy_long_str((s),(b),(p),(LBUF_SIZE-1))
 #define	safe_sb_str(s,b,p)	safe_copy_str((s),(b),(p),(SBUF_SIZE-1))

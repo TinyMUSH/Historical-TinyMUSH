@@ -1519,12 +1519,12 @@ FUNCTION(fun_delimit)
     atext = atr_pget(it, atr, &aowner, &aflags, &alen);
     nitems = list2arr(&ptrs, LBUF_SIZE / 2, atext, isep, 1);
     if (nitems) {
-	over = safe_str(ptrs[0], buff, bufc);
+	over = safe_str_fn(ptrs[0], buff, bufc);
     }
     for (i = 1; !over && (i < nitems); i++) {
-	over = safe_str(fargs[1], buff, bufc);
+	over = safe_str_fn(fargs[1], buff, bufc);
 	if (!over)
-	    over = safe_str(ptrs[i], buff, bufc);
+	    over = safe_str_fn(ptrs[i], buff, bufc);
     }
     free_lbuf(atext);
     XFREE(ptrs, "fun_delimit.ptrs");
@@ -2339,7 +2339,7 @@ FUNCTION(fun_popn)
 	    if (*bufc != bb_p) {
 		print_sep(osep, osep_len, buff, bufc);
 	    }
-	    over = safe_str(tp->data, buff, bufc);
+	    over = safe_str_fn(tp->data, buff, bufc);
 	}
 	xp = tp;
 	tp = tp->next;
@@ -2379,7 +2379,7 @@ FUNCTION(fun_lstack)
 	if (*bufc != bb_p) {
 	    print_sep(osep, osep_len, buff, bufc);
 	}
-	over = safe_str(sp->data, buff, bufc);
+	over = safe_str_fn(sp->data, buff, bufc);
     }
 }
 

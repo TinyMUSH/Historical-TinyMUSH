@@ -859,8 +859,49 @@ int min;
  * watching for overflows.
  */
 
-INLINE int 
+INLINE void
 safe_copy_str(src, buff, bufp, max)
+    char *src, *buff, **bufp;
+    int max;
+{
+    char *tp, *maxtp, *longtp;
+    int n, len;
+
+    tp = *bufp;
+    if (src == NULL) {
+	*tp = '\0';
+	return;
+    }
+    maxtp = buff + max;
+    longtp = tp + 7;
+    maxtp = (maxtp < longtp) ? maxtp : longtp;
+
+    while (*src && (tp < maxtp))
+	*tp++ = *src++;
+
+    if (*src == '\0') { /* copied whole src, and tp is at most maxtp */
+	*tp = '\0';
+	*bufp = tp;
+	return;
+    }
+
+    len = strlen(src);
+    n = max - (tp - buff); /* tp is either maxtp or longtp */
+    if (n <= 0) {
+	*tp = '\0';
+	*bufp = tp;
+	return;
+    }
+    n = ((len < n) ? len : n);
+    memcpy(tp, src, n);
+    tp += n;
+    *tp = '\0';
+    *bufp = tp;
+}
+
+
+INLINE int 
+safe_copy_str_fn(src, buff, bufp, max)
     char *src, *buff, **bufp;
     int max;
 {
@@ -888,7 +929,9 @@ safe_copy_str(src, buff, bufp, max)
     len = strlen(src);
     n = max - (tp - buff); /* tp is either maxtp or longtp */
     if (n <= 0) {
+    	len -= (tp - *bufp);
 	*tp = '\0';
+	*bufp = tp;
 	return (len);
     }
     n = ((len < n) ? len : n);

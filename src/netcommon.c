@@ -1267,9 +1267,9 @@ static int sane_doing(arg, buff)
 
     bp = buff;
     if (!mudconf.ansi_colors || !strchr(arg, ESC_CHAR)) {
-	over = safe_copy_str(arg, buff, &bp, DOING_LEN - 1);
+	over = safe_copy_str_fn(arg, buff, &bp, DOING_LEN - 1);
     } else {
-	over = safe_copy_str(arg, buff, &bp, DOING_LEN - 5);
+	over = safe_copy_str_fn(arg, buff, &bp, DOING_LEN - 5);
 	strcpy(bp, ANSI_NORMAL);
     }
 
