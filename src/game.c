@@ -49,7 +49,6 @@ extern void NDECL(boot_slave);
 
 void FDECL(fork_and_dump, (int));
 void NDECL(dump_database);
-void FDECL(do_dump_optimize, (dbref, dbref, int));
 void NDECL(pcache_sync);
 void FDECL(dump_database_internal, (int));
 static void NDECL(init_rlimit);
@@ -76,32 +75,7 @@ dbref player, cause;
 int key;
 {
 	notify(player, "Dumping...");
-
-	/*
-	 * DUMP_OPTIMIZE takes advantage of a feature of GDBM to compress  
-	 * unused space in the database, and will not be very useful
-	 * except sparingly, perhaps done every month or so. 
-	 */
-
-	if (key & DUMP_OPTIMIZE)
-		do_dump_optimize(player, cause, key);
-	else
-		fork_and_dump(key);
-}
-
-void do_dump_optimize(player, cause, key)
-dbref player, cause;
-int key;
-{
-#ifdef MEMORY_BASED
-	raw_notify(player, "Database is memory based.");
-#else
-	raw_notify(player, "Optimizing database...");
-	if (dddb_optimize() < 0)
-		raw_notify(player, "Database optimization failed.");
-	else
-		raw_notify(player, "Database optmization completed.");
-#endif /* MEMORY_BASED */
+	fork_and_dump(key);
 }
 
 /* print out stuff into error file */
@@ -1233,6 +1207,7 @@ int key;
 
 	if (!key || !(key & DUMP_FLATFILE)) {
 		SYNC;
+		OPTIMIZE;
 	}
 	
 	if (!key || (key & DUMP_STRUCT) || (key & DUMP_FLATFILE)) {

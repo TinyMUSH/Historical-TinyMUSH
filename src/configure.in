@@ -124,6 +124,7 @@ AC_TRY_COMPILE([#include <sys/types.h>
 [struct linger ling; ling.l_onoff = 1;],
 AC_DEFINE(HAVE_LINGER))
 AC_CHECK_LIB(resolv, main)
+AC_CHECK_LIB(socket, main)
 AC_CHECK_LIB(sun, getpwnam)
 AC_CHECK_LIB(seq, main)
 AC_CHECK_LIB(intl, main)
