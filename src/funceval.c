@@ -3497,10 +3497,6 @@ FUNCTION(fun_hastype)
 	if (it == NOTHING) {
 		safe_str("#-1 NO MATCH", buff, bufc);
 		return;
-	} else if (!(Examinable(player, it))) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
-		return;
-	}
 	if (!fargs[1] || !*fargs[1]) {
 		safe_str("#-1 NO SUCH TYPE", buff, bufc);
 		return;
