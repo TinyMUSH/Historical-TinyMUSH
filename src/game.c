@@ -234,6 +234,11 @@ int nargs;
     for (i = 0; i < nargs; i++) {
 	args[i] = alloc_lbuf("regexp_match");
 	pcre_copy_substring(str, offsets, subpatterns, i, args[i], LBUF_SIZE);
+	if (!*args[i]) {
+	    /* Match behavior of wild(): clear out null values. */
+	    free_lbuf(args[i]);
+	    args[i] = NULL;
+	}
     }
 
     XFREE(re, "regexp_match.re");
@@ -402,15 +407,22 @@ const char *msg;
 		free_lbuf(buf);
 		return (1);
 	}
-	save_global_regs("check_filter_save", preserve, preserve_len);
-	nbuf = dp = alloc_lbuf("check_filter");
-	str = buf;
-	exec(nbuf, &dp, 0, object, player, EV_FIGNORE | EV_EVAL | EV_TOP, &str,
-	     (char **)NULL, 0);
-	*dp = '\0';
-	dp = nbuf;
-	free_lbuf(buf);
-	restore_global_regs("check_filter_restore", preserve, preserve_len);
+
+	if (!(aflags & AF_NOPARSE)) {
+	    save_global_regs("check_filter_save", preserve, preserve_len);
+	    nbuf = dp = alloc_lbuf("check_filter");
+	    str = buf;
+	    exec(nbuf, &dp, 0, object, player, EV_FIGNORE | EV_EVAL | EV_TOP,
+		 &str, (char **)NULL, 0);
+	    *dp = '\0';
+	    dp = nbuf;
+	    free_lbuf(buf);
+	    restore_global_regs("check_filter_restore", preserve,
+				preserve_len);
+	} else {
+	    dp = buf;
+	    nbuf = buf;		/* this way, buf will get freed correctly */
+	}
 
 	if (!(aflags & AF_REGEXP)) {
 	    do {
