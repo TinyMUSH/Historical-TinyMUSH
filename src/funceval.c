@@ -2706,45 +2706,43 @@ FUNCTION(fun_udefault)
 	}
 	if (ap) {
 	    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	    if (atext) {
-		if (*atext &&
-		    check_read_perms(player, thing, ap, aowner, aflags,
-				     buff, bufc)) {
-		    /* Now we have a problem -- we've got to go eval
-		     * all of those arguments to the function. 
-		     */
-		    for (i = 2, j = 0; j < NUM_ENV_VARS; i++, j++) {
-			if ((i < nfargs) && fargs[i]) {
-			    bp = xargs[j] = alloc_lbuf("fun_udefault_args");
-			    str = fargs[i];
-			    exec(xargs[j], &bp, 0, player, cause,
-				 EV_STRIP | EV_FCHECK | EV_EVAL,
-				 &str, cargs, ncargs);
-			} else {
-			    xargs[j] = NULL;
-			} 
-		    }
-		    
-		    str = atext;
-		    exec(buff, bufc, 0, thing, cause, EV_FCHECK | EV_EVAL,
-			 &str, xargs, nfargs - 2);
-					
-		    /* Then clean up after ourselves. */
-
-		    for (j = 0; j < NUM_ENV_VARS; j++)
-			if (xargs[j])
-			    free_lbuf(xargs[j]);
-		    
-		    free_lbuf(atext);
-		    free_lbuf(objname);
-		    return;
+	    if (*atext &&
+		check_read_perms(player, thing, ap, aowner, aflags,
+				 buff, bufc)) {
+		/* Now we have a problem -- we've got to go eval
+		 * all of those arguments to the function. 
+		 */
+		for (i = 2, j = 0; j < NUM_ENV_VARS; i++, j++) {
+		    if ((i < nfargs) && fargs[i]) {
+			bp = xargs[j] = alloc_lbuf("fun_udefault_args");
+			str = fargs[i];
+			exec(xargs[j], &bp, 0, player, cause,
+			     EV_STRIP | EV_FCHECK | EV_EVAL,
+			     &str, cargs, ncargs);
+		    } else {
+			xargs[j] = NULL;
+		    } 
 		}
+    
+		str = atext;
+		exec(buff, bufc, 0, thing, cause, EV_FCHECK | EV_EVAL,
+		     &str, xargs, nfargs - 2);
+
+		/* Then clean up after ourselves. */
+
+		for (j = 0; j < NUM_ENV_VARS; j++)
+		    if (xargs[j])
+			free_lbuf(xargs[j]);
+
 		free_lbuf(atext);
+		free_lbuf(objname);
+		return;
 	    }
+	    free_lbuf(atext);
 	}
 	free_lbuf(objname);
-    
-}
+
+    }
     /* If we've hit this point, we've not gotten anything useful, so we 
      * go and evaluate the default. 
      */
@@ -3067,9 +3065,7 @@ FUNCTION(fun_sortby)
 		return;
 	}
 	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!atext) {
-		return;
-	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
+	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
 		free_lbuf(atext);
 		return;
 	}
@@ -3223,9 +3219,7 @@ FUNCTION(fun_mix)
 	return;
     }
     atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-    if (!atext) {
-	return;
-    } else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
+    if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
 	free_lbuf(atext);
 	return;
     }
@@ -3311,8 +3305,6 @@ FUNCTION(fun_step)
 	return;
 
     atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-    if (!atext)
-	return;
     if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
 	free_lbuf(atext);
 	return;
@@ -3369,9 +3361,7 @@ FUNCTION(fun_foreach)
 	return;
     }
     atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-    if (!atext) {
-	return;
-    } else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
+    if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
 	free_lbuf(atext);
 	return;
     }
@@ -3465,9 +3455,7 @@ FUNCTION(fun_munge)
 		return;
 	}
 	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!atext) {
-		return;
-	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
+	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
 		free_lbuf(atext);
 		return;
 	}
@@ -4741,11 +4729,7 @@ FUNCTION(fun_lastcreate)
 	return;
     }
 
-    if ((obj_str = atr_get(obj, A_NEWOBJS, &aowner, &aflags, &alen)) == NULL) {
-	safe_nothing(buff, bufc);
-	return;
-    }
-
+    obj_str = atr_get(obj, A_NEWOBJS, &aowner, &aflags, &alen);
     if (!*obj_str) {
 	free_lbuf(obj_str);
 	safe_nothing(buff, bufc);

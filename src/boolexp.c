@@ -148,7 +148,7 @@ BOOLEXP *b;
 					 */
 		source = from;
 		buff = atr_pget(from, a->number, &aowner, &aflags, &alen);
-		if (!buff || !*buff) {
+		if (!*buff) {
 			free_lbuf(buff);
 			buff = atr_pget(thing, a->number, &aowner,
 					&aflags, &alen);

@@ -394,7 +394,7 @@ static dbref find_var_dest(player, exit)
     char *preserve[MAX_GLOBAL_REGS];
 
     buf = atr_pget(exit, A_EXITVARDEST, &aowner, &aflags, &alen);
-    if (!buf || !*buf) {
+    if (!*buf) {
 	free_lbuf(buf);
 	return NOTHING;
     }

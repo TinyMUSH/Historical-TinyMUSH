@@ -112,12 +112,11 @@ static void NDECL(check_cron)
 	     (bit_test(crp->dow, dow) && bit_test(crp->dom, dom)) :
 	     (bit_test(crp->dow, dow) || bit_test(crp->dom, dom)))) {
 	    cmd = atr_pget(crp->obj, crp->atr, &aowner, &aflags, &alen);
-	    if (cmd && *cmd && Good_obj(crp->obj)) {
+	    if (*cmd && Good_obj(crp->obj)) {
 		wait_que(crp->obj, crp->obj, 0, NOTHING, 0, cmd,
 			 (char **) NULL, 0, NULL);
 	    }
-	    if (cmd)
-		free_lbuf(cmd);
+	    free_lbuf(cmd);
 	}
     }
 }

@@ -234,19 +234,17 @@ static void update_newobjs(player, obj_num, obj_type)
 
     newobj_str = atr_get(player, A_NEWOBJS, &aowner, &aflags, &alen);
 
-    if (!newobj_str || !*newobj_str) {
+    if (!*newobj_str) {
 	for (i = 0; i < 4; i++)
 	    obj_list[i] = -1;
-	if (newobj_str)
-	    free_lbuf(newobj_str);
     } else {
 	for (p = (char *) strtok(newobj_str, " "), i = 0;
 	     p && (i < 4);
 	     p = (char *) strtok(NULL, " "), i++) {
 	    obj_list[i] = atoi(p);
 	}
-	free_lbuf(newobj_str);
     }
+    free_lbuf(newobj_str);
 
     switch (obj_type) {
       case TYPE_ROOM:

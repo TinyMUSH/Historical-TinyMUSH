@@ -1241,10 +1241,6 @@ int nfargs, ncargs, is_local;
 	/* Use it if we can access it, otherwise return an error. */
 
 	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!atext) {
-		free_lbuf(atext);
-		return;
-	}
 	if (!*atext) {
 		free_lbuf(atext);
 		return;
@@ -1537,8 +1533,7 @@ FUNCTION(fun_v)
 		tbuf = atr_pget(player, ap->number, &aowner, &aflags, &alen);
 		if (See_attr(player, player, ap, aowner, aflags))
 		    safe_known_str(tbuf, alen, buff, bufc);
-		if (tbuf)
-		    free_lbuf(tbuf);
+		free_lbuf(tbuf);
 		return;
 	}
 	/* Not an attribute, process as %<arg> */
@@ -4587,9 +4582,7 @@ FUNCTION(fun_fold)
 	/* Use it if we can access it, otherwise return an error. */
 
 	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!atext) {
-		return;
-	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
+	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
 		free_lbuf(atext);
 		return;
 	}
@@ -4691,9 +4684,7 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
 	 */
 
 	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!atext) {
-		return;
-	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
+	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
 		free_lbuf(atext);
 		return;
 	}
@@ -4783,9 +4774,7 @@ FUNCTION(fun_map)
 	/* Use it if we can access it, otherwise return an error. */
 
 	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!atext) {
-		return;
-	} else if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
+	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
 		free_lbuf(atext);
 		return;
 	}
@@ -4853,9 +4842,7 @@ FUNCTION(fun_while)
     if (!ap)
 	return;
     atext1 = atr_pget(thing1, ap->number, &aowner1, &aflags1, &alen1);
-    if (!atext1) {
-	return;
-    } else if (!*atext1 || !See_attr(player, thing1, ap, aowner1, aflags1)) {
+    if (!*atext1 || !See_attr(player, thing1, ap, aowner1, aflags1)) {
 	free_lbuf(atext1);
 	return;
     }
@@ -4874,10 +4861,7 @@ FUNCTION(fun_while)
 	return;
     }
     atext2 = atr_pget(thing2, ap->number, &aowner2, &aflags2, &alen2);
-    if (!atext2) {
-	free_lbuf(atext1);
-	return;
-    } else if (!*atext2 || !See_attr(player, thing2, ap, aowner2, aflags2)) {
+    if (!*atext2 || !See_attr(player, thing2, ap, aowner2, aflags2)) {
 	free_lbuf(atext1);
 	free_lbuf(atext2);
 	return;

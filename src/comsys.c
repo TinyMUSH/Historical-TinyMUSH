@@ -1665,7 +1665,7 @@ static void comsys_data_update(chp, obj)
     free_lbuf(key);
 
     key = atr_pget(obj, A_DESC, &aowner, &aflags, &alen);
-    if (key && *key)
+    if (*key)
 	chp->descrip = (char *) strdup(key);
     else
 	chp->descrip = NULL;

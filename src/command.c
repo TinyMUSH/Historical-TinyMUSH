@@ -1228,9 +1228,6 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     tstr = atr_get(hp->thing, hp->atr, &aowner, &aflags, &alen);
     str = tstr;
 
-    if (!tstr)
-	return;
-
     if (save_globs) {
 	save_global_regs("process_hook", preserve, preserve_len);
     }
@@ -1894,7 +1891,7 @@ char *command, *args[];
 
 	    if (check_access(player, leave_cmdp->perms)) {
 		p = atr_pget(Location(player), A_LALIAS, &aowner, &aflags, &alen);
-		if (p && *p) {
+		if (*p) {
 		    if (matches_exit_from_list(lcbuf, p)) {
 			free_lbuf(lcbuf);
 			free_lbuf(p);
@@ -1914,7 +1911,7 @@ char *command, *args[];
 	    if (check_access(player, enter_cmdp->perms)) {
 		DOLIST(exit, Contents(Location(player))) {
 		    p = atr_pget(exit, A_EALIAS, &aowner, &aflags, &alen);
-		    if (p && *p) {
+		    if (*p) {
 			if (matches_exit_from_list(lcbuf, p)) {
 			    free_lbuf(lcbuf);
 			    free_lbuf(p);

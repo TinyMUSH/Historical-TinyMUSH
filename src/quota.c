@@ -26,12 +26,10 @@ int qtype;
 
 	quota_str = atr_get(player, qtype, &aowner, &aflags, &alen);
 
-	/* This should never be null, but just in case. */
-	if (!quota_str || !*quota_str) {
+	if (!*quota_str) {
 		for (i = 0; i < 5; i++)
 			q_list[i] = 0;
-		if (quota_str)
-			free_lbuf(quota_str);
+		free_lbuf(quota_str);
 		return;
 	}
 	for (p = (char *)strtok(quota_str, " "), i = 0;
