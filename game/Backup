@@ -3,6 +3,7 @@
 # $Id$
 #
 #	Backup - Make a backup copy of the database files.
+#                With '-f' option, only make a flatfile.
 #
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH
@@ -20,11 +21,16 @@ DBDATE=`date +%m%d-%H%M`
 OUTFILE=$BACKUP_DIR/$GAMENAME.$DBDATE
 #
 if [ -r $DATA/$GDBM_DB ]; then
-    echo "Creating flatfile $OUTFILE"
-    $BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB > $OUTFILE
-    echo "Creating database archive $OUTFILE.tar.gz"
-    tar -cvhf - $OUTFILE $DATA/mod_*.db | $ZIP -c > $OUTFILE.tar.gz
-    rm $OUTFILE
+    if [ "$1" = "-f" ]; then
+	echo "Creating flatfile $OUTFILE.gz"
+	$BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB | $ZIP -c > $OUTFILE.gz
+    else
+	echo "Creating flatfile $OUTFILE"
+	$BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB > $OUTFILE
+	echo "Creating database archive $OUTFILE.tar.gz"
+	tar -cvhf - $OUTFILE $DATA/mod_*.db | $ZIP -c > $OUTFILE.tar.gz
+	rm $OUTFILE
+    fi
 else
     echo "No dbs. Backup attempt failed."
 fi
