@@ -43,6 +43,9 @@ TinyMUX compatibility:
 	lattr_default_oldstyle no
 	addcommands_match_blindly yes
 	addcommands_obey_stop no
+	helpfile +help text/plushelp
+	helpfile wiznews text/wiznews
+	access wiznews wizard
 
 Note that unless you explicitly need the legacy behavior of @addcommand'd
 commands (you want no Huh? message generated if an @addcommand is missed,
