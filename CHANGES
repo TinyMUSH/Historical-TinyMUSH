@@ -38,6 +38,12 @@ highly significant changes are noted here.
   with unusual rapidity; @daily a @dump/optimize to take care of this
   until it is fixed.
 
+- Backup and Restore scripts simplify backup maintenance.
+
+- There is now a generic indexed-textfile facility, allowing 'news'-like
+  commands and their associated files to be specified via the 'helpfile'
+  parameter in the conf file.
+
 - Variable destination exits are implemented, via the "variable" keyword
   and the ExitTo attribute; the destination of the exit is determined when
   it is used. The link_variable power has been added in support of this.
