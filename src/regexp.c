@@ -27,6 +27,7 @@
 /* Modified by Lydia Leong (lydia@digex.net) to work with TinyMUSH. */
 
 #include <stdio.h>
+#include "autoconf.h"
 #include "regexp.h"
 
 #ifndef MBUF_SIZE
@@ -214,7 +215,6 @@ char *exp;
 	register char *longest;
 	register int len;
 	int flags;
-	extern char *malloc();
 
 	if (exp == NULL)
 		FAIL("NULL argument");
@@ -301,7 +301,7 @@ int *flagp;
 	register char *ret;
 	register char *br;
 	register char *ender;
-	register int parno;
+	register int parno = 0;
 	int flags;
 
 	*flagp = HASWIDTH;	/* Tentatively. */
