@@ -734,13 +734,15 @@
 
 & @destroy
   Command: @destroy[/<switches>] <object>
+ 
   This command destroys <object> and refunds its cost of creation to its
-  owner.  You must own <object> in order to @destroy it, unless its
+  owner. You must own <object> in order to @destroy it, unless its
   DESTROY_OK flag is set, in which case anyone holding it may @destroy it.
-  Rooms, exits, and objects may be destroyed, although the the actual
-  destruction of rooms is delayed for up to ten minutes and the GOING flag
-  is set on the victim room.  Clearing the GOING flag on the room spares it
-  from destruction.
+  Rooms, exits, and objects may be destroyed. The actual destruction is
+  delayed for up to ten minutes (or more, depending on the MUSH's specific
+  configuration); the GOING flag is set on these objects. Clearing the
+  GOING flag on the object spares it from destruction. The exception is
+  DESTROY_OK objects, which are immediately destroyed.
  
   The @destroy command will not destroy objects with the SAFE flag set unless
   the /override switch is specified.  The DESTROY_OK flag overrides the
@@ -748,6 +750,7 @@
  
   The following switches are available:
     /override  - Negate protection offered by the SAFE flag.
+ 
   See also: DESTROY_OK, SAFE.
 
 & @dig
@@ -3319,10 +3322,13 @@
 & GOING
   Flag: GOING (G)
  
-  Used internally for the @destroy command, it is set on 
-  rooms that are set to be destroyed. In the event that a player 
-  decides they don't want to destroy the room after all then they can
-  unset it. 
+  Used internally for the @destroy command, it is set on objects
+  that are set to be destroyed. In the event that a player decides
+  they don't want to destroy the object after all, then they can
+  simply set the object !GOING, and it will be spared destruction
+  (assuming that the periodic destroyed-object-cleanups hasn't
+  run yet, of course).
+ 
 & HAVEN
   Flag: HAVEN (H)
  
@@ -3624,10 +3630,8 @@
   robot programs require.  Some MUSHes do not restrict access to the
   OUTPUTPREFIX and OUTPUTSUFFIX commands.
  
-  If set on an exit or a thing, indicates that robot players may not use the
-  exit or pick up the thing, the player is treated as having failed the lock.
   See also: OUTPUTPREFIX, OUTPUTSUFFIX, @robot.
-
+ 
 & SAFE
   Flag: SAFE(s)
  
