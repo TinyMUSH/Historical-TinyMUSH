@@ -432,7 +432,7 @@ const char *msg, *dflt;
 {
 	int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
 	dbref aowner;
-	char *buf, *nbuf, *cp, *bp, *str, *preserve[MAX_GLOBAL_REGS];
+	char *buf, *nbuf, *cp, *str, *preserve[MAX_GLOBAL_REGS];
 
 	buf = atr_pget(object, prefix, &aowner, &aflags, &alen);
 	if (!*buf) {
@@ -440,17 +440,16 @@ const char *msg, *dflt;
 		safe_str((char *)dflt, buf, &cp);
 	} else {
 		save_global_regs("add_prefix_save", preserve, preserve_len);
-		nbuf = bp = alloc_lbuf("add_prefix");
+		nbuf = cp = alloc_lbuf("add_prefix");
 		str = buf;
-		exec(nbuf, &bp, object, player, player,
+		exec(nbuf, &cp, object, player, player,
 		     EV_FIGNORE | EV_EVAL | EV_TOP, &str,
 		     (char **)NULL, 0);
-		*bp = '\0';
+		*cp = '\0';
 		free_lbuf(buf);
 		restore_global_regs("add_prefix_restore", preserve,
 				    preserve_len);
 		buf = nbuf;
-		cp = &buf[strlen(buf)];
 	}
 	if (cp != buf) {
 		safe_chr(' ', buf, &cp);
@@ -841,10 +840,8 @@ const char *msg;
 		     ((key & MSG_NBR_A) && is_audible &&
 		      check_filter(target, sender, A_FILTER, msg)))) {
 			if (key & MSG_S_INSIDE) {
-				tbuff = dflt_from_msg(sender, target);
 				buff = add_prefix(target, sender, A_PREFIX,
 						  msg, "");
-				free_lbuf(tbuff);
 			} else {
 				buff = (char *)msg;
 			}
