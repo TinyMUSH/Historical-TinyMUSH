@@ -3772,7 +3772,7 @@ FUNCTION(fun_capstr)
 
 FUNCTION(fun_lnum)
 {
-    char tbuf[10], sep;
+    char tbuf[12], sep;
     int bot, top, over, i;
     char *bb_p;
 
