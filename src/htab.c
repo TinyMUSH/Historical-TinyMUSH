@@ -381,45 +381,6 @@ HASHTAB *htab;
 
 #ifndef STANDALONE
 
-int *nhash_firstentry(htab)
-NHSHTAB *htab;
-{
-	int hval;
-
-	for (hval = 0; hval < htab->hashsize; hval++)
-		if (htab->entry->element[hval] != NULL) {
-			htab->last_hval = hval;
-			htab->last_entry = htab->entry->element[hval];
-			return htab->entry->element[hval]->data;
-		}
-	return NULL;
-}
-
-int *nhash_nextentry(htab)
-NHSHTAB *htab;
-{
-	int hval;
-	NHSHENT *hptr;
-
-	hval = htab->last_hval;
-	hptr = htab->last_entry;
-	if (hptr->next != NULL) {	/* We can stay in the same chain */
-		htab->last_entry = hptr->next;
-		return hptr->next->data;
-	}
-	/* We were at the end of the previous chain, go to the next one */
-	hval++;
-	while (hval < htab->hashsize) {
-		if (htab->entry->element[hval] != NULL) {
-			htab->last_hval = hval;
-			htab->last_entry = htab->entry->element[hval];
-			return htab->entry->element[hval]->data;
-		}
-		hval++;
-	}
-	return NULL;
-}
-
 /* ---------------------------------------------------------------------------
  * nhashfind: Look up an entry in a numeric hash table and return a pointer
  * to its hash data.

@@ -54,8 +54,6 @@ void NDECL(pcache_sync);
 void FDECL(dump_database_internal, (int));
 static void NDECL(init_rlimit);
 
-int reserved;
-
 #ifdef CONCENTRATE
 int conc_pid = 0;
 

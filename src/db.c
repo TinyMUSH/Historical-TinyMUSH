@@ -166,13 +166,6 @@ int mode;
 
 #ifndef STANDALONE
 
-int tf_socket(fam, typ)
-int fam, typ;
-{
-	tf_xclose(t_fd);
-	return tf_fiddle(socket(fam, typ, 0));
-}
-
 #ifdef TLI
 int tf_topen(fam, mode)
 int fam, mode;

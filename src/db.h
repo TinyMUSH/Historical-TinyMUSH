@@ -223,7 +223,6 @@ extern void	FDECL(s_Pennies, (dbref, int));
 
 extern void	NDECL(tf_init);
 extern int	FDECL(tf_open, (char *, int));
-extern int	FDECL(tf_socket, (int, int));
 extern void	FDECL(tf_close, (int));
 extern FILE *	FDECL(tf_fopen, (char *, int));
 extern void	FDECL(tf_fclose, (FILE *));

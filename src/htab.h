@@ -117,8 +117,6 @@ extern int	FDECL(*hash_nextentry, (HASHTAB *htab));
 extern int	FDECL(*hash_firstentry, (HASHTAB *htab));
 extern char	FDECL(*hash_firstkey, (HASHTAB *htab));
 extern char	FDECL(*hash_nextkey, (HASHTAB *htab));
-extern int	FDECL(*nhash_nextentry, (NHSHTAB *htab));
-extern int	FDECL(*nhash_firstentry, (NHSHTAB *htab));
 
 extern NAMETAB powers_nametab[];
 #define nhashinit(h,s) hashinit((HASHTAB *)h, s)
