@@ -488,7 +488,7 @@ char **argv;
 {
   void *handle;
 
-  if ((handle = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL)) != NULL)
+  if ((handle = dlopen((char *)0, RTLD_NOW|RTLD_GLOBAL)) != (void *)0)
     if (dlsym(handle, "_dlopen") && !dlsym(handle, "dlopen"))
       return 0;
 
