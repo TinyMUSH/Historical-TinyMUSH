@@ -1079,7 +1079,7 @@ int sig, code;
 
 	char buff[32];
 
-#if defined(HAVE_UNION_WAIT) && !defined(HAVE_WAIT3)
+#if defined(HAVE_UNION_WAIT) && defined(NEED_WAIT3_DCL)
 	union wait stat;
 
 #else
