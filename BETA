@@ -28,7 +28,8 @@ Release history:
 
 - Feature: "Altered reality" realm states like invisibility are supported
   through the use of the PRESENCE flag and six new locks (HeardLock,
-  HearsLock, KnownLock, KnowsLock, MovedLock, and MovesLock).
+  HearsLock, KnownLock, KnowsLock, MovedLock, and MovesLock). The
+  module API for did_it() has changed to support this.
 
 - Feature: hasflag() can now detect object types.
 
@@ -40,6 +41,11 @@ Release history:
   #-1 NO MATCH when they can't find the object they're checking.
   Previously they returned #-1 NOT FOUND; for consistency's sake,
   they now behave like everything else.
+
+- Misc: Caution is exercised when a match result could be #-3.
+
+- Misc: The check_paths script (used by other scripts) clarifies which
+  things are errors and which are warnings.
 
 - Fix: The game/backups directory is now correctly included with the
   distribution.
