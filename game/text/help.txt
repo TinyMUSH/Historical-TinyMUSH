@@ -4397,8 +4397,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   The structure functions are:
  
-	construct()	destruct()	load()		modify()
-	structure()	unload()	unstructure()	z()
+	construct()	destruct()	load()		linstances()
+	lstructures()	modify()	structure()	unload()	
+	unstructure()	z()
  
   All of these functions operate on the calling object; to manipulate
   structures on other objects, wrap the function calls in an objeval().
@@ -9659,6 +9660,8 @@ Continued in 'help @malias2'.
   1 on success and 0 on failure. There cannot be any instances of
   <struct> currently in existence.
  
+  See also: STRUCTURE FUNCTIONS
+ 
 & CONSTRUCT()
   Function:  construct(<instance>,<struct>[,<names>,<values>[,<delim>]])
  
@@ -9691,6 +9694,8 @@ Continued in 'help @malias2'.
  
   This function returns 1 on success and 0 on failure.
  
+  See also: STRUCTURE FUNCTIONS
+ 
 & LOAD()
   Function:  load(<instance>,<struct>,<raw text>[,<delim>])
  
@@ -9707,6 +9712,8 @@ Continued in 'help @malias2'.
     > say [z(space,ycoord)]
     You say "4"
  
+  See also: STRUCTURE FUNCTIONS
+ 
 & UNLOAD()
   Function:  unload(<instance>[,<delim>])
  
@@ -9721,6 +9728,8 @@ Continued in 'help @malias2'.
     > say [unload(space,|)]
     You say "3|4|5"
  
+  See also: STRUCTURE FUNCTIONS
+ 
 & Z()
   Function:  z(<instance>,<component>)
  
@@ -9732,6 +9741,8 @@ Continued in 'help @malias2'.
     > @eval [construct(space,grid)]
     > say [z(space,ycoord)]
     You say "3"
+ 
+  See also: STRUCTURE FUNCTIONS
  
 & MODIFY()
   Function:  modify(<instance>,<component>,<new value>)
@@ -9747,6 +9758,26 @@ Continued in 'help @malias2'.
     > @eval [modify(space,xcoord,5)]
     > say [z(space,xcoord)]
     You say "5"
+ 
+  See also: STRUCTURE FUNCTIONS
+ 
+& LSTRUCTURES()
+  Function:  lstructures()
+ 
+  Returns a space-separated list of all structure names associated with
+  the calling object. This is potentially computationally expensive and
+  should be avoided if possible.
+ 
+  See also: STRUCTURE FUNCTIONS
+ 
+& LINSTANCES()
+  Function:  linstances()
+ 
+  Returns a space-separated list of all defined structure instances
+  associated with the calling object. This is potentially computationally
+  expensive and should be avoided if possible.
+ 
+  See also: STRUCTURE FUNCTIONS
  
 & mSQL
  
