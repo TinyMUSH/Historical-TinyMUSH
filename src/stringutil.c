@@ -41,6 +41,34 @@ char **last;
 }
 #endif /* HAVE_STRTOK_R */
 
+/* Provide strdup() if necessary for malloc debugging (on MacOS X 10.1.3,
+ * the system framework copy of strdup() explicitly invokes the system
+ * framework copy of malloc(), so it can't be overridden for debugging
+ * purposes). We still have a comment in the Makefile that says to enable
+ * this on a NeXT machine, which is similar to MacOS X.
+ */
+
+#ifdef NEED_STRDUP
+char *strdup(s)
+const char *s;
+{
+	char *p;
+	int len;
+
+	if (!s)
+		return NULL;
+
+	len = strlen(s) + 1;
+
+	p = (char *) RAW_MALLOC(len, "strdup");
+	if (!p)
+		return NULL;
+
+	bcopy(s, p, len);
+	return p;
+}
+#endif /* NEED_STRDUP */
+
 /* ---------------------------------------------------------------------------
  * ANSI character-to-number translation table.
  */
