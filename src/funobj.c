@@ -904,6 +904,32 @@ FUNCTION(fun_haspower)
 }
 
 /* ---------------------------------------------------------------------------
+ * Timestamps.
+ */
+
+FUNCTION(fun_lastaccess)
+{
+    dbref it = match_thing(player, fargs[0]);
+
+    if (!Good_obj(it) || !Examinable(player, it)) {
+	safe_known_str("-1", 2, buff, bufc);
+    } else {
+	safe_ltos(buff, bufc, AccessTime(it));
+    }
+}
+
+FUNCTION(fun_lastmod)
+{
+    dbref it = match_thing(player, fargs[0]);
+
+    if (!Good_obj(it) || !Examinable(player, it)) {
+	safe_known_str("-1", 2, buff, bufc);
+    } else {
+	safe_ltos(buff, bufc, ModTime(it));
+    }
+}
+
+/* ---------------------------------------------------------------------------
  * Parent-child relationships.
  */
 

@@ -222,6 +222,8 @@ XFUNCTION(fun_orflags);
 XFUNCTION(fun_andflags);
 XFUNCTION(fun_hasflag);
 XFUNCTION(fun_haspower);
+XFUNCTION(fun_lastaccess);
+XFUNCTION(fun_lastmod);
 XFUNCTION(fun_parent);
 XFUNCTION(fun_lparent);
 XFUNCTION(fun_children);
@@ -506,7 +508,9 @@ FUN flist[] = {
 {"LAND",	fun_land,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LANDBOOL",	fun_landbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LAST",	fun_last,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LASTACCESS",	fun_lastaccess,	1,  0,		CA_PUBLIC},
 {"LASTCREATE",	fun_lastcreate,	2,  0,		CA_PUBLIC},
+{"LASTMOD",	fun_lastmod,	1,  0,		CA_PUBLIC},
 {"LATTR",	fun_lattr,	1,  0,		CA_PUBLIC},
 {"LCON",	fun_lcon,	1,  0,		CA_PUBLIC},
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC},
