@@ -1010,6 +1010,47 @@ void NDECL(efo_convert)
 }
 
 /* ---------------------------------------------------------------------------
+ * fix_mux_zones: Convert MUX-style zones to 3.0-style zones.
+ */
+
+#ifdef STANDALONE
+static void fix_mux_zones()
+{
+    /* For all objects in the database where Zone(thing) != NOTHING,
+     * set the CONTROL_OK flag on them.
+     *
+     * For all objects in the database that are ZMOs (that have other
+     * objects zoned to them), copy the EnterLock of those objects to
+     * the ControlLock.
+     */
+
+    int i;
+    int *zmarks;
+    char *astr;
+
+    zmarks = (int *) calloc(mudstate.db_top, sizeof(int));
+
+    DO_WHOLE_DB(i) {
+	if (Zone(thing) != NOTHING) {
+	    s_Flags2(i, Flags2(i) | CONTROL_OK);
+	    zmarks[Zone(thing)] = 1;
+	}
+    }
+
+    DO_WHOLE_DB(i) {
+	if (zmarks[i]) {
+	    astr = atr_get_raw(i, A_LENTER);
+	    if (astr) {
+		atr_add_raw(i, A_LCONTROL, astr);
+	    }
+	}
+    }
+
+    free(zmarks);
+}
+#endif /* STANDALONE */
+
+/* ---------------------------------------------------------------------------
  * fix_typed_quotas: Explode standard quotas into typed quotas
  */
 
@@ -1957,6 +1998,8 @@ int *db_format, *db_version, *db_flags;
 #ifdef STANDALONE				
 				if (!has_typed_quotas)
 					fix_typed_quotas();
+				if (g_format == F_MUX)
+					fix_mux_zones();
 #endif
 				return mudstate.db_top;
 			}
