@@ -1797,7 +1797,7 @@ int first;
 			dump_info(d);
 			break;
 		case CMD_PUEBLOCLIENT:
-#ifdef PUEBLO_CLIENT
+#ifdef PUEBLO_SUPPORT
 			/* Set the descriptor's flag */
 			d->flags |= DS_PUEBLOCLIENT;
 			/* If we're already connected, set the player's flag */
@@ -1899,7 +1899,7 @@ char *arg;
 			}
 			break;
 		case CMD_PUEBLOCLIENT:
-#ifdef PUEBLO_CLIENT
+#ifdef PUEBLO_SUPPORT
 			/* Set the descriptor's flag */
 			d->flags |= DS_PUEBLOCLIENT;
 			/* If we're already connected, set the player's flag */
