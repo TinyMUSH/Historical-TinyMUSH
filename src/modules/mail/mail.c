@@ -997,6 +997,7 @@ char *tolist;
 {
 	struct mail *mp;
 	int num;
+	char *mailflags;
 
         if (Flags2(player) & PLAYER_MAILS) {
                 notify(player, "MAIL: Mail message already in progress.");
@@ -1025,12 +1026,16 @@ char *tolist;
 	string_decompress(mp->subject, subbuff);
 	string_decompress(get_mail_message(mp->number), msgbuff);
 	do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", subbuff, Name(mp->from)));
-	atr_add_raw(player, A_MAILMSG, msgbuff);
+	if (mailflags && (!strcmp(mailflags, "0"))) {
+	    atr_add_raw(player, A_MAILMSG, msgbuff);
 #else
 	do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", mp->subject, Name(mp->from)));
-	atr_add_raw(player, A_MAILMSG, get_mail_message(mp->number));
+	mailflags = atr_get_raw(player, A_MAILFLAGS);
+	if (mailflags && (!strcmp(mailflags, "0"))) {
+	    atr_add_raw(player, A_MAILMSG, get_mail_message(mp->number));
 #endif
-	atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_FORWARD)));
+	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_FORWARD)));
+	}
 }
 
 void do_mail_reply(player, msg, all, key)
@@ -1040,7 +1045,7 @@ int all, key;
 {
 	struct mail *mp;
 	int num;
-	char *tolist, *bp, *p, *names, *oldlist, *tokst;
+	char *tolist, *bp, *p, *names, *oldlist, *tokst, *mailflags;
 
         if (Flags2(player) & PLAYER_MAILS) {
                 notify(player, "MAIL: Mail message already in progress.");
@@ -1103,26 +1108,31 @@ int all, key;
 	} else {
 		do_expmail_start(player, tolist, tprintf("%s", subbuff));
 	}
-	if (key & MAIL_QUOTE) {
-	    atr_add_raw(player, A_MAILMSG,
+	mailflags = atr_get_raw(player, A_MAILFLAGS);
+	if (mailflags && (!strcmp(mailflags, "0"))) {
+	    if (key & MAIL_QUOTE) {
+	        atr_add_raw(player, A_MAILMSG,
 			tprintf("On %s, %s wrote:\r\n\r\n%s\r\n\r\n********** End of included message from %s\r\n",
 				timebuff, Name(mp->from),
 				msgbuff, Name(mp->from)));
-	}
+	    }
 #else
 	if (strncmp(mp->subject, "Re:", 3)) {
 		do_expmail_start(player, tolist, tprintf("Re: %s", mp->subject));
 	} else {
 		do_expmail_start(player, tolist, tprintf("%s", mp->subject));
 	}
-	if (key & MAIL_QUOTE) {
-	    atr_add_raw(player, A_MAILMSG,
+	mailflags = atr_get_raw(player, A_MAILFLAGS);
+	if (mailflags && (!strcmp(mailflags, "0"))) {
+	    if (key & MAIL_QUOTE) {
+	        atr_add_raw(player, A_MAILMSG,
 			tprintf("On %s, %s wrote:\r\n\r\n%s\r\n\r\n********** End of included message from %s\r\n",
 				mp->time, Name(mp->from),
 				get_mail_message(mp->number), Name(mp->from)));
-	}
+	    }
 #endif
-	atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_REPLY)));
+	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(mailflags) | M_REPLY)));
+	}
 	if (all) {
         	free_lbuf(names);
 	}
