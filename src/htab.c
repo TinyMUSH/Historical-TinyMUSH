@@ -400,7 +400,7 @@ void hashresize(htab, min_size)
     size = (htab->entries) * HASH_FACTOR;
     size = (size < min_size) ? min_size : size;
     get_hashmask(&size);
-    if ((size > 512) && (size > htab->entries * 2.25))
+    if ((size > 512) && (size > htab->entries * 1.33 * HASH_FACTOR))
 	size /= 2;
     if (size == htab->hashsize) {
 	/* We're already at the correct size. Don't do anything. */
@@ -615,7 +615,7 @@ void nhashresize(htab, min_size)
     size = (htab->entries) * HASH_FACTOR;
     size = (size < min_size) ? min_size : size;
     get_hashmask(&size);
-    if ((size > 512) && (size > htab->entries * 2.25))
+    if ((size > 512) && (size > htab->entries * 1.33 * HASH_FACTOR))
 	size /= 2;
     if (size == htab->hashsize) {
 	/* We're already at the correct size. Don't do anything. */
