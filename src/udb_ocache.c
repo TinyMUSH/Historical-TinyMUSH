@@ -141,6 +141,7 @@ int type;
 	cp->data = new;
 	cp->datalen = len;
 	cp->type = type;
+	cs_size += cp->datalen;
 }
 
 int cache_init(width)
