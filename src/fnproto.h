@@ -93,6 +93,8 @@ XFUNCTION(fun_and);
 XFUNCTION(fun_or);
 XFUNCTION(fun_xor);
 XFUNCTION(fun_not);
+XFUNCTION(fun_cand); 
+XFUNCTION(fun_cor);
 XFUNCTION(fun_ladd);
 XFUNCTION(fun_lor);
 XFUNCTION(fun_land);
@@ -104,6 +106,8 @@ XFUNCTION(fun_andbool);
 XFUNCTION(fun_orbool);
 XFUNCTION(fun_xorbool);
 XFUNCTION(fun_notbool);
+XFUNCTION(fun_candbool); 
+XFUNCTION(fun_corbool);
 XFUNCTION(fun_t);
 XFUNCTION(fun_sqrt);
 XFUNCTION(fun_add);
@@ -385,6 +389,10 @@ FUN flist[] = {
 {"BEFORE",	fun_before,	0,  FN_VARARGS,	CA_PUBLIC},
 {"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC},
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC},
+{"CANDBOOL",	fun_candbool,	0,  FN_VARARGS|FN_NO_EVAL,
+     						CA_PUBLIC},
+{"CAND",	fun_cand,	0,  FN_VARARGS|FN_NO_EVAL,
+     						CA_PUBLIC},
 {"CAPSTR",	fun_capstr,	-1, 0,		CA_PUBLIC},
 {"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
@@ -404,6 +412,10 @@ FUN flist[] = {
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC},
 {"CONVSECS",    fun_convsecs,   1,  0,		CA_PUBLIC},
 {"CONVTIME",    fun_convtime,   1,  0,		CA_PUBLIC},
+{"COR",		fun_cor,	0,  FN_VARARGS|FN_NO_EVAL,
+     						CA_PUBLIC},
+{"CORBOOL",	fun_corbool,	0,  FN_VARARGS|FN_NO_EVAL,
+     						CA_PUBLIC},
 {"COS",		fun_cos,	1,  0,		CA_PUBLIC},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC},
 {"DEC",         fun_dec,        1,  0,          CA_PUBLIC},

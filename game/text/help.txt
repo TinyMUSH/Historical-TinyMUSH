@@ -4931,6 +4931,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	not()		t()
 	and()		or()		xor()
 	andbool()	notbool()	orbool()	xorbool()
+	cand()		cor()		candbool()	corbool()
  
   Miscellaneous:
 	add()		abs()		ceil()		dec()
@@ -7105,16 +7106,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Takes two or more booleans, and returns 1 if they are all each equivalent
   to true(1).
  
-  This function stops evaluating cases as soon as something is false.
- 
   See also: BOOLEAN VALUES, t(), orbool(), notbool(), xorbool(), and().
 & ORBOOL()
   Function: orbool(<boolean1>,<boolean2>[,<booleanN>]...)
  
   Takes two or more booleans, and returns 1 if at least one is equivalent
   to true(1).
- 
-  This function stops evaluating cases as soon as something is true.
  
   See also: BOOLEAN VALUES, t(), andbool(), notbool(), xorbool(), or().
 & T()
@@ -7145,8 +7142,6 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Takes two or more strings, and returns 1 if they are all non-zero
   numbers.
  
-  This function stops evaluating as soon as something is false.
- 
   See also: land(), andbool(), or(), xor(), not()
  
 & OR()
@@ -7154,8 +7149,6 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   
   Takes two or more strings, and returns 1 if at least one is a non-zero
   number.
- 
-  This function stops evaluating as soon as something is true.
  
   See also: lor(), orbool(), and(), xor(), not()
  
@@ -7173,6 +7166,27 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   are non-zero numbers.
  
   See also: xorbool(), and(), or(), not()
+
+& CAND()
+& COR()
+& CANDBOOL()
+& CORBOOL()
+  Function: cand(<number1>,<number2>[,<numberN>]...)
+  Function: cor(<number1>,<number2>[,<numberN>]...)
+  Function: candbool(<boolean1>,<boolean2>[,<booleanN>]...)
+  Function: corbool(<boolean1>,<boolean2>[,<booleanN>]...)
+ 
+  These "short-circuit conditional" functions are equivalent to and(),
+  or(), andbool(), and orbool(), respectively, except they stop evaluating
+  their arguments when a conclusion is reached (the first zero/false for
+  and-checks, the first non-zero/true for or-checks).
+ 
+  Example:
+    > say [cor(0[setq(0,#1)],0[setq(0,#2)],1[setq(0,#3)],1[setq(0,#4)])]%q0
+    You say "1#3"
+    > say [candbool(#234[setq(0,_1)],#-1[setq(0,_2)],foo[setq(0,_3)])]%q0
+    You say "0_2"
+ 
 & gt()
   Function: gt(<number1>,<number2>)
  

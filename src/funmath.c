@@ -425,6 +425,70 @@ FUNCTION(fun_t)
 	safe_bool(buff, bufc, xlate(fargs[0]));
 }
 
+/*-------------------------------------------------------------------------
+ * Short-circuit conditional-evaluation boolean functions.
+ */
+
+#define CLOGIC_OR 0x1
+#define CLOGIC_BOOL 0x2
+
+static void handle_clogic(player, caller, cause, fargs, nfargs,
+			  cargs, ncargs, buff, bufc, flag)
+    dbref player, caller, cause;
+    char *fargs[], *cargs[], *buff, **bufc;
+    int nfargs, ncargs, flag;
+{
+    int i, val;
+    char *str, *tbuf, *bp;
+	
+    if (nfargs < 2) {
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+    } else {
+	tbuf = alloc_lbuf("fun_cand");
+	for (i = 0; i < nfargs; i++) { 
+	    str = fargs[i];
+	    bp = tbuf;
+	    exec(tbuf, &bp, player, caller, cause,
+		 EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
+	    *bp = '\0';
+	    val = (flag & CLOGIC_BOOL) ? xlate(tbuf) : atoi(tbuf);
+	    if ((flag & CLOGIC_OR) ? val : !val)
+		break;
+	}
+	free_lbuf(tbuf);
+	safe_bool(buff, bufc,
+		  ((flag & CLOGIC_OR) ? (i != nfargs) : (i == nfargs)));
+    }
+}
+
+FUNCTION(fun_cand)
+{
+    handle_clogic(player, caller, cause, fargs, nfargs, cargs, ncargs,
+		  buff, bufc, 0);
+}
+
+FUNCTION(fun_cor)
+{
+    handle_clogic(player, caller, cause, fargs, nfargs, cargs, ncargs,
+		  buff, bufc, CLOGIC_OR);
+} 
+
+FUNCTION(fun_candbool)
+{
+    handle_clogic(player, caller, cause, fargs, nfargs, cargs, ncargs,
+		  buff, bufc, CLOGIC_BOOL);
+}
+
+FUNCTION(fun_corbool)
+{
+    handle_clogic(player, caller, cause, fargs, nfargs, cargs, ncargs,
+		  buff, bufc, CLOGIC_OR | CLOGIC_BOOL);
+}
+
+/*-------------------------------------------------------------------------
+ * Mathematical functions.
+ */
+
 FUNCTION(fun_sqrt)
 {
 	NVAL val;
