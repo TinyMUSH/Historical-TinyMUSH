@@ -122,7 +122,7 @@ void NDECL(init_cmdtab)
 			cp->callseq = CS_TWO_ARG;
 			cp->pre_hook = NULL;
 			cp->post_hook = NULL;
-			cp->userperms = NULL;
+			cp->userperms.hook = NULL;
 			cp->info.handler = do_setattr;
 			if (hashadd(cp->cmdname, (int *)cp, &mudstate.command_htab, 0)) {
 				XFREE(cp->cmdname, "init_cmdtab.2");
@@ -329,7 +329,7 @@ int check_userdef_access(player, cmdp, cargs, ncargs)
     char *buf;
     char *bp, *tstr, *str;
     dbref aowner;
-    int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
+    int result, aflags, alen, preserve_len[MAX_GLOBAL_REGS];
     char *preserve[MAX_GLOBAL_REGS];
 
     /* We have user-defined command permissions. Go evaluate the
@@ -343,7 +343,7 @@ int check_userdef_access(player, cmdp, cargs, ncargs)
      * that we use with hooks.)
      */
 
-    tstr = atr_get(cmdp->userperms->thing, cmdp->userperms->atr,
+    tstr = atr_get(cmdp->userperms.hook->thing, cmdp->userperms.hook->atr,
 		   &aowner, &aflags, &alen);
     if (!tstr)
 	return 0;
@@ -356,17 +356,19 @@ int check_userdef_access(player, cmdp, cargs, ncargs)
     save_global_regs("check_userdef_access", preserve, preserve_len);
 
     bp = buf = alloc_lbuf("check_userdef_access");
-    exec(buf, &bp, cmdp->userperms->thing, player, player,
+    exec(buf, &bp, cmdp->userperms.hook->thing, player, player,
 	 EV_EVAL | EV_FCHECK | EV_TOP,
 	 &str, cargs, ncargs);
     *bp = '\0';
 
     restore_global_regs("check_userdef_access", preserve, preserve_len);
 
+    result = xlate(buf);
+
     free_lbuf(buf);
     free_lbuf(tstr);
     
-    return (xlate(buf));
+    return result;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1568,16 +1570,16 @@ char *buff;
 	for (cmdp = ctab; cmdp->cmdname; cmdp++) {
 		if (check_access(player, cmdp->perms)) {
 			if (!(cmdp->perms & CF_DARK)) {
-				if (cmdp->userperms) {
-				    ap = atr_num(cmdp->userperms->atr);
+				if (cmdp->userperms.hook) {
+				    ap = atr_num(cmdp->userperms.hook->atr);
 				    if (!ap) {
 					sprintf(buff, "%s: user(#%d/?BAD?)",
 						cmdp->cmdname,
-						cmdp->userperms->thing);
+						cmdp->userperms.hook->thing);
 				    } else {
 					sprintf(buff, "%s: user(#%d/%s)",
 						cmdp->cmdname,
-						cmdp->userperms->thing,
+						cmdp->userperms.hook->thing,
 						ap->name);
 				    }
 				} else {
@@ -1924,7 +1926,7 @@ CF_HAND(cf_cmd_alias)
 		 */
 		cmd2->pre_hook = NULL;
 		cmd2->post_hook = NULL;
-		cmd2->userperms = NULL;
+		cmd2->userperms.hook = NULL;
 
 		cmd2->info.handler = cmdp->info.handler;
 		if (hashadd(cmd2->cmdname, (int *)cmd2, (HASHTAB *) vp, 0)) {

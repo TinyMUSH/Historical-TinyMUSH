@@ -132,12 +132,6 @@ CMD_NO_ARG(do_logrotate);		/* Rotate the logfile */
 CMD_NO_ARG(do_sql_connect);		/* Create a SQL db connection */
 CMD_ONE_ARG(do_sql);			/* Execute a SQL command */
 
-typedef struct hookentry HOOKENT;
-struct hookentry {
-	dbref thing;
-	int atr;
-};
-
 typedef struct addedentry ADDENT;
 struct addedentry {
 	dbref	thing;
@@ -153,7 +147,7 @@ struct cmdentry {
 	int	perms;
 	int	extra;
 	int	callseq;
-	HOOKENT *userperms;
+	Extperms userperms;
 	HOOKENT	*pre_hook;
 	HOOKENT	*post_hook;
 	union {
@@ -193,6 +187,7 @@ struct cmdentry {
 #define CA_STAFF	0x00000010	/* Must have STAFF flag */
 #define CA_HEAD		0x00000020	/* Must have HEAD flag */
 #define CA_SQL_OK	0x00000040	/* Must have SQL_OK power */
+#define CA_MODHANDLER	0x00000040	/* Check perms in external module */
 #define CA_ADMIN	0x00000080	/* Wizard or royal */
 
 #define CA_NO_HAVEN	0x00000100	/* Not by HAVEN players */
@@ -232,7 +227,9 @@ struct cmdentry {
 
 #define Check_Cmd_Access(p,c,a,n) \
 (check_access(p,(c)->perms) && \
- (!(c)->userperms || check_userdef_access(p,c,a,n) || God(p)))
+ (((c)->perms & CA_MODHANDLER) ? \
+  (c)->userperms.handler(p) : \
+  (!((c)->userperms.hook) || check_userdef_access(p,c,a,n) || God(p))))
 
 extern int	FDECL(check_access, (dbref, int));
 extern int	FDECL(check_userdef_access, (dbref, CMDENT *, char *[], int));

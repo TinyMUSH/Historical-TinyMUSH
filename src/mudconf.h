@@ -14,6 +14,17 @@
 
 typedef unsigned char Uchar;
 
+typedef struct hookentry HOOKENT;
+struct hookentry {
+	dbref thing;
+	int atr;
+};
+
+typedef union external_perms {
+	HOOKENT *hook;
+	int (*handler)();
+} Extperms;
+
 typedef struct key_linked_list KEYLIST;
 struct key_linked_list {
 	char *name;
