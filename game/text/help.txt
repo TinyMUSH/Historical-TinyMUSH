@@ -60,17 +60,18 @@
   @aahear      @aclone      @aconnect    @adescribe   @adfail      @adisconnect
   @adrop       @aefail      @aenter      @afail       @agfail      @ahear
   @akill       @aleave      @alfail      @alias       @amhear      @amove
-  @apay        @arfail      @asuccess    @atfail      @atport      @aufail
-  @ause        @away        @charges     @conformat   @cost        @describe
-  @dfail       @drop        @ealias      @efail       @enter       @exitformat
-  @fail        @filter      @forwardlist @gfail       @idesc       @idle
-  @infilter    @inprefix    @kill        @lalias      @leave       @lfail
-  @listen      @move        @odescribe   @odfail      @odrop       @oefail
-  @oenter      @ofail       @ogfail      @okill       @oleave      @olfail
-  @omove       @opay        @orfail      @osuccess    @otfail      @otport
-  @oufail      @ouse        @oxenter     @oxleave     @oxtport     @pay
-  @prefix      @reject      @rfail       @runout      @sex         @startup
-  @success     @tfail       @tport       @ufail       @use
+  @apay        @arfail      @asuccess    @atfail      @atofail     @atport
+  @aufail      @ause        @away        @charges     @conformat   @cost
+  @describe    @dfail       @drop        @ealias      @efail       @enter
+  @exitformat  @fail        @filter      @forwardlist @gfail       @idesc
+  @idle        @infilter    @inprefix    @kill        @lalias      @leave
+  @lfail       @listen      @move        @odescribe   @odfail      @odrop
+  @oefail      @oenter      @ofail       @ogfail      @okill       @oleave
+  @olfail      @omove       @opay        @orfail      @osuccess    @otfail
+  @otofail     @otport      @oufail      @ouse        @oxenter     @oxleave
+  @oxtport     @pay         @prefix      @reject      @rfail       @runout
+  @sex         @startup     @success     @tfail       @tofail      @tport
+  @ufail       @use
  
 & topics
  
@@ -91,7 +92,7 @@
 	ROBBERY			SEARCH CLASSES		SEMAPHORES
 	SPOOFING		STACK			SUBSTITUTIONS
 	SUCCESS			SWITCHES		VERBS
-	WIZARDS
+	WIZARDS			ZONE OBJECTS
  
 & drop 
   Command: drop[/<switch>] <object>
@@ -308,13 +309,12 @@
   See also; @robot, OUTPUTPREFIX, ROBOT.
 
 & page 
-  Command: page <player> [=[<control>]<message>]
+  Command: page [<player-list>] [=<message>]
  
-  This command sends <message> to <player>.  If you do not specify a message,
-  it tells a player that you are looking for them, and tell the player where
-  you are.  You may use either the player's name or alias, and you may also
-  give a string that uniquely matches the start of a player's name on the WHO
-  list.
+  This command sends <message> to a list of players. If you do not specify
+  a player list, it defaults to the players you last paged. You may use
+  any combination of player names, player aliases, or partial names (strings
+  that uniquely match the start of a connected player's name).
  
   You can format the message one of several ways by specifying ':', ';', or
   '"' as the first character of the message.  ':' and ';' format the message
@@ -322,11 +322,12 @@
   <player> and <message>.  '"' formats the message in normal page format
   (this is the default).
  
+{ 'help page2' for more }
+& page2  
   If your Idle attribute is set to something, then it is sent to anyone
   who successfully pages you.  This is useful for when you are away from
   your terminal for a short while.
-{ 'help page2' for more }
-& page2  
+ 
   You can selectively disable pages from certain players with the '@lock/page'
   command (players must pass the lock in order to page you).  If someone
   cannot page you, they will be sent a message including of your Reject
@@ -334,7 +335,7 @@
   they are sent a message including your Away attribute.
  
   See also: pose, say, whisper, :, ;, ", @pemit, @away, @idle, @reject.
-
+ 
 & pose
   Command: pose[/<switches>] <message>
   Displays <message> to everyone in your current room, preceded by your name
@@ -483,6 +484,12 @@
   See also: drop, @afail, @asucc, @fail, @ofail, @osucc, @succ, ENTER_OK,
             FAILURE, SUCCESS.
 
+& think
+  Command: think <message>
+ 
+  You can use this command to send a private message to yourself. Pronoun
+  substitution is performed. It is equivalent to '@pemit me = <message>'.
+ 
 & throw
   Command: throw[/<switch>] <object>
            throw[/<switch>] <exit>
@@ -971,6 +978,10 @@
                                    or FAIL message for the room following the
                                    room description when looking at the room.
                    Players/Things: controls who may GET the object.
+     ControlLock:  All:            controls which objects can Control this
+                                   object (only checked if CONTROL_OK flag
+                                   is set)
+     DropLock:     Players/Things: controls who may DROP the object.
      EnterLock:    Players/Things: controls who may ENTER the object if the
                                    object is ENTER_OK.
      GiveLock:     Players/Things: controls who may give the object.
@@ -979,12 +990,16 @@
                                    location is LINK_OK (for linking exits or
                                    setting drop-tos) or ABODE (for setting
                                    homes)
+  
+{ 'help @lock locks2' for more }
+& @lock locks2
      PageLock:     Players:        controls who may page the player.
      ParentLock:   All:            controls who may make @parent links to the
                                    object.
      ReceiveLock:  Players/Things: controls who may give things to the object.
-{ 'help @lock locks2' for more }
-& @lock locks2
+     SpeechLock:   All but Exits:  controls who may speak in this location
+                                   (only checked if the AUDITORIUM flag is
+                                   set on that location)
      TeloutLock:   All but Exits:  controls who may teleport out of the
                                    location.
      TportLock:    Rooms/Things:   controls who may teleport there if the
@@ -1201,14 +1216,15 @@
   spaces.
 
 & @notify
-  Command: @notify[/<switches>] <object>[=<count>]
+  Command: @notify[/<switches>] <object>[/<attribute>][=<count>]
+ 
   Notifies the semaphore <object>, running the first command that waited on
-  <object> using the '@wait <object>=<command>' or '
-  @wait <object>/<time>=<command>' forms of the @wait command.  If <count> is
-  specified, it indicates the number of times the semaphore is notified.
+  <object> using the semaphore-wait forms of the @wait command. If <count>
+  is specified, it indicates the number of times the semaphore is notified.
   If there are no commands (or less than <count> commands) pending for
   <object>, then subsequent @waits will not block until the semaphore count
-  reaches zero again.
+  reaches zero again. If <attribute> is specified, it notifies commands that
+  are blocking on an attribute other than the default 'Semaphore'.
  
   The following switches are available:
      /first - (default) Notify the first command waiting on the indicated
@@ -1327,9 +1343,16 @@
   of <object>/<attribute>, with the player's input as %0 and the player
   as the enactor (%N, %#). Note that this is the value of the attribute
   at the time the @program was initiated, NOT the value at the time the
-  player enters input. You must control <player> and be able to see
-  <attribute> on <object>; <player> must be a connected player, and
-  programs are cleared when a player logs out.
+  player enters input.
+ 
+  The programming object must control <player>, or it or its owner must
+  have the Program power. It must also be able to see <attribute> on
+  <object>. <player> must be a connected player, and programs are cleared
+  when a player logs out.
+ 
+  Continued in 'help @program2'.
+ 
+& @program2
  
   A player currently within a program can have input processed normally
   by prefixing that input with a '|', i.e., '|WHO' rather than 'WHO', etc.
@@ -1337,10 +1360,10 @@
   that if your input is currently being absorbed by a program, you will
   need to type '|@quitprogram'.
  
-  Continued in 'help @program2'.
-
-& @program2
-
+  Examples are given in 'help @program3'.
+ 
+& @program3
+ 
   An example:
  
     ] @va Object = $try it: @program %#=me/VB:Please enter some words.
@@ -1562,7 +1585,8 @@
   The second and third forms let you remove any object from locations you
   control by sending them through an exit or to their home.
  
-  See also: JUMP_OK, @lock (tport and telout), @tfail, @otfail, @atfail.
+  See also: JUMP_OK, @lock (tport and telout), @tfail, @otfail, @atfail,
+            @tofail, @otofail, @atofail
 
 & @trigger 
   Command: @trigger[/<switch>] <object>/<attr> [=<param> [, <param>]... ]
@@ -1661,17 +1685,23 @@
 & @wait
   Command: @wait <seconds>=<command>
            @wait <object>[/<seconds>]=<command>
-  The first form of @wait executes <command> after <seconds> seconds.  The
-  second form increments the semaphore count for <object> and executes
+           @wait <object>/<attribute>=<command>
+ 
+  The first form of @wait executes <command> after <seconds> seconds.
+  The second form increments the semaphore count for <object> and executes
   <command> after <object> is notified with the @notify command.  If the
   semaphore count for <object> is negative (because it has been notified more
   times than it has been waited on), then <command> is run immediately.
   If <seconds> is specified in the second form, the command is automatically
-  run after <seconds> seconds even if the semaphore isn't notified.  This
-  command charges a deposit of 10 coins, which is refunded when <command>
-  is executed.
+  run after <seconds> seconds even if the semaphore isn't notified.
+  The third form is identical to the second, except that the semaphore
+  count is stored in the specified attribute, rather than Semaphore.
+ 
+  This command charges a deposit of 10 coins, which is refunded when
+  <command> is executed.
+ 
   See also: @drain, @notify, @ps, SEMAPHORES.
-
+ 
 & @wipe
   Command: @wipe <object>[/<wild-attr>]
  
@@ -1983,6 +2013,17 @@
   Example: @atfail here = @page [owner(me)]=%N tried to teleport here.
   See also: @teleport, @tfail, @otfail, @lock.
 
+& @atofail
+  Command: @atofail <object> = <command-list>
+  Attribute: Atofail
+ 
+  Sets the action to be taken by an object when someone tries to teleport
+  out but fails.
+ 
+  Example: @atofail here = @page [owner(me)]=%N tried to teleport out.
+ 
+  See also: @teleport, @tofail, @otofail, @lock.
+ 
 & @atport
   Command: @atport <object> = <command-list>
   Attribute: Atport
@@ -2689,6 +2730,25 @@
                           decides against it at the last moment.
   See also: @teleport, @atfail, @tfail, @lock.
 
+& @otofail
+  Command: @otofail <object> = <message>
+  Attribute: Otofail
+ 
+  Sets the message (prefixed by the player's name) that is shown to others in
+  the same room when someone tries to teleport out of somewhere they do not
+  have permission.
+ 
+  Function references and %-substitutions are allowed in teleport failure
+  messages, and are evaluated when someone attempts to teleport from their
+  location.  In function references, 'me' refers to the player's location,
+  while %-substitutions that refer to the enactor (such as %n,
+  %#, %p, etc) refer to the player attempting the teleport.
+ 
+  Example: @otofail here = thinks about teleporting from the Magic Room, but
+                          decides against it at the last moment.
+ 
+  See also: @teleport, @atofail, @tofail, @lock.
+
 & @otport
   Command: @otport <object> = <message>
   Attribute: Otport
@@ -2912,6 +2972,24 @@
   Example: @tfail here = A psychic barrier prevents you from teleporting there.
   See also: @teleport, @atfail, @otfail, @lock.
 
+& @tofail
+  Command: @tofail <object> = <message>
+  Attribute: Tofail
+ 
+  Sets the message that a player sees when he tries to teleport from somewhere
+  he does not have permission.
+ 
+  Function references and %-substitutions are allowed in teleport failure
+  messages, and are evaluated when someone attempts to teleport out of their
+  location.  In function references, 'me' refers to the player's current
+  location, while %-substitutions that refer to the enactor (such as %n,
+  %#, %p, etc) refer to the player attempting the teleport.
+ 
+  Example: @tofail here = A psychic barrier prevents you from teleporting
+           out.
+ 
+  See also: @teleport, @atofail, @otofail, @lock.
+ 
 & @tport
   Command: @tport <object> = <message>
   Attribute: Tport
@@ -3168,7 +3246,7 @@
   While this flag is set, the object cannot perform any MUSH
   actions, listen, be triggered, etc.
 & GAGGED
-  Flag: GAGGED (g)
+  Flag: GAGGED (j)
 
   When set on a player, it disables him from doing anything 
   except moving and looking.  He cannot talk, page, build, pose, get 
@@ -3187,25 +3265,78 @@
 & BUILDER
   Flag: BUILDER (B)
  
-  If a player has the BUILDER flag set, it means that all the
-  building commands will work for them.  Without it, you can only 
-  explore the world but not add to it. This is only settable by 
-  Wizards.  Not all MUSHes use the BUILDER flag.  Some allow all players
-  to build.
+  This is now the Builder power.
 & WIZARD
-  WIZARD    If a person is WIZARD, they are a wizard, unkillable, 
-  subject to fewer restrictions, and able to use wizard commands.  
-  In general, WIZARDs can do anything using #<number> or *<player>. 
-  Only player #1 can set and unset the WIZARD flag of other players. 
-  No WIZARD can turn their own WIZARD flag off.   
+  Flag: WIZARD (W)
+
+  If a person is WIZARD, they are unkillable, subject to fewer restrictions,
+  and able to use wizard commands; they "control" everything other than
+  the God character. In general, WIZARDs can do anything using #<number>
+  or *<player>. Only the God character can set and unset the WIZARD flag
+  of other players. No WIZARD can turn their own WIZARD flag off.   
+
+& ROYALTY
+  Flag: ROYALTY (Z)
+ 
+  If a person is ROYALTY, they can see and examine things, and
+  teleport anywhere or anything, like a wizard can. They cannot modify
+  objects or players they do not control, and cannot use wizard commands.
+  This flag may only be set by a wizard.
+ 
 & IMMORTAL
-  IMMORTAL    Objects set immortal cannot be killed and don't use up money.
+  Flag: IMMORTAL (i)
+ 
+  Objects set immortal cannot be killed and don't use up money.
   Only settable by wizards.  This is useful when an object's location
   shouldn't be changed by Joe Player, but you don't want to have to relink it
   to its current location whenever it moves.
+
+& FIXED
+  Flag: FIXED (f)
+ 
+  If this flag is set on an object, it can neither teleport nor go 'home'.
+  If this flag is set on a player, neither the player nor objects owned
+  by the player may teleport or go 'home'.
+ 
+& UNINSPECTED
+  Flag: UNINSPECTED (g)
+ 
+  This is a 'marker' flag, typically set on rooms that need to be
+  inspected for conformance to building standards. It may only be
+  set by Wizards and Royalty.
+ 
+& STAFF
+  Flag: STAFF (w)
+ 
+  This is a 'marker' flag, typically set on players who serve as Staff.
+  This confers no special abilities; it is, however, only settable by
+  Wizards.
+ 
+& HEAD
+  Flag: HEAD (?)
+ 
+  This is a 'marker' flag, typically set on players who serve as 
+  leadership of some sort. This confers no special abilities; it
+  is, however, only settable by Wizards.
+ 
+& AUDITORIUM
+  Flag: AUDITORIUM (n)
+ 
+  If this flag is set, SpeechLocks are checked on that object.
+ 
+& VACATION
+  Flag: VACATION (|)
+ 
+  This flag can only be set by Wizards. It automatically unset when
+  a player logs on. Thus, it is useful for marking players who will
+  be gone for a long time and should not be removed from the database.
+ 
 & VERBOSE
-  VERBOSE   This flag causes all commands executed by the object having
+  Flag: VERBOSE (v)
+ 
+  This flag causes all commands executed by the object having
   the flag to be sent to the owner of the object.  i.e.:
+ 
   @create foo
   @set foo=VERBOSE
   @force foo="Hi.
@@ -3214,8 +3345,10 @@
 
   See also: TRACE
 & INHERIT
-  INHERIT   Previously, Wizard-owned objects had wizard powers.  This was
-  a problem in many cases, so that behavior has changed.  Now, only Wizard
+  Flag: INHERIT (I)
+ 
+  In TinyMUSH 1.0, Wizard-owned objects had wizard powers.  This was
+  a problem in many cases, so that behavior changed.  Now, only Wizard
   objects or Wizard-owned Inherit-set objects have wizard powers.  Only
   players can set the Inherit flag, and the Inherit flag is reset during
   @chown.  If a player is set Inherit, all his stuff is assumed to be
@@ -3339,9 +3472,12 @@
   If an exit is TRANSPARENT, then when you look at it you see the description
   of the room on the other side of the exit in addition to the description
   of the exit.
-
+ 
+  If a room is TRANSPARENT, exits are displayed in a "long" format,
+  showing their destinations.
+ 
 & HTML
-  Flag: HTML (w)
+  Flag: HTML (~)
  
   If a player is set HTML, he can receive HTML output. This flag is 
   normally set by the invocation of a PUEBLOCLIENT command, and removed
@@ -3398,7 +3534,7 @@
   flag can save the needless computational expense of extra matching.
  
 & ZONE
-  Flag: ZONE (Z)
+  Flag: ZONE (o)
  
   When set on an object, it declares this object a "Zone". Anything
   which is parented to an object set ZONE treats that parent object like
@@ -3950,18 +4086,21 @@
 & FLAG LIST
   Topic: FLAG LIST
  
-	A - Abode	B - Builder	C - Chown_OK	D - Dark	
-	E - Exit	F - Floating	G - Going	H - Haven	
-	I - Inherit	J - Jump_OK	K - Key		L - Link_OK	
-	M - Monitor	N - Nospoof	O - Opaque	P - Player	
-	Q - Quiet	R - Room	S - Sticky	T - Trace
-	U - Unfindable	V - Visual	W - Wizard	X - Ansi
-	Y - Parent_OK	Z - Zone	a - Audible	b - Bounce	
-	c - Connected	d - Destroy_OK	e - Enter_OK	h - Halted	
-	i - Immortal	k - Tickler	l - Light	m - Myopic
+	A - Abode	C - Chown_OK	D - Dark	E - Exit
+	F - Floating	G - Going	H - Haven	I - Inherit
+	J - Jump_OK	K - Key		L - Link_OK	M - Monitor
+	N - Nospoof	O - Opaque	P - Player	Q - Quiet
+	R - Room	S - Sticky	T - Trace	U - Unfindable
+	V - Visual	W - Wizard	X - Ansi	Y - Parent_OK
+	Z - Royalty	a - Audible	b - Bounce	c - Connected
+	d - Destroy_OK	e - Enter_OK	f - Fixed	g - Uninspected	
+	h - Halted	i - Immortal	j - Gagged	k - Tickler
+	l - Light	m - Myopic	n - Auditorium	o - Zone
 	p - Puppet	q - Terse	r - Robot	s - Safe
-	t - Transparent v - Verbose	w - Html	x - Slave
-	z - Control_OK	! - Stop	$ - Commands	- - NoBleed
+	t - Transparent	u - Suspect	v - Verbose	w - Staff
+	x - Slave	z - Control_OK	! - Stop	$ - Commands
+	- - NoBleed	~ - HTML	. - Compress	? - Head	
+	| - Vacation
  
   For information on a particular flag, type 'help <flagname>'.
 
@@ -4104,16 +4243,16 @@
  
 	after()		alphamax()	alphamin()	ansi()
 	beep()		before()	capstr()	cat()
-	center()	chomp()		comp()		delete()	
-	edit()		escape()	foreach()	isdbref()	
-	isnum()		isword()	lcstr()		left()		
-	lit()		ljust()		merge()		mid()		
-	null()		pos()		regmatch()	repeat()	
-	reverse()	right()		rjust()		secure()	
-	scramble()	space()		squish()	strcat()
-	stripansi()	strlen()	strmatch()	strtrunc()
-	translate()	trim()		ucstr()		valid()
-	wordpos()
+	center()	chomp()		comp()		decrypt()
+	delete()	edit()		encrypt()	escape()
+	foreach()	isdbref()	isnum()		isword()	
+	lcstr()		left()		lit()		ljust()
+	merge()		mid()		null()		pos()		
+	regmatch()	repeat()	reverse()	right()		
+	rjust()		secure()	scramble()	space()		
+	squish()	strcat()	stripansi()	strlen()	
+	strmatch()	strtrunc()	translate()	trim()		
+	ucstr()		valid()		wordpos()
  
 & STACK FUNCTIONS
   Topic: Stack functions
@@ -4342,7 +4481,8 @@
   function calls:
   
   TYPE      - Restricts to objects of the indicated type (OBJECTS, ROOMS,
-              EXITS, PLAYERS).  THINGS may be used as an alias for OBJECTS.
+              EXITS, PLAYERS, GARBAGE). THINGS may be used as an alias
+              for OBJECTS.
   NAME      - Restricts to objects whose names start with <restriction>.
   OBJECTS   - A combination of TYPE=OBJECT and NAME=<restriction>.
   THINGS    - An alias for OBJECTS.
@@ -4574,6 +4714,43 @@
   mortals can only dream of.  Be nice to them, they are going out of their
   way to help keep the game running smoothly.
 
+& Zones
+ 
+  See 'help Zone' for the Zone flag and local master room information,
+  and 'help Zone Objects' for multi-control objects using the CONTROL_OK
+  flag and ControLock.
+ 
+& Zone Objects
+  ZONE OBJECTS
+ 
+  Zones are areas of the MUSH which may be controlled by many people.
+  Essentially, they allow group ownership of objects. The have_zones
+  config parameter must be enabled.
+  
+  The default zone is NOTHING. Any building done by a player defaults
+  to belonging to the same zone that the player belongs to.
+  Every zone is defined by a Zone Master Object (ZMO). The ZMO is an
+  ordinary MUSH object owned by some player. A wizard may change the
+  zone of an object or player to a ZMO.
+  
+  If the ZMO is a room, it is called a "Parent room." Most of the
+  statements about ZMOs also apply to parent rooms; for details,
+  see the help topic PARENT ROOMS.
+  
+  Continued in 'help Zone Objects2'.
+ 
+& Zone Objects2
+ 
+  Anyone who can pass the Control lock of the ZMO has control over all
+  objects in that zone that are set CONTROL_OK. This, in essence, gives
+  that player wizard powers within that zone. For this reason, one must
+  be extremely careful with the Control locks of ZMOs!
+  
+  Also, $commands on a ZMO are treated as global within that zone.
+  The game attempts to match $commands for the ZMO of the player's
+  location, as well as $commands for the player's own zone.
+  For some suggestions on how to use zones, see "help ZONES3".
+ 
 & V()
   Function: v(<string>)
   The V function can be used as an alternative for percent (%) substitution
@@ -7789,6 +7966,18 @@
   of players who are connected, and on that channel. <channel> is
   the full name of the channel, and is case-sensitive. This function
   is limited to Wizards and channel owners.
+
+& DECRYPT()
+  Function: decrypt(<text>,<key>)
+ 
+  Decrypts <text> using <key>. <key> should be the same one used to encrypt
+  the text, and is case sensitive.
+ 
+& ENCRYPT()
+  Function: encrypt(<text>,<key>)
+ 
+  Encrypts <text> using <key>. The text can only be unlocked with <key>, and
+  <key> is case-sensitive.
  
 & EVAL()
   Function: eval(<object>,<attribute)
