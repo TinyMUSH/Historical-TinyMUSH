@@ -20,8 +20,8 @@
 #define M_FMASK		0xF0FF
 #define M_ALL		0x1000	/* Used in mail_selectors */
 #define M_MSUNREAD	0x2000  /* Mail selectors */
-		/* 0x4000 - 0x8000 available */
 #define M_REPLY		0x4000
+		/* 0x8000 available */
  
 #define MAX_FOLDERS	15
 #define FOLDER_NAME_LEN MBUF_SIZE
@@ -101,7 +101,7 @@ extern void	FDECL(malias_read, (FILE *));
 extern void	FDECL(malias_write, (FILE *));
 extern void	FDECL(do_malias_chown, (dbref, char *, char *));
 extern void	FDECL(do_malias_desc, (dbref, char *, char *));
-extern void	FDECL(do_expmail_start, (dbref, char *, char *));
+extern int	FDECL(do_expmail_start, (dbref, char *, char *));
 extern void	FDECL(do_expmail_stop, (dbref, int));
 extern void	FDECL(do_mail_quick, (dbref, char *, char *));
 extern void	FDECL(do_malias_rename, (dbref, char *, char *));

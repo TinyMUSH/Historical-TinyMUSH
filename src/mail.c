@@ -996,8 +996,7 @@ char *msg;
 char *tolist;
 {
 	struct mail *mp;
-	int num;
-	char *mailflags;
+	int num, mail_ok;
 
         if (Flags2(player) & PLAYER_MAILS) {
                 notify(player, "MAIL: Mail message already in progress.");
@@ -1025,16 +1024,18 @@ char *tolist;
 #ifdef RADIX_COMPRESSION
 	string_decompress(mp->subject, subbuff);
 	string_decompress(get_mail_message(mp->number), msgbuff);
-	do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", subbuff, Name(mp->from)));
-	if (mailflags && (!strcmp(mailflags, "0"))) {
+	mail_ok = do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", subbuff, Name(mp->from)));
+	if (mail_ok) {
 	    atr_add_raw(player, A_MAILMSG, msgbuff);
+	}
 #else
-	do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", mp->subject, Name(mp->from)));
-	mailflags = atr_get_raw(player, A_MAILFLAGS);
-	if (mailflags && (!strcmp(mailflags, "0"))) {
+	mail_ok = do_expmail_start(player, tolist, tprintf("%s (fwd from %s)", mp->subject, Name(mp->from)));
+	if (mail_ok) {
 	    atr_add_raw(player, A_MAILMSG, get_mail_message(mp->number));
+	}
 #endif
-	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_FORWARD)));
+	if (mail_ok) {
+	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", atoi(atr_get_raw(player, A_MAILFLAGS)) | M_FORWARD));
 	}
 }
 
@@ -1044,8 +1045,8 @@ char *msg;
 int all, key;
 {
 	struct mail *mp;
-	int num;
-	char *tolist, *bp, *p, *names, *oldlist, *tokst, *mailflags;
+	int num, mail_ok;
+	char *tolist, *bp, *p, *names, *oldlist, *tokst;
 
         if (Flags2(player) & PLAYER_MAILS) {
                 notify(player, "MAIL: Mail message already in progress.");
@@ -1104,34 +1105,35 @@ int all, key;
 	string_decompress(get_mail_message(mp->number), msgbuff);
 	string_decompress(mp->time, timebuff);
 	if (strncmp(subbuff, "Re:", 3)) {
-		do_expmail_start(player, tolist, tprintf("Re: %s", subbuff));
+		mail_ok = do_expmail_start(player, tolist, tprintf("Re: %s", subbuff));
 	} else {
-		do_expmail_start(player, tolist, tprintf("%s", subbuff));
+		mail_ok = do_expmail_start(player, tolist, tprintf("%s", subbuff));
 	}
-	mailflags = atr_get_raw(player, A_MAILFLAGS);
-	if (mailflags && (!strcmp(mailflags, "0"))) {
+	if (mail_ok) {
 	    if (key & MAIL_QUOTE) {
 	        atr_add_raw(player, A_MAILMSG,
 			tprintf("On %s, %s wrote:\r\n\r\n%s\r\n\r\n********** End of included message from %s\r\n",
 				timebuff, Name(mp->from),
 				msgbuff, Name(mp->from)));
 	    }
+	}
 #else
 	if (strncmp(mp->subject, "Re:", 3)) {
-		do_expmail_start(player, tolist, tprintf("Re: %s", mp->subject));
+		mail_ok = do_expmail_start(player, tolist, tprintf("Re: %s", mp->subject));
 	} else {
-		do_expmail_start(player, tolist, tprintf("%s", mp->subject));
+		mail_ok = do_expmail_start(player, tolist, tprintf("%s", mp->subject));
 	}
-	mailflags = atr_get_raw(player, A_MAILFLAGS);
-	if (mailflags && (!strcmp(mailflags, "0"))) {
+	if (mail_ok) {
 	    if (key & MAIL_QUOTE) {
 	        atr_add_raw(player, A_MAILMSG,
 			tprintf("On %s, %s wrote:\r\n\r\n%s\r\n\r\n********** End of included message from %s\r\n",
 				mp->time, Name(mp->from),
 				get_mail_message(mp->number), Name(mp->from)));
 	    }
+	}
 #endif
-	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(mailflags) | M_REPLY)));
+	if (mail_ok) {
+	    atr_add_raw(player, A_MAILFLAGS, tprintf("%d", (atoi(atr_get_raw(player, A_MAILFLAGS)) | M_REPLY)));
 	}
 	if (all) {
         	free_lbuf(names);
@@ -1669,7 +1671,7 @@ char *arg2;
 		/*
 		 * Sending mail 
 		 */
-		do_expmail_start(player, arg1, arg2);
+		(void) do_expmail_start(player, arg1, arg2);
 		return;
 	} else {
 		/*
@@ -3074,7 +3076,7 @@ FILE *fp;
 	}
 }
 
-void do_expmail_start(player, arg, subject)
+int do_expmail_start(player, arg, subject)
 dbref player;
 char *arg, *subject;
 {
@@ -3082,18 +3084,18 @@ char *arg, *subject;
 
 	if (!arg || !*arg) {
 		notify(player, "MAIL: I do not know whom you want to mail.");
-		return;
+		return 0;
 	}
 	if (!subject || !*subject) {
 		notify(player, "MAIL: No subject.");
-		return;
+		return 0;
 	}
 	if (Flags2(player) & PLAYER_MAILS) {
 		notify(player, "MAIL: Mail message already in progress.");
-		return;
+		return 0;
 	}
 	if (!(tolist = make_numlist(player, arg))) {
-		return;
+		return 0;
 	}
 	atr_add_raw(player, A_MAILTO, tolist);
 	atr_add_raw(player, A_MAILSUB, subject);
@@ -3104,6 +3106,7 @@ char *arg, *subject;
 	notify(player, tprintf("MAIL: You are sending mail to '%s'.", names));
 	free_lbuf(names);
 	free_lbuf(tolist);
+	return 1;
 }
 
 void do_mail_cc(player, arg)
