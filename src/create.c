@@ -553,6 +553,9 @@ char *name, *arg2;
 		rmv_flags |= INHERIT | IMMORTAL;
 	s_Flags(clone, Flags(thing) & ~rmv_flags);
 	rmv_flags = SUSPECT | CONNECTED |  SLAVE;
+	s_Flags2(clone, Flags2(thing) & ~rmv_flags);
+	/* No flags in flag word 3 to remove */
+	s_Flags3(clone, Flags3(thing));
 
 	/* Tell creator about it */
 
