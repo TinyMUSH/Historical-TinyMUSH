@@ -29,6 +29,8 @@ Release history:
 - Feature: istrue() and isfalse() functions added (basically iter()-style
   filterbool() and reverse).
 
+- Feature: speak() function added, for speech-formatting and parsing.
+
 - Feature: If invoked with the -f switch, the Backup script only makes
   a flatfile.
 
