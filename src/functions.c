@@ -1043,7 +1043,7 @@ FUNCTION(fun_eval)
 	}
 	if (nfargs == 1) {
 		str = fargs[0];
-		exec(buff, bufc, 0, player, cause, EV_EVAL,
+		exec(buff, bufc, 0, player, cause, EV_EVAL|EV_FCHECK,
 		     &str, (char **)NULL, 0);
 		return;
 	}
@@ -4694,7 +4694,7 @@ FUNCTION(fun_center)
 	len = strlen((char *)strip_ansi(fargs[0]));
 
 	if (width > LBUF_SIZE) {
-		safe_str("#-1 OUT OF RANGE");
+		safe_str("#-1 OUT OF RANGE", buff, bufc);
 		return;
 	}
 	

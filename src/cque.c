@@ -361,7 +361,7 @@ char *what, *count;
 		} else {
 			/* Do they have permission to set this attribute? */
 			atr_pget_info(thing, ap->number, &aowner, &aflags);
-			if (attr && Set_attr(player, thing, ap, aflags)) {
+			if (Set_attr(player, thing, ap, aflags)) {
 				attr = ap->number;
 			} else {
 				notify_quiet(player, "Permission denied.");

@@ -588,6 +588,8 @@ CF_HAND(cf_alias)
 				return -1;
 			}
 		}
+	} else {
+		return -1;
 	}
 	
 	hashadd(alias, cp, (HASHTAB *) vp);

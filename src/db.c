@@ -3053,7 +3053,7 @@ int new_strings;
 				c = fgetc(f);
 			}
 			if ((c == '\0') || (c == EOF)) {
-				*p == '\0';
+				*p = '\0';
 				return buf;
 			}
 			safe_chr(c, buf, &p);
