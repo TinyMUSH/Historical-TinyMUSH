@@ -98,3 +98,5 @@
 #define I_ANSI_BMAGENTA	45
 #define I_ANSI_BCYAN	46
 #define I_ANSI_BWHITE	47
+
+#define I_ANSI_NUM	48

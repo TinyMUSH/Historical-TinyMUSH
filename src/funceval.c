@@ -167,6 +167,32 @@ FUNCTION(fun_beep)
 
 /* This function was originally taken from PennMUSH 1.50 */
 
+char *ansi_nchartab[256] =
+{
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,               0,               N_ANSI_BBLUE,    N_ANSI_BCYAN,
+    0,               0,               0,               N_ANSI_BGREEN,
+    0,               0,               0,               0,
+    0,               N_ANSI_BMAGENTA, 0,               0,
+    0,               0,               N_ANSI_BRED,     0,
+    0,               0,               0,               N_ANSI_BWHITE,
+    N_ANSI_BBLACK,   N_ANSI_BYELLOW,  0,               0,
+    0,               0,               0,               0,
+    0,               0,               N_ANSI_BLUE,     N_ANSI_CYAN,
+    0,               0,               N_ANSI_BLINK,    N_ANSI_GREEN,
+    N_ANSI_HILITE,   N_ANSI_INVERSE,  0,               0,
+    0,               N_ANSI_MAGENTA,  N_ANSI_NORMAL,   0,
+    0,               0,               N_ANSI_RED,      0,
+    0,               N_ANSI_UNDER,    0,               N_ANSI_WHITE,
+    N_ANSI_BLACK,    N_ANSI_YELLOW,   0,               0,
+    0,               0,               0,               0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
+};
+
 FUNCTION(fun_ansi)
 {
 	char *s, *bb_p;
@@ -201,81 +227,23 @@ FUNCTION(fun_ansi)
 	    return;
 
 	s = fargs[0];
-	safe_known_str(ANSI_BEGIN, 2, buff, bufc);
 	bb_p = *bufc;
 
 	while (*s) {
-	    if (*bufc != bb_p) {
-		safe_copy_chr(';', buff, bufc, LBUF_SIZE - 5);
-	    }
-	    switch (*s) {
-		case 'h':	/* hilite */
-		    safe_copy_str(N_ANSI_HILITE, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'i':	/* inverse */
-		    safe_copy_str(N_ANSI_INVERSE, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'f':	/* flash */
-		    safe_copy_str(N_ANSI_BLINK, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'u':	/* underline */
-		    safe_copy_str(N_ANSI_UNDER, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'n':	/* normal */
-		    safe_copy_str(N_ANSI_NORMAL, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'x':	/* black fg */
-		    safe_copy_str(N_ANSI_BLACK, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'r':	/* red fg */
-		    safe_copy_str(N_ANSI_RED, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'g':	/* green fg */
-		    safe_copy_str(N_ANSI_GREEN, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'y':	/* yellow fg */
-		    safe_copy_str(N_ANSI_YELLOW, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'b':	/* blue fg */
-		    safe_copy_str(N_ANSI_BLUE, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'm':	/* magenta fg */
-		    safe_copy_str(N_ANSI_MAGENTA, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'c':	/* cyan fg */
-		    safe_copy_str(N_ANSI_CYAN, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'w':	/* white fg */
-		    safe_copy_str(N_ANSI_WHITE, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'X':	/* black bg */
-		    safe_copy_str(N_ANSI_BBLACK, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'R':	/* red bg */
-		    safe_copy_str(N_ANSI_BRED, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'G':	/* green bg */
-		    safe_copy_str(N_ANSI_BGREEN, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'Y':	/* yellow bg */
-		    safe_copy_str(N_ANSI_BYELLOW, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'B':	/* blue bg */
-		    safe_copy_str(N_ANSI_BBLUE, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'M':	/* magenta bg */
-		    safe_copy_str(N_ANSI_BMAGENTA, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'C':	/* cyan bg */
-		    safe_copy_str(N_ANSI_BCYAN, buff, bufc, LBUF_SIZE - 5);
-		    break;
-		case 'W':	/* white bg */
-		    safe_copy_str(N_ANSI_BWHITE, buff, bufc, LBUF_SIZE - 5);
-		    break;
+	    if (ansi_nchartab[(unsigned int) *s]) {
+		if (*bufc != bb_p) {
+		    safe_copy_chr(';', buff, bufc, LBUF_SIZE - 5);
+		} else {
+		    safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 5);
+		}
+		safe_copy_str(ansi_nchartab[(unsigned int) *s],
+			      buff, bufc, LBUF_SIZE - 5);
 	    }
 	    s++;
 	}
-	safe_copy_chr(ANSI_END, buff, bufc, LBUF_SIZE - 5);
+	if (*bufc != bb_p) {
+	    safe_copy_chr(ANSI_END, buff, bufc, LBUF_SIZE - 5);
+	}
 	safe_copy_str(fargs[1], buff, bufc, LBUF_SIZE - 5);
 	safe_ansi_normal(buff, bufc);
 }

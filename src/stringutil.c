@@ -22,6 +22,16 @@ char *___strtok;
 /* Convert raw character sequences into MUSH substitutions (type = 1)
  * or strips them (type = 0). */
 
+char *ansi_numtab[I_ANSI_NUM] =
+{
+    "%xn", "%xh", 0,     0,     "%xu", "%xf", 0,     "%xi",
+    0,     0,     0,     0,     0,     0,     0,     0,
+    0,     0,     0,     0,     0,     0,     0,     0,
+    0,     0,     0,     0,     0,     0,     "%xx", "%xr",
+    "%xg", "%xy", "%xb", "%xm", "%xc", "%xw", 0,     0,
+    "%xX", "%xR", "%xG", "%xY", "%xB", "%xM", "%xC", "%xW"
+};
+
 char *translate_string(str, type)
 const char *str;
 int type;
@@ -57,70 +67,8 @@ int type;
 			    if (p)
 				*p++ = '\0';
 			    i = atoi(j);
-			    switch (i) {
-				case I_ANSI_NORMAL:
-					safe_str("%xn", new, &bp);
-					break;
-				case I_ANSI_HILITE:
-					safe_str("%xh", new, &bp);
-					break;
-				case I_ANSI_BLINK:
-					safe_str("%xf", new, &bp);
-					break;
-				case I_ANSI_INVERSE:
-					safe_str("%xi", new, &bp);
-					break;
-				case I_ANSI_UNDER:
-					safe_str("%xu", new, &bp);
-					break;
-				case I_ANSI_BLACK:
-					safe_str("%xx", new, &bp);
-					break;
-				case I_ANSI_RED:
-					safe_str("%xr", new, &bp);
-					break;
-				case I_ANSI_GREEN:
-					safe_str("%xg", new, &bp);
-					break;
-				case I_ANSI_YELLOW:
-					safe_str("%xy", new, &bp);
-					break;
-				case I_ANSI_BLUE:
-					safe_str("%xb", new, &bp);
-					break;
-				case I_ANSI_MAGENTA:
-					safe_str("%xm", new, &bp);
-					break;
-				case I_ANSI_CYAN:
-					safe_str("%xc", new, &bp);
-					break;
-				case I_ANSI_WHITE:
-					safe_str("%xw", new, &bp);
-					break;
-				case I_ANSI_BBLACK:
-					safe_str("%xX", new, &bp);
-					break;
-				case I_ANSI_BRED:
-					safe_str("%xR", new, &bp);
-					break;
-				case I_ANSI_BGREEN:
-					safe_str("%xG", new, &bp);
-					break;
-				case I_ANSI_BYELLOW:
-					safe_str("%xY", new, &bp);
-					break;
-				case I_ANSI_BBLUE:
-					safe_str("%xB", new, &bp);
-					break;
-				case I_ANSI_BMAGENTA:
-					safe_str("%xM", new, &bp);
-					break;
-				case I_ANSI_BCYAN:
-					safe_str("%xC", new, &bp);
-					break;
-				case I_ANSI_BWHITE:
-					safe_str("%xW", new, &bp);
-					break;
+			    if (i >= 0 && i < I_ANSI_NUM && ansi_numtab[i]) {
+				safe_known_str(ansi_numtab[i], 3, new, &bp);
 			    }
 			    j = p;
 			} while (p && *p);
