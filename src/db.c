@@ -2724,11 +2724,10 @@ dbref newtop;
 	newdb = (OBJ *)
 		XMALLOC((newsize + SIZE_HACK) * sizeof(OBJ), "db_grow.db");
 	if (!newdb) {
-
-		LOG_SIMPLE(LOG_ALWAYS, "ALC", "DB",
-			   tprintf("Could not allocate space for %d item struct database.",
-				   newsize));
-		abort();
+	    STARTLOG(LOG_ALWAYS, "ALC", "DB")
+		log_printf("Could not allocate space for %d item struct database.", newsize);
+	    ENDLOG
+	    abort();
 	}
 	if (db) {
 

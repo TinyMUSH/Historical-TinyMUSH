@@ -414,9 +414,10 @@ char *name;
 		free_lbuf(buff);
 		break;
 	default:
-		LOG_SIMPLE(LOG_BUGS, "BUG", "OTYPE",
-			   tprintf("Bad object type in create_obj: %d.",
-				   objtype));
+		STARTLOG(LOG_BUGS, "BUG", "OTYPE")
+		    log_printf("Bad object type in create_obj: %d.",
+			       objtype);
+		ENDLOG
 		return NOTHING;
 	}
 
@@ -461,9 +462,10 @@ char *name;
 		if (Good_dbref(obj) && IS_CLEAN(obj)) {
 			mudstate.freelist = Link(obj);
 		} else {
-			LOG_SIMPLE(LOG_PROBLEMS, "FRL", "DAMAG",
-				tprintf("Freelist damaged, bad object #%d.",
-					obj));
+			STARTLOG(LOG_PROBLEMS, "FRL", "DAMAG")
+			    log_printf("Freelist damaged, bad object #%d.",
+				       obj);
+			ENDLOG
 			obj = NOTHING;
 			mudstate.freelist = NOTHING;
 		}
