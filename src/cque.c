@@ -892,6 +892,7 @@ const char *header;
 	BQUE *tmp;
 	char *bp, *bufp;
 	int i;
+	ATTR *ap;
 
 	*qtot = 0;
 	*qent = 0;
@@ -907,24 +908,42 @@ const char *header;
 				       tprintf("----- %s Queue -----",
 					       header));
 			bufp = unparse_object(player, tmp->player, 0);
-			if ((tmp->waittime > 0) && (Good_obj(tmp->sem)))
+			if ((tmp->waittime > 0) && (Good_obj(tmp->sem))) {
+			    /* A minor shortcut. We can never timeout-wait
+			     * on a non-Semaphore attribute.
+			     */
+			    notify(player,
+				   tprintf("[#%d/%d] %s:%s",
+					   tmp->sem,
+					   tmp->waittime - mudstate.now,
+					   bufp, tmp->comm));
+			} else if (tmp->waittime > 0) {
 				notify(player,
-				       tprintf("[#%d/%d]%s:%s",
-					       tmp->sem,
+				       tprintf("[%d] %s:%s",
 					       tmp->waittime - mudstate.now,
 					       bufp, tmp->comm));
-			else if (tmp->waittime > 0)
+			} else if (Good_obj(tmp->sem)) {
+			    if (tmp->attr == A_SEMAPHORE) {
 				notify(player,
-				       tprintf("[%d]%s:%s",
-					       tmp->waittime - mudstate.now,
+				       tprintf("[#%d] %s:%s", tmp->sem,
 					       bufp, tmp->comm));
-			else if (Good_obj(tmp->sem))
-				notify(player,
-				       tprintf("[#%d]%s:%s", tmp->sem,
-					       bufp, tmp->comm));
-			else
+			    } else {
+				ap = atr_num(tmp->attr);
+				if (ap && ap->name) {
+				    notify(player,
+					   tprintf("[#%d/%s] %s:%s", tmp->sem,
+						   ap->name,
+						   bufp, tmp->comm));
+				} else {
+				    notify(player,
+					   tprintf("[#%d] %s:%s", tmp->sem,
+						   bufp, tmp->comm));
+				}
+			    }
+			} else {
 				notify(player,
 				       tprintf("%s:%s", bufp, tmp->comm));
+			}
 			bp = bufp;
 			if (key == PS_LONG) {
 				for (i = 0; i < (tmp->nargs); i++) {
