@@ -24,10 +24,12 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-??/??/2003: Beta 12
+??/??/2004: Beta 12
 
 - Fix: Fatal bug in structure() fixed; default values should be
   optional. [3.0; Traest]
+
+- Fix: Stack items could be set to -1 by pop() or toss(). [3.0; Draci]
 
 08/13/2003: Beta 11
 

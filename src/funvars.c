@@ -2092,8 +2092,7 @@ static int stack_set(thing, sp)
 
     if (!sp) {
 	nhashdelete(thing, &mudstate.objstack_htab);
-	s_StackCount(thing, StackCount(thing) - 1);
-	return 0;
+	return 1;
     }
 
     xsp = stack_get(thing);
