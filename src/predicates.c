@@ -2231,7 +2231,7 @@ void do_redirect(player, cause, key, from_name, to_name)
 	    notify(player, "That object is not being redirected.");
 	    return;
 	}
-	np = (NUMBERTAB *) hashfind(from_ref, &mudstate.redir_htab);
+	np = (NUMBERTAB *) nhashfind(from_ref, &mudstate.redir_htab);
 	if (np) {
 	    /* This should always be true -- if we have the flag the
 	     * hashtable lookup should succeed -- but just in case,
