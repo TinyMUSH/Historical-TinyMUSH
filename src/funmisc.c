@@ -426,7 +426,7 @@ FUNCTION(fun_lnum)
     /* Copy as much out of the pre-gen as we can. */
     
     bb_p = *bufc;
-    if ((bot < 100) && (top > bot)) {
+    if ((bot < 100) && (top > bot) && (sep == ' ')) {
 	startp = lnum_buff + Lnum_Place(bot);
 	if (top >= 99) {
 	    safe_str(startp, buff, bufc);
