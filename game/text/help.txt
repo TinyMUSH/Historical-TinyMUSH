@@ -9390,15 +9390,19 @@ See the individual help entries for comsys commands for details.
  
 & @cboot
  
-  Command: @cboot <channel>=<object>
+  Command: @cboot[/quiet] <channel>=<object>
  
   This command is restricted to Wizards, those with the Comm_All power,
-  and the owner of <channel>.
+  and the owner of <channel>. It removes <object> from <channel>,
+  deleting all of <object>'s alias for <channel>. <object> can be
+  specified as a dbref, *<player>, or the name of a nearby object.
  
-  This command removes <object> from <channel>, deleting all of <object>'s
-  alias for <channel>. <object> can be specified as a dbref, *<player>,
-  or the name of a nearby object.
- 
+  The object will be notified who booted it off the channel. Other
+  people on the channel will also be notified that you have booted
+  the object off the channel, unless the /quiet switch is specified,
+  in which case, it will be treated like the object had simply left
+  the channel.
+  
 & addcom
  
   Command: addcom <alias>=<channel>[,<title>]
