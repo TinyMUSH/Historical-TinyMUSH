@@ -35,6 +35,10 @@ Release history:
 
 - Fix: The @Ttofail attribute has been corrected to @TOFail. [3.1a8]
 
+- Fix: The MUSH's "dumping" status is cleared more carefully when
+  a child process exits, making sure it was really a forked dump
+  process and that it really ended. [MUX; Brazil]
+
 - Misc: If ladd() is given a blank list, it returns 0 instead of
   complaining about the number of arguments.
 

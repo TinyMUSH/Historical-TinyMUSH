@@ -340,7 +340,7 @@ int port;
 
 		/* We've gotten a signal to dump flatfiles */
 		
-		if (mudstate.flatfile_flag) {
+		if (mudstate.flatfile_flag && !mudstate.dumping) {
 			if (*mudconf.dump_msg)
 				raw_broadcast(0, "%s", mudconf.dump_msg);
 
@@ -1265,7 +1265,7 @@ int sig;
 #endif	/* HAVE_SYS_SIGNAME */
 
 	int i;
-
+	pid_t child;
 #if defined(HAVE_UNION_WAIT) && defined(NEED_WAIT3_DCL)
 	union wait stat;
 #else
@@ -1288,16 +1288,23 @@ int sig;
 		signal(SIGCHLD, sighandler);
 #endif
 #ifdef HAVE_WAIT3
-		while (wait3(&stat, WNOHANG, NULL) > 0) ;
+		while ((child = wait3(&stat, WNOHANG, NULL)) > 0) {
+			if (mudconf.fork_dump && mudstate.dumping &&
+			    child == mudstate.dumper &&
+			    (WIFEXITED(stat) || WIFSIGNALED(stat))) {
+				mudstate.dumping = 0;
+				mudstate.dumper = 0;
+			}
+		}
 #else
-		wait((int *) &stat);
+		child = wait((int *) &stat);
+		if (mudconf.fork_dump && mudstate.dumping &&
+		    child == mudstate.dumper &&
+		    (WIFEXITED(stat) || WIFSIGNALED(stat))) {
+			mudstate.dumping = 0;
+			mudstate.dumper = 0;
+		}
 #endif
-		/* Did the child exit? */
-		
-		if (WEXITSTATUS(stat) == 8)
-			exit(0);
-				
-		mudstate.dumping = 0;
 		break;
 	case SIGHUP:		/* Dump database soon */
 		log_signal(signames[sig]);

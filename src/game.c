@@ -1257,8 +1257,6 @@ void NDECL(dump_database)
 void fork_and_dump(key)
 int key;
 {
-	int child;
-
 	if (*mudconf.dump_msg)
 		raw_broadcast(0, "%s", mudconf.dump_msg);
 
@@ -1290,14 +1288,14 @@ int key;
 	if (!key || (key & DUMP_STRUCT) || (key & DUMP_FLATFILE)) {
 		if (mudconf.fork_dump) {
 			if (mudconf.fork_vfork) {
-				child = vfork();
+				mudstate.dumper = vfork();
 			} else {
-				child = fork();
+				mudstate.dumper = fork();
 			}
 		} else {
-			child = 0;
+			mudstate.dumper = 0;
 		}
-		if (child == 0) {
+		if (mudstate.dumper == 0) {
 			if (key & DUMP_FLATFILE) {
 				dump_database_internal(DUMP_DB_FLATFILE);
 			} else {
@@ -1305,7 +1303,7 @@ int key;
 			}
 			if (mudconf.fork_dump)
 				_exit(0);
-		} else if (child < 0) {
+		} else if (mudstate.dumper < 0) {
 			log_perror("DMP", "FORK", NULL, "fork()");
 		}
 	}
