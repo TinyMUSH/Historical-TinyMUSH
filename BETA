@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-??/??/2003: Beta 11?
+08/13/2003: Beta 11
 
 - Fix: @trigger/now switch had no effect. [3.1b7; Draci]
 
@@ -33,6 +33,9 @@ Release history:
   - gdbm_reorganize (see 'wizhelp opt_frequency') had a small memory leak.
 
   - Too many free blocks in the gdbm database could cause an overflow.
+
+- Fix: Beta 10 cache changes caused some attributes not to be written
+  out to the gdbm file. [3.1b10]
 
 -----------------------------------------------------------------------------
 
