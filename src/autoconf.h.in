@@ -17,8 +17,8 @@
 #undef STDC_HEADERS
 /* Define if we have unistd.h */
 #undef HAVE_UNISTD_H
-/* Define if we have memory.h and need it to get memcmp et al */
-#undef NEED_MEMORY_H
+/* Define if we have memory.h */
+#undef HAVE_MEMORY_H
 /* Decl for pid_t */
 #undef pid_t
 /* signal() return type */
@@ -127,6 +127,8 @@
 #undef NEED_RANDOM_DCL
 /* Define if you need to declare getpagesize yourself */
 #undef NEED_GETPAGESIZE_DCL
+/* Define if you need to declare strtok_r yourself */
+#undef NEED_STRTOK_R_DCL
 
 /* ---------------------------------------------------------------------------
  * Setup section:
@@ -166,19 +168,16 @@ extern long	FDECL(atol, (const char *));
 extern int	FDECL(qsort, (char *, int, int, int (*)()));
 #endif
 
-#ifdef NEED_MEMORY_H
-#include <memory.h>
-#endif
-
 #ifdef STDC_HEADERS
 #include <string.h>
 #else
 #include <strings.h>
-extern char *	FDECL(strchr, (char *, char));
+#ifdef HAVE_MEMORY_H
+#include <memory.h>
+#endif
 #endif
 
-#ifndef HAVE_STRTOK_R
-/* use our own version in stringutil.c */
+#ifdef NEED_STRTOK_R_DCL
 extern char *	FDECL(strtok_r, (char *, const char *, char **));
 #endif
 

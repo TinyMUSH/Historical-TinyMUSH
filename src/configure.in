@@ -1,74 +1,67 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(mudconf.h)
 AC_CONFIG_HEADER(autoconf.h)
+
+dnl Program checks
+
 AC_PROG_CC
 AC_PROG_CPP
+
+dnl Platform checks
+
 AC_ISC_POSIX
 AC_MINIX
 AC_AIX
-AC_HEADER_DIRENT
+
+dnl Library checks
+
+SAVELDFLAGS="$LDFLAGS"
+LDFLAGS="-L./db-3.1.17/build_unix $SAVELDFLAGS"
+AC_CHECK_LIB(bdb, main,
+  LIBS="-L./db-3.1.17/build_unix -lbdb $LIBS",
+  AC_MSG_ERROR(This program requires Sleepycat DBM (src/db-3.1.17) to be built first), )
+LDFLAGS="-L/usr/ucblib $SAVELDFLAGS"
+AC_CHECK_LIB(ucb, getdtablesize,
+  LIBS="-L/usr/ucblib -lucb $LIBS", , , )
+LDFLAGS="$SAVELDFLAGS"
+AC_CHECK_LIB(crypt, main)
+AC_CHECK_LIB(resolv, main)
+AC_CHECK_LIB(socket, main)
+AC_CHECK_LIB(nsl, main)
+AC_CHECK_LIB(inet, gethostbyaddr)
+AC_CHECK_LIB(m, main)
+
+dnl Header checks
+
 AC_HEADER_STDC
 AC_HEADER_TIME
+AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(unistd.h memory.h string.h errno.h malloc.h sys/select.h)
 AC_CHECK_HEADERS(fcntl.h limits.h sys/file.h sys/ioctl.h sys/time.h sys/stat.h)
-AC_CHECKING(for sys_errlist decl)
-if test $ac_cv_header_errno_h = no; then
-	AC_DEFINE(NEED_SYS_ERRLIST_DCL)
-else
-	AC_EGREP_HEADER(sys_errlist,errno.h, ,AC_EGREP_HEADER(sys_errlist,stdio.h,,AC_DEFINE(NEED_SYS_ERRLIST_DCL)))
-fi
-LIBS="-L./db-3.1.17/build_unix -lbdb"
-AC_CHECK_LIB(crypt, main)
-AC_FUNC_STRFTIME
-AC_FUNC_VFORK
-AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(setrlimit getrusage timelocal mktime srandom)
-AC_CHECK_FUNCS(getdtablesize socket gethostbyaddr)
-AC_CHECK_FUNCS(gettimeofday select wait3 strtok_r strcspn)
-AC_CHECK_FUNCS(getpagesize)
-AC_EGREP_HEADER(getpagesize,unistd.h,,AC_DEFINE(NEED_GETPAGESIZE_DCL))
+
+dnl Structure, Typedef, Compiler checks
+
+AC_C_CONST
+AC_C_CHAR_UNSIGNED
+AC_C_INLINE
 AC_TYPE_OFF_T
 AC_TYPE_PID_T
 AC_TYPE_SIGNAL
-AC_TRY_COMPILE([#include <sys/signal.h>],[struct sigcontext scp;],AC_DEFINE(HAVE_STRUCT_SIGCONTEXT))
-AC_HEADER_SYS_WAIT
 AC_STRUCT_TM
 AC_STRUCT_TIMEZONE
-AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],AC_DEFINE(HAVE_UNION_WAIT))
-AC_CHECKING(for malloc dcl)
-AC_EGREP_HEADER(realloc,stdlib.h, ,AC_DEFINE(NEED_MALLOC_DCL))
-AC_CHECKING(for vsprintf dcl)
-AC_EGREP_HEADER(vsprintf,stdio.h, ,AC_DEFINE(NEED_VSPRINTF_DCL))
-AC_CHECKING(for sprintf dcl)
-AC_EGREP_HEADER(\<sprintf|\<*sprintf,stdio.h, ,AC_DEFINE(NEED_SPRINTF_DCL))
-AC_CHECKING(for extended stdio dcls)
-AC_EGREP_HEADER(fread,stdio.h,AC_DEFINE(EXTENDED_STDIO_DCLS))
-AC_CHECKING(for extended socket dcls)
-AC_EGREP_HEADER(setsockopt,sys/socket.h,AC_DEFINE(EXTENDED_SOCKET_DCLS))
-
-AC_CHECKING(for gettimeofday dcl)
-if test $ac_cv_header_time = yes && test $ac_cv_header_sys_time_h = yes ; then
-AC_EGREP_HEADER(gettimeofday,[time.h>
-#include <sys/time.h], ,AC_DEFINE(NEED_GETTIMEOFDAY_DCL))
-elif test $ac_cv_header_sys_time_h = yes ; then
-AC_EGREP_HEADER(gettimeofday,sys/time.h, ,AC_DEFINE(NEED_GETTIMEOFDAY_DCL))
-else
-AC_EGREP_HEADER(gettimeofday,time.h, ,AC_DEFINE(NEED_GETTIMEOFDAY_DCL))
-fi
-
-if test $ac_cv_header_sys_wait_h = yes ; then
-AC_CHECKING(for wait3 dcl)
-AC_EGREP_HEADER(wait3,sys/wait.h, ,AC_DEFINE(NEED_WAIT3_DCL))
-fi
-
-AC_CHECKING(for srandom dcl)
-AC_EGREP_HEADER(srandom,math.h,,AC_EGREP_HEADER(srandom,stdlib.h,,AC_DEFINE(NEED_SRANDOM_DCL)))
-
-AC_CHECKING(for random dcl)
-AC_EGREP_HEADER(extern * random,stdlib.h,,AC_DEFINE(NEED_RANDOM_DCL))
-
-AC_CHECKING(for signal SIGCHLD braindamage)
+AC_MSG_CHECKING(for struct linger)
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <sys/socket.h>],
+[struct linger ling; ling.l_onoff = 1;],
+AC_DEFINE(HAVE_LINGER) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for union wait)
+AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],AC_DEFINE(HAVE_UNION_WAIT) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for struct sigcontext) 
+AC_TRY_COMPILE([#include <sys/types.h>
+#include <sys/signal.h>],[struct sigcontext scp;],AC_DEFINE(HAVE_STRUCT_SIGCONTEXT) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for signal SIGCHLD braindamage)
 AC_TRY_RUN([
+#include <sys/types.h>
 #include <sys/signal.h>
 
 #ifndef SIGCHLD
@@ -77,10 +70,10 @@ AC_TRY_RUN([
 
 int rlev;
 
-sighand(sig,code)
-int sig, code;
+RETSIGTYPE sighand(sig)
+int sig;
 {
-int stat;
+  int stat;
 
   if (rlev++ > 2)
     exit(1);
@@ -104,32 +97,65 @@ char **argv;
   }
   exit(0);
 }
-], ,AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE),AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE))
+], AC_MSG_RESULT(no),AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE) AC_MSG_RESULT(yes),AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE) AC_MSG_RESULT(unable to test... assuming yes))
+
+dnl Function checks
+
+AC_FUNC_STRFTIME
+AC_FUNC_VFORK
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS(setrlimit getrusage timelocal mktime srandom)
+AC_CHECK_FUNCS(getdtablesize socket gethostbyaddr)
+AC_CHECK_FUNCS(gettimeofday select wait3 strtok_r strcspn)
+AC_CHECK_FUNCS(getpagesize strchr memset)
+
+dnl Declaration checks
 
 AC_DECL_SYS_SIGLIST
-
-AC_CHECKING(for perror dcl)
-AC_EGREP_HEADER(perror,errno.h, ,AC_DEFINE(NEED_PERROR_DCL))
-AC_CHECKING(for getrusage dcl)
-AC_EGREP_HEADER(getrusage,sys/resource.h, ,AC_DEFINE(NEED_GETRUSAGE_DCL))
-AC_CHECKING(for getrlimit dcl)
-AC_EGREP_HEADER(getrlimit,sys/resource.h, ,AC_DEFINE(NEED_GETRLIMIT_DCL))
-AC_C_CONST
-AC_C_CHAR_UNSIGNED
-AC_C_INLINE
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/socket.h>],
-[struct linger ling; ling.l_onoff = 1;],
-AC_DEFINE(HAVE_LINGER))
-AC_CHECK_LIB(resolv, main)
-AC_CHECK_LIB(socket, main)
-AC_CHECK_LIB(sun, getpwnam)
-AC_CHECK_LIB(seq, main)
-AC_CHECK_LIB(intl, main)
-AC_CHECK_LIB(nsl, main)
-if test $ac_cv_func_gethostbyaddr = no; then
-	AC_CHECK_LIB(inet, main)
+AC_MSG_CHECKING(for sys_errlist decl)
+if test $ac_cv_header_errno_h = no; then
+	AC_MSG_RESULT(no)
+	AC_DEFINE(NEED_SYS_ERRLIST_DCL)
+else
+	AC_EGREP_HEADER(sys_errlist,errno.h,AC_MSG_RESULT(yes),AC_EGREP_HEADER(sys_errlist,stdio.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SYS_ERRLIST_DCL) AC_MSG_RESULT(no)))
 fi
-AC_CHECK_LIB(m, main)
+AC_MSG_CHECKING(for getpagesize dcl)
+AC_EGREP_HEADER(getpagesize,unistd.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETPAGESIZE_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for malloc dcl)
+AC_EGREP_HEADER(realloc,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_MALLOC_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for vsprintf dcl)
+AC_EGREP_HEADER(vsprintf,stdio.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_VSPRINTF_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for sprintf dcl)
+AC_EGREP_HEADER(\<sprintf|\<*sprintf,stdio.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SPRINTF_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for extended stdio dcls)
+AC_EGREP_HEADER(fread,stdio.h,AC_DEFINE(EXTENDED_STDIO_DCLS) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for extended socket dcls)
+AC_EGREP_HEADER(setsockopt,sys/socket.h,AC_DEFINE(EXTENDED_SOCKET_DCLS) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for gettimeofday dcl)
+if test $ac_cv_header_time = yes && test $ac_cv_header_sys_time_h = yes ; then
+AC_EGREP_HEADER(gettimeofday,[time.h>
+#include <sys/time.h],AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL) AC_MSG_RESULT(no))
+elif test $ac_cv_header_sys_time_h = yes ; then
+AC_EGREP_HEADER(gettimeofday,sys/time.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL) AC_MSG_RESULT(no))
+else
+AC_EGREP_HEADER(gettimeofday,time.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL) AC_MSG_RESULT(no))
+fi
+if test $ac_cv_header_sys_wait_h = yes ; then
+AC_MSG_CHECKING(for wait3 dcl)
+AC_EGREP_HEADER(wait3,sys/wait.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_WAIT3_DCL) AC_MSG_RESULT(no))
+fi
+AC_MSG_CHECKING(for srandom dcl)
+AC_EGREP_HEADER(srandom,math.h,AC_MSG_RESULT(yes),AC_EGREP_HEADER(srandom,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SRANDOM_DCL) AC_MSG_RESULT(no)))
+AC_MSG_CHECKING(for random dcl)
+AC_EGREP_HEADER(extern * random,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_RANDOM_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for perror dcl)
+AC_EGREP_HEADER(perror,errno.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_PERROR_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for getrusage dcl)
+AC_EGREP_HEADER(getrusage,sys/resource.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETRUSAGE_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for getrlimit dcl)
+AC_EGREP_HEADER(getrlimit,sys/resource.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETRLIMIT_DCL) AC_MSG_RESULT(no))
+AC_MSG_CHECKING(for strtok_r dcl)
+AC_EGREP_HEADER(strtok_r,string.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_STRTOK_R_DCL) AC_MSG_RESULT(no))
+
 AC_SUBST(LIBOBJS)
 AC_OUTPUT(Makefile)

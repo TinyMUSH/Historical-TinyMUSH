@@ -41,16 +41,6 @@ DEFS =
 #OPTIM = -g -pg -O
 OPTIM = -g -O
 
-# Libraries.  Use the second line if you want to use the resolver to get
-# hostnames and your libc doesn't use it already.  If you use it, you'd
-# better have your nameserver working or things may hang for a while when
-# people try to login from distant sites.  Use the third line if you're running
-# on a SysV-ish system and BSD support isn't built in to the standard libc.
-#
-MORELIBS	=
-#MORELIBS	= -lnsl -lsocket -L/usr/ucblib -lucb	# Mips
-#MORELIBS	= -L/usr/ucblib -lucb			# old Solaris
-
 # ----- TinyMUSH can read and write directly from external databases.
 #        If you wish to use this functionality, comment out all definition
 #        sets other than the one you wish to use.
@@ -313,7 +303,7 @@ unsplit: unsplit.o
 	$(CC) $(ALLCFLAGS) -o unsplit unsplit.o
 
 dbconvert: dbconvert.o $(SA_OBJ) $(SA_UDB_O) $(ALLOC_O) $(LIBOBJS)
-	$(CC) $(ALLCFLAGS) -o dbconvert dbconvert.o $(SA_OBJ) $(COM_OBJ) $(SA_UDB_O) $(ALLOC_O) $(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(LIBOBJS)
+	$(CC) $(ALLCFLAGS) -o dbconvert dbconvert.o $(SA_OBJ) $(COM_OBJ) $(SA_UDB_O) $(ALLOC_O) $(LIBS) $(COMPRESS_LIB) $(LIBOBJS)
 
 $(VER_OBJ):
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $(VER_SRC)
@@ -323,21 +313,21 @@ update_buildnum:
 
 netmush: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-mv -f netmush netmush~
-	$(CC) $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) $(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
+	$(CC) $(ALLCFLAGS) -o netmush $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) $(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
 
 netmush-pure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-pure
 	$(PUREDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
+	$(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
 
 netmush-purecov: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-purecov
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	-log-file=purify/netmush.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-purecov $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
+	$(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
 
 netmush-realpure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-realpure
@@ -345,14 +335,14 @@ netmush-realpure: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-log-file=purify/netmush.plog \
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	$(CC) $(ALLCFLAGS) -o netmush-realpure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
+	$(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
 
 netmush-quant: update_buildnum $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ)
 	-rm -f netmush-quant
 	$(QUANTDIR)/quantify -view-file=purify/quant.pv \
 	-log-file=purify/quant.plog \
 	$(CC) $(ALLCFLAGS) -o netmush-pure $(OBJ) $(LIBOBJS) $(SQL_OBJ) $(VER_OBJ) \
-	$(LIBS) $(COMPRESS_LIB) $(MORELIBS) $(SQL_LIB)
+	$(LIBS) $(COMPRESS_LIB) $(SQL_LIB)
 
 cvs:
 	rm -f buildnum.data
