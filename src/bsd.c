@@ -1071,15 +1071,19 @@ NAMETAB sigactions_nametab[] = {
 
 /* *INDENT-ON* */
 
-
-
-
-
-
-
-
 void NDECL(set_signals)
 {
+	sigset_t sigs;
+
+	/* We have to reset our signal mask, because of the possibility
+	 * that we triggered a restart on a SIGUSR1. If we did so, then
+	 * the signal became blocked, and stays blocked, since control
+	 * never returns to the caller; i.e., further attempts to send
+	 * a SIGUSR1 would fail.
+	 */
+	sigfillset(&sigs);
+	sigprocmask(SIG_UNBLOCK, &sigs, NULL);
+
 	signal(SIGALRM, sighandler);
 	signal(SIGCHLD, sighandler);
 	signal(SIGHUP, sighandler);
