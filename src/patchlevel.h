@@ -7,8 +7,8 @@
 #define __PATCHLEVEL_H
 
 #define	MUSH_VERSION		"3.1"		/* Base version number */
-#define PATCHLEVEL		1		/* Patchlevel or beta number */
+#define PATCHLEVEL		2		/* Patchlevel or beta number */
 #define	MUSH_RELEASE_DATE	"08/11/2004"	/* Source release date */
-#define MUSH_RELEASE_STATUS	0		/* 0 gamma, 1 beta, 2 alpha */
+#define MUSH_RELEASE_STATUS	1		/* 0 gamma, 1 beta, 2 alpha */
 
 #endif /* __PATCHLEVEL_H */
