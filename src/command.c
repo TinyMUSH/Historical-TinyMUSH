@@ -2320,6 +2320,11 @@ dbref player;
 	if (mudconf.sweep_dark)
 		raw_notify(player, "Players may @sweep dark locations.");
 
+	if (mudconf.have_mailer)
+		raw_notify(player, "The built-in mailer is enabled.");
+	if (mudconf.have_comsys)
+		raw_notify(player, "The built-in comsys is enabled.");
+
 #ifdef TCL_INTERP_SUPPORT
 	notify(player, "TCL interpreter support is enabled.");
 #endif /* TCL_INTERP_SUPPORT */
@@ -2367,6 +2372,9 @@ dbref player;
 
 	if (mudconf.local_masters) {
 		raw_notify(player, "Objects set ZONE are treated as local master rooms.");
+	}
+	if (mudconf.have_zones) {
+		raw_notify(player, "ControlLock zones are enabled.");
 	}
 
 	if (mudconf.addcmd_match_blindly) {
