@@ -146,9 +146,11 @@
   attributes owned by you set on the object.
  
   If an attribute is owned by a player other than the owner of the object,
-  the number of the attribute owner is shown in parentheses immediately
-  following the attribute name. Flag letters may appear in parentheses also,
-  to indicate the status of the attribute; see 'help @set2' for details.
+  the number of the attribute owner is shown in brackets immediately
+  following the attribute name. Flag letters may appear within the brackets
+  also, to indicate the status of the attribute; if the flag letters are
+  in parentheses, they indicate flags for the global definition of all
+  attribute with that name. See 'help @set2' for details.
  
   If you specify a wildcarded attribute name, then only those attributes
   that match are shown. So, 'exam me/v?' will show all your attributes that
@@ -1821,7 +1823,7 @@
   The following flags may be set using the fourth form of the @set command;
   they are displayed when the attribute is examined.
  
-     hidden     - Wiz-only. Prevent mortals from seeing the attribute. (M)
+     hidden     - Wiz/Roy-only. Prevent mortals from seeing the attribute. (m)
      html       - When used as part of an Attr/OAttr/AAtr trio (as in @verb,
                   @enter, etc.), the Attr is not HTML-escaped (see Pueblo). (H)
      no_command - Prevent $-commands and ^-patterns defined in the attribute

@@ -230,7 +230,7 @@
 & attribute permissions
 
   Possible values are: const  dark  deleted  god  hidden  ignore  is_lock
-  locked  no_command  no_inherit  private  visual  wizard.
+  locked  no_command  no_inherit  visual  wizard.
 
 & attribute defaults
  
@@ -704,10 +704,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   them.
  
   In other words, if '@list attr_types' shows:
-      _RPG_*: private wizard
-       _*: private no_clone
+      _RPG_*: no_clone wizard
+       _*: visual
   then attributes that match the wildcard pattern _RPG_* will get the
-  private and wizard flags; they will not get the no_clone flag.
+  no_clone and wizard flags; they will not get the visual flag.
  
 & @list attributes
   Command: @list attributes
@@ -1595,9 +1595,6 @@ use_global_aconn	wizard_obeys_linklock
   const       - The attribute cannot be changed by anyone.
   dark        - The attribute is not visible to anyone.
   god         - The attribute can only be seen and changed by God.
-  private     - The attribute is visible only to those who can examine the
-                object. (Define an attribute as !private to make it visible
-                to anyone, as is the case with the Desc attribute.)
   
 & attr_alias
   Config parameter: attr_alias <alias> <attr>.
@@ -1617,7 +1614,7 @@ use_global_aconn	wizard_obeys_linklock
   All user-named attributes whose names match the wildcard pattern <pattern>
   will receive the default attribute flags specified by the privilege list,
   rather than the default attribute flags specified for user attributes
-  by the user_attr_access conf directive (defaults to just "private").
+  by the user_attr_access conf directive (defaults to none).
  
   Directives given later take precedence over earlier ones. For example,
   if you want all attributes on your game that start with '_' to be 
@@ -1625,8 +1622,8 @@ use_global_aconn	wizard_obeys_linklock
   which should be set only by Wizards and also not copyable by @clone,
   you should do:
  
-	attr_type	_*	private wizard
-	attr_type	_RPG_*	private wizard no_clone
+	attr_type	_*	wizard
+	attr_type	_RPG_*	wizard no_clone
  
   See also: @list attr_types, attr_access, user_attr_access
  
@@ -3402,8 +3399,8 @@ use_global_aconn	wizard_obeys_linklock
   Config parameter: user_attr_access [!]<privilege> [[!]<privilege>]...
  
   Changes the flags that new user-named attributes receive when they are
-  created. By default, user attributes are invisible to others (set with
-  the "private" flag).
+  created. By default, user attributes get no flags; this means that they
+  default to being private.
  
   See 'help @set' and 'wizhelp attr_access' for the available privileges.
  
