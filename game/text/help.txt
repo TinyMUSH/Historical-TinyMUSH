@@ -6727,7 +6727,7 @@ performed and the walk down the list stops.
 & MOD()
   Function: mod(<integer1>,<integer2>)
  
-  This is an alias for the modulo() function.
+  This is an alias for the remainder() function by default.
  
 & MODULO()
   Function: modulo(<integer1>,<integer2>)
@@ -14134,8 +14134,9 @@ Continued in 'help 3.1 functions5'.
 - The behavior of remainders in division with negative numbers is
   now consistent (rather than being compiler-dependent), including
   new modulo(), remainder(), and floordiv() functions. The mod()
-  function is now an alias for modulo(); if you want it to be an
-  alias for remainder() instead, change it in alias.conf
+  function is now an alias for remainder(), which is closest to
+  the old mod() on most platforms; if you want it to be an alias
+  for modulo() instead, change it in alias.conf
  
 - Added nattr(), which counts the number of attributes on an object.
  
