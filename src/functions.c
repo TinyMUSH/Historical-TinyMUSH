@@ -5688,7 +5688,7 @@ FUNCTION(fun_center)
 	    bcopy(space_buffer, tp, trail_chrs);
 	    tp += trail_chrs;
 	} else {
-	    for (i = 0; i < lead_chrs; i++)
+	    for (i = 0; i < trail_chrs; i++)
 		*tp++ = sep;
 	}
 	*tp = '\0';
