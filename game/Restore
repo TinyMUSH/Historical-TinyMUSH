@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# Syntax: Restore [filename]
+#
+PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
+#
+. mush.config
+#
+FLATFILE="$1"
+#
+if [ ! "$FLATFILE" ]; then
+    echo "Syntax: $0 [flatfile]"
+    exit 1
+fi
+#
+if [ ! -r $FLATFILE ]; then
+    echo "Not a valid flatfile: $FLATFILE"
+    exit 1
+fi
+#
+#
+# Use the flatfile extension to figure out what type of file we have to
+# deal with, and how we should deal with it.
+#
+case $FLATFILE in
+	*.gz) UNZIP="gzip -d -c"
+		echo "Will use $UNZIP to uncompress gzipped flatfile." ;;
+	*.Z) UNZIP="compress -d -c"
+		echo "Will use $UNZIP to uncompress compressed flatfile." ;;
+	*) UNZIP=cat 
+		echo "This flatfile appears to be uncompressed... okay." ;;
+esac
+#
+# If we have other goop in the way, move it out of the way.
+#
+echo "Moving old files out of the way. Please ignore file-not-found warnings."
+#
+DBDATE=`date +%m%d-%H%M`
+mkdir db-$DBDATE
+mv -f $DATA/$NEW_DB $DATA/$INPUT_DB $DATA/$GDBM_DB* $DATA/$CRASH_DB $DATA/$SAVE_DB $DATA/$BACKUP_DB db-$DBDATE
+#
+# Reload the flatfile.
+#
+echo "Loading flatfile."
+$UNZIP $FLATFILE | $BIN/dbconvert $DATA/$GDBM_DB X > $DATA/$NEW_DB
