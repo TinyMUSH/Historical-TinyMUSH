@@ -483,7 +483,7 @@ char *name;
 	s_Link(obj, NOTHING);
 	s_Parent(obj, parent);
 
-	if (mudconf.autozone)
+	if (mudconf.autozone && player != NOTHING)
 	    s_Zone(obj, Zone(player));
 	else
 	    s_Zone(obj, NOTHING);
@@ -526,7 +526,9 @@ char *name;
 		if (!cost)
 			payfees(obj, 0, mudconf.player_quota, TYPE_PLAYER);
 	}
-	update_newobjs(player, obj, objtype);
+	if (player != NOTHING) {
+		update_newobjs(player, obj, objtype);
+	}
 	return obj;
 }
 
