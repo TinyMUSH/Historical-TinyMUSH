@@ -1899,9 +1899,14 @@ char *argv[];
 	CMDENT *cmdp;
 	int i, c;
 	int errflg = 0;
-	char *opt_logfile = (char *) LOG_FILE;
-	char *opt_conf = (char *) CONF_FILE;
-	char *opt_pidfile = (char *) PID_FILE;
+	char *opt_logfile   = (char *) LOG_FILE;
+	char *opt_conf      = (char *) CONF_FILE;
+	char *opt_pidfile   = (char *) PID_FILE;
+	char *opt_bindir    = (char *) BIN_DIR;
+	char *opt_txtdir    = (char *) TXT_DIR;
+	char *opt_datadir   = (char *) DATA_DIR;
+	char *opt_gdbmfile  = (char *) DB_FILE;
+	char *opt_crashfile = (char *) CRASH_FILE;
 	char *s;
 	MODULE *mp;
 	char *bp;
@@ -1931,7 +1936,8 @@ char *argv[];
 
 	/* Parse options */
 
-	while ((c = getopt(argc, argv, "c:l:p:s")) != -1) {
+	while ((c = getopt(argc, argv, "c:l:p:b:t:d:g:k:s")) != -1) {
+	fprintf(stderr, "-%c : %s\n", c, optarg);
 		switch (c) {
 		case 'c':
 			opt_conf = optarg;
@@ -1945,13 +1951,29 @@ char *argv[];
 		case 's':
 			mindb = 1;
 			break;
+		case 'b':
+			opt_bindir = optarg;
+			break;
+		case 't':
+			opt_txtdir = optarg;
+			break;
+		case 'd':
+			opt_datadir = optarg;
+			break;
+		case 'g':
+			opt_gdbmfile = optarg;
+			break;
+		case 'k':
+			opt_crashfile = optarg;
+			break;
 		default:
 			errflg++;
 			break;
 		}
 	}
+	
 	if (errflg) {
-	    fprintf(stderr, "Usage: %s [-s] [-c conf_file] [-l log_file] [-p pid_file]\n",
+	    fprintf(stderr, "Usage: %s [-s] [-c conf_file] [-l log_file] [-p pid_file] [-d data dir] [-g gdbm db] [-k crash db]\n",
 		    argv[0]);
 	    exit(1);
 	}
@@ -1990,7 +2012,22 @@ char *argv[];
 	pool_init(POOL_QENTRY, sizeof(BQUE));
 	tcache_init();
 	pcache_init();
+	
+	/* Initialize directories, crashdb and gdbm with
+	 * values from the command line. We do it
+	 * here so the config file can still
+	 * override the command line for backward
+	 * compatibility.
+	 */
+
+	mudconf.dbhome = XSTRDUP(opt_datadir, "argv");
+	mudconf.crashdb = XSTRDUP(opt_crashfile, "argv");
+	mudconf.gdbm = XSTRDUP(opt_gdbmfile, "argv");
+	mudconf.txthome = XSTRDUP(opt_txtdir, "argv");
+	mudconf.binhome = XSTRDUP(opt_bindir, "argv");	
+	
 	cf_init();
+
 	init_rlimit();
 	init_cmdtab();
 	init_logout_cmdtab();
@@ -2013,9 +2050,20 @@ char *argv[];
 	hashinit(&mudstate.instdata_htab, 25 * HASH_FACTOR, HT_STR);
 	hashinit(&mudstate.api_func_htab, 5 * HASH_FACTOR, HT_STR);
 
-	add_helpfile(GOD, (char *)"main:add_helpfile", (char *) "help text/help", 1);
-	add_helpfile(GOD, (char *)"main:add_helpfile", (char *) "wizhelp text/wizhelp", 1);
-	add_helpfile(GOD, (char *)"main:add_helpfile", (char *) "qhelp text/qhelp", 1);
+	s = (char *) XMALLOC(MBUF_SIZE, "main_add_helpfile");
+
+	snprintf(s, MBUF_SIZE-1, "help %s/help", mudconf.txthome);
+	add_helpfile(GOD, (char *)"main:add_helpfile", s , 1);
+
+	snprintf(s, MBUF_SIZE-1, "wizhelp %s/wizhelp", mudconf.txthome);
+	add_helpfile(GOD, (char *)"main:add_helpfile", s, 1);
+	
+
+	snprintf(s, MBUF_SIZE-1, "qhelp %s/qhelp", mudconf.txthome);
+	add_helpfile(GOD, (char *)"main:add_helpfile", s, 1);
+	
+	XFREE(s, "main_add_helpfile");
+	
 	cmdp = (CMDENT *) hashfind((char *) "wizhelp", &mudstate.command_htab);
 	if (cmdp)
 	    cmdp->perms |= CA_WIZARD;
@@ -2023,7 +2071,6 @@ char *argv[];
 	vattr_init();
 
 	cf_read(opt_conf);
-	mudconf.func_cpu_lim = mudconf.func_cpu_lim_secs * CLOCKS_PER_SEC;
 
 	bp = mudstate.modloaded; 
 	WALK_ALL_MODULES(mp) {

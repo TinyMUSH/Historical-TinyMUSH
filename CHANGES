@@ -16,10 +16,17 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
 3.1 Patchlevel 2
 
+  - Removed hardcoded textfiles path from the engine, a new command
+    line switch ( -t textpath ) now feed the engine with the 
+    correct value. This eliminate the need of adding every
+    textfile in the configfile if someone want to change the
+    game's text directory. 
+
   - The engine is now able to find the data directory and names of 
-    the db/crash files from the environment. The configuration
-    parameters 'database_home',  'crash_database' and 'gdbm_database'
-    are still avalable for backward compatibility.
+    the db/crash files from the command line. ( -d datapath, 
+    -g gdbmfile and -k crashfile) The configuration parameters 
+    'database_home',  'crash_database' and 'gdbm_database' are 
+    still avalable for backward compatibility.
 
   - Startmush now terminate correctly on most platform. awk now kill
     the tail process instead of just closing the pipe (on some

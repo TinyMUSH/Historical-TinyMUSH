@@ -11,9 +11,14 @@
  * Makefile.
  */
 
-#define CONF_FILE "netmush.conf"	/* Default config file */
-#define LOG_FILE "netmush.log"		/* Default log file */
-#define PID_FILE "netmush.pid"		/* Default pid file */
+#define CONF_FILE  "netmush.conf"	/* Default config file */
+#define LOG_FILE   "netmush.log"	/* Default log file */
+#define PID_FILE   "netmush.pid"	/* Default pid file */
+#define BIN_DIR    "./bin"		/* Default binary directory */
+#define TXT_DIR    "./text"		/* Default text directory */
+#define DATA_DIR   "./data"		/* Default data directory */
+#define DB_FILE    "netmush.gdbm"	/* Default database name */
+#define CRASH_FILE "netmush.db.CRASH"	/* Default crash database name */
 
 #define PLAYER_NAME_LIMIT	22	/* Max length for player names */
 #define NUM_ENV_VARS		10	/* Number of env vars (%0 et al) */

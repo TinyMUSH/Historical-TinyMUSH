@@ -50,23 +50,9 @@ extern LOGFILETAB logfds_table[];
 
 void NDECL(cf_init)
 {
-	char * buffer;
-
-	if ( (buffer=getenv("DATA")) != NULL ) {
-	  mudconf.dbhome = XSTRDUP(buffer, "cf_string");
-	} else {
-		mudconf.dbhome = XSTRDUP(".", "cf_string");
-	}
-	if ( (buffer=getenv("CRASH_DB")) != NULL ) {
-	  mudconf.crashdb = XSTRDUP(buffer, "cf_string");
-	} else {
-	  mudconf.crashdb = XSTRDUP("", "cf_string");
-	}
-	if ( (buffer=getenv("GDBM_DB")) != NULL ) {
-	  mudconf.gdbm = XSTRDUP(buffer, "cf_string");
-	} else {
-	  mudconf.gdbm = XSTRDUP("", "cf_string");
-	}
+	char *s;
+	
+	s = XMALLOC(MBUF_SIZE, "cf_init");
 
 	mudconf.status_file = XSTRDUP("shutdown.status", "cf_string");
 	mudstate.modules_list = NULL;
@@ -83,19 +69,42 @@ void NDECL(cf_init)
 	mudconf.guest_password = XSTRDUP("guest", "cf_string");
 	mudconf.guest_prefixes = XSTRDUP("", "cf_string");
 	mudconf.guest_suffixes = XSTRDUP("", "cf_string");
-	mudconf.guest_file = XSTRDUP("text/guest.txt", "cf_string");
-	mudconf.conn_file = XSTRDUP("text/connect.txt", "cf_string");
-	mudconf.creg_file = XSTRDUP("text/register.txt", "cf_string");
-	mudconf.regf_file = XSTRDUP("text/create_reg.txt", "cf_string");
-	mudconf.motd_file = XSTRDUP("text/motd.txt", "cf_string");
-	mudconf.wizmotd_file = XSTRDUP("text/wizmotd.txt", "cf_string");
-	mudconf.quit_file = XSTRDUP("text/quit.txt", "cf_string");
-	mudconf.down_file = XSTRDUP("text/down.txt", "cf_string");
-	mudconf.full_file = XSTRDUP("text/full.txt", "cf_string");
-	mudconf.site_file = XSTRDUP("text/badsite.txt", "cf_string");
-	mudconf.crea_file = XSTRDUP("text/newuser.txt", "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/guest.txt", mudconf.txthome);
+	mudconf.guest_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/connect.txt", mudconf.txthome);
+	mudconf.conn_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/register.txt", mudconf.txthome);
+	mudconf.creg_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/create_reg.txt", mudconf.txthome);
+	mudconf.regf_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/motd.txt", mudconf.txthome);
+	mudconf.motd_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/wizmotd.txt", mudconf.txthome);
+	mudconf.wizmotd_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/quit.txt", mudconf.txthome);
+	mudconf.quit_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/down.txt", mudconf.txthome);
+	mudconf.down_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/full.txt", mudconf.txthome);
+	mudconf.full_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/badsite.txt", mudconf.txthome);
+	mudconf.site_file = XSTRDUP(s, "cf_string");
+	
+	snprintf(s, MBUF_SIZE-1, "%s/newuser.txt", mudconf.txthome);
+	mudconf.crea_file = XSTRDUP(s, "cf_string");
 #ifdef PUEBLO_SUPPORT
-	mudconf.htmlconn_file = XSTRDUP("text/htmlconn.txt", "cf_string");
+	snprintf(s, MBUF_SIZE-1, "%s/htmlconn.txt", mudconf.txthome);
+	mudconf.htmlconn_file = XSTRDUP(s, "cf_string");
 #endif
 	mudconf.motd_msg = XSTRDUP("", "cf_string");
 	mudconf.wizmotd_msg = XSTRDUP("", "cf_string");
@@ -390,6 +399,8 @@ void NDECL(cf_init)
 	mudstate.poutobj = -1;
 	mudstate.dbm_fd = -1;
 	mudstate.rdata = NULL;
+
+	XFREE(s, "cf_init");
 }
 
 /* ---------------------------------------------------------------------------
@@ -1616,6 +1627,8 @@ CONF conftable[] = {
 {(char *)"dark_actions",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.dark_actions,		(long)"Dark objects still trigger @a-actions when moving"},
 {(char *)"dark_sleepers",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.dark_sleepers,		(long)"Disconnected players not shown in room contents"},
 {(char *)"database_home",		cf_string,	CA_STATIC, 	CA_GOD,		(int *)&mudconf.dbhome,		MBUF_SIZE},
+{(char *)"text_home",			cf_string,	CA_STATIC, 	CA_GOD,		(int *)&mudconf.txthome,	MBUF_SIZE},
+{(char *)"binary_home",			cf_string,	CA_STATIC, 	CA_GOD,		(int *)&mudconf.binhome,	MBUF_SIZE},
 {(char *)"default_home",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.default_home,		NOTHING},
 {(char *)"dig_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.digcost,		0},
 {(char *)"divert_log",			cf_divert_log,	CA_STATIC,	CA_DISABLED,	&mudconf.log_diversion,		(long) logoptions_nametab},

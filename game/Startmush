@@ -159,6 +159,6 @@ fi
 #	Kick off MUSH
 #
 touch $LOGNAME
-$BIN/netmush $make_db -c $GAMENAME.conf -l $LOGNAME -p $PIDFILE >>$LOGNAME 2>&1 &
+$BIN/netmush $make_db -c $GAMENAME.conf -l $LOGNAME -p $PIDFILE -t $TEXT -b $BIN -d $DATA -g $GDBM_DB -k $CRASH_DB >>$LOGNAME 2>&1 &
 echo "Process $!"
 tail -f $LOGNAME | awk '{ print $0 }; /Cleanup completed/ { system("killall tail") };'
