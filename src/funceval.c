@@ -1976,11 +1976,17 @@ FUNCTION(fun_columns)
 	if (indent > 77) {	/* unsigned int, always a positive number */
 		indent = 1;
 	}
-	
-	if ((number < 1) || ((unsigned int) (number + indent) > 78)) {
+
+	/* Must check number separately, since number + indent can
+	 * result in an integer overflow.
+	 */
+
+	if ((number < 1) || (number > 77) ||
+	    ((unsigned int) (number + indent) > 78)) {
 		safe_str("#-1 OUT OF RANGE", buff, bufc);
 		return;
 	}
+
 	cp = curr = bp = alloc_lbuf("fun_columns");
 	str = fargs[0];
 	exec(curr, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
