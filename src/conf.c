@@ -1102,7 +1102,7 @@ CONF conftable[] = {
 {(char *)"function_recursion_limit",
 	cf_int,         CA_GOD,         &mudconf.func_nest_lim,		0},
 {(char *)"game_log",
-     	cf_string,	CA_GOD,		(int *)mudconf.game_log,	PBUF_SIZE},
+     	cf_string,	CA_GOD,		(int *)mudconf.mudlogname,	PBUF_SIZE},
 {(char *)"gdbm_database",
 	cf_string,	CA_DISABLED,	(int *)mudconf.gdbm,		PBUF_SIZE},
 {(char *)"global_aconn_uselocks",
