@@ -924,10 +924,14 @@ FUNCTION(fun_command)
 {
     CMDENT *cmdp;
     char tbuf1[1], tbuf2[1];
+    char *p;
     int key;
 
     if (!fargs[0] || !*fargs[0])
 	return;
+
+    for (p = fargs[0]; *p; p++)
+	*p = tolower(*p);
 
     cmdp = (CMDENT *) hashfind(fargs[0], &mudstate.command_htab);
     if (!cmdp) {
