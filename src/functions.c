@@ -100,7 +100,7 @@ char *fname, *target;
 	safe_sb_str(fname, np, &bp);
 	*bp = '\0';
 	for (bp = np; *bp; bp++)
-		*bp = tolower(*bp);
+		*bp = toupper(*bp);
 
 	/* Verify that the function doesn't exist in the builtin table */
 
