@@ -603,6 +603,9 @@ CMDENT command_table[] = {
 {(char *)"@lock",		lock_sw,	CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_lock},
+{(char *)"@logrotate",		NULL,		CA_GOD,
+	0,		CS_NO_ARGS,
+	NULL,			NULL,		do_logrotate},
 #ifdef USE_MAIL
 {(char *)"@mail",               mail_sw,           CA_NO_SLAVE|CA_NO_GUEST,
         0,              CS_TWO_ARG|CS_INTERP,

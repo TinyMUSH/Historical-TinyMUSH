@@ -1421,6 +1421,47 @@ dbref thing;
 	return 0;
 }
 
+/* ----------------------------------------------------------------------
+ * Log rotation.
+ */
+
+void do_logrotate(player, cause, key)
+    dbref player, cause;
+    int key;
+{
+    /* It would be a good idea for the initial redirection of stderr to
+     * point at the same name that we've given our logfile, but this
+     * isn't absolutely necessary.
+     */
+
+    mudstate.mudlognum++;
+    if (!freopen((const char *) tprintf("%s.%d", mudconf.mudlogname,
+					mudstate.mudlognum),
+		 "w", stderr)) {
+	/* Ugh. We're in trouble here. Let's try to print to stderr
+	 * anyway.
+	 */
+	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
+	    log_name(player);
+	    log_text((char *) " attempted failed log rotation\n");
+	ENDLOG
+    } else {
+	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
+	    log_name(player);
+	    log_text((char *) " rotated logfile to ");
+	    log_text(mudconf.mudlogname);
+	    log_text((char *) ".");
+	    log_number(mudstate.mudlognum);
+	    log_text("\n");
+        ENDLOG
+    }
+}
+
+
+/* ----------------------------------------------------------------------
+ * Database and startup stuff.
+ */
+
 void do_readcache(player, cause, key)
 dbref player, cause;
 int key;

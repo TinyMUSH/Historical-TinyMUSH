@@ -77,6 +77,7 @@ void NDECL(cf_init)
 	StringCopy(mudconf.compress, "gzip");
 	StringCopy(mudconf.uncompress, "gzip -d");
 	StringCopy(mudconf.status_file, "shutdown.status");
+	StringCopy(mudconf.mudlogname, "netmush.log");
 	mudconf.port = 6250;
 	mudconf.conc_port = 6251;
 	mudconf.init_size = 1000;
@@ -284,6 +285,7 @@ void NDECL(cf_init)
 	mudstate.epoch = 0;
 	mudstate.generation = 0;
 	mudstate.reboot_nums = 0;
+	mudstate.mudlognum = 0;
 	mudstate.curr_player = NOTHING;
 	mudstate.curr_enactor = NOTHING;
 	mudstate.curr_cmd = (char *) "< none >";

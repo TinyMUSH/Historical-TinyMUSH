@@ -39,6 +39,7 @@ struct confdata {
 	char	compress[PBUF_SIZE];	/* program to run to compress */
 	char	uncompress[PBUF_SIZE];/* program to run to uncompress */
 	char	status_file[PBUF_SIZE]; /* Where to write arg to @shutdown */
+	char	mudlogname[PBUF_SIZE];	/* Name of the game log file */
         int	have_comsys;	/* Should the comsystem be active? */
         int	have_mailer;	/* Should @mail be active? */
 	int	have_zones;	/* Should zones be active? */
@@ -297,6 +298,7 @@ struct statedata {
 	int	logging;	/* Are we in the middle of logging? */
 	int	epoch;		/* Generation number for dumps */
 	int	generation;	/* DB global generation number */
+	int	mudlognum;	/* Number of logfile */
 	dbref	curr_enactor;	/* Who initiated the current command */
 	dbref	curr_player;	/* Who is running the current command */
 	char	*curr_cmd;	/* The current command */
