@@ -382,39 +382,65 @@ FUNCTION(fun_space)
 
 FUNCTION(fun_ljust)
 {
-	int spaces, max;
-	char *tp;
-	char sep;
+	int spaces, max, i, slen;
+	char *tp, *fillchars;
 
-	varargs_preamble("LJUST", 3);
+	xvarargs_preamble("LJUST", 2, 3);
 	spaces = atoi(fargs[1]) - strlen((char *)strip_ansi(fargs[0]));
 
-	/* Sanitize number of spaces */
-
-	if (spaces <= 0) {
-		/* no padding needed, just return string */
-		safe_str(fargs[0], buff, bufc);
-		return;
-	}
-
 	safe_str(fargs[0], buff, bufc);
+
+	/* Sanitize number of spaces */
+	if (spaces <= 0)
+		return;	/* no padding needed, just return string */
 
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
 	spaces = (spaces > max) ? max : spaces;
-	memset(tp, sep, spaces);
-	tp += spaces;
+
+	if (fargs[2]) {
+		fillchars = strip_ansi(fargs[2]);
+		slen = strlen(fillchars);
+		slen = (slen > spaces) ? spaces : slen;
+		if (slen == 0) {
+			/* NULL character fill */
+			memset(tp, ' ', spaces);
+			tp += spaces;
+		}
+		else if (slen == 1) {
+			/* single character fill */
+		   memset(tp, *fillchars, spaces);
+			tp += spaces;
+		}
+		else {
+			/* multi character fill */
+			for (i=spaces; i >= slen; i -= slen) {
+				memcpy(tp, fillchars, slen);
+				tp += slen;
+			}
+			if (i) {
+				/* we have a remainder here */
+			   memcpy(tp, fillchars, i);
+				tp += i;
+			}
+		}
+	}
+	else {
+		/* no fill character specified */
+		memset(tp, ' ', spaces);
+		tp += spaces;
+	}
+
 	*tp = '\0';
 	*bufc = tp;
 }
 
 FUNCTION(fun_rjust)
 {
-	int spaces, max;
-	char *tp;
-	char sep;
+	int spaces, max, i, slen;
+	char *tp, *fillchars;
 
-	varargs_preamble("RJUST", 3);
+	xvarargs_preamble("RJUST", 2, 3);
 	spaces = atoi(fargs[1]) - strlen((char *)strip_ansi(fargs[0]));
 
 	/* Sanitize number of spaces */
@@ -428,19 +454,50 @@ FUNCTION(fun_rjust)
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
 	spaces = (spaces > max) ? max : spaces;
-	memset(tp, sep, spaces);
-	tp += spaces;
+
+	if (fargs[2]) {
+		fillchars = strip_ansi(fargs[2]);
+		slen = strlen(fillchars);
+		slen = (slen > spaces) ? spaces : slen;
+		if (slen == 0) {
+			/* NULL character fill */
+			memset(tp, ' ', spaces);
+			tp += spaces;
+		}
+		else if (slen == 1) {
+			/* single character fill */
+		   memset(tp, *fillchars, spaces);
+			tp += spaces;
+		}
+		else {
+			/* multi character fill */
+			for (i=spaces; i >= slen; i -= slen) {
+				memcpy(tp, fillchars, slen);
+				tp += slen;
+			}
+			if (i) {
+				/* we have a remainder here */
+			   memcpy(tp, fillchars, i);
+				tp += i;
+			}
+		}
+	}
+	else {
+		/* no fill character specified */
+		memset(tp, ' ', spaces);
+		tp += spaces;
+	}
+
 	*bufc = tp;
 	safe_str(fargs[0], buff, bufc);
 }
 
 FUNCTION(fun_center)
 {
-	char sep;
-	char *tp;
-	int len, lead_chrs, trail_chrs, width, max;
+	char *tp, *fillchars;
+	int len, lead_chrs, trail_chrs, width, max, i, slen;
 
-	varargs_preamble("CENTER", 3);
+	xvarargs_preamble("CENTER", 2, 3);
 
 	width = atoi(fargs[1]);
 	len = strlen((char *)strip_ansi(fargs[0]));
@@ -455,8 +512,40 @@ FUNCTION(fun_center)
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff); /* chars left in buffer */
 	lead_chrs = (lead_chrs > max) ? max : lead_chrs;
-	memset(tp, sep, lead_chrs);
-	tp += lead_chrs;
+
+	if (fargs[2]) {
+		fillchars = (char *)strip_ansi(fargs[2]);
+		slen = strlen(fillchars);
+		slen = (slen > lead_chrs) ? lead_chrs : slen;
+		if (slen == 0) {
+			/* NULL character fill */
+			memset(tp, ' ', lead_chrs);
+			tp += lead_chrs;
+		}
+		else if (slen == 1) {
+			/* single character fill */
+			memset(tp, *fillchars, lead_chrs);
+			tp += lead_chrs;
+		}
+		else {
+			/* multi character fill */
+			for (i=lead_chrs; i >= slen; i -= slen) {
+				memcpy(tp, fillchars, slen);
+				tp += slen;
+			}
+			if (i) {
+				/* we have a remainder here */
+				memcpy(tp, fillchars, i);
+				tp += i;
+			}
+		}
+	}
+	else {
+		/* no fill character specified */
+		memset(tp, ' ', lead_chrs);
+		tp += lead_chrs;
+	}
+
 	*bufc = tp;
 
 	safe_str(fargs[0], buff, bufc);
@@ -465,8 +554,37 @@ FUNCTION(fun_center)
 	tp = *bufc;
 	max = LBUF_SIZE - 1 - (tp - buff);
 	trail_chrs = (trail_chrs > max) ? max : trail_chrs;
-	memset(tp, sep, trail_chrs);
-	tp += trail_chrs;
+
+	if (fargs[2]) {
+		if (slen == 0) {
+			/* NULL character fill */
+			memset(tp, ' ', trail_chrs);
+			tp += trail_chrs;
+		}
+		else if (slen == 1) {
+			/* single character fill */
+			memset(tp, *fillchars, trail_chrs);
+			tp += trail_chrs;
+		}
+		else {
+			/* multi character fill */
+			for (i=trail_chrs; i >= slen; i -= slen) {
+				memcpy(tp, fillchars, slen);
+				tp += slen;
+			}
+			if (i) {
+				/* we have a remainder here */
+				memcpy(tp, fillchars, i);
+				tp += i;
+			}
+		}
+	}
+	else {
+		/* no fill character specified */
+		memset(tp, ' ', trail_chrs);
+		tp += trail_chrs;
+	}
+
 	*tp = '\0';
 	*bufc = tp;
 }
