@@ -2604,7 +2604,8 @@ dbref player;
 {
     Opt("ANSI color codes enabled", mudconf.ansi_colors);
     Opt("@clone copies object cost", mudconf.clone_copy_cost);
-    Opt("Disconnected players shown in room contents", mudconf.dark_sleepers);
+    Opt("Disconnected players are not shown in room contents",
+	mudconf.dark_sleepers);
     Opt("examine shows names of flags", mudconf.ex_flags);
     Opt("examine shows public attributes", mudconf.exam_public);
     Opt("@teleport from location restricted to control or Jump_OK",
