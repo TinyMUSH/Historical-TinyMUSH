@@ -13,8 +13,7 @@ steps. You will need to do the following:
 
 - If the GAMENAME parameter in your mush.config file is not 'netmush',
   edit your GAMENAME.conf file (substitute whatever you set GAMENAME to
-  for GAMENAME). Add 'game_log GAMENAME.log' (again, substitute for
-  GAMENAME) to that configuration file.
+  for GAMENAME). 
 
 - Assuming that your flatfile is in the 'game' directory, go into the
   'game' directory ('cd game').
