@@ -147,11 +147,11 @@ int dump_entries(FILE *wfp, long pos, help_indx_list *entries)
 		if (fwrite(&ep->entry, sizeof(help_indx), 1, wfp) < 1)
 			return(-1);
 
-	   if (prev_ep)
-		   free(prev_ep);
+		if (prev_ep)
+			free(prev_ep);
 
 		if (depth++)	/* don't want to try to free the top of the chain */
-	      prev_ep = ep;
+			prev_ep = ep;
 	}
 	/*
 	*  no attempt is made to free the last remaining struct as its actually the
