@@ -19,6 +19,14 @@
 #include "udb_defs.h"
 #include "match.h"
 
+/* Some systems are lame, and inet_addr() claims to return -1 on failure,
+ * despite the fact that it returns an unsigned long. (It's not really a -1,
+ * obviously.) Better-behaved systems use INADDR_NONE.
+ */
+#ifndef INADDR_NONE
+#define INADDR_NONE -1
+#endif
+
 /* ---------------------------------------------------------------------------
  * CONFPARM: Data used to find fields in CONFDATA.
  */
@@ -801,7 +809,7 @@ static unsigned long sane_inet_addr(str)
     for (i = 1; (p = (char *) index(p, '.')) != NULL; i++, p++)
 	;
     if (i < 4)
-	return -1;
+	return INADDR_NONE;
     else
 	return inet_addr(str);
 }
@@ -831,11 +839,11 @@ CF_AHAND(cf_site)
 			  (char *)"");
 	    return -1;
 	}
-	if ((addr_num.s_addr = sane_inet_addr(addr_txt)) == -1) {
+	if ((addr_num.s_addr = sane_inet_addr(addr_txt)) == INADDR_NONE) {
 	    cf_log_syntax(player, cmd, "Malformed host address: %s", addr_txt);
 	    return -1;
 	}
-	if ((mask_num.s_addr = sane_inet_addr(mask_txt)) == -1) {
+	if ((mask_num.s_addr = sane_inet_addr(mask_txt)) == INADDR_NONE) {
 	    cf_log_syntax(player, cmd, "Malformed mask address: %s", mask_txt);
 	    return -1;
 	}
@@ -856,7 +864,7 @@ CF_AHAND(cf_site)
 				    ((unsigned int) pow(2, 32 - mask_bits)));
 	}
 
-	if ((addr_num.s_addr = sane_inet_addr(addr_txt)) == -1) {
+	if ((addr_num.s_addr = sane_inet_addr(addr_txt)) == INADDR_NONE) {
 	    cf_log_syntax(player, cmd, "Malformed host address: %s", addr_txt);
 	    return -1;
 	}
