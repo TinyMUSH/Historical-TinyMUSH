@@ -599,8 +599,9 @@ ATTR *ap;
 char *text;
 {
 	char *buf, *bp, *name_buf, *bb_p;
-	char xbuf[16];		/* must be larger than number of attr flags! */
-	char *xbufp;
+	char xbuf[16], gbuf[16]; /* larger than number of attr flags! */
+	char flag_buf[32];
+	char *xbufp, *gbufp, *fbp;
 	BOOLEXP *bool;
 
 	if (ap->flags & AF_IS_LOCK) {
@@ -646,15 +647,31 @@ char *text;
 	/* Generate flags */
 
 	Print_Attr_Flags(aflags, xbuf, xbufp);
+	Print_Attr_Flags(ap->flags, gbuf, gbufp);
+
+	if (!(ap->flags & AF_ODARK)) {
+	    /* Hack to indicate this reverse-visible status */
+	    *gbufp++ = 'V';
+	    *gbufp = '\0';
+	}
+
+	fbp = xbuf;
+	if (*xbuf && *gbuf) {
+	    sprintf(flag_buf, "%s(%s)", xbuf, gbuf);
+	    fbp = flag_buf;
+	} else if (*gbuf) {
+	    sprintf(flag_buf, "(%s)", gbuf);
+	    fbp = flag_buf;
+	}
 
 	if (is_special == 1) {
 	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
 		name_buf = tprintf("%s%s [#%d%s]:%s",
-				   ANSI_HILITE, ap->name, aowner, xbuf,
+				   ANSI_HILITE, ap->name, aowner, fbp,
 				   ANSI_NORMAL);
-	    } else if (*xbuf) {
+	    } else if (*fbp) {
 		name_buf = tprintf("%s%s [%s]:%s",
-				   ANSI_HILITE, ap->name, xbuf, ANSI_NORMAL);
+				   ANSI_HILITE, ap->name, fbp, ANSI_NORMAL);
 	    } else if (!skip_tag || (ap->number != A_DESC)) {
 		name_buf = tprintf("%s%s:%s", ANSI_HILITE, ap->name,
 				   ANSI_NORMAL);
@@ -671,11 +688,11 @@ char *text;
 	    bb_p = buf;
 	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
 		safe_tprintf_str(buf, &bb_p, "%s%s [#%d%s]:%s ",
-			      ANSI_HILITE, ap->name, aowner, xbuf,
+			      ANSI_HILITE, ap->name, aowner, fbp,
 			      ANSI_NORMAL);
-	    } else if (*xbuf) {
+	    } else if (*fbp) {
 		safe_tprintf_str(buf, &bb_p, "%s%s [%s]:%s ",
-			      ANSI_HILITE, ap->name, xbuf, ANSI_NORMAL);
+			      ANSI_HILITE, ap->name, fbp, ANSI_NORMAL);
 	    } else if (!skip_tag || (ap->number != A_DESC)) {
 		safe_tprintf_str(buf, &bb_p, "%s%s:%s ",
 				 ANSI_HILITE, ap->name, ANSI_NORMAL);
@@ -689,11 +706,11 @@ char *text;
 	} else {
 	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
 		buf = tprintf("%s%s [#%d%s]:%s %s",
-			      ANSI_HILITE, ap->name, aowner, xbuf,
+			      ANSI_HILITE, ap->name, aowner, fbp,
 			      ANSI_NORMAL, text);
-	    } else if (*xbuf) {
+	    } else if (*fbp) {
 		buf = tprintf("%s%s [%s]:%s %s",
-			      ANSI_HILITE, ap->name, xbuf, ANSI_NORMAL, text);
+			      ANSI_HILITE, ap->name, fbp, ANSI_NORMAL, text);
 	    } else if (!skip_tag || (ap->number != A_DESC)) {
 		buf = tprintf("%s%s:%s %s", ANSI_HILITE, ap->name,
 			      ANSI_NORMAL, text);
