@@ -1394,8 +1394,8 @@ global_aconn_uselocks	have_comsys		have_mailer
 have_zones		hostnames		idle_wiz_dark		
 lattr_default_oldstyle	local_master_rooms	look_obey_terse		
 match_own_commands	move_match_more		no_ambiguous_match
-paranoid_allocate	pemit_any_object	pemit_far_players
-player_listen		player_match_own_commands
+page_requires_equals	paranoid_allocate	pemit_any_object
+pemit_far_players	player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -2470,6 +2470,17 @@ use_global_aconn	wizard_obeys_linklock
   Specifies the cost of using the page command.
   See also: page.
 
+& page_requires_equals
+  Config parameter: page_requires_equals <yes/no>.  Default: No
+ 
+  If this parameter is enabled, the 'page' command must always contain
+  an equals sign. In other words, while 'page <message>' is normally
+  valid syntax to page the last person that you paged, when this parameter
+  is enabled, 'page =<message>' is required.
+ 
+  This is useful for preventing embarassing mispages caused by
+  typing, for example, an '-' by accident instead of '='.
+  
 & paranoid_allocate
   Config parameter: paranoid_allocate <yes/no>.  Default: No
 
