@@ -291,7 +291,7 @@ int isrobot, isguest;
 	/* Make sure the password is OK.  Name is checked in create_obj */
 
 	pbuf = trim_spaces(password);
-	if (!ok_password(pbuf, creator)) {
+	if (!isguest && !ok_password(pbuf, creator)) {
 		free_lbuf(pbuf);
 		return NOTHING;
 	}
@@ -306,7 +306,7 @@ int isrobot, isguest;
 
 #ifdef USE_COMSYS
 	if (mudconf.have_comsys) {
-	    if (isguest) {
+	    if (isguest && player != 1) {
 		if (*mudconf.guests_channel)
 		    join_channel(player, mudconf.guests_channel,
 				 mudconf.guests_calias, NULL);
