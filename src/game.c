@@ -1066,11 +1066,10 @@ char *message;
 
 		emergency_shutdown();
 
-		/* Close the attribute text db and dump the header db */
+		/* Close the attribute text db and dump a flatfile */
 
 		pcache_sync();
 		SYNC;
-		CLOSE;
 		STARTLOG(LOG_ALWAYS, "DMP", "PANIC")
 			log_text((char *)"Panic dump: ");
 		log_text(mudconf.crashdb);
@@ -1080,6 +1079,7 @@ char *message;
 			log_text((char *)"Panic dump complete: ");
 		log_text(mudconf.crashdb);
 		ENDLOG
+		CLOSE;
 	}
 	/* Set up for normal shutdown */
 
