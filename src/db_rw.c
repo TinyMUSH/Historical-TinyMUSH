@@ -15,6 +15,7 @@
 
 #include "vattr.h"	/* required by code */
 #include "attrs.h"	/* required by code */
+#include "udb.h"	/* required by code */
 
 #ifdef STANDALONE
 #include "powers.h"	/* required by code */
@@ -1017,8 +1018,8 @@ int *db_format, *db_version, *db_flags;
 
 int db_read()
 {
-	int *data, *dptr, vattr_flags, i, j, blksize, num, len;
-	char *cdata, *cdptr;
+	int attr, *data, *dptr, vattr_flags, i, j, blksize, num, len;
+	char *cdata, *cdptr, *as;
 
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;
@@ -1232,9 +1233,7 @@ int format, version;
 	VATTR *vp;
 	int *data, *dptr, len;
 
-#ifndef MEMORY_BASED
 	al_store();
-#endif /* MEMORY_BASED */
 
 	switch (format) {
 	case F_TINYMUSH:
@@ -1291,12 +1290,10 @@ dbref db_write()
 {
 	dbref obj;
 	VATTR *vp;
-	int *data, *dptr, len, blksize, num, i, j, k, dirty;
-	char *cdata, *cdptr;
+	int attr, *data, *dptr, len, blksize, num, i, j, k, dirty;
+	char *cdata, *cdptr, *as, *got;
 
-#ifndef MEMORY_BASED
 	al_store();
-#endif /* MEMORY_BASED */
 
 #ifdef STANDALONE
 	fprintf(mainlog_fp, "Writing ");
@@ -1479,7 +1476,6 @@ dbref db_write()
 	}
 		
 	XFREE(cdata, "db_write.cdata");
-	
 
 #ifdef STANDALONE
 	fprintf(mainlog_fp, "\n");

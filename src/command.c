@@ -34,16 +34,14 @@ extern void FDECL(list_bufstats, (dbref));
 extern void FDECL(list_buftrace, (dbref));
 
 
-#ifndef MEMORY_BASED
 extern void FDECL(list_cached_objs, (dbref));
-#endif
 
 extern int FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
 extern int FDECL(list_check, (dbref, dbref, char, char *, char *, int, int *));
 extern void FDECL(do_enter_internal, (dbref, dbref, int));
 extern int FDECL(regexp_match, (char *, char *, int, char **, int)); 
 
-#define CACHING "object"
+#define CACHING "attribute"
 
 #define NOGO_MESSAGE "You can't go that way."
 
@@ -2319,7 +2317,6 @@ static void list_textfiles(player)
 	list_hashstat(player, mudstate.hfiletab[i], &mudstate.hfile_hashes[i]);
 }
 			  
-#ifndef MEMORY_BASED
 /* These are from 'udb_cache.c'. */
 extern time_t cs_ltime;
 extern int cs_writes;		/* total writes */
@@ -2336,8 +2333,6 @@ extern int cs_resets;		/* total cache resets */
 extern int cs_syncs;		/* total cache syncs */
 extern int cs_size;		/* total cache size */
 
-#endif /* MEMORY_BASED  */
-
 /* ---------------------------------------------------------------------------
  * list_db_stats: Get useful info from the DB layer about hash stats, etc.
  */
@@ -2345,9 +2340,6 @@ extern int cs_size;		/* total cache size */
 static void list_db_stats(player)
 dbref player;
 {
-#ifdef MEMORY_BASED
-	raw_notify(player, "Database is memory based.");
-#else
 	raw_notify(player,
 	   tprintf("DB Cache Stats   Writes       Reads  (over %d seconds)",
 		   (int) (time(NULL) - cs_ltime)));
@@ -2365,7 +2357,6 @@ dbref player;
 	raw_notify(player, tprintf("Checks     %12d", cs_checks));
 	raw_notify(player, tprintf("Syncs      %12d", cs_syncs));
 	raw_notify(player, tprintf("Cache Size %12d bytes", cs_size));
-#endif /* MEMORY_BASED */
 }
 
 /* ---------------------------------------------------------------------------
@@ -3033,11 +3024,7 @@ char *arg;
 		badname_list(player, "Disallowed names:");
 		break;
 	case LIST_CACHEOBJS:
-#ifndef MEMORY_BASED
 		list_cached_objs(player);
-#else
-		raw_notify(player, "No cached objects.");
-#endif /* MEMORY_BASED */
 		break;
 	case LIST_TEXTFILES:
 		list_textfiles(player);
@@ -3052,11 +3039,7 @@ char *arg;
 		list_memory(player);
 		break;
 	case LIST_CACHEATTRS:
-#ifndef MEMORY_BASED
 		list_cached_attrs(player);
-#else
-		raw_notify(player, "No cached objects.");
-#endif /* MEMORY_BASED */
 		break;
 	case LIST_RAWMEM:
 		list_rawmemory(player);

@@ -479,11 +479,7 @@ void NDECL(dispatch)
 		mudstate.check_counter = mudconf.check_interval + mudstate.now;
 		mudstate.debug_cmd = (char *)"< dbck >";
 		do_dbck(NOTHING, NOTHING, 0);
-#ifndef MEMORY_BASED
 		SYNC;
-#endif /*
-        * MEMORY_BASED 
-        */
 		pcache_trim();
 		pool_reset();
 	}

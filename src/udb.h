@@ -93,12 +93,13 @@ extern int 	FDECL(cache_init, (int));
 extern void 	NDECL(cache_reset);
 extern int 	NDECL(cache_sync);
 extern void 	FDECL(cache_del, (void *, int, int));
-extern void FDECL(dddb_get, (void *, int, void **, int *, int));
-extern int FDECL(dddb_put, (void *, int, void *, int, int));
-extern int FDECL(dddb_del, (void *, int, int));
+extern void	FDECL(dddb_get, (void *, int, void **, int *, int));
+extern int	FDECL(dddb_put, (void *, int, void *, int, int));
+extern int	FDECL(dddb_del, (void *, int, int));
 extern void	NDECL(attrib_sync);
 extern char	*FDECL(fetch_attrib, (int, int));
 extern void	FDECL(put_attrib, (int, int, char *));
 extern void	FDECL(delete_attrib, (int, int));
+extern int	FDECL(obj_siz, (Obj *));
 
 #endif /* __UDB_H */

@@ -21,6 +21,7 @@
 #include "vattr.h"	/* required by code */
 #include "match.h"	/* required by code */
 #include "powers.h"	/* required by code */
+#include "udb.h"	/* required by code */
 
 #ifndef O_ACCMODE
 #define O_ACCMODE	(O_RDONLY|O_WRONLY|O_RDWR)
@@ -674,7 +675,6 @@ INLINE void safe_name(thing, outbuf, bufc)
 		free_lbuf(buff);
 	}
 
-#ifndef MEMORY_BASED
 	if (!names[thing]) {
 		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 		set_string(&names[thing], buff);
@@ -682,12 +682,6 @@ INLINE void safe_name(thing, outbuf, bufc)
 		free_lbuf(buff);
 	}
 	safe_known_str(names[thing], NameLen(thing), outbuf, bufc);
-#else
-	buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
-	s_NameLen(thing, alen);
-	safe_known_str(buff, NameLen(thing), outbuf, bufc);
-	free_lbuf(buff);
-#endif
 
 	s_AccessTime(thing, save_access_time);
 }
@@ -699,9 +693,6 @@ dbref thing;
 	int aflags, alen;
 	time_t save_access_time;
 	char *buff;
-#ifdef MEMORY_BASED
-	static char tbuff[LBUF_SIZE];
-#endif
 
 	save_access_time = AccessTime(thing);
 
@@ -711,7 +702,6 @@ dbref thing;
 		free_lbuf(buff);
 	}
 
-#ifndef MEMORY_BASED
 	if (!names[thing]) {
 		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 		set_string(&names[thing], buff);
@@ -720,12 +710,6 @@ dbref thing;
 	}
 	s_AccessTime(thing, save_access_time);
 	return names[thing];
-#else
-	atr_get_str((char *) tbuff, thing, A_NAME, &aowner, &aflags, &alen);
-        s_NameLen(thing, alen);
-	s_AccessTime(thing, save_access_time);
-	return ((char *) tbuff);
-#endif
 }
 
 INLINE char *PureName(thing)
@@ -738,14 +722,12 @@ dbref thing;
 
 	save_access_time = AccessTime(thing);
 
-#ifndef MEMORY_BASED
 	if (!names[thing]) {
 		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
 		set_string(&names[thing], buff);
     		s_NameLen(thing, alen);
 		free_lbuf(buff);
 	}
-#endif                
 
 	if (!purenames[thing]) {
 		buff = atr_get(thing, A_NAME, &aowner, &aflags, &alen);
@@ -776,9 +758,7 @@ char *s;
 	
     atr_add_raw(thing, A_NAME, (char *)s);
     s_NameLen(thing, len);
-#ifndef MEMORY_BASED
     set_string(&names[thing], (char *)s);
-#endif
     set_string(&purenames[thing], strip_ansi((char *)s));
 }
 
@@ -1333,7 +1313,6 @@ dbref thing;
 
 /* routines to handle object attribute lists */
 
-#ifndef MEMORY_BASED
 /* ---------------------------------------------------------------------------
  * al_size, al_fetch, al_store, al_add, al_delete: Manipulate attribute lists
  */
@@ -1516,8 +1495,6 @@ dbref thing;
 	atr_clr(thing, A_LIST);
 }
 
-#endif /* MEMORY_BASED */
-
 /* ---------------------------------------------------------------------------
  * atr_encode: Encode an attribute string.
  */
@@ -1629,51 +1606,11 @@ void atr_clr(thing, atr)
 dbref thing;
 int atr;
 {
-#ifdef MEMORY_BASED
-	ATRLIST *list;
-	int hi, lo, mid;
-
-	if (!db[thing].at_count || !db[thing].ahead)
-		return;
-
-	if (db[thing].at_count < 0) {
-	    fprintf(mainlog_fp,
-		    "ABORT! db.c, negative attr count in atr_clr().\n");
-	    abort();
-	}
-
-#ifndef STANDALONE
-	if (!mudstate.loading_db)
-	    s_Modified(thing);
-#endif
-
-	/* Binary search for the attribute. */
-	lo = 0;
-	hi = db[thing].at_count - 1;
-	list = db[thing].ahead;
-	while (lo <= hi) {
-		mid = ((hi - lo) >> 1) + lo;
-		if (list[mid].number == atr) {
-			XFREE(list[mid].data, "atr_clr");
-			db[thing].at_count -= 1;
-			if (mid != db[thing].at_count)
-				memmove((char *)(list + mid), (char *)(list + mid + 1),
-					(db[thing].at_count - mid) * sizeof(ATRLIST));
-			break;
-		} else if (list[mid].number > atr) {
-			hi = mid - 1;
-		} else {
-			lo = mid + 1;
-		}
-	}
-#else
 	Aname okey;
 
 	makekey(thing, atr, &okey);
 	DELETE(&okey);
 	al_delete(thing, atr);
-
-#endif /* MEMORY_BASED */
 
 	switch (atr) {
 	case A_STARTUP:
@@ -1711,81 +1648,6 @@ dbref thing;
 int atr;
 char *buff;
 {
-#ifdef MEMORY_BASED
-	ATRLIST *list;
-	char *text;
-	int found = 0;
-	int hi, lo, mid;
-
-	if (!buff || !*buff) {
-		atr_clr(thing, atr);
-		return;
-	}
-	if (strlen(buff) >= LBUF_SIZE) {
-		buff[LBUF_SIZE-1] = '\0';
-	}
-	if ((text = (char *)XMALLOC(strlen(buff) + 1, "atr_add_raw.1")) == NULL) {
-		return;
-	}
-	strcpy(text, buff);
-
-	if (!db[thing].ahead) {
-		if ((list = (ATRLIST *) XMALLOC(sizeof(ATRLIST), "atr_add_raw.2")) == NULL) {
-			XFREE(text, "atr_add_raw.1");
-			return;
-		}
-		db[thing].ahead = list;
-		db[thing].at_count = 1;
-		list[0].number = atr;
-		list[0].data = text;
-		list[0].size = strlen(text) + 1;
-		found = 1;
-	} else {
-
-		/* Binary search for the attribute */
-		lo = 0;
-		hi = db[thing].at_count - 1;
-
-		list = db[thing].ahead;
-		while (lo <= hi) {
-			mid = ((hi - lo) >> 1) + lo;
-			if (list[mid].number == atr) {
-				XFREE(list[mid].data, "atr_add_raw");
-				list[mid].data = text;
-				list[mid].size = strlen(text) + 1;
-				found = 1;
-				break;
-			} else if (list[mid].number > atr) {
-				hi = mid - 1;
-			} else {
-				lo = mid + 1;
-			}
-		}
-
-
-		if (!found) {
-			/* If we got here, we didn't find it, so lo = hi + 1, 
-			 * and the attribute should be inserted between them. 
-			 */
-
-			list = (ATRLIST *) XREALLOC(db[thing].ahead, (db[thing].at_count + 1) * sizeof(ATRLIST), "atr_add_raw.list");
-
-			if (!list)
-				return;
-
-			/* Move the stuff upwards one slot */
-			if (lo < db[thing].at_count)
-				memmove((char *)(list + lo + 1), (char *)(list + lo),
-					(db[thing].at_count - lo) * sizeof(ATRLIST));
-
-			list[lo].data = text;
-			list[lo].number = atr;
-			list[lo].size = strlen(text) + 1;
-			db[thing].at_count++;
-			db[thing].ahead = list;
-		}
-	}
-#else
 	Attr *a;
 	Aname okey;
 
@@ -1804,8 +1666,6 @@ char *buff;
 
 	STORE(&okey, a);
 	al_add(thing, atr);
-
-#endif /* MEMORY_BASED */
 
 #ifndef STANDALONE
 	if (!mudstate.loading_db)
@@ -1889,42 +1749,6 @@ int atr;
  * atr_get_raw, atr_get_str, atr_get: Get an attribute from the database.
  */
 
-#ifdef MEMORY_BASED
-char *atr_get_raw(thing, atr)
-dbref thing;
-int atr;
-{
-	int lo, mid, hi;
-	ATRLIST *list;
-	char *text;
-
-	if (!Good_dbref(thing))
-		return NULL;
-
-#ifndef STANDALONE
-	s_Accessed(thing);
-#endif
-
-	/* Binary search for the attribute */
-	lo = 0;
-	hi = db[thing].at_count - 1;
-	list = db[thing].ahead;
-	if (!list)
-		return NULL;
-
-	while (lo <= hi) {
-		mid = ((hi - lo) >> 1) + lo;
-		if (list[mid].number == atr) {
-			return list[mid].data;
-		} else if (list[mid].number > atr) {
-			hi = mid - 1;
-		} else {
-			lo = mid + 1;
-		}
-	}
-	return NULL;
-}
-#else
 char *atr_get_raw(thing, atr)
 dbref thing;
 int atr;
@@ -1959,7 +1783,6 @@ int atr;
 	FETCH(&okey, &a);
 	return a;
 }
-#endif /* MEMORY_BASED */
 
 char *atr_get_str(s, thing, atr, owner, flags, alen)
 char *s;
@@ -2088,18 +1911,12 @@ dbref thing;
 {
 	int attr;
 	char *as;
-
-#ifndef MEMORY_BASED
 	atr_push();
 	for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
 		atr_clr(thing, attr);
 	}
 	atr_pop();
 	al_destroy(thing);	/* Just to be on the safe side */
-#else
-	XFREE(db[thing].ahead, "atr_free");
-	db[thing].ahead = NULL;
-#endif /* MEMORY_BASED */
 }
 
 /* ---------------------------------------------------------------------------
@@ -2163,29 +1980,11 @@ dbref obj;
 int atr_next(attrp)
 char **attrp;
 {
-#ifdef MEMORY_BASED
-	ATRLIST *list;
-	ATRCOUNT *atr;
-
-	if (!attrp || !*attrp) {
-		return 0;
-	} else {
-		atr = (ATRCOUNT *) * attrp;
-		if (atr->count > db[atr->thing].at_count) {
-			XFREE(atr, "atr_next");
-			return 0;
-		}
-		atr->count++;
-		return db[atr->thing].ahead[atr->count - 2].number;
-	}
-
-#else
 	if (!*attrp || !**attrp) {
 		return 0;
 	} else {
 		return al_decode(attrp);
 	}
-#endif /* MEMORY_BASED */
 }
 
 /* ---------------------------------------------------------------------------
@@ -2194,7 +1993,6 @@ char **attrp;
 
 void NDECL(atr_push)
 {
-#ifndef MEMORY_BASED
 	ALIST *new_alist;
 
 	new_alist = (ALIST *) alloc_sbuf("atr_push");
@@ -2206,12 +2004,10 @@ void NDECL(atr_push)
 	mudstate.iter_alist.len = 0;
 	mudstate.iter_alist.next = new_alist;
 	return;
-#endif /* MEMORY_BASED */
 }
 
 void NDECL(atr_pop)
 {
-#ifndef MEMORY_BASED
 	ALIST *old_alist;
 	char *cp;
 
@@ -2232,7 +2028,6 @@ void NDECL(atr_pop)
 		mudstate.iter_alist.next = NULL;
 	}
 	return;
-#endif /* MEMORY_BASED */
 }
 
 /* ---------------------------------------------------------------------------
@@ -2243,18 +2038,6 @@ int atr_head(thing, attrp)
 dbref thing;
 char **attrp;
 {
-#ifdef MEMORY_BASED
-	ATRCOUNT *atr;
-
-	if (db[thing].at_count) {
-		atr = (ATRCOUNT *) XMALLOC(sizeof(ATRCOUNT), "atr_head");
-		atr->thing = thing;
-		atr->count = 2;
-		*attrp = (char *)atr;
-		return db[thing].ahead[0].number;
-	}
-	return 0;
-#else
 	char *astr;
 	int alen;
 
@@ -2279,7 +2062,6 @@ char **attrp;
 	memcpy(mudstate.iter_alist.data, astr, alen);
 	*attrp = mudstate.iter_alist.data;
 	return atr_next(attrp);
-#endif /* MEMORY_BASED */
 }
 
 
@@ -2306,10 +2088,6 @@ dbref first, last;
 		s_Next(thing, NOTHING);
 		s_Zone(thing, NOTHING);
 		s_Parent(thing, NOTHING);
-#ifdef MEMORY_BASED
-		db[thing].ahead = NULL;
-		db[thing].at_count = 0;
-#endif /* MEMORY_BASED */
 	}
 }
 
@@ -2345,9 +2123,7 @@ dbref newtop;
 
 	if (newtop <= mudstate.db_size) {
 		for (i = mudstate.db_top; i < newtop; i++) {
-#ifndef MEMORY_BASED
 			names[i] = NULL;
-#endif
 			purenames[i] = NULL;
 		}
 		initialize_objects(mudstate.db_top, newtop);
@@ -2369,7 +2145,6 @@ dbref newtop;
 
 	/* Grow the name tables */
 
-#ifndef MEMORY_BASED
 	newnames = (NAME *) XCALLOC(newsize + SIZE_HACK, sizeof(NAME),
 				    "db_grow.names");
 	if (!newnames) {
@@ -2402,7 +2177,6 @@ dbref newtop;
 	}
 	names = newnames + SIZE_HACK;
 	newnames = NULL;
-#endif
 
 	newpurenames = (NAME *) XCALLOC(newsize + SIZE_HACK,
 					sizeof(NAME),
@@ -2478,12 +2252,6 @@ dbref newtop;
 			s_Next(i, NOTHING);
 			s_Zone(i, NOTHING);
 			s_Parent(i, NOTHING);
-#ifdef MEMORY_BASED
-			db[i].ahead = NULL;
-			db[i].at_count = 0;
-#endif /*
-        * * MEMORY_BASED  
-        */
 		}
 	}
 	db = newdb + SIZE_HACK;
@@ -2494,9 +2262,7 @@ dbref newtop;
 	CALL_ALL_MODULES(db_grow, (newsize, newtop));
 
 	for (i = mudstate.db_top; i < newtop; i++) {
-#ifndef MEMORY_BASED
 		names[i] = NULL;
-#endif				
 		purenames[i] = NULL;
 	}
 	initialize_objects(mudstate.db_top, newtop);
@@ -2539,11 +2305,6 @@ void NDECL(db_make_minimal)
 
 	db_free();
 	db_grow(1);
-
-#ifdef MEMORY_BASED
-	db[0].ahead = NULL;
-	db[0].at_count = 0;
-#endif 
 
 	s_Name(0, "Limbo");
 	s_Flags(0, TYPE_ROOM);
@@ -2751,7 +2512,6 @@ BOOLEXP *b;
 	return (r);
 }
 
-#ifndef MEMORY_BASED
 int init_gdbm_db(gdbmfile)
 char *gdbmfile;
 {
@@ -2776,7 +2536,6 @@ char *gdbmfile;
 		db_free();
 	return (0);
 }
-#endif /* MEMORY_BASED */
 
 #ifndef STANDALONE
 /* check_zone - checks back through a zone tree for control */

@@ -6,7 +6,6 @@
 #ifndef	__DB_H
 #define	__DB_H
 
-#ifndef MEMORY_BASED
 #define STORE(key, attr)	cache_put((void *)key, sizeof(Aname), \
 					  (void *)attr, strlen(attr) + 1, \
 					  DBTYPE_ATTRIBUTE)
@@ -18,14 +17,6 @@
 #define SYNC			cache_sync()
 #define CLOSE			{ cache_sync(); dddb_close(); }
 #define OPTIMIZE                (void) dddb_optimize()
-#else
-#define STORE(key, attr)
-#define DELETE(key)
-#define FETCH(key)
-#define SYNC
-#define CLOSE
-#define OPTIMIZE
-#endif
 
 #define DBINFO_FETCH(key, data)	dddb_get((void *)key, strlen(key) + 1, \
 					(void **)data, NULL, \

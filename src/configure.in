@@ -88,6 +88,9 @@ AC_ARG_ENABLE(disk-based,
   [
     if test "x$enableval" = "xno"; then
       AC_DEFINE(MEMORY_BASED)
+      UDB_S="udb_ocache.c udb_ochunk.c udb_obj.c udb_misc.c"
+      UDB_O="udb_ocache.o udb_ochunk.o udb_obj.o udb_misc.o"
+      UDB_I="udb.h udb_defs.h"
       AC_MSG_RESULT(no)
     else
       UDB_S="udb_ocache.c udb_ochunk.c udb_obj.c udb_misc.c"

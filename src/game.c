@@ -53,9 +53,7 @@ extern void NDECL(tcache_init);
 extern void FDECL(helpindex_load, (dbref));
 extern void NDECL(helpindex_init);
 
-#ifndef MEMORY_BASED
 extern int NDECL(dddb_optimize);
-#endif
 
 #ifndef STANDALONE
 extern LOGFILETAB logfds_table[];
@@ -68,10 +66,6 @@ int conc_pid = 0;
 
 extern pid_t slave_pid;
 extern int slave_socket;
-
-#ifdef MEMORY_BASED
-extern int corrupt;
-#endif
 
 extern char qidx_chartab[256];
 extern CMDENT *prefix_cmds[256];
@@ -1184,9 +1178,7 @@ int key;
 			   mudconf.gdbm, mudstate.epoch);
 	}
 	ENDLOG
-#ifndef MEMORY_BASED
 	al_store();		/* Save cached modified attribute list */
-#endif /* MEMORY_BASED */
 	if (!key || (key & DUMP_TEXT))
 		pcache_sync();
 
@@ -1613,7 +1605,6 @@ char *argv[];
 	fcache_init();
 	helpindex_init();
 
-#ifndef MEMORY_BASED
 	if (mindb)
 		unlink(mudconf.gdbm);
 	if (init_gdbm_db(mudconf.gdbm) < 0) {
@@ -1623,11 +1614,6 @@ char *argv[];
 		ENDLOG
 		exit(2);
 	}
-#else
-	db_free();
-#endif /*
-        * MEMORY_BASED 
-        */
 
 	mudstate.record_players = 0;
 	
@@ -1746,7 +1732,6 @@ char *argv[];
 	    log_printf("Startup processing complete.");
 	ENDLOG
 
-#ifndef MEMORY_BASED
 	/* Clear all reference flags in the cache-- what happens when the game
 	 * loads is NOT representative of normal cache behavior :) Neither is
 	 * creating a new db, but in that case the objects exist only in the
@@ -1755,7 +1740,6 @@ char *argv[];
 
 	if (!mindb)
 		cache_reset();
-#endif /* MEMORY_BASED */
 
 	/* Start the DNS and identd lookup slave process */
 	
