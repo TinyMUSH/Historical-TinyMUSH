@@ -2,10 +2,6 @@ If you are converting your game from TinyMUSH 2.2, you will need to
 do the following:
 
 - Flatfile your database using the dbconvert utility from TinyMUSH 2.2.
-  You will need to convert from version 2.2.3 or higher; if you are not
-  currently at version 2.2.3 or higher, download TinyMUSH 2.2.5, and
-  convert to that using the instructions given in that package, before
-  proceeding.
 
 - Unflatfile your database using the dbconvert utility from TinyMUSH 3.0.
 
@@ -54,6 +50,21 @@ called it).
 	function_access trigger disabled
 	function_access wipe disabled
 
+-----------------------------------------------------------------------------
+
+Altered Behavior
+
+
+The following are important changes in behavior between 2.2 and 3.0:
+
+- objmem() behaves differently, taking into account the object structure
+  as well as attribute text. To get the equivalent behavior to 2.2's
+  objmem(<obj>), use objmem(<obj>/*)
+
+- hasattr() no longer checks for the presence of the attribute on the
+  object's parent chain. To get the equivalent of the 2.2 behavior,
+  use hasattrp() instead. Your existing database was automatically
+  converted to take this difference into account.
 
 -----------------------------------------------------------------------------
 

@@ -2,10 +2,6 @@ If you are converting your game from TinyMUX, you will need to do the
 following:
 
 - Flatfile your database using the dbconvert utility from TinyMUX.
-  You will need to convert from version 1.5 or higher; if you are not
-  currently at version 1.5 or higher, download TinyMUX 1.6, and
-  convert to that using the instructions given in that package, before
-  proceeding.
 
 - Unflatfile your database using the dbconvert utility from TinyMUSH 3.0.
 
@@ -26,6 +22,29 @@ Note that unless you explicitly need the legacy behavior of @addcommand'd
 commands (you want no Huh? message generated if an @addcommand is missed,
 and you match multiple @addcommands at once), you should probably set
 the last parameters to the opposite of their MUX-compatibility defaults.
+
+-----------------------------------------------------------------------------
+
+Altered Behavior
+
+
+The following are important changes in behavior between MUX and 3.0:
+
+- MUX used '%c' for ANSI color. 3.0 uses '%x' for ANSI color ('%c' is
+  the last-command substitution, as it is in PennMUSH and TinyMUSH 2.2.)
+
+- MUX ifelse() conditioned on a non-zero result. 3.0 ifelse() conditions
+  on a boolean-true result. To get the old behavior, use nonzero().
+
+- Objects are now checked for commands if they are set COMMANDS (instead
+  of not being checked for commands if they are set NO_COMMAND).
+
+- ZMOs are now controlled by their EnterLock, not their ControlLock.
+  Only objects that are set CONTROL_OK may be controlled according to
+  their zone's ControlLock.
+
+Your existing database was converted automatically to take these
+differences into account.
 
 -----------------------------------------------------------------------------
 
