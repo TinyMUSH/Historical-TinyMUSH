@@ -140,6 +140,7 @@ char *arg1, *arg2;
 	    s_Exits(exitloc, remove_first(Exits(exitloc), victim));
 	    s_Exits(destination, insert_first(Exits(destination), victim));
 	    s_Exits(victim, destination);
+	    s_Modified(victim);
 	    notify_quiet(player, "Teleported.");
 	    return;
 	}
