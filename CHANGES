@@ -13,6 +13,8 @@ TinyMUSH 3.1 beta 1 was released on May 8th, 2002.
 
 CHANGES TO THE BASE SERVER
 
+- The licensing scheme has been changed to the Artistic License.
+
 - A new script, Update, automatically downloads and applies official patches
   to TinyMUSH 3.
 
@@ -237,7 +239,8 @@ CHANGES TO FLAGS AND POWERS
 
 - If a wizard connects while DARK, they are reminded that they are
   currently set DARK. Also, wizards are notified when they are set
-  DARK due to idle-wizards-being-set-dark.
+  DARK due to idle-wizards-being-set-dark. A player must have the
+  Hide power or equivalent in order to auto-dark.
 
 - There is a new type of lock, the DarkLock, which controls whether or
   not a player sees an object as DARK. Based loosely on a patch by
@@ -299,6 +302,10 @@ CHANGES TO COMMANDS
 
 - @cpattr can copy multiple attributes at a time.
 
+- Exits can now @destroy themselves.
+
+- @doing (including @doing/header) now takes a /quiet switch.
+
 - A new command, @floaters, shows floating rooms. Floating rooms are no
   longer reported by @dbck, and thus the FLOATING flag has been eliminated
   (since it's no longer needed to suppress @dbck spam).
@@ -322,6 +329,9 @@ CHANGES TO COMMANDS
 - A @mail recipient now receives only a single copy of a @mail message,
   even if he appears multiple times in the list of players the message
   is to.
+
+- @mail now has real carbon-copy and blind-carbon-copy. Patch from
+  Simon Bland.
 
 - @pemit/list now obeys the same permission checks as @pemit, including
   obeying pemit_any as well as restricting use of the /contents switch.
@@ -517,6 +527,8 @@ CHANGES TO FUNCTIONS
 
 - pos() strips ANSI out of the string to search for, in addition to the
   string to search within.
+
+- rloc() now returns the destination of an exit.
 
 - New search classes -- ueval, uthing, uplayer, uroom, uexit -- have
   been added, allowing a u-function to be called for evaluation. This

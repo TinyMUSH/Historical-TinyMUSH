@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-10/xx/2002: Beta 8
+12/02/2002: Beta 8
 
 - Feature: speak() now takes a says-string parameter, and obeys the
   say_uses_comma conf parameer. Please note that the argument order has
@@ -65,7 +65,8 @@ Release history:
 - Fix: Running MEMORY_BASED works again. [3.1; Tyr]
 
 - Fix: Since our copy of gdbm includes an important change, we build it
-  as libtinygdbm.a to avoid linking netmush with an unmodified gdbm.
+  as libtinygdbm.a to avoid linking netmush with an unmodified gdbm, as
+  sometimes happened on Linux systems.
 
 - Fix: Permission to lock/unlock an attribute should depend on the
   victim's CONSTANT flag, not the executor's. [3.0b14]
@@ -75,7 +76,7 @@ Release history:
 - Fix: Numeric conf parameters such as sacrifice_factor that are used
   in division may not be set to zero.
 
-- Fix: rloc() now works on exits.
+- Fix: rloc() now works on exits as documented (returns destination).
 
 - Fix: Buffer overflow in SIGTERM handler. [3.0b8]
 
@@ -114,6 +115,9 @@ Release history:
 
 - Fix: Commands that begin with a single backslash are handled properly
   as @emits. [2.0; sTiLe]
+
+- Fix: Spurious CPU limit warnings from a weird clock() on Linux and BSD
+  have been eliminated. [3.1b1]
 
 - Misc: The global attribute flags no_clone (c) and constant (k) now sohw
   up in an examine.

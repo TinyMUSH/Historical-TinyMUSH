@@ -14584,7 +14584,8 @@ Continued in 'help 3.1 attrs3'.
  
 - If a wizard connects while DARK, they are reminded that they are
   currently set DARK. Also, wizards are notified when they are set
-  DARK due to idle-wizards-being-set-dark.
+  DARK due to idle-wizards-being-set-dark. A player must have the 
+  Hide power or equivalent in order to auto-dark.
  
 - There is a new type of lock, the DarkLock, which controls whether or
   not a player sees an object as DARK. Based loosely on a patch by
@@ -14656,6 +14657,10 @@ Continued in 'help 3.1 commands2'.
  
 - @cpattr can copy multiple attributes at a time.
  
+- Exits can now @destroy themselves.
+ 
+- @doing (including @doing/header) now takes a /quiet switch.
+  
 - A new command, @floaters, shows floating rooms. Floating rooms are no
   longer reported by @dbck, and thus the FLOATING flag has been eliminated
   (since it's no longer needed to suppress @dbck spam).
@@ -14683,6 +14688,8 @@ Continued in 'help 3.1 commands3'.
 - A @mail recipient now receives only a single copy of a @mail message,
   even if he appears multiple times in the list of players the message
   is to.
+
+- @mail now has real carbon-copy and blind-carbon-copy. Patch from Simon Bland.
  
 Continued in 'help 3.1 commands4'.
  
@@ -14895,6 +14902,8 @@ Continued in 'help 3.1 functions7'.
 - Added oemit(), which is the function equivalent of @oemit.
  
 - Added nattr(), which counts the number of attributes on an object.
+ 
+- rloc() now returns the destination of an exit.
  
 Continued in 'help 3.1 functions8'.
  
