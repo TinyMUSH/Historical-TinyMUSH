@@ -1477,10 +1477,9 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	connect_reg_file	crash_database		database_home
 	down_file		full_file		gdbm_database
 	guest_file		helpfile		html_connect_file
-	include			input_database		mail_database
-	module			motd_file		newuser_file
-	output_database		quit_file		raw_helpfile
-	register_create_file	wizard_motd_file
+	include			mail_database		module
+	motd_file		newuser_file		quit_file
+	raw_helpfile		register_create_file	wizard_motd_file
 
 & PARAM LIMITS
 	building_limit			command_invocation_limit
@@ -1869,7 +1868,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Config parameter: database_home <path>.  Default: .
   Specifies the directory in which database files will be stored. You do not
   need to follow this with a trailing slash (/).
-  See also: gdbm_database, input_database, output_database, crash_database.
+  See also: gdbm_database, crash_database.
  
 & default_home
   Config directive: default_home <location>.  Default (player_starting_home)
@@ -1906,7 +1905,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
 & dump_interval
   Config parameter: dump_interval <amount>.  Default: 3600
   Specifies the time in seconds between automatic database dumps.
-  See also: dump_offset, output_database.
+  See also: dump_offset, gdbm_database.
 
 & dump_message
   Config parameter: dump_message <message>.  Default: blank
@@ -2397,13 +2396,6 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   plus 100, or something like that). This is a minor bit of
   memory tuning. Don't worry about it too much.
  
-& input_database
-  Config parameter: input_database.  Default: tinymush.db
-  Specifies the name of the database file that is read in at startup.
-  This file is used only as an input file, the parameter output_database
-  controls where updated copies of the database are written.
-  See also: database_home, crash_database, gdbm_database, output_database.
-
 & kill_guarantee_cost
   Config parameter: kill_guarantee_cost <amount>.  Default: 100
   Specifies the amount of money you have to spend (ie. kill target = <amount>)
@@ -2695,14 +2687,6 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   might want to optimize only once every N dumps, where N is the
   value of this parameter.
  
-& output_database
-  Config parameter: output_database <pathname>.  Default: None
-  Specifies the file to which the database is to be written when writing
-  checkpoint dumps or writing the final dump after receiving a @shutdown
-  command.
-  See also: @dump, @shutdown, database_home, checkpoint_database,
-  input_database.
-
 & output_limit
   Config parameter: output_limit <amount>.  Default: 16384
   Indicates the maximum number of characters that a connected player may have

@@ -57,8 +57,6 @@ void NDECL(cf_init)
 	int i;
 
 	mudconf.dbhome = XSTRDUP(".", "cf_init");
-	mudconf.indb = XSTRDUP("tinymush.db", "cf_init");
-	mudconf.outdb = XSTRDUP("", "cf_init");
 	mudconf.crashdb = XSTRDUP("", "cf_init");
 	mudconf.gdbm = XSTRDUP("", "cf_init");
 	mudconf.status_file = XSTRDUP("shutdown.status", "cf_init");
@@ -1488,7 +1486,6 @@ CONF conftable[] = {
 {(char *)"include",			cf_include,	CA_STATIC,	CA_DISABLED,	NULL,				0},
 {(char *)"indent_desc",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.indent_desc,		(long)"Descriptions are indented"},
 {(char *)"initial_size",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.init_size,		0},
-{(char *)"input_database",		cf_string,	CA_STATIC, 	CA_GOD,		(int *)&mudconf.indb,		MBUF_SIZE},
 {(char *)"instance_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.instance_lim,		0},
 {(char *)"instant_recycle",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.instant_recycle,	(long)"@destroy instantly recycles objects set DESTROY_OK"},
 {(char *)"kill_guarantee_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.killguarantee,		0},
@@ -1523,7 +1520,6 @@ CONF conftable[] = {
 {(char *)"objeval_requires_control",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fascist_objeval,	(long)"Control of victim required by objeval()"},
 {(char *)"open_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.opencost,		0},
 {(char *)"opt_frequency",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.dbopt_interval,	0},
-{(char *)"output_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.outdb,		MBUF_SIZE},
 {(char *)"output_limit",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.output_limit,		0},
 {(char *)"page_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.pagecost,		0},
 {(char *)"page_requires_equals",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.page_req_equals,	(long)"page command always requires an equals sign"},
@@ -1731,7 +1727,8 @@ int cf_read(fn)
 char *fn;
 {
 	int retval;
-
+	char tmpfile[256], *c;
+	
 	XFREE(mudconf.config_file, "cf_read_cffile");
 	mudconf.config_file = XSTRDUP(fn, "cf_read_cffile");
 	mudstate.initializing = 1;
@@ -1740,27 +1737,21 @@ char *fn;
 
 	/* Fill in missing DB file names */
 
-	if (!*mudconf.outdb) {
-		XFREE(mudconf.outdb, "cf_read_outdb");
-		mudconf.outdb = XSTRDUP(tprintf("%s.out", mudconf.indb),
-					"cf_read_outdb");
-	}
+	strcpy(tmpfile, mudconf.gdbm);
+	if ((c = strchr(tmpfile, '.')) != NULL)
+		*c = '\0';
+		
 	if (!*mudconf.crashdb) {
 		XFREE(mudconf.crashdb, "cf_read_crashdb");
-		mudconf.crashdb = XSTRDUP(tprintf("%s.CRASH", mudconf.indb),
+		mudconf.crashdb = XSTRDUP(tprintf("%s.CRASH", tmpfile),
 					  "cf_read_crashdb");
-	}
-	if (!*mudconf.gdbm) {
-		XFREE(mudconf.gdbm, "cf_read_gdbmdb");
-		mudconf.gdbm = XSTRDUP(tprintf("%s.gdbm", mudconf.indb),
-				       "cf_read_gdbmdb");
 	}
 	return retval;
 }
 
 /*
  * ---------------------------------------------------------------------------
- * * list_cf_access, list_cf_read_access: List write or read access to
+ * list_cf_access, list_cf_read_access: List write or read access to
  * config directives.
  */
 

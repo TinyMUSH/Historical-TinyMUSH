@@ -1106,7 +1106,7 @@ char *message;
 void dump_database_internal(dump_type)
 int dump_type;
 {
-	char tmpfile[256], outfn[256], prevfile[256];
+	char tmpfile[256], prevfile[256], *c;
 	FILE *f = NULL;
 
 	switch(dump_type) {
@@ -1123,22 +1123,13 @@ int dump_type;
 		}
 		break;
 	case DUMP_DB_RESTART:
-#ifdef MEMORY_BASED
-		sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.indb);
-		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
-		if (f != NULL) {
-#endif
-			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
-#ifdef MEMORY_BASED
-			tf_fclose(f);
-		} else {
-			log_perror("DMP", "FAIL", "Opening restart flatfile",
-				   tmpfile);
-		}
-#endif
+		db_write(NULL, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
 		break;
 	case DUMP_DB_FLATFILE:
-		sprintf(tmpfile, "%s/%s.FLAT", mudconf.dbhome, mudconf.outdb);
+		strcpy(prevfile, mudconf.gdbm);
+		if ((c = strchr(prevfile, '.')) != NULL)
+			*c = '\0';
+		sprintf(tmpfile, "%s/%s.FLAT", mudconf.dbhome, prevfile);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
 			db_write(f, F_TINYMUSH,
@@ -1150,7 +1141,10 @@ int dump_type;
 		}
 		break;
 	case DUMP_DB_KILLED:	
-		sprintf(tmpfile, "%s/%s.KILLED", mudconf.dbhome, mudconf.indb);
+		strcpy(prevfile, mudconf.gdbm);
+		if ((c = strchr(prevfile, '.')) != NULL)
+			*c = '\0';
+		sprintf(tmpfile, "%s/%s.KILLED", mudconf.dbhome, prevfile);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
 			/* Write a flatfile */
@@ -1162,27 +1156,7 @@ int dump_type;
 		}
 		break;
 	default:	
-#ifdef MEMORY_BASED
-		sprintf(prevfile, "%s/%s.prev", mudconf.dbhome, mudconf.outdb);
-		sprintf(tmpfile, "%s/%s.#%d#", mudconf.dbhome, mudconf.outdb, mudstate.epoch - 1);
-		unlink(tmpfile);	/* nuke our predecessor */
-		sprintf(tmpfile, "%s/%s.#%d#", mudconf.dbhome, mudconf.outdb, mudstate.epoch);
-	
-		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
-		if (f) {
-#endif
-			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
-#ifdef MEMORY_BASED
-			tf_fclose(f);
-			sprintf(outfn, "%s/%s", mudconf.dbhome, mudconf.outdb);
-			rename(outfn, prevfile);
-			if (rename(tmpfile, outfn) < 0)
-				log_perror("SAV", "FAIL",
-				"Renaming output file to DB file", tmpfile);
-		} else {
-			log_perror("SAV", "FAIL", "Opening", tmpfile);
-		}
-#endif
+		db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
 	}
 	
 #ifndef STANDALONE
@@ -1196,14 +1170,14 @@ void NDECL(dump_database)
 	mudstate.dumping = 1;
 	STARTLOG(LOG_DBSAVES, "DMP", "DUMP")
 		log_printf("Dumping: %s.#%d#",
-			   mudconf.outdb, mudstate.epoch);
+			   mudconf.gdbm, mudstate.epoch);
 	ENDLOG
 	pcache_sync();
 	SYNC;
 	dump_database_internal(DUMP_DB_NORMAL);
 	STARTLOG(LOG_DBSAVES, "DMP", "DONE")
 		log_printf("Dump complete: %s.#%d#",
-			   mudconf.outdb, mudstate.epoch);
+			   mudconf.gdbm, mudstate.epoch);
 	ENDLOG
 	mudstate.dumping = 0;
 }
@@ -1226,7 +1200,7 @@ int key;
 	}
 	if (!key || (key & DUMP_STRUCT) || (key & DUMP_FLATFILE)) {
 		log_printf("Checkpointing: %s.#%d#",
-			   mudconf.outdb, mudstate.epoch);
+			   mudconf.gdbm, mudstate.epoch);
 	}
 	ENDLOG
 #ifndef MEMORY_BASED
@@ -1678,7 +1652,7 @@ char *argv[];
 		CALL_ALL_MODULES_NOCACHE("make_minimal", (void), ());
 	} else if (load_game() < 0) {
 		STARTLOG(LOG_ALWAYS, "INI", "LOAD")
-			log_printf("Couldn't load: %s", mudconf.indb);
+			log_printf("Couldn't load objects.");
 		ENDLOG
 		exit(2);
 	}

@@ -84,8 +84,6 @@ struct confdata {
 	int	dbopt_interval; /* Optimize db every N dumps */
 	char	*dbhome;	/* Database home directory */
 #ifndef STANDALONE
-	char	*indb;		/* database file name */
-	char	*outdb;			/* checkpoint the database to here */
 	char	*crashdb;		/* write database here on crash */
 	char	*gdbm;			/* use this gdbm file if we need one */
 	char	*status_file;		/* Where to write arg to @shutdown */
