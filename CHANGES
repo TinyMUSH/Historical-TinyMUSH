@@ -395,4 +395,8 @@ Patchlevel 3:
 
   - Added regexp attribute flag support to @addcommand. [MUX]
 
+  - Added checks during command matching to make sure an object has a
+    location before zone-checking the location, and avoid command
+    matching oddities due to checking the zone of a room's Dropto. [MUX]
+
 =============================================================================
