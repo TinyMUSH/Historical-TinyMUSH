@@ -1463,11 +1463,6 @@
 & @parent
   Command: @parent <object> [=<parent>]
  
-  This command takes two switches, /parent and /zone. The latter switch
-  only works on rooms. Rooms can take a secondary parent, which is used
-  for the sole purpose of providing a secondary chain of zone checks when
-  $-commands are checked.
- 
   The command sets the parent of <object> to <parent> (or clears the parent
   if <parent> is omitted.  You must control <object>, and must own <parent>,
   or <parent> must be set PARENT_OK.
