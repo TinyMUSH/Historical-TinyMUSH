@@ -1292,7 +1292,7 @@ FUNCTION(fun_parse)
 		return;
 	}
 	first = 1;
-	while (cp) {
+	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
 		if (!first)
 			safe_chr(osep, buff, bufc);
 		first = 0;
