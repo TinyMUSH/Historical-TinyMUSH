@@ -1190,10 +1190,11 @@ char *command, *args[];
 	 * of checks together.
 	 */
 
-	/* 2.2 style location */
+	if (Has_location(player) && Good_obj(Location(player))) {
+
+	    /* 2.2 style location */
 	
-	if (!succ && mudconf.local_masters) {
-	    if (Has_location(player)) {
+	    if (!succ && mudconf.local_masters) {
 		pcount = 0;
 		parent = Parent(Location(player));
 		while (!succ && !got_stop &&
@@ -1208,12 +1209,11 @@ char *command, *args[];
 		    pcount++;
 		}
 	    }
-	}
 	
-	/* MUX style location */
+	    /* MUX style location */
 
-	if ((!succ) && mudconf.have_zones &&
-	    (Zone(Location(player)) != NOTHING)) {
+	    if ((!succ) && mudconf.have_zones &&
+		(Zone(Location(player)) != NOTHING)) {
 		if (Typeof(Zone(Location(player))) == TYPE_ROOM) {
 
 		    /* zone of player's location is a parent room */
@@ -1225,7 +1225,7 @@ char *command, *args[];
 			if (exit != NOTHING) {
 			    if (mudconf.exit_calls_move) {
 				cmdp = (CMDENT *) hashfind("goto",
-						   &mudstate.command_htab);
+						&mudstate.command_htab);
 				if (cmdp) {
 				    gbuf = alloc_lbuf("process_command.goto");
 				    gc = gbuf;
@@ -1261,14 +1261,15 @@ char *command, *args[];
 			succ += atr_match(Zone(Location(player)), player,
 					  AMATCH_CMD, lcbuf, preserve_cmd, 1);
 		    }
-	}		/* end of matching on zone of player's location */
-	
+	    }		/* end of matching on zone of player's location */
+	}
+
 	/* 2.2 style player */
-	
+
 	if (!succ && mudconf.local_masters) {
 	    parent = Parent(player);
-	    if ((parent != Location(player)) &&
-		(!Good_obj(Location(player)) ||
+	    if (!Has_location(player) || !Good_obj(Location(player)) ||
+		((parent != Location(player)) &&
 		 (parent != Parent(Location(player))))) {
 		pcount = 0;
 		while (!succ && !got_stop &&
@@ -1292,10 +1293,12 @@ char *command, *args[];
 	 */
 	if (!got_stop && !succ && mudconf.have_zones &&
 	    (Zone(player) != NOTHING) &&
-	    (Zone(Location(player)) != Zone(player))) {
+	    (!Has_location(player) || !Good_obj(Location(player)) ||
+	     (Zone(Location(player)) != Zone(player)))) {
 		succ += atr_match(Zone(player), player, AMATCH_CMD, lcbuf, 
 			preserve_cmd, 1);
 	}
+
 	/* If we didn't find anything, try in the master room */
 
 	if (!got_stop && !succ) {
