@@ -114,6 +114,7 @@ struct confdata {
 	int	log_diversion;	/* What logs get diverted? */
 	Uchar	markdata[8];	/* Masks for marking/unmarking */
 	int	ntfy_nest_lim;	/* Max nesting of notifys */
+	int	fwdlist_lim;	/* Max objects in @forwardlist */
 	int	dbopt_interval; /* Optimize db every N dumps */
 	char	*dbhome;	/* Database home directory */
 	char	*config_file;	/* name of config file, used by @restart */

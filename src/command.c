@@ -2152,10 +2152,15 @@ static void list_params(player)
 
     raw_notify(player, "Limits:");
     raw_notify(player,
-      tprintf("  Output...%d  Queue...%d  Recursion...%d  Invocation...%d  CPU...%d",
+      tprintf("  Function recursion...%d  Function invocation...%d",
+	      mudconf.func_nest_lim, mudconf.func_invk_lim));
+    raw_notify(player,
+      tprintf("  Command recursion...%d  Command invocation...%d",
+	      mudconf.cmd_nest_lim, mudconf.cmd_invk_lim));
+    raw_notify(player,
+      tprintf("  Output...%d  Queue...%d  CPU...%d  Forwardlist...%d",
 	      mudconf.output_limit, mudconf.queuemax,
-	      mudconf.func_nest_lim, mudconf.func_invk_lim,
-	      mudconf.func_cpu_lim_secs));
+	      mudconf.func_cpu_lim_secs, mudconf.fwdlist_lim));
     raw_notify(player,
       tprintf("  Aliases...%d  Stacks...%d  Variables...%d  Structures...%d  Instances...%d",
 	      mudconf.max_player_aliases, mudconf.stack_lim,

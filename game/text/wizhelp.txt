@@ -1484,16 +1484,17 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 & PARAM LIMITS
 	building_limit			command_invocation_limit
 	command_recursion_limit		conn_timeout
-	earn_limit			function_cpu_limit
-	function_invocation_limit	function_recursion_limit
-	idle_timeout			instance_limit			
-	lag_maximum			lock_recursion_limit		
-	max_players			notify_recursion_limit
-	number_guests			output_limit
-	player_aliases_limit		player_queue_limit
-	retry_limit			stack_limit			
-	structure_limit			trace_output_limit		
-	variables_limit			zone_recursion_limit
+	earn_limit			forwardlist_limit
+	function_cpu_limit		function_invocation_limit
+	function_recursion_limit	idle_timeout
+	instance_limit			lag_maximum
+	lock_recursion_limit		max_players
+	notify_recursion_limit		number_guests
+	output_limit			player_aliases_limit
+	player_queue_limit		retry_limit
+	stack_limit			structure_limit
+	trace_output_limit		variables_limit
+	zone_recursion_limit
 
 & PARAM MESSAGES
 	down_motd_message	dump_message		fixed_home_message
@@ -2102,6 +2103,14 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   checked if the fork_dump parameter is set to yes.
   See also: fork_dump.
 
+& forwardlist_limit
+  Config directive: forwardlist_limit <num>.  Default: 100
+ 
+  This directive sets the maximum number of objects that may be listed in
+  one @forwardlist attribute.
+ 
+  See also: notify_recursion_limit, PARAM LIMITS.
+
 & full_file
   Config parameter: down_file <pathname>.  Default: text/full.txt
  
@@ -2660,6 +2669,8 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Sets the maximum number of times that the notify() routine may be called
   recursively.  A recursive call is made whenever a message heard by an
   object is to be forwarded to its contents.
+ 
+  See also: forwardlist_limit, PARAM LIMITS.
 
 & number_guests
   Config parameter: number_guests <number>. Default: 30

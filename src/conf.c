@@ -287,6 +287,7 @@ void NDECL(cf_init)
 	mudconf.func_cpu_lim_secs = 60;
 	mudconf.func_cpu_lim = 60 * CLOCKS_PER_SEC;
 	mudconf.ntfy_nest_lim = 20;
+	mudconf.fwdlist_lim = 100;
 	mudconf.lock_nest_lim = 20;
 	mudconf.parent_nest_lim = 10;
 	mudconf.zone_nest_lim = 20;
@@ -407,6 +408,7 @@ void NDECL(cf_init)
 	mudconf.markdata[6] = 0x40;
 	mudconf.markdata[7] = 0x80;
 	mudconf.ntfy_nest_lim = 20;
+	mudconf.fwdlist_lim = 100;
 
 	mudstate.logging = 0;
 	mudstate.attr_next = A_USER_START;
@@ -1662,6 +1664,7 @@ CONF conftable[] = {
 {(char *)"forbid_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list,	H_FORBIDDEN},
 {(char *)"fork_dump",			cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.fork_dump,		(long)"Dumps are performed using a forked process"},
 {(char *)"fork_vfork",			cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.fork_vfork,		(long)"Forks are done using vfork()"},
+{(char *)"forwardlist_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.fwdlist_lim,		0},
 {(char *)"full_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.full_file,	MBUF_SIZE},
 {(char *)"full_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.fullmotd_msg,	GBUF_SIZE},
 {(char *)"function_access",		cf_func_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},

@@ -523,11 +523,18 @@ char *atext;
 			       target));
 #endif
 		errors++;
-	    } else {
+	    } else if (count < mudconf.fwdlist_lim) {
 		if (fp->data)
 		    fp->data[count++] = target;
 		else 
 		    tmp_array[count++] = target;
+	    } else {
+#ifndef STANDALONE
+		notify(player,
+		       tprintf("Cannot forward to #%d: Forwardlist limit exceeded.",
+			       target));
+#endif
+		errors++;
 	    }
 	}
     } while (*bp);

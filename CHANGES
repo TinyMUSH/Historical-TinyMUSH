@@ -97,6 +97,9 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   of formats for those attributes, without requiring a global
   parenting scheme or an unusual attribute naming scheme.
 
+- The new conf parameter forwardlist_limit allows you to set a limit
+  for the number of objects that can be listed in a single @forwardlist.
+
 - The new conf parameter function_cpu_limit allows you to set a limit
   for the number of seconds of CPU time that can be taken up by
   function evaluations associated with a command.
