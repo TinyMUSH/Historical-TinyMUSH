@@ -17,7 +17,6 @@
 
 #include "command.h"	/* required by code */
 #include "attrs.h"	/* required by code */
-#include "udb_defs.h"	/* required by code */
 #include "match.h"	/* required by code */
 
 /* Some systems are lame, and inet_addr() claims to return -1 on failure,

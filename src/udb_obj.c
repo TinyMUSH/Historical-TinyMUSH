@@ -21,7 +21,6 @@
 #include "externs.h"	/* required by code */
 
 #include "udb.h"	/* required by code */
-#include "udb_defs.h"	/* required by code */
 
 #ifndef STANDALONE
 extern void	FDECL(dump_database_internal, (int));

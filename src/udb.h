@@ -62,20 +62,15 @@ typedef struct Obj {
 	int size;
 } Obj;
 
-#define	ONULL	((Obj *)0)
-#define ANULL	((Attr *)0)
-#define ATNULL	((Attrib *)0)
-#define NNULL	((Aname *)0)
-#define CNULL	((Cache *)0)
-
-extern Attr *cache_get();
-extern int cache_put();
-extern int cache_check();
-extern int cache_init();
-extern void cache_reset();
-extern int cache_sync();
-extern void cache_del();
-
+extern Attr *	FDECL(cache_get, (Aname *));
+extern int 	FDECL(cache_put, (Aname *, Attr *));
+extern int 	FDECL(cache_init, (int, int));
+extern void 	FDECL(cache_reset, (int));
+extern int 	FDECL(cache_sync, ());
+extern void 	FDECL(cache_del, (Aname *));
+extern Attr * 	FDECL(dddb_get, (Aname *));
+extern int	FDECL(dddb_del, (Aname *));   
+extern int	FDECL(dddb_put, (Attr *, Aname *));
 extern Attr *	FDECL(attrfromFILE, (char *));
 extern int	FDECL(attrtoFILE, (Attr *, char *));
 

@@ -23,16 +23,12 @@
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
 #include "bdb.h"	/* required by code */
-#include "udb_defs.h"
 
 /* Need the database environment pointer to do checkpoints */
 
 extern DB_ENV *dbenvp;
 
-extern Attr * FDECL(dddb_get, (Aname *));
 extern void VDECL(logf, (char *, ...));
-extern int FDECL(dddb_del, (Aname *));
-extern int FDECL(dddb_put, (Attr *, Aname *));
 extern void VDECL(fatal, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
 
@@ -120,6 +116,8 @@ typedef struct {
 				cp->lastreferenced = time(NULL); \
 			}
 #endif /* STANDALONE */
+			/* Set last referenced time to zero */
+#define CLRREFTIME(cp)	cp->lastreferenced = 0;
 
 static Cache *get_free_entry();
 static int cache_write();
@@ -233,7 +231,7 @@ int clear;
 		sp = &sys_c[x];
 	
 		/* traverse active chain first */
-		for (cp = sp->active.head; cp != CNULL; cp = nxt) {
+		for (cp = sp->active.head; cp != NULL; cp = nxt) {
 			nxt = cp->nxt;
 			
 			if (clear) {
@@ -246,7 +244,7 @@ int clear;
 		}
 		
 		/* then the modified active chain */
-		for (cp = sp->mactive.head; cp != CNULL; cp = nxt) {
+		for (cp = sp->mactive.head; cp != NULL; cp = nxt) {
 			nxt = cp->nxt;
 			
 			if (clear) {
@@ -373,7 +371,12 @@ Aname *nam;
 	printf("get %d/%d\n", nam->object, nam->attrnum);
 #endif
 
-	cs_reads++;
+	/* If we're dumping, ignore stats */
+
+#ifndef STANDALONE
+	if (!mudstate.dumping)
+		cs_reads++;
+#endif
 
 	hv = (nam->object + nam->attrnum) % cwidth;
 	sp = &sys_c[hv];
@@ -381,11 +384,14 @@ Aname *nam;
 	/*
 	 * search active chain first 
 	 */
-	for (cp = sp->active.head; cp != CNULL; cp = cp->nxt) {
+	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
-			cs_rhits++;
-			cs_ahits++;
-
+#ifndef STANDALONE
+			if (!mudstate.dumping) {
+				cs_rhits++;
+				cs_ahits++;
+			}
+#endif
 			DEQUEUE(sp->active, cp);
 			INSHEAD(sp->active, cp);
 
@@ -398,11 +404,14 @@ Aname *nam;
 	/*
 	 * search modified active chain next. 
 	 */
-	for (cp = sp->mactive.head; cp != CNULL; cp = cp->nxt) {
+	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
-			cs_rhits++;
-			cs_ahits++;
-
+#ifndef STANDALONE
+			if (!mudstate.dumping) {
+				cs_rhits++;
+				cs_ahits++;
+			}
+#endif
 			DEQUEUE(sp->mactive, cp);
 			INSHEAD(sp->mactive, cp);
 
@@ -416,26 +425,48 @@ Aname *nam;
 	 */
 
 	if ((ret = DB_GET(nam)) == NULL) {
-		cs_dbreads++;
+#ifndef STANDALONE
+		if (!mudstate.dumping)
+			cs_dbreads++;
+#endif
 		return (NULL);
-	} else {
-		cs_dbreads++;
+	} 
+#ifndef STANDALONE	
+	else {
+		if (!mudstate.dumping)
+			cs_dbreads++;
 	}
+#endif
 
 	if ((cp = get_free_entry(strlen((char *)ret))) == NULL)
 		return (NULL);
 
 	cp->onm = *nam;
 	cp->op = ret;
+
+	/* If we're dumping, we'll put everything we fetch that is not
+	   already in cache at the end of the chain and set its last
+	   referenced time to zero. This will ensure that we won't blow away
+	   what's already in cache, since get_free_entry will just reuse
+	   these entries. */
+	
 	cp->size = strlen((char *)ret);
 	cs_size += cp->size;
 
-	/*
-	 * relink at head of active chain 
-	 */
-	INSHEAD(sp->active, cp);
-
-	REFTIME(cp);
+#ifndef STANDALONE
+	if (mudstate.dumping) {
+		/* Link at tail of active chain */
+		INSTAIL(sp->active, cp);
+		CLRREFTIME(cp);
+	} else {
+#endif
+		/* Link at head of active chain */
+		INSHEAD(sp->active, cp);
+		REFTIME(cp);
+#ifndef STANDALONE
+	}
+#endif
+	
 	return (ret);
 }
 
@@ -489,7 +520,7 @@ Attr *obj;
 	/*
 	 * step one, search active chain, and if we find the obj, dirty it 
 	 */
-	for (cp = sp->active.head; cp != CNULL; cp = cp->nxt) {
+	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 			if(cp->op != obj) {
 				cache_repl(cp, obj);
@@ -507,7 +538,7 @@ Attr *obj;
 	 * step two, search modified active chain, and if we find the obj,
 	 * we're done 
 	 */
-	for (cp = sp->mactive.head; cp != CNULL; cp = cp->nxt) {
+	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 			if (cp->op != obj) {
 				cache_repl(cp, obj);
@@ -524,7 +555,7 @@ Attr *obj;
 
 	/* Add a new attribute to the cache */
 
-	if ((cp = get_free_entry(strlen((char *)obj))) == CNULL)
+	if ((cp = get_free_entry(strlen((char *)obj))) == NULL)
 		return (1);
 
 	cp->op = obj;
@@ -559,14 +590,18 @@ int atrsize;
 			p = sp->active.tail;
 		
 			/* Score is the age of an attribute in seconds.
-			   We use size as a secondary metric--
-			   if the scores are the same, we should try to
-			   toss the bigger attribute. Only consider the
-			   head of each chain since we re-insert each
-			   cache entry at the head when its accessed */
+			   We use size as a secondary metric-- if the scores
+			   are the same, we should try to toss the bigger
+			   attribute. Only consider the head of each chain
+			   since we re-insert each cache entry at the head
+			   when its accessed */
 
 			if (p) {
-				if (!p->size) {
+				/* Automatically toss this bucket if it is
+				   empty or lastreferenced is zero (which
+				   means we don't want to keep it) */
+				   
+				if (!p->size || !p->lastreferenced) {
 					cp = p;
 					chp = &(sp->active);
 					modified = 0;
@@ -595,14 +630,19 @@ int atrsize;
 			p = sp->mactive.tail;
 			
 			if (p) {
-				if (!p->size) {
+				/* Automatically toss this bucket if it is
+				   empty or lastreferenced is zero (which
+				   means we don't want to keep it) */
+
+				if (!p->size || !p->lastreferenced) {
 					cp = p;
 					chp = &(sp->mactive);
 					modified = 1;
 					goto replace;
 				} else {
-					/* We don't want to prematurely toss modified pages, so
-					 * give them an advantage */
+					/* We don't want to prematurely toss
+					 * modified pages, so give them an
+					 * advantage */
 	
 #ifndef STANDALONE 
 					score = (mudstate.now - p->lastreferenced) * .8;
@@ -612,7 +652,9 @@ int atrsize;
 					size = p->size;
 				}
 						
-				/* If we haven't found one by now, the tail of the modified chain is it */
+				/* If we haven't found one by now, the tail
+				/* of the modified chain is it */
+
 				if ((score > curscore) || ((score == curscore) && 
 				    (size > cursize)) ||
 				    ((p == sp->mactive.tail) && !cp)) {
@@ -647,7 +689,7 @@ replace:
 		   attribute's memory */
 		
 		if (cp) {
-			cache_repl(cp, ONULL);
+			cache_repl(cp, NULL);
 			DEQUEUE((*chp), cp);
 			XFREE(cp, "get_free_entry");
 		}
@@ -656,7 +698,7 @@ replace:
 
 	/* Just allocate a new one */
 
-	if ((cp = (Cache *) XMALLOC(sizeof(Cache), "get_free_entry")) == CNULL)
+	if ((cp = (Cache *) XMALLOC(sizeof(Cache), "get_free_entry")) == NULL)
 		fatal("cache get_free_entry: malloc failed", (char *)-1, (char *)0);
 
 	cp->op = NULL;
@@ -675,7 +717,7 @@ replace:
 static int cache_write(cp)
 Cache *cp;
 {
-	while (cp != CNULL) {
+	while (cp != NULL) {
 #ifdef	CACHE_DEBUG
 		printf("sync %d -- %d\n", cp->op->name, cp->op);
 #endif
@@ -703,8 +745,8 @@ CacheLst *sp;
 	/*
 	 * move modified active chain to the active chain
 	 */
-	if (sp->mactive.head != CNULL) {
-		if (sp->active.head == CNULL) {
+	if (sp->mactive.head != NULL) {
+		if (sp->active.head == NULL) {
 			sp->active.head = sp->mactive.head;
 			sp->active.tail = sp->mactive.tail;
 		} else {
@@ -712,7 +754,7 @@ CacheLst *sp;
 			sp->mactive.head->prv = sp->active.tail;
 			sp->active.tail = sp->mactive.tail;
 		}
-		sp->mactive.head = sp->mactive.tail = CNULL;
+		sp->mactive.head = sp->mactive.tail = NULL;
 	}
 }
 
@@ -772,7 +814,7 @@ Aname *nam;
 	/*
 	 * mark dead in cache 
 	 */
-	for (cp = sp->active.head; cp != CNULL; cp = cp->nxt) {
+	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 			DEQUEUE(sp->active, cp);
 			INSTAIL(sp->mactive, cp);
@@ -781,7 +823,7 @@ Aname *nam;
 			return;
 		}
 	}
-	for (cp = sp->mactive.head; cp != CNULL; cp = cp->nxt) {
+	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 			DEQUEUE(sp->mactive, cp);
 			INSTAIL(sp->mactive, cp);

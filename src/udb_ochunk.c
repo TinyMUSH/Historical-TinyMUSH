@@ -18,7 +18,6 @@
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
 
-#include "udb_defs.h"	/* required by code */
 #include "bdb.h"	/* required by code */
 #include "udb.h"	/* required by code */
 
