@@ -39,9 +39,13 @@ Release history:
   These hooks are called when data is added, changed, or deleted from the
   MUSH cache.
 
-- Fix: Crash bug with entrances() fixed. [Neva; 3.1b1]
+- Fix: Crash bug with entrances() fixed. [3.1b1; Neva]
+
+- Fix: @nameformat, @conformat, and @exitformat now respect the FREE
+  flag. [3.1b1; Neva]
 
 - Fix: Update should now work on systems with broken local domain resolution.
+  [3.1a7; Christy Schulte]
 
 - Fix: Clearing an attribute updates an object's Last Modified timestamp.
   [3.1a6]
@@ -49,7 +53,7 @@ Release history:
 - Fix: clock() checking for function CPU time should now work on NetBSD.
   [3.1a6]
 
-- Fix: Corrected typo in flag_alias for COMMANDS. [2.2]
+- Fix: Corrected typo in flag_alias for COMMANDS. [2.2; Felan]
 
 - Misc: More comma-in-shout stuff.
 
