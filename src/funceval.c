@@ -3999,6 +3999,7 @@ FUNCTION(fun_xvars)
     if (!fargs[1] || !*fargs[1]) {
 	/* Empty list, clear out the data. */
 	clear_xvars(player, xvar_names, n_xvars);
+	free_lbuf(varlist);
 	return;
     }
 
