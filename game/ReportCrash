@@ -54,7 +54,11 @@ total_frames=`expr $num_frames + 1`
 echo
 echo "Generating debugger script..."
 
-echo 'echo ~########## Stack trace~' > gdb_script.$$
+echo 'echo ~########## Configuration~' > gdb_script.$$
+echo "p mudconf" >> gdb_script.$$
+echo 'echo ~########## Current state~' >> gdb_script.$$
+echo "p mudstate" >> gdb_script.$$
+echo 'echo ~########## Stack trace~' >> gdb_script.$$
 echo "where" >> gdb_script.$$
 echo 'echo ~########## Current frame~' >> gdb_script.$$
 echo "info frame" >> gdb_script.$$
@@ -89,7 +93,9 @@ mv -f gdb_mod.$$ gdb_script.$$
 echo
 echo "Dumping the contents of $total_frames stack frames..."
 
-$gdb_path --nx --command=gdb_script.$$ $BIN/netmush $core > gdb_output.$$
+uname -a > gdb_output.$$
+echo >> gdb_output.$$
+$gdb_path --nx --command=gdb_script.$$ $BIN/netmush $core >> gdb_output.$$
 
 rm -f gdb_script.$$
 
