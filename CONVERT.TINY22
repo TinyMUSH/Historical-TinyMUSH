@@ -79,6 +79,7 @@ called it).
 
 - I don't want side-effect functions.
   Put the following in your conf file:
+	function_access command disabled
 	function_access create disabled
 	function_access force disabled
 	function_access link disabled
