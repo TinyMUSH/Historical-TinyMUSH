@@ -40,6 +40,8 @@
 #define USE_COMSYS
 #define FLOATING_POINTS
 /* #define TCL_INTERP_SUPPORT */
+#define StringCopy strcpy
+#define StringCopyTrunc strncpy
 
 /* ---------------------------------------------------------------------------
  * Database R/W flags.

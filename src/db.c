@@ -1,9 +1,5 @@
-/*
- * db.c 
- */
-/*
- * $Id$ 
- */
+/* db.c */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"

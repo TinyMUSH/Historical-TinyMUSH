@@ -21,7 +21,6 @@
 #include "command.h"
 #include "alloc.h"
 #include "ansi.h"
-#include "dspace.h"
 
 extern void FDECL(ufun, (char *, char *, int, int, int, dbref, dbref));
 

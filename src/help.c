@@ -1,9 +1,5 @@
-/*
- * help.c -- commands for giving help 
- */
-/*
- * $Id$ 
- */
+/* help.c -- commands for giving help */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -19,20 +15,13 @@
 #include "htab.h"
 #include "alloc.h"
 
-/*
- * Pointers to this struct is what gets stored in the help_htab's 
- */
+/* Pointers to this struct is what gets stored in the help_htab's */
 struct help_entry {
-	int pos;		/*
-				 * Position, copied from help_indx 
+	int pos;		/* Position, copied from help_indx */
+	char original;		/* 1 for the longest name for a topic. 0 for
+				 * abbreviations 
 				 */
-	char original;		/*
-				 * 1 for the longest name for a topic. 0 for
-				 * * * * abbreviations 
-				 */
-	char *key;		/*
-				 * The key this is stored under. 
-				 */
+	char *key;		/* The key this is stored under. */
 };
 
 int helpindex_read(htab, filename)
@@ -45,9 +34,7 @@ char *filename;
 	FILE *fp;
 	struct help_entry *htab_entry;
 
-/*
- * Let's clean out our hash table, before we throw it away. 
- */
+	/* Let's clean out our hash table, before we throw it away. */
 	for (htab_entry = (struct help_entry *)hash_firstentry(htab);
 	     htab_entry;
 	     htab_entry = (struct help_entry *)hash_nextentry(htab)) {
@@ -56,6 +43,7 @@ char *filename;
 	}
 
 	hashflush(htab, 0);
+
 	if ((fp = tf_fopen(filename, O_RDONLY)) == NULL) {
 		STARTLOG(LOG_PROBLEMS, "HLP", "RINDX")
 			p = alloc_lbuf("helpindex_read.LOG");
@@ -68,20 +56,17 @@ char *filename;
 	count = 0;
 	while ((fread((char *)&entry, sizeof(help_indx), 1, fp)) == 1) {
 
-		/*
-		 * Lowercase the entry and add all leftmost substrings. * * * 
-		 * 
-		 * * Substrings already added will be rejected by hashadd. 
+		/* Lowercase the entry and add all leftmost substrings.
+		 * Substrings already added will be rejected by hashadd. 
 		 */
 		for (p = entry.topic; *p; p++)
 			*p = ToLower(*p);
 
-		htab_entry = (struct help_entry *)malloc(sizeof(struct help_entry));
+		htab_entry = (struct help_entry *)XMALLOC(sizeof(struct help_entry),
+							  "helpindex_read.1");
 
 		htab_entry->pos = entry.pos;
-		htab_entry->original = 1;	/*
-						 * First is the longest 
-						 */
+foobar		htab_entry->original = 1;	/* First is the longest */
 		htab_entry->key = (char *)malloc(strlen(entry.topic) + 1);
 		StringCopy(htab_entry->key, entry.topic);
 		while (p > entry.topic) {

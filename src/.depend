@@ -1,9 +1,9 @@
 create.o: create.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h command.h attrs.h powers.h
 game.o: game.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h file_c.h interface.h externs.h regexp.h match.h powers.h attrs.h slave.h malloc.h /usr/local/lib/gcc-lib/sparc-sun-sunos4.1.4/2.7.2/include/stddef.h
 help.o: help.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h help.h
-look.o: look.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h powers.h attrs.h command.h ansi.h dspace.h
+look.o: look.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h powers.h attrs.h command.h ansi.h
 match.o: match.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h match.h attrs.h powers.h
-move.o: move.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h attrs.h powers.h dspace.h
+move.o: move.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h attrs.h powers.h
 player.o: player.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h attrs.h powers.h
 predicates.o: predicates.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h command.h attrs.h powers.h ansi.h patchlevel.h
 rob.o: rob.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h attrs.h powers.h
@@ -38,7 +38,6 @@ comsys.o: comsys.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h
 mail.o: mail.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h interface.h externs.h regexp.h attrs.h
 mguests.o: mguests.c autoconf.h copyright.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h mguests.h interface.h attrs.h powers.h
 powers.o: powers.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h command.h powers.h
-dspace.o: dspace.c
 newconc.o: newconc.c
 funceval.o: funceval.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h powers.h attrs.h externs.h regexp.h match.h command.h functions.h misc.h ansi.h comsys.h
 regexp.o: regexp.c regexp.h

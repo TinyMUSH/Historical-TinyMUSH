@@ -1,9 +1,5 @@
-/*
- * funceval.c - MUX function handlers 
- */
-/*
- * $Id$ 
- */
+/* funceval.c - MUX function handlers */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -1024,7 +1020,7 @@ FUNCTION(fun_ifelse)
 		&str, cargs, ncargs);
 	*bp = '\0';
 	
-	if (!*mbuff || !mbuff || ((atoi(mbuff) == 0) & is_number(mbuff))) {
+	if (!*mbuff || !mbuff || ((atoi(mbuff) == 0) && is_number(mbuff))) {
 		str = fargs[2];
 		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 			&str, cargs, ncargs);
@@ -3127,3 +3123,97 @@ FUNCTION(fun_lastcreate)
     safe_ltos(buff, bufc, obj_list[obj_type]);
 }
 
+/*---------------------------------------------------------------------------
+ * Pueblo HTML-related functions.
+ */
+
+#ifdef PUEBLO_SUPPORT
+
+FUNCTION(fun_html_escape)
+{
+    html_escape(fargs[0], buff, bufc);
+}
+
+FUNCTION(fun_html_unescape)
+{
+    const char *msg_orig;
+    int ret = 0;
+
+    for (msg_orig = fargs[0]; msg_orig && *msg_orig && !ret; msg_orig++) {
+	switch (*msg_orig) {
+	  case '&':
+	    if (!strncmp(msg_orig, "&quot;", 6)) {
+		ret = safe_chr_fn('\"', buff, bufc);
+		msg_orig += 5;
+	    } else if (!strncmp(msg_orig, "&lt;", 4)) {
+		ret = safe_chr_fn('<', buff, bufc);
+		msg_orig += 3;
+	    } else if (!strncmp(msg_orig, "&gt;", 4)) {
+		ret = safe_chr_fn('>', buff, bufc);
+		msg_orig += 3;
+	    } else if (!strncmp(msg_orig, "&amp;", 5)) {
+		ret = safe_chr_fn('&', buff, bufc);
+		msg_orig += 4;
+	    }
+	    break;
+	  default:
+	    ret = safe_chr_fn(*msg_orig, buff, bufc);
+	    break;
+	}
+    }
+}
+
+FUNCTION(fun_url_escape)
+{
+    /* These are the characters which are converted to %<hex> */
+    char *escaped_chars = "<>#%{}|\\^~[]';/?:@=&\"+";
+    const char *msg_orig;
+    int ret = 0;
+    char tbuf[10];
+
+    for (msg_orig = fargs[0]; msg_orig && *msg_orig && !ret; msg_orig++) {
+	if (index(escaped_chars, *msg_orig)) {
+	    sprintf(tbuf, "%%%2x", *msg_orig);
+	    ret = safe_str(tbuf, buff, bufc);
+	} else if (*msg_orig == ' ') {
+	    ret = safe_chr_fn('+', buff, bufc);
+	} else{
+	    ret = safe_chr_fn(*msg_orig, buff, bufc);
+	}
+    }
+}
+
+FUNCTION(fun_url_unescape)
+{
+    const char *msg_orig;
+    int ret = 0;
+    unsigned int tempchar;
+    char tempstr[10];
+
+    for (msg_orig = fargs[0]; msg_orig && *msg_orig && !ret;) {
+	switch (*msg_orig) {
+	  case '+':
+	    ret = safe_chr_fn(' ', buff, bufc);
+	    msg_orig++;
+	    break;
+	  case '%':
+	    strncpy(tempstr, msg_orig+1, 2);
+	    tempstr[2] = '\0';
+	    if (sscanf(tempstr, "%x", &tempchar) == 1)
+		ret = safe_chr_fn(tempchar, buff, bufc);
+	    if (*msg_orig)
+		msg_orig++;	/* Skip the '%' */
+	    if (*msg_orig) 	/* Skip the 1st hex character. */
+		msg_orig++;
+	    if (*msg_orig)	/* Skip the 2nd hex character. */
+		msg_orig++;
+	    break;
+	  default:
+	    ret = safe_chr_fn(*msg_orig, buff, bufc);
+	    msg_orig++;
+	    break;
+	}
+    }
+    return;
+}
+#endif /* PUEBLO_SUPPORT */

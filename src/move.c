@@ -16,7 +16,6 @@
 #include "attrs.h"
 #include "externs.h"
 #include "powers.h"
-#include "dspace.h"
 
 /*
  * ---------------------------------------------------------------------------

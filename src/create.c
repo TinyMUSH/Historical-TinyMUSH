@@ -1,9 +1,5 @@
-/*
- * create.c -- Commands that create new objects 
- */
-/*
- * $Id$ 
- */
+/* create.c -- Commands that create new objects */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -95,13 +91,12 @@ char *direction, *linkto;
 
 		/* Make sure the player passes the link lock */
 
-		if (!could_doit(player, loc, A_LLINK)) {
+		if (!could_doit(player, loc, A_LLINK) &&
+		    (!Wizard(player) || mudconf.wiz_obey_linklock)) {
 			notify_quiet(player, "You can't link to there.");
 			return;
 		}
-		/*
-		 * Link it if the player can pay for it 
-		 */
+		/* Link it if the player can pay for it */
 
 		if (!payfor(player, mudconf.linkcost)) {
 			notify_quiet(player,
@@ -161,7 +156,8 @@ dbref player, exit, dest;
 
 	if ((dest != HOME) &&
 	    ((!controls(player, dest) && !Link_ok(dest)) ||
-	     !could_doit(player, dest, A_LLINK))) {
+	     (!could_doit(player, dest, A_LLINK) &&
+	      (!Wizard(player) || mudconf.wiz_obey_linklock)))) {
 		notify_quiet(player, "Permission denied.");
 		return;
 	}
@@ -249,7 +245,8 @@ char *what, *where;
 			break;
 		}
 		if (!can_set_home(player, thing, room) ||
-		    !could_doit(player, room, A_LLINK)) {
+		    (!could_doit(player, room, A_LLINK) &&
+		     (!Wizard(player) || mudconf.wiz_obey_linklock))) {
 			notify_quiet(player, "Permission denied.");
 		} else if (room == HOME) {
 			notify_quiet(player, "Can't set home to home.");
@@ -275,7 +272,8 @@ char *what, *where;
 			notify_quiet(player, "That is not a room!");
 		} else if ((room != HOME) &&
 			   ((!controls(player, room) && !Link_ok(room)) ||
-			    !could_doit(player, room, A_LLINK))) {
+			    (!could_doit(player, room, A_LLINK) &&
+			     (!Wizard(player) || mudconf.wiz_obey_linklock)))) {
 			notify_quiet(player, "Permission denied.");
 		} else {
 			s_Dropto(thing, room);

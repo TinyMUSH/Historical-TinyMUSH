@@ -527,10 +527,12 @@ CMDENT command_table[] = {
 	MOTD_LIST,	CS_ONE_ARG,			do_motd},
 {(char *)"@lock",		lock_sw,	CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_INTERP,		do_lock},
+#ifdef USE_MAIL
 {(char *)"@mail",               mail_sw,           CA_NO_SLAVE|CA_NO_GUEST,
         0,              CS_TWO_ARG|CS_INTERP,          do_mail},
 {(char *)"@malias",             malias_sw,         CA_NO_SLAVE|CA_NO_GUEST,
         0,              CS_TWO_ARG|CS_INTERP,          do_malias},
+#endif
 {(char *)"@mark",		mark_sw,	CA_WIZARD,
 	SRCH_MARK,	CS_ONE_ARG|CS_NOINTERP,		do_search},
 {(char *)"@mark_all",		markall_sw,	CA_WIZARD,
