@@ -12,6 +12,7 @@
 
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
+#include "udb_defs.h"	/* required by code */
 
 extern void VDECL(logf, (char *, ...));
 extern void VDECL(fatal, (char *, ...));
@@ -208,24 +209,29 @@ void cache_reset()
 			nxt = cp->nxt;
 
 			if (cp->data == NULL) {
-				if (dddb_del(cp->keydata, cp->keylen,
-					     cp->type)) {
-					if (cp->type == DBTYPE_ATTRIBUTE)
-						log_db_err(((Aname *)cp->keydata)->object,
-							   ((Aname *)cp->keydata)->attrnum, "delete");
-					return;
+				switch(cp->type) {
+				case DBTYPE_ATTRIBUTE:
+					delete_attrib(((Aname *)cp->keydata)->attrnum, 
+						      ((Aname *)cp->keydata)->object);
+					break;
+				default:
+					dddb_del(cp->keydata, cp->keylen, cp->type);
 				}
 				cs_dels++;
 			} else {
-				if (dddb_put(cp->keydata, cp->keylen,
-					     cp->data, cp->datalen, cp->type)) {
-					if (cp->type == DBTYPE_ATTRIBUTE)
-						log_db_err(((Aname *)cp->keydata)->object,
-							   ((Aname *)cp->keydata)->attrnum, "write");
-					return;
+				switch(cp->type) {
+				case DBTYPE_ATTRIBUTE:
+					put_attrib(((Aname *)cp->keydata)->attrnum, 
+						   ((Aname *)cp->keydata)->object,
+						   (char *)cp->data);
+					break;
+				default:
+					dddb_put(cp->keydata, cp->keylen, cp->data, 
+						 cp->datalen, cp->type);
 				}
 				cs_dbwrites++;
 			}
+
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			RAW_FREE(cp->keydata, "cache_get");
 			RAW_FREE(cp, "get_free_entry");
@@ -404,7 +410,7 @@ int type;
 	Cache *cp;
 	CacheLst *sp;
 	int hv = 0;
-	void *newdata;
+	void *newdata, *tmpdata;
 	int newdatalen;
 
 	if (!keydata || !cache_initted) {
@@ -478,9 +484,24 @@ int type;
 
 	/* DARN IT - at this point we have a certified, type-A cache miss */
 
-	/* Grab the data from the database */
+	/* Grab the data from whereever */
 	
-	dddb_get(keydata, keylen, &newdata, &newdatalen, type);
+	switch(type) {
+	case DBTYPE_ATTRIBUTE:
+	
+		tmpdata = (void *)fetch_attrib(((Aname *)keydata)->attrnum,
+			((Aname *)keydata)->object); 
+		if (tmpdata == NULL) {
+			newdata = NULL;
+			newdatalen = 0;
+		} else {
+			newdata = XSTRDUP(tmpdata, "cache_get.data");
+			newdatalen = strlen(tmpdata) + 1;
+		}
+		break;
+	default:
+		dddb_get(keydata, keylen, &newdata, &newdatalen, type);
+	}
 
 #ifndef STANDALONE
 	if (!mudstate.dumping)
@@ -620,7 +641,7 @@ int type;
 		}
 	}
 
-	/* Add a new attribute to the cache */
+	/* Add a new entry to the cache */
 
 	if ((cp = get_free_entry(datalen)) == NULL)
 		return (1);
@@ -643,18 +664,23 @@ int type;
 #else
 	/* Bypass the cache when standalone for writes */
 	if (data == NULL) {
-		if (dddb_del(keydata, keylen, type)) {
-			if (type == DBTYPE_ATTRIBUTE)
-				log_db_err(((Aname *)keydata)->object,
-					   ((Aname *)keydata)->attrnum, "delete");
-			return (1);
+		switch(type) {
+		case DBTYPE_ATTRIBUTE:
+			delete_attrib(((Aname *)keydata)->attrnum, 
+				      ((Aname *)keydata)->object);
+			break;
+		default:
+			dddb_del(keydata, keylen, type);
 		}
 	} else {
-		if (dddb_put(keydata, keylen, data, datalen, type)) {
-			if (type == DBTYPE_ATTRIBUTE)
-				log_db_err(((Aname *)keydata)->object,
-					   ((Aname *)keydata)->attrnum, "write");
-			return (1);
+		switch(type) {
+		case DBTYPE_ATTRIBUTE:
+			put_attrib(((Aname *)keydata)->attrnum, 
+				   ((Aname *)keydata)->object,
+				   (char *)data);
+			break;
+		default:
+			dddb_put(keydata, keylen, data, datalen, type);
 		}
 	}
 	return(0);
@@ -766,21 +792,25 @@ replace:
 			/* Flush the modified attributes to disk */
 		
 			if (cp->data == NULL) {
-				if (dddb_del(cp->keydata, cp->keylen,
-					     cp->type)) {
-					if (cp->type == DBTYPE_ATTRIBUTE)
-						log_db_err(((Aname *)cp->keydata)->object,
-							   ((Aname *)cp->keydata)->attrnum, "delete");
-					return (NULL);
+				switch(cp->type) {
+				case DBTYPE_ATTRIBUTE:
+					delete_attrib(((Aname *)cp->keydata)->attrnum, 
+						      ((Aname *)cp->keydata)->object);
+					break;
+				default:
+					dddb_del(cp->keydata, cp->keylen, cp->type);
 				}
 				cs_dels++;
 			} else {
-				if (dddb_put(cp->keydata, cp->keylen,
-					     cp->data, cp->datalen, cp->type)) {
-					if (cp->type == DBTYPE_ATTRIBUTE)
-						log_db_err(((Aname *)cp->keydata)->object,
-							   ((Aname *)cp->keydata)->attrnum, "write");
-					return (NULL);
+				switch(cp->type) {
+				case DBTYPE_ATTRIBUTE:
+					put_attrib(((Aname *)cp->keydata)->attrnum, 
+						   ((Aname *)cp->keydata)->object,
+						   (char *)cp->data);
+					break;
+				default:
+					dddb_put(cp->keydata, cp->keylen, cp->data, 
+						 cp->datalen, cp->type);
 				}
 				cs_dbwrites++;
 			}
@@ -823,21 +853,25 @@ Cache *cp;
 
 	while (cp != NULL) {
 		if (cp->data == NULL) {
-			if (dddb_del(cp->keydata, cp->keylen,
-				     cp->type)) {
-				if (cp->type == DBTYPE_ATTRIBUTE)
-					log_db_err(((Aname *)cp->keydata)->object,
-						   ((Aname *)cp->keydata)->attrnum, "delete");
-				return (1);
+			switch(cp->type) {
+			case DBTYPE_ATTRIBUTE:
+				delete_attrib(((Aname *)cp->keydata)->attrnum, 
+					      ((Aname *)cp->keydata)->object);
+				break;
+			default:
+				dddb_del(cp->keydata, cp->keylen, cp->type);
 			}
 			cs_dels++;
 		} else {
-			if (dddb_put(cp->keydata, cp->keylen,
-				     cp->data, cp->datalen, cp->type)) {
-				if (cp->type == DBTYPE_ATTRIBUTE)
-					log_db_err(((Aname *)cp->keydata)->object,
-						   ((Aname *)cp->keydata)->attrnum, "write");
-				return (1);
+			switch(cp->type) {
+			case DBTYPE_ATTRIBUTE:
+				put_attrib(((Aname *)cp->keydata)->attrnum, 
+					   ((Aname *)cp->keydata)->object,
+					   (char *)cp->data);
+				break;
+			default:
+				dddb_put(cp->keydata, cp->keylen, cp->data, 
+					 cp->datalen, cp->type);
 			}
 			cs_dbwrites++;
 		}
@@ -891,6 +925,10 @@ int NDECL(cache_sync)
 			return (1);
 		cache_clean(sp);
 	}
+
+	/* Also sync the read and write object structures if they're dirty */
+	
+	attrib_sync();
 
 #ifndef STANDALONE
 	if (mudstate.restarting) {

@@ -8,6 +8,7 @@
 
 #include <netinet/in.h>
 #include "ltdl.h"
+#include "udb.h"
 
 /* CONFDATA:	runtime configurable parameters */
 
@@ -330,8 +331,9 @@ struct forward_list {
 typedef struct statedata STATEDATA;
 struct statedata {
 	int	record_players; /* The maximum # of player logged on */
-	int	fs_block_size;	/* Filesystem block size */
 	int	db_block_size;	/* Block size of database */
+	Obj	*read_object;	/* Object being read from */
+	Obj	*write_object;	/* Object being written to */
 #ifndef STANDALONE
 	char	*version;	/* MUSH version string */
 	char	*short_ver;	/* Short version number (for INFO) */

@@ -1079,9 +1079,11 @@ int db_read()
 	
 	/* Load the object structures */
 	
-	for (i = 0; i < mudstate.min_size; i++) {
+	num = mudstate.min_size;
+	for (i = 0; i < num; i++) {
 		OBJECT_FETCH(i, &data);
 		if (data) {
+			
 			db_grow(i + 1);
 
 			/* We read the entire object structure in and copy

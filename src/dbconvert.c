@@ -126,7 +126,6 @@ char *argv[];
 	int setflags, clrflags, ver;
 	int db_ver, db_format, db_flags, do_check, do_write;
 	char *fp;
-	struct stat file_stat;
 	
 	logfile_init(NULL);
 
@@ -225,9 +224,6 @@ char *argv[];
 		exit(1);
 	}
 	/* Go do it */
-
-	stat(argv[1], &file_stat);
-	mudstate.fs_block_size = STATBLKSIZE;
 
 	if (!(setflags & V_GDBM)) {
 		db_read();

@@ -52,6 +52,15 @@
 					DBTYPE_OBJECT);
 #define OBJECT_DEL(key)		dddb_del((void *)&key, sizeof(int), \
 					DBTYPE_OBJECT);
+#define ATTRS_FETCH(key, data)	dddb_get((void *)&key, sizeof(int), \
+					(void **)data, NULL, \
+					DBTYPE_ATTRIBUTE);
+#define ATTRS_STORE(key, data, len) \
+				dddb_put((void *)&key, sizeof(int), \
+					(void *)data, len, \
+					DBTYPE_ATTRIBUTE);
+#define ATTRS_DEL(key)		dddb_del((void *)&key, sizeof(int), \
+					DBTYPE_ATTRIBUTE);
 
 /* Macros to help deal with batch writes of attribute numbers and objects */
 
