@@ -205,7 +205,7 @@ va_dcl
 #endif
 
 {
-	char *buff;
+	char buff[20000];
 	DESC *d;
 	va_list ap;
 
@@ -223,7 +223,6 @@ va_dcl
 	if (!template || !*template)
 		return;
 
-	buff = alloc_lbuf("raw_broadcast");
 	vsprintf(buff, template, ap);
 
 	DESC_ITER_CONN(d) {
@@ -233,7 +232,6 @@ va_dcl
 			process_output(d);
 		}
 	}
-	free_lbuf(buff);
 	va_end(ap);
 }
 
