@@ -3,17 +3,6 @@
 
 /*
  * Copyright (C) 1991, Marcus J. Ranum. All rights reserved.
- * Slightly whacked by Andrew Molitor. My apologies to the author..
- * 
- * Also banged on by dcm@somewhere.or.other, Jellan on the muds,
- * to be more complex and more efficient.
- * 
- * This version then banged on by Andrew Molitor, 1992, to
- * do object-by-object, hiding the object part inside
- * the cache layer. Upper layers think it's an attribute cache.
- * 
- * Further banged on by David Passmore, 2000, to 
- * make it a 'not frequently used' cache with aging.
  */
 
 /*
@@ -657,7 +646,7 @@ int objsize;
 	CacheLst *sp;
 	Chain *chp;
 	Cache *cp = NULL, *p;
-	double score = 0, curscore = 0;
+	int score = 0, curscore = 0;
 	int modified = 0, size = 0, cursize = 0, x;
 	
 	/* Flush objects from the cache until there's enough room for this object */
@@ -668,8 +657,8 @@ int objsize;
 	
 			/* traverse active chain first */
 			for (p = sp->active.head; p != CNULL; p = p->nxt) {
-				/* Score is the number of times an object has been
-				   referenced. We use size as a secondary metric--
+				/* Score is the age of an object in seconds.
+				   We use size as a secondary metric--
 				   if the scores are the same, we should try to
 				   toss the bigger object */
 
@@ -677,14 +666,19 @@ int objsize;
 					score = 0;
 					size = 0;
 				} else {
-					score = (double) p->referenced;
+#ifndef STANDALONE
+					score = mudstate.now - p->lastreferenced;
+#else
+					score = time(NULL) - p->lastreferenced;
+#endif
 					size = p->op->size;
 				}
 				
 				/* The head of the active chain is our first candidate */
 				
-				if ((score < curscore) || ((score == curscore) && 
-				    (size > cursize)) || (p == sp->active.head)) {
+				if ((score > curscore) || ((score == curscore) && 
+				    (size > cursize)) ||
+				    ((p == sp->active.head) && !score)) {
 					curscore = score;
 					cursize = size;
 					cp = p;
@@ -701,14 +695,19 @@ int objsize;
 				} else {
 					/* We don't want to prematurely toss modified pages, so
 					 * give them an advantage */
-					 
-					score = (double) p->referenced * 1.2;
+
+#ifndef STANDALONE 
+					score = (mudstate.now - p->lastreferenced) * .8;
+#else
+					score = (time(NULL) - p->lastreferenced) * .8;
+#endif
 					size = p->op->size;
 				}
 				
 				/* If we haven't found one by now, the head of the modified chain is it */
-				if ((score < curscore) || ((score == curscore) && 
-				    (size > cursize)) || ((p == sp->mactive.head) && !cp)) {
+				if ((score > curscore) || ((score == curscore) && 
+				    (size > cursize)) ||
+				    ((p == sp->mactive.head) && !cp && !score)) {
 					curscore = score;
 					cursize = size;
 					cp = p;
