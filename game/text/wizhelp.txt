@@ -3362,7 +3362,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   See also: @wait.
  
 & wildcard_match_limit
-  Config parameter: wildcard_match_limit <number>.  Default: 200
+  Config parameter: wildcard_match_limit <number>.  Default: 25000
  
   This sets the maximum number of times that the wildcard matching routines
   recurse, before returning a failure to match the string. Essentially,

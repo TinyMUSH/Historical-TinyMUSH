@@ -220,13 +220,8 @@ int quick_wild(tstr, dstr)
     mudstate.wild_times_lev = 0;
 
     st = real_quick_wild(tstr, dstr);
-    if ((st < 0) && (mudstate.wild_times_lev > mudconf.wild_times_lim)) {
-	STARTLOG(LOG_PROBLEMS, "WILD", "QUICK")
-	    log_printf("Bad pattern '%s', string '%s', command '%s', current player ", tstr, dstr, mudstate.curr_cmd);
-	    log_name(mudstate.curr_player);
-        ENDLOG
+    if ((st < 0) && (mudstate.wild_times_lev > mudconf.wild_times_lim))
 	return 0;
-    }
     return st;
 }
 
@@ -426,13 +421,8 @@ int wild1(tstr, dstr, arg)
     mudstate.wild_times_lev = 0;
 
     st = real_wild1(tstr, dstr, arg);
-    if ((st < 0) && (mudstate.wild_times_lev > mudconf.wild_times_lim)) {
-	STARTLOG(LOG_PROBLEMS, "WILD", "MATCH")
-	    log_printf("Bad pattern '%s', string '%s', command '%s', player ", tstr, dstr, mudstate.curr_cmd);
-	    log_name(mudstate.curr_player);
-        ENDLOG
+    if ((st < 0) && (mudstate.wild_times_lev > mudconf.wild_times_lim))
 	return 0;
-    }
     return st;
 } 
 

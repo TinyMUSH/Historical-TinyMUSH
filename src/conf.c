@@ -278,7 +278,7 @@ void NDECL(cf_init)
 	mudconf.markdata[5] = 0x20;
 	mudconf.markdata[6] = 0x40;
 	mudconf.markdata[7] = 0x80;
-	mudconf.wild_times_lim = 200;
+	mudconf.wild_times_lim = 25000;
 	mudconf.cmd_nest_lim = 50;
 	mudconf.cmd_invk_lim = 2500;
 	mudconf.func_nest_lim = 50;
