@@ -358,7 +358,11 @@ if ((l) > 0) { \
 #define BOOL_COND_NONE	1	/* loop until end of list */
 #define BOOL_COND_FALSE	2	/* loop until true */
 #define BOOL_COND_TRUE	3	/* loop until false */
-#define LOOP_NOTIFY	0x10	/* send loop results directly to enactor */
+#define FILT_COND_TYPE	0x0f0	/* mask to select filter bits */
+#define FILT_COND_NONE	0x010	/* show all results */
+#define FILT_COND_FALSE	0x020	/* show only false results */
+#define FILT_COND_TRUE	0x030	/* show only true results */
+#define LOOP_NOTIFY	0x100	/* send loop results directly to enactor */
 
 /* from handle_lattr (lattr, nattr): */
 #define LATTR_COUNT	0x01	/* just return attribute count */

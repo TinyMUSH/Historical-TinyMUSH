@@ -95,6 +95,9 @@ FUNCTION(perform_loop)
  * fun_whentrue() and fun_whenfalse() work similarly to iter(). 
  * whentrue() loops as long as the expression evaluates to true.
  * whenfalse() loops as long as the expression evaluates to false.
+ *
+ * fun_istrue() and fun_isfalse() are inline filterbool() equivalents
+ * returning the elements of the list which are true or false, respectively.
  */
 
 FUNCTION(perform_iter)
@@ -102,13 +105,19 @@ FUNCTION(perform_iter)
     Delim isep, osep;
     int isep_len, osep_len;
     int flag;			/* 0 is iter(), 1 is list() */
-    int bool_flag;
+    int bool_flag, filt_flag;
+    int need_result, need_bool;
     char *list_str, *lp, *str, *input_p, *bb_p, *work_buf;
     char *savep, *dp, *result;
     int is_true, cur_lev, elen;
 
     flag = ((FUN *)fargs[-1])->flags & LOOP_NOTIFY;
     bool_flag = ((FUN *)fargs[-1])->flags & BOOL_COND_TYPE;
+    filt_flag = ((FUN *)fargs[-1])->flags & FILT_COND_TYPE;
+
+    need_result = (flag || (filt_flag != FILT_COND_NONE)) ? 1 : 0;
+    need_bool = ((bool_flag != BOOL_COND_NONE) ||
+		 (filt_flag != FILT_COND_NONE)) ? 1 : 0;
     
     if (flag) {
 	VaChk_Only_In(3);
@@ -146,7 +155,7 @@ FUNCTION(perform_iter)
     while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	   ((mudconf.func_cpu_lim <= 0) ||
 	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
-	if (!flag && (*bufc != bb_p)) {
+	if (!need_result && (*bufc != bb_p)) {
 	    print_sep(osep, osep_len, buff, bufc);
 	}
 	mudstate.loop_token[cur_lev] = split_token(&input_p, isep, isep_len);
@@ -155,20 +164,33 @@ FUNCTION(perform_iter)
 	StrCopyKnown(work_buf, fargs[1], elen); /* we might nibble this */
 	str = work_buf;
 	savep = *bufc;
-	if (!flag) {
+	if (!need_result) {
 	    exec(buff, bufc, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
+	    if (need_bool) {
+		is_true = xlate(savep);
+	    }
 	} else {
 	    dp = result = alloc_lbuf("perform_iter.out");
 	    exec(result, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	    *dp = '\0';
-	    notify(cause, result);
+	    if (need_bool) {
+		is_true = xlate(result);
+	    }
+	    if (flag) {
+		notify(cause, result);
+	    } else if (((filt_flag == FILT_COND_TRUE) && is_true) ||
+		       ((filt_flag == FILT_COND_FALSE) && !is_true)) {
+		if (*bufc != bb_p) {
+		    print_sep(osep, osep_len, buff, bufc);
+		}
+		safe_str(mudstate.loop_token[cur_lev], buff, bufc);
+	    }
 	    free_lbuf(result);
 	}
 	free_lbuf(work_buf);
 	if (bool_flag != BOOL_COND_NONE) {
-	    is_true = xlate(savep);
 	    if (!is_true && (bool_flag == BOOL_COND_TRUE))
 		break;
 	    if (is_true && (bool_flag == BOOL_COND_FALSE))
