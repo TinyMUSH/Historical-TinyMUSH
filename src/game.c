@@ -136,6 +136,7 @@ void do_hashresize(player, cause, key)
     dbref player, cause;
     int key;
 {
+    hashresize(&mudstate.command_htab, 512);
     hashresize(&mudstate.player_htab, 16);
     hashresize(&mudstate.vattr_name_htab, 256);
     nhashresize(&mudstate.fwdlist_htab, 8);
