@@ -822,13 +822,13 @@ char *s;
 				free(prev->name);
 				free(prev);
 			}
+			hashdelete(name, &mudstate.command_htab);
 			if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
 				hashdelete(tprintf("__%s", name), &mudstate.command_htab);
 				hashadd(name, (int *)cmd, &mudstate.command_htab);
 				hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 			}
 			free(old);
-			hashdelete(name, &mudstate.command_htab);
 			notify(player, "Done.");
 			return;
 		} else {
@@ -838,13 +838,13 @@ char *s;
 					free(nextp->name);
 					if (!prev) {
 						if (!nextp->next) {
+							hashdelete(name, &mudstate.command_htab);
 							if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
 								hashdelete(tprintf("__%s", name), &mudstate.command_htab);
 								hashadd(name, (int *)cmd, &mudstate.command_htab);
 								hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 							}
 							free(old);
-							hashdelete(name, &mudstate.command_htab);
 						} else {
 							old->handler = (void *)nextp->next;
 							free(nextp);
