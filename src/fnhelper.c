@@ -542,7 +542,7 @@ long random_range(low, high)
      *   N.B. This loop happens in randomized constant time, and pretty
      *   damn fast randomized constant time too, since
      *        P(UINT32_MAX_VALUE - n < UINT32_MAX_VALUE % x) < 0.5, for any x.
-     *   So even for the least desireable x, the average number of times
+     *   So even for the least desirable x, the average number of times
      *   we will call getrand() is less than 2.
      */
 

@@ -306,7 +306,7 @@ enum {
 };
 
 /* The highest extraction number before we have to start using additional
-bytes. (Originally PCRE didn't have support for extraction counts highter than
+bytes. (Originally PCRE didn't have support for extraction counts higher than
 this number.) The value is limited by the number of opcodes left after OP_BRA,
 i.e. 255 - OP_BRA. We actually set it a bit lower to leave room for additional
 opcodes. */

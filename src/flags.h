@@ -55,7 +55,7 @@
 #define	KEY		0x00000001	/* No puppets */
 #define	ABODE		0x00000002	/* May @set home here */
 #define	FLOATING	0x00000004	/* -- Legacy -- */
-#define	UNFINDABLE	0x00000008	/* Cant loc() from afar */
+#define	UNFINDABLE	0x00000008	/* Can't loc() from afar */
 #define	PARENT_OK	0x00000010	/* Others may @parent to me */
 #define	LIGHT		0x00000020	/* Visible in dark places */
 #define	HAS_LISTEN	0x00000040	/* Internal: LISTEN attr set */
@@ -179,7 +179,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Suspect(X)		- Is X someone the wizzes should keep an eye on */
 /* Slave(X)		- Should X be prevented from db-changing commands */
 /* Safe(X,P)		- Does P need the /OVERRIDE switch to @destroy X? */
-/* Monnitor(X)		- Should we check for ^xxx:xxx listens on player? */
+/* Monitor(X)		- Should we check for ^xxx:xxx listens on player? */
 /* Terse(X)		- Should we only show the room name on a look? */
 /* Myopic(X)		- Should things as if we were nonowner/nonwiz */
 /* Audible(X)		- Should X forward messages? */

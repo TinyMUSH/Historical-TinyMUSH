@@ -127,7 +127,7 @@ FILE *f;
 		return TRUE_BOOLEXP;
 	case '"':
 		ungetc(c, f);
-		buff = alloc_lbuf("getboolexp_quoted");
+		buff = alloc_lbuf("getboolexp.quoted");
 		StringCopy(buff, getstring_noalloc(f, 1));
 		c = fgetc(f);
 		if (c == EOF) {
@@ -135,7 +135,7 @@ FILE *f;
 			return TRUE_BOOLEXP;
 		}
 
-		b = alloc_bool("getboolexp1_quoted");
+		b = alloc_bool("getboolexp1.quoted");
 		anum = mkattr(buff);
 		if (anum <= 0) {
 			free_bool(b);

@@ -45,7 +45,7 @@
 #define  GDBM_INSERT  0		/* Never replace old data with new. */
 #define  GDBM_REPLACE 1		/* Always replace old data with new. */
 
-/* Parameters to gdbm_setopt, specifing the type of operation to perform. */
+/* Parameters to gdbm_setopt, specifying the type of operation to perform. */
 #define  GDBM_CACHESIZE 1       /* Set the cache size. */
 #define  GDBM_FASTMODE  2       /* Toggle fast mode.  OBSOLETE. */
 #define  GDBM_SYNCMODE	3	/* Turn on or off sync operations. */

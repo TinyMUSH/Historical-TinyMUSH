@@ -3334,7 +3334,7 @@ printf("\n");
 
 if (length > md->end_subject - eptr) return FALSE;
 
-/* Separate the caselesss case for speed */
+/* Separate the caseless case for speed */
 
 if ((ims & PCRE_CASELESS) != 0)
   {
@@ -5393,9 +5393,9 @@ if ((options & ~PUBLIC_STUDY_OPTIONS) != 0)
   return NULL;
   }
 
-/* For an anchored pattern, or an unchored pattern that has a first char, or a
-multiline pattern that matches only at "line starts", no further processing at
-present. */
+/* For an anchored pattern, or an unanchored pattern that has a first
+char, or a multiline pattern that matches only at "line starts", no
+further processing at present. */
 
 if ((re->options & (PCRE_ANCHORED|PCRE_FIRSTSET|PCRE_STARTLINE)) != 0)
   return NULL;

@@ -609,7 +609,7 @@ char *message;
 }
 
 /* ---------------------------------------------------------------------------
- * do_enable: enable or disable global control flags
+ * do_global: enable or disable global control flags
  */
 /* *INDENT-OFF* */
 
@@ -626,10 +626,6 @@ NAMETAB enable_names[] = {
 { NULL,				0,	0,		0}};
 
 /* *INDENT-ON* */
-
-
-
-
 
 
 void do_global(player, cause, key, flag)

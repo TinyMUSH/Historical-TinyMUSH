@@ -151,7 +151,6 @@ extern struct timeval	FDECL(timeval_sub, (struct timeval, struct timeval));
 extern int	FDECL(msec_diff, (struct timeval now, struct timeval then));
 extern struct timeval	FDECL(msec_add, (struct timeval, int));
 extern struct timeval	FDECL(update_quotas, (struct timeval, struct timeval));
-extern void	FDECL(handle_http, (DESC *, char *));
 extern void	FDECL(raw_notify, (dbref, char *));
 extern void	FDECL(raw_notify_newline, (dbref));
 extern void	FDECL(clearstrings, (DESC *));

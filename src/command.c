@@ -986,7 +986,7 @@ char *command, *args[];
 	 * it to be trashed.  -dcm 
 	 */
 
-	lcbuf = alloc_lbuf("process_commands.LCbuf");
+	lcbuf = alloc_lbuf("process_commands.lcbuf");
 	for (p = command, q = lcbuf; *p && !isspace(*p); p++, q++)
 		*q = tolower(*p);	/* Make lowercase command */
 	*q++ = '\0';		/* Terminate command */
@@ -1717,7 +1717,7 @@ CF_HAND(cf_access)
 }
 
 /* ---------------------------------------------------------------------------
- * cf_acmd_access: Chante command permissions for all attr-setting cmds.
+ * cf_acmd_access: Change command permissions for all attr-setting cmds.
  */
 
 CF_HAND(cf_acmd_access)
@@ -2322,7 +2322,7 @@ dbref player;
 }
 
 /* ---------------------------------------------------------------------------
- * list_process: List local resource usage stats of the mush process.
+ * list_process: List local resource usage stats of the MUSH process.
  * Adapted from code by Claudius@PythonMUCK,
  *     posted to the net by Howard/Dark_Lord.
  */

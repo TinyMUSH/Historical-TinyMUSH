@@ -712,7 +712,7 @@ void NDECL(do_second)
 	}
 	/* Note: the point->waittime test would be 0 except the command is
 	 * being put in the low priority queue to be done in one
-	 * second anyways 
+	 * second anyway
 	 */
 
 	/* Do the wait queue */

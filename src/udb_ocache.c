@@ -55,7 +55,7 @@ extern void FDECL(raw_notify, (dbref, const char *));
 			mudstate.attrc++;
 
 /* Set counter to zero. This means that we're willing to throw this cache
- * entry away anytime */
+ * entry away any time */
 
 #define CLRCOUNTER(cp)	cp->counter = 0;
 
@@ -479,7 +479,7 @@ skipcacheget:
 
 	/* DARN IT - at this point we have a certified, type-A cache miss */
 
-	/* Grab the data from whereever */
+	/* Grab the data from wherever */
 	
 	switch(type) {
 	case DBTYPE_ATTRIBUTE:

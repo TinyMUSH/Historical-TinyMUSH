@@ -26,7 +26,7 @@ int NDECL(sql_init);
  * string to #-1.
  * If buff is NULL, we are in interactive mode and we simply notify
  * the player of results, rather than writing into the result string.
- * On success, return 0. On falure, return -1.
+ * On success, return 0. On failure, return -1.
  */
 int FDECL(sql_query, (dbref, char *, char *, char **, char, char));
 

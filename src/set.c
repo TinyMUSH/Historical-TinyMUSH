@@ -1100,7 +1100,7 @@ char *what, *args[];
 		return;
 	}
 	/*
-	 * FInd and make sure we control the target object. 
+	 * Find and make sure we control the target object. 
 	 */
 
 	thing = match_controlled(player, what);

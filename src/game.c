@@ -391,7 +391,7 @@ const char *msg;
 	}
 
 	if (!(aflags & AF_NOPARSE)) {
-	    preserve = save_global_regs("check_filter_save");
+	    preserve = save_global_regs("check_filter.save");
 	    nbuf = dp = alloc_lbuf("check_filter");
 	    str = buf;
 	    exec(nbuf, &dp, object, player, player,
@@ -399,7 +399,7 @@ const char *msg;
 	    *dp = '\0';
 	    dp = nbuf;
 	    free_lbuf(buf);
-	    restore_global_regs("check_filter_restore", preserve);
+	    restore_global_regs("check_filter.restore", preserve);
 	} else {
 	    dp = buf;
 	    nbuf = buf;		/* this way, buf will get freed correctly */
@@ -736,14 +736,14 @@ const char *msg;
 			did_it(sender, target, A_NULL, NULL, A_NULL, NULL,
 			       A_AAHEAR, 0, args, nargs, 0);
 		}
-		/* Get rid of match arguments. We don't need them anymore */
+		/* Get rid of match arguments. We don't need them any more */
 
 		if (pass_listen) {
 			for (i = 0; i < nargs; i++)
 				if (args[i] != NULL)
 					free_lbuf(args[i]);
 		}
-		/* Process ^-listens if for me, MONITOR, and we pass USElock */
+		/* Process ^-listens if for me, MONITOR, and we pass UseLock */
 
 		if (will_send && (key & MSG_ME) && pass_uselock &&
 		    (sender != target) && Monitor(target)) {
@@ -1576,7 +1576,7 @@ static void NDECL(process_preload)
 		/* Look for STARTUP and DAILY attributes on parents. */
 
 		ITER_PARENTS(thing, parent, lev) {
-			if (Flags(thing) & HAS_STARTUP) {
+			if (H_Startup(thing)) {
 				did_it(Owner(thing), thing,
 				       A_NULL, NULL, A_NULL, NULL,
 				       A_STARTUP, 0, (char **)NULL, 0, 0);
@@ -2208,7 +2208,7 @@ char *argv[];
 			 */
 			sprintf(mudp, "%d", mudconf.port);
 			sprintf(inetp, "%d", mudconf.conc_port);
-			execl("./bin/conc", "concentrator", inetp, mudp, "1", 0);
+			execl("./bin/conc", "concentrator", inetp, mudp, "1", NULL);
 		}
 		STARTLOG(LOG_ALWAYS, "CNC", "STRT")
 			log_printf("Concentrating ports... Main: %d Conc: %d",

@@ -321,7 +321,6 @@ int number;
  * do_mail_file - files messages into a new folder
  * do_mail_fwd - forward messages to another player(s)
  * do_mail_reply - reply to a message
- * do_mail_count - count messages
  * do_mail_purge - purge cleared messages
  * do_mail_change_folder - change current folder
  *-------------------------------------------------------------------------*/
@@ -427,10 +426,7 @@ static void do_mail_flags(player, msglist, flag, negate)
 dbref player;
 char *msglist;
 mail_flag flag;
-int negate;			/*
-
-				 * if 1, clear the flag 
-				 */
+int negate;			/* if 1, clear the flag */
 {
 	struct mail *mp;
 	struct mail_selector ms;
@@ -1012,8 +1008,8 @@ int all, key;
  *   Admin mail functions
  *
  * do_mail_nuke - clear & purge mail for a player, or all mail in db.
- * do_mail_stat - stats on mail for a player, or for all db.
  * do_mail_debug - fix mail with a sledgehammer
+ * do_mail_stats - stats on mail for a player, or for all db.
  *-------------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------------*
@@ -1326,7 +1322,7 @@ int full;
 		return;
 	}
 	/*
-	 * this comand is computationally expensive 
+	 * this command is computationally expensive 
 	 */
 
 	if (!payfor(player, mudconf.searchcost)) {
@@ -1507,8 +1503,6 @@ char *arg2;
 			do_mail_list(player, arg1, 1);
 		return;
 	}
-
-
 }
 
 
@@ -1782,7 +1776,7 @@ char *name;
 	char *atrstr;
 	char *str, *pat, *res, *p, *bp;
 
-	/* Look up a folder name and return the appopriate number */
+	/* Look up a folder name and return the appropriate number */
 	
 	atrstr = atr_get(player, A_MAILFOLDERS, &aowner, &aflags, &alen);
 	if (!*atrstr) {

@@ -143,7 +143,7 @@
 /* Define if libtool can extract symbol lists from object files.  */
 #undef HAVE_PRELOADED_SYMBOLS
 
-/* Define if dlsym() requires a leading underscode in symbol names.  */
+/* Define if dlsym() requires a leading underscore in symbol names.  */
 #undef NEED_USCORE
 
 /* XXX end of section added for ltdl */
@@ -228,8 +228,6 @@
 #undef NEED_VSPRINTF_DCL
 /* Define if you need to declare sys_errlist yourself */
 #undef NEED_SYS_ERRLIST_DCL
-/* Define if you need to declare _sys_errlist yourself */
-#undef NEED_SYS__ERRLIST_DCL
 /* Define if you need to declare perror yourself */
 #undef NEED_PERROR_DCL
 /* Define if you need to declare sprintf yourself */
@@ -397,9 +395,9 @@ extern int FDECL(wait3, (int *, int, struct rusage *));
 #endif /* no NBPG */
 #endif /* no EXEC_PAGESIZE */
 #else /* we've got a getpagesize() function, whee */
-#ifdef NEED_GETPAGESIZE_DECL
+#ifdef NEED_GETPAGESIZE_DCL
 extern int	NDECL(getpagesize);
-#endif /* NEED_GETPAGESIZE_DECL */
+#endif /* NEED_GETPAGESIZE_DCL */
 #endif /* HAVE_GETPAGESIZE */
 
 #ifdef HAVE_ERRNO_H
@@ -495,8 +493,6 @@ extern int	FDECL(unlink, (const char *));
 extern int	FDECL(accept, (int, struct sockaddr *, int *));
 extern int	FDECL(bind, (int, struct sockaddr *, int));
 extern int	FDECL(listen, (int, int));
-extern int	FDECL(sendto, (int, void *, int, unsigned int,
-			struct sockaddr *, int));
 extern int	FDECL(setsockopt, (int, int, int, void *, int));
 extern int	FDECL(shutdown, (int, int));
 extern int	FDECL(socket, (int, int, int));

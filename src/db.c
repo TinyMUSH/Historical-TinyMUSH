@@ -1,6 +1,5 @@
 /* db.c - attribute interface, some flatfile and object routines */
 /* $Id$ */
-#define __DB_C
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -60,12 +59,6 @@ char *malloc_str;
 #endif /* TEST_MALLOC */
 
 extern VATTR *FDECL(vattr_rename, (char *, char *));
-
-typedef struct atrcount ATRCOUNT;
-struct atrcount {
-	dbref thing;
-	int count;
-};
 
 /* ---------------------------------------------------------------------------
  * Temp file management, used to get around static limits in some versions
@@ -253,39 +246,39 @@ ATTR attr[] =
 {"Ause",	A_AUSE,		AF_DEFAULT|AF_NOPROG,			NULL},
 {"Away",	A_AWAY,		AF_DEFAULT|AF_NOPROG,			NULL},
 {"Charges",	A_CHARGES,	AF_NOPROG,			NULL},
-{"Chownlock",	A_LCHOWN,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"ChownLock",	A_LCHOWN,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Comment",	A_COMMENT,	AF_NOPROG|AF_MDARK|AF_WIZARD,	NULL},
 {"Conformat",	A_LCON_FMT,	AF_DEFAULT|AF_NOPROG,			NULL},
-{"Controllock",	A_LCONTROL,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"ControlLock",	A_LCONTROL,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Cost",	A_COST,		AF_NOPROG,			NULL},
 {"Daily",	A_DAILY,	AF_NOPROG,			NULL},
-{"Darklock",	A_LDARK,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"DarkLock",	A_LDARK,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Desc",	A_DESC,		AF_DEFAULT|AF_VISUAL|AF_NOPROG,		NULL},
-{"Defaultlock",	A_LOCK,		AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"DefaultLock",	A_LOCK,		AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Destroyer",	A_DESTROYER,	AF_MDARK|AF_WIZARD|AF_NOPROG,	NULL},
 {"Dfail",	A_DFAIL,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Drop",	A_DROP,		AF_DEFAULT|AF_NOPROG,			NULL},
-{"Droplock",	A_LDROP,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"DropLock",	A_LDROP,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Ealias",	A_EALIAS,	AF_NOPROG,			NULL},
 {"Efail",	A_EFAIL,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Enter",	A_ENTER,	AF_DEFAULT|AF_NOPROG,			NULL},
-{"Enterlock",	A_LENTER,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"EnterLock",	A_LENTER,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Exitformat",	A_LEXITS_FMT,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Exitto",	A_EXITVARDEST,	AF_NOPROG,			NULL},
 {"Fail",	A_FAIL,		AF_DEFAULT|AF_NOPROG,			NULL},
 {"Filter",	A_FILTER,	AF_NOPROG,			NULL},
 {"Forwardlist",	A_FORWARDLIST,	AF_NOPROG,			fwdlist_ck},
 {"Gfail",	A_GFAIL,	AF_DEFAULT|AF_NOPROG,			NULL},
-{"Givelock",	A_LGIVE,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
-{"Heardlock",	A_LHEARD,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
-{"Hearslock",	A_LHEARS,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"GiveLock",	A_LGIVE,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"HeardLock",	A_LHEARD,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"HearsLock",	A_LHEARS,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Idesc",	A_IDESC,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Idle",	A_IDLE,		AF_NOPROG,			NULL},
 {"Infilter",	A_INFILTER,	AF_NOPROG,			NULL},
 {"Inprefix",	A_INPREFIX,	AF_NOPROG,			NULL},
 {"Kill",	A_KILL,		AF_DEFAULT|AF_NOPROG,			NULL},
-{"Knownlock",	A_LKNOWN,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
-{"Knowslock",	A_LKNOWS,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"KnownLock",	A_LKNOWN,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"KnowsLock",	A_LKNOWS,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Lalias",	A_LALIAS,	AF_NOPROG,			NULL},
 {"Last",	A_LAST,	AF_VISUAL|AF_WIZARD|AF_NOCMD|AF_NOPROG|AF_NOCLONE,
 								NULL},
@@ -296,9 +289,9 @@ ATTR attr[] =
 {"Lastsite",	A_LASTSITE,	AF_NOPROG|AF_NOCMD|AF_NOCLONE|AF_GOD,
 								NULL},
 {"Leave",	A_LEAVE,	AF_DEFAULT|AF_NOPROG,			NULL},
-{"Leavelock",	A_LLEAVE,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"LeaveLock",	A_LLEAVE,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Lfail",	A_LFAIL,	AF_DEFAULT|AF_NOPROG,			NULL},
-{"Linklock",	A_LLINK,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"LinkLock",	A_LLINK,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Listen",	A_LISTEN,	AF_NOPROG,			NULL},
 {"Logindata",	A_LOGINDATA,	AF_MDARK|AF_NOPROG|AF_NOCMD|AF_CONST,
 								NULL},
@@ -315,8 +308,8 @@ ATTR attr[] =
 {"Mailsucc",	A_MAIL,		AF_DEFAULT|AF_NOPROG,			NULL},
 {"Mailto",	A_MAILTO,	AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
 								NULL},
-{"Movedlock",	A_LMOVED,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
-{"Moveslock",	A_LMOVES,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"MovedLock",	A_LMOVED,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"MovesLock",	A_LMOVES,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Move",	A_MOVE,		AF_DEFAULT|AF_NOPROG,			NULL},
 {"Name",	A_NAME,		AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
 								NULL},
@@ -345,8 +338,8 @@ ATTR attr[] =
 {"Oxenter",	A_OXENTER,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Oxleave",	A_OXLEAVE,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Oxtport",	A_OXTPORT,	AF_DEFAULT|AF_NOPROG,			NULL},
-{"Pagelock",	A_LPAGE,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
-{"Parentlock",	A_LPARENT,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"PageLock",	A_LPAGE,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"ParentLock",	A_LPARENT,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Pay",		A_PAY,		AF_NOPROG,			NULL},
 {"Prefix",	A_PREFIX,	AF_NOPROG,			NULL},
 {"Progcmd",	A_PROGCMD,	AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
@@ -354,7 +347,7 @@ ATTR attr[] =
 {"Queuemax",	A_QUEUEMAX,	AF_MDARK|AF_WIZARD|AF_NOPROG,	NULL},
 {"Quota",	A_QUOTA,	AF_MDARK|AF_NOPROG|AF_GOD|AF_NOCMD|AF_NOCLONE,
 								NULL},
-{"Receivelock",	A_LRECEIVE,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"ReceiveLock",	A_LRECEIVE,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Reject",	A_REJECT,	AF_NOPROG,			NULL},
 {"Rfail",	A_RFAIL,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Rquota",	A_RQUOTA,	AF_MDARK|AF_NOPROG|AF_GOD|AF_NOCMD|AF_NOCLONE,
@@ -365,19 +358,19 @@ ATTR attr[] =
 {"Sex",		A_SEX,	AF_VISUAL|AF_NOPROG,			NULL},
 {"Signature",	A_SIGNATURE,	AF_NOPROG,			NULL},
 {"Speechformat",A_SPEECHFMT,	AF_DEFAULT|AF_NOPROG,		NULL},
-{"Speechlock",	A_LSPEECH,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"SpeechLock",	A_LSPEECH,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Startup",	A_STARTUP,	AF_NOPROG,			NULL},
 {"Succ",	A_SUCC,		AF_DEFAULT|AF_NOPROG,			NULL},
-{"Teloutlock",	A_LTELOUT,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"TeloutLock",	A_LTELOUT,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Tfail",	A_TFAIL,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Timeout",	A_TIMEOUT,	AF_MDARK|AF_NOPROG|AF_WIZARD,	NULL},
 {"Tport",	A_TPORT,	AF_DEFAULT|AF_NOPROG,			NULL},
-{"Tportlock",	A_LTPORT,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"TportLock",	A_LTPORT,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Ttofail",	A_TOFAIL,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Ufail",	A_UFAIL,	AF_DEFAULT|AF_NOPROG,			NULL},
 {"Use",		A_USE,		AF_DEFAULT|AF_NOPROG,			NULL},
-{"Uselock",	A_LUSE,		AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
-{"Userlock",	A_LUSER,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"UseLock",	A_LUSE,		AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
+{"UserLock",	A_LUSER,	AF_NOPROG|AF_NOCMD|AF_IS_LOCK,	NULL},
 {"Va",		A_VA,		0,				NULL},
 {"Vb",		A_VA+1,		0,				NULL},
 {"Vc",		A_VA+2,		0,				NULL},
@@ -408,8 +401,6 @@ ATTR attr[] =
 {"Htdesc",	A_HTDESC,	AF_DEFAULT|AF_VISUAL|AF_NOPROG,		NULL},
 {"*Atrlist",	A_LIST,	AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,	NULL},
 {"*Password",	A_PASS,	AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,	NULL},
-{"*Privileges",	A_PRIVS,	AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
-								NULL},
 {"*Money",	A_MONEY,	AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
 								NULL},
 {"*Invalid",	A_TEMP,		AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
@@ -648,7 +639,7 @@ dbref thing;
 static char *set_string(ptr, new)
 char **ptr, *new;
 {
-	/* if pointer not null unalloc it */
+	/* if pointer not null, free it */
 
 	if (*ptr)
 		XFREE(*ptr, "set_string");
@@ -799,7 +790,7 @@ const char *s;
 }
 
 /* ---------------------------------------------------------------------------
- * do_attrib: Manage user-named attributes.
+ * do_attribute: Manage user-named attributes.
  */
 
 extern NAMETAB attraccess_nametab[];
@@ -1948,7 +1939,7 @@ dbref player, dest, source;
 	for (attr = atr_head(source, &as); attr; attr = atr_next(&as)) {
 		buf = atr_get_str(buf, source, attr, &aowner, &aflags, &alen);
 		if (!(aflags & AF_LOCK))
-			aowner = owner;		/* chg owner */
+			aowner = owner;		/* change owner */
 		at = atr_num(attr);
 		if (attr && at) {
 			if (Write_attr(owner, dest, at, aflags))
@@ -2152,7 +2143,7 @@ dbref newtop;
 		newsize = newtop;
 	}
 
-	/* Enforce minimumdatabase size */
+	/* Enforce minimum database size */
 
 	if (newsize < mudstate.min_size)
 		newsize = mudstate.min_size + delta;

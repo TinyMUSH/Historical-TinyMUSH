@@ -59,7 +59,7 @@ struct timeval now, then;
 }
 
 /* ---------------------------------------------------------------------------
- * msec_diff: return difference between two times in msec
+ * msec_diff: return difference between two times in milliseconds
  */
 
 int msec_diff(now, then)
@@ -957,7 +957,7 @@ dbref player;
 }
 
 /* ---------------------------------------------------------------------------
- * fetch_idle, fetch_connect: Return smallest idle time/largest connec time
+ * fetch_idle, fetch_connect: Return smallest idle time/largest connect time
  * for a player (or -1 if not logged in)
  */
 

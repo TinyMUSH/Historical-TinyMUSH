@@ -20,7 +20,6 @@
 					(sizeof(int) + sizeof(DUMPOBJ)))
 #define OBJECT_BLOCK_BYTES	(int) ((OBJECT_BLOCK_SIZE) * \
 					(sizeof(int) + sizeof(DUMPOBJ)))
-#define ENTRY_IN_BLOCK(i, blksize)	(int) (i ? (i / blksize) : 0)
 #define ENTRY_NUM_BLOCKS(total, blksize)	(int) (total / blksize)
 #define ENTRY_BLOCK_STARTS(blk, blksize)	(int) (blk * blksize)
 #define ENTRY_BLOCK_ENDS(blk, blksize)	(int) (blk * blksize) + (blksize - 1)
@@ -107,18 +106,6 @@ struct boolexp {
 #define V_VISUALATTRS	0x00400000	/* ODark-to-Visual attr flags */
 #define V_DBCLEAN	0x80000000	/* Option to clean attr table */
 
-/* Some defines for DarkZone's flavor of PennMUSH */
-#define DB_CHANNELS    0x2    /*  Channel system */
-#define DB_SLOCK       0x4    /*  Slock */
-#define DB_MC          0x8    /*  Master Create Time + modifed */
-#define DB_MPAR        0x10   /*  Multiple Parent Code */
-#define DB_CLASS       0x20   /*  Class System */
-#define DB_RANK        0x40   /*  Rank */
-#define DB_DROPLOCK    0x80   /*  Drop/TelOut Lock */
-#define DB_GIVELOCK    0x100  /*  Give/TelIn Lock */
-#define DB_GETLOCK     0x200  /*  Get Lock */
-#define DB_THREEPOW    0x400  /*  Powers have Three Long Words */
- 
 /* special dbref's */
 #define	NOTHING		(-1)	/* null dbref */
 #define	AMBIGUOUS	(-2)	/* multiple possibilities, for matchers */
@@ -231,7 +218,6 @@ extern NAME *names;
 #define NameLen(t)		db[t].name_length
 #define	Home(t)			Link(t)
 #define	Dropto(t)		Location(t)
-#define Atrlist(t)		db[t].atrlist
 
 #define AccessTime(t)		db[t].last_access
 #define ModTime(t)		db[t].last_mod

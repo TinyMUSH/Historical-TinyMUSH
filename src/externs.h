@@ -54,7 +54,6 @@ extern INLINE void	FDECL(s_Name, (dbref, char *));
 extern INLINE char *	FDECL(Name, (dbref));
 extern INLINE char *	FDECL(PureName, (dbref));
 extern INLINE void	FDECL(safe_name, (dbref, char *, char **));
-extern INLINE void	FDECL(s_Atrlist, (dbref, char *));
 extern void	FDECL(safe_exit_name, (dbref, char *, char **));
 extern int	FDECL(fwdlist_load, (FWDLIST *, dbref, char *));
 extern void	FDECL(fwdlist_set, (dbref, FWDLIST *));
@@ -277,7 +276,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	CLONE_PRESERVE	2	/* Preserve the owner of the object */
 #define	CLONE_INVENTORY	4	/* Create cloned object in my inventory */
 #define	CLONE_SET_COST	8	/* ARG2 is cost of cloned object */
-#define	CLONE_PARENT	16	/* Set parent on obj instd of cloning attrs */
+#define	CLONE_PARENT	16	/* Set parent instead of cloning attrs */
 #define CLONE_NOSTRIP	32	/* Don't strip (most) flags from clone */
 #define	DBCK_FULL	1	/* Do all tests */
 #define DECOMP_PRETTY	1	/* pretty-format output */
@@ -293,7 +292,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	DOING_MESSAGE	0	/* Set my DOING message */
 #define	DOING_HEADER	1	/* Set the DOING header */
 #define	DOING_POLL	2	/* List DOING header */
-#define	DROP_QUIET	1	/* Don't do odrop/adrop if control */
+#define	DROP_QUIET	1	/* Don't do Odrop/Adrop if control */
 #define	DUMP_STRUCT	1	/* Dump flat structure file */
 #define	DUMP_TEXT	2	/* Dump text (gdbm) file */
 #define DUMP_FLATFILE	8	/* Dump to flatfile */
@@ -345,7 +344,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	MOTD_FULL	4	/* login message when too many players on */
 #define	MOTD_LIST	8	/* Display current login messages */
 #define	MOTD_BRIEF	16	/* Suppress motd file display for wizards */
-#define	MOVE_QUIET	1	/* Dont do osucc/ofail/asucc/afail if ctrl */
+#define	MOVE_QUIET	1	/* Dont do Osucc/Ofail/Asucc/Afail if ctrl */
 #define	NFY_NFY		0	/* Notify first waiting command */
 #define	NFY_NFYALL	1	/* Notify all waiting commands */
 #define	NFY_DRAIN	2	/* Delete waiting commands */
@@ -388,7 +387,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	SAY_NOSPACE	1	/* OR with xx_EMIT to get nospace form */
 #define	SAY_POSE	2	/* pose in current room */
 #define	SAY_POSE_NOSPC	3	/* pose w/o space in current room */
-#define	SAY_PREFIX	4	/* first char indicates foratting */
+#define	SAY_PREFIX	4	/* first char indicates formatting */
 #define	SAY_EMIT	5	/* emit in current room */
 #define	SAY_SHOUT	8	/* shout to all logged-in players */
 #define	SAY_WALLPOSE	9	/* Pose to all logged-in players */
@@ -461,7 +460,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	EV_TOP		0x00010000	/* This is a toplevel call to eval() */
 #define	EV_NOTRACE	0x00020000	/* Don't trace this call to eval */
 #define EV_NO_COMPRESS  0x00040000      /* Don't compress spaces. */
-#define EV_NO_LOCATION	0x00080000	/* Supresses %l */
+#define EV_NO_LOCATION	0x00080000	/* Suppresses %l */
 #define EV_NOFCHECK	0x00100000	/* Do not evaluate functions! */
 
 /* Function flags */
@@ -484,7 +483,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	MSG_NBR_EXITS_A	0x00080	/* ... only if I am audible */
 #define	MSG_LOC		0x00100	/* Send to my location */
 #define	MSG_LOC_A	0x00200	/* ... only if I am audible */
-#define	MSG_FWDLIST	0x00400	/* Forward to my fwdlist members if aud */
+#define	MSG_FWDLIST	0x00400	/* Forward to my fwdlist members if audible */
 #define	MSG_ME		0x00800	/* Send to me */
 #define	MSG_S_INSIDE	0x01000	/* Originator is inside target */
 #define	MSG_S_OUTSIDE	0x02000	/* Originator is outside target */
@@ -561,7 +560,6 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 						MSG_ME_ALL|MSG_NBR_EXITS|MSG_F_UP|MSG_F_CONTENTS|MSG_S_OUTSIDE)
 
 #define CANNOT_HEAR_MSG  "That target cannot hear you."
-#define CANNOT_SEE_MSG   "That target cannot see you."
 #define NOT_PRESENT_MSG  "That target is not present."
 
 /* --------------------------------------------------------------------------
@@ -634,7 +632,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 }
 
 #define Free_QData(q) \
-    XFREE((q)->text, "que.text"); \
+    XFREE((q)->text, "queue.text"); \
     Free_RegDataStruct((q)->gdata);
 
 #define Init_RegData(f, t) \

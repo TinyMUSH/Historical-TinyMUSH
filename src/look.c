@@ -492,7 +492,7 @@ static void pretty_print(dest, name, text)
 
 	case '#':
 	    /* Special case: If the first word starts with #, there is a
-	     * second word, and it does NOT start wtih a #, this is a
+	     * second word, and it does NOT start with a #, this is a
 	     * @force command.
 	     */
 	    word = p;
@@ -860,7 +860,7 @@ int key;
 		return;
 
 #ifdef PUEBLO_SUPPORT
-	/* If he needs the VMRL URL, send it: */
+	/* If he needs the VRML URL, send it: */
 	if (key & LK_SHOWVRML)
 		show_vrml_url(player, loc);
 #endif
@@ -1057,7 +1057,7 @@ dbref player, thing;
 	notify(player, tprintf("Lock    = %s", unparse_boolexp(player, bool)));
 	free_boolexp(bool);
 
-	buf = alloc_lbuf("debug_dexamine");
+	buf = alloc_lbuf("debug_examine");
 	cp = buf;
 	safe_str((char *)"Attr list: ", buf, &cp);
 
@@ -1809,7 +1809,7 @@ char *where;
 }
 
 /* Output the sequence of commands needed to duplicate the specified
- * object.  If you're moving things to another system, your milage
+ * object.  If you're moving things to another system, your mileage
  * will almost certainly vary.  (i.e. different flags, etc.)
  */
 

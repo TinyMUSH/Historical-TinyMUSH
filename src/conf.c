@@ -299,7 +299,6 @@ void NDECL(cf_init)
 	mudconf.cache_width = CACHE_WIDTH;
 	mudconf.cache_size = CACHE_SIZE;
 
-	mudstate.events_flag = 0;
 	mudstate.initializing = 0;
 	mudstate.loading_db = 0;
 	mudstate.panicking = 0;
@@ -1509,7 +1508,7 @@ CF_HAND(cf_include)
 					 */
 		for (zp = zp - 1; zp >= ap && isspace(*zp); zp--)
 			*zp = '\0';	/*
-					 * zap trailing spcs
+					 * zap trailing spaces
 					 */
 
 		cf_set(cp, ap, player);
@@ -1611,7 +1610,7 @@ CONF conftable[] = {
 {(char *)"function_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.func_nest_lim,		0},
 {(char *)"function_cpu_limit",		cf_int,		CA_STATIC,	CA_PUBLIC,	&mudconf.func_cpu_lim_secs,	0},
 {(char *)"gdbm_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.gdbm,		MBUF_SIZE},
-{(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @aconnect and @adisconnect"},
+{(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @Aconnect and @Adisconnect"},
 {(char *)"good_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				1},
 {(char *)"guest_basename",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_basename,	PLAYER_NAME_LIMIT},
 {(char *)"guest_char_num",		cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.guest_char,		NOTHING},
@@ -1895,7 +1894,7 @@ char *fn;
 	int retval;
 	char tmpfile[256], *c;
 	
-	mudconf.config_file = XSTRDUP(fn, "cf_read_cffile");
+	mudconf.config_file = XSTRDUP(fn, "cf_read.config_file");
 	mudstate.initializing = 1;
 	retval = cf_include(NULL, fn, 0, 0, (char *)"init");
 	mudstate.initializing = 0;

@@ -260,7 +260,7 @@ int locknum;
 	dbref aowner;
 	int aflags, alen, doit;
 
-	/* no if nonplayer trys to get key */
+	/* no if nonplayer tries to get key */
 
 	if (!isPlayer(player) && Key(thing)) {
 		return 0;
@@ -644,7 +644,7 @@ char *expr, *args[], *cargs[];
 		else
 			key = SWITCH_ONE;
 	}
-	/* now try a wild card match of buff with stuff in coms */
+	/* now try a wild card match of buff with stuff in args */
 
 	any = 0;
 	buff = bp = alloc_lbuf("do_switch");
@@ -1135,9 +1135,9 @@ char *name, *command;
 }
 
 /* @program 'glues' a user's input to a command. Once executed, the first 
- * string input from any of the doers's logged in descriptors, will go into
- * A_PROGMSG, which can be substituted in <command> with %0. Commands already
- * queued by the doer will be processed normally.
+ * string input from any of the doer's logged in descriptors will be
+ * substituted in <command> as %0. Commands already queued by the doer
+ * will be processed normally.
  */
 
 void handle_prog(d, message)
@@ -1529,7 +1529,7 @@ int check_enter;
 		 * terminate it. 
 		 */
 
-		buff = alloc_lbuf("is_posess");
+		buff = alloc_lbuf("match_possessed");
 		for (s1 = start, d1 = buff; *s1 && (s1 < temp); *d1++ = (*s1++)) ;
 		*d1 = '\0';
 
@@ -2510,7 +2510,7 @@ void do_redirect(player, cause, key, from_name, to_name)
 	return;
     }
 
-    /* To redirect something, it needs to either be Redir_OK or we
+    /* To redirect something, it needs to either be REDIR_OK or we
      * need to control it.
      */
 

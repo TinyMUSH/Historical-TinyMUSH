@@ -75,14 +75,6 @@ struct mail_selector {
 	int days, day_comp;
 };
 
-struct muser {
-	dbref who;
-	char *fwd;
-	char *vacation;
-	dbref *afilter;
-	int status;	
-};
-
 typedef struct mail_entry MENT;
 struct mail_entry {
 	char *message;

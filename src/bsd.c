@@ -29,7 +29,6 @@ extern const int _sys_nsig;
 #endif
 
 #ifdef CONCENTRATE
-extern struct descriptor_data *ccontrol;
 extern void FDECL(send_killconcid, (DESC *));
 extern long NDECL(make_concid);
 
@@ -516,7 +515,7 @@ int port;
 			if (CheckInput(d->descriptor)) {
 
 				/*
-				 * Undo autodark 
+				 * Undo AutoDark 
 				 */
 
 				if (d->flags & DS_AUTODARK) {

@@ -839,7 +839,7 @@ void channel_clr(player)
 	sprintf(tbuf, "%d.%s", player, cl_ptr->alias_ptr->alias),
 	clear_chan_alias(tbuf, cl_ptr->alias_ptr);
 	next = cl_ptr->next;
-	XFREE(cl_ptr, "channel_clr.clist_ptr");
+	XFREE(cl_ptr, "channel_clr.cl_ptr");
     }
 
     nhashdelete((int) player, &mod_comsys_comlist_htab);

@@ -18,8 +18,8 @@
 #include "powers.h"	/* required by code */
 
 /* ---------------------------------------------------------------------------
- * fun_loop and fun_parse exist for reasons of backwards compatibility.
- * See notes on fun_iter for the explanation.
+ * perform_loop: backwards-compatible looping constructs: LOOP, PARSE
+ * See notes on perform_iter for the explanation.
  */
 
 FUNCTION(perform_loop)
@@ -81,7 +81,9 @@ FUNCTION(perform_loop)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_iter() and fun_list() parse an expression, substitute elements of
+ * perform_iter: looping constructs
+ *
+ * iter() and list() parse an expression, substitute elements of
  * a list, one at a time, using the '##' replacement token. Uses of these
  * functions can be nested.
  * In older versions of MUSH, these functions could not be nested.
@@ -91,12 +93,12 @@ FUNCTION(perform_loop)
  * compatibility, in order to avoid breaking a lot of code that relies upon
  * particular patterns of necessary escaping.
  *
- * fun_whentrue() and fun_whenfalse() work similarly to iter(). 
+ * whentrue() and whenfalse() work similarly to iter(). 
  * whentrue() loops as long as the expression evaluates to true.
  * whenfalse() loops as long as the expression evaluates to false.
  *
- * fun_istrue() and fun_isfalse() are inline filterbool() equivalents
- * returning the elements of the list which are true or false, respectively.
+ * istrue() and isfalse() are inline filterbool() equivalents returning
+ * the elements of the list which are true or false, respectively.
  */
 
 FUNCTION(perform_iter)
@@ -257,7 +259,7 @@ FUNCTION(fun_fold)
 	char *op, *clist[3], *rstore;
 	Delim isep;
 
-	/* We need two to four arguements only */
+	/* We need two to four arguments only */
 
 	VaChk_In(2, 4);
 

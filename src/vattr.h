@@ -22,13 +22,10 @@ struct user_attribute {
 extern void	NDECL(vattr_init);
 extern VATTR *	FDECL(vattr_rename, (char *, char *));
 extern VATTR *	FDECL(vattr_find, (char *));
-extern VATTR *	FDECL(vattr_nfind, (int));
 extern VATTR *	FDECL(vattr_alloc, (char *, int));
 extern VATTR *	FDECL(vattr_define, (char *, int, int));
 extern void	FDECL(vattr_delete, (char *));
-extern VATTR *	FDECL(attr_rename, (char *, char *));
 extern VATTR *	NDECL(vattr_first);
 extern VATTR *	FDECL(vattr_next, (VATTR *));
-extern void	FDECL(list_vhashstats, (dbref));
 
 #endif /* __VATTR_H */

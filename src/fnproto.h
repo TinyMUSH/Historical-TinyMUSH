@@ -253,7 +253,6 @@ XFUNCTION(fun_rjust);
 XFUNCTION(fun_center);
 XFUNCTION(fun_left);
 XFUNCTION(fun_right);
-XFUNCTION(fun_strtrunc);
 XFUNCTION(fun_chomp);
 XFUNCTION(fun_comp);
 XFUNCTION(fun_streq);

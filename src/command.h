@@ -40,7 +40,7 @@ CMD_ONE_ARG(do_crondel);		/* Delete cron entries */
 CMD_ONE_ARG(do_crontab);		/* List out cron entries */
 CMD_ONE_ARG(do_cut);			/* Truncate contents or exits list */
 CMD_NO_ARG(do_dbck);			/* Consistency check */
-CMD_TWO_ARG(do_decomp);			/* Reproduce commands to recrete obj */
+CMD_TWO_ARG(do_decomp);			/* Show commands to recreate obj */
 CMD_ONE_ARG(do_destroy);		/* Destroy an object */
 CMD_TWO_ARG_ARGV(do_dig);		/* Dig a new room */
 CMD_ONE_ARG(do_doing);			/* Set doing string in WHO report */
@@ -58,7 +58,7 @@ CMD_ONE_ARG(do_floaters);		/* Display floating rooms */
 CMD_TWO_ARG_CMDARG(do_force);		/* Force someone to do something */
 CMD_ONE_ARG_CMDARG(do_force_prefixed);	/* #<num> <cmd> variant of FORCE */
 CMD_ONE_ARG(do_freelist);		/* Move obj to head of freelist */
-CMD_TWO_ARG(do_function);		/* Make iser-def global function */
+CMD_TWO_ARG(do_function);		/* Make user-def global function */
 CMD_ONE_ARG(do_get);			/* Get an object */
 CMD_TWO_ARG(do_give);			/* Give something away */
 CMD_ONE_ARG(do_global);			/* Enable/disable global flags */
@@ -81,7 +81,6 @@ CMD_NO_ARG(do_markall);			/* Mark or unmark all objects */
 CMD_ONE_ARG(do_motd);			/* Set/list MOTD messages */
 CMD_ONE_ARG(do_move);			/* Move about using exits */
 CMD_TWO_ARG_ARGV(do_mvattr);		/* Move attributes on object */
-CMD_TWO_ARG(do_mudwho);			/* WHO for inter-mud page/who suppt */
 CMD_TWO_ARG(do_name);			/* Change the name of something */
 CMD_TWO_ARG(do_newpassword);		/* Change passwords */
 CMD_TWO_ARG(do_notify);			/* Notify or drain semaphore */

@@ -41,7 +41,6 @@
 typedef	char		Attr;
 
 typedef	unsigned int	Objname;
-#define ATTR_SIZE(a)	(strlen((a)) + 1)
 
 typedef struct Aname {
 	unsigned int	object;

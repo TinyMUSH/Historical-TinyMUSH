@@ -73,7 +73,7 @@
 #define	A_ODESC		37	/* Others describe message */
 #define	A_RQUOTA	38	/* Relative object quota */
 #define	A_ACONNECT	39	/* Actions run when player connects */
-#define	A_ADISCONNECT	40	/* Actions run when player disconnectes */
+#define	A_ADISCONNECT	40	/* Actions run when player disconnects */
 #define	A_ALLOWANCE	41	/* Daily allowance, if diff from default */
 #define	A_LOCK		42	/* Object lock */
 #define	A_NAME		43	/* Object name */
@@ -111,12 +111,12 @@
 #define	A_UFAIL		75	/* Invoker use fail message */
 #define	A_OUFAIL	76	/* Others use fail message */
 #define	A_AUFAIL	77	/* Use fail action list */
-#define	A_PFAIL		78	/* Invoker page fail message */
+/* unused 		78	Formerly A_PFAIL: Invoker page fail message */
 #define	A_TPORT		79	/* Invoker teleport message */
 #define	A_OTPORT	80	/* Others teleport message in src */
 #define	A_OXTPORT	81	/* Others teleport message in dst */
 #define	A_ATPORT	82	/* Teleport action list */
-#define	A_PRIVS		83	/* Individual permissions */
+/* unused		83	Formerly A_PRIVS: Individual permissions */
 #define	A_LOGINDATA	84	/* Recent login information */
 #define	A_LTPORT	85	/* Teleport lock (can others @tel to me?) */
 #define	A_LDROP		86	/* Drop lock (can I be dropped or @tel'ed) */
@@ -135,6 +135,7 @@
 #define A_LCONTROL	99	/* Who controls me if CONTROL_OK set */
 #define	A_VA		100	/* VA attribute (VB-VZ follow) */
 
+/* unused               126, 127, 128 */
 #define	A_GFAIL		129	/* Give fail message */
 #define	A_OGFAIL	130	/* Others give fail message */
 #define	A_AGFAIL	131	/* Give fail action */
@@ -161,7 +162,7 @@
 #define A_MAILSUB	207	/* The mail subject */
 #define A_MAILCURF	208	/* The current @mail folder */
 #define A_LSPEECH	209	/* Speechlocks */
-#define A_PROGCMD	210	/* Command for exectution by @prog */
+#define A_PROGCMD	210	/* Command for execution by @prog */
 #define A_MAILFLAGS	211	/* Flags for extended mail */
 #define A_DESTROYER	212	/* Who is destroying this object? */
 
@@ -187,9 +188,9 @@
 
 #define A_SPEECHFMT	229	/* Format speech */
 
-#define	A_VLIST		252
+/* unused		252	Formerly A_VLIST */
 #define	A_LIST		253
-#define	A_STRUCT	254
+/* unused		254	Formerly A_STRUCT */
 #define	A_TEMP		255
 
 #define	A_USER_START	256	/* Start of user-named attributes */

@@ -526,7 +526,7 @@ char *tstr, *dstr;
 
 /* ----------------------------------------------------------------------
  * register_match: Do a wildcard match, setting the wild data into the
- * globla registers.
+ * global registers.
  */
 
 int register_match(tstr, dstr, args, nargs)

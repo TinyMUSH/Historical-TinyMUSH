@@ -9,7 +9,6 @@
 #define BEEP_CHAR     '\07'
 #define ESC_CHAR      '\033'
 
-#define ANSI_BEGIN    "\033["
 #define ANSI_CSI      '['
 #define ANSI_END      'm'
 

@@ -345,7 +345,6 @@ if ((l) > 0) { \
 #define LOGIC_OR	1
 #define LOGIC_XOR	2
 #define LOGIC_BOOL	0x10	/* interpret operands as boolean, not int */
-#define LOGIC_EVAL	0x20	/* operands need to be evaluated */
 #define LOGIC_LIST	0x40	/* operands come in a list, not separately */
 
 /* from handle_vectors (vadd, vsub, vmul, vdot): */

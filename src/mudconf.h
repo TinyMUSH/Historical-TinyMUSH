@@ -137,7 +137,7 @@ struct confdata {
 	int	sacadjust;	/* ... */
 	dbref	start_room;	/* initial location for non-Guest players */
 	dbref	start_home;	/* initial HOME for players */
-	dbref	default_home;	/* HOME when home is inaccessable */
+	dbref	default_home;	/* HOME when home is inaccessible */
 	dbref	guest_start_room; /* initial location for Guests */
 	int	vattr_flags;	/* Attr flags for all user-defined attrs */
 	KEYLIST *vattr_flag_list; /* Linked list, for attr_type conf */
@@ -208,7 +208,7 @@ struct confdata {
 	int	sig_action;	/* What to do with fatal signals */
 	int	paranoid_alloc;	/* Rigorous buffer integrity checks */
 	int	max_players;	/* Max # of connected players */
-	int	dump_interval;	/* interval between ckp dumps in seconds */
+	int	dump_interval;	/* interval between checkpoint dumps in secs */
 	int	check_interval;	/* interval between db check/cleans in secs */
 	int	events_daily_hour; /* At what hour should @daily be executed? */
 	int	dump_offset;	/* when to take first checkpoint dump */
@@ -339,7 +339,7 @@ struct confdata {
 	int	numvars_lim;	/* Max number of variables per object */
 	int	stack_lim;	/* Max number of items on an object stack */
 	int	struct_lim;	/* Max number of defined structures for obj */
-	int	instance_lim;	/* Max number of struct insances for obj */
+	int	instance_lim;	/* Max number of struct instances for obj */
 	int	max_player_aliases; /* Max number of aliases for a player */
 	int	register_limit;	/* Max number of named q-registers */
 	char	*struct_dstr;	/* Delim string used for struct 'examine' */
@@ -441,7 +441,6 @@ struct statedata {
 	time_t	idle_counter;	/* Countdown to next idle check */
 	time_t	mstats_counter;	/* Countdown to next mstats snapshot */
 	time_t  events_counter; /* Countdown to next events check */
-	int	events_flag;	/* Flags for check_events */
 	int	shutdown_flag;	/* Should interface be shut down? */
 	int	flatfile_flag;	/* Dump a flatfile when we have the chance */
 	time_t	start_time;	/* When was MUSH started */
@@ -579,10 +578,6 @@ extern STATEDATA mudstate;
 #define H_FORBIDDEN	0x0002	/* Reject all connects */
 #define H_SUSPECT	0x0004	/* Notify wizards of connects/disconnects */
 #define H_GUEST         0x0008  /* Don't permit guests from here */
-
-/* Event flags, for noting when an event has taken place */
-
-#define ET_DAILY	0x00000001	/* Daily taken place? */
 
 /* Logging options */
 

@@ -118,7 +118,7 @@ char *dbr;
 }
 
 /* ---------------------------------------------------------------------------
- * fun_words: Returns number of words in a string. Aka fun_vdim.
+ * fun_words: Returns number of words in a string. Aka vdim.
  * Added 1/28/91 Philip D. Wasson
  */
 
@@ -1006,13 +1006,14 @@ FUNCTION(fun_sortby)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_setunion, fun_setdiff, fun_setinter: Set management.
- * Also fun_lunion, fun_ldiff, fun_linter: Same thing, but takes
- * a sort type like sort() does. There's an unavoidable PennMUSH conflict,
- * as setunion() and friends have a 4th-arg output delimiter in TM3, but
+ * handle_sets: Set management: SETUNION, SETDIFF, SETINTER.
+ * Also LUNION, LDIFF, LINTER: Same thing, but takes a sort type like
+ * sort() does. There's an unavoidable PennMUSH conflict, as
+ * setunion() and friends have a 4th-arg output delimiter in TM3, but
  * the 4th arg is used for the sort type in PennMUSH. Also, adding the
- * sort type as a fifth arg for setunion(), etc. would be confusing, since
- * the last two args are, by convention, delimiters. So we add new funcs.
+ * sort type as a fifth arg for setunion(), etc. would be confusing,
+ * since the last two args are, by convention, delimiters. So we add
+ * new funcs.
  */
 
 #define NUMCMP(f1,f2) \

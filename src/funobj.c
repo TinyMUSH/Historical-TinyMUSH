@@ -1383,7 +1383,7 @@ FUNCTION(fun_v)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_get, fun_get_eval: Get attribute from object.
+ * perform_get: Get attribute from object: GET, XGET, GET_EVAL, EVAL(obj,atr)
  */
 
 FUNCTION(perform_get)
@@ -1463,7 +1463,7 @@ FUNCTION(fun_eval)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_u and fun_ulocal:  Call a user-defined function.
+ * do_ufun: Call a user-defined function: U, ULOCAL
  */
 
 FUNCTION(do_ufun)
@@ -1490,7 +1490,7 @@ FUNCTION(do_ufun)
 	/* If we're evaluating locally, preserve the global registers. */
 
 	if (is_local) {
-	    preserve = save_global_regs("fun_ulocal_save");
+	    preserve = save_global_regs("fun_ulocal.save");
 	}
 	
 	/* Evaluate it using the rest of the passed function args */
@@ -1503,7 +1503,7 @@ FUNCTION(do_ufun)
 	/* If we're evaluating locally, restore the preserved registers. */
 
 	if (is_local) {
-		restore_global_regs("fun_ulocal_restore", preserve);
+		restore_global_regs("fun_ulocal.restore", preserve);
 	}
 }
 
@@ -1658,7 +1658,7 @@ FUNCTION(fun_udefault)
 		 */
 		for (i = 2, j = 0; j < NUM_ENV_VARS; i++, j++) {
 		    if ((i < nfargs) && fargs[i]) {
-			bp = xargs[j] = alloc_lbuf("fun_udefault_args");
+			bp = xargs[j] = alloc_lbuf("fun_udefault.args");
 			str = fargs[i];
 			exec(xargs[j], &bp, player, caller, cause,
 			     EV_STRIP | EV_FCHECK | EV_EVAL,
@@ -1923,8 +1923,9 @@ FUNCTION(fun_locate)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_lattr: Return list of attributes I can see on the object.
- * fun_nattr: Ditto, but just count 'em up.
+ * handle_lattr:
+ *   lattr: Return list of attributes I can see on the object.
+ *   nattr: Ditto, but just count 'em up.
  */
 
 FUNCTION(handle_lattr)

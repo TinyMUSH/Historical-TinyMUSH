@@ -175,7 +175,7 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
         return -1;
     }
 
-    /* A number of affected rows greater than 0 means it wasnt a SELECT */
+    /* A number of affected rows greater than 0 means it wasn't a SELECT */
 
     num_rows = mysql_affected_rows(mysql);
     if (num_rows > 0) {

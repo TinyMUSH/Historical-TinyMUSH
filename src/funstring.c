@@ -1354,7 +1354,8 @@ FUNCTION(fun_repeat)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_border: Turn a string of words into a bordered paragraph.
+ * perform_border: Turn a string of words into a bordered paragraph:
+ * BORDER, CBORDER, RBORDER
  * border(<words>,<width without margins>[,<L margin fill>[,<R margin fill>]])
  */
 

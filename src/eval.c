@@ -889,7 +889,7 @@ char *cargs[];
 					safe_str((char *)subj[gender],
 						 buff, bufc);
 				break;
-			case 'A':	/* Absolute posessive */
+			case 'A':	/* Absolute possessive */
 			case 'a':	/* idea from Empedocles */
 				if (gender < 0)
 					gender = get_gender(cause);
@@ -981,8 +981,8 @@ char *cargs[];
 				break;
 			}
 
-			/* Get the arglist and count the number of args Neg 
-			 * # of args means catenate subsequent args 
+			/* Get the arglist and count the number of args
+			 * Negative # of args means join subsequent args 
 			 */
 
 			if (ufp)
@@ -1056,7 +1056,7 @@ char *cargs[];
 					str = tstr;
 					
 					if (ufp->flags & FN_PRES) {
-					    preserve = save_global_regs("eval_save");
+					    preserve = save_global_regs("eval.save");
 					}
 					
 					exec(buff, bufc, i, player, cause,
@@ -1065,7 +1065,7 @@ char *cargs[];
 					     &str, fargs, nfargs);
 					
 					if (ufp->flags & FN_PRES) {
-					    restore_global_regs("eval_restore",
+					    restore_global_regs("eval.restore",
 								preserve);
 					}
 

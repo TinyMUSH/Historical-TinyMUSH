@@ -2385,7 +2385,7 @@ FUNCTION(fun_lstack)
 
 /* --------------------------------------------------------------------------
  * regedit: Edit a string for sed/perl-like s//
- *          regedit(<string>,<regexp>,<replacement>
+ *          regedit(<string>,<regexp>,<replacement>)
  *          Derived from the PennMUSH code. 
  */
 
@@ -2522,8 +2522,8 @@ FUNCTION(fun_wildparse)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_regparse: Slurp a string into up to ten named variables ($0 - $9).
- *               Unlike regmatch(), this returns no value.
+ * perform_regparse: Slurp a string into up to ten named variables ($0 - $9).
+ *               REGPARSE, REGPARSEI. Unlike regmatch(), this returns no value.
  *               regparse(string, pattern, named vars)
  */
 
@@ -2569,8 +2569,8 @@ FUNCTION(perform_regparse)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_regrab: Like grab() and graball(), but with a regexp pattern.
- *             Derived from PennMUSH.
+ * perform_regrab: Like grab() and graball(), but with a regexp pattern.
+ *             REGRAB, REGRABI. Derived from PennMUSH.
  */
 
 FUNCTION(perform_regrab)
@@ -2635,9 +2635,10 @@ FUNCTION(perform_regrab)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_regmatch: Return 0 or 1 depending on whether or not a regular
+ * perform_regmatch: Return 0 or 1 depending on whether or not a regular
  * expression matches a string. If a third argument is specified, dump
  * the results of a regexp pattern match into a set of arbitrary r()-registers.
+ * REGMATCH, REGMATCHI
  *
  * regmatch(string, pattern, list of registers)
  * If the number of matches exceeds the registers, those bits are tossed
@@ -2700,12 +2701,12 @@ FUNCTION(perform_regmatch)
     nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
 	if (subpatterns < 0) {
-	    set_register("fun_regmatch", qregs[i], NULL);
+	    set_register("perform_regmatch", qregs[i], NULL);
 	} else {
 	    p = tbuf;
 	    pcre_copy_substring(fargs[0], offsets, subpatterns, i,
 				p, LBUF_SIZE);
-	    set_register("fun_regmatch", qregs[i], p);
+	    set_register("perform_regmatch", qregs[i], p);
 	}
     }
 
@@ -2865,7 +2866,7 @@ FUNCTION(fun_until)
 
 
 /* ---------------------------------------------------------------------------
- * fun_grep and friends: grep (exact match), wildgrep (wildcard match),
+ * perform_grep: grep (exact match), wildgrep (wildcard match),
  * regrep (regexp match), and case-insensitive versions. (There is no
  * case-insensitive wildgrep, since all wildcard matches are caseless.)
  */
