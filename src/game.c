@@ -1837,7 +1837,7 @@ char *argv[];
 	 * loads is NOT representative of normal cache behavior :)
 	 */
 	
-//	cache_reset(1);
+	cache_reset(1);
 	
 	/* Start the DNS and identd lookup slave process */
 	
