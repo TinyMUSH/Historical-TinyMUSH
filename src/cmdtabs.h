@@ -76,6 +76,7 @@ NAMETAB dump_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB emit_sw[] = {
+{(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
 {(char *)"here",	1,	CA_PUBLIC,	SAY_HERE|SW_MULTIPLE},
 {(char *)"room",	1,	CA_PUBLIC,	SAY_ROOM|SW_MULTIPLE},
 #ifdef PUEBLO_SUPPORT
@@ -98,6 +99,7 @@ NAMETAB examine_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB femit_sw[] = {
+{(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
 {(char *)"here",	1,	CA_PUBLIC,	PEMIT_HERE|SW_MULTIPLE},
 {(char *)"room",	1,	CA_PUBLIC,	PEMIT_ROOM|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
@@ -120,6 +122,7 @@ NAMETAB force_sw[] = {
 
 NAMETAB fpose_sw[] = {
 {(char *)"default",	1,	CA_PUBLIC,	0},
+{(char *)"noeval",	3,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
 {(char *)"nospace",	1,	CA_PUBLIC,	SAY_NOSPACE},
 { NULL,			0,	0,		0}};
 
@@ -231,6 +234,7 @@ NAMETAB pemit_sw[] = {
 
 NAMETAB pose_sw[] = {
 {(char *)"default",	1,	CA_PUBLIC,	0},
+{(char *)"noeval",	3,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
 {(char *)"nospace",	1,	CA_PUBLIC,	SAY_NOSPACE},
 { NULL,			0,	0,		0}};
 
@@ -324,6 +328,9 @@ NAMETAB warp_sw[] = {
 {(char *)"events",	1,	CA_WIZARD,	TWARP_EVENTS|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
+NAMETAB noeval_sw[] = {
+{(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL},
+{ NULL,			0,	0,		0}};
 
 /* ---------------------------------------------------------------------------
  * Command table: Definitions for builtin commands, used to build the command
@@ -686,13 +693,13 @@ CMDENT command_table[] = {
 {(char *)"look",		look_sw,		CA_LOCATION,
 	LOOK_LOOK,	CS_ONE_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_look},
-{(char *)"page",		NULL,		CA_NO_SLAVE,
+{(char *)"page",		noeval_sw,	CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_page},
 {(char *)"pose",		pose_sw,	CA_LOCATION|CA_NO_SLAVE,
 	SAY_POSE,	CS_ONE_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_say},
-{(char *)"say",			NULL,		CA_LOCATION|CA_NO_SLAVE,
+{(char *)"say",			noeval_sw,	CA_LOCATION|CA_NO_SLAVE,
 	SAY_SAY,	CS_ONE_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_say},
 {(char *)"score",		NULL,		CA_PUBLIC,

@@ -337,7 +337,7 @@
   See also; @robot, OUTPUTPREFIX, ROBOT.
 
 & page 
-  Command: page [<player-list>] [=<message>]
+  Command: page[/noeval] [<player-list>] [=<message>]
  
   This command sends <message> to a list of players. If you do not specify
   a player list, it defaults to the players you last paged. You may use
@@ -349,6 +349,8 @@
   as 'From afar, <player> <message>', with ';' omitting the space between
   <player> and <message>.  '"' formats the message in normal page format
   (this is the default).
+ 
+  If the /noeval switch is specified, <message> is not evaluated.
  
 { 'help page2' for more }
 & page2  
@@ -375,6 +377,7 @@
                 (ie, display '<name> <message>').
      /nospace - Don't put a space between your name and the message
                 (ie, display '<name><message>').
+     /noeval  - Don't evaluate <message>.
  
   See also: page, say, whisper, :, ;, ".
 
@@ -471,9 +474,12 @@
   See also: @emit, @oemit, NOSPOOF.
 
 & say
-  Command: say <message>
+  Command: say[/noeval] <message>
+ 
   Says <message> out loud to everyone in your current room. You can also
-  use '"<message>'.
+  use '"<message>'. If the /noeval switch is specified, the message is
+  not evaluated.
+ 
   See also: page, pose, whisper, :, ;, ".
 
 & score
@@ -1027,8 +1033,10 @@
              object you are in.  Starting from your location, this switch
              'leaves' objects until it reaches a room, and @emits the message
              there.
-  If both switches are specified, the message is sent to both places.  If
-  neither is specified, /here is assumed.
+     /noeval - Don't evaluate <message>.
+ 
+  If both switches /here and /room are specified, the message is sent to
+  both places. If neither is specified, /here is assumed.
 
   There is an also a '/html' switch, which sends the output in HTML
   format. (Pueblo support only.)
@@ -1078,9 +1086,10 @@
               object that <object> is in.  Starting from your location, this
               switch 'leaves' objects until it reaches a room, and @emits the
               message there.
+     /noeval - Don't evaluate <message>.
 
-  If both switches are specified, the message is sent to both places.  If
-  neither is specified, /here is assumed.
+  If both /here and /room switches are specified, the message is sent to
+  both places.  If neither is specified, /here is assumed.
  
   Some MUSHes may restrict the use of this command.
   See also: @emit, @fpose, @fsay, INHERIT, SPOOFING.
@@ -1129,6 +1138,7 @@
                 the message (ie, send '<name> <message>').
      /nospace - Don't put a space between the name of the object and the
                 message (ie, send '<name><message>').
+     /noeval - Don't evaluate <message>.
  
   See also: @femit, @fsay, pose, :, ;, INHERIT.
  
