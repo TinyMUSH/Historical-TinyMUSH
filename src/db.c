@@ -1255,12 +1255,32 @@ char *buff;
 {
 	ATTR *ap;
 	VATTR *va;
+#ifndef STANDALONE
+	int vflags;
+	KEYLIST *kp;
+#endif /* STANDALONE */
 
 	if (!(ap = atr_str(buff))) {
 
-		/* Unknown attr, create a new one */
+		/* Unknown attr, create a new one.
+		 * Check if it matches any attribute type pattern that
+		 * we have defined; if it does, give it those flags.
+		 * Otherwise, use the default vattr flags.
+		 */
 
+#ifndef STANDALONE
+		vflags = mudconf.vattr_flags;
+		for (kp = mudconf.vattr_flag_list; kp != NULL; kp = kp->next) {
+		    if (quick_wild(kp->name, buff)) {
+			vflags = kp->data;
+			break;
+		    }
+		}
+		va = vattr_alloc(buff, vflags);
+#else
 		va = vattr_alloc(buff, mudconf.vattr_flags);
+#endif /* STANDALONE */
+
 		if (!va || !(va->number))
 			return -1;
 		return va->number;

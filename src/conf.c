@@ -277,6 +277,7 @@ void NDECL(cf_init)
 	    HEAD_FLAG | SLAVE | STAFF | STOP_MATCH | SUSPECT | UNINSPECTED;
 	mudconf.stripped_flags.word3 = 0;
 	mudconf.vattr_flags = AF_ODARK;
+	mudconf.vattr_flag_list = NULL;
 	StringCopy(mudconf.mud_name, "TinyMUSH");
 	StringCopy(mudconf.one_coin, "penny");
 	StringCopy(mudconf.many_coins, "pennies");
@@ -1244,6 +1245,7 @@ extern CF_HDCL(cf_access);
 extern CF_HDCL(cf_cmd_alias);
 extern CF_HDCL(cf_acmd_access);
 extern CF_HDCL(cf_attr_access);
+extern CF_HDCL(cf_attr_type);
 extern CF_HDCL(cf_func_access);
 extern CF_HDCL(cf_flag_access);
 extern CF_HDCL(cf_flag_name);
@@ -1265,6 +1267,7 @@ CONF conftable[] = {
 {(char *)"attr_access",			cf_attr_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)attraccess_nametab},
 {(char *)"attr_alias",			cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.attr_name_htab,(long)"Attribute"},
 {(char *)"attr_cmd_access",		cf_acmd_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
+{(char *)"attr_type",			cf_attr_type,	CA_GOD,		CA_DISABLED,	NULL,				(long)attraccess_nametab},
 {(char *)"autozone",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.autozone,		(long)"New objects are @chzoned to their creator's zone"},
 {(char *)"bad_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				0},
 {(char *)"badsite_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.site_file,	SBUF_SIZE},

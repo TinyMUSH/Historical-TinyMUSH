@@ -12,6 +12,13 @@
 
 typedef unsigned char Uchar;
 
+typedef struct key_linked_list KEYLIST;
+struct key_linked_list {
+	char *name;
+	int data;
+	struct key_linked_list *next;
+};	
+
 typedef struct confdata CONFDATA;
 struct confdata {
 	int	cache_size;	/* Maximum size of cache */
@@ -36,6 +43,7 @@ struct confdata {
 	dbref	default_home;	/* HOME when home is inaccessable */
 	dbref	guest_start_room; /* initial location for Guests */
 	int	vattr_flags;	/* Attr flags for all user-defined attrs */
+	KEYLIST *vattr_flag_list; /* Linked list, for attr_type conf */
 	int	log_options;	/* What gets logged */
 	int	log_info;	/* Info that goes into log entries */
 	int	log_diversion;	/* What logs get diverted? */

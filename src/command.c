@@ -1615,6 +1615,29 @@ dbref player;
 }
 
 /* ---------------------------------------------------------------------------
+ * list_attrtypes: List attribute "types" (wildcards and permissions)
+ */
+
+static void list_attrtypes(player)
+dbref player;
+{
+    char *buff;
+    KEYLIST *kp;
+
+    if (!mudconf.vattr_flag_list) {
+	notify(player, "No attribute type patterns defined.");
+	return;
+    }
+
+    buff = alloc_sbuf("list_attrtypes");
+    for (kp = mudconf.vattr_flag_list; kp != NULL; kp = kp->next) {
+	sprintf(buff, "%s:", kp->name);
+	listset_nametab(player, attraccess_nametab, kp->data, buff, 1);
+    }
+    free_sbuf(buff);
+}
+
+/* ---------------------------------------------------------------------------
  * cf_access: Change command or switch permissions.
  */
 
@@ -1708,6 +1731,53 @@ CF_HAND(cf_attr_access)
 		cf_log_notfound(player, cmd, "Attribute", str);
 		return -1;
 	}
+}
+
+/* ---------------------------------------------------------------------------
+ * cf_attr_type: Define attribute flags for new user-named attributes
+ *               whose names match a certain pattern.
+ */
+
+CF_HAND(cf_attr_type)
+{
+    char *privs;
+    KEYLIST *kp;
+    int succ;
+
+    /* Split our string into the attribute pattern and privileges. Also
+     * uppercase it, while we're at it. Make sure it's not longer than
+     * an attribute name can be.
+     */
+ 
+    for (privs = str; *privs && !isspace(*privs); privs++) {
+	*privs = toupper(*privs);
+    }
+    if (*privs)
+	*privs++ = '\0';
+    while (*privs && isspace(*privs))
+	privs++;
+    if (strlen(str) >= VNAME_SIZE)
+	str[VNAME_SIZE - 1] = '\0';
+
+    /* Create our new data blob. Make sure that we're setting the privs
+     * to something reasonable before trying to link it in. (If we're
+     * not, an error will have been logged; we don't need to do it.)
+     */
+
+    kp = (KEYLIST *) XMALLOC(sizeof(KEYLIST), "cf_attr_type.kp");
+    kp->data = 0;
+
+    succ = cf_modify_bits(&(kp->data), privs, extra, player, cmd);
+    if (succ < 0) {
+	XFREE(kp, "cf_attr_type.kp");
+	return -1;
+    }
+
+    kp->name = XSTRDUP(str, "cf_attr_type.name");
+    kp->next = mudconf.vattr_flag_list;
+    mudconf.vattr_flag_list = kp;
+
+    return (succ);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2337,11 +2407,13 @@ dbref player;
 #define LIST_TEXTFILES  24
 #define LIST_PARAMS	25
 #define LIST_CF_RPERMS	26
+#define LIST_ATTRTYPES	27
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
 {(char *)"allocations",		2,	CA_WIZARD,	LIST_ALLOCATOR},
-{(char *)"attr_permissions",	5,	CA_WIZARD,	LIST_ATTRPERMS},
+{(char *)"attr_permissions",	6,	CA_WIZARD,	LIST_ATTRPERMS},
+{(char *)"attr_types",		6,	CA_PUBLIC,	LIST_ATTRTYPES},
 {(char *)"attributes",		2,	CA_PUBLIC,	LIST_ATTRIBUTES},
 {(char *)"bad_names",		2,	CA_WIZARD,	LIST_BADNAMES},
 {(char *)"buffers",		2,	CA_WIZARD,	LIST_BUFTRACE},
@@ -2471,6 +2543,9 @@ char *arg;
 		break;
 	case LIST_PARAMS:
 		list_params(player);
+		break;
+	case LIST_ATTRTYPES:
+		list_attrtypes(player);
 		break;
 	default:
 		display_nametab(player, list_names,
