@@ -243,6 +243,7 @@ void NDECL(cf_init)
 	mudconf.timeslice = 1000;
 	mudconf.cmd_quota_max = 100;
 	mudconf.cmd_quota_incr = 1;
+	mudconf.max_cmdsecs = 120;
 	mudconf.control_flags = 0xffffffff;	/* Everything for now... */
 	mudconf.control_flags &= ~CF_GODMONITOR; /* Except for monitoring... */
 	mudconf.log_options = LOG_ALWAYS | LOG_BUGS | LOG_SECURITY |
