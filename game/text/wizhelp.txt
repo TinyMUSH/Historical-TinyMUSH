@@ -27,11 +27,11 @@
   @chown         @chownall      @clone         @cut           @dbck          
   @delcommand    @destroy       @disable       @doing         @dump          
   @enable        @fixdb         @freelist      @function      @halt
-  @kick          @list          @listcommands  @list_file     @listmotd      
-  @lock          @mark          @mark_all      @motd          @newpassword   
-  @pcreate       @poor          @power         @ps            @purge     
-  @quota         @readcache     @restart       @rwho          @shutdown
-  @timecheck     @timewarp      @toad          @wall
+  @hook          @kick          @list          @listcommands  @list_file     
+  @listmotd      @lock          @mark          @mark_all      @motd          
+  @newpassword   @pcreate       @poor          @power         @ps            
+  @purge         @quota         @readcache     @restart       @rwho          
+  @shutdown      @timecheck     @timewarp      @toad          @wall
  
   @allowance     @comment       @timeout
 
@@ -425,6 +425,78 @@
   The /all switch may be used to halt all commands globally.
   See also: @drain, @notify, kill, HALTED, SEMAPHORES.
 
+& @hook
+  Command: @hook[/<switch>] [<command>[=<object>/<attribute>]]
+ 
+  "Command hooks" are function evaluations that occur before or after
+  a given built-in command is executed. This command allows the hooks
+  to be specified in the form of an object/attribute pair; the contents
+  of the specified attribute, at the time the hooked command is executed,
+  will be evaluated.
+  
+  '@hook <command>' shows the hooks associated with <command>. For 
+  example, '@hook @create' shows the hooks associated with @create.
+ 
+  '@hook/before <command>=<object>/<attribute>' specifies a hook to be
+  executed before the given command.
+ 
+  '@hook/after <command>=<object>/<attribute>' specifies a hook to be
+  executed after the given command.
+ 
+  '@hook/before <command>' and '@hook/after <command>' delete hooks.
+
+  Continued in 'help @hook2'.
+ 
+& @hook2
+ 
+  '@hook/nopreserve <command>' makes it so that the global registers
+  (r-registers) will not be preserved when hooks for that command are
+  executed. This is the default state.
+ 
+  '@hook/preserve <command>' makes it so that the global registers
+  will be preserved when hooks for that command are executed. While
+  this is more convenient for code, it is also less efficient.
+ 
+  This command is normally restricted to God. Hooks should be the
+  first things in the @startup on the God character, assuming you
+  want them to take effect immediately when the server is started.
+ 
+  Continued in 'help @hook3'.
+ 
+& @hook3
+ 
+  Example:
+ 
+    > &BEFORE_HOOK #10=[pemit(%#,Before)]
+    > &AFTER_HOOK #10=[pemit(%#,After)]
+    > @hook/before @create=#10/BEFORE_HOOK
+    > @hook/after @create=#10/AFTER_HOOK
+    > @create foo
+    Before
+    foo created as object #51
+    After
+ 
+  Continued in 'help @hook4'.
+ 
+& @hook4
+ 
+  Example:
+ 
+    > &BEFORE_HOOK #10=[pemit(%#,Before - [setr(0,Set)])]
+    > &AFTER_HOOK #10=[pemit(%#,After - %q0)]
+    > @hook/before @pemit=#10/BEFORE_HOOK
+    > @hook/after @pemit=#10/AFTER_HOOK
+    > @pemit me=Test - %q0 - [setr(0,Reset)]
+    Before - Set
+    Test - Set - Reset
+    After - Reset
+    > @hook/preserve @pemit
+    > @pemit me=Test - %q0 - [setr(0,Reset)]
+    Before - Set
+    Test -  - Reset
+    After - Reset
+ 
+ 
 & @kick
   Command: @kick <count>
   Immediately executes the first <count> commands from the top of the queue.
