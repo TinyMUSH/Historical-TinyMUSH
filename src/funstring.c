@@ -1192,10 +1192,23 @@ FUNCTION(fun_pos)
 {
 	int i = 1;
 	char *b, *s, *t, *u;
+	char tbuf[LBUF_SIZE];
 
 	i = 1;
-	b = strip_ansi(fargs[0]);
+	strcpy(tbuf, strip_ansi(fargs[0])); /* copy from static buff */
+	b = tbuf;
 	s = strip_ansi(fargs[1]);
+
+	if (*b && !*(b+1)) {	/* single character */
+	    t = strchr(s, *b);
+	    if (t) {
+		safe_ltos(buff, bufc, (int) (t - s + 1));
+	    } else {
+		safe_nothing(buff, bufc);
+	    }
+	    return;
+	}
+
 	while (*s) {
 		u = s;
 		t = b;
