@@ -117,7 +117,7 @@ if (nfargs < xargnum) { \
 #define VaChkHelp_OutSep(xargnum, xflags) \
 if (!(osep_len = delim_check(fargs, nfargs, xargnum, &osep, \
            buff, bufc, player, caller, cause, cargs, ncargs, \
-           (xflags)|DELIM_NULL|DELIM_CRLF))) \
+           (xflags)|DELIM_NULL|DELIM_CRLF|DELIM_STRING))) \
     return;
 
 /*

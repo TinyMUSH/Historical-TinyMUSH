@@ -2624,18 +2624,10 @@ FUNCTION(fun_until)
 
     /* We need at least 6 arguments. The last 2 args must be delimiters. */
 
-    if (!fn_range_check("UNTIL", nfargs, 6, 12, buff, bufc)) {
-	return;
-    }
-    if (!delim_check(fargs, nfargs, nfargs - 1, &isep, buff, bufc,
-		     player, caller, cause, cargs, ncargs, 0)) {
-	return;
-    }
-    if (!(osep_len = delim_check(fargs, nfargs, nfargs, &osep, buff, bufc,
-				 player, caller, cause, cargs, ncargs,
-				 DELIM_NULL|DELIM_CRLF))) {
-	return;
-    }
+    VaChk_Range("UNTIL", 6, 12);
+    VaChkHelp_InSep(nfargs - 1, 0);
+    VaChkHelp_OutSep(nfargs, 0);
+
     lastn = nfargs - 4; 
 
     /* Make sure we have a valid regular expression. */

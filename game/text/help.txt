@@ -5473,8 +5473,7 @@ Topic:  Delimiters
  
 A large number of MUSH functions allow the specification of a list
 delimiter. Some allow this only for the input list; some also allow
-an output delimiter to be specified. All delimiters are single
-characters.
+an output delimiter to be specified.
  
 The default delimiter is a space. The list "1 2 3" consists of three
 elements (1, 2, and 3), space-delimited. The list "1-2-3" also
@@ -5482,12 +5481,13 @@ consists of the same three elements, but is dash-delimited.
  
 In the case where an input delimiter is specified, but an output
 delimiter is not, the output delimiter will default to the input
-delimiter, rather than defaulting to a space.
+delimiter, rather than defaulting to a space, EXCEPT for iter()
+and related functions, where the output delimiter defaults to space.
  
-Most functions that taken output delimiters can take a '%r' output
-delimiter, as well as a null output delimiter (i.e., just string all
-the output together, with no separator between each item). The null
-output delimiter is represented by the token '@@'.
+Input delimiters are single characters. Output delimiters can usually
+also be @@ (null delimiter: just string all the output together, with
+no separator between each item), as well as multi-character strings,
+including '%r'.
  
 See examples:  iter(), map(), filter()
  
@@ -8160,7 +8160,7 @@ performed and the walk down the list stops.
   See also: capstr(), lcstr().
 
 & LNUM()
-  Function:  lnum(<number>[,<other>][,<sep>])
+  Function:  lnum(<number>[,<other>][,<output delim>])
  
   If only given one argument, this function returns a list of numbers from
   0 to <number>-1.  <number> must be at least 1.

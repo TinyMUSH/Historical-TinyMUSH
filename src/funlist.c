@@ -1273,11 +1273,8 @@ FUNCTION(fun_columns)
 	char *p, *q, *buf, *curr, *objstring, *bp, *cp, *str;
 	Delim isep;
 
-        if (!fn_range_check("COLUMNS", nfargs, 2, 4, buff, bufc))
-		return;
-	if (!delim_check(fargs, nfargs, 3, &isep, buff, bufc,
-	    player, caller, cause, cargs, ncargs, DELIM_EVAL))
-		return;
+	VaChk_Range("COLUMNS", 2, 4);
+	VaChkHelp_InSep(3, DELIM_EVAL);
 		
 	number = (unsigned int) safe_atoi(fargs[1]);
 	indent = (unsigned int) safe_atoi(fargs[3]);

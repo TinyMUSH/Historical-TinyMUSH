@@ -299,8 +299,8 @@ FUNCTION(fun_die)
 
 FUNCTION(fun_lrand)
 {
-    Delim isep;
-    int n_times, r_bot, r_top, i;
+    Delim osep;
+    int n_times, r_bot, r_top, i, osep_len;
     double n_range;
     unsigned int tmp;
     char *bb_p;
@@ -309,10 +309,7 @@ FUNCTION(fun_lrand)
 
     if (!fn_range_check("LRAND", nfargs, 3, 4, buff, bufc))
 	return;
-    if (!delim_check(fargs, nfargs, 4, &isep, buff, bufc,
-		     player, caller, cause, cargs, ncargs,
-		     DELIM_NULL|DELIM_CRLF))
-	return;
+    VaChkHelp_OutSep(4, 0);
 
     /* If we're generating no numbers, since this is a list function,
      * we return empty, rather than returning 0.
@@ -344,7 +341,7 @@ FUNCTION(fun_lrand)
 	bb_p = *bufc;
 	for (i = 0; i < n_times; i++) {
 	    if (*bufc != bb_p) {
-		print_sep(isep, 1, buff, bufc);
+		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    safe_ltos(buff, bufc, r_bot);
 	}
@@ -357,7 +354,7 @@ FUNCTION(fun_lrand)
     bb_p = *bufc;
     for (i = 0; i < n_times; i++) {
 	if (*bufc != bb_p) {
-	    print_sep(isep, 1, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	}
 	tmp = (unsigned int) (makerandom() * n_range);
 	safe_ltos(buff, bufc, r_bot + tmp);
@@ -373,8 +370,8 @@ FUNCTION(fun_lrand)
 FUNCTION(fun_lnum)
 {
     char tbuf[12];
-    Delim isep;
-    int bot, top, over, i;
+    Delim osep;
+    int bot, top, over, i, osep_len;
     char *bb_p, *startp, *endp;
     static int lnum_init = 0;
     static char lnum_buff[290];
@@ -386,12 +383,8 @@ FUNCTION(fun_lnum)
     /* lnum() is special, since its single delimiter is really an output
      * delimiter.
      */
-    if (!fn_range_check("LNUM", nfargs, 1, 3, buff, bufc))
-	return;
-    if (!delim_check(fargs, nfargs, 3, &isep, buff, bufc,
-		     player, caller, cause, cargs, ncargs,
-		     DELIM_NULL|DELIM_CRLF))
-	return;
+    VaChk_Range("LNUM", 1, 3);
+    VaChkHelp_OutSep(3, 0);
 
     if (nfargs >= 2) {
 	bot = atoi(fargs[0]);
@@ -417,10 +410,10 @@ FUNCTION(fun_lnum)
 
     bb_p = *bufc;
     over = 0;
-    if ((bot < 0) && (top >= 0) && (isep.c == ' ')) {
+    if ((bot < 0) && (top >= 0) && (osep_len == 1) && (osep.c == ' ')) {
 	while ((bot < 0) && !over) {
 	    if (*bufc != bb_p) {
-		print_sep(isep, 1, buff, bufc);
+		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    ltos(tbuf, bot);
 	    over = safe_str(tbuf, buff, bufc);
@@ -432,9 +425,10 @@ FUNCTION(fun_lnum)
 
     /* Copy as much out of the pre-gen as we can. */
     
-    if ((bot >= 0) && (bot < 100) && (top > bot) && (isep.c == ' ')) {
+    if ((bot >= 0) && (bot < 100) && (top > bot) &&
+	(osep_len == 1) && (osep.c == ' ')) {
 	if (*bufc != bb_p) {
-	    print_sep(isep, 1, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	}
 	startp = lnum_buff + Lnum_Place(bot);
 	if (top >= 99) {
@@ -455,14 +449,14 @@ FUNCTION(fun_lnum)
 
     if (top == bot) {
 	if (*bufc != bb_p) {
-	    print_sep(isep, 1, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
 	}
 	safe_ltos(buff, bufc, bot);
 	return;
     } else if (top > bot) {
 	for (i = bot; (i <= top) && !over; i++) {
 	    if (*bufc != bb_p) {
-		print_sep(isep, 1, buff, bufc);
+		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    ltos(tbuf, i);
 	    over = safe_str(tbuf, buff, bufc);
@@ -470,7 +464,7 @@ FUNCTION(fun_lnum)
     } else {
 	for (i = bot; (i >= top) && !over; i--) {
 	    if (*bufc != bb_p) {
-		print_sep(isep, 1, buff, bufc);
+		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    ltos(tbuf, i);
 	    over = safe_str(tbuf, buff, bufc);
