@@ -393,12 +393,12 @@ int key;
 dbref NDECL(match_result)
 {
 	switch (md.count) {
-	case 0:
+	    case 0:
 		return NOTHING;
-	case 1:
+	    case 1:
 		return md.match;
-	default:
-		return AMBIGUOUS;
+	    default:
+		return ((mudconf.no_ambiguous_match) ? (md.match) : AMBIGUOUS);
 	}
 }
 

@@ -224,6 +224,7 @@ void NDECL(cf_init)
 	mudconf.safer_passwords = 0;
 	mudconf.instant_recycle = 1;
 	mudconf.dark_actions = 0;
+	mudconf.no_ambiguous_match = 0;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1409,6 +1410,8 @@ CONF conftable[] = {
 	cf_string,	CA_GOD,		(int *)mudconf.mud_name,	SBUF_SIZE},
 {(char *)"newuser_file",
 	cf_string,	CA_STATIC,	(int *)mudconf.crea_file,	SBUF_SIZE},
+{(char *)"no_ambiguous_match",
+	cf_bool,	CA_GOD,		&mudconf.no_ambiguous_match,	0},
 {(char *)"notify_recursion_limit",
 	cf_int,         CA_GOD,         &mudconf.ntfy_nest_lim,		0},
 {(char *)"open_cost",

@@ -2637,6 +2637,8 @@ dbref player;
 	mudconf.local_masters);
     Opt("look obeys the Terse flag", mudconf.terse_look);
     Opt("Objects other than players can match $-commands on themselves", mudconf.match_mine);
+    Opt("Ambiguous matches always resolve to the last match",
+	mudconf.no_ambiguous_match);
     Opt("@pemit targets can be players in other locations",
 	mudconf.pemit_players);
     Opt("@pemit targets can be objects in other locations",

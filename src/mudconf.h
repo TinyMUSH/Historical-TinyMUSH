@@ -184,6 +184,7 @@ struct confdata {
 	int	space_compress;	/* Convert multiple spaces into one space */
 	int	instant_recycle;/* Do destroy_ok objects get insta-nuke? */
 	int	dark_actions;	/* Trigger @a-actions even when dark? */
+	int	no_ambiguous_match; /* match_result() -> last_match_result() */
 	dbref	start_room;	/* initial location and home for players */
 	dbref	start_home;	/* initial HOME for players */
 	dbref	default_home;	/* HOME when home is inaccessable */
