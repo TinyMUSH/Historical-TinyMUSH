@@ -1978,7 +1978,7 @@ static void NDECL(init_modules)
 	    safe_mb_chr(' ', mudstate.modloaded, &bp);
 	}
 	safe_mb_str(mp->modname, mudstate.modloaded, &bp);
-	initptr = DLSYM(mp->handle, mp->modname, "init");
+	initptr = DLSYM(mp->handle, mp->modname, "init", (void));
 	if (initptr)
 	    (*initptr)();
     }

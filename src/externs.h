@@ -637,13 +637,31 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define WALK_ALL_MODULES(mp) \
 	for (mp = mudstate.modules_list; mp != NULL; mp = mp->next)
 
-#ifdef DLSYM_REQUIRES_UNDERSCORE
-#define DLSYM(h,m,x) \
-	(void (*)(void))dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
+/* Syntax: DLSYM(<handler>, <module name>, <function name>, <prototype>) */
+
+#ifdef DLSYM_NEEDS_UNDERSCORE
+#define DLSYM(h,m,x,p) \
+	(void (*)p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
 #else
-#define DLSYM(h,m,x) \
-	(void (*)(void))dlsym((h), tprintf("mod_%s_%s", (m), (x)))
-#endif /* DLSYM_REQUIRES_UNDERSCORE */
+#define DLSYM(h,m,x,p) \
+	(void (*)p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
+#endif /* DLSYM_NEEDS_UNDERSCORE */
+
+/* Syntax: CALL_ALL_MODULES(<name of function>, (<args>)) */
+
+#define CALL_ALL_MODULES(xfn,proto,args) \
+{ \
+MODULE *cam__mp; \
+void (*cam__ip)proto; \
+WALK_ALL_MODULES(cam__mp) { \
+if ((cam__ip = DLSYM(cam__mp->handle, cam__mp->modname, xfn, proto)) != NULL) \
+    (*cam__ip)args; \
+} \
+}
+
+#else  /* ! HAVE_DLOPEN */
+
+#define CALL_ALL_MODULES(xfn,proto,args)
 
 #endif /* HAVE_DLOPEN */
 
