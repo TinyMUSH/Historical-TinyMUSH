@@ -3,9 +3,12 @@ TinyMUSH 3.0 Credits
 
 TinyMUSH 3.0 is a derivation/merger of TinyMUSH 2.2.5 and TinyMUX 1.6,
 with some additional extensive code revisions, bugfixing, and feature
-enhancements. It is the joint work of Lydia Leong ("Amberyl") and
-David Passmore ("Lauren"), and will be jointly maintainted in the future.
-Robby Griffin ("Alierak") joined the development team as of 3.0 beta 18. 
+enhancements. 
+
+The original TinyMUSH 3.0 development team consisted of Lydia Leong
+("Amberyl") and David Passmore ("Lauren"); Robby Griffin ("Alierak")
+joined at 3.0 beta 18, and Scott Dorr ("Myrddin") joined at 3.0 beta 23.
+The server is now being maintained and enhanced by all four developers.
 
 In addition to the lots of people we've already thanked from earlier
 work on the servers, we'd like to make special note of:
