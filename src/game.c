@@ -1493,6 +1493,24 @@ static void NDECL(process_preload)
 		if (Going(thing))
 			continue;
 
+		/* Look for a FORWARDLIST attribute. Load these before
+		 * doing anything else, so startup notifications work
+		 * correctly.
+		 */
+
+		if (H_Fwdlist(thing)) {
+			(void)atr_get_str(tstr, thing, A_FORWARDLIST,
+					  &aowner, &aflags);
+			if (*tstr) {
+				fwdlist_load(fp, GOD, tstr);
+				if (fp->count > 0)
+					fwdlist_set(thing, fp);
+#ifndef MEMORY_BASED
+				cache_reset(0);
+#endif /* MEMORY_BASED */
+			}
+		}
+
 		do_top(10);
 
 		/* Look for a STARTUP attribute in parents */
@@ -1513,20 +1531,6 @@ static void NDECL(process_preload)
 			}
 		}
 
-		/* Look for a FORWARDLIST attribute */
-
-		if (H_Fwdlist(thing)) {
-			(void)atr_get_str(tstr, thing, A_FORWARDLIST,
-					  &aowner, &aflags);
-			if (*tstr) {
-				fwdlist_load(fp, GOD, tstr);
-				if (fp->count > 0)
-					fwdlist_set(thing, fp);
-#ifndef MEMORY_BASED
-				cache_reset(0);
-#endif /* MEMORY_BASED */
-			}
-		}
 	}
 	free_lbuf(fp);
 	free_lbuf(tstr);
