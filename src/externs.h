@@ -111,12 +111,14 @@ extern void	NDECL(helpindex_init);
 extern int	FDECL(cf_ntab_access, (int *, char *, long, dbref, char *));
 
 /* From log.c */
+extern FILE *	mainlog_fp;
 extern char *	FDECL(strip_ansi, (const char *));
 extern char *	FDECL(normal_to_white, (const char *));
 extern int	FDECL(start_log, (const char *, const char *, int));
 extern void	NDECL(end_log);
 extern void	FDECL(log_perror, (const char *, const char *,const char *,
 			const char *));
+extern void	FDECL(log_string, (char *));
 extern void	FDECL(log_text, (char *));
 extern void	FDECL(log_number, (int));
 extern void	FDECL(log_name, (dbref));

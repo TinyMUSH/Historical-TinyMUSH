@@ -15,6 +15,7 @@
 #include "htab.h"
 #include "ansi.h"
 
+FILE *mainlog_fp;
 static FILE *log_fp = NULL;
 
 #ifndef STANDALONE
@@ -126,6 +127,32 @@ const char *raw;
 	return buf;
 }
 
+
+/* ---------------------------------------------------------------------------
+ * logfile_init: Initialize the main logfile.
+ */
+
+void logfile_init(filename)
+    char *filename;
+{
+    if (!filename) {
+	fprintf(stderr, "No logfile name specified.\n");
+	mainlog_fp = stderr;
+	return;
+    }
+
+    mainlog_fp = fopen(filename, "w");
+    if (!mainlog_fp) {
+	fprintf(stderr, "Could not open logfile %s for writing.\n",
+		filename);
+	mainlog_fp = stderr;
+	return;
+    }
+
+    setbuf(mainlog_fp, NULL);	/* unbuffered */
+}
+
+
 /* ---------------------------------------------------------------------------
  * start_log: see if it is OK to log something, and if so, start writing the
  * log entry.
@@ -153,11 +180,11 @@ int key;
 		    }
 		}
 		if (!log_fp)
-		    log_fp = stderr;
+		    log_fp = mainlog_fp;
 	    }
 	} else {
 	    last_key = key;
-	    log_fp = stderr;
+	    log_fp = mainlog_fp;
 	}
 #endif /* ! STANDALONE */
 
@@ -195,7 +222,7 @@ int key;
 
 		if (mudstate.logging == 1)
 			return 1;
-		fprintf(stderr, "Recursive logging request.\r\n");
+		fprintf(mainlog_fp, "Recursive logging request.\r\n");
 	default:
 		mudstate.logging--;
 	}
@@ -222,18 +249,25 @@ const char *primary, *secondary, *extra, *failing_object;
 {
 	start_log(primary, secondary, LOG_ALWAYS);
 	if (extra && *extra) {
-		log_text((char *)"(");
+		log_string((char *)"(");
 		log_text((char *)extra);
-		log_text((char *)") ");
+		log_string((char *)") ");
 	}
-	perror((char *)failing_object);
-	fflush(stderr);
-	mudstate.logging--;
+	log_text((char *)failing_object);
+	log_string((char *)": ");
+	log_string(strerror(errno));
+	end_log();
 }
 
 /* ---------------------------------------------------------------------------
  * log_text, log_number: Write text or number to the log file.
  */
+
+void log_string(text)
+char *text;
+{
+	fprintf(log_fp, "%s", text);
+}
 
 void log_text(text)
 char *text;

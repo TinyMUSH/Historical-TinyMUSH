@@ -1339,33 +1339,6 @@ void do_restart(player, cause, key)
 	kill(slave_pid, SIGKILL);
 	waitpid(slave_pid, (int *) NULL, (int) NULL);
 
-	/* We want to rotate the main log, so that we restart with a
-	 * "clean" logfile. The log gets renamed to <game_log>.<timestamp>
-	 * But we can't do a re-open on logfile if it is already called
-	 * just <game_log>. So we are forced to cheat with a temporary
-	 * file.
-	 *
-	 * We don't use freopen() here because on some systems it is not
-	 * guaranteed to reuse the same file descriptor, and we must ensure
-	 * that the stderr stream always points to the same FD.
-	 */
-
-	oldfd = fileno(stderr);
-	fclose(stderr);
-	rename(mudconf.mudlogname,
-	       tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
-	newfd = open(mudconf.mudlogname, O_WRONLY|O_APPEND|O_CREAT, 0600);
-
-	if (newfd != oldfd) {
-		dup2(newfd, oldfd);
-		close(newfd);
-	}
-	stderr = fdopen(oldfd, "a");
-	
-	/* Turn off output buffering */
-	
-	setbuf(stderr, NULL);
-
 	for (lp = logfds_table; lp->log_flag; lp++) {
 	    if (lp->filename && lp->fileptr) {
 		fclose(lp->fileptr);
@@ -1374,9 +1347,16 @@ void do_restart(player, cause, key)
 	    }
 	}
 
+	fclose(mainlog_fp);
+	rename(mudconf.mudlogname,
+	       tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
+
 	alarm(0);
 	dump_restart_db();
-	execl(mudconf.exec_path, mudconf.exec_path, mudconf.config_file, NULL);
+	execl(mudconf.exec_path, mudconf.exec_path,
+	      (char *) "-c", mudconf.config_file,
+	      (char *) "-l", mudconf.mudlogname,
+	      NULL);
 }
 
 /* ---------------------------------------------------------------------------

@@ -35,6 +35,7 @@ extern void FDECL(raw_notify_html, (dbref, char *));
 extern void NDECL(do_second);
 extern void FDECL(do_dbck, (dbref, dbref, int));
 extern void NDECL(boot_slave);
+extern void FDECL(logfile_init, (char *));
 
 void FDECL(fork_and_dump, (int));
 void NDECL(dump_database);
@@ -1477,26 +1478,10 @@ void do_logrotate(player, cause, key)
 	
     mudstate.mudlognum++;
 
-    /* We don't use freopen() here because on some systems it is not
-     * guaranteed to reuse the same file descriptor, and we must ensure
-     * that the stderr stream always points to the same FD.
-     */
-
-    oldfd = fileno(stderr);
-    fclose(stderr);
+    fclose(mainlog_fp);
     rename(mudconf.mudlogname,
 	tprintf("%s.%ld", mudconf.mudlogname, (long) mudstate.now));
-    newfd = open(mudconf.mudlogname, O_WRONLY|O_APPEND|O_CREAT, 0600);
-
-    if (newfd != oldfd) {
-	dup2(newfd, oldfd);
-	close(newfd);
-    }
-    stderr = fdopen(oldfd, "a");
-	
-    /* Turn off output buffering */
-	
-    setbuf(stderr, NULL);
+    logfile_init(mudconf.mudlogname);
 
     notify(player, "Logs rotated.");
     STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
@@ -1509,14 +1494,15 @@ void do_logrotate(player, cause, key)
 
     for (lp = logfds_table; lp->log_flag; lp++) {
 	if (lp->filename && lp->fileptr) {
-	    freopen((const char *) ".netmush_tmp_log", "w", lp->fileptr);
+	    fclose(lp->fileptr);
 	    rename(lp->filename,
 		   tprintf("%s.%ld", lp->filename, (long) mudstate.now));
-	    freopen((const char *) lp->filename, "w", lp->fileptr);
+	    lp->fileptr = fopen(lp->filename, "w");
+	    if (lp->fileptr)
+		setbuf(lp->fileptr, NULL);
 	}
     }
 
-    unlink((const char *) ".netmush_tmp_log");
 }
 
 
@@ -1611,20 +1597,43 @@ int main(argc, argv)
 int argc;
 char *argv[];
 {
-	int mindb;
+	int mindb = 0;
 	CMDENT *cmdp;
-	int i;
+	int i, c;
+	int errflg = 0;
+	char *opt_logfile = (char *) LOG_FILE;
+	char *opt_conf = (char *) CONF_FILE;
+	extern char *optarg;
+	extern int optind;
 
-	if ((argc > 2) && (!strcmp(argv[1], "-s") && (argc > 3))) {
-		fprintf(stderr, "Usage: %s [-s] [config-file]\n", argv[0]);
-		exit(1);
+	/* Parse options */
+
+	while ((c = getopt(argc, argv, "c:l:s")) != -1) {
+	    switch (c) {
+		case 'c':
+		    opt_conf = optarg;
+		    break;
+		case 'l':
+		    opt_logfile = optarg;
+		    break;
+		case 's':
+		    mindb = 1;
+		    break;
+		default:
+		    errflg++;
+	    }
+	}
+	if (errflg) {
+	    fprintf(stderr, "Usage: %s [-s] [-c conf_file] [-l log_file]\n",
+		    argv[0]);
+	    exit(1);
 	}
 
+	logfile_init(opt_logfile);
 	tf_init();
 #ifdef RADIX_COMPRESSION
 	init_string_compress();
 #endif /* RADIX_COMPRESSION */
-	mindb = 0;		/* Are we creating a new db? */
 	time(&mudstate.start_time);
 	mudstate.restart_time = mudstate.start_time;
 	time(&mudstate.cpu_count_from);
@@ -1672,21 +1681,14 @@ char *argv[];
 	    cmdp->perms |= CA_WIZARD;
 
 	vattr_init();
-	
-	if (argc > 1 && !strcmp(argv[1], "-s")) {
-		mindb = 1;
-		if (argc == 3)
-			cf_read(argv[2]);
-		else
-			cf_read((char *)CONF_FILE);
-	} else if (argc == 2) {
-		cf_read(argv[1]);
-	} else {
-		cf_read((char *)CONF_FILE);
-	}
+
+	cf_read(opt_conf);
 
 	strncpy(mudconf.exec_path, argv[0], PBUF_SIZE - 1);
 	mudconf.exec_path[PBUF_SIZE - 1] = '\0';
+
+	strncpy(mudconf.mudlogname, opt_logfile, PBUF_SIZE - 1);
+	mudconf.mudlogname[PBUF_SIZE - 1] = '\0';
 	
 	fcache_init();
 	helpindex_init();

@@ -1311,7 +1311,9 @@ int sig;
 			alarm(0);
 			dump_restart_db();
 			execl(mudconf.exec_path, mudconf.exec_path,
-			      mudconf.config_file, NULL);
+			      (char *) "-c", mudconf.config_file,
+			      (char *) "-l", mudconf.mudlogname,
+			      NULL);
 			break;
 		} else {
 			unset_signals();
