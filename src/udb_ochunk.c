@@ -146,6 +146,7 @@ int type;
 {
 	void *newdata;
 	int newdatalen;
+	char *s;
 	
 	if (!db_initted) {
 		if (dataptr)
@@ -153,11 +154,12 @@ int type;
 		return;
 	}
 	
-	/* Construct a key */
+	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	key.dptr = (char *)malloc(sizeof(int) + keylen);
-	*((int *)key.dptr) = type;
-	memcpy((void *)(((int *)key.dptr) + 1), keydata, keylen); 
+	s = key.dptr = (char *)malloc(sizeof(int) + keylen);
+	memcpy((void *)s, keydata, keylen); 
+	s += keylen;
+	memcpy((void *)s, (void *)&type, sizeof(int));
 	key.dsize = sizeof(int) + keylen;
 
 	dat = gdbm_fetch(dbp, key);
@@ -176,14 +178,17 @@ int keylen;
 void *data;
 int len;
 {
+	char *s;
+	
 	if (!db_initted)
 		return (1);
 
-	/* Construct a key */
+	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	key.dptr = (char *)malloc(sizeof(int) + keylen);
-	*((int *)key.dptr) = type;
-	memcpy((void *)(((int *)key.dptr) + 1), keydata, keylen);
+	s = key.dptr = (char *)malloc(sizeof(int) + keylen);
+	memcpy((void *)s, keydata, keylen); 
+	s += keylen;
+	memcpy((void *)s, (void *)&type, sizeof(int));
 	key.dsize = sizeof(int) + keylen;
 	
 	/* make table entry */
@@ -209,15 +214,18 @@ void *keydata;
 int keylen;
 int type;
 {
+	char *s;
+	
 	if (!db_initted) {
 		return (-1);
 	}
 
-	/* Construct a key */
+	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	key.dptr = (char *)malloc(sizeof(int) + keylen);
-	*((int *)key.dptr) = type;
-	memcpy((void *)(((int *)key.dptr) + 1), keydata, keylen);
+	s = key.dptr = (char *)malloc(sizeof(int) + keylen);
+	memcpy((void *)s, keydata, keylen); 
+	s += keylen;
+	memcpy((void *)s, (void *)&type, sizeof(int));
 	key.dsize = sizeof(int) + keylen;
 
 	dat = gdbm_fetch(dbp, key); 
