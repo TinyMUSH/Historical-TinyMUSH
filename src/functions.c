@@ -154,6 +154,7 @@ XFUNCTION(fun_z);
 XFUNCTION(fun_modify);
 XFUNCTION(fun_lstructures);
 XFUNCTION(fun_linstances);
+XFUNCTION(fun_pairs);
 XFUNCTION(fun_sql);
 
 #ifdef PUEBLO_SUPPORT
@@ -5934,6 +5935,7 @@ FUN flist[] = {
 {"ORBOOL",	fun_orbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ORFLAGS",	fun_orflags,	2,  0,		CA_PUBLIC},
 {"OWNER",	fun_owner,	1,  0,		CA_PUBLIC},
+{"PAIRS",	fun_pairs,	1,  0,		CA_PUBLIC},
 {"PARENT",	fun_parent,	1,  0,		CA_PUBLIC},
 {"PARSE",	fun_parse,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
