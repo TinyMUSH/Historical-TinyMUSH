@@ -224,6 +224,7 @@ verify:
 
 clean:
 	-rm -f *.o *.lo a.out core gmon.out mush.*log mush.*sum Compile.log
+	-rm -rf .libs
 	curdir=`pwd`
 	cd gdbm-1.8.0 && $(MAKE) clean
 	cd $$curdir
