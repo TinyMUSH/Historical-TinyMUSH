@@ -79,6 +79,7 @@ XFUNCTION(fun_setinter);
 XFUNCTION(fun_columns);
 XFUNCTION(fun_elements);
 XFUNCTION(fun_grab);
+XFUNCTION(fun_graball);
 XFUNCTION(fun_shuffle);
 XFUNCTION(fun_ledit);
 
@@ -312,6 +313,7 @@ XFUNCTION(fun_grepi);
 XFUNCTION(fun_setq);
 XFUNCTION(fun_setr);
 XFUNCTION(fun_r);
+XFUNCTION(fun_wildmatch);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
 XFUNCTION(fun_setxr);

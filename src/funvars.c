@@ -75,8 +75,67 @@ FUNCTION(fun_r)
 }
 
 /* --------------------------------------------------------------------------
+ * wildmatch: Set the results of a wildcard match into the global registers.
+ *            wildmatch(<string>,<wildcard pattern>[,<register list>])
+ */
+
+FUNCTION(fun_wildmatch)
+{
+    int i, nqregs, curq;
+    char *t_args[NUM_ENV_VARS], *qregs[NUM_ENV_VARS]; /* %0-%9 is limiting */
+
+    if (!fn_range_check("WILDMATCH", nfargs, 2, 3, buff, bufc))
+	return;
+
+    if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS)) {
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    safe_chr('1', buff, bufc);
+
+    /* If there's no third argument, we're done, making us essentially
+     * an expensive strmatch().
+     */
+    if (nfargs != 3)
+	return;
+
+    /* Parse the list of registers. Anything that we don't get is assumed
+     * to be -1. Fill them in.
+     */
+
+    nqregs = list2arr(qregs, NUM_ENV_VARS, fargs[2], ' ');
+    for (i = 0; i < nqregs; i++) {
+	if (qregs[i] && *qregs[i] && is_integer(qregs[i]))
+	    curq = atoi(qregs[i]);
+	else
+	    curq = -1;
+	if ((curq < 0) || (curq >= NUM_ENV_VARS))
+	    continue;
+	if (!mudstate.global_regs[curq]) {
+	    mudstate.global_regs[curq] = alloc_lbuf("fun_wildmatch");
+	}
+	if (!t_args[i] || !*t_args[i]) {
+	    mudstate.global_regs[curq][0] = '\0';
+	    mudstate.glob_reg_len[curq] = 0;
+	} else {
+	    mudstate.glob_reg_len[curq] = strlen(t_args[i]);
+	    bcopy(t_args[i], mudstate.global_regs[curq],
+		  mudstate.glob_reg_len[curq] + 1);
+	}
+    }
+
+    /* Need to free up allocated memory from the match. */
+
+    for (i = 0; i < NUM_ENV_VARS; i++) {
+	if (t_args[i])
+	    free_lbuf(t_args[i]);
+    }
+}
+
+/* --------------------------------------------------------------------------
  * Auxiliary stuff for structures and variables.
-  */
+ */
 
 #define Set_Max(x,y)     (x) = ((y) > (x)) ? (y) : (x);
 

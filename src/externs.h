@@ -617,8 +617,8 @@ extern void	FDECL(toast_player, (dbref));
  */
 
 #define StrCopyLen(scl__dest,scl__src,scl__len) \
-*scl__len = strlen(scl__src); \
-bcopy(scl__src,scl__dest,(int) *scl__len + 1);
+*(scl__len) = strlen(scl__src); \
+bcopy(scl__src,scl__dest,(int) *(scl__len) + 1);
 
 /* Copies a string of known length, and null-terminates it.
  * Takes: pointer to copy to, pointer to copy from, length

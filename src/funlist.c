@@ -1309,9 +1309,12 @@ FUNCTION(fun_elements)
  *
  *   grab(Test:1 Ack:2 Foof:3,*:2)    => Ack:2
  *   grab(Test-1+Ack-2+Foof-3,*o*,+)  => Ack:2
+ *
+ * fun_graball: Ditto, but like matchall() rather than match(). We
+ *              grab all the elements that match, and we can take
+ *              an output delimiter.
  */
 
-/* Borrowed from PennMUSH 1.50 */
 FUNCTION(fun_grab)
 {
 	char *r, *s, sep;
@@ -1328,6 +1331,25 @@ FUNCTION(fun_grab)
 			return;
 		}
 	} while (s);
+}
+
+FUNCTION(fun_graball)
+{
+    char *r, *s, *bb_p, sep, osep;
+
+    svarargs_preamble("GRABALL", 4);
+
+    s = trim_space_sep(fargs[0], sep);
+    bb_p = *bufc;
+    do {
+	r = split_token(&s, sep);
+	if (quick_wild(fargs[1], r)) {
+	    if (*bufc != bb_p) {
+		print_sep(osep, buff, bufc);
+	    }
+	    safe_str(r, buff, bufc);
+	}
+    } while (s);
 }
 
 /* ---------------------------------------------------------------------------
