@@ -905,7 +905,7 @@ CMDENT command_table[] = {
 
 CMDENT *prefix_cmds[256];
 
-CMDENT *goto_cmdp;
+CMDENT *goto_cmdp, *enter_cmdp, *leave_cmdp;
 
 void NDECL(init_cmdtab)
 {
@@ -952,6 +952,8 @@ void NDECL(init_cmdtab)
 	set_prefix_cmds();
 	
 	goto_cmdp = (CMDENT *) hashfind("goto", &mudstate.command_htab);
+	enter_cmdp = (CMDENT *) hashfind("enter", &mudstate.command_htab);
+	leave_cmdp = (CMDENT *) hashfind("leave", &mudstate.command_htab);
 }
 
 void set_prefix_cmds()
@@ -1718,8 +1720,8 @@ char *command, *args[];
 
 	bp = lcbuf;
 	str = command;
-	exec(lcbuf, &bp, 0, player, cause, EV_EVAL | EV_FCHECK | EV_STRIP | EV_TOP, &str,
-	     args, nargs);
+	exec(lcbuf, &bp, 0, player, cause,
+	     EV_EVAL | EV_FCHECK | EV_STRIP | EV_TOP, &str, args, nargs);
 	*bp = '\0';
 	succ = 0;
 
@@ -1727,33 +1729,65 @@ char *command, *args[];
 
 	if (Has_location(player) && Good_obj(Location(player))) {
 
-		/* Check for a leave alias */
+	    /* Check for a leave alias, if we have permissions to
+	     * use the 'leave' command.
+	     */
 
+	    if (check_access(player, leave_cmdp->perms)) {
 		p = atr_pget(Location(player), A_LALIAS, &aowner, &aflags);
 		if (p && *p) {
-			if (matches_exit_from_list(lcbuf, p)) {
-				free_lbuf(lcbuf);
-				free_lbuf(p);
-				do_leave(player, player, 0);
-				return preserve_cmd;
+		    if (matches_exit_from_list(lcbuf, p)) {
+			free_lbuf(lcbuf);
+			free_lbuf(p);
+			if ((leave_cmdp->pre_hook != NULL) &&
+			    !(leave_cmdp->callseq & CS_ADDED)) {
+			    process_hook(leave_cmdp->pre_hook,
+					 leave_cmdp->callseq & CS_PRESERVE,
+					 player, cause, args, nargs);
 			}
+			do_leave(player, player, 0);
+			if ((leave_cmdp->post_hook != NULL) &&
+			    !(leave_cmdp->callseq & CS_ADDED)) {
+			    process_hook(leave_cmdp->post_hook,
+					 leave_cmdp->callseq & CS_PRESERVE,
+					 player, cause, args, nargs);
+			}
+			return preserve_cmd;
+		    }
 		}
 		free_lbuf(p);
+	    }
 
-		/* Check for enter aliases */
+	    /* Check for enter aliases, if we have permissions to use the
+	     * 'enter' command.
+	     */
 
+	    if (check_access(player, enter_cmdp->perms)) {
 		DOLIST(exit, Contents(Location(player))) {
-			p = atr_pget(exit, A_EALIAS, &aowner, &aflags);
-			if (p && *p) {
-				if (matches_exit_from_list(lcbuf, p)) {
-					free_lbuf(lcbuf);
-					free_lbuf(p);
-					do_enter_internal(player, exit, 0);
-					return preserve_cmd;
-				}
+		    p = atr_pget(exit, A_EALIAS, &aowner, &aflags);
+		    if (p && *p) {
+			if (matches_exit_from_list(lcbuf, p)) {
+			    free_lbuf(lcbuf);
+			    free_lbuf(p);
+			    if ((enter_cmdp->pre_hook != NULL) &&
+				!(enter_cmdp->callseq & CS_ADDED)) {
+				process_hook(enter_cmdp->pre_hook,
+					     enter_cmdp->callseq & CS_PRESERVE,
+					     player, cause, args, nargs);
+			    }
+			    do_enter_internal(player, exit, 0);
+			    if ((enter_cmdp->post_hook != NULL) &&
+				!(enter_cmdp->callseq & CS_ADDED)) {
+				process_hook(enter_cmdp->post_hook,
+					     enter_cmdp->callseq & CS_PRESERVE,
+					     player, cause, args, nargs);
+			    }
+			    return preserve_cmd;
 			}
-			free_lbuf(p);
+		    }
+		    free_lbuf(p);
 		}
+	    }
 	}
 	
 	/* At each of the following stages, we check to make sure that we
