@@ -19,10 +19,10 @@ else
 fi
 #
 if [ -r $DATA/$GDBM_DB ]; then
-    echo "Backing up to $OUTFILE"
+    echo "Creating flatfile $OUTFILE"
     $BIN/dbconvert -c $GAMENAME.conf -x $DATA/$GDBM_DB > $OUTFILE
-    tar -cf $OUTFILE.tar $OUTFILE $DATA/mod_*.db
-    $ZIP $OUTFILE.tar
+    echo "Creating database archive $OUTFILE.tar.gz"
+    tar -cfvh - $OUTFILE $DATA/mod_*.db | $ZIP -c > $OUTFILE.tar.gz
     rm $OUTFILE
 else
     echo "No dbs. Backup attempt failed."
