@@ -25,6 +25,7 @@ XFUNCTION(fun_idle);
 XFUNCTION(fun_conn);
 XFUNCTION(fun_session);
 XFUNCTION(fun_programmer);
+XFUNCTION(fun_helptext);
 XFUNCTION(fun_sql);
 
 /* From funiter.c */
@@ -453,6 +454,7 @@ FUN flist[] = {
 {"HASMODULE",	fun_hasmodule,	1,  0,		CA_PUBLIC,	NULL},
 {"HASPOWER",    fun_haspower,   2,  0,          CA_PUBLIC,	NULL},
 {"HASTYPE",	fun_hastype,	2,  0,		CA_PUBLIC,	NULL},
+{"HELPTEXT",	fun_helptext,	2,  0,		CA_PUBLIC,	NULL},
 {"HOME",	fun_home,	1,  0,		CA_PUBLIC,	NULL},
 #ifdef PUEBLO_SUPPORT
 {"HTML_ESCAPE",	fun_html_escape,-1, 0,		CA_PUBLIC,	NULL},

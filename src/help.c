@@ -215,6 +215,99 @@ int eval;
 }
 
 /* ---------------------------------------------------------------------------
+ * help_helper: Write entry into a buffer for a function.
+ */
+
+void help_helper(player, hf_num, eval, topic, buff, bufc)
+    dbref player;
+    int hf_num, eval;
+    char *topic, *buff, **bufc;
+{
+    char tbuf[SBUF_SIZE + 8];
+    char tname[LBUF_SIZE];
+    char *p, *q, *line, *result, *str, *bp;
+    struct help_entry *htab_entry;
+    int entry_offset, entry_length, count;
+    FILE *fp;
+
+    if (hf_num >= mudstate.helpfiles) {
+	STARTLOG(LOG_BUGS, "BUG", "HELP")
+	    log_printf("Unknown help file number: %d", hf_num);
+	ENDLOG
+	safe_str((char *) "#-1 NOT FOUND", buff, bufc);
+	return;
+    }
+
+    if (!topic || !*topic) {
+	strcpy(tname, (char *) "help");
+    } else {
+	for (p = topic, q = tname; *p; p++, q++)
+	    *q = tolower(*p);
+	*q = '\0';
+    }
+    htab_entry = (struct help_entry *) hashfind(tname,
+					&mudstate.hfile_hashes[hf_num]);
+    if (!htab_entry) {
+	safe_str((char *) "#-1 NOT FOUND", buff, bufc);
+	return;
+    }
+    entry_offset = htab_entry->pos;
+    entry_length = htab_entry->len;
+
+    sprintf(tbuf, "%s.txt", mudstate.hfiletab[hf_num]);
+    if ((fp = tf_fopen(tbuf, O_RDONLY)) == NULL) {
+	STARTLOG(LOG_PROBLEMS, "HLP", "OPEN")
+	log_printf("Can't open %s for reading.", tbuf);
+	ENDLOG
+	safe_str((char *) "#-1 ERROR", buff, bufc);
+	return;
+    }
+    if (fseek(fp, entry_offset, 0) < 0L) {
+	STARTLOG(LOG_PROBLEMS, "HLP", "SEEK")
+	log_printf("Seek error in file %s.", tbuf);
+	ENDLOG
+	tf_fclose(fp);
+	safe_str((char *) "#-1 ERROR", buff, bufc);
+	return;
+    }
+
+    line = alloc_lbuf("help_helper");
+    if (eval) {
+	result = alloc_lbuf("help_helper.2");
+    }
+    count = 0;
+    for (;;) {
+	if (fgets(line, LBUF_SIZE - 1, fp) == NULL)
+	    break;
+	if (line[0] == '&')
+	    break;
+	for (p = line; *p != '\0'; p++)
+	    if (*p == '\n')
+		*p = '\0';
+	if (count > 0) {
+	    safe_crlf(buff, bufc);
+	}
+	if (eval) {
+	    str = line;
+	    bp = result;
+	    exec(result, &bp, 0, player, player,
+		 EV_NO_COMPRESS | EV_FIGNORE | EV_EVAL, &str,
+		 (char **)NULL, 0);
+	    *bp = '\0';
+	    safe_str(result, buff, bufc);
+	} else {
+	    safe_str(line, buff, bufc);
+	}
+	count++;
+    }
+    tf_fclose(fp);
+    free_lbuf(line);
+    if (eval) {
+	free_lbuf(result);
+    }
+}
+
+/* ---------------------------------------------------------------------------
  * do_help: display information from new-format news and help files
  */
 

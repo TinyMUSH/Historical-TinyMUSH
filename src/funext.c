@@ -15,6 +15,7 @@
 
 #include "functions.h"	/* required by code */
 #include "powers.h"	/* required by code */
+#include "command.h"	/* required by code */
 #include "db_sql.h"	/* required by code */
 
 extern void FDECL(make_ulist, (dbref, char *, char **));
@@ -25,6 +26,7 @@ extern char * FDECL(get_doing, (dbref, int));
 extern void FDECL(make_sessioninfo, (dbref, dbref, int, char *, char **));
 extern dbref FDECL(get_programmer, (dbref));
 extern void FDECL(cf_display, (dbref, char *, char *, char **));
+extern void FDECL(help_helper, (dbref, int, int, char *, char *, char **));
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 
 #define Find_Connection(x,s,t,p) \
@@ -157,6 +159,38 @@ FUNCTION(fun_programmer)
 	return;
     }
     safe_dbref(buff, bufc, get_programmer(target));
+}
+
+/*---------------------------------------------------------------------------
+ * fun_helptext: Read an entry from a helpfile.
+ */
+
+FUNCTION(fun_helptext)
+{
+    CMDENT *cmdp;
+    char *p;
+
+    if (!fargs[0] || !*fargs[0]) {
+	safe_str((char *) "#-1 NOT FOUND", buff, bufc);
+	return;
+    }
+
+    for (p = fargs[0]; *p; p++)
+	*p = tolower(*p);
+
+    cmdp = (CMDENT *) hashfind(fargs[0], &mudstate.command_htab);
+    if (!cmdp || (cmdp->info.handler != do_help)) {
+	safe_str((char *) "#-1 NOT FOUND", buff, bufc);
+	return;
+    }
+
+    if (!Check_Cmd_Access(player, cmdp, cargs, ncargs)) {
+	safe_noperm(buff, bufc);
+	return;
+    }
+
+    help_helper(player, (cmdp->extra & ~HELP_RAWHELP),
+		(cmdp->extra & HELP_RAWHELP) ? 0 : 1, fargs[1], buff, bufc);
 }
 
 /*---------------------------------------------------------------------------
