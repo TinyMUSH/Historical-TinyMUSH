@@ -1157,7 +1157,7 @@ int anum;
 	if (anum < A_USER_START)
 		return anum_get(anum);
 
-	if (anum >= anum_alc_top)
+	if (anum > anum_alc_top)
 		return NULL;
 
 	/* It's a user-defined attribute, we need to copy data */
