@@ -45,47 +45,22 @@ elif [ "$1" = "-a" ]; then
 	del_all=1
 fi
 
-#	Find the name of the game log.
-#	If the game log as used by Startmush is different from the
-#	regular game log, we handle it separately, as it can never
-#	be rotated.
+#	Save off the game log.
 
-game_log=`egrep -i game_log $GAMENAME.conf | awk '{ print $2; }'`
-if [ -z "$game_log" ]; then
-    game_log="netmush.conf"
-fi
-if [ "$game_log" != "$LOGNAME" ]; then
-	if [ $nmush -le 0 ]; then
-		if [ $del_all -eq 1 ]; then
-			echo "Removing initial startup logs ($LOGNAME)"
-			rm -f $LOGNAME $LOGNAME.old
-		else	
-			if [ -r $LOGNAME ]; then
-				echo "Saving old initial startup log $LOGNAME"
-				mv -f $LOGNAME $LOGNAME.old
-			else
-				echo "No previous startup log."
-			fi
-		fi
-	else
-		echo "MUSH is running. $LOGNAME untouched."
-	fi
-fi
-
-ls $game_log.* | egrep "^$game_log\.([0-9])+$" | xargs rm -f
+ls $LOGNAME.* | egrep "^$LOGNAME\.([0-9])+$" | xargs rm -f
 if [ $del_all -eq 1 ]; then
-	echo "Removing game logs ($game_log)"
-	rm -f $game_log $game_log.old
+	echo "Removing game logs ($LOGNAME)"
+	rm -f $LOGNAME $LOGNAME.old
 else
 	if [ $del_old -eq 1 ]; then
-		if [ -r $game_log.old ]; then
+		if [ -r $LOGNAME.old ]; then
 			echo "Removing old game log"
-			rm -f $game_log.old
+			rm -f $LOGNAME.old
 		fi
 	elif [ $nmush -le 0 ]; then
-		if [ -r $game_log ]; then
-			echo "Saving old game log $game_log"
-			mv -f $game_log $game_log.old
+		if [ -r $LOGNAME ]; then
+			echo "Saving old game log $LOGNAME"
+			mv -f $LOGNAME $LOGNAME.old
 		else
 			echo "No previous game log."
 		fi
