@@ -77,7 +77,7 @@
 #define	A_ALLOWANCE	41	/* Daily allowance, if diff from default */
 #define	A_LOCK		42	/* Object lock */
 #define	A_NAME		43	/* Object name */
-#define	A_COMMENT	44	/* Wizard-accessable comments */
+#define	A_COMMENT	44	/* Wizard-accessible comments */
 #define	A_USE		45	/* Invoker use message */
 #define	A_OUSE		46	/* Others use message */
 #define	A_SEMAPHORE	47	/* Semaphore control info */

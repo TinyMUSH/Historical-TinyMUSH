@@ -650,7 +650,7 @@ char *name, *arg2;
 		break;
 	}
 
-	/* If same owner run ACLONE, else halt it.  Also copy parent if we
+	/* If same owner run Aclone, else halt it.  Also copy parent if we
 	 * can 
 	 */
 

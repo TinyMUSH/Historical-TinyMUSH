@@ -1765,7 +1765,7 @@ CONF conftable[] = {
 {(char *)"typed_quotas",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.typed_quotas,		(long)"Quotas are enforced per object type"},
 {(char *)"unowned_safe",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.safe_unowned,		(long)"Objects not owned by you are considered SAFE"},
 {(char *)"user_attr_access",		cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.vattr_flags,		(long)attraccess_nametab},
-{(char *)"use_global_aconn",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.use_global_aconn,	(long)"Global @aconnects and @adisconnects are used"},
+{(char *)"use_global_aconn",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.use_global_aconn,	(long)"Global @Aconnects and @Adisconnects are used"},
 {(char *)"variables_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.numvars_lim,		0},
 {(char *)"visible_wizards",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.visible_wizzes,	(long)"DARK Wizards are hidden from WHO but not invisible"},
 {(char *)"wait_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.waitcost,		0},
