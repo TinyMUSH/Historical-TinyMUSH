@@ -246,7 +246,9 @@ va_dcl
 		case 3:	    p_flag = Flags3(d->player); break;
 		default:    p_flag = Flags(d->player);
 	    }
-	    if (p_flag & test_flag) {
+	    /* If inflags is 0, broadcast to everyone */
+	    
+	    if ((p_flag & test_flag) || (!test_flag)) {
 		queue_string(d, buff);
 		queue_write(d, "\r\n", 2);
 		process_output(d);
