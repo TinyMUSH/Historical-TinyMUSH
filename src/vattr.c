@@ -130,8 +130,10 @@ int key;
 			}
 		}
 		
+#ifndef MEMORY_BASED
 		if ((i % 100) == 0) 
 			cache_reset(0);
+#endif
 	}
 #ifndef STANDALONE
 	notify(player, "Database cleared of stale attribute entries.");
