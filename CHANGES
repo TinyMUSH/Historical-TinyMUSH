@@ -1,0 +1,92 @@
+TinyMUSH 3.0 Baseline Release:
+
+The bugfixes and general code reworking done in the course of merging 
+TinyMUSH 2.2 and TinyMUX line-by-line, is too extensive and complex to
+readily be listed here. Therefore, only user-visible or otherwise
+highly significant changes are noted here.
+
+
+- Command-table additions (@addcommand and family) are supported (a
+  cleaned-up version of the MUX implementation). Two new conf parameters:
+  addcommands_match_blindly (defaults to 'yes', controls whether or not
+  a 'Huh?' is produced when a match on an @addcommand'd command doesn't
+  actually match a $command), and addcommands_obey_stop (defaults to 'no')
+  controls whether or not an object with the Stop flag actually enfores
+  a stop of match attempts when a match is found on an @addcomand for
+  that object. (The defaults are MUX behavior; we suggest that the
+  reverse of the defaults is more desirable, though.)
+
+- The term "zone" is now used for two things: MUX-style control-oriented
+  zones, and 2.2-style local-master-rooms. Both types of zones default
+  to on (local_master_rooms and have_zones conf parameters). MUX zones
+  now use CONTROL_OK and ControlLock.
+
+- There are now ten user-defined flags, MARKER0 through MARKER9. The flag
+  names can be set through the flag_name option, and the permissions for
+  setting them can be set through the flag_access option.
+
+- There are now command "hooks", implemented via the @hook command. Hooks
+  are functions which execute before and/or after a built-in command;
+  using side-effect functions, it is thus possible to customize a
+  command without needing to write a full-blown @addcommand for it,
+  or to execute things before/after every move through an exit.
+
+- GNU dbm is required; database code has been rewritten to take advantage
+  of its features. There is a known problem with the chunkfile size growing
+  with unusual rapidity; @daily a @dump/optimize to take care of this
+  until it is fixed.
+
+- Variable destination exits are implemented, via the "variable" keyword
+  and the ExitTo attribute; the destination of the exit is determined when
+  it is used. The link_variable power has been added in support of this.
+  (This works in a way similar to PennMUSH's variable destination exits,
+  but ExitTo was used instead of Destination, to reduce likelihood of
+  previous attribute conflicts.)
+
+- There is now a link_to_anything power, and an open_anywhere power, doing
+  the obvious; these are handy for building-staff players.
+
+- Optional uselock checking for global aconnects has been implemented.
+  (2.2 had this by default; MUX did not have this.)
+
+- Disconnect reason is passed for master-room disconnects, too.
+
+- New @freelist command moves an object to the head of the freelist,
+  until the next dbck.
+
+- New @logrotate command and game_log conf parameter allow the log to
+  be rotated while the game is running.
+
+- An object can @program another object if the first object or its owner
+  has the Program power, or the first object controls the second. (This
+  fuses the 2.2 and MUX models.)
+
+- @program now reads attributes on the object's parent chain as well,
+  not just the object itself (thus behaving like @trigger and friends).
+
+- Added chomp() function -- akin to perl chomp(), it chomps off a
+  trailing carriage-return newline from a string, if there is one.
+  (Useful for dealing with pipe output.)
+
+- Added doing() function, to get @doing text.
+
+- Added force() and trigger() functions. Evil, but useful.
+
+- Conf parameter lattr_oldstyle controls what lattr() returns when it
+  fails to match: if 'yes', this is empty (2.0.10p5 and before, 2.2.1
+  and later), if 'no', this is #-1 NO MATCH (2.0.10p6, 2.2.0, MUX).
+  Defaults to 'no'.
+
+- Added ncomp() function for comparing numbers comp() style (very
+  useful for sortby() afficianados).
+
+- Added null() function, which just eats output. (Useful for doing things
+  like iter() with side-effect functions, and getting rid of the resulting
+  garbage spaces.)
+
+- objmem(<thing>) does a MUX-style object-structure count; 
+  objmem(<thing>/<wild>) does a 2.2-style attribute-text count. (Fuses
+  the two models.)
+
+- Added while() function. Evaluates elements of a list, until a
+  termination condition is reached or the end of the list is reached.
