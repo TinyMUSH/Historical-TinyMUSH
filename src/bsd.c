@@ -376,6 +376,15 @@ int port;
 			    ENDLOG
 			    mudstate.sql_socket = -1;
 			}
+			if ((sock != -1) &&
+			    (fstat(sock, &fstatbuf) < 0)) {
+			    /* That's it, game over. */
+			    STARTLOG(LOG_PROBLEMS, "ERR", "EBADF")
+				log_text((char *) "Bad game port descriptor ");
+			        log_number(sock);
+			    ENDLOG
+			    break;
+			}
 		    } else if (errno != EINTR) {
 			log_perror("NET", "FAIL",
 				   "checking for activity", "select");
