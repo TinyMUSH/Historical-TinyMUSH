@@ -34,21 +34,10 @@ void register_functions(functab)
     FUN *functab;
 {
     FUN *fp;
-    char *buff, *cp, *dp;
 
-    buff = alloc_sbuf("register_functions");
     for (fp = functab; fp->name; fp++) {
-	cp = (char *) fp->name;
-	dp = buff;
-	while (*cp) {
-	    *dp = tolower(*cp);
-	    cp++;
-	    dp++;
-	}
-	*dp = '\0';
-	hashadd(buff, (int *) fp, &mudstate.func_htab);
+	hashadd((char *)fp->name, (int *) fp, &mudstate.func_htab);
     }
-    free_sbuf(buff);
 }
 
 void register_hashtables(htab, ntab)
