@@ -1506,6 +1506,9 @@ char *argv[];
 		mudstate.global_regs[mindb] = alloc_lbuf("main.global_reg");
 	mudstate.now = time(NULL);
 	process_preload();
+	STARTLOG(LOG_STARTUP, "INI", "LOAD")
+	    log_text((char *) "Startup processing complete.");
+	ENDLOG
 
 	load_restart_db();
 
