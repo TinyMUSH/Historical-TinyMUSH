@@ -20,6 +20,7 @@
 #include "powers.h"	/* required by code */
 #include "vattr.h"	/* required by code */
 #include "db_sql.h"	/* required by code */
+#include "pcre.h"	/* required by code */
 
 extern void FDECL(list_cf_access, (dbref));
 extern void FDECL(list_cf_read_access, (dbref));
@@ -38,6 +39,7 @@ extern void FDECL(list_cached_objs, (dbref));
 extern int FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
 extern int FDECL(list_check, (dbref, dbref, char, char *, char *, int, int *));
 extern void FDECL(do_enter_internal, (dbref, dbref, int));
+extern int FDECL(regexp_match, (char *, char *, int, char **, int)); 
 
 #define CACHING "object"
 
@@ -605,32 +607,49 @@ int interactive, ncargs;
 			    *bp = '\0';
 			} 
 
-			/* Now search against the attributes. */
+			/* Now search against the attributes, unless we
+			 * can't pass the uselock.
+			 */
 
 			for (add = (ADDENT *)cmdp->info.added;
 			     add != NULL; add = add->next) {
-			    buff = atr_get(add->thing,
-					   add->atr, &aowner, &aflags, &alen);
+
+			    buff = atr_get(add->thing, add->atr,
+					   &aowner, &aflags, &alen);
 			    /* Skip the '$' character, and the next */
-			    for (s = buff + 2; *s && (*s != ':'); s++) ;
+			    for (s = buff + 2;
+				 *s && ((*s != ':') || (*(s - 1) == '\\'));
+				 s++)
+				;
 			    if (!*s) {
 				free_lbuf(buff);
 				break;
 			    }
 			    *s++ = '\0';
 			    
-			    if (wild(buff + 1, new, aargs, NUM_ENV_VARS)) {
-				if (!mudconf.addcmd_obey_uselocks ||
-				    could_doit(player, add->thing, A_LUSE)) {
-				    process_cmdline(add->thing, player,
-						    s, aargs, NUM_ENV_VARS);
-				    for (i = 0; i < NUM_ENV_VARS; i++) {
-					if (aargs[i])
-					    free_lbuf(aargs[i]);
-				    }
-				    cmd_matches++;
+			    if (((!(aflags & AF_REGEXP) &&
+				 wild(buff + 1, new, aargs,
+				      NUM_ENV_VARS)) ||
+				((aflags & AF_REGEXP) &&
+				 regexp_match(buff + 1, new,
+					      ((aflags & AF_CASE) ?
+					       0 : PCRE_CASELESS),
+					      aargs, NUM_ENV_VARS))) &&
+				(!mudconf.addcmd_obey_uselocks ||
+				 could_doit(player, add->thing, A_LUSE))) {
+				process_cmdline(((!(cmdp->callseq & CS_ACTOR)
+						  || God(player)) ?
+						 add->thing :
+						 player),
+						player, s, aargs,
+						NUM_ENV_VARS);
+				for (i = 0; i < NUM_ENV_VARS; i++) {
+				    if (aargs[i])
+					free_lbuf(aargs[i]);
 				}
+				cmd_matches++;
 			    }
+
 			    free_lbuf(buff);
 			    if (cmd_matches && mudconf.addcmd_obey_stop &&
 				Stop_Match(add->thing)) {

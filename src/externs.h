@@ -265,6 +265,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 
 /* Command handler keys */
 
+#define ADDCMD_PRESERVE 1	/* Use player rather than addcommand thing */
 #define	ATTRIB_ACCESS	1	/* Change access to attribute */
 #define	ATTRIB_RENAME	2	/* Rename attribute */
 #define	ATTRIB_DELETE	4	/* Delete attribute */

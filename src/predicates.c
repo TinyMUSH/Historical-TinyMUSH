@@ -880,7 +880,7 @@ char *s;
 	for (s = name; *s; s++) {
 		*s = tolower(*s);
 	}
-	 
+
 	old = (CMDENT *)hashfind(name, &mudstate.command_htab);
 	
 	if (old && (old->callseq & CS_ADDED)) {
@@ -902,6 +902,10 @@ char *s;
 		add->atr = atr;
 		add->name = XSTRDUP(name, "addcommand.addname");
 		add->next = (ADDENT *)old->info.added;
+		if (key & ADDCMD_PRESERVE)
+		    old->callseq |= CS_ACTOR;
+		else
+		    old->callseq &= ~CS_ACTOR;
 		old->info.added = add;
 	} else {
 		if (old) {
@@ -918,11 +922,9 @@ char *s;
 		cmd->pre_hook = NULL;
 		cmd->post_hook = NULL;
 		cmd->userperms = NULL;
-		if (old && (old->callseq & CS_LEADIN)) {
-			cmd->callseq = CS_ADDED|CS_ONE_ARG|CS_LEADIN;
-		} else {
-			cmd->callseq = CS_ADDED|CS_ONE_ARG;
-		}
+		cmd->callseq = CS_ADDED | CS_ONE_ARG |
+		    ((old && (old->callseq & CS_LEADIN)) ? CS_LEADIN : 0) |
+		    ((key & ADDCMD_PRESERVE) ? CS_ACTOR : 0);
 		add = (ADDENT *)XMALLOC(sizeof(ADDENT), "addcommand.add");
 		add->thing = thing;
 		add->atr = atr;

@@ -9,6 +9,10 @@
  * Switch tables for the various commands.
  */
 
+NAMETAB addcmd_sw[] = {
+{(char *)"preserve",	1,	CA_GOD,		ADDCMD_PRESERVE},
+{ NULL,			0,	0,		0}};
+
 NAMETAB attrib_sw[] = {
 {(char *)"access",	1,	CA_GOD,		ATTRIB_ACCESS},
 {(char *)"delete",	1,	CA_GOD,		ATTRIB_DELETE},
@@ -349,7 +353,7 @@ CMDENT command_table[] = {
 {(char *)"@@",			NULL,		CA_PUBLIC,
 	0,		CS_NO_ARGS,		
 	NULL,		NULL,	NULL,		do_comment},
-{(char *)"@addcommand",		NULL,		CA_GOD,
+{(char *)"@addcommand",		addcmd_sw,	CA_GOD,
 	0,		CS_TWO_ARG,		
 	NULL,		NULL,	NULL,		do_addcommand},
 {(char *)"@admin",		NULL,		CA_WIZARD,

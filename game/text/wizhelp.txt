@@ -142,18 +142,36 @@
   See also: the source code.
  
 & @addcommand
-  Command: @addcommand <name>=<thing>/<attribute>
-  This command has the capability of adding a softcoded command to the
-  game's built-in command table. If <name> already exists as a built-in
-  command, such as 'look' or 'WHO', it will actually replace the
-  functionality of that command, and all aliases that currently point to it.
-  As in look's case, the aliases 'l', 'lo', and 'loo', and the main command
-  'look' will all point to these softcoded commands. The original command
-  will be accessible via '__<command>', in this case '__look'. The syntax of
-  <thing>/<attribute> is like any normal $command.
  
-  For example:
-
+  Command: @addcommand[/preserve] <command name>=<thing>/<attribute>
+ 
+  This command adds a softcoded command to the MUSH's built-in command
+  table. If <name> already exists as a built-in command, such as 'look'
+  or 'WHO', it will actually replace the functionality of that command,
+  and all aliases that currently point to it.
+ 
+  Basically, this is exactly like setting an ordinary $-command on
+  <thing>, except the command matching occurs at the same time that
+  normal built-in commands are matched, and thus can override a
+  standard built-in command. <thing> does the execution of any action,
+  unless the /preserve switch is specified and the object who entered
+  the command is not God, in which case the object executes the
+  content's of <thing>'s <attribute>. The 'regexp' and 'case'
+  attribute flags are respected, though note that the command
+  itself gets automatically lower-cased, so the 'case' attribute
+  flag is only useful against the command's arguments.
+ 
+  Continued in 'help @addcommand2'.
+ 
+& @addcommand2
+  
+  For example, if an @addcommand is done for 'look', the aliases 'l', 'lo',
+  and 'loo', and the main command 'look' will all point to the specified
+  softcoded command. The original command will be accessible via
+  '__<command>', in this case '__look'.
+ 
+  Example:
+ 
   > &LOOK me=$look:say I looked here!
   > &LOOK_WITH_ARG me=$look *:say I looked at %0!
   > &LOOK_OUTSIDE me=$look/outside *:say I looked outside at %0!
@@ -161,9 +179,10 @@
   > @addcommand look=me/look_with_arg
   > @addcommand look=me/look_outside
  
-  { 'help @addcommand2' for more }
+  Continued in 'help @addcommand3'.
  
-& @addcommand2
+& @addcommand3
+ 
   Yes, you can specify more than one attribute to go with <name>. When you
   type 'look' or 'look sofa', the game will execute all attributes that
   match what you have typed in. Aliases like 'l' are expanded to 'look' so

@@ -163,23 +163,24 @@ struct cmdentry {
 
 /* Command handler call conventions */
 
-#define CS_NO_ARGS	0x0000	/* No arguments */
-#define CS_ONE_ARG	0x0001	/* One argument */
-#define CS_TWO_ARG	0x0002	/* Two arguments */
-#define CS_NARG_MASK	0x0003	/* Argument count mask */
-#define CS_ARGV		0x0004	/* ARG2 is in ARGV form */
-#define CS_INTERP	0x0010	/* Interpret ARG2 if 2 args, ARG1 if 1 */
-#define CS_NOINTERP	0x0020	/* Never interp ARG2 if 2 or ARG1 if 1 */
-#define CS_CAUSE	0x0040	/* Pass cause to old command handler */
-#define CS_UNPARSE	0x0080	/* Pass unparsed cmd to old-style handler */
-#define CS_CMDARG	0x0100	/* Pass in given command args */	
-#define CS_STRIP	0x0200	/* Strip braces even when not interpreting */
-#define	CS_STRIP_AROUND	0x0400	/* Strip braces around entire string only */
-#define CS_ADDED	0x0800  /* Command has been added by @addcommand */
-#define CS_LEADIN	0x1000	/* Command is a single-letter lead-in */
-#define CS_PRESERVE	0x2000	/* For hooks, preserve global registers */
-#define CS_NOSQUISH	0x4000	/* Do not space-compress */
-#define CS_FUNCTION	0x8000	/* Can call with command() */
+#define CS_NO_ARGS	0x00000	/* No arguments */
+#define CS_ONE_ARG	0x00001	/* One argument */
+#define CS_TWO_ARG	0x00002	/* Two arguments */
+#define CS_NARG_MASK	0x00003	/* Argument count mask */
+#define CS_ARGV		0x00004	/* ARG2 is in ARGV form */
+#define CS_INTERP	0x00010	/* Interpret ARG2 if 2 args, ARG1 if 1 */
+#define CS_NOINTERP	0x00020	/* Never interp ARG2 if 2 or ARG1 if 1 */
+#define CS_CAUSE	0x00040	/* Pass cause to old command handler */
+#define CS_UNPARSE	0x00080	/* Pass unparsed cmd to old-style handler */
+#define CS_CMDARG	0x00100	/* Pass in given command args */	
+#define CS_STRIP	0x00200	/* Strip braces even when not interpreting */
+#define	CS_STRIP_AROUND	0x00400	/* Strip braces around entire string only */
+#define CS_ADDED	0x00800 /* Command has been added by @addcommand */
+#define CS_LEADIN	0x01000	/* Command is a single-letter lead-in */
+#define CS_PRESERVE	0x02000	/* For hooks, preserve global registers */
+#define CS_NOSQUISH	0x04000	/* Do not space-compress */
+#define CS_FUNCTION	0x08000	/* Can call with command() */
+#define CS_ACTOR	0x10000	/* @addcommand executed by player, not obj */
 
 /* Command permission flags */
 
