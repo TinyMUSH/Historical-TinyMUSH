@@ -185,10 +185,6 @@ install: build
 $(VER_O): $(VER_S) $(MUSH_S) $(ALL_I)
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $<
 
-recover.o: recover.c
-	$(CC) $(ALLCFLAGS) -I./gdbm-1.8.0 -c $<
-
-
 $(MOD_LA):
 	for module in $(subdirs); do \
 		curdir=`pwd` ;\
