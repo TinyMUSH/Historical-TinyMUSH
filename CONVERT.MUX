@@ -11,6 +11,24 @@ following:
 
 -----------------------------------------------------------------------------
 
+Compatibility Notes
+
+
+You will want the following parameters in your conf file, for maximum
+TinyMUX compatibility:
+
+	global_aconn_uselocks no
+	lattr_default_oldstyle no
+	addcommands_match_blindly yes
+	addcommands_obey_stop no
+
+Note that unless you explicitly need the legacy behavior of @addcommand'd
+commands (you want no Huh? message generated if an @addcommand is missed,
+and you match multiple @addcommands at once), you should probably set
+the last parameters to the opposite of their MUX-compatibility defaults.
+
+-----------------------------------------------------------------------------
+
 The following is a list of features/functions that were in TinyMUSH 2.2.5,
 but were not in TinyMUX 1.6, and which have become part of 3.0.
 

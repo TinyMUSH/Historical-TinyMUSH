@@ -11,6 +11,52 @@ do the following:
 
 -----------------------------------------------------------------------------
 
+Compatibility Notes
+
+
+You will want the following parameters in your conf file, for maximum
+2.2 compatibility:
+
+	global_aconn_uselocks yes
+	lattr_default_oldstyle yes
+	addcommands_match_blindly no
+	addcommands_obey_stop yes
+
+
+Virtually everything can be tweaked, disabled, or otherwise altered to
+fit whatever behavior you happen to want the server to have. All it takes
+is some modifications to your conf file (netmush.conf, or whatever you
+called it).
+
+- I don't want to use the built-in mailer.
+  Put 'have_mailer no' in your conf file.
+  If you never ever want to use the mailer, you might also want to 
+  consider compiling with USE_MAIL undefined, in config.h
+
+- I don't want to use the built-in comsys (channel/chat system).
+  Put 'have_comsys no' in your conf file.
+  If you never ever want to use the comsys, you might also want to 
+  consider compiling with USE_COMSYS undefined, in config.h
+
+- I don't want to allow zone control with ZMOs.
+  Put 'have_zones no' in your conf file.
+
+- I don't want to allow powers to be set on objects.
+  Put 'access @power disabled' in your conf file.
+
+- I don't want side-effect functions.
+  Put the following in your conf file:
+	function_access create disabled
+	function_access force disabled
+	function_access link disabled
+	function_access set disabled
+	function_access tel disabled
+	function_access trigger disabled
+	function_access wipe disabled
+
+
+-----------------------------------------------------------------------------
+
 The following is a list of features/functions that were in TinyMUX 1.6,
 but were not in TinyMUSH 2.2.5, and which have become part of 3.0.
 
