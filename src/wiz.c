@@ -597,9 +597,9 @@ char *message;
 			else
 				fcache_send(player, FC_MOTD);
 			if (mudconf.motd_msg && *mudconf.motd_msg) {
-			    notify_quiet(player, "No MOTD.");
-			} else {
 			    notify_quiet(player, mudconf.motd_msg);
+			} else {
+			    notify_quiet(player, "No MOTD.");
 			}
 		}
 		break;
