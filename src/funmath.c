@@ -165,27 +165,27 @@ FUNCTION(fun_ncomp)
 
 FUNCTION(fun_gt)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) > aton(fargs[1])));
+	safe_bool(buff, bufc, (aton(fargs[0]) > aton(fargs[1])));
 }
 FUNCTION(fun_gte)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) >= aton(fargs[1])));
+	safe_bool(buff, bufc, (aton(fargs[0]) >= aton(fargs[1])));
 }
 FUNCTION(fun_lt)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) < aton(fargs[1])));
+	safe_bool(buff, bufc, (aton(fargs[0]) < aton(fargs[1])));
 }
 FUNCTION(fun_lte)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) <= aton(fargs[1])));
+	safe_bool(buff, bufc, (aton(fargs[0]) <= aton(fargs[1])));
 }
 FUNCTION(fun_eq)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) == aton(fargs[1])));
+	safe_bool(buff, bufc, (aton(fargs[0]) == aton(fargs[1])));
 }
 FUNCTION(fun_neq)
 {
-	safe_ltos(buff, bufc, (aton(fargs[0]) != aton(fargs[1])));
+	safe_bool(buff, bufc, (aton(fargs[0]) != aton(fargs[1])));
 }
 
 FUNCTION(fun_and)
@@ -196,7 +196,7 @@ FUNCTION(fun_and)
 		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 	} else {
 		for (i = 0; (i < nfargs) && atoi(fargs[i]); i++) ;
-		safe_ltos(buff, bufc, i == nfargs);
+		safe_bool(buff, bufc, i == nfargs);
 	}
 }
 
@@ -208,7 +208,7 @@ FUNCTION(fun_or)
 		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 	} else {
 		for (i = 0; (i < nfargs) && !atoi(fargs[i]); i++) ;
-		safe_ltos(buff, bufc, i != nfargs);
+		safe_bool(buff, bufc, i != nfargs);
 	}
 }
 
@@ -227,14 +227,14 @@ FUNCTION(fun_xor)
 				val = atoi(fargs[i]);
 			}
 		}
-		safe_ltos(buff, bufc, val ? 1 : 0);
+		safe_bool(buff, bufc, val);
 	}
 	return;
 }
 
 FUNCTION(fun_not)
 {
-	safe_ltos(buff, bufc, !atoi(fargs[0]));
+	safe_bool(buff, bufc, !atoi(fargs[0]));
 }
 
 /*-------------------------------------------------------------------------
@@ -270,7 +270,7 @@ FUNCTION(fun_lor)
 	curr = split_token(&cp, sep);
 	i = atoi(curr);
     }
-    safe_ltos(buff, bufc, (i != 0));
+    safe_bool(buff, bufc, (i != 0));
 }
 
 FUNCTION(fun_land)
@@ -286,7 +286,7 @@ FUNCTION(fun_land)
 	curr = split_token(&cp, sep);
 	i = atoi(curr);
     }
-    safe_ltos(buff, bufc, (i != 0));
+    safe_bool(buff, bufc, (i != 0));
 }
 
 FUNCTION(fun_lorbool)
@@ -302,7 +302,7 @@ FUNCTION(fun_lorbool)
 	curr = split_token(&cp, sep);
 	i = xlate(curr);
     }
-    safe_ltos(buff, bufc, (i != 0));
+    safe_bool(buff, bufc, (i != 0));
 }
 
 FUNCTION(fun_landbool)
@@ -318,7 +318,7 @@ FUNCTION(fun_landbool)
 	curr = split_token(&cp, sep);
 	i = xlate(curr);
     }
-    safe_ltos(buff, bufc, (i != 0));
+    safe_bool(buff, bufc, (i != 0));
 }
 
 FUNCTION(fun_lmax)
@@ -376,7 +376,7 @@ FUNCTION(fun_andbool)
     } else {
 	for (i = 0; (i < nfargs) && xlate(fargs[i]); i++)
 	    ;
-	safe_ltos(buff, bufc, i == nfargs);
+	safe_bool(buff, bufc, i == nfargs);
     }
     return;
 }
@@ -390,7 +390,7 @@ FUNCTION(fun_orbool)
     } else {
 	for (i = 0; (i < nfargs) && !xlate(fargs[i]); i++)
 	    ;
-	safe_ltos(buff, bufc, i != nfargs);
+	safe_bool(buff, bufc, i != nfargs);
     }
     return;
 }
@@ -410,19 +410,19 @@ FUNCTION(fun_xorbool)
 		val = xlate(fargs[i]);
 	    }
 	}
-	safe_ltos(buff, bufc, val ? 1 : 0);
+	safe_bool(buff, bufc, val);
     }
     return;
 }
 
 FUNCTION(fun_notbool)
 {
-	safe_ltos(buff, bufc, !xlate(fargs[0]));
+	safe_bool(buff, bufc, !xlate(fargs[0]));
 }
 
 FUNCTION(fun_t)
 {
-	safe_ltos(buff, bufc, xlate(fargs[0]) ? 1 : 0);
+	safe_bool(buff, bufc, xlate(fargs[0]));
 }
 
 FUNCTION(fun_sqrt)
@@ -1108,12 +1108,10 @@ FUNCTION(fun_sign)
 	NVAL num;
 
 	num = aton(fargs[0]);
-	if (num < 0)
-		safe_known_str("-1", 2, buff, bufc);
-	else if (num > 0) {
-		safe_chr('1', buff, bufc);
+	if (num < 0) {
+	    safe_known_str("-1", 2, buff, bufc);
 	} else {
-		safe_chr('0', buff, bufc);
+	    safe_bool(buff, bufc, (num > 0));
 	}
 }
 

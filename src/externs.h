@@ -678,6 +678,7 @@ scl__dest[scl__len] = '\0';
 #define safe_nothing(b,p)	safe_copy_known_str("#-1",3,(b),(p),(LBUF_SIZE-1))
 #define safe_noperm(b,p)	safe_copy_known_str("#-1 PERMISSION DENIED",21,(b),(p),(LBUF_SIZE-1))
 #define safe_nomatch(b,p)	safe_copy_known_str("#-1 NO MATCH",12,(b),(p),(LBUF_SIZE-1))
+#define safe_bool(b,p,n)	safe_chr(((n) ? '1' : '0'),(b),(p))
 
 #define safe_dbref(b,p,n) \
 safe_chr('#',(b),(p)); \
