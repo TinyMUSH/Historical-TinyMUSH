@@ -73,12 +73,9 @@ int dddb_init()
 	
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
 
-	/* Set the cache size to the twice the page size. It only needs to
-	 * be large enough to hold the biggest piece of data we can store
-	 * plus a few bytes of overhead.
-	 */
+	/* Set the cache size to be two hash buckets for GDBM. */
 	 
-	cache_size = 2 * block_size;
+	cache_size = 2;
 	
 	sprintf(tmpfile, "%s/%s", mudconf.dbhome, dbfile);
                 
