@@ -25,9 +25,11 @@ extern void FDECL(db_grow, (dbref));
 
 extern struct object *db;
 
+#ifdef STANDALONE
 static int g_version;
 static int g_format;
 static int g_flags;
+#endif /* STANDALONE */
 
 /* ---------------------------------------------------------------------------
  * getboolexp1: Get boolean subexpression from file.
@@ -234,6 +236,7 @@ FILE *f;
 	return TRUE_BOOLEXP;	/* NOTREACHED */
 }
 
+#ifdef STANDALONE
 /* ---------------------------------------------------------------------------
  * getboolexp: Read a boolean expression from the flat file.
  */
@@ -256,7 +259,6 @@ FILE *f;
 	return b;
 }
 
-#ifdef STANDALONE
 /* ---------------------------------------------------------------------------
  * unscramble_attrnum: Fix up attribute numbers from foreign muds
  */
@@ -288,7 +290,6 @@ int attrnum;
 		return attrnum;
 	}
 }
-#endif
 
 /* ---------------------------------------------------------------------------
  * get_list: Read attribute list from flat file.
@@ -348,6 +349,7 @@ int new_strings;
 	}
 	return 1;		/* NOTREACHED */
 }
+#endif /* STANDALONE */
 
 /* ---------------------------------------------------------------------------
  * putbool_subexp: Write a boolean sub-expression to the flat file.
@@ -1018,8 +1020,8 @@ int *db_format, *db_version, *db_flags;
 
 int db_read()
 {
-	int attr, *data, *dptr, vattr_flags, i, j, blksize, num, len;
-	char *cdata, *cdptr, *as;
+	int *data, *dptr, vattr_flags, i, j, blksize, num, len;
+	char *cdata, *cdptr;
 
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;
@@ -1233,7 +1235,6 @@ int format, version;
 	dbref i;
 	int flags;
 	VATTR *vp;
-	int *data, *dptr, len;
 
 	al_store();
 
@@ -1290,10 +1291,9 @@ int format, version;
 
 dbref db_write()
 {
-	dbref obj;
 	VATTR *vp;
-	int attr, *data, *dptr, len, blksize, num, i, j, k, dirty;
-	char *cdata, *cdptr, *as, *got;
+	int *data, *dptr, len, blksize, num, i, j, k, dirty;
+	char *cdata, *cdptr;
 
 	al_store();
 
