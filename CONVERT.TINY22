@@ -1,0 +1,135 @@
+If you are converting your game from TinyMUSH 2.2, you will need to
+do the following:
+
+- Flatfile your database using the dbconvert utility from TinyMUSH 2.2.
+  You will need to convert from version 2.2.3 or higher; if you are not
+  currently at version 2.2.3 or higher, download TinyMUSH 2.2.5, and
+  convert to that using the instructions given in that package, before
+  proceeding.
+
+- Unflatfile your database using the dbconvert utility from TinyMUSH 3.0.
+
+-----------------------------------------------------------------------------
+
+The following is a list of features/functions that were in TinyMUX 1.6,
+but were not in TinyMUSH 2.2.5, and which have become part of 3.0.
+
+For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
+
+- The TinyMUX powers system has been added.
+
+- Added the MUX mailer. (Config option, on by default.)
+
+- Added the MUX com system. (Config option, on by default.)
+
+- The Guest system has been replaced by the MUX Guest system.
+
+- DNS lookups are now done by a slave process (automatically started at
+  startup, or through @startslave); the server will no longer block for
+  them.
+
+- Support for identd.
+
+- Max login record kept and displayed in WHO.
+
+- Added indent_desc config parameter.
+
+- Buffer size is now 8000 characters (doubled).
+
+- Output block size is now a compile-time parameter.
+
+- Auto-restart on crash controlled by signal_action conf parameter.
+
+- Attribute caching has been eliminated.
+
+- Memory-based databases supported.
+
+- Wizards can connect dark via the 'cd' command.
+
+- Added wizard news file ('wiznews').
+
+- The +help files are now offline, like help. If you don't like this,
+  simply @addcommand +help with your local softcode.
+
+- Added '@cpattr' command.
+
+- @daily implemented; enabled by 'eventchecking' global parameter, time
+  set by events_daily_hour.
+
+- Added @dbclean command, which removes stale attribute names from the
+  database.
+
+- Destruction of all objects is delayed until a dbck is done, as was
+  previously true just for rooms. (Exception: DESTROY_OK objects.)
+
+- @dump/optimize optimizes the chunkfile, reclaiming disk space.
+
+- @edit hilites the changed text.
+
+- '@function/preserve' preserves registers across user-defined functions.
+
+- '@list process' shows the number of descriptors available.
+
+- Multi-page and last-paged are now supported.
+
+- @search supports a GARBAGE class.
+
+- Added 'think' command.
+
+- Semaphore @wait can now block on a user-specified attribute.
+
+- Added @tofail/@otofail/@atofail (messages for failing to teleport out).
+
+- Added the ROYALTY flag.
+
+- Added SpeechLock/AUDITORIUM support.
+
+- Added FIXED flag (prevents teleporting or going home), with conf 
+  parameters fixed_home_message and fixed_tel_message.
+
+- The GAGGED flag is back.
+
+- Added marker flags: HEAD, STAFF, UNINSPECTED.
+
+- TRANSPARENT flag on room shows exits in "long" style.
+
+- Added VACATION flag, which auto-resets when a player connects.
+
+- hasattr() no longer finds attributes on parents; use the new hasattrp()
+  function for the old hasattr() behavior.
+
+- Added alphamax(), alphamin() functions.
+
+- Added art() function.
+
+- Added beep() function.
+
+- Added case() function.
+
+- Added children(), lparent() functions.
+
+- Added columns() function.
+
+- Added encrypt(), decrypt() functions.
+
+- Added grep(), grepi() functions.
+
+- Added hastype() function.
+
+- Added playmem() function.
+
+- Added pmatch() function.
+
+- Added strcat() function.
+
+- Added strtrunc() function.
+
+- Note that side-effect functions that fail now generally return #-1
+  NOT a null string (MUX behavior). If you want to guarantee a null
+  return, wrap the call in a null().
+
+- Currently unimplemented, but in 2.2.5 and on the to-do list:
+	- safer_passwords
+	- PARANOID_EMIT
+	- Tcl support
+

@@ -1,0 +1,138 @@
+If you are converting your game from TinyMUX, you will need to do the
+following:
+
+- Flatfile your database using the dbconvert utility from TinyMUX.
+  You will need to convert from version 1.5 or higher; if you are not
+  currently at version 1.5 or higher, download TinyMUX 1.6, and
+  convert to that using the instructions given in that package, before
+  proceeding.
+
+- Unflatfile your database using the dbconvert utility from TinyMUSH 3.0.
+
+-----------------------------------------------------------------------------
+
+The following is a list of features/functions that were in TinyMUSH 2.2.5,
+but were not in TinyMUX 1.6, and which have become part of 3.0.
+
+For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
+
+- Quotas by object type supported.
+
+- Added building_limit conf parameter.
+
+- Added player_parent, room_parent, exit_parent, thing_parent conf
+  parameters for default parent objects.
+
+- Added log options keyboard_commands and suspect_commands.
+
+- Guest can be locked out from sites via the guest_site parameter.
+
+- SIGUSR1 is logged, and the game restarts as GOD, not #1.
+
+- Note is written to log after @startup queue is run.
+
+- Disconnect log includes command count, bytes input, and bytes output.
+
+- New COMMANDS flag, the reverse of the NO_COMMAND flag, which has been
+  eliminated.
+
+- New STOP flag, halts matching if a command is matched on a STOP object.
+  (Wizard-only.)
+
+- NOSPOOF is only wiz-visible.
+
+- The color substitution is now '%x' rather than '%c'.
+
+- The '%c' substitution returns the last command.
+
+- Added "lag checking".
+
+- Added timechecking.
+
+- @doing truncates the minimum possible (i.e., don't truncate for the ANSI
+  character unless necessary).
+
+- Added @dolist/notify.
+
+- @enable/@disable now appear in the logfile, like config updates do.
+
+- Added @eval command.
+
+- examine/brief only shows object ownership (2.2 behavior).
+
+- INFO command implemented.
+
+- Added '@list cache'.
+
+- Hash statistics listing shows stats for @function hash table.
+
+- @mvattr no longer clears the original attribute unless it was able
+  to copy it at least once.
+
+- @pemit/noeval permits unparsed output.
+
+- @pemit/list now obeys the /contents switch.
+
+- There is a space after the @program prompt (2.2 behavior).
+
+- Added object count to @search.
+
+- @stats shows the next dbref to be created.
+
+- The #$ @switch/switch() token has been added.
+
+- Added @conformat and @exitformat contents and exits formatting.
+
+- Command matches can be done unparsed through no_eval attribute flag.
+
+- New BOUNCE flag acts like equivalent of @listen of '*' without @ahear.
+
+- Added bor(), band(), bnand() functions.
+
+- die() checks its arguments 2.2-style (so 0-100 is valid).
+
+- Added filterbool() function.
+
+- ifelse() now conditions on a boolean, rather than on a non-zero number.
+
+- Added nonzero() function, which behaves like ifelse() used to.
+
+- lastcreate() and the NewObjs attribute keep track of last-created
+  objects for a given thing.
+
+- Added lpos() function.
+
+- matchall() returns a null string, not 0, on no match.
+
+- mix() can take up to ten arguments total.
+
+- objeval() now preserves the cause (enactor) in the evaluation, and
+  allows the calling object to succeed if its owner is the same as
+  the evaluator's owner, instead of needing to _be_ the evaluator's
+  owner (2.2 behavior).
+
+- Added programmer() function.
+
+- Added remit() function, like pemit() but does contents.
+
+- restarts() and restarttime() added.
+
+- Added sees() function.
+
+- shl(), shr(), inc(), dec() no longer require inputs to be numbers
+  (2.2 behavior).
+
+- Added t() function.
+
+- Added toss() function.
+
+- Vector functions replaced by 2.2 ones, including addition of vdot().
+  This means that vector multiplication now works, but it breaks the
+  old MUX behavior of vmul().
+
+- Added wipe() function.
+
+- Added xcon() function.
+
+- elements(), filter(), map(), munge(), setunion(), setinter(), setdiff(),
+  shuffle(), sort(), sortby(), splice() take output delimiters.
