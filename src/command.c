@@ -2467,7 +2467,6 @@ void list_memory(player)
 	UFUN *ufunc;
 	Cache *cp;
 	CacheLst *sp;
-	char *str;
 	HASHENT *htab;
 	struct help_entry *hlp;
 	FLAGENT *flag;
@@ -2729,7 +2728,7 @@ void list_memory(player)
 			htab = mudstate.hfile_hashes[j].entry[i];
 			while (htab != NULL) {
 				each += sizeof(HASHENT);
-				each + strlen(htab->target) + 1;
+				each += strlen(htab->target) + 1;
 				if (!(htab->flags & HASH_ALIAS)) {
 					each += sizeof(struct help_entry);
 					hlp = (struct help_entry *)htab->data;
