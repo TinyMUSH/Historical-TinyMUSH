@@ -400,7 +400,6 @@ const char *src, *sub;
  * of OLD replaced by NEW. OLD and NEW may be different lengths.
  * (mitch 1 feb 91)
  * replace_string_ansi: Like replace_string, but sensitive about ANSI codes.
- * Note that unlike replace_string, it destructively modifies its input!
  */
 
 char *replace_string(old, new, string)
@@ -444,10 +443,9 @@ const char *old, *new, *string;
 }
 
 char *replace_string_ansi(old, new, string)
-    char *old, *new;
-    const char *string;
+    const char *old, *new, *string;
 {
-    char *p, *result, *r, *s, *t, *savep;
+    char *result, *r, *s, *t, *savep;
     int count, olen, have_normal, new_ansi;
     char oldbuf[LBUF_SIZE], newbuf[LBUF_SIZE];
 
@@ -456,22 +454,6 @@ char *replace_string_ansi(old, new, string)
 
     s = (char *) string;
     r = result = alloc_lbuf("replace_string_ansi");
-
-    /* We may have gotten an ANSI_NORMAL termination to OLD and NEW,
-     * that the user probably didn't intend to be there. (If the
-     * user really did want it there, he simply has to put a double
-     * ANSI_NORMAL in; this is non-intuitive but without it we can't
-     * let users swap one ANSI code for another using this.)  Thus,
-     * we chop off the terminating ANSI_NORMAL on both, if there is
-     * one.
-     */
-
-    p = old + strlen(old) - 4;
-    if (!strcmp(p, ANSI_NORMAL))
-	*p = '\0';
-    p = new + strlen(new) - 4;
-    if (!strcmp(p, ANSI_NORMAL))
-	*p = '\0';
 
     olen = strlen(old);
 

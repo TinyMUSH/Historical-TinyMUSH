@@ -1253,15 +1253,56 @@ int check_parents, get_locks, df_star;
 	return 1;
 }
 
+
 /*
  * ---------------------------------------------------------------------------
  * * edit_string, edit_string_ansi, do_edit: Modify attributes.
  */
 
+#define COPY_ANSI_STR \
+		    while (*p) { \
+			if (*p == ESC_CHAR) { \
+			    savep = p; \
+			    while (*p && (*p != ANSI_END)) { \
+				safe_chr(*p, *dst, &cp); \
+				p++; \
+			    } \
+			    if (*p) { \
+				safe_chr(*p, *dst, &cp); \
+				p++; \
+			    } \
+			    if (!strncmp(savep, ANSI_NORMAL, 4)) \
+				have_normal = 1; \
+			    else \
+				have_normal = 0; \
+			} else { \
+			    safe_chr(*p, *dst, &cp); \
+			    p++; \
+			} \
+		    }
+
 void edit_string(src, dst, from, to)
 char *src, **dst, *from, *to;
 {
-	char *cp;
+	char *cp, *p, *savep;
+	int have_normal;
+
+        /* We may have gotten an ANSI_NORMAL termination to OLD and NEW,
+	 * that the user probably didn't intend to be there. (If the
+	 * user really did want it there, he simply has to put a double
+	 * ANSI_NORMAL in; this is non-intuitive but without it we can't
+	 * let users swap one ANSI code for another using this.)  Thus,
+	 * we chop off the terminating ANSI_NORMAL on both, if there is
+	 * one.
+	 */
+
+	p = from + strlen(from) - 4;
+	if (!strcmp(p, ANSI_NORMAL))
+	    *p = '\0';
+
+	p = to + strlen(to) - 4;
+	if (!strcmp(p, ANSI_NORMAL))
+	    *p = '\0';
 
 	/*
 	 * Do the substitution.  Idea for prefix/suffix from R'nice@TinyTIM 
@@ -1274,8 +1315,24 @@ char *src, **dst, *from, *to;
 
 		*dst = alloc_lbuf("edit_string.^");
 		cp = *dst;
-		safe_str(to, *dst, &cp);
-		safe_str(src, *dst, &cp);
+
+		/* If we have an ANSI character, we need to scan the
+		 * string, to make sure we don't have to put on a 
+		 * trailing ANSI_NORMAL.
+		 */
+
+		if (((char *) index(to, ESC_CHAR)) == NULL) {
+		    safe_str(to, *dst, &cp);
+		    safe_str(src, *dst, &cp);
+		} else {
+		    have_normal = 1;
+		    p = to;
+		    COPY_ANSI_STR;
+		    p = src;
+		    COPY_ANSI_STR;
+		    if (!have_normal)
+			safe_str(ANSI_NORMAL, *dst, &cp);
+		}
 		*cp = '\0';
 	} else if (!strcmp(from, "$")) {
 		/*
@@ -1284,8 +1341,24 @@ char *src, **dst, *from, *to;
 
 		*dst = alloc_lbuf("edit_string.$");
 		cp = *dst;
-		safe_str(src, *dst, &cp);
-		safe_str(to, *dst, &cp);
+
+		/* If we have an ANSI character, we need to scan the
+		 * string, to make sure we don't have to put on a 
+		 * trailing ANSI_NORMAL.
+		 */
+
+		if (((char *) index(to, ESC_CHAR)) == NULL) {
+		    safe_str(src, *dst, &cp);
+		    safe_str(to, *dst, &cp);
+		} else {
+		    have_normal = 1;
+		    p = src;
+		    COPY_ANSI_STR;
+		    p = to;
+		    COPY_ANSI_STR;
+		    if (!have_normal)
+			safe_str(ANSI_NORMAL, *dst, &cp);
+		}
 		*cp = '\0';
 	} else {
 		/*
@@ -1301,86 +1374,17 @@ char *src, **dst, *from, *to;
 	}
 }
 
+#undef COPY_ANSI_STR
+
 void edit_string_ansi(src, dst, returnstr, from, to)
 char *src, **dst, **returnstr, *from, *to;
 {
-	char *cp, *rp;
+    edit_string(src, dst, from, to);
 
-	/*
-	 * Do the substitution.  Idea for prefix/suffix from R'nice@TinyTIM 
-	 */
-
-	if (!strcmp(from, "^")) {
-		/*
-		 * Prepend 'to' to string 
-		 */
-
-		*dst = alloc_lbuf("edit_string.^");
-		cp = *dst;
-		safe_str(to, *dst, &cp);
-		safe_str(src, *dst, &cp);
-		*cp = '\0';
-
-		/*
-		 * Do the ansi string used to notify 
-		 */
-		*returnstr = alloc_lbuf("edit_string_ansi.^");
-		rp = *returnstr;
-		if (mudconf.ansi_colors)
-		    safe_str(ANSI_HILITE, *returnstr, &rp);
-		safe_str(to, *returnstr, &rp);
-		if (mudconf.ansi_colors)
-		    safe_str(ANSI_NORMAL, *returnstr, &rp);
-		safe_str(src, *returnstr, &rp);
-		*rp = '\0';
-
-	} else if (!strcmp(from, "$")) {
-		/*
-		 * Append 'to' to string 
-		 */
-
-		*dst = alloc_lbuf("edit_string.$");
-		cp = *dst;
-		safe_str(src, *dst, &cp);
-		safe_str(to, *dst, &cp);
-		*cp = '\0';
-
-		/*
-		 * Do the ansi string used to notify 
-		 */
-
-		*returnstr = alloc_lbuf("edit_string_ansi.$");
-		rp = *returnstr;
-		safe_str(src, *returnstr, &rp);
-		if (mudconf.ansi_colors)
-		    safe_str(ANSI_HILITE, *returnstr, &rp);
-		safe_str(to, *returnstr, &rp);
-		if (mudconf.ansi_colors)
-		    safe_str(ANSI_NORMAL, *returnstr, &rp);
-		*rp = '\0';
-
-	} else {
-		/*
-		 * replace all occurances of 'from' with 'to'.  Handle the *
-		 * * * * special cases of from = \$ and \^. 
-		 */
-
-		if (((from[0] == '\\') || (from[0] == '%')) &&
-		    ((from[1] == '$') || (from[1] == '^')) &&
-		    (from[2] == '\0'))
-			from++;
-
-		*dst = replace_string_ansi(from, to, src);
-		if (mudconf.ansi_colors) {
-		    *returnstr = replace_string_ansi(from,
-						tprintf("%s%s%s%s",
-							ANSI_HILITE, to,
-							ANSI_NORMAL,
-							ANSI_NORMAL), src);
-		} else {
-		    *returnstr = replace_string_ansi(from, to, src);
-		}
-	}
+    *returnstr = alloc_lbuf("edit_string_ansi");
+    edit_string(src, returnstr, from,
+		tprintf("%s%s%s%s", ANSI_HILITE, to, ANSI_NORMAL,
+			ANSI_NORMAL));
 }
 
 void do_edit(player, cause, key, it, args, nargs)
