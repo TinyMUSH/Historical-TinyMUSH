@@ -32,7 +32,7 @@ The installation process is as follows:
 - Go back to the src directory ('cd ../src').
 
 - Run the configure script, by typing './configure'. This will customize
-  autoconf.h and the Makefile for your system. If you ahve gcc (the GNU C
+  autoconf.h and the Makefile for your system. If you have gcc (the GNU C
   compiler) installed on your system, it will automatically be selected
   as the compiler of choice.
 
@@ -111,8 +111,10 @@ multiple Linux development paths, and the incompatibility between
 multiple versions of the C header files and GNU C library incorporated
 into most current versions of Linux, make it very difficult to
 maintain "out of the box" 100% compatibility with every version of
-Linux. You can expect to need to make minor tweaks to the Makefile
-and/or autoconf.h, if you are on a Linux system.
+Linux. If you are on a Linux system, it is possible that you will
+need to make minor tweaks to the Makefile and/or autoconf.h,
+particularly if you are running a Linux release more recent than
+the release date of this server version.
 
 There is a known problem with gcc on 64-bit operating systems,
 including Irix 6. gcc fails to correctly pass structures of less than
