@@ -209,7 +209,7 @@ Continued in 'help Attributes2'.
 @forwardlist:	@filter, @forwardlist, @infilter, @inprefix, @prefix
 @listen:	@listen, @aahear, @ahear, @amhear
 @pay:		use of machines, @pay set, @charges, @cost, @runout
-Movement:	@move set
+Moving:		@move set
  
 Individual attribute entries:
  
@@ -461,13 +461,12 @@ About Help		Attributes		Attribute Owners
 Attribute Flags		Boolean Values		Caller
 Command List		Comsys			Control			
 Conventions		Costs			Credits			
-Delimiters		Enactor			EXITS			
+Delimiters		Enactor			Exits			
 FAILURE			FLAG LIST		FLAGS			
-FUNCTION LIST		FUNCTIONS		GENDER			
-GOALS			HERE			HOMES			
+FUNCTION LIST		FUNCTIONS		HOMES			
 LINKING			LISTENING		LISTS			
 LOCAL REGISTERS		Location		Locks			
-LOOPING			ME			MONEY			
+LOOPING			Matching		MONEY			
 Moving			OBJECT TYPES		PARENT OBJECTS		
 Patchlevel		PIPING			PUEBLO
 PUPPETS			REGEXPS			ROBBERY
@@ -525,8 +524,11 @@ The following happens when an object is dropped:
  
 Continued in 'help drop3'.
  
+& @dfail
+& @odfail
+& @adfail
 & drop3
- 
+  
 Example of a @dfail verb set:
  
   @dfail sword = The sword has welded itself to your hand.
@@ -543,6 +545,7 @@ Example of a @drop verb set:
 The @drop verb set of an exit is used when an object goes that exit; see
 'help goto' for the details and an example.
  
+& @ealias
 & enter
  
 Command:  enter[/quiet] <mobile>
@@ -597,6 +600,13 @@ The steps are:
  
 Continued in 'help enter4'.
  
+& @efail
+& @oefail
+& @aefail
+& @enter
+& @oenter
+& @oxenter
+& @aenter
 & enter4
  
 Example of an @efail verb set:
@@ -823,6 +833,12 @@ considered "quiet" if the /quiet switch was specified. The steps are:
  
 Continued in 'help give5'.
  
+& @gfail
+& @ogfail
+& @agfail
+& @rfail
+& @orfail
+& @arfail
 & give5
  
 Example @gfail verb set:
@@ -1010,6 +1026,9 @@ you don't control, and you want to halt it and send it home.
  
 Continued in 'help kill2'.
  
+& @kill
+& @okill
+& @akill
 & kill2
  
 The following things happen when a kill is successful:
@@ -1030,6 +1049,7 @@ Example of a @kill verb set:
   @okill guard = killed a guard. An alarm sounds in the distance.
   @akill guard = &LAST_KILL me = %# [secs()]
  
+& @lalias
 & leave
  
 Command:  leave[/quiet]
@@ -1071,6 +1091,13 @@ The steps are:
  
 Continued in 'help leave3'.
  
+& @lfail
+& @olfail
+& @alfail
+& @leave
+& @oleave
+& @oxleave
+& @aleave
 & leave3
  
 Example of a @lfail verb set:
@@ -1136,6 +1163,9 @@ when. (If an attribute is non-existent, nothing is shown/done.)
  
 Continued in 'help Moving2'.
  
+& @move
+& @omove
+& @amove
 & Moving2
  
 These steps are:
@@ -1266,6 +1296,12 @@ except for objects that are set STICKY, which are sent home instead.
 Objects sent through a drop-to also lose any KEY contents (as per
 'help Movement Key').
  
+& @drop
+& @odrop
+& @adrop
+ 
+See 'help drop' and 'help goto'.
+ 
 & news
   Command: news [<topic>]
   Shows you the current news for the MUSH. It is highly recommended that
@@ -1351,6 +1387,8 @@ be warned that they can't page you back.
  
 See also: @pemit, @lock
   
+& :
+& ;
 & pose
  
 Command:  pose[/<switch>] <message>
@@ -1423,48 +1461,6 @@ See also: say, @emit
   Logs you out and disconnects you from the game. Must be in all capitals.  
   See also: LOGOUT.
 
-& read 
-  Command: read [<object>]
-  Displays the description of <object>, or the room you're in if you don't
-  specify an object.  Specifying object as <name> or #<dbref> or 'me' or
-  'here' is legal.  You can also use look to look at objects held by other
-  people, just use 'read <person>'s <object>'.
- 
-  You may use the /outside switch to look at the location of your current
-  location (useful if you are inside a vehicle or other object).  You may
-  also look at other objects in the 'outer' location, but you may not
-  use the possessive form with the /outside switch (ie: "read/outside
-  <person>'s <object>" won't work).
-  
-  'look' is the same as 'read'.
-
-& ;
-  Command: ;<message>
-  This command is much like the ':' command, except that no space is inserted
-  between your name and the action.  Example: the command ';'s watch beeps.'
-  produces '<yourname>'s watch beeps.'.
- 
-  Warning: This command does not work in command lists run from an attribute
-  because the ';' is treated as the command separator.  Use pose/nospace
-  instead.
- 
-  See also: page, pose, say, whisper, :, ".
-
-& :
-  Command: :<message>
-  Displays <message> to everyone in your current room, preceded by your name
-  and a space.  Example: the command ':jumps for joy' produces
-  '<yourname> jumps for joy'.
-  See also: page, pose, say, whisper, ;, ".
-
-& "
-  Command: "<message>
-  Says <message> out loud to everyone in your current room.  Example:
-  the command '"Where is the movie theater?' produces
-  '<yourname> says "Where is the movie theater>"'.  Note that the closing
-  double quote is automatically added.
-  See also: page, pose, say, :, ".
-
 & #
   Command: #<number> <command>
   Forces the object whose database number is <number> to perform <command>.
@@ -1473,13 +1469,7 @@ See also: say, @emit
   this command.
   See also: @force.
 
-& \\
-  Command: \\<message>
-  Outputs <message> to everyone in your current room without embellishment.
-  Example: the command '\\A chill falls over the room.' produces
-  'A chill falls over the room.'
-  See also: @emit, @oemit, NOSPOOF.
-
+& "
 & say
  
 Command:  say[/noeval] <message>
@@ -2041,6 +2031,7 @@ Example:
  
   See also: edit()
  
+& \\
 & @emit
  
 Command:  @emit[/<switches>] <message>
@@ -3828,19 +3819,19 @@ See also: JUMP_OK, FIXED, home, @lock
   See also: @charges.
 
 & @sex
-  Command: @sex <object> = <gender>
-  Attribute: Sex
  
-  Sets the gender for <object>, which is used to determine which pronouns to
-  use when replacing %p, %o, %s, and %a parameters in messages that apply to
-  <object>.  Genders that start with M or m are considered male, those
-  starting with F, f, W, or w are considered female, those starting with
-  P or p are considered plural, and anything else is considered neuter.
+Command: @sex <object> = <gender>
  
-  Example: @sex me = female
-           @sex me = No thank you (Silly, but possible.  Treated as neuter)
-  See also: GENDER.
-
+Sets the SEX attribute on an object. This is used to determine whic
+pronouns to use when replacing %p, %o, %s, and %a parameters in
+messages that apply to <object>.  Genders that start with M or m are
+considered male, those starting with F, f, W, or w are considered
+female, those starting with P or p are considered plural, and anything
+else is considered neuter.
+ 
+Example: @sex me = female
+         @sex me = No thank you		[Silly. Treated as neuter.]
+ 
 & @startup
   Command: @startup <object> = <command list>
   Attribute: Startup
@@ -5068,68 +5059,6 @@ Examples (assuming the player performing these actions is #1):
  
 See also: ENACTOR, SUBSTITUTION.
  
-& MOVING
-  Topic: MOVING
- 
-  A number of things happen when you leave one location and enter another
-  (assuming you pass the lock on the exit or have permission to enter the
-  object or to teleport to the location).  The following list describes the
-  actions that MUSH takes when an object moves from one place to another.
-  Note that if an indicated attribute is not set, no message is displayed
-  (or no action is performed).
- 
-  - If you are using an exit (as opposed to teleporting, entering an object,
-    or going home), You receive the SUCC message for the exit, others in the
-    old location receive the exit's OSUCC message, and the exit runs its
-    ASUCC action list.
-  - If you are teleporting or being teleported, others in the old location
-    receive your OXTPORT attribute.
-  - If you are a player or have your LISTEN attribute set to something,
-    and if the old location is not dark and you are not dark, you receive the
-    LEAVE message for the old location, others in the old location receive
-    the OLEAVE message, and the old location runs its ALEAVE action list.
-    Others in the new location receive the OXENTER message from the old
-    location, and others in the old location receive the message '<yourname>
-    has left.'
-{ 'help moving2' for more }
-& moving2
-  - You are moved to the new location.  If you are entering an object,
-    teleporting, or going home, all KEY objects are stripped from you.
-  - If the new location is a room, you receive the room's DESC, others in the
-    room receive the ODESC, and the room runs its ADESC.  If you pass the
-    room's lock do the same with SUCC, OSUCC, and ASUCC, otherwise use FAIL,
-    OFAIL, and AFAIL.
-  - If the new location is a player or an object, you receive the location's
-    IDESC (or DESC if the IDESC is not set).  In either event, others in the
-    same location see the ODESC message and the location runs its ADESC 
-    action list.
-  - You are shown the contents and visible exits if the location is not DARK.
-  - If you used an exit, then you receive the DROP message for the exit,
-    others in the new room receive the exit's ODROP message, and the exit
-    runs its ADROP action list.
-  - If you are teleporting or being teleported, you receive your TPORT
-    attribute, others in your new location receive your OTPORT attribute,
-    and your ATPORT attribute is run.
-  - You receive your MOVE attribute, others in your new location receive
-    your OMOVE attribute, and your AMOVE attribute is run.
-{ 'help moving3' for more }
-& moving3
-  - If you are a player, or have your LISTEN attribute set to something,
-    and if the old location is not dark and you are not dark, you receive the
-    ENTER message for the new room, others in the new room receive the OENTER
-    message, and the new room runs its AENTER action list. Others in the room
-    you just left receive the new room's OXLEAVE message, and others in the
-    old location receive the message '<yourname> has arrived.'
-  - If the old location is a STICKY room and has its drop-to set, see if
-    objects in that room should be sent to the drop-to location.  If so,
-    do it.
-  - If you are a player, you have a chance of finding some money.
- 
-  See also: @adesc, @adrop, @aenter, @afail, @aleave, @asucc, @atport, @desc,
-            @drop, @enter, @fail, @leave, @listen, @odesc, @odrop, @oenter,
-            @ofail, @oleave, @osucc, @oxenter, @oxleave, @oxtport, @succ,
-            @tport, move, @teleport, home, KEY, STICKY, DROP-TOS, FAILURE,
-            SUCCESS.
 & Exits
  
 Topic: Exits
@@ -5527,31 +5456,6 @@ output delimiter is represented by the token '@@'.
  
 See examples:  iter(), map(), filter()
  
-& GENDER
-  Topic: GENDER
- 
-  A player's (virtual) gender is specified in the Sex attribute.  This
-  attribute controls how gender-specific pronoun substitutions are evaluated
-  for the player.  If the player's Sex attribute starts with an 'M' or an 'm'
-  then the player is assumed to be male,  'F', 'f', 'W', and 'w' indicate
-  female, 'P' or 'p' indicate plural, and anything else indicates neuter.
-  See also: SUBSTITUTIONS.  
-
-& GOALS
-  Topic: GOALS
- 
-  There is no ultimate goal to this game, except to have fun.  There are
-  objects and places to build, puzzles to solve, scenery to visit, and people
-  to meet. There are no winners or losers, only fellow players.  Enjoy.
-
-& HERE
-  Topic: HERE 
- 
-  The word 'here' refers to the room you are in (if you are inside an object,
-  it refers to the object that you are in, not the room that the object is
-  in).  For example, to rename the room you are in (if you control it), you
-  could enter '@name here= <new name>'.
-
 & HOMES
   Topic: HOMES
  
@@ -5561,7 +5465,7 @@ See examples:  iter(), map(), filter()
   you control that room, or your home. You can link an exit to send players
   home with '@link <dir>=home'.  Drop-tos can also be set to 'home'.
   See also: @link, DROP-TO, STICKY.
-
+ 
 & LINKING  
   Topic: LINKING
  
@@ -5642,25 +5546,53 @@ See examples:  iter(), map(), filter()
   can be used to see if you are looping.  Beware!  A looping machine that
   isn't @halt'ed will drain your money supply while you are away!
   See also: @halt, @ps.
+ 
+& Me
+& Here
+& Matching
+ 
+Topic: Matching
+ 
+When you type a command or utilize a function that references an
+object, such as '[flags(<object>)]', 'look <object>', 'get <object>',
+or '@teleport <object to move> = <destination object', the MUSH looks
+for a 'match' to that object. The 'locate()' function allows you
+direct access to the matching procedures, for your own MUSHcode.
+ 
+There are subtle differences in the matching procedures for each command
+or function, depending on what makes sense in that specific context.
+In general, though, a match is performed as follows:
+ 
+- The keyword 'me' is checked. 'me' refers to you.
+ 
+- The keyword 'here' is checked. 'here' refers to your current location.
+ 
+- A check for a dbref, in the form of '#<number>', is performed. The
+  dbref must map to a valid, non-Garbage object.
+ 
+Continued in 'help Matching2'.
+ 
+& Matching2
+ 
+- The keyword 'home' is checked. 'home' refers to your home.
+ 
+- A check for a player, in the form of '*<player name or alias>', is
+  performed.
+ 
+- If something has been matched, the match attempt stops, successfully.
 
-& ME
-  Topic: ME
+- A match against exits is performed. This is matched against all
+  components of the exit name (i.e., if the exit is 'north;n;out;o',
+  'north', 'n', 'out', and 'o' all match that exit). In some
+  circumstances, exits are checked for in the parent objects, also.
+  Exits you're carrying are checked before exits in your location.
+  Priority is given to exits that aren't locked against you.
  
-  The word 'me' refers to yourself. Some things to do when starting out: 
+- A match against the names of objects in your location is performed.
+  Partial names are okay; i.e., 'bal' will match 'balloon'.
  
-  1) Give yourself a description with 
-     '@desc me = <description>', then look at yourself with 'look me'.
- 
-  2) Set your gender, if you wish it known, with
-     '@sex me=male' or '@sex me=female'  (or '@sex me=neuter' to be an 'it',
-     or '@sex me=plural' to be a 'they').
- 
-  3) Prevent other people from picking you up, with '@lock me=me'
- 
-  4) Let other people give you money, but not jump into you, with
-     '@lock/enter me=me' and then '@set me=ENTER_OK'
- 
-  5) Prevent other people from using you, with '@lock/use me=me'
+- A match against the names of objects you're carrying is performed.
+  Partial names are okay; i.e., 'bal' will match 'balloon'.
  
 & MONEY
   Topic: MONEY
