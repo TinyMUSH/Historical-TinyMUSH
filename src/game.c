@@ -493,21 +493,21 @@ void html_escape(src, dest, destp)
 	destp = &temp;
     }
 
-    for (*dest = '\0', msg_orig = src; 
+    for (msg_orig = src; 
 	 msg_orig && *msg_orig;
 	 msg_orig++) {
 	switch (*msg_orig) {
 	  case '<':
-	    safe_str("&lt;", dest, destp);
+	    safe_known_str("&lt;", 4, dest, destp);
 	    break;
 	  case '>':
-	    safe_str("&gt;", dest, destp);
+	    safe_known_str("&gt;", 4, dest, destp);
 	    break;
 	  case '&':
-	    safe_str("&amp;", dest, destp);
+	    safe_known_str("&amp;", 5, dest, destp);
 	    break;
 	  case '\"':
-	    safe_str("&quot;", dest, destp);
+	    safe_known_str("&quot;", 6, dest, destp);
 	    break;
 	  default:
 	    safe_chr(*msg_orig, dest, destp);
