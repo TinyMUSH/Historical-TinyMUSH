@@ -107,11 +107,17 @@
 
 #define ANST_NORMAL	0x099
 
-extern char *ansi_nchartab[256];
-extern char  ansi_lettab[I_ANSI_NUM];
-extern char *ansi_numtab[I_ANSI_NUM];
-extern int   ansi_mask_bits[I_ANSI_LIM];
-extern int   ansi_bits[I_ANSI_LIM];
+/* From stringutil.c */
+extern char *	ansi_nchartab[256];
+extern char	ansi_lettab[I_ANSI_NUM];
+extern int	ansi_mask_bits[I_ANSI_LIM];
+extern int	ansi_bits[I_ANSI_LIM];
+
+extern char *	FDECL(strip_ansi, (const char *));
+extern int	FDECL(strip_ansi_len, (const char *));
+extern char *	FDECL(normal_to_white, (const char *));
+extern char *	FDECL(ansi_transition_esccode, (int, int));
+extern char *	FDECL(ansi_transition_mushcode, (int, int));
 
 #define skip_esccode(s) \
 	++(s);						\
@@ -140,7 +146,7 @@ do {									\
 				param_val <<= 1;			\
 				param_val += (param_val << 2) + (*(s) & 0x0f); \
 			} else {					\
-				if (param_val < ANSI_LIM) {		\
+				if (param_val < I_ANSI_LIM) {		\
 					ansi_mask |= ansi_mask_bits[param_val]; \
 					ansi_diff = ((ansi_diff & ~ansi_mask_bits[param_val]) | \
 						     ansi_bits[param_val]); \
@@ -153,7 +159,7 @@ do {									\
 		++(s);							\
 	}								\
 	if (*(s) == 'm') {						\
-		if (param_val < ANSI_LIM) {				\
+		if (param_val < I_ANSI_LIM) {				\
 			ansi_mask |= ansi_mask_bits[param_val];		\
 			ansi_diff = ((ansi_diff & ~ansi_mask_bits[param_val]) | \
 				     ansi_bits[param_val]);		\

@@ -1944,7 +1944,6 @@ char *name, *qual;
 			notify(player,
 			     tprintf("@create %s=%d", translate_string(thingname, 1),
 				     val));
-			StringCopy(thingname, Name(thing));
 			break;
 		case TYPE_ROOM:
 			StringCopy(thingname, Name(thing));
@@ -1957,7 +1956,6 @@ char *name, *qual;
 			StringCopy(thingname, Name(thing));
 			notify(player,
 			       tprintf("@open %s", translate_string(thingname, 1)));
-			StringCopy(thingname, Name(thing));
 			for (got = thingname; *got; got++) {
 				if (*got == EXIT_DELIMITER) {
 					*got = '\0';

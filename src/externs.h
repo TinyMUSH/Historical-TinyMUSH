@@ -203,9 +203,6 @@ extern void	FDECL(edit_string, (char *, char **, char *, char *));
 extern dbref	FDECL(match_controlled, (dbref, const char *));
 
 /* From stringutil.c */
-extern char *	FDECL(strip_ansi, (const char *));
-extern int	FDECL(strip_ansi_len, (const char *));
-extern char *	FDECL(normal_to_white, (const char *));
 extern char *	FDECL(upcasestr, (char *)); 
 extern char *	FDECL(munge_space, (char *));
 extern char *	FDECL(trim_spaces, (char *));

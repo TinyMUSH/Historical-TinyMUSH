@@ -86,20 +86,6 @@ char ansi_lettab[I_ANSI_NUM] =
 };
 
 /* ---------------------------------------------------------------------------
- * ANSI number-to-percent-subst translation table.
- */
-
-char *ansi_numtab[I_ANSI_NUM] =
-{
-    "%xn", "%xh", 0,     0,     "%xu", "%xf", 0,     "%xi",
-    0,     0,     0,     0,     0,     0,     0,     0,
-    0,     0,     0,     0,     0,     0,     0,     0,
-    0,     0,     0,     0,     0,     0,     "%xx", "%xr",
-    "%xg", "%xy", "%xb", "%xm", "%xc", "%xw", 0,     0,
-    "%xX", "%xR", "%xG", "%xY", "%xB", "%xM", "%xC", "%xW"
-};
-
-/* ---------------------------------------------------------------------------
  * ANSI packed state definitions -- number-to-bitmask translation table.
  */
 
@@ -201,9 +187,124 @@ const char *raw;
 	return buf;
 }
 
+char *ansi_transition_esccode(ansi_before, ansi_after)
+int ansi_before, ansi_after;
+{
+	int ansi_bits_set, ansi_bits_clr;
+	char *p;
+	static char buffer[64];
+
+	buffer[0] = ESC_CHAR;
+	buffer[1] = '[';
+	p = buffer + 2;
+
+	/* If they turn off any highlight bits, or they change from some color
+	 * to default color, we need to use ansi normal first.
+	 */
+
+	ansi_bits_set = (~ansi_before) & ansi_after;
+	ansi_bits_clr = ansi_before & (~ansi_after);
+	if ((ansi_bits_clr & 0xf00) || (ansi_bits_set & 0x088)) {
+		strcpy(p, "0;"); p += 2;
+		ansi_bits_set = (~ansi_bits[0]) & ansi_after;
+		ansi_bits_clr = ansi_bits[0] & (~ansi_after);
+	}
+
+	/* Next reproduce the highlight state */
+
+	if (ansi_bits_set & 0x100) {
+		strcpy(p, "1;"); p += 2;
+	}
+	if (ansi_bits_set & 0x200) {
+		strcpy(p, "4;"); p += 2;
+	}
+	if (ansi_bits_set & 0x400) {
+		strcpy(p, "5;"); p += 2;
+	}
+	if (ansi_bits_set & 0x800) {
+		strcpy(p, "7;"); p += 2;
+	}
+
+	/* Foreground color */
+	if ((ansi_bits_set | ansi_bits_clr) & 0x00f) {
+		strcpy(p, "30;"); p += 3;
+		p[-2] |= (ansi_after & 0x00f);
+	}
+
+	/* Background color */
+	if ((ansi_bits_set | ansi_bits_clr) & 0x0f0) {
+		strcpy(p, "40;"); p += 3;
+		p[-2] |= ((ansi_after & 0x0f0) >> 4);
+	}
+
+	/* Terminate */
+	if (p > buffer + 2) {
+		p[-1] = 'm';
+		/* Buffer is already null-terminated by strcpy */
+	} else {
+		buffer[0] = '\0';
+	}
+	return buffer;
+}
+
+char *ansi_transition_mushcode(ansi_before, ansi_after)
+int ansi_before, ansi_after;
+{
+	int ansi_bits_set, ansi_bits_clr;
+	char *p;
+	static char ansi_mushcode_fg[9] = "xrgybmcw";
+	static char ansi_mushcode_bg[9] = "XRGYBMCW";
+	static char buffer[64];
+
+	p = buffer;
+
+	/* If they turn off any highlight bits, or they change from some color
+	 * to default color, we need to use ansi normal first.
+	 */
+
+	ansi_bits_set = (~ansi_before) & ansi_after;
+	ansi_bits_clr = ansi_before & (~ansi_after);
+	if ((ansi_bits_clr & 0xf00) || (ansi_bits_set & 0x088)) {
+		strcpy(p, "%xn"); p += 3;
+		ansi_bits_set = (~ansi_bits[0]) & ansi_after;
+		ansi_bits_clr = ansi_bits[0] & (~ansi_after);
+	}
+
+	/* Next reproduce the highlight state */
+
+	if (ansi_bits_set & 0x100) {
+		strcpy(p, "%xh"); p += 3;
+	}
+	if (ansi_bits_set & 0x200) {
+		strcpy(p, "%xu"); p += 3;
+	}
+	if (ansi_bits_set & 0x400) {
+		strcpy(p, "%xf"); p += 3;
+	}
+	if (ansi_bits_set & 0x800) {
+		strcpy(p, "%xi"); p += 3;
+	}
+
+	/* Foreground color */
+	if ((ansi_bits_set | ansi_bits_clr) & 0x00f) {
+		strcpy(p, "%xx"); p += 3;
+		p[-1] = ansi_mushcode_fg[(ansi_after & 0x00f)];
+	}
+
+	/* Background color */
+	if ((ansi_bits_set | ansi_bits_clr) & 0x0f0) {
+		strcpy(p, "%xX"); p += 3;
+		p[-1] = ansi_mushcode_bg[(ansi_after & 0x0f0) >> 4];
+	}
+
+	/* Terminate */
+	*p = '\0';
+	return buffer;
+}
+
+
 /* translate_string -- Convert (type = 1) raw character sequences into
- * MUSH substitutions or strip them (type = 0). Note this is destructive
- * if the input contains ansi codes and type is 1.
+ * MUSH substitutions or strip them (type = 0).
  */
 
 char *translate_string(str, type)
@@ -217,33 +318,18 @@ int type;
 	bp = new;
 
 	if (type) {
+		int ansi_state = ANST_NORMAL;
+		int ansi_state_prev = ANST_NORMAL;
+
 		while (*str) {
 			switch (*str) {
 			case ESC_CHAR:
-				c = strchr(str, ANSI_END);
-				if (c) {
-					*c = '\0';
-					str += 2;
-
-					/* str points to the beginning of the
-					 * string. c points to the end of the
-					 * string. Between them is a set of
-					 * numbers separated by semicolons.
-					 */
-
-					do {
-						p = strchr(str, ';');
-						if (p)
-							*p++ = '\0';
-						i = atoi(str);
-						if (i >= 0 && i < I_ANSI_NUM && ansi_numtab[i]) {
-							safe_known_str(ansi_numtab[i], 3, new, &bp);
-						}
-						str = p;
-					} while (p && *p);
-					str = c;
+				while (*str == ESC_CHAR) {
+					track_esccode(str, ansi_state);
 				}
-				break;
+				safe_str(ansi_transition_mushcode(ansi_state_prev, ansi_state), new, &bp);
+				ansi_state_prev = ansi_state;
+				continue;
 			case ' ':
 				if (str[1] == ' ') {
 					safe_known_str("%b", 2, new, &bp);
@@ -273,13 +359,8 @@ int type;
 		while (*str) {
 			switch (*str) {
 			case ESC_CHAR:
-				c = strchr(str, ANSI_END);
-				if (c) {
-					str = c;
-				} else {
-					safe_chr(*str, new, &bp);
-				}
-				break;
+				skip_esccode(str);
+				continue;
 			case '\r':
 				break;
 			case '\n': case '\t':
