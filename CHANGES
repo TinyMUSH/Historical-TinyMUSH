@@ -458,9 +458,11 @@ TinyMUX 1.5 patchlevel 0:
   regmatch() translate()
 - Regular expressions may now be used in command patterns and listen patterns
   with the addition of a 'regexp' attribute flag. See 'help REGEXPS'.
-  (Written by Lydia Leong for use in TinyMUSH 2.2.3 along with regmatch(),
-  with permission to be used in TinyMUX)
 - Piping of command output has been implemented. See 'help piping'.
 - Performance improvements made to switch() and case().
 - and() and or() no longer evaluate all of their arguments.
+- Chunk file no longer exists; all text data is stored directly in a gdbm
+  database
+- @addcommand now works with single letter commands (". :, ;, etc) however
+  the original commands may *not* be accessed by prefixing with __.
 
