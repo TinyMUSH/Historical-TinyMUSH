@@ -1309,6 +1309,8 @@ char *name, *command;
  */
 
 void do_restart(player, cause, key)
+    dbref player, cause;
+    int key;
 {
 	if (mudstate.dumping) {
 		notify(player, "Dumping. Please try again later.");
@@ -2030,6 +2032,8 @@ char *victim_str, *args[];
 
 
 void do_sql_connect(player, cause, key)
+    dbref player, cause;
+    int key;
 {
     if (sql_init() < 0) {
 	notify(player, "Database connection attempt failed.");

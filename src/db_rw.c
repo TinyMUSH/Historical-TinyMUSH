@@ -1272,7 +1272,8 @@ FILE *f;
 }
 
 static void getpenn_new_locks(f, i)
-FILE *f;
+    FILE *f;
+    dbref i;
 {
 	int c;
 	char *buf, *p;

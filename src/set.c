@@ -921,10 +921,10 @@ char *name, *attrtext;
 
 
 void do_cpattr(player, cause, key, oldpair, newpair, nargs)
-dbref player, cause;
-int key;
-char *oldpair;
-char *newpair[];
+    dbref player, cause;
+    int key, nargs;
+    char *oldpair;
+    char *newpair[];
 {
 	int i;
 	char *oldthing, *oldattr, *newthing, *newattr;
