@@ -1818,7 +1818,9 @@ int atr;
 	makekey(thing, atr, &okey);
 	DELETE(&okey);
 	al_delete(thing, atr);
-	s_Atrlist(thing, NULL);
+	if (atr == A_LIST) {
+		s_Atrlist(thing, NULL);
+	}
 
 #endif /* MEMORY_BASED */
 	switch (atr) {
