@@ -851,12 +851,12 @@ CHANGES TO FUNCTIONS
 
 BUGFIX PATCHES
 
-Patchlevel 1:
+3.0 Patchlevel 1:
 
   - Fixed a potentially fatal error in the clearing of variables.
     [3.0a4; S'ryon]
 
-Patchlevel 2:
+3.0 Patchlevel 2:
 
   - The equivalent of a @dbck is done, before a @restart, in order to
     recycle garbage before writing out the database. [MUX; S'ryon]
@@ -866,7 +866,7 @@ Patchlevel 2:
 
   - Fixed a potentially fatal error in @dbclean. [3.0b5; Starlyn]
 
-Patchlevel 3:
+3.0 Patchlevel 3:
 
   - Fixed a problem with incorrect object names in @decompile
     output. [3.0b22; Ed Thomas]
@@ -885,7 +885,7 @@ Patchlevel 3:
 
   - Added regexp attribute flag support to @addcommand. [MUX]
 
-Patchlevel 4:
+3.0 Patchlevel 4:
 
   - Allow rollback from TM 3.1-format databases.
 
