@@ -674,12 +674,12 @@ char *name, *msglist;
 						mp->next->prev = mp->prev;
 
 					nextp = mp->next;
-					XFREE((char *)mp->subject,
+					XFREE(mp->subject,
 					      "mail_retract.subject");
 					delete_mail_message(mp->number);
-					XFREE((char *)mp->time,
+					XFREE(mp->time,
 					      "mail_retract.time");
-					XFREE((char *)mp->tolist,
+					XFREE(mp->tolist,
 					      "mail_retract.tolist");
 					XFREE(mp, "mail_retract");
 					notify(player,
@@ -977,10 +977,10 @@ dbref player;
 			/*
 			 * then wipe 
 			 */
-			XFREE((char *)mp->subject, "mail_purge.subject");
+			XFREE(mp->subject, "mail_purge.subject");
 			delete_mail_message(mp->number);
-			XFREE((char *)mp->time, "mail_purge.time");
-			XFREE((char *)mp->tolist, "mail_purge.tolist");
+			XFREE(mp->time, "mail_purge.time");
+			XFREE(mp->tolist, "mail_purge.tolist");
 			XFREE(mp, "mail_purge");
 		} else {
 			nextp = mp->next;
@@ -1214,9 +1214,9 @@ dbref player;
 	MAIL_ITER_SAFE(mp, thing, nextp) {
 		nextp = mp->next;
 		delete_mail_message(mp->number);
-		XFREE((char *)mp->subject, "mail_nuke.subject");
-		XFREE((char *)mp->tolist, "mail_nuke.tolist");
-		XFREE((char *)mp->time, "mail_nuke.time");
+		XFREE(mp->subject, "mail_nuke.subject");
+		XFREE(mp->tolist, "mail_nuke.tolist");
+		XFREE(mp->time, "mail_nuke.time");
 		XFREE(mp, "mail_nuke");
 	}
 
@@ -1290,11 +1290,11 @@ char *victim;
 				/*
 				 * then wipe 
 				 */
-				XFREE((char *)mp->subject,
+				XFREE(mp->subject,
 				      "mail_debug.subject");
 				delete_mail_message(mp->number);
-				XFREE((char *)mp->time, "mail_debug.time");
-				XFREE((char *)mp->tolist, "mail_debug.tolist");
+				XFREE(mp->time, "mail_debug.time");
+				XFREE(mp->tolist, "mail_debug.tolist");
 				XFREE(mp, "mail_debug");
 			} else
 				nextp = mp->next;
@@ -2443,12 +2443,12 @@ void check_mail_expiration()
 				/*
 				 * then wipe 
 				 */
-				XFREE((char *)mp->subject,
+				XFREE(mp->subject,
 				      "mail_expire.subject");
 				delete_mail_message(mp->number);
-				XFREE((char *)mp->tolist,
+				XFREE(mp->tolist,
 				      "mail_expire.tolist");
-				XFREE((char *)mp->time, "mail_expire.time");
+				XFREE(mp->time, "mail_expire.time");
 				XFREE(mp, "mail_expire");
 			} else
 				nextp = mp->next;

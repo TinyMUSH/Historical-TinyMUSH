@@ -3134,7 +3134,7 @@ FUNCTION(fun_pos)
 	char *s, *t, *u;
 
 	i = 1;
-	s = fargs[1];
+	s = strip_ansi(fargs[1]);
 	while (*s) {
 		u = s;
 		t = fargs[0];
@@ -3171,7 +3171,7 @@ FUNCTION(fun_lpos)
 
     bb_p = *bufc;
 
-    for (i = 0, s = fargs[0]; *s; i++, s++) {
+    for (i = 0, s = strip_ansi(fargs[0]); *s; i++, s++) {
 	if (*s == c) {
 	    if (*bufc != bb_p) {
 		safe_chr(' ', buff, bufc);
@@ -6248,7 +6248,7 @@ char *fname, *target;
 		}
 		if (hashadd(np, (int *) ufp, &mudstate.ufunc_htab)) {
 			notify_quiet(player, tprintf("Function %s not defined.", fname));
-			XFREE((char *) ufp->name, "do_function");
+			XFREE(ufp->name, "do_function");
 			XFREE(ufp, "do_function.2");
 			free_sbuf(np);
 			return;
