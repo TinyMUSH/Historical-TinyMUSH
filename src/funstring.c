@@ -1322,20 +1322,54 @@ FUNCTION(fun_repeat)
  * border(<words>,<width without margins>[,<L margin fill>[,<R margin fill>]])
  */
 
-static void border_helper(player, str, tlen, l_fill, r_fill, buff, bufc)
+#define BORDER_LJUST	0
+#define BORDER_RJUST	1
+#define BORDER_CENTER	2
+
+/* Turn ANSI state back into ANSI codes.
+ * x is a throwaway character pointer.
+ * w is a pointer to the ANSI state of the previous word.
+ */
+#define border_print_ansi(x,w) \
+safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 1); \
+for ((x) = (w); *(x); (x)++) { \
+    if ((x) != (w)) { \
+	safe_chr(';', buff, bufc); \
+    } \
+    safe_str(ansi_nchartab[(unsigned char) *(x)], buff, bufc); \
+} \
+safe_chr(ANSI_END, buff, bufc);
+
+/* Write a certain number of spaces into the buffer.
+ * l is the number of characters left to write.
+ * m is a throwaway integer for holding the maximum.
+ */
+#define border_print_spaces(l,m) \
+if ((l) > 0) { \
+    (m) = LBUF_SIZE - 1 - (*bufc - buff); \
+    (l) = ((l) > (m)) ? (m) : (l); \
+    memset(*bufc, ' ', (l)); \
+    *bufc += (l); \
+    **bufc = '\0'; \
+}
+
+static void border_helper(player, str, last_state,
+			  tlen, l_fill, r_fill, buff, bufc, key)
     dbref player;
-    char *str;
+    char *str, *last_state;
     int tlen;
     char *l_fill, *r_fill, *buff, **bufc;
+    int key;
 {
     int i, nwords, nstates, over, copied, nleft, max, lens[LBUF_SIZE / 2];
+    int start, end, out, lead_chrs;
     char *words[LBUF_SIZE / 2], *states[LBUF_SIZE / 2], tbuf[LBUF_SIZE];
     char *p;
 
     /* Carve up the list and find the ANSI state at the end of each word. */
 
     strcpy(tbuf, str);
-    nstates = list2ansi(states, LBUF_SIZE / 2, tbuf, ' ');
+    nstates = list2ansi(states, last_state, LBUF_SIZE / 2, tbuf, ' ');
     nwords = list2arr(words, LBUF_SIZE / 2, str, ' ');
     if (nstates != nwords) {
 	for (i = 0; i < nstates; i++) {
@@ -1347,83 +1381,114 @@ static void border_helper(player, str, tlen, l_fill, r_fill, buff, bufc)
     for (i = 0; i < nwords; i++)
 	lens[i] = strlen(strip_ansi(words[i]));
 
-    i = over = copied = 0; 
-    while (!over && (i < nwords)) {
-	if (copied == 0) {
-	    /* Beginning of line. Write left margin, plus first word,
-	     * which we are always guaranteed to get, even if we end up
-	     * exceeding the available width.
-	     * If we have a non-null ANSI state from the previous position,
-	     * we have to restore that, too.
-	     */
-	    over = safe_str(l_fill, buff, bufc);
-	    if (!over && (i > 0) && *states[i-1]) {
-		safe_copy_known_str(ANSI_BEGIN, 2, buff, bufc, LBUF_SIZE - 1);
-		for (p = states[i-1]; *p; p++) { 
-		    if (p != states[i-1]) {
-			safe_chr(';', buff, bufc);
-		    }
-		    safe_str(ansi_nchartab[(unsigned char) *p], buff, bufc);
-		}
-		safe_chr(ANSI_END, buff, bufc);
-	    }
-	    if (!over) {
-		over = safe_str(words[i], buff, bufc);
-		copied += lens[i];
-	    }
-	    i++;
-	} else {
-	    /* Is there enough room left over on this line for this
-	     * word (including a preceding space)?
-	     * If not, fill in enough spaces to get to the width,
-	     * then add the right margin, an ANSI normal if necessary,
-	     * and a newline. Do NOT increment the word counter if we
-	     * have to do this, but reset the position counter.
-	     */
-	    nleft = tlen - copied;
-	    if (lens[i] + 1 > nleft) {
-		if ((i > 0) && *states[i-1])
-		    safe_ansi_normal(buff, bufc);
-		if (nleft > 0) {
-		    max = LBUF_SIZE - 1 - (*bufc - buff);
-		    nleft = (nleft > max) ? max : nleft;
-		    memset(*bufc, ' ', nleft);
-		    *bufc += nleft;
-		    **bufc = '\0';
-		}
-		over = safe_str(r_fill, buff, bufc);
-		safe_crlf(buff, bufc);
-		copied = 0;
+    /* For every line, figure out how many words we can copy, then
+     * do the borders appropriately. We do it this way in order to
+     * avoid repeating a lot of code for left vs. right vs. center
+     * justification.
+     */
+
+    end = over = 0;
+    while (!over && (end < nwords)) {
+
+	/* We're at the beginning of a line. */
+
+	out = copied = 0;
+	start = end; 
+
+	/* If this isn't the first thing we're writing, insert a newline.
+	 * (We do this here rather than when we write the right margin,
+	 * to avoid an extra carriage return at the very end.)
+	 */
+
+	if (start != 0) 
+	    safe_crlf(buff, bufc);
+
+	/* Figure out how many words we can get on this line.
+	 * We are always guaranteed the first one, even if it's wider
+	 * than our buffer. If this word exceeds the buffer, don't 
+	 * increment the end counter. Note that words after the first
+	 * are an extra 1 character long, to account for the leading
+	 * space. Multiple spaces have gotten eaten by the list-chomper.
+	 */
+
+	while (!out && (end < nwords)) {
+	    if (copied == 0) {
+		copied += lens[end];
+		end++;
 	    } else {
-		/* We've got room to add in this word. Restore a blank
-		 * space (note that multiple spaces have already been
-		 * eaten by the list-chopping-up functions) and write
-		 * the word. Increment the word counter.
-		 */
-		safe_chr(' ', buff, bufc);
-		over = safe_str(words[i], buff, bufc);
-		copied += lens[i] + 1;
-		i++;
+		nleft = tlen - copied;
+		if (lens[end] + 1 > nleft) {
+		    out = 1;
+		} else {
+		    copied += lens[end] + 1;
+		    end++;
+		}
 	    }
+	}
+
+	/* Write the left margin. */
+
+	over = safe_str(l_fill, buff, bufc);
+
+	if (!over) {
+
+	    /* Write spaces if we need them. */
+
+	    if (key == BORDER_RJUST) {
+		nleft = tlen - copied;
+		border_print_spaces(nleft, max);
+	    } else if (key == BORDER_CENTER) {
+		lead_chrs = (int)((tlen / 2) - (copied / 2) + .5);
+		border_print_spaces(lead_chrs, max);
+	    }
+
+	    /* Write the first word. If we have a non-null ANSI state from
+	     * the previous position, we have to restore that, too.
+	     * We must also check the ending last state.
+	     */
+	    if ((start > 0) && *states[start - 1]) {
+		border_print_ansi(p, states[start - 1]);
+	    } else if ((start == 0) && *last_state) {
+		border_print_ansi(p, last_state);
+	    }
+	    over = safe_str(words[start], buff, bufc);
+	}
+
+	/* Write the rest of the words, including a leading space. */
+
+	for (i = start + 1; (i < end) && !over; i++) {
+	    safe_chr(' ', buff, bufc);
+	    over = safe_str(words[i], buff, bufc);
+	}
+
+	if (!over) {
+
+	    /* Insert an ANSI normal if we need to. */
+
+	    if (*states[end - 1]) {
+		safe_ansi_normal(buff, bufc);
+	    }
+
+	    /* Write right-padding spaces if we need them. */
+
+	    if (key == BORDER_LJUST) {
+		nleft = tlen - copied;
+		border_print_spaces(nleft, max);
+	    } else if (key == BORDER_CENTER) {
+		nleft = tlen - lead_chrs - copied;
+		border_print_spaces(nleft, max);
+	    }
+
+	    /* Write the right margin. */
+
+	    if (!over)
+		over = safe_str(r_fill, buff, bufc);
 	}
     }
 
-    /* Now we have to write our final right margin, mucking with a fill
-     * and normalifying ANSI if appropriate.
-     */
-    if (!over) {
-	if (*states[i-1])
-	    safe_ansi_normal(buff, bufc);
-	nleft = tlen - copied;
-	if (nleft > 0) {
-	    max = LBUF_SIZE - 1 - (*bufc - buff);
-	    nleft = (nleft > max) ? max : nleft;
-	    memset(*bufc, ' ', nleft);
-	    *bufc += nleft;
-	    **bufc = '\0';
-	}
-	safe_str(r_fill, buff, bufc);
-    }
+    /* Save the ANSI state of the last word. */
+
+    strcpy(last_state, states[nstates - 1]);
 
     /* Clean up. */
 
@@ -1432,12 +1497,14 @@ static void border_helper(player, str, tlen, l_fill, r_fill, buff, bufc)
     }
 }
 
-FUNCTION(fun_border)
+static void perform_border(player, buff, bufc, fargs, nfargs, key)
+    dbref player;
+    char *buff, **bufc, *fargs[];
+    int nfargs, key;
 {
     int width, l_width, r_width;
     char *l_fill, *r_fill, *savep, *p, *bb_p;
-
-    xvarargs_preamble("BORDER", 2, 4);
+    char last_state[LBUF_SIZE];
 
     if (!fargs[0] || !*fargs[0])
 	return;
@@ -1463,22 +1530,34 @@ FUNCTION(fun_border)
     if (width < 1)
 	width = 1;
 
-    /* Now we have to go do this by line breaks. */
+    /* Now we have to go do this by line breaks. Life is made more
+     * difficult by the fact we have to preserve the ANSI state across
+     * line breaks.
+     */
 
     bb_p = *bufc;
     savep = fargs[0];
+    last_state[0] = '\0';
     p = strchr(fargs[0], '\r');
     while (p) {
 	*p = '\0';
 	if (*bufc != bb_p)
 	    safe_crlf(buff, bufc);
-	border_helper(player, savep, width, l_fill, r_fill, buff, bufc);
+	border_helper(player, savep, last_state,
+		      width, l_fill, r_fill, buff, bufc, key);
 	savep = p + 2;	/* must skip '\n' too */
 	p = strchr(savep, '\r'); 
     }
     if (*bufc != bb_p)
 	safe_crlf(buff, bufc);
-    border_helper(player, savep, width, l_fill, r_fill, buff, bufc);
+    border_helper(player, savep, last_state,
+		  width, l_fill, r_fill, buff, bufc, key);
+}
+
+FUNCTION(fun_border)
+{
+    xvarargs_preamble("BORDER", 2, 4);
+    perform_border(player, buff, bufc, fargs, nfargs, BORDER_LJUST);
 }
 
 /* ---------------------------------------------------------------------------

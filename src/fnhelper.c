@@ -241,16 +241,21 @@ char **sp, sep, *ansi_state, **asp;
 	return save;
 }
 
-int list2ansi(arr, maxlen, list, sep)
-    char *arr[], *list, sep;
+int list2ansi(arr, prior_state, maxlen, list, sep)
+    char *arr[], *prior_state, *list, sep;
     int maxlen;
 {
     int i;
     char *p, *asp;
     static char ansi_status[LBUF_SIZE / 2];
 
-    asp = ansi_status; 
-    ansi_status[0] = '\0';
+    if (*prior_state) {
+	strcpy(ansi_status, prior_state);
+	asp = ansi_status + strlen(prior_state);
+    } else {
+	ansi_status[0] = '\0';
+	asp = ansi_status;
+    }
     list = trim_space_sep(list, sep);
     p = split_ansi_state(&list, sep, ansi_status, &asp);
     for (i = 0; p && (i < maxlen);
