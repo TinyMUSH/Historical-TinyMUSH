@@ -2868,15 +2868,20 @@ dbref player, thing;
 		return 0;
 	}
 
-	if (!Control_ok(Zone(thing))) {
+	/* We check Control_OK on the thing itself, not on its ZMO --
+	 * that allows us to have things default into a zone without
+	 * needing to be controlled by that ZMO.
+	 */
+	if (!Control_ok(thing)) {
 		return 0;
 	}
 	
 	mudstate.zone_nest_num++;
 
-	/* If the zone doesn't have an enterlock, DON'T allow control. */
+	/* If the zone doesn't have a ControlLock, DON'T allow control. */
 
-	if (atr_get_raw(Zone(thing), A_LCONTROL) && could_doit(player, Zone(thing), A_LCONTROL)) {
+	if (atr_get_raw(Zone(thing), A_LCONTROL) &&
+	    could_doit(player, Zone(thing), A_LCONTROL)) {
 		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {
