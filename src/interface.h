@@ -18,22 +18,26 @@
 #endif
 
 /* these symbols must be defined by the interface */
-
 extern int shutdown_flag; /* if non-zero, interface should shut down */
 
-/* Disconnection reason codes */
+/* (Dis)connection reason codes */
 
-#define	R_QUIT		1	/* User quit */
-#define	R_TIMEOUT	2	/* Inactivity timeout */
-#define	R_BOOT		3	/* Victim of @boot, @toad, or @destroy */
-#define	R_SOCKDIED	4	/* Other end of socked closed it */
-#define	R_GOING_DOWN	5	/* Game is going down */
-#define	R_BADLOGIN	6	/* Too many failed login attempts */
-#define	R_GAMEDOWN	7	/* Not admitting users now */
-#define	R_LOGOUT	8	/* Logged out w/o disconnecting */
-#define R_GAMEFULL	9	/* Too many players logged in */
+#define	R_GUEST		1	/* Guest connection */
+#define	R_CREATE	2	/* User typed 'create' */
+#define	R_CONNECT	3	/* User typed 'connect' */
+#define	R_DARK		4	/* User typed 'cd' */
 
-/* Logged out command tabel definitions */
+#define	R_QUIT		5	/* User quit */
+#define	R_TIMEOUT	6	/* Inactivity timeout */
+#define	R_BOOT		7	/* Victim of @boot, @toad, or @destroy */
+#define	R_SOCKDIED	8	/* Other end of socket closed it */
+#define	R_GOING_DOWN	9	/* Game is going down */
+#define	R_BADLOGIN	10	/* Too many failed login attempts */
+#define	R_GAMEDOWN	11	/* Not admitting users now */
+#define	R_LOGOUT	12	/* Logged out w/o disconnecting */
+#define R_GAMEFULL	13	/* Too many players logged in */
+
+/* Logged out command table definitions */
 
 #define CMD_QUIT	1
 #define CMD_WHO		2

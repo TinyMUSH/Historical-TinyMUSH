@@ -31,6 +31,8 @@ extern void FDECL(handle_prog, (DESC *, char *));
 extern void FDECL(record_login, (dbref, int, char *, char *, char *));
 extern dbref FDECL(connect_player, (char *, char *, char *, char *, char *));
 extern char * FDECL(make_guest, (DESC *));
+extern const char *conn_reasons[];
+extern const char *conn_messages[];
 
 #ifdef CONCENTRATE
 extern void FDECL(do_becomeconc, (DESC *, char *));
@@ -608,12 +610,88 @@ time_t dt;
 	return buf;
 }
 
-static void announce_connect(player, d)
+static void announce_connattr(player, loc, reason, num, attr)
+dbref player, loc;
+const char *reason;
+int num, attr;
+{
+	dbref aowner, obj, zone;
+	int aflags, alen;
+	char *buf;
+	char *argv[2];
+
+	argv[0] = (char *)reason;
+	argv[1] = alloc_sbuf("announce_connchange.num");
+	sprintf(argv[1], "%d", num);
+
+	buf = atr_pget(player, attr, &aowner, &aflags, &alen);
+	if (*buf)
+		wait_que(player, player, 0, NOTHING, 0, buf, argv, 2, NULL);
+	free_lbuf(buf);
+
+	if ((mudconf.master_room != NOTHING) && mudconf.use_global_aconn) {
+		buf = atr_pget(mudconf.master_room, attr, &aowner,
+			       &aflags, &alen);
+		if (*buf)
+			wait_que(mudconf.master_room, player, 0, NOTHING, 0,
+				 buf, argv, 2, NULL);
+		free_lbuf(buf);
+		DOLIST(obj, Contents(mudconf.master_room)) {
+		        if (!mudconf.global_aconn_uselocks ||
+			    could_doit(player, obj, A_LUSE)) {
+			        buf = atr_pget(obj, attr, &aowner,
+					       &aflags, &alen);
+				if (*buf) {
+				        wait_que(obj, player, 0, NOTHING, 0,
+						 buf, argv, 2, NULL);
+				}
+				free_lbuf(buf);
+			}
+		}
+	}
+
+	/* do the zone of the player's location's possible a(dis)connect */
+	if (mudconf.have_zones && ((zone = Zone(loc)) != NOTHING)) {
+		switch (Typeof(zone)) {
+		case TYPE_THING:
+			buf = atr_pget(zone, attr, &aowner, &aflags, &alen);
+			if (*buf) {
+				wait_que(zone, player, 0, NOTHING, 0, buf,
+					 argv, 2, NULL);
+			}
+			free_lbuf(buf);
+			break;
+		case TYPE_ROOM:
+			/* check every object in the room for a (dis)connect
+			 * action 
+			 */
+			DOLIST(obj, Contents(zone)) {
+				buf = atr_pget(obj, attr, &aowner, &aflags, &alen);
+				if (*buf) {
+					wait_que(obj, player, 0, NOTHING, 0, buf,
+						 argv, 2, NULL);
+				}
+				free_lbuf(buf);
+			}
+			break;
+		default:
+			STARTLOG(LOG_PROBLEMS, "OBJ", "DAMAG")
+			log_printf("Invalid zone #%d for ", zone);
+			log_name(player);
+			log_printf(" has bad type %d", Typeof(zone));
+			ENDLOG
+		}
+	}
+
+	free_sbuf(argv[1]);
+}
+
+static void announce_connect(player, d, reason)
 dbref player;
 DESC *d;
+const char *reason;
 {
 	dbref loc, aowner, temp;
-	dbref zone, obj;
 	int aflags, alen, num, key, count;
 	char *buf, *time_str;
 	DESC *dtemp;
@@ -713,7 +791,7 @@ DESC *d;
 	notify_check(player, player, buf, key);
 	free_lbuf(buf);
 
-	CALL_ALL_MODULES(announce_connect, (player));
+	CALL_ALL_MODULES(announce_connect, (player, reason, num));
 
 	if (Suspect(player)) {
 		raw_broadcast(WIZARD, (char *)"[Suspect] %s has connected.",
@@ -724,63 +802,9 @@ DESC *d;
 			      (char *)"[Suspect site: %s] %s has connected.",
 			      d->addr, Name(player));
 	}
-	buf = atr_pget(player, A_ACONNECT, &aowner, &aflags, &alen);
-	if (*buf)
-		wait_que(player, player, 0, NOTHING, 0, buf, (char **)NULL, 0,
-			 NULL);
-	free_lbuf(buf);
-	if ((mudconf.master_room != NOTHING) && mudconf.use_global_aconn) {
-		buf = atr_pget(mudconf.master_room, A_ACONNECT, &aowner,
-			       &aflags, &alen);
-		if (*buf)
-			wait_que(mudconf.master_room, player, 0, NOTHING, 0,
-				 buf, (char **)NULL, 0, NULL);
-		free_lbuf(buf);
-		DOLIST(obj, Contents(mudconf.master_room)) {
-		        if (!mudconf.global_aconn_uselocks ||
-			    could_doit(player, obj, A_LUSE)) {
-			        buf = atr_pget(obj, A_ACONNECT, &aowner,
-					       &aflags, &alen);
-				if (*buf) {
-				        wait_que(obj, player, 0, NOTHING, 0,
-						 buf, (char **)NULL, 0, NULL);
-				}
-				free_lbuf(buf);
-			}
-		}
-	}
-	/* do the zone of the player's location's possible aconnect */
-	if (mudconf.have_zones && ((zone = Zone(loc)) != NOTHING)) {
-		switch (Typeof(zone)) {
-		case TYPE_THING:
-			buf = atr_pget(zone, A_ACONNECT, &aowner, &aflags, &alen);
-			if (*buf) {
-				wait_que(zone, player, 0, NOTHING, 0, buf,
-					 (char **)NULL, 0, NULL);
-			}
-			free_lbuf(buf);
-			break;
-		case TYPE_ROOM:
-			/* check every object in the room for a connect
-			 * action 
-			 */
-			DOLIST(obj, Contents(zone)) {
-				buf = atr_pget(obj, A_ACONNECT, &aowner, &aflags, &alen);
-				if (*buf) {
-					wait_que(obj, player, 0, NOTHING, 0, buf,
-						 (char **)NULL, 0, NULL);
-				}
-				free_lbuf(buf);
-			}
-			break;
-		default:
-			STARTLOG(LOG_PROBLEMS, "OBJ", "DAMAG")
-			log_printf("Invalid zone #%d for ", zone);
-			log_name(player);
-			log_printf(" has bad type %d", Typeof(zone));
-			ENDLOG
-		}
-	}
+
+	announce_connattr(player, loc, reason, num, A_ACONNECT);
+
 	time_str = ctime(&mudstate.now);
 	time_str[strlen(time_str) - 1] = '\0';
 	record_login(player, 1, time_str, d->addr, d->username);
@@ -798,11 +822,10 @@ dbref player;
 DESC *d;
 const char *reason;
 {
-	dbref loc, aowner, temp, zone, obj;
+	dbref loc, aowner, temp;
 	int num, aflags, alen, key;
-	char *buf, *atr_temp;
+	char *buf;
 	DESC *dtemp;
-	char *argv[1];
 
 	if (Suspect(player)) {
 		raw_broadcast(WIZARD,
@@ -815,13 +838,13 @@ const char *reason;
 			      d->addr, Name(d->player));
 	}
 	loc = Location(player);
-	num = 0;
+	num = -1;
 	DESC_ITER_PLAYER(player, dtemp) num++;
 
 	temp = mudstate.curr_enactor;
 	mudstate.curr_enactor = player;
 
-	if (num < 2) {
+	if (num < 1) {
 		buf = alloc_mbuf("announce_disconnect.only");
 
 		sprintf(buf, "%s has disconnected.", Name(player));
@@ -841,79 +864,6 @@ const char *reason;
 #ifdef PUEBLO_SUPPORT
 		c_Html(player);
 #endif
-
-		CALL_ALL_MODULES(announce_disconnect, (player, reason));
-
-		argv[0] = (char *)reason;
-		atr_temp = atr_pget(player, A_ADISCONNECT, &aowner, &aflags, &alen);
-		if (*atr_temp)
-			wait_que(player, player, 0, NOTHING, 0, atr_temp, argv, 1,
-				 NULL);
-		free_lbuf(atr_temp);
-
-		if ((mudconf.master_room != NOTHING)
-		    && mudconf.use_global_aconn) {
-			atr_temp = atr_pget(mudconf.master_room,
-					    A_ADISCONNECT, &aowner, &aflags, &alen);
-			if (*atr_temp)
-				wait_que(mudconf.master_room, player, 0,
-					 NOTHING, 0, atr_temp, argv, 1, NULL);
-			free_lbuf(atr_temp);
-			DOLIST(obj, Contents(mudconf.master_room)) {
-			        if (!mudconf.global_aconn_uselocks ||
-				    could_doit(player, obj, A_LUSE)) {
-				        atr_temp = atr_pget(obj, A_ADISCONNECT,
-							    &aowner, &aflags, &alen);
-					if (*atr_temp) {
-					        wait_que(obj, player, 0,
-							 NOTHING, 0, atr_temp,
-							 argv, 1, NULL);
-					}
-					free_lbuf(atr_temp);
-				}
-			}
-		}
-		/* do the zone of the player's location's possible adisconnect */
-
-		if (mudconf.have_zones && ((zone = Zone(loc)) != NOTHING)) {
-			switch (Typeof(zone)) {
-			case TYPE_THING:
-				atr_temp = atr_pget(zone, A_ADISCONNECT, &aowner, &aflags, &alen);
-				if (*atr_temp) {
-					wait_que(zone, player, 0, NOTHING, 0, atr_temp,
-						 argv, 1, NULL);
-				}
-				free_lbuf(atr_temp);
-				break;
-			case TYPE_ROOM:
-				/*
-				 * check every object in the room for a * * * 
-				 * connect action 
-				 */
-				DOLIST(obj, Contents(zone)) {
-					atr_temp = atr_pget(obj, A_ADISCONNECT, &aowner, &aflags, &alen);
-					if (*atr_temp) {
-						wait_que(obj, player, 0, NOTHING, 0, atr_temp,
-							 argv, 1, NULL);
-					}
-					free_lbuf(atr_temp);
-				}
-				break;
-			default:
-				STARTLOG(LOG_PROBLEMS, "OBJ", "DAMAG")
-				log_printf("Invalid zone #%d for ", zone);
-				log_name(player);
-				log_printf(" has bad type %d", Typeof(zone));
-				ENDLOG
-			}
-		}
-		if (d->flags & DS_AUTODARK) {
-			s_Flags(d->player, Flags(d->player) & ~DARK);
-			d->flags &= ~DS_AUTODARK;
-		}
-		
-		if (Guest(player))
-			s_Flags(player, Flags(player) | DARK);	
 	} else {
 		buf = alloc_mbuf("announce_disconnect.partial");
 		sprintf(buf, "%s has partially disconnected.", Name(player));
@@ -925,6 +875,20 @@ const char *reason;
 			      (char *)"GAME: %s has partially disconnected.",
 			      Name(player));
 		free_mbuf(buf);
+	}
+
+	CALL_ALL_MODULES(announce_disconnect, (player, reason, num));
+
+	announce_connattr(player, loc, reason, num, A_ADISCONNECT);
+
+	if (num < 1) {
+		if (d->flags & DS_AUTODARK) {
+			s_Flags(d->player, Flags(d->player) & ~DARK);
+			d->flags &= ~DS_AUTODARK;
+		}
+		
+		if (Guest(player))
+			s_Flags(player, Flags(player) | DARK);	
 	}
 
 	mudstate.curr_enactor = temp;
@@ -1432,7 +1396,7 @@ char *msg;
 {
 	char *command, *user, *password, *buff, *cmdsave;
 	dbref player, aowner;
-	int aflags, alen, nplayers;
+	int aflags, alen, nplayers, reason;
 	DESC *d2;
 	char *p;
 
@@ -1498,9 +1462,15 @@ char *msg;
 			    (nplayers < mudconf.max_players)) ||
 			   WizRoy(player) || God(player)) {
 
-			if (!strncmp(command, "cd", 2) &&
-			    (Wizard(player) || God(player)))
+			if (Guest(player)) {
+				reason = R_GUEST;
+			} else if (!strncmp(command, "cd", 2) &&
+				   (Wizard(player) || God(player))) {
 				s_Flags(player, Flags(player) | DARK);
+				reason = R_DARK;
+			} else {
+				reason = R_CONNECT;
+			}
 
 			/* First make sure we don't have a guest from a bad host. */
 
@@ -1515,8 +1485,9 @@ char *msg;
 			/* Logins are enabled, or wiz or god */
 
 			STARTLOG(LOG_LOGIN, "CON", "LOGIN")
-			log_printf("[%d/%s] Connected to ",
-				   d->descriptor, d->addr);
+			log_printf("[%d/%s] %s ",
+				   d->descriptor, d->addr,
+				   conn_reasons[reason]);
 			log_name_and_loc(player);
 			ENDLOG
 			d->flags |= DS_CONNECTED;
@@ -1552,7 +1523,7 @@ char *msg;
 					fcache_dump(d, FC_WIZMOTD);
 				free_lbuf(buff);
 			}
-			announce_connect(player, d);
+			announce_connect(player, d, conn_messages[reason]);
 			
 			/* If stuck in an @prog, show the prompt */
 			
@@ -1614,8 +1585,9 @@ char *msg;
 				ENDLOG
 			} else {
 				STARTLOG(LOG_LOGIN | LOG_PCREATES, "CON", "CREA")
-				log_printf("[%d/%s] Created ",
-					   d->descriptor, d->addr);
+				log_printf("[%d/%s] %s ",
+					   d->descriptor, d->addr,
+					   conn_reasons[reason]);
 				log_name(player);
 				ENDLOG
 				move_object(player, mudconf.start_room);
@@ -1623,7 +1595,7 @@ char *msg;
 				d->connected_at = time(NULL);
 				d->player = player;
 				fcache_dump(d, FC_CREA_NEW);
-				announce_connect(player, d);
+				announce_connect(player, d, conn_messages[R_CREATE]);
 			}
 		}
 	} else {

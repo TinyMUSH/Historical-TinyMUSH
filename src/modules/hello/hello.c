@@ -186,16 +186,19 @@ void mod_hello_destroy_player(player, victim)
 	notify(player, tprintf("Say goodbye to %s!", Name(victim)));
 }
 
-void mod_hello_announce_connect(player)
+void mod_hello_announce_connect(player, reason, num)
 	dbref player;
+	const char *reason;
+	int num;
 {
 	notify(GOD, tprintf("%s(#%d) just connected -- hello says so.",
 				Name(player), player));
 }
 
-void mod_hello_announce_disconnect(player, reason)
+void mod_hello_announce_disconnect(player, reason, num)
 	dbref player;
 	const char *reason;
+	int num;
 {
 	notify(GOD, tprintf("%s(#%d) just disconnected -- hello says so.",
 				Name(player), player));

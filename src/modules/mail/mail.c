@@ -3785,8 +3785,10 @@ CMDENT mod_mail_cmdtable[] = {
  * Handlers.
  */
 
-void mod_mail_announce_connect(player)
+void mod_mail_announce_connect(player, reason, num)
     dbref player;
+    const char *reason;
+    int num;
 {
     check_mail(player, 0, 0);
     if (Sending_Mail(player)) {
@@ -3794,9 +3796,10 @@ void mod_mail_announce_connect(player)
     }
 }
 
-void mod_mail_announce_disconnect(player, reason)
+void mod_mail_announce_disconnect(player, reason, num)
     dbref player;
     const char *reason;
+    int num;
 {
     do_mail_purge(player);
 }

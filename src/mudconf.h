@@ -57,8 +57,8 @@ struct module_linked_list {
     void (*destroy_obj)(dbref, dbref);
     void (*create_player)(dbref, dbref, int, int); 
     void (*destroy_player)(dbref, dbref);
-    void (*announce_connect)(dbref);
-    void (*announce_disconnect)(dbref, const char *);
+    void (*announce_connect)(dbref, const char *, int);
+    void (*announce_disconnect)(dbref, const char *, int);
     void (*examine)(dbref, dbref, dbref, int, int);
     void (*dump_database)(void);
     void (*db_grow)(int, int);

@@ -649,9 +649,10 @@ CF_HAND(cf_module)
 				  (dbref, dbref, int, int));
 	mp->destroy_player = DLSYM(handle, str, "destroy_player",
 				   (dbref, dbref));
-	mp->announce_connect = DLSYM(handle, str, "announce_connect", (dbref));
+	mp->announce_connect = DLSYM(handle, str, "announce_connect",
+				     (dbref, const char *, int));
 	mp->announce_disconnect = DLSYM(handle, str, "announce_disconnect",
-					(dbref, const char *));
+					(dbref, const char *, int));
 	mp->examine = DLSYM(handle, str, "examine",
 			    (dbref, dbref, dbref, int, int));
 	mp->dump_database = DLSYM(handle, str, "dump_database", (void));

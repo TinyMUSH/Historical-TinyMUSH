@@ -853,8 +853,10 @@ void channel_clr(player)
     XFREE(ch_array, "channel_clr.array");
 }
 
-void mod_comsys_announce_connect(player)
+void mod_comsys_announce_connect(player, reason, num)
     dbref player;
+    const char *reason;
+    int num;
 {
     CHANNEL *chp;
 
@@ -877,9 +879,10 @@ void mod_comsys_announce_connect(player)
     }
 }
 
-void mod_comsys_announce_disconnect(player, reason)
+void mod_comsys_announce_disconnect(player, reason, num)
     dbref player;
     const char *reason;
+    int num;
 {
     CHANNEL *chp;
 

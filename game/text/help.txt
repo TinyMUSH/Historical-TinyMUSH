@@ -475,22 +475,22 @@ Help is available on the following topics:
  
 About Help		Attributes		Attribute Owners
 Attribute Flags		Boolean Values		Caller
-Command List		Comsys			Control			
-Conventions		Costs			Credits			
-Delimiters		Enactor			Exits			
-FAILURE			FLAG LIST		FLAGS			
-FUNCTION LIST		FUNCTIONS		HOMES			
-LINKING			LISTENING		LISTS			
-LOCAL REGISTERS		Location		Locks			
-LOOPING			Matching		Modules
-MONEY			Moving			OBJECT TYPES		
-PARENT OBJECTS		Patchlevel		PIPING			
-PUEBLO			PUPPETS			REGEXPS			
-ROBBERY			Scan Order		SEARCH CLASSES		
-SEMAPHORES		SPOOFING		STACK			
-SUBSTITUTIONS		SUCCESS			SWITCHES		
-Syntax			User Commands		Zone Control		
-ZONE OBJECTS
+Command List		Comsys			Conn Reasons
+Control			Conventions		Costs
+Credits			Delimiters		Enactor
+Exits			FAILURE			FLAG LIST
+FLAGS			FUNCTION LIST		FUNCTIONS
+HOMES			LINKING			LISTENING
+LISTS			LOCAL REGISTERS		Location
+Locks			LOOPING			Matching
+Modules			MONEY			Moving
+OBJECT TYPES		PARENT OBJECTS		Patchlevel
+PIPING			PUEBLO			PUPPETS
+REGEXPS			ROBBERY			Scan Order
+SEARCH CLASSES		SEMAPHORES		SPOOFING
+STACK			SUBSTITUTIONS		SUCCESS
+SWITCHES		Syntax			User Commands
+Zone Control		ZONE OBJECTS
  
 & drop
  
@@ -3298,22 +3298,48 @@ See also: JUMP_OK, FIXED, home, @lock
   Example: @aahear listener = "I heard someone (maybe me?) say the word!
   See also: @ahear, @amhear, @listen.
 
+& Conn Reasons
+  When invoking an @aconnect or @adisconnect attribute, the server will
+  pass two parameters to the attribute. 
+ 
+  In an @aconnect, '%0' can be used to obtain the connect reason,
+  which will be one of the following:  'guest' (connected as a guest),
+  'create' (created at login screen), 'connect' (connected normally),
+  or 'cd' (connected dark).
+ 
+  For @adisconnect, '%0' can be used to obtain the disconnect reason,
+  which will be one of the following:  'quit' (typed QUIT), 'logout'
+  (typed LOGOUT), 'netdeath' (player's end of the connection dropped),
+  'timeout' (idled out), 'boot' (@boot'd, @toad'd, or @destroy'd),
+  'shutdown' (game shutdown), 'nologins' (game full), or 'unknown'.
+ 
+  In both cases, the player's resulting number of active connections
+  is available as '%1'. That would be 1 on the player's first connection,
+  2 or more during a reconnect, 1 or more during a partial disconnect,
+  and 0 when the player has fully disconnected.
+ 
+  See also: @aconnect, @adisconnect.
+
 & @aconnect
   Command: @aconnect <object> = <command-list>
   Attribute: Aconnect
  
   Sets the actions to be taken by a player right after connecting to the
   game.  This attribute is only meaningful for players, and will never be
-  automatically triggered on other object types, with one exception.
+  automatically triggered on other object types, with a few exceptions.
  
   If the Global aconnects/adisconnects are executed, when a player logs
   in, any Master Room object with an @aconnect on it runs that attribute,
   with the player as the Enactor. Note that the object, NOT the connecting
   player, executes that attribute.
  
+  Aconnects/adisconnects may also be executed by the zone of the player's
+  location if the ZMO is a thing, or by the contents of the ZMO if it is a
+  room.
+
   Example: @aconnect me = check.my.mailbox
  
-  See also: @adisconnect.
+  See also: @adisconnect, Conn Reasons, ZONE OBJECTS.
 
 & @adescribe
   Command: @adescribe <object> = <command-list>
@@ -3330,22 +3356,20 @@ See also: JUMP_OK, FIXED, home, @lock
  
   Sets the actions to be taken by a player right after disconnecting from
   the game. This attribute is only meaningful for players, and will never be
-  automatically triggered on other object types, with one exception.
+  automatically triggered on other object types, with a few exceptions.
  
   If the Global aconnects/adisconnects are executed, when a player logs
   out, any Master Room object with an @adisconnect on it runs that attribute,
   with the player as the Enactor. Note that the object, NOT the connecting
   player, executes that attribute.
  
-  The stack variable '%0' can be used to obtain the disconnect reason,
-  which will be one of the following:  'quit' (typed QUIT), 'logout'
-  (typed LOGOUT), 'netdeath' (player's end of the connection dropped),
-  'timeout' (idled out), 'boot' (@boot'd, @toad'd, or @destroy'd),
-  'shutdown' (game shutdown), 'nologins' (game full), or 'unknown'.
+  Aconnects/adisconnects may also be executed by the zone of the player's
+  location if the ZMO is a thing, or by the contents of the ZMO if it is a
+  room.
  
   Example: @adisconnect me = home
  
-  See also: @aconnect.
+  See also: @aconnect, Conn Reasons, ZONE OBJECTS.
 
 & @afail
   Command: @afail <object> = <command-list>

@@ -564,12 +564,18 @@ int sock;
 }
 
 /*
- * Disconnect reasons that get written to the logfile 
+ * (Dis)connect reasons that get written to the logfile 
  */
 
-static const char *disc_reasons[] =
+const char *conn_reasons[] =
 {
 	"Unspecified",
+
+	"Guest-connected to",
+	"Created",
+	"Connected to",
+	"Dark-connected to",
+
 	"Quit",
 	"Inactivity Timeout",
 	"Booted",
@@ -582,12 +588,19 @@ static const char *disc_reasons[] =
 };
 
 /*
- * Disconnect reasons that get fed to A_ADISCONNECT via announce_disconnect 
+ * (Dis)connect reasons that get fed to A_A(DIS)CONNECT via
+ * announce_connattr
  */
 
-static const char *disc_messages[] =
+const char *conn_messages[] =
 {
 	"unknown",
+
+	"guest",
+	"create",
+	"connect",
+	"cd",
+
 	"quit",
 	"timeout",
 	"boot",
@@ -631,7 +644,7 @@ int reason;
 				   d->descriptor, d->addr);
 			log_name(d->player);
 			log_printf(" <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
-				   disc_reasons[reason], d->command_count,
+				   conn_reasons[reason], d->command_count,
 				   d->input_tot, d->output_tot,
 				   (int) (time(NULL) - d->connected_at));
 			ENDLOG
@@ -641,7 +654,7 @@ int reason;
 				   d->descriptor, d->addr);
 			log_name(d->player);
 			log_printf(" <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
-				   disc_reasons[reason], d->command_count,
+				   conn_reasons[reason], d->command_count,
 				   d->input_tot, d->output_tot,
 				   (int) (time(NULL) - d->connected_at));
 			ENDLOG
@@ -659,17 +672,17 @@ int reason;
 		    log_printf("%d %s %d %d %d %d [%s] <%s> ",
 			       d->player, buff2, d->command_count, (int) now,
 			       Location(d->player), Pennies(d->player),
-			       d->addr, disc_reasons[reason]);
+			       d->addr, conn_reasons[reason]);
 		    log_name(d->player);
 		    free_sbuf(buff2);
 		ENDLOG
-		announce_disconnect(d->player, d, disc_messages[reason]);
+		announce_disconnect(d->player, d, conn_messages[reason]);
 	} else {
 		if (reason == R_LOGOUT)
 		    reason = R_QUIT;
 		STARTLOG(LOG_SECURITY | LOG_NET, "NET", "DISC")
 		    log_printf("[%d/%s] Connection closed, never connected. <Reason: %s>",
-			       d->descriptor, d->addr, disc_reasons[reason]);
+			       d->descriptor, d->addr, conn_reasons[reason]);
 		ENDLOG
 	}
 	process_output(d);
