@@ -2069,7 +2069,7 @@ int db_format, flags;
 		free_lbuf(got);
 		putboolexp(f, tempbool);
 		if (tempbool)
-			free_bool(tempbool);
+			free_boolexp(tempbool);
 	}
 	putref(f, Owner(i));
 	if (flags & V_PARENT)
