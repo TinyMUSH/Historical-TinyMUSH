@@ -620,6 +620,9 @@ The initial beta release was on 9/27/99.
 
 - Fix: The "You see nothing special." default desc works again. [MUX; RMG]
 
+- Fix: Non-existent attributes no longer prematurely truncate the output
+  of strings. (Bug which made 3.0b17 into 3.0b17p1.) [3.0b16; utoxin]
+
 - Misc: The resize factor used by @hashresize is now dependent upon the
   hash factor itself. The command table is now also resized. God is not
   notified of resizes, when the game is restarting.
