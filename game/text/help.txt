@@ -3832,19 +3832,14 @@
   $commands). If the ZONE object also has a parent which is set ZONE, then 
   the contents of that object will be checked, and so on. 
  
-  If nothing is matched, then if his location is a room, it will check the 
-  "secondary parent" (set with @parent/zone) of that room in the same manner.
-  Note that the ONLY time this "secondary parent" is used is for this 
-  top-level check; if it chains back through ZONE rooms, their primary 
-  "normal" @parent is used.
-  
-  Continued in 'help Zone2'.
-
-& ZONE2
   If nothing is matched in this way, then, if the player himself
   is parented to a ZONE object, that object's contents are checked. 
   "Secondary parents" are not checked for player zones. If still nothing 
   matches, only then will the global Master Room be checked.
+ 
+  Continued in 'help Zone2'.
+ 
+& ZONE2
  
   Most of the same caveats which apply to the global Master Room also apply
   to ZONE objects (henceforth referred to as local master rooms). The number
@@ -5163,7 +5158,6 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Also, $commands on a ZMO are treated as global within that zone.
   The game attempts to match $commands for the ZMO of the player's
   location, as well as $commands for the player's own zone.
-  For some suggestions on how to use zones, see "help ZONES3".
  
 & V()
   Function: v(<string>)
