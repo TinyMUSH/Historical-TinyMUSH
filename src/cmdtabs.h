@@ -268,6 +268,10 @@ NAMETAB quota_sw[] = {
 {(char *)"player",	1,	CA_WIZARD,	QUOTA_PLAYER | SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
+NAMETAB reference_sw[] = {
+{(char *)"list",	1,	CA_PUBLIC,	NREF_LIST},
+{ NULL,			0,	0,		0}};
+
 NAMETAB	set_sw[] = {
 {(char *)"quiet",	1,	CA_PUBLIC,	SET_QUIET},
 { NULL,			0,	0,		0}};
@@ -604,6 +608,9 @@ CMDENT command_table[] = {
 {(char *)"@redirect",		NULL,		CA_PUBLIC,
 	0,		CS_TWO_ARG|CS_INTERP,
 	NULL,		NULL,	NULL,		{do_redirect}},
+{(char *)"@reference",		reference_sw,	CA_PUBLIC,
+	0,		CS_TWO_ARG|CS_INTERP,
+	NULL,		NULL,	NULL,		{do_reference}},
 {(char *)"@restart",		NULL,		CA_WIZARD,
 	0,		CS_NO_ARGS,		
 	NULL,		NULL,	NULL,		{do_restart}},

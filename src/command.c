@@ -2277,6 +2277,7 @@ dbref player;
 	list_hashstat(player, "Attr names", &mudstate.attr_name_htab);
 	list_hashstat(player, "Vattr names", &mudstate.vattr_name_htab);
 	list_hashstat(player, "Player Names", &mudstate.player_htab);
+	list_hashstat(player, "References", &mudstate.nref_htab);
 	list_nhashstat(player, "Net Descriptors", &mudstate.desc_htab);
 	list_nhashstat(player, "Forwardlists", &mudstate.fwdlist_htab);
 	list_nhashstat(player, "Redirections", &mudstate.redir_htab);

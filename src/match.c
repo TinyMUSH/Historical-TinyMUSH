@@ -121,13 +121,61 @@ void NDECL(match_player)
 		}
 	}
 }
+
+
+/* returns object dbref associated with named reference, else NOTHING */
+
+static dbref absolute_nref(str)
+char *str;
+{
+    char *p, *q, *buf, *bp;
+    dbref *np, nref;
+
+    /* Global or local reference? Global references are automatically
+     * prepended with an additional underscore. i.e., #__foo_ is a global
+     * reference, and #_foo_ is a local reference.
+     * Our beginning and end underscores have already been stripped, so
+     * we would see only _foo or foo.
+     *
+     * We are not allowed to nibble our buffer, because we've got a
+     * pointer into the match string. Therefore we must copy it.
+     * If we're matching locally we copy the dbref of the owner first,
+     * which means that we then need to worry about buffer size.
+     */
+
+    buf = alloc_lbuf("absolute_nref");
+
+    if (*str == '_') {
+	for (p = buf, q = str; *q; p++, q++)
+	    *p = tolower(*q);
+	*p = '\0';
+    } else {
+	bp = buf;
+	safe_ltos(buf, &bp, Owner(md.player));
+	safe_chr('.', buf, &bp);
+	for (q = str; *q; q++)
+	    safe_chr(tolower(*q), buf, &bp);
+	*bp = '\0';
+    }
+
+    np = (int *) hashfind(buf, &mudstate.nref_htab);
+    if (np && Good_obj(*np))
+	nref = *np;
+    else
+	nref = NOTHING;
+
+    free_lbuf(buf);
+
+    return nref;
+}
+
 /* returns nnn if name = #nnn, else NOTHING */
 
 static dbref absolute_name(need_pound)
 int need_pound;
 {
 	dbref match;
-	char *mname;
+	char *mname, *s;
 
 	mname = md.string;
 	if (need_pound) {
@@ -135,6 +183,9 @@ int need_pound;
 			return NOTHING;
 		} else {
 			mname++;
+		}
+		if ((*mname == '_') && *(mname + 1)) {
+			return absolute_nref(mname + 1);
 		}
 	}
 	if (*mname) {

@@ -345,6 +345,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	NFY_NFY		0	/* Notify first waiting command */
 #define	NFY_NFYALL	1	/* Notify all waiting commands */
 #define	NFY_DRAIN	2	/* Delete waiting commands */
+#define NREF_LIST	1	/* List rather than set nrefs */
 #define	OPEN_LOCATION	0	/* Open exit in my location */
 #define	OPEN_INVENTORY	1	/* Open exit in me */
 #define	PASS_ANY	1	/* name=newpass */

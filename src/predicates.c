@@ -2367,6 +2367,151 @@ void do_redirect(player, cause, key, from_name, to_name)
     notify(player, "Redirected.");
 }
 
+/* ---------------------------------------------------------------------------
+ * do_reference: Manipulate nrefs.
+ */
+
+void do_reference(player, cause, key, ref_name, obj_name)
+    dbref player, cause;
+    int key;
+    char *ref_name, *obj_name;
+{
+    HASHENT *hptr;
+    HASHTAB *htab;
+    int i, len, total, is_global;
+    char tbuf[LBUF_SIZE], outbuf[LBUF_SIZE], *tp, *bp, *buff, *s;
+    dbref target, *np;
+
+    if (key & NREF_LIST) {
+
+	htab = &mudstate.nref_htab;
+
+	if (!ref_name || !*ref_name) {
+	    /* Global only. */
+	    is_global = 1;
+	    tbuf[0] = '_';
+	    tbuf[1] = '\0';
+	    len = 1;
+	} else {
+	    is_global = 0;
+	    if (!string_compare(ref_name, "me")) {
+		target = player;
+	    } else {
+		target = lookup_player(player, ref_name, 1);
+		if (target == NOTHING) {
+		    notify(player, "No such player.");
+		    return;
+		}
+		if (!Controls(player, target)) {
+		    notify(player, NOPERM_MESSAGE);
+		    return;
+		}
+	    }
+	    tp = tbuf;
+	    safe_ltos(tbuf, &tp, player);
+	    safe_chr('.', tbuf, &tp);
+	    *tp = '\0';
+	    len = strlen(tbuf);
+	}
+
+	total = 0;
+	for (i = 0; i < htab->hashsize; i++) {
+	    for (hptr = htab->entry[i]; hptr != NULL; hptr = hptr->next) {
+		if (!strncmp(tbuf, hptr->target, len)) {
+		    total++;
+		    bp = outbuf;
+		    safe_tprintf_str(outbuf, &bp, "%s:  ",
+				     ((is_global) ? hptr->target :
+				      strchr(hptr->target, '.') + 1));
+		    buff = unparse_object(player, *(hptr->data), 0);
+		    safe_str(buff, outbuf, &bp);
+		    free_lbuf(buff);
+		    if (Owner(player) != Owner(*(hptr->data))) {
+			safe_str((char *) " [owner: ", outbuf, &bp);
+			buff = unparse_object(player, Owner(*(hptr->data)), 0);
+			safe_str(buff, outbuf, &bp);
+			free_lbuf(buff);
+			safe_chr(']', outbuf, &bp);
+		    }
+		    *bp = '\0';
+		    notify(player, outbuf);
+		}
+	    }
+	}
+
+	notify(player, tprintf("Total references: %d", total));
+
+	return;
+    }
+
+    /* We can only reference objects that we can examine. */
+
+    if (obj_name && *obj_name) {
+	target = match_thing(player, obj_name);
+	if (!Good_obj(target))
+	    return;
+	if (!Examinable(player, target)) {
+	    notify(player, NOPERM_MESSAGE);
+	    return;
+	}
+    } else {
+	target = NOTHING;	/* indicates clear */
+    }
+
+    /* If the reference name starts with an underscore, it's global.
+     * Only wizards can do that.
+     */
+
+    tp = tbuf;
+    if (*ref_name == '_') {
+	if (!Wizard(player)) {
+	    notify(player, NOPERM_MESSAGE);
+	    return;
+	}
+    } else {
+	safe_ltos(tbuf, &tp, player);
+	safe_chr('.', tbuf, &tp);
+    }
+    for (s = ref_name; *s; s++)
+	safe_chr(tolower(*s), tbuf, &tp);
+    *tp = '\0';
+
+    /* Does this reference name exist already? */
+
+    np = (int *) hashfind(tbuf, &mudstate.nref_htab);
+    if (np) {
+	if (target == NOTHING) {
+	    XFREE(np, "nref");
+	    hashdelete(tbuf, &mudstate.nref_htab);
+	    notify(player, "Reference cleared.");
+	} else if (*np == target) {
+	    /* Already got it. */
+	    notify(player, "That reference has already been made.");
+	} else {
+	    /* Replace it. */
+	    XFREE(np, "nref");
+	    np = (dbref *) XMALLOC(sizeof(dbref), "nref");
+	    *np = target;
+	    hashrepl(tbuf, np, &mudstate.nref_htab);
+	    notify(player, "Reference updated.");
+	}
+	return;
+    }
+
+    /* Didn't find it. We've got a new one (or an error if we have no
+     * target but the reference didn't exist).
+     */
+
+    if (target == NOTHING) {
+	notify(player, "No such reference to clear.");
+	return;
+    }
+
+    np = (dbref *) XMALLOC(sizeof(dbref), "nref");
+    *np = target;
+    hashadd(tbuf, np, &mudstate.nref_htab, 0);
+    notify(player, "Referenced.");
+}
 
 /* ---------------------------------------------------------------------------
  * Miscellaneous stuff below.

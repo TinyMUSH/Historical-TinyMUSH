@@ -383,6 +383,7 @@ struct statedata {
 	HASHTAB	attr_name_htab;	/* Attribute names hashtable */
 	HASHTAB vattr_name_htab;/* User attribute names hashtable */
 	HASHTAB player_htab;	/* Player name->number hashtable */
+	HASHTAB nref_htab;	/* Object name reference #_name_ mapping */
 	NHSHTAB	desc_htab;	/* Socket descriptor hashtable */
 	NHSHTAB	fwdlist_htab;	/* Room forwardlists */
 	NHSHTAB redir_htab;	/* Redirections */

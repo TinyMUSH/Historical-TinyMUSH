@@ -457,11 +457,11 @@ Other:
  
 @cron		@crondel	@crontab	@decompile	@doing
 @entrances	@find		@floaters	@last		@list
-@listcommands	@listmotd	@password	@search		@stats
-@sweep		examine		inventory	kill		look
-score		version		DOING		INFO		LOGOUT
-OUTPUTPREFIX	OUTPUTSUFFIX	PUEBLOCLIENT	QUIT		SESSION
-WHO
+@listcommands	@listmotd	@password	@reference	@search
+@stats		@sweep		examine		inventory	kill
+look		score		version		DOING		INFO
+LOGOUT		OUTPUTPREFIX	OUTPUTSUFFIX	PUEBLOCLIENT	QUIT
+SESSION		WHO
  
 You are strongly encouraged to check if there is QuickHelp on something
 before consulting the "regular" helpfile. Type 'qhelp' for an index
@@ -2869,6 +2869,71 @@ See also: @emit, @oemit, @npemit, page
   to non-players.
  
   See also: REDIR_OK.
+ 
+& @reference
+Command: @reference <reference name> = [<object>]
+         @reference/list [<player>]
+ 
+A "name reference" (nref) is a mapping between a unique name and a dbref
+number. There are global nrefs, whose names all start with an underscore
+and can be used by any object on the MUSH, as well as "local" ("personal")
+nrefs, which can only be used by objects owned by a specific player.
+ 
+An nref is defined via '@reference <name> = <object>'. If <name> starts
+with an underscore, it is globally defined; only Wizards can do this.
+You must be able to examine <object>.
+ 
+Name references can generally be used any time a dbref number can be
+specified with '#<number>', using '#_<nref>'. For example, if you have
+defined a personal nref called 'tool', which maps to #400, via 
+'@reference tool = #400', you can, anywhere you could use #400, instead
+use '#_tool'. For example, to examine it, you could type 'ex #_tool'
+rather than 'ex #400'.
+ 
+Continued in 'help @reference2'.
+ 
+& @reference2
+ 
+If you are a wizard, helping to work on global code systems, it can be
+useful if everyone uses nrefs rather than dbrefs to designate objects,
+since this makes for easier code maintenance and simplifies the process
+of sharing code between multiple MUSHes. For example, you could define
+an nref for your global functions object #10, via '@reference _gfun = #10'.
+Thereafter, 'u(#__gfun/SOME_ATTR)', '@trigger #__gfun/SOME_TRIG', and
+so forth would all work.
+ 
+There is no limit to the number of name references that a given object
+may have. Resolving a name reference is, however, less efficient than
+resolving a dbref. Thus, nrefs should only be used where dbref-independence
+is especially desirable, or where indirection is already being performed;
+for instance, if you store the dbref of your data object on the VD
+attribute, and do things like 'u(%vd/STUFF)', an nref is preferable.
+If you are distributing your MUSHcode publicly, use of nrefs is encouraged.
+ 
+Short nref names are more efficient than long nref names. Thus, 'maildb'
+is a good nref; 'mail_database_object' is less desirable.
+ 
+Continued in 'help @reference3'.
+ 
+& @reference3
+ 
+References are not persistent between restarts; therefore, any references
+that you want to permanently define (which will generally be all the ones
+you use) should be placed in a @startup.
+ 
+Global references can be listed via '@reference/list'. You can list
+your own references via '@reference/list me'. You can list the 
+references of any player you control via '@reference/list <player>'.
+ 
+Example:
+  > @create Data
+  Data created as object #58
+  > @va Data = Test
+  Set.
+  > @reference myobj = Data
+  Referenced.
+  > say [get(#_myobj/VA)]
+  You say "Test"
  
 & @robot
   Command: @robot <name>=<password>

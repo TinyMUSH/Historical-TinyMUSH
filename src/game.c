@@ -102,6 +102,7 @@ void do_hashresize(player, cause, key)
 
     hashresize(&mudstate.command_htab, 512);
     hashresize(&mudstate.player_htab, 16);
+    hashresize(&mudstate.nref_htab, 8);
     hashresize(&mudstate.vattr_name_htab, 256);
     nhashresize(&mudstate.fwdlist_htab, 8);
     nhashresize(&mudstate.redir_htab, 8);
@@ -1569,6 +1570,7 @@ char *argv[];
 	init_attrtab();
 	init_version();
 	hashinit(&mudstate.player_htab, 250 * HASH_FACTOR);
+	hashinit(&mudstate.nref_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.fwdlist_htab, 25 * HASH_FACTOR);
 	nhashinit(&mudstate.redir_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.objstack_htab, 50 * HASH_FACTOR);
@@ -1654,6 +1656,7 @@ char *argv[];
 	hashreset(&mudstate.attr_name_htab);
 	hashreset(&mudstate.vattr_name_htab);
 	hashreset(&mudstate.player_htab);
+	hashreset(&mudstate.nref_htab);
 	nhashreset(&mudstate.desc_htab);
 	nhashreset(&mudstate.fwdlist_htab);
 	nhashreset(&mudstate.objstack_htab);
