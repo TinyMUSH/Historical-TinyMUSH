@@ -602,6 +602,10 @@ unsigned int type;
 		return (1);
 	}
 
+	/* Call module API hook */
+	
+	CALL_ALL_MODULES(cache_put_notify, (key, type))
+	
 #ifndef MEMORY_BASED
 	if (mudstate.standalone) {
 #endif
@@ -718,8 +722,8 @@ unsigned int type;
 	
 	INSHEAD(sp->mactive, cp);
 	INCCOUNTER(cp);
+	
 	return (0);
-
 }
 
 static Cache *get_free_entry(atrsize)
@@ -999,6 +1003,10 @@ unsigned int type;
 	
 	if (!key.dptr || !cache_initted)
 		return;
+
+	/* Call module API hook */
+	
+	CALL_ALL_MODULES(cache_del_notify, (key, type))
 
 #ifdef MEMORY_BASED
 	if (type == DBTYPE_ATTRIBUTE) {

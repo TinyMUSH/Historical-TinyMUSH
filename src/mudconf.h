@@ -65,6 +65,8 @@ struct module_linked_list {
     void (*db_grow)(int, int);
     void (*db_write_flatfile)(FILE *);
     void (*do_second)(void);
+    void (*cache_put_notify)(DBData, int);
+    void (*cache_del_notify)(DBData, int);
 };
 
 typedef struct api_function_data API_FUNCTION;
