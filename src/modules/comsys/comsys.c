@@ -22,7 +22,7 @@
 
 #include "comsys.h"
 
-char *load_comsys(filename)
+void load_comsys(filename)
 char *filename;
 {
 	FILE *fp;
@@ -59,7 +59,7 @@ char *filename;
 	}
 }
 
-char *save_comsys(filename)
+void save_comsys(filename)
 char *filename;
 {
 	FILE *fp;
@@ -80,7 +80,7 @@ char *filename;
 	rename(buffer, filename);
 }
 
-char *load_channels(fp)
+void load_channels(fp)
 FILE *fp;
 {
 	int i, j;
@@ -123,7 +123,7 @@ FILE *fp;
 	}
 }
 
-char *load_old_channels(fp)
+void load_old_channels(fp)
 FILE *fp;
 {
 	int i, j, k;
@@ -167,7 +167,7 @@ FILE *fp;
 	}
 }
 
-char *purge_comsystem()
+void purge_comsystem()
 {
 	struct comsys *c;
 	struct comsys *d;
@@ -202,7 +202,7 @@ char *purge_comsystem()
 	}
 }
 
-char *save_channels(fp)
+void save_channels(fp)
 FILE *fp;
 {
 	int np;
@@ -270,7 +270,7 @@ dbref which;
 	return c;
 }
 
-char *add_comsys(c)
+void add_comsys(c)
 struct comsys *c;
 {
 	if (c->who < 0)
@@ -280,7 +280,7 @@ struct comsys *c;
 	comsys_table[c->who % NUM_COMSYS] = c;
 }
 
-char *del_comsys(who)
+void del_comsys(who)
 dbref who;
 {
 	struct comsys *c;
@@ -312,7 +312,7 @@ dbref who;
 	}
 }
 
-char *destroy_comsys(c)
+void destroy_comsys(c)
 struct comsys *c;
 {
 	int i;
@@ -324,7 +324,7 @@ struct comsys *c;
 	free(c);
 }
 
-char *sort_com_aliases(c)
+void sort_com_aliases(c)
 struct comsys *c;
 {
 	int i;
@@ -348,9 +348,7 @@ struct comsys *c;
 	}
 }
 
-/*
- * This is the hash table for channel names 
- */
+/* This is the hash table for channel names */
 
 void NDECL(init_chantab)
 {
@@ -386,7 +384,7 @@ char *alias;
 		return "";
 }
 
-char *load_comsystem(fp)
+void load_comsystem(fp)
 FILE *fp;
 {
 	int i, j, dummy;
@@ -475,7 +473,7 @@ FILE *fp;
 	}
 }
 
-char *save_comsystem(fp)
+void save_comsystem(fp)
 FILE *fp;
 {
 	struct channel *ch;
@@ -505,7 +503,7 @@ FILE *fp;
 	}
 }
 
-char *do_processcom(player, arg1, arg2)
+void do_processcom(player, arg1, arg2)
 dbref player;
 char *arg1;
 char *arg2;
@@ -575,7 +573,7 @@ char *arg2;
 	}
 }
 
-char *do_comsend(ch, mess)
+void do_comsend(ch, mess)
 struct channel *ch;
 char *mess;
 {
@@ -594,7 +592,7 @@ char *mess;
 	}
 }
 
-char *do_joinchannel(player, ch)
+void do_joinchannel(player, ch)
 dbref player;
 struct channel *ch;
 {
@@ -650,7 +648,7 @@ struct channel *ch;
 	}
 }
 
-char *do_leavechannel(player, ch)
+void do_leavechannel(player, ch)
 dbref player;
 struct channel *ch;
 {
@@ -670,7 +668,7 @@ struct channel *ch;
 	user->on = 0;
 }
 
-char *do_comwho(player, ch)
+void do_comwho(player, ch)
 dbref player;
 struct channel *ch;
 {
@@ -859,7 +857,7 @@ char *arg2;
 			 "Channel %s added with alias %s.", channel, arg1));
 }
 
-char *do_setnewtitle(player, ch, title)
+void do_setnewtitle(player, ch, title)
 dbref player;
 struct channel *ch;
 char *title;
@@ -916,7 +914,7 @@ char *arg1;
 	raw_notify(player, "Unable to find that alias.");
 }
 
-char *do_delcomchannel(player, channel)
+void do_delcomchannel(player, channel)
 dbref player;
 char *channel;
 {
@@ -1034,7 +1032,7 @@ char *channel;
 	raw_notify(player, tprintf("Channel %s destroyed.", channel));
 }
 
-char *do_listchannels(player)
+void do_listchannels(player)
 dbref player;
 {
 	struct channel *ch;
@@ -1133,7 +1131,7 @@ int key;
 	raw_notify(player, "-- End of comlist --");
 }
 
-char *do_channelnuke(player)
+void do_channelnuke(player)
 dbref player;
 {
 	struct channel *ch;
@@ -1200,7 +1198,7 @@ char *arg1;
 
 }
 
-char *sort_users(ch)
+void sort_users(ch)
 struct channel *ch;
 {
 	int i;
@@ -1278,7 +1276,7 @@ char *arg1;
 	raw_notify(player, tprintf("-- %s --", ch->name));
 }
 
-char *do_comdisconnectraw_notify(player, chan)
+void do_comdisconnectraw_notify(player, chan)
 dbref player;
 char *chan;
 {
@@ -1299,7 +1297,7 @@ char *chan;
 	}
 }
 
-char *do_comconnectraw_notify(player, chan)
+void do_comconnectraw_notify(player, chan)
 dbref player;
 char *chan;
 {
@@ -1320,7 +1318,7 @@ char *chan;
 	}
 }
 
-char *do_comconnectchannel(player, channel, alias, i)
+void do_comconnectchannel(player, channel, alias, i)
 dbref player;
 char *channel;
 char *alias;
@@ -1347,7 +1345,7 @@ int i;
 					   alias + i * 6, channel));
 }
 
-char *do_comdisconnect(player)
+void do_comdisconnect(player)
 dbref player;
 {
 	int i;
@@ -1363,7 +1361,7 @@ dbref player;
 	}
 }
 
-char *do_comconnect(player)
+void do_comconnect(player)
 dbref player;
 {
 	struct comsys *c;
@@ -1378,7 +1376,7 @@ dbref player;
 }
 
 
-char *do_comdisconnectchannel(player, channel)
+void do_comdisconnectchannel(player, channel)
 dbref player;
 char *channel;
 {
@@ -1575,7 +1573,7 @@ char *cmd;
 
 }
 
-char *do_chclose(player, chan)
+void do_chclose(player, chan)
 dbref player;
 char *chan;
 {
@@ -1665,7 +1663,7 @@ char *chan, *object;
 	return;
 }
 
-char *do_chloud(player, chan)
+void do_chloud(player, chan)
 dbref player;
 char *chan;
 {
@@ -1685,7 +1683,7 @@ char *chan;
 	return;
 }
 
-char *do_chsquelch(player, chan)
+void do_chsquelch(player, chan)
 dbref player;
 char *chan;
 {
@@ -1759,7 +1757,7 @@ char *victim;
 
 }
 
-char *do_chanobj(player, channel, object)
+void do_chanobj(player, channel, object)
 dbref player;
 char *channel;
 char *object;

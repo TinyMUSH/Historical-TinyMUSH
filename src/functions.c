@@ -4352,12 +4352,12 @@ FUNCTION(fun_sort)
 
 	if (!fn_range_check("SORT", nfargs, 1, 4, buff))
 		return;
-	if (!delim_check(fargs, nfargs, 3, &sep, buff, 0,
+	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
 	     player, cause, cargs, ncargs))
 		return;
 	if (nfargs < 4)
 		osep = sep;
-	else if (!delim_check(fargs, nfargs, 4, &osep, buff, 0,
+	else if (!delim_check(fargs, nfargs, 4, &osep, buff, bufc, 0,
 	         player, cause, cargs, ncargs))
 		return;
 
@@ -5170,7 +5170,7 @@ char *fname, *target;
 		}
 		if (hashadd(np, (int *) ufp, &mudstate.ufunc_htab)) {
 			notify_quiet(player, tprintf("Function %s not defined.", fname));
-			XFREE((char *) ufp->name, "do_function");
+			XFREE(ufp->name, "do_function");
 			XFREE(ufp, "do_function.2");
 			free_sbuf(np);
 			return;

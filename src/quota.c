@@ -2,11 +2,7 @@
 
 #include "autoconf.h"
 #include "copyright.h"
-#ifndef	lint
-static char *RCSid = "$Id$";
-
-USE(RCSid);
-#endif
+/* "$Id$" */
 
 #include "interface.h"
 #include "file_c.h"

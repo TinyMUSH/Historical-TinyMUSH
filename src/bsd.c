@@ -876,7 +876,7 @@ DESC *d;
 		d->raw_input_at = d->raw_input->cmd;
 	}
 	p = d->raw_input_at;
-	pend = d->raw_input->cmd + LBUF_SIZE - sizeof(CBLKHDR) - 1;
+	pend = d->raw_input->cmd - sizeof(CBLKHDR) - 1 + LBUF_SIZE;
 	lost = 0;
 	for (q = buf, qend = buf + got; q < qend; q++) {
 		if (*q == '\n') {
@@ -886,12 +886,9 @@ DESC *d;
 				d->raw_input = (CBLK *) alloc_lbuf("process_input.raw");
 
 				p = d->raw_input_at = d->raw_input->cmd;
-				pend = d->raw_input->cmd + LBUF_SIZE -
-					sizeof(CBLKHDR) - 1;
+				pend = d->raw_input->cmd - sizeof(CBLKHDR) - 1 + LBUF_SIZE;
 			} else {
-				in -= 1;	/*
-						 * for newline 
-						 */
+				in -= 1;	/* for newline */
 			}
 		} else if ((*q == '\b') || (*q == 127)) {
 			if (*q == 127)
@@ -1082,7 +1079,7 @@ int sig, code;
 
 	char buff[32];
 
-#ifdef HAVE_UNION_WAIT
+#if defined(HAVE_UNION_WAIT) && !defined(HAVE_WAIT3)
 	union wait stat;
 
 #else

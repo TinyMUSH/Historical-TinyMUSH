@@ -385,5 +385,4 @@ void pool_reset()
 		pools[i].free_head = NULL;
 		pools[i].max_alloc = pools[i].num_alloc;
 	}
-}	
- 
+}

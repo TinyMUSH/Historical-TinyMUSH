@@ -57,30 +57,30 @@ struct comsys
 
 struct comsys *comsys_table[NUM_COMSYS];
 
-char *load_comsystem ();
-char *save_comsystem ();
-char *purge_comsystem();
+void load_comsystem ();
+void save_comsystem ();
+void purge_comsystem();
 
-char *sort_com_aliases();
+void sort_com_aliases();
 struct comsys *get_comsys ();
 struct comsys *create_new_comsys ();
-char *destroy_comsys ();
-char *add_comsys ();
-char *del_comsys ();
-char *save_comsys ();
-char *load_comsys ();
-char *purge_comsys();
-char *sort_com_aliases();
+void destroy_comsys ();
+void add_comsys ();
+void del_comsys ();
+void save_comsys ();
+void load_comsys ();
+void purge_comsys();
+void sort_com_aliases();
 struct comsys *get_comsys ();
 struct comsys *create_new_comsys ();
-char *destroy_comsys ();
-char *add_comsys ();
-char *del_comsys ();
-char *save_comsys ();
-char *load_comsys ();
-char *save_channels ();
-char *load_channels ();
-char *load_old_channels ();
+void destroy_comsys ();
+void add_comsys ();
+void del_comsys ();
+void save_comsys ();
+void load_comsys ();
+void save_channels ();
+void load_channels ();
+void load_old_channels ();
 
 int num_channels;
 int max_channels;
@@ -90,35 +90,35 @@ struct channel *select_channel();
 
 struct comuser *select_user();
 
-char * do_comdisconnectchannel();
+void do_comdisconnectchannel();
 
-char * do_setnewtitle();
-char * do_comwho();
-char * do_joinchannel();
-char * do_leavechannel();
-char * do_comsend();
-char * do_chanobj();
+void do_setnewtitle();
+void do_comwho();
+void do_joinchannel();
+void do_leavechannel();
+void do_comsend();
+void do_chanobj();
 
-char * get_channel_from_alias();
+char *get_channel_from_alias();
 
-char * add_lastcom();
+void add_lastcom();
 
-char * sort_channels();
-char * sort_users();
-char * check_channel();
-char * add_spaces();
-char * do_delcomchannel();
+void sort_channels();
+void sort_users();
+void check_channel();
+void add_spaces();
+void do_delcomchannel();
 
-char * do_processcom();
-char * send_csdebug();
+void do_processcom();
+void send_csdebug();
 
 int do_comsystem();
-char * do_comconnectchannel();
-char * do_chclose();
-char * do_chloud();
-char * do_chsquelch();
-char * do_comdisconnectnotify();
-char * do_comconnectnotify();
+void do_comconnectchannel();
+void do_chclose();
+void do_chloud();
+void do_chsquelch();
+void do_comdisconnectnotify();
+void do_comconnectnotify();
 void do_chanlist();
 #define CHANNEL_JOIN 0x1
 #define CHANNEL_TRANSMIT 0x2

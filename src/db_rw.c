@@ -116,7 +116,6 @@ FILE *f;
 				abort();	/* unexp EOF */
 		ungetc(c, f);
 		return TRUE_BOOLEXP;
-		break;
 	case '"':
 		ungetc(c, f);
 		buff = alloc_lbuf("getboolexp_quoted");
@@ -1146,7 +1145,7 @@ FILE *f;
 static void getpenn_new_locks(f, i)
 FILE *f;
 {
-	char c, *buf, *p;
+	int c, *buf, *p;
 	struct boolexp *tempbool;
 
 	buf = alloc_lbuf("getpenn_new_locks");

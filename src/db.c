@@ -656,8 +656,9 @@ dbref thing;
 	dbref aowner;
 	int aflags;
 	char *buff;
+#ifdef MEMORY_BASED
 	static char *tbuff[LBUF_SIZE];
-
+#endif
 	if (mudconf.cache_names) {
 		if (!purenames[thing]) {
 			buff = atr_get(thing, A_NAME, &aowner, &aflags);
@@ -673,10 +674,10 @@ dbref thing;
 		free_lbuf(buff);
 	}
 	return names[thing];
-#endif
-	
+#else
 	atr_get_str((char *)tbuff, thing, A_NAME, &aowner, &aflags);
 	return ((char *)tbuff);
+#endif
 }
 
 INLINE char *PureName(thing)
@@ -1095,7 +1096,7 @@ int newtop;
 			anum_table2[i] = anum_table[i];
 		for (i = anum_alc_top + 1; i <= newtop; i++)
 			anum_table2[i] = NULL;
-		XFREE((char *)anum_table, "anum_extend.3");
+		XFREE(anum_table, "anum_extend.3");
 		anum_table = anum_table2;
 	}
 	anum_alc_top = newtop;

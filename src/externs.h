@@ -108,7 +108,7 @@ extern int	FDECL(Hearer, (dbref));
 extern void	NDECL(report);
 extern int	FDECL(atr_match, (dbref, dbref, char, char *, char *, int));
 extern int	FDECL(list_check, (dbref, dbref, char, char *, char *, int, int *));
-extern int	FDECL(html_escape, (const char *src, char *dest, char **destp));
+extern void	FDECL(html_escape, (const char *src, char *dest, char **destp));
 	
 /* From help.c */
 extern int	FDECL(helpindex_read, (HASHTAB *, char *));

@@ -427,11 +427,9 @@ dbref sender, sendloc;
  * safe_{str|chr} (char **) so we can just do the append directly,
  * saving you an alloc_lbuf()...free_lbuf().  If you want us to append
  * from the start of 'dest', just pass in a 0 for 'destp'.
- *
- * Returns 0 if the copy succeeded, 1 if it failed.
  */
 
-int html_escape(src, dest, destp)
+void html_escape(src, dest, destp)
      const char *src;
      char *dest;
      char **destp;
@@ -478,7 +476,6 @@ int html_escape(src, dest, destp)
     *bufp = '\0';
     safe_str(new_buf, dest, destp);
     **destp = '\0';
-    return;
 }
 
 #endif /* PUEBLO_SUPPORT */

@@ -691,7 +691,7 @@ char *s;
 		add->atr = atr;
 		add->name = (char *)strdup(name);
 		add->next = (ADDENT *)old->handler;
-		old->handler = (void *)add;
+		old->handler = (void (*)())add;
 	} else {
 		if (old) {
 			/* Delete the old built-in and rename it __name */
@@ -714,7 +714,7 @@ char *s;
 		add->atr = atr;
 		add->name = (char *)strdup(name);
 		add->next = NULL;
-		cmd->handler = (void *)add;
+		cmd->handler = (void (*)())add;
 	
 		hashadd(name, (int *)cmd, &mudstate.command_htab);
 		
@@ -849,7 +849,7 @@ char *s;
 							}
 							free(old);
 						} else {
-							old->handler = (void *)nextp->next;
+							old->handler = (void (*)())nextp->next;
 							free(nextp);
 						}
 					} else {

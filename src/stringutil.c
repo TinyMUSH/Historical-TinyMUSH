@@ -461,14 +461,12 @@ char *string;
 	return string;
 }
 
-/*
- * Counts occurances of C in STR. - mnp 7 feb 91 
- */
+/* Counts occurances of C in STR. - mnp 7 feb 91 */
 
 int count_chars(str, c)
 const char *str, c;
 {
-	register out = 0;
+	register int out = 0;
 	register const char *p = str;
 
 	if (p)

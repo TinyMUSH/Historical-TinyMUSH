@@ -470,10 +470,6 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/*
-		 * NOTREACHED 
-		 */
-		break;
 	case INDIR_TOKEN:
 		parsebuf++;
 		b2 = alloc_bool("parse_boolexp_F.indir");
@@ -487,10 +483,6 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/*
-		 * NOTREACHED 
-		 */
-		break;
 	case IS_TOKEN:
 		parsebuf++;
 		b2 = alloc_bool("parse_boolexp_F.is");
@@ -505,10 +497,6 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/*
-		 * NOTREACHED 
-		 */
-		break;
 	case CARRY_TOKEN:
 		parsebuf++;
 		b2 = alloc_bool("parse_boolexp_F.carry");
@@ -523,10 +511,6 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/*
-		 * NOTREACHED 
-		 */
-		break;
 	case OWNER_TOKEN:
 		parsebuf++;
 		b2 = alloc_bool("parse_boolexp_F.owner");
@@ -540,10 +524,6 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/*
-		 * NOTREACHED 
-		 */
-		break;
 	default:
 		return (parse_boolexp_L());
 	}

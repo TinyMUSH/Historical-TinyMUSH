@@ -1004,7 +1004,6 @@ Obj *obj;
 		mid = ((hi - lo) >> 1) + lo;
 		if (a[mid].attrnum == anam->attrnum) {
 			return (Attr *) a[mid].data;
-			break;
 		} else if (a[mid].attrnum > anam->attrnum) {
 			hi = mid - 1;
 		} else {

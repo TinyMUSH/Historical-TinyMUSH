@@ -15,7 +15,7 @@ typedef struct fun {
 } FUN;
 
 typedef struct ufun {
-	const char *name;	/* function name */
+	char *name;	/* function name */
 	dbref	obj;		/* Object ID */
 	int	atr;		/* Attribute ID */
 	int	flags;		/* Function flags */

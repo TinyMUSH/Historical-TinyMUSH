@@ -2296,17 +2296,7 @@ dbref player;
 				return 0;
 			}
 			break;
-/*
- * case 'a':
- * * case 'A':            /* all messages, all folders 
- */
-			ms->flags = M_ALL;
-			break;	/*
-				 * /* FIX THIS 
-				 */
-		case 'u':	/*
-				 * Urgent, Unread 
-				 */
+		case 'u':	/* Urgent, Unread */
 		case 'U':
 			p++;
 			if (!p || !*p) {
@@ -2326,29 +2316,20 @@ dbref player;
 			case 'N':
 				ms->flags = M_MSUNREAD;
 				break;
-			default:	/*
-					 * bad 
-					 */
+			default:	/* bad */
 				notify(player, "MAIL: Invalid message specification");
 				return 0;
-				break;
 			}
 			break;
-		case 'r':	/*
-				 * read 
-				 */
+		case 'r':	/* read */
 		case 'R':
 			ms->flags = M_ISREAD;
 			break;
-		case 'c':	/*
-				 * cleared 
-				 */
+		case 'c':	/* cleared */
 		case 'C':
 			ms->flags = M_CLEARED;
 			break;
-		case 't':	/*
-				 * tagged 
-				 */
+		case 't':	/* tagged */
 		case 'T':
 			ms->flags = M_TAG;
 			break;
@@ -2373,15 +2354,11 @@ dbref player;
 			default:
 				notify(player, "MAIL: Invalid message specification");
 				return 0;
-				break;
 			}
 			break;
-		default:	/*
-				 * Bad news 
-				 */
+		default:	/* Bad news */
 			notify(player, "MAIL: Invalid message specification");
 			return 0;
-			break;
 		}
 	}
 	return 1;

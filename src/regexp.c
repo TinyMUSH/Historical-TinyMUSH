@@ -533,12 +533,10 @@ int *flagp;
 	case '|':
 	case ')':
 		FAIL("internal urp");	/* Supposed to be caught earlier. */
-		break;
 	case '?':
 	case '+':
 	case '*':
 		FAIL("?+* follows nothing");
-		break;
 	case '\\':
 		if (*regparse == '\0')
 			FAIL("trailing \\");
@@ -905,7 +903,6 @@ char *prog;
 				} else
 					return(0);
 			}
-			break;
 		case CLOSE+1:
 		case CLOSE+2:
 		case CLOSE+3:
@@ -933,7 +930,6 @@ char *prog;
 				} else
 					return(0);
 			}
-			break;
 		case BRANCH: {
 				register char *save;
 
@@ -980,14 +976,11 @@ char *prog;
 				}
 				return(0);
 			}
-			break;
 		case END:
 			return(1);	/* Success! */
-			break;
 		default:
 			regerror("memory corruption");
 			return(0);
-			break;
 		}
 
 		scan = next;

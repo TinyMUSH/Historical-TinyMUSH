@@ -1187,7 +1187,7 @@ FUNCTION(fun_mailfrom)
 	/* ran off the end of the list without finding anything */
 	safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
 }
-#endif USE_MAIL
+#endif
 
 /* ---------------------------------------------------------------------------
  * fun_hasattr: does object X have attribute Y.
@@ -1770,7 +1770,7 @@ FUNCTION(fun_sortby)
 	nptrs = list2arr(ptrs, LBUF_SIZE / 2, list, sep);
 
 	if (nptrs > 1)		/* pointless to sort less than 2 elements */
-		sane_qsort((void *)ptrs, 0, nptrs - 1, u_comp);
+		sane_qsort((void **)ptrs, 0, nptrs - 1, u_comp);
 
 	arr2list(ptrs, nptrs, buff, bufc, sep);
 	free_lbuf(list);

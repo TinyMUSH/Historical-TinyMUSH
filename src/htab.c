@@ -760,4 +760,4 @@ CF_HAND(cf_ntab_access)
 	return -1;
 }
 
-#endif STANDALONE
+#endif
