@@ -4874,10 +4874,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
 	aposs()		default()	edefault()	eval()
 	get()		get_eval()	grep()		grepi()
-	hasattr()	hasattrp()	lattr()		obj()
-	objeval()	poss()		regrep()	regrepi()
-	subj()		u()		udefault()	ulocal()
-	v()		wildgrep()	xget()		zfun()
+	hasattr()	hasattrp()	lattr()		nattr()
+	obj()		objeval()	poss()		regrep()	
+	regrepi()	subj()		u()		udefault()
+	ulocal()	v()		wildgrep()	xget()
+	zfun()
  
 & OBJECT FUNCTIONS
   Topic: Object Functions
@@ -7723,6 +7724,14 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   See also: @dolist.
 
+& NATTR()
+  Function: nattr(<object>[/<wild-pattern>])
+ 
+  Returns the number of attributes set on <object>. If <wild-pattern> is
+  given, only attributes matching it are returned.
+ 
+  Slightly faster, but equivalent to, words(lattr(<object>[/<wild-pattern>]))
+ 
 & REVERSE()
   Function: reverse(<string>)
  

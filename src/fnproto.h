@@ -246,6 +246,7 @@ XFUNCTION(fun_pmatch);
 XFUNCTION(fun_pfind);
 XFUNCTION(fun_locate);
 XFUNCTION(fun_lattr);
+XFUNCTION(fun_nattr);
 XFUNCTION(fun_search);
 XFUNCTION(fun_stats);
 XFUNCTION(fun_objmem);
@@ -539,6 +540,7 @@ FUN flist[] = {
 {"MUL",		fun_mul,	0,  FN_VARARGS,	CA_PUBLIC},
 {"MUNGE",	fun_munge,	0,  FN_VARARGS,	CA_PUBLIC},
 {"NAME",	fun_name,	1,  0,		CA_PUBLIC},
+{"NATTR",	fun_nattr,	1,  0,		CA_PUBLIC},
 {"NCOMP",	fun_ncomp,	2,  0,		CA_PUBLIC},
 {"NEARBY",	fun_nearby,	2,  0,		CA_PUBLIC},
 {"NEQ",		fun_neq,	2,  0,		CA_PUBLIC},

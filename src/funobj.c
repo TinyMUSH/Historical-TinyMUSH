@@ -1851,37 +1851,60 @@ FUNCTION(fun_locate)
 
 /* ---------------------------------------------------------------------------
  * fun_lattr: Return list of attributes I can see on the object.
+ * fun_nattr: Ditto, but just count 'em up.
  */
 
-FUNCTION(fun_lattr)
+static void handle_lattr(player, str, buff, bufc, count_only)
+    dbref player;
+    char *str, *buff, **bufc;
+    int count_only;
 {
 	dbref thing;
-	int ca, first;
 	ATTR *attr;
+	char *bb_p;
+	int ca, total = 0;
 
 	/* Check for wildcard matching.  parse_attrib_wild checks for read
 	 * permission, so we don't have to.  Have p_a_w assume the
 	 * slash-star if it is missing. 
 	 */
 
-	first = 1;
 	olist_push();
-	if (parse_attrib_wild(player, fargs[0], &thing, 0, 0, 1)) {
+	if (parse_attrib_wild(player, str, &thing, 0, 0, 1)) {
+		bb_p = *bufc;
 		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 			attr = atr_num(ca);
 			if (attr) {
-				if (!first)
+			    if (count_only) {
+				total++;
+			    } else {
+				if (*bufc != bb_p) {
 					safe_chr(' ', buff, bufc);
-				first = 0;
+				}
 				safe_str((char *)attr->name, buff, bufc);
+			    }
 			}
 		}
+		if (count_only)
+			safe_ltos(buff, bufc, total);
 	} else {
-	        if (! mudconf.lattr_oldstyle)
-		        safe_nomatch(buff, bufc);
+		if (!mudconf.lattr_oldstyle) {
+			safe_nomatch(buff, bufc);
+		} else if (count_only) {
+			safe_chr('0', buff, bufc);
+		}
 	}
 	olist_pop();
-	return;
+}
+
+FUNCTION(fun_lattr)
+{
+    handle_lattr(player, fargs[0], buff, bufc, 0);
+}
+
+FUNCTION(fun_nattr)
+{
+    handle_lattr(player, fargs[0], buff, bufc, 1);
 }
 
 /* ---------------------------------------------------------------------------
