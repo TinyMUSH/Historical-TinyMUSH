@@ -274,7 +274,7 @@ print "Please type:\n";
 
 if (-e "src/Makefile") {
     print "\tcd src\n";
-    print "\tmake clean\n";
+    print "\tmake distclean\n";
     print "\tcd ..\n";
 }
 print "\t./Build\n";

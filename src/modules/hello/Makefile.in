@@ -6,6 +6,7 @@ OPTIM = -g -O
 # ================== END OF CONFIGURATION SECTION =================
 
 # General parameters.
+@SET_MAKE@
 SHELL=/bin/sh
 srcdir = @srcdir@
 top_builddir = @srcdir@
@@ -25,7 +26,7 @@ MOD_O = hello.o
 MOD_LA = hello.la
 
 # paths is likely to remain broken
-all: depend-update $(MOD_LA) install
+all: install
 
 depend: $(MOD_S) Makefile
 	for i in $(MOD_S); do $(CPP) $(ALLCFLAGS) -MM $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ../../unsplit > .depend~
@@ -33,13 +34,13 @@ depend: $(MOD_S) Makefile
 	mv .depend~ .depend
 	touch depend
 
-depend-update: depend
-	touch depend-update
-	@echo Dependencies were updated, now run make
-	exit 1
+build: depend
+	$(MAKE) $(MOD_LA)
+	touch build
 
-install:
+install: build
 	cp -r $(MOD_LA) .libs ../../../game/modules
+	touch install
 
 .c.o:
 	$(CC) $(ALLCFLAGS) -c $<
@@ -53,6 +54,14 @@ $(MOD_LA): $(MOD_O)
 clean:
 	-rm -f *.o *.lo *.la a.out core gmon.out 
 	-rm -rf .libs
+
+recursive-clean: clean
+
+realclean: clean
+
+distclean: realclean
+	-rm -f config.log config.status libtool depend build install
+	-rm -f .depend Makefile
 
 TAGS: *.c *.h
 	etags *.c *.h

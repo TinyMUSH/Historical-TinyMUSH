@@ -17,13 +17,10 @@ echo "***** Configuring the server..."
 cd ..
 ./configure
 echo
-echo "***** Making dependencies..."
+echo "***** Building server using default config..."
 echo
 rm -f .depend
 touch .depend
-make
-echo
-echo "***** Building server using default config..."
 make 2>&1 | tee Compile.log
 cd ..
 

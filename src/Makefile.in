@@ -134,7 +134,7 @@ D_I	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  api.h pcre.h bitstring.h db_sql.h ltdl.h
 
 # Auxiliary source files: only used by offline utilities.
-AUX_S	= dbconvert.c mkindx.c unsplit.c slave.c portconc.c
+AUX_S	= dbconvert.c mkindx.c unsplit.c slave.c portconc.c recover.c
 
 # Version number routine
 VER_S	= version.c
@@ -159,23 +159,35 @@ MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
 OUT	= netmush mkindx dbconvert slave recover
 
 # paths is likely to remain broken
-all: depend-update $(OUT) links
+all: install
 
 depend: $(ALL_S) unsplit Makefile
 	for i in $(ALL_S); do $(CPP) $(ALLCFLAGS) -MM $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
 	mv .depend~ .depend
 	touch depend
 
-depend-update: depend
-	touch depend-update
-	@echo Dependencies were updated, now run make
-	exit 1
+build: depend
+	$(MAKE) $(OUT)
+	touch build
+
+install: build
+	cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/dbconvert dbconvert
+	cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx mkindx
+	cd ../game/bin ; rm -f netmush ; ln -s ../../src/netmush netmush
+	cd ../game/bin ; rm -f slave ; ln -s ../../src/slave slave
+	cd ../game/bin ; rm -f recover ; ln -s ../../src/recover recover
+	cd ../game/text; rm -f mkindx; ln -s ../../src/mkindx mkindx
+	touch install
 
 .c.o:
 	$(CC) $(ALLCFLAGS) -c $<
 
 $(VER_O): $(VER_S) $(MUSH_S) $(ALL_I)
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $<
+
+recover.o: recover.c
+	$(CC) $(ALLCFLAGS) -I./gdbm-1.8.0 -c $<
+
 
 $(MOD_LA):
 	for module in $(subdirs); do \
@@ -184,17 +196,7 @@ $(MOD_LA):
 		touch $$module/.depend ;\
 		cd $$module && $(MAKE) ;\
 		cd $$curdir ;\
-		cd $$module && $(MAKE) ;\
-		cd $$curdir ;\
 	done
-
-links: $(OUT)
-	cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/dbconvert dbconvert
-	cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx mkindx
-	cd ../game/bin ; rm -f netmush ; ln -s ../../src/netmush netmush
-	cd ../game/bin ; rm -f slave ; ln -s ../../src/slave slave
-	cd ../game/bin ; rm -f recover ; ln -s ../../src/recover recover
-	cd ../game/text; rm -f mkindx; ln -s ../../src/mkindx mkindx
 
 conc: portconc.o
 	$(CC) $(ALLCFLAGS) $(LIBS) -o conc portconc.o
@@ -206,8 +208,7 @@ slave: slave.o
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
 
-recover:
-	$(CC) $(ALLCFLAGS) -I./gdbm-1.8.0 -c recover.c
+recover: recover.o
 	$(CC) $(ALLCFLAGS) -o recover recover.o $(LIBS)
 
 unsplit: unsplit.o
@@ -256,11 +257,24 @@ clean:
 	-rm -f *.o *.lo a.out core gmon.out mush.*log mush.*sum Compile.log
 	-rm -rf .libs
 
+recursive-clean: clean
+	for module in $(subdirs); do \
+		curdir=`pwd` ;\
+		cd $$module && $(MAKE) recursive-clean;\
+		cd $$curdir ;\
+	done
+
 realclean: clean
 	-rm -f $(OUT) netmush~ conc unsplit *.so *.so~ *.la *.a
 
 distclean: realclean cvs
+	for module in gdbm-1.8.0 $(subdirs); do \
+		curdir=`pwd` ;\
+		cd $$module && $(MAKE) distclean;\
+		cd $$curdir ;\
+	done
 	-rm -f libtool config.log config.cache config.status autoconf.h
+	-rm -f depend build install
 	-rm -f .depend 
 	touch .depend
 	-rm -f Makefile
