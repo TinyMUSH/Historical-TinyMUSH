@@ -84,7 +84,7 @@
         } \
     } \
     old_db = dg__new_db + SIZE_HACK; \
-    for (dg__i = mudstate.db_top; dg__i < new_top; dg__i++) { \
+    for (dg__i = mudstate.db_top; dg__i < new_size; dg__i++) { \
         OBJ_INIT_MODULE(dg__i); \
     } \
 }
