@@ -21,7 +21,7 @@ extern void	FDECL(dump_database_internal, (int));
 
 /* Sizes, on disk, of Object and (within the object) Attribute headers */
 
-#define OBJ_HEADER_SIZE		(sizeof(Objname) + (2 * sizeof(int)))
+#define OBJ_HEADER_SIZE		(sizeof(Objname) + sizeof(int))
 #define ATTR_HEADER_SIZE	(sizeof(int) * 2)
 /*
  * Routines to get Obj's on and off disk. Obj's are stowed in a
@@ -39,7 +39,7 @@ Obj *
  objfromFILE(buff)
 char *buff;
 {
-	int i, j, k;
+	int i, j;
 	Obj *o;
 	Attrib *a;
 	char *bp;
@@ -57,10 +57,8 @@ char *buff;
 	bp += sizeof(Objname);
 	bcopy(bp, (char *) &i, sizeof(int));
 	bp += sizeof(int);
+	
 	o->at_count = i;
-	bcopy(bp, (char *) &k, sizeof(int));
-	bp += sizeof(int);
-	o->size = k;
 
 	/* Now get an array of Attrs */
 
@@ -137,9 +135,6 @@ char *buff;
 	bp += sizeof(Objname);
 	
 	bcopy((char *)&(o->at_count), bp, sizeof(int));
-	bp += sizeof(int);
-
-	bcopy((char *)&(o->size), bp, sizeof(int));
 	bp += sizeof(int);
 
 	/* Now do the attributes, one at a time. */
