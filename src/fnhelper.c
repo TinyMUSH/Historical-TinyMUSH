@@ -529,7 +529,7 @@ long random_range(low, high)
 	return low;
 
     x = high - low;
-    if (LONG_MAX < x)
+    if (INT_MAX < x)
 	return -1;
     x++;
 
@@ -546,7 +546,7 @@ long random_range(low, high)
      *   we will call getrand() is less than 2.
      */
 
-    n_limit = ULONG_MAX - (ULONG_MAX % x);
+    n_limit = INT_MAX - (INT_MAX % x);
     do {
 	n = genrand_int31();
     } while (n >= n_limit);
