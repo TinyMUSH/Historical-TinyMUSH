@@ -16,6 +16,10 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
 3.1 Patchlevel 2
 
+  - Startmush now accept start/stop/restart/reboot switches. You can
+    also pass the name of the config file you want to use instead of
+    the default 'mush.config' one.
+
   - Removed hardcoded binaries path from the engine, a new command
     line switch ( -b binpath ) new feed the engine with the correct
     value. The engine can now run its binaries from any directory,
@@ -33,10 +37,10 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
     'database_home',  'crash_database' and 'gdbm_database' are 
     still avalable for backward compatibility.
 
-  - Startmush now terminate correctly on most platform. awk now kill
-    the tail process instead of just closing the pipe (on some
-    platform, tail doesn't exit when the pipe is close, leaving a
-    zombie tail process running)
+  - A new helper (logwatch) replace the 'tail'/'awk' script
+    used to print the first lines of the log during statup.
+    this solve the problem of having a zombie tail command 
+    left running when awk cut its pipe.
 
   - Added EXIT, ROOMS and VEHICLE topics in qhelp.txt. 
 

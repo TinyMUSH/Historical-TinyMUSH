@@ -123,7 +123,7 @@ D_I	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  api.h pcre.h bitstring.h db_sql.h ltdl.h
 
 # Auxiliary source files: only used by offline utilities.
-AUX_S	= mkindx.c unsplit.c slave.c portconc.c recover.c
+AUX_S	= mkindx.c unsplit.c slave.c portconc.c recover.c logwatch.c
 
 # Version number routine
 VER_S	= version.c
@@ -145,7 +145,7 @@ MUSH_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S)
 MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
 	  $(LIBOBJS)
 
-OUT	= netmush mkindx slave recover
+OUT	= netmush mkindx slave recover logwatch
 
 depend: $(ALL_S) $(ALL_I) unsplit Makefile
 	for i in $(ALL_S); do $(MKDEP) $(ALLCFLAGS) $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
@@ -162,6 +162,7 @@ install: build
 	cd ../game/bin ; rm -f netmush ; ln -s ../../src/netmush netmush
 	cd ../game/bin ; rm -f slave ; ln -s ../../src/slave slave
 	cd ../game/bin ; rm -f recover ; ln -s ../../src/recover recover
+	cd ../game/bin ; rm -f logwatch ; ln -s ../../src/logwatch logwatch
 	cd ../game/text; rm -f mkindx; ln -s ../../src/mkindx mkindx
 	touch install
 
@@ -183,6 +184,9 @@ slave: slave.o
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
+
+logwatch: logwatch.o
+	$(CC) $(ALLCFLAGS) -o logwatch logwatch.o
 
 recover: recover.o
 	$(CC) $(ALLCFLAGS) -o recover recover.o $(LIBS)

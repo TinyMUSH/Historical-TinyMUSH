@@ -2,23 +2,121 @@
 #
 # $Id$
 #
-#	Startmush - Kick off the netmush process.
+#	Startmush - Control the netmush process.
 #
 PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
 LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH
 #
-. mush.config
-. check_paths
+
 #
-#	Make sure there isn't already a MUSH running.
+#	If we get a 2nd parameter, it's the name of
+#	our config file. Else, we use the default one.
 #
+config=$2
+if [ -z "$config" ]; then
+	config=mush
+fi
+
+#
+#	If we don't get any parameters, assume 
+#	historical behavior
+#
+param=$1
+if [ -z "$param" ]; then
+	param=start
+fi
+
+#
+#	Read our configuration file.
+#
+if [ -r "$config.config" ]; then
+	. $config.config
+	. check_paths
+else
+	echo "'$config.config' not found."
+	exit 1
+fi
+
+#
+#	Get the current status of the MUSH.
+#
+if [ -r "$PIDFILE" ]; then
+	oldpid=`cat $PIDFILE`
+	if [ "$oldpid" -gt 1 ]; then
+		nmush=`ps | grep $oldpid | grep netmush | wc -l`
+	fi
+fi
+
+#
+#	Parse our command line.
+#
+case "$param" in
+	stop)
+		if [ "$nmush" -gt 0 ]; then
+			echo "The MUSH is shutting down."
+			kill -s QUIT $oldpid
+			wait $oldpid > /dev/null 2>&1
+			echo "Shutdown completed."
+			exit 0
+		else
+			echo "The MUSH is not running."
+			exit 1
+		fi
+	;;
+	restart)
+		if [ "$nmush" -gt 0 ]; then
+			echo "The MUSH is restarting."
+			kill -s SIGUSR1 $oldpid
+			wait $oldpid > /dev/null 2>&1
+			echo "Restart completed."
+			exit 0
+		fi
+	;;
+	reboot)
+		if [ "$nmush" -gt 0 ]; then
+			echo "The MUSH is rebooting."
+			kill -s QUIT $oldpid
+			wait $oldpid> /dev/null 2>&1
+		fi
+	;;
+	start)
+		if [ "$nmush" -gt 0 ]; then
+			echo "The MUSH already seems to be running."
+			exit 1
+		fi
+	;;
+	*)
+		echo "Usage: `basename $0` [<start|stop|restart|reboot> [config_file]]"
+		echo "Options:"
+		echo "  start          Start the server."
+		echo "  stop           Stop the server."
+		echo "  restart        Restart the server."
+		echo "                   Users currently connect should not be"
+		echo "                   disconnected by this command."
+		echo "  reboot         Do a complete shutdown and restart the server"
+		echo "                   This command is the equivalent to doing a"
+		echo "                   stop/start of the server."
+		echo ""
+		echo "Parameters:"
+		echo "  config_file    The name of the configuration file without"
+		echo "                 the .config suffix. Default is 'mush'. "
+		exit 0
+	;;
+esac
+
+
+#
+#	If we get to this point, the MUSH should currently be
+#	down, let's just check one last time to be sure.
+#
+
 if [ -r "$PIDFILE" ]; then
 	oldpid=`cat $PIDFILE`
 	if [ "$oldpid" -gt 1 ]; then
 		nmush=`ps | grep $oldpid | grep netmush | wc -l`
 		if [ "$nmush" -gt 0 ]; then
 			echo "The MUSH already seems to be running."
-			exit 0
+			exit 1
 		fi
 	fi
 fi
@@ -161,4 +259,4 @@ fi
 touch $LOGNAME
 $BIN/netmush $make_db -c $GAMENAME.conf -l $LOGNAME -p $PIDFILE -t $TEXT -b $BIN -d $DATA -g $GDBM_DB -k $CRASH_DB >>$LOGNAME 2>&1 &
 echo "Process $!"
-tail -f $LOGNAME | awk '{ print $0 }; /Cleanup completed/ { system("killall tail") };'
+$BIN/logwatch -s "Cleanup completed." -l $LOGNAME
