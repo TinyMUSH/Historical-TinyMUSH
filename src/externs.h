@@ -31,9 +31,6 @@ extern int	FDECL(dddb_setfile, (char *));
 extern int	NDECL(dddb_init);
 
 /* From netcommon.c */
-extern void	FDECL(make_ulist, (dbref, char *, char **));
-extern int	FDECL(fetch_idle, (dbref));
-extern int	FDECL(fetch_connect, (dbref));
 extern void	VDECL(raw_broadcast, (int, char *, ...));
 
 /* From cque.c */

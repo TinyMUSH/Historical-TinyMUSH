@@ -168,12 +168,9 @@ extern void	FDECL(save_command, (DESC *, CBLK *));
 extern void	FDECL(announce_disconnect, (dbref, DESC *, const char *));
 extern int	FDECL(boot_off, (dbref, char *));
 extern int	FDECL(boot_by_port, (int, int, char *));
-extern int	FDECL(fetch_idle, (dbref));
-extern int	FDECL(fetch_connect, (dbref));
 extern void	NDECL(check_idle);
 extern void	NDECL(process_commands);
 extern int	FDECL(site_check, (struct in_addr, SITE *));
-extern void	FDECL(make_ulist, (dbref, char *, char **));
 extern dbref	FDECL(find_connected_name, (dbref, char *));
 
 /* From predicates.c */

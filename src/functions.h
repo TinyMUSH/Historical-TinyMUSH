@@ -39,6 +39,17 @@ struct var_entry {
     char *text;			/* variable text */
 };
 
+#ifdef FLOATING_POINTS
+#ifndef linux                   /* linux defines atof as a macro */
+double atof();
+#endif                          /* ! linux */
+#define aton atof
+typedef double NVAL;
+#else
+#define aton atoi
+typedef int NVAL;
+#endif                          /* FLOATING_POINTS */
+
 /* Function declarations */
 
 extern char *FDECL(trim_space_sep, (char *, char));
@@ -52,6 +63,15 @@ extern double NDECL(makerandom);
 extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
 extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, dbref, dbref, char **, int, int));
 extern int FDECL(check_read_perms, (dbref, dbref, ATTR *, int, int, char *, char **));
+
+/* Function prototype macro */
+
+#define	FUNCTION(x)	\
+	void x(buff, bufc, player, cause, fargs, nfargs, cargs, ncargs) \
+	char *buff, **bufc; \
+	dbref player, cause; \
+	char *fargs[], *cargs[]; \
+	int nfargs, ncargs;
 
 /* This is for functions that take an optional delimiter character.
  *
