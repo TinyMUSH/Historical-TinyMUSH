@@ -447,7 +447,14 @@ OTHER CHANGES
   maintenance.
 
 - ANSI, particularly in functions, is handled more consistently and more
-  sanely. Some string and list functions have also been optimized.
+  sanely. Some string and list functions have also been optimized. These
+  changes are known to be incomplete as of TinyMUSH 3.1 beta 1.
+
+- Similar functions may use the same handler internally, called with
+  different flags specified in the function table, so adding families
+  of similar functions does not imply code bloat. Several groups of
+  functions (trigonometry, logic, etc.) have been condensed into common
+  handlers.
 
 - Other cleanup in many parts of the code, including performance
   enhancements and significant reductions in memory used.
