@@ -127,6 +127,7 @@ POWERENT gen_powers[] =
 {(char *)"see_queue",		POW_SEE_QUEUE,	0, 0,	ph_wiz},
 {(char *)"see_hidden",		POW_SEE_HIDDEN, 0, 0,	ph_wiz},
 {(char *)"monitor",		POW_MONITOR,	0, 0,	ph_wiz},
+{(char *)"open_anywhere",	POW_OPENANYLOC,	0, 0,	ph_wiz},
 {(char *)"poll",		POW_POLL,	0, 0,	ph_wiz},
 {(char *)"no_destroy",		POW_NO_DESTROY, 0, 0,	ph_wiz},
 {(char *)"guest",		POW_GUEST,	0, 0,	ph_god},

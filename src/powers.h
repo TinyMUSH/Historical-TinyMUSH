@@ -52,6 +52,7 @@
 #define POW_BUILDER	0x00000001	/* Can build */
 #define POW_LINKVAR	0x00000002	/* Can link an exit to "variable" */
 #define POW_LINKTOANY	0x00000004	/* Can link to any object */
+#define POW_OPENANYLOC	0x00000008	/* Can open from anywhere */
 
 /* ---------------------------------------------------------------------------
  * POWERENT: Information about object powers.
@@ -143,5 +144,6 @@ extern void	FDECL(decompile_powers, (dbref, dbref, char *));
 #define Builder(c)		(((Powers2(c) & POW_BUILDER) != 0) || WizRoy(c))
 #define LinkVariable(c)		(((Powers2(c) & POW_LINKVAR) != 0) || Wizard(c))
 #define LinkToAny(c)		(((Powers2(c) & POW_LINKTOANY) != 0) || Wizard(c))
+#define Open_Anywhere(c)	((Powers2(c) & POW_OPENANYLOC) != 0)
 
 #endif /* POWERS_H */

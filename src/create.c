@@ -63,7 +63,8 @@ char *direction, *linkto;
 	if (!direction || !*direction) {
 		notify_quiet(player, "Open where?");
 		return;
-	} else if (!controls(player, loc)) {
+	} else if (!(controls(player, loc) ||
+		     (Open_Anywhere(player) && !God(loc)))) {
 		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
