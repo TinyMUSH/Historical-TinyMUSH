@@ -16,6 +16,7 @@
 #define	TYPE_PLAYER 	0x3
 #define TYPE_ZONE       0x4
 #define	TYPE_GARBAGE	0x5
+#define GOODTYPE	0x5	/* Values less than this pass Good_obj check */
 #define	NOTYPE		0x7
 #define	TYPE_MASK 	0x7
 
@@ -222,7 +223,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	isThing(x)	(Typeof(x) == TYPE_THING)
 
 #define	Good_obj(x)	(((x) >= 0) && ((x) < mudstate.db_top) && \
-			 (Typeof(x) < NOTYPE))
+			 (Typeof(x) < GOODTYPE))
 #define	Good_owner(x)	(Good_obj(x) && OwnsOthers(x))
 
 #define Royalty(x)      ((Flags(x) & ROYALTY) != 0)
