@@ -156,14 +156,15 @@ dbref player, exit, dest;
 	 * Our destination is HOME
 	 * Our destination is AMBIGUOUS and we can link to variable exits
 	 * Normal destination check:
-	 *   - We must control the exit or it must be LINK_OK
-	 *   - We must be able to pass the linklock, or we must be a wizard
-	 *     and be config'd so wizards ignore linklocks
+	 *   - We must control the destination or it must be LINK_OK
+	 *   - We must be able to pass the linklock, or we must be able to
+	 *     LinkToAny (power, or be a wizard) and be config'd so wizards
+	 *     ignore linklocks
 	 */
 
 	if (!((dest == HOME) ||
 	      ((controls(player, dest) || Link_ok(dest)) &&
-	       ((Wizard(player) && !mudconf.wiz_obey_linklock) ||
+	       ((LinkToAny(player) && !mudconf.wiz_obey_linklock) ||
 		could_doit(player, dest, A_LLINK))) ||
 	      ((dest == AMBIGUOUS) && LinkVariable(player)))) {
 	    notify_quiet(player, NOPERM_MESSAGE);

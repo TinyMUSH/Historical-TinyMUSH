@@ -121,6 +121,7 @@ POWERENT gen_powers[] =
 {(char *)"idle",		POW_IDLE, 	0, 0,	ph_wiz},
 {(char *)"search",		POW_SEARCH,	0, 0,	ph_wiz},
 {(char *)"link_variable",	POW_LINKVAR,	0, 0,	ph_wiz},
+{(char *)"link_to_anything",	POW_LINKTOANY,	0, 0,	ph_wiz},
 {(char *)"long_fingers",	POW_LONGFINGERS,0, 0,	ph_wiz},
 {(char *)"comm_all",		POW_COMM_ALL,	0, 0,	ph_wiz},
 {(char *)"see_queue",		POW_SEE_QUEUE,	0, 0,	ph_wiz},
