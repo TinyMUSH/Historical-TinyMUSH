@@ -450,13 +450,13 @@ char *name;
 		}
 		/* It's an alias (or an incorrect entry).  Clobber it */
 		free(p);
-		p = (dbref *) XMALLOC(sizeof(int), "add_player_name");
+		p = (dbref *) XMALLOC(sizeof(dbref), "add_player_name");
 
 		*p = player;
 		stat = hashrepl(temp, p, &mudstate.player_htab);
 		free_lbuf(temp);
 	} else {
-		p = (dbref *) XMALLOC(sizeof(int), "add_player_name.2");
+		p = (dbref *) XMALLOC(sizeof(dbref), "add_player_name.2");
 
 		*p = player;
 		stat = hashadd(temp, p, &mudstate.player_htab);

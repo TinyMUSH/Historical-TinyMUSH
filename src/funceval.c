@@ -1893,7 +1893,7 @@ dbref thing;
 	char *as, *str;
 	ATTR *attr;
 
-	k = sizeof(struct object);
+	k = sizeof(OBJ);
 
 	k += strlen(Name(thing)) + 1;
 	for (ca = atr_head(thing, &as); ca; ca = atr_next(&as)) {
@@ -3665,7 +3665,7 @@ FUNCTION(fun_push)
     if (!sp)			/* out of memory, ouch */
 	return;
     sp->next = stack_get(it);
-    sp->data = (char *) XMALLOC(sizeof(char *) * (strlen(data) + 1),
+    sp->data = (char *) XMALLOC(sizeof(char) * (strlen(data) + 1),
 				"stack_push_data");
     if (! sp->data)
 	return;
@@ -3707,7 +3707,7 @@ FUNCTION(fun_dup)
     if (!sp)
 	return;
     sp->next = hp;
-    sp->data = (char *) XMALLOC(sizeof(char *) * (strlen(tp->data) + 1),
+    sp->data = (char *) XMALLOC(sizeof(char) * (strlen(tp->data) + 1),
 				"stack_dup_data");
     if (!sp->data)
 	return;
@@ -3971,7 +3971,7 @@ static void set_xvar(obj, name, data)
 	    XFREE(xvar->text, "xvar_data");
 	}
 	if (data && *data) {
-	    xvar->text = (char *) XMALLOC(sizeof(char *) * (strlen(data) + 1),
+	    xvar->text = (char *) XMALLOC(sizeof(char) * (strlen(data) + 1),
 					  "xvar_data");
 	    if (!xvar->text)
 		return;		/* out of memory */
@@ -3995,7 +3995,7 @@ static void set_xvar(obj, name, data)
 	    xvar = (VARENT *) XMALLOC(sizeof(VARENT), "xvar_struct");
 	    if (!xvar)
 		return;		/* out of memory */
-	    xvar->text = (char *) XMALLOC(sizeof(char *) * (strlen(data) + 1),
+	    xvar->text = (char *) XMALLOC(sizeof(char) * (strlen(data) + 1),
 					  "xvar_data");
 	    if (!xvar->text)
 		return;		/* out of memory */
