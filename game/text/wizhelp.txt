@@ -1353,14 +1353,15 @@
 abort_on_bug		addcommands_match_blindly
 addcommands_obey_stop	addcommands_obey_uselocks
 ansi_colors		clone_copies_cost	comsys_database
-dark_sleepers		events_daily_hour	examine_flags
-examine_public_attrs	fascist_teleport	format_contents
-format_exits		global_aconn_uselocks	have_comsys
-have_mailer		have_zones		hostnames
-idle_wiz_dark		lattr_default_oldstyle	local_master_rooms
-look_obey_terse		mail_database		match_own_commands	
-paranoid_allocate	pemit_any_object	pemit_far_players
-player_listen		player_match_own_commands
+dark_actions		dark_sleepers		events_daily_hour
+examine_flags		examine_public_attrs	fascist_teleport
+format_contents		format_exits		global_aconn_uselocks
+have_comsys		have_mailer		have_zones		
+hostnames		idle_wiz_dark		lattr_default_oldstyle	
+local_master_rooms	look_obey_terse		mail_database		
+match_own_commands	no_ambiguous_match	paranoid_allocate
+pemit_any_object	pemit_far_players	player_listen
+player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -1597,6 +1598,14 @@ use_global_aconn	wizard_obeys_linklock
   Specifies the minimum (and default) cost for creating an object.
   See also: create_max_cost, sacrifice_adjust, sacrifice_factor.
 
+& dark_actions
+  Config directive: dark_actions <yes/no>.  Default: No
+ 
+  Indicates whether @a-actions are to be triggered when moving, regardless
+  of whether or not the object moving is set Dark. Note that even if this
+  parameter is set to 'yes', the /quiet switch still causes @a-actions
+  to be ignored.
+ 
 & dark_sleepers
   Config directive: dark_sleepers <yes/no>.  Default: Yes
   Indicates whether or not disconnected players are to be considered 'dark',
@@ -2274,6 +2283,17 @@ use_global_aconn	wizard_obeys_linklock
   contain information about the basic commands and how to get help.
   See also: @readcache, motd_file.
 
+& no_ambiguous_match
+  Config directive: no_ambiguous_match <yes/no>.  Default: No
+ 
+  Determines whether or not ambiguous object matches (i.e., use of names
+  that match more than one object in the vicinity) automatically resolve
+  to a selection of one of the objects at random.
+ 
+  In other words, if this parameter is "Yes", you will never see a,
+  "I don't know which one you mean!" message -- an object will always
+  be selected.
+ 
 & notify_recursion_limit
   Config directive: notify_recursion_limit <num>.  Default: 20
  

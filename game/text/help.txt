@@ -3694,7 +3694,16 @@
   attributes on the object (as well as any parents of the object).
 
   See also: @lock/parent.
-
+ 
+& CONSTANT
+  Flag: CONSTANT(k)
+ 
+  Only God can set attributes on an object set CONSTANT. This includes
+  both setting attributes, changing attributes, and removing attributes.
+  This affects commands like @cpattr as well as @set. In effect, this
+  flag causes attributes on the object to be treated as if they were
+  locked.
+ 
 & TICKLER
   Flag: TICKLER(k)
  
@@ -4366,7 +4375,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	Y - Parent_OK	Z - Royalty	a - Audible	b - Bounce	
 	c - Connected	d - Destroy_OK	e - Enter_OK	f - Fixed	
 	g - Uninspected	h - Halted	i - Immortal	j - Gagged	
-	k - Tickler	l - Light	m - Myopic	n - Auditorium	
+	k - Constant	l - Light	m - Myopic	n - Auditorium	
 	o - Zone	p - Puppet	q - Terse	r - Robot	
 	s - Safe	t - Transparent	u - Suspect	v - Verbose	
 	w - Staff	x - Slave	z - Control_OK	! - Stop	
@@ -9581,7 +9590,8 @@ See the individual help entries for comsys commands for details.
  
   The available channel locks are join, transmit, and receive. They
   are specified like regular object locks. To unlock, simply specify
-  a blank string for <lock>.
+  a blank string for <lock>. Channel locks are evaluated with respect
+  to the channel's owner.
  
   Channel flags always override channel locks. In other words, if a
   channel has a p_join flag, the join lock is never checked for players.
