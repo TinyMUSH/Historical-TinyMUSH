@@ -1749,8 +1749,7 @@ int atr;
 	if (Typeof(thing) == TYPE_GARBAGE)
 		return NULL;
 
-	if (!mudstate.standalone && !mudstate.loading_db &&
-	    !mudstate.restarting && !mudstate.dumping)
+	if (!mudstate.standalone && !mudstate.loading_db && !mudstate.dumping)
 		s_Accessed(thing);
 	
 	makekey(thing, atr, &okey);
