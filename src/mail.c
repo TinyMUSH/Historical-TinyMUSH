@@ -1911,7 +1911,7 @@ FILE *fp;
 		pennsub = 1;
 	} else {
 		/* Version number mangled */
-		return;
+		return (0);
 	}
 	
 	if (pennsub)
