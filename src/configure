@@ -5061,7 +5061,7 @@ else
 fi
 done
 
-for ac_func in getpagesize strchr memset dlopen
+for ac_func in getpagesize strchr memset dlopen vsnprintf
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
 echo "configure:5068: checking for $ac_func" >&5

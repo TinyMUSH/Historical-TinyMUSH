@@ -863,7 +863,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(setrlimit getrusage timelocal mktime srandom)
 AC_CHECK_FUNCS(getdtablesize socket gethostbyaddr)
 AC_CHECK_FUNCS(gettimeofday select wait3 strtok_r strcspn)
-AC_CHECK_FUNCS(getpagesize strchr memset dlopen)
+AC_CHECK_FUNCS(getpagesize strchr memset dlopen vsnprintf)
 
 dnl Declaration checks
 

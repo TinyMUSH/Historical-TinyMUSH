@@ -421,7 +421,7 @@ int type;
 	if ((cp = get_free_entry(newdatalen)) == NULL)
 		return;
 
-	cp->keydata = (void *)malloc(keylen);
+	cp->keydata = (void *)XMALLOC(keylen, "cache_get");
 	memcpy(cp->keydata, keydata, keylen);
 	cp->keylen = keylen;
 	
@@ -548,7 +548,7 @@ int type;
 	if ((cp = get_free_entry(datalen)) == NULL)
 		return (1);
 
-	cp->keydata = (void *)malloc(keylen);
+	cp->keydata = (void *)XMALLOC(keylen, "cache_put");
 	memcpy(cp->keydata, keydata, keylen);
 	cp->keylen = keylen;
 	
@@ -866,7 +866,7 @@ int type;
 	if ((cp = get_free_entry(0)) == NULL)
 		return;
 
-	cp->keydata = (void *)malloc(keylen);
+	cp->keydata = (void *)XMALLOC(keylen, "cache_del");
 	memcpy(cp->keydata, keydata, keylen);
 	cp->keylen = keylen;
 

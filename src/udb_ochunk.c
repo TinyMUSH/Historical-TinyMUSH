@@ -156,7 +156,7 @@ int type;
 	
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)malloc(sizeof(int) + keylen);
+	s = key.dptr = (char *)XMALLOC(sizeof(int) + keylen, "dddb_get");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
 	memcpy((void *)s, (void *)&type, sizeof(int));
@@ -169,7 +169,7 @@ int type;
 	if (datalenptr)
 		*datalenptr = dat.dsize;
 
-	free(key.dptr);
+	XFREE(key.dptr, "dddb_get");
 }
 
 /* Pass dddb_put a key and its length, data and its length, and the type
@@ -188,7 +188,7 @@ int len;
 
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)malloc(sizeof(int) + keylen);
+	s = key.dptr = (char *)XMALLOC(sizeof(int) + keylen, "dddb_put");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
 	memcpy((void *)s, (void *)&type, sizeof(int));
@@ -201,13 +201,13 @@ int len;
 
 	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
 		logf("db_put: can't gdbm_store ", " ", (char *)-1, "\n", (char *)0);
-		free(dat.dptr);
-		free(key.dptr);
+		XFREE(dat.dptr, "dddb_put.dat");
+		XFREE(key.dptr, "dddb_put.key");
 		return (1);
 	}
 
-	free(dat.dptr);
-	free(key.dptr);
+	XFREE(dat.dptr, "dddb_put.dat");
+	XFREE(key.dptr, "dddb_put.key");
 
 	return (0);
 }
@@ -228,7 +228,7 @@ int type;
 
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)malloc(sizeof(int) + keylen);
+	s = key.dptr = (char *)XMALLOC(sizeof(int) + keylen, "dddb_del");
 	memcpy((void *)s, keydata, keylen); 
 	s += keylen;
 	memcpy((void *)s, (void *)&type, sizeof(int));
@@ -238,18 +238,18 @@ int type;
 
 	/* not there? */
 	if (dat.dptr == NULL) {
-		free(key.dptr);
+		XFREE(key.dptr, "dddb_del.key");
 		return (0);
 	}
 
-	free(dat.dptr);
+	XFREE(dat.dptr, "dddb_del.dat");
 
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {
 		logf("db_del: can't delete key\n", (char *)NULL);
-		free(key.dptr);
+		XFREE(key.dptr, "dddb_del.key");
 		return (1);
 	}
-	free(key.dptr);
+	XFREE(key.dptr, "dddb_del.key");
 	return (0);
 }

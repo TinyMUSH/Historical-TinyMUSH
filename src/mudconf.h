@@ -55,7 +55,6 @@ typedef struct confdata CONFDATA;
 struct confdata {
 	int	cache_size;	/* Maximum size of cache */
 	int	cache_width;	/* Number of cache cells */
-	int	cache_names;	/* Should object names be cached separately */
 	int	paylimit;	/* getting money gets hard over this much */
 	int	digcost;	/* cost of @dig command */
 	int	linkcost;	/* cost of @link command */

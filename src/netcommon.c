@@ -191,7 +191,11 @@ va_dcl
 #endif
 
 {
+#ifdef HAVE_VSNPRINTF
+	char buff[LBUF_SIZE];
+#else
 	char buff[20000];
+#endif
 	DESC *d;
 	int test_flag, which_flag, p_flag;
 	va_list ap;
@@ -210,8 +214,11 @@ va_dcl
 	if (!template || !*template)
 		return;
 
+#ifdef HAVE_VSNPRINTF
+	vsnprintf(buff, LBUF_SIZE, template, ap);
+#else
 	vsprintf(buff, template, ap);
-
+#endif
 	/* Note that this use of the flagwords precludes testing for
 	 * type in this function. (Not that this matters, since we
 	 * look at connected descriptors, which must be players.)

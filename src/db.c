@@ -52,7 +52,6 @@ extern void FDECL(desc_addhash, (DESC *));
 
 #ifdef TEST_MALLOC
 int malloc_count = 0;
-
 #endif /* TEST_MALLOC */
 
 extern VATTR *FDECL(vattr_rename, (char *, char *));

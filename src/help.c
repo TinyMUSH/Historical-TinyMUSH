@@ -198,12 +198,12 @@ int eval;
 		tf_fclose(fp);
 		return;
 	}
-	line = (char *)malloc(entry_length+1);
+	line = (char *)XMALLOC(entry_length+1, "help_write");
 	if (line == NULL) {
 		fprintf(mainlog_fp, "ABORT! help.c, line_malloc() failed to get memory.\n");
 		abort();
 	}
-	result = (char *)malloc(entry_length+1);
+	result = (char *)XMALLOC(entry_length+1, "help_write.2");
 	if (result == NULL) {
 		fprintf(mainlog_fp, "ABORT! help.c, result_malloc() failed to get memory.\n");
 		abort();
@@ -248,8 +248,8 @@ int eval;
 	}
 	*/
 	tf_fclose(fp);
-	free(line);
-	free(result);
+	XFREE(line, "help_write");
+	XFREE(result, "help_write.2");
 }
 
 /* ---------------------------------------------------------------------------

@@ -50,7 +50,11 @@ va_dcl
 #endif
 
 {
+#ifdef HAVE_VSNPRINTF
+	static char buff[LBUF_SIZE];
+#else
 	static char buff[20000];
+#endif
 	va_list ap;
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
@@ -62,7 +66,12 @@ va_dcl
 	format = va_arg(ap, char *);
 
 #endif
+
+#ifdef HAVE_VSNPRINTF
+	vsnprintf(buff, LBUF_SIZE, format, ap);
+#else
 	vsprintf(buff, format, ap);
+#endif
 	va_end(ap);
 	buff[LBUF_SIZE - 1] = '\0';
 	return buff;
@@ -77,7 +86,11 @@ va_dcl
 #endif
 
 {
+#ifdef HAVE_VSNPRINTF
+	int len, n;
+#else
 	static char buff[20000];
+#endif
 	va_list ap;
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
@@ -95,11 +108,25 @@ va_dcl
 #endif
 	/* Sigh, don't we wish _all_ vsprintf's returned int... */
 
+#ifdef HAVE_VSNPRINTF
+	n = LBUF_SIZE - (*bp - buff);
+	if (n <= 0) {
+		**bp = '\0';
+		return;
+	}
+	vsnprintf(buff, n, format, ap);
+	va_end(ap);
+	len = strlen(buff);
+	n = ((len < n) ? len : n);
+	*bp += n;
+	**bp = '\0';
+#else
 	vsprintf(buff, format, ap);
 	va_end(ap);
 	buff[LBUF_SIZE - 1] = '\0';
 	safe_str(buff, str, bp);
 	**bp = '\0';
+#endif
 }
 
 /* ---------------------------------------------------------------------------

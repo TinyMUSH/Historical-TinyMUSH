@@ -1038,7 +1038,7 @@ int db_read()
 	memcpy((void *)&mudstate.attr_next, (void *)dptr, sizeof(int));
 	dptr++;
 	memcpy((void *)&mudstate.record_players, (void *)dptr, sizeof(int));
-	free(data);
+	XFREE(data, "dddb_get");
 	
 	/* Load the attribute numbers */
 	
@@ -1052,7 +1052,7 @@ int db_read()
 			
 			/* dptr now points to the beginning of the atr name */
 			vattr_define((char *)dptr, i, vattr_flags);
-			free(data);
+			XFREE(data, "dddb_get");
 		}
 	}
 	
@@ -1080,7 +1080,7 @@ int db_read()
 				c_Connected(i);
 			}
 			
-			free(data);
+			XFREE(data, "dddb_get");
 		}
 	}	
 
@@ -1252,7 +1252,7 @@ int format, version;
 	} else {
 		/* This should be the only data record of its type */
 		
-		dptr = data = (int *)malloc(3 * sizeof(int));
+		dptr = data = (int *)XMALLOC(3 * sizeof(int), "db_write");
 		memcpy((void *)dptr, (void *)&mudstate.db_top, sizeof(int));
 		dptr++;
 		memcpy((void *)dptr, (void *)&i, sizeof(int));
@@ -1263,7 +1263,7 @@ int format, version;
 		
 		dddb_put((void *)"TM3", 4, (void *)data, (3 * sizeof(int)),
 			DBTYPE_DBINFO);
-		free(data);
+		XFREE(data, "db_write");
 	}
 		
 
@@ -1289,7 +1289,7 @@ int format, version;
 				vp->flags &= ~AF_DIRTY;
 #endif
 				len = strlen(vp->name) + 1;
-				dptr = data = (int *)malloc(sizeof(int) + len);
+				dptr = data = (int *)XMALLOC(sizeof(int) + len, "db_write.2");
 				memcpy((void *)dptr, (void *)&vp->flags, sizeof(int));
 				dptr++;
 				memcpy((void *)dptr, (void *)vp->name, len); 
@@ -1298,7 +1298,7 @@ int format, version;
 				
 				dddb_put((void *)&vp->number, sizeof(int),
 					data, sizeof(int) + len, DBTYPE_ATRNUM);
-				free(data);
+				XFREE(data, "db_write");
 			}
 		} else {
 #ifndef STANDALONE

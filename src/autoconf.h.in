@@ -219,6 +219,8 @@
 #undef HAVE_MEMSET
 /* Define if dlopen exists */
 #undef HAVE_DLOPEN
+/* Define if vsnprintf exists */
+#undef HAVE_VSNPRINTF
 
 /* Define if sys_siglist[] exists */
 #undef SYS_SIGLIST_DECLARED

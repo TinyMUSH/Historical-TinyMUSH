@@ -124,8 +124,8 @@ int format;
 		case F_QUIET:
 
 			/*
-			 * Quiet output - for dumps and internal use. * * * * 
-			 * Always #Num 
+			 * Quiet output - for dumps and internal use. 
+			 * Always #Num
 			 */
 
 			safe_str((char *)unparse_object_quiet(player, b->thing),
@@ -135,8 +135,6 @@ int format;
 
 			/*
 			 * Examine output - informative. * Name(#Num) or Name 
-			 * 
-			 * *  
 			 */
 
 			buff = unparse_object(player, b->thing, 0);
@@ -146,10 +144,8 @@ int format;
 		case F_DECOMPILE:
 
 			/*
-			 * Decompile output - should be usable on other * * * 
-			 * MUSHes. * *Name if player, Name if thing, else #Num 
-			 * 
-			 * *  
+			 * Decompile output - should be usable on other 
+			 * MUSHes. *Name if player, Name if thing, else #Num 
 			 */
 
 			switch (Typeof(b->thing)) {
@@ -168,9 +164,8 @@ int format;
 		case F_FUNCTION:
 
 			/*
-			 * Function output - must be usable by @lock cmd. * * 
-			 * 
-			 * *  * * *Name if player, else #Num 
+			 * Function output - must be usable by @lock cmd. 
+			 * *Name if player, else #Num 
 			 */
 
 			switch (Typeof(b->thing)) {

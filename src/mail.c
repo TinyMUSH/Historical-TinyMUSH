@@ -309,21 +309,19 @@ int number;
 
 /*
  * get_mail_message - returns the text for a particular number. This text
- * * should NOT be modified.
+ * should NOT be modified.
  */
 
 INLINE char *get_mail_message(number)
 int number;
 {
-	static char buff[LBUF_SIZE];
+	static char err[] = "MAIL: This mail message does not exist in the database. Please alert your admin.";
 
 	if (mod_mail_config.mail_list[number].message != NULL) {
 		return mod_mail_config.mail_list[number].message;
 	} else {
 		delete_mail_message(number);
-		StringCopy(buff,
-			   "MAIL: This mail message does not exist in the database. Please alert your admin.");
-		return buff;
+		return err;
 	}
 }
 
@@ -1908,10 +1906,9 @@ char *name;
 	int aflags, alen;
 
 	/*
-	 * Muck with the player's MAILFOLDERS attrib to add a string of the * 
-	 * 
-	 * *  * * form: number:name:number to it, replacing any such string
-	 * with a  *  * * * matching number. 
+	 * Muck with the player's MAILFOLDERS attrib to add a string of the
+	 * form: number:name:number to it, replacing any such string with a
+	 * matching number.
 	 */
 
 	new = alloc_lbuf("add_folder_name.new");
@@ -1921,9 +1918,9 @@ char *name;
 
 	sprintf(new, "%d:%s:%d ", fld, upcasestr(name), fld);
 	sprintf(pat, "%d:", fld);
-	/*
-	 * get the attrib and the old string, if any 
-	 */
+	
+	/* get the attrib and the old string, if any */
+	
 	old = NULL;
 
 	atrstr = atr_get(player, A_MAILFOLDERS, &player, &aflags, &alen);
@@ -1945,9 +1942,7 @@ char *name;
 		safe_str(new, res, &r);
 		*r = '\0';
 	}
-	/*
-	 * put the attrib back 
-	 */
+	/* put the attrib back */
 	atr_add(player, A_MAILFOLDERS, res, player,
 		AF_MDARK | AF_WIZARD | AF_NOPROG | AF_LOCK);
 	free_lbuf(str);
@@ -1963,8 +1958,7 @@ dbref player;
 {
 	/*
 	 * Return the player's current folder number. If they don't have one, 
-	 * 
-	 * *  * *  * * set * it to 0 
+	 * set it to 0 
 	 */
 	int flags, number, alen;
 	char *atrstr;
