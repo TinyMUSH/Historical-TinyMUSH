@@ -16,14 +16,20 @@ steps. You will need to do the following:
 - Edit mush.config and make sure that it's correct; it's basically like
   the old mush.config file from TinyMUSH 2.2, with some additional things.
 
-- Assuming that your flatfile is in the game directory, go into the game
-  directory and type the following:
+- Assuming that your flatfile is in the 'game' directory, go into the
+  'game' directory ('cd game').
 
-  sed -f cvt22.sed mygame.flat > NEW.flatfile
+  If you have perl installed on your system, type:
+
+      ./cvt22.pl < mygame.flat > NEW.flatfile
+
+  If you do not have perl installed on your system, type:
+
+      sed -f cvt22.sed mygame.flat > NEW.flatfile 
 
   (Substitute the name of your flatfile for 'mygame.flat'.)
-  This will take care of converting hasattr() function calls to
-  hasattrp() function calls.
+  This will take care of converting function calls to backwards-compatible
+  versions.
 
 - From the game directory, type:  ./Restore NEW.flatfile
   This will unflatfile (load) your database into TinyMUSH 3.0 format.

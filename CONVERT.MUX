@@ -11,14 +11,20 @@ steps. You will need to do the following:
 - Edit mush.config and make sure it's correct (it should basically be
   like your old mux.config file).
 
-- Assuming that your flatfile is in the game directory, go into the game
-  directory and type the following:
+- Assuming that your flatfile is in the 'game' directory, go into the
+  'game' directory ('cd game').
 
-  sed -f cvtmux.sed mygame.flat > NEW.flatfile
+  If you have perl installed on your system, type:
+
+      ./cvtmux.pl < mygame.flat > NEW.flatfile
+
+  If you do not have perl installed on your system, type:
+
+      sed -f cvtmux.sed mygame.flat > NEW.flatfile 
 
   (Substitute the name of your flatfile for 'mygame.flat'.)
-  This will take care of converting '%c' to '%x' and ifelse() function
-  calls to nonzero() function calls.
+  This will take care of converting function calls to backwards-compatible
+  versions, and the '%c' substitution to the '%x' substitution.
 
 - From the game directory, type:  ./Restore NEW.flatfile
   This will unflatfile (load) your database into TinyMUSH 3.0 format.

@@ -9,20 +9,24 @@ introduced. Non-specific version numbers indicate the following:
 	- MUX (Introduced in TinyMUX 1.6 or earlier.)
 	- 3.0 (Introduced in TinyMUSH 3.0 at some point in time.)
 
+Names after the bug origin version are the first sources for the bug
+reports. Where no name is given, the bug was discovered by the
+developers. ("RMG" refers to Robby Griffin, aka Alierak.)
+
 The initial beta release was on 9/27/99.
 
 -----------------------------------------------------------------------------
 
 9/28/99: Beta 2
 
-- Fix: Compilation problem with MEMORY_BASED defined. [3.0]
+- Fix: Compilation problem with MEMORY_BASED defined. [3.0; Roloran]
 
-- Fix: XFREE macro missing argument compiler error. [3.0]
+- Fix: XFREE macro missing argument compiler error. [3.0; Roloran]
 
-- Fix: Fatal error in let(). [3.0a8]
+- Fix: Fatal error in let(). [3.0a8; RMG]
 
 - Fix: Off-by-one, integer overflow, and bounds-checking issues. Verified
-  with Purify.
+  with Purify. [RMG]
 
 - Fix: Cannot set/reset ROBOT flag on players. [MUX]
 
@@ -30,20 +34,20 @@ The initial beta release was on 9/27/99.
 
 9/29/99: Beta 3
 
-- Fix: Pueblo support works again. [3.0]
+- Fix: Pueblo support works again. [3.0; GrimJim]
 
-- Fix: Structure names cannot contain periods. [3.0a8]
+- Fix: Structure names cannot contain periods. [3.0a8; stile]
 
 - Fix: translate() works as documented, and handles backslashes correctly.
-  [MUX]
+  [MUX; RMG]
 
-- Fix: pmatch() correctly handles dbrefs. [3.0a11]
+- Fix: pmatch() correctly handles dbrefs. [3.0a11; RMG]
 
-- Fix: Command switch issues fixed for @mail, @malias, @wipe. [2.0]
+- Fix: Command switch issues fixed for @mail, @malias, @wipe. [2.0; RMG]
 
-- Fix: Side-effect function permissions are checked more thoroughly. [MUX]
+- Fix: Side-effect function permissions are checked more thoroughly. [MUX; RMG]
 
-- Fix: Double-free issue in switchall(). [3.0a8]
+- Fix: Double-free issue in switchall(). [3.0a8; RMG]
 
 - Change: mix() can take up to twelve arguments (rather than ten).
 
@@ -55,20 +59,21 @@ The initial beta release was on 9/27/99.
 
 9/30/99: Beta 4
 
-- Fix: @clone correctly copies all flags. [3.0]
+- Fix: @clone correctly copies all flags. [3.0; RMG]
 
-- Fix: @open requires the invoker to have contents. [2.0]
+- Fix: @open requires the invoker to have contents. [2.0; RMG]
 
-- Fix: Parent recursion issues have been prevented in various places. [2.0]
+- Fix: Parent recursion issues have been prevented in various places.
+  [2.0; RMG]
 
 - Fix: parse() checks function invocations in a manner identical to iter().
-  [2.0]
+  [2.0; Myrrdin]
 
 - Fix: Slaves are reaped with waitpid() so zombies are not created by
-  @restart (may be Linux-specific problem). [MUX]
+  @restart (may be Linux-specific problem). [MUX; Myrddin]
 
 - Fix: Signals are unblocked at startup, allowing SIGUSR1 to be invoked
-  for later instances in restarts. [MUX]
+  for later instances in restarts. [MUX; RMG]
 
 - Misc: The unused parentable_control_lock parameter has been removed.
 
@@ -83,11 +88,11 @@ The initial beta release was on 9/27/99.
 - Feature: lstructures() and linstances() functions added.
 
 - Fix: @dbclean has been rewritten, and now works (and is more efficient).
-  [3.0]
+  [3.0; Thomas Wouters]
 
 - Fix: Where pow() is used in conjunction with htonl(), it is cast to
   unsigned int. This fixes a compilation issue with Linux and gcc -O.
-  [3.0a5]
+  [3.0a5; stile]
 
 - Fix: Some structures are no longer allocated as lbufs, but are explicitly
   malloc'd in a type-specific manner. [2.0]
@@ -95,26 +100,28 @@ The initial beta release was on 9/27/99.
 - Fix: Forwardlists are loaded before startups are run. [2.0]
 
 - Fix: @mail/fwd now explicitly checks to see if a mail message is in
-  progress. [MUX]
+  progress. [MUX; Dan Ryan]
 
-- Fix: INFO now works when used by logged-in players. [3.0a2]
+- Fix: INFO now works when used by logged-in players. [3.0a2; RMG]
 
-- Fix: trunc() truncates rather than rounds. [MUX]
+- Fix: trunc() truncates rather than rounds. [MUX; Keran]
 
 - Fix: Dumping and shutdown check to make sure the game is not already
-  dumping. [2.0]
+  dumping. [2.0; Geoff Gerrietts]
 
 - Fix: The display of exit destinations for Transparent rooms now handles
-  "special" exit destinations. [2.2/MUX]
+  "special" exit destinations. [2.2/MUX; RMG]
 
-- Fix: Some oddities with attribute renaming have been taken care of. [2.0]
+- Fix: Some oddities with attribute renaming have been taken care of.
+  [2.0; RMG]
 
 - Fix: The static buffers for Name and PureName are of the appropriate type.
-  [MUX]
+  [MUX; RMG]
 
-- Fix: Instance name lengths are restricted to half an sbuf. [3.0a8]
+- Fix: Instance name lengths are restricted to half an sbuf. [3.0a8; RMG]
 
 - Fix: Startmush handles checking if the game is running in a better manner.
+  [RMG]
 
 - Misc: The GDBM bucket cache size has been reduced to 1 bucket.
 
@@ -124,12 +131,12 @@ The initial beta release was on 9/27/99.
 
 - Fix: Money is no longer deducted twice when creating an object. [3.0]
 
-- Fix: Another pow()/htonl() fix. [3.0a5]
+- Fix: Another pow()/htonl() fix. [3.0a5; Markus Stenberg]
 
 - Fix: Various compile-time option #ifdef's cleaned up.
 
 - Fix: Removed spurious spaces in columns() when a string is truncated.
-  [3.0b2]
+  [3.0b2; Keran]
 
 - Fix: Cosmetic change to @list textfiles.
 
@@ -150,7 +157,7 @@ The initial beta release was on 9/27/99.
   For consistency, @clone/inherit no longer preserves IMMORTAL (only
   INHERIT).
 
-- Fix: Side-effect function prototypes exist again. [3.0b6]
+- Fix: Side-effect function prototypes exist again. [3.0b6; Tina Verras]
 
 - Fix: You can no longer set the cost of non-things in @clone (consistent
   with other object-creation commands). [MUX]
@@ -190,7 +197,7 @@ The initial beta release was on 9/27/99.
   characters.
 
 - Fix: SQL queries error out properly when support is not compiled in.
-  [3.0a13]
+  [3.0a13; Blane Dabney]
 
 - Fix: @clone/nostrip can be combined with all other @clone switches.
   [3.0b7]
@@ -198,7 +205,8 @@ The initial beta release was on 9/27/99.
 - Fix: The 2.2 database conversion converts the Builder flag to the
   Builder power, rather than just discarding the flag. [3.0a4]
 
-- Fix: Comtitles are terminated with ANSI_NORMAL where appropriate. [MUX]
+- Fix: Comtitles are terminated with ANSI_NORMAL where appropriate.
+  [MUX; Brazil]
 
 - Fix: sortby() no longer ignores its output delimiter. [2.2]
 
@@ -206,7 +214,7 @@ The initial beta release was on 9/27/99.
   ansi(). [3.0b7]
 
 - Fix: hastype() can be used on an object, even if you can't examine it,
-  since you can type() anything. [MUX]
+  since you can type() anything. [MUX; stile]
 
 - Misc: Typecast time_t to int when using it in conjunction with printf().
 
@@ -255,7 +263,7 @@ The initial beta release was on 9/27/99.
   the actual parameter names). A new command, @list params, shows
   a variety of other conf options.
 
-- Fix: left() works properly again. [3.0b8]
+- Fix: left() works properly again. [3.0b8; Jeff Hulsey]
 
 - Fix: format_exits conf parameter is recognized again. [3.0]
 
@@ -268,10 +276,11 @@ The initial beta release was on 9/27/99.
 - Feature: edit() can now edit ANSI strings. @edit also handles ANSI
   in a better manner.
 
-- Fix: Conf parameter unowned_safe is back. (Oops.) [3.0b9]
+- Fix: Conf parameter unowned_safe is back. (Oops.) [3.0b9; utoxin]
 
 - Fix: Failed movement through a global or zone exit results in
-  "You can't go that way." rather than no output. [2.0/2.2]
+  "You can't go that way." rather than no output.
+  [2.0/2.2; Markleford Friedman]
 
 - Fix: Fixed an obscure bug where, in the match confidence calculation,
   the "you can pass this lock" check always succeeded. [MUX]
@@ -295,3 +304,43 @@ The initial beta release was on 9/27/99.
 
   - Misc: Some minor improvements to the queueing of output.
 
+-----------------------------------------------------------------------------
+
+10/11/99: Beta 11
+
+- Feature: iter(), list(), switch(), and switchall() can now be nested
+  (i.e., the special tokens ##, #@, and #$ are substituted in-scope).
+  The new token '#!' gives nest level within iter() and list(), and
+  switch() and switchall().
+
+  This changes the parsing of these tokens, which are no longer blindly
+  substituted for, particularly with regard to escapes (for instance,
+  '\##' now results in a literal '##'). For backwards compatibility,
+  use parse() instead of iter() -- parse() behaves like it always has --
+  and use loop() instead of list(). There is no backwards-compatible
+  function for switch(), as it's unlikely there's softcode out there
+  that relies on a particular escaping behavior for '#$'.
+
+- Feature: Two new flag_access permission types have been implemented,
+  'restrict_player' makes a flag only settable on players by Wizards,
+  but on objects of other types by mortals (FIXED, for instance).
+  'privileged' makes a flag only settable on players by God, but
+  it can be set on objects of other types by non-robot players
+  who themselves have the flag.
+
+- Fix: Backspaces and deletes on an empty line should no longer result
+  in negative input totals. [2.0; RMG]
+
+- Fix: You can no longer give anything to an exit. [2.0; RMG]
+
+- Fix: Obvious Exits lists are no longer eaten for non-HTML players.
+  [3.0b10; Keran]
+
+- Misc: 'th' now aliases to 'think' rather than 'throw', by default.
+
+- Misc: udefault() can take up to 12 arguments.
+
+- Misc: Perl versions of the sed scripts for database conversion
+  now exist, and are recommended. (The vast majority of users will
+  have perl, and the perl regular expressions are less likely to
+  result in "false positive" conversions.)

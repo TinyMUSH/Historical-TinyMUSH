@@ -38,7 +38,12 @@ the other have been listed in the conversion notes for both servers.
   flags (for instance, 'function_access lwho marker0').
 
 - The access permissions of flags, including user-defined flags, can be
-  set via the flag_access config directive.
+  set via the flag_access config directive. In addition to permissions
+  for wizards, wizards/royalty, and god, there is a restrict_player
+  option (only settable by Wizards on players, but settable by mortals
+  on other types of things), and a privileged option (only settable by
+  God on players, but settable by non-robot players on other types of
+  things, if they themselves have the flag).
 
 - Command-table additions (@addcommand and family) are supported (a
   cleaned-up version of the MUX implementation). Three new conf parameters:

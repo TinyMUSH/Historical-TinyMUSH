@@ -1748,13 +1748,21 @@ use_global_aconn	wizard_obeys_linklock
 & flag_access
   Config parameter: flag_access <flag name> <access>
   
-  Changes who can set a flag. Access can be "any" (anyone can set it),
-  "royalty" (only Royalty or Wizards can set it), "wizard" (only Wizards
-  can set it), or "god" (only God can set it).
+  Changes who can set a flag. <access> can be:
+ 
+  any             - Anyone can set this flag.
+  restrict_player - Only Wizards can set this flag on players, but
+                    mortals can set the flag on objects of other types.
+  royalty         - Only Royalty, Wizards, and God can set this flag.
+  wizard          - Only Wizards and God can set this flag.
+  privileged      - Only God can set this flag on players, but non-robot
+                    players can set it on objects of other types, if
+                    they themselves have the flag.
+  god
  
   There are some flags whose access permissions cannot be changed,
   since they are handled in a special way. This includes the DARK,
-  FIXED, and MONITOR flags.
+  and AUDIBLE flags.
  
   The access permissions on user-defined flags default to "god".
  

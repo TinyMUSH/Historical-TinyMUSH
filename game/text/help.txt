@@ -7100,6 +7100,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   string that is to be evaluated once for each item in <list>, replacing
   the special symbol ## with the corresponding item from <list>, and 
   the special symbol #@ with the position of the item in the list.
+  The special tokens can be escaped out, i.e., '\##' returns a literal '##'.
  
   A list of the results of these evaluations is returned to the caller; if
   <output delim> is specified, it is used; otherwise, a space is used.
