@@ -670,19 +670,24 @@
  
 & @chzone
  
-  Command: @chzone <object>=<zone object>. 
+  Command: @chzone[/nostrip] <object>[=<zone object>]
   
-  Changes the zone of <object> to <zone object>. If <zone object> is "none",
-  the zone is reset to NOTHING.
+  Changes the zone of <object> to <zone object>. If <zone object> is not
+  specified, the zone is reset to NOTHING. (If the <zone object> is "none",
+  the zone is also reset; this is a compatibility feature.)
   
   @chzone'ing a player does not automatically change the zone of their
-  objects. Anyone may reset the zone of an object they own; <zone object>
-  must either be "none", or must be owned by them. Only wizards may @chzone
-  an object to an arbitrary zone object. Players may @chzone themselves to
-  an object they own; otherwise, only wizards may @chzone players.
-  @chzone'ing resets the WIZARD, ROYALTY, and INHERIT flags on non-player
-  objects.
-  
+  objects. Anyone may reset the zone of their own object, or re-zone it
+  to a zone object that they control. Only Wizards may @chzone an object
+  to an arbitrary zone object. Players may @chzone themselves to an
+  object they own; otherwise, only Wizards may @chzone players.
+ 
+  @chzone'ing a non-player object strips special flags (such as WIZARD,
+  INHERIT, etc.) from the object, as well as all powers, unless the
+  /nostrip switch is specified. If /nostrip is specified by God, special
+  flags and powers are not stripped; if anyone else specifies /nostrip,
+  only the WIZARD flag and powers will be stripped.
+ 
   See also: ZONE OBJECTS
   
 & @clone
