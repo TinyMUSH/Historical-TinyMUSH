@@ -298,7 +298,10 @@ int check_exclude, hash_insert;
 
 		/* decode it: search for first un escaped : */
 
-		for (s = buff + 1; *s && (*s != ':'); s++) ;
+		for (s = buff + 1;
+		     *s && ((*s != ':') || (*(s - 1) == '\\'));
+		     s++) 
+		    ;
 		if (!*s)
 			continue;
 		*s++ = 0;
