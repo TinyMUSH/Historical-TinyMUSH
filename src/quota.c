@@ -231,21 +231,32 @@ const char *tstr;
 	for (i = 0; i < 5; i++)
 		dq_list[i] = q_list[i] - rq_list[i];
 
-	if (Wizard(victim))
-		notify_quiet(player,
-			     tprintf("%-16s: %4d - N/A  %4d - N/A  %4d - N/A  %4d - N/A  %4d - N/A",
-				     Name(victim), dq_list[QTYPE_ALL],
-				   dq_list[QTYPE_ROOM], dq_list[QTYPE_EXIT],
-			      dq_list[QTYPE_THING], dq_list[QTYPE_PLAYER]));
-	else
-		notify_quiet(player,
-			     tprintf("%-16s: %4d - %3d  %4d - %3d  %4d - %3d  %4d - %3d  %4d - %3d",
-				     Name(victim),
-				     dq_list[QTYPE_ALL], q_list[QTYPE_ALL],
-				     dq_list[QTYPE_ROOM], q_list[QTYPE_ROOM],
-				     dq_list[QTYPE_EXIT], q_list[QTYPE_EXIT],
-				  dq_list[QTYPE_THING], q_list[QTYPE_THING],
-			      dq_list[QTYPE_PLAYER], q_list[QTYPE_PLAYER]));
+	if (Wizard(victim)) {
+		if (mudconf.typed_quotas)
+			notify_quiet(player,
+				     tprintf("%-16s: %4d - N/A  %4d - N/A  %4d - N/A  %4d - N/A  %4d - N/A",
+					     Name(victim), dq_list[QTYPE_ALL],
+					   dq_list[QTYPE_ROOM], dq_list[QTYPE_EXIT],
+				      dq_list[QTYPE_THING], dq_list[QTYPE_PLAYER]));
+		else
+			notify_quiet(player,
+				tprintf("%-16s: %4d - N/A", Name(victim),
+				dq_list[QTYPE_ALL]));
+	} else {
+		if (mudconf.typed_quotas)
+			notify_quiet(player,
+				     tprintf("%-16s: %4d - %3d  %4d - %3d  %4d - %3d  %4d - %3d  %4d - %3d",
+					     Name(victim),
+					     dq_list[QTYPE_ALL], q_list[QTYPE_ALL],
+					     dq_list[QTYPE_ROOM], q_list[QTYPE_ROOM],
+					     dq_list[QTYPE_EXIT], q_list[QTYPE_EXIT],
+					  dq_list[QTYPE_THING], q_list[QTYPE_THING],
+				      dq_list[QTYPE_PLAYER], q_list[QTYPE_PLAYER]));
+		else
+			notify_quiet(player,
+				tprintf("%-16s: %4d - %3d", Name(victim),
+				dq_list[QTYPE_ALL], q_list[QTYPE_ALL]));
+	}
 }
 
 static void show_quota(player, victim)
@@ -257,7 +268,10 @@ dbref player, victim;
 static void show_quota_header(player)
 dbref player;
 {
-	notify_quiet(player, "Name            : Quot - Lim  Room - Lim  Exit - Lim  Thin - Lim  Play - Lim");
+	if (mudconf.typed_quotas)
+		notify_quiet(player, "Name            : Quot - Lim  Room - Lim  Exit - Lim  Thin - Lim  Play - Lim");
+	else
+		notify_quiet(player, "Name            : Quot - Lim");
 }
 
 void do_quota(player, cause, key, arg1, arg2)

@@ -1055,7 +1055,7 @@ int key;
 		match = NULL;
 
 #ifdef PUEBLO_SUPPORT
-	if (e->flags & DS_PUEBLOCLIENT)
+	if ((e->flags & DS_PUEBLOCLIENT) && (Html(e->player)))
 		queue_string(e, "<pre>");
 #endif
 
@@ -1176,7 +1176,7 @@ int key;
 	queue_string(e, buf);
 	
 #ifdef PUEBLO_SUPPORT
-	if (e->flags & DS_PUEBLOCLIENT)
+	if ((e->flags & DS_PUEBLOCLIENT) && (Html(e->player)))
 		queue_string(e, "</pre>");
 #endif
 
