@@ -47,11 +47,11 @@
   @dig         @doing       @dolist      @drain       @edit        @emit
   @entrances   @eval        @femit       @find        @force       @fpose    
   @fsay        @halt        @last        @link        @list        @listmotd
-  @lock        @mvattr      @name        @notify      @oemit       @open 
-  @parent      @password    @pemit       @program     @ps          @quitprog
-  @quota       @robot       @search      @set         @stats       @sweep
-  @switch      @teleport    @trigger     @unlink      @unlock      @verb
-  @wait        @wipe
+  @lock        @mvattr      @mail        @malias      @name        @notify
+  @oemit       @open        @parent      @password    @pemit       @program
+  @ps          @quitprog    @quota       @robot       @search      @set
+  @stats       @sweep       @switch      @teleport    @trigger     @unlink
+  @unlock      @verb        @wait        @wipe
  
 { 'help commands2' for more }
 & commands2
@@ -78,19 +78,20 @@
  
 	ARBITRARY COMMANDS	ATTRIBUTE OWNERSHIP	BEING KILLED
 	BOGUS COMMANDS		BOOLEAN VALUES		COMMAND EVALUATION
-	CONTROL			COSTS			CREDITS
-	DELIMITERS		DROP-TO			ENACTOR      
-	EXITS			FAILURE			FLAG LIST
-	FLAGS			FUNCTION LIST		FUNCTIONS
-	GENDER			GOALS			HERE
-	HOMES			LINKING			LISTENING
-	LISTS			LOOPING			ME
-	MONEY			MOVING			OBJECT TYPES
-	PARENT OBJECTS		PATCHLEVEL		PIPING
-	PUPPETS			REGEXPS			ROBBERY
-	SEARCH CLASSES		SEMAPHORES		SPOOFING
-	STACK			SUBSTITUTIONS		SUCCESS
-	SWITCHES		VERBS			WIZARDS
+	COMSYS			CONTROL			COSTS		
+	CREDITS			DELIMITERS		DROP-TO
+	ENACTOR      		EXITS			FAILURE	
+	FLAG LIST		FLAGS			FUNCTION LIST
+	FUNCTIONS		GENDER			GOALS		
+	HERE			HOMES			LINKING
+	LISTENING		LISTS			LOOPING
+	ME			MONEY			MOVING
+	OBJECT TYPES		PARENT OBJECTS		PATCHLEVEL
+	PIPING			PUPPETS			REGEXPS
+	ROBBERY			SEARCH CLASSES		SEMAPHORES
+	SPOOFING		STACK			SUBSTITUTIONS
+	SUCCESS			SWITCHES		VERBS
+	WIZARDS
  
 & drop 
   Command: drop[/<switch>] <object>
@@ -8139,6 +8140,607 @@
  
   See also: STACK FUNCTIONS.
  
+& comsys
+ 
+  This is the help for the MUSH comsystem. Note that the channel
+  names and aliases are case-sensitive. Upon creation, new players
+  automatically join the "Public" channel, while guest characters join
+  channel "Guests" when they connect.
+ 
+  Note: <alias> is the alias you choose for the channel. 
+  The "Public" channel for new players is aliased to "pub".
+  The "Guests" channel for guests is aliases to "g".
+ 
+  Aliases are the most common way to manipulate channels, and may be used in
+  2 different ways:
+        <alias> <who|on|off>
+        <alias> <message>
+ 
+Continued in 'help comsys2'.
+ 
+& comsys2
+  
+  For example:
+  > pub off
+  [Public] Foobar has left this channel.
+ 
+  > pub on
+  You have joined channel Public.
+  [Public] Foobar has joined this channel.
+ 
+  > pub who
+  -- Players --
+  Foobar(#23PWc)
+  Wizard(#1PWc)
+  -- Objects --
+  -- Public --
+ 
+  > pub Hello world!  
+  [Public] Foobar says, "Hello world!"
+ 
+See 'help comsys commands' for a list of commands.
+ 
+& comsys commands
+ 
+  These are the topics for the MUSH comsystem:
+  
+  addcom       allcom       alias        comlist      comtitle     clearcom
+  delcom
+ 
+  @ccreate     @cboot       @ccharge     @cchown      @cdestroy    @clist
+  @coflags     @cpflags     @cset        @cwho
+  
+& @cboot
+ 
+  Command: @cboot <channel>=<object>
+ 
+  Only wizards, or the owner of the channel can use this command. It
+  forcefully removes an object from that channel.
+ 
+  Note: You may specify a player name as <object> if you prefix it with an
+  '*'. Otherwise, <object> should be a dbref, or a name of an object if you
+  are nearby it.
+ 
+& addcom
+ 
+  Command: addcom <alias>=<channel>
+        
+  This command joins you to an existing channel with <alias>. You should
+  avoid having multiple aliases for a channel, although it is allowed.
+  
+  See also: delcom, comlist, alias, comtitle.
+ 
+& alias
+ 
+  Command: <channel alias> <on|off|who|message|:pose|;pose>
+   
+  'on' allows you to turn an alias on.
+  'off' lets you temporarily leave that channel.
+  'who' shows you who is on that channel.
+ 
+  You may send a message over the channel with <alias> <text>, where <text>
+  is the message to be sent, or you can pose on a channel with
+  <alias> :<text> or <alias> ;<text>
+  
+  See also: allcom, comlist, addcom, delcom.
+ 
+& allcom
+ 
+  Command: allcom <on|off|who>
+         
+  This works like using a single alias, except it does an action for every
+  alias you have. You can turn every alias on, or off, or see who is on
+  every channel you subscribe to. 
+  
+  See also: alias, comtitle, delcom, addcom.
+ 
+& comlist
+ 
+  Command: comlist
+ 
+  Displays a list of all the aliases you are using, whether you are 'on' or
+  'off' the channel, and some information about them, such as your channel
+  title and status.
+  
+  See also: comtitle, addcom, alias, delcom.
+ 
+& comtitle
+ 
+  Command: comtitle <alias>=<title>
+ 
+  This command allows you to prefix your name on a channel with a title.
+ 
+  For example:
+  > comtitle pub=The Great and Powerful
+  Title set to 'The Great and Powerful' on channel Public.
+  > pub :waves to everyone.
+  [Public] The Great and Powerful Foobar waves to everyone.
+ 
+  See also: comlist, addcom, alias, delcom.
+ 
+& clearcom
+ 
+  Command: clearcom
+ 
+  Removes all your aliases for channels. You should be extremely careful
+  about this command, as it will wipe out all of your channel information.
+  
+  See also: addcom, delcom.
+ 
+& delcom
+ 
+  Command: delcom <alias>
+ 
+  Deletes <alias> from your list of channel aliases. If <alias> was the only
+  alias you had for a certain channel, you may no longer use that channel
+  until you add a new alias for it.
+  
+  See also: addcom, comlist, clearcom.
+ 
+& @ccreate
+ 
+  Command: @ccreate <channel name>
+ 
+  Creates a channel with default settings. Only wizards can create a channel.
+   
+  See also: @cdestroy, @clist, @cchown.
+ 
+& @cdestroy
+ 
+  Command: @cdestroy <channel>
+ 
+  Deletes <channel> permanently from the comsystem database. It does not
+  destroy all aliases that exist for <channel>, which is left to the owners of
+  those aliases. Players are notified at login when they own aliases for which
+  a channel no longer exists.
+ 
+  See also: @clist, @ccreate, @cchown.
+ 
+& @clist
+ 
+  Command: @clist[/full]
+ 
+  Without any switches, it will display the list of public channels with
+  their owner, and description. It will also display all channels you own.
+  With the /full switch, it will display the various channel statistics.
+  
+  See also: @ccreate, @cdestroy, @cchown.
+ 
+& @cwho
+ 
+  Command: @cwho <channel>[/all]
+ 
+  For channels that you own, identifies all connected players on the channel
+  and their stats for the channel. If switch is /all, then it also displays
+  unconnected players.
+  
+  See also: @clist.
+ 
+& @cchown
+ 
+  Command: @cchown <channel>=<player>
+ 
+  Changes ownership of <channel> to <player>.
+  
+  See also: @clist, @cwho.
+ 
+& @ccharge
+ 
+  Command: @ccharge <channel>=<amount>
+ 
+  This command imposes a charge of <amount> coins on transmitting over a
+  channel. The default fee when a channel is created is 0. All proceeds
+  benefit the channel owner.
+ 
+& @cpflags
+ 
+  Command: @cpflags <channel>=[!]flag
+ 
+  Sets player flags for that channel. The flag can be one of: join, transmit,
+  or receive.
+  
+  Transmit: Whether a player can broadcast things over the channel.
+  Join: Whether a player can join the channel.
+  Receive: Whether a player can receive messages over the channel.
+  
+  If it is !flag, then that flag is reset. Note that channel flags ALWAYS
+  override locks on channel objects.
+  
+  See also: @coflags, @clist, CHANNEL OBJECT.
+  
+& @coflags
+ 
+  Command: @coflags <channel>=[!]flag
+ 
+  Sets object flags for that channel. The flag can be one of: join, transmit,
+  or receive.
+  
+  Transmit: Whether an object can broadcast things over the channel.
+  Join: Whether an object can join the channel.
+  Receive: Whether a object can receive messages over the channel.
+  
+  If it is !flag, then that flag is reset. Note that channel flags ALWAYS
+  override locks on channel objects.
+  
+  See also: @coflags, @clist, CHANNEL OBJECT.
+ 
+& @cset
+
+  Command: @cset/<option> <channel>
+  Changes the way a channel behaves.  <option> can be one of the following:
+  public, private, loud, mute, quiet, object. Public makes it show up on
+  everyone's @clist, private hides it. Loud makes it announce
+  connects/disconnects.  Mute/quiet, shuts them off.
+
+  The object switch sets the channel object to whatever you specify.
+  It will allow you to set a description for the @clist, by @descing the
+  object.  Also, the lock will be used to check to see if people should be
+  able to join the channel or not.  See help channel object for more.
+
+& channel object
+ 
+  In the comsystem, you may specify a channel object for each channel. 
+  (@cset/object channel=<object>).
+   
+  Channel objects allow you to specify a description for a channel, and
+  place certain restrictions on joining, transmitting, and receiving.
+ 
+  NOTE: If a channel flag is set by @cpflags/@coflags, it will ALWAYS
+  override the equivalent lock. The flags are set by default, so you will
+  have to clear them before your locks work.
+ 
+  The join lock for a channel is a normal @lock on the channel object.  
+  The transmit lock for a channel is a use @lock on the channel object.
+  The receive lock for a channel is an enter @lock on the channel object.
+  The description of a channel is the @desc of the channel object.
+ 
+& cwho()
+  Function: cwho(<channel>)
+ 
+  Returns a list of dbrefs who are connected, and on that channel. 
+  This is limited to wizards and channel owners.
+ 
+& @malias
+ 
+  Command: @malias
+  
+  This allows you to generate and maintain mailing lists with the mail
+  system. All mail aliases start with '*', and are case-sensitive. (*dir is
+  different than *Dir).  There are two kinds of mail aliases, Personnal
+  and Global. Global mailing lists are owned and maintained by the god (#1)
+  char and are available for anyone to use.  Generally there will be
+  *Wizards, *Admin, *Roleplay, and things of that nature.  Personal mailing
+  aliases are mailing lists that you have defined with the @malias commad.
+  Currently there is no limit to the number of people you can have on a
+  mailing alias.
+ 
+  To begin sending mail to a mailing list, use @mail *<alias>=subject.
+  
+  Usage:
+  
+  @malias                   Displays a list of all mail aliases.
+  @malias *<alias>          Displays a list of people on that alias.
+  @malias *<alias>=<list>   Creates that mailing list, using <list>.
+  
+  For more help, see the following help topics.  All errors can be
+  sent to *Bugs, or Lauren.
+ 
+Continued in 'help @malias2'.
+ 
+& @malias2
+ 
+  You can add, remove, rename, chown, redescribe, and delete mailing lists
+  with a switch.
+  
+  @malias/remove *<alias>=<player>     Removes <player> from *<alias>.
+  @malias/desc *<alias>=<description>  Changes the description for *<alias>. 
+  @malias/add *<alias>=<player>        Adds <player> to *<alias>.
+  @malias/rename *<alias>=<name>       Renames that alias. Names must always
+                                       begin with '*'.
+  @malias/delete *<alias>              Deletes <alias>.
+  @malias/chown *<alias>=<player>      Changes the owner of <alias> to
+                                       <player>.
+ 
+  Wizards can use all of the malias commands on any mail alias. Instead of
+  trying to figure out different mailing lists with the same name, wizards
+  may use #<MALIAS NUMBER> instead of *alias in regards to the command.
+  Remember that the alias commands will only recognize aliases owned by #1,
+  owned by you, or by number.
+  
+  @malias/list                         When invoked by a wizard, it will
+                                       list all mailing aliases currently
+                                       defined by their number.
+ 
+& @mail
+
+  @mail[/<switches>] <player-list> = <subject>
+  @mail[/<switches>] [<msg-list> [= <target>]]
+ 
+  @mail invokes the built-in MUSH mailer, which allows players to send
+  and receive mail. Pronoun/function substitution is performed on
+  any messages you may try to send.
+ 
+  See 'help mail-players' for an explanation of what constitutes a
+  valid player list.
+ 
+  See 'help mail-messages' for an explanation of what constitutes a
+  valid message list.
+
+  See the following topics for more details:
+ 
+    mail-sending    mail-reading     mail-folders      mail-other
+    mail-admin      @malias          mail-reviewing    mail-examples
+ 
+& mail-players
+  Topic: Mail Player Lists
+ 
+  A <player-list> is a space-separated list of recipients, which may be:
+ 
+        Player names (names with spaces in them should be put in double
+                      quotes, ex: "Foo Bar")
+ 
+        Player dbref #'s
+ 
+	Message numbers to be replied to.
+ 
+	A mix of the above, and mail aliases (see @malias)
+ 
+& mail-messages
+  Topic: Mail Message Lists
+ 
+  A <msg-list> is one of the following:
+
+        A single msg # (ex: 3)
+ 
+        A message range (ex: 2-5, -7, 3-)
+ 
+        A sender (ex: *lauren)
+ 
+        An age of mail in days (ex: ~3 (exactly 3), <2, >1)
+           "days" here means 24-hour periods from the current time.
+ 
+        One of the following: "read", "unread", "cleared", "tagged", "urgent"
+ 
+        For certain commands, "all".
+ 
+& mail-reviewing
+   
+  @mail/review <player>
+	Reviews the messages you have sent to <player>.
+ 
+  @mail/review <player>=<msglist>
+	Reads the messages you have sent to <player>.
+ 
+  @mail/retract <player>=<msglist>
+	Retracts (deletes) unread messages you have sent to <player>.
+ 
+& mail-reading
+ 
+  @mail <msg #>
+  @mail/read <msg-list>
+        This displays messages which match the msg# or msg-list from
+        your current folder.
+ 
+  @mail
+  @mail <msg-list, but not a single msg #>
+        This gives a brief list of all mail in the current folder,
+        with sender name, a list of receiving players, subject, and
+        message status.
+  @mail/list [<msg-list>]
+        This gives the same list, but with time sent instead of subject.
+        The status field is a set of characters (ex: NC-UF+) which mean:
+                N = New (unread) message
+                C = Cleared message
+                U = Urgent message
+                F = Forwarded message
+                + = Tagged message
+        The opposites of these (read messages, etc.) are indicated with a
+        '-' in the status field in that position.
+ 
+& mail-sending
+
+  @mail[/switch] <player-list> = <subject>
+	This begins a message to all players in <player-list>.
+	-<text> adds text to the message in progress, for example
+		-This is a test
+	would add the text 'This is a test' to the end of your @mail
+	message, likewise, ~<text> prepends the text.
+	
+  @mail/send
+	This sends the message that is currently in progress.
+	-- is the equivalent of @mail/send. @mail/urgent sends
+	the message as urgent, and should not be used often.
+ 
+  @mail/cc <player-list>
+        This replaces the currect player list with a new one for carbon
+        copying. It does _not_ add onto the existing list.
+ 
+  See mail-sending2.
+ 
+& mail-sending2
+ 
+  @mail/proof
+	This shows you the message that is currently in progress, as
+	it would be read by whomever received it.
+  
+  @mail/edit <old text> = <new text>
+	Like @edit, but edits the message in process.
+ 
+  @mail/abort
+	This aborts the message currently in progress, allowing you
+	to start a new one.
+ 
+  @mail/fwd <msg> = <player-list>
+        This sends a copy of <msg> to all the players in <player-list>.
+        The copy will appear to have been sent by you (not the original
+        sender), and its status will be "Forwarded". Note that this places
+        the message to be forwarded into your mail buffer, where you can
+        edit it with @mail/edit, add text with '-', or prepend text with
+        '~'. You have to use '--' or @mail/send to send the message.
+ 
+  @mail/quick <player-list>/<subject> = <message>
+	Sends <message> to the list of players.
+  
+& mail-other
+
+  @mail/clear [<msg-list | all>]
+  @mail/unclear [<msg-list> | all>]
+        These commands mark mail in the current folder as cleared or uncleared.
+        Mail marked for clearing is deleted when you disconnect, or
+        if you use @mail/purge. If no msg-list is specified, all
+        mail in your current folder is cleared. If "all" is given instead
+        of a msg-list, all mail in *all* folders is cleared/uncleared.
+ 
+  @mail/purge
+        Actually deletes all messages marked for clearing with @mail/clear.
+        This is done automatically when you log out.
+ 
+  @mail/tag [<msg-list | all>]
+  @mail/untag [<msg-list> | all>]
+        These commands tag or untag mail in the current folder.
+        Tagged mail can be later acted on en masse by using "tagged" as
+        the msg-list for other commands (which does *not* untag them
+        afterward). If no msg-list is specified, all messages in the
+        current folder are tagged/untagged. If "all" is given as the
+        msg-list, all mail in *all* folders is tagged/untagged.
+        (Ex: To clear all mail from Lauren and Crusade, @mail/tag *lauren,
+        @mail/tag *crusade, @mail/clear tagged, @mail/untag all).
+ 
+{ 'help mail-other2' for more }
+& mail-other2
+ 
+  @mail/safe [<msg-list> | all>]
+        This command marks a message as being safe from mail expiration. It
+        should be used sparingly and only for very imporatant messages.
+ 
+& mail-folders
+
+  The MUSH mail system allows each player 16 folders, numbered from
+  0 to 15. Mail can only be in 1 folder at a time. Folder 0 is
+  the "inbox" where new mail is received. Most @mail commands
+  operate on only the current folder.
+ 
+  @mail/folder
+        This commands lists all folders which contain mail, telling
+        how many messages are in each, and what the current folder is.
+ 
+  @mail/folder <folder#|foldername>
+        This command sets your current folder to <folder#>.
+ 
+  @mail/folder <folder#> = <foldername>
+        This command gives <folder#> a name.
+ 
+  @mail/file <msg-list>=<folder#>
+        This command moves all messages in msg-list from the current
+        folder to a new folder, <folder#>.
+
+& mail-admin
+ 
+  The @mail command can also take the following switches:
+ 
+    @mail/stats [<player>]    --  Basic mail statistics.
+    @mail/dstats [<player>]   --  Also provides read/unread count.
+    @mail/fstats [<player>]   --  Does all that, plus gives space usage.
+ 
+    @mail/debug <action>[=<player>]
+    @mail/nuke
+ 
+  Only wizards may stats players other than themselves. The mail statistics
+  commands are computationally expensive, and thus are subject to "daytime"
+  restrictions. They also cost the same as a @find (100 credits).
+ 
+  The /debug switch does sanity checking on the mail database, and may only
+  be used by a wizard. "@mail/debug sanity" just does the check; the command
+  "@mail/debug clear=<player name or dbref number>" wipes mail for an object.
+  "@mail/debug fix" attempts to repair problems noted in the sanity check.
+ 
+  The /nuke switch destroys the post office, erasing all @mail everywhere.
+  It may only be used by a wizard.
+ 
+  Also, admin may set the @amail attrib on their char.  When somebody sends
+  you mail, it will trigger that attrib if it exists.
+
+& mail-examples
+ 
+  Here is an example of mailing a player, where is the player will be "bob",
+  and sending the mail.
+ 
+  > @mail bob = The MUSH              - This is the Subject line. 
+ 
+  Sending mail to player 'Bob'
+  > -Hi bob.                         - This is where you will enter the body
+                                       of the message.
+  Text Added.
+  > @send                            - Basically, sends the @mail.
+ 
+  MAIL: You sent your message to 'Bob'.   
+ 
+& @amail
+
+  Command: @amail <player> = <command-list>
+  Attribute: Amail
+ 
+  Sets the actions to be taken after a player receives @mail. This should
+  *never* @mail another player, as this could cause an infinite loop.
+ 
+  Example: @amail me=@mail/file [mail()]=2
+           This would place all incoming messages in folder #2.
+  See also: @mailsucc, @signature, @mail.
+ 
+& @mailsucc
+
+  Command: @mailsucc <player> = <message>
+  Attribute: Mailsucc
+ 
+  Sets a message to be displayed to the sender whenever <player> receives
+  mail.
+ 
+  Example: @mailsucc me=Thanks for the mail.
+  See also: @amail, @signature, @mail.
+ 
+& @signature
+
+  Command: @signature <player> = <message>
+  Attribute: Signature
+ 
+  Sets a message to be appended to ever @mail message you send. It is
+  appended directly at the end of the message, so if you wish to start the
+  signature on a new line you should begin it with a %r.
+ 
+  Example: @signature me=%rThis is a mail signature. (Note: You might want 
+  to include the %r at the front of the signature, other wise it will be 
+  combined with the @mail message.)
+
+  See also: @mailsucc, @amail, @mail.
+ 
+& MAIL()
+
+  mail(<mail message #>)
+  mail(<player name>)
+  mail(<player>, <mail message #>)
+  mail()
+
+  The first form returns a message corresponding to that mail message
+  number in your MUSH mailbox. This function can be used to forward
+  mail, or as a way to simply transfer mail messages to attributes
+  on an object.
+ 
+  The second form returns three numbers, corresponding to the number of
+  read, unread, and cleared messages <player> has.
+  The third form returns <player>'s <mail message #>. It works like
+  the first form except it applies to another player.
+  The last form returns the number of messages the evaluating player has.
+  Only wizards can use the second and third forms of the function
+  on other players.
+ 
+& MAILFROM()
+
+  Function: mailfrom(<msg #>)
+ 
+  Returns the dbref # of the player who sent you <msg #>. Wizards may
+  specify mailfrom(<player>,<msg #>).
+ 
+
 & TCL
 
 Topic: TCL
