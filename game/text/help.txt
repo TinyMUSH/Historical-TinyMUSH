@@ -897,7 +897,7 @@
     @dolist Frodo Bilbo Gandalf = page ## = HELP!!!!  I've fallen into a pit.
     @dolist/delimit , {Frodo, Bilbo Baggins, Gandalf} = page ## = HELP!!!!
  
-  See also: iter().
+  See also: iter(), DELIMITERS.
 
 & @drain
   Command: @drain <object>
@@ -4645,12 +4645,12 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   delimiter is not, the output delimiter will default to the input
   delimiter, rather than defaulting to a space.
  
-  Most functions that taken output delimiters can take a null output
-  delimiter (i.e., just string all the output together, with no
-  separator between each item). The null output delimiter is 
-  represented with '@@'.
+  Most functions that taken output delimiters can take a '%r' output
+  delimiter, as well as a null output delimiter (i.e., just string all
+  the output together, with no separator between each item). The null
+  output delimiter is represented by the token '@@'.
  
-  See examples:  iter(), map(), filter()
+  See examples:  iter(), map(), filter().
  
 & GENDER
   Topic: GENDER
@@ -7126,8 +7126,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "apple+banana+orange"
     > say [iter(1-2-3-4,inc(##),-,@@)]
     You say "2345"
+    > say [iter(1 2 3 4,inc(##),%b,%r)]
+    You say "2
+    3
+    4
+    5"
  
-  See also: @dolist, parse(), list(), loop(), map().
+  See also: @dolist, parse(), list(), loop(), map(), DELIMITERS.
  
 & LIST()
   Function: list(<list>, <eval>[, <delim>])
@@ -8078,7 +8083,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   passing it in as %0.  An <output delim>-separated list is returned of those
   elements for which the evaluation returns the value 1.
 
-  <delimiter> may be used to specify a delimiter other than space.
+  <delim> and <output delim> may be used to specify delimiters other than
+  spaces.
   
   Examples:
     > &IS_ODD object=mod(%0,2)
