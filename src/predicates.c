@@ -1321,8 +1321,14 @@ void do_restart(player, cause, key)
 	CLOSE;
 
 	sql_shutdown();
+
+	/* Even with WNOHANG, this leaves zombies around on Linux
+	 * unless we do the waitpid().
+	 */
 	shutdown(slave_socket, 2);
 	kill(slave_pid, SIGKILL);
+	waitpid(slave_pid, NULL, NULL);
+
 	alarm(0);
 	dump_restart_db();
 	execl(mudconf.exec_path, mudconf.exec_path, mudconf.config_file, NULL);
