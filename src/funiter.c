@@ -42,7 +42,6 @@ FUNCTION(perform_loop)
     str = fargs[0];
     exec(curr, &dp, player, caller, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	 &str, cargs, ncargs);
-    *dp = '\0';
     cp = trim_space_sep(cp, &isep);
     if (!*cp) {
 	free_lbuf(curr);
@@ -69,7 +68,6 @@ FUNCTION(perform_loop)
 	    dp = result = alloc_lbuf("perform_loop.2");
 	    exec(result, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	    *dp = '\0';
 	    notify(cause, result);
 	    free_lbuf(result);
 	}
@@ -137,7 +135,6 @@ FUNCTION(perform_iter)
     str = fargs[0];
     exec(list_str, &lp, player, caller, cause,
 	 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-    *lp = '\0';
     input_p = trim_space_sep(input_p, &isep);
     if (!*input_p) {
 	free_lbuf(list_str);
@@ -172,7 +169,6 @@ FUNCTION(perform_iter)
 	    dp = result = alloc_lbuf("perform_iter.out");
 	    exec(result, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	    *dp = '\0';
 	    if (need_bool) {
 		is_true = xlate(result);
 	    }
@@ -286,7 +282,6 @@ FUNCTION(fun_fold)
 		str = atextbuf;
 		exec(result, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
-		*bp = '\0';
 		i++;
 	} else {
 		clist[0] = split_token(&cp, &isep);
@@ -295,7 +290,6 @@ FUNCTION(fun_fold)
 		str = atextbuf;
 		exec(result, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
-		*bp = '\0';
 		i += 2;
 	}
 
@@ -313,7 +307,6 @@ FUNCTION(fun_fold)
 		str = atextbuf;
 		exec(result, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
-		*bp = '\0';
 		strcpy(rstore, result);
 		free_lbuf(result);
 		i++;
@@ -374,7 +367,6 @@ FUNCTION(handle_filter)
 		str = atextbuf;
 		exec(result, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
-		*bp = '\0';
 		if ((!flag && (*result == '1')) || (flag && xlate(result))) {
 		        if (*bufc != bb_p) {
 			    print_sep(&osep, buff, bufc);
@@ -716,7 +708,6 @@ FUNCTION(fun_munge)
 	str = atext;
 	exec(rlist, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, st, 2);
-	*bp = '\0';
 
 	/* Now that we have our result, put it back into array form. Search
 	 * through list1 until we find the element position, then 

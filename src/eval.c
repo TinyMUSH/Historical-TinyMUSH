@@ -256,7 +256,6 @@ char *dstr, delim, *fargs[], *cargs[];
 			str = tstr;
 			exec(fargs[arg], &bp, player, caller, cause,
 			     eval | EV_FCHECK, &str, cargs, ncargs);
-			*bp = '\0';
 		} else {
 			fargs[arg] = alloc_lbuf("parse_arglist");
 			strcpy(fargs[arg], tstr);

@@ -396,7 +396,6 @@ const char *msg;
 	    str = buf;
 	    exec(nbuf, &dp, object, player, player,
 		 EV_FIGNORE | EV_EVAL | EV_TOP, &str, (char **)NULL, 0);
-	    *dp = '\0';
 	    dp = nbuf;
 	    free_lbuf(buf);
 	    restore_global_regs("check_filter.restore", preserve);
@@ -457,7 +456,6 @@ const char *msg, *dflt;
 		exec(nbuf, &cp, object, player, player,
 		     EV_FIGNORE | EV_EVAL | EV_TOP, &str,
 		     (char **)NULL, 0);
-		*cp = '\0';
 		free_lbuf(buf);
 		restore_global_regs("add_prefix_restore", preserve);
 		buf = nbuf;

@@ -889,7 +889,6 @@ const void *s1, *s2;
 	str = tbuf;
 	exec(result, &bp, ucomp_player, ucomp_caller, ucomp_cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(elems[0]), 2);
-	*bp = '\0';
 	if (!result)
 		n = 0;
 	else {
@@ -1274,7 +1273,6 @@ FUNCTION(fun_columns)
 	str = fargs[0];
 	exec(curr, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	*bp = '\0';
 	cp = trim_space_sep(cp, &isep);
 	if (!*cp) {
 		free_lbuf(curr);

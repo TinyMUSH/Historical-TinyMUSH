@@ -730,7 +730,6 @@ FUNCTION(fun_let)
     str = fargs[0];
     exec(varlist, &bp, player, caller, cause,
 	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
-    *bp = '\0';
     n_xvars = list2arr(&xvar_names, LBUF_SIZE / 2, varlist, &SPACE_DELIM);
 
     if (n_xvars == 0) {
@@ -783,7 +782,6 @@ FUNCTION(fun_let)
 	str = fargs[1];
 	exec(elemlist, &bp, player, caller, cause,
 	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
-	*bp = '\0';
 	n_elems = list2arr(&elems, LBUF_SIZE / 2, elemlist, &isep);
 
 	if (n_elems != n_xvars) {

@@ -648,7 +648,6 @@ char *expr, *args[], *cargs[];
 		str = args[a];
 		exec(buff, &bp, player, cause, cause,
 		     EV_FCHECK | EV_EVAL | EV_TOP, &str, cargs, ncargs);
-		*bp = '\0';
 		if (wild_match(buff, expr)) {
 		        tbuf = replace_string(SWITCH_VAR, expr, args[a+1]);
 			if (now) {
@@ -1938,7 +1937,6 @@ char *master_attr(player, thing, what, sargs, nsargs, f_ptr)
 	    exec(tbuf, &tp, thing, player, player,
 		 EV_EVAL | EV_FIGNORE | EV_TOP,
 		 &sp, ((list == NULL) ? sargs : &list), is_ok);
-	    *tp = '\0';
 	    exec(buff, &bp, thing, player, player,
 		 EV_EVAL | EV_FIGNORE | EV_TOP,
 		 &str, &tbuf, 1);
@@ -2070,7 +2068,6 @@ const char *def, *odef;
 		    exec(tbuf, &tp, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &sp, args, nargs);
-		    *tp = '\0';
 		    exec(buff, &bp, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, &tbuf, 1);
@@ -2143,7 +2140,6 @@ const char *def, *odef;
 		    exec(tbuf, &tp, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &sp, args, nargs);
-		    *tp = '\0';
 		    exec(buff, &bp, thing, player, player,
 			 EV_EVAL | EV_FIGNORE | EV_TOP,
 			 &str, &tbuf, 1);

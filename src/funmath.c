@@ -1030,7 +1030,6 @@ FUNCTION(handle_logic)
 			bp = tbuf;
 			exec(tbuf, &bp, player, caller, cause,
 			     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
-			*bp = '\0';
 			val = ((oper == LOGIC_XOR) && val) ? !cvtfun(tbuf) : cvtfun(tbuf);
 			if (((oper == LOGIC_AND) && !val) ||
 			    ((oper == LOGIC_OR) && val))

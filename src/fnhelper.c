@@ -348,7 +348,6 @@ dbref player, caller, cause;
 	str = fargs[sep_arg - 1];
 	exec(tstr, &bp, player, caller, cause,
 	     EV_EVAL | EV_FCHECK, &str, cargs, ncargs);
-	*bp = '\0';
 	tlen = strlen(tstr);
     } else {
 	tstr = fargs[sep_arg - 1];

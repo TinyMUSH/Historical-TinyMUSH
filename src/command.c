@@ -317,7 +317,6 @@ int check_userdef_access(player, hookp, cargs, ncargs)
     exec(buf, &bp, hookp->thing, player, player,
 	 EV_EVAL | EV_FCHECK | EV_TOP,
 	 &str, cargs, ncargs);
-    *bp = '\0';
 
     restore_global_regs("check_userdef_access", preserve);
 
@@ -361,7 +360,6 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     buf = bp = alloc_lbuf("process_hook");
     exec(buf, &bp, hp->thing, player, player, EV_EVAL | EV_FCHECK | EV_TOP,
 	 &str, cargs, ncargs);
-    *bp = '\0';
     free_lbuf(buf);
 
     if (save_globs) {
@@ -515,7 +513,6 @@ int interactive, ncargs;
 			exec(buf1, &bp, player, cause, cause,
 			     interp | EV_FCHECK | EV_TOP,
 			     &str, cargs, ncargs);
-			*bp = '\0';
 		} else
 			buf1 = parse_to(&arg, '\0', interp | EV_TOP);
 
@@ -662,7 +659,6 @@ int interactive, ncargs;
 		exec(buf1, &bp, player, cause, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL | EV_TOP,
 		     &str, cargs, ncargs);
-		*bp = '\0';
 
 		if (cmdp->callseq & CS_ARGV) {
 
@@ -700,7 +696,6 @@ int interactive, ncargs;
 				exec(buf2, &bp, player, cause, cause,
 				     interp | EV_FCHECK | EV_TOP,
 				     &str, cargs, ncargs);
-				*bp = '\0';
 			} else if (cmdp->callseq & CS_UNPARSE) {
 				buf2 = parse_to(&arg, '\0',
 					  interp | EV_TOP | EV_NO_COMPRESS);
@@ -1033,7 +1028,6 @@ char *command, *args[];
 	bp = lcbuf;
 	exec(lcbuf, &bp, player, cause, cause,
 	     EV_EVAL | EV_FCHECK | EV_STRIP | EV_TOP, &str, args, nargs);
-	*bp = '\0';
 	free_lbuf(evcmd);
 	succ = 0;
 

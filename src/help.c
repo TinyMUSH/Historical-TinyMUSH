@@ -202,7 +202,6 @@ int eval;
 			exec(result, &bp, 0, player, player,
 			     EV_NO_COMPRESS | EV_FIGNORE | EV_EVAL, &str,
 			     (char **)NULL, 0);
-			*bp = '\0';
 			notify(player, result);
 		} else
 			notify(player, line);
@@ -293,7 +292,6 @@ void help_helper(player, hf_num, eval, topic, buff, bufc)
 	    exec(result, &bp, 0, player, player,
 		 EV_NO_COMPRESS | EV_FIGNORE | EV_EVAL, &str,
 		 (char **)NULL, 0);
-	    *bp = '\0';
 	    safe_str(result, buff, bufc);
 	} else {
 	    safe_str(line, buff, bufc);

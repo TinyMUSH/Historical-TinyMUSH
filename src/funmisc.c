@@ -50,7 +50,6 @@ FUNCTION(fun_switchall)
     str = fargs[0];
     exec(mbuff, &bp, player, caller, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	 &str, cargs, ncargs);
-    *bp = '\0';
 
     /* Loop through the patterns looking for a match */
 
@@ -63,7 +62,6 @@ FUNCTION(fun_switchall)
 	str = fargs[i];
 	exec(tbuff, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	*bp = '\0';
 	if (quick_wild(tbuff, mbuff)) {
 	    got_one = 1;
 	    free_lbuf(tbuff);
@@ -106,7 +104,6 @@ FUNCTION(fun_switch)
 	str = fargs[0];
 	exec(mbuff, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	*bp = '\0';
 
 	/* Loop through the patterns looking for a match */
 
@@ -119,7 +116,6 @@ FUNCTION(fun_switch)
 		exec(tbuff, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, cargs, ncargs);
-		*bp = '\0';
 		if (quick_wild(tbuff, mbuff)) {
 			free_lbuf(tbuff);
 			mudstate.switch_token = mbuff;
@@ -165,7 +161,6 @@ FUNCTION(fun_case)
 	str = fargs[0];
 	exec(mbuff, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	*bp = '\0';
 
 	/* Loop through the patterns looking for an exact match */
 
@@ -175,7 +170,6 @@ FUNCTION(fun_case)
 	    exec(tbuff, &bp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL,
 		 &str, cargs, ncargs);
-	    *bp = '\0';
 	    if (!strcmp(tbuff, mbuff)) {
 		free_lbuf(tbuff);
 		str = fargs[i + 1];
@@ -211,7 +205,6 @@ FUNCTION(fun_ifelse)
 	str = fargs[0];
 	exec(mbuff, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	*bp = '\0';
 	
 	if (!mbuff || !*mbuff || !xlate(mbuff)) {
 		if (nfargs != 3) {
@@ -243,7 +236,6 @@ FUNCTION(fun_nonzero)
 	str = fargs[0];
 	exec(mbuff, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	*bp = '\0';
 	
 	if (!mbuff || !*mbuff || ((atoi(mbuff) == 0) && is_number(mbuff))) {
 		if (nfargs != 3) {

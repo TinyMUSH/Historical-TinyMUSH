@@ -409,7 +409,6 @@ static dbref find_var_dest(player, exit)
     str = buf;
     exec(ebuf, &ep, exit, player, player, EV_FCHECK | EV_EVAL | EV_TOP,
 	 &str, (char **) NULL, 0);
-    *ep = '\0';
     free_lbuf(buf);
     restore_global_regs("find_var_dest_save", preserve);
 

@@ -1539,7 +1539,6 @@ FUNCTION(fun_default)
 	str = fargs[0];
 	exec(objname, &bp, player, caller, cause,
 	     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
-	*bp = '\0';
 
 	/* First we check to see that the attribute exists on the object.
 	 * If so, we grab it and use it. 
@@ -1584,7 +1583,6 @@ FUNCTION(fun_edefault)
 	str = fargs[0];
 	exec(objname, &bp, player, caller, cause,
 	     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
-	*bp = '\0';
 
 	/* First we check to see that the attribute exists on the object. 
 	 * If so, we grab it and use it. 
@@ -1634,7 +1632,6 @@ FUNCTION(fun_udefault)
     objname = bp = alloc_lbuf("fun_udefault");
     exec(objname, &bp, player, caller, cause,
 	 EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
-    *bp = '\0';
 
     /* First we check to see that the attribute exists on the object.
      * If so, we grab it and use it. 
@@ -1704,7 +1701,6 @@ FUNCTION(fun_objeval)
 	str = fargs[0];
 	exec(name, &bp, player, caller, cause,
 	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
-	*bp = '\0';
 	obj = match_thing(player, name);
 
 	/* In order to evaluate from something else's viewpoint, you must
@@ -2326,7 +2322,6 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
 	bp = result;
 	exec(result, &bp, player, caller, cause, 
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &tp, tstack, 3);
-	*bp = '\0';
 	if (result && *result) {
 	    if ((key == SAY_SAY) && (spos == 0)) {
 		safe_tprintf_str(buff, bufc, "%s %s %s",
@@ -2342,7 +2337,6 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
 	    bp = result;
 	    exec(result, &bp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &tp, estack, 2);
-	    *bp = '\0';
 	    if (result && *result) {
 		safe_str(result, buff, bufc);
 	    }

@@ -161,7 +161,6 @@ BOOLEXP *b;
 			      player : lock_originator),
 			     player, EV_FCHECK | EV_EVAL | EV_TOP,
 			     &str, (char **)NULL, 0);
-			*bp = '\0';
  			restore_global_regs("eval_boolexp_save", preserve);
 			checkit = !string_compare(buff2, (char *)b->sub1);
 			free_lbuf(buff2);

@@ -232,7 +232,6 @@ char *message;
 	str = atrstr;
 	exec(execstr, &bp, player, player, player,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, (char **)NULL, 0);
-	*bp = '\0';
 
 	mod_mail_config.mail_list[number].message = XSTRDUP(tprintf("%s %s", message, execstr), "add_mail_message");
 	free_lbuf(atrstr);

@@ -35,6 +35,11 @@ Release history:
   could corrupt the buffer it evaluated in, causing inconsistent
   behavior. [3.0; Draci]
 
+- Misc: Compatibility update for x86_64 cpu types (e.g. opteron).
+
+- Misc: Code cleanup around parser calls, after making sure the parser
+  always nul-terminates its own output.
+
 08/13/2003: Beta 11
 
 - Fix: @trigger/now switch had no effect. [3.1b7; Draci]

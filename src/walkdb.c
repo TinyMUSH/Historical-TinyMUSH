@@ -810,7 +810,6 @@ SEARCH *parm;
 			exec(result, &bp, player, cause, cause,
 			     EV_FCHECK | EV_EVAL | EV_NOTRACE, &str,
 			     (char **)NULL, 0);
-			*bp = '\0';
 			free_lbuf(buff2);
 			if (!*result || !xlate(result)) {
 				free_lbuf(result);
@@ -829,7 +828,6 @@ SEARCH *parm;
 		    exec(result, &bp, player, cause, cause,
 			 EV_FCHECK | EV_EVAL | EV_NOTRACE, &str,
 			 &buff, 1);
-		    *bp = '\0';
 		    if (!*result || !xlate(result)) {
 			free_lbuf(result);
 			continue;
