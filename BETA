@@ -759,3 +759,46 @@ The initial beta release was on 9/27/99.
 - Misc: INLINE is used correctly now.
 
 - Misc: Miscellaneous cleanup, including clean compilation under Solaris.
+
+-----------------------------------------------------------------------------
+
+6/12/2000: Beta 21
+
+- Fix: Whitespace in @cron entries is now handled properly. [3.0b8]
+
+- Fix: Logic bug in setting drop-tos. [3.0a3]
+
+- Fix: Idle time is now updated when a user enters input into a @program.
+  [MUX]
+
+- Fix: Small problem in @list site_information. [2.2]
+
+- Fix: An off-by-one error in attribute compression has been fixed. [3.0b16]
+
+- Misc: The behavior of the main and diverted logfiles across @restart
+  and @logrotate commands is now consistent. Old logfiles are given a
+  timestamp; the current logfile being written to is always the
+  "basic" name of the logfile. This allows old logfiles to be
+  readily removed to reclaim disk space, and allows any external
+  log-processing tools to always operate on the same filename.
+  The 'game_log' parameter needs to be defined appropriately
+  in netmush.conf (or equivalent).
+
+- Misc: The definition of '#!' has been changed, with the first nesting
+  level as 0 rather than 1. This has been done for PennMUSH compatibility
+  reasons. (In all likelihood, nobody was using it anyway, since it's
+  not useful until the next release introduces itext(), etc.)
+
+- Misc: When an object of typing Thing has only marker flags, an
+  underscore is used to separate the dbref from the flags, i.e.,
+  dbref #3 with marker flag 2 is now '#3_2'.
+ 
+- Misc: There can only be a space between the function name and the
+  open-parens if the parser is being required to interpret parens
+  as a function call; i.e.m 'say space (3)' is treated differently
+  from 'say [space (3)]'. 
+
+- Misc: A_USER_START is no longer used in defining the size of the
+  command table.
+ 
+- Misc: More floating-point cleanup.
