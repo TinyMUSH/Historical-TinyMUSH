@@ -171,7 +171,8 @@ DEBUG	= $(OPTIM)
 ALLCFLAGS = $(CFLAGS) $(DEBUG) $(DEFS) $(COMPRESS_DEFS) $(BASED) $(MALLOC_DEFS) $(CONC_DEFS) $(MOREDEFS) $(RLIM_F)
 
 #Auxiliary files
-A_INST	= README NOTES HIGHLIGHTS CREDITS CHANGES
+A_INST	= CREDITS CHANGES CHANGES.TINY20 CHANGES.TINY22 CHANGES.MUX \
+	  CONVERT.TINY22 CONVERT.MUX FAQ INSTALL README README.TOOLS
 A_TXT	= badsite.txt connect.txt create_reg.txt down.txt guest.txt help.txt \
 	  motd.txt news.txt newuser.txt quit.txt register.txt wizhelp.txt \
 	  wizmotd.txt full.txt plushelp.txt wiznews.txt
