@@ -72,7 +72,7 @@ char *modname;
 	dddb_get((void *)modname, strlen(modname) + 1, &data, NULL, DBTYPE_MODULETYPE);
 
 	if (data) {
-		type = *(unsigned int)data;
+		memcpy((void *)&type, (void *)data, sizeof(unsigned int));
 		XFREE(data, "register_dbtype");
 		return type;
 	}
@@ -81,7 +81,7 @@ char *modname;
 	 * an error code */
 	 
 	if ((mudstate.moduletype_top >= DBTYPE_RESERVED) &&
-	    (mudstate.moduletype_top < DBTYPE_END) {
+	    (mudstate.moduletype_top < DBTYPE_END)) {
 		/* Write the entry to GDBM */
 		
 		dddb_put((void *)modname, strlen(modname) + 1, (void *)&mudstate.moduletype_top, sizeof(unsigned int), DBTYPE_MODULETYPE);
