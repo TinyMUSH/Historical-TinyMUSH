@@ -310,7 +310,6 @@ void NDECL(cf_init)
 	mudconf.stack_lim = 50;
 	mudconf.struct_lim = 100;
 	mudconf.instance_lim = 100;
-	mudconf.cache_trim = 0;
 	mudconf.cache_width = CACHE_WIDTH;
 	mudconf.cache_size = CACHE_SIZE;
 	mudconf.cache_names = 1;
@@ -419,7 +418,6 @@ void NDECL(cf_init)
 	mudconf.markdata[6] = 0x40;
 	mudconf.markdata[7] = 0x80;
 	mudconf.ntfy_nest_lim = 20;
-	mudconf.cache_trim = 0;
 
 	mudstate.logging = 0;
 	mudstate.attr_next = A_USER_START;
@@ -1298,7 +1296,6 @@ CONF conftable[] = {
 {(char *)"building_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	(int *)&mudconf.building_limit,	0},
 {(char *)"cache_names",			cf_bool,	CA_STATIC,	CA_GOD,		&mudconf.cache_names,		(long)"Names are cached separately"},
 {(char *)"cache_size",			cf_int,		CA_STATIC,	CA_GOD,		&mudconf.cache_size,		0},
-{(char *)"cache_trim",			cf_bool,	CA_GOD,		CA_GOD,		&mudconf.cache_trim,		(long)"Cache trimmed periodically"},
 {(char *)"cache_width",			cf_int,		CA_STATIC,	CA_GOD,		&mudconf.cache_width,		0},
 {(char *)"check_interval",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_interval,	0},
 {(char *)"check_offset",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_offset,		0},
@@ -1699,7 +1696,9 @@ void cf_display(player, param_name, buff, bufc)
 		safe_noperm(buff, bufc);
 		return;
 	    }
-	    if ((tp->interpreter == cf_int) || (tp->interpreter == cf_bool)) {
+	    if ((tp->interpreter == cf_bool) ||
+		(tp->interpreter == cf_int) ||
+		(tp->interpreter == cf_const)) {
 		safe_ltos(buff, bufc, *(tp->loc));
 		return;
 	    }
