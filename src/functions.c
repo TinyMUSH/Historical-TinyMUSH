@@ -64,6 +64,7 @@ XFUNCTION(fun_last);
 XFUNCTION(fun_matchall);
 XFUNCTION(fun_ports);
 XFUNCTION(fun_mix);
+XFUNCTION(fun_step);
 XFUNCTION(fun_foreach);
 XFUNCTION(fun_munge);
 XFUNCTION(fun_visible);
@@ -6065,6 +6066,7 @@ FUN flist[] = {
 {"SQUISH",	fun_squish,	0,  FN_VARARGS,	CA_PUBLIC},
 {"STARTTIME",	fun_starttime,	0,  0,		CA_PUBLIC},
 {"STATS",	fun_stats,	1,  0,		CA_PUBLIC},
+{"STEP",	fun_step,	0,  FN_VARARGS, CA_PUBLIC},
 {"STRCAT",	fun_strcat,	0,  FN_VARARGS,	CA_PUBLIC},
 {"STREQ",	fun_streq,	2,  0,		CA_PUBLIC},
 {"STRIPANSI",	fun_stripansi,	1,  0,		CA_PUBLIC},

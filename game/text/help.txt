@@ -4466,7 +4466,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	member()	mix()		munge()		remove()	
 	replace()	rest()		revwords()	setdiff()	
 	setinter()	setunion()	shuffle()	sortby()	
-	sort()		splice()	while()		words()
+	sort()		splice()	step()		while()
+	words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -8093,7 +8094,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   > say map(object/add_one,1 2 3 4 5,-,@@)
   You say "23456"
   
-  See also: filter(), fold(), iter(), u().
+  See also: filter(), fold(), iter(), step(), u().
 
 & filter()
   Function: filter([<obj>/]<attr>, <list>[, <delim>][, <output delim>])
@@ -8678,7 +8679,27 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   > &add_nums me=[add(%0,%1,%2,%3,%4)]
   > say [mix(add_nums,1 2,3 4,5 6,7 8,9 10,)]
   You say "25 30"
-
+ 
+& STEP()
+  step([<object>/]<attribute>,<list>,<step size>[,<delim>[,<output delim>]])
+ 
+  This function takes elements of <list>, <step size> elements at a time,
+  and passes them to the function defined by <attribute>, as %0, %1, %2,
+  etc. The number of elements in the list does not need to be evenly
+  divisible by the step size. If no delimiters are provided, a space is
+  used as the delimiter. The step size must be at least 1, and no greater
+  than 10. Calling this function with a step size of 1 is equivalent to
+  using map().
+ 
+  Example:
+ 
+    > &print_line me = %r%0 -- %1 -- %2
+    > say [step(print_line,1 2 3 4 5 6 7 8,3)]
+    You say "
+    1 -- 2 -- 3
+    4 -- 5 -- 6
+    7 -- 8 --"
+ 
 & DOING()
   doing(<player name>)
  

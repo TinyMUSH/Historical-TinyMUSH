@@ -3198,6 +3198,70 @@ FUNCTION(fun_mix)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_step: A little like a fusion of iter() and mix(), it takes elements
+ * of a list X at a time and passes them into a single function as %0, %1,
+ * etc.   step(<attribute>,<list>,<step size>,<delim>,<outdelim>)
+ */
+
+FUNCTION(fun_step)
+{
+    ATTR *ap;
+    dbref aowner, thing;
+    int aflags, anum;
+    char *atext, *str, *cp, *atextbuf, *bb_p, *os[10];
+    char sep, osep;
+    int step_size, i;
+
+    svarargs_preamble("STEP", 5);
+
+    step_size = atoi(fargs[2]);
+    if ((step_size < 1) || (step_size > NUM_ENV_VARS)) {
+	notify(player, "Illegal step size.");
+	return;
+    }
+
+    /* Get attribute. Check permissions. */
+
+    if (parse_attrib(player, fargs[0], &thing, &anum)) {
+	if ((anum == NOTHING) || !Good_obj(thing))
+	    ap = NULL;
+	else
+	    ap = atr_num(anum);
+    } else {
+	thing = player;
+	ap = atr_str(fargs[0]);
+    }
+    if (!ap)
+	return;
+
+    atext = atr_pget(thing, ap->number, &aowner, &aflags);
+    if (!atext)
+	return;
+    if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
+	free_lbuf(atext);
+	return;
+    }
+
+    cp = trim_space_sep(fargs[1], sep);
+    atextbuf = alloc_lbuf("fun_step");
+    bb_p = *bufc;
+    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+	if (*bufc != bb_p) {
+	    print_sep(osep, buff, bufc);
+	}
+	for (i = 0; cp && (i < step_size); i++)
+	    os[i] = split_token(&cp, sep);
+	strcpy(atextbuf, atext);
+	str = atextbuf;
+	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	     &str, &(os[0]), i);
+    }
+    free_lbuf(atext);
+    free_lbuf(atextbuf);
+}
+
+
+/* ---------------------------------------------------------------------------
  * fun_foreach: like map(), but it operates on a string, rather than on a list,
  * calling a user-defined function for each character in the string.
  * No delimiter is inserted between the results.
