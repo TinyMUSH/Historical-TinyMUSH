@@ -85,7 +85,7 @@ fi
 if [ -r "mail.db" ]; then
 	cp -f mail.db mail.db.old
 elif [ -r "$DATA/mail.db" ]; then
-	cp -f $DATA/mail.db $DATA/mail.db
+	cp -f $DATA/mail.db $DATA/mail.db.old
 else
 	echo "No previous mail database."
 fi
