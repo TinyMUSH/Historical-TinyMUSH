@@ -1238,6 +1238,11 @@ int key;
 
 static int NDECL(load_game)
 {
+	/* Calculate proper database block size */
+	
+	for (mudstate.db_block_size = 1; mudstate.db_block_size < LBUF_SIZE;
+		mudstate.db_block_size = mudstate.db_block_size << 1) ;
+
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
 		log_printf("Loading object structures.");
 	ENDLOG

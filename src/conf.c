@@ -416,6 +416,7 @@ void NDECL(cf_init)
 	mudstate.freelist = NOTHING;
 	mudstate.markbits = NULL;
 	mudstate.fs_block_size = 8192;
+	mudstate.db_block_size = 8192;
 #endif /* STANDALONE */
 }
 

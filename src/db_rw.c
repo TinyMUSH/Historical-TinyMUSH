@@ -1017,7 +1017,8 @@ int *db_format, *db_version, *db_flags;
 
 int db_read()
 {
-	int *data, *dptr, vattr_flags, i;
+	int *data, *dptr, vattr_flags, i, j, blksize, num, len;
+	char *cdata, *cdptr;
 
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;
@@ -1044,18 +1045,36 @@ int db_read()
 	
 	/* Load the attribute numbers */
 	
-	for (i = A_USER_START; i < mudstate.attr_next; i++) {
-		ATRNUM_FETCH(i, &data);
-		if (data) {
+	blksize = ATRNUM_BLOCK_SIZE;
+	
+	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.attr_next, blksize); i++) {
+		ATRNUM_FETCH(i, &cdata, &len);
+		if (cdata) {
 			/* Unroll the data into flags and name */
 			
-			dptr = data;	
-			memcpy((void *)&vattr_flags, (void *)dptr, sizeof(int));
-			dptr++;
-			
-			vattr_define((char *)dptr, i, vattr_flags);
-			XFREE(data, "db_read.atrnum");
+			cdptr = cdata;	
+			memcpy((void *)&num, (void *)cdptr, sizeof(int));
+			cdptr += sizeof(int);
+
+			while ((cdptr - cdata) < len) {
+				memcpy((void *)&j, (void *)cdptr, sizeof(int));
+				cdptr += sizeof(int);
+				memcpy((void *)&vattr_flags, (void *)cdptr, sizeof(int));
+				cdptr += sizeof(int);
+				vattr_define(cdptr, j, vattr_flags);
+				cdptr = strchr((const char *)cdptr, '\0');
+				
+				if (!cdptr) {
+					/* Houston, we have a problem */
+					fprintf(mainlog_fp,
+						"\nError reading attribute number %d\n",
+						j + ENTRY_BLOCK_STARTS(i, blksize));
+				}
+				
+				cdptr++;
+			}
 		}
+		XFREE(data, "db_read.atrnum");
 	}
 	
 	/* Load the object structures */
@@ -1283,9 +1302,11 @@ int format, version;
 
 dbref db_write()
 {
-	dbref i;
+	dbref obj;
 	VATTR *vp;
-	int *data, *dptr, len;
+	int *data, *dptr, len, blksize, num, i, j, k, dirty;
+	char *cdata, *cdptr;
+	int *dirty_table;
 
 #ifndef MEMORY_BASED
 	al_store();
@@ -1314,48 +1335,105 @@ dbref db_write()
 	DBINFO_STORE("TM3", data, 3 * sizeof(int));
 	XFREE(data, "db_write");
 		
-
 	/* Dump user-named attribute info */
 
-	vp = vattr_first();
-	while (vp != NULL) {
-		if (!(vp->flags & AF_DELETED)) {
-#ifndef STANDALONE
-			if (vp->flags & AF_DIRTY) {
-				/* Only write the dirty attribute numbers
-				 * and clear the flag */
-				 
-				vp->flags &= ~AF_DIRTY;
-#endif
-				len = strlen(vp->name) + 1;
-				dptr = data = (int *)XMALLOC(sizeof(int) + len, "db_write.2");
-				memcpy((void *)dptr, (void *)&vp->flags, sizeof(int));
-				dptr++;
-				memcpy((void *)dptr, (void *)vp->name, len); 
+	/* First, calculate the number of attribute entries we can fit in 
+	 * a block, keeping in mind some minor key overhead. This should
+	 * not change unless the size of VNAME_SIZE or LBUF_SIZE changes,
+	 * in which case you'd have to reload anyway */
+	 
+	blksize = ATRNUM_BLOCK_SIZE;
+	dirty_table = (int *)XMALLOC(blksize * sizeof(int), "db_write.dirt");
+	
+	/* Step through the attribute number array, writing stuff in 'num'
+	 * sized chunks */
+	 
+	cdata = (char *)XMALLOC(ATRNUM_BLOCK_BYTES + sizeof(int), "db_write.cdata");
+	
+	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.attr_next, blksize); i++) {
+		dirty = 0;
+		num = 0;
+		cdptr = cdata;
 				
-				/* Attribute number is our key */
-				
-				ATRNUM_STORE(vp->number, data, len);
-				XFREE(data, "db_write");
-#ifndef STANDALONE
-			}
-#endif
-		} else {
-			/* Delete the attribute number entry */
-			ATRNUM_DEL(vp->number);
-		}
-		vp = vattr_next(vp);
-	}
+		for (j = ENTRY_BLOCK_STARTS(i, blksize), k = 0;
+		     (j <= ENTRY_BLOCK_ENDS(i, blksize)) &&
+		     (j < mudstate.attr_next);
+		     j++, k++) {
 
-	DO_WHOLE_DB(i) {
+			vp = (VATTR *)anum_table[j];
+			dirty_table[k] = 0;
+
+			if (vp && !(vp->flags & AF_DELETED)) {
+#ifndef STANDALONE
+				if (vp->flags & AF_DIRTY) {
+					/* Only write the dirty attribute numbers
+					 * and clear the flag */
+				 
+					vp->flags &= ~AF_DIRTY;
+
+#endif					
+					dirty_table[k] = 1;
+					dirty = 1;
+					
+#ifndef STANDALONE
+				}
+#endif
+				num++;
+			}
+		}
+		
+		if (!num) {
+			/* No valid attributes in this block, delete it */
+			
+			ATRNUM_DEL(i);
+		}
+		
+		if (dirty) {
+			/* Something is dirty in this block, write all of
+			 * the attribute numbers in this block */
+			
+			/* First write the number of entries */ 
+			memcpy((void *)cdptr, (void *)&num, sizeof(int));
+			cdptr += sizeof(int);
+			
+			/* Write the entries*/
+			for (j = 0; (j < blksize) &&
+			    ((ENTRY_BLOCK_STARTS(i, blksize) + j) < mudstate.attr_next);
+			    j++) {
+				if (dirty_table[j]) {
+				
+					/* j is an offset of attribute
+				 	 * numbers into the current block */
+					
+					vp = (VATTR *)anum_table[ENTRY_BLOCK_STARTS(i, blksize) + j];
+				
+					len = strlen(vp->name) + 1;
+					memcpy((void *)cdptr, (void *)&vp->number, sizeof(int));
+					cdptr += sizeof(int);
+					memcpy((void *)cdptr, (void *)&vp->flags, sizeof(int));
+					cdptr += sizeof(int);
+					memcpy((void *)cdptr, (void *)vp->name, len); 
+					cdptr += len;
+				}
+			}
+			
+			/* Write the block: Block number is our key */
+				
+			ATRNUM_STORE(i, cdata, cdptr - cdata);
+		}
+	}
+	XFREE(cdata, "db_write.cdata");
+	XFREE(dirty_table, "db_write.dirt");
+
+	DO_WHOLE_DB(obj) {
 
 #ifdef STANDALONE
-		if (!(i % 100)) {
+		if (!(obj % 100)) {
 			fputc('.', mainlog_fp);
 		}
 #endif
 
-		db_write_object(i);
+		db_write_object(obj);
 	}
 
 #ifdef STANDALONE
