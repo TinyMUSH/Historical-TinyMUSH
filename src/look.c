@@ -293,7 +293,6 @@ static void pretty_format(dest, cp, p)
     }
     if (*(*cp - 1) != '\n')
 	safe_str((char *) "\r\n", dest, cp);
-    safe_chr('-', dest, cp);
 }
 
 static void pretty_print(dest, name, text)
@@ -357,6 +356,7 @@ static void pretty_print(dest, name, text)
 	    /* Ordinary text */
 	    safe_str(p, dest, &cp);
     }
+    safe_chr('-', dest, &cp);
 }
 
 
