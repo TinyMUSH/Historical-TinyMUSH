@@ -1181,13 +1181,9 @@ FUNCTION(fun_subeval)
 {
 	char *str;
 	
-	if (nfargs != 1) {
-		safe_str("#-1 FUNCTION (EVALNOCOMP) EXPECTS 1 OR 2 ARGUMENTS", buff, bufc);
-		return;
-	}
-	
 	str = fargs[0];
-	exec(buff, bufc, 0, player, cause, EV_NO_LOCATION|EV_NOFCHECK|EV_FIGNORE|EV_NO_COMPRESS,
+	exec(buff, bufc, 0, player, cause,
+	     EV_NO_LOCATION|EV_NOFCHECK|EV_FIGNORE|EV_NO_COMPRESS,
 	     &str, (char **)NULL, 0);
 }	
 
