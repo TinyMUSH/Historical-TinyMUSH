@@ -2317,6 +2317,9 @@ dbref player;
 	if (mudconf.fmt_exits)
 	    raw_notify(player, "The format of Exits can be specified with @exitformat.");
 
+	if (mudconf.ansi_colors)
+	    raw_notify(player, "ANSI sequences can be used in text.");
+
 	if (mudconf.sweep_dark)
 		raw_notify(player, "Players may @sweep dark locations.");
 
