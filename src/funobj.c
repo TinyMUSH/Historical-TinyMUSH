@@ -1117,11 +1117,14 @@ FUNCTION(fun_children)
 
 	VaChk_Only_Out(2);
 
-	it = match_thing(player, fargs[0]);
-	/* allow explicit #-1 but not just failed matches */
-	if (!Good_obj(it) && strcmp(fargs[0], "#-1")) {
-		safe_nomatch(buff, bufc);
-		return;
+	if (!strcmp(fargs[0], "#-1")) {
+		it = NOTHING;
+	} else {
+		it = match_thing(player, fargs[0]);
+		if (!Good_obj(it)) {
+			safe_nomatch(buff, bufc);
+			return;
+		}
 	}
 	if (!Controls(player, it) && !See_All(player)) {
 		safe_noperm(buff, bufc);
@@ -1171,11 +1174,14 @@ FUNCTION(scan_zone)
 		return;
 	}
 
-	it = match_thing(player, fargs[0]);
-	/* allow explicit #-1, but not just failed matches */
-	if (!Good_obj(it) && strcmp(fargs[0], "#-1")) {
-		safe_nomatch(buff, bufc);
-		return;
+	if (!strcmp(fargs[0], "#-1")) {
+		it = NOTHING;
+	} else {
+		it = match_thing(player, fargs[0]);
+		if (!Good_obj(it)) {
+			safe_nomatch(buff, bufc);
+			return;
+		}
 	}
 	if (!Controls(player, it) && !WizRoy(player)) {
 		safe_noperm(buff, bufc);
