@@ -38,7 +38,7 @@ extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
 extern dbref FDECL(get_programmer, (dbref));
 extern char * FDECL(get_doing, (dbref));
 extern dbref FDECL(find_connected_ambiguous, (dbref, char *));
-
+extern void FDECL(cf_display, (char *, char *, char **));
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 
 /* Function definitions from funceval.c */
@@ -5861,6 +5861,16 @@ FUNCTION(fun_trim)
 	}
 	safe_str(q, buff, bufc);
 }
+
+/* ---------------------------------------------------------------------------
+ * config: Display a MUSH config parameter.
+ */
+
+FUNCTION(fun_config)
+{
+    cf_display(fargs[0], buff, bufc);
+}
+
 /* *INDENT-OFF* */
 
 /* ---------------------------------------------------------------------------
@@ -5900,6 +5910,7 @@ FUN flist[] = {
 {"COMMAND",	fun_command,	0,  FN_VARARGS, CA_PUBLIC},
 {"COMP",	fun_comp,	2,  0,		CA_PUBLIC},
 {"CON",		fun_con,	1,  0,		CA_PUBLIC},
+{"CONFIG",	fun_config,	1,  0,		CA_WIZARD},
 {"CONN",	fun_conn,	1,  0,		CA_PUBLIC},
 {"CONSTRUCT",	fun_construct,	0,  FN_VARARGS,	CA_PUBLIC},
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC},

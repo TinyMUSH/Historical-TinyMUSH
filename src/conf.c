@@ -1741,6 +1741,40 @@ dbref player;
 	free_mbuf(buff);
 }
 
+/* ---------------------------------------------------------------------------
+ * cf_display: Given a config parameter by name, return its value in some
+ * sane fashion.
+ */
+
+void cf_display(param_name, buff, bufc)
+    char *param_name;
+    char *buff;
+    char **bufc;
+{
+    CONF *tp;
+
+    for (tp = conftable; tp->pname; tp++) {
+	if (!strcasecmp(tp->pname, param_name)) {
+	    if ((tp->interpreter == cf_int) || (tp->interpreter == cf_bool)) {
+		safe_ltos(buff, bufc, *(tp->loc));
+		return;
+	    }
+	    /* We have one exception for the string parameter, and that's
+	     * the name of our money.
+	     */
+	    if ((tp->interpreter == cf_string) &&
+		string_prefix(tp->pname, "money_name_")) {
+		safe_str((char *) tp->loc, buff, bufc);
+		return;
+	    }
+	    safe_noperm(buff, bufc);
+	    return;
+	}
+    }
+
+    safe_nomatch(buff, bufc);
+}
+
 #endif /*
         * * STANDALONE  
         */
