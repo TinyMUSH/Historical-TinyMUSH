@@ -364,34 +364,19 @@ depend: $(ALLSRC) unsplit
 	for i in $(D_SRC) $(COM_SRC) $(SA_SRC) $(UDBA_SRC) $(UDBO_SRC) $(AUX_SRC) $(LIB_SRC) $(MALLOC_S) $(CONC_S) slave.c portconc.c ; do $(CPP) $(ALLCFLAGS) -M $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
 	mv .depend~ .depend
 
-index: help.indx news.indx wizhelp.indx mushman.indx plushelp.indx wiznews.indx
-
-help.indx: help.txt
-	./mkindx help.txt help.indx
-
-news.indx: news.txt
-	./mkindx news.txt news.indx
-
-wizhelp.indx: wizhelp.txt
-	./mkindx wizhelp.txt wizhelp.indx
-
-mushman.indx: mushman.txt
-	./mkindx mushman.txt mushman.indx
-
-plushelp.indx: plushelp.txt
-	./mkindx plushelp.txt plushelp.indx
-
-wiznews.indx: wiznews.txt
-	./mkindx wiznews.txt wiznews.indx
-
 verify:
 	runtest --tool mush --src ./testsuite
 
-realclean:
-	-rm -f *.o a.out core gmon.out mush.*log mush.*sum Compile.log $(OUT) netmush~ slave conc
-
 clean:
 	-rm -f *.o a.out core gmon.out mush.*log mush.*sum Compile.log
+
+realclean: clean
+	-rm -f $(OUT) netmush~ slave conc unsplit
+
+distclean: realclean cvs
+	-rm -f config.log config.cache config.status autoconf.h .depend 
+	touch .depend
+	-rm -f Makefile
 
 indent:
 	indent -bad -bap -ncdb -nsob -fca -sc -br -ce -ss -npcs -nbc -lp -i8 -ip0 -cp5 -ncs -npsl -di1 *.c radixlib/*.c tools/*.c web/*.c
