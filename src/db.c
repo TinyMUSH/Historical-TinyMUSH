@@ -756,10 +756,14 @@ char *aname, *value;
 	VATTR *va;
 	ATTR *va2;
 
-	/* Look up the user-named attribute we want to play with */
+	/* Look up the user-named attribute we want to play with.
+	 * Note vattr names have a limited size.
+	 */
 
 	buff = alloc_sbuf("do_attribute");
-	for (p = buff, q = aname; *q && ((p - buff) < (SBUF_SIZE - 1)); p++, q++)
+	for (p = buff, q = aname;
+	     *q && ((p - buff) < (VNAME_SIZE - 1));
+	     p++, q++)
 		*p = ToUpper(*q);
 	*p = '\0';
 
@@ -989,10 +993,10 @@ char *s;
 	VATTR *va;
 	static ATTR tattr;
 
-	/* Convert the buffer name to uppercase */
+	/* Convert the buffer name to uppercase. Limit length of name.  */
 
 	buff = alloc_sbuf("atr_str");
-	for (p = buff, q = s; *q && ((p - buff) < (SBUF_SIZE - 1)); p++, q++)
+	for (p = buff, q = s; *q && ((p - buff) < (VNAME_SIZE - 1)); p++, q++)
 		*p = ToUpper(*q);
 	*p = '\0';
 

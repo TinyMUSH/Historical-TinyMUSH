@@ -184,10 +184,17 @@ char *name, *newname;
 	if (!ok_attr_name(newname))
 		return (NULL);
 	
+	/* We must explicitly delete and add the name to the hashtable,
+	 * since we are changing the data.
+	 */
+
 	vp = (VATTR *)hashfind(name, &mudstate.vattr_name_htab);
 
-	if (vp)
-		vp->name = store_string(newname);
+	if (vp) {
+	    vp->name = store_string(newname);
+	    hashdelete(name, &mudstate.vattr_name_htab);
+	    hashadd(newname, (int *) vp, &mudstate.vattr_name_htab);
+	}
 
 	return (vp);
 }
