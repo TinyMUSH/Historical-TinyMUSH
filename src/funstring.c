@@ -1195,8 +1195,7 @@ FUNCTION(fun_pos)
 
 FUNCTION(fun_lpos)
 {
-    char *s, *bb_p;
-    char c, tbuf[8];
+    char *s, *bb_p, c;
     int i;
 
     if (!fargs[0] || !*fargs[0])
@@ -1213,8 +1212,7 @@ FUNCTION(fun_lpos)
 	    if (*bufc != bb_p) {
 		safe_chr(' ', buff, bufc);
 	    }
-	    ltos(tbuf, i);
-	    safe_str(tbuf, buff, bufc);
+	    safe_ltos(buff, bufc, i);
 	}
     }
 

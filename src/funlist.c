@@ -240,7 +240,7 @@ FUNCTION(fun_match)
 FUNCTION(fun_matchall)
 {
 	int wcount;
-	char *r, *s, *old, sep, osep, tbuf[8];
+	char *r, *s, *old, sep, osep;
 
 	svarargs_preamble("MATCHALL", 4);
 
@@ -261,11 +261,10 @@ FUNCTION(fun_matchall)
 	do {
 		r = split_token(&s, sep);
 		if (quick_wild(fargs[1], r)) {
-			ltos(tbuf, wcount);
 			if (old != *bufc) {
 			    print_sep(osep, buff, bufc);
 			}
-			safe_str(tbuf, buff, bufc);
+			safe_ltos(buff, bufc, wcount);
 		}
 		wcount++;
 	} while (s);
