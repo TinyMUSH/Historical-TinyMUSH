@@ -3398,12 +3398,6 @@ char *text;
 	dbref aowner;
 	int aflags, alen;
 
-	if (!mudconf.have_mailer) {
-		wait_que(player, cause, 0, NOTHING, 0, text, (char **)NULL, 0,
-			 (char **)NULL);
-		return;
-	};
-
 	if (Flags2(player) & PLAYER_MAILS) {
 		oldmsg = atr_get(player, A_MAILMSG, &aowner, &aflags, &alen);
 		if (*oldmsg) {
@@ -3435,12 +3429,6 @@ char *text;
 	char *oldmsg, *newmsg, *bp, *attr;
 	dbref aowner;
 	int aflags, alen;
-
-	if (!mudconf.have_mailer) {
-		wait_que(player, cause, 0, NOTHING, 0, text, (char **)NULL, 0,
-			 (char **)NULL);
-		return;
-	};
 
 	if ((*(text + 1) == '-') && !(*(text + 2))) {
 		do_expmail_stop(player, 0);
