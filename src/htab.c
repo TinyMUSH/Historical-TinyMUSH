@@ -240,13 +240,13 @@ HASHTAB *htab;
 
 	for (hval = 0; hval < htab->hashsize; hval++) {
 		prev = NULL;
-		for (hptr = htab->entry->element[hval];
+		for (hptr = htab->entry[hval];
 		     hptr != NULL;
 		     hptr = nextp) {
 			nextp = hptr->next;
 			if (hptr->data == old) {
 				if (prev == NULL)
-					htab->entry->element[hval] = nextp;
+					htab->entry[hval] = nextp;
 				else
 					prev->next = nextp;
 				if (!htab->nostrdup) {
@@ -255,7 +255,7 @@ HASHTAB *htab;
 				XFREE(hptr, "hashdelall.hptr");
 				htab->deletes++;
 				htab->entries--;
-				if (htab->entry->element[hval] == NULL)
+				if (htab->entry[hval] == NULL)
 					htab->nulls++;
 				continue;
 			}
