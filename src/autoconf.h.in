@@ -387,10 +387,16 @@ extern int	FDECL(socket, (int, int, int));
 extern int	FDECL(select, (int, fd_set *, fd_set *, fd_set *, struct timeval *));
 #endif
 
-/* Under linux, use the optimized string functions */
+/* In theory, under Linux, we want to use the optimized string functions.
+ * However, they make Redhat Linux 6, at least, spew. If you have Linux and
+ * you want to try it, remove the outer #ifdef-#endif pair.
+ */
+
+#ifdef NEVER
 #ifdef __linux__
 extern char *___strtok;
 #include <asm/string.h>
+#endif
 #endif
 
 typedef int	dbref;
