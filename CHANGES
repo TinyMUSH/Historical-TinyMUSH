@@ -101,8 +101,13 @@ the other have been listed in the conversion notes for both servers.
 
 - @chown now checks a ChownLock on CHOWN_OK objects.
 
-- @chown and @clone now strip flags in a consistent manner, as defined
-  by the conf option stripped_flags.
+- @chown, @chownall, and @clone now strip flags in a consistent manner, as
+  defined by the conf option stripped_flags. The /nostrip switch negates
+  this stripping. For consistency, @clone/inherit no longer preserves
+  IMMORTAL (but it still preserves INHERIT).
+
+- @clone/preserve can be used by anyone, but you must control the original
+  object's owner.
 
 - New /pretty switch to examine and @decompile "pretty-prints" (with
   indentation) attributes. Based on Andrew Molitor's +pex-equivalent code.
