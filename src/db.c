@@ -1023,7 +1023,7 @@ void NDECL(init_attrtab)
 		for (p = buff, q = (char *)a->name; *q; p++, q++)
 			*p = toupper(*q);
 		*p = '\0';
-		hashadd(buff, (int *)a, &mudstate.attr_name_htab);
+		hashadd(buff, (int *)a, &mudstate.attr_name_htab, 0);
 	}
 	free_sbuf(buff);
 }

@@ -34,7 +34,7 @@ void NDECL(init_functab)
 	mudstate.func_htab.nostrdup = 1;
 	
 	for (fp = flist; fp->name; fp++) {
-		hashadd((char *)fp->name, (int *)fp, &mudstate.func_htab);
+		hashadd((char *)fp->name, (int *)fp, &mudstate.func_htab, 0);
 	}
 	ufun_head = NULL;
 	hashinit(&mudstate.ufunc_htab, 15 * HASH_FACTOR);
@@ -164,7 +164,7 @@ char *fname, *target;
 			for (ufp2 = ufun_head; ufp2->next; ufp2 = ufp2->next) ;
 			ufp2->next = ufp;
 		}
-		if (hashadd(np, (int *) ufp, &mudstate.ufunc_htab)) {
+		if (hashadd(np, (int *) ufp, &mudstate.ufunc_htab, 0)) {
 			notify_quiet(player, tprintf("Function %s not defined.", fname));
 			XFREE(ufp->name, "do_function");
 			XFREE(ufp, "do_function.2");

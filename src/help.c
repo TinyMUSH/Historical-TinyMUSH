@@ -26,11 +26,11 @@ char *filename;
 	struct help_entry *htab_entry;
 
 	/* Let's clean out our hash table, before we throw it away. */
-	for (htab_entry = (struct help_entry *)hash_firstentry(htab);
-	     htab_entry;
-	     htab_entry = (struct help_entry *)hash_nextentry(htab)) {
-		XFREE(htab_entry->key, "helpindex_read.topic0");
-		XFREE(htab_entry, "helpindex_read.hent0");
+	for (p = hash_firstkey(htab); p; p = hash_nextkey(htab)) {
+		if (!(hashfindflags(p, htab) & HASH_ALIAS)) {
+			htab_entry = (struct help_entry *)hashfind(p, htab);
+			XFREE(htab_entry, "helpindex_read.hent0");
+		}
 	}
 
 	hashflush(htab, 0);
@@ -55,36 +55,24 @@ char *filename;
 
 		htab_entry->pos = entry.pos;
 		htab_entry->len = entry.len;
-		htab_entry->original = 1;	/* First is the longest */
-		htab_entry->key = XSTRDUP(entry.topic, "helpindex_read.topic1");
 
-		while (p > entry.topic) {
-			p--;
-			if (!isspace(*p)) {
-				if (hashadd(htab_entry->key, (int *)htab_entry, htab) == 0) {
-					count++;
-				} else {
-					/* It didn't make it into the hash
-					 * table, so neither will any of the
-					 * left substrings
-					 */
-					break;
-				}
+		if (hashadd(entry.topic, (int *)htab_entry, htab, 0) == 0) {
+			count++;		
+			while (p > entry.topic) {
+				p--;
 				*p = '\0';
-				htab_entry = (struct help_entry *) XMALLOC(sizeof(struct help_entry),
-									   "helpindex_read.hent");
-				htab_entry->pos = entry.pos;
-				htab_entry->len = entry.len;
-				htab_entry->original = 0;
-				htab_entry->key = XSTRDUP(entry.topic, "helpindex_read.topic");
-			} else {
-				/* cut off the trailing space and try again */
-				htab_entry->original = 0;
-				htab_entry->key[strlen(htab_entry->key) - 1] = '\0';
+				if (!isspace(*(p-1))) {
+					if (hashadd(entry.topic, (int *)htab_entry, htab, HASH_ALIAS) == 0) {
+						count++;
+					} else {
+						/* It didn't make it into the hash
+						 * table
+						 */
+						break;
+					}
+				}
 			}
 		}
-		XFREE(htab_entry->key, "helpindex_read.topic");
-		XFREE(htab_entry, "helpindex_read.hent");
 	}
 	tf_fclose(fp);
 	hashreset(htab);
@@ -146,17 +134,16 @@ int eval;
 		entry_length = htab_entry->len;
 	} else {
 		matched = 0;
-		for (htab_entry = (struct help_entry *)hash_firstentry(htab);
-		     htab_entry != NULL;
-		   htab_entry = (struct help_entry *)hash_nextentry(htab)) {
-			if (htab_entry->original &&
-			    quick_wild(topic, htab_entry->key)) {
+		for (result = hash_firstkey(htab); result != NULL;
+		     result = hash_nextkey(htab)) {
+			if (!(hashfindflags(result, htab) & HASH_ALIAS) &&
+			    quick_wild(topic, result)) {
 				if (matched == 0) {
 					matched = 1;
 					topic_list = alloc_lbuf("help_write");
 					buffp = topic_list;
 				}
-				safe_str(htab_entry->key, topic_list, &buffp);
+				safe_str(result, topic_list, &buffp);
 				safe_chr(' ', topic_list, &buffp);
 				safe_chr(' ', topic_list, &buffp);
 			}

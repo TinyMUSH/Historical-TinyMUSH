@@ -211,7 +211,7 @@ void NDECL(init_powertab)
 	mudstate.powers_htab.nostrdup = 1;
 	
 	for (fp = gen_powers; fp->powername; fp++) {
-		hashadd((char *)fp->powername, (int *)fp, &mudstate.powers_htab);
+		hashadd((char *)fp->powername, (int *)fp, &mudstate.powers_htab, 0);
 	}
 }
 

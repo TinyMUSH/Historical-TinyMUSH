@@ -20,10 +20,6 @@ typedef struct {
 struct help_entry {
 	int pos;		/* Position, copied from help_indx */
 	int len;		/* Length of entry, copied from help_indx */
-	char original;		/* 1 for the longest name for a topic. 0 for
-				 * abbreviations 
-				 */
-	char *key;		/* The key this is stored under. */
 };
 
 #endif /* __HELP_H */

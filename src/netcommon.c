@@ -1388,7 +1388,7 @@ void NDECL(init_logout_cmdtab)
 
 	hashinit(&mudstate.logout_cmd_htab, 3 * HASH_FACTOR);
 	for (cp = logout_cmdtable; cp->flag; cp++)
-		hashadd(cp->name, (int *)cp, &mudstate.logout_cmd_htab);
+		hashadd(cp->name, (int *)cp, &mudstate.logout_cmd_htab, 0);
 }
 
 static void failconn(logcode, logtype, logreason, d, disconnect_reason,

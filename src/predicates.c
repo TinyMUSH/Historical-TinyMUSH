@@ -960,13 +960,13 @@ char *s;
 		add->next = NULL;
 		cmd->info.added = add;
 	
-		hashadd(cmd->cmdname, (int *)cmd, &mudstate.command_htab);
+		hashadd(cmd->cmdname, (int *)cmd, &mudstate.command_htab, 0);
 		
 		if (old) {
 			/* Fix any aliases of this command. */
 			hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 			hashadd(XSTRDUP(tprintf("__%s", name), "do_addcommand"),
-				 (int *)old, &mudstate.command_htab);
+				 (int *)old, &mudstate.command_htab, 0);
 		}
 	}
 
@@ -1076,7 +1076,7 @@ char *s;
 				mudstate.command_htab.nostrdup = 0;
 				hashdelete(tprintf("__%s", name), &mudstate.command_htab);
 				mudstate.command_htab.nostrdup = 1;
-				hashadd(cmd->cmdname, (int *)cmd, &mudstate.command_htab);
+				hashadd(cmd->cmdname, (int *)cmd, &mudstate.command_htab, 0);
 				hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 			}
 			XFREE(old, "delcommand.cmdp");
@@ -1093,7 +1093,7 @@ char *s;
 							hashdelete(name, &mudstate.command_htab);
 							if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
 								hashdelete(tprintf("__%s", name), &mudstate.command_htab);
-								hashadd(cmd->cmdname, (int *)cmd, &mudstate.command_htab);
+								hashadd(cmd->cmdname, (int *)cmd, &mudstate.command_htab, 0);
 								hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 							}
 							XFREE(old, "delcommand.cmdp");

@@ -431,7 +431,7 @@ char *name;
 		p = (dbref *) XMALLOC(sizeof(dbref), "add_player_name.2");
 
 		*p = player;
-		stat = hashadd(temp, p, &mudstate.player_htab);
+		stat = hashadd(temp, p, &mudstate.player_htab, 0);
 		free_lbuf(temp);
 		stat = (stat < 0) ? 0 : 1;
 	}

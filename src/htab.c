@@ -128,13 +128,46 @@ HASHTAB *htab;
 }
 
 /* ---------------------------------------------------------------------------
+ * hashfindflags: Look up an entry in a hash table and return its flags
+ */
+
+int hashfindflags(str, htab)
+char *str;
+HASHTAB *htab;
+{
+	int hval, numchecks;
+	HASHENT *hptr, *prev;
+
+	numchecks = 0;
+	htab->scans++;
+	hval = hashval(str, htab->mask);
+	for (prev = hptr = htab->entry[hval]; hptr != NULL; hptr = hptr->next) {
+		numchecks++;
+		if (strcmp(str, hptr->target) == 0) {
+			htab->hits++;
+			if (numchecks > htab->max_scan)
+				htab->max_scan = numchecks;
+			htab->checks += numchecks;
+			
+			return hptr->flags;
+		}
+		prev = hptr;
+	}
+	if (numchecks > htab->max_scan)
+		htab->max_scan = numchecks;
+	htab->checks += numchecks;
+	return 0;
+}
+
+/* ---------------------------------------------------------------------------
  * hashadd: Add a new entry to a hash table.
  */
 
-int hashadd(str, hashdata, htab)
+int hashadd(str, hashdata, htab, flags)
 char *str;
 int *hashdata;
 HASHTAB *htab;
+int flags;
 {
 	int hval;
 	HASHENT *hptr;
@@ -158,6 +191,7 @@ HASHTAB *htab;
 		hptr->target = XSTRDUP(str, "hashadd.target");
 	}
 	hptr->data = hashdata;
+	hptr->flags = flags;
 	hptr->next = htab->entry[hval];
 	htab->entry[hval] = hptr;
 	return (0);

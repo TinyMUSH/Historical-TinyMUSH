@@ -770,7 +770,7 @@ CF_HAND(cf_alias)
 			p = alias;
 			alias = XSTRDUP(p, "cf_alias");
 		}
-		return hashadd(alias, cp, (HASHTAB *) vp);
+		return hashadd(alias, cp, (HASHTAB *) vp, HASH_ALIAS);
 	} else {
 		cf_log_syntax(player, cmd, "Invalid original for alias %s",
 			      alias);
@@ -1232,7 +1232,7 @@ int add_helpfile(player, str, is_raw)
 	if (is_raw)
 	    cmdp->extra |= HELP_RAWHELP;
 
-	hashadd(cmdp->cmdname, (int *) cmdp, &mudstate.command_htab);
+	hashadd(cmdp->cmdname, (int *) cmdp, &mudstate.command_htab, 0);
 
     } else {
 
@@ -1276,7 +1276,6 @@ int add_helpfile(player, str, is_raw)
     /* Initialize the associated hashtable. */
 
     hashinit(&mudstate.hfile_hashes[mudstate.helpfiles], 30 * HASH_FACTOR);
-    mudstate.hfile_hashes[mudstate.helpfiles].nostrdup = 1;
 
     mudstate.helpfiles++;
     free_mbuf(newstr);

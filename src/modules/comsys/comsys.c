@@ -738,7 +738,7 @@ void join_channel(player, chan_name, alias_str, title_str)
     cap->channel = chp;
 
     hashadd(tprintf("%d.%s", player, alias_str), (int *) cap,
-	    &mod_comsys_calias_htab);
+	    &mod_comsys_calias_htab, 0);
 
     /* Add this to the list of all aliases for the player. */
 
@@ -972,7 +972,7 @@ void do_ccreate(player, cause, key, name)
     sprintf(buf, "[%s]", chp->name);
     chp->header = XSTRDUP(buf, "ccreate.header");
 
-    hashadd(name, (int *) chp, &mod_comsys_comsys_htab);
+    hashadd(name, (int *) chp, &mod_comsys_comsys_htab, 0);
 
     notify(player, tprintf("Channel %s created.", name));
 }
@@ -1973,7 +1973,7 @@ static void read_comsys(fp, com_ver)
 	chp->num_who = 0;
 	chp->connect_who = NULL;
 	chp->num_connected = 0;
-	hashadd(chp->name, (int *) chp, &mod_comsys_comsys_htab);
+	hashadd(chp->name, (int *) chp, &mod_comsys_comsys_htab, 0);
 	getstring_noalloc(fp, 0);	/* discard the < */
 	c = getc(fp);
 	if (c == '+')		/* look ahead for the end of the channels */
@@ -2002,7 +2002,7 @@ static void read_comsys(fp, com_ver)
 	else
 	    cap->title = NULL;
 	hashadd(tprintf("%d.%s", cap->player, cap->alias), (int *) cap,
-		&mod_comsys_calias_htab);
+		&mod_comsys_calias_htab, 0);
 	clist = (COMLIST *) XMALLOC(sizeof(COMLIST), "load_comsys.clist");
 	clist->alias_ptr = cap;
 	clist->next = lookup_clist(cap->player);

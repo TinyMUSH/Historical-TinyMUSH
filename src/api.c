@@ -27,7 +27,7 @@ void register_commands(cmdtab)
     CMDENT *cp;
 
     for (cp = cmdtab; cp->cmdname; cp++)
-	hashadd(cp->cmdname, (int *) cp, &mudstate.command_htab);
+	hashadd(cp->cmdname, (int *) cp, &mudstate.command_htab, 0);
 }
 
 void register_functions(functab)
@@ -36,7 +36,7 @@ void register_functions(functab)
     FUN *fp;
 
     for (fp = functab; fp->name; fp++) {
-	hashadd((char *)fp->name, (int *) fp, &mudstate.func_htab);
+	hashadd((char *)fp->name, (int *) fp, &mudstate.func_htab, 0);
     }
 }
 

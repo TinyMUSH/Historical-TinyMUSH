@@ -274,7 +274,7 @@ static void set_xvar(obj, name, data)
 	    if (!xvar->text)
 		return;		/* out of memory */
 	    strcpy(xvar->text, data);
-	    hashadd(tbuf, (int *) xvar, &mudstate.vars_htab);
+	    hashadd(tbuf, (int *) xvar, &mudstate.vars_htab, 0);
 	    s_VarsCount(obj, VarsCount(obj) + 1);
 	    Set_Max(mudstate.max_vars, mudstate.vars_htab.entries);
 	}
@@ -815,7 +815,7 @@ FUNCTION(fun_structure)
     this_struct->n_instances = 0;
     this_struct->names_base = comp_names;
     this_struct->defs_base = default_vals;
-    hashadd(tbuf, (int *) this_struct, &mudstate.structs_htab);
+    hashadd(tbuf, (int *) this_struct, &mudstate.structs_htab, 0);
     Set_Max(mudstate.max_structs, mudstate.structs_htab.entries);
 
     /* Now that we're done with the base name, we can stick the 
@@ -868,7 +868,7 @@ FUNCTION(fun_structure)
 	}
 	this_struct->need_typecheck = check_type;
 	this_struct->c_array[i] = this_comp;
-	hashadd(cbuf, (int *) this_comp, &mudstate.cdefs_htab);
+	hashadd(cbuf, (int *) this_comp, &mudstate.cdefs_htab, 0);
 	Set_Max(mudstate.max_cdefs, mudstate.cdefs_htab.entries);
     }
 
@@ -1022,7 +1022,7 @@ FUNCTION(fun_construct)
 
     inst_ptr = (INSTANCE *) XMALLOC(sizeof(INSTANCE), "constructor.inst");
     inst_ptr->datatype = this_struct;
-    hashadd(ibuf, (int *) inst_ptr, &mudstate.instance_htab);
+    hashadd(ibuf, (int *) inst_ptr, &mudstate.instance_htab, 0);
     Set_Max(mudstate.max_instance, mudstate.instance_htab.entries);
 
     /* Populate with default values. */
@@ -1040,7 +1040,7 @@ FUNCTION(fun_construct)
 	safe_sb_chr('.', tbuf, &tp);
 	safe_sb_str(this_struct->c_names[i], tbuf, &tp);
 	*tp = '\0';
-	hashadd(tbuf, (int *) d_ptr, &mudstate.instdata_htab);
+	hashadd(tbuf, (int *) d_ptr, &mudstate.instdata_htab, 0);
 	Set_Max(mudstate.max_instdata, mudstate.instdata_htab.entries);
     }
 
@@ -1177,7 +1177,7 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
 
     inst_ptr = (INSTANCE *) XMALLOC(sizeof(INSTANCE), "constructor.inst");
     inst_ptr->datatype = this_struct;
-    hashadd(ibuf, (int *) inst_ptr, &mudstate.instance_htab);
+    hashadd(ibuf, (int *) inst_ptr, &mudstate.instance_htab, 0);
     Set_Max(mudstate.max_instance, mudstate.instance_htab.entries);
 
     /* Stuff data into memory. */
@@ -1193,7 +1193,7 @@ static void load_structure(player, buff, bufc, inst_name, str_name, raw_text,
 	safe_sb_chr('.', tbuf, &tp);
 	safe_sb_str(this_struct->c_names[i], tbuf, &tp);
 	*tp = '\0';
-	hashadd(tbuf, (int *) d_ptr, &mudstate.instdata_htab);
+	hashadd(tbuf, (int *) d_ptr, &mudstate.instdata_htab, 0);
 	Set_Max(mudstate.max_instdata, mudstate.instdata_htab.entries);
     }
 

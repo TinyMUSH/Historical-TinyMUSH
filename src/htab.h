@@ -10,6 +10,7 @@ typedef struct hashentry HASHENT;
 struct hashentry {
 	char			*target;
 	int			*data;
+	int			flags;
 	struct hashentry	*next;
 };
 
@@ -95,12 +96,17 @@ struct bque {
 	int	nargs;		/* How many args I have */
 };
 
+/* Hash entry flags */
+
+#define	HASH_ALIAS	0x00000001	/* This entry is just a copy */
+
 extern void	FDECL(hashinit, (HASHTAB *, int));
 extern void	FDECL(hashreset, (HASHTAB *));
 extern int	FDECL(hashval, (char *, int));
 extern int	FDECL(get_hashmask, (int *));
 extern int	FDECL(*hashfind, (char *, HASHTAB *));
-extern int	FDECL(hashadd, (char *, int *, HASHTAB *));
+extern int	FDECL(hashfindflags, (char *, HASHTAB *));
+extern int	FDECL(hashadd, (char *, int *, HASHTAB *, int));
 extern void	FDECL(hashdelete, (char *, HASHTAB *));
 extern void	FDECL(hashflush, (HASHTAB *, int));
 extern int	FDECL(hashrepl, (char *, int *, HASHTAB *));

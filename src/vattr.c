@@ -96,7 +96,7 @@ int number, flags;
 	vp->flags = flags;
 	vp->number = number;
 
-	hashadd(vp->name, (int *) vp, &mudstate.vattr_name_htab);
+	hashadd(vp->name, (int *) vp, &mudstate.vattr_name_htab, 0);
 	
 	anum_extend(vp->number);
 	anum_set(vp->number, (ATTR *) vp);
@@ -201,7 +201,7 @@ char *name, *newname;
 	if (vp) {
 	    vp->name = store_string(newname);
 	    hashdelete(name, &mudstate.vattr_name_htab);
-	    hashadd(newname, (int *) vp, &mudstate.vattr_name_htab);
+	    hashadd(newname, (int *) vp, &mudstate.vattr_name_htab, 0);
 	}
 
 	return (vp);
