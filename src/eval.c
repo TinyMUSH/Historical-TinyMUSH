@@ -956,7 +956,16 @@ char *cargs[];
 
 			if (ufp) {
 				mudstate.func_nest_lev++;
-				if (Going(player)) {
+				mudstate.func_invk_ctr++;
+				if (mudstate.func_nest_lev >=
+				    mudconf.func_nest_lim) {
+					safe_str("#-1 FUNCTION RECURSION LIMIT EXCEEDED", buff, &oldp);
+					*bufc = oldp;
+				} else if (mudstate.func_invk_ctr >=
+					   mudconf.func_invk_lim) {
+					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, &oldp);
+					*bufc = oldp;
+				} else if (Going(player)) {
 				        safe_str("#-1 BAD INVOKER",
 						 buff, &oldp);
 					*bufc = oldp;
