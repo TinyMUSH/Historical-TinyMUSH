@@ -885,7 +885,7 @@ char *command, *args[];
 	 * home is not part of the traditional command table.
 	 */
 
-	if (string_compare(command, "home") == 0) {
+	if (Has_location(player) && string_compare(command, "home") == 0) {
 		if (((Fixed(player)) || (Fixed(Owner(player)))) &&
 		    !(WizRoy(player))) {
 			notify(player, mudconf.fixed_home_msg);
