@@ -123,6 +123,8 @@ char *argv[];
 	int db_ver, db_format, db_flags, do_check, do_write;
 	char *fp;
 
+	logfile_init(NULL);
+
 	if ((argc < 2) || (argc > 3)) {
 		usage(argv[0]);
 		exit(1);
@@ -131,7 +133,6 @@ char *argv[];
 #ifdef RADIX_COMPRESSION
 	init_string_compress();
 #endif
-	logfile_init(NULL);
 	/* Decide what conversions to do and how to format the output file */
 
 	setflags = clrflags = ver = do_check = 0;
