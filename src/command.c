@@ -2491,6 +2491,9 @@ dbref player;
 	if (mudconf.fascist_tport)
 		raw_notify(player, "You may only @teleport out of locations that are JUMP_OK or that you control.");
 
+	if (mudconf.safer_passwords)
+	    notify(player, "Passwords cannot be easily guessable.");
+
 	/* --- Config options related to Speaking --- */
 
 	if (mudconf.pemit_players)

@@ -187,6 +187,7 @@ struct confdata {
 	int	fmt_contents;	/* allow user-formattable Contents? */
 	int	fmt_exits;	/* allow user-formattable Exits? */
 	int	ansi_colors;	/* allow ANSI colors? */
+	int	safer_passwords;/* enforce reasonably good password choices? */
 	int	space_compress;	/* Convert multiple spaces into one space */
 	dbref	start_room;	/* initial location and home for players */
 	dbref	start_home;	/* initial HOME for players */

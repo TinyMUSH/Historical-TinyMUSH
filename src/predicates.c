@@ -539,6 +539,9 @@ int ok_password(password)
 const char *password;
 {
 	const char *scan;
+	int num_upper = 0;
+	int num_special = 0;
+	int num_lower = 0;
 
 	if (*password == '\0')
 		return 0;
@@ -547,6 +550,12 @@ const char *password;
 		if (!(isprint(*scan) && !isspace(*scan))) {
 			return 0;
 		}
+		if (isupper(*scan))
+		    num_upper++;
+		else if (islower(*scan))
+		    num_lower++;
+		else if ((*scan != '\'') && (*scan != '-'))
+		    num_special++;
 	}
 
 	/* Needed.  Change it if you like, but be sure yours is the same. */
@@ -554,6 +563,24 @@ const char *password;
 	    (password[0] == 'X') &&
 	    (password[1] == 'X'))
 		return 0;
+
+	if (mudconf.safer_passwords) {
+	    if (num_upper < 1) {
+		notify_quiet(player,
+		     "The password must contain at least one capital letter.");
+		return 0;
+	    }
+	    if (num_lower < 1) {
+		notify_quiet(player,
+		   "The password must contain at least one lowercase letter.");
+		return 0;
+	    }
+	    if (num_special < 1) {
+		notify_quiet(player,
+			     "The password must contain at least one number or a symbol other than the apostrophe or dash.");
+		return 0;
+	    }
+	}
 
 	return 1;
 }

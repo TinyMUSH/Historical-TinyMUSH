@@ -217,6 +217,7 @@ void NDECL(cf_init)
 	mudconf.fmt_contents = 1;
 	mudconf.fmt_exits = 1;
 	mudconf.ansi_colors = 1;
+	mudconf.safer_passwords = 0;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1309,6 +1310,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.sacadjust,		0},
 {(char *)"sacrifice_factor",
 	cf_int,		CA_GOD,		&mudconf.sacfactor,		0},
+{(char *)"safer_passwords",
+	cf_bool,	CA_GOD,		&mudconf.safer_passwords,	0},
 {(char *)"search_cost",
 	cf_int,		CA_GOD,		&mudconf.searchcost,		0},
 {(char *)"see_owned_dark",
