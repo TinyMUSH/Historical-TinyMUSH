@@ -497,7 +497,7 @@ MODULE API FUNCTION: did_it
 int mod_<name>_did_it(dbref player, dbref thing, dbref master,
 		      int what, const char *def,
 		      int owhat, const char *odef,
-		      int awhat, int now, char *args[], int nargs)
+		      int awhat, int now, char *args[], int nargs, int key)
 
 	Run when did_it() is called, before the server actually does
 	the notification/others-notification/action. 
@@ -524,6 +524,9 @@ int mod_<name>_did_it(dbref player, dbref thing, dbref master,
 	It normally affects the queueing of actions.
 
 	args and nargs are the stack and number of items on the stack.
+
+	key is a bitmask of MSG_SPEECH, MSG_MOVE, and MSG_PRESENCE,
+	allowing special processing related to the PRESENCE flag.
 
 	This function can be used to react to a large number of server
 	actions, by switching on <what>. For example, all commands that
