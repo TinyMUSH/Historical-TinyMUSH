@@ -1780,7 +1780,7 @@ static void NDECL(init_rlimit)
 #if defined(HAVE_SETRLIMIT) && defined(RLIMIT_NOFILE)
 	struct rlimit *rlp;
 
-	rlp = (struct rlimit *)alloc_lbuf("rlimit");
+	rlp = (struct rlimit *) XMALLOC(sizeof(struct rlimit), "rlimit");
 
 	if (getrlimit(RLIMIT_NOFILE, rlp)) {
 		log_perror("RLM", "FAIL", NULL, "getrlimit()");
@@ -1790,7 +1790,7 @@ static void NDECL(init_rlimit)
 	rlp->rlim_cur = rlp->rlim_max;
 	if (setrlimit(RLIMIT_NOFILE, rlp))
 		log_perror("RLM", "FAIL", NULL, "setrlimit()");
-	free_lbuf(rlp);
+	XFREE(rlp, "rlimit");
 #else
 #if defined(_SEQUENT_) && defined(NUMFDS_LIMIT)
 	setdtablesize(NUMFDS_LIMIT);
