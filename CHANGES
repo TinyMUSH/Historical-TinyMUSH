@@ -34,12 +34,8 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
     the game, which can cause "cache bloat" if a very large number of
     objects gets loaded into the cache as part of a single operation,
     the total size of the cache is fixed -- the amount of memory that
-    the cached data takes cannot exceed a specified limit.
-
-  - The attribute list for each object is now cached, which speeds up
-    attribute lookups, and removes the necessity to pull the entire
-    object from the cache if we're just looking for an attribute that
-    turns out to be non-existent on the object.
+    the cached data takes cannot exceed a specified limit. This is
+    configurable via the cache_size parameter.
 
   - Removal of elements from the cache is based on "least recently used"
     rather than "not frequently used".
@@ -47,8 +43,8 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
   - Attribute caching is now used, with cache bypass in situations where
     this is not efficient.
 
-  - @list cache now shows the number of recent references to each listed
-    object.
+  - @list cache shows an object-based summary of cache information.
+    @list cache_attrs shows the full cache.
 
 - Various changes to the database structure:
 
@@ -152,6 +148,9 @@ CHANGES TO FLAGS AND POWERS
 
 - An object with the new attr_write power is able to set attributes
   with the 'wizard' attribute flag, just like Wizards can.
+
+- An object with the new link_any_home power can set the home of any
+  object (@link an object anywhere), just like Wizards can.
 
 - If a wizard connects while DARK, they are reminded that they are
   currently set DARK. Also, wizards are notified when they are set
@@ -281,6 +280,8 @@ CHANGES TO FUNCTIONS
   and @functions, are called. This provides better security-checking
   capabilities. Based on an idea from PennMUSH.
 
+- Brackets are no longer required around eval-locks, hooks, or @exitto code.
+
 - Extended regular expression syntax from Perl 5 is now supported.
   This is based on the PCRE library, as modified by the PennMUSH team.
 
@@ -320,6 +321,10 @@ CHANGES TO FUNCTIONS
 - Added ilev(), itext(), and inum() functions, for retrieving data
   from multiple levels of nested iter()-type functions. Based on
   an idea from PennMUSH.
+
+- Added itemize() function, which formats a list of items. Typically used
+  to turn a list of words into something like "a, b, and c". Based on an
+  idea from PennMUSH.
 
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
