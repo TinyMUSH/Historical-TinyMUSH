@@ -197,7 +197,7 @@ conc: portconc.o
 	cd ../game/bin ; rm -f conc ; ln -s ../../src/conc conc
 
 slave: slave.o
-	$(CC) $(ALLCFLAGS) $(LIBS) -o slave slave.o
+	$(CC) $(ALLCFLAGS) -o slave slave.o $(LIBS)
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
