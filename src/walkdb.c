@@ -688,14 +688,6 @@ SEARCH *parm;
 			continue;
 
 		/*
-		 * Toss out destroyed things 
-		 */
-
-		thing1flags = Flags(thing);
-		if ((Typeof(thing) == TYPE_THING) && (thing1flags & GOING))
-			continue;
-
-		/*
 		 * Check for matching parent 
 		 */
 
@@ -717,6 +709,7 @@ SEARCH *parm;
 
 		thing3flags = Flags3(thing);
 		thing2flags = Flags2(thing);
+		thing1flags = Flags(thing);
 		if ((thing1flags & parm->s_fset.word1) != parm->s_fset.word1)
 			continue;
 		if ((thing2flags & parm->s_fset.word2) != parm->s_fset.word2)
@@ -749,6 +742,8 @@ SEARCH *parm;
 		 */
 
 		if (parm->s_rst_eval != NULL) {
+			if (isGarbage(thing))
+				continue;
 			sprintf(buff, "#%d", thing);
 			buff2 = replace_string(BOUND_VAR, buff,
 					       parm->s_rst_eval);
