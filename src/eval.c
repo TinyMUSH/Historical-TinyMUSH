@@ -994,9 +994,7 @@ char *cargs[];
 				} else if (mudstate.func_invk_ctr >=
 					   mudconf.func_invk_lim) {
 					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, bufc);
-				} else if ((mudconf.func_cpu_lim > 0) &&
-					   (clock() - mudstate.cputime_base >
-					    mudconf.func_cpu_lim)) {
+				} else if (Too_Much_CPU(0)) {
 				        safe_str("#-1 FUNCTION CPU LIMIT EXCEEDED", buff, bufc);
 				} else if (Going(player)) {
 				        safe_str("#-1 BAD INVOKER", buff, bufc);
@@ -1069,9 +1067,7 @@ char *cargs[];
 				} else if (mudstate.func_invk_ctr >=
 					   mudconf.func_invk_lim) {
 					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, bufc);
-				} else if ((mudconf.func_cpu_lim > 0) &&
-					   (clock() - mudstate.cputime_base >
-					    mudconf.func_cpu_lim)) {
+				} else if (Too_Much_CPU(0)) {
 					safe_str("#-1 FUNCTION CPU LIMIT EXCEEDED", buff, bufc);
 				} else if (Going(player)) {
 					/* Deal with the peculiar case of the

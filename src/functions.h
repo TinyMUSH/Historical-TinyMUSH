@@ -312,6 +312,13 @@ if ((l) > 0) { \
     **bufc = '\0'; \
 }
 
+/* Handling CPU time checking. */
+
+#define Too_Much_CPU(x) \
+((mudconf.func_cpu_lim > (x)) && \
+ (mudstate.cputime_base > 0) && \
+ (clock() - mudstate.cputime_base > mudconf.func_cpu_lim))
+
 /* Function-specific flags used in the function table. */
 
 /* from handle_sets (setunion, setdiff, setinter, lunion, ldiff, linter): */

@@ -2567,8 +2567,7 @@ FUNCTION(fun_until)
 
     for (wc = 0;
 	 (wc < nwords) && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
-	     ((mudconf.func_cpu_lim <= 0) ||
-	      (clock() - mudstate.cputime_base < mudconf.func_cpu_lim));
+	     !Too_Much_CPU(0);
 	 wc++) {
 	for (i = 2; i <= lastn; i++) {
 	    if (count[i]) {

@@ -885,8 +885,7 @@ const void *s1, *s2;
 
 	if ((mudstate.func_invk_ctr > mudconf.func_invk_lim) ||
 	    (mudstate.func_nest_lev > mudconf.func_nest_lim) ||
-	    ((mudconf.func_cpu_lim > 0) &&
-	     (clock() - mudstate.cputime_base > mudconf.func_cpu_lim)))
+	    Too_Much_CPU(0))
 		return 0;
 
 	tbuf = alloc_lbuf("u_comp");
