@@ -25,7 +25,7 @@ extern char * FDECL(get_doing, (dbref, int));
 extern void FDECL(make_sessioninfo, (dbref, dbref, int, char *, char **));
 extern dbref FDECL(get_programmer, (dbref));
 extern void FDECL(cf_display, (dbref, char *, char *, char **));
-extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
+extern int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 
 #define Find_Connection(x,s,t,p) \
 	p = t = NOTHING;	\
