@@ -275,6 +275,36 @@ AC_ARG_WITH(global-regs,
   ], AC_DEFINE(MAX_GLOBAL_REGS,36)
        AC_MSG_RESULT(36))
 
+AC_MSG_CHECKING(for modules to enable)
+AC_ARG_ENABLE(modules,
+  [  --enable-modules=module1,module2,...
+                          build and link with the specified modules.
+                          Included modules are comsys, mail, and hello
+                          [default=comsys,mail]],
+  [
+    if test "x$enableval" = "xno"; then
+      modules=""
+      AC_MSG_RESULT(none)
+    else
+      modules=`echo "$enableval" | tr ',' ' '`
+      AC_MSG_RESULT($enableval)
+    fi
+  ], [
+    modules="comsys mail"
+    enableval="comsys,mail"
+    AC_MSG_RESULT($enableval)
+  ])
+
+for module in $modules; do
+  if test ! -d "modules/$module"; then
+    AC_MSG_ERROR(no such module: $module)
+  fi
+  INCMODULECODE="include modules/${module}/Makefile.inc\\
+${INCMODULECODE}"
+  MODULEDIRS="modules/${module} ${MODULEDIRS}"
+done
+AC_SUBST(INCMODULECODE)
+
 dnl Program checks
 
 AC_PROG_CC
@@ -704,6 +734,7 @@ AC_CHECK_LIB(socket, main)
 AC_CHECK_LIB(nsl, main)
 AC_CHECK_LIB(inet, gethostbyaddr)
 AC_CHECK_LIB(m, main)
+AC_SUBST(LIBOBJS)
 
 dnl Header checks
 
@@ -872,18 +903,8 @@ AC_EGREP_HEADER(getrlimit,sys/resource.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETRL
 AC_MSG_CHECKING(for strtok_r dcl)
 AC_EGREP_HEADER(strtok_r,string.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_STRTOK_R_DCL) AC_MSG_RESULT(no))
 
-dnl Find out which modules to compile. 
+dnl Configure for modules.
 
-moduledirs1=`find modules -name configure.in -print | sed 's/\/configure.in//g'`
-moduledirs=`echo $moduledirs1`
-modules=`echo $moduledirs | sed 's/modules\///g'`
-for module in $modules; do
-	MOD_DL="-dlopen modules/${module}/${module}.la ${MOD_DL}"
-	MOD_LA="modules/${module}/${module}.la ${MOD_LA}"
-done
-AC_SUBST(MOD_DL)
-AC_SUBST(MOD_LA)
-AC_CONFIG_SUBDIRS($moduledirs)
+AC_CONFIG_SUBDIRS($MODULEDIRS)
 
-AC_SUBST(LIBOBJS)
 AC_OUTPUT(Makefile)

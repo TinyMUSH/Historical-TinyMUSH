@@ -1,0 +1,20 @@
+# Makefile for 'hello' example module
+#
+# Module source files
+MOD_S += modules/hello/hello.c
+MOD_O += modules/hello/hello.o
+MOD_LA += modules/hello/hello.la
+MOD_DL += -dlopen ../game/modules/hello.la
+
+modules/hello/hello.o: modules/hello/hello.c
+	$(LIBTOOL) --mode=compile $(CC) $(ALLCFLAGS) -o $@ -c `echo $@ | sed -e 's/o$$/c/'`
+
+modules/hello/hello.la: modules/hello/hello.o
+	$(LIBTOOL) --mode=link $(CC) -module -o $@ `echo $@ | sed -e 's/a$$/o/'` -rpath `pwd`/../game/modules
+
+install-modules: install-hello
+
+install-hello: modules/hello/hello.la
+	-mv ../game/modules/.libs/hello.* ../game/modules/old
+	$(LIBTOOL) --mode=install cp modules/hello/hello.la `pwd`/../game/modules/hello.la
+	touch install-hello

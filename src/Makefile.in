@@ -1,5 +1,6 @@
 # Makefile for TinyMUSH 3.1
 #
+all: install
 # ===================== CONFIGURATION SECTION ====================
 #
 # Select the correct C compiler.  Whatever you choose, it must be able
@@ -66,8 +67,7 @@ MALLOC_O = @MALLOC_O@
 
 # ----- This set of definitions causes modules to be built.
 #        These variables are set by the configure script (--help for options).
-MOD_LA = @MOD_LA@
-MOD_DL = @MOD_DL@
+@INCMODULECODE@
 
 # Select the networking support you have.  Currently only BSD networking
 # is supported.
@@ -136,9 +136,9 @@ VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
 
 # Compilation source files
 ALL_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S) \
-	  $(AUX_S)
+	  $(AUX_S) $(MOD_S)
 
-ALL_I	= $(D_I) $(UDB_I) $(VER_I)
+ALL_I	= $(D_I) $(UDB_I) $(VER_I) $(MOD_I)
 
 MUSH_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S)
 MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
@@ -146,11 +146,9 @@ MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
 
 OUT	= netmush mkindx slave recover
 
-# paths is likely to remain broken
-all: install
-
 depend: $(ALL_S) unsplit Makefile
 	for i in $(ALL_S); do $(CPP) $(ALLCFLAGS) @CPP_DEP@ $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
+
 	mv .depend~ .depend
 	touch depend
 
@@ -166,6 +164,9 @@ install: build
 	cd ../game/bin ; rm -f recover ; ln -s ../../src/recover recover
 	cd ../game/text; rm -f mkindx; ln -s ../../src/mkindx mkindx
 	touch install
+
+install-modules:
+	touch install-modules
 
 .c.o:
 	$(CC) $(ALLCFLAGS) -c $<
@@ -189,30 +190,30 @@ recover: recover.o
 unsplit: unsplit.o
 	$(CC) $(ALLCFLAGS) -o unsplit unsplit.o
 
-netmush: $(MUSH_O) $(MOD_LA)
+netmush: $(MUSH_O) install-modules
 	-mv -f netmush netmush~
 	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
-netmush-pure: $(MUSH_O) $(MOD_LA)
+netmush-pure: $(MUSH_O) install-modules
 	-rm -f netmush-pure
 	$(PUREDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
 	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-pure $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
-netmush-purecov: $(MUSH_O) $(MOD_LA)
+netmush-purecov: $(MUSH_O) install-modules
 	-rm -f netmush-purecov
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	-log-file=purify/netmush.plog \
 	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-purecov $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
-netmush-realpure: $(MUSH_O) $(MOD_LA)
+netmush-realpure: $(MUSH_O) install-modules
 	-rm -f netmush-realpure
 	$(PURIFYDIR)/purify -view-file=purify/netmush.pv \
 	-log-file=purify/netmush.plog \
 	$(PURECOVDIR)/purecov -counts-file=purify/netmush.pcv \
 	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush-realpure $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
-netmush-quant: $(MUSH_O) $(MOD_LA)
+netmush-quant: $(MUSH_O) install-modules
 	-rm -f netmush-quant
 	$(QUANTDIR)/quantify -view-file=purify/quant.pv \
 	-log-file=purify/quant.plog \
