@@ -70,7 +70,7 @@ if [ "$game_log" != "$LOGNAME" ]; then
 	fi
 fi
 
-rm -f $game_log.+([0-9])
+ls $game_log.* | egrep "^$game_log\.([0-9])+$" | xargs rm -f
 if [ $del_all -eq 1 ]; then
 	echo "Removing game logs ($game_log)"
 	rm -f $game_log $game_log.old
@@ -97,7 +97,7 @@ log_list=`egrep -i divert_log $GAMENAME.conf | awk '{ print $3; }'`
 if [ -n "$log_list" ]; then
 	for logfile in $log_list
 	do
-		rm -f $logfile.+([0-9])
+		ls $logfile.* | egrep "^$logfile\.([0-9])+$" | xargs rm -f
 		if [ $del_all -eq 1 ]; then
 			echo "Removing logs ($logfile)"
 			rm -f $logfile $logfile.old
