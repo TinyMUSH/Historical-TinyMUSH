@@ -279,17 +279,13 @@ char *what, *where;
 			break;
 		}
 		room = parse_linkable_room(player, where);
-
-		if (room == HOME) {
-			s_Dropto(thing, room);
-			if (!Quiet(player))
-				notify_quiet(player, "Dropto set.");
-		} else if (!(Good_obj(room))) {
+		if (!(Good_obj(room) || (room == HOME)))
 			break;
-		} else if (!isRoom(room)) {
+
+		if ((room != HOME) && !isRoom(room)) {
 			notify_quiet(player, "That is not a room!");
-		} else if (!(Linkable(player, room) &&
-			     Passes_Linklock(player, room))) {
+		} else if ((room != HOME) && Linkable(player, room) &&
+			   Passes_Linklock(player, room)) {
 			notify_quiet(player, NOPERM_MESSAGE);
 		} else {
 			s_Dropto(thing, room);
