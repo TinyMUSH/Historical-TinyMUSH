@@ -282,10 +282,10 @@ FUNCTION(fun_inum)
 FUNCTION(fun_fold)
 {
 	dbref aowner, thing;
-	int aflags, alen, anum;
+	int aflags, alen, anum, i;
 	ATTR *ap;
-	char *atext, *result, *curr, *bp, *str, *cp, *atextbuf, *clist[2],
-	*rstore, sep;
+	char *atext, *result, *curr, *bp, *str, *cp, *atextbuf;
+	char *op, *clist[3], *rstore, sep;
 
 	/* We need two to four arguements only */
 
@@ -304,13 +304,19 @@ FUNCTION(fun_fold)
 
 	/* may as well handle first case now */
 
+	
+	i = 1;
+	clist[2] = alloc_sbuf("fun_fold.objplace");
+	op = clist[2];
+	safe_ltos(clist[2], &op, i);
+
 	if ((nfargs >= 3) && (fargs[2])) {
 		clist[0] = fargs[2];
 		clist[1] = split_token(&cp, sep);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
 		exec(result, &bp, 0, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 2);
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
 		*bp = '\0';
 	} else {
 		clist[0] = split_token(&cp, sep);
@@ -318,31 +324,36 @@ FUNCTION(fun_fold)
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
 		exec(result, &bp, 0, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 2);
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
 		*bp = '\0';
 	}
 
 	rstore = result;
 	result = NULL;
+	i++;
 
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	       ((mudconf.func_cpu_lim <= 0) ||
 		(clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 		clist[0] = rstore;
 		clist[1] = split_token(&cp, sep);
+		op = clist[2];
+		safe_ltos(clist[2], &op, i);
 		StrCopyKnown(atextbuf, atext, alen);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
 		exec(result, &bp, 0, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 2);
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
 		*bp = '\0';
 		strcpy(rstore, result);
 		free_lbuf(result);
+		i++;
 	}
 	safe_str(rstore, buff, bufc);
 	free_lbuf(rstore);
 	free_lbuf(atext);
 	free_lbuf(atextbuf);
+	free_sbuf(clist[2]);
 }
 
 /* ---------------------------------------------------------------------------
@@ -369,9 +380,9 @@ static void handle_filter(player, caller, cause, arg_func, arg_list,
     int flag;			/* 0 is filter(), 1 is filterbool() */
 {
 	dbref aowner, thing;
-	int aflags, alen, anum;
+	int aflags, alen, anum, i;
 	ATTR *ap;
-	char *atext, *result, *curr, *objstring, *bp, *str, *cp, *atextbuf;
+	char *atext, *result, *curr, *objs[2], *bp, *str, *cp, *op, *atextbuf;
 	char *bb_p;
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
@@ -382,26 +393,32 @@ static void handle_filter(player, caller, cause, arg_func, arg_list,
 	/* Now iteratively eval the attrib with the argument list */
 
 	cp = curr = trim_space_sep(arg_list, sep);
-	atextbuf = alloc_lbuf("fun_filter");
+	atextbuf = alloc_lbuf("fun_filter.atextbuf");
+	objs[1] = alloc_sbuf("fun_filter.objplace");
 	bb_p = *bufc;
+	i = 1;
 	while (cp) {
-		objstring = split_token(&cp, sep);
+		objs[0] = split_token(&cp, sep);
+		op = objs[1];
+		safe_ltos(objs[1], &op, i);
 		StrCopyKnown(atextbuf, atext, alen);
 		result = bp = alloc_lbuf("fun_filter");
 		str = atextbuf;
 		exec(result, &bp, 0, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
 		*bp = '\0';
 		if ((!flag && (*result == '1')) || (flag && xlate(result))) {
 		        if (*bufc != bb_p) {
 			    print_sep(osep, buff, bufc);
 			}
-			safe_str(objstring, buff, bufc);
+			safe_str(objs[0], buff, bufc);
 		}
 		free_lbuf(result);
+		i++;
 	}
 	free_lbuf(atext);
 	free_lbuf(atextbuf);
+	free_sbuf(objs[1]);
 }
 
 FUNCTION(fun_filter)
@@ -437,7 +454,9 @@ FUNCTION(fun_map)
 	dbref aowner, thing;
 	int aflags, alen, anum;
 	ATTR *ap;
-	char *atext, *objstring, *str, *cp, *atextbuf, *bb_p, sep, osep;
+	char *atext, *objs[2], *str, *cp, *atextbuf, *bb_p, *op;
+	char sep, osep;
+	int i;
 
 	svarargs_preamble("MAP", 4);
 
@@ -453,22 +472,28 @@ FUNCTION(fun_map)
 	/* now process the list one element at a time */
 
 	cp = trim_space_sep(fargs[1], sep);
-	atextbuf = alloc_lbuf("fun_map");
+	atextbuf = alloc_lbuf("fun_map.atextbuf");
+	objs[1] = alloc_sbuf("fun_map.objplace");
 	bb_p = *bufc;
+	i = 1;
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	       ((mudconf.func_cpu_lim <= 0) ||
 		(clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	        if (*bufc != bb_p) {
 		    print_sep(osep, buff, bufc);
 		}
-		objstring = split_token(&cp, sep);
+		objs[0] = split_token(&cp, sep);
+		op = objs[1];
+		safe_ltos(objs[1], &op, i);
 		StrCopyKnown(atextbuf, atext, alen);
 		str = atextbuf;
 		exec(buff, bufc, 0, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
+		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
+		i++;
 	}
 	free_lbuf(atext);
 	free_lbuf(atextbuf);
+	free_sbuf(objs[1]);
 }
 
 /* ---------------------------------------------------------------------------
@@ -611,9 +636,9 @@ FUNCTION(fun_step)
 FUNCTION(fun_foreach)
 {
     dbref aowner, thing;
-    int aflags, alen, anum;
+    int aflags, alen, anum, i;
     ATTR *ap;
-    char *str, *atext, *atextbuf, *cp, *cbuf;
+    char *str, *atext, *atextbuf, *cp, *cbuf[2], *op;
     char start_token, end_token;
     int in_string = 1;
 
@@ -624,7 +649,7 @@ FUNCTION(fun_foreach)
     Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
     atextbuf = alloc_lbuf("fun_foreach");
-    cbuf = alloc_lbuf("fun_foreach.cbuf");
+    cbuf[0] = alloc_lbuf("fun_foreach.cbuf");
     cp = trim_space_sep(fargs[1], ' ');
 
     start_token = '\0';
@@ -638,6 +663,9 @@ FUNCTION(fun_foreach)
 	end_token = *fargs[3];
     }
 
+    i = -1;			/* first letter in string is 0, not 1 */
+    cbuf[1] = alloc_sbuf("fun_foreach.objplace");
+
     while (cp && *cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	   ((mudconf.func_cpu_lim <= 0) ||
 	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
@@ -647,11 +675,13 @@ FUNCTION(fun_foreach)
 	    while (*cp && (*cp != start_token)) {
 		safe_chr(*cp, buff, bufc);
 		cp++;
+		i++;
 	    }
 	    if (!*cp)
 		break;
 	    /* Skip to the next character. Don't copy the start token. */
 	    cp++;
+	    i++;
 	    if (!*cp)
 		break;
 	    in_string = 1;
@@ -662,21 +692,26 @@ FUNCTION(fun_foreach)
 	     * another.
 	     */
 	    cp++;
+	    i++;
 	    in_string = 0;
 	    continue;
 	}
 
-	cbuf[0] = *cp++;
-	cbuf[1] = '\0';
+	i++;
+	cbuf[0][0] = *cp++;
+	cbuf[0][1] = '\0';
+	op = cbuf[1];
+	safe_ltos(cbuf[1], &op, i);
 	StrCopyKnown(atextbuf, atext, alen);
 	str = atextbuf; 
 	exec(buff, bufc, 0, player, caller, cause,
-	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &cbuf, 1);
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cbuf, 2);
     }
 
     free_lbuf(atextbuf);
     free_lbuf(atext);
-    free_lbuf(cbuf);
+    free_lbuf(cbuf[0]);
+    free_sbuf(cbuf[1]);
 }
 
 /* ---------------------------------------------------------------------------
@@ -764,11 +799,11 @@ FUNCTION(fun_while)
 {
     char sep, osep;
     dbref aowner1, thing1, aowner2, thing2;
-    int aflags1, aflags2, anum1, anum2, alen1, alen2;
+    int aflags1, aflags2, anum1, anum2, alen1, alen2, i, tmp_num;
     int is_same, is_exact_same;
     ATTR *ap, *ap2;
     char *atext1, *atext2, *atextbuf, *condbuf;
-    char *objstring, *cp, *str, *dp, *savep, *bb_p;
+    char *objs[2], *cp, *str, *dp, *savep, *bb_p, *op;
 
     svarargs_preamble("WHILE", 6);
 
@@ -787,6 +822,7 @@ FUNCTION(fun_while)
 
     Parse_Uattr(player, fargs[0], thing1, anum1, ap);
     Get_Uattr(player, thing1, ap, atext1, aowner1, aflags1, alen1);
+    tmp_num = ap->number;
     Parse_Uattr(player, fargs[1], thing2, anum2, ap2);
     if (!ap2) {
 	free_lbuf(atext1);	/* we allocated this, remember? */
@@ -798,7 +834,7 @@ FUNCTION(fun_while)
      * same obj/attr pair, or the attributes contain identical text.
      */
 
-    if ((thing1 == thing2) && (ap->number == ap2->number)) {
+    if ((thing1 == thing2) && (tmp_num == ap2->number)) {
 	is_same = 1;
 	is_exact_same = 1;
 	atext2 = atext1;
@@ -822,19 +858,23 @@ FUNCTION(fun_while)
     atextbuf = alloc_lbuf("fun_while.eval");
     if (!is_same)
 	condbuf = alloc_lbuf("fun_while.cond");
+    objs[1] = alloc_sbuf("fun_while.objplace");
     bb_p = *bufc;
+    i = 1; 
     while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	   ((mudconf.func_cpu_lim <= 0) ||
 	    (clock() - mudstate.cputime_base < mudconf.func_cpu_lim))) {
 	if (*bufc != bb_p) {
 	    print_sep(osep, buff, bufc);
 	}
-	objstring = split_token(&cp, sep);
+	objs[0] = split_token(&cp, sep);
+	op = objs[1];
+	safe_ltos(objs[1], &op, i);
 	StrCopyKnown(atextbuf, atext1, alen1);
 	str = atextbuf;
 	savep = *bufc;
 	exec(buff, bufc, 0, player, caller, cause,
-	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
 	if (is_same) {
 	    if (!strcmp(savep, fargs[3]))
 		break;
@@ -842,10 +882,11 @@ FUNCTION(fun_while)
 	    StrCopyKnown(condbuf, atext2, alen2);
 	    dp = str = savep = condbuf;
 	    exec(condbuf, &dp, 0, player, caller, cause,
-		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
 	    if (!strcmp(savep, fargs[3]))
 		break;
 	}
+	i++;
     }
     free_lbuf(atext1);
     if (!is_exact_same)
@@ -853,4 +894,5 @@ FUNCTION(fun_while)
     free_lbuf(atextbuf);
     if (!is_same)
 	free_lbuf(condbuf);
+    free_sbuf(objs[1]);
 }
