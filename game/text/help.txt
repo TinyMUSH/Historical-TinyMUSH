@@ -1,5 +1,5 @@
 & help
-  This is the MUX online help facility.
+  This is the MUSH online help facility.
  
      Notes on help descriptions: 
         [text] - Text enclosed in []'s is optional.  The []'s are never typed
@@ -10,21 +10,21 @@
   -  Syntax of help command:
        help [<command>]
  
-  -  To get a list of MUX topics:
+  -  To get a list of MUSH topics:
        help topics 
  
   -  To get a list of Comsystem commands:
        help comsys
   
-  -  To get a list of MUX Commands:
+  -  To get a list of MUSH Commands:
        help commands      (or @list commands)
  
   Some of the configuration shown in the help.txt might not be the same as
-  the configuration of this MUX. If you notice any errors, contact an Admin.
+  the configuration of this MUSH. If you notice any errors, contact an Admin.
 
 & commands
 
-  Help available for MUX Commands:
+  Help available for MUSH Commands:
   Note: Some commands are @-related.
  
   drop         enter        examine      get          give         goto
@@ -49,7 +49,7 @@
 
 & commands2
 
-  Help available for MUX Commands (continued):
+  Help available for MUSH Commands (continued):
  
   @aahear      @aclone      @aconnect    @adescribe   @adfail      @adisconnect
   @adrop       @aefail      @aenter      @afail       @agfail      @ahear
@@ -87,14 +87,14 @@
 
 & PIPING
  
-  Command piping in MUX is similar to piping in a UNIX shell. You string two
+  Command piping in MUSH is similar to piping in a UNIX shell. You string two
   or more commands together using the ;| symbol, much as you would using a
   semicolon. The output from the previous command in a pipe is accessable
   using the %| substitution. This output contains the raw ASCII codes that
   would normally be directly output to your terminal. You may use the
   translate() function to either convert the raw characters in the output to
-  MUX substitutions, or strip them out altogether. Like the semicolon, the ;|
-  symbol in MUX is taken literally if you type it on the terminal. Currently
+  MUSH substitutions, or strip them out altogether. Like the semicolon, the ;|
+  symbol in MUSH is taken literally if you type it on the terminal. Currently
   you may only pipe 20 commands in a row.
  
   Examples:
@@ -111,7 +111,7 @@
  
 & PUEBLO
  
-  Details on Pueblo support in TinyMUX:
+  Details on Pueblo support in TinyMUSH:
  
   @VRML_URL is the URL of a VRML scene for a particular room.
   @HTDesc is an alternate description for players who are logged in using
@@ -124,13 +124,13 @@
 
   ZONE OBJECTS
  
-  Zones are areas of the MUX which may be controlled by many people.
+  Zones are areas of the MUSH which may be controlled by many people.
   Essentially, they allow group ownership of objects. 
   
   The default zone is NOTHING. Any building done by a player defaults
   to belonging to the same zone that the player belongs to.
   Every zone is defined by a Zone Master Object (ZMO). The ZMO is an
-  ordinary MUX object owned by some player. A wizard may change the
+  ordinary MUSH object owned by some player. A wizard may change the
   zone of an object or player to a ZMO.
   
   If the ZMO is a room, it is called a "Parent room." Most of the
@@ -198,7 +198,7 @@
   
 & comsys
  
-  This is the help for the MUX comsystem. Note that the channel
+  This is the help for the MUSH comsystem. Note that the channel
   names and aliases are case-sensitive. Upon creation, new players
   automatically join the "Public" channel, while guest characters join
   channel "Guests" when they connect.
@@ -238,7 +238,7 @@
  
 & comsys commands
  
-  These are the topics for the MUX comsystem:
+  These are the topics for the MUSH comsystem:
   
   addcom       allcom       alias        comlist      comtitle     clearcom
   delcom
@@ -728,7 +728,7 @@
 & news
 
   Command: news [<topic>]
-  Shows you the current news for the MUX. It is highly recommended that
+  Shows you the current news for the MUSH. It is highly recommended that
   you check the news daily for new information.  Otherwise, the wizards will
   have no pity on you for messing up with the new commands.
 
@@ -904,7 +904,7 @@
   Command: SESSION
   Displays information on how many characters you have sent and received
   during this session, and which (Internal) port you are connected to on the
-  MUX.  It must be typed in all uppercase.
+  MUSH.  It must be typed in all uppercase.
  
   Example:
     > SESSION
@@ -915,7 +915,7 @@
  
   Pending characters are those waiting to be acted on as commands (for input)
   or waiting to be sent out over the network (output).  Lost characters are
-  due to overflowing either the MUX's input or output buffers, either as the
+  due to overflowing either the MUSH's input or output buffers, either as the
   result of running a single command that produces too much output (such as
   @find and @search commands that match a large number of objects), or from
   typing too much on one line.
@@ -998,7 +998,7 @@
 & version
 
   Command: version
-  Displays the version of MUX that is running and the date it was last
+  Displays the version of MUSH that is running and the date it was last
   rebuilt.
 
 & whisper
@@ -1017,7 +1017,7 @@
 & WHO
 
   Command: WHO <prefix>
-  Displays a list of players currently connected to the MUX.
+  Displays a list of players currently connected to the MUSH.
   The WHO report tells you how long a player has been on, how long they
   have been inactive, and what they are doing (if they have used the @doing
   command).  If <prefix> is specified, only players whose names start with
@@ -1046,7 +1046,7 @@
   Command: @@ <args>
  
   This command does nothing, therefore it is useful for putting comments into
-  a MUX program.  Be careful that ()'s and {}'s in the (otherwise ignored)
+  a MUSH program.  Be careful that ()'s and {}'s in the (otherwise ignored)
   arguments are nested correctly, lest your command-ending ; be trapped
   inside.
  
@@ -1169,8 +1169,8 @@
 
   Command: @decompile[/dbref] <thing>[/attr] [=<newname>]
   Dumps the sequence of commands you would have to type to clone <thing>.
-  This is handy for saving your objects in a text file in case the MUX dies
-  a horrible death, or for moving your pride-and-joy creation from one MUX
+  This is handy for saving your objects in a text file in case the MUSH dies
+  a horrible death, or for moving your pride-and-joy creation from one MUSH
   to another.  @decompile works on all object types.
   If you specify <newname>, then the commands emitted will set attributes,
   locks, and flags on an object named <newname> and will omit the command
@@ -1311,7 +1311,7 @@
   If both switches are specified, the message is sent to both places.  If
   neither is specified, /here is assumed.
  
-  Some MUXes may restrict the use of this command.
+  Some MUSHes may restrict the use of this command.
   See also: @femit, @oemit, @pemit, @npemit, @remit, SPOOFING.
 
 & @remit
@@ -1357,7 +1357,7 @@
   If both switches are specified, the message is sent to both places.  If
   neither is specified, /here is assumed.
  
-  Some MUXes may restrict the use of this command.
+  Some MUSHes may restrict the use of this command.
   See also: @remit, @emit, @fpose, @fsay, INHERIT, SPOOFING.
 
 & @find
@@ -1544,8 +1544,8 @@
                                    acted on by LISTEN and AxHEAR, and invoke
                                    $-commands stored on the object.
      DropLock:     All but rooms:  controls who may drop that object.
-     UserLock:     All:            Not used by MUX, is intended to be used
-                                   in MUX programming where a user-defined
+     UserLock:     All:            Not used by MUSH, is intended to be used
+                                   in MUSH programming where a user-defined
                                    lock is needed.
  
  Note: If a player fails the UseLock on a parent of an object being searched
@@ -1753,7 +1753,7 @@
   @mail[/<switches>] <player-list> = <subject>
   @mail[/<switches>] [<msg-list> [= <target>]]
  
-  @mail invokes the built-in MUX mailer, which allows players to send
+  @mail invokes the built-in MUSH mailer, which allows players to send
   and receive mail. Pronoun/function substitution is performed on
   any messages you may try to send.
  
@@ -1889,7 +1889,7 @@
  
 & mail-folders
 
-  The MUX mail system allows each player 16 folders, numbered from
+  The MUSH mail system allows each player 16 folders, numbered from
   0 to 15. Mail can only be in 1 folder at a time. Folder 0 is
   the "inbox" where new mail is received. Most @mail commands
   operate on only the current folder.
@@ -1939,7 +1939,7 @@
   Here is an example of mailing a player, where is the player will be "bob",
   and sending the mail.
  
-  > @mail bob = The MUX              - This is the Subject line. 
+  > @mail bob = The MUSH              - This is the Subject line. 
  
   Sending mail to player 'Bob'
   > -Hi bob.                         - This is where you will enter the body
@@ -2076,7 +2076,7 @@
   switch is given.  <what> must be either in the same location as you or
   be something you own.  You can also @pemit to distant players if
   pagelocks allow you to page them, and this costs as much as a page
-  <This feature is not present in all MUXes>.  You cannot @pemit to the
+  <This feature is not present in all MUSHes>.  You cannot @pemit to the
   contents of something you don't own.
  
   The following switches are available:
@@ -2144,7 +2144,7 @@
 & @program
   Command: @program <player>=<obj/attr>[:<prefix>]
   
-  This command allows for small 'programs' within MUX. To understand this
+  This command allows for small 'programs' within MUSH. To understand this
   command, you must first understand the fact that it completely bypasses any
   commands, built-in or otherwise, and allows you to send user-input directly
   into your code.
@@ -3035,7 +3035,7 @@
   command 'enter <object>' when you are in the same location as the object.
   The alternate commands are separated by semicolons just like in exit names.
  
-  Entry aliases are checked for after exitnames, builtin MUX commands, and
+  Entry aliases are checked for after exitnames, builtin MUSH commands, and
   leave aliases for the current location, but before $-commands.  If more than
   one object has an entry alias that matches a player's command, the one on
   the object that occurs first in the location contents list is used.
@@ -3279,7 +3279,7 @@
   command 'leave' when you are inside a player or a thing.  The alternate
   commands are separated by semicolons just like in exit names.
  
-  Leave aliases are checked for after exitnames and builtin MUX commands, but
+  Leave aliases are checked for after exitnames and builtin MUSH commands, but
   before enter aliases and $-commands.
  
   This attribute is meaningful for players and things, and will never be
@@ -3846,7 +3846,7 @@
   a room, resetting a puzzle or complex object to its initial state, or
   starting up an object that wants to run continuously.
  
-  Example: @startup me = @vz me=MUX was last restarted at [time()].
+  Example: @startup me = @vz me=MUSH was last restarted at [time()].
            @startup me = home
 
 & @success
@@ -4062,7 +4062,7 @@
 
   PLAYER The PLAYER flag identifies you as a player. This flag cannot
   be reset by any player, not even a Wizard (not, yet, anyway 
-  *grin*).  It is used mainly by the MUX code to identify your 
+  *grin*).  It is used mainly by the MUSH code to identify your 
   commands, check for validity of commands or locks etc. Generally, 
   just pretend it isn't even there.
 
@@ -4107,7 +4107,7 @@
 
 & HALTED
 
-  HALTED    While this flag is set, the object cannot perform any MUX 
+  HALTED    While this flag is set, the object cannot perform any MUSH 
   actions, listen, be triggered, etc.
 
 & STICKY
@@ -4121,7 +4121,7 @@
 
   Flag: TEMPLE
 
-  The TEMPLE flag is no longer a part of TinyMUX.
+  The TEMPLE flag is no longer a part of TinyMUSH.
 
 & ROYALTY
 
@@ -4136,7 +4136,7 @@
  
 & STAFF
   STAFF  This flag can be used to mark players who serve as staff on the
-  MUX. It is wizard-settable only.
+  MUSH. It is wizard-settable only.
  
 
 & ANSI
@@ -4146,7 +4146,7 @@
   leave this flag set and /set catch_ctrls=ansi. The reason for this is when
   the ANSI flag is unset, the server must go through every line of text you
   see and strip the ANSI codes from it. With the ANSI flag set and /set
-  catch_ctrls=ansi, TinyFugue will strip the ANSI and save the MUX from
+  catch_ctrls=ansi, TinyFugue will strip the ANSI and save the MUSH from
   having to do it, resulting in less lag for everyone.
  
   See also: ansi(), NOBLEED.
@@ -4157,7 +4157,7 @@
   the normal ANSI 'normal' character, so it will fix ANSI color 'bleed' on
   most terminals. (Bleed occurs when a color extends into text it was not
   meant to.) Do not set this flag unless you have to, it tends to slow down
-  the text display for the MUX.
+  the text display for the MUSH.
   
 & HEAD
  
@@ -4181,7 +4181,7 @@
   NO_COMMAND   The NO_COMMAND flag disables the checking of $-commands 
   on an object.
  
-  Most MUXes will be configured to automatically set this flag on rooms
+  Most MUSHes will be configured to automatically set this flag on rooms
   and players. The server runs faster when fewer objects are checked for
   $-commands; thus, any object which does not have $-commands on it should
   be set NO_COMMAND.
@@ -4279,7 +4279,7 @@
 
   Players:
   When set on a player, this flag notifies that player whenever someone
-  connects or disconnects from the MUX. It is valid only for players, and
+  connects or disconnects from the MUSH. It is valid only for players, and
   must be set by a wizard.
  
   See also: LISTENING.
@@ -4368,7 +4368,7 @@
  
   If set on a player, indicates that the player is a robot and is allowed to
   use the OUTPUTPREFIX and OUTPUTSUFFIX commands that many publicly available
-  robot programs require.  Some MUXes do not restrict access to the
+  robot programs require.  Some MUSHes do not restrict access to the
   OUTPUTPREFIX and OUTPUTSUFFIX commands.
  
   If set on an exit or a thing, indicates that robot players may not use the
@@ -4714,7 +4714,7 @@
 
   Topic: CREDITS
  
-TinyMUX 1.0 is derived from TinyMUSH 2.0.10 patchlevel 6. It is maintained
+TinyMUSH 1.0 is derived from TinyMUSH 2.0.10 patchlevel 6. It is maintained
 by Lauren (Children of the Atom) and would not exist without the generous
 contributions of many individuals. Ideas for features (and occasionally
 code) came from many places, including TinyMUSE, and PennMUSH.
@@ -4732,7 +4732,7 @@ We would like to thank the following people:
   many, many, many bugs, in his own gleeful manner of crashing our site.
  
 - Alan Schwartz (Javelin/Paul) and Lydia Leong (Amberyl), whose extended
-  mailer from PennMUSH is the basis for MUX's @mail system. Also,
+  mailer from PennMUSH is the basis for MUSH's @mail system. Also,
   Brandy (CrystalMUSH) who's +mail system inspired many of the features.
  
 - Ethaniel and Kayan Telva (BTech3056) for the basic comsystem and macro code.
@@ -4828,7 +4828,7 @@ We would like to thank the following people:
   A number of things happen when you leave one location and enter another
   (assuming you pass the lock on the exit or have permission to enter the
   object or to teleport to the location).  The following list describes the
-  actions that MUX takes when an object moves from one place to another.
+  actions that MUSH takes when an object moves from one place to another.
   Note that if an indicated attribute is not set, no message is displayed
   (or no action is performed).
  
@@ -4894,7 +4894,7 @@ We would like to thank the following people:
   Topic: EXITS
  
   An exit links one location to another location, providing a way to travel
-  on the MUX.  Although normally used to link rooms together, exits can be
+  on the MUSH.  Although normally used to link rooms together, exits can be
   made to and from players and objects.
  
   You may pick up exits that you own, and drop exits into locations that
@@ -4919,7 +4919,7 @@ We would like to thank the following people:
 
   Topic: FLAGS
  
-  Everything in the universe of this MUX (Rooms, Exits, Things, Players,
+  Everything in the universe of this MUSH (Rooms, Exits, Things, Players,
   etc) are represented in the same way at the program level.  A room merely
   has the room flag set and a player has the player flag set.  In addition,
   flags also give objects abilities or qualities.  For instance, a wizard
@@ -4951,7 +4951,7 @@ We would like to thank the following people:
     z - CONTROL_OK |   ? - HEAD       |   - - NOBLEED    |   | - VACATION
   ------------------------------------------------------------------------
   For information on a particular flag, type 'help <flagname>'.
-  Some flags may be disabled at the MUX you are located.
+  Some flags may be disabled at the MUSH you are located.
 
 & FUNCTIONS
 
@@ -4960,7 +4960,7 @@ We would like to thank the following people:
   Functions are specialized commands used to manipulate strings and other
   input. The format for a function is of this form: [fun-name(<input>)]
   Although usually the []'s indicate an input that is optional, in this case
-  they are necessary and tell the MUX that this is a function, although
+  they are necessary and tell the MUSH that this is a function, although
   nested functions (like [first(rest(This is a nice day))] returns 'is') do
   not require more than one pair of []'s.  Nested brackets may be used when
   it is necessary to insert a function call in the middle of an argument,
@@ -5186,7 +5186,7 @@ We would like to thank the following people:
     1.  You receive a daily allowance for each day you connect.
     2.  You have a chance of finding money as you wander around areas that
         other people have built.
-    3.  Some MUXes may implement a place where you can sell valuable objects
+    3.  Some MUSHes may implement a place where you can sell valuable objects
         for money.
   See also: @list costs, COSTS.
 
@@ -5212,7 +5212,7 @@ We would like to thank the following people:
 
   Topic: ROBBERY
  
-  Robbing is not allowed on this MUX. If you really need money, ask your
+  Robbing is not allowed on this MUSH. If you really need money, ask your
   friendly neighborhood wizard.
   See also: MONEY.
 
@@ -5418,7 +5418,7 @@ We would like to thank the following people:
 
   Topic: COMMAND EVALUATION
 
-  When you submit a command to be executed by MUX (whether by typing it in or
+  When you submit a command to be executed by MUSH (whether by typing it in or
   by having a machine run it, the following steps are performed, in sequence.
   If the command matches something in a step, the matching actions are
   performed and the walk down the list stops.
@@ -5438,7 +5438,7 @@ We would like to thank the following people:
 
 & command evaluation2
 
-  - The first word of the command is checked to see if it is an internal MUX
+  - The first word of the command is checked to see if it is an internal MUSH
     command.  If so, the remainder of the command is broken up into arguments,
     %-substitution and function evaluation may be performed on the (split up)
     arguments, and the command is executed.
@@ -5446,7 +5446,7 @@ We would like to thank the following people:
   - All objects in the player's inventory, all objects in the player's
     location, and the location itself are searched for $-commands that match
     the command.  All that match are performed.  The player may or may not be
-    checked, depending on how the MUX is configured.
+    checked, depending on how the MUSH is configured.
   - The commands defined in the zone tree you or your location is in.
 
   Note: Commands that can cause other commands to be executed (such as @wait,
@@ -6824,7 +6824,7 @@ We would like to thank the following people:
 
   Function: starttime()
  
-  Returns a string which is the time the MUX last rebooted.  The time
+  Returns a string which is the time the MUSH last rebooted.  The time
   is in the same format as the TIME() function returns.
  
   Example:
@@ -6866,15 +6866,15 @@ We would like to thank the following people:
 
   Function: version()
  
-  Returns a string which contains various version information for the MUX
+  Returns a string which contains various version information for the MUSH
   you're on.
  
   Example:
      > version
-     TinyMUX Beta version 2.0 patchlevel 0 #3
+     TinyMUSH Beta version 2.0 patchlevel 0 #3
      Build date: Thu Dec  5 10:10:07 EST 1991
      > say version()
-     You say "TinyMUX Beta version 2.0 patchlevel 0 #3"
+     You say "TinyMUSH Beta version 2.0 patchlevel 0 #3"
 
 & HOME()
 
@@ -7005,7 +7005,7 @@ We would like to thank the following people:
  
   Example:
     > say mudname()
-    You say "TestMUX"
+    You say "TestMUSH"
 
 & CAPSTR()
 
@@ -7193,9 +7193,9 @@ We would like to thank the following people:
 
   Function: stats([<player>])
  
-  This function returns information about the number of objects on the MUX,
+  This function returns information about the number of objects on the MUSH,
   much like the @stats command.  If the argument is omitted or is 'all', then
-  the stats for the entire MUX are returned, otherwise the stats for the
+  the stats for the entire MUSH are returned, otherwise the stats for the
   named player are returned.  You can only get stats for yourself.
  
   The stats are returned as a set of 6 numbers, in the same order as reported
@@ -7245,7 +7245,7 @@ We would like to thank the following people:
   Function: list(<list>, <eval>[, <delim>])
  
   This function is exactly like iter() but serves a specialized purpose:
-  MUX has a buffer limit, and for things like lists of players, iter() can
+  MUSH has a buffer limit, and for things like lists of players, iter() can
   quickly become inadequate, since the output is cut off before the listing
   is finished. The normal way to handle this is to use a @dolist/@pemit
   combination, but that takes many queue cycles. list() takes <list>,
@@ -8118,13 +8118,13 @@ We would like to thank the following people:
   of setq()/r() is to temporarily store the result of a complex evaluation
   whose result is needed more than once.
  
-  setq() can be used to improve the readability of MUX code, as well as to
+  setq() can be used to improve the readability of MUSH code, as well as to
   cut down the amount of time needed to do complex evaluations.
  
   Example:
     > &TEST me=Test on [mudname()] at [time()].
     > say [setq(0,u(TEST))]'[r(0)]' has length [strlen(r(0))].
-    You say "'Test on TestMUX at Tue Feb 23 17:00:51 1993.' has length 45."
+    You say "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
   See also: r(), setr().
 
 & SETR()
@@ -8189,9 +8189,9 @@ We would like to thank the following people:
   Function: translate(<string>, <type>)
  
   This function takes <string>, and converts all raw ANSI color codes and
-  carriage returns to either MUX substitutions, or to spaces. If <type> is
+  carriage returns to either MUSH substitutions, or to spaces. If <type> is
   0, the raw codes are converted to spaces, if it is 1, the codes are
-  converted to MUX %c and %r substitutions.
+  converted to MUSH %c and %r substitutions.
 
 & TRIM()
 
@@ -8370,7 +8370,7 @@ We would like to thank the following people:
   mail()
 
   The first form returns a message corresponding to that mail message
-  number in your MUX mailbox. This function can be used to forward
+  number in your MUSH mailbox. This function can be used to forward
   mail, or as a way to simply transfer mail messages to attributes
   on an object.
  
