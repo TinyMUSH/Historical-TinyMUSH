@@ -128,7 +128,7 @@ static char *parse_cronlist(player, bits, low, high, bufp)
     int low, high;
     char *bufp;
 {
-    int i, n_begin, n_end;
+    int i, n_begin, n_end, step_size;
 
     bit_nclear(bits, 0, (high - low + 1)); /* Default is all off */
 
@@ -141,9 +141,8 @@ static char *parse_cronlist(player, bits, low, high, bufp)
 
     while (*bufp && !isspace(*bufp)) {
 	if (*bufp == '*') {
-	    for (i = low; i <= high; i++) {
-		set_cronbits(bits, low, high, i);
-	    }
+	    n_begin = low;
+	    n_end = high;
 	    bufp++;
 	} else if (isdigit(*bufp)) {
 	    n_begin = atoi(bufp); /* atoi() ignores trailing non-digits */
@@ -151,14 +150,11 @@ static char *parse_cronlist(player, bits, low, high, bufp)
 		bufp++;
 	    if (*bufp != '-') {
 		/* We have a single number, not a range. */
-		set_cronbits(bits, low, high, n_begin);
+		n_end = n_begin;
 	    } else {
 		/* Eat the dash, get the range. */
 		bufp++;
 		n_end = atoi(bufp);
-		for (i = n_begin; i <= n_end; i++) {
-		    set_cronbits(bits, low, high, i);
-		}
 		while (*bufp && isdigit(*bufp))
 		    bufp++;
 	    }
@@ -166,6 +162,23 @@ static char *parse_cronlist(player, bits, low, high, bufp)
 	    notify(player, tprintf("Cron parse error at: %s", bufp));
 	    break;
 	}
+
+	/* Check for step size. */
+
+	if (*bufp == '/') {
+	    bufp++;		/* eat the slash */
+	    step_size = atoi(bufp);
+	    while (*bufp && isdigit(*bufp))
+		bufp++;
+	} else {
+	    step_size = 1;
+	}
+
+	/* Go set it. */
+
+	for (i = n_begin; i <= n_end; i += step_size)
+	    set_cronbits(bits, low, high, i);
+
 	/* We've made it through one pass. If the next character isn't
 	 * a comma, we break out of this loop.
 	 */
