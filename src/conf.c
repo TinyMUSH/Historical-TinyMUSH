@@ -231,6 +231,7 @@ void NDECL(cf_init)
 	mudconf.no_ambiguous_match = 0;
 	mudconf.exit_calls_move = 0;
 	mudconf.move_match_more = 0;
+	mudconf.autozone = 1;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1175,6 +1176,8 @@ CONF conftable[] = {
 {(char *)"attr_cmd_access",
 	cf_acmd_access,	CA_GOD,		NULL,
 	(long)access_nametab},
+{(char *)"autozone",
+	cf_bool,	CA_GOD,		&mudconf.autozone,		0},
 {(char *)"bad_name",
 	cf_badname,	CA_GOD,		NULL,				0},
 {(char *)"badsite_file",

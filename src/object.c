@@ -483,7 +483,10 @@ char *name;
 	s_Link(obj, NOTHING);
 	s_Parent(obj, parent);
 
-	s_Zone(obj, Zone(player));
+	if (mudconf.autozone)
+	    s_Zone(obj, Zone(player));
+	else
+	    s_Zone(obj, NOTHING);
 	s_Flags(obj, objtype | f1);
 	s_Flags2(obj, f2);
 	s_Flags3(obj, f3);

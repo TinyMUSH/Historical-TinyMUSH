@@ -205,6 +205,7 @@ struct confdata {
 				  * main command parser (local, global, zone;
 				  * pick random on ambiguous).
 				  */
+	int	autozone;	/* New objs are zoned to creator's zone */
 	dbref	master_room;	/* Room containing default cmds/exits/etc */
 	dbref	player_parent;	/* Parent that players start with */
 	dbref	room_parent;	/* Parent that rooms start with */
