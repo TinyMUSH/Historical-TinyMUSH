@@ -1233,7 +1233,7 @@ int add_helpfile(player, str, is_raw)
 	cmdp->perms = 0;
 	cmdp->pre_hook = NULL;
 	cmdp->post_hook = NULL;
-	cmdp->userperms.hook = NULL;
+	cmdp->userperms = NULL;
 	cmdp->callseq = CS_ONE_ARG;
 	cmdp->info.handler = do_help;
 

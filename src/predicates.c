@@ -757,14 +757,14 @@ void do_hook(player, cause, key, cmdname, target)
 	    notify(player, "After Hook: none");
 	}
 
-	if (cmdp->userperms.hook) {
-	    ap = atr_num(cmdp->userperms.hook->atr);
+	if (cmdp->userperms) {
+	    ap = atr_num(cmdp->userperms->atr);
 	    if (!ap) {
 		notify(player,
  	          "User Permissions contains bad attribute number.");
 	    } else {
 		notify(player, tprintf("User Permissions: #%d/%s",
-				       cmdp->userperms.hook->thing, ap->name));
+				       cmdp->userperms->thing, ap->name));
 	    }
 	} else {
 	    notify(player, "User Permissions: none");
@@ -804,9 +804,9 @@ void do_hook(player, cause, key, cmdname, target)
 	    }
 	    notify(player, "Hook removed.");
 	} else if (key & HOOK_PERMIT) {
-	    if (cmdp->userperms.hook) {
-		XFREE(cmdp->userperms.hook, "do_hook");
-		cmdp->userperms.hook = NULL;
+	    if (cmdp->userperms) {
+		XFREE(cmdp->userperms, "do_hook");
+		cmdp->userperms = NULL;
 	    }
 	    notify(player, "User-defined permissions removed.");
 	} else {
@@ -865,10 +865,10 @@ void do_hook(player, cause, key, cmdname, target)
 	cmdp->post_hook = hp;
 	notify(player, "Hook added.");
     } else if (key & HOOK_PERMIT) {
-	if (cmdp->userperms.hook) {
-	    XFREE(cmdp->userperms.hook, "do_hook");
+	if (cmdp->userperms) {
+	    XFREE(cmdp->userperms, "do_hook");
 	}
-	cmdp->userperms.hook = hp;
+	cmdp->userperms = hp;
 	notify(player, "User-defined permissions will now be checked.");
     } else {
 	XFREE(hp, "do_hook");
@@ -949,7 +949,7 @@ char *s;
 		cmd->extra = 0;
 		cmd->pre_hook = NULL;
 		cmd->post_hook = NULL;
-		cmd->userperms.hook = NULL;
+		cmd->userperms = NULL;
 		cmd->callseq = CS_ADDED | CS_ONE_ARG |
 		    ((old && (old->callseq & CS_LEADIN)) ? CS_LEADIN : 0) |
 		    ((key & ADDCMD_PRESERVE) ? CS_ACTOR : 0);

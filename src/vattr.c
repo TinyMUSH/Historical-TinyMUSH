@@ -183,6 +183,10 @@ int key;
 	    if (used_table[cmdp->post_hook->atr] == 0)
 		cmdp->post_hook->atr = A_TEMP;
 	}
+	if (cmdp->userperms) {
+	    if (used_table[cmdp->userperms->atr] == 0)
+		cmdp->userperms->atr = A_TEMP;
+	}
 	if (cmdp->callseq & CS_ADDED) {
 	    for (addp = (ADDENT *) cmdp->info.added;
 		 addp != NULL;
@@ -297,11 +301,15 @@ int key;
 	 cmdp = (CMDENT *) hash_nextentry(&mudstate.command_htab)) {
 	if (cmdp->pre_hook) {
 	    if (used_table[cmdp->pre_hook->atr] != cmdp->pre_hook->atr)
-		cmdp->pre_hook->atr = used_table[cmdp->post_hook->atr];
+		cmdp->pre_hook->atr = used_table[cmdp->pre_hook->atr];
 	}
 	if (cmdp->post_hook) {
 	    if (used_table[cmdp->post_hook->atr] != cmdp->post_hook->atr)
 		cmdp->post_hook->atr = used_table[cmdp->post_hook->atr];
+	}
+	if (cmdp->userperms) {
+	    if (used_table[cmdp->userperms->atr] != cmdp->userperms->atr)
+		cmdp->userperms->atr = used_table[cmdp->userperms->atr];
 	}
 	if (cmdp->callseq & CS_ADDED) {
 	    for (addp = (ADDENT *) cmdp->info.added;
