@@ -925,7 +925,7 @@ static int ok_program(player, doer)
     dbref player;
     dbref doer;
 {
-    if (! Controls(player, doer)) {
+    if (!(Prog(player) || Prog(Owner(player))) && !Controls(player, doer)) {
         notify(player, NOPERM_MESSAGE);
         return 0;
     }
