@@ -1557,7 +1557,7 @@ FUNCTION(fun_null)
 
 FUNCTION(fun_squish)
 {
-    char *tp, *bp, *p, sep;
+    char *tp, *bp, sep;
 
     if (nfargs == 0) {
 	return;
@@ -1565,27 +1565,37 @@ FUNCTION(fun_squish)
 
     varargs_preamble("SQUISH", 2);
 
-    bp = p = alloc_lbuf("fun_squish");
-    
-    tp = fargs[0];
+    bp = tp = fargs[0];
 
     while (*tp) {
 
-	while (*tp && (*tp != sep))       /* copy non-seps */
-	    *p++ = *tp++;
+	/* Move over and copy the non-sep characters */
 
-	if (!*tp) {		/* end of string */
-	    return;
+	while (*tp && (*tp != sep)) {
+	    *bp++ = *tp++;
 	}
 
-	/* We've hit a sep char. Copy it, then skip to the next non-sep. */
-	*p++ = *tp++;
+	/* If we've reached the end of the string, leave the loop. */
+
+	if (!*tp)
+	    break;
+
+	/* Otherwise, we've hit a sep char. Move over it, and then move on to
+	 * the next non-separator. Note that we're overwriting our own
+	 * string as we do this. However, the other pointer will always
+	 * be ahead of our current copy pointer.
+	 */
+
+	*bp++ = *tp++;
 	while (*tp && (*tp == sep))
 	    tp++;
     }
+
+    /* Must terminate the string */
+
+    *bp = '\0';
     
-    safe_str(bp, buff, bufc);
-    free_lbuf(bp);
+    safe_str(fargs[0], buff, bufc);
 }
 
 
