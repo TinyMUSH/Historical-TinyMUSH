@@ -149,8 +149,14 @@ To patch the server:
   (with a .gz extension).
   If you do not have gzcat, type 'gunzip name_of_patchfile.gz' and then
   'patch -p1 < name_of_patchfile'
-  If you do not have patch, you cannot apply patches. Get your system
-  administrator to install it.
+  If you do not have the 'patch' program on your system, you cannot
+  apply patches. Get your system administrator to install it.
+
+- If you have previously compiled TinyMUSH in this directory, you need
+  to make sure that a clean build of the patched version is done, so type:
+      cd src
+      make clean
+      cd ..
 
 - Type:  ./Build
 
