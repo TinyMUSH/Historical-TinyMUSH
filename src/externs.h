@@ -365,7 +365,8 @@ extern void	FDECL(toast_player, (dbref));
 #define	DROP_QUIET	1	/* Don't do odrop/adrop if control */
 #define	DUMP_STRUCT	1	/* Dump flat structure file */
 #define	DUMP_TEXT	2	/* Dump text (gdbm) file */
-#define DUMP_OPTIMIZE	3	/* Reorganize the gdbm file */
+#define DUMP_OPTIMIZE	4	/* Reorganize the gdbm file */
+#define DUMP_FLATFILE	8	/* Dump to flatfile */
 #define	EXAM_DEFAULT	0	/* Default */
 #define	EXAM_BRIEF	1	/* Nonowner sees just owner */
 #define	EXAM_LONG	2	/* Nonowner sees public attrs too */

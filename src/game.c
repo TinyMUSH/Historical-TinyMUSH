@@ -956,14 +956,20 @@ int dump_type;
 		return;
 	}
 	
-	if (dump_type == 2) {
-		f = tf_fopen(mudconf.indb, O_WRONLY | O_CREAT | O_TRUNC);
+	if ((dump_type == 2) || (dump_type == 3)) {
+		if (dump_type == 2) {
+			f = tf_fopen(mudconf.indb, O_WRONLY | O_CREAT | O_TRUNC);
+		} else {
+			sprintf(tmpfile, "%s.FLAT", mudconf.outdb);
+			f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
+		}
+
 		if (f != NULL) {
 			/* Write a flatfile */
 			db_write(f, F_MUX, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
-			log_perror("DMP", "FAIL", "Opening restart file",
+			log_perror("DMP", "FAIL", "Opening flatfile",
 				   mudconf.indb);
 		}
 #ifdef USE_MAIL
@@ -1109,7 +1115,7 @@ int key;
 		if (!key || (key & DUMP_STRUCT))
 			log_text((char *)" and ");
 	}
-	if (!key || (key & DUMP_STRUCT)) {
+	if (!key || (key & DUMP_STRUCT) || (key & DUMP_FLATFILE)) {
 		log_text((char *)"Checkpointing: ");
 		log_text(buff);
 	}
@@ -1120,8 +1126,12 @@ int key;
 #endif /* MEMORY_BASED */
 	if (!key || (key & DUMP_TEXT))
 		pcache_sync();
-	SYNC;
-	if (!key || (key & DUMP_STRUCT)) {
+
+	if (!key || !(key & DUMP_FLATFILE)) {
+		SYNC;
+	}
+	
+	if (!key || (key & DUMP_STRUCT) || (key & DUMP_FLATFILE)) {
 #ifndef VMS
 		if (mudconf.fork_dump) {
 			if (mudconf.fork_vfork) {
@@ -1136,7 +1146,11 @@ int key;
 		child = 0;
 #endif /* VMS */
 		if (child == 0) {
-			dump_database_internal(0);
+			if (key & DUMP_FLATFILE) {
+				dump_database_internal(3);
+			} else {
+				dump_database_internal(0);
+			}
 #ifndef VMS
 			if (mudconf.fork_dump)
 				_exit(0);

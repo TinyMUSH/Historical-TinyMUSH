@@ -989,6 +989,7 @@ void NDECL(set_signals)
 	signal(SIGTERM, sighandler);
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGUSR1, sighandler);
+	signal(SIGUSR2, sighandler);
 	signal(SIGTRAP, sighandler);
 #ifdef SIGXCPU
 	signal(SIGXCPU, sighandler);
@@ -1096,6 +1097,9 @@ int sig, code;
 		alarm(0);
 		dump_restart_db();
 		execl("bin/netmux", "netmux", mudconf.config_file, NULL);
+		break;
+	case SIGUSR2:
+		fork_and_dump(DUMP_FLATFILE);
 		break;
 	case SIGALRM:		/*
 				 * Timer 

@@ -3034,6 +3034,7 @@ FUNCTION(fun_delete)
 		*bp = '\0';
 	
 	safe_str(temp, buff, bufc);
+	free_lbuf(temp);
 }
 
 FUNCTION(fun_lock)
