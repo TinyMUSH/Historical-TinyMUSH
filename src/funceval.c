@@ -1557,7 +1557,7 @@ FUNCTION(fun_null)
 
 FUNCTION(fun_squish)
 {
-    char *tp, sep;
+    char *tp, *bp, *p, sep;
 
     if (nfargs == 0) {
 	return;
@@ -1565,22 +1565,27 @@ FUNCTION(fun_squish)
 
     varargs_preamble("SQUISH", 2);
 
+    bp = p = alloc_lbuf("fun_squish");
+    
     tp = fargs[0];
 
     while (*tp) {
 
 	while (*tp && (*tp != sep))       /* copy non-seps */
-	    *(*bufc)++ = *tp++;
+	    *p++ = *tp++;
 
 	if (!*tp) {		/* end of string */
 	    return;
 	}
 
 	/* We've hit a sep char. Copy it, then skip to the next non-sep. */
-	*(*bufc)++ = *tp++;
+	*p++ = *tp++;
 	while (*tp && (*tp == sep))
 	    tp++;
     }
+    
+    safe_str(bp, buff, bufc);
+    free_lbuf(bp);
 }
 
 
