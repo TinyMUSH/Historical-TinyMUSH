@@ -377,7 +377,7 @@ int alen;
 static int dbnum(dbr)
 char *dbr;
 {
-	if ((*dbr != '#') || (strlen(dbr) < 2))
+	if ((*dbr != '#') || (dbr[1] == '\0'))
 		return 0;
 	else
 		return atoi(dbr + 1);
