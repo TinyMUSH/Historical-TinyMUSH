@@ -25,21 +25,23 @@ loading works.
 
 HOW TO BUILD A MODULE
 
-Every module has a one-word name, such as "hello", or "space3d",
-referred to generically as '<name>' in the rest of this document. 
-This is the name of the .c file in the modules directory.
+Every module must have a one-word name, such as "hello", or
+"space3d", referred to generically as '<name>' in the rest of this
+document.  This is the prefix of the shared object files that are
+loaded by netmush.
 
-The source for modules should be placed in the src/modules directory.
-The shared objects for modules go in the game/modules directory.
+The source for your module should be placed in src/modules/<name>.
+The directory must use the same name as the shared object files your
+code produces. The shared objects for modules go in the game/modules
+directory. 
 
-Modules are made as follows, in a Makefile (assuming that CC is set
-to some compiler, LD is set to some loader, and OPTIM is set to the
-optimization flags):
-
-mod_<name>: <name>.c
-	$(CC) $(OPTIM) -c <name>.c
-	$(LD) -shared -o <name>.so <name>.o
-	cp <name>.so ../../game/modules
+In your module's source directory you should have at least 5 files:
+configure.in, configure, Makefile.in, aclocal.m4, and a C source
+file. Your best bet to get started is to make a copy of the 'hello'
+module source, substitute your own code for hello.c, and modify
+Makefile.in appropriately. More advanced module code might make use
+of a customized configure script and Makefile, but that is beyond the
+scope of this document.
 
 Getting the server to load a module is simple. For each module, add
 the following line to your netmush.conf file:
@@ -48,11 +50,9 @@ module <name>
 Modules can only be loaded when the game is started.
 
 CAUTION: If you are changing a dynamically-loaded module while the
-game is running, do NOT overwrite the old shared object. Move
-the old game/modules/<name>.so to game/modules/<name>.so~ before
-moving the new shared object into place. If you don't, the game
-will crash hard when you attempt to @restart, and do horrible
-things to your database.
+game is running, do NOT overwrite the old shared objects. You must go
+to game/modules/.lib and rename the .so files associated with your
+module.
 
 -----------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ be named 'mod_<name>_<regular name>'. Macros and constants should be named
 MOD_<name>_<regular name>. This avoids potential namespace collisions.
 
 All modules should begin with the following line:
-#include "../api.h"
+#include "../../api.h"
 
 Including this file should get you access to the commonplace structures
 and functions in the MUSH server, as well as specific module API things.

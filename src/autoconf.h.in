@@ -25,10 +25,6 @@
 #undef MTRACE_FILE
 /* Define if we should build with Pueblo client support */
 #undef PUEBLO_SUPPORT
-/* Define if we should use the included comsys */
-#undef USE_COMSYS
-/* Define if we should use the included mailer */
-#undef USE_MAIL
 /* Define if we should assume IEEE 754 floating-point support */
 #undef FLOATING_POINTS
 /* Define if we shouldn't warn about laggy commands */

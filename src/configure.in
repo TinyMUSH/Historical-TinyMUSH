@@ -175,59 +175,6 @@ AC_ARG_ENABLE(pueblo,
   ], AC_DEFINE(PUEBLO_SUPPORT)
        AC_MSG_RESULT(yes))
 
-AC_MSG_CHECKING(whether to use included comsys)
-AC_ARG_ENABLE(comsys,
-  [  --enable-comsys         build with included hardcode channel system
-                          (If you do build the comsys, you can always turn
-                          it off at runtime by putting 'have_comsys no' in
-                          your conf file.) [default=yes]],
-  [
-    if test "x$enableval" = "xno"; then
-      AC_MSG_RESULT(no)
-    else
-      MOD_S="comsys.c ${MOD_S}"
-        MOD_O="comsys.o ${MOD_O}"
-	MOD_LA="comsys.la ${MOD_LA}"
-        MOD_DL="-dlopen comsys.la ${MOD_DL}"
-        AC_DEFINE(USE_COMSYS)
-        AC_MSG_RESULT(yes)
-    fi
-  ], MOD_S="comsys.c ${MOD_S}"
-       MOD_O="comsys.o ${MOD_O}"
-       MOD_LA="comsys.la ${MOD_LA}"
-       MOD_DL="-dlopen comsys.la ${MOD_DL}"
-       AC_DEFINE(USE_COMSYS)
-       AC_MSG_RESULT(yes))
-
-AC_MSG_CHECKING(whether to use included mailer)
-AC_ARG_ENABLE(mailer,
-  [  --enable-mailer         build with included hardcode mail system
-                          (If you do build the mailer, you can always turn
-                          it off at runtime by putting 'have_mailer no' in
-                          your conf file.) [default=yes]],
-  [
-    if test "x$enableval" = "xno"; then
-      AC_MSG_RESULT(no)
-    else
-      MOD_S="mail.c ${MOD_S}"
-        MOD_O="mail.o ${MOD_O}"
-	MOD_LA="mail.la ${MOD_LA}"
-	MOD_DL="-dlopen mail.la ${MOD_DL}"
-        AC_DEFINE(USE_MAIL)
-        AC_MSG_RESULT(yes)
-    fi
-  ], MOD_S="mail.c ${MOD_S}"
-       MOD_O="mail.o ${MOD_O}"
-       MOD_LA="mail.la ${MOD_LA}"
-       MOD_DL="-dlopen mail.la ${MOD_DL}"
-       AC_DEFINE(USE_MAIL)
-       AC_MSG_RESULT(yes))
-
-AC_SUBST(MOD_S)
-AC_SUBST(MOD_O)
-AC_SUBST(MOD_LA)
-AC_SUBST(MOD_DL)
-
 AC_MSG_CHECKING(whether to use floating-point math)
 AC_ARG_ENABLE(fpmath,
   [  --enable-fpmath         build math functions (lt, gt, add, etc.) with
@@ -332,6 +279,7 @@ dnl Program checks
 
 AC_PROG_CC
 AC_PROG_CPP
+AC_PROG_MAKE_SET
 
 dnl Platform checks
 
@@ -917,6 +865,19 @@ AC_MSG_CHECKING(for getrlimit dcl)
 AC_EGREP_HEADER(getrlimit,sys/resource.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETRLIMIT_DCL) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for strtok_r dcl)
 AC_EGREP_HEADER(strtok_r,string.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_STRTOK_R_DCL) AC_MSG_RESULT(no))
+
+dnl Find out which modules to compile. 
+
+moduledirs1=`find modules -name configure.in -print | sed 's/\/configure.in//g'`
+moduledirs=`echo $moduledirs1`
+modules=`echo $moduledirs | sed 's/modules\///g'`
+for module in $modules; do
+	MOD_DL="-dlopen modules/${module}/${module}.la ${MOD_DL}"
+	MOD_LA="modules/${module}/${module}.la ${MOD_LA}"
+done
+AC_SUBST(MOD_DL)
+AC_SUBST(MOD_LA)
+AC_CONFIG_SUBDIRS($moduledirs)
 
 AC_SUBST(LIBOBJS)
 AC_OUTPUT(Makefile)
