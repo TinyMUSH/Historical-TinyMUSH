@@ -670,7 +670,7 @@ CMDENT command_table[] = {
 	PEMIT_OEMIT,	CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_pemit},
 {(char *)"@open",		open_sw,
-	CA_NO_SLAVE|CA_GBL_BUILD||CA_CONTENTS|CA_NO_GUEST,
+	CA_NO_SLAVE|CA_GBL_BUILD|CA_CONTENTS|CA_NO_GUEST,
 	0,		CS_TWO_ARG|CS_ARGV|CS_INTERP,
 	NULL,			NULL,		do_open},
 {(char *)"@parent",		NULL,
