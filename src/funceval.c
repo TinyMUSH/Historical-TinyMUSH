@@ -2944,29 +2944,15 @@ FUNCTION(fun_lstack)
  * fun_x: Returns a variable. x(<variable name>)
  * fun_setx: Sets a variable. xset(<variable name>,<value>)
  * fun_xvars: Takes a list, parses it, sets it into variables.
- *            xvars(<list>,<space-separated variable list>,<delimiter>)
+ *            xvars(<space-separated variable list>,<list>,<delimiter>)
+ * fun_let: Takes a list of variables and their values, sets them, executes
+ *          a function, and clears out the variables. (Scheme/ML-like.)
+ *          If <list> is empty, the values are reset to null.
+ *          let(<space-separated var list>,<list>,<body>,<delimiter>)
  * fun_lvars: Shows a list of variables associated with that object.
  * fun_clearvars: Clears all variables associated with that object.
  */
 
-FUNCTION(fun_x)
-{
-    VARENT *xvar;
-    char tbuf[SBUF_SIZE], *tp, *p;
-
-    /* Variable string is '<dbref number minus #>.<variable name>' */
-
-    tp = tbuf;
-    safe_ltos(tbuf, &tp, player);
-    safe_chr('.', tbuf, &tp);
-    for (p = fargs[0]; *p; p++)
-	*p = ToLower(*p);
-    safe_str(fargs[0], tbuf, &tp);
-    *tp = '\0';
-
-    if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab)))
-	safe_str(xvar->text, buff, bufc);
-}
 
 static void set_xvar(obj, name, data)
     dbref obj;
@@ -3038,6 +3024,68 @@ static void set_xvar(obj, name, data)
 }
 
 
+static void clear_xvars(obj, xvar_names, n_xvars)
+    dbref obj;
+    char **xvar_names;
+    int n_xvars;
+{
+    /* Clear out an array of variable names. */
+
+    char pre[SBUF_SIZE], tbuf[SBUF_SIZE], *tp, *p;
+    VARENT *xvar;
+    int i;
+
+    /* Build our dbref bit first. */
+
+    tp = pre;
+    safe_ltos(pre, &tp, obj);
+    safe_chr('.', pre, &tp);
+    *tp = '\0';
+
+    /* Go clear stuff. */
+
+    for (i = 0; i < n_xvars; i++) {
+
+	for (p = xvar_names[i]; *p; p++)
+	    *p = ToLower(*p);
+	tp = tbuf;
+	safe_str(pre, tbuf, &tp);
+	safe_str(xvar_names[i], tbuf, &tp);
+	*tp = '\0';
+
+	if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab))) {
+	    if (xvar->text) {
+		XFREE(xvar->text, "xvar_data");
+		xvar->text = NULL;
+	    }
+	    XFREE(xvar, "xvar_struct");
+	    hashdelete(tbuf, &mudstate.vars_htab);
+	}
+    }
+
+    s_VarsCount(obj, VarsCount(obj) - n_xvars);
+}
+
+
+FUNCTION(fun_x)
+{
+    VARENT *xvar;
+    char tbuf[SBUF_SIZE], *tp, *p;
+
+    /* Variable string is '<dbref number minus #>.<variable name>' */
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_chr('.', tbuf, &tp);
+    for (p = fargs[0]; *p; p++)
+	*p = ToLower(*p);
+    safe_str(fargs[0], tbuf, &tp);
+    *tp = '\0';
+
+    if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab)))
+	safe_str(xvar->text, buff, bufc);
+}
+
 FUNCTION(fun_setx)
 {
     set_xvar(player, fargs[0], fargs[1]);
@@ -3054,18 +3102,29 @@ FUNCTION(fun_xvars)
 
     varargs_preamble("XVARS", 3);
    
-    elemlist = alloc_lbuf("fun_xvars.elems");
-    strcpy(elemlist, fargs[0]);
-    n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, sep);
-
     varlist = alloc_lbuf("fun_xvars.vars");
-    strcpy(varlist, fargs[1]);
+    strcpy(varlist, fargs[0]);
     n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, ' ');
+
+    if (n_xvars == 0) {
+	free_lbuf(varlist);
+	return;
+    }
+
+    if (!fargs[1] || !*fargs[1]) {
+	/* Empty list, clear out the data. */
+	clear_xvars(player, xvar_names, n_xvars);
+	return;
+    }
+
+    elemlist = alloc_lbuf("fun_xvars.elems");
+    strcpy(elemlist, fargs[1]);
+    n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, sep);
 
     if (n_elems != n_xvars) {
 	safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
-	free_lbuf(elemlist);
 	free_lbuf(varlist);
+	free_lbuf(elemlist);
 	return;
     }
 
@@ -3073,7 +3132,113 @@ FUNCTION(fun_xvars)
 	set_xvar(player, xvar_names[i], elems[i]);
     }
 
+    free_lbuf(varlist);
     free_lbuf(elemlist);
+}
+
+
+FUNCTION(fun_let)
+{
+    char *xvar_names[LBUF_SIZE / 2], *elems[LBUF_SIZE / 2];
+    char *old_xvars[LBUF_SIZE / 2];
+    int n_xvars, n_elems;
+    char *varlist, *elemlist;
+    char *str, *bp, *p;
+    char pre[SBUF_SIZE], tbuf[SBUF_SIZE], *tp;
+    VARENT *xvar;
+    int i;
+    char sep;
+
+    varargs_preamble("LET", 4);
+   
+    varlist = bp = alloc_lbuf("fun_let.vars");
+    str = fargs[0];
+    exec(varlist, &bp, 0, player, cause, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
+	 cargs, ncargs);
+    *bp = '\0';
+    n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, ' ');
+
+    if (n_xvars == 0) {
+	free_lbuf(varlist);
+	return;
+    }
+
+    /* Lowercase our variable names. */
+
+    for (p = xvar_names[i]; *p; p++)
+	*p = ToLower(*p);
+
+    /* Save our original values. Copying this stuff into an array is
+     * unnecessarily expensive because we allocate and free memory 
+     * that we could theoretically just trade pointers around for --
+     * but this way is cleaner.
+     */
+
+    tp = pre;
+    safe_ltos(pre, &tp, player);
+    safe_chr('.', pre, &tp);
+    *tp = '\0';
+
+    for (i = 0; i < n_xvars; i++) {
+
+	tp = tbuf;
+	safe_str(pre, tbuf, &tp);
+	safe_str(xvar_names[i], tbuf, &tp);
+	*tp = '\0';
+
+	if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab))) {
+	    if (xvar->text)
+		old_xvars[i] = (char *) strdup(xvar->text);
+	    else
+		old_xvars[i] = NULL;
+	} else {
+	    old_xvars[i] = NULL;
+	}
+    }
+
+    if (fargs[1] && *fargs[1]) {
+
+	/* We have data, so we should initialize variables to their values,
+	 * ala xvars(). However, unlike xvars(), if we don't get a list,
+	 * we just leave the values alone (we don't clear them out).
+	 */
+
+	elemlist = bp = alloc_lbuf("fun_let.elems");
+	str = fargs[1];
+	exec(elemlist, &bp, 0, player, cause, EV_FCHECK | EV_STRIP | EV_EVAL,
+	     &str, cargs, ncargs);
+	*bp = '\0';
+	n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, sep);
+
+	if (n_elems != n_xvars) {
+	    safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
+	    free_lbuf(varlist);
+	    free_lbuf(elemlist);
+	    return;
+	}
+
+	for (i = 0; i < n_elems; i++) {
+	    set_xvar(player, xvar_names[i], elems[i]);
+	}
+
+	free_lbuf(elemlist);
+
+    }
+
+    /* Now we go to execute our function body. */
+
+    str = fargs[2];
+    exec(buff, bufc, 0, player, cause, EV_FCHECK | EV_STRIP | EV_EVAL, &str,
+	 cargs, ncargs);
+
+    /* Restore the old values. */
+
+    for (i = 0; i < n_xvars; i++) {
+	set_xvar(player, xvar_names[i], old_xvars[i]);
+	if (old_xvars[i])
+	    free(old_xvars[i]);
+    }
+
     free_lbuf(varlist);
 }
 
@@ -3161,10 +3326,9 @@ FUNCTION(fun_clearvars)
 
 FUNCTION(fun_regparse)
 {
-    int i, nqregs, curq, len;
+    int i, nqregs, len;
     char *qregs[NSUBEXP];
-    char tbuf[SBUF_SIZE], matchbuf[LBUF_SIZE];
-    char **tp;
+    char matchbuf[LBUF_SIZE];
     regexp *re;
     int matched;
 

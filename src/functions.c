@@ -135,6 +135,7 @@ XFUNCTION(fun_swap);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
 XFUNCTION(fun_xvars);
+XFUNCTION(fun_let);
 XFUNCTION(fun_lvars);
 XFUNCTION(fun_clearvars);
 XFUNCTION(fun_regparse);
@@ -5447,6 +5448,8 @@ FUN flist[] = {
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC},
 {"LDELETE",	fun_ldelete,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LEFT",	fun_left,	2,  0,		CA_PUBLIC},
+{"LET",		fun_let,	0,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC},
 {"LEXITS",	fun_lexits,	1,  0,		CA_PUBLIC},
 {"LPARENT",	fun_lparent,	1,  0,		CA_PUBLIC}, 
 {"LIST",	fun_list,	0,  FN_VARARGS|FN_NO_EVAL,
