@@ -65,7 +65,9 @@ CHANGES TO THE BASE SERVER
     "string" databases).
 
   - GDBM's native free space management has been enabled. Optimized dumps
-    have been disabled by default.
+    have been disabled by default. Our copy of gdbm includes a bugfix that
+    enables the free space management and other options, so we build it as
+    libtinygdbm.a to avoid linking netmush with an unmodified gdbm.
 
   - File locking has been added for some circumstances, so dbconvert waits
     for netmush to finish writing, before it starts reading, ensuring
