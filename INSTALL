@@ -66,6 +66,12 @@ in the one-step install, the installation process is as follows:
   compiler) installed on your system, it will automatically be selected
   as the compiler of choice.
 
+- Go into the modules directory ('cd modules'). An 'ls' will list all of
+  the module directories that are present. For each module that you will
+  want to use, 'cd <modulename>' and type 'make', then 'cd ..'. This will
+  compile and install the module and return you to the modules directory.
+  When you are done, go back to the 'src' directory by typing 'cd ..'.
+
 - Edit the Makefile and make any changes that might be necessary (go down
   to the line that says 'CONFIGURATION SECTION'). See the notes on
   Compatibility, later in this file, for some operating-system-specific

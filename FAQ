@@ -376,44 +376,45 @@ operating system will begin to page random bits of your MUSH on and
 off of disk -- you are better off staying small enough to not have
 that happen, and do your own getting data on and off disk.
 
-TinyMUSH 3.1 allows you to limit the total amount of cache memory the
-server consumes. This defaults to 1,000,000 bytes, or just under 1 MB
-of RAM. The size of the cache can be changed with the cache_size
-parameter in your conf file. We recommend that you don't set this
-value any lower. Otherwise, take a look at the size of your netmush.gdbm
-file via ls -l netmush.gdbm -- the file's size in bytes should be next
-to its last-modified date. (If your GDBM file is not called netmush.gdbm,
-use whatever filename it's called.)
+TinyMUSH 3.1 allows you to limit the total amount of cache memory the server
+consumes. This defaults to 1,000,000 bytes, or just under 1 MB of RAM. The
+size of the cache can be changed with the cache_size parameter in your conf
+file. We recommend that you don't set this value any lower, except on
+private or very small games. Otherwise, take a look at the size of your
+netmush.gdbm file via ls -l netmush.gdbm -- the file's size in bytes should
+be next to its last-modified date. (If your GDBM file is not called
+netmush.gdbm, use whatever filename it's called.) You should never set your
+cache size larger than the size of this file.
 
-The development team has not seen enough "field evidence" to provide
-strong tuning guidelines at this point. Some recommendations for
-starters:  
+The optimal cache size is dependent on a number of different factors; these
+include the size of your master room objects, the number of players you have
+logged on at a time, and how much they move around. Generally any object
+which is 'used' by a player is cached; this includes rooms and exits, as
+well as objects in their inventory. Thus your cache size really shouldn't
+depend on the total size of your database, but on the size of the active
+playerbase, often-used softcode, and the areas your players typically move
+around in. Take a look at your @list cache sometime to determine what kind
+of objects are being cached.
 
-- If your GDBM file is smaller than 4 MB, chances are that you don't need
-  a cache bigger than the default.
-
-- If your GDBM file is larger than 4 MB, set cache_size to approximately
-  one-half the size of your GDBM file, or to (1000000 + (50000 * PLAYERS))
-  where PLAYERS is the maximum number of players you typically have on
-  during your peak hour, whichever is SMALLER. (And remember that cache_size
-  is calculated in BYTES, not kilobytes or megabytes!)
-
-- Let your game run for a couple of hours. Check '@list db_stats' and look
-  at the Cache Size reported, and the Hit Ratio for Reads. You want the
-  latter to be in the 95-97% range. If your actual reported cache size
-  is much lower than your configured cache_size and your hit ratio is
-  still in that range, then you should be able to safely lower cache_size
-  in the future. If your hit ratio is low, try increasing the cache size
-  (though eventually there will be a trade-off in paging behavior if
-  the process becomes too large).
+Let your game run for a few hours with normal player activity. Check '@list
+db_stats' and look at the Cache Size reported, and the Hit Ratio for Reads.
+You want the latter to be in the 90-97% range. If your actual reported cache
+size is much lower than your configured cache_size and your hit ratio is
+still in that range, then you should be able to safely lower cache_size in
+the future. If your hit ratio is low, try increasing the cache size (though
+eventually there will be a trade-off in paging behavior if the process
+becomes too large).
 
 ------------------------------------------------------------------------------
 
 How do I use the in-memory database?
 
-This option has been removed in TinyMUSH 3.1. If you want to run your
-entire game in-memory, set the cache size to the size of your GDBM
-database.
+Follow the 'Basic Installition' steps in the INSTALL file, with one
+exception: specify '--disable-disk-based' as an argument to configure (step
+5). Please note that unlike previous versions, TinyMUSH 3.1 uses GDBM for
+its memory-based database instead of a flatfile. You can still create a
+flatfile using the Backup script the same way you would for a disk-based
+game.
 
 ------------------------------------------------------------------------------
 
