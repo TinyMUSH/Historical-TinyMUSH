@@ -27,8 +27,6 @@ char *format_inet_addr(dest, addr)
 char *dest;
 long addr;
 {
-	int temp;
-
 	sprintf(dest, "%ld.%ld.%ld.%ld",
 		(addr & 0xFF000000) >> 24,
 		(addr & 0x00FF0000) >> 16,
