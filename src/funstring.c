@@ -1257,7 +1257,7 @@ FUNCTION(fun_alphamax)
 	} else
 		amax = fargs[0];
 
-	while ((i < 10) && fargs[i]) {
+	while ((i < nfargs) && fargs[i]) {
 		amax = (strcmp(amax, fargs[i]) > 0) ? amax : fargs[i];
 		i++;
 	}
@@ -1276,7 +1276,7 @@ FUNCTION(fun_alphamin)
 	} else
 		amin = fargs[0];
 
-	while ((i < 10) && fargs[i]) {
+	while ((i < nfargs) && fargs[i]) {
 		amin = (strcmp(amin, fargs[i]) < 0) ? amin : fargs[i];
 		i++;
 	}
