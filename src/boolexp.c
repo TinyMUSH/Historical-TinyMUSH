@@ -37,8 +37,8 @@ char *key;
 	buff = atr_pget(player, attr->number, &aowner, &aflags, &alen);
 	checkit = 0;
 
-	if (attr->number == A_LENTER) {
-		/* We can see enterlocks... else we'd break zones */
+	if (attr->number == A_LCONTROL) {
+		/* We can see control locks... else we'd break zones */
 		checkit = 1;
 	} else if (See_attr(lockobj, player, attr, aowner, aflags)) {
 		checkit = 1;
@@ -146,7 +146,7 @@ BOOLEXP *b;
 		}
 		checkit = 0;
 		
-		if ((a->number == A_NAME) || (a->number == A_LENTER)) {
+		if ((a->number == A_NAME) || (a->number == A_LCONTROL)) {
 			checkit = 1;
 		} else if (Read_attr(source, source, a, aowner, aflags)) {
 			checkit = 1;
