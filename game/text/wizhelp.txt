@@ -1433,13 +1433,13 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 
 & PARAM FILES
 	badsite_file		connect_file		comsys_database
-	connect_reg_file	crash_database		down_file
-	full_file		game_log		gdbm_database
-	guest_file		helpfile		html_connect_file
-	include			input_database		mail_database
-	motd_file		newuser_file		output_database
-	quit_file		raw_helpfile		register_create_file
-	wizard_motd_file
+	connect_reg_file	crash_database		database_home
+	down_file		full_file		game_log
+	gdbm_database		guest_file		helpfile
+	html_connect_file	include			input_database
+	mail_database		motd_file		newuser_file
+	output_database		quit_file		raw_helpfile
+	register_create_file	wizard_motd_file
 
 & PARAM LIMITS
 	building_limit			command_invocation_limit
@@ -1698,7 +1698,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: command_invocation_limit.
 
 & comsys_database
-  Config parameter: comsys_database <path>.  Default: comsys.db
+  Config parameter: comsys_database <filename>.  Default: comsys.db
  
   Specifies the file that comsystem information is stored in.
   This database is loaded at startup if have_comsys is Yes.
@@ -1762,7 +1762,7 @@ use_global_aconn	wizard_obeys_linklock
   See also: connect_file
 
 & crash_database
-  Config parameter: crash_database <path>.  Default: None
+  Config parameter: crash_database <filename>.  Default: None
   Specifies the name of the database file that should be written when mush
   detects an internal error and is about to crash.  Note that the database
   may contain corrupted links of the error occurs in the middle of moving
@@ -1795,7 +1795,13 @@ use_global_aconn	wizard_obeys_linklock
   so that they do not show up when a player looks in the room that they are
   in.  Disconnected players can still be found by examining the room or by
   using [next()] to follow the contents chain for the room.
-
+ 
+& database_home
+  Config parameter: database_home <path>.  Default: .
+  Specifies the directory in which database files will be stored. You do not
+  need to follow this with a trailing slash (/).
+  See also: gdbm_database, input_database, output_database, crash_database.
+ 
 & default_home
   Config directive: default_home <location>.  Default (player_starting_home)
   Sets the home location for objects which have an invalid home (whether
@@ -2097,7 +2103,7 @@ use_global_aconn	wizard_obeys_linklock
   Specifies the size of the cache used by the text database in 1K blocks.
 
 & gdbm_database
-  Config parameter: gdbm_database <path>.  Default: None.
+  Config parameter: gdbm_database <filename>.  Default: None.
   Specifies the name of the file that stores the text portion of the
   database.  The text strings are stored in a binary format optimized for
   fast retrieval and storage rather than access with programs such as more.
@@ -2300,7 +2306,7 @@ use_global_aconn	wizard_obeys_linklock
   Specifies the name of the database file that is read in at startup.
   This file is used only as an input file, the parameter output_database
   controls where updated copies of the database are written.
-  See also: crash_database, gdbm_database, output_database.
+  See also: database_home, crash_database, gdbm_database, output_database.
 
 & kill_guarantee_cost
   Config parameter: kill_guarantee_cost <amount>.  Default: 100
@@ -2442,7 +2448,7 @@ use_global_aconn	wizard_obeys_linklock
   charged one coin for machine overhead.
 
 & mail_database
-  Config parameter: mail_database <path>.  Default: mail.db
+  Config parameter: mail_database <filename>.  Default: mail.db
  
   Sets the file that @mail information is to be stored in. The database
   is only loaded or saved if have_mailer is set to yes.
@@ -2584,7 +2590,8 @@ use_global_aconn	wizard_obeys_linklock
   Specifies the file to which the database is to be written when writing
   checkpoint dumps or writing the final dump after receiving a @shutdown
   command.
-  See also: @dump, @shutdown, checkpoint_database, input_database.
+  See also: @dump, @shutdown, database_home, checkpoint_database,
+  input_database.
 
 & output_limit
   Config parameter: output_limit <amount>.  Default: 16384

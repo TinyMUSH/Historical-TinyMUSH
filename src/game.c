@@ -1102,36 +1102,26 @@ int dump_type;
 	char tmpfile[256], outfn[256], prevfile[256];
 	FILE *f;
 
-	if (dump_type == 1) {
-		unlink(mudconf.crashdb);
-		f = tf_fopen(mudconf.crashdb, O_WRONLY | O_CREAT | O_TRUNC);
+	switch(dump_type) {
+	case 1:
+		sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.crashdb);
+		unlink(tmpfile);
+		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
 			db_write(f, F_TINYMUSH, UNLOAD_VERSION | UNLOAD_OUTFLAGS);
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening crash file",
-				   mudconf.crashdb);
+				   tmpfile);
 		}
-#ifdef USE_MAIL
-		if ((f = fopen(mudconf.mail_db, "w")) != NULL) {
-		    dump_mail(f);
-		    fclose(f);
-		} else {
-		    log_perror("DMP", "FAIL", "Opening mail file",
-			       mudconf.mail_db);
-		}
-#endif
-#ifdef USE_COMSYS
-		save_comsys(mudconf.comsys_db);
-#endif
-		return;
-	}
-	
-	if ((dump_type == 2) || (dump_type == 3)) {
+		break;
+	case 2:
+	case 3:
 		if (dump_type == 2) {
-			f = tf_fopen(mudconf.indb, O_WRONLY | O_CREAT | O_TRUNC);
+			sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.indb);
+			f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		} else {
-			sprintf(tmpfile, "%s.FLAT", mudconf.outdb);
+			sprintf(tmpfile, "%s/%s.FLAT", mudconf.dbhome, mudconf.outdb);
 			f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		}
 
@@ -1145,25 +1135,11 @@ int dump_type;
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening flatfile",
-				   mudconf.indb);
+				   tmpfile);
 		}
-#ifdef USE_MAIL
-		if ((f = fopen(mudconf.mail_db, "w")) != NULL) {
-		    dump_mail(f);
-		    fclose(f);
-		} else {
-		    log_perror("DMP", "FAIL", "Opening mail file",
-			       mudconf.mail_db);
-		}
-#endif
-#ifdef USE_COMSYS
-		save_comsys(mudconf.comsys_db);
-#endif
-		return;
-	}
-	
-	if (dump_type == 4) {
-		sprintf(tmpfile, "%s.KILLED", mudconf.indb);
+		break;
+	case 4:	
+		sprintf(tmpfile, "%s/%s.KILLED", mudconf.dbhome, mudconf.indb);
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f != NULL) {
 			/* Write a flatfile */
@@ -1171,71 +1147,43 @@ int dump_type;
 			tf_fclose(f);
 		} else {
 			log_perror("DMP", "FAIL", "Opening killed file",
-				   mudconf.indb);
+				   tmpfile);
 		}
-#ifdef USE_MAIL
-		if ((f = fopen(mudconf.mail_db, "w")) != NULL) {
-		    dump_mail(f);
-		    fclose(f);
-		} else {
-		    log_perror("DMP", "FAIL", "Opening mail file",
-			       mudconf.mail_db);
-		}
-#endif
-#ifdef USE_COMSYS
-		save_comsys(mudconf.comsys_db);
-#endif
-		return;
-	}
+		break;
+	default:	
+		sprintf(prevfile, "%s/%s.prev", mudconf.dbhome, mudconf.outdb);
+		sprintf(tmpfile, "%s/%s.#%d#", mudconf.dbhome, mudconf.outdb, mudstate.epoch - 1);
+		unlink(tmpfile);	/* nuke our predecessor */
+		sprintf(tmpfile, "%s/%s.#%d#", mudconf.dbhome, mudconf.outdb, mudstate.epoch);
 	
-	sprintf(prevfile, "%s.prev", mudconf.outdb);
-	sprintf(tmpfile, "%s.#%d#", mudconf.outdb, mudstate.epoch - 1);
-	unlink(tmpfile);	/* nuke our predecessor */
-	sprintf(tmpfile, "%s.#%d#", mudconf.outdb, mudstate.epoch);
-
-	if (mudconf.compress_db) {
-		sprintf(tmpfile, "%s.#%d#.gz", mudconf.outdb, mudstate.epoch - 1);
-		unlink(tmpfile);
-		sprintf(tmpfile, "%s.#%d#.gz", mudconf.outdb, mudstate.epoch);
-		strcpy(outfn, mudconf.outdb);
-		strcat(outfn, ".gz");
-		f = tf_popen(tprintf("%s > %s", mudconf.compress, tmpfile), O_WRONLY);
-		if (f) {
-			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
-			tf_pclose(f);
-			rename(mudconf.outdb, prevfile);
-			if (rename(tmpfile, outfn) < 0)
-				log_perror("SAV", "FAIL",
-					   "Renaming output file to DB file",
-					   tmpfile);
-		} else {
-			log_perror("SAV", "FAIL", "Opening", tmpfile);
-		}
-	} else {
 		f = tf_fopen(tmpfile, O_WRONLY | O_CREAT | O_TRUNC);
 		if (f) {
 			db_write(f, F_TINYMUSH, OUTPUT_VERSION | OUTPUT_FLAGS);
 			tf_fclose(f);
-			rename(mudconf.outdb, prevfile);
-			if (rename(tmpfile, mudconf.outdb) < 0)
+			sprintf(outfn, "%s/%s", mudconf.dbhome, mudconf.outdb);
+			rename(outfn, prevfile);
+			if (rename(tmpfile, outfn) < 0)
 				log_perror("SAV", "FAIL",
 				"Renaming output file to DB file", tmpfile);
 		} else {
 			log_perror("SAV", "FAIL", "Opening", tmpfile);
 		}
 	}
-
+	
 #ifndef STANDALONE
 #ifdef USE_MAIL
-	if ((f = fopen(mudconf.mail_db, "w")) != NULL) {
+	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.mail_db);
+	if ((f = fopen(tmpfile, "w")) != NULL) {
 	    dump_mail(f);
 	    fclose(f);
 	} else {
-	    log_perror("SAV", "FAIL", "Opening", mudconf.mail_db);
+	    log_perror("DMP", "FAIL", "Opening mail file",
+		       tmpfile);
 	}
 #endif
 #ifdef USE_COMSYS
-	save_comsys(mudconf.comsys_db);
+	sprintf(tmpfile, "%s/%s", mudconf.dbhome, mudconf.comsys_db);
+	save_comsys(tmpfile);
 #endif
 #endif
 }
@@ -1291,7 +1239,6 @@ int key;
 	    SYNC;
 	    if (!mudconf.dbopt_interval ||
 		(mudstate.epoch % mudconf.dbopt_interval == 0)) {
-		OPTIMIZE;
 	    }
 	}
 	
@@ -1334,21 +1281,13 @@ static int NDECL(load_game)
 	int db_format, db_version, db_flags;
 
 	f = NULL;
-	compressed = 0;
-	if (mudconf.compress_db) {
-		strcpy(infile, mudconf.indb);
-		strcat(infile, ".gz");
-		if (stat(infile, &statbuf) == 0) {
-			if ((f = tf_popen(tprintf(" %s < %s",
-			    mudconf.uncompress, infile), O_RDONLY)) != NULL)
-				compressed = 1;
-		}
-	}
-	if (compressed == 0) {
-		StringCopy(infile, mudconf.indb);
-		if ((f = tf_fopen(mudconf.indb, O_RDONLY)) == NULL)
-			return -1;
-	}
+	
+	/* Prepend the database home directory */
+	
+	sprintf(infile, "%s/%s", mudconf.dbhome, mudconf.indb);
+	if ((f = tf_fopen(infile, O_RDONLY)) == NULL)
+		return -1;
+
 	/* ok, read it in */
 
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
@@ -1361,10 +1300,12 @@ static int NDECL(load_game)
 			return -1;
 	}
 #ifdef USE_COMSYS
-	load_comsys(mudconf.comsys_db);
+	sprintf(infile, "%s/%s", mudconf.dbhome, mudconf.comsys_db);
+	load_comsys(infile);
 #endif
 #ifdef USE_MAIL
-	if ((f = fopen(mudconf.mail_db, "r")) != NULL) {
+	sprintf(infile, "%s/%s", mudconf.dbhome, mudconf.mail_db);
+	if ((f = fopen(infile, "r")) != NULL) {
 		load_mail(f);
 		fclose(f);
 	}
@@ -1374,10 +1315,7 @@ static int NDECL(load_game)
 	ENDLOG
 
 	/* everything ok */
-	if (compressed)
-		tf_pclose(f);
-	else
-		tf_fclose(f);
+	tf_fclose(f);
 
 	return (0);
 }

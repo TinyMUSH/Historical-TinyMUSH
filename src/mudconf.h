@@ -42,6 +42,7 @@ struct confdata {
 	Uchar	markdata[8];	/* Masks for marking/unmarking */
 	int	ntfy_nest_lim;	/* Max nesting of notifys */
 	int	dbopt_interval; /* Optimize db every N dumps */
+	char	dbhome[MBUF_SIZE];	/* Database home directory */
 #ifndef STANDALONE
 	char	indb[PBUF_SIZE];	/* database file name */
 	char	outdb[PBUF_SIZE];	/* checkpoint the database to here */
@@ -49,9 +50,6 @@ struct confdata {
 	char	gdbm[PBUF_SIZE];	/* use this gdbm file if we need one */
 	char	mail_db[PBUF_SIZE];	/* name of the @mail database */
 	char	comsys_db[PBUF_SIZE];	/* name of the comsys db */
-	int	compress_db;	/* should we use compress */
-	char	compress[PBUF_SIZE];	/* program to run to compress */
-	char	uncompress[PBUF_SIZE];/* program to run to uncompress */
 	char	status_file[PBUF_SIZE]; /* Where to write arg to @shutdown */
 	char	mudlogname[PBUF_SIZE];	/* Name of the game log file */
         int	have_comsys;	/* Should the comsystem be active? */

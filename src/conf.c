@@ -72,15 +72,13 @@ void NDECL(cf_init)
 #ifndef STANDALONE
 	int i;
 
+	StringCopy(mudconf.dbhome, ".");
 	StringCopy(mudconf.indb, "tinymush.db");
 	StringCopy(mudconf.outdb, "");
 	StringCopy(mudconf.crashdb, "");
 	StringCopy(mudconf.gdbm, "");
 	StringCopy(mudconf.mail_db, "mail.db");
 	StringCopy(mudconf.comsys_db, "comsys.db");
-	mudconf.compress_db = 0;
-	StringCopy(mudconf.compress, "gzip");
-	StringCopy(mudconf.uncompress, "gzip -d");
 	StringCopy(mudconf.status_file, "shutdown.status");
 	StringCopy(mudconf.mudlogname, "netmush.log");
 	mudconf.port = 6250;
@@ -1277,8 +1275,6 @@ CONF conftable[] = {
 {(char *)"command_quota_increment",	cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.cmd_quota_incr,	0},
 {(char *)"command_quota_max",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.cmd_quota_max,		0},
 {(char *)"command_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.cmd_nest_lim,		0},
-{(char *)"compress_program",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.compress,	PBUF_SIZE},
-{(char *)"compression",			cf_bool,	CA_GOD,		CA_GOD,		&mudconf.compress_db,		(long)"Database files are compressed"},
 {(char *)"concentrator_port",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.conc_port,		0},
 {(char *)"config_access",		cf_cf_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},
 {(char *)"config_read_access",		cf_cf_access,	CA_GOD,		CA_DISABLED,	(int *)1,			(long)access_nametab},
@@ -1290,6 +1286,7 @@ CONF conftable[] = {
 {(char *)"create_min_cost",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.createmin,		0},
 {(char *)"dark_actions",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.dark_actions,		(long)"Dark objects still trigger @a-actions when moving"},
 {(char *)"dark_sleepers",		cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.dark_sleepers,		(long)"Disconnected players not shown in room contents"},
+{(char *)"database_home",		cf_string,	CA_STATIC, 	CA_GOD,		(int *)mudconf.dbhome,		MBUF_SIZE},
 {(char *)"default_home",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.default_home,		0},
 {(char *)"dig_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.digcost,		0},
 {(char *)"divert_log",			cf_divert_log,	CA_STATIC,	CA_DISABLED,	&mudconf.log_diversion,		(long) logoptions_nametab},
@@ -1488,7 +1485,6 @@ CONF conftable[] = {
 {(char *)"trace_topdown",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.trace_topdown,		(long)"Trace output is top-down"},
 {(char *)"trust_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.suspect_list,	0},
 {(char *)"typed_quotas",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.typed_quotas,		(long)"Quotas are enforced per object type"},
-{(char *)"uncompress_program",		cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.uncompress,	PBUF_SIZE},
 {(char *)"unowned_safe",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.safe_unowned,		(long)"Objects not owned by you are considered SAFE"},
 {(char *)"user_attr_access",		cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.vattr_flags,		(long)attraccess_nametab},
 {(char *)"use_global_aconn",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.use_global_aconn,	(long)"Global @aconnects and @adisconnects are used"},

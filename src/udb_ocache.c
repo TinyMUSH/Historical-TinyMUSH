@@ -33,8 +33,12 @@
 
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
-
+#include "bdb.h"	/* required by code */
 #include "udb_defs.h"
+
+/* Need the database environment pointer to do checkpoints */
+
+extern DB_ENV *dbenvp;
 
 extern struct Obj * FDECL(dddb_get, (Objname *));
 extern void VDECL(logf, (char *, ...));
@@ -228,11 +232,7 @@ int size;
 	/* mark caching system live */
 	cache_initted++;
 
-#ifndef STANDALONE
-	cs_ltime = mudstate.now;
-#else
 	cs_ltime = time(NULL);
-#endif
 
 	return (0);
 }
@@ -807,7 +807,7 @@ CacheLst *sp;
 
 int NDECL(cache_sync)
 {
-	int x;
+	int x, ret;
 	CacheLst *sp;
 
 	cs_syncs++;
@@ -825,6 +825,14 @@ int NDECL(cache_sync)
 			return (1);
 		cache_clean(sp);
 	}
+	
+	/* Checkpoint the underlying DBM database */
+	
+	if ((ret = txn_checkpoint(dbenvp, 0, 0, 0)) != 0) {
+		dbenvp->err(dbenvp, ret, "txn_checkpoint");
+		return(1);
+	}
+	
 	return (0);
 }
 

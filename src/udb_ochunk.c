@@ -1,4 +1,4 @@
-/* udb_ochunk.c - gdbm implementation of untermud chunkfile interface */
+/* udb_ochunk.c */
 /* $Id$ */
 
 /*
@@ -19,7 +19,7 @@
 #include "externs.h"	/* required by code */
 
 #include "udb_defs.h"	/* required by code */
-#include "gdbm.h"	/* required by code */
+#include "bdb.h"	/* required by code */
 #include "udb.h"	/* required by code */
 
 #ifndef STANDALONE
@@ -31,10 +31,11 @@ extern void FDECL(dump_database_internal, (int));
 static char *dbfile = DEFAULT_DBMCHUNKFILE;
 static int db_initted = 0;
 
-static GDBM_FILE dbp = (GDBM_FILE) 0;
-
-static datum dat;
-static datum key;
+DB_ENV *dbenvp = NULL;
+static DB *dbp = NULL;
+static DBT dat;
+static DBT key;
+static DB_TXN *tid;
 
 int FDECL(dddb_del, (Objname *));
 int FDECL(dddb_put, (Obj *, Objname *));
@@ -43,38 +44,76 @@ extern void VDECL(fatal, (char *, ...));
 extern void VDECL(logf, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
 
-/* gdbm_reorganize compresses unused space in the db */
-
-int dddb_optimize()
+static void dbm_error(errpfx, msg)
+const char *errpfx;
+char *msg;
 {
-	return (gdbm_reorganize(dbp));
-}
-
-static void gdbm_panic(mesg)
-char *mesg;
-{
-	log_printf("GDBM panic: %s\n", mesg);
+#ifndef STANDALONE
+	STARTLOG(LOG_ALWAYS, "DB", "ERROR")
+		log_printf("Database error: %s\n", msg);
+	ENDLOG
+#else
+	fprintf(stderr, "Database error: %s\n", msg);
+#endif
 }
 
 int dddb_init()
 {
 	static char *copen = "db_init cannot open ";
-	char *gdbm_error;
 	int block_size;
-	int cache_size = 1;
+	int cache_size = 65535;
+	int ret;
+	
+	/* Calculate the proper page size */
 	
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
 
-	if ((dbp = gdbm_open(dbfile, block_size, GDBM_WRCREAT|GDBM_SYNC|GDBM_NOLOCK, 0600, gdbm_panic)) == (GDBM_FILE) 0) {
-		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
-		return (1);
+	/* Open the database environment handle */
+	
+	if ((ret = db_env_create(&dbenvp, 0)) != 0) {
+		log_printf("Could not open database environment handle.\n");
+		return(1);
 	}
 
-	if (gdbm_setopt(dbp, GDBM_CACHESIZE, &cache_size, sizeof(int)) == -1) {
-		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
-		return (1);
+	/* Set the database cache size */
+	
+	if ((ret = dbenvp->set_cachesize(dbenvp, 0, cache_size, 0)) != 0) {
+		dbp->err(dbp, ret, "set_cachesize");
+		return(1);
+	}
+
+	/* Open the database environment */
+	
+	if ((ret = dbenvp->open(dbenvp, mudconf.dbhome,
+	     DB_INIT_LOCK|DB_INIT_LOG|DB_INIT_MPOOL|DB_INIT_TXN|DB_RECOVER|DB_USE_ENVIRON|DB_CREATE, 0600)) != 0) {
+		log_printf("Could not open database environment.\n");
+		return(1);
+	}
+
+	/* Open the database cursor */
+	
+	if ((ret = db_create(&dbp, dbenvp, 0)) != 0) {
+		log_printf("Could not open database handler.\n");
+		return(1);
+	}
+
+	/* Set the error call hook */
+	
+	dbenvp->set_errcall(dbenvp, dbm_error);	
+	dbp->set_errcall(dbp, dbm_error);
+	
+	/* Set the database page size */
+
+	if ((ret = dbp->set_pagesize(dbp, block_size)) != 0) {
+		dbp->err(dbp, ret, "set_pagesize");
+		return(1);
+	}
+
+	/* Open the database */
+	
+	if ((ret = dbp->open(dbp, dbfile, NULL, DB_BTREE, DB_CREATE, 0600)) != 0) {
+		dbp->err(dbp, ret, "%s", "DB->open");
+		return(1);
 	}
 
 	db_initted = 1;
@@ -99,10 +138,36 @@ char *fil;
 
 int dddb_close()
 {
-	if (dbp != (GDBM_FILE) 0) {
-		gdbm_close(dbp);
-		dbp = (GDBM_FILE) 0;
+	int ret;
+	
+	/* Checkpoint the database to ensure that all transactions
+	   are committed */
+
+	if (dbp != NULL) {
+		if ((ret = txn_checkpoint(dbenvp, 0, 0, 0)) != 0) {
+			dbenvp->err(dbenvp, ret, "%s", dbfile);
+			return(1);
+		}
 	}
+	
+	/* Close the database */
+	if (dbp != NULL) {
+		if ((ret = dbp->close(dbp, 0)) != 0) {
+			dbp->err(dbp, ret, "%s", dbfile);
+			return(1);
+		}
+		dbp = NULL;
+	}
+
+	/* Close the database environment */
+	if (dbenvp != NULL) {
+		if ((ret = dbenvp->close(dbenvp, 0)) != 0) {
+			dbenvp->err(dbenvp, ret, "%s", dbfile);
+			return(1);
+		}
+		dbenvp = NULL;
+	}
+
 	db_initted = 0;
 	return (0);
 }
@@ -110,23 +175,51 @@ int dddb_close()
 Obj *dddb_get(nam)
 Objname *nam;
 {
-	Obj *ret;
+	Obj *obj;
+	int ret;
 	
 	if (!db_initted)
 		return ((Obj *) 0);
 
-	key.dptr = (char *)nam;
-	key.dsize = sizeof(Objname);
-	dat = gdbm_fetch(dbp, key);
+	memset(&key, 0, sizeof(key));
+	memset(&dat, 0, sizeof(dat));
 
-	if (dat.dptr == (char *)0) {
-		return ((Obj *) 0);
-	}
+	key.data = (char *)nam;
+	key.size = sizeof(Objname);
+
+	/* Start an atomic, recoverable transaction */
 	
-	/* if the file is badly formatted, ret == Obj * 0 */
-	if ((ret = objfromFILE(dat.dptr)) == (Obj *) 0) {
-		logf("db_get: cannot decode ", nam, "\n", (char *)0);
-		XFREE(dat.dptr, "dddb_get");
+	if ((ret = txn_begin(dbenvp, NULL, &tid, 0)) != 0)
+		dbenvp->err(dbenvp, ret, "txn_begin");
+
+	/* Fetch the data */
+
+	switch (ret = dbp->get(dbp, tid, &key, &dat, 0)) {
+	case DB_LOCK_DEADLOCK:
+		/* This should never happen... if we ever thread the server,
+		   some logic should be added here. */
+		   
+		STARTLOG(LOG_ALWAYS, "DB", "DEADLOCK")
+			log_printf("Database is deadlocked. Exiting.\n");
+		ENDLOG
+		exit(0);
+	case 0:
+		break;
+	case DB_NOTFOUND:
+		if (txn_commit(tid, 0))
+			dbenvp->err(dbenvp, ret, "txn_commit");
+		return(NULL);
+	}
+
+	/* The transaction finished, commit it */
+
+	if ((ret = txn_commit(tid, 0)) != 0)
+		dbenvp->err(dbenvp, ret, "txn_commit");
+
+	/* if the file is badly formatted, ret == NULL */
+
+	if ((obj = objfromFILE(dat.data)) == NULL) {
+		logf("db_get: cannot decode ", nam, "\n", NULL);
 		return NULL;
 	}
 	
@@ -134,17 +227,16 @@ Objname *nam;
 	/* Check to make sure the requested name and stored name are the
 	   same */
 	
-	if (*nam != ret->name) {
+	if (*nam != obj->name) {
 		STARTLOG(LOG_ALWAYS, "BUG", "CRUPT")
 			log_printf("Database is corrupt, object %d. Exiting.",
-				   (int)ret->name);
+				   (int)obj->name);
 		ENDLOG
 		raw_broadcast(0, "GAME: Database corruption detected, exiting.");
 		exit(8);
 	}
 #endif
-	XFREE(dat.dptr, "dddb_get");
-	return (ret);
+	return (obj);
 }
 
 int dddb_put(obj, nam)
@@ -152,56 +244,102 @@ Obj *obj;
 Objname *nam;
 {
 	int nsiz;
+	int ret;
 
 	if (!db_initted)
 		return (1);
 
 	nsiz = obj_siz(obj);
 
-	key.dptr = (char *)nam;
-	key.dsize = sizeof(Objname);
+	memset(&key, 0, sizeof(key));
+	memset(&dat, 0, sizeof(dat));
+
+	key.data = (char *)nam;
+	key.size = sizeof(Objname);
 	
 	/* make table entry */
-	dat.dptr = (char *)XMALLOC(nsiz, "dddb_put");
-	dat.dsize = nsiz;
+	dat.data = (char *)XMALLOC(nsiz, "dddb_put");
+	dat.size = nsiz;
 
-	if (objtoFILE(obj, dat.dptr) != 0) {
+	if (objtoFILE(obj, dat.data) != 0) {
 		logf("db_put: can't save ", nam, " ", (char *)-1, "\n", (char *)0);
-		XFREE(dat.dptr, "dddb_put");
+		XFREE(dat.data, "dddb_put");
 		return (1);
 	}
 
-	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
-		logf("db_put: can't gdbm_store ", nam, " ", (char *)-1, "\n", (char *)0);
-		XFREE(dat.dptr, "dddb_put");
+	/* Begin an atomic, recoverable transaction */
+
+	if ((ret = txn_begin(dbenvp, NULL, &tid, 0)) != 0)
+		dbenvp->err(dbenvp, ret, "txn_begin");
+
+	/* Store the value */
+
+	switch (ret = dbp->put(dbp, tid, &key, &dat, 0)) {
+	case DB_LOCK_DEADLOCK:
+		/* This should never happen... if we ever thread the server,
+		   some logic should be added here. */
+		   
+		STARTLOG(LOG_ALWAYS, "DB", "DEADLOCK")
+			log_printf("Database is deadlocked. Exiting.\n");
+		ENDLOG
+		exit(0);
+	case 0:
+		break;
+	default:
+		txn_abort(tid);
+		dbenvp->err(dbenvp, ret, "dbp->put");
+		XFREE(dat.data, "dddb_put");
 		return (1);
 	}
 
-	XFREE(dat.dptr, "dddb_put");
+	/* The transaction finished, commit it. */
+	if ((ret = txn_commit(tid, 0)) != 0)
+		dbenvp->err(dbenvp, ret, "txn_commit");
+
+	XFREE(dat.data, "dddb_put");
 	return (0);
 }
 
 int dddb_del(nam)
 Objname *nam;
 {
+	int ret;
 
 	if (!db_initted)
 		return (-1);
 
-	key.dptr = (char *)nam;
-	key.dsize = sizeof(Objname);
-	dat = gdbm_fetch(dbp, key);
+	memset(&key, 0, sizeof(key));
 
-	/* not there? */
-	if (dat.dptr == (char *)0)
-		return (0);
-
-	XFREE(dat.dptr, "dddb_del");
+	key.data = (char *)nam;
+	key.size = sizeof(Objname);
 	
-	/* drop key from db */
-	if (gdbm_delete(dbp, key)) {
-		logf("db_del: can't delete key ", nam, "\n", (char *)0);
+	/* Begin an atomic, recoverable transaction */
+
+	if ((ret = txn_begin(dbenvp, NULL, &tid, 0)) != 0)
+		dbenvp->err(dbenvp, ret, "txn_begin");
+
+	/* Delete the key */
+
+	switch (ret = dbp->del(dbp, tid, &key, 0)) {
+	case DB_LOCK_DEADLOCK:
+		/* This should never happen... if we ever thread the server,
+		   some logic should be added here. */
+		   
+		STARTLOG(LOG_ALWAYS, "DB", "DEADLOCK")
+			log_printf("Database is deadlocked. Exiting.\n");
+		ENDLOG
+		exit(0);
+	case 0:
+		break;
+	default:
+		txn_abort(tid);
+		dbenvp->err(dbenvp, ret, "dbp->del");
 		return (1);
 	}
+
+	/* The transaction finished, commit it. */
+	if ((ret = txn_commit(tid, 0)) != 0)
+		dbenvp->err(dbenvp, ret, "txn_commit");
+
 	return (0);
 }

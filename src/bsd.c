@@ -1273,13 +1273,10 @@ int sig;
 				unset_signals();
 				exit(1);
 			}
-			if (mudconf.compress_db) {
-				sprintf(outdb, "%s.Z", mudconf.outdb);
-				sprintf(indb, "%s.Z", mudconf.indb);
-				rename(outdb, indb);
-			} else {
-				rename(mudconf.outdb, mudconf.indb);
-			}
+			
+			sprintf(outdb, "%s/%s", mudconf.dbhome, mudconf.outdb);
+			sprintf(indb, "%s/%s", mudconf.dbhome, mudconf.indb);
+			rename(outdb, indb);
 
 			alarm(0);
 			dump_restart_db();
