@@ -1249,8 +1249,11 @@ Obj *obj;
 	if (!obj->at_count || !obj->atrs)
 		return;
 
-	if (obj->at_count < 0)
-		abort();
+	if (obj->at_count < 0) {
+	    fprintf(stderr,
+		    "ABORT! udb_ocache.c, negative attr count in del_attrib().\n");
+	    abort();
+	}
 
 	/*
 	 * Binary search for the attribute. 

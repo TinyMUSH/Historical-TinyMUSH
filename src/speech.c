@@ -385,7 +385,7 @@ dbref player, target;
 			    tprintf("Sorry, %s is not connected.",
 				    Name(target)));
 	} else if (!could_doit(player, target, A_LPAGE)) {
-		if (Can_Hide(target) && Hidden(target))
+		if (Can_Hide(target) && Hidden(target) && !See_Hidden(player))
 			page_return(player, target, "Away", A_AWAY,
 				    tprintf("Sorry, %s is not connected.",
 					    Name(target)));

@@ -37,7 +37,7 @@ int type;
 	for (j = old; *j != '\0'; j++) {
 	    switch (*j) {
 		case ESC_CHAR:
-		    c = (char *) index(j, 'm');
+		    c = (char *) index(j, ANSI_END);
 		    if (c) {
 			if (!type) {
 			    j = c;
@@ -58,64 +58,67 @@ int type;
 				*p++ = '\0';
 			    i = atoi(j);
 			    switch (i) {
-				case 0:
+				case I_ANSI_NORMAL:
 					safe_str("%xn", new, &bp);
 					break;
-				case 1:
+				case I_ANSI_HILITE:
 					safe_str("%xh", new, &bp);
 					break;
-				case 5:
+				case I_ANSI_BLINK:
 					safe_str("%xf", new, &bp);
 					break;
-				case 7:
+				case I_ANSI_INVERSE:
 					safe_str("%xi", new, &bp);
 					break;
-				case 30:
+				case I_ANSI_UNDER:
+					safe_str("%xu", new, &bp);
+					break;
+				case I_ANSI_BLACK:
 					safe_str("%xx", new, &bp);
 					break;
-				case 31:
+				case I_ANSI_RED:
 					safe_str("%xr", new, &bp);
 					break;
-				case 32:
+				case I_ANSI_GREEN:
 					safe_str("%xg", new, &bp);
 					break;
-				case 33:
+				case I_ANSI_YELLOW:
 					safe_str("%xy", new, &bp);
 					break;
-				case 34:
+				case I_ANSI_BLUE:
 					safe_str("%xb", new, &bp);
 					break;
-				case 35:
+				case I_ANSI_MAGENTA:
 					safe_str("%xm", new, &bp);
 					break;
-				case 36:
+				case I_ANSI_CYAN:
 					safe_str("%xc", new, &bp);
 					break;
-				case 37:
+				case I_ANSI_WHITE:
 					safe_str("%xw", new, &bp);
 					break;
-				case 40:
+				case I_ANSI_BBLACK:
 					safe_str("%xX", new, &bp);
 					break;
-				case 41:
+				case I_ANSI_BRED:
 					safe_str("%xR", new, &bp);
 					break;
-				case 42:
+				case I_ANSI_BGREEN:
 					safe_str("%xG", new, &bp);
 					break;
-				case 43:
+				case I_ANSI_BYELLOW:
 					safe_str("%xY", new, &bp);
 					break;
-				case 44:
+				case I_ANSI_BBLUE:
 					safe_str("%xB", new, &bp);
 					break;
-				case 45:
+				case I_ANSI_BMAGENTA:
 					safe_str("%xM", new, &bp);
 					break;
-				case 46:
+				case I_ANSI_BCYAN:
 					safe_str("%xC", new, &bp);
 					break;
-				case 47:
+				case I_ANSI_BWHITE:
 					safe_str("%xW", new, &bp);
 					break;
 			    }

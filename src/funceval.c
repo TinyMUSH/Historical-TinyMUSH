@@ -247,6 +247,9 @@ FUNCTION(fun_ansi)
 		case 'f':	/* flash */
 		    safe_copy_str(N_ANSI_BLINK, buff, bufc, LBUF_SIZE - 5);
 		    break;
+		case 'u':	/* underline */
+		    safe_copy_str(N_ANSI_UNDER, buff, bufc, LBUF_SIZE - 5);
+		    break;
 		case 'n':	/* normal */
 		    safe_copy_str(N_ANSI_NORMAL, buff, bufc, LBUF_SIZE - 5);
 		    break;
@@ -2194,11 +2197,8 @@ FUNCTION(fun_mail)
 	char *msgbuff;
 #endif
 
-	/* make sure we have the right number of arguments */
-	if ((nfargs != 0) && (nfargs != 1) && (nfargs != 2)) {
-		safe_str("#-1 FUNCTION (MAIL) EXPECTS 0 OR 1 OR 2 ARGUMENTS", buff, bufc);
+	if (!fn_range_check("MAIL", nfargs, 0, 2, buff, bufc))
 		return;
-	}
 	if ((nfargs == 0) || !fargs[0] || !fargs[0][0]) {
 		count_mail(player, 0, &rc, &uc, &cc);
 		safe_ltos(buff, bufc, rc + uc);
@@ -2265,11 +2265,8 @@ FUNCTION(fun_mailfrom)
 	dbref playerask;
 	int num;
 
-	/* make sure we have the right number of arguments */
-	if ((nfargs != 1) && (nfargs != 2)) {
-		safe_str("#-1 FUNCTION (MAILFROM) EXPECTS 1 OR 2 ARGUMENTS", buff, bufc);
+	if (!fn_range_check("MAILFROM", nfargs, 1, 2, buff, bufc))
 		return;
-	}
 	if (nfargs == 1) {
 		playerask = player;
 		num = atoi(fargs[0]);

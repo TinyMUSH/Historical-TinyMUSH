@@ -29,13 +29,13 @@ char *cstr, *rstr, *zstr;
 		zstr--;
 	if ((eval & EV_STRIP_AROUND) && (*rstr == '{') && (zstr[-1] == '}')) {
 		rstr++;
-		if (mudconf.space_compress && !(eval & EV_NO_COMPRESS) ||
+		if ((mudconf.space_compress && !(eval & EV_NO_COMPRESS)) ||
 		    (eval & EV_STRIP_LS))
 			while (*rstr && isspace(*rstr))
 				rstr++;
 		rstr[-1] = '\0';
 		zstr--;
-		if (mudconf.space_compress && !(eval & EV_NO_COMPRESS) ||
+		if ((mudconf.space_compress && !(eval & EV_NO_COMPRESS)) ||
 		    (eval & EV_STRIP_TS))
 			while (zstr[-1] && isspace(zstr[-1]))
 				zstr--;
@@ -548,6 +548,9 @@ char *cargs[];
 				case 'f':	/* flash */
 					safe_str(ANSI_BLINK, buff, bufc);
 					break;
+				case 'u':	/* underline */
+					safe_str(ANSI_UNDER, buff, bufc);
+					break;
 				case 'n':	/* normal */
 					safe_str(ANSI_NORMAL, buff, bufc);
 					ansi = 0;
@@ -992,9 +995,9 @@ char *cargs[];
 	**bufc = '\0';
 
 	if (realbuff) {
-		**bufc = '\0';
 		*bufc = realbp;
 		safe_str(buff, realbuff, bufc);
+		**bufc = '\0';
 		free(buff);
 		buff = realbuff;
 	}

@@ -1331,23 +1331,46 @@ FUNCTION(fun_parse)
 
 FUNCTION(fun_mid)
 {
-	int l, len;
-	char *oldp;
+    char *s;
+    int count, start, nchars, len;
 
-	oldp = *bufc;
-	l = atoi(fargs[1]);
-	len = atoi(fargs[2]);
-	if ((l < 0) || (len < 0) || ((len + l) > LBUF_SIZE) || 
-	    ((len + l) < 0)) {
-		safe_str("#-1 OUT OF RANGE", buff, bufc);
-		return;
+    s = fargs[0];
+    start = atoi(fargs[1]);
+    nchars = atoi(fargs[2]);
+    len = strlen(strip_ansi(s));
+
+    if ((start < 0) || (nchars < 0) || (start > LBUF_SIZE - 1) ||
+	(nchars > LBUF_SIZE - 1)) {
+	safe_str("#-1 OUT OF RANGE", buff, bufc);
+	return;
+    }
+
+    if ((start >= len) || (nchars == 0))
+	return;
+
+    if (start + nchars > len)
+	nchars = len - start;
+
+    for (count = 0; *s && (count < start + nchars); ) {
+	if (*s == ESC_CHAR) {
+	    /* Start of an ANSI code. Skip to the end. */
+	    while (*s && (*s != ANSI_END)) {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	    if (*s) {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	} else {
+	    if (count >= start)
+		safe_chr(*s, buff, bufc);
+	    s++;
+	    count++;
 	}
-	if (l < strlen(strip_ansi(fargs[0])))
-		safe_str(strip_ansi(fargs[0]) + l, buff, bufc);
-	if ((oldp + len) < *bufc) {
-		*bufc = oldp + len;
-	}
+    }
 }
+
 
 /* ---------------------------------------------------------------------------
  * fun_first: Returns first word in a string
@@ -2548,15 +2571,26 @@ FUNCTION(fun_ln)
 
 FUNCTION(fun_log)
 {
-	double val;
+	double val, base;
+
+	if (!fn_range_check("LOG", nfargs, 1, 2, buff, bufc))
+	    return;
 
 	val = atof(fargs[0]);
-	if (val > 0) {
-		fval(buff, bufc, log10(val));
-	} else {
-		safe_str("#-1 LOG OF NEGATIVE OR ZERO", buff, bufc);
-	}
+
+	if (nfargs == 2)
+	    base = atof(fargs[1]);
+	else
+	    base = 10;
+
+	if ((val <= 0) || (base <= 0))
+	    safe_str("#-1 LOG OF NEGATIVE OR ZERO", buff, bufc);
+	else if (base == 1)
+	    safe_str("#-1 DIVISION BY ZERO", buff, bufc);
+	else
+	    fval(buff, bufc, log(val) / log(base));
 }
+
 
 FUNCTION(fun_asin)
 {
@@ -3541,28 +3575,40 @@ FUNCTION(fun_haspower)
 
 FUNCTION(fun_delete)
 {
-	char *s, *temp, *bp;
-	unsigned int i, start, nchars, len;
+    char *s;
+    int count, start, nchars, len;
 
-	s = fargs[0];
-	start = atoi(fargs[1]);
-	nchars = atoi(fargs[2]);
-	len = strlen(s);
-	if ((start >= len) || (nchars <= 0)) {
-		safe_str(s, buff, bufc);
-		return;
+    s = fargs[0];
+    start = atoi(fargs[1]);
+    nchars = atoi(fargs[2]);
+    len = strlen(strip_ansi(s));
+
+    if ((start >= len) || (nchars <= 0)) {
+	safe_str(s, buff, bufc);
+	return;
+    }
+
+    for (count = 0; count < len; ) {
+	if (*s == ESC_CHAR) {
+	    /* Start of an ANSI code. Skip to the end. */
+	    while (*s && (*s != ANSI_END)) {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	    if (*s) {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	} else {
+	    if ((count >= start) && (count < start + nchars)) {
+		s++;
+	    } else {
+		safe_chr(*s, buff, bufc);
+		s++;
+	    }
+	    count++;
 	}
-	bp = temp = alloc_lbuf("fun_delete");
-	for (i = 0; i < start; i++)
-		*bp++ = (*s++);
-	if ((i + nchars) < len && (i + nchars) > 0) {
-		s += nchars;
-		while ((*bp++ = *s++)) ;
-	} else 
-		*bp = '\0';
-	
-	safe_str(temp, buff, bufc);
-	free_lbuf(temp);
+    }
 }
 
 FUNCTION(fun_lock)
@@ -5767,7 +5813,7 @@ FUN flist[] = {
 {"LOCATE",	fun_locate,	3,  0,		CA_PUBLIC},
 {"LOCALIZE",    fun_localize,   1,  FN_NO_EVAL, CA_PUBLIC},
 {"LOCK",	fun_lock,	1,  0,		CA_PUBLIC},
-{"LOG",		fun_log,	1,  0,		CA_PUBLIC},
+{"LOG",		fun_log,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LOR",		fun_lor,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LORBOOL",	fun_lorbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LPOS",	fun_lpos,	2,  0,		CA_PUBLIC},

@@ -219,11 +219,8 @@ int format;
 		}
 		break;
 	default:
-		fprintf(stderr,
-		      "Fell off the end of switch in unparse_boolexp1()\n");
-		abort();	/*
-				 * bad type 
-				 */
+		fprintf(stderr, "ABORT! unparse.c, bad boolexp type in unparse_boolexp1().\n");
+		abort();
 		break;
 	}
 }

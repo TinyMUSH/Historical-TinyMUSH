@@ -673,17 +673,16 @@ DESC *d;
 		if (Hidden(player)) {
 			raw_broadcast(MONITOR,
 				      (char *)"GAME: %s has DARK-connected.",
-				      Name(player), 0, 0, 0, 0, 0);
+				      Name(player));
 		} else {
 			raw_broadcast(MONITOR,
 				      (char *)"GAME: %s has connected.",
-				      Name(player), 0, 0, 0, 0, 0);
+				      Name(player));
 		}
 	} else {
-		sprintf(buf, "%s has reconnected.", Name(player));
 		raw_broadcast(MONITOR,
 			      (char *)"GAME: %s has reconnected.",
-			      Name(player), 0, 0, 0, 0, 0);
+			      Name(player));
 	}
 
 	key = MSG_INV;
@@ -697,12 +696,12 @@ DESC *d;
 
 	if (Suspect(player)) {
 		raw_broadcast(WIZARD, (char *)"[Suspect] %s has connected.",
-			      Name(player), 0, 0, 0, 0, 0);
+			      Name(player));
 	}
 	if (d->host_info & H_SUSPECT) {
 		raw_broadcast(WIZARD,
 			      (char *)"[Suspect site: %s] %s has connected.",
-			      d->addr, Name(player), 0, 0, 0, 0);
+			      d->addr, Name(player));
 	}
 	buf = atr_pget(player, A_ACONNECT, &aowner, &aflags);
 	if (buf && *buf)
@@ -784,12 +783,12 @@ const char *reason;
 	if (Suspect(player)) {
 		raw_broadcast(WIZARD,
 			      (char *)"[Suspect] %s has disconnected.",
-			      Name(player), 0, 0, 0, 0, 0);
+			      Name(player));
 	}
 	if (d->host_info & H_SUSPECT) {
 		raw_broadcast(WIZARD,
 			  (char *)"[Suspect site: %s] %s has disconnected.",
-			      d->addr, Name(d->player), 0, 0, 0, 0);
+			      d->addr, Name(d->player));
 	}
 	loc = Location(player);
 	num = 0;
@@ -818,7 +817,8 @@ const char *reason;
 			do_mail_purge(player);
 #endif
 
-		raw_broadcast(MONITOR, (char *)"GAME: %s has disconnected.", Name(player), 0, 0, 0, 0, 0);
+		raw_broadcast(MONITOR, (char *)"GAME: %s has disconnected.",
+			      Name(player));
 
 		if (Guest(player) && mudconf.have_comsys)
 			toast_player(player);
@@ -901,7 +901,9 @@ const char *reason;
 		if ((loc != NOTHING) && !(Hidden(player) && Can_Hide(player)))
 			key |= (MSG_NBR | MSG_NBR_EXITS | MSG_LOC | MSG_FWDLIST);
 		notify_check(player, player, buf, key);
-		raw_broadcast(MONITOR, (char *)"GAME: %s has partially disconnected.", Name(player), 0, 0, 0, 0, 0);
+		raw_broadcast(MONITOR,
+			      (char *)"GAME: %s has partially disconnected.",
+			      Name(player));
 		free_mbuf(buf);
 	}
 	mudstate.curr_enactor = temp;
@@ -1104,8 +1106,8 @@ int key;
     count = 0;
     DESC_ITER_CONN(d) {
 	if (!Hidden(d->player) ||
-	    (e->flags & DS_CONNECTED) &&
-	    (Wizard_Who(e->player) || See_Hidden(e->player))) {
+	    ((e->flags & DS_CONNECTED) &&
+	     ((Wizard_Who(e->player) || See_Hidden(e->player))))) {
 	    count++;
 	    if (match && !(string_prefix(Name(d->player), match)))
 		continue;
@@ -1817,7 +1819,7 @@ int first;
 		}
 	}
 	if (!(cp->flag & CMD_NOxFIX)) {
-		if (d->output_prefix) {
+		if (d->output_suffix) {
 			queue_string(d, d->output_suffix);
 			queue_write(d, "\r\n", 2);
 		}
@@ -2175,7 +2177,8 @@ char *name;
 
 	found = NOTHING;
 	DESC_ITER_CONN(d) {
-		if (Good_obj(player) && !Wizard(player) && Hidden(d->player))
+		if (Good_obj(player) &&
+		    !See_Hidden(player) && Hidden(d->player))
 			continue;
 		if (!string_prefix(Name(d->player), name))
 			continue;
@@ -2203,7 +2206,7 @@ dbref find_connected_ambiguous(player, name)
 
     found = NOTHING;
     DESC_ITER_CONN(d) {
-	if (Good_obj(player) && !Wizard(player) && Hidden(d->player))
+	if (Good_obj(player) && !See_Hidden(player) && Hidden(d->player))
 	    continue;
 	if (!string_prefix(Name(d->player), name))
 	    continue;

@@ -520,7 +520,7 @@ int sock;
 	if (newsock < 0)
 		return 0;
 
-	if (site_check(addr.sin_addr, mudstate.access_list) == H_FORBIDDEN) {
+	if (site_check(addr.sin_addr, mudstate.access_list) & H_FORBIDDEN) {
 		STARTLOG(LOG_NET | LOG_SECURITY, "NET", "SITE")
 			buff = alloc_mbuf("new_connection.LOG.badsite");
 		sprintf(buff, "[%d/%s] Connection refused.  (Remote port %d)",
@@ -610,7 +610,7 @@ int reason;
 	DESC *dtemp;
 
 	if ((reason == R_LOGOUT) &&
-	    (site_check((d->address).sin_addr, mudstate.access_list) == H_FORBIDDEN))
+	    (site_check((d->address).sin_addr, mudstate.access_list) & H_FORBIDDEN))
 		reason = R_QUIT;
 
 	if (d->flags & DS_CONNECTED) {
@@ -1130,6 +1130,7 @@ static void unset_signals()
 
 	for (i = 0; i < NSIG; i++)
 		signal(i, SIG_DFL);
+	fprintf(stderr, "ABORT! bsd.c, called unset_signals().\n");
 	abort();
 }
 
@@ -1218,7 +1219,7 @@ int sig, code;
 #ifdef HAVE_WAIT3
 		while (wait3(&stat, WNOHANG, NULL) > 0) ;
 #else
-		wait(&stat);
+		wait((int *) &stat);
 #endif
 		/* Did the child exit? */
 		
@@ -1247,7 +1248,8 @@ int sig, code;
 #endif
 		check_panicking(sig);
 		log_signal(signames[sig]);
-		sprintf(buff, "Caught signal %s, exiting.", signames[sig]);
+		sprintf(buff, "Game: Caught signal %s, exiting.",
+			signames[sig]);
 		raw_broadcast(0, buff);
 		dump_database_internal(4);
 		exit(0);

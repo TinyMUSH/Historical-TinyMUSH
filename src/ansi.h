@@ -14,6 +14,7 @@
 #define ANSI_HILITE   "\033[1m"
 #define ANSI_INVERSE  "\033[7m"
 #define ANSI_BLINK    "\033[5m"
+#define ANSI_UNDER    "\033[4m"
 
 #define ANSI_INV_BLINK         "\033[7;5m"
 #define ANSI_INV_HILITE        "\033[1;7m"
@@ -49,6 +50,7 @@
 #define N_ANSI_HILITE   "1"
 #define N_ANSI_INVERSE  "7"
 #define N_ANSI_BLINK    "5"
+#define N_ANSI_UNDER    "4"
 
 #define N_ANSI_BLACK	"30"
 #define N_ANSI_RED	"31"
@@ -67,3 +69,32 @@
 #define N_ANSI_BMAGENTA	"45"
 #define N_ANSI_BCYAN	"46"
 #define N_ANSI_BWHITE	"47"
+
+#define N_ANSI_NORMAL   "0"
+
+/* Integers */
+
+#define I_ANSI_NORMAL   0
+
+#define I_ANSI_HILITE   1
+#define I_ANSI_INVERSE  7
+#define I_ANSI_BLINK    5
+#define I_ANSI_UNDER    4
+
+#define I_ANSI_BLACK	30
+#define I_ANSI_RED	31
+#define I_ANSI_GREEN	32
+#define I_ANSI_YELLOW	33
+#define I_ANSI_BLUE	34
+#define I_ANSI_MAGENTA	35
+#define I_ANSI_CYAN	36
+#define I_ANSI_WHITE	37
+
+#define I_ANSI_BBLACK	40
+#define I_ANSI_BRED	41
+#define I_ANSI_BGREEN	42
+#define I_ANSI_BYELLOW	43
+#define I_ANSI_BBLUE	44
+#define I_ANSI_BMAGENTA	45
+#define I_ANSI_BCYAN	46
+#define I_ANSI_BWHITE	47

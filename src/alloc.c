@@ -12,12 +12,15 @@
 #include "mudconf.h"
 #include "externs.h"
 
+/* We need to 64-bit-align the end of the pool header. */
+
 typedef struct pool_header {
-	int magicnum;		/* For consistency check */
-	int pool_size;		/* For consistency check */
-	struct pool_header *next;	/* Next pool header in chain */
-	struct pool_header *nxtfree;	/* Next pool header in freelist */
-	char *buf_tag;		/* Debugging/trace tag */
+    int magicnum;		/* For consistency check */
+    int pool_size;		/* For consistency check */
+    struct pool_header *next;	/* Next pool header in chain */
+    struct pool_header *nxtfree;	/* Next pool header in freelist */
+    char *buf_tag;		/* Debugging/trace tag */
+    char align[(-2 * sizeof(int) - 3 * sizeof(char *)) & 0x7];
 } POOLHDR;
 
 typedef struct pool_footer {
@@ -148,8 +151,10 @@ const char *tag;
 			h = (char *)XMALLOC(pools[poolnum].pool_size +
 					    sizeof(POOLHDR) + sizeof(POOLFTR),
 					    "pool_alloc");
-			if (h == NULL)
-				abort();
+			if (h == NULL) {
+			    fprintf(stderr, "ABORT! alloc.c, pool_alloc() failed to get memory.\n");
+			    abort();
+			}
 			ph = (POOLHDR *) h;
 			h += sizeof(POOLHDR);
 			p = (int *)h;

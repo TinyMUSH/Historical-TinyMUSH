@@ -214,10 +214,9 @@ BOOLEXP *b;
 	case BOOLEXP_OWNER:
 		return (Owner(b->sub1->thing) == Owner(player));
 	default:
-		abort();	/*
-				 * bad type 
-				 */
-		return 0;
+	    fprintf(stderr, "ABORT! boolexp.c, unknown boolexp type in eval_boolexp().\n");
+	    abort();		/* bad type */
+	    return 0;		/* NOTREACHED */
 	}
 }
 

@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include "config.h"
 #include "db.h"
+#include "powers.h"
 #include "interface.h"
 #include "attrs.h"
 #include "externs.h"
@@ -123,8 +124,10 @@ int newtop;
 
 	newdb = (MENT *) malloc((newsize + 1) * sizeof(MENT));
 
-	if (!newdb)
-		abort();
+	if (!newdb) {
+	    fprintf(stderr, "ABORT! mail.c, unable to malloc new db in mail_db_grow().\n");
+	    abort();
+	}
 
 	if (mudstate.mail_list) {
 		mudstate.mail_list -= 1;
@@ -588,7 +591,7 @@ char *msglist;
 				   i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
 						       timebuff,
 						     (Connected(mp->from) &&
-				  (!Hidden(mp->from) || Hasprivs(player))) ?
+				  (!Hidden(mp->from) || See_Hidden(player))) ?
 					       " (Conn)" : "      ", folder,
 						       status,
 						       names,
@@ -598,7 +601,7 @@ char *msglist;
 				   i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
 						       mp->time,
 						     (Connected(mp->from) &&
-				  (!Hidden(mp->from) || Hasprivs(player))) ?
+				  (!Hidden(mp->from) || See_Hidden(player))) ?
 					       " (Conn)" : "      ", folder,
 						       status,
 						       names,
@@ -778,7 +781,7 @@ char *msglist;
 							       i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
 							       timebuff,
 						     (Connected(mp->from) &&
-						      (!Hidden(mp->from) || Hasprivs(player))) ?
+						      (!Hidden(mp->from) || See_Hidden(player))) ?
 						    " (Conn)" : "      ", 0,
 							  status, subbuff));
 #else
@@ -793,7 +796,7 @@ char *msglist;
 							       i, PLAYER_NAME_LIMIT - 6, Name(mp->from),
 							       mp->time,
 						     (Connected(mp->from) &&
-						      (!Hidden(mp->from) || Hasprivs(player))) ?
+						      (!Hidden(mp->from) || See_Hidden(player))) ?
 						    " (Conn)" : "      ", 0,
 						      status, mp->subject));
 #endif /*
@@ -865,7 +868,7 @@ int sub;
 							       PLAYER_NAME_LIMIT - 6, Name(mp->from),
 							       time,
 						    ((Connected(mp->from) &&
-						      (!Hidden(mp->from) || Hasprivs(player)))
+						      (!Hidden(mp->from) || See_Hidden(player)))
 						     ? "Conn" : " ")));
 #else
 				time = mail_list_time(mp->time);
@@ -882,7 +885,7 @@ int sub;
 							       PLAYER_NAME_LIMIT - 6, Name(mp->from),
 							       time,
 						    ((Connected(mp->from) &&
-						      (!Hidden(mp->from) || Hasprivs(player)))
+						      (!Hidden(mp->from) || See_Hidden(player)))
 						     ? "Conn" : " ")));
 #endif /*
         * RADIX_COMPRESSION 

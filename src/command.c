@@ -1616,8 +1616,10 @@ char *command, *args[];
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< process_command >";
 
-	if (!command)
-		abort();
+	if (!command) {
+	    fprintf(stderr, "ABORT! command.c, null command in process_command().\n");
+	    abort();
+	}
 
 	if (!Good_obj(player)) {
 		STARTLOG(LOG_BUGS, "CMD", "PLYR")

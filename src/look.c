@@ -409,12 +409,14 @@ char *text;
 		notify(player, buf);
 	    } else {
 		if (!pretty) {
-		    buf = tprintf("\033[1m%s:\033[0m %s", ap->name, text);
+		    buf = tprintf("%s%s:%s %s",
+				  ANSI_HILITE, ap->name, ANSI_NORMAL, text);
 		    notify(player, buf);
 		} else {
 		    buf = alloc_lbuf("view_atr.pretty");
 		    pretty_print(buf,
-				 tprintf("\033[1m%s:\033[0m %s", ap->name),
+				 tprintf("%s%s:%s %s",
+					 ANSI_HILITE, ap->name, ANSI_NORMAL),
 				 text);
 		    notify(player, buf);
 		    free_lbuf(buf);
@@ -452,13 +454,15 @@ char *text;
 
 	if (pretty) {
 	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
-		name_buf = tprintf("\033[1m%s [#%d%s]:\033[0m",
-				   ap->name, aowner, xbuf);
+		name_buf = tprintf("%s%s [#%d%s]:%s",
+				   ANSI_HILITE, ap->name, aowner, xbuf,
+				   ANSI_NORMAL);
 	    } else if (*xbuf) {
-		name_buf = tprintf("\033[1m%s [%s]:\033[0m",
-				   ap->name, xbuf);
+		name_buf = tprintf("%s%s [%s]:%s",
+				   ANSI_HILITE, ap->name, xbuf, ANSI_NORMAL);
 	    } else if (!skip_tag || (ap->number != A_DESC)) {
-		name_buf = tprintf("\033[1m%s:\033[0m", ap->name);
+		name_buf = tprintf("%s%s:%s", ANSI_HILITE, ap->name,
+				   ANSI_NORMAL);
 	    } else {
 		name_buf = (char *) "";
 		buf = text;
@@ -469,13 +473,15 @@ char *text;
 	    free_lbuf(buf);
 	} else {
 	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {
-		buf = tprintf("\033[1m%s [#%d%s]:\033[0m %s",
-			      ap->name, aowner, xbuf, text);
+		buf = tprintf("%s%s [#%d%s]:%s %s",
+			      ANSI_HILITE, ap->name, aowner, xbuf,
+			      ANSI_NORMAL, text);
 	    } else if (*xbuf) {
-		buf = tprintf("\033[1m%s [%s]:\033[0m %s",
-			      ap->name, xbuf, text);
+		buf = tprintf("%s%s [%s]:%s %s",
+			      ANSI_HILITE, ap->name, xbuf, ANSI_NORMAL, text);
 	    } else if (!skip_tag || (ap->number != A_DESC)) {
-		buf = tprintf("\033[1m%s:\033[0m %s", ap->name, text);
+		buf = tprintf("%s%s:%s %s", ANSI_HILITE, ap->name,
+			      ANSI_NORMAL, text);
 	    } else {
 		buf = text;
 	    }

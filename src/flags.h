@@ -537,8 +537,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	See_attr_explicit(p,x,a,o,f) \
 			(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
 			 (((f) & AF_VISUAL) || \
-			  (Owner(p) == (o)) && \
-			   !((a)->flags & (AF_DARK|AF_MDARK))))
+			  ((Owner(p) == (o)) && \
+			   !((a)->flags & (AF_DARK|AF_MDARK)))))
 #define	Set_attr(p,x,a,f) \
 			(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
 			 (God(p) || \

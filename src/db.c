@@ -1533,7 +1533,8 @@ int *flags, atr;
 		return 0;
 
 	if (atr == A_LIST) {	/* This is not supposed to be compressed! */
-		abort();
+	    fprintf(stderr, "ABORT! db.c, list is compressed in atr_get_raw_decode().\n");
+	    abort();
 	}
 	makekey(thing, atr, &okey);
 	a = FETCH(&okey);
@@ -1725,8 +1726,11 @@ int atr;
 	if (!db[thing].at_count || !db[thing].ahead)
 		return;
 
-	if (db[thing].at_count < 0)
-		abort();
+	if (db[thing].at_count < 0) {
+	    fprintf(stderr,
+		    "ABORT! db.c, negative attr count in atr_clr().\n");
+	    abort();
+	}
 
 	/* Binary search for the attribute. */
 	lo = 0;
@@ -2516,10 +2520,10 @@ dbref newtop;
 	newnames = (NAME *) XMALLOC((newsize + SIZE_HACK) * sizeof(NAME),
 				    "db_grow.names");
 	if (!newnames) {
-		LOG_SIMPLE(LOG_ALWAYS, "ALC", "DB",
-			   tprintf("Could not allocate space for %d item name cache.",
-				   newsize));
-		abort();
+	    fprintf(stderr,
+		    "ABORT! db.c, could not allocate space for %d item name cache in db_grow().\n",
+		    newsize);
+	    abort();
 	}
 
 	bzero((char *)newnames, (newsize + SIZE_HACK) * sizeof(NAME));
@@ -2552,10 +2556,9 @@ dbref newtop;
 					    "db_grow.purenames");
 
 		if (!newpurenames) {
-			LOG_SIMPLE(LOG_ALWAYS, "ALC", "DB",
-				   tprintf("Could not allocate space for %d item name cache.",
-					   newsize));
-			abort();
+		    fprintf(stderr,
+			    "ABORT! db.c, could not allocate space for %d item name cache in db_grow().\n", newsize);
+		    abort();
 		}
 		bzero((char *)newpurenames, (newsize + SIZE_HACK) * sizeof(NAME));
 

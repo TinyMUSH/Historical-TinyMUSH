@@ -43,7 +43,8 @@ FILE *f;
 		return TRUE_BOOLEXP;
 		/* break; */
 	case EOF:
-		abort();	/* unexpected EOF in boolexp */
+	        fprintf(stderr, "ABORT! db_rw.c, unexpected EOF in boolexp in getboolexp1().\n");
+		abort();
 		break;
 	case '(':
 		b = alloc_bool("getboolexp1.openparen");
@@ -111,9 +112,12 @@ FILE *f;
 			return b;
 		}
 	case '-':		/* obsolete NOTHING key, eat it */
-		while ((c = getc(f)) != '\n')
-			if (c == EOF)
-				abort();	/* unexp EOF */
+	        while ((c = getc(f)) != '\n') {
+		    if (c == EOF) {
+			fprintf(stderr, "ABORT! db_rw.c, unexpected EOF in getboolexp1().\n");
+			abort();
+		    }
+		}
 		ungetc(c, f);
 		return TRUE_BOOLEXP;
 	case '"':
@@ -223,8 +227,10 @@ FILE *f;
 	}
 
       error:
+	fprintf(stderr,
+		"ABORT! db_rw.c, reached error case in getboolexp1().\n");
 	abort();		/* bomb out */
-	return TRUE_BOOLEXP;
+	return TRUE_BOOLEXP;	/* NOTREACHED */
 }
 
 /* ---------------------------------------------------------------------------
@@ -238,8 +244,10 @@ FILE *f;
 	char c;
 
 	b = getboolexp1(f);
-	if (getc(f) != '\n')
-		abort();	/* parse error, we lose */
+	if (getc(f) != '\n') {
+	    fprintf(stderr, "ABORT! db_rw.c, parse error in getboolexp().\n");
+	    abort();	/* parse error, we lose */
+	}
 
 	/* MUSH (except for PernMUSH) and MUSE can have an extra CR, MUD
 	 * does not. 
