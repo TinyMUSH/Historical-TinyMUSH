@@ -2774,7 +2774,7 @@ void NDECL(db_make_minimal)
 
 	/* should be #1 */
 	load_player_names();
-	obj = create_player((char *)"Wizard", (char *)"potrzebie", NOTHING, 0, 0);
+	obj = create_player((char *)"Wizard", (char *)"potrzebie", NOTHING, 0, 1);
 	s_Flags(obj, Flags(obj) | WIZARD);
 	s_Flags2(obj, 0);
 	s_Flags3(obj, 0);
