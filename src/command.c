@@ -1609,6 +1609,10 @@ char *command, *args[];
 	dbref exit, aowner, parent;
 	CMDENT *cmdp;
 
+#ifndef MEMORY_BASED
+	cache_reset(0);
+#endif /* MEMORY_BASED */
+
 	/* Robustify player */
 
 	cmdsave = mudstate.debug_cmd;
@@ -1696,6 +1700,11 @@ char *command, *args[];
 		}
 		*q = '\0';
 	}
+#ifndef MEMORY_BASED
+	/* Reset the cache so that unreferenced attributes may be flushed */
+
+	cache_reset(0);
+#endif /* MEMORY_BASED */
 
 	/* Now comes the fun stuff.  First check for single-letter leadins.
 	 * We check these before checking HOME because
@@ -2874,8 +2883,8 @@ static void list_params(player)
 		  mudconf.cmd_quota_incr));
 
 	raw_notify(player,
-		   tprintf("Size of %s cache:  Width...%d  Size...%d",
-			   CACHING, mudconf.cache_width, mudconf.cache_size));
+		   tprintf("Size of %s cache:  Width...%d  Depth...%d",
+			   CACHING, mudconf.cache_width, mudconf.cache_depth));
     }
 }
 
@@ -2995,7 +3004,7 @@ extern int cs_whits;		/* total writes to dirty cache */
 extern int cs_fails;		/* attempts to grab nonexistent */
 extern int cs_resets;		/* total cache resets */
 extern int cs_syncs;		/* total cache syncs */
-extern int cs_size;		/* total cache size */
+extern int cs_objects;		/* total cache size */
 
 #endif /* MEMORY_BASED  */
 
@@ -3027,14 +3036,11 @@ dbref player;
 				   cs_whits, cs_rhits, cs_ahits));
 	raw_notify(player, tprintf("I/O        %12d%12d",
 				   cs_dbwrites, cs_dbreads));
-	raw_notify(player, tprintf("Hit ratio            %2.0f%%         %2.0f%%",
-				   (cs_writes ? (float) cs_whits / cs_writes * 100 : 0.0),
-				   (cs_reads ? (float) cs_rhits / cs_reads * 100 : 0.0)));
 	raw_notify(player, tprintf("\nDeletes    %12d", cs_dels));
 	raw_notify(player, tprintf("Checks     %12d", cs_checks));
 	raw_notify(player, tprintf("Resets     %12d", cs_resets));
 	raw_notify(player, tprintf("Syncs      %12d", cs_syncs));
-	raw_notify(player, tprintf("Cache Size %12d bytes", cs_size));
+	raw_notify(player, tprintf("Cache Size %12d", cs_objects));
 #endif /* MEMORY_BASED */
 #ifdef RADIX_COMPRESSION
 	raw_notify(player, "Compression statistics:");
