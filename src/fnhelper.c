@@ -53,24 +53,31 @@ char *str;
 Delim sep;
 int sep_len;
 {
-    char *p;
+	char *p;
 
-    if (sep_len == 1) {
-	while (*str && (*str != sep.c))
-		str++;
-	if (!*str)
-		return NULL;
-	str++;
-	if (sep.c == ' ') {
-		while (*str == sep.c)
-			str++;
+	if (sep_len == 1) {
+		while (*str == ESC_CHAR) {
+			skip_esccode(str);
+		}
+		while (*str && (*str != sep.c)) {
+			++str;
+			while (*str == ESC_CHAR) {
+				skip_esccode(str);
+			}
+		}
+		if (!*str)
+			return NULL;
+		++str;
+		if (sep.c == ' ') {
+			while (*str == sep.c)
+				++str;
+		}
+	} else {
+		if ((p = strstr(str, sep.str)) == NULL)
+			return NULL;
+		str = p + sep_len;
 	}
-    } else {
-	if ((p = strstr(str, sep.str)) == NULL)
-	    return NULL;
-	str = (char *)(p + sep_len);
-    }
-    return str;
+	return str;
 }
 
 char *split_token(sp, sep, sep_len)
@@ -86,24 +93,31 @@ int sep_len;
 		return NULL;
 	}
 	if (sep_len == 1) {
-	    while (*str && (*str != sep.c))
-		str++;
-	    if (*str) {
-		*str++ = '\0';
-		if (sep.c == ' ') {
-			while (*str == sep.c)
-				str++;
+		while (*str == ESC_CHAR) {
+			skip_esccode(str);
 		}
-	    } else {
-		str = NULL;
-	    }
+		while (*str && (*str != sep.c)) {
+			++str;
+			while (*str == ESC_CHAR) {
+				skip_esccode(str);
+			}
+		}
+		if (*str) {
+			*str++ = '\0';
+			if (sep.c == ' ') {
+				while (*str == sep.c)
+					++str;
+			}
+		} else {
+			str = NULL;
+		}
 	} else {
-	    if ((p = strstr(str, sep.str)) != NULL) {
-		*p = '\0';
-		str = (char *)(p + sep_len);
-	    } else {
-		str = NULL;
-	    }
+		if ((p = strstr(str, sep.str)) != NULL) {
+			*p = '\0';
+			str = p + sep_len;
+		} else {
+			str = NULL;
+		}
 	}
 	*sp = str;
 	return save;
