@@ -3524,22 +3524,6 @@ See also: JUMP_OK, FIXED, home, @lock
   Example: @away me = Hey, I'm not even connected.  So why are you paging me?
   See also: @idle, @reject, page.
 
-& @cost
-  Command: @cost <object> = <amount>
-  Attribute: Cost
- 
-  Sets the number of coins that need to be given to an object to trigger the
-  Pay, Opay, and Apay attributes.  If the object is given more than this
-  amount, the excess is returned to the giver, while if less than this amount
-  is given the entire amount is returned, a snide message is sent to the
-  giver, and the Apay, Opay, and Pay attributes are not used.
- 
-  This attribute is only meaningful for things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @cost Coke machine = 25
-  See also: give, @apay, @opay, @pay.
-
 & @daily
   Command: @daily <object> = <command list>
   Attribute: Daily
