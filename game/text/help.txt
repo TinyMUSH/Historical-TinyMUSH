@@ -10389,7 +10389,7 @@ performed and the walk down the list stops.
     gra bana straw
     plu pear
     > @va me = apple orange kiwi grape banana%rstrawberry plum pear
-    > think tables(u(va),10 8 6,=+%b,%b+=,,%b||%b,.)
+    > think tables(u(va),8 10 6,=+%b,%b+=,,%b||%b,.)
     =+ apple... || orange.... || kiwi.. +=
     =+ grape... || banana.... || ...... +=
     =+ strawber || plum...... || pear.. +=
