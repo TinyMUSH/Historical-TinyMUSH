@@ -318,8 +318,10 @@ The following are the possible attribute flags:
      dark	- Attribute which can only be seen by God. Global only. (d)
      god	- Attribute which can only be changed by God. Global only. (g)
  
-     hidden     - Wiz/Roy-only. Prevent mortals from seeing the attribute. (m)
-     wizard     - Wiz-only. Prevent mortals from changing the attribute. (w)
+     hidden     - Only those who are Wizards, Royalty, or have the attr_read
+                  power, can see this attribute. (m)
+     wizard     - Only Wizards, or those who have the attr_write power,
+                  can set/change this attribute. (w)
  
      visual     - Anyone may see the attribute, including obtaining it with 
                   a function such as get(). (V)
@@ -10690,6 +10692,8 @@ performed and the walk down the list stops.
 & powers list
  
   announce		Can use the @wall command.
+  attr_read		Can read attributes that have the 'hidden' flag.
+  attr_write		Can write to attributes that have the 'wizard' flag.
   boot			Can use the @boot command.
   builder		Can build, if the builder power is enabled.
   chown_anything	Can @chown anything to anyone.

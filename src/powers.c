@@ -156,6 +156,8 @@ POWERENT gen_powers[] =
 {(char *)"expanded_who",	POW_WIZARD_WHO, 0, 0,	ph_wiz},
 {(char *)"see_all",		POW_EXAM_ALL,	0, 0,	ph_wiz},
 {(char *)"prog",		POW_PROG,	0, 0,	ph_wiz},
+{(char *)"attr_read",		POW_MDARK_ATTR,	0, 0,	ph_wiz},
+{(char *)"attr_write",		POW_WIZ_ATTR,	0, 0,	ph_wiz},
 {(char *)"find_unfindable",	POW_FIND_UNFIND,0, 0,	ph_wiz},
 {(char *)"free_money",		POW_FREE_MONEY, 0, 0,	ph_wiz},
 {(char *)"free_quota",		POW_FREE_QUOTA, 0, 0,	ph_wiz},

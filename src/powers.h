@@ -25,6 +25,8 @@
 #define	POW_SEARCH	0x00002000	/* Can @search anyone */
 #define	POW_LONGFINGERS	0x00004000	/* Can get/whisper/etc from a distance */
 #define POW_PROG	0x00008000	/* Can use the @prog command */
+#define POW_MDARK_ATTR	0x00010000	/* Can read AF_MDARK attrs */
+#define POW_WIZ_ATTR	0x00020000	/* Can write AF_WIZARD attrs */
 
 /* FREE FREE FREE FREE */
 
@@ -135,6 +137,8 @@ extern void	FDECL(decompile_powers, (dbref, dbref, char *));
 #define Tel_Anything(c)		(((Powers(c) & POW_TEL_UNRST) != 0) || WizRoy(c))
 #define Unkillable(c)		(((Powers(c) & POW_UNKILLABLE) != 0) || Immortal(c))
 #define Prog(c)			(((Powers(c) & POW_PROG) != 0) || Wizard(c))
+#define Sees_Hidden_Attrs(c)	(((Powers(c) & POW_MDARK_ATTR) != 0) || WizRoy(c))
+#define Sets_Wiz_Attrs(c)	(((Powers(c) & POW_WIZ_ATTR) != 0) || Wizard(c))
 #define Pass_Locks(c)		((Powers(c) & POW_PASS_LOCKS) != 0)
 #define Builder(c)		(((Powers2(c) & POW_BUILDER) != 0) || WizRoy(c))
 #define LinkVariable(c)		(((Powers2(c) & POW_LINKVAR) != 0) || Wizard(c))

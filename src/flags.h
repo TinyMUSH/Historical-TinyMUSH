@@ -465,7 +465,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 
 #define Invisible_attr(p,x,a,o,f) \
 ((!Examinable(p,x) && (Owner(p) != o)) || \
-   ((AttrFlags(a,f) & AF_MDARK) && !WizRoy(p)) || \
+   ((AttrFlags(a,f) & AF_MDARK) && !Sees_Hidden_Attrs(p)) || \
    ((AttrFlags(a,f) & AF_DARK) && !God(p)) || \
    ((f & AF_STRUCTURE) && !mudstate.struct_check))
 
@@ -499,7 +499,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
    ((Controls(p,x) && \
      !((a)->flags & (AF_WIZARD|AF_GOD)) && \
      !((f) & (AF_WIZARD|AF_GOD))) || \
-    (Wizard(p) && !((a)->flags & AF_GOD) && !((f) & AF_GOD))))))
+    (Sets_Wiz_Attrs(p) && !((a)->flags & AF_GOD) && !((f) & AF_GOD))))))
 
 /* Write_attr() is only used by atr_cpy(), and thus is not subject
  * to the effects of the Constant flag.
@@ -512,7 +512,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			   ((Controls(p,x) && \
 			     !((a)->flags & (AF_WIZARD|AF_GOD)) && \
 			     !((f) & (AF_WIZARD|AF_GOD))) || \
-			    (Wizard(p) && \
+			    (Sets_Wiz_Attrs(p) && \
 			     !((a)->flags & AF_GOD))))))
 
 #endif /* __FLAGS_H */
