@@ -7160,7 +7160,7 @@ performed and the walk down the list stops.
   See also: left(), mid()
 
 & LPOS()
-  Function: lpos(<string>, <character>)
+  Function: lpos(<string>, <character>[, <odelim>])
  
   This function returns a list of the positions that <character> occupies
   in <string>, with the first character of the string being 0. (Note that
@@ -8048,12 +8048,13 @@ performed and the walk down the list stops.
     You say, "20"
 
 & XCON()
-  Function: xcon(<object>, <element number>, <number of objects>)
+  Function: xcon(<object>, <element number>, <number of objects>[, <odelim>])
  
-  Returns a space-separated list of contents of <object>, starting from
-  the <element number>'d object contained, up to <number of objects>. 
-  This is useful for contents lists where a normal lcon() call would 
-  exceed the maximum buffer length for function output.
+  Returns an <odelim>-separated (space-separated by default) list of
+  contents of <object>, starting from the <element number>'d object
+  contained, up to <number of objects>. This is useful for contents
+  lists where a normal lcon() call would exceed the maximum buffer
+  length for function output.
  
   Example:
     > i
@@ -8068,9 +8069,10 @@ performed and the walk down the list stops.
     You say, "#700 #108 #223"
  
 & LCON()
-  Function: lcon(<object>)
+  Function: lcon(<object>[, <odelim>])
  
-  Returns a space-separated list of the contents of <object>.
+  Returns a space-separated list (<odelim>-separated if specified)
+  of the contents of <object>.
  
   Example:
     > i
@@ -8083,10 +8085,12 @@ performed and the walk down the list stops.
   See also: lexits(), @dolist.
 
 & LEXITS()
-  Function: lexits(<loc>)
+  Function: lexits(<loc>[, <odelim>])
  
-  Returns a space-separated list of the exits in <loc> and its parents.
-  Dark exits are not returned unless you own the location.
+  Returns an <odelim>-separated (space-separated by default) list of the
+  exits in <loc> and its parents.
+ 
+  Dark exits are not returned unless you have permissions to examine them.
  
   Example:
     > look here
@@ -8402,7 +8406,7 @@ performed and the walk down the list stops.
   See also: rand(), die(), lnum()
  
 & LATTR()
-  Function: lattr(<object>[/<wild-pattern>])
+  Function: lattr(<object>[/<wild-pattern>][, <odelim>])
  
   Returns a list of the attributes set on <object>.  If <wild-pattern> is
   given, only attributes matching it are returned.
@@ -10735,7 +10739,7 @@ performed and the walk down the list stops.
   See also:  @switch, switch(), ifelse(), match().
  
 & CHILDREN()
-  Function: children(<object>)
+  Function: children(<object>[, <odelim>])
  
   This function returns a list of objects that are parented to <object>.
   It may only be used by Wizards or Royalty.
@@ -11006,8 +11010,8 @@ performed and the walk down the list stops.
  
 & GREP()
 & GREPI()
-  Function: grep(<object>, <attrs>, <string>)
-  Function: grepi(<object>, <attrs>, <string>)
+  Function: grep(<object>, <attrs>, <string>[, <odelim>])
+  Function: grepi(<object>, <attrs>, <string>[, <odelim>])
  
   This function returns a list of attributes on <object>, where the
   contents of the attribute contain <string>. <attrs> is a wildcard
@@ -11020,8 +11024,8 @@ performed and the walk down the list stops.
  
 & REGREP()
 & REGREPI()
-  Function: regrep(<object>, <attrs>, <regexp>)
-  Function: regrepi(<object>, <attrs>, <regexp>)
+  Function: regrep(<object>, <attrs>, <regexp>[, <odelim>])
+  Function: regrepi(<object>, <attrs>, <regexp>[, <odelim>])
  
   This function returns a list of attributes on <object>, where
   the contents of the attribute match the regular expression
@@ -11035,7 +11039,7 @@ performed and the walk down the list stops.
   case-sensitive.
  
 & WILDGREP()
-  Function: wildgrep(<object>, <attrs>, <pattern>)
+  Function: wildgrep(<object>, <attrs>, <pattern>[, <odelim>])
  
   This function returns a list of attributes on <object>, where
   the contents of the attribute match the wildcard pattern <pattern>.
@@ -11077,7 +11081,7 @@ performed and the walk down the list stops.
   This function can only be used by Wizards and Royalty.
  
 & LPARENT()
-  Function: lparent(<object>)
+  Function: lparent(<object>[, <odelim>])
  
   This function returns the list of dbrefs of the object's "parent
   chain", including itself: i.e., its own dbref, the dbref of the
@@ -14355,6 +14359,9 @@ Continued in 'help 3.1 functions5'.
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
  
+- lpos(), lattr(), lexits(), lcon(), xcon(), children(), lparent(), and
+  the grep() family now take an output delimiter.
+ 
 - The ljust(), rjust(), and center() functions can take multi-character
   fills.
  
@@ -14365,16 +14372,16 @@ Continued in 'help 3.1 functions5'.
 - The modify() function now takes lists, enabling multiple variables
   to be modified at once.
  
+Continued in 'help 3.1 functions6'.
+ 
+& 3.1 functions6
+ 
 - The behavior of remainders in division with negative numbers is
   now consistent (rather than being compiler-dependent), including
   new modulo(), remainder(), and floordiv() functions. The mod()
   function is now an alias for remainder(), which is closest to
   the old mod() on most platforms; if you want it to be an alias
   for modulo() instead, change it in alias.conf
- 
-Continued in 'help 3.1 functions6'.
- 
-& 3.1 functions6
  
 - Added oemit(), which is the function equivalent of @oemit.
  
@@ -14388,13 +14395,13 @@ Continued in 'help 3.1 functions6'.
 - Added session(), which returns command count, bytes of input, and
   bytes of output associated with a port.
  
-- Added speak(), which formats, parses, and transforms speech strings.
- 
-- Added store(), which is basically to setx() what setr() is to setq().
- 
 Continued in 'help 3.1 functions7'.
  
 & 3.1 functions7
+ 
+- Added speak(), which formats, parses, and transforms speech strings.
+ 
+- Added store(), which is basically to setx() what setr() is to setq().
  
 - The new structure functions read() and write() allow the use of an
   "invisible" delimiter, which permits data to be stored in delimited
@@ -14412,11 +14419,11 @@ Continued in 'help 3.1 functions7'.
   library function strftime(), allowing the time to be formatted in
   psuedo-arbitrary ways. Based on an idea from PennMUSH.
  
-- translate() now handles tabs.
- 
 Continued in 'help 3.1 functions8'.
  
 & 3.1 functions8
+ 
+- translate() now handles tabs.
  
 - trim() now handles multi-character trim strings.
  

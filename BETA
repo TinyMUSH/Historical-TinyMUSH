@@ -37,6 +37,9 @@ Release history:
   show the speaker '<name> says' rather than 'You say'. This is more
   convenient for environments where activity is often logged and shared.
 
+- lpos(), lattr(), lexits(), lcon(), xcon(), children(), lparent(),
+  and the grep() family now take an output delimiter.
+
 -----------------------------------------------------------------------------
 
 06/07/2002: Beta 3

@@ -404,6 +404,9 @@ CHANGES TO FUNCTIONS
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
 
+- lpos(), lattr(), lexits(), lcon(), xcon(), children(), lparent(), and
+  the grep() family now take an output delimiter.
+
 - The ljust(), rjust(), and center() functions can take multi-character
   fills.
 

@@ -2628,13 +2628,16 @@ FUNCTION(perform_grep)
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
     char *patbuf, *patc, *attrib, *p, *bb_p;
-    int ca, aflags, alen;
-    dbref thing, aowner;
-    dbref it = match_thing(player, fargs[0]);
+    int ca, aflags, alen, osep_len;
+    dbref thing, aowner, it;
+    Delim osep;
+
+    VaChk_Only_Out(4);
 
     grep_type = ((FUN *)fargs[-1])->flags & REG_TYPE;
     caseless = ((FUN *)fargs[-1])->flags & REG_CASELESS;
 
+    it = match_thing(player, fargs[0]);
     if (it == NOTHING) {
 	safe_nomatch(buff, bufc);
 	return;
@@ -2695,8 +2698,9 @@ FUNCTION(perform_grep)
 		((grep_type == GREP_REGEXP) &&
 		 (pcre_exec(re, study, attrib, alen, 0, 0,
 			    offsets, PCRE_MAX_OFFSETS) >= 0))) {
-		if (*bufc != bb_p)
-		    safe_chr(' ', buff, bufc);
+		if (*bufc != bb_p) {
+		    print_sep(osep, osep_len, buff, bufc);
+		}
 		safe_str((char *)(atr_num(ca))->name, buff, bufc);
 	    }
 	    free_lbuf(attrib);

@@ -468,7 +468,10 @@ FUNCTION(fun_xcon)
 {
     dbref thing, it;
     char *bb_p;
-    int i, first, last;
+    int i, first, last, osep_len;
+    Delim osep;
+
+    VaChk_Only_Out(4);
 
     it = match_thing(player, fargs[0]);
 
@@ -490,8 +493,9 @@ FUNCTION(fun_xcon)
 	    for (i = 0;
 		 (i < last) && (thing != NOTHING) && (Next(thing) != thing);
 		 thing = Next(thing), i++) {
-		if (*bufc != bb_p)
-		    safe_chr(' ', buff, bufc);
+		if (*bufc != bb_p) {
+		    print_sep(osep, osep_len, buff, bufc);
+		}
 		safe_dbref(buff, bufc, thing);
 	    }
 	}
@@ -507,6 +511,10 @@ FUNCTION(fun_lcon)
 {
 	dbref thing, it;
 	char *bb_p;
+	Delim osep;
+	int osep_len;
+
+	VaChk_Only_Out(2);
 
 	it = match_thing(player, fargs[0]);
 	bb_p = *bufc;
@@ -516,8 +524,9 @@ FUNCTION(fun_lcon)
 	     (Location(player) == it) ||
 	     (it == cause))) {
 		DOLIST(thing, Contents(it)) {
-		    if (*bufc != bb_p)
-			safe_chr(' ', buff, bufc);
+		    if (*bufc != bb_p) {
+			print_sep(osep, osep_len, buff, bufc);
+		    }
 		    safe_dbref(buff, bufc, thing);
 		}
 	} else
@@ -532,7 +541,10 @@ FUNCTION(fun_lexits)
 {
 	dbref thing, it, parent;
 	char *bb_p;
-	int exam, lev, key;
+	int exam, lev, key, osep_len;
+	Delim osep;
+
+	VaChk_Only_Out(2);
 	
 	it = match_thing(player, fargs[0]);
 
@@ -564,8 +576,9 @@ FUNCTION(fun_lexits)
 			key |= VE_BASE_DARK;
 		DOLIST(thing, Exits(parent)) {
 			if (Exit_Visible(thing, player, key)) {
-			    if (*bufc != bb_p)
-				safe_chr(' ', buff, bufc);
+			    if (*bufc != bb_p) {
+				print_sep(osep, osep_len, buff, bufc);
+			    }
 			    safe_dbref(buff, bufc, thing);
 			}
 		}
@@ -1050,10 +1063,11 @@ FUNCTION(fun_parent)
 
 FUNCTION(fun_lparent)
 {
-	dbref it;
-	dbref par;
-	char tbuf1[20];
-	int i;
+	dbref it, par;
+	int i, osep_len;
+	Delim osep;
+
+	VaChk_Only_Out(2);
 
 	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it)) {
@@ -1063,15 +1077,14 @@ FUNCTION(fun_lparent)
 		safe_noperm(buff, bufc);
 		return;
 	}
-	sprintf(tbuf1, "#%d", it);
-	safe_str(tbuf1, buff, bufc);
+	safe_dbref(buff, bufc, it);
 	par = Parent(it);
 
 	i = 1;
 	while (Good_obj(par) && Examinable(player, it) &&
 	    (i < mudconf.parent_nest_lim)) {
-	    sprintf(tbuf1, " #%d", par);
-	    safe_str(tbuf1, buff, bufc);
+	    print_sep(osep, osep_len, buff, bufc);
+	    safe_dbref(buff, bufc, par);
 	    it = par;
 	    par = Parent(par);
 	    i++;
@@ -1082,16 +1095,20 @@ FUNCTION(fun_children)
 {
 	dbref i, it = match_thing(player, fargs[0]);
 	char *bb_p;
+	Delim osep;
+	int osep_len;
+
+	VaChk_Only_Out(2);
 
 	if (!Controls(player, it) && !See_All(player)) {
-		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	bb_p = *bufc;
 	DO_WHOLE_DB(i) {
 	    if (Parent(i) == it) {
 		if (*bufc != bb_p) {
-		    safe_chr(' ', buff, bufc);
+		    print_sep(osep, osep_len, buff, bufc);
 		}
 		safe_dbref(buff, bufc, i);
 	    }
@@ -1825,9 +1842,14 @@ FUNCTION(handle_lattr)
 	dbref thing;
 	ATTR *attr;
 	char *bb_p;
-	int ca, total = 0, count_only;
+	int ca, total = 0, count_only, osep_len;
+	Delim osep;
 
 	count_only = ((FUN *)fargs[-1])->flags & LATTR_COUNT;
+
+	if (!count_only) {
+	    VaChk_Only_Out(2);
+	}
 
 	/* Check for wildcard matching.  parse_attrib_wild checks for read
 	 * permission, so we don't have to.  Have p_a_w assume the
@@ -1844,7 +1866,7 @@ FUNCTION(handle_lattr)
 				total++;
 			    } else {
 				if (*bufc != bb_p) {
-					safe_chr(' ', buff, bufc);
+				    print_sep(osep, osep_len, buff, bufc);
 				}
 				safe_str((char *)attr->name, buff, bufc);
 			    }

@@ -1219,10 +1219,13 @@ FUNCTION(fun_pos)
 FUNCTION(fun_lpos)
 {
     char *s, *bb_p, c;
-    int i;
+    int i, osep_len;
+    Delim osep; 
 
     if (!fargs[0] || !*fargs[0])
 	return;
+
+    VaChk_Only_Out(3);
 
     c = (char) *(fargs[1]);
     if (!c)
@@ -1233,7 +1236,7 @@ FUNCTION(fun_lpos)
     for (i = 0, s = strip_ansi(fargs[0]); *s; i++, s++) {
 	if (*s == c) {
 	    if (*bufc != bb_p) {
-		safe_chr(' ', buff, bufc);
+		print_sep(osep, osep_len, buff, bufc);
 	    }
 	    safe_ltos(buff, bufc, i);
 	}
