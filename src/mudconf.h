@@ -339,6 +339,7 @@ struct confdata {
 	int	struct_lim;	/* Max number of defined structures for obj */
 	int	instance_lim;	/* Max number of struct insances for obj */
 	int	max_player_aliases; /* Max number of aliases for a player */
+	int	register_limit;	/* Max number of named q-registers */
 	char	*struct_dstr;	/* Delim string used for struct 'examine' */
 };
 

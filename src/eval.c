@@ -802,17 +802,61 @@ char *cargs[];
 					(*dstr)--;
 					break;
 				}
-				i = qidx_chartab[(unsigned char) **dstr];
-				if ((i < 0) || (i >= MAX_GLOBAL_REGS))
+				if (**dstr != '<') {
+				    i = qidx_chartab[(unsigned char) **dstr];
+				    if ((i < 0) || (i >= MAX_GLOBAL_REGS))
 					break;
-				if (mudstate.rdata &&
-				    mudstate.rdata->q_alloc > i) {
-				    safe_known_str(mudstate.rdata->q_regs[i],
-						   mudstate.rdata->q_lens[i],
-						   buff, bufc);
-				}
-				if (!**dstr)
+				    if (mudstate.rdata &&
+					mudstate.rdata->q_alloc > i) {
+				      safe_known_str(mudstate.rdata->q_regs[i],
+						     mudstate.rdata->q_lens[i],
+						     buff, bufc);
+				    }
+				    if (!**dstr)
 					(*dstr)--;
+				    break;
+				}
+				xptr = *dstr;
+				(*dstr)++;
+				if (!**dstr) {
+				    *dstr = xptr;
+				    break;
+				}
+				if (!mudstate.rdata ||
+				    !mudstate.rdata->xr_alloc) {
+				    /* We know there's no result, so we
+				     * just advance past.
+				     */
+				    while (**dstr && (**dstr != '>'))
+					(*dstr)++;
+				    if (**dstr != '>') {
+					/* Whoops, no end. Go back. */
+					*dstr = xptr;
+					break;
+				    }
+				    break;
+				}
+				xtp = xtbuf;
+				while (**dstr && (**dstr != '>')) {
+				    safe_sb_chr(tolower(**dstr), xtbuf, &xtp);
+				    (*dstr)++;
+				}
+				if (**dstr != '>') {
+				    /* Ran off the end. Back up. */
+				    *dstr = xptr;
+				    break;
+				}
+				*xtp = '\0';
+				for (i=0; i < mudstate.rdata->xr_alloc; i++) {
+				    if (mudstate.rdata->x_names[i] &&
+					!strcmp(xtbuf,
+						mudstate.rdata->x_names[i])) {
+				      safe_known_str(mudstate.rdata->x_regs[i],
+						     mudstate.rdata->x_lens[i],
+						     buff, bufc);
+				      break;
+				    }
+				}
 				break;
 			case 'O':	/* Objective pronoun */
 			case 'o':

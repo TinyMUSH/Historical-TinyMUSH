@@ -206,6 +206,7 @@ void NDECL(cf_init)
 	mudconf.page_req_equals = 0;
 	mudconf.comma_say = 0;
 	mudconf.you_say = 1;
+	mudconf.register_limit = 50;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1705,6 +1706,7 @@ CONF conftable[] = {
 {(char *)"read_remote_desc",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.read_rem_desc,		(long)"@Desc is public, even to players not nearby"},
 {(char *)"read_remote_name",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.read_rem_name,		(long)"Names are public, even to players not nearby"},
 {(char *)"register_create_file",	cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.regf_file,	MBUF_SIZE},
+{(char *)"register_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.register_limit,	0},
 {(char *)"register_site",		cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list,	H_REGISTRATION},
 {(char *)"require_cmds_flag",		cf_bool,	CA_GOD, 	CA_PUBLIC,	(int *)&mudconf.req_cmds_flag,	(long)"Only objects with COMMANDS flag are searched\n\t\t\t\tfor $-commands"},
 {(char *)"retry_limit",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.retry_limit,		0},

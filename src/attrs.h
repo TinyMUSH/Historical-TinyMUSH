@@ -30,7 +30,7 @@
 #define AF_DIRTY	0x00100000	/* Attribute number has been modified */
 #define AF_DEFAULT	0x00200000	/* did_it() checks attr_defaults obj */
 #define AF_NONAME	0x00400000	/* If used as oattr, no name prepend */
-#define AF_XMATCH	0x00800000	/* do an xvars match on this */
+#define AF_RMATCH	0x00800000	/* Set the result of match into regs */
 #define AF_NOW		0x01000000	/* execute match immediately */
 
 #define A_NULL		0	/* Nothing */
@@ -202,13 +202,13 @@
 	if (a & AF_DEFAULT) *p++ = 'D'; \
 	if (a & AF_HTML) *p++ = 'H'; \
 	if (a & AF_PRIVATE) *p++ = 'I'; \
+	if (a & AF_RMATCH) *p++ = 'M'; \
 	if (a & AF_NONAME) *p++ = 'N'; \
 	if (a & AF_NOPARSE) *p++ = 'P'; \
 	if (a & AF_NOW) *p++ = 'Q'; \
 	if (a & AF_REGEXP) *p++ = 'R'; \
 	if (a & AF_STRUCTURE) *p++ = 'S'; \
 	if (a & AF_VISUAL) *p++ = 'V'; \
-	if (a & AF_XMATCH) *p++ = 'X'; \
 	if (a & AF_DARK) *p++ = 'd'; \
 	if (a & AF_GOD) *p++ = 'g'; \
 	if (a & AF_MDARK) *p++ = 'm'; \

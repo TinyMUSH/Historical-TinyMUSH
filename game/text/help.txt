@@ -375,7 +375,7 @@ Continued in 'help Attribute Flags2'.
                   wildcard glob patterns. Affects $-commands, ^-listens,
                   @filter, @infilter, and @listen. Local only. (R)
  
-     xmatch     - Set wildcard matches into x-variables. Local only. (X)
+     rmatch     - Set wildcard matches into x-variables. Local only. (M)
  
      now        - Execute matches now, instead of queueing. Local only. (Q)
  
@@ -4906,12 +4906,10 @@ Continued in 'help User Commands3'.
  
 & User Commands3
  
-If the attribute has the Xmatch flag, wildcard-matched data is also
-available in assigned x-variables, specified by braces {} around a
-variable name immediately following a wildcard. Xmatch cannot be used
-in conjunction with a regexp match. To prevent overriding of x-variables
-by the next match, however, the Now flag should always be used in
-conjunction with Xmatch.
+If the attribute has the Rmatch flag, wildcard-matched data is also
+available in assigned local registers, specified by braces {} around a
+variable name immediately following a wildcard. Rmatch cannot be used
+in conjunction with a regexp match.
  
 Regexp example:
  
@@ -4931,25 +4929,25 @@ Continued in 'help User Commands4'.
  
 & User Commands4
  
-Wildcard with xvars example:
+Wildcard with rmatch example:
  
   > &DO_ATTACK object = $attack *{target} with *{weapon}:
-                        @emit %N attacks %_<target> with %_<weapon>.
-  > @set object/DO_ATTACK = xmatch
+                        @emit %N attacks %q<target> with %q<weapon>.
+  > @set object/DO_ATTACK = rmatch
  
   If the user types 'attack Bob with sword', %0 is 'Bob' and '%1' is 'sword',
-  x(target) (or the more efficientpercent substitution %_<target> ) is
-  also 'Bob', and x(weapon) (or %_<weapon> ) is also 'sword'.
+  r(target) (or the more efficientpercent substitution %q<target> ) is
+  also 'Bob', and r(weapon) (or %q<weapon> ) is also 'sword'.
  
-It's not necessary to specify an xvar name for every wildcard, if you
+It's not necessary to specify a register for every wildcard, if you
 don't want it that way. For example:
  
   > &DO_ATTACK object = $attack * with *{weapon}:
-                        @emit %N attacks %0 with %_<weapon>.
-  > @set object/DO_ATTACK = xmatch
+                        @emit %N attacks %0 with %q<weapon>.
+  > @set object/DO_ATTACK = rmatch
  
   If the user types 'attack Bob with sword', %0 is 'Bob' and '%1' is 'sword',
-  plus x(weapon) (or %_<weapon> ) is also 'sword'.
+  plus r(weapon) (or %q<weapon> ) is also 'sword'.
  
 & PIPING
   Topic: PIPING
@@ -5810,12 +5808,24 @@ See examples:  iter(), map(), filter()
  
   There are at least ten local registers, numbered 0 through 9, and
   there might be, depending on the MUSH's configuration, up to 26
-  additional local registers, "numbered" A through Z.
+  additional local registers, "numbered" A through Z. These registers
+  can be accessed in a very fast, CPU-efficient manner.
+ 
+  Registers can also be named, such as "test". It's somewhat less efficient
+  to use a name, but it also makes code more readable. Register names must
+  begin with a letter, and can contain only letters, numbers, or the
+  punctuation characters _, -, ., and #. A register name cannot be more
+  than 31 characters long. The total number of these that can be set by
+  an action is limited by a global configuration parameter, register_limit.
  
   The local registers are normally cleared at the start of each command,
   but are preserved across the commands that compose an actionlist, as
   well as commands that directly trigger actionlists, such as @switch,
-  @trigger, and @dolist.
+  @trigger, and @dolist, as well as @program.
+ 
+  Continued in 'help Local Registers2'.
+ 
+& LOCAL REGISTERS2
  
   Local registers are most useful for storing complex function evaluations
   which are used repeatedly within a single actionlist; their use can
@@ -5825,6 +5835,8 @@ See examples:  iter(), map(), filter()
   Local registers are set via the setq() and setr() functions, as well as
   a variety of speciaized functions, such as regmatch(). Local registers
   are read via the r() function or the %q substitution.
+ 
+  See also: setq(), setr(), SUBSTITUTIONS.
  
 & LOOPING
   Topic: LOOPING
@@ -6094,6 +6106,7 @@ The list of loaded modules can be obtained via the 'version' command.
     %c, %m   = Text of the last command executed.
     %0-%9    = Value of positional parameter/stack location 0 through 9.
     %q0-%qz  = Value of registers 0-9 and A-Z. Equiv: r(0) - r(z)
+    %q=<var> = The <angle brackets> are literal. Named register. Equiv: r(var)
     %va-%vz  = Contents of attributes VA through VZ. Equiv: v(va) - v(vz)
     %=<var>  = The <angle brackets> are literal. Contents of an attribute.
                Equiv: v(<var>) (no <>), i.e., %=<test> is equivalent to
@@ -10321,12 +10334,21 @@ performed and the walk down the list stops.
   the contents of the specified register.
  
   This is equivalent to the substitution %q<number> or %q<letter>;
-  i.e., "r(0)" == "%q0", "r(x)" == "%qx", etc.
+  i.e., "r(0)" == "%q0", "r(x)" == "%qx", etc., or to the substitution
+  %q<name> (where the angle-brackets are literal), i.e.,
+  "r(test)" == "%q<test>". 
  
+  Use of the %q substitution is faster. However, there are instances
+  where parsing considerations make r() necessary. For instance, the
+  contents of angle-brackets are not evaluated. Thus, if you have
+  registers called a0 through a9, and you want to access all of
+  them, 'iter(lnum(10), %q<a##>)' will not work; you need to use
+  'iter(lnum(10), r(a##))'.
+  
   See also: LOCAL REGISTERS, setq(), setx(), store(), x().
  
 & SETQ()
-  Function: setq(<number or letter>,<string>)
+  Function: setq(<number, letter, or name>,<string>)
  
   The setq() function is used to copy strings into local registers.
   It returns a null string; it is a purely "side effect" function.
@@ -10339,7 +10361,7 @@ performed and the walk down the list stops.
   See also: LOCAL REGISTERS, setr(), r(), setx(), store(), x().
  
 & SETR()
-  Function: setr(<number or letter>,<string>)
+  Function: setr(<number, letter, or name>,<string>)
  
   This function behaves identically to the setq() function, except
   that it returns the string being copied in the register.
@@ -14380,8 +14402,8 @@ Continued in 'help 3.1 flags2'.
   is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
   @listen.
  
-- A new attribute flag, 'xmatch', assigns the results of a $-command's
-  wildcard-match, to named x-variables, as well as to the stack.
+- A new attribute flag, 'rmatch', assigns the results of a $-command's
+  wildcard-match, to named local registers, as well as to the stack.
  
 Continued in 'help 3.1 flags3'.
  
@@ -14532,6 +14554,9 @@ Continued in 'help 3.1 commands6'.
  
 - The number of global registers is now configurable, from 10 to 36.
   Beyond %q0-%q9 are %qa-%qz. Based on an idea from PennMUSH.
+ 
+- Additional, arbitrarily-named global registers can be defined on the
+  fly (up to the conf parameter register_limit, per action list).
  
 - The caller of a function can now be tracked via %@; it's normally equal
   to the enactor, except where u()-type functions, including objeval()

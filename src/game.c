@@ -288,7 +288,7 @@ int check_exclude, hash_insert;
 		if (!*s)
 			continue;
 		*s++ = 0;
-                if ((!(aflags & (AF_REGEXP | AF_XMATCH)) && 
+                if ((!(aflags & (AF_REGEXP | AF_RMATCH)) && 
                      wild(buff + 1,  
                           ((aflags & AF_NOPARSE) ? raw_str: str),  
                           args, NUM_ENV_VARS)) || 
@@ -297,10 +297,10 @@ int check_exclude, hash_insert;
                                   ((aflags & AF_NOPARSE) ? raw_str : str),  
 				  ((aflags & AF_CASE) ? 0 : PCRE_CASELESS),
                                   args, NUM_ENV_VARS)) ||
-		    ((aflags & AF_XMATCH) &&
-		     xvar_match(buff + 1,
-				((aflags & AF_NOPARSE) ? raw_str : str),
-				args, NUM_ENV_VARS, thing))) { 
+		    ((aflags & AF_RMATCH) &&
+		     register_match(buff + 1,
+				    ((aflags & AF_NOPARSE) ? raw_str : str),
+				    args, NUM_ENV_VARS))) { 
 			match = 1;
 			if (aflags & AF_NOW) {
 			    process_cmdline(thing, player, s, args,

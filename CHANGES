@@ -234,8 +234,8 @@ CHANGES TO FLAGS AND POWERS
   is case-sensitive, for $-commands, ^-listens, @filter, @infilter, and
   @listen.
 
-- A new attribute flag, 'xmatch', assigns the results of a $-command's
-  wildcard-match, to named x-variables, as well as to the stack.
+- A new attribute flag, 'rmatch', assigns the results of a $-command's
+  wildcard-match, to named local registers, as well as to the stack.
   Based on an idea from KiliaFae.
 
 -----------------------------------------------------------------------------
@@ -362,6 +362,9 @@ CHANGES TO FUNCTIONS
 
 - The number of global registers is now configurable, from 10 to 36.
   Beyond %q0-%q9 are %qa-%qz. Based on an idea from PennMUSH.
+
+- Additional, arbitrarily-named global registers can be defined on the
+  fly (up to the conf parameter register_limit, per action list).
 
 - The caller of a function can now be tracked via %@; it's normally equal
   to the enactor, except where u()-type functions, including objeval()

@@ -25,7 +25,7 @@
 #include "db.h"		/* required by externs */
 #include "externs.h"	/* required by code */
 
-extern void FDECL(set_xvar, (dbref, char *, char *)); /* from funvars.c */
+extern int FDECL(set_register, (const char *, char *, char *)); /* funvars.c */
 
 #define FIXCASE(a) (tolower(a))
 #define EQUAL(a,b) ((a == b) || (FIXCASE(a) == FIXCASE(b)))
@@ -383,22 +383,21 @@ char *tstr, *dstr;
 }
 
 /* ----------------------------------------------------------------------
- * xvar_match: Do a wildcard match, setting the wild data into xvars
- * on the object.
+ * register_match: Do a wildcard match, setting the wild data into the
+ * globla registers.
  */
 
-int xvar_match(tstr, dstr, args, nargs, thing)
+int register_match(tstr, dstr, args, nargs)
     char *tstr, *dstr, *args[];
     int nargs;
-    dbref thing;
 {
     int i, value;
-    char *buff, *scan, *p, *end, *xvar_names[NUM_ENV_VARS];
+    char *buff, *scan, *p, *end, *q_names[NUM_ENV_VARS];
 
     /* Initialize return array. */
 
     for (i = 0; i < nargs; i++)
-	args[i] = xvar_names[i] = NULL;
+	args[i] = q_names[i] = NULL;
 
     /* Do fast match. */
 
@@ -417,7 +416,7 @@ int xvar_match(tstr, dstr, args, nargs, thing)
 
     i = 0;
     scan = tstr;
-    buff = alloc_lbuf("xvar_match.buff");
+    buff = alloc_lbuf("rmatch.buff");
     p = buff;
     while (*scan) {
 	*p++ = *scan;
@@ -431,8 +430,8 @@ int xvar_match(tstr, dstr, args, nargs, thing)
 		    if ((end = strchr(scan + 1, '}')) != NULL) {
 			*end = '\0';
 			if (*(scan + 1)) {
-			    xvar_names[i] = XSTRDUP(scan + 1,
-						    "xvar_match.name");
+			    q_names[i] = XSTRDUP(scan + 1,
+						    "rmatch.name");
 			}
 			scan = end + 1;
 		    }
@@ -451,17 +450,17 @@ int xvar_match(tstr, dstr, args, nargs, thing)
     numargs = nargs;
     value = nargs ? wild1(buff, dstr, 0) : quick_wild(buff, dstr);
 
-    /* Copy things into xvars. Clean fake match data from wild1(). */
+    /* Copy things into registers. Clean fake match data from wild1(). */
 
     for (i = 0; i < nargs; i++) {
 	if ((args[i] != NULL) && (!*args[i] || !value)) {
 	    free_lbuf(args[i]);
 	    args[i] = NULL;
 	}
-	if (args[i] && xvar_names[i])
-	    set_xvar(thing, xvar_names[i], args[i]);
-	if (xvar_names[i]) {
-	    XFREE(xvar_names[i], "xvar_match.name");
+	if (args[i] && q_names[i])
+	    set_register("rmatch", q_names[i], args[i]);
+	if (q_names[i]) {
+	    XFREE(q_names[i], "rmatch.name");
 	}
     }
     free_lbuf(buff);

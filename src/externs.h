@@ -249,7 +249,7 @@ extern dbref	NDECL(olist_next);
 extern int	FDECL(wild, (char *, char *, char *[], int));
 extern int	FDECL(wild_match, (char *, char *));
 extern int	FDECL(quick_wild, (char *, char *));
-extern int	FDECL(xvar_match, (char *, char *, char *[], int, dbref));
+extern int	FDECL(register_match, (char *, char *, char *[], int));
 
 /* --------------------------------------------------------------------------
  * Constants.

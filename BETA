@@ -24,6 +24,19 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+08/xx/2002: Beta 6
+
+- Feature: Global registers can now be named arbitrary things, with the
+  number permitted by an action list limited to the conf parameter
+  register_limit.
+
+- Misc: The 'xmatch' attribute flag (added in beta 5) is now called
+  'rmatch'. Rather than setting the results of the match into x-variables,
+  the result is set into named global registers. This eliminates the
+  issues with clobbering variables, needing to use the Now flag, etc.
+
+-----------------------------------------------------------------------------
+
 07/26/2002: Beta 5
 
 - Feature: The new attribute flag 'now' causes a matched $/^-action to

@@ -60,19 +60,23 @@ int set_register(funcname, name, data)
     const char *funcname;
     char *name, *data;
 {
-    /* Return -1 on error, otherwise number of characters set. */
+    /* Return number of characters set.
+     * -1 indicates a name error.
+     * -2 indicates that a limit was exceeded.
+     */
 
     int i, regnum, len, a_size, *tmp_lens;
-    char **tmp_regs;
+    char *p, **tmp_regs;
 
     if (!name || !*name)
 	return -1;
 
-    if (!name[1]) {
+    if (name[1] == '\0') {
+
 	/* Single-letter q-register.
 	 * We allocate these either as a block of 10 or a block of 36.
 	 * (Most code won't go beyond %q0-%q9, especially legacy code
-	 * which predates the larger number of global registers.
+	 * which predates the larger number of global registers.)
 	 */
 
 	regnum = qidx_chartab[(unsigned char) *name];
@@ -96,6 +100,10 @@ int set_register(funcname, name, data)
 	    return 0;
 	}
 
+	/* We're actually setting a register. Take care of allocating
+	 * space first.
+	 */
+
 	if (!mudstate.rdata) {
 	    Init_RegData(funcname, mudstate.rdata);
 	    a_size = (regnum < 10) ? 10 : MAX_GLOBAL_REGS;
@@ -105,19 +113,21 @@ int set_register(funcname, name, data)
 	    mudstate.rdata->q_alloc = a_size;
 	} else if (regnum > mudstate.rdata->q_alloc) {
 	    a_size = MAX_GLOBAL_REGS;
-	    tmp_regs = XCALLOC(a_size, sizeof(char *), "q_regs");
-	    tmp_lens = XCALLOC(a_size, sizeof(int), "q_lens");
-	    for (i = 0; i < mudstate.rdata->q_alloc; i++) {
-		tmp_regs[i] = mudstate.rdata->q_regs[i];
-		tmp_lens[i] =  mudstate.rdata->q_lens[i];
-		XFREE(mudstate.rdata->q_regs, "q_regs");
-		XFREE(mudstate.rdata->q_lens, "q_lens");
-		mudstate.rdata->q_regs = tmp_regs;
-		mudstate.rdata->q_lens = tmp_lens;
+	    tmp_regs = XREALLOC(mudstate.rdata->q_regs,
+				a_size * sizeof(char *), "q_regs");
+	    tmp_lens = XREALLOC(mudstate.rdata->q_lens,
+				a_size * sizeof(int), "q_lens");
+	    for (i = mudstate.rdata->q_alloc; i < a_size; i++) {
+		tmp_regs[i] = NULL;
+		tmp_lens[i] = 0;
 	    }
+	    mudstate.rdata->q_regs = tmp_regs;
+	    mudstate.rdata->q_lens = tmp_lens;
 	    mudstate.rdata->q_alloc = a_size;
 	}
-	    
+
+	/* Set it. */
+ 
 	if (!mudstate.rdata->q_regs[regnum])
 	    mudstate.rdata->q_regs[regnum] = alloc_lbuf(funcname);
 	len = strlen(data);
@@ -128,16 +138,151 @@ int set_register(funcname, name, data)
 	return len;
     }
 
-    return -1;			/* unimplemented */
+    /* We have an arbitrarily-named register.
+     * Check for data-clearing first, since that's easier. 
+     */
+
+    if (!data || !*data) {
+	if (!mudstate.rdata || !mudstate.rdata->xr_alloc)
+	    return 0;
+	for (p = name; *p; p++)
+	    *p = tolower(*p);
+	for (i = 0; i < mudstate.rdata->xr_alloc; i++) {
+	    if (mudstate.rdata->x_names[i] &&
+		!strcmp(name, mudstate.rdata->x_names[i])) {
+		if (mudstate.rdata->x_regs[i]) {
+		    free_sbuf(mudstate.rdata->x_names[i]);
+		    mudstate.rdata->x_names[i] = NULL;
+		    free_lbuf(mudstate.rdata->x_regs[i]);
+		    mudstate.rdata->x_regs[i] = NULL;
+		    mudstate.rdata->x_lens[i] = 0;
+		    mudstate.rdata->dirty++;
+		    return 0;
+		} else {
+		    return 0;
+		}
+	    }
+	}
+	return 0;		/* register unset, so just return */
+    }
+
+    /* Check for a valid name.
+     * We enforce names beginning with a letter, in case we want to do
+     * something special with naming conventions at some later date.
+     * We also limit the characters than can go into a name.
+     */
+
+    if (strlen(name) >= SBUF_SIZE)
+	return -1;
+    if (!isalpha(*name))
+	return -1;
+
+    for (p = name; *p; p++) {
+	if (isalnum(*p) ||
+	    (*p == '_') || (*p == '-') || (*p == '.') || (*p == '#'))
+	    *p = tolower(*p);
+	else
+	    return -1;
+    }
+
+    len = strlen(data);
+
+    /* If we have no existing data, life is easy; just set it. */
+
+    if (!mudstate.rdata) {
+	Init_RegData(funcname, mudstate.rdata);
+    }
+    if (!mudstate.rdata->xr_alloc) {
+	a_size = NUM_ENV_VARS;
+	mudstate.rdata->x_names = XCALLOC(a_size, sizeof(char *), "x_names");
+	mudstate.rdata->x_regs = XCALLOC(a_size, sizeof(char *), "x_regs");
+	mudstate.rdata->x_lens = XCALLOC(a_size, sizeof(int), "x_lens");
+	mudstate.rdata->xr_alloc = a_size;
+	mudstate.rdata->x_names[0] = alloc_sbuf(funcname);
+	strcpy(mudstate.rdata->x_names[0], name);
+	mudstate.rdata->x_regs[0] = alloc_lbuf(funcname);
+	memcpy(mudstate.rdata->x_regs[0], data, len + 1);
+	mudstate.rdata->x_lens[0] = len;
+	mudstate.rdata->dirty++;
+	return len;
+    }
+
+    /* Search for an existing entry to replace. */
+
+    for (i = 0; i < mudstate.rdata->xr_alloc; i++) {
+	if (mudstate.rdata->x_names[i] &&
+	    !strcmp(name, mudstate.rdata->x_names[i])) {
+	    memcpy(mudstate.rdata->x_regs[i], data, len + 1);
+	    mudstate.rdata->x_lens[i] = len;
+	    mudstate.rdata->dirty++;
+	    return len;
+	}
+    }
+
+    /* Check for an empty cell to insert into. */
+
+    for (i = 0; i < mudstate.rdata->xr_alloc; i++) {
+	if (mudstate.rdata->x_names[i] == NULL) {
+	    mudstate.rdata->x_names[i] = alloc_sbuf(funcname);
+	    strcpy(mudstate.rdata->x_names[i], name);
+	    if (!mudstate.rdata->x_regs[i]) /* should never happen */
+		mudstate.rdata->x_regs[i] = alloc_lbuf(funcname);
+	    memcpy(mudstate.rdata->x_regs[i], data, len + 1);
+	    mudstate.rdata->x_lens[i] = len;
+	    mudstate.rdata->dirty++;
+	    return len;
+	}
+    }
+
+    /* Oops. We're out of room in our existing array. Go allocate
+     * more space, unless we're at our limit.
+     */
+
+    regnum = mudstate.rdata->xr_alloc;
+    a_size = regnum + NUM_ENV_VARS;
+    if (a_size > mudconf.register_limit) {
+	a_size = mudconf.register_limit;
+	if (a_size <= regnum)
+	    return -2;
+    }
+
+    tmp_regs = (char **) XREALLOC(mudstate.rdata->x_names,
+				  a_size * sizeof(char *), funcname);
+    mudstate.rdata->x_names = tmp_regs;
+    tmp_regs = (char **) XREALLOC(mudstate.rdata->x_regs,
+				  a_size * sizeof(char *), funcname);
+    mudstate.rdata->x_regs = tmp_regs;
+    tmp_lens = (int *) XREALLOC(mudstate.rdata->x_lens,
+				a_size * sizeof(int), funcname);
+    mudstate.rdata->x_lens = tmp_lens;
+    for (i = mudstate.rdata->xr_alloc; i < a_size; i++) {
+	mudstate.rdata->x_names[i] = NULL;
+	mudstate.rdata->x_regs[i] = NULL;
+	mudstate.rdata->x_lens[i] = 0;
+    }
+    mudstate.rdata->xr_alloc = a_size;
+
+    /* Now we know we can insert into the first empty. */
+
+    mudstate.rdata->x_names[regnum] = alloc_sbuf(funcname);
+    strcpy(mudstate.rdata->x_names[regnum], name);
+    mudstate.rdata->x_regs[regnum] = alloc_lbuf(funcname);
+    memcpy(mudstate.rdata->x_regs[regnum], data, len + 1);
+    mudstate.rdata->x_lens[regnum] = len;
+    mudstate.rdata->dirty++;
+    return len;
 }
+
 
 FUNCTION(fun_setq)
 {
     int result;
 
     result = set_register("fun_setq", fargs[0], fargs[1]);
-    if (result < 0)
+    if (result == -1)
 	safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
+    else if (result == -2)
+	safe_str("#-1 REGISTER LIMIT EXCEEDED", buff, bufc);
 }
 
 FUNCTION(fun_setr)
@@ -145,8 +290,10 @@ FUNCTION(fun_setr)
     int result;
 
     result = set_register("fun_setr", fargs[0], fargs[1]);
-    if (result < 0)
+    if (result == -1)
 	safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
+    else if (result == -2)
+	safe_str("#-1 REGISTER LIMIT EXCEEDED", buff, bufc);
     else if (result > 0)
 	safe_known_str(fargs[1], result, buff, bufc);
 }
@@ -154,16 +301,38 @@ FUNCTION(fun_setr)
 FUNCTION(fun_r)
 {
 	int regnum;
+	char *p;
 
-	regnum = qidx_chartab[(unsigned char) *fargs[0]];
-	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
+	if (fargs[0][1] == '\0') {
+	    regnum = qidx_chartab[(unsigned char) *fargs[0]];
+	    if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
-	} else {
-	    if (mudstate.rdata && (mudstate.rdata->q_alloc > regnum) &&
-		mudstate.rdata->q_regs[regnum]) {
-		safe_known_str(mudstate.rdata->q_regs[regnum],
-			       mudstate.rdata->q_lens[regnum],
-			       buff, bufc);
+	    } else {
+		if (mudstate.rdata && (mudstate.rdata->q_alloc > regnum) &&
+		    mudstate.rdata->q_regs[regnum]) {
+		    safe_known_str(mudstate.rdata->q_regs[regnum],
+				   mudstate.rdata->q_lens[regnum],
+				   buff, bufc);
+		}
+	    }
+	    return;
+	}
+
+	if (!mudstate.rdata || !mudstate.rdata->xr_alloc)
+	    return;
+	
+	for (p = fargs[0]; *p; p++)
+	    *p = tolower(*p);
+
+	for (regnum = 0; regnum < mudstate.rdata->xr_alloc; regnum++) {
+	    if (mudstate.rdata->x_names[regnum] &&
+		!strcmp(fargs[0], mudstate.rdata->x_names[regnum])) {
+		if (mudstate.rdata->x_regs[regnum]) {
+		    safe_known_str(mudstate.rdata->x_regs[regnum],
+				   mudstate.rdata->x_lens[regnum],
+				   buff, bufc);
+		    return;
+		}
 	    }
 	}
 }

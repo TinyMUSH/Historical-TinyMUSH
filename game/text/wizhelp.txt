@@ -1507,10 +1507,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	lock_recursion_limit		max_players
 	notify_recursion_limit		number_guests
 	output_limit			player_aliases_limit
-	player_queue_limit		retry_limit
-	stack_limit			structure_limit
-	trace_output_limit		variables_limit
-	zone_recursion_limit
+	player_queue_limit		register_limit
+	retry_limit			stack_limit			
+	structure_limit			trace_output_limit		
+	variables_limit			zone_recursion_limit
 
 & PARAM MESSAGES
 	down_motd_message	dump_message		fixed_home_message
@@ -3719,6 +3719,12 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
  
   See also: @admin, @list site_information, forbid_site, permit_site,
             register_site, suspect_site, trust_site.
+ 
+& register_limit
+  Config directive: register_limit <count>.  Default: 50
+ 
+  Specifies the maximum number of named global registers that a single
+  action list can define via setq() and related functions.
  
 & instance_limit
   Config directive: instance_limit <count>.  Default: 100
