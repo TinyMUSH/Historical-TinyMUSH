@@ -173,7 +173,11 @@ void boot_slave()
 	/*
 	 * set to nonblocking 
 	 */
+#ifdef FNDELAY
 	if (fcntl(sv[0], F_SETFL, FNDELAY) == -1) {
+#else
+	if (fcntl(sv[0], F_SETFL, O_NDELAY) == -1) {
+#endif
 		close(sv[0]);
 		close(sv[1]);
 		return;
@@ -203,7 +207,11 @@ void boot_slave()
 	}
 	close(sv[1]);
 
+#ifdef FNDELAY
 	if (fcntl(sv[0], F_SETFL, FNDELAY) == -1) {
+#else
+	if (fcntl(sv[0], F_SETFL, O_NDELAY) == -1) {
+#endif
 		close(sv[0]);
 		return;
 	}
