@@ -6,6 +6,7 @@
 
 #include "db.h"
 #include "externs.h"
+#include "powers.h"
 #include "attrs.h"
 #include "functions.h"
 #include "alloc.h"
@@ -368,6 +369,7 @@ char *cargs[];
 	FUN *fp;
 	UFUN *ufp;
 	VARENT *xvar;
+	ATTR *ap;
 
 	static const char *subj[5] =
 	{"", "it", "she", "he", "they"};
@@ -632,6 +634,43 @@ char *cargs[];
 				i = (**dstr - '0');
 				if ((i < ncargs) && (cargs[i] != NULL))
 					safe_str(cargs[i], buff, bufc);
+				break;
+			case '=': /* equivalent of generic v() attr get */
+			        (*dstr)++;
+				if (**dstr != '<') {
+				    (*dstr)--;
+				    break;
+				}
+				xptr = *dstr;
+				(*dstr)++;
+				if (!**dstr) {
+				    *dstr = xptr;
+				    break;
+				}
+				xtp = xtbuf;
+				while (**dstr && (**dstr != '>')) {
+				    ch = ToLower(**dstr);
+				    safe_sb_chr(ch, xtbuf, &xtp);
+				    (*dstr)++;
+				}
+				if (**dstr != '>') {
+				    /* Ran off the end. Back up. */
+				    *dstr = xptr;
+				    break;
+				}
+				*xtp = '\0';
+				ap = atr_str(xtbuf);
+				if (!ap)
+				    break;
+				atr_pget_info(player, ap->number, 
+					      &aowner, &aflags);
+				if (See_attr(player, player, ap,
+					     aowner, aflags)) {
+				    atr_gotten = atr_pget(player, ap->number,
+							  &aowner, &aflags);
+				    safe_long_str(atr_gotten, buff, bufc);
+				    free_lbuf(atr_gotten);
+				}
 				break;
 			case '_':       /* x-variable */
 			        (*dstr)++;
