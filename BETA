@@ -24,18 +24,33 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-02/12/2003: TinyMUSH 3.1 gamma release
+02/27/2003: Beta 9
 
 - Feature: Added elockstr(). Idea from Joel Ricketts.
 
 - Fix: Restored missing statement so exits don't get set with the wrong
   default flags. [3.1b8; Threnody]
 
-- Misc: Configure always checks for zlib if using MySQL.
+- Fix: Delimiters are passed by reference to avoid a gcc 3.1 bug.
+
+- Misc: If ladd() is given a blank list, it returns 0 instead of
+  complaining about the number of arguments.
+
+- Misc: Unused lock-related code removed from get(); use lock() to
+  retrieve locks. [2.0; Brazil]
+
+- Misc: Improved ANSI and delimiter handling in table() and related
+  functions.
+
+- Misc: Improved ANSI handling in @edit / edit().
 
 - Misc: When logging, garbage isn't out-of-range.
 
 - Misc: Improvements made to slave.
+
+- Misc: Configure always checks for zlib if using MySQL.
+
+- Misc: 'make clean' no longer removes the tinygdbm library.
 
 -----------------------------------------------------------------------------
 
