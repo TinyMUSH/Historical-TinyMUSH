@@ -50,8 +50,9 @@ void FDECL(dump_database_internal, (int));
 static void NDECL(init_rlimit);
 extern int FDECL(add_helpfile, (dbref, char *, int));
 extern void NDECL(vattr_init);
-extern void FDECL(hashresize, (HASHTAB *));
-extern void FDECL(nhashresize, (NHSHTAB *));
+extern int FDECL(get_hashmask, (int *));
+extern void FDECL(hashresize, (HASHTAB *, int));
+extern void FDECL(nhashresize, (NHSHTAB *, int));
 extern void NDECL(load_restart_db);
 extern int NDECL(sql_init);
 extern void NDECL(sql_shutdown);
@@ -125,6 +126,45 @@ void NDECL(report)
 		}
 		ENDLOG
 	}
+}
+
+/* ----------------------------------------------------------------------
+ * Hashtable resize.
+ */
+
+void do_hashresize(player, cause, key)
+    dbref player, cause;
+    int key;
+{
+    hashresize(&mudstate.player_htab, 16);
+    hashresize(&mudstate.vattr_name_htab, 256);
+    nhashresize(&mudstate.fwdlist_htab, 8);
+    hashresize(&mudstate.ufunc_htab, 8);
+
+#ifdef USE_COMSYS
+    hashresize(&mudstate.comsys_htab, 8);
+    hashresize(&mudstate.calias_htab, 16);
+    nhashresize(&mudstate.comlist_htab, 16);
+#endif
+
+#ifdef USE_MAIL
+    nhashresize(&mudstate.mail_htab, 8);
+#endif
+
+    hashresize(&mudstate.structs_htab,
+	       (mudstate.max_structs < 16) ? 16 : mudstate.max_structs);
+    hashresize(&mudstate.cdefs_htab,
+	       (mudstate.max_cdefs < 16) ? 16 : mudstate.max_cdefs);
+    hashresize(&mudstate.instance_htab,
+	       (mudstate.max_instance < 16) ? 16 : mudstate.max_instance);
+    hashresize(&mudstate.instdata_htab,
+	       (mudstate.max_instdata < 16) ? 16 : mudstate.max_instdata);
+    nhashresize(&mudstate.objstack_htab,
+	       (mudstate.max_stacks < 16) ? 16 : mudstate.max_stacks);
+    hashresize(&mudstate.vars_htab,
+	       (mudstate.max_vars < 16) ? 16 : mudstate.max_vars);
+
+    notify(player, "Resized.");
 }
 
 /* ----------------------------------------------------------------------
@@ -1618,10 +1658,10 @@ char *argv[];
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.desc_htab, 25 * HASH_FACTOR);
 	hashinit(&mudstate.vars_htab, 250 * HASH_FACTOR);
-	hashinit(&mudstate.structs_htab, 50 * HASH_FACTOR);
-	hashinit(&mudstate.cdefs_htab, 100 * HASH_FACTOR);
-	hashinit(&mudstate.instance_htab, 100 * HASH_FACTOR);
-	hashinit(&mudstate.instdata_htab, 250 * HASH_FACTOR);
+	hashinit(&mudstate.structs_htab, 15 * HASH_FACTOR);
+	hashinit(&mudstate.cdefs_htab, 15 * HASH_FACTOR);
+	hashinit(&mudstate.instance_htab, 15 * HASH_FACTOR);
+	hashinit(&mudstate.instdata_htab, 25 * HASH_FACTOR);
 #ifdef USE_MAIL
 	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
 #endif
@@ -1697,22 +1737,6 @@ char *argv[];
 
 	do_dbck(NOTHING, NOTHING, 0);
 
-	/* We may not need hash tables as large as we thought, based on the
-	 * actual database that we loaded.
-	 */
-
-	hashresize(&mudstate.player_htab);
-	hashresize(&mudstate.vattr_name_htab);
-	nhashresize(&mudstate.fwdlist_htab);
-#ifdef USE_COMSYS
-	hashresize(&mudstate.comsys_htab);
-	hashresize(&mudstate.calias_htab);
-	nhashresize(&mudstate.comlist_htab);
-#endif
-#ifdef USE_MAIL
-	nhashresize(&mudstate.mail_htab);
-#endif
-
 	/* Reset all the hash stats */
 
 	hashreset(&mudstate.command_htab);
@@ -1785,12 +1809,15 @@ char *argv[];
 	    log_text((char *) "Startup processing complete.");
 	ENDLOG
 
-	/* We should resize the user function table here, as these will
-	 * typically get defined in the @startup, and at no other time.
-	 */
-	hashresize(&mudstate.ufunc_htab);
-
 	boot_slave();
+
+	/* This must happen after startups are run, in order to get a
+	 * really good idea of what's actually out there.
+	 */
+	do_hashresize(GOD, GOD, 0);
+	STARTLOG(LOG_STARTUP, "INI", "LOAD")
+	    log_text((char *) "Cleanup completed.");
+	ENDLOG
 
 	if (mudstate.restarting) {
 	    raw_broadcast(0, "Game: Restart finished.");

@@ -389,15 +389,17 @@ HASHTAB *htab;
  * hashresize: Resize a hash table, to double the number of keys in it.
  */
 
-void hashresize(htab)
+void hashresize(htab, min_size)
     HASHTAB *htab;
+    int min_size;
 {
     int size, i;
     HASHTAB new_htab;
     HASHENT *hent, *thent;
 
     size = (htab->entries) * HASH_FACTOR;
-    size = (size < 16) ? 16 : size;
+    size = (size < min_size) ? min_size : size;
+    get_hashmask(&size);
     if (size == htab->hashsize) {
 	/* We're already at the correct size. Don't do anything. */
 	return;
@@ -600,15 +602,17 @@ NHSHTAB *htab;
  * nhashresize: Resize a numeric hash table (double number of keys in it).
  */
 
-void nhashresize(htab)
+void nhashresize(htab, min_size)
     NHSHTAB *htab;
+    int min_size;
 {
     int size, i;
     NHSHTAB new_htab;
     NHSHENT *hent, *thent;
 
     size = (htab->entries) * HASH_FACTOR;
-    size = (size < 16) ? 16 : size;
+    size = (size < min_size) ? min_size : size;
+    get_hashmask(&size);
     if (size == htab->hashsize) {
 	/* We're already at the correct size. Don't do anything. */
 	return;

@@ -377,6 +377,12 @@ struct statedata {
 #ifdef USE_MAIL
 	NHSHTAB mail_htab;	/* Mail players hashtable */
 #endif
+	int	max_structs;
+	int	max_cdefs;
+	int	max_instance;
+	int	max_instdata;
+	int	max_stacks;
+	int	max_vars;
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
 	BQUE	*qfirst;	/* Head of player queue */
 	BQUE	*qlast;		/* Tail of player queue */

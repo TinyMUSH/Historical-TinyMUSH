@@ -55,6 +55,7 @@ extern void FDECL(make_cwho, (dbref, char *, char *, char **));
 	char *fargs[], *cargs[]; \
 	int nfargs, ncargs;
 
+#define Set_Max(x,y)     (x) = ((y) > (x)) ? (y) : (x);
 
 /* --------------------------------------------------------------------------
  * Auxiliary functions for stacks.
@@ -511,6 +512,7 @@ FUNCTION(fun_structure)
     this_struct->names_base = comp_names;
     this_struct->defs_base = default_vals;
     hashadd(tbuf, (int *) this_struct, &mudstate.structs_htab);
+    Set_Max(mudstate.max_structs, mudstate.structs_htab.entries);
 
     /* Now that we're done with the base name, we can stick the 
      * joining period on the end.
@@ -563,6 +565,7 @@ FUNCTION(fun_structure)
 	this_struct->need_typecheck = check_type;
 	this_struct->c_array[i] = this_comp;
 	hashadd(cbuf, (int *) this_comp, &mudstate.cdefs_htab);
+	Set_Max(mudstate.max_cdefs, mudstate.cdefs_htab.entries);
     }
 
     free_lbuf(type_names);
@@ -714,6 +717,7 @@ FUNCTION(fun_construct)
     inst_ptr = (INSTANCE *) XMALLOC(sizeof(INSTANCE), "constructor.inst");
     inst_ptr->datatype = this_struct;
     hashadd(ibuf, (int *) inst_ptr, &mudstate.instance_htab);
+    Set_Max(mudstate.max_instance, mudstate.instance_htab.entries);
 
     /* Populate with default values. */
 
@@ -731,6 +735,7 @@ FUNCTION(fun_construct)
 	safe_sb_str(this_struct->c_names[i], tbuf, &tp);
 	*tp = '\0';
 	hashadd(tbuf, (int *) d_ptr, &mudstate.instdata_htab);
+	Set_Max(mudstate.max_instdata, mudstate.instdata_htab.entries);
     }
 
     /* Overwrite with component values. */
@@ -861,6 +866,7 @@ FUNCTION(fun_load)
     inst_ptr = (INSTANCE *) XMALLOC(sizeof(INSTANCE), "constructor.inst");
     inst_ptr->datatype = this_struct;
     hashadd(ibuf, (int *) inst_ptr, &mudstate.instance_htab);
+    Set_Max(mudstate.max_instance, mudstate.instance_htab.entries);
 
     /* Stuff data into memory. */
 
@@ -876,6 +882,7 @@ FUNCTION(fun_load)
 	safe_sb_str(this_struct->c_names[i], tbuf, &tp);
 	*tp = '\0';
 	hashadd(tbuf, (int *) d_ptr, &mudstate.instdata_htab);
+	Set_Max(mudstate.max_instdata, mudstate.instdata_htab.entries);
     }
 
     free_lbuf(val_list);
@@ -3871,6 +3878,7 @@ static void stack_set(thing, sp)
     } else {
 	stat = nhashadd(thing, (int *) sp, &mudstate.objstack_htab);
 	s_StackCount(thing, StackCount(thing) + 1);
+	Set_Max(mudstate.max_stacks, mudstate.objstack_htab.entries);
     }
     if (stat < 0) {		/* failure for some reason */
 	STARTLOG(LOG_BUGS, "STK", "SET")
@@ -4270,6 +4278,7 @@ static void set_xvar(obj, name, data)
 	    strcpy(xvar->text, data);
 	    hashadd(tbuf, (int *) xvar, &mudstate.vars_htab);
 	    s_VarsCount(obj, VarsCount(obj) + 1);
+	    Set_Max(mudstate.max_vars, mudstate.vars_htab.entries);
 	}
     }
 }

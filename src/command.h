@@ -95,6 +95,7 @@ CMD_ONE_ARG(do_get);			/* Get an object */
 CMD_TWO_ARG(do_give);			/* Give something away */
 CMD_ONE_ARG(do_global);			/* Enable/disable global flags */
 CMD_ONE_ARG(do_halt);			/* Remove commands from the queue */
+CMD_NO_ARG(do_hashresize);		/* Resize the hash tables */
 CMD_TWO_ARG(do_hook);			/* Command hooks */
 CMD_ONE_ARG(do_help);			/* Print info from help files */
 CMD_NO_ARG(do_inventory);		/* Print what I am carrying */
