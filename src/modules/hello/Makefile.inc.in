@@ -15,6 +15,6 @@ modules/hello/hello.la: modules/hello/hello.o
 install-modules: install-hello
 
 install-hello: modules/hello/hello.la
-	-mv ../game/modules/.libs/hello.* ../game/modules/old
+	-mv ../game/modules/hello.* ../game/modules/old
 	$(LIBTOOL) --mode=install cp modules/hello/hello.la `pwd`/../game/modules/hello.la
 	touch install-hello
