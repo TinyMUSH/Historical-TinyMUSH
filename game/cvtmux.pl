@@ -15,8 +15,8 @@ while (<>) {
 
 while (<>) {
     s/\%[Cc]/\%x/g;
-    s/(\W+)[Ii][Ff][Ee][Ll][Ss][Ee]\(/nonzero\(/g;
-    s/(\W+)[Pp][Mm][Aa][Tt][Cc][Hh]\(/pfind\(/g;
+    s/(\W+)[Ii][Ff][Ee][Ll][Ss][Ee]\(/$1nonzero\(/g;
+    s/(\W+)[Pp][Mm][Aa][Tt][Cc][Hh]\(/$1pfind\(/g;
     s/(\W+)[Ii][Tt][Ee][Rr]\(/$1parse\(/g;
     s/(\W+)[Ll][Ii][Ss][Tt]\(/$1loop\(/g;
     print $_;
