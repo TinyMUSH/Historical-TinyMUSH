@@ -1283,7 +1283,10 @@ int format, version;
 				fprintf(f, "+A%d\n\"%d:%s\"\n",
 					vp->number, vp->flags, vp->name);
 			} else if (vp->flags & AF_DIRTY) {
-				/* Only write the dirty attribute numbers */
+				/* Only write the dirty attribute numbers
+				 * and clear the flag */
+				 
+				vp->flags &= ~AF_DIRTY;
 				len = strlen(vp->name) + 1;
 				dptr = data = (int *)malloc(sizeof(int) + len);
 				memcpy((void *)dptr, (void *)&vp->flags, sizeof(int));
