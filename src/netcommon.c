@@ -1717,6 +1717,8 @@ int first;
 			}
 			mudstate.curr_player = d->player;
 			mudstate.curr_enactor = d->player;
+			Free_RegData(mudstate.rdata);
+			mudstate.rdata = NULL;
 #ifndef NO_LAG_CHECK
 			begin_time = time(NULL);
 #endif /* NO_LAG_CHECK */
