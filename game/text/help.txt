@@ -4285,9 +4285,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	merge()		mid()		null()		pos()		
 	regmatch()	repeat()	reverse()	right()		
 	rjust()		secure()	scramble()	space()		
-	squish()	strcat()	stripansi()	strlen()	
-	strmatch()	strtrunc()	translate()	trim()		
-	ucstr()		valid()		wordpos()
+	squish()	strcat()	streq()		stripansi()
+	strlen()	strmatch()	strtrunc()	translate()	
+	trim()		ucstr()		valid()		wordpos()
  
 & STACK FUNCTIONS
   Topic: Stack functions
@@ -5625,6 +5625,20 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   See 'help regexp syntax' for an explanation of regular expressions.
 
+& STREQ()
+  streq(<string 1>,<string 2>)
+ 
+  This function returns 1 if <string 1> and <string 2> are the same
+  (case-insensitive), and 0 if they are not.
+ 
+  Examples:
+    > say streq(This Is A Test,this is a test)
+    You say "1"
+    > say streq(testing,test)
+    You say "0"
+ 
+  See also: strmatch(), comp().
+ 
 & ELEMENTS()
   elements(<list of words>,<list of numbers>[,<delim>][,<output delim>])
  
