@@ -92,8 +92,11 @@ int dddb_init()
 			return (1);
 		}
 	} else {
-		/* Set the cache size to be two hash buckets for GDBM. */
-	 
+		/* This would set the cache size to be 2 hash buckets
+		 * for GDBM, except that the library imposes a minimum
+		 * of 10.
+		 */
+
 		i = 2;
 		if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
 			gdbm_error = (char *)gdbm_strerror(gdbm_errno);
