@@ -155,7 +155,7 @@ FUNCTION(fun_e)
 
 /* ---------------------------------------------------------------------------
  * Math operations on one number: SIGN, ABS, FLOOR, CEIL, ROUND, TRUNC,
- *    INC, DEC, SQRT, EXP, LN, SIN, COS, TAN, ASIN, ACOS, ATAN
+ *    INC, DEC, SQRT, EXP, LN, [A][SIN,COS,TAN][D]
  */
 
 FUNCTION(fun_sign)
@@ -343,32 +343,32 @@ FUNCTION(fun_ln)
 
 FUNCTION(handle_trig)
 {
-  NVAL val;
-  int oper, flag;
-  static double (* const trig_funcs[8])(double) = {
-     sin,  cos,  tan, NULL,	/* XXX no cotangent function */
-    asin, acos, atan, NULL
-  };
+	NVAL val;
+	int oper, flag;
+	static double (* const trig_funcs[8])(double) = {
+		sin,  cos,  tan, NULL,	/* XXX no cotangent function */
+		asin, acos, atan, NULL
+	};
 
-  flag = ((FUN *)fargs[-1])->flags;
-  oper = flag & TRIG_OPER;
+	flag = ((FUN *)fargs[-1])->flags;
+	oper = flag & TRIG_OPER;
 
-  val = aton(fargs[0]);
-  if ((flag & TRIG_ARC) && !(flag & TRIG_TAN) &&
-      ((val < -1) || (val > 1))) {
-    safe_tprintf_str(buff, bufc, "#-1 %s ARGUMENT OUT OF RANGE",
-		     ((FUN *)fargs[-1])->name);
-    return;
-  }
-  if ((flag & TRIG_DEG) && !(flag & TRIG_ARC))
-    val = val * (M_PI / 180);
+	val = aton(fargs[0]);
+	if ((flag & TRIG_ARC) && !(flag & TRIG_TAN) &&
+	    ((val < -1) || (val > 1))) {
+		safe_tprintf_str(buff, bufc, "#-1 %s ARGUMENT OUT OF RANGE",
+				 ((FUN *)fargs[-1])->name);
+		return;
+	}
+	if ((flag & TRIG_DEG) && !(flag & TRIG_ARC))
+		val = val * (M_PI / 180);
 
-  val = (trig_funcs[oper])((double)val);
+	val = (trig_funcs[oper])((double)val);
 
-  if ((flag & TRIG_DEG) && (flag & TRIG_ARC))
-    val = (val * 180) / M_PI;
+	if ((flag & TRIG_DEG) && (flag & TRIG_ARC))
+		val = (val * 180) / M_PI;
 
-  fval(buff, bufc, val);
+	fval(buff, bufc, val);
 }
 
 /* ---------------------------------------------------------------------------
