@@ -618,6 +618,8 @@ dbref player, obj;
 	return;
 }
 
+#ifndef STANDALONE
+
 /* ---------------------------------------------------------------------------
  * do_freelist: Grab a garbage object, and move it to the top of the freelist.
  */
@@ -680,6 +682,8 @@ void do_freelist(player, cause, key, str)
 	notify(player, "That object is not clean garbage.");
     }
 }
+
+#endif
 
 /* ---------------------------------------------------------------------------
  * make_freelist: Build a freelist
