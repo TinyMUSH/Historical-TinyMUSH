@@ -345,7 +345,6 @@ struct statedata {
 	int	restarting;	/* Are we restarting? */
 	int	dumping;	/* Are we dumping? */
 	int	logging;	/* Are we in the middle of logging? */
-	int	struct_check;	/* Are we in the midst of a structure check? */
 	int	epoch;		/* Generation number for dumps */
 	int	generation;	/* DB global generation number */
 	int	mudlognum;	/* Number of logfile */
@@ -447,7 +446,6 @@ struct statedata {
 	clock_t	cputime_base;	/* CPU baselined at beginning of command */
 #else  /* STANDALONE */
 	int	logging;	/* Are we in the middle of logging? */
-	int	struct_check;	/* Are we in the midst of a structure check? */
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
 	ALIST	iter_alist;	/* Attribute list for iterations */
 	char	*mod_alist;	/* Attribute list for modifying */

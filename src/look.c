@@ -731,7 +731,6 @@ int check_exclude, hash_insert, is_special;
 	ATTR *attr, *cattr;
 	char *as, *buf;
 
-	mudstate.struct_check = 1;
 	cattr = (ATTR *) XMALLOC(sizeof(ATTR), "look_atrs1");
 	for (ca = atr_head(thing, &as); ca; ca = atr_next(&as)) {
 		if ((ca == A_DESC) || (ca == A_LOCK))
@@ -745,10 +744,10 @@ int check_exclude, hash_insert, is_special;
 		/* Should we exclude this attr?
 		 * We have a couple of things we exclude:
 		 * Attributes explicitly marked no_inherit.
-		 * Locks. Note that UseLock is NOT, strictly speaking, an inherited
-		 *   lock, since it's just checked when the child tries to inherit
-		 *   $commands from the parent; the child itself doesn't acquire
-		 *   the parent's uselock.
+		 * Locks. Note that UseLock is NOT, strictly speaking, an
+		 *   inherited lock, since it's just checked when the child
+		 *   tries to inherit $commands from the parent; the child
+		 *   itself doesn't acquire the parent's uselock.
 		 * Attributes already slurped by upper-level objects.
 		 */
 
@@ -759,7 +758,7 @@ int check_exclude, hash_insert, is_special;
 			continue;
 
 		buf = atr_get(thing, ca, &aowner, &aflags, &alen);
-		if (Read_attr(player, othing, cattr, aowner, aflags)) {
+		if (Read_attr_all(player, othing, cattr, aowner, aflags, 1)) {
 
 			if (!(check_exclude && (aflags & AF_PRIVATE))) {
 				if (hash_insert)
@@ -772,7 +771,6 @@ int check_exclude, hash_insert, is_special;
 		free_lbuf(buf);
 	}
 	XFREE(cattr, "look_atrs1");
-	mudstate.struct_check = 0;
 }
 
 static void look_atrs(player, thing, check_parents, is_special)
@@ -1145,19 +1143,17 @@ dbref player, thing;
 	notify(player, buf);
 	free_lbuf(buf);
 
-	mudstate.struct_check = 1;
 	for (ca = atr_head(thing, &as); ca; ca = atr_next(&as)) {
 		attr = atr_num(ca);
 		if (!attr)
 			continue;
 
 		buf = atr_get(thing, ca, &aowner, &aflags, &alen);
-		if (Read_attr(player, thing, attr, aowner, aflags))
+		if (Read_attr_all(player, thing, attr, aowner, aflags, 1))
 			view_atr(player, thing, attr, buf, aowner, aflags,
 				 0, 0);
 		free_lbuf(buf);
 	}
-	mudstate.struct_check = 0;
 }
 
 static void exam_wildattrs(player, thing, do_parent, is_special)
@@ -1169,7 +1165,6 @@ int do_parent, is_special;
 	dbref aowner;
 	ATTR *ap;
 
-	mudstate.struct_check = 1;
 	got_any = 0;
 	for (atr = olist_first(); atr != NOTHING; atr = olist_next()) {
 		ap = atr_num(atr);
@@ -1193,12 +1188,13 @@ int do_parent, is_special;
 		 */
 
 		if (Examinable(player, thing) &&
-		    Read_attr(player, thing, ap, aowner, aflags)) {
+		    Read_attr_all(player, thing, ap, aowner, aflags, 1)) {
 			got_any = 1;
 			view_atr(player, thing, ap, buf,
 				 aowner, aflags, 0, is_special);
 		} else if ((Typeof(thing) == TYPE_PLAYER) &&
-			   Read_attr(player, thing, ap, aowner, aflags)) {
+			   Read_attr_all(player, thing, ap,
+					 aowner, aflags, 1)) {
 			got_any = 1;
 			if (aowner == Owner(player)) {
 				view_atr(player, thing, ap, buf,
@@ -1214,7 +1210,8 @@ int do_parent, is_special;
 				notify(player,
 				       "<Too far away to get a good look>");
 			}
-		} else if (Read_attr(player, thing, ap, aowner, aflags)) {
+		} else if (Read_attr_all(player, thing, ap,
+					 aowner, aflags, 1)) {
 			got_any = 1;
 			if (aowner == Owner(player)) {
 				view_atr(player, thing, ap, buf,
@@ -1235,7 +1232,6 @@ int do_parent, is_special;
 	}
 	if (!got_any)
 		notify_quiet(player, "No matching attributes found.");
-	mudstate.struct_check = 0;
 }
 
 void do_examine(player, cause, key, name)
@@ -1269,15 +1265,14 @@ char *name;
 	} else {
 		/* Check for obj/attr first. */
 
-		mudstate.struct_check = 1;
 		olist_push();
-		if (parse_attrib_wild(player, name, &thing, do_parent, 1, 0)) {
+		if (parse_attrib_wild(player, name, &thing, do_parent,
+				      1, 0, 1)) {
 			exam_wildattrs(player, thing, do_parent, is_special);
 			olist_pop();
 			return;
 		}
 		olist_pop();
-		mudstate.struct_check = 0;
 
 		/* Look it up */
 
@@ -1902,9 +1897,8 @@ char *name, *qual;
 
 	/* Check for obj/attr first */
 	
-	mudstate.struct_check = 1;
 	olist_push();
-	if (parse_attrib_wild(player, name, &thing, 0, 1, 0)) {
+	if (parse_attrib_wild(player, name, &thing, 0, 1, 0, 1)) {
 		wild_decomp = 1;
 	} else {
 		wild_decomp = 0;
@@ -1912,7 +1906,6 @@ char *name, *qual;
 		match_everything(MAT_EXIT_PARENTS);
 		thing = noisy_match_result();
 	}
-	mudstate.struct_check = 0;
 
 	/* get result */
 	if (thing == NOTHING) {
@@ -1983,7 +1976,6 @@ char *name, *qual;
 
 	/* Report attributes */
 
-	mudstate.struct_check = 1;
 	buff = alloc_mbuf("do_decomp.attr_name");
 	for (ca = (wild_decomp ? olist_first() : atr_head(thing, &as));
 	      (wild_decomp) ? (ca != NOTHING) : (ca != (int) NULL);
@@ -2004,7 +1996,7 @@ char *name, *qual;
 		    free_lbuf(got);
 		    got = tmp;
 		}
-		if (Read_attr(player, thing, attr, aowner, aflags)) {
+		if (Read_attr_all(player, thing, attr, aowner, aflags, 1)) {
 			if (attr->flags & AF_IS_LOCK) {
 				bool = parse_boolexp(player, got, 1);
 				ltext = unparse_boolexp_decompile(player,
@@ -2058,7 +2050,6 @@ char *name, *qual;
 		free_lbuf(got);
 	}
 	free_mbuf(buff);
-	mudstate.struct_check = 0;
 
 	if (!wild_decomp) {
 		decompile_flags(player, thing, sname);

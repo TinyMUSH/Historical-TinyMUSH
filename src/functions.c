@@ -117,7 +117,7 @@ char *fname, *target;
 	}
 	/* Make sure the target object exists */
 
-	if (!parse_attrib(player, target, &obj, &atr)) {
+	if (!parse_attrib(player, target, &obj, &atr, 0)) {
 		notify_quiet(player, NOMATCH_MESSAGE);
 		free_sbuf(np);
 		return;

@@ -1219,15 +1219,12 @@ FUNCTION(fun_read)
     int atr, aflags, alen;
     char *atext;
 
-    mudstate.struct_check = 1;
-    if (!parse_attrib(player, fargs[0], &it, &atr) || (atr == NOTHING)) {
+    if (!parse_attrib(player, fargs[0], &it, &atr, 1) || (atr == NOTHING)) {
 	safe_chr('0', buff, bufc);
-	mudstate.struct_check = 0;
 	return;
     }
 
     atext = atr_pget(it, atr, &aowner, &aflags, &alen);
-    mudstate.struct_check = 0;
     load_structure(player, buff, bufc,
 		   fargs[1], fargs[2], atext,
 		   GENERIC_STRUCT_DELIM, 0);
@@ -1255,15 +1252,12 @@ FUNCTION(fun_delimit)
     if (nfargs != 3)
 	sep = GENERIC_STRUCT_DELIM;
 
-    mudstate.struct_check = 1;
-    if (!parse_attrib(player, fargs[0], &it, &atr) || (atr == NOTHING)) {
+    if (!parse_attrib(player, fargs[0], &it, &atr, 1) || (atr == NOTHING)) {
 	safe_noperm(buff, bufc);
-	mudstate.struct_check = 0;
 	return;
     }
 
     atext = atr_pget(it, atr, &aowner, &aflags, &alen);
-    mudstate.struct_check = 0;
     nitems = list2arr(ptrs, LBUF_SIZE / 2, atext, sep);
     if (nitems) {
 	over = safe_str(ptrs[0], buff, bufc);
@@ -2844,7 +2838,7 @@ static void perform_grep(buff, bufc, player, fargs, nfargs,
     patc = patbuf = alloc_lbuf("perform_grep.parse_attrib");
     safe_tprintf_str(patbuf, &patc, "#%d/%s", it, fargs[1]);
     olist_push();
-    if (parse_attrib_wild(player, patbuf, &thing, 0, 0, 1)) {
+    if (parse_attrib_wild(player, patbuf, &thing, 0, 0, 1, 1)) {
 	for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 	    attrib = atr_get(thing, ca, &aowner, &aflags, &alen);
 	    if ((grep_type == GREP_EXACT) && caseless) {

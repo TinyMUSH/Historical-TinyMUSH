@@ -306,7 +306,6 @@ void NDECL(cf_init)
 	mudstate.panicking = 0;
 	mudstate.dumping = 0;
 	mudstate.logging = 0;
-	mudstate.struct_check = 0;
 	mudstate.epoch = 0;
 	mudstate.generation = 0;
 	mudstate.reboot_nums = 0;
@@ -407,7 +406,6 @@ void NDECL(cf_init)
 	mudconf.ntfy_nest_lim = 20;
 
 	mudstate.logging = 0;
-	mudstate.struct_check = 0; 
 	mudstate.attr_next = A_USER_START;
 	mudstate.iter_alist.data = NULL;
 	mudstate.iter_alist.len = 0;

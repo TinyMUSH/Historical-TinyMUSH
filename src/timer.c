@@ -296,7 +296,7 @@ void do_cron(player, cause, key, objstr, timestr)
 	return;
     }
 
-    if (!parse_attrib(player, objstr, &thing, &attrib) ||
+    if (!parse_attrib(player, objstr, &thing, &attrib, 0) ||
 	(attrib == NOTHING) || !Good_obj(thing)) {
 	notify(player, "No match.");
 	return;
@@ -358,7 +358,8 @@ void do_crondel(player, cause, key, objstr)
     }
 
     attr = NOTHING;
-    if (!parse_attrib(player, objstr, &thing, &attr) || (attr == NOTHING)) {
+    if (!parse_attrib(player, objstr, &thing, &attr, 0) ||
+	(attr == NOTHING)) {
 	if ((*objstr != '#') || 
 	    ((thing = parse_dbref(objstr + 1)) == NOTHING)) {
 	    notify(player, "No match.");

@@ -466,18 +466,29 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Invisible_attr(p,x,a,o,f) \
 ((!Examinable(p,x) && (Owner(p) != o)) || \
    ((AttrFlags(a,f) & AF_MDARK) && !Sees_Hidden_Attrs(p)) || \
-   ((AttrFlags(a,f) & AF_DARK) && !God(p)) || \
-   ((f & AF_STRUCTURE) && !mudstate.struct_check))
+   ((AttrFlags(a,f) & AF_DARK) && !God(p)))
 
 #define Visible_attr(p,x,a,o,f) \
 (((AttrFlags(a,f) & AF_VISUAL) && Visible_desc(p,x,a)) || \
  !Invisible_attr(p,x,a,o,f))
 
 #define See_attr(p,x,a,o,f) \
-(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && Visible_attr(p,x,a,o,f))
+(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && !(f & AF_STRUCTURE) && \
+ Visible_attr(p,x,a,o,f))
 
 #define Read_attr(p,x,a,o,f) \
-(!((a)->flags & AF_INTERNAL) && Visible_attr(p,x,a,o,f))
+(!((a)->flags & AF_INTERNAL) && !(f & AF_STRUCTURE) && \
+ Visible_attr(p,x,a,o,f))
+
+#define See_attr_all(p,x,a,o,f,y) \
+(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
+ ((y) || !(f &AF_STRUCTURE)) && \
+ Visible_attr(p,x,a,o,f))
+
+#define Read_attr_all(p,x,a,o,f,y) \
+(!((a)->flags & AF_INTERNAL) && \
+ ((y) || !(f &AF_STRUCTURE)) && \
+ Visible_attr(p,x,a,o,f))
 
 /* We can set it if:
  * The (master) attribute is not internal or a lock AND

@@ -417,7 +417,7 @@ char *name, *keytext;
 	struct boolexp *okey;
 	char *p;
 
-	if (parse_attrib(player, name, &thing, &atr)) {
+	if (parse_attrib(player, name, &thing, &atr, 0)) {
 		if (atr != NOTHING) {
 			if (!atr_get_info(thing, atr, &aowner, &aflags)) {
 				notify_quiet(player,
@@ -514,7 +514,7 @@ char *name;
 	int atr, aflags;
 	ATTR *ap;
 
-	if (parse_attrib(player, name, &thing, &atr)) {
+	if (parse_attrib(player, name, &thing, &atr, 0)) {
 		if (atr != NOTHING) {
 			if (!atr_get_info(thing, atr, &aowner, &aflags)) {
 				notify_quiet(player,
@@ -619,7 +619,7 @@ char *name, *newown;
 	int atr, aflags, do_it, cost, quota;
 	ATTR *ap;
 
-	if (parse_attrib(player, name, &thing, &atr)) {
+	if (parse_attrib(player, name, &thing, &atr, 1)) {
 		if (atr != NOTHING) {
 			if (!*newown) {
 				owner = Owner(thing);
@@ -817,19 +817,12 @@ char *attrtext, *buff, **bufc;
 
 	attr = atr_num(attrnum);
 	atr_pget_info(thing, attrnum, &aowner, &aflags);
-	if ((aflags & AF_STRUCTURE) && (!attrtext || !*attrtext)) {
-	    /* We are allowed to wipe out this attribute, but we can't
-	     * do anything else to it.
-	     */
-	    mudstate.struct_check = 1;
-	}
 	if (attr && Set_attr(player, thing, attr, aflags)) {
 		if ((attr->check != NULL) &&
 		    (!(*attr->check) (0, player, thing, attrnum, attrtext))) {
 		    if (buff) {
 			safe_noperm(buff, bufc);
 		    }
-		    mudstate.struct_check = 0;
 		    return;
 		}
 		could_hear = Hearer(thing);
@@ -845,7 +838,6 @@ char *attrtext, *buff, **bufc;
 		notify_quiet(player, NOPERM_MESSAGE);
 	    }
 	}
-	mudstate.struct_check = 0;
 }
 
 void do_set(player, cause, key, name, flag)
@@ -863,7 +855,7 @@ char *name, *flag;
 	 * attribute * flags. 
 	 */
 
-	if (parse_attrib(player, name, &thing, &atr)) {
+	if (parse_attrib(player, name, &thing, &atr, 1)) {
 		if (atr != NOTHING) {
 
 			/*
@@ -974,7 +966,7 @@ char *name, *flag;
 		 */
 		if (*p == '_') {
 			StringCopy(buff, p + 1);
-			if (!parse_attrib(player, p + 1, &thing2, &atr2) ||
+			if (!parse_attrib(player, p + 1, &thing2, &atr2, 0) ||
 			    (atr2 == NOTHING)) {
 				notify_quiet(player, "No match.");
 				free_lbuf(buff);
@@ -1076,7 +1068,7 @@ void do_cpattr(player, cause, key, oldpair, newpair, nargs)
     if (parse_attrib_wild(player,
 			  ((strchr(oldpair, '/') == NULL) ?
 			   tprintf("me/%s", oldpair) : oldpair),
-			  &oldthing, 0, 0, 1)) {
+			  &oldthing, 0, 0, 1, 0)) {
 	for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 	    oldattr = atr_num(ca);
 	    if (oldattr) {
@@ -1221,10 +1213,11 @@ char *what, *args[];
  * * parse_attrib, parse_attrib_wild: parse <obj>/<attr> tokens.
  */
 
-int parse_attrib(player, str, thing, atr)
+int parse_attrib(player, str, thing, atr, ok_structs)
 dbref player, *thing;
 int *atr;
 char *str;
+int ok_structs;
 {
 	ATTR *attr;
 	char *buff;
@@ -1255,7 +1248,8 @@ char *str;
 		return NOTHING;
 	} else {
 		atr_pget_info(*thing, attr->number, &aowner, &aflags);
-		if (!See_attr(player, *thing, attr, aowner, aflags)) {
+		if (!See_attr_all(player, *thing, attr, aowner, aflags,
+				  ok_structs)) {
 			*atr = NOTHING;
 		} else {
 			*atr = attr->number;
@@ -1265,10 +1259,10 @@ char *str;
 }
 
 static void find_wild_attrs(player, thing, str, check_exclude, hash_insert,
-			    get_locks)
+			    get_locks, ok_structs)
 dbref player, thing;
 char *str;
-int check_exclude, hash_insert, get_locks;
+int check_exclude, hash_insert, get_locks, ok_structs;
 {
 	ATTR *attr;
 	char *as;
@@ -1305,9 +1299,11 @@ int check_exclude, hash_insert, get_locks;
 			continue;
 
 		if (get_locks)
-			ok = Read_attr(player, thing, attr, aowner, aflags);
+			ok = Read_attr_all(player, thing, attr, aowner,
+					   aflags, ok_structs);
 		else
-			ok = See_attr(player, thing, attr, aowner, aflags);
+			ok = See_attr_all(player, thing, attr, aowner,
+					  aflags, ok_structs);
 
 		/*
 		 * Enforce locality restriction on descriptions 
@@ -1328,10 +1324,11 @@ int check_exclude, hash_insert, get_locks;
 	atr_pop();
 }
 
-int parse_attrib_wild(player, str, thing, check_parents, get_locks, df_star)
+int parse_attrib_wild(player, str, thing, check_parents, get_locks, df_star,
+		      ok_structs)
 dbref player, *thing;
 char *str;
-int check_parents, get_locks, df_star;
+int check_parents, get_locks, df_star, ok_structs;
 {
 	char *buff;
 	dbref parent;
@@ -1383,11 +1380,12 @@ int check_parents, get_locks, df_star;
 			if (!Good_obj(Parent(parent)))
 				hash_insert = 0;
 			find_wild_attrs(player, parent, str, check_exclude,
-					hash_insert, get_locks);
+					hash_insert, get_locks, ok_structs);
 			check_exclude = 1;
 		}
 	} else {
-		find_wild_attrs(player, *thing, str, 0, 0, get_locks);
+		find_wild_attrs(player, *thing, str, 0, 0, get_locks,
+				ok_structs);
 	}
 	free_lbuf(buff);
 	return 1;
@@ -1558,7 +1556,8 @@ char *it, *args[];
 	 */
 
 	olist_push();
-	if (!it || !*it || !parse_attrib_wild(player, it, &thing, 0, 0, 0)) {
+	if (!it || !*it ||
+	    !parse_attrib_wild(player, it, &thing, 0, 0, 0, 0)) {
 		notify_quiet(player, "No match.");
 		olist_pop();
 		return;
@@ -1646,7 +1645,8 @@ char *it;
 	char *atext;
 
 	olist_push();
-	if (!it || !*it || !parse_attrib_wild(player, it, &thing, 0, 0, 1)) {
+	if (!it || !*it ||
+	    !parse_attrib_wild(player, it, &thing, 0, 0, 1, 1)) {
 		notify_quiet(player, "No match.");
 		olist_pop();
 		return;
@@ -1699,9 +1699,10 @@ char *object, *argv[];
 	dbref thing;
 	int attrib;
 
-	if (!((parse_attrib(player, object, &thing, &attrib)
+	if (!((parse_attrib(player, object, &thing, &attrib, 0)
 	       && (attrib != NOTHING)) ||
-	      (parse_attrib(player, tprintf("me/%s", object), &thing, &attrib)
+	      (parse_attrib(player, tprintf("me/%s", object),
+			    &thing, &attrib, 0)
 	       && (attrib != NOTHING)))) {
 		notify_quiet(player, "No match.");
 		return;

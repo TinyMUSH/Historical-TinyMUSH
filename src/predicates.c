@@ -792,7 +792,7 @@ void do_hook(player, cause, key, cmdname, target)
      * that we control the object.
      */
 
-    if (!parse_attrib(player, target, &thing, &atr)) {
+    if (!parse_attrib(player, target, &thing, &atr, 0)) {
 	notify(player, NOMATCH_MESSAGE);
 	return;
     }
@@ -870,7 +870,8 @@ char *s;
 		return;
 	}
 	
-	if (!parse_attrib(player, command, &thing, &atr) || (atr == NOTHING)) {
+	if (!parse_attrib(player, command, &thing, &atr, 0) ||
+	    (atr == NOTHING)) {
 		notify(player, "No such attribute.");
 		return;
 	}
@@ -1018,7 +1019,8 @@ char *s;
 	}
 	
 	if (*command) {
-		if (!parse_attrib(player, command, &thing, &atr) || (atr == NOTHING)) {
+		if (!parse_attrib(player, command, &thing, &atr, 0) ||
+		    (atr == NOTHING)) {
 			notify(player, "No such attribute.");
 			return;
 		}
@@ -1240,7 +1242,7 @@ char *name, *command;
 	if (msg && *msg) {
 		notify(doer, msg);
 	}
-	parse_attrib(player, attrib, &thing, &atr);
+	parse_attrib(player, attrib, &thing, &atr, 0);
 	if (atr != NOTHING) {
 		if (!atr_pget_info(thing, atr, &aowner, &aflags)) {
 			notify(player, "Attribute not present on object.");

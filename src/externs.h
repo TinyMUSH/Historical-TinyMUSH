@@ -200,9 +200,9 @@ extern void	FDECL(did_it, (dbref, dbref, int, const char *, int,
 			const char *, int, int, char *[], int));
 
 /* From set.c */
-extern int	FDECL(parse_attrib, (dbref, char *, dbref *, int *));
+extern int	FDECL(parse_attrib, (dbref, char *, dbref *, int *, int));
 extern int	FDECL(parse_attrib_wild, (dbref, char *, dbref *, int,
-			int, int));
+			int, int, int));
 extern void	FDECL(edit_string, (char *, char **, char *, char *));
 extern dbref	FDECL(match_controlled, (dbref, const char *));
 

@@ -216,7 +216,7 @@ FUNCTION(fun_owner)
 	dbref it, aowner;
 	int atr, aflags;
 
-	if (parse_attrib(player, fargs[0], &it, &atr)) {
+	if (parse_attrib(player, fargs[0], &it, &atr, 1)) {
 		if (atr == NOTHING) {
 			it = NOTHING;
 		} else {
@@ -649,14 +649,15 @@ FUNCTION(fun_visible)
 		safe_chr('0', buff, bufc);
 		return;
 	}
-	if (parse_attrib(player, fargs[1], &thing, &atr)) {
+	if (parse_attrib(player, fargs[1], &thing, &atr, 1)) {
 		if (atr == NOTHING) {
 			safe_bool(buff, bufc, Examinable(it, thing));
 			return;
 		}
 		ap = atr_num(atr);
 		atr_pget_info(thing, atr, &aowner, &aflags);
-		safe_bool(buff, bufc, See_attr(it, thing, ap, aowner, aflags));
+		safe_bool(buff, bufc, See_attr_all(it, thing, ap, aowner,
+						   aflags, 1));
 		return;
 	}
 	thing = match_thing(player, fargs[1]);
@@ -678,7 +679,7 @@ FUNCTION(fun_flags)
 	int atr, aflags;
 	char *buff2, xbuf[16], *xbufp;
 
-	if (parse_attrib(player, fargs[0], &it, &atr)) {
+	if (parse_attrib(player, fargs[0], &it, &atr, 1)) {
 	    if (atr == NOTHING) {
 		safe_nothing(buff, bufc);
 	    } else {
@@ -839,7 +840,7 @@ FUNCTION(fun_hasflag)
     int atr, aflags;
     ATTR *ap;
 
-    if (parse_attrib(player, fargs[0], &it, &atr)) {
+    if (parse_attrib(player, fargs[0], &it, &atr, 1)) {
 	if (atr == NOTHING) {
 	    safe_str("#-1 NOT FOUND", buff, bufc);
 	} else {
@@ -1208,7 +1209,7 @@ static void perform_get(player, str, buff, bufc)
     char *atr_gotten;
     struct boolexp *bool;
 
-    if ((rval = parse_attrib(player, str, &thing, &attrib)) == 0) {
+    if ((rval = parse_attrib(player, str, &thing, &attrib, 0)) == 0) {
 	safe_nomatch(buff, bufc);
 	return;
     }
@@ -1270,7 +1271,7 @@ static void perform_get_eval(player, str, buff, bufc)
     char *atr_gotten;
     struct boolexp *bool;
 
-	if (!parse_attrib(player, str, &thing, &attrib)) {
+	if (!parse_attrib(player, str, &thing, &attrib, 0)) {
 		safe_nomatch(buff, bufc);
 		return;
 	}
@@ -1446,7 +1447,7 @@ FUNCTION(fun_default)
 	 */
 
 	if (objname != NULL) {
-	        if (parse_attrib(player, objname, &thing, &attrib)) {
+	        if (parse_attrib(player, objname, &thing, &attrib, 0)) {
 		    if (attrib == NOTHING) {
 			safe_noperm(buff, bufc);
 		    } else {
@@ -1494,7 +1495,7 @@ FUNCTION(fun_edefault)
 	 */
 
 	if (objname != NULL) {
-		if (parse_attrib(player, objname, &thing, &attrib)) {
+		if (parse_attrib(player, objname, &thing, &attrib, 0)) {
 		    if (attrib == NOTHING) {
 			safe_noperm(buff, bufc);
 		    } else {
@@ -1839,7 +1840,7 @@ static void handle_lattr(player, str, buff, bufc, count_only)
 	 */
 
 	olist_push();
-	if (parse_attrib_wild(player, str, &thing, 0, 0, 1)) {
+	if (parse_attrib_wild(player, str, &thing, 0, 0, 1, 1)) {
 		bb_p = *bufc;
 		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 			attr = atr_num(ca);
@@ -1978,7 +1979,7 @@ static int mem_usage_attr(player, str)
     int bytes_atext = 0;
 
     olist_push();
-    if (parse_attrib_wild(player, str, &thing, 0, 0, 1)) {
+    if (parse_attrib_wild(player, str, &thing, 0, 0, 1, 1)) {
 	for (atr = olist_first(); atr != NOTHING; atr = olist_next()) {
 	    ap = atr_num(atr);
 	    if (!ap)

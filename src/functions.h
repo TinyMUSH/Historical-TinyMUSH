@@ -151,7 +151,7 @@ if (s) { \
  */
 
 #define Parse_Uattr(p,s,t,n,a)				\
-    if (parse_attrib((p), (s), &(t), &(n))) {		\
+    if (parse_attrib((p), (s), &(t), &(n), 0)) {	\
 	if (((n) == NOTHING) || !(Good_obj(t)))		\
 	    (a) = NULL;					\
 	else						\

@@ -969,7 +969,7 @@ FUNCTION(fun_set)
 	if (check_command(player, "@set", buff, bufc))
 	    return;
 
-	if (parse_attrib(player, fargs[0], &thing, &atr)) {
+	if (parse_attrib(player, fargs[0], &thing, &atr, 0)) {
 		if (atr != NOTHING) {
 
 			/* must specify flag name */
@@ -1049,7 +1049,7 @@ FUNCTION(fun_set)
 		/* check for _ */
 		if (*p == '_') {
 			strcpy(buff2, p + 1);
-			if (!parse_attrib(player, p + 1, &thing2, &atr2) ||
+			if (!parse_attrib(player, p + 1, &thing2, &atr2, 0) ||
 			    (atr == NOTHING)) {
 				free_lbuf(buff2);
 				safe_nomatch(buff, bufc);
