@@ -185,6 +185,7 @@ XFUNCTION(fun_elock);
 XFUNCTION(fun_xcon);
 XFUNCTION(fun_lcon);
 XFUNCTION(fun_lexits);
+XFUNCTION(fun_entrances);
 XFUNCTION(fun_home);
 XFUNCTION(fun_money);
 XFUNCTION(fun_findable);
@@ -413,6 +414,7 @@ FUN flist[] = {
 {"ELOCK",	fun_elock,	2,  0,		CA_PUBLIC,	NULL},
 {"EMPTY",	fun_empty,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"ENCRYPT",	fun_encrypt,	2,  0,		CA_PUBLIC,	NULL},
+{"ENTRANCES",	fun_entrances,	0,  FN_VARARGS,	CA_NO_GUEST,	NULL},
 {"EQ",		fun_eq,		2,  0,		CA_PUBLIC,	NULL},
 {"ESCAPE",	fun_escape,	-1, 0,		CA_PUBLIC,	NULL},
 {"EXIT",	fun_exit,	1,  0,		CA_PUBLIC,	NULL},

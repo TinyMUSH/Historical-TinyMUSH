@@ -5382,19 +5382,20 @@ See also: @link, @open.
   Topic: Object Functions
  
 	andflags()	children()	con()		conn()
-	controls()	doing()		elock()		exit()
-	flags()		findable()	fullname()	hasflag()
-	haspower()	hastype()	home()		idle()
-	inzone()	lastaccess()	lastcreate()	lastmod()
-	lcon()		lexits()	lparent()	loc()
-	locate()	lock()		lwho()		mail()		
-	mailfrom()	money()		name()		nearby()
-	next()		num()		objmem()	orflags()
-	owner()		parent()	pfind()		playmem()
-	pmatch()	ports()		programmer()	rloc()		
-	room()		search()	sees()		session()	
-	stats()		type()		visible()	where()		
-	writable()	xcon()		zone()		zwho()
+	controls()	doing()		elock()		entrances()
+	exit()		flags()		findable()	fullname()
+	hasflag()	haspower()	hastype()	home()
+	idle()		inzone()	lastaccess()	lastcreate()
+	lastmod()	lcon()		lexits()	lparent()
+	loc()		locate()	lock()		lwho()
+	mail()		mailfrom()	money()		name()
+	nearby()	next()		num()		objmem()
+	orflags()	owner()		parent()	pfind()
+	playmem()	pmatch()	ports()		programmer()
+	rloc()		room()		search()	sees()
+	session()	stats()		type()		visible()
+	where()		writable()	xcon()		zone()
+	zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -8077,6 +8078,31 @@ performed and the walk down the list stops.
     > say lexits(here)
     You say "#302 #10 #9 #8 #6"
   See also: lcon(), @dolist, PARENT OBJECTS.
+
+& ENTRANCES()
+  Function: entrances([<loc>[,<type>[,<low>[,<high>]]]])
+ 
+  Returns a space-separated list of links from elsewhere to the specified
+  location (default: your current room).  The results may include exits and
+  drop-to's leading to <loc> as well as players and objects whose home is
+  <loc>.  Unlike @entrances, does not report parent/child linkage (see
+  children()).  Use <type> to restrict the types of entrances examined (may
+  use these letters: E (exit), T (thing), R (room), P (player); default
+  is A (all)).  Because this command is computationally expensive, it costs
+  100 coins.  <low> and <high> can be used to indicate where to start and
+  stop the search, respectively.  This function is provided for PennMUSH
+  compatibility.
+ 
+  You may only use this command on locations that you control, or else the
+  results will be limited to items you can examine.
+ 
+  Examples:
+    > say entrances()           <- all links to here
+    > say entrances(object)     <- all links to object
+    > say entrances(here,tp)    <- everything that lives here
+    > say entrances(me,a,1000)  <- all links to me from #1000 and above.
+ 
+  See also: @entrances, @link, link(), children(), lexits().
 
 & SECURE()
   Function: secure(<string>)
@@ -14046,14 +14072,17 @@ Continued in 'help 3.1 functions3'.
  
 - chomp() can now handle a lone CR or LF.
  
-- You can now get attribute flags with flags(<obj>/<attr>). Based on an
+- Added entrances() function, similar to @entrances command. Based on an
   idea from PennMUSH.
  
-- Added graball(), which is to grab() what matchall() is to match().
+- You can now get attribute flags with flags(<obj>/<attr>). Based on an
+  idea from PennMUSH.
  
 Continued in 'help 3.1 functions4'.
  
 & 3.1 functions4
+ 
+- Added graball(), which is to grab() what matchall() is to match().
  
 - The third argument to ifelse() -- the 'false' result -- is now optional.
  
@@ -14071,13 +14100,13 @@ Continued in 'help 3.1 functions4'.
 - The ljust(), rjust(), and center() functions can take multi-character
   fills.
  
-- The lunion(), linter(), and ldiff() functions are similar to setunion(),
-  etc., but an attempt is made to autodetect the list type and sort
-  accordingly, or you can specify a sort type, as you can with sort().
- 
 Continued in 'help 3.1 functions5'.
  
 & 3.1 functions5
+ 
+- The lunion(), linter(), and ldiff() functions are similar to setunion(),
+  etc., but an attempt is made to autodetect the list type and sort
+  accordingly, or you can specify a sort type, as you can with sort().
  
 - The modify() function now takes lists, enabling multiple variables
   to be modified at once.
@@ -14095,12 +14124,12 @@ Continued in 'help 3.1 functions5'.
   sees() now uses the object doing the looking, not the player invoking
   the function.
  
-- Added session(), which returns command count, bytes of input, and
-  bytes of output associated with a port.
- 
 Continued in 'help 3.1 functions6'.
  
 & 3.1 functions6
+ 
+- Added session(), which returns command count, bytes of input, and
+  bytes of output associated with a port.
  
 - Added store(), which is basically to setx() what setr() is to setq().
  
@@ -14116,15 +14145,15 @@ Continued in 'help 3.1 functions6'.
   a table of variably-wide columns (left/right/center-justified), with
   left and right-margin borders.
  
+Continued in 'help 3.1 functions7'.
+ 
+& 3.1 functions7
+ 
 - Added timefmt() function. This is essentially an interface to the C
   library function strftime(), allowing the time to be formatted in
   psuedo-arbitrary ways. Based on an idea from PennMUSH.
  
 - translate() now handles tabs.
- 
-Continued in 'help 3.1 functions7'.
- 
-& 3.1 functions7
  
 - Added sind(), cosd(), tand(), asind(), acosd(), atand() degree-based
   trigonometry functions.
@@ -14137,6 +14166,10 @@ Continued in 'help 3.1 functions7'.
  
 - Added whentrue() and whenfalse() functions, which go through a list
   iter()-style until a terminating boolean condition is reached.
+ 
+Continued in 'help 3.1 functions8'.
+ 
+& 3.1 functions8
  
 - Added wildgrep(), wildmatch(), and wildparse(), which are similar to
   regrep(), regmatch() and regparse(), but work against wildcard patterns

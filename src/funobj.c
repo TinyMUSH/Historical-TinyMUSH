@@ -573,6 +573,93 @@ FUNCTION(fun_lexits)
 	return;
 }
 
+/* ---------------------------------------------------------------------------
+ * fun_entrances: approximate equivalent of @entrances command.
+ * * borrowed in part from PennMUSH.
+ */
+
+FUNCTION(fun_entrances)
+{
+	dbref thing, i;
+	char *bb_p;
+	int low_bound, high_bound, control_thing;
+	int find_ex, find_th, find_pl, find_rm;
+
+	VaChk_Range(0, 4);
+	if (nfargs >= 3) {
+		low_bound = atoi(fargs[2] + (fargs[2][0] == NUMBER_TOKEN));
+		if (!Good_dbref(low_bound))
+			low_bound = 0;
+	} else {
+		low_bound = 0;
+	}
+	if (nfargs == 4) {
+		high_bound = atoi(fargs[3] + (fargs[3][0] == NUMBER_TOKEN));
+		if (!Good_dbref(high_bound))
+			high_bound = mudstate.db_top - 1;
+	} else {
+		high_bound = mudstate.db_top - 1;
+	}
+	find_ex = find_th = find_pl = find_rm = 0;
+	if (nfargs >= 2) {
+		for (bb_p = fargs[1]; *bb_p; ++bb_p) {
+			switch(*bb_p) {
+			case 'a': case 'A':
+				find_ex = find_th = find_pl = find_rm = 1;
+				break;
+			case 'e': case 'E': find_ex = 1; break;
+			case 't': case 'T': find_th = 1; break;
+			case 'p': case 'P': find_pl = 1; break;
+			case 'r': case 'R': find_rm = 1; break;
+			default:
+				safe_str("#-1 INVALID TYPE", buff, bufc);
+				return;
+			}
+		}
+	}
+	if (!find_ex && !find_th && !find_pl && !find_rm) {
+		find_ex = find_th = find_pl = find_rm = 1;
+	}
+	if (!*fargs[0]) {
+		if (Has_location(player))
+			thing = Location(player);
+		else
+			thing = player;
+		if (!Good_obj(thing)) {
+			safe_nothing(buff, bufc);
+			return;
+		}
+	} else {
+		init_match(player, fargs[0], NOTYPE);
+		match_everything(MAT_EXIT_PARENTS);
+		thing = noisy_match_result();
+		if (!Good_obj(thing)) {
+			safe_nothing(buff, bufc);
+			return;
+		}
+	}
+	if (!payfor(player, mudconf.searchcost)) {
+		notify(player, tprintf("You don't have enough %s.",
+				       mudconf.many_coins));
+		safe_nothing(buff, bufc);
+		return;
+	}
+	control_thing = Examinable(player, thing);
+	bb_p = *bufc;
+	for (i = low_bound; i <= high_bound; i++) {
+		if (control_thing || Examinable(player, i)) {
+			if ((find_ex && isExit(i) && (Location(i) == thing)) ||
+			    (find_rm && isRoom(i) && (Dropto(i) == thing)) ||
+			    (find_th && isThing(i) && (Home(i) == thing)) ||
+			    (find_pl && isPlayer(i) && (Home(i) == thing))) {
+				if (*bufc != bb_p)
+					safe_chr(' ', buff, bufc);
+				safe_dbref(buff, bufc, i);
+			}
+		}
+	}
+}
+
 /* --------------------------------------------------------------------------
  * fun_home: Return an object's home 
  */

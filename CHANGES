@@ -348,6 +348,9 @@ CHANGES TO FUNCTIONS
 
 - chomp() can now handle a lone CR or LF.
 
+- Added entrances() function, similar to @entrances command. Based on an
+  idea from PennMUSH.
+
 - You can now get attribute flags with flags(<obj>/<attr>). Based on an
   idea from PennMUSH.
 
