@@ -50,10 +50,12 @@ mv -f $DATA/$GDBM_DB $DATA/$CRASH_DB $DATA/$BACKUP_DB $DATA/mod_*.db db-$DBDATE
 #
 # Reload the archive.
 #
-echo "Loading flatfiles."
-EXT=`echo $ARCHIVE | cut -d'.' -f3`
-INFILE=`echo $ARCHIVE | cut -d'.' -f1,2`
-$UNZIP $ARCHIVE | tar -xf -
-
-$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
-rm $INFILE
+case $ARCHIVE in
+    *.tar.*) echo "Restoring archive."
+	INFILE=`echo $ARCHIVE | cut -d'.' -f1,2`
+	$UNZIP $ARCHIVE | tar -xvf -
+	$BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB < $INFILE
+	rm $INFILE ;;
+    *) echo "Restoring flatfile."	
+	$UNZIP $ARCHIVE | $BIN/dbconvert -c $GAMENAME.conf -X $DATA/$GDBM_DB ;;
+esac
