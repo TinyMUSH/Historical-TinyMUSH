@@ -5,8 +5,6 @@
 #include "autoconf.h"
 #include "config.h"
 
-#include <math.h>
-
 #include "alloc.h"	/* required by mudconf */
 #include "flags.h"	/* required by mudconf */
 #include "htab.h"	/* required by mudconf */
@@ -990,9 +988,10 @@ CF_AHAND(cf_site)
 			  "Mask bits (%d) in CIDR IP prefix out of range.",
 			  mask_bits);
 	    return -1;
+	} else if (mask_bits == 0) {
+	    mask_num.s_addr = htonl(0); /* can't shift by 32 */
 	} else {
-	    mask_num.s_addr = htonl(((unsigned int) pow(2, 32)) -
-				    ((unsigned int) pow(2, 32 - mask_bits)));
+	    mask_num.s_addr = htonl(0xFFFFFFFFU << (32 - mask_bits));
 	}
 
 	if ((addr_num.s_addr = sane_inet_addr(addr_txt)) == INADDR_NONE) {
