@@ -985,7 +985,7 @@ FUNCTION(fun_command)
 	!Check_Cmd_Access(player, cmdp, cargs, ncargs) ||
 	(!Builder(player) && Protect(CA_GBL_BUILD) &&
 	 !(mudconf.control_flags & CF_BUILD))) {
-	notify(player, "Permission denied.");
+	notify(player, NOPERM_MESSAGE);
 	return;
     }
 
