@@ -3,42 +3,14 @@
 
 #include "copyright.h"
 #include "autoconf.h"
-
-#include <limits.h>
-#include <math.h>
-
-#include "mudconf.h"
-#include "config.h"
-#include "db.h"
-#include "flags.h"
-#include "powers.h"
-#include "attrs.h"
-#include "externs.h"
-#include "match.h"
-#include "command.h"
 #include "functions.h"
-#include "misc.h"
-#include "alloc.h"
-#include "ansi.h"
 #include "pcre.h"
 #include "db_sql.h"
 
 extern NAMETAB indiv_attraccess_nametab[];
-extern char *FDECL(trim_space_sep, (char *, char));
-extern char *FDECL(next_token, (char *, char));
-extern char *FDECL(split_token, (char **, char));
-extern dbref FDECL(match_thing, (dbref, char *));
-extern int FDECL(countwords, (char *, char));
-extern int FDECL(check_read_perms, (dbref, dbref, ATTR *, int, int, char *, char **));
-extern void FDECL(arr2list, (char **, int, char *, char **, char));
-extern int FDECL(list2arr, (char **, int, char *, char));
 extern void FDECL(make_portlist, (dbref, dbref, char *, char **));
 extern INLINE char *FDECL(get_mail_message, (int));
 extern void FDECL(count_mail, (dbref, int, int *, int *, int *));
-extern double NDECL(makerandom);
-extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
-extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, dbref, dbref, char **, int, int));
-
 extern INLINE int FDECL(safe_chr_real_fn, (char, char *, char **, int));
 extern char *FDECL(upcasestr, (char *));
 extern void FDECL(do_pemit_list, (dbref, char *, const char *, int));
@@ -2623,15 +2595,7 @@ FUNCTION(fun_udefault)
      */
 
     if (objname != NULL) {
-	if (parse_attrib(player, objname, &thing, &anum)) {
-	    if ((anum == NOTHING) || (!Good_obj(thing)))
-		ap = NULL;
-	    else
-		ap = atr_num(anum);
-	} else {
-	    thing = player;
-	    ap = atr_str(objname);
-	}
+	Parse_Uattr(player, objname, thing, anum, ap);
 	if (ap) {
 	    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
 	    if (*atext &&
@@ -2979,24 +2943,9 @@ FUNCTION(fun_sortby)
 	}
 	svarargs_preamble("SORTBY", 4);
 
-	if (parse_attrib(player, fargs[0], &thing, &anum)) {
-		if ((anum == NOTHING) || !Good_obj(thing))
-			ap = NULL;
-		else
-			ap = atr_num(anum);
-	} else {
-		thing = player;
-		ap = atr_str(fargs[0]);
-	}
+	Parse_Uattr(player, fargs[0], thing, anum, ap);
+	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-	if (!ap) {
-		return;
-	}
-	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
-		free_lbuf(atext);
-		return;
-	}
 	strcpy(ucomp_buff, atext);
 	ucomp_player = thing;
 	ucomp_cause = cause;
@@ -3132,24 +3081,8 @@ FUNCTION(fun_mix)
 
     /* Get the attribute, check the permissions. */
 
-    if (parse_attrib(player, fargs[0], &thing, &anum)) {
-	if ((anum == NOTHING) || !Good_obj(thing))
-	    ap = NULL;
-	else
-	    ap = atr_num(anum);
-    } else {
-	thing = player;
-	ap = atr_str(fargs[0]);
-    }
-
-    if (!ap) {
-	return;
-    }
-    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-    if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
-	free_lbuf(atext);
-	return;
-    }
+    Parse_Uattr(player, fargs[0], thing, anum, ap);
+    Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
     for (i = 0; i < 10; i++)
 	cp[i] = NULL;
@@ -3255,32 +3188,9 @@ FUNCTION(fun_until)
      * we're doing.
      */
 
-    if (parse_attrib(player, fargs[0], &thing1, &anum1)) {
-	if ((anum1 == NOTHING) || !Good_obj(thing1))
-	    ap = NULL;
-	else
-	    ap = atr_num(anum1);
-    } else {
-	thing1 = player;
-	ap = atr_str(fargs[0]);
-    }
-    if (!ap)
-	return;
-    atext1 = atr_pget(thing1, ap->number, &aowner1, &aflags1, &alen1);
-    if (!*atext1 || !See_attr(player, thing1, ap, aowner1, aflags1)) {
-	free_lbuf(atext1);
-	return;
-    }
-
-    if (parse_attrib(player, fargs[1], &thing2, &anum2)) {
-	if ((anum2 == NOTHING) || !Good_obj(thing2))
-	    ap2 = NULL;
-	else
-	    ap2 = atr_num(anum2);
-    } else {
-	thing2 = player;
-	ap2 = atr_str(fargs[1]);
-    }
+    Parse_Uattr(player, fargs[0], thing1, anum1, ap);
+    Get_Uattr(player, thing1, ap, atext1, aowner1, aflags1, alen1);
+    Parse_Uattr(player, fargs[1], thing2, anum2, ap2);
     if (!ap2) {
 	free_lbuf(atext1);	/* we allocated this, remember? */
 	return;
@@ -3401,23 +3311,8 @@ FUNCTION(fun_step)
 
     /* Get attribute. Check permissions. */
 
-    if (parse_attrib(player, fargs[0], &thing, &anum)) {
-	if ((anum == NOTHING) || !Good_obj(thing))
-	    ap = NULL;
-	else
-	    ap = atr_num(anum);
-    } else {
-	thing = player;
-	ap = atr_str(fargs[0]);
-    }
-    if (!ap)
-	return;
-
-    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-    if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
-	free_lbuf(atext);
-	return;
-    }
+    Parse_Uattr(player, fargs[0], thing, anum, ap);
+    Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
     cp = trim_space_sep(fargs[1], sep);
     atextbuf = alloc_lbuf("fun_step");
@@ -3456,24 +3351,9 @@ FUNCTION(fun_foreach)
     if (!fn_range_check("FOREACH", nfargs, 2, 4, buff, bufc))
 	return;
 
-    if (parse_attrib(player, fargs[0], &thing, &anum)) {
-	if ((anum == NOTHING) || !Good_obj(thing))
-	    ap = NULL;
-	else
-	    ap = atr_num(anum);
-    } else {
-	thing = player;
-	ap = atr_str(fargs[0]);
-    }
+    Parse_Uattr(player, fargs[0], thing, anum, ap);
+    Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-    if (!ap) {
-	return;
-    }
-    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-    if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
-	free_lbuf(atext);
-	return;
-    }
     atextbuf = alloc_lbuf("fun_foreach");
     cbuf = alloc_lbuf("fun_foreach.cbuf");
     cp = trim_space_sep(fargs[1], ' ');
@@ -3549,24 +3429,9 @@ FUNCTION(fun_munge)
 
 	/* Find our object and attribute */
 
-	if (parse_attrib(player, fargs[0], &thing, &anum)) {
-		if ((anum == NOTHING) || !Good_obj(thing))
-			ap = NULL;
-		else
-			ap = atr_num(anum);
-	} else {
-		thing = player;
-		ap = atr_str(fargs[0]);
-	}
+	Parse_Uattr(player, fargs[0], thing, anum, ap);
+	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-	if (!ap) {
-		return;
-	}
-	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
-		free_lbuf(atext);
-		return;
-	}
 	/* Copy our lists and chop them up. */
 
 	list1 = alloc_lbuf("fun_munge.list1");

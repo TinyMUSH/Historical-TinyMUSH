@@ -9,7 +9,6 @@
 #include "interface.h"
 #include "mudconf.h"
 #include "command.h"
-#include "functions.h"
 #include "externs.h"
 #include "match.h"
 #include "attrs.h"
@@ -27,6 +26,7 @@ extern void FDECL(logged_out, (dbref, dbref, int, char *));
 extern void NDECL(boot_slave);
 extern void NDECL(vattr_clean_db);
 extern void NDECL(match_zone_exit);
+extern void FDECL(list_functable, (dbref));
 
 #ifndef MEMORY_BASED
 extern void FDECL(list_cached_objs, (dbref));

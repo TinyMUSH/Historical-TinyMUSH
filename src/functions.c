@@ -3,17 +3,7 @@
 
 #include "copyright.h"
 #include "autoconf.h"
-
-#include <limits.h>
-#include <math.h>
-
-#include "externs.h"
-#include "misc.h"
-#include "attrs.h"
-#include "match.h"
-#include "command.h"
 #include "functions.h"
-#include "ansi.h"
 
 #ifdef FLOATING_POINTS
 #ifndef linux                   /* linux defines atof as a macro */
@@ -187,100 +177,6 @@ XFUNCTION(fun_tclregs);
 	int nfargs, ncargs;
 
 
-/* Macro for skipping to the end of an ANSI code, if we're at the
- * beginning of one. 
- */
-#define Skip_Ansi_Code(s) \
-	    savep = s;				\
-	    while (*s && (*s != ANSI_END)) {	\
-		safe_chr(*s, buff, bufc);	\
-		s++;				\
-	    }					\
-	    if (*s) {				\
-		safe_chr(*s, buff, bufc);	\
-		s++;				\
-	    }					\
-	    if (!strncmp(savep, ANSI_NORMAL, 4)) {	\
-		have_normal = 1;		\
-	    } else {				\
-		have_normal = 0;		\
-            }
-
-/* ---------------------------------------------------------------------------
- * Trim off leading and trailing spaces if the separator char is a space
- */
-
-char *trim_space_sep(str, sep)
-char *str, sep;
-{
-	char *p;
-
-	if (sep != ' ')
-		return str;
-	while (*str && (*str == ' '))
-		str++;
-	for (p = str; *p; p++) ;
-	for (p--; *p == ' ' && p > str; p--) ;
-	p++;
-	*p = '\0';
-	return str;
-}
-
-/* next_token: Point at start of next token in string */
-
-char *next_token(str, sep)
-char *str, sep;
-{
-	while (*str && (*str != sep))
-		str++;
-	if (!*str)
-		return NULL;
-	str++;
-	if (sep == ' ') {
-		while (*str == sep)
-			str++;
-	}
-	return str;
-}
-
-/* split_token: Get next token from string as null-term string.  String is
- * destructively modified.
- */
-
-char *split_token(sp, sep)
-char **sp, sep;
-{
-	char *str, *save;
-
-	save = str = *sp;
-	if (!str) {
-		*sp = NULL;
-		return NULL;
-	}
-	while (*str && (*str != sep))
-		str++;
-	if (*str) {
-		*str++ = '\0';
-		if (sep == ' ') {
-			while (*str == sep)
-				str++;
-		}
-	} else {
-		str = NULL;
-	}
-	*sp = str;
-	return save;
-}
-
-dbref match_thing(player, name)
-dbref player;
-char *name;
-{
-	init_match(player, name, NOTYPE);
-	match_everything(MAT_EXIT_PARENTS);
-	return (noisy_match_result());
-}
-
 /* ---------------------------------------------------------------------------
  * List management utilities.
  */
@@ -368,36 +264,6 @@ int nfargs, nitems, type_pos;
 	return autodetect_list(ptrs, nitems);
 }
 
-int list2arr(arr, maxlen, list, sep)
-char *arr[], *list, sep;
-int maxlen;
-{
-	char *p;
-	int i;
-
-	list = trim_space_sep(list, sep);
-	p = split_token(&list, sep);
-	for (i = 0; p && i < maxlen; i++, p = split_token(&list, sep)) {
-		arr[i] = p;
-	}
-	return i;
-}
-
-void arr2list(arr, alen, list, bufc, sep)
-char *arr[], **bufc, *list, sep;
-int alen;
-{
-	int i;
-
-	if (alen) {
-	    safe_str(arr[0], list, bufc);
-	}
-	for (i = 1; i < alen; i++) {
-	    print_sep(sep, list, bufc);
-	    safe_str(arr[i], list, bufc);
-	}
-}
-
 static int dbnum(dbr)
 char *dbr;
 {
@@ -411,7 +277,7 @@ char *dbr;
  * nearby_or_control: Check if player is near or controls thing
  */
 
-int nearby_or_control(player, thing)
+static int nearby_or_control(player, thing)
 dbref player, thing;
 {
 	if (!Good_obj(player) || !Good_obj(thing))
@@ -545,147 +411,9 @@ double result;
 #endif
 
 /* ---------------------------------------------------------------------------
- * Random number generator. This uses Whip's implementation of an algorithm
- * in the _Communications of the ACM_, Volume 31, Number 10, from the article
- * "Random Number Generators: Good Ones are Hard to Find" (S.K. Park,
- * K.W. Miller).
- */
-
-double makerandom()
-{
-    /* An int must be at least 32 bits. Don't change these constants. */
-
-    const unsigned int a = 16807;
-    const unsigned int m = 2147482647;
-    const unsigned int q = 127773; /* m div a */
-    const unsigned int r = 2836;   /* m mod a */
-
-    unsigned int lo, hi;
-    int test;
-    static unsigned int seed = 0;
-  
-    /* This isn't the best seed in the world, but it's portable. There's
-     * nothing truly random that's portable to get to, unfortunately. We're
-     * going to adjust with the PID because any normal user can get the time
-     * the MUSH started (or close to it) trivially, which would make the whole
-     * sequence predictable. Using PID isn't much better, but it's portable, 
-     * and means you at least have to have machine access to figure it out
-     * (or be a wizard).
-     */
-
-    if (!seed) seed = time(NULL) + (int) getpid();
-
-    hi = seed / q; 
-    lo = seed % q;
-  
-    test = (a * lo) - (r * hi);
-
-    if (test > 0) {
-	seed = test;
-    } else {
-	seed = test + m;
-    }
-
-    return ((double) seed / m);
-}
-
-/* ---------------------------------------------------------------------------
- * fn_range_check: Check # of args to a function with an optional argument
- * for validity.
- */
-
-int fn_range_check(fname, nfargs, minargs, maxargs, result, bufc)
-const char *fname;
-char *result, **bufc;
-int nfargs, minargs, maxargs;
-{
-	if ((nfargs >= minargs) && (nfargs <= maxargs))
-		return 1;
-
-	if (maxargs == (minargs + 1))
-		safe_tprintf_str(result, bufc, "#-1 FUNCTION (%s) EXPECTS %d OR %d ARGUMENTS",
-				 fname, minargs, maxargs);
-	else
-		safe_tprintf_str(result, bufc, "#-1 FUNCTION (%s) EXPECTS BETWEEN %d AND %d ARGUMENTS",
-				 fname, minargs, maxargs);
-	return 0;
-}
-
-/* ---------------------------------------------------------------------------
- * delim_check: obtain delimiter
- */
-
-int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc, eval, player, cause,
-		cargs, ncargs, allow_special)
-char *fargs[], *cargs[], *sep, *buff, **bufc;
-int nfargs, ncargs, sep_arg, eval, allow_special;
-dbref player, cause;
-{
-	char *tstr, *bp, *str;
-	int tlen;
-
-	if (nfargs >= sep_arg) {
-		tlen = strlen(fargs[sep_arg - 1]);
-		if (tlen <= 1)
-			eval = 0;
-		if (eval) {
-			tstr = bp = alloc_lbuf("delim_check");
-			str = fargs[sep_arg - 1];
-			exec(tstr, &bp, 0, player, cause, EV_EVAL | EV_FCHECK,
-			     &str, cargs, ncargs);
-			*bp = '\0';
-			if (allow_special &&
-			    !strcmp(tstr, (char *) NULL_DELIM_VAR)) {
-			    *sep = '\0';
-			    tlen = 1;
-			} else if (allow_special &&
-				   !strcmp(tstr, (char *) "\r\n")) {
-			    *sep = '\r';
-			    tlen = 1;
-			} else {
-			    tlen = strlen(tstr);
-			    *sep = *tstr;
-			}
-			free_lbuf(tstr);
-		}
-		if (tlen == 0) {
-			*sep = ' ';
-		} else if (allow_special && !eval && (tlen == 2) &&
-			   !strcmp(fargs[sep_arg - 1],
-				   (char *) NULL_DELIM_VAR)) {
-		        *sep = '\0';
-		} else if (allow_special && !eval && (tlen == 2) &&
-			   !strcmp(fargs[sep_arg - 1], (char *) "\r\n")) {
-		        *sep = '\r';
-		} else if (tlen != 1) {
-			safe_str("#-1 SEPARATOR MUST BE ONE CHARACTER",
-				 buff, bufc);
-			return 0;
-		} else if (!eval) {
-			*sep = *fargs[sep_arg - 1];
-		}
-	} else {
-		*sep = ' ';
-	}
-	return 1;
-}
-
-/* ---------------------------------------------------------------------------
  * fun_words: Returns number of words in a string.
  * Added 1/28/91 Philip D. Wasson
  */
-
-int countwords(str, sep)
-char *str, sep;
-{
-	int n;
-
-	str = trim_space_sep(str, sep);
-	if (!*str)
-		return 0;
-	for (n = 0; str; str = next_token(str, sep), n++) ;
-	return n;
-}
 
 FUNCTION(fun_words)
 {
@@ -1001,109 +729,90 @@ FUNCTION(fun_restarttime)
  * fun_get, fun_get_eval: Get attribute from object.
  */
 
-int check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)
-dbref player, thing;
-ATTR *attr;
-int aowner, aflags;
-char *buff, **bufc;
+static void perform_get(player, str, buff, bufc)
+    dbref player;
+    char *str;
+    char *buff, **bufc;
 {
-	int see_it;
+    dbref thing, aowner;
+    int attrib, free_buffer, aflags, alen;
+    ATTR *attr;
+    char *atr_gotten;
+    struct boolexp *bool;
 
-	/* If we have explicit read permission to the attr, return it */
-
-	if (See_attr_explicit(player, thing, attr, aowner, aflags))
-		return 1;
-
-	/* If we are nearby or have examine privs to the attr and it is 
-	 * visible to us, return it. 
-	 */
-
-	see_it = See_attr(player, thing, attr, aowner, aflags);
-	if ((Examinable(player, thing) || nearby(player, thing) || See_All(player)) && see_it)
-		return 1;
-
-	/* For any object, we can read its visible attributes, EXCEPT for
-	 * descs, which are only visible if read_rem_desc is on. 
-	 */
-
-	if (see_it) {
-		if (!mudconf.read_rem_desc && (attr->number == A_DESC)) {
-			safe_str("#-1 TOO FAR AWAY TO SEE", buff, bufc);
-			return 0;
-		} else {
-			return 1;
-		}
+    if (!parse_attrib(player, str, &thing, &attrib)) {
+	safe_nomatch(buff, bufc);
+	return;
+    }
+    if (attrib == NOTHING) {
+	return;
+    }
+    free_buffer = 1;
+    attr = atr_num(attrib);	/* We need the attr's flags for this: */
+    if (!attr) {
+	return;
+    }
+    if (attr->flags & AF_IS_LOCK) {
+	atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
+	if (Read_attr(player, thing, attr, aowner, aflags)) {
+	    bool = parse_boolexp(player, atr_gotten, 1);
+	    free_lbuf(atr_gotten);
+	    atr_gotten = unparse_boolexp(player, bool);
+	    free_boolexp(bool);
+	} else {
+	    free_lbuf(atr_gotten);
+	    atr_gotten = (char *)"#-1 PERMISSION DENIED";
 	}
-	safe_noperm(buff, bufc);
-	return 0;
+	free_buffer = 0;
+    } else {
+	atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
+    }
+
+    /* Perform access checks.  c_r_p fills buff with an error message
+     * if needed. 
+     */
+
+    if (check_read_perms(player, thing, attr, aowner, aflags,
+			 buff, bufc)) {
+	if (free_buffer)
+	    safe_known_str(atr_gotten, alen, buff, bufc);
+	else
+	    safe_str(atr_gotten, buff, bufc);
+    }
+
+    if (free_buffer)
+	free_lbuf(atr_gotten);
+    return;
 }
 
 FUNCTION(fun_get)
 {
-	dbref thing, aowner;
-	int attrib, free_buffer, aflags, alen;
-	ATTR *attr;
-	char *atr_gotten;
-	struct boolexp *bool;
-
-	if (!parse_attrib(player, fargs[0], &thing, &attrib)) {
-		safe_nomatch(buff, bufc);
-		return;
-	}
-	if (attrib == NOTHING) {
-		return;
-	}
-	free_buffer = 1;
-	attr = atr_num(attrib);	/* We need the attr's flags for this: */
-	if (!attr) {
-		return;
-	}
-	if (attr->flags & AF_IS_LOCK) {
-		atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
-		if (Read_attr(player, thing, attr, aowner, aflags)) {
-			bool = parse_boolexp(player, atr_gotten, 1);
-			free_lbuf(atr_gotten);
-			atr_gotten = unparse_boolexp(player, bool);
-			free_boolexp(bool);
-		} else {
-			free_lbuf(atr_gotten);
-			atr_gotten = (char *)"#-1 PERMISSION DENIED";
-		}
-		free_buffer = 0;
-	} else {
-		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
-	}
-
-	/* Perform access checks.  c_r_p fills buff with an error message
-	 * if needed. 
-	 */
-
-	if (check_read_perms(player, thing, attr, aowner, aflags,
-			     buff, bufc)) {
-	    if (free_buffer)
-		safe_known_str(atr_gotten, alen, buff, bufc);
-	    else
-		safe_str(atr_gotten, buff, bufc);
-	}
-
-	if (free_buffer)
-		free_lbuf(atr_gotten);
-	return;
+	perform_get(player, fargs[0], buff, bufc);
 }
 
 FUNCTION(fun_xget)
 {
-	dbref thing, aowner;
-	int attrib, free_buffer, aflags, alen;
-	ATTR *attr;
-	char *atr_gotten;
-	struct boolexp *bool;
+	dbref thing;
+	int attrib;
 
 	if (!*fargs[0] || !*fargs[1])
 		return;
+	perform_get(player, tprintf("%s/%s", fargs[0], fargs[1]),
+		    buff, bufc);
+}
 
-	if (!parse_attrib(player, tprintf("%s/%s", fargs[0], fargs[1]),
-			  &thing, &attrib)) {
+static void perform_get_eval(player, str, buff, bufc)
+    dbref player;
+    char *str;
+    char *buff, **bufc;
+{
+    dbref thing, aowner;
+    int attrib, free_buffer, aflags, alen, eval_it;
+    ATTR *attr;
+    char *atr_gotten;
+    struct boolexp *bool;
+
+	if (!parse_attrib(player, str, &thing, &attrib)) {
 		safe_nomatch(buff, bufc);
 		return;
 	}
@@ -1111,6 +820,7 @@ FUNCTION(fun_xget)
 		return;
 	}
 	free_buffer = 1;
+	eval_it = 1;
 	attr = atr_num(attrib);	/* We need the attr's flags for this: */
 	if (!attr) {
 		return;
@@ -1127,22 +837,22 @@ FUNCTION(fun_xget)
 			atr_gotten = (char *)"#-1 PERMISSION DENIED";
 		}
 		free_buffer = 0;
+		eval_it = 0;
 	} else {
 		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
 	}
-
-	/* Perform access checks.  c_r_p fills buff with an error message  
-	 * if needed. 
-	 */
-
-	if (check_read_perms(player, thing, attr, aowner, aflags,
-			     buff, bufc)) {
-	    if (free_buffer)
-		safe_known_str(atr_gotten, alen, buff, bufc);
-	    else
+	if (!check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)) {
+		if (free_buffer)
+			free_lbuf(atr_gotten);
+		return;
+	}
+	if (eval_it) {
+		str = atr_gotten;
+		exec(buff, bufc, 0, thing, player, EV_FIGNORE | EV_EVAL, &str,
+		     (char **)NULL, 0);
+	} else {
 		safe_str(atr_gotten, buff, bufc);
 	}
-
 	if (free_buffer)
 		free_lbuf(atr_gotten);
 	return;
@@ -1150,134 +860,27 @@ FUNCTION(fun_xget)
 
 FUNCTION(fun_get_eval)
 {
-	dbref thing, aowner;
-	int attrib, free_buffer, aflags, alen, eval_it;
-	ATTR *attr;
-	char *atr_gotten, *str;
-	struct boolexp *bool;
-
-	if (!parse_attrib(player, fargs[0], &thing, &attrib)) {
-		safe_nomatch(buff, bufc);
-		return;
-	}
-	if (attrib == NOTHING) {
-		return;
-	}
-	free_buffer = 1;
-	eval_it = 1;
-	attr = atr_num(attrib);	/* We need the attr's flags for this: */
-	if (!attr) {
-		return;
-	}
-	if (attr->flags & AF_IS_LOCK) {
-		atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
-		if (Read_attr(player, thing, attr, aowner, aflags)) {
-			bool = parse_boolexp(player, atr_gotten, 1);
-			free_lbuf(atr_gotten);
-			atr_gotten = unparse_boolexp(player, bool);
-			free_boolexp(bool);
-		} else {
-			free_lbuf(atr_gotten);
-			atr_gotten = (char *)"#-1 PERMISSION DENIED";
-		}
-		free_buffer = 0;
-		eval_it = 0;
-	} else {
-		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
-	}
-	if (!check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)) {
-		if (free_buffer)
-			free_lbuf(atr_gotten);
-		return;
-	}
-	if (eval_it) {
-		str = atr_gotten;
-		exec(buff, bufc, 0, thing, player, EV_FIGNORE | EV_EVAL, &str,
-		     (char **)NULL, 0);
-	} else {
-		safe_str(atr_gotten, buff, bufc);
-	}
-	if (free_buffer)
-		free_lbuf(atr_gotten);
-	return;
+    perform_get_eval(player, fargs[0], buff, bufc);
 }
 
-FUNCTION(fun_subeval)
-{
-	char *str;
-	
-	str = fargs[0];
-	exec(buff, bufc, 0, player, cause,
-	     EV_NO_LOCATION|EV_NOFCHECK|EV_FIGNORE|EV_NO_COMPRESS,
-	     &str, (char **)NULL, 0);
-}	
 
 FUNCTION(fun_eval)
 {
-	dbref thing, aowner;
-	int attrib, free_buffer, aflags, alen, eval_it;
-	ATTR *attr;
-	char *atr_gotten, *str;
-	struct boolexp *bool;
+    char *str;
 
-	if ((nfargs != 1) && (nfargs != 2)) {
-		safe_str("#-1 FUNCTION (EVAL) EXPECTS 1 OR 2 ARGUMENTS", buff, bufc);
-		return;
-	}
-	if (nfargs == 1) {
-		str = fargs[0];
-		exec(buff, bufc, 0, player, cause, EV_EVAL|EV_FCHECK,
-		     &str, (char **)NULL, 0);
-		return;
-	}
-	if (!*fargs[0] || !*fargs[1])
-		return;
-
-	if (!parse_attrib(player, tprintf("%s/%s", fargs[0], fargs[1]),
-			  &thing, &attrib)) {
-		safe_nomatch(buff, bufc);
-		return;
-	}
-	if (attrib == NOTHING) {
-		return;
-	}
-	free_buffer = 1;
-	eval_it = 1;
-	attr = atr_num(attrib);
-	if (!attr) {
-		return;
-	}
-	if (attr->flags & AF_IS_LOCK) {
-		atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
-		if (Read_attr(player, thing, attr, aowner, aflags)) {
-			bool = parse_boolexp(player, atr_gotten, 1);
-			free_lbuf(atr_gotten);
-			atr_gotten = unparse_boolexp(player, bool);
-			free_boolexp(bool);
-		} else {
-			free_lbuf(atr_gotten);
-			atr_gotten = (char *)"#-1 PERMISSION DENIED";
-		}
-		free_buffer = 0;
-		eval_it = 0;
-	} else {
-		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
-	}
-	if (!check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)) {
-		if (free_buffer)
-			free_lbuf(atr_gotten);
-		return;
-	}
-	if (eval_it) {
-		str = atr_gotten;
-		exec(buff, bufc, 0, thing, player, EV_FIGNORE | EV_EVAL, &str,
-		     (char **)NULL, 0);
-	} else {
-		safe_str(atr_gotten, buff, bufc);
-	}
-	if (free_buffer)
-		free_lbuf(atr_gotten);
+    if ((nfargs != 1) && (nfargs != 2)) {
+	safe_str("#-1 FUNCTION (EVAL) EXPECTS 1 OR 2 ARGUMENTS", buff, bufc);
 	return;
+    }
+    if (nfargs == 1) {
+	str = fargs[0];
+	exec(buff, bufc, 0, player, cause, EV_EVAL|EV_FCHECK,
+	     &str, (char **)NULL, 0);
+	return;
+    }
+    if (!*fargs[0] || !*fargs[1])
+	return;
+    perform_get_eval(player, tprintf("%s/%s", fargs[0], fargs[1]), buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1306,28 +909,9 @@ int nfargs, ncargs, is_local;
 	}
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
-	if (parse_attrib(player, fargs[0], &thing, &anum)) {
-		if ((anum == NOTHING) || (!Good_obj(thing)))
-			ap = NULL;
-		else
-			ap = atr_num(anum);
-	} else {
-		thing = player;
-		ap = atr_str(fargs[0]);
-	}
+	Parse_Uattr(player, fargs[0], thing, anum, ap);
+	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-	/* Make sure we got a good attribute */
-
-	if (!ap) {
-		return;
-	}
-	/* Use it if we can access it, otherwise return an error. */
-
-	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!*atext) {
-		free_lbuf(atext);
-		return;
-	}
 	if (!check_read_perms(player, thing, ap, aowner, aflags, buff, bufc)) {
 		free_lbuf(atext);
 		return;
@@ -1594,6 +1178,7 @@ FUNCTION(fun_v)
 
 /* ---------------------------------------------------------------------------
  * fun_s: Force substitution to occur.
+ * fun_subeval: Like s(), but don't do function evaluations.
  */
 
 FUNCTION(fun_s)
@@ -1604,6 +1189,16 @@ FUNCTION(fun_s)
 	exec(buff, bufc, 0, player, cause, EV_FIGNORE | EV_EVAL, &str,
 	     cargs, ncargs);
 }
+
+FUNCTION(fun_subeval)
+{
+	char *str;
+	
+	str = fargs[0];
+	exec(buff, bufc, 0, player, cause,
+	     EV_NO_LOCATION|EV_NOFCHECK|EV_FIGNORE|EV_NO_COMPRESS,
+	     &str, (char **)NULL, 0);
+}	
 
 /* ---------------------------------------------------------------------------
  * fun_con: Returns first item in contents list of object/room
@@ -2007,43 +1602,6 @@ FUNCTION(fun_extract)
 	if (s && *s)
 		t = split_token(&s, sep);
 	safe_str(r, buff, bufc);
-}
-
-int xlate(arg)
-char *arg;
-{
-	char *temp2;
-
-	if (arg[0] == '#') {
-		arg++;
-		if (is_integer(arg)) {
-		    if (mudconf.bools_oldstyle) {
-			switch (atoi(arg)) {
-			    case -1:
-				return 0;
-			    case 0:
-				return 0;
-			    default:
-				return 1;
-			}
-		    } else {
-			return (atoi(arg) >= 0);
-		    }
-		}
-		if (mudconf.bools_oldstyle) {
-		    return 0;
-		} else {
-		    /* Case of '#-1 <string>' */
-		    return !((arg[0] == '-') && (arg[1] == '1') &&
-			     (arg[2] == ' '));
-		}
-	}
-	temp2 = trim_space_sep(arg, ' ');
-	if (!*temp2)
-		return 0;
-	if (is_integer(temp2))
-		return atoi(temp2);
-	return 1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -4691,28 +4249,9 @@ FUNCTION(fun_fold)
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
-	if (parse_attrib(player, fargs[0], &thing, &anum)) {
-		if ((anum == NOTHING) || (!Good_obj(thing)))
-			ap = NULL;
-		else
-			ap = atr_num(anum);
-	} else {
-		thing = player;
-		ap = atr_str(fargs[0]);
-	}
+	Parse_Uattr(player, fargs[0], thing, anum, ap);
+	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-	/* Make sure we got a good attribute */
-
-	if (!ap) {
-		return;
-	}
-	/* Use it if we can access it, otherwise return an error. */
-
-	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
-		free_lbuf(atext);
-		return;
-	}
 	/* Evaluate it using the rest of the passed function args */
 
 	cp = curr = fargs[1];
@@ -4791,30 +4330,9 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
-	if (parse_attrib(player, arg_func, &thing, &anum)) {
-		if ((anum == NOTHING) || (!Good_obj(thing)))
-			ap = NULL;
-		else
-			ap = atr_num(anum);
-	} else {
-		thing = player;
-		ap = atr_str(arg_func);
-	}
+	Parse_Uattr(player, arg_func, thing, anum, ap);
+	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-	/* Make sure we got a good attribute */
-
-	if (!ap) {
-		return;
-	}
-	/*
-	 * Use it if we can access it, otherwise return an error. 
-	 */
-
-	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
-		free_lbuf(atext);
-		return;
-	}
 	/* Now iteratively eval the attrib with the argument list */
 
 	cp = curr = trim_space_sep(arg_list, sep);
@@ -4883,28 +4401,9 @@ FUNCTION(fun_map)
 
 	/* Two possibilities for the second arg: <obj>/<attr> and <attr>. */
 
-	if (parse_attrib(player, fargs[0], &thing, &anum)) {
-		if ((anum == NOTHING) || (!Good_obj(thing)))
-			ap = NULL;
-		else
-			ap = atr_num(anum);
-	} else {
-		thing = player;
-		ap = atr_str(fargs[0]);
-	}
+	Parse_Uattr(player, fargs[0], thing, anum, ap);
+	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-	/* Make sure we got a good attribute */
-
-	if (!ap) {
-		return;
-	}
-	/* Use it if we can access it, otherwise return an error. */
-
-	atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	if (!*atext || !See_attr(player, thing, ap, aowner, aflags)) {
-		free_lbuf(atext);
-		return;
-	}
 	/* now process the list one element at a time */
 
 	cp = trim_space_sep(fargs[1], sep);
@@ -4957,32 +4456,9 @@ FUNCTION(fun_while)
      * we're doing.
      */
 
-    if (parse_attrib(player, fargs[0], &thing1, &anum1)) {
-	if ((anum1 == NOTHING) || !Good_obj(thing1))
-	    ap = NULL;
-	else
-	    ap = atr_num(anum1);
-    } else {
-	thing1 = player;
-	ap = atr_str(fargs[0]);
-    }
-    if (!ap)
-	return;
-    atext1 = atr_pget(thing1, ap->number, &aowner1, &aflags1, &alen1);
-    if (!*atext1 || !See_attr(player, thing1, ap, aowner1, aflags1)) {
-	free_lbuf(atext1);
-	return;
-    }
-
-    if (parse_attrib(player, fargs[1], &thing2, &anum2)) {
-	if ((anum2 == NOTHING) || !Good_obj(thing2))
-	    ap2 = NULL;
-	else
-	    ap2 = atr_num(anum2);
-    } else {
-	thing2 = player;
-	ap2 = atr_str(fargs[1]);
-    }
+    Parse_Uattr(player, fargs[0], thing1, anum1, ap);
+    Get_Uattr(player, thing1, ap, atext1, aowner1, aflags1, alen1);
+    Parse_Uattr(player, fargs[1], thing2, anum2, ap2);
     if (!ap2) {
 	free_lbuf(atext1);	/* we allocated this, remember? */
 	return;

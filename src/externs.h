@@ -548,6 +548,13 @@ extern void	FDECL(toast_player, (dbref));
 #define EV_NO_LOCATION	0x00080000	/* Supresses %l */
 #define EV_NOFCHECK	0x00100000	/* Do not evaluate functions! */
 
+/* Function types */
+
+#define	FN_VARARGS	1	/* Function allows a variable # of args */
+#define	FN_NO_EVAL	2	/* Don't evaluate args to function */
+#define	FN_PRIV		4	/* Perform user-def function as holding obj */
+#define FN_PRES		8	/* Preseve r-regs before user-def functions */
+
 /* Message forwarding directives */
 
 #define	MSG_PUP_ALWAYS	1	/* Always forward msg to puppet own */

@@ -6,6 +6,17 @@
 #ifndef __FUNCTIONS_H
 #define __FUNCTIONS_H
 
+#include <limits.h>
+#include <math.h>
+
+#include "externs.h"
+#include "misc.h"
+#include "attrs.h"
+#include "match.h"
+#include "command.h"
+#include "functions.h"
+#include "ansi.h"
+
 typedef struct fun {
 	const char *name;	/* function name */
 	void	(*fun)();	/* handler */
@@ -28,10 +39,19 @@ struct var_entry {
     char *text;			/* variable text */
 };
 
-#define	FN_VARARGS	1	/* Function allows a variable # of args */
-#define	FN_NO_EVAL	2	/* Don't evaluate args to function */
-#define	FN_PRIV		4	/* Perform user-def function as holding obj */
-#define FN_PRES		8	/* Preseve r-regs before user-def functions */
+/* Function declarations */
+
+extern char *FDECL(trim_space_sep, (char *, char));
+extern char *FDECL(next_token, (char *, char));
+extern char *FDECL(split_token, (char **, char));
+extern int FDECL(countwords, (char *, char));
+extern int FDECL(list2arr, (char **, int, char *, char));
+extern void FDECL(arr2list, (char **, int, char *, char **, char));
+extern dbref FDECL(match_thing, (dbref, char *));
+extern double NDECL(makerandom);
+extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
+extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, dbref, dbref, char **, int, int));
+extern int FDECL(check_read_perms, (dbref, dbref, ATTR *, int, int, char *, char **));
 
 /* This is for functions that take an optional delimiter character.
  *
@@ -102,7 +122,49 @@ if (s) { \
     } \
 }
 
-extern void	NDECL(init_functab);
-extern void	FDECL(list_functable, (dbref));
+/* Macro for finding an <attr> or <obj>/<attr>
+ */
+
+#define Parse_Uattr(p,s,t,n,a)				\
+    if (parse_attrib((p), (s), &(t), &(n))) {		\
+	if (((n) == NOTHING) || !(Good_obj(t)))		\
+	    (a) = NULL;					\
+	else						\
+	    (a) = atr_num(n);				\
+    } else {						\
+        (t) = (p);					\
+	(a) = atr_str(s);				\
+    }
+
+/* Macro for obtaining an attrib. */
+
+#define Get_Uattr(p,t,a,b,o,f,l)				\
+    if (!(a)) {							\
+	return;							\
+    }								\
+    (b) = atr_pget(t, (a)->number, &(o), &(f), &(l));		\
+    if (!*(b) || !(See_attr((p), (t), (a), (o), (f)))) {	\
+	free_lbuf(b);						\
+	return;							\
+    }
+
+/* Macro for skipping to the end of an ANSI code, if we're at the
+ * beginning of one. 
+ */
+#define Skip_Ansi_Code(s) \
+	    savep = s;				\
+	    while (*s && (*s != ANSI_END)) {	\
+		safe_chr(*s, buff, bufc);	\
+		s++;				\
+	    }					\
+	    if (*s) {				\
+		safe_chr(*s, buff, bufc);	\
+		s++;				\
+	    }					\
+	    if (!strncmp(savep, ANSI_NORMAL, 4)) {	\
+		have_normal = 1;		\
+	    } else {				\
+		have_normal = 0;		\
+            }
 
 #endif
