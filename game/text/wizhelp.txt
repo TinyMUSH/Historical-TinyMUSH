@@ -1651,11 +1651,13 @@ use_global_aconn	wizard_obeys_linklock
   See also: badsite_file, permit_site, register_site, SITE LISTS.
 
 & fork_dump
-  Config parameter: fork_dump <yes/no>.  Default: Yes
+  Config parameter: fork_dump <yes/no>.  Default: No
+ 
   Indicates whether or not database dumps are to be done by fork()ing off a
   separate process to perform the dump.  While enabling this parameter reduces
   the amount of time needed to perform the dump, it requires that the system
   have enough free swap space to hold a second copy of the running game.
+ 
   See also: fork_vfork.
 
 & fork_vfork
