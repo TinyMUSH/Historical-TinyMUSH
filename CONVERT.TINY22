@@ -134,11 +134,6 @@ For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
 
 - Wizards can connect dark via the 'cd' command.
 
-- Added wizard news file ('wiznews').
-
-- The +help files are now offline, like help. If you don't like this,
-  simply @addcommand +help with your local softcode.
-
 - Added '@cpattr' command.
 
 - @daily implemented; enabled by 'eventchecking' global parameter, time
