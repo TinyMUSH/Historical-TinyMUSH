@@ -149,6 +149,7 @@ XFUNCTION(fun_restarttime);
 XFUNCTION(fun_version);
 XFUNCTION(fun_mudname);
 XFUNCTION(fun_hasmodule);
+XFUNCTION(fun_connrecord);
 XFUNCTION(fun_s);
 XFUNCTION(fun_subeval);
 XFUNCTION(fun_link);
@@ -386,6 +387,7 @@ FUN flist[] = {
 {"CON",		fun_con,	1,  0,		CA_PUBLIC,	NULL},
 {"CONFIG",	fun_config,	1,  0,		CA_PUBLIC,	NULL},
 {"CONN",	fun_conn,	1,  0,		CA_PUBLIC,	NULL},
+{"CONNRECORD",	fun_connrecord,	0,  0,		CA_PUBLIC,	NULL},
 {"CONSTRUCT",	fun_construct,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC,	NULL},
 {"CONVSECS",    fun_convsecs,   1,  0,		CA_PUBLIC,	NULL},

@@ -376,6 +376,8 @@ CHANGES TO FUNCTIONS
 
 - Added choose(), weighted-random-choice pick of an element from a list.
 
+- Added connrecord(), connected player record (as in WHO).
+
 - Added entrances() function, similar to @entrances command. Based on an
   idea from PennMUSH.
 

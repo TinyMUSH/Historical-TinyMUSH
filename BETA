@@ -37,8 +37,10 @@ Release history:
   show the speaker '<name> says' rather than 'You say'. This is more
   convenient for environments where activity is often logged and shared.
 
-- lpos(), lattr(), lexits(), lcon(), xcon(), children(), lparent(),
+- Feature: lpos(), lattr(), lexits(), lcon(), xcon(), children(), lparent(),
   and the grep() family now take an output delimiter.
+
+- Feature: Added connrecord(), connected player record (as in WHO).
 
 -----------------------------------------------------------------------------
 

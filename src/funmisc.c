@@ -804,6 +804,15 @@ FUNCTION(fun_hasmodule)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_connrecord: Get max number of simultaneous connects.
+ */
+
+FUNCTION(fun_connrecord)
+{
+    safe_ltos(buff, bufc, mudstate.record_players);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_s: Force substitution to occur.
  * fun_subeval: Like s(), but don't do function evaluations.
  */
