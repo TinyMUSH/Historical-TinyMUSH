@@ -231,6 +231,39 @@ HASHTAB *htab;
 	}
 }
 
+void hashdelall(old, htab)
+int *old;
+HASHTAB *htab;
+{
+	int hval;
+	HASHENT *hptr, *prev, *nextp;
+
+	for (hval = 0; hval < htab->hashsize; hval++) {
+		prev = NULL;
+		for (hptr = htab->entry->element[hval];
+		     hptr != NULL;
+		     hptr = nextp) {
+			nextp = hptr->next;
+			if (hptr->data == old) {
+				if (prev == NULL)
+					htab->entry->element[hval] = nextp;
+				else
+					prev->next = nextp;
+				if (!htab->nostrdup) {
+					XFREE(hptr->target, "hashdelall.target");
+				}
+				XFREE(hptr, "hashdelall.hptr");
+				htab->deletes++;
+				htab->entries--;
+				if (htab->entry->element[hval] == NULL)
+					htab->nulls++;
+				continue;
+			}
+			prev = hptr;
+		}
+	}
+}
+
 /* ---------------------------------------------------------------------------
  * hashflush: free all the entries in a hashtable.
  */
@@ -310,7 +343,6 @@ HASHTAB *htab;
 				hptr->data = new;
 		}
 }
-
 
 /* ---------------------------------------------------------------------------
  * hashinfo: return an mbuf with hashing stats
