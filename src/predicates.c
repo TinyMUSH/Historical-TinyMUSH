@@ -1784,7 +1784,7 @@ const char *def, *odef;
 #ifdef PUEBLO_SUPPORT
 			if ((aflags & AF_HTML) && Html(player)) {
 				char *buff_cp = buff + strlen(buff);
-				safe_str("\r\n", buff, &buff_cp);
+				safe_crlf(buff, &buff_cp);
 				notify_html(player, buff);
 			} else
 				notify(player, buff);

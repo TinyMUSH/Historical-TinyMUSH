@@ -403,7 +403,7 @@ static void pretty_format(dest, cp, p)
     int indent_lev, i;
 
     indent_lev = 0;
-    safe_str((char *) "\r\n", dest, cp);
+    safe_crlf(dest, cp);
 
     while (*p) {
 	switch (*p) {
@@ -416,10 +416,11 @@ static void pretty_format(dest, cp, p)
 		    return;	/* we're done */
 		break;
 	    case '{':
-		safe_str((char *) "\r\n", dest, cp);
+		safe_crlf(dest, cp);
 		for (i = 0; i < indent_lev; i++)
 		    safe_str((char *) INDENT_STR, dest, cp);
-		safe_str((char *) "{\r\n", dest, cp);
+		safe_chr(*p, dest, cp);
+		safe_crlf(dest, cp);
 		indent_lev++;
 		for (i = 0; i < indent_lev; i++)
 		    safe_str((char *) INDENT_STR, dest, cp);
@@ -429,17 +430,19 @@ static void pretty_format(dest, cp, p)
 	    case '}':
 		if (indent_lev > 0)
 		    indent_lev--;
-		safe_str((char *) "\r\n", dest, cp);
+		safe_crlf(dest, cp);
 		for (i = 0; i < indent_lev; i++)
 		    safe_str((char *) INDENT_STR, dest, cp);
-		safe_str((char *) "}\r\n", dest, cp);
+		safe_chr(*p, dest, cp);
+		safe_crlf(dest, cp);
 		for (i = 0; i < indent_lev; i++)
 		    safe_str((char *) INDENT_STR, dest, cp);
 		while (p[1] == ' ')
 		    p++;
 		break;
 	    case ';':
-		safe_str((char *) ";\r\n", dest, cp);
+		safe_chr(*p, dest, cp);
+		safe_crlf(dest, cp);
 		for (i = 0; i < indent_lev; i++)
 		    safe_str((char *) INDENT_STR, dest, cp);
 		while (p[1] == ' ')
@@ -452,7 +455,7 @@ static void pretty_format(dest, cp, p)
 	p++;
     }
     if (*(*cp - 1) != '\n')
-	safe_str((char *) "\r\n", dest, cp);
+	safe_crlf(dest, cp);
 }
 
 static void pretty_print(dest, name, text)
@@ -517,7 +520,7 @@ static void pretty_print(dest, name, text)
 	    safe_str(p, dest, &cp);
     }
     if ((cp - 1) && (*(cp -1) != '\n'))
-	safe_str("\r\n", dest, &cp);
+	safe_crlf(dest, &cp);
     safe_chr('-', dest, &cp);
 }
 

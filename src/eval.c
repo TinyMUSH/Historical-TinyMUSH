@@ -636,7 +636,7 @@ char *cargs[];
 				break;
 			case 'r':	/* Carriage return */
 			case 'R':
-				safe_known_str((char *)"\r\n", 2, buff, bufc);
+				safe_crlf(buff, bufc);
 				break;
 			case 't':	/* Tab */
 			case 'T':

@@ -2067,7 +2067,7 @@ FUNCTION(fun_columns)
 		}
 
 		if (!(rturn % (int)((78 - indent) / number))) {
-			safe_known_str((char *)"\r\n", 2, buff, bufc);
+			safe_crlf(buff, bufc);
 			cr = 1;
 			for (i = 0; i < indent; i++)
 				safe_chr(' ', buff, bufc);
@@ -2079,7 +2079,7 @@ FUNCTION(fun_columns)
 	}
 	
 	if (!cr) {
-		safe_known_str((char *)"\r\n", 2, buff, bufc);
+		safe_crlf(buff, bufc);
 	}
 	
 	free_lbuf(buf);

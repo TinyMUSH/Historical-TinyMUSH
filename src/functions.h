@@ -98,7 +98,7 @@ if (s) { \
     if (s != '\r') { \
 	safe_chr(s,b,p); \
     } else { \
-	safe_str((char *) "\r\n",b,p); \
+	safe_crlf(b,p); \
     } \
 }
 
