@@ -158,7 +158,7 @@ char *direction, *links[];
  * home(player,thing)
  */
 
-static void link_exit(player, exit, dest)
+void link_exit(player, exit, dest)
 dbref player, exit, dest;
 {
 	int cost, quot;
