@@ -189,6 +189,8 @@
 #undef HAVE_SETRLIMIT
 /* Define if getrusage exists */
 #undef HAVE_GETRUSAGE
+/* Define if struct rusage contains non-time members */
+#undef STRUCT_RUSAGE_COMPLETE
 /* Define if timelocal exists */
 #undef HAVE_TIMELOCAL
 /* Define if mktime exists */

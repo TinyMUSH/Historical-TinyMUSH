@@ -797,6 +797,14 @@ AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],
     AC_MSG_RESULT(yes),
   AC_MSG_RESULT(no))
 
+AC_MSG_CHECKING(for struct rusage completeness)
+AC_TRY_COMPILE([#include <sys/resource.h>],
+[struct rusage usage; usage.ru_ixrss = 1],
+  AC_DEFINE(STRUCT_RUSAGE_COMPLETE)
+    AC_MSG_RESULT(yes),
+  AC_MSG_RESULT(no))
+
+
 AC_MSG_CHECKING(for signal SIGCHLD braindamage)
 AC_TRY_RUN([
 #include <sys/types.h>

@@ -2391,7 +2391,7 @@ dbref player;
 {
 	int pid, psize, maxfds;
 
-#ifdef HAVE_GETRUSAGE
+#if defined(HAVE_GETRUSAGE) && defined(STRUCT_RUSAGE_COMPLETE)
 	struct rusage usage;
 	int ixrss, idrss, isrss, curr, last, dur;
 
@@ -2434,7 +2434,7 @@ dbref player;
 	raw_notify(player,
 		   tprintf("Process ID:  %10d        %10d bytes per page",
 			   pid, psize));
-#ifdef HAVE_GETRUSAGE
+#if defined(HAVE_GETRUSAGE) && defined(STRUCT_RUSAGE_COMPLETE)
 	raw_notify(player,
 		   tprintf("Time used:   %10d user   %10d sys",
 			   usage.ru_utime.tv_sec, usage.ru_stime.tv_sec));
