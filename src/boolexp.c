@@ -154,9 +154,10 @@ BOOLEXP *b;
 			source = thing;
 		}
 		checkit = 0;
-		if (Read_attr(source, source, a, aowner, aflags)) {
+		
+		if ((a->number == A_NAME) || (a->number == A_LENTER)) {
 			checkit = 1;
-		} else if (a->number == A_NAME) {
+		} else if (Read_attr(source, source, a, aowner, aflags)) {
 			checkit = 1;
 		}
 		if (checkit) {

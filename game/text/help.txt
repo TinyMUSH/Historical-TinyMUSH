@@ -1981,7 +1981,14 @@
         msg-list, all mail in *all* folders is tagged/untagged.
         (Ex: To clear all mail from Lauren and Crusade, @mail/tag *lauren,
         @mail/tag *crusade, @mail/clear tagged, @mail/untag all).
-
+ 
+{ 'help mail-other2' for more }
+& mail-other2
+ 
+  @mail/safe [<msg-list> | all>]
+        This command marks a message as being safe from mail expiration. It
+        should be used sparingly and only for very imporatant messages.
+ 
 & mail-folders
 
   The MUX mail system allows each player 16 folders, numbered from

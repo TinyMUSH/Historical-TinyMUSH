@@ -370,7 +370,7 @@ NAMETAB warp_sw[] = {
 CMDENT command_table[] = {
 {(char *)"@@",			NULL,		0,
 	0,		CS_NO_ARGS,			do_comment},
-{(char *)"@addcommand",		NULL,		CA_WIZARD,
+{(char *)"@addcommand",		NULL,		CA_GOD,
 	0,		CS_TWO_ARG,			do_addcommand},
 {(char *)"@admin",		NULL,		CA_WIZARD,
 	0,		CS_TWO_ARG|CS_INTERP,		do_admin},
