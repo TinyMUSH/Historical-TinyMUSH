@@ -1838,7 +1838,7 @@ FUNCTION(fun_matchall)
 	old = *bufc;
 
 	/* Check each word individually, returning the word number of all 
-	 * that match. If none match, return 0. 
+	 * that match. If none match, return a null string.
 	 */
 
 	wcount = 1;
@@ -1853,9 +1853,6 @@ FUNCTION(fun_matchall)
 		}
 		wcount++;
 	} while (s);
-
-	if (*bufc == old)
-		safe_chr('0', buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
