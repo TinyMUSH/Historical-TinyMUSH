@@ -303,26 +303,55 @@ static void update_comwho(chp)
     }
 }
 
-static void com_message(chp, msg)
+static void com_message(chp, msg, cause)
     CHANNEL *chp;
     char *msg;
+    dbref cause;
 {
     int i;
     CHANWHO *wp;
+    char *mp, msg_ns[LBUF_SIZE];
 
     chp->num_sent++;
+    mp = NULL;
 
     for (i = 0; i < chp->num_connected; i++) {
 	wp = chp->connect_who[i];
 	if (wp->is_listening && ok_recvchannel(wp->player, chp)) {
 	    if (isPlayer(wp->player)) {
-		/* Note that disconnected players see no message, period.
-		 * Thus, channel listens only work on objects.
-		 */
-		if (Connected(wp->player))
+		if (Nospoof(wp->player) && (wp->player != cause) &&
+		    (wp->player != mudstate.curr_enactor) &&
+		    (wp->player != mudstate.curr_player)) {
+		    if (!mp) {
+			/* Construct Nospoof buffer. Can't use tprintf
+			 * because we end up calling it later.
+			 */
+			mp = msg_ns;
+			safe_chr('[', msg_ns, &mp);
+			safe_name(cause, msg_ns, &mp);
+			safe_chr('(', msg_ns, &mp);
+			safe_chr('#', msg_ns, &mp);
+			safe_ltos(msg_ns, &mp, cause);
+			safe_chr(')', msg_ns, &mp);
+			if (cause != Owner(cause)) {
+			    safe_chr('{', msg_ns, &mp);
+			    safe_name(Owner(cause), msg_ns, &mp);
+			    safe_chr('}', msg_ns, &mp);
+			}
+			if (cause != mudstate.curr_enactor) {
+			    safe_known_str((char *) "<-(#", 4, msg_ns, &mp);
+			    safe_ltos(msg_ns, &mp, cause);
+			    safe_chr(')', msg_ns, &mp);
+			}
+			safe_known_str((char *) "] ", 2, msg_ns, &mp);
+			safe_str(msg, msg_ns, &mp);
+		    }
+		    raw_notify(wp->player, msg_ns);
+		} else {
 		    raw_notify(wp->player, msg);
+		}
 	    } else {
-		notify(wp->player, msg);
+		notify_with_cause(wp->player, cause, msg);
 	    }
 	}
     }
@@ -375,7 +404,8 @@ static void remove_from_channel(player, chp, is_quiet)
     if (!is_quiet &&
 	(!isPlayer(player) || (Connected(player) && !Hidden(player)))) {
 	com_message(chp, tprintf("[%s] %s has left this channel.",
-				 chp->name, Name(player)));
+				 chp->name, Name(player)),
+		    player);
     }
 }
 
@@ -455,7 +485,8 @@ static void process_comsys(player, arg, cap)
 	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
 	    com_message(cap->channel,
 			tprintf("[%s] %s has joined this channel.",
-				cap->channel->name, Name(player)));
+				cap->channel->name, Name(player)),
+			player);
 	}
 	return;
     
@@ -492,7 +523,8 @@ static void process_comsys(player, arg, cap)
 	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
 	    com_message(cap->channel,
 			tprintf("[%s] %s has left this channel.",
-				cap->channel->name, Name(player)));
+				cap->channel->name, Name(player)),
+			player);
 	}
 	return;
 
@@ -535,6 +567,11 @@ static void process_comsys(player, arg, cap)
 
     } else {
 
+	if (Gagged(player)) {
+	    notify(player, NOPERM_MESSAGE);
+	    return;
+	}
+
 	if (!is_listenchannel(player, cap->channel)) {
 	    notify(player, tprintf("You must be on %s to do that.",
 				   cap->channel->name));
@@ -569,19 +606,22 @@ static void process_comsys(player, arg, cap)
 			tprintf("[%s] %s %s",
 				cap->channel->name,
 				(name_buf) ? name_buf : Name(player),
-				arg + 1));
+				arg + 1),
+			player);
 	} else if (*arg == ';') {
 	    com_message(cap->channel,
 			tprintf("[%s] %s%s",
 				cap->channel->name,
 				(name_buf) ? name_buf : Name(player),
-				arg + 1));
+				arg + 1),
+			player);
 	} else {
 	    com_message(cap->channel,
 			tprintf("[%s] %s says, \"%s\"",
 				cap->channel->name,
 				(name_buf) ? name_buf : Name(player),
-				arg));
+				arg),
+			player);
 	}
 
 	return;
@@ -668,7 +708,8 @@ void join_channel(player, chan_name, alias_str, title_str)
 	
 	if (!isPlayer(player) || (Connected(player) && !Hidden(player))) {
 	    com_message(chp, tprintf("[%s] %s has joined this channel.",
-				     chp->name, Name(player)));
+				     chp->name, Name(player)),
+			player);
 	}
 
 	if (title_str) {
@@ -767,7 +808,8 @@ void comsys_connect(player)
 	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player) &&
 		is_listenchannel(player, chp)) {
 		com_message(chp, tprintf("[%s] %s has connected.",
-					 chp->name, Name(player)));
+					 chp->name, Name(player)),
+			    player);
 	    }
 	}
     }
@@ -785,7 +827,8 @@ void comsys_disconnect(player)
 	    if ((chp->flags & CHAN_FLAG_LOUD) && !Hidden(player) &&
 		is_listenchannel(player, chp)) {
 		com_message(chp, tprintf("[%s] %s has disconnected.",
-					 chp->name, Name(player)));
+					 chp->name, Name(player)),
+			    player);
 	    }
 	    update_comwho(chp);
 	}
@@ -930,7 +973,8 @@ void do_cdestroy(player, cause, key, name)
      */
 
     com_message(chp, tprintf("Channel %s has been destroyed by %s.",
-			     chp->name, Name(player)));
+			     chp->name, Name(player)),
+		player);
 
     htab = &mudstate.calias_htab;
     alias_array = (COMALIAS **) calloc(htab->entries, sizeof(COMALIAS *));
@@ -1167,7 +1211,8 @@ void do_cboot(player, cause, key, name, objstr)
     } else {
 	remove_from_channel(thing, chp, 1);
 	com_message(chp, tprintf("[%s] %s boots %s off the channel.",
-				 chp->name, Name(player), Name(thing)));
+				 chp->name, Name(player), Name(thing)),
+		    player);
     }
 }
 
@@ -1183,9 +1228,9 @@ void do_cemit(player, cause, key, chan_name, str)
     check_owned_channel(player, chp);
 
     if (key & CEMIT_NOHEADER)
-	com_message(chp, str);
+	com_message(chp, str, player);
     else
-	com_message(chp, tprintf("[%s] %s", chp->name, str));
+	com_message(chp, tprintf("[%s] %s", chp->name, str), player);
 }
 
 void do_cwho(player, cause, key, chan_name)
