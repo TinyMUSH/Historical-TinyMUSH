@@ -1809,6 +1809,19 @@ FUNCTION(fun_strmatch)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_streq: compare two strings case-insensitively.
+ */
+
+FUNCTION(fun_streq)
+{
+    if (!strcasecmp(fargs[0], fargs[1]))
+	safe_str("1", buff, bufc);
+    else
+	safe_str("0", buff, bufc);
+    return;
+}
+
+/* ---------------------------------------------------------------------------
  * fun_extract: extract words from string:
  * extract(foo bar baz,1,2) returns 'foo bar'
  * extract(foo bar baz,2,1) returns 'bar'
@@ -5536,6 +5549,7 @@ FUN flist[] = {
 {"STARTTIME",	fun_starttime,	0,  0,		CA_PUBLIC},
 {"STATS",	fun_stats,	1,  0,		CA_PUBLIC},
 {"STRCAT",	fun_strcat,	0,  FN_VARARGS,	CA_PUBLIC},
+{"STREQ",	fun_streq,	2,  0,		CA_PUBLIC},
 {"STRIPANSI",	fun_stripansi,	1,  0,		CA_PUBLIC},
 {"STRLEN",	fun_strlen,	-1, 0,		CA_PUBLIC},
 {"STRMATCH",	fun_strmatch,	2,  0,		CA_PUBLIC},
