@@ -2906,7 +2906,7 @@ FUNCTION(perform_grep)
     caseless = Func_Mask(REG_CASELESS);
 
     it = match_thing(player, fargs[0]);
-    if (it == NOTHING) {
+    if (!Good_obj(it)) {
 	safe_nomatch(buff, bufc);
 	return;
     } else if (!(Examinable(player, it))) {

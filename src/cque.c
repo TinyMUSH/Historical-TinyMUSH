@@ -218,7 +218,7 @@ char *target;
 		else
 			obj_targ = match_controlled(player, target);
 
-		if (obj_targ == NOTHING)
+		if (!Good_obj(obj_targ))
 			return;
 		if (key & HALT_ALL) {
 			notify(player, "Can't specify a target and /all");
@@ -948,7 +948,7 @@ char *target;
 		    obj_targ = match_thing(player, target);
 		else
 		    obj_targ = match_controlled(player, target);
-		if (obj_targ == NOTHING)
+		if (!Good_obj(obj_targ))
 			return;
 		if (key & PS_ALL) {
 			notify(player, "Can't specify a target and /all");

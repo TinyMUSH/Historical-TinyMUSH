@@ -212,7 +212,7 @@ FUNCTION(fun_owner)
 		}
 	} else {
 		it = match_thing(player, fargs[0]);
-		if (it != NOTHING)
+		if (Good_obj(it))
 			it = Owner(it);
 	}
 	safe_dbref(buff, bufc, it);
@@ -227,13 +227,13 @@ FUNCTION(fun_controls)
 	dbref x, y;
 
 	x = match_thing(player, fargs[0]);
-	if (x == NOTHING) {
+	if (!Good_obj(x)) {
 	    safe_str("#-1 ARG1 NOT FOUND", buff, bufc);
 	    return;
 	}
 	y = match_thing(player, fargs[1]);
-	if (y == NOTHING) {
-	    safe_str("#-2 ARG2 NOT FOUND", buff, bufc);
+	if (!Good_obj(y)) {
+	    safe_str("#-1 ARG2 NOT FOUND", buff, bufc);
 	    return;
 	}
 	safe_bool(buff, bufc, Controls(x, y));
@@ -246,23 +246,19 @@ FUNCTION(fun_controls)
 
 FUNCTION(fun_sees)
 {
-    dbref it, thing;
+	dbref it, thing;
 
-    if ((it = match_thing(player, fargs[0])) == NOTHING) {
-	safe_chr('0', buff, bufc);
-	return;
-    }
+	it = match_thing(player, fargs[0]);
+	thing = match_thing(player, fargs[1]);
+	if (!Good_obj(it) || !Good_obj(thing)) {
+		safe_chr('0', buff, bufc);
+		return;
+	}
 
-    thing = match_thing(player, fargs[1]);
-    if (!Good_obj(thing)) {
-	safe_chr('0', buff, bufc);
-	return;
-    }
-
-    safe_bool(buff, bufc,
-	      (isExit(thing) ?
-	       Can_See_Exit(it, thing, Darkened(it, Location(thing))) :
-	       Can_See(it, thing, Sees_Always(it, Location(thing)))));
+	safe_bool(buff, bufc,
+		  (isExit(thing) ?
+		   Can_See_Exit(it, thing, Darkened(it, Location(thing))) :
+		   Can_See(it, thing, Sees_Always(it, Location(thing)))));
 }
 
 /* ---------------------------------------------------------------------------
@@ -279,7 +275,7 @@ FUNCTION(fun_nearby)
 	      nearby_or_control(player, obj2))) {
 		safe_chr('0', buff, bufc);
 	} else {
-	    safe_bool(buff, bufc, nearby(obj1, obj2));
+		safe_bool(buff, bufc, nearby(obj1, obj2));
 	}
 }
 
@@ -296,13 +292,9 @@ FUNCTION(handle_okpres)
     dbref object, actor;
 
     object = match_thing(player, fargs[0]);
-    if (!Good_obj(object)) {
-	safe_chr('0', buff, bufc);
-	return;
-    }
-
     actor = match_thing(player, fargs[1]);
-    if (!Good_obj(actor)) {
+
+    if (!Good_obj(object) || !Good_obj(actor)) {
 	safe_chr('0', buff, bufc);
 	return;
     }
@@ -337,7 +329,7 @@ FUNCTION(handle_name)
 	dbref it;
 
 	it = match_thing(player, fargs[0]);
-	if (it == NOTHING) {
+	if (!Good_obj(it)) {
 		return;
 	}
 	if (!mudconf.read_rem_name) {
@@ -690,7 +682,7 @@ FUNCTION(fun_money)
 	dbref it;
 
 	it = match_thing(player, fargs[0]);
-	if ((it == NOTHING) || !Examinable(player, it))
+	if (!Good_obj(it) || !Examinable(player, it))
 		safe_nothing(buff, bufc);
 	else
 		safe_ltos(buff, bufc, Pennies(it));
@@ -706,9 +698,9 @@ FUNCTION(fun_findable)
 	dbref obj = match_thing(player, fargs[0]);
 	dbref victim = match_thing(player, fargs[1]);
 
-	if (obj == NOTHING)
+	if (!Good_obj(obj))
 		safe_str("#-1 ARG1 NOT FOUND", buff, bufc);
-	else if (victim == NOTHING)
+	else if (!Good_obj(victim))
 		safe_str("#-1 ARG2 NOT FOUND", buff, bufc);
 	else
 		safe_bool(buff, bufc, locatable(obj, victim, obj));
@@ -728,7 +720,8 @@ FUNCTION(fun_visible)
 	int aflags, atr;
 	ATTR *ap;
 
-	if ((it = match_thing(player, fargs[0])) == NOTHING) {
+	it = match_thing(player, fargs[0]);
+	if (!Good_obj(it)) {
 		safe_chr('0', buff, bufc);
 		return;
 	}
@@ -761,7 +754,8 @@ FUNCTION(fun_writable)
 	int aflags, atr, retval;
 	ATTR *ap;
 
-	if ((it = match_thing(player, fargs[0])) == NOTHING) {
+	it = match_thing(player, fargs[0]);
+	if (!Good_obj(it)) {
 		safe_chr('0', buff, bufc);
 		return;
 	}
@@ -829,7 +823,7 @@ FUNCTION(fun_flags)
 	    }
 	} else {
 	    it = match_thing(player, fargs[0]);
-	    if ((it != NOTHING) &&
+	    if (Good_obj(it) &&
 		(mudconf.pub_flags || Examinable(player, it) ||
 		 (it == cause))) {
 		buff2 = unparse_flags(player, it);
@@ -857,7 +851,7 @@ FUNCTION(handle_flaglists)
 
 	negate = temp = 0;
 
-	if ((it == NOTHING) ||
+	if (!Good_obj(it) ||
 	    (!(mudconf.pub_flags || Examinable(player, it) || (it == cause)))) {
 		safe_chr('0', buff, bufc);
 		return;
@@ -1124,19 +1118,23 @@ FUNCTION(fun_children)
 	VaChk_Only_Out(2);
 
 	it = match_thing(player, fargs[0]);
-
+	/* allow explicit #-1 but not just failed matches */
+	if (!Good_obj(it) && strcmp(fargs[0], "#-1")) {
+		safe_nomatch(buff, bufc);
+		return;
+	}
 	if (!Controls(player, it) && !See_All(player)) {
 		safe_noperm(buff, bufc);
 		return;
 	}
 	bb_p = *bufc;
 	DO_WHOLE_DB(i) {
-	    if (Parent(i) == it) {
-		if (*bufc != bb_p) {
-		    print_sep(osep, osep_len, buff, bufc);
+		if (Parent(i) == it) {
+			if (*bufc != bb_p) {
+				print_sep(osep, osep_len, buff, bufc);
+			}
+			safe_dbref(buff, bufc, i);
 		}
-		safe_dbref(buff, bufc, i);
-	    }
 	}
 }
 
@@ -1149,10 +1147,11 @@ FUNCTION(fun_zone)
 	dbref it;
 
 	if (!mudconf.have_zones) {
+		safe_str("#-1 ZONES DISABLED", buff, bufc);
 		return;
 	}
 	it = match_thing(player, fargs[0]);
-	if (it == NOTHING || !Examinable(player, it)) {
+	if (!Good_obj(it) || !Examinable(player, it)) {
 		safe_nothing(buff, bufc);
 		return;
 	}
@@ -1161,14 +1160,25 @@ FUNCTION(fun_zone)
 
 FUNCTION(scan_zone)
 {
-	dbref i, it = match_thing(player, fargs[0]);
+	dbref i, it;
 	int type;
 	char *bb_p;
 
 	type = Func_Mask(TYPE_MASK);
-	
-	if (!mudconf.have_zones || (!Controls(player, it) && !WizRoy(player))) {
-		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
+
+	if (!mudconf.have_zones) {
+		safe_str("#-1 ZONES DISABLED", buff, bufc);
+		return;
+	}
+
+	it = match_thing(player, fargs[0]);
+	/* allow explicit #-1, but not just failed matches */
+	if (!Good_obj(it) && strcmp(fargs[0], "#-1")) {
+		safe_nomatch(buff, bufc);
+		return;
+	}
+	if (!Controls(player, it) && !WizRoy(player)) {
+		safe_noperm(buff, bufc);
 		return;
 	}
 	bb_p = *bufc;
@@ -1239,7 +1249,7 @@ FUNCTION(fun_hasattr)
 	check_parents = Is_Func(CHECK_PARENTS);
 
 	thing = match_thing(player, fargs[0]);
-	if (thing == NOTHING) {
+	if (!Good_obj(thing)) {
 		safe_nomatch(buff, bufc);
    		return;
 	} else if (!Examinable(player, thing)) {
@@ -2073,7 +2083,7 @@ FUNCTION(fun_objmem)
 	}
 
 	thing = match_thing(player, fargs[0]);
-	if (thing == NOTHING || !Examinable(player, thing)) {
+	if (!Good_obj(thing) || !Examinable(player, thing)) {
 		safe_noperm(buff, bufc);
 		return;
 	}
@@ -2087,7 +2097,7 @@ FUNCTION(fun_playmem)
 	dbref j;
 
 	thing = match_thing(player, fargs[0]);
-	if (thing == NOTHING || !Examinable(player, thing)) {
+	if (!Good_obj(thing) || !Examinable(player, thing)) {
 		safe_noperm(buff, bufc);
 		return;
 	}
@@ -2133,7 +2143,7 @@ FUNCTION(fun_hastype)
 {
 	dbref it = match_thing(player, fargs[0]);
 
-	if (it == NOTHING) {
+	if (!Good_obj(it)) {
 		safe_nomatch(buff, bufc);
 		return;
 	}
@@ -2384,7 +2394,7 @@ FUNCTION(fun_speak)
     /* Just need a match. Don't need to control it or anything. */
 
     thing = match_thing(player, fargs[0]);
-    if (thing == NOTHING) {
+    if (!Good_obj(thing)) {
 	safe_nomatch(buff, bufc);
 	return;
     }
