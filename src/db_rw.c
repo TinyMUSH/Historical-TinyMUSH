@@ -1107,7 +1107,7 @@ int db_read()
 				s += sizeof(DUMPOBJ);
 #ifndef NO_TIMECHECKING
 				obj_time.tv_sec = obj_time.tv_usec = 0;
-				s_Time_Used(i, obj_time);
+				s_Time_Used(num, obj_time);
 #endif
 				s_StackCount(num, 0);
 				s_VarsCount(num, 0);
@@ -1119,11 +1119,11 @@ int db_read()
 #endif
 				/* Check to see if it's a player */
 
-				if (Typeof(i) == TYPE_PLAYER) {
-					c_Connected(i);
+				if (Typeof(num) == TYPE_PLAYER) {
+					c_Connected(num);
 				}
 				
-				s_Clean(i);
+				s_Clean(num);
 			}
 			
 			RAW_FREE(data.dptr, "db_get");
