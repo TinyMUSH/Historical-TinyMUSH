@@ -315,9 +315,22 @@ FUNCTION(fun_lcstr)
 
 	ap = fargs[0];
 	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
+	    if (*ap == ESC_CHAR) {
+		while (*ap && (*ap != ANSI_END)) {
+		    **bufc = *ap;
+		    ap++;
+		    (*bufc)++;
+		}
+		if (*ap == ANSI_END) {
+		    **bufc = *ap;
+		    ap++;
+		    (*bufc)++;
+		}
+	    } else {
 		**bufc = tolower(*ap);
 		ap++;
 		(*bufc)++;
+	    }
 	}
 }
 
@@ -327,19 +340,44 @@ FUNCTION(fun_ucstr)
 
 	ap = fargs[0];
 	while (*ap && ((*bufc - buff) < LBUF_SIZE - 1)) {
+	    if (*ap == ESC_CHAR) {
+		while (*ap && (*ap != ANSI_END)) {
+		    **bufc = *ap;
+		    ap++;
+		    (*bufc)++;
+		}
+		if (*ap == ANSI_END) {
+		    **bufc = *ap;
+		    ap++;
+		    (*bufc)++;
+		}
+	    } else {
 		**bufc = toupper(*ap);
 		ap++;
 		(*bufc)++;
+	    }
 	}
 }
 
 FUNCTION(fun_capstr)
 {
-	char *s;
+	char *s, *p;
+
+	p = fargs[0];
+
+	if (*p == ESC_CHAR) {
+	    while (*p && (*p != ANSI_END)) {
+		safe_chr(*p, buff, bufc);
+		p++;
+	    }
+	    if (*p == ANSI_END) {
+		safe_chr(*p, buff, bufc);
+		p++;
+	    }
+	}
 
 	s = *bufc;
-
-	safe_str(fargs[0], buff, bufc);
+	safe_str(p, buff, bufc);
 	*s = toupper(*s);
 }
 
