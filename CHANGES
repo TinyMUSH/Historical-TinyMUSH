@@ -78,7 +78,9 @@ the other have been listed in the conversion notes for both servers.
   to on (local_master_rooms and have_zones conf parameters). MUX-style
   zones now use ControlLock rather than EnterLock, and only objects
   set CONTROL_OK may be controlled by a ZMO; this provides slightly
-  better security.
+  better security. A new config parameter, 'autozone', controls
+  whether or not objects are automatically zoned to their creator's
+  ZMO at the time of their creation.
 
 - The comsystem has been rewritten, resulting in a variety of minor
   syntax changes and alterations and enhancements to functionality.
@@ -216,6 +218,15 @@ the other have been listed in the conversion notes for both servers.
 - Functions that take output delimiters can take null output delimiters
   (symbolized by the token '@@') and newline ('%r') output delimiters.
 
+- Booleans, as represented by functions such as t(), andbool(), and
+  ifelsebool(), are now handled in a more sensible manner. All dbrefs
+  (#0 and higher) are now considered true; #-1 and below are considered
+  false. The string '#-1 <string>' (such as '#-1 NO MATCH') is considered
+  false. All other strings beginning with '#' are treated like arbitrary
+  strings, so, for instance, lists of dbrefs ('#0 #3 #5') are considered
+  true. The old behavior can be obtained by enabling the booleans_oldstyle
+  config parameter.
+
 - The ansi() function compacts multiple ANSI attributes into a single
   ANSI code.
 
@@ -258,6 +269,9 @@ the other have been listed in the conversion notes for both servers.
 - Added localize() function, keeping changes to r-registers within the
   "local" scope of that evaluation.
 
+- Added lrand() function, generating a delimiter-separated list of
+  N random numbers between X and Y.
+
 - The log() function can now taken an optional second argument, the base.
 
 - The mix() function can now take an unequal number of elements in each
@@ -292,6 +306,10 @@ the other have been listed in the conversion notes for both servers.
 
 - switch() and switchall() can nest the '#$' token, and the nesting
   level is available with '#!'.
+
+- Vector functions no longer have a maximum dimension.
+
+- vunit() can take an output delimiter.
 
 - Added while() function. Evaluates elements of a list, until a
   termination condition is reached or the end of the list is reached.

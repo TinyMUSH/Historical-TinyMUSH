@@ -1,4 +1,3 @@
-
 Changelog for the Beta Releases
 ===============================
 
@@ -677,3 +676,40 @@ The initial beta release was on 9/27/99.
   a forwardlist.
 
 - Misc: Some minor general cleanup.
+
+-----------------------------------------------------------------------------
+
+12/29/99: Beta 20
+
+- Feature: A new script, ReportCrash, analyzes a core file and automatically
+  emails the results to the bug-report address.
+
+- Feature: Vector functions have been cleaned up and made more efficient.
+  Vector dimensions are no longer limited. vunit() can take an output
+  delimiter.
+
+- Feature: Boolean determination is made in a more intelligent manner.
+  The dbref #0 is now true, and all negative dbrefs are false; lists of
+  dbrefs are true; the string '#-1 <error string of some sort>' is false;
+  other non-zero non-empty strings are true. Old-style booleans can be
+  gotten by enabling the new conf parameter booleans_oldstyle.
+
+- Feature: New function lrand() generates a delimiter-separated list of
+  N random numbers between X and Y.
+
+- Feature: New config parameter 'autozone'. If this is off (it's on by
+  default), newly-created objects do not get zoned to their creator's
+  zone.
+
+- Fix: 'admin' is now recognized as a valid permission parameter. [MUX]
+
+- Fix: Buffer overflow fixed in center(). [3.0b16]
+
+- Misc: The page routine has been completely rewritten, fixing a variety of
+  issues and non-ideal behaviors. Among other things, 'p =<message>' now
+  works as expected (equivalent to 'p <message>').
+
+- Misc: ansi() and translate() now do table lookups for the ANSI codes.
+  ansi() handles invalid input more elegantly.
+
+- Misc: Miscellaneous cleanup.
