@@ -98,6 +98,7 @@ extern int	FDECL(get_hashmask, (int *));
 extern int	FDECL(*hashfind, (char *, HASHTAB *));
 extern int	FDECL(hashadd, (char *, int *, HASHTAB *));
 extern void	FDECL(hashdelete, (char *, HASHTAB *));
+extern void	FDECL(hashdelall, (int *, HASHTAB *));
 extern void	FDECL(hashflush, (HASHTAB *, int));
 extern int	FDECL(hashrepl, (char *, int *, HASHTAB *));
 extern void	FDECL(hashreplall, (int *, int *, HASHTAB *));
