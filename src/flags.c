@@ -738,7 +738,7 @@ CF_HAND(cf_flag_access)
 
 	STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
 	    log_text((char *) "Cannot change access for special flag: ");
-	    log_text(fp->flagname);
+	    log_text((char *) fp->flagname);
 	ENDLOG
 	return -1;
     }
