@@ -65,6 +65,9 @@ The following are important changes in behavior between MUX and 3.0:
 - MUX ifelse() conditioned on a non-zero result. 3.0 ifelse() conditions
   on a boolean-true result. To get the old behavior, use nonzero().
 
+- pmatch() now works as documented (i.e., identical to its PennMUSH
+  predecessor). To get the old behavior, use pfind().
+
 - Objects are now checked for commands if they are set COMMANDS (instead
   of not being checked for commands if they are set NO_COMMAND).
 

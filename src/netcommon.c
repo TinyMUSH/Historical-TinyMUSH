@@ -2192,3 +2192,31 @@ char *name;
 	}
 	return found;
 }
+
+
+/* ---------------------------------------------------------------------------
+ * find_connected_ambiguous: Resolve a playername from the list of connected
+ * players using prefix matching.  If the prefix is non-unique, we return
+ * the AMBIGUOUS token; if it does not exist, we return the NOTHING token.
+ * was unique.
+ */
+
+dbref find_connected_ambiguous(player, name)
+    dbref player;
+    char *name;
+{
+    DESC *d;
+    dbref found;
+
+    found = NOTHING;
+    DESC_ITER_CONN(d) {
+	if (Good_obj(player) && !Wizard(player) && Hidden(d->player))
+	    continue;
+	if (!string_prefix(Name(d->player), name))
+	    continue;
+	if ((found != NOTHING) && (found != d->player))
+	    return AMBIGUOUS;
+	found = d->player;
+    }
+    return found;
+}

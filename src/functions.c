@@ -42,6 +42,7 @@ extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
 
 extern dbref FDECL(get_programmer, (dbref));
 extern char * FDECL(get_doing, (dbref));
+extern dbref FDECL(find_connected_ambiguous, (dbref, char *));
 
 /* Function definitions from funceval.c */
 
@@ -2002,6 +2003,62 @@ FUNCTION(fun_num)
 }
 
 FUNCTION(fun_pmatch)
+{
+    char *name, *temp, *tp;
+    dbref thing;
+    dbref *p_ptr;
+
+    /* If we have a valid dbref, it's okay if it's a player. */
+
+    if (*fargs[0] == NUMBER_TOKEN) {
+	thing = parse_dbref(fargs[0]);
+	if (Good_obj(thing) && isPlayer(thing)) {
+	    safe_tprintf_str(buff, bufc, "#%d", thing);
+	} else {
+	    safe_str("#-1", buff, bufc);
+	}
+	return;
+    }
+
+    /* If we have *name, just advance past the *; it doesn't matter */
+
+    name = fargs[0];
+    if (*fargs[0] == LOOKUP_TOKEN) {
+	name++;
+    }
+
+    /* Look up the full name */
+
+    tp = temp = alloc_lbuf("fun_pmatch");
+    safe_str(name, temp, &tp);
+    for (tp = temp; *tp; tp++)
+	*tp = ToLower(*tp);
+    p_ptr = (int *) = hashfind(temp, &mudstate.player_htab);
+    free_lbuf(temp);
+
+    if (p_ptr) {
+	/* We've got it. Check to make sure it's a good object. */
+	if (Good_obj(*p_ptr) && isPlayer(*p_ptr)) {
+	    safe_tprintf_str(buff, bufc, "#%d", (int) *p_ptr);
+	} else {
+	    safe_str("#-1", buff, bufc);
+	}
+	return;
+    }
+
+    /* We haven't found anything. Now we try a partial match. */
+
+    thing = find_connected_ambiguous(player, name);
+    if (thing == AMBIGUOUS) {
+	safe_str("#-2", buff, bufc);
+    } else if (Good_obj(thing) && isPlayer(thing)) {
+	safe_tprintf_str(buff, bufc, "#%d", thing);
+    } else {
+	safe_str("#-1", buff, bufc);
+    }
+}
+
+FUNCTION(fun_pfind)
 {
 	dbref thing;
 

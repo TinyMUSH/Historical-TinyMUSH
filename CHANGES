@@ -132,9 +132,18 @@ highly significant changes are noted here.
   like iter() with side-effect functions, and getting rid of the resulting
   garbage spaces.)
 
+- The nonzero() function outputs the result of an if/else condition on a
+  non-zero result. (This provides MUX-style ifelse() behavior. ifelse()
+  follows the TinyMUSH 2.2 behavior of conditioning on a boolean.)
+
 - objmem(<thing>) does a MUX-style object-structure count; 
   objmem(<thing>/<wild>) does a 2.2-style attribute-text count. (Fuses
   the two models.)
+
+- The pfind() function returns a dbref, or looks up a player. (This
+  provides MUX-style pmatch() behavior. pmatch() now behaves like the
+  MUX documentation said it should, which is identical to its PennMUSH
+  predecessor.)
 
 - streq() does a case-insensitive comparison of two strings, returning 0 or 1.
 

@@ -3,3 +3,4 @@
 
 s/\%[Cc]/\%x/g
 s/[Ii][Ff][Ee][Ll][Ss][Ee](/nonzero(/g
+s/[Pp][Mm][Aa][Tt][Cc][Hh](/pfind(/g

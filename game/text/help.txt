@@ -4281,10 +4281,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	lock()		lwho()		mail()		mailfrom()	
 	money()		name()		nearby()	next()		
 	num()		objmem()	orflags()	owner()		
-	parent()	playmem()	pmatch()	ports()		
-	programmer()	rloc()		room()		search()	
-	sees()		stats()		type()		visible()	
-	where()		xcon()		zone()		zwho()
+	parent()	pfind()		playmem()	pmatch()	
+	ports()		programmer()	rloc()		room()		
+	search()	sees()		stats()		type()		
+	visible()	where()		xcon()		zone()		
+	zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -8588,6 +8589,19 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   pmatch() will also accept *<player> or #<dbref>. If given a non-player
   dbref, pmatch() will return #-1.
+ 
+& PFIND()
+  Function: pfind(<object>)
+ 
+  If <object> is a dbref, if the dbref is valid, that dbref will be returned.
+  If the dbref is not valid, #-1 will be returned.
+ 
+  If given the name of a player (NOT preceeded by a '*'), the player name
+  will be looked up. This includes checking the connected players that 
+  the caller can see on the WHO list, for partial matches to the name. If
+  the entire player name is found, or a unique partial match is found, the
+  dbref of that player will be returned. Otherwise, #-1 NO MATCH will be
+  returned.
  
 & STRCAT()
   Function: strcat(<string1>, <string2>, ..., <stringN>)
