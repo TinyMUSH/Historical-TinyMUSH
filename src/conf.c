@@ -225,6 +225,8 @@ void NDECL(cf_init)
 	mudconf.instant_recycle = 1;
 	mudconf.dark_actions = 0;
 	mudconf.no_ambiguous_match = 0;
+	mudconf.exit_calls_move = 0;
+	mudconf.move_match_more = 0;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1244,6 +1246,8 @@ CONF conftable[] = {
 	cf_bool,	CA_GOD,		&mudconf.exam_public,		0},
 {(char *)"exit_flags",
 	cf_set_flags,	CA_GOD,		(int *)&mudconf.exit_flags,	0},
+{(char *)"exit_calls_move",
+	cf_bool,	CA_GOD,		&mudconf.exit_calls_move,	0},
 {(char *)"exit_parent",
 	cf_int,		CA_GOD,		&mudconf.exit_parent,		0},
 {(char *)"exit_quota",
@@ -1399,6 +1403,8 @@ CONF conftable[] = {
 	cf_string,	CA_STATIC,	(int *)mudconf.motd_file,	SBUF_SIZE},
 {(char *)"motd_message",
 	cf_string,	CA_GOD,		(int *)mudconf.motd_msg,	GBUF_SIZE},
+{(char *)"move_match_more",
+	cf_bool,	CA_GOD,		&mudconf.move_match_more,	0},
 {(char *)"mud_name",
 	cf_string,	CA_GOD,		(int *)mudconf.mud_name,	SBUF_SIZE},
 {(char *)"newuser_file",

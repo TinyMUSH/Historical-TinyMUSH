@@ -185,6 +185,13 @@ struct confdata {
 	int	instant_recycle;/* Do destroy_ok objects get insta-nuke? */
 	int	dark_actions;	/* Trigger @a-actions even when dark? */
 	int	no_ambiguous_match; /* match_result() -> last_match_result() */
+	int	exit_calls_move; /* Matching an exit in the main command
+				  * parser invokes the 'move' command.
+				  */
+	int	move_match_more; /* Exit matches in 'move' parse like the
+				  * main command parser (local, global, zone;
+				  * pick random on ambiguous).
+				  */
 	dbref	start_room;	/* initial location and home for players */
 	dbref	start_home;	/* initial HOME for players */
 	dbref	default_home;	/* HOME when home is inaccessable */

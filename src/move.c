@@ -509,9 +509,26 @@ char *direction;
 	}
 	/* find the exit */
 
-	init_match_check_keys(player, direction, TYPE_EXIT);
-	match_exit();
-	exit = match_result();
+	if (mudconf.move_match_more) {
+	    init_match_check_keys(player, direction, TYPE_EXIT);
+	    match_exit_with_parents();
+	    exit = last_match_result();
+	    if (exit == NOTHING) {
+		init_match_check_keys(player, direction, TYPE_EXIT);
+		match_master_exit();
+		exit = last_match_result();
+	    }
+	    if (exit == NOTHING) {
+		init_match_check_keys(player, direction, TYPE_EXIT);
+		match_zone_exit();
+		exit = last_match_result();
+	    }
+	} else {
+	    init_match_check_keys(player, direction, TYPE_EXIT);
+	    match_exit();
+	    exit = match_result();
+	}
+
 	switch (exit) {
 	case NOTHING:		/* try to force the object */
 		notify(player, "You can't go that way.");

@@ -1598,6 +1598,7 @@ char *command, *args[];
 {
 	static char preserve_cmd[LBUF_SIZE];
 	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str, *evcmd;
+	char *gbuf, *gc;
 	int succ, aflags, i, got_stop, pcount;
 	dbref exit, aowner, parent;
 	CMDENT *cmdp;
@@ -1742,13 +1743,44 @@ char *command, *args[];
 
 		init_match_check_keys(player, command, TYPE_EXIT);
 		match_exit_with_parents();
-		exit = last_match_result();
+ 		exit = last_match_result();
 		if (exit != NOTHING) {
-		    /* Execute the pre-hook for the goto command */
-		    CALL_PRE_HOOK(goto_cmdp, args, nargs);
-		    move_exit(player, exit, 0, NOGO_MESSAGE, 0);
-		    /* Execute the post-hook for the goto command */
-		    CALL_POST_HOOK(goto_cmdp, args, nargs);
+		    if (mudconf.exit_calls_move) {
+			/* Exits literally call the 'move' command. Note
+			 * that, later, when we go to matching master-room
+			 * and other global-ish exits, that we also need
+			 * to have move_match_more set to 'yes', or
+			 * we'll match here only to encounter dead silence
+			 * when we try to find the exit inside the move
+			 * routine. We also need to directly find what
+			 * the pointer for the move (goto) command is,
+			 * since we could have @addcommand'd it (and
+			 * probably did, if this conf option is on).
+			 * Finally, we've got to make this look like
+			 * we really did type 'goto <exit>', or the
+			 * @addcommand will just skip over the string.
+			 */
+			cmdp = (CMDENT *) hashfind("goto",
+						   &mudstate.command_htab);
+			if (cmdp) { /* just in case */
+			    gbuf = alloc_lbuf("process_command.goto");
+			    gc = gbuf;
+			    safe_str(cmdp->cmdname, gbuf, &gc);
+			    safe_chr(' ', gbuf, &gc);
+			    safe_str(command, gbuf, &gc);
+			    *gc = '\0';
+			    process_cmdent(cmdp, NULL, player, cause,
+					   interactive, command, gbuf,
+					   args, nargs);
+			    free_lbuf(gbuf);
+			}
+		    } else {
+			/* Execute the pre-hook for the goto command */
+			CALL_PRE_HOOK(goto_cmdp, args, nargs);
+			move_exit(player, exit, 0, NOGO_MESSAGE, 0);
+			/* Execute the post-hook for the goto command */
+			CALL_POST_HOOK(goto_cmdp, args, nargs);
+		    }
 		    mudstate.debug_cmd = cmdsave;
 		    return preserve_cmd;
 		}
@@ -1759,9 +1791,26 @@ char *command, *args[];
 		match_master_exit();
 		exit = last_match_result();
 		if (exit != NOTHING) {
-		    CALL_PRE_HOOK(goto_cmdp, args, nargs);
-		    move_exit(player, exit, 1, NOGO_MESSAGE, 0);
-		    CALL_POST_HOOK(goto_cmdp, args, nargs);
+		    if (mudconf.exit_calls_move) {
+			cmdp = (CMDENT *) hashfind("goto",
+						   &mudstate.command_htab);
+			if (cmdp) {
+			    gbuf = alloc_lbuf("process_command.goto");
+			    gc = gbuf;
+			    safe_str(cmdp->cmdname, gbuf, &gc);
+			    safe_chr(' ', gbuf, &gc);
+			    safe_str(command, gbuf, &gc);
+			    *gc = '\0';
+			    process_cmdent(cmdp, NULL, player, cause,
+					   interactive, command, gbuf,
+					   args, nargs);
+			    free_lbuf(gbuf);
+			}
+		    } else {
+			CALL_PRE_HOOK(goto_cmdp, args, nargs);
+			move_exit(player, exit, 1, NOGO_MESSAGE, 0);
+			CALL_POST_HOOK(goto_cmdp, args, nargs);
+		    }
 		    mudstate.debug_cmd = cmdsave;
 		    return preserve_cmd;
 		}
@@ -1950,9 +1999,26 @@ char *command, *args[];
 			match_zone_exit();
 			exit = last_match_result();
 			if (exit != NOTHING) {
-			    CALL_PRE_HOOK(goto_cmdp, args, nargs);
-			    move_exit(player, exit, 1, NOGO_MESSAGE, 0);
-			    CALL_POST_HOOK(goto_cmdp, args, nargs);
+			    if (mudconf.exit_calls_move) {
+				cmdp = (CMDENT *) hashfind("goto",
+						   &mudstate.command_htab);
+				if (cmdp) {
+				    gbuf = alloc_lbuf("process_command.goto");
+				    gc = gbuf;
+				    safe_str(cmdp->cmdname, gbuf, &gc);
+				    safe_chr(' ', gbuf, &gc);
+				    safe_str(command, gbuf, &gc);
+				    *gc = '\0';
+				    process_cmdent(cmdp, NULL, player, cause,
+						   interactive, command, gbuf,
+						   args, nargs);
+				    free_lbuf(gbuf);
+				}
+			    } else {
+				CALL_PRE_HOOK(goto_cmdp, args, nargs);
+				move_exit(player, exit, 1, NOGO_MESSAGE, 0);
+				CALL_POST_HOOK(goto_cmdp, args, nargs);
+			    }
 			    mudstate.debug_cmd = cmdsave;
 			    return preserve_cmd;
 			}
@@ -2601,6 +2667,7 @@ dbref player;
 	mudconf.dark_sleepers);
     Opt("examine shows names of flags", mudconf.ex_flags);
     Opt("examine shows public attributes", mudconf.exam_public);
+    Opt("Using an exit calls the move command", mudconf.exit_calls_move);
     Opt("@teleport from location restricted to control or Jump_OK",
 	mudconf.fascist_tport);
     Opt("@conformat is obeyed when displaying contents", mudconf.fmt_contents);
@@ -2631,6 +2698,8 @@ dbref player;
 	mudconf.local_masters);
     Opt("look obeys the Terse flag", mudconf.terse_look);
     Opt("Objects other than players can match $-commands on themselves", mudconf.match_mine);
+    Opt("Move command looks for global and zone exits, and resolves ambiguity",
+	mudconf.move_match_more);
     Opt("Ambiguous matches always resolve to the last match",
 	mudconf.no_ambiguous_match);
     Opt("@pemit targets can be players in other locations",
