@@ -1248,7 +1248,7 @@ char *victim;
 				if (mp->prev == NULL)
 					nhashrepl((int)player, (int *)mp->next, &mudstate.mail_htab);
 				else if (mp->next == NULL)
-					mp->prev->next == NULL;
+					mp->prev->next = NULL;
 				/*
 				 * relink the list 
 				 */

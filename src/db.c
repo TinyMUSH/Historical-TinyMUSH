@@ -3174,8 +3174,11 @@ char *gdbmfile;
 int check_zone(player, thing)
 dbref player, thing;
 {
+	mudstate.zone_nest_num++;
+
 	if (!mudconf.have_zones || (Zone(thing) == NOTHING) || 
 	     (mudstate.zone_nest_num == mudconf.zone_nest_lim) || (isPlayer(thing))) {
+		mudstate.zone_nest_num = 0;
 		return 0;
 	}
 	
@@ -3187,7 +3190,6 @@ dbref player, thing;
 		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {
-		mudstate.zone_nest_num++;
 		return check_zone(player, Zone(thing));
 	}
 
@@ -3196,6 +3198,8 @@ dbref player, thing;
 int check_zone_for_player(player, thing)
 dbref player, thing;
 {
+	mudstate.zone_nest_num++;
+
 	if (!mudconf.have_zones || (Zone(thing) == NOTHING) ||
 	    (mudstate.zone_nest_num == mudconf.zone_nest_lim) || !(isPlayer(thing))) {
 		mudstate.zone_nest_num = 0;
@@ -3206,7 +3210,6 @@ dbref player, thing;
 		mudstate.zone_nest_num = 0;
 		return 1;
 	} else {
-		mudstate.zone_nest_num++;
 		return check_zone(player, Zone(thing));
 	}
 

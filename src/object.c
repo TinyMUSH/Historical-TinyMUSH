@@ -218,7 +218,7 @@ int objtype, cost;
 char *name;
 {
 	dbref obj, owner;
-	int quota, okname, value, self_owned, require_inherit;
+	int quota, okname = 0, value, self_owned, require_inherit;
 	FLAG f1, f2, f3;
 	time_t tt;
 	char *buff;

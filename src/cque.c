@@ -617,6 +617,10 @@ char *event, *cmd, *cargs[];
 			ap = atr_str(event);
 			if (!ap) {
 				attr = mkattr(event);
+				if (!attr) {
+					notify_quiet(player, "Invalid attribute.");
+					return;
+				}
 				ap = atr_num(attr);
 			}
 			atr_pget_info(thing, ap->number, &aowner, &aflags);

@@ -600,7 +600,7 @@ FUNCTION(fun_zwho)
 	dbref i;
 	int len = 0;
 
-	if (!mudconf.have_zones || !(Controls(player, it)) || !(WizRoy(player))) {
+	if (!mudconf.have_zones || !(Controls(player, it) || !WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
@@ -632,7 +632,7 @@ FUNCTION(fun_inzone)
 	dbref i;
 	int len = 0;
 
-	if (!mudconf.have_zones || !(Controls(player, it)) || !(WizRoy(player))) {
+	if (!mudconf.have_zones || !(Controls(player, it) || !WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
@@ -868,12 +868,7 @@ FUNCTION(fun_columns)
 		 * Sanitize number of spaces 
 		 */
 
-		if (spaces == 0) {
-			/*
-			 * no padding needed, just return string 
-			 */
-			safe_str(buf, buff, bufc);
-		} else if (spaces > LBUF_SIZE) {
+		if (spaces > LBUF_SIZE) {
 			spaces = LBUF_SIZE;
 		}
 		safe_str(buf, buff, bufc);
