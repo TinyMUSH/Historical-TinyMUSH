@@ -28,10 +28,11 @@
   @delcommand    @destroy       @disable       @doing         @dump          
   @enable        @fixdb         @freelist      @function      @halt
   @hook          @kick          @list          @listcommands  @list_file     
-  @listmotd      @lock          @mark          @mark_all      @motd          
-  @newpassword   @pcreate       @poor          @power         @ps            
-  @purge         @quota         @readcache     @restart       @rwho          
-  @shutdown      @timecheck     @timewarp      @toad          @wall
+  @listmotd      @lock          @logrotate     @mark          @mark_all
+  @motd          @newpassword   @pcreate       @poor          @power         
+  @ps            @purge         @quota         @readcache     @restart       
+  @rwho          @shutdown      @timecheck     @timewarp      @toad          
+  @wall
  
   @allowance     @comment       @timeout
 
@@ -833,6 +834,17 @@
   Note that if <attr-num> is not a valid attribute number, the lock will
   never succeed.
 
+& @logrotate
+  Command: @logrotate
+ 
+  This command, which can only be used by God, rotates the log file.
+  This means that no more output will be written to the current log file,
+  and instead, a new log file is begun. The old log file is not deleted.
+ 
+  The log file names are given by the game_log conf parameter, and a number
+  is automatically prepended at the end (netmush.log.0, netmush.log.1,
+  etc., incrementing with each @logrotate).
+  
 & @mark
   Command: @mark[/<switches>] [<player>] [<class>=<restriction>]
   Sets or clears the MARKED flags for objects that match the search criteria.
@@ -1180,13 +1192,14 @@
 & PARAM FILES
 	badsite_file		connect_file		connect_reg_file
 	crash_database		down_file		full_file
-	gdbm_database		guest_file		help_file
-	help_index		html_connect_file	include
-	input_database		motd_file		news_file
-	news_index		newuser_file		output_database
-	plushelp_file		plushelp_index		quit_file
-	register_create_file	wizard_help_file	wizard_help_index
-	wizard_motd_file	wiznews_file		wiznews_index
+	game_log		gdbm_database		guest_file
+	help_file		help_index		html_connect_file
+	include			input_database		motd_file	
+	news_file		news_index		newuser_file	
+	output_database		plushelp_file		plushelp_index
+	quit_file		register_create_file	wizard_help_file
+	wizard_help_index	wizard_motd_file	wiznews_file	
+	wiznews_index
 
 & PARAM LIMITS
 	building_limit			earn_limit
@@ -1701,8 +1714,18 @@ use_global_aconn	wizard_obeys_linklock
   a problem, but the u() function can be used to cause infinite recursion
   (unless blocked by a recursion limit)
 
+& game_log
+  Config parameter: game_log <filename>.  Default: netmush.log
+ 
+  Specifies the name of the logfile. Initially, when the server is started,
+  all logging will be done to stderr (so if you redirected stderr to a
+  file, the log will go to that file). With every @logrotate, though, the
+  log file name changes; it begins as this parameter.0, and the number
+  is incremented with each rotation (i.e., if this parameter is set to
+  'netmush.log', the logfiles are netmush.log.1, netmush.log.2, and so on).
+ 
 & garbage_chunk
-  Config_parameter: garbage_chunk <number>.  Default: 3
+  Config parameter: garbage_chunk <number>.  Default: 3
 
 & gdbm_cache_size
   Config parameter: gdbm_cache_size <number>.  Default: 4096
