@@ -1497,9 +1497,12 @@ CF_HAND(cf_include)
 								 * find
 								 * comment
 								 */
-		if (*zp)
+		if (*zp && !(isdigit(*(zp + 1)) && isspace(*(zp -1))))
 			*zp = '\0';	/*
-					 * zap comment
+					 * zap comment, but only if it's
+					 * not sitting between whitespace
+					 * and a digit, which traps a case
+					 * like 'master_room #2'
 					 */
 		for (zp = zp - 1; zp >= ap && isspace(*zp); zp--)
 			*zp = '\0';	/*
