@@ -136,6 +136,7 @@ Objname *nam;
 	/* if the file is badly formatted, ret == Obj * 0 */
 	if ((ret = objfromFILE(dat.dptr)) == (Obj *) 0) {
 		logf("db_get: cannot decode ", nam, "\n", (char *)0);
+		free(dat.dptr);
 		return NULL;
 	}
 	
@@ -151,7 +152,7 @@ Objname *nam;
 		exit(8);
 	}
 #endif
-		
+	free(dat.dptr);	
 	return (ret);
 }
 
@@ -175,14 +176,17 @@ Objname *nam;
 
 	if (objtoFILE(obj, dat.dptr) != 0) {
 		logf("db_put: can't save ", nam, " ", (char *)-1, "\n", (char *)0);
+		free(dat.dptr);
 		return (1);
 	}
 
 	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
 		logf("db_put: can't gdbm_store ", nam, " ", (char *)-1, "\n", (char *)0);
+		free(dat.dptr);
 		return (1);
 	}
 
+	free(dat.dptr);
 	return (0);
 }
 
@@ -218,6 +222,8 @@ Objname *nam;
 	if (dat.dptr == (char *)0)
 		return (0);
 
+	free(dat.dptr);
+	
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {
 		logf("db_del: can't delete key ", nam, "\n", (char *)0);
