@@ -362,7 +362,8 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	PEMIT_HERE	16	/* Send to location (@femit, additive) */
 #define	PEMIT_ROOM	32	/* Send to containing rm (@femit, additive) */
 #define PEMIT_LIST      64      /* Send to a list */
-#define PEMIT_HTML	128     /* HTML escape, and no newline */
+#define PEMIT_SPEECH	128	/* Explicitly tag this as speech */
+#define PEMIT_HTML	256     /* HTML escape, and no newline */
 #define	PS_BRIEF	0	/* Short PS report */
 #define	PS_LONG		1	/* Long PS report */
 #define	PS_SUMM		2	/* Queue counts only */
@@ -532,6 +533,8 @@ extern int	FDECL(quick_wild, (char *, char *));
 						MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN)
 #define notify_with_cause_html(p,c,m)   notify_check(p,c,m, \
                                               MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN|MSG_HTML)
+#define notify_with_cause_extra(p,c,m,f) notify_check(p,c,m, \
+						MSG_PUP_ALWAYS|MSG_ME_ALL|MSG_F_DOWN|(f))
 #define	notify_quiet_with_cause(p,c,m)	notify_check(p,c,m, \
 						MSG_PUP_ALWAYS|MSG_ME)
 #define	notify_puppet(p,c,m)		notify_check(p,c,m, \

@@ -241,7 +241,8 @@ NAMETAB open_sw[] = {
 NAMETAB pemit_sw[] = {
 {(char *)"contents",	1,	CA_PUBLIC,	PEMIT_CONTENTS|SW_MULTIPLE},
 {(char *)"object",	1,	CA_PUBLIC,	0},
-{(char *)"silent",	1,	CA_PUBLIC,	0},
+{(char *)"silent",	2,	CA_PUBLIC,	0},
+{(char *)"speech",	2,	CA_PUBLIC,	PEMIT_SPEECH|SW_MULTIPLE},
 {(char *)"list",        1,      CA_PUBLIC,      PEMIT_LIST|SW_MULTIPLE},
 {(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
 #ifdef PUEBLO_SUPPORT

@@ -2732,6 +2732,8 @@ Available switches:
   /object   - (default) Send the message to the named object.
   /contents - Send the message to the contents of the named object.
   /noeval   - Send the message unparsed.
+  /speech   - Explicitly mark the message as speech, causing PRESENCE
+              permissions to be checked.
   /html     - (Pueblo only) Send the message in HTML format.
   /silent   - (Provided for PennMUSH compatibility) No effect. 
  
