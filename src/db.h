@@ -56,12 +56,6 @@ struct atrlist {
 };
 #endif
 
-typedef struct stack STACK;
-struct stack {
-	char *data;
-	STACK *next;
-};
-
 extern ATTR *	FDECL(atr_num, (int anum));
 extern ATTR *	FDECL(atr_str, (char *s));
 
@@ -165,8 +159,6 @@ struct object {
 	POWER 	powers;		/* ALL: Powers on object */
 	POWER	powers2;	/* ALL: even more powers */
 	
-	STACK	*stackhead;	/* Every object has a stack. */
-
 #ifdef MEMORY_BASED
 	ATRLIST	*ahead;		/* The head of the attribute list. */
 	int	at_count;	/* How many attributes do we have? */
@@ -193,7 +185,6 @@ extern NAME *names;
 #define Flags3(t)		db[t].flags3
 #define Powers(t)		db[t].powers
 #define Powers2(t)		db[t].powers2
-#define Stack(t)		db[t].stackhead
 #define	Home(t)			Link(t)
 #define	Dropto(t)		Location(t)
 
@@ -219,7 +210,6 @@ extern NAME *names;
 #define s_Flags3(t,n)		db[t].flags3 = (n)
 #define s_Powers(t,n)		db[t].powers = (n)
 #define s_Powers2(t,n)		db[t].powers2 = (n)
-#define s_Stack(t,n)		db[t].stackhead = (n)
 #define	s_Home(t,n)		s_Link(t,n)
 #define	s_Dropto(t,n)		s_Location(t,n)
 

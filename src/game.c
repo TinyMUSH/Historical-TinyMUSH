@@ -1,9 +1,5 @@
-/*
- * game.c 
- */
-/*
- * $Id$ 
- */
+/* game.c */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -399,9 +395,7 @@ const char *msg, *dflt;
 	if (cp != buf) {
 		safe_chr(' ', buf, &cp);
 	}
-/* foobar */
 	safe_str((char *)msg, buf, &cp);
-	*cp = '\0';
 	return (buf);
 }
 
@@ -417,7 +411,6 @@ dbref sender, sendloc;
 	else
 		safe_str(Name(sender), tbuff, &tp);
 	safe_chr(',', tbuff, &tp);
-	*tp = '\0';
 	return tbuff;
 }
 
@@ -530,18 +523,22 @@ const char *msg;
 			tbuff = alloc_sbuf("notify_check.nospoof");
 			safe_chr('[', msg_ns, &mp);
 			safe_str(Name(sender), msg_ns, &mp);
-			sprintf(tbuff, "(#%d)", sender);
+			*tbuff = '(';
+			tbuff[1] = '#';
+			ltos(&tbuff[2], sender);
 			safe_str(tbuff, msg_ns, &mp);
-
+			safe_chr(')', msg_ns, &mp);
+			
 			if (sender != Owner(sender)) {
 				safe_chr('{', msg_ns, &mp);
 				safe_str(Name(Owner(sender)), msg_ns, &mp);
 				safe_chr('}', msg_ns, &mp);
 			}
 			if (sender != mudstate.curr_enactor) {
-				sprintf(tbuff, "<-(#%d)",
-					mudstate.curr_enactor);
+				strcpy(tbuff, (const char *) "<-(#");
+				ltos(&tbuff[4], mudstate.curr_enactor);
 				safe_str(tbuff, msg_ns, &mp);
+				safe_chr(')', msg_ns, &mp);
 			}
 			safe_str((char *)"] ", msg_ns, &mp);
 			free_sbuf(tbuff);
@@ -608,7 +605,6 @@ const char *msg;
 			safe_str(Name(target), tbuff, &tp);
 			safe_str((char *)"> ", tbuff, &tp);
 			safe_str(msg_ns, tbuff, &tp);
-			*tp = '\0';
 			raw_notify(Owner(target), tbuff);
 			free_lbuf(tbuff);
 		}
@@ -652,7 +648,7 @@ const char *msg;
 		/* Get rid of match arguments. We don't need them anymore */
 
 		if (pass_listen) {
-			for (i = 0; i < 10; i++)
+			for (i = 0; i < nargs; i++)
 				if (args[i] != NULL)
 					free_lbuf(args[i]);
 		}
@@ -1165,7 +1161,7 @@ static int NDECL(load_game)
 	compressed = 0;
 #ifndef VMS
 	if (mudconf.compress_db) {
-		StringCopy(infile, mudconf.indb);
+		strcpy(infile, mudconf.indb);
 		strcat(infile, ".gz");
 		if (stat(infile, &statbuf) == 0) {
 			if ((f = tf_popen(tprintf(" %s < %s",
@@ -1241,7 +1237,7 @@ int check_parent, *stop_status;
 	}
 	return match;
 }
-/* foobar */
+
 int Hearer(thing)
 dbref thing;
 {
@@ -1275,16 +1271,12 @@ dbref thing;
 
 			atr_get_str(buff, thing, attr, &aowner, &aflags);
 
-			/*
-			 * Make sure we can execute it 
-			 */
+			/* Make sure we can execute it */
 
 			if ((buff[0] != AMATCH_LISTEN) || (aflags & AF_NOPROG))
 				continue;
 
-			/*
-			 * Make sure there's a : in it 
-			 */
+			/* Make sure there's a : in it */
 
 			for (s = buff + 1; *s && (*s != ':'); s++) ;
 			if (s) {
@@ -1320,41 +1312,31 @@ static void NDECL(process_preload)
 	i = 0;
 	DO_WHOLE_DB(thing) {
 
-		/*
-		 * Ignore GOING objects 
-		 */
+		/* Ignore GOING objects */
 
 		if (Going(thing))
 			continue;
 
 		do_top(10);
 
-		/*
-		 * Look for a STARTUP attribute in parents 
-		 */
+		/* Look for a STARTUP attribute in parents */
 
 		ITER_PARENTS(thing, parent, lev) {
 			if (Flags(thing) & HAS_STARTUP) {
 				did_it(Owner(thing), thing, 0, NULL, 0, NULL,
 				       A_STARTUP, (char **)NULL, 0);
-				/*
-				 * Process queue entries as we add them 
-				 */
+				/* Process queue entries as we add them */
 
 				do_second();
 				do_top(10);
 #ifndef MEMORY_BASED
 				cache_reset(0);
-#endif /*
-        * MEMORY_BASED 
-        */
+#endif /* MEMORY_BASED */
 				break;
 			}
 		}
 
-		/*
-		 * Look for a FORWARDLIST attribute 
-		 */
+		/* Look for a FORWARDLIST attribute */
 
 		if (H_Fwdlist(thing)) {
 			(void)atr_get_str(tstr, thing, A_FORWARDLIST,
@@ -1365,9 +1347,7 @@ static void NDECL(process_preload)
 					fwdlist_set(thing, fp);
 #ifndef MEMORY_BASED
 				cache_reset(0);
-#endif /*
-        * MEMORY_BASED 
-        */
+#endif /* MEMORY_BASED */
 			}
 		}
 	}
@@ -1403,9 +1383,6 @@ char *argv[];
 	init_string_compress();
 #endif /* RADIX_COMPRESSION */
 	mindb = 0;		/* Are we creating a new db? */
-#ifdef MEMORY_BASED
-	corrupt = 0;		/* Database isn't corrupted. */
-#endif
 	time(&mudstate.start_time);
 	pool_init(POOL_LBUF, LBUF_SIZE);
 	pool_init(POOL_MBUF, MBUF_SIZE);
@@ -1429,6 +1406,7 @@ char *argv[];
 	hashinit(&mudstate.player_htab, 250 * HASH_FACTOR);
 	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
 	nhashinit(&mudstate.fwdlist_htab, 25 * HASH_FACTOR);
+	nhashinit(&mudstate.objstack_htab, 50 * HASH_FACTOR);
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.desc_htab, 25 * HASH_FACTOR);
 	vattr_init();
@@ -1480,15 +1458,11 @@ char *argv[];
 	srandom(getpid());
 	set_signals();
 
-	/*
-	 * Do a consistency check and set up the freelist 
-	 */
+	/* Do a consistency check and set up the freelist */
 
 	do_dbck(NOTHING, NOTHING, 0);
 
-	/*
-	 * Reset all the hash stats 
-	 */
+	/* Reset all the hash stats */
 
 	hashreset(&mudstate.command_htab);
 	hashreset(&mudstate.macro_htab);
@@ -1500,6 +1474,7 @@ char *argv[];
 	hashreset(&mudstate.attr_name_htab);
 	hashreset(&mudstate.player_htab);
 	nhashreset(&mudstate.fwdlist_htab);
+	nhashreset(&mudstate.objstack_htab);
 	hashreset(&mudstate.news_htab);
 	hashreset(&mudstate.help_htab);
 	hashreset(&mudstate.wizhelp_htab);
@@ -1548,9 +1523,7 @@ char *argv[];
 	mtrace();
 #endif
 
-	/*
-	 * go do it 
-	 */
+	/* go do it */
 
 	mudstate.now = time(NULL);
 	init_timer();
@@ -1590,8 +1563,9 @@ static void NDECL(init_rlimit)
 	if (setrlimit(RLIMIT_NOFILE, rlp))
 		log_perror("RLM", "FAIL", NULL, "setrlimit()");
 	free_lbuf(rlp);
-
-#endif /*
-        * HAVE_SETRLIMIT 
-        */
+#else
+#if defined(_SEQUENT_) && defined(NUMFDS_LIMIT)
+	setdtablesize(NUMFDS_LIMIT);
+#endif /* Sequent and unlimiting #define'd */
+#endif /* HAVE_SETRLIMIT */
 }

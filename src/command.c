@@ -792,7 +792,7 @@ int i;
 	 * abbreviated to minimise name checking time. 
 	 */
 
-	for (i = 0; i < A_USER_STAR; i++)
+	for (i = 0; i < A_USER_START; i++)
 		prefix_cmds[i] = NULL;
 	prefix_cmds['"'] = (CMDENT *) hashfind((char *)"\"",
 					       &mudstate.command_htab);
@@ -2323,6 +2323,7 @@ dbref player;
 	list_nhashstat(player, "Net Descriptors", &mudstate.desc_htab);
 	list_nhashstat(player, "Forwardlists", &mudstate.fwdlist_htab);
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
+	list_nhashstat(player, "Object Stacks", &mudstate.objstack_htab);
 #ifdef USE_MAIL
 	list_nhashstat(player, "Mail messages", &mudstate.mail_htab);
 #endif

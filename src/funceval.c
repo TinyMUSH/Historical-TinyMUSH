@@ -97,6 +97,28 @@ else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
     player, cause, cargs, ncargs))                              \
 return;
 
+/* --------------------------------------------------------------------------
+ * Auxiliary functions for stacks.
+ */
+
+typedef struct object_stack STACK;
+  struct object_stack {
+      char *data;
+      STACK *next;
+  };
+
+#define stack_get(x)   ((STACK *) nhashfind(x, &mudstate.objstack_htab))
+
+#define stack_object(p,x)				\
+        x = match_thing(p, fargs[0]);			\
+	if (!Good_obj(x)) {				\
+	    return;					\
+	}						\
+	if (!Controls(p, x)) {				\
+            notify_quiet(p, "Permission denied.");	\
+	    return;					\
+	}
+	
 #ifdef USE_COMSYS
 FUNCTION(fun_cwho)
 {
@@ -2627,230 +2649,340 @@ FUNCTION(fun_lparent)
 	}
 }
 
-/* stacksize - returns how many items are stuffed onto an object stack */
+/* ---------------------------------------------------------------------------
+ * Object stack functions.
+ */
 
-int stacksize(doer)
-dbref doer;
+void stack_clr(thing)
+    dbref thing;
 {
-	int i;
-	STACK *sp;
-	
-	for (i = 0, sp = Stack(doer); sp != NULL; sp = sp->next, i++) ;
-	
-	return i;
+    STACK *sp, *tp, *xp;
+
+    sp = stack_get(thing);
+    if (sp) {
+	for (tp = sp; tp != NULL; ) {
+	    XFREE(tp->data, "stack_clr_data");
+	    xp = tp;
+	    tp = tp->next;
+	    XFREE(xp, "stack_clr");
+	}
+	nhashdelete(thing, &mudstate.objstack_htab);
+    }
 }
 
-FUNCTION(fun_lstack)
+static void stack_set(thing, sp)
+    dbref thing;
+    STACK *sp;
 {
-	STACK *sp;
-	dbref doer;
+    STACK *xsp;
+    int stat;
 
-	if (nfargs > 1) {
-		safe_str("#-1 FUNCTION (CSTACK) EXPECTS 0-1 ARGUMENTS", buff, bufc);
-		return;
-	}
-	if (!fargs[0]) {
-		doer = player;
-	} else {
-		doer = match_thing(player, fargs[0]);
-	}
+    if (!sp) {
+	nhashdelete(thing, &mudstate.objstack_htab);
+	return;
+    }
 
-	if (!Controls(player, doer)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
-		return;
-	}
-	for (sp = Stack(doer); sp != NULL; sp = sp->next) {
-		safe_str(sp->data, buff, bufc);
-		safe_chr(' ', buff, bufc);
-	}
-	
-	if (sp)
-		(*bufc)--;
+    xsp = stack_get(thing);
+    if (xsp) {
+	stat = nhashrepl(thing, (int *) sp, &mudstate.objstack_htab);
+    } else {
+	stat = nhashadd(thing, (int *) sp, &mudstate.objstack_htab);
+    }
+    if (stat < 0) {		/* failure for some reason */
+	STARTLOG(LOG_BUGS, "STK", "SET")
+	    log_name(thing);
+	ENDLOG
+	stack_clr(thing);
+    }
 }
 
 FUNCTION(fun_empty)
 {
-	STACK *sp, *next;
-	dbref doer;
+    dbref it;
 
-	if (nfargs > 1) {
-		safe_str("#-1 FUNCTION (CSTACK) EXPECTS 0-1 ARGUMENTS", buff, bufc);
-		return;
-	}
-	if (!fargs[0]) {
-		doer = player;
-	} else {
-		doer = match_thing(player, fargs[0]);
-	}
+    xvarargs_preamble("EMPTY", 0, 1);
 
-	if (!Controls(player, doer)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
-		return;
-	}
-	for (sp = Stack(doer); sp != NULL; sp = next) {
-		next = sp->next;
-		free_lbuf(sp->data);
-		free(sp);
-	}
+    if (!fargs[0]) {
+	it = player;
+    } else {
+	stack_object(player, it);
+    }
 
-	s_Stack(doer, NULL);
+    stack_clr(it);
 }
 
 FUNCTION(fun_items)
 {
-	dbref doer;
+    dbref it;
+    int i;
+    STACK *sp;
 
-	if (nfargs > 1) {
-		safe_str("#-1 FUNCTION (NUMSTACK) EXPECTS 0-1 ARGUMENTS", buff, bufc);
-		return;
-	}
-	if (!fargs[0]) {
-		doer = player;
-	} else {
-		doer = match_thing(player, fargs[0]);
-	}
+    if (!fargs[0]) {
+	it = player;
+    } else {
+	stack_object(player, it);
+    }
 
-	if (!Controls(player, doer)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
-		return;
-	}
-	safe_ltos(buff, bufc, stacksize(doer));
+    for (i = 0, sp = stack_get(it); sp != NULL; sp = sp->next, i++)
+	;
+    safe_ltos(buff, bufc, i);
+}
+    
+
+FUNCTION(fun_push)
+{
+    dbref it;
+    char *data;
+    STACK *sp;
+
+    xvarargs_preamble("PUSH", 1, 2);
+
+    if (!fargs[1]) {
+	it = player;
+	data = fargs[0];
+    } else {
+	stack_object(player, it);
+	data = fargs[1];
+    }
+
+    sp = (STACK *) XMALLOC(sizeof(STACK), "stack_push");
+    if (!sp)			/* out of memory, ouch */
+	return;
+    sp->next = stack_get(it);
+    sp->data = (char *) XMALLOC(sizeof(char *) * (strlen(data) + 1),
+				"stack_push_data");
+    if (! sp->data)
+	return;
+    strcpy(sp->data, data);
+    stack_set(it, sp);
 }
 
-FUNCTION(fun_peek)
+FUNCTION(fun_dup)
 {
-	STACK *sp;
-	dbref doer;
-	int count, pos;
+    dbref it;
+    char *data;
+    STACK *hp;			/* head of stack */
+    STACK *tp;			/* temporary stack pointer */
+    STACK *sp;			/* new stack element */
+    int pos, count = 0;
 
-	if (nfargs > 2) {
-		safe_str("#-1 FUNCTION (PEEK) EXPECTS 0-2 ARGUMENTS", buff, bufc);
-		return;
-	}
-	if (!fargs[0]) {
-		doer = player;
-	} else {
-		doer = match_thing(player, fargs[0]);
-	}
+    xvarargs_preamble("DUP", 0, 2);
 
-	if (!Controls(player, doer)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
-		return;
-	}
-	if (!fargs[1] || !*fargs[1]) {
-		pos = 0;
-	} else {
-		pos = atoi(fargs[1]);
-	}
+    if (!fargs[0]) {
+	it = player;
+    } else {
+	stack_object(player, it);
+    }
 
-	if (stacksize(doer) == 0) {
-		return;
-	}
-	if (pos > (stacksize(doer) - 1)) {
-		safe_str("#-1 POSITION TOO LARGE", buff, bufc);
-		return;
-	}
-	count = 0;
-	sp = Stack(doer);
-	while (count != pos) {
-		if (sp == NULL) {
-			return;
-		}
-		count++;
-		sp = sp->next;
-	}
+    if (!fargs[1] || !*fargs[1]) {
+	pos = 0;
+    } else {
+	pos = atoi(fargs[1]);
+    }
 
-	safe_str(sp->data, buff, bufc);
+    hp = stack_get(it);
+    for (tp = hp; (count != pos) && (tp != NULL); count++, tp = tp->next)
+	;
+    if (!tp) {
+	notify_quiet(player, "No such item on stack.");
+	return;
+    }
+
+    sp = (STACK *) XMALLOC(sizeof(STACK), "stack_dup");
+    if (!sp)
+	return;
+    sp->next = hp;
+    sp->data = (char *) XMALLOC(sizeof(char *) * (strlen(tp->data) + 1),
+				"stack_dup_data");
+    if (!sp->data)
+	return;
+    strcpy(sp->data, tp->data);
+    stack_set(it, sp);
+}
+
+FUNCTION(fun_swap)
+{
+    dbref it;
+    STACK *sp, *tp;
+
+    xvarargs_preamble("SWAP", 0, 1);
+
+    if (!fargs[0]) {
+	it = player;
+    } else {
+	stack_object(player, it);
+    }
+
+    sp = stack_get(it);
+    if (sp->next == NULL) {
+	notify_quiet(player, "Not enough items on stack.");
+	return;
+    }
+
+    tp = sp->next;
+    sp->next = tp->next;
+    tp->next = sp;
+    stack_set(it, tp);
 }
 
 FUNCTION(fun_pop)
 {
-	STACK *sp, *prev;
-	dbref doer;
-	int count, pos;
+    dbref it;
+    int pos, count = 0;
+    STACK *sp, *prev;
 
-	if (nfargs > 2) {
-		safe_str("#-1 FUNCTION (POP) EXPECTS 0-2 ARGUMENTS", buff, bufc);
-		return;
-	}
-	if (!fargs[0]) {
-		doer = player;
-	} else {
-		doer = match_thing(player, fargs[0]);
-	}
+    xvarargs_preamble("POP", 0, 2);
 
-	if (!Controls(player, doer)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
-		return;
-	}
-	if (!fargs[1] || !*fargs[1]) {
-		pos = 0;
-	} else {
-		pos = atoi(fargs[1]);
-	}
+    if (!fargs[0]) {
+	it = player;
+    } else {
+	stack_object(player, it);
+    }
+    if (!fargs[1] || !*fargs[1]) {
+	pos = 0;
+    } else {
+	pos = atoi(fargs[1]);
+    }
 
-	sp = Stack(doer);
-	count = 0;
+    sp = stack_get(it);
+    if (!sp)
+	return;
 
-	if (stacksize(doer) == 0) {
-		return;
-	}
-	if (pos > (stacksize(doer) - 1)) {
-		safe_str("#-1 POSITION TOO LARGE", buff, bufc);
-		return;
-	}
-	while (count != pos) {
-		if (sp == NULL) {
-			return;
-		}
-		prev = sp;
-		sp = sp->next;
-		count++;
-	}
+    while (count != pos) {
+	if (!sp)
+	    return;
+	prev = sp;
+	sp = sp->next;
+	count++;
+    }
+    if (!sp)
+	return;
 
-	safe_str(sp->data, buff, bufc);
-	if (count == 0) {
-		s_Stack(doer, sp->next);
-		free_lbuf(sp->data);
-		free(sp);
-	} else {
-		prev->next = sp->next;
-		free_lbuf(sp->data);
-		free(sp);
-	}
+    safe_str(sp->data, buff, bufc);
+    if (count == 0) {
+	stack_set(it, sp->next);
+    } else {
+	prev->next = sp->next;
+    }
+    XFREE(sp->data, "stack_pop_data");
+    XFREE(sp, "stack_pop");
 }
 
-FUNCTION(fun_push)
+FUNCTION(fun_popn)
 {
-	STACK *sp;
-	dbref doer;
-	char *data;
+    dbref it;
+    int pos, nitems, i, count = 0, over = 0, first = 0;
+    STACK *sp, *prev, *tp, *xp;
+    char sep;
 
-	if ((nfargs > 2) || (nfargs < 1)) {
-		safe_str("#-1 FUNCTION (PUSH) EXPECTS 1-2 ARGUMENTS", buff, bufc);
-		return;
-	}
-	if (!fargs[1]) {
-		doer = player;
-		data = fargs[0];
-	} else {
-		doer = match_thing(player, fargs[0]);
-		data = fargs[1];
-	}
+    varargs_preamble("POPN", 4);
 
-	if (!Controls(player, doer)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
-		return;
+    stack_object(player, it);
+    pos = atoi(fargs[1]);
+    nitems = atoi(fargs[2]);
+
+    sp = stack_get(it);
+    if (!sp)
+	return;
+
+    while (count != pos) {
+	if (!sp)
+	    return;
+	prev = sp;
+	sp = sp->next;
+	count++;
+    }
+    if (!sp)
+	return;
+
+    /* We've now hit the start item, the first item. Copy 'em off. */
+
+    for (i = 0, tp = sp; (i < nitems) && (tp != NULL); i++) {
+	if (!over) {
+	    /* We have to pop off the items regardless of whether
+	     * or not there's an overflow, but we can save ourselves
+	     * some copying if so.
+	     */
+	    if (!first) {
+		safe_chr(sep, buff, bufc);
+		first = 1;
+	    }
+	    over = safe_str(tp->data, buff, bufc);
 	}
-	if (stacksize(doer) >= mudconf.stack_limit) {
-		safe_str("#-1 STACK SIZE EXCEEDED", buff, bufc);
-		return;
+	xp = tp;
+	tp = tp->next;
+	XFREE(xp->data, "stack_popn_data");
+	XFREE(xp, "stack_popn");
+    }
+
+    /* Relink the chain. */
+
+    if (count == 0) {
+	stack_set(it, tp);
+    } else {
+	prev->next = tp;
+    }
+}
+
+FUNCTION(fun_peek)
+{
+    dbref it;
+    int pos, count = 0;
+    STACK *sp;
+
+    xvarargs_preamble("POP", 0, 2);
+
+    if (!fargs[0]) {
+	it = player;
+    } else {
+	stack_object(player, it);
+    }
+    if (!fargs[1] || !*fargs[1]) {
+	pos = 0;
+    } else {
+	pos = atoi(fargs[1]);
+    }
+
+    sp = stack_get(it);
+    if (!sp)
+	return;
+
+    while (count != pos) {
+	if (!sp)
+	    return;
+	sp = sp->next;
+	count++;
+    }
+    if (!sp)
+	return;
+
+    safe_str(sp->data, buff, bufc);
+}
+
+FUNCTION(fun_lstack)
+{
+    char sep;
+    dbref it;
+    STACK *sp;
+    char *bp;
+    int over = 0, first = 0;
+
+    mvarargs_preamble("LSTACK", 0, 2);
+
+    if (!fargs[0]) {
+	it = player;
+    } else {
+	stack_object(player, it);
+    }
+
+    bp = buff;
+    for (sp = stack_get(it); (sp != NULL) && !over; sp = sp->next) {
+	if (!first) {
+	    safe_chr(sep, buff, bufc);
+	    first = 1;
 	}
-	sp = (STACK *) malloc(sizeof(STACK));
-	sp->next = Stack(doer);
-	sp->data = alloc_lbuf("push");
-	strcpy(sp->data, data);
-	s_Stack(doer, sp);
+	over = safe_str(sp->data, buff, bufc);
+    }
 }
 
 /* ---------------------------------------------------------------------------

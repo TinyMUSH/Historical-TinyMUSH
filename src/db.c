@@ -2390,7 +2390,6 @@ dbref first, last;
 		s_Next(thing, NOTHING);
 		s_Zone(thing, NOTHING);
 		s_Parent(thing, NOTHING);
-		s_Stack(thing, NULL);
 #ifdef MEMORY_BASED
 		db[thing].ahead = NULL;
 		db[thing].at_count = 0;
@@ -2566,7 +2565,6 @@ dbref newtop;
 			s_Next(i, NOTHING);
 			s_Zone(i, NOTHING);
 			s_Parent(i, NOTHING);
-			s_Stack(i, NULL);
 #ifdef MEMORY_BASED
 			db[i].ahead = NULL;
 			db[i].at_count = 0;
@@ -2639,7 +2637,6 @@ void NDECL(db_make_minimal)
 	s_Zone(0, NOTHING);
 	s_Pennies(0, 1);
 	s_Owner(0, 1);
-	s_Stack(0, NULL);
 #ifdef MEMORY_BASED
 	db[0].ahead = NULL;
 	db[0].at_count = 0;
@@ -2653,7 +2650,6 @@ void NDECL(db_make_minimal)
 	s_Powers(obj, 0);
 	s_Powers2(obj, 0);
 	s_Pennies(obj, 1000);
-	s_Stack(obj, NULL);
 
 	/* Manually link to Limbo, just in case */
 

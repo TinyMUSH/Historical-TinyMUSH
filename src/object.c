@@ -1,9 +1,5 @@
-/*
- * object.c - low-level object manipulation routines 
- */
-/*
- * $Id$ 
- */
+/* object.c - low-level object manipulation routines */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -26,15 +22,16 @@
 
 static int check_type;
 
+#ifndef STANDALONE
+extern void FDECL(fwdlist_clr, (dbref));
+extern void FDECL(stack_clr, (dbref));
+#endif
+
 #ifdef STANDALONE
 
-/*
- * Functions needed in standalone mode 
- */
+/* Functions needed in standalone mode */
 
-/*
- * move_object: taken from move.c with look and penny check extracted 
- */
+/* move_object: taken from move.c with look and penny check extracted */
 
 void move_object(thing, dest)
 dbref thing, dest;
@@ -445,6 +442,11 @@ dbref player, obj;
 		}
 	}
 	nfy_que(obj, 0, NFY_DRAIN, 0);
+	
+	/* Remove forwardlists and stacks from the hash tables. */
+	
+	fwdlist_clr(obj);
+	stack_clr(obj);
 #endif
 
 	/*
@@ -520,17 +522,6 @@ dbref player, obj;
 	s_Owner(obj, GOD);
 	s_Pennies(obj, 0);
 	s_Zone(obj, NOTHING);
-
-	/*
-	 * Clear the stack 
-	 */
-	for (sp = Stack(obj); sp != NULL; sp = next) {
-		next = sp->next;
-		free_lbuf(sp->data);
-		free(sp);
-	}
-
-	s_Stack(obj, NULL);
 
 #ifndef STANDALONE
 	if (mudconf.have_comsys)
