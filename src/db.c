@@ -797,8 +797,7 @@ char *aname, *value;
 		*p = toupper(*q);
 	*p = '\0';
 
-	va = (VATTR *) vattr_find(buff);
-	if (!va) {
+	if (!(ok_attr_name(buff) && (va = vattr_find(buff)))) {
 		notify(player, "No such user-named attribute.");
 		free_sbuf(buff);
 		return;
@@ -1032,6 +1031,9 @@ char *s;
 		*p = toupper(*q);
 	*p = '\0';
 
+	if (!ok_attr_name(buff))
+		return NULL;
+
 	/* Look for a predefined attribute */
 
 	if (!mudstate.standalone) {
@@ -1042,14 +1044,16 @@ char *s;
 		}
 	} else {
 		for (a = attr; a->name; a++) {
-			if (!string_compare(a->name, s))
+			if (!string_compare(a->name, s)) {
+				free_sbuf(buff);
 				return a;
+			}
 		}
 	}
-	
+
 	/* Nope, look for a user attribute */
 
-	va = (VATTR *) vattr_find(buff);
+	va = vattr_find(buff);
 	free_sbuf(buff);
 
 	/* If we got one, load tattr and return a pointer to it. */

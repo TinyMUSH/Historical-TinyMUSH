@@ -49,17 +49,7 @@ void NDECL(vattr_init)
 VATTR *vattr_find(name)
 char *name;
 {
-	register VATTR *vp;
-
-	if (!ok_attr_name(name))
-		return (NULL);
-
-	vp = (VATTR *)hashfind(name, &mudstate.vattr_name_htab);
-	
-	/*
-	 * vp is NULL or the right thing. It's right, either way. 
-	 */
-	return (vp);
+	return (VATTR *)hashfind(name, &mudstate.vattr_name_htab);
 }
 
 VATTR *vattr_alloc(name, flags)
