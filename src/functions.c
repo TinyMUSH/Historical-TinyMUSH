@@ -5684,6 +5684,7 @@ FUNCTION(fun_setq)
 	regnum = atoi(fargs[0]);
 	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
+		return;
 	}
 		
 	if (!mudstate.global_regs[regnum])
