@@ -4711,35 +4711,53 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   pronouns if the player's gender is set or to other useful information.
   Information returned is based on the player that caused the message to be
   displayed, not the object that stored the message or which is running the
-  action list.  The substitutions available are:
+  action list.
  
-    %s, %S  = Name, he, she, it, they.        (subjective)
-    %o, %O  = Name, him, her, it, them.       (objective)
-    %p, %P  = Name's, his, her, its, their.   (possessive)
-    %a, %A  = Name's, his, hers, its, theirs. (absolute possessive)
-    %n, %N  = the player's name.
-    %r      = carriage return
-    %t      = tab character
-    %b      = space character
-    %%      = literal '%' character
+  Simple format substitutions:
+ 
+    %r      = Carriage return / newline.
+    %t      = Tab character.
+    %b      = A single blank space.
+    %%      = The literal '%' character.
+    %\      = The literal '\' character.
+ 
+  Continued in 'help Substitutions2'.
+ 
+& Substitutions2
+ 
+  Substitutions related to the enactor (the object which caused the
+  action to be executed, or the message to be displayed):
+ 
+    %#      = Enactor's dbref.
+    %n, %N  = Enactor's name. Equiv: name(%#)
+    %s, %S  = Subjective pronoun: he, she, it, they. Equiv: subj(%#)
+    %o, %O  = Objective pronoun: him, her, it, them. Equiv: obj(%#)
+    %p, %P  = Possessive pronoun: his, her, its, their. Equiv: poss(%#)
+    %a, %A  = Absolute possessive pronoun: his, hers, its, theirs.
+    %l      = Dbref of enactor's location. Equiv: loc(%#)
+ 
+  For those substitutions that have either lower-case or upper-case
+  forms, using the upper-case letter will capitalize the first letter
+  of the result; i.e., '%S' returns 'He', 'She', 'It', or 'They'.
+ 
+  Continued in 'help Substitutions3'.
+ 
+& Substitutions3
+ 
+  Other substitutions:
+ 
+    %!      = Dbref of the object holding the message or running the
+              action list ('me').
+    %c      = Text of the last command executed.
     %0-%9   = Value of positional parameter/stack location 0 through 9.
-    %va-%vz = Contents of attribute va through vz
-    %#      = Database number of the object that caused the message to be
-              displayed or the action list to be run.
-{ 'help substitutions2' for more }
-& substitutions2
-    %l      = Database number of the location of the object that caused the
-              message to be displayed or the action list to be run.
-    %!      = Database number of the object holding the message or running
-              the action list.
-    %c      = Text of last command executed.
- 
-  If the letter following the % is capitalized, the first letter of the
-  result of the substitution is also capitalized.
+    %q0-%q9 = Value of registers 0 through 9. Equiv: r(0) - r(9)
+    %va-%vz = Contents of attributes VA through VZ. Equiv: v(va) - v(vz)
+    %_<var> = Value of a single-letter/number variable. Equiv: x(<var>)
  
   Note: %<whatever> is equivalent to [v(<whatever>)], but is more efficient.
+ 
   See also: GENDER, V().
-
+ 
 & SUCCESS
   Topic: SUCCESS
  
@@ -7855,6 +7873,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   This function retrieves a temporary variable associated with the object
   making the function call.
   
+  For variable names of a single letter or digit (A - Z, 0 - 9), the
+  variable can also be retrieved via the more efficient percent-substitution,
+  %_<variable name> -- x(a) is equivalent to %_a, x(0) is equivalent to %_0,
+  and so forth.
+ 
   See also: setx(), lvars(), setq(), setr(), r().
  
 & XVARS()
