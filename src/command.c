@@ -785,7 +785,7 @@ char *command, *args[];
 	static char preserve_cmd[LBUF_SIZE];
 	char *p, *q, *arg, *lcbuf, *slashp, *cmdsave, *bp, *str, *evcmd;
 	char *gbuf, *gc;
-	int succ, aflags, alen, i, got_stop, pcount;
+	int succ, aflags, alen, i, got_stop, pcount, retval = 0;
 	dbref exit, aowner, parent;
 	CMDENT *cmdp;
 	NUMBERTAB *np;
@@ -893,6 +893,16 @@ char *command, *args[];
 		*q = '\0';
 	}
 
+	/* Allow modules to intercept command strings. */
+
+	CALL_SOME_MODULES(retval, "process_command",
+			 (dbref, dbref, int, char *, char **, int),
+			 (player, cause, interactive, command, args, nargs));
+	if (retval > 0) {
+	    mudstate.debug_cmd = cmdsave;
+	    return preserve_cmd;
+	}
+
 	/* Now comes the fun stuff.  First check for single-letter leadins.
 	 * We check these before checking HOME because
 	 * they are among the most frequently executed commands, 
@@ -909,8 +919,10 @@ char *command, *args[];
 
 #ifdef USE_COMSYS
 	if (mudconf.have_comsys && !Slave(player) &&
-	    !do_comsys(player, command))
+	    !do_comsys(player, command)) {
+	    mudstate.debug_cmd = cmdsave;
 	    return preserve_cmd;
+	}
 #endif
 
 	/* Check for the HOME command. You cannot do hooks on this because
@@ -1279,6 +1291,20 @@ char *command, *args[];
 			}
 		}
 	}
+
+	/* Allow modules to intercept, if still no match.
+	 * This time we pass both the lower-cased evaluated buffer
+	 * and the preserved command.
+	 */
+
+	if (!succ) {
+	    CALL_SOME_MODULES(succ, "process_no_match",
+			      (dbref, dbref, int, char *, char *,
+			       char **, int),
+			      (player, cause, interactive, lcbuf, preserve_cmd,
+			       args, nargs));
+	}
+
 	free_lbuf(lcbuf);
 
 	/* If we still didn't find anything, tell how to get help. */

@@ -634,6 +634,7 @@ extern int	FDECL(quick_wild, (char *, char *));
  */
 
 #ifdef HAVE_DLOPEN
+
 #define WALK_ALL_MODULES(mp) \
 	for (mp = mudstate.modules_list; mp != NULL; mp = mp->next)
 
@@ -642,14 +643,23 @@ extern int	FDECL(quick_wild, (char *, char *));
 #ifdef DLSYM_NEEDS_UNDERSCORE
 #define DLSYM(h,m,x,p) \
 	(void (*)p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
+#define DLSYM_INT(h,m,x,p) \
+	(int (*)p)dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
 #else
 #define DLSYM(h,m,x,p) \
 	(void (*)p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
+#define DLSYM_INT(h,m,x,p) \
+	(int (*)p)dlsym((h), tprintf("mod_%s_%s", (m), (x)))
 #endif /* DLSYM_NEEDS_UNDERSCORE */
 
-/* Syntax: CALL_ALL_MODULES(<name of function>, (<args>)) */
+#endif /* HAVE_DLOPEN */
 
-#ifndef STANDALONE
+#if defined(HAVE_DLOPEN) && !defined(STANDALONE)
+
+/* Syntax: CALL_ALL_MODULES(<name of function>, (<arg types>), (<args>))
+ * Call all modules defined for this symbol.
+ */
+
 #define CALL_ALL_MODULES(xfn,proto,args) \
 { \
 MODULE *cam__mp; \
@@ -659,15 +669,32 @@ if ((cam__ip = DLSYM(cam__mp->handle, cam__mp->modname, xfn, proto)) != NULL) \
     (*cam__ip)args; \
 } \
 }
-#else  /* STANDALONE */
+
+/* Syntax: CALL_SOME_MODULES(<return value variable>,
+ *                           <name of function>, (<arg types>), (<args>))
+ * Call modules in sequence until we get back a non-zero value.
+ */
+
+#define CALL_SOME_MODULES(rv,xfn,proto,args) \
+{ \
+    MODULE *csm__mp; \
+    int (*csm__ip)proto; \
+    for (csm__mp = mudstate.modules_list, rv = 0; \
+	 (csm__mp != NULL) && !rv; \
+	 csm__mp = csm__mp->next) { \
+	if ((csm__ip = DLSYM_INT(csm__mp->handle, csm__mp->modname, \
+				 xfn, proto)) != NULL) { \
+	    rv = (*csm__ip)args; \
+	} \
+    } \
+}
+
+#else  /* ! HAVE_DLOPEN or STANDALONE */
+
 #define CALL_ALL_MODULES(xfn,proto,args)
-#endif /* STANDALONE */
+#define CALL_MODULES_TIL_SUCCESS(rv,xfn,proto,args)
 
-#else  /* ! HAVE_DLOPEN */
-
-#define CALL_ALL_MODULES(xfn,proto,args)
-
-#endif /* HAVE_DLOPEN */
+#endif /* ! HAVE_DLOPEN or STANDALONE */
 
 /* --------------------------------------------------------------------------
  * String things.
