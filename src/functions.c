@@ -2427,7 +2427,8 @@ FUNCTION(fun_lexits)
 	dbref thing, it, parent;
 	char *tbuf;
 	int exam, lev, key;
-
+	int first = 1;
+	
 	it = match_thing(player, fargs[0]);
 
 	if (!Good_obj(it) || !Has_exits(it)) {
@@ -2458,10 +2459,12 @@ FUNCTION(fun_lexits)
 			key |= VE_BASE_DARK;
 		DOLIST(thing, Exits(parent)) {
 			if (exit_visible(thing, player, key)) {
-				if (*buff)
+				if (!first)
 					sprintf(tbuf, " #%d", thing);
-				else
+				else {
 					sprintf(tbuf, "#%d", thing);
+					first = 0;
+				}
 				safe_str(tbuf, buff, bufc);
 			}
 		}
