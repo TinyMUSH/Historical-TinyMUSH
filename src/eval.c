@@ -1069,9 +1069,7 @@ char *cargs[];
 					safe_noperm(buff, bufc);
 				} else {
 					fargs[-1] = (char *)fp;
-					fp->fun(buff, bufc, player, caller,
-						cause, fargs, nfargs,
-						cargs, ncargs);
+					fp->fun( FUNCTION_ARGLIST );
 				}
 				mudstate.func_nest_lev--;
 			} else {
