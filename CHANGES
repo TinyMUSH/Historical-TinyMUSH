@@ -187,7 +187,8 @@ the other have been listed in the conversion notes for both servers.
   types of events to be sent to different files. The new @logrotate
   command allows these logfiles to be rotated while the game is running.
   Logfiles are also rotated when a @restart is done. Old log are marked
-  with a timestamp in seconds.
+  with a timestamp in seconds. The new Logclean script simplifies 
+  cleanup of old logfiles.
 
 - New /reply and /replyall switches to @mail allow replying to a mail
   message, including quoting it via the additional /quote switch.
