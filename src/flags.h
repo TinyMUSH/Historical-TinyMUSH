@@ -194,6 +194,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Good_dbref(X)	- Is X inside the DB? */
 /* Good_obj(X)		- Is X inside the DB and have a valid type? */
 /* Good_owner(X)	- Is X a good owner value? */
+/* Good_home(X)		- Is X a good home value? */
+/* Good_loc(X)		- Is X a good location value? */
 /* Going(X)		- Is X marked GOING? */
 /* Inherits(X)		- Does X inherit the privs of its owner */
 /* Examinable(P,X)	- Can P look at attribs of X */
@@ -236,6 +238,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Good_dbref(x)	(((x) >= 0) && ((x) < mudstate.db_top))
 #define	Good_obj(x)	(Good_dbref(x) && (Typeof(x) < GOODTYPE))
 #define	Good_owner(x)	(Good_obj(x) && OwnsOthers(x))
+#define	Good_home(x)	(Good_obj(x) && Home_ok(x))
+#define	Good_loc(x)	(Good_obj(x) && Has_contents(x))
 
 #define Royalty(x)      ((Flags(x) & ROYALTY) != 0)
 #define WizRoy(x)       (Royalty(x) || Wizard(x))

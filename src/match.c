@@ -290,7 +290,7 @@ void NDECL(match_possession)
 {
 	if (md.confidence >= CON_DBREF)
 		return;
-	if (Good_obj(md.player) && Has_contents(md.player))
+	if (Good_loc(md.player))
 		match_list(Contents(md.player), CON_LOCAL);
 }
 

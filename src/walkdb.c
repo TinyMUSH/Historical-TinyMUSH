@@ -1152,7 +1152,9 @@ char *name;
     /* Mark everyplace you can get to via exits from the starting room */
 
     Unmark_all(i);
-    mark_place(mudconf.start_room);
+    if (Good_loc(mudconf.guest_start_room))
+	mark_place(mudconf.guest_start_room);
+    mark_place(Good_loc(mudconf.start_room) ? mudconf.start_room : 0);
 
     /* Report rooms that aren't marked */
 

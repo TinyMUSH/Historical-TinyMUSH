@@ -1239,8 +1239,7 @@ char *command, *args[];
 	/* If we didn't find anything, try in the master room */
 
 	if (!got_stop && !succ) {
-		if (Good_obj(mudconf.master_room) &&
-		    Has_contents(mudconf.master_room)) {
+		if (Good_loc(mudconf.master_room)) {
 			succ += list_check(Contents(mudconf.master_room),
 					   player, AMATCH_CMD, lcbuf,
 					   preserve_cmd, 0, &got_stop);

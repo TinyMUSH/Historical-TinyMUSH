@@ -182,7 +182,8 @@ int fflags, reset;
 
 /* ---------------------------------------------------------------------------
  * fh_going_bit: Manipulate the going bit. Can only be cleared on
- * objects slated for destruction, by non-god.
+ * objects slated for destruction, by non-god. May only be set by god.
+ * Even god can't destroy nondestroyable objects.
  */
 
 int fh_going_bit(target, player, flag, fflags, reset)
@@ -194,7 +195,7 @@ int fflags, reset;
 		notify(player, "Your object has been spared from destruction.");
 		return (fh_any(target, player, flag, fflags, reset));
 	}
-	if (!God(player))
+	if (!God(player) || !destroyable(target))
 		return 0;
 	return (fh_any(target, player, flag, fflags, reset));
 }

@@ -22,6 +22,8 @@
 extern dbref FDECL(match_controlled_quiet, (dbref, const char *));
 extern dbref FDECL(clone_home, (dbref, dbref));
 extern int FDECL(can_set_home, (dbref, dbref, dbref));
+extern CONF conftable[];
+extern CF_HDCL(cf_dbref);
 
 /* ---------------------------------------------------------------------------
  * parse_linkable_room: Get a location to link to.
@@ -697,7 +699,8 @@ char *name, *pass;
 			log_name(player);
 		ENDLOG
 	} else {
-		move_object(newplayer, mudconf.start_room);
+		move_object(newplayer, (Good_loc(mudconf.start_room) ?
+					mudconf.start_room : 0));
 		notify_quiet(player,
 		       tprintf("New player '%s' (#%d) created with password '%s'",
 			       name, newplayer, pass));
@@ -735,17 +738,33 @@ dbref player, exit;
  * * the database.
  */
 
-static int destroyable(victim)
+int destroyable(victim)
 dbref victim;
 {
-	if ((victim == mudconf.default_home) ||
-	    (victim == mudconf.start_home) ||
-	    (victim == mudconf.start_room) ||
-	    (victim == mudconf.master_room) ||
-	    (victim == mudconf.guest_char) ||
-	    (victim == (dbref) 0) ||
+	CONF *tp, *ctab;
+	MODULE *mp;
+
+	if ((victim == (dbref) 0) ||
 	    (God(victim)))
 		return 0;
+
+	for (tp = conftable; tp->pname; tp++) {
+		if (tp->interpreter == cf_dbref &&
+		    victim == *((dbref *)(tp->loc)))
+			return 0;
+	}
+
+	WALK_ALL_MODULES(mp) {
+		if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "conftable",
+				      CONF *)) != NULL) {
+			for (tp = ctab; tp->pname; tp++) {
+				if (tp->interpreter == cf_dbref &&
+				    victim == *((dbref *)(tp->loc)))
+					return 0;
+			}
+		}
+	}
+  
 	return 1;
 }
 

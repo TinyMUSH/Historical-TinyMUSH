@@ -106,10 +106,9 @@ int num;
     /* Turn the player into a guest. */
 
     s_Guest(player);
-    if (Good_obj(mudconf.guest_start_room))
-	move_object(player, mudconf.guest_start_room);
-    else
-	move_object(player, mudconf.start_room);
+    move_object(player, (Good_loc(mudconf.guest_start_room) ? mudconf.guest_start_room :
+			 (Good_loc(mudconf.start_room) ? mudconf.start_room :
+			  0)));
     s_Flags(player, (Flags(mudconf.guest_char) & ~TYPE_MASK &
 		     ~mudconf.stripped_flags.word1) | TYPE_PLAYER);
     s_Flags2(player, Flags2(mudconf.guest_char) &

@@ -44,6 +44,9 @@ extern int	NDECL(que_next);
 extern int	FDECL(do_top, (int ncmds));
 extern void	NDECL(do_second);
 
+/* From create.c */
+extern int	FDECL(destroyable, (dbref));
+
 /* From db.c */
 extern const char *FDECL(getstring_noalloc, (FILE *, int));
 extern void	FDECL(putstring, (FILE *, const char *));

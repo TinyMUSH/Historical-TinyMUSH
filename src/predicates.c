@@ -2016,7 +2016,7 @@ const char *def, *odef;
 	    default:
 		master = mudconf.thing_defobj;
 	}
-	if (master == thing)
+	if (master == thing || !Good_obj(master))
 	    master = NOTHING;
     }
 

@@ -42,8 +42,7 @@ FUNCTION(fun_con)
 
 	it = match_thing(player, fargs[0]);
 
-	if ((it != NOTHING) &&
-	    (Has_contents(it)) &&
+	if (Good_loc(it) &&
 	    (Examinable(player, it) ||
 	     (where_is(player) == it) ||
 	     (it == cause))) {
@@ -463,7 +462,7 @@ FUNCTION(fun_xcon)
     it = match_thing(player, fargs[0]);
 
     bb_p = *bufc;
-    if ((it != NOTHING) && (Has_contents(it)) &&
+    if (Good_loc(it) &&
 	(Examinable(player, it) || (Location(player) == it) ||
 	 (it == cause))) {
 	first = atoi(fargs[1]);
@@ -505,8 +504,7 @@ FUNCTION(fun_lcon)
 
 	it = match_thing(player, fargs[0]);
 	bb_p = *bufc;
-	if ((it != NOTHING) &&
-	    (Has_contents(it)) &&
+	if (Good_loc(it) &&
 	    (Examinable(player, it) ||
 	     (Location(player) == it) ||
 	     (it == cause))) {

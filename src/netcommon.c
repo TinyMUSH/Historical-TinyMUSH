@@ -629,7 +629,7 @@ int num, attr;
 		wait_que(player, player, 0, NOTHING, 0, buf, argv, 2, NULL);
 	free_lbuf(buf);
 
-	if ((mudconf.master_room != NOTHING) && mudconf.use_global_aconn) {
+	if (Good_loc(mudconf.master_room) && mudconf.use_global_aconn) {
 		buf = atr_pget(mudconf.master_room, attr, &aowner,
 			       &aflags, &alen);
 		if (*buf)
@@ -1415,7 +1415,7 @@ char *msg;
 
 	if (!strncmp(command, "co", 2) || !strncmp(command, "cd", 2)) {
 		if ((string_prefix(user, mudconf.guest_basename)) &&
-		    (mudconf.guest_char != NOTHING) &&
+		    Good_obj(mudconf.guest_char) &&
 		    (mudconf.control_flags & CF_LOGIN)) {
 			if ((p = make_guest(d)) == NULL) {
 				queue_string(d, "All guests are tied up, please try again later.\n");
@@ -1591,7 +1591,8 @@ char *msg;
 					   conn_reasons[reason]);
 				log_name(player);
 				ENDLOG
-				move_object(player, mudconf.start_room);
+				move_object(player, (Good_loc(mudconf.start_room) ?
+						     mudconf.start_room : 0));
 				d->flags |= DS_CONNECTED;
 				d->connected_at = time(NULL);
 				d->player = player;

@@ -124,10 +124,10 @@ dbref player;
 	loc = Home(Owner(player));
 	if (can_set_home(Owner(player), player, loc))
 		return loc;
-	return ((mudconf.default_home != NOTHING) ?
-		mudconf.default_home : ((mudconf.start_home != NOTHING) ?
-					mudconf.start_home :
-					mudconf.start_room));
+	return (Good_home(mudconf.default_home) ? mudconf.default_home :
+		(Good_home(mudconf.start_home) ? mudconf.start_home :
+		 (Good_home(mudconf.start_room) ? mudconf.start_room :
+		  0)));
 }
 
 dbref clone_home(player, thing)
@@ -233,7 +233,8 @@ dbref player;
 int objtype, cost;
 char *name;
 {
-	dbref obj, owner, parent;
+	dbref obj, owner;
+	dbref parent = NOTHING;
 	dbref proto = NOTHING;
 	int quota, okname = 0, value, self_owned, require_inherit;
 	FLAG f1, f2, f3;
@@ -265,11 +266,12 @@ char *name;
 		f1 = mudconf.room_flags.word1;
 		f2 = mudconf.room_flags.word2;
 		f3 = mudconf.room_flags.word3;
-		parent = mudconf.room_parent;
 		okname = ok_name(name);
 		tname = "a room";
+		if (Good_obj(mudconf.room_parent))
+			parent = mudconf.room_parent;
 		if (Good_obj(mudconf.room_proto))
-		    proto = mudconf.room_proto;
+			proto = mudconf.room_proto;
 		break;
 	case TYPE_THING:
 		if (cost < mudconf.createmin)
@@ -280,12 +282,13 @@ char *name;
 		f1 = mudconf.thing_flags.word1;
 		f2 = mudconf.thing_flags.word2;
 		f3 = mudconf.thing_flags.word3;
-		parent = mudconf.thing_parent;
 		value = OBJECT_ENDOWMENT(cost);
 		okname = ok_name(name);
 		tname = "a thing";
+		if (Good_obj(mudconf.thing_parent))
+			parent = mudconf.thing_parent;
 		if (Good_obj(mudconf.thing_proto))
-		    proto = mudconf.thing_proto;
+			proto = mudconf.thing_proto;
 		break;
 	case TYPE_EXIT:
 		cost = mudconf.opencost;
@@ -293,12 +296,12 @@ char *name;
 		f1 = mudconf.exit_flags.word1;
 		f2 = mudconf.exit_flags.word2;
 		f3 = mudconf.exit_flags.word3;
-		parent = mudconf.exit_parent;
 		okname = ok_name(name) && ok_exit_name(name);
 		tname = "an exit";
+		if (Good_obj(mudconf.exit_parent))
+			parent = mudconf.exit_parent;
 		if (Good_obj(mudconf.exit_proto))
-		    proto = mudconf.exit_proto;
-		break;
+			proto = mudconf.exit_proto;
 	case TYPE_PLAYER:
 		if (cost) {
 			cost = mudconf.robotcost;
@@ -320,9 +323,10 @@ char *name;
 			self_owned = 1;
 			tname = "a player";
 		}
-		parent = mudconf.player_parent;
+		if (Good_obj(mudconf.player_parent))
+			parent = mudconf.player_parent;
 		if (Good_obj(mudconf.player_proto))
-		    proto = mudconf.player_proto;
+			proto = mudconf.player_proto;
 		buff = munge_space(name);
 		okname = badname_check(buff);
 		if (!okname) {
