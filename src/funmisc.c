@@ -421,6 +421,8 @@ FUNCTION(fun_lnum)
 	    over = safe_str(tbuf, buff, bufc);
 	    bot++;
 	}
+	if (over)
+	    return;
     }
 
     /* Copy as much out of the pre-gen as we can. */
