@@ -634,8 +634,8 @@ char *name, *pass;
 	if (isrobot) {
 		move_object(newplayer, Location(player));
 		notify_quiet(player,
-			tprintf("New robot '%s' created with password '%s'",
-				name, pass));
+			tprintf("New robot '%s' (#%d) created with password '%s'",
+				name, newplayer, pass));
 		notify_quiet(player, "Your robot has arrived.");
 		STARTLOG(LOG_PCREATES, "CRE", "ROBOT")
 			log_name(newplayer);
@@ -645,8 +645,8 @@ char *name, *pass;
 	} else {
 		move_object(newplayer, mudconf.start_room);
 		notify_quiet(player,
-		       tprintf("New player '%s' created with password '%s'",
-			       name, pass));
+		       tprintf("New player '%s' (#%d) created with password '%s'",
+			       name, newplayer, pass));
 		STARTLOG(LOG_PCREATES | LOG_WIZARD, "WIZ", "PCREA")
 			log_name(newplayer);
 		log_text((char *)" created by ");
