@@ -183,6 +183,7 @@ struct confdata {
 	int	safer_passwords;/* enforce reasonably good password choices? */
 	int	space_compress;	/* Convert multiple spaces into one space */
 	int	instant_recycle;/* Do destroy_ok objects get insta-nuke? */
+	int	dark_actions;	/* Trigger @a-actions even when dark? */
 	dbref	start_room;	/* initial location and home for players */
 	dbref	start_home;	/* initial HOME for players */
 	dbref	default_home;	/* HOME when home is inaccessable */

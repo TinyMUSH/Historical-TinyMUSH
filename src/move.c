@@ -51,9 +51,10 @@ int canhear, hush;
 		   (!Dark(thing) && !Dark(loc)) ||
 		   (canhear && !(Wizard(thing) && Dark(thing))))) ||
 		(hush & HUSH_LEAVE);
-	oattr = quiet ? 0 : A_OLEAVE;
-	aattr = quiet ? 0 : A_ALEAVE;
-	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? 0 : A_LEAVE;
+	oattr = quiet ? A_NULL : A_OLEAVE;
+	aattr = (!quiet || (mudconf.dark_actions && !(hush & HUSH_LEAVE))) ?
+	    A_ALEAVE : A_NULL;
+	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? A_NULL : A_LEAVE;
 	did_it(thing, loc, pattr, NULL, oattr, NULL, aattr,
 	       (char **)NULL, 0);
 
@@ -110,9 +111,10 @@ int canhear, hush;
 		   (!Dark(thing) && !Dark(loc)) ||
 		   (canhear && !(Wizard(thing) && Dark(thing))))) ||
 		(hush & HUSH_ENTER);
-	oattr = quiet ? 0 : A_OENTER;
-	aattr = quiet ? 0 : A_AENTER;
-	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? 0 : A_ENTER;
+	oattr = quiet ? A_NULL : A_OENTER;
+	aattr = (!quiet || (mudconf.dark_actions && !(hush & HUSH_ENTER))) ?
+	    A_AENTER : A_NULL;
+	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? A_NULL : A_ENTER;
 	did_it(thing, loc, pattr, NULL, oattr, NULL, aattr,
 	       (char **)NULL, 0);
 
@@ -296,9 +298,10 @@ int hush;
 	darkwiz = (Wizard(thing) && Dark(thing));
 	quiet = darkwiz || (hush & HUSH_EXIT);
 
-	oattr = quiet ? 0 : A_OSUCC;
-	aattr = quiet ? 0 : A_ASUCC;
-	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? 0 : A_SUCC;
+	oattr = quiet ? A_NULL : A_OSUCC;
+	aattr = (!quiet || (mudconf.dark_actions && !(hush & HUSH_EXIT))) ?
+	    A_ASUCC : A_NULL;
+	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? A_NULL : A_SUCC;
 	did_it(thing, exit, pattr, NULL, oattr, NULL, aattr,
 	       (char **)NULL, 0);
 	process_leave_loc(thing, dest, cause, canhear, hush);
@@ -306,9 +309,10 @@ int hush;
 
 	/* Dark wizards don't trigger ODROP/ADROP */
 
-	oattr = quiet ? 0 : A_ODROP;
-	aattr = quiet ? 0 : A_ADROP;
-	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? 0 : A_DROP;
+	oattr = quiet ? A_NULL : A_ODROP;
+	aattr = (!quiet || (mudconf.dark_actions && !(hush & HUSH_EXIT))) ?
+	    A_ADROP : A_NULL;
+	pattr = (!mudconf.terse_movemsg && Terse(thing)) ? A_NULL : A_DROP;
 	did_it(thing, exit, pattr, NULL, oattr, NULL, aattr,
 	       (char **)NULL, 0);
 
@@ -456,13 +460,11 @@ const char *failmsg;
 			return;
 		}
 	} else {
-		if ((Wizard(player) && Dark(player)) || (hush & HUSH_EXIT)) {
-			oattr = 0;
-			aattr = 0;
-		} else {
-			oattr = A_OFAIL;
-			aattr = A_AFAIL;
-		}
+	        oattr = (Dark(player) || (hush & HUSH_EXIT)) ?
+		    A_NULL : A_OFAIL;
+		aattr = ((hush & HUSH_EXIT) ||
+			 (Dark(player) && !mudconf.dark_actions)) ?
+		    A_NULL : A_AFAIL;
 		did_it(player, exit, A_FAIL, failmsg, oattr, NULL, aattr,
 		       (char **)NULL, 0);
 	}

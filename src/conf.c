@@ -223,6 +223,7 @@ void NDECL(cf_init)
 	mudconf.ansi_colors = 1;
 	mudconf.safer_passwords = 0;
 	mudconf.instant_recycle = 1;
+	mudconf.dark_actions = 0;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1221,6 +1222,8 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.createmax,		0},
 {(char *)"create_min_cost",
 	cf_int,		CA_GOD,		&mudconf.createmin,		0},
+{(char *)"dark_actions",
+	cf_bool,	CA_GOD,		&mudconf.dark_actions,		0},
 {(char *)"dark_sleepers",
 	cf_bool,	CA_GOD,		&mudconf.dark_sleepers,		0},
 {(char *)"default_home",
@@ -1237,14 +1240,6 @@ CONF conftable[] = {
 	cf_string,	CA_GOD,		(int *)mudconf.dump_msg,	PBUF_SIZE},
 {(char *)"postdump_message",
 	cf_string,	CA_GOD,		(int *)mudconf.postdump_msg,	PBUF_SIZE},
-{(char *)"helpfile",
-	cf_helpfile,	CA_STATIC,	NULL,			0},
-#ifdef PUEBLO_SUPPORT
-{(char *)"html_connect_file",
-	cf_string,	CA_STATIC,	(int *) mudconf.htmlconn_file, SBUF_SIZE},
-{(char *)"pueblo_message",
-	cf_string,      CA_GOD,         (int *) mudconf.pueblo_msg,     1024},
-#endif
 {(char *)"dump_offset",
 	cf_int,		CA_GOD,		&mudconf.dump_offset,		0},
 {(char *)"earn_limit",
@@ -1330,8 +1325,16 @@ CONF conftable[] = {
 	cf_bool,	CA_STATIC,	&mudconf.have_mailer,		0},
 {(char *)"have_zones",
 	cf_bool,	CA_STATIC,	&mudconf.have_zones,		0},
+{(char *)"helpfile",
+	cf_helpfile,	CA_STATIC,	NULL,			0},
 {(char *)"hostnames",
 	cf_bool,	CA_GOD,		&mudconf.use_hostname,		0},
+#ifdef PUEBLO_SUPPORT
+{(char *)"html_connect_file",
+	cf_string,	CA_STATIC,	(int *) mudconf.htmlconn_file, SBUF_SIZE},
+{(char *)"pueblo_message",
+	cf_string,      CA_GOD,         (int *) mudconf.pueblo_msg,     1024},
+#endif
 {(char *)"idle_wiz_dark",
 	cf_bool,	CA_GOD,		&mudconf.idle_wiz_dark,		0},
 {(char *)"idle_interval",
