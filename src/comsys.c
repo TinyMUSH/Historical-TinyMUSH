@@ -660,7 +660,7 @@ struct channel *ch;
 		return;
 	}
 
-	if (!Dark(player)) {
+	if (!Hidden(player)) {
 	        bp = temp;
 		safe_tprintf_str(temp, &bp,
 				 "[%s] %s has joined this channel.",
@@ -680,7 +680,7 @@ struct channel *ch;
 
 	raw_notify(player, tprintf("You have left channel %s.", ch->name));
 	
-	if ((user->on) && (!Dark(player)))
+	if ((user->on) && (!Hidden(player)))
 	{ 
 		bp = temp;
 		safe_tprintf_str(temp, &bp,
@@ -701,13 +701,13 @@ struct channel *ch;
 	raw_notify(player, "-- Players --");
 	for (user = ch->on_users; user; user = user->on_next) {
 		if (Typeof(user->who) == TYPE_PLAYER)
-			if (Connected(user->who) && (!Dark(user->who) || Wizard_Who(player))) {
+			if (Connected(user->who) && (!Hidden(user->who) || See_Hidden(player))) {
 				if (user->on) {
 					buff = unparse_object(player, user->who, 0);
 					raw_notify(player, tprintf("%s", buff));
 					free_lbuf(buff);
 				}
-			} else if (!Dark(user->who))
+			} else if (!Hidden(user->who))
 				do_comdisconnectchannel(user->who, ch->name);
 	}
 	raw_notify(player, "-- Objects --");
@@ -1301,7 +1301,7 @@ char *arg1;
 				   "Name", "Status", "Player"));
 	for (i = 0; i < ch->num_users; i++) {
 		user = ch->users[i];
-		if ((flag || UNDEAD(user->who)) && (!Dark(user->who) || Wizard_Who(player))) {
+		if ((flag || UNDEAD(user->who)) && (!Hidden(user->who) || See_Hidden(player))) {
 			buff = unparse_object(player, user->who, 0);
 			sprintf(temp, "%-29.29s %-6.6s %-6.6s",
 			       (mudconf.ansi_colors ? strip_ansi(buff) : buff),
@@ -1327,7 +1327,7 @@ char *chan;
 	if (!(cu = select_user(ch, player)))
 		return;
 
-	if ((ch->type & CHANNEL_LOUD) && (cu->on) && (!Dark(player))) {
+	if ((ch->type & CHANNEL_LOUD) && (cu->on) && (!Hidden(player))) {
 		buff = alloc_lbuf("do_comconnect");
 		sprintf(buff, "[%s] %s has disconnected.",
 			ch->name, Name(player));
@@ -1349,7 +1349,7 @@ char *chan;
 	if (!(cu = select_user(ch, player)))
 		return;
 
-	if ((ch->type & CHANNEL_LOUD) && (cu->on) && (!Dark(player))) {
+	if ((ch->type & CHANNEL_LOUD) && (cu->on) && (!Hidden(player))) {
 		buff = alloc_lbuf("do_comconnect");
 		sprintf(buff, "[%s] %s has connected.", ch->name, Name(player));
 		do_comsend(ch, buff);

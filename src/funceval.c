@@ -1878,9 +1878,8 @@ int type;			/* 0 for orflags, 1 for andflags */
 			    (Flags2(it) & fset.word2) ||
 			    (Flags3(it) & fset.word3) ||
 			    (Typeof(it) == p_type)) {
-				if (isPlayer(it) && (fset.word2 == CONNECTED) &&
-				    ((Flags(it) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
-				    !Wizard(player))
+				if (isPlayer(it) && (fset.word2 == CONNECTED)
+				    && Hidden(it) && !See_Hidden(player))
 					temp = 0;
 				else
 					temp = 1;

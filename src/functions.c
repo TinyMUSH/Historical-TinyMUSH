@@ -5024,7 +5024,7 @@ FUNCTION(fun_idle)
 	dbref target;
 
 	target = lookup_player(player, fargs[0], 1);
-	if (Good_obj(target) && Dark(target) && !Wizard(player))
+	if (Good_obj(target) && Hidden(target) && !See_Hidden(player))
 		target = NOTHING;
 	safe_ltos(buff, bufc, fetch_idle(target));
 }
@@ -5034,7 +5034,7 @@ FUNCTION(fun_conn)
 	dbref target;
 
 	target = lookup_player(player, fargs[0], 1);
-	if (Good_obj(target) && Dark(target) && !Wizard(player))
+	if (Good_obj(target) && Hidden(target) && !See_Hidden(player))
 		target = NOTHING;
 	safe_ltos(buff, bufc, fetch_connect(target));
 }

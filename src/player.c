@@ -504,7 +504,7 @@ int check_who;
 	if (!p) {
 		if (check_who) {
 			thing = find_connected_name(doer, name);
-			if (Dark(thing))
+			if (Hidden(thing))
 				thing = NOTHING;
 		} else
 			thing = NOTHING;

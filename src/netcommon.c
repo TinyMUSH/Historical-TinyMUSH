@@ -657,7 +657,7 @@ DESC *d;
 		if (mudconf.have_comsys)
 			do_comconnect(player);
 
-		if (Dark(player)) {
+		if (Hidden(player)) {
 			raw_broadcast(MONITOR,
 				      (char *)"GAME: %s has DARK-connected.",
 				      Name(player), 0, 0, 0, 0, 0);
@@ -674,7 +674,7 @@ DESC *d;
 	}
 
 	key = MSG_INV;
-	if ((loc != NOTHING) && !(Dark(player) && Wizard(player)))
+	if ((loc != NOTHING) && !(Hidden(player) && Can_Hide(player)))
 		key |= (MSG_NBR | MSG_NBR_EXITS | MSG_LOC | MSG_FWDLIST);
 
 	temp = mudstate.curr_enactor;
@@ -790,7 +790,7 @@ const char *reason;
 
 		sprintf(buf, "%s has disconnected.", Name(player));
 		key = MSG_INV;
-		if ((loc != NOTHING) && !(Dark(player) && Wizard(player)))
+		if ((loc != NOTHING) && !(Hidden(player) && Can_Hide(player)))
 			key |= (MSG_NBR | MSG_NBR_EXITS | MSG_LOC | MSG_FWDLIST);
 		notify_check(player, player, buf, key);
 		free_mbuf(buf);
@@ -881,7 +881,7 @@ const char *reason;
 		buf = alloc_mbuf("announce_disconnect.partial");
 		sprintf(buf, "%s has partially disconnected.", Name(player));
 		key = MSG_INV;
-		if ((loc != NOTHING) && !(Dark(player) && Wizard(player)))
+		if ((loc != NOTHING) && !(Hidden(player) && Can_Hide(player)))
 			key |= (MSG_NBR | MSG_NBR_EXITS | MSG_LOC | MSG_FWDLIST);
 		notify_check(player, player, buf, key);
 		raw_broadcast(MONITOR, (char *)"GAME: %s has partially disconnected.", Name(player), 0, 0, 0, 0, 0);
@@ -1004,7 +1004,7 @@ void NDECL(check_idle)
 				shutdownsock(d, R_TIMEOUT);
 			} else if (mudconf.idle_wiz_dark &&
 				   (idletime > mudconf.idle_timeout) &&
-				   Can_Idle(d->player) && !Dark(d->player)) {
+				   Can_Idle(d->player) && !Hidden(d->player)) {
 				s_Flags(d->player, Flags(d->player) | DARK);
 				d->flags |= DS_AUTODARK;
 			}
@@ -1079,143 +1079,148 @@ DESC *e;
 char *match;
 int key;
 {
-	DESC *d;
-	int count;
-	char *buf, *fp, *sp, flist[4], slist[4];
-	dbref room_it;
+    DESC *d;
+    int count;
+    char *buf, *fp, *sp, flist[4], slist[4];
+    dbref room_it;
 
-	while (match && *match && isspace(*match))
-		match++;
-	if (!match || !*match)
-		match = NULL;
+    while (match && *match && isspace(*match))
+	match++;
+    if (!match || !*match)
+	match = NULL;
 
 #ifdef PUEBLO_SUPPORT
-	if ((e->flags & DS_PUEBLOCLIENT) && (Html(e->player)))
-		queue_string(e, "<pre>");
+    if ((e->flags & DS_PUEBLOCLIENT) && (Html(e->player)))
+	queue_string(e, "<pre>");
 #endif
 
-	buf = alloc_mbuf("dump_users");
-	if (key == CMD_SESSION) {
-		queue_string(e, "                               ");
-		queue_string(e, "     Characters Input----  Characters Output---\r\n");
-	}
-	queue_string(e, "Player Name        On For Idle ");
-	if (key == CMD_SESSION) {
-		queue_string(e, "Port Pend  Lost     Total  Pend  Lost     Total\r\n");
-	} else if ((e->flags & DS_CONNECTED) && (Wizard_Who(e->player)) &&
-		   (key == CMD_WHO)) {
-		queue_string(e, "  Room    Cmds   Host\r\n");
-	} else {
-		if (Wizard_Who(e->player))
-			queue_string(e, "  ");
-		else
-			queue_string(e, " ");
-		queue_string(e, mudstate.doing_hdr);
-		queue_string(e, "\r\n");
-	}
-	count = 0;
-	DESC_ITER_CONN(d) {
-		if (!Hidden(d->player) ||
-		    (e->flags & DS_CONNECTED) & Wizard_Who(e->player)) {
-			count++;
-			if (match && !(string_prefix(Name(d->player), match)))
-				continue;
-			if ((key == CMD_SESSION) &&
-			    !(Wizard_Who(e->player) && (e->flags & DS_CONNECTED)) &&
-			    (d->player != e->player))
-				continue;
+    buf = alloc_mbuf("dump_users");
+    if (key == CMD_SESSION) {
+	queue_string(e, "                               ");
+	queue_string(e, "     Characters Input----  Characters Output---\r\n");
+    }
+    queue_string(e, "Player Name        On For Idle ");
+    if (key == CMD_SESSION) {
+	queue_string(e, "Port Pend  Lost     Total  Pend  Lost     Total\r\n");
+    } else if ((e->flags & DS_CONNECTED) && (Wizard_Who(e->player)) &&
+	       (key == CMD_WHO)) {
+	queue_string(e, "  Room    Cmds   Host\r\n");
+    } else {
+	if (Wizard_Who(e->player) || See_Hidden(e->player))
+	    queue_string(e, "  ");
+	else
+	    queue_string(e, " ");
+	queue_string(e, mudstate.doing_hdr);
+	queue_string(e, "\r\n");
+    }
+    count = 0;
+    DESC_ITER_CONN(d) {
+	if (!Hidden(d->player) ||
+	    (e->flags & DS_CONNECTED) &&
+	    (Wizard_Who(e->player) || See_Hidden(e->player))) {
+	    count++;
+	    if (match && !(string_prefix(Name(d->player), match)))
+		continue;
+	    if ((key == CMD_SESSION) &&
+		!(Wizard_Who(e->player) && (e->flags & DS_CONNECTED)) &&
+		(d->player != e->player))
+		continue;
+	    
+	    /* Get choice flags for wizards */
 
-			/* Get choice flags for wizards */
-
-			fp = flist;
-			sp = slist;
-			if ((e->flags & DS_CONNECTED) && Wizard_Who(e->player)) {
-				if (Hidden(d->player)) {
-					if (d->flags & DS_AUTODARK)
-						*fp++ = 'd';
-					else
-						*fp++ = 'D';
-				}
-				if (!Findable(d->player)) {
-					*fp++ = 'U';
-				} else {
-					room_it = where_room(d->player);
-					if (Good_obj(room_it)) {
-						if (Hideout(room_it))
-							*fp++ = 'u';
-					} else {
-						*fp++ = 'u';
-					}
-				}
-
-				if (Suspect(d->player))
-					*fp++ = '+';
-				if (d->host_info & H_FORBIDDEN)
-					*sp++ = 'F';
-				if (d->host_info & H_REGISTRATION)
-					*sp++ = 'R';
-				if (d->host_info & H_SUSPECT)
-					*sp++ = '+';
-				if (d->host_info & H_GUEST)
-					*sp++ = 'G';
-			}
-			*fp = '\0';
-			*sp = '\0';
-
-			if ((e->flags & DS_CONNECTED) &&
-			    Wizard_Who(e->player) &&
-			    (key == CMD_WHO)) {
-				sprintf(buf,
-				     "%-16s%9s %4s%-3s#%-6d%5d%3s%-25s\r\n",
-					trimmed_name(d->player),
-					time_format_1(mudstate.now - d->connected_at),
-				 time_format_2(mudstate.now - d->last_time),
-					flist,
-				      Location(d->player), d->command_count,
-					slist,
-					trimmed_site(((d->username[0] != '\0') ? tprintf("%s@%s", d->username, d->addr) : d->addr)));
-			} else if (key == CMD_SESSION) {
-				sprintf(buf,
-				  "%-16s%9s %4s%5d%5d%6d%10d%6d%6d%10d\r\n",
-					trimmed_name(d->player),
-					time_format_1(mudstate.now - d->connected_at),
-				 time_format_2(mudstate.now - d->last_time),
-					d->descriptor,
-					d->input_size, d->input_lost,
-					d->input_tot,
-					d->output_size, d->output_lost,
-					d->output_tot);
-			} else if (Wizard_Who(e->player)) {
-				sprintf(buf, "%-16s%9s %4s%-3s%s\r\n",
-					trimmed_name(d->player),
-					time_format_1(mudstate.now - d->connected_at),
-				 time_format_2(mudstate.now - d->last_time),
-					flist,
-					d->doing);
-			} else {
-				sprintf(buf, "%-16s%9s %4s  %s\r\n",
-					trimmed_name(d->player),
-					time_format_1(mudstate.now - d->connected_at),
-				 time_format_2(mudstate.now - d->last_time),
-					d->doing);
-			}
-			queue_string(e, buf);
+	    fp = flist;
+	    sp = slist;
+	    if ((e->flags & DS_CONNECTED) && Wizard_Who(e->player)) {
+		if (Hidden(d->player)) {
+		    if (d->flags & DS_AUTODARK)
+			*fp++ = 'd';
+		    else
+			*fp++ = 'D';
 		}
+		if (!Findable(d->player)) {
+		    *fp++ = 'U';
+		} else {
+		    room_it = where_room(d->player);
+		    if (Good_obj(room_it)) {
+			if (Hideout(room_it))
+			    *fp++ = 'u';
+		    } else {
+			*fp++ = 'u';
+		    }
+		}
+		if (Suspect(d->player))
+		    *fp++ = '+';
+		if (d->host_info & H_FORBIDDEN)
+		    *sp++ = 'F';
+		if (d->host_info & H_REGISTRATION)
+		    *sp++ = 'R';
+		if (d->host_info & H_SUSPECT)
+		    *sp++ = '+';
+		if (d->host_info & H_GUEST)
+		    *sp++ = 'G';
+	    } else if ((e->flags & DS_CONNECTED) &&
+		       See_Hidden(e->player)) {
+		if (Hidden(d->player)) {
+		    if (d->flags & DS_AUTODARK)
+			*fp++ = 'd';
+		    else
+			*fp++ = 'D';
+		}
+	    }
+	    *fp = '\0';
+	    *sp = '\0';
+
+	    if ((e->flags & DS_CONNECTED) && Wizard_Who(e->player) &&
+		(key == CMD_WHO)) {
+		sprintf(buf,
+			"%-16s%9s %4s%-3s#%-6d%5d%3s%-25s\r\n",
+			trimmed_name(d->player),
+			time_format_1(mudstate.now - d->connected_at),
+			time_format_2(mudstate.now - d->last_time), flist,
+			Location(d->player), d->command_count, slist,
+			trimmed_site(((d->username[0] != '\0') ?
+				      tprintf("%s@%s", d->username, d->addr) :
+				      d->addr)));
+	    } else if (key == CMD_SESSION) {
+		sprintf(buf,
+			"%-16s%9s %4s%5d%5d%6d%10d%6d%6d%10d\r\n",
+			trimmed_name(d->player),
+			time_format_1(mudstate.now - d->connected_at),
+			time_format_2(mudstate.now - d->last_time),
+			d->descriptor,
+			d->input_size, d->input_lost, d->input_tot,
+			d->output_size, d->output_lost, d->output_tot);
+	    } else if (Wizard_Who(e->player) || See_Hidden(e->player)) {
+		sprintf(buf, "%-16s%9s %4s%-3s%s\r\n",
+			trimmed_name(d->player),
+			time_format_1(mudstate.now - d->connected_at),
+			time_format_2(mudstate.now - d->last_time),
+			flist, d->doing);
+	    } else {
+		sprintf(buf, "%-16s%9s %4s  %s\r\n",
+			trimmed_name(d->player),
+			time_format_1(mudstate.now - d->connected_at),
+			time_format_2(mudstate.now - d->last_time),
+			d->doing);
+	    }
+	    queue_string(e, buf);
 	}
+    }
 
-	/* sometimes I like the ternary operator.... */
+    /* sometimes I like the ternary operator.... */
 
-	sprintf(buf, "%d Player%slogged in, %d record, %s maximum.\r\n", count,
-		(count == 1) ? " " : "s ", mudstate.record_players,
-		(mudconf.max_players == -1) ? "no" : tprintf("%d", mudconf.max_players));
-	queue_string(e, buf);
+    sprintf(buf, "%d Player%slogged in, %d record, %s maximum.\r\n", count,
+	    (count == 1) ? " " : "s ", mudstate.record_players,
+	    (mudconf.max_players == -1) ?
+	    "no" : tprintf("%d", mudconf.max_players));
+    queue_string(e, buf);
 	
 #ifdef PUEBLO_SUPPORT
-	if ((e->flags & DS_PUEBLOCLIENT) && (Html(e->player)))
-		queue_string(e, "</pre>");
+    if ((e->flags & DS_PUEBLOCLIENT) && (Html(e->player)))
+	queue_string(e, "</pre>");
 #endif
 
-	free_mbuf(buf);
+    free_mbuf(buf);
 }
 
 static void dump_info(call_by)
@@ -1235,7 +1240,7 @@ static void dump_info(call_by)
 
     DESC_ITER_CONN(d) {
 	if (!Hidden(d->player) ||
-	    ((call_by->flags & DS_CONNECTED) && Wizard(call_by->player)))
+	    ((call_by->flags & DS_CONNECTED) && See_Hidden(call_by->player)))
 	    count++;
     }
     queue_rawstring(call_by, tprintf("Connected: %d\r\n", count));
@@ -2101,7 +2106,7 @@ char *buff, **bufc;
 
 	cp = *bufc;
 	DESC_ITER_CONN(d) {
-		if (!WizRoy(player) && Hidden(d->player))
+		if (!See_Hidden(player) && Hidden(d->player))
 			continue;
 		if (cp != *bufc)
 			safe_chr(' ', buff, bufc);

@@ -548,11 +548,11 @@ char *flagname;
 			return 0;
 		if ((fp->listperm & CA_GOD) && !God(player))
 			return 0;
-		/* don't show CONNECT on dark wizards to mortals */
+		/* don't show CONNECT on dark players to mortals */
 		if (isPlayer(it) &&
-		    (fp->flagflag & FLAG_WORD2) && (fp->flagvalue == CONNECTED) &&
-		    ((Flags(it) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
-		    !Wizard(player))
+		    (fp->flagflag & FLAG_WORD2) &&
+		    (fp->flagvalue == CONNECTED) &&
+		    Hidden(it) && !See_Hidden(player))
 			return 0;
 		return 1;
 	}
