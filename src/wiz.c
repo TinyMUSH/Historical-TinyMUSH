@@ -73,7 +73,7 @@ char *arg1, *arg2;
 	    }
 	} else if (!Controls(player, victim) &&
 		   !Controls(player, Location(victim)) &&
-		   !Tel_Anything(victim)) {
+		   !Tel_Anything(player)) {
 	    notify_quiet(player, NOPERM_MESSAGE);
 	    return;
 	}
