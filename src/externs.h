@@ -400,8 +400,7 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	SAY_ROOM	128	/* Output to containing room */
 #define SAY_HTML	256     /* Don't output a newline */
 #define	SET_QUIET	1	/* Don't display 'Set.' message. */
-#define	SHUTDN_PANIC	1	/* Write a panic dump file */
-#define	SHUTDN_COREDUMP	2	/* Produce a coredump */
+#define	SHUTDN_COREDUMP	1	/* Produce a coredump */
 #define	SRCH_SEARCH	1	/* Do a normal search */
 #define	SRCH_MARK	2	/* Set mark bit for matches */
 #define	SRCH_UNMARK	3	/* Clear mark bit for matches */

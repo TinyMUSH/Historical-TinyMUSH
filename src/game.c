@@ -1075,9 +1075,7 @@ char *message;
 		return;
 	}
 
-	if (!(key & SHUTDN_PANIC)) {
-		do_dbck(NOTHING, NOTHING, 0);	/* dump consistent state */
-	}
+	do_dbck(NOTHING, NOTHING, 0);	/* dump consistent state */
 
 	if (player != NOTHING) {
 		raw_broadcast(0, "GAME: Shutdown by %s", Name(Owner(player)));
@@ -1099,33 +1097,6 @@ char *message;
 	(void)write(fd, (char *)"\n", 1);
 	tf_close(fd);
 
-	/* Do we perform a normal or an emergency shutdown?  Normal shutdown
-	 * is handled by exiting the main loop in shovechars,
-	 * emergency shutdown is done here. 
-	 */
-
-	if (key & SHUTDN_PANIC) {
-
-		/* Close down the network interface. Don't wait to
-		 * try to shut down things like the external SQL
-		 * db connection.
-		 */
-
-		emergency_shutdown();
-
-		/* Close the attribute text db and dump a flatfile */
-
-		pcache_sync();
-		SYNC;
-		STARTLOG(LOG_ALWAYS, "DMP", "PANIC")
-			log_printf("Panic dump: %s", mudconf.crashdb);
-		ENDLOG
-			dump_database_internal(DUMP_DB_CRASH);
-		STARTLOG(LOG_ALWAYS, "DMP", "DONE")
-			log_printf("Panic dump complete: %s", mudconf.crashdb);
-		ENDLOG
-		CLOSE;
-	}
 	/* Set up for normal shutdown */
 
 	mudstate.shutdown_flag = 1;
