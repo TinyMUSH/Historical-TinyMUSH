@@ -16,7 +16,7 @@ LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules
 #
 #   Figure out the file compression extension.
 #
-ZBASE=`echo $ZIP | cut -f1 -d" "`
+ZBASE=`basename $ZIP | cut -f1 -d" "`
 if [ "$ZBASE" = "" ]; then
     ZIP=gzip
     ZEXT="gz"
