@@ -452,9 +452,8 @@ FWDLIST *ifp;
 	/* Copy input forwardlist to a correctly-sized buffer */
 
 	fp = (FWDLIST *) XMALLOC(sizeof(FWDLIST), "fwdlist_set");
-	fp->data = (int *) XMALLOC(sizeof(int) * ifp->count,
+	fp->data = (int *) XCALLOC(ifp->count, sizeof(int),
 				   "fwdlist_set.data");
-
 	for (i = 0; i < ifp->count; i++) {
 		fp->data[i] = ifp->data[i];
 	}
@@ -551,7 +550,7 @@ char *atext;
     free_lbuf(tp);
 
     if ((fp->data == NULL) && (count > 0)) {
-	fp->data = (int *) XMALLOC(sizeof(int) * count, "fwdlist_load.data");
+	fp->data = (int *) XCALLOC(count, sizeof(int), "fwdlist_load.data");
 	for (i = 0; i < count; i++)
 	    fp->data[i] = tmp_array[i];
     }
@@ -1190,13 +1189,13 @@ int newtop;
 	if (newtop < anum_alc_top + delta)
 		newtop = anum_alc_top + delta;
 	if (anum_table == NULL) {
-		anum_table = (ATTR **) XMALLOC((newtop + 1) * sizeof(ATTR *),
-					"anum_extend.1");
+		anum_table = (ATTR **) XCALLOC(newtop + 1, sizeof(ATTR *),
+					       "anum_extend.1");
 		for (i = 0; i <= newtop; i++)
 			anum_table[i] = NULL;
 	} else {
-		anum_table2 = (ATTR **) XMALLOC((newtop + 1) * sizeof(ATTR *),
-					"anum_extend.2");
+		anum_table2 = (ATTR **) XCALLOC(newtop + 1, sizeof(ATTR *),
+						"anum_extend.2");
 		for (i = 0; i <= anum_alc_top; i++)
 			anum_table2[i] = anum_table[i];
 		for (i = anum_alc_top + 1; i <= newtop; i++)
@@ -2650,7 +2649,7 @@ dbref newtop;
 	/* Grow the name tables */
 
 #ifndef MEMORY_BASED
-	newnames = (NAME *) XMALLOC((newsize + SIZE_HACK) * sizeof(NAME),
+	newnames = (NAME *) XCALLOC(newsize + SIZE_HACK, sizeof(NAME),
 				    "db_grow.names");
 	if (!newnames) {
 	    fprintf(mainlog_fp,
@@ -2685,8 +2684,9 @@ dbref newtop;
 #endif
 
 	if (mudconf.cache_names) {
-		newpurenames = (NAME *) XMALLOC((newsize + SIZE_HACK) * sizeof(NAME),
-					    "db_grow.purenames");
+		newpurenames = (NAME *) XCALLOC(newsize + SIZE_HACK,
+						sizeof(NAME),
+						"db_grow.purenames");
 
 		if (!newpurenames) {
 		    fprintf(mainlog_fp,
@@ -2720,8 +2720,8 @@ dbref newtop;
 	}
 	/* Grow the db array */
 
-	newdb = (OBJ *)
-		XMALLOC((newsize + SIZE_HACK) * sizeof(OBJ), "db_grow.db");
+	newdb = (OBJ *) XCALLOC(newsize + SIZE_HACK, sizeof(OBJ),
+				"db_grow.db");
 	if (!newdb) {
 	    STARTLOG(LOG_ALWAYS, "ALC", "DB")
 		log_printf("Could not allocate space for %d item struct database.", newsize);

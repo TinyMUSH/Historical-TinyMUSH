@@ -742,7 +742,7 @@ int n, sort_type;
 		qsort((void *)s, n, sizeof(char *), c_comp);
 		break;
 	case NUMERIC_LIST:
-		ip = (i_rec *) XMALLOC(n * sizeof(i_rec), "do_asort");
+		ip = (i_rec *) XCALLOC(n, sizeof(i_rec), "do_asort");
 		for (i = 0; i < n; i++) {
 			ip[i].str = s[i];
 			ip[i].data = atoi(s[i]);
@@ -754,7 +754,7 @@ int n, sort_type;
 		XFREE(ip, "do_asort");
 		break;
 	case DBREF_LIST:
-		ip = (i_rec *) XMALLOC(n * sizeof(i_rec), "do_asort.2");
+		ip = (i_rec *) XCALLOC(n, sizeof(i_rec), "do_asort.2");
 		for (i = 0; i < n; i++) {
 			ip[i].str = s[i];
 			ip[i].data = dbnum(s[i]);
@@ -766,7 +766,7 @@ int n, sort_type;
 		XFREE(ip, "do_asort.2");
 		break;
 	case FLOAT_LIST:
-		fp = (f_rec *) XMALLOC(n * sizeof(f_rec), "do_asort.3");
+		fp = (f_rec *) XCALLOC(n, sizeof(f_rec), "do_asort.3");
 		for (i = 0; i < n; i++) {
 			fp[i].str = s[i];
 			fp[i].data = aton(s[i]);
@@ -993,22 +993,22 @@ int nfargs, oper, type_pos;
 	 * once in do_asort().
 	 */
 	if (sort_type == NUMERIC_LIST) {
-	    ip1 = (int *) XMALLOC(n1 * sizeof(int), "handle_sets.n1");
-	    ip2 = (int *) XMALLOC(n2 * sizeof(int), "handle_sets.n2");
+	    ip1 = (int *) XCALLOC(n1, sizeof(int), "handle_sets.n1");
+	    ip2 = (int *) XCALLOC(n2, sizeof(int), "handle_sets.n2");
 	    for (val = 0; val < n1; val++)
 		ip1[val] = atoi(ptrs1[val]);
 	    for (val = 0; val < n2; val++)
 		ip2[val] = atoi(ptrs2[val]);
 	} else if (sort_type == DBREF_LIST) {
-	    ip1 = (int *) XMALLOC(n1 * sizeof(int), "handle_sets.n1");
-	    ip2 = (int *) XMALLOC(n2 * sizeof(int), "handle_sets.n2");
+	    ip1 = (int *) XCALLOC(n1, sizeof(int), "handle_sets.n1");
+	    ip2 = (int *) XCALLOC(n2, sizeof(int), "handle_sets.n2");
 	    for (val = 0; val < n1; val++)
 		ip1[val] = dbnum(ptrs1[val]);
 	    for (val = 0; val < n2; val++)
 		ip2[val] = dbnum(ptrs2[val]);
 	} else if (sort_type == FLOAT_LIST) {
-	    fp1 = (double *) XMALLOC(n1 * sizeof(double), "handle_sets.n1");
-	    fp2 = (double *) XMALLOC(n2 * sizeof(double), "handle_sets.n2");
+	    fp1 = (double *) XCALLOC(n1, sizeof(double), "handle_sets.n1");
+	    fp2 = (double *) XCALLOC(n2, sizeof(double), "handle_sets.n2");
 	    for (val = 0; val < n1; val++)
 		fp1[val] = aton(ptrs1[val]);
 	    for (val = 0; val < n2; val++)
