@@ -658,61 +658,67 @@ vice versa.
 
 So far we've told you when you can read and write, but not how. Another
 advantage of GDBM is that you are not limited to printable ASCII data, but
-that you can store binary data of arbitrary length. There are three
-functions available for this purpose:
+that you can store binary data of arbitrary length. 
 
-void dddb_get(void *keydata, int keylen, void **dataptr, int *datalenptr,
-	      unsigned int dbtype)
+DBData is a structure used by the database API which contains two
+items: dptr (a pointer to a piece of data) and dsize (the length of
+that data). DBData is used by the API interface both for search keys
+and returned or stored data. DBData is declared thusly:
+	
+	typedef struct {
+		void *dptr;
+		int dsize;
+	} DBData;
+
+There are three functions available for reading, writing, and deleting data
+in the database:
+
+DBData db_get(DBData key, unsigned int dbtype)
 
 	Retrieves data from GDBM. 
-
-	'keydata' is a pointer to a buffer containing a search key which is
-	binary data of length 'keylen'.
-	
-	'dataptr' is a pointer to void *. This is usually declared as 
-	'void *data' and passed as '&data'. When the function completes,
-	'data' points to the retrieved buffer and must be freed using 
-	'free(data)' when you are through with it.
-
-	'datalenptr is a pointer to int. This is usually declared as
-	'int datalen' and passed as '&datalen'. When the function completes,
-	'datalen' is the length of the retrieved buffer.
+	 
+	'key' is a DBData structure that contains a search key of
+	binary data as well as the length of that data.
 	
 	'dbtype' should be the dbtype ID registered for your module by
 	register_dbtype().
 
-int dddb_put(void *keydata, int keylen, void *data, int datalen, 
-	     unsigned int dbtype)
+	db_get returns a DBData structure which contains the returned
+	data (or NULL if the key cannot be found in the database) as well
+	as the length of that data.
+
+int db_put(DBData key, DBData data, unsigned int dbtype)
 
 	Stores or replaces data in GDBM.
 
-	'keydata' is a pointer to a buffer containing a search key which is
-	binary data of length 'keylen'.
-
-	'data' is a void * which should point to the data you wish to store.
-	This may be any type of data and it does not need to be null
-	terminated.
+	'key' is a DBData structure that contains a search key of
+	binary data as well as the length of that data.
 	
-	'datalen' is an integer which should contain the length of the data
-	you wish to store.
-
+	'data' is a DBData structure which contains the binary data to be
+	stored and the length of that data.
+ 
 	'dbtype' should be the dbtype ID registered for your module by
 	register_dbtype().
 	
-int dddb_del(void *keydata, int keylen, unsigned int dbtype)
+	db_put returns 0 on success and 1 on failure.
+	
+int db_del(DBData key, unsigned int dbtype)
 
 	Deletes data from GDBM.
 	
-	'keydata' is a pointer to a buffer containing a search key which is
-	binary data of length 'keylen'.
+	'key' is a DBData structure that contains a search key of
+	binary data as well as the length of that data.
 
 	'dbtype' should be the dbtype ID registered for your module by
 	register_dbtype().
+
+	db_del returns 0 on success and 1 on failure.
 
 Your search key may be a string, a number, or binary data of any length.
 For example, if you want your search key to be three integers, you will
 create a buffer of length 'sizeof(int)*3' and copy your three integers into
-it.
+it. If you want it to be a null-terminated string, make sure your key length
+is 'strlen(string) + 1'. 
 
 -----------------------------------------------------------------------------
 
@@ -724,8 +730,8 @@ method, except data is cached in memory.
 
 In MUSH, the cache is essentially a front-end to GDBM, and interacting with
 it is identical. In fact, the function calls match almost exactly. Instead
-of dddb_get(), dddb_put(), and dddb_del(), you use cache_get(), cache_put(),
-and cache_del(). The parameters to the cache functions are the same ones you
+of db_get(), db_put(), and db_del(), you use cache_get(), cache_put(), and
+cache_del(). The parameters to the cache functions are the same ones you
 pass to their GDBM counterparts. The cache acts as a 'buffer', making sure
 the most often accessed data is already in memory, and making writes more
 efficient by buffering them until a number of entries may be written at
