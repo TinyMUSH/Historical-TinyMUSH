@@ -219,9 +219,7 @@ XFUNCTION(scan_zone);
 XFUNCTION(fun_zfun);
 XFUNCTION(fun_hasattr);
 XFUNCTION(fun_v);
-XFUNCTION(fun_get);
-XFUNCTION(fun_xget);
-XFUNCTION(fun_get_eval);
+XFUNCTION(perform_get);
 XFUNCTION(fun_eval);
 XFUNCTION(fun_u);
 XFUNCTION(fun_ulocal);
@@ -438,7 +436,8 @@ FUN flist[] = {
 {"EXIT",	fun_exit,	1,  0,		CA_PUBLIC,	NULL},
 {"EXP",		fun_exp,	1,  0,		CA_PUBLIC,	NULL},
 {"EXTRACT",	fun_extract,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"EVAL",        fun_eval,       0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"EVAL",        fun_eval,       0,  FN_VARARGS|GET_EVAL|GET_XARGS,
+						CA_PUBLIC,	NULL},
 {"SUBEVAL",  	fun_subeval,	1,  0,		CA_PUBLIC,	NULL},
 {"FDIV",	fun_fdiv,	2,  0,		CA_PUBLIC,	NULL},
 {"FILTER",	handle_filter,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -453,8 +452,8 @@ FUN flist[] = {
 {"FORCE",	fun_force,	2,  0,		CA_PUBLIC,	NULL},
 {"FOREACH",	fun_foreach,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"FULLNAME",	fun_fullname,	1,  0,		CA_PUBLIC,	NULL},
-{"GET",		fun_get,	1,  0,		CA_PUBLIC,	NULL},
-{"GET_EVAL",	fun_get_eval,	1,  0,		CA_PUBLIC,	NULL},
+{"GET",		perform_get,	1,  0,		CA_PUBLIC,	NULL},
+{"GET_EVAL",	perform_get,	1,  GET_EVAL,	CA_PUBLIC,	NULL},
 {"GRAB",	fun_grab,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"GRABALL",	fun_graball,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"GREP",	fun_grep,	3,  0,		CA_PUBLIC,	NULL},
@@ -739,7 +738,7 @@ FUN flist[] = {
 {"WRITE",	fun_write,	2,  0,		CA_PUBLIC,	NULL},
 {"X",		fun_x,		1,  0,		CA_PUBLIC,	NULL},
 {"XCON",	fun_xcon,	3,  0,		CA_PUBLIC,	NULL},
-{"XGET",	fun_xget,	2,  0,		CA_PUBLIC,	NULL},
+{"XGET",	perform_get,	2,  GET_XARGS,	CA_PUBLIC,	NULL},
 {"XOR",		fun_xor,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"XORBOOL",	fun_xorbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"XVARS",	fun_xvars,	0,  FN_VARARGS, CA_PUBLIC,	NULL},

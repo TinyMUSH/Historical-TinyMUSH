@@ -362,4 +362,8 @@ if ((l) > 0) { \
 /* from fun_hasattr (hasattr, hasattrp): */
 #define CHECK_PARENTS	0x1	/* recurse up the parent chain */
 
+/* from perform_get (get, get_eval, xget, eval(a,b)): */
+#define GET_EVAL	0x1	/* evaluate the attribute */
+#define GET_XARGS	0x2	/* obj and attr are two separate args */
+
 #endif /* __FUNCTIONS_H */

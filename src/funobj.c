@@ -1165,78 +1165,23 @@ FUNCTION(fun_v)
  * fun_get, fun_get_eval: Get attribute from object.
  */
 
-static void perform_get(player, str, buff, bufc)
-    dbref player;
-    char *str;
-    char *buff, **bufc;
+FUNCTION(perform_get)
 {
-    dbref thing, aowner;
-    int attrib, free_buffer, aflags, alen, rval;
-    ATTR *attr;
-    char *atr_gotten;
-    struct boolexp *bool;
+	dbref thing, aowner;
+	int attrib, free_buffer, aflags, alen, eval_it;
+	ATTR *attr;
+	char *atr_gotten, *str;
+	struct boolexp *bool;
 
-    if ((rval = parse_attrib(player, str, &thing, &attrib, 0)) == 0) {
-	safe_nomatch(buff, bufc);
-	return;
-    }
-    if (attrib == NOTHING) {
-	return;
-    }
-    free_buffer = 1;
-    attr = atr_num(attrib);	/* We need the attr's flags for this: */
-    if (!attr) {
-	return;
-    }
-    if (attr->flags & AF_IS_LOCK) {
-	atr_gotten = atr_get(thing, attrib, &aowner, &aflags, &alen);
-	if (Read_attr(player, thing, attr, aowner, aflags)) {
-	    bool = parse_boolexp(player, atr_gotten, 1);
-	    free_lbuf(atr_gotten);
-	    atr_gotten = unparse_boolexp(player, bool);
-	    free_boolexp(bool);
+	eval_it = ((FUN *)fargs[-1])->flags & GET_EVAL;
+
+	if (((FUN *)fargs[-1])->flags & GET_XARGS) {
+		if (!*fargs[0] || !*fargs[1])
+			return;
+		str = tprintf("%s/%s", fargs[0], fargs[1]);
 	} else {
-	    free_lbuf(atr_gotten);
-	    atr_gotten = (char *)"#-1 PERMISSION DENIED";
+		str = fargs[0];
 	}
-	free_buffer = 0;
-    } else {
-	atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
-    }
-
-    if (free_buffer)
-	safe_known_str(atr_gotten, alen, buff, bufc);
-    else
-	safe_str(atr_gotten, buff, bufc);
-
-    if (free_buffer)
-	free_lbuf(atr_gotten);
-    return;
-}
-
-FUNCTION(fun_get)
-{
-	perform_get(player, fargs[0], buff, bufc);
-}
-
-FUNCTION(fun_xget)
-{
-	if (!*fargs[0] || !*fargs[1])
-		return;
-	perform_get(player, tprintf("%s/%s", fargs[0], fargs[1]),
-		    buff, bufc);
-}
-
-static void perform_get_eval(player, str, buff, bufc)
-    dbref player;
-    char *str;
-    char *buff, **bufc;
-{
-    dbref thing, aowner;
-    int attrib, free_buffer, aflags, alen, eval_it;
-    ATTR *attr;
-    char *atr_gotten;
-    struct boolexp *bool;
 
 	if (!parse_attrib(player, str, &thing, &attrib, 0)) {
 		safe_nomatch(buff, bufc);
@@ -1246,7 +1191,7 @@ static void perform_get_eval(player, str, buff, bufc)
 		return;
 	}
 	free_buffer = 1;
-	eval_it = 1;
+
 	attr = atr_num(attrib);	/* We need the attr's flags for this: */
 	if (!attr) {
 		return;
@@ -1271,37 +1216,29 @@ static void perform_get_eval(player, str, buff, bufc)
 		str = atr_gotten;
 		exec(buff, bufc, thing, player, player,
 		     EV_FIGNORE | EV_EVAL, &str, (char **)NULL, 0);
+	} else if (free_buffer) {
+		safe_known_str(atr_gotten, alen, buff, bufc);
 	} else {
 		safe_str(atr_gotten, buff, bufc);
 	}
 	if (free_buffer)
 		free_lbuf(atr_gotten);
-	return;
 }
-
-FUNCTION(fun_get_eval)
-{
-    perform_get_eval(player, fargs[0], buff, bufc);
-}
-
 
 FUNCTION(fun_eval)
 {
-    char *str;
+	char *str;
 
-    if ((nfargs != 1) && (nfargs != 2)) {
-	safe_str("#-1 FUNCTION (EVAL) EXPECTS 1 OR 2 ARGUMENTS", buff, bufc);
-	return;
-    }
-    if (nfargs == 1) {
-	str = fargs[0];
-	exec(buff, bufc, player, caller, cause, EV_EVAL|EV_FCHECK,
-	     &str, (char **)NULL, 0);
-	return;
-    }
-    if (!*fargs[0] || !*fargs[1])
-	return;
-    perform_get_eval(player, tprintf("%s/%s", fargs[0], fargs[1]), buff, bufc);
+	VaChk_Range(1, 2);
+
+	if (nfargs == 1) {
+		str = fargs[0];
+		exec(buff, bufc, player, caller, cause, EV_EVAL|EV_FCHECK,
+		     &str, (char **)NULL, 0);
+		return;
+	}
+
+	perform_get(buff, bufc, player, caller, cause, fargs, nfargs, cargs, ncargs);
 }
 
 /* ---------------------------------------------------------------------------
