@@ -38,6 +38,17 @@ extern void VDECL(fatal, (char *, ...));
 extern void VDECL(logf, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
 
+void dddb_setsync(flag)
+int flag;
+{
+	char *gdbm_error;
+	
+	if (gdbm_setopt(dbp, GDBM_SYNCMODE, &flag, sizeof(int)) == -1) {
+		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
+		logf("setsync: cannot toggle sync flag", dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+	}
+}
+
 static void dbm_error(msg)
 char *msg;
 {
@@ -64,6 +75,7 @@ int dddb_init()
 	char *gdbm_error;
 	int block_size;
 	int cache_size;
+	int flags;
 	int ret;
 	
 	/* Calculate the proper page size */
@@ -91,6 +103,13 @@ int dddb_init()
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
+
+#ifdef STANDALONE
+	/* If we're standalone, having GDBM wait for each write is a
+	 * performance no-no; run non-synchronous */
+	
+	dddb_setsync(0);
+#endif
 
 	db_initted = 1;
 	return (0);

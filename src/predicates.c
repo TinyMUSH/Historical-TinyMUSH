@@ -1352,6 +1352,12 @@ void do_restart(player, cause, key)
 		return;
 	}
 
+	/* Make sure what follows knows we're restarting. No need to clear
+	 * this, since this process is going away-- this is also set on
+	 * startup when the restart.db is read */
+	
+	mudstate.restarting = 1;
+	
 	raw_broadcast(0, "GAME: Restart by %s, please wait.", Name(Owner(player)));
 	STARTLOG(LOG_ALWAYS, "WIZ", "RSTRT")
 		log_printf("Restart by ");

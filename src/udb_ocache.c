@@ -452,6 +452,8 @@ Attr *obj;
 	if (obj == (Attr *) 0 || nam == (Aname *) 0 || !cache_initted) {
 		return (1);
 	}
+
+#ifndef STANDALONE
 	cs_writes++;
 
 	/* generate hash */
@@ -510,6 +512,20 @@ Attr *obj;
 
 	REFTIME(cp);
 	return (0);
+#else
+	/* Bypass the cache when standalone for writes */
+	if (obj == NULL) {
+		if (ATTR_DEL(nam)) {
+			log_db_err(nam->object, nam->attrnum, "delete");
+			return (1);
+		}
+	} else {
+		if (ATTR_PUT(nam, obj)) {
+			log_db_err(nam->object, nam->attrnum, "write");
+			return (1);
+		}
+	}
+#endif
 }
 
 static Cache *get_free_entry(atrsize)
@@ -716,12 +732,27 @@ int NDECL(cache_sync)
 	if (cache_frozen)
 		return (0);
 
+#ifndef STANDALONE
+	if (mudstate.restarting) {
+		/* If we're restarting, having DBM wait for each write is a
+		 * performance no-no; run asynchronously */
+        	
+        	dddb_setsync(0);
+	}
+#endif
+
 	for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
 		if (cache_write(sp->mactive.head))
 			return (1);
 		cache_clean(sp);
 	}
-	
+
+#ifndef STANDALONE
+	if (mudstate.restarting) {
+		dddb_setsync(1);
+	}
+#endif
+
 	return (0);
 }
 
@@ -773,4 +804,3 @@ Aname *nam;
 	INSTAIL(sp->mactive, cp);
 	return;
 }
-
