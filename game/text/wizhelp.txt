@@ -2975,8 +2975,7 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   on the database), as well as quotas for each individual type, which
   restrict the number of objects of each type that a player may own.
  
-  See also: @allquota, @create, @destroy, @dig, @open, @quota, QUOTAS,
-            quota_cost.
+  See also: @create, @destroy, @dig, @open, @quota, QUOTAS, quota_cost.
  
 & raw_helpfile
   Config parameter: raw_helpfile <command> <path>.  Default: none
