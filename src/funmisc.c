@@ -1070,14 +1070,15 @@ FUNCTION(fun_set)
 			/* are we clearing? */
 
 			clear = 0;
+			p = fargs[1];
 			if (*fargs[1] == NOT_TOKEN) {
-				fargs[1]++;
+				p++;
 				clear = 1;
 			}
 			/* valid attribute flag? */
 
 			flagvalue = search_nametab(player,
-					indiv_attraccess_nametab, fargs[1]);
+					indiv_attraccess_nametab, p);
 			if (flagvalue < 0) {
 				safe_str("#-1 CAN NOT SET", buff, bufc);
 				return;
