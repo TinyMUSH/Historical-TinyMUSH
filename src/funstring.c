@@ -450,7 +450,7 @@ FUNCTION(fun_ljust)
 	char *tp, *fillchars;
 
 	VaChk_Range("LJUST", 2, 3);
-	spaces = atoi(fargs[1]) - strlen((char *)strip_ansi(fargs[0]));
+	spaces = atoi(fargs[1]) - strip_ansi_len(fargs[0]);
 
 	safe_str(fargs[0], buff, bufc);
 
@@ -473,18 +473,18 @@ FUNCTION(fun_ljust)
 		}
 		else if (slen == 1) {
 			/* single character fill */
-		   memset(tp, *fillchars, spaces);
+			memset(tp, *fillchars, spaces);
 			tp += spaces;
 		}
 		else {
 			/* multi character fill */
-			for (i=spaces; i >= slen; i -= slen) {
+			for (i = spaces; i >= slen; i -= slen) {
 				memcpy(tp, fillchars, slen);
 				tp += slen;
 			}
 			if (i) {
 				/* we have a remainder here */
-			   memcpy(tp, fillchars, i);
+				memcpy(tp, fillchars, i);
 				tp += i;
 			}
 		}
@@ -505,7 +505,7 @@ FUNCTION(fun_rjust)
 	char *tp, *fillchars;
 
 	VaChk_Range("RJUST", 2, 3);
-	spaces = atoi(fargs[1]) - strlen((char *)strip_ansi(fargs[0]));
+	spaces = atoi(fargs[1]) - strip_ansi_len(fargs[0]);
 
 	/* Sanitize number of spaces */
 
@@ -530,7 +530,7 @@ FUNCTION(fun_rjust)
 		}
 		else if (slen == 1) {
 			/* single character fill */
-		   memset(tp, *fillchars, spaces);
+			memset(tp, *fillchars, spaces);
 			tp += spaces;
 		}
 		else {
@@ -541,7 +541,7 @@ FUNCTION(fun_rjust)
 			}
 			if (i) {
 				/* we have a remainder here */
-			   memcpy(tp, fillchars, i);
+				memcpy(tp, fillchars, i);
 				tp += i;
 			}
 		}
@@ -564,7 +564,7 @@ FUNCTION(fun_center)
 	VaChk_Range("CENTER", 2, 3);
 
 	width = atoi(fargs[1]);
-	len = strlen((char *)strip_ansi(fargs[0]));
+	len = strip_ansi_len(fargs[0]);
 
 	width = (width > LBUF_SIZE - 1) ? LBUF_SIZE - 1 : width;
 	if (len >= width) {
@@ -1563,7 +1563,7 @@ FUNCTION(fun_strcat)
 
 FUNCTION(fun_strlen)
 {
-	safe_ltos(buff, bufc, (int)strlen((char *)strip_ansi(fargs[0])));
+	safe_ltos(buff, bufc, strip_ansi_len(fargs[0]));
 }
 
 FUNCTION(fun_delete)

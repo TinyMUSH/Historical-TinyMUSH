@@ -1340,7 +1340,7 @@ FUNCTION(fun_columns)
 	while (cp) {
 		objstring = split_token(&cp, isep, isep_len);
 		ansinumber = number;
-		striplen = strlen((char *) strip_ansi(objstring));
+		striplen = strip_ansi_len(objstring);
 		if (ansinumber > striplen)
 		    ansinumber = striplen;
 
