@@ -229,7 +229,7 @@ char *message;
 		default:
 			buf2 = alloc_lbuf("do_say.wizshout");
 			bp = buf2;
-			safe_str((char *)" says \"", buf2, &bp);
+			safe_str((char *)" says, \"", buf2, &bp);
 			safe_str(message, buf2, &bp);
 			safe_chr('"', buf2, &bp);
 			say_shout(WIZARD, broadcast_msg, say_flags, player,
@@ -262,7 +262,7 @@ char *message;
 		default:
 			buf2 = alloc_lbuf("do_say.adminshout");
 			bp = buf2;
-			safe_str((char *)" says \"", buf2, &bp);
+			safe_str((char *)" says, \"", buf2, &bp);
 			safe_str(message, buf2, &bp);
 			safe_chr('"', buf2, &bp);
 			*bp = '\0';

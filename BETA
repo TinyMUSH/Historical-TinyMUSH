@@ -24,9 +24,15 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+- Fix: the game/data directory is once again included in the
+  distribution. [3.1; Neva]
+
 2002/05/xx: Beta 2
 
 - Fix: Compilation error when no modules were enabled. [3.1; d@vid.org.uk]
+
+- Cosmetic: Shout messages include the grammatically correct comma after
+  "says". [2.0; Neva]
 
 =============================================================================
 			TinyMUSH 3.0 Beta History
