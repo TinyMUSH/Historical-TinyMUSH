@@ -1,4 +1,5 @@
 /* gdbm.h  -  The include file for dbm users.  */
+/* $Id$ */
 
 /*  This file is part of GDBM, the GNU data base manager, by Philip A. Nelson.
     Copyright (C) 1990, 1991, 1993  Free Software Foundation, Inc.
@@ -36,9 +37,7 @@
 #define  GDBM_WRITER  1		/* A writer. */
 #define  GDBM_WRCREAT 2		/* A writer.  Create the db if needed. */
 #define  GDBM_NEWDB   3		/* A writer.  Always create a new db. */
-#define  GDBM_FAST    0x10	/* Write fast! => No fsyncs.  OBSOLETE. */
-#define  GDBM_SYNC    0x20	/* Sync operations to the disk. */
-#define  GDBM_NOLOCK  0x40	/* Don't do file locking operations. */
+#define  GDBM_FAST    16	/* Write fast! => No fsyncs. */
 
 /* Parameters to gdbm_store for simple insertion or replacement in the
    case that the key is already in the database. */
@@ -47,10 +46,7 @@
 
 /* Parameters to gdbm_setopt, specifing the type of operation to perform. */
 #define  GDBM_CACHESIZE 1       /* Set the cache size. */
-#define  GDBM_FASTMODE  2       /* Toggle fast mode.  OBSOLETE. */
-#define  GDBM_SYNCMODE	3	/* Turn on or off sync operations. */
-#define  GDBM_CENTFREE  4	/* Keep all free blocks in the header. */
-#define  GDBM_COALESCEBLKS 5	/* Attempt to coalesce free blocks. */
+#define  GDBM_FASTMODE  2       /* Toggle fast mode. */
 
 /* The data and key structure.  This structure is defined for compatibility. */
 typedef struct {
@@ -63,13 +59,11 @@ typedef struct {
 typedef struct {int dummy[10];} *GDBM_FILE;
 
 /* Determine if the C(++) compiler requires complete function prototype  */
-#ifndef __P
-#if defined(__STDC__) || defined(__cplusplus) || defined(c_plusplus)
-#define __P(x) x
+#if  __STDC__ || defined(__cplusplus) || defined(c_plusplus)
+#define GDBM_Proto(x) x
 #else
-#define __P(x) ()
-#endif
-#endif
+#define GDBM_Proto(x) ()
+#endif /* NeedFunctionPrototypes */
 
 /* External variable, the gdbm build release string. */
 extern char *gdbm_version;	
@@ -82,45 +76,87 @@ extern "C" {
 
 /* These are the routines! */
 
-extern GDBM_FILE gdbm_open __P((char *, int, int, int, void (*)()));
-extern void gdbm_close __P((GDBM_FILE));
-extern int gdbm_store __P((GDBM_FILE, datum, datum, int));
-extern datum gdbm_fetch __P((GDBM_FILE, datum));
-extern int gdbm_delete __P((GDBM_FILE, datum));
-extern datum gdbm_firstkey __P((GDBM_FILE));
-extern datum gdbm_nextkey __P((GDBM_FILE, datum));
-extern int gdbm_reorganize __P((GDBM_FILE));
-extern void gdbm_sync __P((GDBM_FILE));
-extern int gdbm_exists __P((GDBM_FILE, datum));
-extern int gdbm_setopt __P((GDBM_FILE, int, int *, int));
-extern int gdbm_fdesc __P((GDBM_FILE));
+extern GDBM_FILE gdbm_open GDBM_Proto((
+     char *file,
+     int  block_size,
+     int  flags,
+     int  mode,
+     void (*fatal_func)()
+));
+
+extern void gdbm_close GDBM_Proto((
+     GDBM_FILE dbf
+));
+
+extern int gdbm_store GDBM_Proto((
+     GDBM_FILE dbf,
+     datum key,
+     datum content,
+     int flags
+));
+
+extern datum gdbm_fetch GDBM_Proto((
+     GDBM_FILE dbf,
+     datum key
+));
+
+extern int gdbm_delete GDBM_Proto((
+     GDBM_FILE dbf,
+     datum key
+));
+
+extern datum gdbm_firstkey GDBM_Proto((
+     GDBM_FILE dbf
+));
+
+extern datum gdbm_nextkey GDBM_Proto((
+     GDBM_FILE dbf,
+     datum key
+));
+
+extern int gdbm_reorganize GDBM_Proto((
+     GDBM_FILE dbf
+));
+
+extern int gdbm_exists GDBM_Proto((
+     GDBM_FILE dbf,
+     datum key
+));
+
+extern int gdbm_setopt GDBM_Proto((
+     GDBM_FILE dbf,
+     int optflag,
+     int *optval,
+     int optlen
+));
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }
 #endif
 
-#define	GDBM_NO_ERROR		0
-#define	GDBM_MALLOC_ERROR	1
-#define	GDBM_BLOCK_SIZE_ERROR	2
-#define	GDBM_FILE_OPEN_ERROR	3
-#define	GDBM_FILE_WRITE_ERROR	4
-#define	GDBM_FILE_SEEK_ERROR	5
-#define	GDBM_FILE_READ_ERROR	6
-#define	GDBM_BAD_MAGIC_NUMBER	7
-#define	GDBM_EMPTY_DATABASE	8
-#define	GDBM_CANT_BE_READER	9
-#define	GDBM_CANT_BE_WRITER	10
-#define	GDBM_READER_CANT_DELETE	11
-#define	GDBM_READER_CANT_STORE	12
-#define	GDBM_READER_CANT_REORGANIZE	13
-#define	GDBM_UNKNOWN_UPDATE	14
-#define	GDBM_ITEM_NOT_FOUND	15
-#define	GDBM_REORGANIZE_FAILED	16
-#define	GDBM_CANNOT_REPLACE	17
-#define	GDBM_ILLEGAL_DATA	18
-#define	GDBM_OPT_ALREADY_SET	19
-#define	GDBM_OPT_ILLEGAL	29
-typedef int gdbm_error;		/* For compatibilities sake. */
+/* gdbm sends back the following error codes in the variable gdbm_errno. */
+typedef enum {	GDBM_NO_ERROR,
+		GDBM_MALLOC_ERROR,
+		GDBM_BLOCK_SIZE_ERROR,
+		GDBM_FILE_OPEN_ERROR,
+		GDBM_FILE_WRITE_ERROR,
+		GDBM_FILE_SEEK_ERROR,
+		GDBM_FILE_READ_ERROR,
+		GDBM_BAD_MAGIC_NUMBER,
+		GDBM_EMPTY_DATABASE,
+		GDBM_CANT_BE_READER,
+	        GDBM_CANT_BE_WRITER,
+		GDBM_READER_CANT_DELETE,
+		GDBM_READER_CANT_STORE,
+		GDBM_READER_CANT_REORGANIZE,
+		GDBM_UNKNOWN_UPDATE,
+		GDBM_ITEM_NOT_FOUND,
+		GDBM_REORGANIZE_FAILED,
+		GDBM_CANNOT_REPLACE,
+		GDBM_ILLEGAL_DATA,
+		GDBM_OPT_ALREADY_SET,
+		GDBM_OPT_ILLEGAL}
+	gdbm_error;
 extern gdbm_error gdbm_errno;
 
 /* extra prototypes */
@@ -130,7 +166,9 @@ extern gdbm_error gdbm_errno;
 extern "C" {
 #endif
 
-extern char *gdbm_strerror __P((gdbm_error));
+extern const char *gdbm_strerror GDBM_Proto((
+     gdbm_error error
+));
 
 #if defined(__cplusplus) || defined(c_plusplus)
 }

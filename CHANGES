@@ -34,7 +34,9 @@ highly significant changes are noted here.
   or to execute things before/after every move through an exit.
 
 - GNU dbm is required; database code has been rewritten to take advantage
-  of its features.
+  of its features. There is a known problem with the chunkfile size growing
+  with unusual rapidity; @daily a @dump/optimize to take care of this
+  until it is fixed.
 
 - Backup and Restore scripts simplify backup maintenance.
 

@@ -150,6 +150,8 @@ For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
 - Destruction of all objects is delayed until a dbck is done, as was
   previously true just for rooms. (Exception: DESTROY_OK objects.)
 
+- @dump/optimize optimizes the chunkfile, reclaiming disk space.
+
 - @edit hilites the changed text.
 
 - '@function/preserve' preserves registers across user-defined functions.
