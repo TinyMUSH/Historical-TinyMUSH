@@ -4100,7 +4100,7 @@ FUNCTION(fun_locate)
 FUNCTION(fun_switch)
 {
 	int i;
-	char *mbuff, *tbuff, *bp, *str;
+	char *mbuff, *tbuff, *tbuf2, *bp, *str;
 
 	/* If we don't have at least 2 args, return nothing */
 
@@ -4125,24 +4125,28 @@ FUNCTION(fun_switch)
 		*bp = '\0';
 		if (quick_wild(tbuff, mbuff)) {
 			free_lbuf(tbuff);
-			str = fargs[i + 1];
+			tbuf2 = replace_string(SWITCH_VAR, mbuff, fargs[i+1]);
+			str = tbuf2;
 			exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 			     &str, cargs, ncargs);
 			free_lbuf(mbuff);
+			free_lbuf(tbuf2);
 			return;
 		}
 		free_lbuf(tbuff);
 	}
-	free_lbuf(mbuff);
 
 	/* Nope, return the default if there is one */
 
 	if ((i < nfargs) && fargs[i]) {
-		str = fargs[i];
-		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	        tbuf2 = replace_string(SWITCH_VAR, mbuff, fargs[i]);
+		str = tbuf2;
+		exec(buff, bufc, 0, player, cause,
+		     EV_STRIP | EV_FCHECK | EV_EVAL,
 		     &str, cargs, ncargs);
+		free_lbuf(tbuf2);
 	}
-	return;
+	free_lbuf(mbuff);
 }
 
 FUNCTION(fun_case)

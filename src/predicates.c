@@ -606,7 +606,7 @@ int key, nargs, ncargs;
 char *expr, *args[], *cargs[];
 {
 	int a, any;
-	char *buff, *bp, *str;
+	char *buff, *tbuf, *bp, *str;
 
 	if (!expr || (nargs <= 0))
 		return;
@@ -628,8 +628,10 @@ char *expr, *args[], *cargs[];
 		     cargs, ncargs);
 		*bp = '\0';
 		if (wild_match(buff, expr)) {
-			wait_que(player, cause, 0, NOTHING, 0, args[a + 1],
+		        tbuf = replace_string(SWITCH_VAR, expr, args[a+1]);
+			wait_que(player, cause, 0, NOTHING, 0, tbuf,
 				 cargs, ncargs, mudstate.global_regs);
+			free_lbuf(tbuf);
 			if (key == SWITCH_ONE) {
 				free_lbuf(buff);
 				return;
@@ -638,9 +640,12 @@ char *expr, *args[], *cargs[];
 		}
 	}
 	free_lbuf(buff);
-	if ((a < nargs) && !any && args[a])
-		wait_que(player, cause, 0, NOTHING, 0, args[a], cargs, ncargs,
+	if ((a < nargs) && !any && args[a]) {
+	        tbuf = replace_string(SWITCH_VAR, expr, args[a]);
+		wait_que(player, cause, 0, NOTHING, 0, tbuf, cargs, ncargs,
 			 mudstate.global_regs);
+		free_lbuf(tbuf);
+	}
 }
 
 void do_addcommand(player, cause, key, name, command)

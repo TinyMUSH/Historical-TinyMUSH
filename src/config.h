@@ -92,6 +92,10 @@
 #define BOUND_VAR	"##"
 #define LISTPLACE_VAR	"#@"
 
+/* This token is similar, marking the first argument in a switch. */
+
+#define SWITCH_VAR	"#$"
+
 /* amount of object endowment, based on cost */
 #define OBJECT_ENDOWMENT(cost) (((cost)/mudconf.sacfactor) +mudconf.sacadjust)
 
