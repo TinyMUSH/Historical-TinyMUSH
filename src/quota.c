@@ -234,7 +234,7 @@ char *arg1, *arg2;
 	dbref who;
 	register int set = 0, value = 0, i;
 
-	if (!(mudconf.quotas | Wizard(player))) {
+	if (!(mudconf.quotas || Wizard(player))) {
 		notify_quiet(player, "Quotas are not enabled.");
 		return;
 	}
