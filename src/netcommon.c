@@ -677,6 +677,7 @@ DESC *d;
 				      Name(player));
 		}
 	} else {
+	        sprintf(buf, "%s has reconnected.", Name(player));
 		raw_broadcast(MONITOR,
 			      (char *)"GAME: %s has reconnected.",
 			      Name(player));
