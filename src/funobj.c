@@ -78,7 +78,8 @@ FUNCTION(fun_exit)
 			key |= VE_LOC_DARK;
 		DOLIST(exit, Exits(it)) {
 			if (exit_visible(exit, player, key)) {
-			    safe_dbref(buff, bufc, exit);
+				safe_dbref(buff, bufc, exit);
+				return;
 			}
 		}
 	}
