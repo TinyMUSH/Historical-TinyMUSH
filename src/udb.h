@@ -72,10 +72,9 @@ typedef struct cache {
 	int keylen;
 	void *data;
 	time_t counter;
-	short datalen;
-	short type;
+	int datalen;
+	int type;
 	struct cache *nxt;
-	struct cache *prv;
 } Cache;
 
 typedef struct {

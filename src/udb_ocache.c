@@ -24,37 +24,28 @@ extern void FDECL(raw_notify, (dbref, const char *));
 #define NAMECMP(a,b,c,d,e)	((d == e) && !memcmp(a,b,c))
 
 #define DEQUEUE(q, e)	if(e->nxt == (Cache *)0) { \
-				if (e->prv != (Cache *)0) { \
-					e->prv->nxt = (Cache *)0; \
+				if (prv != (Cache *)0) { \
+					prv->nxt = (Cache *)0; \
 				} \
-				q.tail = e->prv; \
-			} else { \
-				e->nxt->prv = e->prv; \
+				q.tail = prv; \
 			} \
-			if(e->prv == (Cache *)0) { \
-				if (e->nxt != (Cache *)0) { \
-					e->nxt->prv = (Cache *)0; \
-				} \
+			if(prv == (Cache *)0) { \
 				q.head = e->nxt; \
 			} else \
-				e->prv->nxt = e->nxt;
+				prv->nxt = e->nxt;
 
 #define INSHEAD(q, e)	if (q.head == (Cache *)0) { \
 				q.tail = e; \
 				e->nxt = (Cache *)0; \
 			} else { \
-				q.head->prv = e; \
 				e->nxt = q.head; \
 			} \
-			q.head = e; \
-			e->prv = (Cache *)0;
+			q.head = e;
 
 #define INSTAIL(q, e)	if (q.head == (Cache *)0) { \
 				q.head = e; \
-				e->prv = (Cache *)0; \
 			} else { \
 				q.tail->nxt = e; \
-				e->prv = q.tail; \
 			} \
 			q.tail = e; \
 			e->nxt = (Cache *)0;
@@ -402,7 +393,7 @@ void **dataptr;
 int *datalenptr;
 int type;
 {
-	Cache *cp;
+	Cache *cp, *prv;
 	CacheLst *sp;
 	int hv = 0;
 	void *newdata;
@@ -429,6 +420,7 @@ int type;
 
 	/* search active chain first */
 
+	prv = NULL;
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
 #ifndef STANDALONE
@@ -438,7 +430,7 @@ int type;
 			}
 #endif
 			DEQUEUE(sp->active, cp);
-			INSHEAD(sp->active, cp);
+			INSTAIL(sp->active, cp);
 
 			INCCOUNTER(cp);
 
@@ -450,10 +442,12 @@ int type;
 
 			return;
 		}
+		prv = cp;
 	}
 
 	/* search modified active chain next. */
 	
+	prv = NULL;
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
 #ifndef STANDALONE
@@ -463,7 +457,7 @@ int type;
 			}
 #endif
 			DEQUEUE(sp->mactive, cp);
-			INSHEAD(sp->mactive, cp);
+			INSTAIL(sp->mactive, cp);
 
 			INCCOUNTER(cp);
 
@@ -475,6 +469,7 @@ int type;
 
 			return;
 		}
+		prv = cp;
 	}
 
 	/* DARN IT - at this point we have a certified, type-A cache miss */
@@ -535,13 +530,13 @@ int type;
 
 #ifndef STANDALONE
 	if (mudstate.dumping) {
-		/* Link at tail of active chain */
-		INSTAIL(sp->active, cp);
+		/* Link at head of active chain */
+		INSHEAD(sp->active, cp);
 		CLRCOUNTER(cp);
 	} else {
 #endif
-		/* Link at head of active chain */
-		INSHEAD(sp->active, cp);
+		/* Link at tail of active chain */
+		INSTAIL(sp->active, cp);
 		INCCOUNTER(cp);
 #ifndef STANDALONE
 	}
@@ -578,7 +573,7 @@ int datalen;
 int type;
 {
 #ifndef STANDALONE
-	Cache *cp;
+	Cache *cp, *prv;
 	CacheLst *sp;
 	int hv = 0;
 #endif
@@ -595,6 +590,8 @@ int type;
 	sp = &sys_c[hv];
 
 	/* step one, search active chain, and if we find the obj, dirty it */
+
+	prv = NULL;
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
 			if (!mudstate.dumping) {
@@ -611,11 +608,14 @@ int type;
 
 			return (0);
 		}
+		prv = cp;
 	}
 	/*
 	 * step two, search modified active chain, and if we find the obj,
 	 * we're done 
 	 */
+	 
+	prv = NULL;
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
 			if (!mudstate.dumping) {
@@ -632,6 +632,7 @@ int type;
 
 			return (0);
 		}
+		prv = cp;
 	}
 
 	/* Add a new entry to the cache */
@@ -685,7 +686,7 @@ int atrsize;
 {
 	CacheLst *sp;
 	Chain *chp;
-	Cache *cp = NULL, *p;
+	Cache *cp = NULL, *p, *prv;
 	unsigned int score = 0, curscore = 0;
 	int modified = 0, size = 0, cursize = 0, x;
 	
@@ -700,7 +701,7 @@ int atrsize;
 		for (x = 0; x < cwidth; x++) {
 			sp = &sys_c[x];
 	
-			p = sp->active.tail;
+			p = sp->active.head;
 		
 			/* Score is the age of an attribute in seconds.
 			   We use size as a secondary metric-- if the scores
@@ -736,7 +737,7 @@ int atrsize;
 			
 			/* then the modified active chain */
 
-			p = sp->mactive.tail;
+			p = sp->mactive.head;
 			
 			if (p) {
 				/* Automatically toss this bucket if it is
@@ -806,6 +807,10 @@ replace:
 		
 		if (cp) {
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
+			/* Since this is always the head of a chain, prv will
+			 * always be NULL */
+			 
+			prv = NULL;
 			DEQUEUE((*chp), cp);
 			RAW_FREE(cp->keydata, "cache_reset.actkey");
 			RAW_FREE(cp, "get_free_entry");
@@ -873,7 +878,6 @@ CacheLst *sp;
 			sp->active.tail = sp->mactive.tail;
 		} else {
 			sp->active.tail->nxt = sp->mactive.head;
-			sp->mactive.head->prv = sp->active.tail;
 			sp->active.tail = sp->mactive.tail;
 		}
 		sp->mactive.head = sp->mactive.tail = NULL;
@@ -926,7 +930,7 @@ void *keydata;
 int keylen;
 int type;
 {
-	Cache *cp;
+	Cache *cp, *prv;
 	CacheLst *sp;
 	int hv = 0;
 	
@@ -940,23 +944,28 @@ int type;
 
 	/* mark dead in cache */
 	
+	prv = NULL;
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
 			DEQUEUE(sp->active, cp);
-			INSTAIL(sp->mactive, cp);
+			INSHEAD(sp->mactive, cp);
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			INCCOUNTER(cp);
 			return;
 		}
+		prv = cp;
 	}
+	
+	prv = NULL;
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
 			DEQUEUE(sp->mactive, cp);
-			INSTAIL(sp->mactive, cp);
+			INSHEAD(sp->mactive, cp);
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
 			INCCOUNTER(cp);
 			return;
 		}
+		prv = cp;
 	}
 
 	if ((cp = get_free_entry(0)) == NULL)
@@ -967,7 +976,6 @@ int type;
 	cp->keylen = keylen;
 
 	INCCOUNTER(cp);
-	INSTAIL(sp->mactive, cp);
+	INSHEAD(sp->mactive, cp);
 	return;
 }
-

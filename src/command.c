@@ -2465,7 +2465,7 @@ extern int anum_alc_top;
 
 void list_memory(player)
 {
-	double total = 0, each = 0;
+	double total = 0, each = 0, each2 = 0;
 	int i, j;
 	CMDENT *cmd;
 	ADDENT *add;
@@ -2504,21 +2504,27 @@ void list_memory(player)
 	/* Calculate size of cache */
 	
 	each = cs_size;
-	each += sizeof(CacheLst) * mudconf.cache_width;
+	raw_notify(player,
+		   tprintf("Cache data       : %12.2fk", each / 1024));
+	total += each;
+		
+	each = sizeof(CacheLst) * mudconf.cache_width;
 	for (i = 0; i < mudconf.cache_width; i++) {
 		sp = &sys_c[i];
 		for(cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 			each += sizeof(Cache);
-			each += cp->keylen;
+			each2 += cp->keylen;
 		}
 		for(cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 			each += sizeof(Cache);
-			each += cp->keylen;
+			each2 += cp->keylen;
 		}
 	}		
 	raw_notify(player,
-		   tprintf("Cache + overhead : %12.2fk", each / 1024));
-	total += each;
+		   tprintf("Cache keys       : %12.2fk", each2 / 1024));
+	raw_notify(player,
+		   tprintf("Cache overhead   : %12.2fk", each / 1024));
+	total += each + each2;
 
 	/* Calculate size of object pipelines */
 	
