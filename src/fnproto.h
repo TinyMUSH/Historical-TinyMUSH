@@ -151,6 +151,10 @@ XFUNCTION(fun_version);
 XFUNCTION(fun_mudname);
 XFUNCTION(fun_hasmodule);
 XFUNCTION(fun_connrecord);
+XFUNCTION(fun_fcount);
+XFUNCTION(fun_fdepth);
+XFUNCTION(fun_ccount);
+XFUNCTION(fun_cdepth);
 XFUNCTION(fun_s);
 XFUNCTION(fun_subeval);
 XFUNCTION(fun_link);
@@ -373,6 +377,8 @@ FUN flist[] = {
 {"CAT",		fun_cat,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"CBORDER",	perform_border,	0,  FN_VARARGS|JUST_CENTER,
 						CA_PUBLIC,	NULL},
+{"CCOUNT",	fun_ccount,	0,  0,		CA_PUBLIC,	NULL},
+{"CDEPTH",	fun_cdepth,	0,  0,		CA_PUBLIC,	NULL},
 {"CEIL",	fun_ceil,	1,  0,		CA_PUBLIC,	NULL},
 {"CENTER",	fun_center,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"CHILDREN",    fun_children,   0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -428,6 +434,8 @@ FUN flist[] = {
 {"EVAL",        fun_eval,       0,  FN_VARARGS|GET_EVAL|GET_XARGS,
 						CA_PUBLIC,	NULL},
 {"SUBEVAL",  	fun_subeval,	1,  0,		CA_PUBLIC,	NULL},
+{"FCOUNT",	fun_fcount,	0,  0,		CA_PUBLIC,	NULL},
+{"FDEPTH",	fun_fdepth,	0,  0,		CA_PUBLIC,	NULL},
 {"FDIV",	fun_fdiv,	2,  0,		CA_PUBLIC,	NULL},
 {"FILTER",	handle_filter,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"FILTERBOOL",	handle_filter,	0,  FN_VARARGS|LOGIC_BOOL,

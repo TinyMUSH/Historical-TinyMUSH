@@ -814,6 +814,30 @@ FUNCTION(fun_connrecord)
 }
 
 /* ---------------------------------------------------------------------------
+ * State of the invocation and recursion counters.
+ */
+
+FUNCTION(fun_fcount)
+{
+    safe_ltos(buff, bufc, mudstate.func_invk_ctr);
+}
+
+FUNCTION(fun_fdepth)
+{
+    safe_ltos(buff, bufc, mudstate.func_nest_lev);
+}
+
+FUNCTION(fun_ccount)
+{
+    safe_ltos(buff, bufc, mudstate.cmd_invk_ctr);
+}
+
+FUNCTION(fun_cdepth)
+{
+    safe_ltos(buff, bufc, mudstate.cmd_nest_lev);
+}
+
+/* ---------------------------------------------------------------------------
  * fun_s: Force substitution to occur.
  * fun_subeval: Like s(), but don't do function evaluations.
  */

@@ -5673,8 +5673,9 @@ See also: @link, @open.
 & MISC FUNCTIONS
   Topic: Miscellaneous Functions
  
-	case()		config()	connrecord()	convsecs()
-	convtime()	die()		hasmodule()	helptext()	
+	case()		ccount()	cdepth()	config()
+	connrecord()	convsecs()	convtime()	die()		
+	fcount()	fdepth()	hasmodule()	helptext()	
 	ifelse()	localize()	mudname()	nonzero()	
 	oemit()		pemit()		r()		rand()		
 	remit()		restarts()	restarttime()	s()		
@@ -8298,6 +8299,31 @@ performed and the walk down the list stops.
      Build date: Thu Dec  5 10:10:07 EST 1991
      > say version()
      You say, "TinyMUSH Beta version 2.0 patchlevel 0 #3"
+ 
+& CCOUNT()
+& CDEPTH()
+& FCOUNT()
+& FDEPTH()
+  Functions:  ccount(), cdepth(), fcount(), fdepth()
+ 
+  ccount()  --  Returns the current command invocation counter.
+  cdepth()  --  Returns the current command recursion counter.
+  fcount()  --  Returns the current function invocation counter.
+  fdepth()  --  Returns the current function recursion counter.
+ 
+  These functions are useful for attempting to trap overflows in your
+  softcode before the "hard" server limits are violated. You can obtain
+  those limits via config() -- respectively, command_invocation_limit,
+  command_recursion_limit, function_invocation_limit, and
+  function_recursion_limit.
+ 
+  Example:
+    > @va me = [ifelse(gt(fdepth(),5), %0, add(%0,u(va,inc(%0))))]
+    > say [u(va,1)]
+    You say, "6"
+ 
+  (Note that because the fdepth() call is two levels deep, the 'real'
+  recursion level it's checking of the u() is actually 3.)
  
 & HASMODULE()
   Function: hasmodule(<module name>)
