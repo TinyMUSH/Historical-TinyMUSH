@@ -1,0 +1,67 @@
+create.o: create.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h command.h attrs.h powers.h
+game.o: game.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h file_c.h interface.h externs.h regexp.h command.h match.h powers.h attrs.h slave.h
+help.o: help.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h help.h
+look.o: look.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h powers.h attrs.h command.h ansi.h
+match.o: match.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h match.h attrs.h powers.h
+move.o: move.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h attrs.h powers.h
+player.o: player.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h attrs.h powers.h match.h
+predicates.o: predicates.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h command.h attrs.h powers.h ansi.h patchlevel.h db_sql.h
+rob.o: rob.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h attrs.h powers.h
+set.o: set.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h match.h interface.h externs.h regexp.h powers.h attrs.h ansi.h
+speech.o: speech.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h powers.h attrs.h
+wiz.o: wiz.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h file_c.h interface.h externs.h regexp.h match.h command.h attrs.h powers.h
+walkdb.o: walkdb.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h command.h powers.h misc.h attrs.h
+timer.o: timer.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h command.h powers.h bitstring.h
+boolexp.o: boolexp.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h match.h externs.h regexp.h interface.h attrs.h powers.h
+log.o: log.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h powers.h ansi.h
+cque.o: cque.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h attrs.h powers.h command.h
+unparse.o: unparse.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h interface.h powers.h
+eval.o: eval.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h powers.h attrs.h functions.h ansi.h
+command.o: command.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h interface.h externs.h regexp.h command.h functions.h match.h attrs.h powers.h vattr.h db_sql.h
+wild.o: wild.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h
+netcommon.o: netcommon.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h file_c.h interface.h externs.h regexp.h command.h attrs.h mguests.h ansi.h powers.h match.h
+functions.o: functions.c copyright.h autoconf.h externs.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h regexp.h misc.h powers.h attrs.h match.h command.h functions.h ansi.h
+vattr.o: vattr.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h vattr.h externs.h regexp.h
+db.o: db.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h attrs.h vattr.h match.h powers.h interface.h /usr/include/rpc/netdb.h
+db_rw.o: db_rw.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h vattr.h attrs.h powers.h
+stringutil.o: stringutil.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h ansi.h
+object.o: object.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h command.h externs.h regexp.h powers.h attrs.h match.h
+conf.o: conf.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h interface.h command.h attrs.h powers.h udb_defs.h match.h
+flags.o: flags.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h command.h powers.h match.h
+htab.o: htab.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h
+compat.o: compat.c copyright.h autoconf.h /usr/include/asm/sockios.h
+file_c.o: file_c.c copyright.h autoconf.h config.h interface.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h command.h file_c.h
+player_c.o: player_c.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h attrs.h
+bsd.o: bsd.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h file_c.h interface.h externs.h regexp.h powers.h command.h slave.h attrs.h
+alloc.o: alloc.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h
+comsys.o: comsys.c autoconf.h copyright.h externs.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h regexp.h interface.h match.h attrs.h powers.h ansi.h
+mail.o: mail.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h powers.h interface.h externs.h regexp.h attrs.h
+mguests.o: mguests.c autoconf.h copyright.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h mguests.h interface.h attrs.h powers.h
+powers.o: powers.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h command.h powers.h match.h
+newconc.o: newconc.c
+funceval.o: funceval.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h powers.h attrs.h externs.h regexp.h match.h command.h functions.h misc.h ansi.h db_sql.h
+regexp.o: regexp.c autoconf.h copyright.h regexp.h
+quota.o: quota.c autoconf.h copyright.h interface.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h file_c.h match.h command.h attrs.h powers.h
+db_empty.o: db_empty.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h
+sa-db.o: sa-db.c db.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h attrs.h vattr.h match.h powers.h interface.h /usr/include/rpc/netdb.h
+sa-db_rw.o: sa-db_rw.c db_rw.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h vattr.h attrs.h powers.h
+sa-boolexp.o: sa-boolexp.c boolexp.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h match.h externs.h regexp.h interface.h attrs.h powers.h
+sa-unparse.o: sa-unparse.c unparse.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h interface.h powers.h
+sa-pred.o: sa-pred.c predicates.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h interface.h externs.h regexp.h match.h command.h attrs.h powers.h ansi.h patchlevel.h db_sql.h
+sa-stringu.o: sa-stringu.c stringutil.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h ansi.h
+sa-conf.o: sa-conf.c conf.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h interface.h command.h attrs.h powers.h udb_defs.h match.h
+sa-log.o: sa-log.c log.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h powers.h ansi.h
+sa-object.o: sa-object.c object.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h command.h externs.h regexp.h powers.h attrs.h match.h
+sa-vattr.o: sa-vattr.c vattr.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h vattr.h externs.h regexp.h
+sa-htab.o: sa-htab.c htab.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h
+sa-player_c.o: sa-player_c.c player_c.c copyright.h autoconf.h mudconf.h config.h htab.h db.h udb.h alloc.h flags.h mail.h externs.h regexp.h attrs.h
+sa-flags.o: sa-flags.c flags.c copyright.h autoconf.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h command.h powers.h match.h
+sa-udb_ocache.o: sa-udb_ocache.c udb_ocache.c autoconf.h copyright.h config.h externs.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h regexp.h udb_defs.h
+sa-udb_ochunk.o: sa-udb_ochunk.c udb_ochunk.c autoconf.h copyright.h udb_defs.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h gdbm.h externs.h regexp.h
+sa-udb_obj.o: sa-udb_obj.c udb_obj.c autoconf.h copyright.h config.h externs.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h regexp.h udb_defs.h
+sa-udb_misc.o: sa-udb_misc.c udb_misc.c autoconf.h copyright.h udb_defs.h externs.h db.h config.h mudconf.h htab.h alloc.h flags.h mail.h udb.h regexp.h
+dbconvert.o: dbconvert.c copyright.h autoconf.h config.h db.h mudconf.h htab.h alloc.h flags.h mail.h udb.h externs.h regexp.h
+mkindx.o: mkindx.c copyright.h autoconf.h help.h
+unsplit.o: unsplit.c copyright.h /usr/include/bits/endian.h
+slave.o: slave.c autoconf.h copyright.h slave.h /usr/include/arpa/inet.h
+portconc.o: portconc.c
