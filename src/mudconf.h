@@ -48,6 +48,7 @@ struct global_register_data {
     char **x_names;
     char **x_regs;
     int *x_lens;
+    int dirty;
 };
 
 typedef struct bque BQUE;	/* Command queue */
@@ -513,7 +514,7 @@ struct statedata {
 	int	lock_nest_lev;	/* Current nesting of lock evals */
 	int	cmd_nest_lev;	/* Current nesting of commands like @sw/now */
 	int	cmd_invk_ctr;	/* Commands invoked so far by this qentry */
-	GDATA	*global_data;	/* Global register data */
+	GDATA	*rdata;		/* Global register data */
 	char	*global_regs[MAX_GLOBAL_REGS];
 	int	glob_reg_len[MAX_GLOBAL_REGS];	
 	int	zone_nest_num;  /* Global current zone nest position */

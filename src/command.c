@@ -345,8 +345,8 @@ int check_userdef_access(player, hookp, cargs, ncargs)
     char *buf;
     char *bp, *tstr, *str;
     dbref aowner;
-    int result, aflags, alen, preserve_len[MAX_GLOBAL_REGS];
-    char *preserve[MAX_GLOBAL_REGS];
+    int result, aflags, alen;
+    GDATA *preserve;
 
     /* We have user-defined command permissions. Go evaluate the
      * obj/attr pair that we've been given. If that result is
@@ -368,7 +368,7 @@ int check_userdef_access(player, hookp, cargs, ncargs)
     }
     str = tstr;
 	
-    save_global_regs("check_userdef_access", preserve, preserve_len);
+    preserve = save_global_regs("check_userdef_access");
 
     bp = buf = alloc_lbuf("check_userdef_access");
     exec(buf, &bp, hookp->thing, player, player,
@@ -376,7 +376,7 @@ int check_userdef_access(player, hookp, cargs, ncargs)
 	 &str, cargs, ncargs);
     *bp = '\0';
 
-    restore_global_regs("check_userdef_access", preserve, preserve_len);
+    restore_global_regs("check_userdef_access", preserve);
 
     result = xlate(buf);
 
@@ -400,8 +400,8 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     char *buf, *bp;
     char *tstr, *str;
     dbref aowner;
-    int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
-    char *preserve[MAX_GLOBAL_REGS];
+    int aflags, alen;
+    GDATA *preserve;
 
     /* We know we have a non-null hook. We want to evaluate the obj/attr
      * pair of that hook. We consider the enactor to be the player who
@@ -412,7 +412,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     str = tstr;
 
     if (save_globs) {
-	save_global_regs("process_hook", preserve, preserve_len);
+	preserve = save_global_regs("process_hook");
     }
 
     buf = bp = alloc_lbuf("process_hook");
@@ -422,7 +422,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     free_lbuf(buf);
 
     if (save_globs) {
-	restore_global_regs("process_hook", preserve, preserve_len);
+	restore_global_regs("process_hook", preserve);
     }
 
     free_lbuf(tstr);
@@ -440,13 +440,13 @@ dbref player, cause;
 int interactive, ncargs;
 {
 	char *buf1, *buf2, tchar, *bp, *str, *buff, *s, *j, *new;
-	char *args[MAX_ARG], *aargs[NUM_ENV_VARS], *preserve[MAX_GLOBAL_REGS];
+	char *args[MAX_ARG], *aargs[NUM_ENV_VARS];
 	int nargs, i, interp, key, xkey, aflags, alen;
 	int hasswitch = 0;
 	int cmd_matches = 0;
 	dbref aowner;
-	int preserve_len[MAX_GLOBAL_REGS];
 	ADDENT *add;
+	GDATA *preserve;
 
 	/* Perform object type checks. */
 
@@ -584,8 +584,7 @@ int interactive, ncargs;
 		} else {
 		    if (cmdp->callseq & CS_ADDED) {
 
-			save_global_regs("process_cmdent_added",
-					 preserve, preserve_len);
+			preserve = save_global_regs("process_cmdent_added");
 
 			/* Construct the matching buffer. */
 
@@ -692,8 +691,7 @@ int interactive, ncargs;
 
 			free_lbuf(new);
 
-			restore_global_regs("process_cmdent",
-					    preserve, preserve_len);
+			restore_global_regs("process_cmdent", preserve);
 		    } else 
 			(*(cmdp->info.handler)) (player, cause, key, buf1);
 		}

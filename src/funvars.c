@@ -55,39 +55,99 @@ char qidx_chartab[256] =
 	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1
 };
 
+
+int set_register(funcname, name, data)
+    const char *funcname;
+    char *name, *data;
+{
+    /* Return -1 on error, otherwise number of characters set. */
+
+    int i, regnum, len, a_size, *tmp_lens;
+    char **tmp_regs;
+
+    if (!name || !*name)
+	return -1;
+
+    if (!name[1]) {
+	/* Single-letter q-register.
+	 * We allocate these either as a block of 10 or a block of 36.
+	 * (Most code won't go beyond %q0-%q9, especially legacy code
+	 * which predates the larger number of global registers.
+	 */
+
+	regnum = qidx_chartab[(unsigned char) *name];
+	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS))
+	    return -1;
+
+	/* Check to see if we're just clearing. If we're clearing a register
+	 * that doesn't exist, then we do nothing. Otherwise we wipe out
+	 * the data.
+	 */
+
+	if (!data || !*data) {
+	    if (!mudstate.rdata || (regnum > mudstate.rdata->q_alloc))
+		return 0;
+	    if (mudstate.rdata->q_regs[regnum]) {
+		free_lbuf(mudstate.rdata->q_regs[regnum]);
+		mudstate.rdata->q_regs[regnum] = NULL;
+		mudstate.rdata->q_lens[regnum] = 0; 
+	    }
+	    return 0;
+	}
+
+	if (!mudstate.rdata) {
+	    Init_RegData(funcname, mudstate.rdata);
+	    a_size = (regnum < 10) ? 10 : MAX_GLOBAL_REGS;
+	    mudstate.rdata->q_alloc = a_size;
+	    mudstate.rdata->q_regs = XCALLOC(a_size, sizeof(char *), "q_regs");
+	    mudstate.rdata->q_lens = XCALLOC(a_size, sizeof(int), "q_lens");
+	    mudstate.rdata->q_alloc = a_size;
+	} else if (regnum > mudstate.rdata->q_alloc) {
+	    a_size = MAX_GLOBAL_REGS;
+	    tmp_regs = XCALLOC(a_size, sizeof(char *), "q_regs");
+	    tmp_lens = XCALLOC(a_size, sizeof(int), "q_lens");
+	    for (i = 0; i < mudstate.rdata->q_alloc; i++) {
+		tmp_regs[i] = mudstate.rdata->q_regs[i];
+		tmp_lens[i] =  mudstate.rdata->q_lens[i];
+		XFREE(mudstate.rdata->q_regs, "q_regs");
+		XFREE(mudstate.rdata->q_lens, "q_lens");
+		mudstate.rdata->q_regs = tmp_regs;
+		mudstate.rdata->q_lens = tmp_lens;
+	    }
+	    mudstate.rdata->q_alloc = a_size;
+	}
+	    
+	if (!mudstate.rdata->q_regs[regnum])
+	    mudstate.rdata->q_regs[regnum] = alloc_lbuf(funcname);
+	len = strlen(data);
+	memcpy(mudstate.rdata->q_regs[regnum], data, len + 1);
+	mudstate.rdata->q_lens[regnum] = len;
+	mudstate.rdata->dirty++;
+	
+	return len;
+    }
+
+    return -1;			/* unimplemented */
+}
+
 FUNCTION(fun_setq)
 {
-	int regnum, len;
+    int result;
 
-	regnum = qidx_chartab[(unsigned char) *fargs[0]];
-	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
-		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
-		return;
-	}
-		
-	if (!mudstate.global_regs[regnum])
-	    mudstate.global_regs[regnum] = alloc_lbuf("fun_setq");
-	len = strlen(fargs[1]);
-	memcpy(mudstate.global_regs[regnum], fargs[1], len + 1);
-	mudstate.glob_reg_len[regnum] = len;
+    result = set_register("fun_setq", fargs[0], fargs[1]);
+    if (result < 0)
+	safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
 }
 
 FUNCTION(fun_setr)
 {
-	int regnum, len;
+    int result;
 
-	regnum = qidx_chartab[(unsigned char) *fargs[0]];
-	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
-		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
-		return;
-	}
-
-	if (!mudstate.global_regs[regnum])
-	    mudstate.global_regs[regnum] = alloc_lbuf("fun_setr");
-	len = strlen(fargs[1]);
-	memcpy(mudstate.global_regs[regnum], fargs[1], len + 1);
-	mudstate.glob_reg_len[regnum] = len;
-	safe_known_str(fargs[1], len, buff, bufc);
+    result = set_register("fun_setr", fargs[0], fargs[1]);
+    if (result < 0)
+	safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
+    else if (result > 0)
+	safe_known_str(fargs[1], result, buff, bufc);
 }
 
 FUNCTION(fun_r)
@@ -97,9 +157,13 @@ FUNCTION(fun_r)
 	regnum = qidx_chartab[(unsigned char) *fargs[0]];
 	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
-	} else if (mudstate.global_regs[regnum]) {
-		safe_known_str(mudstate.global_regs[regnum],
-			       mudstate.glob_reg_len[regnum], buff, bufc);
+	} else {
+	    if (mudstate.rdata && (mudstate.rdata->q_alloc > regnum) &&
+		mudstate.rdata->q_regs[regnum]) {
+		safe_known_str(mudstate.rdata->q_regs[regnum],
+			       mudstate.rdata->q_lens[regnum],
+			       buff, bufc);
+	    }
 	}
 }
 
@@ -126,23 +190,7 @@ FUNCTION(fun_wildmatch)
 
     nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
-	if (*qregs[i])
-	    curq = qidx_chartab[(unsigned char) *qregs[i]];
-	else
-	    curq = -1;
-	if ((curq < 0) || (curq >= MAX_GLOBAL_REGS))
-	    continue;
-	if (!mudstate.global_regs[curq]) {
-	    mudstate.global_regs[curq] = alloc_lbuf("fun_wildmatch");
-	}
-	if (!t_args[i] || !*t_args[i]) {
-	    mudstate.global_regs[curq][0] = '\0';
-	    mudstate.glob_reg_len[curq] = 0;
-	} else {
-	    mudstate.glob_reg_len[curq] = strlen(t_args[i]);
-	    memcpy(mudstate.global_regs[curq], t_args[i],
-		   mudstate.glob_reg_len[curq] + 1);
-	}
+	set_register("fun_wildmatch", qregs[i], t_args[i]);
     }
 
     /* Need to free up allocated memory from the match. */
@@ -2401,6 +2449,7 @@ FUNCTION(perform_regmatch)
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
     int subpatterns; 
+    char tbuf[LBUF_SIZE], *p;
 
     case_option = ((FUN *)fargs[-1])->flags & REG_CASELESS;
 
@@ -2439,22 +2488,13 @@ FUNCTION(perform_regmatch)
 
     nqregs = list2arr(&qregs, NUM_ENV_VARS, fargs[2], SPACE_DELIM, 1);
     for (i = 0; i < nqregs; i++) {
-	if (qregs[i] && *qregs[i])
-	    curq = qidx_chartab[(unsigned char) *qregs[i]];
-	else
-	    curq = -1;
-	if ((curq < 0) || (curq >= MAX_GLOBAL_REGS))
-	    continue;
-	if (!mudstate.global_regs[curq]) {
-	    mudstate.global_regs[curq] = alloc_lbuf("fun_regmatch");
-	}
 	if (subpatterns < 0) {
-	    mudstate.global_regs[curq][0] = '\0'; /* empty string */
-	    mudstate.glob_reg_len[curq] = 0;
+	    set_register("fun_regmatch", qregs[i], NULL);
 	} else {
+	    p = tbuf;
 	    pcre_copy_substring(fargs[0], offsets, subpatterns, i,
-				mudstate.global_regs[curq], LBUF_SIZE);
-	    mudstate.glob_reg_len[curq] = strlen(mudstate.global_regs[curq]);
+				p, LBUF_SIZE);
+	    set_register("fun_regmatch", qregs[i], p);
 	}
     }
 

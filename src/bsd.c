@@ -765,9 +765,7 @@ int reason;
 		    ncon = 0;
 		    DESC_ITER_PLAYER(d->player, dtemp) ncon++;
 		    if (ncon == 0) {
-			for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-			    free_lbuf(d->program_data->wait_regs[i]);
-			}
+			Free_RegData(d->program_data->wait_data);
 			XFREE(d->program_data, "do_prog");
 			d->program_data = NULL;
 			atr_clr(d->player, A_PROGCMD);
@@ -824,10 +822,7 @@ int reason;
 			DESC_ITER_PLAYER(d->player, dtemp) num++;
 			
 			if (num == 0) {
-				for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-					if (d->program_data->wait_regs[i])
-						free_lbuf(d->program_data->wait_regs[i]);
-				}
+				Free_RegData(d->program_data->wait_data);
 				XFREE(d->program_data, "do_prog");
 				d->program_data = NULL;
 				atr_clr(d->player, A_PROGCMD);

@@ -307,8 +307,7 @@ int check_exclude, hash_insert;
 					    NUM_ENV_VARS);
 			} else {
 			    wait_que(thing, player, 0, NOTHING, 0, s, args,
-				     NUM_ENV_VARS, mudstate.global_regs,
-				     mudstate.glob_reg_len);
+				     NUM_ENV_VARS, mudstate.rdata);
 			}
 			for (i = 0; i < NUM_ENV_VARS; i++) {
 				if (args[i])
@@ -374,13 +373,14 @@ dbref object, player;
 int filter;
 const char *msg;
 {
-	int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
+	int aflags, alen;
 	dbref aowner;
-	char *buf, *nbuf, *cp, *dp, *str, *preserve[MAX_GLOBAL_REGS];
+	char *buf, *nbuf, *cp, *dp, *str;
 	pcre *re;
 	const char *errptr;
 	int len, case_opt, erroffset, subpatterns;
 	int offsets[PCRE_MAX_OFFSETS];
+	GDATA *preserve;
 
 	buf = atr_pget(object, filter, &aowner, &aflags, &alen);
 	if (!*buf) {
@@ -389,7 +389,7 @@ const char *msg;
 	}
 
 	if (!(aflags & AF_NOPARSE)) {
-	    save_global_regs("check_filter_save", preserve, preserve_len);
+	    preserve = save_global_regs("check_filter_save");
 	    nbuf = dp = alloc_lbuf("check_filter");
 	    str = buf;
 	    exec(nbuf, &dp, object, player, player,
@@ -397,8 +397,7 @@ const char *msg;
 	    *dp = '\0';
 	    dp = nbuf;
 	    free_lbuf(buf);
-	    restore_global_regs("check_filter_restore", preserve,
-				preserve_len);
+	    restore_global_regs("check_filter_restore", preserve);
 	} else {
 	    dp = buf;
 	    nbuf = buf;		/* this way, buf will get freed correctly */
@@ -440,16 +439,17 @@ dbref object, player;
 int prefix;
 const char *msg, *dflt;
 {
-	int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
+	int aflags, alen;
 	dbref aowner;
-	char *buf, *nbuf, *cp, *str, *preserve[MAX_GLOBAL_REGS];
+	char *buf, *nbuf, *cp, *str;
+	GDATA *preserve;
 
 	buf = atr_pget(object, prefix, &aowner, &aflags, &alen);
 	if (!*buf) {
 		cp = buf;
 		safe_str((char *)dflt, buf, &cp);
 	} else {
-		save_global_regs("add_prefix_save", preserve, preserve_len);
+		preserve = save_global_regs("add_prefix_save");
 		nbuf = cp = alloc_lbuf("add_prefix");
 		str = buf;
 		exec(nbuf, &cp, object, player, player,
@@ -457,8 +457,7 @@ const char *msg, *dflt;
 		     (char **)NULL, 0);
 		*cp = '\0';
 		free_lbuf(buf);
-		restore_global_regs("add_prefix_restore", preserve,
-				    preserve_len);
+		restore_global_regs("add_prefix_restore", preserve);
 		buf = nbuf;
 	}
 	if (cp != buf) {
@@ -2121,10 +2120,6 @@ char *argv[];
 	    }
 	}
 
-	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	    mudstate.global_regs[i] = NULL;
-	    mudstate.glob_reg_len[i] = 0;
-	}
 	mudstate.now = time(NULL);
 
 	/* Initialize PCRE tables for locale. */

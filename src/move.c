@@ -395,8 +395,8 @@ static dbref find_var_dest(player, exit)
 {
     char *buf, *ebuf, *ep, *str;
     dbref aowner, dest_room;
-    int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
-    char *preserve[MAX_GLOBAL_REGS];
+    int aflags, alen;
+    GDATA *preserve;
 
     buf = atr_pget(exit, A_EXITVARDEST, &aowner, &aflags, &alen);
     if (!*buf) {
@@ -404,14 +404,14 @@ static dbref find_var_dest(player, exit)
 	return NOTHING;
     }
 
-    save_global_regs("find_var_dest_save", preserve, preserve_len);
+    preserve = save_global_regs("find_var_dest_save");
     ebuf = ep = alloc_lbuf("find_var_dest");
     str = buf;
     exec(ebuf, &ep, exit, player, player, EV_FCHECK | EV_EVAL | EV_TOP,
 	 &str, (char **) NULL, 0);
     *ep = '\0';
     free_lbuf(buf);
-    restore_global_regs("find_var_dest_save", preserve, preserve_len);
+    restore_global_regs("find_var_dest_save", preserve);
 
     if (*ebuf == '#')
 	dest_room = parse_dbref(ebuf + 1);

@@ -235,7 +235,7 @@ char *what, *command, *args[];
 		process_cmdline(victim, player, command, args, nargs);
 	else
 		wait_que(victim, player, 0, NOTHING, 0, command, args, nargs,
-			 mudstate.global_regs, mudstate.glob_reg_len);
+			 mudstate.rdata);
 }
 
 /*

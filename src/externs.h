@@ -39,7 +39,7 @@ extern int	FDECL(cf_modify_bits, (int *, char *, long, dbref, char *));
 extern int	FDECL(nfy_que, (dbref, dbref, int, int, int));
 extern int	FDECL(halt_que, (dbref, dbref));
 extern void	FDECL(wait_que, (dbref, dbref, int, dbref, int, char *,
-			char *[], int, char *[], int []));
+			char *[], int, GDATA *));
 extern int	NDECL(que_next);
 extern int	FDECL(do_top, (int ncmds));
 extern void	NDECL(do_second);
@@ -92,8 +92,8 @@ extern char *	FDECL(parse_arglist, (dbref, dbref, dbref, char *, char, int,
 			char *[], int, char*[], int));
 extern void	FDECL(exec, (char *, char **, dbref, dbref, dbref,
 			     int, char **, char *[], int));
-extern void	FDECL(save_global_regs, (const char *, char *[], int []));
-extern void	FDECL(restore_global_regs, (const char *, char *[], int []));
+extern GDATA *	FDECL(save_global_regs, (const char *));
+extern void	FDECL(restore_global_regs, (const char *, GDATA *));
 
 /* From fnhelper.c */
 extern dbref	FDECL(match_thing, (dbref, char *));
@@ -588,28 +588,112 @@ extern int	FDECL(xvar_match, (char *, char *, char *[], int, dbref));
  * Global data things.
  */
 
-#define Free_QData(q) \
-if (q) { \
-    XFREE((q)->text, "que.text"); \
-    if ((q)->gdata) { \
-	if ((q)->gdata->q_regs) { \
-	    XFREE((q)->gdata->q_regs, "que.q_regs"); \
+#define Free_RegDataStruct(d) \
+    if (d) { \
+	if ((d)->q_regs) { \
+	    XFREE((d)->q_regs, "q_regs"); \
 	} \
-	if ((q)->gdata->q_lens) { \
-	    XFREE((q)->gdata->q_lens, "que.q_lens"); \
+	if ((d)->q_lens) { \
+	    XFREE((d)->q_lens, "q_lens"); \
 	} \
-	if ((q)->gdata->x_names) { \
-	    XFREE((q)->gdata->x_names, "que.x_names"); \
+	if ((d)->x_names) { \
+	    XFREE((d)->x_names, "x_names"); \
 	} \
-	if ((q)->gdata->x_regs) { \
-	    XFREE((q)->gdata->x_regs, "que.x_regs"); \
+	if ((d)->x_regs) { \
+	    XFREE((d)->x_regs, "x_regs"); \
 	} \
-	if ((q)->gdata->x_lens) { \
-	    XFREE((q)->gdata->x_lens, "que.x_lens"); \
+	if ((d)->x_lens) { \
+	    XFREE((d)->x_lens, "x_lens"); \
 	} \
-	XFREE((q)->gdata, "que.gdata"); \
+	XFREE(d, "gdata"); \
+    }
+
+#define Free_RegData(d) \
+{ \
+    int z; \
+    if (d) { \
+        for (z = 0; z < (d)->q_alloc; z++) { \
+           if ((d)->q_regs[z]) \
+                free_lbuf((d)->q_regs[z]); \
+        } \
+        for (z = 0; z < (d)->xr_alloc; z++) { \
+           if ((d)->x_names[z]) \
+                free_sbuf((d)->x_names[z]); \
+           if ((d)->x_regs[z]) \
+                free_lbuf((d)->x_regs[z]); \
+        } \
+        Free_RegDataStruct(d); \
     } \
 }
+
+#define Free_QData(q) \
+    XFREE((q)->text, "que.text"); \
+    Free_RegDataStruct((q)->gdata);
+
+#define Init_RegData(f, t) \
+    (t) = (GDATA *) XMALLOC(sizeof(GDATA), (f)); \
+    (t)->q_alloc = (t)->xr_alloc = 0; \
+    (t)->q_regs = (t)->x_names = (t)->x_regs = NULL; \
+    (t)->q_lens = (t)->x_lens = NULL; \
+    (t)->dirty = 0;
+
+#define Alloc_RegData(f, g, t) \
+    if ((g) && ((g)->q_alloc || (g)->xr_alloc)) { \
+	(t) = (GDATA *) XMALLOC(sizeof(GDATA), (f)); \
+	(t)->q_alloc = (g)->q_alloc; \
+	if ((g)->q_alloc) { \
+	    (t)->q_regs = XCALLOC((g)->q_alloc, sizeof(char *), "q_regs"); \
+	    (t)->q_lens = XCALLOC((g)->q_alloc, sizeof(int), "q_lens"); \
+	} else { \
+	    (t)->q_regs = NULL; \
+	    (t)->q_lens = NULL; \
+	} \
+	(t)->xr_alloc = (g)->xr_alloc; \
+	if ((g)->xr_alloc) { \
+	    (t)->x_names = XCALLOC((g)->xr_alloc, sizeof(char *), "x_names"); \
+	    (t)->x_regs = XCALLOC((g)->xr_alloc, sizeof(char *), "x_regs"); \
+	    (t)->x_lens = XCALLOC((g)->xr_alloc, sizeof(int), "x_lens"); \
+	} else { \
+	    (t)->x_names = NULL; \
+	    (t)->x_regs = NULL; \
+	    (t)->x_lens = NULL; \
+	} \
+	(t)->dirty = 0; \
+    } else { \
+	(t) = NULL; \
+    }
+
+/* Copy global data from g to t */
+
+#define Copy_RegData(f, g, t) \
+{ \
+    int z; \
+    if ((g) && (g)->q_alloc) { \
+	for (z = 0; z < (g)->q_alloc; z++) {  \
+	    if ((g)->q_regs[z] && *((g)->q_regs[z])) { \
+		(t)->q_regs[z] = alloc_lbuf(f); \
+		memcpy((t)->q_regs[z], (g)->q_regs[z], (g)->q_lens[z] + 1); \
+		(t)->q_lens[z] = (g)->q_lens[z]; \
+	    } \
+	} \
+    } \
+    if ((g) && (g)->xr_alloc) { \
+	for (z = 0; z < (g)->xr_alloc; z++) { \
+	    if ((g)->x_names[z] && *((g)->x_names[z]) && \
+		(g)->x_regs[z] && *((g)->x_regs[z])) { \
+		(t)->x_names[z] = alloc_sbuf("glob.x_name"); \
+		strcpy((t)->x_names[z], (g)->x_names[z]); \
+		(t)->x_regs[z] = alloc_lbuf("glob.x_reg"); \
+		memcpy((t)->x_regs[z], (g)->x_regs[z], (g)->x_lens[z] + 1); \
+		(t)->x_lens[z] = (g)->x_lens[z]; \
+	    } \
+	} \
+    } \
+    if (g) \
+        (t)->dirty = (g)->dirty; \
+    else \
+        (t)->dirty = 0; \
+}	    
 
 /* --------------------------------------------------------------------------
  * Module things.

@@ -451,7 +451,7 @@ char **dstr;
 char *cargs[];
 {
 #define	NFARGS	30
-	char *real_fargs[NFARGS + 1], *preserve[MAX_GLOBAL_REGS];
+	char *real_fargs[NFARGS + 1];
 	char **fargs = real_fargs + 1;
 	char *tstr, *tbuf, *savepos, *atr_gotten, *start, *oldp;
 	char savec, ch, *savestr, *str, *xptr, *mundane, *p;
@@ -459,12 +459,13 @@ char *cargs[];
 	char xtbuf[SBUF_SIZE], *xtp;
 	dbref aowner;
 	int at_space, nfargs, gender, i, j, alldone, aflags, alen, feval;
-	int is_trace, is_top, save_count, preserve_len[MAX_GLOBAL_REGS];
+	int is_trace, is_top, save_count;
 	int ansi, nchar, navail;
 	FUN *fp;
 	UFUN *ufp;
 	VARENT *xvar;
 	ATTR *ap;
+	GDATA *preserve;
 
 	static const char *subj[5] =
 	{"", "it", "she", "he", "they"};
@@ -804,10 +805,11 @@ char *cargs[];
 				i = qidx_chartab[(unsigned char) **dstr];
 				if ((i < 0) || (i >= MAX_GLOBAL_REGS))
 					break;
-				if (mudstate.global_regs[i]) {
-					safe_known_str(mudstate.global_regs[i],
-						      mudstate.glob_reg_len[i],
-						       buff, bufc);
+				if (mudstate.rdata &&
+				    mudstate.rdata->q_alloc > i) {
+				    safe_known_str(mudstate.rdata->q_regs[i],
+						   mudstate.rdata->q_lens[i],
+						   buff, bufc);
 				}
 				if (!**dstr)
 					(*dstr)--;
@@ -1011,9 +1013,7 @@ char *cargs[];
 					str = tstr;
 					
 					if (ufp->flags & FN_PRES) {
-					    save_global_regs("eval_save",
-							     preserve,
-							     preserve_len);
+					    preserve = save_global_regs("eval_save");
 					}
 					
 					exec(buff, bufc, i, player, cause,
@@ -1023,8 +1023,7 @@ char *cargs[];
 					
 					if (ufp->flags & FN_PRES) {
 					    restore_global_regs("eval_restore",
-								preserve,
-								preserve_len);
+								preserve);
 					}
 
 					free_lbuf(tstr);
@@ -1189,45 +1188,44 @@ char *cargs[];
  * registers to protect them from various sorts of munging.
  */
 
-void save_global_regs(funcname, preserve, preserve_len)
+GDATA *save_global_regs(funcname)
     const char *funcname;
-    char *preserve[];
-    int preserve_len[];
 {
-    int i;
+    GDATA *preserve;
 
-    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	if (!mudstate.global_regs[i] || (*mudstate.global_regs[i] == '\0')) {
-	    preserve[i] = NULL;
-	    preserve_len[i] = 0;
-	} else {
-	    preserve[i] = alloc_lbuf(funcname);
-	    memcpy(preserve[i], mudstate.global_regs[i],
-		   mudstate.glob_reg_len[i] + 1);
-	    preserve_len[i] = mudstate.glob_reg_len[i];
-	}
+    if (mudstate.rdata) {
+	Alloc_RegData(funcname, mudstate.rdata, preserve);
+	Copy_RegData(funcname, mudstate.rdata, preserve);
+    } else {
+	preserve = NULL;
     }
+    return preserve;
 }
 
-void restore_global_regs(funcname, preserve, preserve_len)
+void restore_global_regs(funcname, preserve)
     const char *funcname;
-    char *preserve[];
-    int preserve_len[];
+    GDATA *preserve; 
 {
-    int i;
+    if ((!mudstate.rdata && !preserve) ||
+	(mudstate.rdata && preserve &&
+	 (mudstate.rdata->dirty == preserve->dirty))) {
+	/* No change in the values. Move along. */
+	return;
+    }
 
-    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	if (preserve[i]) {
-	    if (!mudstate.global_regs[i])
-		mudstate.global_regs[i] = alloc_lbuf(funcname);
-	    memcpy(mudstate.global_regs[i], preserve[i],
-		   preserve_len[i] + 1);
-	    free_lbuf(preserve[i]);
-	    mudstate.glob_reg_len[i] = preserve_len[i];
-	} else {
-	    if (mudstate.global_regs[i])
-		*(mudstate.global_regs[i]) = '\0';
-	    mudstate.glob_reg_len[i] = 0;
+    /* Rather than doing a big free-and-copy thing, we could just handle
+     * changes in the data structure size. Place for future optimization.
+     */
+
+    if (!preserve) {
+	Free_RegData(mudstate.rdata);
+	mudstate.rdata = NULL;
+    } else {
+	if (mudstate.rdata) {
+	    Free_RegData(mudstate.rdata);
 	}
+	Alloc_RegData(funcname, preserve, mudstate.rdata);
+	Copy_RegData(funcname, preserve, mudstate.rdata);
+	Free_RegData(preserve);
     }
 }

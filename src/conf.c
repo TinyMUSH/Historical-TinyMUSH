@@ -371,11 +371,7 @@ void NDECL(cf_init)
 	mudstate.poutbufc = NULL;
 	mudstate.poutobj = -1;
 	mudstate.dbm_fd = -1;
-	mudstate.global_data = NULL;
-	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-            mudstate.global_regs[i] = NULL;
-            mudstate.glob_reg_len[i] = 0;
-        }
+	mudstate.rdata = NULL;
 }
 
 /* ---------------------------------------------------------------------------

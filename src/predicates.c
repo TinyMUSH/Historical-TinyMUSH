@@ -663,9 +663,7 @@ char *expr, *args[], *cargs[];
 						cargs, ncargs);
 			} else {
 				wait_que(player, cause, 0, NOTHING, 0,
-					 tbuf, cargs, ncargs,
-					 mudstate.global_regs,
-					 mudstate.glob_reg_len);
+					 tbuf, cargs, ncargs, mudstate.rdata);
 			}
 			free_lbuf(tbuf);
 			if (key == SWITCH_ONE) {
@@ -682,8 +680,7 @@ char *expr, *args[], *cargs[];
 			process_cmdline(player, cause, tbuf, cargs, ncargs);
 		} else {
 			wait_que(player, cause, 0, NOTHING, 0, tbuf, cargs,
-				 ncargs, mudstate.global_regs,
-				 mudstate.glob_reg_len);
+				 ncargs, mudstate.rdata);
 		}
 		free_lbuf(tbuf);
 	}
@@ -1152,7 +1149,7 @@ char *message;
 	DESC *all, *dsave;
 	char *cmd;
 	dbref aowner;
-	int aflags, alen, i, wreg_len[MAX_GLOBAL_REGS];
+	int aflags, alen, i;
 
 	/* Allow the player to pipe a command while in interactive mode.
 	 * Use telnet protocol's GOAHEAD command to show prompt
@@ -1180,25 +1177,13 @@ char *message;
 	    }
 	}
 	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags, &alen);
-	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	    if (d->program_data->wait_regs[i])
-		wreg_len[i] = strlen(d->program_data->wait_regs[i]);
-	    else
-		wreg_len[i] = 0;
-	}
 	wait_que(d->program_data->wait_cause, d->player, 0, NOTHING, 0, cmd,
-		 (char **)&message,
-		 1, (char **)d->program_data->wait_regs, wreg_len);
+		 (char **)&message, 1, d->program_data->wait_data);
 
 	/* First, set 'all' to a descriptor we find for this player */
 
 	all = (DESC *)nhashfind(d->player, &mudstate.desc_htab) ;
-
-	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		if (all->program_data->wait_regs[i]) {
-			free_lbuf(all->program_data->wait_regs[i]);
-		}
-	}
+	Free_RegData(all->program_data->wait_data);
 	XFREE(all->program_data, "program_data");
 
 	/* Set info for all player descriptors to NULL */
@@ -1259,12 +1244,9 @@ char *name;
 		return;
 	}
 
-	d = (DESC *)nhashfind(doer, &mudstate.desc_htab) ;
+	d = (DESC *)nhashfind(doer, &mudstate.desc_htab);
 
-	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		if (d->program_data->wait_regs[i])
-			free_lbuf(d->program_data->wait_regs[i]);
-	}
+	Free_RegData(d->program_data->wait_data);
 	XFREE(d->program_data, "program_data");
 
 	/* Set info for all player descriptors to NULL */
@@ -1353,13 +1335,12 @@ char *name, *command;
 
 	program = (PROG *) XMALLOC(sizeof(PROG), "do_prog");
 	program->wait_cause = player;
-	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-		if (mudstate.global_regs[i]) {
-			program->wait_regs[i] = alloc_lbuf("prog_regs");
-			strcpy(program->wait_regs[i], mudstate.global_regs[i]);
-		} else {
-			program->wait_regs[i] = NULL;
-		}
+
+	if (mudstate.rdata) {
+	    Alloc_RegData("do_prog.gdata", mudstate.rdata, program->wait_data);
+	    Copy_RegData("do_prog.regs",  mudstate.rdata, program->wait_data);
+	} else {
+	    program->wait_data = NULL;
 	}
 
 	/* Now, start waiting. */
@@ -1844,10 +1825,11 @@ int what, owhat, awhat, now, nargs, key;
 char *args[];
 const char *def, *odef;
 {
-    char *d, *m, *buff, *act, *charges, *bp, *str, *preserve[MAX_GLOBAL_REGS];
+    GDATA *preserve;
+    char *d, *m, *buff, *act, *charges, *bp, *str;
     char *tbuf, *tp, *sp;
     dbref loc, aowner;
-    int t, num, aflags, alen, need_pres, preserve_len[MAX_GLOBAL_REGS];
+    int t, num, aflags, alen, need_pres;
     dbref master;
     ATTR *ap;
     int retval = 0;
@@ -1927,7 +1909,7 @@ const char *def, *odef;
 
 	if (*d || (t && *m)) {
 	    need_pres = 1;
-	    save_global_regs("did_it_save", preserve, preserve_len);
+	    preserve = save_global_regs("did_it_save");
 	    buff = bp = alloc_lbuf("did_it.1");
 	    if (t && *m) {
 		str = m;
@@ -1999,7 +1981,7 @@ const char *def, *odef;
 	if (*d || (t && *m)) {
 	    if (!need_pres) {
 		need_pres = 1;
-		save_global_regs("did_it_save", preserve, preserve_len);
+		preserve = save_global_regs("did_it_save");
 	    }
 	    buff = bp = alloc_lbuf("did_it.2");
 	    if (t && *m) {
@@ -2058,7 +2040,7 @@ const char *def, *odef;
     /* If we preserved the state of the global registers, restore them. */
 
     if (need_pres)
-	restore_global_regs("did_it_restore", preserve, preserve_len);
+	restore_global_regs("did_it_restore", preserve);
 		
     /* do the action attribute */
 
@@ -2108,13 +2090,12 @@ const char *def, *odef;
 	    /* Go do it. */
 
 	    if (now) {
-		save_global_regs("did_it_save2", preserve, preserve_len);
+		preserve = save_global_regs("did_it_save2");
 		process_cmdline(thing, player, tp, args, nargs);
-		restore_global_regs("did_it_restore2", preserve, preserve_len);
+		restore_global_regs("did_it_restore2", preserve);
 	    } else {
 		wait_que(thing, player, 0, NOTHING, 0, tp,
-			 args, nargs, mudstate.global_regs,
-			 mudstate.glob_reg_len);
+			 args, nargs, mudstate.rdata);
 	    }
 	}
 	free_lbuf(act);

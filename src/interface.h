@@ -77,7 +77,7 @@ struct text_block {
 typedef struct prog_data PROG;
 struct prog_data {
 	dbref wait_cause;
-	char *wait_regs[MAX_GLOBAL_REGS];
+	GDATA *wait_data;
 };
 
 typedef struct descriptor_data DESC;

@@ -1469,9 +1469,10 @@ FUNCTION(fun_eval)
 FUNCTION(do_ufun)
 {
 	dbref aowner, thing;
-	int is_local, aflags, alen, anum, preserve_len[MAX_GLOBAL_REGS];
+	int is_local, aflags, alen, anum;
 	ATTR *ap;
-	char *atext, *preserve[MAX_GLOBAL_REGS], *str;
+	char *atext, *str;
+	GDATA *preserve;
 
 	is_local = ((FUN *)fargs[-1])->flags & U_LOCAL;
 
@@ -1489,7 +1490,7 @@ FUNCTION(do_ufun)
 	/* If we're evaluating locally, preserve the global registers. */
 
 	if (is_local) {
-		save_global_regs("fun_ulocal_save", preserve, preserve_len);
+	    preserve = save_global_regs("fun_ulocal_save");
 	}
 	
 	/* Evaluate it using the rest of the passed function args */
@@ -1502,8 +1503,7 @@ FUNCTION(do_ufun)
 	/* If we're evaluating locally, restore the preserved registers. */
 
 	if (is_local) {
-		restore_global_regs("fun_ulocal_restore", preserve,
-				    preserve_len);
+		restore_global_regs("fun_ulocal_restore", preserve);
 	}
 }
 
@@ -1515,16 +1515,16 @@ FUNCTION(do_ufun)
 
 FUNCTION(fun_localize)
 {
-    char *str, *preserve[MAX_GLOBAL_REGS];
-    int preserve_len[MAX_GLOBAL_REGS];
+    char *str;
+    GDATA *preserve;
 
-    save_global_regs("fun_localize_save", preserve, preserve_len);
+    preserve = save_global_regs("fun_localize_save");
 
     str = fargs[0];
     exec(buff, bufc, player, caller, cause,
 	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 
-    restore_global_regs("fun_localize_restore", preserve, preserve_len);
+    restore_global_regs("fun_localize_restore", preserve);
 }
 
 /* ---------------------------------------------------------------------------

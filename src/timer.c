@@ -107,7 +107,7 @@ static void NDECL(check_cron)
 	    cmd = atr_pget(crp->obj, crp->atr, &aowner, &aflags, &alen);
 	    if (*cmd && Good_obj(crp->obj)) {
 		wait_que(crp->obj, crp->obj, 0, NOTHING, 0, cmd,
-			 (char **) NULL, 0, NULL, NULL);
+			 (char **) NULL, 0, NULL);
 	    }
 	    free_lbuf(cmd);
 	}

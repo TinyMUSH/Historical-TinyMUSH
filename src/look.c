@@ -34,10 +34,10 @@ static int did_attr(player, thing, what)
      */
 
     char *d, *m, *buff, *bp, *str, *tbuf, *tp, *sp, *list, *bb_p, *lp;
-    char *preserve[MAX_GLOBAL_REGS];
-    int t, aflags, alen, is_ok, lev, preserve_len[MAX_GLOBAL_REGS];
+    int t, aflags, alen, is_ok, lev;
     dbref aowner, master, parent, obj;
     ATTR *ap;
+    GDATA *preserve;
 
     if (NoDefault(thing)) {
 	master = NOTHING;
@@ -129,7 +129,7 @@ static int did_attr(player, thing, what)
 
     /* Go do it. */ 
 
-    save_global_regs("did_attr_save", preserve, preserve_len);
+    preserve = save_global_regs("did_attr_save");
     buff = bp = alloc_lbuf("did_attr.1");
     if (t && *m) {
 	str = m;
@@ -165,7 +165,7 @@ static int did_attr(player, thing, what)
     if (list) {
 	free_lbuf(list);
     }
-    restore_global_regs("did_attr_restore", preserve, preserve_len);
+    restore_global_regs("did_attr_restore", preserve);
     return 1;
 }
 

@@ -106,7 +106,8 @@ dbref player, object;
 	numhalted = 0;
 	halt_all = ((player == NOTHING) && (object == NOTHING)) ? 1 : 0; 
 	if (halt_all)
-	    dbrefs_array = (int *) calloc(mudstate.db_top, sizeof(int));
+	    dbrefs_array = (int *) XCALLOC(mudstate.db_top, sizeof(int),
+					   "halt_que.dbrefs");
 
 	/* Player queue */
 
@@ -170,7 +171,7 @@ dbref player, object;
 		    s_Queue(i, 0);
 		}
 	    }
-	    free(dbrefs_array);
+	    XFREE(dbrefs_array, "halt_que.dbrefs");
 	    return numhalted;
 	}
 
@@ -447,38 +448,7 @@ GDATA *gargs;
 	for (a = 0; a < NUM_ENV_VARS; a++) {
 		tmp->env[a] = NULL;
 	}
-	if (gargs->q_alloc || gargs->xr_alloc) {
-	    tmp->gdata = (GDATA *) XMALLOC(sizeof(GDATA), "setup_que.gdata");
-	    tmp->gdata->q_alloc = gargs->q_alloc;
-	    if (gargs->q_alloc) {
-		tmp->gdata->q_regs = XCALLOC(gargs->q_alloc, sizeof(char *),
-					     "setup_queue.q_regs");
-		tmp->gdata->q_lens = XCALLOC(gargs->q_alloc, sizeof(int),
-					     "setup_queue.q_lens");
-		for (a = 0; a < gargs->q_alloc; a++) {
-		    tmp->gdata->q_regs[a] = NULL;
-		    tmp->gdata->q_lens[a] = 0;
-		}
-	    } else {
-		tmp->gdata->q_regs = NULL;
-		tmp->gdata->q_lens = NULL;
-	    }
-	    tmp->gdata->xr_alloc = gargs->xr_alloc;
-	    if (gargs->xr_alloc) {
-		tmp->gdata->x_names = XCALLOC(gargs->xr_alloc, sizeof(char *),
-					      "setup_que.x_names");
-		tmp->gdata->x_regs = XCALLOC(gargs->xr_alloc, sizeof(char *),
-					     "setup_que.x_regs");
-		tmp->gdata->x_lens = XCALLOC(gargs->xr_alloc, sizeof(int),
-					     "setup_que.x_lens");
-	    } else {
-		tmp->gdata->x_names = NULL;
-		tmp->gdata->x_regs = NULL;
-		tmp->gdata->x_lens = NULL;
-	    }
-	} else {
-	    tmp->gdata = NULL;
-	}
+	Alloc_RegData("setup_que", gargs, tmp->gdata);
 
 	if (command) {
 		strcpy(tptr, command);
@@ -492,21 +462,23 @@ GDATA *gargs;
 			tptr += (strlen(args[a]) + 1);
 		}
 	}
-	if (gargs->q_alloc) {
+	if (gargs && gargs->q_alloc) {
 	    for (a = 0; a < gargs->q_alloc; a++) {
 		if (gargs->q_regs[a]) {
+		    tmp->gdata->q_lens[a] = gargs->q_lens[a];
 		    memcpy(tptr, gargs->q_regs[a], gargs->q_lens[a] + 1);
 		    tmp->gdata->q_regs[a] = tptr;
 		    tptr += gargs->q_lens[a] + 1;
 		}
 	    }
 	}
-	if (gargs->xr_alloc) {
+	if (gargs && gargs->xr_alloc) {
 	    for (a = 0; a < gargs->xr_alloc; a++) {
 		if (gargs->x_names[a] && gargs->x_regs[a]) {
 		    strcpy(tptr, gargs->x_names[a]);
 		    tmp->gdata->x_names[a] = tptr;
 		    tptr += strlen(gargs->x_names[a]) + 1;
+		    tmp->gdata->x_lens[a] = gargs->x_lens[a];
 		    memcpy(tptr, gargs->x_regs[a], gargs->x_lens[a] + 1);
 		    tmp->gdata->x_regs[a] = tptr;
 		    tptr += gargs->x_lens[a] + 1;
@@ -530,38 +502,17 @@ GDATA *gargs;
  * wait_que: Add commands to the wait or semaphore queues.
  */
 
-void wait_que(player, cause, wait, sem, attr, command, args, nargs, sargs, slens)
+void wait_que(player, cause, wait, sem, attr, command, args, nargs, gargs)
 dbref player, cause, sem;
-int wait, nargs, attr, slens[];
-char *command, *args[], *sargs[];
+int wait, nargs, attr;
+char *command, *args[];
+GDATA *gargs;
 {
 	BQUE *tmp, *point, *trail;
-#ifndef NOT_TEMPORARY
-	GDATA *gargs;
-	int i;
-#endif
 
-	if (mudconf.control_flags & CF_INTERP) {
-#ifndef NOT_TEMPORARY
-		gargs = (GDATA *) XMALLOC(sizeof(GDATA), "wait_que.gdata");
-		gargs->q_alloc = MAX_GLOBAL_REGS;
-		gargs->q_regs = XCALLOC(MAX_GLOBAL_REGS, sizeof(char *),
-					"wait_que.q_regs");
-		gargs->q_lens = XCALLOC(MAX_GLOBAL_REGS, sizeof(int),
-					"wait_que.q_lens");
-		if (sargs) {
-		    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-			gargs->q_regs[i] = sargs[i];
-			gargs->q_lens[i] = slens[i];
-		    }
-		}
-		gargs->xr_alloc = 0;
-		gargs->x_names = NULL;
-		gargs->x_regs = NULL;
-		gargs->x_lens = NULL;
-#endif
+	if (mudconf.control_flags & CF_INTERP)
 		tmp = setup_que(player, cause, command, args, nargs, gargs);
-	} else
+	else
 		tmp = NULL;
 	if (tmp == NULL) {
 		return;
@@ -620,8 +571,7 @@ char *event, *cmd, *cargs[];
 	if (is_number(event)) {
 		howlong = atoi(event);
 		wait_que(player, cause, howlong, NOTHING, 0, cmd,
-			 cargs, ncargs, mudstate.global_regs,
-			 mudstate.glob_reg_len);
+			 cargs, ncargs, mudstate.rdata);
 		return;
 	}
 	/* Semaphore wait with optional timeout */
@@ -675,8 +625,7 @@ char *event, *cmd, *cargs[];
 			howlong = 0;
 		}
 		wait_que(player, cause, howlong, thing, attr, cmd,
-			 cargs, ncargs, mudstate.global_regs,
-			 mudstate.glob_reg_len);
+			 cargs, ncargs, mudstate.rdata);
 	}
 }
 
@@ -820,13 +769,8 @@ int ncmds;
     for (count = 0; count < ncmds; count++) {
 	if (!test_top()) {
 	    mudstate.debug_cmd = cmdsave;
-	    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	        if (mudstate.global_regs[i]) {
-	        	free_lbuf(mudstate.global_regs[i]);
-	        }
-		mudstate.global_regs[i] = NULL;
-		mudstate.glob_reg_len[i] = 0;
-	    }
+	    Free_RegData(mudstate.rdata);
+	    mudstate.rdata = NULL;
 	    return count;
 	}
 	player = mudstate.qfirst->player;
@@ -841,32 +785,14 @@ int ncmds;
 		/* Load scratch args */
 
 		if (mudstate.qfirst->gdata) {
-		    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-			if (mudstate.qfirst->gdata->q_regs[i] &&
-			    *(mudstate.qfirst->gdata->q_regs[i])) {
-			    len = strlen(mudstate.qfirst->gdata->q_regs[i]);
-			    if (!mudstate.global_regs[i]) {
-				mudstate.global_regs[i] = 
-					alloc_lbuf("do_top.global_regs");
-			    }
-			    memcpy(mudstate.global_regs[i],
-				   mudstate.qfirst->gdata->q_regs[i],
-				   len + 1);
-			    mudstate.glob_reg_len[i] = len;
-			} else {
-			    if (mudstate.global_regs[i])
-		    		free_lbuf(mudstate.global_regs[i]);
-			    mudstate.global_regs[i] = NULL;
-			    mudstate.glob_reg_len[i] = 0;
-			}
-		    }
+		    Free_RegData(mudstate.rdata);
+		    Alloc_RegData("do_top", mudstate.qfirst->gdata,
+				  mudstate.rdata);
+		    Copy_RegData("do_top", mudstate.qfirst->gdata,
+				 mudstate.rdata);
 		} else {
-		    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-			if (mudstate.global_regs[i])
-			    free_lbuf(mudstate.global_regs[i]);
-			mudstate.global_regs[i] = NULL;
-			mudstate.glob_reg_len[i] = 0;
-		    }
+		    Free_RegData(mudstate.rdata);
+		    mudstate.rdata = NULL;
 		}
 
 		mudstate.cmd_invk_ctr = 0;
@@ -889,12 +815,9 @@ int ncmds;
 	    mudstate.qlast = NULL;
     }
 
-    for (i = 0; i < MAX_GLOBAL_REGS; i++) {
-	if (mudstate.global_regs[i])
-		free_lbuf(mudstate.global_regs[i]);
-	mudstate.global_regs[i] = NULL;
-	mudstate.glob_reg_len[i] = 0;
-    }
+    Free_RegData(mudstate.rdata);
+    mudstate.rdata = NULL;
+
     mudstate.debug_cmd = cmdsave;
     return count;
 }
