@@ -2738,6 +2738,17 @@
   This attribute specifies a series of patterns to be used to suppress
   text normally sent to the contents of <object> by @listen.  If the desired
   pattern contains a comma, the pattern may be enclosed in curly braces {}.
+  If the text matches a <pattern>, then the text is not sent.
+ 
+  <pattern> is a wildcard pattern, unless the object's @infilter
+  attribute has been @set 'regexp', in which case a regular expression
+  match is done instead. Note that since the attribute is evaluated,
+  special characters in the regular expression, such as '[' and ']',
+  will need to be escaped out.
+ 
+  Continued in 'help @infilter2'.
+ 
+& @infilter2
  
   Example:
     > @listen sports car=*
@@ -2753,8 +2764,9 @@
     > :knocks on the window.
     test> Wizard knocks on the window.
     Wizard knocks on the window.
+ 
   See also:  @filter, @inprefix, @listen, @prefix.
-
+ 
 & @inprefix
   Command: @inprefix <object> = <prefix text>
   Attribute: Inprefix
