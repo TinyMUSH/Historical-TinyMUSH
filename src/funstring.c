@@ -138,10 +138,12 @@ FUNCTION(fun_squish)
 /* ---------------------------------------------------------------------------
  * trim: trim off unwanted white space.
  */
+#define TRIM_L 0x1
+#define TRIM_R 0x2
 
 FUNCTION(fun_trim)
 {
-	char *p, *lastchar, *q;
+	char *p, *q, *endchar;
 	Delim isep;
 	int trim;
 
@@ -152,38 +154,44 @@ FUNCTION(fun_trim)
 	if (nfargs >= 2) {
 		switch (tolower(*fargs[1])) {
 		case 'l':
-			trim = 1;
+			trim = TRIM_L;
 			break;
 		case 'r':
-			trim = 2;
+			trim = TRIM_R;
 			break;
 		default:
-			trim = 3;
+			trim = TRIM_L | TRIM_R;
 			break;
 		}
 	} else {
-		trim = 3;
+		trim = TRIM_L | TRIM_R;
 	}
 
-	if (trim == 2 || trim == 3) {
-		p = lastchar = fargs[0];
+	p = fargs[0];
+	if (trim & TRIM_L) {
 		while (*p != '\0') {
-			if (*p != isep.c)
-				lastchar = p;
-			p++;
-		}
-		*(lastchar + 1) = '\0';
-	}
-	q = fargs[0];
-	if (trim == 1 || trim == 3) {
-		while (*q != '\0') {
-			if (*q == isep.c)
-				q++;
+			if (*p == isep.c)
+				p++;
 			else
 				break;
 		}
 	}
-	safe_str(q, buff, bufc);
+	if (trim & TRIM_R) {
+		q = endchar = p;
+		while (*q != '\0') {
+			if (*q == ESC_CHAR) {
+				skip_esccode(q);
+				endchar = q;
+			} else if (*q != isep.c) {
+				q++;
+				endchar = q;
+			} else {
+				q++;
+			}
+		}
+		*endchar = '\0';
+	}
+	safe_str(p, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
