@@ -1811,7 +1811,7 @@ int key;
 char *name, *qual;
 {
 	BOOLEXP *bool;
-	char *got, *thingname, *as, *ltext, *buff, *tbuf, *sname;
+	char *got, *thingname, *as, *ltext, *buff, *tbuf;
 	dbref aowner, thing;
 	int val, aflags, alen, ca, wild_decomp;
 	ATTR *attr;
@@ -1882,13 +1882,13 @@ char *name, *qual;
 		}
 	}
 
-	sname = strip_ansi(thingname);
+	StringCopy(thingname, strip_ansi(thingname));
 
 	/* Report the lock (if any) */
 
 	if (!wild_decomp && (bool != TRUE_BOOLEXP)) {
 		notify(player,
-		       tprintf("@lock %s=%s", sname,
+		       tprintf("@lock %s=%s", thingname,
 			       unparse_boolexp_decompile(player, bool)));
 	}
 	free_boolexp(bool);
@@ -1916,7 +1916,7 @@ char *name, *qual;
 				free_boolexp(bool);
 				notify(player,
 				       tprintf("@lock/%s %s=%s",
-					       attr->name, sname, ltext));
+					       attr->name, thingname, ltext));
 			} else {
 			    StringCopy(buff, attr->name);
 			    if (key & DECOMP_PRETTY) {
@@ -1925,7 +1925,7 @@ char *name, *qual;
 					     tprintf("%c%s %s=",
 						     ((ca < A_USER_START) ?
 						      '@' : '&'),
-						     buff, sname),
+						     buff, thingname),
 					     got);
 				notify(player, tbuf);
 				free_lbuf(tbuf);
@@ -1934,7 +1934,7 @@ char *name, *qual;
 				       tprintf("%c%s %s=%s",
 					       ((ca < A_USER_START) ?
 						'@' : '&'),
-					       buff, sname,
+					       buff, thingname,
 					       got));
 			    }
 			    for (np = indiv_attraccess_nametab;
@@ -1947,7 +1947,7 @@ char *name, *qual;
 
 				    notify(player,
 					   tprintf("@set %s/%s = %s",
-						   sname,
+						   thingname,
 						   buff,
 						   np->name));
 				}
@@ -1955,7 +1955,7 @@ char *name, *qual;
 
 			    if (aflags & AF_LOCK) {
 				notify(player, tprintf("@lock %s/%s",
-						       sname, buff));
+						       thingname, buff));
 			    }
 			}
 		}
@@ -1964,21 +1964,21 @@ char *name, *qual;
 	free_mbuf(buff);
 
 	if (!wild_decomp) {
-		decompile_flags(player, thing, sname);
-		decompile_powers(player, thing, sname);
+		decompile_flags(player, thing, thingname);
+		decompile_powers(player, thing, thingname);
 	}
 
 	/* If the object has a parent, report it */
 
 	if (!wild_decomp && (Parent(thing) != NOTHING))
 		notify(player,
-		       tprintf("@parent %s=#%d", sname, Parent(thing)));
+		       tprintf("@parent %s=#%d", thingname, Parent(thing)));
 
 	/* If the object has a zone, report it */
 	
 	if (!wild_decomp && (Zone(thing) != NOTHING))
 		notify(player,
-		       tprintf("@chzone %s=#%d", sname, Zone(thing)));
+		       tprintf("@chzone %s=#%d", thingname, Zone(thing)));
 
 	free_lbuf(thingname);
 	olist_pop();
