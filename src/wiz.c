@@ -516,28 +516,37 @@ char *message;
 		else if (key != MOTD_LIST)
 			key |= MOTD_BRIEF;
 	}
+	message[GBUF_SIZE - 1] = '\0';
 	switch (key) {
 	case MOTD_ALL:
-	    strncpy(mudconf.motd_msg, message, GBUF_SIZE - 1);
-	    mudconf.motd_msg[GBUF_SIZE - 1] = '\0';
+	    if (mudconf.motd_msg) {
+		XFREE(mudconf.motd_msg, "do_motd.motd");
+	    }
+	    mudconf.motd_msg = XSTRDUP(message, "do_motd.motd");
 	    if (!Quiet(player))
 		notify_quiet(player, "Set: MOTD.");
 	    break;
 	case MOTD_WIZ:
-	    strncpy(mudconf.wizmotd_msg, message, GBUF_SIZE - 1);
-	    mudconf.wizmotd_msg[GBUF_SIZE - 1] = '\0';
+	    if (mudconf.wizmotd_msg) {
+		XFREE(mudconf.wizmotd_msg, "do_motd.wizmotd");
+	    }
+	    mudconf.wizmotd_msg = XSTRDUP(message, "do_motd.wizmotd");
 	    if (!Quiet(player))
 		notify_quiet(player, "Set: Wizard MOTD.");
 	    break;
 	case MOTD_DOWN:
-	    strncpy(mudconf.downmotd_msg, message, GBUF_SIZE - 1);
-	    mudconf.downmotd_msg[GBUF_SIZE - 1] = '\0';
+	    if (mudconf.downmotd_msg) {
+		XFREE(mudconf.downmotd_msg, "do_motd.downmotd");
+	    }
+	    mudconf.downmotd_msg = XSTRDUP(message, "do_motd.downmotd");
 	    if (!Quiet(player))
 		notify_quiet(player, "Set: Down MOTD.");
 	    break;
 	case MOTD_FULL:
-	    strncpy(mudconf.fullmotd_msg, message, GBUF_SIZE - 1);
-	    mudconf.fullmotd_msg[GBUF_SIZE - 1] = '\0';
+	    if (mudconf.fullmotd_msg) {
+		XFREE(mudconf.fullmotd_msg, "do_motd.fullmotd");
+	    }
+	    mudconf.fullmotd_msg = XSTRDUP(message, "do_motd.fullmotd");
 	    if (!Quiet(player))
 		notify_quiet(player, "Set: Full MOTD.");
 	    break;
@@ -553,23 +562,44 @@ char *message;
 				notify_quiet(player,
 					     "----- motd messages -----");
 			}
-			notify_quiet(player,
-				     tprintf("MOTD: %s", mudconf.motd_msg));
-			notify_quiet(player,
-				     tprintf("Wizard MOTD: %s",
-					     mudconf.wizmotd_msg));
-			notify_quiet(player,
-				     tprintf("Down MOTD: %s",
-					     mudconf.downmotd_msg));
-			notify_quiet(player,
-				     tprintf("Full MOTD: %s",
-					     mudconf.fullmotd_msg));
+			if (mudconf.motd_msg && *mudconf.motd_msg) {
+			    notify_quiet(player,
+					 tprintf("MOTD: %s",
+						 mudconf.motd_msg));
+			} else {
+			    notify_quiet(player, "No MOTD.");
+			}
+			if (mudconf.wizmotd_msg && *mudconf.wizmotd_msg) {
+			    notify_quiet(player,
+					 tprintf("Wizard MOTD: %s",
+						 mudconf.wizmotd_msg));
+			} else {
+			    notify_quiet(player, "No Wizard MOTD.");
+			}
+			if (mudconf.downmotd_msg && *mudconf.downmotd_msg) {
+			    notify_quiet(player,
+					 tprintf("Down MOTD: %s",
+						 mudconf.downmotd_msg));
+			} else {
+			    notify_quiet(player, "No Down MOTD.");
+			}
+			if (mudconf.fullmotd_msg && *mudconf.fullmotd_msg) {
+			    notify_quiet(player,
+					 tprintf("Full MOTD: %s",
+						 mudconf.fullmotd_msg));
+			} else {
+			    notify_quiet(player, "No Full MOTD.");
+			}
 		} else {
 			if (Guest(player))
 				fcache_send(player, FC_CONN_GUEST);
 			else
 				fcache_send(player, FC_MOTD);
-			notify_quiet(player, mudconf.motd_msg);
+			if (mudconf.motd_msg && *mudconf.motd_msg) {
+			    notify_quiet(player, "No MOTD.");
+			} else {
+			    notify_quiet(player, mudconf.motd_msg);
+			}
 		}
 		break;
 	default:
