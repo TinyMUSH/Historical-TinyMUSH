@@ -354,7 +354,6 @@ int pennies, quota, objtype;
 			return 0;
 		}
 	}
-	payfor(who, pennies);
 	return 1;
 }
 
