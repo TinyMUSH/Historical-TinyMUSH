@@ -1557,15 +1557,20 @@ use_global_aconn	wizard_obeys_linklock
  
 & attr_access
   Config parameter: attr_access <attr> [!]<privilege> [[!]<privilege>]...
-  Changes the access rights to the named attribute.
  
-  The following privileges may be used:
+  Changes the default flags of the attribute <attr>, which must be a
+  built-in attribute.
+ 
+  In addition to the attribute flags described in 'help @set', the
+  following additional flags may be set through this config directive:
+ 
+  const       - The attribute cannot be changed by anyone.
+  dark        - The attribute is not visible to anyone.
+  god         - The attribute can only be seen and changed by God.
   private     - The attribute is visible only to those who can examine the
-                object.
-  internal    - The attribute is not visible to anyone.
-  wizard      - Only wizards may change the attribute.
-  hidden      - The attribute is visible only to wizards.
- 
+                object. (Define an attribute as !private to make it visible
+                to anyone, as is the case with the Desc attribute.)
+  
 & attr_alias
   Config parameter: attr_alias <alias> <attr>.
   Makes <alias> an alias for the attribute <attr>.
@@ -3325,9 +3330,13 @@ use_global_aconn	wizard_obeys_linklock
 
 & user_attr_access
   Config parameter: user_attr_access [!]<privilege> [[!]<privilege>]...
-  Changes the access flags that new user-named attributes receive when
-  they are created.  By default, user attributes are invisible to others.
-
+ 
+  Changes the flags that new user-named attributes receive when they are
+  created. By default, user attributes are invisible to others (set with
+  the "private" flag).
+ 
+  See 'help @set' and 'wizhelp attr_access' for the available privileges.
+ 
 & wait_cost
   Config parameter: wait_cost <amount>.  Default: 10
   Sets the amount of money that it costs to run the @wait command and other
