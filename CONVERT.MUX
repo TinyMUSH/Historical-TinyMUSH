@@ -34,6 +34,21 @@ steps. You will need to do the following:
   (This step is not necessary and can be skipped, but it's worthwhile
   doing anyway.)
 
+- Convert your comsys database. You must have perl installed on your
+  system. From the game directory, type:
+
+      cp comsys.db comsys.db.save
+      ./convert_comsys.pl < comsys.db.save > comsys.db
+
+  Make sure to keep comsys.db.save someplace safe, in case something goes
+  wrong in the conversion process.
+
+  If you do not have perl installed on your system, you will not be able
+  to import your comsys database. (You could give a copy of the database,
+  and the script, to a friend with perl on his system, and have him do
+  it for you, though.)  If you can't find a way to convert your comsys
+  database, type:  mv comsys.db comsys.db.save
+
 - From the game directory, type:  ./Startmush
   This will start the game.
 
@@ -81,8 +96,23 @@ The following are important changes in behavior between MUX and 3.0:
   Only objects that are set CONTROL_OK may be controlled according to
   their zone's ControlLock.
 
-Your existing database was converted automatically to take these
+Your existing database was converted automatically to take the above
 differences into account.
+
+The comsystem has been re-implemented. Some significant differences
+include:
+
+- If you are starting a game from scratch, and thus have no comsys.db,
+  on startup, the Public and Guests channels are created by default.
+
+- The channel administration commands have been consolidated to a
+  single command, @channel, which takes a variety of switches. Channel
+  objects are no longer necessary; data from them is automatically
+  imported when you load a comsys database of the format generated
+  by the convert_comsys.pl script.
+
+- Multiple aliases for a single channel work in a much saner manner.
+  Each alias can be associated with a different comtitle.
 
 -----------------------------------------------------------------------------
 

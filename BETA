@@ -385,3 +385,39 @@ The initial beta release was on 9/27/99.
 
 - Misc: Leaving a channel you are not on generates a notification
   that you're not on the channel. [MUX; stile]
+
+-----------------------------------------------------------------------------
+
+10/16/99: Beta 14
+
+- Feature: New comsystem.
+
+  - You MUST convert your old comsystem using the provided script; if
+    you don't, you will not be able to load the comsys database.
+ 
+    Go into your game directory, and type:
+       cp comsys.db comsys.db.save
+       ./convert_comsys.pl < comsys.db.save > comsys.db
+ 
+    Make sure to keep comsys.db.save in a safe place, in case anything
+    goes wrong.
+
+  - This is a from-scratch re-implementation. There are some syntax
+    changes, and some changes in functionality.
+
+  - @cchown, @ccharge, @cset, @coflags, @cpflags, and channel objects have
+    been replaced by the @channel command, which allows you to do
+    administrative things to channels. All channel information is now
+    directly associated with the channel, rather than being kept on a
+    channel object. The information from old channel objects will be
+    assimilated upon initial load of the database produced through
+    the comsys conversion above.
+
+  - Multiple aliases for a single channel work for real now. Each alias
+    can be associated with a different comtitle.
+
+  - If you do not have a comsys database (i.e., you are starting a game
+    from scratch), a basic comsys database is now created, with the
+    Public and Guests channels.
+
+- Misc: Minor cleanup in various places.
