@@ -723,7 +723,10 @@ dbref victim;
 
 	/* Bye bye... */
 	player = (dbref) atoi(atr_get_raw(victim, A_DESTROYER));
-	toast_player(victim);
+
+	if (mudconf.have_comsys)
+		toast_player(victim);
+
 	boot_off(victim, (char *)"You have been destroyed!");
 	halt_que(victim, NOTHING);
 	count = chown_all(victim, player);
