@@ -116,7 +116,10 @@ typedef struct {
 				cp->lastreferenced = time(NULL); \
 			}
 #endif /* STANDALONE */
-			/* Set last referenced time to zero */
+
+/* Set last referenced time to zero. This means that we're willing to throw
+   this cache entry away anytime */
+
 #define CLRREFTIME(cp)	cp->lastreferenced = 0;
 
 static Cache *get_free_entry();
