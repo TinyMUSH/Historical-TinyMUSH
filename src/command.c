@@ -3028,7 +3028,8 @@ dbref player;
 	raw_notify(player, tprintf("I/O        %12d%12d",
 				   cs_dbwrites, cs_dbreads));
 	raw_notify(player, tprintf("Hit ratio            %2.0f%%         %2.0f%%",
-				   (float) cs_whits / cs_writes * 100, (float) cs_rhits / cs_reads * 100));
+				   (cs_writes ? (float) cs_whits / cs_writes * 100 : 0.0),
+				   (cs_reads ? (float) cs_rhits / cs_reads * 100 : 0.0)));
 	raw_notify(player, tprintf("\nDeletes    %12d", cs_dels));
 	raw_notify(player, tprintf("Checks     %12d", cs_checks));
 	raw_notify(player, tprintf("Resets     %12d", cs_resets));
