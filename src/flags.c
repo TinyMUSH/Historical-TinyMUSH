@@ -211,13 +211,6 @@ int fflags, reset;
 {
 	int could_hear;
 
-	if (isPlayer(target) && (flag & MONITOR)) {
-		if (Can_Monitor(player))
-			fh_any(target, player, flag, fflags, reset);
-		else
-			return 0;
-	}
-
 	could_hear = Hearer(target);
 	fh_any(target, player, flag, fflags, reset);
 	handle_ears(target, could_hear, Hearer(target));
@@ -237,6 +230,30 @@ int fh_player_bit(target, player, flag, fflags, reset)
 	return 0;
     return (fh_any(target, player, flag, fflags, reset));
 }
+
+/* ---------------------------------------------------------------------------
+ * fh_power_bit: Check power bit to set/reset.
+ */
+
+int fh_power_bit(target, player, flag, fflags, reset)
+    dbref target, player;
+    FLAG flag;
+    int fflags, reset;
+{
+    if (flag & WATCHER) {
+	/* Wizards can set this on anything.
+	 * Players with the Watch power can set this on themselves.
+	 */
+	if (Wizard(player) ||
+	    ((Owner(player) == Owner(target)) && Can_Watch(player)))
+	    return (fh_any(target, player, flag, fflags, reset));
+	else
+	    return 0;
+    }
+
+    return 0;
+}
+
 
 /* *INDENT-OFF* */
 
@@ -347,9 +364,11 @@ FLAGENT gen_flags[] = {
 	FLAG_WORD2,	0,			fh_restrict_player},
 {"HEAD",                HEAD_FLAG,      '?',
         FLAG_WORD2,       0,                      fh_wiz},
+{"WATCHER",		WATCHER,	'+',
+	FLAG_WORD2,	0,			fh_power_bit},
 {"HAS_DAILY",		HAS_DAILY,	'*',
 	FLAG_WORD2,		CA_GOD|CA_NO_DECOMP,	fh_god},
-{"HAS_STARTUP",		HAS_STARTUP,	'+',
+{"HAS_STARTUP",		HAS_STARTUP,	'=',
 	0,		CA_GOD|CA_NO_DECOMP,	fh_god},
 {"HAS_FORWARDLIST",	HAS_FWDLIST,	'&',
 	FLAG_WORD2,	CA_GOD|CA_NO_DECOMP,	fh_god},

@@ -85,7 +85,7 @@
 #define HTML		0x04000000      /* Player supports HTML */
 #define BLIND		0x08000000	/* Suppress has arrived / left msgs */
 #define	SUSPECT		0x10000000	/* Report some activities to wizards */
-#define PLACEHOLDER	0x20000000	/* (Was MUX compress flag) */
+#define WATCHER		0x20000000	/* Watch logins */
 #define	CONNECTED	0x40000000	/* Player is connected */
 #define	SLAVE		0x80000000	/* Disallow most commands */
 
@@ -441,6 +441,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Parent_ok(x)	((Flags2(x) & PARENT_OK) != 0)
 #define	Light(x)	((Flags2(x) & LIGHT) != 0)
 #define	Suspect(x)	((Flags2(Owner(x)) & SUSPECT) != 0)
+#define Watcher(x)	((Flags2(x) & WATCHER) != 0)
 #define	Connected(x)	(((Flags2(x) & CONNECTED) != 0) && \
 			 (Typeof(x) == TYPE_PLAYER))
 #define	Slave(x)	((Flags2(Owner(x)) & SLAVE) != 0)
