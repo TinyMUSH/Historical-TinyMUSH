@@ -1543,11 +1543,6 @@ char *name, *qual;
 					       buff, strip_ansi(thingname),
 					       got));
 
-				if (aflags & AF_LOCK) {
-					notify(player, tprintf("@lock %s/%s",
-						      strip_ansi(thingname),
-							       buff));
-				}
 				for (np = indiv_attraccess_nametab;
 				     np->name;
 				     np++) {
@@ -1562,6 +1557,12 @@ char *name, *qual;
 							  buff,
 							  np->name));
 					}
+				}
+
+				if (aflags & AF_LOCK) {
+					notify(player, tprintf("@lock %s/%s",
+						      strip_ansi(thingname),
+							       buff));
 				}
 			}
 		}
