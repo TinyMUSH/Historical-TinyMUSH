@@ -103,7 +103,7 @@ char *prog;
 	fprintf(stderr, "      <number> - Set output version number\n");
 }
 
-void main(argc, argv)
+int main(argc, argv)
 int argc;
 char *argv[];
 {

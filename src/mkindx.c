@@ -7,7 +7,7 @@
 #include  "help.h"
 
 char line[LINE_SIZE + 1];
-void main(argc, argv)
+int main(argc, argv)
 int argc;
 char *argv[];
 {
