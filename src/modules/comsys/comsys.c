@@ -1464,6 +1464,7 @@ char *arg2;
 	char *s;
 	struct channel *ch;
 	int add_remove = 1;
+	int c_cost;
 
 	if (!mudconf.have_comsys) {
 		raw_notify(player, "Comsys disabled.");
@@ -1494,7 +1495,13 @@ char *arg2;
 			return;
 		}
 	case 1:
-		ch->charge = atoi(arg2);
+	        c_cost = atoi(arg2);
+		/* Ensure that the cost is something reasonable. */
+		if ((c_cost < 0) || (c_cost > 32767)) {
+		    raw_notify(player, "That is not a reasonable cost.");
+		    return;
+		}
+		ch->charge = c_cost;
 		raw_notify(player, "Set.");
 		return;
 	case 3:
