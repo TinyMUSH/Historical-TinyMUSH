@@ -11,9 +11,24 @@ such as "Unix for Dummies" or "Unix for the Impatient".
 
 ----------------------------------------------------------------------------
 
+ONE-STEP INSTALLATION
+
+If you want to build the server using the standard default configuration,
+just type:
+
+./Build
+
+(You must be in the directory that this INSTALL file is in.)
+
+When the build finishes, assuming there are no errors, you are ready to
+start a new MUSH, or convert an existing MUSH to TinyMUSH 3.0.
+
+----------------------------------------------------------------------------
+
 BASIC INSTALLATION
 
-The installation process is as follows:
+If you decide not to use the one-step install, or you encounter problems
+in the one-step install, the installation process is as follows:
 
 - Go to the top-level directory (the directory where this INSTALL file
   is normally located).
@@ -29,7 +44,7 @@ The installation process is as follows:
   installed on your system, chances are that it's version 1.7.3 or
   earlier -- do NOT ignore this step.
 
-- Go back to the src directory ('cd ../src').
+- Go back to the src directory ('cd ..').
 
 - Run the configure script, by typing './configure'. This will customize
   autoconf.h and the Makefile for your system. If you have gcc (the GNU C
@@ -124,6 +139,8 @@ a structure. If you compiled using gcc, and find that all hostnames
 are resolving as '0.0.0.0' or '255.255.255.255', this is what's
 broken. Add a '-DBROKEN_GCC_PADDING' to the Makefile, or the line
 '#define BROKEN_GCC_PADDING' to autoconf.h, and recompile.
+Also, Irix may need HAVE_SRANDOM manually defined in autoconf.h --
+for some reason, autoconf doesn't detect this properly.
 
 If you find that you need to make modifications to anything in order
 to compile successfully, the developers would like to know about it.
