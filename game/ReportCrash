@@ -54,10 +54,10 @@ total_frames=`expr $num_frames + 1`
 echo
 echo "Generating debugger script..."
 
-echo 'echo ~########## Configuration~' > gdb_script.$$
-echo "p mudconf" >> gdb_script.$$
-echo 'echo ~########## Current state~' >> gdb_script.$$
+echo 'echo ~########## Current state~' > gdb_script.$$
 echo "p mudstate" >> gdb_script.$$
+echo 'echo ~########## Configuration~' >> gdb_script.$$
+echo "p mudconf" >> gdb_script.$$
 echo 'echo ~########## Stack trace~' >> gdb_script.$$
 echo "where" >> gdb_script.$$
 echo 'echo ~########## Current frame~' >> gdb_script.$$
