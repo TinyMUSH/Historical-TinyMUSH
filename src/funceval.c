@@ -4079,7 +4079,7 @@ FUNCTION(fun_let)
 
     /* Lowercase our variable names. */
 
-    for (p = xvar_names[i]; *p; p++)
+    for (i = 0, p = xvar_names[i]; *p; p++)
 	*p = ToLower(*p);
 
     /* Save our original values. Copying this stuff into an array is
