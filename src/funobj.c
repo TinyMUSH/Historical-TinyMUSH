@@ -1245,20 +1245,15 @@ FUNCTION(fun_eval)
  * fun_u and fun_ulocal:  Call a user-defined function.
  */
 
-static void do_ufun(buff, bufc, player, caller, cause,
-		    fargs, nfargs,
-		    cargs, ncargs,
-		    is_local)
-char *buff, **bufc;
-dbref player, caller, cause;
-char *fargs[], *cargs[];
-int nfargs, ncargs, is_local;
+FUNCTION(do_ufun)
 {
 	dbref aowner, thing;
-	int aflags, alen, anum, preserve_len[MAX_GLOBAL_REGS];
+	int is_local, aflags, alen, anum, preserve_len[MAX_GLOBAL_REGS];
 	ATTR *ap;
 	char *atext, *preserve[MAX_GLOBAL_REGS], *str;
-	
+
+	is_local = ((FUN *)fargs[-1])->flags & U_LOCAL;
+
 	/* We need at least one argument */
 
 	if (nfargs < 1) {
@@ -1289,18 +1284,6 @@ int nfargs, ncargs, is_local;
 		restore_global_regs("fun_ulocal_restore", preserve,
 				    preserve_len);
 	}
-}
-
-FUNCTION(fun_u)
-{
-	do_ufun(buff, bufc, player, caller, cause,
-		fargs, nfargs, cargs, ncargs, 0);
-}
-
-FUNCTION(fun_ulocal)
-{
-	do_ufun(buff, bufc, player, caller, cause,
-		fargs, nfargs, cargs, ncargs, 1);
 }
 
 /* ---------------------------------------------------------------------------

@@ -221,8 +221,7 @@ XFUNCTION(fun_hasattr);
 XFUNCTION(fun_v);
 XFUNCTION(perform_get);
 XFUNCTION(fun_eval);
-XFUNCTION(fun_u);
-XFUNCTION(fun_ulocal);
+XFUNCTION(do_ufun);
 XFUNCTION(fun_localize);
 XFUNCTION(fun_default);
 XFUNCTION(fun_edefault);
@@ -692,11 +691,12 @@ FUN flist[] = {
 {"TRIM",	fun_trim,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"TRUNC",	fun_trunc,	1,  0,		CA_PUBLIC,	NULL},
 {"TYPE",	fun_type,	1,  0,		CA_PUBLIC,	NULL},
-{"U",		fun_u,		0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"U",		do_ufun,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"UCSTR",	fun_ucstr,	-1, 0,		CA_PUBLIC,	NULL},
 {"UDEFAULT",	fun_udefault,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
-{"ULOCAL",	fun_ulocal,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"ULOCAL",	do_ufun,	0,  FN_VARARGS|U_LOCAL,
+						CA_PUBLIC,	NULL},
 {"UNLOAD",	fun_unload,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"UNSTRUCTURE",	fun_unstructure,1,  0,		CA_PUBLIC,	NULL},
 {"UNTIL",	fun_until,	0,  FN_VARARGS, CA_PUBLIC,	NULL},

@@ -366,4 +366,7 @@ if ((l) > 0) { \
 #define GET_EVAL	0x1	/* evaluate the attribute */
 #define GET_XARGS	0x2	/* obj and attr are two separate args */
 
+/* from do_ufun (u, ulocal): */
+#define U_LOCAL		0x1	/* preserve global registers */
+
 #endif /* __FUNCTIONS_H */
