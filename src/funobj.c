@@ -1003,13 +1003,13 @@ FUNCTION(fun_zone)
 	safe_dbref(buff, bufc, Zone(it));
 }
 
-void scan_zone(player, zone, type, buff, bufc)
-dbref player;
-char *zone, *buff, **bufc;
-int type;
+FUNCTION(scan_zone)
 {
-	dbref i, it = match_thing(player, zone);
+	dbref i, it = match_thing(player, fargs[0]);
+	int type;
 	char *bb_p;
+
+	type = ((FUN *)fargs[-1])->flags & TYPE_MASK;
 	
 	if (!mudconf.have_zones || (!Controls(player, it) && !WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
@@ -1017,25 +1017,15 @@ int type;
 	}
 	bb_p = *bufc;
 	DO_WHOLE_DB(i) {
-	    if (Typeof(i) == type) {
-		if (Zone(i) == it) {
-		    if (*bufc != bb_p) {
-			safe_chr(' ', buff, bufc);
-		    }
-		    safe_dbref(buff, bufc, i);
+		if (Typeof(i) == type) {
+			if (Zone(i) == it) {
+				if (*bufc != bb_p) {
+					safe_chr(' ', buff, bufc);
+				}
+				safe_dbref(buff, bufc, i);
+			}
 		}
-	    }
 	}
-}
-
-FUNCTION(fun_zwho)
-{
-    scan_zone(player, fargs[0], TYPE_PLAYER, buff, bufc);
-}
-
-FUNCTION(fun_inzone)
-{
-    scan_zone(player, fargs[0], TYPE_ROOM, buff, bufc);
 }
 
 FUNCTION(fun_zfun)

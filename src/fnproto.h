@@ -215,8 +215,7 @@ XFUNCTION(fun_parent);
 XFUNCTION(fun_lparent);
 XFUNCTION(fun_children);
 XFUNCTION(fun_zone);
-XFUNCTION(fun_zwho);
-XFUNCTION(fun_inzone);
+XFUNCTION(scan_zone);
 XFUNCTION(fun_zfun);
 XFUNCTION(fun_hasattr);
 XFUNCTION(fun_hasattrp);
@@ -482,7 +481,7 @@ FUN flist[] = {
 {"INDEX",	fun_index,	4,  0,		CA_PUBLIC,	NULL},
 {"INSERT",	fun_insert,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"INUM",	fun_inum,	1,  0,		CA_PUBLIC,	NULL},
-{"INZONE",      fun_inzone,     1,  0,          CA_PUBLIC,	NULL},
+{"INZONE",	scan_zone,	1,  TYPE_ROOM,	CA_PUBLIC,	NULL},
 {"ISDBREF",	fun_isdbref,	1,  0,		CA_PUBLIC,	NULL},
 {"ISNUM",	fun_isnum,	1,  0,		CA_PUBLIC,	NULL},
 {"ISWORD",	fun_isword,	1,  0,		CA_PUBLIC,	NULL},
@@ -747,7 +746,8 @@ FUN flist[] = {
 {"Z",		fun_z,		2,  0,		CA_PUBLIC,	NULL},
 {"ZFUN",	fun_zfun,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ZONE",        fun_zone,       1,  0,          CA_PUBLIC,	NULL},
-{"ZWHO",        fun_zwho,       1,  0,          CA_PUBLIC,	NULL},
+{"ZWHO",	scan_zone,	1,  TYPE_PLAYER,
+						CA_PUBLIC,	NULL},
 {NULL,		NULL,		0,  0,		0,		NULL}};
 
 /* *INDENT-ON* */
