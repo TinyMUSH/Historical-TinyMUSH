@@ -22,6 +22,9 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Added /spoof switch for @fsay/@fpose/@femit.
 
+  - Modified the documentation to properly reference @speechformat 
+    instead of @speechmod [3.1b7; Jared Robertson]
+
 3.1 Patchlevel 1					August 11th, 2004
 
   - Fixed a bug in dbconvert where the cache wasn't flushed before
