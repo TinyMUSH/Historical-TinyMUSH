@@ -1781,8 +1781,10 @@ char *argv[];
 	for (i = 0; i < mudstate.helpfiles; i++)
 	    hashreset(&mudstate.hfile_hashes[i]);
 
-	for (mindb = 0; mindb < MAX_GLOBAL_REGS; mindb++)
-		mudstate.global_regs[mindb] = alloc_lbuf("main.global_reg");
+	for (mindb = 0; mindb < MAX_GLOBAL_REGS; mindb++) {
+	    mudstate.global_regs[mindb] = alloc_lbuf("main.global_reg");
+	    mudstate.glob_reg_len[mindb] = 0;
+	}
 	mudstate.now = time(NULL);
 
 	load_restart_db();
