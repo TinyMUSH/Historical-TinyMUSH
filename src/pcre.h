@@ -71,6 +71,10 @@ extern "C" {
 #define PCRE_ERROR_NOMEMORY       (-6)
 #define PCRE_ERROR_NOSUBSTRING    (-7)
 
+/* TM3 modification: Limits exceeded. */
+
+#define PCRE_ERROR_BACKTRACK_LIMIT (-100)
+
 /* Request types for pcre_fullinfo() */
 
 #define PCRE_INFO_OPTIONS         0

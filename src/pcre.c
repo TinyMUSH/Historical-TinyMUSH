@@ -41,6 +41,7 @@ restrictions:
  *   Removed pcre_version(), pcre_info(), pcre_fullinfo().
  *   Altered syntax of calls to pcre_malloc() and pcre_free() so macros
  *     work.
+ *   Functions altered to deal with excessive backtracking.
  *   Search code comments for 'TM3 modification:' for more.
  */
 
@@ -48,6 +49,9 @@ restrictions:
 #include "autoconf.h"
 #include "alloc.h"
 #include "config.h"
+#include "flags.h"
+#include "htab.h"
+#include "mudconf.h"
 
 #include "pcre.h"
 
@@ -3380,6 +3384,11 @@ static BOOL match(eptr, ecode, offset_top, md, ims, eptrb, flags)
 {
 unsigned long int original_ims = ims;   /* Save for resetting on ')' */
 eptrblock newptrb;
+int mstat;			/* TM3 modification */
+
+if (mudstate.wild_times_lev > mudconf.wild_times_lim)
+    return PCRE_ERROR_BACKTRACK_LIMIT;
+mudstate.wild_times_lev++;
 
 /* At the start of a bracketed group, add the current subject pointer to the
 stack of such pointers, to be re-instated at the end of the group when we hit
@@ -3445,8 +3454,9 @@ for (;;)
 
       do
         {
-        if (match(eptr, ecode+3, offset_top, md, ims, eptrb, match_isgroup))
-          return TRUE;
+        if ((mstat = match(eptr, ecode+3, offset_top, md, ims, eptrb,
+			   match_isgroup)) != FALSE)
+          return mstat;
         ecode += (ecode[1] << 8) + ecode[2];
         }
       while (*ecode == OP_ALT);
@@ -3473,8 +3483,9 @@ for (;;)
     DPRINTF(("start bracket 0\n"));
     do
       {
-      if (match(eptr, ecode+3, offset_top, md, ims, eptrb, match_isgroup))
-        return TRUE;
+      if ((mstat = match(eptr, ecode+3, offset_top, md, ims, eptrb,
+			 match_isgroup)) != FALSE)
+        return mstat;
       ecode += (ecode[1] << 8) + ecode[2];
       }
     while (*ecode == OP_ALT);
@@ -3501,8 +3512,10 @@ for (;;)
 
     else
       {
-      if (match(eptr, ecode+3, offset_top, md, ims, NULL,
-          match_condassert | match_isgroup))
+      if ((mstat = match(eptr, ecode+3, offset_top, md, ims, NULL,
+		    match_condassert | match_isgroup)) < 0)
+	  return mstat;
+      if (mstat)
         {
         ecode += 3 + (ecode[4] << 8) + ecode[5];
         while (*ecode == OP_ALT) ecode += (ecode[1] << 8) + ecode[2];
@@ -3547,7 +3560,11 @@ for (;;)
     case OP_ASSERTBACK:
     do
       {
-      if (match(eptr, ecode+3, offset_top, md, ims, NULL, match_isgroup)) break;
+      if ((mstat = match(eptr, ecode+3, offset_top, md, ims, NULL,
+			 match_isgroup)) < 0)
+	  return mstat;
+      if (mstat)
+	  break;
       ecode += (ecode[1] << 8) + ecode[2];
       }
     while (*ecode == OP_ALT);
@@ -3571,8 +3588,11 @@ for (;;)
     case OP_ASSERTBACK_NOT:
     do
       {
-      if (match(eptr, ecode+3, offset_top, md, ims, NULL, match_isgroup))
-        return FALSE;
+      if ((mstat = match(eptr, ecode+3, offset_top, md, ims, NULL,
+			 match_isgroup)) < 0)
+	  return mstat;
+      if (mstat)
+	  return FALSE;
       ecode += (ecode[1] << 8) + ecode[2];
       }
     while (*ecode == OP_ALT);
@@ -3631,7 +3651,7 @@ for (;;)
       for (i = 1; i <= c; i++)
         md->offset_vector[md->offset_end - i] = save[i];
       if (save != stacksave) pcre_free(save);
-      if (!rc) return FALSE;
+      if (rc != TRUE) return rc; /* TM3 modification */
 
       /* In case the recursion has set more capturing values, save the final
       number, then move along the subject till after the recursive match,
@@ -3657,8 +3677,11 @@ for (;;)
 
       do
         {
-        if (match(eptr, ecode+3, offset_top, md, ims, eptrb, match_isgroup))
-          break;
+        if ((mstat = match(eptr, ecode+3, offset_top, md, ims, eptrb,
+			   match_isgroup)) < 0)
+	    return mstat;
+	if (mstat)
+	    break;
         ecode += (ecode[1] << 8) + ecode[2];
         }
       while (*ecode == OP_ALT);
@@ -3700,14 +3723,19 @@ for (;;)
 
       if (*ecode == OP_KETRMIN)
         {
-        if (match(eptr, ecode+3, offset_top, md, ims, eptrb, 0) ||
-            match(eptr, prev, offset_top, md, ims, eptrb, match_isgroup))
-              return TRUE;
+        if ((mstat = match(eptr, ecode+3, offset_top, md, ims, eptrb, 0)) != 0)
+	    return mstat;
+	if ((mstat = match(eptr, prev, offset_top, md, ims, eptrb,
+			   match_isgroup)) != 0)
+	    return mstat;
         }
       else  /* OP_KETRMAX */
         {
-        if (match(eptr, prev, offset_top, md, ims, eptrb, match_isgroup) ||
-            match(eptr, ecode+3, offset_top, md, ims, eptrb, 0)) return TRUE;
+        if ((mstat = match(eptr, prev, offset_top, md, ims, eptrb,
+			   match_isgroup)) != 0)
+	    return mstat;
+	if ((mstat = match(eptr, ecode+3, offset_top, md, ims, eptrb, 0)) != 0)
+	    return mstat;
         }
       }
     return FALSE;
@@ -3728,8 +3756,9 @@ for (;;)
     case OP_BRAZERO:
       {
       const uschar *next = ecode+1;
-      if (match(eptr, next, offset_top, md, ims, eptrb, match_isgroup))
-        return TRUE;
+      if ((mstat = match(eptr, next, offset_top, md, ims, eptrb,
+			 match_isgroup)) != 0)
+        return mstat;
       do next += (next[1] << 8) + next[2]; while (*next == OP_ALT);
       ecode = next + 3;
       }
@@ -3739,8 +3768,9 @@ for (;;)
       {
       const uschar *next = ecode+1;
       do next += (next[1] << 8) + next[2]; while (*next == OP_ALT);
-      if (match(eptr, next+3, offset_top, md, ims, eptrb, match_isgroup))
-        return TRUE;
+      if ((mstat = match(eptr, next+3, offset_top, md, ims, eptrb,
+			 match_isgroup)) != 0)
+	  return mstat;
       ecode++;
       }
     break;
@@ -3823,14 +3853,19 @@ for (;;)
 
       if (*ecode == OP_KETRMIN)
         {
-        if (match(eptr, ecode+3, offset_top, md, ims, eptrb, 0) ||
-            match(eptr, prev, offset_top, md, ims, eptrb, match_isgroup))
-              return TRUE;
+        if ((mstat = match(eptr, ecode+3, offset_top, md, ims, eptrb, 0)) != 0)
+	    return mstat;
+	if ((mstat = match(eptr, prev, offset_top, md, ims, eptrb,
+			   match_isgroup)) != 0)
+	    return mstat;
         }
       else  /* OP_KETRMAX */
         {
-        if (match(eptr, prev, offset_top, md, ims, eptrb, match_isgroup) ||
-            match(eptr, ecode+3, offset_top, md, ims, eptrb, 0)) return TRUE;
+        if ((mstat = match(eptr, prev, offset_top, md, ims, eptrb,
+			   match_isgroup)) != 0)
+	    return mstat;
+	if ((mstat = match(eptr, ecode+3, offset_top, md, ims, eptrb, 0)) != 0)
+	    return mstat;
         }
       }
     return FALSE;
@@ -4041,8 +4076,8 @@ for (;;)
         {
         for (i = min;; i++)
           {
-          if (match(eptr, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr, ecode, offset_top, md, ims, eptrb, 0)) != 0)
+	      return mstat;
           if (i >= max || !match_ref(offset, eptr, length, md, ims))
             return FALSE;
           eptr += length;
@@ -4062,8 +4097,8 @@ for (;;)
           }
         while (eptr >= pp)
           {
-          if (match(eptr, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr, ecode, offset_top, md, ims, eptrb, 0)) != 0)
+	      return mstat;
           eptr -= length;
           }
         return FALSE;
@@ -4134,8 +4169,8 @@ for (;;)
         {
         for (i = min;; i++)
           {
-          if (match(eptr, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+	  if ((mstat = match(eptr, ecode, offset_top, md, ims, eptrb, 0)) != 0)
+	      return mstat;
           if (i >= max || eptr >= md->end_subject) return FALSE;
           GETCHARINC(c, eptr)       /* Get character; increment eptr */
 
@@ -4162,8 +4197,9 @@ for (;;)
 
         while (eptr >= pp)
           {
-          if (match(eptr--, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr--, ecode, offset_top, md, ims,
+			     eptrb, 0)) != 0)
+            return mstat;
           }
         return FALSE;
         }
@@ -4260,8 +4296,8 @@ for (;;)
         {
         for (i = min;; i++)
           {
-          if (match(eptr, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr, ecode, offset_top, md, ims, eptrb, 0)) != 0)
+            return mstat;
           if (i >= max || eptr >= md->end_subject ||
               c != md->lcc[*eptr++])
             return FALSE;
@@ -4277,8 +4313,9 @@ for (;;)
           eptr++;
           }
         while (eptr >= pp)
-          if (match(eptr--, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr--, ecode, offset_top, md, ims,
+			     eptrb, 0)) != 0)
+            return mstat;
         return FALSE;
         }
       /* Control never gets here */
@@ -4294,8 +4331,8 @@ for (;;)
         {
         for (i = min;; i++)
           {
-          if (match(eptr, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr, ecode, offset_top, md, ims, eptrb, 0)) != 0)
+            return mstat;
           if (i >= max || eptr >= md->end_subject || c != *eptr++) return FALSE;
           }
         /* Control never gets here */
@@ -4309,8 +4346,9 @@ for (;;)
           eptr++;
           }
         while (eptr >= pp)
-         if (match(eptr--, ecode, offset_top, md, ims, eptrb, 0))
-           return TRUE;
+         if ((mstat = match(eptr--, ecode, offset_top, md, ims,
+			    eptrb, 0)) != 0)
+           return mstat;
         return FALSE;
         }
       }
@@ -4391,8 +4429,8 @@ for (;;)
         {
         for (i = min;; i++)
           {
-          if (match(eptr, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr, ecode, offset_top, md, ims, eptrb, 0)) != 0)
+            return mstat;
           if (i >= max || eptr >= md->end_subject ||
               c == md->lcc[*eptr++])
             return FALSE;
@@ -4408,8 +4446,9 @@ for (;;)
           eptr++;
           }
         while (eptr >= pp)
-          if (match(eptr--, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr--, ecode, offset_top, md, ims,
+			     eptrb, 0)) != 0)
+            return mstat;
         return FALSE;
         }
       /* Control never gets here */
@@ -4425,8 +4464,9 @@ for (;;)
         {
         for (i = min;; i++)
           {
-          if (match(eptr, ecode, offset_top, md, ims, eptrb, 0))
-            return TRUE;
+          if ((mstat = match(eptr, ecode, offset_top, md, ims,
+			     eptrb, 0)) != 0) 
+            return mstat;
           if (i >= max || eptr >= md->end_subject || c == *eptr++) return FALSE;
           }
         /* Control never gets here */
@@ -4440,8 +4480,9 @@ for (;;)
           eptr++;
           }
         while (eptr >= pp)
-         if (match(eptr--, ecode, offset_top, md, ims, eptrb, 0))
-           return TRUE;
+         if ((mstat = match(eptr--, ecode, offset_top, md, ims,
+			    eptrb, 0)) != 0)
+           return mstat;
         return FALSE;
         }
       }
@@ -4543,7 +4584,8 @@ for (;;)
       {
       for (i = min;; i++)
         {
-        if (match(eptr, ecode, offset_top, md, ims, eptrb, 0)) return TRUE;
+        if ((mstat = match(eptr, ecode, offset_top, md, ims, eptrb, 0)) != 0)
+	    return mstat;
         if (i >= max || eptr >= md->end_subject) return FALSE;
 
         c = *eptr++;
@@ -4668,8 +4710,8 @@ for (;;)
 
       while (eptr >= pp)
         {
-        if (match(eptr--, ecode, offset_top, md, ims, eptrb, 0))
-          return TRUE;
+        if ((mstat = match(eptr--, ecode, offset_top, md, ims, eptrb, 0)) != 0)
+          return mstat;
         }
       return FALSE;
       }
@@ -4740,12 +4782,15 @@ const real_pcre_extra *extra = (const real_pcre_extra *)external_extra;
 BOOL using_temporary_offsets = FALSE;
 BOOL anchored;
 BOOL startline;
+int mstat;			/* TM3 modification */
 
 if ((options & ~PUBLIC_EXEC_OPTIONS) != 0) return PCRE_ERROR_BADOPTION;
 
 if (re == NULL || subject == NULL ||
    (offsets == NULL && offsetcount > 0)) return PCRE_ERROR_NULL;
 if (re->magic_number != MAGIC_NUMBER) return PCRE_ERROR_BADMAGIC;
+
+mudstate.wild_times_lev = 0;	/* TM3 modification */
 
 anchored = ((re->options | options) & PCRE_ANCHORED) != 0;
 startline = (re->options & PCRE_STARTLINE) != 0;
@@ -4961,7 +5006,11 @@ do
   if certain parts of the pattern were not used. */
 
   match_block.start_match = start_match;
-  if (!match(start_match, re->code, 2, &match_block, ims, NULL, match_isgroup))
+  mstat = match(start_match, re->code, 2, &match_block, ims, NULL,
+		match_isgroup);
+  if (mstat < 0)
+      match_block.errorcode = mstat;
+  if (mstat != TRUE)
     continue;
 
   /* Copy the offset information from temporary store if necessary */
