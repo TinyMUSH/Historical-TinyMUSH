@@ -19,8 +19,6 @@
 #include "powers.h"	/* required by code */
 #include "pcre.h"	/* required by code */
 
-static const unsigned char *tables = NULL; /* for PCRE */
-
 /* ---------------------------------------------------------------------------
  * setq, setr, r: set and read global registers.
  */
@@ -2155,12 +2153,8 @@ static void perform_regedit(buff, bufc, player, fargs, nfargs,
     char tmp;
     int match_offset = 0;
 
-    if (!tables) {
-	tables = pcre_maketables();
-    }
-
     if ((re = pcre_compile(fargs[1], case_option,
-			   &errptr, &erroffset, tables)) == NULL) {
+			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
 	/* Matching error. Note that this returns a null string rather
 	 * than '#-1 REGEXP ERROR: <error>', as PennMUSH does, in order
 	 * to remain consistent with our other regexp functions.
@@ -2316,13 +2310,8 @@ static void perform_regparse(buff, bufc, player, fargs, nfargs, case_option)
     int offsets[PCRE_MAX_OFFSETS];
     int subpatterns;
 
-    if (!tables) {
-	/* Initialize char tables so they match current locale. */
-	tables = pcre_maketables();
-    }
-
     if ((re = pcre_compile(fargs[1], case_option,
-			   &errptr, &erroffset, tables)) == NULL) {
+			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
 	/* Matching error. */
 	notify_quiet(player, errptr);
 	return;
@@ -2379,15 +2368,11 @@ static void perform_regrab(buff, bufc, isep, osep, isep_len, osep_len,
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
 
-    if (!tables) {
-	pcre_maketables();
-    }
-
     s = trim_space_sep(fargs[0], isep, isep_len);
     bb_p = *bufc;
 
     if ((re = pcre_compile(fargs[1], case_option, &errptr, &erroffset,
-			   tables)) == NULL) {
+			   mudstate.retabs)) == NULL) {
 	/* Matching error.
 	 * Note difference from PennMUSH behavior:
 	 * Regular expression errors return 0, not #-1 with an error
@@ -2498,13 +2483,8 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
 			nfargs, 2, 3, buff, bufc))
 	return;
 
-    if (!tables) {
-	/* Initialize char tables so they match current locale. */
-	tables = pcre_maketables();
-    }
-
     if ((re = pcre_compile(fargs[1], case_option,
-			   &errptr, &erroffset, tables)) == NULL) {
+			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
 	/* Matching error.
 	 * Note difference from PennMUSH behavior:
 	 * Regular expression errors return 0, not #-1 with an error
@@ -2605,11 +2585,8 @@ FUNCTION(fun_until)
 
     /* Make sure we have a valid regular expression. */
 
-    if (!tables) {
-	tables = pcre_maketables();
-    }
     if ((re = pcre_compile(fargs[lastn + 1], 0,
-			   &errptr, &erroffset, tables)) == NULL) {
+			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
 	/* Return nothing on a bad match. */
 	notify_quiet(player, errptr);
 	return;
@@ -2777,11 +2754,8 @@ static void perform_grep(buff, bufc, player, fargs, nfargs,
 	    }
 	    break;
 	case GREP_REGEXP:
-	    if (!tables) {
-		tables = pcre_maketables();
-	    }
 	    if ((re = pcre_compile(fargs[2], caseless, &errptr, &erroffset,
-				   tables)) == NULL) {
+				   mudstate.retabs)) == NULL) {
 		notify_quiet(player, errptr);
 		return;
 	    }

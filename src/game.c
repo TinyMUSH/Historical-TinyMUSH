@@ -75,7 +75,6 @@ extern int corrupt;
 
 extern char qidx_chartab[256];
 extern CMDENT *prefix_cmds[256];
-static const unsigned char *tables = NULL; /* for PCRE */
 
 /*
  * used to allocate storage for temporary stuff, cleared before command
@@ -168,13 +167,8 @@ int nargs;
     int offsets[PCRE_MAX_OFFSETS];
     int subpatterns;
 
-    if (!tables) {
-	/* Initialize char tables so they match current locale. */
-	tables = pcre_maketables();
-    }
-
     if ((re = pcre_compile(pattern, case_opt,
-			   &errptr, &erroffset, tables)) == NULL) {
+			   &errptr, &erroffset, mudstate.retabs)) == NULL) {
 	/*
 	 * This is a matching error. We have an error message in
 	 * errptr that we can ignore, since we're doing command-matching.
@@ -411,14 +405,12 @@ const char *msg;
 		}
 	    } while (dp != NULL);
 	} else {
-	    if (!tables) {
-		tables = pcre_maketables();
-	    }
 	    len = strlen(msg);
 	    case_opt = (aflags & AF_CASE) ? 0 : PCRE_CASELESS;
 	    do {
 		cp = parse_to(&dp, ',', EV_STRIP);
-		re = pcre_compile(cp, case_opt, &errptr, &erroffset, tables);
+		re = pcre_compile(cp, case_opt, &errptr, &erroffset,
+				  mudstate.retabs);
 		if (re != NULL) {
 		    subpatterns = pcre_exec(re, NULL, (char *) msg, len,
 					    0, 0, offsets, PCRE_MAX_OFFSETS);
@@ -1713,6 +1705,11 @@ char *argv[];
 	    mudstate.glob_reg_len[mindb] = 0;
 	}
 	mudstate.now = time(NULL);
+
+	/* Initialize PCRE tables for locale. */
+	mudstate.retabs = pcre_maketables();
+
+	/* Go do restart things. */
 
 	load_restart_db();
 

@@ -447,6 +447,7 @@ struct statedata {
 	int	sql_socket;	/* Socket fd for SQL database connection */
 	clock_t	cputime_base;	/* CPU baselined at beginning of command */
 	MEMTRACK *raw_allocs;	/* Tracking of raw memory allocations */
+	const unsigned char *retabs; /* PCRE regexp tables */
 #else  /* STANDALONE */
 	int	logging;	/* Are we in the middle of logging? */
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
