@@ -8576,9 +8576,9 @@ performed and the walk down the list stops.
   See also: ANSI, ansi(), stripansi()
  
 & BORDER()
-  Function: border(<words>,<width>[,<left margin fill>[,<right margin fill>]])
+  Function: border(<text>,<width>[,<left margin fill>[,<right margin fill>]])
  
-  This function takes a list of <words>, and arranges the words in a
+  This function takes a string of <text>, and arranges the words in a
   left-justified, word-wrapped paragraph of width <width>. Each line is
   preceded by <left margin fill>, and ended with <right margin fill>
   (if specified). If the line is shorter than <width>, it is padded out
@@ -8597,9 +8597,9 @@ performed and the walk down the list stops.
     ++--------------------++
  
 & RBORDER()
-  Function: rborder(<words>,<width>[,<left margin fill>[,<right margin fill>]])
+  Function: rborder(<text>,<width>[,<left margin fill>[,<right margin fill>]])
  
-  This function takes a list of <words>, and arranges the words in a
+  This function takes a string of <text>, and arranges the words in a
   right-justified, word-wrapped paragraph of width <width>. Each line is
   preceded by <left margin fill>, and ended with <right margin fill>
   (if specified). If the line is shorter than <width>, it is padded out
@@ -8620,7 +8620,7 @@ performed and the walk down the list stops.
 & CBORDER()
   Function: cborder(<words>,<width>[,<left margin fill>[,<right margin fill>]])
  
-  This function takes a list of <words>, and arranges the words in a
+  This function takes a string of <text>, and arranges the words in a
   centered, word-wrapped paragraph of width <width>. Each line is
   preceded by <left margin fill>, and ended with <right margin fill>
   (if specified). If the line is shorter than <width>, it is padded out
