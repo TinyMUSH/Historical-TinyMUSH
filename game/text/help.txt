@@ -7083,7 +7083,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See also: shl(), shr(), bnand(), bor().
  
 & BNAND()
-  band(<number>, <number>)
+  bnand(<number>, <number>)
  
   Intended for use on a bitfield, this function performs a binary AND
   between a number and the complement of another number. This function
