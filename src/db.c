@@ -1781,7 +1781,7 @@ char *buff;
 
 	if (!db[thing].ahead) {
 		if ((list = (ATRLIST *) XMALLOC(sizeof(ATRLIST), "atr_add_raw.2")) == NULL) {
-			XFREE(text);
+			XFREE(text, "atr_add_raw.1");
 			return;
 		}
 		db[thing].ahead = list;
