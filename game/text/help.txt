@@ -4233,10 +4233,11 @@
   Topic: Miscellaneous Functions
  
 	case()		convsecs()	convtime()	die()		
-	ifelse()	mudname()	pemit()		r()		
-	rand()		remit()		restarts()	restarttime()	
-	s()		secs()		setq()		setr()		
-	switch()	starttime()	time()		version()
+	ifelse()	mudname()	nonzero()	pemit()
+	r()		rand()		remit()		restarts()	
+	restarttime()	s()		secs()		setq()		
+	setr()		switch()	starttime()	time()		
+	version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -6770,12 +6771,31 @@
  
   See also: @switch, match().
 
+& NONZERO()
+  Function: nonzero(<condition>,<string if non-zero>,<string if zero>)
+ 
+  If <condition> is non-zero (defined as a non-null string that is
+  not the number zero, '0'), then the <string if non-zero> is returned.
+  Otherwise the <string if zero> is returned. Those two strings are not
+  evaluated until appropriate (i.e., if the string is non-zero, the
+  string-if-zero will not be evaluated, and vice versa).
+ 
+  Examples:
+    > say [nonzero(0,not zero,zero)] - [nonzero(1,not zero,zero)]
+    You say "zero - not zero"
+    > say [nonzero(,null,not null)] - [nonzero(foo,null,not null)]
+    You say "null - not null"
+   
+  See also: ifelse(), switch(), case().
+ 
 & IFELSE()
   Function: ifelse(<condition>,<string if true>,<string if false>)
  
   If <condition> is true (defined as a true boolean), then the
   <string if true> is returned. Otherwise, the <string if false>
-  is returned.
+  is returned. The true and false strings are not evaluated until
+  appropriate (i.e., if the condition is true, the string-if-false
+  will not be evaluated, and vice versa).
  
   Examples:
     > say [ifelse(1,true,false)] - [ifelse(0,true,false)]
@@ -6785,7 +6805,7 @@
     > say [ifelse(#5,true,false)] - [ifelse(#-1,true,false)]
     You say "true - false"
   
-  See also: switch(), BOOLEAN VALUES.
+  See also: nonzero(), switch(), case(), BOOLEAN VALUES.
  
 & SPACE()
   Function: space(<count>)
