@@ -907,8 +907,10 @@ FUNCTION(handle_flaglists)
 			    (Flags2(it) & fset.word2) ||
 			    (Flags3(it) & fset.word3) ||
 			    (Typeof(it) == p_type)) {
-				if (isPlayer(it) && (fset.word2 == CONNECTED)
-				    && Hidden(it) && !See_Hidden(player))
+				if ((p_type == TYPE_PLAYER) &&
+				    (fset.word2 == CONNECTED) &&
+				    Can_Hide(it) && Hidden(it) &&
+				    !See_Hidden(player))
 					temp = 0;
 				else
 					temp = 1;
@@ -916,26 +918,18 @@ FUNCTION(handle_flaglists)
 				temp = 0;
 			}
 			
-			if ((!type) && ((negate && temp) || (!negate && !temp))) {
+			if (!(type ^ negate ^ temp)) {
 
-				/* Too bad there's no NXOR function... At
-				 * this point we've either got a flag
-				 * and we don't want it, or we don't
-				 * have a flag and we want it. Since
-				 * it's AND, we return false. 
+				/* Four ways to satisfy that test:
+				 * AND, don't want flag but we have it;
+				 * AND, do want flag but don't have it;
+				 * OR, don't want flag and don't have it;
+				 * OR, do want flag and do have it.
 				 */
-				safe_chr('0', buff, bufc);
-				return;
-
-			} else if ((type) &&
-				 ((!negate && temp) || (negate && !temp))) {
-
-				/* We've found something we want, in an OR. */
-
-				safe_chr('1', buff, bufc);
+				safe_bool(buff, bufc, type);
 				return;
 			}
-			/* Otherwise, we don't need to do anything. */
+			/* Otherwise, move on to check the next flag. */
 		}
 	}
 	safe_bool(buff, bufc, !type);

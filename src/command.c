@@ -1982,33 +1982,16 @@ dbref player;
 {
 	char *playerb, *roomb, *thingb, *exitb, *robotb, *stripb, *buff;
 
-	playerb = decode_flags(player,
-			       (mudconf.player_flags.word1 | TYPE_PLAYER),
-			       mudconf.player_flags.word2,
-			       mudconf.player_flags.word3);
-	roomb = decode_flags(player,
-			     (mudconf.room_flags.word1 | TYPE_ROOM),
-			     mudconf.room_flags.word2,
-			     mudconf.room_flags.word3);
-	exitb = decode_flags(player,
-			     (mudconf.exit_flags.word1 | TYPE_EXIT),
-			     mudconf.exit_flags.word2,
-			     mudconf.exit_flags.word3);
-	thingb = decode_flags(player,
-			      (mudconf.thing_flags.word1 | TYPE_THING),
-			      mudconf.thing_flags.word2,
-			      mudconf.thing_flags.word3);
-	robotb = decode_flags(player,
-			      (mudconf.robot_flags.word1 | TYPE_PLAYER),
-			      mudconf.robot_flags.word2,
-			      mudconf.robot_flags.word3);
-	stripb = decode_flags(player,
-			      mudconf.stripped_flags.word1,
-			      mudconf.stripped_flags.word2,
-			      mudconf.stripped_flags.word3);
+	playerb = decode_flags(player, mudconf.player_flags);
+	roomb = decode_flags(player, mudconf.room_flags);
+	exitb = decode_flags(player, mudconf.exit_flags);
+	thingb = decode_flags(player, mudconf.thing_flags);
+	robotb = decode_flags(player, mudconf.robot_flags);
+	stripb = decode_flags(player, mudconf.stripped_flags);
+
 	buff = alloc_lbuf("list_df_flags");
 	sprintf(buff,
-		"Default flags: Players...%s  Rooms...%s  Exits...%s  Things...%s  Robots...%s  Stripped...%s",
+		"Default flags: Players...P%s  Rooms...R%s  Exits...E%s  Things...%s  Robots...P%s  Stripped...%s",
 		playerb, roomb, exitb, thingb, robotb, stripb);
 	raw_notify(player, buff);
 	free_lbuf(buff);

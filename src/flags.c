@@ -538,12 +538,12 @@ int key;
 }
 
 /* ---------------------------------------------------------------------------
- * decode_flags: converts a flags word into corresponding letters.
+ * decode_flags: converts a flag set into corresponding letters.
  */
 
-char *decode_flags(player, flagword, flag2word, flag3word)
+char *decode_flags(player, flagset)
 dbref player;
-FLAG flagword, flag2word, flag3word;
+FLAGSET flagset;
 {
 	char *buf, *bp, *s;
 	FLAGENT *fp;
@@ -553,10 +553,53 @@ FLAG flagword, flag2word, flag3word;
 	buf = bp = s = alloc_sbuf("decode_flags");
 	*bp = '\0';
 
-	if (!Good_obj(player)) {
+	flagtype = (flagset.word1 & TYPE_MASK);
+	if (object_types[flagtype].lett != ' ')
+		safe_sb_chr(object_types[flagtype].lett, buf, &bp);
+
+	for (fp = gen_flags; fp->flagname; fp++) {
+		if (fp->flagflag & FLAG_WORD3)
+			fv = flagset.word3;
+		else if (fp->flagflag & FLAG_WORD2)
+			fv = flagset.word2;
+		else
+			fv = flagset.word1;
+		if (fv & fp->flagvalue) {
+			if ((fp->listperm & CA_WIZARD) && !Wizard(player))
+				continue;
+			if ((fp->listperm & CA_GOD) && !God(player))
+				continue;
+
+			safe_sb_chr(fp->flaglett, buf, &bp);
+		}
+	}
+
+	*bp = '\0';
+	return buf;
+}
+
+/* ---------------------------------------------------------------------------
+ * unparse_flags: converts a thing's flags into corresponding letters.
+ */
+
+char *unparse_flags(player, thing)
+dbref player, thing;
+{
+	char *buf, *bp, *s;
+	FLAGENT *fp;
+	int flagtype;
+	FLAG fv, flagword, flag2word, flag3word;
+
+	buf = bp = s = alloc_sbuf("unparse_flags");
+	*bp = '\0';
+
+	if (!Good_obj(player) || !Good_obj(thing)) {
 		strcpy(buf, "#-2 ERROR");
 		return buf;
 	}
+	flagword = Flags(thing);
+	flag2word = Flags2(thing);
+	flag3word = Flags3(thing);
 	flagtype = (flagword & TYPE_MASK);
 	if (object_types[flagtype].lett != ' ')
 		safe_sb_chr(object_types[flagtype].lett, buf, &bp);
@@ -577,10 +620,8 @@ FLAG flagword, flag2word, flag3word;
 
 			/* don't show CONNECT on dark wizards to mortals */
 
-			if ((flagtype == TYPE_PLAYER) &&
-			    (fp->flagflag & FLAG_WORD2) &&
-			    (fp->flagvalue == CONNECTED) &&
-			((flagword & (WIZARD | DARK)) == (WIZARD | DARK)) &&
+			if ((flagtype == TYPE_PLAYER) && isConnFlag(fp) &&
+			    Can_Hide(thing) && Hidden(thing) &&
 			    !See_Hidden(player))
 				continue;
 
@@ -590,8 +631,7 @@ FLAG flagword, flag2word, flag3word;
 			 * we don't end up running the dbref number
 			 * into the flags.
 			 */
-			if ((s == bp) && (fp->flagflag & FLAG_WORD3) &&
-			    (fp->flagvalue >= MARK_0))
+			if ((s == bp) && isMarkerFlag(fp))
 			    safe_sb_chr(MARK_FLAG_SEP, buf, &bp);
 
 			safe_sb_chr(fp->flaglett, buf, &bp);
@@ -629,11 +669,10 @@ char *flagname;
 			return 0;
 		if ((fp->listperm & CA_GOD) && !God(player))
 			return 0;
-		/* don't show CONNECT on dark players to mortals */
-		if (isPlayer(it) &&
-		    (fp->flagflag & FLAG_WORD2) &&
-		    (fp->flagvalue == CONNECTED) &&
-		    Hidden(it) && !See_Hidden(player))
+		/* don't show CONNECT on dark wizards to mortals */
+		if (isPlayer(it) && isConnFlag(fp) &&
+		    Can_Hide(it) && Hidden(it) &&
+		    !See_Hidden(player))
 			return 0;
 		return 1;
 	}
@@ -680,10 +719,9 @@ dbref player, target;
 			if ((fp->listperm & CA_GOD) && !God(player))
 				continue;
 			/* don't show CONNECT on dark wizards to mortals */
-			if (isPlayer(target) &&
-			    (fp->flagflag & FLAG_WORD2) && (fp->flagvalue == CONNECTED) &&
-			    ((Flags(target) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
-			    !Wizard(player))
+			if (isPlayer(target) && isConnFlag(fp) &&
+			    Can_Hide(target) && Hidden(target) &&
+			    !See_Hidden(player))
 				continue;
 			safe_mb_chr(' ', buff, &bp);
 			safe_mb_str((char *)fp->flagname, buff, &bp);

@@ -60,6 +60,10 @@ Release history:
 
 - Fix: Startmush still didn't back up module dbs correctly. [3.1b2]
 
+- Fix: Space between dbref and flags was missing for MARKER9. [3.0; Taran]
+
+- Misc: Hide connected flag more consistently.
+
 - Cosmetic: Shout messages include the grammatically correct comma after
   "shouts". [2.0; Neva]
 

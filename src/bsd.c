@@ -738,8 +738,7 @@ int reason;
 
 		STARTLOG(LOG_ACCOUNTING, "DIS", "ACCT")
 		    now = mudstate.now - d->connected_at;
-		    buff2 = decode_flags(GOD, Flags(d->player),
-					 Flags2(d->player), Flags3(d->player));
+		    buff2 = unparse_flags(GOD, d->player);
 		    log_printf("%d %s %d %d %d %d [%s] <%s> ",
 			       d->player, buff2, d->command_count, (int) now,
 			       Location(d->player), Pennies(d->player),

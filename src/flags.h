@@ -103,6 +103,7 @@
 #define MARK_7		0x20000000
 #define MARK_8		0x40000000
 #define MARK_9		0x80000000
+#define MARK_FLAGS	0xffc00000	/* Bitwise-or of all marker flags */
 
 /* ---------------------------------------------------------------------------
  * FLAGENT: Information about object flags.
@@ -148,14 +149,13 @@ extern void	FDECL(display_flagtab, (dbref));
 extern void	FDECL(flag_set, (dbref, dbref, char *, int));
 extern char *	FDECL(flag_description, (dbref, dbref));
 extern FLAGENT *FDECL(find_flag, (dbref, char *));
-extern char *	FDECL(decode_flags, (dbref, FLAG, int, int));
+extern char *	FDECL(decode_flags, (dbref, FLAGSET));
+extern char *	FDECL(unparse_flags, (dbref, dbref));
 extern int	FDECL(has_flag, (dbref, dbref, char *));
 extern char *	FDECL(unparse_object, (dbref, dbref, int));
 extern char *	FDECL(unparse_object_numonly, (dbref));
 extern int	FDECL(convert_flags, (dbref, char *, FLAGSET *, FLAG *));
 extern void	FDECL(decompile_flags, (dbref, dbref, char *));
-
-#define	unparse_flags(p,t) decode_flags(p,Flags(t),Flags2(t),Flags3(t))
 
 #define	GOD ((dbref) 1)
 
@@ -325,11 +325,15 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define H_Marker7(x)	((Flags3(x) & MARK_7) != 0)
 #define H_Marker8(x)	((Flags3(x) & MARK_8) != 0)
 #define H_Marker9(x)	((Flags3(x) & MARK_9) != 0)
+#define isMarkerFlag(fp)	(((fp)->flagflag & FLAG_WORD3) && \
+				 ((fp)->flagvalue & MARK_FLAGS))
 
 #define	s_Halted(x)	s_Flags((x), Flags(x) | HALT)
 #define	s_Going(x)	s_Flags((x), Flags(x) | GOING)
 #define	s_Connected(x)	s_Flags2((x), Flags2(x) | CONNECTED)
 #define	c_Connected(x)	s_Flags2((x), Flags2(x) & ~CONNECTED)
+#define isConnFlag(fp)	(((fp)->flagflag & FLAG_WORD2) && \
+			 ((fp)->flagvalue & CONNECTED))
 #define s_Has_Darklock(x)	s_Flags3((x), Flags3(x) | HAS_DARKLOCK)
 #define c_Has_Darklock(x)	s_Flags3((x), Flags3(x) & ~HAS_DARKLOCK)
 
