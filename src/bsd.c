@@ -1264,7 +1264,6 @@ int sig;
 #endif	/* SYS_SIGLIST_DECLARED */
 #endif	/* HAVE_SYS_SIGNAME */
 
-	char buff[32];
 	int i;
 
 #if defined(HAVE_UNION_WAIT) && defined(NEED_WAIT3_DCL)
@@ -1316,9 +1315,8 @@ int sig;
 #endif
 		check_panicking(sig);
 		log_signal(signames[sig]);
-		sprintf(buff, "GAME: Caught signal %s, exiting.",
-			signames[sig]);
-		raw_broadcast(0, buff);
+		raw_broadcast(0, "GAME: Caught signal %s, exiting.",
+			      signames[sig]);
 		dump_database_internal(DUMP_DB_KILLED);
 		exit(0);
 		break;
