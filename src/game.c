@@ -258,7 +258,7 @@ int check_exclude, hash_insert;
 	dbref aowner;
 	int match, attr, aflags, alen, i;
 	char *buff, *s, *as;
-	char *args[10];
+	char *args[NUM_ENV_VARS];
 	ATTR *ap;
 
 	/* See if we can do it.  Silently fail if we can't. */
@@ -321,16 +321,16 @@ int check_exclude, hash_insert;
                 if ((!(aflags & AF_REGEXP) && 
                      wild(buff + 1,  
                           ((aflags & AF_NOPARSE) ? raw_str: str),  
-                          args, 10)) || 
+                          args, NUM_ENV_VARS)) || 
                     ((aflags & AF_REGEXP) && 
                      regexp_match(buff + 1,  
                                   ((aflags & AF_NOPARSE) ? raw_str : str),  
 				  ((aflags & AF_CASE) ? 0 : PCRE_CASELESS),
-                                  args, 10))) { 
+                                  args, NUM_ENV_VARS))) { 
 			match = 1;
-			wait_que(thing, player, 0, NOTHING, 0, s, args, 10,
-				 mudstate.global_regs);
-			for (i = 0; i < 10; i++) {
+			wait_que(thing, player, 0, NOTHING, 0, s, args,
+				 NUM_ENV_VARS, mudstate.global_regs);
+			for (i = 0; i < NUM_ENV_VARS; i++) {
 				if (args[i])
 					free_lbuf(args[i]);
 			}
@@ -572,7 +572,7 @@ int key;
 const char *msg;
 {
 	char *msg_ns, *mp, *tbuff, *tp, *buff;
-	char *args[10];
+	char *args[NUM_ENV_VARS];
 	dbref aowner, targetloc, recip, obj;
 	int i, nargs, aflags, alen, has_neighbors, pass_listen;
 	int check_listens, pass_uselock, is_audible;
@@ -723,13 +723,13 @@ const char *msg;
 		    tp = atr_get(target, A_LISTEN, &aowner, &aflags, &alen);
 		    if (*tp &&
 			((!(aflags & AF_REGEXP) &&
-			 wild(tp, (char *) msg, args, 10)) ||
+			 wild(tp, (char *) msg, args, NUM_ENV_VARS)) ||
 			 ((aflags & AF_REGEXP) &&
 			  regexp_match(tp, (char *) msg, 
 				       ((aflags & AF_CASE) ?
 					0 : PCRE_CASELESS),
-				       args, 10)))) {
-			for (nargs = 10;
+				       args, NUM_ENV_VARS)))) {
+			for (nargs = NUM_ENV_VARS;
 			     nargs &&
 				 (!args[nargs - 1] ||
 				  !(*args[nargs - 1]));

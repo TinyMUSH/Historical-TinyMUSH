@@ -2370,7 +2370,7 @@ FUNCTION(fun_until)
     int aflags1, aflags2, anum1, anum2, alen1, alen2;
     ATTR *ap, *ap2;
     char *atext1, *atext2, *atextbuf, *condbuf;
-    char *cp[10], *os[10];
+    char *cp[NUM_ENV_VARS], *os[NUM_ENV_VARS];
     int count[LBUF_SIZE / 2];
     int i, is_exact_same, is_same, nwords, lastn, wc;
     char *str, *dp, *savep, *bb_p;
@@ -2456,7 +2456,7 @@ FUNCTION(fun_until)
      * the longest list is; assume null-padding for shorter lists.
      */
 
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < NUM_ENV_VARS; i++)
 	cp[i] = NULL;
     cp[2] = trim_space_sep(fargs[2], sep);
     nwords = count[2] = countwords(cp[2], sep);

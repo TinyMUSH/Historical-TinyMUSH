@@ -2047,7 +2047,7 @@ char *victim_str, *args[];
 	int what, owhat, awhat, nxargs, restriction, aflags, i;
 	ATTR *ap;
 	const char *whatd, *owhatd;
-	char *xargs[10];
+	char *xargs[NUM_ENV_VARS];
 
 	/*
 	 * Look for the victim 
@@ -2150,8 +2150,10 @@ char *victim_str, *args[];
 
 	if (nargs >= 7) {
 		parse_arglist(victim, actor, args[6], '\0',
-		    EV_STRIP_LS | EV_STRIP_TS, xargs, 10, (char **)NULL, 0);
-		for (nxargs = 0; (nxargs < 10) && xargs[nxargs]; nxargs++) ;
+			      EV_STRIP_LS | EV_STRIP_TS, xargs, NUM_ENV_VARS,
+			      (char **)NULL, 0);
+		for (nxargs = 0; (nxargs < NUM_ENV_VARS) && xargs[nxargs];
+		     nxargs++) ;
 	}
 	/*
 	 * If player doesn't control both, enforce visibility restrictions.

@@ -430,7 +430,7 @@ dbref player, cause;
 int interactive, ncargs;
 {
 	char *buf1, *buf2, tchar, *bp, *str, *buff, *s, *j, *new;
-	char *args[MAX_ARG], *aargs[10], *preserve[MAX_GLOBAL_REGS];
+	char *args[MAX_ARG], *aargs[NUM_ENV_VARS], *preserve[MAX_GLOBAL_REGS];
 	int nargs, i, interp, key, xkey, aflags, alen;
 	int hasswitch = 0;
 	int cmd_matches = 0;
@@ -629,12 +629,12 @@ int interactive, ncargs;
 			    }
 			    *s++ = '\0';
 			    
-			    if (wild(buff + 1, new, aargs, 10)) {
+			    if (wild(buff + 1, new, aargs, NUM_ENV_VARS)) {
 				if (!mudconf.addcmd_obey_uselocks ||
 				    could_doit(player, add->thing, A_LUSE)) {
 				    process_cmdline(add->thing, player,
-						    s, aargs, 10);
-				    for (i = 0; i < 10; i++) {
+						    s, aargs, NUM_ENV_VARS);
+				    for (i = 0; i < NUM_ENV_VARS; i++) {
 					if (aargs[i])
 					    free_lbuf(aargs[i]);
 				    }

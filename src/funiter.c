@@ -474,8 +474,8 @@ FUNCTION(fun_mix)
     dbref aowner, thing;
     int aflags, alen, anum, i, lastn, nwords, wc;
     ATTR *ap;
-    char *str, *atext, *os[10], *atextbuf, *bb_p, sep;
-    char *cp[10];
+    char *str, *atext, *os[NUM_ENV_VARS], *atextbuf, *bb_p, sep;
+    char *cp[NUM_ENV_VARS];
     int count[LBUF_SIZE / 2];
     char tmpbuf[2];
 
@@ -502,7 +502,7 @@ FUNCTION(fun_mix)
     Parse_Uattr(player, fargs[0], thing, anum, ap);
     Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < NUM_ENV_VARS; i++)
 	cp[i] = NULL;
 
     bb_p = *bufc;
@@ -556,7 +556,7 @@ FUNCTION(fun_step)
     ATTR *ap;
     dbref aowner, thing;
     int aflags, alen, anum;
-    char *atext, *str, *cp, *atextbuf, *bb_p, *os[10];
+    char *atext, *str, *cp, *atextbuf, *bb_p, *os[NUM_ENV_VARS];
     char sep, osep;
     int step_size, i;
 
