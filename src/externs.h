@@ -622,4 +622,8 @@ extern void	FDECL(toast_player, (dbref));
 #define safe_noperm(b,p)	safe_copy_known_str("#-1 PERMISSION DENIED",21,(b),(p),(LBUF_SIZE-1))
 #define safe_nomatch(b,p)	safe_copy_known_str("#-1 NO MATCH",12,(b),(p),(LBUF_SIZE-1))
 
+#define safe_dbref(b,p,n) \
+safe_chr('#',(b),(p)); \
+safe_ltos((b),(p),(n));
+
 #endif	/* __EXTERNS_H */

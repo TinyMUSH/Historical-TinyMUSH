@@ -2037,7 +2037,7 @@ FUNCTION(fun_columns)
 			}
 		}
 		if (isansi)
-			safe_str(ANSI_NORMAL, buf, &q);
+		    safe_ansi_normal(buf, &q);
 		*q = '\0';
 		isansi = 0;
 
@@ -2306,7 +2306,7 @@ FUNCTION(fun_strtrunc)
 		}
 	}
 	if (isansi)
-		safe_str(ANSI_NORMAL, buf, &q);
+	    safe_ansi_normal(buf, &q);
 	*q = '\0';
 	safe_str(buf, buff, bufc);
 	free_lbuf(buf);
@@ -2599,7 +2599,8 @@ FUNCTION(fun_default)
 				if (*atr_gotten &&
 				check_read_perms(player, thing, attr, aowner,
 						 aflags, buff, bufc)) {
-					safe_str(atr_gotten, buff, bufc);
+					safe_known_str(atr_gotten, alen,
+						       buff, bufc);
 					free_lbuf(atr_gotten);
 					free_lbuf(objname);
 					return;
@@ -3695,7 +3696,7 @@ FUNCTION(fun_art)
 	char c = tolower(*fargs[0]);
 
 	if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u')
-		safe_str("an", buff, bufc);
+		safe_known_str("an", 2, buff, bufc);
 	else
 		safe_chr('a', buff, bufc);
 }
@@ -3772,19 +3773,19 @@ FUNCTION(fun_hastype)
 	switch (*fargs[1]) {
 	case 'r':
 	case 'R':
-		safe_str((Typeof(it) == TYPE_ROOM) ? "1" : "0", buff, bufc);
+		safe_chr((Typeof(it) == TYPE_ROOM) ? '1' : '0', buff, bufc);
 		break;
 	case 'e':
 	case 'E':
-		safe_str((Typeof(it) == TYPE_EXIT) ? "1" : "0", buff, bufc);
+		safe_chr((Typeof(it) == TYPE_EXIT) ? '1' : '0', buff, bufc);
 		break;
 	case 'p':
 	case 'P':
-		safe_str((Typeof(it) == TYPE_PLAYER) ? "1" : "0", buff, bufc);
+		safe_chr((Typeof(it) == TYPE_PLAYER) ? '1' : '0', buff, bufc);
 		break;
 	case 't':
 	case 'T':
-		safe_str((Typeof(it) == TYPE_THING) ? "1" : "0", buff, bufc);
+		safe_chr((Typeof(it) == TYPE_THING) ? '1' : '0', buff, bufc);
 		break;
 	default:
 		safe_str("#-1 NO SUCH TYPE", buff, bufc);

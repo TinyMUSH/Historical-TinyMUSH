@@ -672,7 +672,7 @@ FUNCTION(fun_sign)
 
 	num = aton(fargs[0]);
 	if (num < 0)
-		safe_str("-1", buff, bufc);
+		safe_known_str("-1", 2, buff, bufc);
 	else if (num > 0) {
 		safe_chr('1', buff, bufc);
 	} else {
@@ -866,7 +866,7 @@ FUNCTION(fun_convtime)
 	if (do_convtime(fargs[0], ttm))
 		safe_ltos(buff, bufc, timelocal(ttm));
 	else
-		safe_str("-1", buff, bufc);
+		safe_known_str("-1", 2, buff, bufc);
 }
 
 
@@ -1600,10 +1600,7 @@ FUNCTION(fun_exit)
 			key |= VE_LOC_DARK;
 		DOLIST(exit, Exits(it)) {
 			if (exit_visible(exit, player, key)) {
-				**bufc = '#';
-				(*bufc)++;
-				safe_ltos(buff, bufc, exit);
-				return;
+			    safe_dbref(buff, bufc, exit);
 			}
 		}
 	}
@@ -2072,9 +2069,7 @@ FUNCTION(fun_strlen)
 
 FUNCTION(fun_num)
 {
-	**bufc = '#';
-	(*bufc)++;
-	safe_ltos(buff, bufc, match_thing(player, fargs[0]));
+	safe_dbref(buff, bufc, match_thing(player, fargs[0]));
 }
 
 FUNCTION(fun_pmatch)
@@ -2125,7 +2120,7 @@ FUNCTION(fun_pmatch)
 
     thing = find_connected_ambiguous(player, name);
     if (thing == AMBIGUOUS) {
-	safe_str("#-2", buff, bufc);
+	safe_known_str("#-2", 3, buff, bufc);
     } else if (Good_obj(thing) && isPlayer(thing)) {
 	safe_tprintf_str(buff, bufc, "#%d", thing);
     } else {
@@ -2138,11 +2133,11 @@ FUNCTION(fun_pfind)
 	dbref thing;
 
 	if (*fargs[0] == '#') {
-		safe_tprintf_str(buff, bufc, "#%d", match_thing(player, fargs[0]));
+		safe_dbref(buff, bufc, match_thing(player, fargs[0]));
 		return;
 	}
 	if (!((thing = lookup_player(player, fargs[0], 1)) == NOTHING)) {
-		safe_tprintf_str(buff, bufc, "#%d", thing);
+		safe_dbref(buff, bufc, thing);
 		return;
 	} else
 		safe_nomatch(buff, bufc);
@@ -2974,19 +2969,18 @@ FUNCTION(fun_ncomp)
 FUNCTION(fun_xcon)
 {
     dbref thing, it;
-    char *tbuf;
+    char *bb_p;
     int i, first, last;
 
     it = match_thing(player, fargs[0]);
 
+    bb_p = *bufc;
     if ((it != NOTHING) && (Has_contents(it)) &&
 	(Examinable(player, it) || (Location(player) == it) ||
 	 (it == cause))) {
 	first = atoi(fargs[1]);
 	last = atoi(fargs[2]);
 	if ((first > 0) && (last > 0)) {
-
-	    tbuf = alloc_sbuf("fun_xcon");
 
 	    /* Move to the first object that we want */
 	    for (thing = Contents(it), i = 1;
@@ -2998,18 +2992,10 @@ FUNCTION(fun_xcon)
 	    for (i = 0;
 		 (i < last) && (thing != NOTHING) && (Next(thing) != thing);
 		 thing = Next(thing), i++) {
-		if (*buff) {
-		    tbuf[0] = ' ';
-		    tbuf[1] = '#';
-		    ltos(&tbuf[2], thing);
-		} else {
-		    *tbuf = '#';
-		    ltos(&tbuf[1], thing);
-		}
-		safe_str(tbuf, buff, bufc);
+		if (*bufc != bb_p)
+		    safe_chr(' ', buff, bufc);
+		safe_dbref(buff, bufc, thing);
 	    }
-
-	    free_sbuf(tbuf);
 	}
     } else
 	safe_nothing(buff, bufc);
@@ -3022,26 +3008,20 @@ FUNCTION(fun_xcon)
 FUNCTION(fun_lcon)
 {
 	dbref thing, it;
-	char *tbuf;
-	int first = 1;
+	char *bb_p;
 
 	it = match_thing(player, fargs[0]);
+	bb_p = *bufc;
 	if ((it != NOTHING) &&
 	    (Has_contents(it)) &&
 	    (Examinable(player, it) ||
 	     (Location(player) == it) ||
 	     (it == cause))) {
-		tbuf = alloc_sbuf("fun_lcon");
 		DOLIST(thing, Contents(it)) {
-			if (!first)
-				sprintf(tbuf, " #%d", thing);
-			else {
-				sprintf(tbuf, "#%d", thing);
-				first = 0;
-			}
-			safe_str(tbuf, buff, bufc);
+		    if (*bufc != bb_p)
+			safe_chr(' ', buff, bufc);
+		    safe_dbref(buff, bufc, thing);
 		}
-		free_sbuf(tbuf);
 	} else
 		safe_nothing(buff, bufc);
 }
@@ -3053,7 +3033,7 @@ FUNCTION(fun_lcon)
 FUNCTION(fun_lexits)
 {
 	dbref thing, it, parent;
-	char *tbuf;
+	char *bb_p;
 	int exam, lev, key;
 	int first = 1;
 	
@@ -3068,10 +3048,10 @@ FUNCTION(fun_lexits)
 		safe_nothing(buff, bufc);
 		return;
 	}
-	tbuf = alloc_sbuf("fun_lexits");
 
 	/* Return info for all parent levels */
 
+	bb_p = *bufc;
 	ITER_PARENTS(it, parent, lev) {
 
 		/* Look for exits at each level */
@@ -3087,17 +3067,12 @@ FUNCTION(fun_lexits)
 			key |= VE_BASE_DARK;
 		DOLIST(thing, Exits(parent)) {
 			if (exit_visible(thing, player, key)) {
-				if (!first)
-					sprintf(tbuf, " #%d", thing);
-				else {
-					sprintf(tbuf, "#%d", thing);
-					first = 0;
-				}
-				safe_str(tbuf, buff, bufc);
+			    if (*bufc != bb_p)
+				safe_chr(' ', buff, bufc);
+			    safe_dbref(buff, bufc, thing);
 			}
 		}
 	}
-	free_sbuf(tbuf);
 	return;
 }
 
@@ -3747,8 +3722,7 @@ FUNCTION(fun_programmer)
 	safe_nothing(buff, bufc);
 	return;
     }
-    safe_chr('#', buff, bufc);
-    safe_ltos(buff, bufc, get_programmer(target));
+    safe_dbref(buff, bufc, get_programmer(target));
 }
 
 /* ---------------------------------------------------------------------------
