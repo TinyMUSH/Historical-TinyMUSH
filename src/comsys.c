@@ -839,6 +839,7 @@ void comsys_chown(from_player, to_player)
 	if (chp->owner == from_player)
 	    chp->owner = to_player;
     }
+}
 
 
 /* --------------------------------------------------------------------------
@@ -1679,9 +1680,12 @@ static void read_comsys(fp, com_ver)
     /* Load up the channels */
 
     while (!done) {
+
 	chp = (CHANNEL *) XMALLOC(sizeof(CHANNEL), "load_comsys.channel");
 	chp->name = (char *) strdup(getstring_noalloc(fp, 1));
 	chp->owner = getref(fp);
+	if (!Good_obj(chp->owner) || isPlayer(chp->owner))
+	    chp->owner = GOD;	/* sanitize */
 	chp->flags = getref(fp);
 	if (com_ver == 1)
 	    comsys_flag_convert(chp);
@@ -1779,6 +1783,44 @@ static void read_comsys(fp, com_ver)
     }
 }
 
+static void sanitize_comsys()
+{
+    /* Because we can run into situations where the comsys db and
+     * regular database are not in sync (ex: restore from backup),
+     * we need to sanitize the comsys data structures at load time.
+     * The comlists we have represent the dbrefs of objects on channels.
+     * Thus we can just look at what objects are there, and work
+     * accordingly.
+     */
+
+    int i, count;
+    NHSHTAB *htab;
+    NHSHENT *hptr;
+    int *ptab;
+
+    count = 0;
+    htab = &mudstate.comlist_htab;
+    ptab = (int *) calloc(htab->entries, sizeof(int));
+
+    for (i = 0; i < htab->hashsize; i++) {
+	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	    if (!Good_obj(hptr->target)) {
+		ptab[count] = hptr->target;
+		count++;
+	    }
+	}
+    }
+
+    /* Have to do this separately, so we don't mess up the hashtable
+     * linking while we're trying to traverse it.
+     */
+
+    for (i = 0; i < count; i++)
+	channel_clr(ptab[i]);
+
+    XFREE(ptab, "sanitize_comsys");
+}
+
 void make_vanilla_comsys()
 {
     CHANNEL *chp;
@@ -1822,6 +1864,7 @@ void load_comsys(filename)
     fgets(t_mbuf, sizeof(t_mbuf), fp);
     if (!strncmp(t_mbuf, (char *) "+V", 2)) {
 	read_comsys(fp, atoi(t_mbuf + 2));
+	sanitize_comsys();
     } else {
 	STARTLOG(LOG_STARTUP, "INI", "COM")
 	    log_text((char *) "Unrecognized comsys format.");
