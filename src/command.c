@@ -1485,30 +1485,48 @@ int nargs;
 static void list_cmdtable(player)
 dbref player;
 {
-	CMDENT *cmdp;
-	char *buf, *bp, *cp;
+	CMDENT *cmdp, *modcmds;
+	char *buf, *bp;
+	MODULE *mp;
 
 	buf = alloc_lbuf("list_cmdtable");
 	bp = buf;
-	for (cp = (char *)"Commands:"; *cp; cp++)
-		*bp++ = *cp;
+	safe_str((char *) "Built-in commands:", buf, &bp);
 	for (cmdp = command_table; cmdp->cmdname; cmdp++) {
 		if (check_access(player, cmdp->perms)) {
 			if (!(cmdp->perms & CF_DARK)) {
-				*bp++ = ' ';
-				for (cp = cmdp->cmdname; *cp; cp++)
-					*bp++ = *cp;
+			    safe_chr(' ', buf, &bp);
+			    safe_str((char *) cmdp->cmdname, buf, &bp);
 			}
 		}
 	}
-	*bp = '\0';
 
 	/* Players get the list of logged-out cmds too */
 
-	if (Typeof(player) == TYPE_PLAYER)
+	if (isPlayer(player))
 		display_nametab(player, logout_cmdtable, buf, 1);
 	else
 		notify(player, buf);
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    if ((modcmds = DLSYM_VAR(mp->handle, mp->modname, "cmdtable",
+				     CMDENT *)) != NULL) {
+		bp = buf;
+		safe_tprintf_str(buf, &bp, "Module %s commands:", mp->modname);
+		for (cmdp = modcmds; cmdp->cmdname; cmdp++) {
+		    if (check_access(player, cmdp->perms)) {
+			if (!(cmdp->perms & CF_DARK)) {
+			    safe_chr(' ', buf, &bp);
+			    safe_str((char *) cmdp->cmdname, buf, &bp);
+			}
+		    }
+		}
+		notify(player, buf);
+	    }
+	}
+#endif /* HAVE_DLOPEN */
+
 	free_lbuf(buf);
 }
 
@@ -1542,15 +1560,15 @@ dbref player;
  * list_cmdaccess: List access commands.
  */
 
-static void list_cmdaccess(player)
-dbref player;
+static void helper_list_cmdaccess(player, ctab, buff)
+    dbref player;
+    CMDENT *ctab;
+    char *buff;
 {
-	char *buff, *p, *q;
 	CMDENT *cmdp;
 	ATTR *ap;
 
-	buff = alloc_sbuf("list_cmdaccess");
-	for (cmdp = command_table; cmdp->cmdname; cmdp++) {
+	for (cmdp = ctab; cmdp->cmdname; cmdp++) {
 		if (check_access(player, cmdp->perms)) {
 			if (!(cmdp->perms & CF_DARK)) {
 				if (cmdp->userperms) {
@@ -1573,6 +1591,28 @@ dbref player;
 			}
 		}
 	}
+}
+
+static void list_cmdaccess(player)
+dbref player;
+{
+	char *buff, *p, *q;
+	CMDENT *cmdp, *ctab;
+	ATTR *ap;
+	MODULE *mp;
+
+	buff = alloc_sbuf("list_cmdaccess");
+	helper_list_cmdaccess(player, command_table, buff);
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "cmdtable",
+				  CMDENT *)) != NULL) {
+		helper_list_cmdaccess(player, ctab, buff);
+	    }
+	}
+#endif /* HAVE_DLOPEN */
+
 	for (ap = attr; ap->name; ap++) {
 		p = buff;
 		*p++ = '@';
@@ -1603,9 +1643,11 @@ static void list_cmdswitches(player)
 dbref player;
 {
 	char *buff;
-	CMDENT *cmdp;
+	CMDENT *cmdp, *ctab;
+	MODULE *mp;
 
 	buff = alloc_sbuf("list_cmdswitches");
+
 	for (cmdp = command_table; cmdp->cmdname; cmdp++) {
 		if (cmdp->switches) {
 			if (check_access(player, cmdp->perms)) {
@@ -1617,6 +1659,26 @@ dbref player;
 			}
 		}
 	}
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    if ((ctab = DLSYM_VAR(mp->handle, mp->modname, "cmdtable",
+				  CMDENT *)) != NULL) {
+		for (cmdp = ctab; cmdp->cmdname; cmdp++) {
+		    if (cmdp->switches) {
+			if (check_access(player, cmdp->perms)) {
+				if (!(cmdp->perms & CF_DARK)) {
+					sprintf(buff, "%s:", cmdp->cmdname);
+					display_nametab(player, cmdp->switches,
+							buff, 0);
+				}
+			}
+		    }
+		}
+	    }
+	}
+#endif /* HAVE_DLOPEN */
+
 	free_sbuf(buff);
 }
 /* *INDENT-OFF* */
