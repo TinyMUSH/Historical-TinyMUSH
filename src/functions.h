@@ -323,6 +323,68 @@ if ((l) > 0) { \
 
 /* Handling CPU time checking. */
 
+/* 
+ * CPU time "clock()" compatibility notes:
+ *
+ * Linux clock() doesn't necessarily start at 0.
+ * BSD clock() does appear to always start at 0.
+ *
+ * Linux sets CLOCKS_PER_SEC to 1000000, citing POSIX, so its clock()
+ * will wrap around from (32-bit) INT_MAX to INT_MIN every 72 cpu-minutes
+ * or so. The actual clock resolution is low enough that, for example,
+ * it probably never returns odd numbers.
+ *
+ * BSD sets CLOCKS_PER_SEC to 100, so theoretically I could hose a cpu
+ * for 250 days and see what it does when it hits INT_MAX. Any bets? Any
+ * possible reason to care?
+ *
+ * NetBSD clock() can occasionally decrease as the scheduler's estimate of
+ * how much cpu the mush will use during the current timeslice is revised,
+ * so we can't use subtraction.
+ *
+ * BSD clock() returns -1 if there is an error.
+ */
+
+/*
+ * CPU time logic notes:
+ *
+ * B = mudstate.cputime_base
+ * L = mudstate.cputime_base + mudconf.func_cpu_lim
+ * N = mudstate.cputime_now
+ *
+ * Assuming B != -1 and L != -1 to catch errors on BSD, the possible
+ * combinations of these values are as follows (note >> means "much
+ * greater than", not right shift):
+ *
+ * 1. B <  L  normal   -- limit should be checked, and is not wrapped yet
+ * 2. B == L  disabled -- limit should not be checked
+ * 3. B >  L  strange  -- probably misconfigured
+ * 4. B >> L  wrapped  -- limit should be checked, and note L wrapped
+ *
+ * 1.  normal:
+ * 1a. N << B          -- too much, N wrapped
+ * 1b. N <  B          -- fine, NetBSD counted backwards
+ * 1c. N >= B, N <= L  -- fine
+ * 1d. N >  L          -- too much
+ *
+ * 2.  disabled:
+ * 2a. always          -- fine, not checking
+ *
+ * 3.  strange:
+ * 3a. always          -- fine, I guess we shouldn't check
+ *
+ * 4.  wrapped:
+ * 4a. N <= L          -- fine, N wrapped but not over limit yet
+ * 4b. N >  L, N << B  -- too much, N wrapped
+ * 4c. N <  B          -- fine, NetBSD counted backwards
+ * 4d. N >= B          -- fine
+ *
+ * Note that 1a, 1d, and 4b are the cases where we can be certain that
+ * too much cpu has been used. The code below only checks for 1d. The
+ * other two are corner cases that require some distinction between
+ * "x > y" and "x >> y".
+ */
+
 #define Too_Much_CPU() \
 ((mudstate.cputime_now = clock()),
  ((mudstate.cputime_now > mudstate.cputime_base + mudconf.func_cpu_lim) && \
