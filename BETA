@@ -679,7 +679,7 @@ The initial beta release was on 9/27/99.
 
 -----------------------------------------------------------------------------
 
-04/23/2000: Beta 20
+5/8/2000: Beta 20
 
 - Feature: A new script, ReportCrash, analyzes a core file and automatically
   emails the results to the bug-report address.
@@ -712,7 +712,7 @@ The initial beta release was on 9/27/99.
 - Fix: 'admin' is now recognized as a valid permission parameter. [MUX]
 
 - Fix: elock() checks if the victim, not the calling object, can
-  Pass_Locks. [3.0; Xidus]
+  Pass_Locks. [3.0b8; Xidus]
 
 - Fix: Buffer overflow fixed in center(). [3.0b16]
 
@@ -721,6 +721,8 @@ The initial beta release was on 9/27/99.
 - Fix: Buffer overflow fixed in raw_broadcast(). [3.0]
 
 - Fix: setq() register checking is enforced again. [3.0b16; Meran Kal]
+
+- Fix: A problem with %q-substitutions has been fixed. [3.0; Kevlin]
 
 - Fix: "<foo> has reconnected." message is back. [3.0b8]
 

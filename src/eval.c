@@ -759,6 +759,8 @@ char *cargs[];
 			case 'Q':	/* Local registers */
 			case 'q':
 				(*dstr)++;
+				if (!**dstr)
+					(*dstr)--;
 				if (!isdigit(**dstr))
 					break;
 				i = (**dstr - '0');
