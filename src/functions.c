@@ -5006,8 +5006,8 @@ FUNCTION(fun_space)
 		if (!is_integer(fargs[0]) || (num != 0)) {
 			num = 1;
 		}
-	} else if (num >= LBUF_SIZE) {
-		num = LBUF_SIZE - 1;
+	} else if (num >= (LBUF_SIZE - (*bufc - buff))) {
+		num = (LBUF_SIZE - (*bufc - buff)) - 1;
 	}
 	for (cp = *bufc; num > 0; num--)
 		*cp++ = ' ';
