@@ -4577,7 +4577,7 @@ FUNCTION(fun_setinter)
 
 FUNCTION(fun_ljust)
 {
-	int spaces, i;
+	int spaces, i, over;
 	char sep;
 
 	varargs_preamble("LJUST", 3);
@@ -4592,41 +4592,37 @@ FUNCTION(fun_ljust)
 	} else if (spaces > LBUF_SIZE) {
 		spaces = LBUF_SIZE;
 	}
-	safe_str(fargs[0], buff, bufc);
-	for (i = 0; i < spaces; i++)
-		safe_chr(sep, buff, bufc);
+	over = safe_str(fargs[0], buff, bufc);
+	for (i = 0; (i < spaces) && !over; i++)
+		over = safe_chr_fn(sep, buff, bufc);
 }
 
 FUNCTION(fun_rjust)
 {
-	int spaces, i;
+	int spaces, i, over;
 	char sep;
 
 	varargs_preamble("RJUST", 3);
 	spaces = atoi(fargs[1]) - strlen((char *)strip_ansi(fargs[0]));
 
-	/*
-	 * Sanitize number of spaces 
-	 */
+	/* Sanitize number of spaces */
 
 	if (spaces <= 0) {
-		/*
-		 * no padding needed, just return string 
-		 */
+		/* no padding needed, just return string */
 		safe_str(fargs[0], buff, bufc);
 		return;
 	} else if (spaces > LBUF_SIZE) {
 		spaces = LBUF_SIZE;
 	}
-	for (i = 0; i < spaces; i++)
-		safe_chr(sep, buff, bufc);
+	for (i = 0, over = 0; (i < spaces) && !over; i++)
+		over = safe_chr_fn(sep, buff, bufc);
 	safe_str(fargs[0], buff, bufc);
 }
 
 FUNCTION(fun_center)
 {
 	char sep;
-	int i, len, lead_chrs, trail_chrs, width;
+	int i, len, lead_chrs, trail_chrs, width, over;
 
 	varargs_preamble("CENTER", 3);
 
@@ -4634,8 +4630,7 @@ FUNCTION(fun_center)
 	len = strlen((char *)strip_ansi(fargs[0]));
 
 	if (width > LBUF_SIZE) {
-		safe_str("#-1 OUT OF RANGE", buff, bufc);
-		return;
+		width = LBUF_SIZE;
 	}
 	
 	if (len >= width) {
@@ -4643,12 +4638,13 @@ FUNCTION(fun_center)
 		return;
 	}
 	lead_chrs = (width / 2) - (len / 2) + .5;
-	for (i = 0; i < lead_chrs; i++)
-		safe_chr(sep, buff, bufc);
+	for (i = 0, over = 0; (i < lead_chrs) && !over; i++) {
+		over = safe_chr_fn(sep, buff, bufc);
+	}
 	safe_str(fargs[0], buff, bufc);
 	trail_chrs = width - lead_chrs - len;
-	for (i = 0; i < trail_chrs; i++)
-		safe_chr(sep, buff, bufc);
+	for (i = 0; (i < trail_chrs) && !over; i++)
+		over = safe_chr_fn(sep, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
