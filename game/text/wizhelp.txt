@@ -710,15 +710,11 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 & @list cache
   Command: @list cache
  
-  This command lists the dbrefs of the objects in each of the cache
-  chains, as well as the number of objects in each chain.
+  This command lists the attributes in each of the cache chains, as well as
+  the number of attributes in each chain.
  
-  The four chains are the Active Cache, Modified Active Cache,
-  Inactive Cache, and Modified Inactive Cache. Objects are moved
-  from the active cache to the inactive cache on a periodic basis;
-  from there, if they continue to be inactive, they are moved out
-  of the cache. The modified chains are reserved for objects that
-  have recently been modified.
+  The two chains are the Active Cache and the Modified Cache. The modified
+  chains are reserved for attributes that have recently been modified.
  
 & @list commands
   Command: @list commands
@@ -1428,8 +1424,7 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 
 & PARAM DATABASE
 	cache_size		cache_width		fork_dump
-	fork_vfork		garbage_chunk		gdbm_cache_size
-	initial_size
+	fork_vfork		garbage_chunk		initial_size
 
 & PARAM FILES
 	badsite_file		connect_file		comsys_database
@@ -1619,19 +1614,23 @@ use_global_aconn	wizard_obeys_linklock
   useful for preventing people from programming runaway dustbunny monsters
   that create thousands of objects.
  
-& cache_depth
-  Config parameter: cache_depth <depth>.  Default: 10.
+& cache_size
+  Config parameter: cache_size <bytes>.  Default: 1000000.
  
-  Specifies the depth of the database cache.  Each bucket in the cache is
-  allowed to have this many entries before it will try to remove old entries.
+  Specifies the maximum size of the database cache, in bytes. This value
+  should be set as low as possible while still maintaining a high read hit
+  rate (as seen in '@list db_stats'). A reasonable hit rate is 90% or
+  higher. The god character can safely change this value while the MUSH is
+  running.
+ 
   See also: cache_width.
 
 & cache_width
-  Config parameter: cache_width <depth>.  Default: ??
+  Config parameter: cache_width <width>.  Default: 20
  
   Specifies the number of buckets in the database cache.  A hashing function
-  is used to assign objects or attributes to a particular bucket, where a 
-  linear search is performed.
+  is used to assign attributes to a particular bucket, where a linear search
+  is performed.
 
 & check_interval
   Config parameter: check_interval <secs>.  Default: 600.
@@ -2097,10 +2096,6 @@ use_global_aconn	wizard_obeys_linklock
  
 & garbage_chunk
   Config parameter: garbage_chunk <number>.  Default: 3
-
-& gdbm_cache_size
-  Config parameter: gdbm_cache_size <number>.  Default: 4096
-  Specifies the size of the cache used by the text database in 1K blocks.
 
 & gdbm_database
   Config parameter: gdbm_database <filename>.  Default: None.

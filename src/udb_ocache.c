@@ -1,14 +1,5 @@
-/* udb_ocache.c - modified untermud object cache */ 
+/* udb_ocache.c - LRU attribute caching */ 
 /* $Id$ */
-
-/*
- * Copyright (C) 1991, Marcus J. Ranum. All rights reserved.
- */
-
-/*
- * #define CACHE_DEBUG
- * #define CACHE_VERBOSE
- */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -33,12 +24,6 @@ extern void VDECL(fatal, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
 
 extern void FDECL(raw_notify, (dbref, const char *));
-
-/*
- * This is by far the most complex and kinky code in UnterMUD. You should
- * never need to mess with anything in here - if you value your sanity.
- */
-
 
 typedef struct cache {
 	Aname onm;
@@ -118,7 +103,8 @@ typedef struct {
 #endif /* STANDALONE */
 
 /* Set last referenced time to zero. This means that we're willing to throw
-   this cache entry away anytime */
+ * this cache entry away anytime
+ */
 
 #define CLRREFTIME(cp)	cp->lastreferenced = 0;
 
@@ -126,24 +112,20 @@ static Cache *get_free_entry();
 static int cache_write();
 static void cache_clean();
 
-/*
- * initial settings for cache sizes 
- */
-static int cwidth = CACHE_WIDTH;
-static int cmaxsize = CACHE_SIZE;
+/* initial settings for cache sizes */
 
-/*
- * ntbfw - main cache pointer and list of things to kill off 
- */
+static int cwidth = CACHE_WIDTH;
+
+/* sys_c points to all cache lists, active and modified */
+
 static CacheLst *sys_c;
 
 static int cache_initted = 0;
 static int cache_frozen = 0;
 static int cache_busy = 0;
 
-/*
- * cache stats gathering stuff. you don't like it? comment it out 
- */
+/* cache stats */
+
 time_t cs_ltime;
 int cs_writes = 0;		/* total writes */
 int cs_reads = 0;		/* total reads */
@@ -155,7 +137,6 @@ int cs_rhits = 0;		/* total reads filled from cache */
 int cs_ahits = 0;		/* total reads filled active cache */
 int cs_whits = 0;		/* total writes to dirty cache */
 int cs_fails = 0;		/* attempts to grab nonexistent */
-int cs_resets = 0;		/* total cache resets */
 int cs_syncs = 0;		/* total cache syncs */
 int cs_size = 0;		/* total cache size */
 
@@ -175,9 +156,8 @@ Attr *new;
 	}
 }
 
-int cache_init(width, size)
+int cache_init(width)
 int width;
-int size;
 {
 	int x;
 	CacheLst *sp;
@@ -187,14 +167,12 @@ int size;
 		return (0);
 
 	/*
-	 * If either dimension is specified as non-zero, change it to 
-	 * that, otherwise use default. Treat dimensions deparately.  
+	 * If either dimension is specified as non-zero, change it to that,
+	 * otherwise use default. Treat dimensions deparately.
 	 */
 
 	if (width)
 		cwidth = width;
-	if (size)
-		cmaxsize = size;
 
 	sp = sys_c = (CacheLst *) XMALLOC((unsigned)cwidth * sizeof(CacheLst), "cache_init");
 	if (sys_c == (CacheLst *) 0) {
@@ -202,9 +180,7 @@ int size;
 		return (-1);
 	}
 
-	/*
-	 * Allocate the initial cache entries
-	 */
+	/* Allocate the initial cache entries */
 
 	for (x = 0; x < cwidth; x++, sp++) {
 		sp->active.head = (Cache *) 0;
@@ -221,14 +197,13 @@ int size;
 	return (0);
 }
 
-void cache_reset(clear)
-int clear;
+void cache_reset()
 {
 	int x;
 	Cache *cp, *nxt;
 	CacheLst *sp;
 
-	/* Implement cache aging by decrementing the reference counter on each object */
+	/* Clear the cache after startup and reset stats */
 
 	for (x = 0; x < cwidth; x++, sp++) {
 		sp = &sys_c[x];
@@ -237,59 +212,45 @@ int clear;
 		for (cp = sp->active.head; cp != NULL; cp = nxt) {
 			nxt = cp->nxt;
 			
-			if (clear) {
-				cache_repl(cp, NULL);
-				XFREE(cp, "cache_reset.act");
-			} else {
-				if (cp->referenced > 0)
-					cp->referenced--;
-			}
+			cache_repl(cp, NULL);
+			XFREE(cp, "cache_reset.act");
 		}
 		
 		/* then the modified active chain */
 		for (cp = sp->mactive.head; cp != NULL; cp = nxt) {
 			nxt = cp->nxt;
 			
-			if (clear) {
-				if (cp->op == NULL) {
-					(void) DB_DEL(&(cp->onm));
-				} else {
-					(void) DB_PUT(cp->op, &(cp->onm));
-				}
-				cache_repl(cp, NULL);
-				XFREE(cp, "cache_reset.mact");
+			if (cp->op == NULL) {
+				(void) DB_DEL(&(cp->onm));
 			} else {
-				if (cp->referenced > 0)
-					cp->referenced--;
+				(void) DB_PUT(cp->op, &(cp->onm));
 			}
+			cache_repl(cp, NULL);
+			XFREE(cp, "cache_reset.mact");
 		}
 		
-		if (clear) {
-			sp->active.head = (Cache *) 0;
-			sp->active.tail = (Cache *) 0;
-			sp->mactive.head = (Cache *) 0;
-			sp->mactive.tail = (Cache *) 0;
-		}
+		sp->active.head = (Cache *) 0;
+		sp->active.tail = (Cache *) 0;
+		sp->mactive.head = (Cache *) 0;
+		sp->mactive.tail = (Cache *) 0;
 	}
 	
 	/* Clear the counters after startup, or they'll be skewed */
 	
-	if (clear) {
-		cs_writes = 0;		/* total writes */
-		cs_reads = 0;		/* total reads */
-		cs_dbreads = 0;		/* total read-throughs */
-		cs_dbwrites = 0;	/* total write-throughs */
-		cs_dels = 0;		/* total deletes */
-		cs_checks = 0;		/* total checks */
-		cs_rhits = 0;		/* total reads filled from cache */
-		cs_ahits = 0;		/* total reads filled active cache */
-		cs_whits = 0;		/* total writes to dirty cache */
-		cs_fails = 0;		/* attempts to grab nonexistent */
-		cs_resets = 0;		/* total cache resets */
-		cs_syncs = 0;		/* total cache syncs */
-		cs_size = 0;		/* size of cache in bytes */
-	}
+	cs_writes = 0;		/* total writes */
+	cs_reads = 0;		/* total reads */
+	cs_dbreads = 0;		/* total read-throughs */
+	cs_dbwrites = 0;	/* total write-throughs */
+	cs_dels = 0;		/* total deletes */
+	cs_checks = 0;		/* total checks */
+	cs_rhits = 0;		/* total reads filled from cache */
+	cs_ahits = 0;		/* total reads filled active cache */
+	cs_whits = 0;		/* total writes to dirty cache */
+	cs_fails = 0;		/* attempts to grab nonexistent */
+	cs_syncs = 0;		/* total cache syncs */
+	cs_size = 0;		/* size of cache in bytes */
 }
+
 
 #ifndef STANDALONE
 /* list dbrefs of objects in the cache. */
@@ -350,10 +311,10 @@ void list_cached_objs(player)
 }
 #endif /* STANDALONE */
 
-/*
- * Search the cache for an attribute, if found, return, if not, fetch from DB
- */
-Attr * cache_get(nam)
+/* Search the cache for an attribute, if found, return, if not, fetch from
+/* DB */
+
+Attr *cache_get(nam)
 Aname *nam;
 {
 	Cache *cp;
@@ -361,20 +322,14 @@ Aname *nam;
 	int hv = 0;
 	Attr *ret;
 
-	/*
-	 * firewall 
-	 */
 	if (nam == (Aname *) 0 || !cache_initted) {
-#ifdef	CACHE_VERBOSE
-		logf("cache_get: NULL object name - programmer error\n", (char *)0);
-#endif
 		return ((Attr *) 0);
 	}
-#ifdef	CACHE_DEBUG
-	printf("get %d/%d\n", nam->object, nam->attrnum);
-#endif
 
-	/* If we're dumping, ignore stats */
+	/* If we're dumping, ignore stats - activity during a dump skews the
+	 * working set. We make sure in get_free_entry that any activity
+	 * resulting from a dump does not push out entries that are already
+	 * in the cache */
 
 #ifndef STANDALONE
 	if (!mudstate.dumping)
@@ -384,9 +339,8 @@ Aname *nam;
 	hv = (nam->object + nam->attrnum) % cwidth;
 	sp = &sys_c[hv];
 
-	/*
-	 * search active chain first 
-	 */
+	/* search active chain first */
+	
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 #ifndef STANDALONE
@@ -404,9 +358,8 @@ Aname *nam;
 		}
 	}
 
-	/*
-	 * search modified active chain next. 
-	 */
+	/* search modified active chain next. */
+	
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 #ifndef STANDALONE
@@ -423,9 +376,7 @@ Aname *nam;
 		}
 	}
 
-	/*
-	 * DARN IT - at this point we have a certified, type-A cache miss 
-	 */
+	/* DARN IT - at this point we have a certified, type-A cache miss */
 
 	if ((ret = DB_GET(nam)) == NULL) {
 #ifndef STANDALONE
@@ -482,9 +433,9 @@ Aname *nam;
  * to cache_put, it has probably already been modified, and the cached
  * version probably already reflects those modifications!
  * 
- * so - we do a couple of things: we make sure that the cached
- * object is actually there, and set its dirty bit. if we can't
- * find it - either we have a (major) programming error, or the
+ * so - we do a couple of things: we make sure that the cached object is
+ * actually there, and move it to the modified chain. if we can't find it -
+ * either we have a (major) programming error, or the
  * *name* of the object has been changed, or the object is a totally
  * new creation someone made and is inserting into the world.
  * 
@@ -493,10 +444,8 @@ Aname *nam;
  * the responsibility of the cache code. DO NOT HAND A POINTER TO
  * CACHE_PUT AND THEN FREE IT YOURSELF!!!!
  * 
- * There are other sticky issues about changing the object pointers
- * of MUDs and their names. This is left as an exercise for the
- * reader.
  */
+
 int cache_put(nam, obj)
 Aname *nam;
 Attr *obj;
@@ -506,23 +455,17 @@ Attr *obj;
 	int hv = 0;
 	
 	if (obj == (Attr *) 0 || nam == (Aname *) 0 || !cache_initted) {
-
-#ifdef	CACHE_VERBOSE
-		logf("cache_put: NULL object/name - programmer error\n", (char *)0);
-#endif
 		return (1);
 	}
 	cs_writes++;
 
-	/*
-	 * generate hash 
-	 */
+	/* generate hash */
+	
 	hv = (nam->object + nam->attrnum) % cwidth;
 	sp = &sys_c[hv];
 
-	/*
-	 * step one, search active chain, and if we find the obj, dirty it 
-	 */
+	/* step one, search active chain, and if we find the obj, dirty it */
+	
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 			if(cp->op != obj) {
@@ -566,9 +509,8 @@ Attr *obj;
 	cp->size = strlen((char *)obj);
 	cs_size += cp->size;
 
-	/*
-	 * link at head of modified active chain 
-	 */
+	/* link at head of modified active chain */
+	
 	INSHEAD(sp->mactive, cp);
 
 	REFTIME(cp);
@@ -584,9 +526,13 @@ int atrsize;
 	int score = 0, curscore = 0;
 	int modified = 0, size = 0, cursize = 0, x;
 	
-	/* Flush attributes from the cache until there's enough room for this one */
+	/* Flush attributes from the cache until there's enough room for
+	 * this one. The max size can be dynamically changed-- if it is too
+	 * small, the MUSH will flush objects until the cache fits within
+	 * this size and if it is too large, we'll fill it up before we
+	 * start flushing */
 	
-	while ((cs_size + atrsize) > cmaxsize) {
+	while ((cs_size + atrsize) > mudconf.cache_size) {
 		for (x = 0; x < cwidth; x++) {
 			sp = &sys_c[x];
 	
@@ -595,9 +541,9 @@ int atrsize;
 			/* Score is the age of an attribute in seconds.
 			   We use size as a secondary metric-- if the scores
 			   are the same, we should try to toss the bigger
-			   attribute. Only consider the head of each chain
+			   attribute. Only consider the tail of each chain
 			   since we re-insert each cache entry at the head
-			   when its accessed */
+			   when it's accessed */
 
 			if (p) {
 				/* Automatically toss this bucket if it is
@@ -645,7 +591,8 @@ int atrsize;
 				} else {
 					/* We don't want to prematurely toss
 					 * modified pages, so give them an
-					 * advantage */
+					 * advantage by lowering their score
+					 */
 	
 #ifndef STANDALONE 
 					score = (mudstate.now - p->lastreferenced) * .8;
@@ -699,7 +646,7 @@ replace:
 		cp = NULL;
 	}		
 
-	/* Just allocate a new one */
+	/* No valid cache entries to flush, allocate a new one */
 
 	if ((cp = (Cache *) XMALLOC(sizeof(Cache), "get_free_entry")) == NULL)
 		fatal("cache get_free_entry: malloc failed", (char *)-1, (char *)0);
@@ -720,10 +667,9 @@ replace:
 static int cache_write(cp)
 Cache *cp;
 {
+	/* Write a single cache chain to disk */
+
 	while (cp != NULL) {
-#ifdef	CACHE_DEBUG
-		printf("sync %d -- %d\n", cp->op->name, cp->op);
-#endif
 		if (cp->op == NULL) {
 			if (DB_DEL(&(cp->onm))) {
 				log_db_err(cp->onm.object, cp->onm.attrnum, "delete");
@@ -745,9 +691,8 @@ Cache *cp;
 static void cache_clean(sp)
 CacheLst *sp;
 {
-	/*
-	 * move modified active chain to the active chain
-	 */
+	/* move modified active chain to the active chain */
+	
 	if (sp->mactive.head != NULL) {
 		if (sp->active.head == NULL) {
 			sp->active.head = sp->mactive.head;
@@ -774,13 +719,6 @@ int NDECL(cache_sync)
 	if (cache_frozen)
 		return (0);
 
-#if 0
-	/* This ages the cache by decrementing the reference counter-- useful
-	   for a NFU cache, but since we're running an LRU cache, it's not 
-	   needed */
-	   
-	cache_reset(0);
-#endif
 	for (x = 0, sp = sys_c; x < cwidth; x++, sp++) {
 		if (cache_write(sp->mactive.head))
 			return (1);
@@ -814,9 +752,8 @@ Aname *nam;
 	hv = (nam->object + nam->attrnum) % cwidth;
 	sp = &sys_c[hv];
 
-	/*
-	 * mark dead in cache 
-	 */
+	/* mark dead in cache */
+	
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 			DEQUEUE(sp->active, cp);

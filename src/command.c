@@ -2205,7 +2205,6 @@ dbref player;
 				   (cs_reads ? (float) cs_rhits / cs_reads * 100 : 0.0)));
 	raw_notify(player, tprintf("\nDeletes    %12d", cs_dels));
 	raw_notify(player, tprintf("Checks     %12d", cs_checks));
-	raw_notify(player, tprintf("Resets     %12d", cs_resets));
 	raw_notify(player, tprintf("Syncs      %12d", cs_syncs));
 	raw_notify(player, tprintf("Cache Size %12d bytes", cs_size));
 #endif /* MEMORY_BASED */

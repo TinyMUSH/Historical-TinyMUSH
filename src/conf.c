@@ -1264,7 +1264,7 @@ CONF conftable[] = {
 {(char *)"booleans_oldstyle",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.bools_oldstyle,	(long)"Dbrefs #0 and #-1 are boolean false, all other\n\t\t\t\tdbrefs are boolean true"},
 {(char *)"building_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	(int *)&mudconf.building_limit,	0},
 {(char *)"cache_names",			cf_bool,	CA_STATIC,	CA_GOD,		&mudconf.cache_names,		(long)"Names are cached separately"},
-{(char *)"cache_size",			cf_int,		CA_STATIC,	CA_GOD,		&mudconf.cache_size,		0},
+{(char *)"cache_size",			cf_int,		CA_GOD,		CA_GOD,		&mudconf.cache_size,		0},
 {(char *)"cache_width",			cf_int,		CA_STATIC,	CA_GOD,		&mudconf.cache_width,		0},
 {(char *)"check_interval",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_interval,	0},
 {(char *)"check_offset",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_offset,		0},

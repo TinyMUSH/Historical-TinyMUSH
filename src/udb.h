@@ -64,9 +64,9 @@ typedef struct Obj {
 
 extern Attr *	FDECL(cache_get, (Aname *));
 extern int 	FDECL(cache_put, (Aname *, Attr *));
-extern int 	FDECL(cache_init, (int, int));
-extern void 	FDECL(cache_reset, (int));
-extern int 	FDECL(cache_sync, ());
+extern int 	FDECL(cache_init, (int));
+extern void 	NDECL(cache_reset);
+extern int 	NDECL(cache_sync);
 extern void 	FDECL(cache_del, (Aname *));
 extern Attr * 	FDECL(dddb_get, (Aname *));
 extern int	FDECL(dddb_del, (Aname *));   

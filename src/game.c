@@ -1779,7 +1779,7 @@ char *argv[];
 	 * loads is NOT representative of normal cache behavior :)
 	 */
 
-	cache_reset(1);
+	cache_reset();
 #endif /* MEMORY_BASED */
 
 	/* Start the DNS and identd lookup slave process */
