@@ -4694,8 +4694,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	nonzero()	pemit()		r()		rand()		
 	remit()		restarts()	restarttime()	s()		
 	secs()		setq()		setr()		sql()		
-	starttime()	switch()	switchall()	time()		
-	version()
+	starttime()	subeval()	switch()	switchall()
+	time()		version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -6148,16 +6148,41 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & S()
   s(string)
  
-  This function performs pronoun substitution in a string, and then returns
-  that string.  As usually, %n is the name, %s the subjective pronoun, %o the
-  objective, %p the possessive, and %a the absolute possessive.  It is
-  important to note that the pronoun is that of the triggering object.
+  This function performs pronoun substitution in a string, as well as
+  function evaluation, and then returns that string. As usual, %n is
+  the name, %s the subjective pronoun, %o the objective, %p the possessive,
+  and %a the absolute possessive. It is important to note that the pronoun
+  is that of the triggering object (the enactor).
+  
+  Example:
+    > @va object = %S is [name(%#)]
+    > @vb object = $test: @pemit %#=%va
+    > test
+    %S is [name(%#)]
+    > @vb object = $test: @pemit %#=[s(%va)]
+    > test
+    He is Wizard
  
-  So, if the ve of an object were: "[s(This is %n)], and I were to 
-  type @trigger <object>/ve, it would return "This is <myname>", but 
-  if vf were @trigger me/ve, then triggering the vf makes the ve 
-  return "This is <object>"
-
+  See also: subeval(), objeval().
+ 
+& SUBEVAL()
+ 
+  This function is similar to S(), but it performs only pronoun substituion
+  in a string; it does not perform function evaluation.
+ 
+  Example:
+    > @va object = %S is [name(%#)]
+    > @vb object = $test: @pemit %#=%va
+    > test
+    %S is [name(%#)]
+    > @vb object = $test: @pemit %#=[s(%va)]
+    > test
+    He is Wizard
+    > @vb object = $test: @pemit %#=[subeval(%va)]
+    He is [name(%#)]
+ 
+  See also: s(), objeval().
+ 
 & LEFT()
   Function: left(<string>, <number>)
  
