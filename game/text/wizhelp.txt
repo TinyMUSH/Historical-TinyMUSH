@@ -1424,11 +1424,12 @@
 
 & PARAM OBJECTS
 	default_home		exit_flags		exit_parent
-	guest_char_num		guest_nuker		guest_starting_room
-	player_flags		player_parent		player_starting_home
-	player_starting_room	robot_flags		room_flags
-	room_parent		stripped_flags		thing_flags
-	thing_parent
+	exit_proto		guest_char_num		guest_nuker
+	guest_starting_room	player_flags		player_parent
+	player_proto		player_starting_home	player_starting_room
+	robot_flags		room_flags		room_parent
+	room_proto		stripped_flags		thing_flags
+	thing_parent		thing_proto
 
 & PARAM PERMISSIONS
 	access			attr_access		attr_cmd_access
@@ -1845,7 +1846,19 @@ use_global_aconn	wizard_obeys_linklock
   specified object as a parent.
  
   See also: player_parent, room_parent, thing_parent.
-
+ 
+& exit_proto
+  Config parameter: exit_proto <dbref>.  Default: Nothing
+ 
+  If this parameter is set, every object of type EXIT will be created with
+  the same flags, parent, and zone (if the autozone param is not set to
+  'yes') as the specified object. That object's attributes will also be
+  copied to the newly-created object.
+ 
+  This supersedes the value of exit_parent or exit_flags, if set.
+ 
+  See also: player_proto, room_proto, thing_proto.
+ 
 & exit_quota
   Config parameter: exit_quota <amount>.  Default: 1
   Sets how much quota it costs to create an exit (and also how much the
@@ -2621,7 +2634,20 @@ use_global_aconn	wizard_obeys_linklock
   specified object as a parent.
  
   See also: room_parent, exit_parent, thing_parent.
-
+ 
+& player_proto
+  Config parameter: player_proto <dbref>.  Default: Nothing
+ 
+  If this parameter is set, every object of type PLAYER will be created with
+  the same flags, parent, and zone (if the autozone param is not set to
+  'yes') as the specified object. That object's attributes will also be
+  copied to the newly-created object.
+ 
+  This supersedes the value of player_parent, player_flags, or
+  robot_flags, if set.
+ 
+  See also: room_proto, exit_proto, thing_proto.
+ 
 & player_quota
   Config parameter: player_quota <amount>.  Default: 1
   Sets how much quota it costs to create a robot player (and also how much the
@@ -2836,6 +2862,18 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: player_parent, exit_parent, thing_parent.
 
+& room_proto
+  Config parameter: room_proto <dbref>.  Default: Nothing
+ 
+  If this parameter is set, every object of type ROOM will be created with
+  the same flags, parent, and zone (if the autozone param is not set to
+  'yes') as the specified object. That object's attributes will also be
+  copied to the newly-created object.
+ 
+  This supersedes the value of room_parent or room_flags, if set.
+ 
+  See also: player_proto, exit_proto, thing_proto.
+ 
 & room_quota
   Config parameter: room_quota <amount>.  Default: 1
   Sets how much quota it costs to dig a room (and also how much the
@@ -3116,6 +3154,18 @@ use_global_aconn	wizard_obeys_linklock
  
   See also: player_parent, room_parent, exit_parent.
 
+& thing_proto
+  Config parameter: thing_proto <dbref>.  Default: Nothing
+ 
+  If this parameter is set, every object of type THING will be created with
+  the same flags, parent, and zone (if the autozone param is not set to
+  'yes') as the specified object. That object's attributes will also be
+  copied to the newly-created object.
+ 
+  This supersedes the value of thing_parent or thing_flags, if set.
+ 
+  See also: player_proto, room_proto, exit_proto.
+ 
 & thing_quota
   Config parameter: thing_quota <amount>.  Default: 1
   Sets how much quota it costs to create a thing (and also how much the
