@@ -74,6 +74,7 @@ XFUNCTION(fun_shuffle);
 XFUNCTION(fun_ledit);
 XFUNCTION(fun_itemize);
 XFUNCTION(fun_choose);
+XFUNCTION(fun_group);
 
 /* From funmath.c */
 
@@ -453,6 +454,7 @@ FUN flist[] = {
 {"GREP",	perform_grep,	0,  FN_VARARGS|GREP_EXACT,	CA_PUBLIC,	NULL},
 {"GREPI",	perform_grep,	0,  FN_VARARGS|GREP_EXACT|REG_CASELESS,
 						CA_PUBLIC,	NULL},
+{"GROUP",	fun_group,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"GT",		fun_gt,		2,  0,		CA_PUBLIC,	NULL},
 {"GTE",		fun_gte,	2,  0,		CA_PUBLIC,	NULL},
 {"HASATTR",	fun_hasattr,	2,  0,		CA_PUBLIC,	NULL},

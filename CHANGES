@@ -411,6 +411,8 @@ CHANGES TO FUNCTIONS
 
 - Added graball(), which is to grab() what matchall() is to match().
 
+- Added group(), for splitting/sorting a list into groups.
+
 - hasflag() can now detect object types.
 
 - Added hasflags(), which can operate on multiple lists of flags and

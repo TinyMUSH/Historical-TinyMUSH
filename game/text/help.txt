@@ -5464,18 +5464,18 @@ See also: @link, @open.
 	choose()	columns()	ctables()	delimit()	
 	elements()	extract()	filter()	filterbool()	
 	first()		fold()		grab()		graball()	
-	index()		insert()	itemize()	iter()		
-	isfalse()	istrue()	last()		ldelete()	
-	ldiff()		ledit()		linter()	list()		
-	lnum()		loop()		lpos()		lrand()		
-	lunion()	map()		match()		matchall()	
-	member()	mix()		munge()		remove()	
-	replace()	regrab()	regraball()	regraballi()	
-	regrabi()	rest()		revwords()	rtables()	
-	setdiff()	setinter()	setunion()	shuffle()	
-	sortby()	sort()		splice()	step()		
-	table()		tables()	until()		whenfalse()	
-	whentrue()	while()		words()
+	group()		index()		insert()	itemize()	
+	iter()		isfalse()	istrue()	last()		
+	ldelete()	ldiff()		ledit()		linter()	
+	list()		lnum()		loop()		lpos()		
+	lrand()		lunion()	map()		match()		
+	matchall()	member()	mix()		munge()		
+	remove()	replace()	regrab()	regraball()	
+	regraballi()	regrabi()	rest()		revwords()	
+	rtables()	setdiff()	setinter()	setunion()	
+	shuffle()	sortby()	sort()		splice()	
+	step()		table()		tables()	until()		
+	whenfalse()	whentrue()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -7562,6 +7562,46 @@ performed and the walk down the list stops.
     > say regraballi(Holodeck:#10~Airlock:#58~Dorm:#12~Brig:#83,%va,~,_)
     You say, "Holodeck:#10_Dorm:#12"
   
+& GROUP()
+  Function:  group(<list>, <groups>[, <delim>[, <odelim>][, <group delim>]])
+ 
+  This function sorts a <list> into <groups> number of groups. <list> is
+  space-separated by default, <delim>-separated if specified. The elements
+  of the returned list are <odelim>-separated (defaults to <delim>); the
+  groups are separated by <group delim> (defaults to <odelim>).
+ 
+  Examples:
+    > @va = apple banana kiwi orange peach pear plum strawberry
+    > think group(%va, 3)
+    apple orange plum banana peach strawberry kiwi pear
+    > think group(%va, 3, ,-,|)
+    apple-orange-plum|banana-peach-strawberry|kiwi-pear
+ 
+  The function is most useful when re-ordering output for display, such as
+  when you want a list to display vertically-sorted into columns rather than
+  horizontally-sorted into columns.
+ 
+  Continued in 'help Group2'.
+ 
+& GROUP2
+ 
+  For instance, if you had a list @va, 'apple banana kiwi orange peach pear
+  plum strawberry', and you did 'table(%va, 25)' to display it in three
+  columns, you would get:
+ 
+  apple                     banana                    kiwi
+  orange                    peach                     pear
+  plum                      strawberry
+ 
+  Suppose you wanted to alphabetize vertically rather than horizontally,
+  though. You would use 'table(group(%va, 3), 25)', which would result in:
+ 
+  apple                     orange                    plum
+  banana                    peach                     strawberry
+  kiwi                      pear
+ 
+  See also: step()
+ 
 & FLAGS()
   flags(<object>)
   flags(<object>/<attrib>)
@@ -14475,6 +14515,8 @@ Continued in 'help 3.1 functions4'.
   idea from PennMUSH.
  
 - Added graball(), which is to grab() what matchall() is to match().
+ 
+- Added group(), for splitting/sorting a list into groups.
  
 - hasflag() can now detect object types.
  

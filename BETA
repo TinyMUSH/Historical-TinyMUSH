@@ -38,6 +38,8 @@ Release history:
   speech subject to Presence checks. @oemit now takes two new switches,
   /noeval and /speech.
 
+- Feature: The new group() function splits/sorts a list into groups.
+
 - Feature: hasflag() can now detect object types.
 
 - Feature: The new hasflags() function can operate on multiple lists of 

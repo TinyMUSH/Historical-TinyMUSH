@@ -1957,3 +1957,70 @@ FUNCTION(fun_choose)
     XFREE(elems, "fun_choose.elems");
     XFREE(weights, "fun_choose.weights");
 }
+
+/* ---------------------------------------------------------------------------
+ * fun_group:  group(<list>, <number of groups>, <idelim>, <odelim>, <gdelim>)
+ * Sort a list by numerical-size group, i.e., take every Nth
+ * element. Useful for passing to a column-type function where you want
+ * the list to go down rather than across, for instance.
+ */
+
+FUNCTION(fun_group)
+{
+    char *bb_p, **elems;
+    Delim isep, osep, gsep;
+    int isep_len, osep_len, gsep_len, n_elems, n_groups, i, j;
+
+    /* Separator checking is weird in this, since we can delimit by group,
+     * too, as well as the element delimiter. The group delimiter defaults
+     * to the output delimiter.
+     */
+
+    VaChk_Range(2, 5);
+    VaChk_InSep(3, 0);
+    VaChk_DefaultOut(4) {
+	VaChk_OutSep(4, 0);
+    }
+    if (nfargs < 5) {
+	if (osep_len == 1) {
+	    gsep.c = osep.c;
+	    gsep_len = 1;
+	} else {
+	    strcpy(gsep.str, osep.str);
+	    gsep_len = osep_len;
+	}
+    } else {
+	VaChk_Sep(&gsep, gsep_len, 5, DELIM_NULL|DELIM_CRLF|DELIM_STRING);
+    }
+
+    /* Go do it, unless the group size doesn't make sense. */
+
+    n_groups = atoi(fargs[1]);
+    n_elems = list2arr(&elems, LBUF_SIZE / 2, fargs[0], isep, isep_len);
+    if (n_groups < 2) {
+	arr2list(elems, n_elems, buff, bufc, osep, osep_len);
+	XFREE(elems, "fun_group.elems");
+	return;
+    }
+    if (n_groups >= n_elems) {
+	arr2list(elems, n_elems, buff, bufc, gsep, gsep_len);
+	XFREE(elems, "fun_group.elems");
+	return;
+    }
+
+    bb_p = *bufc;
+    for (i = 0; i < n_groups; i++) {
+	for (j = 0; i + j < n_elems; j += n_groups) {
+	    if (*bufc != bb_p) {
+		if (j == 0) {
+		    print_sep(gsep, gsep_len, buff, bufc);
+		} else {
+		    print_sep(osep, osep_len, buff, bufc);
+		}
+	    }
+	    safe_str(elems[i + j], buff, bufc);
+	}
+    }
+
+    XFREE(elems, "fun_group.elems");
+}
