@@ -55,7 +55,9 @@ int sql_init()
     if (result == -1) {
 	STARTLOG(LOG_ALWAYS, "SQL", "CONN")
 	    if (msqlErrMsg) {
-		log_text((char *) "Failed connect to SQL server: ");
+		log_text((char *) "Failed connection to SQL server ");
+		log_text(mudconf.sql_host);
+		log_text((char *) ": ");
 		log_text(msqlErrMsg);
 	    }
 	ENDLOG
@@ -63,7 +65,10 @@ int sql_init()
     }
 
     STARTLOG(LOG_ALWAYS, "SQL", "CONN")
-	log_text((char *) "Connected to SQL server.");
+	log_text((char *) "Connected to SQL server ");
+        log_text(mudconf.sql_host);
+	log_text((char *) ", socket fd ");
+        log_number(result);
     ENDLOG
     mudstate.sql_socket = result;
 
@@ -79,7 +84,8 @@ int sql_init()
     }
 
     STARTLOG(LOG_ALWAYS, "SQL", "CONN")
-	log_text((char *) "SQL database selected.");
+	log_text((char *) "SQL database selected: ");
+        log_text(mudconf.sql_db);
     ENDLOG
     return (mudstate.sql_socket);
 }
@@ -120,7 +126,14 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 	 * to see if waiting a little bit helps.
 	 */
 
+	STARTLOG(LOG_PROBLEMS, "SQL", "GONE")
+	    log_text("Connection died to SQL server on fd ");
+	    log_number(mudstate.sql_socket);
+	ENDLOG
+
 	retries = 0;
+	mudstate.sql_socket = -1;
+
 	while ((retries < MSQL_RETRY_TIMES) &&
 	       (mudstate.sql_socket == -1)) {
 	    sleep(1);
