@@ -7,7 +7,7 @@
 #define __VATTR_H
 
 #ifndef VATTR_HASH_SIZE		/* must be a power of two */
-#define VATTR_HASH_SIZE 16384
+#define VATTR_HASH_SIZE 8192
 #endif
 
 #define VNAME_SIZE	32

@@ -14,6 +14,7 @@
 #include "externs.h"	/* required by interface */
 #include "interface.h"	/* required by code */
 
+#include "help.h"	/* required by code */
 #include "command.h"	/* required by code */
 #include "functions.h"	/* required by code */
 #include "match.h"	/* required by code */
@@ -2470,12 +2471,16 @@ void list_memory(player)
 	ADDENT *add;
 	NAMETAB *name;
 	VATTR *vattr;
+	ATTR *attr;
 	FUN *func;
 	UFUN *ufunc;
 	Cache *cp;
 	CacheLst *sp;
 	char *str;
 	HASHENT *htab;
+	struct help_entry *hlp;
+	FLAGENT *flag;
+	POWERENT *power;
 	
 	/* Calculate size of object structures */
 	
@@ -2635,7 +2640,71 @@ void list_memory(player)
 		   tprintf("U-functions htab : %12.2fk", each / 1024));
 	total += each;
 
-	/* Calculate size of vattr commands hashtable */
+	/* Calculate size of flags hashtable */
+	
+	each = 0;
+	each += sizeof(HASHENT *) * mudstate.flags_htab.hashsize;
+	for(i = 0; i < mudstate.flags_htab.hashsize; i++) {
+		htab = mudstate.flags_htab.entry[i];
+		while (htab != NULL) {
+			each += sizeof(HASHENT);
+			each += strlen(mudstate.flags_htab.entry[i]->target) + 1;
+			flag = (FLAGENT *)mudstate.flags_htab.entry[i]->data;
+			each += sizeof(FLAGENT);
+			
+			/* We don't count flag->flagname because we already got
+			 * it with htab->target */
+			htab = htab->next;
+		}
+	}
+	raw_notify(player,
+		   tprintf("Flags htab       : %12.2fk", each / 1024));
+	total += each;
+
+	/* Calculate size of powers hashtable */
+	
+	each = 0;
+	each += sizeof(HASHENT *) * mudstate.powers_htab.hashsize;
+	for(i = 0; i < mudstate.powers_htab.hashsize; i++) {
+		htab = mudstate.powers_htab.entry[i];
+		while (htab != NULL) {
+			each += sizeof(HASHENT);
+			each += strlen(mudstate.powers_htab.entry[i]->target) + 1;
+			power = (FLAGENT *)mudstate.powers_htab.entry[i]->data;
+			each += sizeof(POWERENT);
+			
+			/* We don't count power->powername because we already got
+			 * it with htab->target */
+			htab = htab->next;
+		}
+	}
+	raw_notify(player,
+		   tprintf("Powers htab      : %12.2fk", each / 1024));
+	total += each;
+
+	/* Calculate size of helpfile hashtables */
+	
+	each = 0;
+	
+	for(j = 0; j < mudstate.helpfiles; j++) {
+		each += sizeof(struct help_entry *) * 
+				mudstate.hfile_hashes[j].hashsize;
+		for(i = 0; i < mudstate.hfile_hashes[j].hashsize; i++) {
+			htab = mudstate.hfile_hashes[j].entry[i];
+			while (htab != NULL) {
+				each += sizeof(HASHENT);
+				each += sizeof(struct help_entry);
+				hlp = (struct help_entry *)mudstate.hfile_hashes[j].entry[i]->data;
+				each += strlen(hlp->key) + 1;
+				htab = htab->next;
+			}
+		}
+	}
+	raw_notify(player,
+		   tprintf("Helpfiles htabs  : %12.2fk", each / 1024));
+	total += each;
+
+	/* Calculate size of vattr name hashtable */
 	
 	each = 0;
 	each += sizeof(HASHENT *) * mudstate.vattr_name_htab.hashsize;
@@ -2652,6 +2721,25 @@ void list_memory(player)
 	}
 	raw_notify(player,
 		   tprintf("Vattr name htab  : %12.2fk", each / 1024));
+	total += each;
+
+	/* Calculate size of attr name hashtable */
+	
+	each = 0;
+	each += sizeof(HASHENT *) * mudstate.attr_name_htab.hashsize;
+	for(i = 0; i < mudstate.attr_name_htab.hashsize; i++) {
+		htab = mudstate.attr_name_htab.entry[i];
+		while (htab != NULL) {
+			each += sizeof(HASHENT);
+			each += strlen(mudstate.attr_name_htab.entry[i]->target) + 1;
+			attr = (ATTR *)mudstate.attr_name_htab.entry[i]->data;
+			each += sizeof(ATTR);
+			each += strlen(attr->name) + 1;
+			htab = htab->next;
+		}
+	}
+	raw_notify(player,
+		   tprintf("Attr name htab   : %12.2fk", each / 1024));
 	total += each;
 
 	/* Calculate size of buffers */

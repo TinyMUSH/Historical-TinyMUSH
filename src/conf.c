@@ -1232,7 +1232,7 @@ int add_helpfile(player, str, is_raw)
 	if (is_raw)
 	    cmdp->extra |= HELP_RAWHELP;
 
-	hashadd(fcmd, (int *) cmdp, &mudstate.command_htab);
+	hashadd(cmdp->cmdname, (int *) cmdp, &mudstate.command_htab);
 
     } else {
 
@@ -1276,6 +1276,7 @@ int add_helpfile(player, str, is_raw)
     /* Initialize the associated hashtable. */
 
     hashinit(&mudstate.hfile_hashes[mudstate.helpfiles], 30 * HASH_FACTOR);
+    mudstate.hfile_hashes[mudstate.helpfiles].nostrdup = 1;
 
     mudstate.helpfiles++;
     free_mbuf(newstr);

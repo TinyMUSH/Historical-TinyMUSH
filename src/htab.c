@@ -116,18 +116,13 @@ HASHTAB *htab;
 			if (numchecks > htab->max_scan)
 				htab->max_scan = numchecks;
 			htab->checks += numchecks;
-			hptr->checks++;
 			
-			/* If the string has been checked more than 20 times,
-			 * move it to the head of the chain, and reset the
-			 * check counter.
-			 */
+			/* Move a successful check to the head of the chain */
 			 
-			if ((hptr->checks > 20) && (hptr != prev)) {
+			if (hptr != prev) {
 				prev->next = hptr->next;
 				hptr->next = htab->entry[hval];
 				htab->entry[hval] = hptr;
-				hptr->checks = 0;
 			}
 			return hptr->data;
 		}
@@ -170,7 +165,6 @@ HASHTAB *htab;
 		hptr->target = XSTRDUP(str, "hashadd.target");
 	}
 	hptr->data = hashdata;
-	hptr->checks = 0;
 	hptr->next = htab->entry[hval];
 	htab->entry[hval] = hptr;
 	return (0);
@@ -424,7 +418,6 @@ void hashresize(htab, min_size)
 	    hval = hashval(thent->target, new_htab.mask);
 	    if (new_htab.entry[hval] == NULL)
 		new_htab.nulls--;
-	    thent->checks = 0;
 	    thent->next = new_htab.entry[hval];
 	    new_htab.entry[hval] = thent;
 	}
@@ -470,12 +463,10 @@ NHSHTAB *htab;
 			if (numchecks > htab->max_scan)
 				htab->max_scan = numchecks;
 			htab->checks += numchecks;
-			hptr->checks++;
-			if ((hptr->checks > 20) && (hptr != prev)) {
+			if (hptr != prev) {
 				prev->next = hptr->next;
 				hptr->next = htab->entry[hval];
 				htab->entry[hval] = hptr;
-				hptr->checks = 0;
 			}
 			return hptr->data;
 		}
@@ -513,7 +504,6 @@ NHSHTAB *htab;
 	hptr = (NHSHENT *) XMALLOC(sizeof(NHSHENT), "nhashadd");
 	hptr->target = val;
 	hptr->data = hashdata;
-	hptr->checks = 0;
 	hptr->next = htab->entry[hval];
 	htab->entry[hval] = hptr;
 	return (0);
@@ -645,7 +635,6 @@ void nhashresize(htab, min_size)
 	    hval = thent->target & new_htab.mask;
 	    if (new_htab.entry[hval] == NULL)
 		new_htab.nulls--;
-	    thent->checks = 0;
 	    thent->next = new_htab.entry[hval];
 	    new_htab.entry[hval] = thent;
 	}

@@ -16,4 +16,14 @@ typedef struct {
   char topic[TOPIC_NAME_LEN + 1];	/* topic of help entry */
 } help_indx;
 
+/* Pointers to this struct is what gets stored in the help_htab's */
+struct help_entry {
+	int pos;		/* Position, copied from help_indx */
+	int len;		/* Length of entry, copied from help_indx */
+	char original;		/* 1 for the longest name for a topic. 0 for
+				 * abbreviations 
+				 */
+	char *key;		/* The key this is stored under. */
+};
+
 #endif /* __HELP_H */

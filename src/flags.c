@@ -257,6 +257,8 @@ int fh_power_bit(target, player, flag, fflags, reset)
 
 /* *INDENT-OFF* */
 
+/* All flags names MUST be in uppercase! */
+
 FLAGENT gen_flags[] = { 
 {"ABODE",		ABODE,		'A',
 	FLAG_WORD2,	0,			fh_any},
@@ -438,17 +440,13 @@ OBJENT object_types[8] = {
 void NDECL(init_flagtab)
 {
 	FLAGENT *fp;
-	char *nbuf, *np, *bp;
 
 	hashinit(&mudstate.flags_htab, 100 * HASH_FACTOR);
-	nbuf = alloc_sbuf("init_flagtab");
+	mudstate.flags_htab.nostrdup = 1;
+	
 	for (fp = gen_flags; fp->flagname; fp++) {
-		for (np = nbuf, bp = (char *)fp->flagname; *bp; np++, bp++)
-			*np = tolower(*bp);
-		*np = '\0';
-		hashadd(nbuf, (int *)fp, &mudstate.flags_htab);
+		hashadd(fp->flagname, (int *)fp, &mudstate.flags_htab);
 	}
-	free_sbuf(nbuf);
 }
 
 /* ---------------------------------------------------------------------------
@@ -488,7 +486,7 @@ char *flagname;
 	/* Make sure the flag name is valid */
 
 	for (cp = flagname; *cp; cp++)
-		*cp = tolower(*cp);
+		*cp = toupper(*cp);
 	return (FLAGENT *) hashfind(flagname, &mudstate.flags_htab);
 }
 
@@ -901,12 +899,13 @@ CF_HAND(cf_flag_name)
 	cf_log_syntax(player, cmd, "Marker flag name in use: %s", namestr);
 	return -1;
     }
-    hashadd(flagstr, (int *) fp, &mudstate.flags_htab);
 
     for (cp = flagstr; cp && *cp; cp++)
 	*cp = toupper(*cp);
 
     fp->flagname = (const char *) flagstr;
+    hashadd(fp->flagname, (int *) fp, &mudstate.flags_htab);
+
     return 0;
 }
 

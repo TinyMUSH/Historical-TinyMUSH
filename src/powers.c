@@ -147,6 +147,9 @@ int fpowers, reset;
 	return (ph_any(target, player, power, fpowers, reset));
 }
 /* *INDENT-OFF* */
+
+/* All power names must be in lowercase! */
+
 POWERENT gen_powers[] =
 {
 {(char *)"quota",		POW_CHG_QUOTAS,	0, 0,	ph_wiz},
@@ -203,17 +206,13 @@ POWERENT gen_powers[] =
 void NDECL(init_powertab)
 {
 	POWERENT *fp;
-	char *nbuf, *np, *bp;
 
 	hashinit(&mudstate.powers_htab, 25 * HASH_FACTOR);
-	nbuf = alloc_sbuf("init_powertab");
+	mudstate.powers_htab.nostrdup = 1;
+	
 	for (fp = gen_powers; fp->powername; fp++) {
-		for (np = nbuf, bp = (char *)fp->powername; *bp; np++, bp++)
-			*np = tolower(*bp);
-		*np = '\0';
-		hashadd(nbuf, (int *)fp, &mudstate.powers_htab);
+		hashadd(fp->powername, (int *)fp, &mudstate.powers_htab);
 	}
-	free_sbuf(nbuf);
 }
 
 /*
@@ -248,9 +247,7 @@ char *powername;
 {
 	char *cp;
 
-	/*
-	 * Make sure the power name is valid 
-	 */
+	/* Make sure the power name is valid */
 
 	for (cp = powername; *cp; cp++)
 		*cp = tolower(*cp);
@@ -532,6 +529,4 @@ CF_HAND(cf_power_access)
 }
 
 
-#endif /*
-        * STANDALONE 
-        */
+#endif /* STANDALONE */

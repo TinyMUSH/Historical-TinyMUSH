@@ -15,16 +15,6 @@
 
 #include "help.h"	/* required by code */
 
-/* Pointers to this struct is what gets stored in the help_htab's */
-struct help_entry {
-	int pos;		/* Position, copied from help_indx */
-	int len;		/* Length of entry, copied from help_indx */
-	char original;		/* 1 for the longest name for a topic. 0 for
-				 * abbreviations 
-				 */
-	char *key;		/* The key this is stored under. */
-};
-
 int helpindex_read(htab, filename)
 HASHTAB *htab;
 char *filename;
@@ -71,7 +61,7 @@ char *filename;
 		while (p > entry.topic) {
 			p--;
 			if (!isspace(*p)) {
-				if (hashadd(entry.topic, (int *)htab_entry, htab) == 0) {
+				if (hashadd(htab_entry->key, (int *)htab_entry, htab) == 0) {
 					count++;
 				} else {
 					/* It didn't make it into the hash

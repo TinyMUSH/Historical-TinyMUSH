@@ -10,7 +10,6 @@ typedef struct hashentry HASHENT;
 struct hashentry {
 	char			*target;
 	int			*data;
-	int			checks;
 	struct hashentry	*next;
 };
 
@@ -18,7 +17,6 @@ typedef struct num_hashentry NHSHENT;
 struct num_hashentry {
 	int			target;
 	int			*data;
-	int			checks;
 	struct num_hashentry	*next;
 };
 
