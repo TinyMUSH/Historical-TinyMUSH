@@ -216,11 +216,11 @@ slave: slave.o
 
 comsys: comsys.lo
 	$(LIBTOOL) $(CC) -module -o comsys.la comsys.lo -rpath `pwd` -disable-static
-	ln -s .libs/libcomsys.so.0.0 comsys.so
+	ln -s .libs/libcomsys.so.0 comsys.so
 
 mail: mail.lo
 	$(LIBTOOL) $(CC) -module -o mail.la mail.lo -rpath `pwd` -disable-static
-	ln -s .libs/libmail.so.0.0 mail.so
+	ln -s .libs/libmail.so.0 mail.so
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
@@ -294,7 +294,7 @@ verify:
 	runtest --tool mush --src ./testsuite
 
 clean:
-	-rm -f *.o a.out core gmon.out mush.*log mush.*sum Compile.log
+	-rm -f *.o a.out core gmon.out mush.*log mush.*sum Compile.log .libs/*
 
 realclean: clean
 	-rm -f $(OUT) netmush~ slave conc unsplit comsys.so comsys.so~ mail.so mail.so~
