@@ -7661,25 +7661,32 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   you control them or have the stat_any power.
  
   The stats are returned as a set of 8 numbers, in the same order as reported
-  by the @stats command: total objects, rooms, exits, things, players, and
-  then GOING objects, garbage, and objects of unknown type.  Unknown and GOING
+  by the @stats command: total objects, rooms, exits, things, players, then
+  objects of unknown type, GOING objects, and garbage. Unknown and GOING
   objects are converted to garbage during @dbck, and thus were counted as
   garbage in the past.  This command costs as much as the equivalent @stats
   command (ie: '@stats/all' or '@stats <player>', not the free '@stats').
  
+  Continued in 'help stats2'.
+ 
+& stats2
+ 
   Examples:
+ 
     > @stats me
     7 objects = 0 rooms, 0 exits, 5 things, 1 players.
-            (1 going, 0 garbage, 0 unknown)
+      (0 unknown, 1 going, 0 garbage)
     > say stats(me)
-    You say "7 0 0 5 1 1 0 0"
+    You say "7 0 0 5 1 0 1 0"
+ 
     > say stats()
-    You say "379 51 165 134 20 2 7 0"
+    You say "379 51 165 134 20 0 2 7"
     > @stats/all
     379 objects = 51 rooms, 165 exits, 134 things, 20 players.
-            (2 going, 7 garbage, 0 unknown)
+      (0 unknown, 2 going, 7 garbage)
+ 
   See also: @stats.
-
+ 
 & ITER()
   Function: iter(<list>, <eval>[, <delim>[, <output delim>]])
  
