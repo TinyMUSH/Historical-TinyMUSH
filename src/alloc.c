@@ -377,7 +377,7 @@ void list_rawmemory(player)
 {
     MEMTRACK *tptr, **t_array;
     int n_tags, total, c_tags, c_total, u_tags, i, j;
-    char *ntmp;
+    const char *ntmp;
 
     n_tags = total = 0;
 
@@ -447,7 +447,7 @@ static void trace_alloc(amount, name, ptr)
     if (!tptr)
 	return;
 
-    tptr->buf_tag = (char *) RAW_STRDUP(name, "trace_alloc.tag");
+    tptr->buf_tag = name;
     tptr->bptr = ptr;
     tptr->alloc = amount;
     tptr->next = mudstate.raw_allocs;
@@ -473,7 +473,6 @@ static void trace_free(name, ptr)
 		mudstate.raw_allocs = tptr->next;
 	    if (prev)
 		prev->next = tptr->next;
-	    RAW_FREE(tptr->buf_tag, "trace_alloc.tag");
 	    RAW_FREE(tptr, "trace_alloc.tptr");
 	    return;
 	}

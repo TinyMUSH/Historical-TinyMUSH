@@ -110,6 +110,13 @@ extern void *	FDECL(track_realloc, (void *, size_t, const char *));
 extern char *	FDECL(track_strdup, (const char *, const char *));
 extern void	FDECL(track_free, (void *, const char *));
 
+typedef struct tracemem_header {
+    void *bptr;
+    const char *buf_tag;
+    size_t alloc;
+    struct tracemem_header *next;
+} MEMTRACK;
+
 #else
 
 #define XMALLOC(x,y)	RAW_MALLOC((x),(y))
@@ -120,13 +127,6 @@ extern void	FDECL(track_free, (void *, const char *));
 
 #endif  /* RAW_MEMTRACKING */
 #endif  /* TEST_MALLOC */
-
-typedef struct tracemem_header {
-    void *bptr;
-    char *buf_tag;
-    size_t alloc;
-    struct tracemem_header *next;
-} MEMTRACK;
 
 /* ---------------------------------------------------------------------------
  * Pool allocation.
