@@ -8977,9 +8977,10 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Function: map([<obj>/]<attr>, <list>[, <delim>][, <output delim>])
   
   This function is nearly identical to an iter() operating on u() function.
-  Each member of <list> is passed to the result of fetching <attr> as %0, and
-  the results are used to form a new list. <delim> (the input delimiter) is
-  used to separate strings within the list. The results are separated by
+  Each member of <list> is passed to the result of fetching <attr> as %0, 
+  and the member's position in the list is passed as %1. The results are
+  used to form a new list. <delim> (the input delimiter) is used to
+  separate strings within the list. The results are separated by
   <output delimiter> if it is specified, or by <input delimiter> if
   it is not. The input delimiter defaults to a space if not specified.
   
@@ -8999,10 +9000,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & filter()
   Function: filter([<obj>/]<attr>, <list>[, <delim>][, <output delim>])
 
-  This function evaluates the contents of <attr> for each element of <list>,
-  passing it in as %0.  An <output delim>-separated list is returned of those
-  elements for which the evaluation returns the value 1.
-
+  This function evaluates the contents of <attr> for each element of
+  <list>, passing it in as %0, and its position within the list as %1.
+  An <output delim>-separated list is returned of those elements for
+  which the evaluation returns the value 1.
+ 
   <delim> and <output delim> may be used to specify delimiters other than
   spaces.
   
@@ -9033,14 +9035,16 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
 & fold()
   Function: fold([<obj>/]<attr>, <list>[, <base-case>[, <delim>])
-
+ 
   This function iteratively processes a list through a function, feeding
-  the result of one step into the next step as %0, passing in the next element
-  from the list as %1.
-
-  If a base case is provided, it is used as the initial %0.  If not, the first
+  the result of one step into the next step as %0, passing in the next
+  element from the list as %1. The position of the element in the list is
+  passed as %2.
+ 
+  If a base case is provided, it is used as the initial %0. If not, the first
   list element is passed as %0 and the second is passed as %1, and subsequent
-  iterations proceed normally.
+  iterations proceed normally (in this case, %2 is initially 1, and the
+  next iteration makes it 3, since it's the third element geting processed).
   
   <delimiter> may be used to specify a delimiter other than space, but you
   must specify a base case in order to specify the delimiter.
@@ -9537,7 +9541,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   Each character in <string> has the user-defined function of the first
   argument performed on it; the character is passed to the function as
-  %0. The results are concatenated.
+  %0, and the position of the character in the string is passed as %1
+  (with the first character being position 0). The results are concatenated.
  
   If <start token> is specified, only characters that occur after that
   single-character token will be evaluated, though characters prior to
@@ -10082,17 +10087,18 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   [<uobj>/]<uattr> is an attribute or object/attribute pair, like the first
   argument of map(). The <list> is passed to that function element-by-element
-  (based on the input <delim> delimiter) as %0, just as if map() were being
-  called, and the output is returned <output d>-delimited, again just as if
-  map() were being called.
+  (based on the input <delim> delimiter) as %0, and the position of the
+  element as %1, just as if map() were being called, and the output is
+  returned <output d>-delimited, again just as if map() were being called.
  
   However, for each element, after that evaluation is done, a second
   evaluation is done, to check a "termination value". [<cobj>/]<cattr>
   is an attribute or object/attribute pair, again like map(), and the
-  same list elements are passed to that function as %0. However, the
-  result of this evaluation is not kept; instead, it is compared to
-  <str>, and if it matches exactly (case-sensitive, no wildcards),
-  then no further elements of the list are processed.
+  same list elements are passed to that function as %0 (and the position
+  of the elements as %1). However, the result of this evaluation is not
+  kept; instead, it is compared to <str>, and if it matches exactly
+  (case-sensitive, no wildcards), then no further elements of the list
+  are processed.
  
   Continued in 'help while2'.
  
