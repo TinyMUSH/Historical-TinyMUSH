@@ -33,14 +33,6 @@
 #include "gdbmdefs.h"
 #include "gdbmerrno.h"
 
-#define TM3
-
-#ifdef TM3
-extern char *data, *dptr;
-extern int size;
-extern off_t start_file_adr;
-#endif
-
 /* Look up a given KEY and return the information associated with that KEY.
    The pointer in the structure that is  returned is a pointer to dynamically
    allocated memory block.  */
@@ -54,10 +46,6 @@ gdbm_fetch (dbf, key)
   int    elem_loc;		/* The location in the bucket. */
   char  *find_data;		/* Returned from find_key. */
   int    hash_val;		/* Returned from find_key. */
-#ifdef TM3
-  off_t file_pos;
-  int num_bytes;
-#endif
 
   /* Set the default return value. */
   return_val.dptr  = NULL;
@@ -65,17 +53,6 @@ gdbm_fetch (dbf, key)
 
   /* Initialize the gdbm_errno variable. */
   gdbm_errno = GDBM_NO_ERROR;
-#ifdef TM3
-  if (size) {
-    file_pos = lseek (dbf->desc, start_file_adr, L_SET);
-    if (file_pos != start_file_adr) _gdbm_fatal (dbf, "lseek error");
-    num_bytes = write (dbf->desc, data, size);
-    if (num_bytes != size) _gdbm_fatal (dbf, "write error");
-    start_file_adr = 0;
-    size = 0;
-    dptr = data;
-  }
-#endif
 
   /* Find the key and return a pointer to the data. */
   elem_loc = _gdbm_findkey (dbf, key, &find_data, &hash_val);

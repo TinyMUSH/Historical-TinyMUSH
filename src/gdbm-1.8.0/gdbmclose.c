@@ -32,14 +32,6 @@
 
 #include "gdbmdefs.h"
 
-#define TM3
-
-#ifdef TM3
-extern char *data, *dptr;
-extern int size;
-extern off_t start_file_adr;
-#endif
-
 /* Close the dbm file and free all memory associated with the file DBF.
    Before freeing members of DBF, check and make sure that they were
    allocated.  */
@@ -49,21 +41,6 @@ gdbm_close (dbf)
      gdbm_file_info *dbf;
 {
   register int index;	/* For freeing the bucket cache. */
-#ifdef TM3
-  off_t file_pos;
-  int num_bytes; 
-
-  /* Write whatever is in the coalesce cache */
-  if (size) {
-    file_pos = lseek (dbf->desc, start_file_adr, L_SET);
-    if (file_pos != start_file_adr) _gdbm_fatal (dbf, "lseek error");
-    num_bytes = write (dbf->desc, data, size);
-    if (num_bytes != size) _gdbm_fatal (dbf, "write error");
-    start_file_adr = 0;
-    size = 0;
-    dptr = data;
-  }
-#endif
 
   /* Make sure the database is all on disk. */
   if (dbf->read_write == GDBM_WRITER)

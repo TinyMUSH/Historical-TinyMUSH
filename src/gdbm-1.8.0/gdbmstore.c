@@ -33,14 +33,6 @@
 #include "gdbmdefs.h"
 #include "gdbmerrno.h"
 
-#define TM3
-
-#ifdef TM3
-char *data, *dptr = NULL;
-int size;
-off_t next_file_adr = 0;
-off_t start_file_adr = 0;
-#endif
 
 /* Add a new element to the database.  CONTENT is keyed by KEY.  The
    file on disk is updated to reflect the structure of the new database
@@ -86,12 +78,6 @@ gdbm_store (dbf, key, content, flags)
       gdbm_errno = GDBM_ILLEGAL_DATA;
       return -1;
     }
-
-#ifdef TM3
-  if (!data) {
-  	dptr = data = (char *)malloc(dbf->header->block_size);
-  }
-#endif
 
   /* Initialize the gdbm_errno variable. */
   gdbm_errno = GDBM_NO_ERROR;
@@ -161,44 +147,18 @@ gdbm_store (dbf, key, content, flags)
 
 
   /* Update current bucket data pointer and sizes. */
-#ifdef TM3
   bcopy ((void *)"TM3S", dbf->bucket->h_table[elem_loc].start_tag, 4);
-#endif
   dbf->bucket->h_table[elem_loc].data_pointer = file_adr;
   dbf->bucket->h_table[elem_loc].key_size = key.dsize;
   dbf->bucket->h_table[elem_loc].data_size = content.dsize;
 
   /* Write the data to the file. */
-#ifdef TM3
-  /* Coalesce writes to disk within the same block */
-  
-  if (size && (((size + new_size) > dbf->header->block_size) ||
-      (file_adr != next_file_adr))) {
-	file_pos = lseek (dbf->desc, start_file_adr, L_SET);
-	if (file_pos != start_file_adr) _gdbm_fatal (dbf, "lseek error");
-	num_bytes = write (dbf->desc, data, size);
-	if (num_bytes != size) _gdbm_fatal (dbf, "write error");
-  	start_file_adr = 0;
- 	size = 0;
- 	dptr = data;
-  }
-
-  if (!start_file_adr)
-  	start_file_adr = file_adr;
-  next_file_adr = file_adr + new_size;
-  size += new_size;
-  memcpy((void *)dptr, (void *)key.dptr, key.dsize);
-  dptr += key.dsize;
-  memcpy((void *)dptr, (void *)content.dptr, content.dsize);
-  dptr += content.dsize;
-#else  	
   file_pos = lseek (dbf->desc, file_adr, L_SET);
   if (file_pos != file_adr) _gdbm_fatal (dbf, "lseek error");
   num_bytes = write (dbf->desc, key.dptr, key.dsize);
   if (num_bytes != key.dsize) _gdbm_fatal (dbf, "write error");
   num_bytes = write (dbf->desc, content.dptr, content.dsize);
   if (num_bytes != content.dsize) _gdbm_fatal (dbf, "write error");
-#endif
 
   /* Current bucket has changed. */
   dbf->cache_entry->ca_changed = TRUE;

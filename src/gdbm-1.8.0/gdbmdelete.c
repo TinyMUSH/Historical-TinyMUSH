@@ -33,14 +33,6 @@
 #include "gdbmdefs.h"
 #include "gdbmerrno.h"
 
-#define TM3
-
-#ifdef TM3
-extern char *data, *dptr;
-extern int size;
-extern off_t start_file_adr;
-#endif
-
 /* Remove the KEYed item and the KEY from the database DBF.  The file on disk
    is updated to reflect the structure of the new database before returning
    from this procedure.  */
@@ -58,10 +50,6 @@ gdbm_delete (dbf, key)
   int   hash_val;	/* Returned by findkey. */
   off_t free_adr;       /* Temporary stroage for address and size. */
   int   free_size;
-#ifdef TM3
-  off_t file_pos;
-  int num_bytes;
-#endif
 
   /* First check to make sure this guy is a writer. */
   if (dbf->read_write != GDBM_WRITER)
@@ -72,17 +60,6 @@ gdbm_delete (dbf, key)
 
   /* Initialize the gdbm_errno variable. */
   gdbm_errno = GDBM_NO_ERROR;
-#ifdef TM3
-  if (size) {
-    file_pos = lseek (dbf->desc, start_file_adr, L_SET);
-    if (file_pos != start_file_adr) _gdbm_fatal (dbf, "lseek error");
-    num_bytes = write (dbf->desc, data, size);
-    if (num_bytes != size) _gdbm_fatal (dbf, "write error");
-    start_file_adr = 0;
-    size = 0;
-    dptr = data;
-  }
-#endif
 
   /* Find the item. */
   elem_loc = _gdbm_findkey (dbf, key, &find_data, &hash_val);
