@@ -2679,13 +2679,12 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
 & opt_frequency
   Config parameter: opt_frequency <number>.  Default: 0
  
-  Indicates the frequency of optimized database dumps. By default (when
-  this is 0 or 1), every database dump optimizes the GDBM database,
-  which speeds access times and minimizes the disk space it uses.
-  However, optimized dumps take longer than standard dumps; the
-  difference with large databases can be perceptible. Thus, you
-  might want to optimize only once every N dumps, where N is the
-  value of this parameter.
+  Indicates the frequency of optimized database dumps. An optimized dump
+  reorganizes the GDBM database, which speeds access times and minimizes the
+  disk space it uses.  However, optimized dumps take longer than standard
+  dumps; the difference with large databases can be perceptible. Thus, you
+  might want to optimize only once every N dumps, where N is the value of
+  this parameter. This feature is disabled by default.
  
 & output_limit
   Config parameter: output_limit <amount>.  Default: 16384

@@ -73,16 +73,12 @@ int dddb_init()
 	char tmpfile[256];
 	char *gdbm_error;
 	int block_size;
-	int cache_size;
+	int i;
 	
 	/* Calculate the proper page size */
 	
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
 
-	/* Set the cache size to be two hash buckets for GDBM. */
-	 
-	cache_size = 2;
-	
 #ifndef STANDALONE
 	sprintf(tmpfile, "%s/%s", mudconf.dbhome, dbfile);
 #else
@@ -95,7 +91,28 @@ int dddb_init()
 		return (1);
 	}
 	
-	if (gdbm_setopt(dbp, GDBM_CACHESIZE, &cache_size, sizeof(int)) == -1) {
+	/* Set the cache size to be two hash buckets for GDBM. */
+	 
+	i = 2;
+	if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
+		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
+		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		return (1);
+	}
+
+	/* Set GDBM to manage a global free space table. */
+	 
+	i = 1;
+	if (gdbm_setopt(dbp, GDBM_CENTFREE, &i, sizeof(int)) == -1) {
+		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
+		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		return (1);
+	}
+
+	/* Set GDBM to coalesce free blocks. */
+	 
+	i = 1;
+	if (gdbm_setopt(dbp, GDBM_COALESCEBLKS, &i, sizeof(int)) == -1) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
 		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
