@@ -732,7 +732,7 @@ char *name;
 			notify(player, "You can't drop that.");
 			return;
 		}
-		if (!Controls(player, loc)) {
+		if (!Controls(player, loc) && !Open_Anywhere(player)) {
 			notify(player, NOPERM_MESSAGE);
 			return;
 		}
