@@ -221,6 +221,9 @@ CHANGES TO COMMANDS
   aliases with ';'. Players no longer inherit @alias from their
   parent (this never made sense, or worked properly, anyway).
 
+- When speech is formatted, via the "say" command and the like,
+  there is now a grammatically-correct comma before "says".
+
 - Some commands that would normally be queued can now be executed
   immediately, using the /now switch: @dolist/now (@iter), @force/now,
   @switch/now (@branch), @trigger/now (@call), @verb/now
@@ -370,6 +373,9 @@ CHANGES TO FUNCTIONS
 
 - The third argument to ifelse() -- the 'false' result -- is now optional.
 
+- Added istrue() and isfalse(), which are basically iter()-style filterbool()
+  and its reverse.
+
 - Added ilev(), itext(), and inum() functions, for retrieving data
   from multiple levels of nested iter()-type functions. Based on
   an idea from PennMUSH.
@@ -407,6 +413,9 @@ CHANGES TO FUNCTIONS
 
 - Added session(), which returns command count, bytes of input, and
   bytes of output associated with a port.
+
+- Added speak(), which formats speech strings and can parse and transform
+  them.
 
 - Added store(), which is basically to setx() what setr() is to setq().
 
