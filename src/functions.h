@@ -14,7 +14,6 @@
 #include "attrs.h"
 #include "match.h"
 #include "command.h"
-#include "functions.h"
 #include "ansi.h"
 
 typedef struct fun {

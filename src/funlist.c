@@ -1,4 +1,4 @@
-/* funiter.c - list functions */
+/* funlist.c - list functions */
 /* $Id$ */
 
 #include "copyright.h"

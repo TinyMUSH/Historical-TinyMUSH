@@ -7,6 +7,7 @@
 
 /*
  * TinyMUSH 3.0 Source Code
+ * Copyright (c) 2000 by Lydia Leong, and David Passmore, and Robby Griffin.
  * Copyright (c) 1999 by Lydia Leong and David Passmore.
  * All rights reserved.
  * See http://www.godlike.com/3.0/ for more information.
@@ -16,7 +17,7 @@
  *
  * TinyMUSH 2.2 Source Code
  * Copyright (c) 1995, 1996, 1997, 1998, 1999, Lydia Leong, Jean Marie Diaz,
- * and Deborah Wilson-HOoker.
+ * and Deborah Wilson-Hooker.
  *
  * TinyMUSH 2.0 Source code
  * Copyright (c) 1991, Joseph Traub and Glenn Crocker. All rights reserved.
