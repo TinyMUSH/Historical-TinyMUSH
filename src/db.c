@@ -625,7 +625,7 @@ dbref thing;
 	char *tp;
 	static FWDLIST *fp = NULL;
 
-	if (mudstate.standalone)
+	if (!mudstate.standalone)
 		return (FWDLIST *)nhashfind((thing), &mudstate.fwdlist_htab);
 		
 	if (!fp) {
