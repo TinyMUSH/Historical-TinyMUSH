@@ -2078,6 +2078,7 @@ static void helper_cf_display(player, buff, bufc, tp)
     if ((tp->interpreter == cf_option)) {
 	opt = find_nametab_ent_flag(GOD, (NAMETAB *)tp->extra, *(tp->loc));
 	safe_str((opt ? opt->name : "*UNKNOWN*"), buff, bufc);
+	return;
     }
     safe_noperm(buff, bufc);
     return;
