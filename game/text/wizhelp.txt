@@ -672,10 +672,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	config_read_perms	costs			db_stats
 	default_flags		flags			func_permissions
 	functions		globals			hashstats
-	logging			options			params
-	permissions		powers			process
-	site_information	switches		textfiles
-	user_attributes
+	logging			memory			options
+	params			permissions		powers
+	process			site_information	switches
+	textfiles		user_attributes
  
   Type 'wizhelp @list <option>' for help with a particular option.
  
@@ -917,6 +917,16 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
  
   See also: log, log_options.
 
+& @list memory
+  Command: @list memory
+ 
+  Lists the amount of memory used by various internal MUSH constructs such
+  as hashtables, the attribute cache, and object names. The total returned
+  by this command will not equal the total size of the MUSH process.  It
+  does not take into account binary code which is loaded, the process stack,
+  pre-initialized and static variables, released memory which has not been
+  reclaimed by the OS, and other bits and pieces.
+ 
 & @list options
   Command: @list options
  
