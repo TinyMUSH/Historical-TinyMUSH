@@ -26,12 +26,12 @@
   @addcommand    @admin         @apply_marked  @attribute     @boot
   @chown         @chownall      @clone         @cut           @dbck          
   @delcommand    @destroy       @disable       @doing         @dump          
-  @enable        @fixdb         @function      @halt          @kick          
-  @list          @listcommands  @list_file     @listmotd      @lock
-  @mark          @mark_all      @motd          @newpassword   @pcreate       
-  @poor          @ps            @purge         @quota         @readcache     
-  @restart       @rwho          @shutdown      @timecheck     @timewarp      
-  @toad          @wall
+  @enable        @fixdb         @freelist      @function      @halt
+  @kick          @list          @listcommands  @list_file     @listmotd      
+  @lock          @mark          @mark_all      @motd          @newpassword   
+  @pcreate       @poor          @power         @ps            @purge     
+  @quota         @readcache     @restart       @rwho          @shutdown
+  @timecheck     @timewarp      @toad          @wall
  
   @allowance     @comment       @timeout
 
@@ -366,6 +366,14 @@
      pennies      - Sets the value or wealth of <object> to <value>
      rename       - Renames <object> to <value>
 
+& @freelist
+  Command: @freelist <dbref>
+ 
+  This command puts a garbage object, specified by <dbref>, at the head
+  of the object freelist; this means that the next object to be created
+  will have that dbref. This is only good until the next database cleaning
+  (automatic or by the @dbck command).
+ 
 & @function
   Command: @function[/<switches>] <function>=<object>/<attr>
  
