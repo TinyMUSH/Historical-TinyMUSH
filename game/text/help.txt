@@ -14261,6 +14261,8 @@ Continued in 'help 3.1 functions4'.
  
 - The third argument to ifelse() -- the 'false' result -- is now optional.
  
+- Added istrue() and isfalse() -- iter()-style filterbool() and its reverse.
+ 
 - Added ilev(), itext(), and inum() functions, for retrieving data
   from multiple levels of nested iter()-type functions. Based on
   an idea from PennMUSH.
@@ -14306,6 +14308,8 @@ Continued in 'help 3.1 functions6'.
  
 - Added session(), which returns command count, bytes of input, and
   bytes of output associated with a port.
+ 
+- Added speak(), which formats, parses, and transforms speech strings.
  
 - Added store(), which is basically to setx() what setr() is to setq().
  
