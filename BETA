@@ -599,3 +599,27 @@ The initial beta release was on 9/27/99.
   to get user time used via getrusage() rather than the clock time.
 
 - Misc: Various bits of code cleanup and efficiency improvements.
+
+-----------------------------------------------------------------------------
+
+11/13/99: Beta 17
+
+- Fix: Typing a bare channel alias consistently results in a 'No message.'
+  error. [3.0b14]
+
+- Fix: Don't requeue '-' if we don't have the mailer turned on. [3.0; RMG]
+
+- Fix: ANSI terminates properly in a sequence of characters. [3.0b15; Keran]
+
+- Fix: Channels properly announce disconnects again. [3.0b15; utoxin]
+
+- Fix: Conversion of the 2.2 Control_OK flag is handled properly. [3.0; RMG]
+
+- Fix: The /delimit switch to @dolist can be used in conjunction with the
+  /notify switch. [MUX; jonespl]
+
+- Fix: The "You see nothing special." default desc works again. [MUX; RMG]
+
+- Misc: The resize factor used by @hashresize is now dependent upon the
+  hash factor itself. The command table is now also resized. God is not
+  notified of resizes, when the game is restarting.
