@@ -4803,16 +4803,16 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	controls()	doing()		elock()		exit()
 	flags()		findable()	fullname()	hasflag()
 	haspower()	hastype()	home()		idle()
-	inzone()	lastcreate()	lcon()		lexits()
-	lparent()	loc()		locate()	lock()
-	lwho()		mail()		mailfrom()	money()
-	name()		nearby()	next()		num()
-	objmem()	orflags()	owner()		parent()
-	pfind()		playmem()	pmatch()	ports()
-	programmer()	rloc()		room()		search()
-	sees()		session()	stats()		type()
-	visible()	where()		xcon()		zone()
-	zwho()
+	inzone()	lastaccess()	lastcreate()	lastmod()
+	lcon()		lexits()	lparent()	loc()
+	locate()	lock()		lwho()		mail()		
+	mailfrom()	money()		name()		nearby()
+	next()		num()		objmem()	orflags()
+	owner()		parent()	pfind()		playmem()
+	pmatch()	ports()		programmer()	rloc()		
+	room()		search()	sees()		session()	
+	stats()		type()		visible()	where()		
+	xcon()		zone()		zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -6383,6 +6383,14 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   See also:  first(), rest().
 
+& LASTACCESS()
+  Function: lastaccess(<object>)
+ 
+  Returns the time, in seconds, of when <object> was last accessed.
+  You must have permission to examine <object>.
+ 
+  An object is consider "accessed" when an attribute is fetched from it.
+ 
 & LASTCREATE()
   Function: lastcreate(<object>, <type>)
 
@@ -6398,6 +6406,19 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Note that @clone will set the 'most recent' in accordance with the
   type of the object being cloned.
 
+& LASTMOD()
+  Function: lastmod(<object>)
+ 
+  Returns the time, in seconds, of when <object> was last modified.
+  You must have permission to examine <object>.
+ 
+  An object is consider "modified" when an attribute is set upon it,
+  when a flag or power is set/unset on it, or when it is the target
+  of @name, @chown, @chzone, @link, or @parent. (Note that the object
+  receiving ownership, being zoned to, linked to, or parented to,
+  etc., is not considered modified -- only the object whose owner,
+  zone, link, or parent is changing is considered modified.)
+  
 & OBJMEM()
   Function: objmem(<object>[/<attribute pattern>])
  
@@ -8937,8 +8958,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & RJUST()
   Function: rjust(<string>, <length>[, <fill>])
  
-  This function pads a string with leading <fill> characters, or with spaces
-  if no fill character is given) ("right-justifies") so it is <length> long.
+  This function pads a string with leading <fill>, or with spaces if no
+  fill string is given, "right-justifying" so the result is <length> long.
   If <string> is longer than <length>, the <string> is returned; it is not
   truncated.
  
@@ -8951,13 +8972,16 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     01234567"
     > say =[rjust(bar,5,.)]=
     You say "=..bar="
+    > say [rjust(foo,9,-=-)]
+    You say "-=--=-foo"
+ 
   See also: ljust(), strlen().
 
 & LJUST()
   Functions: ljust(<string>, <length>[, <fill>])
  
-  This function pads a string with trailing <fill> characters, or with spaces
-  if no fill character is given) ("left-justifies") so it is <length> long.
+  This function pads a string with trailing <fill>, or with spaces if no
+  fill string is given, "left-justifying" so the result is <length> long.
   If <string> is longer than <length>, the <string> is returned; it is not
   truncated.
  
@@ -8970,6 +8994,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     01234567"
     > say =[ljust(bar,5,.)]=
     You say "=bar..="
+    > say [ljust(foo,9,-=-)]
+    You say "foo-=--=-"
+ 
   See also: rjust(), strlen().
  
 & LINK()
@@ -9293,20 +9320,23 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See also: center(), ljust(), rjust().
 
 & CENTER()
-  Function: center(<string>,<width>[,<fill>])
+  Function: center(<string>, <width>[, <fill>])
  
   This function will center a string in a string <width> characters wide,
-  using <fil> characters for padding on either end of the string for
-  centering.  If no fill character is specified then a space is used.
-  If <string> is longer than <width> characters, the string is returned
-  unmodified.
+  using <fill> for padding on either end of the string for centering.
+  If no fill string is specified then a space is used. If <string> is
+  longer than <width> characters, the string is returned unmodified.
  
   Example:
     > say center(a,5,-)
     You say "--a--"
     > say center(*BAMF*,15)
     You say "    *BAMF*     "
-
+    > say center(ZAP,9,-=-)
+    You say "-=-ZAP-=-"
+ 
+  See also: ljust(), rjust().
+ 
 & INSERT()
   Function: insert(<list>, <pos>, <word>[, <sep>])
  
