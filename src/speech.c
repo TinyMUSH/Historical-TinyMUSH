@@ -684,7 +684,7 @@ int do_contents;
 		if (!ok_to_do && (isPlayer(who))
 		    && mudconf.pemit_players) {
 			if (!page_check(player, who))
-				return;
+				continue;
 			ok_to_do = 1;
 		}
 		switch (who) {
