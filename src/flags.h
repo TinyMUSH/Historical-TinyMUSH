@@ -88,6 +88,7 @@
 /* Third word of flags */
 #define REDIR_OK	0x00000001	/* Can be victim of @redirect */
 #define HAS_REDIRECT	0x00000002	/* Victim of @redirect */
+#define ORPHAN		0x00000004	/* Don't check parent chain for $cmd */
 #define MARK_0		0x00400000	/* User-defined flags */
 #define MARK_1		0x00800000
 #define MARK_2		0x01000000
@@ -296,6 +297,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Hidden(x)	((Flags(x) & DARK) != 0)
 #define Blind(x)	((Flags2(x) & BLIND) != 0)
 #define Redir_ok(x)	((Flags3(x) & REDIR_OK) != 0)
+#define Orphan(x)	((Flags3(x) & ORPHAN) != 0)
 
 #define	H_Startup(x)	((Flags(x) & HAS_STARTUP) != 0)
 #define	H_Fwdlist(x)	((Flags2(x) & HAS_FWDLIST) != 0)

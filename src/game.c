@@ -343,8 +343,8 @@ int check_parents;
 	/* If not checking parents, just check the thing */
 
 	match = 0;
-	if (!check_parents)
-		return atr_match1(thing, thing, player, type, str, raw_str, 0, 0);
+	if (!check_parents || Orphan(thing))
+	    return atr_match1(thing, thing, player, type, str, raw_str, 0, 0);
 
 	/* Check parents, ignoring halted objects */
 
