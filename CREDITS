@@ -10,19 +10,28 @@ This is the official end of the TinyMUSH 2.2 vs. TinyMUX religious war. :)
 In addition to the lots of people we've already thanked from earlier
 work on the servers, we'd like to make special note of:
 
-- Fred Hicks ("Iago"), who designed the TinyMUSH 3.0 logo
-
 - Deborah Wilson-Hooker ("Ysabel"), who prodded us in the direction of
   doing a lot of neat things that we eventually didn't incorporate, in
   the interests of a faster time-to-release, but which we're nonetheless
   grateful for.
 
-- The members of the TinyMUX, Hogs, and Tinymush-Unoff lists, for 
-  ongoing support and patience.
+- The members of the Gods, Softcode, TinyMUX, Hogs, and Tinymush-Unoff
+  lists, for ongoing support and patience, as well as bug reports and
+  new feature requests. Adam Dray, Brazil, Robby Griffin, Soruk, and
+  Talek deserve special thanks here, also.
 
-- The Godlike customers who volunteered for the alpha test, and the
-  players of our initial alpha test games (From the Ashes, Blood of Amber,
-  and Babylon 5: The Last Best Hope).
+- The various people who helped us in the initial phases of the alpha
+  test, loaned us hardware to do compiles on, and otherwise donated us
+  time and equipment.
+
+- Our Godlike partner-in-crime Fred Hicks ("Iago"), and the Godlike
+  customers who volunteered for the alpha test, and the players of our
+  initial alpha test games (From the Ashes, Blood of Amber, and
+  Babylon 5: The Last Best Hope).
+
+- Many other people who may go unnamed. Dozens of people have contributed to
+  development of the TinyMU* family of servers, and we would like to thank
+  them for their hard work.
 
 -----------------------------------------------------------------------------
 
@@ -57,7 +66,7 @@ We would like to thank the following people:
  
 - Ethaniel and Kayan Telva (BTech3056) for the basic comsystem and macro code.
  
-- Dreamline(Horizons) who helped update the help text.
+- Dreamline (Horizons) who helped update the help text.
 
 - Stephen J. Kiernan for the (very alpha) port concentrator code.
 
@@ -67,9 +76,9 @@ We would like to thank the following people:
 - Kalkin, again, for the basis of the mail alias and guest code, and the
   idea of restarting on a fatal signal.
   
-- Airam(Generations) for ideas on the stack and @program code.
+- Airam (Generations) for ideas on the stack and @program code.
 
-- Mike(StarWars), idea for not saving GOING objects, and mail expiration
+- Mike (StarWars), idea for not saving GOING objects, and mail expiration
   code.
 
 - Dean Gaudet, for his user and hostname slave process code.
@@ -81,10 +90,6 @@ We would like to thank the following people:
 
 - Robby Griffin, whose skill in uncovering obscure bugs has saved everyone
   a lot of time and effort.
-
-- Many other people who may go unnamed. Dozens of people have contributed to
-  development of the TinyMU* family of servers, and we would like to thank
-  them for their hard work.
 
 -----------------------------------------------------------------------------
 
