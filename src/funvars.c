@@ -1949,66 +1949,57 @@ FUNCTION(fun_swap)
     stack_set(it, tp);
 }
 
-static void handle_pop(player, cause, buff, bufc, fargs, flag)
-    dbref player, cause;
-    char *buff;
-    char **bufc;
-    char *fargs[];
-    int flag;			/* if flag, don't copy */
+FUNCTION(handle_pop)
 {
-    dbref it;
-    int pos, count = 0;
-    STACK *sp;
-    STACK *prev = NULL;
+	dbref it;
+	int pos, count = 0, peek_flag, toss_flag;
+	STACK *sp;
+	STACK *prev = NULL;
 
-    if (!fargs[0]) {
-	it = player;
-    } else {
-	stack_object(player, it);
-    }
-    if (!fargs[1] || !*fargs[1]) {
-	pos = 0;
-    } else {
-	pos = atoi(fargs[1]);
-    }
+	peek_flag = ((FUN *)fargs[-1])->flags & POP_PEEK;
+	toss_flag = ((FUN *)fargs[-1])->flags & POP_TOSS;
 
-    sp = stack_get(it);
-    if (!sp)
-	return;
+	VaChk_Range(0, 2);
 
-    while (count != pos) {
+	if (!fargs[0]) {
+		it = player;
+	} else {
+		stack_object(player, it);
+	}
+	if (!fargs[1] || !*fargs[1]) {
+		pos = 0;
+	} else {
+		pos = atoi(fargs[1]);
+	}
+
+	sp = stack_get(it);
 	if (!sp)
-	    return;
-	prev = sp;
-	sp = sp->next;
-	count++;
-    }
-    if (!sp)
-	return;
+		return;
 
-    if (!flag) {
-	safe_str(sp->data, buff, bufc);
-    }
-    if (count == 0) {
-	stack_set(it, sp->next);
-    } else {
-	prev->next = sp->next;
-    }
-    XFREE(sp->data, "stack_pop_data");
-    XFREE(sp, "stack_pop");
-    s_StackCount(it, StackCount(it) - 1);
-}
+	while (count != pos) {
+		if (!sp)
+			return;
+		prev = sp;
+		sp = sp->next;
+		count++;
+	}
+	if (!sp)
+		return;
 
-FUNCTION(fun_pop)
-{
-    VaChk_Range(0, 2);
-    handle_pop(player, cause, buff, bufc, fargs, 0);
-}
+	if (!toss_flag) {
+		safe_str(sp->data, buff, bufc);
+	}
 
-FUNCTION(fun_toss)
-{
-    VaChk_Range(0, 2);
-    handle_pop(player, cause, buff, bufc, fargs, 1);
+	if (!peek_flag) {
+		if (count == 0) {
+			stack_set(it, sp->next);
+		} else {
+			prev->next = sp->next;
+		}
+		XFREE(sp->data, "stack_pop_data");
+		XFREE(sp, "stack_pop");
+		s_StackCount(it, StackCount(it) - 1);
+	}
 }
 
 FUNCTION(fun_popn)
@@ -2067,41 +2058,6 @@ FUNCTION(fun_popn)
     } else {
 	prev->next = tp;
     }
-}
-
-FUNCTION(fun_peek)
-{
-    dbref it;
-    int pos, count = 0;
-    STACK *sp;
-
-    VaChk_Range(0, 2);
-
-    if (!fargs[0]) {
-	it = player;
-    } else {
-	stack_object(player, it);
-    }
-    if (!fargs[1] || !*fargs[1]) {
-	pos = 0;
-    } else {
-	pos = atoi(fargs[1]);
-    }
-
-    sp = stack_get(it);
-    if (!sp)
-	return;
-
-    while (count != pos) {
-	if (!sp)
-	    return;
-	sp = sp->next;
-	count++;
-    }
-    if (!sp)
-	return;
-
-    safe_str(sp->data, buff, bufc);
 }
 
 FUNCTION(fun_lstack)

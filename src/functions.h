@@ -369,4 +369,8 @@ if ((l) > 0) { \
 /* from do_ufun (u, ulocal): */
 #define U_LOCAL		0x1	/* preserve global registers */
 
+/* from handle_pop (pop, peek, toss): */
+#define POP_PEEK	0x1	/* don't remove item from stack */
+#define POP_TOSS	0x2	/* don't display item from stack */
+
 #endif /* __FUNCTIONS_H */

@@ -324,10 +324,8 @@ XFUNCTION(fun_items);
 XFUNCTION(fun_push);
 XFUNCTION(fun_dup);
 XFUNCTION(fun_swap);
-XFUNCTION(fun_pop);
-XFUNCTION(fun_toss);
+XFUNCTION(handle_pop);
 XFUNCTION(fun_popn);
-XFUNCTION(fun_peek);
 XFUNCTION(fun_lstack);
 XFUNCTION(fun_regedit);
 XFUNCTION(fun_regeditall);
@@ -579,13 +577,14 @@ FUN flist[] = {
 {"PARENT",	fun_parent,	1,  0,		CA_PUBLIC,	NULL},
 {"PARSE",	perform_loop,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
-{"PEEK",	fun_peek,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"PEEK",	handle_pop,	0,  FN_VARARGS|POP_PEEK,
+						CA_PUBLIC,	NULL},
 {"PEMIT",	fun_pemit,	2,  0,		CA_PUBLIC,	NULL},
 {"PFIND",	fun_pfind,	1,  0,		CA_PUBLIC,	NULL},
 {"PI",		fun_pi,		0,  0,		CA_PUBLIC,	NULL},
 {"PLAYMEM",	fun_playmem,	1,  0,		CA_PUBLIC,	NULL},
 {"PMATCH",	fun_pmatch,	1,  0,		CA_PUBLIC,	NULL},
-{"POP",		fun_pop,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"POP",		handle_pop,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"POPN",	fun_popn,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"PORTS",	fun_ports,	1,  0,		CA_PUBLIC,	NULL},
 {"POS",		fun_pos,	2,  0,		CA_PUBLIC,	NULL},
@@ -685,7 +684,8 @@ FUN flist[] = {
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC,	NULL},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC,	NULL},
 {"TIMEFMT",	fun_timefmt,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"TOSS",	fun_toss,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"TOSS",	handle_pop,	0,  FN_VARARGS|POP_TOSS,
+						CA_PUBLIC,	NULL},
 {"TRANSLATE",	fun_translate,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"TRIGGER",	fun_trigger,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"TRIM",	fun_trim,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
