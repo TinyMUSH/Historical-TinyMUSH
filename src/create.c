@@ -680,18 +680,22 @@ char *name, *pass;
 {
 	int isrobot;
 	dbref newplayer;
+	char *newname;
 
 	isrobot = (key == PCRE_ROBOT) ? 1 : 0;
 	newplayer = create_player(name, pass, player, isrobot, 0);
+	newname = munge_space(name);
 	if (newplayer == NOTHING) {
-		notify_quiet(player, tprintf("Failure creating '%s'", name));
+		notify_quiet(player, tprintf("Failure creating '%s'",
+					     newname));
+		free_lbuf(newname);
 		return;
 	}
 	if (isrobot) {
 		move_object(newplayer, Location(player));
 		notify_quiet(player,
 			tprintf("New robot '%s' (#%d) created with password '%s'",
-				name, newplayer, pass));
+				newname, newplayer, pass));
 		notify_quiet(player, "Your robot has arrived.");
 		STARTLOG(LOG_PCREATES, "CRE", "ROBOT")
 			log_name(newplayer);
@@ -703,13 +707,14 @@ char *name, *pass;
 					mudconf.start_room : 0));
 		notify_quiet(player,
 		       tprintf("New player '%s' (#%d) created with password '%s'",
-			       name, newplayer, pass));
+			       newname, newplayer, pass));
 		STARTLOG(LOG_PCREATES | LOG_WIZARD, "WIZ", "PCREA")
 			log_name(newplayer);
 			log_printf(" created by ");
 			log_name(player);
 		ENDLOG
 	}
+	free_lbuf(newname);
 }
 
 /* ---------------------------------------------------------------------------

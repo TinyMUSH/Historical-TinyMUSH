@@ -549,8 +549,8 @@ char *s;
 
 /*
  * ---------------------------------------------------------------------------
- * * munge_space: Compress multiple spaces to one space, also remove leading and
- * * trailing spaces.
+ * munge_space: Compress multiple spaces to one space,
+ * also remove leading and trailing spaces.
  */
 
 char *munge_space(string)
@@ -563,7 +563,7 @@ char *string;
 	q = buffer;
 	while (p && *p && isspace(*p))
 		p++;		/*
-				 * remove inital spaces 
+				 * remove initial spaces 
 				 */
 	while (p && *p) {
 		while (*p && !isspace(*p))

@@ -440,21 +440,22 @@ int ok_name(name)
 const char *name;
 {
 	const char *cp;
+	char *purename = strip_ansi(name);
 
 	/* Disallow pure ANSI names */
-	
-	if (strip_ansi_len(name) == 0)
+
+	if (strlen(purename) == 0)
 		return 0;
-		
+
 	/* Disallow leading spaces */
 
-	if (isspace(*name))
+	if (isspace(*purename))
 		return 0;
 
-	/* Only printable characters */
+	/* Only printable characters outside of escape codes */
 
-	for (cp = name; cp && *cp; cp++) {
-		if ((!isprint(*cp)) && (*cp != ESC_CHAR))
+	for (cp = purename; *cp; ++cp) {
+		if (!isprint(*cp))
 			return 0;
 	}
 
@@ -465,28 +466,21 @@ const char *name;
 
 	/* Exclude names that start with or contain certain magic cookies */
 
-	return (name &&
-		*name &&
-		*name != LOOKUP_TOKEN &&
-		*name != NUMBER_TOKEN &&
-		*name != NOT_TOKEN &&
+	return (*purename != LOOKUP_TOKEN &&
+		*purename != NUMBER_TOKEN &&
+		*purename != NOT_TOKEN &&
 		!strchr(name, ARG_DELIMITER) &&
 		!strchr(name, AND_TOKEN) &&
 		!strchr(name, OR_TOKEN) &&
-		string_compare(name, "me") &&
-		string_compare(name, "home") &&
-		string_compare(name, "here"));
+		string_compare(purename, "me") &&
+		string_compare(purename, "home") &&
+		string_compare(purename, "here"));
 }
 
 int ok_player_name(name)
 const char *name;
 {
 	const char *cp, *good_chars;
-
-	/* No leading spaces */
-
-	if (isspace(*name))
-		return 0;
 
 	/* Not too long and a good name for a thing */
 
@@ -503,7 +497,7 @@ const char *name;
 	for (cp = name; cp && *cp; cp++) {
 		if (isalnum(*cp))
 			continue;
-		if ((!strchr(good_chars, *cp)) || (*cp == ESC_CHAR))
+		if (!strchr(good_chars, *cp))
 			return 0;
 	}
 	return 1;

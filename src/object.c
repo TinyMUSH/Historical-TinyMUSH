@@ -328,24 +328,22 @@ char *name;
 		if (Good_obj(mudconf.player_proto))
 			proto = mudconf.player_proto;
 		buff = munge_space(name);
-		okname = badname_check(buff);
-		if (!okname) {
+		if (!badname_check(buff)) {
 			notify(player, "That name is not allowed.");
 			free_lbuf(buff);
 			return NOTHING;
 		}
-		if (okname && *buff)
-		        okname = ok_player_name(buff);
-		if (okname) {
-		        okname = (lookup_player(NOTHING, buff, 0) == NOTHING);
-			if (!okname) {
-			        notify(player,
-				       tprintf("The name %s is already taken.",
-					       name));
-				free_lbuf(buff);
-				return NOTHING;
-			}
+		if (!ok_player_name(buff)) {
+			free_lbuf(buff);
+			break;
 		}
+		if (lookup_player(NOTHING, buff, 0) != NOTHING) {
+		        notify(player,
+			       tprintf("The name %s is already taken.", name));
+			free_lbuf(buff);
+			return NOTHING;
+		}
+		++okname;
 		free_lbuf(buff);
 		break;
 	default:
