@@ -863,20 +863,26 @@ struct channel *ch;
 char *title;
 {
 	struct comuser *user;
-
+	char *new;
+	
 	user = select_user(ch, player);
+	
+	/* Make sure there can be no embedded newlines from %r */
+	
+	new = replace_string("\r\n", "", title);
 
 	if (ch && user) {
 		if (user->title)
 			free(user->title);
-		if (strlen(title) > 0) {
-			user->title = (char *)malloc(strlen(title) + 1);
-			StringCopy(user->title, title);
+		if (strlen(new) > 0) {
+			user->title = (char *)malloc(strlen(new) + 1);
+			StringCopy(user->title, new);
 		} else {
 			user->title = (char *)malloc(1);
 			user->title[0] = 0;
 		}
 	}
+	free_lbuf(new);
 }
 
 void do_delcom(player, cause, key, arg1)

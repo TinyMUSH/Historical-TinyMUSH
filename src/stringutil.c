@@ -398,9 +398,7 @@ const char *old, *new, *string;
 	r = result = alloc_lbuf("replace_string");
 	while (*s) {
 
-		/*
-		 * Copy up to the next occurrence of the first char of OLD 
-		 */
+		/* Copy up to the next occurrence of the first char of OLD */
 
 		while (*s && *s != *old) {
 			safe_chr(*s, result, &r);
