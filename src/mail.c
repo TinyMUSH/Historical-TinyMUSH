@@ -82,7 +82,7 @@ char *strndup(const char *str, int len)
 {
 	char *s;
 
-	s = (char *)malloc(len);
+	s = (char *) XMALLOC(sizeof(char) * len, "strndup");
 	bcopy(str, s, len);
 	return s;
 }
@@ -122,7 +122,7 @@ int newtop;
 		newsize = newtop;
 	}
 
-	newdb = (MENT *) malloc((newsize + 1) * sizeof(MENT));
+	newdb = (MENT *) XMALLOC((newsize + 1) * sizeof(MENT), "mail_db_grow");
 
 	if (!newdb) {
 	    fprintf(stderr, "ABORT! mail.c, unable to malloc new db in mail_db_grow().\n");
@@ -133,7 +133,7 @@ int newtop;
 		mudstate.mail_list -= 1;
 		bcopy((char *)mudstate.mail_list, (char *)newdb,
 		      (mudstate.mail_db_top + 1) * sizeof(MENT));
-		free(mudstate.mail_list);
+		XFREE(mudstate.mail_list, "mail_list");
 	}
 	mudstate.mail_list = newdb + 1;
 	newdb = NULL;
@@ -298,7 +298,7 @@ int number;
 	mudstate.mail_list[number].count--;
 
 	if (mudstate.mail_list[number].count < 1) {
-		free(mudstate.mail_list[number].message);
+		XFREE(mudstate.mail_list[number].message, "delete_mail");
 		mudstate.mail_list[number].message = NULL;
 		mudstate.mail_list[number].count = 0;
 	}
@@ -674,12 +674,16 @@ char *name, *msglist;
 						mp->next->prev = mp->prev;
 
 					nextp = mp->next;
-					free((char *)mp->subject);
+					XFREE((char *)mp->subject,
+					      "mail_retract.subject");
 					delete_mail_message(mp->number);
-					free((char *)mp->time);
-					free((char *)mp->tolist);
-					free(mp);
-					notify(player, "MAIL: Mail retracted.");
+					XFREE((char *)mp->time,
+					      "mail_retract.time");
+					XFREE((char *)mp->tolist,
+					      "mail_retract.tolist");
+					XFREE(mp, "mail_retract");
+					notify(player,
+					       "MAIL: Mail retracted.");
 				} else {
 					notify(player, "MAIL: That message has been read.");
 					nextp = mp->next;
@@ -973,11 +977,11 @@ dbref player;
 			/*
 			 * then wipe 
 			 */
-			free((char *)mp->subject);
+			XFREE((char *)mp->subject, "mail_purge.subject");
 			delete_mail_message(mp->number);
-			free((char *)mp->time);
-			free((char *)mp->tolist);
-			free(mp);
+			XFREE((char *)mp->time, "mail_purge.time");
+			XFREE((char *)mp->tolist, "mail_purge.tolist");
+			XFREE(mp, "mail_purge");
 		} else {
 			nextp = mp->next;
 		}
@@ -1141,7 +1145,7 @@ int silent;
 	/*
 	 * initialize the appropriate fields 
 	 */
-	newp = (struct mail *)malloc(sizeof(struct mail));
+	newp = (struct mail *) XMALLOC(sizeof(struct mail), "send_mail");
 
 	newp->to = target;
 	newp->from = player;
@@ -1210,10 +1214,10 @@ dbref player;
 	MAIL_ITER_SAFE(mp, thing, nextp) {
 		nextp = mp->next;
 		delete_mail_message(mp->number);
-		free((char *)mp->subject);
-		free((char *)mp->tolist);
-		free((char *)mp->time);
-		free(mp);
+		XFREE((char *)mp->subject, "mail_nuke.subject");
+		XFREE((char *)mp->tolist, "mail_nuke.tolist");
+		XFREE((char *)mp->time, "mail_nuke.time");
+		XFREE(mp, "mail_nuke");
 	}
 
 	log_text(tprintf("** MAIL PURGE ** done by %s(#%d).",
@@ -1286,11 +1290,12 @@ char *victim;
 				/*
 				 * then wipe 
 				 */
-				free((char *)mp->subject);
+				XFREE((char *)mp->subject,
+				      "mail_debug.subject");
 				delete_mail_message(mp->number);
-				free((char *)mp->time);
-				free((char *)mp->tolist);
-				free(mp);
+				XFREE((char *)mp->time, "mail_debug.time");
+				XFREE((char *)mp->tolist, "mail_debug.tolist");
+				XFREE(mp, "mail_debug");
 			} else
 				nextp = mp->next;
 		}
@@ -1789,7 +1794,7 @@ FILE *fp;
 	fgets(nbuf1, sizeof(nbuf1), fp);
 
 	while (strncmp(nbuf1, "***", 3)) {
-		mp = (struct mail *)malloc(sizeof(struct mail));
+		mp = (struct mail *) XMALLOC(sizeof(struct mail), "load_mail");
 
 		mp->to = atoi(nbuf1);
 
@@ -2119,7 +2124,7 @@ int num;
 		 * results with * ms.days (in manner of ms.day_comp) 
 		 */
 		time(&now);
-		msgtm = (struct tm *)malloc(sizeof(struct tm));
+		msgtm = (struct tm *) XMALLOC(sizeof(struct tm), "mail_match");
 
 		if (!msgtm) {
 			/*
@@ -2139,14 +2144,14 @@ int num;
         */
 		if (do_convtime(msgtimestr, msgtm)) {
 			msgtime = timelocal(msgtm);
-			free(msgtm);
+			XFREE(msgtm, "mail_match.msgtime");
 			diffdays = (now - msgtime) / 86400;
 			free_lbuf(msgtimestr);
 			if (sign(diffdays - ms.days) != ms.day_comp) {
 				return 0;
 			}
 		} else {
-			free(msgtm);
+			XFREE(msgtm, "mail_match.msgtime");
 			free_lbuf(msgtimestr);
 			return 0;
 		}
@@ -2438,11 +2443,13 @@ void check_mail_expiration()
 				/*
 				 * then wipe 
 				 */
-				free((char *)mp->subject);
+				XFREE((char *)mp->subject,
+				      "mail_expire.subject");
 				delete_mail_message(mp->number);
-				free((char *)mp->tolist);
-				free((char *)mp->time);
-				free(mp);
+				XFREE((char *)mp->tolist,
+				      "mail_expire.tolist");
+				XFREE((char *)mp->time, "mail_expire.time");
+				XFREE(mp, "mail_expire");
 			} else
 				nextp = mp->next;
 		} else
@@ -2726,17 +2733,20 @@ char *tolist;
 	}
 	if (!ma_size) {
 		ma_size = MA_INC;
-		malias = (struct malias **)malloc(sizeof(struct malias *) * ma_size);
+		malias = (struct malias **) XMALLOC(sizeof(struct malias *) *
+						    ma_size, "malias_create");
 	} else if (ma_top >= ma_size) {
 		ma_size += MA_INC;
-		nm = (struct malias **)malloc(sizeof(struct malias *) * (ma_size));
+		nm = (struct malias **) XMALLOC(sizeof(struct malias *) *
+						ma_size, "malias_create");
 
 		for (i = 0; i < ma_top; i++)
 			nm[i] = malias[i];
-		free(malias);
+		XFREE(malias, "malias_create.malias");
 		malias = nm;
 	}
-	malias[ma_top] = (struct malias *)malloc(sizeof(struct malias));
+	malias[ma_top] = (struct malias *) XMALLOC(sizeof(struct malias),
+						   "malias_create.top");
 
 	i = 0;
 
@@ -2793,11 +2803,15 @@ char *tolist;
 	malias[ma_top]->list[i] = NOTHING;
 
 	na = alias + 1;
-	malias[ma_top]->name = (char *)malloc(strlen(na) + 1);
+	malias[ma_top]->name = (char *) XMALLOC(sizeof(char) *
+						(strlen(na) + 1),
+						"malias_create.top.name");
 	malias[ma_top]->numrecep = i;
 	malias[ma_top]->owner = player;
 	StringCopy(malias[ma_top]->name, na);
-	malias[ma_top]->desc = (char *)malloc(strlen(na) + 1);
+	malias[ma_top]->desc = (char *) XMALLOC(sizeof(char) *
+						(strlen(na) + 1),
+						"malias_create.top.desc");
 	StringCopy(malias[ma_top]->desc, na);	/*
 						 * For now do this. 
 						 */
@@ -2898,30 +2912,31 @@ FILE *fp;
 	ma_size = ma_top;
 
 	if (ma_top > 0)
-		malias = (struct malias **)malloc(sizeof(struct malias *) * ma_size);
-
+		malias = (struct malias **) XMALLOC(sizeof(struct malias *) *
+						    ma_size, "malias_read");
 	else
 		malias = NULL;
 
 	for (i = 0; i < ma_top; i++) {
-		malias[i] = (struct malias *)malloc(sizeof(struct malias));
+		malias[i] = (struct malias *) XMALLOC(sizeof(struct malias),
+						      "malias_read.element");
 
 		m = (struct malias *)malias[i];
 
 		fscanf(fp, "%d %d\n", &(m->owner), &(m->numrecep));
 
 		fscanf(fp, "%[^\n]\n", buffer);
-		m->name = (char *)malloc(strlen(buffer) - 1);
+		m->name = (char *) XMALLOC(sizeof(char) * (strlen(buffer) - 1),
+					   "malias_read.name");
 		StringCopy(m->name, buffer + 2);
 		fscanf(fp, "%[^\n]\n", buffer);
-		m->desc = (char *)malloc(strlen(buffer) - 1);
+		m->desc = (char *) XMALLOC(sizeof(char) * (strlen(buffer) - 1),
+					   "malias_read.desc");
 		StringCopy(m->desc, buffer + 2);
 
 		if (m->numrecep > 0) {
-
 			for (j = 0; j < m->numrecep; j++) {
 				m->list[j] = getref(fp);
-
 			}
 		} else {
 			m->list[0] = 0;
@@ -3420,11 +3435,9 @@ char *desc;
 		notify(player, tprintf("MAIL: Alias %s not found.", alias));
 		return;
 	} else if ((m->owner != GOD) || ExpMail(player)) {
-		free(m->desc);	/*
-				 * free it up 
-				 */
-		m->desc = (char *)malloc(sizeof(char *) * strlen(desc));
-
+	        XFREE(m->desc, "malias_desc");	/* free it up */
+		m->desc = (char *) XMALLOC(sizeof(char) * (strlen(desc) + 1),
+					   "malias_desc");
 		StringCopy(m->desc, desc);
 		notify(player, "MAIL: Description changed.");
 	} else
@@ -3580,9 +3593,9 @@ char *newname;
 		notify(player, "MAIL: Permission denied.");
 		return;
 	}
-	free(m->name);
-	m->name = (char *)malloc(sizeof(char) * strlen(newname));
-
+	XFREE(m->name, "malias_rename");
+	m->name = (char *) XMALLOC(sizeof(char) * strlen(newname),
+				   "malias_rename");
 	StringCopy(m->name, newname + 1);
 
 	notify(player, "MAIL: Mailing Alias renamed.");
