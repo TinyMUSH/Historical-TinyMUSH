@@ -19,8 +19,7 @@
 & commands
   Help is available for the following MUSH commands:
  
-  CD             DOING          SESSION        slay           WHO            
-  wizhelp
+  CD             DOING          slay           WHO            wizhelp
  
   @addcommand    @admin         @apply_marked  @attribute     @boot
   @chownall      @cut           @dbck          @delcommand    @destroy       
@@ -38,8 +37,8 @@
   Help available on the following Topics:
  
   CAUTIONS         CONFIG PARAMETERS  DEBUG FEATURES     FILES
-  FLAGS            GUESTS             INHERITANCE        LOGGING
-  MASTER ROOM      PERMISSIONS        SEARCH CRITERIA    SITE LISTS
+  FLAGS            INHERITANCE        LOGGING            MASTER ROOM 
+  PERMISSIONS      SEARCH CRITERIA    SITE LISTS
  
 & FLAGS
   Topic: FLAGS
@@ -55,29 +54,6 @@
   You should ignore the presence of these flags; they are used solely
   for server-internal purposes.
  
-& SESSION
-  Command: SESSION <prefix>
-  The SESSION command displays character input and output information for
-  all connected players, or just those who match <prefix>.
- 
-  This command can be used to help identify network problems as follows:
-    - A nonzero Input Pending count can indicate indicate typeahead or a
-      client program dumping commands faster than the command scheduling
-      parameters let them be executed.  Telnet sessions in character mode also
-      show up with positive Input Pending counts when the player is in the
-      middle of typing a command.
-    - A nonzero Input Lost count means that the player has typed a line longer
-      than what the mush can handle.  This usually indicates a problem with
-      the player's client or terminal (a stuck key).
-    - A persistently large Output Pending count can indicate netlag between
-      the host site and the player's site, or merely that the player has
-      performed a command that generated a lot of output which hasn't been
-      sent yet.
-    - A nonzero Output Lost count usually means that the player performed
-      a command that produced more output than the output buffer could hold.
-      It may also indicate network problems or that the player is generating
-      output faster than the network or his client can process it.
-     
 & slay
   Command: slay <player/object>
   Kills the indicated player or object without paying any insurance to the

@@ -180,7 +180,7 @@ dbref thing, dest;
 	    (mudconf.payfind > 0) &&
 	    (Pennies(thing) < mudconf.paylimit) &&
 	    (!Controls(thing, dest)) &&
-	    ((random() % mudconf.payfind) == 0)) {
+	    (Randomize(mudconf.payfind) == 0)) {
 		giveto(thing, 1);
 		notify(thing, tprintf("You found a %s!", mudconf.one_coin));
 	}

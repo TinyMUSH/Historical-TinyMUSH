@@ -390,7 +390,7 @@ GDATA *gargs;
 	/* make sure player can afford to do it */
 
 	a = mudconf.waitcost;
-	if (a && mudconf.machinecost && (random() % mudconf.machinecost) == 0)
+	if (a && mudconf.machinecost && (Randomize(mudconf.machinecost) == 0))
 		a++;
 	if (!payfor(player, a)) {
 		notify(Owner(player), "Not enough money to queue command.");

@@ -38,6 +38,8 @@ extern void FDECL(raw_notify_html, (dbref, char *));
 extern void FDECL(do_dbck, (dbref, dbref, int));
 extern void FDECL(logfile_init, (char *));
 
+extern void FDECL(init_genrand, (unsigned long));
+
 void FDECL(fork_and_dump, (int));
 void NDECL(dump_database);
 dbref FDECL(db_read_flatfile, (FILE *, int *, int *, int *));
@@ -2063,7 +2065,7 @@ char *argv[];
 	}
 	mudstate.loading_db = 0;
 
-	srandom(getpid());
+	init_genrand(getpid() | (time(NULL) << 16));
 	set_signals();
 
 	/* Do a consistency check and set up the freelist */

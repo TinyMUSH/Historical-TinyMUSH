@@ -98,6 +98,7 @@ extern void	FDECL(restore_global_regs, (const char *, GDATA *));
 /* From fnhelper.c */
 extern dbref	FDECL(match_thing, (dbref, char *));
 extern int	FDECL(xlate, (char *));
+extern long	FDECL(random_range, (long, long));
 
 /* From game.c */
 extern void	FDECL(notify_except, (dbref, dbref, dbref,
@@ -562,6 +563,8 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 /* --------------------------------------------------------------------------
  * General macros.
  */
+
+#define Randomize(n)  (random_range(0, (n) - 1))
 
 #define	Protect(f) (cmdp->perms & f)
 

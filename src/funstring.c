@@ -1071,7 +1071,7 @@ FUNCTION(fun_scramble)
 	ansi_state = ANST_NORMAL;
 
 	for (i = 0; i < n; i++) {
-		j = (random() % (n - i)) + i;
+		j = random_range(i, n - 1);
 		safe_str(ansi_transition_esccode(ansi_state, ansi_map[j]),
 			 buff, bufc);
 		safe_chr(ansi_map[j] >> 16, buff, bufc);

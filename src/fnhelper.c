@@ -19,6 +19,8 @@
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
+static long genrand_int31();
+
 /* ---------------------------------------------------------------------------
  * Trim off leading and trailing spaces if the separator char is a space
  */
@@ -365,51 +367,6 @@ char *name;
 }
 
 /* ---------------------------------------------------------------------------
- * Random number generator. This uses Whip's implementation of an algorithm
- * in the _Communications of the ACM_, Volume 31, Number 10, from the article
- * "Random Number Generators: Good Ones are Hard to Find" (S.K. Park,
- * K.W. Miller).
- */
-
-double makerandom()
-{
-    /* An int must be at least 32 bits. Don't change these constants. */
-
-    const unsigned int a = 16807;
-    const unsigned int m = 2147482647;
-    const unsigned int q = 127773; /* m div a */
-    const unsigned int r = 2836;   /* m mod a */
-
-    unsigned int lo, hi;
-    int test;
-    static unsigned int seed = 0;
-  
-    /* This isn't the best seed in the world, but it's portable. There's
-     * nothing truly random that's portable to get to, unfortunately. We're
-     * going to adjust with the PID because any normal user can get the time
-     * the MUSH started (or close to it) trivially, which would make the whole
-     * sequence predictable. Using PID isn't much better, but it's portable, 
-     * and means you at least have to have machine access to figure it out
-     * (or be a wizard).
-     */
-
-    if (!seed) seed = time(NULL) + (int) getpid();
-
-    hi = seed / q; 
-    lo = seed % q;
-  
-    test = (a * lo) - (r * hi);
-
-    if (test > 0) {
-	seed = test;
-    } else {
-	seed = test + m;
-    }
-
-    return ((double) seed / m);
-}
-
-/* ---------------------------------------------------------------------------
  * fn_range_check: Check # of args to a function with an optional argument
  * for validity.
  */
@@ -552,4 +509,166 @@ INLINE void do_reverse(from, to)
     while (*from) {
 	*tp-- = *from++;
     }
+}
+
+/* ---------------------------------------------------------------------------
+ * Random number generator, from PennMUSH's get_random_long(), which
+ * is turn based on MUX2's RandomINT32().
+ */
+
+long random_range(low, high)
+    long low, high;
+{
+    unsigned long x, n, n_limit;
+
+    /* Validate parameters. */
+
+    if (high < low)
+	return 0;
+    else if (high == low)
+	return low;
+
+    x = high - low;
+    if (LONG_MAX < x)
+	return -1;
+    x++;
+
+    /* Look for a random number on the interval [0,x-1].
+     * MUX2's implementation states:
+     *   In order to be perfectly conservative about not introducing any
+     *   further sources of statistical bias, we're going to call getrand()
+     *   until we get a number less than the greatest representable
+     *   multiple of x. We'll then return n mod x.
+     *   N.B. This loop happens in randomized constant time, and pretty
+     *   damn fast randomized constant time too, since
+     *        P(UINT32_MAX_VALUE - n < UINT32_MAX_VALUE % x) < 0.5, for any x.
+     *   So even for the least desireable x, the average number of times
+     *   we will call getrand() is less than 2.
+     */
+
+    n_limit = ULONG_MAX - (ULONG_MAX % x);
+    do {
+	n = genrand_int31();
+    } while (n >= n_limit);
+
+    return low + (n % x);
+}
+
+/* ---------------------------------------------------------------------------
+ * ALL OTHER CODE FOR TINYMUSH SHOULD GO ABOVE THIS LINE.
+ * ---------------------------------------------------------------------------
+ */
+
+/* 
+   A C-program for MT19937, with initialization improved 2002/2/10.
+   Coded by Takuji Nishimura and Makoto Matsumoto.
+   This is a faster version by taking Shawn Cokus's optimization,
+   Matthe Bellew's simplification, Isaku Wada's real version.
+
+   Before using, initialize the state by using init_genrand(seed) 
+   or init_by_array(init_key, key_length).
+
+   Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
+   All rights reserved.                          
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions
+   are met:
+
+     1. Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+
+     3. The names of its contributors may not be used to endorse or promote 
+        products derived from this software without specific prior written 
+        permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+   A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+   Any feedback is very welcome.
+   http://www.math.keio.ac.jp/matumoto/emt.html
+   email: matumoto@math.keio.ac.jp
+*/
+
+/* Period parameters */  
+#define N 624
+#define M 397
+#define MATRIX_A 0x9908b0dfUL   /* constant vector a */
+#define UMASK 0x80000000UL /* most significant w-r bits */
+#define LMASK 0x7fffffffUL /* least significant r bits */
+#define MIXBITS(u,v) ( ((u) & UMASK) | ((v) & LMASK) )
+#define TWIST(u,v) ((MIXBITS(u,v) >> 1) ^ ((v)&1UL ? MATRIX_A : 0UL))
+
+static unsigned long state[N]; /* the array for the state vector  */
+static int left = 1;
+static int initf = 0;
+static unsigned long *next;
+
+/* initializes state[N] with a seed */
+void init_genrand(s)
+    unsigned long s;
+{
+    int j;
+    state[0]= s & 0xffffffffUL;
+    for (j=1; j<N; j++) {
+        state[j] = (1812433253UL * (state[j-1] ^ (state[j-1] >> 30)) + j); 
+        /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
+        /* In the previous versions, MSBs of the seed affect   */
+        /* only MSBs of the array state[].                        */
+        /* 2002/01/09 modified by Makoto Matsumoto             */
+        state[j] &= 0xffffffffUL;  /* for >32 bit machines */
+    }
+    left = 1; initf = 1;
+}
+
+static void next_state()
+{
+    unsigned long *p=state;
+    int j;
+
+    /* if init_genrand() has not been called, */
+    /* a default initial seed is used         */
+    if (initf==0) init_genrand(5489UL);
+
+    left = N;
+    next = state;
+    
+    for (j=N-M+1; --j; p++) 
+        *p = p[M] ^ TWIST(p[0], p[1]);
+
+    for (j=M; --j; p++) 
+        *p = p[M-N] ^ TWIST(p[0], p[1]);
+
+    *p = p[M-N] ^ TWIST(p[0], state[0]);
+}
+
+/* generates a random number on [0,0x7fffffff]-interval */
+static long genrand_int31()
+{
+    unsigned long y;
+
+    if (--left == 0) next_state();
+    y = *next++;
+
+    /* Tempering */
+    y ^= (y >> 11);
+    y ^= (y << 7) & 0x9d2c5680UL;
+    y ^= (y << 15) & 0xefc60000UL;
+    y ^= (y >> 18);
+
+    return (long)(y>>1);
 }

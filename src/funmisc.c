@@ -271,9 +271,9 @@ FUNCTION(fun_rand)
 	num = atoi(fargs[0]);
 	if (num < 1) {
 		safe_chr('0', buff, bufc);
-	} else
-		safe_tprintf_str(buff, bufc, "%ld",
-				 (long) (makerandom() * num));
+	} else {
+		safe_tprintf_str(buff, bufc, "%ld", Randomize(num));
+	}
 }
 
 /* ---------------------------------------------------------------------------
@@ -304,7 +304,7 @@ FUNCTION(fun_die)
 		return;
 	}
 	for (count = 0; count < n; count++)
-		total += (int) (makerandom() * die) + 1;
+		total += (int) random_range(1, die);
 
 	safe_ltos(buff, bufc, total);
 }
@@ -367,7 +367,7 @@ FUNCTION(fun_lrand)
 	if (*bufc != bb_p) {
 	    print_sep(osep, osep_len, buff, bufc);
 	}
-	tmp = (unsigned int) (makerandom() * n_range);
+	tmp = (unsigned int) Randomize(n_range);
 	safe_ltos(buff, bufc, r_bot + tmp);
     }
 }

@@ -226,7 +226,8 @@ Continued in 'help Attributes2'.
 @aconnect:	@aconnect, @adisconnect
 @forwardlist:	@filter, @forwardlist, @infilter, @inprefix, @prefix
 @listen:	@listen, @aahear, @ahear, @amhear
-@pay:		use of machines, @pay set, @charges, @cost, @runout
+Charges:        @charges, @runout
+Vendors:	use of machines, @pay set, @cost
 Moving:		@move set
  
 Individual attribute entries:
@@ -332,6 +333,9 @@ via the use of the 'no_name' attribute flag. For example:
  
   @osucc exit = A breeze comes up and sweeps %N eastwards.
   @set exit/osucc = no_name
+ 
+Running actions from an @aattr costs charges from the @charges attribute,
+and may trigger @runout. See 'help Charges' for details.
  
 & Attribute Flags
  
@@ -529,6 +533,7 @@ STACK			SUBSTITUTIONS		SUCCESS
 SWITCHES		Syntax			User Commands
 Zone Control		ZONE OBJECTS
  
+& throw
 & drop
  
 Command:  drop[/quiet] <exit>
@@ -727,6 +732,7 @@ in the object that you just entered.
  
   See also: look, @decompile, VISUAL, ATTRIBUTE OWNERSHIP.
  
+& take
 & get
  
 Command:  get[/quiet] <exit>
@@ -1554,10 +1560,13 @@ See also: pose, @emit
   See also: @ps, LOOPING.
 
 & SESSION
-  Command: SESSION
-  Displays information on how many characters you have sent and received
-  during this session, and which (Internal) port you are connected to on the
-  mush.  It must be typed in all uppercase.
+  Command: SESSION [<prefix>]
+ 
+  Displays detailed information on network sessions (connected players).
+  This can be useful when attempting to identify network problems.
+  Wizards, Royalty and those with the expanded_who power can see the
+  session information for all players (or for those players whose names
+  start with <prefix>); mortals can only see their own sessions.
  
   Example:
     > SESSION
@@ -1566,46 +1575,47 @@ See also: pose, @emit
     Mortal           00:06   0s   16    0     0        44   156     0      2679
     2 Players logged in.
  
+  The port is the file descriptor number of the connection; it can be used
+  by MUSHcode to reference specific connections.
+ 
   Pending characters are those waiting to be acted on as commands (for input)
-  or waiting to be sent out over the network (output).  Lost characters are
-  due to overflowing either the MUSH's input or output buffers, either as the
-  result of running a single command that produces too much output (such as
-  @find and @search commands that match a large number of objects), or from
-  typing too much on one line.
+  or waiting to be sent out over the network (output). Lost characters are
+  caused by overflowing the MUSH's input or output buffers.
  
-  Note: your Pending count for output will always be nonzero, as the output
-  of the SESSION command hasn't been sent out over the network yet.
-
-& take
-  Command: take[/<switch>] <object>
-           take[/<switch>] <exit>
-           take[/<switch>] <object>'s <sub-object>
+  Continued in 'help Session2'.
  
-  The first form picks up <object> from your location and adds it to your
-  inventory.  It will fail if the object is locked against you, or if you
-  are inside a player or object that you don't control and which isn't
-  set ENTER_OK.
+& SESSION2
  
-  The second form takes an exit from your location and adds it to you.
-  Anyone inside you may then use the exit to travel to the exit's destination.
-  You may take exits that you own, and exits owned by others in locations that
-  you own.
+  A nonzero Input Pending count can indicate type-ahead or a client program
+  sending commands faster than the command scheduling parameters let them be
+  executed. Telnet sessions in character mode also show up with positive
+  Input Pending counts when the player is in the middle of typing a command.
  
-  The third form takes <sub-object> from <object> and adds it to your
-  inventory.  <object> must be ENTER_OK and <sub-object> must not be locked
-  against you for this to work.  The lock on <object> is not checked.
-{ 'help take2' for more }
-& take2
-  The following switch is recognized:
-     /quiet   - Don't perform the @osucc/@asucc or @ofail/@afail attributes
-                on the target object.  This switch only works if you control
-                the object.
+  A persistently large Output Pending count can indicate network issues
+  between the MUSH's site and the player's computer; alternatively, it
+  can mean that the player has performed a command that generated a lot of
+  output that hasn't been setn yet. The player performing the SESSION will
+  always have a non-zero Output Pending, since the output of the SESSIO
+  itself hasn't been sent out over the network yet.
  
-  <object> and <sub-object> may be either players or things.
-  'get' is the same as 'take'.
-  See also: drop, @afail, @asucc, @fail, @ofail, @osucc, @succ, ENTER_OK,
-            FAILURE, SUCCESS.
-
+  A nonzero Input Lost count means that the player has typed a line longer
+  than what the MUSH can handle. This probably indicates a problem with
+  the player's client or terminal, such as accidental large cut-and-paste
+  or a stuck key on the keyboard, though deliberate malice is a possibility.
+ 
+  Continued in 'help Session3'.
+ 
+& SESSION3
+ 
+  A nonzero Output Lost count normally indicates that the player performed
+  one or more commands that generated a great deal of output -- more than
+  the output buffer could hold. This may be the result of attempting to
+  examine a very large object, for isnstance. It may also indicate network
+  problems, or that the player is generating output faster than the network
+  or his client can process it.
+ 
+  See also: session(), ports(), WHO.
+ 
 & think
  
 Command:  think <message>
@@ -1616,27 +1626,6 @@ You can use this command to send a private message to yourself. The
  
 See also: @pemit, @eval
  
-& throw
-  Command: throw[/<switch>] <object>
-           throw[/<switch>] <exit>
- 
-  The first form removes <object> from your inventory and puts it in your
-  location, except for the following special cases: Dropping a STICKY thing
-  sends it home, and dropping a thing in a room with a drop-to sends the
-  thing to the drop-to location.
- 
-  The second form removes <exit> from your list of exits and adds it to the
-  list of exits for the current location.  Anyone in the same location as
-  you may then use the exit to travel to the exit's destination.  You can
-  only drop exits when you own the location where you are dropping them.
- 
-  The following switch is recognized:
-     /quiet   - Don't perform the @odrop/@adrop attributes on the dropped
-                 object.  This switch only works if you control the object.
- 
-  'drop' is the same as 'throw'.
-  See also: get, @adrop, @drop, @odrop, DROP-TO, STICKY.  
-
 & @ause
 & @ouse
 & @use
@@ -1682,7 +1671,7 @@ normally.
 See also: page, pose, say, @emit
  
 & WHO
-  Command: WHO <prefix>
+  Command: WHO [<prefix>]
  
   Displays a list of players currently connected to the MUSH. If
   <prefix> is specified, only players whose names start with <prefix>
@@ -1727,38 +1716,6 @@ inside.
 Example:
   @va me = $foobar *: @fo #1234=%0; @@ This controls my foobar puppet.
  
-& @branch
-
-  Command: @branch[/<switches>] <string>=<t1>,<c1> [,<tN>,<cN>]... [,<cD>]
-  Compares <string> against the targets <t1>, <t2>, etc, until a match is
-  found, at which time the corresponding list of commands is performed
-  immediately, without queueing. Wildcards, and the < and > operators are
-  allowed in the targets.  By default, any list whose target matches the
-  string is executed (the targets are not mutually exclusive). If no target
-  matches, the default list <cD> is executed.
- 
-  The following switches are available:
-     /all   - (default) Perform the actionlists associated with all targets
-              that match <string>.
-     /first - Perform only the actionlist associated with the first target
-              that matches <string>.
-  '@branch' is the same as '@switch/now'.
- 
-  See also: @switch, @call, @iter.
-
-& @call
-
-  Command: @call [<object>/]<attr> [=<param> [, <param>]... ]
-  Invokes an action list stored in an attribute on an object, performing
-  the actions immediately, without queueing.  The calling object becomes
-  the enactor and the positional parameters %0 through %9 are set to the
-  supplied parameters. If <object> is not specified, the calling object
-  is searched for the attribute.
- 
-  '@call' is the same as '@trigger/now/quiet'.
- 
-  See also: @trigger, @branch, @iter.
-
 & @chown
  
   Command: @chown[/nostrip] <object>[=<player>]
@@ -2074,6 +2031,7 @@ Example:
  
   See also: WHO.
 
+& @iter
 & @dolist
   Command: @dolist[/<switches>] [<delimiter>] <list>=<action>
  
@@ -2091,6 +2049,7 @@ Example:
     /delimit - List elements are separated by <delimiter>.
     /notify  - Queues a "@notify me" after all the @dolist'd commands.
     /now     - Commands are run immediately rather than placed on the queue.
+ 
   '@iter' is the same as '@dolist/now'.
  
   Continued in 'help @dolist2'.
@@ -2108,7 +2067,7 @@ Example:
     @dolist/delimit , {Frodo, Bilbo Baggins, Gandalf} = page ## = HELP!!!!
  
   See also: iter(), DELIMITERS.
-
+ 
 & @drain
   Command: @drain <object>
   Discards all commands waiting on the semaphore <object> and resets the
@@ -2974,6 +2933,7 @@ See also: @emit, @oemit, @npemit, page
  
 & nrefs
 & name references
+& named references
 & @reference
 Command: @reference <reference name> = [<object>]
          @reference/list [<player>]
@@ -3141,24 +3101,30 @@ Example:
   that location or listener type is checked.
   See also: @listen, AUDIBLE, PUPPETS.
 
+& @branch
 & @switch
   Command: @switch[/<switches>] <string>=<t1>,<c1> [,<tN>,<cN>]... [,<cD>]
+ 
   Compares <string> against the targets <t1>, <t2>, etc, until a match is
-  found, at which time the corresponding list of commands is performed.
-  Wildcards, and the < and > operators are allowed in the targets.  By
-  default, any list whose target matches the string is executed (the targets
-  are not mutually exclusive). If no target matches, the default list
-  <cD> is executed. The evaluated value of <string> can be obtained as '#$'.
+  found, at which time the corresponding action list of commands is performed.
+  Wildcards, and the < and > operators are allowed in the targets.
+ 
+  Depending on the setting of the config parameter switch_default_all, this
+  may result in the action list of all matching targets may be performed (the
+  targets are not mutually exclusive), or just the first matched target's
+  action list being performed. If no target matches, the default list <cD>
+  is executed. The evaluated value of <string> can be obtained as '#$'.
  
   The following switches are available:
-     /all   - (default) Perform the actionlists associated with all targets
-              that match <string>.
+     /all   - Perform the actionlists associated with all targets that
+              match <string>.
      /first - Perform only the actionlist associated with the first target
               that matches <string>.
      /now   - If an actionlist is to be performed, do so immediately rather
               than placing it on the queue.
+ 
   '@branch' is the same as '@switch/now'.
-
+ 
 & @teleport
  
 Command:  @teleport[/quiet] [<mobile>=] <destination obj>
@@ -3247,6 +3213,7 @@ Example of a @tofail verb set:
  
 See also: JUMP_OK, FIXED, home, @lock
  
+& @call
 & @trigger 
   Command: @trigger[/<switches>] [<object>/]<attr> [=<param> [, <param>]... ]
   
@@ -3260,9 +3227,12 @@ See also: JUMP_OK, FIXED, home, @lock
      &DO_TT obj = $tt *: @pemit %# = u(TABLETALK,%0)
      &DO_PLUSTT obj = $+tt *: @trig me/DO_TT=%0
   
+  Running an action list via @trigger costs charges, just like triggering
+  the @a-action of an attr/oattr/attr set.
+ 
   The @trigger command supports the following switches:
-     quiet      - Omit 'Triggered.' messages.
-     now        - Perform the action list immediately rather than placing
+     /quiet     - Omit 'Triggered.' messages.
+     /now       - Perform the action list immediately rather than placing
                   it on the queue.
  
   '@call' is the same as '@trigger/now/quiet'.
@@ -3411,18 +3381,6 @@ See also: JUMP_OK, FIXED, home, @lock
   from <object>.  Attributes that you do not have permission to modify (such
   as read-only or locked attributes) are not removed.
 
-& @aahear
-  Command: @aahear <object> = <command-list>
-  Attribute: Aahear
- 
-  An Aahear on an object is activated whenever the listen pattern
-  matches anything done/said by anything else in the room, including
-  itself.  (The Ahear ignores itself, helpful for keeping machines from 
-  triggering itself)
- 
-  Example: @aahear listener = "I heard someone (maybe me?) say the word!
-  See also: @ahear, @amhear, @listen.
-
 & Conn Reasons
   When invoking an @aconnect or @adisconnect attribute, the server will
   pass two parameters to the attribute. 
@@ -3514,17 +3472,6 @@ See also: JUMP_OK, FIXED, home, @lock
     > @afail vase = :falls to the floor and smashes to pieces.;@destroy me
   See also: @fail, @ofail, FAILURE.
 
-& @ahear
-  Command: @ahear <object> = <command-list>
-  Attribute: Ahear
- 
-  Sets the actions to be taken after the object hears a string that matches
-  the pattern in the Listen attribute which was not produced by the object
-  itself.  Messages that are produced by the object itself are ignored.
- 
-  Example: @ahear clock = "The time is now [time()].  >> BONNNNGGGGG <<
-  See also: @aahear, @amhear, @listen.
-
 & @alias
   Command: @alias <player> = <name>[;<alias 2>;<alias 3>;<alias N>]
   Attribute: Alias
@@ -3540,36 +3487,6 @@ See also: JUMP_OK, FIXED, home, @lock
   be modified only through the @alias command (i.e., it cannot be changed
   by @edit and similar commands).
  
-& @amhear
-  Command: @amhear <object> = <command-list>
-  Attribute: Amhear
- 
-  Sets the actions to be taken after the object hears a string that matches
-  the pattern in the Listen attribute which was produced by the object
-  itself.
-  Messages that are produced by anything other than the object itself are
-  ignored.
- 
-  Example: @amhear listener = "Wait a minute.  I said the trigger word!
-  See also: @aahear, @ahear, @listen.
-
-& @apay
-  Command: @apay <object> = <command-list>
-  Attribute: Apay
- 
-  Sets the actions to be taken after the object is given the number of coins
-  specified in its Cost attribute.  If the giver tries to give more than that
-  number of coins, the excess is refunded, and if less than the necessary
-  amount is given then it is all given back and a snide message is sent to
-  the giver.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @apay Coke machine = @clone Can of Coke; :drops a can on the
-                                floor.
-  See also: give, @cost, @opay, @pay.
-
 & @asuccess
   Command: @asuccess <object> = <command-list>
   Attribute: Asucc
@@ -3606,18 +3523,6 @@ See also: JUMP_OK, FIXED, home, @lock
  
   Example: @away me = Hey, I'm not even connected.  So why are you paging me?
   See also: @idle, @reject, page.
-
-& @charges
-  Command: @charges <object> = <count>
-  Attribute: Charges
- 
-  This attribute allows you to limit the number of times an object can be
-  used.  If there is a charges attribute it is decremented each time an
-  action on the object is triggered.  Once it reaches zero, normal triggering
-  stops and the Runout attribute (if one is present) is run instead.
- 
-  Example: @charges Fireball wand = 5
-  See also: @runout.
 
 & @cost
   Command: @cost <object> = <amount>
@@ -3864,38 +3769,20 @@ See also: JUMP_OK, FIXED, home, @lock
     test> In the mundane world outside, Wizard waves some more.
     Wizard waves some more.
   See also: @filter, @infilter, @listen, @prefix.
-
-& @iter
-
-  Command: @iter[/<switch>] [<delimiter>] <list>=<action>
-  <list> is a list of strings, which can be object numbers, attributes, or
-  arbitrary words.  <action> is a command to perform once for each item in
-  <list>, replacing the special symbol ## with the corresponding item from
-  <list>, and the symbol #@ with the position in the list, starting with
-  one. By default, @iter considers each item in <list> to be separated
-  with spaces. If you specify the /delimit switch, then each item is
-  considered to be separated by <delimiter>. <delimiter> must be a single
-  character. <action> is run immediately for each item in <list> rather 
-  than being placed on the queue.
  
-  Supported switches are:
-    /space   - (Default) List elements are separated by spaces.
-    /delimit - List elements are separated by <delimiter>.
-  '@iter' is the same as '@dolist/now'.
- 
-  See also: @dolist, @call, @branch, iter(), parse().
-
+& @aahear
+& @ahear
+& @amhear
 & @listen
-  Command: @listen <object> = <pattern>
-  Attribute: Listen
+  Attribute set:  @listen, @ahear, @aahear, @amhear
  
-  This attribute contains a pattern that the object listens for.
-  Anything spoken, posed, emitted, or whispered in the room that <object> is
-  in, as well as messages resulting from using objects (such as Opay and Succ
-  messages) are checked against the Listen attribute.  When the object hears 
-  something that matches the pattern, it triggers the Ahear attribute, as
-  well as either the Amhear or Aahear attributes, as appropriate, passing
-  %0-%9 substitutions according to the pattern match.
+  The @listen attribute contains a pattern that the object listens for.
+  Any message that <object> receives -- such as those spoken, posed,
+  emitted, whispered, paged, as well as generated from actions, such
+  as movement -- is checked against the @listen attribute. When the object
+  hears something that matches the pattern, it triggers the appropritae
+  @ahear / @aahear / @amhear attribute, passing the stack (%0 - %9)
+  substitutions according to the results of the pattern match.
  
   The pattern is normally a wildcard pattern, with %0 as the string that
   matched the first wildcard in the @listen, %1 as the string that matched
@@ -3908,23 +3795,40 @@ See also: JUMP_OK, FIXED, home, @lock
   'case' flag is also set on the @listen.
  
   Continued in 'help @listen2'.
-
+ 
 & @listen2
  
-  If the pattern in the Listen attribute is matched, objects in <object>'s
-  inventory will also hear the message and have a chance to match it.
-  Objects whose Listen attribute is set to anything will be listed when a
-  @sweep command is run by someone in the same room.
+  The @ahear attribute is triggered only by messages that were not generated
+  by the listening object itself. This is the most commonplace way to use a
+  @listen, and is the safest, since it helps prevent infinite loops.
  
-  If the @listen pattern is matched, then the object's contents will
-  hear the message also, prefixed by the text in @inprefix if it is set. Any
-  text that matches any pattern specified in @infilter will not be sent to
-  the contents.
+  The @amhear attribute is triggered only by messages that were generated
+  by the listening object itself.
  
-  Example: @listen camera = * has arrived.
-           @ahear camera = @va me = %va %0
+  The @aahear attribute is triggered by all messages, whether or not the
+  listening object generated them.
  
-  See also: @aahear, @ahear, @amhear, @sweep, @inprefix, @infilter.
+  Example:
+    > @listen object = * tests.
+    > @ahear object = say Someone else -- %0 -- tested!
+    > @amhear object = I tested!
+    > @aahear object = say Somebody that might be me -- %0 -- tested! 
+ 
+  Continued in 'help @listen3'.
+ 
+& @listen3
+  
+  In addition to trigger attributes, the @listen pattern also determines
+  what messages "fall through" the object and are heard by its contents.
+  Messages that match the @listen, regardless of what object was responsible
+  for generating them, will be passed on to the listening object's contents
+  (which in turn can match the message via @listen, etc.), unless the
+  message matches the listening object's @infilter pattern. Messages that
+  are passed on are prepended by the listening object's @inprefix, if any.
+  
+  Objects with a @listen attribute set are noted by the @sweep command.
+ 
+  See also: @sweep, @inprefix, @infilter, BOUNCE.
  
 & @odescribe
   Command: @odescribe <object> = <message>
@@ -3935,23 +3839,7 @@ See also: JUMP_OK, FIXED, home, @lock
  
   Example: @odesc vase = carefully inspects the vase.
   See also: look, @adescribe, @describe, @idesc.
-
-& @opay
-  @opay <object> = <message>
-  Attribute: Opay
  
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the room when someone pays <object> enough to satisfy its Cost attribute.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @opay Coke machine = slips some change into the coin slot on the
-                                Coke machine.  You hear some rumbling from
-                                inside the machine and a can of Coke appears
-                                in the tray at the bottom of the machine.
-  See also: give, @cost, @apay, @pay.
-
 & @osuccess
   Command: @osuccess <object> = <message>]
   Attribute: Osucc
@@ -3980,20 +3868,84 @@ See also: JUMP_OK, FIXED, home, @lock
   Example: @oufail robot = tries to activate the robot, but to no avail.
  
   See also: @aufail, @ufail, @use.
-
+ 
+& @charges
+& @runout
+& Charges
+ 
+Topic: Charges
+ 
+Objects can be set to take a limited number of actions, and then take
+a specified action list when it's gone past that limit.
+ 
+When the @aattr from a verb set is run (such as the @adesc from the
+@desc/@odesc/@adesc verb set, or invoked via @verb), or when an attribute
+is @trigger'd, a check is performed for charges on the object performing
+the action list.
+ 
+If the Charges attribute exists on the object, charges are depleted before
+the action list is run. If the Charges are greater than zero, then the
+Charges attribute is reduced by 1, and the action list is run. If the
+Charges are equal to or less than zero, then the action list in the
+object's @runout action list is executed INSTEAD OF the original
+attribute's specified action list (i.e., the @adesc, @trigger, etc.
+will not run, and the @runout will execute instead).
+ 
+Note that executing @runout does not clear the @charges attribute; it's
+left as-is, which means subsequent invocations will trigger the @runout again.
+ 
+Continued in 'help Charges2'.
+ 
+& Charges2
+ 
+For example:
+ 
+  > @charges balloon = 2
+  > @runout balloon = @emit The red balloon drifts out of sight.;
+                      @destroy/instant me
+  > @adesc balloon = @emit The red balloon drifts away.
+ 
+The third time the balloon is looked at, it will @emit the message, and
+then @destroy itself (eliminating itself as a MUSH object).
+ 
 & @pay
-  Command: @pay <object> = <message>
-  Attribute: Pay
+& @opay
+& @apay
+& @cost
+& Vendors
  
-  Sets the message that is shown to the player who gives <object> enough
-  money to satisfy its Cost attribute.
+Topic:  Vendors
  
-  This attribute is only meaningful for things, and will never be
-  automatically triggered on other object types.
+You can construct a "vending machine" -- an object which takes actions
+when it is given a certain number of coins -- by using the @cost attribute
+and the @pay/@opay/@apay verb set.
  
-  Example: @pay Coke machine = You slip some change into the slot.
-  See also: give, @apay, @cost, @opay.
-
+Set the @cost of the vending machine to however many coins you want it
+to cost. The user will type 'give <vending machine> = <number>' to
+activate the machine. If <number> is too low, they will be told it's
+too little (but not by how much, so you need to let the user know the
+price somehow, such as via the machine's @desc). If <number> is too
+high, they will be given change. The money paid is given to the
+vending machine's owner.
+ 
+When the user gives the vending machine enough money, its @pay/@opay/@apay
+verb set will be triggered. The user will see the @pay message, the others
+in the location will see the @opay message, and the @apay action list will
+be run.
+ 
+Continued in 'help Vendors2'.
+ 
+& Vendors2
+ 
+Example:
+ 
+  > @cost machine = 10
+  > @pay machine = You receive a cup of coffee. You drink it. Mmmm.
+  > @opay machine = receives a cup of coffee, which %s drinks immediately.
+  > @apay machine = &LAST_USED me = %#
+ 
+See also: give, Charges.
+ 
 & @prefix
   Command: @prefix <object> = <prefix text>
   Attribute: Prefix
@@ -4029,18 +3981,6 @@ See also: JUMP_OK, FIXED, home, @lock
  
   Example: @reject me = I _told_ you not to page me anymore...
   See also: @away, @idle, page.
-
-& @runout 
-  Command: @runout <object> = <command list>
-  Attribute: Runout
- 
-  Sets the actions to be taken by <object> when another of its attributes is
-  triggered (either automatically or via the @trigger command) and its
-  Charges attribute is zero.  When this occurs, the Runout attribute is run
-  INSTEAD OF the attribute that would have run normally.
- 
-  Example: @runout magic wand = :fizzles and turns to dust.; @destroy me
-  See also: @charges.
 
 & @sex
  

@@ -569,6 +569,9 @@ OTHER CHANGES
 
 - Better handling of the slave for DNS and identd lookups.
 
+- Replaced the random number generator with Mersenne Twister. Use
+  derived from PennMUSH, which derives it from MUX2.
+
 - Other cleanup in many parts of the code, including performance
   enhancements and significant reductions in memory used.
 

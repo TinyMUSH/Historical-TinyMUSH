@@ -35,6 +35,9 @@ Release history:
   the result is set into named global registers. This eliminates the
   issues with clobbering variables, needing to use the Now flag, etc.
 
+- Misc: Replaced the random number generator with Mersenne Twister.
+  Use derived from PennMUSH, which derives it from MUX2.
+
 - Misc: More informative error message when a function is given the wrong
   number of arguments. Idea from Philip Mak.
 

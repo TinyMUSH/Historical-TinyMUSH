@@ -928,7 +928,7 @@ int (*compare) ();
 	/* Pick something at random at swap it into the leftmost slot */
 	/* This is the pivot, we'll put it back in the right spot later */
 
-	i = random() % (1 + (right - left));
+	i = Randomize(1 + (right - left));
 	tmp = array[left + i];
 	array[left + i] = array[left];
 	array[left] = tmp;
@@ -1785,7 +1785,7 @@ FUNCTION(fun_shuffle)
 	n = list2arr(&words, LBUF_SIZE, fargs[0], isep, isep_len);
 
 	for (i = 0; i < n; i++) {
-		j = (random() % (n - i)) + i;
+		j = random_range(i, n - 1);
 		swap(&words[i], &words[j]);
 	}
 	arr2list(words, n, buff, bufc, osep, osep_len);
@@ -1942,9 +1942,7 @@ FUNCTION(fun_choose)
 	}
     }
 
-    /* Use the "good" random function, not the system one. */
-
-    num = (int) (makerandom() * sum);
+    num = (int) Randomize(sum);
 
     for (i = 0; i < n_weights; i++) {
 	if ((ip[i] != 0) && (num < ip[i])) {

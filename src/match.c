@@ -68,7 +68,7 @@ int confidence;
 	/* Equal confidence, pick randomly */
 
 	md.count++;
-	if (random() % md.count == 0) {
+	if (Randomize(md.count) == 0) {
 		md.match = what;
 	}
 	return;

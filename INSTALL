@@ -9,6 +9,10 @@ in order to be able to reliably run your game. Also, your local
 bookstore can probably recommend some good books for Unix beginners,
 such as "Unix for Dummies" or "Unix for the Impatient".
 
+*Please* read the FAQ file. It contains important information about
+how to configure the server, make backups of your database, report
+bugs, and the like.
+
 ----------------------------------------------------------------------------
 
 TABLE OF CONTENTS
