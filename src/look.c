@@ -39,24 +39,28 @@ static int did_attr(player, thing, what)
     dbref aowner, master;
     ATTR *ap;
 
-    switch (Typeof(thing)) {
-	case TYPE_ROOM:
-	    master = mudconf.room_defobj;
-	    break;
-	case TYPE_EXIT:
-	    master = mudconf.exit_defobj;
-	    break;
-	case TYPE_PLAYER:
-	    master = mudconf.player_defobj;
-	    break;
-	case TYPE_GARBAGE:
-	    return 0;
-	    break;		/* NOTREACHED */
-	default:
-	    master = mudconf.thing_defobj;
-    }
-    if (master == thing)
+    if (NoDefault(thing)) {
 	master = NOTHING;
+    } else {
+	switch (Typeof(thing)) {
+	    case TYPE_ROOM:
+		master = mudconf.room_defobj;
+		break;
+	    case TYPE_EXIT:
+		master = mudconf.exit_defobj;
+		break;
+	    case TYPE_PLAYER:
+		master = mudconf.player_defobj;
+		break;
+	    case TYPE_GARBAGE:
+		return 0;
+		break;		/* NOTREACHED */
+	    default:
+		master = mudconf.thing_defobj;
+	}
+	if (master == thing)
+	    master = NOTHING;
+    }
 
     m = NULL;
     d = atr_pget(thing, what, &aowner, &aflags, &alen);
