@@ -2086,6 +2086,22 @@ char *buff, **bufc;
 }
 
 /* ---------------------------------------------------------------------------
+ * get_programmer: Get the dbref of the controlling programmer, if any.
+ */
+
+dbref get_programmer(target)
+    dbref target;
+{
+    DESC *d;
+
+    DESC_ITER_CONN(d) {
+	if ((d->player == target) && (d->program_data != NULL))
+	    return (d->program_data->wait_cause);
+    }
+    return NOTHING;
+}
+
+/* ---------------------------------------------------------------------------
  * find_connected_name: Resolve a playername from the list of connected
  * players using prefix matching.  We only return a match if the prefix
  * was unique.

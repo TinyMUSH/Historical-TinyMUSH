@@ -40,6 +40,8 @@ extern NAMETAB indiv_attraccess_nametab[];
 extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
 				    const char *thingname, char *thing));
 
+extern dbref FDECL(get_programmer, (dbref));
+
 /* Function definitions from funceval.c */
 
 #define	XFUNCTION(x)	\
@@ -3380,6 +3382,24 @@ FUNCTION(fun_lwho)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_programmer: Returns the dbref or #1- of an object in a @program.
+ */
+
+FUNCTION(fun_programmer)
+{
+    dbref target;
+
+    target = lookup_player(player, fargs[0], 1);
+    if (!Good_obj(target) || !Connected(target) ||
+	!Examinable(player, target)) {
+	safe_str("#-1", buff, bufc);
+	return;
+    }
+    safe_chr('#', buff, bufc);
+    safe_ltos(buff, bufc, get_programmer(target));
+}
+
+/* ---------------------------------------------------------------------------
  * fun_nearby: Return whether or not obj1 is near obj2.
  */
 
@@ -5435,6 +5455,7 @@ FUN flist[] = {
 {"POS",		fun_pos,	2,  0,		CA_PUBLIC},
 {"POSS",	fun_poss,	1,  0,		CA_PUBLIC},
 {"POWER",	fun_power,	2,  0,		CA_PUBLIC},
+{"PROGRAMMER",	fun_programmer,	1,  0,		CA_PUBLIC},
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC},
 {"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
