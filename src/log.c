@@ -171,8 +171,10 @@ int key;
 		if ((mudconf.log_info & LOGOPT_TIMESTAMP) != 0) {
 			time((time_t *) (&now));
 			tp = localtime((time_t *) (&now));
-			sprintf(mudstate.buffer, "%d%d%d%d%d.%d%d%d%d%d%d ",
-				tp->tm_year, (((tp->tm_mon) + 1) / 10),
+			sprintf(mudstate.buffer, "%02d%d%d%d%d.%d%d%d%d%d%d ",
+				(tp->tm_year >= 100) ?
+				(tp->tm_year - 100) : (tp->tm_year),
+				(((tp->tm_mon) + 1) / 10),
 			      (((tp->tm_mon) + 1) % 10), (tp->tm_mday / 10),
 				(tp->tm_mday % 10),
 				(tp->tm_hour / 10), (tp->tm_hour % 10),
