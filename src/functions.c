@@ -4180,7 +4180,7 @@ FUNCTION(fun_merge)
 	/* walk strings, copy from the appropriate string */
 
 	for (str = fargs[0], rep = fargs[1];
-	     *str && *rep && ((*bufc - buff) < (LBUF_SIZE + 1));
+	     *str && *rep && ((*bufc - buff) < (LBUF_SIZE - 1));
 	     str++, rep++, (*bufc)++) {
 		if (*str == c)
 			**bufc = *rep;
