@@ -595,13 +595,12 @@ char *name, *newown;
 			}
 
 			/*
-			 * You may chown an attr to yourself if you own the * 
-			 * 
-			 * *  * *  * * object and the attr is not locked. *
-			 * You * may * chown  * an attr to the owner of the
-			 * object * if * * you own * the attribute. * To do
-			 * anything * else you  * must be a  * wizard. * Only 
-			 * #1 can * chown * attributes on #1. 
+			 * You may chown an attr to yourself if you
+			 * own the object and the attr is not locked.
+			 * You may chown an attr to the owner of the
+			 * object if you own the attribute. To do
+			 * anything else you must be a wizard. Only
+			 * #1 can chown attributes on #1.
 			 */
 
 			if (!atr_get_info(thing, atr, &aowner, &aflags)) {
@@ -620,9 +619,8 @@ char *name, *newown;
 			} else if (owner == Owner(player)) {
 
 				/*
-				 * chown to me: only if I own the obj and * * 
-				 * 
-				 * *  * * !locked 
+				 * chown to me: only if I own the obj
+				 * and !locked 
 				 */
 
 				if (!Controls(player, thing) ||
@@ -635,9 +633,8 @@ char *name, *newown;
 			} else if (owner == Owner(thing)) {
 
 				/*
-				 * chown to obj owner: only if I own attr * * 
-				 * 
-				 * *  * * and !locked 
+				 * chown to obj owner: only if I own attr
+				 * and !locked 
 				 */
 
 				if ((Owner(player) != aowner) ||
@@ -720,7 +717,8 @@ char *name, *newown;
 		       could_doit(player, thing, A_LCHOWN))) ||
 		    (isThing(thing) && (Location(thing) != player) &&
 		     !Chown_Any(player))) ||
-		   (!controls(player, owner) && !Chown_Any(player))) {
+		   (!controls(player, owner) && !Chown_Any(player)) ||
+		   God(thing)) {
 		notify_quiet(player, NOPERM_MESSAGE);
 	} else if (canpayfees(player, owner, cost, quota, Typeof(thing))) {
 	    payfees(owner, cost, quota, Typeof(thing));

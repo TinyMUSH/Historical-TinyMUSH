@@ -289,6 +289,11 @@ int chown_all(from_player, to_player, acting_player, key)
 	if (!isPlayer(to_player))
 		to_player = Owner(to_player);
 
+	if (God(from_player) && !God(to_player)) {
+		notify(acting_player, "Permission denied.");
+		return 0;
+	}
+
 	strip_powers = 1;
 	if (key & CHOWN_NOSTRIP) {
 	    if (God(acting_player)) {
