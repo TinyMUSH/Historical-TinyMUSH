@@ -757,7 +757,7 @@ int ncmds;
 {
     BQUE *tmp;
     dbref player;
-    int count, i, len;
+    int count;
     char *cmdsave;
 
     if ((mudconf.control_flags & CF_DEQUEUE) == 0)

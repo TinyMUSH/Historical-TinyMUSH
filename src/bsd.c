@@ -687,7 +687,7 @@ int reason;
 {
 	char *buff2;
 	time_t now;
-	int i, num, ncon;
+	int num, ncon;
 	DESC *dtemp;
 
 	if ((reason == R_LOGOUT) &&

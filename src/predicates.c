@@ -1147,7 +1147,7 @@ char *message;
 	DESC *all, *dsave;
 	char *cmd;
 	dbref aowner;
-	int aflags, alen, i;
+	int aflags, alen;
 
 	/* Allow the player to pipe a command while in interactive mode.
 	 * Use telnet protocol's GOAHEAD command to show prompt
@@ -1220,7 +1220,7 @@ char *name;
 {
 	DESC *d;
 	dbref doer;
-	int i, isprog = 0;
+	int isprog = 0;
 
 	if (*name) {
 		doer = match_thing(player, name);
@@ -1264,7 +1264,7 @@ char *name, *command;
 {
 	DESC *d;
 	PROG *program;
-	int i, atr, aflags, lev, found;
+	int atr, aflags, lev, found;
 	dbref doer, thing, aowner, parent;
 	ATTR *ap;
 	char *attrib, *msg;

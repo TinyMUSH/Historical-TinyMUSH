@@ -290,8 +290,8 @@ extern void	FDECL(tf_fclose, (FILE *));
 extern FILE *	FDECL(tf_popen, (char *, int));
 #define tf_pclose(f)	tf_fclose(f)
 
-#define putref(pr__f,pr__ref)	fprintf(pr__f, "%d\n", pr__ref)
-#define putlong(pr__f,pr__i)	fprintf(pr__f, "%ld\n", pr__i)
+#define putref(pr__f,pr__ref)	fprintf(pr__f, "%d\n", (int)pr__ref)
+#define putlong(pr__f,pr__i)	fprintf(pr__f, "%ld\n", (long)pr__i)
 
 extern INLINE dbref	FDECL(getref, (FILE *));
 extern INLINE long	FDECL(getlong, (FILE *));

@@ -47,7 +47,7 @@ dbref player, loc;
 const char *exit_name;
 {
     dbref thing, parent;
-    char *buff, *e, *s, *buff1, *e1;
+    char *buff, *e, *buff1, *e1;
     int foundany, lev, isdark;
 
     /* make sure location has exits */
@@ -1482,7 +1482,7 @@ dbref player, cause;
 int key;
 {
 	dbref thing;
-	char *buff, *s, *e;
+	char *buff, *e;
 
 	thing = Contents(player);
 	if (thing == NOTHING) {

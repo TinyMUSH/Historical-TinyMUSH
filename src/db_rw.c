@@ -1254,9 +1254,9 @@ int format, version;
 {
 	dbref i;
 	int flags;
-	VATTR *vp, *vpx;
+	VATTR *vp;
 	int n, end, ca, n_oldtotal, n_oldtop, n_deleted, n_renumbered;
-	int n_objt, n_atrt, got, anxt, dbclean;
+	int n_objt, n_atrt, anxt, dbclean;
 	int *old_attrs_table;
 	char *as;
 

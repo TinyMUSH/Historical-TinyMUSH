@@ -50,8 +50,6 @@ extern LOGFILETAB logfds_table[];
 
 void NDECL(cf_init)
 {
-	int i;
-
 	mudconf.dbhome = XSTRDUP(".", "cf_string");
 	mudconf.crashdb = XSTRDUP("", "cf_string");
 	mudconf.gdbm = XSTRDUP("", "cf_string");

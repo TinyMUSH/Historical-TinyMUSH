@@ -384,7 +384,7 @@ FUNCTION(fun_r)
 
 FUNCTION(fun_wildmatch)
 {
-    int i, nqregs, curq;
+    int i, nqregs;
     char *t_args[NUM_ENV_VARS], **qregs; /* %0-%9 is limiting */
 
     if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS)) {
@@ -2131,8 +2131,6 @@ FUNCTION(fun_empty)
 FUNCTION(fun_items)
 {
     dbref it;
-    int i;
-    OBJSTACK *sp;
 
     if (!fargs[0]) {
 	it = player;
@@ -2655,7 +2653,7 @@ FUNCTION(perform_regrab)
 FUNCTION(perform_regmatch)
 {
     int case_option;
-    int i, nqregs, curq;
+    int i, nqregs;
     char **qregs;
     pcre *re;
     const char *errptr;
