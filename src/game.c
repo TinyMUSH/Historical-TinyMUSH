@@ -1240,15 +1240,20 @@ int check_parent, *stop_status;
 
 	match = 0;
 	while (thing != NOTHING) {
-		if (thing != player) {
-			if (atr_match(thing, player, type, str, raw_str, check_parent) > 0)
-				match = 1;
-				if (Stop_Match(thing)) {
-					*stop_status = 1;
-					return match;
-				}
+		if ((thing != player) &&
+		    (atr_match(thing, player, type, str, raw_str,
+			       check_parent) > 0)) {
+		        match = 1;
+			if (Stop_Match(thing)) {
+			    *stop_status = 1;
+			    return match;
+			}
 		}
-		thing = Next(thing);
+		if (thing != Next(thing)) {
+		        thing = Next(thing);
+		} else {
+		        thing = NOTHING; /* make sure we don't infinite loop */
+		}
 	}
 	return match;
 }
