@@ -664,7 +664,8 @@ char *expr, *args[], *cargs[];
 			} else {
 				wait_que(player, cause, 0, NOTHING, 0,
 					 tbuf, cargs, ncargs,
-					 mudstate.global_regs);
+					 mudstate.global_regs,
+					 mudstate.glob_reg_len);
 			}
 			free_lbuf(tbuf);
 			if (key == SWITCH_ONE) {
@@ -681,7 +682,8 @@ char *expr, *args[], *cargs[];
 			process_cmdline(player, cause, tbuf, cargs, ncargs);
 		} else {
 			wait_que(player, cause, 0, NOTHING, 0, tbuf, cargs,
-				 ncargs, mudstate.global_regs);
+				 ncargs, mudstate.global_regs,
+				 mudstate.glob_reg_len);
 		}
 		free_lbuf(tbuf);
 	}
@@ -1150,7 +1152,7 @@ char *message;
 	DESC *all, *dsave;
 	char *cmd;
 	dbref aowner;
-	int aflags, alen, i;
+	int aflags, alen, i, wreg_len[MAX_GLOBAL_REGS];
 
 	/* Allow the player to pipe a command while in interactive mode.
 	 * Use telnet protocol's GOAHEAD command to show prompt
@@ -1178,8 +1180,15 @@ char *message;
 	    }
 	}
 	cmd = atr_get(d->player, A_PROGCMD, &aowner, &aflags, &alen);
-	wait_que(d->program_data->wait_cause, d->player, 0, NOTHING, 0, cmd, (char **)&message,
-		 1, (char **)d->program_data->wait_regs);
+	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
+	    if (d->program_data->wait_regs[i])
+		wreg_len[i] = strlen(d->program_data->wait_regs[i]);
+	    else
+		wreg_len[i] = 0;
+	}
+	wait_que(d->program_data->wait_cause, d->player, 0, NOTHING, 0, cmd,
+		 (char **)&message,
+		 1, (char **)d->program_data->wait_regs, wreg_len);
 
 	/* First, set 'all' to a descriptor we find for this player */
 
@@ -2104,7 +2113,8 @@ const char *def, *odef;
 		restore_global_regs("did_it_restore2", preserve, preserve_len);
 	    } else {
 		wait_que(thing, player, 0, NOTHING, 0, tp,
-			 args, nargs, mudstate.global_regs);
+			 args, nargs, mudstate.global_regs,
+			 mudstate.glob_reg_len);
 	    }
 	}
 	free_lbuf(act);

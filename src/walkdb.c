@@ -46,7 +46,7 @@ char *action, *argstr, *cargs[];
 		process_cmdline(player, cause, command2, cargs, ncargs);
 	else
 		wait_que(player, cause, 0, NOTHING, 0, command2, cargs, ncargs,
-			 mudstate.global_regs);
+			 mudstate.global_regs, mudstate.glob_reg_len);
 	free_lbuf(command);
 	free_lbuf(command2);
 }
@@ -99,7 +99,8 @@ char *list, *command, *cargs[];
 		tbuf = alloc_lbuf("dolist.notify_cmd");
 		strcpy(tbuf, (char *) "@notify me");
 		wait_que(player, cause, 0, NOTHING, A_SEMAPHORE, tbuf,
-			 cargs, ncargs, mudstate.global_regs);
+			 cargs, ncargs, mudstate.global_regs,
+			 mudstate.glob_reg_len);
 		free_lbuf(tbuf);
 	}
 }

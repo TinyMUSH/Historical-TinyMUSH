@@ -307,7 +307,8 @@ int check_exclude, hash_insert;
 					    NUM_ENV_VARS);
 			} else {
 			    wait_que(thing, player, 0, NOTHING, 0, s, args,
-				     NUM_ENV_VARS, mudstate.global_regs);
+				     NUM_ENV_VARS, mudstate.global_regs,
+				     mudstate.glob_reg_len);
 			}
 			for (i = 0; i < NUM_ENV_VARS; i++) {
 				if (args[i])

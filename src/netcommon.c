@@ -626,7 +626,8 @@ int num, attr;
 
 	buf = atr_pget(player, attr, &aowner, &aflags, &alen);
 	if (*buf)
-		wait_que(player, player, 0, NOTHING, 0, buf, argv, 2, NULL);
+		wait_que(player, player, 0, NOTHING, 0, buf, argv, 2,
+			 NULL, NULL);
 	free_lbuf(buf);
 
 	if ((mudconf.master_room != NOTHING) && mudconf.use_global_aconn) {
@@ -634,7 +635,7 @@ int num, attr;
 			       &aflags, &alen);
 		if (*buf)
 			wait_que(mudconf.master_room, player, 0, NOTHING, 0,
-				 buf, argv, 2, NULL);
+				 buf, argv, 2, NULL, NULL);
 		free_lbuf(buf);
 		DOLIST(obj, Contents(mudconf.master_room)) {
 		        if (!mudconf.global_aconn_uselocks ||
@@ -643,7 +644,7 @@ int num, attr;
 					       &aflags, &alen);
 				if (*buf) {
 				        wait_que(obj, player, 0, NOTHING, 0,
-						 buf, argv, 2, NULL);
+						 buf, argv, 2, NULL, NULL);
 				}
 				free_lbuf(buf);
 			}
@@ -657,7 +658,7 @@ int num, attr;
 			buf = atr_pget(zone, attr, &aowner, &aflags, &alen);
 			if (*buf) {
 				wait_que(zone, player, 0, NOTHING, 0, buf,
-					 argv, 2, NULL);
+					 argv, 2, NULL, NULL);
 			}
 			free_lbuf(buf);
 			break;
@@ -668,8 +669,8 @@ int num, attr;
 			DOLIST(obj, Contents(zone)) {
 				buf = atr_pget(obj, attr, &aowner, &aflags, &alen);
 				if (*buf) {
-					wait_que(obj, player, 0, NOTHING, 0, buf,
-						 argv, 2, NULL);
+					wait_que(obj, player, 0, NOTHING, 0,
+						 buf, argv, 2, NULL, NULL);
 				}
 				free_lbuf(buf);
 			}

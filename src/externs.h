@@ -39,7 +39,7 @@ extern int	FDECL(cf_modify_bits, (int *, char *, long, dbref, char *));
 extern int	FDECL(nfy_que, (dbref, dbref, int, int, int));
 extern int	FDECL(halt_que, (dbref, dbref));
 extern void	FDECL(wait_que, (dbref, dbref, int, dbref, int, char *,
-			char *[], int, char *[]));
+			char *[], int, char *[], int []));
 extern int	NDECL(que_next);
 extern int	FDECL(do_top, (int ncmds));
 extern void	NDECL(do_second);

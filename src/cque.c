@@ -371,10 +371,10 @@ char *what, *count;
  * setup_que: Set up a queue entry.
  */
 
-static BQUE *setup_que(player, cause, command, args, nargs, sargs)
+static BQUE *setup_que(player, cause, command, args, nargs, sargs, slens)
 dbref player, cause;
 char *command, *args[], *sargs[];
-int nargs;
+int nargs, slens[];
 {
 	int a, tlen;
 	BQUE *tmp;
@@ -424,7 +424,7 @@ int nargs;
 	if (sargs) {
 		for (a = 0; a < MAX_GLOBAL_REGS; a++) {
 			if (sargs[a])
-				tlen += (strlen(sargs[a]) + 1);
+				tlen += slens[a] + 1;
 		}
 	}
 	/* Create the queue entry and load the save string */
@@ -457,9 +457,9 @@ int nargs;
 	if (sargs) {
 		for (a = 0; a < MAX_GLOBAL_REGS; a++) {
 			if (sargs[a]) {
-				strcpy(tptr, sargs[a]);
+				memcpy(tptr, sargs[a], slens[a] + 1);
 				tmp->scr[a] = tptr;
-				tptr += (strlen(sargs[a]) + 1);
+				tptr += slens[a] + 1;
 			}
 		}
 	}
@@ -479,15 +479,16 @@ int nargs;
  * wait_que: Add commands to the wait or semaphore queues.
  */
 
-void wait_que(player, cause, wait, sem, attr, command, args, nargs, sargs)
+void wait_que(player, cause, wait, sem, attr, command, args, nargs, sargs, slens)
 dbref player, cause, sem;
-int wait, nargs, attr;
+int wait, nargs, attr, slens[];
 char *command, *args[], *sargs[];
 {
 	BQUE *tmp, *point, *trail;
 
 	if (mudconf.control_flags & CF_INTERP)
-		tmp = setup_que(player, cause, command, args, nargs, sargs);
+		tmp = setup_que(player, cause, command, args, nargs,
+				sargs, slens);
 	else
 		tmp = NULL;
 	if (tmp == NULL) {
@@ -547,7 +548,8 @@ char *event, *cmd, *cargs[];
 	if (is_number(event)) {
 		howlong = atoi(event);
 		wait_que(player, cause, howlong, NOTHING, 0, cmd,
-			 cargs, ncargs, mudstate.global_regs);
+			 cargs, ncargs, mudstate.global_regs,
+			 mudstate.glob_reg_len);
 		return;
 	}
 	/* Semaphore wait with optional timeout */
@@ -601,7 +603,8 @@ char *event, *cmd, *cargs[];
 			howlong = 0;
 		}
 		wait_que(player, cause, howlong, thing, attr, cmd,
-			 cargs, ncargs, mudstate.global_regs);
+			 cargs, ncargs, mudstate.global_regs,
+			 mudstate.glob_reg_len);
 	}
 }
 
