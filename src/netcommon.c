@@ -1624,7 +1624,6 @@ int first;
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< do_command >";
-	d->last_time = mudstate.now;
 
 	/* Split off the command from the arguments */
 
@@ -1942,6 +1941,7 @@ void NDECL(process_commands)
 				    free_mbuf(logbuf);
 				    log_text(t->cmd);
 				ENDLOG
+				d->last_time = mudstate.now;
 				if (d->program_data != NULL)
 					handle_prog(d, t->cmd);
 				else
