@@ -6,7 +6,7 @@
 #		  Includes mush.config, the main conf file, a flatfile,
 #		  the various module databases, and text files with a
 #		  .txt extension that are not help, wizhelp, qhelp, or mushman.
-#		  Symbolic links are copied, not followed. 
+#		  Symbolic links are followed. 
 #
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH
@@ -39,6 +39,6 @@ TXTFILES=`ls $TEXT/*.txt | egrep -v '^(help|wizhelp|qhelp|mushman).txt'`
 ALLFILES="$FLATFILE $DATA/mod_*.db mush.config $GAMENAME.conf $TXTFILES"
 #
 echo "Archiving..."
-tar -chvf - $ALLFILES | $ZIP -c > $OUTFILE
+tar -cvPhf - $ALLFILES | $ZIP -c > $OUTFILE
 rm $FLATFILE
 echo "Done: $OUTFILE archive saved."
