@@ -46,11 +46,7 @@ extern void	NDECL(do_second);
 
 /* From db.c */
 extern const char *FDECL(getstring_noalloc, (FILE *, int));
-extern void	FDECL(putstring, (FILE *, char *str, char **bp, const char *));
-extern void	FDECL(put_char, (FILE *, char *str, char **bp, char));
-extern void	VDECL(put_printf, (FILE *, char *, char **, const char *, ...));
-extern char *	NDECL(start_buffer);
-extern void	FDECL(fluff_buffer, (FILE *, char *, char **));
+extern void	FDECL(putstring, (FILE *, const char *));
 extern void	NDECL(dump_restart_db);
 extern int	FDECL(Commer, (dbref));
 extern void	FDECL(s_Pass, (dbref, const char *));

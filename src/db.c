@@ -2878,152 +2878,24 @@ const char *s;
 	return ((x >= 0) ? x : NOTHING);
 }
 
-#if defined(__STDC__) && defined(STDC_HEADERS)
-void put_printf(FILE *f, char *str, char **bp, const char *format,...)
-#else
-void put_printf(va_alist)
-va_dcl
-
-#endif
-
-{
-	static char buff[LBUF_SIZE * 2];
-	va_list ap;
-	int len, left;
-	char *bufc;
-	
-#if defined(__STDC__) && defined(STDC_HEADERS)
-        va_start(ap, format);
-#else
-	FILE *f;
-        char *str;
-        char **bp;   
-        char *format;
-
-        va_start(ap);
-	f = va_arg(ap, FILE *);
-        str = va_arg(ap, char *);
-        bp = va_arg(ap, char **);   
-        format = va_arg(ap, char *);
-
-#endif
-        /* Sigh, don't we wish _all_ vsprintf's returned int... */
-
-        vsprintf(buff, format, ap);
-        va_end(ap);
-        buff[(LBUF_SIZE * 2) - 1] = '\0';
-        
-        /* Write as much as we can into the buffer, flush to disk when
-         * we reach the block size */
-        
-	/* How much do we have to write */
-	len = strlen(buff);
-	bufc = buff;
-	
-	/* How much space do we have left in the buffer */	
-	left = mudstate.fs_block_size - (*bp - str);
-
-	while (len > 0) {
-		if (left > len) {
-			/* Have enough space to copy the whole string in */
-			
-			memcpy(*bp, bufc, len);
-			*bp += len;
-			len = 0;
-		} else {
-			/* Oops, need to copy part of the string and write */
-			
-			memcpy(*bp, bufc, left);
-			
-			/* Reset some things */
-			
-			bufc += left;
-			len -= left;
-			left = mudstate.fs_block_size;
-			*bp = str;
-			
-			fwrite(str, sizeof(char), mudstate.fs_block_size, f);
-		}
-	}
-}
-
-char *start_buffer()
-{
-	return (char *)malloc(mudstate.fs_block_size);
-}
-
-void flush_buffer(f, str, bp)
+void putstring(f, s)
 FILE *f;
-char *str;
-char **bp;
-{
-	fwrite(str, sizeof(char), *bp - str, f);
-	XFREE(str, "flatfile buffer");
-}
-
-void put_char(f, str, bp, c)
-FILE *f;
-char *str;
-char **bp;
-char c;
-{
-	if (((str + mudstate.fs_block_size) - *bp) < 1) {
-		*bp = str;
-		fwrite(str, sizeof(char), mudstate.fs_block_size, f);
-	}
-	**bp = c;
-	(*bp)++;
-}		
-
-void putstring(f, str, bp, s)
-FILE *f;
-char *str;
-char **bp;
 const char *s;
 {
-	char *bufc;
+	putc('"', f);
 	
-	bufc = (char *)s;
-
-	/* Give ourselves three characters of leeway */
-	
-	if ((mudstate.fs_block_size - (*bp - str)) < 3) {
-		fwrite(str, sizeof(char), *bp - str, f);
-		*bp = str;
-	}
-
-	**bp = '"';
-	(*bp)++;
-
-	/* If we reach the end of the buffer, write and reset */
-	
-	while (bufc && *bufc) {
-		switch (*bufc) {
+	while (s && *s) {
+		switch (*s) {
 		case '\\':
 		case '"':
-			**bp = '\\';
-			(*bp)++;
+			putc('\\', f);
 		default:
-			**bp = *bufc;
-			(*bp)++;
+			putc(*s, f);
 		}
-		bufc++;
-		
-		if ((mudstate.fs_block_size - (*bp - str)) < 2) {
-			fwrite(str, sizeof(char), *bp - str, f);
-			*bp = str;
-		}
+		s++;
 	}
-	
-	if ((mudstate.fs_block_size - (*bp - str)) < 2) {
-		fwrite(str, sizeof(char), *bp - str, f);
-		*bp = str;
-	}
-
-	**bp = '"';
-	(*bp)++;
-	**bp = '\n';
-	(*bp)++;
+	putc('"', f);
+	putc('\n', f);
 }
 
 const char *getstring_noalloc(f, new_strings)
@@ -3261,8 +3133,6 @@ void dump_restart_db()
 {
 	FILE *f;
 	DESC *d;
-	char *str;
-	char *bp;
 	int version = 0;
 
 	/* We maintain a version number for the restart database,
@@ -3278,37 +3148,36 @@ void dump_restart_db()
 	version |= RS_COUNT_REBOOTS;
 	
 	f = fopen("restart.db", "w");
-	bp = str = start_buffer();
-	put_printf(f, str, &bp, "+V%d\n", version);
-	putref(f, str, &bp, sock);
-	putref(f, str, &bp, mudstate.start_time);
-	putref(f, str, &bp, mudstate.reboot_nums);
-	putstring(f, str, &bp, mudstate.doing_hdr);
+	fprintf(f, "+V%d\n", version);
+	putref(f, sock);
+	putref(f, mudstate.start_time);
+	putref(f, mudstate.reboot_nums);
+	putstring(f, mudstate.doing_hdr);
 #ifdef CONCENTRATE
-	putref(f, str, &bp, conc_pid);
+	putref(f, conc_pid);
 #endif
-	putref(f, str, &bp, mudstate.record_players);
+	putref(f, mudstate.record_players);
 	DESC_ITER_ALL(d) {
-		putref(f, str, &bp, d->descriptor);
-		putref(f, str, &bp, d->flags);
-		putref(f, str, &bp, d->connected_at);
-		putref(f, str, &bp, d->command_count);
-		putref(f, str, &bp, d->timeout);
-		putref(f, str, &bp, d->host_info);
-		putref(f, str, &bp, d->player);
-		putref(f, str, &bp, d->last_time);
-		putstring(f, str, &bp, d->output_prefix);
-		putstring(f, str, &bp, d->output_suffix);
-		putstring(f, str, &bp, d->addr);
-		putstring(f, str, &bp, d->doing);
-		putstring(f, str, &bp, d->username);
+		putref(f, d->descriptor);
+		putref(f, d->flags);
+		putref(f, d->connected_at);
+		putref(f, d->command_count);
+		putref(f, d->timeout);
+		putref(f, d->host_info);
+		putref(f, d->player);
+		putref(f, d->last_time);
+		putstring(f, d->output_prefix);
+		putstring(f, d->output_suffix);
+		putstring(f, d->addr);
+		putstring(f, d->doing);
+		putstring(f, d->username);
 #ifdef CONCENTRATE
-		putref(f, str, &bp, d->concid);
-		putref(f, str, &bp, d->cstatus);
+		putref(f, d->concid);
+		putref(f, d->cstatus);
 #endif
 	}
-	putref(f, str, &bp, 0);
-	flush_buffer(f, str, &bp);
+	putref(f, 0);
+
 	fclose(f);
 }
 

@@ -4,7 +4,7 @@
 #include "api.h"
 
 extern BOOLEXP *FDECL(getboolexp1, (FILE *));
-extern void FDECL(putboolexp, (FILE *, char *, char **, BOOLEXP *));
+extern void FDECL(putboolexp, (FILE *, BOOLEXP *));
 
 /* --------------------------------------------------------------------------
  * Constants.
@@ -1706,8 +1706,6 @@ void mod_comsys_dump_database()
     FILE *fp;
     CHANNEL *chp;
     COMALIAS *cap;
-    char *str;
-    char *bp;
     char buffer[2 * MBUF_SIZE + 8];	/* depends on max length of params */
 
     sprintf(buffer, "%s/%s.#", mudconf.dbhome, mod_comsys_config.comsys_db);
@@ -1716,44 +1714,41 @@ void mod_comsys_dump_database()
 	return;
     }
 
-    bp = str = start_buffer();
-
-    put_printf(fp, str, &bp, "+V3\n");
+    fprintf(fp, "+V3\n");
 
     for (chp = (CHANNEL *) hash_firstentry(&mod_comsys_comsys_htab);
 	 chp != NULL;
 	 chp = (CHANNEL *) hash_nextentry(&mod_comsys_comsys_htab)) {
-	putstring(fp, str, &bp, chp->name);
-	putref(fp, str, &bp, chp->owner);
-	putref(fp, str, &bp, chp->flags);
-	putref(fp, str, &bp, chp->charge);
-	putref(fp, str, &bp, chp->charge_collected);
-	putref(fp, str, &bp, chp->num_sent);
-	putstring(fp, str, &bp, chp->descrip);
-	putboolexp(fp, str, &bp, chp->join_lock);
-	put_printf(fp, str, &bp, "-\n");
-	putboolexp(fp, str, &bp, chp->trans_lock);
-	put_printf(fp, str, &bp, "-\n");
-	putboolexp(fp, str, &bp, chp->recv_lock);
-	put_printf(fp, str, &bp, "-\n");
-	put_printf(fp, str, &bp, "<\n");
+	putstring(fp, chp->name);
+	putref(fp, chp->owner);
+	putref(fp, chp->flags);
+	putref(fp, chp->charge);
+	putref(fp, chp->charge_collected);
+	putref(fp, chp->num_sent);
+	putstring(fp, chp->descrip);
+	putboolexp(fp, chp->join_lock);
+	fprintf(fp, "-\n");
+	putboolexp(fp, chp->trans_lock);
+	fprintf(fp, "-\n");
+	putboolexp(fp, chp->recv_lock);
+	fprintf(fp, "-\n");
+	fprintf(fp, "<\n");
     }
 
-    put_printf(fp, str, &bp, "+V1\n");
+    fprintf(fp, "+V1\n");
 
     for (cap = (COMALIAS *) hash_firstentry(&mod_comsys_calias_htab);
 	 cap != NULL;
 	 cap = (COMALIAS *) hash_nextentry(&mod_comsys_calias_htab)) {
-	putref(fp, str, &bp, cap->player);
-	putstring(fp, str, &bp, cap->channel->name);
-	putstring(fp, str, &bp, cap->alias);
-	putstring(fp, str, &bp, cap->title);
-	putref(fp, str, &bp, is_listening_disconn(cap->player, cap->channel));
-	put_printf(fp, str, &bp, "<\n");
+	putref(fp, cap->player);
+	putstring(fp, cap->channel->name);
+	putstring(fp, cap->alias);
+	putstring(fp, cap->title);
+	putref(fp, is_listening_disconn(cap->player, cap->channel));
+	fprintf(fp, "<\n");
     }
 
-    put_printf(fp, str, &bp, "*** END OF DUMP ***\n");
-    flush_buffer(fp, str, &bp);
+    fprintf(fp, "*** END OF DUMP ***\n");
     fclose(fp);
     rename(buffer, tprintf("%s/%s",
 			   mudconf.dbhome, mod_comsys_config.comsys_db));

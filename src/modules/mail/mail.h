@@ -94,9 +94,9 @@ extern void	FDECL(do_malias_send, (dbref, char *, char *, char *, int, \
 			mail_flag, int));
 extern struct malias *	FDECL(get_malias, (dbref, char *));
 extern void	FDECL(load_malias, (FILE *));
-extern void	FDECL(save_malias, (FILE *, char *, char **));
+extern void	FDECL(save_malias, (FILE *));
 extern void	FDECL(malias_read, (FILE *));
-extern void	FDECL(malias_write, (FILE *, char *, char **));
+extern void	FDECL(malias_write, (FILE *));
 extern void	FDECL(do_malias_chown, (dbref, char *, char *));
 extern void	FDECL(do_malias_desc, (dbref, char *, char *));
 extern int	FDECL(do_expmail_start, (dbref, char *, char *));

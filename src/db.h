@@ -260,10 +260,8 @@ extern void	FDECL(tf_fclose, (FILE *));
 extern FILE *	FDECL(tf_popen, (char *, int));
 #define tf_pclose(f)	tf_fclose(f)
 
-#define putref(pr__f, pr__str, pr__bp, pr__ref) \
-		put_printf(pr__f, pr__str, pr__bp, "%d\n", pr__ref)
-#define putlong(pr__f, pr__str, pr__bp, pr__i) \
-		put_printf(pr__f, pr__str, pr__bp, "%ld\n", pr__i)
+#define putref(pr__f,pr__ref)	fprintf(pr__f, "%d\n", pr__ref)
+#define putlong(pr__f,pr__i)	fprintf(pr__f, "%ld\n", pr__i)
 
 extern INLINE dbref	FDECL(getref, (FILE *));
 extern INLINE long	FDECL(getlong, (FILE *));
@@ -282,7 +280,6 @@ extern dbref	FDECL(db_read, (FILE *, int *, int *, int *));
 extern dbref	FDECL(db_write, (FILE *, int, int));
 extern void	FDECL(destroy_thing, (dbref));
 extern void	FDECL(destroy_exit, (dbref));
-extern void	FDECL(dddb_setsync, (int));
 
 #define	DOLIST(thing,list) \
 	for ((thing)=(list); \
