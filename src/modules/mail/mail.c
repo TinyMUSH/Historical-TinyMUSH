@@ -962,9 +962,12 @@ dbref player;
 			/*
 			 * head and tail of the list are special 
 			 */
-			if (mp->prev == NULL)
-				nhashrepl((int)player, (int *)mp->next, &mudstate.mail_htab);
-			else if (mp->next == NULL)
+			if (mp->prev == NULL) {
+				if (mp->next == NULL)
+					nhashdelete((int)player, &mudstate.mail_htab);
+				else
+					nhashrepl((int)player, (int *)mp->next, &mudstate.mail_htab);
+			} else if (mp->next == NULL)
 				mp->prev->next = NULL;
 
 			/*
@@ -1324,15 +1327,19 @@ dbref player;
 	/*
 	 * walk the list 
 	 */
-	MAIL_ITER_SAFE(mp, thing, nextp) {
-		nextp = mp->next;
-		delete_mail_message(mp->number);
-		XFREE(mp->subject, "mail_nuke.subject");
-		XFREE(mp->tolist, "mail_nuke.tolist");
-		XFREE(mp->time, "mail_nuke.time");
-		XFREE(mp, "mail_nuke");
+	DO_WHOLE_DB(thing) {
+		for (mp = (struct mail *)nhashfind((int)thing,
+						   &mudstate.mail_htab);
+		     mp != NULL; mp = nextp) {
+			nextp = mp->next;
+			delete_mail_message(mp->number);
+			XFREE(mp->subject, "mail_nuke.subject");
+			XFREE(mp->tolist, "mail_nuke.tolist");
+			XFREE(mp->time, "mail_nuke.time");
+			XFREE(mp, "mail_nuke");
+		}
+		nhashdelete((int)thing, &mudstate.mail_htab);
 	}
-	nhashdelete((int)thing, &mudstate.mail_htab);
 
 	log_text(tprintf("** MAIL PURGE ** done by %s(#%d).",
 			 Name(player), (int)player));
@@ -1384,11 +1391,14 @@ char *victim;
 				 * Delete this one 
 				 */
 				/*
-				 * head and tail of the list are * special 
+				 * head and tail of the list are special 
 				 */
-				if (mp->prev == NULL)
-					nhashrepl((int)thing, (int *)mp->next, &mudstate.mail_htab);
-				else if (mp->next == NULL)
+				if (mp->prev == NULL) {
+					if (mp->next == NULL)
+						nhashdelete((int)thing, &mudstate.mail_htab);
+					else
+						nhashrepl((int)thing, (int *)mp->next, &mudstate.mail_htab);
+				} else if (mp->next == NULL)
 					mp->prev->next = NULL;
 				/*
 				 * relink the list 
@@ -2545,9 +2555,12 @@ void check_mail_expiration()
 				/*
 				 * head and tail of the list are special 
 				 */
-				if (mp->prev == NULL)
-					nhashrepl((int)mp->to, (int *)mp->next, &mudstate.mail_htab);
-				else if (mp->next == NULL)
+				if (mp->prev == NULL) {
+					if (mp->next == NULL)
+						nhashdelete((int)mp->to, &mudstate.mail_htab);
+					else
+						nhashrepl((int)mp->to, (int *)mp->next, &mudstate.mail_htab);
+				} else if (mp->next == NULL)
 					mp->prev->next = NULL;
 				/*
 				 * relink the list 
