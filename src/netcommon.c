@@ -2039,7 +2039,7 @@ int strtype, flag;
 	return str;
 }
 
-static int mask_to_prefix(mask_num)
+static unsigned int mask_to_prefix(mask_num)
     unsigned long mask_num;
 {
 	/* The number of bits in the mask is equal to 32 minus the log base 2
@@ -2049,7 +2049,7 @@ static int mask_to_prefix(mask_num)
 	if (mask_num == 0) {
 		return 0;
 	} else {
-		return (32 - ((int) (log((double) (pow(2,32) - mask_num)) / log((double) 2))));
+		return (unsigned int) (32 - ((int) (log((double) (pow(2,32) - mask_num)) / log((double) 2))));
 	}
 }
 
@@ -2061,7 +2061,7 @@ int stat_type;
 {
 	char *buff, *str, *maskaddr;
 	SITE *this;
-	int bits;
+	unsigned int bits;
 
 	buff = alloc_mbuf("list_sites.buff");
 	sprintf(buff, "----- %s -----", header_txt);
