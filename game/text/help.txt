@@ -8853,13 +8853,14 @@ performed and the walk down the list stops.
   See also: ifelse(), switch(), case().
  
 & IFELSE()
-  Function: ifelse(<condition>,<string if true>,<string if false>)
+  Function: ifelse(<condition>,<string if true>[,<string if false>])
  
   If <condition> is true (defined as a true boolean), then the
   <string if true> is returned. Otherwise, the <string if false>
   is returned. The true and false strings are not evaluated until
   appropriate (i.e., if the condition is true, the string-if-false
-  will not be evaluated, and vice versa).
+  will not be evaluated, and vice versa). <string if false> may be
+  omitted, in which case it is treated as an empty string.
  
   Examples:
     > say [ifelse(1,true,false)] - [ifelse(0,true,false)]
@@ -8868,6 +8869,8 @@ performed and the walk down the list stops.
     You say "true - false"
     > say [ifelse(#5,true,false)] - [ifelse(#-1,true,false)]
     You say "true - false"
+    > say [ifelse(1,one)] - [ifelse(0,zero)]
+    You say "one - "
   
   See also: nonzero(), switch(), case(), BOOLEAN VALUES.
  

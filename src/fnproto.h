@@ -493,7 +493,8 @@ FUN flist[] = {
 {"HTML_UNESCAPE",fun_html_unescape,-1,0,	CA_PUBLIC},
 #endif /* PUEBLO_SUPPORT */
 {"IDLE",	fun_idle,	1,  0,		CA_PUBLIC},
-{"IFELSE",      fun_ifelse,     3,  FN_NO_EVAL, CA_PUBLIC},
+{"IFELSE",      fun_ifelse,     0,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC},
 {"ILEV",	fun_ilev,	0,  0,		CA_PUBLIC},
 {"INC",         fun_inc,        1,  0,          CA_PUBLIC},
 {"INDEX",	fun_index,	4,  0,		CA_PUBLIC},

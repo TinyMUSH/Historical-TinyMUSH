@@ -202,6 +202,8 @@ FUNCTION(fun_ifelse)
 	   evaluated. */
 	
 	char *str, *mbuff, *bp;
+
+	VaChk_Range("IFELSE", 2, 3);
 	
 	mbuff = bp = alloc_lbuf("fun_ifelse");
 	str = fargs[0];
@@ -210,6 +212,10 @@ FUNCTION(fun_ifelse)
 	*bp = '\0';
 	
 	if (!mbuff || !*mbuff || !xlate(mbuff)) {
+		if (nfargs != 3) {
+			free_lbuf(mbuff);
+			return;
+		}
 		str = fargs[2];
 		exec(buff, bufc, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
