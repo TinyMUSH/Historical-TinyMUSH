@@ -1,4 +1,4 @@
-# Makefile for 'hello' example module
+# Generic Makefile fragment for a module with one .c file
 #
 # Module source files
 @MODNAME@_S = modules/@MODNAME@/@MODNAME@.c

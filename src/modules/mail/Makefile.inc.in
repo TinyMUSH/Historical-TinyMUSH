@@ -1,4 +1,4 @@
-# Makefile for TinyMUSH Mail
+# Generic Makefile fragment for a module with one .c file and one .h file
 #
 # Module source files
 @MODNAME@_S = modules/@MODNAME@/@MODNAME@.c

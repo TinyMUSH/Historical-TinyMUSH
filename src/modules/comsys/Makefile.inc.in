@@ -1,4 +1,4 @@
-# Makefile fragment for TinyMUSH ComSystem
+# Generic Makefile fragment for a module with one .c file
 #
 # Module source files
 @MODNAME@_S = modules/@MODNAME@/@MODNAME@.c
