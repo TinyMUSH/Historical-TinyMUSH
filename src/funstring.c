@@ -169,11 +169,8 @@ FUNCTION(fun_trim)
 
 	p = fargs[0];
 	if (trim & TRIM_L) {
-		while (*p != '\0') {
-			if (*p == isep.c)
-				p++;
-			else
-				break;
+		while (*p == isep.c) {
+			p++;
 		}
 	}
 	if (trim & TRIM_R) {
@@ -182,11 +179,8 @@ FUNCTION(fun_trim)
 			if (*q == ESC_CHAR) {
 				skip_esccode(q);
 				endchar = q;
-			} else if (*q != isep.c) {
-				q++;
+			} else if (*q++ != isep.c) {
 				endchar = q;
-			} else {
-				q++;
 			}
 		}
 		*endchar = '\0';
@@ -200,16 +194,16 @@ FUNCTION(fun_trim)
 
 FUNCTION(fun_after)
 {
-	char *bp, *cp, *mp;
-	int mlen;
+	char *bp, *cp, *mp, *np;
+	int ansi_needle, ansi_needle2, ansi_haystack, ansi_haystack2;
 
 	if (nfargs == 0) {
 		return;
 	}
 	if (!fn_range_check("AFTER", nfargs, 1, 2, buff, bufc))
 		return;
-	bp = fargs[0];
-	mp = fargs[1];
+	bp = fargs[0];	/* haystack */
+	mp = fargs[1];	/* needle */
 
 	/* Sanity-check arg1 and arg2 */
 
@@ -219,40 +213,65 @@ FUNCTION(fun_after)
 		mp = " ";
 	if (!mp || !*mp)
 		mp = (char *)" ";
-	mlen = strlen(mp);
-	if ((mlen == 1) && (*mp == ' '))
+	if ((mp[0] == ' ') && (mp[1] == '\0'))
 		bp = Eat_Spaces(bp);
 
-	/* Look for the target string */
+	/* Get ansi state of the first needle char */
+	ansi_needle = ANST_NONE;
+	while (*mp == ESC_CHAR) {
+		track_esccode(mp, ansi_needle);
+		if (!*mp)
+			mp = (char *)" ";
+	}
+	ansi_haystack = ANST_NORMAL;
+
+	/* Look for the needle string */
 
 	while (*bp) {
-
-		/* Search for the first character in the target string */
-	
-		cp = strchr(bp, *mp);
-		if (cp == NULL) {
-
-			/* Not found, return empty string */
-
-			return;
+		while (*bp == ESC_CHAR) {
+			track_esccode(bp, ansi_haystack);
 		}
-		/* See if what follows is what we are looking for */
 
-		if (!strncmp(cp, mp, mlen)) {
+		if ((*bp == *mp) &&
+		    (ansi_needle == ANST_NONE ||
+		     ansi_haystack == ansi_needle)) {
 
-			/* Yup, return what follows */
+			/* See if what follows is what we are looking for */
+			ansi_needle2 = ansi_needle;
+			ansi_haystack2 = ansi_haystack;
 
-			bp = cp + mlen;
-			safe_str(bp, buff, bufc);
-			return;
+			cp = bp;
+			np = mp;
+
+			while (1) {
+				while (*cp == ESC_CHAR) {
+					track_esccode(cp, ansi_haystack2);
+				}
+				while (*np == ESC_CHAR) {
+					track_esccode(np, ansi_needle2);
+				}
+				if ((*cp != *np) ||
+				    (ansi_needle2 != ANST_NONE &&
+				     ansi_haystack2 != ansi_needle2) ||
+				    !*cp || !*np)
+					break;
+				++cp, ++np;
+			}
+
+			if (!*np) {
+				/* Yup, return what follows */
+				safe_str(ansi_transition_esccode(ANST_NORMAL, ansi_haystack2), buff, bufc);
+				safe_str(cp, buff, bufc);
+				return;
+			}
 		}
-		/* Continue search after found first character */
 
-		bp = cp + 1;
+		/* Nope, continue searching */
+		if (*bp)
+			++bp;
 	}
 
 	/* Ran off the end without finding it */
-
 	return;
 }
 
