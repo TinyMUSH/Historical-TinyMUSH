@@ -422,3 +422,65 @@ The initial beta release was on 9/27/99.
 
 - Misc: Minor cleanup in various places.
 
+-----------------------------------------------------------------------------
+
+10/20/99: Beta 14
+
+- Feature: If conf parameter dark_actions (disabled by default) is on,
+  objects set Dark still trigger @a-actions when they move, unless the
+  /quiet switch is specified.
+
+- Feature: If conf parameter no_ambiguous_match (disabled by default)
+  is on, ambiguous matches resolve to a random selection from the
+  available matches (i.e., you will never see "I don't know which
+  one you mean!" messages).
+
+- Feature: New flag, CONSTANT. Prevents attributes from being set/altered
+  on an object. Can only be set by Wizards.
+
+- Feature: New conf directive, power_access. Like flag_access, but for
+  powers.
+
+- Feature: New function, command(). Allows the execution of a variety of
+  built-in MUSH commands through a functional means, such as @name and
+  @parent.
+
+- Feature: New function, step(). Iterates through a list N elements at a
+  time, passing the elements as %0, %1, etc. in a manner similar to map().
+  map([<obj>/]<attr>,<list>) is equivalent to step([<obj>/]<attr>,<list>,1)
+  where 1 is the step size.
+
+- Feature: @chboot takes a /quiet switch, which doesn't suppress the
+  "has left" channel message, but suppresses the "booted off" announcement
+  to the channel.
+
+- Fix: The attribute list of a minimal database is handled properly,
+  when the game is being run memory-based. [MUX; Brazil]
+
+- Fix: Creation of minimal db does not choke on vanilla comsys issues,
+  and vice versa. [3.0a13; RMG]
+
+- Fix: columns() sanity-checks its arguments one by one. [3.0b2; RMG]
+
+- Fix: Buffer size issues with weird-size quotas fixed. [2.2; RMG]
+
+- Fix: Buffer size issues with logging some errors fixed. [2.0; RMG]
+
+- Fix: perl version of MUX db conversion works correctly. [3.0b11; overlord]
+
+- Misc: You cannot set quotas to less than zero.
+
+- Misc: Channel names can contain spaces.
+
+- Misc: Don't announce channel has joined / has left messages, unless
+  it's an object or connected player.
+
+- Misc: The owner of a channel must be a non-robot player. Channels
+  owned by destroyed players are chowned to the destroyer. The comsys
+  database is checked for sanity at load time, and strangeness dealt
+  with.
+
+- Misc: @addcommand now returns 'Command <foo> added.'
+
+- Misc: The Startmush script also looks in the $DATA directory for
+  the comsys and mail databases.

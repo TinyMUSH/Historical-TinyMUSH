@@ -45,6 +45,9 @@ the other have been listed in the conversion notes for both servers.
   God on players, but settable by non-robot players on other types of
   things, if they themselves have the flag).
 
+- The access permissions of powers can be set via the power_access config
+  directive. The permission types available are the same as for flags.
+
 - Command-table additions (@addcommand and family) are supported (a
   cleaned-up version of the MUX implementation). Three new conf parameters:
     - addcommands_match_blindly (defaults to 'yes', controls whether or not
@@ -71,10 +74,18 @@ the other have been listed in the conversion notes for both servers.
   set CONTROL_OK may be controlled by a ZMO; this provides slightly
   better security.
 
+- The comsystem has been rewritten, resulting in a variety of minor
+  syntax changes and alterations and enhancements to functionality.
+  Default channel aliases can now be set with the public_calias and
+  guests_calias config parameters.
+
 - A @cron facility allows tasks to be scheduled at specific times,
   in much the same way that Unix cron does.
 
 - A new flag, BLIND, suppresses has arrived / has left messages.
+
+- A new flag, CONSTANT, prevents attributes from being set or altered
+  on an object by anyone other than God.
 
 - Variable destination exits are implemented, via the "variable" keyword
   and the ExitTo attribute; the destination of the exit is determined when
@@ -101,8 +112,13 @@ the other have been listed in the conversion notes for both servers.
 
 - The disconnect reason is passed for master-room disconnects, too.
 
-- Default channel aliases can now be set with the public_calias and
-  guests_calias config parameters.
+- When the new conf parameter dark_actions is enabled, objects set Dark
+  still trigger @a-actions when moving, unless the /quiet switch is
+  specified.
+
+- When the new conf parameter no_ambiguous_match is enabled, ambiguous
+  matches always result in a random selection amongst the matches (i.e.,
+  you will never get a "I don't know which one you mean!" message).
 
 - New /info switch to @attribute shows global attribute flags for a single
   attribute (similar to what '@list user_attributes' produces for all
@@ -166,6 +182,9 @@ the other have been listed in the conversion notes for both servers.
   of an instance, and lstructures() and linstances() list the names
   of structures and instances, respectively.
 
+- The equivalent of v(ATTRIBUTE) can now be accessed as '%=<ATTRIBUTE>',
+  where the angle-brackets are literal.
+
 - Functions that take output delimiters can take null output delimiters
   (symbolized by the token '@@') and newline ('%r') output delimiters.
 
@@ -181,6 +200,9 @@ the other have been listed in the conversion notes for both servers.
 - Added chomp() function -- akin to perl chomp(), it chomps off a
   trailing carriage-return newline from a string, if there is one.
   (Useful for dealing with pipe output.)
+
+- Added command() function, which allows the execution of a variety of
+  built-in commands in function form, such as @parent and @name.
 
 - Added doing() function, to get @doing text.
 
@@ -229,6 +251,9 @@ the other have been listed in the conversion notes for both servers.
   provides MUX-style pmatch() behavior. pmatch() now behaves like the
   MUX documentation said it should, which is identical to its PennMUSH
   predecessor.)
+
+- step() does the equivalent of map() over multiple elements of a single
+  list, with N elements at a time passed as %0, %1, etc.
 
 - streq() does a case-insensitive comparison of two strings, returning 0 or 1.
 
