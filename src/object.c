@@ -876,6 +876,31 @@ const char *qual;
 	}
 }
 
+#define check_ref_targ(crt__label, crt__setref, crt__newref) \
+do { \
+	if (Good_obj(targ)) { \
+		if (Going(targ)) { \
+			crt__setref(i, crt__newref); \
+			if (!mudstate.standalone) { \
+				owner = Owner(i); \
+				if (Good_owner(owner) && \
+				    !Quiet(i) && !Quiet(owner)) { \
+					notify(owner, \
+					tprintf("%s cleared on %s(#%d)", \
+						crt__label, Name(i), i)); \
+				} \
+			} else { \
+				Log_header_err(i, Location(i), targ, 1, \
+					 crt__label, "is invalid.  Cleared."); \
+			} \
+		} \
+	} else if (targ != NOTHING) { \
+			Log_header_err(i, Location(i), targ, 1, \
+				       crt__label, "is invalid.  Cleared."); \
+			crt__setref(i, crt__newref); \
+	} \
+} while (0)
+
 static NDECL(void check_dead_refs)
 {
 	dbref targ, owner, i, j;
@@ -888,51 +913,13 @@ static NDECL(void check_dead_refs)
 		/* Check the parent */
 
 		targ = Parent(i);
-		if (Good_obj(targ)) {
-			if (Going(targ)) {
-				s_Parent(i, NOTHING);
-				if (!mudstate.standalone) {
-					owner = Owner(i);
-					if (Good_owner(owner) &&
-					    !Quiet(i) && !Quiet(owner)) {
-						notify(owner,
-						tprintf("Parent cleared on %s(#%d)",
-							Name(i), i));
-					}
-				} else {
-					Log_header_err(i, Location(i), targ, 1,
-						 "Parent", "is invalid.  Cleared.");
-				}
-			}
-		} else if (targ != NOTHING) {
-			Log_header_err(i, Location(i), targ, 1,
-				       "Parent", "is invalid.  Cleared.");
-			s_Parent(i, NOTHING);
-		}
+		check_ref_targ("Parent", s_Parent, NOTHING);
+
 		/* Check the zone */
 
 		targ = Zone(i);
-		if (Good_obj(targ)) {
-			if (Going(targ)) {
-				s_Zone(i, NOTHING);
-				if (!mudstate.standalone) {
-					owner = Owner(i);
-					if (Good_owner(owner) &&
-					    !Quiet(i) && !Quiet(owner)) {
-						notify(owner,
-						  tprintf("Zone cleared on %s(#%d)",
-							  Name(i), i));
-					}
-				} else {
-					Log_header_err(i, Location(i), targ, 1,
-						    "Zone", "is invalid. Cleared.");
-				}
-			}
-		} else if (targ != NOTHING) {
-			Log_header_err(i, Location(i), targ, 1,
-				       "Zone", "is invalid. Cleared.");
-			s_Zone(i, NOTHING);
-		}
+		check_ref_targ("Zone", s_Zone, NOTHING);
+
 		switch (Typeof(i)) {
 		case TYPE_PLAYER:
 		case TYPE_THING:
@@ -943,28 +930,8 @@ static NDECL(void check_dead_refs)
 			/* Check the home */
 
 			targ = Home(i);
-			if (Good_obj(targ)) {
-				if (Going(targ)) {
-					s_Home(i, new_home(i));
-					if (!mudstate.standalone) {
-						owner = Owner(i);
-						if (Good_owner(owner) &&
-						    !Quiet(i) && !Quiet(owner)) {
-							notify(owner,
-							       tprintf("Home reset on %s(#%d)",
-								       Name(i), i));
-						}
-					} else {
-						Log_header_err(i, Location(i), targ, 1,
-							       "Home",
-							     "is invalid.  Reset.");
-					}
-				}
-			} else if (targ != NOTHING) {
-				Log_header_err(i, Location(i), targ, 1,
-					   "Home", "is invalid.  Cleared.");
-				s_Home(i, new_home(i));
-			}
+			check_ref_targ("Home", s_Home, new_home(i));
+
 			/* Check the location */
 
 			targ = Location(i);
@@ -1002,28 +969,8 @@ static NDECL(void check_dead_refs)
 			/* Check the dropto */
 
 			targ = Dropto(i);
-			if (Good_obj(targ)) {
-				if (Going(targ)) {
-					s_Dropto(i, NOTHING);
-					if (!mudstate.standalone) {
-						owner = Owner(i);
-						if (Good_owner(owner) &&
-						    !Quiet(i) && !Quiet(owner)) {
-							notify(owner,
-							       tprintf("Dropto removed from %s(#%d)",
-								       Name(i), i));
-						}
-					} else {
-						Log_header_err(i, NOTHING, targ, 1,
-							       "Dropto",
-							   "is invalid.  Removed.");
-					}
-				}
-			} else if ((targ != NOTHING) && (targ != HOME)) {
-				Log_header_err(i, NOTHING, targ, 1,
-					 "Dropto", "is invalid.  Cleared.");
-				s_Dropto(i, NOTHING);
-			}
+			check_ref_targ("Dropto", s_Dropto, NOTHING);
+
 			if (check_type & DBCK_FULL) {
 
 				/* NEXT should be null */
@@ -1182,6 +1129,8 @@ static NDECL(void check_dead_refs)
 		}
 	}
 }
+
+#undef check_ref_targ
 
 /* ---------------------------------------------------------------------------
  * check_loc_exits, check_exit_chains: Validate the exits chains
