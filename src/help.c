@@ -19,6 +19,7 @@
 /* Pointers to this struct is what gets stored in the help_htab's */
 struct help_entry {
 	int pos;		/* Position, copied from help_indx */
+	int len;		/* Length of entry, copied from help_indx */
 	char original;		/* 1 for the longest name for a topic. 0 for
 				 * abbreviations 
 				 */
@@ -83,6 +84,7 @@ char *filename;
 				htab_entry = (struct help_entry *) XMALLOC(sizeof(struct help_entry),
 									   "helpindex_read.hent");
 				htab_entry->pos = entry.pos;
+				htab_entry->len = entry.len;
 				htab_entry->original = 0;
 				htab_entry->key = XSTRDUP(entry.topic, "helpindex_read.topic");
 			} else {
@@ -138,7 +140,7 @@ int eval;
 {
 	FILE *fp;
 	char *p, *line, *bp, *str, *result;
-	int offset;
+	int entry_offset, entry_length;
 	struct help_entry *htab_entry;
 	char matched;
 	char *topic_list, *buffp;
@@ -150,7 +152,8 @@ int eval;
 			*p = tolower(*p);
 	htab_entry = (struct help_entry *)hashfind(topic, htab);
 	if (htab_entry) {
-		offset = htab_entry->pos;
+		entry_offset = htab_entry->pos;
+		entry_length = htab_entry->len;
 	} else {
 		matched = 0;
 		for (htab_entry = (struct help_entry *)hash_firstentry(htab);
@@ -186,7 +189,7 @@ int eval;
 		ENDLOG
 		return;
 	}
-	if (fseek(fp, offset, 0) < 0L) {
+	if (fseek(fp, entry_offset, 0) < 0L) {
 		notify(player,
 		       "Sorry, that function is temporarily unavailable.");
 		STARTLOG(LOG_PROBLEMS, "HLP", "SEEK")
@@ -195,8 +198,33 @@ int eval;
 		tf_fclose(fp);
 		return;
 	}
-	line = alloc_lbuf("help_write");
-	result = alloc_lbuf("help_write.2");
+	line = (char *)malloc(entry_length+1);
+	if (line == NULL) {
+		fprintf(mainlog_fp, "ABORT! help.c, line_malloc() failed to get memory.\n");
+		abort();
+	}
+	result = (char *)malloc(entry_length+1);
+	if (result == NULL) {
+		fprintf(mainlog_fp, "ABORT! help.c, result_malloc() failed to get memory.\n");
+		abort();
+	}
+	fread(line, entry_length, 1, fp);
+	if (line[entry_length - 1] == '\n')
+		line[entry_length - 1] = 0;
+	else
+		line[entry_length] = 0;
+	if (eval) {
+		str = line;
+		bp = result;
+		exec(result, &bp, 0, player, player,
+		     EV_NO_COMPRESS | EV_FIGNORE | EV_EVAL, &str,
+		     (char **)NULL, 0);
+		*bp = 0;
+		notify(player, result);
+	}
+	else 
+		notify(player, line);
+	/*
 	for (;;) {
 		if (fgets(line, LBUF_SIZE - 1, fp) == NULL)
 			break;
@@ -216,9 +244,10 @@ int eval;
 		} else
 			notify(player, line);
 	}
+	*/
 	tf_fclose(fp);
-	free_lbuf(line);
-	free_lbuf(result);
+	free(line);
+	free(result);
 }
 
 /* ---------------------------------------------------------------------------

@@ -181,6 +181,10 @@ NAMETAB halt_sw[] = {
 {(char *)"all",		1,	CA_PUBLIC,	HALT_ALL},
 { NULL,			0,	0,		0}};
 
+NAMETAB help_sw[] = {
+{(char *)"fine",		1,	CA_PUBLIC,	HELP_FIND},
+{ NULL,			0,	0,		0}};
+
 NAMETAB hook_sw[] = {
 {(char *)"before",	1,	CA_GOD,		HOOK_BEFORE},
 {(char *)"after",	1,	CA_GOD,		HOOK_AFTER},
