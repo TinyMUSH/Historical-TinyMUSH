@@ -233,6 +233,11 @@ NAMETAB notify_sw[] = {
 {(char *)"first",	1,	CA_PUBLIC,	NFY_NFY},
 { NULL,			0,	0,		0}};
 
+NAMETAB oemit_sw[] = {
+{(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL | SW_MULTIPLE},
+{(char *)"speech",	1,	CA_PUBLIC,	PEMIT_SPEECH|SW_MULTIPLE},
+{ NULL,			0,	0,		0}};
+
 NAMETAB open_sw[] = {
 {(char *)"inventory",	1,	CA_PUBLIC,	OPEN_INVENTORY},
 {(char *)"location",	1,	CA_PUBLIC,	OPEN_LOCATION},
@@ -567,7 +572,7 @@ CMDENT command_table[] = {
 	CA_GBL_INTERP|CA_NO_SLAVE|CA_NO_GUEST,
 	0,		CS_TWO_ARG,		
 	NULL,		NULL,	NULL,		{do_notify}},
-{(char *)"@oemit",		NULL,
+{(char *)"@oemit",		oemit_sw,
 	CA_LOCATION|CA_NO_GUEST|CA_NO_SLAVE,
 	PEMIT_OEMIT,	CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		{do_pemit}},

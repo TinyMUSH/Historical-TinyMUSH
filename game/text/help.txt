@@ -2697,9 +2697,15 @@ See also: @pemit
  
 & @oemit
  
-Command:  @oemit <mobile> = <message>
+Command:  @oemit[/<switches>] <mobile> = <message>
  
-Emits <message> to everyone in your current location except for <mobile>.
+Emits <message> to everyone in <mobile>'s location, except for <mobile>.
+ 
+Available switches:
+ 
+  /noeval - Send the message unparsed.
+  /speech - Explicitly mark the message as speech, causing PRESENCE
+            permissions to be checked.
  
 See also:  @emit, @pemit
  
