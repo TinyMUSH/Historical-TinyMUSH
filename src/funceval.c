@@ -1103,6 +1103,32 @@ FUNCTION(fun_ifelse)
 	free_lbuf(mbuff);
 }
 
+FUNCTION(fun_nonzero)
+{
+	/* MUX-style ifelse -- rather than bool check, check if the
+	* string is non-null/non-zero.
+	*/
+	
+	char *str, *mbuff, *bp;
+	
+	mbuff = bp = alloc_lbuf("fun_nonzero");
+	str = fargs[0];
+	exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		&str, cargs, ncargs);
+	*bp = '\0';
+	
+	if (!mbuff || !*mbuff || ((atoi(mbuff) == 0) && is_number(mbuff))) {
+		str = fargs[2];
+		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+			&str, cargs, ncargs);
+	} else {
+		str = fargs[1];
+		exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+			&str, cargs, ncargs);
+	}
+	free_lbuf(mbuff);
+}
+
 FUNCTION(fun_inc)
 {
 	safe_ltos(buff, bufc, atoi(fargs[0]) + 1);

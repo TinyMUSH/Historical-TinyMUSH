@@ -97,6 +97,7 @@ XFUNCTION(fun_orflags);
 XFUNCTION(fun_andflags);
 XFUNCTION(fun_strtrunc);
 XFUNCTION(fun_ifelse);
+XFUNCTION(fun_nonzero);
 XFUNCTION(fun_inc);
 XFUNCTION(fun_dec)
 #ifdef USE_MAIL
@@ -5444,6 +5445,7 @@ FUN flist[] = {
 {"NEARBY",	fun_nearby,	2,  0,		CA_PUBLIC},
 {"NEQ",		fun_neq,	2,  0,		CA_PUBLIC},
 {"NEXT",	fun_next,	1,  0,		CA_PUBLIC},
+{"NONZERO",	fun_nonzero,	3,  FN_NO_EVAL, CA_PUBLIC},
 {"NOT",		fun_not,	1,  0,		CA_PUBLIC},
 {"NOTBOOL",	fun_notbool,	1,  0,		CA_PUBLIC},
 {"NULL",	fun_null,	1,  0,		CA_PUBLIC},
