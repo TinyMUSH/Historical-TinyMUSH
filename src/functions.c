@@ -1696,7 +1696,7 @@ FUNCTION(fun_name)
 	temp = *bufc;
 	safe_str(Name(it), buff, bufc);
 	if (isExit(it)) {
-		for (s = temp; *s && (*s != ';'); s++) ;
+		for (s = temp; (s != *bufc) && (*s != ';'); s++) ;
 		if (*s == ';')
 			*bufc = s;
 	}
