@@ -3604,6 +3604,11 @@
   leadership of some sort. This confers no special abilities; it
   is, however, only settable by Wizards.
  
+& COMPRESS
+  Flag: Compress (.)
+ 
+  This flag doesn't do anything.
+ 
 & AUDITORIUM
   Flag: AUDITORIUM (n)
  
