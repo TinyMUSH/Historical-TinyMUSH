@@ -95,6 +95,7 @@ int number, flags;
 	return (vp);
 }
 
+#ifdef NEVER
 void do_dbclean(player, cause, key)
 dbref player, cause;
 int key;
@@ -329,6 +330,7 @@ int key;
     raw_broadcast(0, "GAME: Database cleaning complete.");
 
 }
+#endif /* NEVER */
 		
 void vattr_delete(name)
 char *name;
