@@ -2595,19 +2595,11 @@ dbref player;
  * list_config: List non-boolean game options.
  */
 
-static const char *switchd[] =
-{"/first", "/all"};
-static const char *examd[] =
-{"/brief", "/full"};
-static const char *ed[] =
-{"Disabled", "Enabled"};
-
 #define Opt(s,x) raw_notify(player, tprintf("%c   %s?", ((x) ? 'Y' : 'N'), (s)))
 
 static void list_options(player)
 dbref player;
 {
-    Opt("Dump core after logging a bug", mudconf.abort_on_bug);
     Opt("ANSI color codes enabled", mudconf.ansi_colors);
     Opt("@clone copies object cost", mudconf.clone_copy_cost);
     Opt("Disconnected players shown in room contents", mudconf.dark_sleepers);
@@ -2639,7 +2631,7 @@ dbref player;
 	mudconf.instant_recycle);
     Opt("lattr() failed matches return blank, not #-1 NO MATCH",
 	mudconf.lattr_oldstyle);
-    Opt("Objects set Zone treated like local master rooms",
+    Opt("Objects set Zone are treated like local master rooms",
 	mudconf.local_masters);
     Opt("look obeys the Terse flag", mudconf.terse_look);
     Opt("Objects other than players can match $-commands on themselves", mudconf.match_mine);
@@ -2655,7 +2647,7 @@ dbref player;
     Opt("look shows public attributes in addition to @desc",
 	mudconf.quiet_look);
     Opt("whisper is quiet", mudconf.quiet_whisper);
-    Opt("Quotes are enforced", mudconf.quotas);
+    Opt("Quotas are enforced", mudconf.quotas);
     Opt("@desc is public, even to players in other locations",
 	mudconf.read_rem_desc);
     Opt("Names are public, even to players in other locations",
@@ -2667,6 +2659,8 @@ dbref player;
     Opt("Passwords must conform to minimum security standards",
 	mudconf.safer_passwords);
     Opt("look shows Dark objects owned by you", mudconf.see_own_dark);
+    Opt("Multiple spaces are compressed to a single space",
+	mudconf.space_compress);
     Opt("@sweep works on Dark locations", mudconf.sweep_dark);
     Opt("@switch default is /all, not /first", mudconf.switch_df_all);
     Opt("Terse suppresses the contents list of a location",
@@ -2688,8 +2682,8 @@ dbref player;
     Opt("Pueblo client extensions are supported", 0);
 #endif
     
-
     if (Wizard(player)) {
+	Opt("Dump core after logging a bug", mudconf.abort_on_bug);
 	Opt("@addcommands do not display an error if no match is found",
 	    mudconf.addcmd_match_blindly);
 	Opt("@addcommands obey STOP", mudconf.addcmd_obey_stop);
@@ -2701,6 +2695,7 @@ dbref player;
 	Opt("DNS lookups are done on hostnames", mudconf.use_hostname);
 	Opt("Buffer pools checked for consistency with each alloc and free",
 	    mudconf.paranoid_alloc);
+	Opt("Database files are compressed", mudconf.compress_db);
 
 #ifdef NO_LAG_CHECK
 	Opt("CPU usage warnings are enabled", 0);
@@ -2807,10 +2802,6 @@ static void list_params(player)
 	  tprintf("Scheduling: Timeslice...%d  Max_Quota...%d  Increment...%d",
 		  mudconf.timeslice, mudconf.cmd_quota_max,
 		  mudconf.cmd_quota_incr));
-
-	raw_notify(player,
-	       tprintf("Compression: Spaces...%s  SaveFiles...%s",
-		       ed[mudconf.space_compress], ed[mudconf.compress_db]));
 
 	raw_notify(player,
 		   tprintf("Size of %s cache: Width...%d  Depth...%d",

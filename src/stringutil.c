@@ -446,8 +446,7 @@ char *replace_string_ansi(old, new, string)
     const char *old, *new, *string;
 {
     char *result, *r, *s, *t, *savep;
-    int count, olen, have_normal, new_ansi;
-    char oldbuf[LBUF_SIZE], newbuf[LBUF_SIZE];
+    int olen, have_normal, new_ansi;
 
     if (!string)
 	return NULL;
