@@ -5936,7 +5936,7 @@ void NDECL(init_functab)
 	char *buff, *cp, *dp;
 
 	buff = alloc_sbuf("init_functab");
-	hashinit(&mudstate.func_htab, 100 * HASH_FACTOR);
+	hashinit(&mudstate.func_htab, 250 * HASH_FACTOR);
 	for (fp = flist; fp->name; fp++) {
 		cp = (char *)fp->name;
 		dp = buff;
@@ -5950,7 +5950,7 @@ void NDECL(init_functab)
 	}
 	free_sbuf(buff);
 	ufun_head = NULL;
-	hashinit(&mudstate.ufunc_htab, 11);
+	hashinit(&mudstate.ufunc_htab, 15 * HASH_FACTOR);
 }
 
 void do_function(player, cause, key, fname, target)
