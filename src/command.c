@@ -195,8 +195,8 @@ NAMETAB fpose_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB	function_sw[] = {
-{(char *)"privileged",	3,	CA_WIZARD,	FN_PRIV},
-{(char *)"preserve",	3,	CA_WIZARD,	FN_PRES},
+{(char *)"privileged",	3,	CA_WIZARD,	FN_PRIV|SW_MULTIPLE},
+{(char *)"preserve",	3,	CA_WIZARD,	FN_PRES|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
 NAMETAB	get_sw[] = {
