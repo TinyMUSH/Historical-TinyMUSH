@@ -1731,7 +1731,7 @@ int atr;
 {
 	DBData key, data;
 	Aname okey;
-	int attr, found = 0;
+	int attr;
 	char *as;
 	
 	if (Typeof(thing) == TYPE_GARBAGE)
@@ -1740,20 +1740,6 @@ int atr;
 	if (!mudstate.standalone)
 		s_Accessed(thing);
 	
-	if (atr != A_LIST) {
-		atr_push();
-		for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
-			if (attr == atr) {
-				found = 1;
-			}
-		}
-		atr_pop();
-	}
-	
-	if (!found && (atr != A_LIST)) {
-		return NULL;
-	}
-
 	makekey(thing, atr, &okey);
 	
 	/* Fetch the entry from cache and return it */
