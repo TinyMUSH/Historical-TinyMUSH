@@ -358,7 +358,7 @@ char *cargs[];
 	char *preserve[MAX_GLOBAL_REGS];
 	char *tstr, *tbuf, *tbufc, *savepos, *atr_gotten, *start, *oldp,
 	*savestr;
-	char savec, ch, *str;
+	char savec, ch, *str, *xptr;
 	char *realbuff = NULL, *realbp = NULL;
 	char xtbuf[SBUF_SIZE], *xtp;
 	dbref aowner;
@@ -635,15 +635,42 @@ char *cargs[];
 				break;
 			case '_':       /* x-variable */
 			        (*dstr)++;
-				ch = ToLower(**dstr);
-				if (!**dstr)
-				    (*dstr)--;
-				if (!isalnum(ch))
-				    break;
-				xtp = xtbuf;
-				safe_ltos(xtbuf, &xtp, player);
-				safe_chr('.', xtbuf, &xtp);
-				safe_chr(ch, xtbuf, &xtp);
+				/* Check for %_<varname> */
+				if (**dstr != '<') {
+				    ch = ToLower(**dstr);
+				    if (!**dstr)
+					(*dstr)--;
+				    if (!isalnum(ch))
+					break;
+				    xtp = xtbuf;
+				    safe_ltos(xtbuf, &xtp, player);
+				    safe_chr('.', xtbuf, &xtp);
+				    safe_chr(ch, xtbuf, &xtp);
+				} else {
+				    xptr = *dstr;
+				    (*dstr)++;
+				    if (!**dstr) {
+					*dstr = xptr;
+					break;
+				    }
+				    xtp = xtbuf;
+				    safe_ltos(xtbuf, &xtp, player);
+				    safe_chr('.', xtbuf, &xtp);
+				    while (**dstr && (**dstr != '>')) {
+					/* Copy. No interpretation. */
+					ch = ToLower(**dstr);
+					safe_sb_chr(ch, xtbuf, &xtp);
+					(*dstr)++;
+				    }
+				    if (**dstr != '>') {
+					/* We ran off the end of the string
+					 * without finding a termination
+					 * condition. Go back.
+					 */
+					*dstr = xptr;
+					break;
+				    }
+				}
 				*xtp = '\0';
 				if ((xvar = (VARENT *) hashfind(xtbuf,
 						       &mudstate.vars_htab))) {
