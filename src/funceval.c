@@ -935,9 +935,9 @@ int type;			/* 0 for orflags, 1 for andflags */
 				if (isPlayer(it) && (fset.word2 == CONNECTED) &&
 				    ((Flags(it) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
 				    !Wizard(player))
-					temp = 1;
-				else
 					temp = 0;
+				else
+					temp = 1;
 			} else {
 				temp = 0;
 			}
