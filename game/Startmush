@@ -21,11 +21,7 @@ fi
 #
 #	Make sure the indexes are up-to-date.
 #
-$BIN/mkindx $TEXT/news.txt $TEXT/news.indx
-$BIN/mkindx $TEXT/help.txt $TEXT/help.indx
-$BIN/mkindx $TEXT/wizhelp.txt $TEXT/wizhelp.indx
-$BIN/mkindx $TEXT/plushelp.txt $TEXT/plushelp.indx
-$BIN/mkindx $TEXT/wiznews.txt $TEXT/wiznews.indx
+./Index
 
 echo "Checking for database files and creating backups of old files."
 
