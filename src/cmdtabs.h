@@ -477,7 +477,7 @@ CMDENT command_table[] = {
 {(char *)"@fpose",		fpose_sw,	CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_FPOSE,	CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_pemit},
-{(char *)"@fsay",		NULL,		CA_LOCATION|CA_NO_SLAVE,
+{(char *)"@fsay",		noeval_sw,	CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_FSAY,	CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_pemit},
 {(char *)"@freelist",		NULL,		CA_WIZARD,

@@ -1163,12 +1163,13 @@
   See also: @femit, @fsay, pose, :, ;, INHERIT.
  
 & @fsay
-  Command: @fsay <object>=<message>
+  Command: @fsay[/noeval] <object>=<message>
  
   Forces <object> to say <message>. This command is similar to the command
   '@force <object> = "<message>', except that it will work so long as you
   own the object, whereas @force may fail if the object has its INHERIT
-  flag set and the object performing the @force does not.
+  flag set and the object performing the @force does not. If the /noeval
+  switch is specified, the message is not evaluated.
  
   See also: @femit, @fsay, say, ", INHERIT.
  
