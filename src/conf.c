@@ -230,8 +230,6 @@ void NDECL(cf_init)
 	mudconf.wiz_obey_linklock = 0;
 	mudconf.local_masters = 1;
 	mudconf.req_cmds_flag = 1;
-	mudconf.fmt_contents = 1;
-	mudconf.fmt_exits = 1;
 	mudconf.ansi_colors = 1;
 	mudconf.safer_passwords = 0;
 	mudconf.instant_recycle = 1;
@@ -1361,8 +1359,6 @@ CONF conftable[] = {
 {(char *)"forbid_site",			cf_site,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.access_list,	H_FORBIDDEN},
 {(char *)"fork_dump",			cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.fork_dump,		(long)"Dumps are performed using a forked process"},
 {(char *)"fork_vfork",			cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.fork_vfork,		(long)"Forks are done using vfork()"},
-{(char *)"format_contents",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fmt_contents,		(long)"@ConFormat is obeyed when displaying contents"},
-{(char *)"format_exits",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.fmt_exits,		(long)"@ExitFormat is obeyed when displaying exit lists"},
 {(char *)"full_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)mudconf.full_file,	SBUF_SIZE},
 {(char *)"full_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)mudconf.fullmotd_msg,	GBUF_SIZE},
 {(char *)"function_access",		cf_func_access,	CA_GOD,		CA_DISABLED,	NULL,				(long)access_nametab},

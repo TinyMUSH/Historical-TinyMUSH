@@ -2745,6 +2745,11 @@ static void list_params(player)
 	 mudconf.thing_proto, mudconf.player_proto));
 
     raw_notify(player,
+ tprintf("Attr Defaults:  Room...#%d  Exit...#%d  Thing...#%d  Player...#%d",
+	 mudconf.room_defobj, mudconf.exit_defobj,
+	 mudconf.thing_defobj, mudconf.player_defobj));
+
+    raw_notify(player,
  tprintf("Default Parents:  Room...#%d  Exit...#%d  Thing...#%d  Player...#%d",
 	 mudconf.room_parent, mudconf.exit_parent,
 	 mudconf.thing_parent, mudconf.player_parent));

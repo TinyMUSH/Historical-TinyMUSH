@@ -24,6 +24,89 @@
 static void FDECL(show_a_desc, (dbref, dbref, const char *));
 extern void FDECL(ufun, (char *, char *, int, int, int, dbref, dbref));
 
+static int did_attr(player, thing, what)
+    dbref player, thing;
+    int what;
+{
+    /* If the attribute exists, evaluate it and notify the player, return 1.
+     * If not, return 0.
+     * Respect global overrides.
+     * what is assumed to be more than 0.
+     */
+
+    char *d, *m, *buff, *bp, *str, *tbuf, *tp, *sp;
+    char *preserve[MAX_GLOBAL_REGS];
+    int t, aflags, alen, preserve_len[MAX_GLOBAL_REGS];
+    dbref aowner, master;
+
+    switch (Typeof(thing)) {
+	case TYPE_ROOM:
+	    master = mudconf.room_defobj;
+	    break;
+	case TYPE_EXIT:
+	    master = mudconf.exit_defobj;
+	    break;
+	case TYPE_PLAYER:
+	    master = mudconf.player_defobj;
+	    break;
+	default:
+	    master = mudconf.thing_defobj;
+    }
+    if (master == thing)
+	master = NOTHING;
+
+    m = NULL;
+    d = atr_pget(thing, what, &aowner, &aflags, &alen);
+    t = ((what < A_USER_START) && Good_obj(master)) ? 1 : 0;
+    if (t) {
+	m = atr_pget(master, what, &aowner, &aflags, &alen);
+    }
+
+    if (!(*d || (t && *m))) {
+	free_lbuf(d);
+	if (m) {
+	    free_lbuf(m);
+	}
+	return 0;
+    }
+
+    save_global_regs("did_attr_save", preserve, preserve_len);
+    buff = bp = alloc_lbuf("did_attr.1");
+    if (t && *m) {
+	str = m;
+	if (*d) {
+	    sp = d;
+	    tbuf = tp = alloc_lbuf("did_it.deval");
+	    exec(tbuf, &tp, 0, thing, player,
+		 EV_EVAL | EV_FIGNORE | EV_TOP,
+		 &sp, (char **) NULL, 0);
+	    *tp = '\0';
+	    exec(buff, &bp, 0, thing, player,
+		 EV_EVAL | EV_FIGNORE | EV_TOP,
+		 &str, &tbuf, 1);
+	    free_lbuf(tbuf);
+	} else {
+	    exec(buff, &bp, 0, thing, player,
+		 EV_EVAL | EV_FIGNORE | EV_TOP,
+		 &str, (char **) NULL, 0);
+	}
+    } else if (*d) {
+	str = d;
+	exec(buff, &bp, 0, thing, player,
+	     EV_EVAL | EV_FIGNORE | EV_TOP,
+	     &str, (char **) NULL, 0);
+    }
+    *bp = '\0';
+    notify(player, buff);
+    free_lbuf(buff);
+    free_lbuf(d);
+    if (m) {
+	free_lbuf(m);
+    }
+    restore_global_regs("did_attr_restore", preserve, preserve_len);
+    return 1;
+}
+
 static void look_exits(player, loc, exit_name)
 dbref player, loc;
 const char *exit_name;
@@ -37,20 +120,10 @@ const char *exit_name;
     if (!Good_obj(loc) || !Has_exits(loc))
 	return;
 
-    /* If conf option allows it, check to see if we're formatting
-     * exits in a player-specified way.
-     */
+    /* Check to see if we're formatting exits in a player-specified way. */
 
-    if (mudconf.fmt_exits) {
-	atr_buf = atr_pget(loc, A_LEXITS_FMT, &aowner, &aflags, &alen);
-	if (*atr_buf) {
-	    did_it(player, loc, A_LEXITS_FMT, NULL, A_NULL, NULL,
-		   A_NULL, (char **) NULL, 0);
-	    free_lbuf(atr_buf);
-	    return;
-	}
-	free_lbuf(atr_buf);
-    }
+    if (did_attr(player, loc, A_LEXITS_FMT))
+	return;
 
     /* make sure there is at least one visible exit */
 
@@ -178,20 +251,10 @@ int style;
 	char remote_num[32];
 #endif
 	
-	/* if conf option allows it, check to see if we're formatting
-	 * contents in a player-specified way.
-	 */
+	/* Check if we're formatting contents in a player-specified way. */
 
-	if (mudconf.fmt_contents) {
-		atr_buf = atr_pget(loc, A_LCON_FMT, &aowner, &aflags, &alen);
-		if (*atr_buf) {
-			did_it(player, loc, A_LCON_FMT, NULL, A_NULL, NULL,
-			       A_NULL, (char **) NULL, 0);
-			free_lbuf(atr_buf);
-			return;
-		}
-		free_lbuf(atr_buf);
-	}
+	if (did_attr(player, loc, A_LCON_FMT))
+	    return;
 
 #ifdef PUEBLO_SUPPORT
 	html_buff = html_cp = alloc_lbuf("look_contents");

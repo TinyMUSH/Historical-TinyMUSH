@@ -187,8 +187,6 @@ struct confdata {
 	int	wiz_obey_linklock;	/* Do wizards obey linklocks? */
 	int	local_masters;	/* Do we check Zone rooms as local masters? */
 	int	req_cmds_flag;	/* COMMANDS flag required to check $-cmds? */
-	int	fmt_contents;	/* allow user-formattable Contents? */
-	int	fmt_exits;	/* allow user-formattable Exits? */
 	int	ansi_colors;	/* allow ANSI colors? */
 	int	safer_passwords;/* enforce reasonably good password choices? */
 	int	space_compress;	/* Convert multiple spaces into one space */
