@@ -62,6 +62,8 @@ Release history:
 
 - Fix: Space between dbref and flags was missing for MARKER9. [3.0; Taran]
 
+- Misc: FREE flag is respected for @conformat and friends. [3.1b1; Neva]
+
 - Misc: Hide connected flag more consistently.
 
 - Cosmetic: Shout messages include the grammatically correct comma after
