@@ -63,6 +63,7 @@ extern double NDECL(makerandom);
 extern int FDECL(fn_range_check, (const char *, int, int, int, char *, char **));
 extern int FDECL(delim_check, (char **, int, int, char *, char *, char **, int, dbref, dbref, char **, int, int));
 extern int FDECL(check_read_perms, (dbref, dbref, ATTR *, int, int, char *, char **));
+extern INLINE void FDECL(do_reverse, (char *, char *));
 
 /* Function prototype macro */
 

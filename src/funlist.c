@@ -574,31 +574,8 @@ FUNCTION(fun_member)
 }
 
 /* ---------------------------------------------------------------------------
- * do_reverse, fun_reverse, fun_revwords: Reverse things.
+ * fun_revwords: Reverse the order of words in a list.
  */
-
-static void do_reverse(from, to)
-    char *from, *to;
-{
-    char *tp;
-
-    tp = to + strlen(from);
-    *tp-- = '\0';
-    while (*from) {
-	*tp-- = *from++;
-    }
-}
-
-FUNCTION(fun_reverse)
-{
-    /* Nasty bounds checking */
-
-    if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff) - 1) {
-	*(fargs[0] + (LBUF_SIZE - (*bufc - buff) - 1)) = '\0';
-    }
-    do_reverse(fargs[0], *bufc);
-    *bufc += strlen(fargs[0]);
-}
 
 FUNCTION(fun_revwords)
 {
@@ -642,52 +619,10 @@ FUNCTION(fun_revwords)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_merge:  given two strings and a character, merge the two strings
- *   by replacing characters in string1 that are the same as the given 
- *   character by the corresponding character in string2 (by position).
- *   The strings must be of the same length.
- */
-
-FUNCTION(fun_merge)
-{
-	char *str, *rep;
-	char c;
-
-	/* do length checks first */
-
-	if (strlen(fargs[0]) != strlen(fargs[1])) {
-		safe_str("#-1 STRING LENGTHS MUST BE EQUAL", buff, bufc);
-		return;
-	}
-	if (strlen(fargs[2]) > 1) {
-		safe_str("#-1 TOO MANY CHARACTERS", buff, bufc);
-		return;
-	}
-	/* find the character to look for. null character is considered a
-	 * space 
-	 */
-
-	if (!*fargs[2])
-		c = ' ';
-	else
-		c = *fargs[2];
-
-	/* walk strings, copy from the appropriate string */
-
-	for (str = fargs[0], rep = fargs[1];
-	     *str && *rep && ((*bufc - buff) < (LBUF_SIZE - 1));
-	     str++, rep++, (*bufc)++) {
-		if (*str == c)
-			**bufc = *rep;
-		else
-			**bufc = *str;
-	}
-
-	return;
-}
-
-/* ---------------------------------------------------------------------------
- * fun_splice: similar to MERGE(), eplaces by word instead of by character.
+ * fun_splice: given two lists and a word, merge the two lists
+ *   by replacing words in list1 that are the same as the given 
+ *   word by the corresponding word in list2 (by position).
+ *   The lists must have the same number of words. Compare to MERGE().
  */
 
 FUNCTION(fun_splice)
@@ -1379,31 +1314,6 @@ FUNCTION(fun_grab)
 			return;
 		}
 	} while (s);
-}
-
-/* ---------------------------------------------------------------------------
- * fun_scramble:  randomizes the letters in a string.
- */
-
-/* Borrowed from PennMUSH 1.50 */
-FUNCTION(fun_scramble)
-{
-	int n, i, j;
-	char c;
-
-	if (!fargs[0] || !*fargs[0]) {
-	    return;
-	}
-
-	n = strlen(fargs[0]);
-	for (i = 0; i < n; i++) {
-	    j = (random() % (n - i)) + i;
-	    c = fargs[0][i];
-	    fargs[0][i] = fargs[0][j];
-	    fargs[0][j] = c;
-	}
-
-	safe_str(fargs[0], buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

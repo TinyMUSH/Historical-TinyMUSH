@@ -3,7 +3,7 @@
 
 #include "copyright.h"
 #include "autoconf.h"
-#include "fnhelper.h"
+#include "functions.h"
 
 /* ---------------------------------------------------------------------------
  * Trim off leading and trailing spaces if the separator char is a space
@@ -341,4 +341,20 @@ char *arg;
 	if (is_integer(temp2))
 		return atoi(temp2);
 	return 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * used by fun_reverse and fun_revwords to reverse things
+ */
+
+INLINE void do_reverse(from, to)
+    char *from, *to;
+{
+    char *tp;
+
+    tp = to + strlen(from);
+    *tp-- = '\0';
+    while (*from) {
+	*tp-- = *from++;
+    }
 }
