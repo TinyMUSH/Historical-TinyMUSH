@@ -71,6 +71,7 @@ XFUNCTION(fun_mix);
 XFUNCTION(fun_step);
 XFUNCTION(fun_foreach);
 XFUNCTION(fun_munge);
+XFUNCTION(fun_ledit);
 XFUNCTION(fun_visible);
 XFUNCTION(fun_elements);
 XFUNCTION(fun_grab);
@@ -6068,6 +6069,7 @@ FUN flist[] = {
 {"LCON",	fun_lcon,	1,  0,		CA_PUBLIC},
 {"LCSTR",	fun_lcstr,	-1, 0,		CA_PUBLIC},
 {"LDELETE",	fun_ldelete,	0,  FN_VARARGS,	CA_PUBLIC},
+{"LEDIT",	fun_ledit,	0,  FN_VARARGS, CA_PUBLIC},
 {"LEFT",	fun_left,	2,  0,		CA_PUBLIC},
 {"LET",		fun_let,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},

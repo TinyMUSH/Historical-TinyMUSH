@@ -3083,7 +3083,6 @@ FUNCTION(fun_matchall)
  * fun_ports: Returns a list of ports for a user.
  */
 
-/* Borrowed from TinyMUSH 2.2 */
 FUNCTION(fun_ports)
 {
 	dbref target;
@@ -3351,7 +3350,6 @@ FUNCTION(fun_foreach)
  * fun_munge: combines two lists in an arbitrary manner.
  */
 
-/* Borrowed from TinyMUSH 2.2 */
 FUNCTION(fun_munge)
 {
 	dbref aowner, thing;
@@ -3434,6 +3432,62 @@ FUNCTION(fun_munge)
 	free_lbuf(list1);
 	free_lbuf(list2);
 	free_lbuf(rlist);
+}
+
+/* ---------------------------------------------------------------------------
+ * ledit(<list of words>,<old words>,<new words>[,<delim>[,<output delim>]])
+ * If a <word> in <list of words> is in <old words>, replace it with the
+ * corresponding word from <new words>. This is basically a mass-edit.
+ * This is an EXACT, not a case-insensitive or wildcarded, match.
+ */
+
+FUNCTION(fun_ledit)
+{
+    char sep, osep;
+    char *old_list, *new_list;
+    int nptrs_old, nptrs_new;
+    char *ptrs_old[LBUF_SIZE / 2], *ptrs_new[LBUF_SIZE / 2];
+    char *r, *s, *bb_p;
+    int i;
+    int got_it;
+
+    svarargs_preamble("LEDIT", 5);
+
+    old_list = alloc_lbuf("fun_ledit.old");
+    new_list = alloc_lbuf("fun_ledit.new");
+    strcpy(old_list, fargs[1]);
+    strcpy(new_list, fargs[2]);
+    nptrs_old = list2arr(ptrs_old, LBUF_SIZE / 2, old_list, sep);
+    nptrs_new = list2arr(ptrs_new, LBUF_SIZE / 2, new_list, sep);
+
+    /* Iterate through the words. */
+
+    bb_p = *bufc;
+    s = trim_space_sep(fargs[0], sep);
+    do {
+	if (*bufc != bb_p) {
+	    print_sep(osep, buff, bufc);
+	}
+	r = split_token(&s, sep);
+	for (i = 0, got_it = 0; i < nptrs_old; i++) {
+	    if (!strcmp(r, ptrs_old[i])) {
+		got_it = 1;
+		if ((i < nptrs_new) && *ptrs_new[i]) {
+		    /* If we specify more old words than we have new words,
+		     * we assume we want to just nullify.
+		     */
+		    safe_str(ptrs_new[i], buff, bufc);
+		}
+		break;
+	    }
+	}
+	if (!got_it) {
+	    safe_str(r, buff, bufc);
+	}
+    } while (s);
+
+    free_lbuf(old_list);
+    free_lbuf(new_list);
 }
 
 /* ---------------------------------------------------------------------------
