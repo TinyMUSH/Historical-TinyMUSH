@@ -47,9 +47,9 @@ OPTIM = -g -O
 # people try to login from distant sites.  Use the third line if you're running
 # on a SysV-ish system and BSD support isn't built in to the standard libc.
 #
-MORELIBS	= -lm
-#MORELIBS	= -lm -lnsl -lsocket -L/usr/ucblib -lucb	# Mips
-#MORELIBS	= -lm -L/usr/ucblib -lucb			# old Solaris
+MORELIBS	=
+#MORELIBS	= -lnsl -lsocket -L/usr/ucblib -lucb	# Mips
+#MORELIBS	= -L/usr/ucblib -lucb			# old Solaris
 
 # ----- TinyMUSH can read and write directly from external databases.
 #        If you wish to use this functionality, comment out all definition
