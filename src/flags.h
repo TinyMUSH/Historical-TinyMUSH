@@ -397,7 +397,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			    !Connected(x) && !Puppet(x))) && \
 			 ((l) ? Sees(p,x) : Sees_In_Dark(p,x)))
 
-#define Can_See_Exit(x,l)	((!Dark(x) && !(l)) || (Light(x) && !Dark(x)))
+#define Can_See_Exit(x,l)	(!Dark(x) && (!(l) || Light(x)))
 
 /* For exits visible (for lexits(), etc.), this is true if we can examine
  * the exit's location, examine the exit, or the exit is LIGHT. It is also
