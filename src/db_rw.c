@@ -963,7 +963,7 @@ int db_format, db_version;
 		}
 		if (newf2 & COMPRESS) {
 		    newf2 &= ~COMPRESS;
-		    /* Builder flag now becomes a power. */
+		    s_Powers(thing, Powers(thing) | POW_BUILDER);
 		}
 	} else if (db_format == F_MUX) {
 
