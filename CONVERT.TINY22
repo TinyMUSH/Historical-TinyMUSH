@@ -174,8 +174,3 @@ For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
   NOT a null string (MUX behavior). If you want to guarantee a null
   return, wrap the call in a null().
 
-- Currently unimplemented, but in 2.2.5 and on the to-do list:
-	- safer_passwords
-	- PARANOID_EMIT
-	- Tcl support
-
