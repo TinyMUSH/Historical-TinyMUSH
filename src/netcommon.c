@@ -1268,33 +1268,41 @@ static void dump_info(call_by)
  * Idea from R'nice@TinyTIM.
  */
 
+static int sane_doing(arg, buff)
+    char *arg, *buff;
+{
+    char *p, *bp;
+    int over = 0;
+
+    for (p = arg; *p; p++)
+	if ((*p == '\t') || (*p == '\r') || (*p == '\n'))
+	    *p = ' ';
+
+    bp = buff;
+    if (!mudconf.ansi_colors || !index(arg, ESC_CHAR)) {
+	over = safe_copy_str(arg, buff, &bp, DOING_LEN - 1);
+    } else {
+	over = safe_copy_str(arg, buff, &bp, DOING_LEN - 5);
+	strcpy(bp, ANSI_NORMAL);
+    }
+
+    return over;
+}
+
+
 void do_doing(player, cause, key, arg)
 dbref player, cause;
 int key;
 char *arg;
 {
 	DESC *d;
-	char *c, *p;
 	int foundany, over;
 
+	over = 0;
 	if (key == DOING_MESSAGE) {
 		foundany = 0;
-		over = 0;
-
-		for (p = arg; *p; p++)
-			if ((*p == '\t') || (*p == '\r') || (*p == '\n'))
-				*p = ' ';
-				
 		DESC_ITER_PLAYER(player, d) {
-			c = d->doing;
-			if (!mudconf.ansi_colors || !index(arg, ESC_CHAR)) {
-			    over = safe_copy_str(arg, d->doing, &c,
-						 DOING_LEN - 1);
-			} else {
-			    over = safe_copy_str(arg, d->doing, &c,
-						 DOING_LEN - 5);
-			    strcpy(c, ANSI_NORMAL);
-			}
+			over = sane_doing(arg, d->doing);
 			foundany = 1;
 		}
 		if (foundany) {
@@ -1317,10 +1325,7 @@ char *arg;
 			StringCopy(mudstate.doing_hdr, "Doing");
 			over = 0;
 		} else {
-			c = mudstate.doing_hdr;
-			over = safe_copy_str(arg, mudstate.doing_hdr, &c,
-					     DOING_LEN - 1);
-			*c = '\0';
+			over = sane_doing(arg, mudstate.doing_hdr);
 		}
 		if (over) {
 			notify(player,
