@@ -1622,7 +1622,7 @@ FUNCTION(fun_art)
 	char *s = fargs[0];
 	char c;
 
-	while (isspace(*s) || iscntrl(*s)) {
+	while (*s && (isspace(*s) || iscntrl(*s))) {
 		if (*s == ESC_CHAR) {
 			skip_esccode(s);
 		} else {
