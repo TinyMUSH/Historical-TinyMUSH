@@ -31,7 +31,7 @@
 #include "slave.h"
 #include "attrs.h"
 
-#ifdef SOLARIS
+#ifndef NSIG
 extern const int _sys_nsig;
 
 #define NSIG _sys_nsig
