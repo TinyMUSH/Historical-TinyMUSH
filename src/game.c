@@ -1673,7 +1673,6 @@ char *argv[];
 #endif
 	add_helpfile(GOD, (char *) "help text/help", 1);
 	add_helpfile(GOD, (char *) "wizhelp text/wizhelp", 1);
-	add_helpfile(GOD, (char *) "news text/news", 0);
 	cmdp = (CMDENT *) hashfind((char *) "wizhelp", &mudstate.command_htab);
 	if (cmdp)
 	    cmdp->perms |= CA_WIZARD;
