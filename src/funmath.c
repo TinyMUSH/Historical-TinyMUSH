@@ -327,7 +327,7 @@ FUNCTION(fun_sqrt)
 
 FUNCTION(fun_exp)
 {
-	fval(buff, bufc, exp(aton(fargs[0])));
+	fval(buff, bufc, exp((double)aton(fargs[0])));
 }
 
 FUNCTION(fun_ln)
@@ -336,24 +336,24 @@ FUNCTION(fun_ln)
 
 	val = aton(fargs[0]);
 	if (val > 0)
-		fval(buff, bufc, log(val));
+		fval(buff, bufc, log((double)val));
 	else
 		safe_str("#-1 LN OF NEGATIVE OR ZERO", buff, bufc);
 }
 
 FUNCTION(fun_sin)
 {
-	fval(buff, bufc, sin(aton(fargs[0])));
+	fval(buff, bufc, sin((double)aton(fargs[0])));
 }
 
 FUNCTION(fun_cos)
 {
-	fval(buff, bufc, cos(aton(fargs[0])));
+	fval(buff, bufc, cos((double)aton(fargs[0])));
 }
 
 FUNCTION(fun_tan)
 {
-	fval(buff, bufc, tan(aton(fargs[0])));
+	fval(buff, bufc, tan((double)aton(fargs[0])));
 }
 
 FUNCTION(fun_asin)
@@ -364,7 +364,7 @@ FUNCTION(fun_asin)
 	if ((val < -1) || (val > 1)) {
 		safe_str("#-1 ASIN ARGUMENT OUT OF RANGE", buff, bufc);
 	} else {
-		fval(buff, bufc, asin(val));
+		fval(buff, bufc, asin((double)val));
 	}
 }
 
@@ -376,13 +376,13 @@ FUNCTION(fun_acos)
 	if ((val < -1) || (val > 1)) {
 		safe_str("#-1 ACOS ARGUMENT OUT OF RANGE", buff, bufc);
 	} else {
-		fval(buff, bufc, acos(val));
+		fval(buff, bufc, acos((double)val));
 	}
 }
 
 FUNCTION(fun_atan)
 {
-	fval(buff, bufc, atan(aton(fargs[0])));
+	fval(buff, bufc, atan((double)aton(fargs[0])));
 }
 
 
@@ -583,7 +583,7 @@ FUNCTION(fun_power)
 	if (val1 < 0) {
 		safe_str("#-1 POWER OF NEGATIVE", buff, bufc);
 	} else {
-		fval(buff, bufc, pow(val1, val2));
+		fval(buff, bufc, pow((double)val1, (double)val2));
 	}
 }
 
@@ -605,7 +605,7 @@ FUNCTION(fun_log)
 	else if (base == 1)
 	    safe_str("#-1 DIVISION BY ZERO", buff, bufc);
 	else
-	    fval(buff, bufc, log(val) / log(base));
+	    fval(buff, bufc, log((double)val) / log((double)base));
 }
 
 /* ------------------------------------------------------------------------
