@@ -541,4 +541,10 @@ typedef int	POWER;
 typedef char	boolexp_type;
 typedef char	IBUF[16];
 
+#if !defined(_UWIN) && !defined(INLINE)
+#define INLINE inline
+#else
+#define INLINE
+#endif
+
 #endif /* __AUTOCONF_H */

@@ -6,10 +6,6 @@
 #ifndef	__DB_H
 #define	__DB_H
 
-#ifndef INLINE
-#define INLINE inline
-#endif
-
 #ifndef MEMORY_BASED
 #ifdef RADIX_COMPRESSION
 #define STORE(key, attr, len)	cache_put(key, attr, len)

@@ -6,12 +6,6 @@
 #ifndef __EXTERNS_H
 #define	__EXTERNS_H
 
-#ifndef _UWIN
-#define INLINE inline
-#else
-#define INLINE
-#endif
-
 /* --------------------------------------------------------------------------
  * External function declarations.
  */
