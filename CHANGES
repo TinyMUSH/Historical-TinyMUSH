@@ -30,7 +30,9 @@ the other have been listed in the conversion notes for both servers.
 
 - There are now ten user-defined flags, MARKER0 through MARKER9. The flag
   names can be set through the flag_name option, and the permissions for
-  setting them can be set through the flag_access option.
+  setting them can be set through the flag_access option. Commands,
+  functions, and other things with configurable permissions can also
+  be tied to these flags (for instance, 'function_access lwho marker0').
 
 - Command-table additions (@addcommand and family) are supported (a
   cleaned-up version of the MUX implementation). Three new conf parameters:
@@ -64,6 +66,10 @@ the other have been listed in the conversion notes for both servers.
   (This works in a way similar to PennMUSH's variable destination exits,
   but ExitTo was used instead of Destination, to reduce likelihood of
   previous attribute conflicts.)
+
+- Command permissions can also be linked to the STAFF and HEAD flags.
+  The "robot" permission has been removed, since nobody was using it.
+  (The "no_robot" permission still exists, though.)
 
 - There is now a link_to_anything power, and an open_anywhere power, doing
   the obvious; these are handy for building-staff players.
