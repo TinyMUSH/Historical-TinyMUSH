@@ -711,6 +711,10 @@ int ncmds;
     char *command, *cp, *cmdsave, *logbuf, *log_cmdbuf;
     struct timeval begin_time, end_time, obj_time;
     int used_time;
+#ifdef TRACK_USER_TIME
+    struct rusage usage;
+    struct timeval b_utime, e_utime;
+#endif
 
     if ((mudconf.control_flags & CF_DEQUEUE) == 0)
 	return 0;
@@ -790,6 +794,11 @@ int ncmds;
 
 #ifndef NO_LAG_CHECK
 			get_tod(&begin_time);
+#ifdef TRACK_USER_TIME
+			getrusage(RUSAGE_SELF, &usage);
+			b_utime.tv_sec = usage.ru_utime.tv_sec;
+			b_utime.tv_usec = usage.ru_utime.tv_usec;
+#endif
 #endif /* ! NO_LAG_CHECK */
 
 			log_cmdbuf = process_command(player,
@@ -805,6 +814,11 @@ int ncmds;
 
 #ifndef NO_LAG_CHECK
 			get_tod(&end_time);
+#ifdef TRACK_USER_TIME
+			getrusage(RUSAGE_SELF, &usage);
+			e_utime.tv_sec = usage.ru_utime.tv_sec;
+			e_utime.tv_usec = usage.ru_utime.tv_usec;
+#endif
 			used_time = msec_diff(end_time, begin_time);
 			if ((used_time / 1000) >= mudconf.max_cmdsecs) {
 			    STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
@@ -821,10 +835,17 @@ int ncmds;
 			/* Don't use msec_add(), this is more accurate */
 
 			obj_time = Time_Used(player);
+#ifndef TRACK_USER_TIME
 			obj_time.tv_usec += end_time.tv_usec -
 			    begin_time.tv_usec;
                         obj_time.tv_sec += end_time.tv_sec -
                             begin_time.tv_sec;
+#else
+			obj_time.tv_usec += e_utime.tv_usec -
+			    b_utime.tv_usec;
+                        obj_time.tv_sec += e_utime.tv_sec -
+                            b_utime.tv_sec;
+#endif /* ! TRACK_USER_TIME */
                         if (obj_time.tv_usec < 0) {
                             obj_time.tv_usec += 1000000;
                             obj_time.tv_sec--;
