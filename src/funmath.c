@@ -456,13 +456,13 @@ FUNCTION(handle_clogic)
 	    exec(tbuf, &bp, player, caller, cause,
 		 EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
 	    *bp = '\0';
-	    val = (flag & CLOGIC_BOOL) ? xlate(tbuf) : atoi(tbuf);
-	    if ((flag & CLOGIC_OR) ? val : !val)
+	    val = (flag & LOGIC_BOOL) ? xlate(tbuf) : atoi(tbuf);
+	    if ((flag & LOGIC_OR) ? val : !val)
 		break;
 	}
 	free_lbuf(tbuf);
 	safe_bool(buff, bufc,
-		  ((flag & CLOGIC_OR) ? (i != nfargs) : (i == nfargs)));
+		  ((flag & LOGIC_OR) ? (i != nfargs) : (i == nfargs)));
     }
 }
 

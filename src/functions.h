@@ -331,8 +331,10 @@ if ((l) > 0) { \
 #define JUST_CENTER	2
 
 /* from handle_clogic (cand, cor, candbool, corbool): */
-#define CLOGIC_OR	0x1
-#define CLOGIC_BOOL	0x2
+/* from handle_flaglists (andflags, orflags): */
+#define LOGIC_OR	0x1
+/* from handle_filter (filter, filterbool): */
+#define LOGIC_BOOL	0x2
 
 /* from handle_vectors (vadd, vsub, vmul, vdot): */
 #define VEC_OPER	0x0f	/* mask to select vector operation bits */
@@ -353,8 +355,5 @@ if ((l) > 0) { \
 #define BOOL_COND_NONE	1	/* loop until end of list */
 #define BOOL_COND_FALSE	2	/* loop until true */
 #define BOOL_COND_TRUE	3	/* loop until false */
-
-/* from handle_filter (filter, filterbool): */
-#define FILTER_BOOL	0x1
 
 #endif /* __FUNCTIONS_H */

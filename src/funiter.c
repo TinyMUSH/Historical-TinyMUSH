@@ -331,7 +331,7 @@ FUNCTION(handle_filter)
 	char *atext, *result, *curr, *objs[2], *bp, *str, *cp, *op, *atextbuf;
 	char *bb_p;
 
-	flag = ((FUN *)fargs[-1])->flags & FILTER_BOOL;
+	flag = ((FUN *)fargs[-1])->flags & LOGIC_BOOL;
 
 	VaChk_Only_In_Out(4);
 

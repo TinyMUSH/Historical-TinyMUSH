@@ -726,28 +726,26 @@ FUNCTION(fun_flags)
  * andflags, orflags: Check a list of flags.
  */
 
-static int handle_flaglists(player, cause, name, fstr, type)
-dbref player, cause;
-char *name;
-char *fstr;
-int type;			/* 0 for orflags, 1 for andflags */
+FUNCTION(handle_flaglists)
 {
 	char *s;
 	char flagletter[2];
 	FLAGSET fset;
 	FLAG p_type;
-	int negate, temp;
-	int ret = type;
-	dbref it = match_thing(player, name);
+	int negate, temp, type;
+	dbref it = match_thing(player, fargs[0]);
+
+	type = ((FUN *)fargs[-1])->flags & LOGIC_OR;
 
 	negate = temp = 0;
 
-	if (it == NOTHING)
-		return 0;
-	if (! (mudconf.pub_flags || Examinable(player, it) || (it == cause)))
-		return 0;
+	if ((it == NOTHING) ||
+	    (!(mudconf.pub_flags || Examinable(player, it) || (it == cause)))) {
+		safe_chr('0', buff, bufc);
+		return;
+	}
 		
-	for (s = fstr; *s; s++) {
+	for (s = fargs[1]; *s; s++) {
 
 		/* Check for a negation sign. If we find it, we note it and 
 		 * increment the pointer to the next character. 
@@ -761,7 +759,8 @@ int type;			/* 0 for orflags, 1 for andflags */
 		}
 
 		if (!*s) {
-			return 0;
+			safe_chr('0', buff, bufc);
+			return;
 		}
 		flagletter[0] = *s;
 		flagletter[1] = '\0';
@@ -774,9 +773,10 @@ int type;			/* 0 for orflags, 1 for andflags */
 			 * return false. Otherwise we just go on. 
 			 */
 
-			if (type == 1)
-				return 0;
-			else
+			if (!type) {
+				safe_chr('0', buff, bufc);
+				return;
+			} else
 				continue;
 
 		} else {
@@ -796,7 +796,7 @@ int type;			/* 0 for orflags, 1 for andflags */
 				temp = 0;
 			}
 			
-			if ((type == 1) && ((negate && temp) || (!negate && !temp))) {
+			if ((!type) && ((negate && temp) || (!negate && !temp))) {
 
 				/* Too bad there's no NXOR function... At
 				 * this point we've either got a flag
@@ -804,31 +804,21 @@ int type;			/* 0 for orflags, 1 for andflags */
 				 * have a flag and we want it. Since
 				 * it's AND, we return false. 
 				 */
-				return 0;
+				safe_chr('0', buff, bufc);
+				return;
 
-			} else if ((type == 0) &&
+			} else if ((type) &&
 				 ((!negate && temp) || (negate && !temp))) {
 
 				/* We've found something we want, in an OR. */
 
-				return 1;
+				safe_chr('1', buff, bufc);
+				return;
 			}
 			/* Otherwise, we don't need to do anything. */
 		}
 	}
-	return (ret);
-}
-
-FUNCTION(fun_orflags)
-{
-    safe_bool(buff, bufc,
-	      handle_flaglists(player, cause, fargs[0], fargs[1], 0));
-}
-
-FUNCTION(fun_andflags)
-{
-    safe_bool(buff, bufc,
-	      handle_flaglists(player, cause, fargs[0], fargs[1], 1));
+	safe_bool(buff, bufc, !type);
 }
 
 /*---------------------------------------------------------------------------

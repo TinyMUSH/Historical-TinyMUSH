@@ -206,8 +206,7 @@ XFUNCTION(fun_findable);
 XFUNCTION(fun_visible);
 XFUNCTION(fun_writable);
 XFUNCTION(fun_flags);
-XFUNCTION(fun_orflags);
-XFUNCTION(fun_andflags);
+XFUNCTION(handle_flaglists);
 XFUNCTION(fun_hasflag);
 XFUNCTION(fun_haspower);
 XFUNCTION(fun_lastaccess);
@@ -371,7 +370,7 @@ FUN flist[] = {
 {"ALPHAMIN",	fun_alphamin,   0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"AND",		fun_and,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"ANDBOOL",	fun_andbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"ANDFLAGS",	fun_andflags,	2,  0,		CA_PUBLIC,	NULL},
+{"ANDFLAGS",	handle_flaglists, 2, 0,		CA_PUBLIC,	NULL},
 {"ANSI",        fun_ansi,       2,  0,          CA_PUBLIC,	NULL},
 {"ANSIPOS",     fun_ansipos,    0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"APOSS",	fun_aposs,	1,  0,		CA_PUBLIC,	NULL},
@@ -385,7 +384,7 @@ FUN flist[] = {
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC,	NULL},
 {"BORDER",	perform_border,	0,  FN_VARARGS|JUST_LEFT,
 						CA_PUBLIC,	NULL},
-{"CANDBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|CLOGIC_BOOL,
+{"CANDBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_BOOL,
      						CA_PUBLIC,	NULL},
 {"CAND",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL,
      						CA_PUBLIC,	NULL},
@@ -410,9 +409,9 @@ FUN flist[] = {
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC,	NULL},
 {"CONVSECS",    fun_convsecs,   1,  0,		CA_PUBLIC,	NULL},
 {"CONVTIME",    fun_convtime,   1,  0,		CA_PUBLIC,	NULL},
-{"COR",		handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|CLOGIC_OR,
+{"COR",		handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR,
      						CA_PUBLIC,	NULL},
-{"CORBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|CLOGIC_OR|CLOGIC_BOOL,
+{"CORBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR|LOGIC_BOOL,
      						CA_PUBLIC,	NULL},
 {"COS",		fun_cos,	1,  0,		CA_PUBLIC,	NULL},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -446,7 +445,7 @@ FUN flist[] = {
 {"SUBEVAL",  	fun_subeval,	1,  0,		CA_PUBLIC,	NULL},
 {"FDIV",	fun_fdiv,	2,  0,		CA_PUBLIC,	NULL},
 {"FILTER",	handle_filter,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"FILTERBOOL",	handle_filter,	0,  FN_VARARGS|FILTER_BOOL,
+{"FILTERBOOL",	handle_filter,	0,  FN_VARARGS|LOGIC_BOOL,
 						CA_PUBLIC,	NULL},
 {"FINDABLE",	fun_findable,	2,  0,		CA_PUBLIC,	NULL},
 {"FIRST",	fun_first,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -578,7 +577,7 @@ FUN flist[] = {
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC,	NULL},
 {"OR",		fun_or,		0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"ORBOOL",	fun_orbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"ORFLAGS",	fun_orflags,	2,  0,		CA_PUBLIC,	NULL},
+{"ORFLAGS",	handle_flaglists, 2, LOGIC_OR,	CA_PUBLIC,	NULL},
 {"OWNER",	fun_owner,	1,  0,		CA_PUBLIC,	NULL},
 {"PARENT",	fun_parent,	1,  0,		CA_PUBLIC,	NULL},
 {"PARSE",	perform_loop,	0,  FN_VARARGS|FN_NO_EVAL,
