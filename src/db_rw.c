@@ -1073,6 +1073,7 @@ int db_read()
 			}
 			RAW_FREE(data, "dddb_get");
 		}
+	
 	}
 	
 	/* Load the object structures */
