@@ -681,18 +681,29 @@ FUNCTION(fun_visible)
 
 FUNCTION(fun_flags)
 {
-	dbref it;
-	char *buff2;
+	dbref it, aowner;
+	int atr, aflags;
+	char *buff2, xbuf[16], *xbufp;
 
-	it = match_thing(player, fargs[0]);
-	if ((it != NOTHING) &&
-	    (mudconf.pub_flags || Examinable(player, it) || (it == cause))) {
+	if (parse_attrib(player, fargs[0], &it, &atr)) {
+	    if (atr == NOTHING) {
+		safe_nothing(buff, bufc);
+	    } else {
+		atr_pget_info(it, atr, &aowner, &aflags);
+		Print_Attr_Flags(aflags, xbuf, xbufp);
+		safe_str(xbuf, buff, bufc);
+	    }
+	} else {
+	    it = match_thing(player, fargs[0]);
+	    if ((it != NOTHING) &&
+		(mudconf.pub_flags || Examinable(player, it) ||
+		 (it == cause))) {
 		buff2 = unparse_flags(player, it);
 		safe_str(buff2, buff, bufc);
 		free_sbuf(buff2);
-	} else
+	    } else
 		safe_nothing(buff, bufc);
-	return;
+	}
 }
 
 /* ---------------------------------------------------------------------------

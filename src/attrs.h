@@ -178,4 +178,20 @@
 #define	ATR_BUF_CHUNK	100	/* Min size to allocate for attribute buffer */
 #define	ATR_BUF_INCR	6	/* Max size of one attribute */
 
+#define Print_Attr_Flags(a,b,p) \
+	p = b; \
+	if (a & AF_LOCK) *p++ = '+'; \
+	if (a & AF_NOPROG) *p++ = '$'; \
+	if (a & AF_CASE) *p++ = 'C'; \
+	if (a & AF_HTML) *p++ = 'H'; \
+	if (a & AF_PRIVATE) *p++ = 'I'; \
+	if (a & AF_NOPARSE) *p++ = 'P'; \
+	if (a & AF_REGEXP) *p++ = 'R'; \
+	if (a & AF_VISUAL) *p++ = 'V'; \
+	if (a & AF_DARK) *p++ = 'd'; \
+	if (a & AF_GOD) *p++ = 'g'; \
+	if (a & AF_MDARK) *p++ = 'm'; \
+	if (a & AF_WIZARD) *p++ = 'w'; \
+	*p = '\0';
+
 #endif /* __ATTRS_H */

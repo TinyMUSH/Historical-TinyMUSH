@@ -645,32 +645,7 @@ char *text;
 
 	/* Generate flags */
 
-	xbufp = xbuf;
-	if (aflags & AF_LOCK)
-		*xbufp++ = '+';
-	if (aflags & AF_NOPROG)
-		*xbufp++ = '$';
-	if (aflags & AF_CASE)
-		*xbufp++ = 'C';
-	if (aflags & AF_HTML)
-		*xbufp++ = 'H';
-	if (aflags & AF_PRIVATE)
-		*xbufp++ = 'I';
-	if (aflags & AF_NOPARSE)
-		*xbufp++ = 'P';
-	if (aflags & AF_REGEXP)
-		*xbufp++ = 'R';
-	if (aflags & AF_VISUAL)
-		*xbufp++ = 'V';
-	if (aflags & AF_DARK)
-		*xbufp++ = 'd';
-	if (aflags & AF_GOD)
-		*xbufp++ = 'g';
-	if (aflags & AF_MDARK)
-		*xbufp++ = 'm';
-	if (aflags & AF_WIZARD)
-		*xbufp++ = 'w';
-	*xbufp = '\0';
+	Print_Attr_Flags(aflags, xbuf, xbufp);
 
 	if (is_special == 1) {
 	    if ((aowner != Owner(thing)) && (aowner != NOTHING)) {

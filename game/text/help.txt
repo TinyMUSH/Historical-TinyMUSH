@@ -6912,11 +6912,15 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   
 & FLAGS()
   flags(<object>)
+  flags(<object>/<attrib>)
  
-  Flags returns a string consisting of the flags attached to the 
-  object. The string is, however, just one word.  Note that @switch
-  is case-INsensitive.  i.e. p=P as far as it is concerned.  I wish
-  that P=NP....
+  The first form of the flags() function returns a string consisting of
+  the flags set on the object, as a one-word string, subject to restrictions
+  on the visibility of flags.
+ 
+  The second form returns the flags of an attribute on the named object.
+  You must have permission to see the attribute.
+  
 & NUM()
   num(<object>)
  
