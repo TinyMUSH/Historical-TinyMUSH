@@ -649,8 +649,7 @@ char *cargs[];
 				}
 				xtp = xtbuf;
 				while (**dstr && (**dstr != '>')) {
-				    ch = ToLower(**dstr);
-				    safe_sb_chr(ch, xtbuf, &xtp);
+				    safe_sb_chr(**dstr, xtbuf, &xtp);
 				    (*dstr)++;
 				}
 				if (**dstr != '>') {
