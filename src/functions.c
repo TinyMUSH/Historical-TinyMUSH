@@ -68,6 +68,7 @@ XFUNCTION(fun_last);
 XFUNCTION(fun_matchall);
 XFUNCTION(fun_ports);
 XFUNCTION(fun_mix);
+XFUNCTION(fun_until);
 XFUNCTION(fun_step);
 XFUNCTION(fun_foreach);
 XFUNCTION(fun_munge);
@@ -4901,8 +4902,8 @@ FUNCTION(fun_while)
     char sep, osep;
     dbref aowner1, thing1, aowner2, thing2;
     int aflags1, aflags2, anum1, anum2, alen1, alen2;
-    int is_same;
-    ATTR *ap;
+    int is_same, is_exact_same;
+    ATTR *ap, *ap2;
     char *atext1, *atext2, *atextbuf, *condbuf;
     char *objstring, *cp, *str, *dp, *savep, *bb_p;
 
@@ -4940,31 +4941,40 @@ FUNCTION(fun_while)
 
     if (parse_attrib(player, fargs[1], &thing2, &anum2)) {
 	if ((anum2 == NOTHING) || !Good_obj(thing2))
-	    ap = NULL;
+	    ap2 = NULL;
 	else
-	    ap = atr_num(anum2);
+	    ap2 = atr_num(anum2);
     } else {
 	thing2 = player;
-	ap = atr_str(fargs[1]);
+	ap2 = atr_str(fargs[1]);
     }
-    if (!ap) {
+    if (!ap2) {
 	free_lbuf(atext1);	/* we allocated this, remember? */
-	return;
-    }
-    atext2 = atr_pget(thing2, ap->number, &aowner2, &aflags2, &alen2);
-    if (!*atext2 || !See_attr(player, thing2, ap, aowner2, aflags2)) {
-	free_lbuf(atext1);
-	free_lbuf(atext2);
 	return;
     }
 
     /* If our evaluation and condition are the same, we can save ourselves
-     * some time later.
+     * some time later. There are two possibilities: we have the exact
+     * same obj/attr pair, or the attributes contain identical text.
      */
-    if (!strcmp(atext1, atext2))
+
+    if ((thing1 == thing2) && (ap->number == ap2->number)) {
 	is_same = 1;
-    else 
-	is_same = 0;
+	is_exact_same = 1;
+	atext2 = atext1;
+    } else {
+	is_exact_same = 0; 
+	atext2 = atr_pget(thing2, ap2->number, &aowner2, &aflags2, &alen2);
+	if (!*atext2 || !See_attr(player, thing2, ap2, aowner2, aflags2)) {
+	    free_lbuf(atext1);
+	    free_lbuf(atext2);
+	    return;
+	}
+	if (!strcmp(atext1, atext2))
+	    is_same = 1;
+	else 
+	    is_same = 0;
+    }
 
     /* Process the list one element at a time. */
 
@@ -4996,7 +5006,8 @@ FUNCTION(fun_while)
 	}
     }
     free_lbuf(atext1);
-    free_lbuf(atext2);
+    if (!is_exact_same)
+	free_lbuf(atext2);
     free_lbuf(atextbuf);
     if (!is_same)
 	free_lbuf(condbuf);
@@ -6244,6 +6255,7 @@ FUN flist[] = {
 {"ULOCAL",	fun_ulocal,	0,  FN_VARARGS,	CA_PUBLIC},
 {"UNLOAD",	fun_unload,	0,  FN_VARARGS,	CA_PUBLIC},
 {"UNSTRUCTURE",	fun_unstructure,1,  0,		CA_PUBLIC},
+{"UNTIL",	fun_until,	0,  FN_VARARGS, CA_PUBLIC},
 #ifdef PUEBLO_SUPPORT
 {"URL_ESCAPE",	fun_url_escape,	-1, 0,		CA_PUBLIC},
 {"URL_UNESCAPE",fun_url_unescape,-1,0,		CA_PUBLIC},

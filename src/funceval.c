@@ -3195,6 +3195,188 @@ FUNCTION(fun_mix)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_until: Much like while(), but operates on multiple lists ala mix().
+ * until(eval_fn,cond_fn,list1,list2,compare_str,delim,output delim)
+ * The delimiter terminators are MANDATORY.
+ * The termination condition is a REGEXP match (thus allowing this
+ * to be also used as 'eval until a termination condition is NOT met').
+ */
+
+FUNCTION(fun_until)
+{
+    char sep, osep;
+    dbref aowner1, thing1, aowner2, thing2;
+    int aflags1, aflags2, anum1, anum2, alen1, alen2;
+    ATTR *ap, *ap2;
+    char *atext1, *atext2, *atextbuf, *condbuf;
+    char *cp[10], *os[10];
+    int count[LBUF_SIZE / 2];
+    int i, is_exact_same, is_same, nwords, lastn, wc;
+    char *str, *dp, *savep, *bb_p;
+    char tmpbuf[2];
+    pcre *re;
+    const char *errptr;
+    int erroffset;
+    int offsets[PCRE_MAX_OFFSETS];
+    int subpatterns;
+
+    /* We need at least 6 arguments. The last 2 args must be delimiters. */
+
+    if (!fn_range_check("UNTIL", nfargs, 6, 12, buff, bufc)) {
+	return;
+    }
+    if (!delim_check(fargs, nfargs, nfargs - 1, &sep, buff, bufc, 0,
+		     player, cause, cargs, ncargs, 0)) {
+	return;
+    }
+    if (!delim_check(fargs, nfargs, nfargs, &osep, buff, bufc, 0,
+		     player, cause, cargs, ncargs, 1)) {
+	return;
+    }
+    lastn = nfargs - 4; 
+
+    /* Make sure we have a valid regular expression. */
+
+    if (!tables) {
+	tables = pcre_maketables();
+    }
+    if ((re = pcre_compile(fargs[lastn + 1], 0,
+			   &errptr, &erroffset, tables)) == NULL) {
+	/* Return nothing on a bad match. */
+	notify_quiet(player, errptr);
+	return;
+    }
+
+    /* Our first and second args can be <obj>/<attr> or just <attr>.
+     * Use them if we can access them, otherwise return an empty string.
+     *
+     * Note that for user-defined attributes, atr_str() returns a pointer
+     * to a static, and that therefore we have to be careful about what
+     * we're doing.
+     */
+
+    if (parse_attrib(player, fargs[0], &thing1, &anum1)) {
+	if ((anum1 == NOTHING) || !Good_obj(thing1))
+	    ap = NULL;
+	else
+	    ap = atr_num(anum1);
+    } else {
+	thing1 = player;
+	ap = atr_str(fargs[0]);
+    }
+    if (!ap)
+	return;
+    atext1 = atr_pget(thing1, ap->number, &aowner1, &aflags1, &alen1);
+    if (!*atext1 || !See_attr(player, thing1, ap, aowner1, aflags1)) {
+	free_lbuf(atext1);
+	return;
+    }
+
+    if (parse_attrib(player, fargs[1], &thing2, &anum2)) {
+	if ((anum2 == NOTHING) || !Good_obj(thing2))
+	    ap2 = NULL;
+	else
+	    ap2 = atr_num(anum2);
+    } else {
+	thing2 = player;
+	ap2 = atr_str(fargs[1]);
+    }
+    if (!ap2) {
+	free_lbuf(atext1);	/* we allocated this, remember? */
+	return;
+    }
+
+    /* If our evaluation and condition are the same, we can save ourselves
+     * some time later. There are two possibilities: we have the exact
+     * same obj/attr pair, or the attributes contain identical text.
+     */
+
+    if ((thing1 == thing2) && (ap->number == ap2->number)) {
+	is_same = 1;
+	is_exact_same = 1;
+	atext2 = atext1;
+    } else {
+	is_exact_same = 0; 
+	atext2 = atr_pget(thing2, ap2->number, &aowner2, &aflags2, &alen2);
+	if (!*atext2 || !See_attr(player, thing2, ap2, aowner2, aflags2)) {
+	    free_lbuf(atext1);
+	    free_lbuf(atext2);
+	    return;
+	}
+	if (!strcmp(atext1, atext2))
+	    is_same = 1;
+	else 
+	    is_same = 0;
+    }
+
+    atextbuf = alloc_lbuf("fun_while.eval");
+    if (!is_same)
+	condbuf = alloc_lbuf("fun_while.cond");
+    bb_p = *bufc;
+
+    /* Process the list one element at a time. We need to find out what
+     * the longest list is; assume null-padding for shorter lists.
+     */
+
+    for (i = 0; i < 10; i++)
+	cp[i] = NULL;
+    cp[2] = trim_space_sep(fargs[2], sep);
+    nwords = count[2] = countwords(cp[2], sep);
+    for (i = 3; i <= lastn; i++) {
+	cp[i] = trim_space_sep(fargs[i], sep);
+	count[i] = countwords(cp[i], sep);
+	if (count[i] > nwords)
+	    nwords = count[i];
+    }
+
+    for (wc = 0;
+	 (wc < nwords) && (mudstate.func_invk_ctr < mudconf.func_invk_lim);
+	 wc++) {
+	for (i = 2; i <= lastn; i++) {
+	    if (count[i]) {
+		os[i - 2] = split_token(&cp[i], sep);
+	    } else {
+		tmpbuf[0] = '\0';
+		os[i - 2] = tmpbuf;
+	    }
+	}
+
+	if (*bufc != bb_p) {
+	    print_sep(osep, buff, bufc);
+	}
+
+	strcpy(atextbuf, atext1);
+	str = atextbuf;
+	savep = *bufc;
+	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	     &str, &(os[0]), lastn - 1);
+	if (is_same) {
+	    subpatterns = pcre_exec(re, NULL, savep, strlen(savep),
+				    0, 0, offsets, PCRE_MAX_OFFSETS);
+	    if (subpatterns >= 0)
+		break;
+	} else {
+	    strcpy(condbuf, atext2);
+	    dp = str = savep = condbuf;
+	    exec(condbuf, &dp, 0, player, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn - 1);
+	    subpatterns = pcre_exec(re, NULL, savep, strlen(savep),
+				    0, 0, offsets, PCRE_MAX_OFFSETS);
+	    if (subpatterns >= 0)
+		break;
+	}
+    }
+    free(re);
+    free_lbuf(atext1);
+    if (!is_exact_same)
+	free_lbuf(atext2);
+    free_lbuf(atextbuf);
+    if (!is_same)
+	free_lbuf(condbuf);
+}
+
+
+/* ---------------------------------------------------------------------------
  * fun_step: A little like a fusion of iter() and mix(), it takes elements
  * of a list X at a time and passes them into a single function as %0, %1,
  * etc.   step(<attribute>,<list>,<step size>,<delim>,<outdelim>)
