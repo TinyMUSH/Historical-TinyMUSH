@@ -43,6 +43,6 @@ TXTFILES=`ls $TEXT/*.txt | egrep -v '(help|wizhelp|mushman).txt'`
 ALLFILES="$FLATFILE $DATA/comsys.db $DATA/mail.db mush.config $GAMENAME.conf $TXTFILES"
 #
 echo "Archiving..."
-tar -chvf - $ALLFILES | $ZIP -c > $GAMENAME-archive.$DBDATE.gz
+tar -chvf - $ALLFILES | $ZIP -c > $GAMENAME-archive.$DBDATE.tar.gz
 rm $FLATFILE
 echo "Done."
