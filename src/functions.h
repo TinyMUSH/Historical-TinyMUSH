@@ -315,11 +315,11 @@ if ((l) > 0) { \
 /* Function-specific flags used in the function table. */
 
 /* from handle_sets (setunion, setdiff, setinter, lunion, ldiff, linter): */
-#define SET_TYPE	0x10	/* set type is given, don't autodetect */
 #define SET_OPER	0x0f	/* mask to select set operation bits */
-#define	SET_UNION	1
-#define	SET_INTERSECT	2
-#define	SET_DIFF	3
+#define	SET_UNION	0
+#define	SET_INTERSECT	1
+#define	SET_DIFF	2
+#define SET_TYPE	0x10	/* set type is given, don't autodetect */
 
 /* from process_tables (tables, rtables, ctables): */
 /* from perform_border (border, rborder, cborder): */
@@ -328,13 +328,17 @@ if ((l) > 0) { \
 #define JUST_RIGHT	1
 #define JUST_CENTER	2
 
-/* from handle_clogic (cand, cor, candbool, corbool): */
+/* from handle_logic (and, or, andbool, orbool, land, lor, landbool, lorbool,
+ *    cand, cor, candbool, corbool, xor, xorbool): */
 /* from handle_flaglists (andflags, orflags): */
 /* from handle_filter (filter, filterbool): */
-#define LOGIC_OR	0x1	/* perform or, as opposed to and */
-#define LOGIC_BOOL	0x2	/* interpret operands as boolean, not int */
-#define LOGIC_EVAL	0x4	/* operands need to be evaluated */
-#define LOGIC_LIST	0x8	/* operands come in a list, not separately */
+#define LOGIC_OPER	0x0f	/* mask to select boolean operation bits */
+#define LOGIC_AND	0
+#define LOGIC_OR	1
+#define LOGIC_XOR	2
+#define LOGIC_BOOL	0x10	/* interpret operands as boolean, not int */
+#define LOGIC_EVAL	0x20	/* operands need to be evaluated */
+#define LOGIC_LIST	0x40	/* operands come in a list, not separately */
 
 /* from handle_vectors (vadd, vsub, vmul, vdot): */
 #define VEC_OPER	0x0f	/* mask to select vector operation bits */
@@ -350,37 +354,37 @@ if ((l) > 0) { \
 
 /* from perform_loop (loop, parse): */
 /* from perform_iter (list, iter, whentrue, whenfalse): */
-#define LOOP_NOTIFY	0x10	/* send loop results directly to enactor */
 #define BOOL_COND_TYPE	0x0f	/* mask to select exit-condition bits */
 #define BOOL_COND_NONE	1	/* loop until end of list */
 #define BOOL_COND_FALSE	2	/* loop until true */
 #define BOOL_COND_TRUE	3	/* loop until false */
+#define LOOP_NOTIFY	0x10	/* send loop results directly to enactor */
 
 /* from handle_lattr (lattr, nattr): */
-#define LATTR_COUNT	0x1	/* just return attribute count */
+#define LATTR_COUNT	0x01	/* just return attribute count */
 
 /* from fun_hasattr (hasattr, hasattrp): */
-#define CHECK_PARENTS	0x1	/* recurse up the parent chain */
+#define CHECK_PARENTS	0x01	/* recurse up the parent chain */
 
 /* from perform_get (get, get_eval, xget, eval(a,b)): */
-#define GET_EVAL	0x1	/* evaluate the attribute */
-#define GET_XARGS	0x2	/* obj and attr are two separate args */
+#define GET_EVAL	0x01	/* evaluate the attribute */
+#define GET_XARGS	0x02	/* obj and attr are two separate args */
 
 /* from do_ufun (u, ulocal): */
-#define U_LOCAL		0x1	/* preserve global registers */
+#define U_LOCAL		0x01	/* preserve global registers */
 
 /* from handle_pop (pop, peek, toss): */
-#define POP_PEEK	0x1	/* don't remove item from stack */
-#define POP_TOSS	0x2	/* don't display item from stack */
+#define POP_PEEK	0x01	/* don't remove item from stack */
+#define POP_TOSS	0x02	/* don't display item from stack */
 
 /* from perform_regedit (regedit, regediti, regeditall, regeditalli): */
 /* from perform_regparse (regparse, regparsei): */
 /* from perform_regrab (regrab, regrabi, regraball, regraballi): */
 /* from perform_regmatch (regmatch, regmatchi): */
 /* from perform_grep (grep, grepi, wildgrep, regrep, regrepi): */
-#define REG_CASELESS	0x1	/* XXX must equal PCRE_CASELESS */
-#define REG_MATCH_ALL	0x2	/* operate on all matches in a list */
-#define REG_TYPE	0xc	/* mask to select grep type bits */
+#define REG_CASELESS	0x01	/* XXX must equal PCRE_CASELESS */
+#define REG_MATCH_ALL	0x02	/* operate on all matches in a list */
+#define REG_TYPE	0x0c	/* mask to select grep type bits */
 #define GREP_EXACT	0
 #define GREP_WILD	4
 #define GREP_REGEXP	8

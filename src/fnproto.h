@@ -75,62 +75,60 @@ XFUNCTION(fun_itemize);
 
 /* From funmath.c */
 
-XFUNCTION(fun_ncomp);
+XFUNCTION(fun_pi);
+XFUNCTION(fun_e);
+XFUNCTION(fun_sign);
+XFUNCTION(fun_abs);
+XFUNCTION(fun_floor);
+XFUNCTION(fun_ceil);
+XFUNCTION(fun_round);
+XFUNCTION(fun_trunc);
+XFUNCTION(fun_inc);
+XFUNCTION(fun_dec);
+XFUNCTION(fun_sqrt);
+XFUNCTION(fun_exp);
+XFUNCTION(fun_ln);
+XFUNCTION(fun_sin);
+XFUNCTION(fun_cos);
+XFUNCTION(fun_tan);
+XFUNCTION(fun_asin);
+XFUNCTION(fun_acos);
+XFUNCTION(fun_atan);
 XFUNCTION(fun_gt);
 XFUNCTION(fun_gte);
 XFUNCTION(fun_lt);
 XFUNCTION(fun_lte);
 XFUNCTION(fun_eq);
 XFUNCTION(fun_neq);
-XFUNCTION(fun_xor);
-XFUNCTION(fun_not);
-XFUNCTION(fun_ladd);
-XFUNCTION(fun_lmax);
-XFUNCTION(fun_lmin);
-XFUNCTION(fun_xorbool);
-XFUNCTION(fun_notbool);
-XFUNCTION(handle_logic);
-XFUNCTION(fun_t);
-XFUNCTION(fun_sqrt);
-XFUNCTION(fun_add);
+XFUNCTION(fun_ncomp);
 XFUNCTION(fun_sub);
-XFUNCTION(fun_mul);
-XFUNCTION(fun_floor);
-XFUNCTION(fun_ceil);
-XFUNCTION(fun_round);
-XFUNCTION(fun_trunc);
 XFUNCTION(fun_div);
 XFUNCTION(fun_floordiv);
 XFUNCTION(fun_fdiv);
 XFUNCTION(fun_modulo);
 XFUNCTION(fun_remainder);
-XFUNCTION(fun_pi);
-XFUNCTION(fun_e);
-XFUNCTION(fun_sin);
-XFUNCTION(fun_cos);
-XFUNCTION(fun_tan);
-XFUNCTION(fun_exp);
 XFUNCTION(fun_power);
-XFUNCTION(fun_ln);
 XFUNCTION(fun_log);
-XFUNCTION(fun_asin);
-XFUNCTION(fun_acos);
-XFUNCTION(fun_atan);
-XFUNCTION(fun_dist2d);
-XFUNCTION(fun_dist3d);
-XFUNCTION(handle_vectors);
-XFUNCTION(handle_vector);
-XFUNCTION(fun_abs);
-XFUNCTION(fun_sign);
 XFUNCTION(fun_shl);
 XFUNCTION(fun_shr);
 XFUNCTION(fun_band);
 XFUNCTION(fun_bor);
 XFUNCTION(fun_bnand);
+XFUNCTION(fun_add);
+XFUNCTION(fun_mul);
 XFUNCTION(fun_max);
 XFUNCTION(fun_min);
-XFUNCTION(fun_inc);
-XFUNCTION(fun_dec);
+XFUNCTION(fun_dist2d);
+XFUNCTION(fun_dist3d);
+XFUNCTION(fun_ladd);
+XFUNCTION(fun_lmax);
+XFUNCTION(fun_lmin);
+XFUNCTION(handle_vector);
+XFUNCTION(handle_vectors);
+XFUNCTION(fun_not);
+XFUNCTION(fun_notbool);
+XFUNCTION(fun_t);
+XFUNCTION(handle_logic);
 
 /* From funmisc.c */
 
@@ -340,8 +338,9 @@ FUN flist[] = {
 {"AFTER",	fun_after,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ALPHAMAX",	fun_alphamax,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ALPHAMIN",	fun_alphamin,   0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"AND",		handle_logic,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"ANDBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_BOOL,
+{"AND",		handle_logic,	0,  FN_VARARGS|LOGIC_AND,
+						CA_PUBLIC,	NULL},
+{"ANDBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_AND|LOGIC_BOOL,
 						CA_PUBLIC,	NULL},
 {"ANDFLAGS",	handle_flaglists, 2, 0,		CA_PUBLIC,	NULL},
 {"ANSI",        fun_ansi,       2,  0,          CA_PUBLIC,	NULL},
@@ -357,9 +356,9 @@ FUN flist[] = {
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC,	NULL},
 {"BORDER",	perform_border,	0,  FN_VARARGS|JUST_LEFT,
 						CA_PUBLIC,	NULL},
-{"CANDBOOL",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_BOOL|LOGIC_EVAL,
+{"CANDBOOL",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_AND|LOGIC_BOOL,
      						CA_PUBLIC,	NULL},
-{"CAND",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_EVAL,
+{"CAND",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_AND,
      						CA_PUBLIC,	NULL},
 {"CAPSTR",	fun_capstr,	-1, 0,		CA_PUBLIC,	NULL},
 {"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
@@ -382,9 +381,9 @@ FUN flist[] = {
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC,	NULL},
 {"CONVSECS",    fun_convsecs,   1,  0,		CA_PUBLIC,	NULL},
 {"CONVTIME",    fun_convtime,   1,  0,		CA_PUBLIC,	NULL},
-{"COR",		handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR|LOGIC_EVAL,
+{"COR",		handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR,
      						CA_PUBLIC,	NULL},
-{"CORBOOL",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR|LOGIC_BOOL|LOGIC_EVAL,
+{"CORBOOL",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR|LOGIC_BOOL,
      						CA_PUBLIC,	NULL},
 {"COS",		fun_cos,	1,  0,		CA_PUBLIC,	NULL},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -469,9 +468,9 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"ITEXT",	fun_itext,	1,  0,		CA_PUBLIC,	NULL},
 {"LADD",	fun_ladd,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"LAND",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST,
+{"LAND",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_AND,
 						CA_PUBLIC,	NULL},
-{"LANDBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_BOOL,
+{"LANDBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_AND|LOGIC_BOOL,
 						CA_PUBLIC,	NULL},
 {"LAST",	fun_last,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LASTACCESS",	fun_lastaccess,	1,  0,		CA_PUBLIC,	NULL},
@@ -737,8 +736,10 @@ FUN flist[] = {
 {"X",		fun_x,		1,  0,		CA_PUBLIC,	NULL},
 {"XCON",	fun_xcon,	3,  0,		CA_PUBLIC,	NULL},
 {"XGET",	perform_get,	2,  GET_XARGS,	CA_PUBLIC,	NULL},
-{"XOR",		fun_xor,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"XORBOOL",	fun_xorbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"XOR",		handle_logic,	0,  FN_VARARGS|LOGIC_XOR,
+						CA_PUBLIC,	NULL},
+{"XORBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_XOR|LOGIC_BOOL,
+						CA_PUBLIC,	NULL},
 {"XVARS",	fun_xvars,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"Z",		fun_z,		2,  0,		CA_PUBLIC,	NULL},
 {"ZFUN",	fun_zfun,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},

@@ -140,295 +140,48 @@ double result;
 #endif
 
 /* ---------------------------------------------------------------------------
- * fun_ncomp: numerical compare.
+ * Constant math funcs: PI, E
  */
 
-FUNCTION(fun_ncomp)
+FUNCTION(fun_pi)
 {
-    NVAL x, y;
-
-    x = aton(fargs[0]);
-    y = aton(fargs[1]);
-
-    if (x == y) {
-	safe_chr('0', buff, bufc);
-    } else if (x < y) {
-	safe_str("-1", buff, bufc);
-    } else {
-	safe_chr('1', buff, bufc);
-    }
+	safe_known_str("3.141592654", 11, buff, bufc);
 }
 
-/*-------------------------------------------------------------------------
- * Comparison functions.
+FUNCTION(fun_e)
+{
+	safe_known_str("2.718281828", 11, buff, bufc);
+}
+
+/* ---------------------------------------------------------------------------
+ * Math operations on one number: SIGN, ABS, FLOOR, CEIL, ROUND, TRUNC,
+ *    INC, DEC, SQRT, EXP, LN, SIN, COS, TAN, ASIN, ACOS, ATAN
  */
 
-FUNCTION(fun_gt)
+FUNCTION(fun_sign)
 {
-	safe_bool(buff, bufc, (aton(fargs[0]) > aton(fargs[1])));
-}
-FUNCTION(fun_gte)
-{
-	safe_bool(buff, bufc, (aton(fargs[0]) >= aton(fargs[1])));
-}
-FUNCTION(fun_lt)
-{
-	safe_bool(buff, bufc, (aton(fargs[0]) < aton(fargs[1])));
-}
-FUNCTION(fun_lte)
-{
-	safe_bool(buff, bufc, (aton(fargs[0]) <= aton(fargs[1])));
-}
-FUNCTION(fun_eq)
-{
-	safe_bool(buff, bufc, (aton(fargs[0]) == aton(fargs[1])));
-}
-FUNCTION(fun_neq)
-{
-	safe_bool(buff, bufc, (aton(fargs[0]) != aton(fargs[1])));
-}
+	NVAL num;
 
-FUNCTION(fun_xor)
-{
-	int i, val;
-
-	if (nfargs < 2) {
-		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+	num = aton(fargs[0]);
+	if (num < 0) {
+	    safe_known_str("-1", 2, buff, bufc);
 	} else {
-		val = atoi(fargs[0]);
-		for (i = 1; i < nfargs; i++) {
-			if (val) {
-				val = !atoi(fargs[i]);
-			} else {
-				val = atoi(fargs[i]);
-			}
-		}
-		safe_bool(buff, bufc, val);
+	    safe_bool(buff, bufc, (num > 0));
 	}
-	return;
 }
 
-FUNCTION(fun_not)
+FUNCTION(fun_abs)
 {
-	safe_bool(buff, bufc, !atoi(fargs[0]));
-}
+	NVAL num;
 
-/*-------------------------------------------------------------------------
- * List-based numeric functions.
- */
-
-FUNCTION(fun_ladd)
-{
-    NVAL sum;
-    char *cp, *curr;
-    Delim isep;
-    int isep_len;
-
-    VaChk_Only_In(2);
-
-    sum = 0;
-    cp = trim_space_sep(fargs[0], isep, isep_len);
-    while (cp) {
-	curr = split_token(&cp, isep, isep_len);
-	sum += aton(curr);
-    }
-    fval(buff, bufc, sum);
-}
-
-FUNCTION(fun_lmax)
-{
-    NVAL max, val;
-    char *cp, *curr;
-    Delim isep;
-    int isep_len;
-
-    VaChk_Only_In(2);
-
-    cp = trim_space_sep(fargs[0], isep, isep_len);
-    if (cp) {
-	curr = split_token(&cp, isep, isep_len);
-	max = aton(curr);
-	while (cp) {
-	    curr = split_token(&cp, isep, isep_len);
-	    val = aton(curr);
-	    if (max < val)
-		max = val;
-	}
-	fval(buff, bufc, max);
-    }
-}
-
-FUNCTION(fun_lmin)
-{
-    NVAL min, val;
-    char *cp, *curr;
-    Delim isep;
-    int isep_len;
-
-    VaChk_Only_In(2);
-
-    cp = trim_space_sep(fargs[0], isep, isep_len);
-    if (cp) {
-	curr = split_token(&cp, isep, isep_len);
-	min = aton(curr);
-	while (cp) {
-	    curr = split_token(&cp, isep, isep_len);
-	    val = aton(curr);
-	    if (min > val)
-		min = val;
-	}
-	fval(buff, bufc, min);
-    }
-}
-
-/*-------------------------------------------------------------------------
- *  True boolean functions.
- */
-
-FUNCTION(fun_xorbool)
-{
-    int i, val;
-
-    if (nfargs < 2) {
-	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-    } else {
-	val = xlate(fargs[0]);
-	for (i = 1; i < nfargs; i++) {
-	    if (val) {
-		val = !xlate(fargs[i]);
-	    } else {
-		val = xlate(fargs[i]);
-	    }
-	}
-	safe_bool(buff, bufc, val);
-    }
-    return;
-}
-
-FUNCTION(fun_notbool)
-{
-	safe_bool(buff, bufc, !xlate(fargs[0]));
-}
-
-FUNCTION(fun_t)
-{
-	safe_bool(buff, bufc, xlate(fargs[0]));
-}
-
-/*-------------------------------------------------------------------------
- * Generalized boolean function handler.
- */
-
-FUNCTION(handle_logic)
-{
-	Delim isep;
-	int isep_len, flag, i, val;
-	char *str, *tbuf, *bp;
-
-	flag = ((FUN *)fargs[-1])->flags;
-
-	/* OR defaults to 0, AND defaults to 1 */
-	val = !(flag & LOGIC_OR);
-
-	if (flag & LOGIC_LIST) {
-		/* the arguments come in a pre-evaluated list */
-		VaChk_Only_In(2);
-
-		bp = trim_space_sep(fargs[0], isep, isep_len);
-		while (bp) {
-	  		tbuf = split_token(&bp, isep, isep_len);
-			val = (flag & LOGIC_BOOL) ? xlate(tbuf) : atoi(tbuf);
-			if ((flag & LOGIC_OR) ? val : !val)
-				break;
-		}
-
-	} else if (nfargs < 2) {
-		/* separate arguments, but not enough of them */
-		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-		return;
-
-	} else if (flag & LOGIC_EVAL) {
-		/* separate, unevaluated arguments */
-		tbuf = alloc_lbuf("handle_logic");
-		for (i = 0; i < nfargs; i++) { 
-			str = fargs[i];
-			bp = tbuf;
-			exec(tbuf, &bp, player, caller, cause,
-			     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
-			*bp = '\0';
-			val = (flag & LOGIC_BOOL) ? xlate(tbuf) : atoi(tbuf);
-			if ((flag & LOGIC_OR) ? val : !val)
-				break;
-		}
-		free_lbuf(tbuf);
-
-	} else {
-		/* separate, pre-evaluated arguments */
-		for (i = 0; i < nfargs; i++) { 
-			val = (flag & LOGIC_BOOL) ? xlate(fargs[i]) : atoi(fargs[i]);
-			if ((flag & LOGIC_OR) ? val : !val)
-				break;
-		}
-	}
-
-	safe_bool(buff, bufc, val);
-}
-
-/*-------------------------------------------------------------------------
- * Mathematical functions.
- */
-
-FUNCTION(fun_sqrt)
-{
-	NVAL val;
-
-	val = aton(fargs[0]);
-	if (val < 0) {
-		safe_str("#-1 SQUARE ROOT OF NEGATIVE", buff, bufc);
-	} else if (val == 0) {
+	num = aton(fargs[0]);
+	if (num == 0) {
 		safe_chr('0', buff, bufc);
+	} else if (num < 0) {
+		fval(buff, bufc, -num);
 	} else {
-		fval(buff, bufc, sqrt((double)val));
+		fval(buff, bufc, num);
 	}
-}
-
-FUNCTION(fun_add)
-{
-	NVAL sum;
-	int i;
-
-	if (nfargs < 2) {
-		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-	} else {
-		sum = aton(fargs[0]);
-		for (i = 1; i < nfargs; i++) {
-			sum += aton(fargs[i]);
-		}
-		fval(buff, bufc, sum);
-	}
-	return;
-}
-
-FUNCTION(fun_sub)
-{
-	fval(buff, bufc, aton(fargs[0]) - aton(fargs[1]));
-}
-
-FUNCTION(fun_mul)
-{
-    NVAL prod;
-    int i;
-
-    if (nfargs < 2) {
-	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-    } else {
-	prod = aton(fargs[0]);
-	for (i = 1; i < nfargs; i++) {
-	    prod *= aton(fargs[i]);
-	}
-	fval(buff, bufc, prod);
-    }
-    return;
 }
 
 FUNCTION(fun_floor)
@@ -546,6 +299,151 @@ FUNCTION(fun_trunc)
 #else
 	fval(buff, bufc, aton(fargs[0]));
 #endif
+}
+
+FUNCTION(fun_inc)
+{
+	safe_ltos(buff, bufc, atoi(fargs[0]) + 1);
+}
+
+FUNCTION(fun_dec)
+{
+	safe_ltos(buff, bufc, atoi(fargs[0]) - 1);
+}
+
+FUNCTION(fun_sqrt)
+{
+	NVAL val;
+
+	val = aton(fargs[0]);
+	if (val < 0) {
+		safe_str("#-1 SQUARE ROOT OF NEGATIVE", buff, bufc);
+	} else if (val == 0) {
+		safe_chr('0', buff, bufc);
+	} else {
+		fval(buff, bufc, sqrt((double)val));
+	}
+}
+
+FUNCTION(fun_exp)
+{
+	fval(buff, bufc, exp(aton(fargs[0])));
+}
+
+FUNCTION(fun_ln)
+{
+	NVAL val;
+
+	val = aton(fargs[0]);
+	if (val > 0)
+		fval(buff, bufc, log(val));
+	else
+		safe_str("#-1 LN OF NEGATIVE OR ZERO", buff, bufc);
+}
+
+FUNCTION(fun_sin)
+{
+	fval(buff, bufc, sin(aton(fargs[0])));
+}
+
+FUNCTION(fun_cos)
+{
+	fval(buff, bufc, cos(aton(fargs[0])));
+}
+
+FUNCTION(fun_tan)
+{
+	fval(buff, bufc, tan(aton(fargs[0])));
+}
+
+FUNCTION(fun_asin)
+{
+	NVAL val;
+
+	val = aton(fargs[0]);
+	if ((val < -1) || (val > 1)) {
+		safe_str("#-1 ASIN ARGUMENT OUT OF RANGE", buff, bufc);
+	} else {
+		fval(buff, bufc, asin(val));
+	}
+}
+
+FUNCTION(fun_acos)
+{
+	NVAL val;
+
+	val = aton(fargs[0]);
+	if ((val < -1) || (val > 1)) {
+		safe_str("#-1 ACOS ARGUMENT OUT OF RANGE", buff, bufc);
+	} else {
+		fval(buff, bufc, acos(val));
+	}
+}
+
+FUNCTION(fun_atan)
+{
+	fval(buff, bufc, atan(aton(fargs[0])));
+}
+
+
+/* ---------------------------------------------------------------------------
+ * Math comparison funcs: GT, GTE, LT, LTE, EQ, NEQ, NCOMP
+ */
+
+FUNCTION(fun_gt)
+{
+	safe_bool(buff, bufc, (aton(fargs[0]) > aton(fargs[1])));
+}
+
+FUNCTION(fun_gte)
+{
+	safe_bool(buff, bufc, (aton(fargs[0]) >= aton(fargs[1])));
+}
+
+FUNCTION(fun_lt)
+{
+	safe_bool(buff, bufc, (aton(fargs[0]) < aton(fargs[1])));
+}
+
+FUNCTION(fun_lte)
+{
+	safe_bool(buff, bufc, (aton(fargs[0]) <= aton(fargs[1])));
+}
+
+FUNCTION(fun_eq)
+{
+	safe_bool(buff, bufc, (aton(fargs[0]) == aton(fargs[1])));
+}
+
+FUNCTION(fun_neq)
+{
+	safe_bool(buff, bufc, (aton(fargs[0]) != aton(fargs[1])));
+}
+
+FUNCTION(fun_ncomp)
+{
+	NVAL x, y;
+
+	x = aton(fargs[0]);
+	y = aton(fargs[1]);
+
+	if (x == y) {
+		safe_chr('0', buff, bufc);
+	} else if (x < y) {
+		safe_str("-1", buff, bufc);
+	} else {
+		safe_chr('1', buff, bufc);
+	}
+}
+
+/* ---------------------------------------------------------------------------
+ * Two-argument math functions: SUB, DIV, FLOORDIV, FDIV, MODULO, REMAINDER,
+ *    POWER, LOG
+ */
+
+FUNCTION(fun_sub)
+{
+	fval(buff, bufc, aton(fargs[0]) - aton(fargs[1]));
 }
 
 FUNCTION(fun_div)
@@ -676,33 +574,6 @@ FUNCTION(fun_remainder)
 	safe_ltos(buff, bufc, top); 
 }
 
-FUNCTION(fun_pi)
-{
-	safe_known_str("3.141592654", 11, buff, bufc);
-}
-FUNCTION(fun_e)
-{
-	safe_known_str("2.718281828", 11, buff, bufc);
-}
-
-FUNCTION(fun_sin)
-{
-	fval(buff, bufc, sin(aton(fargs[0])));
-}
-FUNCTION(fun_cos)
-{
-	fval(buff, bufc, cos(aton(fargs[0])));
-}
-FUNCTION(fun_tan)
-{
-	fval(buff, bufc, tan(aton(fargs[0])));
-}
-
-FUNCTION(fun_exp)
-{
-	fval(buff, bufc, exp(aton(fargs[0])));
-}
-
 FUNCTION(fun_power)
 {
 	NVAL val1, val2;
@@ -714,17 +585,6 @@ FUNCTION(fun_power)
 	} else {
 		fval(buff, bufc, pow(val1, val2));
 	}
-}
-
-FUNCTION(fun_ln)
-{
-	NVAL val;
-
-	val = aton(fargs[0]);
-	if (val > 0)
-		fval(buff, bufc, log(val));
-	else
-		safe_str("#-1 LN OF NEGATIVE OR ZERO", buff, bufc);
 }
 
 FUNCTION(fun_log)
@@ -748,35 +608,110 @@ FUNCTION(fun_log)
 	    fval(buff, bufc, log(val) / log(base));
 }
 
+/* ------------------------------------------------------------------------
+ * Bitwise two-argument integer math functions: SHL, SHR, BAND, BOR, BNAND
+ */
 
-FUNCTION(fun_asin)
+FUNCTION(fun_shl)
 {
-	NVAL val;
+	safe_ltos(buff, bufc, atoi(fargs[0]) << atoi(fargs[1]));
+}
 
-	val = aton(fargs[0]);
-	if ((val < -1) || (val > 1)) {
-		safe_str("#-1 ASIN ARGUMENT OUT OF RANGE", buff, bufc);
+FUNCTION(fun_shr)
+{
+	safe_ltos(buff, bufc, atoi(fargs[0]) >> atoi(fargs[1]));
+}
+
+FUNCTION(fun_band)
+{
+	safe_ltos(buff, bufc, atoi(fargs[0]) & atoi(fargs[1]));
+}
+
+FUNCTION(fun_bor)
+{
+	safe_ltos(buff, bufc, atoi(fargs[0]) | atoi(fargs[1]));
+}
+
+FUNCTION(fun_bnand)
+{
+	safe_ltos(buff, bufc, atoi(fargs[0]) & ~(atoi(fargs[1])));
+}
+
+/* ---------------------------------------------------------------------------
+ * Multi-argument math functions: ADD, MUL, MAX, MIN
+ */
+
+FUNCTION(fun_add)
+{
+	NVAL sum;
+	int i;
+
+	if (nfargs < 2) {
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 	} else {
-		fval(buff, bufc, asin(val));
+		sum = aton(fargs[0]);
+		for (i = 1; i < nfargs; i++) {
+			sum += aton(fargs[i]);
+		}
+		fval(buff, bufc, sum);
 	}
+	return;
 }
 
-FUNCTION(fun_acos)
+FUNCTION(fun_mul)
 {
-	NVAL val;
+    NVAL prod;
+    int i;
 
-	val = aton(fargs[0]);
-	if ((val < -1) || (val > 1)) {
-		safe_str("#-1 ACOS ARGUMENT OUT OF RANGE", buff, bufc);
-	} else {
-		fval(buff, bufc, acos(val));
+    if (nfargs < 2) {
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+    } else {
+	prod = aton(fargs[0]);
+	for (i = 1; i < nfargs; i++) {
+	    prod *= aton(fargs[i]);
 	}
+	fval(buff, bufc, prod);
+    }
+    return;
 }
 
-FUNCTION(fun_atan)
+FUNCTION(fun_max)
 {
-	fval(buff, bufc, atan(aton(fargs[0])));
+    int i;
+    NVAL max, val;
+
+    if (nfargs < 1) {
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+    } else {
+	max = aton(fargs[0]);
+	for (i = 1; i < nfargs; i++) {
+	    val = aton(fargs[i]);
+	    max = (max < val) ? val : max;
+	}
+	fval(buff, bufc, max);
+    }
 }
+
+FUNCTION(fun_min)
+{
+    int i;
+    NVAL min, val;
+
+    if (nfargs < 1) {
+	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+    } else {
+	min = aton(fargs[0]);
+	for (i = 1; i < nfargs; i++) {
+	    val = aton(fargs[i]);
+	    min = (min > val) ? val : min;
+	}
+	fval(buff, bufc, min);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * Integer point distance functions: DIST2D, DIST3D
+ */
 
 FUNCTION(fun_dist2d)
 {
@@ -806,9 +741,131 @@ FUNCTION(fun_dist3d)
 	safe_ltos(buff, bufc, d);
 }
 
-/* ------------------------------------------------------------------------
- * Vector functions: VADD, VSUB, VMUL, VDOT, VMAG, VUNIT, VDIM
- * Vectors are delimited lists of numbers.
+/* ---------------------------------------------------------------------------
+ * Math "accumulator" operations on a list: LADD, LMAX, LMIN
+ */
+
+FUNCTION(fun_ladd)
+{
+    NVAL sum;
+    char *cp, *curr;
+    Delim isep;
+    int isep_len;
+
+    VaChk_Only_In(2);
+
+    sum = 0;
+    cp = trim_space_sep(fargs[0], isep, isep_len);
+    while (cp) {
+	curr = split_token(&cp, isep, isep_len);
+	sum += aton(curr);
+    }
+    fval(buff, bufc, sum);
+}
+
+FUNCTION(fun_lmax)
+{
+    NVAL max, val;
+    char *cp, *curr;
+    Delim isep;
+    int isep_len;
+
+    VaChk_Only_In(2);
+
+    cp = trim_space_sep(fargs[0], isep, isep_len);
+    if (cp) {
+	curr = split_token(&cp, isep, isep_len);
+	max = aton(curr);
+	while (cp) {
+	    curr = split_token(&cp, isep, isep_len);
+	    val = aton(curr);
+	    if (max < val)
+		max = val;
+	}
+	fval(buff, bufc, max);
+    }
+}
+
+FUNCTION(fun_lmin)
+{
+    NVAL min, val;
+    char *cp, *curr;
+    Delim isep;
+    int isep_len;
+
+    VaChk_Only_In(2);
+
+    cp = trim_space_sep(fargs[0], isep, isep_len);
+    if (cp) {
+	curr = split_token(&cp, isep, isep_len);
+	min = aton(curr);
+	while (cp) {
+	    curr = split_token(&cp, isep, isep_len);
+	    val = aton(curr);
+	    if (min > val)
+		min = val;
+	}
+	fval(buff, bufc, min);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * Operations on a single vector: VMAG, VUNIT
+ * (VDIM is implemented by fun_words)
+ */
+
+FUNCTION(handle_vector)
+{
+    char *v1[LBUF_SIZE];
+    int n, i, isep_len, osep_len, oper;
+    NVAL tmp, res = 0;
+    Delim isep, osep;
+
+    oper = ((FUN *)fargs[-1])->flags & VEC_OPER;
+
+    if (oper == VEC_UNIT) {
+	VaChk_Only_In_Out(3);
+    } else {
+	VaChk_Only_In(2);
+    }
+
+    /* split the list up, or return if the list is empty */
+    if (!fargs[0] || !*fargs[0]) {
+	return;
+    }
+    n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
+
+    /* calculate the magnitude */
+    for (i = 0; i < n; i++) {
+	tmp = aton(v1[i]);
+	res += tmp * tmp;
+    }
+
+    /* if we're just calculating the magnitude, return it */
+    if (oper == VEC_MAG) {
+	if (res > 0) {
+	    fval(buff, bufc, sqrt(res));
+	} else {
+	    safe_chr('0', buff, bufc);
+	}
+	return;
+    }
+
+    if (res <= 0) {
+	safe_str("#-1 CAN'T MAKE UNIT VECTOR FROM ZERO-LENGTH VECTOR",
+		 buff, bufc);
+	return;
+    }
+    res = sqrt(res);
+    fval(buff, bufc, aton(v1[0]) / res);
+    for (i = 1; i < n; i++) {
+	print_sep(osep, osep_len, buff, bufc);
+	fval(buff, bufc, aton(v1[i]) / res);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * Operations on a pair of vectors: VADD, VSUB, VMUL, VDOT
  */
 
 FUNCTION(handle_vectors)
@@ -824,6 +881,7 @@ FUNCTION(handle_vectors)
     if (oper != VEC_DOT) {
 	VaChk_Only_In_Out(4);
     } else {
+	/* dot product returns a scalar, so no output delim */
 	VaChk_Only_In(3);
     }
 
@@ -912,163 +970,87 @@ FUNCTION(handle_vectors)
     }
 }
 
-FUNCTION(handle_vector)
+/* ---------------------------------------------------------------------------
+ * Simple boolean funcs: NOT, NOTBOOL, T
+ */
+
+FUNCTION(fun_not)
 {
-    char *v1[LBUF_SIZE];
-    int n, i, isep_len, osep_len, oper;
-    NVAL tmp, res = 0;
-    Delim isep, osep;
+	safe_bool(buff, bufc, !atoi(fargs[0]));
+}
 
-    oper = ((FUN *)fargs[-1])->flags & VEC_OPER;
+FUNCTION(fun_notbool)
+{
+	safe_bool(buff, bufc, !xlate(fargs[0]));
+}
 
-    if (oper == VEC_UNIT) {
-	VaChk_Only_In_Out(3);
-    } else {
-	VaChk_Only_In(2);
-    }
-
-    /* split the list up, or return if the list is empty */
-    if (!fargs[0] || !*fargs[0]) {
-	return;
-    }
-    n = list2arr(v1, LBUF_SIZE, fargs[0], isep, isep_len);
-
-    /* calculate the magnitude */
-    for (i = 0; i < n; i++) {
-	tmp = aton(v1[i]);
-	res += tmp * tmp;
-    }
-
-    /* if we're just calculating the magnitude, return it */
-    if (oper == VEC_MAG) {
-	if (res > 0) {
-	    fval(buff, bufc, sqrt(res));
-	} else {
-	    safe_chr('0', buff, bufc);
-	}
-	return;
-    }
-
-    if (res <= 0) {
-	safe_str("#-1 CAN'T MAKE UNIT VECTOR FROM ZERO-LENGTH VECTOR",
-		 buff, bufc);
-	return;
-    }
-    res = sqrt(res);
-    fval(buff, bufc, aton(v1[0]) / res);
-    for (i = 1; i < n; i++) {
-	print_sep(osep, osep_len, buff, bufc);
-	fval(buff, bufc, aton(v1[i]) / res);
-    }
+FUNCTION(fun_t)
+{
+	safe_bool(buff, bufc, xlate(fargs[0]));
 }
 
 /* ---------------------------------------------------------------------------
- * fun_abs: Returns the absolute value of its argument.
+ * Multi-argument boolean funcs: various combinations of
+ *    [L,C][AND,OR,XOR][BOOL]
  */
 
-FUNCTION(fun_abs)
+FUNCTION(handle_logic)
 {
-	NVAL num;
+	Delim isep;
+	int isep_len, flag, oper, i, val;
+	char *str, *tbuf, *bp;
+	int (*cvtfun)(char *);
 
-	num = aton(fargs[0]);
-	if (num == 0) {
-		safe_chr('0', buff, bufc);
-	} else if (num < 0) {
-		fval(buff, bufc, -num);
+	flag = ((FUN *)fargs[-1])->flags;
+	cvtfun = (flag & LOGIC_BOOL) ? xlate : (int (*)(char *))atoi;
+	oper = (flag & LOGIC_OPER);
+
+	/* most logic operations on an empty string should be false */
+	val = 0;
+
+	if (flag & LOGIC_LIST) {
+		/* the arguments come in a pre-evaluated list */
+		VaChk_Only_In(2);
+
+		bp = trim_space_sep(fargs[0], isep, isep_len);
+		while (bp) {
+	  		tbuf = split_token(&bp, isep, isep_len);
+			val = ((oper == LOGIC_XOR) && val) ? !cvtfun(tbuf) : cvtfun(tbuf);
+			if (((oper == LOGIC_AND) && !val) ||
+			    ((oper == LOGIC_OR) && val))
+				break;
+		}
+
+	} else if (nfargs < 2) {
+		/* separate arguments, but not enough of them */
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+		return;
+
+	} else if (flag & FN_NO_EVAL) {
+		/* separate, unevaluated arguments */
+		tbuf = alloc_lbuf("handle_logic");
+		for (i = 0; i < nfargs; i++) { 
+			str = fargs[i];
+			bp = tbuf;
+			exec(tbuf, &bp, player, caller, cause,
+			     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
+			*bp = '\0';
+			val = ((oper == LOGIC_XOR) && val) ? !cvtfun(tbuf) : cvtfun(tbuf);
+			if (((oper == LOGIC_AND) && !val) ||
+			    ((oper == LOGIC_OR) && val))
+				break;
+		}
+		free_lbuf(tbuf);
+
 	} else {
-		fval(buff, bufc, num);
+		/* separate, pre-evaluated arguments */
+		for (i = 0; i < nfargs; i++) { 
+			val = ((oper == LOGIC_XOR) && val) ? !cvtfun(fargs[i]) : cvtfun(fargs[i]);
+			if (((oper == LOGIC_AND) && !val) ||
+			    ((oper == LOGIC_OR) && val))
+				break;
+		}
 	}
-}
 
-/* ---------------------------------------------------------------------------
- * fun_sign: Returns -1, 0, or 1 based on the the sign of its argument.
- */
-
-FUNCTION(fun_sign)
-{
-	NVAL num;
-
-	num = aton(fargs[0]);
-	if (num < 0) {
-	    safe_known_str("-1", 2, buff, bufc);
-	} else {
-	    safe_bool(buff, bufc, (num > 0));
-	}
-}
-
-/* ------------------------------------------------------------------------
- * Bitwise functions.
- */
-
-FUNCTION(fun_shl)
-{
-    safe_ltos(buff, bufc, atoi(fargs[0]) << atoi(fargs[1]));
-}
-
-FUNCTION(fun_shr)
-{
-    safe_ltos(buff, bufc, atoi(fargs[0]) >> atoi(fargs[1]));
-}
-
-FUNCTION(fun_band)
-{
-    safe_ltos(buff, bufc, atoi(fargs[0]) & atoi(fargs[1]));
-}
-
-FUNCTION(fun_bor)
-{
-    safe_ltos(buff, bufc, atoi(fargs[0]) | atoi(fargs[1]));
-}
-
-FUNCTION(fun_bnand)
-{
-    safe_ltos(buff, bufc, atoi(fargs[0]) & ~(atoi(fargs[1])));
-}
-
-/* ---------------------------------------------------------------------------
- * fun_max, fun_min: Return maximum (minimum) value.
- */
-
-FUNCTION(fun_max)
-{
-    int i;
-    NVAL max, val;
-
-    if (nfargs < 1) {
-	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-    } else {
-	max = aton(fargs[0]);
-	for (i = 1; i < nfargs; i++) {
-	    val = aton(fargs[i]);
-	    max = (max < val) ? val : max;
-	}
-	fval(buff, bufc, max);
-    }
-}
-
-FUNCTION(fun_min)
-{
-    int i;
-    NVAL min, val;
-
-    if (nfargs < 1) {
-	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-    } else {
-	min = aton(fargs[0]);
-	for (i = 1; i < nfargs; i++) {
-	    val = aton(fargs[i]);
-	    min = (min > val) ? val : min;
-	}
-	fval(buff, bufc, min);
-    }
-}
-
-FUNCTION(fun_inc)
-{
-	safe_ltos(buff, bufc, atoi(fargs[0]) + 1);
-}
-
-FUNCTION(fun_dec)
-{
-	safe_ltos(buff, bufc, atoi(fargs[0]) - 1);
+	safe_bool(buff, bufc, val);
 }
