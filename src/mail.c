@@ -1344,8 +1344,10 @@ dbref player;
 		nhashdelete((int)thing, &mudstate.mail_htab);
 	}
 
-	log_text(tprintf("** MAIL PURGE ** done by %s(#%d).",
-			 Name(player), (int)player));
+	STARTLOG(LOG_ALWAYS, "WIZ", "MNUKE")
+		log_printf("** MAIL PURGE ** done by ");
+		log_name(player);
+	ENDLOG
 
 	notify(player, "You annihilate the post office. All messages cleared.");
 }
@@ -2234,9 +2236,6 @@ struct mail *mp;
 struct mail_selector ms;
 int num;
 {
-	time_t now, msgtime, diffdays;
-	char *msgtimestr;
-	struct tm *msgtm;
 	mail_flag mpflag;
 
 	/*
@@ -2252,20 +2251,14 @@ int num;
 	if (!(ms.flags & M_ALL) && !(ms.flags & mpflag))
 		return 0;
 	if (ms.days != -1) {
+		time_t now, msgtime, diffdays;
+		char *msgtimestr;
+		struct tm msgtm;
 		/*
 		 * Get the time now, subtract mp->time, and compare the * * * 
 		 * results with * ms.days (in manner of ms.day_comp) 
 		 */
 		time(&now);
-		msgtm = (struct tm *) XMALLOC(sizeof(struct tm), "mail_match");
-
-		if (!msgtm) {
-			/*
-			 * Ugly malloc failure 
-			 */
-			log_text("MAIL: Couldn't malloc struct tm!");
-			return 0;
-		}
 		msgtimestr = alloc_lbuf("mail_match");
 #ifdef RADIX_COMPRESSION
 		string_decompress(mp->time, timebuff);
@@ -2275,16 +2268,14 @@ int num;
 #endif /*
         * RADIX_COMPRESSION 
         */
-		if (do_convtime(msgtimestr, msgtm)) {
-			msgtime = timelocal(msgtm);
-			XFREE(msgtm, "mail_match.msgtime");
+		if (do_convtime(msgtimestr, &msgtm)) {
+			msgtime = timelocal(&msgtm);
 			diffdays = (now - msgtime) / 86400;
 			free_lbuf(msgtimestr);
 			if (sign(diffdays - ms.days) != ms.day_comp) {
 				return 0;
 			}
 		} else {
-			XFREE(msgtm, "mail_match.msgtime");
 			free_lbuf(msgtimestr);
 			return 0;
 		}

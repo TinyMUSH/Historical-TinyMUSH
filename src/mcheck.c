@@ -195,7 +195,7 @@ enum mcheck_status status;
 	}
 
 	STARTLOG(LOG_ALWAYS, "BUG", "MLLOC")
-		log_text(tprintf("mcheck: %s\n", msg));
+		log_printf("mcheck: %s\n", msg);
 	ENDLOG
 }
 

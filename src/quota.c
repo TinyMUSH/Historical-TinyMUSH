@@ -264,7 +264,7 @@ char *arg1, *arg2;
 		if (set) {
 			STARTLOG(LOG_WIZARD, "WIZ", "QUOTA")
 				log_name(player);
-			log_text((char *)" changed everyone's quota.");
+				log_printf(" changed everyone's quota.");
 			ENDLOG
 		}
 		show_quota_header(player);
@@ -315,8 +315,8 @@ char *arg1, *arg2;
 	if (set) {
 		STARTLOG(LOG_WIZARD, "WIZ", "QUOTA")
 			log_name(player);
-		log_text((char *)" changed the quota of ");
-		log_name(who);
+			log_printf(" changed the quota of ");
+			log_name(who);
 		ENDLOG
 			mung_quotas(who, key, value);
 	}

@@ -65,18 +65,14 @@ POOLHDR *ph;
 {
 	if (!mudstate.logging) {
 		STARTLOG(logflag, logsys, "ALLOC")
-			sprintf(mudstate.buffer,
-				"%s[%d] (tag %s) %s at %lx. (%s)",
-			      action, pools[poolnum].pool_size, tag, reason,
-				(long)ph, mudstate.debug_cmd);
-		log_text(mudstate.buffer);
+			log_printf("%s[%d] (tag %s) %s at %lx. (%s)",
+				   action, pools[poolnum].pool_size, tag,
+				   reason, (long)ph, mudstate.debug_cmd);
 		ENDLOG
 	} else if (logflag != LOG_ALLOCATE) {
-		sprintf(mudstate.buffer,
-			"\n***< %s[%d] (tag %s) %s at %lx. >***",
-			action, pools[poolnum].pool_size, tag, reason,
-			(long)ph);
-		log_text(mudstate.buffer);
+		log_printf("\n***< %s[%d] (tag %s) %s at %lx. >***",
+			   action, pools[poolnum].pool_size, tag, reason,
+			   (long)ph);
 	}
 }
 

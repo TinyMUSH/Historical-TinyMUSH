@@ -210,8 +210,7 @@ void boot_slave()
 	}
 	slave_socket = sv[0];
 	STARTLOG(LOG_ALWAYS, "NET", "SLAVE")
-	    log_text((char *) "DNS lookup slave started on fd ");
-	    log_number(slave_socket);
+	    log_printf("DNS lookup slave started on fd %d", slave_socket);
 	ENDLOG
 }
 
@@ -346,8 +345,8 @@ int port;
 				 * connection.
 				 */
 				STARTLOG(LOG_PROBLEMS, "ERR", "EBADF")
-				    log_text((char *) "Bad descriptor ");
-				    log_number(d->descriptor);
+				    log_printf("Bad descriptor %d",
+					       d->descriptor);
 				ENDLOG
 				shutdownsock(d, R_SOCKDIED);
 			    }
@@ -358,8 +357,8 @@ int port;
 			     * it presumably died.
 			     */
 			    STARTLOG(LOG_PROBLEMS, "ERR", "EBADF")
-				log_text((char *) "Bad slave descriptor ");
-			        log_number(slave_socket);
+				log_printf("Bad slave descriptor %d",
+					   slave_socket);
 			    ENDLOG
 			    boot_slave();
 			}
@@ -367,8 +366,8 @@ int port;
 			    (fstat(mudstate.sql_socket, &fstatbuf) < 0)) {
 			    /* Just mark it dead. */
 			    STARTLOG(LOG_PROBLEMS, "ERR", "EBADF")
-				log_text((char *) "Bad SQL descriptor ");
-			        log_number(mudstate.sql_socket);
+				log_printf("Bad SQL descriptor %d",
+					   mudstate.sql_socket);
 			    ENDLOG
 			    mudstate.sql_socket = -1;
 			}
@@ -376,8 +375,8 @@ int port;
 			    (fstat(sock, &fstatbuf) < 0)) {
 			    /* That's it, game over. */
 			    STARTLOG(LOG_PROBLEMS, "ERR", "EBADF")
-				log_text((char *) "Bad game port descriptor ");
-			        log_number(sock);
+				log_printf("Bad game port descriptor %d",
+					   sock);
 			    ENDLOG
 			    break;
 			}
@@ -503,7 +502,7 @@ DESC *new_connection(sock)
 int sock;
 {
 	int newsock;
-	char *buff, *buff1, *cmdsave;
+	char *buff, *cmdsave;
 	DESC *d;
 	struct sockaddr_in addr;
 	int addr_len, len;
@@ -519,11 +518,9 @@ int sock;
 
 	if (site_check(addr.sin_addr, mudstate.access_list) & H_FORBIDDEN) {
 		STARTLOG(LOG_NET | LOG_SECURITY, "NET", "SITE")
-			buff = alloc_mbuf("new_connection.LOG.badsite");
-		sprintf(buff, "[%d/%s] Connection refused.  (Remote port %d)",
-		   newsock, inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
-		log_text(buff);
-		free_mbuf(buff);
+		log_printf("[%d/%s] Connection refused.  (Remote port %d)",
+			   newsock, inet_ntoa(addr.sin_addr),
+			   ntohs(addr.sin_port));
 		ENDLOG
 			fcache_rawdump(newsock, FC_CONN_SITE);
 		shutdown(newsock, 2);
@@ -548,13 +545,10 @@ int sock;
 		}
 		free_lbuf(buf);
 		STARTLOG(LOG_NET, "NET", "CONN")
-			buff1 = alloc_mbuf("new_connection.LOG.open");
-		sprintf(buff1, "[%d/%s] Connection opened (remote port %d)",
-			newsock, buff, ntohs(addr.sin_port));
-		log_text(buff1);
-		free_mbuf(buff1);
+		log_printf("[%d/%s] Connection opened (remote port %d)",
+			   newsock, buff, ntohs(addr.sin_port));
 		ENDLOG
-			d = initializesock(newsock, &addr);
+		d = initializesock(newsock, &addr);
 		mudstate.debug_cmd = cmdsave;
 		free_mbuf(buff);
 	}
@@ -601,7 +595,7 @@ void shutdownsock(d, reason)
 DESC *d;
 int reason;
 {
-	char *buff, *buff2;
+	char *buff2;
 	time_t now;
 	int i, num, ncon;
 	DESC *dtemp;
@@ -626,31 +620,23 @@ int reason;
 			    fcache_dump(d, FC_QUIT);
 			}
 			STARTLOG(LOG_NET | LOG_LOGIN, "NET", "DISC")
-				buff = alloc_mbuf("shutdownsock.LOG.disconn");
-			sprintf(buff, "[%d/%s] Logout by ",
-				d->descriptor, d->addr);
-			log_text(buff);
+			log_printf("[%d/%s] Logout by ",
+				   d->descriptor, d->addr);
 			log_name(d->player);
-			sprintf(buff, " <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
-				disc_reasons[reason], d->command_count,
-				d->input_tot, d->output_tot,
-				(int) (time(NULL) - d->connected_at));
-			log_text(buff);
-			free_mbuf(buff);
+			log_printf(" <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
+				   disc_reasons[reason], d->command_count,
+				   d->input_tot, d->output_tot,
+				   (int) (time(NULL) - d->connected_at));
 			ENDLOG
 		} else {
 			STARTLOG(LOG_NET | LOG_LOGIN, "NET", "LOGO")
-				buff = alloc_mbuf("shutdownsock.LOG.logout");
-			sprintf(buff, "[%d/%s] Logout by ",
-				d->descriptor, d->addr);
-			log_text(buff);
+			log_printf("[%d/%s] Logout by ",
+				   d->descriptor, d->addr);
 			log_name(d->player);
-			sprintf(buff, " <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
-				disc_reasons[reason], d->command_count,
-				d->input_tot, d->output_tot,
-				(int) (time(NULL) - d->connected_at));
-			log_text(buff);
-			free_mbuf(buff);
+			log_printf(" <%s: %d cmds, %d bytes in, %d bytes out, %d secs>",
+				   disc_reasons[reason], d->command_count,
+				   d->input_tot, d->output_tot,
+				   (int) (time(NULL) - d->connected_at));
 			ENDLOG
 		}
 
@@ -661,16 +647,13 @@ int reason;
 
 		STARTLOG(LOG_ACCOUNTING, "DIS", "ACCT")
 		    now = mudstate.now - d->connected_at;
-		    buff = alloc_lbuf("shutdownsock.LOG.accnt");
 		    buff2 = decode_flags(GOD, Flags(d->player),
 					 Flags2(d->player), Flags3(d->player));
-		    sprintf(buff, "%d %s %d %d %d %d [%s] <%s> ",
-			    d->player, buff2, d->command_count, (int) now,
-			    Location(d->player), Pennies(d->player),
-			    d->addr, disc_reasons[reason]);
-		    log_text(buff);
-		    log_text(Name(d->player));
-		    free_lbuf(buff);
+		    log_printf("%d %s %d %d %d %d [%s] <%s> ",
+			       d->player, buff2, d->command_count, (int) now,
+			       Location(d->player), Pennies(d->player),
+			       d->addr, disc_reasons[reason]);
+		    log_name(d->player);
 		    free_sbuf(buff2);
 		ENDLOG
 		announce_disconnect(d->player, d, disc_messages[reason]);
@@ -678,12 +661,8 @@ int reason;
 		if (reason == R_LOGOUT)
 		    reason = R_QUIT;
 		STARTLOG(LOG_SECURITY | LOG_NET, "NET", "DISC")
-		    buff = alloc_mbuf("shutdownsock.LOG.neverconn");
-		    sprintf(buff,
-		    "[%d/%s] Connection closed, never connected. <Reason: %s>",
-			    d->descriptor, d->addr, disc_reasons[reason]);
-		    log_text(buff);
-		    free_mbuf(buff);
+		    log_printf("[%d/%s] Connection closed, never connected. <Reason: %s>",
+			       d->descriptor, d->addr, disc_reasons[reason]);
 		ENDLOG
 	}
 	process_output(d);
@@ -811,16 +790,16 @@ struct sockaddr_in *a;
 	     * died somehow. We make sure to take note appropriately.
 	     */
 	    STARTLOG(LOG_ALWAYS, "ERR", "SOCK")
-		log_text((char *) "Player descriptor clashes with slave fd ");
-	        log_number(slave_socket);
+		log_printf("Player descriptor clashes with slave fd %d",
+			   slave_socket);
 	    ENDLOG
 	    slave_socket = -1;
 	}
 	if (s == mudstate.sql_socket) {
 	    /* We shouldn't be allocating this either, for the same reason. */
 	    STARTLOG(LOG_ALWAYS, "ERR", "SOCK")
-		log_text((char *) "Player descriptor clashes with SQL server fd ");
-	        log_number(slave_socket);
+		log_printf("Player descriptor clashes with SQL server fd %d",
+			   mudstate.sql_socket);
 	    ENDLOG
 	    mudstate.sql_socket = -1;
 	}
@@ -1155,8 +1134,7 @@ void log_signal(signame)
 const char *signame;
 {
 	STARTLOG(LOG_PROBLEMS, "SIG", "CATCH")
-		log_text((char *)"Caught signal ");
-	log_text((char *)signame);
+		log_printf("Caught signal %s", signame);
 	ENDLOG
 }
 

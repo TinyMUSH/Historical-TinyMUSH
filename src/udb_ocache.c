@@ -170,7 +170,6 @@ int width;
 int size;
 {
 	int x;
-	Cache *np;
 	CacheLst *sp;
 	static char *ncmsg = "cache_init: cannot allocate cache: ";
 

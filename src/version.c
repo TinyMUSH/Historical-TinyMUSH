@@ -99,11 +99,9 @@ void NDECL(init_version)
         * BETA 
         */
 	STARTLOG(LOG_ALWAYS, "INI", "START")
-		log_text((char *)"Starting: ");
-	log_text(mudstate.version);
+		log_printf("Starting: %s", mudstate.version);
 	ENDLOG
-		STARTLOG(LOG_ALWAYS, "INI", "START")
-		log_text((char *)"Build date: ");
-	log_text((char *)MUSH_BUILD_DATE);
+	STARTLOG(LOG_ALWAYS, "INI", "START")
+		log_printf("Build date: %s", MUSH_BUILD_DATE);
 	ENDLOG
 }

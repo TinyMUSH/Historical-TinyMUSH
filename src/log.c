@@ -137,11 +137,10 @@ int start_log(primary, secondary, key)
 const char *primary, *secondary;
 int key;
 {
+#ifndef STANDALONE
 	struct tm *tp;
 	time_t now;
 	LOGFILETAB *lp;
-
-#ifndef STANDALONE
 	static int last_key = 0;
 
 	if (mudconf.log_diversion & key) {
@@ -168,29 +167,25 @@ int key;
 	case 1:
 	case 2:
 
+#ifndef STANDALONE
 		/* Format the timestamp */
 
 		if ((mudconf.log_info & LOGOPT_TIMESTAMP) != 0) {
 			time((time_t *) (&now));
 			tp = localtime((time_t *) (&now));
-			sprintf(mudstate.buffer, "%02d%d%d%d%d.%d%d%d%d%d%d ",
-				(tp->tm_year % 100), (((tp->tm_mon) + 1) / 10),
-				(((tp->tm_mon) + 1) % 10), (tp->tm_mday / 10),
-				(tp->tm_mday % 10),
-				(tp->tm_hour / 10), (tp->tm_hour % 10),
-				(tp->tm_min / 10), (tp->tm_min % 10),
-				(tp->tm_sec / 10), (tp->tm_sec % 10));
-		} else {
-			mudstate.buffer[0] = '\0';
+			fprintf(log_fp, "%02d%02d%02d.%02d%02d%02d ",
+				(tp->tm_year % 100), tp->tm_mon + 1,
+				tp->tm_mday, tp->tm_hour,
+				tp->tm_min, tp->tm_sec);
 		}
-#ifndef STANDALONE
+
 		/* Write the header to the log */
 
 		if (secondary && *secondary)
-			fprintf(log_fp, "%s%s %3s/%-5s: ", mudstate.buffer,
+			fprintf(log_fp, "%s %3s/%-5s: ",
 				mudconf.mud_name, primary, secondary);
 		else
-			fprintf(log_fp, "%s%s %-9s: ", mudstate.buffer,
+			fprintf(log_fp, "%s %-9s: ",
 				mudconf.mud_name, primary);
 #endif
 		/* If a recursive call, log it and return indicating no log */
@@ -224,9 +219,7 @@ const char *primary, *secondary, *extra, *failing_object;
 {
 	start_log(primary, secondary, LOG_ALWAYS);
 	if (extra && *extra) {
-		log_text((char *)"(");
-		log_text((char *)extra);
-		log_text((char *)") ");
+		log_printf("(%s)", extra);
 	}
 	perror((char *)failing_object);
 	fflush(stderr);
@@ -234,19 +227,31 @@ const char *primary, *secondary, *extra, *failing_object;
 }
 
 /* ---------------------------------------------------------------------------
- * log_text, log_number: Write text or number to the log file.
+ * log_printf: Format text and print to the log file.
  */
 
-void log_text(text)
-char *text;
-{
-	fprintf(log_fp, "%s", strip_ansi(text));
-}
+#if defined(__STDC__) && defined(STDC_HEADERS)
+void log_printf(const char *format,...)
+#else
+void log_printf(va_alist)
+va_dcl
 
-void log_number(num)
-int num;
+#endif
+
 {
-	fprintf(log_fp, "%d", num);
+	va_list ap;
+
+#if defined(__STDC__) && defined(STDC_HEADERS)
+	va_start(ap, format);
+#else
+	char *format;
+
+	va_start(ap);
+	format = va_arg(ap, char *);
+
+#endif
+	vfprintf(log_fp, format, ap);
+	va_end(ap);
 }
 
 /* ---------------------------------------------------------------------------
@@ -291,10 +296,9 @@ dbref player;
 {
 	log_name(player);
 	if ((mudconf.log_info & LOGOPT_LOC) && Has_location(player)) {
-		log_text((char *)" in ");
+		log_printf(" in ");
 		log_name(Location(player));
 	}
-	return;
 }
 
 char *OBJTYP(thing)
@@ -322,13 +326,6 @@ dbref thing;
 void log_type_and_name(thing)
 dbref thing;
 {
-	char nbuf[16];
-
-	log_text(OBJTYP(thing));
-	sprintf(nbuf, " #%d(", thing);
-	log_text(nbuf);
-	if (Good_obj(thing))
-		log_text(Name(thing));
-	log_text((char *)")");
-	return;
+	log_printf("%s ", OBJTYP(thing));
+	log_name(thing);
 }

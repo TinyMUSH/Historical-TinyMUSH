@@ -28,12 +28,9 @@ char *name;
 char *password;
 {
 	dbref player;
-	char *buff;
 
 	if (!Wizard(mudconf.guest_nuker) || !Good_obj(mudconf.guest_nuker))
 		mudconf.guest_nuker = 1;
-
-	buff = alloc_lbuf("create_guest");
 
 	/*
 	 * Make the player. 
@@ -42,7 +39,9 @@ char *password;
 	player = create_player(name, password, mudconf.guest_nuker, 0, 1);
 
 	if (player == NOTHING) {
-		log_text("GUEST: failed in create_player\n");
+		STARTLOG(LOG_SECURITY | LOG_PCREATES, "CON", "BAD")
+			log_printf("Guest connect failed in create_player");
+		ENDLOG    
 		return NOTHING;
 	}
 	/*
@@ -74,7 +73,6 @@ char *password;
 	 * Copy all attributes. 
 	 */
 	atr_cpy(GOD, player, mudconf.guest_char);
-	free_lbuf(buff);
 	return player;
 }
 
@@ -130,8 +128,10 @@ DESC *d;
 
 	if (player == NOTHING) {
 		queue_string(d, "GAME: Error creating guest ID, please try again later.\n");
-		log_text(tprintf("GUEST: Error creating guest ID. '%s' already exists.\n",
-				 name));
+		STARTLOG(LOG_SECURITY | LOG_PCREATES, "CON", "BAD")
+			log_printf("Error creating guest ID. '%s' already exists.\n",
+				   name);
+		ENDLOG
 		return NULL;
 	}
 	return Name(player);

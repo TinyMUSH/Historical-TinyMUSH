@@ -1240,9 +1240,6 @@ FUNCTION(fun_get)
 
 FUNCTION(fun_xget)
 {
-	dbref thing;
-	int attrib;
-
 	if (!*fargs[0] || !*fargs[1])
 		return;
 	perform_get(player, tprintf("%s/%s", fargs[0], fargs[1]),

@@ -53,7 +53,7 @@ int dddb_optimize()
 static void gdbm_panic(mesg)
 char *mesg;
 {
-	log_text(tprintf("GDBM panic: %s\n", mesg));
+	log_printf("GDBM panic: %s\n", mesg);
 }
 
 int dddb_init()
@@ -137,7 +137,8 @@ Objname *nam;
 	
 	if (*nam != ret->name) {
 		STARTLOG(LOG_ALWAYS, "BUG", "CRUPT")
-			log_text((char *)tprintf("Database is corrupt, object %d. Exiting.", (int)ret->name));
+			log_printf("Database is corrupt, object %d. Exiting.",
+				   (int)ret->name);
 		ENDLOG
 		raw_broadcast(0, "GAME: Database corruption detected, exiting.");
 		exit(8);

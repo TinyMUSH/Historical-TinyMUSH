@@ -74,21 +74,15 @@ int sql_init()
 	result = msqlConnect(mudconf.sql_host);
     if (result == -1) {
 	STARTLOG(LOG_ALWAYS, "SQL", "CONN")
-	    if (msqlErrMsg) {
-		log_text((char *) "Failed connection to SQL server ");
-		log_text(mudconf.sql_host);
-		log_text((char *) ": ");
-		log_text(msqlErrMsg);
-	    }
+	    log_printf("Failed connection to SQL server %s: %s",
+		       mudconf.sql_host, msqlErrMsg);
 	ENDLOG
 	return -1;
     }
 
     STARTLOG(LOG_ALWAYS, "SQL", "CONN")
-	log_text((char *) "Connected to SQL server ");
-        log_text(mudconf.sql_host);
-	log_text((char *) ", socket fd ");
-        log_number(result);
+	log_printf("Connected to SQL server %s, socket fd %d",
+		   mudconf.sql_host, result);
     ENDLOG
     mudstate.sql_socket = result;
 
@@ -96,8 +90,7 @@ int sql_init()
 
     if (msqlSelectDB(mudstate.sql_socket, mudconf.sql_db) == -1) {
 	STARTLOG(LOG_ALWAYS, "SQL", "CONN")
-	    log_text((char *) "Failed db select: ");
-	    log_text(msqlErrMsg);
+	    log_printf("Failed db select: %s", msqlErrMsg);
 	ENDLOG
 	msqlClose(mudstate.sql_socket);
 	mudstate.sql_socket = -1;
@@ -105,8 +98,7 @@ int sql_init()
     }
 
     STARTLOG(LOG_ALWAYS, "SQL", "CONN")
-	log_text((char *) "SQL database selected: ");
-        log_text(mudconf.sql_db);
+	log_printf("SQL database selected: %s", mudconf.sql_db);
     ENDLOG
     return (mudstate.sql_socket);
 }
@@ -172,8 +164,8 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 	 */
 
 	STARTLOG(LOG_PROBLEMS, "SQL", "GONE")
-	    log_text("Connection died to SQL server on fd ");
-	    log_number(mudstate.sql_socket);
+	    log_printf("Connection died to SQL server on fd %d",
+		       mudstate.sql_socket);
 	ENDLOG
 
 	retries = 0;

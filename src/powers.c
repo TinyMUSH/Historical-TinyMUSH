@@ -504,8 +504,7 @@ CF_HAND(cf_power_access)
 	(fp->handler != ph_privileged)) {
 
 	STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
-	    log_text((char *) "Cannot change access for power: ");
-	    log_text((char *) fp->powername);
+	    log_printf("Cannot change access for power: %s", fp->powername);
 	ENDLOG
 	return -1;
     }

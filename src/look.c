@@ -111,9 +111,9 @@ static void look_exits(player, loc, exit_name)
 dbref player, loc;
 const char *exit_name;
 {
-    dbref thing, parent, aowner;
-    char *atr_buf, *buff, *e, *s, *buff1, *e1;
-    int foundany, lev, isdark, aflags, alen;
+    dbref thing, parent;
+    char *buff, *e, *s, *buff1, *e1;
+    int foundany, lev, isdark;
 
     /* make sure location has exits */
 
@@ -244,9 +244,7 @@ int style;
 {
 	dbref thing;
 	dbref can_see_loc;
-	char *buff, *atr_buf;
-	dbref aowner;
-	int aflags, alen;
+	char *buff;
 	
 #ifdef PUEBLO_SUPPORT
 	char *html_buff, *html_cp;

@@ -44,12 +44,12 @@ static int FDECL(pay_quota, (dbref, int, int));
 extern INLINE void FDECL(queue_rawstring, (DESC *, const char *));
 
 #ifdef NEED_VSPRINTF_DCL
-extern char *FDECL(vsprintf, (char *, char *, va_list));
+extern char *FDECL(vsprintf, (char *, const char *, va_list));
 
 #endif
 
 #if defined(__STDC__) && defined(STDC_HEADERS)
-char *tprintf(char *format,...)
+char *tprintf(const char *format,...)
 #else
 char *tprintf(va_alist)
 va_dcl
@@ -75,8 +75,8 @@ va_dcl
 	return buff;
 }
 
-#ifdef STDC_HEADERS
-void safe_tprintf_str(char *str, char **bp, char *format,...)
+#if defined(__STDC__) && defined(STDC_HEADERS)
+void safe_tprintf_str(char *str, char **bp, const char *format,...)
 #else
 void safe_tprintf_str(va_alist)
 va_dcl
@@ -87,7 +87,7 @@ va_dcl
 	static char buff[20000];
 	va_list ap;
 
-#ifdef STDC_HEADERS
+#if defined(__STDC__) && defined(STDC_HEADERS)
 	va_start(ap, format);
 #else
 	char *str;
@@ -1360,8 +1360,8 @@ void do_restart(player, cause, key)
 
 	raw_broadcast(0, "GAME: Restart by %s, please wait.", Name(Owner(player)));
 	STARTLOG(LOG_ALWAYS, "WIZ", "RSTRT")
-		log_text((char *)"Restart by ");
-	log_name(player);
+		log_printf("Restart by ");
+		log_name(player);
 	ENDLOG
 	
 	dump_database_internal(2);

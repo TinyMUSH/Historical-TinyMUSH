@@ -101,9 +101,8 @@ extern char *	FDECL(normal_to_white, (const char *));
 extern int	FDECL(start_log, (const char *, const char *, int));
 extern void	NDECL(end_log);
 extern void	FDECL(log_perror, (const char *, const char *,const char *,
-			const char *));
-extern void	FDECL(log_text, (char *));
-extern void	FDECL(log_number, (int));
+				   const char *));
+extern void	VDECL(log_printf, (const char *, ...));
 extern void	FDECL(log_name, (dbref));
 extern void	FDECL(log_name_and_loc, (dbref));
 extern char *	FDECL(OBJTYP, (dbref));
@@ -147,8 +146,8 @@ extern int	FDECL(badname_check, (char *));
 extern void	FDECL(badname_list, (dbref, const char *));
 
 /* From predicates.c */
-extern char *	VDECL(tprintf, (char *, ...));
-extern void	VDECL(safe_tprintf_str, (char *, char **, char *, ...));
+extern char *	VDECL(tprintf, (const char *, ...));
+extern void	VDECL(safe_tprintf_str, (char *, char **, const char *, ...));
 extern dbref	FDECL(insert_first, (dbref, dbref));
 extern dbref	FDECL(remove_first, (dbref, dbref));
 extern dbref	FDECL(reverse_list, (dbref));
@@ -610,7 +609,7 @@ extern void	FDECL(toast_player, (dbref));
 	end_log(); }
 #define	LOG_SIMPLE(key,p,s,m) \
 	STARTLOG(key,p,s) \
-		log_text(m); \
+		log_printf("%s", m); \
 	ENDLOG
 
 #define	test_top()		((mudstate.qfirst != NULL) ? 1 : 0)

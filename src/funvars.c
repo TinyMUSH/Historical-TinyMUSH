@@ -1600,11 +1600,8 @@ void structure_clr(thing)
 	    if (struct_array[i]->n_instances > 0) {
 		STARTLOG(LOG_ALWAYS, "BUG", "STRUCT")
 		    log_name(thing);
-		    log_text((char *) " structure ");
-		    log_text((char *) name_array[i]);
-		    log_text((char *) " has ");
-		    log_number(struct_array[i]->n_instances);
-		    log_text((char *) " allocated instances uncleared.");
+		    log_printf(" structure %s has %d allocated instances uncleared.",
+			       name_array[i], struct_array[i]->n_instances);
 		ENDLOG
 	    }
 	    hashdelete(name_array[i], &mudstate.structs_htab);
@@ -2032,7 +2029,7 @@ FUNCTION(fun_lstack)
 
 FUNCTION(fun_wildparse)
 {
-    int i, nqregs, curq;
+    int i, nqregs;
     char *t_args[NUM_ENV_VARS], *qregs[NUM_ENV_VARS];
 
     if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS))

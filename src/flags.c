@@ -793,8 +793,7 @@ CF_HAND(cf_flag_access)
 	(fp->handler != fh_privileged)) {
 
 	STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
-	    log_text((char *) "Cannot change access for flag: ");
-	    log_text((char *) fp->flagname);
+	    log_printf("Cannot change access for flag: %s", fp->flagname);
 	ENDLOG
 	return -1;
     }

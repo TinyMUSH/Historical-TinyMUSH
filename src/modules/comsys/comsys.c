@@ -474,13 +474,7 @@ static void process_comsys(player, arg, cap)
 	}
 	if (!wp) {
 	    STARTLOG(LOG_ALWAYS, "BUG", "COM")
-		log_text("Object #");
-		log_number(player);
-		log_text(" with alias ");
-		log_text(cap->alias);
-		log_text(" is on channel ");
-		log_text(cap->channel->name);
-		log_text(" but not on its player list.");
+	      log_printf("Object #%d with alias %s is on channel %s but not on its player list.", player, cap->alias, cap->channel->name);
 	    ENDLOG
 	    notify(player, "An unusual channel error has been detected.");
 	    return;
@@ -511,13 +505,7 @@ static void process_comsys(player, arg, cap)
 	}
 	if (!wp) {
 	    STARTLOG(LOG_ALWAYS, "BUG", "COM")
-		log_text("Object #");
-		log_number(player);
-		log_text(" with alias ");
-		log_text(cap->alias);
-		log_text(" is on channel ");
-		log_text(cap->channel->name);
-		log_text(" but not on its player list.");
+	      log_printf("Object #%d with alias %s is on channel %s but not on its player list.", player, cap->alias, cap->channel->name);
 	    ENDLOG
 	    notify(player, "An unusual channel error has been detected.");
 	    return;
@@ -1874,8 +1862,7 @@ static void read_comsys(fp, com_ver)
     s = (char *) getstring_noalloc(fp, 0);
     if (strcmp(s, (char *) "*** END OF DUMP ***")) {
 	STARTLOG(LOG_STARTUP, "INI", "COM")
-	    log_text((char *) "Aborted load on unexpected line: ");
-	    log_text(s);
+	    log_printf("Aborted load on unexpected line: %s", s);
 	ENDLOG
     }
 }
@@ -1944,8 +1931,7 @@ void load_comsys(filename)
     char t_mbuf[MBUF_SIZE];
 
     STARTLOG(LOG_STARTUP, "INI", "COM")
-	log_text((char *) "Loading comsys db: ");
-	log_text(filename);
+	log_printf("Loading comsys db: %s", filename);
     ENDLOG
 
     if (!(fp = fopen(filename, "r"))) {
@@ -1960,7 +1946,7 @@ void load_comsys(filename)
 	sanitize_comsys();
     } else {
 	STARTLOG(LOG_STARTUP, "INI", "COM")
-	    log_text((char *) "Unrecognized comsys format.");
+	    log_printf("Unrecognized comsys format.");
 	ENDLOG
 	make_vanilla_comsys();
     }

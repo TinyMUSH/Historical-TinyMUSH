@@ -101,21 +101,14 @@ dbref prior, obj, loc, ref;
 const char *reftype, *errtype;
 {
 	STARTLOG(LOG_PROBLEMS, "OBJ", "DAMAG")
-		log_type_and_name(obj);
+	log_type_and_name(obj);
 	if (loc != NOTHING) {
-		log_text((char *)" in ");
+		log_printf(" in ");
 		log_type_and_name(loc);
 	}
-	log_text((char *)": ");
-	if (prior == NOTHING) {
-		log_text((char *)reftype);
-	} else {
-		log_text((char *)"Next pointer");
-	}
-	log_text((char *)" ");
+	log_printf(": %s ", ((prior == NOTHING) ? reftype : "Next pointer"));
 	log_type_and_name(ref);
-	log_text((char *)" ");
-	log_text((char *)errtype);
+	log_printf(" %s", errtype);
 	ENDLOG
 }
 
@@ -125,20 +118,17 @@ int is_object;
 const char *valtype, *errtype;
 {
 	STARTLOG(LOG_PROBLEMS, "OBJ", "DAMAG")
-		log_type_and_name(obj);
+	log_type_and_name(obj);
 	if (loc != NOTHING) {
-		log_text((char *)" in ");
+		log_printf(" in ");
 		log_type_and_name(loc);
 	}
-	log_text((char *)": ");
-	log_text((char *)valtype);
-	log_text((char *)" ");
+	log_printf(": %s ", valtype);
 	if (is_object)
 		log_type_and_name(val);
 	else
-		log_number(val);
-	log_text((char *)" ");
-	log_text((char *)errtype);
+		log_printf("%d", val);
+	log_printf(" %s", errtype);
 	ENDLOG
 }
 
@@ -147,13 +137,12 @@ dbref obj, loc;
 const char *errtype;
 {
 	STARTLOG(LOG_PROBLEMS, "OBJ", "DAMAG")
-		log_type_and_name(obj);
+	log_type_and_name(obj);
 	if (loc != NOTHING) {
-		log_text((char *)" in ");
+		log_printf(" in ");
 		log_type_and_name(loc);
 	}
-	log_text((char *)": ");
-	log_text((char *)errtype);
+	log_printf(": %s", errtype);
 	ENDLOG
 }
 
@@ -1538,8 +1527,9 @@ dbref loc;
 
 			/* Not a player or thing - terminate chain */
 
-			Log_pointer_err(back, loc, NOTHING, obj, "",
-				     "is not a player or thing.  Cleared.");
+			Log_pointer_err(back, loc, NOTHING, obj,
+					"Contents list member",
+					"is not a player or thing.  Cleared.");
 			if (back != NOTHING) {
 				s_Next(back, NOTHING);
 			} else {

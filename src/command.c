@@ -658,8 +658,7 @@ int interactive, ncargs;
 			    notify(player, "Huh?  (Type \"help\" for help.)");
 			    STARTLOG(LOG_BADCOMMANDS, "CMD", "BAD")
 				log_name_and_loc(player);
-			        log_text((char *) " entered: ");
-			        log_text(new);
+			        log_printf(" entered: %s", new);
 			    ENDLOG
 			}
 
@@ -787,7 +786,7 @@ char *command, *args[];
 	NUMBERTAB *np;
 
 	if (mudstate.cmd_invk_ctr == mudconf.cmd_invk_lim)
-		return;
+		return command;
 	mudstate.cmd_invk_ctr++;
 
 	/* Robustify player */
@@ -802,13 +801,10 @@ char *command, *args[];
 
 	if (!Good_obj(player)) {
 		STARTLOG(LOG_BUGS, "CMD", "PLYR")
-			lcbuf = alloc_mbuf("process_command.LOG.badplayer");
-		sprintf(lcbuf, "Bad player in process_command: %d",
-			player);
-		log_text(lcbuf);
-		free_mbuf(lcbuf);
+			log_printf("Bad player in process_command: %d",
+				   player);
 		ENDLOG
-			mudstate.debug_cmd = cmdsave;
+		mudstate.debug_cmd = cmdsave;
 		return command;
 	}
 	/* Make sure player isn't going or halted */
@@ -826,15 +822,13 @@ char *command, *args[];
 	if (Suspect(player)) {
 	    STARTLOG(LOG_SUSPECTCMDS, "CMD", "SUSP")
 		log_name_and_loc(player);
-	        log_text(" entered: ");
-		log_text(command);
+	        log_printf(" entered: %s", command);
 	    ENDLOG
 	} else {
 	    STARTLOG(LOG_ALLCOMMANDS, "CMD", "ALL")
 		log_name_and_loc(player);
-	        log_text(" entered: ");
-		log_text(command);
-  	   ENDLOG
+	        log_printf(" entered: %s", command);
+	    ENDLOG
        }
 
 	/* Reset recursion limits */
@@ -1284,8 +1278,7 @@ char *command, *args[];
 		notify(player, "Huh?  (Type \"help\" for help.)");
 		STARTLOG(LOG_BADCOMMANDS, "CMD", "BAD")
 			log_name_and_loc(player);
-			log_text((char *) " entered: ");
-			log_text(command);
+			log_printf(" entered: %s", command);
 		ENDLOG
 	}
 	mudstate.debug_cmd = cmdsave;
@@ -1310,7 +1303,6 @@ int nargs;
 #ifndef NO_LAG_CHECK
 	struct timeval begin_time, end_time;
 	int used_time;
-	char *logbuf;
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;
 #endif
@@ -1411,11 +1403,10 @@ int nargs;
 			if ((used_time / 1000) >= mudconf.max_cmdsecs) {
 			    STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
   			    log_name_and_loc(player);
-			    logbuf = alloc_lbuf("do_top.LOG.cpu");
-			    sprintf(logbuf, " queued command taking %.2f secs (enactor #%d): ", (double) (used_time / 1000), mudstate.qfirst->cause);
-			    log_text(logbuf);
-			    free_lbuf(logbuf);
-			    log_text(log_cmdbuf);
+			    log_printf(" queued command taking %.2f secs (enactor #%d): %s",
+				       (double) (used_time / 1000),
+				       mudstate.qfirst->cause,
+				       log_cmdbuf);
 			    ENDLOG
 			}
 

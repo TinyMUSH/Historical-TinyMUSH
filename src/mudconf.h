@@ -327,7 +327,6 @@ struct statedata {
 	time_t	restart_time;	/* When did we last restart? */
 	int	reboot_nums;	/* How many times have we restarted? */
     	time_t	cpu_count_from; /* When did we last reset CPU counters? */
-	char	buffer[LBUF_SIZE * 2];	/* A buffer for holding temp stuff */
 	char	*debug_cmd;	/* The command we are executing (if any) */
 	char	doing_hdr[DOING_LEN]; /* Doing column header in WHO display */
 	SITE	*access_list;	/* Access states for sites */
@@ -416,7 +415,6 @@ struct statedata {
 	int	sql_socket;	/* Socket fd for SQL database connection */
 #else
 	int	logging;	/* Are we in the middle of logging? */
-	char	buffer[256];	/* A buffer for holding temp stuff */
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
 	ALIST	iter_alist;	/* Attribute list for iterations */
 	char	*mod_alist;	/* Attribute list for modifying */

@@ -36,10 +36,8 @@ void sql_shutdown()
 	return;
     mysql = mysql_struct;
     STARTLOG(LOG_ALWAYS, "SQL", "DISC")
-	log_text((char *) "Disconnected from SQL server ");
-        log_text(mysql->host);
-	log_text((char *) ", SQL database selected: ");
-        log_text(mysql->db);
+	log_printf("Disconnected from SQL server %s, SQL database selected: %s",
+		   mysql->host, mysql->db);
     ENDLOG
     mysql_close(mysql);
     free(mysql);
@@ -76,20 +74,16 @@ int sql_init()
 				 mudconf.sql_db, 0, NULL, 0);
     if (!result) {
 	STARTLOG(LOG_ALWAYS, "SQL", "CONN")
-	     log_text((char *) "Failed connection to SQL server ");
-	     log_text(mudconf.sql_host);
-	     log_text((char *) ": ");
-	     log_text(mysql_error(mysql));
+	     log_printf("Failed connection to SQL server %s: %s",
+			mudconf.sql_host, mysql_error(mysql));
 	ENDLOG
         free(mysql);
 	return -1;
     }
 
     STARTLOG(LOG_ALWAYS, "SQL", "CONN")
-	log_text((char *) "Connected to SQL server ");
-        log_text(mysql->host);
-	log_text((char *) ", SQL database selected: ");
-        log_text(mysql->db);
+	log_printf("Connected to SQL server %s, SQL database selected: %s",
+		   mysql->host, mysql->db);
     ENDLOG
 
     mysql_struct = mysql;
@@ -158,7 +152,7 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 	 */
 
 	STARTLOG(LOG_PROBLEMS, "SQL", "GONE")
-	    log_text("Connection died to SQL server");
+	    log_printf("Connection died to SQL server");
 	ENDLOG
 
 	retries = 0;

@@ -461,16 +461,11 @@ dbref player;
 char *cmd, *thing;
 const char *thingname;
 {
-	char buff[LBUF_SIZE * 2];
-
 	if (mudstate.initializing) {
 		STARTLOG(LOG_STARTUP, "CNF", "NFND")
-		sprintf(buff, "%s: %s %s not found",
-			cmd, thingname, thing);
-		log_text(buff);
+		    log_printf("%s: %s %s not found", cmd, thingname, thing);
 		ENDLOG
 	} else {
-		sprintf(buff, "%s %s not found", thingname, thing);
 		notify(player, tprintf("%s %s not found", thingname, thing));
 	}
 }
@@ -485,18 +480,13 @@ dbref player;
 char *cmd, *arg;
 const char *template;
 {
-	char buff[LBUF_SIZE * 2];
-
 	if (mudstate.initializing) {
 		STARTLOG(LOG_STARTUP, "CNF", "SYNTX")
-		sprintf(buff, template, arg);
-		log_text(cmd);
-		log_text((char *)": ");
-		log_text(buff);
+		    log_printf("%s: ", cmd);
+		    log_printf(template, arg);
 		ENDLOG
 	} else {
-		sprintf(buff, template, arg);
-		notify(player, buff);
+		notify(player, tprintf(template, arg));
 	}
 }
 
@@ -510,8 +500,6 @@ dbref player;
 char *cmd;
 int success, failure;
 {
-	char *buff;
-
 	/*
 	 * If any successes, return SUCCESS(0) if no failures or
 	 * PARTIAL_SUCCESS(1) if any failures. 
@@ -528,10 +516,7 @@ int success, failure;
 	if (failure == 0) {
 		if (mudstate.initializing) {
 			STARTLOG(LOG_STARTUP, "CNF", "NDATA")
-				buff = alloc_lbuf("cf_status_from_succfail.LOG");
-			sprintf(buff, "%s: Nothing to set", cmd);
-			log_text(buff);
-			free_lbuf(buff);
+			    log_printf("%s: Nothing to set", cmd);
 			ENDLOG
 		} else {
 			notify(player, "Nothing to set");
@@ -620,7 +605,6 @@ CF_HAND(cf_option)
 CF_HAND(cf_string)
 {
 	int retval;
-	char *buff;
 
 	/*
 	 * Copy the string to the buffer if it is not too big 
@@ -631,10 +615,7 @@ CF_HAND(cf_string)
 		str[extra - 1] = '\0';
 		if (mudstate.initializing) {
 			STARTLOG(LOG_STARTUP, "CNF", "NFND")
-				buff = alloc_lbuf("cf_string.LOG");
-			sprintf(buff, "%s: String truncated", cmd);
-			log_text(buff);
-			free_lbuf(buff);
+			log_printf("%s: String truncated", cmd);
 			ENDLOG
 		} else {
 			notify(player, "String truncated");
@@ -728,10 +709,8 @@ CF_HAND(cf_divert_log)
 
     if (tp->filename != NULL) {
 	    STARTLOG(LOG_STARTUP, "CNF", "DIVT")
-		log_text((char *) "Log type ");
-	        log_text(type_str);
-		log_text((char *) " already diverted: ");
-	        log_text(tp->filename);
+		log_printf("Log type %s already diverted: %s",
+			   type_str, tp->filename);
 	    ENDLOG
 	    return -1;
     }
@@ -752,8 +731,7 @@ CF_HAND(cf_divert_log)
 	fptr = fopen(file_str, "w");
 	if (!fptr) {
 	    STARTLOG(LOG_STARTUP, "CNF", "DIVT")
-		log_text((char *) "Cannot open logfile: ");
-	        log_text(file_str);
+		log_printf("Cannot open logfile: %s", file_str);
 	    ENDLOG
 	    return -1;
 	}
@@ -765,16 +743,14 @@ CF_HAND(cf_divert_log)
 #ifdef FNDELAY
 	if (fcntl(fd, F_SETFL, FNDELAY) == -1) {
 	    STARTLOG(LOG_STARTUP, "CNF", "DIVT")
-		log_text((char *) "Cannot make nonblocking: ");
-	        log_text(file_str);
+		log_printf("Cannot make nonblocking: %s", file_str);
 	    ENDLOG
 	    return -1;
 	}
 #else
 	if (fcntl(fd, F_SETFL, O_NDELAY) == -1) {
 	    STARTLOG(LOG_STARTUP, "CNF", "DIVT")
-		log_text((char *) "Cannot make nonblocking: ");
-	        log_text(file_str);
+		log_printf("Cannot make nonblocking: %s", file_str);
 	    ENDLOG
 	    return -1;
 	}
@@ -1059,10 +1035,9 @@ CF_HAND(cf_cf_access)
 			notify(player, NOPERM_MESSAGE);
 			STARTLOG(LOG_CONFIGMODS, "CFG", "PERM")
 			    log_name(player);
-			    log_text((char *) " tried to change ");
-			    log_text((char *) (((long)vp) ? "read" : "write"));
-			    log_text((char *) " access to static param: ");
-			    log_text(tp->pname);
+			    log_printf(" tried to change %s access to static param: %s",
+				       (((long)vp) ? "read" : "write"),
+				       tp->pname);
 			ENDLOG
 			return -1;
 		    }
@@ -1558,26 +1533,22 @@ dbref player;
 			if (!mudstate.initializing) {
 				STARTLOG(LOG_CONFIGMODS, "CFG", "UPDAT")
 					log_name(player);
-				log_text((char *)" entered config directive: ");
-				log_text(cp);
-				log_text((char *)" with args '");
-				log_text(buff);
-				log_text((char *)"'.  Status: ");
+				log_printf(" entered config directive: %s with args '%s'. Status: ", cp, strip_ansi(buff));
 				switch (i) {
 				case 0:
-					log_text((char *)"Success.");
+					log_printf("Success.");
 					break;
 				case 1:
-					log_text((char *)"Partial success.");
+					log_printf("Partial success.");
 					break;
 				case -1:
-					log_text((char *)"Failure.");
+					log_printf("Failure.");
 					break;
 				default:
-					log_text((char *)"Strange.");
+					log_printf("Strange.");
 				}
 				ENDLOG
-					free_lbuf(buff);
+				free_lbuf(buff);
 			}
 			return i;
 		}

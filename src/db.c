@@ -1021,8 +1021,7 @@ char *arg1, *arg2;
 			}
 			STARTLOG(LOG_SECURITY, "SEC", "CNAME")
 				log_name(thing),
-				log_text((char *)" renamed to ");
-			log_text(arg2);
+				log_printf(" renamed to %s", strip_ansi(arg2));
 			ENDLOG
 				if (Suspect(player)) {
 				raw_broadcast(WIZARD,
@@ -3009,8 +3008,7 @@ char *gdbmfile;
 	fprintf(stderr, "Done opening %s.\n", gdbmfile);
 #else
 	STARTLOG(LOG_ALWAYS, "INI", "LOAD")
-		log_text((char *)"Using gdbm file: ");
-	log_text(gdbmfile);
+		log_printf("Using gdbm file: %s", gdbmfile);
 	ENDLOG
 #endif
 		db_free();
@@ -3276,8 +3274,7 @@ void load_restart_db()
 	DESC_ITER_ALL(d) {
 	    if (fstat(d->descriptor, &fstatbuf) < 0) {
 		STARTLOG(LOG_PROBLEMS, "ERR", "RESTART")
-		    log_text((char *) "Bad descriptor ");
-		    log_number(d->descriptor);
+		    log_printf("Bad descriptor %d", d->descriptor);
 		ENDLOG
 		shutdownsock(d, R_SOCKDIED);
 	    }

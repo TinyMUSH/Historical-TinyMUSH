@@ -33,13 +33,9 @@ int obj, attr;
 const char *txt;
 {
 	STARTLOG(LOG_ALWAYS, "DBM", "ERROR")
-		log_text((char *)"Could not ");
-	log_text((char *)txt);
-	log_text((char *)" object #");
-	log_number(obj);
+	log_printf("Could not %s object #%d", txt, obj);
 	if (attr != NOTHING) {
-		log_text((char *)" attr #");
-		log_number(attr);
+		log_printf(" attr #%d", attr);
 	}
 	ENDLOG
 }

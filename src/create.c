@@ -217,7 +217,6 @@ int key;
 char *what, *where;
 {
 	dbref thing, room;
-	char *buff;
 
 	/* Find the thing to link */
 
@@ -306,11 +305,8 @@ char *what, *where;
 		break;
 	default:
 		STARTLOG(LOG_BUGS, "BUG", "OTYPE")
-			buff = alloc_mbuf("do_link.LOG.badtype");
-		sprintf(buff, "Strange object type: object #%d = %d",
-			thing, Typeof(thing));
-		log_text(buff);
-		free_mbuf(buff);
+		log_printf("Strange object type: object #%d = %d",
+			   thing, Typeof(thing));
 		ENDLOG
 	}
 }
@@ -686,8 +682,8 @@ char *name, *pass;
 		notify_quiet(player, "Your robot has arrived.");
 		STARTLOG(LOG_PCREATES, "CRE", "ROBOT")
 			log_name(newplayer);
-		log_text((char *)" created by ");
-		log_name(player);
+			log_printf(" created by ");
+			log_name(player);
 		ENDLOG
 	} else {
 		move_object(newplayer, mudconf.start_room);
@@ -696,8 +692,8 @@ char *name, *pass;
 			       name, newplayer, pass));
 		STARTLOG(LOG_PCREATES | LOG_WIZARD, "WIZ", "PCREA")
 			log_name(newplayer);
-		log_text((char *)" created by ");
-		log_name(player);
+			log_printf(" created by ");
+			log_name(player);
 		ENDLOG
 	}
 }

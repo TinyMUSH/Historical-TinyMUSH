@@ -47,12 +47,9 @@ char *filename;
 
 	if ((fp = tf_fopen(filename, O_RDONLY)) == NULL) {
 		STARTLOG(LOG_PROBLEMS, "HLP", "RINDX")
-			p = alloc_lbuf("helpindex_read.LOG");
-		sprintf(p, "Can't open %s for reading.", filename);
-		log_text(p);
-		free_lbuf(p);
+		log_printf("Can't open %s for reading.", filename);
 		ENDLOG
-			return -1;
+		return -1;
 	}
 	count = 0;
 	while ((fread((char *)&entry, sizeof(help_indx), 1, fp)) == 1) {
@@ -178,23 +175,17 @@ int eval;
 		notify(player,
 		       "Sorry, that function is temporarily unavailable.");
 		STARTLOG(LOG_PROBLEMS, "HLP", "OPEN")
-			line = alloc_lbuf("help_write.LOG.open");
-		sprintf(line, "Can't open %s for reading.", filename);
-		log_text(line);
-		free_lbuf(line);
+		log_printf("Can't open %s for reading.", filename);
 		ENDLOG
-			return;
+		return;
 	}
 	if (fseek(fp, offset, 0) < 0L) {
 		notify(player,
 		       "Sorry, that function is temporarily unavailable.");
 		STARTLOG(LOG_PROBLEMS, "HLP", "SEEK")
-			line = alloc_lbuf("help_write.LOG.seek");
-		sprintf(line, "Seek error in file %s.", filename);
-		log_text(line);
-		free_lbuf(line);
+		log_printf("Seek error in file %s.", filename);
 		ENDLOG
-			tf_fclose(fp);
+		tf_fclose(fp);
 		return;
 	}
 	line = alloc_lbuf("help_write");
@@ -232,7 +223,6 @@ dbref player, cause;
 int key;
 char *message;
 {
-    char *buf;
     char tbuf[SBUF_SIZE + 8];
     int hf_num;
 
@@ -240,10 +230,7 @@ char *message;
 
     if (hf_num >= mudstate.helpfiles) {
 	STARTLOG(LOG_BUGS, "BUG", "HELP")
-	    buf = alloc_mbuf("do_help.LOG");
-	    sprintf(buf, "Unknown help file number: %d", hf_num);
-	    log_text(buf);
-	    free_mbuf(buf);
+	    log_printf("Unknown help file number: %d", hf_num);
 	ENDLOG
 	notify(player, "No such indexed file found.");
 	return;

@@ -490,7 +490,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			 (Control_All(p) || \
 			  ((Owner(p) == Owner(x)) && \
 			   (Inherits(p) || !Inherits(x))) || \
-			   OnControlLock(p,x)))
+			  OnControlLock(p,x)))
 #define	Mark(x)		(mudstate.markbits->chunk[(x)>>3] |= \
 			 mudconf.markdata[(x)&7])
 #define	Unmark(x)	(mudstate.markbits->chunk[(x)>>3] &= \

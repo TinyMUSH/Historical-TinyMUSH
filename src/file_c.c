@@ -136,10 +136,7 @@ char *filename;
 		/* Failure: log the event */
 
 		STARTLOG(LOG_PROBLEMS, "FIL", "OPEN")
-			buff = alloc_mbuf("fcache_read.LOG");
-		sprintf(buff, "Couldn't open file '%s'.", filename);
-		log_text(buff);
-		free_mbuf(buff);
+			log_printf("Couldn't open file '%s'.", filename);
 		ENDLOG
 			tf_close(fd);
 		return -1;

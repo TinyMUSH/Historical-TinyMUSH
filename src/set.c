@@ -183,10 +183,9 @@ char *newname;
 		 */
 		STARTLOG(LOG_SECURITY, "SEC", "CNAME")
 			log_name(thing),
-			log_text((char *)" renamed to ");
-		log_text(buff);
+			log_printf(" renamed to %s", buff);
 		ENDLOG
-			if (Suspect(thing)) {
+		if (Suspect(thing)) {
 			raw_broadcast(WIZARD,
 			   "[Suspect] %s renamed to %s", Name(thing), buff);
 		}

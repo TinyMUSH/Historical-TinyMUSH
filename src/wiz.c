@@ -250,8 +250,8 @@ char *toad, *newowner;
 
 	STARTLOG(LOG_WIZARD, "WIZ", "TOAD")
 		log_name_and_loc(victim);
-	log_text((char *)" was @toaded by ");
-	log_name(player);
+		log_printf(" was @toaded by ");
+		log_name(player);
 	ENDLOG
 
 	/*
@@ -330,8 +330,8 @@ char *name, *password;
 	}
 	STARTLOG(LOG_WIZARD, "WIZ", "PASS")
 		log_name(player);
-	log_text((char *)" changed the password of ");
-	log_name(victim);
+		log_printf(" changed the password of ");
+		log_name(victim);
 	ENDLOG
 
 	/*
@@ -370,12 +370,8 @@ char *name;
 			return;
 		}
 		STARTLOG(LOG_WIZARD, "WIZ", "BOOT")
-			buf = alloc_sbuf("do_boot.port");
-		sprintf(buf, "Port %d", victim);
-		log_text(buf);
-		log_text((char *)" was @booted by ");
+		log_printf("Port %d was @booted by ", victim);
 		log_name(player);
-		free_sbuf(buf);
 		ENDLOG
 	} else {
 		init_match(player, name, TYPE_PLAYER);
@@ -396,8 +392,8 @@ char *name;
 		}
 		STARTLOG(LOG_WIZARD, "WIZ", "BOOT")
 			log_name_and_loc(victim);
-		log_text((char *)" was @booted by ");
-		log_name(player);
+			log_printf(" was @booted by ");
+			log_name(player);
 		ENDLOG
 			notify_quiet(player, tprintf("You booted %s off!", Name(victim)));
 	}
@@ -594,8 +590,7 @@ char *flag;
 		mudconf.control_flags |= flagvalue;
 		STARTLOG(LOG_CONFIGMODS, "CFG", "GLOBAL")
 		    log_name(player);
-		    log_text((char *) " enabled: ");
-		    log_text(flag);
+		    log_printf(" enabled: %s", flag);
 		ENDLOG
 		if (!Quiet(player))
 			notify_quiet(player, "Enabled.");
@@ -603,8 +598,7 @@ char *flag;
 		mudconf.control_flags &= ~flagvalue;
 		STARTLOG(LOG_CONFIGMODS, "CFG", "GLOBAL")
 		    log_name(player);
-		    log_text((char *) " disabled: ");
-		    log_text(flag);
+		    log_printf(" disabled: %s", flag);
 		ENDLOG
 		if (!Quiet(player))
 			notify_quiet(player, "Disabled.");

@@ -88,7 +88,7 @@ BOOLEXP *b;
 #ifndef STANDALONE
 			STARTLOG(LOG_BUGS, "BUG", "LOCK")
 				log_name_and_loc(player);
-			log_text((char *)": Lock exceeded recursion limit.");
+			log_printf(": Lock exceeded recursion limit.");
 			ENDLOG
 				notify(player, "Sorry, broken lock!");
 #else
@@ -101,12 +101,8 @@ BOOLEXP *b;
 #ifndef STANDALONE
 			STARTLOG(LOG_BUGS, "BUG", "LOCK")
 				log_name_and_loc(player);
-			buff = alloc_mbuf("eval_boolexp.LOG.indir");
-			sprintf(buff,
-				": Lock had bad indirection (%c, type %d)",
-				INDIR_TOKEN, b->sub1->type);
-			log_text(buff);
-			free_mbuf(buff);
+			log_printf(": Lock had bad indirection (%c, type %d)",
+				   INDIR_TOKEN, b->sub1->type);
 			ENDLOG
 				notify(player, "Sorry, broken lock!");
 #else

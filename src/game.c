@@ -109,17 +109,15 @@ int key;
 void NDECL(report)
 {
 	STARTLOG(LOG_BUGS, "BUG", "INFO")
-		log_text((char *)"Command: '");
-	log_text(mudstate.debug_cmd);
-	log_text((char *)"'");
+		log_printf("Command: '%s'", mudstate.debug_cmd);
 	ENDLOG
 		if (Good_obj(mudstate.curr_player)) {
 		STARTLOG(LOG_BUGS, "BUG", "INFO")
-			log_text((char *)"Player: ");
+			log_printf("Player: ");
 		log_name_and_loc(mudstate.curr_player);
 		if ((mudstate.curr_enactor != mudstate.curr_player) &&
 		    Good_obj(mudstate.curr_enactor)) {
-			log_text((char *)" Enactor: ");
+			log_printf(" Enactor: ");
 			log_name_and_loc(mudstate.curr_enactor);
 		}
 		ENDLOG
@@ -181,7 +179,7 @@ char *str;
 char *args[];
 int nargs;
 {
-    int i, j, len;
+    int i;
     pcre *re;
     static const unsigned char *tables = NULL;
     const char *errptr;
@@ -932,16 +930,14 @@ static void report_timecheck(player, yes_screen, yes_log, yes_clear)
         yes_log = 0;
         STARTLOG(LOG_ALWAYS, "WIZ", "TIMECHECK")
             log_name(player);
-            log_text((char *) " checks object time use over ");
-            log_number(time(NULL) - mudstate.cpu_count_from);
-            log_text((char *) " seconds\n");
+            log_printf(" checks object time use over %d seconds\n",
+		       (int) (time(NULL) - mudstate.cpu_count_from));
         ENDLOG
    } else {
         start_log("OBJ", "CPU", LOG_ALWAYS);
         log_name(player);
-        log_text((char *) " checks object time use over ");
-        log_number(time(NULL) - mudstate.cpu_count_from);
-        log_text((char *) " seconds\n");
+	log_printf(" checks object time use over %d seconds\n",
+		   (int) (time(NULL) - mudstate.cpu_count_from));
    }
 
     obj_counted = 0;
@@ -959,7 +955,7 @@ static void report_timecheck(player, yes_screen, yes_log, yes_clear)
             used_msecs = (obj_time.tv_sec * 1000) + (obj_time.tv_usec / 1000);
             total_msecs += used_msecs;
             if (yes_log)
-                fprintf(stderr, "#%d\t%ld\n", thing, used_msecs);
+                log_printf("#%d\t%ld\n", thing, used_msecs);
             if (yes_screen)
                 raw_notify(player, tprintf("#%d\t%ld", thing, used_msecs));
             if (yes_clear)
@@ -970,16 +966,15 @@ static void report_timecheck(player, yes_screen, yes_log, yes_clear)
 
     if (yes_screen) {
         raw_notify(player,
-                   tprintf("Counted %d objects using %ld msecs over %d seconds."
-,
+                   tprintf("Counted %d objects using %ld msecs over %d seconds.",
                            obj_counted, total_msecs,
                            (int) (time(NULL) - mudstate.cpu_count_from)));
     }
 
     if (yes_log) {
-        fprintf(stderr, "Counted %d objects using %ld msecs over %d seconds.",
-                obj_counted, total_msecs,
-                (int) (time(NULL) - mudstate.cpu_count_from));
+        log_printf("Counted %d objects using %ld msecs over %d seconds.",
+		   obj_counted, total_msecs,
+		   (int) (time(NULL) - mudstate.cpu_count_from));
         end_log();
     }
 
@@ -1034,7 +1029,7 @@ char *message;
 		if (player != NOTHING) {
 			raw_broadcast(0, "GAME: Aborted by %s", Name(Owner(player)));
 			STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
-				log_text((char *) "Abort and coredump by ");
+				log_printf("Abort and coredump by ");
 				log_name(player);
 			ENDLOG
 		}
@@ -1051,21 +1046,19 @@ char *message;
 	if (player != NOTHING) {
 		raw_broadcast(0, "GAME: Shutdown by %s", Name(Owner(player)));
 		STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
-			log_text((char *)"Shutdown by ");
-		log_name(player);
+			log_printf("Shutdown by ");
+			log_name(player);
 		ENDLOG
 	} else {
 		raw_broadcast(0, "GAME: Fatal Error: %s", message);
 		STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
-			log_text((char *)"Fatal error: ");
-		log_text(message);
+			log_printf("Fatal error: %s", message);
 		ENDLOG
 	}
 	STARTLOG(LOG_ALWAYS, "WIZ", "SHTDN")
-		log_text((char *)"Shutdown status: ");
-	log_text(message);
+		log_printf("Shutdown status: %s", message);
 	ENDLOG
-		fd = tf_open(mudconf.status_file, O_RDWR | O_CREAT | O_TRUNC);
+	fd = tf_open(mudconf.status_file, O_RDWR | O_CREAT | O_TRUNC);
 	(void)write(fd, message, strlen(message));
 	(void)write(fd, (char *)"\n", 1);
 	tf_close(fd);
@@ -1090,13 +1083,11 @@ char *message;
 		SYNC;
 		CLOSE;
 		STARTLOG(LOG_ALWAYS, "DMP", "PANIC")
-			log_text((char *)"Panic dump: ");
-		log_text(mudconf.crashdb);
+			log_printf("Panic dump: %s", mudconf.crashdb);
 		ENDLOG
 			dump_database_internal(1);
 		STARTLOG(LOG_ALWAYS, "DMP", "DONE")
-			log_text((char *)"Panic dump complete: ");
-		log_text(mudconf.crashdb);
+			log_printf("Panic dump complete: %s", mudconf.crashdb);
 		ENDLOG
 	}
 	/* Set up for normal shutdown */
@@ -1251,24 +1242,19 @@ int dump_type;
 
 void NDECL(dump_database)
 {
-	char *buff;
-
 	mudstate.epoch++;
 	mudstate.dumping = 1;
-	buff = alloc_mbuf("dump_database");
-	sprintf(buff, "%s.#%d#", mudconf.outdb, mudstate.epoch);
 	STARTLOG(LOG_DBSAVES, "DMP", "DUMP")
-		log_text((char *)"Dumping: ");
-	log_text(buff);
+		log_printf("Dumping: %s.#%d#",
+			   mudconf.outdb, mudstate.epoch);
 	ENDLOG
-		pcache_sync();
+	pcache_sync();
 	SYNC;
 	dump_database_internal(0);
 	STARTLOG(LOG_DBSAVES, "DMP", "DONE")
-		log_text((char *)"Dump complete: ");
-	log_text(buff);
+		log_printf("Dump complete: %s.#%d#",
+			   mudconf.outdb, mudstate.epoch);
 	ENDLOG
-	free_mbuf(buff);
 	mudstate.dumping = 0;
 }
 
@@ -1276,7 +1262,6 @@ void fork_and_dump(key)
 int key;
 {
 	int child;
-	char *buff;
 
 	if (*mudconf.dump_msg)
 		raw_broadcast(0, "%s", mudconf.dump_msg);
@@ -1285,20 +1270,17 @@ int key;
 #endif
 	mudstate.epoch++;
 	mudstate.dumping = 1;
-	buff = alloc_mbuf("fork_and_dump");
-	sprintf(buff, "%s.#%d#", mudconf.outdb, mudstate.epoch);
 	STARTLOG(LOG_DBSAVES, "DMP", "CHKPT")
-		if (!key || (key & DUMP_TEXT)) {
-		log_text((char *)"SYNCing");
+	if (!key || (key & DUMP_TEXT)) {
+		log_printf("SYNCing");
 		if (!key || (key & DUMP_STRUCT))
-			log_text((char *)" and ");
+			log_printf(" and ");
 	}
 	if (!key || (key & DUMP_STRUCT) || (key & DUMP_FLATFILE)) {
-		log_text((char *)"Checkpointing: ");
-		log_text(buff);
+		log_printf("Checkpointing: %s.#%d#",
+			   mudconf.outdb, mudstate.epoch);
 	}
 	ENDLOG
-		free_mbuf(buff);
 #ifndef MEMORY_BASED
 	al_store();		/* Save cached modified attribute list */
 #endif /* MEMORY_BASED */
@@ -1370,13 +1352,11 @@ static int NDECL(load_game)
 	/* ok, read it in */
 
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
-		log_text((char *)"Loading: ");
-	log_text(infile);
+		log_printf("Loading: %s", infile);
 	ENDLOG
 		if (db_read(f, &db_format, &db_version, &db_flags) < 0) {
 		STARTLOG(LOG_ALWAYS, "INI", "FATAL")
-			log_text((char *)"Error loading ");
-		log_text(infile);
+			log_printf("Error loading %s", infile);
 		ENDLOG
 			return -1;
 	}
@@ -1390,7 +1370,7 @@ static int NDECL(load_game)
 	}
 #endif
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
-		log_text((char *)"Load complete.");
+		log_printf("Load complete.");
 	ENDLOG
 
 	/* everything ok */
@@ -1517,8 +1497,7 @@ void do_logwrite(player, cause, key, msgtype, message)
 
     STARTLOG(LOG_LOCAL, "MSG", mt)
 	log_name(player);
-	log_text((char *) ": ");
-	log_text(msg);
+	log_printf(": %s", msg);
     ENDLOG
 
     notify_quiet(player, "Logged.");
@@ -1538,7 +1517,6 @@ void do_logrotate(player, cause, key)
      */
 
     LOGFILETAB *lp;
-    char buf[PBUF_SIZE + 16];
 
     mudstate.mudlognum++;
 
@@ -1551,7 +1529,7 @@ void do_logrotate(player, cause, key)
 	notify(player, "Log rotation failed.");
 	STARTLOG(LOG_ALWAYS, "WIZ", "LOGRT")
 	    log_name(player);
-	    log_text((char *) " attempted failed log rotation");
+	    log_printf(" attempted failed log rotation");
 	ENDLOG
     } else {
 	rename(mudconf.mudlogname,
@@ -1560,8 +1538,7 @@ void do_logrotate(player, cause, key)
 	notify(player, "Logs rotated.");
 	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
 	    log_name(player);
-	    log_text((char *) ": logfile rotation ");
-	    log_number(mudstate.mudlognum);
+	    log_printf(": logfile rotation %d", mudstate.mudlognum);
         ENDLOG
     }
 
@@ -1751,10 +1728,10 @@ char *argv[];
 		unlink(mudconf.gdbm);
 	if (init_gdbm_db(mudconf.gdbm) < 0) {
 		STARTLOG(LOG_ALWAYS, "INI", "LOAD")
-			log_text((char *)"Couldn't load text database: ");
-		log_text(mudconf.gdbm);
+			log_printf("Couldn't load text database: %s",
+				   mudconf.gdbm);
 		ENDLOG
-			exit(2);
+		exit(2);
 	}
 #else
 	db_free();
@@ -1772,10 +1749,9 @@ char *argv[];
 #endif
 	} else if (load_game() < 0) {
 		STARTLOG(LOG_ALWAYS, "INI", "LOAD")
-			log_text((char *)"Couldn't load: ");
-		log_text(mudconf.indb);
+			log_printf("Couldn't load: %s", mudconf.indb);
 		ENDLOG
-			exit(2);
+		exit(2);
 	}
 	mudstate.loading_db = 0;
 
@@ -1857,7 +1833,7 @@ char *argv[];
 	 */
 	process_preload();
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
-	    log_text((char *) "Startup processing complete.");
+	    log_printf("Startup processing complete.");
 	ENDLOG
 
 #ifndef MEMORY_BASED
@@ -1877,7 +1853,7 @@ char *argv[];
 	 */
 	do_hashresize(GOD, GOD, 0);
 	STARTLOG(LOG_STARTUP, "INI", "LOAD")
-	    log_text((char *) "Cleanup completed.");
+	    log_printf("Cleanup completed.");
 	ENDLOG
 
 	if (mudstate.restarting) {
@@ -1906,8 +1882,8 @@ char *argv[];
 			execl("./bin/conc", "concentrator", inetp, mudp, "1", 0);
 		}
 		STARTLOG(LOG_ALWAYS, "CNC", "STRT")
-			log_text("Concentrating ports... ");
-		log_text(tprintf("Main: %d Conc: %d", mudconf.port, mudconf.conc_port));
+			log_printf("Concentrating ports... Main: %d Conc: %d",
+				   mudconf.port, mudconf.conc_port);
 		ENDLOG
 	}
 #endif

@@ -262,7 +262,6 @@ const char *b;
 int n;
 {
 	int left;
-	char *buf;
 	TBLOCK *tp;
 
 	if (n <= 0)
@@ -276,19 +275,15 @@ int n;
 		tp = d->output_head;
 		if (tp == NULL) {
 			STARTLOG(LOG_PROBLEMS, "QUE", "WRITE")
-				log_text((char *)"Flushing when output_head is null!");
+				log_printf("Flushing when output_head is null!");
 			ENDLOG
 		} else {
 			STARTLOG(LOG_NET, "NET", "WRITE")
-				buf = alloc_lbuf("queue_write.LOG");
-			sprintf(buf,
-				"[%d/%s] Output buffer overflow, %d chars discarded by ",
-				d->descriptor, d->addr, tp->hdr.nchars);
-			log_text(buf);
-			free_lbuf(buf);
+			log_printf("[%d/%s] Output buffer overflow, %d chars discarded by ",
+				   d->descriptor, d->addr, tp->hdr.nchars);
 			log_name(d->player);
 			ENDLOG
-				d->output_size -= tp->hdr.nchars;
+			d->output_size -= tp->hdr.nchars;
 			d->output_head = tp->hdr.nxt;
 			d->output_lost += tp->hdr.nchars;
 			if (d->output_head == NULL)
@@ -754,8 +749,11 @@ DESC *d;
 			}
 			break;
 		default:
-			log_text(tprintf("Invalid zone #%d for %s(#%d) has bad type %d",
-				 zone, Name(player), player, Typeof(zone)));
+			STARTLOG(LOG_PROBLEMS, "OBJ", "DAMAG")
+			log_printf("Invalid zone #%d for ", zone);
+			log_name(player);
+			log_printf(" has bad type %d", Typeof(zone));
+			ENDLOG
 		}
 	}
 	time_str = ctime(&mudstate.now);
@@ -884,8 +882,11 @@ const char *reason;
 				}
 				break;
 			default:
-				log_text(tprintf("Invalid zone #%d for %s(#%d) has bad type %d",
-				 zone, Name(player), player, Typeof(zone)));
+				STARTLOG(LOG_PROBLEMS, "OBJ", "DAMAG")
+				log_printf("Invalid zone #%d for ", zone);
+				log_name(player);
+				log_printf(" has bad type %d", Typeof(zone));
+				ENDLOG
 			}
 		}
 		if (d->flags & DS_AUTODARK) {
@@ -1348,23 +1349,16 @@ DESC *d;
 int disconnect_reason, filecache;
 dbref player;
 {
-	char *buff;
-
 	STARTLOG(LOG_LOGIN | LOG_SECURITY, logcode, "RJCT")
-		buff = alloc_mbuf("failconn.LOG");
-	sprintf(buff, "[%d/%s] %s rejected to ",
-		d->descriptor, d->addr, logtype);
-	log_text(buff);
-	free_mbuf(buff);
+	log_printf("[%d/%s] %s rejected to ",
+		   d->descriptor, d->addr, logtype);
 	if (player != NOTHING)
 		log_name(player);
 	else
-		log_text(user);
-	log_text((char *)" (");
-	log_text((char *)logreason);
-	log_text((char *)")");
+		log_printf("%s", user);
+	log_printf(" (%s)", logreason);
 	ENDLOG
-		fcache_dump(d, filecache);
+	fcache_dump(d, filecache);
 	if (*motd_msg) {
 		queue_string(d, motd_msg);
 		queue_write(d, "\r\n", 2);
@@ -1437,14 +1431,11 @@ char *msg;
 
 			queue_rawstring(d, connect_fail);
 			STARTLOG(LOG_LOGIN | LOG_SECURITY, "CON", "BAD")
-				buff = alloc_lbuf("check_conn.LOG.bad");
-			user[3800] = '\0';
-			sprintf(buff, "[%d/%s] Failed connect to '%s'",
-				d->descriptor, d->addr, user);
-			log_text(buff);
-			free_lbuf(buff);
+			log_printf("[%d/%s] Failed connect to '%s'",
+				   d->descriptor, d->addr, user);
 			ENDLOG
-				if (--(d->retries_left) <= 0) {
+			user[3800] = '\0';
+			if (--(d->retries_left) <= 0) {
 				free_lbuf(command);
 				free_lbuf(user);
 				free_lbuf(password);
@@ -1473,14 +1464,11 @@ char *msg;
 			/* Logins are enabled, or wiz or god */
 
 			STARTLOG(LOG_LOGIN, "CON", "LOGIN")
-				buff = alloc_mbuf("check_conn.LOG.login");
-			sprintf(buff, "[%d/%s] Connected to ",
-				d->descriptor, d->addr);
-			log_text(buff);
+			log_printf("[%d/%s] Connected to ",
+				   d->descriptor, d->addr);
 			log_name_and_loc(player);
-			free_mbuf(buff);
 			ENDLOG
-				d->flags |= DS_CONNECTED;
+			d->flags |= DS_CONNECTED;
 			d->connected_at = time(NULL);
 			d->player = player;
 
@@ -1570,23 +1558,16 @@ char *msg;
 			if (player == NOTHING) {
 				queue_rawstring(d, create_fail);
 				STARTLOG(LOG_SECURITY | LOG_PCREATES, "CON", "BAD")
-					buff = alloc_mbuf("check_conn.LOG.badcrea");
-				sprintf(buff,
-					"[%d/%s] Create of '%s' failed",
-					d->descriptor, d->addr, user);
-				log_text(buff);
-				free_mbuf(buff);
+				log_printf("[%d/%s] Create of '%s' failed",
+					   d->descriptor, d->addr, user);
 				ENDLOG
 			} else {
 				STARTLOG(LOG_LOGIN | LOG_PCREATES, "CON", "CREA")
-					buff = alloc_mbuf("check_conn.LOG.create");
-				sprintf(buff, "[%d/%s] Created ",
-					d->descriptor, d->addr);
-				log_text(buff);
+				log_printf("[%d/%s] Created ",
+					   d->descriptor, d->addr);
 				log_name(player);
-				free_mbuf(buff);
 				ENDLOG
-					move_object(player, mudconf.start_room);
+				move_object(player, mudconf.start_room);
 				d->flags |= DS_CONNECTED;
 				d->connected_at = time(NULL);
 				d->player = player;
@@ -1597,13 +1578,10 @@ char *msg;
 	} else {
 		welcome_user(d);
 		STARTLOG(LOG_LOGIN | LOG_SECURITY, "CON", "BAD")
-			buff = alloc_mbuf("check_conn.LOG.bad");
-		msg[150] = '\0';
-		sprintf(buff, "[%d/%s] Failed connect: '%s'",
-			d->descriptor, d->addr, msg);
-		log_text(buff);
-		free_mbuf(buff);
+		log_printf("[%d/%s] Failed connect: '%s'",
+			   d->descriptor, d->addr, msg);
 		ENDLOG
+		msg[150] = '\0';
 	}
 	free_lbuf(command);
 	free_lbuf(user);
@@ -1618,7 +1596,7 @@ DESC *d;
 char *command;
 int first;
 {
-	char *arg, *cmdsave, *logbuf, *log_cmdbuf;
+	char *arg, *cmdsave, *log_cmdbuf;
 	NAMETAB *cp;
 	long begin_time, used_time;
 
@@ -1653,7 +1631,7 @@ int first;
 		return 1;
 	} else if (((d->cstatus & C_REMOTE) || (d->cstatus & C_CCONTROL)) && first) {
 		if (!strncmp(command, "CONC ", sizeof("CONC ") - 1))
-			log_text(command);
+			log_printf("%s", command);
 		else if (!strcmp(command, "New ID")) {
 			do_makeid(d);
 		} else if (!strncmp(command, "Conn ID: ",
@@ -1725,11 +1703,8 @@ int first;
 			if (used_time >= mudconf.max_cmdsecs) {
 				STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
 					log_name_and_loc(d->player);
-					logbuf = alloc_lbuf("do_command.LOG.cpu");
-					sprintf(logbuf, " entered command taking %ld secs: ", used_time); 
-					log_text(logbuf);
-					free_lbuf(logbuf);
-					log_text(log_cmdbuf);
+					log_printf(" entered command taking %ld secs: %s",
+						   used_time, log_cmdbuf); 
 				ENDLOG
 			}
 #endif /* NO_LAG_CHECK */
@@ -1799,10 +1774,8 @@ int first;
 			queue_write(d, "\r\n", 2);
 			fcache_dump(d, FC_CONN_HTML);
 			STARTLOG(LOG_LOGIN, "CON", "HTML")
-				arg = alloc_mbuf("do_command.LOG.con_html");
-				sprintf(arg, "[%d/%s] PuebloClient enabled.", d->descriptor, d->addr);
-				log_text(arg);
-				free_mbuf(arg);
+				log_printf("[%d/%s] PuebloClient enabled.",
+					   d->descriptor, d->addr);
 			ENDLOG
 #else
 			queue_rawstring(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
@@ -1810,12 +1783,8 @@ int first;
 			break;
 		default:
 			STARTLOG(LOG_BUGS, "BUG", "PARSE")
-				arg = alloc_lbuf("do_command.LOG");
-			sprintf(arg,
-				"Prefix command with no handler: '%s'",
-				command);
-			log_text(arg);
-			free_lbuf(arg);
+			log_printf("Prefix command with no handler: '%s'",
+				   command);
 			ENDLOG
 		}
 	}
@@ -1901,10 +1870,8 @@ char *arg;
 			queue_write(d, "\r\n", 2);
 			fcache_dump(d, FC_CONN_HTML);
 			STARTLOG(LOG_LOGIN, "CON", "HTML")
-				arg = alloc_mbuf("do_command.LOG.con_html");
-				sprintf(arg, "[%d/%s] PuebloClient enabled.", d->descriptor, d->addr);
-				log_text(arg);
-				free_mbuf(arg);
+				log_printf("[%d/%s] PuebloClient enabled.",
+					   d->descriptor, d->addr);
 			ENDLOG
 #else
 			queue_string(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
@@ -1919,7 +1886,7 @@ void NDECL(process_commands)
 	int nprocessed;
 	DESC *d, *dnext;
 	CBLK *t;
-	char *cmdsave, *logbuf;
+	char *cmdsave;
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"process_commands";
@@ -1935,12 +1902,8 @@ void NDECL(process_commands)
 					d->input_tail = NULL;
 				d->input_size -= (strlen(t->cmd) + 1);
 				STARTLOG(LOG_KBCOMMANDS, "CMD", "KBRD")
-				    logbuf = alloc_mbuf("proc_cmds.LOG");
-				    sprintf(logbuf, "[%d/%s] Cmd: ",
-					    d->descriptor, d->addr);
-				    log_text(logbuf);
-				    free_mbuf(logbuf);
-				    log_text(t->cmd);
+				    log_printf("[%d/%s] Cmd: %s",
+					       d->descriptor, d->addr, t->cmd);
 				ENDLOG
 				d->last_time = mudstate.now;
 				if (d->program_data != NULL)

@@ -210,11 +210,9 @@ char *message;
 		}
 		STARTLOG(LOG_SHOUTS, "WIZ", "SHOUT")
 			log_name(player);
-		        log_text((char *)" shouts: '");
-			log_text(message);
-			log_text((char *)"'");
+			log_printf(" shouts: '%s'", strip_ansi(message));
 		ENDLOG
-			break;
+		break;
 	case SAY_WIZSHOUT:
 		switch (*message) {
 		case ':':
@@ -241,11 +239,9 @@ char *message;
 		}
 		STARTLOG(LOG_SHOUTS, "WIZ", "BCAST")
 			log_name(player);
-		        log_text((char *)" broadcasts: '");
-			log_text(message);
-			log_text((char *)"'");
+			log_printf(" broadcasts: '%s'", strip_ansi(message));
 		ENDLOG
-			break;
+		break;
 	case SAY_ADMINSHOUT:
 		switch (*message) {
 		case ':':
@@ -279,11 +275,9 @@ char *message;
 		}
 		STARTLOG(LOG_SHOUTS, "WIZ", "ASHOUT")
 			log_name(player);
-		        log_text((char *)" yells: '");
-			log_text(message);
-			log_text((char *)"'");
+			log_printf(" yells: '%s'", strip_ansi(message));
 		ENDLOG
-			break;
+		break;
 	case SAY_WALLPOSE:
 		if (say_flags & SAY_NOTAG)
 			raw_broadcast(0, "%s %s", Name(player), message);
@@ -292,11 +286,9 @@ char *message;
 				      message);
 		STARTLOG(LOG_SHOUTS, "WIZ", "SHOUT")
 			log_name(player);
-		        log_text((char *)" WALLposes: '");
-			log_text(message);
-			log_text((char *)"'");
+			log_printf(" WALLposes: '%s'", strip_ansi(message));
 		ENDLOG
-			break;
+		break;
 	case SAY_WIZPOSE:
 		if (say_flags & SAY_NOTAG)
 			raw_broadcast(WIZARD, "%s %s", Name(player), message);
@@ -305,11 +297,9 @@ char *message;
 				      message);
 		STARTLOG(LOG_SHOUTS, "WIZ", "BCAST")
 			log_name(player);
-		        log_text((char *)" WIZposes: '");
-			log_text(message);
-			log_text((char *)"'");
+			log_printf(" WIZposes: '%s'", strip_ansi(message));
 		ENDLOG
-			break;
+		break;
 	case SAY_WALLEMIT:
 		if (say_flags & SAY_NOTAG)
 			raw_broadcast(0, "%s", message);
@@ -317,11 +307,9 @@ char *message;
 			raw_broadcast(0, "Announcement: %s", message);
 		STARTLOG(LOG_SHOUTS, "WIZ", "SHOUT")
 			log_name(player);
-		        log_text((char *)" WALLemits: '");
-			log_text(message);
-			log_text((char *)"'");
+			log_printf(" WALLemits: '%s'", strip_ansi(message));
 		ENDLOG
-			break;
+		break;
 	case SAY_WIZEMIT:
 		if (say_flags & SAY_NOTAG)
 			raw_broadcast(WIZARD, "%s", message);
@@ -329,11 +317,9 @@ char *message;
 			raw_broadcast(WIZARD, "Broadcast: %s", message);
 		STARTLOG(LOG_SHOUTS, "WIZ", "BCAST")
 			log_name(player);
-		        log_text((char *)" WIZemits: '");
-			log_text(message);
-			log_text((char *)"'");
+			log_printf(" WIZemits: '%s'", strip_ansi(message));
 		ENDLOG
-			break;
+		break;
 	}
 }
 
