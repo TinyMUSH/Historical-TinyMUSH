@@ -220,6 +220,10 @@ void boot_slave()
 		return;
 	}
 	slave_socket = sv[0];
+	STARTLOG(LOG_ALWAYS, "NET", "SLAVE")
+	    log_text((char *) "DNS lookup slave started on fd ");
+	    log_number(slave_socket);
+       ENDLOG
 }
 
 int make_socket(port)
