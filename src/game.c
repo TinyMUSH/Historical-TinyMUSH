@@ -1978,11 +1978,13 @@ static void NDECL(init_modules)
 	     modulename = hash_nextkey(&mudstate.modules_htab)) {
 		handle = (void *)hashfind(modulename, &mudstate.modules_htab);
 
-		/* Find the address of the function init_<module>, and execute
-		 * it */
+		/* Find the address of the function mod_<module>_init, and
+		 * execute it.
+		 */
 
-		initptr = (void (*)(void))dlsym(handle, tprintf("init_%s",
-				modulename));
+		initptr = (void (*)(void))dlsym(handle,
+						tprintf("mod_%s_init",
+							modulename));
 		if (initptr)
 			(*initptr)();
 	}

@@ -9,20 +9,20 @@
 #include "../db.h"
 #include "../externs.h"
 
-void hello_do_cmd(player, cause, key)
+void mod_hello_do_cmd(player, cause, key)
 dbref player, cause;
 int key;
 {
 	notify(player, "Hello world-- from TinyMUSH 3!");
 }
 
-CMDENT hello_cmd =
+CMDENT mod_hello_cmd =
 {(char *)"@hello",		NULL,		CA_PUBLIC,
 	0,		CS_NO_ARGS,
-	NULL,		NULL,	NULL,		hello_do_cmd};	
+	NULL,		NULL,	NULL,		mod_hello_do_cmd};	
 
-void init_hello()
+void mod_hello_init()
 {
-	hashadd("@hello", (int *) &hello_cmd, &mudstate.command_htab);
+	hashadd("@hello", (int *) &mod_hello_cmd, &mudstate.command_htab);
 }
 
