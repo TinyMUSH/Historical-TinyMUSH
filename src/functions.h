@@ -91,6 +91,17 @@ else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
     player, cause, cargs, ncargs, 1))                              \
 return;
 
+/* Special handling of separators. */
+
+#define print_sep(s,b,p) \
+if (s) { \
+    if (s != '\r') { \
+	safe_chr(s,b,p); \
+    } else { \
+	safe_str((char *) "\r\n",b,p); \
+    } \
+}
+
 extern void	NDECL(init_functab);
 extern void	FDECL(list_functable, (dbref));
 

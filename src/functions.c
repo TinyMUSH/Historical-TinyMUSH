@@ -366,8 +366,7 @@ int alen;
 
 	for (i = 0; i < alen; i++) {
 		safe_str(arr[i], list, bufc);
-		if (sep)
-		    safe_chr(sep, list, bufc);
+		print_sep(sep, list, bufc);
 	}
 	if (*bufc != list)
 		(*bufc)--;
@@ -526,9 +525,9 @@ int nfargs, minargs, maxargs;
  */
 
 int delim_check(fargs, nfargs, sep_arg, sep, buff, bufc, eval, player, cause,
-		cargs, ncargs, allow_null)
+		cargs, ncargs, allow_special)
 char *fargs[], *cargs[], *sep, *buff, **bufc;
-int nfargs, ncargs, sep_arg, eval, allow_null;
+int nfargs, ncargs, sep_arg, eval, allow_special;
 dbref player, cause;
 {
 	char *tstr, *bp, *str;
@@ -544,9 +543,13 @@ dbref player, cause;
 			exec(tstr, &bp, 0, player, cause, EV_EVAL | EV_FCHECK,
 			     &str, cargs, ncargs);
 			*bp = '\0';
-			if (allow_null &&
+			if (allow_special &&
 			    !strcmp(tstr, (char *) NULL_DELIM_VAR)) {
 			    *sep = '\0';
+			    tlen = 1;
+			} else if (allow_special &&
+				   !strcmp(tstr, (char *) "\r\n")) {
+			    *sep = '\r';
 			    tlen = 1;
 			} else {
 			    tlen = strlen(tstr);
@@ -556,10 +559,13 @@ dbref player, cause;
 		}
 		if (tlen == 0) {
 			*sep = ' ';
-		} else if (allow_null && !eval && (tlen == 2) &&
+		} else if (allow_special && !eval && (tlen == 2) &&
 			   !strcmp(fargs[sep_arg - 1],
 				   (char *) NULL_DELIM_VAR)) {
 		        *sep = '\0';
+		} else if (allow_special && !eval && (tlen == 2) &&
+			   !strcmp(fargs[sep_arg - 1], (char *) "\r\n")) {
+		        *sep = '\r';
 		} else if (tlen != 1) {
 			safe_str("#-1 SEPARATOR MUST BE ONE CHARACTER",
 				 buff, bufc);
@@ -3875,7 +3881,14 @@ FUNCTION(fun_lnum)
 	return;
     }
 
-    mvarargs_preamble("LNUM", 1, 3);
+    /* lnum() is special, since its single delimiter is really an output
+     * delimiter.
+     */
+    if (!fn_range_check("LNUM", nfargs, 1, 3, buff, bufc))
+	return;
+    if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
+		     player, cause, cargs, ncargs, 1))
+	return;
 
     if (nfargs >= 2) {
 	bot = atoi(fargs[0]);
@@ -3896,7 +3909,7 @@ FUNCTION(fun_lnum)
     } else if (top > bot) {
 	for (i = bot; (i <= top) && !over; i++) {
 	    if (*bufc != bb_p) {
-		safe_chr(sep, buff, bufc);
+		print_sep(sep, buff, bufc);
 	    }
 	    ltos(tbuf, i);
 	    over = safe_str(tbuf, buff, bufc);
@@ -3904,7 +3917,7 @@ FUNCTION(fun_lnum)
     } else {
 	for (i = bot; (i >= top) && !over; i--) {
 	    if (*bufc != bb_p) {
-		safe_chr(sep, buff, bufc);
+		print_sep(sep, buff, bufc);
 	    }
 	    ltos(tbuf, i);
 	    over = safe_str(tbuf, buff, bufc);
@@ -4291,8 +4304,8 @@ FUNCTION(fun_merge)
 
 FUNCTION(fun_splice)
 {
-	char *p1, *p2, *q1, *q2, sep, osep;
-	int words, i, first;
+	char *p1, *p2, *q1, *q2, *bb_p, sep, osep;
+	int words, i;
 
 	svarargs_preamble("SPLICE", 5);
 
@@ -4311,18 +4324,17 @@ FUNCTION(fun_splice)
 
 	p1 = fargs[0];
 	q1 = fargs[1];
-	first = 1;
+	bb_p = *bufc;
 	for (i = 0; i < words; i++) {
 		p2 = split_token(&p1, sep);
 		q2 = split_token(&q1, sep);
-		if (!first && osep) {
-		    safe_chr(osep, buff, bufc);
+		if (*bufc != bb_p) {
+		    print_sep(osep, buff, bufc);
 		}
 		if (!strcmp(p2, fargs[2]))
 			safe_str(q2, buff, bufc);	/* replace */
 		else
 			safe_str(p2, buff, bufc);	/* copy */
-		first = 0;
 	}
 }
 
@@ -4394,8 +4406,8 @@ static void perform_loop(buff, bufc, player, cause, list, exprstr,
     bb_p = *bufc;
 
     while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-	if (!flag && (*bufc != bb_p) && osep) {
-	    safe_chr(osep, buff, bufc);
+	if (!flag && (*bufc != bb_p)) {
+	    print_sep(osep, buff, bufc);
 	}
 	number++;
 	objstring = split_token(&cp, sep);
@@ -4485,8 +4497,8 @@ static void perform_iter(buff, bufc, player, cause, list, exprstr,
     bb_p = *bufc;
 
     while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-	if (!flag && (*bufc != bb_p) && osep) {
-	    safe_chr(osep, buff, bufc);
+	if (!flag && (*bufc != bb_p)) {
+	    print_sep(osep, buff, bufc);
 	}
 	mudstate.loop_token = split_token(&input_p, sep);
 	mudstate.loop_number++;
@@ -4655,9 +4667,10 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
     int flag;			/* 0 is filter(), 1 is filterbool() */
 {
 	dbref aowner, thing;
-	int aflags, anum, first;
+	int aflags, anum;
 	ATTR *ap;
 	char *atext, *result, *curr, *objstring, *bp, *str, *cp, *atextbuf;
+	char *bb_p;
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
@@ -4691,7 +4704,7 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
 
 	cp = curr = trim_space_sep(arg_list, sep);
 	atextbuf = alloc_lbuf("fun_filter");
-	first = 1;
+	bb_p = *bufc;
 	while (cp) {
 		objstring = split_token(&cp, sep);
 		strcpy(atextbuf, atext);
@@ -4701,10 +4714,8 @@ static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 		*bp = '\0';
 		if ((!flag && (*result == '1')) || (flag && xlate(result))) {
-		        if (!first && osep) {
-			        safe_chr(osep, buff, bufc);
-			} else {
-			    first = 0;
+		        if (*bufc != bb_p) {
+			    print_sep(osep, buff, bufc);
 			}
 			safe_str(objstring, buff, bufc);
 		}
@@ -4745,9 +4756,9 @@ FUNCTION(fun_filterbool)
 FUNCTION(fun_map)
 {
 	dbref aowner, thing;
-	int aflags, anum, first;
+	int aflags, anum;
 	ATTR *ap;
-	char *atext, *objstring, *str, *cp, *atextbuf, sep, osep;
+	char *atext, *objstring, *str, *cp, *atextbuf, *bb_p, sep, osep;
 
 	svarargs_preamble("MAP", 4);
 
@@ -4785,12 +4796,11 @@ FUNCTION(fun_map)
 
 	cp = trim_space_sep(fargs[1], sep);
 	atextbuf = alloc_lbuf("fun_map");
-	first = 1;
+	bb_p = *bufc;
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-	        if (!first && osep) {
-		    safe_chr(osep, buff, bufc);
+	        if (*bufc != bb_p) {
+		    print_sep(osep, buff, bufc);
 		}
-		first = 0;
 		objstring = split_token(&cp, sep);
 		strcpy(atextbuf, atext);
 		str = atextbuf;
@@ -4813,11 +4823,11 @@ FUNCTION(fun_while)
 {
     char sep, osep;
     dbref aowner1, thing1, aowner2, thing2;
-    int aflags1, aflags2, anum1, anum2, first;
+    int aflags1, aflags2, anum1, anum2;
     int is_same;
     ATTR *ap;
     char *atext1, *atext2, *atextbuf, *condbuf;
-    char *objstring, *cp, *str, *dp, *savep;
+    char *objstring, *cp, *str, *dp, *savep, *bb_p;
 
     svarargs_preamble("WHILE", 6);
 
@@ -4890,12 +4900,10 @@ FUNCTION(fun_while)
     atextbuf = alloc_lbuf("fun_while.eval");
     if (!is_same)
 	condbuf = alloc_lbuf("fun_while.cond");
-    first = 1;
+    bb_p = *bufc;
     while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-	if (!first && osep) {
-	    safe_chr(osep, buff, bufc);
-	} else {
-	    first = 0;
+	if (*bufc != bb_p) {
+	    print_sep(osep, buff, bufc);
 	}
 	objstring = split_token(&cp, sep);
 	strcpy(atextbuf, atext1);
@@ -5448,8 +5456,9 @@ int oper;
 			/* Compare and copy */
 
 			if ((i1 < n1) && (i2 < n2)) {
-			        if ((*bufc != bb_p) && osep)
-					safe_chr(osep, buff, bufc);
+			        if (*bufc != bb_p) {
+				        print_sep(osep, buff, bufc);
+				}
 				oldp = *bufc;
 				if (strcmp(ptrs1[i1], ptrs2[i2]) < 0) {
 					safe_str(ptrs1[i1], buff, bufc);
@@ -5466,8 +5475,9 @@ int oper;
 
 		for (; i1 < n1; i1++) {
 			if (strcmp(oldp, ptrs1[i1])) {
-				if ((*bufc != bb_p) && osep)
-					safe_chr(osep, buff, bufc);
+			        if (*bufc != bb_p) {
+					print_sep(osep, buff, bufc);
+				}
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
 				**bufc = '\0';
@@ -5475,8 +5485,9 @@ int oper;
 		}
 		for (; i2 < n2; i2++) {
 			if (strcmp(oldp, ptrs2[i2])) {
-				if ((*bufc != bb_p) && osep)
-					safe_chr(osep, buff, bufc);
+			        if (*bufc != bb_p) {
+				    print_sep(osep, buff, bufc);
+				}
 				oldp = *bufc;
 				safe_str(ptrs2[i2], buff, bufc);
 				**bufc = '\0';
@@ -5491,8 +5502,9 @@ int oper;
 
 				/* Got a match, copy it */
 
-				if ((*bufc != bb_p) && osep)
-					safe_chr(osep, buff, bufc);
+			        if (*bufc != bb_p) {
+					print_sep(osep, buff, bufc);
+				}
 				oldp = *bufc;
 				safe_str(ptrs1[i1], buff, bufc);
 				i1++;
@@ -5525,8 +5537,9 @@ int oper;
 
 				/* Item in list1 not in list2, copy */
 
-				if ((*bufc != bb_p) && osep)
-					safe_chr(osep, buff, bufc);
+			        if (*bufc != bb_p) {
+					print_sep(osep, buff, bufc);
+				}
 				safe_str(ptrs1[i1], buff, bufc);
 				oldp = ptrs1[i1];
 				i1++;
@@ -5546,8 +5559,9 @@ int oper;
 		/* Copy remainder of list1 */
 
 		while (i1 < n1) {
-			if ((*bufc != bb_p) && osep)
-				safe_chr(osep, buff, bufc);
+		        if (*bufc != bb_p) {
+			    print_sep(osep, buff, bufc);
+			}
 			safe_str(ptrs1[i1], buff, bufc);
 			oldp = ptrs1[i1];
 			i1++;

@@ -104,6 +104,16 @@ int sql_init()
     return (mudstate.sql_socket);
 }
 
+/* Special handling of separators -- identical to functions.h definition. */
+
+#define print_sep(s,b,p) \
+if (s) { \
+    if (s != '\r') { \
+	safe_chr(s,b,p); \
+    } else { \
+	safe_str((char *) "\r\n",b,p); \
+    } \
+}
 
 int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     dbref player;
@@ -199,14 +209,16 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 
     if (buff) {
 	for (i = 0; i < got_rows; i++) {
-	    if (i > 0)
-		safe_chr(row_delim, buff, bufc);
+	    if (i > 0) {
+		print_sep(row_delim, buff, bufc);
+	    }
 	    row_p = msqlFetchRow(qres);
 	    if (row_p) {
 		got_fields = msqlNumFields(qres);
 		for (j = 0; j < got_fields; j++) {
-		    if (j > 0)
-			safe_chr(field_delim, buff, bufc);
+		    if (j > 0) {
+			print_sep(field_delim, buff, bufc);
+		    }
 		    if (row_p[j] && *row_p[j])
 			safe_str(row_p[j], buff, bufc);
 		}

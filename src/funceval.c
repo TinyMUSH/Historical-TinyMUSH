@@ -395,10 +395,15 @@ FUNCTION(fun_structure)
 
     svarargs_preamble("STRUCTURE", 6);
 
-    /* Prevent null delimiters. */
+    /* Prevent null delimiters and line delimiters. */
 
     if (!osep) {
 	notify_quiet(player, "You cannot use a null output delimiter.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+    if (osep == '\r') {
+	notify_quiet(player, "You cannot use that output delimiter.");
 	safe_chr('0', buff, bufc);
 	return;
     }
@@ -2790,9 +2795,10 @@ FUNCTION(fun_elements)
 		r = split_token(&s, ' ');
 		cur = atoi(r) - 1;
 		if ((cur >= 0) && (cur < nwords) && ptrs[cur]) {
-			if ((oldp != *bufc) && osep)
-				safe_chr(osep, buff, bufc);
-			safe_str(ptrs[cur], buff, bufc);
+		    if (oldp != *bufc) {
+			print_sep(osep, buff, bufc);
+		    }
+		    safe_str(ptrs[cur], buff, bufc);
 		}
 	} while (s);
 	free_lbuf(wordlist);
@@ -3094,8 +3100,9 @@ FUNCTION(fun_matchall)
 		r = split_token(&s, sep);
 		if (quick_wild(fargs[1], r)) {
 			ltos(tbuf, wcount);
-			if ((old != *bufc) && osep)
-				safe_chr(osep, buff, bufc);
+			if (old != *bufc) {
+			    print_sep(osep, buff, bufc);
+			}
 			safe_str(tbuf, buff, bufc);
 		}
 		wcount++;
@@ -3388,8 +3395,9 @@ FUNCTION(fun_munge)
 	for (i = 0; i < nresults; i++) {
 		for (j = 0; j < nptrs1; j++) {
 			if (!strcmp(results[i], ptrs1[j])) {
-				if ((*bufc != oldp) && osep)
-					safe_chr(osep, buff, bufc);
+			        if (*bufc != oldp) {
+				    print_sep(osep, buff, bufc);
+				}
 				safe_str(ptrs2[j], buff, bufc);
 				ptrs1[j][0] = '\0';
 				break;
@@ -4643,11 +4651,22 @@ FUNCTION(fun_lastcreate)
 
 FUNCTION(fun_sql)
 {
-    char sep, osep;
+    char row_delim, field_delim;
 
-    svarargs_preamble("SQL", 3);
+    /* Special -- the last two arguments are output delimiters */
 
-    sql_query(player, fargs[0], buff, bufc, sep, osep);
+    if (!fn_range_check("SQL", nfargs, 1, 3, buff, bufc))
+	return;
+    if (!delim_check(fargs, nfargs, 2, &row_delim, buff, bufc, 0,
+		     player, cause, cargs, ncargs, 1))
+	return;
+    if (nfargs < 3)
+	field_delim = row_delim;
+    else if (!delim_check(fargs, nfargs, 3, &field_delim, buff, bufc, 0,
+			  player, cause, cargs, ncargs, 1))
+	return;
+
+    sql_query(player, fargs[0], buff, bufc, row_delim, field_delim);
 }
 
 /*---------------------------------------------------------------------------
