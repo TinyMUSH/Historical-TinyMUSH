@@ -19,6 +19,8 @@
 #include "functions.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
+extern char qidx_chartab[256];	/* from funvars.c */
+
 /* ---------------------------------------------------------------------------
  * parse_to: Split a line at a character, obeying nesting.  The line is
  * destructively modified (a null is inserted where the delimiter was found)
@@ -783,9 +785,9 @@ char *cargs[];
 				(*dstr)++;
 				if (!**dstr)
 					(*dstr)--;
-				if (!isdigit(**dstr))
+				i = qidx_chartab[(unsigned char) **dstr];
+				if ((i < 0) || (i >= MAX_GLOBAL_REGS))
 					break;
-				i = (**dstr - '0');
 				if (mudstate.global_regs[i]) {
 					safe_known_str(mudstate.global_regs[i],
 						      mudstate.glob_reg_len[i],

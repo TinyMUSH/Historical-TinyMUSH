@@ -17,8 +17,11 @@
 #define PLAYER_NAME_LIMIT	22	/* Max length for player names */
 #define NUM_ENV_VARS		10	/* Number of env vars (%0 et al) */
 #define MAX_ARG			100	/* max # args from command processor */
-#define MAX_GLOBAL_REGS		10	/* r() registers */
 #define MAX_ITER_NESTING	1024	/* max # of iter levels */
+
+#ifndef MAX_GLOBAL_REGS
+#define MAX_GLOBAL_REGS		36	/* r() registers: must be 10 or 36 */ 
+#endif
 
 #define MARK_FLAG_SEP		'_'	/* sep. of dbref from marker flags */
 

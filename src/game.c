@@ -87,6 +87,7 @@ extern int slave_socket;
 extern int corrupt;
 #endif
 
+extern char qidx_chartab[256];
 extern CMDENT *prefix_cmds[256];
 static const unsigned char *tables = NULL; /* for PCRE */
 
@@ -1654,6 +1655,22 @@ char *argv[];
 	    fprintf(stderr, "Usage: %s [-s] [-c conf_file] [-l log_file]\n",
 		    argv[0]);
 	    exit(1);
+	}
+
+	/* Abort if someone tried to set the number of global registers
+	 * to something stupid. Also adjust the character table if we
+	 * need to.
+	 */
+	if ((MAX_GLOBAL_REGS < 10) || (MAX_GLOBAL_REGS > 36)) {
+	    fprintf(stderr,
+		    "You have compiled TinyMUSH with MAX_GLOBAL_REGS defined to be less than 10 or more than 36. Please fix this error and recompile.\n");
+	    exit(1);
+	}
+	if (MAX_GLOBAL_REGS < 36) {
+	    for (i = 0; i < 36 - MAX_GLOBAL_REGS; i++) {
+		qidx_chartab[90 - i] = -1;
+		qidx_chartab[122 - i] = -1;
+	    }
 	}
 
 	logfile_init(opt_logfile);

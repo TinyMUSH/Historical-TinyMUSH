@@ -26,11 +26,43 @@ static const unsigned char *tables = NULL; /* for PCRE */
  * setq, setr, r: set and read global registers.
  */
 
+/*
+ * ASCII character table for %qa - %qz
+ *
+ * 0   - 47  : NULL to / (3 rows)
+ * 48  - 63  : 0 to ?
+ * 64  - 79  : @, A to O
+ * 80  - 95  : P to _
+ * 96  - 111 : `, a to o
+ * 112 - 127 : p to DEL
+ * 128 - 255 : specials	(8 rows)
+ */
+
+char qidx_chartab[256] =
+{
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	0, 1, 2, 3, 4, 5, 6, 7,		8, 9, -1,-1,-1,-1,-1,-1,
+	-1,10,11,12,13,14,15,16,	17,18,19,20,21,22,23,24,
+	25,26,27,28,29,30,31,32,	33,34,35,-1,-1,-1,-1,-1,
+	-1,10,11,12,13,14,15,16,	17,18,19,20,21,22,23,24,
+	25,26,27,28,29,30,31,32,	33,34,35,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1
+};
+
 FUNCTION(fun_setq)
 {
 	int regnum, len;
 
-	regnum = atoi(fargs[0]);
+	regnum = qidx_chartab[(unsigned char) *fargs[0]];
 	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
 		return;
@@ -47,7 +79,7 @@ FUNCTION(fun_setr)
 {
 	int regnum, len;
 
-	regnum = atoi(fargs[0]);
+	regnum = qidx_chartab[(unsigned char) *fargs[0]];
 	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
 		return;
@@ -65,7 +97,7 @@ FUNCTION(fun_r)
 {
 	int regnum;
 
-	regnum = atoi(fargs[0]);
+	regnum = qidx_chartab[(unsigned char) *fargs[0]];
 	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
 	} else if (mudstate.global_regs[regnum]) {

@@ -128,6 +128,10 @@ UDB_INC	= udb.h udb_defs.h
 #			heavy-duty source code debugging and no other
 #			tools are available to you.
 #
+#   If you have a need to conserve memory, and are willing to sacrifice
+#   some global registers (some or all of %qa-%qz), you can add
+#   -DMAX_GLOBAL_REGS=10 (or some other number between 10 and 36).
+#
 MISC_DEFS = -DPUEBLO_SUPPORT -DUSE_COMSYS -DUSE_MAIL -DFLOATING_POINTS
 
 # If we want to use the port concentrator, comment out the first set and
