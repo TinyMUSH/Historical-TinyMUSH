@@ -1265,6 +1265,7 @@ int sig;
 			CLOSE;
 			dump_database_internal(1);
 			shutdown(slave_socket, 2);
+			close(slave_socket);
 			kill(slave_pid, SIGKILL);
 
 			/*
