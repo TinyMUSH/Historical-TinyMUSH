@@ -1053,9 +1053,8 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   This means that no more output will be written to the current log file,
   and instead, a new log file is begun. The old log file is not deleted.
  
-  The log file names are given by the game_log conf parameter, and a number
-  is automatically prepended at the end (netmush.log.0, netmush.log.1,
-  etc., incrementing with each @logrotate).
+  A number is automatically prepended at the end of the log file name
+  (netmush.log.0, netmush.log.1, etc., incrementing with each @logrotate).
   
 & @mark
   Command: @mark[/<switches>] [<player>] [<class>=<restriction>]
@@ -1429,12 +1428,12 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 & PARAM FILES
 	badsite_file		connect_file		comsys_database
 	connect_reg_file	crash_database		database_home
-	down_file		full_file		game_log
-	gdbm_database		guest_file		helpfile
-	html_connect_file	include			input_database
-	mail_database		motd_file		newuser_file
-	output_database		quit_file		raw_helpfile
-	register_create_file	wizard_motd_file
+	down_file		full_file		gdbm_database
+	guest_file		helpfile		html_connect_file
+	include			input_database		mail_database
+	motd_file		newuser_file		output_database
+	quit_file		raw_helpfile		register_create_file
+	wizard_motd_file
 
 & PARAM LIMITS
 	building_limit			command_invocation_limit
@@ -2084,16 +2083,6 @@ use_global_aconn	wizard_obeys_linklock
   a problem, but the u() function can be used to cause infinite recursion
   (unless blocked by a recursion limit)
 
-& game_log
-  Config parameter: game_log <filename>.  Default: netmush.log
- 
-  Specifies the name of the logfile. Initially, when the server is started,
-  all logging will be done to stderr (so if you redirected stderr to a
-  file, the log will go to that file). With every @logrotate, though, the
-  log file name changes; it begins as this parameter.0, and the number
-  is incremented with each rotation (i.e., if this parameter is set to
-  'netmush.log', the logfiles are netmush.log.1, netmush.log.2, and so on).
- 
 & garbage_chunk
   Config parameter: garbage_chunk <number>.  Default: 3
 

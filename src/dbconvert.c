@@ -62,56 +62,56 @@ int fmt, flags, ver;
 		cp = "*unknown*";
 		break;
 	}
-	fprintf(stderr, "%s version %d:", cp, ver);
+	fprintf(mainlog_fp, "%s version %d:", cp, ver);
 	if (flags & V_ZONE)
-		fprintf(stderr, " Zone");
+		fprintf(mainlog_fp, " Zone");
 	if (flags & V_LINK)
-		fprintf(stderr, " Link");
+		fprintf(mainlog_fp, " Link");
 	if (flags & V_GDBM)
-		fprintf(stderr, " GDBM");
+		fprintf(mainlog_fp, " GDBM");
 	if (flags & V_ATRNAME)
-		fprintf(stderr, " AtrName");
+		fprintf(mainlog_fp, " AtrName");
 	if (flags & V_ATRKEY) {
 		if ((fmt == F_MUSH) && (ver == 2))
-			fprintf(stderr, " ExtLocks");
+			fprintf(mainlog_fp, " ExtLocks");
 		else
-			fprintf(stderr, " AtrKey");
+			fprintf(mainlog_fp, " AtrKey");
 	}
 	if (flags & V_PARENT)
-		fprintf(stderr, " Parent");
+		fprintf(mainlog_fp, " Parent");
 	if (flags & V_COMM)
-		fprintf(stderr, " Comm");
+		fprintf(mainlog_fp, " Comm");
 	if (flags & V_ATRMONEY)
-		fprintf(stderr, " AtrMoney");
+		fprintf(mainlog_fp, " AtrMoney");
 	if (flags & V_XFLAGS)
-		fprintf(stderr, " ExtFlags");
+		fprintf(mainlog_fp, " ExtFlags");
 	if (flags & V_3FLAGS)
-		fprintf(stderr, " MoreFlags");
+		fprintf(mainlog_fp, " MoreFlags");
 	if (flags & V_POWERS)
-	    	fprintf(stderr, " Powers");
+	    	fprintf(mainlog_fp, " Powers");
 	if (flags & V_QUOTED)
-		fprintf(stderr, " QuotedStr");
+		fprintf(mainlog_fp, " QuotedStr");
 	if (flags & V_TQUOTAS)
-		fprintf(stderr, " TypedQuotas");
-	fprintf(stderr, "\n");
+		fprintf(mainlog_fp, " TypedQuotas");
+	fprintf(mainlog_fp, "\n");
 }
 
 void usage(prog)
 char *prog;
 {
-	fprintf(stderr, "Usage: %s gdbm-file [flags] [<in-file] [>out-file]\n", prog);
-	fprintf(stderr, "   Available flags are:\n");
-	fprintf(stderr, "      C - Perform consistency check\n");
-	fprintf(stderr, "      G - Write in gdbm format        g - Write in flat file format\n");
-	fprintf(stderr, "      K - Store key as an attribute   k - Store key in the header\n");
-	fprintf(stderr, "      L - Include link information    l - Don't include link information\n");
-	fprintf(stderr, "      M - Store attr map if GDBM      m - Don't store attr map if GDBM\n");
-	fprintf(stderr, "      N - Store name as an attribute  n - Store name in the header\n");
-	fprintf(stderr, "      P - Include parent information  p - Don't include parent information\n");
-	fprintf(stderr, "      W - Write the output file  b    w - Don't write the output file.\n");
-	fprintf(stderr, "      X - Create a default GDBM db    x - Create a default flat file db\n");
-	fprintf(stderr, "      Z - Include zone information    z - Don't include zone information\n");
-	fprintf(stderr, "      <number> - Set output version number\n");
+	fprintf(mainlog_fp, "Usage: %s gdbm-file [flags] [<in-file] [>out-file]\n", prog);
+	fprintf(mainlog_fp, "   Available flags are:\n");
+	fprintf(mainlog_fp, "      C - Perform consistency check\n");
+	fprintf(mainlog_fp, "      G - Write in gdbm format        g - Write in flat file format\n");
+	fprintf(mainlog_fp, "      K - Store key as an attribute   k - Store key in the header\n");
+	fprintf(mainlog_fp, "      L - Include link information    l - Don't include link information\n");
+	fprintf(mainlog_fp, "      M - Store attr map if GDBM      m - Don't store attr map if GDBM\n");
+	fprintf(mainlog_fp, "      N - Store name as an attribute  n - Store name in the header\n");
+	fprintf(mainlog_fp, "      P - Include parent information  p - Don't include parent information\n");
+	fprintf(mainlog_fp, "      W - Write the output file  b    w - Don't write the output file.\n");
+	fprintf(mainlog_fp, "      X - Create a default GDBM db    x - Create a default flat file db\n");
+	fprintf(mainlog_fp, "      Z - Include zone information    z - Don't include zone information\n");
+	fprintf(mainlog_fp, "      <number> - Set output version number\n");
 }
 
 int main(argc, argv)
@@ -130,6 +130,7 @@ char *argv[];
 #ifdef RADIX_COMPRESSION
 	init_string_compress();
 #endif
+	logfile_init(NULL);
 	/* Decide what conversions to do and how to format the output file */
 
 	setflags = clrflags = ver = do_check = 0;
@@ -206,7 +207,7 @@ char *argv[];
 				ver = ver * 10 + (*fp - '0');
 				break;
 			default:
-				fprintf(stderr, "Unknown flag: '%c'\n", *fp);
+				fprintf(mainlog_fp, "Unknown flag: '%c'\n", *fp);
 				usage(argv[0]);
 				exit(1);
 			}
@@ -216,13 +217,13 @@ char *argv[];
 
 	vattr_init();
 	if (init_gdbm_db(argv[1]) < 0) {
-		fprintf(stderr, "Can't open GDBM file\n");
+		fprintf(mainlog_fp, "Can't open GDBM file\n");
 		exit(1);
 	}
 	/* Go do it */
 
 	db_read(stdin, &db_format, &db_ver, &db_flags);
-	fprintf(stderr, "Input: ");
+	fprintf(mainlog_fp, "Input: ");
 	info(db_format, db_flags, db_ver);
 
 	if (do_check)
@@ -234,7 +235,7 @@ char *argv[];
 			db_ver = ver;
 		else
 			db_ver = 3;
-		fprintf(stderr, "Output: ");
+		fprintf(mainlog_fp, "Output: ");
 		info(F_TINYMUSH, db_flags, db_ver);
 		db_write(stdout, F_TINYMUSH, db_ver | db_flags);
 	}

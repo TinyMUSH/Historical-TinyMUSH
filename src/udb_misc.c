@@ -4,8 +4,6 @@
 /* 
  * Stolen from mjr.
  * 
- * Modded to scribble on stderr, for now.
- * 
  * Andrew Molitor, amolitor@eagle.wesleyan.edu
  */
 
@@ -38,11 +36,11 @@ const char *txt;
 	}
 	ENDLOG
 #else
-	fprintf(stderr, "Could not %s object #%d", txt, obj);
+	fprintf(mainlog_fp, "Could not %s object #%d", txt, obj);
 	if (attr != NOTHING) {
-		fprintf(stderr, " attr #%d", attr);
+		fprintf(mainlog_fp, " attr #%d", attr);
 	}
-	fprintf(stderr, "\n");
+	fprintf(mainlog_fp, "\n");
 #endif
 }
 
@@ -79,11 +77,10 @@ va_dcl
 		if (p == (char *)-1)
 			p = (char *) sys_errlist[errno];
 
-		(void)fprintf(stderr, "%s", p);
+		(void)fprintf(mainlog_fp, "%s", p);
 		p = va_arg(ap, char *);
 	}
 	va_end(ap);
-	(void)fflush(stderr);
 }
 
 /*
@@ -118,10 +115,9 @@ va_dcl
 		if (p == (char *)-1)
 			p = (char *) sys_errlist[errno];
 
-		(void)fprintf(stderr, "%s", p);
+		(void)fprintf(mainlog_fp, "%s", p);
 		p = va_arg(ap, char *);
 	}
 	va_end(ap);
-	(void)fflush(stderr);
 	exit(1);
 }

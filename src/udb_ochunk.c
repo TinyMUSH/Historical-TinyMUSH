@@ -51,7 +51,7 @@ char *msg;
 		log_printf("Database error: %s\n", msg);
 	ENDLOG
 #else
-	fprintf(stderr, "Database error: %s\n", msg);
+	fprintf(mainlog_fp, "Database error: %s\n", msg);
 #endif
 }
 
@@ -328,7 +328,6 @@ Aname *nam;
 	int ret;
 
 	if (!db_initted) {
-		fprintf(stderr, "foobar");
 		return (-1);
 	}
 

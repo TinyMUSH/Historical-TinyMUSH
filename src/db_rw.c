@@ -49,7 +49,7 @@ FILE *f;
 		return TRUE_BOOLEXP;
 		/* break; */
 	case EOF:
-	        fprintf(stderr, "ABORT! db_rw.c, unexpected EOF in boolexp in getboolexp1().\n");
+	        fprintf(mainlog_fp, "ABORT! db_rw.c, unexpected EOF in boolexp in getboolexp1().\n");
 		abort();
 		break;
 	case '(':
@@ -120,7 +120,7 @@ FILE *f;
 	case '-':		/* obsolete NOTHING key, eat it */
 	        while ((c = getc(f)) != '\n') {
 		    if (c == EOF) {
-			fprintf(stderr, "ABORT! db_rw.c, unexpected EOF in getboolexp1().\n");
+			fprintf(mainlog_fp, "ABORT! db_rw.c, unexpected EOF in getboolexp1().\n");
 			abort();
 		    }
 		}
@@ -230,7 +230,7 @@ FILE *f;
 	}
 
       error:
-	fprintf(stderr,
+	fprintf(mainlog_fp,
 		"ABORT! db_rw.c, reached error case in getboolexp1().\n");
 	abort();		/* bomb out */
 	return TRUE_BOOLEXP;	/* NOTREACHED */
@@ -248,7 +248,7 @@ FILE *f;
 
 	b = getboolexp1(f);
 	if (getc(f) != '\n') {
-	    fprintf(stderr, "ABORT! db_rw.c, parse error in getboolexp().\n");
+	    fprintf(mainlog_fp, "ABORT! db_rw.c, parse error in getboolexp().\n");
 	    abort();	/* parse error, we lose */
 	}
 
@@ -339,13 +339,13 @@ int new_strings;
 			c = getc(f);
 			if (c != '\n') {
 				ungetc(c, f);
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"No line feed on object %d\n", i);
 				return 1;
 			}
 			return 1;
 		default:
-			fprintf(stderr,
+			fprintf(mainlog_fp,
 				"Bad character '%c' when getting attributes on object %d\n",
 				c, i);
 			/* We've found a bad spot.  I hope things aren't
@@ -432,7 +432,7 @@ BOOLEXP *b;
 		}
 		break;
 	default:
-		fprintf(stderr, "Unknown boolean type in putbool_subexp: %d\n",
+		fprintf(mainlog_fp, "Unknown boolean type in putbool_subexp: %d\n",
 			b->type);
 	}
 }
@@ -716,16 +716,14 @@ int *db_format, *db_version, *db_flags;
 	deduce_name = 1;
 	deduce_timestamps = 1;
 #ifdef STANDALONE
-	fprintf(stderr, "Reading ");
-	fflush(stderr);
+	fprintf(mainlog_fp, "Reading ");
 #endif
 	db_free();
 	for (i = 0;; i++) {
 
 #ifdef STANDALONE
 		if (!(i % 100)) {
-			fputc('.', stderr);
-			fflush(stderr);
+			fputc('.', mainlog_fp);
 		}
 #endif
 
@@ -750,7 +748,7 @@ int *db_format, *db_version, *db_flags;
 			 */
 		        
 			 if (header_gotten) {
-			     fprintf(stderr,
+			     fprintf(mainlog_fp,
 				     "\nDuplicate MUSH version header entry at object %d, ignored.\n",
 				     i);
 			     tstr = getstring_noalloc(f, 0);
@@ -808,7 +806,7 @@ int *db_format, *db_version, *db_flags;
 #endif /* STANDALONE */
 			case 'S':	/* SIZE */
 				if (size_gotten) {
-					fprintf(stderr,
+					fprintf(mainlog_fp,
 						"\nDuplicate size entry at object %d, ignored.\n",
 						i);
 					tstr = getstring_noalloc(f, 0);
@@ -838,7 +836,7 @@ int *db_format, *db_version, *db_flags;
 					 * FREELIST 
 					 */
 				if (nextattr_gotten) {
-					fprintf(stderr,
+					fprintf(mainlog_fp,
 						"\nDuplicate next free vattr entry at object %d, ignored.\n",
 						i);
 					tstr = getstring_noalloc(f, 0);
@@ -848,7 +846,7 @@ int *db_format, *db_version, *db_flags;
 				}
 				break;
 			default:
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"\nUnexpected character '%c' in MUSH header near object #%d, ignored.\n",
 					ch, i);
 				tstr = getstring_noalloc(f, 0);
@@ -972,7 +970,7 @@ int *db_format, *db_version, *db_flags;
 
 			if (read_attribs) {
 				if (!get_list(f, i, read_new_strings)) {
-					fprintf(stderr,
+					fprintf(mainlog_fp,
 						"\nError reading attrs for object #%d\n",
 						i);
 					return -1;
@@ -988,14 +986,13 @@ int *db_format, *db_version, *db_flags;
 		case '*':	/* EOF marker */
 			tstr = getstring_noalloc(f, 0);
 			if (strcmp(tstr, "**END OF DUMP***")) {
-				fprintf(stderr,
+				fprintf(mainlog_fp,
 					"\nBad EOF marker at object #%d\n",
 					i);
 				return -1;
 			} else {
 #ifdef STANDALONE
-				fprintf(stderr, "\n");
-				fflush(stderr);
+				fprintf(mainlog_fp, "\n");
 #endif
 				*db_version = g_version;
 				*db_format = g_format;
@@ -1012,7 +1009,7 @@ int *db_format, *db_version, *db_flags;
 				return mudstate.db_top;
 			}
 		default:
-			fprintf(stderr, "\nIllegal character '%c' near object #%d\n",
+			fprintf(mainlog_fp, "\nIllegal character '%c' near object #%d\n",
 				ch, i);
 			return -1;
 		}
@@ -1132,12 +1129,11 @@ int format, version;
 		flags = version;
 		break;
 	default:
-		fprintf(stderr, "Can only write TinyMUSH 3 format.\n");
+		fprintf(mainlog_fp, "Can only write TinyMUSH 3 format.\n");
 		return -1;
 	}
 #ifdef STANDALONE
-	fprintf(stderr, "Writing ");
-	fflush(stderr);
+	fprintf(mainlog_fp, "Writing ");
 #endif
 	i = mudstate.attr_next;
 	/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
@@ -1158,8 +1154,7 @@ int format, version;
 
 #ifdef STANDALONE
 		if (!(i % 100)) {
-			fputc('.', stderr);
-			fflush(stderr);
+			fputc('.', mainlog_fp);
 		}
 #endif
 
@@ -1171,8 +1166,7 @@ int format, version;
 	fputs("***END OF DUMP***\n", f);
 	fflush(f);
 #ifdef STANDALONE
-	fprintf(stderr, "\n");
-	fflush(stderr);
+	fprintf(mainlog_fp, "\n");
 #endif
 	return (mudstate.db_top);
 }

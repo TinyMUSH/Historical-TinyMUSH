@@ -1572,7 +1572,7 @@ int *flags, atr, *alen;
 		return 0;
 
 	if (atr == A_LIST) {	/* This is not supposed to be compressed! */
-	    fprintf(stderr, "ABORT! db.c, list is compressed in atr_get_raw_decode().\n");
+	    fprintf(mainlog_fp, "ABORT! db.c, list is compressed in atr_get_raw_decode().\n");
 	    abort();
 	}
 	makekey(thing, atr, &okey);
@@ -1775,7 +1775,7 @@ int atr;
 		return;
 
 	if (db[thing].at_count < 0) {
-	    fprintf(stderr,
+	    fprintf(mainlog_fp,
 		    "ABORT! db.c, negative attr count in atr_clr().\n");
 	    abort();
 	}
@@ -2586,7 +2586,7 @@ dbref newtop;
 	newnames = (NAME *) XMALLOC((newsize + SIZE_HACK) * sizeof(NAME),
 				    "db_grow.names");
 	if (!newnames) {
-	    fprintf(stderr,
+	    fprintf(mainlog_fp,
 		    "ABORT! db.c, could not allocate space for %d item name cache in db_grow().\n",
 		    newsize);
 	    abort();
@@ -2622,7 +2622,7 @@ dbref newtop;
 					    "db_grow.purenames");
 
 		if (!newpurenames) {
-		    fprintf(stderr,
+		    fprintf(mainlog_fp,
 			    "ABORT! db.c, could not allocate space for %d item name cache in db_grow().\n", newsize);
 		    abort();
 		}
@@ -2956,7 +2956,7 @@ BOOLEXP *b;
 		r->sub1 = (BOOLEXP *) XSTRDUP((char *)b->sub1, "dup_bool.sub1");
 		break;
 	default:
-		fprintf(stderr, "bad bool type!!\n");
+		fprintf(mainlog_fp, "bad bool type!!\n");
 		return (TRUE_BOOLEXP);
 	}
 	return (r);
@@ -2967,13 +2967,13 @@ int init_gdbm_db(gdbmfile)
 char *gdbmfile;
 {
 #ifdef STANDALONE
-	fprintf(stderr, "Opening %s\n", gdbmfile);
+	fprintf(mainlog_fp, "Opening %s\n", gdbmfile);
 #endif
 	cache_init(mudconf.cache_width);
 	dddb_setfile(gdbmfile);
 	dddb_init();
 #ifdef STANDALONE
-	fprintf(stderr, "Done opening %s.\n", gdbmfile);
+	fprintf(mainlog_fp, "Done opening %s.\n", gdbmfile);
 #else
 	STARTLOG(LOG_ALWAYS, "INI", "LOAD")
 		log_printf("Using gdbm file: %s", gdbmfile);

@@ -1110,7 +1110,7 @@ static void unset_signals()
 
 	for (i = 0; i < NSIG; i++)
 		signal(i, SIG_DFL);
-	fprintf(stderr, "ABORT! bsd.c, called unset_signals().\n");
+	fprintf(mainlog_fp, "ABORT! bsd.c, called unset_signals().\n");
 	abort();
 }
 

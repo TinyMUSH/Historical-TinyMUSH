@@ -1450,11 +1450,6 @@ void do_logrotate(player, cause, key)
     dbref player, cause;
     int key;
 {
-    /* It would be a good idea for the initial redirection of stderr to
-     * point at the same name that we've given our logfile, but this
-     * isn't absolutely necessary.
-     */
-
     LOGFILETAB *lp;
     int oldfd, newfd;
 	

@@ -138,7 +138,6 @@ void logfile_init(filename)
     char *filename;
 {
     if (!filename) {
-	fprintf(stderr, "No logfile name specified.\n");
 	mainlog_fp = stderr;
 	return;
     }

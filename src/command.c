@@ -795,7 +795,7 @@ char *command, *args[];
 	mudstate.debug_cmd = (char *)"< process_command >";
 
 	if (!command) {
-	    fprintf(stderr, "ABORT! command.c, null command in process_command().\n");
+	    fprintf(mainlog_fp, "ABORT! command.c, null command in process_command().\n");
 	    abort();
 	}
 
