@@ -16,6 +16,8 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
 3.1 Patchlevel 2
 
+  - Added EXIT, ROOMS and VEHICLE topics in qhelp.txt. 
+
   - Fixed a memory leak in sql_query function where result was stored but
     never freed so whenever a query returns an empty result it leaks a 
     mysql result structure. [3.0; Dan Ryan]

@@ -89,6 +89,12 @@ addcom <channel alias> = <channel name>, <title>
 delcom <channel alias>
   Lets you leave a channel, permanently (until you 'addcom' it again).
  
+& Exits
+ 
+QuickHelp: Exits
+ 
+  This topic hasn't been written yet.
+ 
 & Objects
  
 QuickHelp:  Objects
@@ -157,6 +163,12 @@ that have more conditions than just control. Some other commands, like
 See the help entry for the command that you're using for the details
 of exactly what permissions you need, if you run into an unexpected
 "Permission denied."
+
+& Rooms
+ 
+QuickHelp: Rooms
+ 
+  This topic hasn't been written yet.
  
 & Talking
  
@@ -219,6 +231,12 @@ page <player 1> <player 2> <etc.> = <message>
   
 You can also find more information in 'qhelp Comsys'.
  
+& Vehicles
+ 
+QuickHelp: Vehicles
+ 
+  This topic hasn't been written yet.
+
 & @dig
  
 QuickHelp:  @dig
