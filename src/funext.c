@@ -249,6 +249,8 @@ FUNCTION(fun_html_unescape)
 	    } else if (!strncmp(msg_orig, "&amp;", 5)) {
 		ret = safe_chr_fn('&', buff, bufc);
 		msg_orig += 4;
+	    } else {
+		ret = safe_chr_fn('&', buff, bufc);
 	    }
 	    break;
 	  default:
@@ -272,7 +274,7 @@ FUNCTION(fun_url_escape)
 	    ret = safe_str(tbuf, buff, bufc);
 	} else if (*msg_orig == ' ') {
 	    ret = safe_chr_fn('+', buff, bufc);
-	} else{
+	} else {
 	    ret = safe_chr_fn(*msg_orig, buff, bufc);
 	}
     }
@@ -292,7 +294,7 @@ FUNCTION(fun_url_unescape)
 	    msg_orig++;
 	    break;
 	  case '%':
-	    strncpy(tempstr, msg_orig+1, 2);
+	    strncpy(tempstr, msg_orig + 1, 2);
 	    tempstr[2] = '\0';
 	    if ((sscanf(tempstr, "%x", &tempchar) == 1) &&
 		(tempchar > 0x1F) && (tempchar < 0x7F)) {
