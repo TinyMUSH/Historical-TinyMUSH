@@ -757,11 +757,16 @@
   '0 3 1,15 * 2' indicates that the task is scheduled for 3 am on
   Tuesdays, as well as the 1st and 15th of each month.
  
+  The '*' and ranges can be modified with a '/<number>', indicating the
+  "step size". For instance, '*/2' is equivalent to '0,2,4,6,8,10,12,...'
+  (up to 58), and '11-20/3' is equivalent to '11,14,17,20'.
+ 
   Examples of timestrings:
  
     Run every hour, on the hour:  0 * * * *
     Run once every month, at 3:10 am the 1st:  10 3 1 * *
-    Run every five minutes:  0,5,10,15,20,25,30,35,40,45,50,55 * * * *
+    Run every fifteen minutes:  0,15,30,45 * * * *  (also valid: */15 * * * *)
+    Run every five minutes starting at 3 past the hour: 3-59/5 * * * *
     Run once a day, at 6 am:  0 6 * * *
  
   Cron entries are not preserved over restarts. To make a cron entry
