@@ -82,7 +82,7 @@
 #define VACATION	0x01000000
 #define PLAYER_MAILS    0x02000000
 #define HTML		0x04000000      /* Player supports HTML */
-
+#define BLIND		0x08000000	/* Suppress has arrived / left msgs */
 #define	SUSPECT		0x10000000	/* Report some activities to wizards */
 #define COMPRESS	0x20000000	/* Output is compressed */
 #define	CONNECTED	0x40000000	/* Player is connected */
@@ -446,6 +446,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Has_Commands(x) ((Flags2(x) & HAS_COMMANDS) != 0)
 #define Bouncer(x)      ((Flags2(x) & BOUNCE) != 0)
 #define	Hidden(x)	((Flags(x) & DARK) != 0)
+#define Blind(x)	((Flags2(x) & BLIND) != 0)
 
 #define	H_Startup(x)	((Flags(x) & HAS_STARTUP) != 0)
 #define	H_Fwdlist(x)	((Flags2(x) & HAS_FWDLIST) != 0)

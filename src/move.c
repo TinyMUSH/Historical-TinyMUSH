@@ -69,12 +69,13 @@ int canhear, hush;
 	 * - The object can hear and is not a dark wizard. 
 	 */
 
-	if (!quiet)
+	if (!quiet && !Blind(thing) && !Blind(loc)) {
 		if ((!Dark(thing) && !Dark(loc)) ||
 		    (canhear && !(Wizard(thing) && Dark(thing)))) {
 			notify_except2(loc, thing, thing, cause,
 				       tprintf("%s has left.", Name(thing)));
 		}
+	}
 }
 
 /* ---------------------------------------------------------------------------
@@ -127,7 +128,9 @@ int canhear, hush;
 	 * - The object is not a dark wizard. 
 	 */
 
-	if (!quiet && canhear && !(Dark(thing) && Wizard(thing))) {
+	if (!quiet && canhear &&
+	    !Blind(thing) && !Blind(loc) &&
+	    !(Dark(thing) && Wizard(thing))) {
 		notify_except2(loc, thing, thing, cause,
 			       tprintf("%s has arrived.", Name(thing)));
 	}

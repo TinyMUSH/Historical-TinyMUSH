@@ -198,8 +198,8 @@ int fflags, reset;
 FLAGENT gen_flags[] = { 
 {"ABODE",		ABODE,		'A',
 	FLAG_WORD2,	0,			fh_any},
-{"PLAYER_MAILS",	PLAYER_MAILS,	'B',
-	FLAG_WORD2,		CA_GOD|CA_NO_DECOMP,	fh_god},
+{"BLIND",		BLIND,		'B',
+	FLAG_WORD2,	0,			fh_wiz},
 {"CHOWN_OK",		CHOWN_OK,	'C',
 	0,		0,			fh_any},
 {"DARK",		DARK,		'D',
@@ -310,6 +310,8 @@ FLAGENT gen_flags[] = {
 	FLAG_WORD2,	CA_GOD|CA_NO_DECOMP,	fh_god},
 {"HAS_LISTEN",		HAS_LISTEN,	'@',
 	FLAG_WORD2,	CA_GOD|CA_NO_DECOMP,	fh_god},
+{"PLAYER_MAILS",	PLAYER_MAILS,	'^',
+	FLAG_WORD2,		CA_GOD|CA_NO_DECOMP,	fh_god},
 #ifdef PUEBLO_SUPPORT
 {"HTML", 		HTML,           '~',
 	FLAG_WORD2,     0,                      fh_any},
