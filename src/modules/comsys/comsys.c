@@ -18,6 +18,7 @@
 #include "externs.h"
 #include "flags.h"
 #include "powers.h"
+#include "ansi.h"
 
 #ifdef USE_COMSYS
 
@@ -476,11 +477,11 @@ FILE *fp;
 				fscanf(fp, "%[^\n]\n", temp);
 
 				if (strlen(temp + 2) > 0) {
-					user->title = (char *)malloc(strlen(temp + 2) + 1);
-					StringCopy(user->title, temp + 2);
+				    user->title = (char *) malloc(sizeof(char) * (strlen(temp + 2) + 1));
+				    StringCopy(user->title, temp + 2);
 				} else {
-					user->title = (char *)malloc(1);
-					user->title[0] = 0;
+				    user->title = (char *) malloc(sizeof(char) * 1);
+				    user->title[0] = '\0';
 				}
 				if (!(isPlayer(user->who)) && !(Going(user->who) &&
 						 (God(Owner(user->who))))) {
@@ -633,7 +634,7 @@ struct channel *ch;
 		if (ch->num_users >= ch->max_users) {
 			ch->max_users += 10;
 			cu = (struct comuser **)
-				malloc(sizeof(struct comuser *) * ch->max_users);
+			    malloc(sizeof(struct comuser *) * ch->max_users);
 
 			for (i = 0; i < (ch->num_users - 1); i++)
 				cu[i] = ch->users[i];
@@ -648,8 +649,8 @@ struct channel *ch;
 
 		user->who = player;
 		user->on = 1;
-		user->title = (char *)malloc(1);
-		user->title[0] = 0;
+		user->title = (char *) malloc(sizeof(char) * 1);
+		user->title[0] = '\0';
 
 /*
  * if (Connected(player))&&(isPlayer(player)) 
@@ -896,7 +897,7 @@ struct channel *ch;
 char *title;
 {
 	struct comuser *user;
-	char *new;
+	char *new, *bufc;
 	int title_len;
 	
 	user = select_user(ch, player);
@@ -913,16 +914,18 @@ char *title;
 		/* Don't let users have more than an mbuf for channel title */
 
 		title_len = strlen(new);
-		if (title_len > MBUF_SIZE - 1) {
-		    user->title = (char *) malloc(MBUF_SIZE);
-		    StringCopyTrunc(user->title, new, MBUF_SIZE - 1);
-		    user->title[MBUF_SIZE] = '\0';
-		} else if (title_len > 0) {
-		    user->title = (char *)malloc(strlen(new) + 1);
-		    StringCopy(user->title, new);
+		if (title_len > 0) {
+		    user->title = (char *) malloc(sizeof(char) * MBUF_SIZE);
+		    bufc = user->title;
+		    if (index(new, ESC_CHAR)) {
+			safe_copy_str(new, user->title, &bufc, MBUF_SIZE - 5);
+			strcpy(bufc, ANSI_NORMAL);
+		    } else {
+			safe_mb_str(new, user->title, &bufc);
+		    }
 		} else {
-		    user->title = (char *)malloc(1);
-		    user->title[0] = 0;
+		    user->title = (char *) malloc(sizeof(char) * 1);
+		    user->title[0] = '\0';
 		}
 	}
 	free_lbuf(new);
