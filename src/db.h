@@ -168,6 +168,7 @@ struct object {
 	int	vars_count;	/* ALL: number of variables */
 	int	struct_count;	/* ALL: number of structures */
 	int	instance_count;	/* ALL: number of struct instances */
+	char	*atrlist;	/* ALL: list of attributes on an object */
 
 #ifndef NO_TIMECHECKING
 	struct timeval cpu_time_used;	/* ALL: CPU time eaten */
@@ -202,6 +203,7 @@ extern NAME *names;
 #define NameLen(t)		db[t].name_length
 #define	Home(t)			Link(t)
 #define	Dropto(t)		Location(t)
+#define Atrlist(t)		db[t].atrlist
 
 #define VarsCount(t)		db[t].vars_count
 #define StackCount(t)		db[t].stack_count

@@ -803,6 +803,27 @@ const char *s;
 	atr_add_raw(thing, A_PASS, (char *)s);
 }
 
+/* Set an object's attribute list */
+
+INLINE void s_Atrlist(thing, s)
+dbref thing;
+char *s;
+{
+	/* Free any old data and reallocate */
+	
+	if (db[thing].atrlist) {
+		free(db[thing].atrlist);
+	}
+	
+	if (s && *s) {
+		db[thing].atrlist = strdup(s);
+		atr_add_raw(thing, A_LIST, s);
+	} else {
+		db[thing].atrlist = NULL;
+		atr_clr(thing, A_LIST);
+	}
+}
+
 #ifndef STANDALONE
 
 /* ---------------------------------------------------------------------------
@@ -1371,12 +1392,7 @@ char *astr;
 void NDECL(al_store)
 {
 	if (mudstate.mod_al_id != NOTHING) {
-		if (mudstate.mod_alist && *mudstate.mod_alist) {
-			atr_add_raw(mudstate.mod_al_id, A_LIST,
-				    mudstate.mod_alist);
-		} else {
-			atr_clr(mudstate.mod_al_id, A_LIST);
-		}
+		s_Atrlist(mudstate.mod_al_id, mudstate.mod_alist);
 	}
 	mudstate.mod_al_id = NOTHING;
 }
@@ -1394,10 +1410,9 @@ dbref thing;
 	if (mudstate.mod_al_id == thing)
 		return mudstate.mod_alist;
 
-	/* Save old list, then fetch and set up the attribute list */
+	/* Fetch and set up the attribute list */
 
-	al_store();
-	astr = atr_get_raw(thing, A_LIST);
+	astr = Atrlist(thing);
 	if (astr) {
 		len = al_size(astr);
 		al_extend(&mudstate.mod_alist, &mudstate.mod_size, len, 0);
@@ -1451,6 +1466,7 @@ int attrnum;
 
 	al_code(&cp, attrnum);
 	*cp = '\0';
+	al_store();
 	return;
 }
 
@@ -2103,6 +2119,22 @@ int atr;
 {
 	Attr *a;
 	Aname okey;
+	int attr, found = 0;
+	char *as;
+	
+	for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
+		if (attr == atr) {
+			found = 1;
+		}
+	}
+
+	if (!found && (atr != A_LIST)) {
+		return NULL;
+	}
+
+	if (atr == A_LIST) {
+		return Atrlist(thing);
+	}
 
 	makekey(thing, atr, &okey);
 	a = FETCH(&okey);
@@ -2443,7 +2475,7 @@ char **attrp;
 	if (thing == mudstate.mod_al_id) {
 		astr = mudstate.mod_alist;
 	} else {
-		astr = atr_get_raw(thing, A_LIST);
+		astr = Atrlist(thing);
 	}
 	alen = al_size(astr);
 
@@ -2486,6 +2518,7 @@ dbref first, last;
 		s_Next(thing, NOTHING);
 		s_Zone(thing, NOTHING);
 		s_Parent(thing, NOTHING);
+		db[thing].atrlist = NULL;
 #ifdef MEMORY_BASED
 		db[thing].ahead = NULL;
 		db[thing].at_count = 0;
@@ -2741,7 +2774,7 @@ void NDECL(db_make_minimal)
 
 	/* should be #1 */
 	load_player_names();
-	obj = create_player((char *)"Wizard", (char *)"potrzebie", NOTHING, 0, 1);
+	obj = create_player((char *)"Wizard", (char *)"potrzebie", NOTHING, 0, 0);
 	s_Flags(obj, Flags(obj) | WIZARD);
 	s_Flags2(obj, 0);
 	s_Flags3(obj, 0);

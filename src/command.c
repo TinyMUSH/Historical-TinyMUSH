@@ -3027,6 +3027,8 @@ dbref player;
 				   cs_whits, cs_rhits, cs_ahits));
 	raw_notify(player, tprintf("I/O        %12d%12d",
 				   cs_dbwrites, cs_dbreads));
+	raw_notify(player, tprintf("Failed                 %12d",
+				   cs_fails));
 	raw_notify(player, tprintf("Hit ratio            %2.0f%%         %2.0f%%",
 				   (cs_writes ? (float) cs_whits / cs_writes * 100 : 0.0),
 				   (cs_reads ? (float) cs_rhits / cs_reads * 100 : 0.0)));

@@ -277,6 +277,7 @@ extern INLINE void	FDECL(s_Name, (dbref, char *));
 extern INLINE char *	FDECL(Name, (dbref));
 extern INLINE char *	FDECL(PureName, (dbref));
 extern INLINE void	FDECL(safe_name, (dbref, char *, char **));
+extern INLINE void	FDECL(s_Atrlist, (dbref, char *));
 extern int	FDECL(fwdlist_load, (FWDLIST *, dbref, char *));
 extern void	FDECL(fwdlist_set, (dbref, FWDLIST *));
 extern void	FDECL(fwdlist_clr, (dbref));

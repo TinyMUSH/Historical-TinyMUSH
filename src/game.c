@@ -1574,6 +1574,10 @@ static void NDECL(process_preload)
 
 		if (Going(thing))
 			continue;
+		
+		/* Preload the attribute lists */
+		
+		s_Atrlist(thing, atr_get_raw(thing, A_LIST));
 
 		/* Look for a FORWARDLIST attribute. Load these before
 		 * doing anything else, so startup notifications work

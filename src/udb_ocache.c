@@ -215,7 +215,7 @@ void cache_reset(clear)
 int clear;
 {
 	int x;
-	Cache *cp;
+	Cache *cp, *nxt;
 	CacheLst *sp;
 
 	/* Implement cache aging by decrementing the reference counter on each object */
@@ -224,10 +224,12 @@ int clear;
 		sp = &sys_c[x];
 	
 		/* traverse active chain first */
-		for (cp = sp->active.head; cp != CNULL; cp = cp->nxt) {
+		for (cp = sp->active.head; cp != CNULL; cp = nxt) {
+			nxt = cp->nxt;
+			
 			if (clear) {
-				cp->referenced = 0;
-				cp->lastreferenced = time(NULL);
+				cache_repl(cp, ONULL);
+				free(cp);
 			} else {
 				if (cp->referenced > 0)
 					cp->referenced--;
@@ -235,14 +237,32 @@ int clear;
 		}
 		
 		/* then the modified active chain */
-		for (cp = sp->mactive.head; cp != CNULL; cp = cp->nxt) {
+		for (cp = sp->mactive.head; cp != CNULL; cp = nxt) {
+			nxt = cp->nxt;
+			
 			if (clear) {
-				cp->referenced = 0;
-				cp->lastreferenced = time(NULL);
+#ifdef	CACHE_DEBUG
+				printf("clean object %d from cache %d\n",
+				       (cp->op)->name, cp->op);
+#endif
+				if ((cp->op)->at_count == 0) {
+					(void) DB_DEL(&((cp->op)->name), x);
+				} else {
+					(void) DB_PUT(cp->op, &((cp->op)->name));
+				}
+				cache_repl(cp, ONULL);
+				free(cp);
 			} else {
 				if (cp->referenced > 0)
 					cp->referenced--;
 			}
+		}
+		
+		if (clear) {
+			sp->active.head = (Cache *) 0;
+			sp->active.tail = (Cache *) 0;
+			sp->mactive.head = (Cache *) 0;
+			sp->mactive.tail = (Cache *) 0;
 		}
 	}
 	
@@ -261,6 +281,7 @@ int clear;
 		cs_fails = 0;		/* attempts to grab nonexistent */
 		cs_resets = 0;		/* total cache resets */
 		cs_syncs = 0;		/* total cache syncs */
+		cs_size = 0;		/* size of cache in bytes */
 	}
 }
 
@@ -425,21 +446,18 @@ Aname *nam;
 
 	/*
 	 * DARN IT - at this point we have a certified, type-A cache miss 
-	 */
-
-	/*
 	 * thaw the object from wherever. 
 	 */
 
 	if ((ret = DB_GET(&(nam->object))) == (Obj *) 0) {
-		cs_fails++;
 		cs_dbreads++;
 #ifdef	CACHE_DEBUG
 		printf("Object %d not in db\n", nam->object);
 #endif
 		return ((Attr *) 0);
-	} else
+	} else {
 		cs_dbreads++;
+	}
 
 	if ((cp = get_free_entry(ret->size)) == CNULL)
 		return ((Attr *) 0);
@@ -763,10 +781,13 @@ int objsize;
 		}
 		
 		/* Take the object off of its chain and nuke the object's memory */
-		cs_size -= cp->op->size;
-		cache_repl(cp, ONULL);
-		DEQUEUE((*chp), cp);
-		free(cp);
+		
+		if (cp) {
+			cs_size -= cp->op->size;
+			cache_repl(cp, ONULL);
+			DEQUEUE((*chp), cp);
+			free(cp);
+		}
 		cp = NULL;
 	}		
 
@@ -776,7 +797,7 @@ int objsize;
 		fatal("cache get_free_entry: malloc failed", (char *)-1, (char *)0);
 
 	cp->op = (Obj *) 0;
-	cp->referenced = 0;
+	cp->referenced = 1;
 	cp->lastreferenced = time(NULL);
 	return (cp);
 }
@@ -980,6 +1001,7 @@ Obj *obj;
 #ifdef CACHE_DEBUG
 	printf("get_attrib: not found.\n");
 #endif
+	cs_fails++;
 	return ((Attr *) 0);	/*
 				 * Not found 
 				 */
