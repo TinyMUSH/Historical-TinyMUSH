@@ -1093,7 +1093,8 @@ int sig, code;
 
 	switch (sig) {
 	case SIGUSR1:
-		do_restart(1,1,0);
+	        log_signal(signames[sig]);
+		do_restart(GOD, GOD, 0);
 		break;
 	case SIGUSR2:
 		fork_and_dump(DUMP_FLATFILE);
