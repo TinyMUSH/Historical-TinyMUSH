@@ -118,6 +118,8 @@
 /* Define if the compiler pads small structs on the wrong end, breaking the
  * system library version of inet_ntoa() */
 #undef BROKEN_GCC_PADDING
+/* Define if dlsym can locate "_symbol" but not "symbol" */
+#undef DLSYM_NEEDS_UNDERSCORE
 
 /* Define vfork as fork if vfork does not work.  */
 #undef vfork
