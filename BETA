@@ -68,6 +68,8 @@ Release history:
 - Fix: Startmush could remove module databases due to inconsistent
   glob handling in some shells. [3.1a9; Christy Schulte]
 
+- Fix: Fixed typo in module call to db_write(). [3.1b1]
+
 - Misc: Avoid scanning the entire help table when asked for a
   nonexistent, non-wildcard entry. [2.0]
 
