@@ -159,6 +159,7 @@ void NDECL(cf_init)
 	mudconf.searchcost = 100;
 	mudconf.waitcost = 10;
 	mudconf.machinecost = 64;
+	mudconf.building_limit = 50000;
 	mudconf.exit_quota = 1;
 	mudconf.player_quota = 1;
 	mudconf.room_quota = 1;

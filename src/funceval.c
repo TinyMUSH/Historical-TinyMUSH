@@ -3009,17 +3009,17 @@ char *qregs[10];
 int qnums[10];
 regexp *re;
 
-	if (!fn_range_check("REGMATCH", nfargs, 2, 3, buff))
+	if (!fn_range_check("REGMATCH", nfargs, 2, 3, buff, bufc))
 		return;
 
 	if ((re = regcomp(fargs[1])) == NULL) {
 		/* Matching error. */
 		notify_quiet(player, (const char *) regexp_errbuf);
-		strcpy(buff, "0");
+		safe_chr('0', buff, bufc);
 		return;
 	}
 
-	ltos(buff, (int) regexec(re, fargs[0]));
+	safe_ltos(buff, bufc, (int) regexec(re, fargs[0]));
 
 	/* If we don't have a third argument, we're done. */
 	if (nfargs != 3) {

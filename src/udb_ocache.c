@@ -278,6 +278,9 @@ CacheLst *sp;
 		if (cp->prv != CNULL) {
 			sp->old.tail = cp->prv;
 			cp->prv->nxt = cp->nxt;
+			if (cp->nxt != CNULL) {
+				cp->nxt->prv = cp->prv;
+			}
 		} else		/*
 				 * took last one 
 				 */

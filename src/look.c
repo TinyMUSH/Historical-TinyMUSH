@@ -1237,7 +1237,7 @@ int key, is_loc;
 	dbref aowner, parent;
 	int canhear, cancom, isplayer, ispuppet, isconnected, is_audible, attr, aflags;
 	int is_parent, lev;
-	char *buf, *buf2, *bp, *as, *buff, *s;
+	char *buf, *buf2, *bp, *as, *buff = NULL, *s;
 	ATTR *ap;
 
 	canhear = 0;

@@ -265,30 +265,13 @@ static int pay_quota(who, cost)
 dbref who;
 int cost;
 {
-	dbref aowner;
-	int quota, aflags;
-	char buf[20], *quota_str;
-
-	/* If no cost, succeed */
-
-	if (cost <= 0)
+	/* If no cost, succeed.  Negative costs /must/ be managed, however */
+	
+	if (cost == 0)
 		return 1;
-
-	/* determine quota */
-
-	quota = atoi(quota_str = atr_get(Owner(who), A_RQUOTA, &aowner, &aflags));
-	free_lbuf(quota_str);
-
-	/* enough to build?  Wizards always have enough. */
-
-	quota -= cost;
-	if ((quota < 0) && !Free_Quota(who) && !Free_Quota(Owner(who)))
-		return 0;
-
-	/* dock the quota */
-	ltos(buf, quota);
-	atr_add_raw(Owner(who), A_RQUOTA, buf);
-
+	
+	add_quota(who, -cost, type_quota(objtype));
+	
 	return 1;
 }
 

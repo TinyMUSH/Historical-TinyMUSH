@@ -271,7 +271,7 @@ FLAGENT gen_flags[] = {
 	0,		0,			fh_wiz_bit},
 {"PARENT_OK",		PARENT_OK,	'Y',
 	FLAG_WORD2,	0,			fh_any},
-{"ZONE",		ZONE_PARENT,	'Z',
+{"ZONE",		ZONE_PARENT,	'o',
 	FLAG_WORD2,	0,			fh_any},
 {"ROYALTY",             ROYALTY,        'Z',    
         0,	       0,                      fh_wiz},

@@ -1,9 +1,5 @@
-/*
- * eval.c - command evaluation and cracking 
- */
-/*
- * $Id$ 
- */
+/* eval.c - command evaluation and cracking */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
@@ -706,6 +702,10 @@ char *cargs[];
 					free_sbuf(tbuf);
 				}
 				
+				break;
+			case 'C':
+			case 'c':
+				safe_str(mudstate.curr_cmd, buff, bufc);
 				break;
 			default:	/* Just copy */
 				safe_chr(**dstr, buff, bufc);

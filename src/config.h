@@ -43,6 +43,7 @@
 #define StringCopy strcpy
 #define StringCopyTrunc strncpy
 #define PUEBLO_SUPPORT_MSG "This world is Pueblo 1.0 enhanced\r\n\r\n"
+#define NO_LAG_CHECK
 
 /* ---------------------------------------------------------------------------
  * Database R/W flags.

@@ -757,9 +757,9 @@ int key;
 char *arg1;
 char *arg2;
 {
-	char channel[200];
-	char title[1000];
-	char buffer[100];
+	char channel[MBUF_SIZE];
+	char title[MBUF_SIZE];
+	char buffer[MBUF_SIZE];
 	struct channel *ch;
 	char *s, *t;
 	int i, j, where;
@@ -781,7 +781,7 @@ char *arg2;
 		return;
 	}
 	t = channel;
-	while (*s && *s != ',') {
+	while (*s && (*s != ',') && ((t - channel) < MBUF_SIZE)) {
 		if (*s != ' ')
 			*t++ = *s++;
 		else
@@ -795,7 +795,7 @@ char *arg2;
 				 * Read title 
 				 */
 		s++;
-		while (*s)
+		while (*s && ((t - title) < MBUF_SIZE))
 			*t++ = *s++;
 		*t = '\0';
 	}
