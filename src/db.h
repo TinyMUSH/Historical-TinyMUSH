@@ -6,6 +6,10 @@
 #ifndef	__DB_H
 #define	__DB_H
 
+#ifndef INLINE
+#define INLINE inline
+#endif
+
 #ifndef MEMORY_BASED
 #ifdef RADIX_COMPRESSION
 #define STORE(key, attr, len)	cache_put(key, attr, len)
@@ -256,8 +260,11 @@ extern void	FDECL(tf_fclose, (FILE *));
 extern FILE *	FDECL(tf_popen, (char *, int));
 #define tf_pclose(f)	tf_fclose(f)
 
-extern dbref	FDECL(getref, (FILE *));
-extern void	FDECL(putref, (FILE *, dbref));
+#define putref(pr__f,pr__ref)	fprintf(pr__f, "%d\n", pr__ref)
+#define putlong(pr__f,pr__i)	fprintf(pr__f, "%ld\n", pr__i)
+
+extern INLINE dbref	FDECL(getref, (FILE *));
+extern INLINE long	FDECL(getlong, (FILE *));
 extern BOOLEXP *FDECL(dup_bool, (BOOLEXP *));
 extern void	FDECL(free_boolexp, (BOOLEXP *));
 extern dbref	FDECL(parse_dbref, (const char *));

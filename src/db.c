@@ -2878,20 +2878,6 @@ const char *s;
 	return ((x >= 0) ? x : NOTHING);
 }
 
-void putref(f, ref)
-FILE *f;
-dbref ref;
-{
-	fprintf(f, "%d\n", ref);
-}
-
-void putlong(f, i)
-FILE *f;
-long i;
-{
-	fprintf(f, "%ld\n", i);
-}
-
 void putstring(f, s)
 FILE *f;
 const char *s;
@@ -2965,7 +2951,7 @@ int new_strings;
 	}
 }
 
-dbref getref(f)
+INLINE dbref getref(f)
 FILE *f;
 {
 	static char buf[SBUF_SIZE];
@@ -2973,7 +2959,7 @@ FILE *f;
 	return (atoi(buf));
 }
 
-long getlong(f)
+INLINE long getlong(f)
 FILE *f;
 {
 	static char buf[SBUF_SIZE];

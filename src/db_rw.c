@@ -21,8 +21,6 @@
 #endif
 
 extern void FDECL(db_grow, (dbref));
-extern void FDECL(putlong, (FILE *, long));
-extern long FDECL(getlong, (FILE *));
 
 extern struct object *db;
 
