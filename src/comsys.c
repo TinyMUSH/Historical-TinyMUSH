@@ -1773,13 +1773,13 @@ char *object;
 		raw_notify(player, "That channel does not exist.");
 		return;
 	}
+	if (!(ch->charge_who == player) && !Comm_All(player)) {
+		raw_notify(player, "Permission denied.");
+		return;
+	}
 	if (thing == NOTHING) {
 		ch->chan_obj = NOTHING;
 		raw_notify(player, "Set.");
-		return;
-	}
-	if (!(ch->charge_who == player) && !Comm_All(player)) {
-		raw_notify(player, "Permission denied.");
 		return;
 	}
 	ch->chan_obj = thing;
