@@ -241,13 +241,13 @@ The initial beta release was on 9/27/99.
 
   - Fix: OUTPUTSUFFIX without OUTPUTPREFIX works. [2.0]
 
-  - Misc: All calls to abort() log a message.
+  - Misc: All calls to abort() log a message. [2.0]
 
-  - Misc: mail() and mailfrom() check arg ranges in the standard way.
+  - Misc: mail() and mailfrom() check arg ranges in the standard way. [MUX]
 
-  - Misc: ANSI defines are used rather than embedding raw codes.
+  - Misc: ANSI defines are used rather than embedding raw codes. [MUX]
 
-  - Misc: No spurious extra args to raw_broadcast() calls.
+  - Misc: No spurious extra args to raw_broadcast() calls. [MUX]
 
 -----------------------------------------------------------------------------
 
@@ -371,3 +371,17 @@ The initial beta release was on 9/27/99.
 
 - Misc: Dealt with a few more compiler warnings, and got rid of some
   unnecessarily clumsy constructs.
+
+-----------------------------------------------------------------------------
+
+10/16/99: Beta 13
+
+- Fix: Channel names and aliases are sanity-checked. [MUX; RMG]
+
+- Misc: Use of *VARIABLE* as the object name associated with #-2 is
+  now consistent. [3.0a3; Keran]
+
+- Misc: Corrected a typo in @quota. [2.0; RMG]
+
+- Misc: Leaving a channel you are not on generates a notification
+  that you're not on the channel. [MUX; stile]

@@ -127,7 +127,7 @@ the other have been listed in the conversion notes for both servers.
   indentation) attributes. Based on Andrew Molitor's +pex-equivalent code.
 
 - New /pairs switch to examine matches parentheses, brackets, and braces(),
-  displaying them in ANSI colors.
+  displaying them in ANSI colors. Based on Robby Griffin's ChaoticMUX code.
 
 - New @freelist command moves an object to the head of the freelist,
   until the next dbck.
@@ -166,7 +166,7 @@ the other have been listed in the conversion notes for both servers.
   of an instance, and lstructures() and linstances() list the names
   of structures and instances, respectively.
 
-- Functions that take output delimiters can take a null output delimiters
+- Functions that take output delimiters can take null output delimiters
   (symbolized by the token '@@') and newline ('%r') output delimiters.
 
 - The ansi() function compacts multiple ANSI attributes into a single
@@ -202,10 +202,10 @@ the other have been listed in the conversion notes for both servers.
   and later), if 'no', this is #-1 NO MATCH (2.0.10p6, 2.2.0, MUX).
   Defaults to 'no'.
 
-- The log() function can now taken an optional second argument, the base.
-
 - Added localize() function, keeping changes to r-registers within the
   "local" scope of that evaluation.
+
+- The log() function can now taken an optional second argument, the base.
 
 - The mix() function can now take an unequal number of elements in each
   list. (The lists are considered to be padded out with nulls.)
