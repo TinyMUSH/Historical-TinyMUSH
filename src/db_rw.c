@@ -496,7 +496,7 @@ int new_strings;
 		}
 	}
 }
-foobae
+/* foobar */
 /* ---------------------------------------------------------------------------
  * putbool_subexp: Write a boolean sub-expression to the flat file.
  */

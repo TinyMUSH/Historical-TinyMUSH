@@ -21,9 +21,10 @@
 
 static int parsing_internal = 0;
 
-/* ---------------------------------------------------------------------------
- * check_attr: indicate if attribute ATTR on player passes key when checked by
- * the object lockobj
+/*
+ * ---------------------------------------------------------------------------
+ * * check_attr: indicate if attribute ATTR on player passes key when checked by
+ * * the object lockobj
  */
 
 static int check_attr(player, lockobj, attr, key)
@@ -59,7 +60,7 @@ BOOLEXP *b;
 {
 	dbref aowner, obj, source;
 	int aflags, c, checkit;
-	char *key, *buff, *buff2, *bp, *str, *preserve[MAX_GLOBAL_REGS];
+	char *key, *buff, *buff2, *bp, *str;
 	ATTR *a;
 
 	if (b == TRUE_BOOLEXP)
@@ -124,9 +125,13 @@ BOOLEXP *b;
 	case BOOLEXP_ATR:
 		a = atr_num(b->thing);
 		if (!a)
-			return 0;	/* no such attribute */
+			return 0;	/*
+					 * no such attribute 
+					 */
 
-		/* First check the object itself, then its contents */
+		/*
+		 * First check the object itself, then its contents 
+		 */
 
 		if (check_attr(player, from, a, (char *)b->sub1))
 			return 1;
@@ -138,7 +143,9 @@ BOOLEXP *b;
 	case BOOLEXP_EVAL:
 		a = atr_num(b->thing);
 		if (!a)
-			return 0;	/* no such attribute */
+			return 0;	/*
+					 * no such attribute 
+					 */
 		source = from;
 		buff = atr_pget(from, a->number, &aowner, &aflags);
 		if (!buff || !*buff) {
@@ -148,18 +155,17 @@ BOOLEXP *b;
 		}
 		checkit = 0;
 		
-		if ((Read_attr(source, source, a, aowner, aflags) ||
-		    (a->number == A_NAME) || (a->number == A_LENTER)) {
+		if ((a->number == A_NAME) || (a->number == A_LENTER)) {
+			checkit = 1;
+		} else if (Read_attr(source, source, a, aowner, aflags)) {
 			checkit = 1;
 		}
 		if (checkit) {
-			save_global_regs("eval_boolexp_save", preserve);
 			buff2 = bp = alloc_lbuf("eval_boolexp");
 			str = buff;
 			exec(buff2, &bp, 0, source, player, EV_FIGNORE | EV_EVAL | EV_TOP,
 			     &str, (char **)NULL, 0);
 			*bp = '\0';
-			restore_global_regs("eval_boolexp_restore", preserve)
 			checkit = !string_compare(buff2, (char *)b->sub1);
 			free_lbuf(buff2);
 		}
@@ -167,12 +173,16 @@ BOOLEXP *b;
 		return checkit;
 	case BOOLEXP_IS:
 
-		/* If an object check, do that */
+		/*
+		 * If an object check, do that 
+		 */
 
 		if (b->sub1->type == BOOLEXP_CONST)
 			return (b->sub1->thing == player);
 
-		/* Nope, do an attribute check */
+		/*
+		 * Nope, do an attribute check 
+		 */
 
 		a = atr_num(b->sub1->thing);
 		if (!a)
@@ -180,12 +190,16 @@ BOOLEXP *b;
 		return (check_attr(player, from, a, (char *)(b->sub1)->sub1));
 	case BOOLEXP_CARRY:
 
-		/* If an object check, do that */
+		/*
+		 * If an object check, do that 
+		 */
 
 		if (b->sub1->type == BOOLEXP_CONST)
 			return (member(b->sub1->thing, Contents(player)));
 
-		/* Nope, do an attribute check */
+		/*
+		 * Nope, do an attribute check 
+		 */
 
 		a = atr_num(b->sub1->thing);
 		if (!a)
@@ -198,7 +212,9 @@ BOOLEXP *b;
 	case BOOLEXP_OWNER:
 		return (Owner(b->sub1->thing) == Owner(player));
 	default:
-		abort();	/* bad type */
+		abort();	/*
+				 * bad type 
+				 */
 		return 0;
 	}
 }
@@ -222,7 +238,10 @@ char *key;
 
 #endif
 
-/* If the parser returns TRUE_BOOLEXP, you lose. 
+/*
+ * If the parser returns TRUE_BOOLEXP, you lose 
+ */
+/*
  * TRUE_BOOLEXP cannot be typed in by the user; use @unlock instead 
  */
 
@@ -236,7 +255,11 @@ static void NDECL(skip_whitespace)
 		parsebuf++;
 }
 
-static BOOLEXP *NDECL(parse_boolexp_E);		/* defined below */
+static BOOLEXP *NDECL(parse_boolexp_E);		/*
+
+						 * 
+						 * * defined below  
+						 */
 
 static BOOLEXP *test_atr(s)
 char *s;
@@ -247,7 +270,7 @@ char *s;
 	int anum, locktype;
 
 	buff = alloc_lbuf("test_atr");
-	strcpy(buff, s);
+	StringCopy(buff, s);
 	for (s = buff; *s && (*s != ':') && (*s != '/'); s++) ;
 	if (!*s) {
 		free_lbuf(buff);
@@ -259,14 +282,18 @@ char *s;
 		locktype = BOOLEXP_ATR;
 
 	*s++ = '\0';
-	/* see if left side is valid attribute.  Access to attr is checked on 
-	 * eval. Also allow numeric references to attributes. It can't hurt 
-	 * us, and lets us import stuff that stores attr locks by number
-	 * instead of by name. 
+	/*
+	 * see if left side is valid attribute.  Access to attr is checked on 
+	 * 
+	 * *  * *  * *  * *  * * eval * Also allow numeric references to *
+	 * attributes. * It * can't * hurt  * us, and * lets us import stuff
+	 * * that stores * attr * locks by * number * instead of by * name. 
 	 */
 	if (!(attrib = atr_str(buff))) {
 
-		/* Only #1 can lock on numbers */
+		/*
+		 * Only #1 can lock on numbers 
+		 */
 		if (!God(parse_player)) {
 			free_lbuf(buff);
 			return ((BOOLEXP *) NULL);
@@ -282,7 +309,9 @@ char *s;
 		anum = attrib->number;
 	}
 
-	/* made it now make the parse tree node */
+	/*
+	 * made it now make the parse tree node 
+	 */
 	b = alloc_bool("test_str");
 	b->type = locktype;
 	b->thing = (dbref) anum;
@@ -291,7 +320,9 @@ char *s;
 	return (b);
 }
 
-/* L -> (E); L -> object identifier 8/
+/*
+ * L -> (E); L -> object identifier 
+ */
 
 static BOOLEXP *NDECL(parse_boolexp_L)
 {
@@ -318,8 +349,10 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 		break;
 	default:
 
-		/* must have hit an object ref.  Load the name into our
-		 * buffer 
+		/*
+		 * must have hit an object ref.  Load the name into our * * * 
+		 * 
+		 * *  * *  * * buffer 
 		 */
 
 		buf = alloc_lbuf("parse_boolexp_L");
@@ -329,13 +362,17 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 			*p++ = *parsebuf++;
 		}
 
-		/* strip trailing whitespace */
+		/*
+		 * strip trailing whitespace 
+		 */
 
 		*p-- = '\0';
 		while (isspace(*p))
 			*p-- = '\0';
 
-		/* check for an attribute */
+		/*
+		 * check for an attribute 
+		 */
 
 		if ((b = test_atr(buf)) != NULL) {
 			free_lbuf(buf);
@@ -351,9 +388,9 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 #ifndef STANDALONE
 
 		/*
-		 * If we are parsing a boolexp that was a stored lock then
-		 * we know that object refs are all dbrefs, so we
-		 * skip the expensive match code. 
+		 * If we are parsing a boolexp that was a stored lock then *
+		 * * * * * * we know that object refs are all dbrefs, so we * 
+		 * skip * * the * * * expensive match code. 
 		 */
 
 		if (parsing_internal) {
@@ -391,7 +428,9 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 			free_bool(b);
 			return TRUE_BOOLEXP;
 		}
-#else /* STANDALONE ... had better be #<num> or we're hosed */
+#else /*
+       * * STANDALONE ... had better be #<num> or we're hosed  
+       */
 		if (buf[0] != '#') {
 			free_lbuf(buf);
 			free_bool(b);
@@ -409,7 +448,10 @@ static BOOLEXP *NDECL(parse_boolexp_L)
 	return b;
 }
 
-/* F -> !F; F -> @L; F -> =L; F -> +L; F -> $L 
+/*
+ * F -> !F; F -> @L; F -> =L; F -> +L; F -> $L 
+ */
+/*
  * The argument L must be type BOOLEXP_CONST 
  */
 
@@ -428,7 +470,9 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/* NOTREACHED */
+		/*
+		 * NOTREACHED 
+		 */
 		break;
 	case INDIR_TOKEN:
 		parsebuf++;
@@ -443,7 +487,9 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/* NOTREACHED */
+		/*
+		 * NOTREACHED 
+		 */
 		break;
 	case IS_TOKEN:
 		parsebuf++;
@@ -459,7 +505,9 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/* NOTREACHED */
+		/*
+		 * NOTREACHED 
+		 */
 		break;
 	case CARRY_TOKEN:
 		parsebuf++;
@@ -475,7 +523,9 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/* NOTREACHED */
+		/*
+		 * NOTREACHED 
+		 */
 		break;
 	case OWNER_TOKEN:
 		parsebuf++;
@@ -490,14 +540,18 @@ static BOOLEXP *NDECL(parse_boolexp_F)
 			return (TRUE_BOOLEXP);
 		} else
 			return (b2);
-		/* NOTREACHED */
+		/*
+		 * NOTREACHED 
+		 */
 		break;
 	default:
 		return (parse_boolexp_L());
 	}
 }
 
-/* T -> F; T -> F & T */
+/*
+ * T -> F; T -> F & T 
+ */
 
 static BOOLEXP *NDECL(parse_boolexp_T)
 {
@@ -521,7 +575,9 @@ static BOOLEXP *NDECL(parse_boolexp_T)
 	return b;
 }
 
-/* E -> T; E -> T | E */
+/*
+ * E -> T; E -> T | E 
+ */
 
 static BOOLEXP *NDECL(parse_boolexp_E)
 {
@@ -550,7 +606,7 @@ dbref player;
 const char *buf;
 int internal;
 {
-	strcpy(parsestore, buf);
+	StringCopy(parsestore, buf);
 	parsebuf = parsestore;
 	parse_player = player;
 	if ((buf == NULL) || (*buf == '\0'))

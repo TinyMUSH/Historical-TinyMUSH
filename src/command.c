@@ -1502,7 +1502,7 @@ char *command, *args[];
 	mudstate.debug_cmd = cmdsave;
 
 endcmd:
-	return preserve_cmd;
+	return;
 }
 
 /* ---------------------------------------------------------------------------

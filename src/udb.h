@@ -71,7 +71,7 @@ extern void cache_reset();
 extern int cache_sync();
 extern void cache_del();
 
-extern Obj *	FDECL(objfromFILE, (FILE *));
-extern int	FDECL(objtoFILE, (Obj *, FILE *));
+extern Obj *	FDECL(objfromFILE, (char *));
+extern int	FDECL(objtoFILE, (Obj *, char *));
 
 #endif
