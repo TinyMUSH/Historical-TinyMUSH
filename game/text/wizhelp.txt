@@ -1537,7 +1537,7 @@ see_owned_dark		signal_action		space_compress
 sweep_dark		switch_default_all	terse_shows_contents
 terse_shows_exits	terse_shows_move_messages
 trace_topdown		typed_quotas		unowned_safe
-use_global_aconn	wizard_obeys_linklock
+use_global_aconn	visible_wizards		wizard_obeys_linklock
 
 & access
   Config parameter: access <command> <permlist>
@@ -3399,6 +3399,17 @@ use_global_aconn	wizard_obeys_linklock
   default to being private.
  
   See 'help @set' and 'wizhelp attr_access' for the available privileges.
+ 
+& visible_wizards
+  Config parameter: visible_wizards <yes/no>.  Default: No
+ 
+  If this parameter is enabled, wizards who are set DARK only disappear
+  from the WHO listing (and other ways of detecting who is connected,
+  such as the lwho() function) -- they do not disappear from the contents
+  of rooms, nor are they silent when they move.
+ 
+  This is useful if one wants to prevent wizards from accidentally (or
+  deliberately) spying on players who are unaware of their presence.
  
 & wait_cost
   Config parameter: wait_cost <amount>.  Default: 10

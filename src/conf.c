@@ -175,6 +175,7 @@ void NDECL(cf_init)
 	mudconf.dark_sleepers = 1;
 	mudconf.see_own_dark = 1;
 	mudconf.idle_wiz_dark = 0;
+	mudconf.visible_wizzes = 0;
 	mudconf.pemit_players = 0;
 	mudconf.pemit_any = 0;
 	mudconf.addcmd_match_blindly = 1;
@@ -1539,6 +1540,7 @@ CONF conftable[] = {
 {(char *)"user_attr_access",		cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.vattr_flags,		(long)attraccess_nametab},
 {(char *)"use_global_aconn",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.use_global_aconn,	(long)"Global @aconnects and @adisconnects are used"},
 {(char *)"variables_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.numvars_lim,		0},
+{(char *)"visible_wizards",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.visible_wizzes,	(long)"DARK Wizards are hidden from WHO but not invisible"},
 {(char *)"wait_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.waitcost,		0},
 {(char *)"wizard_obeys_linklock",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.wiz_obey_linklock,	(long)"Check LinkLock even if player can link to anything"},
 {(char *)"wizard_motd_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.wizmotd_file,	MBUF_SIZE},

@@ -185,6 +185,7 @@ struct confdata {
 	int	dark_sleepers;	/* Are sleeping players 'dark'? */
 	int	see_own_dark;	/* Do you see your own dark stuff? */
 	int	idle_wiz_dark;	/* Do idling wizards get set dark? */
+	int	visible_wizzes;	/* Do dark wizards show up on contents? */
 	int	pemit_players;	/* Can you @pemit to faraway players? */
 	int	pemit_any;	/* Can you @pemit to ANY remote object? */
         int	addcmd_match_blindly;   /* Does @addcommand produce a Huh?

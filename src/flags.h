@@ -246,7 +246,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Link_ok(x)	(((Flags(x) & LINK_OK) != 0) && Has_contents(x))
 #define	Wizard(x)	((Flags(x) & WIZARD) || \
 			 ((Flags(Owner(x)) & WIZARD) && Inherits(x)))
-#define	Dark(x)		(((Flags(x) & DARK) != 0) && (Wizard(x) || !Alive(x)))
+#define	Dark(x)		(((Flags(x) & DARK) != 0) && \
+			 (!Alive(x) || (Wizard(x) && !mudconf.visible_wizzes)))
 #define	Jump_ok(x)	(((Flags(x) & JUMP_OK) != 0) && Has_contents(x))
 #define	Sticky(x)	((Flags(x) & STICKY) != 0)
 #define	Destroy_ok(x)	((Flags(x) & DESTROY_OK) != 0)
