@@ -1295,6 +1295,7 @@ int key;
 	    SYNC;
 	    if (!mudconf.dbopt_interval ||
 		(mudstate.epoch % mudconf.dbopt_interval == 0)) {
+		OPTIMIZE;
 	    }
 	}
 	

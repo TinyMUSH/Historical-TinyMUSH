@@ -925,15 +925,15 @@ rm -f conftest*
 
 
 SAVELDFLAGS="$LDFLAGS"
-LDFLAGS="-L./db-3.1.17/build_unix $SAVELDFLAGS"
-echo $ac_n "checking for main in -lbdb""... $ac_c" 1>&6
-echo "configure:931: checking for main in -lbdb" >&5
-ac_lib_var=`echo bdb'_'main | sed 'y%./+-%__p_%'`
+LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
+echo $ac_n "checking for main in -lgdbm""... $ac_c" 1>&6
+echo "configure:931: checking for main in -lgdbm" >&5
+ac_lib_var=`echo gdbm'_'main | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
-LIBS="-lbdb  $LIBS"
+LIBS="-lgdbm  $LIBS"
 cat > conftest.$ac_ext <<EOF
 #line 939 "configure"
 #include "confdefs.h"
@@ -957,10 +957,10 @@ LIBS="$ac_save_LIBS"
 fi
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   echo "$ac_t""yes" 1>&6
-  LIBS="-L./db-3.1.17/build_unix -lbdb $LIBS"
+  LIBS="-L./gdbm-1.8.0/.libs -lgdbm $LIBS"
 else
   echo "$ac_t""no" 1>&6
-{ echo "configure: error: This program requires Sleepycat DBM (src/db-3.1.17) to be built first" 1>&2; exit 1; }
+{ echo "configure: error: This program requires GNU DBM (src/gdbm-1.8.0) to be built first" 1>&2; exit 1; }
 fi
 
 LDFLAGS="-L/usr/ucblib $SAVELDFLAGS"

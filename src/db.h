@@ -16,12 +16,14 @@
 #define FETCH(key)		cache_get(key)
 #define SYNC			cache_sync()
 #define CLOSE			{ cache_sync(); dddb_close(); }
+#define OPTIMIZE                (void) dddb_optimize()
 #else
 #define STORE(key, attr)
 #define DELETE(key)
 #define FETCH(key)
 #define SYNC
 #define CLOSE
+#define OPTIMIZE
 #endif
 
 #include "udb.h"

@@ -16,10 +16,10 @@ AC_AIX
 dnl Library checks
 
 SAVELDFLAGS="$LDFLAGS"
-LDFLAGS="-L./db-3.1.17/build_unix $SAVELDFLAGS"
-AC_CHECK_LIB(bdb, main,
-  LIBS="-L./db-3.1.17/build_unix -lbdb $LIBS",
-  AC_MSG_ERROR(This program requires Sleepycat DBM (src/db-3.1.17) to be built first), )
+LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
+AC_CHECK_LIB(gdbm, main,
+  LIBS="-L./gdbm-1.8.0/.libs -lgdbm $LIBS",
+  AC_MSG_ERROR(This program requires GNU DBM (src/gdbm-1.8.0) to be built first), )
 LDFLAGS="-L/usr/ucblib $SAVELDFLAGS"
 AC_CHECK_LIB(ucb, getdtablesize,
   LIBS="-L/usr/ucblib -lucb $LIBS", , , )
