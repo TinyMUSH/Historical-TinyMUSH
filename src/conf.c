@@ -938,7 +938,7 @@ CF_HAND(cf_set_flags)
 	int success, failure;
 
 	for (sp = str; *sp; sp++)
-		*sp = ToLower(*sp);
+		*sp = tolower(*sp);
 
 	/*
 	 * Walk through the tokens 
