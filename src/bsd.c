@@ -1192,7 +1192,8 @@ int sig, code;
 
 			alarm(0);
 			dump_restart_db();
-			execl("bin/netmux", "netmux", mudconf.config_file, NULL);
+			execl(mudconf.exec_path, mudconf.exec_path,
+			      mudconf.config_file, NULL);
 			break;
 		} else {
 			unset_signals();
