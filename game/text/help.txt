@@ -4311,11 +4311,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Topic: Miscellaneous Functions
  
 	case()		convsecs()	convtime()	die()		
-	ifelse()	mudname()	nonzero()	pemit()
-	r()		rand()		remit()		restarts()	
-	restarttime()	s()		secs()		setq()		
-	setr()		switch()	starttime()	time()		
-	version()
+	ifelse()	localize()	mudname()	nonzero()
+	pemit()		r()		rand()		remit()		
+	restarts()	restarttime()	s()		secs()		
+	setq()		setr()		switch()	starttime()	
+	time()		version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -6961,6 +6961,19 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   
   See also: nonzero(), switch(), case(), BOOLEAN VALUES.
  
+& LOCALIZE()
+  Function: localize(<expression>)
+ 
+  This function evalutes <expression> in a 'local' scope; this means
+  that the r-registers are preserved before <expression> is evaluated,
+  and restored after the evaluation. This allows the <expression>
+  embedded within to access the previous values of the r-registers,
+  without causing side-effects further "up" the code by altering the
+  value of those r-registers outside the scope of the <expression>'s
+  block of code.
+ 
+  See also:  ulocal(), objeval(), s().
+  
 & SPACE()
   Function: space(<count>)
  
