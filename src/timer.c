@@ -472,9 +472,14 @@ void NDECL(dispatch)
 	    (mudstate.check_counter <= mudstate.now)) {
 		mudstate.check_counter = mudconf.check_interval + mudstate.now;
 		mudstate.debug_cmd = (char *)"< dbck >";
+#ifndef MEMORY_BASED
+		cache_reset(0);
+#endif /*
+        * MEMORY_BASED 
+        */
 		do_dbck(NOTHING, NOTHING, 0);
 #ifndef MEMORY_BASED
-		SYNC;
+		cache_reset(0);
 #endif /*
         * MEMORY_BASED 
         */
@@ -499,6 +504,11 @@ void NDECL(dispatch)
 	    (mudstate.idle_counter <= mudstate.now)) {
 		mudstate.idle_counter = mudconf.idle_interval + mudstate.now;
 		mudstate.debug_cmd = (char *)"< idlecheck >";
+#ifndef MEMORY_BASED
+		cache_reset(0);
+#endif /*
+        * MEMORY_BASED 
+        */
 		check_idle();
 
 	}

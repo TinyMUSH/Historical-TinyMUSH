@@ -533,13 +533,19 @@ int check_who;
 
 void NDECL(load_player_names)
 {
-	dbref i, aowner;
+	dbref i, j, aowner;
 	int aflags, alen;
 	char *alias;
 
 	DO_WHOLE_DB(i) {
 		if (Typeof(i) == TYPE_PLAYER) {
 			add_player_name(i, Name(i));
+#ifndef MEMORY_BASED  
+                    	if (++j > 20) {
+                  		cache_reset(0);
+                  		j = 0;
+                   	}
+#endif /* MEMORY_BASED */
 		}
 	}
 	alias = alloc_lbuf("load_player_names");
@@ -549,6 +555,12 @@ void NDECL(load_player_names)
 					     &aowner, &aflags, &alen);
 			if (*alias)
 				add_player_name(i, alias);
+#ifndef MEMORY_BASED
+                    	if (++j > 20) {
+                    	        cache_reset(0);
+                    	        j = 0;
+                    	}
+#endif /* MEMORY_BASED */
 		}
 	}
 	free_lbuf(alias);

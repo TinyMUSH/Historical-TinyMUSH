@@ -126,6 +126,10 @@ int key;
 	for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
 	    used_table[ca] = 1;
 	}
+#ifndef MEMORY_BASED
+	if ((i % 100) == 0) 
+	    cache_reset(0);
+#endif
     }
 
     /* Walk the vattr table. If a number isn't in use, zorch it. */
