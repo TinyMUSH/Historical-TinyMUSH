@@ -1395,7 +1395,6 @@ char *astr;
 void NDECL(al_store)
 {
 	if (mudstate.mod_al_id != NOTHING) {
-		s_Atrlist(mudstate.mod_al_id, mudstate.mod_alist);
 		atr_add_raw(mudstate.mod_al_id, A_LIST, mudstate.mod_alist);
 	}
 	mudstate.mod_al_id = NOTHING;
@@ -1416,7 +1415,8 @@ dbref thing;
 
 	/* Fetch and set up the attribute list */
 
-	astr = Atrlist(thing);
+	al_store();
+	astr = atr_get_raw(thing, A_LIST);
 	if (astr) {
 		len = al_size(astr);
 		al_extend(&mudstate.mod_alist, &mudstate.mod_size, len, 0);
@@ -1470,7 +1470,6 @@ int attrnum;
 
 	al_code(&cp, attrnum);
 	*cp = '\0';
-	al_store();
 	return;
 }
 
@@ -1528,7 +1527,6 @@ dbref thing;
 {
 	if (mudstate.mod_al_id == thing)
 		al_store();	/* remove from cache */
-	s_Atrlist(thing, NULL);
 	atr_clr(thing, A_LIST);
 }
 
@@ -1820,6 +1818,8 @@ int atr;
 	makekey(thing, atr, &okey);
 	DELETE(&okey);
 	al_delete(thing, atr);
+	s_Atrlist(thing, NULL);
+
 #endif /* MEMORY_BASED */
 	switch (atr) {
 	case A_STARTUP:
@@ -1965,11 +1965,22 @@ char *buff;
 #endif
 
 	makekey(thing, atr, &okey);
+	
 	if (!buff || !*buff) {
 		DELETE(&okey);
 		al_delete(thing, atr);
+
+		if (atr == A_LIST) {
+			s_Atrlist(thing, NULL);
+		}
+
 		return;
 	}
+
+	if (atr == A_LIST) {
+		s_Atrlist(thing, buff);
+	}
+	
 #ifdef RADIX_COMPRESSION
 	/* A_LIST is never compressed */
 
