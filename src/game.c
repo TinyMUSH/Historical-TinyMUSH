@@ -1175,7 +1175,9 @@ int dump_type;
 
 	/* Call modules to write to DBM */
 	
+	db_lock();
 	CALL_ALL_MODULES(db_write, ());	
+	db_unlock();
 	
 	/* Call modules to write to their flat-text database */
 
@@ -1817,7 +1819,9 @@ char *argv[];
 			
 			/* Call all modules to write to GDBM */
 			
+			db_lock();
 			CALL_ALL_MODULES(db_write, ());
+			db_unlock();
 		} else {
 			db_write_flatfile(stdout, F_TINYMUSH, db_ver | db_flags);
 			
