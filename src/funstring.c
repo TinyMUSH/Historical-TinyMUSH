@@ -190,6 +190,7 @@ FUNCTION(fun_trim)
 		*endchar = '\0';
 	    }
 	    safe_str(p, buff, bufc);
+	    return;
 	}
 
 	/* Multi-character delimiters take more work. */
