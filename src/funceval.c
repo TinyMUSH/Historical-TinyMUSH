@@ -2437,14 +2437,13 @@ int insensitive;
 	 */
 	dbref aowner;
 	char *tbuf1, *buf, *text, *attrib;
-	char *bp;
+	char *bp, *bufc;
 	int found;
 	int ca, aflags;
 
-	tbuf1 = alloc_lbuf("grep_util");
-	buf = alloc_lbuf("grep_util.parse_attrib");
-	bp = tbuf1;
-	sprintf(buf, "#%d/%s", thing, pattern);
+	bp = tbuf1 = alloc_lbuf("grep_util");
+	bufc = buf = alloc_lbuf("grep_util.parse_attrib");
+	safe_tprintf_str(buf, &bufc, "#%d/%s", thing, pattern);
 	if (parse_attrib_wild(player, buf, &thing, 0, 0, 1)) {
 		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
 			attrib = atr_get(thing, ca, &aowner, &aflags);

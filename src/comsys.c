@@ -510,7 +510,7 @@ dbref player;
 char *arg1;
 char *arg2;
 {
-	char mess[LBUF_SIZE];
+	char *mess, *bp;
 	struct channel *ch;
 	struct comuser *user;
 
@@ -552,23 +552,26 @@ char *arg2;
 			giveto(ch->charge_who, ch->charge);
 		}
 
+		bp = mess = alloc_lbuf("do_processcom");
+
 		if ((*arg2) == ':') {
 			if (strlen(user->title))
-				sprintf(mess, "[%s] %s %s %s", arg1, user->title, Name(player), arg2 + 1);
+				safe_tprintf_str(mess, &bp, "[%s] %s %s %s", arg1, user->title, Name(player), arg2 + 1);
 			else
-				sprintf(mess, "[%s] %s %s", arg1, Name(player), arg2 + 1);
+				safe_tprintf_str(mess, &bp, "[%s] %s %s", arg1, Name(player), arg2 + 1);
 		} else if ((*arg2) == ';') {
 			if (strlen(user->title))
-				sprintf(mess, "[%s] %s %s%s", arg1, user->title, Name(player), arg2 + 1);
+				safe_tprintf_str(mess, &bp, "[%s] %s %s%s", arg1, user->title, Name(player), arg2 + 1);
 			else
-				sprintf(mess, "[%s] %s%s", arg1, Name(player), arg2 + 1);
+				safe_tprintf_str(mess, &bp, "[%s] %s%s", arg1, Name(player), arg2 + 1);
 		} else if (strlen(user->title))
-			sprintf(mess,
+			safe_tprintf_str(mess, &bp, 
 				"[%s] %s %s says, \"%s\"", arg1, user->title, Name(player), arg2);
 		else
-			sprintf(mess, "[%s] %s says, \"%s\"", arg1, Name(player), arg2);
+			safe_tprintf_str(mess, &bp, "[%s] %s says, \"%s\"", arg1, Name(player), arg2);
 
 		do_comsend(ch, mess);
+		free_lbuf(mess);
 	}
 }
 
@@ -1824,7 +1827,7 @@ int key;
 			atrstr = atr_pget(ch->chan_obj, A_DESC, &owner, &flags);
 			if ((ch->chan_obj == NOTHING) ||
 			    !*atrstr)
-				sprintf(buf, "%s", "No description.");
+				strcpy(buf, "No description.");
 			else
 				sprintf(buf, "%-54.54s", atrstr);
 

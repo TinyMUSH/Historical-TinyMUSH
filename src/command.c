@@ -1243,8 +1243,8 @@ char *command, *args[];
 	}
 	STARTLOG(LOG_ALLCOMMANDS, "CMD", "ALL")
 		log_name_and_loc(player);
-	lcbuf = alloc_lbuf("process_command.LOG.allcmds");
-	sprintf(lcbuf, " entered: '%s'", command);
+	bp = lcbuf = alloc_lbuf("process_command.LOG.allcmds");
+	safe_tprintf_str(lcbuf, &bp, " entered: '%s'", command);
 	log_text(lcbuf);
 	free_lbuf(lcbuf);
 	ENDLOG

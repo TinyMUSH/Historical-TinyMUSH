@@ -2155,7 +2155,10 @@ FUNCTION(fun_ceil)
 FUNCTION(fun_round)
 {
 	const char *fstr;
-
+	char *oldp;
+	
+	oldp = *bufc;
+	
 	switch (atoi(fargs[1])) {
 	case 1:
 		fstr = "%.1f";
@@ -2183,17 +2186,15 @@ FUNCTION(fun_round)
 
 	/* Handle bogus result of "-0" from sprintf.  Yay, cclib. */
 
-	if (!strcmp(buff, "-0")) {
-		safe_chr('0', buff, bufc);
+	if (!strcmp(oldp, "-0")) {
+		*oldp = '0';
+		*bufc = oldp + 1;
 	}
 }
 
 FUNCTION(fun_trunc)
 {
-	int num;
-
-	num = atoi(fargs[0]);
-	safe_ltos(buff, bufc, num);
+	safe_tprintf_str(buff, bufc, "%.0f", atof(fargs[0]));
 }
 
 FUNCTION(fun_div)
@@ -3012,7 +3013,7 @@ FUNCTION(fun_haspower)
 
 FUNCTION(fun_delete)
 {
-	char *s, *temp;
+	char *s, *temp, *bp;
 	int i, start, nchars, len;
 
 	s = fargs[0];
@@ -3023,15 +3024,16 @@ FUNCTION(fun_delete)
 		safe_str(s, buff, bufc);
 		return;
 	}
-	temp = *bufc;
+	bp = temp = alloc_lbuf("fun_delete");
 	for (i = 0; i < start; i++)
-		*temp++ = (*s++);
+		*bp++ = (*s++);
 	if ((i + nchars) < len && (i + nchars) > 0) {
 		s += nchars;
-		while ((*temp++ = *s++)) ;
-		*bufc = temp - 1;
+		while ((*bp++ = *s++)) ;
 	} else 
-		*bufc = temp;
+		*bp = '\0';
+	
+	safe_str(temp, buff, bufc);
 }
 
 FUNCTION(fun_lock)
@@ -3184,7 +3186,7 @@ FUNCTION(fun_lcstr)
 	char *ap;
 
 	ap = fargs[0];
-	while (*ap) {
+	while (*ap && ((*bufc - buff) < LBUF_SIZE)) {
 		**bufc = ToLower(*ap);
 		ap++;
 		(*bufc)++;
@@ -3196,7 +3198,7 @@ FUNCTION(fun_ucstr)
 	char *ap;
 
 	ap = fargs[0];
-	while (*ap) {
+	while (*ap && ((*bufc - buff) < LBUF_SIZE)) {
 		**bufc = ToUpper(*ap);
 		ap++;
 		(*bufc)++;
@@ -3612,7 +3614,7 @@ FUNCTION(fun_merge)
 	/* walk strings, copy from the appropriate string */
 
 	for (str = fargs[0], rep = fargs[1];
-	     *str && *rep;
+	     *str && *rep && ((*bufc - buff) < LBUF_SIZE);
 	     str++, rep++, (*bufc)++) {
 		if (*str == c)
 			**bufc = *rep;

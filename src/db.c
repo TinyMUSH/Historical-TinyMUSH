@@ -712,6 +712,11 @@ INLINE void s_Name(thing, s)
 dbref thing;
 const char *s;
 {
+	/* Truncate the name if we have to */
+	
+	if (strlen(s) > MBUF_SIZE)
+		s[MBUF_SIZE] = '\0';
+	
 	atr_add_raw(thing, A_NAME, (char *)s);
 #ifndef MEMORY_BASED
 	set_string(&names[thing], (char *)s);

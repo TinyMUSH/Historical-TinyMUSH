@@ -386,8 +386,6 @@ char *cargs[];
 	is_trace = Trace(player) && !(eval & EV_NOTRACE);
 	is_top = 0;
 
-	oldp = start = *bufc;
-	
 	/* Extend the buffer if we need to. */
 	
 	if (((*bufc) - buff) > (LBUF_SIZE - SBUF_SIZE)) {
@@ -397,6 +395,8 @@ char *cargs[];
 		*bufc = buff;
 	}
 
+	oldp = start = *bufc;
+	
 	/* If we are tracing, save a copy of the starting buffer */
 
 	savestr = NULL;

@@ -106,7 +106,7 @@ dbref player, object;
 	for (point = mudstate.qfirst; point; point = point->next)
 		if (que_want(point, player, object)) {
 			numhalted++;
-			point->player = 0;
+			point->player = NOTHING;
 		} 
 
 	/* Object queue */
@@ -114,7 +114,7 @@ dbref player, object;
 	for (point = mudstate.qlfirst; point; point = point->next)
 		if (que_want(point, player, object)) {
 			numhalted++;
-			point->player = 0;
+			point->player = NOTHING;
 		} 
 
 	/* Wait queue */
@@ -729,7 +729,7 @@ int ncmds;
 			mudstate.curr_enactor = mudstate.qfirst->cause;
 			mudstate.curr_player = player;
 			a_Queue(Owner(player), -1);
-			mudstate.qfirst->player = 0;
+			mudstate.qfirst->player = NOTHING;
 			if (!Halted(player)) {
 
 				/* Load scratch args */
@@ -896,7 +896,7 @@ const char *header;
 				free_lbuf(bp);
 			}
 			free_lbuf(bufp);
-		} else if (tmp->player == 0) {
+		} else if (tmp->player == NOTHING) {
 			(*qdel)++;
 		}
 	}

@@ -1860,21 +1860,20 @@ char *name;
 	int aflags;
 	dbref aowner;
 	char *atrstr;
-	char *str, *pat, *res, *p;
+	char *str, *pat, *res, *p, *bp;
 
-	/*
-	 * Look up a folder name and return the appopriate number 
-	 */
+	/* Look up a folder name and return the appopriate number */
+	
 	atrstr = atr_get(player, A_MAILFOLDERS, &aowner, &aflags);
 	if (!*atrstr) {
 		free_lbuf(atrstr);
 		return -1;
 	}
 	str = alloc_lbuf("get_folder_num_str");
-	pat = alloc_lbuf("get_folder_num_pat");
+	bp = pat = alloc_lbuf("get_folder_num_pat");
 
-	StringCopy(str, atrstr);
-	sprintf(pat, ":%s:", upcasestr(name));
+	strcpy(str, atrstr);
+	safe_tprintf_str(pat, &bp, ":%s:", upcasestr(name));
 	res = (char *)strstr(str, pat);
 	if (!res) {
 		free_lbuf(str);
@@ -2672,7 +2671,7 @@ char *alias;
 
 	if ((*alias == '#') && ExpMail(player)) {
 		x = atoi(alias + 1);
-		if (x < 0 || x > ma_top)
+		if (x < 0 || x >= ma_top)
 			return NULL;
 		else
 			return malias[x];
@@ -2816,7 +2815,7 @@ char *alias;
 {
 	struct malias *m;
 	int i = 0;
-	char *buff;
+	char *buff, *bp;
 
 	m = get_malias(player, alias);
 
@@ -2828,11 +2827,11 @@ char *alias;
 		notify(player, "MAIL: Permission denied.");
 		return;
 	}
-	buff = alloc_lbuf("do_malias_list");
-	sprintf(buff, "MAIL: Alias *%s: ", m->name);
+	bp = buff = alloc_lbuf("do_malias_list");
+	safe_tprintf_str(buff, &bp, "MAIL: Alias *%s: ", m->name);
 	for (i = m->numrecep - 1; i > -1; i--) {
-		strcat(buff, Name(m->list[i]));
-		strcat(buff, " ");
+		safe_str(Name(m->list[i]), buff, &bp);
+		safe_chr(' ', buff, &bp);
 	}
 
 	notify(player, buff);
@@ -3482,8 +3481,13 @@ char *person;
 		notify(player, tprintf("MAIL: Alias %s not found.", alias));
 		return;
 	}
-	if (*person == '#')
+	if (*person == '#') {
 		thing = parse_dbref(person + 1);
+		if (!isPlayer(thing)) {
+			notify(player, "MAIL: Only players may be added.");
+			return;
+		}
+	}
 	
 	if (thing == NOTHING)
 		thing = lookup_player(player, person, 1);

@@ -597,7 +597,7 @@ int key;
 char *name;
 {
 	dbref loc, exitloc, thing;
-	char *buf;
+	char *buf, *bp;
 	int quiet, oattr, aattr;
 
 	loc = Location(player);
@@ -636,8 +636,8 @@ char *name;
 		quiet = 0;
 		if ((key & DROP_QUIET) && Controls(player, thing))
 			quiet = 1;
-		buf = alloc_lbuf("do_drop.did_it");
-		sprintf(buf, "dropped %s.", Name(thing));
+		bp = buf = alloc_lbuf("do_drop.did_it");
+		safe_tprintf_str(buf, &bp, "dropped %s.", Name(thing));
 		oattr = quiet ? 0 : A_ODROP;
 		aattr = quiet ? 0 : A_ADROP;
 		did_it(player, thing, A_DROP, "Dropped.", oattr, buf,
