@@ -3139,7 +3139,7 @@ void do_mail_quick(player, arg1, arg2)
 dbref player;
 char *arg1, *arg2;
 {
-	char *buf, *bp;
+	char *buf, *bp, *tolist;
 
 	if (!arg1 || !*arg1) {
 		notify(player, "MAIL: I don't know who you want to mail.");
@@ -3164,8 +3164,13 @@ char *arg1, *arg2;
 		free_lbuf(buf);
 		return;
 	}
-	mail_to_list(player, make_numlist(player, buf), NULL, NULL, bp, arg2, 0, 0);
+	if (!(tolist = make_numlist(player, buf))) {
+		free_lbuf(buf);
+		return;
+	}
+	mail_to_list(player, tolist, NULL, NULL, bp, arg2, 0, 0);
 	free_lbuf(buf);
+	free_lbuf(tolist);
 }
 
 void mail_to_list(player, tolist, cclist, bcclist, subject, message, flags, silent)
