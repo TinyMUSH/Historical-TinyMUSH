@@ -18,6 +18,13 @@
 #include "slave.h"
 #include <arpa/inet.h>
 
+/* Some systems are lame, and inet_addr() returns -1 on failure, despite
+ * the fact that it returns an unsigned long.
+ */
+#ifndef INADDR_NONE
+#define INADDR_NONE -1
+#endif
+
 pid_t parent_pid;
 
 #define MAX_STRING 8000
@@ -75,7 +82,7 @@ char *orig_arg;
 
 
 	addr = inet_addr(ip);
-	if (addr == -1) {
+	if (addr == INADDR_NONE) {
 		return (-1);
 	}
 	hp = gethostbyaddr((char *)&addr, sizeof(addr), AF_INET);
@@ -110,7 +117,7 @@ char *orig_arg;
 		static char namebuf[128];
 
 		defaddr.s_addr = inet_addr(arg);
-		if (defaddr.s_addr == -1) {
+		if (defaddr.s_addr == INADDR_NONE) {
 			return (-1);
 		}
 		strcpy(namebuf, arg);
