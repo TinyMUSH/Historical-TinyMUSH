@@ -98,17 +98,9 @@
 #define StringCopy strcpy
 #define StringCopyTrunc strncpy
 
-#ifdef VMS
-#define unlink delete
-#define gmtime localtime
-#define DEV_NULL "NL:"
-#define READ socket_read
-#define WRITE socket_write
-#else
 #define DEV_NULL "/dev/null"
 #define READ read
 #define WRITE write
-#endif
 
 #ifdef TEST_MALLOC
 extern int malloc_count;

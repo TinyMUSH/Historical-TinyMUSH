@@ -32,18 +32,7 @@ struct logindata {
 	int new_bad;
 };
 
-#ifndef VMS
 extern char *FDECL(crypt, (const char *, const char *));
-
-#else
-char *crypt(const char *inptr, const char *inkey)
-{
-	return (char *)inptr;
-}
-
-#endif /*
-        * VMS 
-        */
 
 extern time_t FDECL(time, (time_t *));
 

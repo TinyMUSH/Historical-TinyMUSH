@@ -4,12 +4,7 @@
 #ifndef __CONF_H
 #define __CONF_H
 
-#ifdef VMS
-#include "multinet_root:[multinet.include.sys]types.h"
-#include "multinet_root:[multinet.include.netinet]in.h"
-#else
 #include <netinet/in.h>
-#endif
 #include "config.h"
 #include "htab.h"
 #include "alloc.h"

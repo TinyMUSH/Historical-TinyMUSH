@@ -10,20 +10,12 @@
 #include	"db.h"
 #include	"mudconf.h"
 
-#ifdef VMS
-#include	<malloc.h>
-#include        <types.h>
-#include        <file.h>
-#include        <unixio.h>
-#include        "vms_dbm.h"
-#else
 #include	<sys/param.h>
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #include	<sys/file.h>
 
 #include	"gdbm.h"
-#endif /* VMS */
 
 #include	"udb.h"
 #include	"config.h"

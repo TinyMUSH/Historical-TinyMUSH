@@ -7,15 +7,9 @@
 #include "copyright.h"
 #include "autoconf.h"
 
-#ifdef VMS
-#include "multinet_root:[multinet.include.sys]file.h"
-#include "multinet_root:[multinet.include.sys]ioctl.h"
-#include "multinet_root:[multinet.include]errno.h"
-#else
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/wait.h>
-#endif
 #include <sys/stat.h>
 #include <signal.h>
 
@@ -1330,9 +1324,5 @@ int sig;
 	}
 	signal(sig, sighandler);
 	mudstate.panicking = 0;
-#ifdef VMS
-	return 1;
-#else
 	return;
-#endif
 }
