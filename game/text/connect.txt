@@ -1,4 +1,4 @@
-Welcome to TinyMUX
+Welcome to TinyMUSH
 ------------------------------------------------------------------------------
   "connect <name> <password>" connects you to an existing character.
   "create <name> <password>" creates a new character.

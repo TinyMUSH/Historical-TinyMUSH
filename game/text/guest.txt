@@ -1,12 +1,12 @@
-Welcome to the world of TinyMUX.  Explore places.  Meet people.  Have fun!
+Welcome to the world of TinyMUSH.  Explore places.  Meet people.  Have fun!
 If you need help, just ask somebody (type a double quote mark and then type
 your question, like this:
 
-"Where's a fun place to explore on this MUX?
+"Where's a fun place to explore on this MUSH?
 
 The question will appear to others in the same room as:
 
-<yourname> says "Where's a fun place to explore on this MUX?"
+<yourname> says "Where's a fun place to explore on this MUSH?"
 
 If you want to create a character of your own, type LOGOUT and then follow
 the directions for creating a character.
