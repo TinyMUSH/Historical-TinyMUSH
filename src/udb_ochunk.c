@@ -59,12 +59,20 @@ int dddb_init()
 {
 	static char *copen = "db_init cannot open ";
 	int block_size;
-	int cache_size = 32768;
+	int cache_size;
 	int ret;
 	
 	/* Calculate the proper page size */
 	
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
+
+	/* Set the cache size to the twice the page size. It only needs to
+	 * be large enough to hold the biggest piece of data we can store
+	 * plus a few bytes of overhead, since we flush the Sleepycat cache
+	 * after each write.
+	 */
+	 
+	cache_size = 2 * block_size;
 
 #ifndef STANDALONE
 	/* Open the database environment handle */
@@ -303,6 +311,13 @@ Aname *nam;
 	if ((ret = txn_commit(tid, 0)) != 0)
 		dbenvp->err(dbenvp, ret, "txn_commit");
 #endif
+
+	/* Perform a sync, since we only have enough space to do
+	 * one write */
+
+	if ((ret = dbp->sync(dbp, 0)) != 0)
+		dbp->err(dbp, ret, "sync");
+
 	XFREE(dat.data, "dddb_put");
 	return (0);
 }
@@ -360,6 +375,12 @@ Aname *nam;
 	if ((ret = txn_commit(tid, 0)) != 0)
 		dbenvp->err(dbenvp, ret, "txn_commit");
 #endif
+
+	/* Perform a sync, since we only have enough space to do
+	 * one write */
+
+	if ((ret = dbp->sync(dbp, 0)) != 0)
+		dbp->err(dbp, ret, "sync");
 
 	return (0);
 }

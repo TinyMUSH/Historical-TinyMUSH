@@ -332,8 +332,7 @@ extern void	FDECL(toast_player, (dbref));
 #define CLONE_NOSTRIP	32	/* Don't strip (most) flags from clone */
 #define CWHO_ALL	1	/* Show disconnected players on channel */
 #define	DBCK_FULL	1	/* Do all tests */
-#define DECOMP_DBREF    1	/* decompile by dbref */
-#define DECOMP_PRETTY	2	/* pretty-format output */
+#define DECOMP_PRETTY	1	/* pretty-format output */
 #define	DEST_ONE	1	/* object */
 #define	DEST_ALL	2	/* owner */
 #define	DEST_OVERRIDE	4	/* override Safe() */

@@ -75,7 +75,6 @@ NAMETAB cwho_sw[] = {
 #endif /* USE_COMSYS */
 
 NAMETAB decomp_sw[] = {
-{(char *)"dbref",	1,	CA_PUBLIC,	DECOMP_DBREF},
 {(char *)"pretty",	1,	CA_PUBLIC,	DECOMP_PRETTY},
 { NULL,			0,	0,		0}};
 
