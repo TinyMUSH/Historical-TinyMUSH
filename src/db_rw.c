@@ -27,6 +27,9 @@ static int g_version;
 static int g_format;
 static int g_flags;
 
+extern int anum_alc_top;
+static int *used_attrs_table;
+
 /* ---------------------------------------------------------------------------
  * getboolexp1: Get boolean subexpression from file.
  */
@@ -1139,16 +1142,17 @@ int db_read()
 	return (0);
 }			
 
-static int db_write_object_out(f, i, db_format, flags)
+static int db_write_object_out(f, i, db_format, flags, n_atrt)
 FILE *f;
 dbref i;
 int db_format, flags;
+int *n_atrt;
 {
 	ATTR *a;
 
 	char *got, *as;
 	dbref aowner;
-	int ca, aflags, alen, save, j;
+	int ca, aflags, alen, save, j, changed;
 	BOOLEXP *tempbool;
 
 	if (Going(i)) {
@@ -1195,6 +1199,8 @@ int db_format, flags;
 
 	/* write the attribute list */
 
+	changed = 0;
+
 	for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
 		save = 0;
 		if (!mudstate.standalone) {
@@ -1226,12 +1232,20 @@ int db_format, flags;
 		}
 		if (save) {
 			got = atr_get_raw(i, j);
-			fprintf(f, ">%d\n", j);
+			if (mudstate.standalone) {
+			    fprintf(f, ">%d\n", used_attrs_table[j]);
+			    if (used_attrs_table[j] != j) {
+				changed = 1;
+				*n_atrt += 1;
+			    }
+			} else {
+			    fprintf(f, ">%d\n", j);
+			}
 			putstring(f, got);
 		}
 	}
 	fprintf(f, "<\n");
-	return 0;
+	return (changed);
 }
 
 dbref db_write_flatfile(f, format, version)
@@ -1240,7 +1254,10 @@ int format, version;
 {
 	dbref i;
 	int flags;
-	VATTR *vp;
+	VATTR *vp, *vpx;
+	int n, end, ca, n_oldtotal, n_oldtop, n_deleted, n_renumbered;
+	int n_objt, n_atrt, got, anxt;
+	char *as;
 
 	al_store();
 
@@ -1255,26 +1272,116 @@ int format, version;
 	if (mudstate.standalone)
 		fprintf(mainlog_fp, "Writing ");
 
-	/* Write database information */
+	/* Attribute cleaning, if standalone. */
 
-	i = mudstate.attr_next;
+	if (mudstate.standalone) {
 
-	/* TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'. */
-	fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, i);
+	    used_attrs_table = (int *) XCALLOC(mudstate.attr_next,
+					       sizeof(int),
+					       "flatfile.used_attrs_table");
+	    n_oldtotal = mudstate.attr_next;
+	    n_oldtop = anum_alc_top;
+	    n_deleted = n_renumbered = n_objt = n_atrt = 0;
+
+	    /* Non-user defined attributes are always considered used. */
+
+	    for (n = 0; n < A_USER_START; n++)
+		used_attrs_table[n] = n;
+
+	    /* Walk the database. Mark all the attribute numbers in use. */
+
+	    atr_push();
+	    DO_WHOLE_DB(i) {
+		for (ca = atr_head(i, &as); ca; ca = atr_next(&as))
+		    used_attrs_table[ca] = ca;
+	    }
+	    atr_pop();
+
+	    /* Count up how many attributes we're deleting. */
+
+	    vp = vattr_first();
+	    while (vp) {
+		if (used_attrs_table[vp->number] == 0)
+		    n_deleted++;
+		vp = vattr_next(vp);
+	    }
+
+	    /* Walk the table we've created of used statuses. When we
+	     * find free slots, walk backwards to the first used slot
+	     * at the end of the table. Write the number of the free
+	     * slot into that used slot.
+	     */
+
+	    for (n = A_USER_START, end = mudstate.attr_next - 1;
+		 (n < mudstate.attr_next) && (n < end); n++) {
+		if (used_attrs_table[n] == 0) {
+		    while ((end > n) && (used_attrs_table[end] == 0))
+			end--;
+		    if (end > n) {
+			used_attrs_table[end] = used_attrs_table[n] = n;
+			end--;
+		    }
+		}
+	    }
+
+	    /* Count up our renumbers. */
+
+	    for (n = A_USER_START; n < mudstate.attr_next; n++) {
+		if ((used_attrs_table[n] != n) && (used_attrs_table[n] != 0)) {
+		    vp = (VATTR *) anum_get(n);
+		    if (vp)
+			n_renumbered++;
+		}
+	    }
+
+	    /* The new end of the attribute table is the first thing
+	     * we've renumbered. 
+	     */
+
+	    for (anxt = A_USER_START;
+		 ((anxt == used_attrs_table[anxt]) &&
+		  (anxt < mudstate.attr_next));
+		 anxt++)
+		;
+
+	} else {		/* ! standalone */
+	    anxt = mudstate.attr_next;
+	}
+
+	/* Write database information.
+	 * TinyMUSH 2 wrote '+V', MUX wrote '+X', 3.0 writes '+T'.
+	 */
+	fprintf(f, "+T%d\n+S%d\n+N%d\n", flags, mudstate.db_top, anxt);
 	fprintf(f, "-R%d\n", mudstate.record_players);
 
 	/* Dump user-named attribute info */
 
-	vp = vattr_first();
-	while (vp != NULL) {
-		if (!(vp->flags & AF_DELETED)) {
+	if (mudstate.standalone) {
+	    for (i = A_USER_START; i < mudstate.attr_next; i++) {
+		if (used_attrs_table[i] == 0)
+		    continue;
+		vp = (VATTR *) anum_get(used_attrs_table[i]);
+		if (vp) {
+		    if (!(vp->flags & AF_DELETED)) {
 			fprintf(f, "+A%d\n\"%d:%s\"\n",
-				vp->number, vp->flags, vp->name);
+				i, vp->flags, vp->name);
+		    }
 		}
-		vp = vattr_next(vp);
+	    }
+	} else {
+	    vp = vattr_first();
+	    while (vp != NULL) {
+		if (!(vp->flags & AF_DELETED)) {
+		    fprintf(f, "+A%d\n\"%d:%s\"\n",
+			    vp->number, vp->flags, vp->name);
+		}
+                vp = vattr_next(vp);
+	    }
 	}
 
 	/* Dump object and attribute info */
+
+	n_objt = n_atrt = 0;
 
 	DO_WHOLE_DB(i) {
 
@@ -1282,14 +1389,25 @@ int format, version;
 			fputc('.', mainlog_fp);
 		}
 
-		db_write_object_out(f, i, format, flags);
+		n_objt += db_write_object_out(f, i, format, flags, &n_atrt);
 	}
 
 	fputs("***END OF DUMP***\n", f);
 	fflush(f);
 	
-	if (mudstate.standalone)
+	if (mudstate.standalone) {
 		fprintf(mainlog_fp, "\n");
+		if (n_objt) {
+		    fprintf(mainlog_fp, "Cleaned %d attributes (now %d): %d deleted, %d renumbered (%d objects and %d individual attrs touched).\n",
+			    n_oldtotal, anxt, n_deleted, n_renumbered,
+			    n_objt, n_atrt);
+		} else if (n_deleted || n_renumbered) {
+		    fprintf(mainlog_fp, "Cleaned %d attributes (now %d): %d deleted, %d renumbered (no objects touched).\n",
+			    n_oldtotal, anxt, n_deleted, n_renumbered);
+		}
+		XFREE(used_attrs_table, "flatfile.used_attrs_table");
+	}
+
 	return (mudstate.db_top);
 }
 
