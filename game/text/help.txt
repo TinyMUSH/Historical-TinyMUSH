@@ -1871,10 +1871,14 @@
   See also: @link, LINKING.
 
 & @unlock
-  Command: @unlock <object>
+  Command: @unlock[/<whichlock>] <object>
            @unlock <object>/<attrib>
+ 
   The first form removes the lock on <object>, so that anyone may pass
   through (if an exit) or pick it up (if a player or an object).
+  <whichlock> indicates which lock you want to remove from the object.
+  If you don't specify one, you unset the Default lock. Type
+  'help @lock locks' for a list of locks.
  
   The second form clears the locked flag on the indicated attribute of the
   named object.  This allows the attribute to change ownership to the new
@@ -1882,6 +1886,7 @@
   of the object to @chown the attribute to themself or to overwrite it.
   You must own the attribute to be unlocked, but you do not need to own the
   object.
+ 
   See also: @chown, @lock, ATTRIBUTE OWNERSHIP.
 
 & @verb
@@ -7943,7 +7948,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   Example:
     > say pi()
-    You say "3.141562654"
+    You say "3.141592654"
+ 
   See also: acos(), asin(), atan(), cos(), sin(), tan().
 
 & E()
