@@ -88,7 +88,7 @@ gdbm_setopt(dbf, optflag, optval, optlen)
 	    return(-1);
 	  }
 
-	dbf->fast_write = *optval;
+	dbf->central_free = *optval;
 	break;
 
       case GDBM_COALESCEBLKS:
@@ -99,7 +99,7 @@ gdbm_setopt(dbf, optflag, optval, optlen)
 	    return(-1);
 	  }
 
-	dbf->fast_write = *optval;
+	dbf->coalesce_blocks = *optval;
 	break;
 
       default:
