@@ -87,15 +87,21 @@ typedef struct {
 	Chain mactive;
 } CacheLst;
 
-extern void	FDECL(cache_get, (void *, int, void **, int *, unsigned int));
-extern int 	FDECL(cache_put, (void *, int, void *, int, unsigned int));
+typedef struct {
+	void *dptr;
+	int dsize;
+} DBData;
+                      
+
 extern int 	FDECL(cache_init, (int));
 extern void 	NDECL(cache_reset);
 extern int 	NDECL(cache_sync);
-extern void 	FDECL(cache_del, (void *, int, unsigned int));
-extern void	FDECL(dddb_get, (void *, int, void **, int *, unsigned int));
-extern int	FDECL(dddb_put, (void *, int, void *, int, unsigned int));
-extern int	FDECL(dddb_del, (void *, int, unsigned int));
+extern DBData	FDECL(db_get, (DBData, unsigned int));
+extern int	FDECL(db_put, (DBData, DBData, unsigned int));
+extern int	FDECL(db_del, (DBData, unsigned int));
+extern DBData	FDECL(cache_get, (DBData, unsigned int));
+extern int	FDECL(cache_put, (DBData, DBData, unsigned int));
+extern void	FDECL(cache_del, (DBData, unsigned int));
 extern void	NDECL(attrib_sync);
 extern char	*FDECL(pipe_get_attrib, (int, int));
 extern void	FDECL(pipe_set_attrib, (int, int, char *));

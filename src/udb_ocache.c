@@ -175,7 +175,8 @@ void cache_reset()
 	int x;
 	Cache *cp, *nxt;
 	CacheLst *sp;
-
+	DBData key, data;
+	
 	/* Clear the cache after startup and reset stats */
 
 	for (x = 0; x < cwidth; x++, sp++) {
@@ -201,7 +202,9 @@ void cache_reset()
 						      ((Aname *)cp->keydata)->object);
 					break;
 				default:
-					dddb_del(cp->keydata, cp->keylen, cp->type);
+					key.dptr = cp->keydata;
+					key.dsize = cp->keylen;
+					db_del(key, cp->type);
 				}
 				cs_dels++;
 			} else {
@@ -212,8 +215,11 @@ void cache_reset()
 						   (char *)cp->data);
 					break;
 				default:
-					dddb_put(cp->keydata, cp->keylen, cp->data, 
-						 cp->datalen, cp->type);
+					key.dptr = cp->keydata;
+					key.dsize = cp->keylen;
+					data.dptr = cp->data;
+					data.dsize = cp->datalen;
+					db_put(key, data, cp->type);
 				}
 				cs_dbwrites++;
 			}
@@ -383,26 +389,22 @@ void list_cached_attrs(player)
 /* Search the cache for an entry of a specific type, if found, copy the data
  * and length into pointers provided by the caller, if not, fetch from DB */
 
-void cache_get(keydata, keylen, dataptr, datalenptr, type)
-void *keydata;
-int keylen;
-void **dataptr;
-int *datalenptr;
+DBData cache_get(key, type)
+DBData key;
 unsigned int type;
 {
 	Cache *cp, *prv;
 	CacheLst *sp;
 	int hv = 0;
-	void *newdata;
-	int newdatalen;
+	DBData data;
 #ifdef MEMORY_BASED
 	char *cdata;
 #endif
 
-	if (!keydata || !cache_initted) {
-		if (dataptr)
-			*dataptr = NULL;
-		return;
+	if (!key.dptr || !cache_initted) {
+		data.dptr = NULL;
+		data.dsize = 0;
+		return data;
 	}
 
 	/* If we're dumping, ignore stats - activity during a dump skews the
@@ -421,14 +423,14 @@ unsigned int type;
 #endif
 
 
-	hv = cachehash(keydata, keylen, type);
+	hv = cachehash(key.dptr, key.dsize, type);
 	sp = &sys_c[hv];
 
 	/* search active chain first */
 
 	prv = NULL;
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
-		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
+		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			if (!mudstate.standalone && !mudstate.dumping) {
 				cs_rhits++;
 				cs_ahits++;
@@ -438,13 +440,10 @@ unsigned int type;
 
 			INCCOUNTER(cp);
 
-			if (dataptr)
-				*dataptr = cp->data;
-			
-			if (datalenptr)
-				*datalenptr = cp->datalen;
+			data.dptr = cp->data;
+			data.dsize = cp->datalen;
 
-			return;
+			return data;
 		}
 		prv = cp;
 	}
@@ -453,7 +452,7 @@ unsigned int type;
 	
 	prv = NULL;
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
-		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
+		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			if (!mudstate.standalone && !mudstate.dumping) {
 				cs_rhits++;
 				cs_ahits++;
@@ -463,13 +462,10 @@ unsigned int type;
 
 			INCCOUNTER(cp);
 
-			if (dataptr)
-				*dataptr = cp->data;
-			
-			if (datalenptr)
-				*datalenptr = cp->datalen;
+			data.dptr = cp->data;
+			data.dsize = cp->datalen;
 
-			return;
+			return data;
 		}
 		prv = cp;
 	}
@@ -485,73 +481,62 @@ skipcacheget:
 	switch(type) {
 	case DBTYPE_ATTRIBUTE:
 #ifdef MEMORY_BASED
-		cdata = obj_get_attrib(((Aname *)keydata)->attrnum,
-			&(db[((Aname *)keydata)->object].attrtext));
+		cdata = obj_get_attrib(((Aname *)key.dptr)->attrnum,
+			&(db[((Aname *)key.dptr)->object].attrtext));
 		if (cdata) {
-			if (dataptr)
-				*dataptr = cdata;
-			if (datalenptr)
-				*datalenptr = strlen(cdata) + 1;
-			return;
+			data.dptr = cdata;
+			data.dsize = strlen(cdata) + 1;
+			return data;
 		}
 #endif		
-		newdata = (void *)pipe_get_attrib(((Aname *)keydata)->attrnum,
-			((Aname *)keydata)->object); 
-		if (newdata == NULL) {
-			newdatalen = 0;
+		data.dptr = (void *)pipe_get_attrib(((Aname *)key.dptr)->attrnum,
+			((Aname *)key.dptr)->object); 
+		if (data.dptr == NULL) {
+			data.dsize = 0;
 		} else {
-			newdatalen = strlen(newdata) + 1;
+			data.dsize = strlen(data.dptr) + 1;
 		}
 
 #ifdef MEMORY_BASED
 		if (!mudstate.standalone && !mudstate.dumping)
 			cs_dbreads++;
-		if (newdata) {
-			newdatalen = strlen(newdata) + 1;
-			cdata = XMALLOC(newdatalen, "cache_get.membased");
-			memcpy((void *)cdata, (void *)newdata, newdatalen);
+		if (data.dptr) {
+			data.dsize = strlen(data.dptr) + 1;
+			cdata = XMALLOC(data,dsize, "cache_get.membased");
+			memcpy((void *)cdata, (void *)data.dptr, data.dsize);
 			
-			obj_set_attrib(((Aname *)keydata)->attrnum,
-				&(db[((Aname *)keydata)->object].attrtext),
+			obj_set_attrib(((Aname *)key.dptr)->attrnum,
+				&(db[((Aname *)key.dptr)->object].attrtext),
 				cdata);
-			if (dataptr)
-				*dataptr = cdata;
-			if (datalenptr)
-				*datalenptr = newdatalen;
-			return;
+			data.dptr = cdata;
+			return data;
 		} else {
-			if (dataptr)
-				*dataptr = NULL;
-			if (datalenptr)
-				*datalenptr = 0;
-			return;
+			data.dptr = NULL;
+			data.dsize = 0;
+			return data;
 		}
 #endif			
 		break;
 	default:
-		dddb_get(keydata, keylen, &newdata, &newdatalen, type);
+		data = db_get(key, type);
 	}
 
 	if (!mudstate.standalone && !mudstate.dumping)
 		cs_dbreads++;
 	
-	if (newdata == NULL) {
-		if (dataptr) 
-			*dataptr = NULL;
-		if (datalenptr)
-			*datalenptr = 0;
-		return;
+	if (data.dptr == NULL) {
+		return data;
 	}
 
-	if ((cp = get_free_entry(newdatalen)) == NULL)
+	if ((cp = get_free_entry(data.dsize)) == NULL)
 		return;
 
-	cp->keydata = (void *)RAW_MALLOC(keylen, "cache_get");
-	memcpy(cp->keydata, keydata, keylen);
-	cp->keylen = keylen;
+	cp->keydata = (void *)RAW_MALLOC(key.dsize, "cache_get");
+	memcpy(cp->keydata, key.dptr, key.dsize);
+	cp->keylen = key.dsize;
 	
-	cp->data = newdata;
-	cp->datalen = newdatalen;
+	cp->data = data.dptr;
+	cp->datalen = data.dsize;
 	cp->type = type;
 
 	/* If we're dumping, we'll put everything we fetch that is not
@@ -562,11 +547,6 @@ skipcacheget:
 	
 	cs_size += cp->datalen;
 
-	if (dataptr)
-		*dataptr = cp->data;
-	if (datalenptr)
-		*datalenptr = cp->datalen;
-
 	if (mudstate.dumping) {
 		/* Link at head of active chain */
 		INSHEAD(sp->active, cp);
@@ -576,6 +556,8 @@ skipcacheget:
 		INSTAIL(sp->active, cp);
 		INCCOUNTER(cp);
 	}
+
+	return data;
 }
 
 /*
@@ -600,11 +582,9 @@ skipcacheget:
  * 
  */
 
-int cache_put(keydata, keylen, data, datalen, type)
-void *keydata;
-int keylen;
-void *data;
-int datalen;
+int cache_put(key, data, type)
+DBData key;
+DBData data;
 unsigned int type;
 {
 	Cache *cp, *prv;
@@ -614,7 +594,7 @@ unsigned int type;
 	char *cdata;
 #endif
 	
-	if (!keydata || !data || !cache_initted) {
+	if (!key.dptr || !data.dptr || !cache_initted) {
 		return (1);
 	}
 
@@ -622,36 +602,36 @@ unsigned int type;
 	if (mudstate.standalone) {
 #endif
 		/* Bypass the cache when standalone or memory based for writes */
-		if (data == NULL) {
+		if (data.dptr == NULL) {
 			switch(type) {
 			case DBTYPE_ATTRIBUTE:
-				pipe_del_attrib(((Aname *)keydata)->attrnum, 
-					      ((Aname *)keydata)->object);
+				pipe_del_attrib(((Aname *)key.dptr)->attrnum, 
+					      ((Aname *)key.dptr)->object);
 #ifdef MEMORY_BASED
-				obj_del_attrib(((Aname *)keydata)->attrnum,
-					   &(db[((Aname *)keydata)->object].attrtext));
+				obj_del_attrib(((Aname *)key.dptr)->attrnum,
+					   &(db[((Aname *)key.dptr)->object].attrtext));
 #endif
 				break;
 			default:
-				dddb_del(keydata, keylen, type);
+				db_del(key, type);
 			}
 		} else {
 			switch(type) {
 			case DBTYPE_ATTRIBUTE:
-				pipe_set_attrib(((Aname *)keydata)->attrnum, 
-					   ((Aname *)keydata)->object,
-					   (char *)data);
+				pipe_set_attrib(((Aname *)key.dptr)->attrnum, 
+					   ((Aname *)key.dptr)->object,
+					   (char *)data.dptr);
 #ifdef MEMORY_BASED
 				cdata = XMALLOC(datalen, "cache_get.membased");
-				memcpy((void *)cdata, (void *)data, datalen);
+				memcpy((void *)cdata, (void *)data.dptr, data.dsize);
 			
-				obj_set_attrib(((Aname *)keydata)->attrnum,
-					&(db[((Aname *)keydata)->object].attrtext),
+				obj_set_attrib(((Aname *)key.dptr)->attrnum,
+					&(db[((Aname *)key.dptr)->object].attrtext),
 					cdata);
 #endif
 				break;
 			default:
-				dddb_put(keydata, keylen, data, datalen, type);
+				db_put(key, data, type);
 			}
 		}
 		return(0);
@@ -663,19 +643,19 @@ unsigned int type;
 
 	/* generate hash */
 	
-	hv = cachehash(keydata, keylen, type);
+	hv = cachehash(key.dptr, key.dsize, type);
 	sp = &sys_c[hv];
 
 	/* step one, search active chain, and if we find the obj, dirty it */
 
 	prv = NULL;
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
-		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
+		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			if (!mudstate.dumping) {
 				cs_whits++;
 			}
-			if(cp->data != data) {
-				cache_repl(cp, data, datalen, type);
+			if(cp->data != data.dptr) {
+				cache_repl(cp, data.dptr, data.dsize, type);
 			}
 
 			DEQUEUE(sp->active, cp);
@@ -687,19 +667,18 @@ unsigned int type;
 		}
 		prv = cp;
 	}
-	/*
-	 * step two, search modified active chain, and if we find the obj,
-	 * we're done 
-	 */
+	
+	/* step two, search modified active chain, and if we find the obj,
+	 * we're done */
 	 
 	prv = NULL;
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
-		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
+		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			if (!mudstate.dumping) {
 				cs_whits++;
 			}
-			if(cp->data != data) {
-				cache_repl(cp, data, datalen, type);
+			if(cp->data != data.dptr) {
+				cache_repl(cp, data.dptr, data.dsize, type);
 			}
 
 			DEQUEUE(sp->mactive, cp);
@@ -714,15 +693,15 @@ unsigned int type;
 
 	/* Add a new entry to the cache */
 
-	if ((cp = get_free_entry(datalen)) == NULL)
+	if ((cp = get_free_entry(data.dsize)) == NULL)
 		return (1);
 
-	cp->keydata = (void *)RAW_MALLOC(keylen, "cache_put");
-	memcpy(cp->keydata, keydata, keylen);
-	cp->keylen = keylen;
+	cp->keydata = (void *)RAW_MALLOC(key.dsize, "cache_put");
+	memcpy(cp->keydata, key.dptr, key.dsize);
+	cp->keylen = key.dsize;
 	
-	cp->data = data;
-	cp->datalen = datalen;
+	cp->data = data.dptr;
+	cp->datalen = data.dsize;
 	cp->type = type;
 
 	cs_size += cp->datalen;
@@ -738,6 +717,7 @@ unsigned int type;
 static Cache *get_free_entry(atrsize)
 int atrsize;
 {
+	DBData key, data;
 	CacheLst *sp;
 	Chain *chp;
 	Cache *cp = NULL, *p, *prv;
@@ -839,7 +819,9 @@ replace:
 						      ((Aname *)cp->keydata)->object);
 					break;
 				default:
-					dddb_del(cp->keydata, cp->keylen, cp->type);
+					key.dptr = cp->keydata;
+					key.dsize = cp->keylen;
+					db_del(key, cp->type);
 				}
 				cs_dels++;
 			} else {
@@ -850,8 +832,11 @@ replace:
 						   (char *)cp->data);
 					break;
 				default:
-					dddb_put(cp->keydata, cp->keylen, cp->data, 
-						 cp->datalen, cp->type);
+					key.dptr = cp->keydata;
+					key.dsize = cp->keylen;
+					data.dptr = cp->data;
+					data.dsize = cp->datalen;
+					db_put(key, data, cp->type);
 				}
 				cs_dbwrites++;
 			}
@@ -891,6 +876,8 @@ replace:
 static int cache_write(cp)
 Cache *cp;
 {
+	DBData key, data;
+	
 	/* Write a single cache chain to disk */
 
 	while (cp != NULL) {
@@ -901,7 +888,9 @@ Cache *cp;
 					      ((Aname *)cp->keydata)->object);
 				break;
 			default:
-				dddb_del(cp->keydata, cp->keylen, cp->type);
+				key.dptr = cp->keydata;
+				key.dsize = cp->keylen;
+				db_del(key, cp->type);
 			}
 			cs_dels++;
 		} else {
@@ -912,8 +901,11 @@ Cache *cp;
 					   (char *)cp->data);
 				break;
 			default:
-				dddb_put(cp->keydata, cp->keylen, cp->data, 
-					 cp->datalen, cp->type);
+				key.dptr = cp->keydata;
+				key.dsize = cp->keylen;
+				data.dptr = cp->data;
+				data.dsize = cp->datalen;
+				db_put(key, data, cp->type);
 			}
 			cs_dbwrites++;
 		}
@@ -976,36 +968,37 @@ int NDECL(cache_sync)
 	return (0);
 }
 
-void cache_del(keydata, keylen, type)
-void *keydata;
-int keylen;
+void cache_del(key, type)
+DBData key;
 unsigned int type;
 {
 	Cache *cp, *prv;
 	CacheLst *sp;
 	int hv = 0;
 	
-	if (!keydata || !cache_initted)
+	if (!key.dptr || !cache_initted)
 		return;
 
 #ifdef MEMORY_BASED
-	pipe_del_attrib(((Aname *)keydata)->attrnum, 
-		      ((Aname *)keydata)->object);
-	obj_del_attrib(((Aname *)keydata)->attrnum,
-		   &(db[((Aname *)keydata)->object].attrtext));
-	return;
+	if (type == DBTYPE_ATTRIBUTE) {
+		pipe_del_attrib(((Aname *)key.dptr)->attrnum, 
+			      ((Aname *)key.dptr)->object);
+		obj_del_attrib(((Aname *)key.dptr)->attrnum,
+			   &(db[((Aname *)key.dptr)->object].attrtext));
+		return;
+	}
 #endif
 
 	cs_dels++;
 
-	hv = cachehash(keydata, keylen, type);
+	hv = cachehash(key.dptr, key.dsize, type);
 	sp = &sys_c[hv];
 
 	/* mark dead in cache */
 	
 	prv = NULL;
 	for (cp = sp->active.head; cp != NULL; cp = cp->nxt) {
-		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
+		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			DEQUEUE(sp->active, cp);
 			INSHEAD(sp->mactive, cp);
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
@@ -1017,7 +1010,7 @@ unsigned int type;
 	
 	prv = NULL;
 	for (cp = sp->mactive.head; cp != NULL; cp = cp->nxt) {
-		if (NAMECMP(keydata, cp->keydata, keylen, type, cp->type)) {
+		if (NAMECMP(key.dptr, cp->keydata, key.dsize, type, cp->type)) {
 			DEQUEUE(sp->mactive, cp);
 			INSHEAD(sp->mactive, cp);
 			cache_repl(cp, NULL, 0, DBTYPE_EMPTY);
@@ -1030,9 +1023,9 @@ unsigned int type;
 	if ((cp = get_free_entry(0)) == NULL)
 		return;
 
-	cp->keydata = (void *)RAW_MALLOC(keylen, "cache_del");
-	memcpy(cp->keydata, keydata, keylen);
-	cp->keylen = keylen;
+	cp->keydata = (void *)RAW_MALLOC(key.dsize, "cache_del");
+	memcpy(cp->keydata, key.dptr, key.dsize);
+	cp->keylen = key.dsize;
 
 	INCCOUNTER(cp);
 	INSHEAD(sp->mactive, cp);

@@ -156,64 +156,57 @@ int dddb_close()
 	return (0);
 }
 
-/* Pass dddb_get a key and its length, and it returns data through
- * dataptr and length through datalenptr. Type is used as part of the GDBM
+/* Pass db_get a key, and it returns data. Type is used as part of the GDBM
  * key to guard against namespace conflicts in different MUSH subsystems */
 
-void dddb_get(keydata, keylen, dataptr, datalenptr, type)
-void *keydata;
-int keylen;
-void **dataptr;
-int *datalenptr;
+DBData db_get(gamekey, type)
+DBData gamekey;
 unsigned int type;
 {
+	DBData gamedata;
 	char *s;
 #ifdef TEST_MALLOC
 	char *newdat;
 #endif
 	
 	if (!db_initted) {
-		if (dataptr)
-			*dataptr = NULL;
+		gamedata.dptr = NULL;
+		gamedata.dsize = 0;
 		return;
 	}
 	
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_get");
-	memcpy((void *)s, keydata, keylen); 
-	s += keylen;
+	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + gamekey.dsize, "db_get");
+	memcpy((void *)s, gamekey.dptr, gamekey.dsize); 
+	s += gamekey.dsize;
 	memcpy((void *)s, (void *)&type, sizeof(unsigned int));
-	key.dsize = sizeof(int) + keylen;
+	key.dsize = sizeof(int) + gamekey.dsize;
 
 	dat = gdbm_fetch(dbp, key);
 
 #ifdef TEST_MALLOC
 	/* We must XMALLOC() our own memory */
 	if (dat.dptr != NULL) {
-		newdat = (char *)XMALLOC(dat.dsize, "dddb_get.newdat");
+		newdat = (char *)XMALLOC(dat.dsize, "db_get.newdat");
 		memcpy(newdat, dat.dptr, dat.dsize);
 		free(dat.dptr);
 		dat.dptr = newdat;
 	}
 #endif
 	
-	if (dataptr)
-		*dataptr = dat.dptr;
-	if (datalenptr)
-		*datalenptr = dat.dsize;
+	gamedata.dptr = dat.dptr;
+	gamedata.dsize = dat.dsize;
 
-	RAW_FREE(key.dptr, "dddb_get");
+	RAW_FREE(key.dptr, "db_get");
+	return gamedata;
 }
 
-/* Pass dddb_put a key and its length, data and its length, and the type
- * of entry you are storing */
+/* Pass db_put a key, data and the type of entry you are storing */
 
-int dddb_put(keydata, keylen, data, len, type)
-void *keydata;
-int keylen;
-void *data;
-int len;
+int db_put(gamekey, gamedata, type)
+DBData gamekey;
+DBData gamedata;
 unsigned int type;
 {
 	char *s;
@@ -223,36 +216,32 @@ unsigned int type;
 
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_put");
-	memcpy((void *)s, keydata, keylen); 
-	s += keylen;
+	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + gamekey.dsize, "db_put");
+	memcpy((void *)s, gamekey.dptr, gamekey.dsize); 
+	s += gamekey.dsize;
 	memcpy((void *)s, (void *)&type, sizeof(unsigned int));
-	key.dsize = sizeof(int) + keylen;
+	key.dsize = sizeof(int) + gamekey.dsize;
 	
 	/* make table entry */
-	dat.dptr = (char *)RAW_MALLOC(len, "dddb_put.dat");
-	memcpy(dat.dptr, data, len);
-	dat.dsize = len;
+	dat.dptr = gamedata.dptr;
+	dat.dsize = gamedata.dsize;
 
 	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
 		logf("db_put: can't gdbm_store ", " ", (char *)-1, "\n", (char *)0);
-		RAW_FREE(dat.dptr, "dddb_put.dat");
-		RAW_FREE(key.dptr, "dddb_put");
+		RAW_FREE(dat.dptr, "db_put.dat");
+		RAW_FREE(key.dptr, "db_put");
 		return (1);
 	}
 
-	RAW_FREE(dat.dptr, "dddb_put.dat");
-	RAW_FREE(key.dptr, "dddb_put");
+	RAW_FREE(key.dptr, "db_put");
 
 	return (0);
 }
 
-/* Pass dddb_del a key and its length, and the type of entry you are
- * deleting */
+/* Pass db_del a key and the type of entry you are deleting */
 
-int dddb_del(keydata, keylen, type)
-void *keydata;
-int keylen;
+int db_del(gamekey, type)
+DBData gamekey;
 unsigned int type;
 {
 	char *s;
@@ -263,32 +252,32 @@ unsigned int type;
 
 	/* Construct a key (GDBM likes first 4 bytes to be unique) */
 	
-	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + keylen, "dddb_del");
-	memcpy((void *)s, keydata, keylen); 
-	s += keylen;
+	s = key.dptr = (char *)RAW_MALLOC(sizeof(int) + gamekey.dsize, "db_del");
+	memcpy((void *)s, gamekey.dptr, gamekey.dsize); 
+	s += gamekey.dsize;
 	memcpy((void *)s, (void *)&type, sizeof(unsigned int));
-	key.dsize = sizeof(int) + keylen;
+	key.dsize = sizeof(int) + gamekey.dsize;
 
 	dat = gdbm_fetch(dbp, key); 
 
 	/* not there? */
 	if (dat.dptr == NULL) {
-		RAW_FREE(key.dptr, "dddb_del.key");
+		RAW_FREE(key.dptr, "db_del.key");
 		return (0);
 	}
 
 #ifdef TEST_MALLOC
 	free(dat.dptr);
 #else
-	RAW_FREE(dat.dptr, "dddb_del.dat");
+	RAW_FREE(dat.dptr, "db_del.dat");
 #endif
 
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {
 		logf("db_del: can't delete key\n", (char *)NULL);
-		RAW_FREE(key.dptr, "dddb_del.key");
+		RAW_FREE(key.dptr, "db_del.key");
 		return (1);
 	}
-	RAW_FREE(key.dptr, "dddb_del.key");
+	RAW_FREE(key.dptr, "db_del.key");
 	return (0);
 }

@@ -116,16 +116,18 @@ void register_hashtables(htab, ntab)
 unsigned int register_dbtype(modname)
 char *modname;
 {
-	void *data;
 	unsigned int type;
+	DBData key, data;
 	
 	/* Find out if the module already has a registered DB type */
 	
-	dddb_get((void *)modname, strlen(modname) + 1, &data, NULL, DBTYPE_MODULETYPE);
+	key.dptr = modname;
+	key.dsize = strlen(modname) + 1;
+	data = db_get(key, DBTYPE_MODULETYPE);
 
-	if (data) {
-		memcpy((void *)&type, (void *)data, sizeof(unsigned int));
-		XFREE(data, "register_dbtype");
+	if (data.dptr) {
+		memcpy((void *)&type, (void *)data.dptr, sizeof(unsigned int));
+		XFREE(data.dptr, "register_dbtype");
 		return type;
 	}
 	
@@ -136,7 +138,9 @@ char *modname;
 	    (mudstate.moduletype_top < DBTYPE_END)) {
 		/* Write the entry to GDBM */
 		
-		dddb_put((void *)modname, strlen(modname) + 1, (void *)&mudstate.moduletype_top, sizeof(unsigned int), DBTYPE_MODULETYPE);
+		data.dptr = &mudstate.moduletype_top;
+		data.dsize = sizeof(unsigned int);
+		db_put(key, data, DBTYPE_MODULETYPE);
 		type = mudstate.moduletype_top;
 		mudstate.moduletype_top++;
 		return type;

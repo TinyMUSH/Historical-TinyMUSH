@@ -127,18 +127,14 @@ bail:
 
 /* Rollup an object structure into a single buffer for a write to disk. */
 
-int rollup_obj(o, data)
+char *rollup_obj(o)
 Obj *o;
-char **data;
 {
 	int i;
 	Attrib *a;
-	char *dptr;
+	char *dptr, *data;
 
-	if (!data)
-		return (-1);
-
-	dptr = *data = (char *)XMALLOC(obj_siz(o), "rollup_obj.data");
+	dptr = data = (char *)XMALLOC(obj_siz(o), "rollup_obj.data");
 
 	/* Mark the object as clean */
 	
@@ -147,11 +143,11 @@ char **data;
 	/* Write out the object header */
 
 	if (memcpy((void *)dptr, (void *)&(o->name), sizeof(Objname)) == NULL)
-		return (-1);
+		return NULL;
 	dptr += sizeof(Objname);
 
 	if (memcpy((void *)dptr, (void *)&(o->at_count), sizeof(int)) == NULL)
-		 return (-1);
+		 return NULL;
 	dptr += sizeof(int);
 
 	/* Now do the attributes, one at a time. */
@@ -162,26 +158,26 @@ char **data;
 		/* Attribute size. */
 
 		if (memcpy((void *)dptr, (void *)&(a[i].size), sizeof(int)) == NULL)
-			 return (-1);
+			 return NULL;
 		dptr += sizeof(int);
 
 		/* Attribute number */
 
 		if (memcpy((void *)dptr, (void *)&(a[i].attrnum), sizeof(int)) == NULL)
-			 return (-1);
+			 return NULL;
 		dptr += sizeof(int);
 
 
 		/* Attribute data */
 
 		if (memcpy((void *)dptr, (void *)a[i].data, a[i].size) == NULL)
-			return (-1);
+			return NULL;
 		dptr += a[i].size;
 	}
 
 	/* That's all she wrote. */
 
-	return (0);
+	return data;
 }
 
 /* Return the size, on disk, the thing is going to take up.*/
@@ -359,7 +355,7 @@ Obj *obj;
 Obj *get_free_objpipe(obj)
 int obj;
 {
-	char *data;
+	DBData key, data;
 	int i, j = 0;
 	
 	/* Try to see if it's already in a pipeline first */
@@ -379,10 +375,13 @@ int obj;
 		if (!mudstate.objpipes[i]) {
 			/* If there's no object there, read one in */
 		
-			ATTRS_FETCH(obj, &data);
-			if (data) {
-				mudstate.objpipes[i] = unroll_obj(data);
-				XFREE(data, "get_free_objpipe");
+			key.dptr = &obj;
+			key.dsize = sizeof(int);
+			data = db_get(key, DBTYPE_ATTRIBUTE);
+
+			if (data.dptr) {
+				mudstate.objpipes[i] = unroll_obj(data.dptr);
+				XFREE(data.dptr, "get_free_objpipe");
 			} else {
 				/* New object */
 				if ((mudstate.objpipes[i] = (Obj *) XMALLOC(sizeof(Obj), 
@@ -409,19 +408,24 @@ int obj;
 	 * dirty, write it first */
 
 	if (mudstate.objpipes[j]->dirty) {
-		rollup_obj(mudstate.objpipes[j], &data);
-		ATTRS_STORE(mudstate.objpipes[j]->name, data,
-			obj_siz(mudstate.objpipes[j]));
-		XFREE(data, "get_free_objpipe.2");
+		data.dptr = rollup_obj(mudstate.objpipes[j]);
+		data.dsize = obj_siz(mudstate.objpipes[j]);
+		key.dptr = &mudstate.objpipes[j]->name;
+		key.dsize = sizeof(int);
+		db_put(key, data, DBTYPE_ATTRIBUTE);
+		XFREE(data.dptr, "get_free_objpipe.2");
 	}
 	objfree(mudstate.objpipes[j]);
 
 	/* Bring in the object from disk if it exists there */
 
-	ATTRS_FETCH(obj, &data);
-	if (data) {
-		mudstate.objpipes[j] = unroll_obj(data);
-		XFREE(data, "get_free_objpipe.3");
+	key.dptr = &obj;
+	key.dsize = sizeof(int);
+	data = db_get(key, DBTYPE_ATTRIBUTE);
+
+	if (data.dptr) {
+		mudstate.objpipes[j] = unroll_obj(data.dptr);
+		XFREE(data.dptr, "get_free_objpipe.3");
 	} else {
 		/* New object */
 		if ((mudstate.objpipes[j] = (Obj *) XMALLOC(sizeof(Obj), 
@@ -489,7 +493,7 @@ int obj;
 
 void attrib_sync()
 {
-	char *data;
+	DBData key, data;
 	int i;
 
 	/* Make sure dirty objects are written to disk */
@@ -497,10 +501,12 @@ void attrib_sync()
 	for (i = 0; i < NUM_OBJPIPES; i++) {
 		if (mudstate.objpipes[i] &&
 		    mudstate.objpipes[i]->dirty) {
-			rollup_obj(mudstate.objpipes[i], &data);
-			ATTRS_STORE(mudstate.objpipes[i]->name, data,
-				obj_siz(mudstate.objpipes[i]));
-			XFREE(data, "attrib_sync.1");
+			data.dptr = rollup_obj(mudstate.objpipes[i]);
+			data.dsize = obj_siz(mudstate.objpipes[i]);
+			key.dptr = &mudstate.objpipes[i]->name;
+			key.dsize = sizeof(int);
+			db_put(key, data, DBTYPE_ATTRIBUTE);
+			XFREE(data.dptr, "attrib_sync.1");
 			mudstate.objpipes[i]->dirty = 0;
 		}
 	}

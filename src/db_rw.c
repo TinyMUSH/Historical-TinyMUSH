@@ -1007,8 +1007,9 @@ int *db_format, *db_version, *db_flags;
 
 int db_read()
 {
-	int *data, *dptr, vattr_flags, i, j, blksize, num, len;
-	char *cdata, *cdptr;
+	DBData key, data;
+	int *c, vattr_flags, i, j, blksize, num;
+	char *s;
 
 #ifndef NO_TIMECHECKING
 	struct timeval obj_time;
@@ -1016,54 +1017,59 @@ int db_read()
 
 	/* Fetch the database info */
 	
-	DBINFO_FETCH("TM3", &data);
+	key.dptr = "TM3";
+	key.dsize = strlen("TM3") + 1;
+	data = db_get(key, DBTYPE_DBINFO);
 	
-	if (!data) {
+	if (!data.dptr) {
 		fprintf(mainlog_fp, "\nCould not open main record");
 		return -1;
 	}
 	
 	/* Unroll the data returned */
 	
-	dptr = data;
-	memcpy((void *)&mudstate.min_size, (void *)dptr, sizeof(int));
-	dptr++;
-	memcpy((void *)&mudstate.attr_next, (void *)dptr, sizeof(int));
-	dptr++;
-	memcpy((void *)&mudstate.record_players, (void *)dptr, sizeof(int));
-	dptr++;
-	memcpy((void *)&mudstate.moduletype_top, (void *)dptr, sizeof(int));
-	RAW_FREE(data, "dddb_get");
+	c = data.dptr;
+	memcpy((void *)&mudstate.min_size, (void *)c, sizeof(int));
+	c++;
+	memcpy((void *)&mudstate.attr_next, (void *)c, sizeof(int));
+	c++;
+	memcpy((void *)&mudstate.record_players, (void *)c, sizeof(int));
+	c++;
+	memcpy((void *)&mudstate.moduletype_top, (void *)c, sizeof(int));
+	RAW_FREE(data.dptr, "db_get");
 	
 	/* Load the attribute numbers */
 	
 	blksize = ATRNUM_BLOCK_SIZE;
 	
 	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.attr_next, blksize); i++) {
-		ATRNUM_FETCH(i, &cdata, &len);
-		if (cdata) {
+		key.dptr = &i;
+		key.dsize = sizeof(int);
+		data = db_get(key, DBTYPE_ATRNUM);
+		
+		if (data.dptr) {
 			/* Unroll the data into flags and name */
 			
-			cdptr = cdata;	
+			s = data.dptr;	
 
-			while ((cdptr - cdata) < len) {
-				memcpy((void *)&j, (void *)cdptr, sizeof(int));
-				cdptr += sizeof(int);
-				memcpy((void *)&vattr_flags, (void *)cdptr, sizeof(int));
-				cdptr += sizeof(int);
-				vattr_define(cdptr, j, vattr_flags);
-				cdptr = strchr((const char *)cdptr, '\0');
+			while ((s - (char *)data.dptr) < data.dsize) {
+				memcpy((void *)&j, (void *)s, sizeof(int));
+				s += sizeof(int);
+				memcpy((void *)&vattr_flags, (void *)s, sizeof(int));
+				s += sizeof(int);
+				vattr_define(s, j, vattr_flags);
+				s = strchr((const char *)s, '\0');
 				
-				if (!cdptr) {
+				if (!s) {
 					/* Houston, we have a problem */
 					fprintf(mainlog_fp,
 						"\nError reading attribute number %d\n",
 						j + ENTRY_BLOCK_STARTS(i, blksize));
 				}
 				
-				cdptr++;
+				s++;
 			}
-			RAW_FREE(cdata, "dddb_get");
+			RAW_FREE(data.dptr, "db_get");
 		}
 	
 	}
@@ -1076,15 +1082,18 @@ int db_read()
 	blksize = OBJECT_BLOCK_SIZE;
 	
 	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.min_size, blksize); i++) {
-		OBJECT_FETCH(i, &cdata, &len);
-		if (cdata) {
+		key.dptr = &i;
+		key.dsize = sizeof(int);
+		data = db_get(key, DBTYPE_OBJECT);
+		
+		if (data.dptr) {
 			/* Unroll the data into objnum and object */
 			
-			cdptr = cdata;
+			s = data.dptr;
 			
-			while ((cdptr - cdata) < len) {
-				memcpy((void *)&num, (void *)cdptr, sizeof(int));
-				cdptr += sizeof(int);
+			while ((s - (char *)data.dptr) < data.dsize) {
+				memcpy((void *)&num, (void *)s, sizeof(int));
+				s += sizeof(int);
 				db_grow(num + 1);
 
 				if (mudstate.standalone && !(num % 100)) {
@@ -1094,8 +1103,8 @@ int db_read()
 				/* We read the entire object structure in
 				 * and copy it into place */
 			
-				memcpy((void *)&(db[num]), (void *)cdptr, sizeof(DUMPOBJ));
-				cdptr += sizeof(DUMPOBJ);
+				memcpy((void *)&(db[num]), (void *)s, sizeof(DUMPOBJ));
+				s += sizeof(DUMPOBJ);
 #ifndef NO_TIMECHECKING
 				obj_time.tv_sec = obj_time.tv_usec = 0;
 				s_Time_Used(i, obj_time);
@@ -1117,7 +1126,7 @@ int db_read()
 				s_Clean(i);
 			}
 			
-			RAW_FREE(cdata, "dddb_get");
+			RAW_FREE(data.dptr, "db_get");
 		}
 	}	
 
@@ -1288,9 +1297,10 @@ int format, version;
 dbref db_write()
 {
 	VATTR *vp;
-	int *data, *dptr, len, blksize, num, i, j, k, dirty;
-	char *cdata, *cdptr;
-
+	DBData key, data;
+	int *c, blksize, num, i, j, k, dirty, len;
+	char *s;
+	
 	al_store();
 
 	if (mudstate.standalone)
@@ -1303,19 +1313,22 @@ dbref db_write()
 	/* Roll up various paramaters needed for startup into one record.
 	 * This should be the only data record of its type */
 		
-	dptr = data = (int *)XMALLOC(4 * sizeof(int), "db_write");
-	memcpy((void *)dptr, (void *)&mudstate.db_top, sizeof(int));
-	dptr++;
-	memcpy((void *)dptr, (void *)&i, sizeof(int));
-	dptr++;
-	memcpy((void *)dptr, (void *)&mudstate.record_players, sizeof(int));
-	dptr++;
-	memcpy((void *)dptr, (void *)&mudstate.moduletype_top, sizeof(int));
+	c = data.dptr = (int *)XMALLOC(4 * sizeof(int), "db_write");
+	memcpy((void *)c, (void *)&mudstate.db_top, sizeof(int));
+	c++;
+	memcpy((void *)c, (void *)&i, sizeof(int));
+	c++;
+	memcpy((void *)c, (void *)&mudstate.record_players, sizeof(int));
+	c++;
+	memcpy((void *)c, (void *)&mudstate.moduletype_top, sizeof(int));
 			
 	/* "TM3" is our unique key */
 		
-	DBINFO_STORE("TM3", data, 4 * sizeof(int));
-	XFREE(data, "db_write");
+	key.dptr = "TM3";
+	key.dsize = strlen("TM3") + 1;
+	data.dsize = 4 * sizeof(int);
+	db_put(key, data, DBTYPE_DBINFO);
+	XFREE(data.dptr, "db_write");
 		
 	/* Dump user-named attribute info */
 
@@ -1329,12 +1342,12 @@ dbref db_write()
 	/* Step through the attribute number array, writing stuff in 'num'
 	 * sized chunks */
 	 
-	cdata = (char *)XMALLOC(ATRNUM_BLOCK_BYTES, "db_write.cdata");
+	data.dptr = (char *)XMALLOC(ATRNUM_BLOCK_BYTES, "db_write.cdata");
 	
 	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.attr_next, blksize); i++) {
 		dirty = 0;
 		num = 0;
-		cdptr = cdata;
+		s = data.dptr;
 				
 		for (j = ENTRY_BLOCK_STARTS(i, blksize);
 		     (j <= ENTRY_BLOCK_ENDS(i, blksize)) &&
@@ -1367,8 +1380,9 @@ dbref db_write()
 		
 		if (!num) {
 			/* No valid attributes in this block, delete it */
-			
-			ATRNUM_DEL(i);
+			key.dptr = &i;
+			key.dsize = sizeof(int);
+			db_del(key, DBTYPE_ATRNUM);
 		}
 		
 		if (dirty) {
@@ -1389,21 +1403,24 @@ dbref db_write()
 				
 				if (vp && !(vp->flags & AF_DELETED)) {
 					len = strlen(vp->name) + 1;
-					memcpy((void *)cdptr, (void *)&vp->number, sizeof(int));
-					cdptr += sizeof(int);
-					memcpy((void *)cdptr, (void *)&vp->flags, sizeof(int));
-					cdptr += sizeof(int);
-					memcpy((void *)cdptr, (void *)vp->name, len); 
-					cdptr += len;
+					memcpy((void *)s, (void *)&vp->number, sizeof(int));
+					s += sizeof(int);
+					memcpy((void *)s, (void *)&vp->flags, sizeof(int));
+					s += sizeof(int);
+					memcpy((void *)s, (void *)vp->name, len); 
+					s += len;
 				}
 			}
 			
 			/* Write the block: Block number is our key */
-				
-			ATRNUM_STORE(i, cdata, cdptr - cdata);
+			
+			key.dptr = &i;
+			key.dsize = sizeof(int);
+			data.dsize = s - (char *)data.dptr;
+			db_put(key, data, DBTYPE_ATRNUM);
 		}
 	}
-	XFREE(cdata, "db_write.cdata");
+	XFREE(data.dptr, "db_write.cdata");
 
 	/* Dump object structures using the same block-based method we use
 	 * to dump attribute numbers */
@@ -1413,12 +1430,12 @@ dbref db_write()
 	/* Step through the object structure array, writing stuff in 'num'
 	 * sized chunks */
 
-	cdata = (char *)XMALLOC(OBJECT_BLOCK_BYTES, "db_write.cdata");
+	data.dptr = (char *)XMALLOC(OBJECT_BLOCK_BYTES, "db_write.cdata");
 
 	for (i = 0; i <= ENTRY_NUM_BLOCKS(mudstate.db_top, blksize); i++) {
 		dirty = 0;
 		num = 0;
-		cdptr = cdata;
+		s = data.dptr;
 		
 		for (j = ENTRY_BLOCK_STARTS(i, blksize);
 		     (j <= ENTRY_BLOCK_ENDS(i, blksize)) &&
@@ -1452,7 +1469,9 @@ dbref db_write()
 		if (!num) {
 			/* No valid objects in this block, delete it */
 			
-			OBJECT_DEL(i);
+			key.dptr = &i;
+			key.dsize = sizeof(int);
+			db_del(key, DBTYPE_OBJECT);
 		}
 		
 		if (dirty) {
@@ -1468,20 +1487,23 @@ dbref db_write()
 				k = ENTRY_BLOCK_STARTS(i, blksize) + j;
 				
 				if (!Going(k)) {
-					memcpy((void *)cdptr, (void *)&k, sizeof(int));
-					cdptr += sizeof(int);
-					memcpy((void *)cdptr, (void *)&(db[k]), sizeof(DUMPOBJ));
-					cdptr += sizeof(DUMPOBJ);
+					memcpy((void *)s, (void *)&k, sizeof(int));
+					s += sizeof(int);
+					memcpy((void *)s, (void *)&(db[k]), sizeof(DUMPOBJ));
+					s += sizeof(DUMPOBJ);
 				}
 			}
 			
 			/* Write the block: Block number is our key */
 			
-			OBJECT_STORE(i, cdata, cdptr - cdata);
+			key.dptr = &i;
+			key.dsize = sizeof(int);
+			data.dsize = s - (char *)data.dptr;
+			db_put(key, data, DBTYPE_OBJECT);
 		}
 	}
 		
-	XFREE(cdata, "db_write.cdata");
+	XFREE(data.dptr, "db_write.cdata");
 
 	if (mudstate.standalone)
 		fprintf(mainlog_fp, "\n");

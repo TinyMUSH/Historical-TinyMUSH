@@ -1568,9 +1568,16 @@ dbref thing;
 int atr;
 {
 	Aname okey;
-
+	DBData key;
+	
 	makekey(thing, atr, &okey);
-	DELETE(&okey);
+	
+	/* Delete the entry from cache */
+	
+	key.dptr = &okey;
+	key.dsize = sizeof(Aname);
+	cache_del(key, DBTYPE_ATTRIBUTE);
+
 	al_delete(thing, atr);
 
 	switch (atr) {
@@ -1610,11 +1617,17 @@ char *buff;
 {
 	Attr *a;
 	Aname okey;
-
+	DBData key, data;
+	
 	makekey(thing, atr, &okey);
 	
 	if (!buff || !*buff) {
-		DELETE(&okey);
+		/* Delete the entry from cache */
+
+		key.dptr = &okey;
+		key.dsize = sizeof(Aname);
+		cache_del(key, DBTYPE_ATTRIBUTE);
+
 		al_delete(thing, atr);
 		return;
 	}
@@ -1624,7 +1637,14 @@ char *buff;
 	}
 	strcpy(a, buff);
 
-	STORE(&okey, a);
+	/* Store the value in cache */
+	
+	key.dptr = &okey;
+	key.dsize = sizeof(Aname);
+	data.dptr = a;
+	data.dsize = strlen(a) + 1;
+	cache_put(key, data, DBTYPE_ATTRIBUTE);
+	
 	al_add(thing, atr);
 
 	if (!mudstate.standalone && !mudstate.loading_db)
@@ -1709,7 +1729,7 @@ char *atr_get_raw(thing, atr)
 dbref thing;
 int atr;
 {
-	Attr *a;
+	DBData key, data;
 	Aname okey;
 	int attr, found = 0;
 	char *as;
@@ -1735,8 +1755,13 @@ int atr;
 	}
 
 	makekey(thing, atr, &okey);
-	FETCH(&okey, &a);
-	return a;
+	
+	/* Fetch the entry from cache and return it */
+	
+	key.dptr = &okey;
+	key.dsize = sizeof(Aname);
+	data = cache_get(key, DBTYPE_ATTRIBUTE);
+	return data.dptr;
 }
 
 char *atr_get_str(s, thing, atr, owner, flags, alen)

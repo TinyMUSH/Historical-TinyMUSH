@@ -6,54 +6,9 @@
 #ifndef	__DB_H
 #define	__DB_H
 
-#define STORE(key, attr)	cache_put((void *)key, sizeof(Aname), \
-					  (void *)attr, strlen(attr) + 1, \
-					  DBTYPE_ATTRIBUTE)
-#define DELETE(key)		cache_del((void *)key, sizeof(Aname), \
-					  DBTYPE_ATTRIBUTE)
-#define FETCH(key, data)	cache_get((void *)key, sizeof(Aname), \
-					  (void **)data, NULL, \
-					  DBTYPE_ATTRIBUTE)
 #define SYNC			cache_sync()
 #define CLOSE			{ cache_sync(); dddb_close(); }
 #define OPTIMIZE                (void) dddb_optimize()
-
-#define DBINFO_FETCH(key, data)	dddb_get((void *)key, strlen(key) + 1, \
-					(void **)data, NULL, \
-					DBTYPE_DBINFO);
-#define DBINFO_STORE(key, data, len) \
-				dddb_put((void *)key, strlen(key) + 1, \
-					(void *)data, len, \
-					DBTYPE_DBINFO);
-#define ATRNUM_FETCH(key, data, len) \
-				dddb_get((void *)&key, sizeof(int), \
-					(void **)data, (int *)len, \
-					DBTYPE_ATRNUM);
-#define ATRNUM_STORE(key, data, len) \
-				dddb_put((void *)&key, sizeof(int), \
-					(void *)data, len, \
-					DBTYPE_ATRNUM);
-#define ATRNUM_DEL(key)		dddb_del((void *)&key, sizeof(int), \
-					DBTYPE_ATRNUM);
-#define OBJECT_FETCH(key, data, len) \
-				dddb_get((void *)&key, sizeof(int), \
-					(void **)data, (int *)len, \
-					DBTYPE_OBJECT);
-#define OBJECT_STORE(key, data, len) \
-				dddb_put((void *)&key, sizeof(int), \
-					(void *)data, len, \
-					DBTYPE_OBJECT);
-#define OBJECT_DEL(key)		dddb_del((void *)&key, sizeof(int), \
-					DBTYPE_OBJECT);
-#define ATTRS_FETCH(key, data)	dddb_get((void *)&key, sizeof(int), \
-					(void **)data, NULL, \
-					DBTYPE_ATTRIBUTE);
-#define ATTRS_STORE(key, data, len) \
-				dddb_put((void *)&key, sizeof(int), \
-					(void *)data, len, \
-					DBTYPE_ATTRIBUTE);
-#define ATTRS_DEL(key)		dddb_del((void *)&key, sizeof(int), \
-					DBTYPE_ATTRIBUTE);
 
 /* Macros to help deal with batch writes of attribute numbers and objects */
 
