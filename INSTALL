@@ -11,6 +11,18 @@ such as "Unix for Dummies" or "Unix for the Impatient".
 
 ----------------------------------------------------------------------------
 
+TABLE OF CONTENTS
+
+- One-step installation
+- Basic installation
+- Starting a new game
+- Upgrading from TinyMUSH 3.0
+- Converting from another MU* type
+- Compatibility
+- System Requirements
+
+----------------------------------------------------------------------------
+
 ONE-STEP INSTALLATION
 
 If you want to build the server using the standard default configuration,
@@ -129,18 +141,123 @@ STARTING A NEW GAME
   problem. The most common is a problem with GNU dbm; this is likely
   the cause if you @shutdown, type './Startmush', and find that the
   attributes in your database are gone. If this happens to you, check
-  your configuration and rebuild the netmush and dbconvert binaries,
-  if necessary.
+  your configuration and rebuild the netmush binary, if necessary.
 
 ----------------------------------------------------------------------------
 
-CONVERTING AN EXISTING GAME
+UPGRADING FROM TINYMUSH 3.0
+
+For the sake of these examples, we will assume that your TinyMUSH 3.0
+installation is in ~/3.0/ and your TinyMUSH 3.1 installation is in
+~/3.1/ -- change these pathnames to whatever they actually are.
+
+Do NOT overwrite your 3.0 installation with 3.1! Once you have upgraded
+and tested to make sure your game is running properly, you can delete
+your 3.0 installation if you want to.
+
+- Go into the game directory from your TinyMUSH 3.0 install:  cd ~/3.0/game
+
+- Make an archive (using the old 3.0 binaries!) via ./Archive
+  It will be called <your game name>-archive.<date>.tar.gz
+  The examples below call it netmush-archive.0213-1548.tar.gz -- substitute
+  the filename of your own archive. (You may want to make sure you save
+  an extra copy of this file somewhere, since it's the archive of all
+  of your files from the 3.0 installation.)
+
+- Go into the 3.1 game directory:  cd ~/3.1/game
+
+- Preserve the current mush.config file:  mv mush.config mush.config.default
+
+- Inflate the archive file:
+  gzip -dc ~/3.0/game/netmush-archive.0213-1548.tar.gz | tar -xvf -
+
+  This will write the files into your current, 3.1 directory. If you are
+  given the option to overwrite files, do so; you want to replace the
+  existing defaults.
+
+- Edit the mush.config.default file. Replace the GAMENAME and OWNER
+  values with your own game name and email address of the owner. (Look
+  at the mush.config file you got from inflating an archive, if you
+  need a reminder of what they were.)
+ 
+- Overwrite your old mush.config file with the new one:
+  mv -f mush.config.default mush.config
+
+- Rename your comsys and mail databases to the new 3.1 names:
+  mv comsys.db mod_comsys.db
+  mv mail.db mod_mail.db
+
+  You may need to go into your data directory ('cd data') in order to do
+  this; if you do, you should then return to the 3.1 game directory
+  ('cd ..') once you've moved the files.
+
+- Edit your game's conf file. It should be called GAMENAME.conf, where
+  GAMENAME is whatever you set GAMENAME to in mush.config  -- it's named
+  whatever you called it in your 3.0 installation and should have been
+  placed in your 3.1 game directory when you expanded the archive.
+
+  - If you have the following parameters set, simply remove them:
+    cache_depth
+    input_database
+    output_database
+    mail_database
+    comsys_database
+    have_comsys
+    have_mailer
+    format_exits
+    format_contents
+
+  - If you were using the built-in comsys, add this line:
+    module comsys
+
+  - If you were using the built-in mailer, add this line:
+    module mail
+
+  - If you had your database files in the data directory, add this line:
+    database_home data
+    (If you have your database files in another directory, substitute that
+    in instead. Pathnames are relative to the ~/3.1/game directory.)
+
+  - If you have the gdbm_database parameter in your conf file, edit it
+    to take away any prepending path. For instance, if your conf file reads:
+    gdbm_database data/netmush.gdbm
+    change it to read:
+    gdbm_database netmush.gdbm
+
+  - If you have the crash_database parameter in your conf file, edit it
+    to take away any prepending path. For instance, if your conf file reads:
+    crash_database data/netmush.db.CRASH
+    change it to read:
+    crash_database netmush.db.CRASH
+
+- Start the game by typing './Startmush'.
+
+- Connect to your game, and verify that it's running correctly.
+
+- You may want to make sure that you can back up and restore your database:
+  Type '@shutdown'. Then, from the game directory, type './Backup'. If the
+  backup finishes successfully, type './Restore FILENAME' (where FILENAME
+  is the name of the backup file; it will have a .tar.gz extension). If
+  this finishes successfully, then type './Startmush' to start the game
+  again.
+
+  If you encounter problems at this stage, you have an installation
+  problem. The most common is a problem with GNU dbm; this is likely
+  the cause if you @shutdown, type './Startmush', and find that the
+  attributes in your database are gone. If this happens to you, check
+  your configuration and rebuild the netmush binary, if necessary.
+
+----------------------------------------------------------------------------
+
+CONVERTING FROM ANOTHER MU* TYPE
 
 If you are upgrading from TinyMUSH 2.2, read the file 'CONVERT.TINY22'
 for instructions.
 
-If you are upgrading from TinyMUX, read the file 'CONVERT.MUX' for 
+If you are upgrading from TinyMUX 1.x, read the file 'CONVERT.MUX' for 
 instructions.
+
+There is, at present, no automated conversion from TinyMUX 2 or PennMUSH.
 
 ----------------------------------------------------------------------------
 
