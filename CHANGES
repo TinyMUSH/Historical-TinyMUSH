@@ -8,6 +8,7 @@ For changes between beta versions, consult the BETA document.
 =============================================================================
 
 TinyMUSH 3.1 beta 1 was released on May 8th, 2002.
+The "full", gamma release of TinyMUSH 3.1 is dated June 21st, 2004.
 
 -----------------------------------------------------------------------------
 
@@ -189,7 +190,7 @@ CHANGES TO ATTRIBUTES
 - The new attribute @nameformat controls the display of location's name
   when someone looks at the location.
 
-- The format and text of a say and pose can be arbitrarily altered, via the
+- The format and text of a say or pose can be arbitrarily altered, via the
   @speechformat attribute and SPEECHMOD flag on the speaker, or the
   speaker's location.
 
