@@ -26,10 +26,10 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
     instead of @speechmod [3.1b7; Jared Robertson]
 
   - Changed the wizhelp topic text of LOGGING and INHERITANCE to
-    "This topic hasn't been written yet."
+    "This topic hasn't been written yet." [MUX; Jared Robertson]
 
   - Added a REGISTRATION wizhelp topic (was referenced by @PCREATE and
-    REGISTER_SITE)
+    REGISTER_SITE) [MUX; Jared Robertson]
 
 3.1 Patchlevel 1					August 11th, 2004
 
