@@ -2149,6 +2149,7 @@ int atr, *flags, *alen;
 	if (!buff) {
 		*owner = Owner(thing);
 		*flags = 0;
+		*alen = 0;
 		*s = '\0';
 	} else {
 		atr_decode(buff, s, thing, owner, flags, atr, alen);
@@ -2231,6 +2232,7 @@ int atr, *flags, *alen;
 	}
 	*owner = Owner(thing);
 	*flags = 0;
+	*alen = 0;
 	*s = '\0';
 	return s;
 }
