@@ -789,7 +789,7 @@ char *cargs[];
 					(*dstr)--;
 				if ((ch < 'A') || (ch > 'Z'))
 					break;
-				i = 100 + ch - 'A';
+				i = A_VA + ch - 'A';
 				atr_gotten = atr_pget(player, i, &aowner,
 						      &aflags, &alen);
 				safe_known_str(atr_gotten, alen, buff, bufc);
