@@ -547,10 +547,10 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 
 #define Are_Real(p,t)		(!(Unreal(p) || Unreal(t)))
 #define Check_Heard(t,p)	(could_doit((t),(p),A_LHEARD))
-#define Check_Noticed(t,p)	(could_doit((t),(p),A_LMOTION))
+#define Check_Noticed(t,p)	(could_doit((t),(p),A_LMOVED))
 #define Check_Known(t,p)	(could_doit((t),(p),A_LKNOWN))
 #define Check_Hears(p,t)	(could_doit((p),(t),A_LHEARS))
-#define Check_Notices(p,t)	(could_doit((p),(t),A_LGOES))
+#define Check_Notices(p,t)	(could_doit((p),(t),A_LMOVES))
 #define Check_Knows(p,t)	(could_doit((p),(t),A_LKNOWS))
 
 #endif /* __FLAGS_H */

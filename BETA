@@ -28,7 +28,7 @@ Release history:
 
 - Feature: "Altered reality" realm states like invisibility are supported
   through the use of the PRESENCE flag and six new locks (HeardLock,
-  HearsLock, KnownLock, KnowsLock, MotionLock, and GoesLock).
+  HearsLock, KnownLock, KnowsLock, MovedLock, and MovesLock).
 
 - Feature: hasflag() can now detect object types.
 

@@ -369,7 +369,7 @@ above about future conflicts with built-ins should be kept in mind, though.
 
 How do I create "altered reality" realm states like invisibility?
 
-There are three special locks -- the HeardLock, KnownLock, and MotionLock --
+There are three special locks -- the HeardLock, KnownLock, and MovedLock --
 that are only activated by the PRESENCE flag.
 
 When an object which is set PRESENCE tries to speak via a speech command
@@ -381,7 +381,7 @@ if the target is set PRESENCE, the object must pass the target's KnownLock.
 This is also true for messages generated via attributes like @odesc.
 
 When an object which is set PRESENCE moves or tries to move, its movement 
-is only seen by those objects which pass the object's MotionLock.
+is only seen by those objects which pass the object's MovedLock.
 
 When an object set PRESENCE wants to hear another thing speak, that thing
 must pass the object's HearsLock.
@@ -390,7 +390,7 @@ When an object set PRESENCE wants to see another thing, that thing must
 pass the object's KnowsLock.
 
 When an object set PRESENCE wants to notice another thing's movement,
-that thing must pass the object's GoesLock.
+that thing must pass the object's MovesLock.
 
 Motion and the ability to see an object already in the room are treated
 differently, since it's possible that you might want to have something

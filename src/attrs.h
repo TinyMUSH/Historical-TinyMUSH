@@ -178,10 +178,10 @@
 
 #define A_LKNOWN	223	/* Who is this player seen by? (presence) */
 #define A_LHEARD	224	/* Who is this player heard by? (speech) */
-#define A_LMOTION	225	/* Who notices this player moving? */
+#define A_LMOVED	225	/* Who notices this player moving? */
 #define A_LKNOWS	226	/* Who does this player see? (presence) */
 #define A_LHEARS	227	/* Who does this player hear? (speech) */
-#define A_LGOES		228	/* Who does this player notice moving? */ 
+#define A_LMOVES	228	/* Who does this player notice moving? */ 
 
 #define	A_VLIST		252
 #define	A_LIST		253

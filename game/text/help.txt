@@ -2425,7 +2425,6 @@ Type 'help @lock locks' for a list of the different types of locks.
      EnterLock:    Players/Things: controls who may ENTER the object if the
                                    object is ENTER_OK.
      GiveLock:     Players/Things: controls who may give the object.
-     GoesLock:     All:            controls what motion a PRESENCE object sees.
      HeardLock:    All:            controls who can hear a PRESENCE object.
      HearsLock:    All:            controls what a PRESENCE object hears.
      KnownLock:    All:            controls who can see a PRESENCE object.
@@ -2435,8 +2434,9 @@ Type 'help @lock locks' for a list of the different types of locks.
                                    location is LINK_OK (for linking exits or
                                    setting drop-tos) or ABODE (for setting
                                    homes).
-     MotionLock:   All:            controls who notices a PRESENCE object's
+     MovedLock:    All:            controls who notices a PRESENCE object's
                                    movement.
+     MovesLock:    All:            controls what motion a PRESENCE object sees.
  
 { 'help @lock locks3' for more }
  
@@ -4323,12 +4323,12 @@ Example: @sex me = female
   Flag: PRESENCE (^)
  
   If an object is set PRESENCE, only things that pass its KnownLock
-  can see it, only things that pass its MotionLock can notice it move,
+  can see it, only things that pass its MovedLock can notice it move,
   and only things that pass its HeardLock will hear its speech.
  
   Furthermore, an object that is set PRESENCE only sees the things
   that pass its KnowsLock, only notices the motion of things that
-  pass its GoesLock, and only hears the speech of things which pass
+  pass its MovesLock, and only hears the speech of things which pass
   its HearsLock.
   
 & ROOM
@@ -14214,7 +14214,7 @@ Continued in 'help 3.1 flags2'.
   overhead of scanning the data object for $-commands.
  
 - The new PRESENCE flag, in conjunction with six new locks (HeardLock,
-  HearsLock, KnownLock, KnowsLock, MotionLock, GoesLock) supports "altered
+  HearsLock, KnownLock, KnowsLock, MovedLock, MovesLock) supports "altered
   reality" realm states such as invisibility.
  
 - @filter, @infilter, and @listen do regular expression matches if
