@@ -4,6 +4,10 @@
  *  $Id$
  */
 
+#ifndef VATTR_HASH_SIZE		/* must be a power of two */
+#define VATTR_HASH_SIZE 16384
+#endif
+
 #define VNAME_SIZE	32
 
 typedef struct user_attribute VATTR;

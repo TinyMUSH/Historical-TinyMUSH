@@ -39,7 +39,7 @@ static int stringblock_hwm = 0;
 
 void NDECL(vattr_init)
 {
-	hashinit(&mudstate.vattr_name_htab, 256 * HASH_FACTOR);
+	hashinit(&mudstate.vattr_name_htab, VATTR_HASH_SIZE);
 }
 
 VATTR *vattr_find(name)

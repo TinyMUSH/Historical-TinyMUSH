@@ -127,6 +127,27 @@ UDB_INC	= udb.h udb_defs.h
 #COMPRESS_DEFS = -DRADIX_COMPRESSION 
 #COMPRESS_LIB = -L./radixlib -lcompress
 
+# You might want to change the size of the user-named attribute hash table.
+#
+# Look at '@list hash' on your game from time to time, and the line for
+# 'Vattr Names'; you are interested in the 'Entries' column, which is the
+# number of user-named attributes in your database. You want a hash table
+# that is larger than this; there is, however, a memory trade-off. The
+# hash table size must be a power of two; below is a table listing sizes
+# and memory used.
+#
+# Vattr Size	Memory in K		Vattr Size	Memory in K
+# 512           8                       8192            128 
+# 1024          16                      16384           256 
+# 2048          32                      32768           512 
+# 4096          64                      65536           1024 
+#
+# Values under the default of 16384 are not recommended unless your
+# database is under 5,000 objects and memory overhead is of very great
+# concern.
+#
+#VSIZE_F = -DVATTR_HASH_SIZE=16384
+
 # If we want to use the port concentrator, comment out the first set and
 # uncomment the second set of definitions. There is no need to use the
 # concentrator unless you run into problems with too many players being
@@ -168,14 +189,14 @@ AUX_SRC	= dbconvert.c mkindx.c unsplit.c
 LIB_SRC = 
 LIB_INC = 
 DEBUG	= $(OPTIM)
-ALLCFLAGS = $(CFLAGS) $(DEBUG) $(DEFS) $(COMPRESS_DEFS) $(BASED) $(MALLOC_DEFS) $(CONC_DEFS) $(MOREDEFS) $(RLIM_F)
+ALLCFLAGS = $(CFLAGS) $(DEBUG) $(DEFS) $(COMPRESS_DEFS) $(BASED) $(MALLOC_DEFS) $(CONC_DEFS) $(VSIZE_F)
 
 #Auxiliary files
 A_INST	= CREDITS CHANGES CHANGES.TINY20 CHANGES.TINY22 CHANGES.MUX \
 	  CONVERT.TINY22 CONVERT.MUX FAQ INSTALL README README.TOOLS
 A_TXT	= badsite.txt connect.txt create_reg.txt down.txt guest.txt help.txt \
-	  motd.txt news.txt newuser.txt quit.txt register.txt wizhelp.txt \
-	  wizmotd.txt full.txt plushelp.txt wiznews.txt
+	  htmlconn.txt motd.txt news.txt newuser.txt quit.txt register.txt \
+	  wizhelp.txt wizmotd.txt full.txt plushelp.txt wiznews.txt
 A_SH	= db_load db_unload db_check buildnum.sh
 A_RT	= Startmush mush.config
 A_CONF	= netmush.conf alias.conf compat.conf
