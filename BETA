@@ -33,6 +33,8 @@ Release history:
 
 - Fix: Delimiters are passed by reference to avoid a gcc 3.1 bug.
 
+- Fix: The @Ttofail attribute has been corrected to @TOFail. [3.1a8]
+
 - Misc: If ladd() is given a blank list, it returns 0 instead of
   complaining about the number of arguments.
 
