@@ -3847,26 +3847,30 @@ FUNCTION(fun_fold)
  *  NOTE:  If you specify a separator it is used to delimit returned list
  */
 
-FUNCTION(fun_filter)
+static void handle_filter(player, cause, arg_func, arg_list, buff, bufc,
+			  sep, osep, flag)
+    dbref player, cause;
+    char *arg_func, *arg_list;
+    char *buff;
+    char **bufc;
+    char sep, osep;
+    int flag;			/* 0 is filter(), 1 is filterbool() */
 {
 	dbref aowner, thing;
 	int aflags, anum, first;
 	ATTR *ap;
-	char *atext, *result, *curr, *objstring, *bp, *str, *cp, *atextbuf,
-	 sep, osep;
-
-	svarargs_preamble("FILTER", 4);
+	char *atext, *result, *curr, *objstring, *bp, *str, *cp, *atextbuf;
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
-	if (parse_attrib(player, fargs[0], &thing, &anum)) {
+	if (parse_attrib(player, arg_func, &thing, &anum)) {
 		if ((anum == NOTHING) || (!Good_obj(thing)))
 			ap = NULL;
 		else
 			ap = atr_num(anum);
 	} else {
 		thing = player;
-		ap = atr_str(fargs[0]);
+		ap = atr_str(arg_func);
 	}
 
 	/* Make sure we got a good attribute */
@@ -3887,7 +3891,7 @@ FUNCTION(fun_filter)
 	}
 	/* Now iteratively eval the attrib with the argument list */
 
-	cp = curr = trim_space_sep(fargs[1], sep);
+	cp = curr = trim_space_sep(arg_list, sep);
 	atextbuf = alloc_lbuf("fun_filter");
 	first = 1;
 	while (cp) {
@@ -3898,16 +3902,36 @@ FUNCTION(fun_filter)
 		exec(result, &bp, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &objstring, 1);
 		*bp = '\0';
-		if (!first && *result == '1')
-			safe_chr(osep, buff, bufc);
-		if (*result == '1') {
+		if ((!flag && (*result == '1')) || (flag && xlate(result))) {
+		        if (!first) {
+			        safe_chr(osep, buff, bufc);
+			} else {
+			    first = 0;
+			}
 			safe_str(objstring, buff, bufc);
-			first = 0;
 		}
 		free_lbuf(result);
 	}
 	free_lbuf(atext);
 	free_lbuf(atextbuf);
+}
+
+FUNCTION(fun_filter)
+{
+	char sep, osep;
+
+	svarargs_preamble("FILTER", 4);
+	handle_filter(player, cause, fargs[0], fargs[1], buff, bufc,
+		      sep, osep, 0);
+}
+
+FUNCTION(fun_filterbool)
+{
+	char sep, osep;
+
+	svarargs_preamble("FILTERBOOL", 4);
+	handle_filter(player, cause, fargs[0], fargs[1], buff, bufc,
+		      sep, osep, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -4862,6 +4886,7 @@ FUN flist[] = {
 {"SUBEVAL",  	fun_subeval,	1,  0,		CA_PUBLIC},
 {"FDIV",	fun_fdiv,	2,  0,		CA_PUBLIC},
 {"FILTER",	fun_filter,	0,  FN_VARARGS,	CA_PUBLIC},
+{"FILTERBOOL",	fun_filterbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"FINDABLE",	fun_findable,	2,  0,		CA_PUBLIC},
 {"FIRST",	fun_first,	0,  FN_VARARGS,	CA_PUBLIC},
 {"FLAGS",	fun_flags,	1,  0,		CA_PUBLIC},
