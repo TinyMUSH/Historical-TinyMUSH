@@ -596,7 +596,7 @@ int could_hear, can_hear;
 		}
 		gender = get_gender(thing);
 		notify_check(thing, thing,
-			     tprintf("%s %s no longer listening..",
+			     tprintf("%s %s no longer listening.",
 				     buff, (gender == 4) ? "are" : "is"),
 			     (MSG_ME | MSG_NBR | MSG_LOC | MSG_INV));
 		free_lbuf(buff);
