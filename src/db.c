@@ -2769,6 +2769,10 @@ dbref newtop;
 	db = newdb + SIZE_HACK;
 	newdb = NULL;
 
+	/* Go do the rest of the things */
+
+	CALL_ALL_MODULES(db_grow, (newsize));
+
 	for (i = mudstate.db_top; i < newtop; i++) {
 #ifndef MEMORY_BASED
 		names[i] = NULL;

@@ -34,6 +34,7 @@ struct module_linked_list {
     void (*announce_disconnect)(dbref, const char *);
     void (*cleanup_startup)(void);
     void (*dump_database)(void);
+    void (*db_grow)(int);
 };
 
 typedef struct confparm CONF;

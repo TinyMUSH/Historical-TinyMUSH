@@ -22,6 +22,28 @@ CONF mod_hello_conftable[] = {
 { NULL,					NULL,		0,		0,		NULL,				0}};
 
 /* --------------------------------------------------------------------------
+ * Database.
+ */
+
+typedef struct mod_hello_dbobj MOD_HELLO_OBJ;
+struct mod_hello_dbobj {
+    int greeted;
+    int foofed;
+};
+
+MOD_HELLO_OBJ *mod_hello_db = NULL;
+
+#define OBJ_INIT_MODULE(x) \
+    mod_hello_db[x].greeted = 0; \
+    mod_hello_db[x].foofed = 0;
+
+void mod_hello_db_grow(newsize)
+    int newsize;
+{
+    DB_GROW_MODULE(mod_hello_db, newsize, MOD_HELLO_OBJ);
+}
+
+/* --------------------------------------------------------------------------
  * Handlers.
  */
 
@@ -102,11 +124,18 @@ DO_CMD_NO_ARG(mod_hello_do_hello)
 	else
 	    notify(player, mod_hello_config.hello_string);
     }
+
+    mod_hello_db[player].greeted += 1;
+    notify(player, tprintf("You have been greeted %d times.", 
+			   mod_hello_db[player].greeted));
 }
 
 DO_CMD_NO_ARG(mod_hello_do_foof)
 {
     notify(player, "Yay.");
+    mod_hello_db[player].foofed += 1;
+    notify(player, tprintf("You have been foofed %d times.", 
+			   mod_hello_db[player].foofed));
 }
 
 NAMETAB mod_hello_hello_sw[] = {

@@ -297,6 +297,35 @@ must be a power of 2.
 
 -----------------------------------------------------------------------------
 
+EXTENDING THE DATABASE
+
+Though modules have access to the db structure, modules cannot add their
+own data types to that db structure.
+
+Thus, if you need to store a piece of data for every object in the 
+database, your module needs to have its own parallel db structure,
+as follows:
+
+typedef struct mod_<name>_dbobj MOD_<name>_OBJ;
+struct mod_<name>_dbobj {
+	<type1> <name1>;
+	<type2> <nameN>;
+};
+
+MOD_<name>_OBJ *mod_<name>_db = NULL;
+
+#define OBJ_INIT_MODULE(x) \
+	mod_<name>_db[x].<name1> = <value1>; \
+        mod_<name>_db[x].<nameN> = <valueN>;
+
+void mod_<name>_db_grow(newsize)
+	int newsize;
+{
+	DB_GROW_MODULE(mod_<name>_db, newsize, MOD_<name>_OBJ);
+}
+
+-----------------------------------------------------------------------------
+
 MODULE API FUNCTIONS
 
 The following are "hooks" into the server. If you place these functions

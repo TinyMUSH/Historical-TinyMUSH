@@ -55,6 +55,39 @@
 	int vector_size;
 
 /* ------------------------------------------------------------------------
+ * API interface macros.
+ */
+
+#define SIZE_HACK 1
+
+#define DB_GROW_MODULE(old_db,new_size,proto) \
+{ \
+    char *dg__cp; \
+    proto *dg__new_db; \
+    int dg__i; \
+    dg__new_db = (proto *) XMALLOC((new_size + SIZE_HACK) * sizeof(proto), "db_grow.mod_db"); \
+    if (!dg__new_db) { \
+	STARTLOG(LOG_ALWAYS, "ALC", "DB") \
+	    log_printf("Could not allocate space for %d item module struct database.", new_size); \
+	ENDLOG \
+	abort(); \
+    } \
+    if (old_db) { \
+	old_db -= SIZE_HACK; \
+	memcpy((char *) dg__new_db, (char *) old_db, \
+	       (mudstate.db_top + SIZE_HACK) * sizeof(proto)); \
+	dg__cp = (char *) old_db; \
+	XFREE(dg__cp, "db_grow.mod_db"); \
+    } else { \
+	old_db = dg__new_db; \
+        for (dg__i = 0; dg__i < SIZE_HACK; dg__i++) {   /* 'NOTHING' fill */ \
+            OBJ_INIT_MODULE(dg__i);        /* define macro in module file */ \
+        } \
+    } \
+    old_db = dg__new_db + SIZE_HACK; \
+}
+
+/* ------------------------------------------------------------------------
  * API interface functions.
  */
 

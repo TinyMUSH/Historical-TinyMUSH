@@ -587,6 +587,7 @@ CF_HAND(cf_module)
 					(dbref, const char *));
 	mp->cleanup_startup = DLSYM(handle, str, "cleanup_startup", ());
 	mp->dump_database = DLSYM(handle, str, "dump_database", ());
+	mp->db_grow = DLSYM(handle, str, "db_grow", (int));
 
 	if ((initptr = DLSYM(handle, str, "init", (void))) != NULL)
 	    (*initptr)();
