@@ -23,6 +23,9 @@ just type:
 When the build finishes, assuming there are no errors, you are ready to
 start a new MUSH, or convert an existing MUSH to TinyMUSH 3.0.
 
+If the build fails for some reason, look in the section of this
+install guide titled COMPATIBILITY for help.
+
 ----------------------------------------------------------------------------
 
 BASIC INSTALLATION
@@ -60,9 +63,28 @@ in the one-step install, the installation process is as follows:
 - Edit config.h and select the configuration options you want. The options
   are documented in that file.
 
-- Type 'make depend', then 'make'. This should produce a number of
-  binaries, and link them into the appropriate place in the directory
-  structure.
+- Type 'make depend' to update the dependencies.
+
+- To perform the actual build (producing a number of binaries, and
+  linking them into the appropriate place in the directory structure),
+
+  If you are a bash, ksh, pdksh, bsh, or sh shell user, type:
+
+	make 2>&1 | tee Compile.log
+
+  If you are a csh or tcsh shell user, type:
+
+	make |& tee Compile.log
+
+  If you can't get either of the above to work, type:
+
+	make | tee Compile.log
+
+  To find out what shell you're using, type 'basename $SHELL'.
+
+  The record of the compilation will be saved in a file called Compile.log
+  (If the build fails for some reason, look in the section of this install
+  guide titled COMPATIBILITY for help.)
 
 - You are now ready to start a new game, or convert an existing game to
   TinyMUSH 3.0.
@@ -149,10 +171,16 @@ broken. Add a '-DBROKEN_GCC_PADDING' to the Makefile, or the line
 Also, Irix may need HAVE_SRANDOM manually defined in autoconf.h --
 for some reason, autoconf doesn't detect this properly.
 
-If you find that you need to make modifications to anything in order
-to compile successfully, the developers would like to know about it.
-Send email to tinymush-support@godlike.com with the output of the
-broken 'make' attempt, and a list of what you did to fix it.
+The Build script (or the directions given above for basic installation)
+produces a file in the src directory called Compile.log; if the compile
+fails, the developers would like to know what it failed on so it can
+be fixed in future releases (and so they can assist you in getting the
+server to work on your system), so please mail tinymush-bugs@godlike.com
+with that file included or attached, as well as the output of the command
+'uname -a' and any other relevant details about your machine's specific
+configuration. If you figured out what you needed to change in order to
+make the build successful, please include those instructions in your
+email, as well.
 
 ----------------------------------------------------------------------------
 
