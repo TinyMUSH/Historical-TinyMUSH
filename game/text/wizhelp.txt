@@ -20,7 +20,8 @@
 & commands
   Help is available for the following MUSH commands:
  
-  CD             DOING          examine        give           SESSION            slay           WHO            wizhelp
+  CD             DOING          examine        give           SESSION
+  slay           WHO            wizhelp
  
   @addcommand    @admin         @apply_marked  @attribute     @boot
   @chown         @chownall      @clone         @cut           @dbck          
