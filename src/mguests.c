@@ -136,7 +136,7 @@ void destroy_guest(guest)
 dbref guest;
 {
 	if (!Wizard(mudconf.guest_nuker) || !Good_obj(mudconf.guest_nuker))
-		mudconf.guest_nuker = 1;
+		mudconf.guest_nuker = GOD;
 
 	if (!Guest(guest))
 		return;
