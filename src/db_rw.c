@@ -928,15 +928,14 @@ int db_format, db_version;
 				}
 				break;
 			}
-		case 7:
-			if (newf1 & ROYALTY) {
-				newf1 &= ~ROYALTY;	/* CONTROL_OK */
-			}
-			break;
 		}
 
 		/* Then we have to do the 2.2 to 3.0 flag conversion */
 
+		if (newf1 & ROYALTY) {
+		    newf1 &= ~ROYALTY;
+		    newf2 |= CONTROL_OK;
+		}
 		if (newf2 & HAS_COMMANDS) {
 		    newf2 &= ~HAS_COMMANDS;
 		    newf2 |= NOBLEED;
