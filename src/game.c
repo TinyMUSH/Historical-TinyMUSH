@@ -853,6 +853,113 @@ const char *msg;
 	}
 }
 
+/* ----------------------------------------------------------------------
+ * Reporting of CPU information.
+ */
+
+#ifndef NO_TIMECHECKING
+static void report_timecheck(player, yes_screen, yes_log, yes_clear)
+    dbref player;
+    int yes_screen, yes_log, yes_clear;
+{
+    int thing, obj_counted;
+    long used_msecs, total_msecs;
+    struct timeval obj_time;
+
+    if (! (yes_log && (LOG_TIMEUSE & mudconf.log_options) != 0)) {
+        yes_log = 0;
+        STARTLOG(LOG_ALWAYS, "WIZ", "TIMECHECK")
+            log_name(player);
+            log_text((char *) " checks object time use over ");
+            log_number(time(NULL) - mudstate.cpu_count_from);
+            log_text((char *) " seconds\n");
+        ENDLOG
+   } else {
+        start_log("OBJ", "CPU");
+        log_name(player);
+        log_text((char *) " checks object time use over ");
+        log_number(time(NULL) - mudstate.cpu_count_from);
+        log_text((char *) " seconds\n");
+   }
+
+    obj_counted = 0;
+    total_msecs = 0;
+
+    /* Step through the db. Care only about the ones that are nonzero.
+     * And yes, we violate several rules of good programming practice
+     * by failing to abstract our log calls. Oh well.
+     */
+
+    DO_WHOLE_DB(thing) {
+        obj_time = Time_Used(thing);
+        if (obj_time.tv_sec || obj_time.tv_usec) {
+            obj_counted++;
+            used_msecs = (obj_time.tv_sec * 1000) + (obj_time.tv_usec / 1000);
+            total_msecs += used_msecs;
+            if (yes_log)
+                fprintf(stderr, "#%d\t%ld\n", thing, used_msecs);
+            if (yes_screen)
+                raw_notify(player, tprintf("#%d\t%ld", thing, used_msecs));
+            if (yes_clear)
+                obj_time.tv_usec = obj_time.tv_sec = 0;
+        }
+        s_Time_Used(thing, obj_time);
+    }
+
+    if (yes_screen) {
+        raw_notify(player,
+                   tprintf("Counted %d objects using %ld msecs over %d seconds."
+,
+                           obj_counted, total_msecs,
+                           time(NULL) - mudstate.cpu_count_from));
+    }
+
+    if (yes_log) {
+        fprintf(stderr, "Counted %d objects using %ld msecs over %d seconds.",
+                obj_counted, total_msecs,
+                time(NULL) - mudstate.cpu_count_from);
+        end_log();
+    }
+
+    if (yes_clear)
+        mudstate.cpu_count_from = time(NULL);
+}
+#else
+static void report_timecheck(player, yes_screen, yes_log, yes_clear)
+    dbref player;
+    int yes_screen, yes_log, yes_clear;
+{
+    raw_notify(player, "Sorry, this command has been disabled.");
+}
+#endif /* ! NO_TIMECHECKING */
+
+void do_timecheck(player, cause, key)
+    dbref player, cause;
+    int key;
+{
+    int yes_screen, yes_log, yes_clear;
+
+
+    if (key == 0) {
+        /* No switches, default to printing to screen and clearing counters */
+        yes_screen = 1;
+        yes_clear = 1;
+    } else {
+        if (key & TIMECHK_RESET)
+            yes_clear = 1;
+        if (key & TIMECHK_SCREEN)
+            yes_screen = 1;
+        if (key & TIMECHK_LOG)
+            yes_log = 1;
+    }
+
+    report_timecheck(player, yes_screen, yes_log, yes_clear);
+}
+
+/* ----------------------------------------------------------------------
+ * Miscellaneous startup/stop routines.
+ */
+
 void do_shutdown(player, cause, key, message)
 dbref player, cause;
 int key;
@@ -1406,6 +1513,7 @@ char *argv[];
 	mindb = 0;		/* Are we creating a new db? */
 	time(&mudstate.start_time);
 	mudstate.restart_time = mudstate.start_time;
+	time(&mudstate.cpu_count_from);
 	pool_init(POOL_LBUF, LBUF_SIZE);
 	pool_init(POOL_MBUF, MBUF_SIZE);
 	pool_init(POOL_SBUF, SBUF_SIZE);

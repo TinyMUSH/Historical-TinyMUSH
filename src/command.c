@@ -362,6 +362,12 @@ NAMETAB teleport_sw[] = {
 {(char *)"quiet",	1,	CA_PUBLIC,	TELEPORT_QUIET},
 { NULL,			0,	0,		0}};
 
+NAMETAB timecheck_sw[] = {
+{(char *) "log",	1,	CA_WIZARD,	TIMECHK_LOG | SW_MULTIPLE},
+{(char *) "reset",	1,	CA_WIZARD,	TIMECHK_RESET | SW_MULTIPLE},
+{(char *) "screen",	1,	 CA_WIZARD,	TIMECHK_SCREEN | SW_MULTIPLE},
+{ NULL,			0,	0,		0}};
+
 NAMETAB toad_sw[] = {
 {(char *)"no_chown",	1,	CA_WIZARD,	TOAD_NO_CHOWN|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
@@ -606,6 +612,8 @@ CMDENT command_table[] = {
 							do_switch},
 {(char *)"@teleport",		teleport_sw,	CA_NO_GUEST,
 	TELEPORT_DEFAULT, CS_TWO_ARG|CS_INTERP,		do_teleport},
+{(char *)"@timecheck",		timecheck_sw,	CA_WIZARD,
+	0,		CS_NO_ARGS,			do_timecheck},
 {(char *)"@timewarp",		warp_sw,	CA_WIZARD,
 	0,		CS_ONE_ARG|CS_INTERP,		do_timewarp},
 {(char *)"@toad",		toad_sw,	CA_WIZARD,

@@ -131,6 +131,7 @@ CMD_ONE_ARG(do_sweep);			/* Check for listeners */
 CMD_TWO_ARG_ARGV_CMDARG(do_switch);	/* Execute cmd based on match */
 CMD_TWO_ARG(do_teleport);		/* Teleport elsewhere */
 CMD_ONE_ARG(do_think);                  /* Think command */
+CMD_NO_ARG(do_timecheck);		/* Check time used by objects */
 CMD_ONE_ARG(do_timewarp);		/* Warp various timers */
 CMD_TWO_ARG(do_toad);			/* Turn a tinyjerk into a tinytoad */
 CMD_TWO_ARG_ARGV(do_trigger);		/* Trigger an attribute */

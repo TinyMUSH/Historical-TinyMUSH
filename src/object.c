@@ -296,6 +296,7 @@ char *name;
 	time_t tt;
 	char *buff;
 	const char *tname;
+	struct timeval obj_time;
 
 	/* First check to see whether or not we're allowed to grow the
 	 * database any further (we must either have an object in the
@@ -471,6 +472,11 @@ char *name;
 	buff = munge_space((char *)name);
 	s_Name(obj, buff);
 	free_lbuf(buff);
+
+#ifndef NO_TIMECHECKING
+	obj_time.tv_sec = obj_time.tv_usec = 0;
+	s_Time_Used(obj, obj_time);
+#endif
 
 	if (objtype == TYPE_PLAYER) {
 		time(&tt);
