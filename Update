@@ -8,6 +8,7 @@
 # If -v option, do this verbosely.
 
 use Socket;
+use Sys::Hostname;
 
 $uncompress_program = "gzip -d -c";
 $patch_program = "patch -p1";
@@ -47,9 +48,9 @@ sub Web_Get {
     # Connection set-up.
 
     $sockaddr = 'S n a4 x8';
-    chop($hostname = `hostname`);
+    $thishost = hostname();
     $proto = (getprotobyname('tcp'))[2];
-    $thisaddr = (gethostbyname($hostname))[4];
+    $thisaddr = (gethostbyname($thishost))[4];
     $this = pack($sockaddr, &AF_INET, 0, $thisaddr);
 
     if (! ($thataddr = gethostbyname($them)) ) {
