@@ -1255,7 +1255,8 @@ FUNCTION(fun_mid)
 	oldp = *bufc;
 	l = atoi(fargs[1]);
 	len = atoi(fargs[2]);
-	if ((l < 0) || (len < 0) || ((len + l) > LBUF_SIZE)) {
+	if ((l < 0) || (len < 0) || ((len + l) > LBUF_SIZE) || 
+	    ((len + 1) < 0)) {
 		safe_str("#-1 OUT OF RANGE", buff, bufc);
 		return;
 	}
