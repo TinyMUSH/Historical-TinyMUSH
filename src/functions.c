@@ -5277,7 +5277,7 @@ FUNCTION(fun_switch)
 FUNCTION(fun_case)
 {
 	int i;
-	char *mbuff, *bp, *str;
+	char *mbuff, *tbuff, *bp, *str;
 
 	/* If we don't have at least 2 args, return nothing */
 
@@ -5292,16 +5292,24 @@ FUNCTION(fun_case)
 	     &str, cargs, ncargs);
 	*bp = '\0';
 
-	/* Loop through the patterns looking for a case-insensitive match */
+	/* Loop through the patterns looking for an exact match */
 
 	for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
-	    if (!string_compare(fargs[i], mbuff)) {
+	    tbuff = bp = alloc_lbuf("fun_case.2");
+	    str = fargs[i];
+	    exec(tbuff, &bp, 0, player, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL,
+		 &str, cargs, ncargs);
+	    *bp = '\0';
+	    if (!strcmp(tbuff, mbuff)) {
+		free_lbuf(tbuff);
 		str = fargs[i + 1];
 		exec(buff, bufc, 0, player, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 		free_lbuf(mbuff);
 		return;
 	    }
+	    free_lbuf(tbuff);
 	}
 	free_lbuf(mbuff);
 
