@@ -3181,6 +3181,21 @@
   used to suppress those messages matching any of the patterns specified.
   See also: @filter, @forwardlist, @prefix.
 
+& BLIND
+  Flag: BLIND (B)
+ 
+  When set on an object, when the object is moved, '<object> has arrived.'
+  and '<object> has left.' messages are not displayed to the locations that
+  the object is leaving and entering.
+ 
+  When set on a location, 'has arrived.' and 'has left.' messages are not
+  displayed when objects enter or leave the location.
+ 
+  The flag does NOT suppress @osucc, @odrop, etc. messages (unlike the DARK
+  flag).
+  
+  This flag can only be set by Wizards.
+ 
 & BOUNCE
   Flag: BOUNCE (b)
  
@@ -4180,21 +4195,21 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 & FLAG LIST
   Topic: FLAG LIST
  
-	A - Abode	C - Chown_OK	D - Dark	E - Exit
-	F - Floating	G - Going	H - Haven	I - Inherit
-	J - Jump_OK	K - Key		L - Link_OK	M - Monitor
-	N - Nospoof	O - Opaque	P - Player	Q - Quiet
-	R - Room	S - Sticky	T - Trace	U - Unfindable
-	V - Visual	W - Wizard	X - Ansi	Y - Parent_OK
-	Z - Royalty	a - Audible	b - Bounce	c - Connected
-	d - Destroy_OK	e - Enter_OK	f - Fixed	g - Uninspected	
-	h - Halted	i - Immortal	j - Gagged	k - Tickler
-	l - Light	m - Myopic	n - Auditorium	o - Zone
-	p - Puppet	q - Terse	r - Robot	s - Safe
-	t - Transparent	u - Suspect	v - Verbose	w - Staff
-	x - Slave	z - Control_OK	! - Stop	$ - Commands
-	- - NoBleed	~ - HTML	. - Compress	? - Head	
-	| - Vacation
+	A - Abode	B - Blind	C - Chown_OK	D - Dark	
+	E - Exit	F - Floating	G - Going	H - Haven	
+	I - Inherit	J - Jump_OK	K - Key		L - Link_OK	
+	M - Monitor	N - Nospoof	O - Opaque	P - Player	
+	Q - Quiet	R - Room	S - Sticky	T - Trace	
+	U - Unfindable	V - Visual	W - Wizard	X - Ansi	
+	Y - Parent_OK	Z - Royalty	a - Audible	b - Bounce	
+	c - Connected	d - Destroy_OK	e - Enter_OK	f - Fixed	
+	g - Uninspected	h - Halted	i - Immortal	j - Gagged	
+	k - Tickler	l - Light	m - Myopic	n - Auditorium	
+	o - Zone	p - Puppet	q - Terse	r - Robot	
+	s - Safe	t - Transparent	u - Suspect	v - Verbose	
+	w - Staff	x - Slave	z - Control_OK	! - Stop	
+	$ - Commands	- - NoBleed	~ - HTML	. - Compress	
+	? - Head	| - Vacation
   
   See 'help Marker' for help on user-defined flags (0 through 9).
  
