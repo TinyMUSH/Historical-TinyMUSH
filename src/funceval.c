@@ -109,6 +109,43 @@ struct data_def {
 };
 
 /* --------------------------------------------------------------------------
+ * Auxiliary stuff for listing out hashtables.
+ */
+
+static void print_htab_matches(obj, htab, buff, bufc)
+    dbref obj;
+    HASHTAB *htab;
+    char *buff;
+    char **bufc;
+{
+    /* Things which use this are computationally expensive, and should
+     * be discouraged.
+     */
+
+    char tbuf[SBUF_SIZE], *tp, *bb_p;
+    HASHENT *hptr;
+    int i, len;
+
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, obj);
+    safe_sb_chr('.', tbuf, &tp);
+    *tp = '\0';
+    len = strlen(tbuf);
+
+    bb_p = *bufc;
+
+    for (i = 0; i < htab->hashsize; i++) {
+	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
+	    if (!strncmp(tbuf, hptr->target, len)) {
+		if (*bufc != bb_p)
+		    safe_chr(' ', buff, bufc);
+		safe_str((char *) (index(hptr->target, '.') + 1), buff, bufc);
+	    }
+	}
+    }
+}
+
+/* --------------------------------------------------------------------------
  * Main body of functions starts here.
  */
 	
@@ -1120,6 +1157,16 @@ FUNCTION(fun_unstructure)
 
     s_StructCount(player, StructCount(player) - 1);
     safe_chr('1', buff, bufc);
+}
+
+FUNCTION(fun_lstructures)
+{
+    print_htab_matches(player, &mudstate.structs_htab, buff, bufc);
+}
+
+FUNCTION(fun_linstances)
+{
+    print_htab_matches(player, &mudstate.instance_htab, buff, bufc);
 }
 
 /*------------------------------------------------------------------------
@@ -3866,7 +3913,8 @@ static void set_xvar(obj, name, data)
 	return;
 
     /* Variable string is '<dbref number minus #>.<variable name>'. We
-     * lowercase all names.
+     * lowercase all names. Note that we're going to end up automatically
+     * truncating long names.
      */
 
     tp = tbuf;
@@ -4191,31 +4239,7 @@ FUNCTION(fun_let)
 
 FUNCTION(fun_lvars)
 {
-    /* This is computationally expensive. Its use should be discouraged. */
-
-    char tbuf[SBUF_SIZE], *tp, *bb_p;
-    HASHTAB *htab;
-    HASHENT *hptr;
-    int i, len;
-
-    tp = tbuf;
-    safe_ltos(tbuf, &tp, player);
-    safe_sb_chr('.', tbuf, &tp);
-    *tp = '\0';
-    len = strlen(tbuf);
-
-    bb_p = *bufc;
-
-    htab = &mudstate.vars_htab;
-    for (i = 0; i < htab->hashsize; i++) {
-	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
-	    if (!strncmp(tbuf, hptr->target, len)) {
-		if (*bufc != bb_p)
-		    safe_chr(' ', buff, bufc);
-		safe_str((char *) (index(hptr->target, '.') + 1), buff, bufc);
-	    }
-	}
-    }
+    print_htab_matches(player, &mudstate.vars_htab, buff, bufc);
 }
 
 

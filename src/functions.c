@@ -154,6 +154,8 @@ XFUNCTION(fun_destruct);
 XFUNCTION(fun_unstructure);
 XFUNCTION(fun_z);
 XFUNCTION(fun_modify);
+XFUNCTION(fun_lstructures);
+XFUNCTION(fun_linstances);
 XFUNCTION(fun_sql);
 
 #ifdef PUEBLO_SUPPORT
@@ -5737,6 +5739,7 @@ FUN flist[] = {
 {"LIT",		fun_lit,	1,  FN_NO_EVAL,	CA_PUBLIC},
 {"LJUST",	fun_ljust,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LINK",	fun_link,	2,  0,		CA_PUBLIC},
+{"LINSTANCES",	fun_linstances,	0,  0,		CA_PUBLIC},
 {"LMAX",	fun_lmax,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LMIN",	fun_lmin,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LN",		fun_ln,		1,  0,		CA_PUBLIC},
@@ -5751,6 +5754,7 @@ FUN flist[] = {
 {"LORBOOL",	fun_lorbool,	0,  FN_VARARGS,	CA_PUBLIC},
 {"LPOS",	fun_lpos,	2,  0,		CA_PUBLIC},
 {"LSTACK",	fun_lstack,	0,  FN_VARARGS, CA_PUBLIC},
+{"LSTRUCTURES",	fun_lstructures, 0, 0,		CA_PUBLIC},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC},
 {"LTE",		fun_lte,	2,  0,		CA_PUBLIC},
 {"LVARS",	fun_lvars,	0,  0,		CA_PUBLIC},
