@@ -35,7 +35,7 @@ DB_ENV *dbenvp = NULL;
 static DB *dbp = NULL;
 static DBT dat;
 static DBT key;
-static DB_TXN *tid;
+static DB_TXN *tid = NULL;
 
 int FDECL(dddb_del, (Objname *));
 int FDECL(dddb_put, (Obj *, Objname *));
@@ -68,6 +68,7 @@ int dddb_init()
 	
 	for (block_size = 1; block_size < LBUF_SIZE; block_size = block_size << 1) ;
 
+#ifndef STANDALONE
 	/* Open the database environment handle */
 	
 	if ((ret = db_env_create(&dbenvp, 0)) != 0) {
@@ -93,13 +94,18 @@ int dddb_init()
 	/* Open the database cursor */
 	
 	if ((ret = db_create(&dbp, dbenvp, 0)) != 0) {
-		log_printf("Could not open database handler.\n");
+#else
+	if ((ret = db_create(&dbp, NULL, 0)) != 0) {
+#endif
+		log_printf("Could not open database handle.\n");
 		return(1);
 	}
 
 	/* Set the error call hook */
 	
+#ifndef STANDALONE
 	dbenvp->set_errcall(dbenvp, dbm_error);	
+#endif
 	dbp->set_errcall(dbp, dbm_error);
 	
 	/* Set the database page size */
@@ -143,12 +149,14 @@ int dddb_close()
 	/* Checkpoint the database to ensure that all transactions
 	   are committed */
 
+#ifndef STANDALONE
 	if (dbp != NULL) {
 		if ((ret = txn_checkpoint(dbenvp, 0, 0, 0)) != 0) {
 			dbenvp->err(dbenvp, ret, "%s", dbfile);
 			return(1);
 		}
 	}
+#endif
 	
 	/* Close the database */
 	if (dbp != NULL) {
@@ -159,6 +167,7 @@ int dddb_close()
 		dbp = NULL;
 	}
 
+#ifndef STANDALONE
 	/* Close the database environment */
 	if (dbenvp != NULL) {
 		if ((ret = dbenvp->close(dbenvp, 0)) != 0) {
@@ -167,7 +176,7 @@ int dddb_close()
 		}
 		dbenvp = NULL;
 	}
-
+#endif
 	db_initted = 0;
 	return (0);
 }
@@ -187,10 +196,12 @@ Objname *nam;
 	key.data = (char *)nam;
 	key.size = sizeof(Objname);
 
+#ifndef STANDALONE
 	/* Start an atomic, recoverable transaction */
 	
 	if ((ret = txn_begin(dbenvp, NULL, &tid, 0)) != 0)
 		dbenvp->err(dbenvp, ret, "txn_begin");
+#endif
 
 	/* Fetch the data */
 
@@ -206,16 +217,19 @@ Objname *nam;
 	case 0:
 		break;
 	case DB_NOTFOUND:
+#ifndef STANDALONE
 		if (txn_commit(tid, 0))
 			dbenvp->err(dbenvp, ret, "txn_commit");
+#endif
 		return(NULL);
 	}
 
+#ifndef STANDALONE
 	/* The transaction finished, commit it */
 
 	if ((ret = txn_commit(tid, 0)) != 0)
 		dbenvp->err(dbenvp, ret, "txn_commit");
-
+#endif
 	/* if the file is badly formatted, ret == NULL */
 
 	if ((obj = objfromFILE(dat.data)) == NULL) {
@@ -266,11 +280,13 @@ Objname *nam;
 		XFREE(dat.data, "dddb_put");
 		return (1);
 	}
-
+	
+#ifndef STANDALONE
 	/* Begin an atomic, recoverable transaction */
 
 	if ((ret = txn_begin(dbenvp, NULL, &tid, 0)) != 0)
 		dbenvp->err(dbenvp, ret, "txn_begin");
+#endif
 
 	/* Store the value */
 
@@ -286,16 +302,19 @@ Objname *nam;
 	case 0:
 		break;
 	default:
+#ifndef STANDALONE
 		txn_abort(tid);
 		dbenvp->err(dbenvp, ret, "dbp->put");
+#endif
 		XFREE(dat.data, "dddb_put");
 		return (1);
 	}
 
+#ifndef STANDALONE
 	/* The transaction finished, commit it. */
 	if ((ret = txn_commit(tid, 0)) != 0)
 		dbenvp->err(dbenvp, ret, "txn_commit");
-
+#endif
 	XFREE(dat.data, "dddb_put");
 	return (0);
 }
@@ -312,11 +331,13 @@ Objname *nam;
 
 	key.data = (char *)nam;
 	key.size = sizeof(Objname);
-	
+
+#ifndef STANDALONE
 	/* Begin an atomic, recoverable transaction */
 
 	if ((ret = txn_begin(dbenvp, NULL, &tid, 0)) != 0)
 		dbenvp->err(dbenvp, ret, "txn_begin");
+#endif
 
 	/* Delete the key */
 
@@ -332,14 +353,18 @@ Objname *nam;
 	case 0:
 		break;
 	default:
+#ifndef STANDALONE
 		txn_abort(tid);
 		dbenvp->err(dbenvp, ret, "dbp->del");
+#endif
 		return (1);
 	}
 
+#ifndef STANDALONE
 	/* The transaction finished, commit it. */
 	if ((ret = txn_commit(tid, 0)) != 0)
 		dbenvp->err(dbenvp, ret, "txn_commit");
+#endif
 
 	return (0);
 }

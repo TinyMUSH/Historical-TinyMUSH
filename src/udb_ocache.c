@@ -825,13 +825,14 @@ int NDECL(cache_sync)
 		cache_clean(sp);
 	}
 	
+#ifndef STANDALONE
 	/* Checkpoint the underlying DBM database */
 	
 	if ((ret = txn_checkpoint(dbenvp, 0, 0, 0)) != 0) {
 		dbenvp->err(dbenvp, ret, "txn_checkpoint");
 		return(1);
 	}
-	
+#endif
 	return (0);
 }
 
