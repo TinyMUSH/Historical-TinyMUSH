@@ -1,6 +1,6 @@
 & help
  
-This is the TinyMUSH 3 online help facility.
+This is the TinyMUSH 3 online help facility. (IMPORTANT: see 'help Revision'.)
 Type 'help About Help' for help on using help, and other related details.
  
 Type 'help Tutorial' for a "quick start" guide for first-time MUSHers.
@@ -19,6 +19,24 @@ Type 'help Topics' for a more extensive list of help topics.
 Many MUSHes also have local help files. Type '+help' to access them.
 Most MUSHes also have local information files. Type 'news' to read them.
 Wizards can type 'wizhelp' to read the administrator help files.
+ 
+& Revision
+ 
+The TinyMUSH 3 help facilities are currently under revision. When this
+revision is complete, the help files will be divided into 'qhelp' (quick
+help for the ordinary player who doesn't need every little subtlety and
+possibility), and 'help' (very detailed explanations for the advanced
+MUSH programmer).
+ 
+Furthermore, the structure of help is being altered to group related
+topics together, on the basis that people are usually looking for help
+with concepts, trying to find "what" something does (often, trying to
+find the name of a command, function, etc. that does what they want),
+before they look at "how" that something does it.
+ 
+As of this beta release, this rewriting is still ongoing. Thus, the
+help files are a sometimes-confusing mixture of the old way and the
+new way. Please be patient; this will get fixed.
  
 & About Help
  
@@ -406,6 +424,12 @@ fail if the locked object is not owned by the same player as the attribute
 being tested.  The comparison specified in the lock is only performed if
 the owner of the locked object also owns the attribute on the object
 being checked.
+ 
+& Tutorial
+ 
+Topic: Tutorial
+ 
+Coming soon.
  
 & COMMANDS
   Flag: COMMANDS ($)
