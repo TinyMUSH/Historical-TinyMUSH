@@ -1947,16 +1947,14 @@ FUNCTION(fun_extract)
 int xlate(arg)
 char *arg;
 {
-	int temp;
 	char *temp2;
 
 	if (arg[0] == '#') {
 		arg++;
 		if (is_integer(arg)) {
-			temp = atoi(arg);
-			if (temp == -1)
-				temp = 0;
-			return temp;
+			if (atoi(arg) == -1)
+				return 0;
+			return 1;
 		}
 		return 0;
 	}
