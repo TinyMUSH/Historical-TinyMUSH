@@ -1635,7 +1635,7 @@ int fmt, flags, ver;
 void usage(prog)
 char *prog;
 {
-	fprintf(mainlog_fp, "Usage: %s gdbm-file [options] [<in-file] [>out-file]\n", prog);
+	fprintf(mainlog_fp, "Usage: %s [options] gdbm-file [< in-file] [> out-file]\n", prog);
 	fprintf(mainlog_fp, "   Available flags are:\n");
 	fprintf(mainlog_fp, "      -c <filename> - Config file     -C - Perform consistency check\n");
 	fprintf(mainlog_fp, "      -G - Write in gdbm format       -g - Write in flat file format\n");
@@ -1748,7 +1748,7 @@ char *argv[];
 		}
 	}
 
-	if (errflg) {
+	if (errflg || optind >= argc) {
 		usage(argv[0]);
 		exit(1);
 	}
