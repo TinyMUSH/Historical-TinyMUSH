@@ -843,7 +843,8 @@ char *arg2;
 		return;
 	}
 	if (select_user(ch, player)) {
-		raw_notify(player, tprintf("Warning: You are already on that channel."));
+		raw_notify(player, "You are already on that channel.");
+		return;
 	}
 	c = get_comsys(player);
 	for (j = 0; j < c->numchannels && (strcmp(arg1, c->alias + j * 6) > 0); j++) ;
