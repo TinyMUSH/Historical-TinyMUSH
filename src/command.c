@@ -2380,6 +2380,43 @@ dbref player;
 		   tprintf("Descs avail: %10d", maxfds));
 #endif
 }
+
+/* ---------------------------------------------------------------------------
+ * list_modules: List dynamically loaded modules.
+ */
+
+#ifdef HAVE_DLOPEN
+static void list_modules(player)
+dbref player;
+{
+    char *s, *buf, *bp;
+
+    if (mudstate.modules_htab.entries > 0) {
+	bp = buf = alloc_lbuf("list_modules");
+	for (s = hash_firstkey(&mudstate.modules_htab);
+	     s != NULL;
+	     s = hash_nextkey(&mudstate.modules_htab)) {
+	    if (bp != buf) {
+		safe_chr(' ', buf, &bp);
+	    } else {
+		safe_str((char *) "Modules loaded: ", buf, &bp);
+	    }
+	    safe_str(s, buf, &bp);
+	}
+	notify(player, buf);
+	free_lbuf(buf);
+    } else {
+	notify(player, "No loaded modules.");
+    }
+}
+#else /* ! HAVE_DLOPEN */
+static void list_modules(player)
+dbref player;
+{
+    notify(player, "This feature is not enabled.");
+}
+#endif /* HAVE_DLOPEN */
+
 /* ---------------------------------------------------------------------------
  * do_list: List information stored in internal structures.
  */
@@ -2411,6 +2448,7 @@ dbref player;
 #define LIST_PARAMS	25
 #define LIST_CF_RPERMS	26
 #define LIST_ATTRTYPES	27
+#define LIST_MODULES	28
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
@@ -2432,6 +2470,7 @@ NAMETAB list_names[] = {
 {(char *)"globals",		1,	CA_WIZARD,	LIST_GLOBALS},
 {(char *)"hashstats",		1,	CA_WIZARD,	LIST_HASHSTATS},
 {(char *)"logging",		1,	CA_GOD,		LIST_LOGGING},
+{(char *)"modules",		1,	CA_PUBLIC,	LIST_MODULES},
 {(char *)"options",		1,	CA_PUBLIC,	LIST_OPTIONS},
 {(char *)"params",		2,	CA_PUBLIC,	LIST_PARAMS},
 {(char *)"permissions",		2,	CA_WIZARD,	LIST_PERMS},
@@ -2549,6 +2588,9 @@ char *arg;
 		break;
 	case LIST_ATTRTYPES:
 		list_attrtypes(player);
+		break;
+	case LIST_MODULES:
+		list_modules(player);
 		break;
 	default:
 		display_nametab(player, list_names,

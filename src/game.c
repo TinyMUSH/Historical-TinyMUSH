@@ -1968,10 +1968,11 @@ static void NDECL(init_rlimit)
 
 static void NDECL(init_modules)
 {
-	void *handle;
-	void (*initptr)(void);
-	char *modulename;
-	
+    void *handle;
+    void (*initptr)(void);
+    char *modulename;
+
+    if (mudstate.modules_htab.entries > 0) {
 	for (modulename = hash_firstkey(&mudstate.modules_htab);
 	     modulename != NULL;
 	     modulename = hash_nextkey(&mudstate.modules_htab)) {
@@ -1985,6 +1986,7 @@ static void NDECL(init_modules)
 		if (initptr)
 			(*initptr)();
 	}
+    }
 }
 
 #endif
