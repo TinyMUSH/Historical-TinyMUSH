@@ -457,6 +457,10 @@
   will be preserved when hooks for that command are executed. While
   this is more convenient for code, it is also less efficient.
  
+  If you want hooks to be executed before and/or after players move
+  through all exits (both local and master room exits), set the hooks
+  for the 'goto' command.
+ 
   This command is normally restricted to God. Hooks should be the
   first things in the @startup on the God character, assuming you
   want them to take effect immediately when the server is started.
