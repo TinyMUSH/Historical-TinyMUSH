@@ -227,7 +227,7 @@ the other have been listed in the conversion notes for both servers.
   (symbolized by the token '@@') and newline ('%r') output delimiters.
 
 - Booleans, as represented by functions such as t(), andbool(), and
-  ifelsebool(), are now handled in a more sensible manner. All dbrefs
+  ifelse(), are now handled in a more sensible manner. All dbrefs
   (#0 and higher) are now considered true; #-1 and below are considered
   false. The string '#-1 <string>' (such as '#-1 NO MATCH') is considered
   false. All other strings beginning with '#' are treated like arbitrary
