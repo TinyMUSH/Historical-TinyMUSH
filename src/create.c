@@ -152,14 +152,22 @@ dbref player, exit, dest;
 {
 	int cost, quot;
 
-	/* Make sure we can link there */
+	/* Make sure we can link there:
+	 * Our destination is HOME
+	 * Our destination is AMBIGUOUS and we can link to variable exits
+	 * Normal destination check:
+	 *   - We must control the exit or it must be LINK_OK
+	 *   - We must be able to pass the linklock, or we must be a wizard
+	 *     and be config'd so wizards ignore linklocks
+	 */
 
-	if ((dest != HOME) &&
-	    ((!controls(player, dest) && !Link_ok(dest)) ||
-	     (!could_doit(player, dest, A_LLINK) &&
-	      (!Wizard(player) || mudconf.wiz_obey_linklock)))) {
-		notify_quiet(player, NOPERM_MESSAGE);
-		return;
+	if (!((dest == HOME) ||
+	      ((controls(player, dest) || Link_ok(dest)) &&
+	       ((Wizard(player) && !mudconf.wiz_obey_linklock) ||
+		could_doit(player, dest, A_LLINK))) ||
+	      ((dest == AMBIGUOUS) && LinkVariable(player)))) {
+	    notify_quiet(player, NOPERM_MESSAGE);
+	    return;
 	}
 
 	/* Exit must be unlinked or controlled by you */
@@ -167,12 +175,6 @@ dbref player, exit, dest;
 	if ((Location(exit) != NOTHING) && !controls(player, exit)) {
 		notify_quiet(player, NOPERM_MESSAGE);
 		return;
-	}
-
-	/* Restrict who can link a variable exit. */
-	if ((dest == AMBIGUOUS) && !LinkVariable(player)) {
-	    notify_quiet(player, NOPERM_MESSAGE);
-	    return;
 	}
 
 	/* handle costs */
