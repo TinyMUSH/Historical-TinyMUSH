@@ -2624,9 +2624,10 @@
   <pattern> is a wildcard pattern, unless the object's @filter
   attribute has been @set 'regexp', in which case a regular expression
   match is done instead. This is case-insensitive, unless the object's
-  @filter attribute has been @set 'case'. Note that since the attribute
-  is evaluated, special characters in the regular expression, such as
-  '[' and ']', will need to be escaped out.
+  @filter attribute has been @set 'case'. Note that unless the attribute
+  has been @set 'no_parse', it will be evaluated, so special characters
+  in the regular expression, such as '[' and ']', will need to be escaped
+  out. For efficiency reasons, 'no_parse' should be set whenever possible.
  
   Continued in 'help @filter2'.
  
@@ -2751,9 +2752,10 @@
   <pattern> is a wildcard pattern, unless the object's @infilter
   attribute has been @set 'regexp', in which case a regular expression
   match is done instead. This is case-insensitive, unless the object's
-  @infilter attribute has been @set 'case'. Note that since the attribute
-  is evaluated, special characters in the regular expression, such as
-  '[' and ']', will need to be escaped out.
+  @infilter attribute has been @set 'case'.  Note that unless the attribute
+  has been @set 'no_parse', it will be evaluated, so special characters
+  in the regular expression, such as '[' and ']', will need to be escaped
+  out. For efficiency reasons, 'no_parse' should be set whenever possible.
   
   Continued in 'help @infilter2'.
  
