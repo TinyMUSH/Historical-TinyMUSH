@@ -2930,38 +2930,42 @@ FUNCTION(fun_lstack)
 /* ---------------------------------------------------------------------------
  * fun_x: Returns a variable. x(<variable name>)
  * fun_setx: Sets a variable. xset(<variable name>,<value>)
+ * fun_xvars: Takes a list, parses it, sets it into variables.
+ *            xvars(<list>,<space-separated variable list>,<delimiter>)
  */
 
 FUNCTION(fun_x)
 {
     VARENT *xvar;
-
-    char tbuf[SBUF_SIZE], **tp;
+    char tbuf[SBUF_SIZE], *tp;
 
     /* Variable string is '<dbref number minus #>.<variable name>' */
 
-    *tp = tbuf;
-    safe_ltos(tbuf, tp, player);
-    safe_chr('.', tbuf, tp);
-    safe_str(fargs[0], tbuf, tp);
-    **tp = '\0';
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, player);
+    safe_chr('.', tbuf, &tp);
+    safe_str(fargs[0], tbuf, &tp);
+    *tp = '\0';
 
     if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab)))
 	safe_str(xvar->text, buff, bufc);
 }
 
-FUNCTION(fun_setx)
+static void set_xvar(obj, name, data)
+    dbref obj;
+    char *name;
+    char *data;
 {
     VARENT *xvar;
-    char tbuf[SBUF_SIZE], **tp;
+    char tbuf[SBUF_SIZE], *tp;
 
     /* Variable string is '<dbref number minus #>.<variable name>' */
 
-    *tp = tbuf;
-    safe_ltos(tbuf, tp, player);
-    safe_chr('.', tbuf, tp);
-    safe_str(fargs[0], tbuf, tp);
-    **tp = '\0';
+    tp = tbuf;
+    safe_ltos(tbuf, &tp, obj);
+    safe_chr('.', tbuf, &tp);
+    safe_str(name, tbuf, &tp);
+    *tp = '\0';
 
     /* Search for it. If it exists, replace it. If we get a blank string,
      * delete the variable.
@@ -2971,13 +2975,12 @@ FUNCTION(fun_setx)
 	if (xvar->text) {
 	    XFREE(xvar->text, "xvar_data");
 	}
-	if (fargs[1] && *fargs[1]) {
-	    xvar->text = (char *)
-		XMALLOC(sizeof(char *) * (strlen(fargs[1]) + 1),
-			"xvar_data");
+	if (data && *data) {
+	    xvar->text = (char *) XMALLOC(sizeof(char *) * (strlen(data) + 1),
+					  "xvar_data");
 	    if (!xvar->text)
 		return;		/* out of memory */
-	    strcpy(xvar->text, fargs[1]);
+	    strcpy(xvar->text, data);
 	} else {
 	    xvar->text = NULL;
 	    XFREE(xvar, "xvar_struct");
@@ -2987,21 +2990,99 @@ FUNCTION(fun_setx)
 
 	/* We haven't found it. If it's non-empty, set it. */
 
-	if (fargs[1] && *fargs[1]) {
+	if (data && *data) {
 	    xvar = (VARENT *) XMALLOC(sizeof(VARENT), "xvar_struct");
 	    if (!xvar)
 		return;		/* out of memory */
-	    xvar->text = (char *)
-		XMALLOC(sizeof(char *) * (strlen(fargs[1]) + 1),
-			"xvar_data");
+	    xvar->text = (char *) XMALLOC(sizeof(char *) * (strlen(data) + 1),
+					  "xvar_data");
 	    if (!xvar->text)
 		return;		/* out of memory */
-	    strcpy(xvar->text, fargs[1]);
+	    strcpy(xvar->text, data);
 	    hashadd(tbuf, (int *) xvar, &mudstate.vars_htab);
 	}
     }
 }
 
+
+FUNCTION(fun_setx)
+{
+    set_xvar(player, fargs[0], fargs[1]);
+}
+
+
+FUNCTION(fun_xvars)
+{
+    char *xvar_names[LBUF_SIZE / 2], *elems[LBUF_SIZE / 2];
+    int n_xvars, n_elems;
+    char *varlist, *elemlist;
+    int i;
+    char sep;
+
+    varargs_preamble("XVARS", 3);
+   
+    elemlist = alloc_lbuf("fun_xvars.elems");
+    strcpy(elemlist, fargs[0]);
+    n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, sep);
+
+    varlist = alloc_lbuf("fun_xvars.vars");
+    strcpy(varlist, fargs[1]);
+    n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, ' ');
+
+    if (n_elems != n_xvars) {
+	safe_str("#-1 LIST MUST BE OF EQUAL SIZE", buff, bufc);
+	free_lbuf(elemlist);
+	free_lbuf(varlist);
+	return;
+    }
+
+    for (i = 0; i < n_elems; i++) {
+	set_xvar(player, xvar_names[i], elems[i]);
+    }
+
+    free_lbuf(elemlist);
+    free_lbuf(varlist);
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_regparse: Slurp a string into up to ten named variables ($0 - $9).
+ *               Unlike regmatch(), this returns no value.
+ *               regparse(string, pattern, named vars)
+ */
+
+FUNCTION(fun_regparse)
+{
+    int i, nqregs, curq, len;
+    char *qregs[NSUBEXP];
+    char tbuf[SBUF_SIZE], matchbuf[LBUF_SIZE];
+    char **tp;
+    regexp *re;
+    int matched;
+
+    if ((re = regcomp(fargs[1])) == NULL) {
+	/* Matching error. */
+	notify_quiet(player, (const char *) regexp_errbuf);
+	return;
+    }
+
+    matched = (int) regexec(re, fargs[0]);
+
+    nqregs = list2arr(qregs, NSUBEXP, fargs[2], ' ');
+    for (i = 0; i < nqregs; i++) {
+	if (qregs[i] && *qregs[i]) {
+	    len = re->endp[i] - re->startp[i];
+	    if (len > LBUF_SIZE - 1)
+		len = LBUF_SIZE - 1;
+	    else if (len < 0)
+		len = 0;
+	    strncpy(matchbuf, re->startp[i], len);
+	    matchbuf[len] = '\0';
+	    set_xvar(player, qregs[i], matchbuf);
+	}
+    }
+
+    free(re);
+}
 
 /* ---------------------------------------------------------------------------
  * fun_regmatch: Return 0 or 1 depending on whether or not a regular

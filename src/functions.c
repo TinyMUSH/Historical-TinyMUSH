@@ -132,11 +132,13 @@ XFUNCTION(fun_lstack);
 XFUNCTION(fun_dup);
 XFUNCTION(fun_popn);
 XFUNCTION(fun_swap);
+XFUNCTION(fun_x);
+XFUNCTION(fun_setx);
+XFUNCTION(fun_xvars);
+XFUNCTION(fun_regparse);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_translate);
 XFUNCTION(fun_lastcreate);
-XFUNCTION(fun_x);
-XFUNCTION(fun_setx);
 
 #ifdef PUEBLO_SUPPORT
 XFUNCTION(fun_html_escape);
@@ -5513,6 +5515,7 @@ FUN flist[] = {
 {"R",		fun_r,		1,  0,		CA_PUBLIC},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC},
 {"REGMATCH",	fun_regmatch,	0,  FN_VARARGS, CA_PUBLIC},
+{"REGPARSE",	fun_regparse,	3,  0,		CA_PUBLIC},
 {"REMIT",	fun_remit,	2,  0,		CA_PUBLIC},
 {"REMOVE",	fun_remove,	0,  FN_VARARGS,	CA_PUBLIC},
 {"REPEAT",	fun_repeat,	2,  0,		CA_PUBLIC},
@@ -5611,6 +5614,7 @@ FUN flist[] = {
 {"XGET",	fun_xget,	2,  0,		CA_PUBLIC},
 {"XOR",		fun_xor,	0,  FN_VARARGS,	CA_PUBLIC},
 {"XORBOOL",	fun_xorbool,	0,  FN_VARARGS,	CA_PUBLIC},
+{"XVARS",	fun_xvars,	0,  FN_VARARGS, CA_PUBLIC},
 {"ZFUN",	fun_zfun,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ZONE",        fun_zone,       1,  0,          CA_PUBLIC},
 {"ZWHO",        fun_zwho,       1,  0,          CA_PUBLIC},
