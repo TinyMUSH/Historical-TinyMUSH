@@ -84,21 +84,12 @@ FUNCTION(fun_wildmatch)
     int i, nqregs, curq;
     char *t_args[NUM_ENV_VARS], *qregs[NUM_ENV_VARS]; /* %0-%9 is limiting */
 
-    if (!fn_range_check("WILDMATCH", nfargs, 2, 3, buff, bufc))
-	return;
-
     if (!wild(fargs[1], fargs[0], t_args, NUM_ENV_VARS)) {
 	safe_chr('0', buff, bufc);
 	return;
     }
 
     safe_chr('1', buff, bufc);
-
-    /* If there's no third argument, we're done, making us essentially
-     * an expensive strmatch().
-     */
-    if (nfargs != 3)
-	return;
 
     /* Parse the list of registers. Anything that we don't get is assumed
      * to be -1. Fill them in.

@@ -357,7 +357,7 @@ FUN flist[] = {
 						CA_PUBLIC},
 {"WHERE",	fun_where,	1,  0,		CA_PUBLIC},
 {"WHILE",	fun_while,	0,  FN_VARARGS,	CA_PUBLIC},
-{"WILDMATCH",	fun_wildmatch,	0,  FN_VARARGS, CA_PUBLIC},
+{"WILDMATCH",	fun_wildmatch,	3,  0,		CA_PUBLIC},
 {"WIPE",	fun_wipe,	1,  0,		CA_PUBLIC},
 {"WORDPOS",     fun_wordpos,    0,  FN_VARARGS,	CA_PUBLIC},
 {"WORDS",	fun_words,	0,  FN_VARARGS,	CA_PUBLIC},
