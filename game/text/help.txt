@@ -5973,7 +5973,7 @@ The list of loaded modules can be obtained via the 'version' command.
     %!       = Dbref of the object holding the message or running the
                action list ('me').
     %@       = Dbref of the caller. Except in u()-type functions, same as %#.
-    %c       = Text of the last command executed.
+    %c, %m   = Text of the last command executed.
     %0-%9    = Value of positional parameter/stack location 0 through 9.
     %q0-%qz  = Value of registers 0-9 and A-Z. Equiv: r(0) - r(z)
     %va-%vz  = Contents of attributes VA through VZ. Equiv: v(va) - v(vz)

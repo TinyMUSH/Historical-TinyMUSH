@@ -861,6 +861,8 @@ char *cargs[];
 				break;
 			case 'C':
 			case 'c':
+			case 'M':
+			case 'm':
 				safe_str(mudstate.curr_cmd, buff, bufc);
 				break;
 			default:	/* Just copy */
