@@ -2697,6 +2697,23 @@ dbref player;
 	    raw_notify(player, "Matching an @addcommand on an object set STOP does not end matching attempts.");
 	}
 
+	/* Only display SQL db status if we seem to be configured for one.
+	 * Do NOT display where the database is. Wizards don't need to know,
+	 * and it can never change dynamically, only in the conf file.
+	 */
+	if (mudconf.sql_host && *mudconf.sql_host) {
+	    if (mudstate.sql_socket != -1) {
+		raw_notify(player, "There is an open connection to an external SQL database.");
+	    } else {
+		raw_notify(player, "There is no open connection to an external SQL database.");
+	    }
+	    if (mudconf.sql_reconnect != 0) {
+		raw_notify(player, "SQL queries re-initiate dropped connections.");
+	    } else {
+		raw_notify(player, "SQL queries do not re-initiate dropped connections.");
+	    }
+	}
+
 	if (mudconf.max_players >= 0)
 		raw_notify(player,
 		tprintf("There may be at most %d players logged in at once.",

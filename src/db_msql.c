@@ -104,9 +104,21 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     int i, j;
     int retries;
 
-    /* If we have no connection, this is an error generating a #-1.
-     * Notify the player, too, and set the return code.
+    /* If we have no connection, and we don't have auto-reconnect on
+     * (or we try to auto-reconnect and we fail), this is an error
+     * generating a #-1. Notify the player, too, and set the return code.
      */
+
+    if ((mudstate.sql_socket == -1) && (mudconf.sql_reconnect != 0)) {
+	/* Try to reconnect. */
+	retries = 0;
+	while ((retries < MSQL_RETRY_TIMES) &&
+	       (mudstate.sql_socket == -1)) {
+	    sleep(1);
+	    sql_init();
+	    retries++;
+	}
+    }
     if (mudstate.sql_socket == -1) {
 	notify(player, "No SQL database connection.");
 	if (buff)
