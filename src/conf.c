@@ -431,21 +431,17 @@ dbref player;
 char *cmd, *thing;
 const char *thingname;
 {
-	char *buff;
+	char buff[LBUF_SIZE * 2];
 
 	if (mudstate.initializing) {
 		STARTLOG(LOG_STARTUP, "CNF", "NFND")
-			buff = alloc_lbuf("cf_log_notfound.LOG");
 		sprintf(buff, "%s: %s %s not found",
 			cmd, thingname, thing);
 		log_text(buff);
-		free_lbuf(buff);
 		ENDLOG
 	} else {
-		buff = alloc_lbuf("cf_log_notfound");
 		sprintf(buff, "%s %s not found", thingname, thing);
-		notify(player, buff);
-		free_lbuf(buff);
+		notify(player, tprintf("%s %s not found", thingname, thing));
 	}
 }
 
@@ -459,22 +455,18 @@ dbref player;
 char *cmd, *arg;
 const char *template;
 {
-	char *buff;
+	char buff[LBUF_SIZE * 2];
 
 	if (mudstate.initializing) {
 		STARTLOG(LOG_STARTUP, "CNF", "SYNTX")
-			buff = alloc_lbuf("cf_log_syntax.LOG");
 		sprintf(buff, template, arg);
 		log_text(cmd);
 		log_text((char *)": ");
 		log_text(buff);
-		free_lbuf(buff);
 		ENDLOG
 	} else {
-		buff = alloc_lbuf("cf_log_syntax");
 		sprintf(buff, template, arg);
 		notify(player, buff);
-		free_lbuf(buff);
 	}
 }
 
