@@ -31,6 +31,35 @@ fi
 echo "Checking for database files and creating backups of old files."
 
 #
+#	Refuse to start if the last line of the logfile is a GDBM panic.
+#
+if [ -r $DATA/$GDBM_DB ]; then
+    end="`tail -1 $LOGNAME`"
+    if [ "$end" = "GDBM panic: write error" ]; then
+	echo "Your log file indicates that the MUSH went down on a GDBM panic"
+	echo "while trying to write to the database. This error normally"
+	echo "occurs with an out-of-disk-space problem, though it might also"
+	echo "be the result of disk-quota-exceeded, or an NFS server issue."
+	echo "Please check to make sure that this condition has been fixed,"
+	echo "before restarting the MUSH."
+	echo
+	echo "This error also indicates that the issue prevented the MUSH from"
+        echo "writing out the data it was trying to save to disk, which means"
+	echo "that you may have suffered from some database corruption."
+ 	echo "Please type the following now, to ensure database integrity:"
+	echo
+	echo "    ./Reconstruct"
+	echo "    ./Backup"
+	echo "    mv -f $LOGNAME $LOGNAME.old"
+	echo
+	echo "If this is all successful, you may type ./Startmush again to"
+	echo "restart the MUSH. If the recovery attempt fails, you will"
+	echo "need to restore from a previous backup."
+	exit 1
+    fi
+fi
+
+#
 #	Refuse to start if a restart.db is present.
 #
 if [ -r restart.db ]; then
