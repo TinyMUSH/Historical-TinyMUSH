@@ -532,7 +532,8 @@ int atrsize;
 	 * this size and if it is too large, we'll fill it up before we
 	 * start flushing */
 	
-	while ((cs_size + atrsize) > mudconf.cache_size) {
+	while ((cs_size + atrsize) > 
+		(mudconf.cache_size ? mudconf.cache_size : CACHE_SIZE)) {
 		for (x = 0; x < cwidth; x++) {
 			sp = &sys_c[x];
 	
