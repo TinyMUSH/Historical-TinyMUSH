@@ -46,7 +46,7 @@ AC_ARG_WITH(sql-inc,
     esac
   ], [
     case "$with_sql" in
-      msql) SQL_I="I/usr/local/Hughes/include"
+      msql) SQL_I="-I/usr/local/Hughes/include"
               AC_MSG_RESULT(/usr/local/Hughes/include) ;;
       mysql) SQL_I="-I/usr/local/include/mysql"
                AC_MSG_RESULT(/usr/local/include/mysql) ;;
@@ -68,7 +68,7 @@ AC_ARG_WITH(sql-libs,
     esac
   ], [
     case "$with_sql" in
-      msql) SQL_LIB="L/usr/local/Hughes/lib"
+      msql) SQL_LIB="-L/usr/local/Hughes/lib"
               AC_MSG_RESULT(/usr/local/Hughes/lib) ;;
       mysql) SQL_LIB="-L/usr/local/lib/mysql"
                AC_MSG_RESULT(/usr/local/lib/mysql) ;;
@@ -730,7 +730,9 @@ case "$with_sql" in
     LDFLAGS="$SQL_LIB $SAVELDFLAGS"
     AC_CHECK_LIB(mysqlclient, main,
       LIBS="$SQL_LIB -lmysqlclient $LIBS",
-      AC_MSG_ERROR(unable to build with mysql), ) ;;
+      AC_CHECK_LIB(mysqlclient, main,
+        LIBS="$SQL_LIB -lmysqlclient -lz $LIBS",
+        AC_MSG_ERROR(unable to build with mysql), -lz ), ) ;;
 esac
 
 AC_CHECK_LIB(crypt, main)
