@@ -119,7 +119,7 @@ D_O	= alloc.o api.o boolexp.o command.o compat.o conf.o cque.o create.o \
 	  stringutil.o timer.o unparse.o vattr.o walkdb.o wild.o wiz.o
 D_I	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  fnproto.h cmdtabs.h command.h config.h db.h externs.h mudconf.h \
-	  misc.h vattr.h file_c.h alloc.h attrs.h powers.h slave.h \
+	  walkdb.h vattr.h file_c.h alloc.h attrs.h powers.h slave.h \
 	  api.h pcre.h bitstring.h db_sql.h ltdl.h
 
 # Auxiliary source files: only used by offline utilities.

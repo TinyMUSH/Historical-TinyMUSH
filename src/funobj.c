@@ -17,7 +17,7 @@
 #include "match.h"	/* required by code */
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
-#include "misc.h"	/* required by code */
+#include "walkdb.h"	/* required by code */
 
 extern char *FDECL(upcasestr, (char *));
 extern dbref FDECL(find_connected_ambiguous, (dbref, char *));

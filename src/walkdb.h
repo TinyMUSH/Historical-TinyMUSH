@@ -1,10 +1,10 @@
-/* misc.h - miscellaneous structures that are needed in more than one file */
+/* walkdb.h - structures used in commands that walk the entire db */
 /* $Id$ */
 
 #include "copyright.h"
 
-#ifndef __MISC_H
-#define __MISC_H
+#ifndef __WALKDB_H
+#define __WALKDB_H
 
 /* Search structure, used by @search and search(). */
 
@@ -42,4 +42,4 @@ extern int	FDECL(search_setup, (dbref, char *, SEARCH *));
 extern void	FDECL(search_perform, (dbref, dbref, SEARCH *));
 extern int	FDECL(get_stats, (dbref, dbref, STATS *));
 
-#endif /* __MISC_H */
+#endif /* __WALKDB_H */
