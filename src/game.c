@@ -87,6 +87,8 @@ extern int slave_socket;
 extern int corrupt;
 #endif
 
+static const unsigned char *tables = NULL; /* for PCRE */
+
 /*
  * used to allocate storage for temporary stuff, cleared before command
  * execution
@@ -182,7 +184,6 @@ int nargs;
 {
     int i;
     pcre *re;
-    static const unsigned char *tables = NULL;
     const char *errptr;
     int erroffset;
     int offsets[PCRE_MAX_OFFSETS];
@@ -388,6 +389,10 @@ const char *msg;
 	int aflags, alen, preserve_len[MAX_GLOBAL_REGS];
 	dbref aowner;
 	char *buf, *nbuf, *cp, *dp, *str, *preserve[MAX_GLOBAL_REGS];
+	pcre *re;
+	const char *errptr;
+	int len, erroffset, subpatterns;
+	int offsets[PCRE_MAX_OFFSETS];
 
 	buf = atr_pget(object, filter, &aowner, &aflags, &alen);
 	if (!*buf) {
@@ -403,14 +408,35 @@ const char *msg;
 	dp = nbuf;
 	free_lbuf(buf);
 	restore_global_regs("check_filter_restore", preserve, preserve_len);
-	
-	do {
+
+	if (!(aflags & AF_REGEXP)) {
+	    do {
 		cp = parse_to(&dp, ',', EV_STRIP);
 		if (quick_wild(cp, (char *)msg)) {
 			free_lbuf(nbuf);
 			return (0);
 		}
-	} while (dp != NULL);
+	    } while (dp != NULL);
+	} else {
+	    if (!tables) {
+		tables = pcre_maketables();
+	    }
+	    len = strlen(msg);
+	    do {
+		cp = parse_to(&dp, ',', EV_STRIP);
+		re = pcre_compile(cp, 0, &errptr, &erroffset, tables);
+		if (re != NULL) {
+		    subpatterns = pcre_exec(re, NULL, (char *) msg, len,
+					    0, 0, offsets, PCRE_MAX_OFFSETS);
+		    if (subpatterns >= 0) {
+			XFREE(re, "check_filter.re");
+			free_lbuf(nbuf);
+			return (0);
+		    }
+		    XFREE(re, "check_filter.re");
+		}
+	    } while (dp != NULL);
+	}
 	free_lbuf(nbuf);
 	return (1);
 }
