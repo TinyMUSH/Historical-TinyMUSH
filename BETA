@@ -24,6 +24,12 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+??/??/2003: Beta 11?
+
+- Fix: @trigger/now switch had no effect. [3.1b7; Draci]
+
+-----------------------------------------------------------------------------
+
 07/30/2003: Beta 10
 
 - Fix: The cache now keeps a single freelist. Fixed several bugs. [3.1]
