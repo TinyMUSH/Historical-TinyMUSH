@@ -6,6 +6,7 @@ Frequently-Asked Questions
 - How do I back up my database?
 - How do I restore a database backup?
 - How do I apply a patch upgrade or bugfix?
+- How do logfiles work?
 - How do I use multiple guests?
 - How do I tune the database cache?
 - How do I use radix compression?
@@ -159,6 +160,40 @@ characters at the end of lines.
 
 Also, if you're applying multiple patches, make sure to do them in 
 chronological sequence -- oldest to newest patch.
+
+------------------------------------------------------------------------------
+
+How do logfiles work?
+
+When you start your game from the command line, the startup information
+is logged to GAMENAME.log, where GAMENAME is what you specified it to
+be in your mush.config file.
+
+Subsequently, log information is written to whatever you set your
+game_log configuration parameter to be in your GAMENAME.conf file
+(whatever GAMENAME is); if you didn't specify that parameter,
+'netmush.log' will be used. In general, you will probably want to set
+it to GAMENAME.log, so startup information and regular log information
+are all written to the same file.
+
+You can separate log information of different types into multiple
+files, using the divert_log configuration parameter. See the wizhelp
+for details.
+
+When you @restart, or do a @logrotate, the existing logfiles are closed
+and renamed to LOGNAME.TIMESTAMP, where LOGNAME is the name of the log,
+and TIMESTAMP is the "epoch time" (equivalent to the number of seconds
+returned by the secs() MUSH function). You can delete those logfiles
+to reclaim disk space, if you'd like. The current logfile will always
+have the "standard" name as specified by the game_log and/or divert_log
+parameters, though.
+
+When you start the game from the command line, any existing GAMENAME.log
+file will be moved to GAMENAME.log.old -- but logs from any divert_log
+directives will not be renamed in this way.
+
+Thus, it's a good idea to go through your game directory on a periodic
+basis, cleaning out old logs.
 
 ------------------------------------------------------------------------------
 
