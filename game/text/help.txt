@@ -14203,6 +14203,9 @@ Continued in 'help 3.1 commands3'.
  
 & 3.1 commands3
  
+- @conformat and @exitformat get their visible contents/exits lists
+  passed as %0.
+ 
 - @cpattr can copy multiple attributes at a time.
  
 - A new command, @floaters, shows floating rooms. Floating rooms are no
@@ -14219,12 +14222,12 @@ Continued in 'help 3.1 commands3'.
  
 - Function permissions can be listed via '@list func_permissions'.
  
-- Lock syntax is now always sanity-checked. Unbalanced parentheses within
-  a lock are no longer permitted.
- 
 Continued in 'help 3.1 commands4'.
  
 & 3.1 commands4
+ 
+- Lock syntax is now always sanity-checked. Unbalanced parentheses within
+  a lock are no longer permitted.
  
 - The new @log command can be used to log arbitrary messages to the
   logfile(s).

@@ -68,6 +68,11 @@ CHANGES TO THE BASE SERVER AND SERVER CONFIGURATION
 - dbconvert is now just a symlink to netmush; its functionality has been
   merged into the main program.
 
+- Making a flatfile now automatically cleans the attribute table of
+  dead attribute name references, so the @dbclean command is no longer
+  needed. (You can pass a -q option to dbconvert to prevent attribute
+  cleaning, if for some reason you want to avoid this.)
+
 - Clean flatfiles are now produced by SIGUSR2. SIGQUIT causes a graceful
   shutdown.
 
@@ -253,6 +258,9 @@ CHANGES TO COMMANDS
 - The new Spoof comsys flag, when set on a channel, replaces player names
   with their comtitles, instead of prepending the comtitle to the player
   name.
+
+- @conformat and @exitformat get their visible contents/exits lists
+  passed as %0.
 
 - @cpattr can copy multiple attributes at a time.
 
