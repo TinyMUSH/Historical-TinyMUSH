@@ -96,7 +96,7 @@ FUNCTION(fun_loop)
 
     VaChk_Only_In("LOOP", 3);
     perform_loop(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, isep, ' ', isep_len, 1);
+		 cargs, ncargs, isep, SPACE_DELIM, isep_len, 1, 1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -240,7 +240,8 @@ FUNCTION(fun_list)
 
     VaChk_Only_In("LIST", 3);
     perform_iter(buff, bufc, player, caller, cause, fargs[0], fargs[1],
-		 cargs, ncargs, isep, ' ', isep_len, 1, BOOL_COND_NONE);
+		 cargs, ncargs, isep, SPACE_DELIM, isep_len, 1,
+		 1, BOOL_COND_NONE);
 }
 
 /* ---------------------------------------------------------------------------

@@ -2414,7 +2414,7 @@ FUNCTION(fun_regrab)
     int isep_len;
 
     VaChk_Only_In("REGRAB", 3);
-    perform_regrab(buff, bufc, isep, ' ', isep_len, 1,
+    perform_regrab(buff, bufc, isep, SPACE_DELIM, isep_len, 1,
 		   player, fargs, nfargs, 0, 0);
 }
 
@@ -2424,8 +2424,8 @@ FUNCTION(fun_regrabi)
     int isep_len;
 
     VaChk_Only_In("REGRABI", 3);
-    perform_regrab(buff, bufc, isep, ' ', isep_len, 1, player, fargs, nfargs,
-		   PCRE_CASELESS, 0);
+    perform_regrab(buff, bufc, isep, SPACE_DELIM, isep_len, 1,
+		   player, fargs, nfargs, PCRE_CASELESS, 0);
 }
 
 FUNCTION(fun_regraball)
