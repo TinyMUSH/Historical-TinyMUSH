@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-- Fix: the game/data directory is once again included in the
+- Fix: The game/data directory is once again included in the
   distribution. [3.1; Neva]
 
 2002/05/xx: Beta 2
@@ -45,6 +45,15 @@ Release history:
 
 - Misc: Avoid scanning the entire help table when asked for a
   nonexistent, non-wildcard entry. [2.0]
+
+- Fix: Objects with dbrefs higher than mudstate.attr_next were not
+  written to the database. [3.1; Christy Schulte]
+
+- Fix: Backup invoked tar with wrong options. [3.1]
+
+- Fix: *player changes broke *dbref, as in num(*#1). [3.1]
+
+- Feature: istrue() and isfalse() functions added.
 
 =============================================================================
 			TinyMUSH 3.0 Beta History
