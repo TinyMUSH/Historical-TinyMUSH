@@ -109,14 +109,14 @@ va_dcl
 	/* Sigh, don't we wish _all_ vsprintf's returned int... */
 
 #ifdef HAVE_VSNPRINTF
-	n = LBUF_SIZE - (*bp - buff);
+	n = LBUF_SIZE - (*bp - str);
 	if (n <= 0) {
 		**bp = '\0';
 		return;
 	}
-	vsnprintf(buff, n, format, ap);
+	vsnprintf(*bp, n, format, ap);
 	va_end(ap);
-	len = strlen(buff);
+	len = strlen(*bp);
 	n = ((len < n) ? len : n);
 	*bp += n;
 	**bp = '\0';
