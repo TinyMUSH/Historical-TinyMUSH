@@ -307,7 +307,8 @@ void list_cached_objs(player)
 #endif /* STANDALONE */
 
 /* Search the cache for an attribute, if found, return, if not, fetch from
-/* DB */
+ * DB
+ */
 
 Attr *cache_get(nam)
 Aname *nam;
@@ -599,7 +600,8 @@ int atrsize;
 				}
 						
 				/* If we haven't found one by now, the tail
-				/* of the modified chain is it */
+				 * of the modified chain is it
+				 */
 
 				if ((score > curscore) || ((score == curscore) && 
 				    (size > cursize)) ||
