@@ -13184,7 +13184,7 @@ a Wizard must do a @readcache from within the game.
  
 The user-visible changes to TinyMUSH 3.1 (from TinyMUSH 3.0) can be
 found in the following help entries:
-
+ 
 'help 3.1 base'		New/enhanced base server and configuration directives.
 'help 3.1 flags'	New/enhanced flags and powers.
 'help 3.1 commands'	New/enhanced commands.
@@ -14276,17 +14276,21 @@ Continued in 'help 3.1 functions3'.
  
 - chomp() can now handle a lone CR or LF.
  
-- Added entrances() function, similar to @entrances command. Based on an
-  idea from PennMUSH.
+- choose() picks an element from a list on a weighted-random-choice basis.
  
-- You can now get attribute flags with flags(<obj>/<attr>). Based on an
+- Added entrances() function, similar to @entrances command. Based on an
   idea from PennMUSH.
  
 Continued in 'help 3.1 functions4'.
  
 & 3.1 functions4
  
+- You can now get attribute flags with flags(<obj>/<attr>). Based on an
+  idea from PennMUSH.
+ 
 - Added graball(), which is to grab() what matchall() is to match().
+
+- helptext() retrieves an entry from an indexed textfile (help, news, etc.).
  
 - The third argument to ifelse() -- the 'false' result -- is now optional.
  
@@ -14300,15 +14304,15 @@ Continued in 'help 3.1 functions4'.
   to turn a list of words into something like "a, b, and c". Based on an
   idea from PennMUSH.
  
+Continued in 'help 3.1 functions5'.
+ 
+& 3.1 functions5
+ 
 - Added ledit() function, a mass find-and-replace on a list which can
   replace many instances of nested edit() calls.
  
 - The ljust(), rjust(), and center() functions can take multi-character
   fills.
- 
-Continued in 'help 3.1 functions5'.
- 
-& 3.1 functions5
  
 - The lunion(), linter(), and ldiff() functions are similar to setunion(),
   etc., but an attempt is made to autodetect the list type and sort
@@ -14324,16 +14328,16 @@ Continued in 'help 3.1 functions5'.
   the old mod() on most platforms; if you want it to be an alias
   for modulo() instead, change it in alias.conf
  
+Continued in 'help 3.1 functions6'.
+ 
+& 3.1 functions6
+ 
 - Added nattr(), which counts the number of attributes on an object.
  
 - sees() can now evaluate the visibility of exits as well as things.
   Also, a small bug has been fixed: the see_owned_dark calculation in
   sees() now uses the object doing the looking, not the player invoking
   the function.
- 
-Continued in 'help 3.1 functions6'.
- 
-& 3.1 functions6
  
 - Added session(), which returns command count, bytes of input, and
   bytes of output associated with a port.
@@ -14348,15 +14352,15 @@ Continued in 'help 3.1 functions6'.
   delimiter character. The delimit() function processes a stored
   list, substituting a separator string for a delimiter.
  
+Continued in 'help 3.1 functions7'.
+ 
+& 3.1 functions7
+ 
 - Added table(), tables(), rtables(), and ctables() functions. table()
   is based on an idea from PennMUSH, formatting text within a table of
   equally wide columns. The other three functions format text within
   a table of variably-wide columns (left/right/center-justified), with
   left and right-margin borders.
- 
-Continued in 'help 3.1 functions7'.
- 
-& 3.1 functions7
  
 - Added timefmt() function. This is essentially an interface to the C
   library function strftime(), allowing the time to be formatted in
@@ -14370,15 +14374,15 @@ Continued in 'help 3.1 functions7'.
 - Added until() function, which is similar to while(), except it operates
   on multiple lists and terminates on a regular expression condition.
  
+Continued in 'help 3.1 functions8'.
+ 
+& 3.1 functions8
+ 
 - valid() can now detect valid attribute names and player names, for
   PennMUSH compatibility.
  
 - Added whentrue() and whenfalse() functions, which go through a list
   iter()-style until a terminating boolean condition is reached.
- 
-Continued in 'help 3.1 functions8'.
- 
-& 3.1 functions8
  
 - Added wildgrep(), wildmatch(), and wildparse(), which are similar to
   regrep(), regmatch() and regparse(), but work against wildcard patterns
