@@ -367,7 +367,8 @@ char *name;
 			tname = "a player";
 		}
 		buff = munge_space(name);
-		if (!badname_check(buff)) {
+		okname = badname_check(buff);
+		if (!okname) {
 			notify(player, "That name is not allowed.");
 			free_lbuf(buff);
 			return NOTHING;
@@ -376,10 +377,13 @@ char *name;
 		        okname = ok_player_name(buff);
 		if (okname) {
 		        okname = (lookup_player(NOTHING, buff, 0) == NOTHING);
-		        notify(player, tprintf("The name %s is already taken.",
+			if (!okname) {
+			        notify(player,
+				       tprintf("The name %s is already taken.",
 					       name));
-			free_lbuf(buff);
-			return NOTHING;
+				free_lbuf(buff);
+				return NOTHING;
+			}
 		}
 		free_lbuf(buff);
 		break;
