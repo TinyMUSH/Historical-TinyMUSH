@@ -1321,9 +1321,10 @@
 	connect_reg_file	crash_database		down_file
 	full_file		game_log		gdbm_database
 	guest_file		helpfile		html_connect_file
-	include			input_database		motd_file
-	newuser_file		output_database		quit_file
-	raw_helpfile		register_create_file	wizard_motd_file
+	include			input_database		mail_database
+	motd_file		newuser_file		output_database
+	quit_file		raw_helpfile		register_create_file
+	wizard_motd_file
 
 & PARAM LIMITS
 	building_limit			earn_limit
@@ -1383,9 +1384,9 @@ fascist_teleport	format_contents		format_exits
 global_aconn_uselocks	have_comsys		have_mailer		
 have_zones		hostnames		idle_wiz_dark		
 lattr_default_oldstyle	local_master_rooms	look_obey_terse		
-mail_database		match_own_commands	move_match_more
-no_ambiguous_match	paranoid_allocate	pemit_any_object	
-pemit_far_players	player_listen		player_match_own_commands
+match_own_commands	move_match_more		no_ambiguous_match
+paranoid_allocate	pemit_any_object	pemit_far_players
+player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag

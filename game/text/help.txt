@@ -4170,7 +4170,7 @@
   
     - All dbrefs (#0 and higher) are true. #-1 and below are false.
       Note that, for example, #1000 is true even if there aren't that
-      many objects in the database. Use isdbref() to check is a dbref
+      many objects in the database. Use isdbref() to check if a dbref
       is actually valid, i.e.:
       t(#0) => 1	t(#1) => 1	t(#-1) => 0	t(#-5) => 0
  
