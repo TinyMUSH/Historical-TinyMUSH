@@ -143,12 +143,6 @@ if [ ! -r $DATA/$GDBM_DB ]; then
 	make_db="-s"
 fi
 #
-#	Remove the start db if there is one.
-#
-if [ -r restart.db ]; then
-	rm -f restart.db
-fi
-#
 #	Cleanup the old logfiles.
 #
 ./Logclean
