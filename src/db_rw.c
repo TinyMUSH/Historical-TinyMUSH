@@ -1050,7 +1050,7 @@ int db_read()
 	
 	/* Load the attribute numbers */
 	
-	for (i = 0; i < mudstate.attr_next; i++) {
+	for (i = A_USER_START; i < mudstate.attr_next; i++) {
 		dddb_get((void *)&i, sizeof(int), (void **)&data, &len,
 			DBTYPE_ATRNUM);
 		if (data) {
