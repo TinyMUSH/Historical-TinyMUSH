@@ -1327,9 +1327,9 @@ CF_HAND(cf_cf_access)
  * cf_helpfile: Add a help/news-style file. Only valid during startup.
  */
 
-int add_helpfile(player, str, is_raw)
+int add_helpfile(player, confcmd, str, is_raw)
     dbref player;
-    char *str;
+    char *confcmd, *str;
     int is_raw;
 {
     char *fcmd, *fpath, *newstr, *tokst;
@@ -1345,17 +1345,17 @@ int add_helpfile(player, str, is_raw)
     fcmd = strtok_r(newstr, " \t=,", &tokst);
     fpath = strtok_r(NULL, " \t=,", &tokst);
     if (fpath == NULL) {
-	cf_log_syntax(player, cmd, "Missing path for helpfile %s", fcmd);
+	cf_log_syntax(player, confcmd, "Missing path for helpfile %s", fcmd);
 	free_mbuf(newstr);
 	return -1;
     }
     if (fcmd[0] == '_' && fcmd[1] == '_') {
-	cf_log_syntax(player, cmd, "Helpfile %s would cause @addcommand conflict", fcmd);
+	cf_log_syntax(player, confcmd, "Helpfile %s would cause @addcommand conflict", fcmd);
 	free_mbuf(newstr);
 	return -1;
     }
     if (strlen(fpath) > SBUF_SIZE) {
-	cf_log_syntax(player, cmd, "Helpfile %s filename too long", fcmd);
+	cf_log_syntax(player, confcmd, "Helpfile %s filename too long", fcmd);
 	free_mbuf(newstr);
 	return -1;
     }
@@ -1423,12 +1423,12 @@ int add_helpfile(player, str, is_raw)
 
 CF_HAND(cf_helpfile)
 {
-    return add_helpfile(player, str, 0);
+    return add_helpfile(player, cmd, str, 0);
 }
 
 CF_HAND(cf_raw_helpfile)
 {
-    return add_helpfile(player, str, 1);
+    return add_helpfile(player, cmd, str, 1);
 }
 
 /* ---------------------------------------------------------------------------

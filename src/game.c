@@ -41,7 +41,7 @@ void FDECL(fork_and_dump, (int));
 void NDECL(dump_database);
 void NDECL(pcache_sync);
 static void NDECL(init_rlimit);
-extern int FDECL(add_helpfile, (dbref, char *, int));
+extern int FDECL(add_helpfile, (dbref, char *, char *, int));
 extern void NDECL(vattr_init);
 extern int FDECL(get_hashmask, (int *));
 extern void FDECL(hashresize, (HASHTAB *, int));
@@ -1918,9 +1918,9 @@ char *argv[];
 	hashinit(&mudstate.instdata_htab, 25 * HASH_FACTOR);
 	hashinit(&mudstate.api_func_htab, 5 * HASH_FACTOR);
 
-	add_helpfile(GOD, (char *) "help text/help", 1);
-	add_helpfile(GOD, (char *) "wizhelp text/wizhelp", 1);
-	add_helpfile(GOD, (char *) "qhelp text/qhelp", 1);
+	add_helpfile(GOD, (char *)"main:add_helpfile", (char *) "help text/help", 1);
+	add_helpfile(GOD, (char *)"main:add_helpfile", (char *) "wizhelp text/wizhelp", 1);
+	add_helpfile(GOD, (char *)"main:add_helpfile", (char *) "qhelp text/qhelp", 1);
 	cmdp = (CMDENT *) hashfind((char *) "wizhelp", &mudstate.command_htab);
 	if (cmdp)
 	    cmdp->perms |= CA_WIZARD;
