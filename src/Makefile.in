@@ -1,4 +1,4 @@
-# Makefile for TinyMUSH 3.0
+# Makefile for TinyMUSH 3.1
 #
 # ===================== CONFIGURATION SECTION ====================
 #
@@ -47,8 +47,7 @@ SQL_S = @SQL_S@
 SQL_I = @SQL_I@
 SQL_O = @SQL_O@
 
-# ----- This set of definitions is for disk-based caching (as opposed to
-#        running memory-based).
+# ----- This set of definitions is for the database layer.
 #        These variables are set by the configure script (--help for options).
 UDB_S = @UDB_S@
 UDB_O = @UDB_O@
