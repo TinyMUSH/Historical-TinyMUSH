@@ -691,6 +691,15 @@
     Overlaid $-cmds	- Temporary; parent objects checked for $-commands.
     Object Stacks	- Object stacks for push(), pop(), etc.
     Variables		- Temporary variables, for setx(), etc.
+ 
+{ 'wizhelp @list hashstats3' for more }
+
+& @list hashstats3
+ 
+    Structure Defs	- Defined structures.
+    Component Defs	- Components defined as part of structures.
+    Instances		- Instances of structures.
+    Instance Data	- Data for specific components of instances.
     Mail messages	- Mail messages, if @mail is enabled.
     Channel names	- Comsys channels, if the comsys is enabled.
  
