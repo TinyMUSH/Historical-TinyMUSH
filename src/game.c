@@ -1516,6 +1516,10 @@ char *argv[];
 	MODHASHES *m_htab, *hp;
 	MODNHASHES *m_ntab, *np;
 
+	/* Do this first, before anything gets a chance to allocate memory. */
+
+	mudstate.raw_allocs = NULL;
+
 	/* Parse options */
 
 	while ((c = getopt(argc, argv, "c:l:s")) != -1) {

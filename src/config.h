@@ -116,42 +116,4 @@
 #define READ read
 #define WRITE write
 
-#ifdef TEST_MALLOC
-extern int malloc_count;
-extern int malloc_bytes;
-extern char *malloc_str;
-extern char *malloc_ptr;
-#define XMALLOC(x,y) (fprintf(stderr,"Malloc: %s/%d\n", (y), (x)), malloc_count++, \
-                    malloc_ptr = (char *)malloc((x) + sizeof(int)), malloc_bytes += (x), \
-                    *(int *)malloc_ptr = (x), malloc_ptr + sizeof(int))
-#define XCALLOC(x,z,y) (fprintf(stderr,"Calloc: %s/%d\n", (y), (x)*(z)), malloc_count++, \
-                    malloc_ptr = (char *)malloc((x)*(z) + sizeof(int)), malloc_bytes += (x)*(z), \
-                    memset(malloc_ptr, 0, (x)*(z) + sizeof(int)), \
-                    *(int *)malloc_ptr = (x)*(z), malloc_ptr + sizeof(int))
-#define XREALLOC(x,z,y) (fprintf(stderr,"Realloc: %s/%d\n", (y), (z)), \
-                    malloc_ptr = (char *)malloc((z) + sizeof(int)), malloc_bytes += (z), \
-                    malloc_bytes -= *(int *)((char *)(x)-sizeof(int)), memcpy(malloc_ptr + sizeof(int), (x), *(int *)((char *)(x) - sizeof(int))), \
-                    free((char *)(x) - sizeof(int)), *(int *)malloc_ptr = (z), malloc_ptr + sizeof(int))
-#define XSTRDUP(x,y) (malloc_str = (char *)(x), \
-		    fprintf(stderr,"Strdup: %s/%d\n", (y), strlen(malloc_str)+1), malloc_count++, \
-                    malloc_ptr = (char *)malloc(strlen(malloc_str) + 1 + sizeof(int)), \
-                    malloc_bytes += strlen(malloc_str) + 1, strcpy(malloc_ptr + sizeof(int), malloc_str), \
-                    *(int *)malloc_ptr = strlen(malloc_str) + 1, malloc_ptr + sizeof(int))
-#define XSTRNDUP(x,z,y) (malloc_str = (char *)(x), \
-		    fprintf(stderr,"Strndup: %s/%d\n", (y), strlen(malloc_str)+1), malloc_count++, \
-                    malloc_ptr = (char *)malloc((z) + sizeof(int)), \
-                    malloc_bytes += (z), strncpy(malloc_ptr + sizeof(int), malloc_str, (z)), \
-                    *(int *)malloc_ptr = (z), malloc_ptr + sizeof(int))
-#define XFREE(x,y) (fprintf(stderr, "Free: %s/%d\n", (y), (x) ? *(int *)((char *)(x)-sizeof(int)) : 0), \
-                    ((x) ? malloc_count--, malloc_bytes -= *(int *)((char *)(x)-sizeof(int)), \
-                    free((char *)(x) - sizeof(int)), (x)=NULL : (x)))
-#else
-#define XMALLOC(x,y) (malloc(x))
-#define XCALLOC(x,z,y) (calloc((x),(z)))
-#define XREALLOC(x,z,y) (realloc((x),(z)))
-#define XSTRDUP(x,y) (strdup(x))
-#define XSTRNDUP(x,z,y) (strndup((x),(z)))
-#define XFREE(x,y) (free((void *)(x)), (x) = NULL)
-#endif  /* TEST_MALLOC */
-
 #endif /* __CONFIG_H */

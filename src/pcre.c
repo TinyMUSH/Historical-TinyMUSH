@@ -52,6 +52,7 @@ restrictions:
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "alloc.h"
 #include "config.h"
 
 #include "pcre.h"	/* required by code */

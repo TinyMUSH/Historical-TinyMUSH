@@ -120,7 +120,7 @@ const char *tag;
 		pool_check(tag);
 	do {
 		if (pools[poolnum].free_head == NULL) {
-			h = (char *)XMALLOC(pools[poolnum].pool_size +
+			h = (char *)RAW_MALLOC(pools[poolnum].pool_size +
 					    sizeof(POOLHDR) + sizeof(POOLFTR),
 					    "pool_alloc.ph");
 			if (h == NULL) {
@@ -341,7 +341,7 @@ void pool_reset()
 			h += sizeof(POOLHDR);
 			ibuf = (int *)h;
 			if (*ibuf == POOL_MAGICNUM) {
-				XFREE(ph, "pool_reset.ph");
+				RAW_FREE(ph, "pool_reset.ph");
 			} else {
 				if (!newchain) {
 					newchain = ph;
@@ -358,3 +358,120 @@ void pool_reset()
 		pools[i].max_alloc = pools[i].num_alloc;
 	}
 }
+
+/* ---------------------------------------------------------------------------
+ * Track allocations that don't use the memory pools.
+ */
+
+#ifndef STANDALONE
+
+void list_rawmemory(player)
+    dbref player;
+{
+    MEMTRACK *tptr;
+    int n_tags, total;
+
+    n_tags = total = 0;
+
+    raw_notify(player,
+	       "Memory Tag                          Allocated");
+
+    for (tptr = mudstate.raw_allocs; tptr != NULL; tptr = tptr->next) {
+	raw_notify(player, tprintf("%-35.35s  %8d", tptr->buf_tag,
+				   (int) tptr->alloc));
+	n_tags++;
+	total += (int) tptr->alloc;
+    }
+
+    raw_notify(player, tprintf("Total: %d raw allocations. %d bytes (%d K).",
+			       n_tags, total, (int) total / 1024));
+}
+
+static void trace_alloc(amount, name)
+    size_t amount;
+    char *name;
+{
+    /* We maintain an unsorted list, most recently-allocated things at
+     * the head, based on the belief that it's basically a stack --
+     * when we go to free something it's usually the most recent thing
+     * that we've allocated.
+     */
+
+    MEMTRACK *tptr;
+
+    tptr = (MEMTRACK *) RAW_MALLOC(sizeof(MEMTRACK), "trace_alloc.tptr");
+    if (!tptr)
+	return;
+
+    tptr->buf_tag = (char *) RAW_STRDUP(name, "trace_alloc.tag");
+    tptr->alloc = amount;
+    tptr->next = mudstate.raw_allocs;
+    mudstate.raw_allocs = tptr;
+}
+
+static void trace_free(name)
+    char *name;
+{
+    MEMTRACK *tptr, *prev;
+
+    prev = NULL;
+    for (tptr = mudstate.raw_allocs; tptr != NULL; tptr = tptr->next) {
+	if (!strcmp(tptr->buf_tag, name)) {
+	    if (mudstate.raw_allocs == tptr)
+		mudstate.raw_allocs = tptr->next;
+	    if (prev)
+		prev->next = tptr->next;
+	    RAW_FREE(tptr->buf_tag, "trace_alloc.tag");
+	    RAW_FREE(tptr, "trace_alloc.tptr");
+	    return;
+	}
+	prev = tptr;
+    }
+
+    STARTLOG(LOG_BUGS, "MEM", "TRACE")
+	log_printf("Freed unknown tag %s", name);
+    ENDLOG
+}
+
+void *track_malloc(amount, name)
+    size_t amount;
+    char *name;
+{
+    trace_alloc(amount, name);
+    return (malloc(amount));
+}
+
+void *track_calloc(elems, esize, name)
+    size_t elems, esize;
+    char *name;
+{
+    trace_alloc(elems * esize, name);
+    return (calloc(elems, esize));
+}
+
+void *track_realloc(ptr, amount, name)
+    void *ptr;
+    size_t amount;
+    char *name;
+{
+    trace_free(name);
+    trace_alloc(amount, name);
+    return (realloc(ptr, amount));
+}
+
+char *track_strdup(str, name)
+    char *str, *name;
+{
+    trace_alloc(strlen(str) + 1, name);
+    return (strdup(str));
+}
+
+void track_free(ptr, name)
+    void *ptr;
+    char *name;
+{
+    trace_free(name);
+    free(ptr);
+}
+
+#endif /* ! STANDALONE */

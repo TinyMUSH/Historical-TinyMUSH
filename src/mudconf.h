@@ -442,6 +442,7 @@ struct statedata {
 	dbref	poutobj;	/* Object doing the piping */
 	int	sql_socket;	/* Socket fd for SQL database connection */
 	clock_t	cputime_base;	/* CPU baselined at beginning of command */
+	MEMTRACK *raw_allocs;	/* Tracking of raw memory allocations */
 #else  /* STANDALONE */
 	int	logging;	/* Are we in the middle of logging? */
 	int	attr_next;	/* Next attr to alloc when freelist is empty */

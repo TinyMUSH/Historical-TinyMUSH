@@ -2846,7 +2846,7 @@ void list_memory(player)
 	/* Report end total. */
 
 	raw_notify(player,
-		   tprintf("\nTotal            : %12.2fk", total / 1024));
+		   tprintf("\r\nTotal            : %12.2fk", total / 1024));
 }
 
 /* ---------------------------------------------------------------------------
@@ -2883,6 +2883,7 @@ void list_memory(player)
 #define LIST_FUNCPERMS	28
 #define LIST_MEMORY	29
 #define LIST_CACHEATTRS 30
+#define LIST_RAWMEM	31
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
@@ -2912,6 +2913,7 @@ NAMETAB list_names[] = {
 {(char *)"permissions",		2,	CA_WIZARD,	LIST_PERMS},
 {(char *)"powers",		2,	CA_WIZARD,	LIST_POWERS},
 {(char *)"process",		2,	CA_WIZARD,	LIST_PROCESS},
+{(char *)"raw_memory",		1,	CA_WIZARD,	LIST_RAWMEM},
 {(char *)"site_information",	2,	CA_WIZARD,	LIST_SITEINFO},
 {(char *)"switches",		2,	CA_PUBLIC,	LIST_SWITCHES},
 {(char *)"textfiles",		1,	CA_WIZARD,	LIST_TEXTFILES},
@@ -3037,6 +3039,9 @@ char *arg;
 #else
 		raw_notify(player, "No cached objects.");
 #endif /* MEMORY_BASED */
+		break;
+	case LIST_RAWMEM:
+		list_rawmemory(player);
 		break;
 	default:
 		display_nametab(player, list_names,
