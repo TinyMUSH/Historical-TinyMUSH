@@ -406,6 +406,8 @@ ATTR attr[] =
 								NULL},
 {"*Money",	A_MONEY,	AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
 								NULL},
+{"*Invalid",	A_TEMP,		AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
+								NULL},
 {NULL,		0,		0,				NULL}};
 #ifndef STANDALONE
 /* *INDENT-ON* */

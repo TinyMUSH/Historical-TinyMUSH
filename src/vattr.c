@@ -15,6 +15,8 @@
 
 #include "vattr.h"	/* required by code */
 #include "attrs.h"	/* required by code */
+#include "functions.h"	/* required by code */
+#include "command.h"	/* required by code */
 
 static void FDECL(fixcase, (char *));
 static char FDECL(*store_string, (char *));
@@ -116,6 +118,9 @@ int key;
     char *as, *str;
     int *used_table;
     ATTR **new_table;
+    UFUN *ufp;
+    CMDENT *cmdp;
+    ADDENT *addp;
 
     raw_broadcast(0,
 	      "GAME: Cleaning database. Game may freeze for a few minutes.");
@@ -153,6 +158,30 @@ int key;
 	    hashdelete(vpx->name, &mudstate.vattr_name_htab);
 	    XFREE(vpx, "dbclean.vpx");
 	    n_deleted++;
+	}
+    }
+
+    /* The user-defined function and added command structures embed
+     * attribute numbers. Clean out the ones we've deleted, resetting
+     * them to the *Invalid (A_TEMP) attr.
+     */
+
+    for (ufp = (UFUN *) hash_firstentry(&mudstate.ufunc_htab);
+	 ufp != NULL;
+	 ufp = (UFUN *) hash_nextentry(&mudstate.ufunc_htab)) {
+	if (used_table[ufp->atr] == 0)
+	    ufp->atr = A_TEMP;
+    }
+    for (cmdp = (CMDENT *) hash_firstentry(&mudstate.command_htab);
+	 cmdp != NULL;
+	 cmdp = (CMDENT *) hash_nextentry(&mudstate.command_htab)) {
+	if (cmdp->callseq & CS_ADDED) {
+	    for (addp = (ADDENT *) cmdp->info.added;
+		 addp != NULL;
+		 addp = addp->next) {
+		if (used_table[addp->atr] == 0)
+		    addp->atr = A_TEMP;
+	    }
 	}
     }
 
@@ -242,6 +271,29 @@ int key;
 	    XFREE(anum_table, "dbclean.anum_table");
 	    anum_table = new_table;
 	    anum_alc_top = end;
+	}
+    }
+
+    /* Go through the function and added command tables again, and
+     * take care of the attributes that got renumbered.
+     */
+
+    for (ufp = (UFUN *) hash_firstentry(&mudstate.ufunc_htab);
+	 ufp != NULL;
+	 ufp = (UFUN *) hash_nextentry(&mudstate.ufunc_htab)) {
+	if (used_table[ufp->atr] != ufp->atr)
+	    ufp->atr = used_table[ufp->atr];
+    }
+    for (cmdp = (CMDENT *) hash_firstentry(&mudstate.command_htab);
+	 cmdp != NULL;
+	 cmdp = (CMDENT *) hash_nextentry(&mudstate.command_htab)) {
+	if (cmdp->callseq & CS_ADDED) {
+	    for (addp = (ADDENT *) cmdp->info.added;
+		 addp != NULL;
+		 addp = addp->next) {
+		if (used_table[addp->atr] != addp->atr)
+		    addp->atr = used_table[addp->atr];
+	    }
 	}
     }
 
