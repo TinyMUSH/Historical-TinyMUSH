@@ -290,13 +290,15 @@ static void update_comwho(chp)
 	XFREE(chp->connect_who, "update_comwho");
 
     chp->num_connected = count;
-    chp->connect_who = (CHANWHO **) calloc(count, sizeof(CHANWHO *));
-    
-    i = 0;
-    for (wp = chp->who; wp != NULL; wp = wp->next) {
-	if (!isPlayer(wp->player) || Connected(wp->player)) {
-	    chp->connect_who[i] = wp;
-	    i++;
+
+    if (count > 0) {
+	chp->connect_who = (CHANWHO **) calloc(count, sizeof(CHANWHO *));
+	i = 0;
+	for (wp = chp->who; wp != NULL; wp = wp->next) {
+	    if (!isPlayer(wp->player) || Connected(wp->player)) {
+		chp->connect_who[i] = wp;
+		i++;
+	    }
 	}
     }
 }
