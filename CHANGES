@@ -378,6 +378,9 @@ CHANGES TO FUNCTIONS
 
 - The *<player> syntax is supported in many more places.
 
+- There is a more informative error message when a function is given the
+  wrong number of arguments. Idea from Philip Mak.
+
 - Extended regular expression syntax from Perl 5 is now supported.
   This is based on the PCRE library, as modified by the PennMUSH team.
 

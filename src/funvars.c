@@ -1108,8 +1108,9 @@ FUNCTION(fun_construct)
 
     VaChk_In(2, 5);
     if (nfargs == 3) {
-	safe_str("#-1 FUNCTION (CONSTRUCT) EXPECTS 2 OR 4 OR 5 ARGUMENTS",
-		 buff, bufc);
+	safe_tprintf_str(buff, bufc,
+	   "#-1 FUNCTION (CONSTRUCT) EXPECTS 2 OR 4 OR 5 ARGUMENTS BUT GOT %d",
+			 nfargs);
 	return;
     }
 

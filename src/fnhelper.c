@@ -423,11 +423,11 @@ int nfargs, minargs, maxargs;
 		return 1;
 
 	if (maxargs == (minargs + 1))
-		safe_tprintf_str(result, bufc, "#-1 FUNCTION (%s) EXPECTS %d OR %d ARGUMENTS",
-				 fname, minargs, maxargs);
+		safe_tprintf_str(result, bufc, "#-1 FUNCTION (%s) EXPECTS %d OR %d ARGUMENTS BUT GOT %d",
+				 fname, minargs, maxargs, nfargs);
 	else
-		safe_tprintf_str(result, bufc, "#-1 FUNCTION (%s) EXPECTS BETWEEN %d AND %d ARGUMENTS",
-				 fname, minargs, maxargs);
+		safe_tprintf_str(result, bufc, "#-1 FUNCTION (%s) EXPECTS BETWEEN %d AND %d ARGUMENTS BUT GOT %d",
+				 fname, minargs, maxargs, nfargs);
 	return 0;
 }
 

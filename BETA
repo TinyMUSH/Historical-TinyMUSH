@@ -35,6 +35,9 @@ Release history:
   the result is set into named global registers. This eliminates the
   issues with clobbering variables, needing to use the Now flag, etc.
 
+- Misc: More informative error message when a function is given the wrong
+  number of arguments. Idea from Philip Mak.
+
 - Fix: dbconvert -C crash fixed. [2.0; Jake]
 
 -----------------------------------------------------------------------------

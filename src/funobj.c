@@ -1072,8 +1072,9 @@ FUNCTION(fun_hasflags)
     int n_elems, i, j, result;
 
     if (nfargs < 2) {
-	safe_str("#-1 FUNCTION (HASFLAGS) EXPECTS AT LEAST 2 ARGUMENTS",
-		 buff, bufc);
+	safe_tprintf_str(buff, bufc,
+	     "#-1 FUNCTION (HASFLAGS) EXPECTS AT LEAST 2 ARGUMENTS BUT GOT %d",
+			 nfargs);
 	return;
     }
     

@@ -14574,6 +14574,9 @@ Continued in 'help 3.1 functions2'.
  
 & 3.1 functions2
  
+- There is a more informative error message when a function is given the
+  wrong number of arguments. Idea from Philip Mak.
+ 
 - Extended regular expression syntax from Perl 5 is now supported.
   This is based on the PCRE library, as modified by the PennMUSH team.
  

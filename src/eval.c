@@ -1128,8 +1128,8 @@ char *cargs[];
 				mudstate.func_nest_lev--;
 			} else {
 			  safe_tprintf_str(buff, bufc,
-					   "#-1 FUNCTION (%s) EXPECTS %d ARGUMENTS",
-					   fp->name, fp->nargs);
+					   "#-1 FUNCTION (%s) EXPECTS %d ARGUMENTS BUT GOT %d",
+					   fp->name, fp->nargs, nfargs);
 			}
 
 			/* Return the space allocated for the arguments */

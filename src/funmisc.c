@@ -695,8 +695,9 @@ FUNCTION(fun_timefmt)
 	    return;
 	}
     } else {
-	safe_str("#-1 FUNCTION (TIMEFMT) EXPECTS 1 OR 2 ARGUMENTS",
-		 buff, bufc);
+	safe_tprintf_str(buff, bufc,
+		 "#-1 FUNCTION (TIMEFMT) EXPECTS 1 OR 2 ARGUMENTS BUT GOT %d",
+			 nfargs);
 	return;
     }
 
