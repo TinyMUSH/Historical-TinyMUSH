@@ -677,6 +677,7 @@ dbref player, obj;
 	s_Link(obj, NOTHING);
 	s_Owner(obj, GOD);
 	s_Pennies(obj, 0);
+	s_Parent(obj, NOTHING);
 	s_Zone(obj, NOTHING);
 }
 
