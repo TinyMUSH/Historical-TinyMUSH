@@ -3642,7 +3642,7 @@ FUNCTION(fun_splice)
 
 FUNCTION(fun_repeat)
 {
-	int times, i;
+	int times, i, over;
 
 	times = atoi(fargs[1]);
 	if ((times < 1) || (fargs[0] == NULL) || (!*fargs[0])) {
@@ -3652,8 +3652,8 @@ FUNCTION(fun_repeat)
 	} else if (strlen(fargs[0]) * times >= (LBUF_SIZE - 1)) {
 		safe_str("#-1 STRING TOO LONG", buff, bufc);
 	} else {
-		for (i = 0; i < times; i++)
-			safe_str(fargs[0], buff, bufc);
+		for (i = 0, over = 0; (i < times) && !over; i++)
+			over = safe_str(fargs[0], buff, bufc);
 	}
 }
 
