@@ -53,7 +53,7 @@ int canhear, hush;
 
 	quiet = (!(Wizard(loc) ||
 		   (!Dark(thing) && !Dark(loc)) ||
-		   (canhear && !(Wizard(thing) && Dark(thing))))) ||
+		   (canhear && !DarkMover(thing)))) ||
 		(hush & HUSH_LEAVE);
 	oattr = quiet ? A_NULL : A_OLEAVE;
 	aattr = (!quiet || (mudconf.dark_actions && !(hush & HUSH_LEAVE))) ?
@@ -76,7 +76,7 @@ int canhear, hush;
 
 	if (!quiet && !Blind(thing) && !Blind(loc)) {
 		if ((!Dark(thing) && !Dark(loc)) ||
-		    (canhear && !(Wizard(thing) && Dark(thing)))) {
+		    (canhear && !DarkMover(thing))) {
 			notify_except2(loc, thing, thing, cause,
 				       tprintf("%s has left.", Name(thing)));
 		}
@@ -113,7 +113,7 @@ int canhear, hush;
 
 	quiet = (!(Wizard(loc) ||
 		   (!Dark(thing) && !Dark(loc)) ||
-		   (canhear && !(Wizard(thing) && Dark(thing))))) ||
+		   (canhear && !DarkMover(thing)))) ||
 		(hush & HUSH_ENTER);
 	oattr = quiet ? A_NULL : A_OENTER;
 	aattr = (!quiet || (mudconf.dark_actions && !(hush & HUSH_ENTER))) ?
@@ -135,8 +135,7 @@ int canhear, hush;
 	 */
 
 	if (!quiet && canhear &&
-	    !Blind(thing) && !Blind(loc) &&
-	    !(Dark(thing) && Wizard(thing))) {
+	    !Blind(thing) && !Blind(loc) && !DarkMover(thing)) {
 		notify_except2(loc, thing, thing, cause,
 			       tprintf("%s has arrived.", Name(thing)));
 	}
@@ -298,9 +297,9 @@ int hush;
 	src = Location(thing);
 	canhear = Hearer(thing);
 
-	/* Dark wizards don't trigger OSUCC/ASUCC */
+	/* Dark wizzes and Cloak powered things don't trigger OSUCC/ASUCC */
 
-	darkwiz = (Wizard(thing) && Dark(thing));
+	darkwiz = DarkMover(thing);
 	quiet = darkwiz || (hush & HUSH_EXIT);
 
 	oattr = quiet ? A_NULL : A_OSUCC;

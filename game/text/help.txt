@@ -963,10 +963,10 @@ Continued in 'help goto4'.
 The move is considered "noisy", unless the mover is set TERSE and the
 configuration parameter terse_shows_move_messages is disabled. The
 move is considered "visible", unless the /quiet switch was specified,
-or the mover is a Dark Wizard. The move is considered "active", unless
-the /quiet switch was specified, or the mover is a Dark Wizard and the
-dark_actions configuration parameter is not enabled.
-The steps are as follows:
+or the mover is a Dark Wizard/Cloaker. The move is considered "active",
+unless the /quiet switch was specified, or the mover is a Dark
+Wizard/Cloaker and the dark_actions configuration parameter is not
+enabled. The steps are as follows:
  
 - If the move is noisy, the mover is shown the exit's @succ message.
 - If the move is visible, everyone in the old room sees the exit's @osucc.
@@ -1241,7 +1241,7 @@ Topic: Movement (object leaves its current location)
   to the movement command, or if none of the following is true:
     - The old room has Wizard privileges.
     - Neither the old room, nor the mover, are Dark.
-    - The mover can hear (see 'help Hearer') and is not a Dark Wizard.
+    - The mover can hear (see 'help Hearer') and is not a Dark Wizard/Cloaker.
  
 - If the leave is not quiet, the @oleave is shown to other objects in the
   old room.
@@ -1260,7 +1260,7 @@ Continued in 'help Movement Leave2'.
 - If the move is not quiet, the mover is not Blind, the old room is not
   Blind, and at least one of the following is true:
     - The mover and the old room are not Dark.
-    - The mover can hear, and is not a Dark Wizard.
+    - The mover can hear, and is not a Dark Wizard/Cloaker.
   then objects in the old room see "<mover> has left."
  
 & Movement Register
@@ -1290,7 +1290,7 @@ Topic: Movement (object enters its new location)
   to the movement command, or if none of the following is true:
     - The old room has Wizard privileges.
     - Neither the old room, nor the mover, are Dark.
-    - The mover can hear (see 'help Hearer') and is not a Dark Wizard.
+    - The mover can hear (see 'help Hearer') and is not a Dark Wizard/Cloaker.
  
 - If the enter is not quiet, the @oenter is shown to other objects in the
   destination.
@@ -1307,7 +1307,7 @@ Continued in 'help Movement Enter2'.
   objects in the destination.
  
 - If the move is not quiet, the mover is not Blind, the old room is not
-  Blind, the mover can hear, and the mover is not a Dark Wizard,
+  Blind, the mover can hear, and the mover is not a Dark Wizard/Cloaker,
   then objects in the destination see "<mover> has arrived."
  
 & Movement Key
@@ -4211,9 +4211,13 @@ Example: @sex me = female
   If a room is DARK, then no items are shown when a person 
   'looks' there. If a thing is DARK, then "look" does not list that 
   object in the room's Contents:, and if an exit is DARK, it doesn't 
-  show up in the Obvious Exits: list.  Puppets and objects that can 
-  listen cannot be DARK.
-
+  show up in the Obvious Exits: list.
+ 
+  Players, puppets, and objects that listen can be set DARK. However,
+  this flag has no effect unless that object has the Cloak power, or
+  that object has Wizard privileges and the visible_wizards configuration
+  parameter is disabled.
+  
 & DESTROY_OK
   Flag: DESTROY_OK (d)
  
@@ -11199,6 +11203,7 @@ performed and the walk down the list stops.
   boot			Can use the @boot command.
   builder		Can build, if the builder power is enabled.
   chown_anything	Can @chown anything to anyone.
+  cloak			Can be DARK and unseen, even if a listening object.
   comm_all		Like a wizard with respect to channels.
   control_all		Can modify any object in the database. (God-set only.)
   expanded_who		Sees the wizard WHO, and SESSION commands.

@@ -166,7 +166,6 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Immortal(X)		- Is X unkillable */
 /* Alive(X)		- Is X a player or a puppet */
 /* Dark(X)		- Is X dark */
-/* WHODark(X)		- Should X be hidden from the WHO report */
 /* Quiet(X)		- Should 'Set.' messages et al from X be disabled */
 /* Verbose(X)		- Should owner receive all commands executed? */
 /* Trace(X)		- Should owner receive eval trace output? */
@@ -247,7 +246,10 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	Wizard(x)	((Flags(x) & WIZARD) || \
 			 ((Flags(Owner(x)) & WIZARD) && Inherits(x)))
 #define	Dark(x)		(((Flags(x) & DARK) != 0) && \
-			 (!Alive(x) || (Wizard(x) && !mudconf.visible_wizzes)))
+			 (!Alive(x) || \
+			  (Wizard(x) && !mudconf.visible_wizzes) || \
+			  Can_Cloak(x)))
+#define DarkMover(x)	((Wizard(x) || Can_Cloak(x)) && Dark(x))
 #define	Jump_ok(x)	(((Flags(x) & JUMP_OK) != 0) && Has_contents(x))
 #define	Sticky(x)	((Flags(x) & STICKY) != 0)
 #define	Destroy_ok(x)	((Flags(x) & DESTROY_OK) != 0)
