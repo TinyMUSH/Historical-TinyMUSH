@@ -9265,30 +9265,72 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
 & comsys
  
-  This is the help for the MUSH comsystem. Note that the channel
-  names and aliases are case-sensitive. Upon creation, new players
-  automatically join the "Public" channel, while guest characters join
-  channel "Guests" when they connect.
+  Commands for the MUSH comsystem:
  
-  Note: <alias> is the alias you choose for the channel. 
-  The "Public" channel for new players is aliased to "pub".
-  The "Guests" channel for guests is aliases to "g".
+  addcom	allcom		comlist		comtitle	clearcom
+  delcom
  
-  Aliases are the most common way to manipulate channels, and may be used in
-  2 different ways:
-        <alias> <who|on|off>
-        <alias> <message>
+  @cboot	@ccreate	@cdestroy	@cemit		@channel
+  @clist	@cwho
  
-Continued in 'help comsys2'.
+  See 'help comsys aliases' for details on how to use comsys aliases.
  
-& comsys2
+  See 'help <name of command>' for details on specific commands.
+ 
+& comsys intro
+ 
+  Topic: COMSYS INTRO
+ 
+  Depending on the configuration of the MUSH, there may be public and
+  private chat channels available. Normally, new players automatically
+  join the "Public" channel upon creation (default alias 'pub'), while
+  guest characters join the "Guests" channel when they connect (default
+  alias 'g').
+ 
+  Each player may associate a given channel with one or more aliases.
+  Typically, one talks on a channel using '<alias> <message>'. For
+  example, the default alias for the Public channel is normally 'pub',
+  allowing you to type 'pub Hello.' to say "Hello." to everyone on
+  the Public channel. However, if you want your alias to be something
+  else, you can change it.
+ 
+  Channels can be used by both players and things, though there can be
+  restrictions placed on who can join, receive, and transmit on a channel.
+  These restrictions can be imposed by object type, or they can be locks.
+ 
+  Continued in 'help comsys intro2'.
+ 
+& comsys intro2
+ 
+  The comsys commands you will find most useful are the following:
+ 
+  '@clist'        -- Lists all available channels.
+  'comlist'       -- Lists all the channels you are on, and their aliases.
+                     Channel names and aliases are case-sensitive. You
+                     can have more than one alias for a channel.
+  '<alias> who'   -- Lists the people on the channel associated with <alias>.
+                     For example, if your Public channel alias is 'pub', then
+                     'pub who' will list everyone on the Public channel.
+  '<alias> on'    -- Begin listening to the channel associated with <alias>.
+  '<alias> off'   -- Stop listening to the channel associated with <alias>.
+  '<alias> <msg>' -- Say a message to the channel associated with <alias>.
+                     The ':' and ';' pose-tokens can be used.
+ 
+  You can add an alias using 'addcom <alias>=<channel>'; if this is the
+  first alias you have for that channel, you will automatically join that
+  channel. You can remove an alias using 'delcom <alias>'; if this is the
+  only alias you have for that channel, you will automatically leave it. 
+ 
+  Continued in 'help comsys intro3'.
+ 
+& comsys intro3
   
   For example:
+ 
   > pub off
-  [Public] Foobar has left this channel.
+  You leave channel Public.
  
   > pub on
-  You have joined channel Public.
   [Public] Foobar has joined this channel.
  
   > pub who
@@ -9301,49 +9343,51 @@ Continued in 'help comsys2'.
   > pub Hello world!  
   [Public] Foobar says, "Hello world!"
  
-See 'help comsys commands' for a list of commands.
+See the individual help entries for comsys commands for details.
  
-& comsys commands
- 
-  These are the topics for the MUSH comsystem:
-  
-  addcom       allcom       alias        comlist      comtitle     clearcom
-  delcom
- 
-  @ccreate     @cboot       @ccharge     @cchown      @cdestroy    @clist
-  @coflags     @cpflags     @cset        @cwho
-  
 & @cboot
  
   Command: @cboot <channel>=<object>
  
-  Only wizards, or the owner of the channel can use this command. It
-  forcefully removes an object from that channel.
+  This command is restricted to Wizards, those with the Comm_All power,
+  and the owner of <channel>.
  
-  Note: You may specify a player name as <object> if you prefix it with an
-  '*'. Otherwise, <object> should be a dbref, or a name of an object if you
-  are nearby it.
+  This command removes <object> from <channel>, deleting all of <object>'s
+  alias for <channel>. <object> can be specified as a dbref, *<player>,
+  or the name of a nearby object.
  
 & addcom
  
-  Command: addcom <alias>=<channel>
-        
-  This command joins you to an existing channel with <alias>. You cannot
-  have multiple aliases for a channel.
-  
-  See also: delcom, comlist, alias, comtitle.
+  Command: addcom <alias>=<channel>[,<title>]
  
-& alias
+  This command adds <alias> as an association for <channel>; if you
+  specify <title>, messages to that channel using that alias will
+  prefix <title> to your name. You can have multiple aliases for a
+  channel. You can have different titles for each aliases.
+ 
+  If this is your first alias for <channel>, you will join <channel>.
+  Note that the on/off status of <channel> is not affected by adding
+  additional aliases.
+ 
+  See also: delcom, comlist, comtitle, comsys aliases.
+ 
+& comsys aliases
  
   Command: <channel alias> <on|off|who|message|:pose|;pose>
    
-  'on' allows you to turn an alias on.
-  'off' lets you temporarily leave that channel.
-  'who' shows you who is on that channel.
+  If you select 'on', you will begin listening to messages on the channel
+  associated with <alias>.
+ 
+  If you select 'off', you will stop listening to messages on the channel
+  associated with <alias>. However, that alias remains active and useful
+  for other comsystem commands.
+ 
+  If you select 'who', you will be shown a list of players and objects
+  currently active on the channel associated with <alias>.
  
   You may send a message over the channel with <alias> <text>, where <text>
-  is the message to be sent, or you can pose on a channel with
-  <alias> :<text> or <alias> ;<text>
+  is the message to be sent; you can pose on a channel with <alias> :<text>
+  or <alias> ;<text>
   
   See also: allcom, comlist, addcom, delcom.
  
@@ -9355,23 +9399,26 @@ See 'help comsys commands' for a list of commands.
   alias you have. You can turn every alias on, or off, or see who is on
   every channel you subscribe to. 
   
-  See also: alias, comtitle, delcom, addcom.
+  See also: comsys aliases, comtitle, delcom, addcom.
  
 & comlist
  
   Command: comlist
  
-  Displays a list of all the aliases you are using, whether you are 'on' or
-  'off' the channel, and some information about them, such as your channel
-  title and status.
+  Displays all of your comsystem aliases, the channels that they are
+  associated with, and whether or not you are 'on' (listening) to each
+  of them. It also shows the titles associated with each alias.
   
-  See also: comtitle, addcom, alias, delcom.
+  See also: comtitle, addcom, comsys aliases, delcom.
  
 & comtitle
  
   Command: comtitle <alias>=<title>
  
   This command allows you to prefix your name on a channel with a title.
+  Titles are associated with specific aliases, so if you have multiple
+  aliases associated with a single channel, you can have different titles
+  for each alias.
  
   For example:
   > comtitle pub=The Great and Powerful
@@ -9379,7 +9426,7 @@ See 'help comsys commands' for a list of commands.
   > pub :waves to everyone.
   [Public] The Great and Powerful Foobar waves to everyone.
  
-  See also: comlist, addcom, alias, delcom.
+  See also: comlist, addcom, comsys aliases, delcom.
  
 & clearcom
  
@@ -9395,8 +9442,9 @@ See 'help comsys commands' for a list of commands.
   Command: delcom <alias>
  
   Deletes <alias> from your list of channel aliases. If <alias> was the only
-  alias you had for a certain channel, you may no longer use that channel
-  until you add a new alias for it.
+  alias you had for a certain channel, you will leave that channel, and
+  will need to addcom a new alias for it, if you need to use it in the
+  future.
   
   See also: addcom, comlist, clearcom.
  
@@ -9404,118 +9452,101 @@ See 'help comsys commands' for a list of commands.
  
   Command: @ccreate <channel name>
  
-  Creates a channel with default settings. Only wizards can create a channel.
+  Creates a channel with default settings. Only Wizards and those with
+  the Comm_All power can create a channel.
    
-  See also: @cdestroy, @clist, @cchown.
+  See also: @cdestroy, @clist, @channel.
  
 & @cdestroy
  
   Command: @cdestroy <channel>
  
-  Deletes <channel> permanently from the comsystem database. It does not
-  destroy all aliases that exist for <channel>, which is left to the owners of
-  those aliases. Players are notified at login when they own aliases for which
-  a channel no longer exists.
+  Deletes <channel> permanently from the comsystem database. This removes
+  all aliases that are associated with <channel>.
  
-  See also: @clist, @ccreate, @cchown.
+  See also: @clist, @ccreate, @channel.
  
 & @clist
  
-  Command: @clist[/full]
+  Command: @clist[/full] [<channel name>]
  
-  Without any switches, it will display the list of public channels with
-  their owner, and description. It will also display all channels you own.
-  With the /full switch, it will display the various channel statistics.
-  
-  See also: @ccreate, @cdestroy, @cchown.
+  When given an argument, if you are a Wizard, have the Comm_All power,
+  or the owner of the channel, this will display the flag information,
+  locks, and description of the channel.
+ 
+  Without any switches or arguments, this command will display the list of
+  channels, together with the names of their owners, and their descriptions.
+  With the /full switch, this command will display the list of channels,
+  together with some more detailed information about them. The channels
+  displayed are limited to Public ones, unless you are a Wizard or have
+  the Comm_All power.
+ 
+  See also: @ccreate, @cdestroy, @channel.
  
 & @cwho
  
-  Command: @cwho <channel>[/all]
+  Command: @cwho[/all] <channel>
  
-  For channels that you own, identifies all connected players on the channel
-  and their stats for the channel. If switch is /all, then it also displays
-  unconnected players.
-  
+  If you are a Wizard, have the Comm_All power, or own <channel>, this
+  command displays a list of all objects and connected players on the
+  channel. If the /all switch is specified, all objects and players
+  are displayed. Note that the connect status of hidden players is
+  protected.
+ 
   See also: @clist.
  
-& @cchown
+& @channel
+  @channel/owner <channel>=<new owner>
+  @channel/charge <channel>=<charge>
+  @channel/desc <channel=<description>
+  @channel/set <channel>=[!]<flag>
+  @channel/lock/<join | transmit | receive> <channel>=<lock>
  
-  Command: @cchown <channel>=<player>
- 
-  Changes ownership of <channel> to <player>.
+  This command allows a Wizard, someone with the Comm_All power, or
+  the owner of the channel, to manipulate the channel settings.
   
-  See also: @clist, @cwho.
+  Changing the channel owner is straightforward; <new owner> is specified
+  as a dbref or player name.
  
-& @ccharge
+  Changing the cost of sending a message on the channel is also
+  straightforward; <charge> is the cost in MUSH money. Every time
+  someone sends a message on the channel, that person pays <charge>
+  to the channel owner.
  
-  Command: @ccharge <channel>=<amount>
+  Similarly, <description> is any string of text; if none is specified,
+  the channel's description is cleared.
  
-  This command imposes a charge of <amount> coins on transmitting over a
-  channel. The default fee when a channel is created is 0. All proceeds
-  benefit the channel owner.
+  Continued in 'help @channel2'.
  
-& @cpflags
+& @channel2
  
-  Command: @cpflags <channel>=[!]flag
+  The channel flags available are:
  
-  Sets player flags for that channel. The flag can be one of: join, transmit,
-  or receive.
-  
-  Transmit: Whether a player can broadcast things over the channel.
-  Join: Whether a player can join the channel.
-  Receive: Whether a player can receive messages over the channel.
-  
-  If it is !flag, then that flag is reset. Note that channel flags ALWAYS
-  override locks on channel objects.
-  
-  See also: @coflags, @clist, CHANNEL OBJECT.
-  
-& @coflags
+    public     -- All players see this on a @clist.
+    loud       -- People on the channel see when someone on the channel
+                  connects or disconnects.
+    p_join     -- Any player can join this channel.
+    p_transmit -- Any player can transmit on this channel.
+    p_receive  -- Any player can receive on this channel.
+    o_join     -- Any object can join this channel.
+    o_transmit -- Any object can transmit on this channel.
+    o_receive  -- Any object can receive on this channel.
  
-  Command: @coflags <channel>=[!]flag
+  The available channel locks are join, transmit, and receive. They
+  are specified like regular object locks. To unlock, simply specify
+  a blank string for <lock>.
  
-  Sets object flags for that channel. The flag can be one of: join, transmit,
-  or receive.
-  
-  Transmit: Whether an object can broadcast things over the channel.
-  Join: Whether an object can join the channel.
-  Receive: Whether a object can receive messages over the channel.
-  
-  If it is !flag, then that flag is reset. Note that channel flags ALWAYS
-  override locks on channel objects.
-  
-  See also: @coflags, @clist, CHANNEL OBJECT.
+  Channel flags always override channel locks. In other words, if a
+  channel has a p_join flag, the join lock is never checked for players.
  
-& @cset
-
-  Command: @cset/<option> <channel>
-  Changes the way a channel behaves.  <option> can be one of the following:
-  public, private, loud, mute, quiet, object. Public makes it show up on
-  everyone's @clist, private hides it. Loud makes it announce
-  connects/disconnects.  Mute/quiet, shuts them off.
-
-  The object switch sets the channel object to whatever you specify.
-  It will allow you to set a description for the @clist, by @descing the
-  object.  Also, the lock will be used to check to see if people should be
-  able to join the channel or not.  See help channel object for more.
-
-& channel object
+& @cemit
  
-  In the comsystem, you may specify a channel object for each channel. 
-  (@cset/object channel=<object>).
-   
-  Channel objects allow you to specify a description for a channel, and
-  place certain restrictions on joining, transmitting, and receiving.
+  Command: @cemit[/noheader] <channel>=<message>
  
-  NOTE: If a channel flag is set by @cpflags/@coflags, it will ALWAYS
-  override the equivalent lock. The flags are set by default, so you will
-  have to clear them before your locks work.
- 
-  The join lock for a channel is a normal @lock on the channel object.  
-  The transmit lock for a channel is a use @lock on the channel object.
-  The receive lock for a channel is an enter @lock on the channel object.
-  The description of a channel is the @desc of the channel object.
+  This command allows a Wizard, someone with the Comm_All power, or
+  the owner of <channel>, to send <message> to everything listening
+  to <channel>. If the /noheader switch is specified, then the channel
+  name is not prepended to the message.
  
 & @malias
  
