@@ -4725,9 +4725,64 @@ FUNCTION(fun_locate)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_switch: Return value based on pattern matching (ala @switch)
- * NOTE: This function expects that its arguments have not been evaluated.
+ * fun_switch: Return value based on pattern matching (ala @switch/first)
+ * fun_switchall: Similar, but ala @switch/all
+ * fun_case: Like switch(), but a straight exact match instead of wildcard.
+ * NOTE: These functions expect that their arguments have not been evaluated.
  */
+
+FUNCTION(fun_switchall)
+{
+    int i, got_one;
+    char *mbuff, *tbuff, *tbuf2, *bp, *str;
+
+    /* If we don't have at least 2 args, return nothing */
+
+    if (nfargs < 2) {
+	return;
+    }
+
+    /* Evaluate the target in fargs[0] */
+
+    mbuff = bp = alloc_lbuf("fun_switch");
+    str = fargs[0];
+    exec(mbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	 &str, cargs, ncargs);
+    *bp = '\0';
+
+    /* Loop through the patterns looking for a match */
+
+    got_one = 0;
+    for (i = 1; (i < nfargs - 1) && fargs[i] && fargs[i + 1]; i += 2) {
+	tbuff = bp = alloc_lbuf("fun_switch.2");
+	str = fargs[i];
+	exec(tbuff, &bp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	     &str, cargs, ncargs);
+	*bp = '\0';
+	if (quick_wild(tbuff, mbuff)) {
+	    got_one = 1;
+	    free_lbuf(tbuff);
+	    tbuf2 = replace_string(SWITCH_VAR, mbuff, fargs[i+1]);
+	    str = tbuf2;
+	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		 &str, cargs, ncargs);
+	    free_lbuf(tbuf2);
+	}
+	free_lbuf(tbuff);
+    }
+    
+    /* If we didn't match, return the default if there is one */
+    
+    if (!got_one && (i < nfargs) && fargs[i]) {
+	tbuf2 = replace_string(SWITCH_VAR, mbuff, fargs[i]);
+	str = tbuf2;
+	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+	     &str, cargs, ncargs);
+	free_lbuf(tbuf2);
+    }
+
+    free_lbuf(mbuff);
+}
 
 FUNCTION(fun_switch)
 {
@@ -5681,6 +5736,8 @@ FUN flist[] = {
 {"SUBJ",	fun_subj,	1,  0,		CA_PUBLIC},
 {"SWAP",	fun_swap,	0,  FN_VARARGS,	CA_PUBLIC},
 {"SWITCH",	fun_switch,	0,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC},
+{"SWITCHALL",	fun_switchall,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC},
 {"T",		fun_t,		1,  0,		CA_PUBLIC},
 {"TAN",		fun_tan,	1,  0,		CA_PUBLIC},
