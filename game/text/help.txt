@@ -721,6 +721,9 @@ in the object that you just entered.
                offending character is highlighted in red. The rest of the
                string is then printed out; no further pair-matching will
                occur. Escaped-out characters are not highlighted or counted.
+     /debug  - Wizards only. Displays additional information about the
+               object. Shows the Owner, Exits, Next, and Contents fields of
+               the object in numeric form only. Includes an attribute list.
  
   See also: look, @decompile, VISUAL, ATTRIBUTE OWNERSHIP.
  
@@ -1680,13 +1683,22 @@ See also: page, pose, say, @emit
  
 & WHO
   Command: WHO <prefix>
-  Displays a list of players currently connected to the MUSH.
-  The WHO report tells you how long a player has been on, how long they
-  have been inactive, and what they are doing (if they have used the @doing
-  command).  If <prefix> is specified, only players whose names start with
-  <prefix> are listed.  The WHO command must be entered in all capitals.
+ 
+  Displays a list of players currently connected to the MUSH. If
+  <prefix> is specified, only players whose names start with <prefix>
+  are listed.
+ 
+  The WHO report tells you how long a player has been connected for
+  (note that those who disconnect via LOGOUT keep their connect times),
+  and how long it's been since they last typed something. It also
+  shows a text message for each player, which they set via the @doing
+  command.
+ 
+  Wizards, Royalty, and those with the expanded_who power see a
+  different display with this command -- see 'wizhelp WHO' for details.
+ 
   See also: @doing.
-
+ 
 & &
   Command: &<attribute> <object>[=<value>]
   Synonym: @set <object> = <attribute>:[<value>]
@@ -1763,9 +1775,10 @@ Example:
   object, and to @chown a room, you must '@chown here = me'. Players cannot
   be @chown'd; they always own themselves (unless they are robots).
  
-  @chown'ing an object automatically sets it HALT. It also strips special
-  flags (such as WIZARD, INHERIT, etc.) from the object, as well as all
-  powers, unless the /nostrip switch is specified. If /nostrip is specified
+  @chown'ing an object automatically sets it HALT. If the /nostrip switch
+  is not specified, the objects is also stripped of all powers and special
+  flags (such as WIZARD, INHERIT, etc., as defined by a conf parameter;
+  see 'wizhelp stripped_flags' for details). If /nostrip is specified
   by God, special flags and powers are not stripped; if anyone else 
   specifies /nostrip, only the WIZARD flag and powers will be stripped.
  
@@ -2013,7 +2026,9 @@ Example:
  
   The @destroy command will not destroy objects with the SAFE flag set unless
   the /override switch is specified.  The DESTROY_OK flag overrides the
-  protection given by the SAFE flag.
+  protection given by the SAFE flag. Players are always considered SAFE.
+  Objects not owned by the destroyer may be considered SAFE, depending
+  on the MUSH configuration (see 'wizhelp unowned_safe').
  
   The following switches are available:
     /instant   - Immediately destroy the object.
@@ -2053,6 +2068,9 @@ Example:
   The following switches are available:
      /message - Sets your Doing string in the WHO report. (default)
      /poll    - Displays the current Doing poll from the WHO report.
+     /header  - Wizards and those with the Poll power only. Sets the Doing
+                poll. If <message> is not specified, the header is reset
+                to Doing.
  
   See also: WHO.
 
@@ -2269,16 +2287,29 @@ See also: @femit, @fsay, say, @force
   See also: puppets.
 
 & @halt
-  Command: @halt [<object>]
-  Halts all commands being run by <object>, or by the object running the
-  command if no <object> is given.  If the object to be halted is a player,
-  then all commands being run by objects owned by that player are halted.
-  Use this command to stop runaway objects and infinite loops.
-  The process of halting an object involves removing all commands waiting
-  to be run by the object from the queue and refunding the queue deposit.
-  Halting an object does not affect commands waiting on it as a semaphore.
+  Command: @halt[/<switches>] [<object | player>]
+ 
+  If the command '@halt' is given by itself, the player and all of his
+  objects that are currently running commands will be halted.
+ 
+  If the command '@halt <object>' is given, that object will be halted.
+  You must control <object>, or have the Halt power.
+ 
+  If the command '@halt <player>' is given, that player and all of his
+  objects that are currently running commands will be halted. You must
+  control <player>, or have the Halt power.
+ 
+  If the command '@halt/all' is given, all objects that are currently
+  running commands will be halted.
+ 
+  Use this command to stop runaway objects and infinite loops. The process
+  of halting an object involves removing all commands waiting to be run by
+  the object from the queue and refunding the queue deposit. The object
+  will also be set HALTED. Halting an object does not affect commands waiting
+  on it as a semaphore; use the @drain command to reset a semaphore.
+ 
   See also: @drain, @notify, kill, HALTED, SEMAPHORES.
-
+ 
 & @last
   Command: @last <player>
   This command displays a short 'connection history' for <player>, showing
@@ -2365,8 +2396,12 @@ See also: @femit, @fsay, say, @force
  
 & @listmotd
   Command: @listmotd
+ 
   Displays the current message-of-the-day.  Note that it is displayed when
   you connect to your character.
+ 
+  Wizards will also see the other specialized message-of-the-days.
+  See 'wizhelp param messages' for details.
  
 & Locks
  
@@ -2883,33 +2918,41 @@ See also: @emit, @oemit, @npemit, page
   See also:  @program.
 
 & @ps
-  Command: @ps[/<switches>] [<object>]
-  Lists information about the commands you have on each of the queues.
-  Unless the /summary switch is used, this command lists all the commands you
-  have on the queues, optionally along with their enactor and arguments.
-  Commands scheduled to be executed at a later time (by the @wait command)
-  also show the number of seconds until they will be executed and/or the
-  semaphore on which they are waiting.  If <object> is specified, only
-  commands run by <object> are listed, otherwise all commands run by any of
-  your objects is listed.  A summary of the number of commands listed and the
-  total number of commands in the queues is also displayed.  This command is
-  useful for identifying infinite loops in programs.
+  Command: @ps[/<switches>] [<object | player>]
  
+  Lists information about the commands you have on each of the queues.
+  If <object> is specified, only commands run by <object> are listed; if
+  <player> is specified, only commands run by that player's objects are
+  listed. You must control <object> or <player>, or must have the 
+  See_Queue power. This command is useful for identifying infinite loops.
+ 
+  By default, this displays the object running the command and the command
+  to be run. Commands scheduled to be executed at a later time (by the @wait
+  command) show the number of seconds until they will be executed and/or the
+  semaphore on which they are waiting. A summary of the total commands 
+  listed, total queued, and, if privileged, total halted, is also included.
+  
   The following switches are available:
-     /brief   - (default) Display a brief summary that shows the semaphore
-                number, time-to-wait, object running the command, and the
-                command to be run.
-     /long    - In addition to the information in the /brief report, display
-                the name and number of the object that caused the command
-                to be run (the enactor) and the arguments to the command.
+     /brief   - (default)
+     /long    - Also display the name and dbref of the command's enactor
+                (object which caused it to be run) and the stack (%0 - %9).
      /summary - Display just the queue counts.
+     /all     - Wizards or those with the See_Queue power only. Display
+                the queue for everything, not just your own objects.
  
   See also: @notify, @wait.
 
 & @quota
   Command: @quota
-  Lists your total building quota and the amount you have remaining.
-  Creating objects, digging rooms, and opening exits all consume quota.
+ 
+  If quotas are enabled, this lists your total building quota and the
+  amount you have remaining. Creating objects, digging rooms, and
+  opening exits may all consume quota; use the '@list costs' command
+  to find out how much.
+ 
+  Wizards and those with the Quota power may set quotas and see other
+  people's quotas; see 'wizhelp @quota' for details.
+ 
   See also: @create, @dig, @open.
 
 & @redirect
@@ -4396,13 +4439,17 @@ Example: @sex me = female
   This is now the Builder power.
 & WIZARD
   Flag: WIZARD (W)
-
+ 
   If a person is WIZARD, they are unkillable, subject to fewer restrictions,
   and able to use wizard commands; they "control" everything other than
   the God character. In general, WIZARDs can do anything using #<number>
   or *<player>. Only the God character can set and unset the WIZARD flag
   of other players. No WIZARD can turn their own WIZARD flag off.   
-
+ 
+  Objects owned by Wizards only have wizard privileges if their INHERIT
+  flags or set, or the owning Wizard has his INHERIT flag set (which
+  Wizards should never do, for security reasons).
+ 
 & ROYALTY
   Flag: ROYALTY (Z)
  
@@ -4480,14 +4527,20 @@ Example: @sex me = female
 & INHERIT
   Flag: INHERIT (I)
  
-  In TinyMUSH 1.0, Wizard-owned objects had wizard powers.  This was
-  a problem in many cases, so that behavior changed.  Now, only Wizard
-  objects or Wizard-owned Inherit-set objects have wizard powers.  Only
-  players can set the Inherit flag, and the Inherit flag is reset during
-  @chown.  If a player is set Inherit, all his stuff is assumed to be
-  inherit, so his objects can control him.  If a player is NOT Inherit,
-  his stuff does NOT control him.  (i.e. cannot @force him.)  This flag
-  is not especially useful for non-wizards.
+  Under normal circumstances, objects owned by a player do not control
+  that player. If an object is set INHERIT, it can control its player.
+  If a player is set INHERIT, all of his objects can control him.
+ 
+  If a Wizard sets one of his own objects INHERIT, it has wizard powers. 
+  If a Wizard is set INHERIT, all of his objects also have wizard powers;
+  this, for security reasons, is a very bad idea. 
+ 
+  If an Immortal sets one of his own objects INHERIT, it will be treated as
+  immortal. If he sets himself INHERIT, all of his objects will be treated
+  as immortal.
+ 
+  See also: Control
+ 
 & MONITOR
   Flag: MONITOR (M)
  
@@ -4665,6 +4718,14 @@ Example: @sex me = female
   If set on a player, neither the player nor any of his objects may perform
   any commands that change the database.  Some sites may restrict additional
   commands.  This flag may only be set or cleared by wizards.
+ 
+& SUSPECT
+  Flag: SUSPECT (u)
+ 
+  When set on a player, causes connects, disconnects, name changes, kills,
+  and attempted kills to be reported to all connected wizards.
+ 
+  This flag is only visible and settable by wizards.
  
 & Control
  
@@ -11761,6 +11822,7 @@ performed and the walk down the list stops.
   open_anywhere		Can @open an exit from any location.
   poll			Can set the @poll.
   prog			Can use @program on players other than themself.
+  quota                 Can set quotas and view anyone's quota.
   search		Can @search anyone.
   see_all		Can examine and see attributes like a wizard.
   see_hidden		Can see hidden (DARK) players on WHO, etc.

@@ -14,25 +14,23 @@
   To get a list of MUSH wizard commands:
      wizhelp commands
  
-  If there are any errors in the help text, please notify a Wizard.
   See also: help.
-
+ 
 & commands
   Help is available for the following MUSH commands:
  
-  CD             DOING          examine        give           SESSION
-  slay           WHO            wizhelp
+  CD             DOING          SESSION        slay           WHO            
+  wizhelp
  
   @addcommand    @admin         @apply_marked  @attribute     @boot
-  @chown         @chownall      @cut           @dbck          @dbclean
-  @delcommand    @destroy       @disable       @doing         @dump          
-  @enable        @fixdb         @freelist      @function      @halt
-  @hashresize    @hook          @kick          @list          @listcommands
-  @list_file     @listmotd      @lock          @log           @logrotate
+  @chownall      @cut           @dbck          @delcommand    @destroy       
+  @disable       @doing         @dump          @enable        @fixdb         
+  @freelist      @function      @hashresize    @hook          @kick          
+  @list          @listcommands  @list_file     @log           @logrotate
   @mark          @mark_all      @motd          @newpassword   @pcreate       
-  @poor          @ps            @purge         @quota         @readcache
-  @restart       @shutdown      @sqlconnect    @sqldisconnect @timecheck
-  @startslave    @timewarp      @toad          @wall
+  @poor          @purge         @quota         @readcache     @restart
+  @shutdown      @sqlconnect    @sqldisconnect @timecheck     @startslave
+  @timewarp      @toad          @wall
  
   @allowance     @comment       @timeout
  
@@ -40,29 +38,23 @@
   Help available on the following Topics:
  
   CAUTIONS         CONFIG PARAMETERS  DEBUG FEATURES     FILES
-  FLAGS            INHERITANCE        LOGGING            MASTER ROOM
-  PERMISSIONS      SEARCH CRITERIA    SITE LISTS
+  FLAGS            GUESTS             INHERITANCE        LOGGING
+  MASTER ROOM      PERMISSIONS        SEARCH CRITERIA    SITE LISTS
  
-& flags
-  Information is available on the following flags:
+& FLAGS
+  Topic: FLAGS
  
-  INHERIT(I)        STARTUP(z)         SUSPECT(u)        WIZARD(W)
- 
-& examine
-  Command: examine[/<switches>] [<object>]
- 
-  Wizards may use the /debug switch to see additional information about the
-  object.  The Owner, Exits, Next, and Contents fields of the object are
-  shown in numeric form only, and an attribute list is included.
+  The MUSH server contains several internal flags, which are used to make
+  various processes more efficient. These flags are not visible to anyone
+  other than God, and should not be directly set. They are:
 
-& give
-  Command: give[/<switches>] <who> = <what>
+    Has_Daily         Has_Darklock       Has_Forwardlist
+    Has_Listen        Has_Redirect       Has_Startup
+    Player_Mails
  
-  Wizards may use the /quiet switch to suppress the 'You give X to P' and
-  'P gave you X' messages.  Other messages related to giving objects
-  (such as the xDROP and xSUCC attributes on the object being given, or
-  error messages) are not suppressed.
-
+  You should ignore the presence of these flags; they are used solely
+  for server-internal purposes.
+ 
 & SESSION
   Command: SESSION <prefix>
   The SESSION command displays character input and output information for
@@ -100,19 +92,25 @@
   like the player WHO command (which is available as the DOING command), but
   returns the following information in place of the player's Doing string:
  
+     Status flags - Located between the Idle and Room fields. See
+                    'wizhelp DOING' for a list of possibilities.
+ 
      Room         - The room that the player is in.
+ 
      Commands     - The number of commands that the player has entered during
                     this session (not counting machine commands).
-     Host flags   - located between the Commands and Host fields:
+ 
+     Host flags   - Located between the Commands and Host fields:
                     F(forbidden), R(registration), +(suspect).
-     Host         - The Internet host name or address from where the player has
-                    connected.
-
+ 
+     Host         - The Internet host name or address from where the player
+                    has connected.
+ 
   See also: SESSION, DOING.
-
+ 
 & DOING
   Command: DOING <prefix>
-
+ 
   This command is very similar to the mortal WHO command (the wizard WHO
   command returns different information).  When run by a wizard, the DOING
   command reports additional information about the player in the form of flag
@@ -121,14 +119,14 @@
  
   D - Player is set DARK.
   d - Player is not shown on the WHO list because they have been idle for
-      longer than the default inactivity timeout and the idle_dark_wiz
+      longer than the default inactivity timeout and the idle_wiz_dark
       configuration parameter has been turned on. (only if not D)
   U - Player is set UNFINDABLE.
   u - Player is in an UNFINDABLE location (only if not U).
   + - Player is set SUSPECT.
  
-  See also: SESSION, WHO, DARK, UNFINDABLE, SUSPECT, idle_dark_wiz.
-
+  See also: SESSION, WHO, DARK, UNFINDABLE, SUSPECT, idle_wiz_dark.
+ 
 & CD
   Command: cd <name> <password>
  
@@ -215,14 +213,16 @@
 
 & @apply_marked
   Command: @apply_marked <command>
-  Performs <command> once for each object in the database that has its MARK
-  flag set, substituting the characters ## for the object number of the
-  marked object.  The command is performed by the player invoking the
-  @apply_marked command, not by the marked object.  This command may only
-  be used when database cleaning is disabled (via @disable cleaning),
-  as cleaning uses the MARKED flag to check connectivity.
-  See also: @mark, @mark_all, MARKED.
-
+ 
+  Performs <command> once for each object in the database that has been
+  marked via @mark or @mark_all, substituting the characters ## for the
+  object number of the marked object.  The command is performed by the
+  player invoking the @apply_marked command, not by the marked object.
+  This command may only be used when database cleaning is disabled
+  (via @disable cleaning), as cleaning uses marking to check connectivity.
+ 
+  See also: @mark, @mark_all.
+ 
 & @attribute
   Command: @attribute[/<switch>] <attrib>[=<value>]
  
@@ -307,18 +307,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
              from the SESSION command).  In this case <player> must be a
              number.
   See also: @destroy, @toad, SESSION.
-
-& @chown
-  Command: @chown[/nostrip] <object>=<player>
  
-  Wizards may @chown objects, rooms, and exits to other players.
-  @Chowned objects are set HALT and have special flags and powers 
-  stripped from them. The /nostrip flag, when used by God, preserves
-  all special flags and powers; if used by anyone else, it preserves
-  everything except for the WIZARD flag, and powers.
-  
-  See also: @chownall, stripped_flags.
-
+& @chown
+  See 'help @chown'.
+ 
 & @chownall
   Command: @chownall[/nostrip] <victim>[=<recipient>]
  
@@ -351,24 +343,6 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   periodically, so there is usually no need to use this command.
   See also: @admin, @disable, @enable, @list, @purge.
 
-& @dbclean
-  Command: @dbclean
- 
-  This God-only command cleanses the database of "stale" attributes --
-  i.e., attributes that once existed, but which no longer exist. This
-  conserves both disk space and memory, and should be performed on
-  a periodic basis (once a month should suffice).
- 
-  Be forewarned: This command is extremely intensive, and is likely to
-  freeze the MUSH for several minutes.
- 
-& @destroy
-  Command: @destroy[/<switches>] <object>
-
-  Players are always considered SAFE. Depending on the way the configuration
-  is set up, objects owned by other players may be automatically considered
-  SAFE.
- 
 & @disable
   Command: @disable <option>
   Turns off the indicated MUSH runtime parameter.  The following parameters
@@ -390,11 +364,6 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
                     server.
   These parameters are all enabled by default.
   See also: @enable, @list.
-
-& @doing
-  Command: @doing[/<switch>] <text>
-  Wizards may use the /header switch to set the Doing header in the WHO report.
-  If no header is specified, the header is reset to "Doing".
 
 & @dump
   Command: @dump[/<switches>]
@@ -518,19 +487,6 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   Function definitions may not be removed (aside from shutting down and
   restarting the MUSH, but they may be redefined so that they point to an
   unused attribute.  This command may normally only be invoked by God.
- 
-& @halt
-  Command: @halt[/<switches>] [<object>]
-  This command can be used to halt commands being run by a specific object,
-  all commands being run by objects owned by a specific player, or all
-  commands in the game.  If <object> is not specified, the object running
-  the command is halted.  If the object being halted is a player, then
-  all commands being run by objects owned by that player are halted.
-  Halting an object does not affect commands waiting on it as a semaphore,
-  use the @drain command to reset a semaphore.
- 
-  The /all switch may be used to halt all commands globally.
-  See also: @drain, @notify, kill, HALTED, SEMAPHORES.
  
 & @hashresize
   Command: @hashresize
@@ -1077,21 +1033,7 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   See also: @readcache, badsite_file, connect_file, connect_reg_file,
             down_file, guest_file, motd_file, newuser_file, quit_file,
             register_create_file, wizard_motd_file.
-
-& @listmotd
-  Command: @listmotd
-  Lists the current MOTD messages as set by the @motd command.
-  See also: @motd.
-
-& @lock
-  Command: @lock <object>=<key>
-  Note that with attribute locking, a WIZARD object can read any attribute of
-  any object, including attributes invisible to players.
  
-  Player #1 may also make attribute locks of the form <attr-num>:<value>
-  Note that if <attr-num> is not a valid attribute number, the lock will
-  never succeed.
-
 & @log
   Command: @log [<type>=]<message>
  
@@ -1121,30 +1063,30 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   
 & @mark
   Command: @mark[/<switches>] [<player>] [<class>=<restriction>]
-  Sets or clears the MARKED flags for objects that match the search criteria.
+ 
+  Sets or clears the mark bit for objects that match the search criteria.
   This command may only be used when database cleaning is disabled (via
-  @disable cleaning), as cleaning uses the MARKED flag to check
-  connectivity.
+  @disable cleaning), as cleaning uses marking to check connectivity.
  
   The following switches are available:
-     /set    - (default) Set the MARKED flag on the selected objects.
-     /clear  - Clear the MARKED flag on the selected objects.
+     /set    - (default) Set the marker on the selected objects.
+     /clear  - Clear the marker on the selected objects.
  
-  See also: @apply_marked, @@mark_all, MARKED, SEARCH CRITERIA.
+  See also: @apply_marked, @@mark_all, SEARCH CRITERIA.
 
 & @mark_all
   Command: @mark_all[/<switches>]
  
-  Sets or clears the MARKED flag for all objects in the database.  This command
-  may only be used when database cleaning is disabled (via @disable cleaning),
-  as cleaning uses the MARKED flag to check connectivity.
+  Sets or clears the mark bit for objects that match the search criteria.
+  This command may only be used when database cleaning is disabled (via
+  @disable cleaning), as cleaning uses marking to check connectivity.
  
   The following switches are available:
-     /set    - (default) Set the MARKED flag on all objects.
-     /clear  - Clear the MARKED flag on all objects.
+     /set    - (default) Set the marker on all objects.
+     /clear  - Clear the marker on all objects.
  
-  See also: @apply_marked, @mark_all, MARKED.
-
+  See also: @apply_marked, @mark_all.
+ 
 & @motd
   Command: @motd[/<switches>] <message>
  
@@ -1181,11 +1123,6 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 & @poor
   Command: @poor <amount>
   Sets the wealth of all players to <amount>.
-
-& @ps
-  Command: @ps[/<switches>] [<object>]
-  Wizards may also use the /all switch to view the entire queue.
-  See also: @ps (player version).
 
 & @purge
   Command: @purge
@@ -1360,56 +1297,7 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   does not insert a space between your name and the message.  '"' formats the
   message in normal @wall format (this is the default).
   The message is also written to the log file.
-
-& INHERIT
-  Flag: INHERIT(I) (all types)
-  When set on an object, gives the object access to the WIZARD and IMMORTAL
-  powers that its owner has, and also allows that object to control the player
-  and other INHERIT objects owned by that player.
-  When set on a player, gives all of that player's objects access to the
-  WIZARD and IMMORTAL powers of their owner, and allows them to control the
-  player or any object owned by the player.
-
-& MARKED
-  Flag: MARKED(m) (all types)
-  This flag is used by the database cleaning routines to check the
-  connectivity of the database, and also by the @mark commands to select
-  objects for special attention.  Since database cleaning is performed
-  automatically from time to time, automatic cleaning must be disabled
-  before using the @mark commands, and the command @mark_all/clear should
-  be run immediately before turning automatic cleaning back on.
-  See also: @apply_marked, @dbck, @disable, @enable, @list, @mark,
-            @mark_all.
-
-& STARTUP
-  Flag: STARTUP(z) (all types)
-  This flag is managed internally by the server and it is not directly
-  settable.  It indicates whether or not the object has a STARTUP attribute
-  that is to be run when the MUSH is booted.  This saves a considerable amount
-  of time considering that very few objects have a STARTUP attribute.
-  This flag is set automatically when the STARTUP attribute is set to a
-  non-empty string, and cleared when the STARTUP attribute is removed or
-  set to a null string.
-  See also: @startup.
-
-& SUSPECT
-  Flag: SUSPECT(u) (players)
-  When set on a player, causes connects, disconnects, name changes, kills,
-  and attempted kills to be reported to all connected wizards.
-  This flag is only visible and settable by wizards.
-
-& WIZARD
-  Flag: WIZARD(W) (all types)
-  A player or object that is set WIZARD controls all of the objects in the
-  database (except for player #1), regardless of their ownership or flags.
-  In general, WIZARDs can do anything using #<number> or *<player>.
-  Wizards can also use many additional commands that are useful for game
-  administration and maintenance.
-  Only player #1 can set or clear this flag.  An object owned by a Wizard has
-  wizard privileges only if its WIZARD or INHERIT flag is set, or if the
-  owning Wizard has his INHERIT flag set.
-  See also: CONTROL, INHERIT.
-
+ 
 & @allowance
   Attribute: Allowance
   Command: @allowance <object>[=<amount>]
