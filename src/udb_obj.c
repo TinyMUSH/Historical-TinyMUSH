@@ -455,11 +455,13 @@ int obj;
 char *value;
 {
 	Obj *object;
+	char *newvalue;
 	
 	/* Write the damn thing */
 	
 	object = get_free_objpipe(obj);
 	object->dirty = 1;
+	newvalue = XSTRDUP(value, "put_attrib");
 	set_attrib(anum, object, value);
 	return;
 }
