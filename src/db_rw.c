@@ -1088,12 +1088,6 @@ static void fix_typed_quotas()
 	int i;
 	char *qbuf, *rqbuf;
 
-#ifdef BETA_QUOTAS
-	char *roombuf, *r_roombuf, *exitbuf, *r_exitbuf, *tbuf, *r_tbuf,
-	*pbuf, *r_pbuf;
-
-#endif
-
 	DO_WHOLE_DB(i) {
 		if (isPlayer(i)) {
 			qbuf = atr_get_raw(i, A_QUOTA);
@@ -1102,43 +1096,12 @@ static void fix_typed_quotas()
 				qbuf = (char *)"1";
 			if (!rqbuf || !*rqbuf)
 				rqbuf = (char *)"0";
-#ifdef BETA_QUOTAS
-			roombuf = atr_get_raw(i, A_QUOTAROOM);
-			r_roombuf = atr_get_raw(i, A_RQUOTAROOM);
-			exitbuf = atr_get_raw(i, A_QUOTAEXIT);
-			r_exitbuf = atr_get_raw(i, A_RQUOTAEXIT);
-			tbuf = atr_get_raw(i, A_QUOTATHING);
-			r_tbuf = atr_get_raw(i, A_RQUOTATHING);
-			pbuf = atr_get_raw(i, A_QUOTAPLAYER);
-			r_pbuf = atr_get_raw(i, A_RQUOTAPLAYER);
-			atr_add_raw(i, A_QUOTA,
-				    tprintf("%s %s %s %s %s", qbuf,
-				     (roombuf && *roombuf) ? roombuf : qbuf,
-				     (exitbuf && *exitbuf) ? exitbuf : qbuf,
-					    (tbuf && *tbuf) ? tbuf : qbuf,
-					    (pbuf && *pbuf) ? pbuf : qbuf));
-			atr_add_raw(i, A_RQUOTA,
-				    tprintf("%s %s %s %s %s", rqbuf,
-			      (r_roombuf && *r_roombuf) ? r_roombuf : rqbuf,
-			      (r_exitbuf && *r_exitbuf) ? r_exitbuf : rqbuf,
-				       (r_tbuf && *r_tbuf) ? r_tbuf : rqbuf,
-				     (r_pbuf && *r_pbuf) ? r_pbuf : rqbuf));
-			atr_add_raw(i, A_QUOTAROOM, NULL);
-			atr_add_raw(i, A_RQUOTAROOM, NULL);
-			atr_add_raw(i, A_QUOTAEXIT, NULL);
-			atr_add_raw(i, A_RQUOTAEXIT, NULL);
-			atr_add_raw(i, A_QUOTATHING, NULL);
-			atr_add_raw(i, A_RQUOTATHING, NULL);
-			atr_add_raw(i, A_QUOTAPLAYER, NULL);
-			atr_add_raw(i, A_RQUOTAPLAYER, NULL);
-#else /* else if no BETA_QUOTAS */
 			atr_add_raw(i, A_QUOTA,
 				    tprintf("%s %s %s %s %s",
 					    qbuf, qbuf, qbuf, qbuf, qbuf));
 			atr_add_raw(i, A_RQUOTA,
 				    tprintf("%s %s %s %s %s",
 					rqbuf, rqbuf, rqbuf, rqbuf, rqbuf));
-#endif /* BETA_QUOTAS */
 		}
 	}
 }
