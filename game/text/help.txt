@@ -9268,10 +9268,10 @@ performed and the walk down the list stops.
 & REGEDITI()
 & REGEDITALL()
 & REGEDITALLI()
-  Function:  regedit(<original string>,<regexp>,<replacement string>
-  Function:  regediti(<original string>,<regexp>,<replacement string>
-  Function:  regeditall(<original string>,<regexp>,<replacement string>
-  Function:  regeditalli(<original string>,<regexp>,<replacement string>
+  Function:  regedit(<original string>,<regexp>,<replacement string>)
+  Function:  regediti(<original string>,<regexp>,<replacement string>)
+  Function:  regeditall(<original string>,<regexp>,<replacement string>)
+  Function:  regeditalli(<original string>,<regexp>,<replacement string>)
  
   These functions search <original string> for a portion that matches
   <regexp>, and replaces that portion with <replacement string>, with
