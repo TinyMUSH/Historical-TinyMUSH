@@ -4773,7 +4773,6 @@ char *code;
 	in = code;
 	while (*in) {
 		if ((*in >= 32) || (*in <= 126)) {
-			printf("%c", *in);
 			*out++ = *in;
 		}
 		in++;
