@@ -347,8 +347,6 @@ FLAGENT gen_flags[] = {
 	FLAG_WORD2,	0,			fh_restrict_player},
 {"HEAD",                HEAD_FLAG,      '?',
         FLAG_WORD2,       0,                      fh_wiz},
-{"COMPRESS",		COMPRESS,	'.',
-	FLAG_WORD2, 	0,			fh_any},
 {"HAS_DAILY",		HAS_DAILY,	'*',
 	FLAG_WORD2,		CA_GOD|CA_NO_DECOMP,	fh_god},
 {"HAS_STARTUP",		HAS_STARTUP,	'+',
