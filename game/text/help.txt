@@ -6352,7 +6352,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Examples:
     > say extract(This is a really neat example, 4, 2)
     You say "really neat"
-    > say extract(Another@funky@test@for@extract, 3, 3)
+    > say extract(Another@funky@test@for@extract, 3, 3, @)
     You say "test@for@extract" 
   See also: index(), insert(), ldelete(), replace().
 

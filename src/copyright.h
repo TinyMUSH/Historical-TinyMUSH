@@ -7,6 +7,7 @@
 
 /*
  * TinyMUSH 3.0 Source Code
+ * Copyright (c) 2001 by Lydia Leong, David Passmore, and Robby Griffin.
  * Copyright (c) 2000 by Lydia Leong, David Passmore, and Robby Griffin.
  * Copyright (c) 1999 by Lydia Leong and David Passmore.
  * All rights reserved.
