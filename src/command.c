@@ -2118,28 +2118,55 @@ dbref player;
 	time_t now;
 
 	now = time(NULL);
+
+	/* --- Config options related to Building --- */
+
 	if (mudconf.quotas)
-		raw_notify(player, "Building quotas are enforced.");
-	if (mudconf.typed_quotas)
-		raw_notify(player, "Quotas are managed by object type.");
-	if (mudconf.name_spaces)
-		raw_notify(player, "Player names may contain spaces.");
+	    raw_notify(player, "Building quotas are enforced.");
 	else
-		raw_notify(player, "Player names may not contain spaces.");
-	if (!mudconf.robot_speak)
-		raw_notify(player, "Robots are not allowed to speak in public areas.");
-	if (mudconf.player_listen)
-		raw_notify(player, "The @Listen/@Ahear attribute set works on player objects.");
-	if (mudconf.ex_flags)
-		raw_notify(player, "The 'examine' command lists the flag names for the object's flags.");
-	if (!mudconf.quiet_look)
-		raw_notify(player, "The 'look' command shows visible attributes in addition to the description.");
-	if (mudconf.see_own_dark)
-		raw_notify(player, "The 'look' command lists DARK objects owned by you.");
-	if (!mudconf.dark_sleepers)
-		raw_notify(player, "The 'look' command shows disconnected players.");
-	if (mudconf.terse_look)
-		raw_notify(player, "The 'look' command obeys the TERSE flag.");
+	    raw_notify(player, "Building quotes are not enforced.");
+
+	if (mudconf.typed_quotas)
+	    raw_notify(player, "Quotas are managed by object type.");
+
+	raw_notify(player, tprintf("There is a limit of %d objects in the database.",
+				   mudconf.building_limit));
+
+	if (mudconf.name_spaces)
+	    raw_notify(player, "Player names may contain spaces.");
+	else
+	    raw_notify(player, "Player names may not contain spaces.");
+
+	/* --- Config options related to Programming. -- */
+
+	raw_notify(player,
+		   tprintf("Players may have at most %d commands in the queue at one time.",
+			   mudconf.queuemax));
+
+	if (mudconf.req_cmds_flag)
+	    raw_notify(player, "Objects are only searched for $-commands if set COMMANDS.");
+
+	if (mudconf.match_mine) {
+	    if (mudconf.match_mine_pl)
+		raw_notify(player, "All objects search themselves for $-commands.");
+	    else
+		raw_notify(player, "Objects other than players search themselves for $-commands.");
+	} else {
+	    raw_notify(player, "Objects do not search themselves for $-commands.");
+	}
+	
+#ifdef NO_LAG_CHECK
+        raw_notify(player, "CPU usage warnings are disabled.");
+#else
+        raw_notify(player, "CPU usage warnings are enabled.");
+#endif /* NO_LAG_CHECK */
+
+#ifdef FLOATING_POINTS
+	raw_notify(player, "MUSH arithmetic operations use floating-point numbers.");
+#else
+        raw_notify(player, "MUSH arithmetic operations use integers.");
+#endif                          /* FLOATING_POINTS */
+
 	if (mudconf.trace_topdown) {
 		raw_notify(player, "Trace output is presented top-down (whole expression first, then sub-exprs).");
 		raw_notify(player, tprintf("Only %d lines of trace output are displayed.",
@@ -2147,56 +2174,82 @@ dbref player;
 	} else {
 		raw_notify(player, "Trace output is presented bottom-up (subexpressions first).");
 	}
+
+#ifdef PUEBLO_SUPPORT
+	raw_notify(player, "Pueblo client extensions are supported.");
+#endif
+
+	if (mudconf.fascist_tport)
+		raw_notify(player, "You may only @teleport out of locations that are JUMP_OK or that you control.");
+
+	/* --- Config options related to Speaking --- */
+
+	if (mudconf.pemit_players)
+	    raw_notify(player, "The '@pemit' command may be used to emit to faraway players.");
+	else
+	    raw_notify(player, "The '@pemit' command may not be used to emit to faraway players.");
+
+	if (mudconf.pemit_any)
+	    raw_notify(player, "The '@pemit' command may be used to emit to any remote object.");
+	else
+	    raw_notify(player, "The '@pemit' command may not be used to emit to any remote object.");
+
+	if (mudconf.player_listen)
+	    raw_notify(player, "The @Listen/@Ahear attribute set works on player objects.");
+	else
+	    raw_notify(player, "The @Listen/@Ahear attribute set does not work on player objects.");
+
 	if (!mudconf.quiet_whisper)
 		raw_notify(player, "The 'whisper' command lets others in the room with you know you whispered.");
-	if (mudconf.pemit_players)
-		raw_notify(player, "The '@pemit' command may be used to emit to faraway players.");
+
+	if (!mudconf.robot_speak)
+		raw_notify(player, "Robots are not allowed to speak in public areas.");
+
+	/* --- Default Command Behaviors --- */
+
+	raw_notify(player,
+	      tprintf("The default switch for the '@switch' command is %s.",
+		      switchd[mudconf.switch_df_all]));
+
+	raw_notify(player,
+	      tprintf("The default switch for the 'examine' command is %s.",
+		      examd[mudconf.exam_public]));
+
+	/* --- Config options related to Looking and other information --- */
+
+	if (mudconf.ex_flags)
+		raw_notify(player, "The 'examine' command lists the flag names for the object's flags.");
+	if (mudconf.pub_flags)
+		raw_notify(player, "The 'flags()' function will return the flags of any object.");
+
+	if (mudconf.read_rem_desc)
+		raw_notify(player, "The 'get()' function will return the description of faraway objects,");
+	if (mudconf.read_rem_name)
+		raw_notify(player, "The 'name()' function will return the name of faraway objects.");
+
+	if (!mudconf.quiet_look)
+		raw_notify(player, "The 'look' command shows visible attributes in addition to the description.");
+	if (mudconf.see_own_dark)
+		raw_notify(player, "The 'look' command lists DARK objects owned by you.");
+	if (!mudconf.dark_sleepers)
+		raw_notify(player, "The 'look' command shows disconnected players.");
+
+	if (mudconf.terse_look)
+		raw_notify(player, "The 'look' command obeys the TERSE flag.");
 	if (!mudconf.terse_contents)
 		raw_notify(player, "The TERSE flag suppresses listing the contents of a location.");
 	if (!mudconf.terse_exits)
 		raw_notify(player, "The TERSE flag suppresses listing obvious exits in a location.");
 	if (!mudconf.terse_movemsg)
 		raw_notify(player, "The TERSE flag suppresses enter/leave/succ/drop messages generated by moving.");
-	if (mudconf.pub_flags)
-		raw_notify(player, "The 'flags()' function will return the flags of any object.");
-	if (mudconf.read_rem_desc)
-		raw_notify(player, "The 'get()' function will return the description of faraway objects,");
-	if (mudconf.read_rem_name)
-		raw_notify(player, "The 'name()' function will return the name of faraway objects.");
-	raw_notify(player,
-	      tprintf("The default switch for the '@switch' command is %s.",
-		      switchd[mudconf.switch_df_all]));
-	raw_notify(player,
-	      tprintf("The default switch for the 'examine' command is %s.",
-		      examd[mudconf.exam_public]));
+
+	if (mudconf.fmt_contents)
+	    raw_notify(player, "The format of Contents can be specified with @conformat.");
+	if (mudconf.fmt_exits)
+	    raw_notify(player, "The format of Exits can be specified with @exitformat.");
+
 	if (mudconf.sweep_dark)
 		raw_notify(player, "Players may @sweep dark locations.");
-	if (mudconf.fascist_tport)
-		raw_notify(player, "You may only @teleport out of locations that are JUMP_OK or that you control.");
-	raw_notify(player,
-		   tprintf("Players may have at most %d commands in the queue at one time.",
-			   mudconf.queuemax));
-	if (mudconf.req_cmds_flag)
-		notify(player, "Objects are only searched for $-commands if set COMMANDS.");
-	if (mudconf.match_mine) {
-		if (mudconf.match_mine_pl)
-			raw_notify(player, "All objects search themselves for $-commands.");
-		else
-			raw_notify(player, "Objects other than players search themselves for $-commands.");
-	} else
-		notify(player, "Objects do not search themselves for $-commands.");
-
-#ifdef NO_LAG_CHECK
-    notify(player, "CPU usage warnings are disabled.");
-#else
-    notify(player, "CPU usage warnings are enabled.");
-#endif /* NO_LAG_CHECK */
-
-#ifdef FLOATING_POINTS
-    notify(player, "MUSH arithmetic operations use floating-point numbers.");
-#else
-    notify(player, "MUSH arithmetic operations use integers.");
-#endif                          /* FLOATING_POINTS */
 
 #ifdef TCL_INTERP_SUPPORT
 	notify(player, "TCL interpreter support is enabled.");
@@ -2212,37 +2265,46 @@ dbref player;
 	raw_notify(player,
 		   tprintf("%d commands are run from the queue when there is net activity.",
 			   mudconf.active_q_chunk));
+
 	if (mudconf.idle_wiz_dark)
 		raw_notify(player, "Wizards idle for longer than the default timeout are automatically set DARK.");
+
 	if (mudconf.safe_unowned)
 		raw_notify(player, "Objects not owned by you are automatically considered SAFE.");
+
 	if (mudconf.paranoid_alloc)
 		raw_notify(player, "The buffer pools are checked for consistency on each allocate or free.");
+
 	raw_notify(player,
 	      tprintf("The %s cache is %d entries wide by %d entries deep.",
 		      CACHING, mudconf.cache_width, mudconf.cache_depth));
+
 	if (mudconf.cache_names)
 		raw_notify(player, "A seperate name cache is used.");
+
 	if (mudconf.cache_trim)
 		raw_notify(player, "The cache depth is periodically trimmed back to its initial value.");
+
 	if (mudconf.fork_dump) {
 		raw_notify(player, "Database dumps are performed by a fork()ed process.");
 		if (mudconf.fork_vfork)
 			raw_notify(player, "The 'vfork()' call is used to perform the fork.");
 	}
+
 	if (mudconf.use_global_aconn)
-		notify(player, "Global aconnects and disconnects are executed by Master Room objects.");
+		raw_notify(player, "Global aconnects and disconnects are executed by Master Room objects.");
+	if (mudconf.global_aconn_uselocks)
+	        raw_notify(player, "Global aconnects and disconnects obey Uselocks.");
+
 	if (mudconf.local_masters) {
 		notify(player, "Objects set ZONE are treated as local master rooms.");
 	}
+
 	if (mudconf.max_players >= 0)
 		raw_notify(player,
 		tprintf("There may be at most %d players logged in at once.",
 			mudconf.max_players));
-	if (mudconf.quotas)
-		sprintf(buff, " and %d quota", mudconf.start_quota);
-	else
-		*buff = '\0';
+
 	raw_notify(player,
 		   tprintf("New players are given %d %s to start with.",
 			   mudconf.paystart, mudconf.many_coins));
@@ -2256,15 +2318,14 @@ dbref player;
 		raw_notify(player,
 			   tprintf("Players have a 1 in %d chance of finding a %s each time they move.",
 				   mudconf.payfind, mudconf.one_coin));
-#ifdef PUEBLO_SUPPORT
-	raw_notify(player, "Pueblo client extensions are supported.");
-#endif
+
 #ifdef USE_MAIL
 	raw_notify(player, "The built in @mail systems is supported.");
 #endif
 #ifdef USE_COMSYS
 	raw_notify(player, "The built in comsystem is supported.");
 #endif
+
 	raw_notify(player,
 		   tprintf("The head of the object freelist is #%d.",
 			   mudstate.freelist));
@@ -2289,18 +2350,26 @@ dbref player;
 		mudconf.cmd_quota_incr);
 	raw_notify(player, buff);
 
-	sprintf(buff, "Spaces...%s  Savefiles...%s",
+	sprintf(buff, "Compression: Spaces...%s  SaveFiles...%s",
 		ed[mudconf.space_compress], ed[mudconf.compress_db]);
 	raw_notify(player, buff);
 
-	sprintf(buff, "New characters: Room...#%d  Home...#%d  DefaultHome...#%d  Quota...%d",
-		mudconf.start_room, mudconf.start_home, mudconf.default_home,
-		mudconf.start_quota);
+	sprintf(buff, "MasterRoom...#%d  StartRoom...#%d  StartHome...#%d  DefaultHome...#%d",
+		mudconf.master_room, mudconf.start_room, mudconf.start_home,
+		mudconf.default_home);
+
+	sprintf(buff, "New Characters: %s...%d  Quota...%d  Rooms...%d  Exits...%d  Things...%d  Players...%d",
+		mudconf.many_coins, mudconf.paystart, mudconf.start_quota,
+		mudconf.start_room_quota, mudconf.start_exit_quota,
+		mudconf.start_thing_quota, mudconf.start_player_quota);
 	raw_notify(player, buff);
 
-	sprintf(buff, "Misc: GuestChar...#%d  IdleQueueChunk...%d  ActiveQueueChunk...%d  Master_room...#%d",
-		mudconf.guest_char, mudconf.queue_chunk,
-		mudconf.active_q_chunk, mudconf.master_room);
+	sprintf(buff, "Misc: GuestChar...#%d", mudconf.guest_char);
+	raw_notify(player, buff);
+
+	sprintf(buff, "Limits: Output...%d  Recursion...%d  Invocation...%d  Parents...%d",
+		mudconf.output_limit, mudconf.func_nest_lim,
+		mudconf.func_invk_lim, mudconf.parent_nest_lim);
 	raw_notify(player, buff);
 
 	free_mbuf(buff);

@@ -81,6 +81,7 @@ void NDECL(cf_init)
 	mudconf.conc_port = 6251;
 	mudconf.init_size = 1000;
 	mudconf.use_global_aconn = 1;
+	mudconf.global_aconn_uselocks = 0;
 	mudconf.guest_char = -1;
 	mudconf.guest_nuker = 1;
 	mudconf.number_guests = 30;
@@ -145,7 +146,9 @@ void NDECL(cf_init)
 	mudconf.paycheck = 0;
 	mudconf.paystart = 0;
 	mudconf.paylimit = 10000;
-	mudconf.start_quota = 20;
+	mudconf.start_quota = mudconf.start_room_quota =
+	    mudconf.start_exit_quota = mudconf.start_thing_quota =
+	    mudconf.start_player_quota = 20;
 	mudconf.site_chars = 25;
 	mudconf.payfind = 0;
 	mudconf.digcost = 10;
@@ -169,8 +172,8 @@ void NDECL(cf_init)
 	mudconf.mail_expiration = 14;
 	mudconf.use_http = 0;
 	mudconf.queuemax = 100;
-	mudconf.queue_chunk = 3;
-	mudconf.active_q_chunk = 0;
+	mudconf.queue_chunk = 10;
+	mudconf.active_q_chunk = 10;
 	mudconf.sacfactor = 5;
 	mudconf.sacadjust = -1;
 	mudconf.use_hostname = 1;
@@ -1069,6 +1072,8 @@ CONF conftable[] = {
 	cf_int,         CA_GOD,         &mudconf.func_nest_lim,		0},
 {(char *)"gdbm_database",
 	cf_string,	CA_DISABLED,	(int *)mudconf.gdbm,		PBUF_SIZE},
+{(char *)"global_aconn_uselocks",
+     	cf_bool,	CA_GOD,		&mudconf.global_aconn_uselocks,	0},
 {(char *)"good_name",
 	cf_badname,	CA_GOD,		NULL,				1},
 {(char *)"guest_char_num",
