@@ -487,7 +487,8 @@ void attrib_sync()
 	/* Make sure dirty objects are written to disk */
 	
 	for (i = 0; i < NUM_OBJPIPES; i++) {
-		if (mudstate.objpipes[i]->dirty) {
+		if (mudstate.objpipes[i] &&
+		    mudstate.objpipes[i]->dirty) {
 			rollup_obj(mudstate.objpipes[i], &data);
 			ATTRS_STORE(mudstate.objpipes[i]->name, data,
 				obj_siz(mudstate.objpipes[i]));
