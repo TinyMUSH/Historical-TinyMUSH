@@ -3951,7 +3951,10 @@
 & CREDITS
   Topic: CREDITS
  
-  TinyMUSH 2.2 is a continuation of development work done on TinyMUSH 2.0.
+  TinyMUSH 3.0 is a fusion of TinyMUSH 2.2 and TinyMUX, and so we must
+  thank everyone associated with those projects, as well as the original
+  TinyMUSH 2.0 and its predecessors.
+ 
   TinyMUSH 2.0 is derived from Larry Foard's TinyMUSH (which was itself 
   derived from TinyMUD, written by Jim Aspnes). TinyMUSH 2.0, written by
   JT Traub (Moonchilde@PernMUSH) and Glenn Crocker (Wizard@TinyCWRU),
@@ -3960,8 +3963,7 @@
  
   TinyMUSH 2.2 is primarily the work of Jean Marie Diaz (Ambar@PernMUSH),
   Deborah Wilson-Hooker (Tyleet@TwoMoons), and Lydia Leong (Amberyl@PernMUSH).
-  The credits which follow are a combination of the TinyMUSH 2.0 credits
-  and some additional credits for 2.2.
+  TinyMUX is primarily the work of David Passmore (Lauren@From the Ashes).
  
   Many, many people have contributed to TinyMUSH; our list of "thanks" is
   by no means complete.
@@ -3969,29 +3971,20 @@
   See 'help credits2' for the list of names.
  
 & CREDITS2
-
-  We would like to thank the following people:
-   
-  - Jim Aspnes, for the original TinyMUD (from which TinyMUSH was derived)
  
-  - Larry Foard, for the original implementation of TinyMUSH.
+Significant code, ideas, bugfixes, and support have been contributed
+over the years by many people, including:
  
-  - Marcus Ranum for the original Untermud database layer code, and Andrew
-    Molitor for getting it to work with TinyMUSH.
+Dean Gaudet		Robby Griffin		Stephen J. Kiernan
+Andrew Molitor		T. Alexander Popiel	Marcus Ranum
+Alan Schwartz		Jennifer Smith		Russ Smith
+Deborah Wilson-Hooker	Airam@Generations	Ambar@Pern
+Coyote@TinyTIM		Dreamline@Horizons	Ethaniel@BTech3056
+Evinar			Furie@DungeonMUSH	Harlock@StarWarsII
+Hcobb@TinyTIM		Jellan@Pern		Kalkin@DarkZone
+Kayan Telva@BTech3056	Mike@StarWars		Miritha@Pern
+R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
-  - Andrew Molitor (again) for the VMS port.
- 
-  - Russ (Random) and Jennifer (Moira) Smith, R'nice@TinyTim, Coyote@TinyTIM,
-    Ambar, Amberyl, Sh'dow, Jellan, and Miritha (all from PernMUSH),
-    Javelin and Talek (from Belgariad and Dune) for numerous bug fixes, 
-    enhancements, bits of code, and ideas.
- 
-  - Sketch(TinyTIM) for rewriting some of the more confusing help file
-    entries.
- 
-  - Hcobb(TinyTIM) and Furie(DungeonMUSH) for inspiring the parser rewrite and
-    other security-related fixes and enhancements.
-
 & DROP-TOS
   Topic: DROP-TOS
  
@@ -9691,48 +9684,24 @@ traced from the caller's scope.
   TinyMUSH 3.0 is a fusion of TinyMUSH 2.2 and TinyMUX. It was designed
   to be a stable, efficient, feature-rich code version, offering users
   a full array of 2.2 and MUX features, to be configured in whatever
-  way the administrators choose. For more information about TinyMUSH 3.0,
-  please see 'help About 3.0'.
+  way the administrators choose. It is intended to be the standard
+  supported version of TinyMUSH for the forseeable future.
  
   Announcements can be found at http://www.godlike.com/tinymush-3.0/
   The MUSH manual can be found at http://www.godlike.com/mushman/
   Softcode is available from ftp.chaco.com, in /pub/mud/tinymush.
  
+  See 'help Patchlevel' for notes on TinyMUSH 3.0 changes.
   See 'help Writing News' for an explanation of how to write news files.
   See 'help Support' for more information about mailing lists, utilities,
   and so forth.
- 
-& About 3.0
- 
-  TinyMUSH 3.0 is still very much in development. It is probably at least
-  six months from a general public release; what you are previewing is not
-  so much a beta, or even an alpha, but rather, is the preliminary
-  foundation of what will eventually become TinyMUSH 3.0. As such, the
-  game's codebase should not be used to judge what will eventually be in
-  the public-release version of 3.0.
- 
-  While this code version may contain some bugs, it is, in theory, at
-  least as stable as the latest releases of TinyMUSH 2.2 and TinyMUX.
-  If you encounter problems, please report them to the admin; be
-  courteous to the other players here and do not actively seek them out.
- 
-  These help files are essentially the TinyMUSH 2.2 help files; they
-  are in the process of being revised. For more information about
-  TinyMUSH 2.2, please see 'About 2.2'.
- 
-& About 2.2
- 
-  TinyMUSH 2.2 is a branch-off from TinyMUSH 2.0.10 patchlevel 5.
-  It was designed as a more stable, more efficient, more feature-rich
-  code version, and is the present direct descendant of TinyMUSH 2.0.
- 
-  'help Patchlevel 2.2' lists a revision history for TinyMUSH 2.2. The
-  source is available at ftp://ftp.godlike.com/pub/2.2/.
- 
-  The authors can be reached at 'hogs@clock.org'. General TinyMUSH
-  server support is done through the mailing list 'mushhacks@chaco.com'.
- 
+  
 & Support
+ 
+  Support for TinyMUSH 3.0 is done via 'tinymush-support@godlike.com',
+  a mailing list. Send email to 'listproc@godlike.com' with a blank 
+  subject line and the message body 'subscribe tinymush-support Your Name'
+  to subscribe.
  
   There is a MUSH programmer's list, 'tinymush-programmers@clock.org'.
   Send email to 'tinymush-programmers-request@clock.org' to subscribe.
@@ -9771,197 +9740,7 @@ a Wizard must do a @readcache from within the game.
   
 & Patchlevel
  
-TinyMUSH 3.0 starts out from a fusion of the TinyMUSH 2.2.4 and TinyMUX 1.5
-code bases; thus, this list of user-visible changes will track ONLY those
-features that are not part of either code base.
- 
-Type 'help patchlevel <patchlevel>' to view that list of changes.
- 
-	3.0b2	(12/31/98)
- 
-& Patchlevel 3.0b2
- 
-- New functions chomp(), filterbool(), force(), null(), remit(), t(), toss(),
-  trigger(), while(), wipe()
- 
-- Modified function: matchall() can take an output delimiter.
- 
-- New commands @eval, @timecheck, @list cache
- 
-- New conf parameters addcommands_match_blindly, addcommands_obey_stop,
-  global_aconn_uselocks, have_mailer, have_comsys, lattr_oldstyle
- 
-& Patchlevel 2.2
- 
-User-visible changes in TinyMUSH 2.2
- 
-Type 'help patchlevel <patchlevel>' for that list of changes.
- 
-   2.2.0    (3/22/95)
-   2.2.1    (6/04/95)
-   2.2.2    (2/13/96) 
-   2.2.3    (11/17/96)
-   2.2.4    (11/21/97)
- 
-& Patchlevel 2.2.0
- 
-TinyMUSH 2.2.0 is the initial release of TinyMUSH 2.2.  It is based upon
-TinyMUSH 2.0.10p5. Thus, this list of changes is based off the baseline
-2.0.10p5 code. Because this list is quite extensive, it has been broken
-up into several sections. See 'help patchlevel 2.2.0 <whatever>' for 
-more details on these user-visible changes.
- 
-     Features     Functions
- 
-& Patchlevel 2.2.0 Features
-  
-- Quotas can be managed by object type.
-- There is support for multiple guest characters.
-- There is support for global aconnects and adisconnects.
-- @shutdown/abort causes the game to coredump via abort().
-- @pemit has a new switch, /list. @pemit to disconnected/pagelocked players
-  no longer returns an annoying error message.
-- @decompile can take wildcards.
-- 'examine' shows more attribute flags. More individual attribute flags
-  are now settable.
-- @sweep command notes 'audible'.
-- Idle/Reject/Away messages now take the paging player as the enactor,
-  rather than the target player. This enables personalized messages.
-- @list options and @list process have been reorganized.
- 
-& Patchlevel 2.2.0 Functions
- 
-- and() and or() stop evaluating when a conclusion is reached (thus
-  increasing their speed. One must be careful of inline setq()s, though).
-- hasflag() can now check attribute flags.
-- iter() and parse() evaluate their delimiter args.
-- lnum() can now take a range argument, and a separator.
-- locate() can now taken an 'X' parameter (to force an ambiguous match).
-- %q-substitution for r().
-- %c/v(c) substitution for 'last command'.
-- New functions: default(), edefault(), udefault(), elements(), findable(),
-  foreach(), grab(), hasattr(), isword(), last(), matchall(), mix(), 
-  munge(), objeval(), ports(), scramble(), shuffle(), sortby(), squish(),
-  ulocal(), visible()
- 
-& Patchlevel 2.2.1
- 
-- ZONE flag allows parent rooms to become local master rooms.
-- @dolist/notify queues a '@notify me' at the end of a @dolist. 
-- building_limit conf parameter restricts total size of the db.
-- @list options gives output limit, as well as the new parameters.
-- Mortals can now @destroy exits they're carrying.
-- setq()/r() values should now be "protected".
-- matchall() with no match returns a null string, rather than a 0.
-- shuffle() and squish() with no arg return null strings, rather than errors.
-- min() and max() no longer truncate floating-point numbers.
-- not() boolean values are consistent with and(), or(), etc.
-
-& Patchlevel 2.2.2
- 
-- Wiz-settable STOP flag stops $command searching when a match is found.
-- Optional COMMANDS flag (require_cmds_flag conf parameter) restricts
-  $command searches to objects with the flag set.
-- Secondary local master rooms available via @parent/zone (optional,
-  with parent_zones conf parameter).
-- god_monitoring global parameter for God's command log.
-- New functions: andflags(), orflags(), left(), right(), lpos(), 
-  objmem(), xcon()
-- lattr() works like it did in 2.0.10p5 (using it on a non-existent
-  object returns the more logical empty string, not '#-1 NO MATCH').
-- map() without a list returns an empty string.
-- udefault() correctly evaluates its arguments.
-
-& Patchlevel 2.2.3
- 
-- Attributes are now alphabetized.
-- The BOUNCE flag acts as the equivalent of a @listen of *, letting messages
-  pass through an object.
-- The lastcreate() function returns the dbref of the last object of a 
-  given type created by a thing.
-- The no_parse attribute flag prevents the input to a $command from being
-  evaluated.
-- The /noeval switch to @pemit allows output to be displayed unparsed.
-- The NOSPOOF flag is only visible to wizards.
-- Wizards can now lock out Guests from certain sites (guest_site parameter).
-- Pueblo client support is now available, if enabled.
-- mix() no longer eats the beginning of null output.
-- @sets of the form '@set foo=bar:_baz/boom' now work properly.
-
-& Patchlevel 2.2.4
- 
-TinyMUSH 2.2.4 contains a relatively large number of enhancements.
-See 'help patchlevel 2.2.4 <whatever>' for more details on user-visible
+TinyMUSH 3.0 starts out from a fusion of the TinyMUSH 2.2.5 and TinyMUX 1.6
+code bases. In the future, this entry will contain TinyMUSH 3.0 ongoing
 changes.
- 
-	Features -- New features
-	New Functions -- New functions
-	Modified Functions -- Changes to existing functions
-	Options -- New options
- 
-TinyMUSH 2.2.4 is the last planned release of TinyMUSH 2.2.  Development
-work will proceed on TinyMUSH 3.0, which merges the TinyMUSH 2.2 and
-TinyMUX code bases back into a single enhanced server.
- 
-& Patchlevel 2.2.4 Features
- 
-- There is now regular expression support, via the REGEXP attribute flag
-  and the regmatch() function.
-- There is now support for transparent MUSH restarts via @restart. Restarts
-  can be counted through the restarts() function, with the last time
-  accessible as restarttime().
-- The @program command allows direct absorption of player input. The
-  programmer() function allows the calling programmer dbref to be obtained.
-- Command piping using ;| and %| allows the output of one command to be
-  passed to another command. Raw output can be processed with translate().
-- @conformat and @exitformat allow arbitrary Contents and Obvious Exits
-  list formatting.
-- iter() and @dolist now replace #@ token with the word position in the list.
-- Support for ANSI sequences: ANSI, NOBLEED, ansi(), stripansi(), ansi_colors.
-- Optional embedded Tcl interpreter support added.
-- The INFO command condenses MUSH vital statistics for MUDlist purposes.
-- @stats shows the next object dbref which will be created.
-- BOUNCE objects show up in a @sweep.
-  
-& Patchlevel 2.2.4 New Functions
- 
-- Object stacks supported via the dup(), empty(), items(), lstack(),
-  peek(), pop(), popn(), push(), and swap() functions.
-- New functions andbool(), orbool(), notbool(), xorbool() do real boolean
-  truth checks.
-- New functions band(), bnand(), bor(), shl(), shr() for bitfield operations.
-- New functions vadd(), vsub(), vmul(), vdot(), vdim(), vmag(), vunit() for
-  vector calculations.
-- New die() function rolls X number of N-sided dice.
-- New ifelse() function does true/false casing.
-- New lit() function returns a literal string.
-- New sees() function checks if X would normally see Y in the Contents
-  list of Y's room.
-- New setr() function acts like setq() but returns the value of the string.
-- New set() side-effect function acts like @set.
- 
-& Patchlevel 2.2.4 Modified Functions
- 
-- elements(), filter(), iter(), map(), munge(), setunion(),
-  setinter(), setdiff(), shuffle(), sort(), sortby() and splice() now
-  take an output delimiter.
-- filter() no longer has spurious leading spaces.
-- mix() can take up to ten arguments, thus allowing up to eight lists
-  to be processed simultaneously.
-- foreach() can take a start and end token for increased parsing speed.
-- elock() now allows checking locks other than the DefaultLock by
-  non-privileged users.
-- parse() is now just an alias for iter().
- 
-& Patchlevel 2.2.4 Options
- 
-- Site lists can now be specified using CIDR IP prefix notation.
-- New conf parameter, safer_passwords, which requires passwords
-  to have a combination of uppercase, lowercase, and numbers/symbols.
-- Default parent objects can be specified via player_parent, room_parent,
-  exit_parent, thing_parent
-- New log option keyboard_commands logs all interactive input (typed
-  commands coming from the network).
-- New log option suspect_commands logs all commands executed by Suspect
-  players.
  
