@@ -11,6 +11,21 @@
 
 /* See db_sql.h for details of what each of these functions do. */
 
+
+/* Because we cannot trap error codes in mSQL, just error messages, we have
+ * to compare against error messages to find out what really happened with
+ * something. This particular error message is SERVER_GONE_ERROR in
+ * mSQL's errmsg.h -- this needs to change if that API definition changes.
+ */
+
+#define MSQL_SERVER_GONE_ERROR "MSQL server has gone away"
+
+/* Number of times to retry a connection if we fail in the middle of
+ * a query.
+ */
+
+#define MSQL_RETRY_TIMES 3
+
 int sql_init()
 {
     int result;
@@ -80,6 +95,7 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     m_row row_p;
     int got_rows, got_fields;
     int i, j;
+    int retries;
 
     /* If we have no connection, this is an error generating a #-1.
      * Notify the player, too, and set the return code.
@@ -95,6 +111,26 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     /* Send the query. */
 
     got_rows = msqlQuery(mudstate.sql_socket, q_string);
+    if ((got_rows == -1) && !strcmp(msqlErrMsg, MSQL_SERVER_GONE_ERROR)) {
+
+	/* We got this error because the server died unexpectedly
+	 * and it shouldn't have. Try repeatedly to reconnect before
+	 * giving up and failing. This induces a few seconds of lag,
+	 * depending on number of retries; we put in the sleep() here
+	 * to see if waiting a little bit helps.
+	 */
+
+	retries = 0;
+	while ((retries < MSQL_RETRY_TIMES) &&
+	       (mudstate.sql_socket == -1)) {
+	    sleep(1);
+	    sql_init();
+	    retries++;
+	}
+
+	if (mudstate.sql_socket != -1)
+	    got_rows = msqlQuery(mudstate.sql_socket, q_string);
+    }
     if (got_rows == -1) {
 	notify(player, msqlErrMsg);
 	safe_str("#-1", buff, bufc);
