@@ -783,25 +783,26 @@
  
 & @cpattr
 
-  @cpattr <obj>/<attr> = <obj1>/<attr1> [,<obj2>/<attr2>,<obj3>/<attr3>,...]
-  @cpattr <obj>/<attr> = <obj1> [,<obj2>,<obj3>,...]
-  @cpattr <attr> = <obj1>/<attr1> [,<obj2>/<attr2>,<obj3>/<attr3>,...]
-  @cpattr <attr> = <obj1> [,<obj2>,<obj3>,...]
+  @cpattr [<obj>/]<wild> = <obj1> [,<obj2>,<obj3>,...]
+  @cpattr [<obj>/]<wild> = <obj1>/<attr1> [,<obj2>/<attr2>,<obj3>/<attr3>,...]
  
-  The first form of this command is used to copy <attr> on <obj> to the
-  object-attribute pairs in a comma-separated list. For example:
+  The first form of this command copies attributes that match <wild>
+  wildcard pattern on <obj> (assumed to be the calling object, 'me',
+  if not explicitly specified), to the target objects specified in a
+  comma-separated list. The names of the attributes on the targets will
+  be the same as the original.
  
-  @cpattr test/va = test/vb, cube/va, tribble/foo
+  The second form of this command is used to copy attributes that match
+  <wild> on <obj> (assumed to be 'me' if not specified) to the target
+  object-attribute pairs specified in a comma-separated list. Note that
+  if <wild> matches multiple attributes, the last one is the one that
+  will end up set on the target objects.
  
-  would copy the VA attribute from object "test" to VB on "test",
-  VA on "cube", and FOO on "tribble".  <objN> is matched as if
-  you were performing a @set on it.
+  For example, '@cpattr test/va = test/vb, cube/va, tribble/foo'
+   would copy the VA attribute from object "test" to VB on "test",
+  VA on "cube", and FOO on "tribble".
  
-  The second form copies <attr> to the list of objects, with the name
-  <attr>. The third form copies <attr> from the object that executes the
-  @cpattr, to the object-attribute pairs in the list. Finally, the third
-  form copies <attr> from the object that executes the @cpattr to the
-  objects in the list, with the name <attr>.
+  <objN> is matched as if you were performing a @set on it.
  
 & @create
   Command: @create <name> [=<cost>]

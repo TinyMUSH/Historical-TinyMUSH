@@ -942,36 +942,46 @@ void do_cpattr(player, cause, key, oldpair, newpair, nargs)
     char *oldpair;
     char *newpair[];
 {
-	int i;
-	char *oldthing, *oldattr, *newthing, *newattr;
+    int i, ca;
+    dbref oldthing;
+    char **newthings, **newattrs, *tp, oldbuf[LBUF_SIZE];
+    ATTR *oldattr;
 
-	if (!*oldpair || !**newpair || !oldpair || !*newpair)
-		return;
+    if (!*oldpair || !**newpair || !oldpair || !*newpair)
+	return;
+    if (nargs < 1)
+	return;
 
-	if (nargs < 1)
-		return;
+    /* newpair gets whacked to bits by parse_to(). Do it just once. */
 
-	oldattr = oldpair;
-	oldthing = parse_to(&oldattr, '/', 1);
+    newthings = (char **) XCALLOC(nargs, sizeof(char *), "do_cpattr.dbrefs");
+    newattrs = (char **) XCALLOC(nargs, sizeof(char *), "do_cpattr.attrs");
+    for (i = 0; i < nargs; i++) {
+	tp = newpair[i];
+	newthings[i] = parse_to(&tp, '/', 1);
+	newattrs[i] = tp;
+    }
 
-	for (i = 0; i < nargs; i++) {
-		newattr = newpair[i];
-		newthing = parse_to(&newattr, '/', 1);
-
-		if (!oldattr) {
-			if (!newattr) {
-				do_set(player, cause, 0, newthing, tprintf("%s:_%s/%s", oldthing, "me", oldthing));
-			} else {
-				do_set(player, cause, 0, newthing, tprintf("%s:_%s/%s", newattr, "me", oldthing));
-			}
-		} else {
-			if (!newattr) {
-				do_set(player, cause, 0, newthing, tprintf("%s:_%s/%s", oldattr, oldthing, oldattr));
-			} else {
-				do_set(player, cause, 0, newthing, tprintf("%s:_%s/%s", newattr, oldthing, oldattr));
-			}
+    olist_push();
+    if (parse_attrib_wild(player,
+			  ((strchr(oldpair, '/') == NULL) ?
+			   tprintf("me/%s", oldpair) : oldpair),
+			  &oldthing, 0, 0, 1)) {
+	for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
+	    oldattr = atr_num(ca);
+	    if (oldattr) {
+		for (i = 0; i < nargs; i++) {
+		    do_set(player, cause, 0, newthings[i],
+			   tprintf("%s:_#%d/%s",
+				   (newattrs[i] ? newattrs[i] : oldattr->name),
+				   oldthing, oldattr->name));
 		}
+	    }
 	}
+    }
+    olist_pop();
+    XFREE(newthings, "do_cpattr.dbrefs");
+    XFREE(newattrs, "do_cpattr.attrs");
 }
 
 
