@@ -661,7 +661,7 @@ CMDENT command_table[] = {
 	PEMIT_PEMIT,	CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_pemit},
 {(char *)"@npemit",		pemit_sw,	CA_NO_GUEST|CA_NO_SLAVE,
-	PEMIT_PEMIT,	CS_TWO_ARG|CS_UNPARSE,	
+	PEMIT_PEMIT,	CS_TWO_ARG|CS_UNPARSE|CS_NOSQUISH,	
 	NULL,			NULL,		do_pemit},
 {(char *)"@poor",		NULL,		CA_GOD,
 	0,		CS_ONE_ARG|CS_INTERP,	
@@ -1558,10 +1558,8 @@ char *command, *args[];
 	strcpy(preserve_cmd, command);
 	mudstate.debug_cmd = command;
 	mudstate.curr_cmd = preserve_cmd;
-        	
 
-	/* Can we fix the @npemit thing? */
-	if (mudconf.space_compress && strncmp(command, "@npemit", 7)) {
+	if (mudconf.space_compress) {
 		p = q = command;
 		while (*p) {
 			while (*p && !isspace(*p))
@@ -1694,11 +1692,22 @@ char *command, *args[];
 
 	cmdp = (CMDENT *) hashfind(lcbuf, &mudstate.command_htab);
 	if (cmdp != NULL) {
-		process_cmdent(cmdp, slashp, player, cause, interactive, arg,
-			       command, args, nargs);
-		free_lbuf(lcbuf);
-		mudstate.debug_cmd = cmdsave;
-		return preserve_cmd;
+	    if (mudconf.space_compress && (cmdp->callseq & CS_NOSQUISH)) {
+		/* We handle this specially -- there is no space compression
+		 * involved, so we must go back to the preserved command.
+		 */
+		strcpy(command, preserve_cmd);
+		arg = command;
+		while (*arg && !isspace(*arg))
+		    arg++;
+		if (*arg)     /* we stopped on the space, advance to next */
+		    arg++;     
+	    }
+	    process_cmdent(cmdp, slashp, player, cause, interactive, arg,
+			   command, args, nargs);
+	    free_lbuf(lcbuf);
+	    mudstate.debug_cmd = cmdsave;
+	    return preserve_cmd;
 	}
 	/* Check for enter and leave aliases, user-defined commands on the
 	 * player, other objects where the player is, on objects in
