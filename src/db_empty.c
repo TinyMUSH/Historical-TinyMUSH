@@ -1,4 +1,5 @@
 /* db_empty.c */
+/* $Id$ */ 
 
 /* Placeholder code if we're not using an external SQL database. */
 

@@ -1,4 +1,5 @@
 /* pcre.h */
+/* $Id$ */
 
 /*************************************************
 *      Perl-Compatible Regular Expressions       *

@@ -1,4 +1,5 @@
 /* db_mysql.c */
+/* $Id$ */
 
 /* Implements accessing a mySQL 3.22+ database. */
 

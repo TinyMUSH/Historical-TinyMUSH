@@ -1,4 +1,5 @@
 /* db_sql.h */
+/* $Id$ */
 
 #include "copyright.h"
 
