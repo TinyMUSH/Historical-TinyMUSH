@@ -30,6 +30,15 @@ Release history:
   number permitted by an action list limited to the conf parameter
   register_limit. setq() can now take multiple name-value pairs.
 
+- Feature: munge() now passes its input delimiter to the u-function
+  as %1. Idea from PennMUSH.
+
+- Feature: More informative error message when a function is given the wrong
+  number of arguments. Idea from Philip Mak.
+
+- Feature: Players with the See_Queue power can now @ps other players, not
+  just @ps/all and themselves.
+
 - Misc: The 'xmatch' attribute flag (added in beta 5) is now called
   'rmatch'. Rather than setting the results of the match into x-variables,
   the result is set into named global registers. This eliminates the
@@ -37,12 +46,6 @@ Release history:
 
 - Misc: Replaced the random number generator with Mersenne Twister.
   Use derived from PennMUSH, which derives it from MUX2.
-
-- Misc: More informative error message when a function is given the wrong
-  number of arguments. Idea from Philip Mak.
-
-- Misc: Players with the See_Queue power can now @ps other players, not
-  just @ps/all and themselves.
 
 - Misc: The maximum length of a comsys header is now 64 characters 
   instead of 32.

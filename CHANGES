@@ -477,6 +477,9 @@ CHANGES TO FUNCTIONS
   the old mod() on most platforms; if you want it to be an alias
   for modulo() instead, change it in alias.conf
 
+- munge() now passes its input delimiter to the u-function, as %1.
+  Idea from PennMUSH.
+
 - Added nattr(), which counts the number of attributes on an object.
 
 - Added oemit(), which is the function equivalent of @oemit.

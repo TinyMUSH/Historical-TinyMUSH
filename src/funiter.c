@@ -671,7 +671,7 @@ FUNCTION(fun_munge)
 	int aflags, alen, anum, nptrs1, nptrs2, nresults, i, j;
 	int isep_len, osep_len;
 	ATTR *ap;
-	char *list1, *list2, *rlist;
+	char *list1, *list2, *rlist, *st[2];
 	char **ptrs1, **ptrs2, **results;
 	char *atext, *bp, *str, *oldp;
 	Delim isep, osep;
@@ -705,12 +705,20 @@ FUNCTION(fun_munge)
 		XFREE(ptrs2, "fun_munge.ptrs2");
 		return;
 	}
-	/* Call the u-function with the first list as %0. */
 
-	bp = rlist = alloc_lbuf("fun_munge");
+	/* Call the u-function with the first list as %0. Pass the
+	 * input separator as %1, which makes sorting, etc. easier.
+	 */
+
+	st[0] = fargs[1];
+	st[1] = alloc_lbuf("fun_munge.sep");
+	bp = st[1];
+	print_sep(isep, isep_len, st[1], &bp);
+
+	bp = rlist = alloc_lbuf("fun_munge.rlist");
 	str = atext;
 	exec(rlist, &bp, player, caller, cause,
-	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &fargs[1], 1);
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, st, 2);
 	*bp = '\0';
 
 	/* Now that we have our result, put it back into array form. Search
@@ -736,6 +744,7 @@ FUNCTION(fun_munge)
 	free_lbuf(list1);
 	free_lbuf(list2);
 	free_lbuf(rlist);
+	free_lbuf(st[1]);
 	XFREE(ptrs1, "fun_munge.ptrs1");
 	XFREE(ptrs2, "fun_munge.ptrs2");
 	XFREE(results, "fun_munge.results");

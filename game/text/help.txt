@@ -10918,13 +10918,13 @@ performed and the walk down the list stops.
   munge([<object>/]<attribute>,<list 1>,<list 2>[,<delim>][,<output delim>])
   
   This function takes two lists of equal length. It passes the entirety of
-  <list 1> to the user-defined function as %0. Then, this resulting list
-  is matched with elements in <list 2>, and the rearranged <list 2> is
-  returned. This is useful for doing things like sorting a list, and then
-  returning the corresponding elements in the other list. If a resulting
-  element from the user-defined function doesn't match an element in the
-  original <list 1>, a corresponding element from <list 2> does not appear
-  in the final result.
+  <list 1> to the user-defined function as %0, and the input delimiter
+  as %1. Then, this resulting list is matched with elements in <list 2>,
+  and the rearranged <list 2> is returned. This is useful for doing things
+  like sorting a list, and then returning the corresponding elements in the
+  other list. If a resulting element from the user-defined function doesn't
+  match an element in the original <list 1>, a corresponding element from
+  <list 2> does not appear in the final result.
  
   For example: Consider attribute PLACES, which contains "Fort Benden Ista",
   and another attribute DBREFS, which contains the dbrefs of the main JUMP_OK
@@ -14689,18 +14689,21 @@ Continued in 'help 3.1 functions6'.
   the old mod() on most platforms; if you want it to be an alias
   for modulo() instead, change it in alias.conf
  
+- munge() now passes its input delimiter to the u-function, as %1.
+  Idea from PennMUSH.
+ 
 - Added oemit(), which is the function equivalent of @oemit.
  
 - Added nattr(), which counts the number of attributes on an object.
+ 
+Continued in 'help 3.1 functions7'.
+ 
+& 3.1 functions7
  
 - sees() can now evaluate the visibility of exits as well as things.
   Also, a small bug has been fixed: the see_owned_dark calculation in
   sees() now uses the object doing the looking, not the player invoking
   the function.
- 
-Continued in 'help 3.1 functions7'.
- 
-& 3.1 functions7
  
 - Added session(), which returns command count, bytes of input, and
   bytes of output associated with a port.
@@ -14715,15 +14718,15 @@ Continued in 'help 3.1 functions7'.
   delimiter character. The delimit() function processes a stored
   list, substituting a separator string for a delimiter.
  
+Continued in 'help 3.1 functions8'.
+ 
+& 3.1 functions8
+ 
 - Added table(), tables(), rtables(), and ctables() functions. table()
   is based on an idea from PennMUSH, formatting text within a table of
   equally wide columns. The other three functions format text within
   a table of variably-wide columns (left/right/center-justified), with
   left and right-margin borders.
- 
-Continued in 'help 3.1 functions8'.
- 
-& 3.1 functions8
  
 - Added timefmt() function. This is essentially an interface to the C
   library function strftime(), allowing the time to be formatted in
@@ -14739,15 +14742,15 @@ Continued in 'help 3.1 functions8'.
 - Added until() function, which is similar to while(), except it operates
   on multiple lists and terminates on a regular expression condition.
  
+Continued in 'help 3.1 functions9'.
+ 
+& 3.1 functions9
+ 
 - valid() can now detect valid attribute names and player names, for
   PennMUSH compatibility.
  
 - Added whentrue() and whenfalse() functions, which go through a list
   iter()-style until a terminating boolean condition is reached.
- 
-Continued in 'help 3.1 functions9'.
- 
-& 3.1 functions9
  
 - Added wildgrep(), wildmatch(), and wildparse(), which are similar to
   regrep(), regmatch() and regparse(), but work against wildcard patterns
