@@ -218,6 +218,7 @@ links: dbconvert mkindx netmux slave
         cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx
         cd ../game/bin ; rm -f netmux ; ln -s ../../src/netmux
         cd ../game/bin ; rm -f slave ; ln -s ../../src/slave
+	cd ../game/text; rm -f mkindx; ln -s ../../src/mkindx
 
 conc: portconc.o
 	$(CC) $(ALLCFLAGS) $(LIBS) -o conc portconc.o
