@@ -358,12 +358,14 @@ char *cargs[];
 	*savestr;
 	char savec, ch, *str;
 	char *realbuff = NULL, *realbp = NULL;
+	char xtbuf[SBUF_SIZE], *xtp;
 	dbref aowner;
 	int at_space, nfargs, gender, i, j, alldone, aflags, feval;
 	int is_trace, is_top, save_count;
 	int ansi;
 	FUN *fp;
 	UFUN *ufp;
+	VARENT *xvar;
 
 	static const char *subj[5] =
 	{"", "it", "she", "he", "they"};
@@ -625,6 +627,23 @@ char *cargs[];
 				i = (**dstr - '0');
 				if ((i < ncargs) && (cargs[i] != NULL))
 					safe_str(cargs[i], buff, bufc);
+				break;
+			case '_':       /* x-variable */
+			        (*dstr)++;
+				ch = ToLower(**dstr);
+				if (!**dstr)
+				    (*dstr)--;
+				if (!isalnum(ch))
+				    break;
+				xtp = xtbuf;
+				safe_ltos(xtbuf, &xtp, player);
+				safe_chr('.', xtbuf, &xtp);
+				safe_chr(ch, xtbuf, &xtp);
+				*xtp = '\0';
+				if ((xvar = (VARENT *) hashfind(xtbuf,
+						       &mudstate.vars_htab))) {
+				    safe_str(xvar->text, buff, bufc);
+				}
 				break;
 			case 'V':	/* Variable attribute */
 			case 'v':
