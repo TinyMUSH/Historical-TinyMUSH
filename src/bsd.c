@@ -1043,11 +1043,8 @@ void NDECL(emergency_shutdown)
 #define SIGCHLD SIGCLD
 #endif
 
-#if defined(HAVE_STRUCT_SIGCONTEXT) && !defined(GLIBC_BRAINDAMAGE)
-static RETSIGTYPE FDECL(sighandler, (int, int, struct sigcontext *));
-#else
 static RETSIGTYPE FDECL(sighandler, (int));
-#endif
+
 /* *INDENT-OFF* */
 
 NAMETAB sigactions_nametab[] = {
@@ -1139,16 +1136,8 @@ const char *signame;
 	ENDLOG
 }
 
-#if defined(HAVE_STRUCT_SIGCONTEXT) && !defined(GLIBC_BRAINDAMAGE)
-static RETSIGTYPE sighandler(sig, code, scp)
-int sig, code;
-struct sigcontext *scp;
-
-#else
 static RETSIGTYPE sighandler(sig)
 int sig;
-
-#endif
 {
 #ifdef SYS_SIGLIST_DECLARED
 #define signames sys_siglist

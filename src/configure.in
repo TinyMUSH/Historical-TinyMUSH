@@ -56,14 +56,11 @@ AC_TRY_COMPILE([#include <sys/types.h>
 AC_DEFINE(HAVE_LINGER) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for union wait)
 AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],AC_DEFINE(HAVE_UNION_WAIT) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
-AC_MSG_CHECKING(for struct sigcontext) 
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <sys/signal.h>],[struct sigcontext scp;],AC_DEFINE(HAVE_STRUCT_SIGCONTEXT) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 AC_MSG_CHECKING(for signal SIGCHLD braindamage)
 AC_TRY_RUN([
 #include <sys/types.h>
-#include <sys/signal.h>
+#include <signal.h>
 
 #ifndef SIGCHLD
 #define SIGCHLD SIGCLD

@@ -104,8 +104,6 @@
 #undef NEED_GETRUSAGE_DCL
 /* Define if struct linger is defined */
 #undef HAVE_LINGER
-/* Define if signal handlers have a struct sigcontext as their third arg */
-#undef HAVE_STRUCT_SIGCONTEXT
 /* Define if stdio.h defines lots of extra functions */
 #undef EXTENDED_STDIO_DCLS
 /* Define if sys/socket.h defines lots of extra functions */
