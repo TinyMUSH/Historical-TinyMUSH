@@ -3784,7 +3784,7 @@
   control sequences, such as hilites and colors.
  
   TinyFugue users who do not wish to see ANSI color should leave this flag
-  on, but '/set ansi=ansi_strip'. This saves the server some processing
+  on, but '/set emulation=ansi_strip'. This saves the server some processing
   work; if a user has the ANSI flag unset, the server has to go through
   each line of text the user sees and strip the ANSI from it. Thus, if
   a user can do it in-client, this is preferable.
