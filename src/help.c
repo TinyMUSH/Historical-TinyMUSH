@@ -118,11 +118,10 @@ int eval;
 {
 	FILE *fp;
 	char *p, *line, *result, *str, *bp;
-	int entry_offset, entry_length, offset, i;
+	int entry_offset, entry_length;
 	struct help_entry *htab_entry;
 	char matched;
 	char *topic_list, *buffp;
-	char tmpbuf[LBUF_SIZE];
 
 	if (*topic == '\0')
 		topic = (char *)"help";
