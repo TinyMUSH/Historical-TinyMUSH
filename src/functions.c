@@ -191,30 +191,51 @@ char *fname, *target;
 void list_functable(player)
 dbref player;
 {
-	FUN *fp;
+	FUN *fp, *modfns;
 	UFUN *ufp;
-	char *buf, *bp, *cp;
+	char *buf, *bp;
+	MODULE *mp;
 
 	buf = alloc_lbuf("list_functable");
+
 	bp = buf;
-	for (cp = (char *)"Functions:"; *cp; cp++)
-		*bp++ = *cp;
+	safe_str((char *)"Built-in functions:", buf, &bp);
 	for (fp = flist; fp->name; fp++) {
 		if (check_access(player, fp->perms)) {
-			*bp++ = ' ';
-			for (cp = (char *)(fp->name); *cp; cp++)
-				*bp++ = *cp;
+		    safe_chr(' ', buf, &bp);
+		    safe_str((char *) fp->name, buf, &bp);
 		}
 	}
+	notify(player, buf);
+
+#ifdef HAVE_DLOPEN
+	WALK_ALL_MODULES(mp) {
+	    if ((modfns = DLSYM_VAR(mp->handle, mp->modname, "functable",
+				    FUN *)) != NULL) {
+		bp = buf;
+		safe_tprintf_str(buf, &bp, "Module %s functions:",
+				 mp->modname);
+		for (fp = modfns; fp->name; fp++) {
+		    if (check_access(player, fp->perms)) {
+			safe_chr(' ', buf, &bp);
+			safe_str((char *) fp->name, buf, &bp);
+		    }
+		}
+		notify(player, buf);
+	    }
+	}
+#endif /* HAVE_DLOPEN */
+
+	bp = buf;
+	safe_str((char *)"User-defined functions:", buf, &bp);
 	for (ufp = ufun_head; ufp; ufp = ufp->next) {
 		if (check_access(player, ufp->perms)) {
-			*bp++ = ' ';
-			for (cp = (char *)(ufp->name); *cp; cp++)
-				*bp++ = *cp;
+		    safe_chr(' ', buf, &bp);
+		    safe_str(ufp->name, buf, &bp);
 		}
 	}
-	*bp = '\0';
 	notify(player, buf);
+
 	free_lbuf(buf);
 }
 
