@@ -229,14 +229,19 @@ void NDECL(cf_init)
 	mudconf.thing_parent = NOTHING;
 	mudconf.player_flags.word1 = 0;
 	mudconf.player_flags.word2 = 0;
+	mudconf.player_flags.word3 = 0;
 	mudconf.room_flags.word1 = 0;
 	mudconf.room_flags.word2 = 0;
+	mudconf.room_flags.word3 = 0;
 	mudconf.exit_flags.word1 = 0;
 	mudconf.exit_flags.word2 = 0;
+	mudconf.exit_flags.word3 = 0;
 	mudconf.thing_flags.word1 = 0;
 	mudconf.thing_flags.word2 = 0;
+	mudconf.thing_flags.word3 = 0;
 	mudconf.robot_flags.word1 = ROBOT;
 	mudconf.robot_flags.word2 = 0;
+	mudconf.robot_flags.word3 = 0;
 	mudconf.vattr_flags = AF_ODARK;
 	StringCopy(mudconf.mud_name, "TinyMUX");
 	StringCopy(mudconf.one_coin, "penny");
@@ -720,6 +725,7 @@ CF_HAND(cf_set_flags)
 			if (success == 0) {
 				(*fset).word1 = 0;
 				(*fset).word2 = 0;
+				(*fset).word3 = 0;
 			}
 			if (fp->flagflag & FLAG_WORD3)
 				(*fset).word3 |= fp->flagvalue;
@@ -742,6 +748,7 @@ CF_HAND(cf_set_flags)
 	if ((success == 0) && (failure == 0)) {
 		(*fset).word1 = 0;
 		(*fset).word2 = 0;
+		(*fset).word3 = 0;
 		return 0;
 	}
 	if (success > 0)
@@ -807,12 +814,10 @@ CF_AHAND(cf_site)
 	site->next = NULL;
 
 	/*
-	 * Link in the entry.  Link it at the start if not initializing, at * 
-	 * 
-	 * *  * *  * *  * *  * * the end if initializing.  This is so that
-	 * entries  * in * the * config * * * file are processed as you would 
-	 * think they * * would be, * while * entries * * made while running
-	 * are processed * * first. 
+	 * Link in the entry.  Link it at the start if not initializing, at
+	 * the end if initializing.  This is so that entries in the config
+	 * file are processed as you would think they would be, while
+	 * entries made while running are processed first. 
 	 */
 
 	if (mudstate.initializing) {

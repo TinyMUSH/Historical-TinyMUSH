@@ -1001,6 +1001,7 @@ int type;			/* 0 for orflags, 1 for andflags */
 
 			if ((Flags(it) & fset.word1) ||
 			    (Flags2(it) & fset.word2) ||
+			    (Flags3(it) & fset.word3) ||
 			    (Typeof(it) == p_type)) {
 				if (isPlayer(it) && (fset.word2 == CONNECTED) &&
 				    ((Flags(it) & (WIZARD | DARK)) == (WIZARD | DARK)) &&
