@@ -7,21 +7,26 @@ introduced. Non-specific version numbers indicate the following:
 	- 2.2 (Introduced in TinyMUSH 2.2.5 or earlier.)
 	- MUX (Introduced in TinyMUX 1.6 or earlier.)
 	- 3.0 (Introduced in TinyMUSH 3.0 at some point in time.)
+	- 3.1 (Introduced in TinyMUSH 3.1 at some point in time.)
 
 Names after the bug origin version are the first sources for the bug
 reports. Where no name is given, the bug was discovered by the
 developers. ("RMG" refers to Robby Griffin, aka Alierak; he joined
-the development team on beta 18 and is not individually credited
+the development team on 3.0 beta 18 and is not individually credited
 after that point.)
 
 Release history:
-    TinyMUSH 3.0 beta 1: Initial beta release, 9/27/99.
-    TinyMUSH 3.0 gamma:  Standard "stable" release, 12/1/00.
+    TinyMUSH 3.0 beta 1: Initial beta release, 1999/09/27.
+    TinyMUSH 3.0 gamma:  Standard "stable" release, 2000/12/01.
+    TinyMUSH 3.1 beta 1: Initial beta release, 2002/05/08.
 
 =============================================================================
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
+2002/05/xx: Beta 2
+
+- Fix: Compilation error when no modules were enabled. [3.1; d@vid.org.uk]
 
 =============================================================================
 			TinyMUSH 3.0 Beta History

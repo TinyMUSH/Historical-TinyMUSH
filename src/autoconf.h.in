@@ -37,6 +37,8 @@
 #undef TEST_MALLOC
 /* Set this to the desired number of global registers (10-36) */
 #undef MAX_GLOBAL_REGS
+/* Define if no modules were requested so we create lt_preloaded_symbols */
+#undef NEED_EMPTY_LTPLSYM
 
 /* ---------------------------------------------------------------------------
  * Portability section:

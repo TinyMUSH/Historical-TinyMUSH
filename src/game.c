@@ -67,6 +67,10 @@ extern int slave_socket;
 
 extern char qidx_chartab[256];
 
+#ifdef NEED_EMPTY_LTPLSYM
+const lt_dlsymlist lt_preloaded_symbols[] = { {0, (lt_ptr_t) 0} };
+#endif
+
 /*
  * used to allocate storage for temporary stuff, cleared before command
  * execution
