@@ -1965,7 +1965,12 @@ char *arg;
 			return (atoi(arg) >= 0);
 		    }
 		}
-		return 0;
+		if (mudconf.bools_oldstyle) {
+		    return 0;
+		} else {
+		    return !(arg[0] == '-' && isdigit(arg[1]) &&
+			     isspace(arg[2]));
+		}
 	}
 	temp2 = trim_space_sep(arg, ' ');
 	if (!*temp2)
