@@ -22,6 +22,8 @@ if [ -r mush.pid ]; then
 	else
 		nmush=0
 	fi
+else
+	nmush=0
 fi
 
 #
