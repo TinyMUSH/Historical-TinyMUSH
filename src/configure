@@ -3213,14 +3213,14 @@ fi
 SAVELDFLAGS="$LDFLAGS"
 
 LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
-echo $ac_n "checking for main in -lgdbm""... $ac_c" 1>&6
-echo "configure:3218: checking for main in -lgdbm" >&5
-ac_lib_var=`echo gdbm'_'main | sed 'y%./+-%__p_%'`
+echo $ac_n "checking for main in -ltinygdbm""... $ac_c" 1>&6
+echo "configure:3218: checking for main in -ltinygdbm" >&5
+ac_lib_var=`echo tinygdbm'_'main | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
-LIBS="-lgdbm  $LIBS"
+LIBS="-ltinygdbm  $LIBS"
 cat > conftest.$ac_ext <<EOF
 #line 3226 "configure"
 #include "confdefs.h"
@@ -3244,10 +3244,10 @@ LIBS="$ac_save_LIBS"
 fi
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   echo "$ac_t""yes" 1>&6
-  LIBS="-L./gdbm-1.8.0/.libs -lgdbm $LIBS"
+  LIBS="-L./gdbm-1.8.0/.libs -ltinygdbm $LIBS"
 else
   echo "$ac_t""no" 1>&6
-{ echo "configure: error: This program requires GNU DBM (src/gdbm-1.8.0) to be built first" 1>&2; exit 1; }
+{ echo "configure: error: This program requires TinyMUSH GNU DBM (src/gdbm-1.8.0) to be built first" 1>&2; exit 1; }
 fi
 
 

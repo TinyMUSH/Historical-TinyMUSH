@@ -720,9 +720,9 @@ dnl Library checks
 SAVELDFLAGS="$LDFLAGS"
 
 LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
-AC_CHECK_LIB(gdbm, main,
-  LIBS="-L./gdbm-1.8.0/.libs -lgdbm $LIBS",
-  AC_MSG_ERROR(This program requires GNU DBM (src/gdbm-1.8.0) to be built first), )
+AC_CHECK_LIB(tinygdbm, main,
+  LIBS="-L./gdbm-1.8.0/.libs -ltinygdbm $LIBS",
+  AC_MSG_ERROR(This program requires TinyMUSH GNU DBM (src/gdbm-1.8.0) to be built first), )
 
 case "$with_sql" in
   msql)
