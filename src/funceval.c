@@ -26,14 +26,6 @@
 #include "ansi.h"
 #include "comsys.h"
 
-/*
- * Note: Many functions in this file have been taken, whole or in part, from
- * * PennMUSH 1.50, and TinyMUSH 2.2, for softcode compatibility. The
- * * maintainers of MUX would like to thank those responsible for PennMUSH 1.50
- * * and TinyMUSH 2.2, and hope we have adequately noted in the source where
- * * credit is due.
- */
-
 extern NAMETAB indiv_attraccess_nametab[];
 extern char *FDECL(trim_space_sep, (char *, char));
 extern char *FDECL(next_token, (char *, char));
@@ -45,9 +37,7 @@ extern void FDECL(arr2list, (char **, int, char *, char **, char));
 extern void FDECL(make_portlist, (dbref, dbref, char *, char **));
 extern INLINE char *FDECL(get_mail_message, (int));
 
-/*
- * This is the prototype for functions 
- */
+/* This is the prototype for functions */
 
 #define	FUNCTION(x)	\
 	void x(buff, bufc, player, cause, fargs, nfargs, cargs, ncargs) \
@@ -56,37 +46,64 @@ extern INLINE char *FDECL(get_mail_message, (int));
 	char *fargs[], *cargs[]; \
 	int nfargs, ncargs;
 
-/*
- * This is for functions that take an optional delimiter character 
+/* This is for functions that take an optional delimiter character.
+ *
+ * Call varargs_preamble("FUNCTION", max_args) for functions which
+ * take either max_args - 1 args, or, with a delimiter, max_args args.
+ *
+ * Call mvarargs_preamble("FUNCTION", min_args, max_args) if there can
+ * be more variable arguments than just the delimiter.
+ *
+ * Call evarargs_preamble("FUNCTION", min_args, max_args) if the delimiters
+ * need to be evaluated.
+ *
+ * Call svarargs_preamble("FUNCTION", max_args) if the second to last and
+ * last arguments are delimiters.
  */
 
-#define varargs_preamble(xname,xnargs)					\
-	if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
-		return;							\
-	if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,	\
-		player, cause, cargs, ncargs))				\
-		return;
+#define varargs_preamble(xname,xnargs)	                        \
+if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
+    player, cause, cargs, ncargs))                              \
+return;
 
-#define evarargs_preamble(xname,xnargs)					\
-	if (!fn_range_check(xname, nfargs, xnargs-1, xnargs, buff, bufc))	\
-		return;							\
-	if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 1,	\
-	    player, cause, cargs, ncargs))				\
-		return;
+#define mvarargs_preamble(xname,xminargs,xnargs)	        \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,          \
+    player, cause, cargs, ncargs))                              \
+return;
 
-#define mvarargs_preamble(xname,xminargs,xnargs)			\
-	if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
-		return;							\
-	if (!delim_check(fargs, nfargs, xnargs, &sep, buff, bufc, 0,		\
-	    player, cause, cargs, ncargs))				\
-		return;
+#define evarargs_preamble(xname, xminargs, xnargs)              \
+if (!fn_range_check(xname, nfargs, xminargs, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs - 1, &sep, buff, bufc, 1,      \
+    player, cause, cargs, ncargs))                              \
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 1,         \
+    player, cause, cargs, ncargs))                              \
+return;
 
+#define svarargs_preamble(xname,xnargs)                         \
+if (!fn_range_check(xname, nfargs, xnargs-2, xnargs, buff, bufc))	\
+return;							        \
+if (!delim_check(fargs, nfargs, xnargs-1, &sep, buff, bufc, 0,        \
+    player, cause, cargs, ncargs))                              \
+return;							        \
+if (nfargs < xnargs)				                \
+    osep = sep;				                        \
+else if (!delim_check(fargs, nfargs, xnargs, &osep, buff, bufc, 0,    \
+    player, cause, cargs, ncargs))                              \
+return;
+
+#ifdef USE_COMSYS
 FUNCTION(fun_cwho)
 {
 	struct channel *ch;
 	struct comuser *user;
 	int len = 0;
-	static char smbuf[SBUF_SIZE];
+	char *smbuf;
 
 	if (!(ch = select_channel(fargs[0]))) {
 		safe_str("#-1 CHANNEL NOT FOUND", buff, bufc);
@@ -96,13 +113,16 @@ FUNCTION(fun_cwho)
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
-	*buff = '\0';
+
+	smbuf = alloc_sbuf("fun_cwho");
+
 	for (user = ch->on_users; user; user = user->on_next) {
 		if (Connected(user->who)) {
 			if (len) {
 				sprintf(smbuf, " #%d", user->who);
 				if ((strlen(smbuf) + len) > 990) {
 					safe_str(" #-1", buff, bufc);
+					free_sbuf(smbuf);
 					return;
 				}
 				safe_str(smbuf, buff, bufc);
@@ -113,16 +133,16 @@ FUNCTION(fun_cwho)
 			}
 		}
 	}
+	free_sbuf(smbuf);
 }
+#endif
 
 FUNCTION(fun_beep)
 {
 	safe_chr(BEEP_CHAR, buff, bufc);
 }
 
-/*
- * This function was originally taken from PennMUSH 1.50 
- */
+/* This function was originally taken from PennMUSH 1.50 */
 
 FUNCTION(fun_ansi)
 {
@@ -130,104 +150,64 @@ FUNCTION(fun_ansi)
 
 	while (*s) {
 		switch (*s) {
-		case 'h':	/*
-				 * hilite 
-				 */
+		case 'h':	/* hilite */
 			safe_str(ANSI_HILITE, buff, bufc);
 			break;
-		case 'i':	/*
-				 * inverse 
-				 */
+		case 'i':	/* inverse */
 			safe_str(ANSI_INVERSE, buff, bufc);
 			break;
-		case 'f':	/*
-				 * flash 
-				 */
+		case 'f':	/* flash */
 			safe_str(ANSI_BLINK, buff, bufc);
 			break;
-		case 'n':	/*
-				 * normal 
-				 */
+		case 'n':	/* normal */
 			safe_str(ANSI_NORMAL, buff, bufc);
 			break;
-		case 'x':	/*
-				 * black fg 
-				 */
+		case 'x':	/* black fg */
 			safe_str(ANSI_BLACK, buff, bufc);
 			break;
-		case 'r':	/*
-				 * red fg 
-				 */
+		case 'r':	/* red fg */
 			safe_str(ANSI_RED, buff, bufc);
 			break;
-		case 'g':	/*
-				 * green fg 
-				 */
+		case 'g':	/* green fg */
 			safe_str(ANSI_GREEN, buff, bufc);
 			break;
-		case 'y':	/*
-				 * yellow fg 
-				 */
+		case 'y':	/* yellow fg */
 			safe_str(ANSI_YELLOW, buff, bufc);
 			break;
-		case 'b':	/*
-				 * blue fg 
-				 */
+		case 'b':	/* blue fg */
 			safe_str(ANSI_BLUE, buff, bufc);
 			break;
-		case 'm':	/*
-				 * magenta fg 
-				 */
+		case 'm':	/* magenta fg */
 			safe_str(ANSI_MAGENTA, buff, bufc);
 			break;
-		case 'c':	/*
-				 * cyan fg 
-				 */
+		case 'c':	/* cyan fg */
 			safe_str(ANSI_CYAN, buff, bufc);
 			break;
-		case 'w':	/*
-				 * white fg 
-				 */
+		case 'w':	/* white fg */
 			safe_str(ANSI_WHITE, buff, bufc);
 			break;
-		case 'X':	/*
-				 * black bg 
-				 */
+		case 'X':	/* black bg */
 			safe_str(ANSI_BBLACK, buff, bufc);
 			break;
-		case 'R':	/*
-				 * red bg 
-				 */
+		case 'R':	/* red bg */
 			safe_str(ANSI_BRED, buff, bufc);
 			break;
-		case 'G':	/*
-				 * green bg 
-				 */
+		case 'G':	/* green bg */
 			safe_str(ANSI_BGREEN, buff, bufc);
 			break;
-		case 'Y':	/*
-				 * yellow bg 
-				 */
+		case 'Y':	/* yellow bg */
 			safe_str(ANSI_BYELLOW, buff, bufc);
 			break;
-		case 'B':	/*
-				 * blue bg 
-				 */
+		case 'B':	/* blue bg */
 			safe_str(ANSI_BBLUE, buff, bufc);
 			break;
-		case 'M':	/*
-				 * magenta bg 
-				 */
+		case 'M':	/* magenta bg */
 			safe_str(ANSI_BMAGENTA, buff, bufc);
 			break;
-		case 'C':	/*
-				 * cyan bg 
-				 */
+		case 'C':	/* cyan bg */
 			safe_str(ANSI_BCYAN, buff, bufc);
 			break;
-		case 'W':	/*
-				 * white bg 
-				 */
+		case 'W':	/* white bg */
 			safe_str(ANSI_BWHITE, buff, bufc);
 			break;
 		}
@@ -388,33 +368,25 @@ FUNCTION(fun_set)
 	int atr, atr2, aflags, clear, flagvalue, could_hear;
 	ATTR *attr, *attr2;
 
-	/*
-	 * obj/attr form? 
-	 */
+	/* obj/attr form? */
 
 	if (parse_attrib(player, fargs[0], &thing, &atr)) {
 		if (atr != NOTHING) {
 
-			/*
-			 * must specify flag name 
-			 */
+			/* must specify flag name */
 
 			if (!fargs[1] || !*fargs[1]) {
 
 				safe_str("#-1 UNSPECIFIED PARAMETER", buff, bufc);
 			}
-			/*
-			 * are we clearing? 
-			 */
+			/* are we clearing? */
 
 			clear = 0;
 			if (*fargs[0] == NOT_TOKEN) {
 				fargs[0]++;
 				clear = 1;
 			}
-			/*
-			 * valid attribute flag? 
-			 */
+			/* valid attribute flag? */
 
 			flagvalue = search_nametab(player,
 					indiv_attraccess_nametab, fargs[1]);
@@ -422,26 +394,20 @@ FUNCTION(fun_set)
 				safe_str("#-1 CAN NOT SET", buff, bufc);
 				return;
 			}
-			/*
-			 * make sure attribute is present 
-			 */
+			/* make sure attribute is present */
 
 			if (!atr_get_info(thing, atr, &aowner, &aflags)) {
 				safe_str("#-1 ATTRIBUTE NOT PRESENT ON OBJECT", buff, bufc);
 				return;
 			}
-			/*
-			 * can we write to attribute? 
-			 */
+			/* can we write to attribute? */
 
 			attr = atr_num(atr);
 			if (!attr || !Set_attr(player, thing, attr, aflags)) {
 				safe_str("#-1 PERMISSION DENIED", buff, bufc);
 				return;
 			}
-			/*
-			 * just do it! 
-			 */
+			/* just do it! */
 
 			if (clear)
 				aflags &= ~flagvalue;
@@ -453,17 +419,13 @@ FUNCTION(fun_set)
 			return;
 		}
 	}
-	/*
-	 * find thing 
-	 */
+	/* find thing */
 
 	if ((thing = match_controlled(player, fargs[0])) == NOTHING) {
 		safe_str("#-1", buff, bufc);
 		return;
 	}
-	/*
-	 * check for attr set first 
-	 */
+	/* check for attr set first */
 	for (p = fargs[1]; *p && (*p != ':'); p++) ;
 
 	if (*p) {
@@ -485,11 +447,9 @@ FUNCTION(fun_set)
 		}
 		buff2 = alloc_lbuf("fun_set");
 
-		/*
-		 * check for _ 
-		 */
+		/* check for _ */
 		if (*p == '_') {
-			StringCopy(buff2, p + 1);
+			strcpy(buff2, p + 1);
 			if (!parse_attrib(player, p + 1, &thing2, &atr2) ||
 			    (atr == NOTHING)) {
 				free_lbuf(buff2);
@@ -507,99 +467,24 @@ FUNCTION(fun_set)
 				return;
 			}
 		}
-		/*
-		 * set it 
-		 */
+		/* set it */
 
 		set_attr_internal(player, thing, atr, p, 0, buff, bufc);
 		free_lbuf(buff2);
 		return;
 	}
-	/*
-	 * set/clear a flag 
-	 */
+	/* set/clear a flag */
 	flag_set(thing, player, fargs[1], 0);
 }
 #endif
 
-/*
- * Code for encrypt() and decrypt() was taken from the DarkZone server 
- */
-/*
- * Copy over only alphanumeric chars 
- */
-static char *crunch_code(code)
-char *code;
-{
-	char *in;
-	char *out;
-	static char output[LBUF_SIZE];
-
-	out = output;
-	in = code;
-	while (*in) {
-		if ((*in >= 32) || (*in <= 126)) {
-			printf("%c", *in);
-			*out++ = *in;
-		}
-		in++;
-	}
-	*out = '\0';
-	return (output);
-}
-
-static char *crypt_code(code, text, type)
-char *code;
-char *text;
-int type;
-{
-	static char textbuff[LBUF_SIZE];
-	char codebuff[LBUF_SIZE];
-	int start = 32;
-	int end = 126;
-	int mod = end - start + 1;
-	char *p, *q, *r;
-
-	if (!text && !*text)
-		return ((char *)"");
-	StringCopy(codebuff, crunch_code(code));
-	if (!code || !*code || !codebuff || !*codebuff)
-		return (text);
-	StringCopy(textbuff, "");
-
-	p = text;
-	q = codebuff;
-	r = textbuff;
-	/*
-	 * Encryption: Simply go through each character of the text, get its
-	 * * * * ascii value, subtract start, add the ascii value (less
-	 * start) * of * * the code, mod the result, add start. Continue  
-	 */
-	while (*p) {
-		if ((*p < start) || (*p > end)) {
-			p++;
-			continue;
-		}
-		if (type)
-			*r++ = (((*p++ - start) + (*q++ - start)) % mod) + start;
-		else
-			*r++ = (((*p++ - *q++) + 2 * mod) % mod) + start;
-		if (!*q)
-			q = codebuff;
-	}
-	*r = '\0';
-	return (textbuff);
-}
-
-/*
- * Borrowed from DarkZone 
- */
+/* Borrowed from DarkZone */
 FUNCTION(fun_zwho)
 {
-	dbref it = match_thing(player, fargs[0]);
-	dbref i;
+	dbref i, it = match_thing(player, fargs[0]);
 	int len = 0;
-
+	char *smbuf;
+	
 	if (!mudconf.have_zones || !(Controls(player, it) || WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
@@ -608,29 +493,29 @@ FUNCTION(fun_zwho)
 		if (Typeof(i) == TYPE_PLAYER)
 			if (Zone(i) == it)
 				if (len) {
-					static char smbuf[SBUF_SIZE];
+					smbuf = alloc_sbuf("fun_zwho");
 
 					sprintf(smbuf, " #%d", i);
 					if ((strlen(smbuf) + len) > 990) {
 						safe_str(" #-1", buff, bufc);
+						free_sbuf(smbuf);
 						return;
 					}
 					safe_str(smbuf, buff, bufc);
 					len += strlen(smbuf);
+					free_sbuf(smbuf);
 				} else {
 					safe_tprintf_str(buff, bufc, "#%d", i);
 					len = strlen(buff);
 				}
 }
 
-/*
- * Borrowed from DarkZone 
- */
+/* Borrowed from DarkZone */
 FUNCTION(fun_inzone)
 {
-	dbref it = match_thing(player, fargs[0]);
-	dbref i;
+	dbref i, it = match_thing(player, fargs[0]);
 	int len = 0;
+	char *smbuf;
 
 	if (!mudconf.have_zones || !(Controls(player, it) || WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
@@ -640,29 +525,29 @@ FUNCTION(fun_inzone)
 		if (Typeof(i) == TYPE_ROOM)
 			if (db[i].zone == it)
 				if (len) {
-					static char smbuf[SBUF_SIZE];
+					smbuf = alloc_sbuf("fun_inzone");;
 
 					sprintf(smbuf, " #%d", i);
 					if ((strlen(smbuf) + len) > 990) {
 						safe_str(" #-1", buff, bufc);
+						free_sbuf(smbuf);
 						return;
 					}
 					safe_str(smbuf, buff, bufc);
 					len += strlen(smbuf);
+					free_sbuf(smbuf);
 				} else {
 					safe_tprintf_str(buff, bufc, "#%d", i);
 					len = strlen(buff);
 				}
 }
 
-/*
- * Borrowed from DarkZone 
- */
+/* Borrowed from DarkZone */
 FUNCTION(fun_children)
 {
-	dbref it = match_thing(player, fargs[0]);
-	dbref i;
+	dbref i, it = match_thing(player, fargs[0]);
 	int len = 0;
+	char *smbuf;
 
 	if (!(Controls(player, it)) || !(WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
@@ -671,29 +556,21 @@ FUNCTION(fun_children)
 	for (i = 0; i < mudstate.db_top; i++)
 		if (Parent(i) == it)
 			if (len) {
-				static char smbuf[SBUF_SIZE];
+				smbuf = alloc_sbuf("fun_children");
 
 				sprintf(smbuf, " #%d", i);
 				if ((strlen(smbuf) + len) > 990) {
 					safe_str(" #-1", buff, bufc);
+					free_sbuf(smbuf);
 					return;
 				}
 				safe_str(smbuf, buff, bufc);
 				len += strlen(smbuf);
+				free_sbuf(smbuf);
 			} else {
 				safe_tprintf_str(buff, bufc, "#%d", i);
 				len = strlen(buff);
 			}
-}
-
-FUNCTION(fun_encrypt)
-{
-	safe_str(crypt_code(fargs[1], fargs[0], 1), buff, bufc);
-}
-
-FUNCTION(fun_decrypt)
-{
-	safe_str(crypt_code(fargs[1], fargs[0], 0), buff, bufc);
 }
 
 static void noquotes(clean, dirty)
@@ -774,9 +651,7 @@ FUNCTION(fun_stripansi)
 	safe_str((char *)strip_ansi(fargs[0]), buff, bufc);
 }
 
-/*
- * Borrowed from PennMUSH 1.50 
- */
+/* Borrowed from PennMUSH 1.50 */
 FUNCTION(fun_zfun)
 {
 	dbref aowner;
@@ -797,9 +672,7 @@ FUNCTION(fun_zfun)
 	if (!fargs[0] || !*fargs[0])
 		return;
 
-	/*
-	 * find the user function attribute 
-	 */
+	/* find the user function attribute */
 	attrib = get_atr(upcasestr(fargs[0]));
 	if (!attrib) {
 		safe_str("#-1 NO SUCH USER FUNCTION", buff, bufc);
@@ -820,10 +693,8 @@ FUNCTION(fun_zfun)
 FUNCTION(fun_columns)
 {
 	int spaces, number, ansinumber, count, i, indent = 0;
-	static char buf[LBUF_SIZE];
-	char *p, *q;
 	int isansi = 0, rturn = 1;
-	char *curr, *objstring, *bp, *cp, sep, *str;
+	char *p, *q, *buf, *curr, *objstring, *bp, *cp, sep, *str;
 
         if (!fn_range_check("COLUMNS", nfargs, 2, 4, buff, bufc))
 		return;
@@ -856,6 +727,8 @@ FUNCTION(fun_columns)
 	for (i = 0; i < indent; i++)
 		safe_chr(' ', buff, bufc);
 
+	buf = alloc_lbuf("fun_columns");
+	
 	while (cp) {
 		objstring = split_token(&cp, sep);
 		ansinumber = number;
@@ -870,9 +743,7 @@ FUNCTION(fun_columns)
 				break;
 			}
 			if (*p == ESC_CHAR) {
-				/*
-				 * Start of ANSI code. Skip to end. 
-				 */
+				/* Start of ANSI code. Skip to end. */
 				isansi = 1;
 				while (*p && !isalpha(*p))
 					*q++ = *p++;
@@ -890,9 +761,7 @@ FUNCTION(fun_columns)
 
 		spaces = number - strlen((char *)strip_ansi(objstring));
 
-		/*
-		 * Sanitize number of spaces 
-		 */
+		/* Sanitize number of spaces */
 
 		if (spaces > LBUF_SIZE) {
 			spaces = LBUF_SIZE;
@@ -909,6 +778,7 @@ FUNCTION(fun_columns)
 
 		rturn++;
 	}
+	free_lbuf(buf);
 	free_lbuf(curr);
 }
 
@@ -969,8 +839,8 @@ FUNCTION(fun_playmem)
 }
 
 /* Code for andflags() and orflags() borrowed from PennMUSH 1.50 */
-static int handle_flaglists(player, name, fstr, type)
-dbref player;
+static int handle_flaglists(player, cause, name, fstr, type)
+dbref player, cause;
 char *name;
 char *fstr;
 int type;			/* 0 for orflags, 1 for andflags */
@@ -1064,28 +934,29 @@ int type;			/* 0 for orflags, 1 for andflags */
 
 FUNCTION(fun_orflags)
 {
-	safe_ltos(buff, bufc, handle_flaglists(player, fargs[0], fargs[1], 0));
+	safe_ltos(buff, bufc, handle_flaglists(player, cause, fargs[0], fargs[1], 0));
 }
 
 FUNCTION(fun_andflags)
 {
-	safe_ltos(buff, bufc, handle_flaglists(player, fargs[0], fargs[1], 1));
+	safe_ltos(buff, bufc, handle_flaglists(player, cause, fargs[0], fargs[1], 1));
 }
 
 FUNCTION(fun_strtrunc)
 {
 	int number, count = 0;
-	static char buf[LBUF_SIZE];
 	char *p = (char *)fargs[0];
-	char *q = buf;
+	char *q, *buf;
 	int isansi = 0;
 
+	q = buf = alloc_lbuf("fun_strtrunc");
 	number = atoi(fargs[1]);
 	if (number > strlen((char *)strip_ansi(fargs[0])))
 		number = strlen((char *)strip_ansi(fargs[0]));
 
 	if (number < 0) {
 		safe_str("#-1 OUT OF RANGE", buff, bufc);
+		free_lbuf(buf);
 		return;
 	}
 	while (p && *p) {
@@ -1093,9 +964,7 @@ FUNCTION(fun_strtrunc)
 			break;
 		}
 		if (*p == ESC_CHAR) {
-			/*
-			 * Start of ANSI code. Skip to end. 
-			 */
+			/* Start of ANSI code. Skip to end. */
 			isansi = 1;
 			while (*p && !isalpha(*p))
 				*q++ = *p++;
@@ -1110,6 +979,7 @@ FUNCTION(fun_strtrunc)
 		safe_str(ANSI_NORMAL, buf, &q);
 	*q = '\0';
 	safe_str(buf, buff, bufc);
+	free_lbuf(buf);
 }
 
 FUNCTION(fun_ifelse)
@@ -1146,7 +1016,7 @@ FUNCTION(fun_inc)
 		return;
 	}
 	number = atoi(fargs[0]);
-	safe_tprintf_str(buff, bufc, "%d", (++number));
+	safe_ltos(buff, bufc, (++number));
 }
 
 FUNCTION(fun_dec)
@@ -1158,24 +1028,21 @@ FUNCTION(fun_dec)
 		return;
 	}
 	number = atoi(fargs[0]);
-	safe_tprintf_str(buff, bufc, "%d", (--number));
+	safe_ltos(buff, bufc, (--number));
 }
 
-/*
- * Mail functions borrowed from DarkZone 
- */
+#ifdef USE_MAIL
+/* Mail functions borrowed from DarkZone */
 FUNCTION(fun_mail)
 {
-	/*
-	 * This function can take one of three formats: 1.  mail(num)  --> *
-	 * * * returns * message <num> for privs. 2.  mail(player)  -->
-	 * returns  * *  * number of * messages for <player>. 3.
-	 * mail(player, num)  -->  * * * returns message <num> * for
+	/* This function can take one of three formats: 1.  mail(num)  -->
+	 * returns message <num> for privs. 2.  mail(player)  -->
+	 * returns number of messages for <player>. 3.
+	 * mail(player, num)  -->  returns message <num> for
 	 * <player>. 
-	 */
-	/*
+	 *
 	 * It can now take one more format: 4.  mail() --> returns number of
-	 * * * * * messages for executor 
+	 * messages for executor 
 	 */
 
 	struct mail *mp;
@@ -1185,23 +1052,20 @@ FUNCTION(fun_mail)
 	char *msgbuff;
 #endif
 
-	/*
-	 * make sure we have the right number of arguments 
-	 */
+	/* make sure we have the right number of arguments */
 	if ((nfargs != 0) && (nfargs != 1) && (nfargs != 2)) {
 		safe_str("#-1 FUNCTION (MAIL) EXPECTS 0 OR 1 OR 2 ARGUMENTS", buff, bufc);
 		return;
 	}
 	if ((nfargs == 0) || !fargs[0] || !fargs[0][0]) {
 		count_mail(player, 0, &rc, &uc, &cc);
-		safe_tprintf_str(buff, bufc, "%d", rc + uc);
+		safe_ltos(buff, bufc, rc + uc);
 		return;
 	}
 	if (nfargs == 1) {
 		if (!is_number(fargs[0])) {
-			/*
-			 * handle the case of wanting to count the number of
-			 * * * * messages 
+			/* handle the case of wanting to count the number of
+			 * messages 
 			 */
 			if ((playerask = lookup_player(player, fargs[0], 1)) == NOTHING) {
 				safe_str("#-1 NO SUCH PLAYER", buff, bufc);
@@ -1245,26 +1109,21 @@ FUNCTION(fun_mail)
 #endif
 		return;
 	}
-	/*
-	 * ran off the end of the list without finding anything 
-	 */
+	/* ran off the end of the list without finding anything */
 	safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
 }
 
 FUNCTION(fun_mailfrom)
 {
-	/*
-	 * This function can take these formats: 1) mailfrom(<num>) 2) * * *
-	 * * mailfrom(<player>,<num>) It returns the dbref of the player the
-	 * * * * mail is * from 
+	/* This function can take these formats: 1) mailfrom(<num>) 2)
+	 * mailfrom(<player>,<num>) It returns the dbref of the player the
+	 * mail is from 
 	 */
 	struct mail *mp;
 	dbref playerask;
 	int num;
 
-	/*
-	 * make sure we have the right number of arguments 
-	 */
+	/* make sure we have the right number of arguments */
 	if ((nfargs != 1) && (nfargs != 2)) {
 		safe_str("#-1 FUNCTION (MAILFROM) EXPECTS 1 OR 2 ARGUMENTS", buff, bufc);
 		return;
@@ -1292,18 +1151,13 @@ FUNCTION(fun_mailfrom)
 		safe_tprintf_str(buff, bufc, "#%d", mp->from);
 		return;
 	}
-	/*
-	 * ran off the end of the list without finding anything 
-	 */
+	/* ran off the end of the list without finding anything */
 	safe_str("#-1 NO SUCH MESSAGE", buff, bufc);
 }
+#endif USE_MAIL
 
 /* ---------------------------------------------------------------------------
  * fun_hasattr: does object X have attribute Y.
- */
-
-/* Hasattr (and hasattrp, which is derived from hasattr) borrowed from
- * * TinyMUSH 2.2. 
  */
 
 FUNCTION(fun_hasattr)
@@ -1323,18 +1177,19 @@ FUNCTION(fun_hasattr)
 	}
 	attr = atr_str(fargs[1]);
 	if (!attr) {
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 		return;
 	}
 	atr_get_info(thing, attr->number, &aowner, &aflags);
-	if (!See_attr(player, thing, attr, aowner, aflags))
-		safe_str("0", buff, bufc);
-	else {
+	if (!See_attr(player, thing, attr, aowner, aflags)) {
+		safe_chr('0', buff, bufc);
+	} else {
 		tbuf = atr_get(thing, attr->number, &aowner, &aflags);
-		if (*tbuf)
-			safe_str("1", buff, bufc);
-		else
-			safe_str("0", buff, bufc);
+		if (*tbuf) {
+			safe_chr('1', buff, bufc);
+		} else {
+			safe_chr('0', buff, bufc);
+		}
 		free_lbuf(tbuf);
 	}
 }
@@ -1356,18 +1211,19 @@ FUNCTION(fun_hasattrp)
 	}
 	attr = atr_str(fargs[1]);
 	if (!attr) {
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 		return;
 	}
 	atr_pget_info(thing, attr->number, &aowner, &aflags);
-	if (!See_attr(player, thing, attr, aowner, aflags))
-		safe_str("0", buff, bufc);
-	else {
+	if (!See_attr(player, thing, attr, aowner, aflags)) {
+		safe_chr('0', buff, bufc);
+	} else {
 		tbuf = atr_pget(thing, attr->number, &aowner, &aflags);
-		if (*tbuf)
-			safe_str("1", buff, bufc);
-		else
-			safe_str("0", buff, bufc);
+		if (*tbuf) {
+			safe_chr('1', buff, bufc);
+		} else {
+			safe_chr('0', buff, bufc);
+		}
 		free_lbuf(tbuf);
 	}
 }
@@ -1380,8 +1236,6 @@ FUNCTION(fun_hasattrp)
  * In the case of udefault(), the remaining arguments to the function
  * are used as arguments to the u().
  */
-
-/* default(), edefault(), and udefault() borrowed from TinyMUSH 2.2 */
 
 FUNCTION(fun_default)
 {
@@ -1478,7 +1332,7 @@ FUNCTION(fun_edefault)
 FUNCTION(fun_udefault)
 {
 	dbref thing, aowner;
-	int aflags, anum;
+	int aflags, anum, i, j;
 	ATTR *ap;
 	char *objname, *atext, *bp, *buf, *str, *xargs[NUM_ENV_VARS];
 
@@ -1557,9 +1411,7 @@ FUNCTION(fun_udefault)
  * fun_findable: can X locate Y
  */
 
-/*
- * Borrowed from PennMUSH 1.50 
- */
+/* Borrowed from PennMUSH 1.50 */
 FUNCTION(fun_findable)
 {
 	dbref obj = match_thing(player, fargs[0]);
@@ -1570,28 +1422,7 @@ FUNCTION(fun_findable)
 	else if (victim == NOTHING)
 		safe_str("#-1 ARG2 NOT FOUND", buff, bufc);
 	else
-		safe_tprintf_str(buff, bufc, "%d", locatable(obj, victim, obj));
-}
-
-/*
- * ---------------------------------------------------------------------------
- * * isword: is every character in the argument a letter?
- */
-
-/*
- * Borrowed from PennMUSH 1.50 
- */
-FUNCTION(fun_isword)
-{
-	char *p;
-
-	for (p = fargs[0]; *p; p++) {
-		if (!isalpha(*p)) {
-			safe_str("0", buff, bufc);
-			return;
-		}
-	}
-	safe_str("1", buff, bufc);
+		safe_ltos(buff, bufc, locatable(obj, victim, obj));
 }
 
 /* ---------------------------------------------------------------------------
@@ -1609,7 +1440,7 @@ FUNCTION(fun_visible)
 	ATTR *ap;
 
 	if ((it = match_thing(player, fargs[0])) == NOTHING) {
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 		return;
 	}
 	if (parse_attrib(player, fargs[1], &thing, &atr)) {
@@ -1624,7 +1455,7 @@ FUNCTION(fun_visible)
 	}
 	thing = match_thing(player, fargs[1]);
 	if (!Good_obj(thing)) {
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 		return;
 	}
 	safe_ltos(buff, bufc, Examinable(it, thing));
@@ -1762,10 +1593,6 @@ FUNCTION(fun_shuffle)
 	}
 	arr2list(words, n, buff, bufc, sep);
 }
-
-/*
- * sortby() code borrowed from TinyMUSH 2.2 
- */
 
 static char ucomp_buff[LBUF_SIZE];
 static dbref ucomp_cause;
@@ -1920,29 +1747,20 @@ FUNCTION(fun_sortby)
  * fun_last: Returns last word in a string
  */
 
-/*
- * Borrowed from TinyMUSH 2.2 
- */
 FUNCTION(fun_last)
 {
 	char *s, *last, sep;
 	int len, i;
 
-	/*
-	 * If we are passed an empty arglist return a null string 
-	 */
+	/* If we are passed an empty arglist return a null string */
 
 	if (nfargs == 0) {
 		return;
 	}
 	varargs_preamble("LAST", 2);
-	s = trim_space_sep(fargs[0], sep);	/*
-						 * trim leading spaces 
-						 */
+	s = trim_space_sep(fargs[0], sep);	/* trim leading spaces */
 
-	/*
-	 * If we're dealing with spaces, trim off the trailing stuff 
-	 */
+	/* If we're dealing with spaces, trim off the trailing stuff */
 
 	if (sep == ' ') {
 		len = strlen(s);
@@ -1957,7 +1775,6 @@ FUNCTION(fun_last)
 		safe_str(s, buff, bufc);
 }
 
-/* Borrowed from TinyMUSH 2.2 */
 FUNCTION(fun_matchall)
 {
 	int wcount;
@@ -1984,7 +1801,7 @@ FUNCTION(fun_matchall)
 	} while (s);
 
 	if (*bufc == old)
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2182,7 +1999,7 @@ FUNCTION(fun_foreach)
 	strcpy(atextbuf, atext);
 	str = atextbuf; 
 	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-		      atextbuf, &cbuf, 1);
+		      &str, &cbuf, 1);
     }
 
     free_lbuf(atextbuf);
@@ -2237,7 +2054,7 @@ FUNCTION(fun_munge)
 	list1 = alloc_lbuf("fun_munge.list1");
 	list2 = alloc_lbuf("fun_munge.list2");
 	strcpy(list1, fargs[1]);
-	StringCopy(list2, fargs[2]);
+	strcpy(list2, fargs[2]);
 	nptrs1 = list2arr(ptrs1, LBUF_SIZE / 2, list1, sep);
 	nptrs2 = list2arr(ptrs2, LBUF_SIZE / 2, list2, sep);
 
@@ -2298,8 +2115,7 @@ int x;
 		n = random();
 	} while (LONG_MAX - n < x);
 
-/*
- * N.B. This loop happens in randomized constant time, and pretty damn
+/* N.B. This loop happens in randomized constant time, and pretty damn
  * fast randomized constant time too, since P(LONG_MAX - n < x) < 0.5
  * for any x, so for any X, the average number of times we should
  * have to call random() is less than 2.
@@ -2556,9 +2372,9 @@ FUNCTION(fun_vdim)
 {
 	char sep;
 
-	if (fargs == 0)
+	if (fargs == 0) {
 		safe_chr('0', buff, bufc);
-	else {
+	} else {
 		varargs_preamble("VDIM", 2);
 		safe_ltos(buff, bufc, countwords(fargs[0], sep));
 	}
@@ -2705,7 +2521,7 @@ FUNCTION(fun_alphamax)
 		i++;
 	}
 
-	safe_str(buff, bufc, amax);
+	safe_str(amax, buff, bufc);
 }
 
 /* Borrowed from PennMUSH 1.50 */
@@ -2725,7 +2541,7 @@ FUNCTION(fun_alphamin)
 		i++;
 	}
 
-	safe_str(buff, bufc, amin);
+	safe_str(amin, buff, bufc);
 }
 
 /* Borrowed from PennMUSH 1.50 */
@@ -2736,9 +2552,9 @@ FUNCTION(fun_valid)
  * given type (such as an object name).
  */
 
-	if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1])
+	if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1]) {
 		safe_chr('0', buff, bufc);
-	else if (!strcasecmp(fargs[0], "name"))
+	} else if (!strcasecmp(fargs[0], "name"))
 		safe_ltos(buff, bufc, ok_name(fargs[1]));
 	else
 		safe_str("#-1", buff, bufc);

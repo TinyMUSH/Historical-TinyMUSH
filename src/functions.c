@@ -26,6 +26,17 @@
 #include "ansi.h"
 #include "comsys.h"
 
+#ifdef FLOATING_POINTS
+#ifndef linux                   /* linux defines atof as a macro */
+double atof();
+#endif                          /* ! linux */
+#define aton atof
+typedef double NVAL;
+#else
+#define aton atoi
+typedef int NVAL;
+#endif                          /* FLOATING_POINTS */
+
 UFUN *ufun_head;
 
 extern NAMETAB indiv_attraccess_nametab[];
@@ -38,7 +49,9 @@ extern void FDECL(cf_log_notfound, (dbref player, char *cmd,
 #define	XFUNCTION(x)	\
 	extern void x();
 
+#ifdef USE_COMSYS
 XFUNCTION(fun_cwho);
+#endif
 XFUNCTION(fun_beep);
 XFUNCTION(fun_ansi);
 XFUNCTION(fun_zone);
@@ -65,14 +78,11 @@ XFUNCTION(fun_default);
 XFUNCTION(fun_edefault);
 XFUNCTION(fun_udefault);
 XFUNCTION(fun_findable);
-XFUNCTION(fun_isword);
 XFUNCTION(fun_hasattr);
 XFUNCTION(fun_hasattrp);
 XFUNCTION(fun_zwho);
 XFUNCTION(fun_inzone);
 XFUNCTION(fun_children);
-XFUNCTION(fun_encrypt);
-XFUNCTION(fun_decrypt);
 XFUNCTION(fun_objeval);
 XFUNCTION(fun_squish);
 XFUNCTION(fun_stripansi);
@@ -85,9 +95,11 @@ XFUNCTION(fun_andflags);
 XFUNCTION(fun_strtrunc);
 XFUNCTION(fun_ifelse);
 XFUNCTION(fun_inc);
-XFUNCTION(fun_dec);
+XFUNCTION(fun_dec)
+#ifdef USE_MAIL
 XFUNCTION(fun_mail);
 XFUNCTION(fun_mailfrom);
+#endif
 XFUNCTION(fun_die);
 XFUNCTION(fun_lit);
 XFUNCTION(fun_shl);
@@ -393,6 +405,7 @@ dbref player, thing;
  * fval: copy the floating point value into a buffer and make it presentable
  */
 
+#ifdef FLOATING_POINTS
 static void fval(buff, bufc, result)
 char *buff, **bufc;
 double result;
@@ -419,6 +432,9 @@ double result;
 		*bufc = p;
 	}
 }
+#else
+#define fval(b,n)  ltos(b, n)
+#endif
 
 /* ---------------------------------------------------------------------------
  * fn_range_check: Check # of args to a function with an optional argument
@@ -554,16 +570,20 @@ FUNCTION(fun_rand)
 
 FUNCTION(fun_abs)
 {
+#ifdef FLOATING_POINTS
 	double num;
 
 	num = atof(fargs[0]);
 	if (num == 0.0) {
-		safe_str("0", buff, bufc);
+		safe_chr('0', buff, bufc);
 	} else if (num < 0.0) {
 		fval(buff, bufc, -num);
 	} else {
 		fval(buff, bufc, num);
 	}
+#else
+	ltos(buff, abs(atoi(fargs[0])));
+#endif
 }
 
 /* ---------------------------------------------------------------------------
@@ -572,15 +592,16 @@ FUNCTION(fun_abs)
 
 FUNCTION(fun_sign)
 {
-	double num;
+	NVAL num;
 
-	num = atof(fargs[0]);
+	num = aton(fargs[0]);
 	if (num < 0)
 		safe_str("-1", buff, bufc);
-	else if (num > 0)
-		safe_str("1", buff, bufc);
-	else
-		safe_str("0", buff, bufc);
+	else if (num > 0) {
+		safe_chr('1', buff, bufc);
+	} else {
+		safe_chr('0', buff, bufc);
+	}
 }
 
 /* ---------------------------------------------------------------------------
@@ -1121,7 +1142,8 @@ int nfargs, ncargs, is_local;
 
 	if (is_local) {
 		save_global_regs("fun_ulocal_save", preserve);
-
+	}
+	
 	/* Evaluate it using the rest of the passed function args */
 
 	str = atext;
@@ -1129,12 +1151,11 @@ int nfargs, ncargs, is_local;
 	     &(fargs[1]), nfargs - 1);
 	free_lbuf(atext);
 
-	/*
-	 * If we're evaluating locally, restore the preserved registers. 
-	 */
+	/* If we're evaluating locally, restore the preserved registers. */
 
 	if (is_local) {
 		restore_global_regs("fun_ulocal_restore", preserve);
+	}
 }
 
 FUNCTION(fun_u)
@@ -1885,27 +1906,27 @@ FUNCTION(fun_pmatch)
 
 FUNCTION(fun_gt)
 {
-	safe_ltos(buff, bufc, (atof(fargs[0]) > atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) > atof(fargs[1])));
 }
 FUNCTION(fun_gte)
 {
-	safe_ltos(buff, bufc, (atof(fargs[0]) >= atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) >= atof(fargs[1])));
 }
 FUNCTION(fun_lt)
 {
-	safe_ltos(buff, bufc, (atof(fargs[0]) < atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) < atof(fargs[1])));
 }
 FUNCTION(fun_lte)
 {
-	safe_ltos(buff, bufc, (atof(fargs[0]) <= atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) <= atof(fargs[1])));
 }
 FUNCTION(fun_eq)
 {
-	safe_ltos(buff, bufc, (atof(fargs[0]) == atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) == atof(fargs[1])));
 }
 FUNCTION(fun_neq)
 {
-	safe_ltos(buff, bufc, (atof(fargs[0]) != atof(fargs[1])));
+	safe_ltos(buff, bufc, (aton(fargs[0]) != atof(fargs[1])));
 }
 
 FUNCTION(fun_and)
@@ -2005,7 +2026,7 @@ FUNCTION(fun_andbool)
     int i;
 
     if (nfargs < 2) {
-	safe_str(buff, bufc, "#-1 TOO FEW ARGUMENTS");
+	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
     } else {
 	for (i = 0; (i < nfargs) && xlate(fargs[i]); i++)
 	    ;
@@ -2019,7 +2040,7 @@ FUNCTION(fun_orbool)
     int i;
 
     if (nfargs < 2) {
-	safe_str(buff, bufc, "#-1 TOO FEW ARGUMENTS");
+	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
     } else {
 	for (i = 0; (i < nfargs) && !xlate(fargs[i]); i++)
 	    ;
@@ -2033,7 +2054,7 @@ FUNCTION(fun_xorbool)
     int i, val;
 
     if (nfargs < 2) {
-	safe_str(buff, bufc, "#-1 TOO FEW ARGUMENTS");
+	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
     } else {
 	val = xlate(fargs[0]);
 	for (i = 1; i < nfargs; i++) {
@@ -2070,43 +2091,41 @@ FUNCTION(fun_sqrt)
 
 FUNCTION(fun_add)
 {
-	double sum;
-	int i, got_one;
+	NVAL sum;
+	int i;
 
-	sum = 0;
-	for (i = 0, got_one = 0; i < nfargs; i++) {
-		sum = sum + atof(fargs[i]);
-		if (i > 0)
-			got_one = 1;
-	}
-	if (!got_one)
+	if (nfargs < 2) {
 		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-	else
+	} else {
+		sum = aton(fargs[0]);
+		for (i = 1; i < nfargs; i++) {
+			sum += aton(fargs[i]);
+		}
 		fval(buff, bufc, sum);
+	}
 	return;
 }
 
 FUNCTION(fun_sub)
 {
-	fval(buff, bufc, atof(fargs[0]) - atof(fargs[1]));
+	fval(buff, bufc, aton(fargs[0]) - atof(fargs[1]));
 }
 
 FUNCTION(fun_mul)
 {
-	int i, got_one;
-	double prod;
+    NVAL prod;
+    int i;
 
-	prod = 1;
-	for (i = 0, got_one = 0; i < nfargs; i++) {
-		prod = prod * atof(fargs[i]);
-		if (i > 0)
-			got_one = 1;
+    if (nfargs < 2) {
+	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
+    } else {
+	prod = aton(fargs[0]);
+	for (i = 1; i < nfargs; i++) {
+	    prod *= aton(fargs[i]);
 	}
-	if (!got_one)
-		safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
-	else
-		fval(buff, bufc, prod);
-	return;
+	fval(buff, bufc, prod);
+    }
+    return;
 }
 
 FUNCTION(fun_floor)
@@ -2381,7 +2400,7 @@ FUNCTION(fun_xcon)
 	    free_sbuf(tbuf);
 	}
     } else
-	safe_str(buff, bufc, "#-1");
+	safe_str("#-1", buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2549,9 +2568,9 @@ FUNCTION(fun_lpos)
     if (!c)
 	c = ' ';
 
-    for (i = 0, s = fargs[0], bp = buff; *s; i++, s++) {
+    for (i = 0, s = fargs[0]; *s; i++, s++) {
 	if (*s == c) {
-	    if (bp != buff) {
+	    if (*bufc != buff) {
 		safe_chr(' ', buff, bufc);
 	    }
 	    ltos(tbuf, i);
@@ -2931,11 +2950,11 @@ FUNCTION(fun_hasflag)
 	} else {
 	    ap = atr_num(atr);
 	    atr_pget_info(it, atr, &aowner, &aflags);
-	    if (atr_has_flag(player, it, ap, aowner, aflags,
-			     fargs[1]))
+	    if (atr_has_flag(player, it, ap, aowner, aflags, fargs[1])) {
 		safe_chr('1', buff, bufc);
-	    else
+	    } else {
 		safe_chr('0', buff, bufc);
+	    }
 	}
     } else {
 	it = match_thing(player, fargs[0]);
@@ -2944,10 +2963,11 @@ FUNCTION(fun_hasflag)
 	    return;
 	}
 	if (mudconf.pub_flags || Examinable(player, it) || (it == cause)) {
-	    if (has_flag(player, it, fargs[1]))
+	    if (has_flag(player, it, fargs[1])) {
 		safe_chr('1', buff, bufc);
-	    else
+	    } else {
 		safe_chr('0', buff, bufc);
+            }
 	} else {
 	    safe_str("#-1 PERMISSION DENIED", buff, bufc);
 	}
@@ -2964,10 +2984,11 @@ FUNCTION(fun_haspower)
 		return;
 	}
 	if (mudconf.pub_flags || Examinable(player, it) || (it == cause)) {
-		if (has_power(player, it, fargs[1]))
+		if (has_power(player, it, fargs[1])) {
 			safe_chr('1', buff, bufc);
-		else
+		} else {
 			safe_chr('0', buff, bufc);
+		}
 	} else {
 		safe_str("#-1 PERMISSION DENIED", buff, bufc);
 	}
@@ -3208,7 +3229,7 @@ FUNCTION(fun_lnum)
 	return;
     } else if (top > bot) {
 	for (i = bot; (i <= top) && !over; i++) {
-	    if (bp != buff) {
+	    if (*bufc != buff) {
 		safe_chr(sep, buff, bufc);
 	    }
 	    ltos(tbuf, i);
@@ -3216,7 +3237,7 @@ FUNCTION(fun_lnum)
 	}
     } else {
 	for (i = bot; (i >= top) && !over; i--) {
-	    if (bp != buff) {
+	    if (*bufc != buff) {
 		safe_chr(sep, buff, bufc);
 	    }
 	    ltos(tbuf, i);
@@ -3452,9 +3473,9 @@ FUNCTION(fun_max)
     if (nfargs < 1) {
 	safe_str("#-1 TOO FEW ARGUMENTS", buff, bufc);
     } else {
-	max = atof(fargs[0]);
+	max = aton(fargs[0]);
 	for (i = 0; i < nfargs; i++) {
-	    val = atof(fargs[i]);
+	    val = aton(fargs[i]);
 	    if (max < val)
 		max = val;
 	}
@@ -3473,7 +3494,7 @@ FUNCTION(fun_min)
     } else {
 	min = aton(fargs[0]);
 	for (i = 0; i < nfargs; i++) {
-	    val = atof(fargs[i]);
+	    val = aton(fargs[i]);
 	    if (min > val)
 		min = val;
 	}
@@ -4699,8 +4720,7 @@ FUNCTION(fun_r)
  * isword: is every character in the argument a letter?
  */
   
-FUNCTION(fun_isword)
-{
+FUNCTION(fun_isword) {
 char *p;
       
 	for (p = fargs[0]; *p; p++) {
@@ -4828,9 +4848,10 @@ FUN flist[] = {
 {"CONVTIME",    fun_convtime,   1,  0,		CA_PUBLIC},
 {"COS",		fun_cos,	1,  0,		CA_PUBLIC},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC},
+#ifdef USE_COMSYS
 {"CWHO",        fun_cwho,       1,  0,          CA_PUBLIC},
+#endif
 {"DEC",         fun_dec,        1,  0,          CA_PUBLIC},
-{"DECRYPT",     fun_decrypt,    2,  0,          CA_PUBLIC},
 {"DEFAULT",	fun_default,	2,  FN_NO_EVAL, CA_PUBLIC},
 {"DELETE",	fun_delete,	3,  0,		CA_PUBLIC},
 {"DIE",		fun_die,	2,  0,		CA_PUBLIC},
@@ -4843,7 +4864,6 @@ FUN flist[] = {
 {"ELEMENTS",	fun_elements,	0,  FN_VARARGS,	CA_PUBLIC},
 {"ELOCK",	fun_elock,	2,  0,		CA_PUBLIC},
 {"EMPTY",	fun_empty,	0,  FN_VARARGS, CA_PUBLIC},
-{"ENCRYPT",     fun_encrypt,    2,  0,          CA_PUBLIC},
 {"EQ",		fun_eq,		2,  0,		CA_PUBLIC},
 {"ESCAPE",	fun_escape,	-1, 0,		CA_PUBLIC},
 {"EXIT",	fun_exit,	1,  0,		CA_PUBLIC},
@@ -4908,8 +4928,10 @@ FUN flist[] = {
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC},
 {"LTE",		fun_lte,	2,  0,		CA_PUBLIC},
 {"LWHO",	fun_lwho,	0,  0,		CA_PUBLIC},
+#ifdef USE_MAIL
 {"MAIL",        fun_mail,       0,  FN_VARARGS, CA_PUBLIC},
 {"MAILFROM",    fun_mailfrom,   0,  FN_VARARGS, CA_PUBLIC},
+#endif
 {"MAP",		fun_map,	0,  FN_VARARGS,	CA_PUBLIC},
 {"MATCH",	fun_match,	0,  FN_VARARGS,	CA_PUBLIC},
 {"MATCHALL",	fun_matchall,	0,  FN_VARARGS,	CA_PUBLIC},

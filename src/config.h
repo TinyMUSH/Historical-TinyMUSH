@@ -40,6 +40,7 @@
 #undef SPLIT_QUOTAS
 #define USE_MAIL
 #define USE_COMSYS
+#define FLOATING_POINTS
 
 /* ---------------------------------------------------------------------------
  * Database R/W flags.
