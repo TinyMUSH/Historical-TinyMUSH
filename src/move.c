@@ -60,7 +60,7 @@ int canhear, hush;
 	/* Do OXENTER for receiving room */
 
 	if ((dest != NOTHING) && !quiet)
-		did_it(thing, dest, 0, NULL, A_OXENTER, NULL, 0,
+		did_it(thing, dest, A_NULL, NULL, A_OXENTER, NULL, A_NULL,
 		       (char **)NULL, 0);
 
 	/* Display the 'has left' message if we meet any of the following
@@ -118,7 +118,7 @@ int canhear, hush;
 	/* Do OXLEAVE for sending room */
 
 	if ((src != NOTHING) && !quiet)
-		did_it(thing, src, 0, NULL, A_OXLEAVE, NULL, 0,
+		did_it(thing, src, A_NULL, NULL, A_OXLEAVE, NULL, A_NULL,
 		       (char **)NULL, 0);
 
 	/* Display the 'has arrived' message if we meet all of the following
@@ -356,7 +356,8 @@ int hush;
 		dest = Home(thing);
 	canhear = Hearer(thing);
 	if (!(hush & HUSH_LEAVE))
-		did_it(thing, thing, 0, NULL, A_OXTPORT, NULL, 0, (char **)NULL, 0);
+		did_it(thing, thing, A_NULL, NULL, A_OXTPORT, NULL,
+		       A_NULL, (char **)NULL, 0);
 	process_leave_loc(thing, dest, NOTHING, canhear, hush);
 	move_object(thing, dest);
 	if (!(hush & HUSH_ENTER))

@@ -1039,9 +1039,9 @@ void NDECL(check_events)
 
 			ITER_PARENTS(thing, parent, lev) {
 				if (Flags2(thing) & HAS_DAILY) {
-					did_it(Owner(thing), thing, 0, NULL,
-					    0, NULL, A_DAILY, (char **)NULL,
-					       0);
+					did_it(Owner(thing), thing,
+					       A_NULL, NULL, A_NULL, NULL,
+					       A_DAILY, (char **) NULL, 0);
 
 					break;
 				}

@@ -40,8 +40,8 @@ const char *exit_name;
 	if (mudconf.fmt_exits) {
 		atr_buf = atr_pget(loc, A_LEXITS_FMT, &aowner, &aflags);
 		if (*atr_buf) {
-			did_it(player, loc, A_LEXITS_FMT, NULL, NULL, NULL,
-				NULL, (char **) NULL, 0);
+			did_it(player, loc, A_LEXITS_FMT, NULL, A_NULL, NULL,
+			       A_NULL, (char **) NULL, 0);
 			free_lbuf(atr_buf);
 			return;
 		} else if (atr_buf) {
@@ -162,8 +162,8 @@ int style;
 	if (mudconf.fmt_contents) {
 		atr_buf = atr_pget(loc, A_LCON_FMT, &aowner, &aflags);
 		if (*atr_buf) {
-			did_it(player, loc, A_LCON_FMT, NULL, NULL, NULL,
-			       NULL, (char **) NULL, 0);
+			did_it(player, loc, A_LCON_FMT, NULL, A_NULL, NULL,
+			       A_NULL, (char **) NULL, 0);
 			free_lbuf(atr_buf);
 			return;
 		} else if (atr_buf) {
@@ -400,7 +400,7 @@ int obey_terse;
 	}
 
 	if (obey_terse && Terse(player))
-		did_it(player, thing, 0, "You see nothing special.",
+		did_it(player, thing, A_NULL, "You see nothing special.",
 		       A_ODESC, NULL, A_ADESC, (char **)NULL, 0);
 	else
 #ifndef PUEBLO_SUPPORT
@@ -462,7 +462,7 @@ int key;
 	indent = (isRoom(loc) && mudconf.indent_desc && atr_get_raw(loc, A_DESC));
 
 	if ((key & LK_OBEYTERSE) && Terse(player))
-		did_it(player, loc, 0, NULL, A_ODESC, NULL,
+		did_it(player, loc, A_NULL, NULL, A_ODESC, NULL,
 		       A_ADESC, (char **)NULL, 0);
 	else if ((Typeof(loc) != TYPE_ROOM) && (key & LK_IDESC)) {
 		if (*(got = atr_pget(loc, A_IDESC, &aowner, &aflags)))

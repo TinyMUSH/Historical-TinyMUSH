@@ -586,7 +586,7 @@ char *name, *arg2;
 	if (new_owner == Owner(thing)) {
 		if (!(key & CLONE_PARENT))
 			s_Parent(clone, Parent(thing));
-		did_it(player, clone, 0, NULL, 0, NULL, A_ACLONE,
+		did_it(player, clone, A_NULL, NULL, A_NULL, NULL, A_ACLONE,
 		       (char **)NULL, 0);
 	} else {
 		if (!(key & CLONE_PARENT) &&

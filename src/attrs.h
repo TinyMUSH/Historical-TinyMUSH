@@ -24,6 +24,7 @@
 #define AF_NOPARSE      0x4000  /* Don't evaluate when checking for $-cmds */
 #define AF_REGEXP	0x8000  /* Do a regexp rather than wildcard match */
 
+#define A_NULL		0	/* Nothing */
 #define	A_OSUCC		1	/* Others success message */
 #define	A_OFAIL		2	/* Others fail message */
 #define	A_FAIL		3	/* Invoker fail message */

@@ -1527,7 +1527,7 @@ char *object, *argv[];
 		notify_quiet(player, NOPERM_MESSAGE);
 		return;
 	}
-	did_it(player, thing, 0, NULL, 0, NULL, attrib, argv, nargs);
+	did_it(player, thing, A_NULL, NULL, A_NULL, NULL, attrib, argv, nargs);
 
 	/*
 	 * XXX be more descriptive as to what was triggered? 

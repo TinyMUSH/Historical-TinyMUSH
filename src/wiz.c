@@ -134,7 +134,7 @@ char *arg1, *arg2;
 				notify_quiet(player, NOPERM_MESSAGE);
 			did_it(victim, destination,
 			       A_TFAIL, "You can't teleport there!",
-			       A_OTFAIL, 0, A_ATFAIL, (char **)NULL, 0);
+			       A_OTFAIL, NULL, A_ATFAIL, (char **)NULL, 0);
 			return;
 		}
 		/*

@@ -638,12 +638,14 @@ const char *msg;
 
 		if ((key & MSG_ME) && pass_listen && pass_uselock) {
 			if (sender != target)
-				did_it(sender, target, 0, NULL, 0, NULL,
+				did_it(sender, target,
+				       A_NULL, NULL, A_NULL, NULL,
 				       A_AHEAR, args, nargs);
 			else
-				did_it(sender, target, 0, NULL, 0, NULL,
+				did_it(sender, target,
+				       A_NULL, NULL, A_NULL, NULL,
 				       A_AMHEAR, args, nargs);
-			did_it(sender, target, 0, NULL, 0, NULL,
+			did_it(sender, target, A_NULL, NULL, A_NULL, NULL,
 			       A_AAHEAR, args, nargs);
 		}
 		/* Get rid of match arguments. We don't need them anymore */
@@ -1451,7 +1453,8 @@ static void NDECL(process_preload)
 
 		ITER_PARENTS(thing, parent, lev) {
 			if (Flags(thing) & HAS_STARTUP) {
-				did_it(Owner(thing), thing, 0, NULL, 0, NULL,
+				did_it(Owner(thing), thing,
+				       A_NULL, NULL, A_NULL, NULL,
 				       A_STARTUP, (char **)NULL, 0);
 				/* Process queue entries as we add them */
 
