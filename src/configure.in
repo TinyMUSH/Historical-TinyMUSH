@@ -333,20 +333,40 @@ AC_AIX
 
 dnl Figure out preprocessor args to do 'make depend' stuff
 
+MKDEP=""
 AC_MSG_CHECKING(for preprocessor flag to list dependencies)
 SAVECPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$SAVECPPFLAGS -xM1"
 AC_TRY_CPP(,
   AC_MSG_RESULT(-xM1)
-    CPP_DEP="-xM1",
+    MKDEP="$CPP -xM1",
   CPPFLAGS="$SAVECPPFLAGS -MM"
   AC_TRY_CPP(,
     AC_MSG_RESULT(-MM)
-      CPP_DEP="-MM",
-    AC_MSG_RESULT(-M)
-      CPP_DEP="-M"))
+      MKDEP="$CPP -MM",
+    CPPFLAGS="$SAVECPPFLAGS -M"
+    AC_TRY_CPP(,
+      AC_MSG_RESULT(-M)
+        MKDEP="CPP -M",
+      AC_MSG_RESULT(unknown))))
+if test -z "$MKDEP"; then
+  AC_MSG_CHECKING(for compiler flag to list dependencies)
+  CPPFLAGS="$SAVECPPFLAGS -MM"
+  AC_TRY_COMPILE(,,
+    AC_MSG_RESULT(-MM)
+      MKDEP="$CC -MM",
+    CPPFLAGS="$SAVECPPFLAGS -M"
+    AC_TRY_COMPILE(,,
+      AC_MSG_RESULT(-M)
+        MKDEP="$CC -M",
+      AC_MSG_RESULT(unknown)))
+fi
 CPPFLAGS="$SAVECPPFLAGS"
-AC_SUBST(CPP_DEP)
+if test -z "$MKDEP"; then
+  AC_PATH_PROG(MKDEP, mkdep, :)
+  MKDEP="$MKDEP -f -"
+fi
+AC_SUBST(MKDEP)
 
 dnl Make sure we're properly linked dynamically
 

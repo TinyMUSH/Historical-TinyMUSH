@@ -61,6 +61,9 @@ Release history:
 
 - Misc: 'make clean' no longer removes the tinygdbm library.
 
+- Misc: Workaround for broken 'make depend' on MacOS X and possibly
+  other systems.
+
 -----------------------------------------------------------------------------
 
 12/02/2002: Beta 8

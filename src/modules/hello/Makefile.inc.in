@@ -12,7 +12,7 @@ depend: depend-@MODNAME@
 
 depend-@MODNAME@: unsplit $(@MODNAME@_S) modules/@MODNAME@/Makefile.inc
 	for i in $(@MODNAME@_S); do \
-		$(CPP) $(ALLCFLAGS) $(CPP_DEP) $$i || :; \
+		$(MKDEP) $(ALLCFLAGS) $$i || :; \
 	done | sed -e 's:/usr[^ ]* *::g' \
 		   -e 's:modules/@MODNAME@/../../::g' \
 		   -e 's:^\([^/]*\:\):modules/@MODNAME@/\1:' \
