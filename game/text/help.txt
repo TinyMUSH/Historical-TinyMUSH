@@ -6850,16 +6850,24 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
         w - white foreground            W - white background
  
   For example, "ansi(fc, Test)" would hilight "Test" in flashing cyan.
+ 
   Continued in 'help ansi2'.
  
-& ANSi2
+& ANSI2
  
-  The percent substitution %x<color code> can be used instead of ansi();
-  this is more efficient.
- 
+  The percent substitution %x<color code> can be used instead of ansi().
   For example, the equivalent to [ansi(rBf,Color!)] would be:
   %xr%xB%xfColor!%xn
  
+  However, note that these are not exactly equivalent. The ansi() function
+  "compacts" ANSI codes, taking advantage of the fact that the ANSI standard
+  allows multiple ANSI attributes to be specified within an ANSI control
+  string. Thus, if you are trying to @edit or edit() a string with ANSI
+  characters embedded via the ansi() function, for instance, you may not
+  be able to edit the ANSI sequence directly. If you need to be able to
+  do this (for instance, to change the equivalent of '%xg' into '%xy'),
+  you should use the %x-substitutions instead.
+  
   The %xn (to return to normal) is not necessary, but if it is not specified,
   the ANSI color codes will continue to the end of the string.
  
