@@ -443,8 +443,9 @@ double result;
 		*bufc = p + 1;
 	}
 	p = (char *)rindex(buf1, '.');	/* take care of dangling '.' */
-	if (*(p + 1) == '\0') {
-		*p = '\0';
+
+	if ((p != NULL) && (*(p + 1) == '\0')) {
+			*p = '\0';
 		*bufc = p;
 	}
 }
