@@ -92,43 +92,47 @@ const char *newobj;
 		notify(player, "You don't have the power to shift reality.");
 		return;
 	}
-	/*
-	 * a player may change an object's zone to NOTHING or to an object he 
-	 * 
-	 * *  * *  * * owns 
+
+	/* a player may change an object's zone to NOTHING or to an object he 
+	 * owns 
 	 */
-	if ((zone != NOTHING) && !Wizard(player) && !(Controls(player, zone)) &&
+	if ((zone != NOTHING) && !Wizard(player) &&
+	    !(Controls(player, zone)) &&
 	    !(db[player].owner == db[zone].owner)) {
 		notify(player, "You cannot move that object to that zone.");
 		return;
 	}
-	/*
-	 * only rooms may be zoned to other rooms 
-	 */
+
+	/* only rooms may be zoned to other rooms */
+
 	if ((zone != NOTHING) &&
 	    (Typeof(zone) == TYPE_ROOM) && Typeof(thing) != TYPE_ROOM) {
 		notify(player, "Only rooms may have parent rooms.");
 		return;
 	}
-	/*
-	 * everything is okay, do the change 
-	 */
+
+	/* everything is okay, do the change */
+
 	db[thing].zone = zone;
 	if (Typeof(thing) != TYPE_PLAYER) {
-		/*
-		 * if the object is a player, resetting these flags is rather
-		 * * * * * inconvenient -- although this may pose a bit of a * 
-		 * *  * security * risk. Be careful when @chzone'ing wizard or 
-		 * * * * royal players. 
-		 */
-		Flags(thing) &= ~WIZARD;
-		Flags(thing) &= ~ROYALTY;
-		Flags(thing) &= ~INHERIT;
-#ifdef USE_POWERS
-		Powers(thing) = 0;	/*
-					 * wipe out all powers 
-					 */
-#endif
+	    /* We do not strip flags and powers on players, due to the
+	     * inconvenience involved in resetting them. Players will just
+	     * have to be careful when @chzone'ing players with special
+	     * privileges.
+	     * For all other objects, we behave like @chown does.
+	     */
+	    if (key & CHZONE_NOSTRIP) {
+		if (!God(player))
+		    s_Flags(thing, Flags(thing) & ~WIZARD);
+	    } else {
+		s_Flags(thing, Flags(thing) & ~mudconf.stripped_flags.word1);
+		s_Flags2(thing, Flags2(thing) & ~mudconf.stripped_flags.word2);
+		s_Flags3(thing, Flags3(thing) & ~mudconf.stripped_flags.word3);
+	    }
+	    if (!(key & CHZONE_NOSTRIP) || !God(player)) {
+		s_Powers(thing, 0);
+		s_Powers2(thing, 0);
+	    }
 	}
 	notify(player, "Zone changed.");
 }
@@ -497,9 +501,8 @@ char *name;
 	}
 }
 
-/*
- * ---------------------------------------------------------------------------
- * * do_chown: Change ownership of an object or attribute.
+/* ---------------------------------------------------------------------------
+ * do_chown: Change ownership of an object or attribute.
  */
 
 void do_chown(player, cause, key, name, newown)

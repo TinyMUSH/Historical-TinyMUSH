@@ -121,6 +121,10 @@ NAMETAB chown_sw[] = {
 {(char *)"nostrip",	1,	CA_WIZARD,	CHOWN_NOSTRIP},
 { NULL,			0,	0,		0}};
 
+NAMETAB chzone_sw[] = {
+{(char *)"nostrip",	1,	CA_WIZARD,	CHZONE_NOSTRIP},
+{ NULL,			0,	0,		0}};
+
 NAMETAB clone_sw[] = {
 {(char *)"cost",	1,	CA_PUBLIC,	CLONE_SET_COST|SW_MULTIPLE},
 {(char *)"inherit",	3,	CA_PUBLIC,	CLONE_INHERIT|SW_MULTIPLE},
@@ -515,7 +519,7 @@ CMDENT command_table[] = {
 {(char *)"@chownall",		chown_sw,		CA_WIZARD|CA_GBL_BUILD,
 	CHOWN_ALL,	CS_TWO_ARG|CS_INTERP,	
 	NULL,		NULL,	NULL,		do_chownall},
-{(char *)"@chzone",             NULL,           
+{(char *)"@chzone",             chzone_sw,           
         CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
         0,              CS_TWO_ARG|CS_INTERP, 
 	NULL,		NULL,	NULL,		do_chzone},
