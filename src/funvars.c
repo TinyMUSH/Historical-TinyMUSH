@@ -2718,6 +2718,7 @@ static void perform_grep(buff, bufc, player, fargs, nfargs,
 	    break;
 	default:
 	    /* No special set-up steps. */
+	    break;
     }
 
     bb_p = *bufc;
