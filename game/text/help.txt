@@ -406,71 +406,75 @@ being checked.
  
   See 'help Arbitrary Commands' for more details.
  
-& command list
-  Help available for MUSH Commands:
+& Command List
  
-  drop         enter        examine      get          give         goto
-  help         inventory    kill         leave        LOGOUT       look
-  move         news         OUTPUTPREFIX OUTPUTSUFFIX page         pose
-  PUEBLOCLIENT QUIT         read         say          score        SESSION
-  take         throw        use          version      whisper      WHO
-  "            :            ;            &            #            \\
+Messaging:
  
-  @@           @chown       @clone       @cpattr      @create      @cron
-  @crondel     @crontab     @decompile   @destroy     @dig         @doing
-  @dolist      @drain       @edit        @emit        @entrances   @eval
-  @femit       @find        @floaters    @force       @fpose       @fsay
-  @halt        @last        @link        @list        @listmotd    @lock
-  @mvattr      @mail        @malias      @name        @notify      @npemit
-  @oemit       @open        @parent      @password    @pemit       @program
-  @ps          @quitprog    @quota       @redirect    @robot       @search
-  @set         @sql         @stats       @sweep       @switch      @teleport
-  @trigger     @unlink      @unlock      @verb        @wait        @wipe
+@@		@emit		@eval		@femit		@fpose
+@fsay		@npemit		@oemit		@pemit		page
+pose		say		think		whisper
  
-{ 'help commands2' for more }
-& commands2
-  Help available for MUSH Commands (continued):
+Movement:
  
-  @aahear      @aclone      @aconnect    @adescribe   @adfail      @adisconnect
-  @adrop       @aefail      @aenter      @afail       @agfail      @ahear
-  @akill       @aleave      @alfail      @alias       @amhear      @amove
-  @apay        @arfail      @asuccess    @atfail      @atofail     @atport
-  @aufail      @ause        @away        @charges     @conformat   @cost
-  @daily       @describe    @dfail       @drop        @ealias      @efail
-  @enter       @exitformat  @exitto      @fail        @filter
-  @forwardlist @gfail       @htdesc      @idesc       @idle        @infilter
-  @inprefix    @kill        @lalias      @leave       @lfail       @listen
-  @move        @odescribe   @odfail      @odrop       @oefail      @oenter
-  @ofail       @ogfail      @okill       @oleave      @olfail      @omove
-  @opay        @orfail      @osuccess    @otfail      @otofail     @otport
-  @oufail      @ouse        @oxenter     @oxleave     @oxtport     @pay
-  @prefix      @reject      @rfail       @runout      @sex         @startup
-  @success     @tfail       @tofail      @tport       @ufail       @use
-  @vrml_url
+@teleport	drop		enter		get		give
+goto		home		leave
+ 
+Database alteration:
+ 
+@alias		@chown		@chzone		@clone		@cpattr
+@create		@destroy	@dig		@edit		@link
+@lock		@mvattr		@name		@open		@parent
+@power		@quota		@robot		@set		@unlink
+@unlock		@wipe
+ 
+Continued in 'help Command List2'.
+ 
+& Command List2
+ 
+Program execution:
+ 
+@dolist		@drain		@force		@halt		@notify
+@program	@ps		@quitprogram	@redirect	@sql
+@switch		@trigger	@verb		@wait		use
+ 
+Other:
+ 
+@cron		@crondel	@crontab	@decompile	@doing
+@entrances	@find		@floaters	@last		@list
+@listcommands	@listmotd	@password	@search		@stats
+@sweep		examine		inventory	kill		look
+score		version		DOING		INFO		LOGOUT
+OUTPUTPREFIX	OUTPUTSUFFIX	PUEBLOCLIENT	QUIT		SESSION
+WHO
+ 
+You are strongly encouraged to check if there is QuickHelp on something
+before consulting the "regular" helpfile. Type 'qhelp' for an index
+of QuickHelp topics and commands.
+ 
+Type 'help <command name>' for details about a specific command.
  
 & Topics
  
 Help is available on the following topics:
  
 About Help		Attributes		Attribute Owners
-Attribute Flags		BEING KILLED		BOGUS COMMANDS
-BOOLEAN VALUES		CALLER			Comsys
-Control			Conventions		Costs
-Credits			Delimiters		Enactor
-EXITS			FAILURE			FLAG LIST
-FLAGS			FUNCTION LIST		FUNCTIONS
-GENDER			GOALS			HERE
-HOMES			LINKING			LISTENING
-LISTS			LOCAL REGISTERS		LOOPING
-ME			MONEY			Location
-Moving			OBJECT TYPES		PARENT OBJECTS
+Attribute Flags		Boolean Values		Caller
+Command List		Comsys			Control			
+Conventions		Costs			Credits			
+Delimiters		Enactor			EXITS			
+FAILURE			FLAG LIST		FLAGS			
+FUNCTION LIST		FUNCTIONS		GENDER			
+GOALS			HERE			HOMES			
+LINKING			LISTENING		LISTS			
+LOCAL REGISTERS		Location		Locks			
+LOOPING			ME			MONEY			
+Moving			OBJECT TYPES		PARENT OBJECTS		
 Patchlevel		PIPING			PUEBLO
 PUPPETS			REGEXPS			ROBBERY
 Scan Order		SEARCH CLASSES		SEMAPHORES
 SPOOFING		STACK			SUBSTITUTIONS
 SUCCESS			SWITCHES		Syntax
-User Commands		WIZARDS			Zone Control
-ZONE OBJECTS
+User Commands		Zone Control		ZONE OBJECTS
  
 & drop
  
@@ -983,16 +987,49 @@ location, and the destination is the object's home.
   Lists what you are carrying and how much money you have.
 
 & kill
-  Command: kill <player> [=<cost>]
-  Attempts to kill the specified player. Killing costs <cost> coins, which
-  gives you a <cost>% chance of killing the player. Thus, spending 100 
-  coins always works (except against wizards and immortals, who can never be
-  killed). Players cannot be killed in rooms which have been set HAVEN or
-  which they control.  If you don't specify a cost, the default is 10 (for a
-  10% chance of success).  The player, if killed, receives <cost>/2 coins in
-  insurance.
-  See also: @akill, @kill, @okill, BEING KILLED, IMMORTAL, WIZARD.
-
+ 
+Command: kill <mobile> [=<cost>]
+ 
+Attempts to kill the specified player or object. Killing costs <cost>
+coins, which gives you a <cost>% chance of killing the player. Thus,
+spending 100 coins always works, with some exceptions detailed below.
+If you don't specify a cost, the default is 10 (for a 10% chance of
+success). The victim, if killed, receives <cost>/2 coins in insurance.
+ 
+Killing always fails if any of the following is true:
+ 
+  - The victim's location is set HAVEN, and you're not a Wizard.
+  - The victim controls his location, and you don't control his location.
+  - The victim is a Wizard, or has the Unkillable power.
+  - The victim is set IMMORTAL; alternatively, the victim's owner is set
+    IMMORTAL, and either the victim or his owner is set INHERIT.
+ 
+Killing is generally considered rude, and some MUSHes disable it entirely.
+It can, however, be useful if there's a looping object in a location that
+you don't control, and you want to halt it and send it home.
+ 
+Continued in 'help kill2'.
+ 
+& kill2
+ 
+The following things happen when a kill is successful:
+ 
+- If the killer is set SUSPECT, connected Wizards are notified of the kill.
+- The victim is halted, just as if he had the @halt command run on him.
+- The victim's @kill verb set is run.
+- The victim is told who killed him.
+- The mover leaves its current location.
+- The mover's destination is registered.
+- The mover runs its @move verb set.
+- The mover enters its destination.
+- Mover contents set KEY are sent home.
+ 
+Example of a @kill verb set:
+ 
+  @kill guard = You villain! You killed a guard! The guard expires.
+  @okill guard = killed a guard. An alarm sounds in the distance.
+  @akill guard = &LAST_KILL me = %# [secs()]
+ 
 & leave
  
 Command:  leave[/quiet]
@@ -2249,7 +2286,21 @@ See also: @femit, @fsay, say, @force
   Command: @listmotd
   Displays the current message-of-the-day.  Note that it is displayed when
   you connect to your character.
-
+ 
+& Locks
+ 
+Locks are constructs that control the ability to do certain things,
+such as move through an exit, or use an object. Every object can have
+one lock of each type. Each lock's "key" is a string representing the
+conditions under which the lock can be passed. Passing a lock is
+considered "success"; failing to pass a lock is considered "failure".
+ 
+Locks are set with the command '@lock[/<lock type>] <object> = <key>',
+and unset with the command '@unlock <object>'.
+ 
+Type 'help @lock keys' for an explanation of the syntax of lock keys.
+Type 'help @lock locks' for a list of the different types of locks.
+ 
 & @lock
   Command: @lock[/<whichlock>] <object>=<key>
            @lock <object>/<attrib>
@@ -3233,19 +3284,6 @@ See also: JUMP_OK, FIXED, home, @lock
   Example: @ahear clock = "The time is now [time()].  >> BONNNNGGGGG <<
   See also: @aahear, @amhear, @listen.
 
-& @akill
-  Command: @akill <object> = <command-list>
-  Attribute: Akill
- 
-  Sets the actions to be taken by an object after it is killed and has
-  returned to its home.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @akill lion = south; :leaps onto %n, roaring loudly.;kill %n=100
-  See also: kill, @kill and @okill, BEING KILLED, IMMORTAL, WIZARD.
-
 & @alias
   Command: @alias <player> = <name>
   Attribute: Alias
@@ -3619,24 +3657,6 @@ See also: JUMP_OK, FIXED, home, @lock
  
   See also: @dolist, @call, @branch, iter(), parse().
 
-& @kill
-  Command: @kill <object> = <message>
-  Attribute: Kill
- 
-  This command sets the message that is shown to anyone who kills <object>.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Function references and %-substitutions are allowed in kill messages, and
-  are evaluated when someone kills the object.  In function references, 'me'
-  refers to the object that was killed, while %-substitutions that refer to
-  the enactor (such as %n, %#, %p, etc) refer to the player doing the killing.
- 
-  Example: @kill guard = The guard says "I'll get.. you... for... this... %n"
-                         as he falls down and dies.
-  See also: kill, @akill, @okill, BEING KILLED, IMMORTAL, WIZARD.
-
 & @listen
   Command: @listen <object> = <pattern>
   Attribute: Listen
@@ -3687,19 +3707,6 @@ See also: JUMP_OK, FIXED, home, @lock
  
   Example: @odesc vase = carefully inspects the vase.
   See also: look, @adescribe, @describe, @idesc.
-
-& @okill
-  Command: @okill <object> = <message>
-  Attribute: Okill
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the room when someone kills <object>.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @okill guard = bashes in the guard's skull, killing him.
-  See also: kill, @akill, @kill, BEING KILLED, IMMORTAL, WIZARD.
 
 & @opay
   @opay <object> = <message>
@@ -4906,34 +4913,11 @@ $-commands.
  
   See 'help regexp syntax' for a more detailed explanation.
 
-& BEING KILLED
-  Topic: BEING KILLED  
- 
-  Getting killed is no big deal. If you are killed, you return to your home,
-  and  all things you carry return to their homes. You also collect 50 coins
-  in insurance money (unless you have >= 10000 coins or you were killed via
-  the Wizard slay command).  Generally, killing is not encouraged unless 
-  absolutely necessary. (Note: Killing a wizard is a quick way to discover
-  the many uses of the @boot command...  and killing anyone can be very
-  rude.)
-  See also: kill, @akill, @kill, @okill, IMMORTAL, WIZARD.
+& Boolean Values
 
-& BOGUS COMMANDS
-  Topic: BOGUS COMMANDS    
-  
-  Bogus commands can be made using exits. For example, to make a 'sit'
-  command, one could "@open sit", then "@link sit=here" (because unlinked
-  exits can be stolen), "@lock sit=#0" (impossible for a room to pass a lock,
-  #0 is always a room, therefore the lock always fails), and "@fail sit=You
-  sit on the chair."; "@ofail sit=sits on the chair.".  Since nobody can go
-  through it, it always fails. The @fail message is displayed  to the player,
-  and the @ofail message (preceded by the player's name) to  everyone else.  
-  See also: @afail, @fail, @link, @lock, @ofail, @open.
-
-& BOOLEAN VALUES
-  Topic: BOOLEAN VALUES
+Topic: Boolean Values
  
-  Boolean values are considered to be true (1) or false (0), as follows:
+Boolean values are considered to be true (1) or false (0), as follows:
  
     - All numbers are true, except for zero, i.e.:
       t(0) => 0		t(1) => 1	t(532) => 1	t(-1987) => 1
@@ -4941,8 +4925,8 @@ $-commands.
     - All dbrefs (#0 and higher) are true. #-1 and below are false.
       Note that, for example, #1000 is true even if there aren't that
       many objects in the database. Use isdbref() to check if a dbref
-      is actually valid. Also, lists of dbrefs are valid, as are
-      other strings starting with dbrefs other than '#-1 <string>':
+      is actually valid. Also, lists of dbrefs are valid, as are other
+      strings starting with dbrefs other than '#-1 <string>':
  
       t(#0) => 1		t(#1) => 1		t(#-1) => 0
       t(#-5) => 0		t(#0 #3 #5) => 1	t(#1 #34 #6) => 1
@@ -4952,9 +4936,9 @@ $-commands.
     - All other non-empty strings are true, i.e.:
       t(foo) => 1	t() => 0
  
-  Continued in 'help Boolean Values2'. 
+Continued in 'help Boolean Values2'. 
  
-& BOOLEAN VALUES2
+& Boolean Values2
  
   If the configuration parameter booleans_oldstyle is enabled (it is
   disabled by default), the boolean value of dbrefs (strings that
@@ -4972,7 +4956,7 @@ $-commands.
     t(#-1 NO MATCH) => 0	t(#-2 test) => 0	t(#-37 xx) => 0
     t(#7 testing) => 0
  
-  Functions such as andbool() and ifelsebool() use boolean values.
+  Functions such as andbool() and ifelse() use boolean values.
  
 & Costs
  
@@ -5048,41 +5032,41 @@ enactor. Also see 'help Caller', for some fine details on enactors and
 function calls.
  
 & CALLER
-  Topic: CALLER
+Topic: Caller
  
-  The caller is the object responsible for invoking a function. It is
-  normally equal to the enactor, except when a function defined by
-  @function is called, or the following functions are called:
+The caller is the object responsible for invoking a function. It is
+normally equal to the enactor, except when a function defined by
+@function is called, or the following functions are called:
  
 	edefault()		get_eval()		objeval()
 	u()			udefault()		ulocal()
  
-  These functions set the caller to be the object that is invoking
-  that particular function.
+These functions set the caller to be the object that is invoking
+that particular function.
  
-  The caller's dbref can be accessed via the percent-substitution '%@'.
+The caller's dbref can be accessed via the percent-substitution '%@'.
  
-  Checking the caller, especially in functions intended for global use,
-  is a more effective way to restrict permissions than checking the enactor.
+Checking the caller, especially in functions intended for global use,
+is a more effective way to restrict permissions than checking the enactor.
  
-  Continued in 'help Caller2'.
+Continued in 'help Caller2'.
  
-& CALLER2
+& Caller2
  
-  Examples (assuming the player performing these actions is #1):
+Examples (assuming the player performing these actions is #1):
  
-    > &TEST_FN #10 = %! %@ %#
-    > &DO_TEST #9 = $test: @pemit %# = [u(#10/TEST_FN)] - [objeval(%! %@ %#)]
-    > test
-    #10 #9 #1 - #10 #9 #1
+  > &TEST_FN #10 = %! %@ %#
+  > &DO_TEST #9 = $test: @pemit %# = [u(#10/TEST_FN)] - [objeval(%! %@ %#)]
+  > test
+  #10 #9 #1 - #10 #9 #1
  
-    > @function testfn_nopriv = #10/TEST_FN
-    > @function/privileged testfn_priv = #10/TEST_FN
-    > &DO_TEST2 #9 = $test2: @pemit %# = [TestFN_NoPriv()] - [TestFN_Priv()]
-    > test2
-    #9 #9 #1 - #10 #9 #1
+  > @function testfn_nopriv = #10/TEST_FN
+  > @function/privileged testfn_priv = #10/TEST_FN
+  > &DO_TEST2 #9 = $test2: @pemit %# = [TestFN_NoPriv()] - [TestFN_Priv()]
+  > test2
+  #9 #9 #1 - #10 #9 #1
  
-  See also: ENACTOR, SUBSTITUTION.
+See also: ENACTOR, SUBSTITUTION.
  
 & MOVING
   Topic: MOVING
@@ -5146,21 +5130,45 @@ function calls.
             @ofail, @oleave, @osucc, @oxenter, @oxleave, @oxtport, @succ,
             @tport, move, @teleport, home, KEY, STICKY, DROP-TOS, FAILURE,
             SUCCESS.
-& EXITS
-  Topic: EXITS
+& Exits
  
-  An exit links one location to another location, providing a way to travel
-  on the MUSH.  Although normally used to link rooms together, exits can be
-  made to and from players and objects.
+Topic: Exits
  
-  You may pick up exits that you own, and drop exits into locations that
-  you own.  When you pick up or drop an exit, anyone in the exit's new
-  location may use the exit and travel to its destination.
+An exit links one location to another location, providing a way to travel
+on the MUSH. Although normally used to link rooms together, exits can be
+made to and from players and objects. The location that you are traveling
+from is the exit's source; the location that you travel to (where the
+exit is "linked to") is the exit's destination.
  
-  If an exit is set DARK it will not show up in the list of obvious exits in
-  a room.
-  See also: @link, @open.
-
+You can pick up an exit that you control, or which is in a location
+that you control. You can drop an exit anywhere that you control;
+if you have the Open_Anywhere power, you can drop an exit anywhere.
+The source of an exit can also be changed via the @teleport command.
+ 
+If an exit is set DARK it will not show up in the list of obvious exits in
+a room.
+ 
+Continued in 'help Exits2'.
+ 
+& Exits2
+ 
+Exits are sometimes used for "bogus commands", to intercept a command
+and display a message or take some action, without needing to define
+a user-defined command ('$-command') on an object. To use an exit
+for this purpose, open an exit so its destination is 'here', and lock
+it against everyone. Then, set its @fail, @ofail, and/or @afail 
+appropriately.
+ 
+For example:
+ 
+  > @open sit = here
+  > @lock sit = #0
+  > @fail sit = You sit down.
+  > sit
+  You sit down.
+ 
+See also: @link, @open.
+ 
 & FAILURE
   Topic: FAILURE  
  
@@ -5908,16 +5916,18 @@ performed and the walk down the list stops.
     evaluation may be performed (depending on the command), and the command
     is executed.
  
-  - The command is checked to see if it is one of the player's channel
-    aliases. If so, the comsys command is executed.
- 
-  - The command is checked to see if it is the 'home' command.  If so, the
-    player or object performing the command goes home.
+  - A check is performed to see if any modules have intercepted the
+    command. In particular, if the comsys module is enabled, the command
+    is checked to see if it is one of the player's channel aliases. If so,
+    the comsys command is executed.
  
   Continued in 'help Scan Order2'.
  
 & Scan Order2
- 
+
+  - The command is checked to see if it is the 'home' command.  If so, the
+    player or object performing the command goes home.
+  
   - The command is checked against the exits in its current room.  If one
     matches, the player is moved through the exit. If more than one exit
     matches, one is picked randomly from the exits for which the player
@@ -5987,6 +5997,14 @@ performed and the walk down the list stops.
  
   - The master room itself is checked for $command matches. STOP applies.
  
+  - Another check is performed for modules intercepting the command.
+ 
+  If nothing has been matched, a 'Huh?' message is returned.
+ 
+  Continued in 'help Scan Order6'.
+ 
+& Scan Order6
+ 
   Note: Commands that can cause other commands to be executed (such as @wait,
   @switch, @trigger, etc) never perform substitution on their arguments, they
   leave the evaluation to the command that is to be executed.  This prevents
@@ -5999,14 +6017,6 @@ performed and the walk down the list stops.
   Also, the construct '$xx *:%0' does not work (and is very dangerous
   programming), use '$xx *:@force me=%0' if you need this functionality.
  
-& WIZARDS
-  Topic: WIZARDS
- 
-  Wizards are the people that help run the game and make sure that everything
-  is working properly.  They have special powers to tweak reality in ways
-  mortals can only dream of.  Be nice to them, they are going out of their
-  way to help keep the game running smoothly.
-
 & Zones
  
   See 'help Zone' for the Zone flag and local master room information,
@@ -6014,7 +6024,7 @@ performed and the walk down the list stops.
   flag and ControLock.
  
 & Zone Objects
-  ZONE OBJECTS
+  Topic: Zone Objects
  
   Zones are areas of the MUSH which may be controlled by many people.
   Essentially, they allow group ownership of objects. The have_zones
