@@ -3,10 +3,13 @@ Frequently-Asked Questions
 
 - I found a bug! What do I do?
 - How do I make a new configuration file?
+- How do I back up my database?
+- How do I restore a database backup?
 - How do I use multiple guests?
 - How do I tune the database cache?
 - How do I use radix compression?
 - How do I use an in-memory database?
+- Help! I'm having database problems.
 
 ------------------------------------------------------------------------------
 
@@ -73,6 +76,37 @@ and edit it as follows:
 There are many more configuration directives available. Information
 on individual directives can be obtained with the WIZHELP <directive>
 command within the MUSH.
+
+------------------------------------------------------------------------------
+
+How do I back up my database?
+
+Shut down your game. Go into the game directory, and type './Backup'
+(Do not back up the database files directly, while the game is running.)
+
+This will create a 'flatfile', and compress it with GNU zip; if there's
+no GNU zip on your system, you should edit the Backup script so it uses
+Unix compress instead.
+
+Do NOT simply naively copy around netmush.db, netmush.gdbm, etc., as
+they are not portable between platforms. Use the Backup script to
+create flatfiles.
+
+Note that this does NOT back up your comsys database or mail database.
+You can simply copy comsys.db and mail.db to a safe place, to back
+them up.
+
+------------------------------------------------------------------------------
+
+How do I restore a database backup?
+
+Shut down the game (if it's currently running). Then, go into the game
+directory and type './Restore name-of-flatfile', where name-of-flatfile
+is the name of your backup file.
+
+Note that this only restores your database; it does not restore the
+comsys or mail databases. To restore the latter, simply copy your
+saved copies of comsys.db and mail.db back to the game directory.
 
 ------------------------------------------------------------------------------
 
@@ -332,3 +366,27 @@ need to do it multiple times to make sure it's really leaking).
 It also enables memory tracing, where all allocation information is written
 to a file called mtrace.out in the game directory. The awk script mtrace.awk
 is included and analyzes mtrace.out for potential problems.
+
+------------------------------------------------------------------------------
+
+Help! I'm having database problems.
+
+Almost everyone who runs a MUSH experiences a database disaster at
+least once in their life. There can be many reasons for this; common
+ones include an NFS server dying, running out of disk space,
+overflowing your disk quota, a nasty game crash, and a nasty system
+crash.
+
+Typically, in this scenario, the server process either dumps core during
+an attempt to load the database, or simply hangs; sometimes, it may come
+back up and large chunks of your data may be missing.
+
+Sometimes, simply by flatfiling and reloading the flatfile (doing a
+Backup and a Restore), integrity issues that cause the database to
+fail to load can be dealt with. Be aware that you might experience some
+minor data loss in the process, though.
+
+However, your best bet in this scenario is to restore your database
+from backup. This means it's very important to keep backups; we strongly
+recommend that you back up once a week at minimum, if not nightly.
+
