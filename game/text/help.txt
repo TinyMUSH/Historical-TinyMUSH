@@ -4513,7 +4513,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	pemit()		r()		rand()		remit()		
 	restarts()	restarttime()	s()		secs()		
 	setq()		setr()		sql()		starttime()
-	switch()	switchall	time()		version()
+	switch()	switchall()	time()		version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -7340,7 +7340,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   * to match any number of characters and ? to match any 1 character), and
   returns the corresponding <resN> parameter for the first <patN> pattern
   that matches.  If none match, then the default result <dflt> is returned.
-  The evaluated value of <str> can be obtained as '#$'.
+  The evaluated value of <str> can be obtained as '#$'. If switch() and
+  switchall() are nested, the nest level can be obtained with '#!'.
  
   Example:
     > say switch(c,*a*,A,*b*,B,*c*,C,*d*,D,E)
@@ -7364,7 +7365,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   character), and returns the corresponding <resN> parameters (without
   any delimiters) for all <patN> patterns that match.  If none match,
   then the default result <dflt> is returned. The evaluated value of
-  <str> can be obtained as '#$'.
+  <str> can be obtained as '#$'. If switchall() and switch() are
+  nested, the nest level can be obtained with '#!'.
  
   Example:
     > say switchall(c,*a*,A,*b*,B,*c*,C,*d*,D,E)
