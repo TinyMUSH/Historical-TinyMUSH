@@ -445,7 +445,7 @@ void NDECL(init_flagtab)
 	mudstate.flags_htab.nostrdup = 1;
 	
 	for (fp = gen_flags; fp->flagname; fp++) {
-		hashadd(fp->flagname, (int *)fp, &mudstate.flags_htab);
+		hashadd((char *)fp->flagname, (int *)fp, &mudstate.flags_htab);
 	}
 }
 
@@ -904,7 +904,7 @@ CF_HAND(cf_flag_name)
 	*cp = toupper(*cp);
 
     fp->flagname = (const char *) flagstr;
-    hashadd(fp->flagname, (int *) fp, &mudstate.flags_htab);
+    hashadd((char *)fp->flagname, (int *) fp, &mudstate.flags_htab);
 
     return 0;
 }

@@ -32,7 +32,7 @@ void NDECL(init_functab)
 	mudstate.func_htab.nostrdup = 1;
 	
 	for (fp = flist; fp->name; fp++) {
-		hashadd(fp->name, (int *)fp, &mudstate.func_htab);
+		hashadd((char *)fp->name, (int *)fp, &mudstate.func_htab);
 	}
 	ufun_head = NULL;
 	hashinit(&mudstate.ufunc_htab, 15 * HASH_FACTOR);

@@ -2670,7 +2670,7 @@ void list_memory(player)
 		while (htab != NULL) {
 			each += sizeof(HASHENT);
 			each += strlen(mudstate.powers_htab.entry[i]->target) + 1;
-			power = (FLAGENT *)mudstate.powers_htab.entry[i]->data;
+			power = (POWERENT *)mudstate.powers_htab.entry[i]->data;
 			each += sizeof(POWERENT);
 			
 			/* We don't count power->powername because we already got
