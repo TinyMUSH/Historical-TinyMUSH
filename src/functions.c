@@ -4431,7 +4431,7 @@ FUNCTION(fun_sort)
 		return;
 	}
 
-	if (!fn_range_check("SORT", nfargs, 1, 4, buff))
+	if (!fn_range_check("SORT", nfargs, 1, 4, buff, bufc))
 		return;
 	if (!delim_check(fargs, nfargs, 3, &sep, buff, bufc, 0,
 	     player, cause, cargs, ncargs))

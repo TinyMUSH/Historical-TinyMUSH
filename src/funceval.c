@@ -1936,7 +1936,7 @@ FUNCTION(fun_mix)
      * ALWAYS assumed to be a delimiter.
      */
 
-    if (!fn_range_check("MIX", nfargs, 3, 10, buff)) {
+    if (!fn_range_check("MIX", nfargs, 3, 10, buff, bufc)) {
 	return;
     }
     if (nfargs < 4) {
