@@ -5449,8 +5449,9 @@ See also: @link, @open.
 	shl()		shr()
  
   Trigonometry:
-	acos()		asin()		atan()
-	cos()		sin()		tan()
+	acos()		acosd()		asin()		asind()
+	atan()		atand()		cos()		cosd()
+	sin()		sind()		tan()		tand()
  
   Vectors:
 	vadd()		vdot()		vmul()		vsub()
@@ -7699,7 +7700,7 @@ performed and the walk down the list stops.
   Takes two or more booleans, and returns 1 if an odd number of them are
   equivalent to true(1).
  
-  See also: BOOLEAN VALUES, t(), andbool(), norbool(), orbool(), xor().
+  See also: BOOLEAN VALUES, t(), andbool(), notbool(), orbool(), xor().
 & AND()
   Function: and(<number1>,<number2>[,<numberN>]...)
  
@@ -9373,95 +9374,110 @@ performed and the walk down the list stops.
   See also: exp(), ln(), log(), power().
 
 & SIN()
-  Function: sin(<number>)
+& SIND()
+  Function: sin(<radians>)
+  Function: sind(<degrees>)
  
-  Returns the sine of <number>, expressed in radians.
+  Returns the sine of <radians> or <degrees>, respectively.
  
   Examples:
-    > say sin(0)
-    You say "0"
-    > say sin(fdiv(pi(),2))
-    You say "1"
-    > say sin(fdiv(pi(),4))
-    You say "0.707107"
-    > say sin(fdiv(pi(),6))
-    You say "0.5"
+    > say sin(0) --- [sind(0)]
+    You say "0 --- 0"
+    > say sin(fdiv(pi(),2)) --- [sind(90)]
+    You say "1 --- 1"
+    > say sin(fdiv(pi(),4)) --- [sind(45)]
+    You say "0.707107 --- 0.707107"
+    > say sin(fdiv(pi(),6)) --- [sind(30)]
+    You say "0.5 --- 0.5"
   See also: acos(), asin(), atan(), cos(), pi(), tan().
 
 & COS()
-  Function: cos(<number>)
+& COSD()
+  Function: cos(<radians>)
+  Function: cosd(<degrees>)
  
-  Returns the cosine of <number>, expressed in radians.
+  Returns the cosine of <radians> or <degrees>, respectively.
  
   Examples:
-    > say cos(0)
-    You say "1"
-    > say cos(fdiv(pi(),2))
-    You say "0"
-    > say cos(fdiv(pi(),4))
-    You say "0.707107"
-    > say cos(fdiv(pi(),6))
-    You say "0.866025"
+    > say cos(0) --- [cosd(0)]
+    You say "1 --- 1"
+    > say cos(fdiv(pi(),2)) --- [cosd(90)]
+    You say "0 --- 0"
+    > say cos(fdiv(pi(),4)) --- [cosd(45)]
+    You say "0.707107 --- 0.707107"
+    > say cos(fdiv(pi(),6)) --- [cosd(30)]
+    You say "0.866025 --- 0.866025"
   See also: acos(), asin(), atan(), pi(), sin(), tan().
 
 & TAN()
-  Function: tan(<number>)
+& TAND()
+  Function: tan(<radians>)
+  Function: tand(<degrees>)
  
-  Returns the tangent of <number>, expressed in radians.
+  Returns the tangent of <radians> or <degrees>, respectively.
  
   Examples:
-    > say tan(0)
-    You say "0"
-    > say tan(1)
-    You say "1.557408"
-    > say tan(fdiv(pi(),4))
-    You say "1"
+    > say tan(0) --- [tand(0)]
+    You say "0 --- 0"
+    > say tan(1) --- [tand(1)]
+    You say "1.557408 --- 0.017455"
+    > say tan(fdiv(pi(),4)) --- [tand(45)]
+    You say "1 --- 1"
   See also: acos(), asin(), atan(), cos(), pi(), sin().
 
 & ASIN()
+& ASIND()
   Function: asin(<number>)
+  Function: asind(<number>)
  
-  Returns the arcsine of <number>, expressed in radians.
+  Returns the arcsine of <number>, expressed in radians or degrees,
+  respectively. <number> must be between -1 and 1.
  
   Examples:
-    > say asin(0)
-    You say "0"
-    > say asin(1)
-    You say "1.570796"
-    > say asin(0.707101)
-    You say "0.78539"
-    > say asin(0.5)
-    You say "0.523599"
+    > say asin(0) --- [asind(0)]
+    You say "0 --- 0"
+    > say asin(1) --- [asind(1)]
+    You say "1.570796 --- 90"
+    > say asin(0.707101) --- [asind(0.707101)]
+    You say "0.78539 --- 44.999532"
+    > say asin(0.5) --- [asind(0.5)]
+    You say "0.523599 --- 30"
   See also: acos(), atan(), cos(), pi(), sin(), tan().
 
 & ACOS()
+& ACOSD()
   Function: acos(<number>)
+  Function: acosd(<number>)
  
-  Returns the arc-cosine of <number>, expressed in radians.
+  Returns the arc-cosine of <number>, expressed in radians or degrees,
+  respectively. <number> must be between -1 and 1.
  
   Examples:
-    > say acos(0)
-    You say "1.570796"
-    > say acos(1)
-    You say "0"
-    > say acos(0.707101)
-    You say "0.785406"
-    > say acos(0.866025)
-    You say "0.5236"
+    > say acos(0) --- [acosd(0)]
+    You say "1.570796 --- 90"
+    > say acos(1) --- [acosd(1)]
+    You say "0 --- 0"
+    > say acos(0.707101) --- [acosd(0.707101)]
+    You say "0.785406 --- 45.000468"
+    > say acos(0.866025) --- [acosd(0.866025)]
+    You say "0.5236 --- 30.000046"
   See also: asin(), atan(), cos(), pi(), sin(), tan().
 
 & ATAN()
+& ATAND()
   Function: atan(<number>)
+  Function: atand(<number>)
  
-  Returns the arctangent of <number>, expressed in radians.
+  Returns the arctangent of <number>, expressed in radians or degrees,
+  respectively.
  
   Examples:
-    > say atan(0)
-    You say "0"
-    > say atan(1)
-    You say "0.785398"
-    > say atan(1.557408)
-    You say "1"
+    > say atan(0) --- [atand(0)]
+    You say "0 --- 0"
+    > say atan(1) --- [atand(1)]
+    You say "0.785398 --- 45"
+    > say atan(1.557408) --- [atand(1.557408)]
+    You say "1 --- 57.295784"
   See also: acos(), asin(), cos(), pi(), sin(), tan().
 
 & FLOOR()
