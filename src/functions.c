@@ -4091,8 +4091,8 @@ FUNCTION(fun_reverse)
 {
     /* Nasty bounds checking */
 
-    if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff)) {
-	*(fargs[0] + (LBUF_SIZE - (*bufc - buff))) = '\0';
+    if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff) - 1) {
+	*(fargs[0] + (LBUF_SIZE - (*bufc - buff) - 1)) = '\0';
     }
     do_reverse(fargs[0], *bufc);
     *bufc += strlen(fargs[0]);
@@ -4113,8 +4113,8 @@ FUNCTION(fun_revwords)
 
 	/* Nasty bounds checking */
 
-	if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff)) {
-		*(fargs[0] + (LBUF_SIZE - (*bufc - buff))) = '\0';
+	if (strlen(fargs[0]) >= LBUF_SIZE - (*bufc - buff) - 1) {
+		*(fargs[0] + (LBUF_SIZE - (*bufc - buff) - 1)) = '\0';
 	}
 
 	/* Reverse the whole string */
