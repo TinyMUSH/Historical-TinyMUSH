@@ -30,9 +30,9 @@
   @hashresize    @hook          @kick          @list          @listcommands
   @list_file     @listmotd      @lock          @log           @logrotate
   @mark          @mark_all      @motd          @newpassword   @pcreate       
-  @poor          @power         @ps            @purge         @quota
-  @readcache     @restart       @shutdown      @sqlconnect    @sqldisconnect
-  @timecheck     @startslave    @timewarp      @toad          @wall
+  @poor          @ps            @purge         @quota         @readcache
+  @restart       @shutdown      @sqlconnect    @sqldisconnect @timecheck
+  @startslave    @timewarp      @toad          @wall
  
   @allowance     @comment       @timeout
  
@@ -1523,9 +1523,9 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	guests_channel		log			log_options
 	money_name_plural	money_name_singular	mud_name
 	port			public_calias		public_channel
-	queue_active_chunk	queue_idle_chunk	sql_database
-	sql_host		sql_password		sql_reconnect
-	sql_username
+	queue_active_chunk	queue_idle_chunk	site_chars
+	sql_database		sql_host		sql_password
+	sql_reconnect		sql_username
 
 & PARAM OBJECTS
 	default_home		exit_attr_defaults	exit_flags
@@ -3203,6 +3203,12 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
                 originated.  Retrying the failed operation should produce
                 a coredump, although the stack may or may not be readable.
 
+& site_chars
+  Config parameter: site_chars <number>.  Default: 25
+ 
+  Specifies how many characters of a site name are displayed in WHO for
+  Wizards and other privileged users.
+ 
 & space_compress
   Config parameter: space_compress <yes/no>.  Default: Yes
   Specifies whether or not extra spaces are to be removed from user input
