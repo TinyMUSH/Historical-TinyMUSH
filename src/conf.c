@@ -278,6 +278,7 @@ void NDECL(cf_init)
 	mudconf.markdata[5] = 0x20;
 	mudconf.markdata[6] = 0x40;
 	mudconf.markdata[7] = 0x80;
+	mudconf.wild_times_lim = 200;
 	mudconf.cmd_nest_lim = 50;
 	mudconf.cmd_invk_lim = 2500;
 	mudconf.func_nest_lim = 50;
@@ -357,6 +358,7 @@ void NDECL(cf_init)
 	mudstate.cmd_invk_ctr = 0;
 	mudstate.func_nest_lev = 0;
 	mudstate.func_invk_ctr = 0;
+	mudstate.wild_times_lev = 0;
 	mudstate.cputime_base = clock();
 	mudstate.ntfy_nest_lev = 0;
 	mudstate.lock_nest_lev = 0;
@@ -1766,6 +1768,7 @@ CONF conftable[] = {
 {(char *)"variables_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.numvars_lim,		0},
 {(char *)"visible_wizards",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.visible_wizzes,	(long)"DARK Wizards are hidden from WHO but not invisible"},
 {(char *)"wait_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.waitcost,		0},
+{(char *)"wildcard_match_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.wild_times_lim,	0},
 {(char *)"wizard_obeys_linklock",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.wiz_obey_linklock,	(long)"Check LinkLock even if player can link to anything"},
 {(char *)"wizard_motd_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.wizmotd_file,	MBUF_SIZE},
 {(char *)"wizard_motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.wizmotd_msg,	GBUF_SIZE},

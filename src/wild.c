@@ -131,6 +131,15 @@ static int check_literals(tstr, dstr)
 static int real_quick_wild(tstr, dstr)
 char *tstr, *dstr;
 {
+	if (mudstate.wild_times_lev > mudconf.wild_times_lim) {
+	    STARTLOG(LOG_PROBLEMS, "WILD", "QUICK")
+		log_printf("Pattern '%s', string '%s', command '%s', current player ", tstr, dstr, mudstate.curr_cmd);
+		log_name(mudstate.curr_player);
+            ENDLOG
+	    return 0;
+	}
+	mudstate.wild_times_lev++;
+
 	while (*tstr != '*') {
 		switch (*tstr) {
 		case '?':
@@ -208,6 +217,8 @@ int quick_wild(tstr, dstr)
     if (!check_literals(tstr, dstr))
 	return 0;
 
+    mudstate.wild_times_lev = 0;
+
     return (real_quick_wild(tstr, dstr));
 }
 
@@ -227,6 +238,15 @@ int arg;
 {
 	char *datapos;
 	int argpos, numextra;
+
+	if (mudstate.wild_times_lev > mudconf.wild_times_lim) {
+	    STARTLOG(LOG_PROBLEMS, "WILD", "MATCH")
+		log_printf("Pattern '%s', string '%s', command '%s', player ", tstr, dstr, mudstate.curr_cmd);
+		log_name(mudstate.curr_player);
+            ENDLOG
+	    return 0;
+	}
+	mudstate.wild_times_lev++;
 
 	while (*tstr != '*') {
 		switch (*tstr) {
@@ -389,6 +409,8 @@ int wild1(tstr, dstr, arg)
 {
     if (!check_literals(tstr, dstr))
 	return 0;
+
+    mudstate.wild_times_lev = 0;
 
     return (real_wild1(tstr, dstr, arg));
 } 

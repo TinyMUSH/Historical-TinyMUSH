@@ -349,13 +349,14 @@ might appear on an examine to be:  Balloon(#25p0)  To set the flag,
 you would use '@set <object> = _CHIEF'; to unset the flag, you would
 use '@set <object> = !_CHIEF'.
 
-If you want to restrict access to a flag, use the flag_access directive;
-it takes the same parameters as regular flag access, command access, etc.
-The following:
+By default, these flags can only be set by God. In order to change the
+access restriction, use the flag_access directive. For instance:
 
+flag_access	_CHIEF	any
 flag_access	_CHIEF	wizard
 
-makes the _CHIEF flag only settable by wizards.
+make the _CHIEF flag settable by anyone, and only settable by wizards,
+respectively.
 
 To alias the flag, use the flag_alias directive:
 
@@ -363,7 +364,6 @@ flag_alias	CHIEF	_CHIEF
 
 which makes it possible to do '@set <object> = CHIEF'; the caveats listed
 above about future conflicts with built-ins should be kept in mind, though.
-
 
 ------------------------------------------------------------------------------
 

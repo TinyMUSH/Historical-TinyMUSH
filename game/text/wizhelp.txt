@@ -1374,7 +1374,8 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	player_queue_limit		register_limit
 	retry_limit			stack_limit			
 	structure_limit			trace_output_limit		
-	variables_limit			zone_recursion_limit
+	variables_limit			wildcard_match_limit
+	zone_recursion_limit
 
 & PARAM MESSAGES
 	down_motd_message	dump_message		fixed_home_message
@@ -3359,7 +3360,18 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   actions that add commands to the queue.  The money is refunded when the
   command is removed from the queue (either when it is executed or by @halt).
   See also: @wait.
-
+ 
+& wildcard_match_limit
+  Config parameter: wildcard_match_limit <number>.  Default: 200
+ 
+  This sets the maximum number of times that the wildcard matching routines
+  recurse, before returning a failure to match the string. Essentially,
+  this prevents the server from hanging for long periods of time on
+  unusually bad combinations of wildcard-heavy patterns and strings.
+ 
+  This is a parameter that you are unlikely to need to change from
+  the default.
+ 
 & wizard_obeys_linklock
   Config parameter: wizard_obeys_linklock <yes/no>.  Default: No
   Controls whether or not wizards can link to anything, regardless of

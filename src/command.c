@@ -2085,9 +2085,10 @@ static void list_params(player)
       tprintf("  Command recursion...%d  Command invocation...%d",
 	      mudconf.cmd_nest_lim, mudconf.cmd_invk_lim));
     raw_notify(player,
-      tprintf("  Output...%d  Queue...%d  CPU...%d  Forwardlist...%d",
+      tprintf("  Output...%d  Queue...%d  CPU...%d  Forwardlist...%d  Wild...%d",
 	      mudconf.output_limit, mudconf.queuemax,
-	      mudconf.func_cpu_lim_secs, mudconf.fwdlist_lim));
+	      mudconf.func_cpu_lim_secs, mudconf.fwdlist_lim,
+	      mudconf.wild_times_lim));
     raw_notify(player,
       tprintf("  Aliases...%d  Registers...%d  Stacks...%d",
 	      mudconf.max_player_aliases, mudconf.register_limit,
