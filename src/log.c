@@ -15,11 +15,7 @@
 #include "htab.h"
 #include "ansi.h"
 
-#ifdef STANDALONE
-static FILE *log_fp;
-#else
-static FILE *log_fp = stderr;
-#endif
+static FILE *log_fp = NULL;
 
 #ifndef STANDALONE
 
@@ -75,7 +71,7 @@ LOGFILETAB logfds_table[] = {
 { LOG_SUSPECTCMDS,	NULL,		NULL},
 { LOG_TIMEUSE,		NULL,		NULL},
 { LOG_WIZARD,		NULL,		NULL},
-{ NULL,			0,		NULL}};
+{ 0,			NULL,		NULL}};
 
 /* *INDENT-ON* */
 
