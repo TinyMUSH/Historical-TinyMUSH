@@ -537,7 +537,7 @@ const char *attrname;
 {
 	const char *scan;
 
-	if (!isalpha(*attrname))
+	if (!isalpha(*attrname) && (*attrname != '_'))
 		return 0;
 	for (scan = attrname; *scan; scan++) {
 		if (isalnum(*scan))
