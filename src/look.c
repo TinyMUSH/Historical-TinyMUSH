@@ -54,6 +54,8 @@ const char *exit_name;
 	foundany = 0;
 	isdark = Dark(loc);
 	ITER_PARENTS(loc, parent, lev) {
+	        if (!Has_exits(parent))
+		        continue;
 		DOLIST(thing, Exits(parent)) {
 			if ((Light(thing) && !Dark(thing)) ||
 			   (!Dark(thing) && !isdark)) {
