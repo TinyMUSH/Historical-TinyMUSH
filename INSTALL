@@ -196,6 +196,7 @@ your 3.0 installation if you want to.
 
   - If you have the following parameters set, simply remove them:
     cache_depth
+    cache_width
     input_database
     output_database
     mail_database
