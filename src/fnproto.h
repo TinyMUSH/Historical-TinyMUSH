@@ -88,12 +88,7 @@ XFUNCTION(fun_dec);
 XFUNCTION(fun_sqrt);
 XFUNCTION(fun_exp);
 XFUNCTION(fun_ln);
-XFUNCTION(fun_sin);
-XFUNCTION(fun_cos);
-XFUNCTION(fun_tan);
-XFUNCTION(fun_asin);
-XFUNCTION(fun_acos);
-XFUNCTION(fun_atan);
+XFUNCTION(handle_trig);
 XFUNCTION(fun_gt);
 XFUNCTION(fun_gte);
 XFUNCTION(fun_lt);
@@ -333,7 +328,10 @@ XFUNCTION(perform_grep);
 
 FUN flist[] = {
 {"ABS",		fun_abs,	1,  0,		CA_PUBLIC,	NULL},
-{"ACOS",	fun_acos,	1,  0,		CA_PUBLIC,	NULL},
+{"ACOS",	handle_trig,	1,  TRIG_ARC|TRIG_CO,
+						CA_PUBLIC,	NULL},
+{"ACOSD",	handle_trig,	1,  TRIG_ARC|TRIG_CO|TRIG_DEG,
+						CA_PUBLIC,	NULL},
 {"ADD",		fun_add,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"AFTER",	fun_after,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ALPHAMAX",	fun_alphamax,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -347,8 +345,13 @@ FUN flist[] = {
 {"ANSIPOS",     fun_ansipos,    0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"APOSS",	fun_aposs,	1,  0,		CA_PUBLIC,	NULL},
 {"ART",		fun_art,	1,  0,		CA_PUBLIC,	NULL},
-{"ASIN",	fun_asin,	1,  0,		CA_PUBLIC,	NULL},
-{"ATAN",	fun_atan,	1,  0,		CA_PUBLIC,	NULL},
+{"ASIN",	handle_trig,	1,  TRIG_ARC,	CA_PUBLIC,	NULL},
+{"ASIND",	handle_trig,	1,  TRIG_ARC|TRIG_DEG,
+						CA_PUBLIC,	NULL},
+{"ATAN",	handle_trig,	1,  TRIG_ARC|TRIG_TAN,
+						CA_PUBLIC,	NULL},
+{"ATAND",	handle_trig,	1,  TRIG_ARC|TRIG_TAN|TRIG_DEG,
+						CA_PUBLIC,	NULL},
 {"BAND",	fun_band,	2,  0,		CA_PUBLIC,	NULL},
 {"BEEP",        fun_beep,       0,  0,          CA_WIZARD,	NULL},
 {"BEFORE",	fun_before,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
@@ -385,7 +388,9 @@ FUN flist[] = {
      						CA_PUBLIC,	NULL},
 {"CORBOOL",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR|LOGIC_BOOL,
      						CA_PUBLIC,	NULL},
-{"COS",		fun_cos,	1,  0,		CA_PUBLIC,	NULL},
+{"COS",		handle_trig,	1,  TRIG_CO,	CA_PUBLIC,	NULL},
+{"COSD",	handle_trig,	1,  TRIG_CO|TRIG_DEG,
+						CA_PUBLIC,	NULL},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"CTABLES",	process_tables,	0,  FN_VARARGS|JUST_CENTER,
 						CA_PUBLIC,	NULL},
@@ -647,7 +652,8 @@ FUN flist[] = {
 {"SHR",		fun_shr,	2,  0,		CA_PUBLIC,	NULL},
 {"SHUFFLE",	fun_shuffle,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"SIGN",	fun_sign,	1,  0,		CA_PUBLIC,	NULL},
-{"SIN",		fun_sin,	1,  0,		CA_PUBLIC,	NULL},
+{"SIN",		handle_trig,	1,  0,		CA_PUBLIC,	NULL},
+{"SIND",	handle_trig,	1,  TRIG_DEG,	CA_PUBLIC,	NULL},
 {"SORT",	fun_sort,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"SORTBY",	fun_sortby,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"SPACE",	fun_space,	1,  0,		CA_PUBLIC,	NULL},
@@ -677,7 +683,9 @@ FUN flist[] = {
 {"TABLE",	fun_table,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"TABLES",	process_tables,	0,  FN_VARARGS|JUST_LEFT,
 						CA_PUBLIC,	NULL},
-{"TAN",		fun_tan,	1,  0,		CA_PUBLIC,	NULL},
+{"TAN",		handle_trig,	1,  TRIG_TAN,	CA_PUBLIC,	NULL},
+{"TAND",	handle_trig,	1,  TRIG_TAN|TRIG_DEG,
+						CA_PUBLIC,	NULL},
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC,	NULL},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC,	NULL},
 {"TIMEFMT",	fun_timefmt,	0,  FN_VARARGS, CA_PUBLIC,	NULL},

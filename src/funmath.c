@@ -341,50 +341,35 @@ FUNCTION(fun_ln)
 		safe_str("#-1 LN OF NEGATIVE OR ZERO", buff, bufc);
 }
 
-FUNCTION(fun_sin)
+FUNCTION(handle_trig)
 {
-	fval(buff, bufc, sin((double)aton(fargs[0])));
+  NVAL val;
+  int oper, flag;
+  static double (* const trig_funcs[8])(double) = {
+     sin,  cos,  tan, NULL,	/* XXX no cotangent function */
+    asin, acos, atan, NULL
+  };
+
+  flag = ((FUN *)fargs[-1])->flags;
+  oper = flag & TRIG_OPER;
+
+  val = aton(fargs[0]);
+  if ((flag & TRIG_ARC) && !(flag & TRIG_TAN) &&
+      ((val < -1) || (val > 1))) {
+    safe_tprintf_str(buff, bufc, "#-1 %s ARGUMENT OUT OF RANGE",
+		     ((FUN *)fargs[-1])->name);
+    return;
+  }
+  if ((flag & TRIG_DEG) && !(flag & TRIG_ARC))
+    val = val * (M_PI / 180);
+
+  val = (trig_funcs[oper])((double)val);
+
+  if ((flag & TRIG_DEG) && (flag & TRIG_ARC))
+    val = (val * 180) / M_PI;
+
+  fval(buff, bufc, val);
 }
-
-FUNCTION(fun_cos)
-{
-	fval(buff, bufc, cos((double)aton(fargs[0])));
-}
-
-FUNCTION(fun_tan)
-{
-	fval(buff, bufc, tan((double)aton(fargs[0])));
-}
-
-FUNCTION(fun_asin)
-{
-	NVAL val;
-
-	val = aton(fargs[0]);
-	if ((val < -1) || (val > 1)) {
-		safe_str("#-1 ASIN ARGUMENT OUT OF RANGE", buff, bufc);
-	} else {
-		fval(buff, bufc, asin((double)val));
-	}
-}
-
-FUNCTION(fun_acos)
-{
-	NVAL val;
-
-	val = aton(fargs[0]);
-	if ((val < -1) || (val > 1)) {
-		safe_str("#-1 ACOS ARGUMENT OUT OF RANGE", buff, bufc);
-	} else {
-		fval(buff, bufc, acos((double)val));
-	}
-}
-
-FUNCTION(fun_atan)
-{
-	fval(buff, bufc, atan((double)aton(fargs[0])));
-}
-
 
 /* ---------------------------------------------------------------------------
  * Math comparison funcs: GT, GTE, LT, LTE, EQ, NEQ, NCOMP

@@ -389,4 +389,13 @@ if ((l) > 0) { \
 #define GREP_WILD	4
 #define GREP_REGEXP	8
 
+/* from handle_trig (sin, cos, tan, asin, acos, atan, sind, cosd, tand,
+ *    asind, acosd, atand): */
+#define TRIG_OPER	0x0f	/* mask to select trig function bits */
+#define TRIG_CO		0x01	/* co-function, like cos as opposed to sin */
+#define TRIG_TAN	0x02	/* tan-function, like cot as opposed to cos */
+#define TRIG_ARC	0x04	/* arc-function, like asin as opposed to sin */
+/* #define TRIG_REC	0x08	-- reciprocal, like sec as opposed to sin */
+#define TRIG_DEG	0x10	/* angles are in degrees, not radians */
+
 #endif /* __FUNCTIONS_H */
