@@ -361,6 +361,7 @@ FUNCTION(fun_structure)
     if (n_comps < 1) {
 	notify_quiet(player, "There must be at least one component.");
 	safe_chr('0', buff, bufc);
+	free(comp_names);
 	return;
     }
 
@@ -422,11 +423,16 @@ FUNCTION(fun_structure)
 	return;
     }
 
-    /* Allocate the structure and stuff it in the hashtable. */
+    /* Allocate the structure and stuff it in the hashtable. Note that
+     * we must duplicate our name structure since the pointers to the
+     * strings have been allocated on the stack!
+     */
 
     this_struct = (STRUCTDEF *) XMALLOC(sizeof(STRUCTDEF), "struct_alloc");
     this_struct->s_name = (char *) strdup(fargs[0]);
-    this_struct->c_names = comp_array;
+    this_struct->c_names = (char **) calloc(n_comps, sizeof(char *));
+    for (i = 0; i < n_comps; i++)
+	this_struct->c_names[i] = comp_array[i];
     this_struct->c_array = (COMPONENT **) calloc(n_comps, sizeof(COMPONENT *));
     this_struct->c_count = n_comps;
     this_struct->delim = osep;
@@ -1075,6 +1081,7 @@ FUNCTION(fun_unstructure)
 	free(this_struct->names_base);
     if (this_struct->defs_base)
 	free(this_struct->defs_base);
+    free(this_struct->c_names);
     XFREE(this_struct, "struct_alloc");
 
     s_StructCount(player, StructCount(player) - 1);
