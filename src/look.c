@@ -107,7 +107,7 @@ const char *exit_name;
 		    e1 = buff1;
 		    /* chop off first exit alias to display */
 		    if (buff != e)
-			safe_str((char *)"  ", buff, &e);
+			safe_known_str((char *)"  ", 2, buff, &e);
 		    for (s = Name(thing); *s && (*s != ';'); s++)
 			safe_chr(*s, buff1, &e1);
 		    *e1 = '\0';
@@ -289,7 +289,7 @@ static void pairs_print(player, atext, buff, bufc)
 		    parenlist[depth] = str[pos];
 		    safe_str(colors[depth%5], strbuf, &endp);
 		    safe_chr(str[pos], strbuf, &endp);
-		    safe_str(ANSI_NORMAL, strbuf, &endp);
+		    safe_ansi_normal(strbuf, &endp);
 		} else {
 		    safe_chr(str[pos], strbuf, &endp);
 		}
@@ -304,13 +304,13 @@ static void pairs_print(player, atext, buff, bufc)
 		    if ((parenlist[depth] & 96) == (str[pos] & 96)) {
 			safe_str(colors[depth%5], strbuf, &endp);
 			safe_chr(str[pos], strbuf, &endp);
-			safe_str(ANSI_NORMAL, strbuf, &endp);
+			safe_ansi_normal(strbuf, &endp);
 			depth--;
 		    } else {
 			safe_str(ANSI_HILITE, strbuf, &endp);
 			safe_str(ANSI_RED, strbuf, &endp);
 			safe_chr(str[pos], strbuf, &endp);
-			safe_str(ANSI_NORMAL, strbuf, &endp);
+			safe_ansi_normal(strbuf, &endp);
 			*endp = '\0';
 			safe_str(strbuf, buff, bufc);
 			safe_str(str + pos + 1, buff, bufc);

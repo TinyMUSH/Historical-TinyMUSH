@@ -157,7 +157,8 @@ char *msg;
 
 	if (mudstate.inpipe && (player == mudstate.poutobj)) {
 		safe_str(msg, mudstate.poutnew, &mudstate.poutbufc);
-		safe_str("\r\n", mudstate.poutnew, &mudstate.poutbufc);
+		safe_known_str("\r\n", 2,
+			       mudstate.poutnew, &mudstate.poutbufc);
 		return;
 	}
 	 
@@ -176,7 +177,8 @@ dbref player;
 	DESC *d;
 
 	if (mudstate.inpipe && (player == mudstate.poutobj)) {
-		safe_str("\r\n", mudstate.poutnew, &mudstate.poutbufc);
+		safe_known_str("\r\n", 2,
+			       mudstate.poutnew, &mudstate.poutbufc);
 		return;
 	}
 	if (!Connected(player))

@@ -200,7 +200,7 @@ FUNCTION(fun_ansi)
 	    return;
 
 	s = fargs[0];
-	safe_str(ANSI_BEGIN, buff, bufc);
+	safe_known_str(ANSI_BEGIN, 2, buff, bufc);
 	bb_p = *bufc;
 
 	while (*s) {
@@ -276,7 +276,7 @@ FUNCTION(fun_ansi)
 	}
 	safe_copy_chr(ANSI_END, buff, bufc, LBUF_SIZE - 5);
 	safe_copy_str(fargs[1], buff, bufc, LBUF_SIZE - 5);
-	safe_str(ANSI_NORMAL, buff, bufc);
+	safe_ansi_normal(buff, bufc);
 }
 
 FUNCTION(fun_zone)
@@ -288,7 +288,7 @@ FUNCTION(fun_zone)
 	}
 	it = match_thing(player, fargs[0]);
 	if (it == NOTHING || !Examinable(player, it)) {
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 		return;
 	}
 	safe_tprintf_str(buff, bufc, "#%d", Zone(it));
@@ -1364,7 +1364,7 @@ char *name, *buff, **bufc;
 	    (!Builder(player) && Protect(CA_GBL_BUILD) &&
 	     !(mudconf.control_flags & CF_BUILD))) {
 
-	    safe_str("#-1 PERMISSION DENIED", buff, bufc);
+	    safe_noperm(buff, bufc);
 	    return 1;
 	}
     }
@@ -1570,7 +1570,7 @@ char **bufc;
 	if (attr && Set_attr(player, thing, attr, aflags)) {
 		if ((attr->check != NULL) &&
 		    (!(*attr->check) (0, player, thing, attrnum, attrtext))) {
-		        safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		        safe_noperm(buff, bufc);
 			return;
 		}
 		could_hear = Hearer(thing);
@@ -1629,7 +1629,7 @@ FUNCTION(fun_set)
 
 			attr = atr_num(atr);
 			if (!attr || !Set_attr(player, thing, attr, aflags)) {
-				safe_str("#-1 PERMISSION DENIED", buff, bufc);
+				safe_noperm(buff, bufc);
 				return;
 			}
 			/* just do it! */
@@ -1647,7 +1647,7 @@ FUNCTION(fun_set)
 	/* find thing */
 
 	if ((thing = match_controlled(player, fargs[0])) == NOTHING) {
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 		return;
 	}
 	/* check for attr set first */
@@ -1662,12 +1662,12 @@ FUNCTION(fun_set)
 		}
 		attr = atr_num(atr);
 		if (!attr) {
-			safe_str("#-1 PERMISSION DENIED", buff, bufc);
+			safe_noperm(buff, bufc);
 			return;
 		}
 		atr_get_info(thing, atr, &aowner, &aflags);
 		if (!Set_attr(player, thing, attr, aflags)) {
-			safe_str("#-1 PERMISSION DENIED", buff, bufc);
+			safe_noperm(buff, bufc);
 			return;
 		}
 		buff2 = alloc_lbuf("fun_set");
@@ -1678,7 +1678,7 @@ FUNCTION(fun_set)
 			if (!parse_attrib(player, p + 1, &thing2, &atr2) ||
 			    (atr == NOTHING)) {
 				free_lbuf(buff2);
-				safe_str("#-1 NO MATCH", buff, bufc);
+				safe_nomatch(buff, bufc);
 				return;
 			}
 			attr2 = atr_num(atr);
@@ -1689,7 +1689,7 @@ FUNCTION(fun_set)
 			if (!attr2 ||
 			 !See_attr(player, thing2, attr2, aowner, aflags)) {
 				free_lbuf(buff2);
-				safe_str("#-1 PERMISSION DENIED", buff, bufc);
+				safe_noperm(buff, bufc);
 				return;
 			}
 		}
@@ -1724,7 +1724,7 @@ FUNCTION(fun_zwho)
 			smbuf = alloc_sbuf("fun_zwho");
 			sprintf(smbuf, " #%d", i);
 			if ((strlen(smbuf) + len) > 990) {
-			    safe_str(" #-1", buff, bufc);
+			    safe_known_str(" #-1", 4, buff, bufc);
 			    free_sbuf(smbuf);
 			    return;
 			}
@@ -1758,7 +1758,7 @@ FUNCTION(fun_inzone)
 			smbuf = alloc_sbuf("fun_inzone");;
 			sprintf(smbuf, " #%d", i);
 			if ((strlen(smbuf) + len) > 990) {
-			    safe_str(" #-1", buff, bufc);
+			    safe_known_str(" #-1", 4, buff, bufc);
 			    free_sbuf(smbuf);
 			    return;
 			}
@@ -1791,7 +1791,7 @@ FUNCTION(fun_children)
 		    smbuf = alloc_sbuf("fun_children");
 		    sprintf(smbuf, " #%d", i);
 		    if ((strlen(smbuf) + len) > 990) {
-			safe_str(" #-1", buff, bufc);
+			safe_known_str(" #-1", 4, buff, bufc);
 			free_sbuf(smbuf);
 			return;
 		    }
@@ -2059,7 +2059,7 @@ FUNCTION(fun_columns)
 		}
 
 		if (!(rturn % (int)((78 - indent) / number))) {
-			safe_str((char *)"\r\n", buff, bufc);
+			safe_known_str((char *)"\r\n", 2, buff, bufc);
 			cr = 1;
 			for (i = 0; i < indent; i++)
 				safe_chr(' ', buff, bufc);
@@ -2071,7 +2071,7 @@ FUNCTION(fun_columns)
 	}
 	
 	if (!cr) {
-		safe_str((char *)"\r\n", buff, bufc);
+		safe_known_str((char *)"\r\n", 2, buff, bufc);
 	}
 	
 	free_lbuf(buf);
@@ -2145,7 +2145,7 @@ FUNCTION(fun_objmem)
 
 	thing = match_thing(player, fargs[0]);
 	if (thing == NOTHING || !Examinable(player, thing)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	safe_ltos(buff, bufc, mem_usage(thing));
@@ -2159,7 +2159,7 @@ FUNCTION(fun_playmem)
 
 	thing = match_thing(player, fargs[0]);
 	if (thing == NOTHING || !Examinable(player, thing)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	DO_WHOLE_DB(j)
@@ -2410,7 +2410,7 @@ FUNCTION(fun_mail)
 				safe_str("#-1 NO SUCH PLAYER", buff, bufc);
 				return;
 			} else if ((player != playerask) && !Wizard(player)) {
-				safe_str("#-1 PERMISSION DENIED", buff, bufc);
+				safe_noperm(buff, bufc);
 				return;
 			} else {
 				count_mail(playerask, 0, &rc, &uc, &cc);
@@ -2426,7 +2426,7 @@ FUNCTION(fun_mail)
 			safe_str("#-1 NO SUCH PLAYER", buff, bufc);
 			return;
 		} else if ((player != playerask) && !God(player)) {
-			safe_str("#-1 PERMISSION DENIED", buff, bufc);
+			safe_noperm(buff, bufc);
 			return;
 		}
 		num = atoi(fargs[1]);
@@ -2472,7 +2472,7 @@ FUNCTION(fun_mailfrom)
 			safe_str("#-1 NO SUCH PLAYER", buff, bufc);
 			return;
 		} else if ((player != playerask) && !Wizard(player)) {
-			safe_str("#-1 PERMISSION DENIED", buff, bufc);
+			safe_noperm(buff, bufc);
 			return;
 		}
 		num = atoi(fargs[1]);
@@ -2505,10 +2505,10 @@ FUNCTION(fun_hasattr)
 
 	thing = match_thing(player, fargs[0]);
 	if (thing == NOTHING) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
    		return;
 	} else if (!Examinable(player, thing)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	attr = atr_str(fargs[1]);
@@ -2539,10 +2539,10 @@ FUNCTION(fun_hasattrp)
 
 	thing = match_thing(player, fargs[0]);
 	if (thing == NOTHING) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	} else if (!Examinable(player, thing)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	attr = atr_str(fargs[1]);
@@ -3641,10 +3641,10 @@ FUNCTION(fun_grep)
 	dbref it = match_thing(player, fargs[0]);
 
 	if (it == NOTHING) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	} else if (!(Examinable(player, it))) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	/* make sure there's an attribute and a pattern */
@@ -3668,10 +3668,10 @@ FUNCTION(fun_grepi)
 	dbref it = match_thing(player, fargs[0]);
 
 	if (it == NOTHING) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	} else if (!(Examinable(player, it))) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	/* make sure there's an attribute and a pattern */
@@ -3753,7 +3753,7 @@ FUNCTION(fun_valid)
 	} else if (!strcasecmp(fargs[0], "name"))
 		safe_ltos(buff, bufc, ok_name(fargs[1]));
 	else
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 }
 
 /* Borrowed from PennMUSH 1.50 */
@@ -3762,7 +3762,7 @@ FUNCTION(fun_hastype)
 	dbref it = match_thing(player, fargs[0]);
 
 	if (it == NOTHING) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	}
 	if (!fargs[1] || !*fargs[1]) {
@@ -3802,10 +3802,10 @@ FUNCTION(fun_lparent)
 
 	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it)) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	} else if (!(Examinable(player, it))) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	sprintf(tbuf1, "#%d", it);
@@ -4703,7 +4703,7 @@ FUNCTION(fun_lastcreate)
     dbref obj = match_thing(player, fargs[0]);
 
     if (!controls(player, obj)) {    /* Automatically checks for GoodObj */
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
     }
 
@@ -4726,18 +4726,18 @@ FUNCTION(fun_lastcreate)
 	break;
       default:
 	notify_quiet(player, "Invalid object type.");
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
     }
 
     if ((obj_str = atr_get(obj, A_NEWOBJS, &aowner, &aflags, &alen)) == NULL) {
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
     }
 
     if (!*obj_str) {
 	free_lbuf(obj_str);
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
     }
 

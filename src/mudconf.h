@@ -416,6 +416,7 @@ struct statedata {
 	int	ntfy_nest_lev;	/* Current nesting of notifys */
 	int	lock_nest_lev;	/* Current nesting of lock evals */
 	char	*global_regs[MAX_GLOBAL_REGS];	/* Global registers */
+	int	glob_reg_len[MAX_GLOBAL_REGS];	/* Length of strs */
 	int	zone_nest_num;  /* Global current zone nest position */
 	int	inpipe;		/* Boolean flag for command piping */
 	char	*pout;		/* The output of the pipe used in %| */

@@ -620,7 +620,7 @@ FUNCTION(fun_flags)
 		safe_str(buff2, buff, bufc);
 		free_sbuf(buff2);
 	} else
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	return;
 }
 
@@ -942,7 +942,7 @@ char *buff, **bufc;
 			return 1;
 		}
 	}
-	safe_str("#-1 PERMISSION DENIED", buff, bufc);
+	safe_noperm(buff, bufc);
 	return 0;
 }
 
@@ -955,7 +955,7 @@ FUNCTION(fun_get)
 	struct boolexp *bool;
 
 	if (!parse_attrib(player, fargs[0], &thing, &attrib)) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	}
 	if (attrib == NOTHING) {
@@ -986,8 +986,14 @@ FUNCTION(fun_get)
 	 * if needed. 
 	 */
 
-	if (check_read_perms(player, thing, attr, aowner, aflags, buff, bufc))
+	if (check_read_perms(player, thing, attr, aowner, aflags,
+			     buff, bufc)) {
+	    if (free_buffer)
+		safe_known_str(atr_gotten, alen, buff, bufc);
+	    else
 		safe_str(atr_gotten, buff, bufc);
+	}
+
 	if (free_buffer)
 		free_lbuf(atr_gotten);
 	return;
@@ -1006,7 +1012,7 @@ FUNCTION(fun_xget)
 
 	if (!parse_attrib(player, tprintf("%s/%s", fargs[0], fargs[1]),
 			  &thing, &attrib)) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	}
 	if (attrib == NOTHING) {
@@ -1037,8 +1043,14 @@ FUNCTION(fun_xget)
 	 * if needed. 
 	 */
 
-	if (check_read_perms(player, thing, attr, aowner, aflags, buff, bufc))
+	if (check_read_perms(player, thing, attr, aowner, aflags,
+			     buff, bufc)) {
+	    if (free_buffer)
+		safe_known_str(atr_gotten, alen, buff, bufc);
+	    else
 		safe_str(atr_gotten, buff, bufc);
+	}
+
 	if (free_buffer)
 		free_lbuf(atr_gotten);
 	return;
@@ -1053,7 +1065,7 @@ FUNCTION(fun_get_eval)
 	struct boolexp *bool;
 
 	if (!parse_attrib(player, fargs[0], &thing, &attrib)) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	}
 	if (attrib == NOTHING) {
@@ -1135,7 +1147,7 @@ FUNCTION(fun_eval)
 
 	if (!parse_attrib(player, tprintf("%s/%s", fargs[0], fargs[1]),
 			  &thing, &attrib)) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 		return;
 	}
 	if (attrib == NOTHING) {
@@ -1278,7 +1290,7 @@ FUNCTION(fun_parent)
 	if (Good_obj(it) && (Examinable(player, it) || (it == cause))) {
 		safe_tprintf_str(buff, bufc, "#%d", Parent(it));
 	} else {
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	}
 	return;
 }
@@ -1335,7 +1347,7 @@ FUNCTION(fun_mid)
     }
 
     if (!have_normal)
-	safe_str(ANSI_NORMAL, buff, bufc);
+	safe_ansi_normal(buff, bufc);
 }
 
 
@@ -1423,7 +1435,7 @@ FUNCTION(fun_left)
     }
 
     if (!have_normal)
-	safe_str(ANSI_NORMAL, buff, bufc);
+	safe_ansi_normal(buff, bufc);
 }
 
 
@@ -1475,7 +1487,7 @@ FUNCTION(fun_right)
     }
 
     if (!have_normal)
-	safe_str(ANSI_NORMAL, buff, bufc);
+	safe_ansi_normal(buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1516,13 +1528,11 @@ FUNCTION(fun_v)
 		/* If we can access it, return it, otherwise return a null
 		 * string 
 		 */
-
-		atr_pget_info(player, ap->number, &aowner, &aflags);
-		if (See_attr(player, player, ap, aowner, aflags)) {
-			tbuf = atr_pget(player, ap->number, &aowner, &aflags, &alen);
-			safe_str(tbuf, buff, bufc);
-			free_lbuf(tbuf);
-		}
+		tbuf = atr_pget(player, ap->number, &aowner, &aflags, &alen);
+		if (See_attr(player, player, ap, aowner, aflags))
+		    safe_known_str(tbuf, alen, buff, bufc);
+		if (tbuf)
+		    free_lbuf(tbuf);
 		return;
 	}
 	/* Not an attribute, process as %<arg> */
@@ -1568,7 +1578,7 @@ FUNCTION(fun_con)
 		safe_tprintf_str(buff, bufc, "#%d", Contents(it));
 		return;
 	}
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
 }
 
@@ -1597,7 +1607,7 @@ FUNCTION(fun_exit)
 			}
 		}
 	}
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
 }
 
@@ -1634,7 +1644,7 @@ FUNCTION(fun_next)
 			}
 		}
 	}
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
 }
 
@@ -1650,7 +1660,7 @@ FUNCTION(fun_loc)
 	if (locatable(player, it, cause))
 		safe_tprintf_str(buff, bufc, "#%d", Location(it));
 	else
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	return;
 }
 
@@ -1666,7 +1676,7 @@ FUNCTION(fun_where)
 	if (locatable(player, it, cause))
 		safe_tprintf_str(buff, bufc, "#%d", where_is(it));
 	else
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	return;
 }
 
@@ -1693,7 +1703,7 @@ FUNCTION(fun_rloc)
 		safe_tprintf_str(buff, bufc, "#%d", it);
 		return;
 	}
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -1716,11 +1726,11 @@ FUNCTION(fun_room)
 				return;
 			}
 		}
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	} else if (isRoom(it)) {
 		safe_tprintf_str(buff, bufc, "#%d", it);
 	} else {
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	}
 	return;
 }
@@ -2080,7 +2090,7 @@ FUNCTION(fun_pmatch)
 	if (Good_obj(thing) && isPlayer(thing)) {
 	    safe_tprintf_str(buff, bufc, "#%d", thing);
 	} else {
-	    safe_str("#-1", buff, bufc);
+	    safe_nothing(buff, bufc);
 	}
 	return;
     }
@@ -2106,7 +2116,7 @@ FUNCTION(fun_pmatch)
 	if (Good_obj(*p_ptr) && isPlayer(*p_ptr)) {
 	    safe_tprintf_str(buff, bufc, "#%d", (int) *p_ptr);
 	} else {
-	    safe_str("#-1", buff, bufc);
+	    safe_nothing(buff, bufc);
 	}
 	return;
     }
@@ -2119,7 +2129,7 @@ FUNCTION(fun_pmatch)
     } else if (Good_obj(thing) && isPlayer(thing)) {
 	safe_tprintf_str(buff, bufc, "#%d", thing);
     } else {
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
     }
 }
 
@@ -2135,7 +2145,7 @@ FUNCTION(fun_pfind)
 		safe_tprintf_str(buff, bufc, "#%d", thing);
 		return;
 	} else
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 }
 
 /*-------------------------------------------------------------------------
@@ -3002,7 +3012,7 @@ FUNCTION(fun_xcon)
 	    free_sbuf(tbuf);
 	}
     } else
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -3033,7 +3043,7 @@ FUNCTION(fun_lcon)
 		}
 		free_sbuf(tbuf);
 	} else
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------
@@ -3050,12 +3060,12 @@ FUNCTION(fun_lexits)
 	it = match_thing(player, fargs[0]);
 
 	if (!Good_obj(it) || !Has_exits(it)) {
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 		return;
 	}
 	exam = Examinable(player, it);
 	if (!exam && (where_is(player) != it) && (it != cause)) {
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 		return;
 	}
 	tbuf = alloc_sbuf("fun_lexits");
@@ -3101,7 +3111,7 @@ FUNCTION(fun_home)
 
 	it = match_thing(player, fargs[0]);
 	if (!Good_obj(it) || !Examinable(player, it))
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	else if (Has_home(it))
 		safe_tprintf_str(buff, bufc, "#%d", Home(it));
 	else if (Has_dropto(it))
@@ -3109,7 +3119,7 @@ FUNCTION(fun_home)
 	else if (isExit(it))
 		safe_tprintf_str(buff, bufc, "#%d", where_is(it));
 	else
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	return;
 }
 
@@ -3123,7 +3133,7 @@ FUNCTION(fun_money)
 
 	it = match_thing(player, fargs[0]);
 	if ((it == NOTHING) || !Examinable(player, it))
-		safe_str("#-1", buff, bufc);
+		safe_nothing(buff, bufc);
 	else
 		safe_ltos(buff, bufc, Pennies(it));
 }
@@ -3150,7 +3160,7 @@ FUNCTION(fun_pos)
 		}
 		++i, ++s;
 	}
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
 }
 
@@ -3472,7 +3482,7 @@ FUNCTION(fun_wordpos)
 		safe_ltos(buff, bufc, i);
 		return;
 	}
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
 }
 
@@ -3487,16 +3497,16 @@ FUNCTION(fun_type)
 	}
 	switch (Typeof(it)) {
 	case TYPE_ROOM:
-		safe_str("ROOM", buff, bufc);
+		safe_known_str("ROOM", 4, buff, bufc);
 		break;
 	case TYPE_EXIT:
-		safe_str("EXIT", buff, bufc);
+		safe_known_str("EXIT", 4, buff, bufc);
 		break;
 	case TYPE_PLAYER:
-		safe_str("PLAYER", buff, bufc);
+		safe_known_str("PLAYER", 6, buff, bufc);
 		break;
 	case TYPE_THING:
-		safe_str("THING", buff, bufc);
+		safe_known_str("THING", 5, buff, bufc);
 		break;
 	default:
 		safe_str("#-1 ILLEGAL TYPE", buff, bufc);
@@ -3576,7 +3586,7 @@ FUNCTION(fun_hasflag)
 		safe_chr('0', buff, bufc);
             }
 	} else {
-	    safe_str("#-1 PERMISSION DENIED", buff, bufc);
+	    safe_noperm(buff, bufc);
 	}
     }
 }
@@ -3597,7 +3607,7 @@ FUNCTION(fun_haspower)
 			safe_chr('0', buff, bufc);
 		}
 	} else {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 	}
 }
 
@@ -3645,7 +3655,7 @@ FUNCTION(fun_delete)
     }
 
     if (!have_normal)
-	safe_str(ANSI_NORMAL, buff, bufc);
+	safe_ansi_normal(buff, bufc);
 }
 
 FUNCTION(fun_lock)
@@ -3734,7 +3744,7 @@ FUNCTION(fun_programmer)
     target = lookup_player(player, fargs[0], 1);
     if (!Good_obj(target) || !Connected(target) ||
 	!Examinable(player, target)) {
-	safe_str("#-1", buff, bufc);
+	safe_nothing(buff, bufc);
 	return;
     }
     safe_chr('#', buff, bufc);
@@ -3793,7 +3803,7 @@ const char *token;
 	it = match_thing(player, what);
 	if (!Good_obj(it) ||
 	    (!isPlayer(it) && !nearby_or_control(player, it))) {
-		safe_str("#-1 NO MATCH", buff, bufc);
+		safe_nomatch(buff, bufc);
 	} else {
 		str = (char *)token;
 		exec(buff, bufc, 0, it, it, 0, &str, (char **)NULL, 0);
@@ -3954,7 +3964,7 @@ FUNCTION(fun_lattr)
 		}
 	} else {
 	        if (! mudconf.lattr_oldstyle)
-		        safe_str("#-1 NO MATCH", buff, bufc);
+		        safe_nomatch(buff, bufc);
 	}
 	olist_pop();
 	return;
@@ -4967,7 +4977,7 @@ FUNCTION(fun_locate)
 	else
 		thing = match_controlled(player, fargs[0]);
 	if (!Good_obj(thing)) {
-		safe_str("#-1 PERMISSION DENIED", buff, bufc);
+		safe_noperm(buff, bufc);
 		return;
 	}
 	/* Get pre- and post-conditions and modifiers */
@@ -5686,34 +5696,36 @@ FUNCTION(fun_center)
 
 FUNCTION(fun_setq)
 {
-	int regnum;
+	int regnum, len;
 
 	regnum = atoi(fargs[0]);
 	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
-	} else {
-		if (!mudstate.global_regs[regnum])
-			mudstate.global_regs[regnum] =
-				alloc_lbuf("fun_setq");
-		strcpy(mudstate.global_regs[regnum], fargs[1]);
 	}
+		
+	if (!mudstate.global_regs[regnum])
+	    mudstate.global_regs[regnum] = alloc_lbuf("fun_setq");
+	len = strlen(fargs[1]);
+	bcopy(fargs[1], mudstate.global_regs[regnum], len + 1);
+	mudstate.glob_reg_len[regnum] = len;
 }
 
 FUNCTION(fun_setr)
 {
-	int regnum;
+	int regnum, len;
 
 	regnum = atoi(fargs[0]);
 	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
 		return;
-	} else {
-		if (!mudstate.global_regs[regnum])
-			mudstate.global_regs[regnum] =
-				alloc_lbuf("fun_setq");
-		strcpy(mudstate.global_regs[regnum], fargs[1]);
 	}
-	safe_str(fargs[1], buff, bufc);
+
+	if (!mudstate.global_regs[regnum])
+	    mudstate.global_regs[regnum] = alloc_lbuf("fun_setr");
+	len = strlen(fargs[1]);
+	bcopy(fargs[1], mudstate.global_regs[regnum], len + 1);
+	mudstate.glob_reg_len[regnum] = len;
+	safe_known_str(fargs[1], len, buff, bufc);
 }
 
 FUNCTION(fun_r)
@@ -5724,7 +5736,8 @@ FUNCTION(fun_r)
 	if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
 	} else if (mudstate.global_regs[regnum]) {
-		safe_str(mudstate.global_regs[regnum], buff, bufc);
+		safe_known_str(mudstate.global_regs[regnum],
+			       mudstate.glob_reg_len[regnum], buff, bufc);
 	}
 }
 

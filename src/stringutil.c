@@ -556,7 +556,7 @@ char *replace_string_ansi(old, new, string)
     }
 
     if (!have_normal)
-	safe_str(ANSI_NORMAL, result, &r);
+	safe_ansi_normal(result, &r);
 
     *r = '\0';
     return result;

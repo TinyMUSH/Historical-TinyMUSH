@@ -637,7 +637,7 @@ char *cargs[];
 				break;
 			case 'r':	/* Carriage return */
 			case 'R':
-				safe_str((char *)"\r\n", buff, bufc);
+				safe_known_str((char *)"\r\n", 2, buff, bufc);
 				break;
 			case 't':	/* Tab */
 			case 'T':
@@ -692,8 +692,10 @@ char *cargs[];
 				if (See_attr(player, player, ap,
 					     aowner, aflags)) {
 				    atr_gotten = atr_pget(player, ap->number,
-							  &aowner, &aflags, &alen);
-				    safe_str(atr_gotten, buff, bufc);
+							  &aowner, &aflags,
+							  &alen);
+				    safe_known_str(atr_gotten, alen,
+						   buff, bufc);
 				    free_lbuf(atr_gotten);
 				}
 				break;
@@ -752,7 +754,7 @@ char *cargs[];
 				i = 100 + ch - 'A';
 				atr_gotten = atr_pget(player, i, &aowner,
 						      &aflags, &alen);
-				safe_str(atr_gotten, buff, bufc);
+				safe_known_str(atr_gotten, alen, buff, bufc);
 				free_lbuf(atr_gotten);
 				break;
 			case 'Q':	/* Local registers */
@@ -762,8 +764,9 @@ char *cargs[];
 					break;
 				i = (**dstr - '0');
 				if (mudstate.global_regs[i]) {
-					safe_str(mudstate.global_regs[i],
-						 buff, bufc);
+					safe_known_str(mudstate.global_regs[i],
+						      mudstate.glob_reg_len[i],
+						       buff, bufc);
 				}
 				if (!**dstr)
 					(*dstr)--;
@@ -1120,7 +1123,7 @@ char *cargs[];
 	 */
 
 	if (ansi)
-		safe_str(ANSI_NORMAL, buff, bufc);
+		safe_ansi_normal(buff, bufc);
 
 	**bufc = '\0';
 

@@ -88,9 +88,9 @@ const char *raw;
 			*q++ = *p++;	/* ESC CHAR */
 			*q++ = *p++;	/* [ character. */
 			if (*p == '0') {	/* ANSI_NORMAL */
-				safe_str("0m", buf, &q);
+				safe_known_str("0m", 2, buf, &q);
 				safe_chr(ESC_CHAR, buf, &q);
-				safe_str("[37m", buf, &q);
+				safe_known_str("[37m", 4, buf, &q);
 				p += 2;
 			}
 		} else

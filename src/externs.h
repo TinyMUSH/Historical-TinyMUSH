@@ -617,4 +617,9 @@ extern void	FDECL(toast_player, (dbref));
 #define	test_top()		((mudstate.qfirst != NULL) ? 1 : 0)
 #define	controls(p,x)		Controls(p,x)
 
+#define safe_ansi_normal(b,p)	safe_copy_known_str(ANSI_NORMAL,4,(b),(p),(LBUF_SIZE-1))
+#define safe_nothing(b,p)	safe_copy_known_str("#-1",3,(b),(p),(LBUF_SIZE-1))
+#define safe_noperm(b,p)	safe_copy_known_str("#-1 PERMISSION DENIED",21,(b),(p),(LBUF_SIZE-1))
+#define safe_nomatch(b,p)	safe_copy_known_str("#-1 NO MATCH",12,(b),(p),(LBUF_SIZE-1))
+
 #endif	/* __EXTERNS_H */

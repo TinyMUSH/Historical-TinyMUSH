@@ -406,7 +406,7 @@ dbref sender, sendloc;
 	char *tp, *tbuff;
 
 	tp = tbuff = alloc_lbuf("notify_check.fwdlist");
-	safe_str((char *)"From ", tbuff, &tp);
+	safe_known_str((char *)"From ", 5, tbuff, &tp);
 	if (Good_obj(sendloc))
 	    safe_name(sendloc, tbuff, &tp);
 	else
@@ -537,7 +537,7 @@ const char *msg;
 				safe_str(tbuff, msg_ns, &mp);
 				safe_chr(')', msg_ns, &mp);
 			}
-			safe_str((char *)"] ", msg_ns, &mp);
+			safe_known_str((char *)"] ", 2, msg_ns, &mp);
 			free_sbuf(tbuff);
 		}
 		safe_str((char *)msg, msg_ns, &mp);
@@ -600,7 +600,7 @@ const char *msg;
 
 			tp = tbuff = alloc_lbuf("notify_check.puppet");
 			safe_name(target, tbuff, &tp);
-			safe_str((char *)"> ", tbuff, &tp);
+			safe_known_str((char *)"> ", 2, tbuff, &tp);
 			safe_str(msg_ns, tbuff, &tp);
 			raw_notify(Owner(target), tbuff);
 			free_lbuf(tbuff);
