@@ -102,15 +102,21 @@ int halt_que(player, object)
 dbref player, object;
 {
 	BQUE *trail, *point, *next;
-	int numhalted;
+	int numhalted, halt_all, i;
+	int *dbrefs_array;
 
 	numhalted = 0;
+	halt_all = ((player == NOTHING) && (object == NOTHING)) ? 1 : 0; 
+	if (halt_all)
+	    dbrefs_array = (int *) calloc(mudstate.db_top, sizeof(int));
 
 	/* Player queue */
 
 	for (point = mudstate.qfirst; point; point = point->next)
 		if (que_want(point, player, object)) {
 			numhalted++;
+			if (halt_all)
+			    dbrefs_array[Owner(point->player)] += 1;
 			point->player = NOTHING;
 		} 
 
@@ -119,6 +125,8 @@ dbref player, object;
 	for (point = mudstate.qlfirst; point; point = point->next)
 		if (que_want(point, player, object)) {
 			numhalted++;
+			if (halt_all)
+			    dbrefs_array[Owner(point->player)] += 1;
 			point->player = NOTHING;
 		} 
 
@@ -127,6 +135,8 @@ dbref player, object;
 	for (point = mudstate.qwait, trail = NULL; point; point = next)
 		if (que_want(point, player, object)) {
 			numhalted++;
+			if (halt_all)
+			    dbrefs_array[Owner(point->player)] += 1;
 			if (trail)
 				trail->next = next = point->next;
 			else
@@ -141,6 +151,8 @@ dbref player, object;
 	for (point = mudstate.qsemfirst, trail = NULL; point; point = next)
 		if (que_want(point, player, object)) {
 			numhalted++;
+			if (halt_all)
+			    dbrefs_array[Owner(point->player)] += 1;
 			if (trail)
 				trail->next = next = point->next;
 			else
@@ -152,6 +164,17 @@ dbref player, object;
 			free_qentry(point);
 		} else
 			next = (trail = point)->next;
+
+	if (halt_all) {
+	    for (i = 0; i < mudstate.db_top; i++) {
+		if (dbrefs_array[i]) {
+		    giveto(i, (mudconf.waitcost * dbrefs_array[i]));
+		    s_Queue(i, 0);
+		}
+	    }
+	    free(dbrefs_array);
+	    return numhalted;
+	}
 
 	if (player == NOTHING)
 		player = Owner(object);
