@@ -248,6 +248,10 @@ char *arg1, *arg2;
 		if (arg1 && *arg1) {
 			value = atoi(arg1);
 			set = 1;
+			if (value < 0) {
+			    notify(player, "Illegal quota value.");
+			    return;
+			}
 		} else if (key & (QUOTA_SET | QUOTA_FIX)) {
 			value = 0;
 			set = 1;
@@ -295,6 +299,10 @@ char *arg1, *arg2;
 	if (arg2 && *arg2) {
 		set = 1;
 		value = atoi(arg2);
+		if (value < 0) {
+		    notify(player, "Illegal quota value.");
+		    return;
+		}
 	} else if (key & QUOTA_FIX) {
 		set = 1;
 		value = 0;
