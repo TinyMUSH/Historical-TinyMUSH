@@ -473,7 +473,9 @@ char *name;
 		atr_add_raw(obj, A_LAST, buff);
 
 		buff = alloc_sbuf("create_obj.quota");
-		sprintf(buff, "%d", quota);
+		sprintf(buff, "%d %d %d %d %d", quota, mudconf.start_room_quota,
+			mudconf.start_exit_quota, mudconf.start_thing_quota,
+			mudconf.start_player_quota);
 		atr_add_raw(obj, A_QUOTA, buff);
 		atr_add_raw(obj, A_RQUOTA, buff);
 		add_player_name(obj, Name(obj));
