@@ -21,6 +21,23 @@ AC_ISC_POSIX
 AC_MINIX
 AC_AIX
 
+dnl Figure out preprocessor args to do 'make depend' stuff
+
+AC_MSG_CHECKING(for preprocessor flag to list dependencies)
+SAVECPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$SAVECPPFLAGS -xM1"
+AC_TRY_CPP(,
+  AC_MSG_RESULT(-xM1)
+    CPP_DEP="-xM1",
+  CPPFLAGS="$SAVECPPFLAGS -MM"
+  AC_TRY_CPP(,
+    AC_MSG_RESULT(-MM)
+      CPP_DEP="-MM",
+    AC_MSG_RESULT(-M)
+      CPP_DEP="-M"))
+CPPFLAGS="$SAVECPPFLAGS"
+AC_SUBST(CPP_DEP)
+
 dnl Make sure we're properly linked dynamically
 
 AC_LIBLTDL_CONVENIENCE

@@ -29,7 +29,7 @@ MOD_LA = mail.la
 all: install
 
 depend: $(MOD_S) Makefile
-	for i in $(MOD_S); do $(CPP) $(ALLCFLAGS) -MM $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ../../unsplit > .depend~
+	for i in $(MOD_S); do $(CPP) $(ALLCFLAGS) @CPP_DEP@ $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ../../unsplit > .depend~
 	for i in $(MOD_LA); do echo $$i: $$i | sed -e 's/la$$/o/'; done >> .depend~
 	mv .depend~ .depend
 	touch depend

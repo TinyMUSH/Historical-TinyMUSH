@@ -87,8 +87,7 @@ top_builddir = @srcdir@
 VPATH = @srcdir@
 BIN = ../game/bin
 CC = @CC@
-# CPP = @CPP@	# This is broken in autoconf.  Sigh.
-CPP = $(CC) -E
+CPP = @CPP@
 LIBTOOL = @LIBTOOL@
 LIBS = @LIBS@
 LIBOBJS = @LIBOBJS@
@@ -162,7 +161,7 @@ OUT	= netmush mkindx dbconvert slave recover
 all: install
 
 depend: $(ALL_S) unsplit Makefile
-	for i in $(ALL_S); do $(CPP) $(ALLCFLAGS) -MM $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
+	for i in $(ALL_S); do $(CPP) $(ALLCFLAGS) @CPP_DEP@ $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
 	mv .depend~ .depend
 	touch depend
 
