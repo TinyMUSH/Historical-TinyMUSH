@@ -1447,8 +1447,10 @@ int interactive, ncargs;
 					   add->atr, &aowner, &aflags);
 			    /* Skip the '$' character, and the next */
 			    for (s = buff + 2; *s && (*s != ':'); s++) ;
-			    if (!*s)
+			    if (!*s) {
+				free_lbuf(buff);
 				break;
+			    }
 			    *s++ = '\0';
 			    
 			    if (wild(buff + 1, new, aargs, 10)) {
