@@ -1275,7 +1275,7 @@
  
 & PARAM ALIASES
 	alias			attr_alias		flag_alias
-	logout_cmd_alias
+	function_alias		logout_cmd_alias
 
 & PARAM COSTS
 	create_max_cost		create_min_cost		dig_cost
@@ -1826,6 +1826,11 @@ use_global_aconn	wizard_obeys_linklock
   would normally return.
   See also: @list functions, FUNCTION LIST, PERMISSIONS.
 
+& function_alias
+  Config parameter: function_alias <alias> <function>
+ 
+  Defines <alias> as an alias for <function>.
+ 
 & full_motd_message
   Config parameter: full_motd_message <message>.  Default: blank
  
@@ -2051,8 +2056,13 @@ use_global_aconn	wizard_obeys_linklock
   This directive is only valid during startup.
 
 & initial_size
-  XXX
-
+  Config parameter: initial_size <number>.  Default: 1000
+ 
+  Defines the initial size of the database. You should set this to
+  around the number of objects on your game (your database size
+  plus 100, or something like that). This is a minor bit of
+  memory tuning. Don't worry about it too much.
+ 
 & input_database
   Config parameter: input_database.  Default: tinymush.db
   Specifies the name of the database file that is read in at startup.
@@ -2163,11 +2173,16 @@ use_global_aconn	wizard_obeys_linklock
   See also: log.
 
 & logout_cmd_access
-  XXX
-
+  Config parameter: logout_cmd_access <access>
+ 
+  Changes the access permissions on the logged-out commands.
+ 
 & logout_cmd_alias
-  XXX
-
+  Config parameter: logout_cmd_alias <alias> <command>
+ 
+  Defines <alias> as an alias for the logged-out command (DOING, QUIT, etc.)
+  <command>.
+ 
 & look_obey_terse
   Config parameter: look_obey_terse <yes/no>.  Default: Yes
   Indicates whether or not the 'look' command obeys the TERSE flag when

@@ -420,4 +420,6 @@ The initial beta release was on 9/27/99.
     from scratch), a basic comsys database is now created, with the
     Public and Guests channels.
 
+- Misc: Startmush script saves a copy of the old comsys.db and mail.db files.
+
 - Misc: Minor cleanup in various places.

@@ -99,8 +99,9 @@ STARTING A NEW GAME
 
 - You may want to make sure that you can back up and restore your database:
   Type '@shutdown'. Then, from the game directory, type './Backup'. If the
-  backup finishes successfully, type './Restore'. If this finishes 
-  successfully, then type './Startmush' to start the game again.
+  backup finishes successfully, type './Restore FILENAME' (where FILENAME
+  is the name of the backup file). If this finishes successfully, then
+  type './Startmush' to start the game again.
 
   If you encounter problems at this stage, you have an installation
   problem. The most common is a problem with GNU dbm; this is likely
