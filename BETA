@@ -679,7 +679,7 @@ The initial beta release was on 9/27/99.
 
 -----------------------------------------------------------------------------
 
-5/13/2000: Beta 20
+5/23/2000: Beta 20
 
 - Feature: A new script, ReportCrash, analyzes a core file and automatically
   emails the results to the bug-report address.
