@@ -8,16 +8,17 @@ PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
 #
 #	Make sure there isn't aready a MUSH running.
 #
-# SysV ps
-nmush=`ps -ef | egrep netmush | egrep -v egrep | wc -l`
-#
-# BSD ps - comment out the above and uncomment this, if necessary
-# nmush=`ps ux | egrep netmush | egrep -v egrep | wc -l`
-#
-if [ $nmush -gt 0 ]; then
-	echo "MUSH already running."
-	exit 0
+if [ -r mush.pid ]; then
+	oldpid=`cat mush.pid`
+	if [ $oldpid -gt 1 ]; then
+		nmush=`ps | grep $oldpid | grep netmush | wc -l`
+		if [ $nmush -gt 0 ]; then
+			echo "The MUSH already seems to be running."
+			exit 0
+		fi
+	fi
 fi
+
 #
 #	Make sure the indexes are up-to-date.
 #
@@ -112,5 +113,6 @@ fi
 #	Kick off MUSH
 #
 touch $LOGNAME
-(nohup $BIN/netmush $make_db $GAMENAME.conf >>$LOGNAME 2>&1 & echo Process $!)
+(nohup $BIN/netmush $make_db $GAMENAME.conf >>$LOGNAME 2>&1 & echo $! >mush.pid)
+echo "Process `cat mush.pid`"
 tail -f $LOGNAME | awk '{ print $0 }; /Cleanup completed/ { exit };'
