@@ -1372,6 +1372,7 @@ char *name, *buff, **bufc;
     return 0;
 }
 
+
 FUNCTION(fun_link)
 {
     if (check_command(player, "@link", buff, bufc))
@@ -1429,6 +1430,57 @@ FUNCTION(fun_wait)
 {
     do_wait(player, cause, 0, fargs[0], fargs[1], cargs, ncargs);
 }
+
+FUNCTION(fun_command)
+{
+    CMDENT *cmdp;
+    char tbuf1[1], tbuf2[1];
+
+    if (!fargs[0] || !*fargs[0])
+	return;
+
+    cmdp = (CMDENT *) hashfind(fargs[0], &mudstate.command_htab);
+    if (!cmdp) {
+	notify(player, "Command not found.");
+	return;
+    }
+
+    if (Invalid_Objtype(player) || !check_access(player, cmdp->perms) ||
+	(!Builder(player) && Protect(CA_GBL_BUILD) &&
+	 !(mudconf.control_flags & CF_BUILD))) {
+	notify(player, "Permission denied.");
+	return;
+    }
+
+    if (!(cmdp->callseq & CS_FUNCTION) || (cmdp->callseq & CS_ADDED)) {
+	notify(player, "Cannot call that command.");
+	return;
+    }
+
+    /* Can't handle null args, so make sure there's something there. */
+
+    tbuf1[0] = '\0';
+    tbuf2[0] = '\0';
+
+    switch (cmdp->callseq & CS_NARG_MASK) {
+	case CS_NO_ARGS:
+	    (*(cmdp->info.handler)) (player, cause, cmdp->extra);
+	    break;
+	case CS_ONE_ARG:
+	    (*(cmdp->info.handler)) (player, cause, cmdp->extra,
+				     ((fargs[1]) ? (fargs[1]) : tbuf1));
+	    break;
+	case CS_TWO_ARG:
+	    (*(cmdp->info.handler)) (player, cause, cmdp->extra,
+				     ((fargs[1]) ? (fargs[1]) : tbuf1),
+				     ((fargs[2]) ? (fargs[2]) : tbuf2));
+	    break;
+	default:
+	    notify(player, "Invalid command handler.");
+	    return;
+    }
+}
+
 
 /*------------------------------------------------------------------------
  * fun_create: Creates a room, thing or exit

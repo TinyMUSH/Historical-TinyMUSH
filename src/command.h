@@ -207,6 +207,7 @@ struct cmdentry {
 #define CS_LEADIN	0x1000	/* Command is a single-letter lead-in */
 #define CS_PRESERVE	0x2000	/* For hooks, preserve global registers */
 #define CS_NOSQUISH	0x4000	/* Do not space-compress */
+#define CS_FUNCTION	0x8000	/* Can call with command() */
 
 /* Command permission flags */
 

@@ -60,6 +60,7 @@ XFUNCTION(fun_wait);
 XFUNCTION(fun_create);
 XFUNCTION(fun_set);
 XFUNCTION(fun_wipe);
+XFUNCTION(fun_command);
 XFUNCTION(fun_last);
 XFUNCTION(fun_matchall);
 XFUNCTION(fun_ports);
@@ -5852,6 +5853,7 @@ FUN flist[] = {
 {"CHOMP",	fun_chomp,	1,  0,		CA_PUBLIC},
 {"CLEARVARS",	fun_clearvars,	0,  0,		CA_PUBLIC},
 {"COLUMNS",	fun_columns,	0,  FN_VARARGS, CA_PUBLIC},
+{"COMMAND",	fun_command,	0,  FN_VARARGS, CA_PUBLIC},
 {"COMP",	fun_comp,	2,  0,		CA_PUBLIC},
 {"CON",		fun_con,	1,  0,		CA_PUBLIC},
 {"CONN",	fun_conn,	1,  0,		CA_PUBLIC},
