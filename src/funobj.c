@@ -1231,6 +1231,7 @@ static void perform_get(player, str, buff, bufc)
 	return;
     }
     if (attrib == NOTHING) {
+	safe_noperm(buff, bufc);
 	return;
     }
     free_buffer = 1;
@@ -1254,17 +1255,10 @@ static void perform_get(player, str, buff, bufc)
 	atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
     }
 
-    /* Perform access checks.  c_r_p fills buff with an error message
-     * if needed. 
-     */
-
-    if (check_read_perms(player, thing, attr, aowner, aflags,
-			 buff, bufc)) {
-	if (free_buffer)
-	    safe_known_str(atr_gotten, alen, buff, bufc);
-	else
-	    safe_str(atr_gotten, buff, bufc);
-    }
+    if (free_buffer)
+	safe_known_str(atr_gotten, alen, buff, bufc);
+    else
+	safe_str(atr_gotten, buff, bufc);
 
     if (free_buffer)
 	free_lbuf(atr_gotten);
@@ -1300,6 +1294,7 @@ static void perform_get_eval(player, str, buff, bufc)
 		return;
 	}
 	if (attrib == NOTHING) {
+		safe_noperm(buff, bufc);
 		return;
 	}
 	free_buffer = 1;
@@ -1323,11 +1318,6 @@ static void perform_get_eval(player, str, buff, bufc)
 		eval_it = 0;
 	} else {
 		atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
-	}
-	if (!check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)) {
-		if (free_buffer)
-			free_lbuf(atr_gotten);
-		return;
 	}
 	if (eval_it) {
 		str = atr_gotten;
@@ -1395,10 +1385,6 @@ int nfargs, ncargs, is_local;
 	Parse_Uattr(player, fargs[0], thing, anum, ap);
 	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-	if (!check_read_perms(player, thing, ap, aowner, aflags, buff, bufc)) {
-		free_lbuf(atext);
-		return;
-	}
 	/* If we're evaluating locally, preserve the global registers. */
 
 	if (is_local) {
@@ -1479,14 +1465,15 @@ FUNCTION(fun_default)
 	 */
 
 	if (objname != NULL) {
-		if (parse_attrib(player, objname, &thing, &attrib) &&
-		    (attrib != NOTHING)) {
+	        if (parse_attrib(player, objname, &thing, &attrib)) {
+		    if (attrib == NOTHING) {
+			safe_noperm(buff, bufc);
+		    } else {
 			attr = atr_num(attrib);
 			if (attr && !(attr->flags & AF_IS_LOCK)) {
-				atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
-				if (*atr_gotten &&
-				check_read_perms(player, thing, attr, aowner,
-						 aflags, buff, bufc)) {
+				atr_gotten = atr_pget(thing, attrib,
+						      &aowner, &aflags, &alen);
+				if (*atr_gotten) {
 					safe_known_str(atr_gotten, alen,
 						       buff, bufc);
 					free_lbuf(atr_gotten);
@@ -1495,6 +1482,7 @@ FUNCTION(fun_default)
 				}
 				free_lbuf(atr_gotten);
 			}
+		    }
 		}
 		free_lbuf(objname);
 	}
@@ -1525,14 +1513,15 @@ FUNCTION(fun_edefault)
 	 */
 
 	if (objname != NULL) {
-		if (parse_attrib(player, objname, &thing, &attrib) &&
-		    (attrib != NOTHING)) {
+		if (parse_attrib(player, objname, &thing, &attrib)) {
+		    if (attrib == NOTHING) {
+			safe_noperm(buff, bufc);
+		    } else {
 			attr = atr_num(attrib);
 			if (attr && !(attr->flags & AF_IS_LOCK)) {
-				atr_gotten = atr_pget(thing, attrib, &aowner, &aflags, &alen);
-				if (*atr_gotten &&
-				check_read_perms(player, thing, attr, aowner,
-						 aflags, buff, bufc)) {
+				atr_gotten = atr_pget(thing, attrib,
+						      &aowner, &aflags, &alen);
+				if (*atr_gotten) {
 					str = atr_gotten;
 					exec(buff, bufc, thing, player,
 					     player, EV_FIGNORE | EV_EVAL,
@@ -1543,6 +1532,7 @@ FUNCTION(fun_edefault)
 				}
 				free_lbuf(atr_gotten);
 			}
+		    }
 		}
 		free_lbuf(objname);
 	}
@@ -1579,9 +1569,7 @@ FUNCTION(fun_udefault)
 	Parse_Uattr(player, objname, thing, anum, ap);
 	if (ap) {
 	    atext = atr_pget(thing, ap->number, &aowner, &aflags, &alen);
-	    if (*atext &&
-		check_read_perms(player, thing, ap, aowner, aflags,
-				 buff, bufc)) {
+	    if (*atext) {
 		/* Now we have a problem -- we've got to go eval
 		 * all of those arguments to the function. 
 		 */

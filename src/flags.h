@@ -321,6 +321,10 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	s_Connected(x)	s_Flags2((x), Flags2(x) | CONNECTED)
 #define	c_Connected(x)	s_Flags2((x), Flags2(x) & ~CONNECTED)
 
+#define Html(x) ((Flags2(x) & HTML) != 0)
+#define s_Html(x) s_Flags2((x), Flags2(x) | HTML)
+#define c_Html(x) s_Flags2((x), Flags2(x) & ~HTML)
+
 #define	Parentable(p,x)	(Controls(p,x) || \
 			 (Parent_ok(x) && could_doit(p,x,A_LPARENT)))
 
@@ -342,6 +346,9 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			  ((Owner(p) == Owner(x)) && \
 			   (Inherits(p) || !Inherits(x))) || \
 			  OnControlLock(p,x)))
+
+#define	Has_power(p,x)	(check_access((p),powers_nametab[x].flag))
+
 #define	Mark(x)		(mudstate.markbits->chunk[(x)>>3] |= \
 			 mudconf.markdata[(x)&7])
 #define	Unmark(x)	(mudstate.markbits->chunk[(x)>>3] &= \
@@ -375,21 +382,37 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Passes_Linklock(p,x)  \
 ((LinkToAny(p) && !mudconf.wiz_obey_linklock) ||  \
  could_doit(p,x,A_LLINK))
-    
-#define	See_attr(p,x,a,o,f) \
-			(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
-			 (God(p) || \
-			  ((f) & AF_VISUAL) || \
-                         (((Owner(p) == (o)) || Examinable(p,x)) && \
-			   !((a)->flags & (AF_DARK|AF_MDARK)) && \
-			   !((f) & (AF_DARK|AF_MDARK))) || \
-			  ((Wizard(p) || Royalty(p)) && !((a)->flags & AF_DARK)) || \
-			  !((a)->flags & (AF_DARK|AF_MDARK|AF_ODARK))))
-#define	See_attr_explicit(p,x,a,o,f) \
-			(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && \
-			 (((f) & AF_VISUAL) || \
-			  ((Owner(p) == (o)) && \
-			   !((a)->flags & (AF_DARK|AF_MDARK)))))
+
+/* Attribute visibility */
+
+#define AttrFlags(a,f)	((f) | (a)->flags)
+
+#define Visible_desc(p,x,a) \
+(((a)->number != A_DESC) || mudconf.read_rem_desc || nearby(p,x))
+
+#ifdef WHEN_WE_FIX_THE_STUPID_ODARK_STUFF
+#define Invisible_attr(p,x,a,o,f) \
+((!Examinable(p,x) && (Owner(p) != o)) || \
+   ((AttrFlags(a,f) & AF_MDARK) && !WizRoy(p)) || \
+   ((AttrFlags(a,f) & AF_MDARK) && !God(p)))
+#define Visible_attr(p,x,a,o,f) \
+(((AttrFlags(a,f) & AF_VISUAL) && Visible_desc(p,x,a)) || \
+ !Invisible_attr(p,x,a,o,f))
+#else
+#define Invisible_attr(p,x,a,o,f) \
+((!Examinable(p,x) && (Owner(p) != o) && ((a)->flags & AF_ODARK)) || \
+   ((AttrFlags(a,f) & AF_MDARK) && !WizRoy(p)) || \
+   ((AttrFlags(a,f) & AF_MDARK) && !God(p)))
+#define Visible_attr(p,x,a,o,f) \
+(((AttrFlags(a,f) & AF_VISUAL) || !Invisible_attr(p,x,a,o,f)) && \
+ Visible_desc(p,x,a))
+#endif
+
+#define See_attr(p,x,a,o,f) \
+(!((a)->flags & (AF_INTERNAL|AF_IS_LOCK)) && Visible_attr(p,x,a,o,f))
+
+#define Read_attr(p,x,a,o,f) \
+(!((a)->flags & AF_INTERNAL) && Visible_attr(p,x,a,o,f))
 
 /* We can set it if:
  * The (master) attribute is not internal or a lock AND
@@ -413,16 +436,6 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
      !((f) & (AF_WIZARD|AF_GOD))) || \
     (Wizard(p) && !((a)->flags & AF_GOD) && !((f) & AF_GOD))))))
 
-#define	Read_attr(p,x,a,o,f) \
-			(!((a)->flags & AF_INTERNAL) && \
-			 (God(p) || \
-			  ((f) & AF_VISUAL) || \
-                         (((Owner(p) == o) || Examinable(p,x)) && \
-			   !((a)->flags & (AF_DARK|AF_MDARK)) && \
-			   !((f) & (AF_DARK|AF_MDARK))) || \
-			  (WizRoy(p) && !((a)->flags & AF_DARK)) || \
-			  !((a)->flags & (AF_DARK|AF_MDARK|AF_ODARK))))
-
 /* Write_attr() is only used by atr_cpy(), and thus is not subject
  * to the effects of the Constant flag.
  */
@@ -436,9 +449,5 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			     !((f) & (AF_WIZARD|AF_GOD))) || \
 			    (Wizard(p) && \
 			     !((a)->flags & AF_GOD))))))
-#define	Has_power(p,x)	(check_access((p),powers_nametab[x].flag))
-#define Html(x) ((Flags2(x) & HTML) != 0)
-#define s_Html(x) s_Flags2((x), Flags2(x) | HTML)
-#define c_Html(x) s_Flags2((x), Flags2(x) & ~HTML)
 
 #endif /* __FLAGS_H */

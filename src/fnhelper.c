@@ -275,47 +275,6 @@ dbref player, cause;
 }
 
 /* ---------------------------------------------------------------------------
- * Check to make sure that we can read an attribute off an object.
- */
-
-int check_read_perms(player, thing, attr, aowner, aflags, buff, bufc)
-dbref player, thing;
-ATTR *attr;
-int aowner, aflags;
-char *buff, **bufc;
-{
-	int see_it;
-
-	/* If we have explicit read permission to the attr, return it */
-
-	if (See_attr_explicit(player, thing, attr, aowner, aflags))
-		return 1;
-
-	/* If we are nearby or have examine privs to the attr and it is 
-	 * visible to us, return it. 
-	 */
-
-	see_it = See_attr(player, thing, attr, aowner, aflags);
-	if ((Examinable(player, thing) || nearby(player, thing) || See_All(player)) && see_it)
-		return 1;
-
-	/* For any object, we can read its visible attributes, EXCEPT for
-	 * descs, which are only visible if read_rem_desc is on. 
-	 */
-
-	if (see_it) {
-		if (!mudconf.read_rem_desc && (attr->number == A_DESC)) {
-			safe_str("#-1 TOO FAR AWAY TO SEE", buff, bufc);
-			return 0;
-		} else {
-			return 1;
-		}
-	}
-	safe_noperm(buff, bufc);
-	return 0;
-}
-
-/* ---------------------------------------------------------------------------
  * Boolean true/false check.
  */
 
