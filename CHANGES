@@ -349,6 +349,9 @@ CHANGES TO COMMANDS
 - Specifying an object to @trigger is now optional; if no object is
   specified, the object defaults to 'me'.
 
+- @verb now takes a no_name switch, which prevents the actor's name from
+  being prepended to the default o-message.
+
 - Attributes containing a $command or ^monitor can now be @trigger'd 
   directly, as well as used as @a-actions; everything before the first
   un-escaped ':' is ignored.  Based on an idea from PennMUSH.

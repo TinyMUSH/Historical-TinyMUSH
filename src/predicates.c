@@ -1817,9 +1817,9 @@ dbref player, thing;
  * did_it: Have player do something to/with thing
  */
 
-void did_it(player, thing, what, def, owhat, odef, awhat, now, args, nargs, key)
+void did_it(player, thing, what, def, owhat, odef, awhat, ctrl_flags, args, nargs, msg_key)
 dbref player, thing;
-int what, owhat, awhat, now, nargs, key;
+int what, owhat, awhat, ctrl_flags, nargs, msg_key;
 char *args[];
 const char *def, *odef;
 {
@@ -1874,7 +1874,7 @@ const char *def, *odef;
     CALL_SOME_MODULES(retval, did_it,
 		      (player, thing, master,
 		       what, def, owhat, def, awhat,
-		       now, args, nargs, key));
+		       ctrl_flags, args, nargs, msg_key));
     if (retval > 0)
 	return;
 
@@ -2013,22 +2013,31 @@ const char *def, *odef;
 	    *bp = '\0';
 	    if (*buff) {
 		if (aflags & AF_NONAME) {
-		    notify_except2(loc, player, player, thing, buff, key);
+		    notify_except2(loc, player, player, thing, buff, msg_key);
 		} else {
 		    notify_except2(loc, player, player, thing,
-				   tprintf("%s %s", Name(player), buff), key);
+				   tprintf("%s %s", Name(player), buff),
+				   msg_key);
 		}
 	    }
 	    free_lbuf(buff);
 	} else if (odef) {
-	    notify_except2(loc, player, player, thing,
-			   tprintf("%s %s", Name(player), odef), key);
+	    if (ctrl_flags & VERB_NONAME) {
+		notify_except2(loc, player, player, thing, odef, msg_key);
+	    } else {
+		notify_except2(loc, player, player, thing,
+			       tprintf("%s %s", Name(player), odef), msg_key);
+	    }
 	}
 	free_lbuf(d);
     } else if ((owhat < 0) && odef && Has_location(player) &&
 	       Good_obj(loc = Location(player))) {
-	notify_except2(loc, player, player, thing,
-		       tprintf("%s %s", Name(player), odef), key);
+	if (ctrl_flags & VERB_NONAME) {
+	    notify_except2(loc, player, player, thing, odef, msg_key);
+	} else {
+	    notify_except2(loc, player, player, thing,
+			   tprintf("%s %s", Name(player), odef), msg_key);
+	}
     }
 
     if (m) {
@@ -2087,7 +2096,7 @@ const char *def, *odef;
 
 	    /* Go do it. */
 
-	    if (now) {
+	    if (ctrl_flags & VERB_NOW) {
 		preserve = save_global_regs("did_it_save2");
 		process_cmdline(thing, player, tp, args, nargs);
 		restore_global_regs("did_it_restore2", preserve);
@@ -2254,7 +2263,7 @@ char *victim_str, *args[];
 	 */
 
 	did_it(actor, victim, what, whatd, owhat, owhatd, awhat,
-	       key & VERB_NOW, xargs, nxargs,
+	       key & (VERB_NOW | VERB_NONAME), xargs, nxargs,
 	       (((key & VERB_SPEECH) ? MSG_SPEECH : 0) |
 		((key & VERB_MOVE) ? MSG_MOVE : 0) |
 		((key & VERB_PRESENT) ? MSG_PRESENCE : 0)));

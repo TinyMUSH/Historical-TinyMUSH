@@ -497,7 +497,8 @@ MODULE API FUNCTION: did_it
 int mod_<name>_did_it(dbref player, dbref thing, dbref master,
 		      int what, const char *def,
 		      int owhat, const char *odef,
-		      int awhat, int now, char *args[], int nargs, int key)
+		      int awhat, int ctrl_flags, char *args[], int nargs,
+		      int msg_key)
 
 	Run when did_it() is called, before the server actually does
 	the notification/others-notification/action. 
@@ -520,12 +521,14 @@ int mod_<name>_did_it(dbref player, dbref thing, dbref master,
 	what, owhat, and awhat are attribute numbers. def and odef are
 	the default strings for what and owhat.
 
-	now is 1 if the /now switch has been passed, or 0 otherwise.
-	It normally affects the queueing of actions.
+	ctrl_flags is a bitmask of VERB_NOW and VERB_NONAME. The VERB_NOW
+	flag is usually the result of passing the /now switch, and normally
+	affects the queueing of actions. The VERB_NONAME flag normally
+	prevents the actor's name from being prepended to the odef message.
 
 	args and nargs are the stack and number of items on the stack.
 
-	key is a bitmask of MSG_SPEECH, MSG_MOVE, and MSG_PRESENCE,
+	msg_key is a bitmask of MSG_SPEECH, MSG_MOVE, and MSG_PRESENCE,
 	allowing special processing related to the PRESENCE flag.
 
 	This function can be used to react to a large number of server

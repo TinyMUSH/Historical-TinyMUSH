@@ -338,7 +338,8 @@ NAMETAB	trig_sw[] = {
 NAMETAB	verb_sw[] = {
 {(char *)"known",	1,	CA_PUBLIC,	VERB_PRESENT|SW_MULTIPLE},
 {(char *)"move",	1,	CA_PUBLIC,	VERB_MOVE|SW_MULTIPLE},
-{(char *)"now",		1,	CA_PUBLIC,	VERB_NOW|SW_MULTIPLE},
+{(char *)"now",		3,	CA_PUBLIC,	VERB_NOW|SW_MULTIPLE},
+{(char *)"no_name",	3,	CA_PUBLIC,	VERB_NONAME|SW_MULTIPLE},
 {(char *)"speech",	1,	CA_PUBLIC,	VERB_SPEECH|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 

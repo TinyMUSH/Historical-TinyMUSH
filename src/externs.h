@@ -438,6 +438,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define VERB_MOVE	2	/* Treat like movement message */
 #define VERB_SPEECH	4	/* Treat like speech message */
 #define VERB_PRESENT	8	/* Treat like presence message */
+#define VERB_NONAME	16	/* Do not prepend name to odefault */
 
 /* Hush codes for movement messages */
 
