@@ -1,3 +1,4 @@
+#!@PATH_AWK@ -f -
 #
 # Generate a histogram from a mess of input numbers.
 # It's configurable:

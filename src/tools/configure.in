@@ -3,15 +3,26 @@ AC_INIT(rawdump.c)
 AC_PROG_CC
 AC_PROG_AWK
 if test $AWK = ""; then
-	echo You do not have an awk interpreter installed. Sorry.
-else
-	echo -e "#! /bin/sh\nAWK=$AWK" > temp
-	cat temp report.pre > report.sh
-	chmod +x report.sh
-	rm temp
-	echo -e "#!/bin/$AWK -f -" > temp
-	cat temp histogrammer.pre > histogrammer
-	rm temp
+	AC_MSG_ERROR(You do not have an awk interpreter installed. Sorry.)
 fi
-AC_OUTPUT(Makefile)
- 
+if test -x $AWK; then
+	PATH_AWK="$AWK"
+else
+        # go back and figure out where AC_PROG_AWK found it
+	for ac_prog in "$AWK"; do
+		set dummy $ac_prog; ac_word=$2
+
+		IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
+		ac_dummy="$PATH"
+		for ac_dir in $ac_dummy; do
+			test -z "$ac_dir" && ac_dir=.
+			if test -f $ac_dir/$ac_word; then
+				PATH_AWK="$ac_dir/$ac_prog"
+				break
+			fi
+  		done
+		IFS="$ac_save_ifs"
+	done
+fi
+AC_SUBST(PATH_AWK)
+AC_OUTPUT(histogrammer report.sh Makefile, chmod +x histogrammer report.sh)
