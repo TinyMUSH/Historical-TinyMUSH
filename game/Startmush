@@ -76,12 +76,16 @@ fi
 #
 if [ -r "comsys.db" ]; then
 	cp -f comsys.db comsys.db.old
+elif [ -r "$DATA/comsys.db" ]; then
+	cp -f $DATA/comsys.db $DATA/comsys.db.old
 else
 	echo "No previous comsys database."
 fi
 #
 if [ -r "mail.db" ]; then
 	cp -f mail.db mail.db.old
+elif [ -r "$DATA/mail.db" ]; then
+	cp -f $DATA/mail.db $DATA/mail.db
 else
 	echo "No previous mail database."
 fi
