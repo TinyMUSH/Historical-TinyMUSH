@@ -85,8 +85,9 @@ highly significant changes are noted here.
   restart is done), have been added. setx() sets a named variable,
   xvars() parses a list of strings into a list of variables, regparse()
   parses a regular expression into a list of variables, x() accesses
-  a named variable, lvars() lists named variables, and clearvars()
-  mass-unsets named variables.
+  a named variable (as does %_<var>), lvars() lists named variables,
+  clearvars() mass-unsets named variables, and let() does a Scheme-style
+  code block (with localized variables).
 
 - Added chomp() function -- akin to perl chomp(), it chomps off a
   trailing carriage-return newline from a string, if there is one.
@@ -96,8 +97,8 @@ highly significant changes are noted here.
 
 - Added force() and trigger() functions. Evil, but useful.
 
-- Conf parameter lattr_oldstyle controls what lattr() returns when it
-  fails to match: if 'yes', this is empty (2.0.10p5 and before, 2.2.1
+- Conf parameter lattr_default_oldstyle controls what lattr() returns when
+  it fails to match: if 'yes', this is empty (2.0.10p5 and before, 2.2.1
   and later), if 'no', this is #-1 NO MATCH (2.0.10p6, 2.2.0, MUX).
   Defaults to 'no'.
 
