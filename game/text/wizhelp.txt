@@ -405,14 +405,38 @@
  
 & @function2
  
-  The function definitions created by @function are not stored in the database
-  so they need to be re-created each time the MUSH is started.  It is
-  recommended that the Startup attribute for player #1 include code to
-  set up all global functions.
+  If the /noeval switch is given, the arguments to the function are not
+  evaluated prior to being passed. For example:
+ 
+    > &FOO #10 = Zero - %0, One - %1
+    > @function foo_eval = #10/foo
+    > @function/noeval foo_noeval = #10/foo
+ 
+    > say foo_eval(add(1,2),sub(5,4))
+    You say "Zero - 3, One - 1"
+    > say foo_noeval(add(1,2),sub(5,4))
+    You say "Zero - add(1,2), One - sub(5,4)"
+    > say foo_eval([add(1,2)],[sub(5,4)])
+    You say "Zero - 3, One - 1"
+    > say foo_noeval([add(1,2)],[sub(5,4)])
+    You say "Zero - [add(1,2)], One - [sub(5,4)]"
+   
+    > &FOO #10 = Zero - [s(%0)], One - [s(%1)]
+    > say foo_noeval([add(1,2)],[sub(5,4)])
+    You say "Zero - 3, One - 1"
+    
+  Continued in 'wizhelp @function3'.
+ 
+& @function3
+ 
+  The function definitions created by @function are not stored in the
+  database so they need to be re-created each time the MUSH is started.
+  It is recommended that the Startup attribute for player #1 include code
+  to set up all global functions.
  
   Function definitions may not be removed (aside from shutting down and
   restarting the MUSH, but they may be redefined so that they point to an
-  unused attribute.  This command may normally only be invoked by player #1.
+  unused attribute.  This command may normally only be invoked by God.
  
 & @halt
   Command: @halt[/<switches>] [<object>]
