@@ -2221,7 +2221,8 @@ FUNCTION(fun_lastcreate)
 /* ---------------------------------------------------------------------------
  * fun_speak: Complex say-format-processing function.
  *
- * speak(<object>, <string>[, <transform>[, <empty>[, <open>[, <close>]]]])
+ * speak(<object>, <string>[, <substitute for "says,">
+ *       [, <transform>[, <empty>[, <open>[, <close>]]]]])
  *
  * <string> can be a plain string (treated like say), :<foo> (pose),
  * : <foo> (pose/nospace), ;<foo> (pose/nospace), |<foo> (emit), or
@@ -2242,11 +2243,11 @@ FUNCTION(fun_lastcreate)
  * dbref as %0, and the speech part number as %1.
  */
 
-static void transform_say(speaker, str, key, trans_str, empty_str,
+static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
 			  open_sep, close_sep, open_len, close_len,
 			  player, caller, cause, buff, bufc)
     dbref speaker, player, caller, cause;
-    char *str, *trans_str, *empty_str, *buff, **bufc;
+    char *str, *say_str, *trans_str, *empty_str, *buff, **bufc;
     Delim open_sep, close_sep;
     int key, open_len, close_len;
 {
@@ -2307,8 +2308,8 @@ static void transform_say(speaker, str, key, trans_str, empty_str,
 	*bp = '\0';
 	if (result && *result) {
 	    if ((key == SAY_SAY) && (spos == 0)) {
-		safe_tprintf_str(buff, bufc, "%s says, %s",
-				 Name(speaker), result);
+		safe_tprintf_str(buff, bufc, "%s %s %s",
+				 Name(speaker), say_str, result);
 	    } else {
 		safe_str(result, buff, bufc);
 	    }
@@ -2360,7 +2361,7 @@ FUNCTION(fun_speak)
     dbref aowner1, aowner2;
     int aflags1, alen1, anum1, aflags2, alen2, anum2;
     ATTR *ap1, *ap2;
-    char *atext1, *atext2, *str;
+    char *atext1, *atext2, *str, *say_str;
     int is_transform, key;
 
     /* Delimiter processing here is different. We have to do some
@@ -2368,15 +2369,15 @@ FUNCTION(fun_speak)
      * intended space, not delim_check() defaulting.
      */
 
-    VaChk_Range(2, 6);
-    VaChk_InSep(5, 0);
+    VaChk_Range(2, 7);
+    VaChk_InSep(6, 0);
     if ((isep_len == 1) && (isep.c == ' ')) {
-	if ((nfargs < 5) || !fargs[4] || !*fargs[4]) {
+	if ((nfargs < 6) || !fargs[5] || !*fargs[5]) {
 	    isep.c = '"';
 	}
     }
-    VaChk_DefaultOut(6) {
-	VaChk_OutSep(6, 0);
+    VaChk_DefaultOut(7) {
+	VaChk_OutSep(7, 0);
     }
 
     /* Just need a match. Don't need to control it or anything. */
@@ -2392,13 +2393,22 @@ FUNCTION(fun_speak)
     if (!fargs[1] || !*fargs[1])
 	return;
 
+    /* Check if there's a string substituting for "says,". */
+
+    if ((nfargs >= 3) && fargs[2] && *fargs[2])
+	say_str = fargs[2];
+    else
+	say_str = (char *) "says,";
+
     /* Find the u-function. If we have a problem with it, we just default
      * to no transformation.
      */
 
+    atext1 = atext2 = NULL;
     is_transform = 0;
-    if (nfargs >= 3) { 
-	Parse_Uattr(player, fargs[2], obj1, anum1, ap1);
+
+    if (nfargs >= 4) { 
+	Parse_Uattr(player, fargs[3], obj1, anum1, ap1);
 	if (ap1) {
 	    atext1 = atr_pget(obj1, ap1->number,
 			      &aowner1, &aflags1, &alen1);
@@ -2416,8 +2426,8 @@ FUNCTION(fun_speak)
 
     /* Do some up-front work on the empty-case u-function, too. */
 
-    if (nfargs >= 4) {
-	Parse_Uattr(player, fargs[3], obj2, anum2, ap2);
+    if (nfargs >= 5) {
+	Parse_Uattr(player, fargs[4], obj2, anum2, ap2);
 	if (ap2) {
 	    atext2 = atr_pget(obj2, ap2->number,
 			      &aowner2, &aflags2, &alen2);
@@ -2452,12 +2462,12 @@ FUNCTION(fun_speak)
 		safe_tprintf_str(buff, bufc, "%s", fargs[1] + 1);
 		break;
 	    case '"':
-		safe_tprintf_str(buff, bufc, "%s says, \"%s\"",
-				 Name(thing), fargs[1] + 1);
+		safe_tprintf_str(buff, bufc, "%s %s \"%s\"",
+				 Name(thing), say_str, fargs[1] + 1);
 		break;
 	    default:
-		safe_tprintf_str(buff, bufc, "%s says, \"%s\"",
-				 Name(thing), fargs[1]);
+		safe_tprintf_str(buff, bufc, "%s %s \"%s\"",
+				 Name(thing), say_str, fargs[1]);
 		break;
 	}
 	return;
@@ -2495,7 +2505,7 @@ FUNCTION(fun_speak)
 	    key = SAY_SAY;
     }
 
-    transform_say(thing, str, key, atext1, atext2,
+    transform_say(thing, str, key, say_str, atext1, atext2,
 		  isep, osep, isep_len, osep_len,
 		  player, caller, cause, buff, bufc);
 }

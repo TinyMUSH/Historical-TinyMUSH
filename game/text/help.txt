@@ -9383,7 +9383,8 @@ performed and the walk down the list stops.
   See also: u(), objeval()
  
 & SPEAK()
-  Function: speak(<speaker>, <string>[, [<transform obj>/]<transform attr>,
+  Function: speak(<speaker>, <string>[, <say string>
+                  [, [<transform obj>/]<transform attr>
                   [, [<isnull obj>/]<isnull attr>[, <open>[, <close>]]]])
  
   This function is used to format speech-like constructs, and is
@@ -9400,6 +9401,8 @@ performed and the walk down the list stops.
   |<emit>            <emit>
   "<speech>          <speaker's name> says, "<speech>"
   <speech>           <speaker's name> says, "<speech>"
+ 
+  If <say string> is specified, it is used instead of "says,".
  
   Continued in 'help Speak2'.
  
@@ -9421,6 +9424,8 @@ performed and the walk down the list stops.
     Wizard says, "Test."
     > @emit [speak(me, Test.)]
     Wizard says, "Test."
+    > @emit [speak(me, Test., yells:)]
+    Wizard yells: "Test."
  
   Continued in 'help Speak3'.
  
@@ -9451,21 +9456,23 @@ performed and the walk down the list stops.
   Examples:
  
   > @va me = "Fragment %2 is: %0"
-  > @emit speak(me, test, va)
+  > @emit speak(me, test, ,va)
   Wizard says, "Fragment 0 is: test"
-  > @emit speak(me, "test, va)
+  > @emit speak(me, "test, ,va)
   Wizard says, "Fragment 0 is: test"
-  > @emit speak(me, :tests. "Hi.", va)
+  > @emit speak(me, "test, yells:, va)
+  Wizard yells: "Fragment 0 is: test"
+  > @emit speak(me, :tests. "Hi.", ,va)
   Wizard tests. "Fragment 1 is: Hi."
-  > @emit speak(me, : 's testing. "Hi.", va)
+  > @emit speak(me, : 's testing. "Hi.", ,va)
   Wizard's testing. "Fragment 1 is: Hi."
-  > @emit speak(me, ;'s testing. "Hi.", va)
+  > @emit speak(me, ;'s testing. "Hi.", ,va)
   Wizard's testing. "Fragment 1 is: Hi."
-  > @emit speak(me, |This is a test. "Hi.", va)
+  > @emit speak(me, |This is a test. "Hi.", ,va)
   This is a test. "Fragment 1 is: Hi."
-  > @emit speak(me, :tests. "Hi." And... "Bye." The end., vc)
+  > @emit speak(me, :tests. "Hi." And... "Bye." The end., ,va)
   Wizard tests. "Fragment 1 is: Hi." And... "Fragment 2 is: Bye." The end.
-  > @emit speak(me, :tests. "Hi." And... <<Bye.>> The end., va, , <<, >>)
+  > @emit speak(me, :tests. "Hi." And... <<Bye.>> The end., ,va, , <<, >>)
   Wizard tests. "Hi." And... "Fragment 1 is: Bye." The end.
  
   Continued in 'help Speak5'.
@@ -9485,7 +9492,7 @@ performed and the walk down the list stops.
  
   > &MUTTER_FN me = [ifelse(rand(2),"%0",)]
   > &NONE_FN me = [capstr(subj(%0))] mutters something.
-  > @emit speak(me, :tests. "Hello there.", MUTTER_FN, NONE_FN)
+  > @emit speak(me, :tests. "Hello there.", mutters:, MUTTER_FN, NONE_FN)
   Wizard tests. "Hello there."
   OR
   Wizard tests. He mutters something.
@@ -9507,9 +9514,9 @@ performed and the walk down the list stops.
   given any output yet.
  
   > &MUTTER_FN me = [ifelse(rand(2),"%0",)]
-  > &NONE_FN me = [switch(%2,0,name(%0),capstr(subj(%0)))] mutters something.
-  > @emit speak(me, Hello there., MUTTER_FN, NONE_FN)
-  Wizard says, "Hello there."
+  > &NONE_FN me = [switch(%1,0,name(%0),capstr(subj(%0)))] mutters something.
+  > @emit speak(me, Hello there., mutters:, MUTTER_FN, NONE_FN)
+  Wizard mutters: "Hello there."
   OR
   Wizard mutters something.
  
@@ -9524,7 +9531,7 @@ performed and the walk down the list stops.
  
   > &REV_FN me = [switch(%2,0,backwards,[capstr(subj(%1))] says backwards)],
                  "[revwords(%0)]"
-  > @emit speak(me,:tests. "Normal speech." +Mixed up speech+ Success!,
+  > @emit speak(me,:tests. "Normal speech." +Mixed up speech+ Success!, ,
                 REV_FN, ,+)
   Wizard tests. "Normal speech." He says backwards, "speech up Mixed" Success!
   
