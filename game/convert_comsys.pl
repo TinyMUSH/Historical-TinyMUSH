@@ -122,7 +122,7 @@ for ($i = 0; $i < $num_channels; $i++) {
 	$ISON{"$dbref $chname"} = $is_on;
 	$line = <>;
 	chomp $line;
-	($foo, $title) = split(':', $line);
+	($title) = ($line =~ /^t:(.*)$/);
 	$title =~ s/\"/\\\"/g;
 	if ($title) {
 	    $TITLE{"$dbref $chname"} = $title;
