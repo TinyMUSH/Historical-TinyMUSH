@@ -215,6 +215,7 @@ void NDECL(cf_init)
 	mudconf.fmt_exits = 1;
 	mudconf.ansi_colors = 1;
 	mudconf.safer_passwords = 0;
+	mudconf.instant_recycle = 1;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1337,6 +1338,8 @@ CONF conftable[] = {
 	cf_string,	CA_STATIC, 	(int *)mudconf.indb,		PBUF_SIZE},
 {(char *)"instance_limit",
 	cf_int,		CA_GOD,		&mudconf.instance_lim,		0},
+{(char *)"instant_recycle",
+	cf_bool,	CA_GOD,		&mudconf.instant_recycle,	0},
 {(char *)"kill_guarantee_cost",
 	cf_int,		CA_GOD,		&mudconf.killguarantee,		0},
 {(char *)"kill_max_cost",

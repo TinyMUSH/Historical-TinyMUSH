@@ -342,6 +342,7 @@ extern void	FDECL(toast_player, (dbref));
 #define	DEST_ONE	1	/* object */
 #define	DEST_ALL	2	/* owner */
 #define	DEST_OVERRIDE	4	/* override Safe() */
+#define DEST_INSTANT	8	/* instantly destroy */
 #define	DIG_TELEPORT	1	/* teleport to room after @digging */
 #define DOLIST_SPACE    0       /* expect spaces as delimiter */
 #define DOLIST_DELIMIT  1       /* expect custom delimiter */

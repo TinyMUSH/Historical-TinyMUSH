@@ -137,7 +137,8 @@ NAMETAB decomp_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB destroy_sw[] = {
-{(char *)"override",	8,	CA_PUBLIC,	DEST_OVERRIDE},
+{(char *)"instant",	4,	CA_PUBLIC,	DEST_INSTANT|SW_MULTIPLE},
+{(char *)"override",	8,	CA_PUBLIC,	DEST_OVERRIDE|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
 NAMETAB dig_sw[] = {
