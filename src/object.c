@@ -681,8 +681,8 @@ void do_freelist(player, cause, key, str)
 	return;
     }
 
-    /* The freelist is a linked list going from the highest-numbered
-     * objects to the lowest-numbered objects. We need to make sure an
+    /* The freelist is a linked list going from the lowest-numbered
+     * objects to the highest-numbered objects. We need to make sure an
      * object is clean before we muck with it.
      */
 
@@ -726,7 +726,7 @@ static void NDECL(make_freelist)
 	dbref i;
 
 	mudstate.freelist = NOTHING;
-	DO_WHOLE_DB(i) {
+	DO_WHOLE_DB_BACKWARDS(i) {
 		if (IS_CLEAN(i)) {
 			s_Link(i, mudstate.freelist);
 			mudstate.freelist = i;
