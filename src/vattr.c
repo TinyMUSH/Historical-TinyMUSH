@@ -112,7 +112,7 @@ int key;
 
     VATTR *vp, *vpx;
     dbref i, end;
-    int ca;
+    int ca, n_oldtotal, n_oldtop, n_deleted, n_renumbered, n_objt, n_atrt, got;
     char *as, *str;
     int *used_table;
     ATTR **new_table;
@@ -122,6 +122,10 @@ int key;
 
     used_table = (int *) XCALLOC(mudstate.attr_next, sizeof(int),
 				 "dbclean.used_table");
+
+    n_oldtotal = mudstate.attr_next;
+    n_oldtop = anum_alc_top;
+    n_deleted = n_renumbered = n_objt = n_atrt = 0;
 
     /* Non-user-defined attributes are always considered used. */
 
@@ -148,6 +152,7 @@ int key;
 	    anum_set(vpx->number, NULL);
 	    hashdelete(vpx->name, &mudstate.vattr_name_htab);
 	    XFREE(vpx, "dbclean.vpx");
+	    n_deleted++;
 	}
     }
 
@@ -179,6 +184,7 @@ int key;
 		vp->flags |= AF_DIRTY;
 		anum_set(used_table[i], (ATTR *) vp);
 		anum_set(i, NULL);
+		n_renumbered++;
 	    }
 	}
     }
@@ -190,13 +196,18 @@ int key;
 
     atr_push();
     DO_WHOLE_DB(i) {
+	got = 0;
 	for (ca = atr_head(i, &as); ca; ca = atr_next(&as)) {
 	    if (used_table[ca] != ca) {
 		str = atr_get_raw(i, ca);
 		atr_add_raw(i, used_table[ca], str);
 		atr_clr(i, ca);
+		n_atrt++;
+		got = 1;
 	    }
 	}
+	if (got)
+	    n_objt++;
     }
     atr_pop();
 
@@ -237,6 +248,18 @@ int key;
     /* Clean up. */
 
     XFREE(used_table, "dbclean.used_table");
+
+    if (anum_alc_top != n_oldtop) {
+	notify(player,
+	       tprintf("Cleaned %d attributes (now %d): %d deleted, %d renumbered (%d objects and %d individual attrs touched). Table size reduced from %d to %d.",
+		       n_oldtotal, mudstate.attr_next, n_deleted, n_renumbered,
+		       n_objt, n_atrt, n_oldtop, anum_alc_top));
+    } else {
+	notify(player,
+	       tprintf("Cleaned %d attributes (now %d): %d deleted, %d renumbered (%d objects and %d individual attrs touched).",
+		       n_oldtotal, mudstate.attr_next, n_deleted, n_renumbered,
+		       n_objt, n_atrt));
+    }
 
     raw_broadcast(0, "GAME: Database cleaning complete.");
 
