@@ -157,7 +157,7 @@ MUSH_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S)
 MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
 	  $(LIBOBJS)
 
-OUT	= netmush mkindx dbconvert slave
+OUT	= netmush mkindx dbconvert slave recover
 
 # paths is likely to remain broken
 all: depend-update $(OUT) links
@@ -190,6 +190,7 @@ links: $(OUT)
 	cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx mkindx
 	cd ../game/bin ; rm -f netmush ; ln -s ../../src/netmush netmush
 	cd ../game/bin ; rm -f slave ; ln -s ../../src/slave slave
+	cd ../game/bin ; rm -f recover ; ln -s ../../src/recover recover
 	cd ../game/text; rm -f mkindx; ln -s ../../src/mkindx mkindx
 
 conc: portconc.o
@@ -201,6 +202,10 @@ slave: slave.o
 
 mkindx: mkindx.o
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
+
+recover:
+	$(CC) $(ALLCFLAGS) -I./gdbm-1.8.0 -c recover.c
+	$(CC) $(ALLCFLAGS) -o recover recover.o $(LIBS)
 
 unsplit: unsplit.o
 	$(CC) $(ALLCFLAGS) -o unsplit unsplit.o

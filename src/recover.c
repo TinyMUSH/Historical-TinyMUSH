@@ -93,6 +93,9 @@ char *argv[];
 				exit(1);
 			}
 			
+			/* Check the tag to make sure it's correct, and
+			 * make sure the pointer and sizes are sane */
+			 
 			if (!memcmp((void *)(be.start_tag),
 				    (void *)"TM3S", 4) &&
 			    be.data_pointer < filesize &&
@@ -124,10 +127,6 @@ char *argv[];
 					exit(1);
 				}
 
-#ifdef DEBUG				
-				fprintf(stdout, "%d:%d:%d:%s\n", numbytes, ((Aname *)key.dptr)->object, ((Aname *)key.dptr)->attrnum, (char *)dat.dptr);
-#endif
-				
 				if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
 					fprintf(stderr,
 					"Fatal error in gdbm_store (%s): %s\n",
