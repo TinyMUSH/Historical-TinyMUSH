@@ -1283,49 +1283,6 @@ FUNCTION(fun_parent)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_parse: Make list from evaluating arg3 with each member of arg2.
- * arg1 specifies a delimiter character to use in the parsing of arg2.
- * NOTE: This function expects that its arguments have not been evaluated.
- */
-
-FUNCTION(fun_parse)
-{
-	char *curr, *objstring, *buff2, *buff3, *cp, sep, osep;
-	char *dp, *str;
-	int first, number = 0;
-
-	evarargs_preamble("PARSE", 2, 4);
-	cp = curr = dp = alloc_lbuf("fun_parse");
-	str = fargs[0];
-	exec(curr, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
-	     cargs, ncargs);
-	*dp = '\0';
-	cp = trim_space_sep(cp, sep);
-	if (!*cp) {
-		free_lbuf(curr);
-		return;
-	}
-	first = 1;
-	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-	        if (!first && osep) {
-		    safe_chr(osep, buff, bufc);
-		}
-		first = 0;
-		number++;
-		objstring = split_token(&cp, sep);
-		buff2 = replace_string(BOUND_VAR, objstring, fargs[1]);
-		buff3 = replace_string(LISTPLACE_VAR, tprintf("%d", number),
-				       buff2);
-		str = buff3;
-		exec(buff, bufc, 0, player, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-		free_lbuf(buff2);
-		free_lbuf(buff3);
-	}
-	free_lbuf(curr);
-}
-
-/* ---------------------------------------------------------------------------
  * fun_mid: mid(foobar,2,3) returns oba
  */
 
@@ -4405,101 +4362,112 @@ FUNCTION(fun_repeat)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_iter: Make list from evaluating arg2 with each member of arg1.
- * NOTE: This function expects that its arguments have not been evaluated.
+ * fun_loop and fun_parse exist for reasons of backwards compatibility.
+ * See notes on fun_iter for the explanation.
  */
 
-FUNCTION(fun_iter)
+static void perform_loop(buff, bufc, player, cause, list, exprstr,
+			 cargs, ncargs, sep, osep, flag)
+    char *buff, **bufc;
+    dbref player, cause;
+    char *list, *exprstr;
+    char *cargs[];
+    int ncargs;
+    char sep, osep;
+    int flag;			/* 0 is parse(), 1 is loop() */
 {
-	char *curr, *objstring, *buff2, *buff3, *cp, *dp, sep, osep, *str;
-	int first, number = 0;
+    char *curr, *objstring, *buff2, *buff3, *cp, *dp, *str, *result, *bb_p;
+    char tbuf[8];
+    int number = 0;
 
-	evarargs_preamble("ITER", 2, 4);
-	
-	dp = cp = curr = alloc_lbuf("fun_iter");
-	str = fargs[0];
-	exec(curr, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
-	     cargs, ncargs);
-	*dp = '\0';
-	cp = trim_space_sep(cp, sep);
-	if (!*cp) {
-		free_lbuf(curr);
-		return;
-	}
-	first = 1;
-	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-	        if (!first && osep) {
-		    safe_chr(osep, buff, bufc);
-		}
-		first = 0;
-		number++;
-		objstring = split_token(&cp, sep);
-		buff2 = replace_string(BOUND_VAR, objstring, fargs[1]);
-		buff3 = replace_string(LISTPLACE_VAR, tprintf("%d", number),
-				       buff2);
-		str = buff3;
-		exec(buff, bufc, 0, player, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-		free_lbuf(buff2);
-		free_lbuf(buff3);
-	}
+    dp = cp = curr = alloc_lbuf("perform_loop.1");
+    str = list;
+    exec(curr, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
+	 cargs, ncargs);
+    *dp = '\0';
+    cp = trim_space_sep(cp, sep);
+    if (!*cp) {
 	free_lbuf(curr);
+	return;
+    }
+
+    bb_p = *bufc;
+
+    while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
+	if (!flag && (*bufc != bb_p) && osep) {
+	    safe_chr(osep, buff, bufc);
+	}
+	number++;
+	objstring = split_token(&cp, sep);
+	buff2 = replace_string(BOUND_VAR, objstring, exprstr);
+	ltos(tbuf, number);
+	buff3 = replace_string(LISTPLACE_VAR, tbuf, buff2);
+	str = buff3;
+	if (!flag) {
+	    exec(buff, bufc, 0, player, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
+	} else {
+	    dp = result = alloc_lbuf("perform_loop.2");
+	    exec(result, &dp, 0, player, cause,
+		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
+	    *dp = '\0';
+	    notify(cause, result);
+	    free_lbuf(result);
+	}
+	free_lbuf(buff2);
+	free_lbuf(buff3);
+    }
+    free_lbuf(curr);
 }
 
-FUNCTION(fun_list)
+FUNCTION(fun_parse)
 {
-	char *curr, *objstring, *buff2, *buff3, *result, *cp, *dp, *str, sep;
-	int number = 0;
+    char sep, osep;
 
-	varargs_preamble("LIST", 3);
-	cp = curr = dp = alloc_lbuf("fun_list");
-	str = fargs[0];
-	exec(curr, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
-	     cargs, ncargs);
-	cp = trim_space_sep(cp, sep);
-	if (!*cp) {
-		free_lbuf(curr);
-		return;
-	}
-	while (cp) {
-		number++;
-		objstring = split_token(&cp, sep);
-		buff2 = replace_string(BOUND_VAR, objstring, fargs[1]);
-		buff3 = replace_string(LISTPLACE_VAR, tprintf("%d", number),
-				       buff2);
-		dp = result = alloc_lbuf("fun_list.2");
-		str = buff3;
-		exec(result, &dp, 0, player, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-		*dp = '\0';
-		free_lbuf(buff2);
-		free_lbuf(buff3);
-		notify(cause, result);
-		free_lbuf(result);
-	}
-	free_lbuf(curr);
+    evarargs_preamble("PARSE", 2, 4);
+    perform_loop(buff, bufc, player, cause, fargs[0], fargs[1],
+		 cargs, ncargs, sep, osep, 0);
 }
-
-/* ---------------------------------------------------------------------------
- * fun_loop: Like iter(), except the arguments can be nested.
- * This is a separate function for reasons of backwards compatibility,
- * since the peculiarities of the way substitutions were done in the string
- * replacements would break a lot of code that relied upon particular
- * patterns of necessary escaping.
- */
 
 FUNCTION(fun_loop)
 {
-    char *list_str, *lp, *str, *input_p, *bb_p, *save_token, *work_buf;
+    char sep;
+
+    varargs_preamble("LOOP", 3);
+    perform_loop(buff, bufc, player, cause, fargs[0], fargs[1],
+		 cargs, ncargs, sep, ' ', 1);
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_iter() and fun_list() parse an expression, substitute elements of
+ * a list, one at a time, using the '##' replacement token. Uses of these
+ * functions can be nested.
+ * In older versions of MUSH, these functions could not be nested.
+ * parse() and loop() exist for reasons of backwards compatibility,
+ * since the peculiarities of the way substitutions were done in the string
+ * replacements make it necessary to provide some way of doing backwards
+ * compatibility, in order to avoid breaking a lot of code that relies upon
+ * particular patterns of necessary escaping.
+ */
+
+static void perform_iter(buff, bufc, player, cause, list, exprstr,
+			 cargs, ncargs, sep, osep, flag)
+    char *buff, **bufc;
+    dbref player, cause;
+    char *list, *exprstr;
+    char *cargs[];
+    int ncargs;
     char sep, osep;
+    int flag;			/* 0 is iter(), 1 is list() */
+{
+    char *list_str, *lp, *str, *input_p, *bb_p, *save_token, *work_buf;
+    char *dp, *result;
     int number, save_num;
 
-    evarargs_preamble("LOOP", 2, 4);
+    /* The list argument is unevaluated. Go evaluate it. */
 
-    /* Our first argument is unevaluated. Go evaluate it, and get the list. */
-
-    input_p = lp = list_str = alloc_lbuf("fun_loop.list");
-    str = fargs[0];
+    input_p = lp = list_str = alloc_lbuf("perform_iter.list");
+    str = list;
     exec(list_str, &lp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL, &str,
 	 cargs, ncargs);
     *lp = '\0';
@@ -4517,16 +4485,25 @@ FUNCTION(fun_loop)
     bb_p = *bufc;
 
     while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim)) {
-	if ((*bufc != bb_p) && osep) {
+	if (!flag && (*bufc != bb_p) && osep) {
 	    safe_chr(osep, buff, bufc);
 	}
 	mudstate.loop_token = split_token(&input_p, sep);
 	mudstate.loop_number++;
-	work_buf = alloc_lbuf("fun_loop.eval");
-	strcpy(work_buf, fargs[1]); /* we might nibble this */
+	work_buf = alloc_lbuf("perform_iter.eval");
+	strcpy(work_buf, exprstr); /* we might nibble this */
 	str = work_buf;
-	exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
-	     &str, cargs, ncargs);
+	if (!flag) {
+	    exec(buff, bufc, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		 &str, cargs, ncargs);
+	} else {
+	    dp = result = alloc_lbuf("perform_iter.out");
+	    exec(result, &dp, 0, player, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+		 &str, cargs, ncargs);
+	    *dp = '\0';
+	    notify(cause, result);
+	    free_lbuf(result);
+	}
 	free_lbuf(work_buf);
     }
 
@@ -4534,6 +4511,24 @@ FUNCTION(fun_loop)
     mudstate.loop_token = save_token;
     mudstate.loop_number = save_num;
     mudstate.in_loop--;
+}
+
+FUNCTION(fun_iter)
+{
+    char sep, osep;
+
+    evarargs_preamble("ITER", 2, 4);
+    perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
+		 cargs, ncargs, sep, osep, 0);
+}
+
+FUNCTION(fun_list)
+{
+    char sep;
+
+    varargs_preamble("LIST", 3);
+    perform_iter(buff, bufc, player, cause, fargs[0], fargs[1],
+		 cargs, ncargs, sep, ' ', 1);
 }
 
 /* ---------------------------------------------------------------------------
