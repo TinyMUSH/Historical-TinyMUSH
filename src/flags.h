@@ -186,6 +186,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 /* Has_location(X)	- Is X something with a location (ie plyr or obj) */
 /* Has_home(X)		- Is X something with a home (ie plyr or obj) */
 /* Has_contents(X)	- Is X something with contents (ie plyr/obj/room) */
+/* Good_dbref(X)	- Is X inside the DB? */
 /* Good_obj(X)		- Is X inside the DB and have a valid type? */
 /* Good_owner(X)	- Is X a good owner value? */
 /* Going(X)		- Is X marked GOING? */
@@ -222,8 +223,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	isExit(x)	(Typeof(x) == TYPE_EXIT)
 #define	isThing(x)	(Typeof(x) == TYPE_THING)
 
-#define	Good_obj(x)	(((x) >= 0) && ((x) < mudstate.db_top) && \
-			 (Typeof(x) < GOODTYPE))
+#define Good_dbref(x)	(((x) >= 0) && ((x) < mudstate.db_top))
+#define	Good_obj(x)	(Good_dbref(x) && (Typeof(x) < GOODTYPE))
 #define	Good_owner(x)	(Good_obj(x) && OwnsOthers(x))
 
 #define Royalty(x)      ((Flags(x) & ROYALTY) != 0)

@@ -460,7 +460,7 @@ char *name;
 	obj = NOTHING;
 	if (mudstate.freelist != NOTHING) {
 		obj = mudstate.freelist;
-		if (Good_obj(obj) && IS_CLEAN(obj)) {
+		if (Good_dbref(obj) && IS_CLEAN(obj)) {
 			mudstate.freelist = Link(obj);
 		} else {
 			LOG_SIMPLE(LOG_PROBLEMS, "FRL", "DAMAG",
@@ -696,7 +696,7 @@ void do_freelist(player, cause, key, str)
 	return;
     }
     thing = atoi(str);
-    if (!Good_obj(thing)) {
+    if (!Good_dbref(thing)) {
 	notify(player, NOMATCH_MESSAGE);
 	return;
     }
