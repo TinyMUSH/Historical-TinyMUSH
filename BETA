@@ -24,7 +24,7 @@ Release history:
 			TinyMUSH 3.1 Beta History
 =============================================================================
 
-06/xx/2002: Beta 3
+06/07/2002: Beta 3
  
 - Feature: The new choose() function picks an element from a list on a
   weighted-random-choice basis. 
@@ -66,9 +66,13 @@ Release history:
 
 - Fix: Failed to link with zlib when needed by mysql. [3.0; Michael Broggy]
 
+- Fix: Database structure initialization for modules is done correctly.
+  [3.1a6; Taran]
+
 - Misc: FREE flag is respected for @conformat and friends. [3.1b1; Neva]
 
-- Misc: Hide connected flag more consistently.
+- Misc: The Hide power or Wizard status is always required to avoid
+  connection detection. [3.1a7]
 
 - Cosmetic: Shout messages include the grammatically correct comma after
   "shouts". [2.0; Neva]
