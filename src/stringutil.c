@@ -174,29 +174,81 @@ const char *s;
 	return n;
 }
 
+/* normal_to_white -- This function implements the NOBLEED flag */
+
 char *normal_to_white(raw)
 const char *raw;
 {
 	static char buf[LBUF_SIZE];
 	char *p = (char *)raw;
 	char *q = buf;
-
+	char *just_after_csi;
+	char *just_after_esccode = p;
+	unsigned int param_val;
+	int has_zero;
 
 	while (p && *p) {
 		if (*p == ESC_CHAR) {
-			/* Start of ANSI code. */
-			*q++ = *p++;	/* ESC CHAR */
-			*q++ = *p++;	/* [ character. */
-			if (*p == '0') {	/* ANSI_NORMAL */
-				safe_known_str("0m", 2, buf, &q);
-				safe_chr(ESC_CHAR, buf, &q);
-				safe_known_str("[37m", 4, buf, &q);
-				p += 2;
+			safe_known_str(just_after_esccode, p - just_after_esccode, buf, &q);
+			if (p[1] == ANSI_CSI) {
+				safe_chr(*p, buf, &q);
+				++p;
+				safe_chr(*p, buf, &q);
+				++p;
+				just_after_csi = p;
+				has_zero = 0;
+				while ((*p & 0xf0) == 0x30) {
+					if (*p == '0')
+						has_zero = 1;
+					++p;
+				}
+				while ((*p & 0xf0) == 0x20) {
+					++p;
+				}
+				if (*p == ANSI_END && has_zero) {
+					/* it really was an ansi code,
+					 * go back and fix up the zero
+					 */
+					p = just_after_csi;
+					param_val = 0;
+					while ((*p & 0xf0) == 0x30) {
+						if (*p < 0x3a) {
+							param_val <<= 1;
+							param_val += (param_val << 2) + (*p & 0x0f);
+							safe_chr(*p, buf, &q);
+						} else {
+							if (param_val == 0) {
+								/* ansi normal */
+								safe_known_str("m\033[37m\033[", 8, buf, &q);
+							} else {
+								/* some other color */
+								safe_chr(*p, buf, &q);
+							}
+							param_val = 0;
+						}
+						++p;
+					}
+					while ((*p & 0xf0) == 0x20) {
+						++p;
+					}
+					safe_chr(*p, buf, &q);
+					++p;
+					if (param_val == 0) {
+						safe_known_str(ANSI_WHITE, 5, buf, &q);
+					}
+				} else {
+					++p;
+					safe_known_str(just_after_csi, p - just_after_csi, buf, &q);
+				}
+			} else {
+				safe_copy_esccode(p, buf, &q);
 			}
-		} else
-			*q++ = *p++;
+			just_after_esccode = p;
+		} else {
+			++p;
+		}
 	}
-	*q = '\0';
+	safe_known_str(just_after_esccode, p - just_after_esccode, buf, &q);
 	return buf;
 }
 
