@@ -62,13 +62,8 @@ char *msg;
 int dddb_optimize()
 {
 	int i;
-	
-	/* gdbm_reorganize is an expensive operation that does not need
-	 * to run synchronously */
-	 
-	dddb_setsync(0);
+
 	i = gdbm_reorganize(dbp);
-	dddb_setsync(1);
 	return i;
 }
 
