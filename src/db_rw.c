@@ -1337,6 +1337,9 @@ int *db_format, *db_version, *db_flags;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
 	int aflags, f1, f2, f3;
 	BOOLEXP *tempbool;
+#ifndef NO_TIMECHECKING
+	struct timeval obj_time;
+#endif
 
 	header_gotten = 0;
 	size_gotten = 0;
@@ -1662,6 +1665,14 @@ int *db_format, *db_version, *db_flags;
 			s_Exits(i, getref(f));
 			s_Link(i, NOTHING);
 			s_Next(i, getref(f));
+#ifndef NO_TIMECHECKING
+			obj_time.tv_sec = obj_time.tv_usec = 0;
+			s_Time_Used(i, obj_time);
+#endif
+			s_StackCount(i, 0);
+			s_VarsCount(i, 0);
+			s_StructCount(i, 0);
+			s_InstanceCount(i, 0);
 /* s_Zone(i, NOTHING); */
 			tempbool = getboolexp(f);
 			atr_add_raw(i, A_LOCK,

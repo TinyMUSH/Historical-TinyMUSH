@@ -485,6 +485,11 @@ char *name;
 	s_Time_Used(obj, obj_time);
 #endif
 
+	s_StackCount(obj, 0);
+	s_VarsCount(obj, 0);
+	s_StructCount(obj, 0);
+	s_InstanceCount(obj, 0);
+
 	if (objtype == TYPE_PLAYER) {
 		time(&tt);
 		buff = (char *)ctime(&tt);
