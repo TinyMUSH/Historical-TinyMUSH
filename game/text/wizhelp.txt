@@ -880,7 +880,7 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
     Mail messages	- Mail messages, if @mail is enabled.
     Channel names	- Comsys channels, if the comsys is enabled.
  
-  See also: @list textfiles, alias, attr_alias, flag_alias.
+  See also: @list textfiles, alias, attr_alias, flag_alias, power_alias.
  
 & @list logging
   Command: @list logging
@@ -1436,7 +1436,7 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
  
 & PARAM ALIASES
 	alias			attr_alias		flag_alias
-	function_alias		logout_cmd_alias
+	function_alias		logout_cmd_alias	power_alias
 
 & PARAM COSTS
 	create_max_cost		create_min_cost		dig_cost
@@ -2826,6 +2826,11 @@ use_global_aconn	wizard_obeys_linklock
   
   See also: flag_access, @list powers, PERMISSIONS.
   
+& power_alias
+  Config parameter: power_alias <alias> <powername>.
+ 
+  Defines <alias> as a synonym for the power <powername>.
+ 
 & public_calias
   Config parameter: public_calias <channel alias>. Default: pub
  

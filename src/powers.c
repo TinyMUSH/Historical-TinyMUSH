@@ -201,7 +201,7 @@ void NDECL(init_powertab)
 	POWERENT *fp;
 	char *nbuf, *np, *bp;
 
-	hashinit(&mudstate.powers_htab, 15 * HASH_FACTOR);
+	hashinit(&mudstate.powers_htab, 25 * HASH_FACTOR);
 	nbuf = alloc_sbuf("init_powertab");
 	for (fp = gen_powers; fp->powername; fp++) {
 		for (np = nbuf, bp = (char *)fp->powername; *bp; np++, bp++)

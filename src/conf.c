@@ -1473,6 +1473,7 @@ CONF conftable[] = {
 {(char *)"player_starting_room",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.start_room,		0},
 {(char *)"port",			cf_int,		CA_STATIC,	CA_PUBLIC,	&mudconf.port,			0},
 {(char *)"power_access",		cf_power_access,CA_GOD,		CA_DISABLED,	NULL,				0},
+{(char *)"power_alias",			cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.powers_htab,	(long)"Power"},
 {(char *)"public_flags",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pub_flags,		(long)"Flag information is public"},
 {(char *)"queue_active_chunk",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.active_q_chunk,	0},
 {(char *)"queue_idle_chunk",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.queue_chunk,		0},
