@@ -781,7 +781,7 @@ int check_exclude, hash_insert, is_special;
 		}
 		free_lbuf(buf);
 	}
-	free(cattr);
+	XFREE(cattr, "look_atrs1");
 }
 
 static void look_atrs(player, thing, check_parents, is_special)

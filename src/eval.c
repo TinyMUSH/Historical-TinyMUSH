@@ -437,7 +437,7 @@ char *cargs[];
 {
 #define	NFARGS	30
 	char *fargs[NFARGS], *preserve[MAX_GLOBAL_REGS];
-	char *tstr, *tbuf, *tbufc, *savepos, *atr_gotten, *start, *oldp;
+	char *tstr, *tbuf, *savepos, *atr_gotten, *start, *oldp;
 	char savec, ch, *savestr, *str, *xptr, *mundane, *p;
 	char *realbuff = NULL, *realbp = NULL;
 	char xtbuf[SBUF_SIZE], *xtp;
@@ -476,7 +476,7 @@ char *cargs[];
 	if (((*bufc) - buff) > (LBUF_SIZE - SBUF_SIZE)) {
 		realbuff = buff;
 		realbp = *bufc;
-		buff = (char *)XMALLOC(LBUF_SIZE, "buff_extend");
+		buff = (char *)XMALLOC(LBUF_SIZE, "exec.buff_extend");
 		*bufc = buff;
 	}
 
@@ -799,10 +799,10 @@ char *cargs[];
 				if (gender < 0)
 					gender = get_gender(cause);
 				if (!gender)
-					tbuf = Name(cause);
+					safe_name(cause, buff, bufc);
 				else
-					tbuf = (char *)obj[gender];
-				safe_str(tbuf, buff, bufc);
+					safe_str((char *)obj[gender],
+						 buff, bufc);
 				break;
 			case 'P':	/* Personal pronoun */
 			case 'p':
@@ -821,10 +821,10 @@ char *cargs[];
 				if (gender < 0)
 					gender = get_gender(cause);
 				if (!gender)
-					tbuf = Name(cause);
+					safe_name(cause, buff, bufc);
 				else
-					tbuf = (char *)subj[gender];
-				safe_str(tbuf, buff, bufc);
+					safe_str((char *)subj[gender],
+						 buff, bufc);
 				break;
 			case 'A':	/* Absolute posessive */
 			case 'a':	/* idea from Empedocles */
@@ -839,18 +839,10 @@ char *cargs[];
 				}
 				break;
 			case '#':	/* Invoker DB number */
-				tbuf = alloc_sbuf("exec.invoker");
-				*tbuf = '#';
-				ltos(&tbuf[1], cause);
-				safe_str(tbuf, buff, bufc);
-				free_sbuf(tbuf);
+				safe_dbref(buff, bufc, cause);
 				break;
 			case '!':	/* Executor DB number */
-				tbuf = alloc_sbuf("exec.executor");
-				*tbuf = '#';
-				ltos(&tbuf[1], player); 
-				safe_str(tbuf, buff, bufc);
-				free_sbuf(tbuf);
+				safe_dbref(buff, bufc, player);
 				break;
 			case 'N':	/* Invoker name */
 			case 'n':
@@ -859,13 +851,8 @@ char *cargs[];
 			case 'L':	/* Invoker location db# */
 			case 'l':
 				if (!(eval & EV_NO_LOCATION)) {
-					tbuf = alloc_sbuf("exec.exloc");
-					*tbuf ='#';
-					ltos(&tbuf[1], where_is(cause));
-					safe_str(tbuf, buff, bufc);
-					free_sbuf(tbuf);
+					safe_dbref(buff, bufc, where_is(cause));
 				}
-				
 				break;
 			case 'C':
 			case 'c':
@@ -893,44 +880,38 @@ char *cargs[];
 			 */
 
 			**bufc = '\0';
-			tbufc = tbuf = alloc_sbuf("exec.tbuf");
-			safe_sb_str(oldp, tbuf, &tbufc);
-			*tbufc = '\0';
+			xtp = xtbuf;
+			safe_sb_str(oldp, xtbuf, &xtp);
+			*xtp = '\0';
 			if (mudconf.space_compress && (eval & EV_FMAND)) {
-				while ((--tbufc >= tbuf) && isspace(*tbufc)) ;
-				tbufc++;
-				*tbufc = '\0';
+				while ((--xtp >= xtbuf) && isspace(*xtp)) ;
+				xtp++;
+				*xtp = '\0';
 			}
-			for (tbufc = tbuf; *tbufc; tbufc++)
-				*tbufc = ToLower(*tbufc);
-			fp = (FUN *) hashfind(tbuf, &mudstate.func_htab);
+			for (xtp = xtbuf; *xtp; xtp++)
+				*xtp = ToLower(*xtp);
+			fp = (FUN *) hashfind(xtbuf, &mudstate.func_htab);
 
 			/* If not a builtin func, check for global func */
 
 			ufp = NULL;
 			if (fp == NULL) {
-				ufp = (UFUN *) hashfind(tbuf,
-						      &mudstate.ufunc_htab);
+				ufp = (UFUN *) hashfind(xtbuf,
+							&mudstate.ufunc_htab);
 			}
 			/* Do the right thing if it doesn't exist */
 
 			if (!fp && !ufp) {
 				if (eval & EV_FMAND) {
 					*bufc = oldp;
-					safe_str((char *)"#-1 FUNCTION (",
-						 buff, bufc);
-					safe_str(tbuf, buff, bufc);
-					safe_str((char *)") NOT FOUND",
-						 buff, bufc);
+					safe_tprintf_str(buff, bufc, "#-1 FUNCTION (%s) NOT FOUND", xtbuf);
 					alldone = 1;
 				} else {
 					safe_chr('(', buff, bufc);
 				}
-				free_sbuf(tbuf);
 				eval &= ~EV_FCHECK;
 				break;
 			}
-			free_sbuf(tbuf);
 
 			/* Get the arglist and count the number of args Neg 
 			 * # of args means catenate subsequent args 
@@ -974,17 +955,22 @@ char *cargs[];
 					j = i + 1;
 			nfargs = j;
 
+			/* We've got function(args) now, so back up over
+			 * function name in output buffer
+			 */
+			*bufc = oldp;
+
 			/* If it's a user-defined function, perform it now. */
 
 			if (ufp) {
 				mudstate.func_nest_lev++;
-				if (Going(player)) {
-				        safe_str("#-1 BAD INVOKER",
-						 buff, &oldp);
-					*bufc = oldp;
+				if (mudstate.func_nest_lev >=
+				    mudconf.func_nest_lim) {
+					safe_str("#-1 FUNCTION RECURSION LIMIT EXCEEDED", buff, bufc);
+				} else if (Going(player)) {
+				        safe_str("#-1 BAD INVOKER", buff, bufc);
 				} else if (!check_access(player, ufp->perms)) {
-					safe_str("#-1 PERMISSION DENIED", buff, &oldp);
-					*bufc = oldp;
+					safe_noperm(buff, bufc);
 				} else {
 					tstr = atr_get(ufp->obj, ufp->atr,
 						       &aowner, &aflags,
@@ -1001,11 +987,10 @@ char *cargs[];
 							     preserve_len);
 					}
 					
-					exec(buff, &oldp, 0, i, cause,
+					exec(buff, bufc, 0, i, cause,
 					     ((ufp->flags & FN_NO_EVAL) ?
 					      (EV_FCHECK | EV_EVAL) : feval),
 					     &str, fargs, nfargs);
-					*bufc = oldp;
 					
 					if (ufp->flags & FN_PRES) {
 					    restore_global_regs("eval_restore",
@@ -1049,46 +1034,28 @@ char *cargs[];
 				mudstate.func_invk_ctr++;
 				if (mudstate.func_nest_lev >=
 				    mudconf.func_nest_lim) {
-					safe_str("#-1 FUNCTION RECURSION LIMIT EXCEEDED", buff, &oldp);
-					*bufc = oldp;
+					safe_str("#-1 FUNCTION RECURSION LIMIT EXCEEDED", buff, bufc);
 				} else if (mudstate.func_invk_ctr >=
 					   mudconf.func_invk_lim) {
-					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, &oldp);
-					*bufc = oldp;
+					safe_str("#-1 FUNCTION INVOCATION LIMIT EXCEEDED", buff, bufc);
 				} else if (Going(player)) {
 					/* Deal with the peculiar case of the
 					 * calling object being destroyed
 					 * mid-function sequence, such as
 					 * with a command()/@destroy combo...
 					 */
-					safe_str("#-1 BAD INVOKER",
-						 buff, &oldp);
-					*bufc = oldp;
+					safe_str("#-1 BAD INVOKER", buff, bufc);
 				} else if (!check_access(player, fp->perms)) {
-					safe_str("#-1 PERMISSION DENIED", buff, &oldp);
-					*bufc = oldp;
-				} else if (mudstate.func_invk_ctr <
-					   mudconf.func_invk_lim) {
-					fp->fun(buff, &oldp, player, cause,
-					      fargs, nfargs, cargs, ncargs);
-					*bufc = oldp;
+					safe_noperm(buff, bufc);
 				} else {
-					**bufc = '\0';
+					fp->fun(buff, bufc, player, cause,
+					      fargs, nfargs, cargs, ncargs);
 				}
 				mudstate.func_nest_lev--;
 			} else {
-				*bufc = oldp;
-				tstr = alloc_sbuf("exec.funcargs");
-				ltos(tstr, fp->nargs);
-				safe_str((char *)"#-1 FUNCTION (",
-					 buff, bufc);
-				safe_str((char *)fp->name, buff, bufc);
-				safe_str((char *)") EXPECTS ",
-					 buff, bufc);
-				safe_str(tstr, buff, bufc);
-				safe_str((char *)" ARGUMENTS",
-					 buff, bufc);
-				free_sbuf(tstr);
+			  safe_tprintf_str(buff, bufc,
+					   "#-1 FUNCTION (%s) EXPECTS %d ARGUMENTS",
+					   fp->name, fp->nargs);
 			}
 
 			/* Return the space allocated for the arguments */
@@ -1160,7 +1127,7 @@ char *cargs[];
 		*bufc = realbp;
 		safe_str(buff, realbuff, bufc);
 		**bufc = '\0';
-		free(buff);
+		XFREE(buff, "exec.buff_extend");
 		buff = realbuff;
 	}
 	

@@ -553,17 +553,14 @@ safe_copy_str(src, buff, bufp, max)
     while (*src && (tp < maxtp))
 	*tp++ = *src++;
 
-    if (*src == '\0') {
+    if (*src == '\0') { /* copied whole src, and tp is at most maxtp */
+	*tp = '\0';
 	*bufp = tp;
-	if ((tp - buff) < max)
-	    *tp = '\0';
-	else
-	    buff[max] = '\0';
 	return 0;
     }
 
     len = strlen(src);
-    n = max - (tp - buff);
+    n = max - (tp - buff); /* tp is either maxtp or longtp */
     if (n <= 0) {
 	*tp = '\0';
 	return (len);

@@ -28,8 +28,6 @@
 #define SBUF_SIZE	32
 */
 
-#define strsave(s) strdup(s)
-
 #ifndef STANDALONE
 
 extern void	FDECL(pool_init, (int, int));

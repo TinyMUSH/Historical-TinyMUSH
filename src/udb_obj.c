@@ -54,7 +54,7 @@ char *buff;
 	
 	/* Get a new Obj struct */
 
-	if ((o = (Obj *) malloc(sizeof(Obj))) == (Obj *) 0)
+	if ((o = (Obj *) XMALLOC(sizeof(Obj), "objfromFILE.o")) == (Obj *) 0)
 		return ((Obj *) 0);
 
 	bp = buff;
@@ -72,9 +72,9 @@ char *buff;
 
 	/* Now get an array of Attrs */
 
-	a = o->atrs = (Attrib *) malloc(i * sizeof(Attrib));
+	a = o->atrs = (Attrib *) XMALLOC(i * sizeof(Attrib), "objfromFILE.a");
 	if (!o->atrs) {
-		free(o);
+		XFREE(o, "objfromFILE.o");
 		return ((Obj *) 0);
 	}
 	/* Now go get the attrs, one at a time. */
@@ -93,7 +93,7 @@ char *buff;
 
 		/* get some memory for the data */
 
-		if ((a[j].data = (char *)malloc(a[j].size)) == (char *)0)
+		if ((a[j].data = (char *)XMALLOC(a[j].size, "objfromFILE.d")) == (char *)0)
 			goto bail;
 
 		/* Preincrement j, so we know how many to free if this next
@@ -119,10 +119,10 @@ char *buff;
 	/* j points one attribute *beyond* what we need to free up */
 
 	for (i = 0; i < j; i++)
-		free(a[i].data);
+		XFREE(a[i].data, "objfromFILE.d");
 
-	free(a);
-	free(o);
+	XFREE(a, "objfromFILE.a");
+	XFREE(o, "objfromFILE.o");
 
 	return ((Obj *) 0);
 }

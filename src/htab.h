@@ -43,9 +43,10 @@ struct hashtable {
 	int		entries;
 	int		deletes;
 	int		nulls;
+	int		nostrdup;	/* don't strdup target, copy pointer */
 	HASHARR		*entry;
-	int		last_hval;  /* Used for hashfirst & hashnext. */
-	HASHENT		*last_entry;   /* like last_hval */	
+	int		last_hval;	/* Used for hashfirst & hashnext. */
+	HASHENT		*last_entry;	/* like last_hval */	
 };
 
 typedef struct num_hashtable NHSHTAB;
@@ -59,6 +60,7 @@ struct num_hashtable {
 	int		entries;
 	int		deletes;
 	int		nulls;
+	int		nostrdup;	/* dummy, so nhash* macros work */
 	NHSHARR		*entry;
 	int		last_hval;
 	NHSHENT		*last_entry;

@@ -131,7 +131,7 @@ dbref player, object;
 				trail->next = next = point->next;
 			else
 				mudstate.qwait = next = point->next;
-			free(point->text);
+			XFREE(point->text, "halt_que");
 			free_qentry(point);
 		} else
 			next = (trail = point)->next;
@@ -148,7 +148,7 @@ dbref player, object;
 			if (point == mudstate.qsemlast)
 				mudstate.qsemlast = trail;
 			add_to(player, point->sem, -1, point->attr);
-			free(point->text);
+			XFREE(point->text, "halt_que");
 			free_qentry(point);
 		} else
 			next = (trail = point)->next;
@@ -262,7 +262,7 @@ int attr, key, count;
 					giveto(point->player,
 					       mudconf.waitcost);
 					a_Queue(Owner(point->player), -1);
-					free(point->text);
+					XFREE(point->text, "nfy_que");
 					free_qentry(point);
 				}
 			} else {
@@ -767,7 +767,7 @@ int ncmds;
 	if (mudstate.qfirst) {
 	    tmp = mudstate.qfirst;
 	    mudstate.qfirst = mudstate.qfirst->next;
-	    free(tmp->text);
+	    XFREE(tmp->text, "do_top");
 	    free_qentry(tmp);
 	}
 	if (!mudstate.qfirst)	/* gotta check this, as the value's changed */

@@ -288,7 +288,7 @@ int n;
 			d->output_lost += tp->hdr.nchars;
 			if (d->output_head == NULL)
 				d->output_tail = NULL;
-			free(tp);
+			XFREE(tp, "queue_write.tp");
 		}
 	}
 	/* Allocate an output buffer if needed */
@@ -383,7 +383,7 @@ DESC *d;
 	tb = d->output_head;
 	while (tb) {
 		tnext = tb->hdr.nxt;
-		free(tb);
+		XFREE(tb, "freeqs.tb");
 		tb = tnext;
 	}
 	d->output_head = NULL;

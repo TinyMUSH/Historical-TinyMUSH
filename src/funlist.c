@@ -741,7 +741,7 @@ int n, sort_type;
 		for (i = 0; i < n; i++) {
 			s[i] = ip[i].str;
 		}
-		free(ip);
+		XFREE(ip, "do_asort");
 		break;
 	case DBREF_LIST:
 		ip = (i_rec *) XMALLOC(n * sizeof(i_rec), "do_asort.2");
@@ -753,7 +753,7 @@ int n, sort_type;
 		for (i = 0; i < n; i++) {
 			s[i] = ip[i].str;
 		}
-		free(ip);
+		XFREE(ip, "do_asort.2");
 		break;
 	case FLOAT_LIST:
 		fp = (f_rec *) XMALLOC(n * sizeof(f_rec), "do_asort.3");
@@ -765,7 +765,7 @@ int n, sort_type;
 		for (i = 0; i < n; i++) {
 			s[i] = fp[i].str;
 		}
-		free(fp);
+		XFREE(fp, "do_asort.3");
 		break;
 	}
 }

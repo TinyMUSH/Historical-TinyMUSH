@@ -437,7 +437,7 @@ void do_page(player, cause, key, tname, message)
 	     str;
 	     str = (char *) next_token(str, ' '), n_dbrefs++)
 	    ;
-	dbrefs_array = (int *) calloc(n_dbrefs, sizeof(int));
+	dbrefs_array = (int *) XCALLOC(n_dbrefs, sizeof(int), "do_page.dbrefs");
 
 	/* Convert the list into an array of targets. Validate. */
 
@@ -457,7 +457,7 @@ void do_page(player, cause, key, tname, message)
     } else {			/* normal page; build new recipient list */
 
 	if ((target = lookup_player(player, tname, 1)) != NOTHING) {
-	    dbrefs_array = (int *) calloc(1, sizeof(int));
+	    dbrefs_array = (int *) XCALLOC(1, sizeof(int), "do_page.dbrefs");
 	    dbrefs_array[0] = target;
 	    count++;
 	} else {
@@ -471,7 +471,7 @@ void do_page(player, cause, key, tname, message)
 		if ((*str == ' ') || (*str == ','))
 		    n_dbrefs++;
 	    }
-	    dbrefs_array = (int *) calloc(n_dbrefs, sizeof(int));
+	    dbrefs_array = (int *) XCALLOC(n_dbrefs, sizeof(int), "do_page.dbrefs");
 
 	    /* Go look 'em up */
 

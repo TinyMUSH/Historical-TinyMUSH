@@ -206,7 +206,7 @@ int nargs;
      */
     if ((subpatterns = pcre_exec(re, NULL, str, strlen(str), 0, 0,
 				 offsets, PCRE_MAX_OFFSETS)) < 0) {
-	free(re);
+	XFREE(re, "regexp_match.re");
 	return 0;
     }
 
@@ -232,7 +232,7 @@ int nargs;
 	pcre_copy_substring(str, offsets, subpatterns, i, args[i], LBUF_SIZE);
     }
 
-    free(re);
+    XFREE(re, "regexp_match.re");
     return 1;
 }
 

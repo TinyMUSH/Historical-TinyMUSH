@@ -322,8 +322,8 @@ void xvars_clr(player)
 		xvar = (VARENT *) hptr->data;
 		XFREE(xvar->text, "xvar_data");
 		XFREE(xvar, "xvar_struct");
-		free(hptr->target);
-		free(hptr);
+		XFREE(hptr->target, "xvar_hptr_target");
+		XFREE(hptr, "xvar_hptr");
 		htab->deletes++;
 		htab->entries--;
 		if (htab->entry->element[i] == NULL)
@@ -468,7 +468,7 @@ FUNCTION(fun_let)
 
 	if ((xvar = (VARENT *) hashfind(tbuf, &mudstate.vars_htab))) {
 	    if (xvar->text)
-		old_xvars[i] = (char *) strdup(xvar->text);
+		old_xvars[i] = XSTRDUP(xvar->text, "fun_let.preserve");
 	    else
 		old_xvars[i] = NULL;
 	} else {
@@ -516,7 +516,7 @@ FUNCTION(fun_let)
     for (i = 0; i < n_xvars; i++) {
 	set_xvar(player, xvar_names[i], old_xvars[i]);
 	if (old_xvars[i])
-	    free(old_xvars[i]);
+	    XFREE(old_xvars[i], "fun_let");
     }
 
     free_lbuf(varlist);
@@ -703,13 +703,13 @@ FUNCTION(fun_structure)
      */
 
 
-    comp_names = (char *) strdup(fargs[1]);
+    comp_names = XSTRDUP(fargs[1], "struct.comps");
     n_comps = list2arr(comp_array, LBUF_SIZE / 2, comp_names, ' ');
 
     if (n_comps < 1) {
 	notify_quiet(player, "There must be at least one component.");
 	safe_chr('0', buff, bufc);
-	free(comp_names);
+	XFREE(comp_names, "struct.comps");
 	return;
     }
 
@@ -721,7 +721,7 @@ FUNCTION(fun_structure)
 	if (strlen(comp_array[i]) > (SBUF_SIZE / 2) - 9) {
 	    notify_quiet(player, "Component name is too long.");
 	    safe_chr('0', buff, bufc);
-	    free(comp_names);
+	    XFREE(comp_names, "struct.comps");
 	    return;
 	}
     }
@@ -747,14 +747,14 @@ FUNCTION(fun_structure)
 	    default:
 		notify_quiet(player, "Invalid data type specified.");
 		safe_chr('0', buff, bufc);
-		free(comp_names);
+		XFREE(comp_names, "struct.comps");
 		free_lbuf(type_names);
 		return;
 	}
     }
 
     if (fargs[3] && *fargs[3]) {
-	default_vals = (char *) strdup(fargs[3]);
+	default_vals = XSTRDUP(fargs[3], "struct.defaults");
 	n_defs = list2arr(def_array, LBUF_SIZE / 2, default_vals, sep);
     } else {
 	default_vals = NULL;
@@ -764,10 +764,10 @@ FUNCTION(fun_structure)
     if ((n_comps != n_types) || (n_defs && (n_comps != n_defs))) {
 	notify_quiet(player, "List sizes must be identical.");
 	safe_chr('0', buff, bufc);
-	free(comp_names);
+	XFREE(comp_names, "struct.comps");
 	free_lbuf(type_names);
 	if (default_vals)
-	    free(default_vals);
+	    XFREE(default_vals, "struct.defaults");
 	return;
     }
 
@@ -777,11 +777,11 @@ FUNCTION(fun_structure)
      */
 
     this_struct = (STRUCTDEF *) XMALLOC(sizeof(STRUCTDEF), "struct_alloc");
-    this_struct->s_name = (char *) strdup(fargs[0]);
-    this_struct->c_names = (char **) calloc(n_comps, sizeof(char *));
+    this_struct->s_name = XSTRDUP(fargs[0], "struct.s_name");
+    this_struct->c_names = (char **) XCALLOC(n_comps, sizeof(char *), "struct.c_names");
     for (i = 0; i < n_comps; i++)
 	this_struct->c_names[i] = comp_array[i];
-    this_struct->c_array = (COMPONENT **) calloc(n_comps, sizeof(COMPONENT *));
+    this_struct->c_array = (COMPONENT **) XCALLOC(n_comps, sizeof(COMPONENT *), "struct.n_comps");
     this_struct->c_count = n_comps;
     this_struct->delim = osep;
     this_struct->n_instances = 0;
@@ -1001,7 +1001,7 @@ FUNCTION(fun_construct)
 	d_ptr = (STRUCTDATA *) XMALLOC(sizeof(STRUCTDATA), "constructor.data");
 	if (this_struct->c_array[i]->def_val) {
 	    d_ptr->text = (char *)
-		strdup(this_struct->c_array[i]->def_val);
+		XSTRDUP(this_struct->c_array[i]->def_val, "constructor.dtext");
 	} else {
 	    d_ptr->text = NULL;
 	}
@@ -1025,9 +1025,9 @@ FUNCTION(fun_construct)
 	d_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
 	if (d_ptr) {
 	    if (d_ptr->text)
-		free(d_ptr->text);
+		XFREE(d_ptr->text, "constructor.dtext");
 	    if (vals_array[i] && *(vals_array[i]))
-		d_ptr->text = (char *) strdup(vals_array[i]);
+		d_ptr->text = XSTRDUP(vals_array[i], "constructor.dtext");
 	    else
 		d_ptr->text = NULL;
 	}
@@ -1149,7 +1149,7 @@ FUNCTION(fun_load)
     for (i = 0; i < this_struct->c_count; i++) {
 	d_ptr = (STRUCTDATA *) XMALLOC(sizeof(STRUCTDATA), "constructor.data");
 	if (val_array[i] && *(val_array[i]))
-	    d_ptr->text = (char *) strdup(val_array[i]);
+	    d_ptr->text = XSTRDUP(val_array[i], "constructor.dtext");
 	else
 	    d_ptr->text = NULL;
 	tp = tbuf;
@@ -1275,9 +1275,9 @@ FUNCTION(fun_modify)
 	    continue;
 	}
 	if (s_ptr->text)
-	    free(s_ptr->text);
+	    XFREE(s_ptr->text, "modify.dtext");
 	if ((i < nvals) && vals[i] && *vals[i]) {
-	    s_ptr->text = (char *) strdup(vals[i]);
+	    s_ptr->text = XSTRDUP(vals[i], "modify.dtext");
 	} else {
 	    s_ptr->text = NULL;
 	}
@@ -1391,7 +1391,7 @@ FUNCTION(fun_destruct)
 	d_ptr = (STRUCTDATA *) hashfind(tbuf, &mudstate.instdata_htab);
 	if (d_ptr) {
 	    if (d_ptr->text)
-		free(d_ptr->text);
+		XFREE(d_ptr->text, "constructor.data");
 	    XFREE(d_ptr, "constructor.data");
 	    hashdelete(tbuf, &mudstate.instdata_htab);
 	}
@@ -1460,12 +1460,12 @@ FUNCTION(fun_unstructure)
 
     /* Free up our bit of memory. */
 
-    free(this_struct->s_name);
+    XFREE(this_struct->s_name, "struct.s_name");
     if (this_struct->names_base)
-	free(this_struct->names_base);
+	XFREE(this_struct->names_base, "struct.names_base");
     if (this_struct->defs_base)
-	free(this_struct->defs_base);
-    free(this_struct->c_names);
+	XFREE(this_struct->defs_base, "struct.defs_base");
+    XFREE(this_struct->c_names, "struct.c_names");
     XFREE(this_struct, "struct_alloc");
 
     s_StructCount(player, StructCount(player) - 1);
@@ -1514,9 +1514,11 @@ void structure_clr(thing)
      * them one by one.
      */
 
-    inst_array = (INSTANCE **) calloc(mudconf.instance_lim + 1,
-				      sizeof(INSTANCE *));
-    name_array = (char **) calloc(mudconf.instance_lim + 1, sizeof(char *));
+    inst_array = (INSTANCE **) XCALLOC(mudconf.instance_lim + 1,
+				       sizeof(INSTANCE *),
+				       "structure_clr.inst_array");
+    name_array = (char **) XCALLOC(mudconf.instance_lim + 1, sizeof(char *),
+				   "structure_clr.name_array");
     
     htab = &mudstate.instance_htab;
     count = 0;
@@ -1552,7 +1554,7 @@ void structure_clr(thing)
 		d_ptr = (STRUCTDATA *) hashfind(cbuf, &mudstate.instdata_htab);
 		if (d_ptr) {
 		    if (d_ptr->text)
-			free(d_ptr->text);
+			XFREE(d_ptr->text, "constructor.data");
 		    XFREE(d_ptr, "constructor.data");
 		    hashdelete(cbuf, &mudstate.instdata_htab);
 		}
@@ -1561,8 +1563,8 @@ void structure_clr(thing)
 	}
     }
 
-    free(inst_array);
-    free(name_array);
+    XFREE(inst_array, "structure_clr.inst_array");
+    XFREE(name_array, "structure_clr.name_array");
 
     /* The structure table is indexed as <dbref number>.<struct name> */
 
@@ -1574,9 +1576,11 @@ void structure_clr(thing)
 
     /* Again, we have the hashtable rechaining problem. */
 
-    struct_array = (STRUCTDEF **) calloc(mudconf.struct_lim + 1,
-					 sizeof(STRUCTDEF *));
-    name_array = (char **) calloc(mudconf.struct_lim + 1, sizeof(char *));
+    struct_array = (STRUCTDEF **) XCALLOC(mudconf.struct_lim + 1,
+					  sizeof(STRUCTDEF *),
+					  "structure_clr.struct_array");
+    name_array = (char **) XCALLOC(mudconf.struct_lim + 1, sizeof(char *),
+				   "structure_clr.name_array2");
 
     htab = &mudstate.structs_htab;
     count = 0;
@@ -1619,18 +1623,18 @@ void structure_clr(thing)
 		}
 		hashdelete(cbuf, &mudstate.cdefs_htab);
 	    }
-	    free(struct_array[i]->s_name);
+	    XFREE(struct_array[i]->s_name, "struct.s_name");
 	    if (struct_array[i]->names_base)
-		free(struct_array[i]->names_base);
+		XFREE(struct_array[i]->names_base, "struct.names_base");
 	    if (struct_array[i]->defs_base)
-		free(struct_array[i]->defs_base);
-	    free(struct_array[i]->c_names);
+		XFREE(struct_array[i]->defs_base, "struct.defs_base");
+	    XFREE(struct_array[i]->c_names, "struct.c_names");
 	    XFREE(struct_array[i], "struct_alloc");
 	}
     }
 
-    free(struct_array);
-    free(name_array);
+    XFREE(struct_array, "structure_clr.struct_array");
+    XFREE(name_array, "structure_clr.name_array2");
 }
 
 /* --------------------------------------------------------------------------
@@ -2099,7 +2103,7 @@ static void perform_regparse(buff, bufc, player, fargs, nfargs, case_option)
 	}
     }
 
-    free(re);
+    XFREE(re, "perform_regparse.re");
 }
 
 FUNCTION(fun_regparse)
@@ -2169,7 +2173,7 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
 
     /* If we don't have a third argument, we're done. */
     if (nfargs != 3) {
-	free(re);
+	XFREE(re, "perform_regmatch.re");
 	return;
     }
 
@@ -2203,7 +2207,7 @@ static void perform_regmatch(buff, bufc, player, fargs, nfargs, case_option)
 	}
     }
 
-    free(re);
+    XFREE(re, "perform_regmatch.re");
 }
 
 FUNCTION(fun_regmatch)
@@ -2365,7 +2369,7 @@ FUNCTION(fun_until)
 		break;
 	}
     }
-    free(re);
+    XFREE(re, "until.re");
     free_lbuf(atext1);
     if (!is_exact_same)
 	free_lbuf(atext2);

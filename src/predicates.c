@@ -941,7 +941,7 @@ char *s;
 		add = (ADDENT *)XMALLOC(sizeof(ADDENT), "addcommand.add");
 		add->thing = thing;
 		add->atr = atr;
-		add->name = (char *)strdup(name);
+		add->name = XSTRDUP(name, "addcommand.addname");
 		add->next = (ADDENT *)old->info.added;
 		old->info.added = add;
 	} else {
@@ -952,7 +952,7 @@ char *s;
 		
 		cmd = (CMDENT *) XMALLOC(sizeof(CMDENT), "addcommand.cmd");
 		
-		cmd->cmdname = (char *)strdup(name);
+		cmd->cmdname = XSTRDUP(name, "addcommand.cmdname");
 		cmd->switches = NULL;
 		cmd->perms = 0;
 		cmd->extra = 0;
@@ -967,7 +967,7 @@ char *s;
 		add = (ADDENT *)XMALLOC(sizeof(ADDENT), "addcommand.add");
 		add->thing = thing;
 		add->atr = atr;
-		add->name = (char *)strdup(name);
+		add->name = XSTRDUP(name, "addcommand.addname");
 		add->next = NULL;
 		cmd->info.added = add;
 	
@@ -1076,8 +1076,8 @@ char *s;
 			for (prev = (ADDENT *)old->info.added; prev != NULL; prev = nextp) {
 				nextp = prev->next;
 				/* Delete it! */
-				free(prev->name);
-				free(prev);
+				XFREE(prev->name, "delcommand.name");
+				XFREE(prev, "delcommand.addent");
 			}
 			hashdelete(name, &mudstate.command_htab);
 			if ((cmd = (CMDENT *)hashfind(tprintf("__%s", name), &mudstate.command_htab)) != NULL) {
@@ -1085,7 +1085,7 @@ char *s;
 				hashadd(name, (int *)cmd, &mudstate.command_htab);
 				hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 			}
-			free(old);
+			XFREE(old, "delcommand.cmdp");
 			set_prefix_cmds();
 			notify(player, "Done.");
 			return;
@@ -1093,7 +1093,7 @@ char *s;
 			for (nextp = (ADDENT *)old->info.added; nextp != NULL; nextp = nextp->next) {
 				if ((nextp->thing == thing) && (nextp->atr == atr)) {
 					/* Delete it! */
-					free(nextp->name);
+					XFREE(nextp->name, "delcommand.name");
 					if (!prev) {
 						if (!nextp->next) {
 							hashdelete(name, &mudstate.command_htab);
@@ -1102,14 +1102,14 @@ char *s;
 								hashadd(name, (int *)cmd, &mudstate.command_htab);
 								hashreplall((int *)old, (int *)cmd, &mudstate.command_htab);
 							}
-							free(old);
+							XFREE(old, "delcommand.cmdp");
 						} else {
 							old->info.added = nextp->next;
-							free(nextp);
+							XFREE(nextp, "delcommand.addent");
 						}
 					} else {
 						prev->next = nextp->next;
-						free(nextp);
+						XFREE(nextp, "delcommand.addent");
 					}
 					set_prefix_cmds();
 					notify(player, "Done.");
@@ -1175,7 +1175,7 @@ char *message;
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 		free_lbuf(all->program_data->wait_regs[i]);
 	}
-	free(all->program_data);
+	XFREE(all->program_data, "program_data");
 
 	/* Set info for all player descriptors to NULL */
 	
@@ -1240,7 +1240,7 @@ char *name;
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 		free_lbuf(d->program_data->wait_regs[i]);
 	}
-	free(d->program_data);
+	XFREE(d->program_data, "program_data");
 
 	/* Set info for all player descriptors to NULL */
 	

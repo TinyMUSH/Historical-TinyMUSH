@@ -75,9 +75,9 @@ int size;
 	htab->entries = 0;
 	htab->deletes = 0;
 	htab->nulls = size;
-	htab->entry =
-		(HASHARR *) XMALLOC(size * sizeof(struct hashentry *),
-				"hashinit");
+	htab->nostrdup = 0;
+	htab->entry = (HASHARR *) XMALLOC(size * sizeof(struct hashentry *),
+					  "hashinit");
 
 	for (i = 0; i < size; i++)
 		htab->entry->element[i] = NULL;
@@ -165,7 +165,11 @@ HASHTAB *htab;
 	if (htab->entry->element[hval] == NULL)
 		htab->nulls--;
 	hptr = (HASHENT *) XMALLOC(sizeof(HASHENT), "hashadd");
-	hptr->target = (char *)strsave(str);
+	if (htab->nostrdup) {
+		hptr->target = str;
+	} else {
+		hptr->target = XSTRDUP(str, "hashadd.target");
+	}
 	hptr->data = hashdata;
 	hptr->checks = 0;
 	hptr->next = htab->entry->element[hval];
@@ -194,9 +198,11 @@ HASHTAB *htab;
 				htab->entry->element[hval] = hptr->next;
 			else
 				last->next = hptr->next;
-			free(hptr->target);
-			free(hptr);
-			htab->deletes++;
+			if (!htab->nostrdup) {
+				XFREE(hptr->target, "hashdelete.target");
+			}
+			XFREE(hptr, "hashdelete.hptr");
+ 			htab->deletes++;
 			htab->entries--;
 			if (htab->entry->element[hval] == NULL)
 				htab->nulls++;
@@ -221,8 +227,10 @@ int size;
 		while (hent != NULL) {
 			thent = hent;
 			hent = hent->next;
-			free(thent->target);
-			free(thent);
+			if (!htab->nostrdup) {
+				XFREE(thent->target, "hashflush.target");
+			}
+			XFREE(thent, "hashflush.hent");
 		}
 		htab->entry->element[i] = NULL;
 	}
@@ -230,8 +238,10 @@ int size;
 	/* Resize if needed.  Otherwise, just zero all the stats */
 
 	if ((size > 0) && (size != htab->hashsize)) {
-		free(htab->entry);
+		XFREE(htab->entry, "hashflush.table");
+		i = htab->nostrdup;
 		hashinit(htab, size);
+		htab->nostrdup = i;
 	} else {
 		htab->checks = 0;
 		htab->scans = 0;
@@ -381,14 +391,15 @@ HASHTAB *htab;
 }
 
 /* ---------------------------------------------------------------------------
- * hashresize: Resize a hash table, to double the number of keys in it.
+ * hashresize: Resize a hash table, to adjust the number of slots to be
+ * a power of 2 appropriate to the number of entries in it.
  */
 
 void hashresize(htab, min_size)
     HASHTAB *htab;
     int min_size;
 {
-    int size, i;
+    int size, i, hval;
     HASHTAB new_htab;
     HASHENT *hent, *thent;
 
@@ -409,13 +420,17 @@ void hashresize(htab, min_size)
 	while (hent != NULL) {
 	    thent = hent;
 	    hent = hent->next;
-	    hashadd(thent->target, thent->data, &new_htab);
-	    free(thent->target);
-	    free(thent);
+
+	    /* don't free and reallocate entries, just copy the pointers */
+	    hval = hashval(thent->target, new_htab.mask);
+	    if (new_htab.entry->element[hval] == NULL)
+		new_htab.nulls--;
+	    thent->checks = 0;
+	    thent->next = new_htab.entry->element[hval];
+	    new_htab.entry->element[hval] = thent;
 	}
-	htab->entry->element[i] = NULL;
     }
-    free(htab->entry);
+    XFREE(htab->entry, "hashresize.table");
 
     htab->hashsize = new_htab.hashsize;
     htab->mask = new_htab.mask;
@@ -423,12 +438,13 @@ void hashresize(htab, min_size)
     htab->scans = new_htab.scans;
     htab->max_scan = new_htab.max_scan;
     htab->hits = new_htab.hits;
-    htab->entries = new_htab.entries;
     htab->deletes = new_htab.deletes;
     htab->nulls = new_htab.nulls;
     htab->entry = new_htab.entry;
     htab->last_hval = new_htab.last_hval;
     htab->last_entry = new_htab.last_entry;
+    /* number of entries doesn't change */
+    /* nostrdup status doesn't change */
 }
 
 #ifndef STANDALONE
@@ -525,7 +541,7 @@ NHSHTAB *htab;
 				htab->entry->element[hval] = hptr->next;
 			else
 				last->next = hptr->next;
-			free(hptr);
+			XFREE(hptr, "nhashdelete.hptr");
 			htab->deletes++;
 			htab->entries--;
 			if (htab->entry->element[hval] == NULL)
@@ -551,7 +567,7 @@ int size;
 		while (hent != NULL) {
 			thent = hent;
 			hent = hent->next;
-			free(thent);
+			XFREE(thent, "nhashflush.hent");
 		}
 		htab->entry->element[i] = NULL;
 	}
@@ -559,7 +575,7 @@ int size;
 	/* Resize if needed.  Otherwise, just zero all the stats */
 
 	if ((size > 0) && (size != htab->hashsize)) {
-		free(htab->entry);
+		XFREE(htab->entry, "nhashflush.table");
 		nhashinit(htab, size);
 	} else {
 		htab->checks = 0;
@@ -596,14 +612,15 @@ NHSHTAB *htab;
 }
 
 /* ---------------------------------------------------------------------------
- * nhashresize: Resize a numeric hash table (double number of keys in it).
+ * nhashresize: Resize a numeric hash table, to adjust the number of slots
+ * to be a power of 2 appropriate to the number of entries in it.
  */
 
 void nhashresize(htab, min_size)
     NHSHTAB *htab;
     int min_size;
 {
-    int size, i;
+    int size, i, hval;
     NHSHTAB new_htab;
     NHSHENT *hent, *thent;
 
@@ -624,12 +641,17 @@ void nhashresize(htab, min_size)
 	while (hent != NULL) {
 	    thent = hent;
 	    hent = hent->next;
-	    nhashadd(thent->target, thent->data, &new_htab);
-	    free(thent);
+
+	    /* don't free and reallocate entries, just copy the pointers */
+	    hval = thent->target & new_htab.mask;
+	    if (new_htab.entry->element[hval] == NULL)
+		new_htab.nulls--;
+	    thent->checks = 0;
+	    thent->next = new_htab.entry->element[hval];
+	    new_htab.entry->element[hval] = thent;
 	}
-	htab->entry->element[i] = NULL;
     }
-    free(htab->entry);
+    XFREE(htab->entry, "nhashresize.table");
 
     htab->hashsize = new_htab.hashsize;
     htab->mask = new_htab.mask;
@@ -637,12 +659,13 @@ void nhashresize(htab, min_size)
     htab->scans = new_htab.scans;
     htab->max_scan = new_htab.max_scan;
     htab->hits = new_htab.hits;
-    htab->entries = new_htab.entries;
     htab->deletes = new_htab.deletes;
     htab->nulls = new_htab.nulls;
     htab->entry = new_htab.entry;
     htab->last_hval = new_htab.last_hval;
     htab->last_entry = new_htab.last_entry;
+    /* number of entries doesn't change */
+    /* nostrdup status doesn't change */
 }
 
 /* ---------------------------------------------------------------------------

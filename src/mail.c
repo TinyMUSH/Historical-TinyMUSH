@@ -85,7 +85,8 @@ char *strndup(const char *str, int len)
 {
 	char *s;
 
-	s = (char *) XMALLOC(sizeof(char) * len, "strndup");
+	/* this gets tagged via the XSTRNDUP macro */
+	s = (char *) malloc(sizeof(char) * len);
 	bcopy(str, s, len);
 	return s;
 }
@@ -215,10 +216,9 @@ char *message;
 
 #ifdef RADIX_COMPRESSION
 	len = string_compress(tprintf("%s %s", msg, execstr), msgbuff);
-	mudstate.mail_list[number].message = (char *)strndup(msgbuff, len);
+	mudstate.mail_list[number].message = XSTRNDUP(msgbuff, len, "add_mail_message");
 #else
-	mudstate.mail_list[number].message = (char *)strdup(tprintf("%s %s", msg,
-								  execstr));
+	mudstate.mail_list[number].message = XSTRDUP(tprintf("%s %s", msg, execstr), "add_mail_message");
 #endif /*
         * RADIX_COMPRESSION 
         */
@@ -247,9 +247,9 @@ char *message;
 	}
 #ifdef RADIX_COMPRESSION
 	len = string_compress(message, msgbuff);
-	mudstate.mail_list[number].message = (char *)strndup(msgbuff, len);
+	mudstate.mail_list[number].message = XSTRNDUP(msgbuff, len, "add_mail_message_nosig");
 #else
-	mudstate.mail_list[number].message = (char *)strdup(message);
+	mudstate.mail_list[number].message = XSTRDUP(message, "add_mail_message_nosig");
 #endif /*
         * RADIX_COMPRESSION 
         */
@@ -274,9 +274,9 @@ int number;
 #endif
 {
 #ifdef RADIX_COMPRESSION
-	mudstate.mail_list[number].message = (char *)strndup(message, len);
+	mudstate.mail_list[number].message = XSTRNDUP(message, len, "new_mail_message");
 #else
-	mudstate.mail_list[number].message = (char *)strdup(message);
+	mudstate.mail_list[number].message = XSTRDUP(message, "new_mail_message");
 #endif
 }
 
@@ -1268,19 +1268,19 @@ int silent;
 
 	newp->to = target;
 	newp->from = player;
-	newp->tolist = (char *)strdup((char *)tolist);
+	newp->tolist = XSTRDUP((char *)tolist, "send_mail.tolist");
 
 	newp->number = number;
 	add_count(number);
 
 #ifdef RADIX_COMPRESSION
 	len = string_compress(tbuf1, timebuff);
-	newp->time = (char *)strndup(timebuff, len);
+	newp->time = XSTRNDUP(timebuff, len, "send_mail.time");
 	len = string_compress(subject, subbuff);
-	newp->subject = (char *)strndup(subbuff, len);
+	newp->subject = XSTRNDUP(subbuff, len, "send_mail.subj");
 #else
-	newp->time = (char *)strdup(tbuf1);
-	newp->subject = (char *)strdup(subject);
+	newp->time = XSTRDUP(tbuf1, "send_mail.time");
+	newp->subject = XSTRDUP(subject, "send_mail.subj");
 #endif /*
         * RADIX_COMPRESSION 
         */
@@ -1952,19 +1952,19 @@ FILE *fp;
 			add_count(mp->number);
 		}
 		if (read_tolist)
-			mp->tolist = (char *)strdup(getstring_noalloc(fp, read_new_strings));
+			mp->tolist = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.tolist");
 		else
-			mp->tolist = (char *)strdup(tprintf("%d", mp->to));
+			mp->tolist = XSTRDUP(tprintf("%d", mp->to), "load_mail.tolist");
 
 #ifdef RADIX_COMPRESSION
 		len = string_compress(getstring_noalloc(fp, read_new_strings), timebuff);
-		mp->time = (char *)strndup(timebuff, len);
+		mp->time = XSTRNDUP(timebuff, len, "load_mail.time");
 		if (pennsub) {
 			len = string_compress(getstring_noalloc(fp, read_new_strings), subbuff);
-			mp->subject = (char *)strndup(subbuff, len);
+			mp->subject = XSTRNDUP(subbuff, len, "load_mail.subj");
 		} else if (!new) {
 			len = string_compress("No subject", subbuff);
-			mp->subject = (char *)strndup(subbuff, len);
+			mp->subject = XSTRNDUP(subbuff, len, "load_mail.subj");
 		}
 		if (!read_newdb) {
 			string_compress(getstring_noalloc(fp, read_new_strings), msgbuff);
@@ -1974,17 +1974,17 @@ FILE *fp;
 		}
 		if (new) {
 			len = string_compress(getstring_noalloc(fp, read_new_strings), subbuff);
-			mp->subject = (char *)strndup(subbuff, len);
+			mp->subject = XSTRNDUP(subbuff, len, "load_mail.subj");
 		} else if (!pennsub) {
 			len = string_compress("No subject", subbuff);
-			mp->subject = (char *)strndup(subbuff, len);
+			mp->subject = XSTRNDUP(subbuff, len, "load_mail.subj");
 		}
 #else
-		mp->time = (char *)strdup(getstring_noalloc(fp, read_new_strings));
+		mp->time = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.time");
 		if (pennsub)
-			mp->subject = (char *)strdup(getstring_noalloc(fp, read_new_strings));
+			mp->subject = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.subj");
 		else if (!new)
-			mp->subject = (char *)strdup("No subject");
+			mp->subject = XSTRDUP("No subject", "load_mail.subj");
 
 		if (!read_newdb) {
 			number = add_mail_message_nosig(getstring_noalloc(fp, read_new_strings));
@@ -1992,9 +1992,9 @@ FILE *fp;
 			mp->number = number;
 		}
 		if (new)
-			mp->subject = (char *)strdup(getstring_noalloc(fp, read_new_strings));
+			mp->subject = XSTRDUP(getstring_noalloc(fp, read_new_strings), "load_mail.subj");
 		else if (!pennsub)
-			mp->subject = (char *)strdup("No subject");
+			mp->subject = XSTRDUP("No subject", "load_mail.subj");
 #endif /*
         * RADIX_COMPRESSION 
         */

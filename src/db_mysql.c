@@ -40,7 +40,7 @@ void sql_shutdown()
 		   mysql->host, mysql->db);
     ENDLOG
     mysql_close(mysql);
-    free(mysql);
+    XFREE(mysql, "mysql");
     mysql_struct = NULL;
     mudstate.sql_socket = -1;
 }
@@ -66,7 +66,7 @@ int sql_init()
     /* Try to connect to the database host. If we have specified
      * localhost, use the Unix domain socket instead.
      */
-    mysql = (MYSQL *) malloc(sizeof(MYSQL));
+    mysql = (MYSQL *) XMALLOC(sizeof(MYSQL), "mysql");
     mysql_init(mysql);
 
     result =  mysql_real_connect(mysql, mudconf.sql_host,
@@ -77,7 +77,7 @@ int sql_init()
 	     log_printf("Failed connection to SQL server %s: %s",
 			mudconf.sql_host, mysql_error(mysql));
 	ENDLOG
-        free(mysql);
+        XFREE(mysql, "mysql");
 	return -1;
     }
 

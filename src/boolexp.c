@@ -285,10 +285,9 @@ char *s;
 	*s++ = '\0';
 	/*
 	 * see if left side is valid attribute.  Access to attr is checked on 
-	 * 
-	 * *  * *  * *  * *  * * eval * Also allow numeric references to *
-	 * attributes. * It * can't * hurt  * us, and * lets us import stuff
-	 * * that stores * attr * locks by * number * instead of by * name. 
+	 * eval.  Also allow numeric references to attributes.  It can't hurt
+	 * us, and lets us import stuff that stores attr locks by number
+	 * instead of by name. 
 	 */
 	if (!(attrib = atr_str(buff))) {
 
@@ -313,10 +312,10 @@ char *s;
 	/*
 	 * made it now make the parse tree node 
 	 */
-	b = alloc_bool("test_str");
+	b = alloc_bool("test_atr");
 	b->type = locktype;
 	b->thing = (dbref) anum;
-	b->sub1 = (BOOLEXP *) strsave(s);
+	b->sub1 = (BOOLEXP *) XSTRDUP(s, "test_atr.sub1");
 	free_lbuf(buff);
 	return (b);
 }

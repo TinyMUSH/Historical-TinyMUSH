@@ -41,12 +41,13 @@ restrictions:
     * pcre_malloc and pcre_free changed to malloc and free
     * Deleted some never-used functions (pcre_version, pcre_info)
 
-  Lydia Leong ("Amberyl") has further modified it for use in
-  TinyMUSH 3.0. Changes include:
+  Lydia Leong ("Amberyl") and Robby Griffin ("Alierak") have further
+  modified it for use in TinyMUSH 3.0. Changes include:
     * Included headers conform with 3.0 standard.
     * Function prototypes conform with 3.0 standard.
     * Make DEBUG ifdef into PCRE_DEBUG so it can be compiled independently
       of other 3.0 debugging.
+    * malloc and free changed to tagged XMALLOC and XFREE macros
 */
 
 #include "copyright.h"
@@ -2986,7 +2987,7 @@ fails on "code" because it is also an independent variable. It should make no
 difference to the value of the offsetof(). */
 
   size = length + offsetof(real_pcre, code[0]);
-  re = (real_pcre *) malloc(size);
+  re = (real_pcre *) XMALLOC(size, "pcre_compile");
 
   if (re == NULL) {
     *errorptr = ERR21;
@@ -3038,7 +3039,7 @@ subpattern. */
 /* Failed to compile */
 
   if (*errorptr != NULL) {
-    free(re);
+    XFREE(re, "pcre_compile");
   PCRE_ERROR_RETURN:
     *erroroffset = ptr - (const uschar *) pattern;
     return NULL;
@@ -3340,7 +3341,7 @@ was compiled can be seen. */
 
   if (code - re->code > length) {
     *errorptr = ERR23;
-    free(re);
+    XFREE(re, "pcre_compile");
     *erroroffset = ptr - (uschar *) pattern;
     return NULL;
   }
@@ -3659,7 +3660,7 @@ match(eptr, ecode, offset_top, md, ims, condassert, eptrb)
 	if (c < 16)
 	  save = stacksave;
 	else {
-	  save = (int *) malloc((c + 1) * sizeof(int));
+	  save = (int *) XMALLOC((c + 1) * sizeof(int), "pcre_match");
 	  if (save == NULL) {
 	    save = stacksave;
 	    c = 15;
@@ -3674,7 +3675,7 @@ match(eptr, ecode, offset_top, md, ims, condassert, eptrb)
 	for (i = 1; i <= c; i++)
 	  md->offset_vector[md->offset_end - i] = save[i];
 	if (save != stacksave)
-	  free(save);
+	  XFREE(save, "pcre_match");
 	if (!rc)
 	  return FALSE;
 
@@ -4814,7 +4815,7 @@ of 3. */
 
   if (re->top_backref > 0 && re->top_backref >= ocount / 3) {
     ocount = re->top_backref * 3 + 3;
-    match_block.offset_vector = (int *) malloc(ocount * sizeof(int));
+    match_block.offset_vector = (int *) XMALLOC(ocount * sizeof(int), "pcre_exec");
     if (match_block.offset_vector == NULL)
       return PCRE_ERROR_NOMEMORY;
     using_temporary_offsets = TRUE;
@@ -5006,7 +5007,7 @@ the loop runs just once. */
 	match_block.offset_overflow = TRUE;
 
       DPRINTF(("Freeing temporary memory\n"));
-      free(match_block.offset_vector);
+      XFREE(match_block.offset_vector, "pcre_exec");
     }
 
     rc = match_block.offset_overflow ? 0 : match_block.end_offset_top / 2;
@@ -5030,7 +5031,7 @@ the loop runs just once. */
 
   if (using_temporary_offsets) {
     DPRINTF(("Freeing temporary memory\n"));
-    free(match_block.offset_vector);
+    XFREE(match_block.offset_vector, "pcre_exec");
   }
 
   DPRINTF((">>>> returning %d\n", match_block.errorcode));
@@ -5425,7 +5426,7 @@ present. */
 
 /* Get an "extra" block and put the information therein. */
 
-  extra = (real_pcre_extra *) malloc(sizeof(real_pcre_extra));
+  extra = (real_pcre_extra *) XMALLOC(sizeof(real_pcre_extra), "pcre_study");
 
   if (extra == NULL) {
     *errorptr = "failed to get memory";
@@ -5566,7 +5567,7 @@ pcre_get_substring_list(subject, ovector, stringcount, listptr)
   for (i = 0; i < double_count; i += 2)
     size += sizeof(char *) + ovector[i + 1] - ovector[i] + 1;
 
-  stringlist = (char **) malloc(size);
+  stringlist = (char **) XMALLOC(size, "pcre_get_substring_list");
   if (stringlist == NULL)
     return PCRE_ERROR_NOMEMORY;
 
@@ -5626,7 +5627,7 @@ pcre_get_substring(subject, ovector, stringcount, stringnumber, stringptr)
     return PCRE_ERROR_NOSUBSTRING;
   stringnumber *= 2;
   yield = ovector[stringnumber + 1] - ovector[stringnumber];
-  substring = (char *) malloc(yield + 1);
+  substring = (char *) XMALLOC(yield + 1, "pcre_get_substring");
   if (substring == NULL)
     return PCRE_ERROR_NOMEMORY;
   memcpy(substring, subject + ovector[stringnumber], yield);
@@ -5695,7 +5696,7 @@ pcre_maketables()
   int i;
 
 #ifndef DFTABLES
-  yield = (unsigned char *) malloc(tables_length);
+  yield = (unsigned char *) XMALLOC(tables_length, "pcre_maketables");
 #else
   yield = (unsigned char *) malloc(tables_length);
 #endif

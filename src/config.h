@@ -107,10 +107,22 @@
 extern int malloc_count;
 #define XMALLOC(x,y) (fprintf(stderr,"Malloc: %s\n", (y)), malloc_count++, \
                     (char *)malloc((x)))
+#define XCALLOC(x,z,y) (fprintf(stderr,"Calloc: %s\n", (y)), malloc_count++, \
+                    (char *)calloc((x),(z)))
+#define XREALLOC(x,z,y) (fprintf(stderr,"Realloc: %s\n", (y)), \
+                    (char *)realloc((x),(z)))
+#define XSTRDUP(x,y) (fprintf(stderr,"Strdup: %s\n", (y)), malloc_count++, \
+                    (char *)strdup((x)))
+#define XSTRNDUP(x,z,y) (fprintf(stderr,"Strndup: %s\n", (y)),malloc_count++, \
+                    (char *)strndup((x),(z)))
 #define XFREE(x,y) (fprintf(stderr, "Free: %s\n", (y)), \
                     ((x) ? malloc_count--, free((void *)(x)), (x)=NULL : (x)))
 #else
 #define XMALLOC(x,y) (malloc(x))
+#define XCALLOC(x,z,y) (calloc((x),(z)))
+#define XREALLOC(x,z,y) (realloc((x),(z)))
+#define XSTRDUP(x,y) (strdup(x))
+#define XSTRNDUP(x,z,y) (strndup((x),(z)))
 #define XFREE(x,y) (free((void *)(x)), (x) = NULL)
 #endif  /* TEST_MALLOC */
 

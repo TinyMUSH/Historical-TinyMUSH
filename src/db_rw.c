@@ -155,10 +155,7 @@ FILE *f;
 				b->type = BOOLEXP_EVAL;
 			else
 				b->type = BOOLEXP_ATR;
-			buff = alloc_lbuf("getboolexp1.attr_lock");
-			StringCopy(buff, getstring_noalloc(f, 1));
-			b->sub1 = (BOOLEXP *) strsave(buff);
-			free_lbuf(buff);
+			b->sub1 = (BOOLEXP *) XSTRDUP(getstring_noalloc(f, 1), "getboolexp1.attr_lock");
 		}
 		return b;
 	default:		/* dbref or attribute */
@@ -225,7 +222,7 @@ FILE *f;
 			if (c == EOF)
 				goto error;
 			*s++ = 0;
-			b->sub1 = (BOOLEXP *) strsave(buff);
+			b->sub1 = (BOOLEXP *) XSTRDUP(buff, "getboolexp1.attr_lock");
 			free_lbuf(buff);
 		}
 		ungetc(c, f);
@@ -1062,7 +1059,7 @@ static void fix_mux_zones()
     int *zmarks;
     char *astr;
 
-    zmarks = (int *) calloc(mudstate.db_top, sizeof(int));
+    zmarks = (int *) XCALLOC(mudstate.db_top, sizeof(int), "fix_mux_zones");
 
     DO_WHOLE_DB(i) {
 	if (Zone(i) != NOTHING) {
@@ -1080,7 +1077,7 @@ static void fix_mux_zones()
 	}
     }
 
-    free(zmarks);
+    XFREE(zmarks, "fix_mux_zones");
 }
 #endif /* STANDALONE */
 

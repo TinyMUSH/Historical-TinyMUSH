@@ -148,7 +148,7 @@ const char *tag;
 		if (pools[poolnum].free_head == NULL) {
 			h = (char *)XMALLOC(pools[poolnum].pool_size +
 					    sizeof(POOLHDR) + sizeof(POOLFTR),
-					    "pool_alloc");
+					    "pool_alloc.ph");
 			if (h == NULL) {
 			    fprintf(stderr, "ABORT! alloc.c, pool_alloc() failed to get memory.\n");
 			    abort();
@@ -373,7 +373,7 @@ void pool_reset()
 			h += sizeof(POOLHDR);
 			ibuf = (int *)h;
 			if (*ibuf == POOL_MAGICNUM) {
-				free(ph);
+				XFREE(ph, "pool_reset.ph");
 			} else {
 				if (!newchain) {
 					newchain = ph;

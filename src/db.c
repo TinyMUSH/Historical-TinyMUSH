@@ -667,7 +667,7 @@ char **ptr, *new;
 
 	if (!new)		/* || !*new */
 		return (*ptr = NULL);	/* Check with GAC about this */
-	*ptr = strsave(new);
+	*ptr = XSTRDUP(new, "set_string");
 	return (*ptr);
 }
 
@@ -814,11 +814,11 @@ char *s;
 	/* Free any old data and reallocate */
 	
 	if (db[thing].atrlist) {
-		free(db[thing].atrlist);
+		XFREE(db[thing].atrlist, "s_Atrlist");
 	}
 	
 	if (s && *s) {
-		db[thing].atrlist = strdup(s);
+		db[thing].atrlist = XSTRDUP(s, "s_Atrlist");
 	} else {
 		db[thing].atrlist = NULL;
 	}
@@ -1799,7 +1799,7 @@ int atr;
 	while (lo <= hi) {
 		mid = ((hi - lo) >> 1) + lo;
 		if (list[mid].number == atr) {
-			free(list[mid].data);
+			XFREE(list[mid].data, "atr_clr");
 			db[thing].at_count -= 1;
 			if (mid != db[thing].at_count)
 				bcopy((char *)(list + mid + 1), (char *)(list + mid),
@@ -1914,7 +1914,7 @@ char *buff;
 		while (lo <= hi) {
 			mid = ((hi - lo) >> 1) + lo;
 			if (list[mid].number == atr) {
-				free(list[mid].data);
+				XFREE(list[mid].data, "atr_add_raw");
 				list[mid].data = text;
 #ifdef 	RADIX_COMPRESSION
 				list[mid].size = len;
@@ -1936,7 +1936,7 @@ char *buff;
 			 * and the attribute should be inserted between them. 
 			 */
 
-			list = (ATRLIST *) realloc(db[thing].ahead, (db[thing].at_count + 1) * sizeof(ATRLIST));
+			list = (ATRLIST *) XREALLOC(db[thing].ahead, (db[thing].at_count + 1) * sizeof(ATRLIST), "atr_add_raw.list");
 
 			if (!list)
 				return;
@@ -2340,7 +2340,7 @@ dbref thing;
 	atr_pop();
 	al_destroy(thing);	/* Just to be on the safe side */
 #else
-	free(db[thing].ahead);
+	XFREE(db[thing].ahead, "atr_free");
 	db[thing].ahead = NULL;
 #endif /* MEMORY_BASED */
 }
@@ -2415,7 +2415,7 @@ char **attrp;
 	} else {
 		atr = (ATRCOUNT *) * attrp;
 		if (atr->count > db[atr->thing].at_count) {
-			free(atr);
+			XFREE(atr, "atr_next");
 			return 0;
 		}
 		atr->count++;
@@ -2461,7 +2461,7 @@ void NDECL(atr_pop)
 	old_alist = mudstate.iter_alist.next;
 
 	if (mudstate.iter_alist.data) {
-		free(mudstate.iter_alist.data);
+		XFREE(mudstate.iter_alist.data, "atr_pop");
 	}
 	if (old_alist) {
 		mudstate.iter_alist.data = old_alist->data;
@@ -2954,7 +2954,7 @@ BOOLEXP *b;
 		break;
 	case BOOLEXP_ATR:
 	case BOOLEXP_EVAL:
-		free((char *)b->sub1);
+		XFREE((char *)b->sub1, "free_boolexp");
 		free_bool(b);
 		break;
 	}
@@ -2985,7 +2985,7 @@ BOOLEXP *b;
 	case BOOLEXP_EVAL:
 	case BOOLEXP_ATR:
 		r->thing = b->thing;
-		r->sub1 = (BOOLEXP *) strsave((char *)b->sub1);
+		r->sub1 = (BOOLEXP *) XSTRDUP((char *)b->sub1, "dup_bool.sub1");
 		break;
 	default:
 		fprintf(stderr, "bad bool type!!\n");

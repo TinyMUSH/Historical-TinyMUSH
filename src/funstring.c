@@ -1138,8 +1138,7 @@ FUNCTION(fun_wordpos)
 
 FUNCTION(fun_repeat)
 {
-    int times, len, i;
-    char *max;
+    int times, len, i, maxtimes;
 
     times = atoi(fargs[1]);
     if ((times < 1) || (fargs[0] == NULL) || (!*fargs[0])) {
@@ -1147,23 +1146,15 @@ FUNCTION(fun_repeat)
     } else if (times == 1) {
 	safe_str(fargs[0], buff, bufc);
     } else {
-
-	/* We must check all of these things rather than just
-	 * multiplying length by times, because of the possibility
-	 * of an integer overflow.
-	 */
-
 	len = strlen(fargs[0]);
+	maxtimes = (LBUF_SIZE - 1 - (*bufc - buff)) / len;
+	maxtimes = (times > maxtimes) ? maxtimes : times;
 
-	if ((len > LBUF_SIZE - 1) ||
-	    (times > LBUF_SIZE - 1) ||
-	    (len * times > LBUF_SIZE - 1)) {
-
-	    safe_str("#-1 STRING TOO LONG", buff, bufc);
-	    
-	} else {
-	    max = buff + LBUF_SIZE;
-	    for (i = 0; i < times && (*bufc < max); i++)
+	for (i = 0; i < maxtimes; i++) {
+		bcopy(fargs[0], *bufc, len);
+		*bufc += len;
+	}
+	if (times > maxtimes) {
 		safe_known_str(fargs[0], len, buff, bufc);
 	}
     }

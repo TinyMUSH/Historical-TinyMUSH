@@ -443,7 +443,7 @@ char *name;
 			}
 		}
 		/* It's an alias (or an incorrect entry).  Clobber it */
-		free(p);
+		XFREE(p, "add_player_name");
 		p = (dbref *) XMALLOC(sizeof(dbref), "add_player_name");
 
 		*p = player;
@@ -476,7 +476,7 @@ char *name;
 		free_lbuf(temp);
 		return 0;
 	}
-	free(p);
+	XFREE(p, "delete_player_name");
 	hashdelete(temp, &mudstate.player_htab);
 	free_lbuf(temp);
 	return 1;
@@ -560,7 +560,7 @@ char *bad_name;
 	/* Make a new node and link it in at the top */
 
 	bp = (BADNAME *) XMALLOC(sizeof(BADNAME), "badname.struc");
-	bp->name = strsave(bad_name);
+	bp->name = XSTRDUP(bad_name, "badname.name");
 	bp->next = mudstate.badname_head;
 	mudstate.badname_head = bp;
 }

@@ -219,7 +219,7 @@ const char *primary, *secondary, *extra, *failing_object;
 {
 	start_log(primary, secondary, LOG_ALWAYS);
 	if (extra && *extra) {
-		log_printf("(%s)", extra);
+		log_printf("(%s) ", extra);
 	}
 	perror((char *)failing_object);
 	fflush(stderr);

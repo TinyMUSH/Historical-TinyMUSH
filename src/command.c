@@ -108,7 +108,7 @@ void NDECL(init_cmdtab)
 				*p = ToLower(*q);
 			*p = '\0';
 			cp = (CMDENT *) XMALLOC(sizeof(CMDENT), "init_cmdtab");
-			cp->cmdname = (char *)strsave(cbuff);
+			cp->cmdname = XSTRDUP(cbuff, "init_cmdtab.cmdname");
 			cp->perms = CA_NO_GUEST | CA_NO_SLAVE;
 			cp->switches = NULL;
 			if (ap->flags & (AF_WIZARD | AF_MDARK)) {
@@ -1751,7 +1751,7 @@ CF_HAND(cf_cmd_alias)
 		 */
 
 		cmd2 = (CMDENT *) XMALLOC(sizeof(CMDENT), "cf_cmd_alias");
-		cmd2->cmdname = strsave(alias);
+		cmd2->cmdname = XSTRDUP(alias, "cf_cmd_alias.cmdname");
 		cmd2->switches = cmdp->switches;
 		cmd2->perms = cmdp->perms | nt->perm;
 		cmd2->extra = (cmdp->extra | nt->flag) & ~SW_MULTIPLE;

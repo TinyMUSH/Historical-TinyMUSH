@@ -227,7 +227,7 @@ int call_cron(player, thing, attrib, timestr)
     crp->obj = thing;
     crp->atr = attrib;
     crp->flags = 0;
-    crp->cronstr = (char *) strdup(timestr);
+    crp->cronstr = XSTRDUP(timestr, "cron_entry.time");
 
     /* The time string is: <min> <hour> <day of month> <month> <day of week>
      * Legal values also include asterisks, and <x>-<y> (for a range).
@@ -274,7 +274,7 @@ int call_cron(player, thing, attrib, timestr)
 	bit_set(crp->dow, 0);
 
     if (errcode) {
-	free(crp->cronstr);
+	XFREE(crp->cronstr, "cron_entry.time");
 	XFREE(crp, "cron_entry");
 	return 0;
     }
@@ -333,7 +333,7 @@ int cron_clr(thing, attr)
 	    ((attr == NOTHING) || (crp->atr == attr))) {
 	    count++;
 	    next = crp->next;
-	    free(crp->cronstr);
+	    XFREE(crp->cronstr, "cron_entry.time");
 	    XFREE(crp, "cron_entry");
 	    if (prev)
 		prev->next = next;

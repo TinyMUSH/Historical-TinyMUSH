@@ -127,7 +127,7 @@ char *fname, *target;
 
 	if (!ufp) {
 		ufp = (UFUN *) XMALLOC(sizeof(UFUN), "do_function");
-		ufp->name = strsave(np);
+		ufp->name = XSTRDUP(np, "do_function.name");
 		for (bp = (char *)ufp->name; *bp; bp++)
 			*bp = ToUpper(*bp);
 		ufp->obj = obj;

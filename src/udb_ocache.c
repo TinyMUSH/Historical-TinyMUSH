@@ -112,6 +112,24 @@ typedef struct {
 			q.tail = e; \
 			e->nxt = (Cache *)0;
 
+#ifndef STANDALONE
+			/* If the object has been referenced within the last
+			 * queue cycle, ignore it-- else increment the counter
+			 */
+#define REFTIME(cp)	if (mudstate.now != cp->lastreferenced) { \
+				cp->referenced++; \
+				cp->lastreferenced = mudstate.now; \
+			}
+#else /* STANDALONE */
+			/* If the object has been referenced within the last
+			 * two seconds, ignore it-- else increment the counter
+			 */
+#define REFTIME(cp)	if ((time(NULL) - cp->lastreferenced) > 2) { \
+				cp->referenced++; \
+				cp->lastreferenced = time(NULL); \
+			}
+#endif /* STANDALONE */
+
 static Cache *get_free_entry();
 static int cache_write();
 static void cache_clean();
@@ -162,7 +180,11 @@ Obj *new;
 		objfree(cp->op);
 	cp->op = new;
 	cp->referenced = 0;
+#ifndef STANDALONE
+	cp->lastreferenced = mudstate.now;
+#else
 	cp->lastreferenced = time(NULL);
+#endif
 }
 
 int cache_init(width, size)
@@ -186,7 +208,7 @@ int size;
 	if (size)
 		cmaxsize = size;
 
-	sp = sys_c = (CacheLst *) malloc((unsigned)cwidth * sizeof(CacheLst));
+	sp = sys_c = (CacheLst *) XMALLOC((unsigned)cwidth * sizeof(CacheLst), "cache_init");
 	if (sys_c == (CacheLst *) 0) {
 		logf(ncmsg, (char *)-1, "\n", (char *)0);
 		return (-1);
@@ -206,7 +228,11 @@ int size;
 	/* mark caching system live */
 	cache_initted++;
 
-	time(&cs_ltime);
+#ifndef STANDALONE
+	cs_ltime = mudstate.now;
+#else
+	cs_ltime = time(NULL);
+#endif
 
 	return (0);
 }
@@ -229,7 +255,7 @@ int clear;
 			
 			if (clear) {
 				cache_repl(cp, ONULL);
-				free(cp);
+				XFREE(cp, "cache_reset.act");
 			} else {
 				if (cp->referenced > 0)
 					cp->referenced--;
@@ -251,7 +277,7 @@ int clear;
 					(void) DB_PUT(cp->op, &((cp->op)->name));
 				}
 				cache_repl(cp, ONULL);
-				free(cp);
+				XFREE(cp, "cache_reset.mact");
 			} else {
 				if (cp->referenced > 0)
 					cp->referenced--;
@@ -285,6 +311,7 @@ int clear;
 	}
 }
 
+#ifndef STANDALONE
 /* list dbrefs of objects in the cache. */
 
 void list_cached_objs(player)
@@ -308,8 +335,8 @@ void list_cached_objs(player)
                 aco++;
                 asize += cp->op->size;
 		raw_notify(player, 
-			tprintf("%-42.42s #%-6d %-6d %-7d %-6d", Name(cp->op->name),
-			cp->op->name, time(NULL) - cp->lastreferenced, 
+			tprintf("%-42.42s #%-6d %-6d %-7d %-6d", PureName(cp->op->name),
+			cp->op->name, (int) (mudstate.now - cp->lastreferenced), 
 			cp->referenced, cp->op->size));
             }
         }
@@ -327,8 +354,8 @@ void list_cached_objs(player)
                 maco++;
                 msize += cp->op->size;
 		raw_notify(player, 
-			tprintf("%-42.42s #%-6d %-6d %-7d %-6d", Name(cp->op->name),
-			cp->op->name, time(NULL) - cp->lastreferenced, 
+			tprintf("%-42.42s #%-6d %-6d %-7d %-6d", PureName(cp->op->name),
+			cp->op->name, (int) (mudstate.now - cp->lastreferenced), 
 			cp->referenced, cp->op->size));
             }
         }
@@ -339,7 +366,7 @@ void list_cached_objs(player)
     raw_notify(player,
                tprintf("Size: active %d bytes, modified active %d bytes", asize, msize));
 }
-
+#endif /* STANDALONE */
 
 /*
  * search the cache for an object, and if it is not found, thaw it.
@@ -353,7 +380,6 @@ Aname *nam;
 	Cache *cp;
 	CacheLst *sp;
 	int hv = 0;
-	time_t now;
 	Obj *ret;
 
 	/*
@@ -389,15 +415,7 @@ Aname *nam;
 #ifdef	CACHE_DEBUG
 			printf("return active cache -- %d\n", cp->op);
 #endif
-			/* If the object has been referenced within the last
-			 * two seconds, ignore it-- else increment the counter
-			 */
-
-			now = time(NULL);
-			if ((now - cp->lastreferenced) > 2) {
-				cp->referenced++;
-				cp->lastreferenced = now;
-			}
+			REFTIME(cp);
 
 			/*
 			 * Found the Obj, return the Attr within it 
@@ -418,16 +436,7 @@ Aname *nam;
 #ifdef	CACHE_DEBUG
 			printf("return modified active cache -- %d\n", cp->op);
 #endif
-			/* If the object has been referenced within the last
-			 * two seconds, ignore it-- else increment the counter
-			 */
-
-			now = time(NULL);
-			if ((now - cp->lastreferenced) > 2) {
-				cp->referenced++;
-				cp->lastreferenced = now;
-			}
-
+			REFTIME(cp);
 			return (get_attrib(nam, cp->op));
 		}
 	}
@@ -462,15 +471,7 @@ Aname *nam;
 	printf("returning attr %d, object %d loaded into cache -- %d\n",
 	       nam->attrnum, nam->object, cp->op);
 #endif
-	/* If the object has been referenced within the last
-	 * two seconds, ignore it-- else increment the counter
-	 */
-
-	now = time(NULL);
-	if ((now - cp->lastreferenced) > 2) {
-		cp->referenced++;
-		cp->lastreferenced = now;
-	}
+	REFTIME(cp);
 	return (get_attrib(nam, ret));
 }
 
@@ -518,7 +519,6 @@ Attr *obj;
 	CacheLst *sp;
 	Obj *newobj;
 	int hv = 0;
-	time_t now;
 	
 	/*
 	 * firewall 
@@ -561,16 +561,7 @@ Attr *obj;
 #endif
 			DEQUEUE(sp->active, cp);
 			INSHEAD(sp->mactive, cp);
-
-			/* If the object has been referenced within the last
-			 * two seconds, ignore it-- else increment the counter
-			 */
-
-			now = time(NULL);
-			if ((now - cp->lastreferenced) > 2) {
-				cp->referenced++;
-				cp->lastreferenced = now;
-			}
+			REFTIME(cp);
 			cs_whits++;
 			return (0);
 		}
@@ -599,18 +590,8 @@ Attr *obj;
 			printf("cache_put object %d,attr %d -- %d\n",
 			       nam->object, nam->attrnum, cp->op);
 #endif
+			REFTIME(cp);
 			cs_whits++;
-
-			/* If the object has been referenced within the last
-			 * two seconds, ignore it-- else increment the counter
-			 */
-
-			now = time(NULL);
-			if ((now - cp->lastreferenced) > 2) {
-				cp->referenced++;
-				cp->lastreferenced = now;
-			}
-
 			return (0);
 		}
 	}
@@ -628,7 +609,7 @@ Attr *obj;
 		 * SHIT! Totally NEW object! 
 		 */
 
-		newobj = (Obj *) malloc(sizeof(Obj));
+		newobj = (Obj *) XMALLOC(sizeof(Obj), "cache_put");
 		if (newobj == (Obj *) 0)
 			return (1);
 
@@ -665,21 +646,7 @@ Attr *obj;
 #ifdef	CACHE_DEBUG
 	printf("cache_put %d/%d new in cache %d\n", nam->object, nam->attrnum, cp->op);
 #endif
-
-
-	/* If the object has been referenced within the last
-	 * two seconds, ignore it-- else increment the counter
-	 */
-
-	now = time(NULL);
-	if ((now - cp->lastreferenced) > 2) {
-		cp->referenced++;
-		cp->lastreferenced = now;
-	}
-	
-	/*
-	 * e finito ! 
-	 */
+	REFTIME(cp);
 	return (0);
 }
 
@@ -774,19 +741,23 @@ int objsize;
 			cs_size -= cp->op->size;
 			cache_repl(cp, ONULL);
 			DEQUEUE((*chp), cp);
-			free(cp);
+			XFREE(cp, "get_free_entry");
 		}
 		cp = NULL;
 	}		
 
 	/* Just allocate a new one */
 
-	if ((cp = (Cache *) malloc(sizeof(Cache))) == CNULL)
+	if ((cp = (Cache *) XMALLOC(sizeof(Cache), "get_free_entry")) == CNULL)
 		fatal("cache get_free_entry: malloc failed", (char *)-1, (char *)0);
 
 	cp->op = (Obj *) 0;
 	cp->referenced = 1;
+#ifndef STANDALONE
+	cp->lastreferenced = mudstate.now;
+#else
 	cp->lastreferenced = time(NULL);
+#endif
 	return (cp);
 }
 
@@ -868,7 +839,6 @@ Aname *nam;
 	CacheLst *sp;
 	Obj *obj;
 	int hv = 0;
-	time_t now;
 	
 	if (nam == (Aname *) 0 || !cache_initted)
 		return;
@@ -890,32 +860,14 @@ Aname *nam;
 			DEQUEUE(sp->active, cp);
 			INSHEAD(sp->mactive, cp);
 			del_attrib(nam, cp->op);
-
-			/* If the object has been referenced within the last
-			 * two seconds, ignore it-- else increment the counter
-	 		*/
-
-			now = time(NULL);
-			if ((now - cp->lastreferenced) > 2) {
-				cp->referenced++;
-				cp->lastreferenced = now;
-			}
+			REFTIME(cp);
 			return;
 		}
 	}
 	for (cp = sp->mactive.head; cp != CNULL; cp = cp->nxt) {
 		if (NAMECMP(cp, nam)) {
 			del_attrib(nam, cp->op);
-
-			/* If the object has been referenced within the last
-			 * two seconds, ignore it-- else increment the counter
-	 		*/
-
-			now = time(NULL);
-			if ((now - cp->lastreferenced) > 2) {
-				cp->referenced++;
-				cp->lastreferenced = now;
-			}
+			REFTIME(cp);
 			return;
 		}
 	}
@@ -938,15 +890,7 @@ Aname *nam;
 	cp->op = obj;
 	cs_size += obj->size;
 
-	/* If the object has been referenced within the last
-	 * two seconds, ignore it-- else increment the counter
-         */
-
-	now = time(NULL);
-	if ((now - cp->lastreferenced) > 2) {
-		cp->referenced++;
-		cp->lastreferenced = now;
-	}
+	REFTIME(cp);
 	INSHEAD(sp->mactive, cp);
 	return;
 }
@@ -1022,7 +966,7 @@ Attr *value;
 	 */
 
 	if (obj->atrs == ATNULL) {
-		a = (Attrib *) malloc(sizeof(Attrib));
+		a = (Attrib *) XMALLOC(sizeof(Attrib), "set_attrib");
 		if (a == ATNULL)	/*
 					 * Fail silently. It's a game. 
 					 */
@@ -1056,7 +1000,7 @@ Attr *value;
 			/* Subtract the old attribute's size from the object size */
 			obj->size -= a[mid].size;
 			cs_size -= a[mid].size;
-			free(a[mid].data);
+			XFREE(a[mid].data, "set_attrib.data");
 			a[mid].data = (char *)value;
 #ifdef RADIX_COMPRESSION
 			a[mid].size = len;
@@ -1081,7 +1025,7 @@ Attr *value;
 	 * attribute should be inserted between them. 
 	 */
 
-	a = (Attrib *) realloc(obj->atrs, (obj->at_count + 1) * sizeof(Attrib));
+	a = (Attrib *) XREALLOC(obj->atrs, (obj->at_count + 1) * sizeof(Attrib), "set_attrib.atrs");
 
 	if (!a) {
 		/* Silently fail. It's just a game. */
@@ -1139,7 +1083,7 @@ Obj *obj;
 	while (lo <= hi) {
 		mid = ((hi - lo) >> 1) + lo;
 		if (a[mid].attrnum == anam->attrnum) {
-			free(a[mid].data);
+			XFREE(a[mid].data, "del_attrib.d");
 			obj->at_count--;
 			obj->size -= a[mid].size;
 			cs_size -= a[mid].size;
@@ -1148,7 +1092,7 @@ Obj *obj;
 				    (obj->at_count - mid) * sizeof(Attrib));
 
 			if (obj->at_count == 0) {
-				free(obj->atrs);
+				XFREE(obj->atrs, "del_attrib.a");
 				obj->atrs = ATNULL;
 			}
 			return;
@@ -1171,13 +1115,13 @@ Obj *o;
 	Attrib *a;
 
 	if (!o->atrs) {
-		free(o);
+		XFREE(o, "objfree.o");
 		return;
 	}
 	a = o->atrs;
 	for (i = 0; i < o->at_count; i++)
-		free(a[i].data);
+		XFREE(a[i].data, "objfree.d");
 
-	free(a);
-	free(o);
+	XFREE(a, "objfree.a");
+	XFREE(o, "objfree.o");
 }

@@ -40,6 +40,7 @@ static int stringblock_hwm = 0;
 void NDECL(vattr_init)
 {
 	hashinit(&mudstate.vattr_name_htab, VATTR_HASH_SIZE);
+	mudstate.vattr_name_htab.nostrdup = 1;
 }
 
 VATTR *vattr_find(name)
@@ -90,7 +91,7 @@ int number, flags;
 	if ((vp = vattr_find(name)) != NULL)
 		return (vp);
 
-	vp = (VATTR *) malloc(sizeof(VATTR));
+	vp = (VATTR *) XMALLOC(sizeof(VATTR), "vattr_define");
 
 	vp->name = store_string(name);
 	vp->flags = flags;
@@ -118,7 +119,7 @@ int key;
     raw_broadcast(0,
 	      "GAME: Cleaning database. Game may freeze for a few minutes.");
 
-    used_table = (int *) calloc(mudstate.attr_next, sizeof(int));
+    used_table = (int *) XCALLOC(mudstate.attr_next, sizeof(int), "dbclean.used_table");
 
     /* Walk the database. Mark all the attribute numbers in use. */
 
@@ -134,11 +135,11 @@ int key;
 	if (used_table[vp->number] == 0) {
 	    anum_set(vp->number, NULL);
 	    hashdelete(vp->name, &mudstate.vattr_name_htab);
-	    free((VATTR *) vp);
+	    XFREE((VATTR *) vp, "dbclean.vp");
 	}
     }
 
-    free(used_table);
+    XFREE(used_table, "dbclean.used_table");
 
     raw_broadcast(0, "GAME: Database cleaning complete.");
 
@@ -163,7 +164,7 @@ char *name;
 		number = vp->number;
 		anum_set(number, NULL);
 		hashdelete(name, &mudstate.vattr_name_htab);
-		free((char *)vp);
+		XFREE((char *)vp, "vattr_delete");
 	}
 	
 	return;
@@ -246,12 +247,12 @@ char *str;
 	len = strlen(str);
 
 	/*
-	 * If we have no block, or there's not enough room left in the * * *
+	 * If we have no block, or there's not enough room left in the
 	 * current one, get a new one. 
 	 */
 
 	if (!stringblock || (STRINGBLOCK - stringblock_hwm) < (len + 1)) {
-		stringblock = (char *)malloc(STRINGBLOCK);
+		stringblock = (char *)XMALLOC(STRINGBLOCK, "store_string");
 		if (!stringblock)
 			return ((char *)0);
 		stringblock_hwm = 0;

@@ -39,8 +39,8 @@ char *filename;
 	for (htab_entry = (struct help_entry *)hash_firstentry(htab);
 	     htab_entry;
 	     htab_entry = (struct help_entry *)hash_nextentry(htab)) {
-		free(htab_entry->key);
-		free(htab_entry);
+		XFREE(htab_entry->key, "helpindex_read.topic0");
+		XFREE(htab_entry, "helpindex_read.hent0");
 	}
 
 	hashflush(htab, 0);
@@ -61,31 +61,38 @@ char *filename;
 			*p = ToLower(*p);
 
 		htab_entry = (struct help_entry *)XMALLOC(sizeof(struct help_entry),
-							  "helpindex_read.1");
+							  "helpindex_read.hent1");
 
 		htab_entry->pos = entry.pos;
 		htab_entry->original = 1;	/* First is the longest */
-		htab_entry->key = (char *) XMALLOC(strlen(entry.topic) + 1,
-						"helpindex_read.2");
-		strcpy(htab_entry->key, entry.topic);
+		htab_entry->key = XSTRDUP(entry.topic, "helpindex_read.topic1");
+
 		while (p > entry.topic) {
 			p--;
-			if (!isspace(*p)
-				&& (hashadd(entry.topic, (int *)htab_entry, htab) == 0)) {
+			if (!isspace(*p)) {
+				if (hashadd(entry.topic, (int *)htab_entry, htab) == 0) {
 					count++;
-			} else {	/* It didn't make it into the hash table */
-					free(htab_entry->key);
-					free(htab_entry);
+				} else {
+					/* It didn't make it into the hash
+					 * table, so neither will any of the
+					 * left substrings
+					 */
+					break;
+				}
+				*p = '\0';
+				htab_entry = (struct help_entry *) XMALLOC(sizeof(struct help_entry),
+									   "helpindex_read.hent");
+				htab_entry->pos = entry.pos;
+				htab_entry->original = 0;
+				htab_entry->key = XSTRDUP(entry.topic, "helpindex_read.topic");
+			} else {
+				/* cut off the trailing space and try again */
+				htab_entry->original = 0;
+				htab_entry->key[strlen(htab_entry->key)] = '\0';
 			}
-			*p = '\0';
-			htab_entry = (struct help_entry *) XMALLOC(sizeof(struct help_entry),
-								"helpindex_read.3");
-			htab_entry->pos = entry.pos;
-			htab_entry->original = 0;
-			htab_entry->key = strsave(entry.topic);
 		}
-		free(htab_entry->key);
-		free(htab_entry);
+		XFREE(htab_entry->key, "helpindex_read.topic");
+		XFREE(htab_entry, "helpindex_read.hent");
 	}
 	tf_fclose(fp);
 	hashreset(htab);

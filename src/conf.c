@@ -760,7 +760,7 @@ CF_HAND(cf_divert_log)
     /* Indicate that this is being diverted. */
 
     tp->fileptr = fptr;
-    tp->filename = (char *) strdup(file_str);
+    tp->filename = XSTRDUP(file_str, "cf_divert_log");
     *vp |= f;
 
     return 0;
@@ -1085,8 +1085,8 @@ int add_helpfile(player, str, is_raw)
 
 	/* We need to allocate a new command structure. */
 
-	cmdp = (CMDENT *) XMALLOC(sizeof(CMDENT), "add_helpfile");
-	cmdp->cmdname = (char *) strdup(fcmd);
+	cmdp = (CMDENT *) XMALLOC(sizeof(CMDENT), "add_helpfile.cmdp");
+	cmdp->cmdname = XSTRDUP(fcmd, "add_helpfile.cmd");
 	cmdp->switches = NULL;
 	cmdp->perms = 0;
 	cmdp->pre_hook = NULL;
@@ -1112,17 +1112,18 @@ int add_helpfile(player, str, is_raw)
 
     if (!mudstate.hfiletab) {
 
-	mudstate.hfiletab = (char **) calloc(4, sizeof(char *));
-	mudstate.hfile_hashes = (HASHTAB *) calloc(4, sizeof(HASHTAB));
+	mudstate.hfiletab = (char **) XCALLOC(4, sizeof(char *), "helpfile.htab");
+	mudstate.hfile_hashes = (HASHTAB *) XCALLOC(4, sizeof(HASHTAB), "helpfile.hashes");
 	mudstate.hfiletab_size = 4;
 
     } else if (mudstate.helpfiles >= mudstate.hfiletab_size) {
 
-	ftab = (char **) realloc(mudstate.hfiletab,
-				(mudstate.hfiletab_size + 4) * sizeof(char *));
-	hashes = (HASHTAB *) realloc(mudstate.hfile_hashes,
-				     (mudstate.hfiletab_size + 4) *
-				     sizeof(HASHTAB));
+	ftab = (char **) XREALLOC(mudstate.hfiletab,
+				(mudstate.hfiletab_size + 4) * sizeof(char *),
+				  "helpfile.htab");
+	hashes = (HASHTAB *) XREALLOC(mudstate.hfile_hashes,
+				      (mudstate.hfiletab_size + 4) *
+				      sizeof(HASHTAB), "helpfile.hashes");
 	ftab[mudstate.hfiletab_size + 1] = NULL;
 	ftab[mudstate.hfiletab_size + 2] = NULL;
 	ftab[mudstate.hfiletab_size + 3] = NULL;
@@ -1136,8 +1137,8 @@ int add_helpfile(player, str, is_raw)
     /* Add or replace the path to the file. */
 
     if (mudstate.hfiletab[mudstate.helpfiles] != NULL)
-	free(mudstate.hfiletab[mudstate.helpfiles]);
-    mudstate.hfiletab[mudstate.helpfiles] = (char *) strdup(fpath);
+	XFREE(mudstate.hfiletab[mudstate.helpfiles], "add_helpfile.fpath");
+    mudstate.hfiletab[mudstate.helpfiles] = XSTRDUP(fpath, "add_helpfile.fpath");
 
     /* Initialize the associated hashtable. */
 

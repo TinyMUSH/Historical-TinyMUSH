@@ -90,10 +90,9 @@ char *fil;
 		return (1);
 
 	/* KNOWN memory leak. can't help it. it's small */
-	xp = (char *)malloc((unsigned)strlen(fil) + 1);
+	xp = XSTRDUP(fil, "dddb_setfile");
 	if (xp == (char *)0)
 		return (1);
-	(void)strcpy(xp, fil);
 	dbfile = xp;
 	return (0);
 }
@@ -127,7 +126,7 @@ Objname *nam;
 	/* if the file is badly formatted, ret == Obj * 0 */
 	if ((ret = objfromFILE(dat.dptr)) == (Obj *) 0) {
 		logf("db_get: cannot decode ", nam, "\n", (char *)0);
-		free(dat.dptr);
+		XFREE(dat.dptr, "dddb_get");
 		return NULL;
 	}
 	
@@ -144,7 +143,7 @@ Objname *nam;
 		exit(8);
 	}
 #endif
-	free(dat.dptr);	
+	XFREE(dat.dptr, "dddb_get");
 	return (ret);
 }
 
@@ -163,22 +162,22 @@ Objname *nam;
 	key.dsize = sizeof(Objname);
 	
 	/* make table entry */
-	dat.dptr = (char *)malloc(nsiz);
+	dat.dptr = (char *)XMALLOC(nsiz, "dddb_put");
 	dat.dsize = nsiz;
 
 	if (objtoFILE(obj, dat.dptr) != 0) {
 		logf("db_put: can't save ", nam, " ", (char *)-1, "\n", (char *)0);
-		free(dat.dptr);
+		XFREE(dat.dptr, "dddb_put");
 		return (1);
 	}
 
 	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
 		logf("db_put: can't gdbm_store ", nam, " ", (char *)-1, "\n", (char *)0);
-		free(dat.dptr);
+		XFREE(dat.dptr, "dddb_put");
 		return (1);
 	}
 
-	free(dat.dptr);
+	XFREE(dat.dptr, "dddb_put");
 	return (0);
 }
 
@@ -197,7 +196,7 @@ Objname *nam;
 	if (dat.dptr == (char *)0)
 		return (0);
 
-	free(dat.dptr);
+	XFREE(dat.dptr, "dddb_del");
 	
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {

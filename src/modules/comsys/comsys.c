@@ -305,7 +305,7 @@ static void update_comwho(chp)
     chp->num_connected = count;
 
     if (count > 0) {
-	chp->connect_who = (CHANWHO **) calloc(count, sizeof(CHANWHO *));
+	chp->connect_who = (CHANWHO **) XCALLOC(count, sizeof(CHANWHO *), "update_comwho");
 	i = 0;
 	for (wp = chp->who; wp != NULL; wp = wp->next) {
 	    if (!isPlayer(wp->player) || Connected(wp->player)) {
@@ -665,13 +665,14 @@ void join_channel(player, chan_name, alias_str, title_str)
 
     cap = (COMALIAS *) XMALLOC(sizeof(COMALIAS), "join_channel.alias");
     cap->player = player;
-    cap->alias = (char *) strdup(alias_str);
+    cap->alias = XSTRDUP(alias_str, "join_channel.alias_str");
 
     /* Note that even if the player is already on this channel,
      * we do not inherit the channel title from other aliases.
      */
     if (title_str && *title_str)
-	cap->title = (char *) strdup(munge_comtitle(title_str));
+	cap->title = XSTRDUP(munge_comtitle(title_str),
+			     "join_channel.title_str");
     else
 	cap->title = NULL;
     cap->channel = chp;
@@ -755,8 +756,8 @@ void channel_clr(player)
 
     /* Figure out all the channels we're on, then free up aliases. */
 
-    ch_array = (CHANNEL **) calloc(mudstate.comsys_htab.entries,
-				   sizeof(CHANNEL *));
+    ch_array = (CHANNEL **) XCALLOC(mudstate.comsys_htab.entries,
+				    sizeof(CHANNEL *), "channel_clr.array");
     pos = 0;
     for (cl_ptr = clist; cl_ptr != NULL; cl_ptr = next) {
 
@@ -895,7 +896,7 @@ void do_ccreate(player, cause, key, name)
 	return;
     }
 
-    chp->name = (char *) strdup(name);
+    chp->name = XSTRDUP(name, "ccreate.name");
     chp->owner = Owner(player);
     chp->flags = CHAN_FLAG_P_JOIN | CHAN_FLAG_P_TRANS | CHAN_FLAG_P_RECV |
 	CHAN_FLAG_O_JOIN | CHAN_FLAG_O_TRANS | CHAN_FLAG_O_RECV;
@@ -944,8 +945,10 @@ void do_cdestroy(player, cause, key, name)
 		player);
 
     htab = &mudstate.calias_htab;
-    alias_array = (COMALIAS **) calloc(htab->entries, sizeof(COMALIAS *));
-    name_array = (char **) calloc(htab->entries, sizeof(char *));
+    alias_array = (COMALIAS **) XCALLOC(htab->entries, sizeof(COMALIAS *),
+					"cdestroy.alias_array");
+    name_array = (char **) XCALLOC(htab->entries, sizeof(char *),
+				   "cdestroy.name_array");
     count = 0;
     for (i = 0; i < htab->hashsize; i++) {
 	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
@@ -1111,7 +1114,7 @@ void do_channel(player, cause, key, chan_name, arg)
 	if (chp->descrip)
 	    XFREE(chp->descrip, "do_channel.desc");
 	if (arg && *arg)
-	    chp->descrip = (char *) strdup(arg);
+	    chp->descrip = XSTRDUP(arg, "do_channel.desc");
 	notify(player, "Set.");
 
     } else {
@@ -1352,7 +1355,7 @@ void do_comtitle(player, cause, key, alias_str, title)
 	return;
     }
 
-    cap->title = (char *) strdup(munge_comtitle(title));
+    cap->title = XSTRDUP(munge_comtitle(title), "do_comtitle.title");
 
     notify(player, tprintf("Title set to '%s' on channel %s.",
 			   cap->title, cap->channel->name));
@@ -1681,7 +1684,7 @@ static void comsys_data_update(chp, obj)
 
     key = atr_pget(obj, A_DESC, &aowner, &aflags, &alen);
     if (*key)
-	chp->descrip = (char *) strdup(key);
+	chp->descrip = XSTRDUP(key, "comsys_data_update.desc");
     else
 	chp->descrip = NULL;
     free_lbuf(key);
@@ -1709,7 +1712,7 @@ static void read_comsys(fp, com_ver)
     while (!done) {
 
 	chp = (CHANNEL *) XMALLOC(sizeof(CHANNEL), "load_comsys.channel");
-	chp->name = (char *) strdup(getstring_noalloc(fp, 1));
+	chp->name = XSTRDUP(getstring_noalloc(fp, 1), "load_comsys.name");
 	chp->owner = getref(fp);
 	if (!Good_obj(chp->owner) || !isPlayer(chp->owner))
 	    chp->owner = GOD;	/* sanitize */
@@ -1724,7 +1727,7 @@ static void read_comsys(fp, com_ver)
 	} else {
 	    s = (char *) getstring_noalloc(fp, 1);
 	    if (s && *s)
-		chp->descrip = (char *) strdup(s);
+		chp->descrip = XSTRDUP(s, "read_comsys.desc");
 	    else
 		chp->descrip = NULL;
 
@@ -1822,10 +1825,10 @@ static void read_comsys(fp, com_ver)
 	cap = (COMALIAS *) XMALLOC(sizeof(COMALIAS), "load_comsys.alias");
 	cap->player = getref(fp);
 	cap->channel = lookup_channel((char *) getstring_noalloc(fp, 1));
-	cap->alias = (char *) strdup(getstring_noalloc(fp, 1));
+	cap->alias = XSTRDUP(getstring_noalloc(fp, 1), "load_comsys.alias_str");
 	s = (char *) getstring_noalloc(fp, 1);
 	if (s && *s)
-	    cap->title = (char *) strdup(s);
+	    cap->title = XSTRDUP(s, "load_comsys.title");
 	else
 	    cap->title = NULL;
 	hashadd(tprintf("%d.%s", cap->player, cap->alias), (int *) cap,
@@ -1884,7 +1887,7 @@ static void sanitize_comsys()
 
     count = 0;
     htab = &mudstate.comlist_htab;
-    ptab = (int *) calloc(htab->entries, sizeof(int));
+    ptab = (int *) XCALLOC(htab->entries, sizeof(int), "sanitize_comsys");
 
     for (i = 0; i < htab->hashsize; i++) {
 	for (hptr = htab->entry->element[i]; hptr != NULL; hptr = hptr->next) {
