@@ -1031,8 +1031,10 @@ char *s;
 		*p = toupper(*q);
 	*p = '\0';
 
-	if (!ok_attr_name(buff))
+	if (!ok_attr_name(buff)) {
+		free_sbuf(buff);
 		return NULL;
+	}
 
 	/* Look for a predefined attribute */
 
