@@ -552,6 +552,14 @@ FUNCTION(fun_construct)
 	return;
     }
 
+    /* If our instance name is too long, reject it. */
+
+    if (strlen(fargs[0]) > (SBUF_SIZE / 2) - 9) {
+	notify_quiet(player, "Instance name is too long.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
     /* Make sure this instance doesn't exist. */
 
     ip = ibuf;
@@ -721,6 +729,14 @@ FUNCTION(fun_load)
 
     if (InstanceCount(player) > mudconf.instance_lim) {
 	notify_quiet(player, "Too many instances.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
+    /* If our instance name is too long, reject it. */
+
+    if (strlen(fargs[0]) > (SBUF_SIZE / 2) - 9) {
+	notify_quiet(player, "Instance name is too long.");
 	safe_chr('0', buff, bufc);
 	return;
     }
