@@ -17,6 +17,7 @@
 #include "attrs.h"	/* required by code */
 #include "powers.h"	/* required by code */
 #include "command.h"	/* required by code */
+#include "match.h"	/* required by code */
 
 extern NAMETAB indiv_attraccess_nametab[];
 
