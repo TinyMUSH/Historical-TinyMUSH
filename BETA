@@ -28,6 +28,12 @@ Release history:
 
 - Fix: @trigger/now switch had no effect. [3.1b7; Draci]
 
+- Fix: Patched gdbm bugs, based on gdbm-1.8.3:
+  
+  - gdbm_reorganize (see 'wizhelp opt_frequency') had a small memory leak.
+
+  - Too many free blocks in the gdbm database could cause an overflow.
+
 -----------------------------------------------------------------------------
 
 07/30/2003: Beta 10
