@@ -2118,7 +2118,7 @@ dbref newtop;
 	/* Enforce minimumdatabase size */
 
 	if (newsize < mudstate.min_size)
-		newsize = mudstate.min_size + delta;;
+		newsize = mudstate.min_size + delta;
 
 	/* Grow the name tables */
 
