@@ -1444,7 +1444,7 @@ void do_logrotate(player, cause, key)
 	notify(player, "Log rotation failed.");
 	STARTLOG(LOG_ALWAYS, "WIZ", "LOGROTATE")
 	    log_name(player);
-	    log_text((char *) " attempted failed log rotation\n");
+	    log_text((char *) " attempted failed log rotation");
 	ENDLOG
     } else {
 	notify(player, "Log rotated.");
@@ -1454,7 +1454,6 @@ void do_logrotate(player, cause, key)
 	    log_text(mudconf.mudlogname);
 	    log_text((char *) ".");
 	    log_number(mudstate.mudlognum);
-	    log_text("\n");
         ENDLOG
     }
 }
