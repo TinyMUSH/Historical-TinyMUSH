@@ -6,8 +6,6 @@
 #ifndef __COMMAND_H
 #define __COMMAND_H
 
-#include "db.h"
-
 #define CMD_NO_ARG(name) \
     extern void FDECL(name, (dbref, dbref, int))
 #define CMD_ONE_ARG(name) \
@@ -261,4 +259,4 @@ struct cmdentry {
 extern int	FDECL(check_access, (dbref, int));
 extern char *	FDECL(process_command, (dbref, dbref, int, char *, char *[], int));
 
-#endif
+#endif /* __COMMAND_H */

@@ -1,21 +1,18 @@
-/*
- * unparse.c 
- */
-/*
- * $Id$ 
- */
+/* unparse.c - convert boolexps to printable form */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
-
 #include "config.h"
-#include "db.h"
-#include "mudconf.h"
-#include "externs.h"
-#include "interface.h"
-#include "flags.h"
-#include "powers.h"
-#include "alloc.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
 
 /*
  * Boolexp decompile formats 

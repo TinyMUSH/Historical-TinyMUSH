@@ -1,19 +1,27 @@
+/* udb_obj.c - Binary object handling gear. Shit simple. */
+/* $Id$ */
 
-/*
- * Binary object handling gear. Shit simple.
- * 
+/* 
  * Andrew Molitor, amolitor@nmsu.edu
  * 
  * 1992
- * 
- * $Id$
  */
 
-#include	"autoconf.h"
-#include	"config.h"
-#include	"externs.h"
-#include	"udb.h"
-#include	"udb_defs.h"
+#include "copyright.h"
+#include "autoconf.h"
+#include "config.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "udb.h"	/* required by code */
+#include "udb_defs.h"	/* required by code */
 
 #ifndef STANDALONE
 extern void	FDECL(dump_database_internal, (int));

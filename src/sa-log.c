@@ -1,9 +1,5 @@
-/*
- * Standalone log.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone log.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

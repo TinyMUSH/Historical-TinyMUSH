@@ -1,9 +1,5 @@
-/*
- * Standalone conf.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone conf.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

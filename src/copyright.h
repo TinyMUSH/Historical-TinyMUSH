@@ -1,9 +1,9 @@
 /* copyright.h */
-/* -*-C-*- */
 /* $Id$ */
+/* -*-C-*- */
 
-#ifndef _copyright_h
-#define _copyright_h
+#ifndef __COPYRIGHT_H
+#define __COPYRIGHT_H
 
 /*
  * TinyMUSH 3.0 Source Code
@@ -120,4 +120,4 @@
  *     and TinyMUX, which ultimately spurred our decision to merge them. :)
  */
 
-#endif /* _copyright_h */
+#endif /* __COPYRIGHT_H */

@@ -1,20 +1,20 @@
-
-/*
- * vattr.c -- Manages the user-defined attributes. 
- */
-/*
- * $Id$ 
- */
+/* vattr.c - Manages the user-defined attributes. */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
-#include "copyright.h"
-#include "mudconf.h"
-#include "vattr.h"
-#include "alloc.h"
-#include "htab.h"
-#include "externs.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "vattr.h"	/* required by code */
 
 static void FDECL(fixcase, (char *));
 static char FDECL(*store_string, (char *));

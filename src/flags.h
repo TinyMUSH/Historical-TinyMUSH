@@ -6,11 +6,6 @@
 #ifndef __FLAGS_H
 #define	__FLAGS_H
 
-#include "htab.h"
-#include "db.h"
-
-
-
 #define	FLAG_WORD2	0x1	/* 2nd word of flags. */
 #define FLAG_WORD3	0x2	/* 3rd word of flags. */
 
@@ -591,4 +586,5 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Html(x) ((Flags2(x) & HTML) != 0)
 #define s_Html(x) s_Flags2((x), Flags2(x) | HTML)
 #define c_Html(x) s_Flags2((x), Flags2(x) & ~HTML)
-#endif
+
+#endif /* __FLAGS_H */

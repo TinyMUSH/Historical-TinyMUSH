@@ -1,9 +1,5 @@
-/*
- * Standalone htab.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone htab.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

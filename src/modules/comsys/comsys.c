@@ -1,14 +1,26 @@
-/* comsys.c */
+/* comsys.c - DarkZone-based (?) channel system */
+/* $Id$ */
 
+#include "copyright.h"
 #include "autoconf.h"
-#include "externs.h"
-#include "interface.h"
-#include "match.h"
-#include "attrs.h"
-#include "powers.h"
-#include "ansi.h"
+#include "config.h"
 
 #ifdef USE_COMSYS
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "match.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "powers.h"	/* required by code */
+#include "ansi.h"	/* required by code */
 
 extern dbref FDECL(match_thing, (dbref, char *));
 extern const char *FDECL(getstring_noalloc, (FILE *, int));

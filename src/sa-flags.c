@@ -1,9 +1,5 @@
-/*
- * Standalone flags.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone flags.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

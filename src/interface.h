@@ -3,14 +3,8 @@
 
 #include "copyright.h"
 
-#ifndef __INTERFACE__H
-#define __INTERFACE__H
-
-#include "db.h"
-#include "externs.h"
-#include "htab.h"
-#include "alloc.h"
-#include "config.h"
+#ifndef __INTERFACE_H
+#define __INTERFACE_H
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -206,4 +200,4 @@ extern dbref	FDECL(find_connected_name, (dbref, char *));
 		panic("Out of memory", 1);				\
 	} while (0)
 
-#endif
+#endif /* __INTERFACE_H */

@@ -1,15 +1,22 @@
-/* quota.c -- quota management commands */
+/* quota.c - quota management commands */
+/* $Id$ */
 
-#include "autoconf.h"
 #include "copyright.h"
-/* "$Id$" */
+#include "autoconf.h"
+#include "config.h"
 
-#include "interface.h"
-#include "file_c.h"
-#include "match.h"
-#include "command.h"
-#include "attrs.h"
-#include "powers.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "match.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "powers.h"	/* required by code */
 
 
 /* ---------------------------------------------------------------------------

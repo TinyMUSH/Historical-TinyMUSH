@@ -1,16 +1,22 @@
-/* match.c -- Routines for parsing arguments */
+/* match.c - Routines for parsing arguments */
 /* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
-
 #include "config.h"
-#include "db.h"
-#include "mudconf.h"
-#include "externs.h"
-#include "match.h"
-#include "attrs.h"
-#include "powers.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "match.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "powers.h"	/* required by code */
 
 #define	CON_LOCAL		0x01	/* Match is near me */
 #define	CON_TYPE		0x02	/* Match is of requested type */

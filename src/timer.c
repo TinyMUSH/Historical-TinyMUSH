@@ -1,25 +1,24 @@
-/*
- * timer.c -- Subroutines for (system-) timed events 
- */
-/*
- * $Id$ 
- */
+/* timer.c - Subroutines for (system-) timed events */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
-
-#include <signal.h>
-#include <time.h>
-
-#include "mudconf.h"
 #include "config.h"
-#include "db.h"
-#include "interface.h"
-#include "match.h"
-#include "externs.h"
-#include "command.h"
-#include "powers.h"
-#include "bitstring.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "match.h"	/* required by code */
+#include "command.h"	/* required by code */
+#include "powers.h"	/* required by code */
+#include "bitstring.h"	/* required by code */
 
 extern void NDECL(pool_reset);
 extern void NDECL(do_second);

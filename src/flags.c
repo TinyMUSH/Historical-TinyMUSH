@@ -1,21 +1,22 @@
-/*
- * flags.c - flag manipulation routines 
- */
-/*
- * $Id$ 
- */
+/* flags.c - flag manipulation routines */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
-#include "db.h"
-#include "mudconf.h"
-#include "externs.h"
-#include "command.h"
-#include "flags.h"
-#include "alloc.h"
-#include "powers.h"
-#include "match.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "command.h"	/* required by code */
+#include "powers.h"	/* required by code */
+#include "match.h"	/* required by code */
 
 extern void FDECL(cf_log_syntax, (dbref, char *, const char *, char *));
 extern void FDECL(cf_log_notfound, (dbref, char *, const char *, char *));

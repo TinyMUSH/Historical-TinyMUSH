@@ -1,9 +1,23 @@
-/* fnhelper.c -- helper functions for MUSH functions */
+/* fnhelper.c - helper functions for MUSH functions */
 /* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
-#include "functions.h"
+#include "config.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "functions.h"	/* required by code */
+#include "match.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "powers.h"	/* required by code */
 
 /* ---------------------------------------------------------------------------
  * Trim off leading and trailing spaces if the separator char is a space
@@ -28,7 +42,7 @@ char *str, sep;
 /* ---------------------------------------------------------------------------
  * Tokenizer functions.
  * next_token: Point at start of next token in string
-/* split_token: Get next token from string as null-term string.  String is
+ * split_token: Get next token from string as null-term string.  String is
  *              destructively modified.
  */
 

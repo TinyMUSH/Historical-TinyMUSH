@@ -3,28 +3,30 @@
 
 #include "copyright.h"
 #include "autoconf.h"
-
 #include "config.h"
-#include "db.h"
-#include "interface.h"
-#include "mudconf.h"
-#include "command.h"
-#include "externs.h"
-#include "match.h"
-#include "attrs.h"
-#include "flags.h"
-#include "powers.h"
-#include "alloc.h"
-#include "vattr.h"
-#include "mail.h"
-#include "db_sql.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "command.h"	/* required by code */
+#include "match.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "powers.h"	/* required by code */
+#include "vattr.h"	/* required by code */
+#include "db_sql.h"	/* required by code */
 
 extern void FDECL(list_cf_access, (dbref));
 extern void FDECL(list_cf_read_access, (dbref));
 extern void FDECL(list_siteinfo, (dbref));
 extern void FDECL(logged_out, (dbref, dbref, int, char *));
 extern void NDECL(boot_slave);
-extern void NDECL(vattr_clean_db);
 extern void NDECL(match_zone_exit);
 extern void FDECL(list_functable, (dbref));
 

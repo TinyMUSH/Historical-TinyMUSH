@@ -1,7 +1,10 @@
-/* ansi.h */
+/* ansi.h - ANSI control codes for various neat-o terminal effects. */
 /* $Id$ */
 
-/* ANSI control codes for various neat-o terminal effects. */
+#include "copyright.h"
+
+#ifndef __ANSI_H
+#define __ANSI_H
 
 #define BEEP_CHAR     '\07'
 #define ESC_CHAR      '\033'
@@ -100,3 +103,5 @@
 #define I_ANSI_BWHITE	47
 
 #define I_ANSI_NUM	48
+
+#endif /* __ANSI_H */

@@ -3,17 +3,18 @@
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
-#include <sys/types.h>
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
 
-#include "db.h"
-#include "mudconf.h"
-#include "externs.h"
-#include "flags.h"
-#include "powers.h"
-#include "alloc.h"
-#include "htab.h"
-#include "ansi.h"
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "ansi.h"	/* required by code */
 
 static FILE *log_fp = NULL;
 

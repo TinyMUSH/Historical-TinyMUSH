@@ -1,8 +1,10 @@
-/*
- *  Definitions for user-defined attributes
- *
- *  $Id$
- */
+/* vattr.h - Definitions for user-defined attributes */
+/* $Id$ */
+
+#include "copyright.h"
+
+#ifndef __VATTR_H
+#define __VATTR_H
 
 #ifndef VATTR_HASH_SIZE		/* must be a power of two */
 #define VATTR_HASH_SIZE 16384
@@ -28,3 +30,5 @@ extern VATTR *	FDECL(attr_rename, (char *, char *));
 extern VATTR *	NDECL(vattr_first);
 extern VATTR *	FDECL(vattr_next, (VATTR *));
 extern void	FDECL(list_vhashstats, (dbref));
+
+#endif /* __VATTR_H */

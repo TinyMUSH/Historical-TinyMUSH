@@ -1,9 +1,5 @@
-/*
- * Standalone player_c.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone player_c.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

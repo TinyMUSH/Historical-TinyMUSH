@@ -1,8 +1,10 @@
 /* mudconf.h */
 /* $Id$ */
 
-#ifndef __CONF_H
-#define __CONF_H
+#include "copyright.h"
+
+#ifndef __MUDCONF_H
+#define __MUDCONF_H
 
 #ifdef VMS
 #include "multinet_root:[multinet.include.sys]types.h"
@@ -10,12 +12,6 @@
 #else
 #include <netinet/in.h>
 #endif
-#include "config.h"
-#include "htab.h"
-#include "alloc.h"
-#include "flags.h"
-#include "mail.h"
-#include "db.h"
 
 /* CONFDATA:	runtime configurable parameters */
 
@@ -504,4 +500,4 @@ extern STATEDATA mudstate;
 #define LOGOPT_OWNER		0x04	/* Report owner of obj if not obj */
 #define LOGOPT_TIMESTAMP	0x08	/* Timestamp log entries */
 
-#endif
+#endif /* __MUDCONF_H */

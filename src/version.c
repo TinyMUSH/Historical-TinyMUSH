@@ -1,18 +1,20 @@
-/*
- * version.c - version information 
- */
-/*
- * $Id$ 
- */
+/* version.c - version information */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
-#include "db.h"
-#include "mudconf.h"
-#include "alloc.h"
-#include "externs.h"
-#include "patchlevel.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "patchlevel.h"	/* required by code */
 
 /*
  * TinyMUSH 3.0

@@ -3,8 +3,8 @@
 
 #include "copyright.h"
 
-#ifndef M_ALLOC_H
-#define M_ALLOC_H
+#ifndef __ALLOC_H
+#define __ALLOC_H
 
 #define	POOL_SBUF	0
 #define	POOL_MBUF	1
@@ -91,4 +91,4 @@ extern void	FDECL(list_buftrace, (dbref));
 #define safe_chr_fn(c,b,p)      safe_chr_real_fn((c),(b),(p),(LBUF_SIZE-1))
 #define safe_known_str(s,n,b,p) safe_copy_known_str((s),(n),(b),(p),(LBUF_SIZE-1))
 
-#endif	/* M_ALLOC_H */
+#endif	/* __ALLOC_H */

@@ -1,14 +1,10 @@
-
 /* externs.h - Prototypes for externs not defined elsewhere */
 /* $Id$ */
 
 #include "copyright.h"
 
-#ifndef __EXTERNS__H
-#define	__EXTERNS__H
-
-#include "db.h"
-#include "mudconf.h"
+#ifndef __EXTERNS_H
+#define	__EXTERNS_H
 
 #define INLINE inline
 
@@ -622,4 +618,4 @@ extern void	FDECL(toast_player, (dbref));
 safe_chr('#',(b),(p)); \
 safe_ltos((b),(p),(n));
 
-#endif	/* __EXTERNS_H */
+#endif /* __EXTERNS_H */

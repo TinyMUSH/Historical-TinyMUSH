@@ -1,10 +1,10 @@
-/* config.h */
+/* config.h - Configuration of compile-time options, limits, db format, etc. */
 /* $Id$ */
 
-#ifndef CONFIG_H
-#define CONFIG_H
-
 #include "copyright.h"
+
+#ifndef __CONFIG_H
+#define __CONFIG_H
 
 /* TEST_MALLOC:	Defining this makes a malloc that keeps track of the number
  *		of blocks allocated.  Good for testing for Memory leaks.
@@ -138,4 +138,4 @@ extern int malloc_count;
 #define XFREE(x,y) (free((void *)(x)), (x) = NULL)
 #endif  /* TEST_MALLOC */
 
-#endif	/* CONFIG_H */
+#endif /* __CONFIG_H */

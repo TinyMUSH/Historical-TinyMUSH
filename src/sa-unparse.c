@@ -1,9 +1,5 @@
-/*
- * Standalone unparse.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone unparse.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

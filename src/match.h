@@ -3,10 +3,8 @@
 
 #include "copyright.h"
 
-#ifndef M_MATCH_H
-#define M_MATCH_H
-
-#include "db.h"
+#ifndef __MATCH_H
+#define __MATCH_H
 
 typedef struct match_state MSTATE;
 struct match_state {
@@ -61,4 +59,4 @@ extern void	FDECL(restore_match_state, (MSTATE *));
 #define	MAT_NUMERIC		4	/* Check for un-#ified dbrefs */
 #define	MAT_HOME		8	/* Check for 'home' */
 
-#endif
+#endif /* __MATCH_H */

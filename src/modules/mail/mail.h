@@ -1,12 +1,10 @@
 /* mail.h */
 /* $Id$ */
 
-#ifndef _MAIL_H
-#define _MAIL_H
-
 #include "copyright.h"
-#include "autoconf.h"
-#include "db.h"
+
+#ifndef __MAIL_H
+#define __MAIL_H
 
 /* Some of this isn't implemented yet, but heralds the future! */
 #define M_ISREAD		0x0001
@@ -114,4 +112,4 @@ extern void	FDECL(do_malias_list_all, (dbref));
 extern void	FDECL(do_malias_add, (dbref, char *, char *));
 extern void	FDECL(do_malias_remove, (dbref, char *, char *));
 
-#endif
+#endif /* __MAIL_H */

@@ -1,19 +1,22 @@
-/*
- * file_c.c -- File cache management 
- */
-/*
- * $Id$ 
- */
+/* file_c.c - File cache management */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
-
 #include "config.h"
-#include "interface.h"
-#include "mudconf.h"
-#include "command.h"
-#include "file_c.h"
-#include "alloc.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "command.h"	/* required by code */
+#include "file_c.h"	/* required by code */
 
 typedef struct filecache_hdr FCACHE;
 typedef struct filecache_block_hdr FBLKHDR;

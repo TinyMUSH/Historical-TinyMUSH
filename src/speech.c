@@ -1,25 +1,23 @@
-/*
- * speech.c -- Commands which involve speaking 
- */
-/*
- * $Id$ 
- */
+/* speech.c - Commands which involve speaking */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
-
-#include "mudconf.h"
 #include "config.h"
-#include "db.h"
-#include "interface.h"
-#include "match.h"
-#include "externs.h"
-#include "flags.h"
-#include "powers.h"
-#include "attrs.h"
-#include "alloc.h"
 
-extern char *FDECL(next_token, (char *, char));
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "match.h"	/* required by code */
+#include "powers.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "functions.h"	/* required by code */
 
 int sp_ok(player)
 dbref player;

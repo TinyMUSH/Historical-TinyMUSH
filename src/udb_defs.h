@@ -1,11 +1,15 @@
-/*
-	Header file for the UnterMud DB layer, as applied to TinyMUSH 3.0
+/* udb_defs.h - Header file for the UnterMud DB layer, in TinyMUSH 3.0 */
+/* $Id$ */
 
+/*
 	Andrew Molitor, amolitor@eagle.wesleyan.edu
 	1991
-	
-	$Id$
 */
+
+#include "copyright.h"
+
+#ifndef __UDB_DEFS_H
+#define __UDB_DEFS_H
 
 #ifdef VMS
 #define MAXPATHLEN	256
@@ -27,3 +31,5 @@ typedef	char	*mall_t;
 #define	DB_GET(n)	dddb_get(n)
 #define	DB_PUT(o,n)	dddb_put(o,n)
 #define	DB_DEL(n,f)	dddb_del(n)
+
+#endif /* __UDB_DEFS_H */

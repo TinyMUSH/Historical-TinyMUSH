@@ -3,16 +3,21 @@
 
 #include "copyright.h"
 #include "autoconf.h"
-
-#include "mudconf.h"
 #include "config.h"
-#include "db.h"
-#include "interface.h"
-#include "externs.h"
-#include "alloc.h"
-#include "attrs.h"
-#include "powers.h"
-#include "match.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "attrs.h"	/* required by code */
+#include "powers.h"	/* required by code */
+#include "match.h"	/* required by code */
 
 #define	NUM_GOOD	4	/* # of successful logins to save data for */
 #define NUM_BAD		3	/* # of failed logins to save data for */

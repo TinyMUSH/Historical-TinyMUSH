@@ -1,34 +1,26 @@
+/* udb_ochunk.c - gdbm implementation of untermud chunkfile interface */
+/* $Id$ */
+
 /*
  * Copyright (C) 1991, Marcus J. Ranum. All rights reserved.
- * 
- * $Id$
  */
 
-/* configure all options BEFORE including system stuff. */
-#include	"autoconf.h"
-#include	"udb_defs.h"
-#include	"db.h"
-#include	"mudconf.h"
+#include "copyright.h"
+#include "autoconf.h"
+#include "config.h"
 
-#ifdef VMS
-#include	<malloc.h>
-#include        <types.h>
-#include        <file.h>
-#include        <unixio.h>
-#include        "vms_dbm.h"
-#else
-#include	<sys/param.h>
-#include	<sys/types.h>
-#include	<sys/stat.h>
-#include	<sys/file.h>
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
 
-#include	"gdbm.h"
-#endif /* VMS */
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
 
-#include	"udb.h"
-#include	"config.h"
-#include	"externs.h"
-#include	"alloc.h"
+#include "udb_defs.h"	/* required by code */
+#include "gdbm.h"	/* required by code */
+#include "udb.h"	/* required by code */
 
 #ifndef STANDALONE
 extern void FDECL(dump_database_internal, (int));

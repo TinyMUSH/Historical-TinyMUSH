@@ -1,4 +1,4 @@
-/* mkindx.c -- make help/news file indexes */
+/* mkindx.c - make help/news file indexes */
 /* $Id$ */
 
 #include "copyright.h"

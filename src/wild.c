@@ -1,6 +1,7 @@
+/* wild.c - wildcard routines */
+/* $Id$ */
+
 /*
- * wild.c - wildcard routines
- *
  * Written by T. Alexander Popiel, 24 June 1993
  * Last modified by T. Alexander Popiel, 19 August 1993
  *
@@ -10,17 +11,20 @@
  * Copyright (c) 1993 by T. Alexander Popiel
  * This code is hereby placed under GNU copyleft,
  * see copyright.h for details.
- *
- * $Id$
  */
+
 #include "copyright.h"
 #include "autoconf.h"
-
 #include "config.h"
-#include "db.h"
-#include "mudconf.h"
-#include "externs.h"
-#include "alloc.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
 
 #define FIXCASE(a) (ToLower(a))
 #define EQUAL(a,b) ((a == b) || (FIXCASE(a) == FIXCASE(b)))

@@ -1,10 +1,10 @@
 /* attrs.h - Attribute definitions */
 /* $Id$ */
 
-#ifndef _ATTRS_H
-#define _ATTRS_H
-
 #include "copyright.h"
+
+#ifndef __ATTRS_H
+#define __ATTRS_H
 
 /* Attribute flags */
 #define	AF_ODARK	0x0001	/* players other than owner can't see it */
@@ -175,4 +175,4 @@
 #define	ATR_BUF_CHUNK	100	/* Min size to allocate for attribute buffer */
 #define	ATR_BUF_INCR	6	/* Max size of one attribute */
 
-#endif
+#endif /* __ATTRS_H */

@@ -1,22 +1,23 @@
-
-/*
- * mguests.c - multiguest code originally ported from DarkZone 
- */
-/*
- * $Id$ 
- */
+/* mguests.c - multiguest code originally ported from DarkZone */
+/* $Id$ */
 
 #include "autoconf.h"
 #include "copyright.h"
-#include "mudconf.h"
-#include "externs.h"
-#include "mguests.h"
 #include "config.h"
-#include "db.h"
-#include "interface.h"
-#include "mail.h"
-#include "attrs.h"
-#include "powers.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "mguests.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "powers.h"	/* required by code */
 
 extern void FDECL(destroy_player, (dbref));
 extern void FDECL(do_lock, (dbref, dbref, int, char *, char *));

@@ -1,7 +1,5 @@
-
-/*
- * strdup.c - For systems like Ultrix that don't have it. 
- */
+/* strdup.c - For systems like Ultrix that don't have it. */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"

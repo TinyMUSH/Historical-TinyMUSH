@@ -3,7 +3,20 @@
 
 #include "copyright.h"
 #include "autoconf.h"
-#include "functions.h"
+#include "config.h"
+
+#include <math.h>
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "functions.h"	/* required by code */
 
 /* ---------------------------------------------------------------------------
  * fval: copy the floating point value into a buffer and make it presentable

@@ -2,11 +2,9 @@
 /* $Id$ */
 
 #include "copyright.h"
-#ifndef __FILE_C
-#define	__FILE_C
 
-#include "db.h"
-#include "interface.h"
+#ifndef __FILE_C_H
+#define	__FILE_C_H
 
 /* File caches.  These _must_ track the fcache array in file_c.c */
 
@@ -36,4 +34,4 @@ extern void	FDECL(fcache_send, (dbref, int));
 extern void	FDECL(fcache_load, (dbref));
 extern void	NDECL(fcache_init);
 
-#endif
+#endif /* __FILE_C_H */

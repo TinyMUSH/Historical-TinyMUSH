@@ -1,6 +1,11 @@
 /* fnproto.h - function prototypes from funmath.c, etc. */
 /* $Id$ */
 
+#include "copyright.h"
+
+#ifndef __FNPROTO_H
+#define __FNPROTO_H
+
 #define	XFUNCTION(x)	\
 	extern void FDECL(x, (char *, char **, dbref, dbref, \
 			      char *[], int, char *[], int))
@@ -341,3 +346,5 @@ XFUNCTION(fun_regparsei);
 XFUNCTION(fun_regmatch);
 XFUNCTION(fun_regmatchi);
 XFUNCTION(fun_until);
+
+#endif /* __FNPROTO_H */

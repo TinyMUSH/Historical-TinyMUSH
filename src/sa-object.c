@@ -1,9 +1,5 @@
-/*
- * Standalone object.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone object.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

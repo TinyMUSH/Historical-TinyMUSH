@@ -1,15 +1,20 @@
-/* player_c.c -- Player cache routines */
+/* player_c.c - Player cache routines */
 /* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
-#include "mudconf.h"
-#include "htab.h"
-#include "externs.h"
-#include "alloc.h"
-#include "attrs.h"
-#include "db.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "attrs.h"	/* required by code */
 
 #ifndef STANDALONE
 

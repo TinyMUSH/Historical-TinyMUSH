@@ -1,28 +1,31 @@
+/* mail.c - penn-based mailer system */
+/* $Id$ */
+
 /*
- * mail.c 
  * This code was taken from Kalkin's DarkZone code, which was
  * originally taken from PennMUSH 1.50 p10, and has been heavily modified
  * since being included in MUX (and then being imported wholesale into 3.0).
  * 
- * $Id$
  * -------------------------------------------------------------------
  */
 
 #include "copyright.h"
 #include "autoconf.h"
-#include <sys/time.h>
-#include <sys/types.h>
 #include "config.h"
-#include "db.h"
-#include "powers.h"
-#include "interface.h"
-#include "attrs.h"
-#include "externs.h"
-#include "mail.h"
-#include "alloc.h"
-#include "htab.h"
 
 #ifdef USE_MAIL
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "powers.h"	/* required by code */
+#include "attrs.h"	/* required by code */
 
 /*
  * Buffers used for RADIX_COMPRESSION 

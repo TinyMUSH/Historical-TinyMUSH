@@ -1,14 +1,20 @@
-/* db_msql.c */
+/* db_msql.c - Implements accessing an mSQL 2.x database. */
 /* $Id$ */
-
-/* Implements accessing an mSQL 2.x database. */
 
 #include "copyright.h"
 #include "autoconf.h"
-#include "mudconf.h"
 #include "config.h"
-#include "externs.h"
-#include "msql.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "msql.h"	/* required by code */
 
 /* See db_sql.h for details of what each of these functions do. */
 

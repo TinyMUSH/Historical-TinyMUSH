@@ -6,11 +6,6 @@
 #ifndef	__DB_H
 #define	__DB_H
 
-#include "config.h"
-#include "mudconf.h"
-
-#include <sys/file.h>
-
 #ifndef MEMORY_BASED
 #ifdef RADIX_COMPRESSION
 #define STORE(key, attr, len)	cache_put(key, attr, len)
@@ -288,4 +283,4 @@ struct logfiletable {
     char *filename;
 };
 
-#endif				/* __DB_H */
+#endif /* __DB_H */

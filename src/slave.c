@@ -1,10 +1,9 @@
-/*
- * This slave does iptoname conversions, and identquery lookups.
- * 
+/* slave.c - does iptoname conversions, and identquery lookups */
+/* $Id$ */
+
+/* 
  * The philosophy is to keep this program as simple/small as possible.
  * It does normal fork()s, so the smaller it is, the faster it goes.
- * 
- * $Id$
  */
 
 #include "autoconf.h"

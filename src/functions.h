@@ -6,16 +6,6 @@
 #ifndef __FUNCTIONS_H
 #define __FUNCTIONS_H
 
-#include <limits.h>
-#include <math.h>
-
-#include "externs.h"
-#include "misc.h"
-#include "attrs.h"
-#include "match.h"
-#include "command.h"
-#include "ansi.h"
-
 typedef struct fun {
 	const char *name;	/* function name */
 	void	(*fun)();	/* handler */
@@ -187,4 +177,4 @@ if (s) { \
 		have_normal = 0;		\
             }
 
-#endif
+#endif /* __FUNCTIONS_H */

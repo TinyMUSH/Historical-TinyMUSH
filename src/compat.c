@@ -1,13 +1,9 @@
-
-/*
- * compat.c -- functions that we need to provide because they are missing 
- */
-/*
- * $Id$ 
- */
+/* compat.c - functions that we need to provide because they are missing */
+/* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
 #ifdef NEED_TIMELOCAL
 

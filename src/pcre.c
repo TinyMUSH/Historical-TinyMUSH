@@ -1,9 +1,5 @@
-/* pcre.c */
+/* pcre.c - Perl-Compatible Regular Expressions */
 /* $Id$ */
-
-/*************************************************
-*      Perl-Compatible Regular Expressions       *
-*************************************************/
 
 /*
 This is a library of functions to support regular expressions whose syntax
@@ -55,8 +51,9 @@ restrictions:
 
 #include "copyright.h"
 #include "autoconf.h"
-#include "mudconf.h"
-#include "pcre.h"
+#include "config.h"
+
+#include "pcre.h"	/* required by code */
 
 /* Define PCRE_DEBUG to get debugging output on stdout. */
 

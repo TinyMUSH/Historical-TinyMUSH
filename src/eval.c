@@ -3,14 +3,21 @@
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
-#include "db.h"
-#include "externs.h"
-#include "powers.h"
-#include "attrs.h"
-#include "functions.h"
-#include "alloc.h"
-#include "ansi.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "powers.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "functions.h"	/* required by code */
+#include "ansi.h"	/* required by code */
 
 /* ---------------------------------------------------------------------------
  * parse_to: Split a line at a character, obeying nesting.  The line is

@@ -1,3 +1,6 @@
+/* udb_ocache.c - modified untermud object cache */
+/* $Id$ */
+
 /*
  * Copyright (C) 1991, Marcus J. Ranum. All rights reserved.
  * Slightly whacked by Andrew Molitor. My apologies to the author..
@@ -11,29 +14,27 @@
  * 
  * Further banged on by David Passmore, 2000, to 
  * make it a 'not frequently used' cache with aging.
- *
- * $Id$
  */
-
 
 /*
  * #define CACHE_DEBUG
  * #define CACHE_VERBOSE
  */
-/*
- * First 
- */
-#include	"autoconf.h"
-#include	"config.h"
-#include	"externs.h"
-#include	"udb_defs.h"
-#include	"mudconf.h"
 
-#ifdef	NOSYSTYPES_H
-#include	<types.h>
-#else
-#include	<sys/types.h>
-#endif
+#include "copyright.h"
+#include "autoconf.h"
+#include "config.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "udb_defs.h"
 
 extern struct Obj * FDECL(dddb_get, (Objname *));
 extern void VDECL(logf, (char *, ...));

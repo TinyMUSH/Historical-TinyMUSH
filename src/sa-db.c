@@ -1,9 +1,5 @@
-/*
- * Standalone db.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone db.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

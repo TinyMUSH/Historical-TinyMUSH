@@ -1,19 +1,20 @@
-/* help.c -- commands for giving help */
+/* help.c - commands for giving help */
 /* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
-
-#include <fcntl.h>
-
-#include "mudconf.h"
 #include "config.h"
-#include "db.h"
-#include "interface.h"
-#include "externs.h"
-#include "help.h"
-#include "htab.h"
-#include "alloc.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "help.h"	/* required by code */
 
 /* Pointers to this struct is what gets stored in the help_htab's */
 struct help_entry {

@@ -3,12 +3,8 @@
 
 #include "copyright.h"
 
-#ifndef _MISC_H
-#define _MISC_H
-
-#include "db.h"
-#include "flags.h"
-#include "powers.h"
+#ifndef __MISC_H
+#define __MISC_H
 
 /* Search structure, used by @search and search(). */
 
@@ -44,4 +40,4 @@ extern int	FDECL(search_setup, (dbref, char *, SEARCH *));
 extern void	FDECL(search_perform, (dbref, dbref, SEARCH *));
 extern int	FDECL(get_stats, (dbref, dbref, STATS *));
 
-#endif
+#endif /* __MISC_H */

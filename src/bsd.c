@@ -1,36 +1,26 @@
-/*
- * bsd.c 
- */
-/*
- * $Id$ 
- */
+/* bsd.c - BSD-style network and signal routines */
+/* $Id$ */
+
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
-#ifdef VMS
-#include "multinet_root:[multinet.include.sys]file.h"
-#include "multinet_root:[multinet.include.sys]ioctl.h"
-#include "multinet_root:[multinet.include]errno.h"
-#else
-#include <sys/file.h>
-#include <sys/ioctl.h>
-#include <sys/wait.h>
-#endif
 #include <sys/stat.h>
 #include <signal.h>
 
-#include "mudconf.h"
-#include "config.h"
-#include "db.h"
-#include "file_c.h"
-#include "externs.h"
-#include "interface.h"
-#include "flags.h"
-#include "powers.h"
-#include "alloc.h"
-#include "command.h"
-#include "slave.h"
-#include "attrs.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "file_c.h"	/* required by code */
+#include "command.h"	/* required by code */
+#include "attrs.h"	/* required by code */
 
 #ifndef NSIG
 extern const int _sys_nsig;

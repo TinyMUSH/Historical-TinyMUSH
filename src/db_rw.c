@@ -1,19 +1,25 @@
-/* db_rw.c */
+/* db_rw.c - flatfile implementation */
 /* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
-
-#include <sys/file.h>
-
-#include "mudconf.h"
 #include "config.h"
-#include "externs.h"
-#include "db.h"
-#include "vattr.h"
-#include "attrs.h"
-#include "alloc.h"
-#include "powers.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
+#include "vattr.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+
+#ifdef STANDALONE
+#include "powers.h"	/* required by code */
+#endif
 
 extern const char *FDECL(getstring_noalloc, (FILE *, int));
 extern void FDECL(putstring, (FILE *, const char *));

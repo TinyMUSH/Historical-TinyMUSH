@@ -1,25 +1,28 @@
-/* game.c */
+/* game.c - main program and misc functions */
 /* $Id$ */
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
 #include <sys/stat.h>
 #include <signal.h>
 
-#include "mudconf.h"
-#include "config.h"
-#include "file_c.h"
-#include "command.h"
-#include "interface.h"
-#include "match.h"
-#include "externs.h"
-#include "flags.h"
-#include "powers.h"
-#include "attrs.h"
-#include "alloc.h"
-#include "slave.h"
-#include "pcre.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "file_c.h"	/* required by code */
+#include "command.h"	/* required by code */
+#include "powers.h"	/* required by code */
+#include "attrs.h"	/* required by code */
+#include "pcre.h"	/* required by code */
 
 extern void NDECL(init_attrtab);
 extern void NDECL(init_cmdtab);

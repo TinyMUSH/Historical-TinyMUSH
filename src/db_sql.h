@@ -3,6 +3,9 @@
 
 #include "copyright.h"
 
+#ifndef __DB_SQL_H
+#define __DB_SQL_H
+
 /*
  * If we are already connected to the database, do nothing.
  * Otherwise, attempt to connect: return a socket fd if successful,
@@ -31,3 +34,5 @@ int FDECL(sql_query, (dbref, char *, char *, char **, char, char));
  * Shut down the database connection.
  */
 void NDECL(sql_shutdown);
+
+#endif /* __DB_SQL_H */

@@ -1,24 +1,27 @@
-/* db.c */
+/* db.c - attribute interface, some flatfile and object routines */
 /* $Id$ */
+#define __DB_C
 
 #include "copyright.h"
 #include "autoconf.h"
+#include "config.h"
 
-#include <sys/file.h>
 #include <sys/stat.h>
 
-#define __DB_C
-#include "mudconf.h"
-#include "config.h"
-#include "externs.h"
-#include "db.h"
-#include "attrs.h"
-#include "vattr.h"
-#include "match.h"
-#include "alloc.h"
-#include "powers.h"
-#include "interface.h"
-#include "flags.h"
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by interface */
+#include "interface.h"	/* required by code */
+
+#include "attrs.h"	/* required by code */
+#include "vattr.h"	/* required by code */
+#include "match.h"	/* required by code */
+#include "powers.h"	/* required by code */
 
 #ifndef STANDALONE
 extern int FDECL(call_cron, (dbref, dbref, int, char *));

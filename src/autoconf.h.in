@@ -1,9 +1,10 @@
 /* autoconf.h.in -- System-dependent configuration information */
-
-#ifndef AUTOCONF_H
-#define AUTOCONF_H
+/* $Id$ */
 
 #include "copyright.h"
+
+#ifndef __AUTOCONF_H
+#define __AUTOCONF_H
 
 /* ---------------------------------------------------------------------------
  * Configuration section:
@@ -423,4 +424,4 @@ typedef int	POWER;
 typedef char	boolexp_type;
 typedef char	IBUF[16];
 
-#endif /* AUTOCONF_H */
+#endif /* __AUTOCONF_H */

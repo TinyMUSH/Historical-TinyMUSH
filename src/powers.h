@@ -6,13 +6,7 @@
 #ifndef __POWERS_H
 #define	__POWERS_H
 
-#include "htab.h"
-#include "db.h"
-
-
-
 #define	POWER_EXT	0x1	/* Lives in extended powers word */
-
 
 /* First word of powers */
 #define	POW_CHG_QUOTAS	0x00000001	/* May change and see quotas */
@@ -148,4 +142,4 @@ extern void	FDECL(decompile_powers, (dbref, dbref, char *));
 #define Open_Anywhere(c)	((Powers2(c) & POW_OPENANYLOC) != 0)
 #define Can_Use_SQL(c)		((Powers2(c) & POW_USE_SQL) != 0)
 
-#endif /* POWERS_H */
+#endif /* __POWERS_H */

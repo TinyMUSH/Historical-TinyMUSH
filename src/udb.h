@@ -1,7 +1,11 @@
+/* udb.h */
 /* $Id$ */
 
-#ifndef _UDB_H
-#define _UDB_H
+#include "copyright.h"
+
+#ifndef __UDB_H
+#define __UDB_H
+
 /*-
  * Copyright (c) 1990 The Regents of the University of California.
  * All rights reserved.
@@ -75,4 +79,4 @@ extern void cache_del();
 extern Obj *	FDECL(objfromFILE, (char *));
 extern int	FDECL(objtoFILE, (Obj *, char *));
 
-#endif
+#endif /* __UDB_H */

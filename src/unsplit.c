@@ -1,9 +1,5 @@
-/*
- * unsplit.c -- filter for re-combining continuation lines 
- */
-/*
- * $Id$ 
- */
+/* unsplit.c - filter for re-combining continuation lines */
+/* $Id$ */
 
 #include "copyright.h"
 

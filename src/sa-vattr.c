@@ -1,9 +1,5 @@
-/*
- * Standalone vattr.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone vattr.c */
+/* $Id$ */
 
 #undef MEMORY_BASED
 #define STANDALONE

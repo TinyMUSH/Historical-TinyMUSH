@@ -6,8 +6,6 @@
 #ifndef __HTAB_H
 #define __HTAB_H
 
-#include "db.h"
-
 typedef struct hashentry HASHENT;
 struct hashentry {
 	char			*target;
@@ -123,4 +121,4 @@ extern NAMETAB powers_nametab[];
 #define nhashreset(h) hashreset((HASHTAB *)h)
 #define nhashinfo(t,h) hashinfo(t,(HASHTAB *)h)
 
-#endif
+#endif /* __HTAB_H */

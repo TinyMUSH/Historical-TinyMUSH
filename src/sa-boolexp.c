@@ -1,9 +1,6 @@
-/*
- * Standalone boolexp.c 
- */
-/*
- * $Id$ 
- */
+/* Standalone boolexp.c */
+/* $Id$ */
+
 #undef MEMORY_BASED
 #define STANDALONE
 #include "boolexp.c"

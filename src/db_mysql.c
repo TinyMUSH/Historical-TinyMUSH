@@ -1,13 +1,19 @@
-/* db_mysql.c */
+/* db_mysql.c - Implements accessing a mySQL 3.22+ database. */
 /* $Id$ */
-
-/* Implements accessing a mySQL 3.22+ database. */
 
 #include "copyright.h"
 #include "autoconf.h"
-#include "mudconf.h"
 #include "config.h"
-#include "externs.h"
+
+#include "alloc.h"	/* required by mudconf */
+#include "flags.h"	/* required by mudconf */
+#include "htab.h"	/* required by mudconf */
+#include "mail.h"	/* required by mudconf */
+#include "mudconf.h"	/* required by code */
+
+#include "db.h"		/* required by externs */
+#include "externs.h"	/* required by code */
+
 #include "mysql.h"
 #include "errmsg.h"
 
