@@ -2667,6 +2667,7 @@ static void list_options(player)
 dbref player;
 {
     Opt("ANSI color codes enabled", mudconf.ansi_colors);
+    Opt("Dbrefs #0 and #-1 are boolean false. All other dbrefs are boolean true.", mudconf.bools_oldstyle);
     Opt("@clone copies object cost", mudconf.clone_copy_cost);
     Opt("Dark objects still trigger @a-actions when moving",
 	mudconf.dark_actions);

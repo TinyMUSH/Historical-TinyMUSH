@@ -1952,9 +1952,18 @@ char *arg;
 	if (arg[0] == '#') {
 		arg++;
 		if (is_integer(arg)) {
-			if (atoi(arg) == -1)
+		    if (mudconf.bools_oldstyle) {
+			switch (atoi(arg)) {
+			    case -1:
 				return 0;
-			return 1;
+			    case 0:
+				return 0;
+			    default:
+				return 1;
+			}
+		    } else {
+			return (atoi(arg) >= 0);
+		    }
 		}
 		return 0;
 	}

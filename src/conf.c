@@ -207,6 +207,7 @@ void NDECL(cf_init)
 	mudconf.addcmd_obey_stop = 0;
 	mudconf.addcmd_obey_uselocks = 0;
 	mudconf.lattr_oldstyle = 0;
+	mudconf.bools_oldstyle = 0;
 	mudconf.match_mine = 0;
 	mudconf.match_mine_pl = 0;
 	mudconf.switch_df_all = 1;
@@ -1178,6 +1179,8 @@ CONF conftable[] = {
 	cf_badname,	CA_GOD,		NULL,				0},
 {(char *)"badsite_file",
 	cf_string,	CA_STATIC,	(int *)mudconf.site_file,	SBUF_SIZE},
+{(char *)"booleans_oldstyle",
+     	cf_bool,	CA_GOD,		&mudconf.bools_oldstyle,	0},
 {(char *)"building_limit",
 	cf_int,		CA_GOD,		(int *)&mudconf.building_limit,	0},
 {(char *)"cache_depth",
