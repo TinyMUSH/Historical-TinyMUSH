@@ -1222,7 +1222,7 @@ char *name;
 
 	/* Check for the /debug switch */
 
-	if (key == EXAM_DEBUG) {
+	if (key & EXAM_DEBUG) {
 		if (!Examinable(player, thing)) {
 			notify_quiet(player, NOPERM_MESSAGE);
 		} else {
@@ -1232,7 +1232,7 @@ char *name;
 	}
 	control = (Examinable(player, thing) || Link_exit(player, thing));
 
-	if (control && (key != EXAM_BRIEF)) {
+	if (control && !(key & EXAM_OWNER)) {
 		buf2 = unparse_object(player, thing, 0);
 		notify(player, buf2);
 		free_lbuf(buf2);
@@ -1242,8 +1242,8 @@ char *name;
 			free_mbuf(buf2);
 		}
 	} else {
-		if ((key == EXAM_BRIEF) ||
-		    ((key == EXAM_DEFAULT) && !mudconf.exam_public)) {
+		if ((key & EXAM_OWNER) ||
+		    ((key & EXAM_DEFAULT) && !mudconf.exam_public)) {
 			if (mudconf.read_rem_name) {
 				buf2 = alloc_lbuf("do_examine.pub_name");
 				strcpy(buf2, Name(thing));
@@ -1319,7 +1319,7 @@ char *name;
 
 	}
 
-	if (key != EXAM_BRIEF)
+	if (!((key & EXAM_OWNER) || (key & EXAM_BRIEF)))
 		look_atrs(player, thing, do_parent, is_special);
 
 	/* show him interesting stuff */

@@ -192,8 +192,9 @@ NAMETAB examine_sw[] = {
 {(char *)"brief",	1,	CA_PUBLIC,	EXAM_BRIEF},
 {(char *)"debug",	1,	CA_WIZARD,	EXAM_DEBUG},
 {(char *)"full",	1,	CA_PUBLIC,	EXAM_LONG},
+{(char *)"owner",	1,	CA_PUBLIC,	EXAM_OWNER},
 {(char *)"pairs",	3,	CA_PUBLIC,	EXAM_PAIRS},
-{(char *)"parent",	1,	CA_PUBLIC,	EXAM_PARENT},
+{(char *)"parent",	1,	CA_PUBLIC,	EXAM_PARENT|SW_MULTIPLE},
 {(char *)"pretty",	2,	CA_PUBLIC,	EXAM_PRETTY},
 { NULL,			0,	0,		0}};
 

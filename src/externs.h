@@ -370,12 +370,13 @@ extern void	FDECL(toast_player, (dbref));
 #define	DUMP_TEXT	2	/* Dump text (gdbm) file */
 #define DUMP_FLATFILE	8	/* Dump to flatfile */
 #define	EXAM_DEFAULT	0	/* Default */
-#define	EXAM_BRIEF	1	/* Nonowner sees just owner */
+#define	EXAM_BRIEF	1	/* Don't show attributes */
 #define	EXAM_LONG	2	/* Nonowner sees public attrs too */
 #define	EXAM_DEBUG	4	/* Display more info for finding db problems */
 #define	EXAM_PARENT	8	/* Get attr from parent when exam obj/attr */
 #define EXAM_PRETTY	16	/* Pretty-format output */
 #define EXAM_PAIRS	32	/* Print paren matches in color */
+#define	EXAM_OWNER	64	/* Nonowner sees just owner */
 #define	FIXDB_OWNER	1	/* Fix OWNER field */
 #define	FIXDB_LOC	2	/* Fix LOCATION field */
 #define	FIXDB_CON	4	/* Fix CONTENTS field */
