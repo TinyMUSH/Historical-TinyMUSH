@@ -1,23 +1,395 @@
 & help
  
-  This is the TinyMUSH 3.0 online help facility.
+This is the TinyMUSH 3 online help facility.
+Type 'help About Help' for help on using help, and other related details.
  
-  Notes on help descriptions: 
-        [text] - Text enclosed in []'s is optional.  The []'s are never typed
-                 in as part of the command.
-        <parameter> - Information parameter for a command.  The <>'s are
-                      never typed in as part of the command.
+Type 'help Tutorial' for a "quick start" guide for first-time MUSHers.
+Type 'help Syntax' for a brief explanation of the syntax of MUSH commands.
  
-  Syntax of help command:
-    help [<command>]
+For a list of recent changes to the MUSH server, type 'help Patchlevel'.
  
-  Some things to start with:
-     help topics		(Main help topics)
-     help command list		(List of commands) 	(@list commands)
-     help flag list		(List of flags)		(@list flags)
-     help function list		(List of functions)	(@list functions)
+              ---------------------------------------
+             Type 'qhelp' for the quick-reference help.
+        This is strongly recommended over the regular help,
+         unless you absolutely need all the gory details!
+              ---------------------------------------
  
-  Also see "help About TinyMUSH".
+Type 'help Topics' for a more extensive list of help topics.
+ 
+Many MUSHes also have local help files. Type '+help' to access them.
+Most MUSHes also have local information files. Type 'news' to read them.
+Wizards can type 'wizhelp' to read the administrator help files.
+ 
+& About Help
+ 
+In all help entries, the following notations mean special things:
+ 
+   [text] - Text enclosed in []'s is optional. The []'s are never typed
+            in as part of the command.
+ 
+   <parameter> - A parameter for a command, usually a variable that you
+                 fill in yourself. For example, <obj> usually means
+                 the name or dbref of an object. The <>'s are never
+                 typed in as part of the command.
+ 
+   <opt1 | opt2> - A parameter for a command that could be one of several
+                   values. 'opt1' and 'opt2' are literal strings, in this
+                   case, not <opt 1> and <opt 2> parameters.
+ 
+See 'help Conventions' for common values of <parameter> abbreviations.
+These conventions are important; please make sure you read this entry,
+or some of the more complex command and function syntax might not make
+any sense to you.
+ 
+Continued in 'help About Help2'.
+ 
+& About Help2
+ 
+To read a help entry, type 'help <name of topic>'. You don't need to
+type the complete topic name, just enough of it to make the word unique.
+For instance, instead of typing 'help @switch', you can type 'help @swi'.
+Topic names are not case-sensitive.
+ 
+Almost all help entries are primarily intended as a reference guide,
+not a tutorial. As such, they are intended to be as exhaustive as
+possible, detailing exactly how things work.
+  
+The vast majority of players will not need the reams of detail contained
+in many of the help entries. They are likely to find the QuickHelp ('qhelp')
+and its short, simplified help entries for the frequently-encountered MUSH
+commands and concepts to be much more helpful. Type 'qhelp' to get the
+QuickHelp index.  First-time players should type 'help Tutorial' for an
+introduction to MUSHing.
+ 
+If you are trying to learn how to code and build in MUSH, you might
+also find external documentation to be more helpful. Some MUSHes have
+a MUSH Manual online; type 'man' to access it, if it's available.
+ 
+& Conventions
+ 
+These help entries use a variety of abbreviations and conventions
+when describing the <parameters> for commands, functions, and so
+forth. In many cases, these <parameters> are quite standard 
+entities, and therefore will be notated in a shorthand. This
+help entry describes those shortcuts.
+ 
+<switch>	A single switch to a command, modifying its behavior.
+ 
+<switches>	Equivalent to <switch 1>/<switch 2>/<switch 3>/<etc.>
+		Multiple switches to a command, modifying its behavior.
+  
+<pattern>	A 'wildcard' pattern, i.e., one that contains '*' and '?'.
+		See 'help Wildcards' for details. 
+ 
+<regexp>	A regular expression. See 'help Regexps' for details.
+ 
+Continued in 'help Conventions2'.
+ 
+& Conventions2
+ 
+<str>		A string, made up of arbitrary characters. The first
+		character in a string is numbered 0, the second character
+		in a string is numbered 1, and so forth.
+ 
+<list>		A number of strings, separated by a delimiter, <delim>.
+		Each string is called a 'word' or an 'element'. The first
+		element in a list is numbered 1, the second element in a
+		list is numbered 2, and so forth. 'cat dog bird' is a
+		space-delimited list with three words. 'cat|dog|bird' is
+		a '|'-delimited list.
+ 
+<delim>		A delimiter. A single character used to separate elements
+		in a list from one another.
+ 
+<odelim>	An output delimiter. A special type of delimiter.
+ 
+<dels>		Equivalent to <delim>[,<odelim>]
+		See 'help Delimiters' for more on delimiters and defaults.
+ 
+Continued in 'help Conventions3'.
+ 
+& Conventions3
+ 
+<dbref>		The dbref of an object.
+ 
+<player>	A player, specified by his full name, alias, or dbref.
+		Often,	for a connected player, a partial name, as long
+		as it's	unique,	will be sufficient. 'me' is normally
+		also valid.
+ 
+<obj>		An object. Normally, an object can be referred to by its
+		dbref, or part of its name (or part of its name), or as
+		'me' or 'here' if appropriate; players can also be
+		referred to by *<player name>. Non-wizards without the
+		Long_Fingers power might not be able to	manipulate objects
+		that are not near them. See 'help Matching' for details.
+ 
+<mobile>	Equivalent to <obj> but the object must be a player or
+		thing.
+ 
+<attr>		The full name of an attribute.
+ 
+Continued in 'help Conventions4'.
+ 
+& Conventions4
+ 
+<o/a>		Equivalent to <obj>/<attr>
+		An object/attribute pair, such as '#10/VA', referring to
+		the VA attribute on the object with the dbref #10.
+ 
+<aref>		Equivalent to [<obj>/]<attr>
+		An "attribute reference". This is an object/attribute pair,
+		where if the object is not specified, 'me' is implied. In
+		other words, '#10/VA' is a valid parameter for <aref>, as
+		is 'VA' (which implies 'me/VA').
+ 
+<wild>		A wildcard attribute. It matches every attribute (normally
+		on a specified object) whose name matches this wildcard
+		pattern.
+ 
+& Syntax
+ 
+The syntax of most MUSH commands takes one of following forms:
+ 
+  <command>
+  <command>[/<switches>]
+  <command>[/<switches>] <parameter 1>
+  <command>[/<switches>] <parameter 1> = <parameter 2>
+  <command>[/<switches>] <parameter 1> = <parameter 2>,[...,]<parameter N>
+ 
+For example:
+ 
+  look
+  look/outside
+  @teleport #0
+  @teleport me = #0
+  @teleport/quiet me = #0
+  @open North;n = #0, South;s
+ 
+Continued in 'help syntax2'.
+ 
+& Syntax2
+ 
+The help entries list the proper syntax for each command and function.
+ 
+Most, but not all built-in MUSH commands begin with an '@' sign.
+All built-in MUSH commands are not case-sensitive. Thus, 'look',
+'LOOK', 'Look', and 'LooK' all indicate the same command, 'look'.
+ 
+Many MUSHes have special local commands unique to that MUSH, as well.
+By convention, such commands usually begin with a '+' sign.
+ 
+& Attributes
+ 
+With a handful of exceptions, help topics related to built-in
+attributes have either grouped attributes under the commands or flags
+that utilize them (especially true of "verb" attributes), or into
+single entries that discuss closely related attributes. The
+appropriate help entries to consult are listed below.
+ 
+look:		@desc set, @idesc, @succ set, @fail set
+drop:		@drop set, @dfail set
+enter:		@ealias, @enter set, @efail set, @oxenter
+give:		@gfail set, @rfail set
+goto:		@succ set, @fail set, @drop set
+kill:		@kill set
+leave:		@lalias, @leave set, @lfail set, @oxleave
+page:		@away, @idle, @reject
+use:		@use set, @ufail set
+@clone:		@aclone
+@last:		@last, @lastsite, @logindata 
+@mail:		@amail, @mailsucc, @signature
+@teleport:	@tport set, @tfail set, @tofail set, @oxtport
+ 
+Continued in 'help Attributes2'.
+ 
+& Attributes2
+ 
+@aconnect:	@aconnect, @adisconnect
+@forwardlist:	@filter, @forwardlist, @infilter, @inprefix, @prefix
+@listen:	@listen, @aahear, @ahear, @amhear
+@pay:		use of machines, @pay set, @charges, @cost, @runout
+Movement:	@move set
+ 
+Individual attribute entries:
+ 
+@allowance	@comment	@conformat	@daily		@exitformat
+@exitto		@newobjs	@sex		@startup	@timeout
+@va
+ 
+All available attributes can be listed with '@list attributes'.
+ 
+See 'help Attributes3' for a definition of what attributes are, a
+definition of what verbs are, and how to set built-in attributes,
+and how to set user-defined attributes.
+ 
+& Attributes3
+ 
+An "attribute" is a piece of data that's stored on an object, under a
+specific name. For example, an object's description (what you see when
+you 'look <obj>') is stored in its Desc attribute.
+ 
+Attribute names are not case-sensitive, and must be under 32
+characters long. In general, letters, numbers, underscores, dashes,
+and periods can be safely used in attribute names, though there are
+some other special characters permitted, as well.
+ 
+To set an attribute on an object, use:
+	&<name of attribute> <obj> = <value>
+ 
+MUSH also has a variety of built-in attributes, attributes which have
+a special meaning to the MUSH server. To set the value of a built-in
+attribute object on an object, use:
+	@<name of attribute> <obj> = <value>
+  
+For example, '@desc balloon = A red balloon.' would set the description
+of a balloon object.
+ 
+Continued in 'help Attributes4'.
+ 
+& Attributes4
+ 
+Attributes can have owners that are different from the owners of the
+objects. Attributes can be locked, preventing anyone from changing
+their value. Attributes can also have flags, which give the attributes
+special properties. These flags can apply to a specific attribute on a
+specific object ("attribute's flags"), or to all attributes with this
+name on the MUSH ("attribute's access flags").
+ 
+In brief, the syntax for the commands that alter attribute properties:
+ 
+	@chown <obj>/<attr> = <name of owner>
+	@lock <obj>/<attr>
+	@unlock <obj>/<attr>
+	@set <obj>/<attr> = <attribute flag>
+	@attribute/access <user-defined attribute> = <attribute access flag>
+	@admin attr_access = <built-in attribute> <attribute access flag>
+ 
+See 'help Attribute Owners', 'help Attribute Flags', 'help @chown',
+'help @lock', 'help @unlock', 'help @set', 'wizhelp @attribute', and
+'wizhelp attr_access' for additional details.)
+ 
+Continued in 'help Attributes5'.
+ 
+& Attributes5
+ 
+Some built-in attributes act in special ways when a player takes a
+specific kind of action. They show a message to the player who took
+the action, show a message to the other objects in the player's
+location, and trigger a sequence of action commands. These attributes
+are known as "verbs", or as '@attr/@oattr/@aattr sets' -- for the
+message shown to the player, the message shown to Others, and the
+Action taken, respectively.
+ 
+For example, when you look at an object, the MUSH utilizes the
+@desc / @odesc / @adesc attribute set (the Desc, Odesc, and Adesc
+attributes, set by the @desc, @odesc, and @adesc commands). It
+shows you, the player looking at the object, the Desc attribute
+set on the object, evaluated (which expands percent-substitutions
+and functions). It shows everyone else in your location the Odesc
+attribute on the object, evaluated; it prepends your name to the
+message. Then, it queues up for execution, the semi-colon-separated
+list of actions given in the object's Adesc, which the object
+then executes.
+ 
+Continued in 'help Attributes6'.
+ 
+& Attributes6
+ 
+For example:
+ 
+  @desc balloon = A red balloon.
+  @odesc balloon = looks at a red balloon.
+  @adesc balloon = @emit The red balloon drifts away.
+ 
+When you, a character named Figment, type 'look balloon', you are
+shown the message 'A red balloon.'  Everyone else in your location
+sees, 'Figment looks at a red balloon.'  The ballon object itself
+queues the command '@emit The red ballon drifts away.' and a second
+later, everyone in the balloon's location sees 'The red balloon
+drifts away.'
+ 
+& Attribute Flags
+ 
+Topic: Attribute Flags
+ 
+The following are the possible attribute flags:
+ 
+     dark	- Attribute which can only be seen by God. Global only. (d)
+     god	- Attribute which can only be changed by God. Global only. (g)
+ 
+     hidden     - Wiz/Roy-only. Prevent mortals from seeing the attribute. (m)
+     wizard     - Wiz-only. Prevent mortals from changing the attribute. (w)
+ 
+     visual     - Anyone may see the attribute, including obtaining it with 
+                  a function such as get(). (V)
+ 
+     locked	- Cannot be changed by anyone. Set via '@lock <obj>/<attr>'
+                  and '@unlock <obj>/<attr>', not the @set command.
+                  Local only. (+)
+ 
+Continued in 'help Attribute Flags2'.
+ 
+& Attribute Flags2
+ 
+     no_command - Prevent $-commands and ^-patterns defined in the attribute
+                  from being performed. ($)
+     no_parse   - When $-commands/^-listens are matched, the unparsed
+                  (non-evaluated) string is used. Useful for MUSH editors.
+                  Local only. (P)
+     case	- Treat regular expression patterns as case-sensitive.
+                  Affects $-commands, ^-listens, @filter, @infilter, and
+                  @listen. Local only. (C)
+     regexp     - Treat patterns as regular expressions rather than
+                  wildcard glob patterns. Affects $-commands, ^-listens,
+                  @filter, @infilter, and @listen. Local only. (R)
+ 
+     no_inherit - Prevents children of the object from obtaining the 
+                  attribute.  From their perspective the attribute does not
+                  exist. (I)
+ 
+     html       - When used as part of an Attr/OAttr/AAtr trio (as in @verb,
+                  @enter, etc.), the Attr is not HTML-escaped (see Pueblo).
+                  Local only. (H)
+ 
+Continued in 'help Attribute Flags3'.
+ 
+& Attribute Flags3
+ 
+The "global attribute" (the "definition" of all attributes on the MUSH
+with a given name) has a set of flags that applies to all attributes
+with that name. Each individual instance of an attribute (i.e., each
+attribute that is set on an object) can also have flags. Some flags
+are only checked locally; some flags are checked only globally; some
+flags are checked both globally and locally.
+ 
+The global flags of a user-defined attribute are changed via the command
+'@attribute/access <user-defined attribute name> = <attribute flag>'.
+Such changes are permanent.
+ 
+The global flags of a built-in attribute are changed via the command
+'@admin attr_access = <built-in attribute name> <attribute flag>'.
+Such changes are not permanent, and must be put in the conf file
+(with 'attr_access <built-in attribute name> <attribute flag>') for
+permanence across startups.
+ 
+The flags of an individual attribute are changed using the command
+'@set <obj>/<attr>=<flag>'. The exception is the 'locked' flag.
+ 
+& Attribute Owners
+ 
+Topic: Attribute Owners
+ 
+If you own an attribute, you can view it, lock/unlock it, and @chown
+its ownership, even if you do not control the object that the
+attribute is on; however, you cannot change or remove the attribute,
+unless you control the object it's on.
+ 
+When checking an attribute lock against an object, the lock will always
+fail if the locked object is not owned by the same player as the attribute
+being tested.  The comparison specified in the lock is only performed if
+the owner of the locked object also owns the attribute on the object
+being checked.
  
 & COMMANDS
   Flag: COMMANDS ($)
@@ -76,66 +448,170 @@
   @success     @tfail       @tofail      @tport       @ufail       @use
   @vrml_url
  
-& topics
+& Topics
  
-  Help available on the following Topics:
+Help is available on the following topics:
  
-	ARBITRARY COMMANDS	ATTRIBUTE OWNERSHIP	BEING KILLED
-	BOGUS COMMANDS		BOOLEAN VALUES		CALLER
-	COMMAND EVALUATION	COMSYS			CONTROL	
-	COSTS			CREDITS			DELIMITERS
-	DROP-TO			ENACTOR      		EXITS
-	FAILURE			FLAG LIST		FLAGS
-	FUNCTION LIST		FUNCTIONS		GENDER
-	GOALS			HERE			HOMES
-	LINKING			LISTENING		LISTS
-	LOCAL REGISTERS		LOOPING			ME
-	MONEY			MOVING			OBJECT TYPES
-	PARENT OBJECTS		PATCHLEVEL		PIPING
-	PUEBLO			PUPPETS			REGEXPS
-	ROBBERY			SEARCH CLASSES		SEMAPHORES
-	SPOOFING		STACK			SUBSTITUTIONS
-	SUCCESS			SWITCHES		VERBS
-	WIZARDS			ZONE OBJECTS
+About Help		Attributes		Attribute Owners
+Attribute Flags		BEING KILLED		BOGUS COMMANDS
+BOOLEAN VALUES		CALLER			Comsys
+Control			Conventions		Costs
+Credits			Delimiters		Enactor
+EXITS			FAILURE			FLAG LIST
+FLAGS			FUNCTION LIST		FUNCTIONS
+GENDER			GOALS			HERE
+HOMES			LINKING			LISTENING
+LISTS			LOCAL REGISTERS		LOOPING
+ME			MONEY			Location
+Moving			OBJECT TYPES		PARENT OBJECTS
+Patchlevel		PIPING			PUEBLO
+PUPPETS			REGEXPS			ROBBERY
+Scan Order		SEARCH CLASSES		SEMAPHORES
+SPOOFING		STACK			SUBSTITUTIONS
+SUCCESS			SWITCHES		Syntax
+User Commands		WIZARDS			Zone Control
+ZONE OBJECTS
  
-& drop 
-  Command: drop[/<switch>] <object>
-           drop[/<switch>] <exit>
+& drop
  
-  The first form removes <object> from your inventory and puts it in your
-  location, except for the following special cases: Dropping a STICKY thing
-  sends it home, and dropping a thing in a room with a drop-to sends the thing
-  to the drop-to location.
+Command:  drop[/quiet] <exit>
+          drop[/quiet] <mobile>
  
-  The second form removes <exit> from your list of exits and adds it to the
-  list of exits for the current location.  Anyone in the same location as
-  you may then use the exit to travel to the exit's destination.  You can
-  only drop exits when you own the location where you are dropping them.
+When you drop an exit, it is removed from your list of carried exits,
+and added to the exits from your current location; the exit behaves
+just like an exit that was @open'd directly out of that location in
+the first place. You can only drop exits in a location that you could
+normally @open an exit out of.
  
-  The following switch is recognized:
-     /quiet   - Don't perform the @odrop/@adrop attributes on the dropped
-                 object.  This switch only works if you control the object.
+Under normal circumstances, dropping an object removes the object from
+your inventory, and places it in the contents of your current location.
+If the object has a DropLock, you must be able to pass the lock (or be
+a Wizard), in order to drop the object; if you can't drop the object,
+then the object runs its @dfail verb set.
  
-  'throw' is the same as 'drop'.
-  See also: get, @adrop, @drop, @odrop, DROP-TO, STICKY.  
-
+When you drop an object, several things occur. See 'help Moving' for
+an expansion of some of these steps. The object being dropped is the
+mover, its current location is you (the player dropping it), and its
+destination is your current location (the room it's being dropped into).
+ 
+Continued in 'help drop2'.
+ 
+& drop2
+ 
+The following happens when an object is dropped:
+ 
+- The mover leaves its current location.
+- The mover's destination is registered.
+- The mover's @move verb set is run.
+- The mover enters its destination.
+- The mover is given the message, "Dropped."
+- If the mover has a @drop set, you are shown that message; otherwise you
+  get the message, "Dropped."
+- The drop is considered "quiet" if the /quiet switch was specified, and
+  you control the mover.
+- If the drop is not quiet, everyone in the new location other than you
+  is shown the mover's @odrop (or "<your name> dropped <mover name>."
+  if it doesn't have one).
+- If the drop is not quiet, the mover runs its @adrop.
+- If the mover is STICKY, it is sent home, as are its KEY contents
+  (see 'help Movement Key').
+- If the mover is not STICKY, the new location has a drop-to, and the new
+  location is not STICKY, then the mover is sent to the drop-to location,
+  and its KEY contents are sent home.
+ 
+Continued in 'help drop3'.
+ 
+& drop3
+ 
+Example of a @dfail verb set:
+ 
+  @dfail sword = The sword has welded itself to your hand.
+  @odfail sword = tries to put down the sword but it leaps back into %p hand.
+  @adfail sword = @emit/room The cursed sword in [name(loc(me))]'s hand
+                             gleams with unholy light.
+ 
+Example of a @drop verb set:
+ 
+  @drop vase = You gently put down the delicate vase.
+  @odrop vase = gently puts down a delicate vase.
+  @adrop vase = :shatters.; @destroy/instant me 
+ 
+The @drop verb set of an exit is used when an object goes that exit; see
+'help goto' for the details and an example.
+ 
 & enter
-  Command: enter[/<switch>] <object>
-  The enter command is used to enter an object. Insides of objects are best
-  used for vehicles, or storage spaces when you don't have a home (or even
-  as a floating home).  In order to enter an object you must either own it or
-  it must have its ENTER_OK flag set, and you must also pass the object's
-  EnterLock (if it has one).
  
-  The following switch is recognized:
-     /quiet   - Don't perform the @oenter/@aenter or @oefail/@aefail
-                attributes on the entered object, and don't perform the
-                @oxleave attribute on your current location.  This switch
-                only works if you control the object being entered.
+Command:  enter[/quiet] <mobile>
  
-  See also: leave, @aefail, @aenter, @efail, @enter, @idesc, @lock, @oefail,
-            @oenter, @oxleave, ENTER_OK.
-
+If you are in the same room as an object, you might be able to enter it.
+There are two ways to do that: either type 'enter <mobile>' or type the
+"enter alias" of the object. (Wizards and those with the Long_Fingers
+power are also able to 'enter <dbref>' to enter objects in other locations.)
+ 
+Enter aliases take the same format as exit names, with multiple aliases
+separated by semi-colons. They are attributes, set with the command
+'@ealias <mobile> = <enter aliases>'. For example, an "airplane" object
+might be aliased as follows:  @ealias airplane = plane;fly;board airplane
+This would allow 'plane', 'fly', or 'board airplane' to be used in
+order to enter the airplane object.
+ 
+If you control the object being entered, and you specify the /quiet
+switch, the move is treated as "quiet".
+ 
+Continued in 'help enter2'.
+ 
+& enter2
+ 
+If the object is not ENTER_OK and you do not control it, then you
+will be shown the object's @efail message if it has one, or 
+"Permission denied." if it does not. If the move is not quiet,
+others in your location will be shown the object's @oefail,
+and the object will run its @aefail. 
+ 
+If the object has an EnterLock and you do not pass that lock, then
+will be shown the object's @efail message if it has one, or 
+"You can't enter that." if it does not. If the move is not quiet,
+others in your location will be shown the object's @oefail,
+and the object will run its @aefail. 
+ 
+Continue in 'help enter3'.
+ 
+& enter3
+ 
+If you can enter the object, then several steps occur; see 'help Moving'
+for an expansion. You are the mover, the current location is the room
+you're in, and the new location is the object you are entering.
+ 
+The steps are:
+ 
+- The mover leaves its current location.
+- The mover's new location is registered.
+- The mover's @move verb set is run.
+- The mover enters its new location.
+- Mover contents set KEY are sent home.
+- The old room's drop-tos are activated.
+ 
+Continued in 'help enter4'.
+ 
+& enter4
+ 
+Example of an @efail verb set:
+ 
+  @efail car = The car's door is locked.
+  @oefail car = tries to open the car's door, but it is locked.
+  @aefail car = &LAST_FAIL me = [time()]
+ 
+Example of an @enter verb set and @oxenter:
+ 
+  @enter car = You climb into the car and buckle your seatbelt.
+  @oenter car = joins you in the car, and buckles %p seatbelt.
+  @aenter car = @trigger me/START_ENGINE
+  @oxenter car = climbs into the car.
+ 
+Note that when you enter an object, the @oxenter is shown to those
+in the location you just left, and the @oenter is shown to those
+in the object that you just entered.
+ 
 & examine
  
   Command: examine[/<switches>] <object>[/<wild-attrib>]
@@ -180,70 +656,327 @@
   See also: look, @decompile, VISUAL, ATTRIBUTE OWNERSHIP.
  
 & get
-  Command: get[/<switch>] <object>
-           get[/<switch>] <exit>
-           get[/<switch>] <object>'s <sub-object>
-
-  The first form picks up <object> from your location and adds it to your
-  inventory.  It will fail if the object is locked against you, or if you
-  are inside a player or object that you don't control and which isn't
-  set ENTER_OK.
  
-  The second form takes an exit from your location and adds it to you.
-  Anyone inside you may then use the exit to travel to the exit's destination.
-  You may take exits that you own, and exits owned by others in locations that
-  you own.
+Command:  get[/quiet] <exit>
+          get[/quiet] <mobile>
+          get[/quiet] <carrying mobile>'s <carried mobile> 
  
-  The third form takes <sub-object> from <object> and adds it to your
-  inventory.  <object> must be ENTER_OK and <sub-object> must not be locked
-  against you for this to work.  The lock on <object> is not checked.
-{ 'help get2' for more }
+When you get an exit, it is removed from the exits from your current
+location, and added to your list of carried exits. This effectively
+makes you the source of the exit; anyone inside you can then use the
+exit to move to its destination. You can only get exits that you
+control, or whose source is a location that you control.
+ 
+When you get an object, it removes the object from the contents of its
+current location, and places it in your inventory. You can use the 'get'
+command to get objects from other's inventories, as long as you control
+the possessor, or the possessor is set ENTER_OK and is not DARK or OPAQUE.
+Checking the objects of a possessor is recursive; i.e., you can do:
+get <top-level container>'s <next-level container>'s <etc.>'s <carried obj>
+ 
+Continued in 'help get2'.
+ 
 & get2
-  The following switch is recognized:
-     /quiet   - Don't perform the @osucc/@asucc or @ofail/@afail attributes
-                on the target object.  This switch only works if you control
-                the object.
  
-  <object> and <sub-object> may be either players or things.
-  'take' is the same as 'get'.
-  See also: drop, @afail, @asucc, @fail, @ofail, @osucc, @succ, ENTER_OK,
-            FAILURE, SUCCESS.
+If the object you are trying to get has a basic Lock, you must be able
+to pass the lock, in order to get the object. If you can't:
+  - You are shown the @fail of the object. If the object does not have
+    one set, you are told, "You can't take that from there." if you
+    are trying to get an object that someone else is carrying, or
+    "You can't pick that up." otherwise.
+  - If the /quiet switch was not specified, everyone in your location
+    sees the object's @ofail.
+  - If the /quiet switch was not specified, the object runs its @afail.
+ 
+If your current location is not a room, you cannot 'get' anything
+(including exits), unless you control your current location, or it
+is set ENTER_OK. You can only get nearby things, unless you are
+a Wizard or have the Long_Fingers power, in which case you can
+get remote things via 'get <dbref>'.
+ 
+Continued in 'help get3'.
+ 
+& get3
+ 
+If you successfully get an object, several steps happen. See
+'help Moving' for the details of some of these steps. The object
+that you have gotten is the mover, the old room is the location it
+was taken from , and the destination is you. The move is considered
+"quiet" if the /quiet switch was specified. The steps are:
+ 
+- If the mover is being taken from someone else's inventory, its
+  current possessor is told, "<mover name> was taken from you."
+- The mover leaves its current location.
+- The mover's destination is registered.
+- The mover runs its @move verb set.
+- The mover enters its destination.
+- The mover is told, "Taken."
+- You are shown the mover's @succ message, or "Taken." if the mover
+  does not have one.
+- If this is not quiet, those in your location see the mover's @osucc.
+- If this is not quiet, the mover runs its @asucc.
+ 
+Continued in 'help get4'.
+ 
+& get4
+ 
+Example of a @fail verb set on an object:
+ 
+  @fail table = The table is too heavy to lift.
+  @ofail table = strains to lift the table, but it is too heavy for %o.
+  @afail table = &LAST_TRY me = [time()]
+ 
+Example of a @succ verb set on an object:
+ 
+  @succ sword = You wield the magic sword.
+  @osucc sword = wields a magic sword.
+  @asucc sword = @wait 10 = @emit The magic sword glows brightly.
+ 
 & give
-  Command: give <player>=<amount/object>
-  Gives player the specified amount of money or <object>. You can't give
-  someone money if their new total would be greater than 10000 (No reason to
-  get greedy).  You may also give players objects, but the other player must
-  be set ENTER_OK to receive something you give. 
-  See also: @apay, @cost, @opay, @pay, ENTER_OK.
-
+ 
+Command:  give[/quiet] <recipient mobile> = <amount of money>
+          give[/quiet] <recipient mobile> = <gift mobile>
+ 
+You can give money, or objects that you're carrying, to someone else,
+as long as the recipient is not a Guest character. The recipient must
+be nearby, unless you're a Wizard or have the Long_Fingers power,
+in which case you can specify the recipient as *<player> or <dbref>.
+If your gift (the right-hand side of the '=' sign) is a number, your
+gift is assumed to be money; otherwise, it is assumed to be an object.
+ 
+If you try to give someone a negative number, this is treated like
+trying to take away money from them. You can only do this if you are a
+Wizard or you have the Steal_Money power. Otherwise, you will be told,
+"You must specify a positive number of <money name>."
+ 
+Continued in 'help give2'.
+ 
+& give2
+ 
+If you are not a Wizard, and you try to give money to a player, you
+will be told, "That player doesn't need that many <money nane>!" if
+the amount they would have after your donation would exceed the
+value of the configuration parameter earn_limit.
+ 
+If you are not a Wizard, and you try to give money to someone else,
+you must be able to pass their GiveLock. Otherwise, you are told,
+"<recipient> won't take your money."
+ 
+You must have sufficient money to cover the amount that you are giving
+someone else. Wizards, those set IMMORTAL, and those with the
+Free_Money power are considered to have infinite money.
+ 
+If the recipient of money is a player, the /quiet switch suppresses
+any messages; otherwise, you will be told that you have given the
+player money, and the player will be told that you've given him money.
+ 
+Continued in 'help give3'.
+ 
+& give3
+ 
+If the recipient of money is not a player, then this is considered
+an attempt to "pay" a machine. See 'help @pay' for the details of
+what happens when you do so.
+ 
+If you try to give an object to someone else, the recipient must
+be someone you control, or they must be set ENTER_OK. If not,
+you will be told, "Permission denied."
+ 
+If the object you're trying to give away has a GiveLock, and you don't
+pass the lock, then you will be shown the object's @gfail (or the
+message, "You can't give <gift> away." if the object doesn't have a
+@gfail), the others in your location will be shown the object's
+@ogfail, and the object will run its @agfail.
+ 
+If the recipient has a ReceiveLock, and you don't pass the lock,
+then you will be shown the recipient's @rfail (or the message,
+"<recipient> doesn't want <gift>." if the recipient has no @rfail),
+the others in your location will be shown the recipient's @orfail,
+and the recipient will run his @arfail.
+ 
+Continued in 'help give4'.
+ 
+& give4
+ 
+If you successfully give an object away, several steps happen. See
+'help Moving' for the details of some of these steps. The gift
+is the mover, the old room is the gift's former location (normally
+your inventory), and the destination is the recipient. The move is
+considered "quiet" if the /quiet switch was specified. The steps are:
+ 
+- The mover leaves its current location.
+- The mover's destination is registered.
+- The mover runs its @move verb set.
+- The mover enters its destination.
+- Mover contents set KEY are sent home.
+- If this is not quiet, the recipient is told, "<your name> gave you
+  <gift>."
+- If this is not quiet, you are told, "Given."
+- If this is not quiet, the gift is told, "<your name> gave you to
+  <recipient>."
+- The mover runs its @drop verb set; you are considered the enactor.
+- The mover runs its @succ verb set; the recipient is considered the enactor.
+ 
+Continued in 'help give5'.
+ 
+& give5
+ 
+Example @gfail verb set:
+ 
+  @gfail sword = The cursed sword leaps back into your hands.
+  @ogfail sword = tries to give away %p cursed sword, but it leaps back
+                  into %p hands.
+  @agfail sword = @wait 10 = @emit The cursed sword gleams with unholy light.
+ 
+Example @rfail verb set:
+ 
+  @rfail merchant = The merchant doesn't want your worthless trash.
+  @orfail merchant = fails to unload some worthless trash on the merchant.
+  @arfail merchant = :kicks %N out of his store.; @tel %# = home
+ 
 & goto
-  Command: goto[/<switch>] <direction>
-           goto[/<switch>] home
-           <direction>
  
-  Moves you in the specified direction, assuming that the direction is not
-  locked against you.  'move home' is a special command that returns you to
-  your home. The word 'move' may be omitted.
+Command:  goto[/quiet] <exit>
  
-  The following switch is recognized:
-     /quiet   - Don't perform the @osucc/@asucc/@odrop/@adrop or @ofail/@afail
-                attributes on the exit being used.  This switch only works if
-                you control the exit.
+The 'goto' is usually referred to by its alias, 'move'; i.e., you
+can type 'move <exit>' instead of 'goto <exit>'. You can also 
+'goto home'; this is just like typing 'home' (see 'help home').
  
-  'move' is the same as 'goto'.
-  See also: enter, home, leave, home
+You can move directly through an exit by just typing the name of the
+exit (or one of the aliases in the exit's full name). However, there
+are some subtle differences in the way the server goes about looking
+for an appropriate exit, depending on whether you type 'goto <exit>'
+or just '<exit>'.
+ 
+When you just type '<exit>', the server checks for a matching local
+exit (one in your current location, whether directly there or
+inherited from a parent room). If there isn't a match, then it
+checks for a global exit (one in the master room). If there isn't
+a match still, then it will check zone exits. If, at any of those
+levels, multiple exits match, one of the matches will be chosen
+at random.
+ 
+Continued in 'help goto2'.
+ 
+& goto2
+ 
+When the configuration parameter move_match_more is not enabled,
+'goto <exit>' only checks a matching local exit; if more than one
+local exit is found, the message "I don't know which way you mean!"
+will be returned. If move_match_more is enabled, 'goto <exit>'
+checks for an exit match in the exact same way '<exit>' does.
+ 
+If the config parameter exit_calls_move is enabled, typing '<exit>' is
+exactly like typing 'goto <exit>'. In general, MUSH administrators
+will only enabled this configuration if @addcommand or @hook has been
+used to override or alter the standard behavior of movement.
+ 
+Once an exit is matched, its endpoint (where it is @link'd to) is
+checked. If the exit was @link'd to "variable", the endpoint is
+determined at this point, by evaluating the @ExitTo on the exit.
+ 
+Continued in 'help goto3'.
+ 
+& goto3
+ 
+The Lock of the exit is also checked, if it exists. If you are not able
+to pass the lock, or the exit's endpoint is someplace invalid (such as
+a Garbage object) then the following things occur:
+ 
+- You are told the exit's @fail, or if it doesn't have one set,
+  "You can't go that way."
+- Others in your location see the exit's @ofail, unless you specified
+  the /quiet switch or are DARK.
+- The exit runs its @afail, unless you specified the /quiet switch,
+  or you are DARK and the dark_actions config parameter is not enabled.
+ 
+If you do pass the lock, then a series of steps occur. See 'help Moving'
+for an expansion of some of these. You are the mover, the location you
+are leaving is the old room, and the endpoint of the exit is the
+destination.
+ 
+Continued in 'help goto4'.
+ 
+& goto4
+ 
+The move is considered "noisy", unless the mover is set TERSE and the
+configuration parameter terse_shows_move_messages is disabled. The
+move is considered "visible", unless the /quiet switch was specified,
+or the mover is a Dark Wizard. The move is considered "active", unless
+the /quiet switch was specified, or the mover is a Dark Wizard and the
+dark_actions configuration parameter is not enabled.
+The steps are as follows:
+ 
+- If the move is noisy, the mover is shown the exit's @succ message.
+- If the move is visible, everyone in the old room sees the exit's @osucc.
+- If the move is active, the exit runs its @asucc.
+- The mover leaves its current location.
+- The mover's destination is registered.
+- If the move is noisy, the mover is shown the exit's @drop message.
+- If the move is visible, everyone in the destination sees the exit's @odrop.
+- If the move is active, the exit runs its @adrop.
+- The mover runs its @move verb set.
+- The mover enters its destination.
+- Mover contents set KEY are sent home. 
+ 
+Continued in 'help goto5'.
+ 
+& goto5
+ 
+Example of a @fail verb set on an exit:
+ 
+  @fail iron door = The door is stuck. You can't budge it.
+  @ofail iron door = attempts to open the iron door, but it's stuck. 
+  @afail iron door = @wait 60 = @unlock me; @@ Silently "unstick" myself.
+ 
+Example of a @succ verb set on an exit:
+ 
+  @succ iron door = You push open the heavy door, and walk through.
+  @osucc iron door = pushes open the iron door, and walks through.
+  @asucc iron door = @lock me = #0; @@ Silently lock myself.
+ 
+Example of a @drop verb set on an exit:
+ 
+  @drop iron door = You emerge on the other side of the iron door.
+  @odrop iron door = walks in from the prison cell behind the iron door.
+  @adrop iron door = &LAST_USED me = [time()]
+ 
+Most MUSHes have a building code that requires or strongly encourages
+builders to put @osucc and @odrop messages on their exits. Many also
+encourage the use of a @succ message on an exit. @drop messages are
+rarely used on exits.
  
 & home
-  Command: home
  
-  The 'home' command takes you "home". It always works, with one exception
-  related to the FIXED flag.
+Command:  home
  
-  The 'home' command is not a normal command, and therefore can never be
-  overridden with @addcommand, or given hooks via @hook, or have its
-  permissions altered via @admin.
+A mobile object can use the 'home' command to return to its home.
+Note that typing 'home' or 'goto home' is different from typing
+'@teleport home'; the latter is treated like a teleportation and
+behaves like other teleportations (see 'help @teleport').
  
-  See also: HOMES, FIXED
+If an object is set FIXED, or its owner is set FIXED, and it is not
+a Wizard or Royalty, it will not be able to use the 'home' command.
+Otherwise, objects are always able to go home.
+ 
+Continued in 'help home2'.
+ 
+& home2
+ 
+Several steps occur when an object uses the 'home' command. See
+'help Moving' for an expansion of some of these. The mover is
+the object going home, the old room is the object's current
+location, and the destination is the object's home.
+ 
+- Everyone in the old room sees, "<mover> goes home." unless the
+  mover is DARK, or the old room is DARK.
+- The mover is told three times, "There's no place like home..."
+- The mover leaves its current location.
+- The mover's destination is registered.
+- The mover runs its @move verb set.
+- The mover enters its destination.
+- Mover contents set KEY are sent home.
+- The old room's drop-tos are activated.
  
 & inventory
   Command: inventory
@@ -261,20 +994,66 @@
   See also: @akill, @kill, @okill, BEING KILLED, IMMORTAL, WIZARD.
 
 & leave
-  Command: leave[/<switch>]
-  This command leave allows you to exit an object you have entered, arriving
-  in the same location as the object. You may not leave an object if you fail
-  that object's LeaveLock (but you may still @teleport out, use an exit inside
-  the object, or go home).
  
-  The following switch is recognized:
-     /quiet   - Don't perform the @oleave/@aleave or @olfail/@alfail
-                attributes on the entered object, and don't perform the
-                @oxenter attribute on your new location.  This switch
-                only works if you control your current location.
+Command:  leave[/quiet]
  
-  See also: enter, @lock, ENTER_OK, @aleave, @alfail, @leave, @lfail, @oleave,
-            @olfail, @oxenter.
+If you are inside a mobile object, you might be able to leave it,
+either by typing 'leave' or by typing one of its leave aliases.
+If you leave an object, you will end up in that object's current
+location.
+ 
+Leave aliases take the same format as exit names, with multiple aliases
+separated by semi-colons. They are attributes, set with the command
+'@lalias <mobile> = <leave aliases>'. For example, an "airplane" object
+might be aliased as follows:  @lalias airplane = disembark;ground;out;o
+This would allow 'disembark', 'ground', 'out', or 'o' to be used in 
+order to leave the airplane object.
+ 
+Continued in 'help leave2'.
+ 
+& leave2
+ 
+If you control the object being left, and you specify the /quiet
+switch, the move is treated as "quiet".
+ 
+If the object has a LeaveLock and you do not pass that lock, then will
+be shown the object's @lfail message if it has one, or "You can't leave."
+if it does not. If the move is not quiet, others in your location will
+be shown the object's @olfail, and the object will run its @alfail.
+ 
+If you can leave the object, then several steps occur; see 'help Moving'
+for an expansion. You are the mover, the current location is the object
+you're in, and the new location is the object's own location.
+ 
+The steps are:
+ 
+- The mover leaves its current location.
+- The mover's new location is registered.
+- The mover's @move verb set is run.
+- The mover enters its new location.
+ 
+Continued in 'help leave3'.
+ 
+& leave3
+ 
+Example of a @lfail verb set:
+ 
+  @lfail plane = You don't have a parachute!
+  @olfail plane = thinks about jumping out of the plane without a parachute,
+                  but wisely reconsiders.
+  @alfail plane = &LAST_FAIL me = [time()]
+ 
+Example of a @leave verb set and @oxleave:
+ 
+  @leave car = You unbuckle your seatbelt, and climb out of the car.
+  @oleave car = unbuckles %p seatbelt and gets out, leaving you in the car.
+  @aleave car = &LAST_EXIT me = [time()]
+  @oxleave car = gets out of the car that's parked here.
+ 
+Note that when you leave an object, the @oxleave is shown to those
+in the location that you just entered (i.e., where the object is),
+and the @oleave is shown to those in the object that you just left.
+ 
 & LOGOUT
   Command: LOGOUT
   Disconnects you from your character without breaking the network connection
@@ -298,24 +1077,158 @@
   'read' is the same as 'look'.
  
   See also: @adesc, @describe, @odesc.
-
+ 
 & move
-  Command: move[/<switch>] <direction>
-           move[/<switch>] home
-           <direction>
-           home
  
-  Moves you in the specified direction, assuming that the direction is not
-  locked against you.  'move home' is a special command that returns you to
-  your home. The word 'move' may be omitted.
+See 'help goto'. The 'move' command is an alias for 'goto'.
  
-  The following switch is recognized:
-     /quiet   - Don't perform the @osucc/@asucc/@odrop/@adrop or @ofail/@afail
-                attributes on the exit being used.  This switch only works if
-                you control the exit.
+& Moving
  
-  'goto' is the same as 'move'.
-  See also: enter, home, leave.
+Topic:  Moving
+ 
+There are a number of ways to move an object from one location to
+another. Besides exits (described under 'help goto'), the @teleport,
+home, enter, leave, get, drop, and give commands all cause objects to
+move.
+ 
+A number of steps occur whenever an object is successfully moved. Not
+all types of movement cause all of these steps to be executed. These
+"generic" steps are described in this help entry; the individual help
+entries of movement commands detail which of these steps they use, and
+when. (If an attribute is non-existent, nothing is shown/done.)
+ 
+Continued in 'help Moving2'.
+ 
+& Moving2
+ 
+These steps are:
+ 
+- The mover leaves its current location. ('help Movement Leave')
+- The mover's destination is registered. ('help Movement Register')
+- The mover enters its destination. ('help Movement Enter')
+- Mover contents set KEY are sent home. ('help Movement Key')
+- The old room's drop-tos are activated. ('help Movement Drop-To').
+ 
+In all of these help entries, the moving object is referred to as the
+"mover", the location being left is referred to a the "old room", and
+the location being moved into is referred to as the "destination".
+ 
+Whenever an object moves, its @move verb set is run at some point
+in time during the process (see the individual help entries for when
+this occurs for each command). An example @move verb set:
+ 
+  @move me = You fly off.
+  @omove me = flies off.
+  @amove me = &LAST_MOVED me = [time()]
+ 
+& Movement Leave
+ 
+Topic: Movement (object leaves its current location)
+  
+- The mover is shown the @leave attribute set on the old room, unless
+  the configuration parameter terse_shows_move_messages is disabled
+  and the mover is set TERSE.
+ 
+- This leave is considered "quiet", if the /quiet switch was specified
+  to the movement command, or if none of the following is true:
+    - The old room has Wizard privileges.
+    - Neither the old room, nor the mover, are Dark.
+    - The mover can hear (see 'help Hearer') and is not a Dark Wizard.
+ 
+- If the leave is not quiet, the @oleave is shown to other objects in the
+  old room.
+
+- If the leave is not quiet, or the /quiet switch was not specified and
+  the dark_actions configuration parameter is enabled, the old room runs
+  its @aleave. 
+ 
+Continued in 'help Movement Leave2'.
+ 
+& Movement Leave2
+ 
+- If the leave is not quiet, the @oxenter of the destination is shown to
+  objects in the old room.
+ 
+- If the move is not quiet, the mover is not Blind, the old room is not
+  Blind, and at least one of the following is true:
+    - The mover and the old room are not Dark.
+    - The mover can hear, and is not a Dark Wizard.
+  then objects in the old room see "<mover> has left."
+ 
+& Movement Register
+ 
+Topic: Movement (object's new location is registered)
+ 
+- The mover's location is changed, i.e., the value returned by
+  'loc(<mover>)' becomes the dbref of the destination.
+ 
+- The mover looks at its new location, just as if it had typed 'look here'.
+  (See 'help look' for a description of what that entails.)
+ 
+- If the mover is a player, the mover has less money than is specified
+  by the configuraton parameter earn_limit, then the mover has a percentage
+  chance equal to the find_money_chance configuration parameter, to get
+  a single unit of money, receiving the message, "You found a <coin>!"
+ 
+& Movement Enter
+ 
+Topic: Movement (object enters its new location)
+ 
+- The mover is shown the @enter attribute set on the destination, unless
+  the configuration parameter terse_shows_move_messages is disabled
+  and the mover is set TERSE.
+ 
+- This enter is considered "quiet", if the /quiet switch was specified
+  to the movement command, or if none of the following is true:
+    - The old room has Wizard privileges.
+    - Neither the old room, nor the mover, are Dark.
+    - The mover can hear (see 'help Hearer') and is not a Dark Wizard.
+ 
+- If the enter is not quiet, the @oenter is shown to other objects in the
+  destination.
+ 
+- If the enter is not quiet, or the /quiet switch was not specified and
+  the dark_actions configuration parameter is enabled, the destination
+  runs its @aenter. 
+ 
+Continued in 'help Movement Enter2'.
+ 
+& Movement Enter2
+ 
+- If the enter is not quiet, the @oxleave of the old room is shown to
+  objects in the destination.
+ 
+- If the move is not quiet, the mover is not Blind, the old room is not
+  Blind, the mover can hear, and the mover is not a Dark Wizard,
+  then objects in the destination see "<mover> has arrived."
+ 
+& Movement Key
+ 
+Topic: Movement (object contents set KEY are sent home)
+ 
+For each object that is carried by the target (normally the mover): If
+the target does not control the object, and the object is set KEY,
+then the object is sent home.
+ 
+& Movement Drop-To
+ 
+Topic: Movement (drop-tos are activated)
+ 
+The old room's drop-to is activated if all the following criteria
+apply:
+ 
+- The old room is of type ROOM.
+- The old room has a valid drop-to. (See 'help @link'.)
+- The old room is set STICKY.
+- None of the objects that are in the room can hear (see 'help Hearer')
+  and are owned by connected players.
+ 
+If the drop-to is activated, then all objects in the old room are
+sent to the drop-to location (the room that the old room is @link'd to),
+except for objects that are set STICKY, which are sent home instead.
+Objects sent through a drop-to also lose any KEY contents (as per
+'help Movement Key').
+ 
 & news
   Command: news [<topic>]
   Shows you the current news for the MUSH. It is highly recommended that
@@ -338,51 +1251,106 @@
   The OUTPUTSUFFIX command must be entered in all capitals.
   See also; @robot, OUTPUTPREFIX, ROBOT.
 
-& page 
-  Command: page[/noeval] [<player-list>] [=<message>]
+& page
  
-  This command sends <message> to a list of players. If you do not specify
-  a player list, it defaults to the players you last paged. You may use
-  any combination of player names, player aliases, or partial names (strings
-  that uniquely match the start of a connected player's name).
+Command:  page <list of players> = <message>
+          page = <message>
+          page <message>	[if conf param page_requires_equals is 'no']
  
-  You can format the message one of several ways by specifying ':', ';', or
-  '"' as the first character of the message.  ':' and ';' format the message
-  as 'From afar, <player> <message>', with ';' omitting the space between
-  <player> and <message>.  '"' formats the message in normal page format
-  (this is the default).
+This command sends <message> to a list of players. If you do not specify
+a player list, it defaults to the players you last paged. You may use
+any combination of player names, player aliases, or partial names (strings
+that uniquely match the start of a connected player's name).
  
-  If the /noeval switch is specified, <message> is not evaluated.
+If <message> begins with ':' or ';', it will be treated as a page-pose.
+The recipients will see, "From afar, <your name> <message>" if you used
+a ':', and "From afar, <your name><message>" if you used a ';'.
+If <message> begins with '"', the " is ignored, and the rest of
+the message paged normally.
  
-{ 'help page2' for more }
+If the /noeval switch is specified, functions and percent-substitutions
+are not evaluated.
+ 
+Continued in 'help page2'.
+  
 & page2  
-  If your Idle attribute is set to something, then it is sent to anyone
-  who successfully pages you.  This is useful for when you are away from
-  your terminal for a short while.
  
-  You can selectively disable pages from certain players with the '@lock/page'
-  command (players must pass the lock in order to page you).  If someone
-  cannot page you, they will be sent a message including of your Reject
-  attribute if they try.  If someone pages you while you are not connected,
-  they are sent a message including your Away attribute.
+If your Idle attribute is set, and someone successfully pages you,
+they are shown the contents of that attribute. This is useful when
+you are away from your keyboard for a short while.
  
-  See also: pose, say, whisper, :, ;, ", @pemit, @away, @idle, @reject.
+You can prevent certain players from paging you (or @pemit'ing to
+you) with a PageLock. When someone attempts to page you or @pemit
+to you, your PageLock is checked; if that person does not pass the lock,
+they won't be able to do so. If you a Reject attribute set, they will
+be shown the contents of that attribute.
  
+Some common uses of PageLocks:
+ 
+  @lock/page me = =*Figment   (Only Figment can page you.)
+  @lock/page me = !=*Figment  (Everyone can page you, except for Figment.)
+  @lock/page me = !$*Figment  (Figment and things he owns can't page you.)
+  @unlock/page me             (Lets everyone page you.)
+ 
+Continued in 'help page3'.
+ 
+& page3
+ 
+If someone tries to page you while you are not connected, and you have
+your Away attribute set, they will be shown the contents of that attribute.
+ 
+There are two special cases.
+ 
+If you are paging someone, you do not pass their PageLock, their
+connection is hidden (they are a Wizard, or have the Hide power, and
+are set DARK), and you cannot see players whose connections are hidden
+(you are not a Wizard or Royalty, and do not have the See_Hidden power),
+you will be given their Away message rather than their Reject message.
+ 
+If you are not a Wizard, you cannot page someone unless they can page
+you back (i.e., you must not be page-locked against them). If you are
+a Wizard, you can page someone who can't page you back, but you will
+be warned that they can't page you back.
+ 
+See also: @pemit, @lock
+  
 & pose
-  Command: pose[/<switches>] <message>
-  Displays <message> to everyone in your current room, preceded by your name
-  and optionally a space.  Example: the command 'pose jumps for joy' produces
-  '<yourname> jumps for joy'.
  
-  The following switches are available:
-     /default - (default) Put a space between your name and the message
-                (ie, display '<name> <message>').
-     /nospace - Don't put a space between your name and the message
-                (ie, display '<name><message>').
-     /noeval  - Don't evaluate <message>.
+Command:  pose[/<switch>] <message>
+          :<message>
+          ;<message>
  
-  See also: page, say, whisper, :, ;, ".
-
+Displays <message> to everyone in your current room, preceded by your name
+and optionally a space. If you use the ':' command abbreviation, the
+<message> is preceded by your name and a space; if you use the ';'
+command abbreviation, or you use ': <message>' (rather than ':<message>'),
+the <message> is preceded by your name, without a space.
+ 
+Available switches:
+ 
+   /default - (default) Put a space between your name and the message
+              (i.e., display '<name> <message>').
+   /nospace - Don't put a space between your name and the message
+              (i.e., display '<name><message>').
+   /noeval  - Don't evaluate <message>.
+ 
+Continued in 'help pose2'.
+ 
+& pose2
+ 
+Examples:
+ 
+  > pose jumps for joy.
+  > :jumps for joy.
+  Figment jumps for joy.
+  
+  > pose/nospace 's balloon pops.
+  > ;'s balloon pops.
+  > : 's balloon pops.
+  Figment's balloon pops.
+ 
+See also: say, @emit
+ 
 & PUEBLO
   Topic: Pueblo
  
@@ -476,14 +1444,18 @@
   See also: @emit, @oemit, NOSPOOF.
 
 & say
-  Command: say[/noeval] <message>
  
-  Says <message> out loud to everyone in your current room. You can also
-  use '"<message>'. If the /noeval switch is specified, the message is
-  not evaluated.
+Command:  say[/noeval] <message>
+          "<message>
  
-  See also: page, pose, whisper, :, ;, ".
-
+Says <message> out loud to everyone in your current room.
+If you use say/noeval, the message is not evaluated.
+ 
+You will see:  You say "<message>"
+Everyone else in your location will see:  <your name> says "<message>"
+ 
+See also: pose, @emit
+ 
 & score
   Command: score
   Displays how much money you have.  Helpful to see if any machines are
@@ -544,10 +1516,14 @@
             FAILURE, SUCCESS.
 
 & think
-  Command: think <message>
  
-  You can use this command to send a private message to yourself. Pronoun
-  substitution is performed. It is equivalent to '@pemit me = <message>'.
+Command:  think <message>
+ 
+You can use this command to send a private message to yourself. The
+<message> string is evaluated. This command is equivalent to
+'@pemit me = <message>'.
+ 
+See also: @pemit, @eval
  
 & throw
   Command: throw[/<switch>] <object>
@@ -583,17 +1559,20 @@
   rebuilt.
 
 & whisper 
-  Command: whisper <player>=<message>
-  Whispers the message to the named person, if they are in the same room as
-  you. No one else can see the message that you whisper.
  
-  You can format the message one of several ways by specifying ':', ';', or
-  '"' as the first character of the message.  ':' and ';' format the message
-  as 'You sense <player> <message>', with ';' omitting the space between
-  <player> and <message>.  '"' formats the message in normal whisper format
-  (this is the default).
-  See also: page, pose, say, :, ;, ".
-
+Command:  whisper <mobile> = <message>
+ 
+Sends a message to a nearby object. Only that object will see the message.
+Unlike page and @pemit, this command is not subject to PageLock checks.
+ 
+If <message> begins with ':' or ';', it will be treated as a whisper-pose.
+The recipient will see "You sense <your name> <message>" if you used a ':',
+and "You sense <your name><message>" if you used a ';'. If <message>
+begins with '"', the " is ignored, and the rest of the message whispered
+normally.
+ 
+See also: page, pose, say, @emit
+ 
 & WHO
   Command: WHO <prefix>
   Displays a list of players currently connected to the MUSH.
@@ -620,15 +1599,16 @@
   See also: @set.
 
 & @@
-  Command: @@ <args>
  
-  This command does nothing, therefore it is useful for putting comments into
-  a MUSH program.  Be careful that ()'s and {}'s in the (otherwise ignored)
-  arguments are nested correctly, lest your command-ending ; be trapped
-  inside.
+Command:  @@ <args>
  
-  Example:
-     @va me=$foobar *:@fo #1234=%0;@@ This controls my foobar puppet.
+This command does nothing. Thus, it's useful for putting comments into
+MUSH program.  Be careful that ()'s and {}'s in the (otherwise ignored)
+arguments are nested correctly, lest your command-ending ; be trapped
+inside.
+ 
+Example:
+  @va me = $foobar *: @fo #1234=%0; @@ This controls my foobar puppet.
  
 & @branch
 
@@ -1025,28 +2005,23 @@
   See also: edit()
  
 & @emit
-  Command: @emit[/<switches>] <message>
-  Sends <message> to everyone in your current location without prefixing it by
-  your character name.  You can also send the message to everyone in the room
-  that contains the object you are inside with the /room switch.
  
-  The following switches are available:
-     /here  - Sends the message to everyone in the same location as you.
-     /room  - Sends the message to everyone in the room that contains the
-             object you are in.  Starting from your location, this switch
-             'leaves' objects until it reaches a room, and @emits the message
-             there.
-     /noeval - Don't evaluate <message>.
+Command:  @emit[/<switches>] <message>
+          \\<message>
  
-  If both switches /here and /room are specified, the message is sent to
-  both places. If neither is specified, /here is assumed.
-
-  There is an also a '/html' switch, which sends the output in HTML
-  format. (Pueblo support only.)
+This command shows <message> to everyone in your current location.
  
-  Some MUSHes may restrict the use of this command.
-  See also: @femit, @oemit, @pemit, SPOOFING, Pueblo.
-
+Available switches:
+ 
+  /here   - (default) Shows the message to everyone in the same location
+            as you.
+  /room   - Shows the message to everyone in your 'absolute location'.
+            (See 'help Location' for details.)
+  /noeval - Don't evaluate <message>.
+  /html   - (Pueblo only) Shows the output in HTML format. 
+ 
+See also:  @femit, @oemit, @pemit, NOSPOOF
+ 
 & @entrances
   Command: @entrances [[<object>][,<low>[,<high>]]]
  
@@ -1068,35 +2043,65 @@
   See also: @link, @unlink.
 
 & @eval
-  Command: @eval <arg>
  
-  This command does nothing other than evaluate <arg>, making it useful
-  for executing side-effect functions.
+Command:  @eval <arg>
  
-  Example:
-     @va me=$test *: @eval [set(me,TEST:Set to %0)][pemit(%#,Testing %0.)]
+This command does nothing other than evaluate <arg>, making it useful
+for executing side-effect functions.
+ 
+Example:
+  @va me=$test *: @eval [set(me,TEST:Set to %0)][pemit(%#,Testing %0.)]
  
 & @femit
-  Command: @femit[/<switches>] <object>=<message>
-  Forces <object> to emit <message>.  This command is similar to the command
-  '@force <object> = @emit <message>', except that it will work so long as
-  you own the object, whereas @force may fail if the object has its INHERIT
-  flag set and the object performing the @force does not.
  
-  The following switches are available:
-     /here  - Sends the message to everyone in the same location as <object>.
-     /room  - Sends the message to everyone in the room that contains the
-              object that <object> is in.  Starting from your location, this
-              switch 'leaves' objects until it reaches a room, and @emits the
-              message there.
-     /noeval - Don't evaluate <message>.
-
-  If both /here and /room switches are specified, the message is sent to
-  both places.  If neither is specified, /here is assumed.
+Command:  @femit[/<switch>] <obj> = <message>
  
-  Some MUSHes may restrict the use of this command.
-  See also: @emit, @fpose, @fsay, INHERIT, SPOOFING.
-
+Forces <obj> to emit <message>.  This command is similar to the command
+'@force <obj> = @emit <message>', except that it will work so long as
+you own the object, whereas @force may fail if the object has its INHERIT
+flag set and the object performing the @force does not.
+ 
+Available switches:
+ 
+  /here   - (default) Sends the message to everyone in the same location
+            as <obj>.
+  /room   - Sends the message to everyone in <obj>'s absolute location.
+            (See 'help Location' for details.) 
+  /noeval - Don't evaluate <message>.
+ 
+See also: @emit, @fpose, @fsay, @force
+ 
+& @fpose
+ 
+Command:  @fpose[/<switch>] <obj> = <message>
+ 
+Forces <obj> to pose <message>.  This command is similar to the command
+'@force <obj> = :<message>', except that it will work so long as you
+own the object, whereas @force may fail if the object has its INHERIT flag
+set and the object performing the @force does not.
+ 
+Available switches:
+ 
+  /default - (default) Put a space between the name of the object and
+             the message (i.e., send '<name> <message>').
+  /nospace - Don't put a space between the name of the object and the
+             message (i.e., send '<name><message>').
+  /noeval   - Don't evaluate <message>.
+ 
+See also: @femit, @fsay, pose, @force
+ 
+& @fsay
+ 
+Command:  @fsay[/noeval] <obj> = <message>
+ 
+Forces <obj> to say <message>. This command is similar to the command
+'@force <obj> = "<message>', except that it will work so long as you
+own the object, whereas @force may fail if the object has its INHERIT
+flag set and the object performing the @force does not. If the /noeval
+switch is specified, the message is not evaluated.
+ 
+See also: @femit, @fsay, say, @force
+ 
 & @find
   Command: @find <name>[,<low>[,<high>]]
  
@@ -1145,34 +2150,6 @@
  
   See also: puppets.
 
-& @fpose
-  Command: @fpose[/<switches>] <object>=<message>
- 
-  Forces <object> to pose <message>.  This command is similar to the command
-  '@force <object> = :<message>', except that it will work so long as you
-  own the object, whereas @force may fail if the object has its INHERIT flag
-  set and the object performing the @force does not.
- 
-  The following switches are available:
-     /default - (default) Put a space between the name of the object and
-                the message (ie, send '<name> <message>').
-     /nospace - Don't put a space between the name of the object and the
-                message (ie, send '<name><message>').
-     /noeval - Don't evaluate <message>.
- 
-  See also: @femit, @fsay, pose, :, ;, INHERIT.
- 
-& @fsay
-  Command: @fsay[/noeval] <object>=<message>
- 
-  Forces <object> to say <message>. This command is similar to the command
-  '@force <object> = "<message>', except that it will work so long as you
-  own the object, whereas @force may fail if the object has its INHERIT
-  flag set and the object performing the @force does not. If the /noeval
-  switch is specified, the message is not evaluated.
- 
-  See also: @femit, @fsay, say, ", INHERIT.
- 
 & @halt
   Command: @halt [<object>]
   Halts all commands being run by <object>, or by the object running the
@@ -1572,19 +2549,59 @@
   See also: @drain, @ps, @wait, SEMAPHORES
 
 & @npemit
-  Command: @npemit <object>=<message>
  
-  Sends the unparsed contents of <message> to <object>, in a fashion akin
-  to @pemit. This differs from @pemit/noeval in that <message> is completely
-  untouched -- no space compression is done.
+Command:  @npemit[/<switches>] <obj>=<message>
  
-  See also: @pemit
+Sends the unparsed contents of <message> to <obj>, in a fashion akin
+to @pemit. This differs from @pemit/noeval in that <message> is completely
+untouched -- no space compression is done.
+ 
+@npemit can take the same switches as @pemit.
+ 
+See also: @pemit
  
 & @oemit
-  Command: @oemit <player>=<message>
-  Emits <message> to everyone in your current location except for <player>.
-  See also:  @emit, @pemit, SPOOFING.
-
+ 
+Command:  @oemit <mobile> = <message>
+ 
+Emits <message> to everyone in your current location except for <mobile>.
+ 
+See also:  @emit, @pemit
+ 
+& @pemit
+ 
+Command:  @pemit[/<switches>] <obj> = <message>
+          @pemit/list[/<switches>] <list of dbrefs> = <message>
+ 
+Emits <message> only to <obj>, or to <obj>'s contents of the /contents
+switch is given. If the /list switch is specified, this emits <message>,
+to each object given in the <list of dbrefs>, or if the /contents switch
+is also specified, to the contents of each object given in <list of dbrefs>.
+ 
+If the config parameter pemit_far_players is enabled, objects can @pemit
+to players that they are able to page (i.e., subject to PageLocks and
+so forth); if it is disabled, objects cannot @pemit to players that are
+not in the same location as they are.
+ 
+If the config parameter pemit_any_object is enabled, objects can @pemit
+to any object. Otherwise, objects can only @pemit to objects that they
+control, or which are nearby. However, regardless, you cannot @pemit to
+the contents of an object that you do not control. 
+ 
+Continued in 'help @pemit2'.
+ 
+& @pemit2 
+ 
+Available switches:
+ 
+  /object   - (default) Send the message to the named object.
+  /contents - Send the message to the contents of the named object.
+  /noeval   - Send the message unparsed.
+  /html     - (Pueblo only) Send the message in HTML format.
+  /silent   - (Provided for PennMUSH compatibility) No effect. 
+ 
+See also: @emit, @oemit, @npemit, page
+ 
 & @open
   Command: @open[/<switches>] <direction list> [=<number>[,<direction list>]]
   Creates an exit in the specified direction(s). If <number> is specified,
@@ -1649,29 +2666,6 @@
   Command: @password <old password>=<new password>
  
   This command changes your password.
-
-& @pemit
-  Command: @pemit[/switches] <what>=<message>
- 
-  Emits <message> only to <what>, or to <what>'s contents of the /contents
-  switch is given.  <what> must be either in the same location as you or
-  be something you own.  You can also @pemit to distant players if
-  pagelocks allow you to page them, and this costs as much as a page
-  <This feature is not present in all MUSHes>.  You cannot @pemit to the
-  contents of something you don't own.
- 
-  The /list switch to this command allows you to @pemit a message to
-  a list:  @pemit/list <object 1> [<object 2> <object N>] = <message>
-  There can be any number of objects in the list. The objects must be
-  specified by dbref number. This can be combined with other switches.
-  
-  The following other switches are available:
-    /contents - Send the message to the contents of the named object.
-    /object   - Send the message to the named object.
-    /noeval   - Send the message unparsed.
-    /html     - Send the message in HTML format. (Pueblo support only.)
- 
-  See also: page, @emit, @oemit, SPOOFING, Pueblo.
 
 & @program
   Command: @program <player> = <object>/<attribute>[:<prefix>]
@@ -1839,45 +2833,7 @@
   to set either predefined attributes or user-named attributes.  Either of
   these is equivalent to the second form of the @set command.
  
-  Continued in 'help @set2'.
-
-& @set2
- 
-  The following flags may be set using the fourth form of the @set command;
-  they are displayed when the attribute is examined.
- 
-     hidden     - Wiz/Roy-only. Prevent mortals from seeing the attribute. (m)
-     html       - When used as part of an Attr/OAttr/AAtr trio (as in @verb,
-                  @enter, etc.), the Attr is not HTML-escaped (see Pueblo). (H)
-     no_command - Prevent $-commands and ^-patterns defined in the attribute
-                  from being performed. ($)
-     no_inherit - Prevents children of the object from obtaining the 
-                  attribute.  From their perspective the attribute does not
-                  exist. (I)
-     no_parse   - When $-commands/^-listens are matched, the unparsed
-                  (non-evaluated) string is used. Useful for MUSH editors. (P)
-     visual     - Anyone may see the attribute when they examine you, and
-                  may get the attribute with get(). (V)
-     wizard     - Wiz-only. Prevent mortals from changing the attribute. (w)
- 
-  Continue in 'help @set3'.
-
-& @set3
- 
-     case	- Treat regular expression patterns as case-sensitive.
-                  Affects $-commands, ^-listens, @filter, @infilter, and
-                  @listen. (C)
-     regexp     - Treat patterns as regular expressions rather than
-                  wildcard glob patterns. Affects $-commands, ^-listens,
-                  @filter, @infilter, and @listen. (R)
- 
-  The folowing flags are unsettable:
- 
-     locked	- @lock'd attributes. (+)
-     dark	- Attribute which can only be seen by God. (d)
-     god	- Attribute which can only be changed by God. (g)
- 
-  See also: @lock, @lock, examine, FLAGS, REGEXPS.
+  See also: @lock, @lock, examine, FLAGS, ATTRIBUTE FLAGS.
  
 & @sql
   Command: @sql <SQL query string>
@@ -1946,40 +2902,92 @@
   '@branch' is the same as '@switch/now'.
 
 & @teleport
-  Command: @teleport [<object>=] <room/thing>
-           @teleport [<object>=] <exit>
-           @teleport [<object>=] home
-           @teleport <exit> = <room/thing>
  
-  The first form of the @teleport command moves any non-exit <object> (or you)
-  to the named room or thing.  The second form sends <object> (or you) to the
-  destination of the named exit, while the third form sends <object> (or you)
-  home. If the destination room has a drop-to, the object will go to the
-  drop-to instead of the named location.
+Command:  @teleport[/quiet] [<mobile>=] <destination obj>
+          @teleport[/quiet] [<mobile>=] <exit>
+          @teleport[/quiet] [<mobile>=] home
  
-  For the first form of the @teleport command, the object being teleported 
-  must pass its location's TeloutLock; and you must control the destination,
-  or it must be JUMP_OK and you must pass the destination's TportLock.
+The first form of the @teleport command moves <mobile> (or you) to the
+named room or thing, or if <destination obj> is specified as 'home',
+to whatever location your home is. The second form is just like having
+yourself (or <mobile>) move through <exit> by typing the name of the
+exit. (Note that '@teleport home' is not equivalent to the 'home'
+command.)
  
-  The second and third forms let you remove any non-exit object from
-  locations you control by sending them through an exit or to their home.
+The /quiet switch suppresses most messages.
  
-  Continued in 'help @teleport2'.
+If you are set FIXED, or your owner is set FIXED, and you are not able
+to teleport anywhere (you are not a Wizard or Royalty and you do not
+have the Tel_Anywhere power), you cannot use the @teleport command.
+ 
+Continued in 'help @teleport2'.
  
 & @teleport2
  
-  The fourth form of the command lets you move an exit from one location
-  to another. The exit stays linked to the same location, but its source
-  room changes. You must control the exit, or it must be unlinked, or
-  you must control the exit's source location. You must also control the
-  location you are teleporting the exit into, or have the Open_Anywhere
-  power.
+You can teleport any object you control. You can also teleport objects
+in locations that you control (thus allowing you to remove unwanted
+objects from your own rooms). Wizards, Royalty, and those with the
+Tel_Anything power can teleport anything. However, if the object does
+not pass the TeloutLock of its current location, it cannot be teleported;
+this failure to pass the lock will result in the @tofail verb set being run.
  
-  The following switch is available:
-      /quiet - Suppresses @succ/@osucc/@fail/@ofail/etc. messages.
+Teleporting through an exit, is just like moving through that exit.
+Otherwise, a destination check is done. 'home' is always valid. Otherwise,
+you must control the destination, or you must be able to teleport
+anywhere, or the the destination must be JUMP_OK and the object being
+teleported must pass the destination's TeleportLock. If none of these
+criteria apply, then the @tfail verb set will be run.
  
-  See also: JUMP_OK, @lock (tport and telout), @tfail, @otfail, @atfail,
-            @tofail, @otofail, @atofail
+If the config parameter fascist_teleport is enabled, you must also control
+the absolute location of the destination, or that absolute location
+must be JUMP_OK, or you must be able to teleport anywhere.
+ 
+Continued in 'help @teleport3'.
+ 
+& @teleport3
+ 
+When you successfully teleport an object to another destination (not
+through an exit), the following happens:
+ 
+- If this isn't quiet (the /quiet switch was not specified to @teleport),
+  objects in the location being left (the "current location") are shown the
+  @oxtport message of the object being teleported (the "mover").
+- The mover leaves its current location.
+- The mover's destination is registered.
+- If this is not quiet, the mover's @tport verb set is run, showing the
+  @otport to those in the mover's destination.
+- The mover's @move verb set is run.
+- The mover enters its destination.
+- Mover contents set KEY are sent home.
+- The old room's drop-tos are activated.
+- The player who did the @teleport is sent the message, "Teleported."
+ 
+See 'help Moving' for lengthier explanations of these steps.
+ 
+Continued in 'help @teleport4'.
+ 
+& @teleport4 
+ 
+Example of a @tport verb set plus @oxtport:
+ 
+  @tport me = You successfully teleported.
+  @otport me = teleports in.
+  @atport me = @eval set(me:LAST_TPORT,time())
+  @oxtport me = teleports away.
+ 
+Example of a @tfail verb set:
+ 
+  @tfail here = A psychic barrier prevents you from teleporting there.
+  @otfail here = thinks about teleporting to [name(me)], but doesn't.
+  @atfail here = @pemit owner(me) = %N tried to teleport to [name(me)].
+ 
+Example of a @tofail verb set:
+ 
+  @tofail here = A psychic barrier prevents you from teleporting out.
+  @otofail here = thinks about teleporting out of here, but doesn't.
+  @atofail here = @pemit owner(me) = %N tried to teleport out of [name(me)].
+ 
+See also: JUMP_OK, FIXED, home, @lock
  
 & @trigger 
   Command: @trigger[/<switches>] [<object>/]<attr> [=<param> [, <param>]... ]
@@ -2173,16 +3181,6 @@
   Example: @adesc kitten = :rubs against %n's legs affectionately.
   See also: look, @desc, @idesc, @odesc.
 
-& @adfail
-  Command: @adfail <object> = <command-list>
-  Attribute: Adfail
- 
-  Sets the action to be taken by an object when someone tries to drop it
-  but fails because they didn't pass the object's drop lock.
- 
-  Example: @adfail sword = @name me=Cursed Sword;:laughs maniacally.
-  See also: drop, @dfail, @odfail, @lock.
-
 & @adisconnect
   Command: @adisconnect <object> = <command-list>
   Attribute: Adisconnect
@@ -2206,50 +3204,6 @@
  
   See also: @aconnect.
 
-& @adrop
-  Command: @adrop <object> = <command-list>
-  Attribute: Adrop
- 
-  Sets the action to be taken by an object when it is dropped, or by an exit
-  when it is successfully used.
- 
-  Example: @adrop plastique = kill %n=100; @destroy me
-  See also: drop, @drop, @odrop, DROP-TO, EXITS.
-
-& @aefail
-  Command: @aefail <object> = <command-list>
-  Attribute: Aefail
- 
-  Sets the action to be taken by an object when someone tries to enter it
-  but fails because the object is not ENTER_OK or the player fails the
-  object's enter lock.
- 
-  The enter lock only affects the 'enter' command and its aliases (set via
-  the @ealias command), it does not affect exits that lead to the object or
-  teleporting in.
- 
-  This attribute is meaningful for players and things, and will never be
-  automatically triggered on rooms or exits.
- 
-  Example: @aefail car = @emit ;'s alarm starts wailing when %n tries
-                         to break in.
-  See also: @aenter, @efail, @ealias, @enter, @oefail, @oenter, enter,
-            ENTER_OK.
-
-& @aenter
-  Command: @aenter <object> = <command-list>
-  Attribute: Aenter
- 
-  Sets the action to be taken by an object or room when someone enters it,
-  whether by using an exit, the enter or leave commands, or by teleporting.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @aenter car = :starts its engine, eagerly awaiting a road trip.;
-                         "Beep Beep!
-  See also: enter, @enter, @oenter, ENTER_OK.
-
 & @afail
   Command: @afail <object> = <command-list>
   Attribute: Afail
@@ -2267,16 +3221,6 @@
   Example:
     > @afail vase = :falls to the floor and smashes to pieces.;@destroy me
   See also: @fail, @ofail, FAILURE.
-
-& @agfail
-  Command: @agfail <object> = <command-list>
-  Attribute: Agfail
- 
-  Sets the action to be taken by an object when someone tries to give it
-  away but fails because they didn't pass the object's give lock.
- 
-  Example: @agfail sword = @name me=Cursed Sword;:laughs maniacally.
-  See also: give, @gfail, @ogfail, @lock.
 
 & @ahear
   Command: @ahear <object> = <command-list>
@@ -2301,37 +3245,6 @@
  
   Example: @akill lion = south; :leaps onto %n, roaring loudly.;kill %n=100
   See also: kill, @kill and @okill, BEING KILLED, IMMORTAL, WIZARD.
-
-& @aleave
-  Command: @aleave <object> = <command-list>
-  Attribute: Aleave
- 
-  Sets the action to be taken by an object or room when someone leaves it,
-  whether by using an exit, the enter or leave commands, or by teleporting.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @aleave car = :stops to let %n out.;:revs its engine, hoping
-                         another brave soul would like a ride.
-  See also: leave, @leave, @oleave.
-
-& @alfail
-  Command: @alfail <object> = <command-list>
-  Attribute: Alfail
- 
-  Sets the action to be taken by an object when someone tries to leave it
-  but fails because the player fails the object's leave lock.
- 
-  The leave lock only affects the 'leave' command and its aliases (set via
-  the @ealias command), it does not affect going home, using an exit in the
-  location, or teleporting out.
- 
-  This attribute is meaningful for players and things, and will never be
-  automatically triggered on rooms or exits.
- 
-  Example: @alfail box = :rattles around as %n tries to escape.
-  See also: @aleave, @lalias, @leave, @lfail, @oleave, @olfail, leave.
 
 & @alias
   Command: @alias <player> = <name>
@@ -2360,20 +3273,6 @@
   Example: @amhear listener = "Wait a minute.  I said the trigger word!
   See also: @aahear, @ahear, @listen.
 
-& @amove
-  Command: @amove <object> = <command-list>
-  Attribute: Amove
- 
-  Sets the action to be taken by an object whenever it moves from one 
-  location to another, whether by using an exit, entering or leaving an
-  object, teleporting, or going home.
- 
-  This attribute is meaningful for players, and things and will never be
-  automatically triggered on other object types.
- 
-  Example: @amove car = @vz me=[extract(%vz,1,19)] [loc(me)]
-  See also: @move, @omove.
-
 & @apay
   Command: @apay <object> = <command-list>
   Attribute: Apay
@@ -2391,17 +3290,6 @@
                                 floor.
   See also: give, @cost, @opay, @pay.
 
-& @arfail
-  Command: @arfail <object> = <command-list>
-  Attribute: Arfail
- 
-  Sets the action to be taken by an object when someone tries to give it
-  something that fails its give lock.
- 
-  Example: @arfail merchant = "I don't buy such junk.  Begone!;
-                              @tel %#=cheater_exit
-  See also: give, @agfail, @gfail, @ogfail, @orfail, @rfail, @lock.
-
 & @asuccess
   Command: @asuccess <object> = <command-list>
   Attribute: Asucc
@@ -2412,41 +3300,6 @@
  
   Example: @asucc kitten = :climbs up your sleeve and nuzzles your face.
   See also: @osucc, @success, SUCCESS.
-
-& @atfail
-  Command: @atfail <object> = <command-list>
-  Attribute: Atfail
- 
-  Sets the action to be taken by an object when someone tries to teleport
-  there but fails.
- 
-  Example: @atfail here = @page [owner(me)]=%N tried to teleport here.
-  See also: @teleport, @tfail, @otfail, @lock.
-
-& @atofail
-  Command: @atofail <object> = <command-list>
-  Attribute: Atofail
- 
-  Sets the action to be taken by an object when someone tries to teleport
-  out but fails.
- 
-  Example: @atofail here = @page [owner(me)]=%N tried to teleport out.
- 
-  See also: @teleport, @tofail, @otofail, @lock.
- 
-& @atport
-  Command: @atport <object> = <command-list>
-  Attribute: Atport
- 
-  Sets the actions to be performed by object whenever it teleports.
-  The actions are performed after the object moves to its new location.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
-  
-  Example: @atport me = &TEL.COUNT me=add(v(TEL.COUNT),1)
- 
-  See also: @otport, @oxtport, @tport, @teleport.
 
 & @aufail
   Command: @aufail <object> = <command-list>
@@ -2557,106 +3410,6 @@
     <exit>   @desc elevator = There is an elevator to the east.
   See also: look, @adescribe, @odescribe.
 
-& @dfail
-  Command: @dfail <object> = <message>
-  Attribute: Dfail
- 
-  Sets the message that a player sees when he tries to drop the object but
-  fails because he didn't pass the object's drop lock.
- 
-  Function references and %-substitutions are allowed in drop failure
-  messages, and are evaluated when someone drops the object.  In function
-  references, 'me' refers to the object being dropped, while %-substitutions
-  that refer to the enactor (such as %n, %#, %p, etc) refer to the dropper.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @dfail sword = The sword has welded itself to your hand.
-  See also: drop, @adfail, @odfail, @lock.
-
-& @drop
-  Command: @drop <object> = <message>
-  Attribute: Drop
- 
-  Sets the message that a player sees when he drops the object, or after he
-  goes through the exit.
- 
-  Function references and %-substitutions are allowed in drop messages, and
-  are evaluated when someone drops the object.  In function references,
-  'me' refers to the object being dropped, while %-substitutions that refer
-  to the enactor (such as %n, %#, %p, etc) refer to the dropper.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Examples: <object> @drop vase = You gently put down the delicate vase.
-            <exit>   @drop elevator = The elevator doors close behind you.
-  See also: drop, @adrop, @odrop, DROP-TO, EXITS.
-
-& @ealias
-  Command: @ealias <object> = <entrance-list>
-  Attribute: Ealias
- 
-  Sets up a set of alternate commands that may be used as synonynms for the
-  command 'enter <object>' when you are in the same location as the object.
-  The alternate commands are separated by semicolons just like in exit names.
- 
-  Entry aliases are checked for after exitnames, builtin MUSH commands, and
-  leave aliases for the current location, but before $-commands.  If more than
-  one object has an entry alias that matches a player's command, the one on
-  the object that occurs first in the location contents list is used.
- 
-  This attribute is meaningful for players and things, and will never be
-  automatically looked at on rooms or exits.
- 
-  Example: @ealias car = get in car; car; climb in; go for a ride
-  See also: @lalias, enter, leave.
-
-& @efail
-  Command: @efail <object> = <command-list>
-  Attribute: Efail
- 
-  Sets the message that a player sees when he tries to enter the object but
-  fails because the object is not ENTER_OK or the player fails the
-  object's enter lock.
- 
-  Function references and %-substitutions are allowed in efail messages, and
-  are evaluated when someone fails to enter the object.  In function
-  references, 'me' refers to the object that the enactor tried to enter, while
-  %-substitutions that refer to the enactor (such as %n, %#, %p, etc) refer to
-  the the player who tried (and failed) to enter.
- 
-  The enter lock only affects the 'enter' command and its aliases (set via
-  the @ealias command), it does not affect exits that lead to the object or
-  teleporting in.
- 
-  This attribute is meaningful for players and things, and will never be
-  automatically triggered on rooms or exits.
- 
-  Example: @efail car = The car's door is locked.
-  See also: @aefail, @aenter, @ealias, @enter, @oefail, @oenter, enter,
-            ENTER_OK.
-
-& @enter
-  Command: @enter <object> = <message>
-  Attribute: Enter
- 
-  Sets the message that a player sees when entering an object or room,
-  whether by using an exit, the enter or leave commands, or by teleporting.
- 
-  Function references and %-substitutions are allowed in enter messages, and
-  are evaluated when someone enters the object.  In function references,
-  'me' refers to the object being entered, while %-substitutions that refer
-  to the enactor (such as %n, %#, %p, etc) refer to the player entering the
-  object.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @enter car = You climb into the car and buckle your seatbelt.
-  See also: enter, @aenter, @oenter, ENTER_OK.
-
 & @fail
   Command: @fail <object> = <message>
   Attribute: Fail
@@ -2730,25 +3483,6 @@
   prefixed by the @prefix attribute).  The messages are only forwarded if
   <object> has its AUDIBLE flag set.
   See also: @filter, @prefix, AUDIBLE.
-
-& @gfail
-  Command: @gfail <object> = <message>
-  Attribute: Gfail
- 
-  Sets the message that a player sees when he tries to give away the object
-  but fails because he didn't pass the object's give lock.
- 
-  Function references and %-substitutions are allowed in give failure
-  messages, and are evaluated when someone tries to give away the object.
-  In function references, 'me' refers to the object being given away, while
-  %-substitutions that refer to the enactor (such as %n, %#, %p, etc) refer
-  to the (attempted) giver.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @gfail sword = You can't give away a cursed sword!
-  See also: give, @agfail, @ogfail, @lock.
 
 & @htdesc
   Command: @htdesc <object> = <message>
@@ -2903,59 +3637,6 @@
                          as he falls down and dies.
   See also: kill, @akill, @okill, BEING KILLED, IMMORTAL, WIZARD.
 
-& @Lalias
-  Command: @lalias <object> = <entrance-list>
-  Attribute: Lalias
- 
-  Sets up a set of alternate commands that may be used as synonynms for the
-  command 'leave' when you are inside a player or a thing.  The alternate
-  commands are separated by semicolons just like in exit names.
- 
-  Leave aliases are checked for after exitnames and builtin MUSH commands, but
-  before enter aliases and $-commands.
- 
-  This attribute is meaningful for players and things, and will never be
-  automatically looked at on rooms or exits.
- 
-  Example: @lalias car = get out;climb out;out;open door;outside
-  See also: @ealias, enter, leave.
-
-& @leave
-  Command: @leave <object> = <message>
-  Attribute: Leave
- 
-  Sets the message that a player sees when leaving an object or room, whether
-  by using an exit, the enter or leave commands, or by teleporting.
- 
-  Function references and %-substitutions are allowed in leave messages, and
-  are evaluated when someone leaves the object.  In function references,
-  'me' refers to the object being left, while %-substitutions that refer
-  to the enactor (such as %n, %#, %p, etc) refer to the player leaving the
-  object.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @leave car = You unbuckle your seatbelt and climb out of the car.
-  See also: leave, @aleave, @oleave.
-
-& @lfail
-  Command: @lfail <object> = <command-list>
-  Attribute: Lfail
- 
-  Sets the message that a player sees when he tries to leave it but fails
-  because the player fails the object's leave lock.
- 
-  The leave lock only affects the 'leave' command and its aliases (set via
-  the @ealias command), it does not affect going home, using an exit in the
-  location, or teleporting out.
- 
-  This attribute is meaningful for players and things, and will never be
-  automatically triggered on rooms or exits.
- 
-  Example: @lfail plane = You don't have a parachute!
-  See also: @aleave, @alfail, @lalias, @leave, @oleave, @olfail, leave.
-
 & @listen
   Command: @listen <object> = <pattern>
   Attribute: Listen
@@ -2997,20 +3678,6 @@
  
   See also: @aahear, @ahear, @amhear, @sweep, @inprefix, @infilter.
  
-& @move
-  Command: @move <object> = <command-list>
-  Attribute: Move
- 
-  Sets the message that an object sees after it moves from one location to
-  another, whether by using an exit, entering or leaving an object,
-  teleporting, or going home.
- 
-  This attribute is meaningful for players, and things and will never be
-  automatically triggered on other object types.
- 
-  Example: @move bopper = OK.  You're there now.
-  See also: @amove, @omove.
-
 & @odescribe
   Command: @odescribe <object> = <message>
   Attribute: Odesc
@@ -3020,108 +3687,6 @@
  
   Example: @odesc vase = carefully inspects the vase.
   See also: look, @adescribe, @describe, @idesc.
-
-& @odfail
-  Command: @odfail <object> = <message>
-  Attribute: Odfail
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the same room when someone tries to drop <object> but fails because they
-  didn't pass the object's drop lock.
- 
-  Function references and %-substitutions are allowed in drop failure
-  messages, and are evaluated when someone drops the object.  In function
-  references, 'me' refers to the object being dropped, while %-substitutions
-  that refer to the enactor (such as %n, %#, %p, etc) refer to the dropper.
- 
-  Example: @odfail sword = tries to put down the sword but it leaps back
-                                       into %p hand.
-  See also: drop, @adfail, @dfail, @lock.
-
-& @odrop
-  Command: @odrop <object> = <message>
-  Attribute: Odrop
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the room when someone drops <object>, or to others in the room that the
-  player arrives in after taking an exit.
- 
-  Example: <object> @odrop stone = puts down the stone and then
-                                       wipes sweat from %p brow.
-           <exit>   @odrop elevator = enters the elevator from the lobby.
-  See also: drop, @adrop, @drop, DROP-TO, EXITS.
-
-& @oefail
-  Command: @oefail <object> = <command-list>
-  Attribute: Oefail
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the same room as the player when he tries to enter the object but fails
-  because the object is not ENTER_OK or the player fails the
-  object's enter lock.
- 
-  The enter lock only affects the 'enter' command and its aliases (set via
-  the @ealias command), it does not affect exits that lead to the object or
-  teleporting in.
- 
-  This attribute is meaningful for players and things, and will never be
-  automatically triggered on rooms or exits.
- 
-  Example: @oefail car = tries to open the car's door, but it is locked.
-  See also: @aefail, @aenter, @ealias, @efail, @enter, @oenter, enter,
-            ENTER_OK.
-
-& @oenter
-  Command: @oenter <object> = <message>
-  Attribute: Oenter
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the location being entered when someone enters <object>.  Note that the
-  message is shown to those inside the object, not those outside.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @oxenter wormhole = enters the wormhole from normal space.
-  See also: enter, @aenter, @enter, @oxenter.
-
-& @ofail
-  Command: @ofail <object> = <message>
-  Attribute: Ofail
- 
-  Sets the others failure message for <object>.  This message is seen others
-  in the same location as the actor when one of these events occurs:
- 
-    - For exits: Someone tries to traverse the exit but cannot because they
-      fail the exit's default lock or the exit is not linked.
-    - For players and things: Someone tries to pick up the object but cannot
-      because they fail the object's default lock.
-    - For rooms, players, and things: Someone looks around inside the room,
-      player, or thing and fails the object's default lock.
- 
-  Substitution and evaluation is performed on the message before it is shown.
- 
-  Examples:
-    > @ofail table = tries to pick up the table, but it is too heavy.  <thing>
-    > @ofail doorway = tries the knob on the door, to no avail.         <exit>
-  See also: get, look, @afail, @fail, FAILURE.
-
-& @ogfail
-  Command: @ogfail <object> = <message>
-  Attribute: Ogfail
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the same room when someone tries to give away <object> but fails because
-  they didn't pass the object's give lock.
- 
-  Function references and %-substitutions are allowed in give failure
-  messages, and are evaluated when someone tries to give away the object.
-  In function references, 'me' refers to the object being given away, while
-  %-substitutions that refer to the enactor (such as %n, %#, %p, etc) refer
-  to the (attempted) giver.
- 
-  Example: @ogfail blob = tries to give away a sticky blob of goo.
-  See also: give, @agfail, @gfail, @lock.
 
 & @okill
   Command: @okill <object> = <message>
@@ -3135,54 +3700,6 @@
  
   Example: @okill guard = bashes in the guard's skull, killing him.
   See also: kill, @akill, @kill, BEING KILLED, IMMORTAL, WIZARD.
-
-& @oleave
-  Command: @oleave <object> = <message>
-  Attribute: Oleave
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the location being left when someone leaves <object>.  Note that the
-  message is shown to those inside the object, not those outside.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @oleave wormhole = departs the wormhole to return to normal space.
- 
-  See also: leave, @aleave, @leave, @oxleave.
-
-& @olfail
-  Command: @olfail <object> = <command-list>
-  Attribute: Olfail
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the same room as the player when he tries to leave it but fails because the
-  player fails the object's leave lock.
- 
-  The leave lock only affects the 'leave' command and its aliases (set via
-  the @ealias command), it does not affect going home, using an exit in the
-  location, or teleporting out.
- 
-  This attribute is meaningful for players and things, and will never be
-  automatically triggered on rooms or exits.
- 
-  Example: @olfail plane = thinks about jumping out of the plane without a
-                           parachute, but wisely reconsiders.
-  See also: @aleave, @alfail, @lalias, @leave, @lfail, @oleave, leave.
-
-& @omove
-  Command: @omove <object> = <message>
-  Attribute: Omove
- 
-  Sets the message that others in the same location see after the object has
-  moved to that location from somewhere else, whether by using an exit,
-  entering or leaving an object, teleporting, or going home.
- 
-  This attribute is meaningful for players, and things and will never be
-  automatically triggered on other object types.
- 
-  Example: @omove car = coasts to a stop.
-  See also: @amove, @move.
 
 & @opay
   @opay <object> = <message>
@@ -3200,23 +3717,6 @@
                                 in the tray at the bottom of the machine.
   See also: give, @cost, @apay, @pay.
 
-& @orfail
-  Command: @orfail <object> = <message>
-  Attribute: Orfail
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the same room when someone tries to give <object> a thing that does not
-  pass <object>'s receive lock.
- 
-  Function references and %-substitutions are allowed in receive failure
-  messages, and are evaluated when someone tries to give away the object.
-  In function references, 'me' refers to the intended recipient of the object,
-  while %-substitutions that refer to the enactor (such as %n, %#, %p, etc)
-  refer to the (attempted) giver.
- 
-  Example: @orfail merchant = tries to unload some worthless trash on Astinous.
-  See also: give, @agfail, @arfail, @gfail, @ogfail, @rfail, @lock.
-
 & @osuccess
   Command: @osuccess <object> = <message>]
   Attribute: Osucc
@@ -3232,61 +3732,6 @@
             <exit>   @osucc doorway = opens the door and leaves the room.
                                       The door closes behind %o with a click.
   See also: get, look, @asuccess, @success, SUCCESS.
-
-& @otfail
-  Command: @otfail <object> = <message>
-  Attribute: Otfail
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the same room when someone tries to teleport to somewhere he does not have
-  permission.  You do not see this message if they couldn't teleport out of
-  their present location.
- 
-  Function references and %-substitutions are allowed in teleport failure
-  messages, and are evaluated when someone attempts to teleport to the
-  specified destination.  In function references, 'me' refers to the teleport
-  destination, while %-substitutions that refer to the enactor (such as %n,
-  %#, %p, etc) refer to the player attempting the teleport.
- 
-  When a player teleports another object (@tel <object>=<destination>), the
-  lock is checked against the object, not the player.
- 
-  Example: @otfail here = thinks about teleporting to the Magic Room, but
-                          decides against it at the last moment.
-  See also: @teleport, @atfail, @tfail, @lock.
-
-& @otofail
-  Command: @otofail <object> = <message>
-  Attribute: Otofail
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the same room when someone tries to teleport out of somewhere they do not
-  have permission.
- 
-  Function references and %-substitutions are allowed in teleport failure
-  messages, and are evaluated when someone attempts to teleport from their
-  location.  In function references, 'me' refers to the player's location,
-  while %-substitutions that refer to the enactor (such as %n,
-  %#, %p, etc) refer to the player attempting the teleport.
- 
-  Example: @otofail here = thinks about teleporting from the Magic Room, but
-                          decides against it at the last moment.
- 
-  See also: @teleport, @atofail, @tofail, @lock.
-
-& @otport
-  Command: @otport <object> = <message>
-  Attribute: Otport
- 
-  Sets the message (prefixed by your name) that others in the room to which
-  the object goes see when the object teleports there.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
-  
-  Example: @otport me = appears in a flash of non-wizardly brilliance.
- 
-  See also: @atport, @oxtport, @tport, @teleport.
 
 & @oufail
   Command: @oufail <object> = <message>
@@ -3313,49 +3758,6 @@
  
   Example: @ouse camera = takes a picture with the camera.
   See also: use, @ause, @use.
-
-& @oxenter
-  Command: @oxenter <object> = <message>
-  Attribute: Oxenter
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the location being left when someone enters <object>.  Note that the
-  message is shown to those outside the object, not those inside.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @oxenter wormhole = climbs into the wormhole and vanishes.
-  See also: enter, @aenter, @enter, @oenter.
-
-& @oxleave
-  Command: @oxleave <object> = <message>
-  Attribute: Oxleave
- 
-  Sets the message (prefixed by the player's name) that is shown to others in
-  the location being entered when someone leaves <object>.  Note that the
-  message is shown to those outside the object, not those inside.
- 
-  This attribute is meaningful for players, things, and rooms, and will never
-  be automatically triggered on exits.
- 
-  Example: @oxleave wormhole = steps out of a hyperspatial wormhole.
- 
-  See also: leave, @aleave, @leave, @oleave.
-
-& @oxtport
-  Command: @oxtport <object> = <message>
-  Attribute: Oxtport
- 
-  Sets the message (prefixed by your name) that others in the room from which
-  the object comes see when the object teleports out.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
-  
-  Example: @oxtport me = disappears in a flash of non-wizardly brilliance.
- 
-  See also: @atport, @otport, @tport, @teleport.
 
 & @pay
   Command: @pay <object> = <message>
@@ -3405,26 +3807,6 @@
  
   Example: @reject me = I _told_ you not to page me anymore...
   See also: @away, @idle, page.
-
-& @rfail
-  Command: @rfail <object> = <message>
-  Attribute: Rfail
- 
-  Sets the message that a player sees when he tries to give an object to
-  someone else, but the receiver refuses to accept the object because
-  the object didn't pass its receive lock.
- 
-  Function references and %-substitutions are allowed in receive failure
-  messages, and are evaluated when someone tries to give away the object.
-  In function references, 'me' refers to the intended recipient of the object,
-  while %-substitutions that refer to the enactor (such as %n, %#, %p, etc)
-  refer to the (attempted) giver.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
- 
-  Example: @gfail merchant = The merchant doesn't want your worthless trash.
-  See also: give, @agfail, @arfail, @gfail, @ogfail, @orfail, @lock.
 
 & @runout 
   Command: @runout <object> = <command list>
@@ -3476,58 +3858,6 @@
            <exit>   @succ doorway = You open the door and walk through the
                                     doorway.
   See also: get, look, @asuccess, @osuccess, SUCCESS.
-
-& @tfail
-  Command: @tfail <object> = <message>
-  Attribute: Tfail
- 
-  Sets the message that a player sees when he tries to teleport to somewhere
-  he does not have permission.  You do not see this message if you couldn't
-  teleport out of your present location.
- 
-  Function references and %-substitutions are allowed in teleport failure
-  messages, and are evaluated when someone attempts to teleport to the
-  specified destination.  In function references, 'me' refers to the teleport
-  destination, while %-substitutions that refer to the enactor (such as %n,
-  %#, %p, etc) refer to the player attempting the teleport.
- 
-  When a player teleports another object (@tel <object>=<destination>), the
-  lock is checked against the object, not the player.
- 
-  Example: @tfail here = A psychic barrier prevents you from teleporting there.
-  See also: @teleport, @atfail, @otfail, @lock.
-
-& @tofail
-  Command: @tofail <object> = <message>
-  Attribute: Tofail
- 
-  Sets the message that a player sees when he tries to teleport from somewhere
-  he does not have permission.
- 
-  Function references and %-substitutions are allowed in teleport failure
-  messages, and are evaluated when someone attempts to teleport out of their
-  location.  In function references, 'me' refers to the player's current
-  location, while %-substitutions that refer to the enactor (such as %n,
-  %#, %p, etc) refer to the player attempting the teleport.
- 
-  Example: @tofail here = A psychic barrier prevents you from teleporting
-           out.
- 
-  See also: @teleport, @atofail, @otofail, @lock.
- 
-& @tport
-  Command: @tport <object> = <message>
-  Attribute: Tport
- 
-  Sets the message that an object sees whenever it teleports.
-  The message is displayed after the object moves to its new location.
- 
-  This attribute is only meaningful for players and things, and will never be
-  automatically triggered on other object types.
-  
-  Example: @tport me = Hey! I teleported. Wow!
- 
-  See also: @atport, @otport, @oxtport, @teleport.
 
 & @ufail
   Command: @ufail <object> = <message>
@@ -4114,7 +4444,112 @@
   If set on a player, neither the player nor any of his objects may perform
   any commands that change the database.  Some sites may restrict additional
   commands.  This flag may only be set or cleared by wizards.
-
+ 
+& Control
+ 
+Topic:  Control
+ 
+Most of the commands and functions that alter the database, and many
+of the commands and functions that retrieve information about objects,
+only work on objects that you control.
+ 
+The rules for what objects control other objects are as follows:
+ 
+1. You control all objects that you own.
+ 
+2. Anything that you own, that has its INHERIT flag set, controls
+   all objects that you own (including you).
+ 
+3. If you have your INHERIT flag set, all objects owned by you are
+   treated as if they have the INHERIT flag set on them, for the
+   purposes of control. Otherwise, anything that you own, that does
+   not have its INHERIT flag set, controls all objects that you own
+   that do not have their INHERIT flag set.
+ 
+Continued in 'help Control2'.
+ 
+& Control2
+ 
+4. Wizards control all objects, regardless of whether or not they own
+   them, except for God. Objects owned by Wizards, that have the INHERIT
+   flag set on them, have Wizard powers. If a Wizard has his INHERIT
+   flag set, all of the objects he owns have Wizard powers; thus,
+   a Wizard should Never Ever set his INHERIT flag.
+ 
+5. Objects with the Control_All power, control all objects, regardless
+   of whether or not they share the same owner.  
+ 
+6. God controls all objects, regardless of whether or not he owns them.
+ 
+7. Anybody controls an unlinked exit, even if it is locked. Builders
+   should be careful.
+ 
+8. If the 'have_zones' configuration parameter is enabled, zone control
+   is also a possibility. See 'help Zone Control' for the details.
+ 
+& Zone Control
+ 
+Topic:  Zone Control
+ 
+If the 'have_zones' configuration parameter is enabled, the following
+additional rules apply for what objects control other objects.
+(For the basic rules, see 'help Control'.)
+ 
+One very important thing to note that if Object A can be controlled
+because of a zone, and Object A can control Object B, then whoever
+controls A effectively controls B, even though they cannot control
+B directly.
+ 
+All of the following criteria must be met in order for Object A to
+control Target B:
+ 
+1. Target B must not be a player.
+2. Target B must have a zone set.
+3. Target B must be set CONTROL_OK.
+ 
+Continued in 'help Zone Control2'.
+ 
+& Zone Control2
+ 
+One of the following additional criteria must be met in order for
+Object A to control Target B:
+ 
+- If Target B's zone has a ControlLock set, and Object A passes it,
+  Object A controls Target B. 
+ 
+- If Target B's zone does not have a ControlLock set, or Object A
+  does not pass it, then a check is done to see if Object A controls
+  Target B's zone via zone control. This check is done recursively.
+  Note that this means that anyone who controls the top object in
+  a zone tree effectively controls everything below it, as long as
+  those zone objects are CONTROL_OK (since anyone who did so could
+  just add themselves to the ControlLock on those objects anyway).
+ 
+Exercise caution when planning zones.
+ 
+& Location
+ 
+Topic:  Location
+ 
+Things and players are normally located inside rooms, but they can
+be carried by other things and players (thus making their location
+another thing or player).
+ 
+All things and players have an "absolute location". The absolute
+location is the room that they are "ultimately" located in, i.e.
+the room that ultimately contains the chain of carried objects.
+ 
+For example, if Player A is in Room X, and Player A is carrying
+Object B, and Object C is inside Object B:
+ 
+- The location of Player A is Room X.
+- The location of Object B is Player A.
+- The location of Object C is Object B.
+- The absolute location of Player A, Object B, and Object C is Room X.
+ 
+You can think of the "absolute location" as being where you'd be if
+you kept typing 'leave' until you couldn't go any farther.
+ 
 & CONTROL_OK
   Flag: CONTROL_OK (z)
  
@@ -4153,8 +4588,8 @@
  
   This flag is only settable by Wizards. If one or more $commands are
   matched on an object set STOP, no attempt will be made to match $commands
-  on further objects. See 'help command evaluation' for an exact list of
-  the matching order.
+  on further objects. See 'help Scan Order' for an exact list of the
+  matching order.
  
   This flag is intended primarily for use on master-room and ZONE
   local-master-room objects. The objects in the room should be 
@@ -4206,47 +4641,43 @@
   parent room causes those $commands to run with the permissions of the
   child object).
 
-& ARBITRARY COMMANDS
-  Topic: ARBITRARY COMMANDS
+& User Commands
  
-  You may define commands that are triggered whenever someone enters a command
-  that matches the command template (wildcarding allowed).  These commands
-  are called arbitrary commands, user-defined commands, or $-commands (for how
-  they are defined), and they are checked for only after the check for
-  single-character commands, exits, and internal commands have been performed
-  and have failed (so an arbitrary command that matches 'page *' will never
-  be performed).
+Topic:  User Commands
  
-  You define an arbitrary command by storing a string of the form
-  '$<template>:<commandlist>' in an attribute of an object, then the command
-  will be available to anyone who carries the object, is in the same room as
-  the object, or is inside the object.  Only use user-named attributes and
-  VA-VZ for arbitrary commands, as many of the predefined attributes are not
-  for arbitrary commands.  <template> is the pattern to check for (it may
-  contain wildcards), and <commandlist> is a semicolon-separated list of
-  commands to perform.  The text that the wildcard characters matched are
-  available in the variables %0 through %9.
-{ 'help arbitrary2' for more }
-& arbitrary2
-  Example:
-    > @va testobj = $foobar *:"I was foobar'ed with %0.
-    Set.
-    > foobar xyzzy
-    testobj says "I was foobar'ed with xyzzy"
+User-defined commands, sometimes also known as $-commands or softcode
+commands, are commands that are defined using MUSHcode. 
  
-  You can prevent individual attributes from being checked for $-commands
-  with the command '@set <obj>/<attr> = no_command'.  Attributes so set
-  are reported with ($) following the attribute name when examined.
-  The command '@set <obj>/<attr> = !no_command' clears the flag.
+All user-defined commands are defined by setting an attribute on an
+object. Commands are defined by the format:
  
-  You can also match a regular expression rather than wildcards. See
-  'help RegExps' for details.
+	 $<command string>: <action sequence>
  
-  The following attributes are never checked for $-commands: ALIAS CHARGES
-  DESC DROP FAIL IDESC ODESC ODROP OFAIL OSUCC SEX SUCC.
+When a user types a command, it will be matched against <command string>
+and, if there's a match, then <action sequence> will be executed, where
+<action sequence> is a semi-colon-separated list of commands to perform.
+The match is normally a wildcard match (see 'help Wildcards'), but
+if the attribute has the Regexp flag, then it is a regexp match
+(see 'help Regexps). Any wildcards/regexps  matched are available
+in the stack variables %0 through %9.
  
-  See also: @set.
-
+Continued in 'help User Commands2'.
+ 
+& User Commands2
+ 
+User-defined commands are normally lower in priority than exits and
+built-in commands, when the MUSH server scans for available command
+matches for user input. See 'help Scan Order' for the details.
+ 
+User-defined commands can be turned into built-in commands via the
+@addcommand command. See 'wizhelp @addcommand' for more information.
+ 
+If the config parameter require_cmds_flag is enabled, an object must
+have the COMMANDS flag to be scanned for non-@addcommand'd $-commands.
+ 
+If an attribute is set No_Commands, it will not be checked for 
+$-commands.
+ 
 & PIPING
   Topic: PIPING
  
@@ -4475,53 +4906,6 @@
  
   See 'help regexp syntax' for a more detailed explanation.
 
-& ATTRIBUTE OWNERSHIP
-  Topic: ATTRIBUTE OWNERSHIP
-  The attributes on an object may be owned independently from the object.
-  Normally, the owner of the object owns all of its attributes.
-  In addition to an owner, each attribute also has a locked flag,
-  set or cleared with @lock <obj>/<attr> and @unlock <obj>/<attr>.
-  This flag controls whether or not the owner of the object may
-  @chown the attribute to himself with @chown <object>/<attrib>,
-  as well as whether or not the attribute is automatically @chowned to
-  the new owner when the object is @chowned.
- 
-  You may lock and unlock attributes that you own on any object (whether
-  you own the object or not), and you may @chown an attribute that you own
-  to the owner of the object if it is unlocked.  The examine command
-  will show you all attributes that you own on an object, even if you
-  don't own the object.
-{ 'help attrib2' for more }
-& attrib2
-  Locked attributes may not be modified or removed, and do not change ownership
-  when the object containing them is @chowned.
- 
-  You may not modify or remove attributes that you own that are stored
-  on objects that you do not own, but you may modify or remove attributes
-  owned by others on your objects (if you do this, the attribute becomes owned
-  by you).
- 
-  If an attribute is owned by someone other than the object's owner, then
-  the number of the attribute's owner is shown in parentheses immediately
-  after the attribute name.  If there are any flags set on the attribute,
-  those flags are indicated in the parentheses too.
- 
-  The + flag means means that the attribute is locked (so that it will not
-  change ownership of the object is @chowned), the $ flag means that
-  $-commands are not checked for that attribute.  The I flag indicates that
-  the attribute is not inherited by children of the object, and the V flag
-  shows that the attribute is publically visible.
-{ 'help attrib3' for more }
-& attrib3
- 
-  When checking an attribute lock against an object, the lock will always
-  fail if the locked object is not owned by the same player as the attribute
-  being tested.  The comparison specified in the lock is only performed if
-  the owner of the locked object also owns the attribute on the object
-  being checked.
- 
-  See also: @chown, @lock, @set, @unlock, examine.
-
 & BEING KILLED
   Topic: BEING KILLED  
  
@@ -4590,36 +4974,26 @@
  
   Functions such as andbool() and ifelsebool() use boolean values.
  
-& CONTROL
-  Topic: CONTROL      
+& Costs
  
-  There are 5 rules to controlling objects:
-   1) You control anything you own.
-   2) Anything you own that has its INHERIT flag set controls anything you 
-      own (including you).
-   3) Anything you own that does not have its INHERIT flag set only controls
-      other things that you own that do not have their INHERIT flag set and
-      do not control you, unless YOU have your inherit flag set.
-   4) A wizard controls everything.
-   5) Anybody controls an unlinked exit, even if it is locked.
+Topic:  Costs
  
-  Builders should beware of 5, lest their exits be linked or stolen.
+Certain commands cost money to use, and you will not be able to use
+them if you don't have enough funds.
  
-  Most of the commands for altering the database and many commands and
-  functions that retrieve information only work on objects that you control.
-
-& COSTS      
-  Topic: COSTS
+Use the '@list costs' command to find out what these commands are,
+and what they cost.
  
-  Certain commands cost money to use, they will fail if you don't have
-  enough.  Use the @list costs command to find out what these commands are
-  and how much they cost.
-  See also: @list.
-
+Commands run by objects have a random chance of costing you 1 unit
+of money to execute. Thus, if an object runs endlessly, you might
+run out of money.
+ 
+You can check how much money you have by typing 'score'.
+ 
 & CREDITS
   Topic: CREDITS
  
-  TinyMUSH 3.0 is a fusion of TinyMUSH 2.2 and TinyMUX, and so we must
+  TinyMUSH 3 is a fusion of TinyMUSH 2.2 and TinyMUX, and so we must
   thank everyone associated with those projects, as well as the original
   TinyMUSH 2.0 and its predecessors.
  
@@ -4643,7 +5017,7 @@
 Significant code, ideas, bugfixes, and support have been contributed
 over the years by many people, including, in alphabetical order:
  
-Dean Gaudet		Robby Griffin		Stephen J. Kiernan
+Stephen Dennis		Dean Gaudet		Stephen J. Kiernan
 Andrew Molitor		T. Alexander Popiel	Marcus Ranum
 Alan Schwartz		Jennifer Smith		Russ Smith
 Deborah Wilson-Hooker	Airam@Generations	Ambar@Pern
@@ -4653,35 +5027,25 @@ Hcobb@TinyTIM		Jellan@Pern		Kalkin@DarkZone
 Kayan Telva@BTech3056	Mike@StarWars		Miritha@Pern
 R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
-& DROP-TOS
-  Topic: DROP-TOS
+& Enactor
  
-  When the @link command is used on a room, it sets a drop-to location.  Any
-  object dropped in the room (if it isn't STICKY) will go to that location.
-  If the room is STICKY, the drop-to will be delayed until the last person in
-  the room has left.
-  See also: @link, STICKY.
-
-& ENACTOR
-  Topic: ENACTOR
+Topic:  Enactor
  
-  The enactor is the object that caused an action list to be performed.
-  So, the enactor of the Ahear action list is the player or object who
-  said/emoted/etc the message that matched the Listen attribute, the
-  enactor of the Apay attribute is the player who gave the object money, etc.
-  The enactor of an attribute that is run by a @trigger command is the 
-  object that ran the @trigger command.  The following substitutions can be
-  performed in an action list to return information about the enactor:
+The enactor is the object that caused an action list to be performed.
+Examples:
  
-    %# or [v(#)]           - Database number of the enactor
-    %N/%n or [v(N)]/[v(n)] - Name of the enactor.
-    %O/%o ...              - Objective pronoun for the enactor
-                             (him her it them)
-    %P/%p ...              - Possessive pronoun (his her its their)
-    %S/%s ...              - Subjective pronoun (he she it they)
-    %A/%a ...              - Absolute possessive pronoun (his hers its theirs)
+- The player who types in a command that matches a user-defined $-command
+  is the enactor for the action sequence run by that $-command.
  
-  See also: CALLER, SUBSTITUTION.
+- The enactor of an Ahear action list is the object who said/emoted/etc.
+  the message that matched the Listen attribute.
+ 
+- The enactor of an attribute that is run by the @trigger command is
+  the object that ran the @trigger command.
+ 
+See 'help Substitutions' for a list of percent-substitions related to the
+enactor. Also see 'help Caller', for some fine details on enactors and
+function calls.
  
 & CALLER
   Topic: CALLER
@@ -5131,28 +5495,29 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   See also: Pueblo.
 
-& DELIMITERS
-  Topic: DELIMITERS
+& Delimiters
  
-  A large number of MUSH functions allow the specification of a list
-  delimiter. Some allow this only for the input list; some also allow
-  an output delimiter to be specified. All delimiters are single
-  characters.
+Topic:  Delimiters
  
-  The default delimiter is a space. The list "1 2 3" consists of three
-  elements (1, 2, and 3), space-delimited. The list "1-2-3" also
-  consists of the same three elements, but is dash-delimited.
+A large number of MUSH functions allow the specification of a list
+delimiter. Some allow this only for the input list; some also allow
+an output delimiter to be specified. All delimiters are single
+characters.
  
-  In the case where an input delimiter is specified, but an output
-  delimiter is not, the output delimiter will default to the input
-  delimiter, rather than defaulting to a space.
+The default delimiter is a space. The list "1 2 3" consists of three
+elements (1, 2, and 3), space-delimited. The list "1-2-3" also
+consists of the same three elements, but is dash-delimited.
  
-  Most functions that taken output delimiters can take a '%r' output
-  delimiter, as well as a null output delimiter (i.e., just string all
-  the output together, with no separator between each item). The null
-  output delimiter is represented by the token '@@'.
+In the case where an input delimiter is specified, but an output
+delimiter is not, the output delimiter will default to the input
+delimiter, rather than defaulting to a space.
  
-  See examples:  iter(), map(), filter().
+Most functions that taken output delimiters can take a '%r' output
+delimiter, as well as a null output delimiter (i.e., just string all
+the output together, with no separator between each item). The null
+output delimiter is represented by the token '@@'.
+ 
+See examples:  iter(), map(), filter()
  
 & GENDER
   Topic: GENDER
@@ -5527,13 +5892,13 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   are the means by which objects move from room to room. Rooms are locations
   that contain objects and linked exits.
 
-& COMMAND EVALUATION
-  Topic: COMMAND EVALUATION
+& Scan Order
+Topic: Scan Order
  
-  When you submit a command to be executed by MUSH (whether by typing it in or
-  by having a machine run it, the following steps are performed, in sequence.
-  If the command matches something in a step, the matching actions are
-  performed and the walk down the list stops.
+When you submit a command to be executed by MUSH (whether by typing it in or
+by having a machine run it, the following steps are performed, in sequence.
+If the command matches something in a step, the matching actions are
+performed and the walk down the list stops.
  
   - If the command was typed in, it is checked against the uppercase-only
     commands (QUIT, WHO, etc).  If so, the command is executed.
@@ -5549,9 +5914,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   - The command is checked to see if it is the 'home' command.  If so, the
     player or object performing the command goes home.
  
-  Continued in 'help Command Evaluation2'.
+  Continued in 'help Scan Order2'.
  
-& Command Evaluation2
+& Scan Order2
  
   - The command is checked against the exits in its current room.  If one
     matches, the player is moved through the exit. If more than one exit
@@ -5569,9 +5934,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     on the (split up) arguments; if an @addcommand, evaluation is not
     performed. The command is then executed.
  
-  Continued in 'help Command Evaluation3'.
+  Continued in 'help Scan Order3'.
  
-& Command Evaluation3
+& Scan Order3
  
   - %-substitution and function evaluation is performed on the command.
     All subsequent attempts to match will be against this evaluated string.
@@ -5588,9 +5953,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     inventory. All that match are performed, unless a match was made
     on a STOP-set object (see 'help STOP').
  
-  Continued in 'help Command Evaluation4'.
+  Continued in 'help Scan Order4'.
  
-& Command Evaluation4
+& Scan Order4
  
   - If local-master-room checking is enabled, and the ZONE flag is
     set on the parent room of the player's location, objects in that
@@ -5610,9 +5975,9 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     on the parent of the player, objects in that parent's location are
     checked for $command matches. STOP applies as above.
  
-  Continued in 'help Command Evaluation5'.
+  Continued in 'help Scan Order5'.
  
-& Command Evaluation5
+& Scan Order5
  
   - If zones are enabled, the player's ZMO is checked for $command matches.
     STOP applies as above.
@@ -5634,18 +5999,6 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   Also, the construct '$xx *:%0' does not work (and is very dangerous
   programming), use '$xx *:@force me=%0' if you need this functionality.
  
-& VERBS
-  Topic: VERBS
- 
-  For many verbs there are three attributes that specify messages and actions
-  associated with the verb in addition to the verb's builtin action.
-  The attributes are named Verb, Overb, and Averb.  Verb is the message that
-  the enactor sees, Overb is the message that everyone else in the same room
-  as the enactor sees, and Averb is a list of commands that are run.
-  These attributes may be set using the @<attribute> command, so the commands
-  to set the attributes related to the 'drop' command are @drop, @odrop, and
-  @adrop.
-
 & WIZARDS
   Topic: WIZARDS
  
@@ -10447,69 +10800,69 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
 & comsys intro
  
-  Topic: COMSYS INTRO
+Topic:  Comsys Intro
  
-  Depending on the configuration of the MUSH, there may be public and
-  private chat channels available. Normally, new players automatically
-  join the "Public" channel upon creation (default alias 'pub'), while
-  guest characters join the "Guests" channel when they connect (default
-  alias 'g').
+Depending on the configuration of the MUSH, there may be public and
+private chat channels available. Normally, new players automatically
+join the "Public" channel upon creation (default alias 'pub'), while
+guest characters join the "Guests" channel when they connect (default
+alias 'g').
  
-  Each player may associate a given channel with one or more aliases.
-  Typically, one talks on a channel using '<alias> <message>'. For
-  example, the default alias for the Public channel is normally 'pub',
-  allowing you to type 'pub Hello.' to say "Hello." to everyone on
-  the Public channel. However, if you want your alias to be something
-  else, you can change it.
+Each player may associate a given channel with one or more aliases.
+Typically, one talks on a channel using '<alias> <message>'. For
+example, the default alias for the Public channel is normally 'pub',
+allowing you to type 'pub Hello.' to say "Hello." to everyone on
+the Public channel. However, if you want your alias to be something
+else, you can change it.
  
-  Channels can be used by both players and things, though there can be
-  restrictions placed on who can join, receive, and transmit on a channel.
-  These restrictions can be imposed by object type, or they can be locks.
+Channels can be used by both players and things, though there can be
+restrictions placed on who can join, receive, and transmit on a channel.
+These restrictions can be imposed by object type, or they can be locks.
  
-  Continued in 'help comsys intro2'.
+Continued in 'help comsys intro2'.
  
 & comsys intro2
  
-  The comsys commands you will find most useful are the following:
+The comsys commands you will find most useful are the following:
  
-  '@clist'        -- Lists all available channels.
-  'comlist'       -- Lists all the channels you are on, and their aliases.
-                     Channel names and aliases are case-sensitive. You
-                     can have more than one alias for a channel.
-  '<alias> who'   -- Lists the people on the channel associated with <alias>.
-                     For example, if your Public channel alias is 'pub', then
-                     'pub who' will list everyone on the Public channel.
-  '<alias> on'    -- Begin listening to the channel associated with <alias>.
-  '<alias> off'   -- Stop listening to the channel associated with <alias>.
-  '<alias> <msg>' -- Say a message to the channel associated with <alias>.
-                     The ':' and ';' pose-tokens can be used.
+'@clist'        -- Lists all available channels.
+'comlist'       -- Lists all the channels you are on, and their aliases.
+                   Channel names and aliases are case-sensitive. You
+                   can have more than one alias for a channel.
+'<alias> who'   -- Lists the people on the channel associated with <alias>.
+                   For example, if your Public channel alias is 'pub', then
+                   'pub who' will list everyone on the Public channel.
+'<alias> on'    -- Begin listening to the channel associated with <alias>.
+'<alias> off'   -- Stop listening to the channel associated with <alias>.
+'<alias> <msg>' -- Say a message to the channel associated with <alias>.
+                   The ':' and ';' pose-tokens can be used.
  
-  You can add an alias using 'addcom <alias>=<channel>'; if this is the
-  first alias you have for that channel, you will automatically join that
-  channel. You can remove an alias using 'delcom <alias>'; if this is the
-  only alias you have for that channel, you will automatically leave it. 
+You can add an alias using 'addcom <alias>=<channel>'; if this is the
+first alias you have for that channel, you will automatically join that
+channel. You can remove an alias using 'delcom <alias>'; if this is the
+only alias you have for that channel, you will automatically leave it. 
  
-  Continued in 'help comsys intro3'.
+Continued in 'help comsys intro3'.
  
 & comsys intro3
-  
-  For example:
+
+For example:
  
-  > pub off
-  You leave channel Public.
+> pub off
+You leave channel Public.
  
-  > pub on
-  [Public] Foobar has joined this channel.
+> pub on
+[Public] Foobar has joined this channel.
  
-  > pub who
-  -- Players --
-  Foobar(#23PWc)
-  Wizard(#1PWc)
-  -- Objects --
-  -- Public --
+> pub who
+-- Players --
+Foobar(#23PWc)
+Wizard(#1PWc)
+-- Objects --
+-- Public --
  
-  > pub Hello world!  
-  [Public] Foobar says, "Hello world!"
+> pub Hello world!  
+[Public] Foobar says, "Hello world!"
  
 See the individual help entries for comsys commands for details.
  
@@ -11396,7 +11749,7 @@ only by privileged users. This is "Safe TCL", which means that
 file operations and other dangerous primitves are disabled.
 See "help Tcl Functions" for details.
  
-WARNING: This has not been implemented in TinyMUSH 3.0, yet.
+WARNING: This has not been implemented in TinyMUSH 3, yet.
  
 & Tcl Functions
  
@@ -12006,26 +12359,26 @@ traced from the caller's scope.
  
 & About TinyMUSH
  
-  TinyMUSH 3.0 is the result of converging the development paths of
+  TinyMUSH 3 is the result of converging the development paths of
   TinyMUSH 2.2 and TinyMUX. It was designed to be a stable, efficient,
   highly-configurable, feature-rich code version, offering users a full
   array of 2.2 and MUX features, as well as substantial enhancements to
   functionality and performance.
  
-  TinyMUSH 3.0 is under active development, and is the standard supported
+  TinyMUSH 3 is under active development, and is the standard supported
   version of TinyMUSH for the forseeable future. The primary developers are 
   Lydia Leong ("Amberyl"), David Passmore ("Lauren"), Robby Griffin
   ("Alierak", as of 3.0 beta 18), and Scott Dorr ("Myrddin", as of
   3.0 beta 23).
  
-  See 'help Patchlevel' for notes on TinyMUSH 3.0 changes.
+  See 'help Patchlevel' for notes on TinyMUSH 3 changes.
   See 'help Writing News' for an explanation of how to write news files.
-  See 'help Support' for URLs to TinyMUSH 3.0 announcements and resources.
+  See 'help Support' for URLs to TinyMUSH 3 announcements and resources.
   See 'help Mailing Lists' for a list of TinyMUSH-related mailing lists.
   
 & Mailing Lists
  
-  Support for TinyMUSH 3.0 is done via 'tinymush-support@godlike.com',
+  Support for TinyMUSH 3 is done via 'tinymush-support@godlike.com',
   a mailing list. The list's home page, subscription tool, and archives
   are at http://www.godlike.com/mailman/listinfo.cgi/tinymush-support
  
@@ -12048,8 +12401,8 @@ traced from the caller's scope.
  
 & Support
  
-  TinyMUSH 3.0 announcements and related support information can be found
-  at the official TinyMUSH 3.0 home, http://www.godlike.com/tinymush-3.0/
+  TinyMUSH 3 announcements and related support information can be found
+  at the official TinyMUSH 3 home, http://www.godlike.com/tm3/
  
   The MUSH Manual can be found at http://www.godlike.com/mushman/
   It might also be accessible by typing 'man' within this MUSH.
@@ -12095,7 +12448,7 @@ a Wizard must do a @readcache from within the game.
 TinyMUSH 3.0 began with the fusion of the TinyMUSH 2.2.5 and TinyMUX 1.6
 code bases.
  
-The user-visible changes to TinyMUSH 3.0 can be found in the following
+The user-visible changes to TinyMUSH 3 can be found in the following
 help entries:
  
 'help 3.0 base'		New/enhanced base server and configuration directives.
