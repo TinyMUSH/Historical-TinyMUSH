@@ -282,7 +282,8 @@ NAMETAB mail_sw[] = {
 {(char *)"review",	2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_REVIEW},
 {(char *)"retract",	2,	CA_NO_SLAVE|CA_NO_GUEST,      MAIL_RETRACT},
 {(char *)"cc",		2,	CA_NO_SLAVE|CA_NO_GUEST,	MAIL_CC},
-{(char *)"safe",	2,	CA_NO_SLAVE|CA_NO_GUEST,	MAIL_SAFE}};
+{(char *)"safe",	2,	CA_NO_SLAVE|CA_NO_GUEST,	MAIL_SAFE},
+{ NULL,                 0,      0,              0}};
 
 NAMETAB malias_sw[] = {
 {(char *)"desc",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_DESC},
@@ -292,7 +293,8 @@ NAMETAB malias_sw[] = {
 {(char *)"delete",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_DELETE},
 {(char *)"rename",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_RENAME},
 {(char *)"list",        1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_LIST},
-{(char *)"status",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_STATUS}};
+{(char *)"status",      1,      CA_NO_SLAVE|CA_NO_GUEST,      MALIAS_STATUS},
+{ NULL,                 0,      0,              0}};
 #endif
 
 NAMETAB mark_sw[] = {
@@ -779,7 +781,7 @@ CMDENT command_table[] = {
 {(char *)"@wall",		wall_sw,	CA_PUBLIC,
 	SAY_SHOUT,	CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_say},
-{(char *)"@wipe",		wall_sw,
+{(char *)"@wipe",		NULL,
 	CA_NO_SLAVE|CA_NO_GUEST|CA_GBL_BUILD,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_wipe},
