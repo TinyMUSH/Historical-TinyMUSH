@@ -1682,101 +1682,58 @@ FUNCTION(fun_set)
  */
 
 /* Borrowed from DarkZone */
-FUNCTION(fun_zwho)
+void scan_zone(player, zone, type, buff, bufc)
+dbref player;
+char *zone, *buff, **bufc;
+int type;
 {
-	dbref i, it = match_thing(player, fargs[0]);
-	int len = 0;
-	char *smbuf;
+	dbref i, it = match_thing(player, zone);
+	char *bb_p;
 	
 	if (!mudconf.have_zones || (!Controls(player, it) && !WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
-	for (i = 0; i < mudstate.db_top; i++) {
-	    if (Typeof(i) == TYPE_PLAYER) {
+	bb_p = *bufc;
+	DO_WHOLE_DB(i) {
+	    if (Typeof(i) == type) {
 		if (Zone(i) == it) {
-		    if (len) {
-			smbuf = alloc_sbuf("fun_zwho");
-			sprintf(smbuf, " #%d", i);
-			if ((strlen(smbuf) + len) > 990) {
-			    safe_known_str(" #-1", 4, buff, bufc);
-			    free_sbuf(smbuf);
-			    return;
-			}
-			safe_str(smbuf, buff, bufc);
-			len += strlen(smbuf);
-			free_sbuf(smbuf);
-		    } else {
-			safe_dbref(buff, bufc, i);
-			len = strlen(buff);
+		    if (*bufc != bb_p) {
+			safe_chr(' ', buff, bufc);
 		    }
+		    safe_dbref(buff, bufc, i);
 		}
 	    }
 	}
 }
 
-/* Borrowed from DarkZone */
+FUNCTION(fun_zwho)
+{
+    scan_zone(player, fargs[0], TYPE_PLAYER, buff, bufc);
+}
+
 FUNCTION(fun_inzone)
 {
-	dbref i, it = match_thing(player, fargs[0]);
-	int len = 0;
-	char *smbuf;
-
-	if (!mudconf.have_zones || (!Controls(player, it) && !WizRoy(player))) {
-		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
-		return;
-	}
-	for (i = 0; i < mudstate.db_top; i++) {
-	    if (Typeof(i) == TYPE_ROOM) {
-		if (db[i].zone == it) {
-		    if (len) {
-			smbuf = alloc_sbuf("fun_inzone");;
-			sprintf(smbuf, " #%d", i);
-			if ((strlen(smbuf) + len) > 990) {
-			    safe_known_str(" #-1", 4, buff, bufc);
-			    free_sbuf(smbuf);
-			    return;
-			}
-			safe_str(smbuf, buff, bufc);
-			len += strlen(smbuf);
-			free_sbuf(smbuf);
-		    } else {
-			safe_dbref(buff, bufc, i);
-			len = strlen(buff);
-		    }
-		}
-	    }
-	}
+    scan_zone(player, fargs[0], TYPE_ROOM, buff, bufc);
 }
 
 /* Borrowed from DarkZone */
 FUNCTION(fun_children)
 {
 	dbref i, it = match_thing(player, fargs[0]);
-	int len = 0;
-	char *smbuf;
+	char *bb_p;
 
 	if (!(Controls(player, it)) || !(WizRoy(player))) {
 		safe_str("#-1 NO PERMISSION TO USE", buff, bufc);
 		return;
 	}
-	for (i = 0; i < mudstate.db_top; i++) {
+	bb_p = *bufc;
+	DO_WHOLE_DB(i) {
 	    if (Parent(i) == it) {
-		if (len) {
-		    smbuf = alloc_sbuf("fun_children");
-		    sprintf(smbuf, " #%d", i);
-		    if ((strlen(smbuf) + len) > 990) {
-			safe_known_str(" #-1", 4, buff, bufc);
-			free_sbuf(smbuf);
-			return;
-		    }
-		    safe_str(smbuf, buff, bufc);
-		    len += strlen(smbuf);
-		    free_sbuf(smbuf);
-		} else {
-		    safe_dbref(buff, bufc, i);
-		    len = strlen(buff);
+		if (*bufc != bb_p) {
+		    safe_chr(' ', buff, bufc);
 		}
+		safe_dbref(buff, bufc, i);
 	    }
 	}
 }
