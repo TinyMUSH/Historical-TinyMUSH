@@ -61,6 +61,9 @@
 #undef HAVE__SYS_SIGLIST
 /* Define if calling signal with SIGCHLD when handling SIGCHLD blows chow */
 #undef SIGNAL_SIGCHLD_BRAINDAMAGE
+/* Define if the compiler pads small structs on the wrong end, breaking the
+ * system library version of inet_ntoa() */
+#undef BROKEN_GCC_PADDING
 /* Define if errno.h exists */
 #undef HAVE_ERRNO_H
 /* Define if malloc.h exists */

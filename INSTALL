@@ -147,8 +147,8 @@ instructions.
 COMPATIBILITY
 
 TinyMUSH 3.0 is believed to be compatible with all major versions of
-Unix, including SunOS 4.1.x, Solaris, Irix, AIX, HP-UX, NetBSD, and
-Linux. There is no official Windows NT port, at present.
+Unix, including SunOS 4.1.x, Solaris, Irix, AIX, HP-UX, NetBSD, Linux,
+and MacOS X. There is no official Windows NT port, at present.
 
 The frequent releases of new Linux versions, the proliferation of
 multiple Linux development paths, and the incompatibility between
@@ -160,15 +160,7 @@ need to make minor tweaks to the Makefile and/or autoconf.h,
 particularly if you are running a Linux release more recent than
 the release date of this server version.
 
-There is a known problem with gcc on 64-bit operating systems,
-including Irix 6. gcc fails to correctly pass structures of less than
-16 bytes which are not exactly 8 bytes, padding those structures on
-the wrong end; this affects the inet_ntoa() call, which relies on such
-a structure. If you compiled using gcc, and find that all hostnames
-are resolving as '0.0.0.0' or '255.255.255.255', this is what's
-broken. Add a '-DBROKEN_GCC_PADDING' to the Makefile, or the line
-'#define BROKEN_GCC_PADDING' to autoconf.h, and recompile.
-Also, Irix may need HAVE_SRANDOM manually defined in autoconf.h --
+Irix may need HAVE_SRANDOM manually defined in autoconf.h --
 for some reason, autoconf doesn't detect this properly.
 
 The Build script (or the directions given above for basic installation)

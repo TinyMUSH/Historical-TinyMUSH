@@ -59,6 +59,7 @@ AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],AC_DEFINE(HAVE_UNION_W
 AC_MSG_CHECKING(for struct sigcontext) 
 AC_TRY_COMPILE([#include <sys/types.h>
 #include <sys/signal.h>],[struct sigcontext scp;],AC_DEFINE(HAVE_STRUCT_SIGCONTEXT) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
 AC_MSG_CHECKING(for signal SIGCHLD braindamage)
 AC_TRY_RUN([
 #include <sys/types.h>
@@ -98,6 +99,28 @@ char **argv;
   exit(0);
 }
 ], AC_MSG_RESULT(no),AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE) AC_MSG_RESULT(yes),AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE) AC_MSG_RESULT(unable to test... assuming yes))
+
+AC_MSG_CHECKING(for broken small struct padding)
+AC_TRY_RUN([
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+main(argc, argv)
+int argc;
+char **argv;
+{
+  struct in_addr addr;
+  char *dq;
+
+  addr.s_addr = htonl(0x01020304);
+  dq = inet_ntoa(addr);
+  if (dq[0] != '1' || dq[1] != '.' || dq[2] != '2' || dq[3] != '.' ||
+      dq[4] != '3' || dq[5] != '.' || dq[6] != '4' || dq[7] != '\0')
+    return 1;
+  return 0;
+}],AC_MSG_RESULT(no),AC_DEFINE(BROKEN_GCC_PADDING) AC_MSG_RESULT(yes), AC_DEFINE(BROKEN_GCC_PADDING) AC_MSG_RESULT(unable to test... assuming yes))
 
 dnl Function checks
 
