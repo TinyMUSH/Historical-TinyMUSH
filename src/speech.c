@@ -843,7 +843,8 @@ char *recipient, *message;
 			notify_except(Location(target), player, target, message, 0);
 			break;
 		case PEMIT_WHISPER:
-		        if (!Will_Hear(player, target)) {
+		        if (!(Are_Real(player, target) ||
+			      Will_Hear(target, player))) {
 			    notify(player, CANNOT_HEAR_MSG);
 			} else {
 			    switch (*message) {

@@ -309,6 +309,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Redir_ok(x)	((Flags3(x) & REDIR_OK) != 0)
 #define Orphan(x)	((Flags3(x) & ORPHAN) != 0)
 #define NoDefault(x)	((Flags3(x) & NODEFAULT) != 0)
+#define Unreal(x)	((Flags3(x) & PRESENCE) != 0)
 
 #define	H_Startup(x)	((Flags(x) & HAS_STARTUP) != 0)
 #define	H_Fwdlist(x)	((Flags2(x) & HAS_FWDLIST) != 0)
@@ -421,9 +422,12 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define Can_See(p,x,l)	(!(((p) == (x)) || isExit(x) || \
 			   (mudconf.dark_sleepers && isPlayer(x) && \
 			    !Connected(x) && !Puppet(x))) && \
-			 ((l) ? Sees(p,x) : Sees_In_Dark(p,x)))
+			 ((l) ? Sees(p,x) : Sees_In_Dark(p,x)) && \
+			 (Are_Real(p,x) || Will_See(p,x)))
 
-#define Can_See_Exit(p,x,l)	(!Darkened(p,x) && (!(l) || Light(x)))
+#define Can_See_Exit(p,x,l)	(!Darkened(p,x) && (!(l) || Light(x)) && \
+				 (Are_Real(p,x) || Will_See(p,x)))
+				 
 
 /* For exits visible (for lexits(), etc.), this is true if we can examine
  * the exit's location, examine the exit, or the exit is LIGHT. It is also
@@ -539,8 +543,9 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 
 /* Visibility abstractions */
 
-#define Will_Hear(p,t)      1
-#define Will_See(p,t)       1
-#define Is_Present(p,t)     1
+#define Are_Real(p,t)		(!(Unreal(p) || Unreal(t)))
+#define Will_Hear(t,p)		(could_doit((t),(p),A_LHEARD))
+#define Will_Notice(t,p)	(could_doit((t),(p),A_LMOTION))
+#define Will_See(t,p)		(could_doit((t),(p),A_LKNOWN))
 
 #endif /* __FLAGS_H */

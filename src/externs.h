@@ -18,6 +18,7 @@ extern char *	FDECL(vsprintf, (char *, char *, va_list));
 
 /* From boolexp.c */
 extern int	FDECL(eval_boolexp, (dbref, dbref, dbref, BOOLEXP *));
+extern int	FDECL(eval_boolexp_atr, (dbref, dbref, dbref, char *));
 extern BOOLEXP *FDECL(parse_boolexp, (dbref,const char *, int));
 
 /* From bsd.c */

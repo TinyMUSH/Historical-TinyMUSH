@@ -523,10 +523,10 @@ void html_escape(src, dest, destp)
 
 #endif /* PUEBLO_SUPPORT */
 
-#define OK_To_Send(p,t)  (!herekey || \
-			  ((key & MSG_SPEECH) && Will_Hear((p),(t))) || \
-			  ((key & MSG_MOVE) && Will_See((p),(t))) || \
-			  ((key & MSG_PRESENCE) && Is_Present((p),(t))))
+#define OK_To_Send(p,t)  (!herekey || Are_Real((p),(t)) || \
+			  ((key & MSG_SPEECH) && Will_Hear((t),(p))) || \
+			  ((key & MSG_MOVE) && Will_Notice((t),(p))) || \
+			  ((key & MSG_PRESENCE) && Will_See((t),(p))))
 
 void notify_check(target, sender, msg, key)
 dbref target, sender;

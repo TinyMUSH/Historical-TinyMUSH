@@ -361,6 +361,8 @@ FLAGENT gen_flags[] = {
 	FLAG_WORD2,	0,			fh_wiz},
 {"COMMANDS",		HAS_COMMANDS,	'$',
 	FLAG_WORD2,	0,			fh_any},
+{"PRESENCE",		PRESENCE,	'^',
+	FLAG_WORD3,	0,			fh_wiz},
 {"NOBLEED",             NOBLEED,         '-',
         FLAG_WORD2,     0,                      fh_any},
 {"VACATION",		VACATION,	'|',
@@ -377,7 +379,7 @@ FLAGENT gen_flags[] = {
 	FLAG_WORD2,	CA_GOD|CA_NO_DECOMP,	fh_god},
 {"HAS_LISTEN",		HAS_LISTEN,	'@',
 	FLAG_WORD2,	CA_GOD|CA_NO_DECOMP,	fh_god},
-{"PLAYER_MAILS",	PLAYER_MAILS,	'^',
+{"PLAYER_MAILS",	PLAYER_MAILS,	'`',
 	FLAG_WORD2,		CA_GOD|CA_NO_DECOMP,	fh_god},
 #ifdef PUEBLO_SUPPORT
 {"HTML", 		HTML,           '~',

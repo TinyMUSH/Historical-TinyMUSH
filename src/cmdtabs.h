@@ -187,8 +187,11 @@ NAMETAB lock_sw[] = {
 {(char *)"droplock",	2,	CA_PUBLIC,	A_LDROP},
 {(char *)"enterlock",	1,	CA_PUBLIC,	A_LENTER},
 {(char *)"givelock",	1,	CA_PUBLIC,	A_LGIVE},
+{(char *)"heardlock",	1,	CA_PUBLIC,	A_LHEARD},
+{(char *)"knownlock",	1,	CA_PUBLIC,	A_LKNOWN},
 {(char *)"leavelock",	2,	CA_PUBLIC,	A_LLEAVE},
 {(char *)"linklock",	2,	CA_PUBLIC,	A_LLINK},
+{(char *)"motionlock",	1,	CA_PUBLIC,	A_LMOTION},
 {(char *)"pagelock",	3,	CA_PUBLIC,	A_LPAGE},
 {(char *)"parentlock",	3,	CA_PUBLIC,	A_LPARENT},
 {(char *)"receivelock",	1,	CA_PUBLIC,	A_LRECEIVE},
@@ -324,9 +327,9 @@ NAMETAB	trig_sw[] = {
 { NULL,			0,	0,		0}};
 
 NAMETAB	verb_sw[] = {
+{(char *)"known",	1,	CA_PUBLIC,	VERB_PRESENT|SW_MULTIPLE},
 {(char *)"move",	1,	CA_PUBLIC,	VERB_MOVE|SW_MULTIPLE},
 {(char *)"now",		1,	CA_PUBLIC,	VERB_NOW|SW_MULTIPLE},
-{(char *)"present",	1,	CA_PUBLIC,	VERB_PRESENT|SW_MULTIPLE},
 {(char *)"speech",	1,	CA_PUBLIC,	VERB_SPEECH|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 

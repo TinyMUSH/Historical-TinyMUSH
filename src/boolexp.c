@@ -18,8 +18,6 @@
 #include "powers.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
-int FDECL(eval_boolexp_atr, (dbref, dbref, dbref, char *));
-
 static int parsing_internal = 0;
 
 /* ---------------------------------------------------------------------------

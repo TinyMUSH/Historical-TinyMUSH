@@ -176,6 +176,10 @@
 
 #define A_NAME_FMT	222	/* Player-specified name format */
 
+#define A_LKNOWN	223	/* Who is this player seen by? (presence) */
+#define A_LHEARD	224	/* Who is this player heard by? (speech) */
+#define A_LMOTION	225	/* Who notices this player moving? */
+
 #define	A_VLIST		252
 #define	A_LIST		253
 #define	A_STRUCT	254

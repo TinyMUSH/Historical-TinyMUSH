@@ -31,7 +31,6 @@ extern int slave_socket;
 extern void FDECL(load_quota, (int *, dbref, int));
 extern void FDECL(save_quota, (int *, dbref, int));
 extern int FDECL(get_gender, (dbref));
-extern int	FDECL(eval_boolexp_atr, (dbref, dbref, dbref, char *));
 static int FDECL(type_quota, (int));
 static int FDECL(pay_quota, (dbref, int, int));
 
