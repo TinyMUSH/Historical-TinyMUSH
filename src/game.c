@@ -2052,14 +2052,14 @@ char *argv[];
 
 	s = (char *) XMALLOC(MBUF_SIZE, "main_add_helpfile");
 
-	snprintf(s, MBUF_SIZE-1, "help %s/help", mudconf.txthome);
+	sprintf(s, "help %s/help", mudconf.txthome);
 	add_helpfile(GOD, (char *)"main:add_helpfile", s , 1);
 
-	snprintf(s, MBUF_SIZE-1, "wizhelp %s/wizhelp", mudconf.txthome);
+	sprintf(s, "wizhelp %s/wizhelp", mudconf.txthome);
 	add_helpfile(GOD, (char *)"main:add_helpfile", s, 1);
 	
 
-	snprintf(s, MBUF_SIZE-1, "qhelp %s/qhelp", mudconf.txthome);
+	sprintf(s, "qhelp %s/qhelp", mudconf.txthome);
 	add_helpfile(GOD, (char *)"main:add_helpfile", s, 1);
 	
 	XFREE(s, "main_add_helpfile");
@@ -2254,7 +2254,7 @@ char *argv[];
 			sprintf(mudp, "%d", mudconf.port);
 			sprintf(inetp, "%d", mudconf.conc_port);
 			s = (char *) XMALLOC(MBUF_SIZE, "main_concentrate");
-			snprintf(s, MBUF_SIZE, "%s/conc", mudconf.binhome);
+			sprintf(s, "%s/conc", mudconf.binhome);
 			execl(s, "concentrator", inetp, mudp, "1", NULL);
 			XFREE(s, "main_concentrate");
 		}

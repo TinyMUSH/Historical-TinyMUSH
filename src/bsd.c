@@ -253,7 +253,7 @@ void boot_slave()
 			close(i);
 		}
 		s=(char *) XMALLOC(MBUF_SIZE, "boot_slave");
-		snprintf(s, MBUF_SIZE, "%s/slave", mudconf.binhome);
+		sprintf(s, "%s/slave", mudconf.binhome);
 		execlp(s, "slave", NULL);
 		XFREE(s,"boot_slave");
 		_exit(1);

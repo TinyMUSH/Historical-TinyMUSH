@@ -70,40 +70,40 @@ void NDECL(cf_init)
 	mudconf.guest_prefixes = XSTRDUP("", "cf_string");
 	mudconf.guest_suffixes = XSTRDUP("", "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/guest.txt", mudconf.txthome);
+	sprintf(s, "%s/guest.txt", mudconf.txthome);
 	mudconf.guest_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/connect.txt", mudconf.txthome);
+	sprintf(s, "%s/connect.txt", mudconf.txthome);
 	mudconf.conn_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/register.txt", mudconf.txthome);
+	sprintf(s, "%s/register.txt", mudconf.txthome);
 	mudconf.creg_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/create_reg.txt", mudconf.txthome);
+	sprintf(s, "%s/create_reg.txt", mudconf.txthome);
 	mudconf.regf_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/motd.txt", mudconf.txthome);
+	sprintf(s, "%s/motd.txt", mudconf.txthome);
 	mudconf.motd_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/wizmotd.txt", mudconf.txthome);
+	sprintf(s, "%s/wizmotd.txt", mudconf.txthome);
 	mudconf.wizmotd_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/quit.txt", mudconf.txthome);
+	sprintf(s, "%s/quit.txt", mudconf.txthome);
 	mudconf.quit_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/down.txt", mudconf.txthome);
+	sprintf(s, "%s/down.txt", mudconf.txthome);
 	mudconf.down_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/full.txt", mudconf.txthome);
+	sprintf(s, "%s/full.txt", mudconf.txthome);
 	mudconf.full_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/badsite.txt", mudconf.txthome);
+	sprintf(s, "%s/badsite.txt", mudconf.txthome);
 	mudconf.site_file = XSTRDUP(s, "cf_string");
 	
-	snprintf(s, MBUF_SIZE-1, "%s/newuser.txt", mudconf.txthome);
+	sprintf(s, "%s/newuser.txt", mudconf.txthome);
 	mudconf.crea_file = XSTRDUP(s, "cf_string");
 #ifdef PUEBLO_SUPPORT
-	snprintf(s, MBUF_SIZE-1, "%s/htmlconn.txt", mudconf.txthome);
+	sprintf(s, "%s/htmlconn.txt", mudconf.txthome);
 	mudconf.htmlconn_file = XSTRDUP(s, "cf_string");
 #endif
 	mudconf.motd_msg = XSTRDUP("", "cf_string");
