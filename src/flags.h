@@ -381,6 +381,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define	isRoom(x)	(Typeof(x) == TYPE_ROOM)
 #define	isExit(x)	(Typeof(x) == TYPE_EXIT)
 #define	isThing(x)	(Typeof(x) == TYPE_THING)
+#define isGarbage(x)	(Typeof(x) == TYPE_GARBAGE)
 
 #define Good_dbref(x)	(((x) >= 0) && ((x) < mudstate.db_top))
 #define	Good_obj(x)	(Good_dbref(x) && (Typeof(x) < GOODTYPE))
