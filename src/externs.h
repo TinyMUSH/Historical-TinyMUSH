@@ -364,11 +364,6 @@ extern void	FDECL(toast_player, (dbref));
 #define HOOK_AFTER	2	/* post-command hook */
 #define HOOK_PRESERVE	4	/* preserve global regs */
 #define HOOK_NOPRESERVE	8	/* don't preserve global regs */
-#define	HELP_HELP	1	/* get data from help file */
-#define	HELP_NEWS	2	/* get data from news file */
-#define	HELP_WIZHELP	3	/* get data from wizard help file */
-#define HELP_PLUSHELP   4       /* get data from plushelp file */
-#define HELP_WIZNEWS    5       /* wiznews file */
 #define	KILL_KILL	1	/* gives victim insurance */
 #define	KILL_SLAY	2	/* no insurance */
 #define	LOOK_LOOK	1	/* list desc (and succ/fail if room) */

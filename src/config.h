@@ -27,7 +27,6 @@
 
 #define HASH_FACTOR		2	/* How much hashing you want. */
 
-#define PLUSHELP_COMMAND	"+help" /* What you type to see the +help file */					 
 #define OUTPUT_BLOCK_SIZE	16384
 
 /* length of the DOING field in WHO */

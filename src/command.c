@@ -808,9 +808,6 @@ CMDENT command_table[] = {
 {(char *)"goto",		goto_sw,	CA_LOCATION,
 	0,		CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_move},
-{(char *)"help",		NULL,		0,
-	HELP_HELP,	CS_ONE_ARG,		
-	NULL,			NULL,		do_help},
 {(char *)"inventory",		NULL,		0,
 	LOOK_INVENTORY,	CS_NO_ARGS,		
 	NULL,			NULL,		do_inventory},
@@ -823,9 +820,6 @@ CMDENT command_table[] = {
 {(char *)"look",		look_sw,		CA_LOCATION,
 	LOOK_LOOK,	CS_ONE_ARG|CS_INTERP,	
 	NULL,			NULL,		do_look},
-{(char *)"news",		NULL,		0,
-	HELP_NEWS,	CS_ONE_ARG,		
-	NULL,			NULL,		do_help},
 {(char *)"page",		NULL,		CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_page},
@@ -853,15 +847,6 @@ CMDENT command_table[] = {
 {(char *)"whisper",		NULL,		CA_LOCATION|CA_NO_SLAVE,
 	PEMIT_WHISPER,	CS_TWO_ARG|CS_INTERP,	
 	NULL,			NULL,		do_pemit},
-{(char *)"wizhelp",		NULL,		CA_WIZARD,
-	HELP_WIZHELP,	CS_ONE_ARG,		
-	NULL,			NULL,		do_help},
-{(char *)PLUSHELP_COMMAND,	NULL,		0,
-	HELP_PLUSHELP,	CS_ONE_ARG,		
-	NULL,			NULL,		do_help},
-{(char *)"wiznews",             NULL,           CA_WIZARD,
-        HELP_WIZNEWS,   CS_ONE_ARG,           
-	NULL,			NULL,		do_help},
 {(char *)"doing",		NULL,		CA_PUBLIC,
 	CMD_DOING,	CS_ONE_ARG,		
 	NULL,			NULL,		logged_out},
@@ -2829,12 +2814,19 @@ dbref player;
 	if (mudconf.have_comsys)
 	    list_hashstat(player, "Channel names", &mudstate.channel_htab);
 #endif
-	list_hashstat(player, "News topics", &mudstate.news_htab);
-	list_hashstat(player, "Help topics", &mudstate.help_htab);
-	list_hashstat(player, "Wizhelp topics", &mudstate.wizhelp_htab);
-	list_hashstat(player, "+Help topics", &mudstate.plushelp_htab);
-	list_hashstat(player, "Wiznews topics", &mudstate.wiznews_htab);
 }
+
+static void list_textfiles(player)
+    dbref player;
+{
+    int i;
+
+    raw_notify(player, "Help File       Size Entries Deleted   Empty Lookups    Hits  Checks Longest");
+
+    for (i = 0; i < mudstate.helpfiles; i++)
+	list_hashstat(player, mudstate.hfiletab[i], &mudstate.hfile_hashes[i]);
+}
+			  
 
 #ifndef MEMORY_BASED
 /* These are from 'udb_cache.c'. */
@@ -3010,6 +3002,7 @@ dbref player;
 #define	LIST_PROCESS	21
 #define	LIST_BADNAMES	22
 #define LIST_CACHEOBJS	23
+#define LIST_TEXTFILES  24
 /* *INDENT-OFF* */
 
 NAMETAB list_names[] = {
@@ -3035,6 +3028,7 @@ NAMETAB list_names[] = {
 {(char *)"process",		2,	CA_WIZARD,	LIST_PROCESS},
 {(char *)"site_information",	2,	CA_WIZARD,	LIST_SITEINFO},
 {(char *)"switches",		2,	CA_PUBLIC,	LIST_SWITCHES},
+{(char *)"textfiles",		1,	CA_WIZARD,	LIST_TEXTFILES},
 {(char *)"user_attributes",	1,	CA_WIZARD,	LIST_VATTRS},
 { NULL,				0,	0,		0}};
 
@@ -3128,6 +3122,9 @@ char *arg;
 		break;
 	case LIST_CACHEOBJS:
 		list_cached_objs(player);
+		break;
+	case LIST_TEXTFILES:
+		list_textfiles(player);
 		break;
 	default:
 		display_nametab(player, list_names,

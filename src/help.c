@@ -97,29 +97,32 @@ char *filename;
 void helpindex_load(player)
 dbref player;
 {
-	int news, help, whelp;
-	int phelp, wnhelp;
+    int i;
+    char buf[SBUF_SIZE + 8];
 
-	phelp = helpindex_read(&mudstate.plushelp_htab, mudconf.plushelp_indx);
-	wnhelp = helpindex_read(&mudstate.wiznews_htab, mudconf.wiznews_indx);
-	news = helpindex_read(&mudstate.news_htab, mudconf.news_indx);
-	help = helpindex_read(&mudstate.help_htab, mudconf.help_indx);
-	whelp = helpindex_read(&mudstate.wizhelp_htab, mudconf.whelp_indx);
+    if (!mudstate.hfiletab) {
 	if ((player != NOTHING) && !Quiet(player))
-		notify(player,
-		       tprintf("Index entries: News...%d  Help...%d  Wizhelp...%d  +Help...%d  Wiznews...%d",
-			       news, help, whelp, phelp, wnhelp));
+	    notify(player, "No indexed files have been configured.");
+	return;
+    }
+
+    for (i = 0; i < mudstate.helpfiles; i++) {
+	sprintf(buf, "%s.indx", mudstate.hfiletab[i]);
+	helpindex_read(&mudstate.hfile_hashes[i], buf);
+    }
+
+    if ((player != NOTHING) && !Quiet(player))
+	notify(player, "Indexed file cache updated.");
 }
+
 
 void NDECL(helpindex_init)
 {
-	hashinit(&mudstate.news_htab, 15 * HASH_FACTOR);
-	hashinit(&mudstate.help_htab, 30 * HASH_FACTOR);
-	hashinit(&mudstate.wizhelp_htab, 30 * HASH_FACTOR);
-	hashinit(&mudstate.plushelp_htab, 30 * HASH_FACTOR);
-	hashinit(&mudstate.wiznews_htab, 30 * HASH_FACTOR);
+    /* We do not need to do hashinits here, as this will already have
+     * been done by the add_helpfile() calls.
+     */
 
-	helpindex_load(NOTHING);
+    helpindex_load(NOTHING);
 }
 
 void help_write(player, topic, htab, filename, eval)
@@ -228,35 +231,21 @@ dbref player, cause;
 int key;
 char *message;
 {
-	char *buf;
+    char *buf;
+    char tbuf[SBUF_SIZE + 8];
 
-	switch (key) {
-	case HELP_HELP:
-		help_write(player, message, &mudstate.help_htab,
-			   mudconf.help_file, 0);
-		break;
-	case HELP_NEWS:
-		help_write(player, message, &mudstate.news_htab,
-			   mudconf.news_file, 1);
-		break;
-	case HELP_WIZHELP:
-		help_write(player, message, &mudstate.wizhelp_htab,
-			   mudconf.whelp_file, 0);
-		break;
-	case HELP_PLUSHELP:
-		help_write(player, message, &mudstate.plushelp_htab,
-			   mudconf.plushelp_file, 1);
-		break;
-	case HELP_WIZNEWS:
-		help_write(player, message, &mudstate.wiznews_htab,
-			   mudconf.wiznews_file, 0);
-		break;
-	default:
-		STARTLOG(LOG_BUGS, "BUG", "HELP")
-			buf = alloc_mbuf("do_help.LOG");
-		sprintf(buf, "Unknown help file number: %d", key);
-		log_text(buf);
-		free_mbuf(buf);
-		ENDLOG
-	}
+    if (key >= mudstate.helpfiles) {
+	STARTLOG(LOG_BUGS, "BUG", "HELP")
+	    buf = alloc_mbuf("do_help.LOG");
+	    sprintf(buf, "Unknown help file number: %d", key);
+	    log_text(buf);
+	    free_mbuf(buf);
+	ENDLOG
+	notify(player, "No such indexed file found.");
+	return;
+    }
+
+    sprintf(tbuf, "%s.txt", mudstate.hfiletab[key]);
+    help_write(player, message, &mudstate.hfile_hashes[key], tbuf,
+	       (key > 1) ? 1 : 0);
 }

@@ -10,7 +10,7 @@
 #include "mudconf.h"
 #include "config.h"
 #include "file_c.h"
-#include "db.h"
+#include "command.h"
 #include "interface.h"
 #include "match.h"
 #include "externs.h"
@@ -1533,6 +1533,8 @@ int argc;
 char *argv[];
 {
 	int mindb;
+	CMDENT *cmdp;
+	int i;
 
 	if ((argc > 2) && (!strcmp(argv[1], "-s") && (argc > 3))) {
 		fprintf(stderr, "Usage: %s [-s] [config-file]\n", argv[0]);
@@ -1582,6 +1584,14 @@ char *argv[];
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.desc_htab, 25 * HASH_FACTOR);
 	hashinit(&mudstate.vars_htab, 250 * HASH_FACTOR);
+
+	add_helpfile(GOD, (char *) "help text/help");
+	add_helpfile(GOD, (char *) "wizhelp text/wizhelp");
+	add_helpfile(GOD, (char *) "news text/news");
+	cmdp = (CMDENT *) hashfind((char *) "wizhelp", &mudstate.command_htab);
+	if (cmdp)
+	    cmdp->perms |= CA_WIZARD;
+
 	vattr_init();
 	
 	if (argc > 1 && !strcmp(argv[1], "-s")) {
@@ -1647,12 +1657,10 @@ char *argv[];
 	hashreset(&mudstate.player_htab);
 	nhashreset(&mudstate.fwdlist_htab);
 	nhashreset(&mudstate.objstack_htab);
-	hashreset(&mudstate.news_htab);
-	hashreset(&mudstate.help_htab);
-	hashreset(&mudstate.wizhelp_htab);
-	hashreset(&mudstate.plushelp_htab);
-	hashreset(&mudstate.wiznews_htab);
 	nhashreset(&mudstate.desc_htab);
+
+	for (i = 0; i < mudstate.helpfiles; i++)
+	    hashreset(&mudstate.hfile_hashes[i]);
 
 	for (mindb = 0; mindb < MAX_GLOBAL_REGS; mindb++)
 		mudstate.global_regs[mindb] = alloc_lbuf("main.global_reg");

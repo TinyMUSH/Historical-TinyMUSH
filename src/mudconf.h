@@ -64,16 +64,6 @@ struct confdata {
 	char	full_file[SBUF_SIZE];	/* display when max users exceeded */
 	char	site_file[SBUF_SIZE];	/* display if conn from bad site */
 	char	crea_file[SBUF_SIZE];	/* display this on login for new users */
-	char	help_file[SBUF_SIZE];	/* HELP text file */
-	char	help_indx[SBUF_SIZE];	/* HELP index file */
-	char	news_file[SBUF_SIZE];	/* NEWS text file */
-	char	news_indx[SBUF_SIZE];	/* NEWS index file */
-	char	whelp_file[SBUF_SIZE];	/* Wizard help text file */
-	char	whelp_indx[SBUF_SIZE];	/* Wizard help index file */
-        char    plushelp_file[SBUF_SIZE];  /* +help text file */
-        char    plushelp_indx[SBUF_SIZE];  /* +help index file */
-        char    wiznews_file[SBUF_SIZE];   /*  wiznews text file */
-        char    wiznews_indx[SBUF_SIZE];   /*  wiznews index file */
 	char	motd_msg[GBUF_SIZE];	/* Wizard-settable login message */
 	char	wizmotd_msg[GBUF_SIZE];  /* Login message for wizards only */
 	char	downmotd_msg[GBUF_SIZE];  /* Settable 'logins disabled' message */
@@ -304,6 +294,10 @@ struct statedata {
 	int	epoch;		/* Generation number for dumps */
 	int	generation;	/* DB global generation number */
 	int	mudlognum;	/* Number of logfile */
+    	int	helpfiles;	/* Number of external indexed helpfiles */
+	int	hfiletab_size;	/* Size of the table storing path pointers */
+    	char	**hfiletab;	/* Array of path pointers */
+    	HASHTAB *hfile_hashes;	/* Pointer to an array of index hashtables */
 	dbref	curr_enactor;	/* Who initiated the current command */
 	dbref	curr_player;	/* Who is running the current command */
 	char	*curr_cmd;	/* The current command */
@@ -346,11 +340,6 @@ struct statedata {
 	NHSHTAB tree_htab;	/* Parse trees for evaluation */
 #endif
 	HASHTAB vars_htab;	/* Persistent variables hashtable */
-	HASHTAB	news_htab;	/* News topics hashtable */
-	HASHTAB	help_htab;	/* Help topics hashtable */
-	HASHTAB	wizhelp_htab;	/* Wizard help topics hashtable */ 
-        HASHTAB plushelp_htab;  /* +help topics hashtable */
-        HASHTAB wiznews_htab;   /* wiznews topics hashtable */
 	int	attr_next;	/* Next attr to alloc when freelist is empty */
 	BQUE	*qfirst;	/* Head of player queue */
 	BQUE	*qlast;		/* Tail of player queue */

@@ -101,16 +101,6 @@ void NDECL(cf_init)
 #ifdef PUEBLO_SUPPORT
 	strcpy(mudconf.htmlconn_file, "text/htmlconn.txt");
 #endif
-	StringCopy(mudconf.help_file, "text/help.txt");
-	StringCopy(mudconf.help_indx, "text/help.indx");
-	StringCopy(mudconf.news_file, "text/news.txt");
-	StringCopy(mudconf.news_indx, "text/news.indx");
-	StringCopy(mudconf.whelp_file, "text/wizhelp.txt");
-	StringCopy(mudconf.whelp_indx, "text/wizhelp.indx");
-	StringCopy(mudconf.plushelp_file, "text/plushelp.txt");
-	StringCopy(mudconf.plushelp_indx, "text/plushelp.indx");
-	StringCopy(mudconf.wiznews_file, "text/wiznews.txt");
-	StringCopy(mudconf.wiznews_indx, "text/wiznews.indx");
 	StringCopy(mudconf.motd_msg, "");
 	StringCopy(mudconf.wizmotd_msg, "");
 	StringCopy(mudconf.downmotd_msg, "");
@@ -291,6 +281,10 @@ void NDECL(cf_init)
 	mudstate.generation = 0;
 	mudstate.reboot_nums = 0;
 	mudstate.mudlognum = 0;
+	mudstate.helpfiles = 0;
+	mudstate.hfiletab = NULL;
+	mudstate.hfiletab_size = 0;
+	mudstate.hfile_hashes = NULL;
 	mudstate.curr_player = NOTHING;
 	mudstate.curr_enactor = NOTHING;
 	mudstate.curr_cmd = (char *) "< none >";
@@ -865,6 +859,94 @@ CF_HAND(cf_cf_access)
 	return -1;
 }
 
+/* ---------------------------------------------------------------------------
+ * cf_helpfile: Add a help/news-style file. Only valid during startup.
+ */
+
+int add_helpfile(player, str)
+    dbref player;
+    char *str;
+{
+    char *fcmd, *fpath;
+    CMDENT *cmdp;
+    char **ftab;		/* pointer to an array of filepaths */
+    HASHTAB *hashes;
+
+    fcmd = strtok(str, " \t=,");
+    fpath = strtok(NULL, " \t=,");
+
+    if (strlen(fpath) > SBUF_SIZE)
+	return -1;
+
+    if ((cmdp = (CMDENT *) hashfind(fcmd, &mudstate.command_htab)) == NULL) {
+
+	/* We need to allocate a new command structure. */
+
+	cmdp = (CMDENT *) malloc(sizeof(CMDENT));
+	cmdp->cmdname = (char *) strdup(fcmd);
+	cmdp->switches = NULL;
+	cmdp->perms = 0;
+	cmdp->extra = mudstate.helpfiles;
+	cmdp->pre_hook = NULL;
+	cmdp->post_hook = NULL;
+	cmdp->callseq = CS_ONE_ARG;
+	cmdp->info.handler = do_help;
+
+	hashadd(fcmd, (int *) cmdp, &mudstate.command_htab);
+
+    } else {
+
+	/* Otherwise we just need to repoint things. */
+
+	cmdp->info.handler = do_help;
+    }
+
+    /* We may need to grow the helpfiles table, or create it. */
+
+    if (!mudstate.hfiletab) {
+
+	mudstate.hfiletab = (char **) calloc(4, sizeof(char *));
+	mudstate.hfile_hashes = (HASHTAB *) calloc(4, sizeof(HASHTAB));
+	mudstate.hfiletab_size = 4;
+
+    } else if (mudstate.helpfiles >= mudstate.hfiletab_size) {
+
+	ftab = (char **) realloc(mudstate.hfiletab,
+				(mudstate.hfiletab_size + 4) * sizeof(char *));
+	hashes = (HASHTAB *) realloc(mudstate.hfile_hashes,
+				     (mudstate.hfiletab_size + 4) *
+				     sizeof(HASHTAB));
+	ftab[mudstate.hfiletab_size + 1] = NULL;
+	ftab[mudstate.hfiletab_size + 2] = NULL;
+	ftab[mudstate.hfiletab_size + 3] = NULL;
+	ftab[mudstate.hfiletab_size + 4] = NULL;
+	mudstate.hfiletab_size += 4;
+	mudstate.hfiletab = ftab;
+	mudstate.hfile_hashes = hashes;
+
+    }
+
+    /* Add or replace the path to the file. */
+
+    if (mudstate.hfiletab[mudstate.helpfiles] != NULL)
+	free(mudstate.hfiletab[mudstate.helpfiles]);
+    mudstate.hfiletab[mudstate.helpfiles] = (char *) strdup(fpath);
+
+    /* Initialize the associated hashtable. */
+
+    hashinit(&mudstate.hfile_hashes[mudstate.helpfiles], 30 * HASH_FACTOR);
+
+    mudstate.helpfiles++;
+
+
+    return 0;
+}
+
+CF_HAND(cf_helpfile)
+{
+    return add_helpfile(player, str);
+}
+
 /*
  * ---------------------------------------------------------------------------
  * * cf_include: Read another config file.  Only valid during startup.
@@ -1048,6 +1130,8 @@ CONF conftable[] = {
 	cf_string,	CA_GOD,		(int *)mudconf.dump_msg,	PBUF_SIZE},
 {(char *)"postdump_message",
 	cf_string,	CA_GOD,		(int *)mudconf.postdump_msg,	PBUF_SIZE},
+{(char *)"helpfile",
+	cf_helpfile,	CA_DISABLED,	NULL,			0},
 #ifdef PUEBLO_SUPPORT
 {(char *)"html_connect_file",
 	cf_string,	CA_DISABLED,	(int *) mudconf.htmlconn_file, SBUF_SIZE},
@@ -1137,10 +1221,6 @@ CONF conftable[] = {
 	cf_bool,	CA_DISABLED,	&mudconf.have_mailer,		0},
 {(char *)"have_zones",
 	cf_bool,	CA_DISABLED,	&mudconf.have_zones,		0},
-{(char *)"help_file",
-	cf_string,	CA_DISABLED,	(int *)mudconf.help_file,	SBUF_SIZE},
-{(char *)"help_index",
-	cf_string,	CA_DISABLED,	(int *)mudconf.help_indx,	SBUF_SIZE},
 {(char *)"hostnames",
 	cf_bool,	CA_GOD,		&mudconf.use_hostname,		0},
 {(char *)"use_http",
@@ -1213,10 +1293,6 @@ CONF conftable[] = {
 	cf_string,	CA_GOD,		(int *)mudconf.motd_msg,	GBUF_SIZE},
 {(char *)"mud_name",
 	cf_string,	CA_GOD,		(int *)mudconf.mud_name,	SBUF_SIZE},
-{(char *)"news_file",
-	cf_string,	CA_DISABLED,	(int *)mudconf.news_file,	SBUF_SIZE},
-{(char *)"news_index",
-	cf_string,	CA_DISABLED,	(int *)mudconf.news_indx,	SBUF_SIZE},
 {(char *)"newuser_file",
 	cf_string,	CA_DISABLED,	(int *)mudconf.crea_file,	SBUF_SIZE},
 {(char *)"notify_recursion_limit",
@@ -1261,18 +1337,10 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.start_home,		0},
 {(char *)"player_starting_room",
 	cf_int,		CA_GOD,		&mudconf.start_room,		0},
-{(char *)"plushelp_file",
-	cf_string,	CA_DISABLED,	(int *)mudconf.plushelp_file,	SBUF_SIZE},
-{(char *)"plushelp_index",
-	cf_string,	CA_DISABLED,	(int *)mudconf.plushelp_indx,	SBUF_SIZE},
 {(char *)"public_calias",
 	cf_string,	CA_DISABLED,	(int *)mudconf.public_calias,	SBUF_SIZE},
 {(char *)"public_channel",
 	cf_string,	CA_DISABLED,	(int *)mudconf.public_channel,	SBUF_SIZE},
-{(char *)"wiznews_file",
-        cf_string,      CA_DISABLED,    (int *)mudconf.wiznews_file,    SBUF_SIZE},
-{(char *)"wiznews_index",
-        cf_string,      CA_DISABLED,    (int *)mudconf.wiznews_indx,    SBUF_SIZE},
 {(char *)"port",
 	cf_int,		CA_DISABLED,	&mudconf.port,			0},
 {(char *)"public_flags",
@@ -1391,10 +1459,6 @@ CONF conftable[] = {
 	cf_int,		CA_GOD,		&mudconf.waitcost,		0},
 {(char *)"wizard_obeys_linklock",
 	cf_bool,	CA_GOD,		&mudconf.wiz_obey_linklock,	0},
-{(char *)"wizard_help_file",
-	cf_string,	CA_DISABLED,	(int *)mudconf.whelp_file,	SBUF_SIZE},
-{(char *)"wizard_help_index",
-	cf_string,	CA_DISABLED,	(int *)mudconf.whelp_indx,	SBUF_SIZE},
 {(char *)"wizard_motd_file",
 	cf_string,	CA_DISABLED,	(int *)mudconf.wizmotd_file,	SBUF_SIZE},
 {(char *)"wizard_motd_message",
