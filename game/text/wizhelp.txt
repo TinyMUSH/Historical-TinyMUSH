@@ -1488,8 +1488,8 @@ use_global_aconn	wizard_obeys_linklock
   Config parameter: booleans_oldstyle <yes/no>.  Default: No
  
   If this config parameter is turned on, boolean evaluation on dbrefs
-  is done TinyMUSH 2.x/TinyMUX style, where #0 and #-1 are false, but
-  all other dbrefs are true. See 'help Boolean Values' for details.
+  is done TinyMUSH 2.x/TinyMUX style; this is less useful but provides
+  backwards-compatible behavior. See 'help Boolean Values' for details.
  
 & building_limit
   Config parameter: building_limit <number>.  Default: 50000.
