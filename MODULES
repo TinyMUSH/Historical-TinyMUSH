@@ -1,9 +1,9 @@
 DYNAMICALLY LOADABLE MODULES
 
-TinyMUSH 3.0 provides an interface for dynamically loadable modules.
-This allows server administrators to write and install "hardcode"
-that extends the functionality of the server, without creating undue
-difficulties with future upgrades.
+TinyMUSH versions 3.1 and higher provide an interface for dynamically
+loadable modules. This allows server administrators to write and install
+"hardcode" that extends the functionality of the server, without creating
+undue difficulties with future upgrades.
 
 If you are writing a module, or you are installing a module written by
 someone else, please be forewarned: Modules muck directly with the
