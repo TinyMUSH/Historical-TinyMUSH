@@ -2612,20 +2612,40 @@
   This attribute specifies a series of patterns to be used to suppress
   text normally forwarded by the AUDIBLE flag.  If the desired pattern
   contains a comma, the pattern may be enclosed in curly braces {}.
+  If the text matches a <pattern>, then the text is not forwarded.
+ 
+  <pattern> is a wildcard pattern, unless the object's @filter
+  attribute has been @set 'regexp', in which case a regular expression
+  match is done instead. Note that since the attribute is evaluated,
+  special characters in the regular expression, such as '[' and ']',
+  will need to be escaped out.
+ 
+  Continued in 'help @filter2'.
+ 
+& @filter2
  
   Example:
-    > @fo test=out
-    > @set #378=puppet
-    test> test grows ears and can now hear.
-    > @filter out = {* has arrived.},{* has left.}
-    Set.
-    > :has not arrived.
-    Wizard has not arrived.
-    test> From a distance, Wizard has not arrived.
-    > :has arrived.
-    Wizard has arrived.
+    > @fo me = {@create puppet; drop puppet; @set puppet = PUPPET}
+    > @fo me = {@create vehicle; drop vehicle; enter vehicle}
+    > @set here = AUDIBLE
+    > @filter here = Wizard tests.,Wizard waves to *
+    > :waves.
+    Wizard waves.
+    puppet> From a distance, Wizard waves.
+    > :tests.
+    Wizard tests.
+    > :waves to everyone.
+    Wizard waves to everyone.
+    > @filter here = ^Wizard waves \[5-9\] times\\.$
+    > @set here/filter = regexp
+    > :waves 3 times.
+    Wizard waves 3 times.
+    puppet> From a distance, Wizard waves 3 times.
+    > :waves 5 times.
+    Wizard waves 5 times.
+ 
   See also:  AUDIBLE, @forwardlist, @infilter, @inprefix, @prefix.
-
+ 
 & @forwardlist
   Command: @forwardlist <object> = <dbref-list>
   Attribute: Forwardlist
