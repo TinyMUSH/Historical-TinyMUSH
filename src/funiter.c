@@ -303,7 +303,6 @@ FUNCTION(fun_fold)
 	StrCopyKnown(atextbuf, atext, alen);
 
 	/* may as well handle first case now */
-
 	
 	i = 1;
 	clist[2] = alloc_sbuf("fun_fold.objplace");
@@ -318,6 +317,7 @@ FUNCTION(fun_fold)
 		exec(result, &bp, 0, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
 		*bp = '\0';
+		i++;
 	} else {
 		clist[0] = split_token(&cp, sep);
 		clist[1] = split_token(&cp, sep);
@@ -326,11 +326,11 @@ FUNCTION(fun_fold)
 		exec(result, &bp, 0, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
 		*bp = '\0';
+		i += 2;
 	}
 
 	rstore = result;
 	result = NULL;
-	i++;
 
 	while (cp && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	       ((mudconf.func_cpu_lim <= 0) ||
