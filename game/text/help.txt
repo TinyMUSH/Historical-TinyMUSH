@@ -5810,7 +5810,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   streq(<string 1>,<string 2>)
  
   This function returns 1 if <string 1> and <string 2> are the same
-  (case-insensitive), and 0 if they are not.
+  (case-insensitive), and 0 if they are not. Whitespace is ignored.
  
   Examples:
     > say streq(This Is A Test,this is a test)
