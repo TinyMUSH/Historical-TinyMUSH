@@ -1439,15 +1439,16 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 & PARAM LIMITS
 	building_limit			command_invocation_limit
 	command_recursion_limit		conn_timeout
-	earn_limit			function_invocation_limit
-	function_recursion_limit	idle_timeout
-	instance_limit			lag_maximum
-	lock_recursion_limit		max_players			
-	notify_recursion_limit		number_guests			
-	output_limit			player_queue_limit		
-	retry_limit			stack_limit			
-	structure_limit			trace_output_limit
-	variables_limit			zone_recursion_limit
+	earn_limit			function_cpu_limit
+	function_invocation_limit	function_recursion_limit
+	idle_timeout			instance_limit			
+	lag_maximum			lock_recursion_limit		
+	max_players			notify_recursion_limit
+	number_guests			output_limit
+	player_queue_limit		retry_limit
+	stack_limit			structure_limit
+	trace_output_limit		variables_limit			
+	zone_recursion_limit
 
 & PARAM MESSAGES
 	down_motd_message	dump_message		fixed_home_message
@@ -2063,6 +2064,25 @@ use_global_aconn	wizard_obeys_linklock
   the number of players allowed by the max_players directive.  This message is
   displayed in addition to the contents of the full.txt file.
   See also: down_motd_file, max_players.
+
+& function_cpu_limit
+  Config directive: function_cpu_limit <num>.  Default: 60
+ 
+  This directive sets the maximum amount of CPU time, in seconds, that a
+  command may take. This is checked as part of evaluating function calls,
+  though there is also a small amount of other overhead that is part of
+  this calculation (such as the time taken for the command to fetch
+  attributes, check its permissions, and so forth). If the CPU limit
+  is exceeded, the string '#-1 FUNCTION CPU LIMIT EXCEEDED' is returned.
+ 
+  If this parameter is set to 0, no CPU limit will be enforced.
+ 
+  Note that CPU time is measured in clock ticks of actual execution,
+  rather than in "wall clock" time. Thus, if a MUSH's host server is
+  running very slowly, a command could conceivably take 15 seconds
+  to execute, while only consuming a second of actual CPU time. 
+ 
+  See also: lag_maximum, function_invocation_limit, function_recursion_limit
 
 & function_invocation_limit
   Config directive: function_invocation_limit <num>.  Default: 2500
