@@ -334,6 +334,14 @@ FUNCTION(fun_structure)
 	return;
     }
 
+    /* No periods in structure names */
+
+    if (((char *) index(fargs[0], '.')) != NULL) {
+	notify_quiet(player, "Structure names cannot contain periods.");
+	safe_chr('0', buff, bufc);
+	return;
+    }
+
     /* The hashtable is indexed by <dbref number>.<structure name> */
 
     tp = tbuf;
