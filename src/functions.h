@@ -330,9 +330,11 @@ if ((l) > 0) { \
 
 /* from handle_clogic (cand, cor, candbool, corbool): */
 /* from handle_flaglists (andflags, orflags): */
-#define LOGIC_OR	0x1
 /* from handle_filter (filter, filterbool): */
-#define LOGIC_BOOL	0x2
+#define LOGIC_OR	0x1	/* perform or, as opposed to and */
+#define LOGIC_BOOL	0x2	/* interpret operands as boolean, not int */
+#define LOGIC_EVAL	0x4	/* operands need to be evaluated */
+#define LOGIC_LIST	0x8	/* operands come in a list, not separately */
 
 /* from handle_vectors (vadd, vsub, vmul, vdot): */
 #define VEC_OPER	0x0f	/* mask to select vector operation bits */

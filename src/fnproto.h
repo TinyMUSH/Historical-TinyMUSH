@@ -82,22 +82,14 @@ XFUNCTION(fun_lt);
 XFUNCTION(fun_lte);
 XFUNCTION(fun_eq);
 XFUNCTION(fun_neq);
-XFUNCTION(fun_and);
-XFUNCTION(fun_or);
 XFUNCTION(fun_xor);
 XFUNCTION(fun_not);
 XFUNCTION(fun_ladd);
-XFUNCTION(fun_lor);
-XFUNCTION(fun_land);
-XFUNCTION(fun_lorbool);
-XFUNCTION(fun_landbool);
 XFUNCTION(fun_lmax);
 XFUNCTION(fun_lmin);
-XFUNCTION(fun_andbool);
-XFUNCTION(fun_orbool);
 XFUNCTION(fun_xorbool);
 XFUNCTION(fun_notbool);
-XFUNCTION(handle_clogic);
+XFUNCTION(handle_logic);
 XFUNCTION(fun_t);
 XFUNCTION(fun_sqrt);
 XFUNCTION(fun_add);
@@ -348,8 +340,9 @@ FUN flist[] = {
 {"AFTER",	fun_after,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ALPHAMAX",	fun_alphamax,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ALPHAMIN",	fun_alphamin,   0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"AND",		fun_and,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"ANDBOOL",	fun_andbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"AND",		handle_logic,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"ANDBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_BOOL,
+						CA_PUBLIC,	NULL},
 {"ANDFLAGS",	handle_flaglists, 2, 0,		CA_PUBLIC,	NULL},
 {"ANSI",        fun_ansi,       2,  0,          CA_PUBLIC,	NULL},
 {"ANSIPOS",     fun_ansipos,    0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -364,9 +357,9 @@ FUN flist[] = {
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC,	NULL},
 {"BORDER",	perform_border,	0,  FN_VARARGS|JUST_LEFT,
 						CA_PUBLIC,	NULL},
-{"CANDBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_BOOL,
+{"CANDBOOL",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_BOOL|LOGIC_EVAL,
      						CA_PUBLIC,	NULL},
-{"CAND",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL,
+{"CAND",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_EVAL,
      						CA_PUBLIC,	NULL},
 {"CAPSTR",	fun_capstr,	-1, 0,		CA_PUBLIC,	NULL},
 {"CASE",	fun_case,	0,  FN_VARARGS|FN_NO_EVAL,
@@ -389,9 +382,9 @@ FUN flist[] = {
 {"CONTROLS", 	fun_controls,	2,  0,		CA_PUBLIC,	NULL},
 {"CONVSECS",    fun_convsecs,   1,  0,		CA_PUBLIC,	NULL},
 {"CONVTIME",    fun_convtime,   1,  0,		CA_PUBLIC,	NULL},
-{"COR",		handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR,
+{"COR",		handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR|LOGIC_EVAL,
      						CA_PUBLIC,	NULL},
-{"CORBOOL",	handle_clogic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR|LOGIC_BOOL,
+{"CORBOOL",	handle_logic,	0,  FN_VARARGS|FN_NO_EVAL|LOGIC_OR|LOGIC_BOOL|LOGIC_EVAL,
      						CA_PUBLIC,	NULL},
 {"COS",		fun_cos,	1,  0,		CA_PUBLIC,	NULL},
 {"CREATE",      fun_create,     0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -476,8 +469,10 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"ITEXT",	fun_itext,	1,  0,		CA_PUBLIC,	NULL},
 {"LADD",	fun_ladd,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"LAND",	fun_land,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"LANDBOOL",	fun_landbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"LAND",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST,
+						CA_PUBLIC,	NULL},
+{"LANDBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_BOOL,
+						CA_PUBLIC,	NULL},
 {"LAST",	fun_last,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LASTACCESS",	fun_lastaccess,	1,  0,		CA_PUBLIC,	NULL},
 {"LASTCREATE",	fun_lastcreate,	2,  0,		CA_PUBLIC,	NULL},
@@ -514,8 +509,10 @@ FUN flist[] = {
 {"LPARENT",	fun_lparent,	1,  0,		CA_PUBLIC}, 
 {"LOOP",	perform_loop,	0,  FN_VARARGS|FN_NO_EVAL|LOOP_NOTIFY,
 						CA_PUBLIC,	NULL},
-{"LOR",		fun_lor,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"LORBOOL",	fun_lorbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"LOR",		handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_OR,
+						CA_PUBLIC,	NULL},
+{"LORBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_OR|LOGIC_BOOL,
+						CA_PUBLIC,	NULL},
 {"LPOS",	fun_lpos,	2,  0,		CA_PUBLIC,	NULL},
 {"LRAND",	fun_lrand,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"LSTACK",	fun_lstack,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -559,8 +556,10 @@ FUN flist[] = {
 {"OBJ",		fun_obj,	1,  0,		CA_PUBLIC,	NULL},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC,	NULL},
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC,	NULL},
-{"OR",		fun_or,		0,  FN_VARARGS, CA_PUBLIC,	NULL},
-{"ORBOOL",	fun_orbool,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"OR",		handle_logic,	0,  FN_VARARGS|LOGIC_OR,
+						CA_PUBLIC,	NULL},
+{"ORBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_OR|LOGIC_BOOL,
+						CA_PUBLIC,	NULL},
 {"ORFLAGS",	handle_flaglists, 2, LOGIC_OR,	CA_PUBLIC,	NULL},
 {"OWNER",	fun_owner,	1,  0,		CA_PUBLIC,	NULL},
 {"PARENT",	fun_parent,	1,  0,		CA_PUBLIC,	NULL},

@@ -188,30 +188,6 @@ FUNCTION(fun_neq)
 	safe_bool(buff, bufc, (aton(fargs[0]) != aton(fargs[1])));
 }
 
-FUNCTION(fun_and)
-{
-	int i;
-	
-	if (nfargs < 2) {
-		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-	} else {
-		for (i = 0; (i < nfargs) && atoi(fargs[i]); i++) ;
-		safe_bool(buff, bufc, i == nfargs);
-	}
-}
-
-FUNCTION(fun_or)
-{
-	int i;
-	
-	if (nfargs < 2) {
-		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-	} else {
-		for (i = 0; (i < nfargs) && !atoi(fargs[i]); i++) ;
-		safe_bool(buff, bufc, i != nfargs);
-	}
-}
-
 FUNCTION(fun_xor)
 {
 	int i, val;
@@ -257,74 +233,6 @@ FUNCTION(fun_ladd)
 	sum += aton(curr);
     }
     fval(buff, bufc, sum);
-}
-
-FUNCTION(fun_lor)
-{
-    int i, isep_len;
-    char *cp, *curr;
-    Delim isep;
-
-    VaChk_Only_In(2);
-
-    i = 0;
-    cp = trim_space_sep(fargs[0], isep, isep_len);
-    while (cp && !i) {
-	curr = split_token(&cp, isep, isep_len);
-	i = atoi(curr);
-    }
-    safe_bool(buff, bufc, (i != 0));
-}
-
-FUNCTION(fun_land)
-{
-    int i, isep_len;
-    char *cp, *curr;
-    Delim isep;
-
-    VaChk_Only_In(2);
-
-    i = 1;
-    cp = trim_space_sep(fargs[0], isep, isep_len);
-    while (cp && i) {
-	curr = split_token(&cp, isep, isep_len);
-	i = atoi(curr);
-    }
-    safe_bool(buff, bufc, (i != 0));
-}
-
-FUNCTION(fun_lorbool)
-{
-    int i, isep_len;
-    char *cp, *curr;
-    Delim isep;
-
-    VaChk_Only_In(2);
-
-    i = 0;
-    cp = trim_space_sep(fargs[0], isep, isep_len);
-    while (cp && !i) {
-	curr = split_token(&cp, isep, isep_len);
-	i = xlate(curr);
-    }
-    safe_bool(buff, bufc, (i != 0));
-}
-
-FUNCTION(fun_landbool)
-{
-    int i, isep_len;
-    char *cp, *curr;
-    Delim isep;
-
-    VaChk_Only_In(2);
-
-    i = 1;
-    cp = trim_space_sep(fargs[0], isep, isep_len);
-    while (cp && i) {
-	curr = split_token(&cp, isep, isep_len);
-	i = xlate(curr);
-    }
-    safe_bool(buff, bufc, (i != 0));
 }
 
 FUNCTION(fun_lmax)
@@ -377,34 +285,6 @@ FUNCTION(fun_lmin)
  *  True boolean functions.
  */
 
-FUNCTION(fun_andbool)
-{
-    int i;
-
-    if (nfargs < 2) {
-	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-    } else {
-	for (i = 0; (i < nfargs) && xlate(fargs[i]); i++)
-	    ;
-	safe_bool(buff, bufc, i == nfargs);
-    }
-    return;
-}
-
-FUNCTION(fun_orbool)
-{
-    int i;
-
-    if (nfargs < 2) {
-	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-    } else {
-	for (i = 0; (i < nfargs) && !xlate(fargs[i]); i++)
-	    ;
-	safe_bool(buff, bufc, i != nfargs);
-    }
-    return;
-}
-
 FUNCTION(fun_xorbool)
 {
     int i, val;
@@ -436,34 +316,62 @@ FUNCTION(fun_t)
 }
 
 /*-------------------------------------------------------------------------
- * Short-circuit conditional-evaluation boolean functions.
+ * Generalized boolean function handler.
  */
 
-FUNCTION(handle_clogic)
+FUNCTION(handle_logic)
 {
-    int flag, i, val;
-    char *str, *tbuf, *bp;
+	Delim isep;
+	int isep_len, flag, i, val;
+	char *str, *tbuf, *bp;
 
-    flag = ((FUN *)fargs[-1])->flags;
+	flag = ((FUN *)fargs[-1])->flags;
 
-    if (nfargs < 2) {
-	safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
-    } else {
-	tbuf = alloc_lbuf("fun_cand");
-	for (i = 0; i < nfargs; i++) { 
-	    str = fargs[i];
-	    bp = tbuf;
-	    exec(tbuf, &bp, player, caller, cause,
-		 EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
-	    *bp = '\0';
-	    val = (flag & LOGIC_BOOL) ? xlate(tbuf) : atoi(tbuf);
-	    if ((flag & LOGIC_OR) ? val : !val)
-		break;
+	/* OR defaults to 0, AND defaults to 1 */
+	val = !(flag & LOGIC_OR);
+
+	if (flag & LOGIC_LIST) {
+		/* the arguments come in a pre-evaluated list */
+		VaChk_Only_In(2);
+
+		bp = trim_space_sep(fargs[0], isep, isep_len);
+		while (bp) {
+	  		tbuf = split_token(&bp, isep, isep_len);
+			val = (flag & LOGIC_BOOL) ? xlate(tbuf) : atoi(tbuf);
+			if ((flag & LOGIC_OR) ? val : !val)
+				break;
+		}
+
+	} else if (nfargs < 2) {
+		/* separate arguments, but not enough of them */
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+		return;
+
+	} else if (flag & LOGIC_EVAL) {
+		/* separate, unevaluated arguments */
+		tbuf = alloc_lbuf("handle_logic");
+		for (i = 0; i < nfargs; i++) { 
+			str = fargs[i];
+			bp = tbuf;
+			exec(tbuf, &bp, player, caller, cause,
+			     EV_EVAL | EV_STRIP | EV_FCHECK, &str, cargs, ncargs);
+			*bp = '\0';
+			val = (flag & LOGIC_BOOL) ? xlate(tbuf) : atoi(tbuf);
+			if ((flag & LOGIC_OR) ? val : !val)
+				break;
+		}
+		free_lbuf(tbuf);
+
+	} else {
+		/* separate, pre-evaluated arguments */
+		for (i = 0; i < nfargs; i++) { 
+			val = (flag & LOGIC_BOOL) ? xlate(fargs[i]) : atoi(fargs[i]);
+			if ((flag & LOGIC_OR) ? val : !val)
+				break;
+		}
 	}
-	free_lbuf(tbuf);
-	safe_bool(buff, bufc,
-		  ((flag & LOGIC_OR) ? (i != nfargs) : (i == nfargs)));
-    }
+
+	safe_bool(buff, bufc, val);
 }
 
 /*-------------------------------------------------------------------------
