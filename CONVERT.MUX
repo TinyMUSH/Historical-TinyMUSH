@@ -181,7 +181,7 @@ For a more general look at TinyMUSH 3.0 changes, see the CHANGES file.
 
 - Added @eval command.
 
-- examine/brief only shows object ownership (2.2 behavior).
+- examine/brief now shows everything but the attributes on the object.
 
 - INFO command implemented.
 
