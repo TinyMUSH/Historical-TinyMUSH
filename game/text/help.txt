@@ -8226,13 +8226,20 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   order.  Lexicographic order is used for words, and numeric order is used
   for numbers and dbrefs.
  
-  <sort type> may be used to specify the type of sort to perform (use d for
-  dbref, n for integer numeric, f for floating numeric, and a for
-  alphanumeric).  If omitted or left blank, the sort() function will
-  automatically determine the type of sort to perform.
+  <sort type> may be used to specify the type of sort to perform (use 'd'
+  for dbref, 'n' for integer numeric, 'f' for floating numeric, 'i' for
+  case-insensitive alphanumeric, and 'a' for alphanumeric). If omitted
+  or left blank, the sort() function will automatically determine the
+  type of sort to perform; if the input list elements are of mixed types,
+  an alphanumeric sort is selected (case-insensitive alphanumeric is
+  never automatically used).
  
   If delimiters are specified, they are used to separate items in the list.
   You may specify them without a sort type by passing a null <sort type> .
+ 
+  Continued in 'help sort2'.
+ 
+& SORT2
  
   Examples:
     > say sort(This is a test)
@@ -8241,7 +8248,11 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     You say "98 99 100 102"
     > say sort(foo-bar-bletch,,-,+)
     You say "bar+bletch+foo"
-
+    > say sort(e D a c B)
+    You say "B D a c e"
+    > say sort(e D a c B,i)
+    You say "a B c D e"
+ 
 & SETDIFF()
   Function: setdiff(<list1>, <list2>[, <delim>][, <output delim>])
  
