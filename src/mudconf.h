@@ -17,7 +17,16 @@ struct key_linked_list {
 	char *name;
 	int data;
 	struct key_linked_list *next;
-};	
+};
+
+#ifdef HAVE_DLOPEN
+typedef struct module_linked_list MODULE;
+struct module_linked_list {
+	char *modname;
+	void *handle;
+	struct module_linked_list *next;
+};
+#endif	/* HAVE_DLOPEN */
 
 typedef struct confdata CONFDATA;
 struct confdata {
@@ -364,9 +373,6 @@ struct statedata {
 	HASHTAB cdefs_htab;	/* Components hashtable */
 	HASHTAB instance_htab;	/* Instances hashtable */
 	HASHTAB instdata_htab;	/* Structure data hashtable */
-#ifdef HAVE_DLOPEN
-	HASHTAB modules_htab;	/* Loadable modules hashtable */
-#endif
 #ifdef USE_COMSYS
 	HASHTAB comsys_htab;	/* Channels hashtable */
 	HASHTAB calias_htab;	/* Channel aliases */
@@ -374,6 +380,9 @@ struct statedata {
 #endif
 #ifdef USE_MAIL
 	NHSHTAB mail_htab;	/* Mail players hashtable */
+#endif
+#ifdef HAVE_DLOPEN
+	MODULE *modules_list;	/* Loadable modules hashtable */
 #endif
 	int	max_structs;
 	int	max_cdefs;

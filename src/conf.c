@@ -85,6 +85,7 @@ void NDECL(cf_init)
 	StringCopy(mudconf.status_file, "shutdown.status");
 #ifdef HAVE_DLOPEN
 	StringCopy(mudconf.modhome, "modules");
+	mudstate.modules_list = NULL;
 #endif
 	mudconf.port = 6250;
 	mudconf.conc_port = 6251;
@@ -405,6 +406,9 @@ void NDECL(cf_init)
 	mudstate.poutnew = NULL;
 	mudstate.poutbufc = NULL;
 	mudstate.poutobj = -1;
+#ifdef HAVE_DLOPEN
+	mudstate.modules_list = NULL;
+#endif
 	for (i = 0; i < MAX_GLOBAL_REGS; i++) {
 	    mudstate.global_regs[i] = NULL;
 	    mudstate.glob_reg_len[i] = 0;
@@ -576,6 +580,7 @@ CF_HAND(cf_int)
 CF_HAND(cf_module)
 {
 	void *handle;
+	MODULE *mp;
 	
 	handle = dlopen(tprintf("%s/%s.so", mudconf.modhome, str),
 			RTLD_NOW|RTLD_GLOBAL);
@@ -592,7 +597,12 @@ CF_HAND(cf_module)
 		log_printf("Loaded module: %s", str);
 	ENDLOG
 
-	hashadd(str, handle, (HASHTAB *) &mudstate.modules_htab);
+	mp = (MODULE *) XMALLOC(sizeof(MODULE), "cf_module.mp");
+	mp->modname = XSTRDUP(str, "cf_module.name");
+	mp->handle = handle;
+	mp->next = mudstate.modules_list;
+	mudstate.modules_list = mp;
+
 	return 0;
 }
 #else  /* ! HAVE_DLOPEN */
@@ -1444,8 +1454,8 @@ CONF conftable[] = {
 {(char *)"master_room",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.master_room,		0},
 {(char *)"match_own_commands",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine,		(long)"Non-players can match $-commands on themselves"},
 {(char *)"max_players",			cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.max_players,		0},
-{(char *)"module",			cf_module,	CA_STATIC,	CA_WIZARD,	NULL,				0},
 #ifdef HAVE_DLOPEN
+{(char *)"module",			cf_module,	CA_STATIC,	CA_WIZARD,	NULL,				0},
 {(char *)"modules_home",		cf_string,	CA_STATIC, 	CA_GOD,		(int *)mudconf.modhome,		MBUF_SIZE},
 #endif
 {(char *)"money_name_plural",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)mudconf.many_coins,	SBUF_SIZE},

@@ -630,6 +630,24 @@ extern int	FDECL(quick_wild, (char *, char *));
 #define	controls(p,x)		Controls(p,x)
 
 /* --------------------------------------------------------------------------
+ * Module things.
+ */
+
+#ifdef HAVE_DLOPEN
+#define WALK_ALL_MODULES(mp) \
+	for (mp = mudstate.modules_list; mp != NULL; mp = mp->next)
+
+#ifdef DLSYM_REQUIRES_UNDERSCORE
+#define DLSYM(h,m,x) \
+	(void (*)(void))dlsym((h), tprintf("_mod_%s_%s", (m), (x)))
+#else
+#define DLSYM(h,m,x) \
+	(void (*)(void))dlsym((h), tprintf("mod_%s_%s", (m), (x)))
+#endif /* DLSYM_REQUIRES_UNDERSCORE */
+
+#endif /* HAVE_DLOPEN */
+
+/* --------------------------------------------------------------------------
  * String things.
  */
 

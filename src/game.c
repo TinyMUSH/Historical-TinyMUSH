@@ -1696,9 +1696,6 @@ char *argv[];
 	hashinit(&mudstate.cdefs_htab, 15 * HASH_FACTOR);
 	hashinit(&mudstate.instance_htab, 15 * HASH_FACTOR);
 	hashinit(&mudstate.instdata_htab, 25 * HASH_FACTOR);
-#ifdef HAVE_DLOPEN
-	hashinit(&mudstate.modules_htab, 5 * HASH_FACTOR);
-#endif
 #ifdef USE_MAIL
 	nhashinit(&mudstate.mail_htab, 50 * HASH_FACTOR);
 #endif
@@ -1967,47 +1964,23 @@ static void NDECL(init_rlimit)
 }
 
 #ifdef HAVE_DLOPEN
-
 static void NDECL(init_modules)
 {
-    void *handle;
     void (*initptr)(void);
-    char *modulename, *bp;
+    MODULE *mp;
+    char *bp;
 
-    if (mudstate.modules_htab.entries > 0) {
+    mudstate.modloaded[0] = '\0';
+    bp = mudstate.modloaded;
 
-	bp = mudstate.modloaded;
-
-	for (modulename = hash_firstkey(&mudstate.modules_htab);
-	     modulename != NULL;
-	     modulename = hash_nextkey(&mudstate.modules_htab)) {
-
-		if (bp != mudstate.modloaded) {
-			safe_mb_chr(' ', mudstate.modloaded, &bp);
-		}
-		safe_mb_str(modulename, mudstate.modloaded, &bp);
-
-		handle = (void *)hashfind(modulename, &mudstate.modules_htab);
-
-		/* Find the address of the function mod_<module>_init, and
-		 * execute it.
-		 */
-
-		initptr = (void (*)(void))dlsym(handle,
-						tprintf("mod_%s_init",
-							modulename));
-		/* Symbols are prepended with underscores in BSD a.out libs */
-		if (!initptr)
-			initptr = (void (*)(void))dlsym(handle,
-							tprintf("_mod_%s_init",
-								modulename));
-		if (initptr)
-			(*initptr)();
+    WALK_ALL_MODULES(mp) {
+	if (bp != mudstate.modloaded) {
+	    safe_mb_chr(' ', mudstate.modloaded, &bp);
 	}
-
-    } else {
-	mudstate.modloaded[0] = '\0';
+	safe_mb_str(mp->modname, mudstate.modloaded, &bp);
+	initptr = DLSYM(mp->handle, mp->modname, "init");
+	if (initptr)
+	    (*initptr)();
     }
 }
-
-#endif
+#endif /* HAVE_DLOPEN */
