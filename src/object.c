@@ -29,6 +29,7 @@ static int check_type;
 extern int FDECL(boot_off, (dbref, char *));
 
 #ifndef STANDALONE
+extern void NDECL(cf_verify);
 extern void FDECL(fwdlist_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
 extern void FDECL(xvars_clr, (dbref));
@@ -1624,6 +1625,9 @@ int key;
 {
 	check_type = key;
 	make_freelist();
+#ifndef STANDALONE
+	cf_verify();
+#endif
 	check_dead_refs();
 	check_exit_chains();
 	check_contents_chains();

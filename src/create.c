@@ -734,6 +734,7 @@ dbref victim;
 	    (victim == mudconf.start_home) ||
 	    (victim == mudconf.start_room) ||
 	    (victim == mudconf.master_room) ||
+	    (victim == mudconf.guest_char) ||
 	    (victim == (dbref) 0) ||
 	    (God(victim)))
 		return 0;

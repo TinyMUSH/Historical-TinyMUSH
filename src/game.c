@@ -36,7 +36,6 @@ extern void NDECL(init_timer);
 extern void FDECL(raw_notify_html, (dbref, char *));
 extern void FDECL(do_dbck, (dbref, dbref, int));
 extern void FDECL(logfile_init, (char *));
-extern void NDECL(cf_verify);
 
 void FDECL(fork_and_dump, (int));
 void NDECL(dump_database);
@@ -1716,7 +1715,6 @@ char *argv[];
 	    ENDLOG
 	    exit(3);
 	}
-	cf_verify();
 	do_dbck(NOTHING, NOTHING, 0);
 
 	/* Reset all the hash stats */

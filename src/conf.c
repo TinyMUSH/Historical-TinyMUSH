@@ -576,7 +576,8 @@ CF_HAND(cf_dbref)
     else
 	num = atoi(str);
 
-    if (((extra == NOTHING) && (num == NOTHING)) || Good_obj(num)) {
+    if (((extra == NOTHING) && (num == NOTHING)) ||
+	(Good_obj(num) && !Going(num))) {
 	if (*str == '#') {
 	    sscanf(str, "#%d", vp);
 	} else {
@@ -1461,7 +1462,7 @@ CONF conftable[] = {
 {(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @aconnect and @adisconnect"},
 {(char *)"good_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				1},
 {(char *)"guest_basename",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_basename,	PLAYER_NAME_LIMIT},
-{(char *)"guest_char_num",		cf_dbref,	CA_STATIC,	CA_WIZARD,	&mudconf.guest_char,		NOTHING},
+{(char *)"guest_char_num",		cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.guest_char,		NOTHING},
 {(char *)"guest_nuker",			cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.guest_nuker,		GOD},
 {(char *)"guest_password",		cf_string,	CA_GOD,		CA_GOD,		(int *)&mudconf.guest_password,	SBUF_SIZE},
 {(char *)"guest_prefixes",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.guest_prefixes,	LBUF_SIZE},
@@ -1836,7 +1837,7 @@ dbref player;
 #define Check_Conf_Dbref(x) \
 if ((x)->interpreter == cf_dbref) { \
     if (!((((x)->extra == NOTHING) && (*((x)->loc) == NOTHING)) || \
-	  Good_obj(*((x)->loc)))) { \
+	  (Good_obj(*((x)->loc)) && !Going(*((x)->loc))))) { \
 	STARTLOG(LOG_ALWAYS, "CNF", "VRFY") \
 	    log_printf("%s #%d is invalid. Reset to #%d.", \
 		       (x)->pname, *((x)->loc), (x)->extra); \
