@@ -89,7 +89,8 @@ int set_register(funcname, name, data)
 	 */
 
 	if (!data || !*data) {
-	    if (!mudstate.rdata || (regnum > mudstate.rdata->q_alloc))
+	    if (!mudstate.rdata || !mudstate.rdata->q_alloc ||
+		(regnum > mudstate.rdata->q_alloc))
 		return 0;
 	    if (mudstate.rdata->q_regs[regnum]) {
 		free_lbuf(mudstate.rdata->q_regs[regnum]);
@@ -106,6 +107,8 @@ int set_register(funcname, name, data)
 
 	if (!mudstate.rdata) {
 	    Init_RegData(funcname, mudstate.rdata);
+	}
+	if (!mudstate.rdata->q_alloc) {
 	    a_size = (regnum < 10) ? 10 : MAX_GLOBAL_REGS;
 	    mudstate.rdata->q_alloc = a_size;
 	    mudstate.rdata->q_regs = XCALLOC(a_size, sizeof(char *), "q_regs");
