@@ -1253,16 +1253,18 @@ char **buffer;
 int *bufsiz, len, copy;
 {
 	char *tbuff;
-
+	int newsize;
+	
 	if (len > *bufsiz) {
-		*bufsiz = len + ATR_BUF_CHUNK;
-		tbuff = XMALLOC(*bufsiz, "al_extend");
+		newsize = len + ATR_BUF_CHUNK;
+		tbuff = XMALLOC(newsize, "al_extend");
 		if (*buffer) {
 			if (copy)
 				bcopy(*buffer, tbuff, *bufsiz);
 			XFREE(*buffer, "al_extend");
 		}
 		*buffer = tbuff;
+		*bufsiz = newsize;
 	}
 }
 

@@ -536,7 +536,7 @@ char *name, *arg2;
 	else
 		clone_name = Name(thing);
 
-	s_Name(clone, clone_name);
+	s_Name(clone, (char *)clone_name);
 
 	/* Clear out problem flags from the original */
 
