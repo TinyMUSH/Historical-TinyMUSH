@@ -298,6 +298,7 @@ struct confdata {
 	int	page_req_equals; /* page command must always contain '=' */
 	int	comma_say;	/* Use grammatically-correct comma in says */
 	int	you_say;	/* Show 'You say' to the player */
+	int	c_cmd_subst;	/* Is %c last command or ansi? */
 	dbref	master_room;	/* Room containing default cmds/exits/etc */
 	dbref	player_proto;	/* Player prototype to clone */
 	dbref	room_proto;	/* Room prototype to clone */

@@ -6202,7 +6202,6 @@ The list of loaded modules can be obtained via the 'version' command.
     %!       = Dbref of the object holding the message or running the
                action list ('me').
     %@       = Dbref of the caller. Except in u()-type functions, same as %#.
-    %c, %m   = Text of the last command executed.
     %0-%9    = Value of positional parameter/stack location 0 through 9.
     %q0-%qz  = Value of registers 0-9 and A-Z. Equiv: r(0) - r(z)
     %q=<var> = The <angle brackets> are literal. Named register. Equiv: r(var)
@@ -6215,6 +6214,8 @@ The list of loaded modules can be obtained via the 'version' command.
                the name is enclosed in angle brackets, multi-letter variable
                names can be used. '%_<foo>' is equivalent to 'x(foo)'.
     %x<code> = ANSI color substitution.
+    %m       = Text of the last command executed.
+    %c       = Depending on configuration, equivalent to either %m or %x.
  
   Note: %<whatever> is equivalent to [v(<whatever>)], but is more efficient.
  

@@ -207,6 +207,7 @@ void NDECL(cf_init)
 	mudconf.page_req_equals = 0;
 	mudconf.comma_say = 0;
 	mudconf.you_say = 1;
+	mudconf.c_cmd_subst = 1;
 	mudconf.register_limit = 50;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
@@ -1551,6 +1552,7 @@ CONF conftable[] = {
 {(char *)"badsite_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.site_file,	MBUF_SIZE},
 {(char *)"booleans_oldstyle",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.bools_oldstyle,	(long)"Dbrefs #0 and #-1 are boolean false, all other\n\t\t\t\tdbrefs are boolean true"},
 {(char *)"building_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	(int *)&mudconf.building_limit,	0},
+{(char *)"c_is_command",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.c_cmd_subst,		(long)"%c substitution is last command rather than ANSI"},
 {(char *)"cache_size",			cf_int,		CA_GOD,		CA_GOD,		&mudconf.cache_size,		0},
 {(char *)"cache_width",			cf_int,		CA_STATIC,	CA_GOD,		&mudconf.cache_width,		0},
 {(char *)"check_interval",		cf_int,		CA_GOD,		CA_WIZARD,	&mudconf.check_interval,	0},

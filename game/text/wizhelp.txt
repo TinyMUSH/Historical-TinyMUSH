@@ -1423,15 +1423,15 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 & PARAM OPTIONS
 addcommands_match_blindly			addcommands_obey_stop
 addcommands_obey_uselocks			ansi_colors
-autozone		booleans_oldstyle	clone_copies_cost
-dark_actions		dark_sleepers		examine_flags
-examine_public_attrs	exit_calls_move		fascist_teleport
-global_aconn_uselocks	have_zones		hostnames		
-idle_wiz_dark		lattr_default_oldstyle	local_master_rooms	
-look_obey_terse		match_own_commands	move_match_more		
-no_ambiguous_match	page_requires_equals	paranoid_allocate	
-pemit_any_object	pemit_far_players	player_listen		
-player_match_own_commands
+autozone		booleans_oldstyle	c_is_command
+clone_copies_cost	dark_actions		dark_sleepers		
+examine_flags		examine_public_attrs	exit_calls_move		
+fascist_teleport	global_aconn_uselocks	have_zones		
+hostnames		idle_wiz_dark		lattr_default_oldstyle	
+local_master_rooms	look_obey_terse		match_own_commands	
+move_match_more		no_ambiguous_match	page_requires_equals	
+paranoid_allocate	pemit_any_object	pemit_far_players	
+player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -1567,6 +1567,13 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   When this number is reached, no new objects can be created. This is
   useful for preventing people from programming runaway dustbunny monsters
   that create thousands of objects.
+ 
+& c_is_command
+  Config parameter: c_is_command.  Default: Yes
+ 
+  If this config parameter is turned on, the %c substitution evaluates
+  to the last command (equivalent to %m). If not, the %c substitution
+  evaluates to an ANSI substitution (equivalent to %x).
  
 & cache_size
   Config parameter: cache_size <bytes>.  Default: 1000000.

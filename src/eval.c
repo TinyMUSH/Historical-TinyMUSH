@@ -633,12 +633,39 @@ char *cargs[];
 			case '\0':	/* Null - all done */
 				(*dstr)--;
 				break;
-			case '|':	/* piped command output */
-				safe_str(mudstate.pout, buff, bufc);
+			case '0':	/* Command argument number N */
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				i = (**dstr - '0');
+				if ((i < ncargs) && (cargs[i] != NULL))
+					safe_str(cargs[i], buff, bufc);
 				break;
-			case '%':	/* Percent - a literal % */
-				safe_chr('%', buff, bufc);
+			case 'r':	/* Carriage return */
+			case 'R':
+				safe_crlf(buff, bufc);
 				break;
+			case 't':	/* Tab */
+			case 'T':
+				safe_chr('\t', buff, bufc);
+				break;
+			case 'B':	/* Blank */
+			case 'b':
+				safe_chr(' ', buff, bufc);
+				break;
+			case 'C':
+			case 'c':
+				if (mudconf.c_cmd_subst) {
+				    safe_str(mudstate.curr_cmd, buff, bufc);
+				    break;
+				}
+				/* FALLTHRU */
 			case 'x':	/* ANSI color */
 			case 'X':
 				(*dstr)++;
@@ -671,32 +698,6 @@ char *cargs[];
 				    safe_str(ansi_chartab[(unsigned char) **dstr], buff, bufc);
 				    ansi = (**dstr == 'n') ? 0 : 1;
 				}
-				break;
-			case 'r':	/* Carriage return */
-			case 'R':
-				safe_crlf(buff, bufc);
-				break;
-			case 't':	/* Tab */
-			case 'T':
-				safe_chr('\t', buff, bufc);
-				break;
-			case 'B':	/* Blank */
-			case 'b':
-				safe_chr(' ', buff, bufc);
-				break;
-			case '0':	/* Command argument number N */
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				i = (**dstr - '0');
-				if ((i < ncargs) && (cargs[i] != NULL))
-					safe_str(cargs[i], buff, bufc);
 				break;
 			case '=': /* equivalent of generic v() attr get */
 			        (*dstr)++;
@@ -920,11 +921,15 @@ char *cargs[];
 			case '@':	/* Caller dbref */
 				safe_dbref(buff, bufc, caller);
 				break;
-			case 'C':
-			case 'c':
 			case 'M':
 			case 'm':
 				safe_str(mudstate.curr_cmd, buff, bufc);
+				break;
+			case '|':	/* piped command output */
+				safe_str(mudstate.pout, buff, bufc);
+				break;
+			case '%':	/* Percent - a literal % */
+				safe_chr('%', buff, bufc);
 				break;
 			default:	/* Just copy */
 				safe_chr(**dstr, buff, bufc);
