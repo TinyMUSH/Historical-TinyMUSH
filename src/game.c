@@ -1514,9 +1514,6 @@ char *argv[];
 		fprintf(stderr, "Usage: %s [-s] [config-file]\n", argv[0]);
 		exit(1);
 	}
-	fclose(stdin);
-	fclose(stdout);
-
 
 #if defined(HAVE_IEEEFP_H) && defined(HAVE_SYS_UCONTEXT_H)
 	/* Inhibit IEEE fp exception on overflow */
@@ -1645,6 +1642,22 @@ char *argv[];
 	mudstate.now = time(NULL);
 
 	load_restart_db();
+
+	if (!mudstate.restarting) {
+	    /*
+	     * CAUTION:
+	     * We do this here rather than up at the top of this function
+	     * because we need to know if we're restarting. If we are,
+	     * our previous process closed stdin and stdout at inception,
+	     * and therefore we don't need to do so.
+	     * More importantly, on a restart, the file descriptors normally
+	     * allocated to stdin and stdout may have been used for player
+	     * socket descriptors. Thus, closing them like streams is
+	     * really, really bad.
+	     */
+	    fclose(stdin);
+	    fclose(stdout);
+	}
 
 	sql_init();		/* Make a connection to external SQL db */
 
