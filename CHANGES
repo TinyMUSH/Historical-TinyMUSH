@@ -67,6 +67,9 @@ highly significant changes are noted here.
 
 - @chown now checks a ChownLock on CHOWN_OK objects.
 
+- New /pretty switch to examine and @decompile "pretty-prints" (with
+  indentation) attributes. Based on Andrew Molitor's +pex-equivalent code.
+
 - New @freelist command moves an object to the head of the freelist,
   until the next dbck.
 
@@ -88,6 +91,14 @@ highly significant changes are noted here.
   a named variable (as does %_<var>), lvars() lists named variables,
   clearvars() mass-unsets named variables, and let() does a Scheme-style
   code block (with localized variables).
+
+- Functions for generic named data structures (data types), preserved in
+  a manner similar to the stack, in a LISP-like style. structure()
+  defines a structure, unstructure() undefines one, construct() and
+  load() create instances of structures, destruct() removes an instance
+  of a structure, unload() dumps the components of an instance, z()
+  gets the component of an instance, and modify() modifies a component
+  of an instance.
 
 - Added chomp() function -- akin to perl chomp(), it chomps off a
   trailing carriage-return newline from a string, if there is one.
