@@ -1887,7 +1887,7 @@ char *argv[];
 	
 	db_unlock();
 	
-	DBCLOSE;
+	CLOSE;
 	exit(0);
 }
 

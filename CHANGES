@@ -12,6 +12,15 @@ The "full", gamma release of TinyMUSH 3.1 is dated June 21st, 2004.
 
 -----------------------------------------------------------------------------
 
+BUGFIX PATCHES SINCE THE 3.1 RELEASE
+
+3.1 Patchlevel 1					August 11th, 2004
+
+  - Fixed a bug in dbconvert where the cache wasn't flushed before
+    closing the database, creating an incomplete database. [3.1p0]
+
+-----------------------------------------------------------------------------
+
 CHANGES TO THE BASE SERVER
 
 - The licensing scheme has been changed to the Artistic License.
@@ -996,7 +1005,7 @@ CHANGES TO FUNCTIONS
 
 -----------------------------------------------------------------------------
 
-BUGFIX PATCHES
+BUGFIX PATCHES TO 3.0
 
 3.0 Patchlevel 1					December 5th, 2001
 
