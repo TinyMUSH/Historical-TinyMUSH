@@ -14836,6 +14836,9 @@ Continued in 'help 3.1 functions4'.
 - Added entrances() function, similar to @entrances command. Based on an
   idea from PennMUSH.
  
+- Added elockstr(), to check if an object would pass the lock defined by
+  a string. Idea from Joel Ricketts.
+ 
 - You can now get attribute flags with flags(<obj>/<attr>). Based on an
   idea from PennMUSH.
  
