@@ -86,6 +86,10 @@ else
 	echo "No previous mail database."
 fi
 
+#	Handle Linux sh brokenness; this isn't supposed to be an environment
+#	variable, but somehow it stays set.
+make_db=""
+
 #	If we have a good checkpoint database, make it the input database.
 #	If not, use the backup of the input database.
 #
