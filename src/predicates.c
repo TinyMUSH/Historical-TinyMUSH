@@ -653,6 +653,158 @@ char *expr, *args[], *cargs[];
 	}
 }
 
+/* ---------------------------------------------------------------------------
+ * Command hooks.
+ */
+
+void do_hook(player, cause, key, cmdname, target)
+    dbref player, cause;
+    int key;
+    char *cmdname, *target;
+{
+    CMDENT *cmdp;
+    char *p;
+    ATTR *ap;
+    HOOKENT *hp;
+    dbref thing, aowner;
+    int atr, aflags;
+
+    for (p = cmdname; p && *p; p++)
+	*p = ToLower(*p);
+    if (!cmdname ||
+	((cmdp = (CMDENT *) hashfind(cmdname,
+				     &mudstate.command_htab)) == NULL) ||
+	(cmdp->callseq & CS_ADDED)) {
+	notify(player, "That is not a valid built-in command.");
+	return;
+    }
+
+    if (key == 0) {
+
+	/* List hooks only */
+
+	if (cmdp->pre_hook) {
+	    ap = atr_num(cmdp->pre_hook->atr);
+	    if (!ap) {
+		notify(player, "Before Hook contains bad attribute number.");
+	    } else {
+		notify(player, tprintf("Before Hook: #%d/%s",
+				       cmdp->pre_hook->thing, ap->name));
+	    }
+	} else {
+	    notify(player, "Before Hook: none");
+	}
+
+	if (cmdp->post_hook) {
+	    ap = atr_num(cmdp->post_hook->atr);
+	    if (!ap) {
+		notify(player, "After Hook contains bad attribute number.");
+	    } else {
+		notify(player, tprintf("After Hook: #%d/%s",
+				       cmdp->post_hook->thing, ap->name));
+	    }
+	} else {
+	    notify(player, "After Hook: none");
+	}
+
+	return;
+    }
+
+    /* Check for the hook flags. */
+
+    if (key & HOOK_PRESERVE) {
+	cmdp->callseq |= CS_PRESERVE;
+	notify(player,
+	       "Hooks will preserve the state of the global registers.");
+	return;
+    }
+    if (key & HOOK_NOPRESERVE) {
+	cmdp->callseq &= ~CS_PRESERVE;
+	notify(player,
+	       "Hooks will not preserve the state of the global registers.");
+	return;
+    }
+
+    /* If we didn't get a target, this is a hook deletion. */
+
+    if (!target || !*target) {
+	if (key & HOOK_BEFORE) {
+	    if (cmdp->pre_hook) {
+		XFREE(cmdp->pre_hook, "do_hook");
+		cmdp->pre_hook = NULL;
+	    }
+	    notify(player, "Hook removed.");
+	} else if (key & HOOK_AFTER) {
+	    if (cmdp->post_hook) {
+		XFREE(cmdp->post_hook, "do_hook");
+		cmdp->post_hook = NULL;
+	    }
+	    notify(player, "Hook removed.");
+	} else {
+	    notify(player, "Unknown command switch.");
+	}
+	return;
+    }
+
+    /* Find target object and attribute. Make sure it can be read, and
+     * that we control the object.
+     */
+
+    if (!parse_attrib(player, target, &thing, &atr)) {
+	notify(player, NOMATCH_MESSAGE);
+	return;
+    }
+    if (!Controls(player, thing)) {
+	notify(player, NOPERM_MESSAGE);
+	return;
+    }
+    if (atr == NOTHING) {
+	notify(player, "No such attribute.");
+	return;
+    }
+    ap = atr_num(atr);
+    if (!ap) {
+	notify(player, "No such attribute.");
+	return;
+    }
+    atr_get_info(thing, atr, &aowner, &aflags);
+    if (!See_attr(player, thing, ap, aowner, aflags)) {
+	notify(player, NOPERM_MESSAGE);
+	return;
+    }
+
+    /* All right, we have what we need. Go allocate a hook. */
+
+    hp = (HOOKENT *) XMALLOC(sizeof(HOOKENT), "do_hook");
+    hp->thing = thing;
+    hp->atr = atr;
+
+    /* If that kind of hook already existed, get rid of it. Put in the
+     * new one.
+     */
+
+    if (key & HOOK_BEFORE) {
+	if (cmdp->pre_hook) {
+	    XFREE(cmdp->pre_hook, "do_hook");
+	}
+	cmdp->pre_hook = hp;
+	notify(player, "Hook added.");
+    } else if (key & HOOK_AFTER) {
+	if (cmdp->post_hook) {
+	    XFREE(cmdp->post_hook, "do_hook");
+	}
+	cmdp->post_hook = hp;
+	notify(player, "Hook added.");
+    } else {
+	XFREE(hp, "do_hook");
+	notify(player, "Unknown command switch.");
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * Command overriding and friends.
+ */
+
 void do_addcommand(player, cause, key, name, command)
 dbref player, cause;
 int key;

@@ -87,6 +87,7 @@ CMD_ONE_ARG(do_get);			/* Get an object */
 CMD_TWO_ARG(do_give);			/* Give something away */
 CMD_ONE_ARG(do_global);			/* Enable/disable global flags */
 CMD_ONE_ARG(do_halt);			/* Remove commands from the queue */
+CMD_TWO_ARG(do_hook);			/* Command hooks */
 CMD_ONE_ARG(do_help);			/* Print info from help files */
 CMD_NO_ARG(do_inventory);		/* Print what I am carrying */
 CMD_TWO_ARG(do_prog);			/* Interactive input */
@@ -148,6 +149,12 @@ CMD_TWO_ARG(do_addcommand);		/* Add or replace a global command */
 CMD_TWO_ARG(do_delcommand);		/* Delete an added global command */
 CMD_ONE_ARG(do_listcommands);		/* List added global commands */
 
+typedef struct hookentry HOOKENT;
+struct hookentry {
+	dbref thing;
+	int atr;
+};
+
 typedef struct addedentry ADDENT;
 struct addedentry {
 	dbref	thing;
@@ -163,6 +170,8 @@ struct cmdentry {
 	int	perms;
 	int	extra;
 	int	callseq;
+	HOOKENT	*pre_hook;
+	HOOKENT	*post_hook;
 	union {
 		void	(*handler)();
 		ADDENT	*added;
@@ -185,6 +194,7 @@ struct cmdentry {
 #define	CS_STRIP_AROUND	0x0400	/* Strip braces around entire string only */
 #define CS_ADDED	0x0800  /* Command has been added by @addcommand */
 #define CS_LEADIN	0x1000	/* Command is a single-letter lead-in */
+#define CS_PRESERVE	0x2000	/* For hooks, preserve global registers */
 
 /* Command permission flags */
 

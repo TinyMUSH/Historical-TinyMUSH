@@ -360,6 +360,10 @@ extern void	FDECL(toast_player, (dbref));
 #define	GLOB_ENABLE	1	/* key to enable */
 #define	GLOB_DISABLE	2	/* key to disable */
 #define	HALT_ALL	1	/* halt everything */
+#define HOOK_BEFORE	1	/* pre-command hook */
+#define HOOK_AFTER	2	/* post-command hook */
+#define HOOK_PRESERVE	4	/* preserve global regs */
+#define HOOK_NOPRESERVE	8	/* don't preserve global regs */
 #define	HELP_HELP	1	/* get data from help file */
 #define	HELP_NEWS	2	/* get data from news file */
 #define	HELP_WIZHELP	3	/* get data from wizard help file */
