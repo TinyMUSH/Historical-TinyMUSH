@@ -110,6 +110,7 @@ int type;
 					} while (p && *p);
 					str = c;
 				}
+				break;
 			case ' ':
 				if (str[1] == ' ') {
 					safe_known_str("%b", 2, new, &bp);
