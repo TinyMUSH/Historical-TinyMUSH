@@ -60,20 +60,14 @@ if [ -r $DATA/$CRASH_DB ]; then
 fi
 
 #
-#	Save a copy of the previous input database and log.
+#	Save a copy of the previous input databases.
 #
 if [ -r $DATA/$INPUT_DB ]; then
 	mv -f $DATA/$INPUT_DB $DATA/$SAVE_DB
 else
 	echo "No previous input database."
 fi
-#
-if [ -r $LOGNAME ]; then
-	mv -f $LOGNAME $LOGNAME.old
-else
-	echo "No previous log."
-fi
-#
+
 if [ -r "comsys.db" ]; then
 	cp -f comsys.db comsys.db.old
 elif [ -r "$DATA/comsys.db" ]; then
@@ -81,7 +75,7 @@ elif [ -r "$DATA/comsys.db" ]; then
 else
 	echo "No previous comsys database."
 fi
-#
+
 if [ -r "mail.db" ]; then
 	cp -f mail.db mail.db.old
 elif [ -r "$DATA/mail.db" ]; then
@@ -89,7 +83,7 @@ elif [ -r "$DATA/mail.db" ]; then
 else
 	echo "No previous mail database."
 fi
-#
+
 #	If we have a good checkpoint database, make it the input database.
 #	If not, use the backup of the input database.
 #
@@ -111,6 +105,9 @@ if [ -r restart.db ]; then
 	rm -f restart.db
 fi
 #
+#	Cleanup the old logfiles.
+#
+./Logclean
 #
 #	Kick off MUSH
 #
