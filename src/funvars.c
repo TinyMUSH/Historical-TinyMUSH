@@ -2050,10 +2050,11 @@ FUNCTION(fun_toss)
 FUNCTION(fun_popn)
 {
     dbref it;
-    int pos, nitems, i, osep_len, count = 0, over = 0, first = 0;
+    int pos, nitems, i, osep_len, count = 0, over = 0;
     STACK *sp, *tp, *xp;
     STACK *prev = NULL;
     Delim osep;
+    char *bb_p;
 
     VaChk_Only_Out("POPN", 4);
 
@@ -2077,15 +2078,14 @@ FUNCTION(fun_popn)
 
     /* We've now hit the start item, the first item. Copy 'em off. */
 
-    for (i = 0, tp = sp; (i < nitems) && (tp != NULL); i++) {
+    for (i = 0, tp = sp, bb_p = *bufc; (i < nitems) && (tp != NULL); i++) {
 	if (!over) {
 	    /* We have to pop off the items regardless of whether
 	     * or not there's an overflow, but we can save ourselves
 	     * some copying if so.
 	     */
-	    if (!first) {
+	    if (*bufc != bb_p) {
 		print_sep(osep, osep_len, buff, bufc);
-		first = 1;
 	    }
 	    over = safe_str(tp->data, buff, bufc);
 	}
@@ -2145,8 +2145,8 @@ FUNCTION(fun_lstack)
     Delim osep;
     dbref it;
     STACK *sp;
-    char *bp;
-    int osep_len, over = 0, first = 1;
+    char *bp, *bb_p;
+    int osep_len, over = 0;
 
     VaChk_Out("LSTACK", 0, 2);
 
@@ -2157,11 +2157,10 @@ FUNCTION(fun_lstack)
     }
 
     bp = buff;
+    bb_p = *bufc;
     for (sp = stack_get(it); (sp != NULL) && !over; sp = sp->next) {
-	if (!first) {
+	if (*bufc != bb_p) {
 	    print_sep(osep, osep_len, buff, bufc);
-	} else {
-	    first = 0;
 	}
 	over = safe_str(sp->data, buff, bufc);
     }
