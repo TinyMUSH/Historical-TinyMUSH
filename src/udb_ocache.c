@@ -309,8 +309,10 @@ void list_cached_objs(player)
                     safe_chr(' ', buff, &bp);
                 }
                 safe_chr('#', buff, &bp);
-                ltos(nbuf, (int) cp->op->name);
-                safe_str(nbuf, buff, &bp);
+                safe_ltos(buff, &bp, (int) cp->op->name);
+	        safe_chr('(', buff, &bp);
+	        safe_ltos(buff, &bp, (int) cp->referenced);
+	        safe_chr(')', buff, &bp);        
             }
         }
     }
@@ -331,8 +333,10 @@ void list_cached_objs(player)
                     safe_chr(' ', buff, &bp);
                 }
                 safe_chr('#', buff, &bp);
-                ltos(nbuf, (int) cp->op->name);
-                safe_str(nbuf, buff, &bp);
+                safe_ltos(buff, &bp, (int) cp->op->name);
+	        safe_chr('(', buff, &bp);
+	        safe_ltos(buff, &bp, (int) cp->referenced);
+	        safe_chr(')', buff, &bp);        
             }
         }
     }
