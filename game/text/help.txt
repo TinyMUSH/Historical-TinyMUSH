@@ -80,9 +80,9 @@
   LISTS               LOOPING             ME                  MONEY
   MOVING              OBJECT STACK        OBJECT TYPES        PARENT OBJECTS
   PARENT ROOMS        POWERS LIST         PUEBLO              PUPPETS
-  ROBBERY             SEARCH CLASSES      SEMAPHORES          SPOOFING
-  STACK               SUBSTITUTIONS       SUCCESS             SWITCHES
-  VERBS               WIZARDS             ZONE OBJECTS
+  REGEXPS             ROBBERY             SEARCH CLASSES      SEMAPHORES
+  SPOOFING            STACK               SUBSTITUTIONS       SUCCESS
+  SWITCHES            VERBS               WIZARDS             ZONE OBJECTS
 
 & PUEBLO
  
@@ -2104,6 +2104,7 @@
  
 & powers list2
   monitor		Can set or reset monitor flag.
+  pass_locks		Can pass all locks.
   poll			Can set the @poll.
   prog			Can use @program on players other than themself.
   search		Can @search anyone.
@@ -2266,6 +2267,8 @@
      visual     - Anyone may see the attribute when they examine you, and
                   may get the attribute with get().
      hidden     - The attribute is only visable to wizards.
+     regexp     - When $-commands are matched, treat the pattern as a
+                  regular expression rather than a wildcard glob pattern.
      wizard     - The attribute may only be changed by wizards.
  
   The @set command takes the following switch:
@@ -4413,10 +4416,150 @@
   are reported with ($) following the attribute name when examined.
   The command '@set <obj>/<attr> = !no_program' clears the flag.
  
+  You can also match a regular expression rather than wildcards. See
+  'help Regular Expressions' for details.
+ 
   The following attributes are never checked for $-commands: ALIAS CHARGES
   DESC DROP FAIL IDESC ODESC ODROP OFAIL OSUCC SEX SUCC.
  
   See also: @set.
+
+& REGEXPS
+  Topic: REGEXPS (Regular Expressions)
+ 
+  The majority of matching in MUSH is done with wildcard ("globbing")
+  patterns. There is a second type of matching, using regular expressions,
+  that is available in certain circumstances.
+ 
+  For attributes that are $-commands or ^-listen-patterns, setting that
+  attribute "regexp" (with '@set <object>/<attribute>=regexp') causes
+  patterns to be matched using regular expressions rather than globbing.
+ 
+  In a regular expression match, the substring of the string which matched
+  the regexp pattern is %0; %1 through %9 are the substrings of the string
+  which matched parenthesized expressions within the regexp pattern. 
+ 
+  Continued in 'help regexps2'.
+
+& REGEXPS2
+  Regular expressions are extremely useful when you want to enforce
+  a data type. For example, if you have a command where you want a
+  player to enter a string and a number ('+setnum <player>=<number>',
+  for example), you might do it like this:
+ 
+  &DO_NUM Command Object=$+setnum (.+)=([0-9]*): @va me=Data: %1 = %2
+  @set Command Object/DO_NUM = regexp
+ 
+  Then, '+setnum cookies=30' would set VA to "Data: cookies = 30".
+  This eliminates your having to check to see if the player entered
+  a number, since the regular expression matches only numbers.
+  Furthermore, the '+' guarantees that there needs to be at least
+  one character there, so a player can't enter '+setnum cookies='
+  or '+setnum =10' or similarly malformed input.
+ 
+  Also note that regexps are case-sensitive, but wildcard globbing 
+  is not.
+ 
+  Regular expression syntax is explained in 'help regexp syntax'.
+
+& REGEXP SYNTAX
+  Topic: REGEXP SYNTAX
+
+  The following explanation is taken from Henry Spencer's regexp(3)
+  package, the regular expression library used in TinyMUSH 2.2.
+ 
+          A regular expression is zero or more branches, separated by
+          `|'.  It matches anything that matches one of the branches.
+ 
+          A branch is zero or more pieces, concatenated.  It matches a
+          match for the first, followed by a match for the second,
+          etc.
+ 
+          A piece is an atom possibly followed by `*', `+', or `?'.
+          An atom followed by `*' matches a sequence of 0 or more
+          matches of the atom.  An atom followed by `+' matches a
+          sequence of 1 or more matches of the atom.  An atom followed
+          by `?' matches a match of the atom, or the null string.
+  
+  Continued in 'help regexp syntax2'.
+
+& REGEXP SYNTAX2
+          An atom is a regular expression in parentheses (matching a
+          match for the regular expression), a range (see below), `.'
+          (matching any single character), `^' (matching the null
+          string at the beginning of the input string), `$' (matching
+          the null string at the end of the input string), a `\'
+          followed by a single character (matching that character), or
+          a single character with no other significance (matching that
+          character).
+ 
+          A range is a sequence of characters enclosed in `[]'.  It
+          normally matches any single character from the sequence.  If
+          the sequence begins with `^', it matches any single
+          character not from the rest of the sequence.  If two
+          characters in the sequence are separated by `-', this is
+          shorthand for the full list of ASCII characters between them
+          (e.g. `[0-9]' matches any decimal digit).  To include a
+          literal `]' in the sequence, make it the first character
+          (following a possible `^').  To include a literal `-', make
+          it the first or last character.
+ 
+  Continued in 'help regexp ambiguity' and 'help regexp examples'.
+
+& REGEXP AMBIGUITY
+  Topic: REGEXP AMBIGUITY
+ 
+          If a regular expression could match two different parts of
+          the input string, it will match the one which begins
+          earliest.  If both begin in the same place    but match
+          different lengths, or match the same length in different
+          ways, life gets messier, as follows.
+ 
+          In general, the possibilities in a list of branches are
+          considered in left-to-right order, the possibilities for
+          `*', `+', and `?' are considered longest-first, nested
+          constructs are considered from the outermost in, and
+          concatenated constructs are considered leftmost-first.  The
+          match that will be chosen is the one that uses the earliest
+          possibility in the first choice that has to be made.  If
+          there is more than one choice, the next will be made in the
+          same manner (earliest possibility) subject to the decision
+          on the first choice.  And so forth.
+ 
+  Continued in 'help regexp ambiguity2'.
+
+& REGEXP AMBIGUITY2
+          For example, `(ab|a)b*c' could match `abc' in one of two
+          ways.  The first choice is between `ab' and `a'; since `ab'
+          is earlier, and does lead to a successful overall match, it
+          is chosen.  Since the `b' is already spoken for, the `b*'
+          must match its last possibility-the empty string-since it
+          must respect the earlier choice.
+ 
+          In the particular case where no `|'s are present and there
+          is only one `*', `+', or `?', the net effect is that the
+          longest possible match will be chosen.  So `ab*', presented
+          with `xabbbby', will match `abbbb'.  Note that if `ab*' is
+          tried against `xabyabbbz', it will match `ab' just after
+          `x', due to the begins-earliest rule.  (In effect, the
+          decision on where to start the match is the first choice to
+          be made, hence subsequent choices must respect it even if
+          this leads them to less-preferred alternatives.)
+
+& REGEXP EXAMPLES
+  Topic: REGEXP EXAMPLES
+ 
+  The regexp pattern '.' is equivalent to the wildcard '?'; it matches
+  one and only one of an arbitrary character.
+ 
+  The regexp pattern '.+' is equivalent to the wildcard '*'; it matches
+  one or more arbitrary characters. To match zero or more arbitrary
+  characters, the regexp pattern is '.*'.
+ 
+  To match a string of numbers, use:       [0-9]+
+  To match a string of letters only, use:  [A-Za-z]+
+ 
+  See 'help regexp syntax' for a more detailed explanation.
 
 & ATTRIBUTE OWNERSHIP
 
@@ -4843,18 +4986,18 @@ We would like to thank the following people:
     NUM()       OBJ()       OBJEVAL()   OBJMEM()    OR()        ORFLAGS()
     OWNER()     PARENT()    PARSE()     PEEK()      PEMIT()     PI()
     PLAYMEM()   PMATCH()    POP()       PORTS()     POS()       POSS()
-    POWER()     PUSH()      R()         RAND()      REMOVE()    REPEAT()
-    REPLACE()   REST()      REVERSE()   REVWORDS()  RJUST()     RLOC()
-    ROOM()      ROUND()     S()         SCRAMBLE()  SEARCH()    SECS()
-    SECURE()    SET()       SETDIFF()   SETINTER()  SETQ()      SETR()
-    SETUNION()  SHL()       SHR()       SHUFFLE()   SIGN()      SIN()
-    SORT()      SORTBY()    SPACE()     SPLICE()    SQRT()      SQUISH()
-    STARTTIME() STATS()     STRCAT()    STRIPANSI() STRLEN()    STRMATCH()
-    STRTRUNC()  SUB()       SUBJ()      SWITCH()    TAN()       TIME()
-    TRIM()      TRUNC()     TYPE()      U()         ULOCAL()    UCSTR()
-    UDEFAULT()  V()         VADD()      VDIM()      VERSION()   VISIBLE()
-    VMAG()      VMUL()      VSUB()      VUNIT()     WHERE()     WORDPOS()
-    WORDS()     XGET()      XOR()       ZONE()      ZWHO()
+    POWER()     PUSH()      R()         RAND()      REGMATCH()  REMOVE()
+    REPEAT()    REPLACE()   REST()      REVERSE()   REVWORDS()  RJUST()
+    RLOC()      ROOM()      ROUND()     S()         SCRAMBLE()  SEARCH()
+    SECS()      SECURE()    SET()       SETDIFF()   SETINTER()  SETQ()
+    SETR()      SETUNION()  SHL()       SHR()       SHUFFLE()   SIGN()
+    SIN()       SORT()      SORTBY()    SPACE()     SPLICE()    SQRT()
+    SQUISH()    STARTTIME() STATS()     STRCAT()    STRIPANSI() STRLEN()
+    STRMATCH()  STRTRUNC()  SUB()       SUBJ()      SWITCH()    TAN()
+    TIME()      TRIM()      TRUNC()     TYPE()      U()         ULOCAL()
+    UCSTR()     UDEFAULT()  V()         VADD()      VDIM()      VERSION()
+    VISIBLE()   VMAG()      VMUL()      VSUB()      VUNIT()     WHERE()
+    WORDPOS()   WORDS()     XGET()      XOR()       ZONE()      ZWHO()
   
 & FUNCTION CLASSES
 
@@ -6130,8 +6273,30 @@ We would like to thank the following people:
     You say "0"
     > say strmatch(This is a test,*is*is*)
     You say "1"
-  See also: match(), member().
+  See also: match(), member(), regmatch().
 
+& REGMATCH()
+  regmatch(<string>,<regexp>[,<register list>])
+ 
+  This function matches the regular expression <regexp> against the
+  entirety of <string>, returning 1 if it matches and 0 if it does not.
+ 
+  If <register list> is specified, there is a side-effect: any
+  parenthesized substrings within the regular expression will be set
+  into the specified local registers, in the order they were specified
+  in the list. <register list> can be a list of one through nine numbers.
+  If the specified register is -1, the substring is not copied into a
+  register.
+ 
+  For example, if <string> is 'cookies=30', and <regexp> is '(.+)=([0-9]*)'
+  (parsed; note that escaping may be necessary), then the 0th substring
+  matched is 'cookies=30', the 1st substring is 'cookies', and the 2nd
+  substring is '30'. If <register list> is '0 3 5', then %q0 will become
+  "cookies=30", %q3 will become "cookies", and %q5 will become "30".
+  If <register list> was '0 -1 5', then the "cookies" substring would
+  simply be discarded.
+ 
+  See 'help regexp syntax' for an explanation of regular expressions.
 & COLUMNS()
 
   columns(<list>, <width>[, <delim>])
