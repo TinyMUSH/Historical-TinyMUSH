@@ -988,6 +988,11 @@ char *tolist;
 	struct mail *mp;
 	int num;
 
+	if (Flags2(player) & PLAYER_MAILS) {
+	    notify(player, "MAIL: Mail message already in progress.");
+	    return;
+	}
+
 	if (!msg || !*msg) {
 		notify(player, "MAIL: No message list.");
 		return;
