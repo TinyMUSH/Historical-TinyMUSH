@@ -139,58 +139,19 @@ static int cache_busy = 0;
  * cache stats gathering stuff. you don't like it? comment it out 
  */
 time_t cs_ltime;
-int cs_writes = 0;		/*
-
-				 * total writes 
-				 */
-int cs_reads = 0;		/*
-
-				 * total reads 
-				 */
-int cs_dbreads = 0;		/*
-
-				 * total read-throughs 
-				 */
-int cs_dbwrites = 0;		/*
-
-				 * total write-throughs 
-				 */
-int cs_dels = 0;		/*
-
-				 * total deletes 
-				 */
-int cs_checks = 0;		/*
-
-				 * total checks 
-				 */
-int cs_rhits = 0;		/*
-
-				 * total reads filled from cache 
-				 */
-int cs_ahits = 0;		/*
-
-				 * total reads filled active cache 
-				 */
-int cs_whits = 0;		/*
-
-				 * total writes to dirty cache 
-				 */
-int cs_fails = 0;		/*
-
-				 * attempts to grab nonexistent 
-				 */
-int cs_resets = 0;		/*
-
-				 * total cache resets 
-				 */
-int cs_syncs = 0;		/*
-
-				 * total cache syncs 
-				 */
-int cs_size = 0;		/*
-
-				 * total cache size 
-				 */
+int cs_writes = 0;		/* total writes */
+int cs_reads = 0;		/* total reads */
+int cs_dbreads = 0;		/* total read-throughs */
+int cs_dbwrites = 0;		/* total write-throughs */
+int cs_dels = 0;		/* total deletes */
+int cs_checks = 0;		/* total checks */
+int cs_rhits = 0;		/* total reads filled from cache */
+int cs_ahits = 0;		/* total reads filled active cache */
+int cs_whits = 0;		/* total writes to dirty cache */
+int cs_fails = 0;		/* attempts to grab nonexistent */
+int cs_resets = 0;		/* total cache resets */
+int cs_syncs = 0;		/* total cache syncs */
+int cs_size = 0;		/* total cache size */
 
 void cache_repl(cp, new)
 Cache *cp;
@@ -268,7 +229,8 @@ int clear;
 				cp->referenced = 0;
 				cp->lastreferenced = time(NULL);
 			} else {
-				cp->referenced--;
+				if (cp->referenced > 0)
+					cp->referenced--;
 			}
 		}
 		
@@ -278,9 +240,27 @@ int clear;
 				cp->referenced = 0;
 				cp->lastreferenced = time(NULL);
 			} else {
-				cp->referenced--;
+				if (cp->referenced > 0)
+					cp->referenced--;
 			}
 		}
+	}
+	
+	/* Clear the counters after startup, or they'll be skewed */
+	
+	if (clear) {
+		cs_writes = 0;		/* total writes */
+		cs_reads = 0;		/* total reads */
+		cs_dbreads = 0;		/* total read-throughs */
+		cs_dbwrites = 0;	/* total write-throughs */
+		cs_dels = 0;		/* total deletes */
+		cs_checks = 0;		/* total checks */
+		cs_rhits = 0;		/* total reads filled from cache */
+		cs_ahits = 0;		/* total reads filled active cache */
+		cs_whits = 0;		/* total writes to dirty cache */
+		cs_fails = 0;		/* attempts to grab nonexistent */
+		cs_resets = 0;		/* total cache resets */
+		cs_syncs = 0;		/* total cache syncs */
 	}
 }
 
