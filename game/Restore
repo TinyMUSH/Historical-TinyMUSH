@@ -6,6 +6,7 @@ PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH
 #
 . mush.config
+. check_paths
 #
 ARCHIVE="$1"
 #
@@ -15,16 +16,11 @@ if [ ! "$ARCHIVE" ]; then
 fi
 #
 if [ ! -r $ARCHIVE ]; then
-    if [ -d $BACKUP_DIR ]; then
-	ARCHIVE=$BACKUP_DIR/$1
-	if [ ! -r $ARCHIVE ]; then
-	    echo "Error: $1 and $ARCHIVE are not valid."
-	    exit 1
-	fi
-    else
-	echo "Error: $ARCHIVE is not valid."
+    if [ ! -r "$BACKUP_DIR/$1" ]; then
+	echo "Error: $ARCHIVE not found."
 	exit 1
     fi
+    ARCHIVE=$BACKUP_DIR/$1
 fi
 #
 #

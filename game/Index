@@ -13,6 +13,7 @@ PATH=/usr/local/bin:/usr/sbin:/sbin:/usr/ucb:/usr/bsd:/bin:/usr/bin:.
 export PATH
 #
 . mush.config
+. check_paths
 #
 for file in $TEXT/*.txt; do
     got=`head -1 $file | egrep '^\&'`

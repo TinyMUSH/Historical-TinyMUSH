@@ -5,6 +5,7 @@
 PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:.; export PATH
 #
 . mush.config
+. check_paths
 #
 # If no filename was specified, use the name of the GDBM database.
 #

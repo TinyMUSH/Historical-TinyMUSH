@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . mush.config
+. check_paths
 
 # This is where we send bugs.
 

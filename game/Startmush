@@ -6,6 +6,7 @@ PATH=/usr/ucb:/bin:/usr/bin:.; export PATH
 LTDL_LIBRARY_PATH=./modules:./bin:.:../src:../src/modules:../src/.libs:./modules/.libs; export LTDL_LIBRARY_PATH
 #
 . mush.config
+. check_paths
 #
 #	Make sure there isn't aready a MUSH running.
 #
@@ -46,11 +47,7 @@ if [ -r $DATA/$INPUT_DB.KILLED ]; then
 	DBDATE=`date +%m%d-%H%M`
 	end="`tail -1 $DATA/$INPUT_DB.KILLED`"
 	if [ "$end" = "***END OF DUMP***" ]; then
-		if [ -d $BACKUP_DIR ]; then
-			NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE
-		else
-			NEWFILE=$GAMENAME.$DBDATE
-		fi
+		NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE
 		mv $DATA/$INPUT_DB.KILLED $NEWFILE
 		echo "A non-corrupt $INPUT_DB.KILLED file was present."
 		echo "This means that a flatfile was successfully saved after the reception"
@@ -60,11 +57,7 @@ if [ -r $DATA/$INPUT_DB.KILLED ]; then
 		echo "If this restoration is successful, you can then type ./Startmush again."
 		exit 1
 	else
-		if [ -d $BACKUP_DIR ]; then
-			NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE.CORRUPT
-		else
-			NEWFILE=$GAMENAME.$DBDATE.CORRUPT
-		fi
+		NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE.CORRUPT
 		mv $DATA/$INPUT_DB.KILLED $NEWFILE
 		echo "A corrupt $INPUT_DB.KILLED file was present."
 		echo "This means that there was an unsuccessful attempt to save a flatfile"
@@ -100,11 +93,7 @@ if [ -r $DATA/$CRASH_DB ]; then
 		exit 1
 	else
 		DBDATE=`date +%m%d-%H%M`
-		if [ -d $BACKUP_DIR ]; then
-			NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE.CORRUPT
-		else
-			NEWFILE=$GAMENAME.$DBDATE.CORRUPT
-		fi
+		NEWFILE=$BACKUP_DIR/$GAMENAME.$DBDATE.CORRUPT
 		mv -f $DATA/$CRASH_DB $NEWFILE 
 		echo "A corrupt $CRASH_DB file is present."
 		echo "This indicates an unsuccessful flatfile save during a panic-restart."
