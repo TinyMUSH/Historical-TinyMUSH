@@ -833,18 +833,15 @@ FUNCTION(fun_while)
 	savep = *bufc;
 	exec(buff, bufc, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
-	if (is_same) {
-	    if (!strcmp(savep, fargs[3]))
-		break;
-	} else {
+	if (!is_same) {
 	    StrCopyKnown(atextbuf, atext2, alen2);
-	    dp = condbuf;
+	    dp = savep = condbuf;
 	    str = atextbuf;
 	    exec(condbuf, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
-	    if (!strcmp(condbuf, fargs[3]))
-		break;
 	}
+	if (!strcmp(savep, fargs[3]))
+	    break;
 	i++;
     }
     free_lbuf(atext1);

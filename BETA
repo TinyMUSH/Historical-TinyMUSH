@@ -31,8 +31,9 @@ Release history:
 
 - Fix: Stack items could be set to -1 by pop() or toss(). [3.0; Draci]
 
-- Fix: Evaluating the termination condition in while() could corrupt
-  the buffer it evaluated in, causing inconsistent behavior. [3.0; Draci]
+- Fix: Evaluating the termination condition in while() or until()
+  could corrupt the buffer it evaluated in, causing inconsistent
+  behavior. [3.0; Draci]
 
 08/13/2003: Beta 11
 

@@ -2795,7 +2795,6 @@ FUNCTION(fun_until)
     if ((thing1 == thing2) && (ap->number == ap2->number)) {
 	is_same = 1;
 	is_exact_same = 1;
-	atext2 = atext1;
     } else {
 	is_exact_same = 0; 
 	atext2 = atr_pget(thing2, ap2->number, &aowner2, &aflags2, &alen2);
@@ -2852,21 +2851,17 @@ FUNCTION(fun_until)
 	savep = *bufc;
 	exec(buff, bufc, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn - 1);
-	if (is_same) {
-	    subpatterns = pcre_exec(re, NULL, savep, strlen(savep),
-				    0, 0, offsets, PCRE_MAX_OFFSETS);
-	    if (subpatterns >= 0)
-		break;
-	} else {
-	    StrCopyKnown(condbuf, atext2, alen2);
-	    dp = str = savep = condbuf;
+	if (!is_same) {
+	    StrCopyKnown(atextbuf, atext2, alen2);
+	    dp = savep = condbuf;
+	    str = atextbuf;
 	    exec(condbuf, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn - 1);
-	    subpatterns = pcre_exec(re, NULL, savep, strlen(savep),
-				    0, 0, offsets, PCRE_MAX_OFFSETS);
-	    if (subpatterns >= 0)
-		break;
 	}
+	subpatterns = pcre_exec(re, NULL, savep, strlen(savep),
+				0, 0, offsets, PCRE_MAX_OFFSETS);
+	if (subpatterns >= 0)
+	    break;
     }
     XFREE(re, "until.re");
     free_lbuf(atext1);
