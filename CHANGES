@@ -203,6 +203,9 @@ the other have been listed in the conversion notes for both servers.
 - @ps now shows the attribute being waited upon, for non-Semaphore
   semaphore waits.
 
+- @stats() and stats() now count the number of Going objects, as well
+  as the number of objects of unknown (corrupted) type.
+
 - Functions for generic named variables, preserved in a manner similar to
   the stack (i.e., associated with a specific object, persistent until a
   restart is done), have been added. setx() sets a named variable,

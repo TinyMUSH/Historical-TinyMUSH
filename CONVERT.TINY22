@@ -116,6 +116,12 @@ The following are important changes in behavior between 2.2 and 3.0:
   use hasattrp() instead. Your existing database was automatically
   converted to take this difference into account.
 
+- Two additional categories have been added to the stats() function. If
+  you have softcode that extracts the number of garbage objects in the
+  database from stats(), it will be fine if you used last(stats()) to
+  get the data; if you used extract() or another function that depended
+  upon list position, you will need to modify your code.
+
 -----------------------------------------------------------------------------
 
 The following is a list of features/functions that were in TinyMUX 1.6,
