@@ -4287,7 +4287,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	mix()		munge()		remove()	replace()	
 	rest()		revwords()	setdiff()	setinter()	
 	setunion()	shuffle()	sortby()	sort()		
-	splice()	while()		words()		xvars()
+	splice()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -4333,7 +4333,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
 	pemit()		r()		rand()		remit()		
 	restarts()	restarttime()	s()		secs()		
 	setq()		setr()		switch()	starttime()
-	time()		version()	x()
+	time()		version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -4364,8 +4364,8 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
  
   The variable functions are:
  
-	clearvars()	lvars()		regparse()	setx()
-	x()
+	clearvars()	let()		lvars()		regparse()
+	setx()		x()		xvars()
   
   There is a configurable maximum number of variables per object,
   typically 50. If an attempt is made to set more than 50 variables,
@@ -7865,7 +7865,7 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
     > say Testing [setx(temp,abc)][x(temp)] - [strlen(x(temp))].
     You say "Testing abc - 3."
  
-  See also: x(), lvars(), clearvars(), xvars(), regparse().
+  See also: x(), lvars(), clearvars(), xvars(), let(), regparse().
  
 & X()
   Function:  x(<variable name>)
@@ -7881,20 +7881,54 @@ R'nice@TinyTIM		Sh'dow@Pern		Sketch@TinyTIM
   See also: setx(), lvars(), setq(), setr(), r().
  
 & XVARS()
-  Function:  xvars(<list of strings>,<list of variables>[,<delim>])
+  Function:  xvars(<list of variables>,<list of strings>[,<delim>])
  
   This side-function takes the list of strings, and sets each string into 
-  the corresponding variable from the list. If <delim> is specified, the
+  the corresponding variable from the list. If <list of strings> is empty,
+  then all variables in the list will be unset. If <delim> is specified, the
   list of strings is considered to be <delim>-separated; the list of
-  variables is always space-separated.
+  variables is always space-separated. 
  
   Example:
-    > say [xvars(apple peach cherry,foo bar baz)][x(foo)]-[x(bar)]-[x(baz)]
+    > say [xvars(foo bar baz,apple peach cherry)][x(foo)]-[x(bar)]-[x(baz)]
     You say "apple-peach-cherry"
-    > say [xvars(apple|peach|cherry,foo bar baz,|)][x(bar)]
+    > say [xvars(foo bar baz,apple|peach|cherry,|)][x(bar)]
     You say "peach"
  
-  See also: x(), setx(), lvars(), clearvars(), regparse().
+  See also: x(), setx(), let(), lvars(), clearvars(), regparse().
+ 
+& LET()
+  Function:  let(<list of variables>,<list of strings>,<expression>[,<delim>])
+ 
+  This side-effect function does three things:
+ 
+  First, it takes the list of strings, and sets each string into the
+  corresponding variable from the list. If <list of strings> is
+  empty, then the values of the variables will be unchanged. If <delim> is 
+  specified, the list of strings is considered to be <delim>-separated;
+  the list of variables is always space-separated. Then, it evaluates
+  <expression>. Finally, it restores the original values of the
+  <list of variables>. If <list of variables> is empty, the function
+  does nothing.
+ 
+  This is useful for temporary variable use and cleanup, as it effectively
+  allows variables to be passed-by-value, and limits their scope to the
+  local "block" of the let() -- it functions in a way roughly akin to the
+  way localize() does for r-registers.
+ 
+  Continued in 'help let2'.
+ 
+& LET2
+ 
+  Examples:
+ 
+    > say [setx(foo,old)][x(foo)]*[let(foo z,new A,[x(z)] [x(foo)])]*[x(foo)]
+    You say "old*A new*old
+ 
+    > say [setx(a,old)]%_a - [let(a b c,1|2|3,%_a+%_b+%_c,|)] - %_a
+    You say "old - 1+2+3 - old"
+ 
+  See also: x(), setx(), regparse().
  
 & LVARS()
   Function:  lvars()
