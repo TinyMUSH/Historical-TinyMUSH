@@ -17,7 +17,11 @@ steps. You will need to do the following:
 
 - Compare your GAMENAME.conf file to the default netmush.conf file.
   You'll note that there are some new parameters and some changes to
-  old defaults. Update your conf file to reflect these changes.
+  old defaults. Update your conf file to reflect these changes. Two
+  things that you'll definitely want to add are:
+
+	helpfile news text/news
+	raw_helpfile man text/mushman
 
   You should also look at the "Compatibility Notes" section below, for
   any other configuration parameters you'll need to add or change.
