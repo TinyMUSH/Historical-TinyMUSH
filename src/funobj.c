@@ -1276,7 +1276,6 @@ static void perform_get_eval(player, str, buff, bufc)
 		return;
 	}
 	if (attrib == NOTHING) {
-		safe_noperm(buff, bufc);
 		return;
 	}
 	free_buffer = 1;
