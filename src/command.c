@@ -37,6 +37,8 @@ extern int FDECL(do_comsystem, (dbref, char *));
 
 #define CACHING "object"
 
+#define NOGO_MESSAGE "You can't go that way."
+
 /* Take care of all the assorted problems associated with getrusage(). */
 
 #ifdef hpux
@@ -1753,7 +1755,7 @@ char *command, *args[];
 		if (exit != NOTHING) {
 		    /* Execute the pre-hook for the goto command */
 		    CALL_PRE_HOOK(goto_cmdp, args, nargs);
-		    move_exit(player, exit, 0, "You can't go that way.", 0);
+		    move_exit(player, exit, 0, NOGO_MESSAGE, 0);
 		    /* Execute the post-hook for the goto command */
 		    CALL_POST_HOOK(goto_cmdp, args, nargs);
 		    mudstate.debug_cmd = cmdsave;
@@ -1767,7 +1769,7 @@ char *command, *args[];
 		exit = last_match_result();
 		if (exit != NOTHING) {
 		    CALL_PRE_HOOK(goto_cmdp, args, nargs);
-		    move_exit(player, exit, 1, NULL, 0);
+		    move_exit(player, exit, 1, NOGO_MESSAGE, 0);
 		    CALL_POST_HOOK(goto_cmdp, args, nargs);
 		    mudstate.debug_cmd = cmdsave;
 		    return preserve_cmd;
@@ -1958,7 +1960,7 @@ char *command, *args[];
 			exit = last_match_result();
 			if (exit != NOTHING) {
 			    CALL_PRE_HOOK(goto_cmdp, args, nargs);
-			    move_exit(player, exit, 1, NULL, 0);
+			    move_exit(player, exit, 1, NOGO_MESSAGE, 0);
 			    CALL_POST_HOOK(goto_cmdp, args, nargs);
 			    mudstate.debug_cmd = cmdsave;
 			    return preserve_cmd;
