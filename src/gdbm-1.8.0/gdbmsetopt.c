@@ -56,7 +56,7 @@ gdbm_setopt(dbf, optflag, optval, optlen)
             return(-1);
           }
 
-        return(_gdbm_init_cache(dbf, ((*optval) > 9) ? (*optval) : 10));
+        return(_gdbm_init_cache(dbf, *optval));
 
       case GDBM_FASTMODE:
       	/* Obsolete form of SYNCMODE. */
