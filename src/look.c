@@ -76,22 +76,22 @@ static int did_attr(player, thing, what)
 	if (*d) {
 	    sp = d;
 	    tbuf = tp = alloc_lbuf("did_it.deval");
-	    exec(tbuf, &tp, 0, thing, player, player,
+	    exec(tbuf, &tp, thing, player, player,
 		 EV_EVAL | EV_FIGNORE | EV_TOP,
 		 &sp, (char **) NULL, 0);
 	    *tp = '\0';
-	    exec(buff, &bp, 0, thing, player, player,
+	    exec(buff, &bp, thing, player, player,
 		 EV_EVAL | EV_FIGNORE | EV_TOP,
 		 &str, &tbuf, 1);
 	    free_lbuf(tbuf);
 	} else {
-	    exec(buff, &bp, 0, thing, player, player,
+	    exec(buff, &bp, thing, player, player,
 		 EV_EVAL | EV_FIGNORE | EV_TOP,
 		 &str, (char **) NULL, 0);
 	}
     } else if (*d) {
 	str = d;
-	exec(buff, &bp, 0, thing, player, player,
+	exec(buff, &bp, thing, player, player,
 	     EV_EVAL | EV_FIGNORE | EV_TOP,
 	     &str, (char **) NULL, 0);
     }

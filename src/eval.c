@@ -239,7 +239,7 @@ char *dstr, delim, *fargs[], *cargs[];
 		if (eval & EV_EVAL) {
 			bp = fargs[arg] = alloc_lbuf("parse_arglist");
 			str = tstr;
-			exec(fargs[arg], &bp, 0, player, caller, cause,
+			exec(fargs[arg], &bp, player, caller, cause,
 			     eval | EV_FCHECK, &str, cargs, ncargs);
 			*bp = '\0';
 		} else {
@@ -428,9 +428,8 @@ char *ansi_chartab[256] =
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0
 };
 
-void exec(buff, bufc, tflags, player, caller, cause, eval, dstr, cargs, ncargs)
+void exec(buff, bufc, player, caller, cause, eval, dstr, cargs, ncargs)
 char *buff, **bufc;
-int tflags;
 dbref player, caller, cause;
 int eval, ncargs;
 char **dstr;
@@ -566,7 +565,7 @@ char *cargs[];
 				*dstr = tstr;
 			} else {
 				str = tbuf;
-				exec(buff, bufc, 0, player, caller, cause,
+				exec(buff, bufc, player, caller, cause,
 				     (eval | EV_FCHECK | EV_FMAND),
 				     &str, cargs, ncargs);
 				(*dstr)--;
@@ -595,7 +594,7 @@ char *cargs[];
 					tbuf++;
 				}
 				str = tbuf;
-				exec(buff, bufc, 0, player, caller, cause,
+				exec(buff, bufc, player, caller, cause,
 				     (eval & ~(EV_STRIP | EV_FCHECK)),
 				     &str, cargs, ncargs);
 				if (!(eval & EV_STRIP)) {
@@ -999,7 +998,7 @@ char *cargs[];
 							     preserve_len);
 					}
 					
-					exec(buff, bufc, 0, i, player, cause,
+					exec(buff, bufc, i, player, cause,
 					     ((ufp->flags & FN_NO_EVAL) ?
 					      (EV_FCHECK | EV_EVAL) : feval),
 					     &str, fargs, nfargs);

@@ -235,7 +235,7 @@ dbref player, cause;
 		if (eval) {
 			tstr = bp = alloc_lbuf("delim_check");
 			str = fargs[sep_arg - 1];
-			exec(tstr, &bp, 0, player, caller, cause,
+			exec(tstr, &bp, player, caller, cause,
 			     EV_EVAL | EV_FCHECK, &str, cargs, ncargs);
 			*bp = '\0';
 			if (allow_special &&

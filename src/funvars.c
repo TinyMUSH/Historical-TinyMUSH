@@ -465,7 +465,7 @@ FUNCTION(fun_let)
    
     varlist = bp = alloc_lbuf("fun_let.vars");
     str = fargs[0];
-    exec(varlist, &bp, 0, player, caller, cause,
+    exec(varlist, &bp, player, caller, cause,
 	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
     *bp = '\0';
     n_xvars = list2arr(xvar_names, LBUF_SIZE / 2, varlist, ' ');
@@ -517,7 +517,7 @@ FUNCTION(fun_let)
 
 	elemlist = bp = alloc_lbuf("fun_let.elems");
 	str = fargs[1];
-	exec(elemlist, &bp, 0, player, caller, cause,
+	exec(elemlist, &bp, player, caller, cause,
 	     EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 	n_elems = list2arr(elems, LBUF_SIZE / 2, elemlist, sep);
@@ -540,7 +540,7 @@ FUNCTION(fun_let)
     /* Now we go to execute our function body. */
 
     str = fargs[2];
-    exec(buff, bufc, 0, player, caller, cause,
+    exec(buff, bufc, player, caller, cause,
 	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 
     /* Restore the old values. */
@@ -2619,7 +2619,7 @@ FUNCTION(fun_until)
 	StrCopyKnown(atextbuf, atext1, alen1);
 	str = atextbuf;
 	savep = *bufc;
-	exec(buff, bufc, 0, player, caller, cause,
+	exec(buff, bufc, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn - 1);
 	if (is_same) {
 	    subpatterns = pcre_exec(re, NULL, savep, strlen(savep),
@@ -2629,7 +2629,7 @@ FUNCTION(fun_until)
 	} else {
 	    StrCopyKnown(condbuf, atext2, alen2);
 	    dp = str = savep = condbuf;
-	    exec(condbuf, &dp, 0, player, caller, cause,
+	    exec(condbuf, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn - 1);
 	    subpatterns = pcre_exec(re, NULL, savep, strlen(savep),
 				    0, 0, offsets, PCRE_MAX_OFFSETS);

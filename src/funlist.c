@@ -833,7 +833,7 @@ const void *s1, *s2;
 	strcpy(tbuf, ucomp_buff);
 	result = bp = alloc_lbuf("u_comp");
 	str = tbuf;
-	exec(result, &bp, 0, ucomp_player, ucomp_caller, ucomp_cause,
+	exec(result, &bp, ucomp_player, ucomp_caller, ucomp_cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(elems[0]), 2);
 	*bp = '\0';
 	if (!result)
@@ -1259,7 +1259,7 @@ FUNCTION(fun_columns)
 
 	cp = curr = bp = alloc_lbuf("fun_columns");
 	str = fargs[0];
-	exec(curr, &bp, 0, player, caller, cause,
+	exec(curr, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	*bp = '\0';
 	cp = trim_space_sep(cp, sep);

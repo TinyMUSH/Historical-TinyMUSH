@@ -217,7 +217,7 @@ int eval;
 	if (eval) {
 		str = line;
 		bp = result;
-		exec(result, &bp, 0, player, player, player,
+		exec(result, &bp, player, player, player,
 		     EV_NO_COMPRESS | EV_FIGNORE | EV_EVAL, &str,
 		     (char **)NULL, 0);
 		*bp = 0;
@@ -238,7 +238,7 @@ int eval;
 		if (eval) {
 			str = line;
 			bp = result;
-			exec(result, &bp, 0, player, player, player,
+			exec(result, &bp, player, player, player,
 			     EV_NO_COMPRESS | EV_FIGNORE | EV_EVAL, &str,
 			     (char **)NULL, 0);
 			*bp = '\0';

@@ -94,7 +94,7 @@ extern void	FDECL(toast_player, (dbref));
 extern char *	FDECL(parse_to, (char **, char, int));
 extern char *	FDECL(parse_arglist, (dbref, dbref, dbref, char *, char, int,
 			char *[], int, char*[], int));
-extern void	FDECL(exec, (char *, char **, int, dbref, dbref, dbref,
+extern void	FDECL(exec, (char *, char **, dbref, dbref, dbref,
 			     int, char **, char *[], int));
 extern void	FDECL(save_global_regs, (const char *, char *[], int []));
 extern void	FDECL(restore_global_regs, (const char *, char *[], int []));

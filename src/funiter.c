@@ -38,7 +38,7 @@ static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
 
     dp = cp = curr = alloc_lbuf("perform_loop.1");
     str = list;
-    exec(curr, &dp, 0, player, caller, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
+    exec(curr, &dp, player, caller, cause, EV_STRIP | EV_FCHECK | EV_EVAL,
 	 &str, cargs, ncargs);
     *dp = '\0';
     cp = trim_space_sep(cp, sep);
@@ -62,11 +62,11 @@ static void perform_loop(buff, bufc, player, caller, cause, list, exprstr,
 	buff3 = replace_string(LISTPLACE_VAR, tbuf, buff2);
 	str = buff3;
 	if (!flag) {
-	    exec(buff, bufc, 0, player, caller, cause,
+	    exec(buff, bufc, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	} else {
 	    dp = result = alloc_lbuf("perform_loop.2");
-	    exec(result, &dp, 0, player, caller, cause,
+	    exec(result, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	    *dp = '\0';
 	    notify(cause, result);
@@ -142,7 +142,7 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
 
     input_p = lp = list_str = alloc_lbuf("perform_iter.list");
     str = list;
-    exec(list_str, &lp, 0, player, caller, cause,
+    exec(list_str, &lp, player, caller, cause,
 	 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
     *lp = '\0';
     input_p = trim_space_sep(input_p, sep);
@@ -171,11 +171,11 @@ static void perform_iter(buff, bufc, player, caller, cause, list, exprstr,
 	str = work_buf;
 	if (!flag) {
 	    savep = *bufc;
-	    exec(buff, bufc, 0, player, caller, cause,
+	    exec(buff, bufc, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	} else {
 	    dp = result = alloc_lbuf("perform_iter.out");
-	    exec(result, &dp, 0, player, caller, cause,
+	    exec(result, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
 	    *dp = '\0';
 	    notify(cause, result);
@@ -314,7 +314,7 @@ FUNCTION(fun_fold)
 		clist[1] = split_token(&cp, sep);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
-		exec(result, &bp, 0, player, caller, cause,
+		exec(result, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
 		*bp = '\0';
 		i++;
@@ -323,7 +323,7 @@ FUNCTION(fun_fold)
 		clist[1] = split_token(&cp, sep);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
-		exec(result, &bp, 0, player, caller, cause,
+		exec(result, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
 		*bp = '\0';
 		i += 2;
@@ -342,7 +342,7 @@ FUNCTION(fun_fold)
 		StrCopyKnown(atextbuf, atext, alen);
 		result = bp = alloc_lbuf("fun_fold");
 		str = atextbuf;
-		exec(result, &bp, 0, player, caller, cause,
+		exec(result, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, clist, 3);
 		*bp = '\0';
 		strcpy(rstore, result);
@@ -404,7 +404,7 @@ static void handle_filter(player, caller, cause, arg_func, arg_list,
 		StrCopyKnown(atextbuf, atext, alen);
 		result = bp = alloc_lbuf("fun_filter");
 		str = atextbuf;
-		exec(result, &bp, 0, player, caller, cause,
+		exec(result, &bp, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
 		*bp = '\0';
 		if ((!flag && (*result == '1')) || (flag && xlate(result))) {
@@ -487,7 +487,7 @@ FUNCTION(fun_map)
 		safe_ltos(objs[1], &op, i);
 		StrCopyKnown(atextbuf, atext, alen);
 		str = atextbuf;
-		exec(buff, bufc, 0, player, caller, cause,
+		exec(buff, bufc, player, caller, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
 		i++;
 	}
@@ -572,7 +572,7 @@ FUNCTION(fun_mix)
 
 	str = atextbuf;
 	
-	exec(buff, bufc, 0, player, caller, cause,
+	exec(buff, bufc, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn);
     }
     free_lbuf(atext);
@@ -620,7 +620,7 @@ FUNCTION(fun_step)
 	    os[i] = split_token(&cp, sep);
 	StrCopyKnown(atextbuf, atext, alen);
 	str = atextbuf;
-	exec(buff, bufc, 0, player, caller, cause,
+	exec(buff, bufc, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), i);
     }
     free_lbuf(atext);
@@ -704,7 +704,7 @@ FUNCTION(fun_foreach)
 	safe_ltos(cbuf[1], &op, i);
 	StrCopyKnown(atextbuf, atext, alen);
 	str = atextbuf; 
-	exec(buff, bufc, 0, player, caller, cause,
+	exec(buff, bufc, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cbuf, 2);
     }
 
@@ -758,7 +758,7 @@ FUNCTION(fun_munge)
 
 	bp = rlist = alloc_lbuf("fun_munge");
 	str = atext;
-	exec(rlist, &bp, 0, player, caller, cause,
+	exec(rlist, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &fargs[1], 1);
 	*bp = '\0';
 
@@ -873,7 +873,7 @@ FUNCTION(fun_while)
 	StrCopyKnown(atextbuf, atext1, alen1);
 	str = atextbuf;
 	savep = *bufc;
-	exec(buff, bufc, 0, player, caller, cause,
+	exec(buff, bufc, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
 	if (is_same) {
 	    if (!strcmp(savep, fargs[3]))
@@ -881,7 +881,7 @@ FUNCTION(fun_while)
 	} else {
 	    StrCopyKnown(condbuf, atext2, alen2);
 	    dp = str = savep = condbuf;
-	    exec(condbuf, &dp, 0, player, caller, cause,
+	    exec(condbuf, &dp, player, caller, cause,
 		 EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 2);
 	    if (!strcmp(savep, fargs[3]))
 		break;

@@ -353,7 +353,7 @@ int check_userdef_access(player, cmdp, cargs, ncargs)
     save_global_regs("check_userdef_access", preserve, preserve_len);
 
     bp = buf;
-    exec(buf, &bp, 0, cmdp->userperms->thing, player, player,
+    exec(buf, &bp, cmdp->userperms->thing, player, player,
 	 EV_EVAL | EV_FIGNORE | EV_TOP,
 	 &str, cargs, ncargs);
     *bp = '\0';
@@ -395,7 +395,7 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     }
 
     buf = bp = alloc_lbuf("process_hook");
-    exec(buf, &bp, 0, hp->thing, player, player, EV_EVAL | EV_FIGNORE | EV_TOP,
+    exec(buf, &bp, hp->thing, player, player, EV_EVAL | EV_FIGNORE | EV_TOP,
 	 &str, cargs, ncargs);
     *bp = '\0';
     free_lbuf(buf);
@@ -548,7 +548,7 @@ int interactive, ncargs;
 		if ((interp & EV_EVAL) && !(cmdp->callseq & CS_ADDED)) {
 			buf1 = bp = alloc_lbuf("process_cmdent");
 			str = arg;
-			exec(buf1, &bp, 0, player, cause, cause,
+			exec(buf1, &bp, player, cause, cause,
 			     interp | EV_FCHECK | EV_TOP,
 			     &str, cargs, ncargs);
 			*bp = '\0';
@@ -680,7 +680,7 @@ int interactive, ncargs;
 		}
 		buf1 = bp = alloc_lbuf("process_cmdent.2");
 		str = buf2;
-		exec(buf1, &bp, 0, player, cause, cause,
+		exec(buf1, &bp, player, cause, cause,
 		     EV_STRIP | EV_FCHECK | EV_EVAL | EV_TOP,
 		     &str, cargs, ncargs);
 		*bp = '\0';
@@ -718,7 +718,7 @@ int interactive, ncargs;
 			if (interp & EV_EVAL) {
 				buf2 = bp = alloc_lbuf("process_cmdent.3");
 				str = arg;
-				exec(buf2, &bp, 0, player, cause, cause,
+				exec(buf2, &bp, player, cause, cause,
 				     interp | EV_FCHECK | EV_TOP,
 				     &str, cargs, ncargs);
 				*bp = '\0';
@@ -1052,7 +1052,7 @@ char *command, *args[];
 	str = evcmd = alloc_lbuf("process_command.evcmd");
 	StringCopy(evcmd, command);
 	bp = lcbuf;
-	exec(lcbuf, &bp, 0, player, cause, cause,
+	exec(lcbuf, &bp, player, cause, cause,
 	     EV_EVAL | EV_FCHECK | EV_STRIP | EV_TOP, &str, args, nargs);
 	*bp = '\0';
 	free_lbuf(evcmd);
