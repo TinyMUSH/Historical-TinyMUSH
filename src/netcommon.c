@@ -2044,7 +2044,7 @@ int stat_type;
 	buff = alloc_mbuf("list_sites.buff");
 	sprintf(buff, "----- %s -----", header_txt);
 	notify(player, buff);
-	notify(player, "IP Prefix                Status");
+	notify(player, "IP Prefix         Mask              Status");
 
 	for (this = site_list; this; this = this->next) {
 
