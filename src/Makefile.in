@@ -115,10 +115,22 @@ UDB_INC	= udb.h udb_defs.h
 #			You should always have this enabled, unless you
 #			are running on an ancient system that does not
 #			have a CPU with a floating-point coprocessor.
-#   -DNO_LAG_CHECK	Defining this turns off CPU time calculations
-#			for commands. You should not define this unless
+#   -DNO_LAG_CHECK	Defining this turns off warnings that a certain
+#			command has exceeded a certain amount of wall-clock
+#			time to execute. You should not define this unless
 #			you have severe problems with computational 
 #			resources on your host machine.
+#   -DNO_TIMECHECKING	Defining this turns off the tracking of the amount
+#			of wall-clock time that individual objects are using.
+#			You should not define this unless you have severe
+#			problems with computational resources on your host
+#			machine. (If -DNO_LAG_CHECK is defined, this is
+#			assumed to be off.)
+#   -DTRACK_USER_TIME	When defined, timechecking (the results of @timecheck)
+#			tracks system user time (from the getrusage() system
+#			call) rather than the wall clock time. This is more
+#			accurate but also more computationally expensive.
+#			Define this if the accuracy matters to you.
 #   -DTEST_MALLOC	Defining this results in malloc() keeping track of
 #			the number of blocks allocated. It can be useful
 #			for tracking down memory leaks. You SHOULD NOT
