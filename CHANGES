@@ -867,7 +867,17 @@ Patchlevel 3:
 
 Patchlevel 4:
 
-  - Fixed a problem with skipped or doubled cron jobs.
-    [3.0b8; Adam Dray]
+  - Allow rollback from TM 3.1-format databases.
+
+  - Fixed a potential buffer overflow in lastcreate(). [2.2]
+
+  - Fixed a problem with skipped or doubled cron jobs. [3.0b8; Adam Dray]
+
+  - Fixed a problem clearing attribute flags with set(). [MUX]
+
+  - Fixed a problem with attempting to backup to / if config file was
+    improper. [2.2]
+
+  - Improved handling of built-ins overridden by @addcommand.
 
 =============================================================================
