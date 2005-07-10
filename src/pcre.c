@@ -42,6 +42,7 @@ restrictions:
  *   Altered syntax of calls to pcre_malloc() and pcre_free() so macros
  *     work.
  *   Functions altered to deal with excessive backtracking.
+ *   Patched to protect against integer overflow in repeat counts.
  *   Search code comments for 'TM3 modification:' for more.
  */
 
@@ -659,7 +660,8 @@ if (*p == '}') max = min; else
 /* Do paranoid checks, then fill in the required variables, and pass back the
 pointer to the terminating '}'. */
 
-if (min > 65535 || max > 65535)
+if (min < 0 || 65535 < min ||
+    max < 0 || 65535 < max)
   *errorptr = ERR5;
 else
   {
