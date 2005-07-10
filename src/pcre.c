@@ -661,7 +661,7 @@ if (*p == '}') max = min; else
 pointer to the terminating '}'. */
 
 if (min < 0 || 65535 < min ||
-    max < 0 || 65535 < max)
+    max < -1 || 65535 < max)
   *errorptr = ERR5;
 else
   {
