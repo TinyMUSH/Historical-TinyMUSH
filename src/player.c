@@ -405,14 +405,9 @@ char *name;
 
 		/* Entry found in the hashtable.  If a player, succeed if the
 		 * numbers match (already correctly in the hash table),
-		 * fail if they don't.  Fail if the name is a disallowed
-		 * name (value AMBIGUOUS). 
+		 * fail if they don't.
 		 */
 
-		if (*p == AMBIGUOUS) {
-			free_lbuf(temp);
-			return 0;
-		}
 		if (Good_obj(*p) && isPlayer(*p)) {
 			free_lbuf(temp);
 			if (*p == player) {
