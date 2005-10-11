@@ -2425,9 +2425,13 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   See also: log.
 
 & logout_cmd_access
-  Config parameter: logout_cmd_access <access>
+  Config parameter: logout_cmd_access <command> <access>
  
-  Changes the access permissions on the logged-out commands.
+  Changes the access permissions on the logged-out commands (DOING, QUIT,
+  etc.). Any restriction applied here will disable the command from the
+  login screen without affecting its use by players within the game.
+
+  See also: access.
  
 & logout_cmd_alias
   Config parameter: logout_cmd_alias <alias> <command>
