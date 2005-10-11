@@ -20,6 +20,10 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Removed stale code in add_player_name.
 
+  - Refactored the logged-out commands code, removing some unreachable
+    code in do_command, clarifying how logged-out commands are handled,
+    and fixing a reference to freed memory.
+
 3.1 Patchlevel 2
 
   - Startmush now accept start/stop/restart/reboot switches. You can

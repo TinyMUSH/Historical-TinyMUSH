@@ -1617,7 +1617,60 @@ char *msg;
 	return 1;
 }
 
-int do_command(d, command, first)
+static void logged_out_internal(d, key, arg)
+DESC *d;
+int key;
+char *arg;
+{
+	switch (key) {
+	case CMD_QUIT:
+		shutdownsock(d, R_QUIT);
+		break;
+	case CMD_LOGOUT:
+		shutdownsock(d, R_LOGOUT);
+		break;
+	case CMD_WHO:	
+	case CMD_DOING:
+	case CMD_SESSION:
+		dump_users(d, arg, key);
+		break;
+	case CMD_PREFIX:
+		set_userstring(&d->output_prefix, arg);
+		break;
+	case CMD_SUFFIX:
+		set_userstring(&d->output_suffix, arg);
+		break;
+	case CMD_INFO:
+		dump_info(d);
+		break;
+	case CMD_PUEBLOCLIENT:
+#ifdef PUEBLO_SUPPORT
+		/* Set the descriptor's flag */
+		d->flags |= DS_PUEBLOCLIENT;
+		/* If we're already connected, set the player's flag */
+		if (d->flags & DS_CONNECTED) {
+			s_Html(d->player);
+		}
+		queue_rawstring(d, mudconf.pueblo_msg);
+		queue_write(d, "\r\n", 2);
+		fcache_dump(d, FC_CONN_HTML);
+		STARTLOG(LOG_LOGIN, "CON", "HTML")
+			log_printf("[%d/%s] PuebloClient enabled.",
+				   d->descriptor, d->addr);
+		ENDLOG
+#else
+		queue_rawstring(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
+#endif
+		break;
+	default:
+		STARTLOG(LOG_BUGS, "BUG", "PARSE")
+		log_printf("Logged-out command with no handler: '%s'",
+			   mudstate.debug_cmd);
+		ENDLOG
+	}
+}
+
+void do_command(d, command, first)
 DESC *d;
 char *command;
 int first;
@@ -1629,32 +1682,11 @@ int first;
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< do_command >";
 
-	/* Split off the command from the arguments */
-
-	arg = command;
-	while (*arg && !isspace(*arg))
-		arg++;
-	if (*arg)
-		*arg++ = '\0';
-
-	/* Look up the command.  If we don't find it, turn it over to the 
-	 * normal logged-in command processor or to create/connect 
-	 */
-
-	if (!(d->flags & DS_CONNECTED)) {
-		cp = (NAMETAB *) hashfind(command, &mudstate.logout_cmd_htab);
-	} else
-		cp = NULL;
-
 #ifdef CONCENTRATE
-	if (*arg)
-		*--arg = ' ';	/*
-				 * restore nullified space 
-				 */
 	if (!strncmp(command, "New Conn Pass: ",
 		     sizeof("New Conn Pass ") - 1)) {
 		do_becomeconc(d, command + sizeof("New Conn Pass: ") - 1);
-		return 1;
+		return;
 	} else if (((d->cstatus & C_REMOTE) || (d->cstatus & C_CCONTROL)) && first) {
 		if (!strncmp(command, "CONC ", sizeof("CONC ") - 1))
 			log_printf("%s", command);
@@ -1677,9 +1709,7 @@ int first;
 			char *k;
 
 			k = strchr(command, ' ');
-			if (!k)
-				return 1;
-			else {
+			if (k) {
 				struct descriptor_data *l;
 				int j;
 
@@ -1694,60 +1724,73 @@ int first;
 					queue_string(d, "I don't know that concid.\r\n");
 				else {
 					k++;
-					if (!do_command(l, k, 0)) {
-						return 0;
-					}
+					do_command(l, k, 0);
 				}
 			}
 		}
-
-		return 1;
+		return;
 	}
-	if (*arg)
-		arg++;
-
 #endif 
+
+	if (d->flags & DS_CONNECTED) {
+		/* Normal logged-in command processing */
+		d->command_count++;
+		if (d->output_prefix) {
+			queue_string(d, d->output_prefix);
+			queue_write(d, "\r\n", 2);
+		}
+		mudstate.curr_player = d->player;
+		mudstate.curr_enactor = d->player;
+		Free_RegData(mudstate.rdata);
+		mudstate.rdata = NULL;
+#ifndef NO_LAG_CHECK
+		begin_time = time(NULL);
+#endif /* NO_LAG_CHECK */
+		mudstate.cmd_invk_ctr = 0;
+		log_cmdbuf = process_command(d->player, d->player, 1,
+				command, (char **)NULL, 0);
+#ifndef NO_LAG_CHECK
+		used_time = time(NULL) - begin_time;
+		if (used_time >= mudconf.max_cmdsecs) {
+			STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
+				log_name_and_loc(d->player);
+				log_printf(" entered command taking %ld secs: %s",
+					   used_time, log_cmdbuf); 
+			ENDLOG
+		}
+#endif /* NO_LAG_CHECK */
+		mudstate.curr_cmd = (char *) "";
+		if (d->output_suffix) {
+			queue_string(d, d->output_suffix);
+			queue_write(d, "\r\n", 2);
+		}
+		mudstate.debug_cmd = cmdsave;
+		return;
+	}
+
+	/* Login screen (logged-out) command processing. */
+
+	/* Split off the command from the arguments */
+	arg = command;
+	while (*arg && !isspace(*arg))
+		arg++;
+	if (*arg)
+		*arg++ = '\0';
+
+	/* Look up the command in the logged-out command table. */
+
+	cp = (NAMETAB *) hashfind(command, &mudstate.logout_cmd_htab);
 	if (cp == NULL) {
+		/* Not in the logged-out command table, so maybe a
+		 * connect attempt.
+		 */
 		if (*arg)
 			*--arg = ' ';	/* restore nullified space */
-		if (d->flags & DS_CONNECTED) {
-			d->command_count++;
-			if (d->output_prefix) {
-				queue_string(d, d->output_prefix);
-				queue_write(d, "\r\n", 2);
-			}
-			mudstate.curr_player = d->player;
-			mudstate.curr_enactor = d->player;
-			Free_RegData(mudstate.rdata);
-			mudstate.rdata = NULL;
-#ifndef NO_LAG_CHECK
-			begin_time = time(NULL);
-#endif /* NO_LAG_CHECK */
-			mudstate.cmd_invk_ctr = 0;
-            		log_cmdbuf = process_command(d->player, d->player, 1,
-					command, (char **)NULL, 0);
-#ifndef NO_LAG_CHECK
-			used_time = time(NULL) - begin_time;
-			if (used_time >= mudconf.max_cmdsecs) {
-				STARTLOG(LOG_PROBLEMS, "CMD", "CPU")
-					log_name_and_loc(d->player);
-					log_printf(" entered command taking %ld secs: %s",
-						   used_time, log_cmdbuf); 
-				ENDLOG
-			}
-#endif /* NO_LAG_CHECK */
-			mudstate.curr_cmd = (char *) "";
-			if (d->output_suffix) {
-				queue_string(d, d->output_suffix);
-				queue_write(d, "\r\n", 2);
-			}
-			mudstate.debug_cmd = cmdsave;
-			return 1;
-		} else {
-			mudstate.debug_cmd = cmdsave;
-			return (check_connect(d, command));
-		}
+		mudstate.debug_cmd = cmdsave;
+		check_connect(d, command);
+		return;
 	}
+
 	/* The command was in the logged-out command table.  Perform prefix
 	 * and suffix processing, and invoke the command handler. 
 	 */
@@ -1759,71 +1802,24 @@ int first;
 			queue_write(d, "\r\n", 2);
 		}
 	}
-	if ((!check_access(d->player, cp->perm)) ||
-	    ((cp->perm & CA_PLAYER) && !(d->flags & DS_CONNECTED))) {
+	if (cp->perm != CA_PUBLIC) {
 		queue_rawstring(d, "Permission denied.\r\n");
 	} else {
 		mudstate.debug_cmd = cp->name;
-		switch (cp->flag & CMD_MASK) {
-		case CMD_QUIT:
-			shutdownsock(d, R_QUIT);
-			mudstate.debug_cmd = cmdsave;
-			return 0;
-		case CMD_LOGOUT:
-			shutdownsock(d, R_LOGOUT);
-			break;
-		case CMD_WHO:
-			dump_users(d, arg, CMD_WHO);
-			break;
-		case CMD_DOING:
-			dump_users(d, arg, CMD_DOING);
-			break;
-		case CMD_SESSION:
-			dump_users(d, arg, CMD_SESSION);
-			break;
-		case CMD_PREFIX:
-			set_userstring(&d->output_prefix, arg);
-			break;
-		case CMD_SUFFIX:
-			set_userstring(&d->output_suffix, arg);
-			break;
-		case CMD_INFO:
-			dump_info(d);
-			break;
-		case CMD_PUEBLOCLIENT:
-#ifdef PUEBLO_SUPPORT
-			/* Set the descriptor's flag */
-			d->flags |= DS_PUEBLOCLIENT;
-			/* If we're already connected, set the player's flag */
-			if (d->player) {
-				s_Html(d->player);
-			}
-			queue_rawstring(d, mudconf.pueblo_msg);
-			queue_write(d, "\r\n", 2);
-			fcache_dump(d, FC_CONN_HTML);
-			STARTLOG(LOG_LOGIN, "CON", "HTML")
-				log_printf("[%d/%s] PuebloClient enabled.",
-					   d->descriptor, d->addr);
-			ENDLOG
-#else
-			queue_rawstring(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
-#endif
-			break;
-		default:
-			STARTLOG(LOG_BUGS, "BUG", "PARSE")
-			log_printf("Prefix command with no handler: '%s'",
-				   command);
-			ENDLOG
-		}
+		logged_out_internal(d, cp->flag & CMD_MASK, arg);
 	}
-	if (!(cp->flag & CMD_NOxFIX)) {
+	/* QUIT or LOGOUT will close the connection and cause the
+	 * descriptor to be freed!
+	 */
+	if (((cp->flag & CMD_MASK) != CMD_QUIT) &&
+	    ((cp->flag & CMD_MASK) != CMD_LOGOUT) &&
+	    !(cp->flag & CMD_NOxFIX)) {
 		if (d->output_suffix) {
 			queue_string(d, d->output_suffix);
 			queue_write(d, "\r\n", 2);
 		}
 	}
 	mudstate.debug_cmd = cmdsave;
-	return 1;
 }
 
 void logged_out(player, cause, key, arg)
@@ -1831,81 +1827,24 @@ dbref player, cause;
 int key;
 char *arg;
 {
-	DESC *d;
-	int idletime;
+	DESC *d, *dlast;
 
-	DESC_ITER_PLAYER(player, d) {
-		idletime = (mudstate.now - d->last_time);
-
-		switch (key) {
-		case CMD_QUIT:
-			if (idletime == 0) {
-				shutdownsock(d, R_QUIT);
-				return;
-			}
-			break;
-		case CMD_LOGOUT:
-			if (idletime == 0) {
-				shutdownsock(d, R_LOGOUT);
-				return;
-			}
-			break;
-		case CMD_WHO:
-			if (idletime == 0) {
-				dump_users(d, arg, CMD_WHO);
-				return;
-			}
-			break;
-		case CMD_DOING:
-			if (idletime == 0) {
-				dump_users(d, arg, CMD_DOING);
-				return;
-			}
-			break;
-		case CMD_SESSION:
-			if (idletime == 0) {
-				dump_users(d, arg, CMD_SESSION);
-				return;
-			}
-			break;
-		case CMD_PREFIX:
-			if (idletime == 0) {
-				set_userstring(&d->output_prefix, arg);
-				return;
-			}
-			break;
-		case CMD_SUFFIX:
-			if (idletime == 0) {
-				set_userstring(&d->output_suffix, arg);
-				return;
-			}
-			break;
-		case CMD_INFO:
-			if (idletime == 0) {
-				dump_info(d);
-				return;
-			}
-			break;
-		case CMD_PUEBLOCLIENT:
-#ifdef PUEBLO_SUPPORT
-			/* Set the descriptor's flag */
-			d->flags |= DS_PUEBLOCLIENT;
-			/* If we're already connected, set the player's flag */
-			if (d->player) {
-				s_Html(d->player);
-			}
-			queue_string(d, mudconf.pueblo_msg);
-			queue_write(d, "\r\n", 2);
-			fcache_dump(d, FC_CONN_HTML);
-			STARTLOG(LOG_LOGIN, "CON", "HTML")
-				log_printf("[%d/%s] PuebloClient enabled.",
-					   d->descriptor, d->addr);
-			ENDLOG
-#else
-			queue_string(d, "Sorry. This MUSH does not have Pueblo support enabled.\r\n");
-#endif
-			break;
+	if (key == CMD_PUEBLOCLIENT) {
+		/* PUEBLOCLIENT affects all the player's connections. */
+		DESC_ITER_PLAYER(player, d) {
+			logged_out_internal(d, key, arg);
 		}
+	} else {
+		/* Other logged-out commands affect only the player's
+		 * most recently used connection.
+		 */
+		dlast = NULL;
+		DESC_ITER_PLAYER(player, d) {
+			if (dlast == NULL || d->last_time > dlast->last_time)
+				dlast = d;
+		}
+		if (dlast)
+			logged_out_internal(dlast, key, arg);
 	}
 }
 
