@@ -1624,7 +1624,7 @@ int key, is_loc;
 	dbref aowner, parent;
 	int canhear, cancom, isplayer, ispuppet, isconnected, is_audible, attr, aflags, alen;
 	int is_parent, lev;
-	char *buf, *buf2, *bp, *as, *buff = NULL, *s;
+	char *buf, *buf2, *bp, *as, *buff, *s;
 	ATTR *ap;
 
 	canhear = 0;
@@ -1667,9 +1667,8 @@ int key, is_loc;
 					break;
 				}
 			}
-		}
-		if (buff)
 			free_lbuf(buff);
+		}
 	}
 	if ((key & SWEEP_COMMANDS) && !isExit(what)) {
 
