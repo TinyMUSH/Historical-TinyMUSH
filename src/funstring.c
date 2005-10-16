@@ -1060,7 +1060,7 @@ FUNCTION(fun_decrypt)
 /* Borrowed from PennMUSH 1.50 */
 FUNCTION(fun_scramble)
 {
-	int n, i, j, ansi_state, ansi_next, *ansi_map;
+	int n, i, j, ansi_state, *ansi_map;
 	char *stripped;
 
 	if (!fargs[0] || !*fargs[0]) {
