@@ -210,11 +210,12 @@ FLAG flag;
 int fflags, reset;
 {
 	int could_hear;
+	int result;
 
 	could_hear = Hearer(target);
-	fh_any(target, player, flag, fflags, reset);
+	result = fh_any(target, player, flag, fflags, reset);
 	handle_ears(target, could_hear, Hearer(target));
-	return 1;
+	return result;
 }
 
 /* ---------------------------------------------------------------------------
