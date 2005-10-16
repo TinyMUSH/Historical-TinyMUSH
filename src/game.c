@@ -1395,45 +1395,36 @@ dbref thing;
 	if (mudstate.inpipe && (thing == mudstate.poutobj))
 		return 1;
 		
-	if (Connected(thing) || Puppet(thing))
+	if (Connected(thing) || Puppet(thing) || H_Listen(thing))
 		return 1;
 
-	if (Monitor(thing))
-		buff = alloc_lbuf("Hearer");
-	else
-		buff = NULL;
+	if (!Monitor(thing))
+		return 0;
+
+	buff = alloc_lbuf("Hearer");
 	atr_push();
 	for (attr = atr_head(thing, &as); attr; attr = atr_next(&as)) {
-		if (attr == A_LISTEN) {
-			if (buff)
-				free_lbuf(buff);
+		ap = atr_num(attr);
+		if (!ap || (ap->flags & AF_NOPROG))
+			continue;
+
+		atr_get_str(buff, thing, attr, &aowner, &aflags, &alen);
+
+		/* Make sure we can execute it */
+
+		if ((buff[0] != AMATCH_LISTEN) || (aflags & AF_NOPROG))
+			continue;
+
+		/* Make sure there's a : in it */
+
+		for (s = buff + 1; *s && (*s != ':'); s++) ;
+		if (s) {
+			free_lbuf(buff);
 			atr_pop();
 			return 1;
 		}
-		if (Monitor(thing)) {
-			ap = atr_num(attr);
-			if (!ap || (ap->flags & AF_NOPROG))
-				continue;
-
-			atr_get_str(buff, thing, attr, &aowner, &aflags, &alen);
-
-			/* Make sure we can execute it */
-
-			if ((buff[0] != AMATCH_LISTEN) || (aflags & AF_NOPROG))
-				continue;
-
-			/* Make sure there's a : in it */
-
-			for (s = buff + 1; *s && (*s != ':'); s++) ;
-			if (s) {
-				free_lbuf(buff);
-				atr_pop();
-				return 1;
-			}
-		}
 	}
-	if (buff)
-		free_lbuf(buff);
+	free_lbuf(buff);
 	atr_pop();
 	return 0;
 }
