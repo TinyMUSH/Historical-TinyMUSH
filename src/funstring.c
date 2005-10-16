@@ -1060,24 +1060,30 @@ FUNCTION(fun_decrypt)
 /* Borrowed from PennMUSH 1.50 */
 FUNCTION(fun_scramble)
 {
-	int n, i, j, ansi_state, *ansi_map;
+	int n, i, j, ansi_state, ansi_next, *ansi_map;
+	char *stripped;
 
 	if (!fargs[0] || !*fargs[0]) {
 	    return;
 	}
 
-	n = ansi_map_states(fargs[0], &ansi_map);
+	n = ansi_map_states(fargs[0], &ansi_map, &stripped);
 
 	ansi_state = ANST_NORMAL;
 
 	for (i = 0; i < n; i++) {
 		j = random_range(i, n - 1);
-		safe_str(ansi_transition_esccode(ansi_state, ansi_map[j]),
-			 buff, bufc);
-		safe_chr(ansi_map[j] >> 16, buff, bufc);
 
-		ansi_state = ansi_map[j];
+		if (ansi_state != ansi_map[j]) {
+			safe_str(ansi_transition_esccode(ansi_state,
+							 ansi_map[j]),
+				 buff, bufc);
+			ansi_state = ansi_map[j];
+		}
+
+		safe_chr(stripped[j], buff, bufc);
 		ansi_map[j] = ansi_map[i];
+		stripped[j] = stripped[i];
 	}
 
 	safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL),
@@ -1090,21 +1096,28 @@ FUNCTION(fun_scramble)
 
 FUNCTION(fun_reverse)
 {
-	int n, *ansi_map;
+	int n, *ansi_map, ansi_state;
+	char *stripped;
 
 	if (!fargs[0] || !*fargs[0]) {
 	    return;
 	}
 
-	n = ansi_map_states(fargs[0], &ansi_map);
+	n = ansi_map_states(fargs[0], &ansi_map, &stripped);
+
+	ansi_state = ansi_map[n];
 
 	while (n--) {
-		safe_str(ansi_transition_esccode(ansi_map[n+1], ansi_map[n]),
-			 buff, bufc);
-		safe_chr(ansi_map[n] >> 16, buff, bufc);
+		if (ansi_state != ansi_map[n]) {
+			safe_str(ansi_transition_esccode(ansi_state,
+							 ansi_map[n]),
+				 buff, bufc);
+			ansi_state = ansi_map[n];
+		}
+		safe_chr(stripped[n], buff, bufc);
 	}
 
-	safe_str(ansi_transition_esccode(ansi_map[0], ANST_NORMAL),
+	safe_str(ansi_transition_esccode(ansi_state, ANST_NORMAL),
 		 buff, bufc);
 }
 

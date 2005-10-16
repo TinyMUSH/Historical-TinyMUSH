@@ -437,11 +437,13 @@ int ansi_before, ansi_after;
 
 /* ansi_map_states -- Identify ansi state of every character in a string */
 
-int ansi_map_states(s, m)
+int ansi_map_states(s, m, p)
 const char *s;
 int **m;
+char **p;
 {
 	static int ansi_map[LBUF_SIZE + 1];
+	static char stripped[LBUF_SIZE + 1];
 	int n, ansi_state;
 
 	n = 0;
@@ -451,13 +453,16 @@ int **m;
 		if (*s == ESC_CHAR) {
 			track_esccode(s, ansi_state);
 		} else {
-			ansi_map[n++] = (((int)*s++) << 16) | ansi_state;
+			ansi_map[n] = ansi_state;
+			stripped[n++] = *s++;
 		}
 	}
 
 	ansi_map[n] = ANST_NORMAL;
+	stripped[n] = '\0';
 
 	*m = ansi_map;
+	*p = stripped;
 	return n;
 }
 

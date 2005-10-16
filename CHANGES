@@ -24,6 +24,9 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
     code in do_command, clarifying how logged-out commands are handled,
     and fixing a reference to freed memory.
 
+  - Improved performance of scramble() and reverse() on strings with
+    less ANSI color.
+
 3.1 Patchlevel 2
 
   - Startmush now accept start/stop/restart/reboot switches. You can
