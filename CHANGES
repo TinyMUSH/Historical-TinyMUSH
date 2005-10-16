@@ -27,6 +27,12 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
   - Improved performance of scramble() and reverse() on strings with
     less ANSI color.
 
+  - Avoided unnecessary attribute scans in Hearer().
+
+  - Removed duplicated code in handle_ears().
+
+  - Minor nitpicks in sweep_check() and fh_hear_bit().
+
 3.1 Patchlevel 2
 
   - Startmush now accept start/stop/restart/reboot switches. You can
