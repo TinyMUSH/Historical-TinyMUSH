@@ -590,28 +590,18 @@ int could_hear, can_hear;
 	char *buff, *bp;
 	int gender;
 
-	if (!could_hear && can_hear) {
-		bp = buff = alloc_lbuf("handle_ears.grow");
+	if (could_hear != can_hear) {
+		bp = buff = alloc_lbuf("handle_ears");
 		if (isExit(thing))
 		    safe_exit_name(thing, buff, &bp);
 		else
 		    safe_name(thing, buff, &bp);
 		gender = get_gender(thing);
 		notify_check(thing, thing,
-			     tprintf("%s %s now listening.",
-				     buff, (gender == 4) ? "are" : "is"),
-			     (MSG_ME | MSG_NBR | MSG_LOC | MSG_INV));
-		free_lbuf(buff);
-	} else if (could_hear && !can_hear) {
-		bp = buff = alloc_lbuf("handle_ears.lose");
-		if (isExit(thing))
-		    safe_exit_name(thing, buff, &bp);
-		else
-		    safe_name(thing, buff, &bp);
-		gender = get_gender(thing);
-		notify_check(thing, thing,
-			     tprintf("%s %s no longer listening.",
-				     buff, (gender == 4) ? "are" : "is"),
+			     tprintf("%s %s %s listening.",
+				     buff,
+				     ((gender == 4) ? "are" : "is"),
+				     (can_hear ? "now" : "no longer")),
 			     (MSG_ME | MSG_NBR | MSG_LOC | MSG_INV));
 		free_lbuf(buff);
 	}
