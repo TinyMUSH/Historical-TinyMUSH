@@ -384,8 +384,7 @@ void NDECL(match_carried_exit_with_parents)
 
 	if (md.confidence >= CON_DBREF)
 		return;
-	if (Good_obj(md.player) && (Has_exits(md.player) ||
-				    isRoom(md.player))) {
+	if (Good_obj(md.player) && Has_exits(md.player)) {
 		ITER_PARENTS(md.player, parent, lev) {
 			if (match_exit_internal(parent, md.player, CON_LOCAL))
 				break;
