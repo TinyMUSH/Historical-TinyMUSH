@@ -501,11 +501,11 @@ char *name, *arg2;
 	/* You can only make a parent link to what you control */
 
 	if (!Controls(player, thing) && !Parent_ok(thing) &&
-	    (key & CLONE_PARENT)) {
+	    (key & CLONE_FROM_PARENT)) {
 		notify_quiet(player,
 			  tprintf("You don't control %s, ignoring /parent.",
 				  Name(thing)));
-		key &= ~CLONE_PARENT;
+		key &= ~CLONE_FROM_PARENT;
 	}
 
 	/* You can only preserve the owner on the clone of an object owned
@@ -570,7 +570,7 @@ char *name, *arg2;
 	/* Wipe out any old attributes and copy in the new data */
 
 	atr_free(clone);
-	if (key & CLONE_PARENT) {
+	if (key & CLONE_FROM_PARENT) {
 		s_Parent(clone, thing);
 	} else {
 		atr_cpy(player, clone, thing);
@@ -657,12 +657,12 @@ char *name, *arg2;
 	 */
 
 	if (new_owner == Owner(thing)) {
-		if (!(key & CLONE_PARENT))
+		if (!(key & CLONE_FROM_PARENT))
 			s_Parent(clone, Parent(thing));
 		did_it(player, clone, A_NULL, NULL, A_NULL, NULL, A_ACLONE, 0,
 		       (char **)NULL, 0, MSG_MOVE);
 	} else {
-		if (!(key & CLONE_PARENT) &&
+		if (!(key & CLONE_FROM_PARENT) &&
 		    (Controls(player, thing) || Parent_ok(thing)))
 			s_Parent(clone, Parent(thing));
 		s_Halted(clone);

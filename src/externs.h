@@ -280,7 +280,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	CLONE_PRESERVE	2	/* Preserve the owner of the object */
 #define	CLONE_INVENTORY	4	/* Create cloned object in my inventory */
 #define	CLONE_SET_COST	8	/* ARG2 is cost of cloned object */
-#define	CLONE_PARENT	16	/* Set parent instead of cloning attrs */
+#define	CLONE_FROM_PARENT 16	/* Set parent instead of cloning attrs */
 #define CLONE_NOSTRIP	32	/* Don't strip (most) flags from clone */
 #define	DBCK_FULL	1	/* Do all tests */
 #define DECOMP_PRETTY	1	/* pretty-format output */

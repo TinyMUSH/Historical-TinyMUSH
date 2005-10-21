@@ -41,7 +41,7 @@ NAMETAB clone_sw[] = {
 {(char *)"inventory",	3,	CA_PUBLIC,	CLONE_INVENTORY},
 {(char *)"location",	1,	CA_PUBLIC,	CLONE_LOCATION},
 {(char *)"nostrip",	1,	CA_WIZARD,	CLONE_NOSTRIP|SW_MULTIPLE},
-{(char *)"parent",	2,	CA_PUBLIC,	CLONE_PARENT|SW_MULTIPLE},
+{(char *)"parent",	2,	CA_PUBLIC,	CLONE_FROM_PARENT|SW_MULTIPLE},
 {(char *)"preserve",	2,	CA_PUBLIC,	CLONE_PRESERVE|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 

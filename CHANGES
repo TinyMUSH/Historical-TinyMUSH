@@ -33,6 +33,9 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Minor nitpicks in sweep_check() and fh_hear_bit().
 
+  - Rename CLONE_PARENT to avoid conflict with Linux 2.4 sched.h.
+    Patch from Brazil. [2.0]
+
 3.1 Patchlevel 2
 
   - Startmush now accept start/stop/restart/reboot switches. You can
