@@ -33,8 +33,12 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Minor nitpicks in sweep_check() and fh_hear_bit().
 
-  - Rename CLONE_PARENT to avoid conflict with Linux 2.4 sched.h.
+  - Renamed CLONE_PARENT to avoid conflict with Linux 2.4 sched.h.
     Patch from Brazil. [2.0]
+
+  - Fixed potential null-dereference in player cache -- pcache_find()
+    no longer returns null and all callers must use Good_owner() first.
+    Reported by Brazil. [2.0]
 
 3.1 Patchlevel 2
 

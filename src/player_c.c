@@ -66,13 +66,12 @@ dbref player;
 {
 	PCACHE *pp;
 
-	if (!Good_obj(player) || !OwnsOthers(player))
-		return NULL;
 	pp = (PCACHE *) nhashfind(player, &pcache_htab);
 	if (pp) {
 		pp->cflags |= PF_REF;
 		return pp;
 	}
+
 	pp = alloc_pcache("pcache_find");
 	pp->queue = 0;
 	pp->cflags = PF_REF;
@@ -89,10 +88,10 @@ dbref player;
 {
 	PCACHE *pp;
 
-	pp = pcache_find(player);
-	if (!pp)
-		return;
-	pcache_reload1(player, pp);
+	if (Good_owner(player)) {
+		pp = pcache_find(player);
+		pcache_reload1(player, pp);
+	}
 }
 
 static void pcache_save(pp)
@@ -158,13 +157,13 @@ int adj;
 {
 	PCACHE *pp;
 
-	if (OwnsOthers(player)) {
+	if (Good_owner(player)) {
 		pp = pcache_find(player);
-		if (pp)
-			pp->queue += adj;
+		pp->queue += adj;
 		return pp->queue;
+	} else {
+		return 0;
 	}
-	return 0;
 }
 
 void s_Queue(player, val)
@@ -173,10 +172,9 @@ int val;
 {
 	PCACHE *pp;
 
-	if (OwnsOthers(player)) {
+	if (Good_owner(player)) {
 		pp = pcache_find(player);
-		if (pp)
-			pp->queue = val;
+		pp->queue = val;
 	}
 }
 
@@ -187,16 +185,14 @@ dbref player;
 	int m;
 
 	m = 0;
-	if (OwnsOthers(player)) {
+	if (Good_owner(player)) {
 		pp = pcache_find(player);
-		if (pp) {
-			if (pp->qmax >= 0) {
-				m = pp->qmax;
-			} else {
-				m = mudstate.db_top + 1;
-				if (m < mudconf.queuemax)
-					m = mudconf.queuemax;
-			}
+		if (pp->qmax >= 0) {
+			m = pp->qmax;
+		} else {
+			m = mudstate.db_top + 1;
+			if (m < mudconf.queuemax)
+				m = mudconf.queuemax;
 		}
 	}
 	return m;
@@ -205,15 +201,12 @@ dbref player;
 int Pennies(obj)
 dbref obj;
 {
-	char *cp;
 	PCACHE *pp;
+	char *cp;
 
-	if (!mudstate.standalone) {
-		if (OwnsOthers(obj)) {
-			pp = pcache_find(obj);
-			if (pp)
-				return pp->money;
-		}
+	if (!mudstate.standalone && Good_owner(obj)) {
+		pp = pcache_find(obj);
+		return pp->money;
 	}
 	
 	cp = atr_get_raw(obj, A_MONEY);
@@ -224,17 +217,15 @@ void s_Pennies(obj, howfew)
 dbref obj;
 int howfew;
 {
+	PCACHE *pp;
 	IBUF tbuf;
 
-	PCACHE *pp;
-
-	if (!mudstate.standalone && OwnsOthers(obj)) {
+	if (!mudstate.standalone && Good_owner(obj)) {
 		pp = pcache_find(obj);
-		if (pp) {
-			pp->money = howfew;
-			pp->cflags |= PF_MONEY_CH;
-		}
+		pp->money = howfew;
+		pp->cflags |= PF_MONEY_CH;
 	}
+
 	ltos(tbuf, howfew);
 	atr_add_raw(obj, A_MONEY, tbuf);
 }
