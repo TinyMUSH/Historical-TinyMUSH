@@ -42,6 +42,9 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Fixed double-evaluation of arguments in columns(). [MUX; Brazil]
 
+  - Fixed lack of evaluation of delimiter arguments in list() and loop().
+    [3.0]
+
 3.1 Patchlevel 2
 
   - Startmush now accept start/stop/restart/reboot switches. You can

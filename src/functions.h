@@ -246,6 +246,10 @@ VaChk_Range(xminargs, xnargs); \
 VaChk_InSep(xnargs-1, DELIM_EVAL); \
 VaChk_OutSep(xnargs, DELIM_EVAL)
 
+#define VaChk_Only_InEval(xnargs) \
+VaChk_Range(xnargs-1, xnargs); \
+VaChk_InSep(xnargs, DELIM_EVAL)
+
 /* ---------------------------------------------------------------------------
  * Miscellaneous macros.
  */

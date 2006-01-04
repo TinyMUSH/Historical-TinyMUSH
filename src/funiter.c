@@ -33,7 +33,7 @@ FUNCTION(perform_loop)
     flag = Func_Mask(LOOP_NOTIFY);
     
     if (flag) {
-	VaChk_Only_In(3);
+	VaChk_Only_InEval(3);
     } else {
 	VaChk_InEval_OutEval(2, 4);
     }
@@ -117,7 +117,7 @@ FUNCTION(perform_iter)
 		 (filt_flag != FILT_COND_NONE)) ? 1 : 0;
     
     if (flag) {
-	VaChk_Only_In(3);
+	VaChk_Only_InEval(3);
     } else {
 	VaChk_InEval_OutEval(2, 4);
     }
