@@ -40,6 +40,8 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
     no longer returns null and all callers must use Good_owner() first.
     Reported by Brazil. [2.0]
 
+  - Fixed double-evaluation of arguments in columns(). [MUX; Brazil]
+
 3.1 Patchlevel 2
 
   - Startmush now accept start/stop/restart/reboot switches. You can

@@ -1246,11 +1246,11 @@ FUNCTION(fun_columns)
 	unsigned int spaces, number, ansinumber, striplen;
 	unsigned int count, i, indent = 0;
 	int isansi = 0, rturn = 1;
-	char *p, *q, *buf, *curr, *objstring, *bp, *cp, *str, *cr = NULL;
+	char *p, *q, *buf, *objstring, *cp, *cr = NULL;
 	Delim isep;
 
 	VaChk_Range(2, 4);
-	VaChk_InSep(3, DELIM_EVAL);
+	VaChk_InSep(3, 0);
 		
 	number = (unsigned int) safe_atoi(fargs[1]);
 	indent = (unsigned int) safe_atoi(fargs[3]);
@@ -1269,13 +1269,8 @@ FUNCTION(fun_columns)
 		return;
 	}
 
-	cp = curr = bp = alloc_lbuf("fun_columns");
-	str = fargs[0];
-	exec(curr, &bp, player, caller, cause,
-	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	cp = trim_space_sep(cp, &isep);
+	cp = trim_space_sep(fargs[0], &isep);
 	if (!*cp) {
-		free_lbuf(curr);
 		return;
 	}
 	
@@ -1352,7 +1347,6 @@ FUNCTION(fun_columns)
 	}
 	
 	free_lbuf(buf);
-	free_lbuf(curr);
 }
 
 /*---------------------------------------------------------------------------
