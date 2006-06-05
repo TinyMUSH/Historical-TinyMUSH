@@ -14,7 +14,9 @@ The "full", gamma release of TinyMUSH 3.1 is dated June 21st, 2004.
 
 BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
-3.1 Patchlevel 3   XXX NOT RELEASED YET
+3.1 Patchlevel 3
+
+  - Fixed Update script to work with Sourceforge's new web services.
 
   - Bugfix for integer overflow in PCRE repeat counts.
 

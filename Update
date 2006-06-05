@@ -78,7 +78,7 @@ sub Web_Get {
 	last if /^\r?\n?$/;
     }
     while (<S>) {
-	if (/404 Not Found/) {
+	if (/Encountered a 404 error/) {
 	    return 0;
 	}
 	push(@remote_output,$_);
