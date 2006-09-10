@@ -888,13 +888,9 @@ const void *s1, *s2;
 	result = bp = alloc_lbuf("u_comp");
 	str = tbuf;
 	exec(result, &bp, ucomp_player, ucomp_caller, ucomp_cause,
-	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(elems[0]), 2);
-	if (!result)
-		n = 0;
-	else {
-		n = atoi(result);
-		free_lbuf(result);
-	}
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, elems, 2);
+	n = atoi(result);
+	free_lbuf(result);
 	free_lbuf(tbuf);
 	return n;
 }
