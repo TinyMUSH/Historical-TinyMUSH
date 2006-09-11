@@ -450,8 +450,8 @@ FUNCTION(fun_mix)
     char *str, *atext, *os[NUM_ENV_VARS], *atextbuf, *bb_p;
     Delim isep;
     char *cp[NUM_ENV_VARS];
-    int count[LBUF_SIZE / 2];
-    char tmpbuf[2];
+    int count[NUM_ENV_VARS];
+    char tmpbuf[1] = "";
 
     /* Check to see if we have an appropriate number of arguments.
      * If there are more than three arguments, the last argument is
@@ -481,11 +481,9 @@ FUNCTION(fun_mix)
 
     /* process the lists, one element at a time. */
 
-    for (i = 1; i <= lastn; i++) {
-	cp[i] = trim_space_sep(fargs[i], &isep);
-    }
-    nwords = count[1] = countwords(cp[1], &isep);
-    for (i = 2; i<= lastn; i++) {
+    nwords = 0;
+    for (i = 0; i < lastn; i++) {
+	cp[i] = trim_space_sep(fargs[i + 1], &isep);
 	count[i] = countwords(cp[i], &isep);
 	if (count[i] > nwords)
 	    nwords = count[i];
@@ -496,12 +494,11 @@ FUNCTION(fun_mix)
 	 (wc < nwords) && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
 	     !Too_Much_CPU();
 	 wc++) {
-	for (i = 1; i <= lastn; i++) {
-	    if (count[i]) {
-		os[i - 1] = split_token(&cp[i], &isep);
+	for (i = 0; i < lastn; i++) {
+	    if (wc < count[i]) {
+		os[i] = split_token(&cp[i], &isep);
 	    } else {
-		tmpbuf[0] = '\0';
-		os[i - 1] = tmpbuf;
+		os[i] = tmpbuf;
 	    }
 	}
 	StrCopyKnown(atextbuf, atext, alen);
@@ -513,7 +510,7 @@ FUNCTION(fun_mix)
 	str = atextbuf;
 	
 	exec(buff, bufc, player, caller, cause,
-	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, &(os[0]), lastn);
+	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, os, lastn);
     }
     free_lbuf(atext);
     free_lbuf(atextbuf);
