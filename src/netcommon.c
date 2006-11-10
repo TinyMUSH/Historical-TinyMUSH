@@ -34,13 +34,6 @@ extern char * FDECL(make_guest, (DESC *));
 extern const char *conn_reasons[];
 extern const char *conn_messages[];
 
-#ifdef CONCENTRATE
-extern void FDECL(do_becomeconc, (DESC *, char *));
-extern void FDECL(do_makeid, (DESC *));
-extern void FDECL(do_connectid, (DESC *, long int, char *));
-extern void FDECL(do_killid, (DESC *, long int));
-#endif
-
 /* ---------------------------------------------------------------------------
  * timeval_sub: return difference between two times as a timeval
  */
@@ -1039,11 +1032,7 @@ void NDECL(check_idle)
 			}
 		} else {
 			idletime = mudstate.now - d->connected_at;
-#ifdef CONCENTRATE
-			if ((idletime > mudconf.conn_timeout) && !(d->cstatus & C_CCONTROL)) {
-#else
 			if (idletime > mudconf.conn_timeout) {
-#endif /* CONCENTRATE */
 				queue_rawstring(d,
 					     "*** Login Timeout ***\r\n");
 				shutdownsock(d, R_TIMEOUT);
@@ -1681,56 +1670,6 @@ int first;
 
 	cmdsave = mudstate.debug_cmd;
 	mudstate.debug_cmd = (char *)"< do_command >";
-
-#ifdef CONCENTRATE
-	if (!strncmp(command, "New Conn Pass: ",
-		     sizeof("New Conn Pass ") - 1)) {
-		do_becomeconc(d, command + sizeof("New Conn Pass: ") - 1);
-		return;
-	} else if (((d->cstatus & C_REMOTE) || (d->cstatus & C_CCONTROL)) && first) {
-		if (!strncmp(command, "CONC ", sizeof("CONC ") - 1))
-			log_printf("%s", command);
-		else if (!strcmp(command, "New ID")) {
-			do_makeid(d);
-		} else if (!strncmp(command, "Conn ID: ",
-				    sizeof("Conn ID: ") - 1)) {
-			char *m, *n;
-
-			m = command + sizeof("Conn ID: ") - 1;
-			n = strchr(m, ' ');
-			if (!n)
-				queue_string(d, "Usage: Conn ID: <id> <hostname>\n");
-			else
-				do_connectid(d, atoi(command + sizeof("Conn ID: ") - 1), n + 1);
-		} else if (!strncmp(command, "Kill ID: ",
-				    sizeof("Kill ID: ") - 1))
-			do_killid(d, atoi(command + sizeof("Kill ID: ") - 1));
-		else {
-			char *k;
-
-			k = strchr(command, ' ');
-			if (k) {
-				struct descriptor_data *l;
-				int j;
-
-				*k = '\0';
-				j = atoi(command);
-				for (l = descriptor_list; l; l = l->next) {
-					if (l->concid == j)
-						break;
-				}
-
-				if (!l)
-					queue_string(d, "I don't know that concid.\r\n");
-				else {
-					k++;
-					do_command(l, k, 0);
-				}
-			}
-		}
-		return;
-	}
-#endif 
 
 	if (d->flags & DS_CONNECTED) {
 		/* Normal logged-in command processing */

@@ -32,7 +32,7 @@ static datum key;
 static struct flock fl;
 
 extern void VDECL(fatal, (char *, ...));
-extern void VDECL(logf, (char *, ...));
+extern void VDECL(warning, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
 
 void dddb_setsync(flag)
@@ -42,7 +42,7 @@ int flag;
 	
 	if (gdbm_setopt(dbp, GDBM_SYNCMODE, &flag, sizeof(int)) == -1) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf("setsync: cannot toggle sync flag", dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		warning("setsync: cannot toggle sync flag", dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 	}
 }
 
@@ -78,7 +78,7 @@ int dddb_init()
  
 	if ((dbp = gdbm_open(tmpfile, mudstate.db_block_size, GDBM_WRCREAT|GDBM_SYNC|GDBM_NOLOCK, 0600, dbm_error)) == (GDBM_FILE) 0) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf(copen, tmpfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		warning(copen, tmpfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
 	
@@ -89,7 +89,7 @@ int dddb_init()
 		i = 400;
 		if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
 			gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-			logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+			warning(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 			return (1);
 		}
 	} else {
@@ -101,7 +101,7 @@ int dddb_init()
 		i = 2;
 		if (gdbm_setopt(dbp, GDBM_CACHESIZE, &i, sizeof(int)) == -1) {
 			gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-			logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+			warning(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 			return (1);
 		}
 	}
@@ -111,7 +111,7 @@ int dddb_init()
 	i = 1;
 	if (gdbm_setopt(dbp, GDBM_CENTFREE, &i, sizeof(int)) == -1) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		warning(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
 
@@ -120,7 +120,7 @@ int dddb_init()
 	i = 1;
 	if (gdbm_setopt(dbp, GDBM_COALESCEBLKS, &i, sizeof(int)) == -1) {
 		gdbm_error = (char *)gdbm_strerror(gdbm_errno);
-		logf(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
+		warning(copen, dbfile, " ", (char *)-1, "\n", gdbm_error, "\n", (char *)0);
 		return (1);
 	}
 
@@ -236,7 +236,7 @@ unsigned int type;
 	dat.dsize = gamedata.dsize;
 
 	if (gdbm_store(dbp, key, dat, GDBM_REPLACE)) {
-		logf("db_put: can't gdbm_store ", " ", (char *)-1, "\n", (char *)0);
+		warning("db_put: can't gdbm_store ", " ", (char *)-1, "\n", (char *)0);
 		RAW_FREE(dat.dptr, "db_put.dat");
 		RAW_FREE(key.dptr, "db_put");
 		return (1);
@@ -283,7 +283,7 @@ unsigned int type;
 
 	/* drop key from db */
 	if (gdbm_delete(dbp, key)) {
-		logf("db_del: can't delete key\n", (char *)NULL);
+		warning("db_del: can't delete key\n", (char *)NULL);
 		RAW_FREE(key.dptr, "db_del.key");
 		return (1);
 	}

@@ -35,13 +35,6 @@ DEFS =
 #
 #DEFS = -signed
 
-# After we finish beta testing, we'll take away the debugging -g flag.
-# If you don't use GCC, don't use -g. Add -pg for profiling (gprof netmush
-# gmon.out)
-#OPTIM = -O
-#OPTIM = -g -pg -O
-OPTIM = -g -O
-
 # ----- TinyMUSH can read and write directly from external databases.
 #        These variables are set by the configure script (--help for options).
 SQL_S = @SQL_S@
@@ -53,11 +46,6 @@ SQL_O = @SQL_O@
 UDB_S = @UDB_S@
 UDB_O = @UDB_O@
 UDB_I = @UDB_I@
-
-# ----- This set of definitions is for the port concentrator.
-#        These variables are set by the configure script (--help for options).
-CONC_S = @CONC_S@
-CONC_O = @CONC_O@
 
 # ----- This set of definitions is for using our version of malloc, with
 #        optional tracing.
@@ -93,8 +81,8 @@ LIBTOOL = @LIBTOOL@
 LIBS = @LIBS@
 LIBADD_DL = @LIBADD_DL@
 LIBOBJS = @LIBOBJS@
-DEBUG	= $(OPTIM)
-ALLCFLAGS = $(CFLAGS) $(SQL_I) $(DEBUG) $(DEFS)
+DEBUG	= @OPTIM_F@
+ALLCFLAGS = $(CFLAGS) $(SQL_I) $(DEBUG) $(DEFS) @LIBSINC@
 
 # Purify stuff.
 PUREDIR = /local/src/purify-4.0.1-sunos4
@@ -120,10 +108,10 @@ D_O	= alloc.o api.o boolexp.o command.o compat.o conf.o cque.o create.o \
 D_I	= copyright.h flags.h help.h htab.h interface.h match.h functions.h \
 	  fnproto.h cmdtabs.h command.h config.h db.h externs.h mudconf.h \
 	  walkdb.h vattr.h file_c.h alloc.h attrs.h powers.h slave.h \
-	  api.h pcre.h bitstring.h db_sql.h ltdl.h
+	  api.h pcre.h bitstring.h ltdl.h
 
 # Auxiliary source files: only used by offline utilities.
-AUX_S	= mkindx.c unsplit.c slave.c portconc.c recover.c logwatch.c
+AUX_S	= mkindx.c unsplit.c slave.c recover.c logwatch.c
 
 # Version number routine
 VER_S	= version.c
@@ -136,27 +124,36 @@ VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
 	  -DMUSH_CONFIGURE_CMD="\"@CONFIGURE_CMD@\""
 
 # Compilation source files
-ALL_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S) \
+ALL_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(SQL_S) $(VER_S) \
 	  $(AUX_S)
 
 ALL_I	= $(D_I) $(UDB_I) $(VER_I)
 
-MUSH_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(CONC_S) $(SQL_S) $(VER_S)
-MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(CONC_O) $(SQL_O) $(VER_O) \
+MUSH_S	= $(D_S) $(NET_S) $(UDB_S) $(MALLOC_S) $(SQL_S) $(VER_S)
+MUSH_O	= $(D_O) $(NET_O) $(UDB_O) $(MALLOC_O) $(SQL_O) $(VER_O) \
 	  $(LIBOBJS)
 
 OUT	= netmush mkindx slave recover logwatch
 
 depend: $(ALL_S) $(ALL_I) unsplit Makefile
+	@echo
+	@./shtool echo -e "Making dependencies for %B@PACKAGE_NAME@%b."
+	@echo
 	for i in $(ALL_S); do $(MKDEP) $(ALLCFLAGS) $$i || :; done | sed -e 's:/usr[^ ]* *::g' | ./unsplit > .depend~
 	mv .depend~ .depend
 	touch depend
 
 build: depend
+	@echo
+	@./shtool echo -e "Building %B@PACKAGE_NAME@%b."
+	@echo
 	$(MAKE) $(OUT)
 	touch build
 
 install: build
+	@echo
+	@./shtool echo -e "Installing %B@PACKAGE_NAME@%b."
+	@echo
 	cd ../game/bin ; rm -f dbconvert ; ln -s ../../src/netmush dbconvert
 	cd ../game/bin ; rm -f mkindx ; ln -s ../../src/mkindx mkindx
 	cd ../game/bin ; rm -f netmush ; ln -s ../../src/netmush netmush
@@ -167,34 +164,54 @@ install: build
 	touch install
 
 install-modules:
+	@echo
+	@./shtool echo -e "Installing modules for %B@PACKAGE_NAME@%b."
+	@echo
 	touch install-modules
 
 .c.o:
 	$(CC) $(ALLCFLAGS) -c $<
 
 $(VER_O): $(VER_S) $(MUSH_S) $(ALL_I) $(MOD_S) $(MOD_I)
+	@echo
+	@./shtool echo -e "Updating version information for %B@PACKAGE_NAME@%b."
+	@echo
 	$(CC) $(ALLCFLAGS) $(VER_FLG) -c $<
 
-conc: portconc.o
-	$(CC) $(ALLCFLAGS) $(LIBS) -o conc portconc.o
-	cd ../game/bin ; rm -f conc ; ln -s ../../src/conc conc
-
 slave: slave.o
+	@echo
+	@./shtool echo -e "Creating slave for %B@PACKAGE_NAME@%b."
+	@echo
 	$(CC) $(ALLCFLAGS) -o slave slave.o $(LIBS)
 
 mkindx: mkindx.o
+	@echo
+	@./shtool echo -e "Creating mkindx for %B@PACKAGE_NAME@%b."
+	@echo
 	$(CC) $(ALLCFLAGS) -o mkindx mkindx.o
 
 logwatch: logwatch.o
+	@echo
+	@./shtool echo -e "Creating logwatch for %B@PACKAGE_NAME@%b."
+	@echo
 	$(CC) $(ALLCFLAGS) -o logwatch logwatch.o
 
 recover: recover.o
+	@echo
+	@./shtool echo -e "Creating recover for %B@PACKAGE_NAME@%b."
+	@echo
 	$(CC) $(ALLCFLAGS) -o recover recover.o $(LIBS)
 
 unsplit: unsplit.o
+	@echo
+	@./shtool echo -e "Creating unsplit for %B@PACKAGE_NAME@%b."
+	@echo
 	$(CC) $(ALLCFLAGS) -o unsplit unsplit.o
 
 netmush: $(MUSH_O) install-modules
+	@echo
+	@./shtool echo -e "Linking %B@PACKAGE_NAME@%b."
+	@echo
 	-mv -f netmush netmush~
 	$(LIBTOOL) --mode=link $(CC) -export-dynamic $(ALLCFLAGS) -o netmush $(MUSH_O) $(MOD_DL) $(LIBS) $(LIBADD_DL)
 
@@ -227,18 +244,24 @@ verify:
 	runtest --tool mush --src ./testsuite
 
 clean:
+	@echo
+	@./shtool echo -e "Cleaning %B@PACKAGE_NAME@%b."
+	@echo
 	-rm -f *.o *.lo a.out core gmon.out mush.*log mush.*sum Compile.log
 	-rm -rf .libs
-	curdir=`pwd`
-	cd gdbm-1.8.0 && $(MAKE) clean
-	cd $$curdir
 
 realclean: clean
-	-rm -f $(OUT) netmush~ conc unsplit
+	@echo
+	@./shtool echo -e "Cleaning %B@PACKAGE_NAME@%b."
+	@echo
+	-rm -f $(OUT) netmush~ unsplit
 
 distclean: realclean
+	@echo
+	@./shtool echo -e "Cleaning %B@PACKAGE_NAME@%b."
+	@echo
 	curdir=`pwd`
-	cd gdbm-1.8.0 && $(MAKE) distclean
+	-cd gdbm-1.8.0 && $(MAKE) distclean
 	cd $$curdir
 	-rm -f libtool config.log config.cache config.status autoconf.h
 	-rm -f depend build install install-modules

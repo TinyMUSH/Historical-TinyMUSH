@@ -50,9 +50,9 @@ const char *txt;
  * VARARGS 
  */
 #if defined(__STDC__) && defined(STDC_HEADERS)
-void logf(char *p,...)
+void warning(char *p,...)
 #else
-void logf(va_alist)
+void warning(va_alist)
 va_dcl
 
 #endif

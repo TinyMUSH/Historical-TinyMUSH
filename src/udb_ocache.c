@@ -15,7 +15,7 @@
 #include "udb_defs.h"	/* required by code */
 #include "ansi.h"	/* required by code */
 
-extern void VDECL(logf, (char *, ...));
+extern void VDECL(warning, (char *, ...));
 extern void VDECL(fatal, (char *, ...));
 extern void FDECL(log_db_err, (int, int, const char *));
 extern void FDECL(dddb_setsync, (int));
@@ -170,7 +170,7 @@ int width;
 
 	sp = sys_c = (Chain *) RAW_MALLOC((unsigned)cwidth * sizeof(Chain), "cache_init");
 	if (sys_c == (Chain *) 0) {
-		logf(ncmsg, (char *)-1, "\n", (char *)0);
+		warning(ncmsg, (char *)-1, "\n", (char *)0);
 		return (-1);
 	}
 	freelist = (Chain *) RAW_MALLOC(sizeof(Chain), "cache_init");

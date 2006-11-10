@@ -1,5 +1,21 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(mail.c)
-MODNAME=mail
-AC_SUBST(MODNAME)
+
+AC_PREREQ(2.59)
+AC_INIT(mail, 3.1, tinymush-bugs@lists.sourceforge.net)
+AC_CONFIG_SRCDIR([mail.c])   
+
+AC_COPYRIGHT([Copyright (C) 2005 David Passmore, Lydia Leong, Robby Griffin,
+                   Scott Dorr, Eddy Beaupre.
+
+                   http://tinymush.sourceforge.net])
+
+echo
+../../shtool echo -e "Configuring %B${PACKAGE_NAME}%b version %B${PACKAGE_VERSION}%b."
+echo
+echo "Copyright (C) 2005 David Passmore, Lydia Leong, Robby Griffin,"
+echo "                   Scott Dorr, Eddy Beaupre."
+echo 
+echo "                   http://tinymush.sourceforge.net"
+echo
+
 AC_OUTPUT(Makefile.inc)

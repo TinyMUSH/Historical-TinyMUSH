@@ -14,6 +14,22 @@ The "full", gamma release of TinyMUSH 3.1 is dated June 21st, 2004.
 
 BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
+3.1 Patchlevel 4
+
+  - Update LibTools to version 1.5.22
+
+  - Update AutoConf to version 2.59
+
+  - Fixed function logf() in udb_* conflict with build-in function logf(),
+    rename the function to warning().
+
+  - Remove unused port-concentrator code.
+
+  - Automated build of TinyGDBM within ./configure.
+
+  - Updated the build process a bit to keep in line with autoconf
+    standards.
+
 3.1 Patchlevel 3
 
   - Fixed Update script to work with Sourceforge's new web services.

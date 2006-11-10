@@ -9,27 +9,15 @@ case "$1" in
 	exec src/configure --help ;;
 esac
 
-echo "Building TinyMUSH 3.1..."
-
-echo
-echo "***** Configuring GNU DBM..."
-echo
-cd src/gdbm-1.8.0
-./configure --enable-shared=no --enable-static=yes "$@"
-echo
-echo "***** Building GNU DBM..."
-echo
-make
-
-echo
-echo "***** Configuring the server..."
-cd ..
+cd src
 if test -z "$*"; then
+    ./shtool echo -e "Configuring the server using: %Bdefault values%b."
+    echo
     ./configure
-    echo "***** Building server using default config..."
 else
+    ./shtool echo -e "Configuring the server using: %B$@%b."
+    echo
     ./configure "$@"
-    echo "***** Building server using custom config..."
 fi
 echo
 rm -f .depend

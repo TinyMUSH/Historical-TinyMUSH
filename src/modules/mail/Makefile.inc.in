@@ -1,52 +1,86 @@
-# Generic Makefile fragment for a module with one .c file and one .h file
+# Generic Makefile fragment for a module with one .c file
 #
 # Module source files
-@MODNAME@_S = modules/@MODNAME@/@MODNAME@.c
-@MODNAME@_I = modules/@MODNAME@/@MODNAME@.h
+@PACKAGE_NAME@_S = modules/@PACKAGE_NAME@/@PACKAGE_NAME@.c
 
-MOD_S += $(@MODNAME@_S)
-MOD_I += $(@MODNAME@_I)
-MOD_O += modules/@MODNAME@/@MODNAME@.o
-MOD_LA += modules/@MODNAME@/@MODNAME@.la
-MOD_DL += -dlopen ../game/modules/@MODNAME@.la
+MOD_S += $(@PACKAGE_NAME@_S)
+MOD_O += modules/@PACKAGE_NAME@/@PACKAGE_NAME@.o
+MOD_LA += modules/@PACKAGE_NAME@/@PACKAGE_NAME@.la
+MOD_DL += -dlopen ../game/modules/@PACKAGE_NAME@.la
 
-depend: depend-@MODNAME@
+depend: depend-@PACKAGE_NAME@
 
-depend-@MODNAME@: unsplit $(@MODNAME@_S) $(@MODNAME@_I) modules/@MODNAME@/Makefile.inc
-	for i in $(@MODNAME@_S); do \
+depend-@PACKAGE_NAME@: unsplit $(@PACKAGE_NAME@_S) modules/@PACKAGE_NAME@/Makefile.inc
+	@echo
+	@./shtool echo -e "Making dependencies for module %B@PACKAGE_NAME@%b"
+	@echo
+	for i in $(@PACKAGE_NAME@_S); do \
 		$(MKDEP) $(ALLCFLAGS) $$i || :; \
 	done | sed -e 's:/usr[^ ]* *::g' \
-		   -e 's:modules/@MODNAME@/../../::g' \
-		   -e 's:^\([^/]*\:\):modules/@MODNAME@/\1:' \
-	     | ./unsplit > modules/@MODNAME@/.depend~
-	mv modules/@MODNAME@/.depend~ modules/@MODNAME@/.depend
-	touch depend-@MODNAME@
+		   -e 's:modules/@PACKAGE_NAME@/../../::g' \
+		   -e 's:^\([^/]*\:\):modules/@PACKAGE_NAME@/\1:' \
+	     | ./unsplit > modules/@PACKAGE_NAME@/.depend~
+	mv modules/@PACKAGE_NAME@/.depend~ modules/@PACKAGE_NAME@/.depend
+	touch depend-@PACKAGE_NAME@
+	@echo
+	@./shtool echo -e "Making dependencies for module %B@PACKAGE_NAME@%b done"
+	@echo
 
-modules/@MODNAME@/@MODNAME@.o: modules/@MODNAME@/@MODNAME@.c
+modules/@PACKAGE_NAME@/@PACKAGE_NAME@.o: modules/@PACKAGE_NAME@/@PACKAGE_NAME@.c
+	@echo
+	@./shtool echo -e "Compilling module %B@PACKAGE_NAME@%b"
+	@echo
 	$(LIBTOOL) --mode=compile $(CC) $(ALLCFLAGS) -o $@ -c `echo $@ | sed -e 's/o$$/c/'`
+	@echo
+	@./shtool echo -e "Compilling module %B@PACKAGE_NAME@%b done"
+	@echo 
 
-modules/@MODNAME@/@MODNAME@.la: modules/@MODNAME@/@MODNAME@.o
+modules/@PACKAGE_NAME@/@PACKAGE_NAME@.la: modules/@PACKAGE_NAME@/@PACKAGE_NAME@.o
+	@echo
+	@./shtool echo -e "Linking module %B@PACKAGE_NAME@%b"
+	@echo
 	$(LIBTOOL) --mode=link $(CC) -module -o $@ `echo $@ | sed -e 's/a$$/o/'` -rpath `pwd`/../game/modules
+	@echo
+	@./shtool echo -e "Linking module %B@PACKAGE_NAME@%b done"
+	@echo
 
-install-modules: install-@MODNAME@
+install-modules: install-@PACKAGE_NAME@
 
-install-@MODNAME@: modules/@MODNAME@/@MODNAME@.la
-	-mv ../game/modules/@MODNAME@.* ../game/modules/lib@MODNAME@.* ../game/modules/old/
-	$(LIBTOOL) --mode=install cp modules/@MODNAME@/@MODNAME@.la `pwd`/../game/modules/@MODNAME@.la
-	touch install-@MODNAME@
+install-@PACKAGE_NAME@: modules/@PACKAGE_NAME@/@PACKAGE_NAME@.la
+	@echo
+	@./shtool echo -e "Installing module %B@PACKAGE_NAME@%b"
+	@echo
+	-mv ../game/modules/@PACKAGE_NAME@.* ../game/modules/lib@PACKAGE_NAME@.* ../game/modules/old/
+	$(LIBTOOL) --mode=install cp modules/@PACKAGE_NAME@/@PACKAGE_NAME@.la `pwd`/../game/modules/@PACKAGE_NAME@.la
+	touch install-@PACKAGE_NAME@
+	@echo
+	@./shtool echo -e "Installing module %B@PACKAGE_NAME@%b done"
+	@echo
 
-clean: clean-@MODNAME@
+clean: clean-@PACKAGE_NAME@
 
-clean-@MODNAME@:
-	-rm -f modules/@MODNAME@/*.o modules/@MODNAME@/*.lo modules/@MODNAME@/*.la
-	-rm -rf modules/@MODNAME@/.libs
+clean-@PACKAGE_NAME@:
+	@echo
+	@./shtool echo -e "Cleaning module %B@PACKAGE_NAME@%b"
+	@echo
+	-rm -f modules/@PACKAGE_NAME@/*.o modules/@PACKAGE_NAME@/*.lo modules/@PACKAGE_NAME@/*.la
+	-rm -rf modules/@PACKAGE_NAME@/.libs
+	@echo
+	@./shtool echo -e "Cleaning module %B@PACKAGE_NAME@%b done"
+	@echo
 
-distclean: distclean-@MODNAME@
+distclean: distclean-@PACKAGE_NAME@
 
-distclean-@MODNAME@:
-	-rm -f modules/@MODNAME@/config.status modules/@MODNAME@/config.log
-	-rm -f depend-@MODNAME@ install-@MODNAME@ ../game/modules/@MODNAME@.* ../game/modules/lib@MODNAME@.* ../game/modules/old/@MODNAME@.* ../game/modules/old/lib@MODNAME@.*
-	-rm -f modules/@MODNAME@/Makefile.inc modules/@MODNAME@/.depend
-	touch modules/@MODNAME@/.depend
+distclean-@PACKAGE_NAME@:
+	@echo
+	@./shtool echo -e "Distclean module %B@PACKAGE_NAME@%b"
+	@echo
+	-rm -f modules/@PACKAGE_NAME@/config.status modules/@PACKAGE_NAME@/config.log
+	-rm -f depend-@PACKAGE_NAME@ install-@PACKAGE_NAME@ ../game/modules/@PACKAGE_NAME@.* ../game/modules/lib@PACKAGE_NAME@.* ../game/modules/old/@PACKAGE_NAME@.* ../game/modules/old/lib@PACKAGE_NAME@.*
+	-rm -f modules/@PACKAGE_NAME@/Makefile.inc modules/@PACKAGE_NAME@/.depend
+	touch modules/@PACKAGE_NAME@/.depend
+	@echo
+	@./shtool echo -e "Distclean module %B@PACKAGE_NAME@%b done"  
+	@echo
 
-include modules/@MODNAME@/.depend
+include modules/@PACKAGE_NAME@/.depend

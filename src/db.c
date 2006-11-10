@@ -44,10 +44,6 @@ extern int ndescriptors;
 extern int maxd;
 extern int slave_socket;
 
-#ifdef CONCENTRATE
-extern int conc_pid;
-
-#endif
 extern pid_t slave_pid;
 extern void FDECL(desc_addhash, (DESC *));
 
@@ -2606,9 +2602,6 @@ void dump_restart_db()
 	 * has been changed in the new executable. 
 	 */
 	   
-#ifdef CONCENTRATE
-	version |= RS_CONCENTRATE;
-#endif
 	version |= RS_RECORD_PLAYERS;
 	version |= RS_NEW_STRINGS;
 	version |= RS_COUNT_REBOOTS;
@@ -2619,9 +2612,6 @@ void dump_restart_db()
 	putlong(f, mudstate.start_time);
 	putref(f, mudstate.reboot_nums);
 	putstring(f, mudstate.doing_hdr);
-#ifdef CONCENTRATE
-	putref(f, conc_pid);
-#endif
 	putref(f, mudstate.record_players);
 	DESC_ITER_ALL(d) {
 		putref(f, d->descriptor);
@@ -2637,10 +2627,6 @@ void dump_restart_db()
 		putstring(f, d->addr);
 		putstring(f, d->doing);
 		putstring(f, d->username);
-#ifdef CONCENTRATE
-		putref(f, d->concid);
-		putref(f, d->cstatus);
-#endif
 	}
 	putref(f, 0);
 
@@ -2683,11 +2669,7 @@ void load_restart_db()
 	strcpy(mudstate.doing_hdr, getstring_noalloc(f, new_strings));
 
 	if (version & RS_CONCENTRATE) {
-#ifdef CONCENTRATE
-		conc_pid = getref(f);
-#else
 		(void)getref(f);
-#endif
 	}
 	
 	if (version & RS_RECORD_PLAYERS) {
@@ -2726,13 +2708,8 @@ void load_restart_db()
 		strcpy(d->username, getstring_noalloc(f, new_strings));
 
 		if (version & RS_CONCENTRATE) {
-#ifdef CONCENTRATE
-			d->concid = getref(f);
-			d->cstatus = getref(f);
-#else
 			(void)getref(f);
 			(void)getref(f);
-#endif
 		}
 		d->output_size = 0;
 		d->output_tot = 0;
@@ -2767,11 +2744,8 @@ void load_restart_db()
 		if (d->descriptor >= maxd)
 			maxd = d->descriptor + 1;
 		desc_addhash(d);
-#ifdef CONCENTRATE
-		if (!(d->cstatus & C_CCONTROL))
-#endif
-			if (isPlayer(d->player))
-				s_Flags2(d->player, Flags2(d->player) | CONNECTED);
+		if (isPlayer(d->player))
+			s_Flags2(d->player, Flags2(d->player) | CONNECTED);
 	}
 
 	/* In case we've had anything bizarre happen... */
@@ -2789,15 +2763,6 @@ void load_restart_db()
 		if (!isPlayer(d->player)) {
 			shutdownsock(d, R_QUIT);
 		}
-#ifdef CONCENTRATE
-		if (d->cstatus & C_REMOTE) {
-			DESC *k;
-			DESC_ITER_ALL(k) {
-				if (k->descriptor = d->descriptor)
-					d->parent = k;
-			}
-		}
-#endif
 
 	}
 

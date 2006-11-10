@@ -28,12 +28,6 @@ extern const int _sys_nsig;
 #define NSIG _sys_nsig
 #endif
 
-#ifdef CONCENTRATE
-extern void FDECL(send_killconcid, (DESC *));
-extern long NDECL(make_concid);
-
-#endif
-
 extern void NDECL(dispatch);
 int sock;
 int ndescriptors = 0;
@@ -530,12 +524,10 @@ int port;
 				/*
 				 * Process received data 
 				 */
-#ifdef CONCENTRATE
-				if (!(d->cstatus & C_REMOTE))
-#endif
-					if (!process_input(d)) {
-						shutdownsock(d, R_SOCKDIED);
-						continue;
+
+				if (!process_input(d)) {
+					shutdownsock(d, R_SOCKDIED);
+					continue;
 					}
 			}
 			/*
@@ -544,10 +536,7 @@ int port;
 
 			if (CheckOutput(d->descriptor)) {
 				if (!process_output(d)) {
-#ifdef CONCENTRATE
-					if (!(d->cstatus & C_CCONTROL))
-#endif
-						shutdownsock(d, R_SOCKDIED);
+					shutdownsock(d, R_SOCKDIED);
 				}
 			}
 		}
@@ -791,27 +780,8 @@ int reason;
 		d->output_tot = 0;
 		welcome_user(d);
 	} else {
-#ifdef CONCENTRATE
-		if (!(d->cstatus & C_REMOTE)) {
-			if (d->cstatus & C_CCONTROL) {
-				register struct descriptor_data *k;
-
-				for (k = descriptor_list; k; k = k->next)
-					if (k->parent == d)
-						shutdownsock(k, R_QUIT);
-			}
-#endif
-			shutdown(d->descriptor, 2);
-			close(d->descriptor);
-#ifdef CONCENTRATE
-		} else {
-			register struct descriptor_data *k;
-
-			for (k = descriptor_list; k; k = k->next)
-				if (d->parent == k)
-					send_killconcid(d);
-		}
-#endif
+		shutdown(d->descriptor, 2);
+		close(d->descriptor);
 		freeqs(d);
 		*d->prev = d->next;
 		if (d->next)
@@ -833,10 +803,7 @@ int reason;
 		}
 			
 		free_desc(d);
-#ifdef CONCENTRATE
-		if (!(d->cstatus & C_REMOTE))
-#endif
-			ndescriptors--;
+		ndescriptors--;
 	}
 }
 
@@ -896,11 +863,6 @@ struct sockaddr_in *a;
 	ndescriptors++;
 	d = alloc_desc("init_sock");
 	d->descriptor = s;
-#ifdef CONCENTRATE
-	d->concid = make_concid();
-	d->cstatus = 0;
-	d->parent = 0;
-#endif
 	d->flags = 0;
 	d->connected_at = time(NULL);
 	d->retries_left = mudconf.retry_limit;
@@ -959,67 +921,27 @@ DESC *d;
 
 	tb = d->output_head;
 
-#ifdef CONCENTRATE
-	if (d->cstatus & C_REMOTE) {
-		static char buf[10];
-		static char obuf[2048];
-		int buflen, k, j;
-
-		sprintf(buf, "%d ", d->concid);
-		buflen = strlen(buf);
-
-		memcpy(obuf, buf, buflen);
-		j = buflen;
-
-		while (tb != NULL) {
-			for (k = 0; k < tb->hdr.nchars; k++) {
-				obuf[j++] = tb->hdr.start[k];
-				if (tb->hdr.start[k] == '\n') {
-					if (d->parent)
-						queue_write(d->parent, obuf, j);
-					memcpy(obuf, buf, buflen);
-					j = buflen;
-				}
+	while (tb != NULL) {
+		while (tb->hdr.nchars > 0) {
+			cnt = WRITE(d->descriptor, tb->hdr.start,
+				    tb->hdr.nchars);
+			if (cnt < 0) {
+				mudstate.debug_cmd = cmdsave;
+				if (errno == EWOULDBLOCK)
+					return 1;
+				return 0;
 			}
-			d->output_size -= tb->hdr.nchars;
-			save = tb;
-			tb = tb->hdr.nxt;
-			XFREE(save, "queue_write");
-			d->output_head = tb;
-			if (tb == NULL)
-				d->output_tail = NULL;
+			d->output_size -= cnt;
+			tb->hdr.nchars -= cnt;
+			tb->hdr.start += cnt;
 		}
-
-		if (j > buflen)
-			queue_write(d, obuf + buflen, j - buflen);
-
-		return 1;
-	} else {
-#endif
-		while (tb != NULL) {
-			while (tb->hdr.nchars > 0) {
-				cnt = WRITE(d->descriptor, tb->hdr.start,
-					    tb->hdr.nchars);
-				if (cnt < 0) {
-					mudstate.debug_cmd = cmdsave;
-					if (errno == EWOULDBLOCK)
-						return 1;
-					return 0;
-				}
-				d->output_size -= cnt;
-				tb->hdr.nchars -= cnt;
-				tb->hdr.start += cnt;
-			}
-			save = tb;
-			tb = tb->hdr.nxt;
-			XFREE(save, "queue_write");
-			d->output_head = tb;
-			if (tb == NULL)
-				d->output_tail = NULL;
-		}
-#ifdef CONCENTRATE
+		save = tb;
+		tb = tb->hdr.nxt;
+		XFREE(save, "queue_write");
+		d->output_head = tb;
+		if (tb == NULL)
+			d->output_tail = NULL;
 	}
-#endif
 
 	mudstate.debug_cmd = cmdsave;
 	return 1;

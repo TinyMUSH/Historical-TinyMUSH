@@ -81,13 +81,6 @@ struct prog_data {
 typedef struct descriptor_data DESC;
 struct descriptor_data {
   int descriptor;
-#ifdef CONCENTRATE
-#define C_CCONTROL 1
-#define C_REMOTE 2
-  int concid;
-  int cstatus;
-  struct descriptor_data *parent;
-#endif
   int flags;
   int retries_left;
   int command_count;

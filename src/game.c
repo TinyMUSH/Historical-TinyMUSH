@@ -58,10 +58,6 @@ extern int NDECL(dddb_optimize);
 
 extern LOGFILETAB logfds_table[];
 
-#ifdef CONCENTRATE
-int conc_pid = 0;
-#endif
-
 extern volatile pid_t slave_pid;
 extern volatile int slave_socket;
 
@@ -2245,36 +2241,6 @@ char *argv[];
 	    raw_broadcast(0, "GAME: Restart finished.");
 	}
 	
-#ifdef CONCENTRATE
-	if (!mudstate.restarting) {
-		/*
-		 * Start up the port concentrator. 
-		 */
-
-		conc_pid = fork();
-		if (conc_pid < 0) {
-			perror("fork");
-			exit(-1);
-		}
-		if (conc_pid == 0) {
-			char mudp[32], inetp[32], *s;
-
-			/*
-			 * Add port argument to concentrator 
-			 */
-			sprintf(mudp, "%d", mudconf.port);
-			sprintf(inetp, "%d", mudconf.conc_port);
-			s = (char *) XMALLOC(MBUF_SIZE, "main_concentrate");
-			sprintf(s, "%s/conc", mudconf.binhome);
-			execl(s, "concentrator", inetp, mudp, "1", NULL);
-			XFREE(s, "main_concentrate");
-		}
-		STARTLOG(LOG_ALWAYS, "CNC", "STRT")
-			log_printf("Concentrating ports... Main: %d Conc: %d",
-				   mudconf.port, mudconf.conc_port);
-		ENDLOG
-	}
-#endif
 
 #ifdef MCHECK
 	mtrace();
@@ -2302,9 +2268,6 @@ char *argv[];
 	if (slave_pid != 0) {
 		kill(slave_pid, SIGKILL);
 	}
-#ifdef CONCENTRATE
-	kill(conc_pid, SIGKILL);
-#endif
 
 	exit(0);
 }

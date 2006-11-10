@@ -1,6 +1,28 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(mudconf.h)
-AC_CONFIG_HEADER(autoconf.h)
+
+AC_PREREQ(2.59)
+AC_INIT(TinyMush, 3.1, tinymush-bugs@lists.sourceforge.net)
+AC_CONFIG_SRCDIR([alloc.c])
+AC_CONFIG_HEADER([autoconf.h])
+
+./shtool echo -e "Configuring %B${PACKAGE_NAME}%b version %B${PACKAGE_VERSION}%b."
+echo
+echo "Copyright (c) 2005 : David Passmore, Lydia Leong, Robby Griffin,"
+echo "                     Scott Dorr, Eddy Beaupre."
+echo "         More info : http://tinymush.sourceforge.net"
+echo
+
+dnl Useful functions for configure
+
+AC_DEFUN([PRETTY_PRINT], [ 
+if test -z "$3"; then
+  ./shtool echo -e "$1 %B$2%b"
+else
+  echo
+  ./shtool echo -e "$1: %B$2%b"
+  echo
+fi
+])
 
 dnl Option checks
 
@@ -76,6 +98,29 @@ AC_ARG_WITH(sql-libs,
     esac
   ])
 
+AC_MSG_CHECKING(whether to build with DEBUG support)
+AC_ARG_WITH(debug,
+  [  --with-debug=FLAGS      set debug flags for the compiler. After we
+                          finish beta testing, we'll take away the debugging
+                          -g flag. If you don't use GCC, don't use -g. Add
+                          -pg for profiling (gprof netmush gmon.out)
+                          [default=-g]],
+  [
+	if test -z "$withval"; then
+	  AC_MSG_RESULT(none)
+	else
+          OPTIM_F=$withval
+	  AC_MSG_RESULT($OPTIM_F)
+	fi
+
+  ],
+  [
+	OPTIM_F="-g"
+	AC_MSG_RESULT($OPTIM_F)
+  ]
+)
+AC_SUBST(OPTIM_F)
+
 AC_MSG_CHECKING(whether to enable disk-based database)
 AC_ARG_ENABLE(disk-based,
   [  --enable-disk-based     store the database on disk using a DBM hashfile,
@@ -87,7 +132,7 @@ AC_ARG_ENABLE(disk-based,
                           available. [default=yes]],
   [
     if test "x$enableval" = "xno"; then
-      AC_DEFINE(MEMORY_BASED)
+      AC_DEFINE(MEMORY_BASED,,[XXX])
       UDB_S="udb_ocache.c udb_ochunk.c udb_obj.c udb_misc.c"
       UDB_O="udb_ocache.o udb_ochunk.o udb_obj.o udb_misc.o"
       UDB_I="udb.h udb_defs.h"
@@ -107,25 +152,6 @@ AC_ARG_ENABLE(disk-based,
 AC_SUBST(UDB_S)
 AC_SUBST(UDB_O)
 AC_SUBST(UDB_I)
-
-AC_MSG_CHECKING(whether to enable port concentrator)
-AC_ARG_ENABLE(concentrator,
-  [  --enable-concentrator   use the port concentrator (not included with
-                          the main distribution) if you hit resource limits
-                          when too many connections are open at once (talk
-                          to David) [default=no]],
-  [
-    if test "x$enableval" = "xno"; then
-      AC_MSG_RESULT(no)
-    else
-      CONC_S="newconc.c"
-      CONC_O="newconc.o"
-      AC_DEFINE(CONCENTRATE)
-      AC_MSG_RESULT(yes)
-    fi
-  ], AC_MSG_RESULT(no))
-AC_SUBST(CONC_S)
-AC_SUBST(CONC_O)
 
 AC_MSG_CHECKING(for which version of malloc to use)
 AC_ARG_WITH(malloc,
@@ -149,8 +175,8 @@ AC_ARG_WITH(malloc,
        trace)
          MALLOC_S="malloc.c mcheck.c mstats.c mtrace.c"
          MALLOC_O="malloc.o mcheck.o mstats.o mtrace.o"
-         AC_DEFINE(MCHECK)
-         AC_DEFINE(MTRACE_FILE,"mtrace.out")
+         AC_DEFINE(MCHECK,,[XXX])
+         AC_DEFINE(MTRACE_FILE,"mtrace.out",[XXX])
          AC_MSG_RESULT(trace)
          ;;
        *)
@@ -169,10 +195,10 @@ AC_ARG_ENABLE(pueblo,
     if test "x$enableval" = "xno"; then
       AC_MSG_RESULT(no)
     else
-      AC_DEFINE(PUEBLO_SUPPORT)
+      AC_DEFINE(PUEBLO_SUPPORT,,[XXX])
         AC_MSG_RESULT(yes)
     fi
-  ], AC_DEFINE(PUEBLO_SUPPORT)
+  ], AC_DEFINE(PUEBLO_SUPPORT,,[XXX])
        AC_MSG_RESULT(yes))
 
 AC_MSG_CHECKING(whether to use floating-point math)
@@ -184,10 +210,10 @@ AC_ARG_ENABLE(fpmath,
     if test "x$enableval" = "xno"; then
       AC_MSG_RESULT(no)
     else
-      AC_DEFINE(FLOATING_POINTS)
+      AC_DEFINE(FLOATING_POINTS,,[XXX])
         AC_MSG_RESULT(yes)
     fi
-  ], AC_DEFINE(FLOATING_POINTS)
+  ], AC_DEFINE(FLOATING_POINTS,,[XXX])
        AC_MSG_RESULT(yes))
 
 AC_MSG_CHECKING(whether to enable command lag detection)
@@ -199,7 +225,7 @@ AC_ARG_ENABLE(lag-checking,
                           [default=yes]],
   [
     if test "x$enableval" = "xno"; then
-      AC_DEFINE(NO_LAG_CHECK)
+      AC_DEFINE(NO_LAG_CHECK,,[XXX])
         AC_MSG_RESULT(no)
     else
       AC_MSG_RESULT(yes)
@@ -216,7 +242,7 @@ AC_ARG_ENABLE(time-checking,
                           [default=yes]],
   [
     if test "x$enableval" = "xno"; then
-      AC_DEFINE(NO_TIMECHECKING)
+      AC_DEFINE(NO_TIMECHECKING,,[XXX])
         AC_MSG_RESULT(no)
     else
       AC_MSG_RESULT(yes)
@@ -234,7 +260,7 @@ AC_ARG_ENABLE(cpu-checking,
     if test "x$enableval" = "xno"; then
       AC_MSG_RESULT(no)
     else
-      AC_DEFINE(TRACK_USER_TIME)
+      AC_DEFINE(TRACK_USER_TIME,,[XXX])
         AC_MSG_RESULT(yes)
     fi
   ], AC_MSG_RESULT(no))
@@ -255,10 +281,10 @@ AC_ARG_ENABLE(malloc-wrapper,
   [
     case "$enableval" in
     trac*)
-      AC_DEFINE(RAW_MEMTRACKING)
+      AC_DEFINE(RAW_MEMTRACKING,,[XXX])
         AC_MSG_RESULT(tracking) ;;
     log*)
-      AC_DEFINE(TEST_MALLOC)
+      AC_DEFINE(TEST_MALLOC,,[XXX])
         AC_MSG_RESULT(logging) ;;
     *)
       AC_MSG_RESULT(no) ;;
@@ -273,16 +299,16 @@ AC_ARG_WITH(global-regs,
                           possible registers [default=36]],
   [
     if test "$withval" -lt "10"; then
-      AC_DEFINE(MAX_GLOBAL_REGS,10)
+      AC_DEFINE(MAX_GLOBAL_REGS,10,[XXX])
         AC_MSG_RESULT(10)
     elif test "$withval" -gt "36"; then
-      AC_DEFINE(MAX_GLOBAL_REGS,36)
+      AC_DEFINE(MAX_GLOBAL_REGS,36,[XXX])
         AC_MSG_RESULT(36)
     else
-      AC_DEFINE_UNQUOTED(MAX_GLOBAL_REGS,$withval)
+      AC_DEFINE_UNQUOTED(MAX_GLOBAL_REGS,$withval,[XXX])
         AC_MSG_RESULT($withval)
     fi
-  ], AC_DEFINE(MAX_GLOBAL_REGS,36)
+  ], AC_DEFINE(MAX_GLOBAL_REGS,36,[XXX])
        AC_MSG_RESULT(36))
 
 AC_MSG_CHECKING(for modules to enable)
@@ -306,7 +332,7 @@ AC_ARG_ENABLE(modules,
   ])
 
 if test -z "$modules"; then
-  AC_DEFINE(NEED_EMPTY_LTPLSYM)
+  AC_DEFINE(NEED_EMPTY_LTPLSYM,,[XXX])
 fi
 
 for module in $modules; do
@@ -322,14 +348,14 @@ AC_SUBST(INCMODULECODE)
 dnl Program checks
 
 AC_PROG_CC
-AC_PROG_CPP
+AC_PROG_CPP_WERROR
 AC_PROG_MAKE_SET
 
-dnl Platform checks
+#dnl Platform checks
 
-AC_ISC_POSIX
-AC_MINIX
-AC_AIX
+#AC_ISC_POSIX
+#AC_MINIX
+#AC_AIX
 
 dnl Figure out preprocessor args to do 'make depend' stuff
 
@@ -377,7 +403,7 @@ AM_PROG_LIBTOOL
 # XXX section added for ltdl
 
 if test -z "$enable_ltdl_install$enable_ltdl_convenience"; then
-  if test -f ${srcdir}/ltconfig && test -f ${srcdir}/ltmain.sh; then
+  if test -f ${srcdir}/ltmain.sh; then
     # if libltdl is libtoolized, it is assumed to be stand-alone and
     # installed unless the command line overrides it (tested above)
     enable_ltdl_install=yes
@@ -457,11 +483,11 @@ if test x"$libltdl_cv_preloaded_symbols" = x"yes"; then
 fi
 
 LIBADD_DL=
-AC_CHECK_LIB(dl, dlopen, [AC_DEFINE(HAVE_LIBDL, 1) LIBADD_DL="-ldl"],
-[AC_CHECK_FUNC(dlopen, [AC_DEFINE(HAVE_LIBDL, 1)])])
-AC_CHECK_FUNC(shl_load, [AC_DEFINE(HAVE_SHL_LOAD, 1)],
-[AC_CHECK_LIB(dld, shl_load, [AC_DEFINE(HAVE_SHL_LOAD, 1) LIBADD_DL="$LIBADD_DL -ldld"])])
-AC_CHECK_LIB(dld, dld_link, [AC_DEFINE(HAVE_DLD, 1)dnl
+AC_CHECK_LIB(dl, dlopen, [AC_DEFINE(HAVE_LIBDL, 1,[XXX]) LIBADD_DL="-ldl"],
+[AC_CHECK_FUNC(dlopen, [AC_DEFINE(HAVE_LIBDL, 1,[XXX])])])
+AC_CHECK_FUNC(shl_load, [AC_DEFINE(HAVE_SHL_LOAD, 1,[XXX])],
+[AC_CHECK_LIB(dld, shl_load, [AC_DEFINE(HAVE_SHL_LOAD, 1),[XXX] LIBADD_DL="$LIBADD_DL -ldld"])])
+AC_CHECK_LIB(dld, dld_link, [AC_DEFINE(HAVE_DLD, 1,[XXX])dnl
 test "x$ac_cv_lib_dld_shl_load" = yes || LIBADD_DL="$LIBADD_DL -ldld"])
 AC_SUBST(LIBADD_DL)
 
@@ -474,8 +500,8 @@ fi
 
 dnl Check for command to grab the raw symbol name followed
 dnl by C symbol name from nm.
-AC_REQUIRE([AC_CANONICAL_HOST])dnl
-AC_REQUIRE([AC_PROG_NM])dnl
+#AC_REQUIRE([AC_CANONICAL_HOST])dnl
+#AC_REQUIRE([AC_PROG_NM])dnl
 # Check for command to grab the raw symbol name followed by C symbol from nm.
 AC_MSG_CHECKING([command to parse $NM output])
 AC_CACHE_VAL(ac_cv_sys_global_symbol_pipe,
@@ -737,13 +763,6 @@ fi
 
 dnl Library checks
 
-SAVELDFLAGS="$LDFLAGS"
-
-LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
-AC_CHECK_LIB(tinygdbm, main,
-  LIBS="-L./gdbm-1.8.0/.libs -ltinygdbm $LIBS",
-  AC_MSG_ERROR(This program requires TinyMUSH GNU DBM (src/gdbm-1.8.0) to be built first), )
-
 case "$with_sql" in
   msql)
     LDFLAGS="$SQL_LIB $SAVELDFLAGS"
@@ -758,13 +777,42 @@ case "$with_sql" in
       AC_MSG_ERROR(unable to build with mysql), ) ;;
 esac
 
+# How to build GDBM if needed.
+AC_DEFUN([BUILD_GDBM], [
+
+  PRETTY_PRINT([configure], [TinyGDBM library not found, building it.], 1)
+  
+  cd gdbm-1.8.0/
+  make distclean
+  ./configure --disable-shared --enable-static
+  make
+  cd ..
+
+  PRETTY_PRINT([configure], [TinyGDBM build done], 1)
+
+  LIBS="-L./gdbm-1.8.0/.libs -ltinygdbm $LIBS"
+  LIBSINC="-I./gdbm-1.8.0"
+
+  ])
+
+
+SAVELDFLAGS="$LDFLAGS"
+
+  LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
+  AC_CHECK_LIB(tinygdbm, main,
+  LIBS="-L./gdbm-1.8.0/.libs -ltinygdbm $LIBS",
+  LIBSINC="-I./gdbm-1.8.0"
+  [BUILD_GDBM], )
+
+AC_SUBST(LIBSINC)
+
 AC_CHECK_LIB(crypt, main)
 AC_CHECK_LIB(resolv, main)
 AC_CHECK_LIB(socket, main)
 AC_CHECK_LIB(nsl, main)
 AC_CHECK_LIB(inet, gethostbyaddr)
 AC_CHECK_LIB(m, main)
-AC_SUBST(LIBOBJS)
+#AC_SUBST(LIBOBJS)
 
 dnl Header checks
 
@@ -789,17 +837,17 @@ AC_MSG_CHECKING(for struct linger)
 AC_TRY_COMPILE([#include <sys/types.h>
 #include <sys/socket.h>],
 [struct linger ling; ling.l_onoff = 1;],
-AC_DEFINE(HAVE_LINGER) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_DEFINE(HAVE_LINGER,,[XXX]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for union wait)
 AC_TRY_COMPILE([#include <sys/wait.h>],[union wait stat;],
-  AC_DEFINE(HAVE_UNION_WAIT)
+  AC_DEFINE(HAVE_UNION_WAIT,,[XXX])
     AC_MSG_RESULT(yes),
   AC_MSG_RESULT(no))
 
 AC_MSG_CHECKING(for struct rusage completeness)
 AC_TRY_COMPILE([#include <sys/resource.h>],
 [struct rusage usage; usage.ru_ixrss = 1],
-  AC_DEFINE(STRUCT_RUSAGE_COMPLETE)
+  AC_DEFINE(STRUCT_RUSAGE_COMPLETE,,[XXX])
     AC_MSG_RESULT(yes),
   AC_MSG_RESULT(no))
 
@@ -843,9 +891,9 @@ char **argv;
   exit(0);
 }
 ], AC_MSG_RESULT(no),
-  AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE)
+  AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE,,[XXX])
     AC_MSG_RESULT(yes),
-  AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE)
+  AC_DEFINE(SIGNAL_SIGCHLD_BRAINDAMAGE,,[XXX])
     AC_MSG_RESULT(unable to test... assuming yes))
 
 AC_MSG_CHECKING(for broken small struct padding)
@@ -869,9 +917,9 @@ char **argv;
     return 1;
   return 0;
 }],AC_MSG_RESULT(no),
-  AC_DEFINE(BROKEN_GCC_PADDING)
+  AC_DEFINE([BROKEN_GCC_PADDING],[],[XXX])
     AC_MSG_RESULT(yes),
-  AC_DEFINE(BROKEN_GCC_PADDING)
+  AC_DEFINE([BROKEN_GCC_PADDING],[],[XXX])
     AC_MSG_RESULT(unable to test... assuming yes))
 
 dnl Function checks
@@ -887,48 +935,49 @@ dnl Declaration checks
 
 AC_DECL_SYS_SIGLIST
 AC_MSG_CHECKING(for sys_signame decl)
-AC_EGREP_HEADER(sys_signame,signal.h,AC_DEFINE(HAVE_SYS_SIGNAME) AC_MSG_RESULT(yes),AC_MSG_RESULT(no))
+AC_EGREP_HEADER(sys_signame,signal.h,AC_DEFINE(HAVE_SYS_SIGNAME,,[XXX]) AC_MSG_RESULT(yes),AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for getpagesize dcl)
-AC_EGREP_HEADER(getpagesize,unistd.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETPAGESIZE_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(getpagesize,unistd.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETPAGESIZE_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for malloc dcl)
-AC_EGREP_HEADER(realloc,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_MALLOC_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(realloc,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_MALLOC_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for vsprintf dcl)
-AC_EGREP_HEADER(vsprintf,stdio.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_VSPRINTF_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(vsprintf,stdio.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_VSPRINTF_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for sprintf dcl)
-AC_EGREP_HEADER(\<sprintf|\<*sprintf,stdio.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SPRINTF_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(\<sprintf|\<*sprintf,stdio.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SPRINTF_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for extended stdio dcls)
-AC_EGREP_HEADER(fread,stdio.h,AC_DEFINE(EXTENDED_STDIO_DCLS) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_EGREP_HEADER(fread,stdio.h,AC_DEFINE(EXTENDED_STDIO_DCLS,,[XXX]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for extended socket dcls)
-AC_EGREP_HEADER(setsockopt,sys/socket.h,AC_DEFINE(EXTENDED_SOCKET_DCLS) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+AC_EGREP_HEADER(setsockopt,sys/socket.h,AC_DEFINE(EXTENDED_SOCKET_DCLS,,[XXX]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for gettimeofday dcl)
 if test $ac_cv_header_time = yes && test $ac_cv_header_sys_time_h = yes ; then
-AC_EGREP_HEADER(gettimeofday,[time.h>
-#include <sys/time.h],AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(gettimeofday,[time.h> #include <sys/time.h],AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL,,[XXX]) AC_MSG_RESULT(no))
 elif test $ac_cv_header_sys_time_h = yes ; then
-AC_EGREP_HEADER(gettimeofday,sys/time.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(gettimeofday,sys/time.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL,,[XXX]) AC_MSG_RESULT(no))
 else
-AC_EGREP_HEADER(gettimeofday,time.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(gettimeofday,time.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETTIMEOFDAY_DCL,,[XXX]) AC_MSG_RESULT(no))
 fi
 if test $ac_cv_header_sys_wait_h = yes ; then
 AC_MSG_CHECKING(for wait3 dcl)
-AC_EGREP_HEADER(wait3,sys/wait.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_WAIT3_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(wait3,sys/wait.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_WAIT3_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for wait4 dcl)
-AC_EGREP_HEADER(wait4,sys/wait.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_WAIT4_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(wait4,sys/wait.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_WAIT4_DCL,,[XXX]) AC_MSG_RESULT(no))
 fi
 AC_MSG_CHECKING(for srandom dcl)
-AC_EGREP_HEADER(srandom,math.h,AC_MSG_RESULT(yes),AC_EGREP_HEADER(srandom,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SRANDOM_DCL) AC_MSG_RESULT(no)))
+AC_EGREP_HEADER(srandom,math.h,AC_MSG_RESULT(yes),AC_EGREP_HEADER(srandom,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_SRANDOM_DCL,,[XXX]) AC_MSG_RESULT(no)))
 AC_MSG_CHECKING(for random dcl)
-AC_EGREP_HEADER(extern * random,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_RANDOM_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(extern * random,stdlib.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_RANDOM_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for perror dcl)
-AC_EGREP_HEADER(perror,errno.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_PERROR_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(perror,errno.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_PERROR_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for getrusage dcl)
-AC_EGREP_HEADER(getrusage,sys/resource.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETRUSAGE_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(getrusage,sys/resource.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETRUSAGE_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for getrlimit dcl)
-AC_EGREP_HEADER(getrlimit,sys/resource.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETRLIMIT_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(getrlimit,sys/resource.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_GETRLIMIT_DCL,,[XXX]) AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for strtok_r dcl)
-AC_EGREP_HEADER(strtok_r,string.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_STRTOK_R_DCL) AC_MSG_RESULT(no))
+AC_EGREP_HEADER(strtok_r,string.h,AC_MSG_RESULT(yes),AC_DEFINE(NEED_STRTOK_R_DCL,,[XXX]) AC_MSG_RESULT(no))
 
 dnl Configure for modules.
+
+PRETTY_PRINT([configure:], [configuring modules])
 
 AC_CONFIG_SUBDIRS($MODULEDIRS)
 
