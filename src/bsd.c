@@ -680,7 +680,7 @@ int reason;
 {
 	char *buff2;
 	time_t now;
-	int num, ncon;
+	int ncon;
 	DESC *dtemp;
 
 	if ((reason == R_LOGOUT) &&
@@ -749,20 +749,20 @@ int reason;
 	}
 	process_output(d);
 	clearstrings(d);
-	if (reason == R_LOGOUT) {
-	        /* If this was our only connection, get out of interactive
-		 * mode.
-		 */
-		if (d->program_data) {
-		    ncon = 0;
-		    DESC_ITER_PLAYER(d->player, dtemp) ncon++;
-		    if (ncon == 0) {
+	/* If this was our only connection, get out of interactive
+	 * mode.
+	 */
+	if (d->program_data) {
+		ncon = 0;
+		DESC_ITER_PLAYER(d->player, dtemp) ncon++;
+		if (ncon == 0) {
 			Free_RegData(d->program_data->wait_data);
 			XFREE(d->program_data, "do_prog");
-			d->program_data = NULL;
 			atr_clr(d->player, A_PROGCMD);
-		    }
 		}
+		d->program_data = NULL;
+	}
+	if (reason == R_LOGOUT) {
 		d->flags &= ~DS_CONNECTED;
 		d->connected_at = time(NULL);
 		d->retries_left = mudconf.retry_limit;
@@ -786,22 +786,6 @@ int reason;
 		*d->prev = d->next;
 		if (d->next)
 			d->next->prev = d->prev;
-
-		/*
-		 * Is this desc still in interactive mode? 
-		 */
-		if (d->program_data != NULL) {
-			num = 0;
-			DESC_ITER_PLAYER(d->player, dtemp) num++;
-			
-			if (num == 0) {
-				Free_RegData(d->program_data->wait_data);
-				XFREE(d->program_data, "do_prog");
-				d->program_data = NULL;
-				atr_clr(d->player, A_PROGCMD);
-			}
-		}
-			
 		free_desc(d);
 		ndescriptors--;
 	}
