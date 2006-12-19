@@ -1,8 +1,0 @@
-dnl Process this file with autoconf to produce a configure script.
-AC_INIT(rawdump.c)
-AC_PROG_CC
-AC_PATH_PROGS(AWK, mawk gawk nawk awk)
-if test $AWK = ""; then
-    AC_MSG_ERROR(You do not have an awk interpreter installed. Sorry.)
-fi
-AC_OUTPUT(histogrammer report.sh Makefile, chmod +x histogrammer report.sh)
