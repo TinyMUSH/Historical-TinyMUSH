@@ -35,7 +35,7 @@ main(argc, argv)
     static struct sockaddr_in sin = {AF_INET};
     char   *host, *inet_ntoa();
     char    tmp[32768];
-    long    ct;
+    time_t  ct;
 
     Name = argv[0];		/* save name of program for error messages  */
     sin.sin_port = htons((u_short) PORT);	/* Assume PORT */
@@ -47,7 +47,7 @@ main(argc, argv)
     strcpy(msg, "");
     strcpy(tmp, "");
     while (1) {
-	if ((gets(tmp)) == NULL)
+	if ((fgets(tmp, sizeof(tmp), stdin)) == NULL)
 	    break;
 	strcat(tmp, "\r\n");
 	strcat(msg, tmp);
@@ -83,7 +83,7 @@ main(argc, argv)
 	    _exit(1);
 	}
 	host = inet_ntoa(sin.sin_addr);
-	ct = time(0L);
+	time(&ct);
 	fprintf(stderr, "CONNECTION made from %s at %s",
 		host, ctime(&ct));
 	write(ns, msg, strlen(msg));

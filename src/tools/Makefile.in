@@ -1,9 +1,18 @@
 CC=@CC@
 
-all: announce rawdump
+all: announce rawdump install
 
 announce: announce.c
 	$(CC) announce.c -o announce
 
 rawdump: rawdump.c
-	$(CC) -I.. -I../gdbm-1.8.0 rawdump.c -o rawdump -L../gdbm-1.8.0/.libs -lgdbm
+	$(CC) -I.. -I../gdbm-1.8.0 rawdump.c -o rawdump -L../gdbm-1.8.0/.libs -ltinygdbm
+
+install: 
+	-rm -f ../../game/bin/announce ../../game/bin/report.sh
+	ln -s @TOOLDIR@/announce ../../game/bin/announce
+	ln -s @TOOLDIR@/report.sh ../../game/bin/report.sh
+
+clean:
+	-rm -f config.log histogrammer rawdump report.sh Makefile announce config.cache config.status
+	-rm -f ../../game/bin/announce ../../game/bin/report.sh

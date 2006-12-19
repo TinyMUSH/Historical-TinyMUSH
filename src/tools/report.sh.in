@@ -10,7 +10,7 @@ if [ $# != 1 ]; then
 	exit 1;
 fi
 
-if rawdump $1 > $RAWREPORT; then
+if @TOOLDIR@/rawdump $1 > $RAWREPORT; then
 	rm -f $RAWREPORT;
 	exit 1;
 fi
@@ -36,7 +36,7 @@ echo ""
 # CONFIG: detail, larger gives less. If you want to see detail on
 # CONFIG: objects bigger than 25000 or you'd like to suppress information
 # CONFIG: at a cut-off point lower than that, change the value of cutoff.
-cat $RAWREPORT | $AWK -f histogrammer col=9 squash=100 cutoff=25000
+cat $RAWREPORT | $AWK -f @TOOLDIR@/histogrammer col=9 squash=100 cutoff=25000
 #
 # Generate a histogram of where in the database things live
 #
@@ -46,7 +46,7 @@ echo ""
 echo ""
 # CONFIG: change the value of 'squash', smaller yields more fine grained
 # CONFIG: detail, larger gives less.
-cat $RAWREPORT | $AWK -f histogrammer col=6 squash=100000
+cat $RAWREPORT | $AWK -f @TOOLDIR@/histogrammer col=6 squash=100000
 #
 # Cleanup
 #

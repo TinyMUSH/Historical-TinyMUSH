@@ -16,9 +16,13 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
 3.1 Patchlevel 4
 
-  - Update LibTools to version 1.5.22
+  - Fixed Always clear @prog data on logout
 
-  - Update AutoConf to version 2.59
+  - Fixed tools (src/tools). Add an install tag to the tools makefile.
+
+  - Update LibTools to version 1.5.22.
+
+  - Update AutoConf to version 2.59.
 
   - Fixed function logf() in udb_* conflict with build-in function logf(),
     rename the function to warning().
