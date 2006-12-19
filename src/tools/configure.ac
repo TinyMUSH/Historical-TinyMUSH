@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.59)
-AC_INIT(TinyMUSH, 3.2, tinymush-bugs@lists.sourceforge.net)
+AC_INIT(TinyMUSH, 3.1, tinymush-bugs@lists.sourceforge.net)
 AC_CONFIG_SRCDIR([rawdump.c])
 
 ../shtool echo -e "Configuring %B${PACKAGE_NAME}%b version %B${PACKAGE_VERSION}%b."
