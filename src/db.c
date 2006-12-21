@@ -2361,6 +2361,22 @@ const char *s;
 	
 	while (s && *s) {
 		switch (*s) {
+		case '\n':
+			putc('\\', f);
+			putc('n', f);
+			break;
+		case '\r':
+			putc('\\', f);
+			putc('r', f);
+			break;
+		case '\t':
+			putc('\\', f);
+			putc('t', f);
+			break;
+		case ESC_CHAR:
+			putc('\\', f);
+			putc('e', f);
+			break;
 		case '\\':
 		case '"':
 			putc('\\', f);
@@ -2416,6 +2432,20 @@ int new_strings;
 				return buf;
 			} else if (c == '\\') {
 				c = fgetc(f);
+				switch (c) {
+				case 'n':
+					c = '\n';
+					break;
+				case 'r':
+					c = '\r';
+					break;
+				case 't':
+					c = '\t';
+					break;
+				case 'e':
+					c = ESC_CHAR;
+					break;
+				}
 			}
 			if ((c == '\0') || (c == EOF)) {
 				*p = '\0';
