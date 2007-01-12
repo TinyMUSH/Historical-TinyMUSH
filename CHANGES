@@ -14,6 +14,12 @@ The "full", gamma release of TinyMUSH 3.1 is dated June 21st, 2004.
 
 BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
+3.1 Patchlevel 5
+
+  - Updated GDBM's AutoConf to version 2.59.
+
+  - Updated GDBM's LibTools to version 1.5.22.
+
 3.1 Patchlevel 4
 
   - Fixed Always clear @prog data on logout
