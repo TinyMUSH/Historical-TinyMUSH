@@ -20,6 +20,9 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Updated GDBM's LibTools to version 1.5.22.
 
+  - Enables TinyMUSH to read the escapes of cr/lf add to the TinyMUX
+    flatfile. [Brazil@MUX]
+
 3.1 Patchlevel 4
 
   - Fixed Always clear @prog data on logout
