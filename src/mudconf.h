@@ -282,6 +282,10 @@ struct confdata {
 	int	trace_limit;	/* Max lines of trace output if top-down */
 	int	wiz_obey_linklock;	/* Do wizards obey linklocks? */
 	int	local_masters;	/* Do we check Zone rooms as local masters? */
+  	int	match_zone_parents;	/* Objects in local master rooms
+					 * inherit commands from their
+					 * parents, just like normal?
+					 */
 	int	req_cmds_flag;	/* COMMANDS flag required to check $-cmds? */
 	int	ansi_colors;	/* allow ANSI colors? */
 	int	safer_passwords;/* enforce reasonably good password choices? */

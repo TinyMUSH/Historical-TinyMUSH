@@ -1134,7 +1134,8 @@ char *command, *args[];
 		    if (Has_contents(parent)) {
 			succ += list_check(Contents(parent), player,
 					   AMATCH_CMD, lcbuf, preserve_cmd,
-					   0, &got_stop);
+					   mudconf.match_zone_parents,
+					   &got_stop);
 		    }
 		    parent = Parent(parent);
 		    pcount++;

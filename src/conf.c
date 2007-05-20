@@ -217,6 +217,7 @@ void NDECL(cf_init)
 	mudconf.safe_unowned = 0;
 	mudconf.wiz_obey_linklock = 0;
 	mudconf.local_masters = 1;
+	mudconf.match_zone_parents = 1;
 	mudconf.req_cmds_flag = 1;
 	mudconf.ansi_colors = 1;
 	mudconf.safer_passwords = 0;
@@ -1707,6 +1708,7 @@ CONF conftable[] = {
 {(char *)"link_cost",			cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.linkcost,		0},
 {(char *)"list_access",			cf_ntab_access,	CA_GOD,		CA_DISABLED,	(int *)list_names,		(long)access_nametab},
 {(char *)"local_master_rooms",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.local_masters,		(long)"Objects set ZONE act as local master rooms"},
+{(char *)"local_master_parents",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_zone_parents,	(long)"Objects in local master rooms inherit\n\t\t\t\tcommands from their parent"},
 {(char *)"lock_recursion_limit",	cf_int,		CA_WIZARD,	CA_PUBLIC,	&mudconf.lock_nest_lim,		0},
 {(char *)"log",				cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.log_options,		(long)logoptions_nametab},
 {(char *)"log_options",			cf_modify_bits,	CA_GOD,		CA_DISABLED,	&mudconf.log_info,		(long)logdata_nametab},

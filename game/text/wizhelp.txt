@@ -1433,10 +1433,10 @@ clone_copies_cost	dark_actions		dark_sleepers
 examine_flags		examine_public_attrs	exit_calls_move		
 fascist_teleport	global_aconn_uselocks	have_zones		
 hostnames		idle_wiz_dark		lattr_default_oldstyle	
-local_master_rooms	look_obey_terse		match_own_commands	
-move_match_more		no_ambiguous_match	page_requires_equals	
-paranoid_allocate	pemit_any_object	pemit_far_players	
-player_listen		player_match_own_commands
+local_master_rooms	local_master_parents	look_obey_terse
+match_own_commands	move_match_more		no_ambiguous_match	
+page_requires_equals	paranoid_allocate	pemit_any_object	
+pemit_far_players	player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -2379,6 +2379,19 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   If this config parameter is turned on, parent objects set ZONE will be
   treated like local master rooms, for the purposes of $command checks.
   See "help ZONE" for details.
+
+& local_master_parents
+  Config parameter: local_master_parents <yes/no>.  Default: Yes.
+ 
+  This config parameter controls the behavior of command matching when
+  the local_master_rooms parameter is enabled (thus allowing objects in
+  parent rooms set ZONE to be scanned for $commands).
+ 
+  When this config parameter is turned on, objects in a local master room
+  inherit $commands from their parent objects (just like objects in a
+  player's inventory normally would). If it's turned off, the parents
+  aren't scanned for a $command match.
+
 & lock_recursion_limit
   Config directive: lock_recursion_limit <num>.  Default: 20
  
