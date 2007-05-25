@@ -1100,6 +1100,9 @@ char *str, *pattern;
 {
 	char *s;
 
+	if (*str == '\0')	/* never match empty */
+		return 0;
+
 	while (*pattern) {
 		for (s = str;	/* check out this one */
 		     (*s && (tolower(*s) == tolower(*pattern)) &&
