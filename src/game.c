@@ -550,6 +550,7 @@ const char *msg;
 	int check_listens, pass_uselock, is_audible, will_send;
 	FWDLIST *fp;
 	NUMBERTAB *np;
+	GDATA *preserve;
 
 	/* If speaker is invalid or message is empty, just exit */
 
@@ -682,6 +683,15 @@ const char *msg;
 			}
 			free_lbuf(tbuff);
 		}
+
+		/* Make sure that we're passing an empty set of global
+		 * registers to the evaluations we are going to run. We are
+		 * specifically not calling a save, since that doesn't
+		 * empty the registers.
+		 */
+		preserve = mudstate.rdata;
+		mudstate.rdata = NULL;
+
 		/* Check for @Listen match if it will be useful */
 
 		pass_listen = 0;
@@ -915,6 +925,9 @@ const char *msg;
 				free_lbuf(buff);
 			}
 		}
+		/* mudstate.rdata should be empty, but empty it just in case */
+		Free_RegData(mudstate.rdata);
+		mudstate.rdata = preserve;
 	}
 	if (msg_ns)
 		free_lbuf(msg_ns);
