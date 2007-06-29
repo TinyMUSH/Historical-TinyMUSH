@@ -5646,17 +5646,18 @@ See also: @link, @open.
 	elements()	extract()	filter()	filterbool()	
 	first()		fold()		grab()		graball()	
 	group()		index()		insert()	itemize()	
-	iter()		isfalse()	istrue()	last()		
-	ldelete()	ldiff()		ledit()		linter()	
-	list()		lnum()		loop()		lpos()		
-	lrand()		lunion()	map()		match()		
-	matchall()	member()	mix()		munge()		
-	remove()	replace()	regrab()	regraball()	
-	regraballi()	regrabi()	rest()		revwords()	
-	rtables()	setdiff()	setinter()	setunion()	
-	shuffle()	sortby()	sort()		splice()	
-	step()		table()		tables()	until()		
-	whenfalse()	whentrue()	while()		words()
+	isort()		iter()		isfalse()	istrue()	
+	last()		ldelete()	ldiff()		ledit()		
+	linter()	list()		lnum()		loop()		
+	lpos()		lrand()		lunion()	map()		
+	match()		matchall()	member()	mix()		
+	munge()		remove()	replace()	regrab()	
+	regraball()	regraballi()	regrabi()	rest()		
+	revwords()	rtables()	setdiff()	setinter()	
+	setunion()	shuffle()	sortby()	sort()		
+	splice()	step()		table()		tables()	
+	until()		whenfalse()	whentrue()	while()		
+	words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -9877,6 +9878,29 @@ performed and the walk down the list stops.
     You say, "B D a c e"
     > say sort(e D a c B,i)
     You say, "a B c D e"
+ 
+  See also:  SORTBY(), ISORT()
+ 
+& ISORT()
+  Function: isort(<list>[, <sort type>][, <delim>][, <output delim>])
+ 
+  Takes a list of words, numbers, or dbref, and sorts them into ascending
+  order, returning a list of the positions of the sorted items.
+ 
+  <sort type>, as with sort(), is 'a'lphanumeric, case-'i'nsensitive
+  alphanumeric, 'd'bref, 'n'umber (integer), or 'f'loating numeric. If
+  omitted or left blank, the sort type will be auto-selected.
+  
+  If <delim> is specified; it is used to separate items in the input list;
+  if <output delim> is specified, it is used to separate the returned numbers.
+ 
+  Example:
+    > say sort(grape apple orange banana)
+    You say, "apple banana grape orange"
+    > say isort(grape apple orange banana)
+    You say, "2 4 1 3"
+ 
+  See also:  SORT(), SORTBY()
  
 & SETDIFF()
 & LDIFF()

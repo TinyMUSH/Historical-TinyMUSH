@@ -401,6 +401,11 @@ if ((l) > 0) { \
  * Function-specific flags used in the function table.
  */
 
+/* from handle_sort (sort, isort): */
+#define SORT_OPER	0x0f	/* mask to select sort operation bits */
+#define SORT_ITEMS	0
+#define SORT_POS	1
+
 /* from handle_sets (setunion, setdiff, setinter, lunion, ldiff, linter): */
 #define SET_OPER	0x0f	/* mask to select set operation bits */
 #define	SET_UNION	0

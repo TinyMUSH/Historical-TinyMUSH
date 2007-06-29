@@ -726,20 +726,28 @@ FUNCTION(fun_splice)
 }
 
 /* ---------------------------------------------------------------------------
- * fun_sort: Sort lists.
+ * handle_sort: Sort lists.
  */
 
 typedef struct f_record f_rec;
 typedef struct i_record i_rec;
+typedef struct a_record a_rec;
 
 struct f_record {
 	double data;
 	char *str;
+	int pos;
 };
 
 struct i_record {
 	long data;
 	char *str;
+	int pos;
+};
+
+struct a_record {
+	char *str;
+	int pos;
 };
 
 static int a_comp(s1, s2)
@@ -752,6 +760,18 @@ static int c_comp(s1, s2)
 const void *s1, *s2;
 {
 	return strcasecmp(*(char **)s1, *(char **)s2);
+}
+
+static int arec_comp(s1, s2)
+const void *s1, *s2;
+{
+	return strcmp(((a_rec *) s1)->str, ((a_rec *) s2)->str);
+}
+
+static int crec_comp(s1, s2)
+const void *s1, *s2;
+{
+	return strcasecmp(((a_rec *) s1)->str, ((a_rec *) s2)->str);
 }
 
 static int f_comp(s1, s2)
@@ -774,33 +794,67 @@ const void *s1, *s2;
 	return 0;
 }
 
-static void do_asort(s, n, sort_type)
+#define Get_Poslist(p, n, l) \
+    l = (int *) XCALLOC(n, sizeof(int), "do_asort.poslist"); \
+    for (i = 0; i < n; i++) l[i] = p[i].pos;
+
+static int *do_asort(s, n, sort_type, listpos_only)
 char *s[];
 int n, sort_type;
 {
 	int i;
 	f_rec *fp = NULL;
 	i_rec *ip = NULL;
+	a_rec *ap = NULL;
+	int *poslist = NULL;
 
 	switch (sort_type) {
 	case ALPHANUM_LIST:
-		qsort((void *)s, n, sizeof(char *), 
-			(int (*)(const void *, const void *))a_comp);
+		if (!listpos_only) {
+			qsort((void *)s, n, sizeof(char *), 
+			      (int (*)(const void *, const void *))a_comp);
+		} else {
+			ap = (a_rec *) XCALLOC(n, sizeof(a_rec), "do_asort");
+			for (i = 0; i < n; i++) {
+				ap[i].str = s[i];
+				ap[i].pos = i + 1;
+			}
+			qsort((void *)ap, n, sizeof(a_rec),
+			      (int (*)(const void *, const void *))arec_comp);
+			Get_Poslist(ap, n, poslist);
+			XFREE(ap, "do_asort");
+		}
 		break;
 	case NOCASE_LIST:
-		qsort((void *)s, n, sizeof(char *),
-			(int (*)(const void *, const void *))c_comp);
+		if (!listpos_only) {
+		        qsort((void *)s, n, sizeof(char *),
+			      (int (*)(const void *, const void *))c_comp);
+		} else {
+			ap = (a_rec *) XCALLOC(n, sizeof(a_rec), "do_asort");
+			for (i = 0; i < n; i++) {
+				ap[i].str = s[i];
+				ap[i].pos = i + 1;
+			}
+			qsort((void *)ap, n, sizeof(a_rec),
+			      (int (*)(const void *, const void *))crec_comp);
+			Get_Poslist(ap, n, poslist);
+			XFREE(ap, "do_asort");
+		}
 		break;
 	case NUMERIC_LIST:
 		ip = (i_rec *) XCALLOC(n, sizeof(i_rec), "do_asort");
 		for (i = 0; i < n; i++) {
 			ip[i].str = s[i];
 			ip[i].data = atoi(s[i]);
+			ip[i].pos = i + 1;
 		}
 		qsort((void *)ip, n, sizeof(i_rec), 
 			(int (*)(const void *, const void *))i_comp);
 		for (i = 0; i < n; i++) {
 			s[i] = ip[i].str;
+		}
+		if (listpos_only) {
+			Get_Poslist(ip, n, poslist);
 		}
 		XFREE(ip, "do_asort");
 		break;
@@ -809,11 +863,15 @@ int n, sort_type;
 		for (i = 0; i < n; i++) {
 			ip[i].str = s[i];
 			ip[i].data = dbnum(s[i]);
+			ip[i].pos = i + 1;
 		}
 		qsort((void *)ip, n, sizeof(i_rec),
 			(int (*)(const void *, const void *))i_comp);
 		for (i = 0; i < n; i++) {
 			s[i] = ip[i].str;
+		}
+		if (listpos_only) {
+			Get_Poslist(ip, n, poslist);
 		}
 		XFREE(ip, "do_asort.2");
 		break;
@@ -822,21 +880,27 @@ int n, sort_type;
 		for (i = 0; i < n; i++) {
 			fp[i].str = s[i];
 			fp[i].data = aton(s[i]);
+			fp[i].pos = i + 1;
 		}
 		qsort((void *)fp, n, sizeof(f_rec),
 			(int (*)(const void *, const void *))f_comp);
 		for (i = 0; i < n; i++) {
 			s[i] = fp[i].str;
 		}
+		if (listpos_only) {
+			Get_Poslist(fp, n, poslist);
+		}
 		XFREE(fp, "do_asort.3");
 		break;
 	}
+	return poslist;
 }
 
-FUNCTION(fun_sort)
+FUNCTION(handle_sort)
 {
-	int nitems, sort_type;
+	int nitems, sort_type, oper, i;
 	char *list, **ptrs;
+	int *poslist;
 	Delim isep, osep;
 
 	/* If we are passed an empty arglist return a null string */
@@ -846,17 +910,30 @@ FUNCTION(fun_sort)
 	}
 
 	VaChk_In_Out(1, 4);
+	oper = Func_Mask(SORT_POS);
 
 	/* Convert the list to an array */
 
-	list = alloc_lbuf("fun_sort");
+	list = alloc_lbuf("handle_sort");
 	strcpy(list, fargs[0]);
 	nitems = list2arr(&ptrs, LBUF_SIZE / 2, list, &isep);
 	sort_type = get_list_type(fargs, nfargs, 2, ptrs, nitems);
-	do_asort(ptrs, nitems, sort_type);
-	arr2list(ptrs, nitems, buff, bufc, &osep);
+	poslist = do_asort(ptrs, nitems, sort_type, oper);
+	if (oper == SORT_POS) {
+		for (i = 0; i < nitems; i++) {
+			if (i > 0) {
+				print_sep(&osep, buff, bufc);
+			}
+			safe_ltos(buff, bufc, poslist[i]);
+		}
+	} else {
+		arr2list(ptrs, nitems, buff, bufc, &osep);
+	}
+	if (poslist) {
+		XFREE(poslist, "do_asort.poslist");
+	}
 	free_lbuf(list);
-	XFREE(ptrs, "fun_sort.ptrs");
+	XFREE(ptrs, "handle_sort.ptrs");
 }
 
 /* ---------------------------------------------------------------------------
@@ -1039,12 +1116,12 @@ FUNCTION(handle_sets)
 	else
 	    sort_type = ALPHANUM_LIST;
 
-	do_asort(ptrs1, n1, sort_type);
+	do_asort(ptrs1, n1, sort_type, SORT_ITEMS);
 
 	list2 = alloc_lbuf("fun_setunion.2");
 	strcpy(list2, fargs[1]);
 	n2 = list2arr(&ptrs2, LBUF_SIZE, list2, &isep);
-	do_asort(ptrs2, n2, sort_type);
+	do_asort(ptrs2, n2, sort_type, SORT_ITEMS);
 
 	/* This conversion is inefficient, since it's already happened
 	 * once in do_asort().

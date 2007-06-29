@@ -61,7 +61,7 @@ XFUNCTION(fun_remove);
 XFUNCTION(fun_member);
 XFUNCTION(fun_revwords);
 XFUNCTION(fun_splice);
-XFUNCTION(fun_sort);
+XFUNCTION(handle_sort);
 XFUNCTION(fun_sortby);
 XFUNCTION(handle_sets);
 XFUNCTION(fun_columns);
@@ -489,6 +489,7 @@ FUN flist[] = {
 {"ISDBREF",	fun_isdbref,	1,  0,		CA_PUBLIC,	NULL},
 {"ISNUM",	fun_isnum,	1,  0,		CA_PUBLIC,	NULL},
 {"ISWORD",	fun_isword,	1,  0,		CA_PUBLIC,	NULL},
+{"ISORT",	handle_sort,	0,  FN_VARARGS|SORT_POS,	CA_PUBLIC,	NULL},
 {"ITEMIZE",	fun_itemize,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"ITEMS",	fun_items,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ITER",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|BOOL_COND_NONE|FILT_COND_NONE,
@@ -686,7 +687,7 @@ FUN flist[] = {
 {"SIGN",	fun_sign,	1,  0,		CA_PUBLIC,	NULL},
 {"SIN",		handle_trig,	1,  0,		CA_PUBLIC,	NULL},
 {"SIND",	handle_trig,	1,  TRIG_DEG,	CA_PUBLIC,	NULL},
-{"SORT",	fun_sort,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"SORT",	handle_sort,	0,  FN_VARARGS|SORT_ITEMS,	CA_PUBLIC,	NULL},
 {"SORTBY",	fun_sortby,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"SPACE",	fun_space,	1,  0,		CA_PUBLIC,	NULL},
 {"SPEAK",	fun_speak,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
