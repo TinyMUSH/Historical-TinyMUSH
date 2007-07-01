@@ -1832,12 +1832,13 @@ struct in_addr host;
 SITE *site_list;
 {
 	SITE *this;
+	int flag = 0;
 
 	for (this = site_list; this; this = this->next) {
 		if ((host.s_addr & this->mask.s_addr) == this->address.s_addr)
-			return this->flag;
+			flag |= this->flag;
 	}
-	return 0;
+	return flag;
 }
 
 /* --------------------------------------------------------------------------
