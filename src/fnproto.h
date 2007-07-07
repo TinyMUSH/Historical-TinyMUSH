@@ -292,6 +292,7 @@ XFUNCTION(fun_setq);
 XFUNCTION(fun_setr);
 XFUNCTION(fun_r);
 XFUNCTION(fun_wildmatch);
+XFUNCTION(fun_qvars);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
 XFUNCTION(fun_store);
@@ -617,6 +618,7 @@ FUN flist[] = {
 {"POWER",	fun_power,	2,  0,		CA_PUBLIC,	NULL},
 {"PROGRAMMER",	fun_programmer,	1,  0,		CA_PUBLIC,	NULL},
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"QVARS",	fun_qvars,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"R",		fun_r,		1,  0,		CA_PUBLIC,	NULL},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC,	NULL},
 {"RBORDER",	perform_border,	0,  FN_VARARGS|JUST_RIGHT,

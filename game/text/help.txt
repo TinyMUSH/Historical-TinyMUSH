@@ -5651,13 +5651,13 @@ See also: @link, @open.
 	linter()	list()		lnum()		loop()		
 	lpos()		lrand()		lunion()	map()		
 	match()		matchall()	member()	mix()		
-	munge()		remove()	replace()	regrab()	
-	regraball()	regraballi()	regrabi()	rest()		
-	revwords()	rtables()	setdiff()	setinter()	
-	setunion()	shuffle()	sortby()	sort()		
-	splice()	step()		table()		tables()	
-	until()		whenfalse()	whentrue()	while()		
-	words()
+	munge()		qvars()		remove()	replace()
+	regrab()	regraball()	regraballi()	regrabi()	
+	rest()		revwords()	rtables()	setdiff()	
+	setinter()	setunion()	shuffle()	sortby()	
+	sort()		splice()	step()		table()		
+	tables()	until()		whenfalse()	whentrue()	
+	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -5964,7 +5964,7 @@ See examples:  iter(), map(), filter()
   a variety of speciaized functions, such as regmatch(). Local registers
   are read via the r() function or the %q substitution.
  
-  See also: setq(), setr(), SUBSTITUTIONS.
+  See also: setq(), setr(), qvars(), SUBSTITUTIONS.
  
 & LOOPING
   Topic: LOOPING
@@ -10590,7 +10590,7 @@ performed and the walk down the list stops.
     > say Test.[setq(a,Test,tmp,on,9,TestMUSH)] %qa %q<tmp> %q9.
     You say, "Test. Test on TestMUSH."
  
-  See also: LOCAL REGISTERS, setr(), r(), setx(), store(), x().
+  See also: LOCAL REGISTERS, setr(), r(), qvars(), setx(), store(), x().
  
 & SETR()
   Function: setr(<number, letter, or name>,<string>)
@@ -10603,7 +10603,21 @@ performed and the walk down the list stops.
     > say '[setr(0,u(TEST))]' has length [strlen(%q0)].
     You say, "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
-  See also: LOCAL REGISTERS, setq(), r(), setx(), store(), x().
+  See also: LOCAL REGISTERS, setq(), r(), qvars(), setx(), store(), x().
+ 
+& QVARS()
+  Function: qvars(<list of registers>,<list of strings>[,<input delim>])
+ 
+  This function sets each element of the <list of strings> into the local
+  register named in the corresponding position in <list of registers>.
+  <input delim> is used to separate the strings in <list>; it defaults to
+  a space if not specified. It returns nothing.
+ 
+  Example:
+    > say [qvars(a 5 banana,1:2:3,:)][iter(a 5 banana,##-[r(##)])]
+    You say, "a-1 5-2 banana-3"
+ 
+  See also: LOCAL REGISTERS, setq(), setr(), r().
  
 & SETX()
   Function:  setx(<variable name>,<value>)

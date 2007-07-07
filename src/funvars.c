@@ -413,6 +413,56 @@ FUNCTION(fun_wildmatch)
 }
 
 /* --------------------------------------------------------------------------
+ * qvars: Set the contents of a list into a named list of global registers
+ *        qvars(<register list>,<list of elements>[,<input delim>])
+ */
+
+FUNCTION(fun_qvars)
+{
+    int i, nqregs, n_elems;
+    char **qreg_names, **elems;
+    char *varlist, *elemlist;
+    Delim isep;
+
+    VaChk_Only_In(3);
+
+    if (!fargs[0] || !*fargs[0] || !fargs[1] || !*fargs[1])
+	return;
+
+    varlist = alloc_lbuf("fun_qvars.vars");
+    strcpy(varlist, fargs[0]);
+    nqregs = list2arr(&qreg_names, LBUF_SIZE / 2, varlist, &SPACE_DELIM);
+
+    if (nqregs == 0) {
+        free_lbuf(varlist);
+	XFREE(qreg_names, "fun_qvars.qreg_names");
+	return;
+    }
+
+    elemlist = alloc_lbuf("fun_qvars.elems");
+    strcpy(elemlist, fargs[1]);
+    n_elems = list2arr(&elems, LBUF_SIZE / 2, elemlist, &isep);
+
+    if (n_elems != nqregs) {
+	safe_str("#-1 LISTS MUST BE OF EQUAL SIZE", buff, bufc);
+	free_lbuf(varlist);
+	free_lbuf(elemlist);
+	XFREE(qreg_names, "fun_qvars.qreg_names");
+	XFREE(elems, "fun_qvars.elems");
+	return;
+    }
+
+    for (i = 0; i < n_elems; i++) {
+	set_register("fun_qvars", qreg_names[i], elems[i]);
+    }
+
+    free_lbuf(varlist);
+    free_lbuf(elemlist);
+    XFREE(qreg_names, "fun_qvars.qreg_names");
+    XFREE(elems, "fun_qvars.elems");
+}
+
+/* --------------------------------------------------------------------------
  * Auxiliary stuff for structures and variables.
  */
 
