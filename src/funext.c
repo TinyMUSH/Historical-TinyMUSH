@@ -66,14 +66,17 @@ FUNCTION(fun_ports)
 {
 	dbref target;
 
-	if (!Wizard(player)) {
+	VaChk_Range(0, 1);
+
+	if (fargs[0] && *fargs[0]) {
+	    target = lookup_player(player, fargs[0], 1);
+	    if (!Good_obj(target) || !Connected(target)) {
 		return;
+	    }
+	    make_portlist(player, target, buff, bufc);
+        } else {
+	    make_portlist(player, NOTHING, buff, bufc);
 	}
-	target = lookup_player(player, fargs[0], 1);
-	if (!Good_obj(target) || !Connected(target)) {
-		return;
-	}
-	make_portlist(player, target, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

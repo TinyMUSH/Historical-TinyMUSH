@@ -11097,14 +11097,20 @@ performed and the walk down the list stops.
   this function returns #-1.
  
 & PORTS()
-  ports(<player name>)
+  ports([<player>])
  
-  This function returns the list of descriptors ("ports") that a player,
-  specified by full player name, or by dbref, is connected to. Only Wizards
-  may use this function; if a user lacks the privileges, or the player is
-  not connected, an empty list is returned. Otherwise, a list of ports is
-  returned in order of most recent connection to least recent connection.
-  These ports correspond to those given by the SESSION command.
+  If <player> is not given, this function returns the list of descriptors
+  ("ports") that players are connected to.
+ 
+  If <player>, which must be a player's full name, or a dbref, is specified,
+  a list of the ports that the player is connected to is returned. If 
+  <player> is invalid, or not connected, an empty string is returned.
+ 
+  The list of ports is in the order of most recent connection to least
+  recent connection, and the port numbers correspond to those given by the
+  SESSION command.
+ 
+  Normally, only Wizards may use this function.
   
 & SESSION()
   session(<player>)

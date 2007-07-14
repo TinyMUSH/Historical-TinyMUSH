@@ -1999,7 +1999,7 @@ char *buff, **bufc;
 	int i = 0;
 	
 	DESC_ITER_CONN(d) {
-		if (d->player == target) {
+		if ((target == NOTHING) || (d->player == target)) {
 			safe_str(tprintf("%d ", d->descriptor), buff, bufc);
 			i = 1;
 		}

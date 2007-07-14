@@ -612,7 +612,7 @@ FUN flist[] = {
 {"PMATCH",	fun_pmatch,	1,  0,		CA_PUBLIC,	NULL},
 {"POP",		handle_pop,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"POPN",	fun_popn,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"PORTS",	fun_ports,	1,  0,		CA_PUBLIC,	NULL},
+{"PORTS",	fun_ports,	0,  FN_VARARGS,	CA_WIZARD,	NULL},
 {"POS",		fun_pos,	2,  0,		CA_PUBLIC,	NULL},
 {"POSS",	handle_pronoun,	1,  PRONOUN_POSS, CA_PUBLIC,	NULL},
 {"POWER",	fun_power,	2,  0,		CA_PUBLIC,	NULL},
