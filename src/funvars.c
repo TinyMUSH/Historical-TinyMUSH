@@ -2195,11 +2195,14 @@ FUNCTION(fun_push)
     char *data;
     OBJSTACK *sp;
 
-    VaChk_Range(1, 2);
+    VaChk_Range(0, 2);
 
     if (!fargs[1]) {
 	it = player;
-	data = fargs[0];
+	if (!fargs[0] || !*fargs[0])
+	    data = (char *) "";
+	else
+	    data = fargs[0];
     } else {
 	stack_object(player, it);
 	data = fargs[1];
