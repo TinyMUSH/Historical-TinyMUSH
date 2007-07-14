@@ -5649,15 +5649,15 @@ See also: @link, @open.
 	isort()		iter()		isfalse()	istrue()	
 	last()		ldelete()	ldiff()		ledit()		
 	linter()	list()		lnum()		loop()		
-	lpos()		lrand()		lunion()	map()		
-	match()		matchall()	member()	mix()		
-	munge()		qvars()		remove()	replace()
-	regrab()	regraball()	regraballi()	regrabi()	
-	rest()		revwords()	rtables()	setdiff()	
-	setinter()	setunion()	shuffle()	sortby()	
-	sort()		splice()	step()		table()		
-	tables()	until()		whenfalse()	whentrue()	
-	while()		words()
+	lpos()		lrand()		lreplace()	lunion()
+	map()		match()		matchall()	member()	
+	mix()		munge()		qvars()		remove()	
+	replace()	regrab()	regraball()	regraballi()	
+	regrabi()	rest()		revwords()	rtables()	
+	setdiff()	setinter()	setunion()	shuffle()	
+	sortby()	sort()		splice()	step()		
+	table()		tables()	until()		whenfalse()	
+	whentrue()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -9289,7 +9289,7 @@ performed and the walk down the list stops.
     > say [ledit(apple|banana|lime|plum,banana|lime,yellow,|,+)]
     You say, "apple+yellow++plum"
  
-  See also: edit(), replace()
+  See also: edit(), replace(), lreplace()
  
 & REGEDIT()
 & REGEDITI()
@@ -10951,6 +10951,25 @@ performed and the walk down the list stops.
     > say ldelete(Yet@Another@Mundane@List, 3, @)
     You say, "Yet@Another@List"
   See also: extract(), insert(), replace().
+
+& LREPLACE()
+  Function: lreplace(<list>, <replacements>, <positions>[, <sep>[, <osep>]])
+ 
+  This function replaces elements of <list> at the positions given by 
+  <positions> with elements in <replacements>. If given, <sep> is used
+  to delimit the elements of <list> and <replacements>. <osep> is used
+  to delimit the output. Both <sep> and <osep> default to a space.
+  <positions> is always a space-separated list. The number of elements
+  in <replacements> and <positions> must be equal. If <positions> is
+  empty, the original list is returned.
+ 
+  Examples:
+    > say lreplace(a b c d e f g, B D F, 2 4 6)
+    You say, "a B c D e F g"
+    > say lreplace(apple|banana|orange|grape|peach,*BAD*|*GOOD*,2 4,|,-)
+    You say, "apple-*BAD*-orange-*GOOD*-peach"
+ 
+  See also: replace(), ledit().  
 
 & ISDBREF()
   Function: isdbref(<string>)

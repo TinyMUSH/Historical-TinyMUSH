@@ -56,6 +56,7 @@ XFUNCTION(fun_extract);
 XFUNCTION(fun_index);
 XFUNCTION(fun_ldelete);
 XFUNCTION(fun_replace);
+XFUNCTION(fun_lreplace);
 XFUNCTION(fun_insert);
 XFUNCTION(fun_remove);
 XFUNCTION(fun_member);
@@ -549,6 +550,7 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"LPOS",	fun_lpos,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LRAND",	fun_lrand,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"LREPLACE",	fun_lreplace,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LSTACK",	fun_lstack,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"LSTRUCTURES",	fun_lstructures, 0, 0,		CA_PUBLIC,	NULL},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC,	NULL},

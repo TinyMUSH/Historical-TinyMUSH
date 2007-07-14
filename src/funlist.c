@@ -441,6 +441,9 @@ FUNCTION(fun_index)
  *
  * replace: replace a word into a string by place
  *  replace(<list>,<position>,<new item>[,<separator>])
+ *
+ * lreplace: replace multiple words into a string by places
+ *  lreplace(<list>,<replacement words>,<positions>[,<isep>,<osep>])
  */
 
 #define	IF_DELETE	0
@@ -580,6 +583,72 @@ FUNCTION(fun_insert)
 	VaChk_Only_In(4);
 	do_itemfuns(buff, bufc, fargs[0], atoi(fargs[1]), fargs[2],
 		    &isep, IF_INSERT);
+}
+
+FUNCTION(fun_lreplace)
+{
+     Delim isep;
+     Delim osep;
+     char *origlist, *replist, *poslist;
+     char **orig_p, **rep_p, **pos_p;
+     int norig, nrep, npos, i, cpos;
+
+     /* We're generous with the argument checking, in case the
+      * replacement list is blank, and/or the position list is blank.
+      */
+
+     VaChk_In_Out(1, 5);
+
+     /* If there are no positions to replace, then we just return the
+      * original list.
+      */
+
+     if ((nfargs < 3) || !fargs[2]) {
+	  safe_str(fargs[0], buff, bufc);
+	  return;
+     }
+
+     /* The number of elements we have in our replacement list must equal
+      * the number of elements in our position list.
+      */
+
+     if (!fargs[1] || 
+	 (countwords(fargs[1], &isep) != countwords(fargs[2], &SPACE_DELIM))) {
+	  safe_str("#-1 NUMBER OF WORDS MUST BE EQUAL", buff, bufc);
+	  return;
+     }
+
+     /* Turn out lists into arrays for ease of manipulation. */
+
+     origlist = alloc_lbuf("fun_lreplace.orig");
+     replist = alloc_lbuf("fun_lreplace.rep");
+     poslist = alloc_lbuf("fun_lreplace.pos");
+     strcpy(origlist, fargs[0]);
+     strcpy(replist, fargs[1]);
+     strcpy(poslist, fargs[2]);
+
+     norig = list2arr(&orig_p, LBUF_SIZE / 2, origlist, &isep);
+     nrep = list2arr(&rep_p, LBUF_SIZE / 2, replist, &isep);
+     npos = list2arr(&pos_p, LBUF_SIZE / 2, poslist, &SPACE_DELIM);
+
+     /* The positions we have aren't necessarily sequential, so we can't
+      * just walk through the list. We have to replace position by position.
+      * If we get an invalid position number, just ignore it.
+      */
+
+     for (i = 0; i < npos; i++) {
+	  cpos = atoi(pos_p[i]);
+	  if ((cpos > 0) && (cpos <= norig))
+	       orig_p[cpos - 1] = rep_p[i];
+     }
+
+     arr2list(orig_p, norig, buff, bufc, &osep);
+     XFREE(orig_p, "fun_lreplace.orig_p");
+     XFREE(rep_p, "fun_lreplace.rep_p");
+     XFREE(pos_p, "fun_lreplace.pos_p");
+     free_lbuf(origlist);
+     free_lbuf(replist);
+     free_lbuf(poslist);
 }
 
 /* ---------------------------------------------------------------------------
