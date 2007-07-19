@@ -496,12 +496,15 @@ if ((l) > 0) { \
 #define PRONOUN_SUBJ	2
 #define PRONOUN_APOSS	3
 
+/* from do_ufun(): */
+#define U_LOCAL		0x01	/* ulocal: preserve global registers */
+#define U_PRIVATE	0x02	/* ulocal: preserve global registers */
+
 /* Miscellaneous */
 #define LATTR_COUNT	0x01	/* nattr: just return attribute count */
 #define LOCFN_WHERE	0x01 	/* loc: where() vs. loc() */
 #define NAMEFN_FULLNAME 0x01	/* name: fullname() vs. name() */
 #define CHECK_PARENTS	0x01	/* hasattrp: recurse up the parent chain */
-#define U_LOCAL		0x01	/* ulocal: preserve global registers */
 #define TIMESTAMP_MOD	0x01	/* timestamp: lastmod() vs. lastaccess() */
 #define CONNINFO_IDLE	0x01	/* conninfo: idle() vs. conn() */
 

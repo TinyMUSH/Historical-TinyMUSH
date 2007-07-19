@@ -216,6 +216,7 @@ XFUNCTION(fun_eval);
 XFUNCTION(do_ufun);
 XFUNCTION(fun_objcall);
 XFUNCTION(fun_localize);
+XFUNCTION(fun_private);
 XFUNCTION(fun_default);
 XFUNCTION(fun_edefault);
 XFUNCTION(fun_udefault);
@@ -618,6 +619,7 @@ FUN flist[] = {
 {"POS",		fun_pos,	2,  0,		CA_PUBLIC,	NULL},
 {"POSS",	handle_pronoun,	1,  PRONOUN_POSS, CA_PUBLIC,	NULL},
 {"POWER",	fun_power,	2,  0,		CA_PUBLIC,	NULL},
+{"PRIVATE",     fun_private,    1,  FN_NO_EVAL, CA_PUBLIC,	NULL},
 {"PROGRAMMER",	fun_programmer,	1,  0,		CA_PUBLIC,	NULL},
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"QVARS",	fun_qvars,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -743,6 +745,8 @@ FUN flist[] = {
 {"UNLOAD",	fun_unload,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"UNSTRUCTURE",	fun_unstructure,1,  0,		CA_PUBLIC,	NULL},
 {"UNTIL",	fun_until,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"UPRIVATE",	do_ufun,	0,  FN_VARARGS|U_PRIVATE,
+						CA_PUBLIC,	NULL},
 #ifdef PUEBLO_SUPPORT
 {"URL_ESCAPE",	fun_url_escape,	-1, 0,		CA_PUBLIC,	NULL},
 {"URL_UNESCAPE",fun_url_unescape,-1,0,		CA_PUBLIC,	NULL},

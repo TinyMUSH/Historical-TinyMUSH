@@ -1420,18 +1420,19 @@ FUNCTION(fun_eval)
 }
 
 /* ---------------------------------------------------------------------------
- * do_ufun: Call a user-defined function: U, ULOCAL
+ * do_ufun: Call a user-defined function: U, ULOCAL, UPRIVATE
  */
 
 FUNCTION(do_ufun)
 {
 	dbref aowner, thing;
-	int is_local, aflags, alen, anum;
+	int is_local, is_private, aflags, alen, anum;
 	ATTR *ap;
 	char *atext, *str;
 	GDATA *preserve;
 
 	is_local = Is_Func(U_LOCAL);
+	is_private = Is_Func(U_PRIVATE);
 
 	/* We need at least one argument */
 
@@ -1444,10 +1445,15 @@ FUNCTION(do_ufun)
 	Parse_Uattr(player, fargs[0], thing, anum, ap);
 	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
 
-	/* If we're evaluating locally, preserve the global registers. */
+	/* If we're evaluating locally, preserve the global registers.
+	 * If we're evaluating privately, preserve and wipe out.
+	 */
 
 	if (is_local) {
 	    preserve = save_global_regs("fun_ulocal.save");
+	} else if (is_private) {
+	     preserve = mudstate.rdata;
+	     mudstate.rdata = NULL;
 	}
 	
 	/* Evaluate it using the rest of the passed function args */
@@ -1457,10 +1463,16 @@ FUNCTION(do_ufun)
 	     &(fargs[1]), nfargs - 1);
 	free_lbuf(atext);
 
-	/* If we're evaluating locally, restore the preserved registers. */
+	/* If we're evaluating locally, restore the preserved registers.
+	 * If we're evaluating privately, free whatever data we had and
+	 * restore.
+	 */
 
 	if (is_local) {
 		restore_global_regs("fun_ulocal.restore", preserve);
+	} else if (is_private) {
+		Free_RegData(mudstate.rdata);
+		mudstate.rdata = preserve;
 	}
 }
 
@@ -1519,6 +1531,28 @@ FUNCTION(fun_localize)
 	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
 
     restore_global_regs("fun_localize_restore", preserve);
+}
+
+/* ---------------------------------------------------------------------------
+ * fun_private: Evaluate a function with a strictly local scope -- do not
+ * pass global registers and discard any changes made to them. Like calling
+ * uprivate() but with the function string directly.
+ */
+
+FUNCTION(fun_private)
+{
+    char *str;
+    GDATA *preserve;
+
+    preserve = mudstate.rdata;
+    mudstate.rdata = NULL;
+
+    str = fargs[0];
+    exec(buff, bufc, player, caller, cause,
+	 EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
+
+    Free_RegData(mudstate.rdata);
+    mudstate.rdata = preserve;
 }
 
 /* ---------------------------------------------------------------------------
