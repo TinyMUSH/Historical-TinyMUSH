@@ -515,9 +515,9 @@ Other:
 @entrances	@find		@floaters	@last		@list
 @listcommands	@listmotd	@password	@reference	@search
 @stats		@sweep		examine		inventory	kill
-look		score		version		DOING		INFO
-LOGOUT		OUTPUTPREFIX	OUTPUTSUFFIX	PUEBLOCLIENT	QUIT
-SESSION		WHO
+look		score		version		DOING		IDLE
+INFO		LOGOUT		OUTPUTPREFIX	OUTPUTSUFFIX	PUEBLOCLIENT
+QUIT		SESSION		WHO
  
 You are strongly encouraged to check if there is QuickHelp on something
 before consulting the "regular" helpfile. Type 'qhelp' for an index
@@ -1706,6 +1706,7 @@ normally.
  
 See also: page, pose, say, @emit
  
+& DOING
 & WHO
   Command: WHO [<prefix>]
  
@@ -1723,6 +1724,21 @@ See also: page, pose, say, @emit
   different display with this command -- see 'wizhelp WHO' for details.
  
   See also: @doing.
+ 
+& INFO
+  Command: INFO
+ 
+  This command is intened for the use of automated MUD list data gatherers
+  and the like. It returns the MUSH's name, its start time, the number
+  of connected players, the number of objects in the database, and the
+  MUSH version.
+
+& IDLE
+  Command: IDLE
+ 
+  The IDLE psuedo-command does nothing. It does not reset a player's idle
+  time. Users on connections that need to periodically send something to
+  stay connected should send the IDLE command.
  
 & &
   Command: &<attribute> <object>[=<value>]

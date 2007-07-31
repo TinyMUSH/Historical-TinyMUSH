@@ -1811,11 +1811,14 @@ void NDECL(process_commands)
 				    log_printf("[%d/%s] Cmd: %s",
 					       d->descriptor, d->addr, t->cmd);
 				ENDLOG
-				d->last_time = mudstate.now;
-				if (d->program_data != NULL)
-					handle_prog(d, t->cmd);
-				else
-					do_command(d, t->cmd, 1);
+				/* ignore the IDLE psuedo-command */
+				if (strcmp(t->cmd, (char *) "IDLE")) {
+					d->last_time = mudstate.now;
+					if (d->program_data != NULL)
+						handle_prog(d, t->cmd);
+					else
+						do_command(d, t->cmd, 1);
+				}
 				free_lbuf(t);
 			}
 		}
