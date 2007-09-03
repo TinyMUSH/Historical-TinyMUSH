@@ -107,8 +107,6 @@ struct descriptor_data {
   time_t connected_at;
   time_t last_time;
   int quota;
-  int wait_for_input;		/* Used by @prog */
-  dbref wait_cause;		/* Used by @prog */
   PROG *program_data;
   struct sockaddr_in address;	/* added 3/6/90 SCG */
   struct descriptor_data *hashnext;
