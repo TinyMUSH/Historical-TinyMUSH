@@ -1180,16 +1180,20 @@ FUNCTION(handle_sets)
 	list1 = alloc_lbuf("fun_setunion.1");
 	strcpy(list1, fargs[0]);
 	n1 = list2arr(&ptrs1, LBUF_SIZE, list1, &isep);
-	if (type_arg)
-	    sort_type = get_list_type(fargs, nfargs, 3, ptrs1, n1);
-	else
-	    sort_type = ALPHANUM_LIST;
-
-	do_asort(ptrs1, n1, sort_type, SORT_ITEMS);
 
 	list2 = alloc_lbuf("fun_setunion.2");
 	strcpy(list2, fargs[1]);
 	n2 = list2arr(&ptrs2, LBUF_SIZE, list2, &isep);
+
+	if (type_arg) {
+	    if (!*fargs[0])
+	        sort_type = get_list_type(fargs, nfargs, 3, ptrs1, n1);
+            else
+	        sort_type = get_list_type(fargs, nfargs, 3, ptrs2, n2);
+	} else {
+	    sort_type = ALPHANUM_LIST;
+	}
+	do_asort(ptrs1, n1, sort_type, SORT_ITEMS);
 	do_asort(ptrs2, n2, sort_type, SORT_ITEMS);
 
 	/* This conversion is inefficient, since it's already happened
