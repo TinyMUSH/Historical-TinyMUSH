@@ -848,7 +848,7 @@ CF_HAND(cf_flag_access)
     fstr = strtok_r(str, " \t=,", &tokst);
     permstr = strtok_r(NULL, " \t=,", &tokst);
 
-    if (!fstr || !*fstr) {
+    if (!fstr || !*fstr || !permstr || !*permstr) {
 	return -1;
     }
 
