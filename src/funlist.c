@@ -1186,7 +1186,7 @@ FUNCTION(handle_sets)
 	n2 = list2arr(&ptrs2, LBUF_SIZE, list2, &isep);
 
 	if (type_arg) {
-	    if (!*fargs[0])
+	    if (*fargs[0])
 	        sort_type = get_list_type(fargs, nfargs, 3, ptrs1, n1);
             else
 	        sort_type = get_list_type(fargs, nfargs, 3, ptrs2, n2);
