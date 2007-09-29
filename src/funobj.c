@@ -1426,7 +1426,7 @@ FUNCTION(fun_eval)
 FUNCTION(do_ufun)
 {
 	dbref aowner, thing;
-	int is_local, is_private, aflags, alen, anum;
+	int is_local, is_private, aflags, alen, anum, trace_flag;
 	ATTR *ap;
 	char *atext, *str;
 	GDATA *preserve;
@@ -1455,6 +1455,15 @@ FUNCTION(do_ufun)
 	     preserve = mudstate.rdata;
 	     mudstate.rdata = NULL;
 	}
+
+	/* If the trace flag is on this attr, set the object Trace */
+
+	if (!Trace(thing) && (aflags & AF_TRACE)) {
+	     trace_flag = 1;
+	     s_Trace(thing);
+	} else {
+	     trace_flag = 0;
+	}
 	
 	/* Evaluate it using the rest of the passed function args */
 
@@ -1462,6 +1471,12 @@ FUNCTION(do_ufun)
 	exec(buff, bufc, thing, player, cause, EV_FCHECK | EV_EVAL, &str,
 	     &(fargs[1]), nfargs - 1);
 	free_lbuf(atext);
+
+	/* Reset the trace flag if we need to */
+
+	if (trace_flag) {
+	     c_Trace(thing);
+	}
 
 	/* If we're evaluating locally, restore the preserved registers.
 	 * If we're evaluating privately, free whatever data we had and
@@ -1657,7 +1672,7 @@ FUNCTION(fun_edefault)
 FUNCTION(fun_udefault)
 {
     dbref thing, aowner;
-    int aflags, alen, anum, i, j;
+    int aflags, alen, anum, i, j, trace_flag;
     ATTR *ap;
     char *objname, *atext, *str, *bp, *xargs[NUM_ENV_VARS];
 
@@ -1692,10 +1707,25 @@ FUNCTION(fun_udefault)
 			xargs[j] = NULL;
 		    } 
 		}
+
+		/* We have the args, now call the ufunction. Obey the trace
+		 * flag on the attribute if there is one.
+		 */
+
+		if (!Trace(thing) && (aflags & AF_TRACE)) {
+		     trace_flag = 1;
+		     s_Trace(thing);
+		} else {
+		     trace_flag = 0;
+		}
     
 		str = atext;
 		exec(buff, bufc, thing, player, cause, EV_FCHECK | EV_EVAL,
 		     &str, xargs, nfargs - 2);
+
+		if (trace_flag) {
+		     c_Trace(thing);
+		}
 
 		/* Then clean up after ourselves. */
 

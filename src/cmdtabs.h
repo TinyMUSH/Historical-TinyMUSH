@@ -890,6 +890,7 @@ NAMETAB indiv_attraccess_nametab[] = {
 {(char *)"regexp", 		2,	CA_PUBLIC,	AF_REGEXP},
 {(char *)"rmatch",		2,	CA_PUBLIC,	AF_RMATCH},
 {(char *)"structure",		1,	CA_GOD,		AF_STRUCTURE},
+{(char *)"trace",		1,	CA_PUBLIC,	AF_TRACE},
 {(char *)"visual",		1,	CA_PUBLIC,	AF_VISUAL},
 {(char *)"html",		2,	CA_PUBLIC,	AF_HTML},
 { NULL,				0,	0,		0}};

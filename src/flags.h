@@ -345,6 +345,8 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 			 ((fp)->flagvalue & CONNECTED))
 #define s_Has_Darklock(x)	s_Flags3((x), Flags3(x) | HAS_DARKLOCK)
 #define c_Has_Darklock(x)	s_Flags3((x), Flags3(x) & ~HAS_DARKLOCK)
+#define s_Trace(x)	s_Flags((x), Flags(x) | TRACE)
+#define c_Trace(x)	s_Flags((x), Flags(x) & ~TRACE)
 
 #define Html(x) ((Flags2(x) & HTML) != 0)
 #define s_Html(x) s_Flags2((x), Flags2(x) | HTML)

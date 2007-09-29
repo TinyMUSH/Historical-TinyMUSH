@@ -32,6 +32,7 @@
 #define AF_NONAME	0x00400000	/* If used as oattr, no name prepend */
 #define AF_RMATCH	0x00800000	/* Set the result of match into regs */
 #define AF_NOW		0x01000000	/* execute match immediately */
+#define AF_TRACE	0x02000000	/* trace ufunction */
 
 #define A_NULL		0	/* Nothing */
 #define	A_OSUCC		1	/* Others success message */
@@ -213,6 +214,7 @@
 	if (a & AF_NOW) *p++ = 'Q'; \
 	if (a & AF_REGEXP) *p++ = 'R'; \
 	if (a & AF_STRUCTURE) *p++ = 'S'; \
+	if (a & AF_TRACE) *p++ = 'T'; \
 	if (a & AF_VISUAL) *p++ = 'V'; \
 	if (a & AF_NOCLONE) *p++ = 'c'; \
 	if (a & AF_DARK) *p++ = 'd'; \

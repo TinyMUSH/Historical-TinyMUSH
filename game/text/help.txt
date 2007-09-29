@@ -408,6 +408,12 @@ Continued in 'help Attribute Flags4'.
  
 & Attribute Flags4
  
+     trace      - Trace an individual attribute: When set on an attribute
+                  being used for a u-function, and the object it's on isn't
+                  TRACE, when the u-function is invoked, the object will be
+                  set TRACE, and the flag cleared after the function executes.
+                  Local only. (T)
+ 
      structure	- Contains structure data set via write(). Cannot be read
                   by other means. Local only. (S)
  
