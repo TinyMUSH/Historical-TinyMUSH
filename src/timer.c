@@ -156,7 +156,7 @@ static char *parse_cronlist(player, bits, low, high, bufp)
 	    }
 	} else {
 	    notify(player, tprintf("Cron parse error at: %s", bufp));
-	    break;
+	    return NULL;
 	}
 
 	/* Check for step size. */
@@ -164,6 +164,10 @@ static char *parse_cronlist(player, bits, low, high, bufp)
 	if (*bufp == '/') {
 	    bufp++;		/* eat the slash */
 	    step_size = atoi(bufp);
+	    if (step_size < 1) {
+		 notify(player, "Invalid step size.");
+		 return NULL;
+	    }
 	    while (*bufp && isdigit(*bufp))
 		bufp++;
 	} else {
