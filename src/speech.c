@@ -1014,7 +1014,8 @@ char *recipient, *message;
 				      target, loc, message, SAY_POSE_NOSPC);
 			break;
 		case PEMIT_FEMIT:
-			if ((pemit_flags & PEMIT_HERE) || !pemit_flags)
+			if ((pemit_flags & PEMIT_HERE) ||
+			    (!(pemit_flags & ~PEMIT_SPOOF)))
 				notify_all_from_inside_speech(loc,
 					((pemit_flags & PEMIT_SPOOF) ?
 					 target : player), message);
