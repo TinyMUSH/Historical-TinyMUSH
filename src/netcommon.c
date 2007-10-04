@@ -33,6 +33,7 @@ extern dbref FDECL(connect_player, (char *, char *, char *, char *, char *));
 extern char * FDECL(make_guest, (DESC *));
 extern const char *conn_reasons[];
 extern const char *conn_messages[];
+extern int ansi_nchartab[];
 
 /* ---------------------------------------------------------------------------
  * timeval_sub: return difference between two times as a timeval
@@ -369,6 +370,8 @@ const char *s;
 		    new = strip_ansi(s);
 		else if (NoBleed(d->player))
 		    new = normal_to_white(s);
+		else if (d->colormap)
+		     new = remap_colors(s, d->colormap);
 		else
 		    new = (char *) s;
 		queue_write(d, new, strlen(new));
@@ -1239,6 +1242,63 @@ static void dump_info(call_by)
     queue_rawstring(call_by, tprintf("Version: %s\r\n", mudstate.short_ver));
     queue_rawstring(call_by, "### End INFO\r\n");
 }
+
+/* ---------------------------------------------------------------------------
+ * do_colormap: Remap ANSI colors in output.
+ */
+
+void do_colormap(player, cause, key, fstr, tstr)
+dbref player, cause;
+int key;
+char *fstr, *tstr;
+{
+     DESC *d;
+     int from_color, to_color, i, x;
+
+     from_color = ansi_nchartab[(unsigned char) *fstr];
+     to_color = ansi_nchartab[(unsigned char) *tstr];
+
+     if ((from_color < I_ANSI_BLACK) || (from_color >= I_ANSI_NUM)) {
+	  notify(player, "That's not a valid color to change.");
+	  return;
+     }
+     if ((to_color < I_ANSI_BLACK) || (to_color >= I_ANSI_NUM)) {
+	  notify(player, "That's not a valid color to remap to.");
+	  return;
+     }
+
+     DESC_ITER_PLAYER(player, d) {
+	  if (d->colormap) {
+	       if (from_color == to_color) {
+		    d->colormap[from_color - I_ANSI_BLACK] = 0;
+		    /* If no changes, clear colormap */
+		    x = 0;
+		    for (i = 0; i < I_ANSI_NUM - I_ANSI_BLACK; i++)
+			 if (d->colormap[i] != 0)
+			      x++;
+		    if (!x) {
+			 XFREE(d->colormap, "colormap");
+			 notify(player, "Colors restored to standard.");
+		    } else {
+			 notify(player, "Color restored to standard.");
+		    }
+	       } else {
+		    d->colormap[from_color - I_ANSI_BLACK] = to_color;
+		    notify(player, "Color remapped.");
+	       }
+	  } else {
+	       if (from_color == to_color) {
+		    notify(player, "No color change.");
+	       } else {
+		    d->colormap = (int *) XCALLOC(I_ANSI_NUM - I_ANSI_BLACK,
+						  sizeof(int), "colormap");
+		    d->colormap[from_color - I_ANSI_BLACK] = to_color;
+		    notify(player, "Color remapped.");
+	       }
+	  }
+     }
+}
+
 
 /* ---------------------------------------------------------------------------
  * do_doing: Set the doing string that appears in the WHO report.

@@ -517,13 +517,13 @@ Program execution:
  
 Other:
  
-@cron		@crondel	@crontab	@decompile	@doing
-@entrances	@find		@floaters	@last		@list
-@listcommands	@listmotd	@password	@reference	@search
-@stats		@sweep		examine		inventory	kill
-look		score		version		DOING		IDLE
-INFO		LOGOUT		OUTPUTPREFIX	OUTPUTSUFFIX	PUEBLOCLIENT
-QUIT		SESSION		WHO
+@colormap	@cron		@crondel	@crontab	@decompile
+@doing		@entrances	@find		@floaters	@last	
+@list		@listcommands	@listmotd	@password	@reference
+@search		@stats		@sweep		examine		inventory
+kill		look		score		version		DOING
+IDLE		INFO		LOGOUT		OUTPUTPREFIX	OUTPUTSUFFIX
+PUEBLOCLIENT	QUIT		SESSION		WHO
  
 You are strongly encouraged to check if there is QuickHelp on something
 before consulting the "regular" helpfile. Type 'qhelp' for an index
@@ -2074,7 +2074,17 @@ Example:
   room after it is created and any exits are opened.
  
   See also: @destroy, @link, @open, LINKING, TYPES OF OBJECTS.
-
+ 
+& @colormap
+  Command: @colormap <color to map from> = <color to map to>
+ 
+  This command remaps an ANSI color in your output. Specify the colors
+  with the single-letter color codes given in 'help ansi()'.
+ 
+  You can use this command multiple times to remap different colors.
+  To restore a color to its normal output, just remap it to itself
+  (for instance, to restore green to green, '@colormap g=g'.)
+ 
 & @doing
   Command: @doing[/<switches>] [<message>]
  

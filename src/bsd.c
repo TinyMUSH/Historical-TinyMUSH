@@ -762,6 +762,10 @@ int reason;
 		}
 		d->program_data = NULL;
 	}
+	if (d->colormap) {
+	     XFREE(d->colormap, "colormap");
+	     d->colormap = NULL;
+	}
 	if (reason == R_LOGOUT) {
 		d->flags &= ~DS_CONNECTED;
 		d->connected_at = time(NULL);
@@ -861,6 +865,7 @@ struct sockaddr_in *a;
 	d->addr[0] = '\0';
 	d->doing[0] = '\0';
 	d->username[0] = '\0';
+	d->colormap = NULL;
 	make_nonblocking(s);
 	d->output_prefix = NULL;
 	d->output_suffix = NULL;

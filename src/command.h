@@ -32,6 +32,7 @@ CMD_TWO_ARG(do_chown);			/* Change object or attribute owner */
 CMD_TWO_ARG(do_chownall);		/* Give away all of someone's objs */
 CMD_TWO_ARG(do_chzone);                 /* Change an object's zone. */
 CMD_TWO_ARG(do_clone);			/* Create a copy of an object */
+CMD_TWO_ARG(do_colormap);		/* Remap ANSI colors in output */
 CMD_NO_ARG(do_comment);			/* Ignore argument and do nothing */
 CMD_TWO_ARG_ARGV(do_cpattr);            /* Copy attributes */
 CMD_TWO_ARG(do_create);			/* Create a new object */

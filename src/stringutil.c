@@ -466,6 +466,65 @@ char **p;
 	return n;
 }
 
+/* remap_colors -- allow a change of the color sequences */
+
+char *remap_colors(s, cmap)
+char *s;
+int *cmap;
+{
+     static char new[LBUF_SIZE];
+     char *bp;
+     int n;
+
+     if (!s || !*s || !cmap)
+	  return s;
+
+     bp = new;
+
+     do {
+	  while (*s != ESC_CHAR) {
+	       safe_chr(*s, new, &bp);
+	       s++;
+	  }
+	  if (*s == ESC_CHAR) {
+	       safe_chr(*s, new, &bp);
+	       s++;
+	       if (*s == ANSI_CSI) {
+		    safe_chr(*s, new, &bp);
+		    s++;
+		    do {
+			 n = atoi(s);
+			 if ((n >= I_ANSI_BLACK) && (n < I_ANSI_NUM) &&
+			     (cmap[n - I_ANSI_BLACK] != 0)) {
+			      safe_ltos(new, &bp, cmap[n - I_ANSI_BLACK]);
+			      while (isdigit(*s))
+				   s++;
+			 } else {
+			      while (isdigit(*s)) {
+				   safe_chr(*s, new, &bp);
+				   s++;
+			      }
+			 }
+			 if (*s == ';') {
+			      safe_chr(*s, new, &bp);
+			      s++;
+			 }
+		    } while (*s && (*s != ANSI_END));
+		    if (*s == ANSI_END) {
+			 safe_chr(*s, new, &bp);
+			 s++;
+		    }
+	       } else if (*s) {
+		    safe_chr(*s, new, &bp);
+		    s++;
+	       }
+	  }
+     } while (*s);
+
+     return new;
+}
+
+
 /* translate_string -- Convert (type = 1) raw character sequences into
  * MUSH substitutions or strip them (type = 0).
  */

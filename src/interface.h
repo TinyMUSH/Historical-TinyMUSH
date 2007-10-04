@@ -90,6 +90,7 @@ struct descriptor_data {
   char username[11]; 
   char doing[DOING_LEN];
   dbref player;
+  int *colormap;
   char *output_prefix;
   char *output_suffix;
   int output_size;
