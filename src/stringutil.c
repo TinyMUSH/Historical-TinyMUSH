@@ -482,7 +482,7 @@ int *cmap;
      bp = new;
 
      do {
-	  while (*s != ESC_CHAR) {
+	  while (*s && (*s != ESC_CHAR)) {
 	       safe_chr(*s, new, &bp);
 	       s++;
 	  }
