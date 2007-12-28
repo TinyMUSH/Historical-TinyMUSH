@@ -1005,6 +1005,12 @@ FUNCTION(handle_logic)
 	val = 0;
 
 	if (flag & LOGIC_LIST) {
+
+	        if (nfargs == 0) {
+		     safe_chr('0', buff, bufc);
+		     return;
+		}
+
 		/* the arguments come in a pre-evaluated list */
 		VaChk_Only_In(2);
 
