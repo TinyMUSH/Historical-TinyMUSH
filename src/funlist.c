@@ -331,9 +331,9 @@ FUNCTION(fun_extract)
 {
 	int start, len;
 	char *r, *s, *t;
-	Delim isep;
+	Delim isep, osep;
 
-	VaChk_Only_In(4);
+	VaChk_Only_In_Out(5);
 
 	s = fargs[0];
 	start = atoi(fargs[1]);
@@ -356,20 +356,34 @@ FUNCTION(fun_extract)
 	if (!s || !*s) {
 		return;
 	}
-	/* Count off the words in the string to save */
 
-	r = s;
-	len--;
-	while (len && s) {
+	/* If our delimiter is the same, we have an easy task. Otherwise
+	 * we have to go token by token.
+	 */
+
+	if (!strcmp((&isep)->str, (&osep)->str)) {
+	     /* Count off the words in the string to save */
+	     r = s;
+	     len--;
+	     while (len && s) {
 		s = next_token(s, &isep);
 		len--;
+	     }
+	     /* Chop off the rest of the string, if needed */
+	     if (s && *s)
+		  t = split_token(&s, &isep);
+	     safe_str(r, buff, bufc);
+	} else {
+	     r = *bufc;
+	     do {
+		  t = split_token(&s, &isep);
+		  if (r != *bufc) {
+		       print_sep(&osep, buff, bufc);
+		  }
+		  safe_str(t, buff, bufc);
+		  len--;
+	     } while (len && s && *s);
 	}
-
-	/* Chop off the rest of the string, if needed */
-
-	if (s && *s)
-		t = split_token(&s, &isep);
-	safe_str(r, buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

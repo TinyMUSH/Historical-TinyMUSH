@@ -7723,19 +7723,22 @@ performed and the walk down the list stops.
     You say, "Beep-Foof"
 
 & EXTRACT()
-  extract(<string>, <first>, <length>[, <delim>])
+  extract(<string>,<first>,<length>[,<delim>][,<output delim>])
  
   Extract returns a string of length words, starting with the first 
   word. Unlike letters, the first word in a string is number 1, 
   instead of 0.
  
   <delim> may be used to specify a delimiter other than a space.
+  The output delimiter defaults to <delim>, unless specified.
 
   Examples:
     > say extract(This is a really neat example, 4, 2)
     You say, "really neat"
     > say extract(Another@funky@test@for@extract, 3, 3, @)
-    You say, "test@for@extract" 
+    You say, "test@for@extract"
+    > say extract(Another@funky@test@for@extract, 3, 3, @, ---)
+    You say, "test---for---extract"
  
   See also: index(), insert(), ldelete(), replace().
 
