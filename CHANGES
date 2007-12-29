@@ -16,14 +16,60 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
 3.1 Patchlevel 5
 
-  - Updated GDBM's AutoConf to version 2.59.
+  - Enhancement: The new conf parameter local_master_parents allows the
+    parents of objects in ZONE-set parent rooms to be scanned for $commands.
 
-  - Updated GDBM's LibTools to version 1.5.22.
+  - Enhancement: New Trace attribute flag, allows tracing of just a single
+    function.
 
-  - Enables TinyMUSH to read the escapes of cr/lf add to the TinyMUX
-    flatfile. [Brazil@MUX]
+  - Enhancement: IDLE psuedo-command for idle keepalive, ala PennMUSH.
 
-3.1 Patchlevel 4
+  - Enhancement: @colormap allows a player to remap what colors he sees.
+
+  - Enhancement: New functions private() and uprivate(), which sandboxes the
+    global registers for an evaluation.
+
+  - Enhancement: New function lreplace(), a multi-element replace.
+
+  - Enhancement: extract() can take an output delimiter.
+
+  - Enhancement: ports() can take an empty argument, returning all ports;
+    permissions made configurable rather than hardcoded.
+
+  - Enhancement: push() with an empty argument now pushes an empty string
+    onto the stack, rather than returning an error.
+
+  - Enhancement: lor(), etc. return 0 on an empty argument, rather than an
+    error.
+
+  - Bugfix: lunion() etc. correctly detect sort type when first argument
+    is blank. [3.1]
+
+  - Bugfix: writable() works on attributes that didn't previously exist. [3.1]
+
+  - Bugfix: Don't match an empty string to an exit (i.e., no foo;;bar). [2.0]
+
+  - Bugfix: @femit/spoof gives output properly. [3.1]
+
+  - Bugfix: All site flags must be kept and checked (so, for instance, you
+    can restrict both creates and guests). [3.0]
+
+  - Bugfix: Global registers must be cleared when doing notification. [2.0]
+
+  - Bugfix: Bad @cron syntax can no longer cause a loop. [3.0]
+
+  - Bugfix: flag_access must have a permission. [2.0; Brazil]
+
+  - Maintenance: Updated GDBM's AutoConf to version 2.59.
+
+  - Maintenance: Updated GDBM's LibTools to version 1.5.22.
+
+  - Maintenance: Removed unused variables related to @program. [Brazil]
+
+  - Compatibility: Enables TinyMUSH to read the escapes of cr/lf add to the 
+    TinyMUX flatfile. [Brazil]
+
+3.1 Patchlevel 4 -- December 19th, 2006
 
   - Fixed Always clear @prog data on logout
 
@@ -121,7 +167,7 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
   - Added a REGISTRATION wizhelp topic (was referenced by @PCREATE and
     REGISTER_SITE) [MUX; Jared Robertson]
 
-3.1 Patchlevel 1					August 11th, 2004
+3.1 Patchlevel 1 -- August 11th, 2004
 
   - Fixed a bug in dbconvert where the cache wasn't flushed before
     closing the database, creating an incomplete database. [3.1p0]
