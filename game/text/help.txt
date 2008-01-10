@@ -6265,8 +6265,9 @@ The list of loaded modules can be obtained via the 'version' command.
                action list ('me').
     %@       = Dbref of the caller. Except in u()-type functions, same as %#.
     %0-%9    = Value of positional parameter/stack location 0 through 9.
+    %+       = Number of positional parameters.
     %q0-%qz  = Value of registers 0-9 and A-Z. Equiv: r(0) - r(z)
-    %q=<var> = The <angle brackets> are literal. Named register. Equiv: r(var)
+    %q<var>  = The <angle brackets> are literal. Named register. Equiv: r(var)
     %va-%vz  = Contents of attributes VA through VZ. Equiv: v(va) - v(vz)
     %=<var>  = The <angle brackets> are literal. Contents of an attribute.
                Equiv: v(<var>) (no <>), i.e., %=<test> is equivalent to
