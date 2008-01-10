@@ -926,6 +926,9 @@ char *cargs[];
 			case 'm':
 				safe_str(mudstate.curr_cmd, buff, bufc);
 				break;
+			case '+':       /* arguments to function */
+			        safe_ltos(buff, bufc, ncargs);
+			        break;
 			case '|':	/* piped command output */
 				safe_str(mudstate.pout, buff, bufc);
 				break;
