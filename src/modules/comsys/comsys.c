@@ -332,6 +332,8 @@ static void update_comwho(chp)
 		i++;
 	    }
 	}
+    } else {
+	 chp->connect_who = NULL;
     }
 }
 
@@ -447,6 +449,8 @@ static void remove_from_channel(player, chp, is_quiet)
     if (chp->num_who == 1) {
 	chp->num_who = 0;
 	XFREE(chp->who, "remove_from_channel.who");
+	chp->num_connected = 0;
+	XFREE(chp->connect_who, "remove_from_channel.connect_who");
 	return;
     }
 
