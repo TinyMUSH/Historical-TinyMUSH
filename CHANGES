@@ -51,12 +51,18 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Bugfix: @femit/spoof gives output properly. [3.1]
 
+  - Bugfix: Players who are hidden (Dark) can now have their names
+    partial-matched for page, etc. by players who can see hidden. [MUX]
+
   - Bugfix: All site flags must be kept and checked (so, for instance, you
     can restrict both creates and guests). [3.0]
 
   - Bugfix: Global registers must be cleared when doing notification. [2.0]
 
   - Bugfix: Bad @cron syntax can no longer cause a loop. [3.0]
+
+  - Bugfix: Message/use of an emptied comsys channel can no longer cause
+    a crash. [3.0]
 
   - Bugfix: flag_access must have a permission. [2.0; Brazil]
 
