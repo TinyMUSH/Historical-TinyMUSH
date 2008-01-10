@@ -91,6 +91,11 @@ NAMETAB emit_sw[] = {
 #endif
 { NULL,			0,	0,		0}};
 
+NAMETAB end_sw[] = {
+{(char *)"assert",	1,	CA_PUBLIC,	ENDCMD_ASSERT},
+{(char *)"break",	1,	CA_PUBLIC,	ENDCMD_BREAK},
+{ NULL,			0,	0,		0}};
+
 NAMETAB	enter_sw[] = {
 {(char *)"quiet",	1,	CA_PUBLIC,	MOVE_QUIET},
 { NULL,			0,	0,		0}};
@@ -485,6 +490,9 @@ CMDENT command_table[] = {
 {(char *)"@enable",		NULL,		CA_WIZARD,
 	GLOB_ENABLE,	CS_ONE_ARG,		
 	NULL,		NULL,	NULL,		{do_global}},
+{(char *)"@end",		end_sw,		CA_GBL_INTERP,
+	0,		CS_TWO_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
+	NULL,		NULL,	NULL,		{do_end}},
 {(char *)"@entrances",		NULL,		CA_NO_GUEST,
 	0,		CS_ONE_ARG|CS_INTERP,
 	NULL,		NULL,	NULL,		{do_entrances}},

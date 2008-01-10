@@ -526,6 +526,7 @@ struct statedata {
 	int	wild_times_lev;	/* Wildcard matching tries. */
 	GDATA	*rdata;		/* Global register data */
 	int	zone_nest_num;  /* Global current zone nest position */
+	int	break_called;	/* Boolean flag for @break and @assert */
 	int	inpipe;		/* Boolean flag for command piping */
 	char	*pout;		/* The output of the pipe used in %| */
 	char	*poutnew;	/* The output being build by the current command */

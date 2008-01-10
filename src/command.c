@@ -1314,7 +1314,10 @@ BQUE *qent;
 	save_poutbufc = mudstate.poutbufc;
 	save_pout = mudstate.pout;
 
-	while (cmdline && (!qent || qent == mudstate.qfirst)) {
+	mudstate.break_called = 0;
+
+	while (cmdline && (!qent || qent == mudstate.qfirst) &&
+	       !mudstate.break_called) {
 		cp = parse_to(&cmdline, ';', 0);
 		if (cp && *cp) {
 			numpipes = 0;

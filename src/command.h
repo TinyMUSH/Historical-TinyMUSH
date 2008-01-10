@@ -49,6 +49,7 @@ CMD_TWO_ARG_CMDARG(do_dolist);		/* Iterate command on list members */
 CMD_ONE_ARG(do_drop);			/* Drop an object */
 CMD_NO_ARG(do_dump);			/* Dump the database */
 CMD_TWO_ARG_ARGV(do_edit);		/* Edit one or more attributes */
+CMD_TWO_ARG_CMDARG(do_end);		/* End action list on a conditional */
 CMD_ONE_ARG(do_enter);			/* Enter an object */
 CMD_ONE_ARG(do_entrances);		/* List exits and links to loc */
 CMD_ONE_ARG(do_eval);			/* Like @@ comment, but takes an arg */

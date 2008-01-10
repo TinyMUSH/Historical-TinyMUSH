@@ -670,6 +670,27 @@ char *expr, *args[], *cargs[];
 }
 
 /* ---------------------------------------------------------------------------
+ * do_end: Stop processing an action list, based on a conditional.
+ */
+
+void do_end(player, cause, key, condstr, cmdstr, args, nargs)
+dbref player, cause;
+int key, nargs;
+char *condstr, *cmdstr, *args[];
+{
+     int k = key & ENDCMD_ASSERT;
+     int n = xlate(condstr);
+
+     if ((!k && n) || (k && !n)) {
+	  mudstate.break_called = 1;
+	  if (cmdstr && *cmdstr) {
+	       wait_que(player, cause, 0, NOTHING, 0, cmdstr,
+			args, nargs, mudstate.rdata);
+	  }
+     }
+}
+
+/* ---------------------------------------------------------------------------
  * Command hooks.
  */
 

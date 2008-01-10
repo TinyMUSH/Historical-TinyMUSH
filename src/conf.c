@@ -393,6 +393,7 @@ void NDECL(cf_init)
 	mudstate.loop_number[0] = 0;
 	mudstate.in_switch = 0;
 	mudstate.switch_token = NULL;
+	mudstate.break_called = 0;
 	mudstate.inpipe = 0;
 	mudstate.pout = NULL;
 	mudstate.poutnew = NULL;

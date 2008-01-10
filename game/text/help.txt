@@ -511,9 +511,10 @@ Continued in 'help Command List2'.
  
 Program execution:
  
-@dolist		@drain		@force		@halt		@notify
-@program	@ps		@quitprogram	@redirect	@sql
-@switch		@trigger	@verb		@wait		use
+@dolist		@drain		@end		@force		@halt
+@notify		@program	@ps		@quitprogram	@redirect
+@sql		@switch		@trigger	@verb		@wait
+use
  
 Other:
  
@@ -2187,6 +2188,56 @@ Available switches:
  
 See also:  @femit, @oemit, @pemit, NOSPOOF
  
+& @assert
+& @break
+& @end
+  Command: @end[/<switch>] <condition>[=end action list>]
+ 
+  @end stops the execution of an action list. If <condition> is met,
+  <end action list> is executed and the remainder of the action list that
+  the @end was part of is discarded; otherwise, execution continues normally.
+ 
+  Available switches:
+    /break   - (default) End if the condition is boolean true.
+    /assert  - End if the condition is boolean false.
+ 
+  Examples:
+    > @vb obj = $+test-b *: @end/break %0=@pemit %#=True; @pemit %#=False
+    > +test-b 0
+    False
+    > +test-b 1
+    True
+    > @va obj = $+test-a *: @end/assert %0=@pemit %#=False; @pemit %#=True
+    > +test-a 0
+    False
+    > +test-a 1
+    True
+ 
+  Continued in 'help @end2'.
+ 
+& @end2
+ 
+  More examples:
+ 
+    > @va obj = $+test *: @pemit %#=Before; 
+                          @end/break %0=@pemit %#=Ended;
+                          @pemit %#=After
+    > +test 0
+    Before
+    After
+    > +test 1
+    Before
+    Ended
+ 
+    > @force me={@switch 1=1, think 3rd; think 1st; @end 1; think 2nd}
+    1st
+    3rd
+
+  In the last example, the sequence is as follows: the @switch is run,
+  which queues 'think 3rd'; 'think 1st' is run and displays its output;
+  the @end break stops execution which prevents the 'think 2nd' from running;
+  and then finally, the queued 'think 3rd' is run and displays its output.
+  
 & @entrances
   Command: @entrances [[<object>][,<low>[,<high>]]]
  

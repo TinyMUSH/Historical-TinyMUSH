@@ -301,6 +301,8 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	DUMP_STRUCT	1	/* Dump flat structure file */
 #define	DUMP_TEXT	2	/* Dump text (gdbm) file */
 #define DUMP_FLATFILE	8	/* Dump to flatfile */
+#define ENDCMD_BREAK	0	/* @break - end action list on true */
+#define ENDCMD_ASSERT	1	/* @assert - end action list on false */
 #define	EXAM_DEFAULT	0	/* Default */
 #define	EXAM_BRIEF	1	/* Don't show attributes */
 #define	EXAM_LONG	2	/* Nonowner sees public attrs too */
