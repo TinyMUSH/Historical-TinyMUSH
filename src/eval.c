@@ -926,6 +926,18 @@ char *cargs[];
 			case 'm':
 				safe_str(mudstate.curr_cmd, buff, bufc);
 				break;
+			case 'I':	/* itext() equivalent */
+			case 'i':
+				(*dstr)++;
+				if (!**dstr)
+				    (*dstr)--;
+				if (!isdigit(**dstr))
+				     break;
+				i = (**dstr - '0');
+				if (i > mudstate.in_loop - 1)
+				     break;
+				safe_str(mudstate.loop_token[i], buff, bufc);
+			        break;
 			case '+':       /* arguments to function */
 			        safe_ltos(buff, bufc, ncargs);
 			        break;
