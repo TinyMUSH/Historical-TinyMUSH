@@ -135,7 +135,6 @@ XFUNCTION(fun_switchall);
 XFUNCTION(fun_switch);
 XFUNCTION(fun_case);
 XFUNCTION(handle_ifelse);
-XFUNCTION(fun_nonzero);
 XFUNCTION(fun_rand);
 XFUNCTION(fun_die);
 XFUNCTION(fun_lrand);
