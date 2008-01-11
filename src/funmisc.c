@@ -192,65 +192,83 @@ FUNCTION(fun_case)
 	return;
 }
 
-FUNCTION(fun_ifelse)
+FUNCTION(handle_ifelse)
 {
 	/* This function now assumes that its arguments have not been
 	   evaluated. */
 	
-	char *str, *mbuff, *bp;
+	char *str, *mbuff, *bp, *save_token;
+	int flag, n;
 
-	VaChk_Range(2, 3);
+	flag = Func_Flags(fargs);
+
+	if (flag & IFELSE_DEFAULT) {
+	     VaChk_Range(1, 2);
+	} else {
+	     VaChk_Range(2, 3);
+	}
 	
-	mbuff = bp = alloc_lbuf("fun_ifelse");
+	mbuff = bp = alloc_lbuf("handle_ifelse");
 	str = fargs[0];
 	exec(mbuff, &bp, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	
-	if (!mbuff || !*mbuff || !xlate(mbuff)) {
-		if (nfargs != 3) {
-			free_lbuf(mbuff);
-			return;
-		}
-		str = fargs[2];
-		exec(buff, bufc, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	} else {
-		str = fargs[1];
-		exec(buff, bufc, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
+
+	/* We default to bool-style, but we offer the option of the
+	 * MUX-style nonzero -- it's true if it's not empty or zero.
+	 */
+
+	if (!mbuff || !*mbuff)
+	     n = 0;
+	else if (flag & IFELSE_BOOL)
+	     n = xlate(mbuff);
+	else
+	     n = !((atoi(mbuff) == 0) && is_number(mbuff));
+	if (flag & IFELSE_FALSE)
+	     n = !n;
+
+	if (flag & IFELSE_DEFAULT) {
+	     /* If we got our condition, return the string, otherwise
+	      * return our 'else' default clause.
+	      */
+	     if (n) {
+		  safe_str(mbuff, buff, bufc);
+	     } else {
+		  str = fargs[1];
+		  exec(buff, bufc, player, caller, cause,
+		       EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
+	     }
+	     free_lbuf(mbuff);
+	     return;
 	}
-	free_lbuf(mbuff);
-}
 
-FUNCTION(fun_nonzero)
-{
-	/* MUX-style ifelse -- rather than bool check, check if the
-	* string is non-null/non-zero.
-	*/
-	
-	char *str, *mbuff, *bp;
-	
-	VaChk_Range(2, 3);
+	/* Not default mode: Use our condition to execute result clause */
 
-	mbuff = bp = alloc_lbuf("fun_nonzero");
-	str = fargs[0];
-	exec(mbuff, &bp, player, caller, cause,
+	if (!n) {
+	     if (nfargs != 3) {
+		  free_lbuf(mbuff);
+		  return;
+	     }
+	     /* Do 'false' clause */
+	     str = fargs[2];
+	} else {
+	     /* Do 'true' clause */
+	     str = fargs[1];
+	}
+
+	if (flag & IFELSE_TOKEN) {
+	     mudstate.in_switch++;
+	     save_token = mudstate.switch_token;
+	     mudstate.switch_token = mbuff;
+	}
+
+	exec(buff, bufc, player, caller, cause,
 	     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	
-	if (!mbuff || !*mbuff || ((atoi(mbuff) == 0) && is_number(mbuff))) {
-		if (nfargs != 3) {
-			free_lbuf(mbuff);
-			return;
-		}
-		str = fargs[2];
-		exec(buff, bufc, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	} else {
-		str = fargs[1];
-		exec(buff, bufc, player, caller, cause,
-		     EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
-	}
 	free_lbuf(mbuff);
+
+	if (flag & IFELSE_TOKEN) {
+	     mudstate.in_switch--;
+	     mudstate.switch_token = save_token;
+	}
 }
 
 /* ---------------------------------------------------------------------------

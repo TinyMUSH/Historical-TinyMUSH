@@ -5788,12 +5788,13 @@ See also: @link, @open.
 	case()		ccount()	cdepth()	config()
 	connrecord()	convsecs()	convtime()	die()		
 	fcount()	fdepth()	hasmodule()	helptext()	
-	ifelse()	localize()	mudname()	nonzero()	
-	oemit()		pemit()		private()	r()
-	rand()		remit()		restarts()	restarttime()	
-	s()		secs()		setq()		setr()		
-	speak()		sql()		starttime()	subeval()	
-	switch()	switchall()	time()		timefmt()	
+	ifelse()	iffalse()	iftrue()	localize()
+	mudname()	nonzero()	oemit()		pemit()
+	private()	r()		rand()		remit()
+	restarts()	restarttime()	s()		secs()
+	setq()		setr()		speak()		sql()		
+	starttime()	subeval()	switch()	switchall()
+	time()		timefmt()	usefalse()	usetrue()
 	version()
  
 & STRING FUNCTIONS
@@ -9743,7 +9744,8 @@ performed and the walk down the list stops.
     > say [nonzero(,not null,null)] - [nonzero(foo,not null,null)]
     You say, "null - not null"
  
-  See also: ifelse(), switch(), case().
+  See also: ifelse(), iftrue(), iffalse(), usetrue(), usefalse(),
+            switch(), case().
  
 & IFELSE()
   Function: ifelse(<condition>,<string if true>[,<string if false>])
@@ -9765,7 +9767,54 @@ performed and the walk down the list stops.
     > say [ifelse(1,one)] - [ifelse(0,zero)]
     You say, "one - "
   
-  See also: nonzero(), switch(), case(), BOOLEAN VALUES.
+  See also: nonzero(), iftrue(), iffalse(), usetrue(), usefalse(),
+            switch(), case(), BOOLEAN VALUES.
+ 
+& IFTRUE()
+& IFFALSE()
+  Function:  iftrue(<condition>,<string if true>[,<string if false>])
+             iffalse(<condition>,<string if false>[,<string if true>])
+ 
+  iftrue() is identical to ifelse(), except that the value of <condition> 
+  can be accessed in the <string if> evaluations as #$ (the switch token).
+  iffalse() is like iftrue(), but with the clauses reversed.
+ 
+  In other words, if <condition> is met, the first string is evaluated;
+  otherwise, the second string is evaluated. <condition> is accessible as
+  #$, and only the applicable string is evaluated. The second string can be
+  omitted, in which case it is treated as an empty string.
+ 
+  Examples:
+    > think [iftrue(1,true: #$,false: #$)] - [iftrue(0,true: #$,false: #$)]
+    true: 1 - false: 0
+    > think [iffalse(1,false: #$,true: #$)] - [iffalse(0,false: #$,true: #$)]
+   true: 1 - false: 0
+  
+  See also: ifelse(), nonzero(), usetrue(), usefalse(), switch(), case(),
+            BOOLEAN VALUES.
+ 
+& USETRUE()
+& USEFALSE()
+  Function:  usetrue(<expression>[,<string if false>])
+  Function:  usefalse(<expression>[,<string if true>])
+ 
+  For usetrue(), if <expression> is true (defined as a true boolean), then
+  the <expression> is returned; otherwise <string if false> is returned.
+ 
+  For usefalse(), if <expression> is false (defined as a true boolean), then
+  the <expression> is returned; otherwise <string if true> is returned.
+ 
+  The <string if> is not evaluated unless necessary. It may be omitted,
+  in which case it is treated as an empty string.
+ 
+  Examples:
+    > think [usetrue(1,false)] - [usetrue(0,false)]
+    1 - false
+    > th [usefalse(0,true)] - [usefalse(1,true)]
+    0 - true
+  
+  See also: ifelse(), nonzero(), iftrue(), iffalse(), switch(), case(),
+            BOOLEAN VALUES.
  
 & LOCALIZE()
   Function: localize(<expression>)

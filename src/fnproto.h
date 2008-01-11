@@ -134,7 +134,7 @@ XFUNCTION(handle_logic);
 XFUNCTION(fun_switchall);
 XFUNCTION(fun_switch);
 XFUNCTION(fun_case);
-XFUNCTION(fun_ifelse);
+XFUNCTION(handle_ifelse);
 XFUNCTION(fun_nonzero);
 XFUNCTION(fun_rand);
 XFUNCTION(fun_die);
@@ -481,7 +481,11 @@ FUN flist[] = {
 {"HTML_UNESCAPE",fun_html_unescape,-1,0,	CA_PUBLIC,	NULL},
 #endif /* PUEBLO_SUPPORT */
 {"IDLE",	handle_conninfo, 1, CONNINFO_IDLE, CA_PUBLIC,	NULL},
-{"IFELSE",      fun_ifelse,     0,  FN_VARARGS|FN_NO_EVAL,
+{"IFELSE",      handle_ifelse,   0, IFELSE_BOOL|FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC,	NULL},
+{"IFTRUE",      handle_ifelse,   0, IFELSE_TRUE|IFELSE_TOKEN|IFELSE_BOOL|FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC,	NULL},
+{"IFFALSE",     handle_ifelse,   0, IFELSE_FALSE|IFELSE_TOKEN|IFELSE_BOOL|FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
 {"ILEV",	fun_ilev,	0,  0,		CA_PUBLIC,	NULL},
 {"INC",         fun_inc,        1,  0,          CA_PUBLIC,	NULL},
@@ -585,7 +589,7 @@ FUN flist[] = {
 {"NEQ",		fun_neq,	2,  0,		CA_PUBLIC,	NULL},
 {"NESCAPE",	fun_escape,	-1, FN_NO_EVAL,	CA_PUBLIC,	NULL},
 {"NEXT",	fun_next,	1,  0,		CA_PUBLIC,	NULL},
-{"NONZERO",     fun_nonzero,    0,  FN_VARARGS|FN_NO_EVAL,
+{"NONZERO",     handle_ifelse,  0,  IFELSE_NONZERO|FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
 {"NOT",		fun_not,	1,  0,		CA_PUBLIC,	NULL},
 {"NOTBOOL",	fun_notbool,	1,  0,		CA_PUBLIC,	NULL},
@@ -751,6 +755,10 @@ FUN flist[] = {
 {"URL_ESCAPE",	fun_url_escape,	-1, 0,		CA_PUBLIC,	NULL},
 {"URL_UNESCAPE",fun_url_unescape,-1,0,		CA_PUBLIC,	NULL},
 #endif /* PUEBLO_SUPPORT */
+{"USETRUE",      handle_ifelse, 0, IFELSE_TRUE|IFELSE_DEFAULT|IFELSE_BOOL|FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC,	NULL},
+{"USEFALSE",     handle_ifelse, 0, IFELSE_FALSE|IFELSE_DEFAULT|IFELSE_BOOL|FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC,	NULL},
 {"V",		fun_v,		1,  0,		CA_PUBLIC,	NULL},
 {"VADD",	handle_vectors,	0,  FN_VARARGS|VEC_ADD,
 						CA_PUBLIC,	NULL},

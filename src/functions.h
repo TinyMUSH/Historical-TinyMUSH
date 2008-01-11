@@ -500,6 +500,15 @@ if ((l) > 0) { \
 #define U_LOCAL		0x01	/* ulocal: preserve global registers */
 #define U_PRIVATE	0x02	/* ulocal: preserve global registers */
 
+/* from handle_ifelse() and handle_if() */
+#define IFELSE_OPER	0x0f	/* mask */
+#define IFELSE_BOOL	0x01	/* check for boolean */
+#define IFELSE_NONZERO	0x02	/* check for nonzero */
+#define IFELSE_TRUE	0x04	/* use if true */
+#define IFELSE_FALSE	0x08	/* use if false */
+#define IFELSE_DEFAULT	0x10	/* only two args, use condition as output */
+#define IFELSE_TOKEN	0x20	/* allow switch-token substitution */
+
 /* Miscellaneous */
 #define LATTR_COUNT	0x01	/* nattr: just return attribute count */
 #define LOCFN_WHERE	0x01 	/* loc: where() vs. loc() */
