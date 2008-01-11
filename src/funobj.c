@@ -2339,21 +2339,10 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
     int spos, trans_len, empty_len;
     int done = 0;
 
-    tstack[1] = alloc_sbuf("transform_say.dbref1");
-    tstack[2] = alloc_sbuf("transform_say.pos1");
-
     if (trans_str && *trans_str)
 	trans_len = strlen(trans_str);
     else
 	return;			/* should never happen; caller should check */
-				   
-    if (empty_str && *empty_str) {
-	empty_len = strlen(empty_str);
-	estack[0] = alloc_sbuf("transform_say.dbref2");
-	estack[1] = alloc_sbuf("transform_say.pos2");
-    } else {
-	empty_len = 0;
-    }
 
     /* Find the start of the speech string. Copy up to it. */
 
@@ -2364,8 +2353,19 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
 	save = split_token(&sp, open_sep);
 	safe_str(save, buff, bufc);
 	if (!sp)
-	    return;
+	     return;
 	spos = 1;
+    }
+
+    tstack[1] = alloc_sbuf("transform_say.dbref1");
+    tstack[2] = alloc_sbuf("transform_say.pos1");
+
+    if (empty_str && *empty_str) {
+	empty_len = strlen(empty_str);
+	estack[0] = alloc_sbuf("transform_say.dbref2");
+	estack[1] = alloc_sbuf("transform_say.pos2");
+    } else {
+	empty_len = 0;
     }
 
     result = alloc_lbuf("transform_say.out");
@@ -2432,6 +2432,10 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
 	free_sbuf(estack[0]);
 	free_sbuf(estack[1]);
     }
+    if (trans_str)
+	 free_lbuf(trans_str);
+    if (empty_str)
+	 free_lbuf(empty_str);
 }
 
 FUNCTION(fun_speak)
