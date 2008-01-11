@@ -12,7 +12,7 @@ The "full", gamma release of TinyMUSH 3.1 is dated June 21st, 2004.
 
 -----------------------------------------------------------------------------
 
-BUGFIX PATCHES SINCE THE 3.1 RELEASE
+PATCHES SINCE THE 3.1 RELEASE
 
 3.1 Patchlevel 5
 
@@ -26,10 +26,20 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Enhancement: @colormap allows a player to remap what colors he sees.
 
+  - Enhancement: @end (@break / @assert) ala PennMUSH/MUX -- terminate
+    action list and execute default based on a condition.
+
   - Enhancement: New functions private() and uprivate(), which sandboxes the
     global registers for an evaluation.
 
   - Enhancement: New function lreplace(), a multi-element replace.
+
+  - Enhancement: New functions usetrue() and usefalse() use conditional
+    expression if true/false, and default otherwise.
+
+  - Enhancement: New functions iftrue() and iffalse() act like ifelse() and
+    its boolean inverse, but substitute the condition in the resulting
+    evaluations as #$ (the switch token).
 
   - Enhancement: extract() can take an output delimiter.
 
@@ -42,27 +52,33 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
   - Enhancement: lor(), etc. return 0 on an empty argument, rather than an
     error.
 
-  - Bugfix: lunion() etc. correctly detect sort type when first argument
-    is blank. [3.1]
+  - Enhancement: PennMUSH-style %+ substitution (returns number of arguments
+    on the stack).
 
-  - Bugfix: writable() works on attributes that didn't previously exist. [3.1]
+  - Bugfix: lunion() etc. correctly detect sort type when first argument
+    is blank. [3.1a7]
+
+  - Bugfix: writable() works on attributes that didn't previously 
+    exist. [3.1a8]
+
+  - Bugfix: Don't leak memory on speak(). [3.1b3]
 
   - Bugfix: Don't match an empty string to an exit (i.e., no foo;;bar). [2.0]
 
-  - Bugfix: @femit/spoof gives output properly. [3.1]
+  - Bugfix: @femit/spoof gives output properly. [3.1p2]
 
   - Bugfix: Players who are hidden (Dark) can now have their names
     partial-matched for page, etc. by players who can see hidden. [MUX]
 
   - Bugfix: All site flags must be kept and checked (so, for instance, you
-    can restrict both creates and guests). [3.0]
+    can restrict both creates and guests). [3.0b8]
 
   - Bugfix: Global registers must be cleared when doing notification. [2.0]
 
-  - Bugfix: Bad @cron syntax can no longer cause a loop. [3.0]
+  - Bugfix: Bad @cron syntax can no longer cause a loop. [3.0b8]
 
-  - Bugfix: Message/use of an emptied comsys channel can no longer cause
-    a crash. [3.0]
+  - Bugfix: Message to/use of an emptied comsys channel can no longer cause
+    a crash. [3.0b14]
 
   - Bugfix: flag_access must have a permission. [2.0; Brazil]
 
@@ -70,10 +86,10 @@ BUGFIX PATCHES SINCE THE 3.1 RELEASE
 
   - Maintenance: Updated GDBM's LibTools to version 1.5.22.
 
-  - Maintenance: Removed unused variables related to @program. [Brazil]
+  - Maintenance: Removed unused variables related to @program. Per Brazil.
 
   - Compatibility: Enables TinyMUSH to read the escapes of cr/lf add to the 
-    TinyMUX flatfile. [Brazil]
+    TinyMUX flatfile. Per Brazil.
 
 3.1 Patchlevel 4 -- December 19th, 2006
 
