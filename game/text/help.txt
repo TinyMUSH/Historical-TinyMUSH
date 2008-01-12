@@ -6330,6 +6330,7 @@ The list of loaded modules can be obtained via the 'version' command.
                names can be used. '%_<foo>' is equivalent to 'x(foo)'.
     %x<code> = ANSI color substitution.
     %i0-%i9  = Equivalent to itext(0) - itext(9).
+    %i-<num> = %i-0 to %i-9 are equivalent to itext(sub(ilev(),<num>)).
     %m       = Text of the last command executed.
     %c       = Depending on configuration, equivalent to either %m or %x.
  
@@ -9160,6 +9161,9 @@ performed and the walk down the list stops.
  
   This data can also be accessed through a percent-substitution.
   %i0 is equivalent to itext(0), up to %i9 equivalent to itext(9).
+  If a dash is used in front of the number, it is equivalent ot a delta from
+  the current level. In other words, %i-0 is equivalent to itext(ilev()), 
+  %i-1 to itext(sub(ilev(),1)), down to %i-9 for itext(sub(ilev(),9)).
  
   If used outside one of those functions, or with a nesting level that
   is too deep, this function returns a null string.
