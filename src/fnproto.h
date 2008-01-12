@@ -337,7 +337,8 @@ XFUNCTION(perform_grep);
  */
 
 FUN flist[] = {
-{"@@",		fun_null,	1,  FN_NO_EVAL,	CA_PUBLIC,	NULL},
+{"@@",		fun_null,	1,  FN_VARARGS|FN_NO_EVAL,
+						CA_PUBLIC,	NULL},
 {"ABS",		fun_abs,	1,  0,		CA_PUBLIC,	NULL},
 {"ACOS",	handle_trig,	1,  TRIG_ARC|TRIG_CO,
 						CA_PUBLIC,	NULL},
