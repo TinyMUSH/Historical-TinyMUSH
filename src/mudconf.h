@@ -325,6 +325,7 @@ struct confdata {
 	FLAGSET	robot_flags;	/* Flags robots start with */
 	FLAGSET stripped_flags; /* Flags stripped by @clone and @chown */
       	char	*mud_name;	/* Name of the mud */
+        char	*mud_shortname;	/* Shorter name, for log */
 	char	*one_coin;	/* name of one coin (ie. "penny") */
 	char	*many_coins;	/* name of many coins (ie. "pennies") */
 	int	timeslice;	/* How often do we bump people's cmd quotas? */

@@ -275,6 +275,7 @@ void NDECL(cf_init)
 	mudconf.vattr_flags = 0;
 	mudconf.vattr_flag_list = NULL;
 	mudconf.mud_name = XSTRDUP("TinyMUSH", "cf_string");
+	mudconf.mud_shortname = XSTRDUP("", "cf_string");
 	mudconf.one_coin = XSTRDUP("penny", "cf_string");
 	mudconf.many_coins = XSTRDUP("pennies", "cf_string");
 	mudconf.struct_dstr = XSTRDUP("\r\n", "cf_string");
@@ -1727,6 +1728,7 @@ CONF conftable[] = {
 {(char *)"motd_message",		cf_string,	CA_GOD,		CA_WIZARD,	(int *)&mudconf.motd_msg,	GBUF_SIZE},
 {(char *)"move_match_more",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.move_match_more,	(long)"Move command checks for global and zone exits,\n\t\t\t\tresolves ambiguity"},
 {(char *)"mud_name",			cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.mud_name,	SBUF_SIZE},
+{(char *)"mud_shortname",		cf_string,	CA_GOD,		CA_PUBLIC,	(int *)&mudconf.mud_shortname,	SBUF_SIZE},
 {(char *)"newuser_file",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.crea_file,	MBUF_SIZE},
 {(char *)"no_ambiguous_match",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.no_ambiguous_match,	(long)"Ambiguous matches resolve to the last match"},
 {(char *)"notify_recursion_limit",	cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.ntfy_nest_lim,		0},

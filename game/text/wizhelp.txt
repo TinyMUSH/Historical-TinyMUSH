@@ -1393,10 +1393,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	guest_prefixes		guest_suffixes		guests_calias
 	guests_channel		log			log_options
 	money_name_plural	money_name_singular	mud_name
-	port			public_calias		public_channel
-	queue_active_chunk	queue_idle_chunk	site_chars
-	sql_database		sql_host		sql_password
-	sql_reconnect		sql_username
+	mud_shortname		port			public_calias
+	public_channel		queue_active_chunk	queue_idle_chunk
+	site_chars		sql_database		sql_host
+	sql_password		sql_reconnect		sql_username
 
 & PARAM OBJECTS
 	default_home		exit_attr_defaults	exit_flags
@@ -2569,11 +2569,21 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
 
 & mud_name
   Config parameter: mud_name <string>.  Default: TinyMUSH
-  Specifies the mud name that is transmitted to a remote RWHO server when
-  reporting information.
+ 
+  Specifies the MUSH's name, which is used to identify it in all cases,
+  including to remote RWHO servers when reporting information.
+ 
   See also: rwho_dump_interval, rwho_host, rwho_info_port, rwho_password,
             rwho_transmit.
-
+ 
+& mud_shortname
+  Config parameter: mud_shortname <string>.  Default: blank
+ 
+  Specifies the MUSH's name as it is used in its log files. (If this is
+  not specified, the mud_name parameter will be used in the log.)
+ 
+  See also: mud_name.
+ 
 & newuser_file
   Config parameter: newuser_file <filename>.  Default: text/newuser.txt
   Specifies the file to be shown to new players immediately after they

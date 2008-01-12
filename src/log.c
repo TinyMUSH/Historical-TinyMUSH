@@ -18,6 +18,7 @@
 FILE *mainlog_fp;
 static FILE *log_fp = NULL;
 
+#define MUDLOGNAME (*(mudconf.mud_shortname) ? (mudconf.mud_shortname) : (mudconf.mud_name))
 
 /* *INDENT-OFF* */
 
@@ -161,10 +162,10 @@ int key;
 
 			if (secondary && *secondary)
 				fprintf(log_fp, "%s %3s/%-5s: ",
-					mudconf.mud_name, primary, secondary);
+					MUDLOGNAME, primary, secondary);
 			else
 				fprintf(log_fp, "%s %-9s: ",
-					mudconf.mud_name, primary);
+					MUDLOGNAME, primary);
 		}
 		
 		/* If a recursive call, log it and return indicating no log */

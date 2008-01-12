@@ -52,8 +52,18 @@ PATCHES SINCE THE 3.1 RELEASE
   - Enhancement: lor(), etc. return 0 on an empty argument, rather than an
     error.
 
+  - Enhancement: @@() can have embedded commas.
+
+  - Enhancement: %i0 through %i9 are equivalent to itext(0) through itext(9); 
+    idea derived from PennMUSH. Also, %i-0 through %i-9 are equivalent to
+    itext(sub(ilev(),<number>)), enabling the more common case of wanting to
+    get the substitution from N levels up.
+
   - Enhancement: PennMUSH-style %+ substitution (returns number of arguments
     on the stack).
+
+  - Enhancement: New conf parameter mud_shortname is used in logging, rather
+    than mud_name, if it's set. Useful for shortening very long game names.
 
   - Bugfix: lunion() etc. correctly detect sort type when first argument
     is blank. [3.1a7]
