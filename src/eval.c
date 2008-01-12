@@ -931,9 +931,21 @@ char *cargs[];
 				(*dstr)++;
 				if (!**dstr)
 				    (*dstr)--;
-				if (!isdigit(**dstr))
-				     break;
-				i = (**dstr - '0');
+				if (**dstr == '-') {
+				   /* use number as delta back from current */
+				   (*dstr)++;
+				   if (!**dstr)
+					(*dstr)--;
+				   if (!mudstate.in_loop || !isdigit(**dstr))
+					break;
+				   i = mudstate.in_loop - 1 - (**dstr - '0'); 
+				   if (i < 0)
+					break;
+				} else {
+				   if (!isdigit(**dstr))
+					break;
+				   i = (**dstr - '0');
+				}
 				if (i > mudstate.in_loop - 1)
 				     break;
 				safe_str(mudstate.loop_token[i], buff, bufc);
