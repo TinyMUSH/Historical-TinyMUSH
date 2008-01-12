@@ -29,7 +29,7 @@ PATCHES SINCE THE 3.1 RELEASE
   - Enhancement: @end (@break / @assert) ala PennMUSH/MUX -- terminate
     action list and execute default based on a condition.
 
-  - Enhancement: New functions private() and uprivate(), which sandboxes the
+  - Enhancement: New functions private() and uprivate(), which sandbox the
     global registers for an evaluation.
 
   - Enhancement: New function lreplace(), a multi-element replace.
@@ -40,6 +40,11 @@ PATCHES SINCE THE 3.1 RELEASE
   - Enhancement: New functions iftrue() and iffalse() act like ifelse() and
     its boolean inverse, but substitute the condition in the resulting
     evaluations as #$ (the switch token).
+
+  - Enhancement: New function qvars() reads list elements into local
+    registers, like xvars() does with variables.
+
+  - Enhancement: New function isort() sorts a list and returns its indices.
 
   - Enhancement: extract() can take an output delimiter.
 
