@@ -936,15 +936,15 @@ char *cargs[];
 				   (*dstr)++;
 				   if (!**dstr)
 					(*dstr)--;
+				   if (!isdigit(**dstr))
+					break;
+				   i = (**dstr - '0');
+				} else {
 				   if (!mudstate.in_loop || !isdigit(**dstr))
 					break;
 				   i = mudstate.in_loop - 1 - (**dstr - '0'); 
 				   if (i < 0)
 					break;
-				} else {
-				   if (!isdigit(**dstr))
-					break;
-				   i = (**dstr - '0');
 				}
 				if (i > mudstate.in_loop - 1)
 				     break;
