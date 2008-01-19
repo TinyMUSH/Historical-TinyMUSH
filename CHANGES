@@ -59,10 +59,10 @@ PATCHES SINCE THE 3.1 RELEASE
 
   - Enhancement: @@() can have embedded commas.
 
-  - Enhancement: %i0 through %i9 are equivalent to itext(0) through itext(9); 
-    idea derived from PennMUSH. Also, %i-0 through %i-9 are equivalent to
-    itext(sub(ilev(),<number>)), enabling the more common case of wanting to
-    get the substitution from N levels up.
+  - Enhancement: %i0 through %i9 are equivalent to itext(sub(ilev(),<number>))
+    and are identical to their PennMUSH counterparts, enabling the common
+    case of wanting to get the substitution from N levels up. %i-0 through
+    %i-9 are equivalent to itext(<number>).
 
   - Enhancement: PennMUSH-style %+ substitution (returns number of arguments
     on the stack).
