@@ -114,6 +114,11 @@ in the one-step install, the installation process is as follows:
 - Edit config.h and select the configuration options you want. The options
   are documented in that file.
 
+- CAUTION: You CANNOT use your system GDBM libraries. TinyMUSH's included
+  GDBM library contains modifications specific to TinyMUSH, as well as
+  bugfixes. The auto-configuration will build and link tinygdbm; do not
+  change this!
+
 - To build the program (updating the dependencies if needed, producing a
   number of binaries, as well as modules, and linking them into the
   appropriate place in the directory structure),

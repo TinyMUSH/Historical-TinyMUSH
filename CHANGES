@@ -14,7 +14,7 @@ The "full", gamma release of TinyMUSH 3.1 is dated June 21st, 2004.
 
 PATCHES SINCE THE 3.1 RELEASE
 
-3.1 Patchlevel 5
+3.1 Patchlevel 5 -- January 27th, 2008
 
   - Enhancement: The new conf parameter local_master_parents allows the
     parents of objects in ZONE-set parent rooms to be scanned for $commands.
@@ -102,6 +102,8 @@ PATCHES SINCE THE 3.1 RELEASE
   - Maintenance: Updated GDBM's LibTools to version 1.5.22.
 
   - Maintenance: Removed unused variables related to @program. Per Brazil.
+
+  - Maintenance: Updated copyright to 2008.
 
   - Compatibility: Enables TinyMUSH to read the escapes of cr/lf add to the 
     TinyMUX flatfile. Per Brazil.

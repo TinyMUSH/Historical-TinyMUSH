@@ -13862,8 +13862,8 @@ traced from the caller's scope.
   TinyMUSH 3 is under active development, and is the standard supported
   version of TinyMUSH for the forseeable future. The primary developers are 
   Lydia Leong ("Amberyl"), David Passmore ("Lauren"), Robby Griffin
-  ("Alierak", as of 3.0 beta 18), and Scott Dorr ("Myrddin", as of
-  3.0 beta 23).
+  ("Alierak", as of 3.0 beta 18), Scott Dorr ("Myrddin", as of 3.0 beta 23),
+  and Eddy Beaupre ("Tyr", as of 3.1 patchlevel 1).
  
   See 'help Patchlevel' for notes on TinyMUSH 3 changes.
   See 'help Writing News' for an explanation of how to write news files.
@@ -13898,17 +13898,17 @@ traced from the caller's scope.
   TinyMUSH 3 announcements and related support information can be found
   at the official TinyMUSH 3 home, http://tinymush.sourceforge.net/
  
-  The MUSH Manual can be found at http://www.godlike.com/mushman/
-  It might also be accessible by typing 'man' within this MUSH.
+  The MUSH Manual can be found at http://duh.com/discordia/mushman/ and
+  other sites. It might also be accessible by typing 'man' within this MUSH.
  
-  General information about MUDs and a MUSH list can be found on the
-  MUD Resource Collection, at http://www.godlike.com/muds/
+  General information about MUSHes and the MUSH community can be found at
+  Electric Soup, at http://www.electricsoup.net/
  
   The MUD Connector is an excellent general MUD list. It can be found
   at http://www.mudconnect.com/
  
   Users may also be interested in the TinyFugue client, available from
-  http://www.muq.org/~hawkeye/tf/
+  http://tinyfugue.sourceforge.net/
  
   Also useful is the LogEdit program, a tool for quickly editing logs,
   available from ftp.pennmush.org, in /pub/PennMUSH/Accessories. 
@@ -13950,6 +13950,8 @@ found in the following help entries:
  
 See 'help Patchlevel 3.0' for the TinyMUSH 3.0 new/enhanced features
 and differences from TinyMUSH 2.2 and TinyMUX 1.6.
+ 
+See 'help Patchlevel 3.1' for changes since the initial 3.1 release.
  
 & Patchlevel 3.0
  
@@ -15259,4 +15261,30 @@ Continued in 'help 3.1 functions11'.
   when they can't find the object they're checking. Previously they
   returned #-1 NOT FOUND; for consistency's sake, they now behave like
   everything else.
+ 
+& Patchlevel 3.1
+ 
+Function modifications:
+ 
+- iftrue() and iffalse() offer ifelse() functionality with #$ substitution.
+- usetrue() and usefalse() offer abbreviated ifelse()-like functionality.
+- lreplace() offers multi-element list replacement.
+- ports() can take zero arguments and return a full list of ports.
+- push() can take zero arguments, which pushes a blank string onto the stack.
+- private() and uprivate() are used to hide global registers.
+- extract() can take an output delimiter.
+- lor(), land(), etc. can take an empty list.
+ 
+Other improvements:
+
+- IDLE command. Send this if you have an auto-unidler for broadband keepalive.
+- local_master_parents config param allows command-object parenting to work
+  for objects in local master rooms.
+- Trace attribute flag allows tracing of a single u-function.
+- @colormap allows remapping of ANSI colors.
+- @end command (@break and @assert) ends an action list on a conditional.
+- @fsay, @fpose, and @femit take a /spoof switch.
+- The %+ substitution gives you the number of arguments passed to a function.
+- The %i0 - %i9 substitutions give you itext(sub(ilev(), <number>)).
+- The %i-0 - %i-9 substitutions give you itext(0) - itext(9).
  
