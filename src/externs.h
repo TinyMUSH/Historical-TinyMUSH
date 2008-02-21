@@ -323,6 +323,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define FUNCT_NO_EVAL	2	/* Don't evaluate args to function */
 #define FUNCT_PRIV	4	/* Perform ufun as holding obj */
 #define FUNCT_PRES	8	/* Preserve r-regs before ufun */
+#define FUNCT_NOREGS	16	/* Private r-regs for ufun */
 #define	FRC_COMMAND	1	/* what=command */
 #define FRC_NOW		2	/* run command immediately, no queueing */
 #define	GET_QUIET	1	/* Don't do osucc/asucc if control */
@@ -478,6 +479,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	FN_NO_EVAL	0x40000000	/* Don't evaluate args to function */
 #define	FN_PRIV		0x20000000	/* Perform ufun as holding obj */
 #define FN_PRES		0x10000000	/* Preserve r-regs before ufun */
+#define FN_NOREGS	0x08000000	/* Private r-regs for ufun */
 /* Lower flag values are used for function-specific switches */
 
 /* Message forwarding directives */

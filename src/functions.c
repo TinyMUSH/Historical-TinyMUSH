@@ -178,7 +178,9 @@ char *fname, *target;
 	    ufp->flags |= FN_NO_EVAL;
 	if (key & FUNCT_PRIV)
 	    ufp->flags |= FN_PRIV;
-	if (key & FUNCT_PRES)
+	if (key & FUNCT_NOREGS)
+	    ufp->flags |= FN_NOREGS;
+	else if (key & FUNCT_PRES)
 	    ufp->flags |= FN_PRES;
 
 	free_sbuf(np);

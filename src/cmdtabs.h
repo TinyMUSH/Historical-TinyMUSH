@@ -153,6 +153,7 @@ NAMETAB	function_sw[] = {
 {(char *)"list",	1,	CA_WIZARD,	FUNCT_LIST},
 {(char *)"noeval",	1,	CA_WIZARD,	FUNCT_NO_EVAL|SW_MULTIPLE},
 {(char *)"privileged",	3,	CA_WIZARD,	FUNCT_PRIV|SW_MULTIPLE},
+{(char *)"private",	5,	CA_WIZARD,	FUNCT_NOREGS|SW_MULTIPLE},
 {(char *)"preserve",	3,	CA_WIZARD,	FUNCT_PRES|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 

@@ -431,6 +431,10 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   rather than u() -- allowing r-registers to be used in global functions
   without concerns about local use of r-registers by the calling function.
  
+  If the /private switch is given, all r-registers are local to the global
+  function -- making this the equivalent of uprivate() -- ensuring the
+  register environment is "clean" for the global function.
+ 
   Continued in 'wizhelp @function2'.
  
 & @function2

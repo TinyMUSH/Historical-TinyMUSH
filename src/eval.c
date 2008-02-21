@@ -1088,7 +1088,10 @@ char *cargs[];
 						i = player;
 					str = tstr;
 					
-					if (ufp->flags & FN_PRES) {
+					if (ufp->flags & FN_NOREGS) {
+					     preserve = mudstate.rdata;
+					     mudstate.rdata = NULL;
+					} else if (ufp->flags & FN_PRES) {
 					    preserve = save_global_regs("eval.save");
 					}
 					
@@ -1096,8 +1099,11 @@ char *cargs[];
 					     ((ufp->flags & FN_NO_EVAL) ?
 					      (EV_FCHECK | EV_EVAL) : feval),
 					     &str, fargs, nfargs);
-					
-					if (ufp->flags & FN_PRES) {
+
+					if (ufp->flags & FN_NOREGS) {
+					     Free_RegData(mudstate.rdata);
+					     mudstate.rdata = preserve;
+					} else if (ufp->flags & FN_PRES) {
 					    restore_global_regs("eval.restore",
 								preserve);
 					}
