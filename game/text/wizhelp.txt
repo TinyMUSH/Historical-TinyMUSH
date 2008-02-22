@@ -19,7 +19,8 @@
 & commands
   Help is available for the following MUSH commands:
  
-  CD             DOING          slay           WHO            wizhelp
+  CD             DOING          internalgoto   slay           WHO
+  wizhelp
  
   @addcommand    @admin         @apply_marked  @attribute     @boot
   @chownall      @cut           @dbck          @delcommand    @destroy       
@@ -540,7 +541,7 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
  
   If you want hooks to be executed before and/or after players move
   through all exits (both local and master room exits), set the hooks
-  for the 'goto' command.
+  for the 'goto' command. To hook all movement, hook 'internalgoto'.
  
   This command is normally restricted to God. Hooks should be the
   first things in the @startup on the God character, assuming you
@@ -597,6 +598,22 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
     > @name me=Wizard
     > @pemit me=Test
     Test
+ 
+& internalgoto
+  Command: internalgoto
+ 
+  This is a dummy command which exists solely for the purpose of hooking
+  movement. A before @hook on internalgoto executes the hook at the 
+  beginning of the process of leaving a location; an after @hook on
+  internalgoto executes the hook at the beginning of the process of
+  entering a new location. (This can be thought of as roughly "before
+  the move" and "after the move".)
+ 
+  These hooks are executed when an object changes location for any reason
+  whatsoever -- whether they have gone 'home', gone through an exit,
+  teleported, been picked up or dropped, has entered or left an object, etc.
+  Consequently, these hooks are useful if you have code that should always
+  be run when an object moves, regardless of the reason why it has moved.
  
 & @kick
   Command: @kick <count>

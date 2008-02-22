@@ -30,6 +30,7 @@ extern int	FDECL(check_mod_access, (dbref, EXTFUNCS *));
 extern void	NDECL(reset_prefix_cmds);
 extern void	FDECL(process_cmdline, (dbref, dbref, char *, char *[], int,
 					BQUE *));
+extern void FDECL(call_move_hook, (dbref, dbref, int));
 
 /* From conf.c */
 extern void	VDECL(cf_log_syntax, (dbref, char *, const char *, ...));

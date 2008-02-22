@@ -86,7 +86,7 @@ if (((x)->post_hook != NULL) && !((x)->callseq & CS_ADDED)) { \
 
 CMDENT *prefix_cmds[256];
 
-CMDENT *goto_cmdp, *enter_cmdp, *leave_cmdp;
+CMDENT *goto_cmdp, *enter_cmdp, *leave_cmdp, *internalgoto_cmdp;
 
 /* ---------------------------------------------------------------------------
  * Main body of code.
@@ -151,6 +151,7 @@ void NDECL(init_cmdtab)
 	goto_cmdp = (CMDENT *) hashfind("goto", &mudstate.command_htab);
 	enter_cmdp = (CMDENT *) hashfind("enter", &mudstate.command_htab);
 	leave_cmdp = (CMDENT *) hashfind("leave", &mudstate.command_htab);
+	internalgoto_cmdp = (CMDENT *) hashfind("internalgoto", &mudstate.command_htab);
 }
 
 void reset_prefix_cmds()
@@ -373,6 +374,19 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     }
 
     free_lbuf(tstr);
+}
+
+void call_move_hook(player, cause, state)
+dbref player, cause;
+int state;
+{
+	 if (internalgoto_cmdp) {
+		 if (!state) {			/* before move */
+			 CALL_PRE_HOOK(internalgoto_cmdp, NULL, 0);
+		 } else {				/* after move */
+			 CALL_POST_HOOK(internalgoto_cmdp, NULL, 0);
+		 }
+	 }
 }
 
 /* ---------------------------------------------------------------------------

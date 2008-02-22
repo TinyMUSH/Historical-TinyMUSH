@@ -33,7 +33,6 @@ int canhear, hush;
 	if ((loc == NOTHING) || (loc == dest))
 		return;
 
-
 	if (dest == HOME)
 		dest = Home(thing);
 
@@ -42,6 +41,10 @@ int canhear, hush;
 		notify_html(thing, "<xch_page clear=links>");
 	}
 #endif
+
+	/* Hook support first */
+
+	call_move_hook(thing, cause, 0);
 
 	/* Run the LEAVE attributes in the current room if we meet any of 
 	 * following criteria: 
@@ -103,6 +106,10 @@ int canhear, hush;
 #ifdef PUEBLO_SUPPORT
 	show_vrml_url(thing, loc);
 #endif
+
+	/* Hook support first */
+
+	call_move_hook(thing, cause, 1);
 	
 	/* Run the ENTER attributes in the current room if we meet any of 
 	 * following criteria: 
