@@ -177,6 +177,7 @@ struct cmdentry {
 #define CS_NOSQUISH	0x04000	/* Do not space-compress */
 #define CS_FUNCTION	0x08000	/* Can call with command() */
 #define CS_ACTOR	0x10000	/* @addcommand executed by player, not obj */
+#define CS_PRIVATE	0x20000 /* For hooks, use private global registers */
 
 /* Command permission flags */
 

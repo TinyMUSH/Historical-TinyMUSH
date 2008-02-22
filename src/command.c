@@ -74,13 +74,13 @@ extern void FDECL(register_prefix_cmds, (const char *));
 
 #define CALL_PRE_HOOK(x,a,na) \
 if (((x)->pre_hook != NULL) && !((x)->callseq & CS_ADDED)) { \
-    process_hook((x)->pre_hook, (x)->callseq & CS_PRESERVE, \
+    process_hook((x)->pre_hook, (x)->callseq & CS_PRESERVE|CS_PRIVATE, \
                  player, cause, (a), (na)); \
 }
 
 #define CALL_POST_HOOK(x,a,na) \
 if (((x)->post_hook != NULL) && !((x)->callseq & CS_ADDED)) { \
-    process_hook((x)->post_hook, (x)->callseq & CS_PRESERVE, \
+    process_hook((x)->post_hook, (x)->callseq & CS_PRESERVE|CS_PRIVATE, \
                  player, cause, (a), (na)); \
 }
 
@@ -353,8 +353,11 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
     tstr = atr_get(hp->thing, hp->atr, &aowner, &aflags, &alen);
     str = tstr;
 
-    if (save_globs) {
+    if (save_globs & CS_PRESERVE) {
 	preserve = save_global_regs("process_hook");
+    } else if (save_globs & CS_PRIVATE) {
+	preserve = mudstate.rdata;
+	mudstate.rdata = NULL;
     }
 
     buf = bp = alloc_lbuf("process_hook");
@@ -362,8 +365,11 @@ static void process_hook(hp, save_globs, player, cause, cargs, ncargs)
 	 &str, cargs, ncargs);
     free_lbuf(buf);
 
-    if (save_globs) {
+    if (save_globs & CS_PRESERVE) {
 	restore_global_regs("process_hook", preserve);
+    } else if (save_globs & CS_PRIVATE) {
+	 Free_RegData(mudstate.rdata);
+	 mudstate.rdata = preserve;
     }
 
     free_lbuf(tstr);

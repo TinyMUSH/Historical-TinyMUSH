@@ -763,15 +763,23 @@ void do_hook(player, cause, key, cmdname, target)
     /* Check for the hook flags. */
 
     if (key & HOOK_PRESERVE) {
+	cmdp->callseq &= ~CS_PRIVATE;
 	cmdp->callseq |= CS_PRESERVE;
 	notify(player,
 	       "Hooks will preserve the state of the global registers.");
 	return;
     }
     if (key & HOOK_NOPRESERVE) {
-	cmdp->callseq &= ~CS_PRESERVE;
+	cmdp->callseq &= ~(CS_PRESERVE|CS_PRIVATE);
 	notify(player,
 	       "Hooks will not preserve the state of the global registers.");
+	return;
+    }
+    if (key & HOOK_PRIVATE) {
+	cmdp->callseq &= ~CS_PRESERVE;
+	cmdp->callseq |= CS_PRIVATE;
+	notify(player,
+	       "Hooks will use private global registers.");
 	return;
     }
 

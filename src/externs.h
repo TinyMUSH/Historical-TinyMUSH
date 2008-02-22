@@ -338,6 +338,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define HOOK_PRESERVE	4	/* preserve global regs */
 #define HOOK_NOPRESERVE	8	/* don't preserve global regs */
 #define HOOK_PERMIT	16	/* user-defined permissions */
+#define HOOK_PRIVATE	32	/* private global regs */
 #define	KILL_KILL	1	/* gives victim insurance */
 #define	KILL_SLAY	2	/* no insurance */
 #define	LOOK_LOOK	1	/* list desc (and succ/fail if room) */

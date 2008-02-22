@@ -181,8 +181,9 @@ NAMETAB hook_sw[] = {
 {(char *)"before",	1,	CA_GOD,		HOOK_BEFORE},
 {(char *)"after",	1,	CA_GOD,		HOOK_AFTER},
 {(char *)"permit",	1,	CA_GOD,		HOOK_PERMIT},
-{(char *)"preserve",	1,	CA_GOD,		HOOK_PRESERVE},
+{(char *)"preserve",	3,	CA_GOD,		HOOK_PRESERVE},
 {(char *)"nopreserve",	1,	CA_GOD,		HOOK_NOPRESERVE},
+{(char *)"private",	3,	CA_GOD,		HOOK_PRIVATE},
 { NULL,			0,	0,		0}};
 
 NAMETAB	leave_sw[] = {

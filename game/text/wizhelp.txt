@@ -535,6 +535,9 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   are executed. While this is more convenient for code, it is also
   less efficient. 'permit' hooks always preserve global registers.
  
+  '@hook/private <command>' makes it so that the 'before' and 'after'
+  hooks for that command will be executed using a private register set.
+ 
   If you want hooks to be executed before and/or after players move
   through all exits (both local and master room exits), set the hooks
   for the 'goto' command.
