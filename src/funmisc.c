@@ -199,6 +199,7 @@ FUNCTION(handle_ifelse)
 	
 	char *str, *mbuff, *bp, *save_token;
 	int flag, n;
+	char *tbuf = NULL;
 
 	flag = Func_Flags(fargs);
 
@@ -217,12 +218,16 @@ FUNCTION(handle_ifelse)
 	 * MUX-style nonzero -- it's true if it's not empty or zero.
 	 */
 
-	if (!mbuff || !*mbuff)
+	if (!mbuff || !*mbuff) {
 	     n = 0;
-	else if (flag & IFELSE_BOOL)
-	     n = xlate(mbuff);
-	else
+	} else if (flag & IFELSE_BOOL) {
+		/* xlate() destructively modifies the string */
+		tbuf = XSTRDUP(mbuff, "handle_ifelse.tbuf");
+		n = xlate(tbuf);
+		XFREE(tbuf, "handle_ifelse.tbuf");
+	} else {
 	     n = !((atoi(mbuff) == 0) && is_number(mbuff));
+	}
 	if (flag & IFELSE_FALSE)
 	     n = !n;
 
