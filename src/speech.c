@@ -501,7 +501,7 @@ dbref player, target;
 
 void do_page(player, cause, key, tname, message)
     dbref player, cause;
-    int key;
+    int key;			/* 1 if this is a reply page */
     char *tname, *message;
 {
     char *dbref_list, *ddp;
@@ -522,7 +522,7 @@ void do_page(player, cause, key, tname, message)
      * 'page foo=' from 'page foo' -- both result in a valid tname.
      */
 
-    if (!*message) {
+    if (!key && !*message) {
 	if (mudconf.page_req_equals) {
 	    notify(player, "No one to page.");
 	    return;
@@ -532,11 +532,14 @@ void do_page(player, cause, key, tname, message)
 	tname = tnp;
     }
 
-    if (!*tname) {		/* no recipient list; use lastpaged */
+    if (!tname || !*tname) {		/* no recipient list; use lastpaged */
 
 	/* Clean junk objects out of their lastpaged dbref list */
 
-	dbref_list = atr_get(player, A_LASTPAGE, &aowner, &aflags, &alen);
+	if (key)
+	    dbref_list = atr_get(player, A_PAGEGROUP, &aowner, &aflags, &alen);
+	else
+	    dbref_list = atr_get(player, A_LASTPAGE, &aowner, &aflags, &alen);
 
 	/* How many words in the list of targets? */
 
@@ -564,6 +567,9 @@ void do_page(player, cause, key, tname, message)
 		    notify(player, tprintf("I don't recognize #%d.", target));
 		    continue;
 		}
+		/* Eliminate ourselves from repeat and reply pages */
+		if (target == player)
+		    continue;
 		dbrefs_array[count] = target;
 		count++;
 	    }
@@ -637,14 +643,38 @@ void do_page(player, cause, key, tname, message)
     /* Check to make sure we have something. */
 
     if (count == 0) {
-	if (!*message)
-	    notify(player, "You have not paged anyone.");
-	else
+	if (!*message) {
+	    if (key)
+		notify(player, "You have not been paged by anyone.");
+	    else
+		notify(player, "You have not paged anyone.");
+	} else {
 	    notify(player, "No one to page.");
+	}
 	if (dbrefs_array)
 	    XFREE(dbrefs_array, "do_page.dbrefs");
 	return;
     }
+
+    /* Each person getting paged is included in the pagegroup, as is the
+     * person doing the paging. This lets us construct one list rather than
+     * individual ones for each player. Self-paging is automatically
+     * eliminated when the pagegroup is used.
+     */
+
+    dbref_list = ddp = alloc_lbuf("do_page.pagegroup");
+    safe_ltos(dbref_list, &ddp, player);
+    for (i = 0; i < n_dbrefs; i++) {
+	if (dbrefs_array[i] != NOTHING) {
+	    safe_chr(' ', dbref_list, &ddp);
+	    safe_ltos(dbref_list, &ddp, dbrefs_array[i]);
+	}
+    }
+    *ddp = '\0';
+    for (i = 0; i < n_dbrefs; i++)
+	if (dbrefs_array[i] != NOTHING)
+	    atr_add_raw(dbrefs_array[i], A_PAGEGROUP, dbref_list);
+    free_lbuf(dbref_list);
 
     /* Build name list. Even if we only have one name, we have to go
      * through the array, because the first entries might be invalid.
@@ -728,6 +758,14 @@ void do_page(player, cause, key, tname, message)
 
     notify(player, imessage);
     free_lbuf(imessage);
+}
+
+void do_reply_page(player, cause, key, msg)
+    dbref player, cause;
+    int key;
+    char *msg;
+{
+    do_page(player, cause, 1, NULL, msg);
 }
 
 /*

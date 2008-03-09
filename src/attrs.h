@@ -190,6 +190,7 @@
 #define A_LMOVES	228	/* Who does this player notice moving? */ 
 
 #define A_SPEECHFMT	229	/* Format speech */
+#define A_PAGEGROUP	230	/* Last paged as part of this group */
 
 /* unused		252	Formerly A_VLIST */
 #define	A_LIST		253

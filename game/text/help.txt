@@ -490,7 +490,7 @@ Messaging:
  
 @@		@emit		@eval		@femit		@fpose
 @fsay		@npemit		@oemit		@pemit		page
-pose		say		think		whisper
+pose		reply		say		think		whisper
  
 Movement:
  
@@ -1441,6 +1441,7 @@ This command sends <message> to a list of players. If you do not specify
 a player list, it defaults to the players you last paged. You may use
 any combination of player names, player aliases, or partial names (strings
 that uniquely match the start of a connected player's name).
+(See 'help reply' for help on replying to who you were last paged by.)
  
 If <message> begins with ':' or ';', it will be treated as a page-pose.
 The recipients will see, "From afar, <your name> <message>" if you used
@@ -1492,8 +1493,26 @@ you back (i.e., you must not be page-locked against them). If you are
 a Wizard, you can page someone who can't page you back, but you will
 be warned that they can't page you back.
  
-See also: @pemit, @lock
+See also: reply, @pemit, @lock
   
+& reply
+ 
+Command:  reply <message>
+ 
+The reply command is a special form of page. It lets you reply to the
+person who last paged you; if you were paged as part of a group page,
+you'll reply to the person who paged you as well as everyone else 
+included in that page. In all other ways, this is like the regular
+page command (including the fact that the group of people you reply to
+is then considered your last-paged group for repeat-page purposes).
+ 
+For instance, if player A pages player B, then player B's reply will go
+to player A. If player A pages player B, C, and D, then a reply from
+any of those players would go to A plus the other two players (you'll
+never page yourself as part of a reply, of course).
+ 
+See also: page
+ 
 & :
 & ;
 & pose

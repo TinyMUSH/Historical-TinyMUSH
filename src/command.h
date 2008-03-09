@@ -100,6 +100,7 @@ CMD_TWO_ARG(do_quota);			/* Set or display quotas */
 CMD_NO_ARG(do_readcache);		/* Reread text file cache */
 CMD_TWO_ARG(do_redirect);		/* Redirect output */
 CMD_TWO_ARG(do_reference);		/* Manipulate nrefs */
+CMD_ONE_ARG(do_reply_page);		/* Reply to a page */
 CMD_NO_ARG(do_restart);			/* Restart the game. */
 CMD_ONE_ARG(do_say);			/* Messages to all */
 CMD_NO_ARG(do_score);			/* Display my wealth */
