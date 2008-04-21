@@ -5748,18 +5748,19 @@ See also: @link, @open.
 	elements()	extract()	filter()	filterbool()	
 	first()		fold()		grab()		graball()	
 	group()		index()		insert()	itemize()	
-	isort()		iter()		isfalse()	istrue()	
-	last()		ldelete()	ldiff()		ledit()		
-	linter()	list()		lnum()		loop()		
-	lpos()		lrand()		lreplace()	lunion()
-	map()		match()		matchall()	member()	
-	mix()		munge()		qvars()		remove()	
-	replace()	regrab()	regraball()	regraballi()	
-	regrabi()	rest()		revwords()	rtables()	
-	setdiff()	setinter()	setunion()	shuffle()	
-	sortby()	sort()		splice()	step()		
-	table()		tables()	until()		whenfalse()	
-	whentrue()	while()		words()
+	isort()		iter()		iter2()		isfalse()
+	istrue()	last()		ldelete()	ldiff()		
+	ledit()		linter()	list()		list2()
+	lnum()		loop()		lpos()		lrand()
+	lreplace()	lunion()	map()		match()		
+	matchall()	member()	mix()		munge()		
+	qvars()		remove()	replace()	regrab()	
+	regraball()	regraballi()	regrabi()	rest()		
+	revwords()	rtables()	setdiff()	setinter()	
+	setunion()	shuffle()	sortby()	sort()		
+	splice()	step()		table()		tables()
+	until()		whenfalse()	whenfalse2()	whentrue()
+	whentrue2()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -9096,12 +9097,14 @@ performed and the walk down the list stops.
  
 & ITER()
   Function: iter(<list>, <eval>[, <delim>[, <output delim>]])
+  Function: iter2(<list>, <list2>, <eval>[, <delim>[, <output delim>]])
  
   <list> is a <delimiter>-separated list of arbitrary strings. <eval> is a
   string that is to be evaluated once for each item in <list>, replacing
   the special symbol ## with the corresponding item from <list>, and 
   the special symbol #@ with the position of the item in the list.
   The special tokens can be escaped out, i.e., '\##' returns a literal '##'.
+  In iter2(), <list2> is like <list1>, but its special symbol is '#?'.
  
   A list of the results of these evaluations is returned to the caller; if
   <output delim> is specified, it is used; otherwise, a space is used.
@@ -9110,8 +9113,8 @@ performed and the walk down the list stops.
   evaluating appropriately at each level. The nesting level can also
   be obtained, using the '#!' token or the ilev() function; the first call
   to iter(), list(), whentrue(), or whenfalse() is level 0, the next is
-  level 1, and so forth. itext() and inum() can be used to retrieve the
-  ##/#@-equivalent values at other nesting levels.
+  level 1, and so forth. itext(), itext2(), and inum() can be used to
+  retrieve the ##/#@-equivalent values at other nesting levels.
  
   Continued in 'help ITER2'.
  
@@ -9130,17 +9133,18 @@ performed and the walk down the list stops.
     You say, "apple+banana+orange"
     > say [iter(1-2-3-4,inc(##),-,@@)]
     You say, "2345"
-    > say [iter(1 2 3 4,inc(##),%b,%r)]
-    You say, "2
-    3
-    4
-    5"
+    > say [iter2(1 2 3 4,a b c d,[inc(##)] - #?,%b,%r)]
+    You say, "2 - a
+    3 - b
+    4 - c
+    5 - d"
  
   See also: @dolist, parse(), list(), istrue(), isfalse(), whentrue(),
             whenfalse(), loop(), ilev(), itext(), inum(), map(), DELIMITERS.
  
 & LIST()
   Function: list(<list>, <eval>[, <delim>])
+  Function: list2(<list>, <list2>, <eval>[, <delim>])
  
   This function behaves identically to iter(), but, instead of returning
   a list of words, it returns each result on a separate line, outputting
@@ -9173,16 +9177,22 @@ performed and the walk down the list stops.
  
 & ITEXT()
   Function: itext(<level>)
+  Function: itext2(<level>)
  
-  Returns the '##'-equivalent substitution text at the appropriate nesting
-  <level> of iter(), list(), whentrue() and whenfalse(). 'itext(0)' is
-  equivalent to '##'.
+  itext() returns the '##'-equivalent substitution text at the appropriate
+  nesting <level> of iter(), list(), whentrue() and whenfalse().
+  'itext(0)' is equivalent to '##'.
  
+  itext2() returns the '#?'-equivalent substitution text at the appropriate
+  nesting <level> of iter2(), list2(), whentrue2() and whenfalse2().
+  'itext2(0)' is equivalent to '#?'.
+  
   This data can also be accessed through a percent-substitution.
   %i-0 is equivalent to itext(0), up to %i-9 equivalent to itext(9).
   If there is no dash in front of the number, it's equivalent to a delta from
   the current level. In other words, %i-0 is equivalent to itext(ilev()), 
   %i-1 to itext(sub(ilev(),1)), down to %i-9 for itext(sub(ilev(),9)).
+  %j is to itext2() as %i is to itext().
  
   If used outside one of those functions, or with a nesting level that
   is too deep, this function returns a null string.
@@ -9263,6 +9273,7 @@ performed and the walk down the list stops.
  
 & WHENTRUE()
   Function: whentrue(<list>, <eval>[, <delim>[, <output delim>]])
+  Function2: whentrue2(<list>, <list2>, <eval>[, <delim>[, <output delim>]])
  
   This function is basically 'iter() as long as the results are
   boolean true'. <list> is processed element by element, and <eval>
@@ -9276,11 +9287,14 @@ performed and the walk down the list stops.
   Example:
     > say [whentrue(1 2 0 2 1,##)]
     You say, "1 2 0"
+    > say [whentrue2(1 2 0 2 1, 0 0 0 0 0, or(##,#?))]
+    You say, "1 1 0"
  
   See also: iter(), BOOLEAN VALUES.
  
 & WHENFALSE()
   Function: whenfalse(<list>, <eval>[, <delim>[, <output delim>]])
+  Function: whenfalse2(<list>, <list2>, <eval>[, <delim>[, <output delim>]])
  
   This function is basically 'iter() as long as the results are
   boolean false'. <list> is processed element by element, and <eval>
@@ -9294,6 +9308,8 @@ performed and the walk down the list stops.
   Example:
     > say [whenfalse(0 #-1 1 2,##)]
     You say, "0 #-1 1"
+    > say [whenfalse2(0 #-1 1 2, 0 0 0 0, orbool(##,#?))]
+    You say, "0 0 1"
  
   See also: iter(), BOOLEAN VALUES.
  

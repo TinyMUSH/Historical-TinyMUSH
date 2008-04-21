@@ -454,6 +454,7 @@ if ((l) > 0) { \
 #define FILT_COND_FALSE	0x020	/* show only false results */
 #define FILT_COND_TRUE	0x030	/* show only true results */
 #define LOOP_NOTIFY	0x100	/* send loop results directly to enactor */
+#define LOOP_TWOLISTS	0x200	/* process two lists */
 
 /* from handle_okpres (hears, moves, knows): */
 #define PRESFN_OPER	0x0f	/* Mask to select bits */

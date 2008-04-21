@@ -515,6 +515,7 @@ struct statedata {
 	MARKBUF	*markbits;	/* temp storage for marking/unmarking */
 	int	in_loop;	/* In a loop() statement? */
 	char	*loop_token[MAX_ITER_NESTING];	/* Value of ## */
+	char	*loop_token2[MAX_ITER_NESTING];	/* Value of #? */
 	int	loop_number[MAX_ITER_NESTING];	/* Value of #@ */
 	int	in_switch;	/* In a switch() statement? */
 	char	*switch_token;	/* Value of #$ */

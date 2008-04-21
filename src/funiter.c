@@ -96,37 +96,56 @@ FUNCTION(perform_loop)
  *
  * istrue() and isfalse() are inline filterbool() equivalents returning
  * the elements of the list which are true or false, respectively.
+ *
+ * iter2(), list2(), etc. are two-list versions of all of the above.
  */
 
 FUNCTION(perform_iter)
 {
     Delim isep, osep;
     int flag;			/* 0 is iter(), 1 is list() */
-    int bool_flag, filt_flag;
+    int bool_flag, filt_flag, two_flag;
     int need_result, need_bool;
-    char *list_str, *lp, *str, *input_p, *bb_p, *work_buf;
-    char *savep, *dp, *result;
+    char *list_str, *lp, *input_p;
+    char *list_str2, *lp2, *input_p2;
+    char *str, *bb_p, *work_buf;
+    char *ep, *savep, *dp, *result;
     int is_true, cur_lev, elen;
-
-    flag = Func_Mask(LOOP_NOTIFY);
-    bool_flag = Func_Mask(BOOL_COND_TYPE);
-    filt_flag = Func_Mask(FILT_COND_TYPE);
-
-    need_result = (flag || (filt_flag != FILT_COND_NONE)) ? 1 : 0;
-    need_bool = ((bool_flag != BOOL_COND_NONE) ||
-		 (filt_flag != FILT_COND_NONE)) ? 1 : 0;
-    
-    if (flag) {
-	VaChk_Only_InEval(3);
-    } else {
-	VaChk_InEval_OutEval(2, 4);
-    }
+    char tmpbuf[1] = "";
+    char tmpbuf2[1] = "";
 
     /* Enforce maximum nesting level. */
 
     if (mudstate.in_loop >= MAX_ITER_NESTING - 1) {
 	notify_quiet(player, "Exceeded maximum iteration nesting.");
 	return;
+    }
+
+    /* Figure out what functionality we're getting. */
+
+    flag = Func_Mask(LOOP_NOTIFY);
+    bool_flag = Func_Mask(BOOL_COND_TYPE);
+    filt_flag = Func_Mask(FILT_COND_TYPE);
+    two_flag = Func_Mask(LOOP_TWOLISTS);
+
+    need_result = (flag || (filt_flag != FILT_COND_NONE)) ? 1 : 0;
+    need_bool = ((bool_flag != BOOL_COND_NONE) ||
+		 (filt_flag != FILT_COND_NONE)) ? 1 : 0;
+    
+    if (!two_flag) {
+	if (flag) {
+	    VaChk_Only_InEval(3);
+	} else {
+	    VaChk_InEval_OutEval(2, 4);
+	}
+	ep = fargs[1];
+    } else {
+	if (flag) {
+	    VaChk_Only_InEval(4);
+	} else {
+	    VaChk_InEval_OutEval(3, 5);
+	}
+	ep = fargs[2];
     }
 
     /* The list argument is unevaluated. Go evaluate it. */
@@ -136,27 +155,54 @@ FUNCTION(perform_iter)
     exec(list_str, &lp, player, caller, cause,
 	 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
     input_p = trim_space_sep(input_p, &isep);
-    if (!*input_p) {
+
+    /* Same thing for the second list arg, if we have it */
+
+    if (two_flag) {
+	input_p2 = lp2 = list_str2 = alloc_lbuf("perform_iter.list2");
+	str = fargs[1];
+	exec(list_str2, &lp2, player, caller, cause,
+	 EV_STRIP | EV_FCHECK | EV_EVAL, &str, cargs, ncargs);
+	input_p2 = trim_space_sep(input_p2, &isep);
+    } else {
+	input_p2 = lp2 = list_str2 = NULL;
+    }
+
+    /* If both lists are empty, we're done */
+
+    if (!(input_p && *input_p) && !(input_p2 && *input_p2)) {
 	free_lbuf(list_str);
+	if (list_str2) {
+	    free_lbuf(list_str2);
+	}
 	return;
     }
 
     cur_lev = mudstate.in_loop++;
     mudstate.loop_token[cur_lev] = NULL;
+    mudstate.loop_token2[cur_lev] = NULL;
     mudstate.loop_number[cur_lev] = 0;
 
     bb_p = *bufc;
-    elen = strlen(fargs[1]);
+    elen = strlen(ep);
 
-    while (input_p && (mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+    while ((input_p || input_p2) &&
+	   (mudstate.func_invk_ctr < mudconf.func_invk_lim) && 
 	   !Too_Much_CPU()) {
 	if (!need_result && (*bufc != bb_p)) {
 	    print_sep(&osep, buff, bufc);
 	}
-	mudstate.loop_token[cur_lev] = split_token(&input_p, &isep);
+	if (input_p)
+	    mudstate.loop_token[cur_lev] = split_token(&input_p, &isep);
+	else
+	    mudstate.loop_token[cur_lev] = tmpbuf;
+	if (input_p2)
+	    mudstate.loop_token2[cur_lev] = split_token(&input_p2, &isep);
+	else
+	    mudstate.loop_token2[cur_lev] = tmpbuf;
 	mudstate.loop_number[cur_lev] += 1;
 	work_buf = alloc_lbuf("perform_iter.eval");
-	StrCopyKnown(work_buf, fargs[1], elen); /* we might nibble this */
+	StrCopyKnown(work_buf, ep, elen); /* we might nibble this */
 	str = work_buf;
 	savep = *bufc;
 	if (!need_result) {
@@ -193,6 +239,9 @@ FUNCTION(perform_iter)
     }
 
     free_lbuf(list_str);
+    if (list_str2) {
+	free_lbuf(list_str2);
+    }
     mudstate.in_loop--;
 }
 
@@ -203,17 +252,6 @@ FUNCTION(perform_iter)
 FUNCTION(fun_ilev)
 {
     safe_ltos(buff, bufc, mudstate.in_loop - 1);
-}
-
-FUNCTION(fun_itext)
-{
-    int lev;
-
-    lev = atoi(fargs[0]);
-    if ((lev > mudstate.in_loop - 1) || (lev < 0))
-	return;
-
-    safe_str(mudstate.loop_token[lev], buff, bufc);
 }
 
 FUNCTION(fun_inum)
@@ -227,6 +265,28 @@ FUNCTION(fun_inum)
     }
     
     safe_ltos(buff, bufc, mudstate.loop_number[lev]);
+}
+
+FUNCTION(fun_itext)
+{
+    int lev;
+
+    lev = atoi(fargs[0]);
+    if ((lev > mudstate.in_loop - 1) || (lev < 0))
+	return;
+
+    safe_str(mudstate.loop_token[lev], buff, bufc);
+}
+
+FUNCTION(fun_itext2)
+{
+    int lev;
+
+    lev = atoi(fargs[0]);
+    if ((lev > mudstate.in_loop - 1) || (lev < 0))
+	return;
+
+    safe_str(mudstate.loop_token2[lev], buff, bufc);
 }
 
 /* ---------------------------------------------------------------------------

@@ -407,7 +407,7 @@ char special_chartab[256] =
 char token_chartab[256] =
 {
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-    0,1,0,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,1,0,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,1,
     1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
@@ -928,6 +928,9 @@ char *cargs[];
 				break;
 			case 'I':	/* itext() equivalent */
 			case 'i':
+		        case 'J':	/* itext2() equivalent */
+		        case 'j':
+			        xtp = *dstr;
 				(*dstr)++;
 				if (!**dstr)
 				    (*dstr)--;
@@ -948,7 +951,13 @@ char *cargs[];
 				}
 				if (i > mudstate.in_loop - 1)
 				     break;
-				safe_str(mudstate.loop_token[i], buff, bufc);
+				if ((*xtp == 'i') || (*xtp == 'I')) {
+				    safe_str(mudstate.loop_token[i],
+					     buff, bufc);
+				} else {
+				    safe_str(mudstate.loop_token2[i],
+					     buff, bufc);
+				}
 			        break;
 			case '+':       /* arguments to function */
 			        safe_ltos(buff, bufc, ncargs);
@@ -1194,6 +1203,9 @@ char *cargs[];
 			    } else if ((**dstr == '@') && mudstate.in_loop) {
 			      safe_ltos(buff, bufc,
 				     mudstate.loop_number[mudstate.in_loop-1]);
+			    } else if ((**dstr == '?') && mudstate.in_loop) {
+			      safe_str(mudstate.loop_token2[mudstate.in_loop-1],
+				       buff, bufc);
 			    } else if ((**dstr == '$') && mudstate.in_switch) {
 				safe_str(mudstate.switch_token, buff, bufc);
 			    } else if (**dstr == '!') {
