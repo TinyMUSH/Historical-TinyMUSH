@@ -6351,6 +6351,8 @@ The list of loaded modules can be obtained via the 'version' command.
     %x<code> = ANSI color substitution.
     %i0-%i9  = %i-0 to %i-9 are equivalent to itext(sub(ilev(),<num>)).
     %i-<num> = Equivalent to itext(0) - itext(9).
+    %j0-%j9  = %j-0 to %j-9 are equivalent to itext2(sub(ilev(),<num>)).
+    %j-<num> = Equivalent to itext2(0) - itext2(9).
     %m       = Text of the last command executed.
     %c       = Depending on configuration, equivalent to either %m or %x.
  
