@@ -2304,7 +2304,7 @@ FUNCTION(fun_lastcreate)
 /* ---------------------------------------------------------------------------
  * fun_speak: Complex say-format-processing function.
  *
- * speak(<object>, <string>[, <substitute for "says,">
+ * speak(<speaker>, <string>[, <substitute for "says,">
  *       [, <transform>[, <empty>[, <open>[, <close>]]]]])
  *
  * <string> can be a plain string (treated like say), :<foo> (pose),
@@ -2326,11 +2326,12 @@ FUNCTION(fun_lastcreate)
  * dbref as %0, and the speech part number as %1.
  */
 
-static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
+static void transform_say(speaker, sname,
+			  str, key, say_str, trans_str, empty_str,
 			  open_sep, close_sep,
 			  player, caller, cause, buff, bufc)
     dbref speaker, player, caller, cause;
-    char *str, *say_str, *trans_str, *empty_str, *buff, **bufc;
+    char *sname, *str, *say_str, *trans_str, *empty_str, *buff, **bufc;
     const Delim *open_sep, *close_sep;
     int key;
 {
@@ -2391,7 +2392,7 @@ static void transform_say(speaker, str, key, say_str, trans_str, empty_str,
 	if (result && *result) {
 	    if ((key == SAY_SAY) && (spos == 0)) {
 		safe_tprintf_str(buff, bufc, "%s %s %s",
-				 Name(speaker), say_str, result);
+				 sname, say_str, result);
 	    } else {
 		safe_str(result, buff, bufc);
 	    }
@@ -2445,7 +2446,7 @@ FUNCTION(fun_speak)
     dbref aowner1, aowner2;
     int aflags1, alen1, anum1, aflags2, alen2, anum2;
     ATTR *ap1, *ap2;
-    char *atext1, *atext2, *str, *say_str;
+    char *atext1, *atext2, *str, *say_str, *s, *tname;
     int is_transform, key;
 
     /* Delimiter processing here is different. We have to do some
@@ -2464,12 +2465,34 @@ FUNCTION(fun_speak)
 	VaChk_OutSep(7, 0);
     }
 
-    /* Just need a match. Don't need to control it or anything. */
+    /* We have three possible cases for the speaker:
+     *   <thing string>&<name string>
+     *   &<name string> (speaker defaults to player)
+     *   <thing string> (name string defaults to name of thing)
+     */
 
-    thing = match_thing(player, fargs[0]);
-    if (!Good_obj(thing)) {
-	safe_nomatch(buff, bufc);
-	return;
+    if (*fargs[0] == '&') {
+	/* name only */
+	thing = player;
+	tname = fargs[0];
+	tname++;
+    } else if (((s = strchr(fargs[0], '&')) == NULL) || !*s++) {
+	/* thing only */
+	thing = match_thing(player, fargs[0]);
+	if (!Good_obj(thing)) {
+	    safe_nomatch(buff, bufc);
+	    return;
+	}
+	tname = Name(thing);
+    } else {
+	/* thing and name */
+	*(s-1) = '\0';
+	thing = match_thing(player, fargs[0]);
+	if (!Good_obj(thing)) {
+	    safe_nomatch(buff, bufc);
+	    return;
+	}
+	tname = s;
     }
 
     /* Must have an input string. Otherwise silent fail. */
@@ -2531,15 +2554,15 @@ FUNCTION(fun_speak)
 	switch (*fargs[1]) {
 	    case ':':
 		if (*(fargs[1] + 1) == ' ') {
-		    safe_tprintf_str(buff, bufc, "%s%s", Name(thing),
+		    safe_tprintf_str(buff, bufc, "%s%s", tname,
 				     fargs[1] + 2);
 		} else {
-		    safe_tprintf_str(buff, bufc, "%s %s", Name(thing),
+		    safe_tprintf_str(buff, bufc, "%s %s", tname,
 				     fargs[1] + 1);
 		}
 		break;
 	    case ';':
-		safe_tprintf_str(buff, bufc, "%s%s", Name(thing),
+		safe_tprintf_str(buff, bufc, "%s%s", tname,
 				 fargs[1] + 1);
 		break;
 	    case '|':
@@ -2547,11 +2570,11 @@ FUNCTION(fun_speak)
 		break;
 	    case '"':
 		safe_tprintf_str(buff, bufc, "%s %s \"%s\"",
-				 Name(thing), say_str, fargs[1] + 1);
+				 tname, say_str, fargs[1] + 1);
 		break;
 	    default:
 		safe_tprintf_str(buff, bufc, "%s %s \"%s\"",
-				 Name(thing), say_str, fargs[1]);
+				 tname, say_str, fargs[1]);
 		break;
 	}
 	return;
@@ -2561,7 +2584,7 @@ FUNCTION(fun_speak)
 
     switch (*fargs[1]) {
 	case ':':
-	    safe_name(thing, buff, bufc);
+	    safe_str(tname, buff, bufc);
 	    if (*(fargs[1] + 1) != ' ') {
 		safe_chr(' ', buff, bufc);
 		str = fargs[1] + 1;
@@ -2572,7 +2595,7 @@ FUNCTION(fun_speak)
 	    }
 	    break;
 	case ';':
-	    safe_name(thing, buff, bufc);
+	    safe_str(tname, buff, bufc);
 	    str = fargs[1] + 1;
 	    key = SAY_POSE_NOSPC;
 	    break;
@@ -2589,6 +2612,6 @@ FUNCTION(fun_speak)
 	    key = SAY_SAY;
     }
 
-    transform_say(thing, str, key, say_str, atext1, atext2,
+    transform_say(thing, tname, str, key, say_str, atext1, atext2,
 		  &isep, &osep, player, caller, cause, buff, bufc);
 }

@@ -9594,6 +9594,12 @@ performed and the walk down the list stops.
   "<speech>          <speaker's name> says, "<speech>"
   <speech>           <speaker's name> says, "<speech>"
  
+  If <speaker> begins with '&', the remainder of the string is used as the
+  speaker's name (with the speaker itself defaulting to the object). If
+  <speaker> is '<thing>&<name>', <thing> is matched as the speaker and 
+  <name> is used as the speaker's name. Otherwise, <speaker> is matched
+  as a thing, and the thing's name is used as the speaker's name.
+ 
   The conf parameter say_uses_comma is respected (using "says," or "says").
   If <say string> is specified, it is used instead of "says," / "says".
  
@@ -9619,6 +9625,10 @@ performed and the walk down the list stops.
     Wizard says, "Test."
     > @emit [speak(me, Test., yells:)]
     Wizard yells: "Test."
+    > @emit [speak(&Zod, Test., yells:)]
+    Zod yells: "Test."
+    > @emit [speak(me&Zod, Test., yells:)]
+    Zod yells: "Test."
  
   Continued in 'help Speak3'.
  
