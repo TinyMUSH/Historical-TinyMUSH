@@ -407,7 +407,7 @@ char special_chartab[256] =
 char token_chartab[256] =
 {
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-    0,1,0,1,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,1,
+    0,1,0,1,1,0,0,0, 0,0,0,1,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
     1,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
@@ -1203,7 +1203,7 @@ char *cargs[];
 			    } else if ((**dstr == '@') && mudstate.in_loop) {
 			      safe_ltos(buff, bufc,
 				     mudstate.loop_number[mudstate.in_loop-1]);
-			    } else if ((**dstr == '?') && mudstate.in_loop) {
+			    } else if ((**dstr == '+') && mudstate.in_loop) {
 			      safe_str(mudstate.loop_token2[mudstate.in_loop-1],
 				       buff, bufc);
 			    } else if ((**dstr == '$') && mudstate.in_switch) {

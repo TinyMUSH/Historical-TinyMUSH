@@ -9106,7 +9106,7 @@ performed and the walk down the list stops.
   the special symbol ## with the corresponding item from <list>, and 
   the special symbol #@ with the position of the item in the list.
   The special tokens can be escaped out, i.e., '\##' returns a literal '##'.
-  In iter2(), <list2> is like <list1>, but its special symbol is '#?'.
+  In iter2(), <list2> is like <list1>, but its special symbol is '#+'.
  
   A list of the results of these evaluations is returned to the caller; if
   <output delim> is specified, it is used; otherwise, a space is used.
@@ -9135,7 +9135,7 @@ performed and the walk down the list stops.
     You say, "apple+banana+orange"
     > say [iter(1-2-3-4,inc(##),-,@@)]
     You say, "2345"
-    > say [iter2(1 2 3 4,a b c d,[inc(##)] - #?,%b,%r)]
+    > say [iter2(1 2 3 4,a b c d,[inc(##)] - #+,%b,%r)]
     You say, "2 - a
     3 - b
     4 - c
@@ -9185,9 +9185,9 @@ performed and the walk down the list stops.
   nesting <level> of iter(), list(), whentrue() and whenfalse().
   'itext(0)' is equivalent to '##'.
  
-  itext2() returns the '#?'-equivalent substitution text at the appropriate
+  itext2() returns the '#+'-equivalent substitution text at the appropriate
   nesting <level> of iter2(), list2(), whentrue2() and whenfalse2().
-  'itext2(0)' is equivalent to '#?'.
+  'itext2(0)' is equivalent to '#+'.
   
   This data can also be accessed through a percent-substitution.
   %i-0 is equivalent to itext(0), up to %i-9 equivalent to itext(9).
@@ -9289,7 +9289,7 @@ performed and the walk down the list stops.
   Example:
     > say [whentrue(1 2 0 2 1,##)]
     You say, "1 2 0"
-    > say [whentrue2(1 2 0 2 1, 0 0 0 0 0, or(##,#?))]
+    > say [whentrue2(1 2 0 2 1, 0 0 0 0 0, or(##,#+))]
     You say, "1 1 0"
  
   See also: iter(), BOOLEAN VALUES.
@@ -9310,7 +9310,7 @@ performed and the walk down the list stops.
   Example:
     > say [whenfalse(0 #-1 1 2,##)]
     You say, "0 #-1 1"
-    > say [whenfalse2(0 #-1 1 2, 0 0 0 0, orbool(##,#?))]
+    > say [whenfalse2(0 #-1 1 2, 0 0 0 0, orbool(##,#+))]
     You say, "0 0 1"
  
   See also: iter(), BOOLEAN VALUES.
