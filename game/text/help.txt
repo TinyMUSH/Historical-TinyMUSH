@@ -5980,6 +5980,26 @@ item), as well as multi-character strings, including '%r'.
  
 See examples:  iter(), map(), filter()
  
+& Lambda
+& Anonymous Functions
+ 
+Topic: Anonymous Functions
+ 
+Functions that take and parse a single <attribute> or <object>/<attribute>
+pair, which contains a user-defined function -- u(), map(), mix(), etc. --
+can also take an anonymous function. An anonymous function takes the form of 
+the string '#lambda/<code>'.
+ 
+For instance, rather than doing:
+  > @va me = inc(%0)
+  > think map(VA, lnum(5))
+You can simply do one of the following:
+  > think map(lit(#lambda/inc(%0)), lnum(5))
+  > think map(#lambda/inc\(\%0\), lnum(5))
+ 
+Because the first argument is parsed, it needs to either be escaped, or
+enclosed in a lit().
+ 
 & HOMES
   Topic: HOMES
  
@@ -9494,9 +9514,12 @@ performed and the walk down the list stops.
     You say, "Word is function., arg2 is ."
     > say u(me/va,6,Foobar)
     You say, "Word is u, arg2 is Foobar."
+    > say u(lit(#lambda/The sum of %0 and %1 is [add(%0,%1)].), 2, 3)
+    You say, "The sum of 2 and 3 is 5."
  
-  See also: ulocal(), udefault(), objcall(), s(), get(), get_eval(), map()
-
+  See also: Anonymous Functions, ulocal(), uprivate(), udefault(), objcall(),
+            s(), get(), get_eval()
+ 
 & ULOCAL()
   Function:  ulocal([<obj>/]<attr>[,<arg>]...)
  

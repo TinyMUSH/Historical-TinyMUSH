@@ -286,6 +286,7 @@ if ((s)->len == 1) { \
 }
 
 /* Macro for finding an <attr> or <obj>/<attr>
+ * Parse_Uattr(player, string to parse, thing, attribute number, attr pointer)
  */
 
 #define Parse_Uattr(p,s,t,n,a)				\
@@ -299,16 +300,37 @@ if ((s)->len == 1) { \
 	(a) = atr_str(s);				\
     }
 
-/* Macro for obtaining an attrib. */
+/* Macro for obtaining an attrib
+ * Get_Uattr(player, thing, attr pointer, text buffer, owner, flags, length)
+ */
 
 #define Get_Uattr(p,t,a,b,o,f,l)				\
     if (!(a)) {							\
 	return;							\
     }								\
-    (b) = atr_pget(t, (a)->number, &(o), &(f), &(l));		\
+    (b) = atr_pget((t), (a)->number, &(o), &(f), &(l));		\
     if (!*(b) || !(See_attr((p), (t), (a), (o), (f)))) {	\
 	free_lbuf(b);						\
 	return;							\
+    }
+
+/* Macro for getting an <attr>, <obj>/<attr> or #lambda/<code>
+ * Get_Ulambda(player, thing, string, anum, ap, atext, aowner, aflags, alen)
+ */
+
+#define Get_Ulambda(p,t,s,n,a,b,o,f,l)				\
+    if (string_prefix((s), "#lambda/")) {			\
+	 (t) = (p);						\
+	 (n) = NOTHING;						\
+	 (a) = NULL;						\
+	 (b) = alloc_lbuf("lambda.atext");			\
+	 (l) = strlen((s) + 8);					\
+	 StrCopyKnown((b), (s) + 8, (l));			\
+	 (o) = (p);						\
+	 (f) = 0;						\
+    } else {							\
+	 Parse_Uattr((p),(s),(t),(n),(a));			\
+	 Get_Uattr((p),(t),(a),(b),(o),(f),(l));		\
     }
 
 /* Macro for writing a certain amount of padding into a buffer.

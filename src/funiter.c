@@ -319,8 +319,8 @@ FUNCTION(fun_fold)
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
-	Parse_Uattr(player, fargs[0], thing, anum, ap);
-	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+	Get_Ulambda(player, thing, fargs[0],
+                    anum, ap, atext, aowner, aflags, alen);
 
 	/* Evaluate it using the rest of the passed function args */
 
@@ -408,8 +408,8 @@ FUNCTION(handle_filter)
 
 	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
-	Parse_Uattr(player, fargs[0], thing, anum, ap);
-	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+	Get_Ulambda(player, thing, fargs[0],
+                    anum, ap, atext, aowner, aflags, alen);
 
 	/* Now iteratively eval the attrib with the argument list */
 
@@ -468,8 +468,8 @@ FUNCTION(fun_map)
 
 	/* Two possibilities for the second arg: <obj>/<attr> and <attr>. */
 
-	Parse_Uattr(player, fargs[0], thing, anum, ap);
-	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+	Get_Ulambda(player, thing, fargs[0],
+                    anum, ap, atext, aowner, aflags, alen);
 
 	/* now process the list one element at a time */
 
@@ -531,8 +531,8 @@ FUNCTION(fun_mix)
 
     /* Get the attribute, check the permissions. */
 
-    Parse_Uattr(player, fargs[0], thing, anum, ap);
-    Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+    Get_Ulambda(player, thing, fargs[0],
+		anum, ap, atext, aowner, aflags, alen);
 
     for (i = 0; i < NUM_ENV_VARS; i++)
 	cp[i] = NULL;
@@ -601,8 +601,8 @@ FUNCTION(fun_step)
 
     /* Get attribute. Check permissions. */
 
-    Parse_Uattr(player, fargs[0], thing, anum, ap);
-    Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+    Get_Ulambda(player, thing, fargs[0],
+		anum, ap, atext, aowner, aflags, alen);
 
     cp = trim_space_sep(fargs[1], &isep);
     atextbuf = alloc_lbuf("fun_step");
@@ -640,8 +640,8 @@ FUNCTION(fun_foreach)
 
     VaChk_Range(2, 4);
 
-    Parse_Uattr(player, fargs[0], thing, anum, ap);
-    Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+    Get_Ulambda(player, thing, fargs[0],
+		anum, ap, atext, aowner, aflags, alen);
 
     atextbuf = alloc_lbuf("fun_foreach");
     cbuf[0] = alloc_lbuf("fun_foreach.cbuf");
@@ -730,8 +730,8 @@ FUNCTION(fun_munge)
 
 	/* Find our object and attribute */
 
-	Parse_Uattr(player, fargs[0], thing, anum, ap);
-	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+	Get_Ulambda(player, thing, fargs[0],
+                    anum, ap, atext, aowner, aflags, alen);
 
 	/* Copy our lists and chop them up. */
 

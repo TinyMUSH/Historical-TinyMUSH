@@ -1132,8 +1132,8 @@ FUNCTION(fun_sortby)
 	}
 	VaChk_Only_In_Out(4);
 
-	Parse_Uattr(player, fargs[0], thing, anum, ap);
-	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+	Get_Ulambda(player, thing, fargs[0],
+                    anum, ap, atext, aowner, aflags, alen);
 
 	strcpy(ucomp_buff, atext);
 	ucomp_player = thing;

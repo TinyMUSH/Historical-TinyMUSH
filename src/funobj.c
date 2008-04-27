@@ -1440,10 +1440,11 @@ FUNCTION(do_ufun)
 		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 		return;
 	}
-	/* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
 
-	Parse_Uattr(player, fargs[0], thing, anum, ap);
-	Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+	/* First arg: <obj>/<attr> or <attr> or #lambda/<code> */
+
+	Get_Ulambda(player, thing, fargs[0],
+		    anum, ap, atext, aowner, aflags, alen);
 
 	/* If we're evaluating locally, preserve the global registers.
 	 * If we're evaluating privately, preserve and wipe out.
@@ -1509,10 +1510,10 @@ FUNCTION(fun_objcall)
 	return;
     }
 
-    /* Two possibilities for the first arg: <obj>/<attr> and <attr>. */
+    /* First arg: <obj>/<attr> or <attr> or #lambda/<code> */
 
-    Parse_Uattr(player, fargs[1], thing, anum, ap);
-    Get_Uattr(player, thing, ap, atext, aowner, aflags, alen);
+    Get_Ulambda(player, thing, fargs[1],
+		anum, ap, atext, aowner, aflags, alen);
 
     /* Find our perspective. */
 
