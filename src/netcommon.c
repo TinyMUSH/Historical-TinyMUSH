@@ -707,11 +707,11 @@ int num, attr;
 
 	free_sbuf(argv[1]);
 	if (attr == A_ADISCONNECT) {
-	    free_lbuf(argv[2]);
-	    free_lbuf(argv[3]);
-	    free_lbuf(argv[4]);
-	    free_lbuf(argv[5]);
-	    free_lbuf(argv[6]);
+	    free_sbuf(argv[2]);
+	    free_sbuf(argv[3]);
+	    free_sbuf(argv[4]);
+	    free_sbuf(argv[5]);
+	    free_sbuf(argv[6]);
 	}
 }
 
