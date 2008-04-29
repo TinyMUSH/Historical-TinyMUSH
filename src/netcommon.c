@@ -606,23 +606,49 @@ time_t dt;
 	return buf;
 }
 
-static void announce_connattr(player, loc, reason, num, attr)
+static void announce_connattr(d, player, loc, reason, num, attr)
+DESC *d;
 dbref player, loc;
 const char *reason;
 int num, attr;
 {
 	dbref aowner, obj, zone;
-	int aflags, alen;
+	int aflags, alen, argn;
 	char *buf;
-	char *argv[2];
+	char *argv[7];
+
+	/* Pass session information on the stack:
+	 *   %0 - reason message
+	 *   %1 - current number of connections
+	 *   %2 - connect time
+	 *   %3 - last input
+	 *   %4 - number of commands entered
+	 *   %5 - bytes input
+	 *   %6 - bytes output
+	 */
 
 	argv[0] = (char *)reason;
 	argv[1] = alloc_sbuf("announce_connchange.num");
 	sprintf(argv[1], "%d", num);
+	if (attr == A_ADISCONNECT) {
+	    argn = 7;
+	    argv[2] = alloc_sbuf("announce_connchange.conn");
+	    argv[3] = alloc_sbuf("announce_connchange.last");
+	    argv[4] = alloc_sbuf("announce_connchange.cmds");
+	    argv[5] = alloc_sbuf("announce_connchange.in");
+	    argv[6] = alloc_sbuf("announce_connchange.out");
+	    sprintf(argv[2], "%ld", (long) d->connected_at);
+	    sprintf(argv[3], "%ld", (long) d->last_time);
+	    sprintf(argv[4], "%d", d->command_count);
+	    sprintf(argv[5], "%d", d->input_tot);
+	    sprintf(argv[6], "%d", d->output_tot);
+	} else {
+	    argn = 2;
+	}
 
 	buf = atr_pget(player, attr, &aowner, &aflags, &alen);
 	if (*buf)
-		wait_que(player, player, 0, NOTHING, 0, buf, argv, 2, NULL);
+		wait_que(player, player, 0, NOTHING, 0, buf, argv, argn, NULL);
 	free_lbuf(buf);
 
 	if (Good_loc(mudconf.master_room) && mudconf.use_global_aconn) {
@@ -630,7 +656,7 @@ int num, attr;
 			       &aflags, &alen);
 		if (*buf)
 			wait_que(mudconf.master_room, player, 0, NOTHING, 0,
-				 buf, argv, 2, NULL);
+				 buf, argv, argn, NULL);
 		free_lbuf(buf);
 		DOLIST(obj, Contents(mudconf.master_room)) {
 		        if (!mudconf.global_aconn_uselocks ||
@@ -639,7 +665,7 @@ int num, attr;
 					       &aflags, &alen);
 				if (*buf) {
 				        wait_que(obj, player, 0, NOTHING, 0,
-						 buf, argv, 2, NULL);
+						 buf, argv, argn, NULL);
 				}
 				free_lbuf(buf);
 			}
@@ -653,7 +679,7 @@ int num, attr;
 			buf = atr_pget(zone, attr, &aowner, &aflags, &alen);
 			if (*buf) {
 				wait_que(zone, player, 0, NOTHING, 0, buf,
-					 argv, 2, NULL);
+					 argv, argn, NULL);
 			}
 			free_lbuf(buf);
 			break;
@@ -665,7 +691,7 @@ int num, attr;
 				buf = atr_pget(obj, attr, &aowner, &aflags, &alen);
 				if (*buf) {
 					wait_que(obj, player, 0, NOTHING, 0,
-						 buf, argv, 2, NULL);
+						 buf, argv, argn, NULL);
 				}
 				free_lbuf(buf);
 			}
@@ -680,6 +706,13 @@ int num, attr;
 	}
 
 	free_sbuf(argv[1]);
+	if (attr == A_ADISCONNECT) {
+	    free_lbuf(argv[2]);
+	    free_lbuf(argv[3]);
+	    free_lbuf(argv[4]);
+	    free_lbuf(argv[5]);
+	    free_lbuf(argv[6]);
+	}
 }
 
 static void announce_connect(player, d, reason)
@@ -799,7 +832,7 @@ const char *reason;
 			      d->addr, Name(player));
 	}
 
-	announce_connattr(player, loc, reason, num, A_ACONNECT);
+	announce_connattr(d, player, loc, reason, num, A_ACONNECT);
 
 	time_str = ctime(&mudstate.now);
 	time_str[strlen(time_str) - 1] = '\0';
@@ -875,7 +908,7 @@ const char *reason;
 
 	CALL_ALL_MODULES(announce_disconnect, (player, reason, num));
 
-	announce_connattr(player, loc, reason, num, A_ADISCONNECT);
+	announce_connattr(d, player, loc, reason, num, A_ADISCONNECT);
 
 	if (num < 1) {
 		if (d->flags & DS_AUTODARK) {

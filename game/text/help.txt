@@ -3600,6 +3600,11 @@ See also: JUMP_OK, FIXED, home, @lock
   location if the ZMO is a thing, or by the contents of the ZMO if it is a
   room.
  
+  @adisconnect is passed parameters on the stack. %0 is the disconn reason;
+  %1 is the number of open connections that player has left; %2 is when that
+  port connected; %3 is when it was last active; %4 is the number of commands
+  entered; %5 is bytes input during the session; and %6 is the bytes output.
+ 
   Example: @adisconnect me = home
  
   See also: @aconnect, Conn Reasons, ZONE OBJECTS.
