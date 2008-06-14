@@ -6,6 +6,7 @@ Frequently-Asked Questions
 - How do I back up my database?
 - How do I restore a database backup?
 - How do I apply a patch upgrade or bugfix?
+- How do I recover a lost password for God (#1)?
 - How do logfiles work?
 - How do I use multiple guests?
 - How do I create my own flags? (How do I configure marker flags?)
@@ -188,6 +189,42 @@ characters at the end of lines.
 
 Also, if you're applying multiple patches, make sure to do them in 
 chronological sequence -- oldest to newest patch.
+
+------------------------------------------------------------------------------
+
+How do I recover a lost password for God (#1)?
+
+You will need to recompile the server with a new God character, use it to
+change the password of the old God character, and then recompile again.
+To do this, do the following:
+
+- Log into a character whose password you know; this will normally be a
+  wizard character.
+
+- Find out the dbref of that character ('think num(me)' will tell you).
+
+- Shut down the MUSH.
+
+- Edit src/flags.h and find the line that reads '#define GOD ((dbref) 1)'.
+  Replace the '1' with the dbref number of the character (i.e., if the
+  number is #1234, then use 1234).
+
+- Type 'make clean', then 'make'.
+
+- Start the MUSH.
+
+- Log into the character. Type '@newpassword #1 = NewGodPassword' (substitute
+  whatever you want the new God password to be).
+
+- Shut down the MUSH.
+
+- Edit src/flags.h again and change the line back to what it was originally.
+
+- Type 'make clean', then 'make'.
+
+- Start the MUSH.
+
+You should now be able to log into the God character with the new password.
 
 ------------------------------------------------------------------------------
 
