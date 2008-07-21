@@ -7356,7 +7356,7 @@ performed and the walk down the list stops.
 & LMAX()
   Function:  lmax(<list of numbers>[,<delim>])
  
-  Obtains the largest number out of a list of numbers (i.e., the minimum).
+  Obtains the largest number out of a list of numbers (i.e., the maximum).
  
   Example:
     > say [lmax(3.2, 1 , 5)]
