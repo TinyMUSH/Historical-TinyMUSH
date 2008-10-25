@@ -1522,6 +1522,7 @@ char *name;
 	char *exit, *message;
 	int control_thing, count, low_bound, high_bound;
 	FWDLIST *fp;
+	PROPDIR *pp;
 
 	parse_range(&name, &low_bound, &high_bound);
 	if (!name || !*name) {
@@ -1592,6 +1593,24 @@ char *name;
 				free_lbuf(exit);
 				count++;
 			}
+
+			/* Check for propdir */
+
+			if (H_Propdir(i)) {
+				pp = propdir_get(i);
+				if (!pp)
+					continue;
+				for (j = 0; j < pp->count; j++) {
+					if (pp->data[j] != thing)
+						continue;
+					exit = unparse_object(player, i, 0);
+					notify(player,
+					     tprintf("%s [propdir]", exit));
+					free_lbuf(exit);
+					count++;
+				}
+			}
+
 			/* Check for forwarding */
 
 			if (H_Fwdlist(i)) {

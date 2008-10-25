@@ -385,9 +385,9 @@ Continued in 'help Attribute Flags3'.
  
 & Attribute Flags3
   
-     no_inherit - Prevents children of the object from obtaining the 
-                  attribute.  From their perspective the attribute does not
-                  exist. (I)
+     no_inherit - Prevents children of the object, as well as objects using
+                  it as a propdir, from obtaining the attribute.  From their
+                  perspective the attribute does not exist. (I)
  
      no_clone   - Prevents attribute from being copied when an object is
                   cloned. Global only. (c)
@@ -500,10 +500,10 @@ goto		home		leave
 Database alteration:
  
 @alias		@chown		@chzone		@clone		@cpattr
-@create		@destroy	@dig		@edit		@link
-@lock		@mvattr		@name		@open		@parent
-@power		@quota		@robot		@set		@unlink
-@unlock		@wipe
+@create		@destroy	@dig		@edit		@forwardlist
+@link		@lock		@mvattr		@name		@open
+@parent		@power		@propdir	@quota		@robot
+@set		@unlink		@unlock		@wipe
  
 Continued in 'help Command List2'.
  
@@ -548,12 +548,12 @@ LISTS			LOCAL REGISTERS		Location
 Locks			LOOPING			Matching
 Modules			MONEY			Moving
 OBJECT TYPES		PARENT OBJECTS		Patchlevel
-PIPING			PUEBLO			PUPPETS
-REGEXPS			ROBBERY			Scan Order
-SEARCH CLASSES		SEMAPHORES		SPOOFING
-STACK			SUBSTITUTIONS		SUCCESS
-SWITCHES		Syntax			User Commands
-Zone Control		ZONE OBJECTS
+PIPING			Propdirs		PUEBLO
+PUPPETS			REGEXPS			ROBBERY	
+Scan Order		SEARCH CLASSES		SEMAPHORES		
+SPOOFING		STACK			SUBSTITUTIONS		
+SUCCESS			SWITCHES		Syntax			
+User Commands		Zone Control		ZONE OBJECTS
  
 & throw
 & drop
@@ -2951,8 +2951,43 @@ See also: @emit, @oemit, @npemit, page
   and flags and locks are not inherited from parent objects.  You may not
   create parent loops.
  
-  See also: @parent, parent().
-
+  See also: @parent, parent(), PROPDIRS.
+ 
+& PROPDIRS
+  Topic: PROPDIRS
+ 
+  Every object can have a list of propdir objects. A propdir is similar to
+  a parent object, but an object inherits only the attributes from its
+  propdirs, nothing else (no exits, no checking for $-commands, etc.).
+  An object can have multiple propdirs; the propdirs are searched in
+  sequence, first to last. 
+ 
+  When an object is checked for an attribute, first the object itself is
+  checked, then, if the object doesn't have attribute, the parent chain is
+  checked, and if the parent (and its parents) doesn't have the attriute,
+  then each propdir is checked until one of them has the attribute or
+  the check fails. The parents of the propdirs are NOT checked; neither
+  are the propdirs of the propdirs.
+ 
+  If an attribute is set no_inherit, it will be local to that particular
+  object; anything that has that object as a propdir won't see that
+  attribute (which means that the check will keep looking at more objects).
+ 
+  There is a configurable limit of propdirs per object (usually 10).
+  A propdir need not be the same type as the object which uses it.
+ 
+  See also: @propdir, PARENT OBJECTS.
+ 
+& @propdir
+  Command: @propdir <object> = <dbref-list>
+  Attribute: Propdir
+ 
+  Specifies a list of objects (specified by their dbref numbers) that are
+  to be used for propdir attribute lookups. Invalid objects will
+  automatically  be removed from the attribute.
+ 
+  See also: PROPDIRS.
+ 
 & @password
   Command: @password <old password>=<new password>
  

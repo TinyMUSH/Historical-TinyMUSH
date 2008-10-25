@@ -30,6 +30,7 @@ extern int FDECL(boot_off, (dbref, char *));
 
 extern void NDECL(cf_verify);
 extern void FDECL(fwdlist_clr, (dbref));
+extern void FDECL(propdir_clr, (dbref));
 extern void FDECL(stack_clr, (dbref));
 extern void FDECL(xvars_clr, (dbref));
 extern int FDECL(structure_clr, (dbref));
@@ -524,6 +525,7 @@ dbref player, obj;
 	/* Remove forwardlists, stacks, etc. from the hash tables. */
 	
 	fwdlist_clr(obj);
+	propdir_clr(obj);
 	stack_clr(obj);
 	xvars_clr(obj);
 	structure_clr(obj);
@@ -908,6 +910,7 @@ static NDECL(void check_dead_refs)
 	int aflags, dirty;
 	char *str;
 	FWDLIST *fp;
+	PROPDIR *pp;
 
 	DO_WHOLE_DB(i) {
 
@@ -1086,6 +1089,31 @@ static NDECL(void check_dead_refs)
 			atr_add(i, A_FORWARDLIST, str, owner, aflags);
 			free_lbuf(str);
 		}
+
+		/* Check propdir */
+
+		dirty = 0;
+		if (H_Propdir(i) && ((pp = propdir_get(i)) != NULL)) {
+			for (j = 0; j < pp->count; j++) {
+				targ = pp->data[j];
+				if (Good_obj(targ) && Going(targ)) {
+					pp->data[j] = NOTHING;
+					dirty = 1;
+				} else if (!Good_obj(targ) &&
+					   (targ != NOTHING)) {
+					pp->data[j] = NOTHING;
+					dirty = 1;
+				}
+			}
+		}
+		if (dirty) {
+			str = alloc_lbuf("purge_going");
+			(void)propdir_rewrite(pp, str);
+			atr_get_info(i, A_PROPDIR, &owner, &aflags);
+			atr_add(i, A_PROPDIR, str, owner, aflags);
+			free_lbuf(str);
+		}
+
 		/* Check owner */
 
 		owner = Owner(i);

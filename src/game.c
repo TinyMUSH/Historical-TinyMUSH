@@ -105,6 +105,7 @@ void do_hashresize(player, cause, key)
     hashresize(&mudstate.nref_htab, 8);
     hashresize(&mudstate.vattr_name_htab, 256);
     nhashresize(&mudstate.fwdlist_htab, 8);
+    nhashresize(&mudstate.propdir_htab, 8);
     nhashresize(&mudstate.redir_htab, 8);
     hashresize(&mudstate.ufunc_htab, 8);
     hashresize(&mudstate.structs_htab,
@@ -1538,8 +1539,10 @@ static void NDECL(process_preload)
 	char *tstr;
 	char tbuf[SBUF_SIZE];
 	FWDLIST *fp;
+	PROPDIR *pp;
 
 	fp = (FWDLIST *) XMALLOC(sizeof(FWDLIST), "process_preload.fwdlist");
+	pp = (PROPDIR *) XMALLOC(sizeof(PROPDIR), "process_preload.propdir");
 	tstr = alloc_lbuf("process_preload.string");
 	i = 0;
 	DO_WHOLE_DB(thing) {
@@ -1565,6 +1568,23 @@ static void NDECL(process_preload)
 			    if (fp->data) {
 				XFREE(fp->data,
 				      "process_preload.fwdlist_data");
+			    }
+                        }
+		}
+
+		/* Ditto for PROPDIRs */
+
+		if (H_Propdir(thing)) {
+		        (void)atr_get_str(tstr, thing, A_PROPDIR,
+					  &aowner, &aflags, &alen);
+			if (*tstr) {
+			    pp->data = NULL;
+			    propdir_load(pp, GOD, tstr);
+			    if (pp->count > 0)
+				propdir_set(thing, pp);
+			    if (pp->data) {
+				XFREE(pp->data,
+				      "process_preload.propdir_data");
 			    }
                         }
 		}
@@ -1597,6 +1617,7 @@ static void NDECL(process_preload)
 
 	}
 	XFREE(fp, "process_preload.fwdlist");
+	XFREE(pp, "process_preload.propdir");
 	free_lbuf(tstr);
 }
 
@@ -2059,6 +2080,7 @@ char *argv[];
 	hashinit(&mudstate.player_htab, 250 * HASH_FACTOR, HT_STR);
 	hashinit(&mudstate.nref_htab, 5 * HASH_FACTOR, HT_STR);
 	nhashinit(&mudstate.fwdlist_htab, 25 * HASH_FACTOR);
+	nhashinit(&mudstate.propdir_htab, 25 * HASH_FACTOR);
 	nhashinit(&mudstate.redir_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.objstack_htab, 50 * HASH_FACTOR);
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
@@ -2158,6 +2180,7 @@ char *argv[];
 	hashreset(&mudstate.nref_htab);
 	nhashreset(&mudstate.desc_htab);
 	nhashreset(&mudstate.fwdlist_htab);
+	nhashreset(&mudstate.propdir_htab);
 	nhashreset(&mudstate.objstack_htab);
 	nhashreset(&mudstate.parent_htab);
 	hashreset(&mudstate.vars_htab);

@@ -94,6 +94,7 @@
 #define NODEFAULT	0x00000020	/* Not subject to attr defaults */
 #define PRESENCE	0x00000040	/* Check presence-related locks */
 #define HAS_SPEECHMOD	0x00000080	/* Check @speechmod attr */
+#define HAS_PROPDIR	0X00000100	/* Internal: has Propdir attr */
 /* FREE FREE FREE */
 #define MARK_0		0x00400000	/* User-defined flags */
 #define MARK_1		0x00800000
@@ -323,6 +324,7 @@ extern void	FDECL(decompile_flags, (dbref, dbref, char *));
 #define H_Redirect(x)	((Flags3(x) & HAS_REDIRECT) != 0)
 #define H_Darklock(x)	((Flags3(x) & HAS_DARKLOCK) != 0)
 #define H_Speechmod(x)	((Flags3(x) & HAS_SPEECHMOD) != 0)
+#define	H_Propdir(x)	((Flags3(x) & HAS_PROPDIR) != 0)
 
 #define H_Marker0(x)	((Flags3(x) & MARK_0) != 0)
 #define H_Marker1(x)	((Flags3(x) & MARK_1) != 0)

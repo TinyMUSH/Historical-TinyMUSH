@@ -202,6 +202,7 @@ extern unsigned int malloc_sbrk_used;	/* amount of data space used now */
  * Check routine forward declaration. 
  */
 static int FDECL(fwdlist_ck, (int, dbref, dbref, int, char *));
+static int FDECL(propdir_ck, (int, dbref, dbref, int, char *));
 
 extern void FDECL(pcache_reload, (dbref));
 extern void FDECL(desc_reload, (dbref));
@@ -342,6 +343,7 @@ ATTR attr[] =
 {"Prefix",	A_PREFIX,	AF_NOPROG,			NULL},
 {"Progcmd",	A_PROGCMD,	AF_DARK|AF_NOPROG|AF_NOCMD|AF_INTERNAL,
 								NULL},
+{"Propdir",	A_PROPDIR,	AF_NOPROG,			propdir_ck},
 {"Queuemax",	A_QUEUEMAX,	AF_MDARK|AF_WIZARD|AF_NOPROG,	NULL},
 {"Quota",	A_QUOTA,	AF_MDARK|AF_NOPROG|AF_GOD|AF_NOCMD|AF_NOCLONE,
 								NULL},
@@ -633,6 +635,221 @@ dbref thing;
 	free_lbuf(tp);
 	return fp;
 }
+
+/* ---------------------------------------------------------------------------
+ * propdir functions
+ */
+
+void propdir_set(thing, ifp)
+dbref thing;
+PROPDIR *ifp;
+{
+	PROPDIR *fp, *xfp;
+	int i, stat = 0;
+
+	/* If propdir list is null, clear */
+
+	if (!ifp || (ifp->count <= 0)) {
+		propdir_clr(thing);
+		return;
+	}
+	/* Copy input propdir to a correctly-sized buffer */
+
+	fp = (PROPDIR *) XMALLOC(sizeof(PROPDIR), "propdir_set");
+	fp->data = (int *) XCALLOC(ifp->count, sizeof(int),
+				   "propdir_set.data");
+	for (i = 0; i < ifp->count; i++) {
+		fp->data[i] = ifp->data[i];
+	}
+	fp->count = ifp->count;
+
+	/*
+	 * Replace an existing propdir, or add a new one 
+	 */
+
+	xfp = propdir_get(thing);
+	if (xfp) {
+	    if (xfp->data)
+		XFREE(xfp->data, "propdir_set.xfp_data");
+	    XFREE(xfp, "propdir_set.xfp");
+	    stat = nhashrepl(thing, (int *)fp, &mudstate.propdir_htab);
+	} else {
+	    stat = nhashadd(thing, (int *)fp, &mudstate.propdir_htab);
+	}
+	if (stat < 0) {              /* the add or replace failed */
+	    if (fp->data)
+		XFREE(fp->data, "propdir_set.fp_data");
+	    XFREE(fp, "propdir_set.fp");
+	}
+}
+
+void propdir_clr(thing)
+dbref thing;
+{
+	PROPDIR *xfp;
+
+	/* If a propdir exists, delete it */
+
+	xfp = propdir_get(thing);
+	if (xfp) {
+	    if (xfp->data)
+		XFREE(xfp->data, "propdir_clr.data");
+	    XFREE(xfp, "propdir_clr");
+	    nhashdelete(thing, &mudstate.propdir_htab);
+	}
+}
+
+int propdir_load(fp, player, atext)
+PROPDIR *fp;
+dbref player;
+char *atext;
+{
+    dbref target;
+    char *tp, *bp, *dp;
+    int i, count, errors, fail;
+    int *tmp_array;
+    
+    tmp_array = (int *)XCALLOC((LBUF_SIZE / 2), sizeof(int), 
+    		"propdir_load.tmp");
+
+    count = 0;
+    errors = 0;
+    bp = tp = alloc_lbuf("propdir_load.str");
+    strcpy(tp, atext);
+    do {
+	for (; *bp && isspace(*bp); bp++) ;	/* skip spaces */
+	for (dp = bp; *bp && !isspace(*bp); bp++) ;	/* remember string */
+	if (*bp)
+	    *bp++ = '\0';	/* terminate string */
+	if ((*dp++ == '#') && isdigit(*dp)) {
+	    target = atoi(dp);
+
+	    if (!mudstate.standalone) {
+		fail = (!Good_obj(target) || !Parentable(player, target));
+	    } else {
+		fail = !Good_obj(target);
+	    }
+	    
+	    if (fail) {
+		if (!mudstate.standalone) {
+		    notify(player,
+			   tprintf("Cannot parent to #%d: Permission denied.",
+				   target));
+		}
+		errors++;
+	    } else if (count < mudconf.propdir_lim) {
+		if (fp->data)
+		    fp->data[count++] = target;
+		else 
+		    tmp_array[count++] = target;
+	    } else {
+		if (!mudstate.standalone) {
+		    notify(player,
+			   tprintf("Cannot parent to #%d: Propdir limit exceeded.",
+				   target));
+		}
+		errors++;
+	    }
+	}
+    } while (*bp);
+
+    free_lbuf(tp);
+
+    if ((fp->data == NULL) && (count > 0)) {
+	fp->data = (int *) XCALLOC(count, sizeof(int), "propdir_load.data");
+	for (i = 0; i < count; i++)
+	    fp->data[i] = tmp_array[i];
+    }
+
+    fp->count = count;
+    XFREE(tmp_array, "propdir_load.tmp");
+    return errors;
+}
+
+int propdir_rewrite(fp, atext)
+PROPDIR *fp;
+char *atext;
+{
+	char *tp, *bp;
+	int i, count;
+
+	if (fp && fp->count) {
+		count = fp->count;
+		tp = alloc_sbuf("propdir_rewrite.errors");
+		bp = atext;
+		for (i = 0; i < fp->count; i++) {
+			if (Good_obj(fp->data[i])) {
+				sprintf(tp, "#%d ", fp->data[i]);
+				safe_str(tp, atext, &bp);
+			} else {
+				count--;
+			}
+		}
+		*bp = '\0';
+		free_sbuf(tp);
+	} else {
+		count = 0;
+		*atext = '\0';
+	}
+	return count;
+}
+
+static int propdir_ck(key, player, thing, anum, atext)
+int key, anum;
+dbref player, thing;
+char *atext;
+{
+	PROPDIR *fp;
+	int count;
+
+	if (mudstate.standalone) 
+		return 1;
+
+	count = 0;
+
+	if (atext && *atext) {
+		fp = (PROPDIR *) XMALLOC(sizeof(PROPDIR), "propdir_ck.fp");
+		fp->data = NULL;
+		propdir_load(fp, player, atext);
+	} else {
+		fp = NULL;
+	}
+
+	/* Set the cached propdir */
+
+	propdir_set(thing, fp);
+	count = propdir_rewrite(fp, atext);
+	if (fp) {
+	    if (fp->data)
+		XFREE(fp->data, "propdir_ck.fp_data");
+	    XFREE(fp, "propdir_ck.fp");
+	}
+	return ((count > 0) || !atext || !*atext);
+}
+
+PROPDIR *propdir_get(thing)
+dbref thing;
+{
+	dbref aowner;
+	int aflags, alen, errors;
+	char *tp;
+	static PROPDIR *fp = NULL;
+
+	if (!mudstate.standalone)
+		return (PROPDIR *)nhashfind((thing), &mudstate.propdir_htab);
+		
+	if (!fp) {
+	    fp = (PROPDIR *) XMALLOC(sizeof(PROPDIR), "propdir_get");
+	    fp->data = NULL;
+	}
+	tp = atr_get(thing, A_PROPDIR, &aowner, &aflags, &alen);
+	errors = propdir_load(fp, GOD, tp);
+	free_lbuf(tp);
+	return fp;
+}
+
+/* ---------------------------------------------------------------------------
+ */
 
 static char *set_string(ptr, new)
 char **ptr, *new;
@@ -1629,6 +1846,9 @@ int atr;
 	case A_SPEECHFMT:
 		s_Flags3(thing, Flags3(thing) & ~HAS_SPEECHMOD);
 		break;
+	case A_PROPDIR:
+		s_Flags3(thing, Flags3(thing) & ~HAS_PROPDIR);
+		break;
 	case A_TIMEOUT:
 		if (!mudstate.standalone)
 			desc_reload(thing);
@@ -1705,6 +1925,9 @@ char *buff;
 		break;
 	case A_SPEECHFMT:
 		s_Flags3(thing, Flags3(thing) | HAS_SPEECHMOD);
+		break;
+	case A_PROPDIR:
+		s_Flags3(thing, Flags3(thing) | HAS_PROPDIR);
 		break;
 	case A_TIMEOUT:
 		if (!mudstate.standalone)
@@ -1839,8 +2062,8 @@ int atr, *flags, *alen;
 	char *buff;
 	dbref parent;
 	int lev;
-
 	ATTR *ap;
+	PROPDIR *pp;
 
 	ITER_PARENTS(thing, parent, lev) {
 		buff = atr_get_raw(parent, atr);
@@ -1855,6 +2078,24 @@ int atr, *flags, *alen;
 				break;
 		}
 	}
+
+	pp = propdir_get(thing);
+	if (pp) {
+	    for (lev = 0;
+		 (lev < pp->count) && (lev < mudconf.propdir_lim);
+		 lev++) {
+		parent = pp->data[lev];
+		if (Good_obj(parent) && (parent != thing)) {
+		    buff = atr_get_raw(parent, atr);
+		    if (buff && *buff) {
+			atr_decode(buff, s, thing, owner, flags, atr, alen);
+			if (!(*flags & AF_PRIVATE))
+			    return s;
+		    }
+		}
+	    }
+	}
+
 	*owner = Owner(thing);
 	*flags = 0;
 	*alen = 0;
@@ -1880,6 +2121,7 @@ int atr, *flags;
 	dbref parent;
 	int lev, alen;
 	ATTR *ap;
+	PROPDIR *pp;
 
 	ITER_PARENTS(thing, parent, lev) {
 		buff = atr_get_raw(parent, atr);
@@ -1894,6 +2136,24 @@ int atr, *flags;
 				break;
 		}
 	}
+
+	pp = propdir_get(thing);
+	if (pp) {
+	    for (lev = 0;
+		 (lev < pp->count) && (lev < mudconf.propdir_lim);
+		 lev++) {
+		parent = pp->data[lev];
+		if (Good_obj(parent) && (parent != thing)) {
+		    buff = atr_get_raw(parent, atr);
+		    if (buff && *buff) {
+			atr_decode(buff, NULL, thing, owner, flags, atr &alen);
+			if (!(*flags & AF_PRIVATE))
+			    return 1;
+		    }
+		}
+	    }
+	}
+
 	*owner = Owner(thing);
 	*flags = 0;
 	return 0;

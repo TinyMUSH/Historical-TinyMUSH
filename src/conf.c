@@ -313,6 +313,7 @@ void NDECL(cf_init)
 	mudconf.func_cpu_lim = 60 * CLOCKS_PER_SEC;
 	mudconf.ntfy_nest_lim = 20;
 	mudconf.fwdlist_lim = 100;
+	mudconf.propdir_lim = 10;
 	mudconf.lock_nest_lim = 20;
 	mudconf.parent_nest_lim = 10;
 	mudconf.zone_nest_lim = 20;
@@ -1760,6 +1761,7 @@ CONF conftable[] = {
 {(char *)"port",			cf_int,		CA_STATIC,	CA_PUBLIC,	&mudconf.port,			0},
 {(char *)"power_access",		cf_power_access,CA_GOD,		CA_DISABLED,	NULL,				0},
 {(char *)"power_alias",			cf_alias,	CA_GOD,		CA_DISABLED,	(int *)&mudstate.powers_htab,	(long)"Power"},
+{(char *)"propdir_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.propdir_lim,		0},
 {(char *)"public_flags",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pub_flags,		(long)"Flag information is public"},
 {(char *)"queue_active_chunk",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.active_q_chunk,	0},
 {(char *)"queue_idle_chunk",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.queue_chunk,		0},

@@ -192,6 +192,8 @@
 #define A_SPEECHFMT	229	/* Format speech */
 #define A_PAGEGROUP	230	/* Last paged as part of this group */
 
+#define A_PROPDIR	231	/* Property directory dbref list */
+
 /* unused		252	Formerly A_VLIST */
 #define	A_LIST		253
 /* unused		254	Formerly A_STRUCT */

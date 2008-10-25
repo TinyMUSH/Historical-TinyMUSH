@@ -2100,13 +2100,13 @@ static void list_params(player)
       tprintf("  Command recursion...%d  Command invocation...%d",
 	      mudconf.cmd_nest_lim, mudconf.cmd_invk_lim));
     raw_notify(player,
-      tprintf("  Output...%d  Queue...%d  CPU...%d  Forwardlist...%d  Wild...%d",
+      tprintf("  Output...%d  Queue...%d  CPU...%d  Wild...%d  Aliases...%d",
 	      mudconf.output_limit, mudconf.queuemax,
-	      mudconf.func_cpu_lim_secs, mudconf.fwdlist_lim,
-	      mudconf.wild_times_lim));
+	      mudconf.func_cpu_lim_secs, 
+	      mudconf.wild_times_lim, mudconf.max_player_aliases));
     raw_notify(player,
-      tprintf("  Aliases...%d  Registers...%d  Stacks...%d",
-	      mudconf.max_player_aliases, mudconf.register_limit,
+      tprintf("  Forwardlist...%d  Propdirs... %d  Registers...%d  Stacks...%d",
+	      mudconf.fwdlist_lim, mudconf.propdir_lim, mudconf.register_limit,
 	      mudconf.stack_lim));
     raw_notify(player,
       tprintf("  Variables...%d  Structures...%d  Instances...%d",
@@ -2255,6 +2255,7 @@ dbref player;
 	list_hashstat(player, "References", &mudstate.nref_htab);
 	list_nhashstat(player, "Net Descriptors", &mudstate.desc_htab);
 	list_nhashstat(player, "Forwardlists", &mudstate.fwdlist_htab);
+	list_nhashstat(player, "Propdirs", &mudstate.propdir_htab);
 	list_nhashstat(player, "Redirections", &mudstate.redir_htab);
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
 	list_nhashstat(player, "Object Stacks", &mudstate.objstack_htab);

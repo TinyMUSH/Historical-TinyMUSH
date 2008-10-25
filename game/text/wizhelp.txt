@@ -844,6 +844,7 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
     Player Names	- Player names and aliases.
     Net Descriptors     - Mapping of player dbrefs to net descriptors.
     Forwardlists	- Objects with @forwardlist attributes.
+    Propdirs            - Objects with @propdir attributes.
     Overlaid $-cmds	- Temporary; parent objects checked for $-commands.
     Object Stacks	- Object stacks for push(), pop(), etc.
     Variables		- Temporary variables, for setx(), etc.
@@ -1400,11 +1401,11 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	lock_recursion_limit		max_players
 	notify_recursion_limit		number_guests
 	output_limit			player_aliases_limit
-	player_queue_limit		register_limit
-	retry_limit			stack_limit			
-	structure_limit			trace_output_limit		
-	variables_limit			wildcard_match_limit
-	zone_recursion_limit
+	player_queue_limit		propdir_limit
+	register_limit			retry_limit
+	stack_limit			structure_limit
+	trace_output_limit		variables_limit
+	wildcard_match_limit		zone_recursion_limit
 
 & PARAM MESSAGES
 	down_motd_message	dump_message		fixed_home_message
@@ -2835,7 +2836,15 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Config parameter: power_alias <alias> <powername>.
  
   Defines <alias> as a synonym for the power <powername>.
+
+& propdir_limit
+  Config directive: propdir_limit <num>.  Default: 10
  
+  This directive sets the maximum number of objects that may be listed in
+  one @propdir attribute.
+ 
+  See also: PARAM LIMITS.
+  
 & public_calias
   Config parameter: public_calias <channel alias>. Default: pub
  

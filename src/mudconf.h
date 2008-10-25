@@ -147,6 +147,7 @@ struct confdata {
 	Uchar	markdata[8];	/* Masks for marking/unmarking */
 	int	ntfy_nest_lim;	/* Max nesting of notifys */
 	int	fwdlist_lim;	/* Max objects in @forwardlist */
+	int	propdir_lim;	/* Max objects in @propdir */
 	int	dbopt_interval; /* Optimize db every N dumps */
 	char	*dbhome;	/* Database home directory */
 	char	*txthome;	/* Text files home directory */
@@ -409,6 +410,12 @@ struct forward_list {
 	int	*data;
 };
 
+typedef struct propdir_list PROPDIR;
+struct propdir_list {
+	int	count;
+	int	*data;
+};
+
 /* ---------------------------------------------------------------------------
  * State data.
  */
@@ -471,6 +478,7 @@ struct statedata {
 	HASHTAB nref_htab;	/* Object name reference #_name_ mapping */
 	NHSHTAB	desc_htab;	/* Socket descriptor hashtable */
 	NHSHTAB	fwdlist_htab;	/* Room forwardlists */
+        NHSHTAB	propdir_htab;	/* Propdir lists */
 	NHSHTAB redir_htab;	/* Redirections */
 	NHSHTAB objstack_htab;	/* Object stacks */
 	NHSHTAB	parent_htab;	/* Parent $-command exclusion */
