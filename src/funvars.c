@@ -378,6 +378,43 @@ FUNCTION(fun_r)
 }
 
 /* --------------------------------------------------------------------------
+ * lregs: List all the non-empty q-registers.
+ */
+
+FUNCTION(fun_lregs)
+{
+     int i;
+     GDATA *g;
+     char *bb_p;
+     const char *qidx_str = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+     if (!mudstate.rdata)
+	 return;
+
+     bb_p = *bufc;
+     g = mudstate.rdata;
+
+     for (i = 0; i < g->q_alloc; i++) {
+	 if (g->q_regs[i] && *(g->q_regs[i])) {
+	     if (*bufc != bb_p) {
+		 print_sep(&SPACE_DELIM, buff, bufc);
+	     }
+	     safe_chr(qidx_str[i], buff, bufc);
+	 }
+     }
+
+     for (i = 0; i < g->xr_alloc; i++) {
+	 if (g->x_names[i] && *(g->x_names[i]) &&
+	     g->x_regs[i] && *(g->x_regs[i])) {
+	     if (*bufc != bb_p) {
+		 print_sep(&SPACE_DELIM, buff, bufc);
+	     }
+	     safe_str(g->x_names[i], buff, bufc);
+	 }
+     }
+}
+
+/* --------------------------------------------------------------------------
  * wildmatch: Set the results of a wildcard match into the global registers.
  *            wildmatch(<string>,<wildcard pattern>,<register list>)
  */

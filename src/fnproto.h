@@ -294,6 +294,7 @@ XFUNCTION(fun_setr);
 XFUNCTION(fun_r);
 XFUNCTION(fun_wildmatch);
 XFUNCTION(fun_qvars);
+XFUNCTION(fun_lregs);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
 XFUNCTION(fun_store);
@@ -559,6 +560,7 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"LPOS",	fun_lpos,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LRAND",	fun_lrand,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"LREGS",	fun_lregs,	0,  0,		CA_PUBLIC,	NULL},
 {"LREPLACE",	fun_lreplace,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LSTACK",	fun_lstack,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"LSTRUCTURES",	fun_lstructures, 0, 0,		CA_PUBLIC,	NULL},

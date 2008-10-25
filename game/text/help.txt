@@ -5814,13 +5814,13 @@ See also: @link, @open.
 	connrecord()	convsecs()	convtime()	die()		
 	fcount()	fdepth()	hasmodule()	helptext()	
 	ifelse()	iffalse()	iftrue()	localize()
-	mudname()	nonzero()	oemit()		pemit()
-	private()	r()		rand()		remit()
-	restarts()	restarttime()	s()		secs()
-	setq()		setr()		speak()		sql()		
-	starttime()	subeval()	switch()	switchall()
-	time()		timefmt()	usefalse()	usetrue()
-	version()
+	lregs()		mudname()	nonzero()	oemit()		
+	pemit()		private()	r()		rand()		
+	remit()		restarts()	restarttime()	s()		
+	secs()		setq()		setr()		speak()		
+	sql()		starttime()	subeval()	switch()	
+	switchall()	time()		timefmt()	usefalse()	
+	usetrue()	version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -6094,7 +6094,7 @@ enclosed in a lit().
   a variety of speciaized functions, such as regmatch(). Local registers
   are read via the r() function or the %q substitution.
  
-  See also: setq(), setr(), qvars(), SUBSTITUTIONS.
+  See also: setq(), setr(), lregs(), qvars(), SUBSTITUTIONS.
  
 & LOOPING
   Topic: LOOPING
@@ -10841,7 +10841,7 @@ performed and the walk down the list stops.
     > say Test.[setq(a,Test,tmp,on,9,TestMUSH)] %qa %q<tmp> %q9.
     You say, "Test. Test on TestMUSH."
  
-  See also: LOCAL REGISTERS, setr(), r(), qvars(), setx(), store(), x().
+  See also: LOCAL REGISTERS, setr(), r(), lregs(), qvars(), VARIABLE FUNCTIONS.
  
 & SETR()
   Function: setr(<number, letter, or name>,<string>)
@@ -10854,7 +10854,16 @@ performed and the walk down the list stops.
     > say '[setr(0,u(TEST))]' has length [strlen(%q0)].
     You say, "'Test on TestMUSH at Tue Feb 23 17:00:51 1993.' has length 45."
  
-  See also: LOCAL REGISTERS, setq(), r(), qvars(), setx(), store(), x().
+  See also: LOCAL REGISTERS, setq(), r(), lregs(), qvars(), VARIABLE FUNCTIONS.
+ 
+& LREGS()
+  Function: lregs()
+ 
+  This function returns a list of names of all non-empty local registers.
+ 
+  Example:
+    > say [setq(5,apple)][setq(m,banana)][setq(dude,orange)][lregs()]
+    > You say, "5 m dude"
  
 & QVARS()
   Function: qvars(<list of registers>,<list of strings>[,<input delim>])
