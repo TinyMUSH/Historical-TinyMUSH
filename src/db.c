@@ -2078,9 +2078,8 @@ int atr, *flags, *alen;
 				break;
 		}
 	}
-
-	pp = propdir_get(thing);
-	if (pp) {
+	
+	if (H_Propdir(thing) && ((pp = propdir_get(thing)) != NULL)) {
 	    for (lev = 0;
 		 (lev < pp->count) && (lev < mudconf.propdir_lim);
 		 lev++) {
@@ -2137,8 +2136,7 @@ int atr, *flags;
 		}
 	}
 
-	pp = propdir_get(thing);
-	if (pp) {
+        if (H_Propdir(thing) && ((pp = propdir_get(thing)) != NULL)) {
 	    for (lev = 0;
 		 (lev < pp->count) && (lev < mudconf.propdir_lim);
 		 lev++) {
