@@ -525,12 +525,10 @@ if ((l) > 0) { \
 
 /* from handle_ifelse() and handle_if() */
 #define IFELSE_OPER	0x0f	/* mask */
-#define IFELSE_BOOL	0x01	/* check for boolean */
-#define IFELSE_NONZERO	0x02	/* check for nonzero */
-#define IFELSE_TRUE	0x04	/* use if true */
-#define IFELSE_FALSE	0x08	/* use if false */
-#define IFELSE_DEFAULT	0x10	/* only two args, use condition as output */
-#define IFELSE_TOKEN	0x20	/* allow switch-token substitution */
+#define IFELSE_BOOL	0x01	/* check for boolean (defaults to nonzero) */
+#define IFELSE_FALSE	0x02	/* order false,true instead of true,false */
+#define IFELSE_DEFAULT	0x04	/* only two args, use condition as output */
+#define IFELSE_TOKEN	0x08	/* allow switch-token substitution */
 
 /* Miscellaneous */
 #define LATTR_COUNT	0x01	/* nattr: just return attribute count */

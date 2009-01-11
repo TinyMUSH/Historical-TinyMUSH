@@ -5848,14 +5848,14 @@ See also: @link, @open.
 	case()		ccount()	cdepth()	config()
 	connrecord()	convsecs()	convtime()	die()		
 	fcount()	fdepth()	hasmodule()	helptext()	
-	ifelse()	iffalse()	iftrue()	localize()
-	lregs()		mudname()	nonzero()	oemit()		
-	pemit()		private()	r()		rand()		
-	remit()		restarts()	restarttime()	s()		
-	secs()		setq()		setr()		speak()		
-	sql()		starttime()	subeval()	switch()	
-	switchall()	time()		timefmt()	usefalse()	
-	usetrue()	version()
+	ifelse()	iffalse()	iftrue()	ifzero()
+	localize()	lregs()		mudname()	nonzero()
+	oemit()		pemit()		private()	r()		
+	rand()		remit()		restarts()	restarttime()	
+	s()		secs()		setq()		setr()		
+	speak()		sql()		starttime()	subeval()	
+	switch()	switchall()	time()		timefmt()	
+	usefalse()	usetrue()	version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -9847,19 +9847,27 @@ performed and the walk down the list stops.
   See also: @switch, switch(), match().
   
 & NONZERO()
+& IFZERO()
   Function: nonzero(<condition>,<string if non-zero>[,<string if zero>])
+            ifzero(<condition>,<string if zero>[,<string if non-zero>])
  
-  If <condition> is non-zero (defined as a non-null string that is
-  not the number zero, '0'), then the <string if non-zero> is returned.
-  Otherwise the <string if zero> is returned. Those two strings are not
-  evaluated until appropriate (i.e., if the string is non-zero, the
-  string-if-zero will not be evaluated, and vice versa). <string if
-  zero> may be omitted, in which case it is treated as an empty string.
+  In nonzero(), if <condition> is non-zero (defined as a non-null string
+  that is not the number zero, '0'), then the <string if non-zero> is
+  returned. Otherwise the <string if zero> is returned. Those two strings
+  are not evaluated until appropriate (i.e., if the string is non-zero, the
+  string-if-zero will not be evaluated, and vice versa). <string if zero>
+  may be omitted, in which case it is treated as an empty string.
+ 
+  ifzero() is identical, but with the result arguments reversed.
  
   Examples:
     > say [nonzero(0,not zero,zero)] - [nonzero(1,not zero,zero)]
     You say, "zero - not zero"
     > say [nonzero(,not null,null)] - [nonzero(foo,not null,null)]
+    You say, "null - not null"
+    > say [ifzero(0,zero,not zero)] - [ifzero(1,zero,not zero)]
+    You say, "zero - not zero"
+    > say [ifzero(,null,not null)] - [ifzero(foo,null,not null)]
     You say, "null - not null"
  
   See also: ifelse(), iftrue(), iffalse(), usetrue(), usefalse(),
