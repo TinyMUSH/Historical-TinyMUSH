@@ -14,6 +14,50 @@ The "full", gamma release of TinyMUSH 3.1 is dated June 21st, 2004.
 
 PATCHES SINCE THE 3.1 RELEASE
 
+3.1 Patchlevel 6 -- January 12th, 2009
+
+  - Enhancement: A "reply" command allows you to reply to a page, including
+    being able to reply to the whole group of people paged along with you.
+
+  - Enhancement: Property directories (propdirs) offer the ability to
+    inherit attributes from multiple objects. If an object's parent chain
+    does not contain an attribute, the object's @propdir list is searched
+    for that attribute.
+
+  - A new special @hook, internalgoto, has been added. This offers the
+    ability to execute a hook on any type of movement, regardless of the
+    reason, with the before-hook executed before leaving a location, and
+    the after-hook executed when entering a location.
+
+  - Enhancement: The new /private switch to @function makes the register
+    environment of the called function private, ala uprivate() -- i.e.,
+    no registers are passed in, and any changes made to registers by the
+    function are discarded.
+
+  - Enhancement: The new /private switch to @hook makes the register
+    environment of the called hook private.
+
+  - Enhancement: PennMUSH-style #lamba anonymous functions are supported,
+    allowing functions like map() to take a string to execute rather than
+    requiring it to reside on an attribute.
+
+  - Enhancement: The iter() family has been extended -- iter2(), list2(),
+    whentrue2(), whenfalse2(), itext2() -- to allow a second list to be 
+    simultaneously processed via the #+ string-token substitution.
+
+  - Enhancement: New function ifzero(), the reverse of nonzero().
+
+  - Enhancement: New function lregs() lists non-empty registers.
+
+  - Enhancement: If speak()'s first argument (the speaker) contains an '&',
+    it's used to specify a speaker name.
+
+  - Enhancement: @adisconnect is now passed all the statistics of the
+    session info, via the stack.
+
+  - Bugfix: In the ifelse() family, trailing space is no longer
+    accidentally eaten.
+
 3.1 Patchlevel 5 -- January 27th, 2008
 
   - Enhancement: The new conf parameter local_master_parents allows the
