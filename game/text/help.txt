@@ -2963,8 +2963,8 @@ See also: @emit, @oemit, @npemit, page
   sequence, first to last. 
  
   When an object is checked for an attribute, first the object itself is
-  checked, then, if the object doesn't have attribute, the parent chain is
-  checked, and if the parent (and its parents) doesn't have the attriute,
+  checked, then, if the object doesn't have the attribute, the parent chain
+  is checked, and if the parent (and its parents) doesn't have the attriute,
   then each propdir is checked until one of them has the attribute or
   the check fails. The parents of the propdirs are NOT checked; neither
   are the propdirs of the propdirs.
