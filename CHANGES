@@ -58,6 +58,8 @@ PATCHES SINCE THE 3.1 RELEASE
   - Bugfix: In the ifelse() family, trailing space is no longer
     accidentally eaten.
 
+  - Maintenance: Updated copyright to 2009.
+
 3.1 Patchlevel 5 -- January 27th, 2008
 
   - Enhancement: The new conf parameter local_master_parents allows the
