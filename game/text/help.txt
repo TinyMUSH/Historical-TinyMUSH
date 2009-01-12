@@ -15393,24 +15393,37 @@ Continued in 'help 3.1 functions11'.
  
 Function modifications:
  
+- Anonymous functions for map() and the like are supported via #lambda.
 - iftrue() and iffalse() offer ifelse() functionality with #$ substitution.
 - usetrue() and usefalse() offer abbreviated ifelse()-like functionality.
+- ifzero() is the reverse of nonzero().
+- The iter() family has been extended with iter2() et.al., which allow
+  a second list to be simultaneously processed via the #+ token.
 - lreplace() offers multi-element list replacement.
 - ports() can take zero arguments and return a full list of ports.
 - push() can take zero arguments, which pushes a blank string onto the stack.
 - private() and uprivate() are used to hide global registers.
+- lregs() lists non-empty registers.
 - extract() can take an output delimiter.
 - lor(), land(), etc. can take an empty list.
+- If speak()'s first argument contains a '&', it's used to indicate a
+  speaker name.
  
 Other improvements:
-
+ 
 - IDLE command. Send this if you have an auto-unidler for broadband keepalive.
+- reply command. Lets you reply to a page, including a group-reply.
+- @propdir lists allow objects to inherit attributes from multiple objects.
 - local_master_parents config param allows command-object parenting to work
   for objects in local master rooms.
 - Trace attribute flag allows tracing of a single u-function.
+- @adisconnect receives session statistics via the stack.
 - @colormap allows remapping of ANSI colors.
 - @end command (@break and @assert) ends an action list on a conditional.
 - @fsay, @fpose, and @femit take a /spoof switch.
+- @function and @hook take a /private switch, for private-scope registers.
+- The special 'internalgoto' command can be @hook'd to run actions whenever
+  any form of movement happens.
 - The %+ substitution gives you the number of arguments passed to a function.
 - The %i0 - %i9 substitutions give you itext(sub(ilev(), <number>)).
 - The %i-0 - %i-9 substitutions give you itext(0) - itext(9).
