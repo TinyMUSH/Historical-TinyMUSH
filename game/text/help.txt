@@ -2392,7 +2392,9 @@ See also: @femit, @fsay, say, @force
   See also: puppets.
 
 & @halt
-  Command: @halt[/<switches>] [<object | player>]
+  Command: @halt [<object | player>]
+           @halt/all
+           @halt/pid <PID>
  
   If the command '@halt' is given by itself, the player and all of his
   objects that are currently running commands will be halted.
@@ -2407,13 +2409,25 @@ See also: @femit, @fsay, say, @force
   If the command '@halt/all' is given, all objects that are currently
   running commands will be halted.
  
-  Use this command to stop runaway objects and infinite loops. The process
-  of halting an object involves removing all commands waiting to be run by
-  the object from the queue and refunding the queue deposit. The object
-  will also be set HALTED. Halting an object does not affect commands waiting
-  on it as a semaphore; use the @drain command to reset a semaphore.
+  If the command '@halt/pid <PID>' is given, that individual queue entry 
+  will be removed.
  
-  See also: @drain, @notify, kill, HALTED, SEMAPHORES.
+  Continued in 'help @halt2'.
+ 
+& @halt2
+ 
+  Use @halt and @halt/all to stop runaway objects and infinite loops. The 
+  process of halting an object involves removing all commands waiting to be
+  run by the object from the queue and refunding the queue deposit. The
+  object will also be set HALTED.
+ 
+  Use @halt/pid to surgically remove a single entry from the queue. This
+  does NOT set the object HALTED. It will still refund the queue deposit.
+ 
+  Halting an object does not affect commands waiting on it as a semaphore;
+  use the @drain command to reset a semaphore.
+ 
+  See also: @ps, ps(), @drain, @notify, kill, HALTED, SEMAPHORES.
  
 & @last
   Command: @last <player>
@@ -3070,11 +3084,12 @@ See also: @emit, @oemit, @npemit, page
   listed. You must control <object> or <player>, or must have the 
   See_Queue power. This command is useful for identifying infinite loops.
  
-  By default, this displays the object running the command and the command
-  to be run. Commands scheduled to be executed at a later time (by the @wait
-  command) show the number of seconds until they will be executed and/or the
-  semaphore on which they are waiting. A summary of the total commands 
-  listed, total queued, and, if privileged, total halted, is also included.
+  By default, this displays the process ID (PID), object running the command
+  and the command to be run. Commands scheduled to be executed at a later 
+  time (by the @wait command) show the number of seconds until they will be 
+  executed and/or the semaphore on which they are waiting. A summary of the 
+  total commands  listed, total queued, and, if privileged, total halted, 
+  is also included.
   
   The following switches are available:
      /brief   - (default)
@@ -3539,24 +3554,42 @@ See also: JUMP_OK, FIXED, home, @lock
   See also: locate().
  
 & @wait
-  Command: @wait <seconds>=<command>
-           @wait <object>[/<seconds>]=<command>
+  Command: @wait[/until] <seconds>=<command>
+           @wait[/until] <object>[/<seconds>]=<command>
            @wait <object>/<attribute>=<command>
+           @wait/pid[/until] <queue PID>=<argument>
  
-  The first form of @wait executes <command> after <seconds> seconds.
+  The first form of @wait executes <command> after <seconds> seconds, or
+  if the /until switch is given, until that absolute time in seconds.
+ 
   The second form increments the semaphore count for <object> and executes
   <command> after <object> is notified with the @notify command.  If the
   semaphore count for <object> is negative (because it has been notified more
   times than it has been waited on), then <command> is run immediately.
   If <seconds> is specified in the second form, the command is automatically
-  run after <seconds> seconds even if the semaphore isn't notified.
-  The third form is identical to the second, except that the semaphore
+  run after <seconds> seconds (or at the exact time, if /until is used),
+  even if the semaphore isn't notified. In the third form, the semaphore
   count is stored in the specified attribute, rather than Semaphore.
  
   This command charges a deposit of 10 coins, which is refunded when
   <command> is executed.
  
-  See also: @drain, @notify, @ps, SEMAPHORES.
+  Continued in 'help @wait2'.
+ 
+& @wait2
+ 
+  The @wait/pid switch results in four possible forms:
+ 
+    @wait/pid/until <queue PID> = <absolute time in seconds>
+    @wait/pid <queue PID> = <number of seconds to wait, starting from now>
+    @wait/pid <queue PID> = +<number of seconds to add to current wait>
+    @wait/pid <queue PID> = -<number of seconds to subtract from current wait>
+ 
+  This allows you to change the wait time of something that is already 
+  on the queue. You can find something's queue PID via the @ps command,
+  or the ps() function.
+ 
+  See also: @drain, @notify, @ps, ps(), SEMAPHORES.
  
 & @wipe
   Command: @wipe <object>[/<wild-attr>]
@@ -5769,10 +5802,10 @@ See also: @link, @open.
 	name()		nearby()	next()		num()		
 	objmem()	orflags()	owner()		parent()	
 	pfind()		playmem()	pmatch()	ports()		
-	programmer()	rloc()		room()		search()	
-	sees()		session()	stats()		type()		
-	visible()	where()		writable()	xcon()		
-	zone()		zwho()
+	programmer()	ps()		rloc()		room()
+	search()	sees()		session()	stats()		
+	type()		visible()	where()		writable()	
+	xcon()		zone()		zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -11417,6 +11450,28 @@ performed and the walk down the list stops.
   If the target player is not connected, or is not in a @program, this
   function returns #-1. You must be able to examine the player, or
   this function returns #-1.
+ 
+& PS()
+  ps([<object> | <player> | <PID>])
+ 
+  This function returns a space-delimited list of queue entry PIDs.
+ 
+  ps(), by itself, will show you the PIDs of all current queue entries.
+  You must have the ability to see the entire queue, or you'll get an
+  empty string back.
+  
+  ps(<object dbref>) will list the PIDs of all entries queued by the object.
+ 
+  ps(<player dbref>) will list the PIDs of all entries queued by that player
+  and all objects that he owns.
+ 
+  ps(<PID>) will return a string of the form '<doer>:<state> <command>',
+  where <doer> is the object that is executing that queue entry;
+  <state> is blank, a wait time in seconds, the dbref of a semaphore,
+  <semaphore>/<attribute>, or <semaphore>/<wait time>; and <command>
+  is the text of the command associated with that queue entry.
+ 
+  See also: @ps
  
 & PORTS()
   ports([<player>])
