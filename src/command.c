@@ -2254,6 +2254,7 @@ dbref player;
 	list_hashstat(player, "Player Names", &mudstate.player_htab);
 	list_hashstat(player, "References", &mudstate.nref_htab);
 	list_nhashstat(player, "Net Descriptors", &mudstate.desc_htab);
+	list_nhashstat(player, "Queue Entries", &mudstate.qpid_htab);
 	list_nhashstat(player, "Forwardlists", &mudstate.fwdlist_htab);
 	list_nhashstat(player, "Propdirs", &mudstate.propdir_htab);
 	list_nhashstat(player, "Redirections", &mudstate.redir_htab);

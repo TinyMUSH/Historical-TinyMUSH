@@ -25,6 +25,22 @@ extern int FDECL(a_Queue, (dbref, int));
 extern void FDECL(s_Queue, (dbref, int));
 extern int FDECL(QueueMax, (dbref));
 
+static int qpid_top = 1;
+
+#define MAX_QPID (INT_MAX - 1)
+
+/* ---------------------------------------------------------------------------
+ * Delete and free a queue entry.
+ */
+
+static void delete_qentry(qptr)
+BQUE *qptr;
+{
+     nhashdelete(qptr->pid, &mudstate.qpid_htab);
+     Free_QData(qptr);
+     free_qentry(qptr);
+}
+
 /* ---------------------------------------------------------------------------
  * add_to: Adjust an object's queue or semaphore count.
  */
@@ -142,8 +158,7 @@ dbref player, object;
 				trail->next = next = point->next;
 			else
 				mudstate.qwait = next = point->next;
-			Free_QData(point);
-			free_qentry(point);
+			delete_qentry(point);
 		} else
 			next = (trail = point)->next;
 
@@ -161,8 +176,7 @@ dbref player, object;
 			if (point == mudstate.qsemlast)
 				mudstate.qsemlast = trail;
 			add_to(player, point->sem, -1, point->attr);
-			Free_QData(point);
-			free_qentry(point);
+			delete_qentry(point);
 		} else
 			next = (trail = point)->next;
 
@@ -286,8 +300,7 @@ int attr, key, count;
 					giveto(point->player,
 					       mudconf.waitcost);
 					a_Queue(Owner(point->player), -1);
-					Free_QData(point);
-					free_qentry(point);
+					delete_qentry(point);
 				}
 			} else {
 				next = (trail = point)->next;
@@ -371,6 +384,28 @@ char *what, *count;
 }
 
 /* ---------------------------------------------------------------------------
+ * Get the next available queue PID.
+ */
+
+static int qpid_next()
+{
+     int i;
+     int qpid = qpid_top;
+
+     for (i = 0; i < MAX_QPID; i++) {
+	 if (qpid > MAX_QPID)
+	     qpid = 1;
+	 if (nhashfind(qpid, &mudstate.qpid_htab) != NULL) {
+	     qpid++;
+	 } else {
+	     qpid_top = qpid + 1;
+	     return qpid;
+	 }
+     }
+     return 0;
+}
+
+/* ---------------------------------------------------------------------------
  * setup_que: Set up a queue entry.
  */
 
@@ -380,7 +415,7 @@ char *command, *args[];
 int nargs;
 GDATA *gargs;
 {
-	int a, tlen;
+        int a, tlen, qpid;
 	BQUE *tmp;
 	char *tptr;
 
@@ -412,6 +447,16 @@ GDATA *gargs;
 		s_Halted(player);
 		return NULL;
 	}
+
+	/* Generate a PID */
+
+	qpid = qpid_next();
+	if (qpid == 0) {
+	    notify(Owner(player),
+		   "Could not queue command. The queue is full.");
+	    return NULL;
+	}
+
 	/* We passed all the tests */
 
 	/* Calculate the length of the save string */
@@ -445,6 +490,8 @@ GDATA *gargs;
 		free_qentry(tmp);
 		return (BQUE *) NULL;
 	}
+
+	/* Set up registers and whatnot */
 
 	tmp->comm = NULL;
 	for (a = 0; a < NUM_ENV_VARS; a++) {
@@ -489,6 +536,9 @@ GDATA *gargs;
 	}
 
 	/* Load the rest of the queue block */
+
+	tmp->pid = qpid;
+	nhashadd(qpid, (int *) tmp, &mudstate.qpid_htab);
 
 	tmp->player = player;
 	tmp->waittime = 0;
@@ -810,8 +860,7 @@ int ncmds;
 	if (mudstate.qfirst) {
 	    tmp = mudstate.qfirst;
 	    mudstate.qfirst = mudstate.qfirst->next;
-	    Free_QData(tmp);
-	    free_qentry(tmp);
+	    delete_qentry(tmp);
 	}
 	if (!mudstate.qfirst)	/* gotta check this, as the value's changed */
 	    mudstate.qlast = NULL;
@@ -859,36 +908,37 @@ const char *header;
 			     * on a non-Semaphore attribute.
 			     */
 			    notify(player,
-				   tprintf("[#%d/%d] %s:%s",
+				   tprintf("[#%d/%d] %d:%s:%s",
 					   tmp->sem,
 					   tmp->waittime - mudstate.now,
-					   bufp, tmp->comm));
+					   tmp->pid, bufp, tmp->comm));
 			} else if (tmp->waittime > 0) {
 				notify(player,
-				       tprintf("[%d] %s:%s",
+				       tprintf("[%d] %d:%s:%s",
 					       tmp->waittime - mudstate.now,
-					       bufp, tmp->comm));
+					       tmp->pid, bufp, tmp->comm));
 			} else if (Good_obj(tmp->sem)) {
 			    if (tmp->attr == A_SEMAPHORE) {
 				notify(player,
-				       tprintf("[#%d] %s:%s", tmp->sem,
-					       bufp, tmp->comm));
+				       tprintf("[#%d] %d:%s:%s", tmp->sem,
+					       tmp->pid, bufp, tmp->comm));
 			    } else {
 				ap = atr_num(tmp->attr);
 				if (ap && ap->name) {
 				    notify(player,
-					   tprintf("[#%d/%s] %s:%s", tmp->sem,
-						   ap->name,
-						   bufp, tmp->comm));
+					   tprintf("[#%d/%s] %d:%s:%s",
+						   tmp->sem, ap->name,
+						   tmp->pid, bufp, tmp->comm));
 				} else {
 				    notify(player,
-					   tprintf("[#%d] %s:%s", tmp->sem,
-						   bufp, tmp->comm));
+					   tprintf("[#%d] %d:%s:%s", tmp->sem,
+						   tmp->pid, bufp, tmp->comm));
 				}
 			    }
 			} else {
 				notify(player,
-				       tprintf("%s:%s", bufp, tmp->comm));
+				       tprintf("%d:%s:%s",
+					       tmp->pid, bufp, tmp->comm));
 			}
 			bp = bufp;
 			if (key == PS_LONG) {

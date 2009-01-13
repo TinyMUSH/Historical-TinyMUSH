@@ -54,10 +54,11 @@ struct global_register_data {
 typedef struct bque BQUE;	/* Command queue */
 struct bque {
 	BQUE	*next;
-	dbref	player;		/* player who will do command */
+	dbref	player;		/* player who will do command - halt is #-1 */
 	dbref	cause;		/* player causing command (for %N) */
-	dbref	sem;		/* blocking semaphore */
+        int     pid;            /* internal process ID */
 	int	waittime;	/* time to run command */
+	dbref	sem;		/* blocking semaphore */
 	int	attr;		/* blocking attribute */
 	char	*text;		/* buffer for comm, env, and scr text */
 	char	*comm;		/* command */
@@ -479,6 +480,7 @@ struct statedata {
 	NHSHTAB	desc_htab;	/* Socket descriptor hashtable */
 	NHSHTAB	fwdlist_htab;	/* Room forwardlists */
         NHSHTAB	propdir_htab;	/* Propdir lists */
+        NHSHTAB	qpid_htab;	/* Queue process IDs */
 	NHSHTAB redir_htab;	/* Redirections */
 	NHSHTAB objstack_htab;	/* Object stacks */
 	NHSHTAB	parent_htab;	/* Parent $-command exclusion */
