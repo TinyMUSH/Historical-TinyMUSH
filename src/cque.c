@@ -569,8 +569,14 @@ GDATA *gargs;
 	if (tmp == NULL) {
 		return;
 	}
+
+	/* Set wait time, and check for integer overflow */
+
 	if (wait != 0)
 		tmp->waittime = time(NULL) + wait;
+	if ((wait > 0) && (tmp->waittime < 0))
+	    tmp->waittime = INT_MAX;
+
 	tmp->sem = sem;
 	tmp->attr = attr;
 	if (sem == NOTHING) {
@@ -604,6 +610,112 @@ GDATA *gargs;
 }
 
 /* ---------------------------------------------------------------------------
+ * do_wait_pid: Adjust the wait time on an existing entry.
+ */
+
+static void do_wait_pid(player, key, pidstr, timestr)
+dbref player;
+int key;
+char *pidstr, *timestr;
+{
+     int qpid, wsecs;
+     BQUE *qptr, *point, *trail;
+
+     if (!is_integer(timestr)) {
+	 notify(player, "That is not a valid wait time.");
+	 return;
+     }
+
+     if (!is_integer(pidstr)) {
+	 notify(player, "That is not a valid PID.");
+	 return;
+     }
+
+     qpid = atoi(pidstr);
+     if ((qpid < 1) || (qpid > MAX_QPID)) {
+	 notify(player, "That is not a valid PID.");
+	 return;
+     }
+
+     qptr = (BQUE *) nhashfind(qpid, &mudstate.qpid_htab);
+     if (!qptr) {
+	 notify(player,
+		"That PID is not associated with an active queue entry.");
+	 return;
+     }
+
+     if (qptr->player == NOTHING) {
+	 notify(player, "That queue entry has been halted.");
+	 return;
+     }
+
+     if (!Controls(player, qptr->player)) {
+	 notify(player, "Permission denied.");
+	 return;
+     }
+
+     if ((qptr->sem != NOTHING) && (qptr->waittime == 0)) {
+	 notify(player, "That semaphore does not have a wait time.");
+	 return;
+     }
+
+     if (key & WAIT_UNTIL) {
+	 wsecs = atoi(timestr);
+	 if (wsecs < 0)
+	     qptr->waittime = time(NULL);
+	 else
+	     qptr->waittime = wsecs;
+     } else {
+	 if ((timestr[0] == '+') || (timestr[0] == '-')) {
+	     qptr->waittime += atoi(timestr);
+	 } else {
+	     qptr->waittime = time(NULL) + atoi(timestr);
+	 }
+	 if (qptr->waittime < 0) {
+	     if (timestr[0] == '-')
+		 qptr->waittime = time(NULL);
+	     else 
+		 qptr->waittime = INT_MAX;
+	 }
+     }
+
+     /* The semaphore queue is unsorted, but the main wait queue is sorted.
+      * So we may have to go rethread.
+      */
+
+     if (qptr->sem == NOTHING) {
+	 if (qptr == mudstate.qwait) {
+	     /* Head of the queue. Just remove it and relink. */
+	     mudstate.qwait = qptr->next;
+	 } else {
+	     /* Go find it somewhere in the queue and take it out. */
+	     for (point = mudstate.qwait, trail = NULL;
+		  point != NULL;
+		  point = point->next) {
+		 if (qptr == point) {
+		     trail->next = qptr->next;
+		     break;
+		 }
+		 trail = point;
+	     }
+	 }
+	 for (point = mudstate.qwait, trail = NULL;
+	      point && point->waittime <= qptr->waittime;
+	      point = point->next) {
+	     trail = point;
+	 }
+	 qptr->next = point;
+	 if (trail != NULL)
+	     trail->next = qptr;
+	 else
+	     mudstate.qwait = qptr;
+     }
+ 
+     notify_quiet(player, tprintf("Adjusted wait time for queue entry PID %d.",
+				  qpid));
+}
+
+/* ---------------------------------------------------------------------------
  * do_wait: Command interface to wait_que
  */
 
@@ -616,12 +728,22 @@ char *event, *cmd, *cargs[];
 	int howlong, num, attr, aflags;
 	char *what;
 	ATTR *ap;
-	
+
+	if (key & WAIT_PID) {
+	    do_wait_pid(player, key, event, cmd);
+	    return;
+	}
 
 	/* If arg1 is all numeric, do simple (non-sem) timed wait. */
 
 	if (is_number(event)) {
-		howlong = atoi(event);
+	        if (key & WAIT_UNTIL) {
+		    howlong = atoi(event) - time(NULL);
+		    if (howlong < 0)
+			howlong = 0;
+		} else {
+		    howlong = atoi(event);
+		}
 		wait_que(player, cause, howlong, NOTHING, 0, cmd,
 			 cargs, ncargs, mudstate.rdata);
 		return;
@@ -643,7 +765,13 @@ char *event, *cmd, *cargs[];
 
 		if (event && *event && is_number(event)) {
 			attr = A_SEMAPHORE;
-			howlong = atoi(event);
+			if (key & WAIT_UNTIL) {
+			    howlong = atoi(event) - time(NULL);
+			    if (howlong < 0)
+				howlong = 0;
+			} else {
+			    howlong = atoi(event);
+			}
 		} else {
 			attr = A_SEMAPHORE;
 			howlong = 0;

@@ -374,6 +374,11 @@ NAMETAB warp_sw[] = {
 {(char *)"events",	1,	CA_WIZARD,	TWARP_EVENTS|SW_MULTIPLE},
 { NULL,			0,	0,		0}};
 
+NAMETAB wait_sw[] = {
+{(char *)"pid",		1,	CA_PUBLIC,	WAIT_PID|SW_MULTIPLE},
+{(char *)"until",	1,	CA_PUBLIC,	WAIT_UNTIL|SW_MULTIPLE},
+{ NULL,			0,	0,		0}};
+
 NAMETAB noeval_sw[] = {
 {(char *)"noeval",	1,	CA_PUBLIC,	SW_NOEVAL},
 { NULL,			0,	0,		0}};
@@ -707,7 +712,7 @@ CMDENT command_table[] = {
 {(char *)"@verb",		verb_sw,	CA_GBL_INTERP|CA_NO_SLAVE,
 	0,		CS_TWO_ARG|CS_ARGV|CS_INTERP|CS_STRIP_AROUND,
 	NULL,		NULL,	NULL,		{do_verb}},
-{(char *)"@wait",		NULL,		CA_GBL_INTERP,
+{(char *)"@wait",		wait_sw,		CA_GBL_INTERP,
 	0,		CS_TWO_ARG|CS_CMDARG|CS_NOINTERP|CS_STRIP_AROUND,
 	NULL,		NULL,	NULL,		{do_wait}},
 {(char *)"@wall",		wall_sw,	CA_PUBLIC,

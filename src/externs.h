@@ -337,6 +337,7 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	GLOB_ENABLE	1	/* key to enable */
 #define	GLOB_DISABLE	2	/* key to disable */
 #define	HALT_ALL	1	/* halt everything */
+#define HALT_PID	2	/* halt a particular PID */
 #define HELP_FIND	1	/* do a wildcard search through help subjects */
 #define HELP_RAWHELP	0x08000000	/* A high bit. Don't eval text. */
 #define HOOK_BEFORE	1	/* pre-command hook */
@@ -456,6 +457,8 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define VERB_SPEECH	4	/* Treat like speech message */
 #define VERB_PRESENT	8	/* Treat like presence message */
 #define VERB_NONAME	16	/* Do not prepend name to odefault */
+#define WAIT_UNTIL	1	/* Absolute time wait */
+#define WAIT_PID	2	/* Change the wait on a PID */
 
 /* Hush codes for movement messages */
 
