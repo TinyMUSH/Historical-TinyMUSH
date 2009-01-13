@@ -25,6 +25,7 @@ extern void FDECL(do_pemit_list, (dbref, char *, const char *, int));
 extern void FDECL(do_pemit, (dbref, dbref, int, char *, char *));
 extern void FDECL(set_attr_internal, (dbref, dbref, int, char *, int,
 				      char *, char **));
+extern int FDECL(que_want, (BQUE *, dbref, dbref));
 
 /* ---------------------------------------------------------------------------
  * fun_switch: Return value based on pattern matching (ala @switch/first)
@@ -1224,3 +1225,110 @@ FUNCTION(fun_set)
 	/* set/clear a flag */
 	flag_set(thing, player, fargs[1], 0);
 }
+
+/*---------------------------------------------------------------------------
+ * fun_ps: Gets details about the queue.
+ *   ps(): Lists everything on the queue by PID
+ *   ps(<object or player>): Lists PIDs enqueued by object or player's stuff
+ *   ps(<PID>): Results in '<PID>:<wait status> <command>'
+ */
+
+static void list_qpids(player, player_targ, obj_targ, queue, buff, bufc, bb_p)
+dbref player, player_targ, obj_targ;
+BQUE *queue;
+char *buff, **bufc, *bb_p;
+{
+     BQUE *tmp;
+
+     for (tmp = queue; tmp; tmp = tmp->next) {
+	 if (que_want(tmp, player_targ, obj_targ)) {
+	     if (*bufc != bb_p) {
+		 print_sep(&SPACE_DELIM, buff, bufc);
+	     }
+	     safe_ltos(buff, bufc, tmp->pid);
+	 }
+     }
+}
+
+FUNCTION(fun_ps)
+{
+     int qpid;
+     dbref player_targ, obj_targ;
+     BQUE *qptr;
+     ATTR *ap;
+     char *bb_p;
+
+     /* Check for the PID case first. */
+
+     if (fargs[0] && is_integer(fargs[0])) {
+	 qpid = atoi(fargs[0]);
+	 qptr = (BQUE *) nhashfind(qpid, &mudstate.qpid_htab);
+	 if (qptr == NULL)
+	     return;
+	 if ((qptr->waittime > 0) && (Good_obj(qptr->sem))) {
+	     safe_tprintf_str(buff, bufc, "#%d:#%d/%d %s",
+			      qptr->player,
+			      qptr->sem, qptr->waittime - mudstate.now,
+			      qptr->comm);
+	 } else if (qptr->waittime > 0) {
+	     safe_tprintf_str(buff, bufc, "#%d:%d %s",
+			      qptr->player,
+			      qptr->waittime - mudstate.now,
+			      qptr->comm);
+	 } else if (Good_obj(qptr->sem)) {
+	     if (qptr->attr == A_SEMAPHORE) {
+		 safe_tprintf_str(buff, bufc, "#%d:#%d %s",
+				  qptr->player, qptr->sem, qptr->comm);
+	     } else {
+		 ap = atr_num(qptr->attr);
+		 if (ap && ap->name) {
+		     safe_tprintf_str(buff, bufc, "#%d:#%d/%s %s",
+				      qptr->player,
+				      qptr->sem, ap->name,
+				      qptr->comm);
+		 } else {
+		     safe_tprintf_str(buff, bufc, "#%d:#%d %s",
+				      qptr->player, qptr->sem, qptr->comm);
+		 }
+	     }
+	 } else {
+	     safe_tprintf_str(buff, bufc, "#%d: %s", qptr->player, qptr->comm);
+	 }
+	 return;
+     }
+
+     /* We either have nothing specified, or an object or player. */
+
+     if (!fargs[0] || !*fargs[0]) {
+	 if (!See_Queue(player))
+	     return;
+	 obj_targ = NOTHING;
+	 player_targ = NOTHING;
+     } else {
+	 player_targ = Owner(player);
+	 if (See_Queue(player))
+	     obj_targ = match_thing(player, fargs[0]);
+	 else
+	     obj_targ = match_controlled(player, fargs[0]);
+	 if (!Good_obj(obj_targ))
+	     return;
+	 if (isPlayer(obj_targ)) {
+	     player_targ = obj_targ;
+	     obj_targ = NOTHING;
+	 }
+     }
+
+     /* List all the PIDs that match. */
+
+     bb_p = *bufc;
+     list_qpids(player, player_targ, obj_targ, mudstate.qfirst,
+		buff, bufc, bb_p);
+     list_qpids(player, player_targ, obj_targ, mudstate.qlfirst,
+		buff, bufc, bb_p);
+     list_qpids(player, player_targ, obj_targ, mudstate.qwait,
+		buff, bufc, bb_p);
+     list_qpids(player, player_targ, obj_targ, mudstate.qsemfirst,
+		buff, bufc, bb_p);
+}
+
+

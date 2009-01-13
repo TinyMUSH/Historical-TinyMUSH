@@ -97,7 +97,7 @@ BQUE *tmp;
  * que_want: Do we want this queue entry?
  */
 
-static int que_want(entry, ptarg, otarg)
+int que_want(entry, ptarg, otarg)
 BQUE *entry;
 dbref ptarg, otarg;
 {

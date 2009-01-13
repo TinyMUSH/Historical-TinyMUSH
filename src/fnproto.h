@@ -169,6 +169,7 @@ XFUNCTION(fun_wait);
 XFUNCTION(fun_command);
 XFUNCTION(fun_create);
 XFUNCTION(fun_set);
+XFUNCTION(fun_ps);
 
 /* From funobj.c */
 
@@ -633,6 +634,7 @@ FUN flist[] = {
 {"POWER",	fun_power,	2,  0,		CA_PUBLIC,	NULL},
 {"PRIVATE",     fun_private,    1,  FN_NO_EVAL, CA_PUBLIC,	NULL},
 {"PROGRAMMER",	fun_programmer,	1,  0,		CA_PUBLIC,	NULL},
+{"PS",		fun_ps,		1,  0,		CA_PUBLIC,	NULL},
 {"PUSH",	fun_push,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"QVARS",	fun_qvars,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"R",		fun_r,		1,  0,		CA_PUBLIC,	NULL},
