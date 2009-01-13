@@ -171,6 +171,7 @@ NAMETAB	goto_sw[] = {
 
 NAMETAB halt_sw[] = {
 {(char *)"all",		1,	CA_PUBLIC,	HALT_ALL},
+{(char *)"pid",		1,	CA_PUBLIC,	HALT_PID},
 { NULL,			0,	0,		0}};
 
 NAMETAB help_sw[] = {

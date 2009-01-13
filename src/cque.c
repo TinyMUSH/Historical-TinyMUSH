@@ -202,6 +202,107 @@ dbref player, object;
 }
 
 /* ---------------------------------------------------------------------------
+ * remove_waitq: Remove an entry from the wait queue.
+ */
+
+static void remove_waitq(qptr)
+BQUE *qptr;
+{
+     BQUE *point, *trail;
+
+     if (qptr == mudstate.qwait) {
+	 /* Head of the queue. Just remove it and relink. */
+	 mudstate.qwait = qptr->next;
+     } else {
+	 /* Go find it somewhere in the queue and take it out. */
+	 for (point = mudstate.qwait, trail = NULL;
+	      point != NULL;
+	      point = point->next) {
+	     if (qptr == point) {
+		 trail->next = qptr->next;
+		 break;
+	     }
+	     trail = point;
+	 }
+     }
+}
+
+/* ---------------------------------------------------------------------------
+ * do_halt_pid: Halt a single queue entry.
+ */
+
+static void do_halt_pid(player, cause, key, pidstr)
+dbref player, cause;
+int key;
+char *pidstr;
+{
+     dbref victim;
+     int qpid;
+     BQUE *qptr, *last, *tmp;
+
+     if (!is_integer(pidstr)) {
+	 notify(player, "That is not a valid PID.");
+	 return;
+     }
+
+     qpid = atoi(pidstr);
+     if ((qpid < 1) || (qpid > MAX_QPID)) {
+	 notify(player, "That is not a valid PID.");
+	 return;
+     }
+
+     qptr = (BQUE *) nhashfind(qpid, &mudstate.qpid_htab);
+     if (!qptr) {
+	 notify(player,
+		"That PID is not associated with an active queue entry.");
+	 return;
+     }
+
+     if (qptr->player == NOTHING) {
+	 notify(player, "That queue entry has already been halted.");
+	 return;
+     }
+
+     if (!(Controls(player, qptr->player) || Can_Halt(player))) {
+	 notify(player, "Permission denied.");
+	 return;
+     }
+
+     /* Changing the player to NOTHING will flag this as halted, but
+      * we may have to delete it from the wait queue as well as the
+      * semaphore queue.
+      */
+
+     victim = Owner(qptr->player);
+     qptr->player = NOTHING;
+
+     if (qptr->sem == NOTHING) {
+	 remove_waitq(qptr);
+	 delete_qentry(qptr);
+     } else {
+	 for (tmp = mudstate.qsemfirst, last = NULL;
+	      tmp != NULL;
+	      last = tmp, tmp = tmp->next) {
+	     if (tmp == qptr) {
+		 if (last)
+		     last->next = tmp->next;
+		 else
+		     mudstate.qsemfirst = tmp->next;
+		 if (mudstate.qsemlast == tmp)
+		     mudstate.qsemlast = last;
+		 break;
+	     }
+	 }
+	 add_to(player, qptr->sem, -1, qptr->attr);
+	 delete_qentry(qptr);
+     }
+
+     giveto(victim, mudconf.waitcost);
+     a_Queue(victim, -1);
+     notify_quiet(player, tprintf("Halted queue entry PID %d.", qpid));
+}
+
+/* ---------------------------------------------------------------------------
  * do_halt: Command interface to halt_que.
  */
 
@@ -212,6 +313,11 @@ char *target;
 {
 	dbref player_targ, obj_targ;
 	int numhalted;
+
+	if (key & HALT_PID) {
+	    do_halt_pid(player, cause, key, target);
+	    return;
+	}
 
 	if ((key & HALT_ALL) && !(Can_Halt(player))) {
 		notify(player, NOPERM_MESSAGE);
@@ -684,21 +790,8 @@ char *pidstr, *timestr;
       */
 
      if (qptr->sem == NOTHING) {
-	 if (qptr == mudstate.qwait) {
-	     /* Head of the queue. Just remove it and relink. */
-	     mudstate.qwait = qptr->next;
-	 } else {
-	     /* Go find it somewhere in the queue and take it out. */
-	     for (point = mudstate.qwait, trail = NULL;
-		  point != NULL;
-		  point = point->next) {
-		 if (qptr == point) {
-		     trail->next = qptr->next;
-		     break;
-		 }
-		 trail = point;
-	     }
-	 }
+	 remove_waitq(qptr);
+	 /* Re-insert */
 	 for (point = mudstate.qwait, trail = NULL;
 	      point && point->waittime <= qptr->waittime;
 	      point = point->next) {
