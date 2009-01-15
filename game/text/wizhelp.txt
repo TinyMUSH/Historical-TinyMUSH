@@ -1420,8 +1420,9 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 	money_name_plural	money_name_singular	mud_name
 	mud_shortname		port			public_calias
 	public_channel		queue_active_chunk	queue_idle_chunk
-	site_chars		sql_database		sql_host
-	sql_password		sql_reconnect		sql_username
+	queue_max_size		site_chars		sql_database
+	sql_host		sql_password		sql_reconnect
+	sql_username
 
 & PARAM OBJECTS
 	default_home		exit_attr_defaults	exit_flags
@@ -2891,6 +2892,13 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   check for network traffic indicates that there is no data needing to be
   read from or written to the network.
   See also: queue_active_chunk.
+
+& queue_max_size
+  Config parameter: queue_max_size <num>.  Default: 10000
+  Specifies the maximum number of commands that can be queued at one
+  time, across the entire game. (This is the size of the "process table"
+  for queue PIDs.)
+  See also: player_queue_limit.
 
 & quiet_look
   Config parameter: quiet_look <yes/no>.  Default: No

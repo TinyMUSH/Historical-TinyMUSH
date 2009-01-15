@@ -352,6 +352,7 @@ struct confdata {
 	int	instance_lim;	/* Max number of struct instances for obj */
 	int	max_player_aliases; /* Max number of aliases for a player */
 	int	register_limit;	/* Max number of named q-registers */
+        int     max_qpid;       /* Max total number of queue entries */
 	char	*struct_dstr;	/* Delim string used for struct 'examine' */
 };
 
@@ -505,6 +506,7 @@ struct statedata {
 	BQUE	*qwait;		/* Head of wait queue */
 	BQUE	*qsemfirst;	/* Head of semaphore queue */
 	BQUE	*qsemlast;	/* Tail of semaphore queue */
+        BQUE    *qfrozen;       /* Head of wait-frozen queue */
 	BADNAME	*badname_head;	/* List of disallowed names */
 	int	mstat_ixrss[2];	/* Summed shared size */
 	int	mstat_idrss[2];	/* Summed private data size */

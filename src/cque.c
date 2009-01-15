@@ -27,8 +27,6 @@ extern int FDECL(QueueMax, (dbref));
 
 static int qpid_top = 1;
 
-#define MAX_QPID (INT_MAX - 1)
-
 /* ---------------------------------------------------------------------------
  * Delete and free a queue entry.
  */
@@ -246,7 +244,7 @@ char *pidstr;
      }
 
      qpid = atoi(pidstr);
-     if ((qpid < 1) || (qpid > MAX_QPID)) {
+     if ((qpid < 1) || (qpid > mudconf.max_qpid)) {
 	 notify(player, "That is not a valid PID.");
 	 return;
      }
@@ -498,8 +496,8 @@ static int qpid_next()
      int i;
      int qpid = qpid_top;
 
-     for (i = 0; i < MAX_QPID; i++) {
-	 if (qpid > MAX_QPID)
+     for (i = 0; i < mudconf.max_qpid; i++) {
+	 if (qpid > mudconf.max_qpid)
 	     qpid = 1;
 	 if (nhashfind(qpid, &mudstate.qpid_htab) != NULL) {
 	     qpid++;
@@ -738,7 +736,7 @@ char *pidstr, *timestr;
      }
 
      qpid = atoi(pidstr);
-     if ((qpid < 1) || (qpid > MAX_QPID)) {
+     if ((qpid < 1) || (qpid > mudconf.max_qpid)) {
 	 notify(player, "That is not a valid PID.");
 	 return;
      }

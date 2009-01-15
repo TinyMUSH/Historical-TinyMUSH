@@ -232,6 +232,7 @@ void NDECL(cf_init)
 	mudconf.you_say = 1;
 	mudconf.c_cmd_subst = 1;
 	mudconf.register_limit = 50;
+	mudconf.max_qpid = 10000;
 	
 	/* -- ??? Running SC on a non-SC DB may cause problems */
 	mudconf.space_compress = 1;
@@ -1765,6 +1766,7 @@ CONF conftable[] = {
 {(char *)"public_flags",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.pub_flags,		(long)"Flag information is public"},
 {(char *)"queue_active_chunk",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.active_q_chunk,	0},
 {(char *)"queue_idle_chunk",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.queue_chunk,		0},
+{(char *)"queue_max_size",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.max_qpid,		0},
 {(char *)"quiet_look",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.quiet_look,		(long)"look shows public attributes in addition to @Desc"},
 {(char *)"quiet_whisper",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.quiet_whisper,		(long)"whisper is quiet"},
 {(char *)"quit_file",			cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.quit_file,	MBUF_SIZE},
