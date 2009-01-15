@@ -506,7 +506,6 @@ struct statedata {
 	BQUE	*qwait;		/* Head of wait queue */
 	BQUE	*qsemfirst;	/* Head of semaphore queue */
 	BQUE	*qsemlast;	/* Tail of semaphore queue */
-        BQUE    *qfrozen;       /* Head of wait-frozen queue */
 	BADNAME	*badname_head;	/* List of disallowed names */
 	int	mstat_ixrss[2];	/* Summed shared size */
 	int	mstat_idrss[2];	/* Summed private data size */
