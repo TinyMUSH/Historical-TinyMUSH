@@ -19,6 +19,7 @@
 
 /* ---------------------------------------------------------------------------
  * isword: is every character in the argument a letter?
+ * isalnum: is every character in the argument a letter or number?
  */
   
 FUNCTION(fun_isword)
@@ -33,7 +34,18 @@ char *p;
 	}
 	safe_chr('1', buff, bufc);
 }
-                                                          
+
+FUNCTION(fun_isalnum)
+{
+     char *p;
+
+     for (p = fargs[0]; *p; p++) {
+	 if (!isalnum(*p)) {
+	     safe_chr('0', buff, bufc); return;
+	 }
+     }
+     safe_chr('1', buff, bufc);
+}
 
 /* ---------------------------------------------------------------------------
  * isnum: is the argument a number?

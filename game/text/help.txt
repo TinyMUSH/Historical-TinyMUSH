@@ -377,7 +377,7 @@ Continued in 'help Attribute Flags2'.
                   wildcard glob patterns. Affects $-commands, ^-listens,
                   @filter, @infilter, and @listen. Local only. (R)
  
-     rmatch     - Set wildcard matches into x-variables. Local only. (M)
+     rmatch     - Set wildcard matches into local registers. Local only. (M)
  
      now        - Execute matches now, instead of queueing. Local only. (Q)
  
@@ -4837,8 +4837,11 @@ Example: @sex me = female
  
   This allows you to @parent a command object to a function object
   without worrying about the overhead of scanning the function object
-  for $-commands.
+  for $-commands. However, if you simply need to inherit attributes,
+  you may want to consider @propdir instead.
  
+  See also: @parent, @propdir, PARENT OBJECTS, PROPDIRS.
+
 & CONSTANT
   Flag: CONSTANT(k)
  
@@ -5898,17 +5901,17 @@ See also: @link, @open.
 	border()	capstr()	cat()		cborder()
 	center()	chomp()		comp()		decrypt()
 	delete()	edit()		encrypt()	escape()
-	foreach()	isdbref()	isnum()		isword()
-	lcstr()		left()		lit()		ljust()
-	merge()		mid()		nescape()	nsecure()
-	null()		pos()		rborder()	regedit()
-	regediti()	regeditall()	regeditalli()	regmatch()
-	regmatchi()	repeat()	reverse()	right()
-	rjust()		secure()	scramble()	space()
-	squish()	strcat()	streq()		stripansi()
-	strlen()	strmatch()	strtrunc()	translate()
-	trim()		ucstr()		valid()		wildmatch()
-	wordpos()	@@()
+	foreach()	isalnum()	isdbref()	isnum()		
+	isword()	lcstr()		left()		lit()		
+	ljust()		merge()		mid()		nescape()	
+	nsecure()	null()		pos()		rborder()	
+	regedit()	regediti()	regeditall()	regeditalli()	
+	regmatch()	regmatchi()	repeat()	reverse()	
+	right()		rjust()		secure()	scramble()	
+	space()		squish()	strcat()	streq()		
+	stripansi()	strlen()	strmatch()	strtrunc()	
+	translate()	trim()		ucstr()		valid()		
+	wildmatch()	wordpos()	@@()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -11351,7 +11354,19 @@ performed and the walk down the list stops.
      You say, "1"
      > say isword(Test123)
      You say, "0"
-
+ 
+& ISALNUM()
+  Function: isalnum(<string>)
+ 
+  This function will return 1 if every character in <string> is
+  alphanumeric (letter or digit), and 0 if this is not true.
+ 
+  Example:
+     > say isalnum(Test123)
+     You say, "1"
+     > say isalnum(+Test123+)
+     You say, "0"
+ 
 & FOREACH()
   foreach([<object>/]<attribute>,<string>[,<start token>][,<end token>])
  

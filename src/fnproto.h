@@ -239,6 +239,7 @@ XFUNCTION(handle_okpres);
 /* From funstring.c */
 
 XFUNCTION(fun_isword);
+XFUNCTION(fun_isalnum);
 XFUNCTION(fun_isnum);
 XFUNCTION(fun_isdbref);
 XFUNCTION(fun_null);
@@ -497,6 +498,7 @@ FUN flist[] = {
 {"INSERT",	fun_insert,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"INUM",	fun_inum,	1,  0,		CA_PUBLIC,	NULL},
 {"INZONE",	scan_zone,	1,  TYPE_ROOM,	CA_PUBLIC,	NULL},
+{"ISALNUM",	fun_isalnum,	1,  0,		CA_PUBLIC,	NULL},
 {"ISDBREF",	fun_isdbref,	1,  0,		CA_PUBLIC,	NULL},
 {"ISNUM",	fun_isnum,	1,  0,		CA_PUBLIC,	NULL},
 {"ISWORD",	fun_isword,	1,  0,		CA_PUBLIC,	NULL},
