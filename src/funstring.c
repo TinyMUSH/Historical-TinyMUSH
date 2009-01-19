@@ -876,6 +876,8 @@ FUNCTION(fun_merge)
 
 /* ---------------------------------------------------------------------------
  * fun_secure, fun_escape: escape [, ], %, \, and the beginning of the string.
+ * fun_esc: more limited escape, intended for instances where you only care
+ *          about string evaluation, not a forced command.
  */
 
 FUNCTION(fun_secure)
@@ -939,6 +941,31 @@ FUNCTION(fun_escape)
 		}
 		++s;
 	}
+}
+
+FUNCTION(fun_esc)
+{
+     char *s;
+
+     s = fargs[0];
+     if (!*s)
+	 return;
+     while (*s) {
+	 switch (*s) {
+	     case ESC_CHAR:
+		  safe_copy_esccode(s, buff, bufc);
+		  continue;
+	     case '%':
+	     case '\\':
+	     case '[':
+	     case ']':
+		  safe_chr('\\', buff, bufc);
+		  /* FALLTHRU */
+	     default:
+		  safe_chr(*s, buff, bufc);
+	 }
+	 ++s;
+     }
 }
 
 /* ---------------------------------------------------------------------------

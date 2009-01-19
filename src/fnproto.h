@@ -264,6 +264,7 @@ XFUNCTION(fun_edit);
 XFUNCTION(fun_merge);
 XFUNCTION(fun_secure);
 XFUNCTION(fun_escape);
+XFUNCTION(fun_esc);
 XFUNCTION(fun_ansi);
 XFUNCTION(fun_stripansi);
 XFUNCTION(fun_encrypt);
@@ -435,6 +436,7 @@ FUN flist[] = {
 {"ENCRYPT",	fun_encrypt,	2,  0,		CA_PUBLIC,	NULL},
 {"ENTRANCES",	fun_entrances,	0,  FN_VARARGS,	CA_NO_GUEST,	NULL},
 {"EQ",		fun_eq,		2,  0,		CA_PUBLIC,	NULL},
+{"ESC",		fun_esc,	-1, 0,		CA_PUBLIC,	NULL},
 {"ESCAPE",	fun_escape,	-1, 0,		CA_PUBLIC,	NULL},
 {"EXIT",	fun_exit,	1,  0,		CA_PUBLIC,	NULL},
 {"EXP",		fun_exp,	1,  0,		CA_PUBLIC,	NULL},

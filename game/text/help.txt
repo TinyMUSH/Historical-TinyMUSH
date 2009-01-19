@@ -5900,18 +5900,18 @@ See also: @link, @open.
 	ansipos()	art()		beep()		before()
 	border()	capstr()	cat()		cborder()
 	center()	chomp()		comp()		decrypt()
-	delete()	edit()		encrypt()	escape()
-	foreach()	isalnum()	isdbref()	isnum()		
-	isword()	lcstr()		left()		lit()		
-	ljust()		merge()		mid()		nescape()	
-	nsecure()	null()		pos()		rborder()	
-	regedit()	regediti()	regeditall()	regeditalli()	
-	regmatch()	regmatchi()	repeat()	reverse()	
-	right()		rjust()		secure()	scramble()	
-	space()		squish()	strcat()	streq()		
-	stripansi()	strlen()	strmatch()	strtrunc()	
-	translate()	trim()		ucstr()		valid()		
-	wildmatch()	wordpos()	@@()
+	delete()	edit()		encrypt()	esc()
+	escape()	foreach()	isalnum()	isdbref()	
+	isnum()		isword()	lcstr()		left()		
+	lit()		ljust()		merge()		mid()		
+	nescape()	nsecure()	null()		pos()		
+	rborder()	regedit()	regediti()	regeditall()	
+	regeditalli()	regmatch()	regmatchi()	repeat()	
+	reverse()	right()		rjust()		secure()	
+	scramble()	space()		squish()	strcat()	
+	streq()		stripansi()	strlen()	strmatch()	
+	strtrunc()	translate()	trim()		ucstr()		
+	valid()		wildmatch()	wordpos()	@@()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -8744,14 +8744,16 @@ performed and the walk down the list stops.
  
   See also: escape().
 
+& ESC()
 & ESCAPE()
 & NESCAPE()
   Function: escape(<string>)
             nescape(<string>)
+            esc(<string>)
  
-  Returns <string> after adding an escape character (\) at the start of the
-  string and also before each of the characters %;[]{}\ that appear in the
-  string.  This prevents strings entered by players from causing undesired
+  escape() returns <string> after adding an escape character (\) at the start
+  of the string and also before each of the characters %;[]{}\ that appear in
+  the string. This prevents strings entered by players from causing undesired
   side effects when used, such as making your object perform unintended
   commands or give out information to which you have access.  Note that this
   function is only needed when the resulting string is to be passed through
@@ -8767,6 +8769,10 @@ performed and the walk down the list stops.
   produce the expected result because the argument is evaluated BEFORE being
   processed by escape(), therefore the [get()] call has already been
   performed. To avoid prior evaluation of the string, use nescape().
+ 
+  The esc() function is less aggressive; it does not put a \ at the start
+  of the string, and it only escapes %[]\ -- making it more suitable for
+  strings that you simply don't want evaluated.
  
   See also: secure().
 
