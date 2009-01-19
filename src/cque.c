@@ -988,10 +988,10 @@ void NDECL(do_second)
 
 	/* Do the wait queue */
 
-	for (point = mudstate.qwait; point && point->waittime <= mudstate.now;
-	     point = point->next) {
-		mudstate.qwait = point->next;
-		give_que(point);
+	while (mudstate.qwait && mudstate.qwait->waittime <= mudstate.now) {
+	    point = mudstate.qwait;
+	    mudstate.qwait = point->next;
+	    give_que(point);
 	}
 
 	/* Check the semaphore queue for expired timed-waits */
