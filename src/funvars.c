@@ -948,7 +948,7 @@ static int istype_dbref(str)
     if (*str++ != NUMBER_TOKEN)
 	return 0;
     if (*str) {
-	it = parse_dbref(str);
+	it = parse_dbref_only(str);
 	return (Good_obj(it));
     }
     return 0;

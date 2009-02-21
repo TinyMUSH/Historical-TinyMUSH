@@ -173,6 +173,7 @@ XFUNCTION(fun_ps);
 
 /* From funobj.c */
 
+XFUNCTION(fun_objid);
 XFUNCTION(fun_con);
 XFUNCTION(fun_exit);
 XFUNCTION(fun_next);
@@ -242,6 +243,7 @@ XFUNCTION(fun_isword);
 XFUNCTION(fun_isalnum);
 XFUNCTION(fun_isnum);
 XFUNCTION(fun_isdbref);
+XFUNCTION(fun_isobjid);
 XFUNCTION(fun_null);
 XFUNCTION(fun_squish);
 XFUNCTION(fun_trim);
@@ -504,6 +506,7 @@ FUN flist[] = {
 {"ISALNUM",	fun_isalnum,	1,  0,		CA_PUBLIC,	NULL},
 {"ISDBREF",	fun_isdbref,	1,  0,		CA_PUBLIC,	NULL},
 {"ISNUM",	fun_isnum,	1,  0,		CA_PUBLIC,	NULL},
+{"ISOBJID",	fun_isobjid,	1,  0,		CA_PUBLIC,	NULL},
 {"ISWORD",	fun_isword,	1,  0,		CA_PUBLIC,	NULL},
 {"ISORT",	handle_sort,	0,  FN_VARARGS|SORT_POS,	CA_PUBLIC,	NULL},
 {"ITEMIZE",	fun_itemize,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
@@ -613,6 +616,7 @@ FUN flist[] = {
 {"OBJ",		handle_pronoun,	1,  PRONOUN_OBJ, CA_PUBLIC,	NULL},
 {"OBJCALL",     fun_objcall,    0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"OBJEVAL",     fun_objeval,    2,  FN_NO_EVAL, CA_PUBLIC,	NULL},
+{"OBJID",	fun_objid,	1,  0,		CA_PUBLIC,	NULL},
 {"OBJMEM",	fun_objmem,	1,  0,		CA_PUBLIC,	NULL},
 {"OEMIT",	fun_oemit,	2,  0,		CA_PUBLIC,	NULL},
 {"OR",		handle_logic,	0,  FN_VARARGS|LOGIC_OR,

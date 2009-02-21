@@ -68,7 +68,29 @@ FUNCTION(fun_isdbref)
 	p = fargs[0];
 	if (*p++ == NUMBER_TOKEN) {
 	    if (*p) {		/* just the string '#' won't do! */
-		dbitem = parse_dbref(p);
+		dbitem = parse_dbref_only(p);
+		if (Good_obj(dbitem)) {
+			safe_chr('1', buff, bufc);
+			return;
+		}
+	    }
+	}
+	safe_chr('0', buff, bufc);
+}
+
+/* ---------------------------------------------------------------------------
+ * isobjid: is the argument a valid objid?
+ */
+
+FUNCTION(fun_isobjid)
+{
+	char *p;
+	dbref dbitem;
+
+	p = fargs[0];
+	if (*p++ == NUMBER_TOKEN) {
+	    if (*p) {		/* just the string '#' won't do! */
+		dbitem = parse_objid(p, NULL);
 		if (Good_obj(dbitem)) {
 			safe_chr('1', buff, bufc);
 			return;

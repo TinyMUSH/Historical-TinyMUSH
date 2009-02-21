@@ -128,7 +128,7 @@ Continued in 'help Conventions3'.
  
 & Conventions3
  
-<dbref>		The dbref of an object.
+<dbref>		The dbref of an object. Will also often take an objid.
  
 <player>	A player, specified by his full name, alias, or dbref.
 		Often,	for a connected player, a partial name, as long
@@ -547,13 +547,14 @@ HOMES			LINKING			LISTENING
 LISTS			LOCAL REGISTERS		Location
 Locks			LOOPING			Matching
 Modules			MONEY			Moving
-OBJECT TYPES		PARENT OBJECTS		Patchlevel
-PIPING			Propdirs		PUEBLO
-PUPPETS			REGEXPS			ROBBERY	
-Scan Order		SEARCH CLASSES		SEMAPHORES		
-SPOOFING		STACK			SUBSTITUTIONS		
-SUCCESS			SWITCHES		Syntax			
-User Commands		Zone Control		ZONE OBJECTS
+OBJECT TYPES		ObjIDs			PARENT OBJECTS
+Patchlevel		PIPING			Propdirs		
+PUEBLO			PUPPETS			REGEXPS			
+ROBBERY			Scan Order		SEARCH CLASSES		
+SEMAPHORES		SPOOFING		STACK			
+SUBSTITUTIONS		SUCCESS			SWITCHES		
+Syntax			User Commands		Zone Control		
+ZONE OBJECTS
  
 & throw
 & drop
@@ -6181,6 +6182,20 @@ enclosed in a lit().
   isn't @halt'ed will drain your money supply while you are away!
   See also: @halt, @ps.
  
+& ObjIDs
+ 
+Topic: ObjIDs
+ 
+An object ID is a unique identifier, composed of an object's dbref, a colon,
+and its creation time in seconds since the epoch, such as "#3:1235245010".
+Database reference numbers (dbrefs) get re-used when objects are recycled,
+but objIDs are always unique -- only an object with both that dbref and
+that creation time will match the objID.
+ 
+You can use an object ID almost anywhere that you can use a dbref.
+ 
+See also: Matching, objid(), isobjid().
+ 
 & Me
 & Here
 & Matching
@@ -6201,8 +6216,9 @@ In general, though, a match is performed as follows:
  
 - The keyword 'here' is checked. 'here' refers to your current location.
  
-- A check for a dbref, in the form of '#<number>', is performed. The
-  dbref must map to a valid, non-Garbage object.
+- A check for a dbref, in the form of '#<number>', or an object ID, in the
+  form of '#<number>:<number>' (dbref and creation time) is performed. This
+  must map to a valid, non-Garbage object.
  
 Continued in 'help Matching2'.
  
@@ -8071,6 +8087,13 @@ performed and the walk down the list stops.
   Returns the dbref number of the object, which must be in the same 
   room as the object executing num.
   See also: locate().
+ 
+& OBJID()
+  objid(<object>)
+ 
+  Returns the object ID of the object.
+  See also: num(), locate(), ObjIDs.
+
 & CON()
   con(<object>)
  
@@ -11341,7 +11364,23 @@ performed and the walk down the list stops.
      You say, "1"
      > say isdbref(This is not a dbref)
      You say, "0"
-
+ 
+  See also: isobjid().
+ 
+& ISOBJID()
+  Function: isobjid(<string>)
+ 
+  This function will return 1 if the string passed to it is a valid objID.
+  A valid object ID takes the form '<dbref>:<seconds>'. A dbref begins with
+  a '#' and is followed by an integer. Seconds is a long integer, the time
+  that's passed since the epoch.
+ 
+  To be valid, the dbref must exist in the current database as a valid
+  object, and that object's creation time must match the seconds. If 
+  the object fails any either of these criteria, then a 0 is returned.
+  
+  See also: isdbref(), objid(), ObjIDs.
+ 
 & ISNUM()
   Function: isnum(<string>)
  

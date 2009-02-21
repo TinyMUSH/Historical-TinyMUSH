@@ -2596,7 +2596,7 @@ void NDECL(db_make_minimal)
 	s_Link(obj, 0);
 }
 
-dbref parse_dbref(s)
+dbref parse_dbref_only(s)
 const char *s;
 {
 	const char *p;
@@ -2605,8 +2605,66 @@ const char *s;
 	/* Enforce completely numeric dbrefs */
 
 	for (p = s; *p; p++) {
-		if (!isdigit(*p))
-			return NOTHING;
+	    if (!isdigit(*p))
+		return NOTHING;
+	}
+
+	x = atoi(s);
+	return ((x >= 0) ? x : NOTHING);
+}
+
+dbref parse_objid(s, p)
+const char *s, *p;
+{
+     dbref it;
+     time_t tt;
+     const char *r;
+     static char tbuf[LBUF_SIZE];
+
+     /* We're passed two parameters: the start of the string, and the
+      * pointer to where the ':' in the string is. If the latter is NULL,
+      * go find it.
+      */
+
+     if (p == NULL) {
+	 if ((p = strchr(s, ':')) == NULL)
+	     return parse_dbref_only(s);
+     }
+
+     /* ObjID takes the format <dbref>:<timestamp as long int>
+      * If we match the dbref but its creation time doesn't match the
+      * timestamp, we don't have a match.
+      */
+
+     strncpy(tbuf, s, p - s);
+     it = parse_dbref_only(tbuf);
+     if (Good_obj(it)) {
+	 p++;
+	 for (r = p; *r; r++) {
+	     if (!isdigit(*r))
+		 return NOTHING;
+	 }
+	 tt = (time_t) atol(p);
+	 return ((CreateTime(it) == tt) ? it : NOTHING);
+     }
+     return NOTHING;
+}
+
+dbref parse_dbref(s)
+const char *s;
+{
+	const char *p;
+	int x;
+
+	/* Either pure dbrefs or objids are okay */
+
+	for (p = s; *p; p++) {
+	    if (!isdigit(*p)) {
+		if (*p == ':')
+		    return parse_objid(s, p);
+		else
+		    return NOTHING;
+	    }
 	}
 
 	x = atoi(s);

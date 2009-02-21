@@ -33,6 +33,24 @@ extern NAMETAB indiv_attraccess_nametab[];
 (Good_obj(p) && Good_obj(t) && (Controls(p,t) || nearby(p,t)))
 
 /* ---------------------------------------------------------------------------
+ * fun_objid: Returns an object's objectID.
+ */
+
+FUNCTION(fun_objid)
+{
+     dbref it;
+
+     it = match_thing(player, fargs[0]);
+     if (Good_obj(it)) {
+	 safe_dbref(buff, bufc, it);
+	 safe_chr(':', buff, bufc);
+	 safe_ltos(buff, bufc, CreateTime(it));
+     } else {
+	 safe_nothing(buff, bufc);
+     }
+}
+
+/* ---------------------------------------------------------------------------
  * fun_con: Returns first item in contents list of object/room
  */
 

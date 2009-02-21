@@ -307,6 +307,8 @@ extern INLINE long	FDECL(getlong, (FILE *));
 extern BOOLEXP *FDECL(dup_bool, (BOOLEXP *));
 extern void	FDECL(free_boolexp, (BOOLEXP *));
 extern dbref	FDECL(parse_dbref, (const char *));
+extern dbref	FDECL(parse_dbref_only, (const char *));
+extern dbref	FDECL(parse_objid, (const char *, const char *));
 extern int	FDECL(mkattr, (char *));
 extern void	FDECL(al_add, (dbref, int));
 extern void	FDECL(al_delete, (dbref, int));
