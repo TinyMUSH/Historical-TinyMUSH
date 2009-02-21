@@ -1075,7 +1075,7 @@ FUNCTION(fun_hasflags)
 }
 
 /* ---------------------------------------------------------------------------
- * handle_timestamp: Get timestamps (LASTACCESS, LASTMOD).
+ * handle_timestamp: Get timestamps (LASTACCESS, LASTMOD, CREATION).
  */
 
 FUNCTION(handle_timestamp)
@@ -1086,7 +1086,9 @@ FUNCTION(handle_timestamp)
 	safe_known_str("-1", 2, buff, bufc);
     } else {
 	safe_ltos(buff, bufc,
-		  Is_Func(TIMESTAMP_MOD) ? ModTime(it) : AccessTime(it));
+		  Is_Func(TIMESTAMP_MOD) ?
+		  ModTime(it) : 
+ 		  (Is_Func(TIMESTAMP_ACC) ? AccessTime(it) : CreateTime(it)));
     }
 }
 

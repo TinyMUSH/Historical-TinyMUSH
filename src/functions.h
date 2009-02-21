@@ -530,12 +530,16 @@ if ((l) > 0) { \
 #define IFELSE_DEFAULT	0x04	/* only two args, use condition as output */
 #define IFELSE_TOKEN	0x08	/* allow switch-token substitution */
 
+/* from handle_timestamps() */
+#define TIMESTAMP_MOD	0x01	/* lastmod() */
+#define TIMESTAMP_ACC   0X02    /* lastaccess() */
+#define TIMESTAMP_CRE   0x04    /* creation() */
+
 /* Miscellaneous */
 #define LATTR_COUNT	0x01	/* nattr: just return attribute count */
 #define LOCFN_WHERE	0x01 	/* loc: where() vs. loc() */
 #define NAMEFN_FULLNAME 0x01	/* name: fullname() vs. name() */
 #define CHECK_PARENTS	0x01	/* hasattrp: recurse up the parent chain */
-#define TIMESTAMP_MOD	0x01	/* timestamp: lastmod() vs. lastaccess() */
 #define CONNINFO_IDLE	0x01	/* conninfo: idle() vs. conn() */
 
 #endif /* __FUNCTIONS_H */

@@ -1689,6 +1689,8 @@ int fmt, flags, ver;
 		fprintf(mainlog_fp, " Timestamps");
 	if (flags & V_VISUALATTRS)
 		fprintf(mainlog_fp, " VisualAttrs");
+	if (flags & V_CREATETIME)
+    		fprintf(mainlog_fp, " CreateTime");
 	fprintf(mainlog_fp, "\n");
 }
 

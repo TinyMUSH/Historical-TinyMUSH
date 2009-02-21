@@ -662,7 +662,7 @@ int *db_format, *db_version, *db_flags;
 	const char *tstr;
 	int header_gotten, size_gotten, nextattr_gotten;
 	int read_attribs, read_name, read_zone, read_link, read_key, read_parent;
-	int read_extflags, read_3flags, read_money, read_timestamps, read_new_strings;
+	int read_extflags, read_3flags, read_money, read_timestamps, read_createtime, read_new_strings;
 	int read_powers, read_powers_player, read_powers_any;
 	int has_typed_quotas, has_visual_attrs;
 	int deduce_version, deduce_name, deduce_zone, deduce_timestamps;
@@ -691,6 +691,7 @@ int *db_format, *db_version, *db_flags;
 	has_typed_quotas = 0;
 	has_visual_attrs = 0;
 	read_timestamps = 0;
+	read_createtime = 0;
 	read_new_strings = 0;
 	read_powers = 0;
 	read_powers_player = 0;
@@ -753,6 +754,7 @@ int *db_format, *db_version, *db_flags;
 			 has_typed_quotas = (g_version & V_TQUOTAS);
 			 read_timestamps = (g_version & V_TIMESTAMPS);
 			 has_visual_attrs = (g_version & V_VISUALATTRS);
+			 read_createtime = (g_version & V_CREATETIME);
 			 g_flags = g_version & ~V_MASK;
 
 			 deduce_name = 0;
@@ -961,6 +963,13 @@ int *db_format, *db_version, *db_flags;
 			    s_ModTime(i, tmptime);
 			} else {
 			    AccessTime(i) = ModTime(i) = time(NULL);
+			}
+
+			if (read_createtime) {
+			    tmptime = (time_t) getlong(f);
+			    s_CreateTime(i, tmptime);
+			} else {
+			    s_CreateTime(i, AccessTime(i));
 			}
 				
 			/* ATTRIBUTES */
@@ -1195,6 +1204,9 @@ int *n_atrt;
 	if (flags & V_TIMESTAMPS) {
 		putlong(f, AccessTime(i));
 		putlong(f, ModTime(i));
+	}
+	if (flags & V_CREATETIME) {
+	    putlong(f, CreateTime(i));
 	}
 
 	/* write the attribute list */

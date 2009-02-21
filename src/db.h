@@ -105,6 +105,7 @@ struct boolexp {
 #define V_TQUOTAS       0x00100000      /* Typed quotas */
 #define V_TIMESTAMPS	0x00200000	/* Timestamps */
 #define V_VISUALATTRS	0x00400000	/* ODark-to-Visual attr flags */
+#define V_CREATETIME	0x00800000	/* Create time */
 #define V_DBCLEAN	0x80000000	/* Option to clean attr table */
 
 /* special dbref's */
@@ -140,6 +141,7 @@ struct object {
 	POWER 	powers;		/* ALL: Powers on object */
 	POWER	powers2;	/* ALL: even more powers */
 
+        time_t  create_time;    /* ALL: Time created (used in ObjID) */
 	time_t	last_access;	/* ALL: Time last accessed */
 	time_t	last_mod;	/* ALL: Time last modified */
 
@@ -192,6 +194,7 @@ struct dump_object {
 	POWER 	powers;		/* ALL: Powers on object */
 	POWER	powers2;	/* ALL: even more powers */
 
+        time_t  create_time;    /* ALL: Time created (used in ObjID) */
 	time_t	last_access;	/* ALL: Time last accessed */
 	time_t	last_mod;	/* ALL: Time last modified */
 };
@@ -222,6 +225,7 @@ extern NAME *names;
 
 #define AccessTime(t)		db[t].last_access
 #define ModTime(t)		db[t].last_mod
+#define CreateTime(t)           db[t].create_time
 
 #define VarsCount(t)		db[t].vars_count
 #define StackCount(t)		db[t].stack_count
@@ -267,9 +271,13 @@ extern NAME *names;
 				db[t].flags3 |= DIRTY
 #define s_ModTime(t,n)		db[t].last_mod = (n); \
 				db[t].flags3 |= DIRTY
+#define s_CreateTime(t,n)	db[t].create_time = (n); \
+				db[t].flags3 |= DIRTY
 #define s_Accessed(t)		db[t].last_access = mudstate.now; \
 				db[t].flags3 |= DIRTY
 #define s_Modified(t)		db[t].last_mod = mudstate.now; \
+				db[t].flags3 |= DIRTY
+#define s_Created(t)		db[t].create_time = mudstate.now; \
 				db[t].flags3 |= DIRTY
 #define s_Clean(t)		db[t].flags3 = db[t].flags3 & ~DIRTY
 #define s_NameLen(t,n)		db[t].name_length = (n)

@@ -1301,6 +1301,10 @@ char *name;
 		free_lbuf(buf2);
 		mudconf.many_coins[0] = savec;
 
+		buf2 = (char *) ctime(&CreateTime(thing));
+		buf2[strlen(buf2) - 1] = '\0';
+		notify(player, tprintf("Created: %s", buf2));
+
 		buf2 = (char *) ctime(&save_access_time);
 		buf2[strlen(buf2) - 1] = '\0';
 		strcpy(timebuf, buf2);

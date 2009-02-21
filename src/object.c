@@ -456,6 +456,7 @@ char *name;
 	s_Time_Used(obj, obj_time);
 #endif
 
+	s_Created(obj);
 	s_Accessed(obj);
 	s_Modified(obj);
 

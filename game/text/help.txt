@@ -5794,21 +5794,21 @@ See also: @link, @open.
   Topic: Object Functions
  
 	andflags()	children()	con()		conn()
-	controls()	doing()		elock()		elockstr()
-	entrances()	exit()		flags()		findable()	
-	fullname()	hasflag()	hasflags()	haspower()	
-	hastype()	hears()		home()		idle()	
-	inzone()	knows()		lastaccess()	lastcreate()	
-	lastmod()	lcon()		lexits()	lparent()	
-	loc()		locate()	lock()		lwho()		
-	mail()		mailfrom()	money()		moves()		
-	name()		nearby()	next()		num()		
-	objmem()	orflags()	owner()		parent()	
-	pfind()		playmem()	pmatch()	ports()		
-	programmer()	ps()		rloc()		room()
-	search()	sees()		session()	stats()		
-	type()		visible()	where()		writable()	
-	xcon()		zone()		zwho()
+	controls()	creation()	doing()		elock()
+	elockstr()	entrances()	exit()		flags()		
+	findable()	fullname()	hasflag()	hasflags()	
+	haspower()	hastype()	hears()		home()		
+	idle()		inzone()	knows()		lastaccess()	
+	lastcreate()	lastmod()	lcon()		lexits()	
+	lparent()	loc()		locate()	lock()		
+	lwho()		mail()		mailfrom()	money()		
+	moves()		name()		nearby()	next()		
+	num()		objmem()	orflags()	owner()		
+	parent()	pfind()		playmem()	pmatch()	
+	ports()		programmer()	ps()		rloc()		
+	room()		search()	sees()		session()	
+	stats()		type()		visible()	where()		
+	writable()	xcon()		zone()		zwho()
  
 & SIDE-EFFECT FUNCTIONS
   Topic: Side-Effect Functions
@@ -7579,6 +7579,15 @@ performed and the walk down the list stops.
   etc., is not considered modified -- only the object whose owner,
   zone, link, or parent is changing is considered modified.)
   
+& CREATION()
+  Function: creation(<lastmod>)
+ 
+  Returns the time, in seconds, of when <object> was created (or, if
+  this object predates the introduction of creation timestamps, its last
+  access time when the database was upgraded).
+ 
+  You must have permission to examine <object>.
+ 
 & OBJMEM()
   Function: objmem(<object>[/<attribute pattern>])
  
