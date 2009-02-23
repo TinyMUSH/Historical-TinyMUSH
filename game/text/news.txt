@@ -1,6 +1,6 @@
 & help
  
-  Welcome to TinyMUSH 3.1's default news file.
+  Welcome to TinyMUSH 3.2's default news file.
  
   Here is some information which you might find useful:
  

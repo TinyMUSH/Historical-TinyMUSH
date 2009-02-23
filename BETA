@@ -22,6 +22,46 @@ Release history:
     TinyMUSH 3.0 gamma:  Standard "stable" release, 2000/12/01.
     TinyMUSH 3.1 beta 1: Initial beta release, 2002/05/08.
     TinyMUSH 3.1 gamma:  Standard "stable" release, 2004/06/21.
+    TinyMUSH 3.2 beta 1: Initial beta release, 2009/02/23.
+
+=============================================================================
+			TinyMUSH 3.2 Beta History
+=============================================================================
+
+02/23/2009: TinyMUSH 3.2 beta release
+
+  - Feature: All objects have a creation timestamp, accessible via the
+    creation() function. This requires a database upgrade.
+ 
+  - Feature: PennMUSH-style object IDs (objIDs) are supported, using the
+    unique combination of dbref and creation time. Almost anything that
+    can take dbrefs can take an objID. New functions objid() and isobjid().
+    New substitution %: gives objID of the enactor.
+
+  - Enhancement: Queue entries now have a process ID (PID). You can adjust
+    the wait time of something on the wait queue with @wait/pid, or remove
+    an individual queue entry with @halt/pid. @ps now shows PID entries,
+    and information about the queue can be obtained via the ps() function.
+    New param queue_max_size controls the maximum size of the queue.
+ 
+  - Enhancement: @wait/until allows specifying a particular time in 
+    seconds since the epoch.
+
+  - Enhancement: New function ucall() allows selective preservation and
+    restoration of local registers in a u()-style call.
+
+  - Enhancement: New function baseconv() does numeric base conversions.
+
+  - Enhancement: New function esc() is a lighter-weight escape()-like
+    function, intended just for dealing with string substitution.
+
+  - Enhancement: New function isalnum() checks if a string is alphanumeric.
+
+  - Bugfix: Specifying an overly long wait time no longer causes the
+    command to execute immediately. [2.0]
+
+  - Bugfix: When the wait queue is processed, all expired waits are
+    executed (rather than only one such command done per second). [2.0]
 
 =============================================================================
 			TinyMUSH 3.1 Beta History

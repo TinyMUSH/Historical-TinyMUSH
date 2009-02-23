@@ -6429,11 +6429,12 @@ The list of loaded modules can be obtained via the 'version' command.
   action to be executed, or the message to be displayed):
  
     %#      = Enactor's dbref.
+    %:      = Enactor's object ID. Equiv: objid(%#)
     %n, %N  = Enactor's name. Equiv: name(%#)
     %s, %S  = Subjective pronoun: he, she, it, they. Equiv: subj(%#)
     %o, %O  = Objective pronoun: him, her, it, them. Equiv: obj(%#)
     %p, %P  = Possessive pronoun: his, her, its, their. Equiv: poss(%#)
-    %a, %A  = Absolute possessive pronoun: his, hers, its, theirs.
+    %a, %A  = Absolute possessive: his, hers, its, theirs. Equiv: aposs(%#)
     %l      = Dbref of enactor's location. Equiv: loc(%#)
  
   For those substitutions that have either lower-case or upper-case
@@ -14261,20 +14262,13 @@ a Wizard must do a @readcache from within the game.
  
 & Patchlevel
  
-The user-visible changes to TinyMUSH 3.1 (from TinyMUSH 3.0) can be
-found in the following help entries:
- 
-'help 3.1 base'		New/enhanced base server and configuration directives.
-'help 3.1 attrs'	New/enhanced attributes and attribute flags.
-'help 3.1 flags'	New/enhanced flags and powers.
-'help 3.1 commands'	New/enhanced commands.
-'help 3.1 functions'	New/enhanced functions.
+See 'help Patchlevel 3.2' for notes on the 3.2 beta releases.
+  
+See 'help Patchlevel 3.1' for notes on the 3.1 release and patches.
  
 See 'help Patchlevel 3.0' for the TinyMUSH 3.0 new/enhanced features
 and differences from TinyMUSH 2.2 and TinyMUX 1.6.
- 
-See 'help Patchlevel 3.1' for changes since the initial 3.1 release.
- 
+  
 & Patchlevel 3.0
  
 TinyMUSH 3.0 began with the fusion of the TinyMUSH 2.2.5 and TinyMUX 1.6
@@ -15041,6 +15035,19 @@ Continued in 'help 3.0 upgrade mux11'.
 - elements(), filter(), map(), munge(), setunion(), setinter(), setdiff(),
   shuffle(), sort(), sortby(), splice() take output delimiters.
  
+& Patchlevel 3.1
+ 
+The user-visible changes to TinyMUSH 3.1 (from TinyMUSH 3.0) can be
+found in the following help entries:
+ 
+'help 3.1 base'		New/enhanced base server and configuration directives.
+'help 3.1 attrs'	New/enhanced attributes and attribute flags.
+'help 3.1 flags'	New/enhanced flags and powers.
+'help 3.1 commands'	New/enhanced commands.
+'help 3.1 functions'	New/enhanced functions.
+ 
+See 'help 3.1 patches' for changes since the initial 3.1 release.
+ 
 & 3.1 base
  
 - '@list memory' gives a breakdown of the MUSH's memory usage.
@@ -15584,7 +15591,7 @@ Continued in 'help 3.1 functions11'.
   returned #-1 NOT FOUND; for consistency's sake, they now behave like
   everything else.
  
-& Patchlevel 3.1
+& 3.1 patches
  
 Function modifications:
  
@@ -15623,3 +15630,29 @@ Other improvements:
 - The %i0 - %i9 substitutions give you itext(sub(ilev(), <number>)).
 - The %i-0 - %i-9 substitutions give you itext(0) - itext(9).
  
+& Patchlevel 3.2
+ 
+The user-visible changes to TinyMUSH 3.2 (from TinyMUSH 3.1) can be
+found in the following help entries:
+ 
+'help 3.2 base'		New/enhanced base server and configuration directives.
+'help 3.2 attrs'	New/enhanced attributes and attribute flags.
+'help 3.2 flags'	New/enhanced flags and powers.
+'help 3.2 commands'	New/enhanced commands.
+'help 3.2 functions'	New/enhanced functions.
+ 
+& 3.2 commands
+ 
+- Queue entries now have a process ID (PID). New commands @wait/pid and
+  @halt/pid allow the alteration of individual, specific queue entries.
+  @ps now shows PID entries, and there's a new ps() function.
+ 
+- New: @wait/until allows you to wait until a specified time.
+ 
+& 3.2 functions
+ 
+- New: esc() is a lightweight escape() for string substitution.
+ 
+- New: isalnum() checks if a string is alphanumeric.
+
+
