@@ -301,6 +301,7 @@ XFUNCTION(fun_r);
 XFUNCTION(fun_wildmatch);
 XFUNCTION(fun_qvars);
 XFUNCTION(fun_lregs);
+XFUNCTION(fun_ucall);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
 XFUNCTION(fun_store);
@@ -762,6 +763,7 @@ FUN flist[] = {
 {"TRUNC",	fun_trunc,	1,  0,		CA_PUBLIC,	NULL},
 {"TYPE",	fun_type,	1,  0,		CA_PUBLIC,	NULL},
 {"U",		do_ufun,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"UCALL",	fun_ucall,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"UCSTR",	fun_ucstr,	-1, 0,		CA_PUBLIC,	NULL},
 {"UDEFAULT",	fun_udefault,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},

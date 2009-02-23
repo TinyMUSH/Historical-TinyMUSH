@@ -55,6 +55,7 @@ char qidx_chartab[256] =
 	-1,-1,-1,-1,-1,-1,-1,-1,	-1,-1,-1,-1,-1,-1,-1,-1
 };
 
+static const char *qidx_str = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 int set_register(funcname, name, data)
     const char *funcname;
@@ -279,6 +280,48 @@ int set_register(funcname, name, data)
     return len;
 }
 
+static char *get_register(g, r)
+GDATA *g;
+char *r;
+{
+     /* Given a pointer to a register data structure, and the name of a
+      * register, return a pointer to the string value of that register.
+      * This may modify r, turning it lowercase.
+      */
+
+     int regnum;
+     char *p;
+
+     if (!g || !r || !*r)
+	 return NULL;
+
+     if (r[1] == '\0') {
+	 regnum = qidx_chartab[(unsigned char) r[0]];
+	 if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS))
+	     return NULL;
+	 else if ((g->q_alloc > regnum) && g->q_regs[regnum])
+	     return g->q_regs[regnum];
+	 return NULL;
+     }
+
+     if (!g->xr_alloc)
+	 return NULL;
+
+     for (p = r; *p; p++)
+	 *p = tolower(*p);
+
+     for (regnum = 0; regnum < g->xr_alloc; regnum++) {
+	 if (g->x_names[regnum] && !strcmp(r, g->x_names[regnum])) {
+	     if (g->x_regs[regnum]) {
+		 return g->x_regs[regnum];
+	     }
+	     return NULL;
+	 }
+     }
+
+     return NULL;
+}
+
 FUNCTION(fun_setq)
 {
     int result, count, i;
@@ -386,7 +429,6 @@ FUNCTION(fun_lregs)
      int i;
      GDATA *g;
      char *bb_p;
-     const char *qidx_str = "0123456789abcdefghijklmnopqrstuvwxyz";
 
      if (!mudstate.rdata)
 	 return;
@@ -497,6 +539,161 @@ FUNCTION(fun_qvars)
     free_lbuf(elemlist);
     XFREE(qreg_names, "fun_qvars.qreg_names");
     XFREE(elems, "fun_qvars.elems");
+}
+
+/* ---------------------------------------------------------------------------
+ * ucall: Call a u-function, passing through only certain local registers,
+ *        and restoring certain local registers afterwards.
+ *
+ucall(<register names to pass through>,<registers to keep local>,<o/a>,<args>)
+  Registers to pass through to function
+    @_ to pass through all, @_ <list> to pass through all except <list>
+    blank to pass through none, list otherwise
+  Registers whose value should be local (restored to value pre-function call)
+    @_ to restore all, @_ <list> to pass through all except <list>
+    blank to restore none, list otherwise
+ *
+ */
+
+static char is_in_array(word, list, list_length)
+char *word, **list;
+int list_length;
+{
+     int n;
+
+     for (n = 0; n < list_length; n++)
+	 if (!strcasecmp(word, list[n]))
+	     return 1;
+     return 0;
+}
+
+FUNCTION(fun_ucall)
+{
+	dbref aowner, thing;
+	int aflags, alen, anum, trace_flag, i, ncregs;
+	ATTR *ap;
+	char *atext, *str, *callp, *call_list;
+	char **cregs;
+	char cbuf[2];
+	GDATA *preserve;
+
+	/* We need at least three arguments */
+
+	if (nfargs < 3) {
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+		return;
+	}
+
+	/* Save everything to start with, then construct our pass-in */
+
+	preserve = save_global_regs("fun_ucall.save");
+	callp = Eat_Spaces(fargs[0]);
+	if (!*callp) {
+	    mudstate.rdata = NULL;
+	} else if (!strcmp(callp, "@_")) {
+	    /* Pass everything in */
+	    /* EMPTY */
+	} else if (!strncmp(callp, "@_ ", 3) && callp[3]) {
+	    /* Pass in everything EXCEPT the named registers */
+	    call_list = alloc_lbuf("fun_ucall.call_list");
+	    strcpy(call_list, callp + 3);
+	    ncregs = list2arr(&cregs, LBUF_SIZE / 2, call_list, &SPACE_DELIM); 
+	    for (i = 0; i < ncregs; i++) {
+		set_register("fun_ucall", cregs[i], NULL);
+	    }
+	    free_lbuf(call_list);
+	} else {
+	    /* Pass in ONLY the named registers */
+	    mudstate.rdata = NULL;
+	    call_list = alloc_lbuf("fun_ucall.call_list");
+	    strcpy(call_list, callp);
+	    ncregs = list2arr(&cregs, LBUF_SIZE / 2, call_list, &SPACE_DELIM); 
+	    for (i = 0; i < ncregs; i++) {
+		set_register("fun_ucall", cregs[i],
+			     get_register(preserve, cregs[i]));
+			     
+	    }
+	    free_lbuf(call_list);
+	}
+
+	/* Third arg: <obj>/<attr> or <attr> or #lambda/<code> */
+
+	Get_Ulambda(player, thing, fargs[2],
+		    anum, ap, atext, aowner, aflags, alen);
+
+	/* If the trace flag is on this attr, set the object Trace */
+
+	if (!Trace(thing) && (aflags & AF_TRACE)) {
+	     trace_flag = 1;
+	     s_Trace(thing);
+	} else {
+	     trace_flag = 0;
+	}
+	
+	/* Evaluate it using the rest of the passed function args */
+
+	str = atext;
+	exec(buff, bufc, thing, player, cause, EV_FCHECK | EV_EVAL, &str,
+	     &(fargs[3]), nfargs - 3);
+	free_lbuf(atext);
+
+	/* Reset the trace flag if we need to */
+
+	if (trace_flag) {
+	     c_Trace(thing);
+	}
+
+	callp = Eat_Spaces(fargs[1]);
+	if (!*callp) {
+	    /* Restore nothing, so we keep our data as-is. */
+	    /* EMPTY */
+	} else if (!strncmp(callp, "@_", 2) &&
+		   ((callp[2] == '\0') || (callp[2] == ' '))) {
+	    if (callp[2] == '\0') {
+		/* Restore all registers we had before */
+		call_list = NULL;
+	    } else {
+		/* Restore all registers EXCEPT the ones listed.
+		 * We assume that this list is going to be pretty short,
+		 * so we can do a crude, unsorted search.
+		 */
+		call_list = alloc_lbuf("fun_ucall.call_list");
+		strcpy(call_list, callp + 3);
+		ncregs = list2arr(&cregs, LBUF_SIZE / 2, call_list,
+				  &SPACE_DELIM); 
+	    }
+	    for (i = 0; i < preserve->q_alloc; i++) {
+		if (preserve->q_regs[i] && *(preserve->q_regs[i])) {
+		    cbuf[0] = qidx_str[i];
+		    cbuf[1] = '\0';
+		    if (!call_list || !is_in_array(cbuf, cregs, ncregs))
+			set_register("fun_ucall", cbuf, preserve->q_regs[i]);
+		}
+	    }
+	    for (i = 0; i < preserve->xr_alloc; i++) {
+		if (preserve->x_names[i] && *(preserve->x_names[i]) &&
+		    preserve->x_regs[i] && *(preserve->x_regs[i])) {
+		    if (!call_list ||
+			!is_in_array(preserve->x_names[i], cregs, ncregs)) {
+			set_register("fun_ucall", preserve->x_names[i],
+				     preserve->x_regs[i]);
+		    }
+		}
+	    }
+	    if (call_list != NULL)
+		free_lbuf(call_list);
+	} else {
+	    /* Restore ONLY these named registers */
+	    call_list = alloc_lbuf("fun_ucall.call_list");
+	    strcpy(call_list, callp);
+	    ncregs = list2arr(&cregs, LBUF_SIZE / 2, call_list, &SPACE_DELIM); 
+	    for (i = 0; i < ncregs; i++) {
+		set_register("fun_ucall", cregs[i],
+			     get_register(preserve, cregs[i]));
+	    }
+	}
+
+	Free_RegData(preserve);
 }
 
 /* --------------------------------------------------------------------------
