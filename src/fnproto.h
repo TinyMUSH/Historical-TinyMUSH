@@ -92,6 +92,7 @@ XFUNCTION(fun_dec);
 XFUNCTION(fun_sqrt);
 XFUNCTION(fun_exp);
 XFUNCTION(fun_ln);
+XFUNCTION(fun_baseconv);
 XFUNCTION(handle_trig);
 XFUNCTION(fun_gt);
 XFUNCTION(fun_gte);
@@ -371,6 +372,7 @@ FUN flist[] = {
 {"ATAND",	handle_trig,	1,  TRIG_ARC|TRIG_TAN|TRIG_DEG,
 						CA_PUBLIC,	NULL},
 {"BAND",	fun_band,	2,  0,		CA_PUBLIC,	NULL},
+{"BASECONV",	fun_baseconv,	3,  0,		CA_PUBLIC,	NULL},
 {"BEEP",        fun_beep,       0,  0,          CA_WIZARD,	NULL},
 {"BEFORE",	fun_before,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC,	NULL},
