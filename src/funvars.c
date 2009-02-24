@@ -674,6 +674,7 @@ FUNCTION(handle_ucall)
 	    callp = Eat_Spaces(fargs[0]);
 	}
 	if (!*callp) {
+	    Free_RegData(mudstate.rdata);
 	    mudstate.rdata = NULL;
 	} else if (!strcmp(callp, "@_")) {
 	    /* Pass everything in */
@@ -689,6 +690,7 @@ FUNCTION(handle_ucall)
 	    free_lbuf(call_list);
 	} else {
 	    /* Pass in ONLY the named registers */
+	    Free_RegData(mudstate.rdata);
 	    mudstate.rdata = NULL;
 	    call_list = alloc_lbuf("fun_ucall.call_list");
 	    strcpy(call_list, callp);
@@ -817,6 +819,7 @@ FUNCTION(handle_ucall)
 		set_register("fun_ucall", cregs[i],
 			     get_register(preserve, cregs[i]));
 	    }
+	    free_lbuf(call_list);
 	    Free_RegData(preserve);
 	}
 
