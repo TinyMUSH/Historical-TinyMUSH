@@ -1254,6 +1254,7 @@ static void dump_info(call_by)
 {
     DESC *d;
     char *temp;
+    LINKEDLIST *llp;
     int count = 0;
 
     queue_rawstring(call_by, "### Begin INFO 1\r\n");
@@ -1273,6 +1274,12 @@ static void dump_info(call_by)
 
     queue_rawstring(call_by, tprintf("Size: %d\r\n", mudstate.db_top));
     queue_rawstring(call_by, tprintf("Version: %s\r\n", mudstate.short_ver));
+
+    for (llp = mudconf.infotext_list; llp != NULL; llp = llp->next) {
+	queue_rawstring(call_by,
+			tprintf("%s: %s\r\n", llp->name, llp->value)); 
+    }
+
     queue_rawstring(call_by, "### End INFO\r\n");
 }
 

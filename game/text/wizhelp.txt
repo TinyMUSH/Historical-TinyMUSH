@@ -1416,13 +1416,13 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
 & PARAM MISCELLANEOUS
 	flag_name		guest_basename		guest_password
 	guest_prefixes		guest_suffixes		guests_calias
-	guests_channel		log			log_options
-	money_name_plural	money_name_singular	mud_name
-	mud_shortname		port			public_calias
-	public_channel		queue_active_chunk	queue_idle_chunk
-	queue_max_size		site_chars		sql_database
-	sql_host		sql_password		sql_reconnect
-	sql_username
+	guests_channel		info_text		log
+	log_options		money_name_plural	money_name_singular
+	mud_name		mud_shortname		port
+	public_calias		public_channel		queue_active_chunk
+	queue_idle_chunk	queue_max_size		site_chars
+	sql_database		sql_host		sql_password
+	sql_reconnect		sql_username
 
 & PARAM OBJECTS
 	default_home		exit_attr_defaults	exit_flags
@@ -2329,6 +2329,12 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   Config parameter: include <path>.  Default: None
   Reads and processes configuration directives from the named file.
   This directive is only valid during startup.
+
+& info_text
+  Config parameter: info_text <one-word field name> <value>
+ 
+  Adds the <field name> with <value> to the output of the INFO command.
+  If <value> is empty, the field is removed.
 
 & initial_size
   Config parameter: initial_size <number>.  Default: 1000

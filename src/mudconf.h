@@ -27,6 +27,13 @@ struct key_linked_list {
 	struct key_linked_list *next;
 };
 
+typedef struct str_linked_list LINKEDLIST;
+struct str_linked_list {
+       char *name;
+       char *value;
+       struct str_linked_list *next;
+};
+
 typedef struct named_function NAMEDFUNC;
 struct named_function {
 	char *fn_name;
@@ -204,6 +211,7 @@ struct confdata {
 	char	*sql_username;	/* Username for database */
 	char	*sql_password;	/* Password for database */
 	int	sql_reconnect;	/* Auto-reconnect if connection dropped? */
+	LINKEDLIST *infotext_list; /* Linked list of INFO fields and values */
 	int	indent_desc;	/* Newlines before and after descs? */
 	int	name_spaces;	/* allow player names to have spaces */
 	int	site_chars;	/* where to truncate site name */

@@ -123,6 +123,7 @@ void NDECL(cf_init)
 	mudconf.sql_username = XSTRDUP("", "cf_string");
 	mudconf.sql_password = XSTRDUP("", "cf_string");
 	mudconf.sql_reconnect = 0;
+	mudconf.infotext_list = NULL;
 	mudconf.indent_desc = 0;
        	mudconf.name_spaces = 1;
 	mudconf.fork_dump = 0;
@@ -786,6 +787,68 @@ CF_HAND(cf_alias)
 			      alias);
 		return -1;
 	}
+}
+
+/* ---------------------------------------------------------------------------
+ * cf_infotext: Add an arbitrary field to INFO output.
+ */
+
+CF_HAND(cf_infotext)
+{
+     char *fname, *fvalue, *tokst;
+     LINKEDLIST *itp, *prev;
+
+     fname = strtok_r(str, " \t=,", &tokst);
+
+     if (tokst) {
+	 for (fvalue = tokst;
+	      *fvalue && ((*fvalue == ' ') || (*fvalue == '\t'));
+	      fvalue++) {
+	     /* EMPTY */
+	 }
+     } else {
+	 fvalue = NULL;
+     }
+
+     if (!fvalue || !*fvalue) {
+	 for (itp = mudconf.infotext_list, prev = NULL;
+	      itp != NULL;
+	      itp = itp->next) {
+	     if (!strcasecmp(fname, itp->name)) {
+		 XFREE(itp->name, "infotext.name");
+		 XFREE(itp->value, "infotext.value");
+		 if (prev) {
+		     prev->next = itp->next;
+		 } else {
+		     mudconf.infotext_list = itp->next;
+		 }
+		 XFREE(itp, "infotext.struct");
+		 return 1;
+	     } else {
+		 prev = itp;
+	     }
+	 }
+	 return 1;
+     }
+
+     /* Otherwise we're setting. Replace if we had a previous value. */
+
+     for (itp = mudconf.infotext_list; itp != NULL; itp = itp->next) {
+	 if (!strcasecmp(fname, itp->name)) {
+	     XFREE(itp->value, "infotext.value");
+	     itp->value = XSTRDUP(fvalue, "infotext.value");
+	     return 1;
+	 }
+     }
+
+     /* No previous value. Add a node. */
+
+     itp = (LINKEDLIST *) XMALLOC(sizeof(LINKEDLIST), "infotext.struct");
+     itp->name = XSTRDUP(fname, "infotext.name");
+     itp->value = XSTRDUP(fvalue, "infotext.value");
+     itp->next = mudconf.infotext_list;
+     mudconf.infotext_list = itp;
+     return 1;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1702,6 +1765,7 @@ CONF conftable[] = {
 {(char *)"idle_timeout",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.idle_timeout,		0},
 {(char *)"include",			cf_include,	CA_STATIC,	CA_DISABLED,	NULL,				0},
 {(char *)"indent_desc",			cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.indent_desc,		(long)"Descriptions are indented"},
+{(char *)"info_text",			cf_infotext,	CA_GOD,		CA_DISABLED,	NULL,				0},
 {(char *)"initial_size",		cf_int,		CA_STATIC,	CA_WIZARD,	&mudconf.init_size,		0},
 {(char *)"instance_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.instance_lim,		0},
 {(char *)"instant_recycle",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.instant_recycle,	(long)"@destroy instantly recycles objects set DESTROY_OK"},
