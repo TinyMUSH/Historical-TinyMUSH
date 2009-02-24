@@ -5887,13 +5887,13 @@ See also: @link, @open.
 	connrecord()	convsecs()	convtime()	die()		
 	fcount()	fdepth()	hasmodule()	helptext()	
 	ifelse()	iffalse()	iftrue()	ifzero()
-	localize()	lregs()		mudname()	nonzero()
-	oemit()		pemit()		private()	r()		
-	rand()		remit()		restarts()	restarttime()	
-	s()		secs()		setq()		setr()		
-	speak()		sql()		starttime()	subeval()	
-	switch()	switchall()	time()		timefmt()	
-	usefalse()	usetrue()	version()
+	localize()	lregs()		mudname()	nofx()
+	nonzero()	oemit()		pemit()		private()	
+	r()		rand()		remit()		restarts()	
+	restarttime()	s()		secs()		setq()		
+	setr()		speak()		sql()		starttime()	
+	subeval()	switch()	switchall()	time()		
+	timefmt()	usefalse()	usetrue()	version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -10112,6 +10112,27 @@ performed and the walk down the list stops.
  
   See also:  uprivate(), localize(), objeval().
   
+& NOFX()
+  Function: nofx(<exclusions list>,<expression>)
+ 
+  This function evaluates <expression>, denying the execution of the types of
+  functions on the exclusion list. <exclusions list> is not evaluated. The
+  exclusion types (which can be arbitrarily combined) are as follows:
+ 
+  D: Excludes functions that modify the database, such as create().
+  Q: Excludes functions that queue commands, such as trigger().
+  O: Excludes functions that have output side-effects, such as pemit().
+  V: Excludes structure and variable functions. %_<var> will return nothing.
+  S: Excludes stack functions.
+ 
+  Excluded functions will return #-1 PERMISSION DENIED. This is a useful
+  way of temporarily securing an evaluation from side-effects. (If you
+  need local registers preserved, use localize() or private() for that.)
+ 
+  Example:
+    > think nofx(d o, [setr(0,create(Test,10))] [pemit(%#,%q0)])
+    #-1 PERMISSION DENIED #-1 PERMISSION DENIED
+ 
 & SPACE()
   Function: space(<count>)
  

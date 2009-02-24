@@ -490,6 +490,12 @@ extern int	FDECL(register_match, (char *, char *, char *[], int));
 #define	FN_PRIV		0x20000000	/* Perform ufun as holding obj */
 #define FN_PRES		0x10000000	/* Preserve r-regs before ufun */
 #define FN_NOREGS	0x08000000	/* Private r-regs for ufun */
+#define FN_DBFX         0x04000000      /* DB-affecting side effects */
+#define FN_QFX          0x02000000      /* Queue-affecting side effects */
+#define FN_OUTFX        0x01000000      /* Output-affecting side effects */
+#define FN_STACKFX      0x00800000	/* All stack functions */
+#define FN_VARFX	0x00400000	/* All xvars functions */
+
 /* Lower flag values are used for function-specific switches */
 
 /* Message forwarding directives */

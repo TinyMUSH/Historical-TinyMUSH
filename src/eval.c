@@ -789,7 +789,8 @@ char *cargs[];
 				    }
 				}
 				*xtp = '\0';
-				if ((xvar = (VARENT *) hashfind(xtbuf,
+				if (!(mudstate.f_limitmask & FN_VARFX) &&
+				    (xvar = (VARENT *) hashfind(xtbuf,
 						       &mudstate.vars_htab))) {
 				    safe_str(xvar->text, buff, bufc);
 				}
@@ -1184,6 +1185,8 @@ char *cargs[];
 					 */
 					safe_str("#-1 BAD INVOKER", buff, bufc);
 				} else if (!Check_Func_Access(player, fp)) {
+					safe_noperm(buff, bufc);
+				} else if (mudstate.f_limitmask & fp->flags) {
 					safe_noperm(buff, bufc);
 				} else {
 					fargs[-1] = (char *)fp;

@@ -818,10 +818,11 @@ char *command, *args[];
 
 	s_Accessed(player);
 
-	/* Reset recursion limits. Baseline the CPU counter. */
+	/* Reset recursion and other limits. Baseline the CPU counter. */
 
 	mudstate.func_nest_lev = 0;
 	mudstate.func_invk_ctr = 0;
+	mudstate.f_limitmask = 0;
 	mudstate.ntfy_nest_lev = 0;
 	mudstate.lock_nest_lev = 0;
 	if (mudconf.func_cpu_lim > 0)

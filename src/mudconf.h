@@ -540,6 +540,7 @@ struct statedata {
 	GDATA	*rdata;		/* Global register data */
 	int	zone_nest_num;  /* Global current zone nest position */
 	int	break_called;	/* Boolean flag for @break and @assert */
+	int	f_limitmask;	/* Flagword for limiter for functions */
 	int	inpipe;		/* Boolean flag for command piping */
 	char	*pout;		/* The output of the pipe used in %| */
 	char	*poutnew;	/* The output being build by the current command */
