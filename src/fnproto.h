@@ -302,7 +302,7 @@ XFUNCTION(fun_r);
 XFUNCTION(fun_wildmatch);
 XFUNCTION(fun_qvars);
 XFUNCTION(fun_lregs);
-XFUNCTION(fun_ucall);
+XFUNCTION(handle_ucall);
 XFUNCTION(fun_x);
 XFUNCTION(fun_setx);
 XFUNCTION(fun_store);
@@ -699,6 +699,8 @@ FUN flist[] = {
 {"RTABLES",	process_tables,	0,  FN_VARARGS|JUST_RIGHT,
 						CA_PUBLIC,	NULL},
 {"S",		fun_s,		-1, 0,		CA_PUBLIC,	NULL},
+{"SANDBOX",	handle_ucall,	0,  FN_VARARGS|UCALL_SANDBOX,
+						CA_PUBLIC,	NULL},
 {"SCRAMBLE",	fun_scramble,	1,  0,		CA_PUBLIC,	NULL},
 {"SEARCH",	fun_search,	-1, 0,		CA_PUBLIC,	NULL},
 {"SECS",	fun_secs,	0,  0,		CA_PUBLIC,	NULL},
@@ -765,7 +767,7 @@ FUN flist[] = {
 {"TRUNC",	fun_trunc,	1,  0,		CA_PUBLIC,	NULL},
 {"TYPE",	fun_type,	1,  0,		CA_PUBLIC,	NULL},
 {"U",		do_ufun,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
-{"UCALL",	fun_ucall,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"UCALL",	handle_ucall,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"UCSTR",	fun_ucstr,	-1, 0,		CA_PUBLIC,	NULL},
 {"UDEFAULT",	fun_udefault,	0,  FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},

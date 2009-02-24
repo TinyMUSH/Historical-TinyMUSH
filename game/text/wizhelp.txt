@@ -1461,8 +1461,9 @@ fascist_teleport	global_aconn_uselocks	have_zones
 hostnames		idle_wiz_dark		lattr_default_oldstyle	
 local_master_rooms	local_master_parents	look_obey_terse
 match_own_commands	move_match_more		no_ambiguous_match	
-page_requires_equals	paranoid_allocate	pemit_any_object	
-pemit_far_players	player_listen		player_match_own_commands
+objeval_requires_control			page_requires_equals
+paranoid_allocate	pemit_any_object	pemit_far_players
+player_listen		player_match_own_commands
 player_name_spaces	public_flags		quiet_look
 quiet_whisper		quotas			read_remote_desc
 read_remote_name	recycling		require_cmds_flag
@@ -2650,6 +2651,13 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   any given time.
  
   See also: guest_char_num, guest_nuker, guests_channel, guest_basename.
+
+& objeval_requires_control
+  Config parameter: objeval_requires_control <yes/no>.  Default: No
+
+  Normally, a thing can use objeval() and similar functions on a victim
+  if they share an owner or the thing has Wizard privileges. If this
+  parameter is set to yes, the thing must control the victim.
 
 & open_cost
   Config parameter: open_cost <amount>.  Default: 1

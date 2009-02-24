@@ -541,18 +541,80 @@ FUNCTION(fun_qvars)
     XFREE(elems, "fun_qvars.elems");
 }
 
+/*---------------------------------------------------------------------------
+ * fun_nofx: Prevent certain types of side-effects.
+ */
+
+static int calc_limitmask(lstr)
+char *lstr;
+{
+     char *p;
+     int lmask = 0;
+
+     for (p = lstr; *p; p++) {
+	 switch (*p) {
+	     case 'd': case 'D':
+		  lmask |= FN_DBFX;
+		  break;
+	     case 'q': case 'Q':
+		  lmask |= FN_QFX;
+		  break;
+	     case 'o': case 'O':
+		  lmask |= FN_OUTFX;
+		  break;
+	     case 'v': case 'V':
+		  lmask |= FN_VARFX;
+		  break;
+	     case 's': case 'S':
+		  lmask |= FN_STACKFX;
+		  break;
+	     case ' ':
+		  /* ignore spaces */
+		  /* EMPTY */
+		  break;
+	     default:
+		  return -1;
+	 }
+     }
+     return lmask;
+}
+
+FUNCTION(fun_nofx)
+{
+     int save_state, lmask;
+     char *str;
+
+     lmask = calc_limitmask(fargs[0]);
+     if (lmask == -1) {
+	 safe_known_str("#-1 INVALID LIMIT", 17, buff, bufc);
+	 return;
+     }
+
+     save_state = mudstate.f_limitmask;
+     mudstate.f_limitmask |= lmask;
+
+     str = fargs[1];
+     exec(buff, bufc, player, caller, cause,
+	  EV_FCHECK | EV_STRIP | EV_EVAL, &str, cargs, ncargs);
+
+     mudstate.f_limitmask = save_state;
+}
+
 /* ---------------------------------------------------------------------------
  * ucall: Call a u-function, passing through only certain local registers,
  *        and restoring certain local registers afterwards.
  *
-ucall(<register names to pass through>,<registers to keep local>,<o/a>,<args>)
-  Registers to pass through to function
-    @_ to pass through all, @_ <list> to pass through all except <list>
-    blank to pass through none, list otherwise
-  Registers whose value should be local (restored to value pre-function call)
-    @_ to restore all, @_ <list> to pass through all except <list>
-    blank to restore none, list otherwise
+ * ucall(<register names to pass thru>,<registers to keep local>,<o/a>,<args>)
+ * sandbox(<object>,<limiter>,<reg pass>,<reg keep>,<o/a>,<args>)
  *
+ * Registers to pass through to function
+ *   @_ to pass through all, @_ <list> to pass through all except <list>
+ *   blank to pass through none, <list> to pass through just those
+ * Registers whose value should be local (restored to value pre-function call)
+ *   @_ to restore all, @_ <list> to restore all except <list>
+ *   blank to restore none, <list> to keep just those on the list
+ *   @_! to return to original values (like a uprivate() would)
+ *   @_! <list> to return to original values, keeping new values on <list>
  */
 
 static char is_in_array(word, list, list_length)
@@ -567,27 +629,50 @@ int list_length;
      return 0;
 }
 
-FUNCTION(fun_ucall)
+FUNCTION(handle_ucall)
 {
-	dbref aowner, thing;
+        dbref aowner, thing, obj;
 	int aflags, alen, anum, trace_flag, i, ncregs;
+	int is_sandbox, lmask, save_state;
 	ATTR *ap;
 	char *atext, *str, *callp, *call_list;
 	char **cregs;
 	char cbuf[2];
-	GDATA *preserve;
+	GDATA *preserve, *tmp;
 
-	/* We need at least three arguments */
+	is_sandbox = Is_Func(UCALL_SANDBOX);
+
+	/* Three arguments to ucall(), five to sandbox() */
 
 	if (nfargs < 3) {
 		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
 		return;
 	}
+	if (is_sandbox && (nfargs < 5)) {
+		safe_known_str("#-1 TOO FEW ARGUMENTS", 21, buff, bufc);
+		return;
+	}
+
+	/* Figure our our limits */
+
+	if (is_sandbox) {
+	    lmask = calc_limitmask(fargs[1]);
+	    if (lmask == -1) {
+		safe_known_str("#-1 INVALID LIMIT", 17, buff, bufc);
+		return;
+	    }
+	    save_state = mudstate.f_limitmask;
+	    mudstate.f_limitmask |= lmask;
+	}
 
 	/* Save everything to start with, then construct our pass-in */
 
 	preserve = save_global_regs("fun_ucall.save");
-	callp = Eat_Spaces(fargs[0]);
+	if (is_sandbox) {
+	    callp = Eat_Spaces(fargs[2]);
+	} else {
+	    callp = Eat_Spaces(fargs[0]);
+	}
 	if (!*callp) {
 	    mudstate.rdata = NULL;
 	} else if (!strcmp(callp, "@_")) {
@@ -611,21 +696,30 @@ FUNCTION(fun_ucall)
 	    for (i = 0; i < ncregs; i++) {
 		set_register("fun_ucall", cregs[i],
 			     get_register(preserve, cregs[i]));
-			     
 	    }
 	    free_lbuf(call_list);
 	}
 
-	/* Third arg: <obj>/<attr> or <attr> or #lambda/<code> */
+	/* What to call: <obj>/<attr> or <attr> or #lambda/<code> */
 
-	Get_Ulambda(player, thing, fargs[2],
+	Get_Ulambda(player, thing, (is_sandbox) ? fargs[4] : fargs[2],
 		    anum, ap, atext, aowner, aflags, alen);
+
+	/* Find our perspective */
+
+	if (is_sandbox) {
+	    obj = match_thing(player, fargs[0]);
+	    if (Cannot_Objeval(player, obj))
+		obj = player;
+	} else {
+	    obj = thing;
+	}
 
 	/* If the trace flag is on this attr, set the object Trace */
 
-	if (!Trace(thing) && (aflags & AF_TRACE)) {
+	if (!Trace(obj) && (aflags & AF_TRACE)) {
 	     trace_flag = 1;
-	     s_Trace(thing);
+	     s_Trace(obj);
 	} else {
 	     trace_flag = 0;
 	}
@@ -633,20 +727,51 @@ FUNCTION(fun_ucall)
 	/* Evaluate it using the rest of the passed function args */
 
 	str = atext;
-	exec(buff, bufc, thing, player, cause, EV_FCHECK | EV_EVAL, &str,
-	     &(fargs[3]), nfargs - 3);
+	exec(buff, bufc, obj, player, cause, EV_FCHECK | EV_EVAL, &str,
+	     (is_sandbox) ? &(fargs[5]) : &(fargs[3]),
+	     nfargs - ((is_sandbox) ? 5 : 3));
 	free_lbuf(atext);
 
 	/* Reset the trace flag if we need to */
 
 	if (trace_flag) {
-	     c_Trace(thing);
+	     c_Trace(obj);
 	}
 
-	callp = Eat_Spaces(fargs[1]);
+	/* Restore / clean registers */
+
+	if (is_sandbox) {
+	    callp = Eat_Spaces(fargs[3]);
+	} else {
+	    callp = Eat_Spaces(fargs[1]);
+	}
 	if (!*callp) {
 	    /* Restore nothing, so we keep our data as-is. */
-	    /* EMPTY */
+	    Free_RegData(preserve);
+	} else if (!strncmp(callp, "@_!", 3) &&
+		   ((callp[3] == '\0') || (callp[3] == ' '))) {
+	    if (callp[3] == '\0') {
+		/* Clear out all data */
+		restore_global_regs("fun_ucall.restore", preserve);
+	    } else {
+		/* Go back to the original registers, but ADD BACK IN
+		 * the new values of the registers on the list.
+		 */
+		tmp = preserve;
+		preserve = mudstate.rdata; /* preserve is now the new vals */
+		mudstate.rdata = tmp;	   /* this is now the original vals */
+
+		call_list = alloc_lbuf("fun_ucall.call_list");
+		strcpy(call_list, callp + 4);
+		ncregs = list2arr(&cregs, LBUF_SIZE / 2, call_list,
+				  &SPACE_DELIM); 
+		for (i = 0; i < ncregs; i++) {
+		    set_register("fun_ucall", cregs[i],
+				 get_register(preserve, cregs[i]));
+		}
+		free_lbuf(call_list);
+		Free_RegData(preserve);
+	    }
 	} else if (!strncmp(callp, "@_", 2) &&
 		   ((callp[2] == '\0') || (callp[2] == ' '))) {
 	    if (callp[2] == '\0') {
@@ -682,6 +807,7 @@ FUNCTION(fun_ucall)
 	    }
 	    if (call_list != NULL)
 		free_lbuf(call_list);
+	    Free_RegData(preserve);
 	} else {
 	    /* Restore ONLY these named registers */
 	    call_list = alloc_lbuf("fun_ucall.call_list");
@@ -691,9 +817,11 @@ FUNCTION(fun_ucall)
 		set_register("fun_ucall", cregs[i],
 			     get_register(preserve, cregs[i]));
 	    }
+	    Free_RegData(preserve);
 	}
 
-	Free_RegData(preserve);
+	if (is_sandbox)
+	    mudstate.f_limitmask = save_state;
 }
 
 /* --------------------------------------------------------------------------

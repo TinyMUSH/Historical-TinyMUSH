@@ -5608,8 +5608,8 @@ normally equal to the enactor, except when a function defined by
 @function is called, or the following functions are called:
  
 	edefault()	get_eval()	objcall()	objeval()
-	u()		ucall()		udefault()	ulocal()
-	uprivate()
+	sandbox()	u()		ucall()		udefault()	
+	ulocal()	uprivate()
  
 These functions set the caller to be the object that is invoking
 that particular function.
@@ -9722,32 +9722,25 @@ performed and the walk down the list stops.
  
   Similar to u(), this function evaluates an atribute, passing in arguments
   and returning the result. However, it allows you to limit what local
-  registers are visible to the user function being called, and selectively
-  restore the original values of those local registers, after the evaluation.
+  registers are visible to the user function being called, and, after
+  the evaluation, selectively restore the original values of those local
+  registers and selectively keep the values of any new registers added
+  during the evaluation.
  
-  If <registers to pass> is blank, no local registers are passed (i.e.,
-  are visible to the u-function being called), similar to the way uprivate()
-  passes no registers. If it is "@_", all local registers are passed, just
-  like a normal u(). If it is "@_ <list>", all registers EXCEPT <list> are
-  passed. If it is just a <list>, ONLY those registers are passed.
+  See 'help UCALL PARAMS' for the syntax for <registers to pass> and 
+  <registers to restore>.
  
-  If <registers to restore> is blank, then the local registers are left as-is
-  after the evaluation, just like a normal u(). If it is "@_", all registers 
-  that were set before the evaluation, are returned to their pre-evaluation 
-  values. If it is "@_ <list>", all registers set before, EXCEPT <list>, are
-  restored to their old values. If it is just <list>, ONLY those registers
-  are restored (and if you provide a register that had no value initially,
-  you will "restore" it to being blank). In all of these cases, it doesn't
-  remove any NEW registers set by the evaluation, unlike ulocal().
+  ucall(@_, , [...]) is equivalent to u().
+  ucall(@_,@_!, [...]) is equivalent to ulocal().
+  ucall( ,@_!, [...]) is equivalent to uprivate().
  
-  Continued in 'help UCALL2'.
+  See 'help UCALL2' for examples.
  
 & UCALL2
  
   Examples:
     > @va me = [ifelse(r(pass),pass,no-pass)][setq(0,new)][setq(call,called)]
     Set.
-
     > think [setq(pass,yes)][setq(0,old)][ucall( , ,VA)] 0:%q0 %q<call>
     no-pass 0:new called
     > think [setq(pass,yes,0,old)][ucall( ,@_,VA)] 0:%q0 %q<call>
@@ -9756,7 +9749,6 @@ performed and the walk down the list stops.
     pass 0:new called
     > think [setq(pass,yes)][setq(0,old)][ucall(@_,@_,VA)] 0:%q0 %q<call>
     pass 0:old called
-
     > think [setq(pass,yes,0,old)][ucall(@_ pass, ,VA)] 0:%q0 %q<call>
     no-pass 0:new called
     > think [setq(pass,yes,0,old)][ucall(@_,call,VA)] 0:%q0 %q<call>
@@ -9765,23 +9757,76 @@ performed and the walk down the list stops.
     pass 0:old called
     > think [setq(pass,yes,0,old)][ucall(0, ,VA)] 0:%q0 %q<call>
     no-pass 0:new called
+    > think [setq(pass,yes,0,old)][ucall(@_,@_!,VA)] 0:%q0 %q<call>
+    pass 0:old
+    > think [setq(pass,yes,0,old)][ucall(@_,@_! call,VA)] 0:%q0 %q<call>
+    pass 0:old called
  
-  See also: u(), ulocal(), uprivate(), LOCAL REGISTERS.
+  See also: sandbox(), u(), ulocal(), uprivate(), LOCAL REGISTERS.
   
+& UCALL PARAMS
+ 
+  This is the register list syntax for ucall() and sandbox().
+ 
+  Possible values for <registers to pass>:
+    (null)        If blank, no local registers are passed (i.e., are visible
+                  to the u-function being called), similar to uprivate().
+    @_            All local registers are passed, just like a normal u().
+    @_ <list>     Pass all registers EXCEPT those named on <list>.
+    <list>        Pass ONLY the registers on <list>.
+ 
+  Possible values for <registers to restore>:
+    (null)        If blank, local registers are left as-is after evaluation,
+                  just like a normal u().
+    @_            All registers that were set before the evaluation are 
+                  returned to their pre-evaluation values.
+    @_ <list>     All registers that were set before the evaluation, EXCEPT
+                  for those on <list>, are returned to pre-evaluation values.
+    <list>        Restore ONLY registers on <list> to pre-evalution values.
+    @_!           Clear registers, restoring originals, similar to ulocal().
+    @_! <list>    Clear registers, restoring originals, then add in the 
+                  post-evaluation values of the registers on <list>.
+ 
+  See also: u(), ulocal(), uprivate().
+ 
 & OBJCALL()
   Function: objcall(<victim>, [<obj>/]<attr> [,<arg1>, ..., <argN>])
  
   This function evaluates <attribute> on <object>, passing in arguments
   on the stack, from the viewpoint of <victim>. The <attribute> is
   read using your permissions, and <obj>, if not specified, defaults
-  to you, NOT <victim>. You must own <object> or have Wizard powers;
-  if you do not, the function defaults to evaluating from your viewpoint. 
+  to you, NOT <victim>. You must own <victim> or have Wizard powers (unless
+  the config param objeval_requires_control is turned on, in which case
+  you must control <victim>); if you don't pass this permissions check,
+  the function defaults to evaluating from your viewpoint. 
  
   This is useful when you want an object to execute a u-function, using
   its own privileges, but you do not want to make the text of the
   u-function visible to the object.
  
-  See also: u(), objeval()
+  See also: u(), objeval(), sandbox().
+ 
+& SANDBOX()
+  Function: sandbox(<victim>, <exclusions list>,
+                    <registers to pass>,<registers to restore>,
+                    [<obj>/]<attr> [,<arg1>, ..., <argN>])
+ 
+  Like objcall(), this evaluates <attribute> on <object> in u()-function
+  style, from the viewpoint of <victim>. (If you want u()-like behavior,
+  <victim> should be <obj>, or if <attr> is local, "me".) For more
+  information on the evaluation itself, see 'help objcall()'.
+ 
+  However, this function provides two additional bits of functionality.
+ 
+  First, the <exclusions list> lets you limit side-effect functions;
+  see 'help nofx()' for the possible exclusions.
+ 
+  Second, the <registers to pass> and <registers to restore> let you limit
+  what local registers are passed to the function, and what local register
+  values are after evaluation, similar to ucall(). See 'help UCALL PARAMS'
+  for the syntax for the register lists.
+ 
+  See also: ucall(), nofx(), u(), ulocal(), uprivate(), LOCAL REGISTERS.
  
 & SPEAK()
   Function: speak(<speaker>, <string>[, <say string>
@@ -10113,7 +10158,7 @@ performed and the walk down the list stops.
   See also:  uprivate(), localize(), objeval().
   
 & NOFX()
-  Function: nofx(<exclusions list>,<expression>)
+  Function: nofx(<exclusions list>, <expression>)
  
   This function evaluates <expression>, denying the execution of the types of
   functions on the exclusion list. <exclusions list> is not evaluated. The

@@ -541,5 +541,6 @@ if ((l) > 0) { \
 #define NAMEFN_FULLNAME 0x01	/* name: fullname() vs. name() */
 #define CHECK_PARENTS	0x01	/* hasattrp: recurse up the parent chain */
 #define CONNINFO_IDLE	0x01	/* conninfo: idle() vs. conn() */
+#define UCALL_SANDBOX	0x01	/* ucall: sandbox() vs. ucall() */
 
 #endif /* __FUNCTIONS_H */
