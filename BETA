@@ -27,6 +27,15 @@ Release history:
 =============================================================================
 			TinyMUSH 3.2 Beta History
 =============================================================================
+  - Misc: Updated autoconf to version 2.62.
+
+  - Misc: Updated Libtool to version 1.5.26.
+
+  - Misc: Updated SHTool to version 2.0.8.
+
+  - Misc: Updated gdbm to version 1.8.3.
+
+  - Fix: Fixed gdbm tools to work with gdbm 1.8.3.
 
 02/23/2009: TinyMUSH 3.2 beta release
 

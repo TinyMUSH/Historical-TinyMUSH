@@ -1,4 +1,4 @@
-# Makefile for TinyMUSH 3.1
+# Makefile for TinyMUSH 3.2
 #
 all: install
 # ===================== CONFIGURATION SECTION ====================
@@ -261,7 +261,8 @@ distclean: realclean
 	@./shtool echo -e "Cleaning %B@PACKAGE_NAME@%b."
 	@echo
 	curdir=`pwd`
-	-cd gdbm-1.8.0 && $(MAKE) distclean
+	@./shtool echo -e "Cleaning %BTinyGDBM-1.8.3%b."
+	-cd gdbm-1.8.3 && $(MAKE) distclean
 	cd $$curdir
 	-rm -f libtool config.log config.cache config.status autoconf.h
 	-rm -f depend build install install-modules

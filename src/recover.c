@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gdbm-1.8.0/gdbmdefs.h"
+#include "gdbm-1.8.3/gdbmdefs.h"
 
 static gdbm_file_info *dbp = NULL;
 

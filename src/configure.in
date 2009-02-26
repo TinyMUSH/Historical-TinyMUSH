@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
-AC_INIT(TinyMush, 3.1, tinymush-bugs@lists.sourceforge.net)
+AC_PREREQ(2.62)
+AC_INIT(TinyMush, 3.2, tinymush-bugs@lists.sourceforge.net)
 AC_CONFIG_SRCDIR([alloc.c])
 AC_CONFIG_HEADER([autoconf.h])
 
@@ -782,7 +782,7 @@ AC_DEFUN([BUILD_GDBM], [
 
   PRETTY_PRINT([configure], [TinyGDBM library not found, building it.], 1)
   
-  cd gdbm-1.8.0/
+  cd gdbm-1.8.3/
   make distclean
   ./configure --disable-shared --enable-static
   make
@@ -790,18 +790,18 @@ AC_DEFUN([BUILD_GDBM], [
 
   PRETTY_PRINT([configure], [TinyGDBM build done], 1)
 
-  LIBS="-L./gdbm-1.8.0/.libs -ltinygdbm $LIBS"
-  LIBSINC="-I./gdbm-1.8.0"
+  LIBS="-L./gdbm-1.8.3/.libs -ltinygdbm $LIBS"
+  LIBSINC="-I./gdbm-1.8.3"
 
   ])
 
 
 SAVELDFLAGS="$LDFLAGS"
 
-  LDFLAGS="-L./gdbm-1.8.0/.libs $SAVELDFLAGS"
+  LDFLAGS="-L./gdbm-1.8.3/.libs $SAVELDFLAGS"
   AC_CHECK_LIB(tinygdbm, main,
-  LIBS="-L./gdbm-1.8.0/.libs -ltinygdbm $LIBS",
-  LIBSINC="-I./gdbm-1.8.0"
+  LIBS="-L./gdbm-1.8.3/.libs -ltinygdbm $LIBS",
+  LIBSINC="-I./gdbm-1.8.3"
   [BUILD_GDBM], )
 
 AC_SUBST(LIBSINC)
