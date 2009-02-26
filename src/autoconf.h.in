@@ -1,379 +1,561 @@
-/* autoconf.h.in.  Generated from configure.in by autoheader.  */
+/* autoconf.h.in -- System-dependent configuration information */
+/* $Id$ */
 
-/* XXX */
-#undef BROKEN_GCC_PADDING
+#include "copyright.h"
 
-/* XXX */
-#undef EXTENDED_SOCKET_DCLS
+#ifndef __AUTOCONF_H
+#define __AUTOCONF_H
 
-/* XXX */
-#undef EXTENDED_STDIO_DCLS
+/* ---------------------------------------------------------------------------
+ * Configuration section:
+ *
+ * These defines are written by the configure script (--help for options).
+ * Please use the configure script to change them, so that your choices
+ * will be reflected in @version.
+ */
 
-/* XXX */
+/* Define if we should run memory-based (no dbm hashfile) */
+#undef MEMORY_BASED
+/* Define if we're using a tracing version of malloc */
+#undef MCHECK
+#undef MTRACE_FILE
+/* Define if we should build with Pueblo client support */
+#undef PUEBLO_SUPPORT
+/* Define if we should assume IEEE 754 floating-point support */
 #undef FLOATING_POINTS
+/* Define if we shouldn't warn about laggy commands */
+#undef NO_LAG_CHECK
+/* Define if we shouldn't track each object's time usage */
+#undef NO_TIMECHECKING
+/* Define if we should track cpu time instead of wall clock time */
+#undef TRACK_USER_TIME
+/* Define if we should track XMALLOC and XFREE usage */
+#undef RAW_MEMTRACKING
+/* Alternatively, define if we should log XMALLOC and XFREE usage */
+#undef TEST_MALLOC
+/* Set this to the desired number of global registers (10-36) */
+#undef MAX_GLOBAL_REGS
+/* Define if no modules were requested so we create lt_preloaded_symbols */
+#undef NEED_EMPTY_LTPLSYM
+/* Define this if we use QDBM instead of GDBM */
+#undef USE_QDBM
 
-/* Define to 1 if you have the <ctype.h> header file. */
-#undef HAVE_CTYPE_H
 
-/* Define to 1 if you have the declaration of `sys_siglist', and to 0 if you
-   don't. */
-#undef HAVE_DECL_SYS_SIGLIST
+/* ---------------------------------------------------------------------------
+ * Portability section:
+ *
+ * These defines are written by the configure script.
+ * Change them if need be
+ */
 
-/* Define to 1 if you have the declaration of `tzname', and to 0 if you don't.
-   */
-#undef HAVE_DECL_TZNAME
+/* Define if on AIX 3.
+   System headers sometimes define this.
+   We just want to avoid a redefinition error message.  */
+#ifndef _ALL_SOURCE
+#undef _ALL_SOURCE
+#endif
+/* Define if the system does not provide POSIX.1 features except
+   with this defined.  */
+#undef _POSIX_1_SOURCE
+/* Define if you need to in order for stat and other things to work.  */
+#undef _POSIX_SOURCE
+/* Define if on MINIX.  */
+#undef _MINIX
 
-/* XXX */
-#undef HAVE_DLD
-
-/* Define to 1 if you have the <dld.h> header file. */
-#undef HAVE_DLD_H
-
-/* Define to 1 if you have the `dlerror' function. */
-#undef HAVE_DLERROR
-
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
-
-/* Define to 1 if you have the <dl.h> header file. */
-#undef HAVE_DL_H
-
-/* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
-#undef HAVE_DOPRNT
-
-/* Define to 1 if you have the <errno.h> header file. */
+/* Define if we have stdlib.h et al */
+#undef STDC_HEADERS
+/* Define if we may safely include both time.h and sys/time.h */
+#undef TIME_WITH_SYS_TIME
+/* Define if we have unistd.h */
+#undef HAVE_UNISTD_H
+/* Define if we have memory.h */
+#undef HAVE_MEMORY_H
+/* Define if sys/time.h exists */
+#undef HAVE_SYS_TIME_H
+/* Define if we have vfork.h */
+#undef HAVE_VFORK_H
+/* Define if errno.h exists */
 #undef HAVE_ERRNO_H
+/* Define if malloc.h exists */
+#undef HAVE_MALLOC_H
+/* Define if sys/wait.h exists */
+#undef HAVE_SYS_WAIT_H
+/* Define if sys/select.h exists */
+#undef HAVE_SYS_SELECT_H
+/* Define if sys/rusage.h exists */
+#undef HAVE_SYS_RUSAGE_H
 
-/* Define to 1 if you have the <fcntl.h> header file. */
-#undef HAVE_FCNTL_H
+/* XXX section added for ltdl */
 
-/* Define to 1 if you have the `fork' function. */
-#undef HAVE_FORK
-
-/* Define to 1 if you have the `getdtablesize' function. */
-#undef HAVE_GETDTABLESIZE
-
-/* Define to 1 if you have the `gethostbyaddr' function. */
-#undef HAVE_GETHOSTBYADDR
-
-/* Define to 1 if you have the `getpagesize' function. */
-#undef HAVE_GETPAGESIZE
-
-/* Define to 1 if you have the `getrusage' function. */
-#undef HAVE_GETRUSAGE
-
-/* Define to 1 if you have the `gettimeofday' function. */
-#undef HAVE_GETTIMEOFDAY
-
-/* Define to 1 if you have the `index' function. */
-#undef HAVE_INDEX
-
-/* Define to 1 if you have the <inttypes.h> header file. */
-#undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the `crypt' library (-lcrypt). */
-#undef HAVE_LIBCRYPT
-
-/* XXX */
+/* Define if you have the libdl library or equivalent.  */
 #undef HAVE_LIBDL
 
-/* Define to 1 if you have the `inet' library (-linet). */
-#undef HAVE_LIBINET
+/* Define if you have the GNU dld library.  */
+#undef HAVE_DLD
 
-/* Define to 1 if you have the `m' library (-lm). */
-#undef HAVE_LIBM
-
-/* Define to 1 if you have the `nsl' library (-lnsl). */
-#undef HAVE_LIBNSL
-
-/* Define to 1 if you have the `resolv' library (-lresolv). */
-#undef HAVE_LIBRESOLV
-
-/* Define to 1 if you have the `socket' library (-lsocket). */
-#undef HAVE_LIBSOCKET
-
-/* Define to 1 if you have the `z' library (-lz). */
-#undef HAVE_LIBZ
-
-/* Define to 1 if you have the <limits.h> header file. */
-#undef HAVE_LIMITS_H
-
-/* XXX */
-#undef HAVE_LINGER
-
-/* Define to 1 if you have the <malloc.h> header file. */
-#undef HAVE_MALLOC_H
-
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
-
-/* Define to 1 if you have the `memset' function. */
-#undef HAVE_MEMSET
-
-/* Define to 1 if you have the `mktime' function. */
-#undef HAVE_MKTIME
-
-/* Define if libtool can extract symbol lists from object files. */
-#undef HAVE_PRELOADED_SYMBOLS
-
-/* Define to 1 if you have the `rindex' function. */
-#undef HAVE_RINDEX
-
-/* Define to 1 if you have the `select' function. */
-#undef HAVE_SELECT
-
-/* Define to 1 if you have the `setrlimit' function. */
-#undef HAVE_SETRLIMIT
-
-/* XXX */
+/* Define if you have the shl_load function.  */
 #undef HAVE_SHL_LOAD
 
-/* Define to 1 if you have the `socket' function. */
-#undef HAVE_SOCKET
+/* Define if you have the dlerror function.  */
+#undef HAVE_DLERROR
 
-/* Define to 1 if you have the `srandom' function. */
-#undef HAVE_SRANDOM
+/* Define if you have the index function.  */
+#undef HAVE_INDEX
 
-/* Define to 1 if you have the <stdint.h> header file. */
-#undef HAVE_STDINT_H
+/* Define if you have the rindex function.  */
+#undef HAVE_RINDEX
 
-/* Define to 1 if you have the <stdio.h> header file. */
-#undef HAVE_STDIO_H
-
-/* Define to 1 if you have the <stdlib.h> header file. */
-#undef HAVE_STDLIB_H
-
-/* Define to 1 if you have the `strchr' function. */
-#undef HAVE_STRCHR
-
-/* Define to 1 if you have the `strcspn' function. */
-#undef HAVE_STRCSPN
-
-/* Define to 1 if you have the <strings.h> header file. */
-#undef HAVE_STRINGS_H
-
-/* Define to 1 if you have the <string.h> header file. */
-#undef HAVE_STRING_H
-
-/* Define to 1 if you have the `strrchr' function. */
+/* Define if you have the strrchr function.  */
 #undef HAVE_STRRCHR
 
-/* Define to 1 if you have the `strtok_r' function. */
-#undef HAVE_STRTOK_R
+/* Define if you have the <ctype.h> header file.  */
+#undef HAVE_CTYPE_H
 
-/* Define to 1 if `st_blksize' is member of `struct stat'. */
-#undef HAVE_STRUCT_STAT_ST_BLKSIZE
+/* Define if you have the <dl.h> header file.  */
+#undef HAVE_DL_H
 
-/* Define to 1 if `tm_zone' is member of `struct tm'. */
-#undef HAVE_STRUCT_TM_TM_ZONE
+/* Define if you have the <dld.h> header file.  */
+#undef HAVE_DLD_H
 
-/* Define to 1 if your `struct stat' has `st_blksize'. Deprecated, use
-   `HAVE_STRUCT_STAT_ST_BLKSIZE' instead. */
-#undef HAVE_ST_BLKSIZE
+/* Define if you have the <dlfcn.h> header file.  */
+#undef HAVE_DLFCN_H
 
-/* Define to 1 if you have the <sys/file.h> header file. */
-#undef HAVE_SYS_FILE_H
+/* Define if you have the <stdio.h> header file.  */
+#undef HAVE_STDIO_H
 
-/* Define to 1 if you have the <sys/ioctl.h> header file. */
-#undef HAVE_SYS_IOCTL_H
+/* Define if you have the <stdlib.h> header file.  */
+#undef HAVE_STDLIB_H
 
-/* Define to 1 if you have the <sys/select.h> header file. */
-#undef HAVE_SYS_SELECT_H
+/* Define if you have the <string.h> header file.  */
+#undef HAVE_STRING_H
 
-/* XXX */
-#undef HAVE_SYS_SIGNAME
+/* Define if you have the <strings.h> header file.  */
+#undef HAVE_STRINGS_H
 
-/* Define to 1 if you have the <sys/stat.h> header file. */
-#undef HAVE_SYS_STAT_H
-
-/* Define to 1 if you have the <sys/time.h> header file. */
-#undef HAVE_SYS_TIME_H
-
-/* Define to 1 if you have the <sys/types.h> header file. */
-#undef HAVE_SYS_TYPES_H
-
-/* Define to 1 if you have <sys/wait.h> that is POSIX.1 compatible. */
-#undef HAVE_SYS_WAIT_H
-
-/* Define to 1 if you have the `timelocal' function. */
-#undef HAVE_TIMELOCAL
-
-/* Define to 1 if your `struct tm' has `tm_zone'. Deprecated, use
-   `HAVE_STRUCT_TM_TM_ZONE' instead. */
-#undef HAVE_TM_ZONE
-
-/* Define to 1 if you don't have `tm_zone' but do have the external array
-   `tzname'. */
-#undef HAVE_TZNAME
-
-/* XXX */
-#undef HAVE_UNION_WAIT
-
-/* Define to 1 if you have the <unistd.h> header file. */
-#undef HAVE_UNISTD_H
-
-/* Define to 1 if you have the `vfork' function. */
-#undef HAVE_VFORK
-
-/* Define to 1 if you have the <vfork.h> header file. */
-#undef HAVE_VFORK_H
-
-/* Define to 1 if you have the `vprintf' function. */
-#undef HAVE_VPRINTF
-
-/* Define to 1 if you have the `vsnprintf' function. */
-#undef HAVE_VSNPRINTF
-
-/* Define to 1 if you have the `wait3' function. */
-#undef HAVE_WAIT3
-
-/* Define to 1 if you have the `wait4' function. */
-#undef HAVE_WAIT4
-
-/* Define to 1 if `fork' works. */
-#undef HAVE_WORKING_FORK
-
-/* Define to 1 if `vfork' works. */
-#undef HAVE_WORKING_VFORK
-
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#undef LTDL_OBJDIR
-
-/* Define to the name of the environment variable that determines the dynamic
-   library search path. */
-#undef LTDL_SHLIBPATH_VAR
-
-/* Define to the extension used for shared libraries, say, ".so". */
+/* Define to the extension used for shared libraries, say, .so.  */
 #undef LTDL_SHLIB_EXT
 
-/* XXX */
-#undef MAX_GLOBAL_REGS
+/* Define to the name of the environment variable that determines the dynamic library search path.  */
+#undef LTDL_SHLIBPATH_VAR
 
-/* XXX */
-#undef MCHECK
+/* Define to the sub-directory in which libtool stores uninstalled libraries.  */
+#undef LTDL_OBJDIR
 
-/* XXX */
-#undef MEMORY_BASED
+/* Define if libtool can extract symbol lists from object files.  */
+#undef HAVE_PRELOADED_SYMBOLS
 
-/* XXX */
-#undef MTRACE_FILE
-
-/* XXX */
-#undef NEED_EMPTY_LTPLSYM
-
-/* XXX */
-#undef NEED_GETPAGESIZE_DCL
-
-/* XXX */
-#undef NEED_GETRLIMIT_DCL
-
-/* XXX */
-#undef NEED_GETRUSAGE_DCL
-
-/* XXX */
-#undef NEED_GETTIMEOFDAY_DCL
-
-/* XXX */
-#undef NEED_MALLOC_DCL
-
-/* XXX */
-#undef NEED_PERROR_DCL
-
-/* XXX */
-#undef NEED_RANDOM_DCL
-
-/* XXX */
-#undef NEED_SPRINTF_DCL
-
-/* XXX */
-#undef NEED_SRANDOM_DCL
-
-/* XXX */
-#undef NEED_STRTOK_R_DCL
-
-/* Define if dlsym() requires a leading underscode in symbol names. */
+/* Define if dlsym() requires a leading underscore in symbol names.  */
 #undef NEED_USCORE
 
-/* XXX */
-#undef NEED_VSPRINTF_DCL
+/* XXX end of section added for ltdl */
 
-/* XXX */
-#undef NEED_WAIT3_DCL
-
-/* XXX */
-#undef NEED_WAIT4_DCL
-
-/* XXX */
-#undef NO_LAG_CHECK
-
-/* XXX */
-#undef NO_TIMECHECKING
-
-/* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
-
-/* Define to the full name of this package. */
-#undef PACKAGE_NAME
-
-/* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
-
-/* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
-
-/* Define to the version of this package. */
-#undef PACKAGE_VERSION
-
-/* XXX */
-#undef PUEBLO_SUPPORT
-
-/* XXX */
-#undef RAW_MEMTRACKING
-
-/* Define as the return type of signal handlers (`int' or `void'). */
-#undef RETSIGTYPE
-
-/* XXX */
-#undef SIGNAL_SIGCHLD_BRAINDAMAGE
-
-/* Define to 1 if you have the ANSI C header files. */
-#undef STDC_HEADERS
-
-/* XXX */
-#undef STRUCT_RUSAGE_COMPLETE
-
-/* XXX */
-#undef TEST_MALLOC
-
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#undef TIME_WITH_SYS_TIME
-
-/* Define to 1 if your <sys/time.h> declares `struct tm'. */
-#undef TM_IN_SYS_TIME
-
-/* XXX */
-#undef TRACK_USER_TIME
-
-/* Define to 1 if type `char' is unsigned and you are not using gcc.  */
-#ifndef __CHAR_UNSIGNED__
-# undef __CHAR_UNSIGNED__
-#endif
-
-/* Define to empty if `const' does not conform to ANSI C. */
+/* Define to empty if the keyword does not work.  */
 #undef const
-
-/* Define to `__inline__' or `__inline' if that's what the C compiler
-   calls it, or to nothing if 'inline' is not supported under any name.  */
-#ifndef __cplusplus
+/* Define if type char is unsigned and you are not using gcc.  */
+#ifndef __CHAR_UNSIGNED__
+#undef __CHAR_UNSIGNED__
+#endif
+/* Define if inline keyword is broken or nonstandard */
 #undef inline
+/* Define to `long' if <sys/types.h> doesn't define.  */
+#undef off_t
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef pid_t
+/* Define as the return type of signal handlers (int or void).  */
+#undef RETSIGTYPE
+/* Define if struct tm is not in time.h */
+#undef TM_IN_SYS_TIME
+/* Define if your struct tm has tm_zone.  */
+#undef HAVE_TM_ZONE
+/* Define if you don't have tm_zone but do have the external array
+   tzname.  */
+#undef HAVE_TZNAME
+/* Define if struct linger is defined */
+#undef HAVE_LINGER
+/* Define if sys/wait.h defines union wait. */
+#undef HAVE_UNION_WAIT
+/* Define if calling signal with SIGCHLD when handling SIGCHLD blows chow */
+#undef SIGNAL_SIGCHLD_BRAINDAMAGE
+/* Define if the compiler pads small structs on the wrong end, breaking the
+ * system library version of inet_ntoa() */
+#undef BROKEN_GCC_PADDING
+
+/* Define vfork as fork if vfork does not work.  */
+#undef vfork
+/* Define if setrlimit exists */
+#undef HAVE_SETRLIMIT
+/* Define if getrusage exists */
+#undef HAVE_GETRUSAGE
+/* Define if struct rusage contains non-time members */
+#undef STRUCT_RUSAGE_COMPLETE
+/* Define if timelocal exists */
+#undef HAVE_TIMELOCAL
+/* Define if mktime exists */
+#undef HAVE_MKTIME
+/* Define if srandom exists */
+#undef HAVE_SRANDOM
+/* Define if getdtablesize exists */
+#undef HAVE_GETDTABLESIZE
+/* Define if socket exists */
+#undef HAVE_SOCKET
+/* Define if gethostbyaddr exists */
+#undef HAVE_GETHOSTBYADDR
+/* Define if gettimeofday exists */
+#undef HAVE_GETTIMEOFDAY
+/* Define if select exists */
+#undef HAVE_SELECT
+/* Define if wait3 exists and works */
+#undef HAVE_WAIT3
+/* Define if wait4 exists and works */
+#undef HAVE_WAIT4
+/* Define if strtok_r exists */
+#undef HAVE_STRTOK_R
+/* Define if strcspn exists */
+#undef HAVE_STRCSPN
+/* Define if getpagesize exists */
+#undef HAVE_GETPAGESIZE
+/* Define if strchr exists */
+#undef HAVE_STRCHR
+/* Define if memset exists */
+#undef HAVE_MEMSET
+/* Define if vsnprintf exists */
+#undef HAVE_VSNPRINTF
+
+/* Define if sys_siglist[] exists */
+#undef SYS_SIGLIST_DECLARED
+/* Define if sys_signame[] exists */
+#undef HAVE_SYS_SIGNAME
+/* Define if we need to declare malloc et al */
+#undef NEED_MALLOC_DCL
+/* Define if you need to declare vsprintf yourself */
+#undef NEED_VSPRINTF_DCL
+/* Define if you need to declare perror yourself */
+#undef NEED_PERROR_DCL
+/* Define if you need to declare sprintf yourself */
+#undef NEED_SPRINTF_DCL
+/* Define if you need to declare getrlimit yourself */
+#undef NEED_GETRLIMIT_DCL
+/* Define if you need to declare getrusage yourself */
+#undef NEED_GETRUSAGE_DCL
+/* Define if stdio.h defines lots of extra functions */
+#undef EXTENDED_STDIO_DCLS
+/* Define if sys/socket.h defines lots of extra functions */
+#undef EXTENDED_SOCKET_DCLS
+/* Define if you need to declare gettimeofday yourself */
+#undef NEED_GETTIMEOFDAY_DCL
+/* Define if you need to declare wait3 yourself */
+#undef NEED_WAIT3_DCL
+/* Define if you need to declare wait4 yourself */
+#undef NEED_WAIT4_DCL
+/* Define if you need to declare srandom yourself */
+#undef NEED_SRANDOM_DCL
+/* Define if you need to declare random yourself */
+#undef NEED_RANDOM_DCL
+/* Define if you need to declare getpagesize yourself */
+#undef NEED_GETPAGESIZE_DCL
+/* Define if you need to declare strtok_r yourself */
+#undef NEED_STRTOK_R_DCL
+/* Define if your struct stat has st_blksize.  */
+#undef HAVE_ST_BLKSIZE
+
+/* ---------------------------------------------------------------------------
+ * Setup section:
+ *
+ * Load system-dependent header files.
+ */
+
+/* Prototype templates for ANSI C and traditional C */
+
+#ifdef __STDC__
+#define	NDECL(f)	f(void)
+#define	FDECL(f,p)	f p
+#ifdef STDC_HEADERS
+#define	VDECL(f,p)	f p
+#else
+#define VDECL(f,p)	f()
+#endif
+#else
+#define NDECL(f)	f()
+#define FDECL(f,p)	f()
+#define VDECL(f,p)	f()
 #endif
 
-/* Define to `long int' if <sys/types.h> does not define. */
-#undef off_t
+#ifdef STDC_HEADERS
+# ifdef __STDC__
+#  include <stdarg.h>
+# else /* __STDC__ */
+#  include <varargs.h>
+# endif /* __STDC__ */
+#include <stdlib.h>
+#include <limits.h>
+#else
+#include <varargs.h>
+extern int	FDECL(atoi, (const char *));
+extern double	FDECL(atof, (const char *));
+extern long	FDECL(atol, (const char *));
+extern int	FDECL(qsort, (char *, int, int, int (*)()));
+#endif
 
-/* Define to `int' if <sys/types.h> does not define. */
-#undef pid_t
+#ifdef STDC_HEADERS
+#include <string.h>
+#else
+#include <strings.h>
+#ifdef HAVE_MEMORY_H
+#include <memory.h>
+#endif
+#endif
 
-/* Define as `fork' if `vfork' does not work. */
-#undef vfork
+#ifdef NEED_STRTOK_R_DCL
+extern char *	FDECL(strtok_r, (char *, const char *, char **));
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#ifndef HAVE_GETPAGESIZE
+#ifndef _SC_PAGE_SIZE
+#define NM_BLOODY_PAGE_SYMBOL _SC_PAGESIZE
+#else
+#define NM_BLOODY_PAGE_SYMBOL _SC_PAGE_SIZE
+#endif
+#endif
+#endif
+
+#ifdef TIME_WITH_SYS_TIME
+#include <sys/time.h>
+#include <time.h>
+#else
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#else
+#include <time.h>
+#endif
+#endif
+
+#if defined(HAVE_SETRLIMIT) || defined(HAVE_GETRUSAGE)
+#include <sys/resource.h>
+#ifdef NEED_GETRUSAGE_DCL
+extern int	FDECL(getrusage, (int, struct rusage *));
+#endif
+#ifdef NEED_GETRLIMIT_DCL
+extern int	FDECL(getrlimit, (int, struct rlimit *));
+extern int	FDECL(setrlimit, (int, struct rlimit *));
+#endif
+#endif
+
+#ifdef HAVE_SYS_FILE_H
+#include <sys/file.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+#ifdef HAVE_GETTIMEOFDAY
+#ifdef NEED_GETTIMEOFDAY_DCL
+extern int FDECL(gettimeofday, (struct timeval *, struct timezone *));
+#endif
+#endif
+
+#ifdef HAVE_GETDTABLESIZE
+extern int NDECL(getdtablesize);
+#endif
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
+#ifdef HAVE_WAIT3
+#ifdef NEED_WAIT3_DCL
+#ifdef HAVE_UNION_WAIT
+extern int FDECL(wait3, (union wait *, int, struct rusage *));
+#else
+extern int FDECL(wait3, (int *, int, struct rusage *));
+#endif
+#endif
+#define WAITOPT(s,o) wait3((s), (o), NULL)
+#else
+#define WAITOPT(s,o) waitpid(0, (s), (o))
+#endif
+
+#ifdef HAVE_WAIT4
+#ifdef NEED_WAIT4_DCL
+#ifdef HAVE_UNION_WAIT
+extern int FDECL(wait4, (pid_t, union wait *, int, struct rusage *));
+#else
+extern int FDECL(wait4, (pid_t, int *, int, struct rusage *));
+#endif
+#endif
+#define WAITPID(p,s,o) wait4((p), (s), (o), NULL)
+#else
+#define WAITPID waitpid
+#endif
+
+#include <sys/param.h>
+#ifndef HAVE_GETPAGESIZE
+#ifdef EXEC_PAGESIZE
+#define getpagesize()	EXEC_PAGESIZE
+#else
+#ifdef NBPG
+#ifndef CLSIZE
+#define CLSIZE 1
+#endif /* no CLSIZE */
+#define getpagesize() NBPG * CLSIZE
+#else /* no NBPG */
+#ifdef NBPC
+#define getpagesize() NBPC
+#else
+#define getpagesize() PAGESIZE
+#endif /* no NBPC */
+#endif /* no NBPG */
+#endif /* no EXEC_PAGESIZE */
+#else /* we've got a getpagesize() function, whee */
+#ifdef NEED_GETPAGESIZE_DCL
+extern int	NDECL(getpagesize);
+#endif /* NEED_GETPAGESIZE_DCL */
+#endif /* HAVE_GETPAGESIZE */
+
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#ifdef NEED_PERROR_DCL
+extern void	FDECL(perror, (const char *));
+#endif
+#else
+extern int errno;
+extern void	FDECL(perror, (const char *));
+#endif
+
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#else
+#ifdef NEED_MALLOC_DCL
+extern char *	FDECL(malloc, (int));
+extern char *	FDECL(realloc, (char *, int));
+extern int	FDECL(free, (char *));
+#endif
+#endif
+
+#ifndef HAVE_TIMELOCAL
+
+#ifndef HAVE_MKTIME
+#define NEED_TIMELOCAL
+extern time_t	FDECL(timelocal, (struct tm *));
+#else
+#define timelocal mktime
+#endif /* HAVE_MKTIME */
+
+#endif /* HAVE_TIMELOCAL */
+
+#ifdef HAVE_VFORK_H
+#include <vfork.h>
+#endif
+
+#ifndef HAVE_SRANDOM
+#define random rand
+#define srandom srand
+#else
+#ifdef NEED_SRANDOM_DCL
+#ifndef random	/* only if not a macro */
+#ifdef NEED_RANDOM_DCL
+extern long	NDECL(random);
+#endif /* NEED_RANDOM_DCL */
+#endif
+extern int	FDECL(srandom, (int));
+#endif		/* NEED_SRANDOM_DCL */
+#endif /* HAVE_SRANDOM */
+
+#include <sys/types.h>
+#include <stdio.h>
+#include <ctype.h>
+
+#ifndef VMS
+#include <fcntl.h>
+#else
+#include <sys/fcntl.h>
+#endif
+
+#ifdef NEED_SPRINTF_DCL
+extern char	*VDECL(sprintf, (char *, const char *, ...));
+#endif
+
+#ifndef EXTENDED_STDIO_DCLS
+extern int 	VDECL(fprintf, (FILE *, const char *, ...));
+extern int	VDECL(printf, (const char *, ...));
+extern int	VDECL(sscanf, (const char *, const char *, ...));
+extern int	FDECL(close, (int));
+extern int	FDECL(fclose, (FILE *));
+extern int	FDECL(fflush, (FILE *));
+extern int	FDECL(fgetc, (FILE *));
+extern int	FDECL(fputc, (int, FILE *));
+extern int	FDECL(fputs, (const char *, FILE *));
+extern int	FDECL(fread, (void *, size_t, size_t, FILE *));
+extern int	FDECL(fseek, (FILE *, long, int));
+extern int	FDECL(fwrite, (void *, size_t, size_t, FILE *));
+extern pid_t	FDECL(getpid, (void));
+extern int	FDECL(pclose, (FILE *));
+extern int	FDECL(rename, (char *, char *));
+extern time_t	FDECL(time, (time_t *));
+extern int	FDECL(ungetc, (int, FILE *));
+extern int	FDECL(unlink, (const char *));
+#endif
+
+#include <sys/socket.h>
+#ifndef EXTENDED_SOCKET_DCLS
+extern int	FDECL(accept, (int, struct sockaddr *, int *));
+extern int	FDECL(bind, (int, struct sockaddr *, int));
+extern int	FDECL(listen, (int, int));
+extern int	FDECL(setsockopt, (int, int, int, void *, int));
+extern int	FDECL(shutdown, (int, int));
+extern int	FDECL(socket, (int, int, int));
+extern int	FDECL(select, (int, fd_set *, fd_set *, fd_set *, struct timeval *));
+#endif
+
+/* #ifdef HAVE_ST_BLKSIZE
+ * #define STATBLKSIZE file_stat.st_blksize
+ * #else
+ * #define STATBLKSIZE 8192
+ * #endif
+ */
+
+#ifdef __linux__
+#ifndef __GLIBC__
+
+/* In theory, under Linux, we want to use the optimized string functions.
+ * However, they make Redhat Linux 6, at least, spew, because GNU libc
+ * already uses its own set of optimized string functions with gcc -O.
+ */
+
+#include <asm/string.h>
+
+#else
+
+/* GNU libc is also broken in the fact that it declares BSD datatypes
+ * along with SYSV, POSIX, etc which breaks autoconf. So we have to 
+ * manually fix those inconsistencies.
+ */
+
+#define GLIBC_BRAINDAMAGE
+
+#endif
+#endif
+
+typedef int	dbref;
+typedef int	FLAG;
+typedef int	POWER;
+typedef char	boolexp_type;
+typedef char	IBUF[16];
+
+#ifdef _UWIN
+#define INLINE
+
+/* Since strcasecmp isn't POSIX, U/WIN won't have it by default */
+#define strcasecmp(a,b)	memcmp((void *)a,(void *)b,strlen(a))
+
+#else
+#define INLINE inline
+#endif
+
+
+#endif /* __AUTOCONF_H */

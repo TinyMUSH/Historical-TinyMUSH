@@ -339,7 +339,7 @@ for module in $modules; do
   if test ! -d "modules/$module"; then
     AC_MSG_ERROR(no such module: $module)
   fi
-  INCMODULECODE="include modules/${module}/Makefile.inc\\
+  INCMODULECODE="include modules/${module}/Makefile.inc
 ${INCMODULECODE}"
   MODULEDIRS="modules/${module} ${MODULEDIRS}"
 done
