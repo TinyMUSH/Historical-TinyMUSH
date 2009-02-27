@@ -28,8 +28,21 @@ Release history:
 =============================================================================
 			TinyMUSH 3.2 Beta History
 =============================================================================
-  - Misc: Fixed a bug in Makefile.in that prevented building more then one
-    module. [3.2 Alpha 2]
+
+Unreleased changes, checked into CVS...
+
+  - Enhancement: nofx() function selectively prevents function side-effects.
+
+  - Enhancement: sandbox() function combines functionality of objcall(),
+    ucall(), and nofx() into a general selective-limitation function.
+
+  - Enhancement: New config parameter info_text allows you to add arbitrary
+    fields to INFO output. Idea from Talvo.
+    
+  - Bugfix: Fixed ucall()-related memory leaks. [3.2b1]
+
+  - Bugfix: Fixed a bug in Makefile.in that prevented building more then one
+    module. [3.2a2]
 
   - Misc: Updated autoconf to version 2.62.
 
