@@ -29,7 +29,7 @@ Release history:
 			TinyMUSH 3.2 Beta History
 =============================================================================
 
-Unreleased changes, checked into CVS...
+03/02/2009: Beta 2
 
   - Enhancement: nofx() function selectively prevents function side-effects.
 
@@ -43,6 +43,8 @@ Unreleased changes, checked into CVS...
 
   - Bugfix: Fixed a bug in Makefile.in that prevented building more then one
     module. [3.2a2]
+
+  - Bugfix: Non-hackish way to detect gettimeofday() on MacOS X. [2.0]
 
   - Misc: Updated autoconf to version 2.62.
 

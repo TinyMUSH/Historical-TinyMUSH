@@ -15707,6 +15707,10 @@ found in the following help entries:
 'help 3.2 commands'	New/enhanced commands.
 'help 3.2 functions'	New/enhanced functions.
  
+& 3.2 base
+ 
+- New: Config param info_text allows arbitrary fields in INFO output.
+ 
 & 3.2 commands
  
 - Queue entries now have a process ID (PID). New commands @wait/pid and
@@ -15720,5 +15724,10 @@ found in the following help entries:
 - New: esc() is a lightweight escape() for string substitution.
  
 - New: isalnum() checks if a string is alphanumeric.
+ 
+- New: nofx() selectively prevents function side-effects.
+ 
+- New: sandbox() is a general selective-limitation function.
+ 
 
 
