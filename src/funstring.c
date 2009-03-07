@@ -1339,6 +1339,31 @@ FUNCTION(fun_lpos)
 }
 
 /* ---------------------------------------------------------------------------
+ * diffpos: Return the position of the first character where s1 and s2 are
+ *          different.
+ */
+
+FUNCTION(fun_diffpos)
+{
+     int i;
+     char *s1, *s2;
+
+     for (i = 0, s1 = fargs[0], s2 = fargs[1]; *s1 && *s2; i++, s1++, s2++) {
+	 while (*s1 == ESC_CHAR) {
+	     skip_esccode(s1);
+	 }
+	 while (*s2 == ESC_CHAR) {
+	     skip_esccode(s2);
+	 }
+	 if (*s1 != *s2) {
+	     safe_ltos(buff, bufc, i);
+	     return;
+	 }
+     }
+     safe_ltos(buff, bufc, -1);
+}
+
+/* ---------------------------------------------------------------------------
  * Take a character position and return which word that char is in.
  * wordpos(<string>, <charpos>)
  */

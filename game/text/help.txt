@@ -5902,18 +5902,19 @@ See also: @link, @open.
 	ansipos()	art()		beep()		before()
 	border()	capstr()	cat()		cborder()
 	center()	chomp()		comp()		decrypt()
-	delete()	edit()		encrypt()	esc()
-	escape()	foreach()	isalnum()	isdbref()	
-	isnum()		isword()	lcstr()		left()		
-	lit()		ljust()		merge()		mid()		
-	nescape()	nsecure()	null()		pos()		
-	rborder()	regedit()	regediti()	regeditall()	
-	regeditalli()	regmatch()	regmatchi()	repeat()	
-	reverse()	right()		rjust()		secure()	
-	scramble()	space()		squish()	strcat()	
-	streq()		stripansi()	strlen()	strmatch()	
-	strtrunc()	translate()	trim()		ucstr()		
-	valid()		wildmatch()	wordpos()	@@()
+	delete()	diffpos()	edit()		encrypt()
+	esc()		escape()	foreach()	isalnum()	
+	isdbref()	isnum()		isword()	lcstr()		
+	left()		lit()		ljust()		merge()		
+	mid()		nescape()	nsecure()	null()		
+	pos()		rborder()	regedit()	regediti()	
+	regeditall()	regeditalli()	regmatch()	regmatchi()	
+	repeat()	reverse()	right()		rjust()		
+	secure()	scramble()	space()		squish()	
+	strcat()	streq()		stripansi()	strlen()
+	strmatch()	strtrunc()	translate()	trim()		
+	ucstr()		valid()		wildmatch()	wordpos()	
+	@@()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -6800,6 +6801,22 @@ performed and the walk down the list stops.
     > say delete(Would you like coffee or perhaps tea?, 15, 18)
     You say, "Would you like tea?"
 
+& diffpos()
+  Function: diffpos(<string1>, <string2>)
+ 
+  Returns the position of the first character in <string1> that differs
+  from <string2>. If <string1> and <string2> are identical, or 
+  <string2> is a shorter version of <string1>, then -1 is returned.
+  ANSI differences are ignored.
+ 
+  Example:
+    > say diffpos(abcXyz, abcxyz)
+    You say, "3"
+    > say diffpos(abc, xyz)
+    You say, "0"
+    > say diffpos(abcdef, abc)
+    You say, "-1"
+ 
 & lock()
   Function: lock(<object>[/<whichlock>])
  

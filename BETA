@@ -29,6 +29,11 @@ Release history:
 			TinyMUSH 3.2 Beta History
 =============================================================================
 
+Changes committed to CVS but are not yet in a release...
+
+  - Enhancement: diffpos() string-comparison function.
+
+
 03/02/2009: Beta 2
 
   - Enhancement: nofx() function selectively prevents function side-effects.

@@ -279,6 +279,7 @@ XFUNCTION(fun_mid);
 XFUNCTION(fun_translate);
 XFUNCTION(fun_pos);
 XFUNCTION(fun_lpos);
+XFUNCTION(fun_diffpos);
 XFUNCTION(fun_wordpos);
 XFUNCTION(fun_ansipos);
 XFUNCTION(fun_repeat);
@@ -428,6 +429,7 @@ FUN flist[] = {
 {"DELIMIT",	fun_delimit,	0,  FN_VARARGS|FN_VARFX,	CA_PUBLIC,	NULL},
 {"DESTRUCT",	fun_destruct,	1,  0,		CA_PUBLIC|FN_VARFX,	NULL},
 {"DIE",		fun_die,	2,  0,		CA_PUBLIC,	NULL},
+{"DIFFPOS",	fun_diffpos,	2,  0,		CA_PUBLIC,	NULL},
 {"DIST2D",	fun_dist2d,	4,  0,		CA_PUBLIC,	NULL},
 {"DIST3D",	fun_dist3d,	6,  0,		CA_PUBLIC,	NULL},
 {"DIV",		fun_div,	2,  0,		CA_PUBLIC,	NULL},
