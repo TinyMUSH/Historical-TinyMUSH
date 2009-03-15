@@ -26444,7 +26444,21 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <time.h> #include <sys/time.h>
+#include <sys/time.h>
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "gettimeofday" >/dev/null 2>&1; then
+  { $as_echo "$as_me:$LINENO: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <time.h>
 
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
@@ -26457,6 +26471,9 @@ else
 _ACEOF
  { $as_echo "$as_me:$LINENO: result: no" >&5
 $as_echo "no" >&6; }
+fi
+rm -f conftest*
+
 fi
 rm -f conftest*
 
