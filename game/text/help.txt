@@ -5911,10 +5911,10 @@ See also: @link, @open.
 	regeditall()	regeditalli()	regmatch()	regmatchi()	
 	repeat()	reverse()	right()		rjust()		
 	secure()	scramble()	space()		squish()	
-	strcat()	streq()		stripansi()	strlen()
-	strmatch()	strtrunc()	translate()	trim()		
-	ucstr()		valid()		wildmatch()	wordpos()	
-	@@()
+	strcat()	streq()		stripansi()	stripchars()
+	strlen()	strmatch()	strtrunc()	translate()	
+	trim()		ucstr()		valid()		wildmatch()	
+	wordpos()	@@()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -12214,6 +12214,15 @@ performed and the walk down the list stops.
   Example:
     > say [strcat(foo,bar,baz)]
     You say, "foobarbaz"
+ 
+& STRIPCHARS()
+  Function: stripchars(<string>, <chars>)
+ 
+  Strips all instance of any characters in <chars> out of <string>.
+ 
+  Example:
+    > think stripchars(Here we are. Saving the day again?, ?.)
+    Here we are Saving the day again
  
 & STRTRUNC()
   Function: strtrunc(<string>, <number>)

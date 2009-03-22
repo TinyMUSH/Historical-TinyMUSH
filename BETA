@@ -32,7 +32,7 @@ Release history:
 Changes committed to CVS but are not yet in a release...
 
   - Enhancement: diffpos() string-comparison function.
-
+  - Enhancement: stripchars() string-editing function.
 
 03/02/2009: Beta 2
 
