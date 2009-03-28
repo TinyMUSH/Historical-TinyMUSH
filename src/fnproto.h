@@ -340,6 +340,10 @@ XFUNCTION(perform_regrab);
 XFUNCTION(perform_regmatch);
 XFUNCTION(fun_until);
 XFUNCTION(perform_grep);
+XFUNCTION(fun_gridmake);
+XFUNCTION(fun_gridsize);
+XFUNCTION(fun_gridset);
+XFUNCTION(fun_grid);
 
 /* *INDENT-OFF* */
 
@@ -476,6 +480,10 @@ FUN flist[] = {
 {"GREP",	perform_grep,	0,  FN_VARARGS|GREP_EXACT,	CA_PUBLIC,	NULL},
 {"GREPI",	perform_grep,	0,  FN_VARARGS|GREP_EXACT|REG_CASELESS,
 						CA_PUBLIC,	NULL},
+{"GRID",	fun_grid,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"GRIDMAKE",	fun_gridmake,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"GRIDSET",	fun_gridset,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"GRIDSIZE",	fun_gridsize,	0,  0,		CA_PUBLIC,	NULL},
 {"GROUP",	fun_group,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"GT",		fun_gt,		2,  0,		CA_PUBLIC,	NULL},
 {"GTE",		fun_gte,	2,  0,		CA_PUBLIC,	NULL},

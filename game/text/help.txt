@@ -5764,6 +5764,7 @@ See also: @link, @open.
  
   Attribute Functions: retrievel of attribute-related information.
   Comsys Functions: available only when the comsys is enabled.
+  Grid Functions: manipulation of object grids.
   List Functions: manipulation of lists.
   Math Functions: math and logic.
   Misc Functions: miscellaneous utilities.
@@ -6019,6 +6020,73 @@ See also: @link, @open.
   item down is item 1, and so forth. A stack with N items is therefore
   numbered 0 to N-1.
 
+& GRID FUNCTIONS
+  Topic: Grid Functions
+
+  Every object has the ability to store a single grid of data. A grid is
+  a RxC matrix of strings. They are meant to be used for temporary variable
+  storage; they are not preserved across restarts.
+ 
+  The grid functions are:
+ 
+        grid()          gridmake()      gridset()       gridsize()
+ 
+  If you need to execute a grid function from the perspective of another
+  object, wrap the call in an objeval().
+ 
+& GRIDMAKE()
+  Function:  gridmake(<rows>, <cols>[, <data>][, <elem delim>][, <row delim>])
+ 
+  This creates a grid with <rows> rows and <cols> columns. The maximum number
+  of cells per grid is configurable; see 'wizhelp gridsize_limit' for details.
+  If the caller already had a grid, this new one replaces it.
+ 
+  If <data> is provided, the grid is popluated with that data. The elements
+  of each row is separated by <elem delim> (defaults to a space). Each row
+  is separated by <row delim> (also defaults to a space, so you will need
+  to specify at least one of the delimiters if you have more than one column).
+ 
+& GRIDSIZE()
+  Function:  gridsize()
+ 
+  Returns the string "<rows> <columns>" that are the dimensions of the grid.
+  If this object does not have a grid, it returns "0 0".
+ 
+& GRIDSET()
+  Function:  gridset(<row list>, <column list>, <value>[, <list delim>])
+ 
+  This sets <value> into the specified cells of the grid. <row list> and
+  <column list> specify the grid positions; <list delim> is used as the
+  delimiter for the numbers in those lists (defaults to a space). If
+  a list is not specified, it defaults to the equivalent of "all".
+ 
+  For instance, 'gridset(3, 3, test)' sets "test" into row 3, column 3.
+  'gridset(3, , test)' sets "test" into all cells in row 3.
+  'gridset( ,3, test)' sets "test" into all cells in column 3.
+  'gridset(1 2, 3 4, test)' sets "test" into the cells at row 1 column 3,
+  row 1 column 4, row 2 column 3, and row 2 column 4.
+ 
+& GRID()
+  Function:  grid([<row list>][, <column list>][, <elem delim>][, <row delim>])
+ 
+  This returns the values of the specified cells. <row list> and <column list>
+  specify the grid positions. <elem delim> is used to separate each element
+  in a row (defaults to a space). <row delim> is used to separate each row
+  (also defaults to a space). If a list is not specified, it defaults to
+  the equivalent of "all".
+ 
+  Example:
+    > think gridmake(3, 3, 1-1 1-2 1-3~2-1 2-2 2-3~3-1 3-2 3-3, ,~)
+    > think grid()
+    1-1 1-2 1-3 2-1 2-2 2-3 3-1 3-2 3-3
+    > think grid( , , ,%r)
+    1-1 1-2 1-3
+    2-1 2-2 2-3
+    3-1 3-2 3-3
+    > think grid(1 3, 2 3, %b...%b, %r)
+    1-2 ... 1-3
+    3-2 ... 3-3
+   
 & PUEBLO FUNCTIONS
   Topic: Pueblo Functions
  

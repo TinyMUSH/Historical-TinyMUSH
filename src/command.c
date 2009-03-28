@@ -2261,6 +2261,7 @@ dbref player;
 	list_nhashstat(player, "Redirections", &mudstate.redir_htab);
 	list_nhashstat(player, "Overlaid $-cmds", &mudstate.parent_htab);
 	list_nhashstat(player, "Object Stacks", &mudstate.objstack_htab);
+	list_nhashstat(player, "Object Grids", &mudstate.objgrid_htab);
 	list_hashstat(player, "Variables", &mudstate.vars_htab);
 	list_hashstat(player, "Structure Defs", &mudstate.structs_htab);
 	list_hashstat(player, "Component Defs", &mudstate.cdefs_htab);
@@ -2452,6 +2453,7 @@ void list_memory(player)
 	FLAGENT *flag;
 	POWERENT *power;
 	OBJSTACK *stack;
+	OBJGRID *grid;
 	VARENT *xvar;
 	STRUCTDEF *this_struct;
 	INSTANCE *inst_ptr;
@@ -2775,6 +2777,28 @@ void list_memory(player)
 	if (each) {
 	    raw_notify(player,
 		       tprintf("Object stacks    : %12.2fk", each / 1024));
+	}
+	total += each;
+
+	/* Calculate the size of grids */
+
+	each = 0;
+	for (grid = (OBJGRID *)hash_firstentry((HASHTAB *)&mudstate.objgrid_htab);
+	     grid != NULL;
+	     grid = (OBJGRID *)hash_nextentry((HASHTAB *)&mudstate.objgrid_htab)) {
+		each += sizeof(OBJGRID);
+		each += sizeof(char **) * grid->rows * grid->cols;
+		for (i = 0; i < grid->rows; i++) {
+		    for (j = 0; j < grid->cols; j++) {
+			if (grid->data[i][j] != NULL) {
+			    each += strlen(grid->data[i][j]) + 1;
+			}
+		    }
+		}
+	}
+	if (each) {
+	    raw_notify(player,
+		       tprintf("Object grids     : %12.2fk", each / 1024));
 	}
 	total += each;
 

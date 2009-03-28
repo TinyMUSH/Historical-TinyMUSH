@@ -3411,3 +3411,329 @@ FUNCTION(perform_grep)
 	XFREE(study, "perform_grep.study");
     }
 }
+
+/* ---------------------------------------------------------------------------
+ * Grids.
+ * gridmake(<rows>, <columns>[,<grid text>][,<col odelim>][,<row odelim>])
+ * gridload(<grid text>[,<odelim for row elems>][,<odelim between rows>])
+ * gridset(<y range>,<x range>,<value>[,<input sep for ranges>])
+ * gridsize() - returns rows cols
+ * grid( , [,<odelim for row elems>][,<odelim between rows>]) - whole grid
+ * grid(<y>,<x>) - show particular coordinate
+ * grid(<y range>,<x range>[,<odelim for row elems>][,<odelim between rows>])
+ */
+
+#define grid_get(x)  ((OBJGRID *) nhashfind(x, &mudstate.objgrid_htab))
+
+#define grid_raw_set(gp,gr,gc,gv) \
+     if ((gp)->data[(gr)][(gc)] != NULL) { \
+	     XFREE((gp)->data[(gr)][(gc)], "grid_set.replace");   \
+     } \
+     if (*(gv)) {						 \
+             (gp)->data[(gr)][(gc)] = XSTRDUP((gv), "grid_set"); \
+     }
+
+#define grid_set(gp,gr,gc,gv,ge) \
+     if (((gr) < 0) || ((gc) < 0) || \
+	 ((gr) >= (gp)->rows) || ((gc) >= (gp)->cols)) { \
+	 (ge)++; \
+     } else { \
+         grid_raw_set((gp),(gr),(gc),(gv));	\
+     }
+
+#define grid_print(gp,gr,gc,gn,gsep) \
+     if (gn) { \
+	 print_sep(&(gsep), buff, bufc); \
+     } \
+     if (!(((gr) < 0) || ((gc) < 0) || \
+	   ((gr) >= (gp)->rows) || ((gc) >= (gp)->cols) || \
+	   ((gp)->data[(gr)][(gc)] == NULL))) { \
+	 safe_str((gp)->data[(gr)][(gc)], buff, bufc); \
+     }
+
+static void grid_free(thing, ogp)
+dbref thing;
+OBJGRID *ogp;
+{
+     int r, c;
+
+     if (ogp) {
+	 for (r = 0; r < ogp->rows; r++) {
+	     for (c = 0; c < ogp->cols; c++) {
+		 if (ogp->data[r][c] != NULL) {
+		     XFREE(ogp->data[r][c], "grid_free_elem");
+		 }
+	     }
+	     XFREE(ogp->data[r], "grid_free_row");
+	 }
+	 nhashdelete(thing, &mudstate.objgrid_htab);
+	 XFREE(ogp, "grid_free");
+     }
+}
+
+FUNCTION(fun_gridmake)
+{
+     OBJGRID *ogp;
+     int rows, cols, dimension, r, c, status, data_rows, data_elems, errs;
+     char *rbuf;
+     char **row_text, **elem_text; 
+     Delim csep, rsep;
+
+     VaChk_Range(2, 5);
+     VaChk_SepIn(csep, 4, 0);
+     VaChk_SepIn(rsep, 5, 0);
+
+     rows = atoi(fargs[0]);
+     cols = atoi(fargs[1]);
+     dimension = rows * cols;
+
+     if ((dimension > mudconf.max_grid_size) ||
+	 (dimension < 0)) {
+	 safe_str("#-1 INVALID GRID SIZE", buff, bufc);
+	 return;
+     }
+
+     ogp = grid_get(player);
+     if (ogp) {
+	 grid_free(player, ogp);
+     }
+     if (dimension == 0)
+	 return;
+
+     /* We store the grid on a row-by-row basis, i.e., the first index
+      * is the y-coord and the second is the x-coord.
+      */
+
+     ogp = (OBJGRID *) XMALLOC(sizeof(OBJGRID), "grid_make");
+     ogp->rows = rows;
+     ogp->cols = cols;
+     ogp->data = (char ***) XCALLOC(rows, sizeof(char ***), "grid_data");
+
+     for (r = 0; r < rows; r++) {
+	 ogp->data[r] = (char **) XCALLOC(cols, sizeof(char *), "grid_row");
+     }
+
+     status = nhashadd(player, (int *) ogp, &mudstate.objgrid_htab);
+     if (status < 0) {
+	 STARTLOG(LOG_BUGS, "GRD", "MAKE")
+	      log_name(player);
+         ENDLOG
+         grid_free(player, ogp);
+         safe_str("#-1 FAILURE", buff, bufc);
+	 return;
+     }
+
+     /* Populate data if we have any */
+
+     if (!fargs[2] || !*fargs[2])
+	 return;
+     rbuf = alloc_lbuf("fun_gridmake.rows");
+     strcpy(rbuf, fargs[2]);
+     data_rows = list2arr(&row_text, LBUF_SIZE / 2, rbuf, &rsep);
+     if (data_rows > rows) {
+	 safe_str("#-1 TOO MANY DATA ROWS", buff, bufc);
+	 free_lbuf(rbuf);
+	 grid_free(player, ogp);
+	 return;
+     }
+
+     errs = 0;
+     for (r = 0; r < data_rows; r++) {
+	 data_elems = list2arr(&elem_text, LBUF_SIZE / 2, row_text[r], &csep);
+	 if (data_elems > cols) {
+	     safe_tprintf_str(buff, bufc, "#-1 ROW %d HAS TOO MANY ELEMS", r);
+	     free_lbuf(rbuf);
+	     grid_free(player, ogp);
+	     return;
+	 }
+	 for (c = 0; c < data_elems; c++) {
+	     grid_raw_set(ogp, r, c, elem_text[c]);
+	 }
+     }
+     free_lbuf(rbuf);
+}
+
+FUNCTION(fun_gridsize)
+{
+     OBJGRID *ogp;
+
+     ogp = grid_get(player);
+     if (!ogp) {
+	 safe_str("0 0", buff, bufc);
+     } else {
+	 safe_tprintf_str(buff, bufc, "%d %d", ogp->rows, ogp->cols);
+     }
+}
+
+FUNCTION(fun_gridset)
+{
+     OBJGRID *ogp;
+     char *xlist, *ylist;
+     int n_x, n_y, r, c, i, j, errs;
+     char **x_elems, **y_elems; 
+
+     Delim isep;
+     VaChk_Only_In(4);
+
+     ogp = grid_get(player);
+     if (!ogp) {
+	 safe_str("#-1 NO GRID", buff, bufc);
+	 return;
+     }
+
+     if (fargs[0] && *fargs[0]) {
+	 ylist = alloc_lbuf("fun_gridset.ylist");
+	 strcpy(ylist, fargs[0]);
+	 n_y = list2arr(&y_elems, LBUF_SIZE / 2, ylist, &isep);
+	 if ((n_y == 1) && !*y_elems[0]) {
+	     free_lbuf(ylist);
+	     n_y = -1;
+	 }
+     } else {
+	 n_y = -1;
+     }
+
+     if (fargs[1] && *fargs[1]) {
+	 xlist = alloc_lbuf("fun_gridset.xlist");
+	 strcpy(xlist, fargs[1]);
+	 n_x = list2arr(&x_elems, LBUF_SIZE / 2, xlist, &isep);
+	 if ((n_x == 1) && !*x_elems[0]) {
+	     free_lbuf(xlist);
+	     n_x = -1;
+	 }
+     } else {
+	 n_x = -1;
+     }
+
+     errs = 0;
+     if (n_y == -1) {
+	 for (r = 0; r < ogp->rows; r++) {
+	     if (n_x == -1) {
+		 for (c = 0; c < ogp->cols; c++) {
+		     grid_raw_set(ogp, r, c, fargs[2]);
+		 }
+	     } else {
+		 for (i = 0; i < n_x; i++) {
+		     c = atoi(x_elems[i]) - 1;
+		     grid_set(ogp, r, c, fargs[2], errs);
+		 }
+	     }
+	 }
+     } else {
+	 for (j = 0; j < n_y; j++) {
+	     r = atoi(y_elems[j]) - 1;
+	     if ((r < 0) || (r >= ogp->rows)) {
+		 errs++;
+	     } else {
+		 if (n_x == -1) {
+		     for (c = 0; c < ogp->cols; c++) {
+			 grid_set(ogp, r, c, fargs[2], errs);
+		     }
+		 } else {
+		     for (i = 0; i < n_x; i++) {
+			 c = atoi(x_elems[i]) - 1;
+			 grid_set(ogp, r, c, fargs[2], errs);
+		     }
+		 }
+	     }
+	 }
+     }
+
+     if (n_x > 0) {
+	 free_lbuf(xlist);
+     }
+     if (n_y > 0) {
+	 free_lbuf(ylist);
+     }
+
+     if (errs) {
+	 safe_tprintf_str(buff, bufc, "#-1 GOT %d OUT OF RANGE ERRORS", errs);
+     }
+}
+
+FUNCTION(fun_grid)
+{
+     Delim csep, rsep;
+     OBJGRID *ogp;
+     char *xlist, *ylist, *bb_p;
+     int n_x, n_y, r, c, i, j, errs;
+     char **x_elems, **y_elems; 
+
+     VaChk_Range(0, 4);
+     VaChk_SepOut(csep, 3, 0);
+     VaChk_SepOut(rsep, 4, 0);
+
+     ogp = grid_get(player);
+     if (!ogp) {
+	 safe_str("#-1 NO GRID", buff, bufc);
+	 return;
+     }
+
+     if (!fargs[0] || !*fargs[0]) {
+	 n_y = -1;
+     } else {
+	 ylist = alloc_lbuf("fun_grid.ylist");
+	 strcpy(ylist, fargs[0]);
+	 n_y = list2arr(&y_elems, LBUF_SIZE / 2, ylist, &SPACE_DELIM);
+	 if ((n_y == 1) && !*y_elems[0]) {
+	     free_lbuf(ylist);
+	     n_y = -1;
+	 }
+     }
+
+     if (!fargs[1] || !*fargs[1]) {
+	 n_x = -1;
+     } else {
+	 xlist = alloc_lbuf("fun_grid.xlist");
+	 strcpy(xlist, fargs[1]);
+	 n_x = list2arr(&x_elems, LBUF_SIZE / 2, xlist, &SPACE_DELIM);
+	 if ((n_x == 1) && !*x_elems[0]) {
+	     free_lbuf(xlist);
+	     n_x = -1;
+	 }
+     }
+
+     if (n_y == -1) {
+	 for (r = 0; r < ogp->rows; r++) {
+	     if (r != 0) {
+		 print_sep(&rsep, buff, bufc);
+	     }
+	     if (n_x == -1) {
+		 for (c = 0; c < ogp->cols; c++) {
+		     grid_print(ogp, r, c, (c != 0), csep);
+		 }
+	     } else {
+		 for (i = 0; i < n_x; i++) {
+		     c = atoi(x_elems[i]) - 1;
+		     grid_print(ogp, r, c, (i != 0), csep);
+		 }
+	     }
+	 }
+     } else {
+	 for (j = 0; j < n_y; j++) {
+	     if (j != 0) {
+		 print_sep(&rsep, buff, bufc);
+	     }
+	     r = atoi(y_elems[j]) - 1;
+	     if (!((r < 0) || (r >= ogp->rows))) {
+		 if (n_x == -1) {
+		     for (c = 0; c < ogp->cols; c++) {
+			 grid_print(ogp, r, c, (c != 0), csep);
+		     }
+		 } else {
+		     for (i = 0; i < n_x; i++) {
+			 c = atoi(x_elems[i]) - 1;
+			 grid_print(ogp, r, c, (i != 0), csep);
+		     }
+		 }
+	     }
+	 }
+     }
+
+     if (n_x > 0) {
+	 free_lbuf(xlist);
+     }
+     if (n_y > 0) {
+	 free_lbuf(ylist);
+     }
+}

@@ -119,6 +119,7 @@ void do_hashresize(player, cause, key)
 	       (mudstate.max_instdata < 16) ? 16 : mudstate.max_instdata);
     nhashresize(&mudstate.objstack_htab,
 	       (mudstate.max_stacks < 16) ? 16 : mudstate.max_stacks);
+    nhashresize(&mudstate.objgrid_htab, 16);
     hashresize(&mudstate.vars_htab,
 	       (mudstate.max_vars < 16) ? 16 : mudstate.max_vars);
     hashresize(&mudstate.api_func_htab, 8);
@@ -2087,6 +2088,7 @@ char *argv[];
 	nhashinit(&mudstate.propdir_htab, 25 * HASH_FACTOR);
 	nhashinit(&mudstate.redir_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.objstack_htab, 50 * HASH_FACTOR);
+	nhashinit(&mudstate.objgrid_htab, 50 * HASH_FACTOR);
 	nhashinit(&mudstate.parent_htab, 5 * HASH_FACTOR);
 	nhashinit(&mudstate.desc_htab, 25 * HASH_FACTOR);
 	hashinit(&mudstate.vars_htab, 250 * HASH_FACTOR, HT_STR);
@@ -2187,6 +2189,7 @@ char *argv[];
 	nhashreset(&mudstate.fwdlist_htab);
 	nhashreset(&mudstate.propdir_htab);
 	nhashreset(&mudstate.objstack_htab);
+	nhashreset(&mudstate.objgrid_htab);
 	nhashreset(&mudstate.parent_htab);
 	hashreset(&mudstate.vars_htab);
 	hashreset(&mudstate.structs_htab);

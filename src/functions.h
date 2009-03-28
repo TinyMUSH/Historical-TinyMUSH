@@ -75,6 +75,13 @@ struct object_stack {
 	OBJSTACK *next;
 };
 
+typedef struct object_grid OBJGRID;
+struct object_grid {
+     int rows;
+     int cols;
+     char ***data;
+};
+
 #ifdef FLOATING_POINTS
 #ifndef linux                   /* linux defines atof as a macro */
 double atof();
@@ -159,6 +166,12 @@ if (nfargs < xargnum) { \
 
 #define VaChk_OutSep(xargnum, xflags) \
 VaChk_Sep(&osep, xargnum, (xflags)|DELIM_STRING|DELIM_NULL|DELIM_CRLF)
+
+#define VaChk_SepIn(xsep, xargnum, xflags) \
+VaChk_Sep(&(xsep), xargnum, (xflags)|DELIM_STRING)
+
+#define VaChk_SepOut(xsep, xargnum, xflags) \
+VaChk_Sep(&(xsep), xargnum, (xflags)|DELIM_STRING|DELIM_NULL|DELIM_CRLF)
 
 /*
  * VaChk_Range(min_args, max_args): Functions which take

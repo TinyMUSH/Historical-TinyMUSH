@@ -358,6 +358,7 @@ struct confdata {
 	int	stack_lim;	/* Max number of items on an object stack */
 	int	struct_lim;	/* Max number of defined structures for obj */
 	int	instance_lim;	/* Max number of struct instances for obj */
+        int	max_grid_size;  /* Maximum cells in a grid */
 	int	max_player_aliases; /* Max number of aliases for a player */
 	int	register_limit;	/* Max number of named q-registers */
         int     max_qpid;       /* Max total number of queue entries */
@@ -492,6 +493,7 @@ struct statedata {
         NHSHTAB	qpid_htab;	/* Queue process IDs */
 	NHSHTAB redir_htab;	/* Redirections */
 	NHSHTAB objstack_htab;	/* Object stacks */
+	NHSHTAB objgrid_htab;	/* Object grids */
 	NHSHTAB	parent_htab;	/* Parent $-command exclusion */
 	HASHTAB vars_htab;	/* Persistent variables hashtable */
 	HASHTAB structs_htab;	/* Structure hashtable */

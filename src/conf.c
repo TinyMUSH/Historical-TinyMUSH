@@ -323,6 +323,7 @@ void NDECL(cf_init)
 	mudconf.stack_lim = 50;
 	mudconf.struct_lim = 100;
 	mudconf.instance_lim = 100;
+	mudconf.max_grid_size = 1000;
 	mudconf.max_player_aliases = 10;
 	mudconf.cache_width = CACHE_WIDTH;
 	mudconf.cache_size = CACHE_SIZE;
@@ -1738,6 +1739,7 @@ CONF conftable[] = {
 {(char *)"gdbm_database",		cf_string,	CA_STATIC,	CA_GOD,		(int *)&mudconf.gdbm,		MBUF_SIZE},
 {(char *)"global_aconn_uselocks",	cf_bool,	CA_GOD,		CA_WIZARD,	&mudconf.global_aconn_uselocks,	(long)"Obey UseLocks on global @Aconnect and @Adisconnect"},
 {(char *)"good_name",			cf_badname,	CA_GOD,		CA_DISABLED,	NULL,				1},
+{(char *)"gridsize_limit",		cf_int,		CA_GOD,		CA_PUBLIC,	&mudconf.max_grid_size,		0},
 {(char *)"guest_basename",		cf_string,	CA_STATIC,	CA_PUBLIC,	(int *)&mudconf.guest_basename,	PLAYER_NAME_LIMIT},
 {(char *)"guest_char_num",		cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.guest_char,		NOTHING},
 {(char *)"guest_nuker",			cf_dbref,	CA_GOD,		CA_WIZARD,	&mudconf.guest_nuker,		GOD},
