@@ -3581,6 +3581,22 @@ FUNCTION(fun_gridset)
 	 return;
      }
 
+     /* Handle the common case of just one position, first */
+
+     if (*fargs[0] && !strstr(fargs[0], isep.str) &&
+	 *fargs[1] && !strstr(fargs[1], isep.str)) {
+	 r = atoi(fargs[0]) - 1;
+	 c = atoi(fargs[1]) - 1;
+	 grid_set(ogp, r, c, fargs[2], errs);
+	 if (errs) {
+	     safe_tprintf_str(buff, bufc, "#-1 GOT %d OUT OF RANGE ERRORS",
+			      errs);
+	 }
+	 return;
+     }
+
+     /* Complex ranges */
+
      if (fargs[0] && *fargs[0]) {
 	 ylist = alloc_lbuf("fun_gridset.ylist");
 	 strcpy(ylist, fargs[0]);
@@ -3668,6 +3684,18 @@ FUNCTION(fun_grid)
 	 safe_str("#-1 NO GRID", buff, bufc);
 	 return;
      }
+
+     /* Handle the common case of just one position, first */
+
+     if (fargs[0] && *fargs[0] && !strchr(fargs[0], ' ') &&
+	 fargs[1] && *fargs[1] && !strchr(fargs[1], ' ')) {
+	 r = atoi(fargs[0]) - 1;
+	 c = atoi(fargs[1]) - 1;
+	 grid_print(ogp, r, c, 0, csep);
+	 return;
+     }
+
+     /* Complex ranges */
 
      if (!fargs[0] || !*fargs[0]) {
 	 n_y = -1;
