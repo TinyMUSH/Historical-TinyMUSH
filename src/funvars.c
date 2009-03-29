@@ -3571,8 +3571,8 @@ FUNCTION(fun_gridset)
      char *xlist, *ylist;
      int n_x, n_y, r, c, i, j, errs;
      char **x_elems, **y_elems; 
-
      Delim isep;
+
      VaChk_Only_In(4);
 
      ogp = grid_get(player);
@@ -3581,10 +3581,13 @@ FUNCTION(fun_gridset)
 	 return;
      }
 
-     /* Handle the common case of just one position, first */
+     /* Handle the common case of just one position and a simple separator,
+      * first.
+      */
 
-     if (*fargs[0] && !strstr(fargs[0], isep.str) &&
-	 *fargs[1] && !strstr(fargs[1], isep.str)) {
+     if ((isep.len == 1) &&
+	 *fargs[0] && !strchr(fargs[0], isep.str[0]) &&
+	 *fargs[1] && !strchr(fargs[1], isep.str[0])) {
 	 r = atoi(fargs[0]) - 1;
 	 c = atoi(fargs[1]) - 1;
 	 grid_set(ogp, r, c, fargs[2], errs);
