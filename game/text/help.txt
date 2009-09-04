@@ -12284,13 +12284,17 @@ performed and the walk down the list stops.
     You say, "foobarbaz"
  
 & STRIPCHARS()
-  Function: stripchars(<string>, <chars>)
+  Function: stripchars(<string>, <chars>[, <output delim>] )
  
   Strips all instance of any characters in <chars> out of <string>.
+  If <output delim> is specified (it defaults to null), each stripped
+  character is replaced with that delimiter.
  
   Example:
     > think stripchars(Here we are. Saving the day again?, ?.)
     Here we are Saving the day again
+    > think stripchars(Try~this~out.,~,%b)
+    Try this out.
  
 & STRTRUNC()
   Function: strtrunc(<string>, <number>)

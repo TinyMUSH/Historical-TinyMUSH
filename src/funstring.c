@@ -1007,6 +1007,17 @@ FUNCTION(fun_stripchars)
 	0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0
      };
+     Delim osep;
+
+     if (!fargs[0] || !*fargs[0])
+	 return;
+
+     /* Output delimiter should default to null, not a space */
+
+     VaChk_Only_Out(3);
+     if (nfargs < 3) {
+	 osep.str[0] = '\0';
+     }
 
      for (s = fargs[1]; *s; s++) {
 	 stab[(unsigned char) *s] = 1;
@@ -1015,6 +1026,8 @@ FUNCTION(fun_stripchars)
      for (s = fargs[0]; *s; s++) {
 	 if (stab[(unsigned char) *s] == 0) {
 	     safe_chr(*s, buff, bufc);
+	 } else if (nfargs > 2) {
+	     print_sep(&osep, buff, bufc);
 	 }
      }
 }

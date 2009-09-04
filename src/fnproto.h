@@ -749,7 +749,7 @@ FUN flist[] = {
 {"STRCAT",	fun_strcat,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"STREQ",	fun_streq,	2,  0,		CA_PUBLIC,	NULL},
 {"STRIPANSI",	fun_stripansi,	1,  0,		CA_PUBLIC,	NULL},
-{"STRIPCHARS",	fun_stripchars,	2,  0,		CA_PUBLIC,	NULL},
+{"STRIPCHARS",	fun_stripchars,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"STRLEN",	fun_strlen,	-1, 0,		CA_PUBLIC,	NULL},
 {"STRMATCH",	fun_strmatch,	2,  0,		CA_PUBLIC,	NULL},
 {"STRTRUNC",    fun_left,	2,  0,          CA_PUBLIC,	NULL},
