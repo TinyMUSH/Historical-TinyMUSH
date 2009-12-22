@@ -5908,14 +5908,14 @@ See also: @link, @open.
 	isdbref()	isnum()		isword()	lcstr()		
 	left()		lit()		ljust()		merge()		
 	mid()		nescape()	nsecure()	null()		
-	pos()		rborder()	regedit()	regediti()	
-	regeditall()	regeditalli()	regmatch()	regmatchi()	
-	repeat()	reverse()	right()		rjust()		
-	secure()	scramble()	space()		squish()	
-	strcat()	streq()		stripansi()	stripchars()
-	strlen()	strmatch()	strtrunc()	translate()	
-	trim()		ucstr()		valid()		wildmatch()	
-	wordpos()	@@()
+	pos()		qsub()		rborder()	regedit()
+	regediti()	regeditall()	regeditalli()	regmatch()	
+	regmatchi()	repeat()	reverse()	right()		
+	rjust()		secure()	scramble()	space()		
+	squish()	strcat()	streq()		stripansi()	
+	stripchars()	strlen()	strmatch()	strtrunc()	
+	translate()	trim()		ucstr()		valid()		
+	wildmatch()	wordpos()	@@()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -6236,7 +6236,7 @@ enclosed in a lit().
   a variety of speciaized functions, such as regmatch(). Local registers
   are read via the r() function or the %q substitution.
  
-  See also: setq(), setr(), lregs(), qvars(), SUBSTITUTIONS.
+  See also: setq(), setr(), lregs(), qvars(), qsub(), SUBSTITUTIONS.
  
 & LOOPING
   Topic: LOOPING
@@ -11218,6 +11218,22 @@ performed and the walk down the list stops.
     You say, "a-1 5-2 banana-3"
  
   See also: LOCAL REGISTERS, setq(), setr(), r().
+ 
+& QSUB()
+  Function: qsub(<text>[,<start marker>[,<end marker>]])
+ 
+  This function allows "safe" substitution of text within a string, by
+  replacing <marker>-delimited strings within <text> with their corresponding
+  local register values. If the start and end markers are not specified,
+  they default to $.
+ 
+  Example:
+    > think [setq(this,apple)][qsub(I have the $this$.)]
+    I have the apple.
+    > think [setq(a,this)][setq(b,that)][qsub(I've got <<a>> and <<b>>.,<<,>>)]
+    I've got this and that.
+ 
+  See also: LOCAL REGISTERS, r().
  
 & SETX()
   Function:  setx(<variable name>,<value>)

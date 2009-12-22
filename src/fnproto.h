@@ -303,6 +303,7 @@ XFUNCTION(fun_setr);
 XFUNCTION(fun_r);
 XFUNCTION(fun_wildmatch);
 XFUNCTION(fun_qvars);
+XFUNCTION(fun_qsub);
 XFUNCTION(fun_lregs);
 XFUNCTION(handle_ucall);
 XFUNCTION(fun_x);
@@ -661,6 +662,7 @@ FUN flist[] = {
 {"PROGRAMMER",	fun_programmer,	1,  0,		CA_PUBLIC,	NULL},
 {"PS",		fun_ps,		1,  0,		CA_PUBLIC,	NULL},
 {"PUSH",	fun_push,	0,  FN_VARARGS|FN_STACKFX, CA_PUBLIC,	NULL},
+{"QSUB",	fun_qsub,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"QVARS",	fun_qvars,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"R",		fun_r,		1,  0,		CA_PUBLIC,	NULL},
 {"RAND",	fun_rand,	1,  0,		CA_PUBLIC,	NULL},

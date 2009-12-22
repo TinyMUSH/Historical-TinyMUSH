@@ -381,13 +381,16 @@ FUNCTION(fun_setr)
 	safe_known_str(fargs[1], result, buff, bufc);
 }
 
-FUNCTION(fun_r)
+static void read_register(regname, buff, bufc)
+    char *regname;
+    char *buff;
+    char **bufc;
 {
 	int regnum;
 	char *p;
 
-	if (fargs[0][1] == '\0') {
-	    regnum = qidx_chartab[(unsigned char) *fargs[0]];
+	if (regname[1] == '\0') {
+	    regnum = qidx_chartab[(unsigned char) *regname];
 	    if ((regnum < 0) || (regnum >= MAX_GLOBAL_REGS)) {
 		safe_str("#-1 INVALID GLOBAL REGISTER", buff, bufc);
 	    } else {
@@ -404,12 +407,12 @@ FUNCTION(fun_r)
 	if (!mudstate.rdata || !mudstate.rdata->xr_alloc)
 	    return;
 	
-	for (p = fargs[0]; *p; p++)
+	for (p = regname; *p; p++)
 	    *p = tolower(*p);
 
 	for (regnum = 0; regnum < mudstate.rdata->xr_alloc; regnum++) {
 	    if (mudstate.rdata->x_names[regnum] &&
-		!strcmp(fargs[0], mudstate.rdata->x_names[regnum])) {
+		!strcmp(regname, mudstate.rdata->x_names[regnum])) {
 		if (mudstate.rdata->x_regs[regnum]) {
 		    safe_known_str(mudstate.rdata->x_regs[regnum],
 				   mudstate.rdata->x_lens[regnum],
@@ -418,6 +421,11 @@ FUNCTION(fun_r)
 		}
 	    }
 	}
+}
+
+FUNCTION(fun_r)
+{
+     read_register(fargs[0], buff, bufc);
 }
 
 /* --------------------------------------------------------------------------
@@ -539,6 +547,41 @@ FUNCTION(fun_qvars)
     free_lbuf(elemlist);
     XFREE(qreg_names, "fun_qvars.qreg_names");
     XFREE(elems, "fun_qvars.elems");
+}
+
+/*---------------------------------------------------------------------------
+ * fun_qsub: "Safe" substitution using $name$ dollar-variables.
+ *           Can specify beginning and ending variable markers.
+ */
+
+FUNCTION(fun_qsub)
+{
+     char *nextp, *strp;
+     Delim bdelim, edelim;
+
+     VaChk_Range(0, 3);
+
+     if (!fargs[0] || !*fargs[0])
+	 return;
+     if (!delim_check( FUNCTION_ARGLIST, 2, &bdelim, DELIM_STRING))
+	 return;
+     if (!delim_check( FUNCTION_ARGLIST, 3, &edelim, DELIM_STRING))
+	 return;
+
+     /* Defaulted space delims are actually $ */
+     if ((bdelim.len == 1) && (bdelim.str[0] == ' '))
+	 bdelim.str[0] = '$';
+     if ((edelim.len == 1) && (edelim.str[0] == ' '))
+	 edelim.str[0] = '$';
+
+     nextp = fargs[0];
+     while (nextp && ((strp = split_token(&nextp, &bdelim)) != NULL)) {
+	 safe_str(strp, buff, bufc);
+	 if (nextp) {
+	     strp = split_token(&nextp, &edelim);
+	     read_register(strp, buff, bufc);
+	 }
+     }
 }
 
 /*---------------------------------------------------------------------------
