@@ -423,7 +423,7 @@ static char to_base_36[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 FUNCTION(fun_baseconv)
 {
      long n, m;
-     int from, to;
+     int from, to, isneg;
      char *frombase, *tobase, *p, *nbp;
      char nbuf[LBUF_SIZE];
 
@@ -456,14 +456,28 @@ FUNCTION(fun_baseconv)
 
      p = Eat_Spaces(fargs[0]);
      n = 0;
-     while (p && *p) {
-	 n *= from;
-	 if (frombase[(unsigned char) *p] >= 0) {
-	     n += frombase[(unsigned char) *p];
+     if (p) {
+	 /* If we have a leading hyphen, and we're in base 63/64, always
+	  *  treat it as a minus sign. PennMUSH consistency.
+	  */
+	 if ((from < 63) && (to < 63) && (*p == '-')) {
+	     isneg = 1;
 	     p++;
 	 } else {
-	     safe_known_str("#-1 MALFORMED NUMBER", 20, buff, bufc);
-	     return;
+	     isneg = 0;
+	 }
+	 while (*p) {
+	     n *= from;
+	     if (frombase[(unsigned char) *p] >= 0) {
+		 n += frombase[(unsigned char) *p];
+		 p++;
+	     } else {
+		 safe_known_str("#-1 MALFORMED NUMBER", 20, buff, bufc);
+		 return;
+	     }
+	 }
+	 if (isneg) {
+	     safe_chr('-', buff, bufc);
 	 }
      }
 
