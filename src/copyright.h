@@ -7,7 +7,7 @@
 
 /*
  * TinyMUSH 3 Source Code
- * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 by Lydia Leong,
+ * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009, 2010 by Lydia Leong,
  *               David Passmore, Robby Griffin, Scott Dorr, and Eddy Beaupre.
  * Copyright (c) 2001, 2002, 2003, by Lydia Leong, David Passmore,
  *                                 Robby Griffin, and Scott Dorr.
