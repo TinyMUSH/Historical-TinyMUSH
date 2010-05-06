@@ -512,9 +512,9 @@ Continued in 'help Command List2'.
 Program execution:
  
 @dolist		@drain		@end		@force		@halt
-@notify		@program	@ps		@quitprogram	@redirect
-@sql		@switch		@trigger	@verb		@wait
-use
+@include	@notify		@program	@ps		@quitprogram
+@redirect	@sql		@switch		@trigger	@verb
+@wait		use
  
 Other:
  
@@ -2430,6 +2430,31 @@ See also: @femit, @fsay, say, @force
  
   See also: @ps, ps(), @drain, @notify, kill, HALTED, SEMAPHORES.
  
+& @include
+  Command: @include [<object>/]<attribute> [= <arg1>[,<arg2>[,<argN>]]]
+ 
+  @include inserts the contents of the specified attribute into the 
+  command-line being parsed, just as if it had been directly part of it.
+  It's used to avoid having to copy the same code into multiple commands.
+  If the action list has the format of a $command or ^listen, everything
+  up to the first unescaped ':' is ignored. The object executing the action 
+  must be able to see the attribute.
+ 
+  The original command stack is normally passed as %0 - %9, but this can
+  be replaced by specifying new arguments, similar to a @trigger/now.
+ 
+  Example:
+    > &COMPLEX test = @pemit %# = 0:%0 / 1:%1 / 2:%2
+    > &COMPLEX test = $complex: @pemit %# = 0:%0 / 1:%1 / 2:%2
+    > &CMD1 test = $cmd1: @include me/COMPLEX = a,b,c
+    > &CMD2 test = $cmd2 *,*,*: @include me/COMPLEX
+    > cmd1
+    0:a / 1:b / 2:c
+    > cmd2 x,y,z
+    0:x / 1:y / 2:z
+ 
+  See also: @trigger
+ 
 & @last
   Command: @last <player>
   This command displays a short 'connection history' for <player>, showing
@@ -3438,7 +3463,7 @@ See also: JUMP_OK, FIXED, home, @lock
  
   '@call' is the same as '@trigger/now/quiet'.
   
-  See also: LOOPING.
+  See also: LOOPING, @include.
  
 & @unlink
   Command: @unlink <room/exit>

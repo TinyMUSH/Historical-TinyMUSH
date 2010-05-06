@@ -68,6 +68,7 @@ CMD_ONE_ARG(do_halt);			/* Remove commands from the queue */
 CMD_NO_ARG(do_hashresize);		/* Resize the hash tables */
 CMD_TWO_ARG(do_hook);			/* Command hooks */
 CMD_ONE_ARG(do_help);			/* Print info from help files */
+CMD_TWO_ARG_ARGV_CMDARG(do_include);	/* Include text of attribute */
 CMD_NO_ARG(do_inventory);		/* Print what I am carrying */
 CMD_TWO_ARG(do_prog);			/* Interactive input */
 CMD_ONE_ARG(do_quitprog);		/* Quits @prog */

@@ -2450,6 +2450,70 @@ char *victim_str, *args[];
 
 }
 
+/* ---------------------------------------------------------------------------
+ * do_include: Run included text. This is very similar to a @trigger/now,
+ * except that we only need to be able to read the attr, not control the 
+ * object, and it uses the original stack by default. If we get passed args,
+ * we replace the entirety of the included text, just like a @trigger/now.
+ * Also, unlike a trigger, we remain the thing running the action, and we
+ * do not deplete charges.
+ */
+
+void do_include(player, cause, key, object, argv, nargs, cargs, ncargs)
+dbref player, cause;
+int key, nargs, ncargs;
+char *object, *argv[], *cargs[];
+{
+     dbref thing, aowner;
+     int attrib, aflags, alen;
+     char *act, *tp;
+
+     /* Get the attribute. Default to getting it off ourselves. */
+
+     if (!((parse_attrib(player, object, &thing, &attrib, 0)
+	    && (attrib != NOTHING)) ||
+	   (parse_attrib(player, tprintf("me/%s", object),
+			 &thing, &attrib, 0)
+	    && (attrib != NOTHING)))) {
+	 notify_quiet(player, "No match.");
+	 return;
+     }
+
+     if (*(act = atr_pget(thing, attrib, &aowner, &aflags, &alen))) {
+
+	 /* Skip leading $command: or ^monitor: */
+
+	 if ((*act == '$') || (*act == '^')) {
+	     for (tp = act + 1;
+		  *tp && ((*tp != ':') || (*(tp - 1) == '\\'));
+		  tp++)
+		 ;
+	     if (!*tp) {
+		 tp = act;
+	     } else {
+		 tp++;       /* must advance past the ':' */
+	     }
+	 } else {
+	     tp = act;
+	 }
+
+	 /* Go do it. Use stack if we have it, otherwise use command stack.
+	  * Note that an empty stack is still one arg but it's empty.
+	  */
+
+	 if ((nargs > 1) || ((nargs == 1) && *argv[0])) {
+	     process_cmdline(player, cause, tp, argv, nargs, NULL);
+	 } else {
+	     process_cmdline(player, cause, tp, cargs, ncargs, NULL);
+	 }
+     }
+
+     free_lbuf(act);
+}
+
+/* ---------------------------------------------------------------------------
+ * Connect SQL database.
+ */
 
 void do_sql_connect(player, cause, key)
     dbref player, cause;
