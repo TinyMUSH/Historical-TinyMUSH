@@ -450,10 +450,14 @@ if ((l) > 0) { \
 
 /* from process_tables (tables, rtables, ctables): */
 /* from perform_border (border, rborder, cborder): */
+/* from perform_align (align, lalign): */
 #define JUST_TYPE	0x0f	/* mask to select justification bits */
-#define JUST_LEFT	0
-#define JUST_RIGHT	1
-#define JUST_CENTER	2
+#define JUST_LEFT	0x01
+#define JUST_RIGHT	0x02
+#define JUST_CENTER	0x04
+#define JUST_REPEAT	0x10
+#define JUST_COALEFT	0x20
+#define JUST_COARIGHT	0x40
 
 /* from handle_logic (and, or, andbool, orbool, land, lor, landbool, lorbool,
  *    cand, cor, candbool, corbool, xor, xorbool): */

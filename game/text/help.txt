@@ -5924,23 +5924,24 @@ See also: @link, @open.
 & STRING FUNCTIONS
   Topic: String Functions
  
-	after()		alphamax()	alphamin()	ansi()
-	ansipos()	art()		beep()		before()
-	border()	capstr()	cat()		cborder()
-	center()	chomp()		comp()		decrypt()
-	delete()	diffpos()	edit()		encrypt()
-	esc()		escape()	foreach()	isalnum()	
-	isdbref()	isnum()		isword()	lcstr()		
-	left()		lit()		ljust()		merge()		
-	mid()		nescape()	nsecure()	null()		
-	pos()		qsub()		rborder()	regedit()
-	regediti()	regeditall()	regeditalli()	regmatch()	
-	regmatchi()	repeat()	reverse()	right()		
-	rjust()		secure()	scramble()	space()		
-	squish()	strcat()	streq()		stripansi()	
-	stripchars()	strlen()	strmatch()	strtrunc()	
-	translate()	trim()		ucstr()		valid()		
-	wildmatch()	wordpos()	@@()
+	after()		align()		alphamax()	alphamin()	
+	ansi()		ansipos()	art()		beep()		
+	before()	border()	capstr()	cat()		
+	cborder()	center()	chomp()		comp()		
+	decrypt()	delete()	diffpos()	edit()		
+	encrypt()	esc()		escape()	foreach()	
+	isalnum()	isdbref()	isnum()		isword()	
+	lalign()	lcstr()		left()		lit()		
+	ljust()		merge()		mid()		nescape()	
+	nsecure()	null()		pos()		qsub()		
+	rborder()	regedit()	regediti()	regeditall()	
+	regeditalli()	regmatch()	regmatchi()	repeat()	
+	reverse()	right()		rjust()		secure()	
+	scramble()	space()		squish()	strcat()
+	streq()		stripansi()	stripchars()	strlen()
+	strmatch()	strtrunc()	translate()	trim()
+	ucstr()		valid()		wildmatch()	wordpos()
+	@@()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -9026,6 +9027,77 @@ performed and the walk down the list stops.
  
   See also: ANSI, ansi(), stripansi()
  
+& ALIGN()
+& LALIGN()
+  Function: align(<widths>,<col1>[,...,<colN>][,<fill>[,<colsep>[,<rowsep>]]])
+            lalign(<widths>,<cols>[,<delim>[,<fill>[,<colsep>[,<rowsep>]]]])
+ 
+  This function creates columns of text, where each column is individually
+  wrapped inside its own column, allowing for easy creation of book pages,
+  newsletters, or the like. In align(), each set of column text is specified
+  as its own argument; in lalign(), it's given as a <delim>-separated list,
+  where <delim> defaults to a space.
+ 
+  <widths> is a space-separated list of column widths. For instance, '7 5 10'
+  specifies there are 3 columns, which are 7, 5, and 10 characters wide.
+  Justification is specified before the number, and runout (what happens when
+  the column is out of text) after the number, i.e., '>5.'
+    <   left-justify (default)         .   repeat
+    >   right-justify                  `   merge with the left column
+    -   center                         '   merge with the right column
+ 
+  <fill> is a single character used to pad columns when they're justified, and
+  defaults to a space. <colsep> is inserted between every column, and defaults
+  to a space. <rowsep> is inserted between rows, and defaults to a newline.
+ 
+  Newlines are supported ('%r') and ANSI substitutions are preserved 
+  correctly, but tabs ('%t') are converted to a single space. Words whose
+  length exceeds the width of their column are broken into multiple pieces.
+ 
+  Continued in 'help ALIGN2'.
+ 
+& ALIGN2
+ 
+  Simple examples: 
+ 
+  > &LINE me = align(-5 20 40, <[left(get(%0/Sex),1)]>,name(%0),name(loc(%0)))
+  > think map(LINE, lwho())
+    <F>  Amberyl              Limbo
+    <F>  Helix                Limbo
+ 
+  > &PARA me = It was the best of times.%rIt was the worst of times.%r
+               It was the age of wisdom,%rIt was the age of foolishness.
+  > think [align(5 -40 5,,[repeat(-,40)]%r[u(PARA)]%r[repeat(-,40)],,%b,+)]
+         +----------------------------------------+
+         +        It was the best of times.       +
+         +       It was the worst of times.       +
+         +        It was the age of wisdom,       +
+         +     It was the age of foolishness.     +
+         +----------------------------------------+
+ 
+  Continued in 'help ALIGN3'.
+ 
+& ALIGN3
+ 
+  A more complex example:
+ 
+  > &DROPCAP me = %xg%b_______%r|__%b%b%b__|%r%b%b%b|%b|%r%b%b%b|_|%xn
+  > &STORY me= %r'was the night before Christmas, when all through the house%r
+               Not a creature was stirring, not even a mouse.%r
+               The stockings were hung by the chimney with care,%r
+               In hopes that St Nicholas soon would be there.
+  > think align(9' 68, u(DROPCAP), u(STORY))
+   _______
+  |__   __| 'was the night before Christmas, when all through the house
+     | |    Not a creature was stirring, not even a mouse.
+     |_|    The stockings were hung by the chimney with care,
+  In hopes that St Nicholas soon would be there.
+ 
+  The dropcap 'T' will be in ANSI green-highlight (preserved from the explicit
+  ANSI given in the DROPCAP attribute), and merges with the 'story' column.
+ 
+  See also: border(), table(), tables().
+ 
 & BORDER()
   Function: border(<text>,<width>[,<left margin fill>[,<right margin fill>]])
  
@@ -11973,8 +12045,11 @@ performed and the walk down the list stops.
   which is space-delimited by default.
  
   <field width> specifies how wide each column of the table is;	it defaults
-  to 10 characters. <line length> specifies how wide the entire table is;
-  it defaults to 78 characters. The number of columns is equal to
+  to 10 characters. To right-justify, start the field width with '>'; to
+  center, start it with '-'. Left-justification is implied; '<' works too.
+
+  <line length> specifies how wide the entire table is; it defaults to 78
+  characters. The number of columns is equal to:
   (line length) / (field width + field sep width).
  
   <field sep> is the output delimiter to be used between columns of the

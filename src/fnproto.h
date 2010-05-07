@@ -68,6 +68,8 @@ XFUNCTION(handle_sets);
 XFUNCTION(fun_columns);
 XFUNCTION(process_tables);
 XFUNCTION(fun_table);
+XFUNCTION(fun_align);
+XFUNCTION(fun_lalign);
 XFUNCTION(fun_elements);
 XFUNCTION(fun_grab);
 XFUNCTION(fun_graball);
@@ -362,6 +364,7 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"ADD",		fun_add,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"AFTER",	fun_after,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"ALIGN",	fun_align,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ALPHAMAX",	fun_alphamax,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"ALPHAMIN",	fun_alphamin,   0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"AND",		handle_logic,	0,  FN_VARARGS|LOGIC_AND,
@@ -539,6 +542,7 @@ FUN flist[] = {
 {"KNOWS",	handle_okpres,	2,  PRESFN_KNOWS,
 						CA_PUBLIC,	NULL},
 {"LADD",	fun_ladd,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"LALIGN",	fun_lalign,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"LAND",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_AND,
 						CA_PUBLIC,	NULL},
 {"LANDBOOL",	handle_logic,	0,  FN_VARARGS|LOGIC_LIST|LOGIC_AND|LOGIC_BOOL,

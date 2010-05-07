@@ -1620,10 +1620,10 @@ static void tables_helper(list, last_state, n_cols, col_widths,
 
 	    /* Writing trailing padding if we need it. */
 	    
-	    if (just == JUST_LEFT) {
+	    if (just & JUST_LEFT) {
 		nleft = col_widths[cpos] - lens[wcount];
 		print_padding(nleft, max, pad_char->str[0]);
-	    } else if (just == JUST_CENTER) {
+	    } else if (just & JUST_CENTER) {
 		nleft = col_widths[cpos] - lead_chrs - lens[wcount];
 		print_padding(nleft, max, pad_char->str[0]);
 	    }
@@ -1737,7 +1737,9 @@ FUNCTION(fun_table)
 {
     int line_length = 78;
     int field_width = 10;
+    int just = JUST_LEFT;
     int i, field_sep_width, n_columns, *col_widths;
+    char *p;
     Delim list_sep, field_sep, pad_char;
 
     VaChk_Range(1, 6);
@@ -1756,7 +1758,22 @@ FUNCTION(fun_table)
     }
 
     if (nfargs > 1) {
-	field_width = atoi(fargs[1]);
+	p = fargs[1];
+	switch (*p) {
+	    case '<':
+		 just = JUST_LEFT;
+		 p++;
+		 break;
+	    case '>':
+		 just = JUST_RIGHT;
+		 p++;
+		 break;
+	    case '-':
+		 just = JUST_CENTER;
+		 p++;
+		 break;
+	}
+	field_width = atoi(p);
 	if (field_width < 1)
 	    field_width = 1;
 	else if (field_width > LBUF_SIZE - 1)
@@ -1788,10 +1805,506 @@ FUNCTION(fun_table)
 	col_widths[i] = field_width;
 
     perform_tables(player, fargs[0], n_columns, col_widths, NULL, NULL,
-		   &list_sep, &field_sep, &pad_char, buff, bufc, JUST_LEFT);
+		   &list_sep, &field_sep, &pad_char, buff, bufc, just);
 
     XFREE(col_widths, "fun_table.widths");
 }
+
+/*---------------------------------------------------------------------------
+ * fun_align: Turn a set of lists into newspaper-like columns.
+ *   align(<widths>,<col1>,...,<colN>,<fill char>,<col sep>,<row sep>)
+ *   lalign(<widths>,<col data>,<delim>,<fill char>,<col sep>,<row sep>)
+ *   Only <widths> and the column data parameters are mandatory.
+ *
+ * This is mostly PennMUSH-compatible, but not 100%.
+ *   - ANSI is not stripped out of the column text. States will be correctly
+ *     preserved, and will not bleed.
+ *   - ANSI states are not supported in the widths, as they are unnecessary.
+ */
+
+static void perform_align(n_cols, raw_colstrs, data, fillc, col_sep, row_sep,
+                          buff, bufc)
+int n_cols;
+char **raw_colstrs, **data;
+char fillc;
+Delim col_sep, row_sep;
+char *buff, **bufc;
+{
+     int i, n;
+     int *col_widths, *col_justs, *col_done;
+     char *p, *bb_p, *l_p;
+     char **xsl, **xel, **xsw, **xew;
+     int *xsl_a, *xel_a, *xsw_a, *xew_a;
+     int *xsl_p, *xel_p, *xsw_p, *xew_p;
+     char *sl, *el, *sw, *ew;
+     int sl_ansi_state, el_ansi_state, sw_ansi_state, ew_ansi_state;
+     int sl_pos, el_pos, sw_pos, ew_pos;
+     int width, just, nleft, max, lead_chrs;
+     int n_done = 0, pending_coaright = 0; 
+
+     /* Parse the column widths and justifications */
+
+     col_widths = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.widths");
+     col_justs = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.justs");
+     for (i = 0; i < n_cols; i++) {
+	 p = raw_colstrs[i];
+	 switch (*p) {
+	     case '<':
+		  col_justs[i] = JUST_LEFT;
+		  p++;
+		  break;
+	     case '>':
+		  col_justs[i] = JUST_RIGHT;
+		  p++;
+		  break;
+	     case '-':
+		  col_justs[i] = JUST_CENTER;
+		  p++;
+		  break;
+	     default:
+		  col_justs[i] = JUST_LEFT;
+	 }
+	 for (n = 0; *p && isdigit((unsigned char) *p); p++) {
+	     n *= 10;
+	     n += *p - '0';
+	 }
+	 if (n < 1) {
+	     safe_str("#-1 INVALID COLUMN WIDTH", buff, bufc);
+	     XFREE(col_widths, "perform_align.widths");
+	     XFREE(col_justs, "perform_align.justs");
+	     return;
+	 }
+	 col_widths[i] = n;
+	 switch (*p) {
+	     case '.':
+		  col_justs[i] |= JUST_REPEAT;
+		  p++;
+		  break;
+	     case '`':
+		  col_justs[i] |= JUST_COALEFT;
+		  p++;
+		  break;
+	     case '\'':
+		  col_justs[i] |= JUST_COARIGHT;
+		  p++;
+		  break;
+	 }
+	 if (*p) {
+	     safe_str("#1 INVALID ALIGN STRING", buff, bufc);
+	     XFREE(col_widths, "perform_align.widths");
+	     XFREE(col_justs, "perform_align.justs");
+	     return;
+	 }
+     }
+
+     col_done = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.done");
+     xsl = (char **) XCALLOC(n_cols, sizeof(char *), "perform_align.xsl");
+     xel = (char **) XCALLOC(n_cols, sizeof(char *), "perform_align.xel");
+     xsw = (char **) XCALLOC(n_cols, sizeof(char *), "perform_align.xsw");
+     xew = (char **) XCALLOC(n_cols, sizeof(char *), "perform_align.xew");
+     xsl_a = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.xsl_a");
+     xel_a = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.xel_a");
+     xsw_a = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.xsw_a");
+     xew_a = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.xew_a");
+     xsl_p = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.xsl_p");
+     xel_p = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.xel_p");
+     xsw_p = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.xsw_p");
+     xew_p = (int *) XCALLOC(n_cols, sizeof(int), "perform_align.xew_p");
+
+     /* calloc() auto-initializes things to 0, so just do the other things */
+
+     for (i = 0; i < n_cols; i++) {
+	 xew[i] = data[i];
+	 xsl_a[i] = xel_a[i] = xsw_a[i] = xew_a[i] = ANST_NORMAL;
+     }
+
+     bb_p = *bufc;
+     l_p = *bufc;
+
+     while (n_done < n_cols) {
+	 for (i = 0; i < n_cols; i++) {
+
+	     /* If this is the first column, and it's not our first line,
+	      * output a row separator.
+	      */
+	     if ((i == 0) && (*bufc != bb_p)) {
+		 print_sep(&row_sep, buff, bufc);
+		 l_p = *bufc;
+	     }
+	     
+	     /* If our column width is 0, we've coalesced and we can safely
+	      * continue.
+	      */
+	     if (col_widths[i] == 0)
+		 continue;
+
+	     /* If this is not the first column of this line, output a
+	      * column separator.
+	      */
+	     if (*bufc != l_p) {
+		 print_sep(&col_sep, buff, bufc);
+	     }
+
+	     /* If we have a pending right-coalesce, we take care of it now,
+	      * though we save our previous width at this stage, since we're
+	      * going to output at that width during this pass.
+	      * We know we're not at width 0 ourselves at this point, so we
+	      * don't have to worry about a cascading coalesce; it'll 
+	      * get taken care of by the loop, automatically.
+	      * If we have a pending coalesce-right and we're at the first
+	      * column, we know that we overflowed and should just clear it.
+	      */
+
+	     width = col_widths[i];
+	     if (pending_coaright) {
+		 if (i > 0)
+		     col_widths[i] += pending_coaright + col_sep.len;
+		 pending_coaright = 0;
+	     }
+
+	     /* If we're done and our column width is not zero, and we are
+	      * not repeating, we must fill in spaces before we continue.
+	      */
+
+	     if (col_done[i] && !(col_justs[i] & JUST_REPEAT)) {
+		 print_padding(width, max, fillc);
+		 continue;
+	     }
+
+	     /* Restore our state variables */
+
+	     sl = xsl[i]; el = xel[i]; sw = xsw[i]; ew = xew[i]; 
+	     sl_ansi_state = xsl_a[i];
+	     el_ansi_state = xel_a[i];
+	     sw_ansi_state = xsw_a[i];
+	     ew_ansi_state = xew_a[i];
+	     sl_pos = xsl_p[i];
+	     el_pos = xel_p[i];
+	     sw_pos = xsw_p[i];
+	     ew_pos = xew_p[i];
+	     just = col_justs[i];
+
+	     while (1) {
+		 /* Locate the next start-of-word (SW) */
+		 for (sw = ew, sw_ansi_state = ew_ansi_state, sw_pos = ew_pos;
+		      *sw; ++sw) {
+		     switch(*sw) {
+			 case ESC_CHAR:
+			      track_esccode(sw, sw_ansi_state);
+			      --sw;
+			      continue;
+			 case '\t':
+			 case '\r':
+			      *sw = ' ';
+			      /* FALLTHRU */
+			 case ' ':
+			      ++sw_pos;
+			      continue;
+			 case BEEP_CHAR:
+			      continue;
+			 default:
+			      break;
+		     }
+		     break;
+		 }
+
+		 /* Three ways out of that locator loop: end-of-string (ES),
+		  * end-of-line (EL), and start-of-word (SW)
+		  */
+
+		 if (!*sw && sl == NULL) { /* ES, and nothing left to output */
+		     /* If we're coalescing left, we set this column to 0
+		      * width, and increase the width of the left column.
+		      * If we're coalescing right, we can't widen that column
+		      * yet, because otherwise it'll throw off its width for
+		      * this pass, so we've got to do that later. 
+		      * If we're repeating, we reset our pointer state, but
+		      * we keep track of our done-ness. Don't increment done
+		      * more than once, since we might repeat several times.
+		      */
+		     if (!col_done[i]) {
+			 n_done++;
+			 col_done[i] = 1;
+		     }
+		     if (i && (just & JUST_COALEFT)) {
+			 /* Find the next-left column with a nonzero width,
+			  * since we can have casdading coalescing.
+			  */
+			 for (n = i - 1;
+			      (n > 0) && (col_widths[n] == 0);
+			      n--);
+			 /* We have to add not only the width of the column,
+			  * but the column separator length.
+			  */
+			 col_widths[n] += col_widths[i] + col_sep.len;
+			 col_widths[i] = 0;
+		     } else if ((just & JUST_COARIGHT) && (i + 1 < n_cols)) {
+			 pending_coaright = col_widths[i];
+			 col_widths[i] = 0;
+		     } else if (just & JUST_REPEAT) {
+			 xsl[i] = xel[i] = xsw[i] = NULL;
+			 xew[i] = data[i];
+			 xsl_a[i] = xel_a[i] = ANST_NORMAL;
+			 xsw_a[i] = xew_a[i] = ANST_NORMAL;
+			 xsl_p[i] = xel_p[i] = xsw_p[i] = xew_p[i] = 0;
+		     }
+		     break;	/* get out of our infinite while */
+		 }
+
+		 /* Decide where start-of-line (SL) was */
+		 if (sl == NULL) {
+		     if (ew == data[i] || ew[-1] == '\n') {
+			 /* Preserve indentation at SS or after explicit EL */
+			 sl = ew;
+			 sl_ansi_state = ew_ansi_state;
+			 sl_pos = ew_pos;
+		     } else {
+			 /* Discard whitespace if previous line wrapped */
+			 sl = sw;
+			 sl_ansi_state = sw_ansi_state;
+			 sl_pos = sw_pos;
+		     }
+		 }
+
+		 if (*sw == '\n') { /* EL, so we have to output */
+		     ew = sw;
+		     ew_ansi_state = sw_ansi_state;
+		     ew_pos = sw_pos;
+		     break;
+		 } else {
+		     /* Locate the next end-of-word (EW) */
+		     for (ew = sw, ew_ansi_state = sw_ansi_state, ew_pos = sw_pos;
+			  *ew; ++ew) {
+			 switch(*ew) {
+			     case ESC_CHAR:
+				  track_esccode(ew, ew_ansi_state);
+				  --ew;
+				  continue;
+			     case '\r':
+			     case '\t':
+				  *ew = ' ';
+				  /* FALLTHRU */
+			     case ' ':
+			     case '\n':
+				  break;
+			     case BEEP_CHAR:
+				  continue;
+			     default:
+				  /* Break up long words */
+				  if (ew_pos - sw_pos == width)
+				      break;
+				  ++ew_pos;
+				  continue;
+			 }
+			 break;
+		     }
+
+		     /* Three ways out of that previous for loop: ES, EL, EW */
+
+		     /* If it fits on the line, add it */
+		     if (ew_pos - sl_pos <= width) {
+			 el = ew;
+			 el_ansi_state = ew_ansi_state;
+			 el_pos = ew_pos;
+		     }
+
+		     /* If it's just EW, not ES or EL, and the line isn't too
+		      * long, keep adding words to the line
+		      */
+		     if (*ew && *ew != '\n' && (ew_pos - sl_pos <= width))
+			 continue;
+
+		     /* So now we definitely need to output a line */
+		     break;
+		 }
+	     }
+
+	     /* Could be a blank line, no words fit */
+	     if (el == NULL) {
+		 el = sw;
+		 el_ansi_state = sw_ansi_state;
+		 el_pos = sw_pos;
+	     }
+
+	     /* Left space padding if needed */
+	     if (just & JUST_RIGHT) {
+		 nleft = width - el_pos + sl_pos;
+		 print_padding(nleft, max, fillc);
+	     } else if (just & JUST_CENTER) {
+		 lead_chrs = (int)((width / 2) - ((el_pos - sl_pos) / 2) + .5);
+		 print_padding(lead_chrs, max, fillc);
+	     }
+
+	     /* Restore previous ansi state */
+	     safe_str(ansi_transition_esccode(ANST_NORMAL, sl_ansi_state),
+		      buff, bufc);
+
+	     /* Print the words */
+	     safe_known_str(sl, el - sl, buff, bufc);
+
+	     /* Back to ansi normal */
+	     safe_str(ansi_transition_esccode(el_ansi_state, ANST_NORMAL),
+		      buff, bufc);
+
+	     /* Right space padding if needed */
+	     if (just & JUST_LEFT) {
+		 nleft = width - el_pos + sl_pos;
+		 print_padding(nleft, max, fillc);
+	     } else if (just & JUST_CENTER) {
+		 nleft = width - lead_chrs - el_pos + sl_pos;
+		 print_padding(nleft, max, fillc);
+	     }
+
+	     /* Update pointers for the next line */
+
+	     if (!*el) {
+		 /* ES, and nothing left to output */
+		 if (!col_done[i]) {
+		     n_done++;
+		     col_done[i] = 1;
+		 }
+		 if ((just & JUST_COALEFT) && (i - 1 >= 0)) {
+		     for (n = i - 1;
+			  (n > 0) && (col_widths[n] == 0);
+			  n--);
+		     col_widths[n] += col_widths[i] + col_sep.len;
+		     col_widths[i] = 0;
+		 } else if ((just & JUST_COARIGHT) && (i + 1 < n_cols)) {
+		     pending_coaright = col_widths[i];
+		     col_widths[i] = 0;
+		 } else if (just & JUST_REPEAT) {
+		     xsl[i] = xel[i] = xsw[i] = NULL;
+		     xew[i] = data[i];
+		     xsl_a[i] = xel_a[i] = xsw_a[i] = xew_a[i] = ANST_NORMAL;
+		     xsl_p[i] = xel_p[i] = xsw_p[i] = xew_p[i] = 0;
+		 }
+	     } else {
+		 if (*ew == '\n' && sw == ew) {
+		     /* EL already handled on this line, and no new word yet */
+		     ++ew;
+		     sl = el = NULL;
+		 } else if (sl == sw) {
+		     /* No new word yet */
+		     sl = el = NULL;
+		 } else {
+		     /* ES with more to output, EL for next line, or just a
+			full line */
+		     sl = sw;
+		     sl_ansi_state = sw_ansi_state;
+		     sl_pos = sw_pos;
+		     el = ew;
+		     el_ansi_state = ew_ansi_state;
+		     el_pos = ew_pos;
+		 }
+		 /* Save state */
+		 xsl[i] = sl; xel[i] = el; xsw[i] = sw; xew[i] = ew;
+		 xsl_a[i] = sl_ansi_state;
+		 xel_a[i] = el_ansi_state;
+		 xsw_a[i] = sw_ansi_state;
+		 xew_a[i] = ew_ansi_state;
+		 xsl_p[i] = sl_pos;
+		 xel_p[i] = el_pos;
+		 xsw_p[i] = sw_pos;
+		 xew_p[i] = ew_pos;
+	     }
+	 }
+     }
+
+     XFREE(col_widths, "perform_align.widths");
+     XFREE(col_justs, "perform_align.justs");
+     XFREE(col_done, "perform_align.done");
+     XFREE(xsl, "perform_align.xsl");
+     XFREE(xel, "perform_align.xel");
+     XFREE(xsw, "perform_align.xsw");
+     XFREE(xew, "perform_align.xew");
+     XFREE(xsl_a, "perform_align.xsl_a");
+     XFREE(xel_a, "perform_align.xel_a");
+     XFREE(xsw_a, "perform_align.xsw_a");
+     XFREE(xew_a, "perform_align.xew_a");
+     XFREE(xsl_p, "perform_align.xsl_p");
+     XFREE(xel_p, "perform_align.xel_p");
+     XFREE(xsw_p, "perform_align.xsw_p");
+     XFREE(xew_p, "perform_align.xew_p");
+}
+
+FUNCTION(fun_align)
+{
+     char **raw_colstrs;
+     int n_cols;
+     Delim filler, col_sep, row_sep;
+
+     if (nfargs < 2) {
+	 safe_str("#-1 FUNCTION (ALIGN) EXPECTS AT LEAST 2 ARGUMENTS",
+		  buff, bufc);
+	 return;
+     }
+
+     /* We need to know how many columns we have, so we know where the
+      * column arguments stop and where the optional arguments start.
+      */
+
+     n_cols = list2arr(&raw_colstrs, LBUF_SIZE / 2, fargs[0], &SPACE_DELIM);
+     if (nfargs < n_cols + 1) {
+	 safe_str("#-1 NOT ENOUGH COLUMNS FOR ALIGN", buff, bufc);
+	 XFREE(raw_colstrs, "fun_align.raw_colstrs");
+	 return;
+     }
+     if (nfargs > n_cols + 4) {
+	 safe_str("#-1 TOO MANY COLUMNS FOR ALIGN", buff, bufc);
+	 XFREE(raw_colstrs, "fun_align.raw_colstrs");
+	 return;
+     }
+
+     /* Note that the VaChk macros number arguments from 1. */
+     VaChk_Sep(&filler, n_cols + 2, 0);
+     VaChk_SepOut(col_sep, n_cols + 3, 0);
+     VaChk_SepOut(row_sep, n_cols + 4, 0);
+     if (nfargs < n_cols + 4) {
+	 row_sep.str[0] = '\r';
+     }
+
+     perform_align(n_cols, raw_colstrs, fargs + 1, filler.str[0],
+		   col_sep, row_sep, buff, bufc);
+     XFREE(raw_colstrs, "fun_align.raw_colstrs");
+}
+
+FUNCTION(fun_lalign)
+{
+     char **raw_colstrs, **data;
+     int n_cols, n_data;
+     Delim isep, filler, col_sep, row_sep;
+
+     VaChk_Range(2, 6);
+
+     n_cols = list2arr(&raw_colstrs, LBUF_SIZE / 2, fargs[0], &SPACE_DELIM);
+     VaChk_InSep(3, 0);
+     n_data = list2arr(&data, LBUF_SIZE / 2, fargs[1], &isep); 
+     if (n_cols > n_data) {
+	 safe_str("#-1 NOT ENOUGH COLUMNS FOR LALIGN", buff, bufc);
+	 XFREE(raw_colstrs, "fun_lalign.raw_colstrs");
+	 XFREE(data, "fun_lalign.data");
+	 return;
+     }
+     if (n_cols < n_data) {
+	 safe_str("#-1 TOO MANY COLUMNS FOR LALIGN", buff, bufc);
+	 XFREE(raw_colstrs, "fun_lalign.raw_colstrs");
+	 XFREE(data, "fun_lalign.data");
+	 return;
+     }
+
+     VaChk_Sep(&filler, 4, 0);
+     VaChk_SepOut(col_sep, 5, 0);
+     VaChk_SepOut(row_sep, 6, 0);
+     if (nfargs < 6) {
+	 row_sep.str[0] = '\r';
+     }
+
+     perform_align(n_cols, raw_colstrs, data, filler.str[0],
+		   col_sep, row_sep, buff, bufc);
+     XFREE(raw_colstrs, "fun_lalign.raw_colstrs");
+     XFREE(data, "fun_lalign.data");
+}
+
 
 /* ---------------------------------------------------------------------------
  * fun_elements: given a list of numbers, get corresponding elements from
