@@ -8049,26 +8049,43 @@ performed and the walk down the list stops.
   -2 is the second to last element, and so forth).
  
   A slice consists of a string of the format [<start>]:[<end>[:<step>]]
-  If <start> is empty, the first element is 1. If it is positive, the first
-  element is that number. If it is negative, the first element is that many
-  elements from the end (i.e., 6 items, <start> -1 is 6, and <start> -2 is 5).
-  If <end> is empty, the last element is the last word. If it is positive,
-  the last element is that number. If it is negative, the last will be set
-  to exclude the last <end> elements (i.e., 6 items, -2 stops at item 4).
-  <step> defaults to 1. The elements wlil go from first to last, inclusive,
-  in increments of <step>.
-  
+  <step> defaults to 1; it can be any positive or negative number (non-zero).
+  The elements will be taken first to last, inclusive, in increments of <step>.
+ 
+  If <start> is empty, the first element is 1 if <step> is positive, or the
+  last word if <step> is negative. If <start> is positive, the first element
+  is that number. If it is negative, the first element is that many elements
+  from the end (i.e., with 6 items, <start> -1 is 6, and <start> -2 is 5).
+ 
+  If <end> is empty, the last element is the last word if <step> is positive,
+  or 1 if <step> is negative. If <end> is positive, the last element is that
+  number. If it is negative, the last will be set to exclude the last <end>
+  elements (i.e., 6 items, -2 stops at item 4).
+ 
+  Continued in 'help Elements2'.
+ 
+& ELEMENTS2
+ 
   Examples:
+ 
     > say [elements(Foo Ack Beep Moo Zot,2 4)] ... 
           [elements(Foof|Ack|Beep|Moo,3 1,|)] ... 
           [elements(Foof|Ack|Beep|Moo,3 1,|,-)]
     You say, "Ack Moo ... Beep|Foof ... Beep-Foof"
-    > say [elements(a b c d e f g, 2:6)] ... [elements(a b c d e f g, 2:6:3)]
+ 
+    > @vx me = a b c d e f g
+    > say [elements(%vx, 2:6)] ... [elements(%vx, 2:6:3)]
     You say, "b c d e f ... b e"
-    > say [elements(a b c d e f g, 2:)] ... [elements(a b c d e f g, :2)]
+    > say [elements(%vx, 2:)] ... [elements(%vx, :2)]
     You say, "b c d e f g ... a b"
-    > say [elements(a b c d e f g, -2:)] ... [elements(a b c d e f g, :-2)]
+    > say [elements(%vx, -2:)] ... [elements(%vx, :-2)]
     You say, "f g ... a b c d e"
+    > say [elements(%vx, ::-1)] ... [elements(%vx, 6:2:-1)]
+    You say, "g f e d c b a ... f e d c b"
+    > say [elements(%vx, 6::-1)] ... [elements(%vx, 6::-2)]
+    You say, "f e d c b a ... f d b"
+    > say [elements(%vx, -2:3:-1)] ... [elements(%vx, 3:-5:-1)]
+    You say, "f e d c ... c b"
  
 & EXTRACT()
   extract(<string>,<first>,<length>[,<delim>][,<output delim>])

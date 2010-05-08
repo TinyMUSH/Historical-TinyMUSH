@@ -2317,7 +2317,8 @@ FUNCTION(fun_elements)
 {
         int nwords, cur, start, end, stepn;
 	char **ptrs;
-	char *wordlist, *s, *r, *x, *oldp;
+	char *wordlist, *s, *r, *oldp;
+	char *end_p, *step_p;
 	Delim isep, osep;
 
 	VaChk_Only_In_Out(4);
@@ -2337,7 +2338,7 @@ FUNCTION(fun_elements)
 
 	do {
 	    r = split_token(&s, &SPACE_DELIM);
-	    if ((x = strchr(r, ':')) == NULL) {
+	    if ((end_p = strchr(r, ':')) == NULL) {
 		/* Just a number. If negative, count back from end of list. */
 		cur = atoi(r);
 		if (cur < 0) {
@@ -2364,48 +2365,80 @@ FUNCTION(fun_elements)
 		 * word lists from 1, so the syntax isn't Python-identical!
 		 */
 
-		if (x == r) {
-		    /* We have an empty start and are pointing at ':'. */
-		    start = 0;
-		    r++;
-		} else {
-		    *x++ = '\0';
-		    cur = atoi(r);
-		    if (cur < 0) {
-			start = nwords + cur;
-		    } else {
-			start = cur - 1; 
-		    }
-		    r = x;
-		}
-		
-		if ((x = strchr(r, ':')) != NULL) {
-		    /* We have a step. */
-		    *x++ = '\0';
-		    stepn = atoi(x);
-		} else {
-		    stepn = 1;
-		}
-		
-		if (*r == '\0') {
-		    end = nwords;
-		} else {
-		    cur = atoi(r);
-		    if (cur < 0) {
-			end = nwords + cur;
-		    } else {
-			end = cur;
-		    }
+		/* r points to our start */
+		*end_p++ = '\0';
+		if ((step_p = strchr(end_p, ':')) != NULL) {
+		    *step_p++ = '\0';
 		}
 
-		/* Don't do anything if step is negative */ 
-		if (stepn >= 1) {
-		    for (cur = start; cur < end; cur += stepn) {
-			if ((cur >= 0) && (cur < nwords) && ptrs[cur]) {
-			    if (oldp != *bufc) {
-				print_sep(&osep, buff, bufc);
+		if (!step_p) {
+		    stepn = 1;
+		} else {
+		    stepn = atoi(step_p);
+		}
+		
+		if (stepn > 0) {
+		    if (*r == '\0') {
+			/* Empty start */
+			start = 0;
+		    } else {
+			cur = atoi(r);
+			if (cur < 0)
+			    start = nwords + cur;
+			else
+			    start = cur - 1;
+		    }
+		    if (*end_p == '\0') {
+			/* Empty end */
+			end = nwords;
+		    } else {
+			cur = atoi(end_p);
+			if (cur < 0) {
+			    end = nwords + cur;
+			} else {
+			    end = cur;
+			}
+		    }
+		    if (start <= end) {
+			for (cur = start; cur < end; cur += stepn) {
+			    if ((cur >= 0) && (cur < nwords) && ptrs[cur]) {
+				if (oldp != *bufc) {
+				    print_sep(&osep, buff, bufc);
+				}
+				safe_str(ptrs[cur], buff, bufc);
 			    }
-			    safe_str(ptrs[cur], buff, bufc);
+			}
+		    }
+		} else if (stepn < 0) {
+		    if (*r == '\0') {
+			/* Empty start, goes to the LAST element */
+			start = nwords - 1;
+		    } else {
+			cur = atoi(r);
+			if (cur < 0)
+			    start = nwords + cur;
+			else
+			    start = cur - 1;
+		    }
+		    if (*end_p == '\0') {
+			/* Empty end */
+			end = 0;
+		    } else {
+			cur = atoi(end_p);
+			if (cur < 0) {
+			    end = nwords + cur - 1;
+			} else {
+			    end = cur - 1;
+			}
+		    }
+		    if (start >= end) {
+			for (cur = start; cur >= end; cur += stepn) {
+			    if ((cur >= 0) && (cur < nwords) && ptrs[cur]) {
+				if (oldp != *bufc) {
+				    print_sep(&osep, buff, bufc);
+				}
+				safe_str(ptrs[cur], buff, bufc);
+			    }
 			}
 		    }
 		}
