@@ -2344,7 +2344,7 @@ FUNCTION(fun_elements)
 		if (cur < 0) {
 		    cur = nwords + cur;
 		} else {
-		    cur = atoi(r) - 1;
+		    cur--;
 		}
 		if ((cur >= 0) && (cur < nwords) && ptrs[cur]) {
 		    if (oldp != *bufc) {
@@ -2383,21 +2383,14 @@ FUNCTION(fun_elements)
 			start = 0;
 		    } else {
 			cur = atoi(r);
-			if (cur < 0)
-			    start = nwords + cur;
-			else
-			    start = cur - 1;
+			start = (cur < 0) ? (nwords + cur) : (cur - 1);
 		    }
 		    if (*end_p == '\0') {
 			/* Empty end */
 			end = nwords;
 		    } else {
 			cur = atoi(end_p);
-			if (cur < 0) {
-			    end = nwords + cur;
-			} else {
-			    end = cur;
-			}
+			end = (cur < 0) ? (nwords + cur) : (cur);
 		    }
 		    if (start <= end) {
 			for (cur = start; cur < end; cur += stepn) {
@@ -2415,21 +2408,14 @@ FUNCTION(fun_elements)
 			start = nwords - 1;
 		    } else {
 			cur = atoi(r);
-			if (cur < 0)
-			    start = nwords + cur;
-			else
-			    start = cur - 1;
+			start = (cur < 0) ? (nwords + cur) : (cur - 1);
 		    }
 		    if (*end_p == '\0') {
 			/* Empty end */
 			end = 0;
 		    } else {
 			cur = atoi(end_p);
-			if (cur < 0) {
-			    end = nwords + cur - 1;
-			} else {
-			    end = cur - 1;
-			}
+			end = (cur < 0) ? (nwords + cur - 1) : (cur - 1);
 		    }
 		    if (start >= end) {
 			for (cur = start; cur >= end; cur += stepn) {
