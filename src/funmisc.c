@@ -890,28 +890,27 @@ FUNCTION(fun_benchmark)
      min = max = total = 0;
 
      for (i = 0; i < times; i++) {
+	 strcpy(ebuf, fargs[0]);
+	 s = ebuf;
+	 tp = tbuf;
+	 get_tod(&bt);
+	 exec(tbuf, &tp, player, caller, cause,
+	      EV_FCHECK | EV_STRIP | EV_EVAL, &s, cargs, ncargs);
+	 get_tod(&et);
+	 ut = ((et.tv_sec - bt.tv_sec) * 1000000) +
+	      (et.tv_usec - bt.tv_usec);
+	 if ((ut < min) || (min == 0))
+	     min = ut;
+	 if (ut > max)
+	     max = ut;
+	 total += ut;
 	 if ((mudstate.func_invk_ctr >= mudconf.func_invk_lim) ||
 	     (Too_Much_CPU())) {
 	     /* Abort */
 	     notify(player,
 		    tprintf("Limits exceeded at benchmark iteration %d.",
 			    i + 1));
-	     times = i;
-	 } else {
-	     strcpy(ebuf, fargs[0]);
-	     s = ebuf;
-	     tp = tbuf;
-	     get_tod(&bt);
-	     exec(tbuf, &tp, player, caller, cause,
-		  EV_FCHECK | EV_STRIP | EV_EVAL, &s, cargs, ncargs);
-	     get_tod(&et);
-	     ut = ((et.tv_sec - bt.tv_sec) * 1000000) +
-		  (et.tv_usec - bt.tv_usec);
-	     if ((ut < min) || (min == 0))
-		 min = ut;
-	     if (ut > max)
-		 max = ut;
-	     total += ut;
+	     times = i + 1;
 	 }
      }
 
