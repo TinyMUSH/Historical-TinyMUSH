@@ -8038,20 +8038,38 @@ performed and the walk down the list stops.
   See also: strmatch(), comp().
  
 & ELEMENTS()
-  elements(<list of words>,<list of numbers>[,<delim>][,<output delim>])
+  elements(<word list>,<list of numbers or slices>[,<delim>][,<output delim>])
  
-  This function returns the words in <list of words> that are in the
-  positions specified by <list of numbers>. Optionally, a list delimiter
-  other than a space can be specified, for both input and output.
+  This function returns the words in <words list> that are in the
+  positions specified by <list of numbers or slices>. Optionally, a list
+  delimiter other than a space can be specified, for both input and output.
  
+  Lists are numbered starting with word 1. If a negative number is used,
+  it represents that number of elements from the end (-1 is the last element,
+  -2 is the second to last element, and so forth).
+ 
+  A slice consists of a string of the format [<start>]:[<end>[:<step>]]
+  If <start> is empty, the first element is 1. If it is positive, the first
+  element is that number. If it is negative, the first element is that many
+  elements from the end (i.e., 6 items, <start> -1 is 6, and <start> -2 is 5).
+  If <end> is empty, the last element is the last word. If it is positive,
+  the last element is that number. If it is negative, the last will be set
+  to exclude the last <end> elements (i.e., 6 items, -2 stops at item 4).
+  <step> defaults to 1. The elements wlil go from first to last, inclusive,
+  in increments of <step>.
+  
   Examples:
-    > say elements(Foo Ack Beep Moo Zot,2 4)
-    You say, "Ack Moo"
-    > say elements(Foof|Ack|Beep|Moo,3 1,|)
-    You say, "Beep|Foof"
-    > say elements(Foof|Ack|Beep|Moo,3 1,|,-)
-    You say, "Beep-Foof"
-
+    > say [elements(Foo Ack Beep Moo Zot,2 4)] ... 
+          [elements(Foof|Ack|Beep|Moo,3 1,|)] ... 
+          [elements(Foof|Ack|Beep|Moo,3 1,|,-)]
+    You say, "Ack Moo ... Beep|Foof ... Beep-Foof"
+    > say [elements(a b c d e f g, 2:6)] ... [elements(a b c d e f g, 2:6:3)]
+    You say, "b c d e f ... b e"
+    > say [elements(a b c d e f g, 2:)] ... [elements(a b c d e f g, :2)]
+    You say, "b c d e f g ... a b"
+    > say [elements(a b c d e f g, -2:)] ... [elements(a b c d e f g, :-2)]
+    You say, "f g ... a b c d e"
+ 
 & EXTRACT()
   extract(<string>,<first>,<length>[,<delim>][,<output delim>])
  
