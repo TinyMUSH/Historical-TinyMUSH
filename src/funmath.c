@@ -987,7 +987,7 @@ FUNCTION(handle_vector)
 }
 
 /* ---------------------------------------------------------------------------
- * Operations on a pair of vectors: VADD, VSUB, VMUL, VDOT
+ * Operations on a pair of vectors: VADD, VSUB, VMUL, VDOT, VOR, VAND, VXOR
  */
 
 FUNCTION(handle_vectors)
@@ -996,7 +996,7 @@ FUNCTION(handle_vectors)
     int oper;
     char **v1, **v2;
     NVAL scalar;
-    int n, m, i;
+    int n, m, i, x, y;
 
     oper = Func_Mask(VEC_OPER);
 
@@ -1042,6 +1042,31 @@ FUNCTION(handle_vectors)
 		fval(buff, bufc, aton(v1[i]) - aton(v2[i]));
 	    }
 	    break;
+	case VEC_OR:
+	     safe_bool(buff, bufc, xlate(v1[0]) || xlate(v2[0]));
+	     for (i = 1; i < n; i++) {
+		 print_sep(&osep, buff, bufc);
+		 safe_bool(buff, bufc, xlate(v1[i]) || xlate(v2[i]));
+	     }
+	     break;
+	case VEC_AND:
+	     safe_bool(buff, bufc, xlate(v1[0]) && xlate(v2[0]));
+	     for (i = 1; i < n; i++) {
+		 print_sep(&osep, buff, bufc);
+		 safe_bool(buff, bufc, xlate(v1[i]) && xlate(v2[i]));
+	     }
+	     break;
+	case VEC_XOR:
+	     x = xlate(v1[0]);
+	     y = xlate(v2[0]);
+	     safe_bool(buff, bufc, (x && !y) || (!x && y));
+	     for (i = 1; i < n; i++) {
+		 print_sep(&osep, buff, bufc);
+		 x = xlate(v1[i]);
+		 y = xlate(v2[i]);
+		 safe_bool(buff, bufc, (x && !y) || (!x && y));
+	     }
+	     break;
 	case VEC_MUL:
 	    /* if n or m is 1, this is scalar multiplication.
 	     * otherwise, multiply elementwise.

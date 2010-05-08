@@ -5903,8 +5903,9 @@ See also: @link, @open.
 	sin()		sind()		tan()		tand()
  
   Vectors:
-	vadd()		vdot()		vmul()		vsub()
-	vdim()		vmag()		vunit()
+	vadd()		vand()		vdim()		vdot()
+	vmag()		vmul()		vor()		vsub()
+	vunit()		vxor()
  
 & MISC FUNCTIONS
   Topic: Miscellaneous Functions
@@ -7452,7 +7453,27 @@ performed and the walk down the list stops.
     You say, "27"
  
   See also: dist2d()
-
+ 
+& VAND()
+& VOR()
+& VXOR()
+  Function:  vand(<vector1>,<vector2>[,<delim>[,<output delim>]])
+             vor(<vector1>,<vector2>[,<delim>[,<output delim>]])
+             vxor(<vector1>,<vector2>[,<delim>[,<output delim>]])
+ 
+  These functions perform AND, OR, and XOR operations on each element of
+  two vectors. Each vector is a list of strings separated by spaces or a
+  delimiter, and may have any number of dimensions. The strings are treated
+  as boolean true or false.
+ 
+  Examples:
+    > think [vor(1 0 1, 0 1 0)] / [vand(1 0 1, 0 1 0)] / [vand(1 0 1, 0 1 0)]
+    1 1 1 / 0 0 0 / 1 1 1
+   > think [vor(foo #-1 5, 0 0 0)]
+   1 0 1
+ 
+  See also: Boolean Values, andbool(), orbool(), xorbool().
+ 
 & VADD()
   vadd(<vector>,<vector>[,<delim>][,<output delim>])
  

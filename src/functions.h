@@ -477,6 +477,9 @@ if ((l) > 0) { \
 #define VEC_MUL		2
 #define VEC_DOT		3
 /* #define VEC_CROSS	4  -- not implemented */
+#define VEC_OR		7
+#define VEC_AND		8
+#define VEC_XOR		9
 
 /* from handle_vector (vmag, vunit): */
 #define VEC_MAG		5
