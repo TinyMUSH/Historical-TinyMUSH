@@ -158,6 +158,7 @@ XFUNCTION(fun_fcount);
 XFUNCTION(fun_fdepth);
 XFUNCTION(fun_ccount);
 XFUNCTION(fun_cdepth);
+XFUNCTION(fun_benchmark);
 XFUNCTION(fun_s);
 XFUNCTION(fun_subeval);
 XFUNCTION(fun_link);
@@ -387,6 +388,7 @@ FUN flist[] = {
 {"BASECONV",	fun_baseconv,	3,  0,		CA_PUBLIC,	NULL},
 {"BEEP",        fun_beep,       0,  0,          CA_WIZARD,	NULL},
 {"BEFORE",	fun_before,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"BENCHMARK",   fun_benchmark,  2,  FN_NO_EVAL, CA_PUBLIC,	NULL},
 {"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC,	NULL},
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC,	NULL},
 {"BORDER",	perform_border,	0,  FN_VARARGS|JUST_LEFT,

@@ -5909,17 +5909,18 @@ See also: @link, @open.
 & MISC FUNCTIONS
   Topic: Miscellaneous Functions
  
-	case()		ccount()	cdepth()	config()
-	connrecord()	convsecs()	convtime()	die()		
-	fcount()	fdepth()	hasmodule()	helptext()	
-	ifelse()	iffalse()	iftrue()	ifzero()
-	localize()	lregs()		mudname()	nofx()
-	nonzero()	oemit()		pemit()		private()	
-	r()		rand()		remit()		restarts()	
-	restarttime()	s()		secs()		setq()		
-	setr()		speak()		sql()		starttime()	
-	subeval()	switch()	switchall()	time()		
-	timefmt()	usefalse()	usetrue()	version()
+	benchmark()	case()		ccount()	cdepth()	
+	config()	connrecord()	convsecs()	convtime()	
+	die()		fcount()	fdepth()	hasmodule()	
+	helptext()	ifelse()	iffalse()	iftrue()	
+	ifzero()	localize()	lregs()		mudname()	
+	nofx()		nonzero()	oemit()		pemit()		
+	private()	r()		rand()		remit()		
+	restarts()	restarttime()	s()		secs()		
+	setq()		setr()		speak()		sql()		
+	starttime()	subeval()	switch()	switchall()	
+	time()		timefmt()	usefalse()	usetrue()	
+	version()
  
 & STRING FUNCTIONS
   Topic: String Functions
@@ -8742,6 +8743,26 @@ performed and the walk down the list stops.
  
   (Note that because the fdepth() call is two levels deep, the 'real'
   recursion level it's checking of the u() is actually 3.)
+ 
+& BENCHMARK()
+  Function:  benchmark(<expression>, <number>)
+ 
+  Evaluates <expression>, <number> times, and returns the average, minimum,
+  and maximum time it took to evaluate <expression> in microseconds.
+ 
+  Example:
+    > think benchmark(iter(lnum(1,100), %va), 200)
+    341.42 338 377
+    > think benchmark(iter(lnum(1,100), v(va)), 200)
+    698.64 686 781
+    > think [setq(0,xxxxx)][benchmark(iter(lnum(1,100),%q0), 200)]
+    258.55 255 323
+    > think [setq(0,xxxxx)][benchmark(iter(lnum(1,100),r(0)), 200)]
+    566.31 559 606
+    think benchmark(iter(lnum(1,100), ##), 200)
+    258.98 254 318
+    > think benchmark(iter(lnum(1,100), %i0), 200)
+    266.99 262 308
  
 & HASMODULE()
   Function: hasmodule(<module name>)

@@ -18,6 +18,7 @@
 #include "powers.h"	/* required by code */
 #include "command.h"	/* required by code */
 #include "match.h"	/* required by code */
+#include "interface.h"	/* required by code */
 
 extern NAMETAB indiv_attraccess_nametab[];
 
@@ -790,6 +791,10 @@ FUNCTION(fun_restarttime)
 	safe_str(temp, buff, bufc);
 }
 
+/* ---------------------------------------------------------------------------
+ * fun_version: Return the MUSH version.
+ */
+
 FUNCTION(fun_version)
 {
 	safe_str(mudstate.version, buff, bufc);
@@ -854,6 +859,66 @@ FUNCTION(fun_cdepth)
     safe_ltos(buff, bufc, mudstate.cmd_nest_lev);
 }
 
+/* ---------------------------------------------------------------------------
+ * fun_benchmark: Benchmark softcode.
+ */
+
+FUNCTION(fun_benchmark)
+{
+     struct timeval bt, et;
+     int i, times;
+     unsigned int min, max, total, ut;
+     char ebuf[LBUF_SIZE], tbuf[LBUF_SIZE], *tp, *nstr, *s;
+
+     /* Evaluate our times argument */
+
+     tp = nstr = alloc_lbuf("fun_benchmark");
+     s = fargs[1];
+     exec(nstr, &tp, player, caller, cause,
+	  EV_EVAL | EV_STRIP | EV_FCHECK, &s, cargs, ncargs);
+     times = atoi(nstr);
+     free_lbuf(nstr);
+     if (times < 1) {
+	 safe_str("#-1 TOO FEW TIMES", buff, bufc);
+	 return;
+     }
+     if (times > mudconf.func_invk_lim) {
+	 safe_str("#-1 TOO MANY TIMES", buff, bufc);
+	 return;
+     }
+
+     min = max = total = 0;
+
+     for (i = 0; i < times; i++) {
+	 if ((mudstate.func_invk_ctr >= mudconf.func_invk_lim) ||
+	     (Too_Much_CPU())) {
+	     /* Abort */
+	     notify(player,
+		    tprintf("Limits exceeded at benchmark iteration %d.",
+			    i + 1));
+	     times = i;
+	 } else {
+	     strcpy(ebuf, fargs[0]);
+	     s = ebuf;
+	     tp = tbuf;
+	     get_tod(&bt);
+	     exec(tbuf, &tp, player, caller, cause,
+		  EV_FCHECK | EV_STRIP | EV_EVAL, &s, cargs, ncargs);
+	     get_tod(&et);
+	     ut = ((et.tv_sec - bt.tv_sec) * 1000000) +
+		  (et.tv_usec - bt.tv_usec);
+	     if ((ut < min) || (min == 0))
+		 min = ut;
+	     if (ut > max)
+		 max = ut;
+	     total += ut;
+	 }
+     }
+
+     safe_tprintf_str(buff, bufc, "%.2f %u %u",
+		      ((double) total) / times, min, max);
+}
+     
 /* ---------------------------------------------------------------------------
  * fun_s: Force substitution to occur.
  * fun_subeval: Like s(), but don't do function evaluations.
