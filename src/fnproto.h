@@ -131,6 +131,7 @@ XFUNCTION(fun_not);
 XFUNCTION(fun_notbool);
 XFUNCTION(fun_t);
 XFUNCTION(handle_logic);
+XFUNCTION(handle_listbool);
 
 /* From funmisc.c */
 
@@ -564,6 +565,8 @@ FUN flist[] = {
 {"LET",		fun_let,	0,  FN_VARARGS|FN_NO_EVAL|FN_VARFX,
 						CA_PUBLIC,	NULL},
 {"LEXITS",	fun_lexits,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
+{"LFALSE",	handle_listbool, 0, FN_VARARGS|IFELSE_BOOL|IFELSE_FALSE,
+ 						CA_PUBLIC,	NULL},
 {"LIST",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|FN_OUTFX|BOOL_COND_NONE|FILT_COND_NONE|LOOP_NOTIFY,
 						CA_PUBLIC}, 
 {"LIST2",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|FN_OUTFX|BOOL_COND_NONE|FILT_COND_NONE|LOOP_NOTIFY|LOOP_TWOLISTS,
@@ -599,6 +602,8 @@ FUN flist[] = {
 {"LSTRUCTURES",	fun_lstructures, 0, FN_VARFX,	CA_PUBLIC,	NULL},
 {"LT",		fun_lt,		2,  0,		CA_PUBLIC,	NULL},
 {"LTE",		fun_lte,	2,  0,		CA_PUBLIC,	NULL},
+{"LTRUE",	handle_listbool, 0, FN_VARARGS|IFELSE_BOOL,
+ 						CA_PUBLIC,	NULL},
 {"LUNION",	handle_sets,	0,  FN_VARARGS|SET_TYPE|SET_UNION,
 						CA_PUBLIC,	NULL},
 {"LVARS",	fun_lvars,	0,  FN_VARFX,	CA_PUBLIC,	NULL},

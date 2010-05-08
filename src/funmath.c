@@ -1210,3 +1210,37 @@ FUNCTION(handle_logic)
 
 	safe_bool(buff, bufc, val);
 }
+
+/* ---------------------------------------------------------------------------
+ * ltrue() and lfalse(): Get boolean values for an entire list. 
+ */
+
+FUNCTION(handle_listbool)
+{
+     Delim isep, osep;
+     int flag, n;
+     char *tbuf, *bp, *bb_p;
+
+     flag = Func_Flags(fargs);
+     VaChk_Only_In_Out(3);
+
+     if (!fargs[0] || !*fargs[0])
+	 return;
+
+     bb_p = *bufc;
+     bp = trim_space_sep(fargs[0], &isep);
+     while (bp) {
+	 tbuf = split_token(&bp, &isep);
+	 if (*bufc != bb_p) {
+	     print_sep(&osep, buff, bufc);
+	 }
+	 if (flag & IFELSE_BOOL) {
+	     n = xlate(tbuf);
+	 } else {
+	     n = !((atoi(tbuf) == 0) && is_number(tbuf));
+	 }
+	 if (flag & IFELSE_FALSE)
+	     n = !n;
+	 safe_bool(buff, bufc, n);
+     }
+}

@@ -5872,10 +5872,11 @@ See also: @link, @open.
   Logic:
 	eq()		gt()		gte()		lt()
 	lte()		neq()		ncomp()
-	not()		t()
+	not()		t()		
 	and()		or()		xor()
 	andbool()	notbool()	orbool()	xorbool()
 	cand()		cor()		candbool()	corbool()
+	lfalse()	ltrue()
  
   Miscellaneous:
 	add()		abs()		baseconv()	ceil()
@@ -8462,7 +8463,7 @@ performed and the walk down the list stops.
   Takes a boolean value, and returns 0 if it is false, and 1 if it is
   true.
  
-  See also: BOOLEAN VALUES, notbool(), andbool(), orbool(), xorbool().
+  See also: BOOLEAN VALUES, notbool(), andbool(), orbool(), xorbool(), ltrue().
 & NOTBOOL()
   Function: notbool(<boolean>)
  
@@ -8470,7 +8471,7 @@ performed and the walk down the list stops.
   equivalent to true(1) it returns a 0, and if the input is equivalent to
   false(0), it returns a 1.
  
-  See also: BOOLEAN VALUES, t(), andbool(), orbool(), xorbool(), not().
+  See also: BOOLEAN VALUES, t(), andbool(), orbool(), xorbool(), lfalse().
 & XORBOOL()
   Function: xorbool(<boolean1>,<boolean2>[,<booleanN>]...)
  
@@ -8478,6 +8479,19 @@ performed and the walk down the list stops.
   equivalent to true(1).
  
   See also: BOOLEAN VALUES, t(), andbool(), notbool(), orbool(), xor().
+& LTRUE()
+& LFALSE()
+  Function: ltrue(<list>[,<delim>[,<output delim>]])
+            lfalse(<list>[,<delim>[,<output delim>]])
+ 
+  ltrue() and lfalse() takes a list, and return whether each element is
+  boolean true or boolean false, respectively.
+ 
+  ltrue() is a fast equivalent of iter(<list>, t(##))
+  lfalse() is a fast equivalent of iter(<list>, notbool(##))
+ 
+  See also: BOOLEAN VALUES, t(), notbool().
+ 
 & AND()
   Function: and(<number1>,<number2>[,<numberN>]...)
  
