@@ -5863,8 +5863,8 @@ See also: @link, @open.
 	revwords()	rtables()	setdiff()	setinter()	
 	setunion()	shuffle()	sortby()	sort()		
 	splice()	step()		table()		tables()
-	until()		whenfalse()	whenfalse2()	whentrue()
-	whentrue2()	while()		words()
+	unmatchall()	until()		whenfalse()	whenfalse2()	
+	whentrue()	whentrue2()	while()		words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -7912,13 +7912,19 @@ performed and the walk down the list stops.
   See also: LISTS, member(), matchall(), strmatch().
 
 & MATCHALL()
+& UNMATCHALL()
   Function: matchall(<string>,<pattern>[,<delim>][,<output delim>])
+            unmatchall(<string>,<pattern>[,<delim>][,<output delim>])
  
-  This function works identically to the match() function, save that it
+  matchall() works identically to the match() function, save that it
   returns all matches, not just the first: It returns the index numbers of
   all words in the list <string> which match <pattern>. If none match, an
   empty string is returned.
  
+  unmatchall() is the reverse; it returns the index numbers of all words in
+  the list <string> which DON'T match <pattern>. If all match, an empty
+  string is returned.
+  
   The output delimiter for this function works differently than other list
   functions -- if not specified, it defaults to a space, NOT to the input
   delimiter.

@@ -284,11 +284,13 @@ FUNCTION(fun_match)
 
 FUNCTION(fun_matchall)
 {
-	int wcount;
+	int wcount, flag;
 	char *r, *s, *old;
 	Delim isep, osep;
 
 	VaChk_Only_In_Out(4);
+
+	flag = Func_Flags(fargs);
 
 	/* SPECIAL CASE: If there's no output delimiter specified, we use
 	 * a space, NOT the delimiter given for the list!
@@ -301,14 +303,16 @@ FUNCTION(fun_matchall)
 	old = *bufc;
 
 	/* Check each word individually, returning the word number of all 
-	 * that match. If none match, return a null string.
+	 * that match (or don't match, in the case of unmatchall). If none,
+	 * return a null string.
 	 */
 
 	wcount = 1;
 	s = trim_space_sep(fargs[0], &isep);
 	do {
 		r = split_token(&s, &isep);
-		if (quick_wild(fargs[1], r)) {
+		if (quick_wild(fargs[1], r) ?
+		    !(flag & IFELSE_FALSE) : (flag & IFELSE_FALSE)) {
 			if (old != *bufc) {
 			    print_sep(&osep, buff, bufc);
 			}

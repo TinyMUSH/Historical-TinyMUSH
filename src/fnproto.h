@@ -799,6 +799,7 @@ FUN flist[] = {
 {"ULOCAL",	do_ufun,	0,  FN_VARARGS|U_LOCAL,
 						CA_PUBLIC,	NULL},
 {"UNLOAD",	fun_unload,	0,  FN_VARARGS|FN_VARFX,	CA_PUBLIC,	NULL},
+{"UNMATCHALL",	fun_matchall,	0,  FN_VARARGS|IFELSE_FALSE,	CA_PUBLIC,	NULL},
 {"UNSTRUCTURE",	fun_unstructure,1,  FN_VARFX,	CA_PUBLIC,	NULL},
 {"UNTIL",	fun_until,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"UPRIVATE",	do_ufun,	0,  FN_VARARGS|U_PRIVATE,
