@@ -30,11 +30,45 @@ Release history:
 =============================================================================
 
 Changes committed to CVS but are not yet in a release...
+ 
+  - Enhancement: New @include command allows the inline inclusion of the
+    action list from another attribute. Idea from PennMUSH.
+  
+  - Enhancement: New functions align() and lalign() do newspaper-style 
+    column formatting. Idea from PennMUSH.
+ 
+  - Enhancement: New function benchmark() for benchmarking softcode. Idea
+    from PennMUSH.
+ 
+  - Enhancement: New function diffpos() string-comparison function.
 
-  - Enhancement: diffpos() string-comparison function.
-  - Enhancement: stripchars() string-editing function.
-  - Enhancement: grid() and related functions.
+  - Enhancement: elements() now supports a slicing syntax, including
+    negative numbers (N positions from end) and <start>:<end>:<step>
+ 
+  - Enhancement: New function exclude() is an inverse form of elements().
+ 
+  - Enhancement: New functions for coordinate grids; grid() etc.
 
+  - Enhancement: New functions ltrue() and lfalse() test boolean-true and
+    boolean-false on lists.
+
+  - Enhancement: New function unmatchall() is a reverse matchall(), which
+    gets the element numbers of list items that don't match a pattern.
+ 
+  - Enhancement: New function qsub() provides "safe" string substitutions
+    using local register data.
+ 
+  - Enhancement: New function stripchars() for string-editing.
+ 
+  - Enhancement: Justification indicators on table(). Idea from PennMUSH.
+
+  - Enhancement: New functions vand(), vor(), vxor() perform boolean logic
+    between lists.
+
+  - Bugfix: baseconv() handles negative numbers. [3.2b1; Penn]
+ 
+  - Misc: Updated copyright.
+ 
 03/02/2009: Beta 2
 
   - Enhancement: nofx() function selectively prevents function side-effects.
