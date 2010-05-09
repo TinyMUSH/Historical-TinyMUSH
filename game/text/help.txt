@@ -8309,13 +8309,14 @@ performed and the walk down the list stops.
  
   apple                     banana                    kiwi
   orange                    peach                     pear
-  plum                      strawberry
+  plum                      ukelele
  
   Suppose you wanted to alphabetize vertically rather than horizontally,
-  though. You would use 'table(group(%va, 3), 25)', which would result in:
+  though. You would use 'table(group(%va,ceil(fdiv(words(%va),3))),25)',
+  which would result in:
  
   apple                     orange                    plum
-  banana                    peach                     strawberry
+  banana                    peach                     ukelele
   kiwi                      pear
  
   See also: step()
