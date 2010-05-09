@@ -867,7 +867,7 @@ FUNCTION(fun_benchmark)
 {
      struct timeval bt, et;
      int i, times;
-     unsigned int min, max, total, ut;
+     double min, max, total, ut;
      char ebuf[LBUF_SIZE], tbuf[LBUF_SIZE], *tp, *nstr, *s;
 
      /* Evaluate our times argument */
@@ -914,8 +914,8 @@ FUNCTION(fun_benchmark)
 	 }
      }
 
-     safe_tprintf_str(buff, bufc, "%.2f %u %u",
-		      ((double) total) / times, min, max);
+     safe_tprintf_str(buff, bufc, "%.2f %.0f %.0f",
+		      total / (double) times, min, max);
 }
      
 /* ---------------------------------------------------------------------------
