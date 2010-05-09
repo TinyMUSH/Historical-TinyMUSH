@@ -766,7 +766,7 @@ FUNCTION(fun_etimefmt)
      int raw_secs;
      int secs, mins, hours, days;
      int csecs, cmins, chours, cdays;
-     int len, max, n, nw, width, hidezero, showsuffix, clockfmt;
+     int len, max, n, x, width, hidezero, hideearly, showsuffix, clockfmt;
      char padc, timec;
 
      /* Figure out time values */
@@ -798,9 +798,7 @@ FUNCTION(fun_etimefmt)
 		 safe_chr('$', buff, bufc);
 		 p++;
 	     } else {
-		 hidezero = 0;
-		 showsuffix = 0;
-		 clockfmt = 0;
+		 hidezero = hideearly = showsuffix = clockfmt = 0;
 		 /* Optional width */
 		 for (width = 0; *p && isdigit((unsigned char) *p); p++) {
 		     width *= 10;
@@ -811,8 +809,10 @@ FUNCTION(fun_etimefmt)
 			    (*p == 'x') || (*p == 'X') ||
 			    (*p == 'c') || (*p == 'C');
 		      p++) {
-		     if ((*p == 'z') || (*p == 'Z'))
+		     if (*p == 'z')
 			 hidezero = 1;
+		     else if (*p == 'Z')
+			 hideearly = 1;
 		     else if ((*p == 'x') || (*p == 'X'))
 			 showsuffix = 1;
 		     else if ((*p == 'c') || (*p == 'C'))
@@ -859,12 +859,21 @@ FUNCTION(fun_etimefmt)
 			 p++;
 		     safe_known_str(mark, p - mark, buff, bufc);
 		 } else if (!clockfmt) {
-		     if (hidezero && (n == 0)) {
+		     /* If it's 0 and we're hidezero, just hide it.
+		      * If it's 0 and we're hideearly, we only hide it if
+		      * we haven't got some bigger increment that's non-zero.
+		      */
+		     if ((n == 0) &&
+			 (hidezero ||
+			  (hideearly &&
+			   !(((timec == 's') && (raw_secs > 0)) ||
+			     ((timec == 'm') && (raw_secs >= 60)) ||
+			     ((timec == 'h') && (raw_secs >= 3600)))))) {
 			 if (width > 0) {
 			     padc = isupper(*p) ? '0' : ' ';
 			     if (showsuffix) {
-				 nw = width + 1;
-				 print_padding(nw, max, padc);
+				 x = width + 1;
+				 print_padding(x, max, padc);
 			     } else {
 				 print_padding(width, max, padc);
 			     }
