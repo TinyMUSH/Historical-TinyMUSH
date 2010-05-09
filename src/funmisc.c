@@ -757,6 +757,204 @@ FUNCTION(fun_timefmt)
 }
 
 /* ---------------------------------------------------------------------------
+ * fun_etimefmt: Format a number of seconds into a human-readable time.
+ */
+
+FUNCTION(fun_etimefmt)
+{
+     char *p, *mark, *tp;
+     int raw_secs;
+     int secs, mins, hours, days;
+     int csecs, cmins, chours, cdays;
+     int len, max, n, nw, width, hidezero, showsuffix, clockfmt;
+     char padc, timec;
+
+     /* Figure out time values */
+
+     raw_secs = secs = atoi(fargs[1]);
+     if (secs < 0) {
+	 /* Try to be semi-useful. Keep value of secs; zero out the rest */ 
+	 mins = hours = days = 0;
+     } else {
+	 days = secs / 86400;
+	 secs %= 86400;
+	 hours = secs / 3600;
+	 secs %= 3600;
+	 mins = secs / 60;
+	 secs %= 60;
+     }
+
+     /* Parse and print format string */
+
+     p = fargs[0];
+     while (*p) {
+	 if (*p == '$') {
+	     mark = p;	/* save place in case we need to go back */
+	     p++;
+	     if (!*p) {
+		 safe_chr('$', buff, bufc);
+		 break;
+	     } else if (*p == '$') {
+		 safe_chr('$', buff, bufc);
+		 p++;
+	     } else {
+		 hidezero = 0;
+		 showsuffix = 0;
+		 clockfmt = 0;
+		 /* Optional width */
+		 for (width = 0; *p && isdigit((unsigned char) *p); p++) {
+		     width *= 10;
+		     width += *p - '0';
+		 }
+		 for ( ;
+		      (*p == 'z') || (*p == 'Z') ||
+			    (*p == 'x') || (*p == 'X') ||
+			    (*p == 'c') || (*p == 'C');
+		      p++) {
+		     if ((*p == 'z') || (*p == 'Z'))
+			 hidezero = 1;
+		     else if ((*p == 'x') || (*p == 'X'))
+			 showsuffix = 1;
+		     else if ((*p == 'c') || (*p == 'C'))
+			 clockfmt = 1;
+		 }
+		 switch (*p) {
+		     case 's': case 'S':
+			  n = secs;
+			  timec = 's';
+			  break;
+		     case 'm' : case 'M':
+			  n = mins;
+			  timec = 'm';
+			  break;
+		     case 'h' : case 'H':
+			  n = hours;
+			  timec = 'h';
+			  break;
+		     case 'd' : case 'D':
+			  n = days;
+			  timec = 'd';
+			  break;
+		     case 'a' : case 'A':
+			  /* Show the first non-zero thing */
+			  if (days > 0) {
+			      n = days;
+			      timec = 'd';
+			  } else if (hours > 0) {
+			      n = hours;
+			      timec = 'h';
+			  } else if (mins > 0) {
+			      n = mins;
+			      timec = 'm';
+			  } else {
+			      n = secs;
+			      timec = 's';
+			  }
+			  break;
+		     default:
+			  timec = ' '; 
+		 }
+		 if (timec == ' ') {
+		     while (*p && (*p != '$')) 
+			 p++;
+		     safe_known_str(mark, p - mark, buff, bufc);
+		 } else if (!clockfmt) {
+		     if (hidezero && (n == 0)) {
+			 if (width > 0) {
+			     padc = isupper(*p) ? '0' : ' ';
+			     if (showsuffix) {
+				 nw = width + 1;
+				 print_padding(nw, max, padc);
+			     } else {
+				 print_padding(width, max, padc);
+			     }
+			 }
+		     } else if (width > 0) {
+			 if (isupper(*p)) {
+			     safe_tprintf_str(buff, bufc, "%0*d", width, n);
+			 } else {
+			     safe_tprintf_str(buff, bufc, "%*d", width, n);
+			 }
+			 if (showsuffix) {
+			     safe_chr(timec, buff, bufc);
+			 }
+		     } else {
+			 safe_ltos(buff, bufc, n);
+			 if (showsuffix) {
+			     safe_chr(timec, buff, bufc);
+			 }
+		     }
+		     p++;
+		 } else {
+		     /* In clock format, we show <d>:<h>:<m>:<s>.
+		      * The field specifier tells us where our division stops.
+		      */
+		     if (timec == 'd') {
+			 cdays = days;
+			 chours = hours;
+			 cmins = mins;
+			 csecs = secs;
+		     } else if (timec == 'h') {
+			 cdays = 0;
+			 csecs = raw_secs;
+			 chours = csecs / 3600; 
+			 csecs %= 3600;
+			 cmins = csecs / 60;
+			 csecs %= 60;
+		     } else if (timec == 'm') {
+			 cdays = chours = 0;
+			 csecs = raw_secs;
+			 cmins = csecs / 60;
+			 csecs %= 60;
+		     } else {
+			 cdays = chours = cmins = 0;
+			 csecs = raw_secs; 
+		     }
+		     if (!hidezero || (cdays != 0)) {
+			 safe_tprintf_str(buff, bufc,
+					  isupper(*p) ?
+					  "%0*d:%0*d:%0*d:%0*d" :
+					  "%*d:%*d:%*d:%*d",
+					      width, cdays,
+					      width, chours,
+					      width, cmins,
+					      width, csecs);
+		     } else {
+			 /* Start from the first non-zero thing */
+			 if (chours != 0) {
+			     safe_tprintf_str(buff, bufc,
+					      isupper(*p) ?
+					      "%0*d:%0*d:%0*d" :
+					      "%*d:%*d:%*d",
+					      width, chours,
+					      width, cmins,
+					      width, csecs);
+			 } else if (cmins != 0) {
+			     safe_tprintf_str(buff, bufc,
+					      isupper(*p) ?
+					      "%0*d:%0*d" :
+					      "%*d:%*d",
+					      width, cmins,
+					      width, csecs);
+			 } else {
+			     safe_tprintf_str(buff, bufc,
+					      isupper(*p) ? "%0*d" : "%*d",
+					      width, csecs);
+			 }
+		     }
+		     p++;
+		 }
+	     }
+	 } else {
+	     mark = p;
+	     while (*p && (*p != '$'))
+		 p++;
+	     safe_known_str(mark, p - mark, buff, bufc);
+	 }
+     }
+}
+
+/* ---------------------------------------------------------------------------
  * fun_starttime: What time did this system last reboot?
  */
 

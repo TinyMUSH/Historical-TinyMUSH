@@ -5912,19 +5912,26 @@ See also: @link, @open.
 & MISC FUNCTIONS
   Topic: Miscellaneous Functions
  
-	benchmark()	case()		ccount()	cdepth()	
-	config()	connrecord()	convsecs()	convtime()	
-	die()		fcount()	fdepth()	hasmodule()	
-	helptext()	ifelse()	iffalse()	iftrue()	
-	ifzero()	localize()	lregs()		mudname()	
-	nofx()		nonzero()	oemit()		pemit()		
-	private()	r()		rand()		remit()		
-	restarts()	restarttime()	s()		secs()		
-	setq()		setr()		speak()		sql()		
-	starttime()	subeval()	switch()	switchall()	
-	time()		timefmt()	usefalse()	usetrue()	
-	version()
- 
+  Conditionals:
+	case()		ifelse()	iffalse()	iftrue()
+	ifzero()	nonzero()	switch()	switchall()
+	usefalse()	usetrue()
+  Time:
+	convsecs()	convtime()	etimefmt()	secs()
+	time()		timefmt()
+  Registers:
+	lregs()		r()		setq()		setr()
+  Function control:
+  	benchmark()	localize()	nofx()		private()
+	s()		subeval()
+  MUSH state data:
+       ccount()		cdepth()	config()	connrecord()
+       fcount()		fdepth()	hasmodule()	mudname()
+       restarts()	restarttime()	starttime()	version()
+  Other:
+	die()		helptext()	oemit()		pemit()
+	rand()		remit()		speak()		sql()
+  
 & STRING FUNCTIONS
   Topic: String Functions
  
@@ -7212,6 +7219,57 @@ performed and the walk down the list stops.
     $X - Time, in format appropriate to local timezone
  
   $$ - Literal '$' character
+ 
+& ETIMEFMT()
+  Function: etimefmt(<format string>, <seconds>)
+ 
+  This function takes <seconds>, and formats it into days, hours,  minutes, 
+  and seconds. <format string> takes special substitutions of the format:
+ 
+      $[<width of numeric field>][x][z][c]<increment>
+ 
+  where <increment> is upper- or lower-case 'd', 'h', 'm', 's', or 'a'.
+ 
+  Examples:
+    > think etimefmt($h hrs $m mins $s secs,7273)
+    2 hrs 1 mins 13 secs
+    > think etimefmt($xa, 65)
+    1m
+    > think etimefmt($2M:$2S, 65)
+    01:05
+    > think etimefmt($2H:$2M:$2S, 65)
+    00:01:05
+    > think etimefmt($2zCH, 65)
+    01:05
+ 
+  Continued in 'help ETIMEFMT2'.
+ 
+& ETIMEFMT2
+ 
+  Valid increments are 'd', 'h', m', 's' and 'a', for days, hours, minutes,
+  seconds, and a special "all". If <width> is given, if the number being
+  formatted is less than the width,it will be left-padded with spaces if
+  <increment> is lower-case (d h m s), or left-padded with 0s if <increment>
+  is upper-case (D H M S). In other words, if you're formatting 5 (seconds),
+  '$2s' is ' 5' while '$2S' is '05'.
+ 
+  The increment of "all" is special; it indicates the largest possible
+  increment will be used. In other words, if <seconds> is 86400 or greater,
+  days will be used; if 3600 or greater, hours will be used; if 60 or greater,
+  minutes will be used; and seconds otherwise.
+ 
+  If 'x' is given, the type of increment (d, h, m, or s) is postpended after
+  the number, i.e., 5 seconds formatted as '$2xs' is ' 5s'.
+ 
+  If 'z' is given, if the number is zero, nothing is printed, i.e., 60 seconds
+  as '$xzm $xzs' is  is '1m ' while 59 seconds as the same is ' 59s'. Note
+  that since the space is preserved regardless, so if you don't want that,
+  use trim() around the function.
+ 
+  If 'c' is given, a "clock" format will be used. The increment determines
+  the largest increment used; i.e., if <seconds> is 86400 (1 day), but the
+  increment is 'h', then days will be considered 0, and hours will be 24.
+  The output will be colon-separated, i.e., 60 minutes as '$2zcM' is '01:00'.
  
 & RAND()
   Function: rand(<num>)

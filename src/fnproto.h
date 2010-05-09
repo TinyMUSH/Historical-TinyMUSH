@@ -149,6 +149,7 @@ XFUNCTION(fun_secs);
 XFUNCTION(fun_convsecs);
 XFUNCTION(fun_convtime);
 XFUNCTION(fun_timefmt);
+XFUNCTION(fun_etimefmt);
 XFUNCTION(fun_starttime);
 XFUNCTION(fun_restarts);
 XFUNCTION(fun_restarttime);
@@ -460,6 +461,7 @@ FUN flist[] = {
 {"EQ",		fun_eq,		2,  0,		CA_PUBLIC,	NULL},
 {"ESC",		fun_esc,	-1, 0,		CA_PUBLIC,	NULL},
 {"ESCAPE",	fun_escape,	-1, 0,		CA_PUBLIC,	NULL},
+{"ETIMEFMT",	fun_etimefmt,	2,  0,		CA_PUBLIC,	NULL},
 {"EXCLUDE",	fun_exclude,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"EXIT",	fun_exit,	1,  0,		CA_PUBLIC,	NULL},
 {"EXP",		fun_exp,	1,  0,		CA_PUBLIC,	NULL},
