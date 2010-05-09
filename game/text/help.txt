@@ -551,10 +551,10 @@ OBJECT TYPES		ObjIDs			PARENT OBJECTS
 Patchlevel		PIPING			Propdirs		
 PUEBLO			PUPPETS			REGEXPS			
 ROBBERY			Scan Order		SEARCH CLASSES		
-SEMAPHORES		SPOOFING		STACK			
-SUBSTITUTIONS		SUCCESS			SWITCHES		
-Syntax			User Commands		Zone Control		
-ZONE OBJECTS
+SEMAPHORES		Slices			SPOOFING
+STACK			SUBSTITUTIONS		SUCCESS			
+SWITCHES		Syntax			User Commands		
+Zone Control		ZONE OBJECTS
  
 & throw
 & drop
@@ -5849,22 +5849,23 @@ See also: @link, @open.
   Topic: List Functions
  
 	choose()	columns()	ctables()	delimit()	
-	elements()	extract()	filter()	filterbool()	
-	first()		fold()		grab()		graball()	
-	group()		index()		insert()	itemize()	
-	isort()		iter()		iter2()		isfalse()
-	istrue()	last()		ldelete()	ldiff()		
-	ledit()		linter()	list()		list2()
-	lnum()		loop()		lpos()		lrand()
-	lreplace()	lunion()	map()		match()		
-	matchall()	member()	mix()		munge()		
-	qvars()		remove()	replace()	regrab()	
-	regraball()	regraballi()	regrabi()	rest()		
-	revwords()	rtables()	setdiff()	setinter()	
-	setunion()	shuffle()	sortby()	sort()		
-	splice()	step()		table()		tables()
-	unmatchall()	until()		whenfalse()	whenfalse2()	
-	whentrue()	whentrue2()	while()		words()
+	elements()	exclude()	extract()	filter()	
+	filterbool()	first()		fold()		grab()		
+	graball()	group()		index()		insert()	
+	itemize()	isort()		iter()		iter2()		
+	isfalse()	istrue()	last()		ldelete()	
+	ldiff()		ledit()		linter()	list()		
+	list2()		lnum()		loop()		lpos()		
+	lrand()		lreplace()	lunion()	map()		
+	match()		matchall()	member()	mix()		
+	munge()		qvars()		remove()	replace()	
+	regrab()	regraball()	regraballi()	regrabi()	
+	rest()		revwords()	rtables()	setdiff()	
+	setinter()	setunion()	shuffle()	sortby()	
+	sort()		splice()	step()		table()		
+	tables()	unmatchall()	until()		whenfalse()	
+	whenfalse2()	whentrue()	whentrue2()	while()
+	words()
  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -6477,6 +6478,49 @@ The list of loaded modules can be obtained via the 'version' command.
  
   See also: @drain, @notify, @wait.
 
+& SLICES
+  Topic: Slices
+ 
+  Lists are numbered starting with word 1. Most list functions require
+  positive numbers to be used. However, some list functions can take slices;
+  these allow either positive or negative numbers, as well as slicing syntax.
+  If a negative number is used, it represents that number of elements from
+  the end (-1 is the last element, -2 is the second to last element, and 
+  so forth).
+ 
+  A slice consists of a string of the format [<start>]:[<end>[:<step>]]
+  <step> defaults to 1; it can be any positive or negative number (non-zero).
+  The elements will be taken first to last, inclusive, in increments of <step>.
+ 
+  If <start> is empty, the first element is 1 if <step> is positive, or the
+  last word if <step> is negative. If <start> is positive, the first element
+  is that number. If it is negative, the first element is that many elements
+  from the end (i.e., with 6 items, <start> -1 is 6, and <start> -2 is 5).
+ 
+  If <end> is empty, the last element is the last word if <step> is positive,
+  or 1 if <step> is negative. If <end> is positive, the last element is that
+  number. If it is negative, the last will be set to exclude the last <end>
+  elements (i.e., 6 items, -2 stops at item 4).
+ 
+  Continued in 'help Slices2'.
+ 
+& SLICES2
+ 
+  For example, if list is a 6-element list, 1 2 3 4 5 6:
+ 
+  3        the third element (3)
+  -3       the third-to-last element (4)
+ 
+  :        all elements (1 2 3 4 5 6)
+  ::1      all elements (1 2 3 4 5 6)
+  ::-1     all elements reversed (6 5 4 3 2 1)
+ 
+  ::2      elements in a 2-step increment (1 3 5)
+  ::-2     elements reversed in a 2-step increment (6 4 2)
+ 
+  2:5      elements 2 through 5 (2 3 4 5)
+  5:2:-1   elements 5 through 2 (5 4 3 2)
+  
 & SPOOFING
   Topic: SPOOFING
  
@@ -8072,35 +8116,22 @@ performed and the walk down the list stops.
   positions specified by <list of numbers or slices>. Optionally, a list
   delimiter other than a space can be specified, for both input and output.
  
-  Lists are numbered starting with word 1. If a negative number is used,
-  it represents that number of elements from the end (-1 is the last element,
-  -2 is the second to last element, and so forth).
+  Slices are supported, so positive numbers, negative numbers, and slicing
+  syntax can be mixed when specifying the elements.
  
-  A slice consists of a string of the format [<start>]:[<end>[:<step>]]
-  <step> defaults to 1; it can be any positive or negative number (non-zero).
-  The elements will be taken first to last, inclusive, in increments of <step>.
- 
-  If <start> is empty, the first element is 1 if <step> is positive, or the
-  last word if <step> is negative. If <start> is positive, the first element
-  is that number. If it is negative, the first element is that many elements
-  from the end (i.e., with 6 items, <start> -1 is 6, and <start> -2 is 5).
- 
-  If <end> is empty, the last element is the last word if <step> is positive,
-  or 1 if <step> is negative. If <end> is positive, the last element is that
-  number. If it is negative, the last will be set to exclude the last <end>
-  elements (i.e., 6 items, -2 stops at item 4).
+  Example:
+  
+    > say [elements(Foo Ack Beep Moo Zot,2 4)] ... 
+          [elements(Foo Ack Beep Moo Zot,-2 -4)] ...
+          [elements(Foof|Ack|Beep|Moo,3 1,|)] ... 
+          [elements(Foof|Ack|Beep|Moo,3 1,|,-)]
+    You say, "Ack Moo ... Moo Ack ... Beep|Foof ... Beep-Foof"
  
   Continued in 'help Elements2'.
  
 & ELEMENTS2
  
-  Examples:
- 
-    > say [elements(Foo Ack Beep Moo Zot,2 4)] ... 
-          [elements(Foo Ack Beep Moo Zot,-2 -4)] ...
-          [elements(Foof|Ack|Beep|Moo,3 1,|)] ... 
-          [elements(Foof|Ack|Beep|Moo,3 1,|,-)] ...
-    You say, "Ack Moo ... Moo Ack ... Beep|Foof ... Beep-Foof"
+  Example:
  
     > @vx me = a b c d e f g
     > say [elements(%vx, 2:6)] ... [elements(%vx, 2:6:3)]
@@ -8116,6 +8147,29 @@ performed and the walk down the list stops.
     > say [elements(%vx, -2:3:-1)] ... [elements(%vx, 3:-5:-1)]
     You say, "f e d c ... c b"
  
+  See also:  Slices, exclude().
+ 
+& EXCLUDE()
+  exclude(<word list>,<list of numbers or slices>[,<delim>][,<output delim>])
+ 
+  This function returns the words in <words list> that are NOT in the
+  positions specified by <list of numbers or slices>. Optionally, a list
+  delimiter other than a space can be specified, for both input and output.
+ 
+  Slices are supported, so positive numbers, negative numbers, and slicing
+  syntax can be mixed when specifying the elements.
+ 
+  The output is always ordered from the first to last element, regardless
+  of the order in which the excluded items are specified.
+ 
+  Example:
+  
+    > say [exclude(Foo Ack Beep Moo Zot,2 4)] ... 
+          [exclude(Foo Ack Beep Moo Zot,-2 -4)] ...
+          [exclude(Foof|Ack|Beep|Moo,3 1,|)] ... 
+          [exclude(Foof|Ack|Beep|Moo,3 1,|,-)]
+    You say, "Foo Beep Zot ... Foo Beep Zot ... Ack|Moo .. Ack-Moo"
+  
 & EXTRACT()
   extract(<string>,<first>,<length>[,<delim>][,<output delim>])
  

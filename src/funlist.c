@@ -2346,7 +2346,7 @@ FUNCTION(fun_elements)
 		/* Just a number. If negative, count back from end of list. */
 		cur = atoi(r);
 		if (cur < 0) {
-		    cur = nwords + cur;
+		    cur += nwords;
 		} else {
 		    cur--;
 		}
@@ -2437,6 +2437,123 @@ FUNCTION(fun_elements)
 	free_lbuf(wordlist);
 	XFREE(ptrs, "fun_elements.ptrs");
 }
+
+/* ---------------------------------------------------------------------------
+ * fun_exclude: Return the elements of a list EXCEPT the numbered items.
+ */
+
+FUNCTION(fun_exclude)
+{
+        int nwords, cur, start, end, stepn;
+	char **ptrs;
+	char *wordlist, *s, *r, *oldp;
+	char *end_p, *step_p;
+	int *mapper;
+	Delim isep, osep;
+
+	VaChk_Only_In_Out(4);
+	oldp = *bufc;
+
+	/* Turn the first list into an array. */
+
+	wordlist = alloc_lbuf("fun_exclude.wordlist");
+	strcpy(wordlist, fargs[0]);
+	nwords = list2arr(&ptrs, LBUF_SIZE / 2, wordlist, &isep);
+
+	s = Eat_Spaces(fargs[1]);
+
+	/* Go through the second list, grabbing the numbers and mapping the
+	 * corresponding elements. 
+	 */
+
+	mapper = (int *) XCALLOC(nwords, sizeof(int), "fun_exclude.mapper");
+
+	do {
+	    r = split_token(&s, &SPACE_DELIM);
+	    if ((end_p = strchr(r, ':')) == NULL) {
+		/* Just a number. If negative, count back from end of list. */
+		cur = atoi(r);
+		if (cur < 0)
+		    cur += nwords;
+		else
+		    cur--;
+		if ((cur >= 0) && (cur < nwords))
+		    mapper[cur] = 1;
+	    } else {
+		/* Slicing syntax */
+
+		/* r points to our start */
+		*end_p++ = '\0';
+		if ((step_p = strchr(end_p, ':')) != NULL) {
+		    *step_p++ = '\0';
+		}
+
+		if (!step_p) {
+		    stepn = 1;
+		} else {
+		    stepn = atoi(step_p);
+		}
+		
+		if (stepn > 0) {
+		    if (*r == '\0') {
+			/* Empty start */
+			start = 0;
+		    } else {
+			cur = atoi(r);
+			start = (cur < 0) ? (nwords + cur) : (cur - 1);
+		    }
+		    if (*end_p == '\0') {
+			/* Empty end */
+			end = nwords;
+		    } else {
+			cur = atoi(end_p);
+			end = (cur < 0) ? (nwords + cur) : (cur);
+		    }
+		    if (start <= end) {
+			for (cur = start; cur < end; cur += stepn) {
+			    if ((cur >= 0) && (cur < nwords))
+				mapper[cur] = 1;
+			}
+		    }
+		} else if (stepn < 0) {
+		    if (*r == '\0') {
+			/* Empty start, goes to the LAST element */
+			start = nwords - 1;
+		    } else {
+			cur = atoi(r);
+			start = (cur < 0) ? (nwords + cur) : (cur - 1);
+		    }
+		    if (*end_p == '\0') {
+			/* Empty end */
+			end = 0;
+		    } else {
+			cur = atoi(end_p);
+			end = (cur < 0) ? (nwords + cur - 1) : (cur - 1);
+		    }
+		    if (start >= end) {
+			for (cur = start; cur >= end; cur += stepn) {
+			    if ((cur >= 0) && (cur < nwords))
+				mapper[cur] = 1;
+			}
+		    }
+		}
+	    }
+	} while (s);
+
+	for (cur = 0; cur < nwords; cur++) {
+	    if (!mapper[cur]) {
+		if (oldp != *bufc) {
+		    print_sep(&osep, buff, bufc);
+		}
+		safe_str(ptrs[cur], buff, bufc);
+	    }
+	}
+
+	free_lbuf(wordlist);
+	XFREE(ptrs, "fun_exclude.ptrs");
+	XFREE(mapper, "fun_exclude.mapper");
+}
+
 
 /* ---------------------------------------------------------------------------
  * fun_grab: a combination of extract() and match(), sortof. We grab the

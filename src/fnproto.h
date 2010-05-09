@@ -71,6 +71,7 @@ XFUNCTION(fun_table);
 XFUNCTION(fun_align);
 XFUNCTION(fun_lalign);
 XFUNCTION(fun_elements);
+XFUNCTION(fun_exclude);
 XFUNCTION(fun_grab);
 XFUNCTION(fun_graball);
 XFUNCTION(fun_shuffle);
@@ -459,6 +460,7 @@ FUN flist[] = {
 {"EQ",		fun_eq,		2,  0,		CA_PUBLIC,	NULL},
 {"ESC",		fun_esc,	-1, 0,		CA_PUBLIC,	NULL},
 {"ESCAPE",	fun_escape,	-1, 0,		CA_PUBLIC,	NULL},
+{"EXCLUDE",	fun_exclude,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"EXIT",	fun_exit,	1,  0,		CA_PUBLIC,	NULL},
 {"EXP",		fun_exp,	1,  0,		CA_PUBLIC,	NULL},
 {"EXTRACT",	fun_extract,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
