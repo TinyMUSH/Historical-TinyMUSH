@@ -538,6 +538,7 @@ struct statedata {
 	char	*loop_token[MAX_ITER_NESTING];	/* Value of ## */
 	char	*loop_token2[MAX_ITER_NESTING];	/* Value of #? */
 	int	loop_number[MAX_ITER_NESTING];	/* Value of #@ */
+	int	loop_break[MAX_ITER_NESTING];	/* Kill this iter() loop? */
 	int	in_switch;	/* In a switch() statement? */
 	char	*switch_token;	/* Value of #$ */
 	int	func_nest_lev;	/* Current nesting of functions */

@@ -34,6 +34,8 @@ XFUNCTION(perform_loop);
 XFUNCTION(perform_iter);
 XFUNCTION(fun_ilev);
 XFUNCTION(fun_itext);
+XFUNCTION(fun_itext2);
+XFUNCTION(fun_ibreak);
 XFUNCTION(fun_inum);
 XFUNCTION(fun_fold);
 XFUNCTION(handle_filter);
@@ -516,6 +518,7 @@ FUN flist[] = {
 {"HTML_ESCAPE",	fun_html_escape,-1, 0,		CA_PUBLIC,	NULL},
 {"HTML_UNESCAPE",fun_html_unescape,-1,0,	CA_PUBLIC,	NULL},
 #endif /* PUEBLO_SUPPORT */
+{"IBREAK",	fun_ibreak,	1,  0,		CA_PUBLIC,	NULL},
 {"IDLE",	handle_conninfo, 1, CONNINFO_IDLE, CA_PUBLIC,	NULL},
 {"IFELSE",      handle_ifelse,   0, IFELSE_BOOL|FN_VARARGS|FN_NO_EVAL,
 						CA_PUBLIC,	NULL},
@@ -548,6 +551,7 @@ FUN flist[] = {
 {"ISTRUE",	perform_iter,	0,  FN_VARARGS|FN_NO_EVAL|BOOL_COND_NONE|FILT_COND_TRUE,
 						CA_PUBLIC,	NULL},
 {"ITEXT",	fun_itext,	1,  0,		CA_PUBLIC,	NULL},
+{"ITEXT2",	fun_itext2,	1,  0,		CA_PUBLIC,	NULL},
 {"KNOWS",	handle_okpres,	2,  PRESFN_KNOWS,
 						CA_PUBLIC,	NULL},
 {"LADD",	fun_ladd,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},

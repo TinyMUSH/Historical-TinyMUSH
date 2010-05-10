@@ -182,11 +182,13 @@ FUNCTION(perform_iter)
     mudstate.loop_token[cur_lev] = NULL;
     mudstate.loop_token2[cur_lev] = NULL;
     mudstate.loop_number[cur_lev] = 0;
+    mudstate.loop_break[cur_lev] = 0;
 
     bb_p = *bufc;
     elen = strlen(ep);
 
     while ((input_p || input_p2) &&
+	   !mudstate.loop_break[cur_lev] &&
 	   (mudstate.func_invk_ctr < mudconf.func_invk_lim) && 
 	   !Too_Much_CPU()) {
 	if (!need_result && (*bufc != bb_p)) {
@@ -287,6 +289,16 @@ FUNCTION(fun_itext2)
 	return;
 
     safe_str(mudstate.loop_token2[lev], buff, bufc);
+}
+
+FUNCTION(fun_ibreak)
+{
+     int lev;
+
+     lev = mudstate.in_loop - 1 - atoi(fargs[0]);
+     if ((lev > mudstate.in_loop - 1) || (lev < 0))
+	 return;
+     mudstate.loop_break[lev] = 1;
 }
 
 /* ---------------------------------------------------------------------------

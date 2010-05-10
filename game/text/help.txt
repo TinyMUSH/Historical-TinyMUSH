@@ -9720,7 +9720,8 @@ performed and the walk down the list stops.
     5 - d"
  
   See also: @dolist, parse(), list(), istrue(), isfalse(), whentrue(),
-            whenfalse(), loop(), ilev(), itext(), inum(), map(), DELIMITERS.
+            whenfalse(), loop(), ilev(), itext(), inum(), ibreak(),
+	    map(), DELIMITERS.
  
 & LIST()
   Function: list(<list>, <eval>[, <delim>])
@@ -9744,7 +9745,7 @@ performed and the walk down the list stops.
     4 - 4 - 1 - 0:1:2 1:2:2 2:3:2 3:4:2
     5 - 5 - 1 - 0:1:2 1:2:2 2:3:2 3:4:2 4:5:2
  
-  See also: iter(), parse(), loop().
+  See also: iter(), ibreak(), itext(), inum(), ilev(), parse(), loop().
  
 & ILEV()
   Function: ilev()
@@ -9753,7 +9754,7 @@ performed and the walk down the list stops.
   Equivalent to the substitution '#!' when used within one of those
   functions.
  
-  See also: itext(), inum().
+  See also: itext(), inum(), ibreak().
  
 & ITEXT()
   Function: itext(<level>)
@@ -9777,7 +9778,7 @@ performed and the walk down the list stops.
   If used outside one of those functions, or with a nesting level that
   is too deep, this function returns a null string.
  
-  See also: ilev(), inum().
+  See also: ilev(), inum(), ibreak().
  
 & INUM()
   Function: inum(<level>)
@@ -9789,7 +9790,29 @@ performed and the walk down the list stops.
   If used outside one of those functions, or with a nesting level that
   is too deep, this function returns 0.
  
-  See also: ilev(), itext().
+  See also: ilev(), itext(), ibreak().
+ 
+& IBREAK()
+  Function: ibreak(<level delta from current>)
+ 
+  ibreak() is used to break out of the loops of iter() and related functions.
+  It takes a single number, which is the iteration nesting level to break
+  out of, as a delta from the current level. The current level is 0, the
+  next level up is 1, and so forth. It will finish and output the evaluation
+  that ibreak() was called as part of, but it will not evaluate further
+  list elements at that level.
+  
+  ibreak() works on all functions that use the '##' token, such as iter(),
+  iter2(), list(), parse(), loop(), istrue(), isfalse(), whentrue(), and
+  whenfalse().
+ 
+  Examples:
+    > say iter(A B C, iter(junk1 junk2, %i0:%i1))
+    You say, "junk1:A junk2:A junk1:B junk2:B junk1:C junk2:C"
+    > say iter(A B C, iter(junk1 junk2, %i0:%i1 [ibreak(0)]))
+    You say, "junk1:A  junk1:B  junk1:C"
+    > say iter(A B C, iter(junk1 junk2, %i0:%i1 [ibreak(1)]))
+    You say, "junk1:A  junk2:A"
  
 & LOOP()
   Function: loop(<list>, <eval>[, <delim>])
@@ -9828,7 +9851,7 @@ performed and the walk down the list stops.
     > say istrue(1-2-3-4-5,mod(##,2),-,.)
     You say, "1.3.5"
  
-  See also: filterbool(), isfalse(), iter(), filter()
+  See also: filterbool(), isfalse(), iter(), filter(), ibreak().
  
 & ISFALSE()
   Function: isfalse(<list>, <eval>[, <delim>[, <output delim>]])
@@ -9849,7 +9872,7 @@ performed and the walk down the list stops.
     > say isfalse(1-2-3-4-5,mod(##,2),-,.)
     You say, "2.4"
  
-  See also: filterbool(), istrue(), iter(), filter()
+  See also: filterbool(), istrue(), iter(), filter(), ibreak().
  
 & WHENTRUE()
   Function: whentrue(<list>, <eval>[, <delim>[, <output delim>]])
@@ -9870,7 +9893,7 @@ performed and the walk down the list stops.
     > say [whentrue2(1 2 0 2 1, 0 0 0 0 0, or(##,#+))]
     You say, "1 1 0"
  
-  See also: iter(), BOOLEAN VALUES.
+  See also: iter(), ibreak(), BOOLEAN VALUES.
  
 & WHENFALSE()
   Function: whenfalse(<list>, <eval>[, <delim>[, <output delim>]])
@@ -9891,7 +9914,7 @@ performed and the walk down the list stops.
     > say [whenfalse2(0 #-1 1 2, 0 0 0 0, orbool(##,#+))]
     You say, "0 0 1"
  
-  See also: iter(), BOOLEAN VALUES.
+  See also: iter(), ibreak(), BOOLEAN VALUES.
  
 & LOCATE()
   Function: locate(<looker>,<string>,<where>)

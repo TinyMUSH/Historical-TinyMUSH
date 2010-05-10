@@ -953,7 +953,7 @@ char *cargs[];
 				if (!**dstr)
 				    (*dstr)--;
 				if (**dstr == '-') {
-				   /* use number as delta back from current */
+				   /* use absolute level number */
 				   (*dstr)++;
 				   if (!**dstr)
 					(*dstr)--;
@@ -961,6 +961,7 @@ char *cargs[];
 					break;
 				   i = (**dstr - '0');
 				} else {
+				   /* use number as delta back from current */
 				   if (!mudstate.in_loop || !isdigit(**dstr))
 					break;
 				   i = mudstate.in_loop - 1 - (**dstr - '0'); 
