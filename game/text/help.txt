@@ -5791,11 +5791,11 @@ See also: @link, @open.
   Comsys Functions: available only when the comsys is enabled.
   Grid Functions: manipulation of object grids.
   List Functions: manipulation of lists.
+  Eval Functions: execution control, output, local registers, side-effects.
   Math Functions: math and logic.
   Misc Functions: miscellaneous utilities.
   Object Functions: retrieval of object-property-related information.
   Pueblo Functions: available only when Pueblo is enabled.
-  Side-Effect Functions: side-effect functions.
   Stack Functions: manipulation of object stacks.
   String Functions: manipulation of strings.
   Structure Functions: manipulation of data structures.
@@ -5838,35 +5838,64 @@ See also: @link, @open.
 	stats()		type()		visible()	where()		
 	writable()	xcon()		zone()		zwho()
  
-& SIDE-EFFECT FUNCTIONS
-  Topic: Side-Effect Functions
+& EVAL FUNCTIONS
+  Topic: Evaluation-Related Functions
  
+  Execution control:
+  	benchmark()	ccount()	cdepth()	fcount()
+	fdepth()	localize()	nofx()		private()
+	sandbox()
+ 
+  Registers:
+	lregs()		qsub()		qvars()		r()	
+	setq()		setr()
+ 
+  Side-effect functions:
 	command()	create()	force()		link()		
 	set()		tel()		trigger()	wait()		
 	wipe()
  
+  Output functions:
+  	 oemit()	pemit()		remit()
+ 
 & LIST FUNCTIONS
   Topic: List Functions
  
-	choose()	columns()	ctables()	delimit()	
-	elements()	exclude()	extract()	filter()	
-	filterbool()	first()		fold()		grab()		
-	graball()	group()		index()		insert()	
-	itemize()	isort()		iter()		iter2()		
-	isfalse()	istrue()	last()		ldelete()	
-	ldiff()		ledit()		linter()	list()		
-	list2()		lnum()		loop()		lpos()		
-	lrand()		lreplace()	lunion()	map()		
-	match()		matchall()	member()	mix()		
-	munge()		qvars()		remove()	replace()	
-	regrab()	regraball()	regraballi()	regrabi()	
-	rest()		revwords()	rtables()	setdiff()	
-	setinter()	setunion()	shuffle()	sortby()	
-	sort()		splice()	step()		table()		
-	tables()	unmatchall()	until()		whenfalse()	
-	whenfalse2()	whentrue()	whentrue2()	while()
-	words()
+  List extraction:
+	choose()	elements()	exclude()	extract()	
+	first()		grab()		graball()	index()		
+	last()		regrab()	regraball()	regraballi()	
+	regrabi()	rest()
  
+  List alteration:
+       insert()		ldelete()	ledit()		lreplace()
+       remove()		replace()
+ 
+  Matching:
+	match()		matchall()	member()	unmatchall()
+ 
+  Continued in 'help List Functions2'.
+ 
+& LIST FUNCTIONS2
+  Topic: List Functions (continued)
+ 
+  Iterative list processing:
+	filter()	filterbool()	fold()		ibreak()
+	ilev()		inum()		iter()		iter2()
+	itext()		itext2()	isfalse()	istrue()
+	list()		list2()		loop()		map()		
+	mix()		munge()		splice()	step()		
+	until()		whenfalse()	whenfalse2()	whentrue()	
+	whentrue2()	while()
+ 
+  Sorting:
+	isort()		group()		ldiff()		linter()	
+	lunion()	revwords()	shuffle()	sort()
+	sortby()	setdiff()	setinter()	setunion()
+ 
+  Other:
+ 	delimit()	itemize()	lpos()		words()
+  
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
  
@@ -5916,43 +5945,60 @@ See also: @link, @open.
 	case()		ifelse()	iffalse()	iftrue()
 	ifzero()	nonzero()	switch()	switchall()
 	usefalse()	usetrue()
+ 
   Time:
 	convsecs()	convtime()	etimefmt()	secs()
 	time()		timefmt()
-  Registers:
-	lregs()		r()		setq()		setr()
-  Function control:
-  	benchmark()	localize()	nofx()		private()
-	s()		subeval()
+ 
   MUSH state data:
-       ccount()		cdepth()	config()	connrecord()
-       fcount()		fdepth()	hasmodule()	mudname()
+       config()		connrecord()	hasmodule()	mudname()
        restarts()	restarttime()	starttime()	version()
+ 
   Other:
-	die()		helptext()	oemit()		pemit()
-	rand()		remit()		speak()		sql()
+	die()		helptext()	lnum()		lrand()
+	rand()		sql()
   
 & STRING FUNCTIONS
   Topic: String Functions
  
-	after()		align()		alphamax()	alphamin()	
-	ansi()		ansipos()	art()		beep()		
-	before()	border()	capstr()	cat()		
-	cborder()	center()	chomp()		comp()		
-	decrypt()	delete()	diffpos()	edit()		
-	encrypt()	esc()		escape()	foreach()	
+  String comparison:
+	alphamax()	alphamin()	comp()		diffpos()
 	isalnum()	isdbref()	isnum()		isword()	
-	lalign()	lcstr()		left()		lit()		
-	ljust()		merge()		mid()		nescape()	
-	nsecure()	null()		pos()		qsub()		
-	rborder()	regedit()	regediti()	regeditall()	
-	regeditalli()	regmatch()	regmatchi()	repeat()	
-	reverse()	right()		rjust()		secure()	
-	scramble()	space()		squish()	strcat()
-	streq()		stripansi()	stripchars()	strlen()
-	strmatch()	strtrunc()	translate()	trim()
-	ucstr()		valid()		wildmatch()	wordpos()
-	@@()
+	regmatch()	regmatchi()	streq()		strmatch()
+	wildmatch()
+  
+  String extraction:
+	after()		before()	left()		mid()
+	right()		strtrunc()
+  
+  String alteration:
+	chomp()		delete()	edit()		merge()
+	regedit()	regediti()	regeditall()	regeditalli()
+	reverse()	scramble()	
+ 
+  Continued in 'help String Functions2'.
+ 
+& String Functions2
+  Topic: String Functions (continued)
+ 
+  Evaluation and security:
+	@@()		ansi()		decrypt()	encrypt()	
+	esc()		escape()	lit()		nescape()	
+	nsecure()	null()		s()		secure()	
+	subeval()	stripansi()	stripchars()	translate()
+ 
+  Formatting:
+	align()		lalign()	columns()	table()
+	capstr()	lcstr()		ucstr()
+	repeat()	space()		squish()	trim()		
+	border()	cborder()	rborder()
+	ljust()		center()	rjust()
+	tables()	ctables()	rtables()
+  
+  Other:
+	ansipos()	art()		beep()		cat()
+	foreach()	pos()		speak()		strcat()
+	strlen()	valid()		wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -9811,8 +9857,8 @@ performed and the walk down the list stops.
   list elements at that level.
   
   ibreak() works on all functions that use the '##' token, such as iter(),
-  iter2(), list(), parse(), loop(), istrue(), isfalse(), whentrue(), and
-  whenfalse().
+  iter2(), list(), list2(), parse(), loop(), istrue(), isfalse(), whentrue(),
+  whentrue(), whenfalse(), and whenfalse2().
  
   Examples:
     > say iter(A B C, iter(junk1 junk2, %i0:%i1))
