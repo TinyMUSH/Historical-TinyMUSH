@@ -7226,21 +7226,21 @@ performed and the walk down the list stops.
   This function takes <seconds>, and formats it into days, hours,  minutes, 
   and seconds. <format string> takes special substitutions of the format:
  
-      $[<width of numeric field>][x][z|Z][c][<increment>
+      $[<width of numeric field>][x][z|Z][C][c][<increment>
  
   where <increment> is upper- or lower-case 'd', 'h', 'm', 's', or 'a'.
  
   Examples:
-    > think etimefmt($h hrs $m mins $s secs,7273)
-    2 hrs 1 mins 13 secs
-    > think etimefmt($xa, 65)
-    1m
+    > think [etimefmt($h hrs $m mins $s secs,7273)] ... [etimefmt($xa, 65)]
+    2 hrs 1 mins 13 secs ... 1m
     > think [etimefmt($2M:$2S, 65)] ... [etimefmt($2H:$2M:$2S, 65)]
     01:05 ... 00:01:05
-    > think etimefmt($2zCH, 65)
+    > think etimefmt($2zcH, 65)
     01:05
     > think [etimefmt($xzh $xzm $xs,3600)] ... [etimefmt($xzh $xZm $xs,3600)]
     1h  0s ... 1h 0m 0s
+    > think [etimefmt($2H:$2M,90100)] is bad ... [etimefmt($2CH:$2M,90100)]
+    01:01 is bad ... 25:01
  
   Continued in 'help ETIMEFMT2'.
  
@@ -7266,6 +7266,10 @@ performed and the walk down the list stops.
   If 'Z' is given, if the number is zero, nothing is printed, unless there's
   a non-zero greater increment, i.e., 3600 seconds is 1 hour, which is 
   greater than 1 minute, thus formatted as '$xzh $xZm $xs' it is '1h 0m 0s'.
+ 
+  If 'C' is give, a cap will be forced. The increment determines what this is;
+  i.e., if it's 'h', hours will include the days (times 24), so '$2CH:$2M'
+  guarantees that hours will be displayed accurately when more than 24.
  
   If 'c' is given, a "clock" format will be used. The increment determines
   the largest increment used; i.e., if <seconds> is 86400 (1 day), but the

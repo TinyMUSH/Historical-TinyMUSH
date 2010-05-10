@@ -766,7 +766,8 @@ FUNCTION(fun_etimefmt)
      int raw_secs;
      int secs, mins, hours, days;
      int csecs, cmins, chours, cdays;
-     int len, max, n, x, width, hidezero, hideearly, showsuffix, clockfmt;
+     int max, n, x, width;
+     int hidezero, hideearly, showsuffix, clockfmt, usecap;
      char padc, timec;
 
      /* Figure out time values */
@@ -798,7 +799,7 @@ FUNCTION(fun_etimefmt)
 		 safe_chr('$', buff, bufc);
 		 p++;
 	     } else {
-		 hidezero = hideearly = showsuffix = clockfmt = 0;
+		 hidezero = hideearly = showsuffix = clockfmt = usecap = 0;
 		 /* Optional width */
 		 for (width = 0; *p && isdigit((unsigned char) *p); p++) {
 		     width *= 10;
@@ -815,20 +816,31 @@ FUNCTION(fun_etimefmt)
 			 hideearly = 1;
 		     else if ((*p == 'x') || (*p == 'X'))
 			 showsuffix = 1;
-		     else if ((*p == 'c') || (*p == 'C'))
+		     else if (*p == 'c')
 			 clockfmt = 1;
+		     else if (*p == 'C')
+			 usecap = 1;
 		 }
 		 switch (*p) {
 		     case 's': case 'S':
-			  n = secs;
+			  if (usecap)
+			      n = raw_secs;
+			  else
+			      n = secs;
 			  timec = 's';
 			  break;
 		     case 'm' : case 'M':
-			  n = mins;
+			  if (usecap)
+			      n = mins + (hours * 60) + (days * 24 * 60);
+			  else
+			      n = mins;
 			  timec = 'm';
 			  break;
 		     case 'h' : case 'H':
-			  n = hours;
+			  if (usecap)
+			      n = hours + (days * 24);
+			  else
+			      n = hours;
 			  timec = 'h';
 			  break;
 		     case 'd' : case 'D':
