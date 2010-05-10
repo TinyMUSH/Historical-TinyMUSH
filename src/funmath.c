@@ -827,6 +827,43 @@ FUNCTION(fun_min)
 }
 
 /* ---------------------------------------------------------------------------
+ * bound(): Force a number to conform to specified bounds.
+ */
+
+FUNCTION(fun_bound)
+{
+     NVAL min, max, val;
+     char *cp;
+
+     VaChk_Range(1, 3);
+
+     val = aton(fargs[0]);
+
+     if (nfargs < 2) {		/* just the number; no bounds enforced */
+	 fval(buff, bufc, val);
+	 return;
+     }
+
+     if (nfargs > 1) {			/* if empty, don't check the minimum */
+	 for (cp = fargs[1]; *cp && isspace(*cp); cp++) ;
+	 if (*cp) {
+	     min = aton(fargs[1]);
+	     val = (val < min) ? min : val;
+	 }
+     }
+
+     if (nfargs > 2) {	       /* if empty, don't check the maximum */
+	 for (cp = fargs[2]; *cp && isspace(*cp); cp++) ;
+	 if (*cp) {
+	     max = aton(fargs[2]);
+	     val = (val > max) ? max : val;
+	 }
+     }
+     
+     fval(buff, bufc, val);
+}
+
+/* ---------------------------------------------------------------------------
  * Integer point distance functions: DIST2D, DIST3D
  */
 

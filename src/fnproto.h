@@ -121,6 +121,7 @@ XFUNCTION(fun_add);
 XFUNCTION(fun_mul);
 XFUNCTION(fun_max);
 XFUNCTION(fun_min);
+XFUNCTION(fun_bound);
 XFUNCTION(fun_dist2d);
 XFUNCTION(fun_dist3d);
 XFUNCTION(fun_ladd);
@@ -393,6 +394,7 @@ FUN flist[] = {
 {"BEFORE",	fun_before,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"BENCHMARK",   fun_benchmark,  2,  FN_NO_EVAL, CA_PUBLIC,	NULL},
 {"BNAND",	fun_bnand,	2,  0,		CA_PUBLIC,	NULL},
+{"BOUND",	fun_bound,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"BOR",		fun_bor,	2,  0,		CA_PUBLIC,	NULL},
 {"BORDER",	perform_border,	0,  FN_VARARGS|JUST_LEFT,
 						CA_PUBLIC,	NULL},

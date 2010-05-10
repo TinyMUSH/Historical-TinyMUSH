@@ -5877,18 +5877,18 @@ See also: @link, @open.
 	and()		or()		xor()
 	andbool()	notbool()	orbool()	xorbool()
 	cand()		cor()		candbool()	corbool()
+	land()		landbool()	lor()		lorbool()
 	lfalse()	ltrue()
  
   Miscellaneous:
-	add()		abs()		baseconv()	ceil()
-	dec()		dist2d()	dist3d()	div()		
-	e()		exp()		fdiv()		floor()		
-	floordiv()	inc()		ladd()		land()		
-	landbool()	lmax()		lmin()		ln()		
-	log()		lor()		lorbool()	max()		
-	min()		modulo()	mul()		pi()		
-	power()		remainder()	round()		sign()		
-	sqrt()		sub()		trunc()
+	add()		abs()		baseconv()	bound()
+	ceil()		dec()		dist2d()	dist3d()	
+	div()		e()		exp()		fdiv()		
+	floor()		floordiv()	inc()		ladd()		
+	lmax()		lmin()		ln()		log()
+	max()		min()		modulo()	mul()		
+	pi()		power()		remainder()	round()		
+	sign()		sqrt()		sub()		trunc()
  
   Continued in 'help Advanced Math Functions'.
  
@@ -7326,6 +7326,25 @@ performed and the walk down the list stops.
     > say abs(0)
     You say, "0"
 
+& BOUND()
+  Function: bound(<number>[,<minimum>[,<maximum>]])
+ 
+  This function enforces bounds-checking on a number. If <minimum> is
+  non-empty, and <number> is less than <minimum>, it will be set to <mininum>.
+  If <maximum> is non-empty, and <number> is greater than <maximum>, it will
+  be set to <maximum>. Whitespace is ignored when checking emptiness, but
+  non-numeric strings (such as 'abc') will be treated as 0.
+ 
+  Examples:
+     > say bound(0,1,10)
+     You say, "1"
+     > say bound(15,1,10)
+     You say, "15"
+     > say [bound(10,1)] ... [bound(10,1, )] ... [bound(10,1,%b)]
+     You say, "10 ... 10 ... 10"
+     > say [bound(-1,0,10)] ... [bound(-1, ,10)] ... [bound(-1,%b,10)]
+     You say, "0 ... -1 ... -1" 
+ 
 & MAX()
   Function: max(<number1>,<number2>[,<numberN]...)
  
