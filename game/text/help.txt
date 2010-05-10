@@ -6612,10 +6612,11 @@ The list of loaded modules can be obtained via the 'version' command.
                the name is enclosed in angle brackets, multi-letter variable
                names can be used. '%_<foo>' is equivalent to 'x(foo)'.
     %x<code> = ANSI color substitution.
-    %i0-%i9  = %i-0 to %i-9 are equivalent to itext(sub(ilev(),<num>)).
-    %i-<num> = Equivalent to itext(0) - itext(9).
-    %j0-%j9  = %j-0 to %j-9 are equivalent to itext2(sub(ilev(),<num>)).
-    %j-<num> = Equivalent to itext2(0) - itext2(9).
+    %i0-%i9  = %i0 to %i9 are the iter() text for the delta level specified.
+               %i0 is the same as ##. Equivalent to itext(sub(ilev(),<num>)).
+    %i-<num> = %i-0 to %i-9 are equivalent to itext(0) - itext(9).
+    %j0-%j9  = %j0 to %j9 are like itext2(sub(ilev(),<num>)). '%j0' is '#+'.
+    %j-<num> = %j-0 to %j-9 are equivalent to itext2(0) - itext2(9).
     %m       = Text of the last command executed.
     %c       = Depending on configuration, equivalent to either %m or %x.
  
@@ -9741,11 +9742,11 @@ performed and the walk down the list stops.
  
   itext() returns the '##'-equivalent substitution text at the appropriate
   nesting <level> of iter(), list(), whentrue() and whenfalse().
-  'itext(0)' is equivalent to '##'.
+  'itext(ilev())' is equivalent to '##'.
  
   itext2() returns the '#+'-equivalent substitution text at the appropriate
   nesting <level> of iter2(), list2(), whentrue2() and whenfalse2().
-  'itext2(0)' is equivalent to '#+'.
+  'itext2(ilev())' is equivalent to '#+'.
   
   This data can also be accessed through a percent-substitution.
   %i-0 is equivalent to itext(0), up to %i-9 equivalent to itext(9).
@@ -9763,7 +9764,7 @@ performed and the walk down the list stops.
   Function: inum(<level>)
  
   Returns the '#@'-equivalent substitution text at the appropriate nesting
-  <level> of iter(), list(), whentrue() and whenfalse(). 'inum(0)' is
+  <level> of iter(), list(), whentrue() and whenfalse(). 'inum(ilev())' is
   equivalent to '#@'.
  
   If used outside one of those functions, or with a nesting level that
