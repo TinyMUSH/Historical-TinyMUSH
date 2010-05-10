@@ -2004,13 +2004,29 @@ FUNCTION(handle_lattr)
 	dbref thing;
 	ATTR *attr;
 	char *bb_p;
-	int ca, total = 0, count_only;
+	int ca, total = 0, count_only, start, count, i, got;
 	Delim osep;
 
 	count_only = Is_Func(LATTR_COUNT);
 
 	if (!count_only) {
-	    VaChk_Only_Out(2);
+	    /* We have two possible syntaxes:
+	     * lattr(<whatever>[,<odelim>])
+	     * lattr(<whatever>,<start>,<count>[,<odelim>])
+	     */
+	    if (nfargs > 2) {
+		VaChk_Only_Out(4);
+		start = atoi(fargs[1]);
+		count = atoi(fargs[2]);
+		if ((start < 1) || (count < 1)) {
+		    safe_str("#-1 ARGUMENT OUT OF RANGE", buff, bufc);
+		    return;
+		}
+	    } else {
+		VaChk_Only_Out(2);
+		start = 1;
+		count = 0;
+	    }
 	}
 
 	/* Check for wildcard matching.  parse_attrib_wild checks for read
@@ -2021,16 +2037,19 @@ FUNCTION(handle_lattr)
 	olist_push();
 	if (parse_attrib_wild(player, fargs[0], &thing, 0, 0, 1, 1)) {
 		bb_p = *bufc;
-		for (ca = olist_first(); ca != NOTHING; ca = olist_next()) {
+		for (ca = olist_first(), i = 1, got = 0;
+		     (ca != NOTHING) && (!count || (got < count));
+		     ca = olist_next(), i++) {
 			attr = atr_num(ca);
 			if (attr) {
 			    if (count_only) {
 				total++;
-			    } else {
+			    } else if (i >= start) {
 				if (*bufc != bb_p) {
 				    print_sep(&osep, buff, bufc);
 				}
 				safe_str((char *)attr->name, buff, bufc);
+				got++;
 			    }
 			}
 		}

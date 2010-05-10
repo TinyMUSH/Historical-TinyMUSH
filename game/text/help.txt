@@ -9480,25 +9480,33 @@ performed and the walk down the list stops.
   See also: rand(), die(), lnum()
  
 & LATTR()
-  Function: lattr(<object>[/<wild-pattern>][, <odelim>])
+  Function:  lattr(<object>[/<wild-pattern>][, <odelim>])
+             lattr(<object>[/<wild-pattern>],<start>,<count>[, <odelim>])
  
   Returns a list of the attributes set on <object>.  If <wild-pattern> is
-  given, only attributes matching it are returned.
+  given, only attributes matching it are returned. The returned list is
+  space-separated by default, or <odelim>-separated if given.
+ 
+  If <start> and <count> are given, the list returned begins with the
+  <start>-number attribute in the list, and a maximum of <count> attributes
+  are returned. This is useful when the list exceeds the buffer limit.
  
   Example:
     > exam me
     Mortal(#226Pc)
     ....
-    VC:Mon Sep  9 12:09:01 1991
-    VE:baz
-    Last:Thu Dec 19 08:57:21 1991
-    VV(#2+):Foof!
-    Domain:Abusees
+    VC: Mon Sep  9 12:09:01 1991
+    VE: baz
+    Last: Thu Dec 19 08:57:21 1991
+    VV: Foof!
+    DOMAIN: Abusees
     ....
     > say lattr(me)
     You say, "Desc VC VE Last VV Domain"
     > say lattr(me/v*)
     You say, "VC VE VV"
+    > say lattr(me,3,2)
+    You say, "VE Last"
  
   See also: @dolist.
 
