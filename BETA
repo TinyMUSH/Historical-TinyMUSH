@@ -18,7 +18,7 @@ developers. ("RMG" refers to Robby Griffin, aka Alierak; he joined
 the development team on 3.0 beta 18 and is not individually credited
 after that point.)
 
-Release history:
+Major release history:
     TinyMUSH 3.0 beta 1: Initial beta release, 1999/09/27.
     TinyMUSH 3.0 gamma:  Standard "stable" release, 2000/12/01.
     TinyMUSH 3.1 beta 1: Initial beta release, 2002/05/08.
@@ -29,7 +29,7 @@ Release history:
 			TinyMUSH 3.2 Beta History
 =============================================================================
 
-Changes committed to CVS but are not yet in a release...
+Changes committed to CVS but are not yet in a release:
  
   - Enhancement: New @include command allows the inline inclusion of the
     action list from another attribute. Idea from PennMUSH.
@@ -47,13 +47,13 @@ Changes committed to CVS but are not yet in a release...
  
   - Enhancement: New function exclude() is an inverse form of elements().
  
+  - Enhancement: New function etimefmt(), inspired by PennMUSH, formats a
+    time interval in seconds, in terms of days, hours, minutes, and seconds.
+ 
   - Enhancement: New functions for coordinate grids; grid() etc.
-
+ 
   - Enhancement: New functions ltrue() and lfalse() test boolean-true and
     boolean-false on lists.
-
-  - Enhancement: New function unmatchall() is a reverse matchall(), which
-    gets the element numbers of list items that don't match a pattern.
  
   - Enhancement: New function qsub() provides "safe" string substitutions
     using local register data.
@@ -62,6 +62,9 @@ Changes committed to CVS but are not yet in a release...
  
   - Enhancement: Justification indicators on table(). Idea from PennMUSH.
 
+  - Enhancement: New function unmatchall() is a reverse matchall(), which
+    gets the element numbers of list items that don't match a pattern.
+ 
   - Enhancement: New functions vand(), vor(), vxor() perform boolean logic
     between lists.
 

@@ -16138,8 +16138,6 @@ The user-visible changes to TinyMUSH 3.2 (from TinyMUSH 3.1) can be
 found in the following help entries:
  
 'help 3.2 base'		New/enhanced base server and configuration directives.
-'help 3.2 attrs'	New/enhanced attributes and attribute flags.
-'help 3.2 flags'	New/enhanced flags and powers.
 'help 3.2 commands'	New/enhanced commands.
 'help 3.2 functions'	New/enhanced functions.
  
@@ -16157,13 +16155,24 @@ found in the following help entries:
  
 & 3.2 functions
  
+- elements() now supports a slicing syntax (ranges, steps, negative numbers).
+- table() now supports justification indicators.
+ 
+- New: Functions for coordinate grids. grid() and others.
+- New: align() and lalign() do newspaper-style multi-column formatting.
+- New: baseconv() does numeric base conversions.
+- New: benchmark() benchmarks softcode.
+- New: diffpos() string-comparison function.
 - New: esc() is a lightweight escape() for string substitution.
- 
+- New: etimefmt() formats time into days, hours, minutes, seconds.
+- New: exclude() is an inverse form of elements(), excluding a list of slices.
 - New: isalnum() checks if a string is alphanumeric.
- 
+- New: ltrue() and lfalse() test boolean truth of all elements in lists.
 - New: nofx() selectively prevents function side-effects.
- 
+- New: qsub() provides "safe", local-register-based string substitutions.
 - New: sandbox() is a general selective-limitation function.
+- New: stripchars() strips/replaces characters out of a string.
+- New: ucall() is a u() with selective preservation/restoration of registers.
+- New: unmatchall() is a reverse matchall(), finding elements that don't match.
+- New: vand(), vor(), vxor() perform boolean logic between lists.
  
-
-
