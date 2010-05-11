@@ -296,6 +296,7 @@ XFUNCTION(fun_repeat);
 XFUNCTION(perform_border);
 XFUNCTION(fun_cat);
 XFUNCTION(fun_strcat);
+XFUNCTION(fun_join);
 XFUNCTION(fun_strlen);
 XFUNCTION(fun_delete);
 XFUNCTION(fun_lit);
@@ -552,6 +553,7 @@ FUN flist[] = {
 						CA_PUBLIC,	NULL},
 {"ITEXT",	fun_itext,	1,  0,		CA_PUBLIC,	NULL},
 {"ITEXT2",	fun_itext2,	1,  0,		CA_PUBLIC,	NULL},
+{"JOIN",	fun_join,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
 {"KNOWS",	handle_okpres,	2,  PRESFN_KNOWS,
 						CA_PUBLIC,	NULL},
 {"LADD",	fun_ladd,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},

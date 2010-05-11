@@ -2206,7 +2206,7 @@ FUNCTION(fun_lalign)
 }
 
 /* ---------------------------------------------------------------------------
- * Misc functions.
+ * String concatenation.
  */
 
 FUNCTION(fun_cat)
@@ -2229,6 +2229,32 @@ FUNCTION(fun_strcat)
 		safe_str(fargs[i], buff, bufc);
 	}
 }
+
+FUNCTION(fun_join)
+{
+     Delim osep;
+     char *bb_p;
+     int i;
+
+     if (nfargs < 1)
+	 return;
+
+     VaChk_OutSep(1, 0);
+
+     bb_p = *bufc;
+     for (i = 1; i < nfargs; i++) {
+	 if (*fargs[i]) {
+	     if (*bufc != bb_p) {
+		 print_sep(&osep, buff, bufc);
+	     }
+	     safe_str(fargs[i], buff, bufc);
+	 }
+     }
+}
+
+/* ---------------------------------------------------------------------------
+ * Misc functions.
+ */
 
 FUNCTION(fun_strlen)
 {

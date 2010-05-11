@@ -5997,8 +5997,8 @@ See also: @link, @open.
   
   Other:
 	ansipos()	art()		beep()		cat()
-	foreach()	pos()		speak()		strcat()
-	strlen()	valid()		wordpos()
+	foreach()	join()		pos()		speak()		
+	strcat()	strlen()	valid()		wordpos()
  
 & STRUCTURE FUNCTIONS
   Topic: Structure functions
@@ -8865,7 +8865,29 @@ performed and the walk down the list stops.
     You say, "this is a test"
     > say cat(This is,another,test of the,CAT function)
     You say, "This is another test of the CAT function"
-
+ 
+  See also: strcat(), join().
+ 
+& JOIN()
+  Function: join(<output delim>,<string1>[,<string2>[,<stringN>]])
+ 
+  This function returns a string made up of <string1> through <stringN>
+  concatenated together, separated by <output delim> (treated as a space
+  if not given). Empty strings are ignored (and don't cause extra output
+  delimiters to be printed).
+ 
+  Example:
+    > say join( ,foo,bar,baz)
+    You say, "foo bar baz"
+    > say join(@@,foo,bar,baz)
+    You say, "foobarbaz"
+    > say join(-,foo,bar,baz)
+    You say, "foo-bar-baz"
+    > say join(-,foo,,baz)
+    You say, "foo-baz"
+ 
+  See also: cat(), strcat().
+ 
 & member()
   Function: member(<list>, <word>[, <delim>])
  
@@ -12717,6 +12739,8 @@ performed and the walk down the list stops.
   Example:
     > say [strcat(foo,bar,baz)]
     You say, "foobarbaz"
+ 
+  See also: cat(), join().
  
 & STRIPCHARS()
   Function: stripchars(<string>, <chars>[, <output delim>] )
