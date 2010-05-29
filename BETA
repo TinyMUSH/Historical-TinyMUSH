@@ -39,6 +39,9 @@ Changes committed to CVS but are not yet in a release:
  
   - Enhancement: New function benchmark() for benchmarking softcode. Idea
     from PennMUSH.
+
+  - Enhancement: New function bound() constrains a number between a minimum
+    and maximum. Idea from RhostMUSH.
  
   - Enhancement: New function diffpos() string-comparison function.
 
@@ -51,6 +54,15 @@ Changes committed to CVS but are not yet in a release:
     time interval in seconds, in terms of days, hours, minutes, and seconds.
  
   - Enhancement: New functions for coordinate grids; grid() etc.
+
+  - Enhancement: New function ibreak() breaks out of a loop used by iter() 
+    and related functions. Idea from RhostMUSH.
+
+  - Enhancement: New function join() joins strings without extraneous
+    delimiters. Useful for appending and so forth.
+
+  - Enhancement: lattr() can take an optional <start> and <count>, allowing
+    extraction of results too long for a single buffer.
  
   - Enhancement: New functions ltrue() and lfalse() test boolean-true and
     boolean-false on lists.
@@ -69,6 +81,8 @@ Changes committed to CVS but are not yet in a release:
     between lists.
 
   - Bugfix: baseconv() handles negative numbers. [3.2b1; Penn]
+
+  - Bugfix: itext2() is properly accessible. [3.1p6]
  
   - Misc: Updated copyright.
  

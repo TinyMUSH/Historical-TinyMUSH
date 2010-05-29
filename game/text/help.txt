@@ -16277,17 +16277,21 @@ found in the following help entries:
 & 3.2 functions
  
 - elements() now supports a slicing syntax (ranges, steps, negative numbers).
+- lattr() now takes an optional start and count, for returning partial results.
 - table() now supports justification indicators.
  
 - New: Functions for coordinate grids. grid() and others.
 - New: align() and lalign() do newspaper-style multi-column formatting.
 - New: baseconv() does numeric base conversions.
 - New: benchmark() benchmarks softcode.
+- New: bound() constrains a number between a minimum and a maximum. 
 - New: diffpos() string-comparison function.
 - New: esc() is a lightweight escape() for string substitution.
 - New: etimefmt() formats time into days, hours, minutes, seconds.
 - New: exclude() is an inverse form of elements(), excluding a list of slices.
+- New: ibreak() breaks out of a iter() loop and similar functions.
 - New: isalnum() checks if a string is alphanumeric.
+- New: join() joins strings without extraneous delimiters.
 - New: ltrue() and lfalse() test boolean truth of all elements in lists.
 - New: nofx() selectively prevents function side-effects.
 - New: qsub() provides "safe", local-register-based string substitutions.
