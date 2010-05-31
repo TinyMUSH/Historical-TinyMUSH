@@ -74,6 +74,8 @@ Changes committed to CVS but are not yet in a release:
     using local register data.
  
   - Enhancement: New function stripchars() for string-editing.
+
+  - Enhancement: New function tokens() processes complex lists.
  
   - Enhancement: Justification indicators on table(). Idea from PennMUSH.
 

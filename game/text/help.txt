@@ -5894,7 +5894,8 @@ See also: @link, @open.
 	sortby()	setdiff()	setinter()	setunion()
  
   Other:
- 	delimit()	itemize()	lpos()		words()
+ 	delimit()	itemize()	lpos()		tokens()
+	words()
   
 & MATH FUNCTIONS
   Topic: Math and Logic Functions
@@ -12180,6 +12181,27 @@ performed and the walk down the list stops.
     4 -- 5 -- 6
     7 -- 8 --"
  
+& TOKENS()
+  tokens(<list>[,<transform>][,<open>][,<close>][,<delim>][,<output delim>])
+ 
+  This function takes <list> and runs <transform> on each element of the
+  list, where <transform> is u-function, i.e., a #lambda, <attribute>, or
+  <obj>/<attribute>; if <transform. is not given, the elements of the list
+  will simply be returned. The output is <output delim>-separated. Both
+  <delim> and <output delim> default to a space.
+ 
+  What sets this function apart is that <open> and <close> can be used to
+  delineate list items, so that an element can embed the delimiter. This is
+  useful for quoted lists of names, such as: 'Amberyl "Guest Two" Javelin'.
+  <open> and <close> both default to the double-quote ". If <open> is given
+  but <close> is not, it will default to <open>.
+  
+  Examples:
+  > think tokens(Amberyl "Guest Two" Javelin, ,",",%b,|)
+    Amberyl|Guest Two|Javelin
+  > think tokens(Amberyl "Guest Two" Javelin,lit(#lambda/pmatch(%0)))
+    #3 #16 #728
+
 & DOING()
   doing(<player>)
  
@@ -16299,6 +16321,7 @@ found in the following help entries:
 - New: qsub() provides "safe", local-register-based string substitutions.
 - New: sandbox() is a general selective-limitation function.
 - New: stripchars() strips/replaces characters out of a string.
+- New: tokens() parses complex lists and runs a mapping transformation on them.
 - New: ucall() is a u() with selective preservation/restoration of registers.
 - New: unmatchall() is a reverse matchall(), finding elements that don't match.
 - New: vand(), vor(), vxor() perform boolean logic between lists.

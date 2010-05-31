@@ -2372,3 +2372,103 @@ FUNCTION(fun_group)
 
     XFREE(elems, "fun_group.elems");
 }
+
+/* ---------------------------------------------------------------------------
+ * fun_tokens: Take a string such as 'this "Joe Bloggs" John' and turn it
+ *              into an output delim-separated list.
+ *     tokens(<string>[,<obj>/<attr>][,<open>][,<close>][,<sep>][,<osep>])
+ */
+
+FUNCTION(fun_tokens)
+{
+     char *s, *t, *bb_p, *atext, *atextbuf, *objs[1], *str;
+     int anum, aflags, alen;
+     dbref aowner, thing;
+     ATTR *ap;
+     Delim omark, cmark, isep, osep;
+
+     if (!fargs[0] || !*fargs[0])
+	 return;
+     VaChk_Range(0, 6);
+     if (nfargs < 3) {
+	 omark.str[0] = '"';
+	 omark.len = 1;
+     } else {
+	 VaChk_Sep(&omark, 3, DELIM_STRING);
+     }
+     if (nfargs < 4) {
+	 Delim_Copy(&cmark, &omark);
+     } else {
+	 VaChk_Sep(&cmark, 4, DELIM_STRING);
+     }
+     VaChk_InSep(5, 0);
+     VaChk_DefaultOut(6) {
+	 VaChk_OutSep(6, 0);
+     }
+
+     if ((nfargs > 1) && fargs[1] && *fargs[1]) {
+	 Get_Ulambda(player, thing, fargs[1],
+		     anum, ap, atext, aowner, aflags, alen);
+	 atextbuf = alloc_lbuf("fun_tokens.atextbuf");
+     } else {
+	 atextbuf = NULL;
+     }
+
+     bb_p = *bufc;
+     s = trim_space_sep(fargs[0], &isep);
+
+     while (s && *s) {
+	 if ((omark.len == 1) ?
+	     (*s == omark.str[0]) : !strncmp(s, omark.str, omark.len)) {
+	     /* Now we're inside quotes. Find the end quote, and copy the
+	      * token inside of it. If we run off the end of the string,
+	      * we ignore the literal opening marker that we've skipped.
+	      */
+	     s += omark.len;
+	     if (*s) {
+		 t = split_token(&s, &cmark);
+	     } else {
+		 break;
+	     }
+	 } else {
+	     /* We are at a bare word. Split it off. */
+	     t = split_token(&s, &isep);
+	 }
+	 /* Pass the token through the transformation function if we have one,
+	  * or just copy it, if not.
+	  */
+	 if (t) {
+	     if (*bufc != bb_p) {
+		 print_sep(&osep, buff, bufc);
+	     }
+	     if (!atextbuf) {
+		 safe_str(t, buff, bufc);
+	     } else if ((mudstate.func_invk_ctr < mudconf.func_invk_lim) &&
+			!Too_Much_CPU()) {
+		 objs[0] = t;
+		 StrCopyKnown(atextbuf, atext, alen);
+		 str = atextbuf;
+		 exec(buff, bufc, player, caller, cause,
+		      EV_STRIP | EV_FCHECK | EV_EVAL, &str, objs, 1);
+	     }
+	 }
+	 /* Skip to start of next token, ignoring input separators. */
+	 if (s && *s) {
+	     if ((isep.len == 1) && (isep.str[0] == ' ')) { 
+		 s = trim_space_sep(s, &isep);
+	     } else {
+		 if (isep.len == 1) {
+		     while (*s == isep.str[0])
+			 s++;
+		 } else {
+		     while (*s && !strncmp(s, isep.str, isep.len))
+			 s += isep.len;
+		 }
+	     }
+	 }
+     }
+
+     if (atextbuf) {
+	 free_lbuf(atextbuf);
+     }
+}

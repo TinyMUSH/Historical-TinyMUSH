@@ -81,6 +81,7 @@ XFUNCTION(fun_ledit);
 XFUNCTION(fun_itemize);
 XFUNCTION(fun_choose);
 XFUNCTION(fun_group);
+XFUNCTION(fun_tokens);
 
 /* From funmath.c */
 
@@ -796,6 +797,7 @@ FUN flist[] = {
 {"TEL",		fun_tel,	2,  0,		CA_PUBLIC,	NULL},
 {"TIME",	fun_time,	0,  0,		CA_PUBLIC,	NULL},
 {"TIMEFMT",	fun_timefmt,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
+{"TOKENS",	fun_tokens,	0,  FN_VARARGS, CA_PUBLIC,	NULL},
 {"TOSS",	handle_pop,	0,  FN_VARARGS|FN_STACKFX|POP_TOSS,
 						CA_PUBLIC,	NULL},
 {"TRANSLATE",	fun_translate,	0,  FN_VARARGS,	CA_PUBLIC,	NULL},
