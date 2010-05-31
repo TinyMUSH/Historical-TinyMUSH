@@ -16274,6 +16274,8 @@ found in the following help entries:
  
 - New: @wait/until allows you to wait until a specified time.
  
+- New: @dump/optimize saves an optimized GDBM database.
+ 
 & 3.2 functions
  
 - elements() now supports a slicing syntax (ranges, steps, negative numbers).

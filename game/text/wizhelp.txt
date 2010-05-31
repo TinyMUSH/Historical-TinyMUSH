@@ -359,6 +359,8 @@ See also: exit_attr_defaults, player_attr_defaults, room_attr_defaults,
   The following options are available:
  
      flatfile   - Dump a flat file. This is a "hot backup".
+     optimize   - Optimize the GDBM database store, reducing its disk usage.
+                  This takes longer than a regular database save.
      structure  - Dump the structure portion of the database to a flat file
                   (the "numeric database").
      text       - Ensure that all changes to the text portion of the

@@ -33,6 +33,9 @@ Changes committed to CVS but are not yet in a release:
  
   - Enhancement: New @include command allows the inline inclusion of the
     action list from another attribute. Idea from PennMUSH.
+
+  - Enhancement: New /optimize switch to @dump does an optimized dump (allows
+    occasional optimized saves without using the opt_frequency parameter).
   
   - Enhancement: New functions align() and lalign() do newspaper-style 
     column formatting. Idea from PennMUSH.
