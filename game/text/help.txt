@@ -12185,8 +12185,8 @@ performed and the walk down the list stops.
   tokens(<list>[,<transform>][,<open>][,<close>][,<delim>][,<output delim>])
  
   This function takes <list> and runs <transform> on each element of the
-  list, where <transform> is u-function, i.e., a #lambda, <attribute>, or
-  <obj>/<attribute>; if <transform. is not given, the elements of the list
+  list, where <transform> is a u-function, i.e., a #lambda, <attribute>, or
+  <obj>/<attribute>; if <transform> is not given, the elements of the list
   will simply be returned. The output is <output delim>-separated. Both
   <delim> and <output delim> default to a space.
  
