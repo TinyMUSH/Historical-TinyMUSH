@@ -36,7 +36,7 @@ AC_SUBST(CONFIGURE_CMD)
 AC_MSG_CHECKING(whether to build with SQL support)
 AC_ARG_WITH(sql,
   [  --with-sql=TYPE         build with support for SQL database connection
-                          (TYPE can be mysql or msql) [default=no]],
+                    (TYPE can be mysql, msql, pgsql, or sqlite3) [default=no]],
   [
     case "$withval" in
       msql) SQL_S="db_msql.c"
@@ -45,6 +45,12 @@ AC_ARG_WITH(sql,
       mysql) SQL_S="db_mysql.c"
 	       SQL_O="db_mysql.o"
                AC_MSG_RESULT(mysql) ;;
+      pgsql) SQL_S="db_pgsql.c"
+	       SQL_O="db_pgsql.o"
+               AC_MSG_RESULT(pgsql) ;;
+      sqlite3) SQL_S="db_sqlite3.c"
+	       SQL_O="db_sqlite3.o"
+               AC_MSG_RESULT(sqlite3) ;;
       *) SQL_S="db_empty.c"
 	   SQL_O="db_empty.o"
            AC_MSG_RESULT(no) ;;
@@ -59,10 +65,12 @@ AC_MSG_CHECKING(for location of SQL header files)
 AC_ARG_WITH(sql-inc,
   [  --with-sql-inc=PATH     set the include path for SQL header files
                           [default for msql=/usr/local/Hughes/include]
-                          [default for mysql=/usr/local/include/mysql]],
+                          [default for mysql=/usr/local/include/mysql]
+                          [default for pgsql=/usr/local/pgsql/include]
+                          [default for sqlite3=/usr/include]],
   [
     case "$with_sql" in
-      msql | mysql) SQL_I="-I$withval"
+      msql | mysql | pgsql | sqlite3) SQL_I="-I$withval"
                       AC_MSG_RESULT($withval) ;;
       *) AC_MSG_RESULT(none) ;;
     esac
@@ -72,6 +80,10 @@ AC_ARG_WITH(sql-inc,
               AC_MSG_RESULT(/usr/local/Hughes/include) ;;
       mysql) SQL_I="-I/usr/local/include/mysql"
                AC_MSG_RESULT(/usr/local/include/mysql) ;;
+      pgsql) SQL_I="-I/usr/local/pgsql/include"
+               AC_MSG_RESULT(/usr/local/pgsql/include) ;;
+      sqlite3) SQL_I="-I/usr/include"
+               AC_MSG_RESULT(/usr/include) ;;
       *) AC_MSG_RESULT(none) ;;
     esac
   ])
@@ -81,10 +93,12 @@ AC_MSG_CHECKING(for location of SQL library files)
 AC_ARG_WITH(sql-libs,
   [  --with-sql-libs=PATH    set the library path for SQL library files
                           [default for msql=/usr/local/Hughes/lib]
-                          [default for mysql=/usr/local/lib/mysql]],
+                          [default for mysql=/usr/local/lib/mysql]
+                          [default for pgsql=/usr/local/pgsql/lib]
+                          [default for sqlite3=/usr/lib]],
   [
     case "$with_sql" in
-      msql | mysql) SQL_LIB="-L$withval"
+      msql | mysql | pgsql | sqlite3) SQL_LIB="-L$withval"
                       AC_MSG_RESULT($withval) ;;
       *) AC_MSG_RESULT(none) ;;
     esac
@@ -94,6 +108,10 @@ AC_ARG_WITH(sql-libs,
               AC_MSG_RESULT(/usr/local/Hughes/lib) ;;
       mysql) SQL_LIB="-L/usr/local/lib/mysql"
                AC_MSG_RESULT(/usr/local/lib/mysql) ;;
+      pgsql) SQL_LIB="-L/usr/local/pgsql/lib"
+               AC_MSG_RESULT(/usr/local/pgsql/lib) ;;
+      sqlite3) SQL_LIB="-L/usr/lib"
+               AC_MSG_RESULT(/usr/lib) ;;
       *) AC_MSG_RESULT(none) ;;
     esac
   ])
@@ -775,6 +793,16 @@ case "$with_sql" in
     AC_CHECK_LIB(mysqlclient, mysql_real_connect,
       LIBS="$SQL_LIB -lmysqlclient $LIBS",
       AC_MSG_ERROR(unable to build with mysql), ) ;;
+  pgsql)
+    LDFLAGS="$SQL_LIB $SAVELDFLAGS"
+    AC_CHECK_LIB(pq, PQconnectdb,
+      LIBS="$SQL_LIB -lpq $LIBS",
+      AC_MSG_ERROR(unable to build with pgsql), ) ;;
+  sqlite3)
+    LDFLAGS="$SQL_LIB $SAVELDFLAGS"
+    AC_CHECK_LIB(sqlite3, sqlite3_open,
+      LIBS="$SQL_LIB -lsqlite3 $LIBS",
+      AC_MSG_ERROR(unable to build with sqlite3), ) ;;
 esac
 
 # How to build GDBM if needed.
