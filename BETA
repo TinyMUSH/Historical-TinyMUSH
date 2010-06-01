@@ -29,7 +29,7 @@ Major release history:
 			TinyMUSH 3.2 Beta History
 =============================================================================
 
-Changes committed to CVS but are not yet in a release:
+06/01/2010: Beta 3
  
   - Enhancement: New @include command allows the inline inclusion of the
     action list from another attribute. Idea from PennMUSH.
@@ -91,6 +91,8 @@ Changes committed to CVS but are not yet in a release:
  
   - Misc: Updated copyright.
  
+-----------------------------------------------------------------------------
+
 03/02/2009: Beta 2
 
   - Enhancement: nofx() function selectively prevents function side-effects.
@@ -117,6 +119,8 @@ Changes committed to CVS but are not yet in a release:
   - Misc: Updated gdbm to version 1.8.3.
 
   - Fix: Fixed gdbm tools to work with gdbm 1.8.3.
+
+-----------------------------------------------------------------------------
 
 02/23/2009: TinyMUSH 3.2 beta release
 
