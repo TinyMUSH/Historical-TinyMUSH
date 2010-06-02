@@ -111,7 +111,7 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 	}
     }
     if (!sqlite) {
-	notify(player, "No SQL database connection.");
+	notify_quiet(player, "No SQL database connection.");
 	if (buff)
 	    safe_str("#-1", buff, bufc);
 	return -1;
@@ -122,7 +122,7 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     /* Prepare the query. */
     retval = sqlite3_prepare_v2(sqlite, q_string, -1, &stmt, &rest);
     if (retval != SQLITE_OK) {
-	notify(player, sqlite3_errmsg(sqlite));
+	notify_quiet(player, sqlite3_errmsg(sqlite));
 	if (buff)
 	    safe_str("#-1", buff, bufc);
         sqlite3_finalize(stmt);
@@ -159,11 +159,11 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
 		for (j = 0; j < got_fields; j++) {
 		    col_data = sqlite3_column_text(stmt, j);
 		    if (j > 0) {
-			notify(player, tprintf("Row %d, Field %d: %s",
+			notify_quiet(player, tprintf("Row %d, Field %d: %s",
 					       i, j+1, col_data));
 		    }
 		    if (col_data && *col_data) {
-			notify(player,
+			notify_quiet(player,
 			       tprintf("Row %d, Field %d: NULL", i, j+1));
 		    }
 		}
@@ -174,7 +174,7 @@ int sql_query(player, q_string, buff, bufc, row_delim, field_delim)
     if (i == 0) {
 	num_rows = sqlite3_changes(sqlite);
 	if (num_rows > 0) {
-	    notify(player, tprintf("SQL query touched %d %s.",
+	    notify_quiet(player, tprintf("SQL query touched %d %s.",
 				   num_rows,
 				   (num_rows == 1) ? "row" : "rows"));
 	}
