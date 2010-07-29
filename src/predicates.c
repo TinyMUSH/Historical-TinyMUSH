@@ -1327,6 +1327,13 @@ char *name, *command;
 		    (!God(thing) &&
 		     See_attr(player, thing, ap, aowner, aflags) &&
 		     (Wizard(player) || (aowner == Owner(player))))) {
+		    /* Check if cause already has an @prog input pending */
+		    DESC_ITER_PLAYER(doer, d) {
+			if (d->program_data != NULL) {
+			    notify(player, "Input already pending.");
+			    return;
+			}
+		    }
 		    atr_add_raw(doer, A_PROGCMD, atr_get_raw(parent, atr));
 		} else {
 			notify(player, NOPERM_MESSAGE);
@@ -1335,14 +1342,6 @@ char *name, *command;
 	} else {
 		notify(player, "No such attribute.");
 		return;
-	}
-
-	/* Check to see if the cause already has an @prog input pending */
-	DESC_ITER_PLAYER(doer, d) {
-		if (d->program_data != NULL) {
-			notify(player, "Input already pending.");
-			return;
-		}
 	}
 
 	program = (PROG *) XMALLOC(sizeof(PROG), "do_prog");
