@@ -232,6 +232,7 @@ void NDECL(cf_init)
 	mudconf.comma_say = 0;
 	mudconf.you_say = 1;
 	mudconf.c_cmd_subst = 1;
+	mudconf.player_name_min = 0;
 	mudconf.register_limit = 50;
 	mudconf.max_qpid = 10000;
 	
@@ -1820,6 +1821,7 @@ CONF conftable[] = {
 {(char *)"player_listen",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.player_listen,		(long)"@listen and ^-monitors are checked on players"},
 {(char *)"player_match_own_commands",	cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.match_mine_pl,		(long)"Players can match $-commands on themselves"},
 {(char *)"player_name_spaces",		cf_bool,	CA_GOD,		CA_PUBLIC,	&mudconf.name_spaces,		(long)"Player names can contain spaces"},
+{(char *)"player_name_minlength",	cf_int,		CA_GOD,		CA_GOD,		&mudconf.player_name_min,	0},
 {(char *)"player_parent",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.player_parent,		NOTHING},
 {(char *)"player_proto",		cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.player_proto,		NOTHING},
 {(char *)"player_attr_defaults",	cf_dbref,	CA_GOD,		CA_PUBLIC,	&mudconf.player_defobj,		NOTHING},

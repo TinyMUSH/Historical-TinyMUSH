@@ -483,9 +483,14 @@ const char *name;
 {
 	const char *cp, *good_chars;
 
-	/* Not too long and a good name for a thing */
+	/* Good name for a thing, not too long, and we either don't have a
+	 * minimum player name length, or we're sufficiently long.
+	 */
 
-	if (!ok_name(name) || (strlen(name) >= PLAYER_NAME_LIMIT))
+	if (!ok_name(name) ||
+	    (strlen(name) >= PLAYER_NAME_LIMIT) ||
+	    (mudconf.player_name_min &&
+	     (strlen(name) < mudconf.player_name_min)))
 		return 0;
 
 	if (mudconf.name_spaces || mudstate.standalone)

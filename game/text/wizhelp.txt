@@ -1466,14 +1466,14 @@ match_own_commands	move_match_more		no_ambiguous_match
 objeval_requires_control			page_requires_equals
 paranoid_allocate	pemit_any_object	pemit_far_players
 player_listen		player_match_own_commands
-player_name_spaces	public_flags		quiet_look
-quiet_whisper		quotas			read_remote_desc
-read_remote_name	recycling		require_cmds_flag
-robot_speech		rwho_transmit		safer_passwords
-say_uses_comma		say_uses_you		see_owned_dark		
-signal_action		space_compress		sweep_dark		
-switch_default_all	terse_shows_contents	terse_shows_exits	
-terse_shows_move_messages
+player_name_spaces	player_name_minlength	public_flags
+quiet_look		quiet_whisper		quotas			
+read_remote_desc	read_remote_name	recycling
+require_cmds_flag	robot_speech		rwho_transmit
+safer_passwords		say_uses_comma		say_uses_you		
+see_owned_dark		signal_action		space_compress		
+sweep_dark		switch_default_all	terse_shows_contents	
+terse_shows_exits	terse_shows_move_messages
 trace_topdown		typed_quotas		unowned_safe
 use_global_aconn	visible_wizards		wizard_obeys_linklock
 
@@ -2778,6 +2778,14 @@ use_global_aconn	visible_wizards		wizard_obeys_linklock
   This parameter is only checked if the match_own_commands parameter is
   set to yes.
   See also: match_own_commands.
+
+& player_name_minlength
+  Config parameter: player_name_minlength <number>.  Default: 0
+  Specifies the minimum length of a player name. If there is no minimum
+  length, this is not checked. The minimum length of a player name also
+  affects the minimum length of an @alias name. This can be used to prevent
+  players from setting very short aliases, which can be an annoyance to
+  other players.
 
 & player_name_spaces
   Config parameter: player_name_spaces <yes/no>.  Default: Yes
