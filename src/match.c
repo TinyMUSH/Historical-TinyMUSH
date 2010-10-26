@@ -79,10 +79,10 @@ int confidence;
  */
 
 static char *munge_space_for_match(name)
-char *name;
+const char *name;
 {
-	static char buffer[LBUF_SIZE];
-	char *p, *q;
+	static char buffer[LBUF_SIZE], *q;
+	const char *p;
 
 	p = name;
 	q = buffer;
@@ -522,7 +522,7 @@ int type;
 	md.pref_type = type;
 	md.match = NOTHING;
 	md.player = player;
-	md.string = munge_space_for_match((char *)name);
+	md.string = munge_space_for_match((const char *)name);
 	md.absolute_form = absolute_name(1);
 }
 

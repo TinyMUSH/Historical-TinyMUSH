@@ -245,7 +245,7 @@ char *message;
  */
 
 static int add_mail_message_nosig(message)
-char *message;
+const char *message;
 {
 	int number;
 
@@ -265,7 +265,7 @@ char *message;
  */
 
 static void new_mail_message(message, number)
-char *message;
+const char *message;
 int number;
 {
 	mod_mail_config.mail_list[number].message = XSTRDUP(message, "new_mail_message");

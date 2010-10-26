@@ -371,7 +371,7 @@ const char *s;
 		else if (NoBleed(d->player))
 		    new = normal_to_white(s);
 		else if (d->colormap)
-		     new = remap_colors(s, d->colormap);
+		     new = (char *)remap_colors(s, d->colormap);
 		else
 		    new = (char *) s;
 		queue_write(d, new, strlen(new));

@@ -973,7 +973,8 @@ int min;
 
 INLINE void
 safe_copy_str(src, buff, bufp, max)
-    char *src, *buff, **bufp;
+    const char *src;
+    char *buff, **bufp;
     int max;
 {
     char *tp, *maxtp, *longtp;
