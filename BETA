@@ -90,7 +90,10 @@ Major release history:
   - Bugfix: itext2() is properly accessible. [3.1p6]
  
   - Misc: Updated copyright.
- 
+
+  - Bugfix: stpcpy() conflict with string.h's included function (Mac OS X
+    10.6.5).
+
 -----------------------------------------------------------------------------
 
 03/02/2009: Beta 2

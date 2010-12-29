@@ -45,7 +45,7 @@ unsigned long addr;
 /*
  * copy a string, returning pointer to the null terminator of dest 
  */
-char *stpcpy(dest, src)
+char *stpcopy(dest, src)
 char *dest;
 const char *src;
 {
@@ -172,7 +172,7 @@ char *orig_arg;
 		(void)fclose(f);
 		p = format_inet_addr(buf2, ntohl(sin.sin_addr.s_addr));
 		*p++ = ' ';
-		p = stpcpy(p, result);
+		p = stpcopy(p, result);
 		*p++ = '\n';
 		*p++ = '\0';
 	}
