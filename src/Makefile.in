@@ -117,7 +117,8 @@ AUX_S	= mkindx.c unsplit.c slave.c recover.c logwatch.c
 VER_S	= version.c
 VER_O	= version.o
 VER_I	= patchlevel.h
-VER_FLG	= -DMUSH_BUILD_DATE="\"`date`\"" \
+VER_FLG	= -DMUSH_BUILD_HOST="\"`uname -v`\"" \
+	  -DMUSH_BUILD_DATE="\"`date`\"" \
 	  -DMUSH_BUILD_NUM="\"`sh ./buildnum.sh`\"" \
 	  -DMUSH_BUILD_COMPILER="\"$(CC)\"" \
 	  -DMUSH_BUILD_CFLAGS="\"$(ALLCFLAGS)\"" \

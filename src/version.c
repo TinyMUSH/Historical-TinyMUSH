@@ -56,6 +56,7 @@ int extra;
 	notify(player, mudstate.version);
 	notify(player, tprintf("Build date: %s", MUSH_BUILD_DATE));
 	if (Wizard(player)) {
+		notify(player, tprintf("Build platform: %s", MUSH_BUILD_HOST));
 		notify(player, tprintf("Build info: %s", mudstate.buildinfo));
 	}
 	if (mudstate.modloaded[0]) {
