@@ -119,7 +119,7 @@ extern int gdbm_fdesc __P((GDBM_FILE));
 #define	GDBM_CANNOT_REPLACE	17
 #define	GDBM_ILLEGAL_DATA	18
 #define	GDBM_OPT_ALREADY_SET	19
-#define	GDBM_OPT_ILLEGAL	29
+#define	GDBM_OPT_ILLEGAL	20
 typedef int gdbm_error;		/* For compatibilities sake. */
 extern gdbm_error gdbm_errno;
 
