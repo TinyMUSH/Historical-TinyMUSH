@@ -1,0 +1,1 @@
+modules/mail/mail.o: modules/mail/mail.c api.h copyright.h autoconf.h config.h alloc.h flags.h htab.h mudconf.h ltdl.h udb.h db.h udb_defs.h externs.h interface.h command.h match.h attrs.h powers.h ansi.h functions.h modules/mail/mail.h copyright.h
