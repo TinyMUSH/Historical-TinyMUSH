@@ -24,10 +24,15 @@ Major release history:
     TinyMUSH 3.1 beta 1: Initial beta release, 2002/05/08.
     TinyMUSH 3.1 gamma:  Standard "stable" release, 2004/06/21.
     TinyMUSH 3.2 beta 1: Initial beta release, 2009/02/23.
+    TinyMUSH 3.2 Gamma:  Standard "stable" release, 2011/06/06
 
 =============================================================================
 			TinyMUSH 3.2 Beta History
 =============================================================================
+
+06/06/2011: TinyMUSH 3.1 gamma release
+
+  - Fix: A typo in gdbm.h (3.1)
 
 06/01/2010: Beta 3
  
